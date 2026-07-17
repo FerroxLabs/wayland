@@ -9,6 +9,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { constants, createReadStream } from 'node:fs';
 import {
   chmod,
+  cp,
   copyFile,
   lstat,
   mkdir,
@@ -22,6 +23,7 @@ import {
   unlink,
   writeFile,
 } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import {
   CLASSIC_RECOVERY_RELEASE,
@@ -38,8 +40,21 @@ import {
 } from './classicReleaseTrust';
 import { materializeIsolatedRecovery, type IsolatedRecoveryReceipt } from './isolatedRecovery';
 import { unsealRecoveryFile } from './recoverySealing';
+import {
+  publishClassicProjectionAuthority,
+  type ClassicAuthorityEnvelopeCodec,
+  type PublishedClassicProjectionAuthority,
+} from './classicConstitutionPromotion';
 import { transformDesktopState53To52 } from './recoveryStateTransformer';
 import { validateRestoredDatabase } from './restoredDatabaseValidation';
+import {
+  loadExternalRecoveryAuthority,
+  resolveExternalRecoveryAuthorityRoot,
+  type ExternalRecoveryVaultBackend,
+} from './externalRecoveryAuthority';
+import type { RecoveryKeyState } from './externalRecoveryCrypto';
+import { createProductionExternalRecoveryVaultBackend } from './recoveryCapture';
+import { ClassicRecoveryLocatorAuthority } from './classicRecoveryLocator';
 
 const CLASSIC_VERSION = '0.11.8';
 const SOURCE_SCHEMA = 53;
@@ -63,6 +78,12 @@ const RUNTIME_ROOTS = new Set([
   'webui-activity.json',
   'webui.config.json',
 ]);
+
+const TEST_ONLY_PROJECTION_AUTHORITY_CODEC: ClassicAuthorityEnvelopeCodec = {
+  securityClass: 'test-only',
+  sealFile: async (sourcePath, destinationPath) => copyFile(sourcePath, destinationPath, constants.COPYFILE_EXCL),
+  unsealFile: async (sourcePath, destinationPath) => copyFile(sourcePath, destinationPath, constants.COPYFILE_EXCL),
+};
 
 type MaterializedFile = IsolatedRecoveryReceipt['files'][number];
 
@@ -139,6 +160,15 @@ export type ClassicRecoveryLaunchReceipt = {
     desktopSchemaVersion: 53;
     materializedReceiptSha256: string;
   };
+  constitutionProjection: {
+    contract: 'wayland-constitution-classic-projection/1.0';
+    sourceRevisionAuthorityEnvelopeSha256: string | null;
+    sourceRevisionBinding: 'v2-authority-envelope' | 'legacy-v1-content-only';
+    sourceSnapshotDigest: `sha256:${string}`;
+    projectedFiles: Array<{ restorePath: string; classicPath: string; sha256: string }>;
+    excludedV2State: ['revision-authority', 'authenticated-keys', 'archives-journals-history', 'locks'];
+    reupgrade: 'restore-exact-v2-snapshot-or-cas-import-required';
+  };
   classic: {
     appVersion: '0.11.8';
     binarySha256: string;
@@ -174,6 +204,7 @@ export type PreparedClassicRecovery = {
   coreDefaultRoot: string;
   receiptPath: string;
   receipt: ClassicRecoveryLaunchReceipt;
+  projectionAuthority: PublishedClassicProjectionAuthority;
   binaryPath: string;
   binarySha256: string;
   args: string[];
@@ -188,6 +219,25 @@ export type PrepareClassicRecoveryInputs = {
   classicBinarySha256: string;
 };
 
+/**
+ * Classic v0.11.8 predates the native Constitution transaction protocol. Its
+ * compatibility boundary is therefore an isolated recovery tree, never the
+ * live profile. HOME covers POSIX homedir(); USERPROFILE is required for the
+ * equivalent Windows homedir() boundary.
+ */
+export function classicRecoveryEnvironmentOverrides(
+  homeRoot: string,
+  coreDefaultRoot: string,
+  platform: NodeJS.Platform = process.platform
+): Record<string, string> {
+  return {
+    WAYLAND_DISABLE_AUTO_UPDATE: '1',
+    WAYLAND_HOME: coreDefaultRoot,
+    HOME: homeRoot,
+    ...(platform === 'win32' ? { USERPROFILE: homeRoot } : {}),
+  };
+}
+
 export type PrepareClassicRecoverySnapshotInputs = Omit<PrepareClassicRecoveryInputs, 'materializedRoot'> & {
   snapshotRoot: string;
 };
@@ -197,7 +247,16 @@ export type ClassicRecoveryLauncherDependencies = {
   materializeSnapshot?: (snapshotRoot: string, destinationRoot: string) => Promise<void>;
   now?: () => Date;
   createPreparationId?: () => string;
+  candidateCommit?: string;
+  projectionAuthorityCodec?: ClassicAuthorityEnvelopeCodec;
+  externalRecoveryVault?: ExternalRecoveryVaultBackend;
+  validateExternalRecoveryAuthorityReadOnly?: typeof validateExternalRecoveryAuthorityReadOnly;
 };
+
+type RestartSafeProjectionInput = Omit<
+  Parameters<typeof publishClassicProjectionAuthority>[0],
+  'recoveryAuthorityParent' | 'codec'
+>;
 
 export type LaunchClassicRecoveryDependencies = ClassicRecoveryLauncherDependencies & {
   spawnClassic?: (
@@ -229,6 +288,107 @@ type ClassicSpawner = NonNullable<LaunchClassicRecoveryDependencies['spawnClassi
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+export function compareRecoveryAuthorityCodeUnits(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+export async function withExternalRecoveryAuthoritySnapshot<T>(
+  liveUserDataRoot: string,
+  operation: (snapshotUserDataRoot: string) => Promise<T>
+): Promise<T> {
+  const liveAuthorityRoot = resolveExternalRecoveryAuthorityRoot(liveUserDataRoot);
+  const liveAuthorityStat = await lstat(liveAuthorityRoot);
+  if (liveAuthorityStat.isSymbolicLink() || !liveAuthorityStat.isDirectory()) {
+    throw new Error('Classic preparation requires a real existing external recovery authority directory.');
+  }
+  const validationRoot = await mkdtemp(path.join(os.tmpdir(), 'wayland-external-recovery-validation-'));
+  try {
+    const validationUserData = path.join(validationRoot, 'user-data');
+    const validationConstitution = path.join(validationUserData, 'constitution');
+    await mkdir(validationConstitution, { recursive: true, mode: 0o700 });
+    await cp(liveAuthorityRoot, resolveExternalRecoveryAuthorityRoot(validationUserData), {
+      recursive: true,
+      dereference: false,
+      errorOnExist: true,
+      force: false,
+      verbatimSymlinks: true,
+    });
+    return await operation(validationUserData);
+  } finally {
+    await rm(validationRoot, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Validate a snapshot copy of the live authority. The authority loader may lock or reconcile only the disposable copy;
+ * the live userData tree remains byte-for-byte untouched so Classic's liveStateTouched:false claim remains honest.
+ */
+export async function validateExternalRecoveryAuthorityReadOnly(
+  liveUserDataRoot: string,
+  vault: ExternalRecoveryVaultBackend
+): Promise<RecoveryKeyState> {
+  return withExternalRecoveryAuthoritySnapshot(liveUserDataRoot, async (validationUserData) => {
+    const loaded = await loadExternalRecoveryAuthority({
+      userDataRoot: validationUserData,
+      vault,
+      existingRecordDigests: async () => [],
+    });
+    loaded.activeSecret.fill(0);
+    return loaded.state;
+  });
+}
+
+/**
+ * Publish the production projection, atomically publish its Classic tree, then
+ * append the sole restart-discovery activation. A losing contender removes
+ * only its never-launched prepared tree; authenticated records remain retained.
+ */
+export async function publishRestartSafeClassicPreparation(input: {
+  liveUserDataRoot: string;
+  authorityUserDataRoot: string;
+  vault: ExternalRecoveryVaultBackend;
+  stagingRoot: string;
+  destinationRoot: string;
+  projectionInput: RestartSafeProjectionInput;
+  now?: () => Date;
+}): Promise<PublishedClassicProjectionAuthority> {
+  const locator = new ClassicRecoveryLocatorAuthority({
+    liveUserDataRoot: input.liveUserDataRoot,
+    authorityUserDataRoot: input.authorityUserDataRoot,
+    vault: input.vault,
+    now: input.now,
+  });
+  const existing = await locator.snapshot();
+  if (existing.active) {
+    throw new Error('Classic recovery already has an active restart-safe preparation.');
+  }
+  const layout = await locator.ensureWritableLayout();
+  const published = await publishClassicProjectionAuthority({
+    ...input.projectionInput,
+    recoveryAuthorityParent: layout.recordsRoot,
+    codec: await locator.createRecordCodec(input.projectionInput.preparationId),
+  });
+  await assertAbsent(input.destinationRoot, 'Classic recovery destination');
+  await rename(input.stagingRoot, input.destinationRoot);
+  try {
+    await locator.activate({
+      preparationId: input.projectionInput.preparationId,
+      projectionAuthoritySha256: published.authorityEnvelopeSha256,
+    });
+  } catch (error) {
+    try {
+      await rm(input.destinationRoot, { recursive: true, force: true });
+    } catch (cleanupError) {
+      throw new AggregateError(
+        [error, cleanupError],
+        'Classic recovery activation and never-launched destination cleanup both failed.'
+      );
+    }
+    throw error;
+  }
+  return published;
 }
 
 function validateClassicBinaryTrustReceipt(value: unknown, binarySha256: string): ClassicBinaryTrustReceipt {
@@ -354,7 +514,7 @@ async function listFiles(root: string): Promise<string[]> {
   const files: string[] = [];
   const visit = async (directory: string): Promise<void> => {
     const entries = await readdir(directory, { withFileTypes: true });
-    entries.sort((left, right) => left.name.localeCompare(right.name));
+    entries.sort((left, right) => compareRecoveryAuthorityCodeUnits(left.name, right.name));
     for (const entry of entries) {
       const candidate = path.join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new Error(`Materialized recovery contains a symbolic link: ${candidate}`);
@@ -498,6 +658,23 @@ function targetForMaterializedFile(
       const top = relative.split('/')[0];
       if (!RUNTIME_ROOTS.has(top)) throw new Error(`Unsupported Classic runtime authority: ${restorePath}`);
       return path.join(roots.desktopUserData, ...relative.split('/'));
+    }
+    case 'constitution.revision-authority':
+      return null; // v2 key authority must never enter a v0.11.8 runtime.
+    case 'constitution.filesystem': {
+      const prefix = 'constitution/files/';
+      if (!restorePath.startsWith(prefix)) {
+        throw new Error(`Constitution filesystem restore path escaped its authority: ${restorePath}`);
+      }
+      const relative = restorePath.slice(prefix.length);
+      if (
+        relative === 'CONSTITUTION.md' ||
+        relative === 'SOUL.md' ||
+        /^specialists\/[A-Za-z0-9_-]+\.md$/.test(relative)
+      ) {
+        return path.join(roots.home, '.wayland', ...relative.split('/'));
+      }
+      return null; // authenticated keys, v2 archives/journals/history, and locks stay out.
     }
     case 'core.default-profile': {
       const prefix = 'core/default/';
@@ -862,6 +1039,13 @@ export async function prepareClassicRecovery(
   }
 
   const verified = await verifyMaterializedRecovery(materializedRoot);
+  let productionVault: ExternalRecoveryVaultBackend | undefined;
+  if (binaryTrust.contract === 'wayland-classic-binary-trust/1.0') {
+    productionVault = dependencies.externalRecoveryVault ?? (await createProductionExternalRecoveryVaultBackend());
+    const validateAuthority =
+      dependencies.validateExternalRecoveryAuthorityReadOnly ?? validateExternalRecoveryAuthorityReadOnly;
+    await validateAuthority(liveUserDataRoot, productionVault);
+  }
   const preparationId =
     (dependencies.createPreparationId?.() ?? randomUUID()).replace(/[^a-zA-Z0-9._-]+/g, '-') || 'classic';
   const lockPath = path.join(parent, `.${path.basename(destinationRoot)}.classic-recovery.lock`);
@@ -881,12 +1065,55 @@ export async function prepareClassicRecovery(
     });
 
     const roots = { desktopUserData, home, coreDefault };
+    const revisionEnvelopes = verified.receipt.files.filter(
+      (file) =>
+        file.authority === 'constitution.revision-authority' &&
+        file.restorePath === 'desktop/constitution/revision-authority.enc'
+    );
+    if (revisionEnvelopes.length > 1) {
+      throw new Error('Classic projection contains conflicting Constitution revision authority envelope receipts.');
+    }
+    const projectedConstitutionFiles: ClassicRecoveryLaunchReceipt['constitutionProjection']['projectedFiles'] = [];
+    const projectionAuthorityFiles: Array<{
+      restorePath: string;
+      classicPath: string;
+      sha256: string;
+      size: number;
+      contentBase64: string;
+    }> = [];
     for (const file of verified.receipt.files) {
       const target = targetForMaterializedFile(file, roots);
       if (!target) continue;
       const source = path.join(materializedRoot, ...canonicalRestorePath(file.restorePath).split('/'));
       await copyReceiptFile(source, target);
+      if (file.authority === 'constitution.filesystem') {
+        const projected = {
+          restorePath: file.restorePath,
+          classicPath: path.relative(stagingRoot, target).split(path.sep).join('/'),
+          sha256: file.sha256,
+        };
+        projectedConstitutionFiles.push(projected);
+        const contents = await readFile(source);
+        projectionAuthorityFiles.push({
+          ...projected,
+          sha256: `sha256:${file.sha256}`,
+          size: contents.byteLength,
+          contentBase64: contents.toString('base64'),
+        });
+      }
     }
+    projectedConstitutionFiles.sort((left, right) =>
+      compareRecoveryAuthorityCodeUnits(left.restorePath, right.restorePath)
+    );
+    const revisionEnvelope = revisionEnvelopes[0] ?? null;
+    const sourceSnapshotDigest = `sha256:${createHash('sha256')
+      .update(
+        JSON.stringify({
+          sourceRevisionAuthorityEnvelopeSha256: revisionEnvelope?.sha256 ?? null,
+          projectedFiles: projectedConstitutionFiles,
+        })
+      )
+      .digest('hex')}` as const;
     await mkdir(coreDefault, { recursive: true });
     await mkdir(path.join(home, '.wayland', 'profiles'), { recursive: true });
     await hardenClassicConfig(path.join(desktopUserData, 'config'));
@@ -912,6 +1139,15 @@ export async function prepareClassicRecovery(
         appVersion: verified.receipt.sourceAppVersion,
         desktopSchemaVersion: SOURCE_SCHEMA,
         materializedReceiptSha256: verified.receiptSha256,
+      },
+      constitutionProjection: {
+        contract: 'wayland-constitution-classic-projection/1.0',
+        sourceRevisionAuthorityEnvelopeSha256: revisionEnvelope?.sha256 ?? null,
+        sourceRevisionBinding: revisionEnvelope ? 'v2-authority-envelope' : 'legacy-v1-content-only',
+        sourceSnapshotDigest,
+        projectedFiles: projectedConstitutionFiles,
+        excludedV2State: ['revision-authority', 'authenticated-keys', 'archives-journals-history', 'locks'],
+        reupgrade: 'restore-exact-v2-snapshot-or-cas-import-required',
       },
       classic: {
         appVersion: CLASSIC_VERSION,
@@ -940,8 +1176,59 @@ export async function prepareClassicRecovery(
       flag: 'wx',
       mode: 0o600,
     });
-    await assertAbsent(destinationRoot, 'Classic recovery destination');
-    await rename(stagingRoot, destinationRoot);
+    const candidateCommit = dependencies.candidateCommit ?? process.env.WAYLAND_BUILD_COMMIT ?? null;
+    if (!candidateCommit && binaryTrust.contract !== 'wayland-classic-binary-trust-test-only/1.0') {
+      throw new Error('Production Classic projection authority requires the exact candidate build commit.');
+    }
+    const revisionAuthorityEnvelope = revisionEnvelope
+      ? await readFile(path.join(materializedRoot, ...canonicalRestorePath(revisionEnvelope.restorePath).split('/')))
+      : null;
+    const projectionInput = {
+      preparationId,
+      classicRoot: destinationRoot,
+      classicRootIdentitySource: stagingRoot,
+      sourceAppVersion: verified.receipt.sourceAppVersion,
+      candidateAppVersion: process.env.npm_package_version ?? '0.11.18',
+      producerCommit:
+        binaryTrust.contract === 'wayland-classic-binary-trust/1.0' ? binaryTrust.tagCommit : 'test-only-fixture',
+      candidateCommit: candidateCommit ?? 'test-only-fixture',
+      sourceSnapshotDigest,
+      sourceRevisionAuthorityEnvelopeSha256: revisionEnvelope?.sha256 ?? null,
+      sourceRevisionAuthorityEnvelope: revisionAuthorityEnvelope,
+      projectedFiles: projectionAuthorityFiles,
+      createdAt: receipt.preparedAt,
+      authentication:
+        binaryTrust.contract === 'wayland-classic-binary-trust/1.0' ? ('os-vault' as const) : ('test-only' as const),
+    };
+    let projectionAuthority: PublishedClassicProjectionAuthority;
+    if (binaryTrust.contract === 'wayland-classic-binary-trust/1.0') {
+      if (dependencies.projectionAuthorityCodec) {
+        throw new Error('Production Classic preparation forbids caller-supplied projection codecs.');
+      }
+      projectionAuthority = await withExternalRecoveryAuthoritySnapshot(
+        liveUserDataRoot,
+        async (snapshotUserDataRoot) =>
+          publishRestartSafeClassicPreparation({
+            liveUserDataRoot,
+            authorityUserDataRoot: snapshotUserDataRoot,
+            vault: productionVault!,
+            stagingRoot: stagingRoot!,
+            destinationRoot,
+            projectionInput,
+            now: dependencies.now,
+          })
+      );
+      stagingRoot = undefined;
+    } else {
+      projectionAuthority = await publishClassicProjectionAuthority({
+        ...projectionInput,
+        recoveryAuthorityParent: path.join(parent, '.wayland-classic-recovery-authority'),
+        codec: dependencies.projectionAuthorityCodec ?? TEST_ONLY_PROJECTION_AUTHORITY_CODEC,
+      });
+      await assertAbsent(destinationRoot, 'Classic recovery destination');
+      await rename(stagingRoot, destinationRoot);
+      stagingRoot = undefined;
+    }
 
     const finalDesktopUserData = path.join(destinationRoot, 'desktop-user-data');
     const finalHome = path.join(destinationRoot, 'classic-home');
@@ -953,15 +1240,11 @@ export async function prepareClassicRecovery(
       coreDefaultRoot: finalCoreDefault,
       receiptPath: path.join(destinationRoot, LAUNCH_RECEIPT_NAME),
       receipt,
+      projectionAuthority,
       binaryPath,
       binarySha256,
       args: [`--user-data-dir=${finalDesktopUserData}`],
-      envOverrides: {
-        WAYLAND_DISABLE_AUTO_UPDATE: '1',
-        WAYLAND_HOME: finalCoreDefault,
-        HOME: finalHome,
-        ...(process.platform === 'win32' ? { USERPROFILE: finalHome } : {}),
-      },
+      envOverrides: classicRecoveryEnvironmentOverrides(finalHome, finalCoreDefault),
     };
   } finally {
     await lock.close().catch((): undefined => undefined);

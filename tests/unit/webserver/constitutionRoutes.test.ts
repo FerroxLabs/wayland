@@ -100,12 +100,17 @@ vi.mock('../../../src/process/webserver/middleware/security', () => ({
 }));
 
 import { registerConstitutionRoutes } from '@process/webserver/routes/constitutionRoutes';
+import { ConstitutionArchiveRecoveryServiceError } from '@process/services/constitution/constitutionArchiveRecoveryService';
 
 type CapturedHandler = (req: Request, res: Response) => unknown;
 const passAuth: RequestHandler = (_req, _res, next) => next();
 
 /** Capture each route's final handler by handing register a stub Express app. */
-function captureHandlers(owner?: unknown): {
+function captureHandlers(
+  owner?: unknown,
+  recovery?: unknown,
+  resolveClassicRecovery?: unknown
+): {
   get: Record<string, CapturedHandler>;
   post: Record<string, CapturedHandler>;
 } {
@@ -119,7 +124,7 @@ function captureHandlers(owner?: unknown): {
       post[path] = middleware[middleware.length - 1];
     },
   } as unknown as Express;
-  registerConstitutionRoutes(app, passAuth, owner as never);
+  registerConstitutionRoutes(app, passAuth, owner as never, recovery as never, resolveClassicRecovery as never);
   return { get, post };
 }
 
@@ -209,6 +214,225 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
       success: true,
       data: { state: 'absent', revision: 'rev:v1:internal-absent' },
     });
+  });
+
+  it('returns authenticated archive metadata without prose or mutation authority', () => {
+    const inventory = {
+      success: true,
+      data: {
+        contract: 'wayland-constitution-archive-recovery-dto/1.0',
+        archives: [
+          {
+            archiveId: '11111111-1111-4111-8111-111111111111',
+            archivedAt: '2026-07-17T01:02:03.004Z',
+            targetKind: 'constitution',
+            specialistId: null,
+            sourceName: 'CONSTITUTION.md',
+            bytes: 42,
+            targetRevision: 'rev:v1:archive',
+          },
+        ],
+      },
+    } as const;
+    const recovery = { listArchives: vi.fn(() => inventory) };
+    const res = makeRes();
+    captureHandlers(undefined, recovery).get['/api/constitution/archives'](makeReq({ userId: 'u1' }), res);
+
+    expect(res._json).toEqual(inventory);
+    expect(res._headers).toMatchObject({ 'Cache-Control': 'no-store', Pragma: 'no-cache' });
+    expect(JSON.stringify(res._json)).not.toContain('password');
+    expect(JSON.stringify(res._json)).not.toContain('content');
+  });
+
+  it('passes one client operation identity through hosted restore and challenges only when requested', async () => {
+    const principal = { kind: 'hosted-subject', subjectSha256: `sha256:${'a'.repeat(64)}` };
+    const recovery = {
+      hostedPrincipalBinding: vi.fn(() => principal),
+      restore: vi.fn(async (_principal, _request, authorize) => {
+        await authorize(principal, 'correct');
+        return { revision: 'rev:v1:restored', receiptId: 'receipt-restored' };
+      }),
+    };
+    const request = {
+      operationId: '22222222-2222-4222-8222-222222222222',
+      archiveId: '33333333-3333-4333-8333-333333333333',
+      expectedArchiveRevision: 'rev:v1:archive',
+      password: 'correct',
+      expectedRevision: 'rev:v1:target',
+    };
+    const res = makeRes();
+    await captureHandlers(undefined, recovery).post['/api/constitution/archives/restore'](
+      makeReq({ body: request, userId: 'u1', secure: true }),
+      res
+    );
+
+    expect(recovery.hostedPrincipalBinding).toHaveBeenCalledWith('u1');
+    expect(recovery.restore).toHaveBeenCalledWith(principal, request, expect.any(Function));
+    expect(mockVerifyStepUp).toHaveBeenCalledWith(expect.anything(), 'correct');
+    expect(res._json).toEqual({
+      success: true,
+      data: {
+        status: 'committed',
+        operationId: request.operationId,
+        revision: 'rev:v1:restored',
+        receiptId: 'receipt-restored',
+      },
+    });
+  });
+
+  it('rejects unknown restore fields and maps wrong-principal lookup without enumeration', async () => {
+    const recovery = {
+      hostedPrincipalBinding: vi.fn(() => ({ kind: 'hosted-subject', subjectSha256: `sha256:${'b'.repeat(64)}` })),
+      restore: vi.fn(async () => {
+        throw new ConstitutionArchiveRecoveryServiceError('OPERATION_NOT_FOUND', 'record exists for another user');
+      }),
+    };
+    const request = {
+      operationId: '44444444-4444-4444-8444-444444444444',
+      archiveId: '55555555-5555-4555-8555-555555555555',
+      expectedArchiveRevision: 'rev:v1:archive',
+      password: 'correct',
+      expectedRevision: 'rev:v1:target',
+    };
+    const handlers = captureHandlers(undefined, recovery).post;
+    const malformed = makeRes();
+    await handlers['/api/constitution/archives/restore'](
+      makeReq({ body: { ...request, unexpected: true }, userId: 'u1', secure: true }),
+      malformed
+    );
+    expect(malformed._status).toBe(400);
+    expect(malformed._json).toEqual({
+      success: false,
+      error: {
+        code: 'INVALID_REQUEST',
+        message: 'Archive restore request is invalid.',
+        retryable: false,
+        operationId: request.operationId,
+      },
+    });
+    expect(recovery.restore).not.toHaveBeenCalled();
+
+    const wrongPrincipal = makeRes();
+    await handlers['/api/constitution/archives/restore'](
+      makeReq({ body: request, userId: 'u1', secure: true }),
+      wrongPrincipal
+    );
+    expect(wrongPrincipal._status).toBe(404);
+    expect(wrongPrincipal._json).toEqual({
+      success: false,
+      error: {
+        code: 'OPERATION_NOT_FOUND',
+        message: 'Archive recovery did not complete.',
+        retryable: false,
+        operationId: request.operationId,
+      },
+    });
+    expect(JSON.stringify(wrongPrincipal._json)).not.toContain('another user');
+  });
+
+  it('requires an authenticated hosted principal before resolving Classic recovery', async () => {
+    const recovery = { hostedPrincipalBinding: vi.fn() };
+    const resolveClassic = vi.fn(async () => {
+      throw new Error('must not resolve');
+    });
+    const handlers = captureHandlers(undefined, recovery, resolveClassic);
+
+    const metadata = makeRes();
+    await handlers.get['/api/constitution/classic-recovery'](makeReq({}), metadata);
+    expect(metadata._status).toBe(401);
+    expect(metadata._json).toMatchObject({
+      success: false,
+      error: { code: 'AUTH_REQUIRED', operationId: null },
+    });
+    expect(resolveClassic).not.toHaveBeenCalled();
+    expect(recovery.hostedPrincipalBinding).not.toHaveBeenCalled();
+  });
+
+  it('binds hosted Classic metadata and decisions to exact principal, step-up, and no-store contracts', async () => {
+    const principal = { kind: 'hosted-subject', subjectSha256: `sha256:${'c'.repeat(64)}` };
+    const recovery = { hostedPrincipalBinding: vi.fn(() => principal) };
+    const metadataResult = {
+      success: true,
+      data: {
+        contract: 'wayland-constitution-classic-recovery-dto/1.0',
+        recoveryRevision: 'recovery:v1',
+        projectionReceiptSha256: `sha256:${'d'.repeat(64)}`,
+        promotionId: null,
+        journalHeadSha256: null,
+        state: 'awaiting-decision',
+        items: [
+          {
+            objectId: 'constitution',
+            operation: 'replace',
+            state: 'pending',
+            resultRevision: null,
+            receiptId: null,
+            conflictCode: null,
+          },
+        ],
+        rescue: null,
+        allowedActions: ['promote', 'keep-v2', 'discard'],
+        discardChallenge: 'DISCARD constitution',
+      },
+    } as const;
+    const decisionResult = {
+      success: true,
+      data: {
+        status: 'committed',
+        operationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+        recoveryRevision: 'recovery:v2',
+        promotionId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+        journalHeadSha256: `sha256:${'e'.repeat(64)}`,
+        receiptId: 'receipt:v1',
+        items: [],
+        rescue: null,
+      },
+    } as const;
+    const classic = {
+      metadata: vi.fn(async () => metadataResult),
+      decide: vi.fn(async (_principal, _request, authorize) => {
+        await authorize(principal, 'correct');
+        return decisionResult;
+      }),
+      resume: vi.fn(),
+    };
+    const resolveClassic = vi.fn(async () => classic);
+    const handlers = captureHandlers(undefined, recovery, resolveClassic);
+
+    const metadata = makeRes();
+    await handlers.get['/api/constitution/classic-recovery'](makeReq({ userId: 'u1' }), metadata);
+    expect(metadata._json).toEqual(metadataResult);
+    expect(metadata._headers).toMatchObject({ 'Cache-Control': 'no-store', Pragma: 'no-cache' });
+    expect(classic.metadata).toHaveBeenCalledWith(principal);
+
+    const request = {
+      operationId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      projectionReceiptSha256: `sha256:${'d'.repeat(64)}`,
+      expectedRecoveryRevision: 'recovery:v1',
+      password: 'correct',
+      decision: { kind: 'promote' },
+    } as const;
+    const decision = makeRes();
+    await handlers.post['/api/constitution/classic-recovery/decision'](
+      makeReq({ body: request, userId: 'u1', secure: true }),
+      decision
+    );
+    expect(decision._json).toEqual(decisionResult);
+    expect(decision._headers).toMatchObject({ 'Cache-Control': 'no-store', Pragma: 'no-cache' });
+    expect(classic.decide).toHaveBeenCalledWith(principal, request, expect.any(Function));
+    expect(mockVerifyStepUp).toHaveBeenCalledWith(expect.anything(), 'correct');
+
+    const malformed = makeRes();
+    await handlers.post['/api/constitution/classic-recovery/decision'](
+      makeReq({ body: { ...request, unexpected: true }, userId: 'u1', secure: true }),
+      malformed
+    );
+    expect(malformed._status).toBe(400);
+    expect(malformed._json).toMatchObject({
+      success: false,
+      error: { code: 'INVALID_REQUEST', operationId: request.operationId },
+    });
+    expect(classic.decide).toHaveBeenCalledTimes(1);
   });
 
   it('reports unsupported packaged authority as an honest unavailable capability', async () => {

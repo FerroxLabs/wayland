@@ -10,7 +10,12 @@ import type { IConversationRepository } from '@process/services/database/IConver
 import type { IConversationService } from '@process/services/IConversationService';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { initAcpConversationBridge } from './acpConversationBridge';
-import { initApplicationBridge, isApplicationWindowFocused, getForegroundConversationId } from './applicationBridge';
+import {
+  initApplicationBridge,
+  isApplicationMainWindowSender,
+  isApplicationWindowFocused,
+  getForegroundConversationId,
+} from './applicationBridge';
 import { initAuthBridge } from './authBridge';
 import { initBedrockBridge } from './bedrockBridge';
 import { initChannelBridge } from './channelBridge';
@@ -72,6 +77,7 @@ import { initNicknamesBridge } from '@process/storage/nicknamesIpc';
 import { initSyncIpc } from '@process/sync/syncIpc';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
 import type { ConstitutionFsService } from '@process/services/constitution/constitutionFsService';
+import type { ConstitutionArchiveRecoveryService } from '@process/services/constitution/constitutionArchiveRecoveryService';
 import { initModelRegistryIpc } from '@process/providers/ipc/modelRegistryIpc';
 import { initWcoreToolKeyIpc } from '@process/agent/wcore/toolKeyIpc';
 import { initWcoreConfigBridge } from './wcoreConfigBridge';
@@ -91,6 +97,7 @@ export interface BridgeDependencies {
   channelRepo: IChannelRepository;
   teamSessionService: TeamSessionService;
   constitutionFsService: ConstitutionFsService;
+  constitutionArchiveRecoveryService: ConstitutionArchiveRecoveryService;
 }
 
 /**
@@ -191,7 +198,11 @@ export function initAllBridges(deps: BridgeDependencies): void {
   });
   initNicknamesBridge();
   initSyncIpc();
-  initConstitutionBridge(deps.constitutionFsService);
+  initConstitutionBridge(
+    deps.constitutionFsService,
+    deps.constitutionArchiveRecoveryService,
+    (event) => event.senderFrame === event.sender.mainFrame && isApplicationMainWindowSender(event.sender.id)
+  );
   initOnboardingBridge();
   initDoctorBridge();
 }

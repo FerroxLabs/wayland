@@ -36,8 +36,11 @@ const mocks = vi.hoisted(() => ({
   loggerConfig: vi.fn(),
   createConstitutionFsProduction: vi.fn(),
   setConstitutionFsService: vi.fn(),
+  setConstitutionArchiveRecoveryService: vi.fn(),
+  setConstitutionClassicRecoveryServiceReady: vi.fn(),
   constitutionFsService: { kind: 'constitution-fs-service' },
   constitutionRestoreAuthority: { kind: 'constitution-restore-authority' },
+  constitutionArchiveRecoveryService: { kind: 'constitution-archive-recovery-service' },
 }));
 
 vi.mock('@office-ai/platform', () => ({
@@ -213,6 +216,20 @@ vi.mock('@process/services/constitution/constitutionArchiveRestoreAuthority', ()
     }
   },
 }));
+vi.mock('@process/services/constitution/constitutionArchiveRecoveryService', () => ({
+  // oxlint-disable-next-line typescript-eslint/no-extraneous-class -- constructor semantics are the production contract under test.
+  ConstitutionArchiveRecoveryService: class ConstitutionArchiveRecoveryService {
+    constructor() {
+      return mocks.constitutionArchiveRecoveryService;
+    }
+  },
+  ConstitutionArchiveRecoveryServiceError: class ConstitutionArchiveRecoveryServiceError extends Error {},
+  setConstitutionArchiveRecoveryService: (...args: unknown[]) => mocks.setConstitutionArchiveRecoveryService(...args),
+}));
+vi.mock('@process/services/constitution/constitutionClassicRecoveryService', () => ({
+  setConstitutionClassicRecoveryServiceReady: (...args: unknown[]) =>
+    mocks.setConstitutionClassicRecoveryServiceReady(...args),
+}));
 vi.mock('@process/secrets/safeStorage', () => ({
   encryptString: vi.fn(),
   decryptString: vi.fn(),
@@ -237,6 +254,8 @@ describe('initBridgeStandalone', () => {
       revisionAuthorityPath: '/tmp/wayland-standalone/constitution/revision-authority.enc',
     });
     expect(mocks.setConstitutionFsService).toHaveBeenCalledWith(mocks.constitutionFsService);
+    expect(mocks.setConstitutionArchiveRecoveryService).toHaveBeenCalledWith(mocks.constitutionArchiveRecoveryService);
+    expect(mocks.setConstitutionClassicRecoveryServiceReady).toHaveBeenCalledTimes(1);
     expect(mocks.initModelRegistryIpc).toHaveBeenCalledTimes(1);
     expect(mocks.initializeRegistry).toHaveBeenCalledTimes(1);
   });

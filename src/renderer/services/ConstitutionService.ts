@@ -5,6 +5,22 @@
  */
 
 import { getCsrfToken } from '@process/webserver/middleware/csrfClient';
+import {
+  parseConstitutionArchiveInventoryResult,
+  parseConstitutionArchiveRestoreRequest,
+  parseConstitutionArchiveRestoreResult,
+  parseConstitutionClassicRecoveryDecisionRequest,
+  parseConstitutionClassicRecoveryMetadataResult,
+  parseConstitutionClassicRecoveryMutationResult,
+  parseConstitutionClassicRecoveryResumeRequest,
+  type ConstitutionArchiveInventoryResult,
+  type ConstitutionArchiveRestoreRequest,
+  type ConstitutionArchiveRestoreResult,
+  type ConstitutionClassicRecoveryDecisionRequest,
+  type ConstitutionClassicRecoveryMetadataResult,
+  type ConstitutionClassicRecoveryMutationResult,
+  type ConstitutionClassicRecoveryResumeRequest,
+} from '@/common/types/constitutionRecovery';
 
 /**
  * Browser/WebUI client for the Constitution + specialist-overlay routes
@@ -171,6 +187,171 @@ export class ConstitutionReadError extends Error {
     );
     this.name = 'ConstitutionReadError';
   }
+}
+
+export class ConstitutionArchiveRecoveryClientError extends Error {
+  constructor(
+    readonly code: 'network_error' | 'malformed_response',
+    readonly status: number
+  ) {
+    super(
+      code === 'network_error'
+        ? 'Archive recovery could not be reached.'
+        : 'Archive recovery returned an invalid response.'
+    );
+    this.name = 'ConstitutionArchiveRecoveryClientError';
+  }
+}
+
+export class ConstitutionClassicRecoveryClientError extends Error {
+  constructor(
+    readonly code: 'network_error' | 'malformed_response',
+    readonly status: number
+  ) {
+    super(
+      code === 'network_error'
+        ? 'Classic recovery could not be reached.'
+        : 'Classic recovery returned an invalid response.'
+    );
+    this.name = 'ConstitutionClassicRecoveryClientError';
+  }
+}
+
+function requireArchiveInventoryResult(value: unknown, status: number): ConstitutionArchiveInventoryResult {
+  const parsed = parseConstitutionArchiveInventoryResult(value);
+  if (!parsed) throw new ConstitutionArchiveRecoveryClientError('malformed_response', status);
+  return parsed;
+}
+
+function requireArchiveRestoreResult(value: unknown, status: number): ConstitutionArchiveRestoreResult {
+  const parsed = parseConstitutionArchiveRestoreResult(value);
+  if (!parsed) throw new ConstitutionArchiveRecoveryClientError('malformed_response', status);
+  return parsed;
+}
+
+/** Validate the direct Electron archive inventory DTO before rendering it. */
+export async function runDesktopConstitutionArchiveInventory(
+  read: () => Promise<unknown>
+): Promise<ConstitutionArchiveInventoryResult> {
+  return requireArchiveInventoryResult(await read(), 0);
+}
+
+/** Validate the direct Electron archive restore DTO before updating recovery state. */
+export async function runDesktopConstitutionArchiveRestore(
+  mutation: () => Promise<unknown>
+): Promise<ConstitutionArchiveRestoreResult> {
+  return requireArchiveRestoreResult(await mutation(), 0);
+}
+
+/** Read authenticated hosted archive metadata through the shared DTO. */
+export async function listConstitutionArchivesHttp(): Promise<ConstitutionArchiveInventoryResult> {
+  let response: Response;
+  try {
+    response = await fetch('/api/constitution/archives', { method: 'GET', credentials: 'include' });
+  } catch {
+    throw new ConstitutionArchiveRecoveryClientError('network_error', 0);
+  }
+  const value = await response.json().catch(() => {
+    throw new ConstitutionArchiveRecoveryClientError('malformed_response', response.status);
+  });
+  return requireArchiveInventoryResult(value, response.status);
+}
+
+/** Restore an archive over hosted HTTP without adding transport-only request fields. */
+export async function restoreConstitutionArchiveHttp(
+  request: ConstitutionArchiveRestoreRequest
+): Promise<ConstitutionArchiveRestoreResult> {
+  const parsedRequest = parseConstitutionArchiveRestoreRequest(request);
+  if (!parsedRequest) throw new ConstitutionArchiveRecoveryClientError('malformed_response', 0);
+  let response: Response;
+  try {
+    response = await fetch('/api/constitution/archives/restore', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
+      body: JSON.stringify(parsedRequest),
+    });
+  } catch {
+    throw new ConstitutionArchiveRecoveryClientError('network_error', 0);
+  }
+  const value = await response.json().catch(() => {
+    throw new ConstitutionArchiveRecoveryClientError('malformed_response', response.status);
+  });
+  return requireArchiveRestoreResult(value, response.status);
+}
+
+function requireClassicMetadataResult(value: unknown, status: number): ConstitutionClassicRecoveryMetadataResult {
+  const parsed = parseConstitutionClassicRecoveryMetadataResult(value);
+  if (!parsed) throw new ConstitutionClassicRecoveryClientError('malformed_response', status);
+  return parsed;
+}
+
+function requireClassicMutationResult(value: unknown, status: number): ConstitutionClassicRecoveryMutationResult {
+  const parsed = parseConstitutionClassicRecoveryMutationResult(value);
+  if (!parsed) throw new ConstitutionClassicRecoveryClientError('malformed_response', status);
+  return parsed;
+}
+
+export async function runDesktopConstitutionClassicRecoveryMetadata(
+  read: () => Promise<unknown>
+): Promise<ConstitutionClassicRecoveryMetadataResult> {
+  return requireClassicMetadataResult(await read(), 0);
+}
+
+export async function runDesktopConstitutionClassicRecoveryMutation(
+  mutation: () => Promise<unknown>
+): Promise<ConstitutionClassicRecoveryMutationResult> {
+  return requireClassicMutationResult(await mutation(), 0);
+}
+
+export async function getConstitutionClassicRecoveryHttp(): Promise<ConstitutionClassicRecoveryMetadataResult> {
+  let response: Response;
+  try {
+    response = await fetch('/api/constitution/classic-recovery', { method: 'GET', credentials: 'include' });
+  } catch {
+    throw new ConstitutionClassicRecoveryClientError('network_error', 0);
+  }
+  const value = await response.json().catch(() => {
+    throw new ConstitutionClassicRecoveryClientError('malformed_response', response.status);
+  });
+  return requireClassicMetadataResult(value, response.status);
+}
+
+export async function decideConstitutionClassicRecoveryHttp(
+  request: ConstitutionClassicRecoveryDecisionRequest
+): Promise<ConstitutionClassicRecoveryMutationResult> {
+  const parsedRequest = parseConstitutionClassicRecoveryDecisionRequest(request);
+  if (!parsedRequest) throw new ConstitutionClassicRecoveryClientError('malformed_response', 0);
+  return postClassicRecovery('/api/constitution/classic-recovery/decision', parsedRequest);
+}
+
+export async function resumeConstitutionClassicRecoveryHttp(
+  request: ConstitutionClassicRecoveryResumeRequest
+): Promise<ConstitutionClassicRecoveryMutationResult> {
+  const parsedRequest = parseConstitutionClassicRecoveryResumeRequest(request);
+  if (!parsedRequest) throw new ConstitutionClassicRecoveryClientError('malformed_response', 0);
+  return postClassicRecovery('/api/constitution/classic-recovery/resume', parsedRequest);
+}
+
+async function postClassicRecovery(
+  endpoint: string,
+  request: ConstitutionClassicRecoveryDecisionRequest | ConstitutionClassicRecoveryResumeRequest
+): Promise<ConstitutionClassicRecoveryMutationResult> {
+  let response: Response;
+  try {
+    response = await fetch(endpoint, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...csrfHeaders() },
+      body: JSON.stringify(request),
+    });
+  } catch {
+    throw new ConstitutionClassicRecoveryClientError('network_error', 0);
+  }
+  const value = await response.json().catch(() => {
+    throw new ConstitutionClassicRecoveryClientError('malformed_response', response.status);
+  });
+  return requireClassicMutationResult(value, response.status);
 }
 
 async function getConstitutionData(path: string): Promise<unknown> {

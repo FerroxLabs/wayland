@@ -47,6 +47,16 @@ import type { TProviderWithModel } from '@/common/config/storage';
 import { app } from 'electron';
 import path from 'node:path';
 import { ConstitutionFsService, setConstitutionFsService } from '@process/services/constitution/constitutionFsService';
+import { ConstitutionArchiveRestoreOperationAuthority } from '@process/services/constitution/constitutionArchiveRestoreAuthority';
+import {
+  ConstitutionArchiveRecoveryService,
+  ConstitutionArchiveRecoveryServiceError,
+  setConstitutionArchiveRecoveryService,
+} from '@process/services/constitution/constitutionArchiveRecoveryService';
+import { decryptString, encryptString } from '@process/secrets/safeStorage';
+import { verifyCurrentPassword } from '@process/bridge/webuiDirectAuth';
+import { createProductionConstitutionClassicRecoveryService } from '@process/services/constitution/constitutionClassicRecoveryRuntime';
+import { setConstitutionClassicRecoveryServiceReady } from '@process/services/constitution/constitutionClassicRecoveryService';
 
 logger.config({ print: true });
 
@@ -69,6 +79,35 @@ const constitutionFsService = ConstitutionFsService.createProduction(
   { revisionAuthorityPath: path.join(app.getPath('userData'), 'constitution', 'revision-authority.enc') }
 );
 setConstitutionFsService(constitutionFsService);
+const constitutionRestoreAuthority = new ConstitutionArchiveRestoreOperationAuthority(
+  path.join(app.getPath('userData'), 'constitution', 'restore-operations.enc'),
+  { encryptString, decryptString }
+);
+const constitutionArchiveRecoveryService = new ConstitutionArchiveRecoveryService(
+  constitutionFsService,
+  constitutionRestoreAuthority,
+  async (principal, password) => {
+    if (principal.kind !== 'desktop-installation' || !(await verifyCurrentPassword(password))) {
+      throw new ConstitutionArchiveRecoveryServiceError('AUTH_FAILED', 'Fresh destructive authentication failed.');
+    }
+  }
+);
+setConstitutionArchiveRecoveryService(constitutionArchiveRecoveryService);
+const constitutionClassicRecoveryServiceReady = createProductionConstitutionClassicRecoveryService({
+  userDataRoot: app.getPath('userData'),
+  constitutionFsService,
+  secretBackend: { encryptString, decryptString },
+  verifyDesktopPassword: verifyCurrentPassword,
+});
+void constitutionClassicRecoveryServiceReady.catch((error) => {
+  // Retained recovery evidence is fail-closed. Keep the rejection available to
+  // authenticated adapters while surfacing one path-free startup diagnostic.
+  console.error(
+    '[initBridge] Classic Constitution recovery readiness failed:',
+    error instanceof Error ? error.name : 'Unknown recovery readiness failure'
+  );
+});
+setConstitutionClassicRecoveryServiceReady(constitutionClassicRecoveryServiceReady);
 
 // Initialize all IPC bridges
 initAllBridges({
@@ -78,6 +117,7 @@ initAllBridges({
   channelRepo,
   teamSessionService,
   constitutionFsService,
+  constitutionArchiveRecoveryService,
 });
 
 // Initialize cron service (load jobs from database and start timers).

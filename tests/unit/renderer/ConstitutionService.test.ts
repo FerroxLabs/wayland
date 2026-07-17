@@ -5,16 +5,25 @@ vi.mock('@process/webserver/middleware/csrfClient', () => ({
 }));
 
 import {
+  decideConstitutionClassicRecoveryHttp,
   deleteConstitutionSpecialistHttp,
+  getConstitutionClassicRecoveryHttp,
+  listConstitutionArchivesHttp,
   listConstitutionSpecialistsHttp,
   readConstitutionHttp,
   readConstitutionSpecialistHttp,
   requestConstitutionEditGrantHttp,
   resetConstitutionHttp,
   revokeConstitutionEditGrantHttp,
+  restoreConstitutionArchiveHttp,
+  runDesktopConstitutionArchiveInventory,
+  runDesktopConstitutionArchiveRestore,
+  runDesktopConstitutionClassicRecoveryMetadata,
+  runDesktopConstitutionClassicRecoveryMutation,
   runDesktopConstitutionMutation,
   runDesktopConstitutionRead,
   runDesktopConstitutionSpecialistList,
+  resumeConstitutionClassicRecoveryHttp,
   writeConstitutionHttp,
   writeConstitutionSpecialistHttp,
 } from '@renderer/services/ConstitutionService';
@@ -52,6 +61,168 @@ describe('hosted Constitution service', () => {
       revision: 'rev:main:00000001',
     });
     await expect(readConstitutionHttp()).resolves.toEqual({ state: 'absent', revision: 'rev:main:absent001' });
+  });
+
+  it('uses the shared archive DTO for hosted inventory and exact restore requests', async () => {
+    const inventory = {
+      success: true,
+      data: { contract: 'wayland-constitution-archive-recovery-dto/1.0', archives: [] },
+    } as const;
+    const request = {
+      operationId: '11111111-1111-4111-8111-111111111111',
+      archiveId: '22222222-2222-4222-8222-222222222222',
+      expectedArchiveRevision: 'rev:v1:archive',
+      password: 'fresh password',
+      expectedRevision: 'rev:v1:target',
+    };
+    const success = {
+      success: true,
+      data: {
+        status: 'committed',
+        operationId: request.operationId,
+        revision: 'rev:v1:restored',
+        receiptId: 'receipt:v1:restored',
+      },
+    } as const;
+    fetchMock.mockResolvedValueOnce(response(200, inventory)).mockResolvedValueOnce(response(200, success));
+
+    await expect(listConstitutionArchivesHttp()).resolves.toEqual(inventory);
+    await expect(restoreConstitutionArchiveHttp(request)).resolves.toEqual(success);
+
+    expect(fetchMock.mock.calls[0]).toEqual(['/api/constitution/archives', { method: 'GET', credentials: 'include' }]);
+    const [path, init] = fetchMock.mock.calls[1] as [string, RequestInit];
+    expect(path).toBe('/api/constitution/archives/restore');
+    expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'x-csrf-token': 'csrf-token' });
+    expect(JSON.parse(init.body as string)).toEqual(request);
+    expect(JSON.parse(init.body as string)).not.toHaveProperty('_csrf');
+  });
+
+  it('rejects malformed archive responses identically on hosted and Desktop transports', async () => {
+    const malformed = {
+      success: false,
+      error: { code: 'AUTH_FAILED', message: 'No', retryable: false, operationId: null },
+    };
+    fetchMock.mockResolvedValueOnce(response(401, malformed));
+    await expect(listConstitutionArchivesHttp()).rejects.toMatchObject({ code: 'malformed_response', status: 401 });
+    await expect(runDesktopConstitutionArchiveInventory(async () => malformed)).rejects.toMatchObject({
+      code: 'malformed_response',
+      status: 0,
+    });
+    await expect(
+      runDesktopConstitutionArchiveRestore(async () => ({ ...malformed, ignored: true }))
+    ).rejects.toMatchObject({
+      code: 'malformed_response',
+      status: 0,
+    });
+  });
+
+  it('uses one exact Classic recovery DTO across hosted metadata, decision, and resume', async () => {
+    const item = {
+      objectId: 'constitution',
+      operation: 'replace' as const,
+      state: 'pending' as const,
+      resultRevision: null,
+      receiptId: null,
+      conflictCode: null,
+    };
+    const metadata = {
+      success: true as const,
+      data: {
+        contract: 'wayland-constitution-classic-recovery-dto/1.0' as const,
+        recoveryRevision: 'recovery:v1',
+        projectionReceiptSha256: `sha256:${'a'.repeat(64)}` as const,
+        promotionId: null,
+        journalHeadSha256: null,
+        state: 'awaiting-decision' as const,
+        items: [item],
+        rescue: null,
+        allowedActions: ['promote', 'keep-v2', 'discard'] as const,
+        discardChallenge: 'DISCARD constitution',
+      },
+    };
+    const committedItem = {
+      ...item,
+      state: 'committed' as const,
+      resultRevision: 'rev:v1:classic',
+      receiptId: 'receipt:v1:classic',
+    };
+    const mutation = {
+      success: true as const,
+      data: {
+        status: 'committed' as const,
+        operationId: '11111111-1111-4111-8111-111111111111',
+        recoveryRevision: 'recovery:v2',
+        promotionId: '22222222-2222-4222-8222-222222222222',
+        journalHeadSha256: `sha256:${'b'.repeat(64)}` as const,
+        receiptId: 'classic-recovery-receipt:v1',
+        items: [committedItem],
+        rescue: null,
+      },
+    };
+    const decision = {
+      operationId: mutation.data.operationId,
+      projectionReceiptSha256: metadata.data.projectionReceiptSha256,
+      expectedRecoveryRevision: metadata.data.recoveryRevision,
+      password: 'fresh password',
+      decision: { kind: 'promote' as const },
+    };
+    const resume = {
+      operationId: '33333333-3333-4333-8333-333333333333',
+      promotionId: mutation.data.promotionId,
+      projectionReceiptSha256: metadata.data.projectionReceiptSha256,
+      expectedRecoveryRevision: mutation.data.recoveryRevision,
+      expectedJournalHeadSha256: mutation.data.journalHeadSha256,
+      password: 'fresh password',
+    };
+    fetchMock
+      .mockResolvedValueOnce(response(200, metadata))
+      .mockResolvedValueOnce(response(200, mutation))
+      .mockResolvedValueOnce(response(200, mutation));
+
+    await expect(getConstitutionClassicRecoveryHttp()).resolves.toEqual(metadata);
+    await expect(decideConstitutionClassicRecoveryHttp(decision)).resolves.toEqual(mutation);
+    await expect(resumeConstitutionClassicRecoveryHttp(resume)).resolves.toEqual(mutation);
+
+    expect(fetchMock.mock.calls[0]).toEqual([
+      '/api/constitution/classic-recovery',
+      { method: 'GET', credentials: 'include' },
+    ]);
+    for (const [index, endpoint, request] of [
+      [1, '/api/constitution/classic-recovery/decision', decision],
+      [2, '/api/constitution/classic-recovery/resume', resume],
+    ] as const) {
+      const [path, init] = fetchMock.mock.calls[index] as [string, RequestInit];
+      expect(path).toBe(endpoint);
+      expect(init.credentials).toBe('include');
+      expect(init.headers).toMatchObject({ 'Content-Type': 'application/json', 'x-csrf-token': 'csrf-token' });
+      expect(JSON.parse(init.body as string)).toEqual(request);
+      expect(JSON.parse(init.body as string)).not.toHaveProperty('_csrf');
+    }
+  });
+
+  it('rejects malformed Classic recovery responses on both Desktop and hosted transports', async () => {
+    const malformed = {
+      success: true,
+      data: {
+        contract: 'wayland-constitution-classic-recovery-dto/1.0',
+        state: 'awaiting-decision',
+      },
+    };
+    await expect(runDesktopConstitutionClassicRecoveryMetadata(async () => malformed)).rejects.toMatchObject({
+      code: 'malformed_response',
+      status: 0,
+    });
+    await expect(
+      runDesktopConstitutionClassicRecoveryMutation(async () => ({ ...malformed, extra: true }))
+    ).rejects.toMatchObject({
+      code: 'malformed_response',
+      status: 0,
+    });
+    fetchMock.mockResolvedValueOnce(response(200, malformed));
+    await expect(getConstitutionClassicRecoveryHttp()).rejects.toMatchObject({
+      code: 'malformed_response',
+      status: 200,
+    });
   });
 
   it.each([401, 403, 429, 500])('keeps HTTP %i as an error instead of an empty document', async (status) => {

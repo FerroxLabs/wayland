@@ -53,7 +53,29 @@ import {
   type ConstitutionMutationResult,
   type ConstitutionReadResult,
 } from '@process/services/constitution/constitutionFsService';
+import {
+  ConstitutionArchiveRecoveryServiceError,
+  getConstitutionArchiveRecoveryService,
+  type ConstitutionArchiveRecoveryService,
+} from '@process/services/constitution/constitutionArchiveRecoveryService';
+import {
+  constitutionArchiveRestoreFailure,
+  constitutionClassicRecoveryFailure,
+  parseConstitutionClassicRecoveryDecisionRequest,
+  parseConstitutionClassicRecoveryResumeRequest,
+  parseConstitutionArchiveRestoreRequest,
+  syntacticallyValidConstitutionRestoreOperationId,
+  type ConstitutionArchiveRecoveryErrorCode,
+  type ConstitutionClassicRecoveryErrorCode,
+} from '@/common/types/constitutionRecovery';
 import { constitutionMutationQuiescence } from '@process/services/constitution/constitutionMutationQuiescence';
+import {
+  ConstitutionClassicRecoveryServiceError,
+  getConstitutionClassicRecoveryServiceReady,
+  type ConstitutionClassicRecoveryService,
+} from '@process/services/constitution/constitutionClassicRecoveryService';
+
+type ResolveClassicRecoveryService = () => Promise<ConstitutionClassicRecoveryService | null>;
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -176,13 +198,67 @@ function asyncRoute(handler: (req: Request, res: Response) => Promise<void>): Re
   return (req, res, next) => Promise.resolve(handler(req, res)).catch(next);
 }
 
+function archiveErrorStatus(code: ConstitutionArchiveRecoveryErrorCode): number {
+  if (code === 'INVALID_REQUEST') return 400;
+  if (code === 'AUTH_REQUIRED' || code === 'AUTH_FAILED') return 401;
+  if (code === 'LOCKED_OUT') return 429;
+  if (code === 'OPERATION_NOT_FOUND' || code === 'ARCHIVE_NOT_FOUND') return 404;
+  if (code === 'ARCHIVE_RETIRED') return 410;
+  if (
+    code === 'OPERATION_ABANDONED' ||
+    code === 'ROLLED_BACK' ||
+    code === 'STALE_ARCHIVE_REVISION' ||
+    code === 'STALE_TARGET_REVISION' ||
+    code === 'ARCHIVE_TARGET_MISMATCH' ||
+    code === 'CONFLICT'
+  )
+    return 409;
+  return code === 'OPERATION_AUTHORITY_FULL' || code === 'UNSAFE_FILESYSTEM' ? 503 : 500;
+}
+
+function sendArchiveFailure(
+  res: Response,
+  code: ConstitutionArchiveRecoveryErrorCode,
+  operationId: string | null,
+  message = 'Archive recovery did not complete.'
+): void {
+  res.status(archiveErrorStatus(code)).json(constitutionArchiveRestoreFailure(code, message, operationId));
+}
+
+function classicErrorStatus(code: ConstitutionClassicRecoveryErrorCode): number {
+  if (code === 'INVALID_REQUEST') return 400;
+  if (code === 'AUTH_REQUIRED' || code === 'AUTH_FAILED') return 401;
+  if (code === 'LOCKED_OUT') return 429;
+  if (code === 'OPERATION_NOT_FOUND') return 404;
+  if (
+    code === 'STALE_RECOVERY_REVISION' ||
+    code === 'STALE_JOURNAL_HEAD' ||
+    code === 'CONFLICT' ||
+    code === 'OPERATION_ID_CONFLICT' ||
+    code === 'ROLLED_BACK'
+  )
+    return 409;
+  return code === 'RECOVERY_KEY_UNAVAILABLE' || code === 'OPERATION_AUTHORITY_FULL' ? 503 : 500;
+}
+
+function sendClassicFailure(
+  res: Response,
+  code: ConstitutionClassicRecoveryErrorCode,
+  operationId: string | null,
+  message = 'Classic recovery did not complete.'
+): void {
+  res.status(classicErrorStatus(code)).json(constitutionClassicRecoveryFailure(code, message, operationId));
+}
+
 /**
  * Register the constitution + specialist-overlay routes for the remote WebUI.
  */
 export function registerConstitutionRoutes(
   app: Express,
   validateApiAccess: RequestHandler,
-  constitutionFs: ConstitutionFsService = getConstitutionFsService()
+  constitutionFs: ConstitutionFsService = getConstitutionFsService(),
+  constitutionRecovery?: ConstitutionArchiveRecoveryService,
+  resolveClassicRecovery: ResolveClassicRecoveryService = getConstitutionClassicRecoveryServiceReady
 ): void {
   // GET /api/constitution
   // Read-only: returns the current Constitution prose so the headless editor can
@@ -203,6 +279,184 @@ export function registerConstitutionRoutes(
       sendReadError(res, error, 'Failed to list specialist overlays');
     }
   });
+
+  app.get('/api/constitution/archives', apiRateLimiter, validateApiAccess, (_req: Request, res: Response) => {
+    try {
+      const recovery = constitutionRecovery ?? getConstitutionArchiveRecoveryService();
+      res.set('Cache-Control', 'no-store');
+      res.set('Pragma', 'no-cache');
+      res.json(recovery.listArchives());
+    } catch {
+      sendArchiveFailure(res, 'INTEGRITY_FAILURE', null, 'Archive inventory could not be authenticated.');
+    }
+  });
+
+  app.post(
+    '/api/constitution/archives/restore',
+    apiRateLimiter,
+    validateApiAccess,
+    asyncRoute(async (req: Request, res: Response) => {
+      const operationId = syntacticallyValidConstitutionRestoreOperationId(req.body?.operationId);
+      if (!requireSecureConfigWrite(req, res)) return;
+      const request = parseConstitutionArchiveRestoreRequest(req.body);
+      if (!request) {
+        sendArchiveFailure(res, 'INVALID_REQUEST', operationId, 'Archive restore request is invalid.');
+        return;
+      }
+      if (!req.user?.id) {
+        sendArchiveFailure(res, 'AUTH_REQUIRED', request.operationId, 'Authentication is required.');
+        return;
+      }
+      try {
+        const recovery = constitutionRecovery ?? getConstitutionArchiveRecoveryService();
+        const principal = recovery.hostedPrincipalBinding(String(req.user.id));
+        const committed = await constitutionMutationQuiescence.runInteractiveMutationAsync(() =>
+          recovery.restore(principal, request, async (_principal, password) => {
+            if (!(await verifyStepUp(req, password))) {
+              throw new ConstitutionArchiveRecoveryServiceError(
+                'AUTH_FAILED',
+                'Fresh destructive authentication failed.'
+              );
+            }
+          })
+        );
+        res.set('Cache-Control', 'no-store');
+        res.set('Pragma', 'no-cache');
+        res.json({
+          success: true,
+          data: {
+            status: 'committed',
+            operationId: request.operationId,
+            revision: committed.revision,
+            receiptId: committed.receiptId,
+          },
+        });
+      } catch (error) {
+        const code = error instanceof ConstitutionArchiveRecoveryServiceError ? error.code : 'NATIVE_FAILURE';
+        sendArchiveFailure(res, code, request.operationId);
+      }
+    })
+  );
+
+  app.get(
+    '/api/constitution/classic-recovery',
+    apiRateLimiter,
+    validateApiAccess,
+    asyncRoute(async (req: Request, res: Response) => {
+      if (!req.user?.id) {
+        sendClassicFailure(res, 'AUTH_REQUIRED', null, 'Authentication is required.');
+        return;
+      }
+      try {
+        const recovery = constitutionRecovery ?? getConstitutionArchiveRecoveryService();
+        const classicRecovery = await resolveClassicRecovery();
+        if (!classicRecovery) {
+          sendClassicFailure(res, 'OPERATION_NOT_FOUND', null, 'Classic recovery is unavailable.');
+          return;
+        }
+        res.set('Cache-Control', 'no-store');
+        res.set('Pragma', 'no-cache');
+        res.json(await classicRecovery.metadata(recovery.hostedPrincipalBinding(String(req.user.id))));
+      } catch (error) {
+        const code = error instanceof ConstitutionClassicRecoveryServiceError ? error.code : 'INTEGRITY_FAILURE';
+        sendClassicFailure(res, code, null, 'Classic recovery metadata is unavailable.');
+      }
+    })
+  );
+
+  app.post(
+    '/api/constitution/classic-recovery/decision',
+    apiRateLimiter,
+    validateApiAccess,
+    asyncRoute(async (req: Request, res: Response) => {
+      const operationId = syntacticallyValidConstitutionRestoreOperationId(req.body?.operationId);
+      if (!requireSecureConfigWrite(req, res)) return;
+      const request = parseConstitutionClassicRecoveryDecisionRequest(req.body);
+      if (!request) {
+        sendClassicFailure(res, 'INVALID_REQUEST', operationId, 'Classic recovery request is invalid.');
+        return;
+      }
+      if (!req.user?.id) {
+        sendClassicFailure(res, 'AUTH_REQUIRED', request.operationId, 'Authentication is required.');
+        return;
+      }
+      try {
+        const recovery = constitutionRecovery ?? getConstitutionArchiveRecoveryService();
+        const classicRecovery = await resolveClassicRecovery();
+        if (!classicRecovery) {
+          sendClassicFailure(
+            res,
+            'OPERATION_NOT_FOUND',
+            request.operationId,
+            'Classic recovery operation was not found.'
+          );
+          return;
+        }
+        const principal = recovery.hostedPrincipalBinding(String(req.user.id));
+        const result = await classicRecovery.decide(principal, request, async (_principal, password) => {
+          if (!(await verifyStepUp(req, password))) {
+            throw new ConstitutionClassicRecoveryServiceError(
+              'AUTH_FAILED',
+              'Fresh destructive authentication failed.'
+            );
+          }
+        });
+        res.set('Cache-Control', 'no-store');
+        res.set('Pragma', 'no-cache');
+        res.json(result);
+      } catch (error) {
+        const code = error instanceof ConstitutionClassicRecoveryServiceError ? error.code : 'INTEGRITY_FAILURE';
+        sendClassicFailure(res, code, request.operationId);
+      }
+    })
+  );
+
+  app.post(
+    '/api/constitution/classic-recovery/resume',
+    apiRateLimiter,
+    validateApiAccess,
+    asyncRoute(async (req: Request, res: Response) => {
+      const operationId = syntacticallyValidConstitutionRestoreOperationId(req.body?.operationId);
+      if (!requireSecureConfigWrite(req, res)) return;
+      const request = parseConstitutionClassicRecoveryResumeRequest(req.body);
+      if (!request) {
+        sendClassicFailure(res, 'INVALID_REQUEST', operationId, 'Classic recovery request is invalid.');
+        return;
+      }
+      if (!req.user?.id) {
+        sendClassicFailure(res, 'AUTH_REQUIRED', request.operationId, 'Authentication is required.');
+        return;
+      }
+      try {
+        const recovery = constitutionRecovery ?? getConstitutionArchiveRecoveryService();
+        const classicRecovery = await resolveClassicRecovery();
+        if (!classicRecovery) {
+          sendClassicFailure(
+            res,
+            'OPERATION_NOT_FOUND',
+            request.operationId,
+            'Classic recovery operation was not found.'
+          );
+          return;
+        }
+        const principal = recovery.hostedPrincipalBinding(String(req.user.id));
+        const result = await classicRecovery.resume(principal, request, async (_principal, password) => {
+          if (!(await verifyStepUp(req, password))) {
+            throw new ConstitutionClassicRecoveryServiceError(
+              'AUTH_FAILED',
+              'Fresh destructive authentication failed.'
+            );
+          }
+        });
+        res.set('Cache-Control', 'no-store');
+        res.set('Pragma', 'no-cache');
+        res.json(result);
+      } catch (error) {
+        const code = error instanceof ConstitutionClassicRecoveryServiceError ? error.code : 'INTEGRITY_FAILURE';
+        sendClassicFailure(res, code, request.operationId);
+      }
+    })
+  );
 
   app.get('/api/constitution/specialist', apiRateLimiter, validateApiAccess, (req: Request, res: Response) => {
     const id = typeof req.query?.id === 'string' ? req.query.id : '';

@@ -11,14 +11,19 @@ import os from 'node:os';
 import path from 'node:path';
 import { createDriver } from '@process/services/database/drivers/createDriver';
 import {
+  classicRecoveryEnvironmentOverrides,
   classicRecoveryExtractionPlanFor,
+  compareRecoveryAuthorityCodeUnits,
   launchClassicRecovery,
   launchPinnedClassicRecoverySnapshot,
   parseMacClassicPublisherEvidence,
   parseWindowsClassicPublisherEvidence,
   prepareClassicRecovery,
   prepareClassicRecoverySnapshot,
+  publishRestartSafeClassicPreparation,
   spawnPreparedClassicRecovery,
+  validateExternalRecoveryAuthorityReadOnly,
+  withExternalRecoveryAuthoritySnapshot,
 } from '@process/services/recovery/externalRecoveryLauncher';
 import type {
   LaunchPinnedClassicRecoverySnapshotDependencies,
@@ -28,6 +33,12 @@ import type {
 import type { IsolatedRecoveryReceipt } from '@process/services/recovery/isolatedRecovery';
 import { readDatabaseSchemaVersionStrict } from '@process/services/recovery/startupCompatibility';
 import { classicRecoveryArtifactFor } from '@process/services/recovery/classicReleaseTrust';
+import {
+  loadOrCreateExternalRecoveryAuthority,
+  resolveExternalRecoveryAuthorityRoot,
+  type ExternalRecoveryVaultBackend,
+} from '@process/services/recovery/externalRecoveryAuthority';
+import { ClassicRecoveryLocatorAuthority } from '@process/services/recovery/classicRecoveryLocator';
 
 const roots: string[] = [];
 const fixtureBinaryTrust: TestOnlyClassicBinaryTrustReceipt = {
@@ -58,6 +69,48 @@ async function exists(candidate: string): Promise<boolean> {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return false;
     throw error;
   }
+}
+
+class TestExternalRecoveryVault implements ExternalRecoveryVaultBackend {
+  readonly provider = 'test-os-vault';
+
+  async wrap(input: { secret: Buffer; keyId: string }): Promise<{ vaultRef: string; wrappedSecret: Uint8Array }> {
+    return {
+      vaultRef: `test-vault:${input.keyId}`,
+      wrappedSecret: Buffer.from(input.secret.map((byte) => byte ^ 0x69)),
+    };
+  }
+
+  async unwrap(input: { keyId: string; vaultRef: string; wrappedSecret: Buffer }): Promise<Uint8Array> {
+    if (input.vaultRef !== `test-vault:${input.keyId}`) throw new Error('test vault reference mismatch');
+    return Buffer.from(input.wrappedSecret.map((byte) => byte ^ 0x69));
+  }
+}
+
+async function treeDigest(root: string): Promise<string> {
+  const hash = createHash('sha256');
+  const visit = async (directory: string): Promise<void> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    entries.sort((left, right) => left.name.localeCompare(right.name));
+    for (const entry of entries) {
+      const candidate = path.join(directory, entry.name);
+      const relative = path.relative(root, candidate).split(path.sep).join('/');
+      if (entry.isDirectory()) {
+        hash.update(`dir\0${relative}\0`);
+        // Ordered because one hash stream binds the exact tree.
+        // oxlint-disable-next-line no-await-in-loop
+        await visit(candidate);
+      } else if (entry.isFile()) {
+        hash.update(`file\0${relative}\0`);
+        // oxlint-disable-next-line no-await-in-loop
+        hash.update(await readFile(candidate));
+      } else {
+        hash.update(`other\0${relative}\0`);
+      }
+    }
+  };
+  await visit(root);
+  return hash.digest('hex');
 }
 
 async function makeDatabase(databasePath: string): Promise<void> {
@@ -92,7 +145,7 @@ async function makeDatabase(databasePath: string): Promise<void> {
   }
 }
 
-async function fixture(): Promise<{
+async function fixture(options: { includeRevisionAuthority?: boolean } = {}): Promise<{
   root: string;
   materializedRoot: string;
   liveUserDataRoot: string;
@@ -127,12 +180,24 @@ async function fixture(): Promise<{
     ['desktop/config/wayland-config.txt', config],
     ['desktop/config/.wayland-env', env],
     ['desktop/runtime/analytics.json', '{"events":1}'],
+    [
+      'desktop/constitution/revision-authority.enc',
+      'electron-safe-storage-envelope:constitution-v3:active-key+retired-key-history',
+    ],
+    ['constitution/files/CONSTITUTION.md', '# User Constitution'],
+    ['constitution/files/specialists/research.md', '# Research overlay'],
+    ['constitution/files/.constitution-keys.enc', 'v2-authenticated-keys'],
+    ['constitution/files/archives/constitution-history/transactions/v2.jsonl', 'v2-journal'],
+    ['constitution/files/archives/constitution-history/transaction.lock', 'v2-lock'],
     ['core/default/config.toml', 'model = "test"'],
     ['core/profiles/.active', 'research'],
     ['core/profiles/research/config.toml', 'model = "research"'],
     ['desktop/credentials/.secret-key', 'local-secret-key'],
     ['desktop/updater/pending-update.json', '{"version":"0.99.0"}'],
   ]);
+  if (options.includeRevisionAuthority === false) {
+    files.delete('desktop/constitution/revision-authority.enc');
+  }
   for (const [relative, contents] of files) {
     const destination = path.join(materializedRoot, ...relative.split('/'));
     await mkdir(path.dirname(destination), { recursive: true });
@@ -143,6 +208,10 @@ async function fixture(): Promise<{
     if (restorePath === 'desktop/database/wayland.db') return 'desktop.database';
     if (restorePath.startsWith('desktop/config/')) return 'desktop.config';
     if (restorePath.startsWith('desktop/runtime/')) return 'desktop.runtime-files';
+    if (restorePath === 'desktop/constitution/revision-authority.enc') {
+      return 'constitution.revision-authority';
+    }
+    if (restorePath.startsWith('constitution/files/')) return 'constitution.filesystem';
     if (restorePath.startsWith('core/default/')) return 'core.default-profile';
     if (restorePath.startsWith('core/profiles/')) return 'core.named-profiles';
     if (restorePath.startsWith('desktop/credentials/')) return 'credentials.key-material';
@@ -180,6 +249,119 @@ afterEach(async () => {
 });
 
 describe('Classic external recovery launcher', () => {
+  it('orders authority paths by deterministic Unicode code units without locale collation', () => {
+    expect(['ä.md', 'z.md', 'A.md', 'a.md'].toSorted(compareRecoveryAuthorityCodeUnits)).toEqual([
+      'A.md',
+      'a.md',
+      'z.md',
+      'ä.md',
+    ]);
+  });
+
+  it('isolates the v0.11.8 homedir on both POSIX and Windows rollback launches', () => {
+    expect(classicRecoveryEnvironmentOverrides('/isolated/home', '/isolated/core', 'linux')).toEqual({
+      WAYLAND_DISABLE_AUTO_UPDATE: '1',
+      WAYLAND_HOME: '/isolated/core',
+      HOME: '/isolated/home',
+    });
+    expect(classicRecoveryEnvironmentOverrides('C:\\isolated\\home', 'C:\\isolated\\core', 'win32')).toEqual({
+      WAYLAND_DISABLE_AUTO_UPDATE: '1',
+      WAYLAND_HOME: 'C:\\isolated\\core',
+      HOME: 'C:\\isolated\\home',
+      USERPROFILE: 'C:\\isolated\\home',
+    });
+  });
+
+  it('validates an existing external authority through a disposable copy without touching live userData', async () => {
+    const data = await fixture();
+    const vault = new TestExternalRecoveryVault();
+    const created = await loadOrCreateExternalRecoveryAuthority({
+      userDataRoot: data.liveUserDataRoot,
+      vault,
+      existingRecordDigests: async () => [],
+    });
+    created.activeSecret.fill(0);
+    const before = await treeDigest(data.liveUserDataRoot);
+
+    const state = await validateExternalRecoveryAuthorityReadOnly(data.liveUserDataRoot, vault);
+    expect(state.authorityHeadSha256).toBe(created.state.authorityHeadSha256);
+    expect(await treeDigest(data.liveUserDataRoot)).toBe(before);
+    expect(await exists(path.join(resolveExternalRecoveryAuthorityRoot(data.liveUserDataRoot), 'writer.lock'))).toBe(
+      false
+    );
+  });
+
+  it('fails closed when read-only Classic authority validation has no live authority', async () => {
+    const data = await fixture();
+    await expect(
+      validateExternalRecoveryAuthorityReadOnly(data.liveUserDataRoot, new TestExternalRecoveryVault())
+    ).rejects.toThrow();
+    expect(await readFile(path.join(data.liveUserDataRoot, 'sentinel'), 'utf8')).toBe('live-do-not-touch');
+  });
+
+  it('publishes production projection, Classic root, and restart locator in the required order without touching live state', async () => {
+    const data = await fixture();
+    const vault = new TestExternalRecoveryVault();
+    const authority = await loadOrCreateExternalRecoveryAuthority({
+      userDataRoot: data.liveUserDataRoot,
+      vault,
+      existingRecordDigests: async () => [],
+      dependencies: {
+        now: () => new Date('2026-07-17T12:00:00.000Z'),
+        randomSecret: () => Buffer.from(Array.from({ length: 32 }, (_, index) => index + 31)),
+      },
+    });
+    authority.activeSecret.fill(0);
+    const liveBefore = await treeDigest(data.liveUserDataRoot);
+    const stagingRoot = path.join(data.root, 'restart-safe-staging');
+    const destinationRoot = path.join(data.root, 'restart-safe-classic');
+    await mkdir(stagingRoot, { mode: 0o700 });
+    await writeFile(path.join(stagingRoot, 'prepared-only.txt'), 'not-user-created', { mode: 0o600 });
+
+    const published = await withExternalRecoveryAuthoritySnapshot(data.liveUserDataRoot, async (snapshotUserDataRoot) =>
+      publishRestartSafeClassicPreparation({
+        liveUserDataRoot: data.liveUserDataRoot,
+        authorityUserDataRoot: snapshotUserDataRoot,
+        vault,
+        stagingRoot,
+        destinationRoot,
+        now: () => new Date('2026-07-17T13:00:00.000Z'),
+        projectionInput: {
+          preparationId: 'production-order-proof',
+          classicRoot: destinationRoot,
+          classicRootIdentitySource: stagingRoot,
+          sourceAppVersion: '0.11.18',
+          candidateAppVersion: '0.12.0',
+          producerCommit: 'producer-commit-proof',
+          candidateCommit: 'candidate-commit-proof',
+          sourceSnapshotDigest: `sha256:${'1'.repeat(64)}`,
+          sourceRevisionAuthorityEnvelopeSha256: null,
+          sourceRevisionAuthorityEnvelope: null,
+          projectedFiles: [],
+          createdAt: '2026-07-17T13:00:00.000Z',
+          authentication: 'os-vault',
+        },
+      })
+    );
+
+    expect(await exists(stagingRoot)).toBe(false);
+    expect(await readFile(path.join(destinationRoot, 'prepared-only.txt'), 'utf8')).toBe('not-user-created');
+    expect(await treeDigest(data.liveUserDataRoot)).toBe(liveBefore);
+    const discovered = await new ClassicRecoveryLocatorAuthority({
+      liveUserDataRoot: data.liveUserDataRoot,
+      authorityUserDataRoot: data.liveUserDataRoot,
+      vault,
+    }).snapshot();
+    expect(discovered.active).toMatchObject({
+      preparationId: 'production-order-proof',
+      projectionAuthoritySha256: published.authorityEnvelopeSha256,
+    });
+    expect(published.record.classicRoot).toBe(await realpath(destinationRoot));
+    expect(published.record.classicRootIdentity.inode).toBe(
+      (await lstat(destinationRoot, { bigint: true })).ino.toString(10)
+    );
+  });
+
   it('builds deterministic extraction plans for every release delivery type', () => {
     expect(
       classicRecoveryExtractionPlanFor({
@@ -316,6 +498,20 @@ describe('Classic external recovery launcher', () => {
     expect(await exists(path.join(prepared.desktopUserDataRoot, 'config', '.wayland-env'))).toBe(false);
     expect(await exists(path.join(prepared.desktopUserDataRoot, 'pending-update.json'))).toBe(false);
     expect(await readFile(path.join(prepared.desktopUserDataRoot, 'analytics.json'), 'utf8')).toBe('{"events":1}');
+    expect(await exists(path.join(prepared.desktopUserDataRoot, 'constitution', 'revision-authority.enc'))).toBe(false);
+    expect(await readFile(path.join(prepared.homeRoot, '.wayland', 'CONSTITUTION.md'), 'utf8')).toBe(
+      '# User Constitution'
+    );
+    expect(await readFile(path.join(prepared.homeRoot, '.wayland', 'specialists', 'research.md'), 'utf8')).toBe(
+      '# Research overlay'
+    );
+    expect(await exists(path.join(prepared.homeRoot, '.wayland', '.constitution-keys.enc'))).toBe(false);
+    expect(await exists(path.join(prepared.homeRoot, '.wayland', 'archives'))).toBe(false);
+    await writeFile(path.join(prepared.homeRoot, '.wayland', 'CONSTITUTION.md'), '# Classic isolated edit');
+    expect(await readFile(path.join(data.materializedRoot, 'constitution', 'files', 'CONSTITUTION.md'), 'utf8')).toBe(
+      '# User Constitution'
+    );
+    expect(await readFile(path.join(data.liveUserDataRoot, 'sentinel'), 'utf8')).toBe('live-do-not-touch');
     expect(await readFile(path.join(prepared.coreDefaultRoot, 'config.toml'), 'utf8')).toBe('model = "test"');
     expect(await readFile(path.join(prepared.homeRoot, '.wayland', 'profiles', '.active'), 'utf8')).toBe('research');
     expect(prepared.args).toEqual([`--user-data-dir=${prepared.desktopUserDataRoot}`]);
@@ -327,6 +523,20 @@ describe('Classic external recovery launcher', () => {
     expect(prepared.receipt).toMatchObject({
       recovery: 'classic-v0.11.8',
       liveStateTouched: false,
+      constitutionProjection: {
+        contract: 'wayland-constitution-classic-projection/1.0',
+        sourceRevisionAuthorityEnvelopeSha256: sha256(
+          'electron-safe-storage-envelope:constitution-v3:active-key+retired-key-history'
+        ),
+        sourceRevisionBinding: 'v2-authority-envelope',
+        sourceSnapshotDigest: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
+        projectedFiles: expect.arrayContaining([
+          expect.objectContaining({ restorePath: 'constitution/files/CONSTITUTION.md' }),
+          expect.objectContaining({ restorePath: 'constitution/files/specialists/research.md' }),
+        ]),
+        excludedV2State: ['revision-authority', 'authenticated-keys', 'archives-journals-history', 'locks'],
+        reupgrade: 'restore-exact-v2-snapshot-or-cas-import-required',
+      },
       databaseSafety: { cronJobsDisabled: 1, channelPluginsDisabled: 1, workflowSessionsParked: 1 },
       isolation: { pendingUpdateRestored: false, externalReferencesCopied: false },
       classic: {
@@ -336,6 +546,30 @@ describe('Classic external recovery launcher', () => {
         },
       },
     });
+  });
+
+  it('projects an accepted legacy snapshot without inventing a v2 revision authority', async () => {
+    const data = await fixture({ includeRevisionAuthority: false });
+    const prepared = await prepareClassicRecovery(
+      {
+        materializedRoot: data.materializedRoot,
+        destinationRoot: data.destinationRoot,
+        liveUserDataRoot: data.liveUserDataRoot,
+        classicBinaryPath: data.binaryPath,
+        classicBinarySha256: data.binarySha256,
+      },
+      { verifyClassicBinaryTrust: acceptFixtureBinaryTrust }
+    );
+
+    expect(prepared.receipt.constitutionProjection).toMatchObject({
+      sourceRevisionAuthorityEnvelopeSha256: null,
+      sourceRevisionBinding: 'legacy-v1-content-only',
+      sourceSnapshotDigest: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
+    });
+    expect(await readFile(path.join(prepared.homeRoot, '.wayland', 'CONSTITUTION.md'), 'utf8')).toBe(
+      '# User Constitution'
+    );
+    expect(await exists(path.join(prepared.desktopUserDataRoot, 'constitution', 'revision-authority.enc'))).toBe(false);
   });
 
   it('fails closed when a materialized file no longer matches its receipt', async () => {
