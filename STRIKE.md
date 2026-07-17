@@ -3,12 +3,12 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T01:10:48Z
+Last heartbeat: 2026-07-17T01:14:50Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
 Packet timebox: 90 minutes active work; split or escalate on overrun
-Serial merge queue: ARM-001 -> CON-A -> CON-B -> SEC-001 -> CON-C
+Serial merge queue: ARM-001 -> FIXTURE-ATTR -> CON-A -> CON-B -> SEC-001 -> CON-C
 
 ## Arm and frozen baseline
 
@@ -78,7 +78,8 @@ ownership.
 | Packet | Dependency | Status | Exact commit | Focused proof | Aggregate proof | Remaining blocker |
 |---|---|---|---|---|---|---|
 | ARM-001 | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a` | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean` | n/a | none |
-| CON-A | ARM-001 | QUEUED | uncommitted tree `1956a8801a3956e4032d64b20841f6ad637dd230` | legacy proof is not a v2 receipt | legacy aggregate green | must create exact commit and reproducible v2 receipts |
+| FIXTURE-ATTR | ARM-001 | PLANNED | none | none | n/a | add one exact fixture whitespace classification before CON-A |
+| CON-A | FIXTURE-ATTR | QUEUED | uncommitted tree `1956a8801a3956e4032d64b20841f6ad637dd230` | legacy proof is not a v2 receipt | legacy aggregate green | must create exact commit and reproducible v2 receipts |
 | CON-B | CON-A | REOPENED | uncommitted tree `751170dbd39b629e7580e4708d0785354eb8f48d` | 51 focused tests green after lint repair, not yet a v2 receipt | exact full rerun active | independent audit and security gate |
 | SEC-001 | CON-B | PLANNED | none | none | dependency audit red | partition reachable production dependencies and remediate |
 | CON-C | CON-B, SEC-001 | PLANNED | none | none | none | signed packages, real journeys, deployment, canary, rollback drill |
@@ -111,6 +112,32 @@ Acceptance evidence: an exact ARM commit plus one receipt per command using the
 schema below.
 
 Timebox: 30 minutes.
+
+## Packet FIXTURE-ATTR — immutable patch-fixture whitespace authority
+
+File ownership: `.gitattributes` only.
+
+Authority boundary: classify the exact historical file
+`tests/fixtures/constitution-fs/provenance/991c502-fixture-failpoint.patch` so
+Git does not reinterpret its intentional `+ ` patch payload as newly
+introduced source whitespace. It may not change any fixture byte, wildcard
+fixture families, or relax whitespace checks for production code.
+
+Invariants: the historical fixture digest remains byte-identical; every other
+path retains existing whitespace policy; `git diff --check` still detects a
+synthetic trailing-whitespace defect outside the exact fixture path.
+
+Non-claims: no Constitution behavior, fixture authenticity, corpus replay,
+package, deploy, or release acceptance.
+
+Tests: exact `.gitattributes` diff; before/after fixture digest equality;
+Stage A committed-tree `git diff --check`; hostile control showing an unrelated
+trailing-whitespace file still fails.
+
+Acceptance evidence: exact commit and complete receipt set on the current
+integration HEAD.
+
+Timebox: 20 minutes.
 
 ## Packet CON-A — native Constitution authority v2
 
@@ -246,6 +273,10 @@ test is a defect and cannot contribute to a green receipt.
 
 Current discovered work:
 
+- `FIXTURE-ATTR` — HIGH process blocker for CON-A: committed-tree
+  `git diff --check` correctly flags the intentional `+ ` byte in the immutable
+  historical patch fixture. Changing the fixture would invalidate provenance;
+  the exception must be exact-path and hostile-tested.
 - `SEC-001` — BLOCKER to global promotion: dependency audit reports 101
   advisories (1 critical, 24 high, 63 moderate, 13 low).
 - `UI-PROOF-001` — MEDIUM evidence gap: settings browser audit requires a live
