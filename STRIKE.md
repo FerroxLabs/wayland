@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T04:53:21Z
+Last heartbeat: 2026-07-17T05:48:22Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | REOPENED | packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; integration `7a8ecff24e57f89762e83da753ddd447d143d782` | prior receipts remain historical evidence only                                                                                      | full combined suite green     | BLOCKER: Classic `CONFLICT` clears ambiguous durable operation ID  |
+| CON-B        | CON-A           | QUEUED   | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; remediation `0bfb3a6a1a12adc86c98dde4a078e5b8bcff4ae8` | `CON-B-CONFLICT-ID-packet-focused`, `CON-B-CONFLICT-ID-packet-static`, `CON-B-CONFLICT-ID-packet-ownership`                           | prior full suite green        | serial integration and independent exact-HEAD re-audit             |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -450,12 +450,24 @@ undeclared path.
 CON-B serial landing: integration before
 `e209a32e1648985c97f6244c309cf929943b4eac`; integration after
 `7a8ecff24e57f89762e83da753ddd447d143d782`. The exact integrated HEAD
-re-passed 171/171 Vitest and 33/33 Bun tests plus full typecheck. An independent
-author-excluded exact-HEAD audit is in progress; CON-B remains LANDED rather
-than ACCEPTED until that audit reports zero HIGH/BLOCKER.
+re-passed 171/171 Vitest and 33/33 Bun tests plus full typecheck. The independent
+author-excluded exact-HEAD audit closed all seven original BLOCKER/HIGH findings
+but found one new BLOCKER: a post-dispatch `CONFLICT` cleared the durable client
+operation identity. CON-B was reopened; its earlier receipts remain historical.
 
 - `strike/receipts/CON-B-integration-focused.json`
 - `strike/receipts/CON-B-integration-typecheck.json`
+
+CON-B-CONFLICT-ID remediation commit
+`0bfb3a6a1a12adc86c98dde4a078e5b8bcff4ae8` retains durable identity across
+every nonterminal failure and invalidates it only for explicit
+`OPERATION_ID_CONFLICT` or `ROLLED_BACK`. Its hostile DOM proof passes 8/8,
+including exact identity reuse after nonretryable `CONFLICT`; scoped format,
+lint, typecheck, diff, and exact two-file ownership gates pass.
+
+- `strike/receipts/CON-B-CONFLICT-ID-packet-focused.json`
+- `strike/receipts/CON-B-CONFLICT-ID-packet-static.json`
+- `strike/receipts/CON-B-CONFLICT-ID-packet-ownership.json`
 
 ## Authorization gates
 
