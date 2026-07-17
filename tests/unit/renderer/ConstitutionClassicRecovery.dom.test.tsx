@@ -119,6 +119,7 @@ const executeExclusive = async <T,>(
 
 describe('ConstitutionClassicRecovery', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     window.localStorage.clear();
     mockGet.mockReset();
     mockGet.mockResolvedValue(metadata);
@@ -321,7 +322,7 @@ describe('ConstitutionClassicRecovery', () => {
     expect(password.value).toBe('');
     expect(window.localStorage.length).toBe(1);
     expect(window.localStorage.getItem(window.localStorage.key(0)!)).toContain('11111111-1111-4111-8111-111111111111');
-    expect(screen.getByRole('button', { name: 'Discard Classic changes' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Discard Classic changes' })).not.toBeInTheDocument();
 
     fireEvent.change(password, { target: { value: 'correct-again' } });
     fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
@@ -338,6 +339,162 @@ describe('ConstitutionClassicRecovery', () => {
     );
     expect(mockDecide.mock.calls[1][0].projectionReceiptSha256).toBe(projectionReceiptSha256);
     expect(window.localStorage.length).toBe(0);
+  });
+
+  it('keeps exact reconciliation available after an ambiguous failure refreshes to terminal metadata', async () => {
+    const onRestored = vi.fn();
+    const terminalMetadata = {
+      success: true as const,
+      data: {
+        ...metadata.data,
+        recoveryRevision: 'recovery:v2',
+        state: 'committed' as const,
+        items: [],
+        allowedActions: [],
+        discardChallenge: null,
+      },
+    };
+    mockGet.mockResolvedValueOnce(metadata).mockResolvedValue(terminalMetadata);
+    mockDecide
+      .mockImplementationOnce(async (request) => ({
+        success: false as const,
+        error: {
+          code: 'NATIVE_FAILURE' as const,
+          message: 'Native dispatch completed but its receipt response was lost.',
+          retryable: false,
+          operationId: request.operationId,
+        },
+      }))
+      .mockResolvedValueOnce(committed);
+
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={onRestored}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await screen.findByText('Native dispatch completed but its receipt response was lost.');
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByText('Classic work was applied')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Apply Classic work' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Keep current and preserve Classic' })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct-again' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1));
+
+    expect(mockDecide).toHaveBeenCalledTimes(2);
+    expect(mockDecide.mock.calls[1][0]).toMatchObject({
+      operationId: mockDecide.mock.calls[0][0].operationId,
+      expectedRecoveryRevision: mockDecide.mock.calls[0][0].expectedRecoveryRevision,
+      projectionReceiptSha256: mockDecide.mock.calls[0][0].projectionReceiptSha256,
+    });
+  });
+
+  it('replays the originally bound discard inventory across item and allowed-action drift', async () => {
+    const onRestored = vi.fn();
+    const driftedMetadata = {
+      success: true as const,
+      data: {
+        ...metadata.data,
+        recoveryRevision: 'recovery:v2',
+        projectionReceiptSha256: `sha256:${'c'.repeat(64)}` as const,
+        items: [
+          {
+            ...metadata.data.items[0],
+            objectId: 'specialist:drifted',
+          },
+        ],
+        allowedActions: ['keep-v2'] as const,
+        discardChallenge: 'discard:drifted',
+      },
+    };
+    mockGet.mockResolvedValueOnce(metadata).mockResolvedValue(driftedMetadata);
+    mockDecide
+      .mockImplementationOnce(async (request) => ({
+        success: false as const,
+        error: {
+          code: 'NATIVE_FAILURE' as const,
+          message: 'Discard receipt response was lost after dispatch.',
+          retryable: false,
+          operationId: request.operationId,
+        },
+      }))
+      .mockResolvedValueOnce(committed);
+
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={onRestored}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+    fireEvent.click(screen.getByRole('button', { name: 'Discard Classic changes' }));
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
+    fireEvent.change(screen.getByPlaceholderText('Exact discard confirmation'), {
+      target: { value: 'DISCARD constitution' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await screen.findByText('Discard receipt response was lost after dispatch.');
+    await waitFor(() => expect(mockGet).toHaveBeenCalledTimes(2));
+
+    expect(screen.getByRole('button', { name: 'Discard Classic changes' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Keep current and preserve Classic' })).not.toBeInTheDocument();
+    expect(screen.getByText('RECONCILE PENDING DISCARD')).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct-again' } });
+    fireEvent.change(screen.getByPlaceholderText('Exact discard confirmation'), {
+      target: { value: 'RECONCILE PENDING DISCARD' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1));
+
+    expect(mockDecide).toHaveBeenCalledTimes(2);
+    expect(mockDecide.mock.calls[0][0].decision.confirmedObjectIds).toEqual(['constitution']);
+    expect(mockDecide.mock.calls[1][0].decision).toEqual({
+      kind: 'discard',
+      confirmedObjectIds: ['constitution'],
+      confirmationText: 'RECONCILE PENDING DISCARD',
+    });
+    expect(mockDecide.mock.calls[1][0].operationId).toBe(mockDecide.mock.calls[0][0].operationId);
+    expect(mockDecide.mock.calls[1][0].expectedRecoveryRevision).toBe('recovery:v1');
+    expect(mockDecide.mock.calls[1][0].projectionReceiptSha256).toBe(projectionReceiptSha256);
+  });
+
+  it('fails closed on unsupported durable evidence without minting or dispatching a replacement', async () => {
+    const key = 'wayland:constitution:classic-recovery:hosted%3Auser-1';
+    const unsupported = JSON.stringify({
+      contract: 'wayland-constitution-classic-recovery-client-operation/1.0',
+      operationId: '11111111-1111-4111-8111-111111111111',
+      action: 'promote',
+      projectionReceiptSha256,
+      expectedRecoveryRevision: 'recovery:v1',
+      promotionId: null,
+      expectedJournalHeadSha256: null,
+      createdAt: '2026-07-17T00:00:00.000Z',
+    });
+    window.localStorage.setItem(key, unsupported);
+
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={vi.fn()}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+
+    expect(screen.getByRole('alert')).toHaveTextContent('No recovery action will run or replace this operation.');
+    expect(screen.queryByRole('button', { name: 'Apply Classic work' })).not.toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('Current Wayland password')).not.toBeInTheDocument();
+    expect(globalThis.crypto.randomUUID).not.toHaveBeenCalled();
+    expect(mockDecide).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem(key)).toBe(unsupported);
   });
 
   it('clears the operation identity after a producer-proven terminal rollback', async () => {

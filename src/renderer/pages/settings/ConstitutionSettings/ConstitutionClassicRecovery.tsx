@@ -6,7 +6,7 @@
 
 import { Button, Input } from '@arco-design/web-react';
 import { GitMerge, RefreshCw, ShieldCheck } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import type {
   ConstitutionClassicRecoveryAction,
   ConstitutionClassicRecoveryDecision,
@@ -22,9 +22,12 @@ import {
   runDesktopConstitutionClassicRecoveryMutation,
 } from '@renderer/services/ConstitutionService';
 
-const PENDING_CONTRACT = 'wayland-constitution-classic-recovery-client-operation/1.0' as const;
+const PENDING_CONTRACT = 'wayland-constitution-classic-recovery-client-operation/2.0' as const;
 const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const IDENTITY_INVALIDATING_FAILURE_CODES = new Set(['ROLLED_BACK']);
+const PENDING_DISCARD_CONFIRMATION = 'RECONCILE PENDING DISCARD';
+const MAX_PENDING_OBJECTS = 4096;
+const MAX_PENDING_OBJECT_ID_SCALARS = 1024;
 
 type PendingClassicOperation = Readonly<{
   contract: typeof PENDING_CONTRACT;
@@ -32,10 +35,16 @@ type PendingClassicOperation = Readonly<{
   action: ConstitutionClassicRecoveryAction;
   projectionReceiptSha256: `sha256:${string}`;
   expectedRecoveryRevision: string;
+  confirmedObjectIds: readonly string[];
   promotionId: string | null;
   expectedJournalHeadSha256: `sha256:${string}` | null;
   createdAt: string;
 }>;
+
+type PendingReadResult =
+  | Readonly<{ state: 'absent' }>
+  | Readonly<{ state: 'valid'; value: PendingClassicOperation }>
+  | Readonly<{ state: 'invalid'; reason: string }>;
 
 type Props = Readonly<{
   principalScope: string;
@@ -49,13 +58,35 @@ function pendingStorageKey(principalScope: string): string {
   return `wayland:constitution:classic-recovery:${encodeURIComponent(principalScope)}`;
 }
 
-function readPending(principalScope: string): PendingClassicOperation | null {
+function canonicalObjectIds(value: unknown): value is readonly string[] {
+  if (!Array.isArray(value) || value.length > MAX_PENDING_OBJECTS) return false;
+  for (let index = 0; index < value.length; index += 1) {
+    const objectId = value[index];
+    if (
+      typeof objectId !== 'string' ||
+      objectId.length === 0 ||
+      objectId !== objectId.normalize('NFC') ||
+      [...objectId].length > MAX_PENDING_OBJECT_ID_SCALARS ||
+      (index > 0 && value[index - 1] >= objectId)
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function readPending(principalScope: string): PendingReadResult {
   try {
-    const value = JSON.parse(localStorage.getItem(pendingStorageKey(principalScope)) ?? 'null') as unknown;
-    if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const raw = localStorage.getItem(pendingStorageKey(principalScope));
+    if (raw === null) return { state: 'absent' };
+    const value = JSON.parse(raw) as unknown;
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+      return { state: 'invalid', reason: 'Pending Classic recovery evidence is not an object.' };
+    }
     const record = value as Record<string, unknown>;
     const expected = [
       'action',
+      'confirmedObjectIds',
       'contract',
       'createdAt',
       'expectedJournalHeadSha256',
@@ -64,7 +95,9 @@ function readPending(principalScope: string): PendingClassicOperation | null {
       'projectionReceiptSha256',
       'promotionId',
     ];
-    if (Object.keys(record).toSorted().join('\n') !== expected.toSorted().join('\n')) return null;
+    if (Object.keys(record).toSorted().join('\n') !== expected.toSorted().join('\n')) {
+      return { state: 'invalid', reason: 'Pending Classic recovery evidence has an unsupported shape.' };
+    }
     if (
       record.contract !== PENDING_CONTRACT ||
       typeof record.operationId !== 'string' ||
@@ -74,6 +107,8 @@ function readPending(principalScope: string): PendingClassicOperation | null {
       !/^sha256:[a-f0-9]{64}$/.test(record.projectionReceiptSha256) ||
       typeof record.expectedRecoveryRevision !== 'string' ||
       record.expectedRecoveryRevision.length === 0 ||
+      !canonicalObjectIds(record.confirmedObjectIds) ||
+      (record.action === 'discard') !== record.confirmedObjectIds.length > 0 ||
       (record.promotionId !== null &&
         (typeof record.promotionId !== 'string' || !UUID_V4_PATTERN.test(record.promotionId))) ||
       (record.expectedJournalHeadSha256 !== null &&
@@ -82,29 +117,32 @@ function readPending(principalScope: string): PendingClassicOperation | null {
       typeof record.createdAt !== 'string' ||
       Number.isNaN(Date.parse(record.createdAt))
     ) {
-      return null;
+      return { state: 'invalid', reason: 'Pending Classic recovery evidence failed validation.' };
     }
-    return record as PendingClassicOperation;
+    return { state: 'valid', value: record as PendingClassicOperation };
   } catch {
-    return null;
+    return { state: 'invalid', reason: 'Pending Classic recovery evidence could not be read.' };
   }
 }
 
 function beginPending(
   principalScope: string,
-  metadata: ConstitutionClassicRecoveryMetadataSuccess['data'],
+  metadata: ConstitutionClassicRecoveryMetadataSuccess['data'] | null,
   action: ConstitutionClassicRecoveryAction
 ): PendingClassicOperation {
   const existing = readPending(principalScope);
   // Mutable metadata cannot prove that an earlier dispatch did not commit.
   // Preserve its exact request binding until the producer proves a terminal outcome.
-  if (existing) return existing;
+  if (existing.state === 'valid') return existing.value;
+  if (existing.state === 'invalid') throw new Error(existing.reason);
+  if (!metadata) throw new Error('Classic recovery metadata is unavailable for a new operation.');
   const pending: PendingClassicOperation = {
     contract: PENDING_CONTRACT,
     operationId: crypto.randomUUID(),
     action,
     projectionReceiptSha256: metadata.projectionReceiptSha256,
     expectedRecoveryRevision: metadata.recoveryRevision,
+    confirmedObjectIds: action === 'discard' ? metadata.items.map(({ objectId }) => objectId).toSorted() : [],
     promotionId: metadata.promotionId,
     expectedJournalHeadSha256: metadata.journalHeadSha256,
     createdAt: new Date().toISOString(),
@@ -147,6 +185,7 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
   const [confirmationText, setConfirmationText] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [pendingRead, setPendingRead] = useState<PendingReadResult>(() => readPending(principalScope));
 
   const load = useCallback(
     async (clearMessage = true): Promise<void> => {
@@ -182,18 +221,25 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
     void load();
   }, [load]);
 
-  const pending = useMemo(() => readPending(principalScope), [principalScope, metadata]);
+  useEffect(() => {
+    setPendingRead(readPending(principalScope));
+  }, [principalScope]);
+
+  const pending = pendingRead.state === 'valid' ? pendingRead.value : null;
+  const pendingInvalid = pendingRead.state === 'invalid';
+  const pendingInvalidMessage = pendingRead.state === 'invalid' ? pendingRead.reason : null;
   const action = pending?.action ?? selectedAction ?? null;
 
   const submit = useCallback(async (): Promise<void> => {
-    if (!metadata || !action || !password || busy) return;
-    const current = beginPending(principalScope, metadata, action);
+    if (!action || !password || busy || pendingInvalid || (!pending && !metadata)) return;
     setBusy(true);
     setMessage(null);
     try {
+      const current = beginPending(principalScope, metadata, action);
+      setPendingRead({ state: 'valid', value: current });
       const exclusive = await executeExclusive(async () => {
         let result: ConstitutionClassicRecoveryMutationResult;
-        if (action === 'resume') {
+        if (current.action === 'resume') {
           if (!current.promotionId || !current.expectedJournalHeadSha256) {
             throw new Error('Classic recovery resume facts changed. Refresh and try again.');
           }
@@ -214,13 +260,13 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
             : await resumeConstitutionClassicRecoveryHttp(request);
         } else {
           const decision: ConstitutionClassicRecoveryDecision =
-            action === 'discard'
+            current.action === 'discard'
               ? {
                   kind: 'discard',
-                  confirmedObjectIds: metadata.items.map(({ objectId }) => objectId),
+                  confirmedObjectIds: current.confirmedObjectIds,
                   confirmationText,
                 }
-              : { kind: action };
+              : { kind: current.action };
           const request = {
             operationId: current.operationId,
             projectionReceiptSha256: current.projectionReceiptSha256,
@@ -245,11 +291,13 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
         setMessage(result.error.message);
         if (!result.error.retryable && IDENTITY_INVALIDATING_FAILURE_CODES.has(result.error.code)) {
           clearPending(principalScope);
+          setPendingRead({ state: 'absent' });
         }
         await load(false);
         return;
       }
       clearPending(principalScope);
+      setPendingRead({ state: 'absent' });
       setSelectedAction(null);
       setMessage('Classic recovery completed with a durable receipt.');
       onRestored();
@@ -272,17 +320,23 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
     metadata,
     onRestored,
     password,
+    pending,
+    pendingInvalid,
     principalScope,
   ]);
 
-  if (loadState === 'absent') return null;
-  if (loadState === 'error') {
+  if (loadState === 'absent' && !pending && !pendingInvalid) return null;
+  if (loadState === 'error' && !pending && !pendingInvalid) {
     return (
       <section role='alert' className='rd-12px border border-solid border-danger p-14px text-12px text-danger'>
         {message}
       </section>
     );
   }
+
+  const visibleActions = pending ? [pending.action] : (metadata?.allowedActions ?? []);
+  const discardConfirmation = pending ? PENDING_DISCARD_CONFIRMATION : metadata?.discardChallenge;
+  const actionAvailable = action !== null && (pending !== null || metadata?.allowedActions.includes(action) === true);
 
   return (
     <section
@@ -312,6 +366,13 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
         />
       </div>
 
+      {pendingInvalid && (
+        <div role='alert' className='rd-8px border border-solid border-danger p-10px text-12px text-danger'>
+          {pendingInvalidMessage} No recovery action will run or replace this operation. Preserve the local evidence and
+          contact support for supervised recovery.
+        </div>
+      )}
+
       {metadata && (
         <>
           <div className='rd-8px bg-fill-1 p-10px flex flex-col gap-5px'>
@@ -337,84 +398,88 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
               </span>
             </div>
           )}
+        </>
+      )}
 
-          {metadata.allowedActions.length > 0 && (
-            <div className='flex flex-wrap gap-8px'>
-              {metadata.allowedActions.map((candidate) => (
-                <Button
-                  key={candidate}
-                  size='small'
-                  type={action === candidate ? 'primary' : 'secondary'}
-                  status={candidate === 'discard' ? 'danger' : undefined}
-                  disabled={busy || (pending !== null && candidate !== pending.action)}
-                  onClick={() => {
-                    setSelectedAction(candidate);
-                    setPassword('');
-                    setConfirmationText('');
-                    setMessage(null);
-                  }}
-                >
-                  {candidate === 'promote'
-                    ? 'Apply Classic work'
-                    : candidate === 'keep-v2'
-                      ? 'Keep current and preserve Classic'
-                      : candidate === 'discard'
-                        ? 'Discard Classic changes'
-                        : 'Resume remaining work'}
-                </Button>
-              ))}
-            </div>
-          )}
+      {!pendingInvalid && visibleActions.length > 0 && (
+        <div className='flex flex-wrap gap-8px'>
+          {visibleActions.map((candidate) => (
+            <Button
+              key={candidate}
+              size='small'
+              type={action === candidate ? 'primary' : 'secondary'}
+              status={candidate === 'discard' ? 'danger' : undefined}
+              disabled={busy}
+              onClick={() => {
+                setSelectedAction(candidate);
+                setPassword('');
+                setConfirmationText('');
+                setMessage(null);
+              }}
+            >
+              {candidate === 'promote'
+                ? 'Apply Classic work'
+                : candidate === 'keep-v2'
+                  ? 'Keep current and preserve Classic'
+                  : candidate === 'discard'
+                    ? 'Discard Classic changes'
+                    : 'Resume remaining work'}
+            </Button>
+          ))}
+        </div>
+      )}
 
-          {action && metadata.allowedActions.includes(action) && (
-            <div className='rd-8px bg-fill-1 p-10px flex flex-col gap-8px'>
-              {action === 'discard' && (
-                <>
-                  <div className='text-11px text-danger'>
-                    Type the exact confirmation below. Discard is available only before any item commits.
-                  </div>
-                  <code className='text-10px break-all select-all'>{metadata.discardChallenge}</code>
-                  <Input
-                    value={confirmationText}
-                    onChange={setConfirmationText}
-                    placeholder='Exact discard confirmation'
-                    disabled={busy}
-                  />
-                </>
-              )}
-              <Input.Password
-                value={password}
-                onChange={setPassword}
-                placeholder='Current Wayland password'
-                autoComplete='current-password'
+      {!pendingInvalid && actionAvailable && (
+        <div className='rd-8px bg-fill-1 p-10px flex flex-col gap-8px'>
+          {action === 'discard' && (
+            <>
+              <div className='text-11px text-danger'>
+                {pending
+                  ? 'Re-authorize reconciliation of the already-confirmed discard. This does not start a new discard.'
+                  : 'Type the exact confirmation below. Discard is available only before any item commits.'}
+              </div>
+              <code className='text-10px break-all select-all'>{discardConfirmation}</code>
+              <Input
+                value={confirmationText}
+                onChange={setConfirmationText}
+                placeholder='Exact discard confirmation'
                 disabled={busy}
               />
-              <div className='flex justify-end gap-8px'>
-                <Button
-                  size='small'
-                  disabled={busy}
-                  onClick={() => {
-                    setSelectedAction(null);
-                    setPassword('');
-                    setConfirmationText('');
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type='primary'
-                  status={action === 'discard' ? 'danger' : undefined}
-                  size='small'
-                  loading={busy}
-                  disabled={!password || (action === 'discard' && confirmationText !== metadata.discardChallenge)}
-                  onClick={() => void submit()}
-                >
-                  Confirm
-                </Button>
-              </div>
-            </div>
+            </>
           )}
-        </>
+          <Input.Password
+            value={password}
+            onChange={setPassword}
+            placeholder='Current Wayland password'
+            autoComplete='current-password'
+            disabled={busy}
+          />
+          <div className='flex justify-end gap-8px'>
+            {!pending && (
+              <Button
+                size='small'
+                disabled={busy}
+                onClick={() => {
+                  setSelectedAction(null);
+                  setPassword('');
+                  setConfirmationText('');
+                }}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button
+              type='primary'
+              status={action === 'discard' ? 'danger' : undefined}
+              size='small'
+              loading={busy}
+              disabled={!password || (action === 'discard' && confirmationText !== discardConfirmation)}
+              onClick={() => void submit()}
+            >
+              Confirm
+            </Button>
+          </div>
+        </div>
       )}
 
       {message && (
