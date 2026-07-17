@@ -46,6 +46,13 @@ type PendingReadResult =
   | Readonly<{ state: 'valid'; value: PendingClassicOperation }>
   | Readonly<{ state: 'invalid'; reason: string }>;
 
+class PendingOperationChangedError extends Error {
+  constructor(readonly current: PendingReadResult) {
+    super('Pending Classic recovery changed. Review and authorize the current operation again.');
+    this.name = 'PendingOperationChangedError';
+  }
+}
+
 type Props = Readonly<{
   principalScope: string;
   executeExclusive: <T>(
@@ -125,16 +132,35 @@ function readPending(principalScope: string): PendingReadResult {
   }
 }
 
+function samePendingOperation(left: PendingClassicOperation, right: PendingClassicOperation): boolean {
+  return (
+    left.contract === right.contract &&
+    left.operationId === right.operationId &&
+    left.action === right.action &&
+    left.projectionReceiptSha256 === right.projectionReceiptSha256 &&
+    left.expectedRecoveryRevision === right.expectedRecoveryRevision &&
+    left.confirmedObjectIds.length === right.confirmedObjectIds.length &&
+    left.confirmedObjectIds.every((objectId, index) => objectId === right.confirmedObjectIds[index]) &&
+    left.promotionId === right.promotionId &&
+    left.expectedJournalHeadSha256 === right.expectedJournalHeadSha256 &&
+    left.createdAt === right.createdAt
+  );
+}
+
 function beginPending(
   principalScope: string,
   metadata: ConstitutionClassicRecoveryMetadataSuccess['data'] | null,
-  action: ConstitutionClassicRecoveryAction
+  action: ConstitutionClassicRecoveryAction,
+  expectedPending: PendingClassicOperation | null
 ): PendingClassicOperation {
   const existing = readPending(principalScope);
   // Mutable metadata cannot prove that an earlier dispatch did not commit.
   // Preserve its exact request binding until the producer proves a terminal outcome.
-  if (existing.state === 'valid') return existing.value;
-  if (existing.state === 'invalid') throw new Error(existing.reason);
+  if (expectedPending) {
+    if (existing.state === 'valid' && samePendingOperation(existing.value, expectedPending)) return existing.value;
+    throw new PendingOperationChangedError(existing);
+  }
+  if (existing.state !== 'absent') throw new PendingOperationChangedError(existing);
   if (!metadata) throw new Error('Classic recovery metadata is unavailable for a new operation.');
   const pending: PendingClassicOperation = {
     contract: PENDING_CONTRACT,
@@ -151,8 +177,11 @@ function beginPending(
   return pending;
 }
 
-function clearPending(principalScope: string): void {
+function clearPendingIfMatching(principalScope: string, completed: PendingClassicOperation): PendingReadResult {
+  const existing = readPending(principalScope);
+  if (existing.state !== 'valid' || !samePendingOperation(existing.value, completed)) return existing;
   localStorage.removeItem(pendingStorageKey(principalScope));
+  return readPending(principalScope);
 }
 
 function stateLabel(state: ConstitutionClassicRecoveryMetadataSuccess['data']['state']): string {
@@ -225,6 +254,20 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
     setPendingRead(readPending(principalScope));
   }, [principalScope]);
 
+  useEffect(() => {
+    const key = pendingStorageKey(principalScope);
+    const synchronizeFromStorage = (event: StorageEvent): void => {
+      if ((event.storageArea && event.storageArea !== localStorage) || event.key !== key) return;
+      setPendingRead(readPending(principalScope));
+      setSelectedAction(null);
+      setPassword('');
+      setConfirmationText('');
+      setMessage('Pending Classic recovery changed in another window. Review and authorize it again.');
+    };
+    window.addEventListener('storage', synchronizeFromStorage);
+    return () => window.removeEventListener('storage', synchronizeFromStorage);
+  }, [principalScope]);
+
   const pending = pendingRead.state === 'valid' ? pendingRead.value : null;
   const pendingInvalid = pendingRead.state === 'invalid';
   const pendingInvalidMessage = pendingRead.state === 'invalid' ? pendingRead.reason : null;
@@ -235,7 +278,7 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
     setBusy(true);
     setMessage(null);
     try {
-      const current = beginPending(principalScope, metadata, action);
+      const current = beginPending(principalScope, metadata, action, pending);
       setPendingRead({ state: 'valid', value: current });
       const exclusive = await executeExclusive(async () => {
         let result: ConstitutionClassicRecoveryMutationResult;
@@ -290,22 +333,33 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
       if (result.success === false) {
         setMessage(result.error.message);
         if (!result.error.retryable && IDENTITY_INVALIDATING_FAILURE_CODES.has(result.error.code)) {
-          clearPending(principalScope);
-          setPendingRead({ state: 'absent' });
+          const nextPending = clearPendingIfMatching(principalScope, current);
+          setPendingRead(nextPending);
+          if (nextPending.state !== 'absent') {
+            setMessage(`${result.error.message} Another pending operation was preserved for review.`);
+          }
         }
         await load(false);
         return;
       }
-      clearPending(principalScope);
-      setPendingRead({ state: 'absent' });
+      const nextPending = clearPendingIfMatching(principalScope, current);
+      setPendingRead(nextPending);
       setSelectedAction(null);
-      setMessage('Classic recovery completed with a durable receipt.');
+      setMessage(
+        nextPending.state === 'absent'
+          ? 'Classic recovery completed with a durable receipt.'
+          : 'Classic recovery completed with a durable receipt. Another pending operation was preserved for review.'
+      );
       onRestored();
       await load(false);
     } catch (error) {
       // Network/response loss retains the exact operation identity for replay.
       setPassword('');
       setConfirmationText('');
+      if (error instanceof PendingOperationChangedError) {
+        setPendingRead(error.current);
+        setSelectedAction(null);
+      }
       setMessage(error instanceof Error ? error.message : 'Classic recovery did not complete.');
     } finally {
       setBusy(false);

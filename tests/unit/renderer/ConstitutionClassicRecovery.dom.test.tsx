@@ -113,6 +113,34 @@ const committed = {
   },
 };
 
+const pendingKey = 'wayland:constitution:classic-recovery:hosted%3Auser-1';
+
+function pendingOperation(
+  overrides: Partial<{
+    operationId: string;
+    action: 'promote' | 'keep-v2' | 'discard' | 'resume';
+    projectionReceiptSha256: `sha256:${string}`;
+    expectedRecoveryRevision: string;
+    confirmedObjectIds: readonly string[];
+    promotionId: string | null;
+    expectedJournalHeadSha256: `sha256:${string}` | null;
+    createdAt: string;
+  }> = {}
+) {
+  return {
+    contract: 'wayland-constitution-classic-recovery-client-operation/2.0',
+    operationId: '33333333-3333-4333-8333-333333333333',
+    action: 'keep-v2' as const,
+    projectionReceiptSha256,
+    expectedRecoveryRevision: 'recovery:v1',
+    confirmedObjectIds: [] as readonly string[],
+    promotionId: null,
+    expectedJournalHeadSha256: null,
+    createdAt: '2026-07-17T00:00:00.000Z',
+    ...overrides,
+  };
+}
+
 const executeExclusive = async <T,>(
   action: () => Promise<{ committed: boolean; value: T }>
 ): Promise<{ committed: boolean; value: T }> => action();
@@ -467,7 +495,6 @@ describe('ConstitutionClassicRecovery', () => {
   });
 
   it('fails closed on unsupported durable evidence without minting or dispatching a replacement', async () => {
-    const key = 'wayland:constitution:classic-recovery:hosted%3Auser-1';
     const unsupported = JSON.stringify({
       contract: 'wayland-constitution-classic-recovery-client-operation/1.0',
       operationId: '11111111-1111-4111-8111-111111111111',
@@ -478,7 +505,7 @@ describe('ConstitutionClassicRecovery', () => {
       expectedJournalHeadSha256: null,
       createdAt: '2026-07-17T00:00:00.000Z',
     });
-    window.localStorage.setItem(key, unsupported);
+    window.localStorage.setItem(pendingKey, unsupported);
 
     render(
       <ConstitutionClassicRecovery
@@ -494,7 +521,130 @@ describe('ConstitutionClassicRecovery', () => {
     expect(screen.queryByPlaceholderText('Current Wayland password')).not.toBeInTheDocument();
     expect(globalThis.crypto.randomUUID).not.toHaveBeenCalled();
     expect(mockDecide).not.toHaveBeenCalled();
-    expect(window.localStorage.getItem(key)).toBe(unsupported);
+    expect(window.localStorage.getItem(pendingKey)).toBe(unsupported);
+  });
+
+  it('rejects a durable action change until the newly displayed destructive intent is authorized', async () => {
+    const onRestored = vi.fn();
+    mockDecide.mockResolvedValue(committed);
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={onRestored}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'promote-secret' } });
+
+    const concurrentDiscard = pendingOperation({
+      action: 'discard',
+      confirmedObjectIds: ['constitution'],
+    });
+    window.localStorage.setItem(pendingKey, JSON.stringify(concurrentDiscard));
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await screen.findByText('Pending Classic recovery changed. Review and authorize the current operation again.');
+
+    expect(mockDecide).not.toHaveBeenCalled();
+    expect(globalThis.crypto.randomUUID).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Discard Classic changes' })).toBeInTheDocument();
+    expect(screen.getByText('RECONCILE PENDING DISCARD')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Current Wayland password')).toHaveValue('');
+
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'discard-secret' } });
+    fireEvent.change(screen.getByPlaceholderText('Exact discard confirmation'), {
+      target: { value: 'RECONCILE PENDING DISCARD' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1));
+    expect(mockDecide).toHaveBeenCalledTimes(1);
+    expect(mockDecide.mock.calls[0][0]).toMatchObject({
+      operationId: concurrentDiscard.operationId,
+      password: 'discard-secret',
+      decision: {
+        kind: 'discard',
+        confirmedObjectIds: ['constitution'],
+        confirmationText: 'RECONCILE PENDING DISCARD',
+      },
+    });
+  });
+
+  it.each([
+    ['success', committed],
+    [
+      'producer-proven rollback',
+      {
+        success: false as const,
+        error: {
+          code: 'ROLLED_BACK' as const,
+          message: 'The original operation was authoritatively rolled back.',
+          retryable: false,
+          operationId: '11111111-1111-4111-8111-111111111111',
+        },
+      },
+    ],
+  ] as const)('preserves a concurrently replaced operation after %s', async (_outcome, result) => {
+    const onRestored = vi.fn();
+    const replacement = pendingOperation({
+      operationId: '44444444-4444-4444-8444-444444444444',
+      expectedRecoveryRevision: 'recovery:v2',
+      projectionReceiptSha256: `sha256:${'d'.repeat(64)}`,
+    });
+    mockDecide.mockImplementationOnce(async () => {
+      window.localStorage.setItem(pendingKey, JSON.stringify(replacement));
+      return result;
+    });
+
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={onRestored}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await screen.findByText(/Another pending operation was preserved for review\./);
+
+    expect(JSON.parse(window.localStorage.getItem(pendingKey)!)).toEqual(replacement);
+    expect(screen.getByRole('button', { name: 'Keep current and preserve Classic' })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Current Wayland password')).toHaveValue('');
+    expect(onRestored).toHaveBeenCalledTimes(result.success ? 1 : 0);
+  });
+
+  it('clears secrets and resynchronizes when another window publishes a pending operation', async () => {
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={vi.fn()}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'must-clear' } });
+
+    const concurrentDiscard = pendingOperation({
+      action: 'discard',
+      confirmedObjectIds: ['constitution'],
+    });
+    const newValue = JSON.stringify(concurrentDiscard);
+    window.localStorage.setItem(pendingKey, newValue);
+    window.dispatchEvent(
+      new StorageEvent('storage', {
+        key: pendingKey,
+        newValue,
+      })
+    );
+
+    await screen.findByText('Pending Classic recovery changed in another window. Review and authorize it again.');
+    expect(screen.getByRole('button', { name: 'Discard Classic changes' })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Current Wayland password')).toHaveValue('');
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled();
+    expect(mockDecide).not.toHaveBeenCalled();
   });
 
   it('clears the operation identity after a producer-proven terminal rollback', async () => {
