@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T01:17:47Z
+Last heartbeat: 2026-07-17T01:19:18Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -78,9 +78,9 @@ ownership.
 | Packet | Dependency | Status | Exact commit | Focused proof | Aggregate proof | Remaining blocker |
 |---|---|---|---|---|---|---|
 | ARM-001 | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a` | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean` | n/a | none |
-| FIXTURE-ATTR | ARM-001 | LANDED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911` | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership` | n/a | ledger commit pending |
-| CON-A | FIXTURE-ATTR | QUEUED | uncommitted tree `1956a8801a3956e4032d64b20841f6ad637dd230` | legacy proof is not a v2 receipt | legacy aggregate green | must create exact commit and reproducible v2 receipts |
-| CON-B | CON-A | REOPENED | uncommitted tree `751170dbd39b629e7580e4708d0785354eb8f48d` | 51 focused tests green after lint repair, not yet a v2 receipt | exact full rerun active | independent audit and security gate |
+| FIXTURE-ATTR | ARM-001 | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911` | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership` | n/a | none; ledger commit `045671992e68b631790985310af587cebcc0decc` |
+| CON-A | FIXTURE-ATTR | REOPENED | uncommitted tree `1956a8801a3956e4032d64b20841f6ad637dd230` | legacy proof is not a v2 receipt | legacy aggregate green | HIGH: archive abandonment protocol incomplete |
+| CON-B | CON-A | REOPENED | uncommitted tree `751170dbd39b629e7580e4708d0785354eb8f48d` | legacy proof is not a v2 receipt | legacy aggregate green | 2 BLOCKER, 4 HIGH, 2 MEDIUM from independent audit |
 | SEC-001 | CON-B | PLANNED | none | none | dependency audit red | partition reachable production dependencies and remediate |
 | CON-C | CON-B, SEC-001 | PLANNED | none | none | none | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -283,6 +283,39 @@ Current discovered work:
   app CDP endpoint and currently has no receipt.
 - `I18N-001` — MEDIUM clustered debt: validator exits zero but reports 754
   unknown literal keys and substantial locale incompleteness.
+
+## Independent audit ledger
+
+### `cross-audit-20260717T011918Z-c7a4` — FAIL / HOLD
+
+Auditor: independent read-only strike agent, not the implementation author.
+Target: reconstructed Stage B tree
+`751170dbd39b629e7580e4708d0785354eb8f48d` at baseline
+`991c502e74506ec3702f92e429a8b31b655412ba`.
+Artifact: `strike/audits/cross-audit-20260717T011918Z-c7a4.json`.
+
+Auditor-assigned severity is preserved: 2 BLOCKER, 5 HIGH, 2 MEDIUM, 0 LOW.
+
+Required sequential remediation inside the reopened authority packets:
+
+1. CON-B service authority: require fresh destructive authentication on every
+   noncommitted decide/resume retry and narrowly classify reconciliation
+   errors; never swallow locator/integrity/authentication authority failures.
+2. CON-B renderer identity/revision: retain operation IDs for all ambiguous
+   outcomes and derive the exact live-target revision for specialist restores.
+3. CON-B DTO: reject wrong-type critical IDs/head fields rather than coercing
+   them to null.
+4. CON-A abandonment authority: require explicit cancellation or 30-day
+   expiry plus native `not_found` corroboration and race/quota hostile proof.
+5. CON-B journey proof: add real route and IPC through the actual client and
+   reducer; agreeing mocks are insufficient.
+6. Follow-up MEDIUM work: re-check terminal projection digest and either wire
+   or remove the disconnected Classic `rolled-back` contract state.
+
+The audit's process finding that its detached target lacked `STRIKE.md` is
+resolved only on the integration control branch (`3e17a142d...` onward). It is
+not used to downgrade any code finding, and the detached candidate remains
+unpromotable.
 
 ## Receipt schema and ledger
 
