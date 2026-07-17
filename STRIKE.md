@@ -86,7 +86,7 @@ ownership.
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                            | n/a                                       | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck`   | final aggregate pending CON-B             | independent exact-HEAD audit after CON-B                           |
 | CON-B        | CON-A           | REOPENED | shared transaction `8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495`; rejected audit target `f38d3d1177c30fc9adb2b578a471a34b24d67493` | historical only: `CON-B-SHARED-RECOVERY-integration-focused`, `CON-B-SHARED-RECOVERY-integration-static`, `CON-B-SHARED-RECOVERY-integration-ownership` | historical: 197/197 Vitest; 33/33 Bun; full typecheck | durable evidence grammar and remote-HTTP UUID mint capability |
-| SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                   | dependency audit red                      | partition reachable production dependencies and remediate          |
+| SEC-001      | CON-B           | BUILDING | SEC-P1 direct same-major cohort from `acd0c4fe94dc934ec8a38109ffaa3b577acbccdf`                            | pending                                                                                                                                | dependency audit red                      | CON-B verdict before serial integration; remaining security cohorts |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                   | none                                      | signed packages, real journeys, deployment, canary, rollback drill |
 
 Allowed status values: PLANNED, BUILDING, STALLED, QUEUED, LANDED, REOPENED,
@@ -543,9 +543,10 @@ Timebox: 45 minutes.
 
 ## Packet SEC-001 — aggregate dependency security
 
-Status is proposal-only until its exact ownership contract is appended before
-construction. It is forced sequential because it may touch `package.json` and
-`bun.lock`.
+Current audit at the CON-B remediation head reports a nonzero dependency set,
+including one critical and multiple high advisories. The lockfile lane is split
+into serial compatibility cohorts so a broad upgrade cannot conceal which
+dependency changed runtime behavior.
 
 Authority boundary: remediate or prove non-reachability of every critical/high
 advisory in the production package graph without changing receipt, routing,
@@ -562,6 +563,46 @@ surface analysis, focused tests per upgraded package, full aggregate/security
 scan, build, independent audit.
 
 Timebox: partition into <=90-minute dependency cohorts before BUILDING.
+
+### Subpacket SEC-P1-DIRECT-SAME-MAJOR — directly consumed compatible upgrades
+
+Dependency: CON-B runtime bytes at
+`acd0c4fe94dc934ec8a38109ffaa3b577acbccdf`; it may build while the independent
+CON-B attacker runs because it shares no CON-B implementation or test files,
+but it cannot enter the serial integration queue before the CON-B verdict.
+
+File ownership and sequential seams:
+
+- `package.json`
+- `bun.lock`
+
+Authority boundary: upgrade directly declared DOMPurify, Mermaid, Multer,
+React Router, `ws`, and Vite within their existing major versions to versions
+that close their currently reported advisories; keep matching `ws` resolution
+and override pins consistent. It does not change email transport, Aion,
+OpenTelemetry, Undici major selection, application schemas, recovery authority,
+packaging, deployment, or release state.
+
+Invariants: exact lockfile regeneration; no install-script source mutation;
+every new selected version remains inside the declared major; production and
+development dependency identities are reported separately; a reduced audit is
+not represented as a clean audit while any critical/high remains; application
+build and current test surfaces must remain green.
+
+Non-claims: this packet does not close transitive critical/high findings in
+`shell-quote`, gRPC, OpenTelemetry, `form-data`, `linkify-it`, `lodash-es`,
+`tmp`, either Undici major, or the Nodemailer major-upgrade lane.
+
+Tests: exact before/after dependency graph and audit JSON; install with the
+frozen resulting lockfile; focused upload, router/navigation, WebSocket,
+sanitization, Mermaid, and Vite configuration tests discovered from the actual
+tree; full typecheck, lint/format, application build, and independent audit.
+
+Acceptance evidence: exact package and lockfile commit, selected-version graph,
+before/after advisory IDs, commands, log and environment digests, post-rebase
+re-proof, and serial integration receipt.
+
+Timebox: 60 minutes.
 
 ## Packet CON-C — package, live journey, canary and rollback
 
