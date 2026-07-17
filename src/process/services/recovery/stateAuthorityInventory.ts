@@ -12,6 +12,8 @@ export type InventoryPathState = 'file' | 'directory' | 'symlink' | 'absent' | '
 
 export type InventoryPathEvidence = {
   path: string;
+  /** Authority-owned restore prefix relative to its logical root. */
+  authorityRelativePath?: string;
   state: InventoryPathState;
   size: number;
   fileCount: number;
@@ -30,6 +32,11 @@ export type StateAuthorityInventory = {
   requiredForRestore: boolean;
   sensitive: boolean;
   note: string;
+  credentialBinding?: {
+    scope: 'same-device';
+    backend: 'electron-safe-storage';
+    envelope: 'constitution-revision-authority/v3';
+  };
 };
 
 export type RecoveryInventory = {
@@ -49,6 +56,7 @@ export type RecoveryInventory = {
 
 export type RecoveryInventoryInputs = {
   userDataRoot: string;
+  constitutionRoot: string;
   coreDefaultProfileRoot: string;
   coreNamedProfilesRoot: string;
   externalWorkspaces?: Array<{ projectId: string; path: string }>;
@@ -192,6 +200,30 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
   const runtimeEvidence = await Promise.all(
     runtimeFileCandidates.map((name) => inspectRoot(path.join(inputs.userDataRoot, name), maxEntries))
   );
+  const constitutionPaths = [
+    'CONSTITUTION.md',
+    'SOUL.md',
+    'specialists',
+    '.constitution-keys.enc',
+    path.join('archives', 'constitution-history'),
+  ];
+  const constitutionFilesystemEvidence = await Promise.all(
+    constitutionPaths.map(async (relativePath) => ({
+      ...(await inspectRoot(path.join(inputs.constitutionRoot, relativePath), maxEntries)),
+      authorityRelativePath: relativePath.split(path.sep).join('/'),
+    }))
+  );
+  const revisionAuthorityEvidence = [
+    await inspectRoot(path.join(inputs.userDataRoot, 'constitution', 'revision-authority.enc'), maxEntries, false),
+  ];
+  const revisionMigrationMarkerEvidence = await inspectRoot(
+    path.join(inputs.userDataRoot, 'constitution', 'revision-authority.enc.legacy-v1-migration.json'),
+    maxEntries,
+    false
+  );
+  if (revisionMigrationMarkerEvidence.state !== 'absent') {
+    revisionAuthorityEvidence.push(revisionMigrationMarkerEvidence);
+  }
   const defaultCoreEvidence = [await inspectRoot(inputs.coreDefaultProfileRoot, maxEntries)];
   const namedCoreEvidence = [await inspectRoot(inputs.coreNamedProfilesRoot, maxEntries)];
   const credentialEvidence = [await inspectRoot(path.join(inputs.userDataRoot, '.secret-key'), maxEntries, false)];
@@ -233,6 +265,27 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
         requiredForRestore: summarizeState(runtimeEvidence) !== 'absent',
         sensitive: true,
         note: 'Durable root files include WebUI state, connector receipts/backups, sync state, nicknames, and local device preferences.',
+      }),
+      authority('constitution.filesystem', constitutionFilesystemEvidence, {
+        recommendedCoverage: summarizeState(constitutionFilesystemEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
+        requiredConsistency:
+          summarizeState(constitutionFilesystemEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
+        requiredForRestore: summarizeState(constitutionFilesystemEvidence) !== 'absent',
+        sensitive: true,
+        note: 'Desktop Constitution prose, specialist overlays, authenticated keys, archives, journals, and locks are one filesystem authority.',
+      }),
+      authority('constitution.revision-authority', revisionAuthorityEvidence, {
+        recommendedCoverage: summarizeState(revisionAuthorityEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
+        requiredConsistency:
+          summarizeState(revisionAuthorityEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
+        requiredForRestore: summarizeState(revisionAuthorityEvidence) !== 'absent',
+        sensitive: true,
+        credentialBinding: {
+          scope: 'same-device',
+          backend: 'electron-safe-storage',
+          envelope: 'constitution-revision-authority/v3',
+        },
+        note: 'Encrypted Constitution revision authority preserves active and retired revision keys; its OS-vault envelope is same-device only.',
       }),
       authority('core.default-profile', defaultCoreEvidence, {
         recommendedCoverage: coreCoverage(defaultCoreEvidence),
@@ -324,7 +377,7 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
       },
       {
         id: 'core.engine-state',
-        authorityIds: ['core.default-profile', 'core.named-profiles'],
+        authorityIds: ['constitution.filesystem', 'core.default-profile', 'core.named-profiles'],
         state: 'mapped',
         note: 'Core state is directory-isolated across the native default profile and every named profile.',
       },
@@ -336,9 +389,16 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
       },
       {
         id: 'credentials.secrets',
-        authorityIds: ['credentials.key-material', 'credentials.os-keychain', 'desktop.config', 'desktop.database'],
+        authorityIds: [
+          'credentials.key-material',
+          'credentials.os-keychain',
+          'constitution.revision-authority',
+          'constitution.filesystem',
+          'desktop.config',
+          'desktop.database',
+        ],
         state: 'mapped',
-        note: 'Secret-bearing state spans encrypted values, file key material, and OS-keychain entries; plaintext export is forbidden.',
+        note: 'Secret-bearing state spans encrypted values, file key material, the Constitution revision envelope, and OS-keychain entries; plaintext export is forbidden.',
       },
       {
         id: 'updater.release-channel',

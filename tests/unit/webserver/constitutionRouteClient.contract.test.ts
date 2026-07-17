@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { createHash } from 'node:crypto';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -17,7 +18,6 @@ const { mockService } = vi.hoisted(() => ({
 vi.mock('@process/services/constitution/constitutionFsService', () => ({
   getConstitutionFsService: () => mockService,
 }));
-vi.mock('@process/bridge/constitutionBridge', () => ({ DEFAULT_CONSTITUTION: '# Default Constitution\n' }));
 vi.mock('@process/webserver/middleware/security', () => ({
   apiRateLimiter: (_req: unknown, _res: unknown, next: () => void) => next(),
 }));
@@ -40,6 +40,7 @@ vi.mock('@process/webserver/audit/auditLog', () => ({ appendAudit: async () => t
 vi.mock('@process/webserver/middleware/csrfClient', () => ({ getCsrfToken: () => 'contract-csrf-token' }));
 
 import { registerConstitutionRoutes } from '@process/webserver/routes/constitutionRoutes';
+import { DEFAULT_CONSTITUTION } from '@/common/constitutionDefault';
 import {
   deleteConstitutionSpecialistHttp,
   listConstitutionSpecialistsHttp,
@@ -51,10 +52,25 @@ import {
 } from '@renderer/services/ConstitutionService';
 
 type ReadState = { status: 'absent'; revision: string } | { status: 'present'; content: string; revision: string };
-type Mutation = { status: 'committed'; revision: string; transactionId: string; receiptId: string };
+type Mutation = {
+  status: 'committed';
+  revision: string;
+  transactionId: string;
+  receiptId: string;
+  requestFingerprint: `sha256:${string}`;
+};
+
+const mutationFingerprint = (value: string): `sha256:${string}` =>
+  `sha256:${createHash('sha256').update(value).digest('hex')}`;
 
 function conflict(): never {
   throw Object.assign(new Error('stale revision'), { code: 'CONSTITUTION_FS_CONFLICT' });
+}
+
+function unavailableNativeAuthority(): never {
+  throw Object.assign(new Error('native authority is unavailable'), {
+    code: 'CONSTITUTION_FS_UNSAFE_PLATFORM',
+  });
 }
 
 describe('registered Constitution routes consumed by the renderer HTTP client', () => {
@@ -77,6 +93,7 @@ describe('registered Constitution routes consumed by the renderer HTTP client', 
       revision,
       transactionId: requestId,
       receiptId: `receipt:${target}:${revisionSequence}`,
+      requestFingerprint: mutationFingerprint(fingerprint),
     };
     replay.set(requestId, { fingerprint, result });
     return result;
@@ -184,7 +201,7 @@ describe('registered Constitution routes consumed by the renderer HTTP client', 
     ).resolves.toEqual(reset);
     await expect(readConstitutionHttp()).resolves.toMatchObject({
       state: 'present',
-      content: '# Default Constitution\n',
+      content: DEFAULT_CONSTITUTION,
     });
   });
 
@@ -236,6 +253,38 @@ describe('registered Constitution routes consumed by the renderer HTTP client', 
     await expect(readConstitutionSpecialistHttp('copy')).resolves.toEqual({
       state: 'absent',
       revision: deleted.ok ? deleted.revision : '',
+    });
+  });
+
+  it('preserves typed unsafe-platform unavailability across real routes and the real hosted client', async () => {
+    mockService.readConstitution.mockImplementation(unavailableNativeAuthority);
+    mockService.listSpecialists.mockImplementation(unavailableNativeAuthority);
+    mockService.writeConstitution.mockImplementation(unavailableNativeAuthority);
+
+    await expect(readConstitutionHttp()).rejects.toMatchObject({
+      name: 'ConstitutionReadError',
+      code: 'unavailable',
+      status: 503,
+      message: 'The Constitution authority is unavailable on this platform.',
+    });
+    await expect(listConstitutionSpecialistsHttp()).rejects.toMatchObject({
+      name: 'ConstitutionReadError',
+      code: 'unavailable',
+      status: 503,
+      message: 'The Constitution authority is unavailable on this platform.',
+    });
+    await expect(
+      writeConstitutionHttp(
+        '# cannot commit',
+        'rev:main:absent001',
+        'opaque-grant',
+        '16dd9d49-7cb9-4423-8835-005ac05c3f73'
+      )
+    ).resolves.toEqual({
+      ok: false,
+      reason: 'unavailable',
+      status: 503,
+      message: 'Constitution editing is unavailable on this platform.',
     });
   });
 });

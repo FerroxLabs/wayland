@@ -7,9 +7,10 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { mockBridge } = vi.hoisted(() => ({ mockBridge: vi.fn() }));
+const { mockBridge, mockCapability } = vi.hoisted(() => ({ mockBridge: vi.fn(), mockCapability: vi.fn() }));
 vi.mock('@process/services/constitution/constitutionFsService', () => ({
   getConstitutionFsService: () => ({
+    capability: mockCapability,
     readWithOverlay: (assistantId?: string) => {
       const value = mockBridge(assistantId) as { constitution: string; overlay: string | null };
       return {
@@ -30,6 +31,8 @@ const SEP = '\n\n---\n\n';
 describe('composePrompt', () => {
   beforeEach(() => {
     mockBridge.mockReset();
+    mockCapability.mockReset();
+    mockCapability.mockReturnValue({ supported: true });
   });
 
   it('returns constitution-only text when no assistantId and no basePrompt', () => {
@@ -133,18 +136,27 @@ describe('composePrompt', () => {
     }
   });
 
-  it('does not propagate bridge errors; falls back to basePrompt with safe defaults', () => {
-    // Silence the expected console.error noise for this assertion.
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+  it('fails closed when supported authority reads fail', () => {
     mockBridge.mockImplementation(() => {
       throw new Error('disk on fire');
     });
 
-    // basePrompt='' case → text === ''
+    expect(() => composePrompt({ basePrompt: 'MUST NOT RUN' })).toThrow('disk on fire');
+  });
+
+  it('degrades honestly only when the packaged platform is explicitly unsupported', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    mockCapability.mockReturnValue({
+      supported: false,
+      code: 'CONSTITUTION_FS_UNSAFE_PLATFORM',
+      reason: 'No packaged authority for win32-x64.',
+    });
+
     const empty = composePrompt({ basePrompt: '' });
     expect(empty.text).toBe('');
     expect(empty.approxTokens).toBe(0);
     expect(empty.hadOverlay).toBe(false);
+    expect(empty.constitutionSupported).toBe(false);
     expect(empty.anthropicCacheControl).toEqual({ type: 'ephemeral' });
 
     // basePrompt populated → text === basePrompt
@@ -152,8 +164,13 @@ describe('composePrompt', () => {
     expect(withBase.text).toBe('FALLBACK');
     expect(withBase.approxTokens).toBe(Math.ceil('FALLBACK'.length / 4));
     expect(withBase.hadOverlay).toBe(false);
+    expect(withBase.constitutionSupported).toBe(false);
     expect(withBase.anthropicCacheControl).toEqual({ type: 'ephemeral' });
 
-    errSpy.mockRestore();
+    expect(mockBridge).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[composePrompt] Constitution unavailable: No packaged authority for win32-x64.'
+    );
+    warnSpy.mockRestore();
   });
 });

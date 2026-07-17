@@ -50,12 +50,30 @@ import { initSkillsBridge } from '@process/bridge/skillsBridge';
 import { SqliteTeamRepository } from '@process/team/repository/SqliteTeamRepository';
 import { TeamSessionService } from '@process/team/TeamSessionService';
 import { initWebCloudFluxRoutingEvidenceAdapter } from '@process/flux/FluxRoutingEvidenceAdapter';
+import { getPlatformServices } from '@/common/platform';
+import path from 'node:path';
+import { ConstitutionFsService, setConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 
 logger.config({ print: true });
 
 export async function initBridgeStandalone(): Promise<void> {
   // Mirror Electron's fail-closed Flux evidence boundary in Web/Cloud mode.
   initWebCloudFluxRoutingEvidenceAdapter();
+
+  // Web/Cloud composes prompts and registers Constitution HTTP routes too. It
+  // therefore needs the same explicit, durable authority as Electron before
+  // either surface is reachable; falling back to a missing singleton would
+  // silently omit the Constitution or crash route registration.
+  const platform = getPlatformServices();
+  const dataRoot = platform.paths.getDataDir();
+  const resourcesRoot = platform.paths.isPackaged()
+    ? path.resolve(platform.paths.getAppPath() ?? process.cwd(), 'resources')
+    : path.resolve('resources');
+  const constitutionFsService = ConstitutionFsService.createProduction(resourcesRoot, {
+    revisionAuthorityPath: path.join(dataRoot, 'constitution', 'revision-authority.enc'),
+  });
+  setConstitutionFsService(constitutionFsService);
+
   const repo = new SqliteConversationRepository();
   const conversationService = new ConversationServiceImpl(repo);
   const channelRepo = new SqliteChannelRepository();

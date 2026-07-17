@@ -13,6 +13,7 @@ import { isElectronDesktop } from '@renderer/utils/platform';
 import {
   readConstitutionSpecialistHttp,
   runDesktopConstitutionMutation,
+  runDesktopConstitutionRead,
   writeConstitutionSpecialistHttp,
 } from '@renderer/services/ConstitutionService';
 import type {
@@ -24,9 +25,16 @@ import SavedIndicator from '@renderer/components/settings/shared/feedback/SavedI
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
 import HostedEditAuthorization from './HostedEditAuthorization';
 import {
+  abandonConstitutionSingleShotMutation,
+  beginConstitutionSingleShotMutation,
+  completeConstitutionSingleShotMutation,
   constitutionAutosaveDraftKey,
-  createConstitutionMutationRequestId,
+  constitutionMutationContentDigest,
+  constitutionMutationRequestFingerprint,
+  constitutionSingleShotMutationKey,
+  readConstitutionSingleShotMutation,
   readSerializedAutosaveDraft,
+  resolveConstitutionSingleShotContent,
   useSerializedAutosave,
 } from './useSerializedAutosave';
 
@@ -88,7 +96,7 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
     if (!isDesktop) return readConstitutionSpecialistHttp(id);
     const api = window.electronAPI;
     if (!api?.readConstitutionSpecialist) throw new Error('Specialist reading is unavailable.');
-    return api.readConstitutionSpecialist(id);
+    return runDesktopConstitutionRead(() => api.readConstitutionSpecialist!(id));
   }, [id, isDesktop]);
 
   useEffect(() => {
@@ -130,17 +138,16 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
   }, [draftKey, readCurrentOverlay, reloadToken]);
 
   const saveOverlay = useCallback(
-    async (md: string, requestId: string): Promise<ConstitutionMutationResult> => {
-      if (!revision.current) return { ok: false, reason: 'conflict', status: 409 };
+    async (md: string, expectedRevision: string, requestId: string): Promise<ConstitutionMutationResult> => {
       if (isDesktop) {
         const api = window.electronAPI;
         if (!api?.writeConstitutionSpecialist) return { ok: false, reason: 'request_failed', status: 0 };
         return runDesktopConstitutionMutation(() =>
-          api.writeConstitutionSpecialist!(id, md, revision.current!, requestId)
+          api.writeConstitutionSpecialist!(id, md, expectedRevision, requestId)
         );
       }
       if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
-      return writeConstitutionSpecialistHttp(id, md, revision.current, editGrant.token, requestId);
+      return writeConstitutionSpecialistHttp(id, md, expectedRevision, editGrant.token, requestId);
     },
     [editGrant, id, isDesktop]
   );
@@ -149,6 +156,8 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
     enabled: !locked && (isDesktop || editGrant !== null),
     debounceMs: SAVE_DEBOUNCE_MS,
     savedFlashMs: SAVED_FLASH_MS,
+    target: { kind: 'specialist', specialistId: id },
+    getExpectedRevision: () => revision.current,
     save: saveOverlay,
     onAuthorizationRequired: () => setEditGrant(null),
     onConflict: () => setConflict(true),
@@ -219,25 +228,49 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
     setConflictError(null);
     try {
       const result = await runExclusiveDestructive(async () => {
-        const requestId = createConstitutionMutationRequestId();
+        const operationKey = constitutionSingleShotMutationKey('overwrite', `specialist:${id}`, isDesktop, user?.id);
+        if (!operationKey) throw new Error('A signed-in user is required to persist this operation safely.');
+        if (!draftKey) throw new Error('The specialist draft does not have a durable principal-scoped location.');
+        const operation =
+          readConstitutionSingleShotMutation(operationKey) ??
+          beginConstitutionSingleShotMutation(operationKey, {
+            action: 'overwrite',
+            target: `specialist:${id}`,
+            expectedRevision: conflictSnapshot.remote.revision,
+            contentDigest: constitutionMutationContentDigest(conflictSnapshot.localDraft),
+            requestFingerprint: constitutionMutationRequestFingerprint(
+              { kind: 'specialist', specialistId: id },
+              conflictSnapshot.localDraft,
+              conflictSnapshot.remote.revision
+            ),
+            draftKey,
+          });
+        if (operation.action !== 'overwrite') {
+          throw new Error('The pending Constitution operation has the wrong action.');
+        }
+        const operationContent = resolveConstitutionSingleShotContent(operation);
         const mutation = isDesktop
           ? window.electronAPI?.writeConstitutionSpecialist
             ? await runDesktopConstitutionMutation(() =>
                 window.electronAPI!.writeConstitutionSpecialist!(
                   id,
-                  conflictSnapshot.localDraft,
-                  conflictSnapshot.remote.revision,
-                  requestId
+                  operationContent,
+                  operation.expectedRevision,
+                  operation.requestId
                 )
               )
             : ({ ok: false, reason: 'request_failed', status: 0 } as const)
           : await writeConstitutionSpecialistHttp(
               id,
-              conflictSnapshot.localDraft,
-              conflictSnapshot.remote.revision,
+              operationContent,
+              operation.expectedRevision,
               editGrant!.token,
-              requestId
+              operation.requestId
             );
+        if (mutation.ok) completeConstitutionSingleShotMutation(operationKey, mutation);
+        else if ('reason' in mutation && mutation.reason === 'conflict') {
+          abandonConstitutionSingleShotMutation(operationKey, operation.requestId, operation.requestFingerprint);
+        }
         return { committed: mutation.ok, value: mutation };
       });
       if (result.value.ok === false) {
@@ -265,7 +298,7 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
     } finally {
       setConflictBusy(false);
     }
-  }, [conflictSnapshot, editGrant, id, isDesktop, onCommitted, runExclusiveDestructive]);
+  }, [conflictSnapshot, draftKey, editGrant, id, isDesktop, onCommitted, runExclusiveDestructive, user?.id]);
 
   const approxTokens = Math.ceil(value.length / 4);
 

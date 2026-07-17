@@ -33,10 +33,16 @@ export type ConstitutionReadResult =
   | { state: 'absent'; revision: string };
 export type ConstitutionSpecialistEntry = { id: string; bytes: number; revision: string };
 export type ConstitutionMutationResult =
-  | { ok: true; revision: string; receiptId: string }
+  | {
+      ok: true;
+      revision: string;
+      receiptId: string;
+      requestId: string;
+      requestFingerprint: `sha256:${string}`;
+    }
   | {
       ok: false;
-      reason: 'authorization_required' | 'conflict' | 'request_failed';
+      reason: 'authorization_required' | 'conflict' | 'request_failed' | 'unavailable';
       status: number;
       message?: string;
     };
@@ -46,15 +52,19 @@ export async function runDesktopConstitutionMutation(
   mutation: () => Promise<unknown>
 ): Promise<ConstitutionMutationResult> {
   try {
-    const result = await mutation();
+    const result = unwrapDesktopAuthorityEnvelope(await mutation());
     if (
       !result ||
       typeof result !== 'object' ||
       Array.isArray(result) ||
-      !hasExactKeys(result, ['ok', 'revision', 'receiptId']) ||
+      !hasExactKeys(result, ['ok', 'revision', 'receiptId', 'requestId', 'requestFingerprint']) ||
       (result as { ok?: unknown }).ok !== true ||
       !isOpaqueId((result as { revision?: unknown }).revision) ||
-      !isOpaqueId((result as { receiptId?: unknown }).receiptId)
+      !isOpaqueId((result as { receiptId?: unknown }).receiptId) ||
+      typeof (result as { requestId?: unknown }).requestId !== 'string' ||
+      !MUTATION_REQUEST_ID_PATTERN.test((result as { requestId: string }).requestId) ||
+      typeof (result as { requestFingerprint?: unknown }).requestFingerprint !== 'string' ||
+      !CONTENT_DIGEST_PATTERN.test((result as { requestFingerprint: string }).requestFingerprint)
     ) {
       return { ok: false, reason: 'request_failed', status: 0, message: 'Desktop returned an invalid receipt.' };
     }
@@ -68,13 +78,43 @@ export async function runDesktopConstitutionMutation(
     if (code === 'CONSTITUTION_FS_CONFLICT' || message?.includes('CONSTITUTION_FS_CONFLICT')) {
       return { ok: false, reason: 'conflict', status: 409, message };
     }
+    if (code === 'CONSTITUTION_FS_UNSAFE_PLATFORM') {
+      return { ok: false, reason: 'unavailable', status: 0, message };
+    }
     return { ok: false, reason: 'request_failed', status: 0, message };
+  }
+}
+
+/** Validate Electron read envelopes with the same exact runtime contract as hosted reads. */
+export async function runDesktopConstitutionRead(read: () => Promise<unknown>): Promise<ConstitutionReadResult> {
+  try {
+    return parseReadResult(unwrapDesktopAuthorityEnvelope(await read()), 0);
+  } catch (error) {
+    if ((error as { code?: unknown })?.code === 'CONSTITUTION_FS_UNSAFE_PLATFORM') {
+      throw new ConstitutionReadError('unavailable', 0);
+    }
+    throw error;
+  }
+}
+
+/** Validate Electron inventory envelopes before UI state can treat them as authoritative. */
+export async function runDesktopConstitutionSpecialistList(
+  read: () => Promise<unknown>
+): Promise<ConstitutionSpecialistEntry[]> {
+  try {
+    return parseSpecialistItems(unwrapDesktopAuthorityEnvelope(await read()), 0);
+  } catch (error) {
+    if ((error as { code?: unknown })?.code === 'CONSTITUTION_FS_UNSAFE_PLATFORM') {
+      throw new ConstitutionReadError('unavailable', 0);
+    }
+    throw error;
   }
 }
 
 const SPECIALIST_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 const OPAQUE_ID_PATTERN = /^[A-Za-z0-9._:-]{8,256}$/;
 const MUTATION_REQUEST_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const CONTENT_DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/;
 
 function hasExactKeys(value: object, keys: readonly string[]): boolean {
   const actual = Object.keys(value).toSorted();
@@ -82,17 +122,52 @@ function hasExactKeys(value: object, keys: readonly string[]): boolean {
   return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
 }
 
+function unwrapDesktopAuthorityEnvelope(value: unknown): unknown {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw Object.assign(new Error('Desktop returned an invalid Constitution authority envelope.'), {
+      code: 'CONSTITUTION_FS_INVALID_ENVELOPE',
+    });
+  }
+  const envelope = value as Record<string, unknown>;
+  if (envelope.availability === 'available' && hasExactKeys(envelope, ['availability', 'value'])) {
+    return envelope.value;
+  }
+  if (
+    envelope.availability === 'unavailable' &&
+    envelope.code === 'CONSTITUTION_FS_UNSAFE_PLATFORM' &&
+    typeof envelope.reason === 'string' &&
+    envelope.reason.length > 0 &&
+    hasExactKeys(envelope, ['availability', 'code', 'reason'])
+  ) {
+    throw Object.assign(new Error(envelope.reason), { code: envelope.code });
+  }
+  if (
+    envelope.availability === 'failed' &&
+    (envelope.code === 'CONSTITUTION_FS_CONFLICT' || envelope.code === 'CONSTITUTION_FS_AUTHORITY_FAILURE') &&
+    typeof envelope.reason === 'string' &&
+    envelope.reason.length > 0 &&
+    hasExactKeys(envelope, ['availability', 'code', 'reason'])
+  ) {
+    throw Object.assign(new Error(envelope.reason), { code: envelope.code });
+  }
+  throw Object.assign(new Error('Desktop returned an invalid Constitution authority envelope.'), {
+    code: 'CONSTITUTION_FS_INVALID_ENVELOPE',
+  });
+}
+
 export class ConstitutionReadError extends Error {
   constructor(
-    readonly code: 'network_error' | 'http_error' | 'malformed_response',
+    readonly code: 'network_error' | 'http_error' | 'malformed_response' | 'unavailable',
     readonly status: number
   ) {
     super(
       code === 'network_error'
         ? 'The Constitution service could not be reached.'
-        : code === 'malformed_response'
-          ? 'The Constitution service returned an invalid response.'
-          : `The Constitution service rejected the read (${status}).`
+        : code === 'unavailable'
+          ? 'The Constitution authority is unavailable on this platform.'
+          : code === 'malformed_response'
+            ? 'The Constitution service returned an invalid response.'
+            : `The Constitution service rejected the read (${status}).`
     );
     this.name = 'ConstitutionReadError';
   }
@@ -112,7 +187,21 @@ async function getConstitutionData(path: string): Promise<unknown> {
   } catch {
     throw new ConstitutionReadError(res.ok ? 'malformed_response' : 'http_error', res.status);
   }
-  if (!res.ok) throw new ConstitutionReadError('http_error', res.status);
+  if (!res.ok) {
+    if (
+      res.status === 503 &&
+      json &&
+      typeof json === 'object' &&
+      !Array.isArray(json) &&
+      hasExactKeys(json, ['success', 'code', 'msg']) &&
+      (json as { success?: unknown }).success === false &&
+      (json as { code?: unknown }).code === 'CONSTITUTION_UNAVAILABLE' &&
+      typeof (json as { msg?: unknown }).msg === 'string'
+    ) {
+      throw new ConstitutionReadError('unavailable', res.status);
+    }
+    throw new ConstitutionReadError('http_error', res.status);
+  }
   if (!json || typeof json !== 'object' || Array.isArray(json) || !hasExactKeys(json, ['success', 'data'])) {
     throw new ConstitutionReadError('malformed_response', res.status);
   }
@@ -174,31 +263,67 @@ async function postConstitution(
     success?: boolean;
     code?: string;
     msg?: string;
-    data?: { ok?: boolean; revision?: unknown; receiptId?: unknown };
+    data?: {
+      ok?: boolean;
+      revision?: unknown;
+      receiptId?: unknown;
+      requestId?: unknown;
+      requestFingerprint?: unknown;
+    };
   };
 
   if (res.ok && json.success === true) {
     if (
       !hasExactKeys(json, ['success', 'data']) ||
       !json.data ||
-      !hasExactKeys(json.data, ['ok', 'revision', 'receiptId'])
+      !hasExactKeys(json.data, ['ok', 'revision', 'receiptId', 'requestId', 'requestFingerprint'])
     ) {
       return { ok: false, reason: 'request_failed', status: res.status };
     }
     const revision = json.data?.revision;
     const receiptId = json.data?.receiptId;
-    if (json.data.ok !== true || !isOpaqueId(revision) || !isOpaqueId(receiptId)) {
+    const requestId = json.data?.requestId;
+    const requestFingerprint = json.data?.requestFingerprint;
+    if (
+      json.data.ok !== true ||
+      !isOpaqueId(revision) ||
+      !isOpaqueId(receiptId) ||
+      requestId !== body.requestId ||
+      typeof requestFingerprint !== 'string' ||
+      !CONTENT_DIGEST_PATTERN.test(requestFingerprint)
+    ) {
       return { ok: false, reason: 'request_failed', status: res.status };
     }
-    return { ok: true, revision, receiptId };
+    return {
+      ok: true,
+      revision,
+      receiptId,
+      requestId,
+      requestFingerprint: requestFingerprint as `sha256:${string}`,
+    };
   }
-  if (res.status === 401 && json.code === 'CONSTITUTION_EDIT_AUTHORIZATION_REQUIRED') {
+  const exactCodedFailure =
+    json.success === false &&
+    typeof json.code === 'string' &&
+    typeof json.msg === 'string' &&
+    hasExactKeys(json, ['success', 'code', 'msg']);
+  if (res.status === 401 && exactCodedFailure && json.code === 'CONSTITUTION_EDIT_AUTHORIZATION_REQUIRED') {
     return { ok: false, reason: 'authorization_required', status: res.status, message: json.msg };
   }
-  if (res.status === 409 && json.code === 'CONSTITUTION_REVISION_CONFLICT') {
+  if (res.status === 409 && exactCodedFailure && json.code === 'CONSTITUTION_REVISION_CONFLICT') {
     return { ok: false, reason: 'conflict', status: res.status, message: json.msg };
   }
-  return { ok: false, reason: 'request_failed', status: res.status, message: json.msg };
+  if (res.status === 503 && exactCodedFailure && json.code === 'CONSTITUTION_UNAVAILABLE') {
+    return { ok: false, reason: 'unavailable', status: res.status, message: json.msg };
+  }
+  const exactPlainFailure =
+    json.success === false && typeof json.msg === 'string' && hasExactKeys(json, ['success', 'msg']);
+  return {
+    ok: false,
+    reason: 'request_failed',
+    status: res.status,
+    ...((exactCodedFailure || exactPlainFailure) && typeof json.msg === 'string' ? { message: json.msg } : {}),
+  };
 }
 
 /** Obtain a short-lived scoped autosave grant after a fresh password step-up. */
@@ -262,12 +387,19 @@ export async function readConstitutionHttp(): Promise<ConstitutionReadResult> {
 
 /** List hosted specialist overlays through the same authenticated read boundary. */
 export async function listConstitutionSpecialistsHttp(): Promise<ConstitutionSpecialistEntry[]> {
-  const data = await getConstitutionData('/api/constitution/specialists');
+  return parseSpecialistList(await getConstitutionData('/api/constitution/specialists'), 200);
+}
+
+function parseSpecialistList(data: unknown, status: number): ConstitutionSpecialistEntry[] {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
-    throw new ConstitutionReadError('malformed_response', 200);
+    throw new ConstitutionReadError('malformed_response', status);
   }
-  if (!hasExactKeys(data, ['items'])) throw new ConstitutionReadError('malformed_response', 200);
+  if (!hasExactKeys(data, ['items'])) throw new ConstitutionReadError('malformed_response', status);
   const items = (data as { items?: unknown }).items;
+  return parseSpecialistItems(items, status);
+}
+
+function parseSpecialistItems(items: unknown, status: number): ConstitutionSpecialistEntry[] {
   if (
     !Array.isArray(items) ||
     items.some(
@@ -283,11 +415,11 @@ export async function listConstitutionSpecialistsHttp(): Promise<ConstitutionSpe
         !isOpaqueId((item as { revision?: unknown }).revision)
     )
   ) {
-    throw new ConstitutionReadError('malformed_response', 200);
+    throw new ConstitutionReadError('malformed_response', status);
   }
   const duplicateIds = new Set<string>();
   for (const item of items as ConstitutionSpecialistEntry[]) {
-    if (duplicateIds.has(item.id)) throw new ConstitutionReadError('malformed_response', 200);
+    if (duplicateIds.has(item.id)) throw new ConstitutionReadError('malformed_response', status);
     duplicateIds.add(item.id);
   }
   return (items as ConstitutionSpecialistEntry[])

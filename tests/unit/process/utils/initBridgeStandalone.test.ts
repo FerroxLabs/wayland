@@ -34,6 +34,10 @@ const mocks = vi.hoisted(() => ({
   initModelRegistryIpc: vi.fn(async () => {}),
   initializeRegistry: vi.fn(async () => {}),
   loggerConfig: vi.fn(),
+  createConstitutionFsProduction: vi.fn(),
+  setConstitutionFsService: vi.fn(),
+  constitutionFsService: { kind: 'constitution-fs-service' },
+  constitutionRestoreAuthority: { kind: 'constitution-restore-authority' },
 }));
 
 vi.mock('@office-ai/platform', () => ({
@@ -183,6 +187,39 @@ vi.mock('@process/team/TeamSessionService', () => ({
 vi.mock('@process/flux/FluxRoutingEvidenceAdapter', () => ({
   initWebCloudFluxRoutingEvidenceAdapter: (...args: unknown[]) => mocks.initWebCloudFluxRoutingEvidenceAdapter(...args),
 }));
+vi.mock('@/common/platform', () => ({
+  getPlatformServices: () => ({
+    paths: {
+      getDataDir: () => '/tmp/wayland-standalone',
+      isPackaged: () => false,
+      getAppPath: () => '/tmp/wayland-app',
+    },
+  }),
+}));
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  ConstitutionFsService: {
+    createProduction: (...args: unknown[]) => {
+      mocks.createConstitutionFsProduction(...args);
+      return mocks.constitutionFsService;
+    },
+  },
+  setConstitutionFsService: (...args: unknown[]) => mocks.setConstitutionFsService(...args),
+}));
+vi.mock('@process/services/constitution/constitutionArchiveRestoreAuthority', () => ({
+  // oxlint-disable-next-line typescript-eslint/no-extraneous-class -- constructor semantics are the production contract under test.
+  ConstitutionArchiveRestoreOperationAuthority: class ConstitutionArchiveRestoreOperationAuthority {
+    constructor() {
+      return mocks.constitutionRestoreAuthority;
+    }
+  },
+}));
+vi.mock('@process/secrets/safeStorage', () => ({
+  encryptString: vi.fn(),
+  decryptString: vi.fn(),
+}));
+vi.mock('@process/bridge/webuiDirectAuth', () => ({
+  verifyCurrentPassword: vi.fn(async () => true),
+}));
 
 describe('initBridgeStandalone', () => {
   beforeEach(() => {
@@ -196,6 +233,10 @@ describe('initBridgeStandalone', () => {
 
     expect(mocks.initHubBridge).toHaveBeenCalledTimes(1);
     expect(mocks.initWebCloudFluxRoutingEvidenceAdapter).toHaveBeenCalledTimes(1);
+    expect(mocks.createConstitutionFsProduction).toHaveBeenCalledWith(expect.stringMatching(/resources$/), {
+      revisionAuthorityPath: '/tmp/wayland-standalone/constitution/revision-authority.enc',
+    });
+    expect(mocks.setConstitutionFsService).toHaveBeenCalledWith(mocks.constitutionFsService);
     expect(mocks.initModelRegistryIpc).toHaveBeenCalledTimes(1);
     expect(mocks.initializeRegistry).toHaveBeenCalledTimes(1);
   });

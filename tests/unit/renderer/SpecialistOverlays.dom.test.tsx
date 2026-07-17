@@ -93,12 +93,36 @@ vi.mock('@arco-design/web-react', () => {
 });
 
 import SpecialistOverlays from '@renderer/pages/settings/ConstitutionSettings/SpecialistOverlays';
+import {
+  constitutionMutationRequestFingerprint,
+  discardSerializedAutosaveDraft,
+} from '@renderer/pages/settings/ConstitutionSettings/useSerializedAutosave';
 
 const copyEntry = { id: 'copy', bytes: 40, revision: 'rev:copy:00000001' };
-const committed = (revision: string) => ({
+const committedWrite = (revision: string) => ({
   ok: true as const,
   revision,
   receiptId: 'receipt:specialist:00000001',
+  get requestId(): string {
+    return mockWrite.mock.calls.at(-1)?.[4];
+  },
+  get requestFingerprint(): `sha256:${string}` {
+    const [id, content, expectedRevision] = mockWrite.mock.calls.at(-1)!;
+    return constitutionMutationRequestFingerprint({ kind: 'specialist', specialistId: id }, content, expectedRevision);
+  },
+});
+
+const committedDelete = (revision: string) => ({
+  ok: true as const,
+  revision,
+  receiptId: 'receipt:specialist:00000001',
+  get requestId(): string {
+    return mockDelete.mock.calls.at(-1)?.[3];
+  },
+  get requestFingerprint(): `sha256:${string}` {
+    const [id, , expectedRevision] = mockDelete.mock.calls.at(-1)!;
+    return constitutionMutationRequestFingerprint({ kind: 'specialist', specialistId: id }, null, expectedRevision);
+  },
 });
 
 function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
@@ -111,10 +135,13 @@ function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
 
 describe('Hosted SpecialistOverlays journey', () => {
   beforeEach(() => {
-    mockDelete.mockReset().mockResolvedValue(committed('rev:copy:absent002'));
+    window.localStorage.clear();
+    discardSerializedAutosaveDraft('user:user-1:specialist:copy');
+    discardSerializedAutosaveDraft('user:user-1:specialist:research');
+    mockDelete.mockReset().mockResolvedValue(committedDelete('rev:copy:absent002'));
     mockList.mockReset().mockResolvedValue([copyEntry]);
     mockRead.mockReset().mockResolvedValue({ state: 'absent', revision: 'rev:research:absent001' });
-    mockWrite.mockReset().mockResolvedValue(committed('rev:research:00000001'));
+    mockWrite.mockReset().mockResolvedValue(committedWrite('rev:research:00000001'));
   });
 
   it('loads the hosted inventory and opens an existing overlay', async () => {
@@ -185,7 +212,7 @@ describe('Hosted SpecialistOverlays journey', () => {
   });
 
   it('locks editing and duplicate submission for the full in-flight delete', async () => {
-    const deletion = deferred<ReturnType<typeof committed>>();
+    const deletion = deferred<ReturnType<typeof committedDelete>>();
     mockDelete.mockReturnValueOnce(deletion.promise);
     mockList.mockResolvedValueOnce([copyEntry]).mockResolvedValueOnce([]);
     render(<SpecialistOverlays />);
@@ -204,7 +231,7 @@ describe('Hosted SpecialistOverlays journey', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
     expect(mockDelete).toHaveBeenCalledTimes(1);
 
-    await act(async () => deletion.resolve(committed('rev:copy:absent002')));
+    await act(async () => deletion.resolve(committedDelete('rev:copy:absent002')));
     expect(screen.getByText(/No specialist overlays yet/)).toBeInTheDocument();
   });
 
@@ -218,5 +245,52 @@ describe('Hosted SpecialistOverlays journey', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Retry load' }));
     await act(async () => Promise.resolve());
     expect(screen.getByText('copy')).toBeInTheDocument();
+  });
+
+  it('retries create with the same persisted UUID without re-reading after response loss', async () => {
+    mockList
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ id: 'research', bytes: 0, revision: 'rev:research:00000001' }]);
+    mockWrite
+      .mockResolvedValueOnce({ ok: false, reason: 'request_failed', status: 0 })
+      .mockResolvedValueOnce(committedWrite('rev:research:00000001'));
+    render(<SpecialistOverlays />);
+    await act(async () => Promise.resolve());
+    fireEvent.click(screen.getByRole('button', { name: 'Add overlay' }));
+    fireEvent.change(screen.getByPlaceholderText('e.g. copy, spark, humanizer'), {
+      target: { value: 'research' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Authorize specialist.write:research' }));
+    await act(async () => Promise.resolve());
+    const firstRequestId = mockWrite.mock.calls[0][4];
+
+    fireEvent.click(screen.getByRole('button', { name: 'Authorize specialist.write:research' }));
+    await act(async () => Promise.resolve());
+    expect(mockRead).toHaveBeenCalledTimes(1);
+    expect(mockWrite).toHaveBeenLastCalledWith(
+      'research',
+      '',
+      'rev:research:absent001',
+      'opaque-grant',
+      firstRequestId
+    );
+  });
+
+  it('retries delete with the same persisted UUID and inventory revision after response loss', async () => {
+    mockList.mockResolvedValueOnce([copyEntry]).mockResolvedValueOnce([]);
+    mockDelete
+      .mockResolvedValueOnce({ ok: false, reason: 'request_failed', status: 0 })
+      .mockResolvedValueOnce(committedDelete('rev:copy:absent002'));
+    render(<SpecialistOverlays />);
+    await act(async () => Promise.resolve());
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    fireEvent.change(screen.getByPlaceholderText('WebUI password'), { target: { value: 'fresh-password' } });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
+    await act(async () => Promise.resolve());
+    const firstRequestId = mockDelete.mock.calls[0][3];
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Delete' })[1]);
+    await act(async () => Promise.resolve());
+    expect(mockDelete).toHaveBeenLastCalledWith('copy', 'fresh-password', 'rev:copy:00000001', firstRequestId);
   });
 });

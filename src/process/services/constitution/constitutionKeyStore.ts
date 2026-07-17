@@ -3,6 +3,7 @@ import {
   closeSync,
   existsSync,
   fsyncSync,
+  linkSync,
   lstatSync,
   openSync,
   readFileSync,
@@ -13,6 +14,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import type { ConstitutionArchiveSecretBackend } from './constitutionFsTransaction';
+import { constitutionRevisionDurabilitySyncPath } from './constitutionRevisionAuthority';
 
 type KeyState = {
   schemaVersion: 1;
@@ -21,6 +23,21 @@ type KeyState = {
 };
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export type ConstitutionKeyStoreDependencies = Readonly<{
+  linkPublication?: (temporary: string, statePath: string) => void;
+  replacePublication?: (temporary: string, statePath: string) => void;
+  syncPublication?: (statePath: string) => void;
+}>;
+
+function syncPublication(statePath: string): void {
+  const fd = openSync(constitutionRevisionDurabilitySyncPath(statePath), 'r');
+  try {
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+}
 
 function hasTransactionHistory(root: string): boolean {
   const history = path.join(root, 'archives', 'constitution-history');
@@ -54,7 +71,8 @@ export class ConstitutionKeyStore {
   constructor(
     private readonly root: string,
     private readonly secretBackend: ConstitutionArchiveSecretBackend,
-    statePath = path.join(root, '.constitution-keys.enc')
+    statePath = path.join(root, '.constitution-keys.enc'),
+    private readonly dependencies: ConstitutionKeyStoreDependencies = {}
   ) {
     this.statePath = statePath;
     this.state = this.loadOrCreate();
@@ -76,11 +94,18 @@ export class ConstitutionKeyStore {
       journalKeyBase64: randomBytes(32).toString('base64'),
       activeArchiveKeyId: null,
     };
-    this.persist(state, true);
-    return state;
+    return this.persist(state, true);
   }
 
-  private persist(state: KeyState, exclusive: boolean): void {
+  private readPersistedState(): KeyState {
+    const stat = lstatSync(this.statePath);
+    if (!stat.isFile() || stat.isSymbolicLink() || stat.size > 64 * 1024) {
+      throw new Error('CONSTITUTION_FS_KEY_STATE_INVALID');
+    }
+    return parseState(this.secretBackend.decryptString(readFileSync(this.statePath, 'utf8')));
+  }
+
+  private persist(state: KeyState, exclusive: boolean): KeyState {
     const encrypted = this.secretBackend.encryptString(JSON.stringify(state));
     const temporary = `${this.statePath}.${randomUUID()}.tmp`;
     const fd = openSync(temporary, 'wx', 0o600);
@@ -90,14 +115,31 @@ export class ConstitutionKeyStore {
     } finally {
       closeSync(fd);
     }
+    let published = false;
     try {
-      if (exclusive && existsSync(this.statePath)) throw new Error('CONSTITUTION_FS_KEY_STATE_RACE');
-      renameSync(temporary, this.statePath);
+      if (exclusive) {
+        (this.dependencies.linkPublication ?? linkSync)(temporary, this.statePath);
+        published = true;
+        unlinkSync(temporary);
+      } else {
+        (this.dependencies.replacePublication ?? renameSync)(temporary, this.statePath);
+        published = true;
+      }
+      (this.dependencies.syncPublication ?? syncPublication)(this.statePath);
+      return state;
     } catch (error) {
       try {
         unlinkSync(temporary);
       } catch {
         /* preserve original failure */
+      }
+      if (exclusive && !published && (error as NodeJS.ErrnoException).code === 'EEXIST') {
+        // Another process won the no-clobber publication. Adopt only the exact
+        // persisted, decryptable winner; never continue with our discarded key.
+        return this.readPersistedState();
+      }
+      if (published) {
+        throw new Error('CONSTITUTION_FS_KEY_STATE_PUBLICATION_NOT_DURABLE', { cause: error });
       }
       throw error;
     }
@@ -114,7 +156,6 @@ export class ConstitutionKeyStore {
   setActiveArchiveKeyId(keyId: string): void {
     if (!UUID_PATTERN.test(keyId)) throw new Error('CONSTITUTION_FS_ARCHIVE_KEY_UNAVAILABLE');
     const next = { ...this.state, activeArchiveKeyId: keyId };
-    this.persist(next, false);
-    this.state = next;
+    this.state = this.persist(next, false);
   }
 }

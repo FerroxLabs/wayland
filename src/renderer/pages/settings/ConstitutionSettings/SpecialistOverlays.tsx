@@ -15,6 +15,8 @@ import {
   listConstitutionSpecialistsHttp,
   readConstitutionSpecialistHttp,
   runDesktopConstitutionMutation,
+  runDesktopConstitutionRead,
+  runDesktopConstitutionSpecialistList,
   writeConstitutionSpecialistHttp,
   type ConstitutionEditGrant,
   type ConstitutionMutationResult,
@@ -22,9 +24,16 @@ import {
 import HostedEditAuthorization from './HostedEditAuthorization';
 import SpecialistOverlayEditor from './SpecialistOverlayEditor';
 import {
+  abandonConstitutionSingleShotMutation,
+  beginConstitutionSingleShotMutation,
+  completeConstitutionSingleShotMutation,
   constitutionAutosaveDraftKey,
-  createConstitutionMutationRequestId,
+  constitutionMutationContentDigest,
+  constitutionMutationRequestFingerprint,
+  constitutionSingleShotMutationKey,
   discardSerializedAutosaveDraft,
+  readConstitutionSingleShotMutation,
+  resolveConstitutionSingleShotContent,
 } from './useSerializedAutosave';
 
 /** Client-side mirror of the bridge's ASSISTANT_ID_PATTERN. */
@@ -73,7 +82,11 @@ const SpecialistOverlays: React.FC = () => {
       if (!api?.listConstitutionSpecialists) {
         throw new Error('Specialist inventory is unavailable.');
       }
-      setItems((await api.listConstitutionSpecialists()).filter((entry) => !committedDeletedIds.current.has(entry.id)));
+      setItems(
+        (await runDesktopConstitutionSpecialistList(() => api.listConstitutionSpecialists!())).filter(
+          (entry) => !committedDeletedIds.current.has(entry.id)
+        )
+      );
     } catch (error) {
       setLoadError(error instanceof Error ? error.message : 'Specialist overlays could not be loaded.');
     } finally {
@@ -100,28 +113,65 @@ const SpecialistOverlays: React.FC = () => {
       }
       let result: ConstitutionMutationResult;
       try {
-        const read = isDesktop
-          ? await window.electronAPI?.readConstitutionSpecialist?.(id)
-          : await readConstitutionSpecialistHttp(id);
-        if (!read || read.state !== 'absent') {
-          result = { ok: false, reason: 'conflict', status: 409 };
-        } else if (isDesktop) {
+        const operationKey = constitutionSingleShotMutationKey('create', `specialist:${id}`, isDesktop, user?.id);
+        if (!operationKey) throw new Error('A signed-in user is required to persist this operation safely.');
+        let operation = readConstitutionSingleShotMutation(operationKey);
+        if (!operation) {
+          const read = isDesktop
+            ? window.electronAPI?.readConstitutionSpecialist
+              ? await runDesktopConstitutionRead(() => window.electronAPI!.readConstitutionSpecialist!(id))
+              : undefined
+            : await readConstitutionSpecialistHttp(id);
+          if (!read || read.state !== 'absent') {
+            result = { ok: false, reason: 'conflict', status: 409 };
+            setAddError(
+              t(
+                'settings.constitutionSpecialists.createConflict',
+                'The overlay inventory changed. Refresh and try again.'
+              )
+            );
+            return;
+          }
+          operation = beginConstitutionSingleShotMutation(operationKey, {
+            action: 'create',
+            target: `specialist:${id}`,
+            expectedRevision: read.revision,
+            contentDigest: constitutionMutationContentDigest(''),
+            requestFingerprint: constitutionMutationRequestFingerprint(
+              { kind: 'specialist', specialistId: id },
+              '',
+              read.revision
+            ),
+          });
+        }
+        if (operation.action !== 'create') throw new Error('The pending Constitution operation has the wrong action.');
+        const operationContent = resolveConstitutionSingleShotContent(operation, '');
+        if (isDesktop) {
           const api = window.electronAPI;
           result = api?.writeConstitutionSpecialist
             ? await runDesktopConstitutionMutation(() =>
-                api.writeConstitutionSpecialist!(id, '', read.revision, createConstitutionMutationRequestId())
+                api.writeConstitutionSpecialist!(
+                  id,
+                  operationContent,
+                  operation!.expectedRevision,
+                  operation!.requestId
+                )
               )
             : { ok: false, reason: 'request_failed', status: 0 };
         } else if (hostedGrant) {
           result = await writeConstitutionSpecialistHttp(
             id,
-            '',
-            read.revision,
+            operationContent,
+            operation.expectedRevision,
             hostedGrant.token,
-            createConstitutionMutationRequestId()
+            operation.requestId
           );
         } else {
           result = { ok: false, reason: 'authorization_required', status: 401 };
+        }
+        if (result.ok) completeConstitutionSingleShotMutation(operationKey, result);
+        else if ('reason' in result && result.reason === 'conflict') {
+          abandonConstitutionSingleShotMutation(operationKey, operation.requestId, operation.requestFingerprint);
         }
       } catch {
         result = { ok: false, reason: 'request_failed', status: 0 };
@@ -144,7 +194,7 @@ const SpecialistOverlays: React.FC = () => {
       await refresh();
       setEditingId(id);
     },
-    [isDesktop, items, newId, refresh, t]
+    [isDesktop, items, newId, refresh, t, user?.id]
   );
 
   const handleDelete = useCallback(
@@ -155,15 +205,32 @@ const SpecialistOverlays: React.FC = () => {
       deletingIdRef.current = id;
       setDeletingId(id);
       try {
-        const requestId = createConstitutionMutationRequestId();
+        const operationKey = constitutionSingleShotMutationKey('delete', `specialist:${id}`, isDesktop, user?.id);
+        if (!operationKey) throw new Error('A signed-in user is required to persist this operation safely.');
+        const operation =
+          readConstitutionSingleShotMutation(operationKey) ??
+          beginConstitutionSingleShotMutation(operationKey, {
+            action: 'delete',
+            target: `specialist:${id}`,
+            expectedRevision,
+            requestFingerprint: constitutionMutationRequestFingerprint(
+              { kind: 'specialist', specialistId: id },
+              null,
+              expectedRevision
+            ),
+          });
+        if (operation.action !== 'delete') throw new Error('The pending Constitution operation has the wrong action.');
         const result = isDesktop
           ? window.electronAPI?.deleteConstitutionSpecialist
             ? await runDesktopConstitutionMutation(() =>
-                window.electronAPI!.deleteConstitutionSpecialist!(id, expectedRevision, requestId)
+                window.electronAPI!.deleteConstitutionSpecialist!(id, operation.expectedRevision, operation.requestId)
               )
             : ({ ok: false, reason: 'request_failed', status: 0 } as const)
-          : await deleteConstitutionSpecialistHttp(id, deletePassword, expectedRevision, requestId);
+          : await deleteConstitutionSpecialistHttp(id, deletePassword, operation.expectedRevision, operation.requestId);
         if (!result.ok) {
+          if ('reason' in result && result.reason === 'conflict') {
+            abandonConstitutionSingleShotMutation(operationKey, operation.requestId, operation.requestFingerprint);
+          }
           setDeleteError(
             'reason' in result && result.reason === 'conflict'
               ? t(
@@ -174,6 +241,7 @@ const SpecialistOverlays: React.FC = () => {
           );
           return;
         }
+        completeConstitutionSingleShotMutation(operationKey, result);
         setConfirmDeleteId(null);
         setDeletePassword('');
         setDeleteError(null);

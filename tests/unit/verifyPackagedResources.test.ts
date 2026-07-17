@@ -74,6 +74,7 @@ function testConstitutionAuthority(arch: 'arm64' | 'x64') {
   const bytes = machExecutableBytes(arch);
   return {
     supported: true,
+    protocolVersion: 2,
     platform: 'darwin',
     arch,
     fileName: 'wayland-constitution-fs',
@@ -186,17 +187,20 @@ function addPackagedApp(
   const constitutionBinary = path.join(constitutionRuntime, 'wayland-constitution-fs');
   const constitutionAuthority = testConstitutionAuthority(arch);
   writeMachExecutable(constitutionBinary, arch);
-  fs.writeFileSync(path.join(constitutionRuntime, 'manifest.json'), JSON.stringify({
-    schemaVersion: 1,
-    protocolVersion: 1,
-    platform: 'darwin',
-    arch,
-    binary: {
-      fileName: constitutionAuthority.fileName,
-      sha256: constitutionAuthority.sha256,
-      size: constitutionAuthority.size,
-    },
-  }));
+  fs.writeFileSync(
+    path.join(constitutionRuntime, 'manifest.json'),
+    JSON.stringify({
+      schemaVersion: 1,
+      protocolVersion: 2,
+      platform: 'darwin',
+      arch,
+      binary: {
+        fileName: constitutionAuthority.fileName,
+        sha256: constitutionAuthority.sha256,
+        size: constitutionAuthority.size,
+      },
+    })
+  );
   if (includeOfficeCli) {
     const officeBinary = path.join(
       resources,
@@ -378,6 +382,20 @@ describe('packaged resource release gate', () => {
     const cleanBundle = path.join(packagedResourcesPath(clean), 'bundled-constitution-fs');
     fs.cpSync(path.join(cleanBundle, 'darwin-arm64'), path.join(cleanBundle, 'darwin-x64'), { recursive: true });
     expect(() => verify(clean)).toThrow(/CRITICAL resource/);
+  });
+
+  it('rejects a packaged Constitution helper that advertises protocol v1', () => {
+    const out = createPackagedResources(true);
+    const manifestPath = path.join(
+      packagedResourcesPath(out),
+      'bundled-constitution-fs',
+      'darwin-arm64',
+      'manifest.json'
+    );
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as { protocolVersion: number };
+    manifest.protocolVersion = 1;
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+    expect(() => verify(out)).toThrow(/CRITICAL resource/);
   });
 
   it('blocks a package whose native OfficeCLI bundle is absent', () => {

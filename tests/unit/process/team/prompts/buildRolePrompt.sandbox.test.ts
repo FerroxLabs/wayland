@@ -1,4 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  getConstitutionFsService: () => ({
+    capability: () => ({ supported: true as const }),
+    readWithOverlay: () => ({
+      constitution: { status: 'absent' as const, revision: 'rev:test:constitution-absent' },
+      overlay: null,
+    }),
+  }),
+}));
+
 import { buildRolePrompt } from '@process/team/prompts/buildRolePrompt';
 import type { TeamAgent } from '@process/team/types';
 

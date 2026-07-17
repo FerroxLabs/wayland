@@ -42,6 +42,10 @@ vi.mock('@renderer/pages/settings/ConstitutionSettings/HostedEditAuthorization',
 }));
 
 import SpecialistOverlayEditor from '@renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor';
+import {
+  constitutionMutationRequestFingerprint,
+  discardSerializedAutosaveDraft,
+} from '@renderer/pages/settings/ConstitutionSettings/useSerializedAutosave';
 
 function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
   let resolve!: (value: T) => void;
@@ -55,11 +59,19 @@ const committed = (revision = 'rev:copy:00000002') => ({
   ok: true as const,
   revision,
   receiptId: 'receipt:copy:00000001',
+  get requestId(): string {
+    return mockWrite.mock.calls.at(-1)?.[4];
+  },
+  get requestFingerprint(): `sha256:${string}` {
+    const [id, content, expectedRevision] = mockWrite.mock.calls.at(-1)!;
+    return constitutionMutationRequestFingerprint({ kind: 'specialist', specialistId: id }, content, expectedRevision);
+  },
 });
 
 describe('Hosted SpecialistOverlayEditor', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    discardSerializedAutosaveDraft('user:user-1:specialist:copy');
     mockRead.mockReset();
     mockRead.mockResolvedValue({
       state: 'present',

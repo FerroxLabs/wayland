@@ -13,6 +13,8 @@ import {
   resetConstitutionHttp,
   revokeConstitutionEditGrantHttp,
   runDesktopConstitutionMutation,
+  runDesktopConstitutionRead,
+  runDesktopConstitutionSpecialistList,
   writeConstitutionHttp,
   writeConstitutionSpecialistHttp,
 } from '@renderer/services/ConstitutionService';
@@ -194,7 +196,13 @@ describe('hosted Constitution service', () => {
     fetchMock.mockResolvedValueOnce(
       response(200, {
         success: true,
-        data: { ok: true, revision: 'rev:copy:00000002', receiptId: 'receipt:copy:00000001' },
+        data: {
+          ok: true,
+          revision: 'rev:copy:00000002',
+          receiptId: 'receipt:copy:00000001',
+          requestId: REQUEST_ID,
+          requestFingerprint: `sha256:${'a'.repeat(64)}`,
+        },
       })
     );
     await expect(
@@ -203,6 +211,8 @@ describe('hosted Constitution service', () => {
       ok: true,
       revision: 'rev:copy:00000002',
       receiptId: 'receipt:copy:00000001',
+      requestId: REQUEST_ID,
+      requestFingerprint: `sha256:${'a'.repeat(64)}`,
     });
     const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
     expect(init.headers).toMatchObject({ 'x-wayland-constitution-edit-grant': 'copy-grant' });
@@ -284,13 +294,25 @@ describe('hosted Constitution service', () => {
       .mockResolvedValueOnce(
         response(200, {
           success: true,
-          data: { ok: true, revision: 'rev:main:00000002', receiptId: 'receipt:main:00000001' },
+          data: {
+            ok: true,
+            revision: 'rev:main:00000002',
+            receiptId: 'receipt:main:00000001',
+            requestId: REQUEST_ID,
+            requestFingerprint: `sha256:${'a'.repeat(64)}`,
+          },
         })
       )
       .mockResolvedValueOnce(
         response(200, {
           success: true,
-          data: { ok: true, revision: 'rev:copy:absent002', receiptId: 'receipt:copy:00000002' },
+          data: {
+            ok: true,
+            revision: 'rev:copy:absent002',
+            receiptId: 'receipt:copy:00000002',
+            requestId: REQUEST_ID,
+            requestFingerprint: `sha256:${'b'.repeat(64)}`,
+          },
         })
       );
     await resetConstitutionHttp('reset-password', 'rev:main:00000001', REQUEST_ID);
@@ -313,25 +335,138 @@ describe('hosted Constitution service', () => {
   it('fails closed on malformed resolved Electron mutation receipts', async () => {
     await expect(
       runDesktopConstitutionMutation(async () => ({
-        ok: true,
-        revision: 'rev:main:00000002',
-        receiptId: 'receipt:main:00000001',
-        ignored: true,
+        availability: 'available',
+        value: {
+          ok: true,
+          revision: 'rev:main:00000002',
+          receiptId: 'receipt:main:00000001',
+          ignored: true,
+        },
       }))
     ).resolves.toMatchObject({ ok: false, reason: 'request_failed' });
     await expect(
-      runDesktopConstitutionMutation(async () => ({ ok: true, revision: '', receiptId: 'receipt:main:00000001' }))
+      runDesktopConstitutionMutation(async () => ({
+        availability: 'available',
+        value: { ok: true, revision: '', receiptId: 'receipt:main:00000001' },
+      }))
     ).resolves.toMatchObject({ ok: false, reason: 'request_failed' });
     await expect(
       runDesktopConstitutionMutation(async () => ({
-        ok: true,
-        revision: 'rev:main:00000002',
-        receiptId: 'receipt:main:00000001',
+        availability: 'available',
+        value: {
+          ok: true,
+          revision: 'rev:main:00000002',
+          receiptId: 'receipt:main:00000001',
+          requestId: REQUEST_ID,
+          requestFingerprint: `sha256:${'a'.repeat(64)}`,
+        },
       }))
     ).resolves.toEqual({
       ok: true,
       revision: 'rev:main:00000002',
       receiptId: 'receipt:main:00000001',
+      requestId: REQUEST_ID,
+      requestFingerprint: `sha256:${'a'.repeat(64)}`,
+    });
+  });
+
+  it('preserves structured-clone-safe Electron conflict and rejects unknown failure envelopes', async () => {
+    const clonedConflict = JSON.parse(
+      JSON.stringify({ availability: 'failed', code: 'CONSTITUTION_FS_CONFLICT', reason: 'revision changed' })
+    );
+    await expect(runDesktopConstitutionMutation(async () => clonedConflict)).resolves.toEqual({
+      ok: false,
+      reason: 'conflict',
+      status: 409,
+      message: 'revision changed',
+    });
+    await expect(
+      runDesktopConstitutionMutation(async () => ({
+        availability: 'failed',
+        code: 'CONSTITUTION_FS_NOT_ALLOWLISTED',
+        reason: 'must not cross IPC',
+      }))
+    ).resolves.toMatchObject({ ok: false, reason: 'request_failed' });
+  });
+
+  it('runtime-validates exact Electron read and specialist inventory envelopes', async () => {
+    await expect(
+      runDesktopConstitutionRead(async () => ({
+        availability: 'available',
+        value: { state: 'present', content: '# rules', revision: 'rev:main:00000001' },
+      }))
+    ).resolves.toEqual({ state: 'present', content: '# rules', revision: 'rev:main:00000001' });
+    await expect(
+      runDesktopConstitutionRead(async () => ({
+        availability: 'available',
+        value: { state: 'present', content: '# rules', revision: 'rev:main:00000001', ignored: true },
+      }))
+    ).rejects.toMatchObject({ code: 'malformed_response' });
+
+    await expect(
+      runDesktopConstitutionSpecialistList(async () => ({
+        availability: 'available',
+        value: [{ id: 'copy', bytes: 12, revision: 'rev:copy:00000001' }],
+      }))
+    ).resolves.toEqual([{ id: 'copy', bytes: 12, revision: 'rev:copy:00000001' }]);
+    await expect(
+      runDesktopConstitutionSpecialistList(async () => ({
+        availability: 'available',
+        value: [{ id: 'copy', bytes: 12, revision: 'rev:copy:00000001', ignored: true }],
+      }))
+    ).rejects.toMatchObject({ code: 'malformed_response' });
+
+    await expect(
+      runDesktopConstitutionRead(async () => ({
+        availability: 'unavailable',
+        code: 'CONSTITUTION_FS_UNSAFE_PLATFORM',
+        reason: 'No packaged helper for this platform.',
+      }))
+    ).rejects.toMatchObject({ code: 'unavailable' });
+    await expect(
+      runDesktopConstitutionMutation(async () => ({
+        availability: 'unavailable',
+        code: 'CONSTITUTION_FS_UNSAFE_PLATFORM',
+        reason: 'No packaged helper for this platform.',
+      }))
+    ).resolves.toMatchObject({ ok: false, reason: 'unavailable' });
+    await expect(
+      runDesktopConstitutionRead(async () => ({
+        availability: 'unavailable',
+        code: 'CONSTITUTION_FS_UNSAFE_PLATFORM',
+        reason: 'No packaged helper for this platform.',
+        ignored: true,
+      }))
+    ).rejects.toMatchObject({ code: 'CONSTITUTION_FS_INVALID_ENVELOPE' });
+  });
+
+  it('does not trust hosted failure classifications with extra or malformed fields', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        response(409, {
+          success: false,
+          code: 'CONSTITUTION_REVISION_CONFLICT',
+          msg: 'reload',
+          ignored: true,
+        })
+      )
+      .mockResolvedValueOnce(
+        response(401, {
+          success: 'false',
+          code: 'CONSTITUTION_EDIT_AUTHORIZATION_REQUIRED',
+          msg: 'unlock',
+        })
+      );
+
+    await expect(writeConstitutionHttp('# one', 'rev:main:00000001', 'opaque-grant', REQUEST_ID)).resolves.toEqual({
+      ok: false,
+      reason: 'request_failed',
+      status: 409,
+    });
+    await expect(writeConstitutionHttp('# two', 'rev:main:00000001', 'opaque-grant', REQUEST_ID)).resolves.toEqual({
+      ok: false,
+      reason: 'request_failed',
+      status: 401,
     });
   });
 

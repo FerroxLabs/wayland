@@ -34,7 +34,7 @@
 
 import { type Express, type Request, type RequestHandler, type Response } from 'express';
 import { apiRateLimiter } from '../middleware/security';
-import { redactSecrets, requireDestructive, requireSecureConfigWrite } from './configWriteGuards';
+import { redactSecrets, requireDestructive, requireSecureConfigWrite, verifyStepUp } from './configWriteGuards';
 import { detectNetworkContext } from '../middleware/detectNetworkContext';
 import { appendAudit } from '../audit/auditLog';
 import {
@@ -45,13 +45,17 @@ import {
   revokeConstitutionEditGrant,
   type ConstitutionEditScope,
 } from './constitutionEditGrant';
-import { DEFAULT_CONSTITUTION } from '@process/bridge/constitutionBridge';
+import { DEFAULT_CONSTITUTION } from '@/common/constitutionDefault';
 import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
 import {
   getConstitutionFsService,
+  type ConstitutionFsService,
   type ConstitutionMutationResult,
   type ConstitutionReadResult,
 } from '@process/services/constitution/constitutionFsService';
+import { constitutionMutationQuiescence } from '@process/services/constitution/constitutionMutationQuiescence';
+
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function bodyString(value: unknown): string {
   return typeof value === 'string' ? value : '';
@@ -65,10 +69,21 @@ function expectedRevision(body: unknown): { valid: true; value: string } | { val
   return typeof value === 'string' && value.length > 0 ? { valid: true, value } : { valid: false };
 }
 
-function requestId(body: unknown): string | undefined {
-  if (!body || typeof body !== 'object' || Array.isArray(body)) return undefined;
+function requestId(body: unknown): { valid: true; value: string } | { valid: false } {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return { valid: false };
   const value = (body as { requestId?: unknown }).requestId;
-  return typeof value === 'string' ? value : undefined;
+  return typeof value === 'string' && UUID_PATTERN.test(value) ? { valid: true, value } : { valid: false };
+}
+
+function requireRequestId(body: unknown, res: Response): string | null {
+  const parsed = requestId(body);
+  if (parsed.valid) return parsed.value;
+  res.status(400).json({
+    success: false,
+    code: 'CONSTITUTION_REQUEST_ID_REQUIRED',
+    msg: 'A valid mutation request id is required.',
+  });
+  return null;
 }
 
 function wireRead(
@@ -79,17 +94,53 @@ function wireRead(
     : { state: 'absent', revision: result.revision };
 }
 
-function wireMutation(result: ConstitutionMutationResult): { ok: true; revision: string; receiptId: string } {
-  return { ok: true, revision: result.revision, receiptId: result.receiptId };
+function wireMutation(result: ConstitutionMutationResult): {
+  ok: true;
+  revision: string;
+  receiptId: string;
+  requestId: string;
+  requestFingerprint: `sha256:${string}`;
+} {
+  return {
+    ok: true,
+    revision: result.revision,
+    receiptId: result.receiptId,
+    requestId: result.transactionId,
+    requestFingerprint: result.requestFingerprint,
+  };
+}
+
+function serviceErrorCode(error: unknown): string {
+  return error instanceof ConstitutionFsTransactionError
+    ? error.code
+    : error && typeof error === 'object' && typeof (error as { code?: unknown }).code === 'string'
+      ? (error as { code: string }).code
+      : '';
+}
+
+function sendReadError(res: Response, error: unknown, fallback: string): void {
+  if (serviceErrorCode(error) === 'CONSTITUTION_FS_UNSAFE_PLATFORM') {
+    res.status(503).json({
+      success: false,
+      code: 'CONSTITUTION_UNAVAILABLE',
+      msg: 'Constitution editing is unavailable on this platform.',
+    });
+    return;
+  }
+  const msg = error instanceof Error ? redactSecrets(error.message) : fallback;
+  res.status(500).json({ success: false, msg });
 }
 
 function sendMutationError(res: Response, error: unknown, fallback: string): void {
-  const code =
-    error instanceof ConstitutionFsTransactionError
-      ? error.code
-      : error && typeof error === 'object' && typeof (error as { code?: unknown }).code === 'string'
-        ? (error as { code: string }).code
-        : '';
+  const code = serviceErrorCode(error);
+  if (code === 'CONSTITUTION_FS_UNSAFE_PLATFORM') {
+    res.status(503).json({
+      success: false,
+      code: 'CONSTITUTION_UNAVAILABLE',
+      msg: 'Constitution editing is unavailable on this platform.',
+    });
+    return;
+  }
   if (code === 'CONSTITUTION_FS_CONFLICT') {
     res.status(409).json({ success: false, code: 'CONSTITUTION_REVISION_CONFLICT', msg: 'Reload before retrying.' });
     return;
@@ -128,8 +179,11 @@ function asyncRoute(handler: (req: Request, res: Response) => Promise<void>): Re
 /**
  * Register the constitution + specialist-overlay routes for the remote WebUI.
  */
-export function registerConstitutionRoutes(app: Express, validateApiAccess: RequestHandler): void {
-  const constitutionFs = getConstitutionFsService();
+export function registerConstitutionRoutes(
+  app: Express,
+  validateApiAccess: RequestHandler,
+  constitutionFs: ConstitutionFsService = getConstitutionFsService()
+): void {
   // GET /api/constitution
   // Read-only: returns the current Constitution prose so the headless editor can
   // load it. The Constitution is NOT a secret, so a read here is allowed.
@@ -138,8 +192,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
       res.json({ success: true, data: wireRead(constitutionFs.readConstitution()) });
     } catch (error) {
       console.error('[API] Constitution read error:', error);
-      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to read constitution';
-      res.status(500).json({ success: false, msg });
+      sendReadError(res, error, 'Failed to read constitution');
     }
   });
 
@@ -147,8 +200,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
     try {
       res.json({ success: true, data: { items: constitutionFs.listSpecialists() } });
     } catch (error) {
-      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to list specialist overlays';
-      res.status(500).json({ success: false, msg });
+      sendReadError(res, error, 'Failed to list specialist overlays');
     }
   });
 
@@ -161,8 +213,7 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
     try {
       res.json({ success: true, data: wireRead(constitutionFs.readSpecialist(id)) });
     } catch (error) {
-      const msg = error instanceof Error ? redactSecrets(error.message) : 'Failed to read specialist overlay';
-      res.status(500).json({ success: false, msg });
+      sendReadError(res, error, 'Failed to read specialist overlay');
     }
   });
 
@@ -234,6 +285,8 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
       res.status(409).json({ success: false, code: 'CONSTITUTION_REVISION_REQUIRED', msg: 'Reload before saving.' });
       return;
     }
+    const mutationRequestId = requireRequestId(req.body, res);
+    if (!mutationRequestId) return;
 
     const ctx = detectNetworkContext(req);
     // DIRECT socket peer - never req.ip (XFF is spoofable). Audit only.
@@ -241,7 +294,9 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
 
     try {
       // The helper validates the content (string + size cap) and writes atomically.
-      const committed = constitutionFs.writeConstitution(content, expectation.value, requestId(req.body));
+      const committed = constitutionMutationQuiescence.runInteractiveMutation(() =>
+        constitutionFs.writeConstitution(content, expectation.value, mutationRequestId)
+      );
 
       void appendAudit({
         userId: req.user?.id ?? null,
@@ -287,10 +342,10 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
             .json({ success: false, code: 'CONSTITUTION_REVISION_REQUIRED', msg: 'Reload before resetting.' });
           return;
         }
-        const committed = constitutionFs.writeConstitution(
-          DEFAULT_CONSTITUTION,
-          expectation.value,
-          requestId(req.body)
+        const mutationRequestId = requireRequestId(req.body, res);
+        if (!mutationRequestId) return;
+        const committed = constitutionMutationQuiescence.runInteractiveMutation(() =>
+          constitutionFs.writeConstitution(DEFAULT_CONSTITUTION, expectation.value, mutationRequestId)
         );
 
         void appendAudit({
@@ -338,12 +393,16 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
       res.status(409).json({ success: false, code: 'CONSTITUTION_REVISION_REQUIRED', msg: 'Reload before saving.' });
       return;
     }
+    const mutationRequestId = requireRequestId(req.body, res);
+    if (!mutationRequestId) return;
     const ctx = detectNetworkContext(req);
     const ip = req.socket?.remoteAddress ?? null;
 
     try {
       // The helper validates the id (path-traversal containment) + content.
-      const committed = constitutionFs.writeSpecialist(id, content, expectation.value, requestId(req.body));
+      const committed = constitutionMutationQuiescence.runInteractiveMutation(() =>
+        constitutionFs.writeSpecialist(id, content, expectation.value, mutationRequestId)
+      );
 
       void appendAudit({
         userId: req.user?.id ?? null,
@@ -391,12 +450,16 @@ export function registerConstitutionRoutes(app: Express, validateApiAccess: Requ
           .json({ success: false, code: 'CONSTITUTION_REVISION_REQUIRED', msg: 'Reload before deleting.' });
         return;
       }
+      const mutationRequestId = requireRequestId(req.body, res);
+      if (!mutationRequestId) return;
 
       const ctx = detectNetworkContext(req);
       const ip = req.socket?.remoteAddress ?? null;
 
       try {
-        const committed = constitutionFs.deleteSpecialist(id, expectation.value, requestId(req.body));
+        const committed = constitutionMutationQuiescence.runInteractiveMutation(() =>
+          constitutionFs.deleteSpecialist(id, expectation.value, mutationRequestId)
+        );
 
         void appendAudit({
           userId: req.user?.id ?? null,

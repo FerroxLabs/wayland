@@ -10,11 +10,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { useAuth } from '@/renderer/hooks/context/AuthContext';
+import { DEFAULT_CONSTITUTION } from '@/common/constitutionDefault';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import {
   readConstitutionHttp,
   resetConstitutionHttp,
   runDesktopConstitutionMutation,
+  runDesktopConstitutionRead,
   writeConstitutionHttp,
   type ConstitutionEditGrant,
   type ConstitutionMutationResult,
@@ -25,9 +27,16 @@ import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/component
 import HostedEditAuthorization from './HostedEditAuthorization';
 import SpecialistOverlays from './SpecialistOverlays';
 import {
+  abandonConstitutionSingleShotMutation,
+  beginConstitutionSingleShotMutation,
+  completeConstitutionSingleShotMutation,
   constitutionAutosaveDraftKey,
-  createConstitutionMutationRequestId,
+  constitutionMutationContentDigest,
+  constitutionMutationRequestFingerprint,
+  constitutionSingleShotMutationKey,
+  readConstitutionSingleShotMutation,
   readSerializedAutosaveDraft,
+  resolveConstitutionSingleShotContent,
   useSerializedAutosave,
 } from './useSerializedAutosave';
 
@@ -113,7 +122,7 @@ const ConstitutionSettings: React.FC = () => {
     if (!isDesktop) return readConstitutionHttp();
     const api = window.electronAPI;
     if (!api?.readConstitution) throw new Error('Constitution reading is unavailable.');
-    return api.readConstitution();
+    return runDesktopConstitutionRead(() => api.readConstitution!());
   }, [isDesktop]);
 
   useEffect(() => {
@@ -157,15 +166,14 @@ const ConstitutionSettings: React.FC = () => {
   }, [draftKey, readCurrentConstitution, reloadToken]);
 
   const saveConstitution = useCallback(
-    async (md: string, requestId: string): Promise<ConstitutionMutationResult> => {
-      if (!revision.current) return { ok: false, reason: 'conflict', status: 409 };
+    async (md: string, expectedRevision: string, requestId: string): Promise<ConstitutionMutationResult> => {
       if (isDesktop) {
         const api = window.electronAPI;
         if (!api?.writeConstitution) return { ok: false, reason: 'request_failed', status: 0 };
-        return runDesktopConstitutionMutation(() => api.writeConstitution!(md, revision.current!, requestId));
+        return runDesktopConstitutionMutation(() => api.writeConstitution!(md, expectedRevision, requestId));
       }
       if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
-      return writeConstitutionHttp(md, revision.current, editGrant.token, requestId);
+      return writeConstitutionHttp(md, expectedRevision, editGrant.token, requestId);
     },
     [editGrant, isDesktop]
   );
@@ -174,6 +182,8 @@ const ConstitutionSettings: React.FC = () => {
     enabled: isDesktop || editGrant !== null,
     debounceMs: SAVE_DEBOUNCE_MS,
     savedFlashMs: SAVED_FLASH_MS,
+    target: { kind: 'constitution' },
+    getExpectedRevision: () => revision.current,
     save: saveConstitution,
     onAuthorizationRequired: () => setEditGrant(null),
     onConflict: () => setConflict(true),
@@ -237,23 +247,47 @@ const ConstitutionSettings: React.FC = () => {
     setConflictError(null);
     try {
       const result = await runExclusiveDestructive(async () => {
-        const requestId = createConstitutionMutationRequestId();
+        const operationKey = constitutionSingleShotMutationKey('overwrite', 'constitution', isDesktop, user?.id);
+        if (!operationKey) throw new Error('A signed-in user is required to persist this operation safely.');
+        if (!draftKey) throw new Error('The Constitution draft does not have a durable principal-scoped location.');
+        const operation =
+          readConstitutionSingleShotMutation(operationKey) ??
+          beginConstitutionSingleShotMutation(operationKey, {
+            action: 'overwrite',
+            target: 'constitution',
+            expectedRevision: conflictSnapshot.remote.revision,
+            contentDigest: constitutionMutationContentDigest(conflictSnapshot.localDraft),
+            requestFingerprint: constitutionMutationRequestFingerprint(
+              { kind: 'constitution' },
+              conflictSnapshot.localDraft,
+              conflictSnapshot.remote.revision
+            ),
+            draftKey,
+          });
+        if (operation.action !== 'overwrite') {
+          throw new Error('The pending Constitution operation has the wrong action.');
+        }
+        const operationContent = resolveConstitutionSingleShotContent(operation);
         const mutation = isDesktop
           ? window.electronAPI?.writeConstitution
             ? await runDesktopConstitutionMutation(() =>
                 window.electronAPI!.writeConstitution!(
-                  conflictSnapshot.localDraft,
-                  conflictSnapshot.remote.revision,
-                  requestId
+                  operationContent,
+                  operation.expectedRevision,
+                  operation.requestId
                 )
               )
             : ({ ok: false, reason: 'request_failed', status: 0 } as const)
           : await writeConstitutionHttp(
-              conflictSnapshot.localDraft,
-              conflictSnapshot.remote.revision,
+              operationContent,
+              operation.expectedRevision,
               editGrant!.token,
-              requestId
+              operation.requestId
             );
+        if (mutation.ok) completeConstitutionSingleShotMutation(operationKey, mutation);
+        else if ('reason' in mutation && mutation.reason === 'conflict') {
+          abandonConstitutionSingleShotMutation(operationKey, operation.requestId, operation.requestFingerprint);
+        }
         return { committed: mutation.ok, value: mutation };
       });
       if (result.value.ok === false) {
@@ -278,7 +312,7 @@ const ConstitutionSettings: React.FC = () => {
     } finally {
       setConflictBusy(false);
     }
-  }, [conflictSnapshot, editGrant, isDesktop, runExclusiveDestructive]);
+  }, [conflictSnapshot, draftKey, editGrant, isDesktop, runExclusiveDestructive, user?.id]);
 
   const handleReset = useCallback(async (): Promise<void> => {
     hydrating.current = true;
@@ -287,20 +321,40 @@ const ConstitutionSettings: React.FC = () => {
     try {
       reset = await runExclusiveDestructive<ResetOutcome | undefined>(async () => {
         if (!revision.current) return { committed: false, value: undefined };
-        const requestId = createConstitutionMutationRequestId();
+        const operationKey = constitutionSingleShotMutationKey('reset', 'constitution', isDesktop, user?.id);
+        if (!operationKey) throw new Error('A signed-in user is required to persist this operation safely.');
+        const operation =
+          readConstitutionSingleShotMutation(operationKey) ??
+          beginConstitutionSingleShotMutation(operationKey, {
+            action: 'reset',
+            target: 'constitution',
+            expectedRevision: revision.current,
+            requestFingerprint: constitutionMutationRequestFingerprint(
+              { kind: 'constitution' },
+              DEFAULT_CONSTITUTION,
+              revision.current
+            ),
+          });
+        if (operation.action !== 'reset') throw new Error('The pending Constitution operation has the wrong action.');
         let result: ConstitutionMutationResult;
         if (isDesktop) {
           const api = window.electronAPI;
           result = api?.resetConstitution
-            ? await runDesktopConstitutionMutation(() => api.resetConstitution!(revision.current!, requestId))
+            ? await runDesktopConstitutionMutation(() =>
+                api.resetConstitution!(operation.expectedRevision, operation.requestId)
+              )
             : { ok: false, reason: 'request_failed', status: 0 };
         } else {
-          result = await resetConstitutionHttp(resetPassword, revision.current, requestId);
+          result = await resetConstitutionHttp(resetPassword, operation.expectedRevision, operation.requestId);
         }
         if (result.ok === false) {
+          if (result.reason === 'conflict') {
+            abandonConstitutionSingleShotMutation(operationKey, operation.requestId, operation.requestFingerprint);
+          }
           if (result.reason === 'conflict') setConflict(true);
           return { committed: false, value: undefined };
         }
+        completeConstitutionSingleShotMutation(operationKey, result);
         // The receipt proves the reset committed. A failed follow-up read must
         // never resurrect the pre-reset dirty draft and overwrite that commit.
         try {
@@ -351,7 +405,7 @@ const ConstitutionSettings: React.FC = () => {
     window.setTimeout(() => {
       hydrating.current = false;
     }, SAVED_FLASH_MS);
-  }, [isDesktop, readCurrentConstitution, resetPassword, runExclusiveDestructive]);
+  }, [isDesktop, readCurrentConstitution, resetPassword, runExclusiveDestructive, user?.id]);
 
   const toc = useMemo(() => parseToc(value), [value]);
 
@@ -460,7 +514,7 @@ const ConstitutionSettings: React.FC = () => {
           <div className='text-12px text-t-secondary'>
             {readError ?? t('settings.constitutionPage.readErrorBody', 'The existing file was not changed.')}
           </div>
-          <Button type='secondary' size='small' onClick={() => setReloadToken((value) => value + 1)}>
+          <Button type='secondary' size='small' onClick={() => setReloadToken((token) => token + 1)}>
             {t('settings.constitutionPage.retryRead', 'Retry load')}
           </Button>
         </div>

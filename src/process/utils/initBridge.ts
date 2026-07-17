@@ -37,10 +37,7 @@ import {
 } from '@process/services/workflow/autonomousWatchdog';
 import { handleParentWorkflowTurn } from '@process/services/workflow/parentTurnDriver';
 import { resumeInterruptedParentRuns } from '@process/services/workflow/resumeRuns';
-import {
-  sweepStalledParentRuns,
-  PARENT_WATCHDOG_INTERVAL_MS,
-} from '@process/services/workflow/parentWatchdog';
+import { sweepStalledParentRuns, PARENT_WATCHDOG_INTERVAL_MS } from '@process/services/workflow/parentWatchdog';
 import { setWorkflowSessionService } from '@process/services/workflow/workflowSessionServiceSingleton';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -68,7 +65,8 @@ const teamSessionService = new TeamSessionService(
   ritualScheduler
 );
 const constitutionFsService = ConstitutionFsService.createProduction(
-  app.isPackaged ? process.resourcesPath : path.resolve('resources')
+  app.isPackaged ? process.resourcesPath : path.resolve('resources'),
+  { revisionAuthorityPath: path.join(app.getPath('userData'), 'constitution', 'revision-authority.enc') }
 );
 setConstitutionFsService(constitutionFsService);
 
@@ -161,8 +159,8 @@ const USAGE_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
 // lookback window on startup to keep it bounded (R5). 180 days is the floor.
 const COST_RETENTION_MS = 180 * 24 * 60 * 60 * 1000;
 void getDatabase()
-  .then((db) => {
-    const usageRepo = new SqliteUsageEventRepository(db.getDriver());
+  .then((appDatabase) => {
+    const usageRepo = new SqliteUsageEventRepository(appDatabase.getDriver());
     const usageLogger = new UsageEventLogger(usageRepo);
     const frequentlyUsedAggregator = new FrequentlyUsedAggregator(usageRepo);
     initUsageBridge(usageLogger, frequentlyUsedAggregator);
@@ -182,7 +180,7 @@ void getDatabase()
     // driver: the BudgetController reads spend through CostAnalyticsService and
     // enforces warn-default caps via a post-turn hook on the recorder.
     try {
-      const costRepo = new SqliteCostRepository(db.getDriver());
+      const costRepo = new SqliteCostRepository(appDatabase.getDriver());
       const costPruned = costRepo.prune(Date.now() - COST_RETENTION_MS);
       if (costPruned > 0) console.log(`[cost] pruned ${costPruned} events older than 180d`);
       const costRecorder = new CostRecorder(costRepo, getModelPricing());
@@ -191,7 +189,7 @@ void getDatabase()
       // Cost observability reads (WS-D). Wire the analytics service over the
       // shared driver into the cost.* IPC providers so the renderer cost panel
       // can query summary/byModel/byBackend/byConversation/byTeam/series.
-      const costAnalytics = new CostAnalyticsService(db.getDriver());
+      const costAnalytics = new CostAnalyticsService(appDatabase.getDriver());
       initCostBridge(costAnalytics);
 
       // Budgets / caps (Stage 1). The controller emits a one-time non-blocking
@@ -201,7 +199,7 @@ void getDatabase()
       // budgetController.canStartTurn({modelId,backend,teamId}) at its cleanest
       // pre-turn checkpoint and surfaces a RESUMABLE card on allowed:false (no
       // hard lock). Default behaviour never blocks a turn.
-      const budgetRepo = new SqliteBudgetRepository(db.getDriver());
+      const budgetRepo = new SqliteBudgetRepository(appDatabase.getDriver());
       const budgetController = new BudgetController(budgetRepo, costAnalytics, (alert) => {
         ipcBridge.cost.budgetAlert.emit(alert);
       });
@@ -234,7 +232,7 @@ void getDatabase()
       },
     };
 
-    const workflowRepo = new WorkflowSessionRepository(db.getDriver());
+    const workflowRepo = new WorkflowSessionRepository(appDatabase.getDriver());
     const workflowService = new WorkflowSessionService(
       workflowRepo,
       SkillLibrary.getInstance(),
@@ -402,13 +400,15 @@ void getDatabase()
       void (async () => {
         try {
           const swept = await sweepStalledAutonomousSteps(workflowService);
-          for (const s of swept) {
-            console.warn(`[initBridge] watchdog force-errored stalled workflow step ${s.sessionId}/${s.stepN}`);
-            await usageLogger.record({
-              eventType: 'workflow.autonomous_step_timeout',
-              metadata: { session_id: s.sessionId, step_n: s.stepN, dispatch_id: s.dispatchId },
-            });
-          }
+          await Promise.all(
+            swept.map(async (s) => {
+              console.warn(`[initBridge] watchdog force-errored stalled workflow step ${s.sessionId}/${s.stepN}`);
+              await usageLogger.record({
+                eventType: 'workflow.autonomous_step_timeout',
+                metadata: { session_id: s.sessionId, step_n: s.stepN, dispatch_id: s.dispatchId },
+              });
+            })
+          );
         } catch (err) {
           console.warn('[initBridge] autonomous watchdog sweep failed:', err);
         }
@@ -425,13 +425,15 @@ void getDatabase()
       void (async () => {
         try {
           const swept = await sweepStalledParentRuns(workflowService);
-          for (const s of swept) {
-            console.warn(`[initBridge] parent watchdog parked stalled workflow run ${s.sessionId}/${s.stepN}`);
-            await usageLogger.record({
-              eventType: 'workflow.parent_run_stalled',
-              metadata: { session_id: s.sessionId, step_n: s.stepN },
-            });
-          }
+          await Promise.all(
+            swept.map(async (s) => {
+              console.warn(`[initBridge] parent watchdog parked stalled workflow run ${s.sessionId}/${s.stepN}`);
+              await usageLogger.record({
+                eventType: 'workflow.parent_run_stalled',
+                metadata: { session_id: s.sessionId, step_n: s.stepN },
+              });
+            })
+          );
         } catch (err) {
           console.warn('[initBridge] parent watchdog sweep failed:', err);
         }

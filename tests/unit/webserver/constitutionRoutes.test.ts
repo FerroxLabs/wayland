@@ -11,6 +11,7 @@ const {
   mockRead,
   mockAppendAudit,
   mockRequireDestructive,
+  mockVerifyStepUp,
   mockAuthorizeGrant,
   mockIssueGrant,
   mockRevokeGrant,
@@ -22,12 +23,13 @@ const {
   mockRead: vi.fn(() => '# Current Constitution\n'),
   mockAppendAudit: vi.fn(),
   mockRequireDestructive: vi.fn(),
+  mockVerifyStepUp: vi.fn(),
   mockAuthorizeGrant: vi.fn(),
   mockIssueGrant: vi.fn(),
   mockRevokeGrant: vi.fn(),
 }));
 
-vi.mock('@process/bridge/constitutionBridge', () => ({
+vi.mock('@/common/constitutionDefault', () => ({
   DEFAULT_CONSTITUTION: '# Default Constitution\n',
 }));
 vi.mock('@process/services/constitution/constitutionFsService', () => ({
@@ -35,29 +37,40 @@ vi.mock('@process/services/constitution/constitutionFsService', () => ({
     readConstitution: () => ({ status: 'present', content: mockRead(), revision: 'rev:v1:current-main' }),
     listSpecialists: () => [],
     readSpecialist: () => ({ status: 'absent', revision: 'rev:v1:internal-absent' }),
-    writeConstitution: (content: string, revision: string | null) => {
-      const ok = content === '# Default Constitution\n' ? (mockReset(), true) : mockWrite(content, revision);
+    writeConstitution: (content: string, revision: string | null, requestId: string) => {
+      const ok =
+        content === '# Default Constitution\n'
+          ? (mockReset(content, revision, requestId), true)
+          : mockWrite(content, revision, requestId);
       if (!ok)
         throw Object.assign(new Error('invalid Constitution write'), { code: 'CONSTITUTION_FS_INVALID_REQUEST' });
-      return { status: 'committed', revision: 'rev:v1:next-main', transactionId: 'tx-main', receiptId: 'receipt-main' };
+      return {
+        status: 'committed',
+        revision: 'rev:v1:next-main',
+        transactionId: requestId,
+        receiptId: 'receipt-main',
+        requestFingerprint: `sha256:${'1'.repeat(64)}`,
+      };
     },
-    writeSpecialist: (id: string, content: string, revision: string | null) => {
-      if (!mockWriteSpecialist(id, content, revision))
+    writeSpecialist: (id: string, content: string, revision: string | null, requestId: string) => {
+      if (!mockWriteSpecialist(id, content, revision, requestId))
         throw Object.assign(new Error('invalid specialist write'), { code: 'CONSTITUTION_FS_INVALID_REQUEST' });
       return {
         status: 'committed',
         revision: 'rev:v1:next-specialist',
-        transactionId: 'tx-specialist',
+        transactionId: requestId,
         receiptId: 'receipt-specialist',
+        requestFingerprint: `sha256:${'2'.repeat(64)}`,
       };
     },
-    deleteSpecialist: (id: string, revision: string) => {
-      if (!mockDeleteSpecialist(id, revision)) throw new Error('invalid specialist delete');
+    deleteSpecialist: (id: string, revision: string, requestId: string) => {
+      if (!mockDeleteSpecialist(id, revision, requestId)) throw new Error('invalid specialist delete');
       return {
         status: 'committed',
         revision: 'rev:v1:absent-specialist',
-        transactionId: 'tx-delete',
+        transactionId: requestId,
         receiptId: 'receipt-delete',
+        requestFingerprint: `sha256:${'3'.repeat(64)}`,
       };
     },
   }),
@@ -69,7 +82,7 @@ vi.mock('@process/services/constitution/constitutionFsService', () => ({
 // real requireSecureConfigWrite (reset stays config-write) + redactSecrets.
 vi.mock('@process/webserver/routes/configWriteGuards', async (importOriginal) => {
   const actual = (await importOriginal()) as Record<string, unknown>;
-  return { ...actual, requireDestructive: mockRequireDestructive };
+  return { ...actual, requireDestructive: mockRequireDestructive, verifyStepUp: mockVerifyStepUp };
 });
 vi.mock('@process/webserver/routes/constitutionEditGrant', () => ({
   CONSTITUTION_EDIT_GRANT_HEADER: 'x-wayland-constitution-edit-grant',
@@ -92,7 +105,10 @@ type CapturedHandler = (req: Request, res: Response) => unknown;
 const passAuth: RequestHandler = (_req, _res, next) => next();
 
 /** Capture each route's final handler by handing register a stub Express app. */
-function captureHandlers(): { get: Record<string, CapturedHandler>; post: Record<string, CapturedHandler> } {
+function captureHandlers(owner?: unknown): {
+  get: Record<string, CapturedHandler>;
+  post: Record<string, CapturedHandler>;
+} {
   const get: Record<string, CapturedHandler> = {};
   const post: Record<string, CapturedHandler> = {};
   const app = {
@@ -103,7 +119,7 @@ function captureHandlers(): { get: Record<string, CapturedHandler>; post: Record
       post[path] = middleware[middleware.length - 1];
     },
   } as unknown as Express;
-  registerConstitutionRoutes(app, passAuth);
+  registerConstitutionRoutes(app, passAuth, owner as never);
   return { get, post };
 }
 
@@ -161,6 +177,8 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     // deny tests override with a refusal that writes the 403/401 itself.
     mockRequireDestructive.mockReset();
     mockRequireDestructive.mockResolvedValue(true);
+    mockVerifyStepUp.mockReset();
+    mockVerifyStepUp.mockResolvedValue(true);
     mockAuthorizeGrant.mockReset();
     mockAuthorizeGrant.mockReturnValue({ authorized: true, expiresAt: Date.now() + 60_000 });
     mockIssueGrant.mockReset();
@@ -193,13 +211,63 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     });
   });
 
+  it('reports unsupported packaged authority as an honest unavailable capability', async () => {
+    const unavailable = Object.assign(new Error('No packaged authority for win32-x64.'), {
+      code: 'CONSTITUTION_FS_UNSAFE_PLATFORM',
+    });
+    const owner = {
+      readConstitution: () => {
+        throw unavailable;
+      },
+      writeConstitution: () => {
+        throw unavailable;
+      },
+    };
+    const handlers = captureHandlers(owner);
+
+    const read = makeRes();
+    handlers.get['/api/constitution'](makeReq({}), read);
+    expect(read._status).toBe(503);
+    expect(read._json).toEqual({
+      success: false,
+      code: 'CONSTITUTION_UNAVAILABLE',
+      msg: 'Constitution editing is unavailable on this platform.',
+    });
+
+    const write = makeRes();
+    await handlers.post['/api/constitution/write'](
+      makeReq({
+        body: {
+          content: '# blocked',
+          expectedRevision: 'rev:v1:unavailable',
+          requestId: '77777777-7777-4777-8777-777777777777',
+        },
+        userId: 'u1',
+      }),
+      write
+    );
+    expect(write._status).toBe(503);
+    expect(write._json).toEqual({
+      success: false,
+      code: 'CONSTITUTION_UNAVAILABLE',
+      msg: 'Constitution editing is unavailable on this platform.',
+    });
+  });
+
   it('maps native CAS conflicts to the exact reloadable 409 contract', async () => {
     mockWrite.mockImplementationOnce(() => {
       throw Object.assign(new Error('stale'), { code: 'CONSTITUTION_FS_CONFLICT' });
     });
     const res = makeRes();
     await captureHandlers().post['/api/constitution/write'](
-      makeReq({ body: { content: '# stale', expectedRevision: 'rev:v1:stale' }, userId: 'u1' }),
+      makeReq({
+        body: {
+          content: '# stale',
+          expectedRevision: 'rev:v1:stale',
+          requestId: '11111111-1111-4111-8111-111111111111',
+        },
+        userId: 'u1',
+      }),
       res
     );
     expect(res._status).toBe(409);
@@ -208,6 +276,36 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
       code: 'CONSTITUTION_REVISION_CONFLICT',
       msg: 'Reload before retrying.',
     });
+  });
+
+  it('rejects missing or malformed mutation identities before persistence', async () => {
+    const handlers = captureHandlers().post;
+    const cases: Array<[string, Record<string, unknown>]> = [
+      ['/api/constitution/write', { content: '# missing id', expectedRevision: 'rev:v1:main' }],
+      ['/api/constitution/reset', { password: 'correct', expectedRevision: 'rev:v1:main', requestId: 'not-a-uuid' }],
+      [
+        '/api/constitution/write-specialist',
+        { id: 'copy', content: '# copy', expectedRevision: 'rev:v1:copy', requestId: '' },
+      ],
+      ['/api/constitution/delete-specialist', { id: 'copy', password: 'correct', expectedRevision: 'rev:v1:copy' }],
+    ];
+
+    await Promise.all(
+      cases.map(async ([route, body]) => {
+        const res = makeRes();
+        await handlers[route](makeReq({ body, userId: 'u1' }), res);
+        expect(res._status).toBe(400);
+        expect(res._json).toEqual({
+          success: false,
+          code: 'CONSTITUTION_REQUEST_ID_REQUIRED',
+          msg: 'A valid mutation request id is required.',
+        });
+      })
+    );
+    expect(mockWrite).not.toHaveBeenCalled();
+    expect(mockReset).not.toHaveBeenCalled();
+    expect(mockWriteSpecialist).not.toHaveBeenCalled();
+    expect(mockDeleteSpecialist).not.toHaveBeenCalled();
   });
 
   it('GET /api/constitution returns the current prose (read allowed - not a secret)', () => {
@@ -223,13 +321,26 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
   it('write persists and returns STATUS ONLY ({ ok }) - never echoes the body', async () => {
     const res = makeRes();
     await captureHandlers().post['/api/constitution/write'](
-      makeReq({ body: { content: '# My rules', expectedRevision: 'rev:v1:current-main' }, userId: 'u1' }),
+      makeReq({
+        body: {
+          content: '# My rules',
+          expectedRevision: 'rev:v1:current-main',
+          requestId: '22222222-2222-4222-8222-222222222222',
+        },
+        userId: 'u1',
+      }),
       res
     );
-    expect(mockWrite).toHaveBeenCalledWith('# My rules', 'rev:v1:current-main');
+    expect(mockWrite).toHaveBeenCalledWith('# My rules', 'rev:v1:current-main', '22222222-2222-4222-8222-222222222222');
     expect(res._json).toEqual({
       success: true,
-      data: { ok: true, revision: 'rev:v1:next-main', receiptId: 'receipt-main' },
+      data: {
+        ok: true,
+        revision: 'rev:v1:next-main',
+        receiptId: 'receipt-main',
+        requestId: '22222222-2222-4222-8222-222222222222',
+        requestFingerprint: `sha256:${'1'.repeat(64)}`,
+      },
     });
     expect(JSON.stringify(res._json)).not.toContain('My rules');
   });
@@ -284,7 +395,11 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
   it('write audits with action/target/ip/reachedVia', async () => {
     await captureHandlers().post['/api/constitution/write'](
       makeReq({
-        body: { content: '# rules', expectedRevision: 'rev:v1:current-main' },
+        body: {
+          content: '# rules',
+          expectedRevision: 'rev:v1:current-main',
+          requestId: '33333333-3333-4333-8333-333333333333',
+        },
         userId: 'u1',
         peer: '100.64.0.9',
       }),
@@ -316,7 +431,11 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
   it('write requires the Constitution scope and passes the opaque header to the grant verifier', async () => {
     await captureHandlers().post['/api/constitution/write'](
       makeReq({
-        body: { content: '# rules', expectedRevision: 'rev:v1:current-main' },
+        body: {
+          content: '# rules',
+          expectedRevision: 'rev:v1:current-main',
+          requestId: '44444444-4444-4444-8444-444444444444',
+        },
         headers: { 'x-wayland-constitution-edit-grant': 'A'.repeat(43) },
         userId: 'u1',
       }),
@@ -336,7 +455,13 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
   it('write returns 400 when the helper rejects (oversized / invalid)', async () => {
     const res = makeRes();
     await captureHandlers().post['/api/constitution/write'](
-      makeReq({ body: { content: 'x'.repeat(200), expectedRevision: 'rev:v1:current-main' } }),
+      makeReq({
+        body: {
+          content: 'x'.repeat(200),
+          expectedRevision: 'rev:v1:current-main',
+          requestId: '55555555-5555-4555-8555-555555555555',
+        },
+      }),
       res
     );
     expect(res._status).toBe(400);
@@ -349,7 +474,13 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     });
     const res = makeRes();
     await captureHandlers().post['/api/constitution/write'](
-      makeReq({ body: { content: '# rules', expectedRevision: 'rev:v1:current-main' } }),
+      makeReq({
+        body: {
+          content: '# rules',
+          expectedRevision: 'rev:v1:current-main',
+          requestId: '66666666-6666-4666-8666-666666666666',
+        },
+      }),
       res
     );
     expect(res._status).toBe(500);
@@ -360,14 +491,31 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
   it('reset restores the default and returns { ok } only - never the default body', async () => {
     const res = makeRes();
     await captureHandlers().post['/api/constitution/reset'](
-      makeReq({ body: { password: 'hunter2', expectedRevision: 'rev:v1:current-main' }, userId: 'u1' }),
+      makeReq({
+        body: {
+          password: 'hunter2',
+          expectedRevision: 'rev:v1:current-main',
+          requestId: '77777777-7777-4777-8777-777777777777',
+        },
+        userId: 'u1',
+      }),
       res
     );
     expect(mockRequireDestructive.mock.calls[0][2]).toBe('hunter2');
-    expect(mockReset).toHaveBeenCalled();
+    expect(mockReset).toHaveBeenCalledWith(
+      expect.any(String),
+      'rev:v1:current-main',
+      '77777777-7777-4777-8777-777777777777'
+    );
     expect(res._json).toEqual({
       success: true,
-      data: { ok: true, revision: 'rev:v1:next-main', receiptId: 'receipt-main' },
+      data: {
+        ok: true,
+        revision: 'rev:v1:next-main',
+        receiptId: 'receipt-main',
+        requestId: '77777777-7777-4777-8777-777777777777',
+        requestFingerprint: `sha256:${'1'.repeat(64)}`,
+      },
     });
     expect(JSON.stringify(res._json)).not.toContain('Default Constitution');
     expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({ action: 'constitution.reset', result: 'success' });
@@ -388,16 +536,32 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
     const res = makeRes();
     await captureHandlers().post['/api/constitution/write-specialist'](
       makeReq({
-        body: { id: 'copy', content: '# copy rules', expectedRevision: 'rev:v1:absent-specialist' },
+        body: {
+          id: 'copy',
+          content: '# copy rules',
+          expectedRevision: 'rev:v1:absent-specialist',
+          requestId: '88888888-8888-4888-8888-888888888888',
+        },
         userId: 'u1',
       }),
       res
     );
-    expect(mockWriteSpecialist).toHaveBeenCalledWith('copy', '# copy rules', 'rev:v1:absent-specialist');
+    expect(mockWriteSpecialist).toHaveBeenCalledWith(
+      'copy',
+      '# copy rules',
+      'rev:v1:absent-specialist',
+      '88888888-8888-4888-8888-888888888888'
+    );
     expect(mockAuthorizeGrant).toHaveBeenCalledWith(expect.anything(), '', 'specialist.write:copy');
     expect(res._json).toEqual({
       success: true,
-      data: { ok: true, revision: 'rev:v1:next-specialist', receiptId: 'receipt-specialist' },
+      data: {
+        ok: true,
+        revision: 'rev:v1:next-specialist',
+        receiptId: 'receipt-specialist',
+        requestId: '88888888-8888-4888-8888-888888888888',
+        requestFingerprint: `sha256:${'2'.repeat(64)}`,
+      },
     });
     expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({
       action: 'constitution.writeSpecialist',
@@ -416,7 +580,14 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
   it('write-specialist returns 400 when the helper rejects a bad id', async () => {
     const res = makeRes();
     await captureHandlers().post['/api/constitution/write-specialist'](
-      makeReq({ body: { id: 'bad-id', content: 'x', expectedRevision: 'rev:v1:absent-specialist' } }),
+      makeReq({
+        body: {
+          id: 'bad-id',
+          content: 'x',
+          expectedRevision: 'rev:v1:absent-specialist',
+          requestId: '99999999-9999-4999-8999-999999999999',
+        },
+      }),
       res
     );
     expect(res._status).toBe(400);
@@ -426,13 +597,30 @@ describe('constitution routes (Wave 3 G - write-only constitution + overlays)', 
   it('delete-specialist removes and returns { ok } only', async () => {
     const res = makeRes();
     await captureHandlers().post['/api/constitution/delete-specialist'](
-      makeReq({ body: { id: 'copy', expectedRevision: 'rev:v1:current-specialist' }, userId: 'u1' }),
+      makeReq({
+        body: {
+          id: 'copy',
+          expectedRevision: 'rev:v1:current-specialist',
+          requestId: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa',
+        },
+        userId: 'u1',
+      }),
       res
     );
-    expect(mockDeleteSpecialist).toHaveBeenCalledWith('copy', 'rev:v1:current-specialist');
+    expect(mockDeleteSpecialist).toHaveBeenCalledWith(
+      'copy',
+      'rev:v1:current-specialist',
+      'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa'
+    );
     expect(res._json).toEqual({
       success: true,
-      data: { ok: true, revision: 'rev:v1:absent-specialist', receiptId: 'receipt-delete' },
+      data: {
+        ok: true,
+        revision: 'rev:v1:absent-specialist',
+        receiptId: 'receipt-delete',
+        requestId: 'aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa',
+        requestFingerprint: `sha256:${'3'.repeat(64)}`,
+      },
     });
     expect(mockAppendAudit.mock.calls[0][0]).toMatchObject({
       action: 'constitution.deleteSpecialist',

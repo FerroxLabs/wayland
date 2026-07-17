@@ -136,7 +136,7 @@ function loadConstitutionFsAuthority() {
     path.resolve(__dirname, '..', 'src', 'process', 'services', 'constitution', 'constitutionFsAuthority.generated.ts'),
     'utf8'
   );
-  const match = authoritySource.match(/=\s*(\{[\s\S]*\})\s+as const;/);
+  const match = authoritySource.match(/^\/\/ constitution-fs-authority-json:(\{[^\r\n]+\})$/m);
   return match ? JSON.parse(match[1]) : null;
 }
 
@@ -145,7 +145,8 @@ function verifyConstitutionFsBundle(
   targetPlatform,
   targetArch,
   authority = loadConstitutionFsAuthority(),
-  verifyDarwinSignature = (binaryPath) => execFileSync('/usr/bin/codesign', ['--verify', '--strict', binaryPath], { stdio: 'pipe' })
+  verifyDarwinSignature = (binaryPath) =>
+    execFileSync('/usr/bin/codesign', ['--verify', '--strict', binaryPath], { stdio: 'pipe' })
 ) {
   if (targetPlatform === 'win32') return !fs.existsSync(bundleRoot);
   const runtime = `${targetPlatform}-${targetArch}`;
@@ -159,14 +160,24 @@ function verifyConstitutionFsBundle(
   const bytes = fs.readFileSync(binaryPath);
   const digest = `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`;
   if (
-    JSON.stringify(Object.keys(manifest).sort()) !== JSON.stringify(['arch', 'binary', 'platform', 'protocolVersion', 'schemaVersion']) ||
-    manifest.schemaVersion !== 1 || manifest.protocolVersion !== 1 ||
-    manifest.platform !== targetPlatform || manifest.arch !== targetArch ||
+    JSON.stringify(Object.keys(manifest).sort()) !==
+      JSON.stringify(['arch', 'binary', 'platform', 'protocolVersion', 'schemaVersion']) ||
+    manifest.schemaVersion !== 1 ||
+    manifest.protocolVersion !== 2 ||
+    manifest.platform !== targetPlatform ||
+    manifest.arch !== targetArch ||
     manifest.binary.fileName !== 'wayland-constitution-fs' ||
-    manifest.binary.sha256 !== digest || manifest.binary.size !== bytes.length ||
-    authority.supported !== true || authority.platform !== targetPlatform || authority.arch !== targetArch ||
-    authority.sha256 !== digest || authority.size !== bytes.length || authority.fileName !== manifest.binary.fileName
-  ) return false;
+    manifest.binary.sha256 !== digest ||
+    manifest.binary.size !== bytes.length ||
+    authority.supported !== true ||
+    authority.protocolVersion !== 2 ||
+    authority.platform !== targetPlatform ||
+    authority.arch !== targetArch ||
+    authority.sha256 !== digest ||
+    authority.size !== bytes.length ||
+    authority.fileName !== manifest.binary.fileName
+  )
+    return false;
   const identity = inspectExecutable(binaryPath);
   if (identity?.platform !== targetPlatform || identity?.arch !== targetArch) return false;
   if (targetPlatform === 'darwin') {

@@ -6,7 +6,7 @@ use std::ffi::{CStr, CString};
 use std::io::{self, Read};
 use std::os::fd::RawFd;
 
-const PROTOCOL_VERSION: u8 = 1;
+const PROTOCOL_VERSION: u8 = 2;
 // Restore-over-present carries two authenticated records, each wrapping up to
 // MAX_CONTENT_BYTES as base64. Keep the wire bound explicit and shared with the
 // TypeScript wrapper; it is deliberately larger than the sum of those records.
@@ -28,6 +28,7 @@ struct Request {
     root_identity: RootIdentity,
     journal_key_base64: Option<String>,
     archive_authentication_keys: Option<Vec<ArchiveAuthenticationKey>>,
+    request_fingerprint: Option<String>,
     operation: Operation,
     target: Option<Target>,
     expected: Option<Expected>,
@@ -39,6 +40,8 @@ struct Request {
     source_archive: Option<Payload>,
     reconcile_transaction_id: Option<String>,
     reconcile_facts: Option<ReconcileFacts>,
+    lookup_transaction_id: Option<String>,
+    migration_source: Option<MigrationSource>,
     seal_key_id: Option<String>,
     envelope: Option<Payload>,
 }
@@ -49,6 +52,9 @@ enum Operation {
     Replace,
     Delete,
     Restore,
+    MigrateLegacy,
+    CommittedLookup,
+    MigrationCommittedLookup,
     SealKeyInventory,
     SealKeyRead,
     SealKeyCreate,
@@ -107,7 +113,16 @@ struct ArchiveAuthenticationKey {
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
+struct MigrationSource {
+    target: Target,
+    sha256: String,
+    parent_request_fingerprint: String,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 struct ReconcileFacts {
+    request_fingerprint: String,
     operation: ReconciledOperation,
     target: Target,
     expected_present: bool,
@@ -119,6 +134,18 @@ struct ReconcileFacts {
     source_archive_id: Option<String>,
     source_archive_sha256: Option<String>,
     recovery_sha256: Option<String>,
+    migration_source: Option<MigrationSourceFacts>,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+struct MigrationSourceFacts {
+    target: Target,
+    device: String,
+    inode: String,
+    sha256: String,
+    #[serde(default)]
+    parent_request_fingerprint: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
@@ -127,6 +154,7 @@ enum ReconciledOperation {
     Replace,
     Delete,
     Restore,
+    MigrateLegacy,
 }
 
 #[derive(Debug, Serialize)]
@@ -135,6 +163,7 @@ struct Receipt {
     ok: bool,
     version: u8,
     transaction_id: String,
+    request_fingerprint: Option<String>,
     operation: &'static str,
     outcome: &'static str,
     archived_at: Option<u64>,
@@ -436,6 +465,12 @@ enum Validated {
         source_archive_sha256: String,
         current_archive: Option<(Vec<u8>, String)>,
     },
+    MigrateLegacy {
+        replacement: Vec<u8>,
+        source: MigrationSource,
+    },
+    CommittedLookup(String),
+    MigrationCommittedLookup(String),
     SealKeyInventory,
     SealKeyRead(String),
     SealKeyCreate(String, Vec<u8>, String),
@@ -492,8 +527,15 @@ fn validate(request: &Request) -> Result<Validated> {
         Operation::Replace
             | Operation::Delete
             | Operation::Restore
+            | Operation::MigrateLegacy
+            | Operation::CommittedLookup
+            | Operation::MigrationCommittedLookup
             | Operation::PendingInventory
             | Operation::Reconcile
+            | Operation::ReadLive
+            | Operation::LiveInventory
+            | Operation::ArchiveInventory
+            | Operation::ReadArchive
     );
     if requires_journal_key {
         let _ = journal_key(request)?;
@@ -516,6 +558,76 @@ fn validate(request: &Request) -> Result<Validated> {
         _ => false,
     };
     validate_archive_authentication_keys(request, requires_archive_keys)?;
+    let is_mutation = matches!(
+        request.operation,
+        Operation::Replace | Operation::Delete | Operation::Restore | Operation::MigrateLegacy
+    );
+    if is_mutation {
+        if request
+            .request_fingerprint
+            .as_deref()
+            .is_none_or(|fingerprint| !is_digest(fingerprint))
+        {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_INVALID_REQUEST",
+                "mutation requires a canonical request fingerprint",
+            ));
+        }
+    } else if request.operation != Operation::CommittedLookup
+        && request.operation != Operation::MigrationCommittedLookup
+        && request.request_fingerprint.is_some()
+    {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_INVALID_REQUEST",
+            "non-mutation operation cannot carry a request fingerprint",
+        ));
+    }
+    if request.operation == Operation::CommittedLookup
+        || request.operation == Operation::MigrationCommittedLookup
+    {
+        if request
+            .request_fingerprint
+            .as_deref()
+            .is_none_or(|fingerprint| !is_digest(fingerprint))
+            || request
+                .lookup_transaction_id
+                .as_deref()
+                .is_none_or(|id| !is_uuid(id))
+            || request.target.is_some()
+            || request.expected.is_some()
+            || request.replacement.is_some()
+            || request.archive_id.is_some()
+            || request.archived_at.is_some()
+            || request.archive.is_some()
+            || request.source_archive_id.is_some()
+            || request.source_archive.is_some()
+            || request.reconcile_transaction_id.is_some()
+            || request.reconcile_facts.is_some()
+            || request.migration_source.is_some()
+            || request.seal_key_id.is_some()
+            || request.envelope.is_some()
+        {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_INVALID_REQUEST",
+                "committed lookup fields disagree",
+            ));
+        }
+        let lookup_id = request
+            .lookup_transaction_id
+            .clone()
+            .expect("validated lookup transaction id");
+        return Ok(if request.operation == Operation::CommittedLookup {
+            Validated::CommittedLookup(lookup_id)
+        } else {
+            Validated::MigrationCommittedLookup(lookup_id)
+        });
+    }
+    if request.lookup_transaction_id.is_some() {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_INVALID_REQUEST",
+            "non-lookup operation carries a lookup transaction id",
+        ));
+    }
     if request.operation == Operation::Reconcile {
         let facts = request.reconcile_facts.as_ref();
         if request
@@ -526,11 +638,13 @@ fn validate(request: &Request) -> Result<Validated> {
             || request.target.is_some()
             || request.expected.is_some()
             || request.replacement.is_some()
+            || request.request_fingerprint.is_some()
             || request.archive_id.is_some()
             || request.archived_at.is_some()
             || request.archive.is_some()
             || request.source_archive_id.is_some()
             || request.source_archive.is_some()
+            || request.migration_source.is_some()
             || request.seal_key_id.is_some()
             || request.envelope.is_some()
         {
@@ -541,7 +655,8 @@ fn validate(request: &Request) -> Result<Validated> {
         }
         let facts = facts.expect("validated reconcile facts");
         validate_target(&facts.target)?;
-        if facts.expected_present != facts.expected_sha256.is_some()
+        if !is_digest(&facts.request_fingerprint)
+            || facts.expected_present != facts.expected_sha256.is_some()
             || facts
                 .expected_sha256
                 .as_deref()
@@ -584,15 +699,36 @@ fn validate(request: &Request) -> Result<Validated> {
             ReconciledOperation::Replace
                 if facts.replacement_sha256.is_some()
                     && facts.source_archive_id.is_none()
-                    && facts.source_archive_sha256.is_none() => {}
+                    && facts.source_archive_sha256.is_none()
+                    && facts.migration_source.is_none() => {}
             ReconciledOperation::Delete
                 if facts.replacement_sha256.is_none()
                     && facts.source_archive_id.is_none()
-                    && facts.source_archive_sha256.is_none() => {}
+                    && facts.source_archive_sha256.is_none()
+                    && facts.migration_source.is_none() => {}
             ReconciledOperation::Restore
                 if facts.source_archive_id.is_some()
                     && facts.source_archive_sha256.is_some()
-                    && facts.replacement_sha256.is_some() => {}
+                    && facts.replacement_sha256.is_some()
+                    && facts.migration_source.is_none() => {}
+            ReconciledOperation::MigrateLegacy
+                if !facts.expected_present
+                    && facts.replacement_sha256.is_some()
+                    && facts.archive_id.is_none()
+                    && facts.source_archive_id.is_none()
+                    && facts.migration_source.as_ref().is_some_and(|source| {
+                        matches!(
+                            &source.target,
+                            Target::Constitution { source_name } if source_name == "SOUL.md"
+                        ) && source.device.parse::<u64>().is_ok()
+                            && source.inode.parse::<u64>().is_ok()
+                            && is_digest(&source.sha256)
+                            && source
+                                .parent_request_fingerprint
+                                .as_deref()
+                                .is_none_or(is_digest)
+                            && Some(source.sha256.as_str()) == facts.replacement_sha256.as_deref()
+                    }) => {}
             _ => {
                 return Err(FsError::new(
                     "CONSTITUTION_FS_INVALID_REQUEST",
@@ -622,6 +758,7 @@ fn validate(request: &Request) -> Result<Validated> {
             || request.archive.is_some()
             || request.source_archive_id.is_some()
             || request.source_archive.is_some()
+            || request.migration_source.is_some()
             || request.seal_key_id.is_some()
             || request.envelope.is_some()
         {
@@ -645,6 +782,7 @@ fn validate(request: &Request) -> Result<Validated> {
             || request.archive.is_some()
             || request.source_archive_id.is_some()
             || request.source_archive.is_some()
+            || request.migration_source.is_some()
             || request.seal_key_id.is_some()
             || request.envelope.is_some();
         if mutation_fields_present {
@@ -705,6 +843,7 @@ fn validate(request: &Request) -> Result<Validated> {
             || request.archive.is_some()
             || request.source_archive_id.is_some()
             || request.source_archive.is_some()
+            || request.migration_source.is_some()
         {
             return Err(FsError::new(
                 "CONSTITUTION_FS_INVALID_REQUEST",
@@ -772,6 +911,56 @@ fn validate(request: &Request) -> Result<Validated> {
         return Err(FsError::new(
             "CONSTITUTION_FS_INVALID_REQUEST",
             "expected presence and digest disagree",
+        ));
+    }
+    if request.operation == Operation::MigrateLegacy {
+        let canonical_target = matches!(
+            target,
+            Target::Constitution { source_name } if source_name == "CONSTITUTION.md"
+        );
+        let source = request.migration_source.as_ref().ok_or_else(|| {
+            FsError::new(
+                "CONSTITUTION_FS_INVALID_REQUEST",
+                "legacy migration source is missing",
+            )
+        })?;
+        let source_is_soul = matches!(
+            &source.target,
+            Target::Constitution { source_name } if source_name == "SOUL.md"
+        );
+        let replacement = request.replacement.as_ref().ok_or_else(|| {
+            FsError::new(
+                "CONSTITUTION_FS_INVALID_REQUEST",
+                "legacy migration replacement is missing",
+            )
+        })?;
+        let replacement_bytes = decode_payload(replacement, "replacement", MAX_CONTENT_BYTES)?;
+        if !canonical_target
+            || !source_is_soul
+            || expected.present
+            || request.archive_id.is_some()
+            || request.archived_at.is_some()
+            || request.archive.is_some()
+            || request.source_archive_id.is_some()
+            || request.source_archive.is_some()
+            || !is_digest(&source.sha256)
+            || !is_digest(&source.parent_request_fingerprint)
+            || source.sha256 != replacement.sha256
+        {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_INVALID_REQUEST",
+                "legacy migration must atomically copy fixed SOUL.md into absent CONSTITUTION.md",
+            ));
+        }
+        return Ok(Validated::MigrateLegacy {
+            replacement: replacement_bytes,
+            source: source.clone(),
+        });
+    }
+    if request.migration_source.is_some() {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_INVALID_REQUEST",
+            "non-migration operation carries legacy source facts",
         ));
     }
     if request.operation == Operation::Restore {
@@ -1217,11 +1406,16 @@ fn last_complete_journal_mac(bytes: &[u8], code: &'static str) -> Result<String>
         .ok_or_else(|| FsError::new(code, "authenticated record MAC is missing"))
 }
 
-fn journal_header(request: &Request, key: &[u8]) -> Result<(Vec<u8>, String)> {
+fn journal_header(
+    request: &Request,
+    key: &[u8],
+    migration_source: Option<&MigrationSourceFacts>,
+) -> Result<(Vec<u8>, String)> {
     let operation = match request.operation {
         Operation::Replace => "replace",
         Operation::Delete => "delete",
         Operation::Restore => "restore",
+        Operation::MigrateLegacy => "migrate_legacy",
         _ => {
             return Err(FsError::new(
                 "CONSTITUTION_FS_INVALID_REQUEST",
@@ -1259,6 +1453,7 @@ fn journal_header(request: &Request, key: &[u8]) -> Result<(Vec<u8>, String)> {
     let value = serde_json::json!({
         "state": "anchored",
         "transactionId": request.transaction_id,
+        "requestFingerprint": request.request_fingerprint,
         "operation": operation,
         "target": request.target,
         "expectedSha256": request.expected.as_ref().and_then(|expected| expected.sha256.as_deref()),
@@ -1268,6 +1463,7 @@ fn journal_header(request: &Request, key: &[u8]) -> Result<(Vec<u8>, String)> {
         "archiveSha256": request.archive.as_ref().map(|payload| payload.sha256.as_str()),
         "sourceArchiveId": request.source_archive_id,
         "sourceArchiveSha256": request.source_archive.as_ref().map(|payload| payload.sha256.as_str()),
+        "migrationSource": migration_source,
     });
     authenticated_journal_line(value, key, None)
 }
@@ -1360,12 +1556,77 @@ fn verify_authenticated_receipt(
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
+fn read_authenticated_receipt_value(
+    receipts: RawFd,
+    storage_name: &str,
+    key: &[u8],
+) -> Result<(serde_json::Value, String)> {
+    use platform::*;
+    let name = format!("{storage_name}.json");
+    let file = open_file(receipts, &name)?.ok_or_else(|| {
+        FsError::new(
+            "CONSTITUTION_FS_RECEIPT_MISSING",
+            "definitive transaction disposition has no authenticated receipt",
+        )
+    })?;
+    let values = verify_journal(&read_all(file.raw(), MAX_RECORD_BYTES)?, key)?;
+    let envelope = values
+        .first()
+        .and_then(serde_json::Value::as_object)
+        .filter(|_| values.len() == 1)
+        .ok_or_else(|| {
+            FsError::new(
+                "CONSTITUTION_FS_RECEIPT_INVALID",
+                "authenticated receipt envelope is not canonical",
+            )
+        })?;
+    let encoded = envelope
+        .get("receiptBase64")
+        .and_then(serde_json::Value::as_str)
+        .ok_or_else(|| {
+            FsError::new(
+                "CONSTITUTION_FS_RECEIPT_INVALID",
+                "authenticated receipt payload is missing",
+            )
+        })?;
+    let bytes = BASE64.decode(encoded).map_err(|_| {
+        FsError::new(
+            "CONSTITUTION_FS_RECEIPT_INVALID",
+            "authenticated receipt payload is not base64",
+        )
+    })?;
+    let digest = sha256(&bytes);
+    let receipt_transaction_id = storage_name
+        .split_once(".reconcile.")
+        .map_or(storage_name, |(_, reconciliation_id)| reconciliation_id);
+    if envelope.len() != 4
+        || envelope.get("state") != Some(&serde_json::json!("receipt"))
+        || envelope.get("transactionId") != Some(&serde_json::json!(receipt_transaction_id))
+        || envelope.get("receiptSha256") != Some(&serde_json::json!(digest))
+        || BASE64.encode(&bytes) != encoded
+    {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_RECEIPT_INVALID",
+            "authenticated receipt envelope fields disagree",
+        ));
+    }
+    let value = serde_json::from_slice(&bytes).map_err(|_| {
+        FsError::new(
+            "CONSTITUTION_FS_RECEIPT_INVALID",
+            "authenticated receipt payload is not JSON",
+        )
+    })?;
+    Ok((value, digest))
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn replay_committed_receipt(
     journals: RawFd,
     receipts: RawFd,
     request: &Request,
     receipt: &Receipt,
     key: &[u8],
+    migration_source: Option<&MigrationSourceFacts>,
 ) -> Result<()> {
     use platform::*;
     let journal_name = format!("{}.jsonl", request.transaction_id);
@@ -1380,7 +1641,7 @@ fn replay_committed_receipt(
         &read_all(journal.raw(), MAX_RECORD_BYTES)?,
         key,
     )?;
-    let expected_header = verify_journal(&journal_header(request, key)?.0, key)?;
+    let expected_header = verify_journal(&journal_header(request, key, migration_source)?.0, key)?;
     if values.first() != expected_header.first() {
         return Err(FsError::new(
             "CONSTITUTION_FS_CONFLICT",
@@ -1620,6 +1881,45 @@ mod platform {
         Ok(owned)
     }
 
+    pub(super) fn acquire_existing_transaction_lock(parent: RawFd) -> Result<OwnedFd> {
+        let name = c("transaction.lock")?;
+        let fd = unsafe {
+            libc::openat(
+                parent,
+                name.as_ptr(),
+                libc::O_RDWR | libc::O_NOFOLLOW | libc::O_CLOEXEC,
+            )
+        };
+        if fd < 0 {
+            return Err(FsError::io(
+                "CONSTITUTION_FS_LOCK_FAILED",
+                "authenticated transaction state has no existing lock",
+            ));
+        }
+        let owned = OwnedFd(fd);
+        let mut stat = std::mem::MaybeUninit::<libc::stat>::uninit();
+        if unsafe { libc::fstat(fd, stat.as_mut_ptr()) } != 0 {
+            return Err(FsError::io(
+                "CONSTITUTION_FS_LOCK_FAILED",
+                "cannot inspect existing transaction lock",
+            ));
+        }
+        let stat = unsafe { stat.assume_init() };
+        if stat.st_mode & libc::S_IFMT != libc::S_IFREG || stat.st_nlink != 1 {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_REPARSE_REJECTED",
+                "transaction lock is not a single-link regular file",
+            ));
+        }
+        if unsafe { libc::flock(fd, libc::LOCK_EX) } != 0 {
+            return Err(FsError::io(
+                "CONSTITUTION_FS_LOCK_FAILED",
+                "cannot acquire existing transaction lock",
+            ));
+        }
+        Ok(owned)
+    }
+
     pub(super) fn lock_anchored_root(root: RawFd, exclusive: bool) -> Result<()> {
         let mode = if exclusive {
             libc::LOCK_EX
@@ -1645,6 +1945,18 @@ mod platform {
         }
         let stat = unsafe { stat.assume_init() };
         Ok((stat.st_dev as u64, stat.st_ino))
+    }
+
+    pub(super) fn file_link_count(fd: RawFd) -> Result<u64> {
+        let mut stat = std::mem::MaybeUninit::<libc::stat>::uninit();
+        if unsafe { libc::fstat(fd, stat.as_mut_ptr()) } != 0 {
+            return Err(FsError::io(
+                "CONSTITUTION_FS_IO",
+                "cannot inspect held file link count",
+            ));
+        }
+        let stat = unsafe { stat.assume_init() };
+        Ok(stat.st_nlink as u64)
     }
 
     pub(super) fn read_all(fd: RawFd, limit: usize) -> Result<Vec<u8>> {
@@ -1896,6 +2208,21 @@ fn pending_transactions(journals: RawFd, key: &[u8]) -> Result<Vec<String>> {
             "archiveSha256",
             "archivedAt",
             "expectedSha256",
+            "migrationSource",
+            "operation",
+            "replacementSha256",
+            "requestFingerprint",
+            "sourceArchiveId",
+            "sourceArchiveSha256",
+            "state",
+            "target",
+            "transactionId",
+        ];
+        let legacy_v1_header_keys = [
+            "archiveId",
+            "archiveSha256",
+            "archivedAt",
+            "expectedSha256",
             "operation",
             "replacementSha256",
             "sourceArchiveId",
@@ -1906,7 +2233,7 @@ fn pending_transactions(journals: RawFd, key: &[u8]) -> Result<Vec<String>> {
         ];
         let mut keys: Vec<_> = header_object.keys().map(String::as_str).collect();
         keys.sort_unstable();
-        if keys != expected_header_keys
+        if (keys != expected_header_keys && keys != legacy_v1_header_keys)
             || header["state"] != "anchored"
             || header["transactionId"] != transaction_id
         {
@@ -1939,6 +2266,21 @@ fn pending_detail_from_header(
         "archiveSha256",
         "archivedAt",
         "expectedSha256",
+        "migrationSource",
+        "operation",
+        "replacementSha256",
+        "requestFingerprint",
+        "sourceArchiveId",
+        "sourceArchiveSha256",
+        "state",
+        "target",
+        "transactionId",
+    ];
+    let legacy_v1_keys = [
+        "archiveId",
+        "archiveSha256",
+        "archivedAt",
+        "expectedSha256",
         "operation",
         "replacementSha256",
         "sourceArchiveId",
@@ -1949,7 +2291,8 @@ fn pending_detail_from_header(
     ];
     let mut actual_keys: Vec<_> = object.keys().map(String::as_str).collect();
     actual_keys.sort_unstable();
-    if actual_keys != expected_keys
+    let legacy_v1 = actual_keys == legacy_v1_keys;
+    if (!legacy_v1 && actual_keys != expected_keys)
         || header["state"] != "anchored"
         || header["transactionId"] != transaction_id
     {
@@ -1982,6 +2325,7 @@ fn pending_detail_from_header(
         Some("replace") => ReconciledOperation::Replace,
         Some("delete") => ReconciledOperation::Delete,
         Some("restore") => ReconciledOperation::Restore,
+        Some("migrate_legacy") => ReconciledOperation::MigrateLegacy,
         _ => {
             return Err(FsError::new(
                 "CONSTITUTION_FS_JOURNAL_INVALID",
@@ -1997,6 +2341,28 @@ fn pending_detail_from_header(
     })?;
     validate_target(&target)?;
     let expected_sha256 = optional_digest("expectedSha256")?;
+    let request_fingerprint = if legacy_v1 {
+        let canonical = serde_json::to_vec(header).map_err(|_| {
+            FsError::new(
+                "CONSTITUTION_FS_JOURNAL_INVALID",
+                "legacy transaction journal cannot be canonicalized",
+            )
+        })?;
+        let mut domain_bound = b"wayland-constitution-fs-legacy-v1-reconcile\0".to_vec();
+        domain_bound.extend_from_slice(&canonical);
+        sha256(&domain_bound)
+    } else {
+        header["requestFingerprint"]
+            .as_str()
+            .filter(|value| is_digest(value))
+            .ok_or_else(|| {
+                FsError::new(
+                    "CONSTITUTION_FS_JOURNAL_INVALID",
+                    "transaction journal request fingerprint is invalid",
+                )
+            })?
+            .to_owned()
+    };
     let replacement_sha256 = optional_digest("replacementSha256")?;
     let archive_id = optional_id("archiveId")?;
     let archive_sha256 = optional_digest("archiveSha256")?;
@@ -2012,6 +2378,21 @@ fn pending_detail_from_header(
         })?),
     };
     let expected_present = expected_sha256.is_some();
+    let migration_source = match if legacy_v1 {
+        &serde_json::Value::Null
+    } else {
+        &header["migrationSource"]
+    } {
+        serde_json::Value::Null => None,
+        value => Some(
+            serde_json::from_value::<MigrationSourceFacts>(value.clone()).map_err(|_| {
+                FsError::new(
+                    "CONSTITUTION_FS_JOURNAL_INVALID",
+                    "transaction journal migration source is invalid",
+                )
+            })?,
+        ),
+    };
     if expected_present != (archive_id.is_some() && archive_sha256.is_some())
         || archive_id.is_some() != archived_at.is_some()
         || source_archive_id.is_some() != source_archive_sha256.is_some()
@@ -2025,7 +2406,26 @@ fn pending_detail_from_header(
             ReconciledOperation::Restore => {
                 replacement_sha256.is_none() || source_archive_id.is_none()
             }
+            ReconciledOperation::MigrateLegacy => {
+                expected_present
+                    || replacement_sha256.is_none()
+                    || source_archive_id.is_some()
+                    || migration_source.as_ref().is_none_or(|source| {
+                        !matches!(
+                            &source.target,
+                            Target::Constitution { source_name } if source_name == "SOUL.md"
+                        ) || source.device.parse::<u64>().is_err()
+                            || source.inode.parse::<u64>().is_err()
+                            || !is_digest(&source.sha256)
+                            || source
+                                .parent_request_fingerprint
+                                .as_deref()
+                                .is_some_and(|value| !is_digest(value))
+                            || Some(source.sha256.as_str()) != replacement_sha256.as_deref()
+                    })
+            }
         }
+        || (operation != ReconciledOperation::MigrateLegacy && migration_source.is_some())
     {
         return Err(FsError::new(
             "CONSTITUTION_FS_JOURNAL_INVALID",
@@ -2035,6 +2435,7 @@ fn pending_detail_from_header(
     Ok(PendingTransactionDetail {
         transaction_id: transaction_id.to_owned(),
         reconcile_facts: ReconcileFacts {
+            request_fingerprint,
             operation,
             target,
             expected_present,
@@ -2046,6 +2447,7 @@ fn pending_detail_from_header(
             archive_sha256,
             source_archive_id,
             source_archive_sha256,
+            migration_source,
         },
     })
 }
@@ -2206,12 +2608,49 @@ struct TransactionLedger {
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 fn transaction_ledger(history: RawFd, journals: RawFd, key: &[u8]) -> Result<TransactionLedger> {
+    transaction_ledger_mode(history, journals, key, true)?.ok_or_else(|| {
+        FsError::new(
+            "CONSTITUTION_FS_IO",
+            "creating transaction ledger unexpectedly remained absent",
+        )
+    })
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn existing_transaction_ledger(
+    history: RawFd,
+    journals: RawFd,
+    key: &[u8],
+) -> Result<Option<TransactionLedger>> {
+    transaction_ledger_mode(history, journals, key, false)
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn transaction_ledger_mode(
+    history: RawFd,
+    journals: RawFd,
+    key: &[u8],
+    create: bool,
+) -> Result<Option<TransactionLedger>> {
     use platform::*;
     const LEDGER_NAME: &str = "transaction-ledger.jsonl";
-    let lock = acquire_transaction_lock(history)?;
+    if !create && open_file_read_write(history, LEDGER_NAME)?.is_none() {
+        if !journal_ids(journals)?.is_empty() {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_LEDGER_MISMATCH",
+                "transaction journals exist without the helper-owned ledger",
+            ));
+        }
+        return Ok(None);
+    }
+    let lock = if create {
+        acquire_transaction_lock(history)?
+    } else {
+        acquire_existing_transaction_lock(history)?
+    };
     let ledger = match open_file_read_write(history, LEDGER_NAME)? {
         Some(ledger) => ledger,
-        None => {
+        None if create => {
             if !journal_ids(journals)?.is_empty() {
                 return Err(FsError::new(
                     "CONSTITUTION_FS_LEDGER_MISMATCH",
@@ -2229,6 +2668,15 @@ fn transaction_ledger(history: RawFd, journals: RawFd, key: &[u8]) -> Result<Tra
             open_file_read_write(history, LEDGER_NAME)?.ok_or_else(|| {
                 FsError::new("CONSTITUTION_FS_IO", "created transaction ledger vanished")
             })?
+        }
+        None => {
+            if !journal_ids(journals)?.is_empty() {
+                return Err(FsError::new(
+                    "CONSTITUTION_FS_LEDGER_MISMATCH",
+                    "transaction journals exist without the helper-owned ledger",
+                ));
+            }
+            return Ok(None);
         }
     };
     let bytes = read_all(ledger.raw(), MAX_LEDGER_BYTES)?;
@@ -2344,7 +2792,7 @@ fn transaction_ledger(history: RawFd, journals: RawFd, key: &[u8]) -> Result<Tra
         ));
     }
     let last_mac = last_complete_journal_mac(&bytes, "CONSTITUTION_FS_LEDGER_INVALID")?;
-    Ok(TransactionLedger {
+    Ok(Some(TransactionLedger {
         _lock: lock,
         file: ledger,
         indexed,
@@ -2353,7 +2801,7 @@ fn transaction_ledger(history: RawFd, journals: RawFd, key: &[u8]) -> Result<Tra
         header_digests,
         header_records,
         last_mac,
-    })
+    }))
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -2407,12 +2855,15 @@ fn assert_no_orphan_artifacts(
     use platform::*;
     let known: std::collections::HashSet<&str> = indexed.iter().map(String::as_str).collect();
     for name in list_names(recovery)? {
-        let transaction_id = name.strip_suffix(".displaced").ok_or_else(|| {
-            FsError::new(
-                "CONSTITUTION_FS_ARTIFACT_ORPHAN",
-                "unexpected recovery artifact",
-            )
-        })?;
+        let transaction_id = name
+            .strip_suffix(".displaced")
+            .or_else(|| name.strip_suffix(".legacy-source"))
+            .ok_or_else(|| {
+                FsError::new(
+                    "CONSTITUTION_FS_ARTIFACT_ORPHAN",
+                    "unexpected recovery artifact",
+                )
+            })?;
         if !is_uuid(transaction_id) || !known.contains(transaction_id) {
             return Err(FsError::new(
                 "CONSTITUTION_FS_ARTIFACT_ORPHAN",
@@ -2480,10 +2931,12 @@ fn committed_constitution_receipt(
         ok: true,
         version: PROTOCOL_VERSION,
         transaction_id: request.transaction_id.clone(),
-        operation: if request.operation == Operation::Replace {
-            "replace"
-        } else {
-            "delete"
+        request_fingerprint: request.request_fingerprint.clone(),
+        operation: match request.operation {
+            Operation::Replace => "replace",
+            Operation::Delete => "delete",
+            Operation::MigrateLegacy => "migrate_legacy",
+            _ => unreachable!("constitution receipt mutation identity"),
         },
         outcome: "committed",
         archived_at: request.archived_at,
@@ -2498,9 +2951,13 @@ fn committed_constitution_receipt(
                 request.archive_id.as_deref().expect("validated archive id")
             )
         }),
-        recovery_name: expected
-            .present
-            .then(|| format!("{}.displaced", request.transaction_id)),
+        recovery_name: if request.operation == Operation::MigrateLegacy {
+            Some(format!("{}.legacy-source", request.transaction_id))
+        } else {
+            expected
+                .present
+                .then(|| format!("{}.displaced", request.transaction_id))
+        },
         journal_name: Some(format!("{}.jsonl", request.transaction_id)),
         seal_key_ids: None,
         seal_key_name: None,
@@ -2541,6 +2998,7 @@ fn committed_restore_receipt(
         ok: true,
         version: PROTOCOL_VERSION,
         transaction_id: request.transaction_id.clone(),
+        request_fingerprint: request.request_fingerprint.clone(),
         operation: "restore",
         outcome: "committed",
         archived_at: request.archived_at,
@@ -2586,11 +3044,13 @@ fn committed_receipt_from_reconcile_facts(
         ReconciledOperation::Replace => "replace",
         ReconciledOperation::Delete => "delete",
         ReconciledOperation::Restore => "restore",
+        ReconciledOperation::MigrateLegacy => "migrate_legacy",
     };
     Receipt {
         ok: true,
         version: PROTOCOL_VERSION,
         transaction_id: original_transaction_id.to_owned(),
+        request_fingerprint: Some(facts.request_fingerprint.clone()),
         operation,
         outcome: "committed",
         archived_at: facts.archived_at,
@@ -2605,9 +3065,13 @@ fn committed_receipt_from_reconcile_facts(
                 facts.archive_id.as_deref().expect("validated archive id")
             )
         }),
-        recovery_name: facts
-            .expected_present
-            .then(|| format!("{original_transaction_id}.displaced")),
+        recovery_name: if facts.operation == ReconciledOperation::MigrateLegacy {
+            Some(format!("{original_transaction_id}.legacy-source"))
+        } else {
+            facts
+                .expected_present
+                .then(|| format!("{original_transaction_id}.displaced"))
+        },
         journal_name: Some(format!("{original_transaction_id}.jsonl")),
         seal_key_ids: None,
         seal_key_name: None,
@@ -2649,6 +3113,7 @@ fn constitution_transaction(
     request: &Request,
     replacement: Option<Vec<u8>>,
     archive: Option<(Vec<u8>, String)>,
+    migration_source: Option<MigrationSource>,
     hook: Hook<'_>,
 ) -> Result<Receipt> {
     use platform::*;
@@ -2676,6 +3141,52 @@ fn constitution_transaction(
     fsync_dir(root.raw())?;
     fsync_dir(archives.raw())?;
     fsync_dir(history.raw())?;
+    let held_migration_source = if let Some(source) = migration_source.as_ref() {
+        let source_name = match &source.target {
+            Target::Constitution { source_name } if source_name == "SOUL.md" => source_name,
+            _ => unreachable!("validated fixed legacy source"),
+        };
+        let recovery_name = format!("{}.legacy-source", request.transaction_id);
+        let active_source = open_file(root.raw(), source_name)?;
+        let retired_source = open_file(recovery.raw(), &recovery_name)?;
+        let held = match (active_source, retired_source) {
+            (Some(active), None) => active,
+            (None, Some(retired)) => retired,
+            _ => {
+                return Err(FsError::new(
+                    "CONSTITUTION_FS_CONFLICT",
+                    "legacy migration source state is absent or ambiguous",
+                ));
+            }
+        };
+        if file_link_count(held.raw())? != 1 {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_REPARSE_REJECTED",
+                "legacy migration source has an unsafe hard-link alias",
+            ));
+        }
+        let bytes = read_all(held.raw(), MAX_CONTENT_BYTES)?;
+        if sha256(&bytes) != source.sha256 || replacement.as_deref() != Some(bytes.as_slice()) {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_CONFLICT",
+                "legacy migration source bytes disagree with the request",
+            ));
+        }
+        let (device, inode) = file_identity(held.raw())?;
+        Some((
+            held,
+            bytes,
+            MigrationSourceFacts {
+                target: source.target.clone(),
+                device: device.to_string(),
+                inode: inode.to_string(),
+                sha256: source.sha256.clone(),
+                parent_request_fingerprint: Some(source.parent_request_fingerprint.clone()),
+            },
+        ))
+    } else {
+        None
+    };
 
     let TransactionLedger {
         _lock,
@@ -2698,14 +3209,28 @@ fn constitution_transaction(
         archive.as_ref().map(|(_, digest)| digest.clone()),
     );
     if already_bound {
-        let expected_header_sha256 = sha256(&journal_header(request, &key)?.0);
+        let expected_header_sha256 = sha256(
+            &journal_header(
+                request,
+                &key,
+                held_migration_source.as_ref().map(|(_, _, facts)| facts),
+            )?
+            .0,
+        );
         if header_digests.get(&request.transaction_id) != Some(&expected_header_sha256) {
             return Err(FsError::new(
                 "CONSTITUTION_FS_CONFLICT",
                 "retried request disagrees with the authenticated ledger reservation",
             ));
         }
-        replay_committed_receipt(journals.raw(), receipts.raw(), request, &receipt, &key)?;
+        replay_committed_receipt(
+            journals.raw(),
+            receipts.raw(),
+            request,
+            &receipt,
+            &key,
+            held_migration_source.as_ref().map(|(_, _, facts)| facts),
+        )?;
         return Ok(receipt);
     }
     assert_no_pending(
@@ -2737,7 +3262,11 @@ fn constitution_transaction(
         None
     };
     let journal_name = format!("{}.jsonl", request.transaction_id);
-    let (header, mut journal_mac) = journal_header(request, &key)?;
+    let (header, mut journal_mac) = journal_header(
+        request,
+        &key,
+        held_migration_source.as_ref().map(|(_, _, facts)| facts),
+    )?;
     let header_sha256 = sha256(&header);
     if already_indexed && header_digests.get(&request.transaction_id) != Some(&header_sha256) {
         return Err(FsError::new(
@@ -2859,6 +3388,30 @@ fn constitution_transaction(
     if let Some(replacement_bytes) = replacement.as_ref() {
         append_journal_state(journal.raw(), &key, &mut journal_mac, "publish_prepared")?;
         checkpoint(hook, "before_stage_publish")?;
+        if let Some((held, original_bytes, facts)) = held_migration_source.as_ref() {
+            checkpoint(hook, "before_migration_source_revalidate")?;
+            let current = open_file(root.raw(), "SOUL.md")?.ok_or_else(|| {
+                FsError::new(
+                    "CONSTITUTION_FS_CONFLICT",
+                    "legacy migration source vanished before publication",
+                )
+            })?;
+            let (device, inode) = file_identity(current.raw())?;
+            if file_identity(held.raw())? != (device, inode)
+                || device.to_string() != facts.device
+                || inode.to_string() != facts.inode
+                || file_link_count(held.raw())? != 1
+                || file_link_count(current.raw())? != 1
+                || read_all(held.raw(), MAX_CONTENT_BYTES)? != *original_bytes
+                || read_all(current.raw(), MAX_CONTENT_BYTES)? != *original_bytes
+                || sha256(original_bytes) != facts.sha256
+            {
+                return Err(FsError::new(
+                    "CONSTITUTION_FS_CONFLICT",
+                    "legacy migration source changed before canonical publication",
+                ));
+            }
+        }
         assert_held_stage(
             target_parent.raw(),
             &stage_name,
@@ -2880,6 +3433,48 @@ fn constitution_transaction(
         )?;
         checkpoint(hook, "after_publish_before_journal")?;
         append_journal_state(journal.raw(), &key, &mut journal_mac, "published")?;
+        if let Some((held, original_bytes, facts)) = held_migration_source.as_ref() {
+            let legacy_source_name = format!("{}.legacy-source", request.transaction_id);
+            append_journal_state(
+                journal.raw(),
+                &key,
+                &mut journal_mac,
+                "migration_source_retire_prepared",
+            )?;
+            checkpoint(hook, "before_migration_source_retire")?;
+            let current = open_file(root.raw(), "SOUL.md")?.ok_or_else(|| {
+                FsError::new(
+                    "CONSTITUTION_FS_CONFLICT",
+                    "legacy migration source vanished before retirement",
+                )
+            })?;
+            let (device, inode) = file_identity(current.raw())?;
+            if file_identity(held.raw())? != (device, inode)
+                || device.to_string() != facts.device
+                || inode.to_string() != facts.inode
+                || file_link_count(held.raw())? != 1
+                || file_link_count(current.raw())? != 1
+                || read_all(held.raw(), MAX_CONTENT_BYTES)? != *original_bytes
+                || read_all(current.raw(), MAX_CONTENT_BYTES)? != *original_bytes
+                || sha256(original_bytes) != facts.sha256
+            {
+                return Err(FsError::new(
+                    "CONSTITUTION_FS_CONFLICT",
+                    "legacy migration source changed before retirement",
+                ));
+            }
+            rename_no_replace(root.raw(), "SOUL.md", recovery.raw(), &legacy_source_name)?;
+            fsync_dir(root.raw())?;
+            fsync_dir(recovery.raw())?;
+            checkpoint(hook, "after_migration_source_retire_before_journal")?;
+            append_journal_state(
+                journal.raw(),
+                &key,
+                &mut journal_mac,
+                "migration_source_retired",
+            )?;
+            recovery_name = Some(legacy_source_name);
+        }
     } else {
         append_journal_state(journal.raw(), &key, &mut journal_mac, "deleted")?;
     }
@@ -2994,14 +3589,21 @@ fn restore_transaction(request: &Request, validated: Validated, hook: Hook<'_>) 
         current_archive.as_ref().map(|(_, digest)| digest.clone()),
     );
     if already_bound {
-        let expected_header_sha256 = sha256(&journal_header(request, &key)?.0);
+        let expected_header_sha256 = sha256(&journal_header(request, &key, None)?.0);
         if header_digests.get(&request.transaction_id) != Some(&expected_header_sha256) {
             return Err(FsError::new(
                 "CONSTITUTION_FS_CONFLICT",
                 "retried request disagrees with the authenticated ledger reservation",
             ));
         }
-        replay_committed_receipt(journals.raw(), receipts.raw(), request, &receipt, &key)?;
+        replay_committed_receipt(
+            journals.raw(),
+            receipts.raw(),
+            request,
+            &receipt,
+            &key,
+            None,
+        )?;
         return Ok(receipt);
     }
     assert_no_pending(
@@ -3057,7 +3659,7 @@ fn restore_transaction(request: &Request, validated: Validated, hook: Hook<'_>) 
     };
 
     let journal_name = format!("{}.jsonl", request.transaction_id);
-    let (header, mut journal_mac) = journal_header(request, &key)?;
+    let (header, mut journal_mac) = journal_header(request, &key, None)?;
     let header_sha256 = sha256(&header);
     if already_indexed && header_digests.get(&request.transaction_id) != Some(&header_sha256) {
         return Err(FsError::new(
@@ -3348,6 +3950,9 @@ fn seal_key_transaction(
         }
         Validated::Constitution { .. }
         | Validated::Restore { .. }
+        | Validated::MigrateLegacy { .. }
+        | Validated::CommittedLookup(_)
+        | Validated::MigrationCommittedLookup(_)
         | Validated::PendingInventory
         | Validated::Reconcile(_)
         | Validated::ReadLive
@@ -3361,6 +3966,7 @@ fn seal_key_transaction(
         ok: true,
         version: PROTOCOL_VERSION,
         transaction_id: request.transaction_id.clone(),
+        request_fingerprint: None,
         operation,
         outcome: "committed",
         archived_at: None,
@@ -3403,11 +4009,37 @@ fn pending_inventory_transaction(request: &Request, hook: Hook<'_>) -> Result<Re
     let root = open_root(&request.root, &request.root_identity)?;
     lock_anchored_root(root.raw(), true)?;
     checkpoint(hook, "anchored")?;
-    let archives = open_dir(root.raw(), "archives", true)?;
-    let history = open_dir(archives.raw(), "constitution-history", true)?;
-    let recovery = open_dir(history.raw(), "recovery", true)?;
-    let journals = open_dir(history.raw(), "transactions", true)?;
-    let ledger = transaction_ledger(history.raw(), journals.raw(), &key)?;
+    let Some(archives) = open_dir_optional(root.raw(), "archives")? else {
+        return Ok(pending_inventory_receipt(request, Vec::new()));
+    };
+    let Some(history) = open_dir_optional(archives.raw(), "constitution-history")? else {
+        return Ok(pending_inventory_receipt(request, Vec::new()));
+    };
+    let ledger_exists = open_file(history.raw(), "transaction-ledger.jsonl")?.is_some();
+    let Some(journals) = open_dir_optional(history.raw(), "transactions")? else {
+        if ledger_exists {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_LEDGER_MISMATCH",
+                "transaction ledger exists without its journal inventory",
+            ));
+        }
+        if let Some(recovery) = open_dir_optional(history.raw(), "recovery")? {
+            assert_no_orphan_artifacts(root.raw(), history.raw(), recovery.raw(), &[])?;
+        }
+        return Ok(pending_inventory_receipt(request, Vec::new()));
+    };
+    let Some(ledger) = existing_transaction_ledger(history.raw(), journals.raw(), &key)? else {
+        if let Some(recovery) = open_dir_optional(history.raw(), "recovery")? {
+            assert_no_orphan_artifacts(root.raw(), history.raw(), recovery.raw(), &[])?;
+        }
+        return Ok(pending_inventory_receipt(request, Vec::new()));
+    };
+    let recovery = open_dir_optional(history.raw(), "recovery")?.ok_or_else(|| {
+        FsError::new(
+            "CONSTITUTION_FS_ARTIFACT_ORPHAN",
+            "transaction state exists without recovery inventory",
+        )
+    })?;
     assert_no_orphan_artifacts(root.raw(), history.raw(), recovery.raw(), &ledger.indexed)?;
     let pending_details = authoritative_pending_transaction_details(
         journals.raw(),
@@ -3417,14 +4049,22 @@ fn pending_inventory_transaction(request: &Request, hook: Hook<'_>) -> Result<Re
         &ledger.observed,
         &ledger.header_records,
     )?;
+    Ok(pending_inventory_receipt(request, pending_details))
+}
+
+fn pending_inventory_receipt(
+    request: &Request,
+    pending_details: Vec<PendingTransactionDetail>,
+) -> Receipt {
     let pending = pending_details
         .iter()
         .map(|detail| detail.transaction_id.clone())
         .collect();
-    Ok(Receipt {
+    Receipt {
         ok: true,
         version: PROTOCOL_VERSION,
         transaction_id: request.transaction_id.clone(),
+        request_fingerprint: None,
         operation: "pending_inventory",
         outcome: "committed",
         archived_at: None,
@@ -3457,7 +4097,290 @@ fn pending_inventory_transaction(request: &Request, hook: Hook<'_>) -> Result<Re
             durable: true,
             recovery_retained: true,
         },
-    })
+    }
+}
+
+fn committed_lookup_disposition_receipt(
+    request: &Request,
+    original_id: &str,
+    operation: &'static str,
+    outcome: &'static str,
+) -> Receipt {
+    Receipt {
+        ok: true,
+        version: PROTOCOL_VERSION,
+        transaction_id: request.transaction_id.clone(),
+        request_fingerprint: request.request_fingerprint.clone(),
+        operation,
+        outcome,
+        archived_at: None,
+        reconcile_disposition: None,
+        final_present: None,
+        final_sha256: None,
+        previous_sha256: None,
+        replacement_sha256: None,
+        archive_name: None,
+        recovery_name: None,
+        journal_name: Some(format!("{original_id}.jsonl")),
+        seal_key_ids: None,
+        seal_key_name: None,
+        envelope_base64: None,
+        envelope_sha256: None,
+        target: None,
+        expected_sha256: None,
+        archive_sha256: None,
+        source_archive_sha256: None,
+        pending_transactions: None,
+        pending_transaction_details: None,
+        content_base64: None,
+        content_sha256: None,
+        inventory_entries: None,
+        guarantees: Guarantees {
+            anchored: true,
+            root_identity_bound: true,
+            reparse_rejected: true,
+            no_replace: true,
+            durable: true,
+            recovery_retained: true,
+        },
+    }
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn committed_lookup_transaction(
+    request: &Request,
+    original_id: &str,
+    migration_parent_binding: bool,
+    hook: Hook<'_>,
+) -> Result<Receipt> {
+    use platform::*;
+    let key = journal_key(request)?;
+    let fingerprint = request
+        .request_fingerprint
+        .as_deref()
+        .expect("validated lookup fingerprint");
+    let lookup_operation = if migration_parent_binding {
+        "migration_committed_lookup"
+    } else {
+        "committed_lookup"
+    };
+    let root = open_root(&request.root, &request.root_identity)?;
+    lock_anchored_root(root.raw(), false)?;
+    checkpoint(hook, "anchored")?;
+    let Some(archives) = open_dir_optional(root.raw(), "archives")? else {
+        return Ok(committed_lookup_disposition_receipt(
+            request,
+            original_id,
+            lookup_operation,
+            "not_found",
+        ));
+    };
+    let Some(history) = open_dir_optional(archives.raw(), "constitution-history")? else {
+        return Ok(committed_lookup_disposition_receipt(
+            request,
+            original_id,
+            lookup_operation,
+            "not_found",
+        ));
+    };
+    let ledger_exists = open_file(history.raw(), "transaction-ledger.jsonl")?.is_some();
+    let Some(journals) = open_dir_optional(history.raw(), "transactions")? else {
+        if ledger_exists {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_LEDGER_MISMATCH",
+                "transaction ledger exists without journal inventory",
+            ));
+        }
+        if let Some(receipts) = open_dir_optional(history.raw(), "receipts")? {
+            assert_no_orphan_receipts(receipts.raw(), &[])?;
+        }
+        return Ok(committed_lookup_disposition_receipt(
+            request,
+            original_id,
+            lookup_operation,
+            "not_found",
+        ));
+    };
+    let Some(ledger) = existing_transaction_ledger(history.raw(), journals.raw(), &key)? else {
+        if let Some(receipts) = open_dir_optional(history.raw(), "receipts")? {
+            assert_no_orphan_receipts(receipts.raw(), &[])?;
+        }
+        return Ok(committed_lookup_disposition_receipt(
+            request,
+            original_id,
+            lookup_operation,
+            "not_found",
+        ));
+    };
+    if let Some(receipts) = open_dir_optional(history.raw(), "receipts")? {
+        assert_no_orphan_receipts(receipts.raw(), &ledger.indexed)?;
+    }
+    if !ledger.indexed.iter().any(|id| id == original_id) {
+        return Ok(committed_lookup_disposition_receipt(
+            request,
+            original_id,
+            lookup_operation,
+            "not_found",
+        ));
+    }
+    if !ledger.bound.iter().any(|id| id == original_id)
+        || !ledger.observed.iter().any(|id| id == original_id)
+    {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_PENDING_TRANSACTION",
+            "looked-up transaction requires reconciliation",
+        ));
+    }
+    let header = ledger.header_records.get(original_id).ok_or_else(|| {
+        FsError::new(
+            "CONSTITUTION_FS_RECOVERY_FACTS_UNAVAILABLE",
+            "looked-up transaction lacks authenticated recovery facts",
+        )
+    })?;
+    let header_values = verify_journal(header, &key)?;
+    let header_value = header_values
+        .first()
+        .ok_or_else(|| FsError::new("CONSTITUTION_FS_JOURNAL_INVALID", "journal is empty"))?;
+    let detail = pending_detail_from_header(original_id, header_value)?;
+    let binding_matches = if migration_parent_binding {
+        detail.reconcile_facts.operation == ReconciledOperation::MigrateLegacy
+            && detail
+                .reconcile_facts
+                .migration_source
+                .as_ref()
+                .and_then(|source| source.parent_request_fingerprint.as_deref())
+                == Some(fingerprint)
+    } else {
+        detail.reconcile_facts.request_fingerprint == fingerprint
+    };
+    if !binding_matches {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_CONFLICT",
+            "lookup binding disagrees with the authenticated original request",
+        ));
+    }
+    let journal_name = format!("{original_id}.jsonl");
+    let journal = open_file_read_write(journals.raw(), &journal_name)?.ok_or_else(|| {
+        FsError::new(
+            "CONSTITUTION_FS_JOURNAL_INVALID",
+            "bound lookup journal is missing",
+        )
+    })?;
+    let values = verify_journal_with_torn_tail_repair(
+        journal.raw(),
+        &read_all(journal.raw(), MAX_RECORD_BYTES)?,
+        &key,
+    )?;
+    if values.first() != Some(header_value) {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_JOURNAL_INVALID",
+            "lookup journal disagrees with authenticated ledger facts",
+        ));
+    }
+    if values.last().and_then(|value| value["state"].as_str()) != Some("committed") {
+        return Err(FsError::new(
+            "CONSTITUTION_FS_PENDING_TRANSACTION",
+            "looked-up transaction has no definitive disposition",
+        ));
+    }
+    let receipts = open_dir_optional(history.raw(), "receipts")?.ok_or_else(|| {
+        FsError::new(
+            "CONSTITUTION_FS_RECEIPT_MISSING",
+            "definitive transaction receipt inventory is missing",
+        )
+    })?;
+    let terminal_disposition = values
+        .iter()
+        .rev()
+        .nth(1)
+        .and_then(serde_json::Value::as_object);
+    if terminal_disposition.and_then(|value| value["state"].as_str()) == Some("rolled_back") {
+        let terminal = terminal_disposition.expect("matched terminal rollback");
+        let reconciliation_id = terminal
+            .get("reconciliationTransactionId")
+            .and_then(serde_json::Value::as_str)
+            .filter(|value| is_uuid(value))
+            .ok_or_else(|| {
+                FsError::new(
+                    "CONSTITUTION_FS_JOURNAL_INVALID",
+                    "rollback disposition lacks reconciliation identity",
+                )
+            })?;
+        let terminal_receipt_sha256 = terminal
+            .get("receiptSha256")
+            .and_then(serde_json::Value::as_str)
+            .filter(|value| is_digest(value))
+            .ok_or_else(|| {
+                FsError::new(
+                    "CONSTITUTION_FS_JOURNAL_INVALID",
+                    "rollback disposition lacks receipt digest",
+                )
+            })?;
+        if terminal.len() != 3 {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_JOURNAL_INVALID",
+                "rollback disposition fields are not exact",
+            ));
+        }
+        let storage_name = format!("{original_id}.reconcile.{reconciliation_id}");
+        let (receipt_value, receipt_sha256) =
+            read_authenticated_receipt_value(receipts.raw(), &storage_name, &key)?;
+        if receipt_sha256 != terminal_receipt_sha256
+            || receipt_value["operation"] != "reconcile"
+            || receipt_value["outcome"] != "committed"
+            || receipt_value["transactionId"] != reconciliation_id
+            || receipt_value["reconcileDisposition"] != "rolled_back"
+            || receipt_value["version"] != PROTOCOL_VERSION
+            || receipt_value["ok"] != true
+        {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_RECEIPT_INVALID",
+                "authenticated rollback receipt disagrees with its terminal disposition",
+            ));
+        }
+        return Ok(committed_lookup_disposition_receipt(
+            request,
+            original_id,
+            lookup_operation,
+            "rolled_back",
+        ));
+    }
+    let receipt = committed_receipt_from_reconcile_facts(original_id, &detail.reconcile_facts);
+    verify_authenticated_receipt(receipts.raw(), original_id, &receipt, &key)?;
+    Ok(receipt)
+}
+
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+fn assert_no_pending_for_read(root: RawFd, key: &[u8]) -> Result<()> {
+    use platform::*;
+    let Some(archives) = open_dir_optional(root, "archives")? else {
+        return Ok(());
+    };
+    let Some(history) = open_dir_optional(archives.raw(), "constitution-history")? else {
+        return Ok(());
+    };
+    let ledger_exists = open_file(history.raw(), "transaction-ledger.jsonl")?.is_some();
+    let Some(journals) = open_dir_optional(history.raw(), "transactions")? else {
+        return if ledger_exists {
+            Err(FsError::new(
+                "CONSTITUTION_FS_LEDGER_MISMATCH",
+                "transaction ledger exists without its journal inventory",
+            ))
+        } else {
+            Ok(())
+        };
+    };
+    let Some(ledger) = existing_transaction_ledger(history.raw(), journals.raw(), key)? else {
+        return Ok(());
+    };
+    assert_no_pending(
+        journals.raw(),
+        key,
+        &ledger.indexed,
+        &ledger.bound,
+        &ledger.observed,
+        None,
+    )
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -3510,7 +4433,6 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
             let created = create_file(journals.raw(), &journal_name, header)?;
             fsync_dir(journals.raw())?;
             drop(created);
-            bind_transaction_journal(ledger.file.raw(), &key, &mut ledger.last_mac, reconcile_id)?;
             open_file_read_write(journals.raw(), &journal_name)?.ok_or_else(|| {
                 FsError::new(
                     "CONSTITUTION_FS_CONFLICT",
@@ -3525,55 +4447,20 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
             ));
         }
     };
+    if !ledger.bound.iter().any(|id| id == reconcile_id) {
+        if !ledger.indexed.iter().any(|id| id == reconcile_id) {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_LEDGER_MISMATCH",
+                "reconciliation journal lacks an authenticated reservation",
+            ));
+        }
+        bind_transaction_journal(ledger.file.raw(), &key, &mut ledger.last_mac, reconcile_id)?;
+    }
     let bytes = read_all(journal.raw(), MAX_RECORD_BYTES)?;
     let values = verify_journal_with_torn_tail_repair(journal.raw(), &bytes, &key)?;
     let header = values.first().expect("verified journal header").clone();
-    let header_object = header.as_object().ok_or_else(|| {
-        FsError::new(
-            "CONSTITUTION_FS_JOURNAL_INVALID",
-            "reconciliation journal header is not an object",
-        )
-    })?;
-    let expected_header_keys = [
-        "archiveId",
-        "archiveSha256",
-        "archivedAt",
-        "expectedSha256",
-        "operation",
-        "replacementSha256",
-        "sourceArchiveId",
-        "sourceArchiveSha256",
-        "state",
-        "target",
-        "transactionId",
-    ];
-    let mut actual_header_keys: Vec<_> = header_object.keys().map(String::as_str).collect();
-    actual_header_keys.sort_unstable();
-    let operation = match facts.operation {
-        ReconciledOperation::Replace => "replace",
-        ReconciledOperation::Delete => "delete",
-        ReconciledOperation::Restore => "restore",
-    };
-    let header_target: Target = serde_json::from_value(header["target"].clone()).map_err(|_| {
-        FsError::new(
-            "CONSTITUTION_FS_JOURNAL_INVALID",
-            "reconciliation target is invalid",
-        )
-    })?;
-    let field = |name: &str| header[name].as_str();
-    if actual_header_keys != expected_header_keys
-        || header["state"] != "anchored"
-        || header["transactionId"] != reconcile_id
-        || header["operation"] != operation
-        || header_target != facts.target
-        || field("expectedSha256") != facts.expected_sha256.as_deref()
-        || field("replacementSha256") != facts.replacement_sha256.as_deref()
-        || field("archiveId") != facts.archive_id.as_deref()
-        || header["archivedAt"].as_u64() != facts.archived_at
-        || field("archiveSha256") != facts.archive_sha256.as_deref()
-        || field("sourceArchiveId") != facts.source_archive_id.as_deref()
-        || field("sourceArchiveSha256") != facts.source_archive_sha256.as_deref()
-    {
+    let authenticated_detail = pending_detail_from_header(reconcile_id, &header)?;
+    if authenticated_detail.reconcile_facts != *facts {
         return Err(FsError::new(
             "CONSTITUTION_FS_JOURNAL_INVALID",
             "journal is not exactly bound to caller-authorized facts",
@@ -3685,6 +4572,17 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
                 "committed",
             ]
         }
+        (ReconciledOperation::MigrateLegacy, false) => {
+            vec![
+                "replacement_staged",
+                "publish_prepared",
+                "published",
+                "migration_source_retire_prepared",
+                "migration_source_retired",
+                "committed",
+            ]
+        }
+        (ReconciledOperation::MigrateLegacy, true) => unreachable!("validated migration absence"),
     };
     let operation_state_count = observed_states.len()
         - if terminal_reconciliation.is_some() {
@@ -3801,6 +4699,41 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
         None
     };
 
+    let migration_source_details = if facts.operation == ReconciledOperation::MigrateLegacy {
+        let source = facts
+            .migration_source
+            .as_ref()
+            .expect("validated legacy migration source facts");
+        let recovery_name = format!("{reconcile_id}.legacy-source");
+        let active_file = open_file(root.raw(), "SOUL.md")?;
+        let retired_file = open_file(recovery.raw(), &recovery_name)?;
+        let (file, in_active) = match (active_file, retired_file) {
+            (Some(active_source), None) => (active_source, true),
+            (None, Some(retired_source)) => (retired_source, false),
+            _ => {
+                return Err(FsError::new(
+                    "CONSTITUTION_FS_RECONCILE_CONFLICT",
+                    "legacy migration source retirement state is ambiguous",
+                ));
+            }
+        };
+        let (device, inode) = file_identity(file.raw())?;
+        let bytes = read_all(file.raw(), MAX_CONTENT_BYTES)?;
+        if file_link_count(file.raw())? != 1
+            || device.to_string() != source.device
+            || inode.to_string() != source.inode
+            || sha256(&bytes) != source.sha256
+        {
+            return Err(FsError::new(
+                "CONSTITUTION_FS_RECONCILE_CONFLICT",
+                "legacy migration source no longer matches authenticated facts",
+            ));
+        }
+        Some((recovery_name, bytes, in_active))
+    } else {
+        None
+    };
+
     let current_digest = match open_file(target_parent.raw(), &target_name)? {
         Some(file) => Some(sha256(&read_all(file.raw(), MAX_CONTENT_BYTES)?)),
         None => None,
@@ -3814,6 +4747,8 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
             | "restored_content_published"
             | "source_retire_prepared"
             | "source_retired"
+            | "migration_source_retire_prepared"
+            | "migration_source_retired"
     );
     let publication_observed = match facts.operation {
         ReconciledOperation::Replace => {
@@ -3823,6 +4758,9 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
         ReconciledOperation::Restore => source_details
             .as_ref()
             .is_some_and(|(_, _, content, _)| current_digest == Some(sha256(content))),
+        ReconciledOperation::MigrateLegacy => {
+            current_digest.as_deref() == facts.replacement_sha256.as_deref()
+        }
     };
 
     let archive_maybe_created = matches!(
@@ -3907,7 +4845,55 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
                 ));
             }
         }
+        if let Some((source_name, source_bytes, in_active)) = migration_source_details {
+            if in_active {
+                rename_no_replace(root.raw(), "SOUL.md", recovery.raw(), &source_name)?;
+                fsync_dir(root.raw())?;
+                fsync_dir(recovery.raw())?;
+            }
+            let retired = verify_named(
+                recovery.raw(),
+                &source_name,
+                MAX_CONTENT_BYTES,
+                facts
+                    .migration_source
+                    .as_ref()
+                    .expect("validated legacy migration source facts")
+                    .sha256
+                    .as_str(),
+            )?;
+            if retired != source_bytes {
+                return Err(FsError::new(
+                    "CONSTITUTION_FS_RECONCILE_CONFLICT",
+                    "retired legacy migration source bytes changed",
+                ));
+            }
+        }
     } else {
+        if let Some((source_name, source_bytes, in_active)) = migration_source_details {
+            if !in_active {
+                rename_no_replace(recovery.raw(), &source_name, root.raw(), "SOUL.md")?;
+                fsync_dir(recovery.raw())?;
+                fsync_dir(root.raw())?;
+            }
+            let restored_source = verify_named(
+                root.raw(),
+                "SOUL.md",
+                MAX_CONTENT_BYTES,
+                facts
+                    .migration_source
+                    .as_ref()
+                    .expect("validated legacy migration source facts")
+                    .sha256
+                    .as_str(),
+            )?;
+            if restored_source != source_bytes {
+                return Err(FsError::new(
+                    "CONSTITUTION_FS_RECONCILE_CONFLICT",
+                    "restored legacy migration source bytes changed",
+                ));
+            }
+        }
         let recovery_file = open_file(recovery.raw(), &recovery_name)?;
         if let Some(recovery_file) = recovery_file {
             let recovery_digest = facts.recovery_sha256.as_deref().ok_or_else(|| {
@@ -3960,9 +4946,9 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
     };
     let authorized_final_sha256 = if rolled_forward {
         match facts.operation {
-            ReconciledOperation::Replace | ReconciledOperation::Restore => {
-                facts.replacement_sha256.as_ref()
-            }
+            ReconciledOperation::Replace
+            | ReconciledOperation::Restore
+            | ReconciledOperation::MigrateLegacy => facts.replacement_sha256.as_ref(),
             ReconciledOperation::Delete => None,
         }
     } else {
@@ -3998,8 +4984,13 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
     } else {
         None
     };
-    let final_recovery_name = if open_file(recovery.raw(), &recovery_name)?.is_some() {
-        Some(recovery_name)
+    let final_recovery_candidate = if facts.operation == ReconciledOperation::MigrateLegacy {
+        format!("{reconcile_id}.legacy-source")
+    } else {
+        recovery_name
+    };
+    let final_recovery_name = if open_file(recovery.raw(), &final_recovery_candidate)?.is_some() {
+        Some(final_recovery_candidate)
     } else {
         None
     };
@@ -4007,6 +4998,7 @@ fn reconcile_transaction(request: &Request, reconcile_id: &str, hook: Hook<'_>) 
         ok: true,
         version: PROTOCOL_VERSION,
         transaction_id: request.transaction_id.clone(),
+        request_fingerprint: None,
         operation: "reconcile",
         outcome: "committed",
         archived_at: final_archive_name.as_ref().and(facts.archived_at),
@@ -4104,6 +5096,8 @@ fn read_transaction(request: &Request, operation: Validated, hook: Hook<'_>) -> 
     let root = open_root(&request.root, &request.root_identity)?;
     lock_anchored_root(root.raw(), false)?;
     checkpoint(hook, "anchored")?;
+    let key = journal_key(request)?;
+    assert_no_pending_for_read(root.raw(), &key)?;
     let mut target = None;
     let mut content_base64 = None;
     let mut content_sha256 = None;
@@ -4267,6 +5261,7 @@ fn read_transaction(request: &Request, operation: Validated, hook: Hook<'_>) -> 
         ok: true,
         version: PROTOCOL_VERSION,
         transaction_id: request.transaction_id.clone(),
+        request_fingerprint: None,
         operation: operation_name,
         outcome: "committed",
         archived_at: None,
@@ -4308,7 +5303,17 @@ fn transaction(request: &Request, hook: Hook<'_>) -> Result<Receipt> {
         Validated::Constitution {
             replacement,
             archive,
-        } => constitution_transaction(request, replacement, archive, hook),
+        } => constitution_transaction(request, replacement, archive, None, hook),
+        Validated::MigrateLegacy {
+            replacement,
+            source,
+        } => constitution_transaction(request, Some(replacement), None, Some(source), hook),
+        Validated::CommittedLookup(original_id) => {
+            committed_lookup_transaction(request, &original_id, false, hook)
+        }
+        Validated::MigrationCommittedLookup(original_id) => {
+            committed_lookup_transaction(request, &original_id, true, hook)
+        }
         restore @ Validated::Restore { .. } => restore_transaction(request, restore, hook),
         Validated::PendingInventory => pending_inventory_transaction(request, hook),
         Validated::Reconcile(reconcile_id) => reconcile_transaction(request, &reconcile_id, hook),
@@ -4471,12 +5476,13 @@ mod tests {
         let archive_id = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
         let archive = expected.map(|bytes| archive_record(archive_id, &target, bytes));
         Request {
-            version: 1,
+            version: PROTOCOL_VERSION,
             transaction_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa".into(),
             root: root.to_string_lossy().into_owned(),
             root_identity: root_identity(root),
             journal_key_base64: Some(BASE64.encode([42_u8; 32])),
             archive_authentication_keys: expected.map(|_| archive_keys()),
+            request_fingerprint: Some(sha256(b"test-request")),
             operation: if replacement.is_some() {
                 Operation::Replace
             } else {
@@ -4501,6 +5507,8 @@ mod tests {
             source_archive: None,
             reconcile_transaction_id: None,
             reconcile_facts: None,
+            lookup_transaction_id: None,
+            migration_source: None,
             seal_key_id: None,
             envelope: None,
         }
@@ -4518,12 +5526,13 @@ mod tests {
         let current_id = "88888888-8888-4888-8888-888888888888";
         let current_archive = current.map(|bytes| archive_record(current_id, &target, bytes));
         Request {
-            version: 1,
+            version: PROTOCOL_VERSION,
             transaction_id: "77777777-7777-4777-8777-777777777777".into(),
             root: root.to_string_lossy().into_owned(),
             root_identity: root_identity(root),
             journal_key_base64: Some(BASE64.encode([42_u8; 32])),
             archive_authentication_keys: Some(archive_keys()),
+            request_fingerprint: Some(sha256(b"restore-request")),
             operation: Operation::Restore,
             target: Some(target),
             expected: Some(Expected {
@@ -4544,6 +5553,8 @@ mod tests {
             }),
             reconcile_transaction_id: None,
             reconcile_facts: None,
+            lookup_transaction_id: None,
+            migration_source: None,
             seal_key_id: None,
             envelope: None,
         }
@@ -4558,7 +5569,7 @@ mod tests {
         };
         let expected = original.expected.as_ref().unwrap();
         Request {
-            version: 1,
+            version: PROTOCOL_VERSION,
             transaction_id: "66666666-6666-4666-8666-666666666666".into(),
             root: original.root.clone(),
             root_identity: original.root_identity.clone(),
@@ -4567,6 +5578,7 @@ mod tests {
                 .archive_authentication_keys
                 .as_ref()
                 .map(|_| archive_keys()),
+            request_fingerprint: None,
             operation: Operation::Reconcile,
             target: None,
             expected: None,
@@ -4578,6 +5590,7 @@ mod tests {
             source_archive: None,
             reconcile_transaction_id: Some(original.transaction_id.clone()),
             reconcile_facts: Some(ReconcileFacts {
+                request_fingerprint: original.request_fingerprint.clone().unwrap(),
                 operation,
                 target: original.target.clone().unwrap(),
                 expected_present: expected.present,
@@ -4596,7 +5609,10 @@ mod tests {
                 source_archive_id: original.source_archive_id.clone(),
                 source_archive_sha256: original.source_archive.as_ref().map(|p| p.sha256.clone()),
                 recovery_sha256: expected.sha256.clone(),
+                migration_source: None,
             }),
+            lookup_transaction_id: None,
+            migration_source: None,
             seal_key_id: None,
             envelope: None,
         }
@@ -4604,12 +5620,13 @@ mod tests {
 
     fn pending_request(original: &Request) -> Request {
         Request {
-            version: 1,
+            version: PROTOCOL_VERSION,
             transaction_id: "55555555-5555-4555-8555-555555555555".into(),
             root: original.root.clone(),
             root_identity: original.root_identity.clone(),
             journal_key_base64: original.journal_key_base64.clone(),
             archive_authentication_keys: None,
+            request_fingerprint: None,
             operation: Operation::PendingInventory,
             target: None,
             expected: None,
@@ -4621,6 +5638,8 @@ mod tests {
             source_archive: None,
             reconcile_transaction_id: None,
             reconcile_facts: None,
+            lookup_transaction_id: None,
+            migration_source: None,
             seal_key_id: None,
             envelope: None,
         }
@@ -4628,12 +5647,13 @@ mod tests {
 
     fn read_request(root: &Path, operation: Operation, target: Option<Target>) -> Request {
         Request {
-            version: 1,
+            version: PROTOCOL_VERSION,
             transaction_id: "22222222-2222-4222-8222-222222222222".into(),
             root: root.to_string_lossy().into_owned(),
             root_identity: root_identity(root),
-            journal_key_base64: None,
+            journal_key_base64: Some(BASE64.encode([42_u8; 32])),
             archive_authentication_keys: None,
+            request_fingerprint: None,
             operation,
             target,
             expected: None,
@@ -4645,9 +5665,74 @@ mod tests {
             source_archive: None,
             reconcile_transaction_id: None,
             reconcile_facts: None,
+            lookup_transaction_id: None,
+            migration_source: None,
             seal_key_id: None,
             envelope: None,
         }
+    }
+
+    fn lookup_request(original: &Request, fingerprint: &str) -> Request {
+        Request {
+            version: PROTOCOL_VERSION,
+            transaction_id: "33333333-3333-4333-8333-333333333333".into(),
+            root: original.root.clone(),
+            root_identity: original.root_identity.clone(),
+            journal_key_base64: original.journal_key_base64.clone(),
+            archive_authentication_keys: None,
+            request_fingerprint: Some(fingerprint.into()),
+            operation: Operation::CommittedLookup,
+            target: None,
+            expected: None,
+            replacement: None,
+            archive_id: None,
+            archived_at: None,
+            archive: None,
+            source_archive_id: None,
+            source_archive: None,
+            reconcile_transaction_id: None,
+            reconcile_facts: None,
+            lookup_transaction_id: Some(original.transaction_id.clone()),
+            migration_source: None,
+            seal_key_id: None,
+            envelope: None,
+        }
+    }
+
+    fn migration_request(root: &Path, content: &[u8]) -> Request {
+        let mut value = request(root, None, Some(content));
+        value.operation = Operation::MigrateLegacy;
+        value.request_fingerprint = Some(sha256(b"migration-request"));
+        value.migration_source = Some(MigrationSource {
+            target: Target::Constitution {
+                source_name: "SOUL.md".into(),
+            },
+            sha256: sha256(content),
+            parent_request_fingerprint: sha256(b"parent-request"),
+        });
+        value
+    }
+
+    fn migration_lookup_request(original: &Request, parent_fingerprint: &str) -> Request {
+        let mut value = lookup_request(original, parent_fingerprint);
+        value.operation = Operation::MigrationCommittedLookup;
+        value
+    }
+
+    fn reconcile_from_detail(original: &Request, detail: &PendingTransactionDetail) -> Request {
+        let mut value = pending_request(original);
+        value.transaction_id = "44444444-4444-4444-8444-444444444444".into();
+        value.operation = Operation::Reconcile;
+        value.reconcile_transaction_id = Some(detail.transaction_id.clone());
+        value.reconcile_facts = Some(detail.reconcile_facts.clone());
+        value.archive_authentication_keys = if detail.reconcile_facts.archive_id.is_some()
+            || detail.reconcile_facts.source_archive_id.is_some()
+        {
+            Some(archive_keys())
+        } else {
+            None
+        };
+        value
     }
 
     fn serialized_receipt(receipt: &Receipt) -> Vec<u8> {
@@ -5683,6 +6768,463 @@ mod tests {
         );
     }
 
+    #[test]
+    fn v2_mutations_require_canonical_request_fingerprint() {
+        let root = temp("v2-fingerprint-required");
+        let mut value = request(&root, None, Some(b"new"));
+        value.request_fingerprint = None;
+        assert_eq!(
+            validate(&value).unwrap_err().code,
+            "CONSTITUTION_FS_INVALID_REQUEST"
+        );
+        value.request_fingerprint = Some("not-a-digest".into());
+        assert_eq!(
+            validate(&value).unwrap_err().code,
+            "CONSTITUTION_FS_INVALID_REQUEST"
+        );
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn committed_lookup_is_durable_and_fingerprint_bound() {
+        let root = temp("committed-lookup");
+        let original = request(&root, None, Some(b"new"));
+        let committed = transaction(&original, None).unwrap();
+        assert_eq!(committed.transaction_id, original.transaction_id);
+        assert_eq!(committed.request_fingerprint, original.request_fingerprint);
+
+        let fingerprint = original.request_fingerprint.as_deref().unwrap();
+        let replayed = transaction(&lookup_request(&original, fingerprint), None).unwrap();
+        assert_eq!(
+            serialized_receipt(&replayed),
+            serialized_receipt(&committed)
+        );
+
+        let mismatch =
+            transaction(&lookup_request(&original, &sha256(b"different")), None).unwrap_err();
+        assert_eq!(mismatch.code, "CONSTITUTION_FS_CONFLICT");
+
+        let mut absent = lookup_request(&original, fingerprint);
+        absent.lookup_transaction_id = Some("12121212-1212-4121-8121-121212121212".into());
+        let absent = transaction(&absent, None).unwrap();
+        assert_eq!(absent.operation, "committed_lookup");
+        assert_eq!(absent.outcome, "not_found");
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn lookup_and_reads_fail_closed_while_original_is_pending() {
+        let root = temp("lookup-pending");
+        let original = request(&root, None, Some(b"new"));
+        let hook = |name: &str| {
+            if name == "after_ledger_before_journal" {
+                Err(FsError::new(
+                    "INJECTED",
+                    "stop after authenticated reservation",
+                ))
+            } else {
+                Ok(())
+            }
+        };
+        assert_eq!(
+            transaction(&original, Some(&hook)).unwrap_err().code,
+            "INJECTED"
+        );
+        let fingerprint = original.request_fingerprint.as_deref().unwrap();
+        assert_eq!(
+            transaction(&lookup_request(&original, fingerprint), None)
+                .unwrap_err()
+                .code,
+            "CONSTITUTION_FS_PENDING_TRANSACTION"
+        );
+        let mut archive_read = read_request(&root, Operation::ReadArchive, None);
+        archive_read.archive_id = Some("efefefef-efef-4efe-8efe-efefefefefef".into());
+        archive_read.archive_authentication_keys = Some(archive_keys());
+        for read in [
+            read_request(
+                &root,
+                Operation::ReadLive,
+                Some(Target::Constitution {
+                    source_name: "CONSTITUTION.md".into(),
+                }),
+            ),
+            read_request(&root, Operation::LiveInventory, None),
+            read_request(&root, Operation::ArchiveInventory, None),
+            archive_read,
+        ] {
+            assert_eq!(
+                transaction(&read, None).unwrap_err().code,
+                "CONSTITUTION_FS_PENDING_TRANSACTION"
+            );
+        }
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn committed_lookup_reports_only_definitive_rollback() {
+        let root = temp("lookup-rolled-back");
+        let original = request(&root, None, Some(b"new"));
+        let hook = |name: &str| {
+            if name == "after_journal_before_ledger_bind" {
+                Err(FsError::new("INJECTED", "stop before any live effect"))
+            } else {
+                Ok(())
+            }
+        };
+        assert_eq!(
+            transaction(&original, Some(&hook)).unwrap_err().code,
+            "INJECTED"
+        );
+        let pending = transaction(&pending_request(&original), None).unwrap();
+        let detail = pending
+            .pending_transaction_details
+            .as_ref()
+            .and_then(|items| items.first())
+            .unwrap();
+        let reconciled = transaction(&reconcile_from_detail(&original, detail), None).unwrap();
+        assert_eq!(reconciled.reconcile_disposition, Some("rolled_back"));
+        let lookup = transaction(
+            &lookup_request(&original, original.request_fingerprint.as_deref().unwrap()),
+            None,
+        )
+        .unwrap();
+        assert_eq!(lookup.operation, "committed_lookup");
+        assert_eq!(lookup.outcome, "rolled_back");
+        fs::remove_file(root.join(format!(
+            "archives/constitution-history/receipts/{}.reconcile.{}.json",
+            original.transaction_id, "44444444-4444-4444-8444-444444444444"
+        )))
+        .unwrap();
+        assert_eq!(
+            transaction(
+                &lookup_request(&original, original.request_fingerprint.as_deref().unwrap()),
+                None,
+            )
+            .unwrap_err()
+            .code,
+            "CONSTITUTION_FS_RECEIPT_MISSING"
+        );
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn pending_inventory_on_pristine_root_is_strictly_noncreating() {
+        let root = temp("pending-noncreating");
+        let value = request(&root, None, Some(b"unused"));
+        let receipt = transaction(&pending_request(&value), None).unwrap();
+        assert!(receipt.pending_transactions.as_ref().unwrap().is_empty());
+        assert!(!root.join("archives").exists());
+
+        let partial = temp("pending-noncreating-partial");
+        fs::create_dir_all(partial.join("archives/constitution-history/transactions")).unwrap();
+        let partial_request = request(&partial, None, Some(b"unused"));
+        let partial_history = partial.join("archives/constitution-history");
+        transaction(&pending_request(&partial_request), None).unwrap();
+        assert!(!partial_history.join("transaction.lock").exists());
+        assert!(!partial_history.join("transaction-ledger.jsonl").exists());
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn legacy_v1_terminal_journal_inventory_is_read_compatible_but_pending_is_visible() {
+        use platform::*;
+
+        let root = temp("legacy-v1-journal-compatibility");
+        let journals_path = root.join("journals");
+        fs::create_dir(&journals_path).unwrap();
+        let key = [42_u8; 32];
+        let id = "abababab-abab-4aba-8aba-abababababab";
+        let target = Target::Constitution {
+            source_name: "CONSTITUTION.md".into(),
+        };
+        let (mut bytes, header_mac) = authenticated_journal_line(
+            serde_json::json!({
+                "state": "anchored",
+                "transactionId": id,
+                "operation": "replace",
+                "target": target,
+                "expectedSha256": null,
+                "replacementSha256": sha256(b"legacy"),
+                "archiveId": null,
+                "archivedAt": null,
+                "archiveSha256": null,
+                "sourceArchiveId": null,
+                "sourceArchiveSha256": null,
+            }),
+            &key,
+            None,
+        )
+        .unwrap();
+        let (committed, _) = authenticated_journal_line(
+            serde_json::json!({"state":"committed"}),
+            &key,
+            Some(&header_mac),
+        )
+        .unwrap();
+        bytes.extend(committed);
+        fs::write(journals_path.join(format!("{id}.jsonl")), bytes).unwrap();
+        let root_fd = open_root(root.to_str().unwrap(), &root_identity(&root)).unwrap();
+        let journals = open_dir(root_fd.raw(), "journals", false).unwrap();
+        assert!(
+            pending_transactions(journals.raw(), &key)
+                .unwrap()
+                .is_empty()
+        );
+
+        let pending_id = "cdcdcdcd-cdcd-4cdc-8dcd-cdcdcdcdcdcd";
+        let pending_value = serde_json::json!({
+            "state": "anchored",
+            "transactionId": pending_id,
+            "operation": "delete",
+            "target": Target::Constitution { source_name: "CONSTITUTION.md".into() },
+            "expectedSha256": sha256(b"legacy"),
+            "replacementSha256": null,
+            "archiveId": "efefefef-efef-4efe-8efe-efefefefefef",
+            "archivedAt": 1_u64,
+            "archiveSha256": sha256(b"archive"),
+            "sourceArchiveId": null,
+            "sourceArchiveSha256": null,
+        });
+        let (pending_header, _) =
+            authenticated_journal_line(pending_value.clone(), &key, None).unwrap();
+        fs::write(
+            journals_path.join(format!("{pending_id}.jsonl")),
+            pending_header,
+        )
+        .unwrap();
+        assert_eq!(
+            pending_transactions(journals.raw(), &key).unwrap(),
+            vec![pending_id.to_owned()]
+        );
+        let first = pending_detail_from_header(pending_id, &pending_value).unwrap();
+        let second = pending_detail_from_header(pending_id, &pending_value).unwrap();
+        assert_eq!(first.reconcile_facts, second.reconcile_facts);
+        assert!(is_digest(&first.reconcile_facts.request_fingerprint));
+        assert_eq!(first.reconcile_facts.operation, ReconciledOperation::Delete);
+        assert_eq!(
+            first.reconcile_facts.expected_sha256,
+            Some(sha256(b"legacy"))
+        );
+        assert_eq!(
+            first.reconcile_facts.archive_sha256,
+            Some(sha256(b"archive"))
+        );
+        assert!(first.reconcile_facts.migration_source.is_none());
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn migrate_legacy_atomically_publishes_held_soul_bytes() {
+        let root = temp("migrate-legacy-happy");
+        fs::write(root.join("SOUL.md"), b"legacy").unwrap();
+        let value = migration_request(&root, b"legacy");
+        let receipt = transaction(&value, None).unwrap();
+        assert_eq!(receipt.operation, "migrate_legacy");
+        assert_eq!(receipt.request_fingerprint, value.request_fingerprint);
+        assert_eq!(fs::read(root.join("CONSTITUTION.md")).unwrap(), b"legacy");
+        assert!(!root.join("SOUL.md").exists());
+        assert_eq!(
+            fs::read(root.join(format!(
+                "archives/constitution-history/recovery/{}.legacy-source",
+                value.transaction_id
+            )))
+            .unwrap(),
+            b"legacy"
+        );
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn committed_migration_lookup_is_parent_bound_after_source_retirement() {
+        let root = temp("migrate-parent-bound-lookup");
+        fs::write(root.join("SOUL.md"), b"legacy").unwrap();
+        let value = migration_request(&root, b"legacy");
+        let parent = value
+            .migration_source
+            .as_ref()
+            .unwrap()
+            .parent_request_fingerprint
+            .clone();
+        let committed = transaction(&value, None).unwrap();
+        assert!(!root.join("SOUL.md").exists());
+
+        let replayed = transaction(&migration_lookup_request(&value, &parent), None).unwrap();
+        assert_eq!(
+            serialized_receipt(&replayed),
+            serialized_receipt(&committed)
+        );
+
+        let mismatch = transaction(
+            &migration_lookup_request(&value, &sha256(b"different-parent")),
+            None,
+        )
+        .unwrap_err();
+        assert_eq!(mismatch.code, "CONSTITUTION_FS_CONFLICT");
+
+        let mut absent = migration_lookup_request(&value, &parent);
+        absent.lookup_transaction_id = Some("12121212-1212-4121-8121-121212121212".into());
+        let absent = transaction(&absent, None).unwrap();
+        assert_eq!(absent.operation, "migration_committed_lookup");
+        assert_eq!(absent.outcome, "not_found");
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn migration_retirement_crashes_reconcile_to_one_post_state() {
+        for crash_point in [
+            "after_publish_before_journal",
+            "before_migration_source_retire",
+            "after_migration_source_retire_before_journal",
+        ] {
+            let root = temp(&format!("migrate-retire-crash-{crash_point}"));
+            fs::write(root.join("SOUL.md"), b"legacy").unwrap();
+            let value = migration_request(&root, b"legacy");
+            let hook = |point: &str| {
+                if point == crash_point {
+                    Err(FsError::new("INJECTED", "migration retirement interrupted"))
+                } else {
+                    Ok(())
+                }
+            };
+            assert_eq!(
+                transaction(&value, Some(&hook)).unwrap_err().code,
+                "INJECTED"
+            );
+            let pending = transaction(&pending_request(&value), None).unwrap();
+            let detail = pending
+                .pending_transaction_details
+                .as_ref()
+                .and_then(|items| items.first())
+                .unwrap();
+            let reconciled = transaction(&reconcile_from_detail(&value, detail), None).unwrap();
+            assert_eq!(reconciled.reconcile_disposition, Some("rolled_forward"));
+            assert_eq!(fs::read(root.join("CONSTITUTION.md")).unwrap(), b"legacy");
+            assert!(!root.join("SOUL.md").exists());
+            assert_eq!(
+                fs::read(root.join(format!(
+                    "archives/constitution-history/recovery/{}.legacy-source",
+                    value.transaction_id
+                )))
+                .unwrap(),
+                b"legacy"
+            );
+        }
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn migrate_legacy_rejects_source_swap_and_in_place_edit() {
+        for attack in ["swap", "edit"] {
+            let root = temp(&format!("migrate-source-{attack}"));
+            fs::write(root.join("SOUL.md"), b"legacy").unwrap();
+            let value = migration_request(&root, b"legacy");
+            let attack_root = root.clone();
+            let hook = move |name: &str| {
+                if name == "before_migration_source_revalidate" {
+                    if attack == "swap" {
+                        fs::rename(attack_root.join("SOUL.md"), attack_root.join("OLD.md"))
+                            .unwrap();
+                        fs::write(attack_root.join("SOUL.md"), b"attacker").unwrap();
+                    } else {
+                        fs::write(attack_root.join("SOUL.md"), b"edited").unwrap();
+                    }
+                }
+                Ok(())
+            };
+            assert_eq!(
+                transaction(&value, Some(&hook)).unwrap_err().code,
+                "CONSTITUTION_FS_CONFLICT"
+            );
+            assert!(!root.join("CONSTITUTION.md").exists());
+        }
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn migrate_legacy_rejects_hardlink_and_symlink_sources() {
+        use std::os::unix::fs::symlink;
+
+        let hardlink_root = temp("migrate-hardlink");
+        fs::write(hardlink_root.join("SOUL.md"), b"legacy").unwrap();
+        fs::hard_link(
+            hardlink_root.join("SOUL.md"),
+            hardlink_root.join("ALIAS.md"),
+        )
+        .unwrap();
+        assert_eq!(
+            transaction(&migration_request(&hardlink_root, b"legacy"), None)
+                .unwrap_err()
+                .code,
+            "CONSTITUTION_FS_REPARSE_REJECTED"
+        );
+
+        let symlink_root = temp("migrate-symlink");
+        let outside = temp("migrate-symlink-outside");
+        fs::write(outside.join("source.md"), b"legacy").unwrap();
+        symlink(outside.join("source.md"), symlink_root.join("SOUL.md")).unwrap();
+        assert!(transaction(&migration_request(&symlink_root, b"legacy"), None).is_err());
+        assert!(!symlink_root.join("CONSTITUTION.md").exists());
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn migrate_legacy_no_replace_blocks_canonical_race() {
+        let root = temp("migrate-canonical-race");
+        fs::write(root.join("SOUL.md"), b"legacy").unwrap();
+        let value = migration_request(&root, b"legacy");
+        let attack_root = root.clone();
+        let hook = move |name: &str| {
+            if name == "before_stage_publish" {
+                fs::write(attack_root.join("CONSTITUTION.md"), b"competitor").unwrap();
+            }
+            Ok(())
+        };
+        assert_eq!(
+            transaction(&value, Some(&hook)).unwrap_err().code,
+            "CONSTITUTION_FS_NO_REPLACE"
+        );
+        assert_eq!(
+            fs::read(root.join("CONSTITUTION.md")).unwrap(),
+            b"competitor"
+        );
+    }
+
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[test]
+    fn interrupted_migration_reconciles_from_authenticated_native_identity_facts() {
+        let root = temp("migrate-reconcile");
+        fs::write(root.join("SOUL.md"), b"legacy").unwrap();
+        let value = migration_request(&root, b"legacy");
+        let hook = |name: &str| {
+            if name == "after_publish_before_journal" {
+                Err(FsError::new("INJECTED", "response gap after publication"))
+            } else {
+                Ok(())
+            }
+        };
+        assert_eq!(
+            transaction(&value, Some(&hook)).unwrap_err().code,
+            "INJECTED"
+        );
+        let pending = transaction(&pending_request(&value), None).unwrap();
+        let detail = pending
+            .pending_transaction_details
+            .as_ref()
+            .and_then(|items| items.first())
+            .unwrap();
+        let source = detail.reconcile_facts.migration_source.as_ref().unwrap();
+        assert_eq!(
+            source.target,
+            Target::Constitution {
+                source_name: "SOUL.md".into()
+            }
+        );
+        assert_eq!(source.sha256, sha256(b"legacy"));
+        let receipt = transaction(&reconcile_from_detail(&value, detail), None).unwrap();
+        assert_eq!(receipt.reconcile_disposition, Some("rolled_forward"));
+        assert_eq!(fs::read(root.join("CONSTITUTION.md")).unwrap(), b"legacy");
+    }
+
     fn seal_request(
         root: &Path,
         operation: Operation,
@@ -5690,12 +7232,13 @@ mod tests {
         envelope: Option<&[u8]>,
     ) -> Request {
         Request {
-            version: 1,
+            version: PROTOCOL_VERSION,
             transaction_id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc".into(),
             root: root.to_string_lossy().into_owned(),
             root_identity: root_identity(root),
             journal_key_base64: None,
             archive_authentication_keys: None,
+            request_fingerprint: None,
             operation,
             target: None,
             expected: None,
@@ -5707,6 +7250,8 @@ mod tests {
             source_archive: None,
             reconcile_transaction_id: None,
             reconcile_facts: None,
+            lookup_transaction_id: None,
+            migration_source: None,
             seal_key_id: id.map(str::to_owned),
             envelope: envelope.map(|bytes| Payload {
                 content_base64: BASE64.encode(bytes),

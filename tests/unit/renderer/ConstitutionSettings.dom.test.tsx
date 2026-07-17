@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { DEFAULT_CONSTITUTION } from '@/common/constitutionDefault';
 
 const { mockRead, mockWrite, mockReset } = vi.hoisted(() => ({
   mockRead: vi.fn(),
@@ -81,6 +82,10 @@ vi.mock('@arco-design/web-react', () => ({
 }));
 
 import ConstitutionSettings from '@renderer/pages/settings/ConstitutionSettings';
+import {
+  constitutionMutationRequestFingerprint,
+  discardSerializedAutosaveDraft,
+} from '@renderer/pages/settings/ConstitutionSettings/useSerializedAutosave';
 
 function deferred<T>(): { promise: Promise<T>; resolve: (value: T) => void } {
   let resolve!: (value: T) => void;
@@ -96,15 +101,37 @@ const present = (content: string, revision = 'rev:main:00000001') => ({
   revision,
 });
 
-const committed = (revision = 'rev:main:00000002') => ({
+const committedWrite = (revision = 'rev:main:00000002') => ({
   ok: true as const,
   revision,
   receiptId: 'receipt:main:00000001',
+  get requestId(): string {
+    return mockWrite.mock.calls.at(-1)?.[3];
+  },
+  get requestFingerprint(): `sha256:${string}` {
+    const [content, expectedRevision] = mockWrite.mock.calls.at(-1)!;
+    return constitutionMutationRequestFingerprint({ kind: 'constitution' }, content, expectedRevision);
+  },
+});
+
+const committedReset = (revision = 'rev:main:00000002') => ({
+  ok: true as const,
+  revision,
+  receiptId: 'receipt:main:00000001',
+  get requestId(): string {
+    return mockReset.mock.calls.at(-1)?.[2];
+  },
+  get requestFingerprint(): `sha256:${string}` {
+    const [, expectedRevision] = mockReset.mock.calls.at(-1)!;
+    return constitutionMutationRequestFingerprint({ kind: 'constitution' }, DEFAULT_CONSTITUTION, expectedRevision);
+  },
 });
 
 describe('Hosted ConstitutionSettings journey', () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    window.localStorage.clear();
+    discardSerializedAutosaveDraft('user:user-1:main');
     mockRead.mockReset();
     mockWrite.mockReset();
     mockReset.mockReset();
@@ -113,12 +140,12 @@ describe('Hosted ConstitutionSettings journey', () => {
   afterEach(() => vi.useRealTimers());
 
   it('waits for an in-flight autosave before reset and then renders the reset content', async () => {
-    const write = deferred<ReturnType<typeof committed>>();
+    const write = deferred<ReturnType<typeof committedWrite>>();
     mockRead
       .mockResolvedValueOnce(present('# current'))
       .mockResolvedValueOnce(present('# default', 'rev:main:00000003'));
     mockWrite.mockReturnValue(write.promise);
-    mockReset.mockResolvedValue(committed('rev:main:00000003'));
+    mockReset.mockResolvedValue(committedReset('rev:main:00000003'));
 
     render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
@@ -140,7 +167,7 @@ describe('Hosted ConstitutionSettings journey', () => {
     fireEvent.click(screen.getAllByRole('button', { name: 'Reset' })[1]);
     expect(mockReset).not.toHaveBeenCalled();
 
-    await act(async () => write.resolve(committed()));
+    await act(async () => write.resolve(committedWrite()));
     await act(async () => Promise.resolve());
     expect(mockReset).toHaveBeenCalledWith('correct-password', 'rev:main:00000002', expect.any(String));
     expect(mockRead).toHaveBeenCalledTimes(2);
@@ -151,7 +178,7 @@ describe('Hosted ConstitutionSettings journey', () => {
 
   it('recovers an unsaved edit after route unmount and resumes it only after a fresh unlock', async () => {
     mockRead.mockResolvedValue(present('# canonical server copy'));
-    mockWrite.mockResolvedValue(committed());
+    mockWrite.mockResolvedValue(committedWrite());
 
     const first = render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
@@ -184,7 +211,7 @@ describe('Hosted ConstitutionSettings journey', () => {
     mockRead.mockResolvedValue(present('# canonical server copy'));
     mockWrite
       .mockResolvedValueOnce({ ok: false, reason: 'authorization_required', status: 401 })
-      .mockResolvedValueOnce(committed());
+      .mockResolvedValueOnce(committedWrite());
     render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
     await act(async () => vi.advanceTimersByTime(50));
@@ -210,9 +237,9 @@ describe('Hosted ConstitutionSettings journey', () => {
   });
 
   it('serializes overlapping component edits and sends only the latest queued value next', async () => {
-    const firstWrite = deferred<ReturnType<typeof committed>>();
+    const firstWrite = deferred<ReturnType<typeof committedWrite>>();
     mockRead.mockResolvedValue(present('# canonical server copy'));
-    mockWrite.mockReturnValueOnce(firstWrite.promise).mockResolvedValueOnce(committed('rev:main:00000003'));
+    mockWrite.mockReturnValueOnce(firstWrite.promise).mockResolvedValueOnce(committedWrite('rev:main:00000003'));
     render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
     await act(async () => vi.advanceTimersByTime(50));
@@ -226,7 +253,7 @@ describe('Hosted ConstitutionSettings journey', () => {
     await act(async () => vi.advanceTimersByTime(500));
     expect(mockWrite).toHaveBeenCalledTimes(1);
 
-    await act(async () => firstWrite.resolve(committed()));
+    await act(async () => firstWrite.resolve(committedWrite()));
     expect(mockWrite).toHaveBeenCalledTimes(2);
     expect(mockWrite).toHaveBeenLastCalledWith(
       '# latest wins',
@@ -274,7 +301,7 @@ describe('Hosted ConstitutionSettings journey', () => {
       .mockResolvedValueOnce(present('# someone else', 'rev:main:00000002'));
     mockWrite
       .mockResolvedValueOnce({ ok: false, reason: 'conflict', status: 409 })
-      .mockResolvedValueOnce(committed('rev:main:00000003'));
+      .mockResolvedValueOnce(committedWrite('rev:main:00000003'));
     render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
     await act(async () => vi.advanceTimersByTime(50));
@@ -334,8 +361,8 @@ describe('Hosted ConstitutionSettings journey', () => {
 
   it('treats a reset receipt as committed when the follow-up read fails and never revives the old draft', async () => {
     mockRead.mockResolvedValueOnce(present('# original')).mockRejectedValueOnce(new Error('read path offline'));
-    mockWrite.mockResolvedValue(committed());
-    mockReset.mockResolvedValue(committed('rev:main:00000003'));
+    mockWrite.mockResolvedValue(committedWrite());
+    mockReset.mockResolvedValue(committedReset('rev:main:00000003'));
     render(<ConstitutionSettings />);
     await act(async () => Promise.resolve());
     await act(async () => vi.advanceTimersByTime(50));
@@ -360,6 +387,68 @@ describe('Hosted ConstitutionSettings journey', () => {
       expect.anything(),
       expect.anything(),
       expect.anything()
+    );
+  });
+
+  it('replays a reset with its pre-dispatch UUID and revision after response loss and remount', async () => {
+    mockRead
+      .mockResolvedValueOnce(present('# original'))
+      .mockResolvedValueOnce(present('# possibly reset', 'rev:main:00000003'))
+      .mockResolvedValueOnce(present('# default', 'rev:main:00000003'));
+    mockReset
+      .mockResolvedValueOnce({ ok: false, reason: 'request_failed', status: 0 })
+      .mockResolvedValueOnce(committedReset('rev:main:00000003'));
+
+    const first = render(<ConstitutionSettings />);
+    await act(async () => Promise.resolve());
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+    fireEvent.change(screen.getByPlaceholderText('WebUI password'), { target: { value: 'correct-password' } });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Reset' })[1]);
+    await act(async () => Promise.resolve());
+    const firstRequestId = mockReset.mock.calls[0][2];
+    first.unmount();
+
+    render(<ConstitutionSettings />);
+    await act(async () => Promise.resolve());
+    fireEvent.click(screen.getByRole('button', { name: 'Reset' }));
+    fireEvent.change(screen.getByPlaceholderText('WebUI password'), { target: { value: 'correct-password' } });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Reset' })[1]);
+    await act(async () => Promise.resolve());
+
+    expect(mockReset).toHaveBeenLastCalledWith('correct-password', 'rev:main:00000001', firstRequestId);
+    expect(screen.getByRole('textbox', { name: 'constitution-editor' })).toHaveValue('# default');
+  });
+
+  it('retries an explicit overwrite with the same durable operation facts after response loss', async () => {
+    mockRead
+      .mockResolvedValueOnce(present('# original'))
+      .mockResolvedValueOnce(present('# remote', 'rev:main:00000002'));
+    mockWrite
+      .mockResolvedValueOnce({ ok: false, reason: 'conflict', status: 409 })
+      .mockResolvedValueOnce({ ok: false, reason: 'request_failed', status: 0 })
+      .mockResolvedValueOnce(committedWrite('rev:main:00000003'));
+    render(<ConstitutionSettings />);
+    await act(async () => Promise.resolve());
+    await act(async () => vi.advanceTimersByTime(50));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Unlock editing' })[0]);
+    fireEvent.change(screen.getByRole('textbox', { name: 'constitution-editor' }), {
+      target: { value: '# durable overwrite' },
+    });
+    await act(async () => vi.advanceTimersByTime(500));
+    fireEvent.click(screen.getByRole('button', { name: 'Load comparison' }));
+    await act(async () => Promise.resolve());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Overwrite with my draft' }));
+    await act(async () => Promise.resolve());
+    const firstOverwriteId = mockWrite.mock.calls[1][3];
+    fireEvent.click(screen.getByRole('button', { name: 'Overwrite with my draft' }));
+    await act(async () => Promise.resolve());
+
+    expect(mockWrite).toHaveBeenLastCalledWith(
+      '# durable overwrite',
+      'rev:main:00000002',
+      'opaque-grant',
+      firstOverwriteId
     );
   });
 });

@@ -27,11 +27,11 @@ const SHA256_PATTERN = /^sha256:[0-9a-f]{64}$/;
 const SUPPORTED_PLATFORMS = new Set<NodeJS.Platform>(['darwin', 'linux']);
 const TRUSTED_AUTHORITY = Symbol('wayland.constitutionFs.trustedAuthority');
 type PackagedConstitutionFsAuthority =
-  | Readonly<{ supported: false; platform: string; arch: string; protocolVersion: 1 }>
+  | Readonly<{ supported: false; platform: string; arch: string; protocolVersion: 2 }>
   | Readonly<{
       supported: true;
       schemaVersion: 1;
-      protocolVersion: 1;
+      protocolVersion: 2;
       platform: NodeJS.Platform;
       arch: NodeJS.Architecture;
       fileName: string;
@@ -60,7 +60,7 @@ export type VerifiedConstitutionFsBinary = {
   size: number;
   platform: NodeJS.Platform;
   arch: NodeJS.Architecture;
-  protocolVersion: 1;
+  protocolVersion: 2;
   authority: TrustedConstitutionFsBinaryAuthority;
 };
 
@@ -123,7 +123,7 @@ export type HeldConstitutionFsBinary = VerifiedConstitutionFsBinary & {
 
 type BinaryManifest = {
   schemaVersion: 1;
-  protocolVersion: 1;
+  protocolVersion: 2;
   platform: NodeJS.Platform;
   arch: NodeJS.Architecture;
   binary: {
@@ -167,7 +167,7 @@ function parseManifest(raw: string): BinaryManifest {
   assertExactKeys(value.binary, ['fileName', 'sha256', 'size'], 'Constitution filesystem binary descriptor');
   if (
     value.schemaVersion !== 1 ||
-    value.protocolVersion !== 1 ||
+    value.protocolVersion !== 2 ||
     typeof value.platform !== 'string' ||
     typeof value.arch !== 'string' ||
     typeof value.binary.fileName !== 'string' ||
@@ -279,7 +279,7 @@ export function verifyConstitutionFsBinary(input: {
     size: binary.byteLength,
     platform,
     arch,
-    protocolVersion: 1,
+    protocolVersion: 2,
     authority: { ...authority, installRoot },
   };
 }

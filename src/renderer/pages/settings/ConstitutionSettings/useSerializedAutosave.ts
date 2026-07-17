@@ -5,17 +5,36 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { sha256 } from '@noble/hashes/sha2.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
 import type { SaveState } from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import type { ConstitutionMutationResult } from '@renderer/services/ConstitutionService';
 
-type PendingOperation = { value: string; requestId: string };
+export type ConstitutionAutosaveTarget = { kind: 'constitution' } | { kind: 'specialist'; specialistId: string };
+
+type PendingOperation = {
+  kind: 'replace';
+  target: ConstitutionAutosaveTarget;
+  expectedRevision: string;
+  value: string;
+  contentDigest: `sha256:${string}`;
+  requestId: string;
+  requestFingerprint: `sha256:${string}`;
+};
 type PersistedDraftState = { latest: PendingOperation; uncertain?: PendingOperation };
 
 type Options = {
   enabled: boolean;
   debounceMs: number;
   savedFlashMs: number;
-  save: (value: string, requestId: string) => Promise<ConstitutionMutationResult>;
+  target: ConstitutionAutosaveTarget;
+  getExpectedRevision: () => string | null;
+  save: (
+    value: string,
+    expectedRevision: string,
+    requestId: string,
+    requestFingerprint: `sha256:${string}`
+  ) => Promise<ConstitutionMutationResult>;
   onAuthorizationRequired?: () => void;
   onConflict?: () => void;
   onCommitted?: (result: Extract<ConstitutionMutationResult, { ok: true }>, value: string) => void;
@@ -36,7 +55,8 @@ type SerializedAutosave = {
 };
 
 const DRAFT_STORAGE_PREFIX = 'wayland:constitution-draft:';
-const DRAFT_RECORD_PREFIX = 'wayland-autosave-v2:';
+const SINGLE_SHOT_STORAGE_PREFIX = 'wayland:constitution-mutation:';
+const DRAFT_RECORD_PREFIX = 'wayland-autosave-v3:';
 const LEGACY_DRAFT_RECORD_PREFIX = 'wayland-autosave-v1:';
 const inMemoryDrafts = new Map<string, PersistedDraftState>();
 let persistentDirtyGuardInstalled = false;
@@ -46,6 +66,221 @@ export function createConstitutionMutationRequestId(): string {
     throw new Error('Secure mutation identifiers are unavailable in this renderer.');
   }
   return globalThis.crypto.randomUUID();
+}
+
+type ConstitutionSingleShotMutationBase = Readonly<{
+  target: string;
+  expectedRevision: string;
+  requestFingerprint: `sha256:${string}`;
+}>;
+
+export type ConstitutionSingleShotMutation = Readonly<
+  | (ConstitutionSingleShotMutationBase & {
+      action: 'reset' | 'delete';
+      requestId: string;
+    })
+  | (ConstitutionSingleShotMutationBase & {
+      action: 'create';
+      contentDigest: `sha256:${string}`;
+      requestId: string;
+    })
+  | (ConstitutionSingleShotMutationBase & {
+      action: 'overwrite';
+      contentDigest: `sha256:${string}`;
+      draftKey: string;
+      requestId: string;
+    })
+>;
+
+export type ConstitutionSingleShotMutationFacts = Readonly<
+  | Omit<Extract<ConstitutionSingleShotMutation, { action: 'reset' | 'delete' }>, 'requestId'>
+  | Omit<Extract<ConstitutionSingleShotMutation, { action: 'create' }>, 'requestId'>
+  | Omit<Extract<ConstitutionSingleShotMutation, { action: 'overwrite' }>, 'requestId'>
+>;
+
+const CONTENT_DIGEST_PATTERN = /^sha256:[a-f0-9]{64}$/;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function constitutionMutationContentDigest(content: string): `sha256:${string}` {
+  return `sha256:${bytesToHex(sha256(new TextEncoder().encode(content)))}`;
+}
+
+function nativeMutationTarget(target: ConstitutionAutosaveTarget): Record<string, string> {
+  return target.kind === 'constitution'
+    ? { kind: 'constitution', sourceName: 'CONSTITUTION.md' }
+    : {
+        kind: 'specialist',
+        specialistId: target.specialistId,
+        sourceName: `${target.specialistId}.md`,
+      };
+}
+
+export function constitutionMutationRequestFingerprint(
+  target: ConstitutionAutosaveTarget,
+  content: string | null,
+  expectedRevision: string
+): `sha256:${string}` {
+  return constitutionMutationContentDigest(
+    JSON.stringify({ target: nativeMutationTarget(target), content, expectedRevision })
+  );
+}
+
+function exactOwnKeys(record: Record<string, unknown>, expected: readonly string[]): boolean {
+  const actual = Object.keys(record).toSorted();
+  const sortedExpected = [...expected].toSorted();
+  return actual.length === sortedExpected.length && actual.every((key, index) => key === sortedExpected[index]);
+}
+
+function sameSingleShotFacts(
+  existing: ConstitutionSingleShotMutation,
+  proposed: ConstitutionSingleShotMutationFacts
+): boolean {
+  if (
+    existing.action !== proposed.action ||
+    existing.target !== proposed.target ||
+    existing.expectedRevision !== proposed.expectedRevision ||
+    existing.requestFingerprint !== proposed.requestFingerprint
+  ) {
+    return false;
+  }
+  if (existing.action === 'create' && proposed.action === 'create') {
+    return existing.contentDigest === proposed.contentDigest;
+  }
+  if (existing.action === 'overwrite' && proposed.action === 'overwrite') {
+    return existing.contentDigest === proposed.contentDigest && existing.draftKey === proposed.draftKey;
+  }
+  return true;
+}
+
+export function resolveConstitutionSingleShotContent(
+  operation: Extract<ConstitutionSingleShotMutation, { action: 'create' | 'overwrite' }>,
+  fixedContent?: string
+): string {
+  const content = operation.action === 'overwrite' ? readSerializedAutosaveDraft(operation.draftKey) : fixedContent;
+  if (content === null || content === undefined) {
+    throw new Error('The pending Constitution operation has lost its durable draft.');
+  }
+  if (constitutionMutationContentDigest(content) !== operation.contentDigest) {
+    throw new Error('The pending Constitution operation draft no longer matches its authenticated facts.');
+  }
+  return content;
+}
+
+export function constitutionSingleShotMutationKey(
+  action: ConstitutionSingleShotMutation['action'],
+  target: string,
+  isDesktop: boolean,
+  userId: string | null | undefined
+): string | null {
+  const principal = isDesktop ? 'desktop-local' : userId ? `user:${encodeURIComponent(userId)}` : null;
+  return principal ? `${principal}:${action}:${encodeURIComponent(target)}` : null;
+}
+
+function validSingleShotMutation(value: unknown): value is ConstitutionSingleShotMutation {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const baseValid =
+    typeof record.target === 'string' &&
+    typeof record.expectedRevision === 'string' &&
+    typeof record.requestId === 'string' &&
+    UUID_PATTERN.test(record.requestId) &&
+    typeof record.requestFingerprint === 'string' &&
+    CONTENT_DIGEST_PATTERN.test(record.requestFingerprint);
+  if (!baseValid) return false;
+  if (record.action === 'reset' || record.action === 'delete') {
+    return exactOwnKeys(record, ['action', 'target', 'expectedRevision', 'requestFingerprint', 'requestId']);
+  }
+  if (record.action === 'create') {
+    return (
+      typeof record.contentDigest === 'string' &&
+      CONTENT_DIGEST_PATTERN.test(record.contentDigest) &&
+      exactOwnKeys(record, ['action', 'target', 'expectedRevision', 'requestFingerprint', 'contentDigest', 'requestId'])
+    );
+  }
+  if (record.action === 'overwrite') {
+    return (
+      typeof record.contentDigest === 'string' &&
+      CONTENT_DIGEST_PATTERN.test(record.contentDigest) &&
+      typeof record.draftKey === 'string' &&
+      record.draftKey.length > 0 &&
+      exactOwnKeys(record, [
+        'action',
+        'target',
+        'expectedRevision',
+        'requestFingerprint',
+        'contentDigest',
+        'draftKey',
+        'requestId',
+      ])
+    );
+  }
+  return false;
+}
+
+export function readConstitutionSingleShotMutation(key: string): ConstitutionSingleShotMutation | null {
+  try {
+    const raw = window.localStorage.getItem(`${SINGLE_SHOT_STORAGE_PREFIX}${key}`);
+    if (raw === null) return null;
+    const parsed = JSON.parse(raw) as unknown;
+    if (!validSingleShotMutation(parsed)) throw new Error('The pending Constitution operation record is invalid.');
+    return parsed;
+  } catch (error) {
+    throw new Error('The pending Constitution operation cannot be authenticated for replay.', { cause: error });
+  }
+}
+
+export function beginConstitutionSingleShotMutation(
+  key: string,
+  facts: ConstitutionSingleShotMutationFacts
+): ConstitutionSingleShotMutation {
+  const existing = readConstitutionSingleShotMutation(key);
+  if (existing) {
+    if (!sameSingleShotFacts(existing, facts)) {
+      throw new Error('A different unresolved Constitution operation already owns this action.');
+    }
+    return existing;
+  }
+  const operation = { ...facts, requestId: createConstitutionMutationRequestId() };
+  try {
+    // This durable write intentionally precedes dispatch. Failure is terminal:
+    // sending without a recoverable identity would make response loss unsafe.
+    window.localStorage.setItem(`${SINGLE_SHOT_STORAGE_PREFIX}${key}`, JSON.stringify(operation));
+  } catch (error) {
+    throw new Error('The Constitution operation could not be made crash-safe before dispatch.', { cause: error });
+  }
+  return operation;
+}
+
+export function completeConstitutionSingleShotMutation(
+  key: string,
+  receipt: Extract<ConstitutionMutationResult, { ok: true }>
+): void {
+  const existing = readConstitutionSingleShotMutation(key);
+  if (
+    !existing ||
+    existing.requestId !== receipt.requestId ||
+    existing.requestFingerprint !== receipt.requestFingerprint
+  ) {
+    throw new Error('The Constitution operation receipt does not match the pending operation.');
+  }
+  window.localStorage.removeItem(`${SINGLE_SHOT_STORAGE_PREFIX}${key}`);
+}
+
+/** Clear only a definitively non-committed operation after an exact CAS conflict. */
+export function abandonConstitutionSingleShotMutation(
+  key: string,
+  requestId: string,
+  requestFingerprint: `sha256:${string}`
+): void {
+  const existing = readConstitutionSingleShotMutation(key);
+  if (!existing || existing.requestId !== requestId || existing.requestFingerprint !== requestFingerprint) {
+    throw new Error('The Constitution operation being abandoned does not match durable state.');
+  }
+  const storageLocation = `${SINGLE_SHOT_STORAGE_PREFIX}${key}`;
+  window.localStorage.removeItem(storageLocation);
+  if (window.localStorage.getItem(storageLocation) !== null) {
+    throw new Error('The conflicted Constitution operation could not be cleared safely.');
+  }
 }
 
 function persistentDirtyGuard(event: BeforeUnloadEvent): void {
@@ -82,12 +317,49 @@ export function readSerializedAutosaveDraft(draftKey: string): string | null {
 }
 
 function validOperation(value: unknown): value is PendingOperation {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  if (
+    !exactOwnKeys(record, [
+      'kind',
+      'target',
+      'expectedRevision',
+      'value',
+      'contentDigest',
+      'requestId',
+      'requestFingerprint',
+    ]) ||
+    record.kind !== 'replace' ||
+    typeof record.expectedRevision !== 'string' ||
+    typeof record.value !== 'string' ||
+    typeof record.contentDigest !== 'string' ||
+    !CONTENT_DIGEST_PATTERN.test(record.contentDigest) ||
+    constitutionMutationContentDigest(record.value) !== record.contentDigest ||
+    typeof record.requestId !== 'string' ||
+    !UUID_PATTERN.test(record.requestId) ||
+    typeof record.requestFingerprint !== 'string' ||
+    !CONTENT_DIGEST_PATTERN.test(record.requestFingerprint)
+  ) {
+    return false;
+  }
+  const target = record.target;
+  if (!target || typeof target !== 'object' || Array.isArray(target)) return false;
+  const targetRecord = target as Record<string, unknown>;
+  if (targetRecord.kind === 'constitution') {
+    if (!exactOwnKeys(targetRecord, ['kind'])) return false;
+  } else if (
+    targetRecord.kind !== 'specialist' ||
+    typeof targetRecord.specialistId !== 'string' ||
+    !exactOwnKeys(targetRecord, ['kind', 'specialistId'])
+  ) {
+    return false;
+  }
   return (
-    !!value &&
-    typeof value === 'object' &&
-    !Array.isArray(value) &&
-    typeof (value as { value?: unknown }).value === 'string' &&
-    typeof (value as { requestId?: unknown }).requestId === 'string'
+    constitutionMutationRequestFingerprint(
+      target as ConstitutionAutosaveTarget,
+      record.value,
+      record.expectedRevision
+    ) === record.requestFingerprint
   );
 }
 
@@ -110,14 +382,8 @@ function readSerializedAutosaveState(draftKey: string): PersistedDraftState | nu
           parsed.uncertain === undefined
             ? { latest: parsed.latest }
             : { latest: parsed.latest, uncertain: parsed.uncertain as PendingOperation };
-      } else if (stored.startsWith(LEGACY_DRAFT_RECORD_PREFIX)) {
-        const parsed = JSON.parse(stored.slice(LEGACY_DRAFT_RECORD_PREFIX.length)) as unknown;
-        if (!validOperation(parsed)) return null;
-        state = { latest: parsed };
-      } else {
-        // Migrate the pre-idempotency draft format on its next persistence.
-        state = { latest: { value: stored, requestId: createConstitutionMutationRequestId() } };
-      }
+      } else if (stored.startsWith(LEGACY_DRAFT_RECORD_PREFIX)) return null;
+      else return null;
       inMemoryDrafts.set(draftKey, state);
       syncPersistentDirtyGuard();
       return state;
@@ -128,7 +394,7 @@ function readSerializedAutosaveState(draftKey: string): PersistedDraftState | nu
   }
 }
 
-function persistSerializedAutosaveDraft(draftKey: string, state: PersistedDraftState): void {
+function persistSerializedAutosaveDraft(draftKey: string, state: PersistedDraftState): boolean {
   // The module-level copy survives every SPA unmount even if browser storage is
   // disabled. localStorage adds renderer/app-restart recovery. Keys include the
   // authenticated principal, so a later login cannot inherit another user's
@@ -136,10 +402,11 @@ function persistSerializedAutosaveDraft(draftKey: string, state: PersistedDraftS
   inMemoryDrafts.set(draftKey, state);
   syncPersistentDirtyGuard();
   try {
-    window.localStorage.setItem(storageKey(draftKey), `${DRAFT_RECORD_PREFIX}${JSON.stringify(state)}`);
+    const serialized = `${DRAFT_RECORD_PREFIX}${JSON.stringify(state)}`;
+    window.localStorage.setItem(storageKey(draftKey), serialized);
+    return window.localStorage.getItem(storageKey(draftKey)) === serialized;
   } catch {
-    // beforeunload remains armed while dirty, so a failed durable mirror cannot
-    // turn a reload/window close into silent data loss.
+    return false;
   }
 }
 
@@ -179,6 +446,7 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
   const inFlightPromise = useRef<Promise<void> | null>(null);
   const generation = useRef(0);
   const destructive = useRef(false);
+  const durabilityBlocked = useRef(false);
   const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -188,31 +456,42 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
   onConflict.current = options.onConflict;
   onCommitted.current = options.onCommitted;
 
-  const persistOutstanding = useCallback((): void => {
-    if (!options.draftKey || !latestDirty.current) return;
-    persistSerializedAutosaveDraft(options.draftKey, {
+  const persistOutstanding = useCallback((): boolean => {
+    if (!options.draftKey || !latestDirty.current) return false;
+    return persistSerializedAutosaveDraft(options.draftKey, {
       latest: latestDirty.current,
       ...(uncertain.current ? { uncertain: uncertain.current } : {}),
     });
   }, [options.draftKey]);
 
   const drain = useCallback(async (): Promise<void> => {
-    if (!mounted.current || !enabled.current || destructive.current || inFlight.current) return;
+    if (!mounted.current || !enabled.current || destructive.current || inFlight.current || durabilityBlocked.current)
+      return;
 
     const replayingUncertain = uncertain.current !== null;
     const pendingOperation = uncertain.current ?? pending.current;
     if (!pendingOperation) return;
-    const { value, requestId } = pendingOperation;
+    const { value, expectedRevision, requestId, requestFingerprint } = pendingOperation;
     const operationGeneration = generation.current;
-    if (replayingUncertain) uncertain.current = null;
-    else pending.current = null;
+    // Persist the operation as outcome-unknown before crossing the process or
+    // network boundary. A renderer crash/unmount can happen while the promise
+    // is unresolved; recording uncertainty only after a rejected response is
+    // too late to preserve the exact replay identity in that window.
+    uncertain.current = pendingOperation;
+    if (!persistOutstanding()) {
+      durabilityBlocked.current = true;
+      setIsDirty(true);
+      setSaveState('error');
+      return;
+    }
+    if (!replayingUncertain) pending.current = null;
     inFlight.current = true;
     setSaveState('saving');
 
     const operation = (async (): Promise<void> => {
       let result: ConstitutionMutationResult;
       try {
-        result = await save.current(value, requestId);
+        result = await save.current(value, expectedRevision, requestId, requestFingerprint);
       } catch {
         result = { ok: false, reason: 'request_failed', status: 0 };
       }
@@ -223,8 +502,10 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
         // A transport failure may hide a committed write. Replay this exact
         // operation identity before allowing a newer coalesced buffer to advance.
         // Authorization and CAS failures are definitive non-commits.
-        if (result.reason === 'request_failed') uncertain.current = pendingOperation;
-        else if (pending.current === null) pending.current = pendingOperation;
+        if (result.reason !== 'request_failed') {
+          uncertain.current = null;
+          if (pending.current === null) pending.current = pendingOperation;
+        }
         persistOutstanding();
         setIsDirty(true);
         setSaveState('error');
@@ -233,10 +514,39 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
         return;
       }
 
+      if (result.requestId !== requestId || result.requestFingerprint !== requestFingerprint) {
+        persistOutstanding();
+        setIsDirty(true);
+        setSaveState('error');
+        return;
+      }
+
+      uncertain.current = null;
       onCommitted.current?.(result, value);
 
-      if (pending.current !== null || uncertain.current !== null) {
-        persistOutstanding();
+      if (pending.current !== null) {
+        // A buffer queued while this request was in flight was necessarily
+        // bound to the pre-commit revision. It has never crossed the authority
+        // boundary, so rebase it onto the authenticated receipt and mint a new
+        // identity before dispatch. Reusing its stale CAS would turn normal
+        // typing during autosave into a guaranteed conflict.
+        const queued = pending.current;
+        if (queued.expectedRevision !== result.revision) {
+          const rebased: PendingOperation = {
+            ...queued,
+            expectedRevision: result.revision,
+            requestId: createConstitutionMutationRequestId(),
+            requestFingerprint: constitutionMutationRequestFingerprint(queued.target, queued.value, result.revision),
+          };
+          pending.current = rebased;
+          latestDirty.current = rebased;
+        }
+        if (!persistOutstanding()) {
+          durabilityBlocked.current = true;
+          setIsDirty(true);
+          setSaveState('error');
+          return;
+        }
         void drain();
         return;
       }
@@ -260,20 +570,40 @@ export function useSerializedAutosave(options: Options): SerializedAutosave {
   const queueSave = useCallback(
     (value: string): void => {
       if (destructive.current) return;
-      const operation = { value, requestId: createConstitutionMutationRequestId() };
+      const expectedRevision = options.getExpectedRevision();
+      if (!options.draftKey || !expectedRevision) {
+        setIsDirty(true);
+        setSaveState('error');
+        return;
+      }
+      const requestId = createConstitutionMutationRequestId();
+      const operation: PendingOperation = {
+        kind: 'replace',
+        target: options.target,
+        expectedRevision,
+        value,
+        contentDigest: constitutionMutationContentDigest(value),
+        requestId,
+        requestFingerprint: constitutionMutationRequestFingerprint(options.target, value, expectedRevision),
+      };
       pending.current = operation;
       latestDirty.current = operation;
-      persistOutstanding();
       setIsDirty(true);
+      if (!persistOutstanding()) {
+        durabilityBlocked.current = true;
+        setSaveState('error');
+        return;
+      }
       setSaveState('saving');
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       debounceTimer.current = setTimeout(() => void drain(), options.debounceMs);
     },
-    [drain, options.debounceMs, persistOutstanding]
+    [drain, options.debounceMs, options.draftKey, options.getExpectedRevision, options.target, persistOutstanding]
   );
 
   const retry = useCallback((): void => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    durabilityBlocked.current = false;
     void drain();
   }, [drain]);
 
