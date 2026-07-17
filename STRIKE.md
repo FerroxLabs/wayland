@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                             | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                                                                                                                                          | n/a                                                                                  | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                             | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                                                                                                                                         | n/a                                                                                  | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988`              | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck`                                                                                                                | final aggregate pending CON-B                                                        | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | LANDED   | storage transaction `b2d6ad48bf77faa5614f4274874207009d5b342f`; integration `bccda81c79ea9bf497c26f2672790a9bc7497d9b` | `CON-B-STORAGE-TRANSACTION-packet-focused`, `CON-B-STORAGE-TRANSACTION-packet-static`, `CON-B-STORAGE-TRANSACTION-packet-ownership`, `CON-B-LOCK-HARNESS-packet-focused`, `CON-B-LOCK-HARNESS-packet-static`, `CON-B-LOCK-HARNESS-packet-ownership` | `CON-B-LOCK-HARNESS-integration-focused`, `CON-B-LOCK-HARNESS-integration-typecheck` | independent exact-HEAD audit pending                               |
+| CON-B        | CON-A           | REOPENED | storage transaction `b2d6ad48bf77faa5614f4274874207009d5b342f`; rejected integration `bccda81c79ea9bf497c26f2672790a9bc7497d9b` | historical only; acceptance audit rejected the archive path                                                                                                                                                                                         | historical only                                                                       | shared hosted/archive transaction and orphan replay                |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                                   | none                                                                                                                                                                                                                                                | dependency audit red                                                                 | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                                   | none                                                                                                                                                                                                                                                | none                                                                                 | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -420,6 +420,65 @@ one-file ownership proof, serial integration, exact-head aggregate proof, and
 independent author-excluded audit at zero HIGH/BLOCKER.
 
 Timebox: 20 minutes.
+
+### Subpacket CON-B-SHARED-RECOVERY-TRANSACTION — hosted and archive durability
+
+Dependency: rejected CON-B exact-HEAD audit at
+`203a7809d9efd064c5d7905309a0eb6398605d7b`.
+
+File ownership:
+
+- `src/renderer/services/ConstitutionRecoveryOperationLock.ts`
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx`
+- `tests/unit/renderer/ConstitutionRecoveryOperationLock.dom.test.ts`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+- `tests/unit/renderer/ConstitutionRecovery.dom.test.tsx`
+- `tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx`
+- `package.json`
+- `bun.lock`
+
+`package.json` and `bun.lock` are radioactive sequential seams. This packet
+owns only the test-only IndexedDB implementation dependency needed to prove the
+real browser transaction primitive. SEC-001 rebases after this packet and may
+not land concurrently.
+
+Authority boundary: provide one browser-origin transaction primitive for
+principal-scoped recovery evidence in Electron, secure hosted origins, and
+documented remote HTTP origins; apply it to every Classic and archive
+read/mint/write and compare/remove transition; preserve and surface an archive
+operation whose source inventory row disappeared after a committed response
+was lost. It does not change Native recovery, receipt minting, authentication,
+server routing, packaging, or deployment authority.
+
+Invariants: browser transactions serialize across real browsing contexts;
+absence-to-mint-to-write is atomic; terminal clear is full-binding conditional;
+malformed or multiply-ambiguous durable evidence fails closed; one archive
+pending identity is discoverable and replayable without an active source row;
+response loss preserves byte-equivalent request facts; a stale response cannot
+delete a replacement; the primitive is available on remote HTTP without
+weakening authority to an in-memory mutex; all password and typed confirmation
+state is cleared on evidence replacement; no new operation ID is minted when
+transaction authority is unavailable.
+
+Non-claims: a jsdom IndexedDB implementation proves transaction semantics, not
+packaged BrowserWindow availability, live multi-tab behavior, TLS, deployment,
+or release acceptance. A real hosted/Electron capability journey remains a
+CON-C gate.
+
+Tests: hostile utility tests with two independent database connections;
+Classic and archive two-root absence races; malformed evidence; queued
+replacement during conditional clear; response loss followed by inventory-row
+retirement and exact replay; hosted HTTP and Desktop IPC actual consumer paths;
+scoped format/lint/typecheck; complete Constitution aggregate; author-excluded
+exact-HEAD audit.
+
+Acceptance evidence: exact packet and rebased integration commits; complete
+commands, exit codes, logs, digests, timestamps, and environment digest;
+independent audit at zero HIGH/BLOCKER.
+
+Timebox: 90 minutes; split only at the utility/component boundary if the
+radioactive dependency seam or the real consumer harness cannot land together.
 
 ## Packet SEC-001 — aggregate dependency security
 
