@@ -10,6 +10,7 @@ import {
 import { verifyRecoverySnapshot } from '@process/services/recovery/recoveryManifest';
 import { materializeIsolatedRecovery } from '@process/services/recovery/isolatedRecovery';
 import { inventoryRecoveryAuthorities } from '@process/services/recovery/stateAuthorityInventory';
+import { ConstitutionRevisionAuthority } from '@process/services/constitution/constitutionRevisionAuthority';
 
 describe('recovery point builder', () => {
   const roots: string[] = [];
@@ -23,24 +24,45 @@ describe('recovery point builder', () => {
     roots.push(root);
     const userDataRoot = path.join(root, 'user-data');
     const coreDefaultProfileRoot = path.join(root, 'core-default');
-    const coreNamedProfilesRoot = path.join(root, 'core-profiles');
     const workspace = path.join(root, 'book');
     const agentConfig = path.join(root, 'codex-config.json');
     const destinationRoot = path.join(root, 'recovery-points');
+    const constitutionRoot = path.join(root, 'constitution-filesystem');
+    const coreNamedProfilesRoot = path.join(constitutionRoot, 'profiles');
     fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
     fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'constitution'), { recursive: true });
+    fs.mkdirSync(path.join(constitutionRoot, 'specialists'), { recursive: true });
     fs.mkdirSync(workspace, { recursive: true });
     fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'live-sqlite-with-wal-state');
     fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{"theme":"dark"}');
     fs.writeFileSync(path.join(userDataRoot, 'webui.config.json'), '{"enabled":true}');
+    fs.writeFileSync(path.join(constitutionRoot, 'CONSTITUTION.md'), '# User Constitution');
+    fs.writeFileSync(path.join(constitutionRoot, 'specialists', 'research.md'), '# Research overlay');
+    const revisionSecretBackend = {
+      encryptString: (plaintext: string): string => `safe-storage:${Buffer.from(plaintext, 'utf8').toString('base64')}`,
+      decryptString: (ciphertext: string): string =>
+        Buffer.from(ciphertext.slice('safe-storage:'.length), 'base64').toString('utf8'),
+    };
+    const generatedAuthorityPath = path.join(root, 'revision-authority-source.enc');
+    const authority = ConstitutionRevisionAuthority.loadOrCreate(generatedAuthorityPath, revisionSecretBackend);
+    const retiredRevisionKeyId = authority.keyId();
+    const rotationReceipt = authority.rotate();
+    const activeRevisionKeyId = authority.keyId();
+    const revisionAuthorityEnvelope = fs.readFileSync(generatedAuthorityPath);
+    fs.writeFileSync(path.join(userDataRoot, 'constitution', 'revision-authority.enc'), revisionAuthorityEnvelope);
     fs.writeFileSync(agentConfig, '{"provider":"flux"}');
     if (options.core) {
       fs.mkdirSync(coreDefaultProfileRoot, { recursive: true });
       fs.writeFileSync(path.join(coreDefaultProfileRoot, 'memory.db'), 'core-memory');
+      fs.mkdirSync(path.join(coreNamedProfilesRoot, 'research'), { recursive: true });
+      fs.writeFileSync(path.join(coreNamedProfilesRoot, '.active'), 'research');
+      fs.writeFileSync(path.join(coreNamedProfilesRoot, 'research', 'memory.db'), 'named-core-memory');
     }
 
     const inventory = await inventoryRecoveryAuthorities({
       userDataRoot,
+      constitutionRoot,
       coreDefaultProfileRoot,
       coreNamedProfilesRoot,
       externalWorkspaces: [{ projectId: 'book-project', path: workspace }],
@@ -48,7 +70,17 @@ describe('recovery point builder', () => {
       sourceReleaseTrack: 'preview',
     });
 
-    return { root, userDataRoot, destinationRoot, inventory };
+    return {
+      root,
+      userDataRoot,
+      destinationRoot,
+      inventory,
+      revisionAuthorityEnvelope,
+      revisionSecretBackend,
+      retiredRevisionKeyId,
+      activeRevisionKeyId,
+      rotationReceipt,
+    };
   }
 
   function dependencies(overrides: Partial<RecoveryPointBuilderDependencies> = {}) {
@@ -101,6 +133,42 @@ describe('recovery point builder', () => {
     expect(fs.readFileSync(path.join(result.snapshotPath, database.snapshotPath), 'utf8')).toBe(
       'sealed:live-sqlite-with-wal-state'
     );
+    const revisionAuthority = result.manifest.files.find(
+      (file) => file.authority === 'constitution.revision-authority'
+    )!;
+    expect(revisionAuthority).toMatchObject({
+      restorePath: 'desktop/constitution/revision-authority.enc',
+      sensitive: true,
+      copyPolicy: 'encrypted-copy',
+    });
+    expect(
+      result.manifest.authorities.find(({ id }) => id === 'constitution.revision-authority')?.credentialBinding
+    ).toEqual({
+      scope: 'same-device',
+      backend: 'electron-safe-storage',
+      envelope: 'constitution-revision-authority/v3',
+    });
+    expect(fs.readFileSync(path.join(result.snapshotPath, revisionAuthority.snapshotPath))).toEqual(
+      Buffer.concat([Buffer.from('sealed:'), data.revisionAuthorityEnvelope])
+    );
+    const constitutionFile = result.manifest.files.find(
+      (file) => file.authority === 'constitution.filesystem' && file.restorePath.endsWith('/CONSTITUTION.md')
+    )!;
+    expect(constitutionFile).toMatchObject({
+      restorePath: 'constitution/files/CONSTITUTION.md',
+      sensitive: true,
+      copyPolicy: 'encrypted-copy',
+    });
+    expect(
+      result.manifest.files.some(
+        (file) => file.authority === 'constitution.filesystem' && file.restorePath.includes('/profiles/')
+      )
+    ).toBe(false);
+    expect(
+      result.manifest.files.some(
+        (file) => file.authority === 'core.named-profiles' && file.restorePath === 'core/profiles/research/memory.db'
+      )
+    ).toBe(true);
     await expect(verifyRecoverySnapshot(result.manifest, result.snapshotPath)).resolves.toMatchObject({ valid: true });
     const isolatedRoot = path.join(data.root, 'isolated-restore');
     const isolated = await materializeIsolatedRecovery(result.snapshotPath, isolatedRoot, {
@@ -124,6 +192,16 @@ describe('recovery point builder', () => {
       ])
     );
     expect(fs.existsSync(path.join(isolatedRoot, 'desktop/config/preferences.json'))).toBe(true);
+    expect(fs.readFileSync(path.join(isolatedRoot, 'desktop/constitution/revision-authority.enc'))).toEqual(
+      data.revisionAuthorityEnvelope
+    );
+    const recoveredAuthority = ConstitutionRevisionAuthority.load(
+      path.join(isolatedRoot, 'desktop/constitution/revision-authority.enc'),
+      data.revisionSecretBackend
+    )!;
+    expect(recoveredAuthority.keyId()).toBe(data.activeRevisionKeyId);
+    expect(recoveredAuthority.key(data.retiredRevisionKeyId)).toHaveLength(32);
+    expect(recoveredAuthority.lastRotationReceipt()).toEqual(data.rotationReceipt);
     expect(deps.desktopRelease).toHaveBeenCalledOnce();
     expect(deps.coreRelease).toHaveBeenCalledOnce();
     expect(fs.readdirSync(data.destinationRoot)).toEqual(['snapshot-test']);
@@ -207,6 +285,7 @@ describe('recovery point builder', () => {
     fs.writeFileSync(path.join(configRoot, 'theme#one.json'), '{"theme":"dark"}');
     data.inventory = await inventoryRecoveryAuthorities({
       userDataRoot: data.userDataRoot,
+      constitutionRoot: path.join(data.root, 'constitution-filesystem'),
       coreDefaultProfileRoot: path.join(data.root, 'core-default'),
       coreNamedProfilesRoot: path.join(data.root, 'core-profiles'),
       sourceReleaseTrack: 'preview',

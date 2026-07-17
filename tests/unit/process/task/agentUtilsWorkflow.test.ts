@@ -17,7 +17,7 @@
  *   3. The service throwing ⇒ instructions still build (soft-fail per §7.3).
  *
  * The workflow singleton, skill manager, team-guide prompt, constitution
- * bridge, and storage helpers are all mocked so we exercise ONLY the
+ * authority, and storage helpers are all mocked so we exercise ONLY the
  * injection wiring.
  */
 
@@ -46,8 +46,14 @@ vi.mock('@process/services/workflow/composeWorkflowSystemPrompt', () => ({
   composeWorkflowSystemPrompt: vi.fn(() => 'WORKFLOW_PROTOCOL_SENTINEL_BODY'),
 }));
 
-vi.mock('@process/bridge/constitutionBridge', () => ({
-  readConstitutionWithOverlay: vi.fn().mockReturnValue({ constitution: '', overlay: null }),
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  getConstitutionFsService: () => ({
+    capability: () => ({ supported: true as const }),
+    readWithOverlay: () => ({
+      constitution: { status: 'absent' as const, revision: 'rev:test:constitution-absent' },
+      overlay: null,
+    }),
+  }),
 }));
 
 vi.mock('@process/task/AcpSkillManager', () => ({

@@ -44,6 +44,7 @@ vi.mock('@process/services/constitution/composePrompt', () => ({
     approxTokens: 0,
     anthropicCacheControl: { type: 'ephemeral' as const },
     hadOverlay: false,
+    constitutionSupported: true,
   }),
 }));
 vi.mock('@process/services/capabilities/CapabilitiesManifest', () => ({

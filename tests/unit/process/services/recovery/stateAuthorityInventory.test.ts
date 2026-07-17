@@ -20,12 +20,14 @@ describe('state authority inventory', () => {
     const workspace = path.join(root, 'book');
     fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
     fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'constitution'), { recursive: true });
     fs.mkdirSync(defaultCore, { recursive: true });
     fs.mkdirSync(path.join(namedCore, 'research'), { recursive: true });
     fs.mkdirSync(workspace, { recursive: true });
     fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite-state');
     fs.writeFileSync(path.join(userDataRoot, 'config', 'wayland-config.txt'), 'config-state');
     fs.writeFileSync(path.join(userDataRoot, '.secret-key'), 'secret-key-state');
+    fs.writeFileSync(path.join(userDataRoot, 'constitution', 'revision-authority.enc'), 'os-vault-envelope');
     fs.writeFileSync(path.join(userDataRoot, 'pending-update.json'), '{}');
     fs.writeFileSync(path.join(defaultCore, 'config.toml'), 'model = "local"');
     fs.writeFileSync(path.join(namedCore, 'research', 'memory.db'), 'core-memory');
@@ -33,6 +35,7 @@ describe('state authority inventory', () => {
     const before = fs.readFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'));
     const inventory = await inventoryRecoveryAuthorities({
       userDataRoot,
+      constitutionRoot: path.join(root, 'constitution-filesystem'),
       coreDefaultProfileRoot: defaultCore,
       coreNamedProfilesRoot: namedCore,
       sourceReleaseTrack: 'preview',
@@ -41,7 +44,7 @@ describe('state authority inventory', () => {
     });
 
     expect(inventory.readOnly).toBe(true);
-    expect(inventory.authorities).toHaveLength(10);
+    expect(inventory.authorities).toHaveLength(12);
     expect(inventory.logicalState).toHaveLength(11);
     expect(inventory.sourceReleaseTrack).toBe('preview');
     expect(inventory.authorities.find((item) => item.id === 'desktop.database')).toMatchObject({
@@ -57,6 +60,20 @@ describe('state authority inventory', () => {
       state: 'external',
       recommendedCoverage: 'excluded',
     });
+    expect(inventory.authorities.find((item) => item.id === 'constitution.revision-authority')).toMatchObject({
+      state: 'present',
+      recommendedCoverage: 'encrypted-copy',
+      requiredConsistency: 'quiesced-copy',
+      requiredForRestore: true,
+      credentialBinding: {
+        scope: 'same-device',
+        backend: 'electron-safe-storage',
+        envelope: 'constitution-revision-authority/v3',
+      },
+    });
+    expect(inventory.logicalState.find((item) => item.id === 'credentials.secrets')?.authorityIds).toContain(
+      'constitution.revision-authority'
+    );
     expect(inventory.logicalState.find((item) => item.id === 'desktop.scheduler')).toMatchObject({
       authorityIds: ['desktop.database'],
       state: 'mapped',
@@ -87,6 +104,7 @@ describe('state authority inventory', () => {
 
     const inventory = await inventoryRecoveryAuthorities({
       userDataRoot,
+      constitutionRoot: path.join(root, 'constitution-filesystem'),
       coreDefaultProfileRoot: defaultCore,
       coreNamedProfilesRoot: path.join(root, 'core-profiles'),
       maxEntriesPerRoot: 2,
@@ -97,5 +115,44 @@ describe('state authority inventory', () => {
     expect(core.evidence[0].symlinkCount).toBe(1);
     expect(core.evidence[0].fileCount).toBeLessThanOrEqual(1);
     expect(core.evidence[0].truncated).toBe(true);
+  });
+
+  it('keeps production ~/.wayland profiles and unrelated trees out of Constitution ownership and scan budget', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-production-topology-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const waylandRoot = path.join(root, '.wayland');
+    const namedProfiles = path.join(waylandRoot, 'profiles');
+    const outside = path.join(root, 'outside-oauth');
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(path.join(namedProfiles, 'research'), { recursive: true });
+    fs.mkdirSync(outside, { recursive: true });
+    fs.writeFileSync(path.join(waylandRoot, 'CONSTITUTION.md'), '# owned');
+    fs.writeFileSync(path.join(namedProfiles, '.active'), 'research');
+    fs.writeFileSync(path.join(namedProfiles, 'research', 'config.toml'), 'model = "research"');
+    fs.writeFileSync(path.join(namedProfiles, 'research', 'memory.db'), 'core memory');
+    fs.symlinkSync(outside, path.join(waylandRoot, 'oauth-cache'));
+
+    const inventory = await inventoryRecoveryAuthorities({
+      userDataRoot,
+      constitutionRoot: waylandRoot,
+      coreDefaultProfileRoot: path.join(root, 'core-default'),
+      coreNamedProfilesRoot: namedProfiles,
+      maxEntriesPerRoot: 2,
+    });
+    const constitution = inventory.authorities.find(({ id }) => id === 'constitution.filesystem')!;
+    const named = inventory.authorities.find(({ id }) => id === 'core.named-profiles')!;
+
+    expect(constitution.state).toBe('partial');
+    expect(constitution.evidence.some(({ truncated }) => truncated)).toBe(false);
+    expect(constitution.evidence.some(({ symlinkCount }) => symlinkCount > 0)).toBe(false);
+    expect(constitution.evidence.map(({ authorityRelativePath }) => authorityRelativePath)).toEqual([
+      'CONSTITUTION.md',
+      'SOUL.md',
+      'specialists',
+      '.constitution-keys.enc',
+      'archives/constitution-history',
+    ]);
+    expect(named.evidence[0].truncated).toBe(true);
   });
 });

@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "producerCommit": "991c502e74506ec3702f92e429a8b31b655412ba",
+  "protocolVersion": 1,
+  "backendIdentity": "deterministic-fenc-v1-base64-test-backend",
+  "generation": {
+    "mode": "pending-ledger-only",
+    "producerClaim": "source commit plus the bound main-only fixture harness patch; the transaction implementation is unmodified",
+    "generatorVersion": 1,
+    "generatorArtifact": "../provenance/generateHistoricalConstitutionFixture.ts",
+    "generatorSha256": "sha256:f810a5e61c0785e84ee99a11ec2415a99ea0d0316c171045501535190ffb1c3f",
+    "generatorCommand": "cd /tmp/wayland-constitution-base-991c && OUT=$CANDIDATE/tests/fixtures/constitution-fs/base-991c502-pending-ledger-only MODE=pending-ledger-only bun run scripts/generateHistoricalConstitutionFixture.ts",
+    "finalizerVersion": 1,
+    "finalizerArtifact": "../provenance/finalizeHistoricalConstitutionFixture.ts",
+    "finalizerSha256": "sha256:ea861ef5f2891b6f6e494468b166177e2cf064b67560328adfd9388a31e368ef",
+    "finalizerCommand": "cd $CANDIDATE && OUT=$CANDIDATE/tests/fixtures/constitution-fs/base-991c502-pending-ledger-only bun run tests/fixtures/constitution-fs/provenance/finalizeHistoricalConstitutionFixture.ts",
+    "harnessPatchArtifact": "../provenance/991c502-fixture-failpoint.patch",
+    "harnessPatchSha256": "sha256:6045787b16bbd549b3e9599c0d449c0e8ad31df56fda5a825424c870c953efa5",
+    "provenanceArtifact": "../provenance/reproduction.json",
+    "provenanceSha256": "sha256:da5a0c6e6f7e55d486f4eca71b32284c3e570c1833faa5113909eeb0223710fa",
+    "producerTree": "1af0b2f9f6e3a12eb3234d1c7ad7a22145e32e5e",
+    "producerArchiveSha256": "sha256:2e7e4a40f0517c0dadd6b4652b5075c5a02799d1d14c896fb8e5dfa6ae82890a",
+    "helperBinarySha256": "sha256:3844ad1e75571750b784e66edcab986e6c86e953074564b959188ec927612cfd",
+    "helperBuildReceiptArtifact": "../provenance/helper-build-receipt.json",
+    "helperBuildReceiptSha256": "sha256:270d6192e53401ac0a6cabf1fdbcebeca3971ec0ce2dda735c59fd5683475fae",
+    "harnessScope": "main-only environment failpoint forwards into the pre-existing transaction hook; transaction logic is untouched",
+    "toolchain": {
+      "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02) aarch64-apple-darwin",
+      "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15) aarch64-apple-darwin",
+      "bun": "1.3.11",
+      "node": "v25.8.1"
+    },
+    "operations": [
+      {
+        "operation": "replace",
+        "target": "CONSTITUTION.md",
+        "requestId": "11111111-1111-4111-8111-111111111111"
+      },
+      {
+        "operation": "replace",
+        "target": "specialists/research.md",
+        "requestId": "22222222-2222-4222-8222-222222222222"
+      },
+      {
+        "operation": "replace",
+        "target": "CONSTITUTION.md",
+        "requestId": "33333333-3333-4333-8333-333333333333"
+      },
+      {
+        "operation": "replace-crash-after-ledger-before-journal",
+        "target": "CONSTITUTION.md",
+        "requestId": "55555555-5555-4555-8555-555555555555"
+      }
+    ]
+  },
+  "forbiddenFiles": [
+    "revision-authority.enc",
+    "revision-authority.enc.legacy-v1-migration.json"
+  ],
+  "files": [
+    {
+      "path": ".constitution-keys.enc",
+      "size": 204,
+      "sha256": "sha256:eb5e6438fb0c0dc974706d3a14cbeb31ba701d754b26dfa8f2289136549b037c"
+    },
+    {
+      "path": "CONSTITUTION.md",
+      "size": 29,
+      "sha256": "sha256:4e6d83b78d78866e0f20afba24e9b70145ea59ae2ad15d1da10f61d5075c2c69"
+    },
+    {
+      "path": "archives/constitution-history/active/ccaea749-72d3-4c76-b73d-03fed5414796.json",
+      "size": 365,
+      "sha256": "sha256:b1b8fdbe91a48936464fb01cb847843bcce91ded65ed0d597ad76318ad810268"
+    },
+    {
+      "path": "archives/constitution-history/receipts/11111111-1111-4111-8111-111111111111.json",
+      "size": 1472,
+      "sha256": "sha256:969fb85905137829b559fe1b39f214e71ca966e55d65e3eb79cf6cbb51788398"
+    },
+    {
+      "path": "archives/constitution-history/receipts/22222222-2222-4222-8222-222222222222.json",
+      "size": 1500,
+      "sha256": "sha256:5e404c682b42102348319f943c668a2c012fe2b7df8e3a353a64793f15f7000c"
+    },
+    {
+      "path": "archives/constitution-history/receipts/33333333-3333-4333-8333-333333333333.json",
+      "size": 1872,
+      "sha256": "sha256:c9d2c9651d39b2cd93ee354c225003feb44be5a7fe37e595fcb46c352817a2ed"
+    },
+    {
+      "path": "archives/constitution-history/recovery/33333333-3333-4333-8333-333333333333.displaced",
+      "size": 26,
+      "sha256": "sha256:00743047cb667755830a7e162b441d2cba174cee339ada97da3accaee1c0217b"
+    },
+    {
+      "path": "archives/constitution-history/seal-keys/3be5cd48-7319-41ba-b8e9-ab94becad1de.json",
+      "size": 138,
+      "sha256": "sha256:236c58dcbcb58f7049620d2073b6231c683da86bfeab5fbcdd1ce1f73c4a66ec"
+    },
+    {
+      "path": "archives/constitution-history/transaction-ledger.jsonl",
+      "size": 5224,
+      "sha256": "sha256:500f40095c2ab23d3384f13f4ab0ba0f708c3a6bc86a344a2eee25c91dc21f30"
+    },
+    {
+      "path": "archives/constitution-history/transaction.lock",
+      "size": 0,
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "archives/constitution-history/transactions/11111111-1111-4111-8111-111111111111.jsonl",
+      "size": 1196,
+      "sha256": "sha256:e6217d7fa689ee03b470c0de5e5006ae55bf3534f8533cffcc2c9ee8b8a17723"
+    },
+    {
+      "path": "archives/constitution-history/transactions/22222222-2222-4222-8222-222222222222.jsonl",
+      "size": 1216,
+      "sha256": "sha256:0b858601875874852e8f272f3df79fa7ed5f7ce4e8929d4caf6df8d7b425a631"
+    },
+    {
+      "path": "archives/constitution-history/transactions/33333333-3333-4333-8333-333333333333.jsonl",
+      "size": 2095,
+      "sha256": "sha256:8a626003fe71205a12dac1f2cfe00733ca33e5555a4a4b75fc9f9428ba3fcc91"
+    },
+    {
+      "path": "specialists/research.md",
+      "size": 30,
+      "sha256": "sha256:8230ffac57b91e5a4f620b7de32ffb48a7674f5528d580c0a2b57f5fa643cf48"
+    }
+  ]
+}

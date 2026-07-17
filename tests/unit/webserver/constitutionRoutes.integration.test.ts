@@ -11,7 +11,7 @@ const { mockWrite, mockReset, mockWriteSpecialist, mockDeleteSpecialist, mockApp
   mockAppendAudit: vi.fn(async () => true),
 }));
 
-vi.mock('@process/bridge/constitutionBridge', () => ({
+vi.mock('@/common/constitutionDefault', () => ({
   DEFAULT_CONSTITUTION: '# Default Constitution\n',
 }));
 vi.mock('@process/services/constitution/constitutionFsService', () => ({
@@ -23,13 +23,13 @@ vi.mock('@process/services/constitution/constitutionFsService', () => ({
     }),
     listSpecialists: () => [],
     readSpecialist: () => ({ status: 'absent', revision: 'rev:v1:internal-absent' }),
-    writeConstitution: (content: string, revision: string | null) => {
-      if (content === '# Default Constitution\n') mockReset();
-      else mockWrite(content, revision);
+    writeConstitution: (content: string, revision: string | null, requestId: string) => {
+      if (content === '# Default Constitution\n') mockReset(content, revision, requestId);
+      else mockWrite(content, revision, requestId);
       return { status: 'committed', revision: 'rev:v1:next-main', transactionId: 'tx-main', receiptId: 'receipt-main' };
     },
-    writeSpecialist: (id: string, content: string, revision: string | null) => {
-      mockWriteSpecialist(id, content, revision);
+    writeSpecialist: (id: string, content: string, revision: string | null, requestId: string) => {
+      mockWriteSpecialist(id, content, revision, requestId);
       return {
         status: 'committed',
         revision: 'rev:v1:next-specialist',
@@ -37,8 +37,8 @@ vi.mock('@process/services/constitution/constitutionFsService', () => ({
         receiptId: 'receipt-specialist',
       };
     },
-    deleteSpecialist: (id: string, revision: string) => {
-      mockDeleteSpecialist(id, revision);
+    deleteSpecialist: (id: string, revision: string, requestId: string) => {
+      mockDeleteSpecialist(id, revision, requestId);
       return {
         status: 'committed',
         revision: 'rev:v1:absent-specialist',
@@ -217,11 +217,15 @@ describe('Constitution hosted security journey', () => {
     const grant = await issueGrant(['constitution.write']);
     const write = await post(
       '/api/constitution/write',
-      { content: '# changed', expectedRevision: 'rev:v1:current-main' },
+      {
+        content: '# changed',
+        expectedRevision: 'rev:v1:current-main',
+        requestId: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+      },
       { 'x-wayland-constitution-edit-grant': grant }
     );
     expect(write.status).toBe(200);
-    expect(mockWrite).toHaveBeenCalledWith('# changed', 'rev:v1:current-main');
+    expect(mockWrite).toHaveBeenCalledWith('# changed', 'rev:v1:current-main', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
 
     const wrongScope = await post(
       '/api/constitution/write-specialist',
@@ -250,6 +254,7 @@ describe('Constitution hosted security journey', () => {
     const resetWithFreshStepUp = await post('/api/constitution/reset', {
       password: 'correct-password',
       expectedRevision: 'rev:v1:current-main',
+      requestId: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
     });
     expect(resetWithFreshStepUp.status).toBe(200);
     expect(mockReset).toHaveBeenCalledTimes(1);

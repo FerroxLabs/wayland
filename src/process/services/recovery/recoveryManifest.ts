@@ -9,12 +9,15 @@ import { constants, createReadStream, type Stats } from 'node:fs';
 import { lstat, open, realpath } from 'node:fs/promises';
 import path from 'node:path';
 
-export const RECOVERY_MANIFEST_FORMAT_VERSION = 1 as const;
+export const RECOVERY_MANIFEST_FORMAT_VERSION = 2 as const;
+const LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION = 1 as const;
 
 export const REQUIRED_STATE_AUTHORITIES = [
   'desktop.database',
   'desktop.config',
   'desktop.runtime-files',
+  'constitution.filesystem',
+  'constitution.revision-authority',
   'core.default-profile',
   'core.named-profiles',
   'credentials.key-material',
@@ -81,6 +84,12 @@ export type RecoveryManifestAuthority = {
   requiredForRestore: boolean;
   sensitive: boolean;
   fileIds: string[];
+  /** OS-vault binding for encrypted state that can only be restored on this device. */
+  credentialBinding?: {
+    scope: 'same-device';
+    backend: 'electron-safe-storage';
+    envelope: 'constitution-revision-authority/v3';
+  };
   /** The authority was present but contained no files at capture time. */
   empty?: true;
   note?: string;
@@ -159,6 +168,8 @@ const RESTORE_NAMESPACE: Partial<Record<StateAuthorityId, string>> = {
   'desktop.database': 'desktop/database/',
   'desktop.config': 'desktop/config/',
   'desktop.runtime-files': 'desktop/runtime/',
+  'constitution.filesystem': 'constitution/files/',
+  'constitution.revision-authority': 'desktop/constitution/',
   'core.default-profile': 'core/default/',
   'core.named-profiles': 'core/profiles/',
   'credentials.key-material': 'desktop/credentials/',
@@ -228,7 +239,8 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     return { valid: false, errors: [issue('MANIFEST_NOT_OBJECT', '$', 'Manifest must be an object.')], warnings };
   }
 
-  if (value.formatVersion !== RECOVERY_MANIFEST_FORMAT_VERSION) {
+  const isLegacyManifest = value.formatVersion === LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION;
+  if (!isLegacyManifest && value.formatVersion !== RECOVERY_MANIFEST_FORMAT_VERSION) {
     errors.push(issue('FORMAT_UNSUPPORTED', 'formatVersion', 'Unsupported recovery manifest format.'));
   }
   if (value.state !== 'complete') {
@@ -353,9 +365,7 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     } else {
       restorePaths.add(canonicalRestorePath);
       const namespace =
-        typeof rawFile.authority === 'string'
-          ? RESTORE_NAMESPACE[rawFile.authority as StateAuthorityId]
-          : undefined;
+        typeof rawFile.authority === 'string' ? RESTORE_NAMESPACE[rawFile.authority as StateAuthorityId] : undefined;
       if (!namespace || !canonicalRestorePath.startsWith(namespace)) {
         errors.push(
           issue(
@@ -447,6 +457,31 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
         )
       );
     }
+    if (rawAuthority.id === 'constitution.revision-authority') {
+      const binding = rawAuthority.credentialBinding;
+      if (
+        !isRecord(binding) ||
+        binding.scope !== 'same-device' ||
+        binding.backend !== 'electron-safe-storage' ||
+        binding.envelope !== 'constitution-revision-authority/v3'
+      ) {
+        errors.push(
+          issue(
+            'CONSTITUTION_REVISION_AUTHORITY_BINDING_INVALID',
+            `${authorityPath}.credentialBinding`,
+            'Constitution revision authority must declare its same-device OS-vault envelope binding.'
+          )
+        );
+      }
+    } else if (rawAuthority.credentialBinding !== undefined) {
+      errors.push(
+        issue(
+          'AUTHORITY_CREDENTIAL_BINDING_UNEXPECTED',
+          `${authorityPath}.credentialBinding`,
+          'Only the Constitution revision authority may declare this credential binding.'
+        )
+      );
+    }
     if (rawAuthority.coverage === 'missing') {
       errors.push(
         issue('AUTHORITY_MISSING', `${authorityPath}.coverage`, 'A required state authority is unaccounted for.')
@@ -534,10 +569,33 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     }
   }
 
-  for (const authorityId of REQUIRED_STATE_AUTHORITIES) {
+  const requiredAuthorities = isLegacyManifest
+    ? REQUIRED_STATE_AUTHORITIES.filter(
+        (authorityId) => authorityId !== 'constitution.revision-authority' && authorityId !== 'constitution.filesystem'
+      )
+    : REQUIRED_STATE_AUTHORITIES;
+  for (const authorityId of requiredAuthorities) {
     if (!authorityMap.has(authorityId)) {
       errors.push(issue('AUTHORITY_OMITTED', 'authorities', `State authority ${authorityId} is omitted.`));
     }
+  }
+  if (isLegacyManifest && !authorityMap.has('constitution.revision-authority')) {
+    warnings.push(
+      issue(
+        'LEGACY_REVISION_AUTHORITY_ABSENT',
+        'authorities',
+        'Legacy v1 recovery point predates the external Constitution revision authority; restore requires legacy migration.'
+      )
+    );
+  }
+  if (isLegacyManifest && !authorityMap.has('constitution.filesystem')) {
+    warnings.push(
+      issue(
+        'LEGACY_CONSTITUTION_FILESYSTEM_ABSENT',
+        'authorities',
+        'Legacy v1 recovery point predates explicit Constitution filesystem capture.'
+      )
+    );
   }
 
   const logicalState = Array.isArray(value.logicalState) ? value.logicalState : [];
@@ -640,13 +698,8 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
       )
     );
   }
-  const databaseFiles = files.filter(
-    (candidate) => isRecord(candidate) && candidate.authority === 'desktop.database'
-  );
-  if (
-    databaseFiles.length !== 1 ||
-    databaseFiles[0]?.restorePath !== 'desktop/database/wayland.db'
-  ) {
+  const databaseFiles = files.filter((candidate) => isRecord(candidate) && candidate.authority === 'desktop.database');
+  if (databaseFiles.length !== 1 || databaseFiles[0]?.restorePath !== 'desktop/database/wayland.db') {
     errors.push(
       issue(
         'DATABASE_RESTORE_TARGET_INVALID',
@@ -825,11 +878,7 @@ export async function verifyRecoverySnapshotRoot(snapshotRootInput: string): Pro
     return {
       valid: false,
       errors: [
-        issue(
-          'SNAPSHOT_ROOT_UNREADABLE',
-          'snapshotRoot',
-          error instanceof Error ? error.message : String(error)
-        ),
+        issue('SNAPSHOT_ROOT_UNREADABLE', 'snapshotRoot', error instanceof Error ? error.message : String(error)),
       ],
       warnings,
     };

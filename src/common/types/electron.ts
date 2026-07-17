@@ -1,4 +1,5 @@
 import type {
+  ConstitutionAuthorityEnvelope,
   ConstitutionMutationResult,
   ConstitutionOverlayReadResult,
   ConstitutionReadResult,
@@ -76,28 +77,33 @@ export interface ElectronBridgeAPI {
   // Feedback log collection
   collectFeedbackLogs?: () => Promise<{ filename: string; data: number[] } | null>;
   // Wayland Constitution: agent behavioral spec at ~/.wayland/CONSTITUTION.md
-  readConstitution?: () => Promise<ConstitutionReadResult>;
+  readConstitution?: () => Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>>;
   writeConstitution?: (
     content: string,
     expectedRevision: string,
-    requestId?: string
-  ) => Promise<ConstitutionMutationResult>;
-  resetConstitution?: (expectedRevision: string, requestId?: string) => Promise<ConstitutionMutationResult>;
-  readConstitutionWithOverlay?: (assistantId?: string) => Promise<ConstitutionOverlayReadResult>;
+    requestId: string
+  ) => Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>>;
+  resetConstitution?: (
+    expectedRevision: string,
+    requestId: string
+  ) => Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>>;
+  readConstitutionWithOverlay?: (
+    assistantId?: string
+  ) => Promise<ConstitutionAuthorityEnvelope<ConstitutionOverlayReadResult>>;
   // Per-specialist Constitution overlays at ~/.wayland/specialists/<id>.md
-  listConstitutionSpecialists?: () => Promise<ConstitutionSpecialistSummary[]>;
-  readConstitutionSpecialist?: (id: string) => Promise<ConstitutionReadResult>;
+  listConstitutionSpecialists?: () => Promise<ConstitutionAuthorityEnvelope<ConstitutionSpecialistSummary[]>>;
+  readConstitutionSpecialist?: (id: string) => Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>>;
   writeConstitutionSpecialist?: (
     id: string,
     content: string,
     expectedRevision: string,
-    requestId?: string
-  ) => Promise<ConstitutionMutationResult>;
+    requestId: string
+  ) => Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>>;
   deleteConstitutionSpecialist?: (
     id: string,
     expectedRevision: string,
-    requestId?: string
-  ) => Promise<ConstitutionMutationResult>;
+    requestId: string
+  ) => Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>>;
 }
 
 declare global {

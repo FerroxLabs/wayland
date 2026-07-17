@@ -17,9 +17,29 @@ const { skillsState } = vi.hoisted(() => ({
   },
 }));
 
-// Default: bridge returns empty constitution + null overlay (no rules block).
-vi.mock('@process/bridge/constitutionBridge', () => ({
-  readConstitutionWithOverlay: vi.fn().mockReturnValue({ constitution: '', overlay: null }),
+const { mockConstitutionRead } = vi.hoisted(() => ({
+  mockConstitutionRead: vi.fn(),
+}));
+
+// Prompt composition now reads through the native Constitution authority,
+// not the renderer IPC bridge. Keep the test hermetic while preserving the
+// exact service result shape used in production.
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  getConstitutionFsService: () => ({
+    capability: () => ({ supported: true as const }),
+    readWithOverlay: (assistantId?: string) => {
+      const value = mockConstitutionRead(assistantId) as { constitution: string; overlay: string | null };
+      return {
+        constitution: value.constitution
+          ? { status: 'present' as const, content: value.constitution, revision: 'rev:test:constitution' }
+          : { status: 'absent' as const, revision: 'rev:test:constitution-absent' },
+        overlay:
+          value.overlay === null
+            ? null
+            : { status: 'present' as const, content: value.overlay, revision: 'rev:test:overlay' },
+      };
+    },
+  }),
 }));
 
 vi.mock('@process/task/AcpSkillManager', () => {
@@ -63,10 +83,9 @@ vi.mock('@process/team/prompts/teamGuideAssistant.ts', () => ({
   resolveLeaderAssistantLabel: vi.fn().mockResolvedValue('Leader'),
 }));
 
-import { readConstitutionWithOverlay } from '@process/bridge/constitutionBridge';
 import { prepareFirstMessageWithSkillsIndex } from '@process/task/agentUtils';
 
-const mockBridge = vi.mocked(readConstitutionWithOverlay);
+const mockBridge = mockConstitutionRead;
 
 describe('prepareFirstMessageWithSkillsIndex - Constitution wiring', () => {
   beforeEach(() => {

@@ -12,6 +12,12 @@ vi.mock('@process/services/database', () => ({
   getDatabase: vi.fn(),
 }));
 
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  getConstitutionFsService: () => ({
+    capability: () => ({ supported: true as const }),
+  }),
+}));
+
 vi.mock('@process/utils/initStorage', () => ({
   getSystemDir: vi.fn().mockReturnValue({ cacheDir: '/tmp/cache' }),
   ProcessConfig: {

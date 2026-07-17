@@ -39,6 +39,7 @@ describe('recovery capture dry run', () => {
 
     return inventoryRecoveryAuthorities({
       userDataRoot,
+      constitutionRoot: path.join(root, 'constitution-filesystem'),
       coreDefaultProfileRoot,
       coreNamedProfilesRoot,
       externalWorkspaces: [{ projectId: 'project-1', path: workspace }],

@@ -13,7 +13,7 @@ const sha256 = (value: Buffer | string): string => createHash('sha256').update(v
 
 function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifest {
   return {
-    formatVersion: 1,
+    formatVersion: 2,
     snapshotId: 'snapshot-fixture-1',
     state: 'complete',
     createdAt: '2026-07-15T00:00:00.000Z',
@@ -52,6 +52,29 @@ function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifes
         requiredForRestore: false,
         sensitive: true,
         fileIds: [],
+      },
+      {
+        id: 'constitution.filesystem',
+        sourceRoot: '/source/constitution-filesystem',
+        coverage: 'absent',
+        consistency: 'not-applicable',
+        requiredForRestore: false,
+        sensitive: true,
+        fileIds: [],
+      },
+      {
+        id: 'constitution.revision-authority',
+        sourceRoot: '/source/constitution/revision-authority.enc',
+        coverage: 'absent',
+        consistency: 'not-applicable',
+        requiredForRestore: false,
+        sensitive: true,
+        fileIds: [],
+        credentialBinding: {
+          scope: 'same-device',
+          backend: 'electron-safe-storage',
+          envelope: 'constitution-revision-authority/v3',
+        },
       },
       {
         id: 'core.default-profile',
@@ -157,7 +180,7 @@ function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifes
       {
         id: 'core.engine-state',
         status: 'excluded',
-        authorityIds: ['core.default-profile', 'core.named-profiles'],
+        authorityIds: ['constitution.filesystem', 'core.default-profile', 'core.named-profiles'],
         note: 'Core absent in fixture.',
       },
       {
@@ -169,7 +192,14 @@ function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifes
       {
         id: 'credentials.secrets',
         status: 'excluded',
-        authorityIds: ['credentials.key-material', 'credentials.os-keychain', 'desktop.config', 'desktop.database'],
+        authorityIds: [
+          'credentials.key-material',
+          'credentials.os-keychain',
+          'constitution.revision-authority',
+          'constitution.filesystem',
+          'desktop.config',
+          'desktop.database',
+        ],
         note: 'Credentials require reconnection in fixture.',
       },
       {
@@ -238,6 +268,30 @@ describe('recovery manifest validation', () => {
     expect(result.warnings.map((warning) => warning.code)).toContain('CREDENTIALS_NOT_RECOVERABLE');
   });
 
+  it('accepts a legacy v1 recovery point without the later revision authority and marks migration required', () => {
+    const legacy = structuredClone(makeManifest()) as unknown as {
+      formatVersion: number;
+      authorities: RecoveryManifest['authorities'];
+      logicalState: RecoveryManifest['logicalState'];
+    };
+    legacy.formatVersion = 1;
+    legacy.authorities = legacy.authorities.filter(
+      ({ id }) => id !== 'constitution.revision-authority' && id !== 'constitution.filesystem'
+    );
+    const credentials = legacy.logicalState.find(({ id }) => id === 'credentials.secrets')!;
+    credentials.authorityIds = credentials.authorityIds.filter(
+      (id) => id !== 'constitution.revision-authority' && id !== 'constitution.filesystem'
+    );
+    const core = legacy.logicalState.find(({ id }) => id === 'core.engine-state')!;
+    core.authorityIds = core.authorityIds.filter((id) => id !== 'constitution.filesystem');
+
+    const result = validateRecoveryManifest(legacy);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toEqual([]);
+    expect(result.warnings.map(({ code }) => code)).toContain('LEGACY_REVISION_AUTHORITY_ABSENT');
+    expect(result.warnings.map(({ code }) => code)).toContain('LEGACY_CONSTITUTION_FILESYSTEM_ABSENT');
+  });
+
   it('rejects omitted authorities and mutation during snapshot creation', () => {
     const manifest = makeManifest();
     manifest.mutationEpoch.end = 'epoch-8';
@@ -288,6 +342,16 @@ describe('recovery manifest validation', () => {
     expect(result.errors.map((error) => error.code)).toEqual(
       expect.arrayContaining(['PLAINTEXT_SECRET', 'PLAINTEXT_SECRET_AUTHORITY'])
     );
+  });
+
+  it('requires the Constitution revision authority same-device OS-vault binding', () => {
+    const manifest = makeManifest();
+    const authority = manifest.authorities.find(({ id }) => id === 'constitution.revision-authority')!;
+    delete authority.credentialBinding;
+
+    const result = validateRecoveryManifest(manifest);
+    expect(result.valid).toBe(false);
+    expect(result.errors.map(({ code }) => code)).toContain('CONSTITUTION_REVISION_AUTHORITY_BINDING_INVALID');
   });
 
   it('rejects files with unknown authorities and orphaned evidence', () => {

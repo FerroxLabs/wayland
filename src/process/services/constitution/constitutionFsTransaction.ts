@@ -8,6 +8,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash, createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { lstatSync } from 'node:fs';
 import { withHeldVerifiedConstitutionFsBinary, type VerifiedConstitutionFsBinary } from './constitutionFsBinary';
+import { sameConstitutionFingerprintTarget } from './constitutionRequestFingerprint';
 
 const MAX_REQUEST_BYTES = 1_310_720;
 const MAX_RESPONSE_BYTES = 64 * 1024;
@@ -20,6 +21,7 @@ const CIPHER_PREFIX = 'enc:v1:';
 const FILE_CIPHER_PREFIX = 'fenc:v1:';
 const ARCHIVE_KEY_INVENTORY = Symbol('wayland.constitutionFs.archiveKeyInventory');
 const archiveKeyMaterial = new WeakMap<object, readonly ArchiveAuthenticationKeyWire[]>();
+const PROTOCOL_VERSION = 2 as const;
 const RECEIPT_KEYS = [
   'archiveName',
   'archiveSha256',
@@ -43,6 +45,7 @@ const RECEIPT_KEYS = [
   'recoveryName',
   'reconcileDisposition',
   'replacementSha256',
+  'requestFingerprint',
   'sealKeyIds',
   'sealKeyName',
   'sourceArchiveSha256',
@@ -61,13 +64,14 @@ export type ConstitutionFsPayload = {
 };
 
 type ConstitutionFsBaseRequest = {
-  version: 1;
+  version: 2;
   transactionId: string;
   root: string;
 };
 
 export type ConstitutionFsMutationRequest = ConstitutionFsBaseRequest & {
   operation: 'replace' | 'delete';
+  requestFingerprint: `sha256:${string}`;
   target: ConstitutionFsTarget;
   expected: { present: boolean; sha256?: `sha256:${string}` };
   replacement?: ConstitutionFsPayload;
@@ -78,6 +82,7 @@ export type ConstitutionFsMutationRequest = ConstitutionFsBaseRequest & {
 
 export type ConstitutionFsRestoreRequest = ConstitutionFsBaseRequest & {
   operation: 'restore';
+  requestFingerprint: `sha256:${string}`;
   target: ConstitutionFsTarget;
   expected: { present: boolean; sha256?: `sha256:${string}` };
   sourceArchiveId: string;
@@ -87,8 +92,27 @@ export type ConstitutionFsRestoreRequest = ConstitutionFsBaseRequest & {
   archive?: ConstitutionFsPayload;
 };
 
+export type ConstitutionFsMigrationSource = Readonly<{
+  target: { kind: 'constitution'; sourceName: 'SOUL.md' };
+  sha256: `sha256:${string}`;
+  parentRequestFingerprint: `sha256:${string}`;
+}>;
+
+export type ConstitutionFsMigrationSourceFacts = Omit<ConstitutionFsMigrationSource, 'parentRequestFingerprint'> &
+  Readonly<{ device: string; inode: string; parentRequestFingerprint: `sha256:${string}` | null }>;
+
+export type ConstitutionFsMigrateLegacyRequest = ConstitutionFsBaseRequest & {
+  operation: 'migrate_legacy';
+  requestFingerprint: `sha256:${string}`;
+  target: { kind: 'constitution'; sourceName: 'CONSTITUTION.md' };
+  expected: { present: false };
+  replacement: ConstitutionFsPayload;
+  migrationSource: ConstitutionFsMigrationSource;
+};
+
 export type ConstitutionFsReconcileFacts = {
-  operation: 'replace' | 'delete' | 'restore';
+  requestFingerprint: `sha256:${string}`;
+  operation: 'replace' | 'delete' | 'restore' | 'migrate_legacy';
   target: ConstitutionFsTarget;
   expectedPresent: boolean;
   expectedSha256?: `sha256:${string}`;
@@ -99,6 +123,7 @@ export type ConstitutionFsReconcileFacts = {
   sourceArchiveId?: string;
   sourceArchiveSha256?: `sha256:${string}`;
   recoverySha256?: `sha256:${string}`;
+  migrationSource?: ConstitutionFsMigrationSourceFacts;
 };
 
 export type ConstitutionFsPendingTransactionDetail = Readonly<{
@@ -112,13 +137,17 @@ export type ConstitutionFsReconcileRequest = ConstitutionFsBaseRequest & {
   reconcileFacts: ConstitutionFsReconcileFacts;
 };
 
-export type ConstitutionFsTransactionRequest = ConstitutionFsMutationRequest | ConstitutionFsRestoreRequest;
+export type ConstitutionFsTransactionRequest =
+  | ConstitutionFsMutationRequest
+  | ConstitutionFsRestoreRequest
+  | ConstitutionFsMigrateLegacyRequest;
 
 export type ConstitutionFsTransactionReceipt = {
   ok: true;
-  version: 1;
+  version: 2;
   transactionId: string;
-  operation: 'replace' | 'delete' | 'restore' | 'reconcile';
+  requestFingerprint: `sha256:${string}` | null;
+  operation: 'replace' | 'delete' | 'restore' | 'migrate_legacy' | 'reconcile';
   outcome: 'committed';
   archivedAt: number | null;
   reconcileDisposition: 'rolled_back' | 'rolled_forward' | null;
@@ -135,6 +164,32 @@ export type ConstitutionFsTransactionReceipt = {
   sourceArchiveSha256: `sha256:${string}` | null;
   guarantees: RequiredGuarantees;
 };
+
+export type ConstitutionFsCommittedLookupReceipt =
+  | ConstitutionFsTransactionReceipt
+  | Readonly<{
+      ok: true;
+      version: 2;
+      transactionId: string;
+      requestFingerprint: `sha256:${string}`;
+      operation: 'committed_lookup';
+      outcome: 'not_found' | 'rolled_back';
+      journalName: string;
+      guarantees: RequiredGuarantees;
+    }>;
+
+export type ConstitutionFsMigrationCommittedLookupReceipt =
+  | ConstitutionFsTransactionReceipt
+  | Readonly<{
+      ok: true;
+      version: 2;
+      transactionId: string;
+      requestFingerprint: `sha256:${string}`;
+      operation: 'migration_committed_lookup';
+      outcome: 'not_found' | 'rolled_back';
+      journalName: string;
+      guarantees: RequiredGuarantees;
+    }>;
 
 type RequiredGuarantees = {
   anchored: true;
@@ -385,9 +440,20 @@ function invokeNative(
       'Constitution root diverged from its initialization-time identity.'
     );
   }
-  const authenticatedOperation = ['replace', 'delete', 'restore', 'reconcile', 'pending_inventory'].includes(
-    String(request.operation)
-  );
+  const authenticatedOperation = [
+    'replace',
+    'delete',
+    'restore',
+    'migrate_legacy',
+    'committed_lookup',
+    'migration_committed_lookup',
+    'reconcile',
+    'pending_inventory',
+    'read_live',
+    'live_inventory',
+    'archive_inventory',
+    'read_archive',
+  ].includes(String(request.operation));
   const authenticatedArchiveOperation = requestRequiresArchiveKeys(request);
   const journalKey = options.journalAuthenticationKey;
   if (authenticatedOperation && (!Buffer.isBuffer(journalKey) || journalKey.byteLength !== 32)) {
@@ -443,7 +509,7 @@ function invokeNative(
   if (value.ok === false && typeof value.code === 'string') {
     if (
       !exactKeys(value, ['ok', 'version', 'code', 'message']) ||
-      value.version !== 1 ||
+      value.version !== PROTOCOL_VERSION ||
       typeof value.message !== 'string'
     ) {
       throw new ConstitutionFsTransactionError(
@@ -457,8 +523,7 @@ function invokeNative(
 }
 
 function sameTarget(left: unknown, right: ConstitutionFsTarget): boolean {
-  if (!left || typeof left !== 'object' || Array.isArray(left)) return false;
-  return JSON.stringify(left) === JSON.stringify(right);
+  return sameConstitutionFingerprintTarget(left, right);
 }
 
 function matchesTarget(value: unknown): value is ConstitutionFsTarget {
@@ -479,7 +544,7 @@ function matchesTarget(value: unknown): value is ConstitutionFsTarget {
 }
 
 function matchesOperation(value: unknown): value is ConstitutionFsReconcileFacts['operation'] {
-  return value === 'replace' || value === 'delete' || value === 'restore';
+  return value === 'replace' || value === 'delete' || value === 'restore' || value === 'migrate_legacy';
 }
 
 function restoredContentSha256(payload: ConstitutionFsPayload): `sha256:${string}` {
@@ -513,7 +578,11 @@ function parseTransactionReceipt(
   assertGuarantees(value);
   const expectedTarget = request.operation === 'reconcile' ? request.reconcileFacts.target : request.target;
   const expectedSha256 =
-    request.operation === 'reconcile' ? request.reconcileFacts.expectedSha256 : request.expected.sha256;
+    request.operation === 'reconcile'
+      ? request.reconcileFacts.expectedSha256
+      : request.operation === 'migrate_legacy'
+        ? undefined
+        : request.expected.sha256;
   const expectedPresent =
     request.operation === 'reconcile' ? request.reconcileFacts.expectedPresent : request.expected.present;
   const effectiveOperation = request.operation === 'reconcile' ? request.reconcileFacts.operation : request.operation;
@@ -526,11 +595,27 @@ function parseTransactionReceipt(
         ? request.replacement?.sha256
         : request.operation === 'restore'
           ? restoredContentSha256(request.sourceArchive)
-          : undefined;
-  const archiveId = request.operation === 'reconcile' ? request.reconcileFacts.archiveId : request.archiveId;
-  const archivedAt = request.operation === 'reconcile' ? request.reconcileFacts.archivedAt : request.archivedAt;
+          : request.operation === 'migrate_legacy'
+            ? request.replacement.sha256
+            : undefined;
+  const archiveId =
+    request.operation === 'reconcile'
+      ? request.reconcileFacts.archiveId
+      : request.operation === 'migrate_legacy'
+        ? undefined
+        : request.archiveId;
+  const archivedAt =
+    request.operation === 'reconcile'
+      ? request.reconcileFacts.archivedAt
+      : request.operation === 'migrate_legacy'
+        ? undefined
+        : request.archivedAt;
   const archiveSha256 =
-    request.operation === 'reconcile' ? request.reconcileFacts.archiveSha256 : request.archive?.sha256;
+    request.operation === 'reconcile'
+      ? request.reconcileFacts.archiveSha256
+      : request.operation === 'migrate_legacy'
+        ? undefined
+        : request.archive?.sha256;
   const sourceArchiveSha256 =
     request.operation === 'reconcile'
       ? request.reconcileFacts.sourceArchiveSha256
@@ -539,7 +624,12 @@ function parseTransactionReceipt(
         : undefined;
   const expectedPreviousSha256 = expectedPresent ? (expectedSha256 ?? null) : null;
   const expectedArchiveName = expectedPresent ? `${archiveId}.json` : null;
-  const expectedRecoveryName = expectedPresent ? `${subjectTransactionId}.displaced` : null;
+  const expectedRecoveryName =
+    effectiveOperation === 'migrate_legacy'
+      ? `${subjectTransactionId}.legacy-source`
+      : expectedPresent
+        ? `${subjectTransactionId}.displaced`
+        : null;
   const reconcileDisposition =
     request.operation === 'reconcile' &&
     (value.reconcileDisposition === 'rolled_back' || value.reconcileDisposition === 'rolled_forward')
@@ -582,8 +672,9 @@ function parseTransactionReceipt(
     !exactKeys(value, RECEIPT_KEYS) ||
     status !== 0 ||
     value.ok !== true ||
-    value.version !== 1 ||
+    value.version !== PROTOCOL_VERSION ||
     value.transactionId !== request.transactionId ||
+    value.requestFingerprint !== (request.operation === 'reconcile' ? null : request.requestFingerprint) ||
     value.operation !== request.operation ||
     value.outcome !== 'committed' ||
     (request.operation === 'reconcile'
@@ -625,6 +716,16 @@ export function runConstitutionFsTransaction(
   binary: VerifiedConstitutionFsBinary,
   options: ExecutionOptions
 ): ConstitutionFsTransactionReceipt {
+  if (
+    request.version !== PROTOCOL_VERSION ||
+    !UUID_PATTERN.test(request.transactionId) ||
+    !DIGEST_PATTERN.test(request.requestFingerprint)
+  ) {
+    throw new ConstitutionFsTransactionError(
+      'CONSTITUTION_FS_INVALID_REQUEST',
+      'Mutation request is not exact protocol v2 or fingerprint-bound.'
+    );
+  }
   return parseTransactionReceipt(invokeNative(request as unknown as Record<string, unknown>, binary, options), request);
 }
 
@@ -633,7 +734,271 @@ export function reconcileConstitutionFsTransaction(
   binary: VerifiedConstitutionFsBinary,
   options: ExecutionOptions
 ): ConstitutionFsTransactionReceipt {
+  if (
+    request.version !== PROTOCOL_VERSION ||
+    !UUID_PATTERN.test(request.transactionId) ||
+    !UUID_PATTERN.test(request.reconcileTransactionId) ||
+    !DIGEST_PATTERN.test(request.reconcileFacts.requestFingerprint)
+  ) {
+    throw new ConstitutionFsTransactionError(
+      'CONSTITUTION_FS_INVALID_REQUEST',
+      'Reconcile request is not exact protocol v2 or fingerprint-bound.'
+    );
+  }
   return parseTransactionReceipt(invokeNative(request as unknown as Record<string, unknown>, binary, options), request);
+}
+
+/**
+ * Resolves an ambiguous mutation only through the helper's authenticated durable journal.
+ * A committed result is the original mutation receipt; absence and definitive rollback
+ * are explicit lookup dispositions. Pending or corrupt state is rejected by the helper.
+ */
+export function lookupCommittedConstitutionFsTransaction(
+  root: string,
+  transactionId: string,
+  lookupTransactionId: string,
+  requestFingerprint: `sha256:${string}`,
+  binary: VerifiedConstitutionFsBinary,
+  options: ExecutionOptions
+): ConstitutionFsCommittedLookupReceipt {
+  if (
+    !UUID_PATTERN.test(transactionId) ||
+    !UUID_PATTERN.test(lookupTransactionId) ||
+    !DIGEST_PATTERN.test(requestFingerprint)
+  ) {
+    throw new ConstitutionFsTransactionError(
+      'CONSTITUTION_FS_INVALID_REQUEST',
+      'Committed lookup identity is malformed.'
+    );
+  }
+  const { value, status } = invokeNative(
+    {
+      version: PROTOCOL_VERSION,
+      transactionId,
+      root,
+      operation: 'committed_lookup',
+      lookupTransactionId,
+      requestFingerprint,
+    },
+    binary,
+    options
+  );
+  assertGuarantees(value);
+  if (
+    !exactKeys(value, RECEIPT_KEYS) ||
+    status !== 0 ||
+    value.ok !== true ||
+    value.version !== PROTOCOL_VERSION ||
+    value.requestFingerprint !== requestFingerprint
+  ) {
+    throw new ConstitutionFsTransactionError(
+      'CONSTITUTION_FS_GUARANTEE_REJECTED',
+      'Committed lookup response is not exact or fingerprint-bound.'
+    );
+  }
+  if (value.operation === 'committed_lookup') {
+    if (
+      value.transactionId !== transactionId ||
+      (value.outcome !== 'not_found' && value.outcome !== 'rolled_back') ||
+      value.journalName !== `${lookupTransactionId}.jsonl` ||
+      value.archivedAt !== null ||
+      value.reconcileDisposition !== null ||
+      value.finalPresent !== null ||
+      value.finalSha256 !== null ||
+      value.previousSha256 !== null ||
+      value.replacementSha256 !== null ||
+      value.archiveName !== null ||
+      value.recoveryName !== null ||
+      value.sealKeyIds !== null ||
+      value.sealKeyName !== null ||
+      value.envelopeBase64 !== null ||
+      value.envelopeSha256 !== null ||
+      value.target !== null ||
+      value.expectedSha256 !== null ||
+      value.archiveSha256 !== null ||
+      value.sourceArchiveSha256 !== null ||
+      value.pendingTransactions !== null ||
+      value.pendingTransactionDetails !== null ||
+      value.contentBase64 !== null ||
+      value.contentSha256 !== null ||
+      value.inventoryEntries !== null
+    ) {
+      throw new ConstitutionFsTransactionError(
+        'CONSTITUTION_FS_GUARANTEE_REJECTED',
+        'Committed lookup disposition is malformed.'
+      );
+    }
+    return value as unknown as ConstitutionFsCommittedLookupReceipt;
+  }
+  if (
+    value.transactionId !== lookupTransactionId ||
+    value.outcome !== 'committed' ||
+    !['replace', 'delete', 'restore', 'migrate_legacy'].includes(String(value.operation)) ||
+    value.journalName !== `${lookupTransactionId}.jsonl` ||
+    !matchesTarget(value.target) ||
+    (value.archivedAt !== null && (!Number.isSafeInteger(value.archivedAt) || Number(value.archivedAt) < 0)) ||
+    (value.expectedSha256 !== null &&
+      (typeof value.expectedSha256 !== 'string' || !DIGEST_PATTERN.test(value.expectedSha256))) ||
+    (value.previousSha256 !== null &&
+      (typeof value.previousSha256 !== 'string' || !DIGEST_PATTERN.test(value.previousSha256))) ||
+    (value.replacementSha256 !== null &&
+      (typeof value.replacementSha256 !== 'string' || !DIGEST_PATTERN.test(value.replacementSha256))) ||
+    (value.archiveSha256 !== null &&
+      (typeof value.archiveSha256 !== 'string' || !DIGEST_PATTERN.test(value.archiveSha256))) ||
+    (value.sourceArchiveSha256 !== null &&
+      (typeof value.sourceArchiveSha256 !== 'string' || !DIGEST_PATTERN.test(value.sourceArchiveSha256))) ||
+    value.expectedSha256 !== value.previousSha256 ||
+    ((value.archiveName === null || value.archivedAt === null || value.archiveSha256 === null) &&
+      (value.archiveName !== null || value.archivedAt !== null || value.archiveSha256 !== null)) ||
+    (value.archiveName !== null &&
+      (typeof value.archiveName !== 'string' ||
+        !value.archiveName.endsWith('.json') ||
+        !UUID_PATTERN.test(value.archiveName.slice(0, -'.json'.length)))) ||
+    (value.operation === 'migrate_legacy'
+      ? value.recoveryName !== `${lookupTransactionId}.legacy-source`
+      : (value.previousSha256 === null) !== (value.recoveryName === null) ||
+        (value.recoveryName !== null && value.recoveryName !== `${lookupTransactionId}.displaced`)) ||
+    (value.operation === 'delete' ? value.replacementSha256 !== null : value.replacementSha256 === null) ||
+    (value.operation === 'restore' ? value.sourceArchiveSha256 === null : value.sourceArchiveSha256 !== null) ||
+    (value.operation === 'migrate_legacy' &&
+      (!sameTarget(value.target, { kind: 'constitution', sourceName: 'CONSTITUTION.md' }) ||
+        value.previousSha256 !== null ||
+        value.archiveName !== null)) ||
+    value.reconcileDisposition !== null ||
+    value.finalPresent !== null ||
+    value.finalSha256 !== null ||
+    value.sealKeyIds !== null ||
+    value.sealKeyName !== null ||
+    value.envelopeBase64 !== null ||
+    value.envelopeSha256 !== null ||
+    value.pendingTransactions !== null ||
+    value.pendingTransactionDetails !== null ||
+    value.contentBase64 !== null ||
+    value.contentSha256 !== null ||
+    value.inventoryEntries !== null
+  ) {
+    throw new ConstitutionFsTransactionError(
+      'CONSTITUTION_FS_GUARANTEE_REJECTED',
+      'Committed lookup did not return an exact original mutation receipt.'
+    );
+  }
+  return value as unknown as ConstitutionFsCommittedLookupReceipt;
+}
+
+/**
+ * Resolves a deterministic legacy-migration child transaction from the
+ * authenticated parent mutation fingerprint. The parent binding is stored in
+ * the native migration journal, so a UUID by itself can never recover or replay
+ * a migration after SOUL.md has been retired.
+ */
+export function lookupCommittedConstitutionFsMigration(
+  root: string,
+  transactionId: string,
+  lookupTransactionId: string,
+  parentRequestFingerprint: `sha256:${string}`,
+  binary: VerifiedConstitutionFsBinary,
+  options: ExecutionOptions
+): ConstitutionFsMigrationCommittedLookupReceipt {
+  if (
+    !UUID_PATTERN.test(transactionId) ||
+    !UUID_PATTERN.test(lookupTransactionId) ||
+    !DIGEST_PATTERN.test(parentRequestFingerprint)
+  ) {
+    throw new ConstitutionFsTransactionError(
+      'CONSTITUTION_FS_INVALID_REQUEST',
+      'Migration lookup identity is malformed.'
+    );
+  }
+  const { value, status } = invokeNative(
+    {
+      version: PROTOCOL_VERSION,
+      transactionId,
+      root,
+      operation: 'migration_committed_lookup',
+      lookupTransactionId,
+      requestFingerprint: parentRequestFingerprint,
+    },
+    binary,
+    options
+  );
+  assertGuarantees(value);
+  if (!exactKeys(value, RECEIPT_KEYS) || status !== 0 || value.ok !== true || value.version !== PROTOCOL_VERSION) {
+    throw new ConstitutionFsTransactionError(
+      'CONSTITUTION_FS_GUARANTEE_REJECTED',
+      'Migration lookup response is not exact.'
+    );
+  }
+  if (value.operation === 'migration_committed_lookup') {
+    if (
+      value.transactionId !== transactionId ||
+      value.requestFingerprint !== parentRequestFingerprint ||
+      (value.outcome !== 'not_found' && value.outcome !== 'rolled_back') ||
+      value.journalName !== `${lookupTransactionId}.jsonl` ||
+      value.archivedAt !== null ||
+      value.reconcileDisposition !== null ||
+      value.finalPresent !== null ||
+      value.finalSha256 !== null ||
+      value.previousSha256 !== null ||
+      value.replacementSha256 !== null ||
+      value.archiveName !== null ||
+      value.recoveryName !== null ||
+      value.sealKeyIds !== null ||
+      value.sealKeyName !== null ||
+      value.envelopeBase64 !== null ||
+      value.envelopeSha256 !== null ||
+      value.target !== null ||
+      value.expectedSha256 !== null ||
+      value.archiveSha256 !== null ||
+      value.sourceArchiveSha256 !== null ||
+      value.pendingTransactions !== null ||
+      value.pendingTransactionDetails !== null ||
+      value.contentBase64 !== null ||
+      value.contentSha256 !== null ||
+      value.inventoryEntries !== null
+    ) {
+      throw new ConstitutionFsTransactionError(
+        'CONSTITUTION_FS_GUARANTEE_REJECTED',
+        'Migration lookup disposition is malformed.'
+      );
+    }
+    return value as unknown as ConstitutionFsMigrationCommittedLookupReceipt;
+  }
+  if (
+    value.transactionId !== lookupTransactionId ||
+    value.operation !== 'migrate_legacy' ||
+    value.outcome !== 'committed' ||
+    typeof value.requestFingerprint !== 'string' ||
+    !DIGEST_PATTERN.test(value.requestFingerprint) ||
+    value.journalName !== `${lookupTransactionId}.jsonl` ||
+    !sameTarget(value.target, { kind: 'constitution', sourceName: 'CONSTITUTION.md' }) ||
+    value.archivedAt !== null ||
+    value.reconcileDisposition !== null ||
+    value.finalPresent !== null ||
+    value.finalSha256 !== null ||
+    value.previousSha256 !== null ||
+    value.expectedSha256 !== null ||
+    typeof value.replacementSha256 !== 'string' ||
+    !DIGEST_PATTERN.test(value.replacementSha256) ||
+    value.archiveName !== null ||
+    value.recoveryName !== `${lookupTransactionId}.legacy-source` ||
+    value.archiveSha256 !== null ||
+    value.sourceArchiveSha256 !== null ||
+    value.sealKeyIds !== null ||
+    value.sealKeyName !== null ||
+    value.envelopeBase64 !== null ||
+    value.envelopeSha256 !== null ||
+    value.pendingTransactions !== null ||
+    value.pendingTransactionDetails !== null ||
+    value.contentBase64 !== null ||
+    value.contentSha256 !== null ||
+    value.inventoryEntries !== null
+  ) {
+    throw new ConstitutionFsTransactionError(
+      'CONSTITUTION_FS_GUARANTEE_REJECTED',
+      'Migration lookup did not return an exact authenticated migration receipt.'
+    );
+  }
+  return value as unknown as ConstitutionFsMigrationCommittedLookupReceipt;
 }
 
 export function inventoryPendingConstitutionFsTransactionDetails(
@@ -642,14 +1007,15 @@ export function inventoryPendingConstitutionFsTransactionDetails(
   binary: VerifiedConstitutionFsBinary,
   options: ExecutionOptions
 ): ConstitutionFsPendingTransactionDetail[] {
-  const request = { version: 1, transactionId, root, operation: 'pending_inventory' };
+  const request = { version: PROTOCOL_VERSION, transactionId, root, operation: 'pending_inventory' };
   const { value, status } = invokeNative(request, binary, options);
   assertGuarantees(value);
   if (
     !exactKeys(value, RECEIPT_KEYS) ||
     status !== 0 ||
     value.ok !== true ||
-    value.version !== 1 ||
+    value.version !== PROTOCOL_VERSION ||
+    value.requestFingerprint !== null ||
     value.transactionId !== transactionId ||
     value.operation !== 'pending_inventory' ||
     value.outcome !== 'committed' ||
@@ -695,6 +1061,7 @@ export function inventoryPendingConstitutionFsTransactionDetails(
     }
     const detail = candidate as Record<string, unknown>;
     const facts = detail.reconcileFacts as Record<string, unknown> | undefined;
+    const requestFingerprint = facts?.requestFingerprint;
     const operation = facts?.operation;
     const expectedPresent = facts?.expectedPresent;
     const expectedSha256 = facts?.expectedSha256;
@@ -705,9 +1072,11 @@ export function inventoryPendingConstitutionFsTransactionDetails(
     const sourceArchiveId = facts?.sourceArchiveId;
     const sourceArchiveSha256 = facts?.sourceArchiveSha256;
     const recoverySha256 = facts?.recoverySha256;
-    const optionalDigest = (value: unknown) =>
-      value == null || (typeof value === 'string' && DIGEST_PATTERN.test(value));
-    const optionalUuid = (value: unknown) => value == null || (typeof value === 'string' && UUID_PATTERN.test(value));
+    const migrationSource = facts?.migrationSource;
+    const optionalDigest = (candidateValue: unknown) =>
+      candidateValue == null || (typeof candidateValue === 'string' && DIGEST_PATTERN.test(candidateValue));
+    const optionalUuid = (candidateValue: unknown) =>
+      candidateValue == null || (typeof candidateValue === 'string' && UUID_PATTERN.test(candidateValue));
     if (
       !exactKeys(detail, ['reconcileFacts', 'transactionId']) ||
       detail.transactionId !== pendingTransactions[index] ||
@@ -721,12 +1090,16 @@ export function inventoryPendingConstitutionFsTransactionDetails(
         'operation',
         'recoverySha256',
         'replacementSha256',
+        'requestFingerprint',
         'sourceArchiveId',
         'sourceArchiveSha256',
         'target',
+        'migrationSource',
       ]) ||
       !matchesTarget(facts.target) ||
       !matchesOperation(operation) ||
+      typeof requestFingerprint !== 'string' ||
+      !DIGEST_PATTERN.test(requestFingerprint) ||
       typeof expectedPresent !== 'boolean' ||
       !optionalDigest(expectedSha256) ||
       !optionalDigest(replacementSha256) ||
@@ -743,7 +1116,33 @@ export function inventoryPendingConstitutionFsTransactionDetails(
       (sourceArchiveId != null) !== (sourceArchiveSha256 != null) ||
       (operation === 'replace' && (replacementSha256 == null || sourceArchiveId != null)) ||
       (operation === 'delete' && (replacementSha256 != null || sourceArchiveId != null)) ||
-      (operation === 'restore' && (replacementSha256 == null || sourceArchiveId == null))
+      (operation === 'restore' && (replacementSha256 == null || sourceArchiveId == null)) ||
+      (operation === 'migrate_legacy'
+        ? expectedPresent !== false ||
+          replacementSha256 == null ||
+          archiveId != null ||
+          sourceArchiveId != null ||
+          !migrationSource ||
+          typeof migrationSource !== 'object' ||
+          Array.isArray(migrationSource) ||
+          !exactKeys(migrationSource as Record<string, unknown>, [
+            'device',
+            'inode',
+            'parentRequestFingerprint',
+            'sha256',
+            'target',
+          ]) ||
+          !sameTarget((migrationSource as Record<string, unknown>).target, {
+            kind: 'constitution',
+            sourceName: 'SOUL.md',
+          }) ||
+          typeof (migrationSource as Record<string, unknown>).device !== 'string' ||
+          !/^\d+$/.test((migrationSource as Record<string, unknown>).device as string) ||
+          typeof (migrationSource as Record<string, unknown>).inode !== 'string' ||
+          !/^\d+$/.test((migrationSource as Record<string, unknown>).inode as string) ||
+          !optionalDigest((migrationSource as Record<string, unknown>).parentRequestFingerprint) ||
+          (migrationSource as Record<string, unknown>).sha256 !== replacementSha256
+        : migrationSource != null)
     ) {
       throw new ConstitutionFsTransactionError(
         'CONSTITUTION_FS_GUARANTEE_REJECTED',
@@ -753,6 +1152,7 @@ export function inventoryPendingConstitutionFsTransactionDetails(
     return {
       transactionId: detail.transactionId as string,
       reconcileFacts: {
+        requestFingerprint: requestFingerprint as `sha256:${string}`,
         operation,
         target: facts.target as ConstitutionFsTarget,
         expectedPresent,
@@ -764,6 +1164,7 @@ export function inventoryPendingConstitutionFsTransactionDetails(
         ...(sourceArchiveId == null ? {} : { sourceArchiveId: sourceArchiveId as string }),
         ...(sourceArchiveSha256 == null ? {} : { sourceArchiveSha256: sourceArchiveSha256 as `sha256:${string}` }),
         ...(recoverySha256 == null ? {} : { recoverySha256: recoverySha256 as `sha256:${string}` }),
+        ...(migrationSource == null ? {} : { migrationSource: migrationSource as ConstitutionFsMigrationSourceFacts }),
       },
     };
   });
@@ -792,7 +1193,8 @@ function assertReadOnlyReceipt(
     !exactKeys(value, RECEIPT_KEYS) ||
     status !== 0 ||
     value.ok !== true ||
-    value.version !== 1 ||
+    value.version !== PROTOCOL_VERSION ||
+    value.requestFingerprint !== null ||
     value.transactionId !== transactionId ||
     value.operation !== operation ||
     value.outcome !== 'committed' ||
@@ -829,7 +1231,7 @@ export function readConstitutionFsTarget(
   binary: VerifiedConstitutionFsBinary,
   options: ExecutionOptions
 ): { content: Buffer; sha256: `sha256:${string}` } {
-  const request = { version: 1, transactionId, root, operation: 'read_live', target };
+  const request = { version: PROTOCOL_VERSION, transactionId, root, operation: 'read_live', target };
   const { value, status } = invokeNative(request, binary, options);
   assertReadOnlyReceipt(value, status, transactionId, 'read_live');
   if (
@@ -868,7 +1270,11 @@ function inventoryReadOnly(
   binary: VerifiedConstitutionFsBinary,
   options: ExecutionOptions
 ): string[] {
-  const { value, status } = invokeNative({ version: 1, transactionId, root, operation }, binary, options);
+  const { value, status } = invokeNative(
+    { version: PROTOCOL_VERSION, transactionId, root, operation },
+    binary,
+    options
+  );
   assertReadOnlyReceipt(value, status, transactionId, operation);
   if (
     value.target !== null ||
@@ -916,7 +1322,7 @@ export function readConstitutionFsArchive(
     throw new ConstitutionFsTransactionError('CONSTITUTION_FS_INVALID_REQUEST', 'Archive identity is invalid.');
   }
   const { value, status } = invokeNative(
-    { version: 1, transactionId, root, operation: 'read_archive', archiveId },
+    { version: PROTOCOL_VERSION, transactionId, root, operation: 'read_archive', archiveId },
     binary,
     options
   );
@@ -978,7 +1384,7 @@ function sealKeyRequest(
   keyId?: string,
   envelope?: Buffer
 ): Record<string, unknown> {
-  const request: Record<string, unknown> = { version: 1, transactionId, root, operation };
+  const request: Record<string, unknown> = { version: PROTOCOL_VERSION, transactionId, root, operation };
   if (keyId) request.sealKeyId = keyId;
   if (envelope) {
     request.envelope = {
@@ -1000,7 +1406,8 @@ function parseSealReceipt(
     !exactKeys(value, RECEIPT_KEYS) ||
     status !== 0 ||
     value.ok !== true ||
-    value.version !== 1 ||
+    value.version !== PROTOCOL_VERSION ||
+    value.requestFingerprint !== null ||
     value.transactionId !== transactionId ||
     value.operation !== operation ||
     value.outcome !== 'committed' ||

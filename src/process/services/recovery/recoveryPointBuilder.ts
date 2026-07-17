@@ -122,9 +122,17 @@ function recoveryRestorePath(
   authorityId: StateAuthorityId,
   evidencePath: string,
   evidenceState: StateAuthorityInventory['evidence'][number]['state'],
-  filePath: string
+  filePath: string,
+  authorityRelativePath?: string
 ): string {
-  const relative = evidenceState === 'file' ? path.basename(evidencePath) : relativeSourcePath(evidencePath, filePath);
+  const observedRelative =
+    evidenceState === 'file' ? path.basename(evidencePath) : relativeSourcePath(evidencePath, filePath);
+  const relative =
+    authorityId === 'constitution.filesystem' && authorityRelativePath
+      ? evidenceState === 'file'
+        ? authorityRelativePath
+        : path.posix.join(authorityRelativePath, ...observedRelative.split(path.sep))
+      : observedRelative;
   const segments = relative.split(path.sep);
   switch (authorityId) {
     case 'desktop.database':
@@ -136,6 +144,16 @@ function recoveryRestorePath(
         'desktop/runtime',
         ...(evidenceState === 'file' ? segments : [path.basename(evidencePath), ...segments])
       );
+    case 'constitution.filesystem':
+      return path.posix.join('constitution/files', ...segments);
+    case 'constitution.revision-authority':
+      if (
+        path.basename(filePath) !== 'revision-authority.enc' &&
+        path.basename(filePath) !== 'revision-authority.enc.legacy-v1-migration.json'
+      ) {
+        throw new Error(`Unexpected Constitution revision authority path: ${filePath}`);
+      }
+      return path.posix.join('desktop/constitution', path.basename(filePath));
     case 'core.default-profile':
       return path.posix.join('core/default', ...segments);
     case 'core.named-profiles':
@@ -147,6 +165,20 @@ function recoveryRestorePath(
     default:
       throw new Error(`Authority cannot own recovery files: ${authorityId}`);
   }
+}
+
+function authorityOwnsFile(
+  authorityId: StateAuthorityId,
+  evidencePath: string,
+  evidenceState: StateAuthorityInventory['evidence'][number]['state'],
+  filePath: string
+): boolean {
+  if (authorityId !== 'constitution.filesystem' || evidenceState !== 'directory') return true;
+  const relative = relativeSourcePath(evidencePath, filePath).split(path.sep).join('/');
+  // ~/.wayland/profiles is producer-owned Core state and is captured through
+  // core.named-profiles. The Constitution authority owns every other path in
+  // ~/.wayland, but must never duplicate or race that nested producer tree.
+  return relative !== 'profiles' && !relative.startsWith('profiles/');
 }
 
 async function addCapturedFile(options: {
@@ -295,12 +327,19 @@ export async function buildRecoveryPoint(
           if (evidence.state === 'absent') continue;
           const files = await listContainedFiles(evidence.path);
           for (const filePath of files) {
+            if (!authorityOwnsFile(authority.id, evidence.path, evidence.state, filePath)) continue;
             captured.push(
               await addCapturedFile({
                 authority,
                 sourcePath: filePath,
                 relativePath: `${evidenceIndex}-${relativeSourcePath(evidence.path, filePath)}`,
-                restorePath: recoveryRestorePath(authority.id, evidence.path, evidence.state, filePath),
+                restorePath: recoveryRestorePath(
+                  authority.id,
+                  evidence.path,
+                  evidence.state,
+                  filePath,
+                  evidence.authorityRelativePath
+                ),
                 stagingRoot,
                 sealFile: dependencies.sealFile,
                 capturedSnapshotPaths,
@@ -333,6 +372,7 @@ export async function buildRecoveryPoint(
       requiredForRestore: authority.requiredForRestore,
       sensitive: authority.sensitive,
       fileIds: (authorityFiles.get(authority.id) ?? []).map(({ id }) => id),
+      ...(authority.credentialBinding ? { credentialBinding: authority.credentialBinding } : {}),
       ...(COPIED_COVERAGE.has(coverage.get(authority.id) ?? 'missing') &&
       (authorityFiles.get(authority.id) ?? []).length === 0
         ? { empty: true as const }

@@ -14,7 +14,23 @@ export type ConstitutionMutationResult = {
   ok: true;
   revision: string;
   receiptId: string;
+  requestId: string;
+  requestFingerprint: `sha256:${string}`;
 };
+
+/** Every Constitution IPC call declares whether a native authority exists. */
+export type ConstitutionAuthorityEnvelope<T> =
+  | { availability: 'available'; value: T }
+  | {
+      availability: 'unavailable';
+      code: 'CONSTITUTION_FS_UNSAFE_PLATFORM';
+      reason: string;
+    }
+  | {
+      availability: 'failed';
+      code: 'CONSTITUTION_FS_CONFLICT' | 'CONSTITUTION_FS_AUTHORITY_FAILURE';
+      reason: string;
+    };
 
 export type ConstitutionSpecialistSummary = {
   id: string;

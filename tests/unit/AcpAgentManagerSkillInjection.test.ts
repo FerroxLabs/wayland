@@ -135,6 +135,16 @@ vi.mock('@process/task/agentUtils', () => ({
   resolveCapabilitiesManifest: vi.fn(async () => undefined),
 }));
 
+vi.mock('@process/services/constitution/composePrompt', () => ({
+  composePrompt: ({ basePrompt = '' }: { basePrompt?: string }) => ({
+    text: basePrompt,
+    approxTokens: Math.ceil(basePrompt.length / 4),
+    anthropicCacheControl: { type: 'ephemeral' as const },
+    hadOverlay: false,
+    constitutionSupported: true,
+  }),
+}));
+
 // Mock AcpAgent class
 vi.mock('@process/agent/acp', () => ({
   AcpAgent: vi.fn().mockImplementation(() => ({

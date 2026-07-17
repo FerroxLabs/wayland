@@ -23,6 +23,15 @@ const mockAddMessage = vi.hoisted(() => vi.fn());
 
 vi.mock('@/common', () => ({ ipcBridge: mockIpcBridge }));
 vi.mock('electron', () => ({ app: { getPath: vi.fn(() => '/tmp') } }));
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  getConstitutionFsService: () => ({
+    capability: () => ({ supported: true as const }),
+    readWithOverlay: () => ({
+      constitution: { status: 'absent' as const, revision: 'rev:test:constitution-absent' },
+      overlay: null,
+    }),
+  }),
+}));
 vi.mock('@process/utils/message', () => ({ addMessage: mockAddMessage }));
 vi.mock('@process/agent/acp/AcpDetector', () => ({
   acpDetector: { getDetectedAgents: vi.fn(() => []) },
@@ -1075,11 +1084,7 @@ describe('TeammateManager', () => {
       expect(tokenRows.map((r) => r.payload.total_tokens)).toEqual([0, 0, 0]);
       expect(tokenRows.map((r) => r.payload.prompt_tokens)).toEqual([0, 0, 0]);
       expect(tokenRows.map((r) => r.payload.tokens_delta)).toEqual([0, 0, 0]);
-      expect(tokenRows.map((r) => r.payload.cost_delta as number)).toEqual([
-        0.1,
-        0.15,
-        0.15000000000000002,
-      ]);
+      expect(tokenRows.map((r) => r.payload.cost_delta as number)).toEqual([0.1, 0.15, 0.15000000000000002]);
       expect(tokenRows.every((r) => r.payload.usage_semantics === 'acp_context_occupancy')).toBe(true);
 
       mgr.dispose();

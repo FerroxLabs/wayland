@@ -15,6 +15,18 @@ import { readDatabaseSchemaVersionStrict } from './startupCompatibility';
 import { sealRecoveryFile } from './recoverySealing';
 import { buildRecoveryPoint, type BuiltRecoveryPoint } from './recoveryPointBuilder';
 import { inventoryRecoveryAuthorities, type RecoveryInventory } from './stateAuthorityInventory';
+import {
+  loadOrCreateExternalRecoveryAuthority,
+  type ExternalRecoveryVaultBackend,
+  type LoadedExternalRecoveryAuthority,
+} from './externalRecoveryAuthority';
+
+export type HealthyV2ExternalRecoveryAuthorityCapture = {
+  /** Explicit caller assertion; absence preserves the legacy capture path without provisioning authority. */
+  confirmed: true;
+  /** Complete inventory from the caller's external-recovery record/history store. */
+  existingRecordDigests: readonly string[];
+};
 
 export type ProductionRecoveryCaptureInputs = {
   destinationRoot: string;
@@ -23,14 +35,91 @@ export type ProductionRecoveryCaptureInputs = {
   sourceReleaseTrack: WaylandReleaseTrack;
   /** Must be true only while bootstrap owns the ordinary Desktop profile lock. */
   desktopProfileLockHeld: true;
+  /** Authority provisioning is opt-in and valid only for a proven healthy v2 source. */
+  externalRecoveryAuthority?: HealthyV2ExternalRecoveryAuthorityCapture;
+};
+
+export type ProductionRecoveryCaptureDependencies = {
+  externalRecoveryVault?: ExternalRecoveryVaultBackend;
+  loadOrCreateExternalRecoveryAuthority?: typeof loadOrCreateExternalRecoveryAuthority;
 };
 
 const EPOCH_AUTHORITIES = new Set([
   'desktop.config',
   'desktop.runtime-files',
+  'constitution.filesystem',
+  'constitution.revision-authority',
   'credentials.key-material',
   'updater.state',
 ]);
+
+const EXTERNAL_RECOVERY_SAFE_STORAGE_REF = 'electron-safe-storage:wayland-external-recovery-authority-v1';
+
+export async function createProductionExternalRecoveryVaultBackend(): Promise<ExternalRecoveryVaultBackend> {
+  const { safeStorage } = await import('electron');
+  const requireAvailable = (): void => {
+    if (!safeStorage.isEncryptionAvailable()) {
+      throw new Error('External recovery authority requires an available OS credential store; fallback is forbidden.');
+    }
+  };
+  return {
+    provider: 'electron-safe-storage',
+    async wrap({ secret }) {
+      requireAvailable();
+      return {
+        vaultRef: EXTERNAL_RECOVERY_SAFE_STORAGE_REF,
+        wrappedSecret: safeStorage.encryptString(secret.toString('base64url')),
+      };
+    },
+    async unwrap({ wrappedSecret }) {
+      requireAvailable();
+      const encoded = safeStorage.decryptString(wrappedSecret);
+      if (!/^[A-Za-z0-9_-]{43}$/.test(encoded)) {
+        throw new Error('External recovery OS vault returned a malformed secret.');
+      }
+      const secret = Buffer.from(encoded, 'base64url');
+      if (secret.length !== 32 || secret.toString('base64url') !== encoded) {
+        secret.fill(0);
+        throw new Error('External recovery OS vault returned a noncanonical secret.');
+      }
+      return secret;
+    },
+  };
+}
+
+export type ProvisionHealthyV2ExternalRecoveryAuthorityInput = {
+  userDataRoot: string;
+  desktopSchemaVersion: number;
+  inventory: RecoveryInventory;
+  request: HealthyV2ExternalRecoveryAuthorityCapture;
+};
+
+/**
+ * Provision or reconcile only at the explicit healthy-v2 capture boundary. The returned active secret is wiped here;
+ * capture owns lifecycle validation, not record encryption, until the new record codec is wired separately.
+ */
+export async function provisionHealthyV2ExternalRecoveryAuthority(
+  input: ProvisionHealthyV2ExternalRecoveryAuthorityInput,
+  dependencies: ProductionRecoveryCaptureDependencies = {}
+): Promise<Omit<LoadedExternalRecoveryAuthority, 'activeSecret'>> {
+  if (input.request.confirmed !== true || input.desktopSchemaVersion !== 53) {
+    throw new Error('External recovery authority provisioning requires an explicit healthy v2 capture.');
+  }
+  const revisionAuthority = input.inventory.authorities.find(({ id }) => id === 'constitution.revision-authority');
+  if (revisionAuthority?.state !== 'present') {
+    throw new Error('External recovery authority provisioning requires a present v2 revision authority.');
+  }
+  const vault = dependencies.externalRecoveryVault ?? (await createProductionExternalRecoveryVaultBackend());
+  const provision = dependencies.loadOrCreateExternalRecoveryAuthority ?? loadOrCreateExternalRecoveryAuthority;
+  const loaded = await provision({
+    userDataRoot: input.userDataRoot,
+    vault,
+    existingRecordDigests: async () => input.request.existingRecordDigests,
+  });
+  const { activeSecret, ...receipt } = loaded;
+  activeSecret.fill(0);
+  return receipt;
+}
 
 function pathsOverlap(left: string, right: string): boolean {
   const a = path.resolve(left);
@@ -52,7 +141,11 @@ async function addFileToEpoch(hash: ReturnType<typeof createHash>, filePath: str
   for await (const chunk of createReadStream(filePath)) hash.update(chunk);
 }
 
-async function addPathToEpoch(hash: ReturnType<typeof createHash>, candidate: string): Promise<void> {
+async function addPathToEpoch(
+  hash: ReturnType<typeof createHash>,
+  candidate: string,
+  excludedTopLevel: ReadonlySet<string> = new Set()
+): Promise<void> {
   let stat: Awaited<ReturnType<typeof lstat>>;
   try {
     stat = await lstat(candidate);
@@ -75,6 +168,7 @@ async function addPathToEpoch(hash: ReturnType<typeof createHash>, candidate: st
     entries.sort((left, right) => left.name.localeCompare(right.name));
     hash.update(`dir\0${path.relative(candidate, directory)}\0`);
     for (const entry of entries) {
+      if (directory === candidate && excludedTopLevel.has(entry.name)) continue;
       const child = path.join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new Error(`Recovery mutation epoch refuses symlink: ${child}`);
       // Sequential traversal is required because this is one ordered hash stream.
@@ -96,7 +190,11 @@ export async function fingerprintDesktopRecoveryState(inventory: RecoveryInvento
     for (const evidence of authority.evidence) {
       // Sequential traversal is required because this is one ordered hash stream.
       // oxlint-disable-next-line no-await-in-loop
-      await addPathToEpoch(hash, evidence.path);
+      await addPathToEpoch(
+        hash,
+        evidence.path,
+        authority.id === 'constitution.filesystem' ? new Set(['profiles']) : new Set()
+      );
     }
   }
   return `sha256:${hash.digest('hex')}`;
@@ -108,12 +206,14 @@ export async function fingerprintDesktopRecoveryState(inventory: RecoveryInvento
  * producer-owned quiescence lease; filesystem hashing is not a substitute.
  */
 export async function captureProductionRecoveryPoint(
-  inputs: ProductionRecoveryCaptureInputs
+  inputs: ProductionRecoveryCaptureInputs,
+  dependencies: ProductionRecoveryCaptureDependencies = {}
 ): Promise<BuiltRecoveryPoint> {
   if (!inputs.desktopProfileLockHeld) throw new Error('Desktop recovery capture requires the live profile lock.');
   const defaultCoreRoot = nativeConfigDir();
   const namedCoreRoot = profilesRoot();
-  for (const protectedRoot of [inputs.userDataRoot, defaultCoreRoot, namedCoreRoot]) {
+  const constitutionRoot = path.dirname(namedCoreRoot);
+  for (const protectedRoot of [inputs.userDataRoot, constitutionRoot, defaultCoreRoot, namedCoreRoot]) {
     if (pathsOverlap(inputs.destinationRoot, protectedRoot)) {
       throw new Error(`Recovery destination must be disjoint from live state: ${protectedRoot}`);
     }
@@ -121,6 +221,7 @@ export async function captureProductionRecoveryPoint(
 
   const inventory = await inventoryRecoveryAuthorities({
     userDataRoot: inputs.userDataRoot,
+    constitutionRoot,
     coreDefaultProfileRoot: defaultCoreRoot,
     coreNamedProfilesRoot: namedCoreRoot,
     sourceReleaseTrack: inputs.sourceReleaseTrack,
@@ -133,6 +234,18 @@ export async function captureProductionRecoveryPoint(
     desktopSchemaVersion = readDatabaseSchemaVersionStrict(schemaDriver);
   } finally {
     schemaDriver.close();
+  }
+
+  if (inputs.externalRecoveryAuthority) {
+    await provisionHealthyV2ExternalRecoveryAuthority(
+      {
+        userDataRoot: inputs.userDataRoot,
+        desktopSchemaVersion,
+        inventory,
+        request: inputs.externalRecoveryAuthority,
+      },
+      dependencies
+    );
   }
 
   return buildRecoveryPoint(
