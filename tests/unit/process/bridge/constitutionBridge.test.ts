@@ -19,6 +19,7 @@ import { DEFAULT_CONSTITUTION } from '@/common/constitutionDefault';
 import { initConstitutionBridge } from '@process/bridge/constitutionBridge';
 import { ConstitutionFsBinaryError } from '@process/services/constitution/constitutionFsBinary';
 import { ConstitutionFsService } from '@process/services/constitution/constitutionFsService';
+import { ConstitutionArchiveRecoveryServiceError } from '@process/services/constitution/constitutionArchiveRecoveryService';
 
 function service() {
   return {
@@ -219,5 +220,208 @@ describe('Constitution IPC service boundary', () => {
     enforceRateLimit.mockReturnValue(false);
     expect(() => handlers.get('constitution:write')?.({}, 'rules', null)).toThrow('CONSTITUTION_RATE_LIMITED');
     expect(owner.writeConstitution).not.toHaveBeenCalled();
+  });
+
+  it('rejects an untrusted recovery sender before inventory or operation lookup', async () => {
+    const owner = service();
+    const recovery = {
+      listArchives: vi.fn(),
+      desktopPrincipalBinding: vi.fn(),
+      restore: vi.fn(),
+    };
+    initConstitutionBridge(owner as never, recovery as never, () => false);
+
+    expect(await handlers.get('constitution:archives:list')?.({})).toEqual({
+      success: false,
+      error: {
+        code: 'OPERATION_NOT_FOUND',
+        message: 'Archive recovery is unavailable.',
+        retryable: false,
+        operationId: null,
+      },
+    });
+    expect(
+      await handlers.get('constitution:archives:restore')?.(
+        {},
+        {
+          operationId: '11111111-1111-4111-8111-111111111111',
+          archiveId: '22222222-2222-4222-8222-222222222222',
+          expectedArchiveRevision: 'rev:v1:archive',
+          password: 'correct',
+          expectedRevision: 'rev:v1:target',
+        }
+      )
+    ).toEqual({
+      success: false,
+      error: {
+        code: 'OPERATION_NOT_FOUND',
+        message: 'Archive restore operation was not found.',
+        retryable: false,
+        operationId: '11111111-1111-4111-8111-111111111111',
+      },
+    });
+    expect(recovery.listArchives).not.toHaveBeenCalled();
+    expect(recovery.desktopPrincipalBinding).not.toHaveBeenCalled();
+    expect(recovery.restore).not.toHaveBeenCalled();
+  });
+
+  it('uses the shared recovery DTO and maps service failures without transport-specific success', async () => {
+    const owner = service();
+    const principal = { kind: 'desktop-installation', installationId: '33333333-3333-4333-8333-333333333333' };
+    const inventory = {
+      success: true,
+      data: { contract: 'wayland-constitution-archive-recovery-dto/1.0', archives: [] },
+    } as const;
+    const recovery = {
+      listArchives: vi.fn(() => inventory),
+      desktopPrincipalBinding: vi.fn(() => principal),
+      restore: vi.fn(async () => ({
+        revision: 'rev:v1:restored',
+        receiptId: 'receipt-restored',
+      })),
+    };
+    initConstitutionBridge(owner as never, recovery as never, () => true);
+
+    expect(await handlers.get('constitution:archives:list')?.({})).toEqual(inventory);
+    const request = {
+      operationId: '44444444-4444-4444-8444-444444444444',
+      archiveId: '55555555-5555-4555-8555-555555555555',
+      expectedArchiveRevision: 'rev:v1:archive',
+      password: 'correct',
+      expectedRevision: 'rev:v1:target',
+    };
+    expect(await handlers.get('constitution:archives:restore')?.({}, request)).toEqual({
+      success: true,
+      data: {
+        status: 'committed',
+        operationId: request.operationId,
+        revision: 'rev:v1:restored',
+        receiptId: 'receipt-restored',
+      },
+    });
+    expect(recovery.restore).toHaveBeenCalledWith(principal, request);
+
+    recovery.restore.mockRejectedValueOnce(
+      new ConstitutionArchiveRecoveryServiceError('STALE_TARGET_REVISION', 'sensitive native detail')
+    );
+    expect(await handlers.get('constitution:archives:restore')?.({}, request)).toEqual({
+      success: false,
+      error: {
+        code: 'STALE_TARGET_REVISION',
+        message: 'Archive restore did not complete.',
+        retryable: false,
+        operationId: request.operationId,
+      },
+    });
+  });
+
+  it('checks the trusted renderer before resolving any Classic recovery authority', async () => {
+    const owner = service();
+    const recovery = {
+      listArchives: vi.fn(),
+      desktopPrincipalBinding: vi.fn(),
+      restore: vi.fn(),
+    };
+    const resolveClassic = vi.fn(async () => {
+      throw new Error('must not resolve');
+    });
+    initConstitutionBridge(owner as never, recovery as never, () => false, resolveClassic as never);
+
+    expect(await handlers.get('constitution:classic-recovery:get')?.({})).toMatchObject({
+      success: false,
+      error: { code: 'OPERATION_NOT_FOUND', operationId: null },
+    });
+    expect(
+      await handlers.get('constitution:classic-recovery:decision')?.(
+        {},
+        {
+          operationId: '66666666-6666-4666-8666-666666666666',
+          projectionReceiptSha256: `sha256:${'a'.repeat(64)}`,
+          expectedRecoveryRevision: 'recovery:v1',
+          password: 'correct',
+          decision: { kind: 'promote' },
+        }
+      )
+    ).toMatchObject({
+      success: false,
+      error: { code: 'OPERATION_NOT_FOUND', operationId: '66666666-6666-4666-8666-666666666666' },
+    });
+    expect(resolveClassic).not.toHaveBeenCalled();
+    expect(recovery.desktopPrincipalBinding).not.toHaveBeenCalled();
+  });
+
+  it('binds Classic metadata, decision, and resume to one desktop principal and exact DTOs', async () => {
+    const owner = service();
+    const principal = { kind: 'desktop-installation', installationId: '77777777-7777-4777-8777-777777777777' };
+    const recovery = {
+      listArchives: vi.fn(() => ({
+        success: true,
+        data: { contract: 'wayland-constitution-archive-recovery-dto/1.0', archives: [] },
+      })),
+      desktopPrincipalBinding: vi.fn(() => principal),
+      restore: vi.fn(),
+    };
+    const metadata = {
+      success: true,
+      data: {
+        contract: 'wayland-constitution-classic-recovery-dto/1.0',
+        recoveryRevision: 'recovery:v1',
+        projectionReceiptSha256: `sha256:${'a'.repeat(64)}`,
+        promotionId: null,
+        journalHeadSha256: null,
+        state: 'awaiting-decision',
+        items: [
+          {
+            objectId: 'constitution',
+            operation: 'replace',
+            state: 'pending',
+            resultRevision: null,
+            receiptId: null,
+            conflictCode: null,
+          },
+        ],
+        rescue: null,
+        allowedActions: ['promote', 'keep-v2', 'discard'],
+        discardChallenge: 'DISCARD constitution',
+      },
+    } as const;
+    const decisionResult = { success: true, data: { status: 'committed' } } as const;
+    const resumeResult = { success: true, data: { status: 'committed' } } as const;
+    const classic = {
+      metadata: vi.fn(async () => metadata),
+      decide: vi.fn(async () => decisionResult),
+      resume: vi.fn(async () => resumeResult),
+    };
+    const resolveClassic = vi.fn(async () => classic);
+    initConstitutionBridge(owner as never, recovery as never, () => true, resolveClassic as never);
+
+    expect(await handlers.get('constitution:classic-recovery:get')?.({})).toEqual(metadata);
+    expect(classic.metadata).toHaveBeenCalledWith(principal);
+
+    const decision = {
+      operationId: '88888888-8888-4888-8888-888888888888',
+      projectionReceiptSha256: `sha256:${'a'.repeat(64)}`,
+      expectedRecoveryRevision: 'recovery:v1',
+      password: 'correct',
+      decision: { kind: 'promote' },
+    } as const;
+    expect(await handlers.get('constitution:classic-recovery:decision')?.({}, decision)).toEqual(decisionResult);
+    expect(classic.decide).toHaveBeenCalledWith(principal, decision);
+
+    const resume = {
+      operationId: '99999999-9999-4999-8999-999999999999',
+      promotionId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+      projectionReceiptSha256: `sha256:${'a'.repeat(64)}`,
+      expectedRecoveryRevision: 'recovery:v2',
+      expectedJournalHeadSha256: `sha256:${'b'.repeat(64)}`,
+      password: 'correct',
+    } as const;
+    expect(await handlers.get('constitution:classic-recovery:resume')?.({}, resume)).toEqual(resumeResult);
+    expect(classic.resume).toHaveBeenCalledWith(principal, resume);
+
+    expect(
+      await handlers.get('constitution:classic-recovery:decision')?.({}, { ...decision, unexpected: true })
+    ).toMatchObject({ success: false, error: { code: 'INVALID_REQUEST', operationId: decision.operationId } });
+    expect(classic.decide).toHaveBeenCalledTimes(1);
   });
 });

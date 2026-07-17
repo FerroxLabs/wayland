@@ -14,6 +14,15 @@ import type {
   ConstitutionReadResult,
   ConstitutionSpecialistSummary,
 } from '../common/types/constitution';
+import type {
+  ConstitutionArchiveInventoryResult,
+  ConstitutionArchiveRestoreRequest,
+  ConstitutionArchiveRestoreResult,
+  ConstitutionClassicRecoveryDecisionRequest,
+  ConstitutionClassicRecoveryMetadataResult,
+  ConstitutionClassicRecoveryMutationResult,
+  ConstitutionClassicRecoveryResumeRequest,
+} from '../common/types/constitutionRecovery';
 
 // SECURITY (RT-F4-03): the weixin login channels (qr/scanned/done) carry a
 // single, one-shot login flow. The previous implementation registered a fresh
@@ -171,6 +180,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
     requestId: string
   ): Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>> =>
     ipcRenderer.invoke('constitution:deleteSpecialist', id, expectedRevision, requestId),
+  listConstitutionArchives: (): Promise<ConstitutionArchiveInventoryResult> =>
+    ipcRenderer.invoke('constitution:archives:list'),
+  restoreConstitutionArchive: (request: ConstitutionArchiveRestoreRequest): Promise<ConstitutionArchiveRestoreResult> =>
+    ipcRenderer.invoke('constitution:archives:restore', request),
+  getConstitutionClassicRecovery: (): Promise<ConstitutionClassicRecoveryMetadataResult> =>
+    ipcRenderer.invoke('constitution:classic-recovery:get'),
+  decideConstitutionClassicRecovery: (
+    request: ConstitutionClassicRecoveryDecisionRequest
+  ): Promise<ConstitutionClassicRecoveryMutationResult> =>
+    ipcRenderer.invoke('constitution:classic-recovery:decision', request),
+  resumeConstitutionClassicRecovery: (
+    request: ConstitutionClassicRecoveryResumeRequest
+  ): Promise<ConstitutionClassicRecoveryMutationResult> =>
+    ipcRenderer.invoke('constitution:classic-recovery:resume', request),
   // First-run onboarding: environment detection + Flux Desktop routing metrics
   onboardingDetect: () => ipcRenderer.invoke('onboarding:detect'),
   onboardingFluxMetrics: () => ipcRenderer.invoke('onboarding:fluxMetrics'),

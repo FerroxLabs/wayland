@@ -18,6 +18,8 @@ import {
   createTestOnlyConstitutionFsBinaryAuthority,
   verifyConstitutionFsBinary,
 } from '@process/services/constitution/constitutionFsBinary';
+import { ConstitutionArchiveRecoveryService } from '@process/services/constitution/constitutionArchiveRecoveryService';
+import { ConstitutionArchiveRestoreOperationAuthority } from '@process/services/constitution/constitutionArchiveRestoreAuthority';
 import { ConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 import { ConstitutionKeyStore } from '@process/services/constitution/constitutionKeyStore';
 import { createConstitutionRequestFingerprint } from '@process/services/constitution/constitutionRequestFingerprint';
@@ -355,6 +357,78 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
       );
       expect(() => new ConstitutionKeyStore(corruptRoot, secretBackend)).toThrow('CONSTITUTION_FS_KEY_STATE_INVALID');
     });
+
+    it('reconciles archive restore response loss before source reads or a second password challenge', async () => {
+      const parent = mkdtempSync(path.join(os.tmpdir(), 'constitution-restore-response-loss-'));
+      const root = path.join(parent, '.wayland');
+      const revisionAuthorityPath = path.join(parent, 'user-data', 'constitution', 'revision-authority.enc');
+      const restoreAuthorityPath = path.join(parent, 'user-data', 'constitution', 'restore-operations.enc');
+      const filesystem = new ConstitutionFsService(root, realBinary(), secretBackend, undefined, revisionAuthorityPath);
+      const absent = filesystem.readConstitution();
+      filesystem.writeConstitution('archived', absent.revision, '01010101-0101-4101-8101-010101010101');
+      const archivedState = filesystem.readConstitution();
+      if (archivedState.status !== 'present') throw new Error('expected archived Constitution state');
+      filesystem.writeConstitution('live', archivedState.revision, '02020202-0202-4202-8202-020202020202');
+      const archive = filesystem.listArchives()[0];
+      if (!archive) throw new Error('expected archive');
+      const prepared = filesystem.prepareArchiveRestore(archive.archiveId);
+      const live = filesystem.readConstitution();
+      const operationId = '03030303-0303-4303-8303-030303030303';
+      const principal = {
+        kind: 'desktop-installation',
+        installationId: '04040404-0404-4404-8404-040404040404',
+      } as const;
+      const request = {
+        operationId,
+        archiveId: archive.archiveId,
+        expectedArchiveRevision: prepared.archiveRevision,
+        password: 'fresh-password',
+        expectedRevision: live.revision,
+      };
+      let passwordChallenges = 0;
+      const crashingAuthority = new ConstitutionArchiveRestoreOperationAuthority(restoreAuthorityPath, secretBackend, {
+        afterNativeInvocation: () => {
+          throw new Error('injected crash after native restore commit');
+        },
+      });
+      const crashingRecovery = new ConstitutionArchiveRecoveryService(
+        filesystem,
+        crashingAuthority,
+        async (_principal, password) => {
+          expect(password).toBe('fresh-password');
+          passwordChallenges += 1;
+        }
+      );
+      await expect(crashingRecovery.restore(principal, request)).rejects.toThrow(
+        'injected crash after native restore commit'
+      );
+      expect(passwordChallenges).toBe(1);
+      expect(filesystem.readConstitution()).toMatchObject({ status: 'present', content: 'archived' });
+
+      const restartedFilesystem = new ConstitutionFsService(
+        root,
+        realBinary(),
+        secretBackend,
+        undefined,
+        revisionAuthorityPath
+      );
+      const restartedAuthority = new ConstitutionArchiveRestoreOperationAuthority(restoreAuthorityPath, secretBackend);
+      expect(restartedAuthority.lookup(operationId, principal)).toMatchObject({ state: 'dispatched' });
+      const restartedRecovery = new ConstitutionArchiveRecoveryService(
+        restartedFilesystem,
+        restartedAuthority,
+        async () => {
+          passwordChallenges += 1;
+        }
+      );
+      const replay = await restartedRecovery.restore(principal, { ...request, password: 'must-not-be-read' });
+      expect(replay).toMatchObject({ status: 'committed', transactionId: operationId });
+      expect(passwordChallenges).toBe(1);
+      expect(restartedAuthority.lookup(operationId, principal)).toMatchObject({ state: 'committed' });
+      expect(restartedFilesystem.listArchives()).toEqual([
+        expect.objectContaining({ targetKind: 'constitution', bytes: 4 }),
+      ]);
+    }, 60_000);
 
     it('replays present writes and resets only for the exact original caller facts', () => {
       const parent = mkdtempSync(path.join(os.tmpdir(), 'constitution-service-replay-'));

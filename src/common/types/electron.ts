@@ -5,6 +5,15 @@ import type {
   ConstitutionReadResult,
   ConstitutionSpecialistSummary,
 } from './constitution';
+import type {
+  ConstitutionArchiveInventoryResult,
+  ConstitutionArchiveRestoreRequest,
+  ConstitutionArchiveRestoreResult,
+  ConstitutionClassicRecoveryDecisionRequest,
+  ConstitutionClassicRecoveryMetadataResult,
+  ConstitutionClassicRecoveryMutationResult,
+  ConstitutionClassicRecoveryResumeRequest,
+} from './constitutionRecovery';
 
 // WebUI status interface
 export interface WebUIStatus {
@@ -104,6 +113,17 @@ export interface ElectronBridgeAPI {
     expectedRevision: string,
     requestId: string
   ) => Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>>;
+  listConstitutionArchives?: () => Promise<ConstitutionArchiveInventoryResult>;
+  restoreConstitutionArchive?: (
+    request: ConstitutionArchiveRestoreRequest
+  ) => Promise<ConstitutionArchiveRestoreResult>;
+  getConstitutionClassicRecovery?: () => Promise<ConstitutionClassicRecoveryMetadataResult>;
+  decideConstitutionClassicRecovery?: (
+    request: ConstitutionClassicRecoveryDecisionRequest
+  ) => Promise<ConstitutionClassicRecoveryMutationResult>;
+  resumeConstitutionClassicRecovery?: (
+    request: ConstitutionClassicRecoveryResumeRequest
+  ) => Promise<ConstitutionClassicRecoveryMutationResult>;
 }
 
 declare global {

@@ -158,6 +158,10 @@ export function setApplicationMainWindow(win: BrowserWindow): void {
   mainWindowRef = win;
 }
 
+export function isApplicationMainWindowSender(senderId: number): boolean {
+  return Boolean(mainWindowRef && !mainWindowRef.isDestroyed() && mainWindowRef.webContents.id === senderId);
+}
+
 /**
  * Does ANY app window currently have focus? Used by the #579 completion notifier
  * to stay quiet while the user is already watching.

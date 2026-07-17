@@ -45,6 +45,11 @@ vi.mock('@renderer/pages/settings/ConstitutionSettings/HostedEditAuthorization',
     </button>
   ),
 }));
+vi.mock('@renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery', () => ({
+  default: ({ principalScope }: { principalScope: string }) => (
+    <div data-testid='classic-recovery-surface'>{principalScope}</div>
+  ),
+}));
 vi.mock('@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor', () => ({
   default: ({ value, onChange, readOnly }: { value: string; onChange: (value: string) => void; readOnly: boolean }) => (
     <textarea
@@ -138,6 +143,14 @@ describe('Hosted ConstitutionSettings journey', () => {
   });
 
   afterEach(() => vi.useRealTimers());
+
+  it('mounts the Classic recovery surface only after an authenticated Constitution read', async () => {
+    mockRead.mockResolvedValue(present('# current'));
+    render(<ConstitutionSettings />);
+    expect(screen.queryByTestId('classic-recovery-surface')).not.toBeInTheDocument();
+    await act(async () => Promise.resolve());
+    expect(screen.getByTestId('classic-recovery-surface')).toHaveTextContent('hosted:user-1');
+  });
 
   it('waits for an in-flight autosave before reset and then renders the reset content', async () => {
     const write = deferred<ReturnType<typeof committedWrite>>();

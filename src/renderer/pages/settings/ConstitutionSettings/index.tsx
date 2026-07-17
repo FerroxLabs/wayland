@@ -25,6 +25,8 @@ import {
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
 import HostedEditAuthorization from './HostedEditAuthorization';
+import ConstitutionClassicRecovery from './ConstitutionClassicRecovery';
+import ConstitutionRecovery from './ConstitutionRecovery';
 import SpecialistOverlays from './SpecialistOverlays';
 import {
   abandonConstitutionSingleShotMutation,
@@ -408,6 +410,15 @@ const ConstitutionSettings: React.FC = () => {
   }, [isDesktop, readCurrentConstitution, resetPassword, runExclusiveDestructive, user?.id]);
 
   const toc = useMemo(() => parseToc(value), [value]);
+  const recoveryPrincipalScope = isDesktop ? 'desktop-installation' : user?.id ? `hosted:${user.id}` : null;
+
+  const handleArchiveRestored = useCallback((): void => {
+    hydrating.current = true;
+    setConflict(false);
+    setConflictSnapshot(null);
+    setReadError(null);
+    setReloadToken((token) => token + 1);
+  }, []);
 
   // Token estimate uses the same heuristic as composePrompt so the
   // user-visible number matches what the backend composer estimates.
@@ -676,6 +687,22 @@ const ConstitutionSettings: React.FC = () => {
             </nav>
           </aside>
         </div>
+      )}
+
+      {loadState !== 'loading' && loadState !== 'error' && revision.current && recoveryPrincipalScope && (
+        <>
+          <ConstitutionClassicRecovery
+            principalScope={recoveryPrincipalScope}
+            executeExclusive={runExclusiveDestructive}
+            onRestored={handleArchiveRestored}
+          />
+          <ConstitutionRecovery
+            expectedRevision={revision.current}
+            principalScope={recoveryPrincipalScope}
+            executeExclusive={runExclusiveDestructive}
+            onRestored={handleArchiveRestored}
+          />
+        </>
       )}
 
       {loadState !== 'loading' && <SpecialistOverlays />}
