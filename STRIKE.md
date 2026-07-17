@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T10:21:14Z
+Last heartbeat: 2026-07-17T10:35:56Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -85,7 +85,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                             | n/a                                       | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                            | n/a                                       | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck`   | final aggregate pending CON-B             | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | LANDED   | shared transaction `8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495`                                             | `CON-B-SHARED-RECOVERY-integration-focused`, `CON-B-SHARED-RECOVERY-integration-static`, `CON-B-SHARED-RECOVERY-integration-ownership` | 197/197 Vitest; 33/33 Bun; full typecheck | independent exact-HEAD audit                                       |
+| CON-B        | CON-A           | REOPENED | shared transaction `8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495`; rejected audit target `f38d3d1177c30fc9adb2b578a471a34b24d67493` | historical only: `CON-B-SHARED-RECOVERY-integration-focused`, `CON-B-SHARED-RECOVERY-integration-static`, `CON-B-SHARED-RECOVERY-integration-ownership` | historical: 197/197 Vitest; 33/33 Bun; full typecheck | durable evidence grammar and remote-HTTP UUID mint capability |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                   | dependency audit red                      | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                   | none                                      | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -484,6 +484,62 @@ independent audit at zero HIGH/BLOCKER.
 
 Timebox: 90 minutes; split only at the utility/component boundary if the
 radioactive dependency seam or the real consumer harness cannot land together.
+
+### Subpacket CON-B-DURABLE-EVIDENCE-GRAMMAR — one request grammar and portable identity mint
+
+Dependency: two author-excluded HIGH findings against exact integrated head
+`f38d3d1177c30fc9adb2b578a471a34b24d67493`. The renderer accepted shaped
+durable evidence using a weaker local grammar than the shared transport parser,
+so hosted and Desktop lanes could disagree on the same persisted bytes. Both
+recovery screens also minted through unguarded secure-context-only
+`crypto.randomUUID()`, contradicting the documented remote insecure HTTP lane
+even though its IndexedDB transaction authority was available.
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx`
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `src/renderer/services/ConstitutionRecoveryOperationId.ts`
+- `tests/unit/renderer/ConstitutionRecovery.dom.test.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+- `tests/unit/renderer/ConstitutionRecoveryOperationId.dom.test.ts`
+
+Authority boundary: validate persisted archive and Classic recovery request
+facts with the same shared parsers that own transport acceptance; require exact
+ISO timestamp grammar for renderer-owned evidence metadata; preserve invalid
+evidence bytes for diagnosis and do not dispatch or delete them; provide one renderer-owned
+UUID v4 mint that uses native `randomUUID` when available, falls back only to
+cryptographic `getRandomValues`, and otherwise fails closed before persistence
+or dispatch. This packet does not change service authority, transport schemas,
+transaction ownership, authentication, Native recovery, packaging, deployment,
+or release authority.
+
+Invariants: operation and archive IDs remain UUID v4; archive and Constitution
+revisions are non-empty, scalar-bounded NFC strings without control characters;
+the archive ID in the request binds the storage key; invalid durable evidence is
+visible as a failure and is never normalized, dispatched, deleted, or replaced;
+hosted HTTP and Desktop IPC consume the same accepted request facts; every newly
+minted ID is UUID v4; absence of cryptographic randomness fails closed and never
+falls back to `Math.random` or another candidate-controlled source.
+
+Non-claims: renderer validation does not prove a live provider, packaged app,
+deployment, canary, or release. It does not authorize recovery from malformed
+legacy state; that state remains preserved and fail-closed.
+
+Tests: hostile shaped records with a non-v4 archive ID, decomposed Unicode,
+control characters, an over-limit revision, and an inexact timestamp; every
+case must preserve byte-identical storage and prove zero transport dispatch.
+Operation-ID tests cover native UUID, insecure-context cryptographic byte
+fallback with RFC 4122 version/variant bits, and unavailable crypto fail-closed;
+both Classic and archive consumers prove fallback mint before transport.
+Then rerun the complete focused recovery set, scoped format/lint/typecheck,
+aggregate Constitution suites, and author-excluded exact-HEAD audit.
+
+Acceptance evidence: exact packet and serial integration commits with complete
+receipts and a continued independent audit reporting zero HIGH/BLOCKER against
+the new exact integration HEAD.
+
+Timebox: 45 minutes.
 
 ## Packet SEC-001 — aggregate dependency security
 
