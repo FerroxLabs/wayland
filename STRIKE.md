@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | LANDED   | durable-request integration `231b2fc9eec1bcc101714618f3224b5070de6d21`; failed historical audit head `acb812cfa5d15183700603c8a439ee589f2096ed` | `CON-B-DURABLE-REQUEST-packet-focused`, `CON-B-DURABLE-REQUEST-packet-static`, `CON-B-DURABLE-REQUEST-packet-ownership` | `CON-B-DURABLE-REQUEST-integration-focused`, `CON-B-DURABLE-REQUEST-integration-typecheck` | independent exact-HEAD re-audit |
+| CON-B        | CON-A           | REOPENED | durable-request integration `231b2fc9eec1bcc101714618f3224b5070de6d21`; failed concurrent audit head `2fc5183be9b2d5ee5a96742e3774c128118c257d` | historical receipts retained; cross-window remediation building | none for reopened exact head | cached-intent mismatch and unconditional-clear race BLOCKERs |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -338,6 +338,47 @@ facts; discard item/challenge drift replays the originally bound object IDs;
 allowed-action drift cannot deadlock the pending action; malformed or
 unsupported durable JSON renders an explicit fail-closed state, never calls
 `randomUUID`, never overwrites storage, and never dispatches a decision.
+
+Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
+lint, format, typecheck, and exact ownership receipts; serial integration and
+current-head aggregate proof; independent author-excluded audit at zero
+HIGH/BLOCKER.
+
+Timebox: 45 minutes.
+
+### Subpacket CON-B-CROSS-WINDOW — destructive intent and conditional clear
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+
+Authority boundary: serialize the renderer's displayed destructive intent with
+the exact durable operation it authorizes, and clear only the operation whose
+terminal result was received. This packet may reject a stale cached view,
+resynchronize renderer state, and compare the complete durable binding before
+removal. It may not change producer authority, weaken fresh authentication, or
+infer terminality.
+
+Invariants: the operation and action displayed to the user are the exact
+operation and action submitted; any durable change between render and submit
+fails closed, clears entered secrets, updates the visible pending state, and
+requires a new explicit authorization; a success or producer-proven terminal
+result can remove only the byte-equivalent operation binding that produced the
+result; a concurrently replaced, malformed, or unsupported record survives
+untouched and remains visible/fail-closed; cross-window storage updates clear
+entered secrets and refresh pending state.
+
+Non-claims: renderer synchronization does not make localStorage transactional
+producer authority, prove rollback, or resolve the safe pre-dispatch discard
+liveness case when the producer never received the operation.
+
+Tests: mutate durable action from displayed promote to discard immediately
+before submit and prove no dispatch until the discard action and confirmation
+are visibly re-authorized; replace durable identity while the first request is
+in flight and prove success and `ROLLED_BACK` cannot remove or overwrite the
+new operation; deliver a storage event and prove credentials clear and the UI
+resynchronizes.
 
 Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
 lint, format, typecheck, and exact ownership receipts; serial integration and
@@ -619,6 +660,16 @@ exact-HEAD re-audit remains the acceptance gate.
 - `strike/receipts/CON-B-DURABLE-REQUEST-packet-ownership.json`
 - `strike/receipts/CON-B-DURABLE-REQUEST-integration-focused.json`
 - `strike/receipts/CON-B-DURABLE-REQUEST-integration-typecheck.json`
+
+Independent author-excluded audit of exact integration head
+`2fc5183be9b2d5ee5a96742e3774c128118c257d` confirmed that all four prior
+steady-state blockers are closed, then failed the acceptance gate on two
+cross-window races. A cached promote UI can re-read and dispatch a concurrently
+stored discard without displaying or requiring discard confirmation; and an
+old request's success or `ROLLED_BACK` path unconditionally removes whatever
+operation now occupies the principal key. Both violate destructive intent and
+durable correlation. CON-B is reopened as CON-B-CROSS-WINDOW; prior receipts
+remain historical and no aggregate or acceptance claim survives this audit.
 
 ## Authorization gates
 
