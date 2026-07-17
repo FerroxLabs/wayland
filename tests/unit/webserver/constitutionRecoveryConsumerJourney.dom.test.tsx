@@ -181,6 +181,27 @@ const constitutionFs = {
 const executeExclusive = async <T,>(
   action: () => Promise<{ committed: boolean; value: T }>
 ): Promise<{ committed: boolean; value: T }> => action();
+const lockQueues = new Map<string, Promise<void>>();
+const journeyLockRequest = vi.fn(
+  async <T,>(name: string, options: LockOptions, callback: (lock: Lock | null) => Promise<T>): Promise<T> => {
+    expect(options).toMatchObject({ mode: 'exclusive' });
+    const previous = lockQueues.get(name) ?? Promise.resolve();
+    let release!: () => void;
+    const current = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    lockQueues.set(
+      name,
+      previous.then(() => current)
+    );
+    await previous;
+    try {
+      return await callback({ name, mode: 'exclusive' } as Lock);
+    } finally {
+      release();
+    }
+  }
+);
 
 function invoke(channel: string, ...args: unknown[]): Promise<unknown> {
   const handler = harness.handlers.get(channel);
@@ -238,6 +259,12 @@ describe('Constitution recovery actual consumer journeys', () => {
 
   beforeEach(() => {
     window.localStorage.clear();
+    lockQueues.clear();
+    journeyLockRequest.mockClear();
+    Object.defineProperty(navigator, 'locks', {
+      configurable: true,
+      value: { request: journeyLockRequest },
+    });
     harness.archiveRestore.mockReset();
     harness.archiveRestore.mockResolvedValue({
       revision: 'rev:v1:restored',
@@ -295,9 +322,10 @@ describe('Constitution recovery actual consumer journeys', () => {
     async (_lane, desktop) => {
       harness.desktop = desktop;
       const onRestored = vi.fn();
+      const principalScope = desktop ? 'desktop:installation' : 'hosted:hosted-user';
       render(
         <ConstitutionClassicRecovery
-          principalScope={desktop ? 'desktop:installation' : 'hosted:hosted-user'}
+          principalScope={principalScope}
           executeExclusive={executeExclusive}
           onRestored={onRestored}
         />
@@ -319,6 +347,11 @@ describe('Constitution recovery actual consumer journeys', () => {
       expect(harness.classicDecide.mock.calls[0]![0]).toMatchObject(
         desktop ? desktopPrincipal : { kind: 'hosted-subject', subject: 'hosted-user' }
       );
+      expect(journeyLockRequest).toHaveBeenCalledTimes(2);
+      expect(journeyLockRequest.mock.calls.map(([name]) => name)).toEqual([
+        `wayland:constitution:classic-recovery-lock:${encodeURIComponent(principalScope)}`,
+        `wayland:constitution:classic-recovery-lock:${encodeURIComponent(principalScope)}`,
+      ]);
       expect(window.localStorage.length).toBe(0);
     }
   );
