@@ -1,0 +1,9 @@
+{
+  "receipt_id": "ARM-001-tree-diff",
+  "commit": "e1c61a997a9d18a54d1824db19057a836429588a",
+  "command": "rtk git diff-tree --check --no-commit-id -r e1c61a997a9d18a54d1824db19057a836429588a",
+  "exit_code": 0,
+  "log_digest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "timestamp": "2026-07-17T01:10:48Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

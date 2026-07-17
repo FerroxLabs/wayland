@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T01:04:29Z
+Last heartbeat: 2026-07-17T01:10:48Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -77,7 +77,7 @@ ownership.
 
 | Packet | Dependency | Status | Exact commit | Focused proof | Aggregate proof | Remaining blocker |
 |---|---|---|---|---|---|---|
-| ARM-001 | frozen baseline | BUILDING | `991c502e74506ec3702f92e429a8b31b655412ba` | receipt pending | n/a | commit this state file and contract mirrors |
+| ARM-001 | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a` | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean` | n/a | none |
 | CON-A | ARM-001 | QUEUED | uncommitted tree `1956a8801a3956e4032d64b20841f6ad637dd230` | legacy proof is not a v2 receipt | legacy aggregate green | must create exact commit and reproducible v2 receipts |
 | CON-B | CON-A | REOPENED | uncommitted tree `751170dbd39b629e7580e4708d0785354eb8f48d` | 51 focused tests green after lint repair, not yet a v2 receipt | exact full rerun active | independent audit and security gate |
 | SEC-001 | CON-B | PLANNED | none | none | dependency audit red | partition reachable production dependencies and remediate |
@@ -272,6 +272,19 @@ rebases and re-runs focused proof before landing.
 
 No valid v2 execution receipt exists yet. Legacy green runs are preserved as
 recon evidence but cannot be promoted into this ledger retroactively.
+
+ARM-001 correction history: initial state commit `3e17a142dcdc2cdaa0e4db4bbd52ceccc7b7bf2b`
+was reopened because committed-tree diff checking exposed one extra blank line
+at EOF in each JSON contract. Fix commit
+`e1c61a997a9d18a54d1824db19057a836429588a` removed both. The invalid earlier
+diff command and defective commit are not counted as passing evidence.
+
+Valid v2 receipts now present:
+
+- `strike/receipts/ARM-001-inventory.json`
+- `strike/receipts/ARM-001-mixed.json`
+- `strike/receipts/ARM-001-tree-diff.json`
+- `strike/receipts/ARM-001-clean.json`
 
 ## Authorization gates
 

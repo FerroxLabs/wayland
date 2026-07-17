@@ -1,0 +1,9 @@
+{
+  "receipt_id": "ARM-001-clean",
+  "commit": "e1c61a997a9d18a54d1824db19057a836429588a",
+  "command": "rtk git status --porcelain=v1 --untracked-files=all",
+  "exit_code": 0,
+  "log_digest": "sha256:2689367b205c16ce32ed4200942b8b1e262dfc70d9bc9fbc77c49699a4f1df",
+  "timestamp": "2026-07-17T01:10:48Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}
