@@ -24,7 +24,7 @@ import {
 
 const PENDING_CONTRACT = 'wayland-constitution-classic-recovery-client-operation/1.0' as const;
 const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
-const AMBIGUOUS_FAILURE_CODES = new Set(['INTEGRITY_FAILURE', 'NATIVE_FAILURE']);
+const IDENTITY_INVALIDATING_FAILURE_CODES = new Set(['OPERATION_ID_CONFLICT', 'ROLLED_BACK']);
 
 type PendingClassicOperation = Readonly<{
   contract: typeof PENDING_CONTRACT;
@@ -249,7 +249,7 @@ const ConstitutionClassicRecovery: React.FC<Props> = ({ principalScope, executeE
       setConfirmationText('');
       if (result.success === false) {
         setMessage(result.error.message);
-        if (!result.error.retryable && !AMBIGUOUS_FAILURE_CODES.has(result.error.code)) {
+        if (!result.error.retryable && IDENTITY_INVALIDATING_FAILURE_CODES.has(result.error.code)) {
           clearPending(principalScope);
         }
         await load(false);

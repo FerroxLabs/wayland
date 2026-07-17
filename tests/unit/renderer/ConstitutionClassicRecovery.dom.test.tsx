@@ -240,6 +240,73 @@ describe('ConstitutionClassicRecovery', () => {
     }
   );
 
+  it('retains and replays the operation identity when conflict follows an ambiguous dispatch', async () => {
+    const onRestored = vi.fn();
+    mockDecide
+      .mockImplementationOnce(async (request) => ({
+        success: false,
+        error: {
+          code: 'CONFLICT',
+          message: 'Classic recovery facts changed after dispatch.',
+          retryable: false,
+          operationId: request.operationId,
+        },
+      }))
+      .mockResolvedValueOnce(committed);
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={onRestored}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+    const password = screen.getByPlaceholderText('Current Wayland password') as HTMLInputElement;
+    fireEvent.change(password, { target: { value: 'correct' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await screen.findByText('Classic recovery facts changed after dispatch.');
+
+    expect(password.value).toBe('');
+    expect(window.localStorage.length).toBe(1);
+    expect(window.localStorage.getItem(window.localStorage.key(0)!)).toContain('11111111-1111-4111-8111-111111111111');
+
+    fireEvent.change(password, { target: { value: 'correct-again' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1));
+
+    expect(mockDecide).toHaveBeenCalledTimes(2);
+    expect(mockDecide.mock.calls[1][0].operationId).toBe(mockDecide.mock.calls[0][0].operationId);
+    expect(mockDecide.mock.calls[1][0].password).toBe('correct-again');
+    expect(window.localStorage.length).toBe(0);
+  });
+
+  it('discards an operation identity rejected as bound to different facts', async () => {
+    mockDecide.mockImplementationOnce(async (request) => ({
+      success: false,
+      error: {
+        code: 'OPERATION_ID_CONFLICT',
+        message: 'The operation identity is bound to different facts.',
+        retryable: false,
+        operationId: request.operationId,
+      },
+    }));
+    render(
+      <ConstitutionClassicRecovery
+        principalScope='hosted:user-1'
+        executeExclusive={executeExclusive}
+        onRestored={vi.fn()}
+      />
+    );
+    await screen.findByText('Classic session recovery');
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Classic work' }));
+    fireEvent.change(screen.getByPlaceholderText('Current Wayland password'), { target: { value: 'correct' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    await screen.findByText('The operation identity is bound to different facts.');
+
+    expect(window.localStorage.length).toBe(0);
+  });
+
   it('does not expose portable transfer or destructive rescue lifecycle controls', async () => {
     render(
       <ConstitutionClassicRecovery
