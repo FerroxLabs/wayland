@@ -11,6 +11,64 @@ import { AuthService } from '../service/AuthService';
 import { UserRepository } from '../repository/UserRepository';
 import { AUTH_CONFIG } from '../../config/constants';
 
+type SecurityHeaderResult = {
+  present: boolean;
+  value: string | null;
+};
+
+const BEARER_TOKEN_PATTERN = /^[A-Za-z0-9\-._~+/]+=*$/;
+const WEBSOCKET_PROTOCOL_TOKEN_PATTERN = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+
+function normalizeSecurityHeaderValue(value: string): string | null {
+  if (value === '' || value !== value.trim() || value.includes(',')) return null;
+  return value;
+}
+
+function readSecurityHeader(req: IncomingMessage, headerName: string): SecurityHeaderResult {
+  const normalizedName = headerName.toLowerCase();
+  const normalizedEntries = Object.entries(req.headers).filter(
+    ([name, value]) => name.toLowerCase() === normalizedName && value !== undefined
+  );
+  const normalizedPresent = normalizedEntries.length > 0;
+
+  if (Array.isArray(req.rawHeaders) && req.rawHeaders.length > 0) {
+    const rawValues: string[] = [];
+    for (let index = 0; index + 1 < req.rawHeaders.length; index += 2) {
+      if (req.rawHeaders[index]?.toLowerCase() === normalizedName) {
+        rawValues.push(req.rawHeaders[index + 1] ?? '');
+      }
+    }
+
+    const present = normalizedPresent || rawValues.length > 0;
+    if (!present) return { present: false, value: null };
+    if (req.rawHeaders.length % 2 !== 0 || rawValues.length !== 1) {
+      return { present: true, value: null };
+    }
+    return { present: true, value: normalizeSecurityHeaderValue(rawValues[0]!) };
+  }
+
+  if (!normalizedPresent) return { present: false, value: null };
+  if (normalizedEntries.length !== 1) return { present: true, value: null };
+  const value = normalizedEntries[0]?.[1];
+  if (typeof value !== 'string') return { present: true, value: null };
+  return { present: true, value: normalizeSecurityHeaderValue(value) };
+}
+
+function extractExplicitWebSocketToken(req: IncomingMessage): string | null {
+  const authorization = readSecurityHeader(req, 'authorization');
+  if (authorization.present) {
+    if (!authorization.value) return null;
+    const match = /^Bearer ([^\s,]+)$/.exec(authorization.value);
+    const token = match?.[1];
+    return token && BEARER_TOKEN_PATTERN.test(token) ? token : null;
+  }
+
+  const protocol = readSecurityHeader(req, 'sec-websocket-protocol');
+  if (!protocol.present || !protocol.value) return null;
+  if (protocol.value === 'vite-hmr' || protocol.value === 'vite-ping') return null;
+  return WEBSOCKET_PROTOCOL_TOKEN_PATTERN.test(protocol.value) ? protocol.value : null;
+}
+
 /**
  * Token payload interface
  */
@@ -210,6 +268,14 @@ export const TokenMiddleware = {
     // URL query token is no longer supported (security risk)
 
     return null;
+  },
+
+  /**
+   * Extract the exact non-cookie credential used by Origin-less WebSocket clients.
+   * Duplicate, list-valued, empty, and Vite-only headers fail closed.
+   */
+  extractExplicitWebSocketToken(req: IncomingMessage): string | null {
+    return extractExplicitWebSocketToken(req);
   },
 
   /** Validate WebSocket token */

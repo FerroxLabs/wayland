@@ -429,7 +429,7 @@ Also test the DSL with missing required fields to confirm it throws `IllegalStat
 When a module has 50+ integration tests all requiring a database container:
 
 - Use a companion object or `object` with `@BeforeAll` (JUnit 5 `PER_CLASS` lifecycle) to share a single container instance across all tests in a class.
-- For sharing a container across multiple test classes, use the `Singleton Container` pattern -- a Kotlin `object` that starts the container lazily and registers a JVM shutdown hook for cleanup. This reduces test suite startup time from O(n_classes _ startup_time) to O(1 _ startup_time).
+- For sharing a container across multiple test classes, use the `Singleton Container` pattern -- a Kotlin `object` that starts the container lazily and registers a JVM shutdown hook for cleanup. This reduces test suite startup time from O(n*classes * startup*time) to O(1 * startup_time).
 - Configure Testcontainers with `withReuse(true)` during local development only (controlled by an environment variable). Never enable container reuse in CI -- it causes state leakage between pipeline runs.
 - Use `@Transactional` with `Rollback` or truncate tables in `@AfterEach` to ensure test isolation. Never rely on test execution order for database state cleanup.
 

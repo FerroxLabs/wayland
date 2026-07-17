@@ -133,6 +133,13 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   'shell.',
   // Hub extension install/update/retry/uninstall - remote-reachable RCE chain.
   'hub.',
+  // Dev Actions execute local git/GitHub CLI operations with the desktop
+  // user's credentials. Paired WebUI callers must not commit, build, mutate
+  // refs/PRs, or inspect caller-supplied local checkout paths.
+  'dev-actions.',
+  'update.',
+  'auto-update.',
+  'voice-asset.',
   // Cost observability (WS-D). There is no remote cost view today, so deny the
   // ENTIRE cost.* namespace to paired-device WebSocket callers: the read
   // aggregates (summary/byModel/byBackend/byConversation/byTeam/series) plus the
@@ -160,6 +167,8 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
  * the CDP config, control startup, or restart the process.
  */
 const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
+  'voice-asset.download',
+  'app.get-path',
   // --- Filesystem write / delete / rename / temp / raw-buffer reads ---
   'write-file',
   'remove-entry',
@@ -416,6 +425,11 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'system-settings:set-terminal-enabled',
 ]);
 
+function isRemoteDeniedProviderKey(key: string): boolean {
+  if (REMOTE_DENIED_KEYS.has(key)) return true;
+  return REMOTE_DENIED_PREFIXES.some((prefix) => key.startsWith(prefix));
+}
+
 /**
  * Return true iff a provider invocation `name` (the full wire name, e.g.
  * `subscribe-write-file`) is permitted for a REMOTE WebSocket caller.
@@ -436,11 +450,7 @@ export function isAllowedForRemote(name: string): boolean {
   if (!name.startsWith('subscribe-')) return true;
 
   const key = name.slice('subscribe-'.length);
-  if (REMOTE_DENIED_KEYS.has(key)) return false;
-  for (const prefix of REMOTE_DENIED_PREFIXES) {
-    if (key.startsWith(prefix)) return false;
-  }
-  return true;
+  return !isRemoteDeniedProviderKey(key);
 }
 
 /**
@@ -454,11 +464,38 @@ export function isAllowedForRemote(name: string): boolean {
  * spawn/drive one. The local Electron renderer is unaffected — it receives
  * emitters over the in-process IPC adapter, not this WS broadcast path.
  */
-const REMOTE_OUTBOUND_DENIED_PREFIXES: readonly string[] = ['terminal.'];
+const REMOTE_OUTBOUND_DENIED_PREFIXES: readonly string[] = [
+  'terminal.',
+  'dev-actions.',
+  'update.',
+  'auto-update.',
+  'voice-asset.',
+];
+
+const PROVIDER_CALLBACK_PREFIX = 'subscribe.callback-';
+const PROVIDER_CALLBACK_SUFFIX = /^[0-9a-f]{8}$/;
+
+function resolveRegisteredProviderCallbackKey(name: string): string | undefined {
+  const rest = name.slice(PROVIDER_CALLBACK_PREFIX.length);
+  for (const key of providerKeys) {
+    const doubledPrefix = key + key;
+    if (rest.startsWith(doubledPrefix) && PROVIDER_CALLBACK_SUFFIX.test(rest.slice(doubledPrefix.length))) {
+      return key;
+    }
+    if (rest.startsWith(key) && PROVIDER_CALLBACK_SUFFIX.test(rest.slice(key.length))) {
+      return key;
+    }
+  }
+  return undefined;
+}
 
 /** True iff an emitter `name` may be broadcast to remote WS peers. */
 export function isAllowedOutboundToRemote(name: string): boolean {
   if (typeof name !== 'string' || name.length === 0) return false;
+  if (name.startsWith(PROVIDER_CALLBACK_PREFIX)) {
+    const providerKey = resolveRegisteredProviderCallbackKey(name);
+    return providerKey !== undefined && !isRemoteDeniedProviderKey(providerKey);
+  }
   for (const prefix of REMOTE_OUTBOUND_DENIED_PREFIXES) {
     if (name.startsWith(prefix)) return false;
   }

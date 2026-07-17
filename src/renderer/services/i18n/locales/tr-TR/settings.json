@@ -391,13 +391,19 @@
           "label": "Business Account ID",
           "placeholder": "987654321098765",
           "help": "İsteğe bağlı. Gelen mesaj olaylarında daha zengin meta veri sağlar.",
-          "required": ""
+          "required": "Business Account ID is optional for Meta backend"
         },
         "verifyToken": {
           "label": "Doğrulama Token'ı",
           "placeholder": "uzun bir rastgele dize",
           "help": "GET /webhook el sıkışması sırasında Meta'nın geri yansıttığı, operatör tarafından seçilen dize. Meta panosuna yapıştırdığınızla eşleşmelidir.",
-          "required": ""
+          "required": "Verify Token is required for Meta backend"
+        },
+        "appSecret": {
+          "label": "App Secret",
+          "placeholder": "32-character hex string",
+          "help": "Meta App Secret used to verify signed inbound webhook deliveries. Different from the Verify Token.",
+          "required": "App Secret is required for Meta backend"
         }
       },
       "mode": {
@@ -2586,6 +2592,18 @@
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity"
     }
+  },
+  "devActions": {
+    "syncTitle": "Forkları upstream ile eşitle",
+    "syncDescription": "Kimliği doğrulanmış GitHub CLI kullanarak yalnızca geçici eşitleme dalını günceller ve bir pull request açar veya var olanı kullanır. Varsayılan dalınız ve forka özgü commitler hiçbir zaman zorla üzerine yazılmaz.",
+    "syncButton": "Eşitleme PR’larını hazırla",
+    "syncSelectWarning": "En az bir fork seçin.",
+    "syncSuccess": "Eşitleme tamamlandı: {{ready}} PR hazır; {{upToDate}} zaten güncel.",
+    "syncFailure": "{{count}} başarısız: {{repos}}",
+    "syncUpToDate": "Zaten güncel.",
+    "syncCounts": "{{upstream}} upstream commiti hazır; {{preserved}} forka özgü commit korundu.",
+    "syncUnknownError": "Eşitleme başarısız oldu.",
+    "syncReviewPr": "PR’ı incele"
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",

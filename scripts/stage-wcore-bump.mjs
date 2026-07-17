@@ -8,13 +8,15 @@
 /**
  * Stage a bundled wayland-core engine version bump.
  *
- * Bumping the bundled engine is three coupled edits that MUST move in lockstep:
+ * Bumping the bundled engine is four coupled edits that MUST move in lockstep:
  *   1. DEFAULT_WCORE_VERSION in scripts/prepareWaylandCore.js (Electron bundle)
  *   2. a per-tag SHA-256 block in scripts/bundled-wcore-shasums.json (the
  *      manifest every download is verified against before it is trusted).
  *   3. WCORE_VERSION in installer/scripts/postinstall.mjs (the getwayland
  *      headless self-host installer's OWN engine pin). Missing this is why it
  *      silently drifted to a 2-minor-stale v0.10.0 engine (#451).
+ *   4. installer/scripts/wcore-shasums.json, which is shipped inside the npm
+ *      package and gates the headless installer's download before extraction.
  *
  * Hand-transcribing six checksums is the error surface. This helper pulls the
  * authoritative `wayland-core-checksums.txt` asset published alongside the
@@ -40,6 +42,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SHASUMS_FILE = path.join(__dirname, 'bundled-wcore-shasums.json');
 const PREPARE_FILE = path.join(__dirname, 'prepareWaylandCore.js');
 const POSTINSTALL_FILE = path.join(__dirname, '..', 'installer', 'scripts', 'postinstall.mjs');
+const INSTALLER_SHASUMS_FILE = path.join(__dirname, '..', 'installer', 'scripts', 'wcore-shasums.json');
 const REPO = 'FerroxLabs/wayland-core';
 
 // The six platform archives a release must publish. The bump fails loudly if
@@ -64,6 +67,9 @@ if (!rawTag || rawTag.startsWith('--')) {
   fail('missing release tag, e.g. `node scripts/stage-wcore-bump.mjs v0.12.5`');
 }
 const tag = rawTag.startsWith('v') ? rawTag : `v${rawTag}`;
+if (!/^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.test(tag)) {
+  fail(`Invalid stable wayland-core release tag: ${rawTag}`);
+}
 
 // Pull the published checksums file via the gh CLI (honours GH_TOKEN). `-` sends
 // the asset to stdout so nothing lands on disk.
@@ -97,6 +103,21 @@ if (missing.length) {
 // Sort keys to match the existing file's platform ordering (darwin, linux, windows).
 const order = REQUIRED_ARCHIVES.map((suffix) => `wayland-core-${tag}-${suffix}`);
 const orderedBlock = Object.fromEntries(order.map((k) => [k, block[k]]));
+const installerTargets = {
+  'linux-x64': 'x86_64-unknown-linux-gnu.tar.gz',
+  'linux-arm64': 'aarch64-unknown-linux-gnu.tar.gz',
+  'darwin-x64': 'x86_64-apple-darwin.tar.gz',
+  'darwin-arm64': 'aarch64-apple-darwin.tar.gz',
+};
+const installerManifest = {
+  version: tag,
+  assets: Object.fromEntries(
+    Object.entries(installerTargets).map(([runtimeKey, suffix]) => {
+      const filename = `wayland-core-${tag}-${suffix}`;
+      return [runtimeKey, { filename, sha256: orderedBlock[filename].replace(/^sha256:/, '') }];
+    })
+  ),
+};
 
 const shasums = JSON.parse(fs.readFileSync(SHASUMS_FILE, 'utf-8'));
 const alreadyPinned = Boolean(shasums[tag]);
@@ -144,10 +165,12 @@ fs.writeFileSync(
   postinstallSrc.replace(/const WCORE_VERSION = '[^']+';/, `const WCORE_VERSION = '${tag}';`),
   'utf-8'
 );
+fs.writeFileSync(INSTALLER_SHASUMS_FILE, JSON.stringify(installerManifest, null, 2) + '\n', 'utf-8');
 
 console.log('\nApplied:');
 console.log(`  scripts/prepareWaylandCore.js   DEFAULT_WCORE_VERSION -> '${tag}'`);
 console.log(`  scripts/bundled-wcore-shasums.json   added ${tag} block (6 archives)`);
 console.log(`  installer/scripts/postinstall.mjs   WCORE_VERSION -> '${tag}'`);
+console.log(`  installer/scripts/wcore-shasums.json   pinned ${tag} (4 archives)`);
 console.log('\nNow verify end-to-end (downloads + checks all six archives):');
 console.log('  WCORE_REQUIRE_VERIFIED=1 WCORE_FORCE_DOWNLOAD=1 node scripts/prepareWaylandCore.js\n');

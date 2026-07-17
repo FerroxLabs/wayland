@@ -32,6 +32,7 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
   onTogglePin,
   onSetEffort,
   onManage,
+  defaultAction,
   draftSearch = false,
   notice,
 }) => {
@@ -44,6 +45,17 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
       <Info size={14} strokeWidth={2} className={styles.noticeIc} />
       <span>{notice}</span>
     </div>
+  ) : null;
+  const defaultActionButton = defaultAction ? (
+    <Button
+      long
+      type={defaultAction.active ? 'primary' : 'secondary'}
+      disabled={defaultAction.disabled}
+      aria-pressed={defaultAction.active}
+      onClick={defaultAction.onSelect}
+    >
+      {defaultAction.label}
+    </Button>
   ) : null;
   const [query, setQuery] = useState('');
   const [moreOpen, setMoreOpen] = useState(false);
@@ -185,6 +197,7 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
         </div>
         <div className={styles.flyoutScroll}>
           {noticeBanner}
+          {defaultActionButton}
           <div className={styles.emptyCard}>
             <div className={styles.emptyIc}>
               <Sparkles size={22} strokeWidth={1.8} />
@@ -230,6 +243,7 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
 
       <div className={styles.flyoutScroll}>
         {noticeBanner}
+        {defaultActionButton}
         {/* Flux Auto hero - rendered independently of zones (zones may be empty
             while the curated list resolves even though the hero is present). */}
         {vm.fluxHero && (
@@ -263,7 +277,9 @@ const ModelSelectorFlyout: React.FC<ModelSelectorProps> = ({
         )}
 
         {/* Effort sub-row under the active model (effort-capable backends only). */}
-        {vm.effortSupported && onSetEffort && <EffortSubRow level={effort} onChange={onSetEffort} />}
+        {vm.effortSupported && onSetEffort && (
+          <EffortSubRow level={effort} onChange={onSetEffort} levels={vm.effortLevels} />
+        )}
 
         <div className={styles.searchBox}>
           <Input

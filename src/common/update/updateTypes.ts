@@ -50,7 +50,7 @@ export interface IjfwUpdateStatus {
 
 export interface UpdateCheckRequest {
   includePrerelease?: boolean;
-  /** Defaults to ShadowsTT/wayland when omitted */
+  /** Defaults to FerroxLabs/wayland when omitted. Packaged builds ignore overrides. */
   repo?: string;
 }
 
@@ -67,7 +67,7 @@ export interface UpdateDownloadRequest {
    * verification cannot run and the download is refused (fail-closed).
    */
   tagName?: string;
-  /** Repo (`owner/name`) the release lives in; defaults to the trusted repo. */
+  /** Repo (`owner/name`) the release lives in; packaged builds use FerroxLabs/wayland. */
   repo?: string;
 }
 

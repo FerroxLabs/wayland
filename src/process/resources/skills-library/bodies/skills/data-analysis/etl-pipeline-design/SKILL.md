@@ -137,7 +137,7 @@ Post-load validation is not optional. It is the gate between a pipeline run comp
 - **Row count delta check:** Compare the row count of the target after load to the row count before load. Alert if the delta is outside an expected range (e.g., more than 3x the average daily delta or a decrease in total rows when only inserts were expected). Express the threshold in percentage terms so it scales as data grows.
 - **Null check on NOT NULL columns:** Any NOT NULL column with nulls is a pipeline defect. This should cause a hard failure -- halt the pipeline and alert.
 - **Freshness check:** Verify the maximum value of the created_at or updated_at field in the loaded data matches the expected extraction window. Stale data in the target is often caused by a silent extract failure that loaded zero new rows without error.
-- **Duplicate primary key check:** After upsert, verify no duplicate values exist on the primary key. Run SELECT primary_key, COUNT(_) GROUP BY primary_key HAVING COUNT(_) > 1 -- result should be empty.
+- **Duplicate primary key check:** After upsert, verify no duplicate values exist on the primary key. Run SELECT primary*key, COUNT(*) GROUP BY primary*key HAVING COUNT(*) > 1 -- result should be empty.
 - **Referential integrity check:** If the target table has a foreign key to another table, verify that all loaded foreign key values exist in the parent table.
 - **Numeric sanity check:** For revenue, counts, or other measurable KPIs, define a plausible range based on historical data. Revenue for a business doing $1M/day should not load as $0 or $1B -- both indicate data errors.
 

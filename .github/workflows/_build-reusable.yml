@@ -11,6 +11,10 @@ on:
         description: 'Git ref to checkout (leave empty to use the triggering commit)'
         type: string
         default: ''
+      release_tag:
+        description: 'Validated stable release tag; empty for non-release builds'
+        type: string
+        default: ''
       skip_code_quality:
         description: 'Skip code quality checks (faster builds for debugging)'
         type: boolean
@@ -40,8 +44,6 @@ env:
   # MUST bundle the engine here. PR/test builds (build-matrix.yml, pr-checks.yml)
   # keep WCORE_SKIP=1 to stay fast; only this release path ships the engine.
   WCORE_SKIP: '0'
-  # aionrs binary version to bundle (used by scripts/prepareAionrs.js)
-  AIONRS_VERSION: 'latest'
   # Pinned Bun runtime bundled into the packaged app. Must match
   # PINNED_BUN_VERSION in scripts/prepareBundledBun.js and the
   # corresponding entry in scripts/bundled-bun-shasums.json.
@@ -59,25 +61,23 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           ref: ${{ inputs.ref }}
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '22'
+          node-version: '22.23.1'
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          bun-version: latest
+          bun-version: '1.3.11'
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Run postinstall
-        run: bun run postinstall || true
 
       - name: Run ESLint
         run: bun run lint
@@ -99,6 +99,12 @@ jobs:
   build:
     name: Build ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
+    # Environment secrets are resolved inside this called job. Release builds
+    # wait for approval before the runner receives credentials; manual builds
+    # use a separate unprotected environment with no secrets.
+    environment:
+      name: ${{ inputs.release_tag != '' && 'release' || 'build-unprotected' }}
+      deployment: false
     # Defense in depth: without this, a hung step (e.g. codesign blocking on
     # Apple's timestamp server) rides GitHub's 6h default — three v0.9.7 runs
     # wedged 90-160 min before manual cancel. 120 sits clear of a slow-but-healthy
@@ -117,9 +123,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           ref: ${{ inputs.ref }}
+          persist-credentials: false
 
       - name: Get commit hash
         id: commit
@@ -130,24 +137,24 @@ jobs:
           echo "Commit: $SHORT"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: '22'
+          node-version: '22.23.1'
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
-          bun-version: latest
+          bun-version: '1.3.11'
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
-          python-version: '3.12'
+          python-version: '3.12.10'
 
       # Restore Electron/Electron-Builder caches before any build-related install
       - name: Cache Electron artifacts
         id: electron-cache
-        uses: actions/cache@v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: |
             ${{ runner.temp }}/.cache/electron
@@ -164,25 +171,24 @@ jobs:
         run: echo "electron-cache-hit=${{ steps.electron-cache.outputs.cache-hit }}"
 
       - name: Install dependencies
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
+        env:
+          WAYLAND_STRICT_PACKAGING: '1'
         with:
           timeout_minutes: 10
           max_attempts: 3
           retry_wait_seconds: 30
           command: bun install --frozen-lockfile
 
-      - name: Run postinstall
-        run: bun run postinstall || true
-
       - name: Setup Windows native dependencies (for Windows only)
         if: startsWith(matrix.platform, 'windows')
         run: |
-          bun install --global node-gyp
+          bun install --global node-gyp@13.0.0
 
       - name: Install MSVC ARM64 toolchain (Windows ARM64 only)
         if: matrix.platform == 'windows-arm64'
         continue-on-error: true
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           timeout_minutes: 20
           max_attempts: 3
@@ -199,7 +205,7 @@ jobs:
 
       - name: Setup MSBuild (for Windows only)
         if: startsWith(matrix.platform, 'windows')
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
         with:
           vs-version: '17.0'
 
@@ -345,59 +351,136 @@ jobs:
           MSVS_VERSION: 2022
           GYP_MSVS_VERSION: 2022
 
-      # Mandatory-on-tag signing guard: a release tag build must never ship an
-      # unsigned Windows artifact. If the Azure Trusted Signing service-principal
-      # secret is missing on a release tag, fail loudly BEFORE the build (the
-      # build step below swallows its own failures into a notice, so this is the
-      # hard gate). Non-tag/dev builds are unaffected and may build unsigned.
+      # Mandatory-on-tag signing guard: a stable release tag build must never
+      # ship an unsigned Windows artifact. Non-tag/dev builds remain eligible
+      # for the local unsigned overrides in scripts/build-with-builder.js.
       - name: Require Azure signing credentials on release tag (Windows)
-        if: startsWith(matrix.platform, 'windows') && startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+        if: startsWith(matrix.platform, 'windows') && inputs.release_tag != ''
         shell: bash
         env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         run: |
-          if [ -z "$AZURE_CLIENT_SECRET" ]; then
-            echo "::warning title=Unsigned Windows build::AZURE_CLIENT_SECRET empty — guard relaxed, building an UNSIGNED Windows artifact."
-          else
-            echo "Azure Trusted Signing credentials present — proceeding with signed Windows build."
+          if [ -z "${AZURE_TENANT_ID//[[:space:]]/}" ] || [ -z "${AZURE_CLIENT_ID//[[:space:]]/}" ] || [ -z "${AZURE_CLIENT_SECRET//[[:space:]]/}" ]; then
+            echo "::error title=Missing Windows signing credentials::AZURE_TENANT_ID, AZURE_CLIENT_ID, and AZURE_CLIENT_SECRET are required for release tags."
+            exit 1
           fi
+          echo "Azure Trusted Signing credentials present — proceeding with signed Windows build."
 
-      # electron-builder's Azure Trusted Signing path invokes the
-      # `Invoke-TrustedSigning` cmdlet from the `TrustedSigning` PowerShell
-      # module. electron-builder tries to install it inline ("installing required
-      # module (TrustedSigning)"), but that install is unreliable on the hosted
-      # runners — a non-interactive Install-Module fails silently when the NuGet
-      # provider is absent or PSGallery is untrusted, leaving the cmdlet
-      # unrecognized and the signed build failing with "The term
-      # 'Invoke-TrustedSigning' is not recognized" (v0.9.9-rc.1 windows-x64).
-      # Pre-install it deterministically here so electron-builder auto-loads it
-      # from disk in the build step that follows.
-      - name: Pre-install Azure TrustedSigning module (Windows, signed builds)
-        if: startsWith(matrix.platform, 'windows')
+      # Fetch and validate signing code before any Azure credential is exposed.
+      # app-builder-lib is patched to revalidate these exact paths and hashes
+      # with Azure variables removed before every signing subprocess import.
+      - name: Install pinned Azure TrustedSigning module (Windows release)
+        if: startsWith(matrix.platform, 'windows') && inputs.release_tag != ''
         shell: pwsh
-        env:
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         run: |
           $ErrorActionPreference = 'Stop'
-          if (-not $env:AZURE_CLIENT_SECRET) {
-            Write-Host "No Azure signing secret present — skipping TrustedSigning module install (unsigned build)."
-            exit 0
+          $moduleVersion = '0.5.8'
+          $expectedPackageHash = 'h3QX13+As/6i8v7rSUhgDWg033GklH5JiVLGFV0Rl3CipfT6/0XQPqEhI2uOogGTFkxiqXOTCeQc4zTSt2v6KQ=='
+          $packageUri = "https://www.powershellgallery.com/api/v2/package/TrustedSigning/$moduleVersion"
+          $packagePath = Join-Path $env:RUNNER_TEMP "TrustedSigning.$moduleVersion.nupkg"
+          $moduleRoot = Join-Path $env:RUNNER_TEMP "trusted-signing\$moduleVersion"
+          $moduleFiles = @(
+            'TrustedSigning.nuspec',
+            'NugetInstall\NugetInstall.psd1',
+            'NugetInstall\NugetInstall.psm1',
+            'SignCli\SignCli.psd1',
+            'SignCli\SignCli.psm1',
+            'SignTool\SignTool.psd1',
+            'SignTool\SignTool.psm1',
+            'about_TrustedSigning.help.txt',
+            'catalog.cat',
+            'TrustedSigning-help.xml',
+            'TrustedSigning.psd1',
+            'TrustedSigning.psm1',
+            'FileFormat\FileFormat.psd1',
+            'FileFormat\FileFormat.psm1',
+            'Metadata\Metadata.psd1',
+            'Metadata\Metadata.psm1'
+          )
+
+          Invoke-WebRequest -UseBasicParsing -Uri $packageUri -OutFile $packagePath
+          $actualPackageHash = [Convert]::ToBase64String(
+            [Security.Cryptography.SHA512]::HashData(
+              [IO.File]::ReadAllBytes($packagePath)
+            )
+          )
+          if (-not [string]::Equals($actualPackageHash, $expectedPackageHash, [StringComparison]::Ordinal)) {
+            throw "TrustedSigning $moduleVersion package SHA-512 mismatch."
           }
-          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-          if (-not (Get-PackageProvider -Name NuGet -ErrorAction SilentlyContinue)) {
-            Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser | Out-Null
+
+          New-Item -ItemType Directory -Path $moduleRoot -Force | Out-Null
+          $archive = [IO.Compression.ZipFile]::OpenRead($packagePath)
+          try {
+            foreach ($relativePath in $moduleFiles) {
+              $entryPath = $relativePath.Replace('\', '/')
+              $entry = $archive.GetEntry($entryPath)
+              if ($null -eq $entry) {
+                throw "TrustedSigning package is missing cataloged file: $relativePath"
+              }
+
+              $destination = Join-Path $moduleRoot $relativePath
+              $destinationDirectory = Split-Path -Parent $destination
+              New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
+              [IO.Compression.ZipFileExtensions]::ExtractToFile($entry, $destination, $true)
+            }
+          } finally {
+            $archive.Dispose()
           }
-          # Pin to electron-builder's own floor so we never auto-load a major it
-          # did not expect; electron-builder then re-runs Install-Module -Force
-          # against an already-trusted gallery and short-circuits.
-          Install-Module -Name TrustedSigning -MinimumVersion 0.5.0 -Force -Scope CurrentUser -AllowClobber -Repository PSGallery
-          Import-Module TrustedSigning
+
+          $catalogPath = Join-Path $moduleRoot 'catalog.cat'
+          $catalog = Test-FileCatalog -Path $moduleRoot -CatalogFilePath $catalogPath -Detailed
+          if ($catalog.Status -ne 'Valid' -or $catalog.Signature.Status -ne 'Valid') {
+            throw "TrustedSigning $moduleVersion failed signed catalog verification."
+          }
+
+          $manifestPath = Join-Path $moduleRoot 'TrustedSigning.psd1'
+          $manifest = Test-ModuleManifest -Path $manifestPath -ErrorAction Stop
+          if ($manifest.Version -ne [version]$moduleVersion) {
+            throw "TrustedSigning manifest version mismatch: $($manifest.Version)"
+          }
+
+          Import-Module -Name $manifestPath -Force -ErrorAction Stop
+          $dependencyManifest = Join-Path $moduleRoot 'NugetInstall\NugetInstall.psd1'
+          Import-Module -Name $dependencyManifest -Force -ErrorAction Stop
+          $dependencies = Get-EveryDependency
           if (-not (Get-Command Invoke-TrustedSigning -ErrorAction SilentlyContinue)) {
-            Write-Error "Invoke-TrustedSigning still not available after installing the TrustedSigning module."
-            exit 1
+            throw 'Invoke-TrustedSigning is unavailable after importing the pinned module.'
           }
-          $mod = Get-Module -ListAvailable -Name TrustedSigning | Select-Object -First 1
-          Write-Host "TrustedSigning module installed (v$($mod.Version)); Invoke-TrustedSigning is available."
+
+          $dependencyRecords = foreach ($dependencyRoot in @(
+            $dependencies.DlibFolderPath,
+            $dependencies.SignToolFolderPath,
+            $dependencies.SignCliFolderPath
+          )) {
+            if (-not (Test-Path -LiteralPath $dependencyRoot -PathType Container)) {
+              throw "TrustedSigning dependency directory is missing: $dependencyRoot"
+            }
+
+            Get-ChildItem -LiteralPath $dependencyRoot -File -Recurse |
+              Sort-Object -Property FullName |
+              ForEach-Object {
+                [ordered]@{
+                  Path = $_.FullName
+                  Sha256 = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash
+                }
+              }
+          }
+          if (@($dependencyRecords).Count -eq 0) {
+            throw 'TrustedSigning dependency hash manifest would be empty.'
+          }
+
+          $dependencyHashManifest = Join-Path $env:RUNNER_TEMP 'trusted-signing-dependencies.json'
+          @($dependencyRecords) |
+            ConvertTo-Json -Depth 3 |
+            Set-Content -LiteralPath $dependencyHashManifest -Encoding utf8 -NoNewline
+
+          "WAYLAND_TRUSTED_SIGNING_MODULE_PATH=$manifestPath" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "WAYLAND_TRUSTED_SIGNING_DEPENDENCY_MANIFEST=$dependencyHashManifest" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Write-Host "TrustedSigning v$moduleVersion and its dependencies are pinned and verified."
 
       - name: Build with electron-builder (Windows)
         if: startsWith(matrix.platform, 'windows')
@@ -406,25 +489,18 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $Command = $env:WINDOWS_BUILD_COMMAND
-          $BuildFailed = $false
-
-          try {
-            Write-Host "Running Windows build command: $Command"
-            iex $Command
-            Write-Host "Windows build completed successfully"
-          } catch {
-            $BuildFailed = $true
-            Write-Warning "${{ matrix.platform }} build failed but will not block the workflow"
-            Write-Host "::notice title=Windows build skipped::${{ matrix.platform }} build failed (see logs above) but workflow is allowed to continue."
+          Write-Host "Running Windows build command: $Command"
+          Invoke-Expression $Command
+          $BuildExitCode = $LASTEXITCODE
+          if ($BuildExitCode -ne 0) {
+            Write-Error "${{ matrix.platform }} build failed with exit code $BuildExitCode."
+            exit $BuildExitCode
           }
-
-          if ($BuildFailed) {
-            "result=failure" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          } else {
-            "result=success" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          }
+          "result=success" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Host "Windows build completed successfully"
         env:
           WINDOWS_BUILD_COMMAND: ${{ matrix.command }}
+          WAYLAND_RELEASE_TAG: ${{ inputs.release_tag }}
           # Node.js memory limit for vite bundling (prevents OOM during build)
           # Node.js 内存限制，防止 vite 打包时内存不足
           NODE_OPTIONS: '--max-old-space-size=8192'
@@ -575,7 +651,7 @@ jobs:
       # Linux: 标准构建，无特殊错误处理
       - name: Build with electron-builder (Linux)
         if: startsWith(matrix.platform, 'linux')
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08 # v3.0.2
         with:
           timeout_minutes: 60
           max_attempts: 2
@@ -671,7 +747,7 @@ jobs:
           ls -lh out/ || true
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         if: >-
           success() &&
           (!startsWith(matrix.platform, 'windows') || steps.windows-build.outputs.result == 'success')
@@ -688,7 +764,7 @@ jobs:
             out/Wayland-*-mac-*.zip
             out/*.yml
             out/*.blockmap
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 7
 
   build-summary:

@@ -20,7 +20,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
-import { render, act, cleanup, screen } from '@testing-library/react';
+import { render, cleanup, screen } from '@testing-library/react';
 
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -53,8 +53,10 @@ vi.mock('@arco-design/web-react', async (importOriginal) => {
   };
 });
 
-const mockConfigStorageGet = vi.fn();
-const mockConfigStorageSet = vi.fn();
+const { mockConfigStorageGet, mockConfigStorageSet } = vi.hoisted(() => ({
+  mockConfigStorageGet: vi.fn(),
+  mockConfigStorageSet: vi.fn(),
+}));
 vi.mock('@/common/config/storage', () => ({
   ConfigStorage: {
     get: (...args: unknown[]) => mockConfigStorageGet(...args),
@@ -89,7 +91,7 @@ vi.mock('@/common/adapter/ipcBridge', async (importOriginal) => {
   return {
     ...actual,
     channel: {
-      getPluginStatus: { invoke: vi.fn().mockResolvedValue({ success: true, data: [] }) },
+      getPluginStatus: { invoke: vi.fn().mockResolvedValue({ success: false }) },
       pluginStatusChanged: { on: vi.fn().mockReturnValue(() => {}) },
     },
     webui: {
@@ -136,6 +138,8 @@ vi.mock('../../src/renderer/components/settings/SettingsModal/contents/channels/
   default: () => <div>WecomForm</div>,
 }));
 
+import ChannelModalContent from '@/renderer/components/settings/SettingsModal/contents/channels/ChannelModalContent';
+
 describe('ChannelModalContent registered channel roster (S17)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -143,20 +147,12 @@ describe('ChannelModalContent registered channel roster (S17)', () => {
     mockConfigStorageGet.mockResolvedValue(null);
   });
 
-  afterEach(async () => {
+  afterEach(() => {
     cleanup();
-    await act(async () => {
-      for (let i = 0; i < 10; i++) await Promise.resolve();
-    });
   });
 
-  it('surfaces Slack and Discord as real (not coming_soon, not disabled) channels', async () => {
-    const { default: ChannelModalContent } =
-      await import('@/renderer/components/settings/SettingsModal/contents/channels/ChannelModalContent');
-
-    await act(async () => {
-      render(<ChannelModalContent />);
-    });
+  it('surfaces Slack and Discord as real (not coming_soon, not disabled) channels', () => {
+    render(<ChannelModalContent />);
 
     const slack = screen.getByTestId('channel-slack');
     const discord = screen.getByTestId('channel-discord');
@@ -168,13 +164,8 @@ describe('ChannelModalContent registered channel roster (S17)', () => {
     expect(discord.getAttribute('data-disabled')).toBe('false');
   });
 
-  it('surfaces the wider registered roster, not just 5 + Slack/Discord', async () => {
-    const { default: ChannelModalContent } =
-      await import('@/renderer/components/settings/SettingsModal/contents/channels/ChannelModalContent');
-
-    await act(async () => {
-      render(<ChannelModalContent />);
-    });
+  it('surfaces the wider registered roster, not just 5 + Slack/Discord', () => {
+    render(<ChannelModalContent />);
 
     // A sampling of channels that were entirely missing before the fix.
     for (const id of ['whatsapp', 'signal', 'matrix', 'webhook', 'line']) {

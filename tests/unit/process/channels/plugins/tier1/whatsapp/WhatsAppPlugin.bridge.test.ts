@@ -10,6 +10,8 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 
 import type { IChannelPluginConfig, IUnifiedIncomingMessage } from '@process/channels/types';
 
@@ -91,6 +93,15 @@ vi.mock('electron', () => ({
 
 import { WhatsAppPlugin } from '@process/channels/plugins/tier1/whatsapp/WhatsAppPlugin';
 
+type BridgePackage = {
+  dependencies: Record<string, string>;
+  overrides: Record<string, string>;
+};
+
+const bridgePackage = JSON.parse(
+  readFileSync(path.resolve('src/process/channels/whatsapp-bridge/package.json'), 'utf8')
+) as BridgePackage;
+
 function configFor(backend: string, extra: Record<string, string> = {}): IChannelPluginConfig {
   return {
     id: 'whatsapp_default',
@@ -131,6 +142,12 @@ describe('WhatsAppPlugin - bridge JSON-RPC plumbing', () => {
     // backslashes on win32, so match on the posix-normalized tail.
     expect(String(entry).replace(/\\/g, '/')).toMatch(/whatsapp-bridge\/bridge\.js$/);
     expect(args).toEqual(['--backend', 'baileys']);
+  });
+
+  it('pins bridge dependencies above the audited vulnerable ranges', () => {
+    expect(bridgePackage.dependencies['@whiskeysockets/baileys']).toBe('7.0.0-rc13');
+    expect(bridgePackage.overrides['form-data']).toBe('^4.0.6');
+    expect(bridgePackage.overrides.protobufjs).toBe('^7.6.5');
   });
 
   it('forks with --backend whatsapp-web when configured', async () => {

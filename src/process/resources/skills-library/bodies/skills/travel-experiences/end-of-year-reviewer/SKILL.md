@@ -131,13 +131,13 @@ Before starting your review, set the stage:
 
 List your professional achievements this year:
 
-- Projects completed: **********************\_\_\_**********************
-- Skills acquired or developed: ******************\_\_******************
-- Recognition received: **********************\_**********************
-- Problems solved: ************************\_************************
-- Revenue generated or costs saved: ****************\_\_****************
-- People mentored or helped: ******************\_\_\_\_******************
-- Professional relationships built: ****************\_\_\_****************
+- Projects completed: ****\*\*****\*\*****\*\*****\_\_\_****\*\*****\*\*****\*\*****
+- Skills acquired or developed: **\*\*\*\***\*\***\*\*\*\***\_\_**\*\*\*\***\*\***\*\*\*\***
+- Recognition received: ****\*\*****\*\*****\*\*****\_****\*\*****\*\*****\*\*****
+- Problems solved: ****\*\*****\*\*\*\*****\*\*****\_****\*\*****\*\*\*\*****\*\*****
+- Revenue generated or costs saved: **\*\***\*\*\*\***\*\***\_\_**\*\***\*\*\*\***\*\***
+- People mentored or helped: **\*\*\*\***\*\***\*\*\*\***\_\_\_\_**\*\*\*\***\*\***\*\*\*\***
+- Professional relationships built: **\*\***\*\*\*\***\*\***\_\_\_**\*\***\*\*\*\***\*\***
 
 ### Career Satisfaction Assessment
 
@@ -161,13 +161,13 @@ Rate each factor from 1-10:
 
 Answer honestly:
 
-- Am I in the right role? ********************\_\_\_********************
-- Am I at the right company/organization? ************\_\_\_\_************
-- Am I progressing at the pace I want? **************\_\_\_**************
-- What skills do I need to develop for my next step? ********\_\_********
+- Am I in the right role? **\*\*\*\***\*\*\*\***\*\*\*\***\_\_\_**\*\*\*\***\*\*\*\***\*\*\*\***
+- Am I at the right company/organization? \***\*\*\*\*\*\*\***\_\_\_\_\***\*\*\*\*\*\*\***
+- Am I progressing at the pace I want? **\*\***\*\***\*\***\_\_\_**\*\***\*\***\*\***
+- What skills do I need to develop for my next step? **\*\*\*\***\_\_**\*\*\*\***
 - Who are the key people I should strengthen relationships with? **\_\_\_**
-- What is my 1-year career goal? ****************\_\_\_\_****************
-- What is my 3-year career vision? ****************\_\_****************
+- What is my 1-year career goal? **\*\***\*\*\*\***\*\***\_\_\_\_**\*\***\*\*\*\***\*\***
+- What is my 3-year career vision? **\*\***\*\*\*\***\*\***\_\_**\*\***\*\*\*\***\*\***
 
 ### Professional Development Tracker
 
@@ -262,12 +262,12 @@ List your top 5 values, then rate how well you lived them:
 
 ### Growth and Learning
 
-- New skills learned: **********************\_\_**********************
-- Books read: ************************\_\_\_\_************************
-- New experiences tried: ********************\_\_\_********************
-- Fears faced: ************************\_\_\_\_************************
-- Comfort zone expanded in: ******************\_\_\_\_******************
-- Perspective shifts: **********************\_\_**********************
+- New skills learned: ****\*\*****\*\*****\*\*****\_\_****\*\*****\*\*****\*\*****
+- Books read: ****\*\*****\*\*\*\*****\*\*****\_\_\_\_****\*\*****\*\*\*\*****\*\*****
+- New experiences tried: **\*\*\*\***\*\*\*\***\*\*\*\***\_\_\_**\*\*\*\***\*\*\*\***\*\*\*\***
+- Fears faced: ****\*\*****\*\*\*\*****\*\*****\_\_\_\_****\*\*****\*\*\*\*****\*\*****
+- Comfort zone expanded in: **\*\*\*\***\*\***\*\*\*\***\_\_\_\_**\*\*\*\***\*\***\*\*\*\***
+- Perspective shifts: ****\*\*****\*\*****\*\*****\_\_****\*\*****\*\*****\*\*****
 
 ### Life Satisfaction Wheel
 
@@ -330,7 +330,7 @@ Rate each area 1-10 and compare to where you started the year:
 
 ### One-Page Year-Ahead Plan
 
-**My word or theme for next year:** ****************\_****************
+**My word or theme for next year:** **\*\***\*\*\*\***\*\***\_**\*\***\*\*\*\***\*\***
 
 **Three goals I am committed to:**
 
@@ -350,9 +350,9 @@ Rate each area 1-10 and compare to where you started the year:
 2. ***
 3. ***
 
-**My accountability plan:** ******************\_\_\_\_******************
+**My accountability plan:** **\*\*\*\***\*\***\*\*\*\***\_\_\_\_**\*\*\*\***\*\***\*\*\*\***
 
-**My first action (to take this week):** ************\_\_\_\_************
+**My first action (to take this week):** \***\*\*\*\*\*\*\***\_\_\_\_\***\*\*\*\*\*\*\***
 
 ## Review Cadence Recommendation
 

@@ -13,14 +13,10 @@
 import type { ChildProcess, SpawnOptions } from 'child_process';
 import { execFile as execFileCb, execFileSync, spawn } from 'child_process';
 import { promisify } from 'util';
-import { promises as fs, readdirSync, rmSync, statSync } from 'fs';
+import { existsSync, promises as fs, readdirSync, rmSync, statSync } from 'fs';
 import os from 'os';
 import path from 'path';
-import {
-  CLAUDE_ACP_NPX_PACKAGE,
-  CODEBUDDY_ACP_NPX_PACKAGE,
-  CODEX_ACP_NPX_PACKAGE,
-} from '@/common/types/acpTypes';
+import { CLAUDE_ACP_NPX_PACKAGE, CODEBUDDY_ACP_NPX_PACKAGE, CODEX_ACP_NPX_PACKAGE } from '@/common/types/acpTypes';
 import { resolveBridgePackage } from './bridgeVersionResolver';
 import {
   findSuitableNodeBin,
@@ -35,6 +31,101 @@ import { mainWarn } from '@process/utils/mainLogger';
 import { getPlatformServices } from '@/common/platform';
 
 const execFile = promisify(execFileCb);
+
+export const WAYLAND_ACP_UNSET_ENV_KEYS = 'WAYLAND_ACP_UNSET_ENV_KEYS';
+
+function parseJsonObject(value: string | undefined): Record<string, unknown> | null {
+  if (!value) return null;
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Apply per-runtime overrides, including explicit inherited-env removals. */
+export function applyAcpSpawnEnv(
+  cleanEnv: Record<string, string | undefined>,
+  customEnv?: Record<string, string>,
+  mergeCodexConfig: boolean = false
+): void {
+  if (!customEnv) return;
+
+  let unsetKeys: string[] = [];
+  try {
+    const parsed: unknown = JSON.parse(customEnv[WAYLAND_ACP_UNSET_ENV_KEYS] ?? '[]');
+    if (Array.isArray(parsed)) {
+      unsetKeys = parsed.filter((key): key is string => typeof key === 'string');
+    }
+  } catch {
+    // Ignore malformed internal control data and apply ordinary env values.
+  }
+
+  for (const [key, value] of Object.entries(customEnv)) {
+    if (key !== WAYLAND_ACP_UNSET_ENV_KEYS && key !== 'CODEX_CONFIG') cleanEnv[key] = value;
+  }
+
+  if (customEnv.CODEX_CONFIG !== undefined) {
+    const ambientConfig = parseJsonObject(cleanEnv.CODEX_CONFIG);
+    const overrideConfig = parseJsonObject(customEnv.CODEX_CONFIG);
+    cleanEnv.CODEX_CONFIG =
+      mergeCodexConfig && overrideConfig
+        ? JSON.stringify({ ...ambientConfig, ...overrideConfig })
+        : customEnv.CODEX_CONFIG;
+  }
+
+  for (const key of unsetKeys) {
+    if (key === 'CODEX_CONFIG.model') {
+      const config = parseJsonObject(cleanEnv.CODEX_CONFIG);
+      if (config) {
+        delete config.model;
+        cleanEnv.CODEX_CONFIG = JSON.stringify(config);
+      }
+    } else {
+      delete cleanEnv[key];
+    }
+  }
+  delete cleanEnv[WAYLAND_ACP_UNSET_ENV_KEYS];
+}
+
+function envValue(env: Record<string, string | undefined>, name: string): string | undefined {
+  const entry = Object.entries(env).find(([key]) => key.toLowerCase() === name.toLowerCase());
+  return entry?.[1];
+}
+
+/** Prefer Git Bash over the Windows Store/WSL app alias for ACP plugin hooks. */
+function ensureWindowsHookShell(env: Record<string, string | undefined>): void {
+  if (process.platform !== 'win32') return;
+
+  const programFiles = envValue(env, 'ProgramFiles') ?? 'C:\\Program Files';
+  const localAppData = envValue(env, 'LOCALAPPDATA') ?? path.win32.join(os.homedir(), 'AppData', 'Local');
+  const programFilesX86 = envValue(env, 'ProgramFiles(x86)');
+  const candidates = [
+    path.win32.join(programFiles, 'Git', 'bin'),
+    path.win32.join(localAppData, 'Programs', 'Git', 'bin'),
+    ...(programFilesX86 ? [path.win32.join(programFilesX86, 'Git', 'bin')] : []),
+  ];
+  const gitBashDir = candidates.find((candidate) => existsSync(path.win32.join(candidate, 'bash.exe')));
+  if (!gitBashDir) return;
+
+  const pathKeys = Object.keys(env).filter((key) => key.toLowerCase() === 'path');
+  const currentPath = env.PATH ?? (pathKeys[0] ? env[pathKeys[0]] : '') ?? '';
+  for (const key of pathKeys) delete env[key];
+  const normalizeEntry = (entry: string): string => {
+    const trimmed = entry.trim();
+    const unquoted = trimmed.startsWith('"') && trimmed.endsWith('"') ? trimmed.slice(1, -1) : trimmed;
+    return path.win32
+      .normalize(unquoted)
+      .replace(/[\\/]+$/, '')
+      .toLowerCase();
+  };
+  const normalizedGitBashDir = normalizeEntry(gitBashDir);
+  const remainingEntries = currentPath.split(';').filter((entry) => normalizeEntry(entry) !== normalizedGitBashDir);
+
+  env.PATH = [gitBashDir, ...remainingEntries].filter(Boolean).join(';');
+  console.log(`[ACP] Git Bash hook runtime=${gitBashDir}`);
+}
 
 function normalizeWindowsCommand(command: string): string {
   const trimmed = command.trim();
@@ -569,9 +660,7 @@ export async function spawnGenericBackend(
   }
 
   const cleanEnv = await prepareCleanEnv();
-  if (customEnv) {
-    Object.assign(cleanEnv, customEnv);
-  }
+  applyAcpSpawnEnv(cleanEnv, customEnv, backend === 'codex');
   ensureMinNodeVersion(cleanEnv, 18, 17, `${backend} ACP`);
 
   const spawnStart = Date.now();
@@ -624,9 +713,8 @@ async function connectNpxBackend(config: {
 
   const envStart = Date.now();
   const { cleanEnv, npxCommand, extraArgs: prepExtraArgs = [] } = await prepareFn();
-  if (customEnv) {
-    Object.assign(cleanEnv, customEnv);
-  }
+  applyAcpSpawnEnv(cleanEnv, customEnv, backend === 'codex');
+  ensureWindowsHookShell(cleanEnv);
   console.log(`[ACP-PERF] ${backend}: env prepared ${Date.now() - envStart}ms`);
 
   const isWindows = process.platform === 'win32';

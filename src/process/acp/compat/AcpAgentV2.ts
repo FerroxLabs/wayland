@@ -11,6 +11,7 @@ import type {
 } from '@/common/types/acpTypes';
 import { AcpErrorType, getCurrentWrapperVersion, parseInitializeResult } from '@/common/types/acpTypes';
 import { buildHistoryReplayContext } from '@process/acp/historyReplay';
+import { parseCodexModelId } from '@process/acp/codexModelId';
 import { getFullAutoMode } from '@/common/types/agentModes';
 import { LegacyConnectorFactory } from '@process/acp/compat/LegacyConnectorFactory';
 import {
@@ -483,7 +484,14 @@ export class AcpAgentV2 {
         // confirmation has arrived, however, every later non-exact update is
         // authoritative evidence that the provider moved away again — even
         // when it moved back to that same baseline.
-        if (op && (reportedModelId !== op.baselineModelId || op.exactConfirmation !== null)) {
+        const correlatedExactResponse =
+          op?.responseIsCorrelated === true &&
+          operationGeneration === op.generation &&
+          reportedModelId === op.requestedModelId;
+        if (
+          op &&
+          (reportedModelId !== op.baselineModelId || op.exactConfirmation !== null || correlatedExactResponse)
+        ) {
           const catalog = next.availableModels;
           if (catalog.length > 0 && !catalog.some((candidate) => candidate.id === op.requestedModelId)) {
             this.tombstoneModelOp(op);
@@ -966,7 +974,7 @@ export class AcpAgentV2 {
         const currentId = this.cachedModelInfo?.currentModelId ?? null;
         const selected = currentId ? ccSwitchInfo.availableModels.find((model) => model.id === currentId) : undefined;
         return {
-          ...(this.cachedModelInfo ?? {}),
+          ...this.cachedModelInfo,
           ...ccSwitchInfo,
           currentModelId: currentId,
           currentModelLabel: selected?.label ?? this.cachedModelInfo?.currentModelLabel ?? currentId,
@@ -982,7 +990,7 @@ export class AcpAgentV2 {
         const currentId = this.cachedModelInfo?.currentModelId ?? null;
         const selected = currentId ? slots.availableModels.find((model) => model.id === currentId) : undefined;
         return {
-          ...(this.cachedModelInfo ?? {}),
+          ...this.cachedModelInfo,
           ...slots,
           currentModelId: currentId,
           currentModelLabel: selected?.label ?? this.cachedModelInfo?.currentModelLabel ?? currentId,
@@ -1011,8 +1019,27 @@ export class AcpAgentV2 {
         modelSelectionError('model_rejected', `Model selection was superseded: ${previousOp.requestedModelId}`)
       );
     }
-    const catalog = this.cachedModelInfo?.availableModels ?? [];
-    if (catalog.length > 0 && !catalog.some((candidate) => candidate.id === modelId)) {
+    const modelConfig = this.cachedConfigOptions.find(
+      (option) => option.category === 'model' && option.type === 'select'
+    );
+    const configCatalog = modelConfig?.options?.map((option) => option.value) ?? [];
+    let providerModelId = modelId;
+    if (
+      modelConfig &&
+      this.agentConfig.agentBackend === 'codex' &&
+      configCatalog.length > 0 &&
+      !configCatalog.includes(modelId)
+    ) {
+      const parsed = parseCodexModelId(modelId);
+      if (parsed.effort && configCatalog.includes(parsed.baseModelId)) {
+        providerModelId = parsed.baseModelId;
+      }
+    }
+    const advertisedModelIds =
+      configCatalog.length > 0
+        ? configCatalog
+        : (this.cachedModelInfo?.availableModels.map((candidate) => candidate.id) ?? []);
+    if (advertisedModelIds.length > 0 && !advertisedModelIds.includes(providerModelId)) {
       throw modelSelectionError('unsupported_model', `Provider does not advertise model: ${modelId}`);
     }
 
@@ -1027,7 +1054,7 @@ export class AcpAgentV2 {
       );
     }
 
-    this.supersededModelIds.delete(modelId);
+    this.supersededModelIds.delete(providerModelId);
 
     const confirmation = new Promise<AcpModelInfo>((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -1037,7 +1064,7 @@ export class AcpAgentV2 {
         reject(modelSelectionError('model_switch_timeout', `Model confirmation timed out: ${modelId}`));
       }, 60_000);
       this.modelOp = {
-        requestedModelId: modelId,
+        requestedModelId: providerModelId,
         generation,
         baselineModelId: this.cachedModelInfo?.currentModelId ?? null,
         responseIsCorrelated,
@@ -1049,7 +1076,7 @@ export class AcpAgentV2 {
       };
     });
 
-    const dispatch = this.dispatchModelSelection(modelId, generation)
+    const dispatch = this.dispatchModelSelection(providerModelId, generation)
       .then(() => {
         const op = this.modelOp;
         if (op?.generation !== generation) return;

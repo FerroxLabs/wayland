@@ -1,6 +1,11 @@
 name: 'Read File Contents'
 description: 'Read changed file contents for cross-file analysis. Requires checkout and gather-pr-diff to have run first.'
 
+inputs:
+  expected_head_sha:
+    description: 'Immutable PR head SHA emitted by gather-pr-diff and checked out by the caller'
+    required: true
+
 outputs:
   contents_truncated:
     description: 'Whether file contents were truncated'
@@ -10,13 +15,90 @@ runs:
   using: 'composite'
   steps:
     - id: 'read'
-      uses: 'actions/github-script@v7'
+      uses: 'actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b' # v7.1.0
+      env:
+        EXPECTED_HEAD_SHA: '${{ inputs.expected_head_sha }}'
       with:
         script: |
           const fs = require('fs');
           const path = require('path');
-          const tmpDir = process.env.RUNNER_TEMP || '/tmp';
-          const fileList = JSON.parse(fs.readFileSync(`${tmpDir}/file_list.json`, 'utf-8'));
+          const { execFileSync, spawnSync } = require('child_process');
+          const tmpDir = fs.realpathSync(process.env.RUNNER_TEMP || '/tmp');
+          const workspaceRoot = fs.realpathSync(process.cwd());
+
+          function resolveDirectTempFile(filename) {
+            if (filename !== path.basename(filename)) {
+              throw new Error('Refusing a nested temporary file path');
+            }
+            const candidate = path.resolve(tmpDir, filename);
+            if (path.dirname(candidate) !== tmpDir) {
+              throw new Error('Temporary file resolves outside RUNNER_TEMP');
+            }
+            return candidate;
+          }
+
+          function readBoundedTempFile(filename, maxBytes) {
+            const filePath = resolveDirectTempFile(filename);
+            const linkStat = fs.lstatSync(filePath);
+            if (linkStat.isSymbolicLink() || !linkStat.isFile() || linkStat.size > maxBytes) {
+              throw new Error(`Unsafe or oversized temporary input: ${filename}`);
+            }
+            const noFollow = fs.constants.O_NOFOLLOW ?? 0;
+            const fd = fs.openSync(filePath, fs.constants.O_RDONLY | noFollow);
+            try {
+              const opened = fs.fstatSync(fd);
+              if (!opened.isFile() || opened.nlink !== 1 || opened.size > maxBytes) {
+                throw new Error(`Unsafe or oversized opened temporary input: ${filename}`);
+              }
+              const buffer = Buffer.alloc(opened.size + 1);
+              let bytesRead = 0;
+              while (bytesRead < buffer.length) {
+                const count = fs.readSync(fd, buffer, bytesRead, buffer.length - bytesRead, null);
+                if (count === 0) break;
+                bytesRead += count;
+              }
+              const after = fs.fstatSync(fd);
+              if (bytesRead !== opened.size || after.size !== opened.size) {
+                throw new Error(`Temporary input changed while being read: ${filename}`);
+              }
+              return buffer.subarray(0, bytesRead).toString('utf-8');
+            } finally {
+              fs.closeSync(fd);
+            }
+          }
+
+          function writeExclusiveTempFile(filename, contents) {
+            const filePath = resolveDirectTempFile(filename);
+            const noFollow = fs.constants.O_NOFOLLOW ?? 0;
+            const flags = fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | noFollow;
+            const fd = fs.openSync(filePath, flags, 0o600);
+            try {
+              const opened = fs.fstatSync(fd);
+              if (!opened.isFile() || opened.nlink !== 1) {
+                throw new Error('Temporary output is not an exclusive regular file');
+              }
+              fs.writeFileSync(fd, contents);
+            } finally {
+              fs.closeSync(fd);
+            }
+          }
+
+          const fileList = JSON.parse(readBoundedTempFile('file_list.json', 1024 * 1024));
+          const expectedHeadSha = String(process.env.EXPECTED_HEAD_SHA || '').trim();
+          const gatheredHeadSha = readBoundedTempFile('pr_head_sha.txt', 64).trim();
+          const checkedOutHeadSha = execFileSync('git', ['rev-parse', 'HEAD'], {
+            cwd: workspaceRoot,
+            encoding: 'utf-8',
+          }).trim();
+
+          if (!/^[0-9a-f]{40}$/.test(expectedHeadSha)) {
+            core.setFailed('expected_head_sha must be a full commit SHA');
+            return;
+          }
+          if (gatheredHeadSha !== expectedHeadSha || checkedOutHeadSha !== expectedHeadSha) {
+            core.setFailed('Gathered file metadata and checkout are not from the expected PR head SHA');
+            return;
+          }
 
           const SKIP_PATTERNS = [
             /package-lock\.json$/,
@@ -47,6 +129,7 @@ runs:
 
           const MAX_CONTENT = 80000;
           let totalSize = 0;
+          let anyContentTruncated = false;
           const contents = [];
 
           const sortedFiles = fileList
@@ -56,23 +139,80 @@ runs:
 
           for (const file of sortedFiles) {
             if (totalSize >= MAX_CONTENT) {
+              anyContentTruncated = true;
               contents.push(`\n--- [remaining files omitted, ${MAX_CONTENT / 1000}K content limit reached] ---`);
               break;
             }
-            const filePath = path.join(process.cwd(), file.filename);
+            if (typeof file.filename !== 'string' || file.filename.includes('\0')) {
+              core.warning('Skipping changed file with an invalid path.');
+              continue;
+            }
             try {
-              const content = fs.readFileSync(filePath, 'utf-8');
+              const treeOutput = execFileSync(
+                'git',
+                ['ls-tree', '-z', expectedHeadSha, '--', `:(literal)${file.filename}`],
+                { cwd: workspaceRoot, encoding: 'utf-8', maxBuffer: 64 * 1024 }
+              );
+              const entries = treeOutput.split('\0').filter(Boolean);
+              if (entries.length !== 1) {
+                core.warning('Skipping changed path missing from the immutable PR head.');
+                continue;
+              }
+              const separator = entries[0].indexOf('\t');
+              if (separator === -1 || entries[0].slice(separator + 1) !== file.filename) {
+                core.warning('Skipping malformed immutable tree entry.');
+                continue;
+              }
+              const [mode, type, objectSha] = entries[0].slice(0, separator).split(' ');
+              if (
+                type !== 'blob' ||
+                (mode !== '100644' && mode !== '100755') ||
+                !/^[0-9a-f]{40}$/.test(objectSha)
+              ) {
+                core.warning('Skipping non-regular immutable tree entry.');
+                continue;
+              }
+
+              const blobSize = Number(
+                execFileSync('git', ['cat-file', '-s', objectSha], {
+                  cwd: workspaceRoot,
+                  encoding: 'utf-8',
+                  maxBuffer: 64,
+                }).trim()
+              );
+              if (!Number.isSafeInteger(blobSize) || blobSize < 0) {
+                throw new Error('Immutable blob has an invalid size');
+              }
+
               const remaining = MAX_CONTENT - totalSize;
-              const truncated = content.length > remaining
-                ? content.substring(0, remaining) + '\n... [file truncated]'
-                : content;
+              const result = spawnSync('git', ['cat-file', 'blob', objectSha], {
+                cwd: workspaceRoot,
+                encoding: null,
+                maxBuffer: remaining + 1,
+                windowsHide: true,
+              });
+              const buffer = Buffer.isBuffer(result.stdout) ? result.stdout : Buffer.alloc(0);
+              const exceededBuffer = result.error?.code === 'ENOBUFS';
+              if (result.error && !exceededBuffer) throw result.error;
+              if (!result.error && result.status !== 0) {
+                throw new Error('git cat-file failed for immutable PR blob');
+              }
+              if (exceededBuffer && blobSize <= remaining) {
+                throw new Error('Immutable PR blob read exceeded its declared size');
+              }
+
+              const content = buffer.subarray(0, remaining).toString('utf-8');
+              const fileTruncated = blobSize > remaining || buffer.length > remaining;
+              const truncated = fileTruncated ? content + '\n... [file truncated]' : content;
+              anyContentTruncated ||= fileTruncated;
               contents.push(`=== FILE: ${file.filename} ===\n${truncated}\n`);
               totalSize += truncated.length;
-            } catch {
-              // File might not exist in checkout (e.g. binary or renamed from)
+            } catch (error) {
+              const detail = error instanceof Error ? error.message : String(error);
+              throw new Error(`Immutable PR content read failed: ${detail}`);
             }
           }
 
-          const contentsTruncated = totalSize >= MAX_CONTENT;
-          fs.writeFileSync(`${tmpDir}/file_contents.txt`, contents.join('\n'));
+          const contentsTruncated = anyContentTruncated;
+          writeExclusiveTempFile('file_contents.txt', contents.join('\n'));
           core.setOutput('contents_truncated', String(contentsTruncated));

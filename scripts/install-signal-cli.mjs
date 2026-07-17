@@ -9,14 +9,16 @@
  *
  * install-signal-cli.mjs - postinstall / on-demand helper.
  *
- * Downloads the latest signal-cli native binary from GitHub Releases and
- * extracts it into src/process/channels/signal-cli-runtime/bin/.
+ * Downloads the latest supported signal-cli native binary from GitHub Releases
+ * and extracts it into src/process/channels/signal-cli-runtime/bin/.
  *
  * Usage:
  *   node scripts/install-signal-cli.mjs
  *
- * On platforms without a native GraalVM release (macOS arm64, Linux arm),
- * the script exits with a clear message pointing at the Homebrew fallback.
+ * Windows is intentionally not provisioned by this helper: Wayland daemon mode
+ * rejects .bat/.cmd launchers because they execute through cmd.exe. A native
+ * signal-cli.exe must be supplied independently. On other platforms without a
+ * native GraalVM release, the script exits with package-manager guidance.
  * electron-builder will then bundle whatever ends up in signal-cli-runtime/bin/.
  */
 
@@ -113,7 +115,9 @@ async function main() {
   console.log(`[install-signal-cli] platform=${platform} arch=${arch}`);
 
   if (platform === 'win32') {
-    console.warn('[install-signal-cli] Windows: auto-install not supported. Install signal-cli manually.');
+    console.warn(
+      '[install-signal-cli] Windows: auto-install is disabled. Wayland requires a native signal-cli.exe; .bat/.cmd launchers are not accepted.'
+    );
     process.exit(0);
   }
 

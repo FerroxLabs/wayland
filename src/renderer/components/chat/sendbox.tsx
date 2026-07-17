@@ -1003,7 +1003,7 @@ const SendBox: React.FC<{
         // replaces the current selection, and fires a real `input` event that the
         // controlled textarea's onChange consumes to update React state — so no
         // setInput/caret bookkeeping is needed on this path.
-        if (document.execCommand('insertText', false, text)) {
+        if (typeof document.execCommand === 'function' && document.execCommand('insertText', false, text)) {
           return;
         }
         // Fallback (execCommand unavailable/refused): manual insert at caret. This

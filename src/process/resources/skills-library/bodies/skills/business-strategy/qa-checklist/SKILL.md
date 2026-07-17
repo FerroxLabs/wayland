@@ -488,12 +488,12 @@ before the file is transmitted to the bank. This is the final gate._
 **Overall Disposition:**
 [ ] **PASS** -- All checks passed. Bank file transmission authorized.
 [ ] **CONDITIONAL PASS** -- Major failures only, within acceptable limits.
-Waiver granted by Finance Manager: ********\_******** Date: ****\_****
-Waiver details: **********************\_\_\_\_**********************
+Waiver granted by Finance Manager: **\*\*\*\***\_**\*\*\*\*** Date: \***\*\_\*\***
+Waiver details: ****\*\*****\*\*****\*\*****\_\_\_\_****\*\*****\*\*****\*\*****
 [ ] **FAIL** -- Critical failure(s) present. Bank file transmission BLOCKED.
 
-**Inspector (Finance Manager):** ************\_************ Date: ****\_**** Time: ****\_****
-**Payroll Specialist (Preparer):** ************\_************ Date: ****\_****
+**Inspector (Finance Manager):** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\*** Date: \***\*\_\*\*** Time: \***\*\_\*\***
+**Payroll Specialist (Preparer):** \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\*** Date: \***\*\_\*\***
 
 ---
 

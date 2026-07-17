@@ -27,6 +27,10 @@ vi.mock('@process/services/ijfw/entryResolver', () => ({
   resolveEntry: vi.fn(async () => '/tmp/fake-ijfw-entry.js'),
 }));
 
+vi.mock('@process/services/ijfw/safeSpawn', () => ({
+  resolveTrustedNodeRuntime: vi.fn(async () => '/tmp/trusted-node'),
+}));
+
 // #139: shutdown delegates child-tree teardown to the cross-platform killChild
 // helper (covered in depth by acpKillChild.test.ts). Mock it here so we assert
 // delegation without re-running its real ps/taskkill/process.kill logic.
@@ -135,6 +139,11 @@ describe('ijfwMcpClient', () => {
 
     await new Promise((r) => setImmediate(r));
     expect(spawnSpy).toHaveBeenCalledTimes(1);
+    expect(spawnSpy).toHaveBeenCalledWith(
+      '/tmp/trusted-node',
+      ['/tmp/fake-ijfw-entry.js'],
+      expect.objectContaining({ stdio: ['pipe', 'pipe', 'pipe'] })
+    );
 
     // Find the id of the request we just made.
     const written = currentChild!.writes[0]!.toString('utf-8');

@@ -376,7 +376,7 @@ _Submit this scorecard within 30 minutes of the interview and before reading any
 - [ ] Extend offer
 - [ ] No hire -- [primary reason]
 
-**Decision rationale documented by:** ********\_\_\_******** **Date:** ****\_\_\_****
+**Decision rationale documented by:** **\*\*\*\***\_\_\_**\*\*\*\*** **Date:** \***\*\_\_\_\*\***
 
 ---
 

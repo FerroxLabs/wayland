@@ -621,7 +621,7 @@ At $4,000, the claim is well below California's $12,500 individual limit. Small 
 
 - [ ] Written demand letter drafted -- see template guidance below
 - [ ] Sent via USPS Certified Mail with Return Receipt Requested to defendant's home address
-- [ ] Tracking number recorded: ********\_\_\_********
+- [ ] Tracking number recorded: **\*\*\*\***\_\_\_**\*\*\*\***
 - [ ] Return receipt (green card) received and filed with evidence
 - [ ] Waited 21 days for response
 

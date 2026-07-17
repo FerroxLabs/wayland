@@ -10,10 +10,18 @@ Run the postinstall script to download the latest signal-cli release for your pl
 node scripts/install-signal-cli.mjs
 ```
 
-This downloads the native binary from https://github.com/AsamK/signal-cli/releases
+This downloads a supported native binary from https://github.com/AsamK/signal-cli/releases
 into `signal-cli-runtime/bin/`. On macOS arm64 / Linux arm, no native GraalVM asset
 exists - the script falls back to instructions to install via Homebrew or your system
 package manager.
+
+### Windows security status
+
+The helper does not currently provision Windows. Wayland daemon mode accepts only
+a native executable named `signal-cli.exe`; `.bat` and `.cmd` launchers are rejected
+because they require `cmd.exe` and would cause channel configuration values to be
+re-parsed as shell input. Until a verified native Windows runtime is provisioned,
+the Signal channel fails closed on Windows with an explicit setup error.
 
 ## Manual install
 

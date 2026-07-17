@@ -589,9 +589,9 @@ Choose one:
 
 **Part B -- Pattern Check:**
 
-- Were any misses clustered on a specific day? ****\_\_**** (If yes, that day has a scheduling conflict, not a willpower problem)
+- Were any misses clustered on a specific day? \***\*\_\_\*\*** (If yes, that day has a scheduling conflict, not a willpower problem)
 - Did any habit trigger the recovery protocol this week? [ ] Yes -- [habit name] [ ] No
-- What was the highest-energy part of the week, and did the habits happen then? ****\_\_****
+- What was the highest-energy part of the week, and did the habits happen then? \***\*\_\_\*\***
 
 **Part C -- Decision per Habit:**
 
@@ -620,7 +620,7 @@ Choose one:
 
 - This week's streak days: \_\_\_
 - Running streak at end of week: \_\_\_ days
-- Personal best streak: **\_ days (set on: **\_\_\_****)
+- Personal best streak: **\_ days (set on: **\_\_\_\*\*\*\*)
 
 ---
 

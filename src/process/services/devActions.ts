@@ -46,6 +46,9 @@ const NON_INTERACTIVE_ENV: NodeJS.ProcessEnv = {
 /** `owner/repo` - the only shape accepted for a `gh -R` target. */
 const REPO_SLUG = /^[A-Za-z0-9._-]+\/[A-Za-z0-9._-]+$/;
 
+/** Only this disposable branch may be force-updated during an upstream sync. */
+const SYNC_BRANCH = 'automated/upstream-sync';
+
 /** Platforms build-manual.yml accepts (kept in sync with its `platform` input). */
 const RELEASE_PLATFORMS = new Set([
   'macos-arm64',
@@ -58,6 +61,19 @@ const RELEASE_PLATFORMS = new Set([
 ]);
 
 export type LogFn = (line: string) => void;
+
+export type ForkSyncStatus = 'up-to-date' | 'created' | 'updated';
+
+export type ForkSyncResult = {
+  repo: string;
+  ok: boolean;
+  status?: ForkSyncStatus;
+  prUrl?: string;
+  upstream?: string;
+  upstreamCommits?: number;
+  preservedForkCommits?: number;
+  error?: string;
+};
 
 /** Errors that carry a scrubbed, user-facing message (never a raw one). */
 export class DevActionError extends Error {}
@@ -255,7 +271,11 @@ export async function repoStatus(params: { paths: string[] }): Promise<{ results
   const paths = (params.paths || []).map((p) => p.trim()).filter(Boolean);
   const results: RepoStatus[] = [];
   for (const path of paths) {
-    const name = path.replace(/[\\/]+$/, '').split(/[\\/]/).pop() || path;
+    const name =
+      path
+        .replace(/[\\/]+$/, '')
+        .split(/[\\/]/)
+        .pop() || path;
     const inside = await gitQuiet(['-C', path, 'rev-parse', '--is-inside-work-tree']);
     if (!inside.ok || inside.stdout.trim() !== 'true') {
       results.push({ path, name, changed: 0, untracked: 0, error: 'Not a git repository.' });
@@ -379,31 +399,222 @@ export async function buildLocal(
   }
 }
 
-/** Dispatch upstream-sync.yml on each fork repo; collect a per-repo result. */
-export async function syncForks(
-  params: { repos: string[] },
-  onLog: LogFn
-): Promise<{ results: Array<{ repo: string; ok: boolean; error?: string }> }> {
-  const repos = (params.repos || []).map((r) => r.trim()).filter(Boolean);
-  const results: Array<{ repo: string; ok: boolean; error?: string }> = [];
-  for (const repo of repos) {
-    if (!REPO_SLUG.test(repo)) {
-      results.push({ repo, ok: false, error: 'Invalid repository slug.' });
-      continue;
-    }
-    try {
-      await step(onLog, `gh workflow run upstream-sync.yml -R ${repo}`, 'gh', [
-        'workflow',
-        'run',
-        'upstream-sync.yml',
-        '-R',
-        repo,
-      ]);
-      onLog(`Sync dispatched for ${repo}.`);
-      results.push({ repo, ok: true });
-    } catch (e) {
-      results.push({ repo, ok: false, error: e instanceof DevActionError ? e.message : scrubSecrets(String(e)) });
-    }
+type JsonObject = Record<string, unknown>;
+
+function parseJson(text: string, label: string): unknown {
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    throw new DevActionError(`${label}: GitHub returned invalid JSON.`);
   }
+}
+
+function asObject(value: unknown, label: string): JsonObject {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new DevActionError(`${label}: GitHub returned an unexpected response.`);
+  }
+  return value as JsonObject;
+}
+
+function requiredString(value: unknown, label: string): string {
+  if (typeof value !== 'string' || !value.trim()) {
+    throw new DevActionError(`${label}: GitHub omitted required repository metadata.`);
+  }
+  return value.trim();
+}
+
+function requiredCount(value: unknown, label: string): number {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0) {
+    throw new DevActionError(`${label}: GitHub returned an invalid commit count.`);
+  }
+  return value;
+}
+
+function requiredBranch(value: unknown, label: string): string {
+  const branch = requiredString(value, label);
+  if (
+    sanitizeBranch(branch) !== branch ||
+    branch.includes('..') ||
+    branch.includes('//') ||
+    branch.startsWith('/') ||
+    branch.endsWith('/')
+  ) {
+    throw new DevActionError(`${label}: GitHub returned an invalid branch name.`);
+  }
+  return branch;
+}
+
+async function ghApi(onLog: LogFn, label: string, args: string[]): Promise<unknown> {
+  const response = await step(onLog, label, 'gh', ['api', ...args]);
+  return parseJson(response.stdout, label);
+}
+
+/**
+ * Prepare non-destructive upstream-sync PRs for fork repositories.
+ *
+ * The authenticated local `gh` user updates only {@link SYNC_BRANCH}; the
+ * fork's default branch is never written here. That makes divergent fork-only
+ * commits the PR base, where they remain visible and conflict-checkable.
+ */
+export async function syncForks(params: { repos: string[] }, onLog: LogFn): Promise<{ results: ForkSyncResult[] }> {
+  const repos = [...new Set((params.repos || []).map((r) => r.trim()).filter(Boolean))];
+  const results = await Promise.all(
+    repos.map((repo): Promise<ForkSyncResult> => {
+      if (!REPO_SLUG.test(repo)) {
+        return Promise.resolve({ repo, ok: false, error: 'Invalid repository slug.' });
+      }
+      return syncFork(repo, onLog);
+    })
+  );
   return { results };
+}
+
+async function syncFork(repo: string, onLog: LogFn): Promise<ForkSyncResult> {
+  try {
+    const metadata = asObject(
+      await ghApi(onLog, `Read fork metadata for ${repo}`, [
+        `repos/${repo}`,
+        '--jq',
+        '{fork,owner:.owner.login,targetBranch:.default_branch,upstream:.source.full_name,upstreamOwner:.source.owner.login,upstreamBranch:.source.default_branch}',
+      ]),
+      repo
+    );
+    if (metadata.fork !== true) throw new DevActionError(`${repo} is not a fork.`);
+
+    const owner = requiredString(metadata.owner, repo);
+    const targetBranch = requiredBranch(metadata.targetBranch, repo);
+    const upstream = requiredString(metadata.upstream, repo);
+    const upstreamOwner = requiredString(metadata.upstreamOwner, repo);
+    const upstreamBranch = requiredBranch(metadata.upstreamBranch, repo);
+    if (!REPO_SLUG.test(upstream)) {
+      throw new DevActionError(`${repo}: GitHub returned an invalid upstream repository.`);
+    }
+
+    const comparison = asObject(
+      await ghApi(onLog, `Compare ${repo} with ${upstream}`, [
+        `repos/${repo}/compare/${encodeURIComponent(targetBranch)}...${encodeURIComponent(
+          `${upstreamOwner}:${upstreamBranch}`
+        )}`,
+        '--jq',
+        '{ahead:.ahead_by,preserved:.behind_by}',
+      ]),
+      repo
+    );
+    const upstreamCommits = requiredCount(comparison.ahead, repo);
+    const preservedForkCommits = requiredCount(comparison.preserved, repo);
+    onLog(
+      `${repo}: ${upstreamCommits} upstream commit(s) to import; ${preservedForkCommits} fork-only commit(s) remain on ${targetBranch}.`
+    );
+
+    if (upstreamCommits === 0) {
+      onLog(`${repo} is already up to date with ${upstream}.`);
+      return {
+        repo,
+        ok: true,
+        status: 'up-to-date',
+        upstream,
+        upstreamCommits,
+        preservedForkCommits,
+      };
+    }
+
+    const upstreamRef = asObject(
+      await ghApi(onLog, `Read ${upstreamBranch} head from ${upstream}`, [
+        `repos/${upstream}/git/ref/heads/${upstreamBranch}`,
+        '--jq',
+        '{sha:.object.sha}',
+      ]),
+      upstream
+    );
+    const upstreamSha = requiredString(upstreamRef.sha, upstream);
+
+    const matchingRefs = await ghApi(onLog, `Check ${SYNC_BRANCH} on ${repo}`, [
+      `repos/${repo}/git/matching-refs/heads/${SYNC_BRANCH}`,
+      '--jq',
+      'map({ref,sha:.object.sha})',
+    ]);
+    if (!Array.isArray(matchingRefs)) {
+      throw new DevActionError(`${repo}: GitHub returned an unexpected branch response.`);
+    }
+    const syncRef = `refs/heads/${SYNC_BRANCH}`;
+    const branchExists = matchingRefs.some((candidate) => asObject(candidate, repo).ref === syncRef);
+
+    if (branchExists) {
+      await ghApi(onLog, `Update disposable sync branch on ${repo}`, [
+        `repos/${repo}/git/refs/heads/${SYNC_BRANCH}`,
+        '--method',
+        'PATCH',
+        '-f',
+        `sha=${upstreamSha}`,
+        '-F',
+        'force=true',
+      ]);
+    } else {
+      await ghApi(onLog, `Create disposable sync branch on ${repo}`, [
+        `repos/${repo}/git/refs`,
+        '--method',
+        'POST',
+        '-f',
+        `ref=refs/heads/${SYNC_BRANCH}`,
+        '-f',
+        `sha=${upstreamSha}`,
+      ]);
+    }
+
+    const pulls = await ghApi(onLog, `Find existing upstream sync PR on ${repo}`, [
+      `repos/${repo}/pulls`,
+      '--method',
+      'GET',
+      '-f',
+      'state=open',
+      '-f',
+      `head=${owner}:${SYNC_BRANCH}`,
+      '-f',
+      `base=${targetBranch}`,
+      '--jq',
+      'map({url:.html_url})',
+    ]);
+    if (!Array.isArray(pulls)) {
+      throw new DevActionError(`${repo}: GitHub returned an unexpected pull request response.`);
+    }
+
+    const existingPull = pulls.length > 0 ? asObject(pulls[0], repo) : undefined;
+    let prUrl = existingPull ? requiredString(existingPull.url, repo) : undefined;
+    if (!prUrl) {
+      const createdPull = asObject(
+        await ghApi(onLog, `Open upstream sync PR on ${repo}`, [
+          `repos/${repo}/pulls`,
+          '--method',
+          'POST',
+          '-f',
+          `title=chore: sync fork from ${upstream}`,
+          '-f',
+          `head=${owner}:${SYNC_BRANCH}`,
+          '-f',
+          `base=${targetBranch}`,
+          '-f',
+          `body=Brings ${upstreamCommits} upstream commit(s) from ${upstream}@${upstreamBranch} into this fork through a reviewable PR. The ${preservedForkCommits} fork-only commit(s) on ${targetBranch} are retained.`,
+          '--jq',
+          '{url:.html_url}',
+        ]),
+        repo
+      );
+      prUrl = requiredString(createdPull.url, repo);
+    }
+
+    onLog(`Sync PR ready for ${repo}: ${prUrl}`);
+    return {
+      repo,
+      ok: true,
+      status: branchExists ? 'updated' : 'created',
+      prUrl,
+      upstream,
+      upstreamCommits,
+      preservedForkCommits,
+    };
+  } catch (e) {
+    const error = e instanceof DevActionError ? e.message : scrubSecrets(String(e));
+    onLog(`${repo}: ${error}`);
+    return { repo, ok: false, error };
+  }
 }

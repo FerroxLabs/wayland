@@ -6,7 +6,7 @@ false positive**, not a sign that anything is wrong. This guide explains why it
 happens and how to add narrowly-scoped exclusions without weakening your overall
 protection.
 
-> Keep your antivirus on. The steps below add *targeted* exceptions for Wayland's
+> Keep your antivirus on. The steps below add _targeted_ exceptions for Wayland's
 > own executables and folders. They do not disable real-time protection or
 > behavioral monitoring for anything else on your machine.
 
@@ -16,7 +16,7 @@ Modern antivirus does two different things, and Wayland can trip either one:
 
 1. **Behavioral detection** (Bitdefender Advanced Threat Defense, Microsoft
    Defender behavior monitoring, and similar engines) watches what a running
-   program *does*. Wayland is an AI development agent, so by design it spawns
+   program _does_. Wayland is an AI development agent, so by design it spawns
    child processes, writes and runs scripts and executables, automates other
    tools, and touches many files quickly. Those are exactly the behaviors a
    behavioral engine is built to be suspicious of — even though, for Wayland,
@@ -112,5 +112,5 @@ rules once a legitimate signed application is confirmed. Most vendors have a
 
 ---
 
-*Thanks to community contributor **frakman** for the detailed writeup that this
-guide is based on.*
+_Thanks to community contributor **frakman** for the detailed writeup that this
+guide is based on._

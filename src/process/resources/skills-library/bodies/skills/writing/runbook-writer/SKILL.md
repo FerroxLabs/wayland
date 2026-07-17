@@ -150,7 +150,7 @@ If the resolution made things worse:
 ### Internal Status Update (Slack)
 
 \```
-:rotating_light: _Incident: Database Connection Pool Exhaustion_
+:rotating*light: \_Incident: Database Connection Pool Exhaustion*
 _Status:_ Investigating / Mitigating / Resolved
 _Impact:_ API errors affecting ~X% of requests
 _Cause:_ [Brief description]

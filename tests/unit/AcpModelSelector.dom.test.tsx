@@ -22,6 +22,9 @@ const ipcMock = vi.hoisted(() => ({
   conversationGet: vi.fn().mockResolvedValue(null),
   conversationUpdate: vi.fn().mockResolvedValue(true),
 }));
+const messageMock = vi.hoisted(() => ({
+  error: vi.fn(),
+}));
 
 let responseHandler: ((message: unknown) => void) | null = null;
 
@@ -65,11 +68,29 @@ vi.mock('@/common/config/storage', () => ({
   },
 }));
 
+vi.mock('@arco-design/web-react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@arco-design/web-react')>();
+  return {
+    ...actual,
+    Message: {
+      ...actual.Message,
+      error: messageMock.error,
+    },
+  };
+});
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, fallback?: string | { defaultValue?: string }) => {
       if (typeof fallback === 'string') return fallback || key;
-      if (fallback && typeof fallback === 'object' && fallback.defaultValue) return fallback.defaultValue;
+      if (fallback && typeof fallback === 'object' && fallback.defaultValue) {
+        let value = fallback.defaultValue;
+        for (const [name, replacement] of Object.entries(fallback)) {
+          if (name === 'defaultValue') continue;
+          value = value.replace(new RegExp(`{{${name}}}`, 'g'), String(replacement));
+        }
+        return value;
+      }
       return key;
     },
   }),
@@ -87,6 +108,61 @@ const configGetMock = ConfigStorage.get as unknown as ReturnType<typeof vi.fn>;
 // given, so the first-connection state's button label is this key, and the
 // neutral loading state's label is its defaultValue.
 const FIRST_CONNECTION_LABEL = 'conversation.welcome.useCliModel';
+
+function deferred<T>(): {
+  promise: Promise<T>;
+  resolve: (value: T) => void;
+  reject: (reason?: unknown) => void;
+} {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
+function codexModelInfo(currentModelId: string, selectionState: 'pending' | 'confirmed' | 'blocked' = 'confirmed') {
+  const labels: Record<string, string> = {
+    'gpt-5.5': 'GPT-5.5',
+    'gpt-5.6-sol': 'GPT-5.6 SOL',
+    'gpt-next': 'GPT Next',
+  };
+  return {
+    currentModelId,
+    currentModelLabel: labels[currentModelId] ?? currentModelId,
+    availableModels: Object.entries(labels).map(([id, label]) => ({ id, label })),
+    canSwitch: true,
+    source: 'models' as const,
+    sourceDetail: 'acp-models' as const,
+    confirmationSource: 'session-models' as const,
+    selectionState,
+  };
+}
+
+function confirmedSelection(modelId: string) {
+  return {
+    success: true,
+    data: {
+      selection: {
+        ok: true as const,
+        requestedModelId: modelId,
+        confirmedModelId: modelId,
+        modelInfo: codexModelInfo(modelId),
+        confirmationSource: 'session-models' as const,
+        restarted: true,
+      },
+    },
+  };
+}
+
+function modelInfoResponse(modelId: string) {
+  return {
+    success: true,
+    data: { modelInfo: codexModelInfo(modelId) },
+  };
+}
 const LOADING_LABEL = 'Loading models…';
 
 describe('AcpModelSelector', () => {
@@ -98,13 +174,24 @@ describe('AcpModelSelector', () => {
       return () => {};
     });
     ipcMock.getModelConfig.mockResolvedValue([]);
+    ipcMock.curatedForAgent.mockResolvedValue([]);
+    configGetMock.mockResolvedValue(null);
     // Reset per-test: clearAllMocks() wipes calls but NOT implementations, so a
     // test that connects Flux (registryList -> flux-router) would otherwise leak
     // "Flux connected" into later tests. Default every test to Flux disconnected.
     ipcMock.registryList.mockResolvedValue([]);
     ipcMock.setModel.mockResolvedValue({
       success: true,
-      data: { modelInfo: null },
+      data: {
+        selection: {
+          ok: true,
+          requestedModelId: null,
+          confirmedModelId: null,
+          modelInfo: null,
+          confirmationSource: 'provider-default',
+          restarted: false,
+        },
+      },
     });
   });
 
@@ -119,6 +206,8 @@ describe('AcpModelSelector', () => {
           canSwitch: false,
           source: 'models',
           sourceDetail: 'cc-switch',
+          confirmationSource: 'session-models',
+          selectionState: 'confirmed',
         },
       },
     });
@@ -130,7 +219,7 @@ describe('AcpModelSelector', () => {
     });
   });
 
-  it('shows codex stream as the model source when stream events arrive', async () => {
+  it('does not present an uncorrelated Codex stream model as active', async () => {
     ipcMock.getModelInfo.mockResolvedValue({
       success: true,
       data: { modelInfo: null },
@@ -144,9 +233,8 @@ describe('AcpModelSelector', () => {
       data: { model: 'gpt-5.4/high' },
     });
 
-    await waitFor(() => {
-      expect(screen.getAllByText('gpt-5.4/high').length).toBeGreaterThan(0);
-    });
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('Use provider default'));
+    expect(screen.queryByText('gpt-5.4/high')).toBeNull();
   });
 
   it('refreshes Claude model info when the window regains focus', async () => {
@@ -164,6 +252,8 @@ describe('AcpModelSelector', () => {
             canSwitch: true,
             source: 'models',
             sourceDetail: 'cc-switch',
+            confirmationSource: 'session-models',
+            selectionState: 'confirmed',
           },
         },
       })
@@ -180,6 +270,8 @@ describe('AcpModelSelector', () => {
             canSwitch: true,
             source: 'models',
             sourceDetail: 'cc-switch',
+            confirmationSource: 'session-models',
+            selectionState: 'confirmed',
           },
         },
       });
@@ -199,7 +291,7 @@ describe('AcpModelSelector', () => {
     });
   });
 
-  it('updates the visible model label immediately after selecting a different model', async () => {
+  it('updates the visible model label only after the provider confirms a different model', async () => {
     ipcMock.getModelInfo.mockResolvedValue({
       success: true,
       data: {
@@ -213,22 +305,33 @@ describe('AcpModelSelector', () => {
           canSwitch: true,
           source: 'models',
           sourceDetail: 'cc-switch',
+          confirmationSource: 'session-models',
+          selectionState: 'confirmed',
         },
       },
     });
     ipcMock.setModel.mockResolvedValue({
       success: true,
       data: {
-        modelInfo: {
-          currentModelId: 'glm-5.1x',
-          currentModelLabel: 'GLM 5.1x',
-          availableModels: [
-            { id: 'claude-opus-4-6', label: 'Claude Opus 4.6' },
-            { id: 'glm-5.1x', label: 'GLM 5.1x' },
-          ],
-          canSwitch: true,
-          source: 'models',
-          sourceDetail: 'cc-switch',
+        selection: {
+          ok: true,
+          requestedModelId: 'glm-5.1x',
+          confirmedModelId: 'glm-5.1x',
+          confirmationSource: 'spawn-session',
+          restarted: true,
+          modelInfo: {
+            currentModelId: 'glm-5.1x',
+            currentModelLabel: 'GLM 5.1x',
+            availableModels: [
+              { id: 'claude-opus-4-6', label: 'Claude Opus 4.6' },
+              { id: 'glm-5.1x', label: 'GLM 5.1x' },
+            ],
+            canSwitch: true,
+            source: 'models',
+            sourceDetail: 'cc-switch',
+            confirmationSource: 'spawn-session',
+            selectionState: 'confirmed',
+          },
         },
       },
     });
@@ -252,7 +355,234 @@ describe('AcpModelSelector', () => {
     });
   });
 
-  it('renders the cached catalog (no first-connection tooltip) when ConfigStorage has cached models', async () => {
+  it('keeps the confirmed label while an exact model switch is pending', async () => {
+    const pending = deferred<ReturnType<typeof confirmedSelection>>();
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: { modelInfo: codexModelInfo('gpt-5.5') },
+    });
+    ipcMock.setModel.mockReturnValue(pending.promise);
+
+    render(<AcpModelSelector conversationId='conv-pending' backend='codex' />);
+    await waitFor(() => {
+      expect(screen.getByRole('button').textContent).toContain('GPT-5.5');
+    });
+
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(await screen.findByText('GPT-5.6 SOL'));
+
+    expect(screen.getByRole('button').textContent).toContain('GPT-5.5');
+    expect(screen.getByText('Switching to GPT-5.6 SOL…')).toBeInTheDocument();
+  });
+
+  it('keeps the confirmed label and surfaces a blocked mismatch', async () => {
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: { modelInfo: codexModelInfo('gpt-5.5') },
+    });
+    ipcMock.setModel.mockResolvedValue({
+      success: true,
+      data: {
+        selection: {
+          ok: false,
+          requestedModelId: 'gpt-5.6-sol',
+          previousConfirmedModelId: 'gpt-5.5',
+          code: 'model_mismatch',
+          message: 'Runtime reported gpt-5.5',
+          modelInfo: {
+            ...codexModelInfo('gpt-5.5', 'blocked'),
+            requestedModelId: 'gpt-5.6-sol',
+            selectionFailureCode: 'model_mismatch',
+          },
+        },
+      },
+    });
+
+    render(<AcpModelSelector conversationId='conv-blocked' backend='codex' />);
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT-5.5'));
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(await screen.findByText('GPT-5.6 SOL'));
+
+    await waitFor(() => expect(messageMock.error).toHaveBeenCalled());
+    expect(screen.getByRole('button').textContent).toContain('GPT-5.5');
+  });
+
+  it('ignores a superseded selection response', async () => {
+    const first = deferred<ReturnType<typeof confirmedSelection>>();
+    const second = deferred<ReturnType<typeof confirmedSelection>>();
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: { modelInfo: codexModelInfo('gpt-5.5') },
+    });
+    ipcMock.setModel.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
+
+    render(<AcpModelSelector conversationId='conv-latest' backend='codex' />);
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT-5.5'));
+
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(await screen.findByText('GPT-5.6 SOL'));
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(await screen.findByText('GPT Next'));
+
+    act(() => second.resolve(confirmedSelection('gpt-next')));
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT Next'));
+
+    act(() => first.resolve(confirmedSelection('gpt-5.6-sol')));
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT Next'));
+    expect(screen.getByRole('button').textContent).not.toContain('GPT-5.6 SOL');
+  });
+
+  it('keeps the confirmed active model when a legacy model-info snapshot arrives', async () => {
+    ipcMock.getModelInfo.mockResolvedValue(modelInfoResponse('gpt-5.5'));
+    render(<AcpModelSelector conversationId='conv-legacy' backend='codex' />);
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT-5.5'));
+
+    act(() => {
+      responseHandler?.({
+        conversation_id: 'conv-legacy',
+        type: 'acp_model_info',
+        data: {
+          currentModelId: 'gpt-next',
+          currentModelLabel: 'GPT Next',
+          availableModels: [{ id: 'gpt-next', label: 'GPT Next' }],
+          canSwitch: true,
+          source: 'models',
+        },
+      });
+    });
+
+    expect(screen.getByRole('button').textContent).toContain('GPT-5.5');
+    expect(screen.getByRole('button').textContent).not.toContain('GPT Next');
+  });
+
+  it('ignores a stale model-info response after switching conversations', async () => {
+    const oldResponse = deferred<ReturnType<typeof modelInfoResponse>>();
+    ipcMock.getModelInfo.mockReturnValueOnce(oldResponse.promise).mockResolvedValueOnce(modelInfoResponse('gpt-next'));
+
+    const { rerender } = render(<AcpModelSelector conversationId='conv-old' backend='codex' />);
+    await waitFor(() =>
+      expect(ipcMock.getModelInfo).toHaveBeenCalledWith(expect.objectContaining({ conversationId: 'conv-old' }))
+    );
+    rerender(<AcpModelSelector conversationId='conv-new' backend='codex' />);
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT Next'));
+
+    await act(async () => {
+      oldResponse.resolve(modelInfoResponse('gpt-5.5'));
+      await oldResponse.promise;
+    });
+    expect(screen.getByRole('button').textContent).toContain('GPT Next');
+  });
+
+  it('keeps the newest result when Claude refresh responses arrive out of order', async () => {
+    const firstRefresh = deferred<ReturnType<typeof modelInfoResponse>>();
+    const secondRefresh = deferred<ReturnType<typeof modelInfoResponse>>();
+    ipcMock.getModelInfo
+      .mockResolvedValueOnce(modelInfoResponse('gpt-5.5'))
+      .mockReturnValueOnce(firstRefresh.promise)
+      .mockReturnValueOnce(secondRefresh.promise);
+
+    render(<AcpModelSelector conversationId='conv-polls' backend='claude' />);
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT-5.5'));
+    act(() => {
+      window.dispatchEvent(new Event('focus'));
+      window.dispatchEvent(new Event('focus'));
+    });
+
+    act(() => secondRefresh.resolve(modelInfoResponse('gpt-next')));
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT Next'));
+    await act(async () => {
+      firstRefresh.resolve(modelInfoResponse('gpt-5.6-sol'));
+      await firstRefresh.promise;
+    });
+    expect(screen.getByRole('button').textContent).toContain('GPT Next');
+  });
+
+  it('does not let a pre-switch reload overwrite a confirmed selection', async () => {
+    const staleRefresh = deferred<ReturnType<typeof modelInfoResponse>>();
+    ipcMock.getModelInfo.mockResolvedValueOnce(modelInfoResponse('gpt-5.5')).mockReturnValueOnce(staleRefresh.promise);
+    ipcMock.setModel.mockResolvedValue(confirmedSelection('gpt-next'));
+
+    render(<AcpModelSelector conversationId='conv-switch-reload' backend='claude' />);
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT-5.5'));
+    act(() => window.dispatchEvent(new Event('focus')));
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(await screen.findByText('GPT Next'));
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT Next'));
+
+    await act(async () => {
+      staleRefresh.resolve(modelInfoResponse('gpt-5.5'));
+      await staleRefresh.promise;
+    });
+    expect(screen.getByRole('button').textContent).toContain('GPT Next');
+  });
+
+  it('does not let an in-flight reload overwrite a newer transactional stream event', async () => {
+    const staleRefresh = deferred<ReturnType<typeof modelInfoResponse>>();
+    ipcMock.getModelInfo.mockResolvedValueOnce(modelInfoResponse('gpt-5.5')).mockReturnValueOnce(staleRefresh.promise);
+
+    render(<AcpModelSelector conversationId='conv-stream-reload' backend='claude' />);
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT-5.5'));
+    act(() => window.dispatchEvent(new Event('focus')));
+    act(() => {
+      responseHandler?.({
+        conversation_id: 'conv-stream-reload',
+        type: 'acp_model_info',
+        data: codexModelInfo('gpt-next'),
+      });
+    });
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT Next'));
+
+    await act(async () => {
+      staleRefresh.resolve(modelInfoResponse('gpt-5.5'));
+      await staleRefresh.promise;
+    });
+    expect(screen.getByRole('button').textContent).toContain('GPT Next');
+  });
+
+  it('offers provider default as a recovery action and sends a null model id', async () => {
+    ipcMock.getModelInfo.mockResolvedValue({
+      success: true,
+      data: {
+        modelInfo: {
+          ...codexModelInfo('gpt-5.5', 'blocked'),
+          requestedModelId: 'gpt-5.6-sol',
+          selectionFailureCode: 'model_mismatch',
+        },
+      },
+    });
+    ipcMock.setModel.mockResolvedValue({
+      success: true,
+      data: {
+        selection: {
+          ok: true,
+          requestedModelId: null,
+          confirmedModelId: null,
+          modelInfo: {
+            ...codexModelInfo('gpt-5.5'),
+            selectionState: 'provider-default',
+          },
+          confirmationSource: 'provider-default',
+          restarted: true,
+        },
+      },
+    });
+
+    render(<AcpModelSelector conversationId='conv-default' backend='codex' />);
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('GPT-5.5'));
+    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(await screen.findByText('Use provider default'));
+
+    await waitFor(() => {
+      expect(ipcMock.setModel).toHaveBeenCalledWith({
+        conversationId: 'conv-default',
+        modelId: null,
+      });
+    });
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('Use provider default'));
+    expect(screen.getByRole('button').textContent).not.toContain('GPT-5.5');
+  });
+
+  it('renders a cached catalog without presenting its cached current model as active', async () => {
     // Live IPC reports nothing yet (manager not created) so the picker must fall
     // back to the persisted catalog instead of the alarming first-connection state.
     ipcMock.getModelInfo.mockResolvedValue({
@@ -275,15 +605,14 @@ describe('AcpModelSelector', () => {
 
     render(<AcpModelSelector conversationId='conv-cache' backend='qwen' />);
 
-    // The cached current model surfaces in the compact label...
-    await waitFor(() => {
-      expect(screen.getAllByText('Qwen Max').length).toBeGreaterThan(0);
-    });
-    // ...and the misleading "first connection" guidance is never shown.
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('Use provider default'));
+    expect(screen.queryByText('Qwen Max')).toBeNull();
+    fireEvent.click(screen.getByRole('button'));
+    expect(await screen.findByText('Qwen Max')).toBeTruthy();
     expect(screen.queryByText(FIRST_CONNECTION_LABEL)).toBeNull();
   });
 
-  it('shows Claude Code current model + switch list immediately on a new chat (no first-connection tooltip)', async () => {
+  it('shows the static Claude catalog without presenting its local default as confirmed', async () => {
     // Cold start: no cached catalog (Claude never reports via the models API, so
     // acp.cachedModels has no `claude` entry), but the process derives the
     // cc-switch catalog and returns it pre-connection. The picker must populate
@@ -309,10 +638,8 @@ describe('AcpModelSelector', () => {
 
     render(<AcpModelSelector conversationId='conv-claude-cold' backend='claude' />);
 
-    // Current model surfaces in the compact label immediately.
-    await waitFor(() => {
-      expect(screen.getAllByText('Claude Opus 4.8 · cc-switch').length).toBeGreaterThan(0);
-    });
+    await waitFor(() => expect(screen.getByRole('button').textContent).toContain('Use provider default'));
+    expect(screen.queryByText(/Claude Opus 4\.8/)).toBeNull();
     // The first-connection guidance is never shown.
     expect(screen.queryByText(FIRST_CONNECTION_LABEL)).toBeNull();
 
@@ -383,6 +710,8 @@ describe('AcpModelSelector', () => {
     canSwitch: true,
     source: 'models',
     sourceDetail: 'cc-switch',
+    confirmationSource: 'session-models',
+    selectionState: 'confirmed',
   };
   const CLAUDE_CURATED = [
     {

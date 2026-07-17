@@ -503,11 +503,11 @@ _(Fill in immediately after the session -- before you do anything else)_
 
 - Pomodoros completed: \_\_\_/4
 - Total interruptions recorded: \_\_\_
-- Micro-check fails (topics to revisit): ************\_\_\_************
-- Terms or concepts I could not retrieve in Pomodoro 4: ************\_\_\_************
-- Hardest concept this session: ************\_\_\_************
+- Micro-check fails (topics to revisit): \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\***
+- Terms or concepts I could not retrieve in Pomodoro 4: \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\***
+- Hardest concept this session: \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\***
 - Confidence level on classical conditioning overall (1 = very shaky, 5 = could teach it): \_\_\_/5
-- One thing I will do differently in the next session: ************\_\_\_************
+- One thing I will do differently in the next session: \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\***
 
 ---
 

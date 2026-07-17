@@ -9,13 +9,14 @@
     "start": "node bridge.js"
   },
   "dependencies": {
-    "@whiskeysockets/baileys": "7.0.0-rc.9",
+    "@whiskeysockets/baileys": "7.0.0-rc13",
     "axios": "^1.7.0",
     "pino": "^9.0.0",
     "qrcode-terminal": "^0.12.0",
     "whatsapp-web.js": "^1.26.0"
   },
   "overrides": {
-    "protobufjs": "^7.5.5"
+    "form-data": "^4.0.6",
+    "protobufjs": "^7.6.5"
   }
 }

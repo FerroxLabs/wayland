@@ -32,7 +32,7 @@ export type ProjectDropdownProps = {
 // ---------------------------------------------------------------------------
 
 const ProjectDropdown: React.FC<ProjectDropdownProps> = ({ projects, selected, onSelect }) => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   const [search, setSearch] = useState('');
 
   const maxCount = useMemo(() => Math.max(...projects.map((p) => p.count), 1), [projects]);

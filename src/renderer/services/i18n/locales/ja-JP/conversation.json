@@ -433,11 +433,30 @@
     "effortLowDesc": "Fast responses with lighter reasoning",
     "effortMediumDesc": "Balances speed and reasoning depth",
     "effortHighDesc": "Greater reasoning depth for complex problems",
+    "effortXhigh": "Extra high",
+    "effortXhighDesc": "Extended reasoning for hard coding and agentic tasks",
+    "effortMax": "Max",
+    "effortMaxDesc": "Maximum reasoning depth - correctness over cost",
     "emptyTitle": "No models yet",
     "emptySub": "Connect a provider to choose a model.",
     "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
-    "manageModels": "Manage models"
+    "manageModels": "Manage models",
+    "providerDefault": "プロバイダーのデフォルトを使用",
+    "switching": "{{model}} に切り替えています…",
+    "blocked": "モデルの切り替えがブロックされました",
+    "retry": "再試行",
+    "revert": "確認済みモデルに戻す",
+    "sendPending": "モデルの確認を待っています…",
+    "sendBlocked": "モデルの切り替えがブロックされています。別のモデルまたはプロバイダーのデフォルトを選択してください。",
+    "failure": {
+      "unsupported_model": "このプロバイダーでは {{model}} を利用できません。アクティブなモデルは変更されていません。",
+      "model_rejected": "プロバイダーが {{model}} を拒否しました。アクティブなモデルは変更されていません。",
+      "model_mismatch": "プロバイダーが {{model}} を確認しませんでした。アクティブなモデルは変更されていません。",
+      "confirmation_unavailable": "現在、プロバイダーは {{model}} を確認できません。アクティブなモデルは変更されていません。",
+      "bridge_unavailable": "{{model}} に切り替えるためのプロバイダーに接続できませんでした。アクティブなモデルは変更されていません。",
+      "model_switch_timeout": "{{model}} の確認待ちがタイムアウトしました。アクティブなモデルは変更されていません。"
+    }
   }
 }

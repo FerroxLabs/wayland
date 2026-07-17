@@ -23,6 +23,7 @@ import { encode, decode, DecodeError, MAX_LINE_BYTES } from './mcpWireProtocol';
 import { buildChildEnv } from './envAllowlist';
 import { resolveEntry } from './entryResolver';
 import { jsonRpcResponseSchema } from './ipcSchemas';
+import { resolveTrustedNodeRuntime } from './safeSpawn';
 import { killChild } from '@process/agent/acp/utils';
 import type { IjfwErrorReason, IjfwInvokeResult } from '@/common/types/ijfw';
 
@@ -312,8 +313,9 @@ class IjfwMcpClient {
   private async spawnChild(): Promise<ChildProcess> {
     const mcpServerDir = path.join(os.homedir(), '.ijfw', 'mcp-server');
     const entry = await resolveEntry(mcpServerDir);
-    const env = buildChildEnv({ ELECTRON_RUN_AS_NODE: '1' });
-    const child = spawn(process.execPath, [entry], {
+    const runtime = await resolveTrustedNodeRuntime();
+    const env = buildChildEnv();
+    const child = spawn(runtime, [entry], {
       env,
       stdio: ['pipe', 'pipe', 'pipe'],
     });

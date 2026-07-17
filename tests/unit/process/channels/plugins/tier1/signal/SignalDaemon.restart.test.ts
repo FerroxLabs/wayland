@@ -89,7 +89,9 @@ vi.mock('node:fs', () => ({
   existsSync: vi.fn(() => false),
 }));
 
-import { SignalDaemon } from '@process/channels/plugins/tier1/signal/SignalDaemon';
+import path from 'node:path';
+
+import { buildSignalDaemonSpawnSpec, SignalDaemon } from '@process/channels/plugins/tier1/signal/SignalDaemon';
 
 // ── fetch mock helpers ───────────────────────────────────────────────────────
 
@@ -258,6 +260,92 @@ describe('SignalDaemon restart behaviour', () => {
     expect(mockSpawn).toHaveBeenCalledTimes(1);
     expect(daemon.status).toBe('stopped');
     vi.useRealTimers();
+  });
+});
+
+describe('SignalDaemon launch security', () => {
+  it.each(['signal-cli.cmd', 'C:\\Tools\\signal-cli.bat'])(
+    'rejects Windows command-script launchers instead of invoking cmd.exe: %s',
+    (cliPath) => {
+      expect(() => buildSignalDaemonSpawnSpec(cliPath, ['daemon'], 'win32')).toThrow(/native signal-cli executable/i);
+      expect(mockSpawn).not.toHaveBeenCalled();
+    }
+  );
+
+  it.each([
+    ['C:\\Windows\\System32\\calc.exe', 'win32'],
+    ['/bin/sh', 'linux'],
+  ] as const)('rejects an arbitrary executable path: %s', (cliPath, platform) => {
+    expect(() => buildSignalDaemonSpawnSpec(cliPath, ['daemon'], platform)).toThrow(/signal-cli executable/i);
+    expect(mockSpawn).not.toHaveBeenCalled();
+  });
+
+  it('spawns a native Windows executable directly with shell disabled and hostile characters kept in argv', () => {
+    const args = ['--config', 'C:\\Signal Data\\profile & calc.exe', 'daemon'];
+    const spec = buildSignalDaemonSpawnSpec('C:\\Signal\\signal-cli.exe', args, 'win32');
+
+    expect(spec.command).toBe('C:\\Signal\\signal-cli.exe');
+    expect(spec.args).toEqual(args);
+    expect(spec.options).toMatchObject({
+      shell: false,
+      windowsHide: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  });
+
+  it.each(['0.0.0.0', '192.168.1.25', 'example.com', '127.0.0.1 & calc.exe'])(
+    'rejects a non-loopback Signal RPC host: %s',
+    (httpHost) => {
+      expect(() => new SignalDaemon({ phoneNumber: '+14155551234', httpHost })).toThrow(/loopback/i);
+    }
+  );
+
+  it.each([0, 65_536, 8080.5, Number.NaN])('rejects an invalid Signal RPC port: %s', (httpPort) => {
+    expect(() => new SignalDaemon({ phoneNumber: '+14155551234', httpPort })).toThrow(/port/i);
+  });
+
+  it('requires an absolute config directory and rejects control characters', () => {
+    expect(() => new SignalDaemon({ phoneNumber: '+14155551234', configDir: 'relative\\signal-data' })).toThrow(
+      /absolute/i
+    );
+    expect(
+      () =>
+        new SignalDaemon({
+          phoneNumber: '+14155551234',
+          configDir: `${path.resolve('signal-data')}\r\nmalicious`,
+        })
+    ).toThrow(/control characters/i);
+  });
+
+  it('normalizes a blank config directory to the secure default path', () => {
+    const daemon = new SignalDaemon({ phoneNumber: '+14155551234', configDir: '   ' });
+    expect(daemon.opts.configDir).toBeUndefined();
+  });
+
+  it('accepts loopback RPC literals and an absolute config directory', () => {
+    const configDir = path.resolve('signal-data');
+    expect(
+      () =>
+        new SignalDaemon({
+          phoneNumber: '+14155551234',
+          cliPath: process.platform === 'win32' ? 'signal-cli.exe' : 'signal-cli',
+          configDir,
+          httpHost: 'localhost',
+          httpPort: 8080,
+        })
+    ).not.toThrow();
+  });
+
+  it('brackets the IPv6 loopback literal in both the RPC URL and daemon listen argument', async () => {
+    const daemon = new SignalDaemon({ phoneNumber: '+14155551234', httpHost: '::1' });
+
+    expect(daemon.baseUrl).toBe('http://[::1]:8080');
+    await daemon.start();
+
+    const [, args] = mockSpawn.mock.calls[0] as [string, string[]];
+    const httpIndex = args.indexOf('--http');
+    expect(args[httpIndex + 1]).toBe('[::1]:8080');
+    await daemon.stop();
   });
 });
 

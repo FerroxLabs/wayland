@@ -8,7 +8,8 @@
 
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-const { fsPromisesMock } = vi.hoisted(() => ({
+const { existsSyncMock, fsPromisesMock } = vi.hoisted(() => ({
+  existsSyncMock: vi.fn(() => false),
   fsPromisesMock: {
     access: vi.fn(),
     readdir: vi.fn(),
@@ -17,6 +18,7 @@ const { fsPromisesMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('fs', () => ({
+  existsSync: existsSyncMock,
   promises: fsPromisesMock,
 }));
 
@@ -71,6 +73,7 @@ vi.mock('../../src/process/agent/acp/bridgeVersionResolver', () => ({
 import { execFile as execFileCb, spawn } from 'child_process';
 import { execFileSync } from 'child_process';
 import { resolveBridgePackage } from '../../src/process/agent/acp/bridgeVersionResolver';
+import { loadFullShellEnvironment } from '@process/utils/shellEnv';
 import {
   connectClaude,
   connectCodex,
@@ -84,9 +87,11 @@ import { CLAUDE_ACP_NPX_PACKAGE, CODEX_ACP_NPX_PACKAGE } from '../../src/common/
 
 const mockExecFile = vi.mocked(execFileCb);
 const mockExecFileSync = vi.mocked(execFileSync);
+const mockExistsSync = vi.mocked(existsSyncMock);
 const mockFsPromises = vi.mocked(fsPromisesMock);
 const mockSpawn = vi.mocked(spawn);
 const resolveBridgePackageMock = vi.mocked(resolveBridgePackage);
+const loadFullShellEnvironmentMock = vi.mocked(loadFullShellEnvironment);
 
 describe('spawnNpxBackend - Windows UTF-8 fix', () => {
   const mockChild = { unref: vi.fn() };
@@ -279,6 +284,7 @@ describe('connectCodex - Windows diagnostics', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    mockExistsSync.mockReset();
     if (originalPlatform) {
       Object.defineProperty(process, 'platform', originalPlatform);
     }
@@ -319,6 +325,50 @@ describe('connectCodex - Windows diagnostics', () => {
     expect(setup).toHaveBeenCalledTimes(1);
     expect(cleanup).not.toHaveBeenCalled();
   });
+
+  it('moves Git Bash ahead of the broken WindowsApps alias for Codex plugin hooks', async () => {
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    mockExistsSync.mockImplementation((candidate) => String(candidate) === 'C:\\Program Files\\Git\\bin\\bash.exe');
+    const inheritedPath =
+      'C:\\Users\\frost\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Program Files\\Git\\bin;C:\\Windows\\System32';
+
+    await connectCodex(
+      'C:\\cwd',
+      {
+        setup: vi.fn().mockResolvedValue(undefined),
+        cleanup: vi.fn().mockResolvedValue(undefined),
+      },
+      { PATH: inheritedPath }
+    );
+
+    const spawnEnv = mockSpawn.mock.calls.at(-1)?.[2].env;
+    expect(spawnEnv?.PATH).toBe(
+      'C:\\Program Files\\Git\\bin;C:\\Users\\frost\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Windows\\System32'
+    );
+  });
+
+  it('canonicalizes duplicate Windows PATH casing before spawning Codex', async () => {
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    mockExistsSync.mockImplementation((candidate) => String(candidate) === 'C:\\Program Files\\Git\\bin\\bash.exe');
+    loadFullShellEnvironmentMock.mockResolvedValueOnce({ Path: 'C:\\Windows\\System32' });
+
+    await connectCodex(
+      'C:\\cwd',
+      {
+        setup: vi.fn().mockResolvedValue(undefined),
+        cleanup: vi.fn().mockResolvedValue(undefined),
+      },
+      {
+        PATH: 'C:\\Users\\frost\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Program Files\\Git\\bin;C:\\Windows\\System32',
+      }
+    );
+
+    const spawnEnv = mockSpawn.mock.calls.at(-1)?.[2].env;
+    expect(Object.keys(spawnEnv ?? {}).filter((key) => key.toLowerCase() === 'path')).toEqual(['PATH']);
+    expect(spawnEnv?.PATH).toBe(
+      'C:\\Program Files\\Git\\bin;C:\\Users\\frost\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Windows\\System32'
+    );
+  });
 });
 
 describe('connectClaude - detached process group', () => {
@@ -332,6 +382,7 @@ describe('connectClaude - detached process group', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+    mockExistsSync.mockReset();
     if (originalPlatform) {
       Object.defineProperty(process, 'platform', originalPlatform);
     }
@@ -415,6 +466,26 @@ describe('connectClaude - detached process group', () => {
     );
   });
 
+  it('removes an ambient Claude model override from the final provider-default child env', async () => {
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+    ccSwitchMock.readClaudeProviderEnvFromCcSwitch.mockReturnValue({
+      ANTHROPIC_MODEL: 'claude-stale-model',
+    });
+
+    const setup = vi.fn().mockResolvedValue(undefined);
+    const cleanup = vi.fn().mockResolvedValue(undefined);
+
+    await connectClaude(
+      '/cwd',
+      { setup, cleanup },
+      { WAYLAND_ACP_UNSET_ENV_KEYS: JSON.stringify(['ANTHROPIC_MODEL']) }
+    );
+
+    const spawnEnv = mockSpawn.mock.calls.at(-1)?.[2].env;
+    expect(spawnEnv).not.toHaveProperty('ANTHROPIC_MODEL');
+    expect(spawnEnv).not.toHaveProperty('WAYLAND_ACP_UNSET_ENV_KEYS');
+  });
+
   it('does not detach on Windows', async () => {
     Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
 
@@ -433,6 +504,25 @@ describe('connectClaude - detached process group', () => {
       })
     );
     expect(mockChild.unref).not.toHaveBeenCalled();
+  });
+
+  it('moves Git Bash ahead of the broken WindowsApps alias for Claude plugin hooks', async () => {
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    mockExistsSync.mockImplementation((candidate) => String(candidate) === 'C:\\Program Files\\Git\\bin\\bash.exe');
+
+    await connectClaude(
+      'C:\\cwd',
+      {
+        setup: vi.fn().mockResolvedValue(undefined),
+        cleanup: vi.fn().mockResolvedValue(undefined),
+      },
+      {
+        PATH: 'C:\\Users\\frost\\AppData\\Local\\Microsoft\\WindowsApps;C:\\Program Files\\Git\\bin',
+      }
+    );
+
+    const spawnEnv = mockSpawn.mock.calls.at(-1)?.[2].env;
+    expect(spawnEnv?.PATH).toBe('C:\\Program Files\\Git\\bin;C:\\Users\\frost\\AppData\\Local\\Microsoft\\WindowsApps');
   });
 });
 
@@ -486,6 +576,21 @@ describe('spawnGenericBackend - detached process group', () => {
     );
     expect(result.isDetached).toBe(false);
     expect(mockChild.unref).not.toHaveBeenCalled();
+  });
+
+  it('keeps generic custom CODEX_CONFIG replacement semantics', async () => {
+    Object.defineProperty(process, 'platform', { value: 'linux', configurable: true });
+    loadFullShellEnvironmentMock.mockResolvedValue({
+      PATH: '/usr/bin',
+      CODEX_CONFIG: JSON.stringify({ ambient_feature: true }),
+    });
+
+    await spawnGenericBackend('custom', 'custom-agent', '/cwd', [], {
+      CODEX_CONFIG: JSON.stringify({ replacement_feature: true }),
+    });
+
+    const spawnEnv = mockSpawn.mock.calls.at(-1)?.[2].env;
+    expect(JSON.parse(String(spawnEnv?.CODEX_CONFIG))).toEqual({ replacement_feature: true });
   });
 });
 
@@ -564,5 +669,55 @@ describe('connectCodex - official bridge package', () => {
     });
     expect(JSON.stringify(mockSpawn.mock.calls)).toContain(resolvedOfficialPackage);
     expect(JSON.stringify(mockSpawn.mock.calls)).not.toContain('@zed-industries');
+  });
+});
+
+describe('connectCodex - CODEX_CONFIG overlay', () => {
+  const mockChild = { unref: vi.fn() };
+
+  beforeEach(() => {
+    mockSpawn.mockReturnValue(mockChild as unknown as ReturnType<typeof spawn>);
+    loadFullShellEnvironmentMock.mockResolvedValue({
+      PATH: '/usr/bin',
+      CODEX_CONFIG: JSON.stringify({ model: 'gpt-old', ambient_feature: true }),
+    });
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('preserves unrelated ambient CODEX_CONFIG keys while applying exact model and effort', async () => {
+    await connectCodex(
+      '/cwd',
+      { setup: vi.fn().mockResolvedValue(undefined), cleanup: vi.fn().mockResolvedValue(undefined) },
+      {
+        CODEX_CONFIG: JSON.stringify({ model: 'gpt-5.6-sol', model_reasoning_effort: 'high' }),
+      }
+    );
+
+    const spawnEnv = mockSpawn.mock.calls.at(-1)?.[2].env;
+    expect(JSON.parse(String(spawnEnv?.CODEX_CONFIG))).toEqual({
+      model: 'gpt-5.6-sol',
+      model_reasoning_effort: 'high',
+      ambient_feature: true,
+    });
+  });
+
+  it('removes only the ambient model key for provider default', async () => {
+    await connectCodex(
+      '/cwd',
+      { setup: vi.fn().mockResolvedValue(undefined), cleanup: vi.fn().mockResolvedValue(undefined) },
+      {
+        CODEX_CONFIG: JSON.stringify({ request_feature: true }),
+        WAYLAND_ACP_UNSET_ENV_KEYS: JSON.stringify(['CODEX_CONFIG.model']),
+      }
+    );
+
+    const spawnEnv = mockSpawn.mock.calls.at(-1)?.[2].env;
+    expect(JSON.parse(String(spawnEnv?.CODEX_CONFIG))).toEqual({
+      ambient_feature: true,
+      request_feature: true,
+    });
   });
 });

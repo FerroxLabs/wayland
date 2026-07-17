@@ -296,6 +296,7 @@ Complete all items before beginning the procedure:
    - **IF** [condition B is true]: proceed to Step 5.
 
 > **WARNING:** [Danger, data loss risk, or compliance violation that will occur if the
+>
 > > next step is performed incorrectly. Place before the step, never after.]
 
 3. [Critical action step]
@@ -313,8 +314,8 @@ Complete all items before beginning the procedure:
 
 ---
 
-Performed by: ************\_\_\_************ Date: ****\_\_\_****
-Title: ****************\_\_\_****************
+Performed by: \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\_\_\*\***
+Title: **\*\***\*\*\*\***\*\***\_\_\_**\*\***\*\*\*\***\*\***
 
 ---
 
@@ -327,8 +328,8 @@ Title: ****************\_\_\_****************
 
 ---
 
-Verified by: ************\_\_\_\_************ Date: ****\_\_\_****
-Title: ****************\_\_\_****************
+Verified by: \***\*\*\*\*\*\*\***\_\_\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\_\_\*\***
+Title: **\*\***\*\*\*\***\*\***\_\_\_**\*\***\*\*\*\***\*\***
 
 ---
 
@@ -645,9 +646,9 @@ Complete all items before beginning account creation:
 
 ---
 
-Performed by: **************\_************** Date: ****\_\_\_****
-IT Helpdesk Technician (print name): **************\_**************
-ServiceNow Ticket #: **************\_**************
+Performed by: **\*\***\*\***\*\***\_**\*\***\*\***\*\*** Date: \***\*\_\_\_\*\***
+IT Helpdesk Technician (print name): **\*\***\*\***\*\***\_**\*\***\*\***\*\***
+ServiceNow Ticket #: **\*\***\*\***\*\***\_**\*\***\*\***\*\***
 
 ---
 
@@ -670,8 +671,8 @@ ServiceNow Ticket #: **************\_**************
 
 ---
 
-Verified by: **************\_************** Date: ****\_\_\_****
-IT Helpdesk Manager (print name): **************\_**************
+Verified by: **\*\***\*\***\*\***\_**\*\***\*\***\*\*** Date: \***\*\_\_\_\*\***
+IT Helpdesk Manager (print name): **\*\***\*\***\*\***\_**\*\***\*\***\*\***
 
 ---
 

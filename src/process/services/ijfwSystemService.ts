@@ -31,7 +31,7 @@ import { ipcBridge } from '@/common';
 import type { IjfwLifecycleStatus, IjfwStatusPayload } from '@/common/adapter/ipcBridge';
 import type { IjfwErrorReason } from '@/common/types/ijfw';
 import { buildChildEnv } from '@process/services/ijfw/envAllowlist';
-import { safeSpawn } from '@process/services/ijfw/safeSpawn';
+import { resolveTrustedNodeRuntime, safeSpawn } from '@process/services/ijfw/safeSpawn';
 import { writeAtomic, moveWithExdevFallback, ijfwCacheKey } from '@process/services/ijfw/atomicFile';
 import { acquireLock, releaseLock, type LockMetadata } from '@process/services/ijfw/installLock';
 import {
@@ -465,6 +465,16 @@ async function bootstrapImpl(): Promise<void> {
             await syncPrelude('install_failed');
             return;
           }
+          const installed = await detectLocalInstallImpl();
+          if (!installed.installed) {
+            emitStatus({
+              status: 'install_failed',
+              errorReason: 'unavailable',
+              stderr: stderr || 'Installer exited successfully without creating ~/.ijfw/mcp-server',
+            });
+            await syncPrelude('install_failed');
+            return;
+          }
           if (local.installed) {
             // Decision 1a: stage upgrade into .pending - activate next boot.
             try {
@@ -551,19 +561,21 @@ async function retryOnEbusy<T>(op: () => Promise<T>, attempts = 5): Promise<T> {
 /** SEC-003: full JSON-RPC envelope verify with exit-before-success = fail. */
 async function spawnTestVerify(mcpServerDir: string): Promise<boolean> {
   let entry: string;
+  let runtime: string;
   try {
     entry = await resolveEntry(mcpServerDir);
+    runtime = await resolveTrustedNodeRuntime();
   } catch (err) {
-    log.warn('[ijfw] spawnTestVerify - resolveEntry failed', { err });
+    log.warn('[ijfw] spawnTestVerify - runtime resolution failed', { err });
     return false;
   }
 
   return new Promise<boolean>((resolve) => {
     let child: ChildProcess;
     try {
-      child = spawn(process.execPath, [entry], {
+      child = spawn(runtime, [entry], {
         stdio: ['pipe', 'pipe', 'pipe'],
-        env: buildChildEnv({ ELECTRON_RUN_AS_NODE: '1' }),
+        env: buildChildEnv(),
       });
     } catch (err) {
       log.warn('[ijfw] spawnTestVerify - spawn threw', { err });

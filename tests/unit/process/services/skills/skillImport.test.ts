@@ -18,6 +18,20 @@ import { SkillQuarantine } from '@process/services/skills/SkillQuarantine';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import type { SkillSecurityReport } from '@/common/types/skillTypes';
 
+const { cloneRepoMock, legacyExecMock } = vi.hoisted(() => ({
+  cloneRepoMock: vi.fn(),
+  legacyExecMock: vi.fn(),
+}));
+
+vi.mock('@process/services/gitClone', () => ({
+  cloneRepo: cloneRepoMock,
+}));
+
+vi.mock('node:child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:child_process')>();
+  return { ...actual, exec: legacyExecMock };
+});
+
 // ---------------------------------------------------------------------------
 // Fake IO builder
 // ---------------------------------------------------------------------------
@@ -71,6 +85,35 @@ function makeFakeIo(overrides: FakeIoOverrides = {}): SkillImportIo {
 beforeEach(() => {
   SkillLibrary.resetInstance();
   vi.restoreAllMocks();
+  cloneRepoMock.mockReset();
+  cloneRepoMock.mockResolvedValue(undefined);
+  legacyExecMock.mockReset();
+  legacyExecMock.mockImplementation(
+    (_command: string, callback: (error: Error | null, stdout: string, stderr: string) => void) => {
+      callback(null, '', '');
+    }
+  );
+});
+
+// ---------------------------------------------------------------------------
+// Default IO - structured clone delegation
+// ---------------------------------------------------------------------------
+
+describe('defaultSkillImportIo.gitClone', () => {
+  it('delegates URL and destination operands unchanged to cloneRepo', async () => {
+    const maliciousUrl = 'https://github.com/example/repo$(touch${IFS}injected).git';
+    const destination = 'C:\\Work & Data\\skill';
+    const { defaultSkillImportIo } = await import('@process/services/skills/SkillImport');
+
+    await defaultSkillImportIo.gitClone(maliciousUrl, destination);
+
+    expect(cloneRepoMock).toHaveBeenCalledWith({
+      url: maliciousUrl,
+      destDir: destination,
+      depth: 1,
+    });
+    expect(legacyExecMock).not.toHaveBeenCalled();
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -150,10 +193,16 @@ describe('SkillImport.importFolder', () => {
 // ---------------------------------------------------------------------------
 
 describe('SkillImport.importGit', () => {
-  it('throws for file:// scheme', async () => {
+  it('rejects file:// without echoing the raw URL', async () => {
+    const rejectedUrl = 'file:///etc/passwd?credential=do-not-echo';
     const io = makeFakeIo();
     const importer = new SkillImport(io);
-    await expect(importer.importGit('file:///etc/passwd')).rejects.toThrow(/disallowed scheme/);
+
+    const rejection = await importer.importGit(rejectedUrl).catch((error: unknown) => error);
+
+    expect(rejection).toBeInstanceOf(Error);
+    expect((rejection as Error).message).toBe('Rejected: git URL uses a disallowed scheme');
+    expect((rejection as Error).message).not.toContain(rejectedUrl);
   });
 
   it('throws for http:// scheme', async () => {
@@ -166,12 +215,11 @@ describe('SkillImport.importGit', () => {
     vi.spyOn(SkillGuard, 'scan').mockResolvedValue([CLEAN_REPORT]);
     const io = makeFakeIo();
     const importer = new SkillImport(io);
+    const url = 'https://github.com/user/my-skill';
 
-    await importer.importGit('https://github.com/user/my-skill');
+    await importer.importGit(url);
 
-    expect(io.gitClone).toHaveBeenCalledOnce();
-    const [url] = (io.gitClone as ReturnType<typeof vi.fn>).mock.calls[0] as [string, string];
-    expect(url).toBe('https://github.com/user/my-skill');
+    expect(io.gitClone).toHaveBeenCalledWith(url, '/tmp/wayland-git-import-abc');
     expect(io.copyFile).toHaveBeenCalled();
   });
 
@@ -194,7 +242,23 @@ describe('SkillImport.importGit', () => {
     const importer = new SkillImport(io);
 
     await expect(importer.importGit('https://github.com/user/repo')).rejects.toThrow('network error');
-    expect(io.rmdir).toHaveBeenCalledOnce();
+    expect(io.rmdir).toHaveBeenCalledWith('/tmp/wayland-git-import-abc');
+  });
+
+  it('does not replace a clone error when temporary-directory cleanup also fails', async () => {
+    const cloneError = new Error('primary clone failure');
+    const io = makeFakeIo({
+      gitClone: vi.fn(async () => {
+        throw cloneError;
+      }),
+      rmdir: vi.fn(async () => {
+        throw new Error('cleanup failure');
+      }),
+    });
+    const importer = new SkillImport(io);
+
+    await expect(importer.importGit('https://github.com/user/repo')).rejects.toBe(cloneError);
+    expect(io.rmdir).toHaveBeenCalledWith('/tmp/wayland-git-import-abc');
   });
 });
 

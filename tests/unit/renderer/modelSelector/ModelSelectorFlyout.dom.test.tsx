@@ -63,6 +63,7 @@ const baseVm: ModelSelectorViewModel = {
   ],
   activeKey: 'flux-router:flux-auto',
   effortSupported: false,
+  effortLevels: ['low', 'medium', 'high'],
   empty: false,
 };
 
@@ -176,7 +177,15 @@ describe('ModelSelectorFlyout', () => {
     const onManage = vi.fn();
     render(
       <ModelSelectorFlyout
-        vm={{ fluxHero: undefined, zones: [], moreZones: [], activeKey: null, effortSupported: false, empty: true }}
+        vm={{
+          fluxHero: undefined,
+          zones: [],
+          moreZones: [],
+          activeKey: null,
+          effortSupported: false,
+          effortLevels: ['low', 'medium', 'high'],
+          empty: true,
+        }}
         onSelect={noop}
         onTogglePin={noop}
         onManage={onManage}
@@ -206,7 +215,15 @@ describe('ModelSelectorFlyout', () => {
   it('renders the notice in the empty state too', () => {
     render(
       <ModelSelectorFlyout
-        vm={{ fluxHero: undefined, zones: [], moreZones: [], activeKey: null, effortSupported: false, empty: true }}
+        vm={{
+          fluxHero: undefined,
+          zones: [],
+          moreZones: [],
+          activeKey: null,
+          effortSupported: false,
+          effortLevels: ['low', 'medium', 'high'],
+          empty: true,
+        }}
         onSelect={noop}
         onTogglePin={noop}
         onManage={noop}
@@ -221,5 +238,33 @@ describe('ModelSelectorFlyout', () => {
   it('renders no notice banner when notice is absent', () => {
     render(<ModelSelectorFlyout vm={baseVm} onSelect={noop} onTogglePin={noop} onManage={noop} />);
     expect(screen.queryByRole('note')).not.toBeInTheDocument();
+  });
+
+  it('renders the provider-default recovery action even when the model catalog is empty', () => {
+    const onSelectDefault = vi.fn();
+    render(
+      <ModelSelectorFlyout
+        vm={{
+          fluxHero: undefined,
+          zones: [],
+          moreZones: [],
+          activeKey: null,
+          effortSupported: false,
+          effortLevels: ['low', 'medium', 'high'],
+          empty: true,
+        }}
+        onSelect={noop}
+        onTogglePin={noop}
+        onManage={noop}
+        defaultAction={{
+          label: 'Use provider default',
+          active: false,
+          onSelect: onSelectDefault,
+        }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Use provider default' }));
+    expect(onSelectDefault).toHaveBeenCalledTimes(1);
   });
 });

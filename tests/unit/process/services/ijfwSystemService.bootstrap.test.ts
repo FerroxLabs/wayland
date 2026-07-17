@@ -42,6 +42,7 @@ vi.mock('@/common', () => ({
 const safeSpawnSpy = vi.fn();
 vi.mock('@process/services/ijfw/safeSpawn', () => ({
   safeSpawn: (opts: unknown) => safeSpawnSpy(opts),
+  resolveTrustedNodeRuntime: vi.fn(async () => '/tmp/trusted-node'),
 }));
 
 const applyPreludeForStatusSpy = vi.fn();
@@ -75,7 +76,8 @@ vi.mock('node:child_process', async () => {
 
 function queueFakeChild(
   exitCode = 0,
-  stderrText = ''
+  stderrText = '',
+  beforeExit?: () => void
 ): Promise<
   EventEmitter & {
     stdout: EventEmitter;
@@ -94,6 +96,7 @@ function queueFakeChild(
   return Promise.resolve(child).then((c) => {
     setImmediate(() => {
       if (stderrText) c.stderr.emit('data', Buffer.from(stderrText));
+      beforeExit?.();
       c.emit('exit', exitCode);
     });
     return c;
@@ -210,7 +213,13 @@ describe('ijfwSystemService.bootstrap', () => {
       return Promise.resolve(child);
     });
     // Second call: npx install
-    safeSpawnSpy.mockImplementationOnce(() => queueFakeChild(0));
+    safeSpawnSpy.mockImplementationOnce(() =>
+      queueFakeChild(0, '', () => {
+        const mcp = path.join(tmpHome, '.ijfw', 'mcp-server');
+        fs.mkdirSync(mcp, { recursive: true });
+        fs.writeFileSync(path.join(mcp, 'package.json'), JSON.stringify({ version: '1.5.4' }));
+      })
+    );
 
     await ijfwSystemService.bootstrap();
     // Wait for install child's exit handler to fire (refreshAll + emit + release-lock).
@@ -230,6 +239,33 @@ describe('ijfwSystemService.bootstrap', () => {
       .map((c) => c[0] as { cmd?: string; args?: string[] })
       .find((opts) => opts?.cmd === 'npx');
     expect(installCall?.args).toEqual(['-y', '--package', '@ijfw/install@1.5.4', 'ijfw-install', '--yes']);
+  });
+
+  it('does not report installed when the installer exits zero without creating the runtime', async () => {
+    safeSpawnSpy.mockImplementationOnce(() => {
+      const child = new EventEmitter() as EventEmitter & {
+        stdout: EventEmitter;
+        stderr: EventEmitter;
+        kill: () => void;
+      };
+      child.stdout = new EventEmitter();
+      child.stderr = new EventEmitter();
+      child.kill = () => {};
+      setImmediate(() => {
+        child.stdout.emit('data', Buffer.from('1.5.4\n'));
+        child.emit('exit', 0);
+      });
+      return Promise.resolve(child);
+    });
+    safeSpawnSpy.mockImplementationOnce(() => queueFakeChild(0));
+
+    await ijfwSystemService.bootstrap();
+    await flushUntil(() => emitSpy.mock.calls.some((c) => (c[0] as { status?: string })?.status === 'install_failed'));
+
+    expect(emitSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'install_failed', errorReason: 'unavailable' })
+    );
+    expect(emitSpy).not.toHaveBeenCalledWith(expect.objectContaining({ status: 'installed_current' }));
   });
 
   // The upgrade path stages the new tree to `.pending` via moveWithExdevFallback

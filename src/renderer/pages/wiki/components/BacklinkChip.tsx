@@ -20,7 +20,7 @@ export type BacklinkChipProps = {
 };
 
 export function BacklinkChip({ name, slug, onClick }: BacklinkChipProps): React.ReactElement {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   const isOrphan = slug == null;
 
   const handleClick = (e: React.MouseEvent) => {

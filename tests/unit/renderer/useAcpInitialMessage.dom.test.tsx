@@ -63,6 +63,7 @@ describe('useAcpInitialMessage', () => {
       useAcpInitialMessage({
         conversationId: 'conv-acp',
         backend: 'claude',
+        enabled: true,
         workspacePath: 'C:/workspace',
         setAiProcessing,
         checkAndUpdateTitle,
@@ -89,5 +90,32 @@ describe('useAcpInitialMessage', () => {
     });
     expect(mockEmitterEmit).toHaveBeenCalledWith('chat.history.refresh');
     expect(sessionStorage.getItem('acp_initial_message_conv-acp')).toBeNull();
+  });
+
+  it('keeps the initial prompt stored while model selection is locked and sends after readiness', async () => {
+    const storageKey = 'acp_initial_message_conv-gated';
+    const storedMessage = JSON.stringify({ input: 'keep this draft', files: [] });
+    sessionStorage.setItem(storageKey, storedMessage);
+
+    const props = {
+      conversationId: 'conv-gated',
+      backend: 'codex',
+      enabled: false,
+      setAiProcessing: vi.fn(),
+      checkAndUpdateTitle: vi.fn(),
+      addOrUpdateMessage: mockAddOrUpdateMessage,
+    };
+    const { rerender } = renderHook(
+      ({ enabled }: { enabled: boolean }) => useAcpInitialMessage({ ...props, enabled }),
+      { initialProps: { enabled: false } }
+    );
+
+    expect(mockAcpSendInvoke).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem(storageKey)).toBe(storedMessage);
+
+    rerender({ enabled: true });
+
+    await waitFor(() => expect(mockAcpSendInvoke).toHaveBeenCalledTimes(1));
+    expect(sessionStorage.getItem(storageKey)).toBeNull();
   });
 });

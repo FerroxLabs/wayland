@@ -43,6 +43,25 @@ async function commandExists(command: string): Promise<boolean> {
   }
 }
 
+function getWindowsVSCodeExecutablePaths(): string[] {
+  const possiblePaths: string[] = [];
+  const localAppData = process.env['LOCALAPPDATA'];
+  const programFiles = process.env['ProgramFiles'];
+  const programFilesX86 = process.env['ProgramFiles(x86)'];
+
+  if (localAppData) {
+    possiblePaths.push(path.join(localAppData, 'Programs', 'Microsoft VS Code', 'Code.exe'));
+  }
+  if (programFiles) {
+    possiblePaths.push(path.join(programFiles, 'Microsoft VS Code', 'Code.exe'));
+  }
+  if (programFilesX86) {
+    possiblePaths.push(path.join(programFilesX86, 'Microsoft VS Code', 'Code.exe'));
+  }
+
+  return possiblePaths;
+}
+
 /**
  * Check if VS Code is installed
  */
@@ -57,19 +76,7 @@ async function isVSCodeInstalled(): Promise<boolean> {
   const possiblePaths: string[] = [];
 
   if (platform === 'win32') {
-    const programFiles = process.env['ProgramFiles'];
-    const programFilesX86 = process.env['ProgramFiles(x86)'];
-    const localAppData = process.env['LOCALAPPDATA'];
-
-    if (programFiles) {
-      possiblePaths.push(path.join(programFiles, 'Microsoft VS Code', 'bin', 'code.cmd'));
-    }
-    if (programFilesX86) {
-      possiblePaths.push(path.join(programFilesX86, 'Microsoft VS Code', 'bin', 'code.cmd'));
-    }
-    if (localAppData) {
-      possiblePaths.push(path.join(localAppData, 'Programs', 'Microsoft VS Code', 'bin', 'code.cmd'));
-    }
+    possiblePaths.push(...getWindowsVSCodeExecutablePaths());
   } else if (platform === 'darwin') {
     possiblePaths.push('/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code');
     possiblePaths.push('/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin/code');
@@ -93,57 +100,60 @@ async function isVSCodeInstalled(): Promise<boolean> {
  * Open folder with specified tool
  */
 async function openFolderWithTool(folderPath: string, tool: 'vscode' | 'terminal' | 'explorer'): Promise<void> {
+  if (typeof folderPath !== 'string' || folderPath.trim().length === 0) {
+    return;
+  }
+
+  try {
+    if (!fs.statSync(folderPath).isDirectory()) {
+      return;
+    }
+  } catch {
+    return;
+  }
+
   const platform = process.platform;
 
   switch (tool) {
     case 'vscode': {
-      const vsChild = spawn('code', [folderPath], { detached: true, stdio: 'ignore' });
-      vsChild.unref();
-      vsChild.on('error', async () => {
-        const codePath = await findVSCodeExecutable();
-        if (codePath) {
-          // On Windows, .cmd/.bat files must be spawned with shell: true
-          const useShell = platform === 'win32' && /\.(cmd|bat)$/i.test(codePath);
-          const fallback = spawn(codePath, [folderPath], { detached: true, stdio: 'ignore', shell: useShell });
-          fallback.unref();
-          fallback.on('error', () => {
-            shell.openPath(folderPath).catch(() => {});
-          });
-        } else {
-          await shell.openPath(folderPath);
+      const openWithDefault = (): void => {
+        try {
+          void shell.openPath(folderPath).catch(() => {});
+        } catch {
+          // Electron normally returns a promise, but contain synchronous failures too.
         }
+      };
+      const vsChild = spawn('code', [folderPath], { detached: true, stdio: 'ignore', shell: false });
+      vsChild.unref();
+      vsChild.on('error', () => {
+        void findVSCodeExecutable()
+          .then((codePath) => {
+            if (!codePath) {
+              openWithDefault();
+              return;
+            }
+
+            const fallback = spawn(codePath, [folderPath], { detached: true, stdio: 'ignore', shell: false });
+            fallback.unref();
+            fallback.on('error', openWithDefault);
+          })
+          .catch(() => {
+            openWithDefault();
+          });
       });
       break;
     }
 
     case 'terminal': {
       if (platform === 'win32') {
-        // Windows: spawn PowerShell directly with arg-array semantics - no cmd.exe shell
-        // interpolation. Validate folderPath first to reject metacharacters and ensure
-        // the target is an existing directory (defense-in-depth against command injection).
-        let stat: fs.Stats;
-        try {
-          stat = fs.statSync(folderPath);
-        } catch (err) {
-          console.error('[shellBridge] terminal: folderPath does not exist:', folderPath, err);
-          return;
-        }
-        if (!stat.isDirectory()) {
-          console.error('[shellBridge] terminal: folderPath is not a directory:', folderPath);
-          return;
-        }
-        if (/[&|<>"^]/.test(folderPath)) {
-          console.error('[shellBridge] terminal: folderPath contains forbidden characters:', folderPath);
-          return;
-        }
-        const child = spawn(
-          'powershell.exe',
-          ['-NoProfile', '-Command', 'Start-Process', '-FilePath', 'powershell.exe', '-WorkingDirectory', folderPath],
-          {
-            detached: true,
-            windowsHide: false,
-          }
-        );
+        // The target was validated as a directory before tool selection. Keep it
+        // out of PowerShell's command language entirely and pass it only as cwd.
+        const child = spawn('powershell.exe', ['-NoProfile'], {
+          cwd: folderPath,
+          detached: true,
+          shell: false,
+          windowsHide: false,
+        });
         child.on('error', (err) => {
           console.error('[shellBridge] Failed to spawn PowerShell:', err);
         });
@@ -202,19 +212,7 @@ async function findVSCodeExecutable(): Promise<string | null> {
   const possiblePaths: string[] = [];
 
   if (platform === 'win32') {
-    const programFiles = process.env['ProgramFiles'];
-    const programFilesX86 = process.env['ProgramFiles(x86)'];
-    const localAppData = process.env['LOCALAPPDATA'];
-
-    if (programFiles) {
-      possiblePaths.push(path.join(programFiles, 'Microsoft VS Code', 'bin', 'code.cmd'));
-    }
-    if (programFilesX86) {
-      possiblePaths.push(path.join(programFilesX86, 'Microsoft VS Code', 'bin', 'code.cmd'));
-    }
-    if (localAppData) {
-      possiblePaths.push(path.join(localAppData, 'Programs', 'Microsoft VS Code', 'bin', 'code.cmd'));
-    }
+    possiblePaths.push(...getWindowsVSCodeExecutablePaths());
   } else if (platform === 'darwin') {
     possiblePaths.push('/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code');
   } else {

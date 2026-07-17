@@ -76,6 +76,31 @@ describe('SignalPlugin.testConnection', () => {
     const r = await SignalPlugin.testConnection(JSON.stringify({ phoneNumber: '+14155551234' }));
     expect(r.success).toBe(false);
     expect(r.error).toMatch(/signal-cli binary not found/i);
+    if (process.platform === 'win32') {
+      expect(r.error).toMatch(/native signal-cli\.exe/i);
+      expect(r.error).toMatch(/\.bat\/\.cmd/i);
+    }
+  });
+
+  it.each([
+    process.platform === 'win32' ? 'C:\\Windows\\System32\\calc.exe' : '/bin/sh',
+    process.platform === 'win32' ? 'signal-cli.cmd' : '/usr/bin/env',
+  ])('rejects an arbitrary executable without invoking it: %s', async (cliPath) => {
+    const r = await SignalPlugin.testConnection(JSON.stringify({ phoneNumber: '+14155551234', cliPath }));
+
+    expect(r.success).toBe(false);
+    expect(r.error).toMatch(/native signal-cli executable/i);
+    expect(mockExecFile).not.toHaveBeenCalled();
+  });
+
+  it('rejects a relative config directory before probing the executable', async () => {
+    const r = await SignalPlugin.testConnection(
+      JSON.stringify({ phoneNumber: '+14155551234', configDir: 'relative/signal-data' })
+    );
+
+    expect(r.success).toBe(false);
+    expect(r.error).toMatch(/absolute path/i);
+    expect(mockExecFile).not.toHaveBeenCalled();
   });
 
   it('returns success:false when number is not registered', async () => {

@@ -12,7 +12,7 @@ import type {
 } from '@/common/types/speech';
 import { getPlatformServices } from '@/common/platform';
 import { acquireBinary } from '@process/services/voice/voiceBinaryManifest';
-import { resolveVoiceAsset } from '@process/services/voice/voiceAssetRegistry';
+import { getVoiceAsset } from '@process/services/voice/voiceAssetRegistry';
 import { execFile } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -98,17 +98,9 @@ export const defaultWhisperLocalRuntime: WhisperLocalRuntime = {
   },
   acquireBinary: () => acquireBinary('whisper-cpp'),
   resolveModel: (model) => {
-    // Route through voiceAssetRegistry so the model path matches what
-    // Settings "Download Model" wrote. Both systems now agree on
-    // <userData>/voice/whisper/ggml-<model>.bin.
-    const resolved = resolveVoiceAsset({
-      id: `whisper-ggml-${model}`,
-      url: '',
-      destPath: '',
-      sha256: '',
-    });
-    if (!resolved.destPath) return null;
-    return existsSync(resolved.destPath) ? resolved.destPath : null;
+    const asset = getVoiceAsset(`whisper-ggml-${model}`);
+    if (!asset) return null;
+    return existsSync(asset.destPath) ? asset.destPath : null;
   },
   run: async (binary, args) => {
     const { stdout } = await execFileAsync(binary, args, { maxBuffer: 32 * 1024 * 1024 });

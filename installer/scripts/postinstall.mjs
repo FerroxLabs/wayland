@@ -8,18 +8,23 @@
  * NON-FATAL: if the download fails (offline, unsupported arch), we warn and move
  * on - the Flux / OpenAI-compatible path runs fine without the wcore binary.
  */
-import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs';
-import { createWriteStream } from 'node:fs';
-import { get } from 'node:https';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import {
+  downloadTrustedArchive,
+  publishEngineAtomically,
+  selectWcoreAsset,
+  verifyAndExtractEngine,
+} from './wcore-security.mjs';
 
 // Kept in lockstep with scripts/prepareWaylandCore.js DEFAULT_WCORE_VERSION by
 // scripts/stage-wcore-bump.mjs. Do not hand-edit; run that tool so both move.
 const WCORE_VERSION = 'v0.12.24';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PAYLOAD = resolve(HERE, '..', 'payload');
+const SHASUMS_FILE = join(HERE, 'wcore-shasums.json');
 
 // Skip during local dev installs (no payload yet) - only runs for published installs.
 if (!existsSync(PAYLOAD)) process.exit(0);
@@ -46,57 +51,24 @@ if (!triple) {
 
 const asset = `wayland-core-${WCORE_VERSION}-${triple}.tar.gz`;
 const url = `https://github.com/FerroxLabs/wayland-core/releases/download/${WCORE_VERSION}/${asset}`;
-const tmp = join(PAYLOAD, '.wcore-tmp');
-const tarPath = join(tmp, asset);
 const destDir = join(PAYLOAD, 'resources', 'bundled-wayland-core', runtimeKey);
 const destBin = join(destDir, 'wayland-core');
 
-function download(u, dest, redirects = 0) {
-  return new Promise((res, rej) => {
-    if (redirects > 5) return rej(new Error('too many redirects'));
-    get(u, (r) => {
-      if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location) {
-        r.resume();
-        return res(download(r.headers.location, dest, redirects + 1));
-      }
-      if (r.statusCode !== 200) {
-        r.resume();
-        return rej(new Error(`HTTP ${r.statusCode}`));
-      }
-      const f = createWriteStream(dest);
-      r.pipe(f);
-      f.on('finish', () => f.close(() => res()));
-      f.on('error', rej);
-    }).on('error', rej);
-  });
-}
-
 try {
-  if (existsSync(destBin)) process.exit(0); // already have it
-  mkdirSync(tmp, { recursive: true });
+  const manifest = JSON.parse(readFileSync(SHASUMS_FILE, 'utf8'));
+  if (manifest.version !== WCORE_VERSION) {
+    throw new Error(`checksum manifest version ${manifest.version ?? '(missing)'} does not match ${WCORE_VERSION}`);
+  }
+  const pinned = selectWcoreAsset(process.platform, process.arch, manifest);
+  if (pinned.filename !== asset) throw new Error(`checksum manifest asset does not match ${asset}`);
+
   mkdirSync(destDir, { recursive: true });
   console.log(`  [wayland] fetching Wayland Core engine (${triple})…`);
-  await download(url, tarPath);
-  const x = spawnSync('tar', ['-xzf', tarPath, '-C', tmp], { stdio: 'ignore' });
-  if (x.status !== 0) throw new Error('tar extract failed');
-  // Find the engine binary in the extracted tree (named aionrs / wayland-core / wcore).
-  const found = (function find(dir) {
-    for (const e of readdirSync(dir, { withFileTypes: true })) {
-      const p = join(dir, e.name);
-      if (e.isDirectory()) {
-        const r = find(p);
-        if (r) return r;
-      } else if (/^(aionrs|wayland-core|wcore)$/.test(e.name)) return p;
-    }
-    return null;
-  })(tmp);
-  if (!found) throw new Error('engine binary not found in archive');
-  renameSync(found, destBin);
-  chmodSync(destBin, 0o755);
-  rmSync(tmp, { recursive: true, force: true });
+  const archive = await downloadTrustedArchive(url);
+  const engine = verifyAndExtractEngine(archive, pinned.sha256);
+  publishEngineAtomically(engine, destBin);
   console.log(`  [wayland] ✓ Wayland Core engine ready (${runtimeKey})`);
 } catch (e) {
-  rmSync(tmp, { recursive: true, force: true });
-  warn(`Could not fetch the Wayland Core engine (${e.message}).`);
+  warn(`Could not fetch the Wayland Core engine (${e instanceof Error ? e.message : String(e)}).`);
   process.exit(0); // non-fatal
 }

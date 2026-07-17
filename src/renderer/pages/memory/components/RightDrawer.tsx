@@ -230,7 +230,7 @@ const RightDrawer: React.FC<RightDrawerProps> = ({
   onEdit,
   onDelete,
 }) => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
 
   // Esc closes drawer
   useEffect(() => {

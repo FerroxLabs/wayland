@@ -383,13 +383,19 @@
           "label": "Business Account ID",
           "placeholder": "987654321098765",
           "help": "Необязательно. Добавляет расширенные метаданные в события входящих сообщений.",
-          "required": ""
+          "required": "Business Account ID is optional for Meta backend"
         },
         "verifyToken": {
           "label": "Verify Token",
           "placeholder": "длинная случайная строка",
           "help": "Выбранная оператором строка, которую Meta возвращает во время рукопожатия GET /webhook. Должна совпадать с тем, что вы вставляете в панель управления Meta.",
-          "required": ""
+          "required": "Verify Token is required for Meta backend"
+        },
+        "appSecret": {
+          "label": "App Secret",
+          "placeholder": "32-character hex string",
+          "help": "Meta App Secret used to verify signed inbound webhook deliveries. Different from the Verify Token.",
+          "required": "App Secret is required for Meta backend"
         }
       },
       "mode": {
@@ -2588,6 +2594,18 @@
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity"
     }
+  },
+  "devActions": {
+    "syncTitle": "Синхронизировать форки с upstream",
+    "syncDescription": "Использует авторизованный GitHub CLI для обновления только временной ветки синхронизации и создания или повторного использования pull request. Ветка по умолчанию и уникальные коммиты форка никогда не перезаписываются принудительно.",
+    "syncButton": "Подготовить PR синхронизации",
+    "syncSelectWarning": "Выберите хотя бы один форк.",
+    "syncSuccess": "Синхронизация завершена: PR готово — {{ready}}; уже актуальны — {{upToDate}}.",
+    "syncFailure": "Ошибок: {{count}} — {{repos}}",
+    "syncUpToDate": "Уже актуально.",
+    "syncCounts": "Готово upstream-коммитов: {{upstream}}; сохранено уникальных коммитов форка: {{preserved}}.",
+    "syncUnknownError": "Синхронизация не удалась.",
+    "syncReviewPr": "Проверить PR"
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",

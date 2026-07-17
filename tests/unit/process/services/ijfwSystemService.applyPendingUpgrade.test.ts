@@ -53,6 +53,11 @@ vi.mock('@process/services/ijfw/ijfwMcpClient', () => ({
   },
 }));
 
+vi.mock('@process/services/ijfw/safeSpawn', () => ({
+  safeSpawn: vi.fn(),
+  resolveTrustedNodeRuntime: vi.fn(async () => '/tmp/trusted-node'),
+}));
+
 // Checkpoint B H4: tests inject a moveWithExdevFallback that simulates the
 // TOCTOU - the rename appears to succeed but the post-swap directory is an
 // attacker-controlled symlink. Default impl delegates to the real one.

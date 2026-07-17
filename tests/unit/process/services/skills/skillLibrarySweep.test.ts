@@ -135,7 +135,7 @@ describe('SkillLibrary.rescanStale - chunked batching', () => {
 
     // 60 stale entries at chunk size 25 → exactly 3 batch calls of 25/25/10,
     // never 60 single-skill calls.
-    const sizes = scanSpy.mock.calls.map((call) => call[0].length).sort((a, b) => a - b);
+    const sizes = scanSpy.mock.calls.map((call) => call[0].length).toSorted((a, b) => a - b);
     expect(sizes).toEqual([10, 25, 25]);
 
     // Every entry still gets its real verdict applied.

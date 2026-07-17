@@ -19,27 +19,14 @@ name: 'PR Checks'
 # the repo variable `CI_BUILD_MATRIX_ENABLED`. PRs still run a fast
 # unpackaged `electron-vite build` to catch compile errors.
 #
-# Required repo secrets / variables:
-#   secrets.CODECOV_TOKEN          -- optional, falls back to OIDC if unset
-#                                     (only used on FerroxLabs/wayland)
-#   vars.CI_BUILD_MATRIX_ENABLED   -- owned by build-matrix.yml, not used here
-#
-# Security: no untrusted PR/issue text is interpolated into any run: step.
-# env.PR_BASE_REF is set by ./.github/actions/checkout-pr from trusted
-# sources (github.base_ref or the PR's base.ref via gh api).
+# No repository secrets, write permissions, or OIDC permissions are available
+# to this workflow. Maintainers use GitHub's built-in Re-run jobs UI.
+
+run-name: >-
+  PR #${{ github.event.pull_request.number }} | head=${{ github.event.pull_request.head.sha }}
+  | base=${{ github.event.pull_request.base.repo.full_name }}:${{ github.event.pull_request.base.ref }}@${{ github.event.pull_request.base.sha }}
 
 on:
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: 'PR number to run checks on'
-        required: true
-        type: string
-      skip_build_test:
-        description: 'Skip the unpackaged build / e2e job'
-        type: boolean
-        required: false
-        default: false
   pull_request:
     types: [opened, synchronize, edited, closed, ready_for_review, reopened]
     branches: [main, dev, 'feat/**', 'release/**', 'integration/**']
@@ -53,15 +40,11 @@ on:
       - '.github/ISSUE_TEMPLATE/**'
 
 concurrency:
-  group: pr-checks-${{ github.event.pull_request.number || inputs.pr_number }}
+  group: pr-checks-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 permissions:
   contents: read
-  pull-requests: write
-  issues: read
-  checks: write
-  id-token: write
 
 env:
   BUN_INSTALL_REGISTRY: 'https://registry.npmjs.org/'
@@ -74,52 +57,136 @@ jobs:
   # Cancel in-progress runs when PR is closed (merged or manually closed)
   cancel-if-closed:
     name: Cancel if PR closed
-    if: github.event.action == 'closed'
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
     steps:
       - run: echo "PR closed, cancelling in-progress runs via concurrency."
 
+  # Resolve the immutable merge commit for normal pull_request runs. This job
+  # never receives elevated permissions and executes no checked-out PR code.
+  resolve-pr-context:
+    name: Resolve immutable PR context
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      checkout_ref: ${{ steps.resolve.outputs.checkout_ref }}
+      base_ref: ${{ steps.resolve.outputs.base_ref }}
+    steps:
+      - name: Resolve immutable PR context
+        id: resolve
+        shell: bash
+        env:
+          EVENT_SHA: ${{ github.sha }}
+          EVENT_BASE_REF: ${{ github.base_ref }}
+          EVENT_BASE_REPOSITORY: ${{ github.event.pull_request.base.repo.full_name }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          CHECKOUT_REF="$EVENT_SHA"
+          BASE_REF="$EVENT_BASE_REF"
+          BASE_REPOSITORY="$EVENT_BASE_REPOSITORY"
+
+          if [ "$BASE_REPOSITORY" != "$REPOSITORY" ]; then
+            echo "Refusing PR whose base repository is not $REPOSITORY." >&2
+            exit 1
+          fi
+          if [[ ! "$CHECKOUT_REF" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Resolved checkout ref is not an immutable 40-character SHA." >&2
+            exit 1
+          fi
+          if ! git check-ref-format --branch "$BASE_REF" >/dev/null; then
+            echo "Resolved base ref is not a valid branch name." >&2
+            exit 1
+          fi
+
+          printf 'checkout_ref=%s\n' "$CHECKOUT_REF" >> "$GITHUB_OUTPUT"
+          printf 'base_ref=%s\n' "$BASE_REF" >> "$GITHUB_OUTPUT"
+
   # Job 1: Code quality checks (TypeScript, Oxlint, Oxfmt via prek)
   code-quality:
     name: Code Quality
-    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    needs: resolve-pr-context
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
+          ref: ${{ needs.resolve-pr-context.outputs.checkout_ref }}
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Resolve PR context
-        uses: ./.github/actions/checkout-pr
-        with:
-          pr_number: ${{ inputs.pr_number }}
-          github_token: ${{ github.token }}
+      - name: Install checksum-pinned Gitleaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARCHIVE_NAME='gitleaks_8.30.1_linux_x64.tar.gz'
+          ARCHIVE_PATH="$RUNNER_TEMP/$ARCHIVE_NAME"
+          GITLEAKS_PATH="$RUNNER_TEMP/gitleaks"
+          curl --fail-with-body --location --proto '=https' --tlsv1.2 \
+            --connect-timeout 15 --max-time 120 \
+            --output "$ARCHIVE_PATH" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/$ARCHIVE_NAME"
+          printf '%s  %s\n' \
+            '551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb' \
+            "$ARCHIVE_PATH" | sha256sum --check --strict
+          tar -xzf "$ARCHIVE_PATH" -C "$RUNNER_TEMP" gitleaks
+          chmod 0755 "$GITLEAKS_PATH"
+          "$GITLEAKS_PATH" version
+
+      # Use the trusted base revision's rules so a PR cannot allowlist its own leak.
+      - name: Scan PR commit delta for secrets
+        shell: bash
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ needs.resolve-pr-context.outputs.checkout_ref }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$BASE_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ ! "$HEAD_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'Secret-scan revisions must be immutable 40-character Git SHAs.' >&2
+            exit 1
+          fi
+          if [ "$(git rev-parse HEAD)" != "$HEAD_SHA" ]; then
+            echo 'Checked-out revision does not match the immutable PR revision.' >&2
+            exit 1
+          fi
+          git cat-file -e "$BASE_SHA^{commit}"
+          git cat-file -e "$HEAD_SHA^{commit}"
+          CONFIG_PATH="$RUNNER_TEMP/gitleaks-base.toml"
+          git show "$BASE_SHA:.gitleaks.toml" > "$CONFIG_PATH"
+          test -s "$CONFIG_PATH"
+          "$RUNNER_TEMP/gitleaks" git . \
+            --config "$CONFIG_PATH" \
+            --log-opts="$BASE_SHA..$HEAD_SHA" \
+            --redact=100 \
+            --no-banner
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '22'
+          node-version: '24.18.0'
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
-          cache: true
+          bun-version: '1.3.11'
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Run postinstall
-        run: npm run postinstall || true
-
       - name: Install prek
-        run: npm install -g @j178/prek
+        run: npm install -g @j178/prek@0.4.10
 
       - name: Run prek checks
         env:
-          PR_BASE_REF: ${{ env.PR_BASE_REF }}
+          PR_BASE_REF: ${{ needs.resolve-pr-context.outputs.base_ref }}
         run: prek run --from-ref "origin/$PR_BASE_REF" --to-ref HEAD
 
   # Job 2: Unit tests across all platforms.
@@ -132,7 +199,8 @@ jobs:
   # jobs below (so branch protection + pr-checks-docs.yml need no changes).
   unit-tests:
     name: Unit Tests Shard (${{ matrix.os }} ${{ matrix.shard }}/4)
-    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    needs: resolve-pr-context
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.draft == false
     runs-on: ${{ matrix.os }}
     # #358: shard 1/4 was ~19m on ubuntu (vs the ~3.5m average) from real-timer
     # error-path tests + the skillRecall BM25 full-corpus gate. Those are now
@@ -151,24 +219,20 @@ jobs:
         shard: [1, 2, 3, 4]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Resolve PR context
-        uses: ./.github/actions/checkout-pr
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          pr_number: ${{ inputs.pr_number }}
-          github_token: ${{ github.token }}
+          ref: ${{ needs.resolve-pr-context.outputs.checkout_ref }}
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '22'
+          node-version: '24.18.0'
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
-          cache: true
+          bun-version: '1.3.11'
 
       - name: Disable Windows Defender (Windows only)
         if: matrix.os == 'windows-2022'
@@ -180,9 +244,6 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Run postinstall
-        run: npm run postinstall || true
-
       - name: Run unit tests (vitest shard)
         run: bunx vitest run --shard=${{ matrix.shard }}/4
 
@@ -193,7 +254,7 @@ jobs:
   # succeeded.
   unit-tests-ubuntu:
     name: Unit Tests (ubuntu-latest)
-    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
+    if: always() && github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.draft == false
     needs: unit-tests
     runs-on: ubuntu-latest
     steps:
@@ -209,7 +270,7 @@ jobs:
 
   unit-tests-macos:
     name: Unit Tests (macos-14)
-    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
+    if: always() && github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.draft == false
     needs: unit-tests
     runs-on: ubuntu-latest
     steps:
@@ -225,7 +286,7 @@ jobs:
 
   unit-tests-windows:
     name: Unit Tests (windows-2022)
-    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
+    if: always() && github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.draft == false
     needs: unit-tests
     runs-on: ubuntu-latest
     steps:
@@ -239,65 +300,40 @@ jobs:
           fi
           echo "All unit-test shards passed."
 
-  # Job 3: Coverage test (Linux only) + Codecov upload
+  # Job 3: Coverage test (Linux only). The PR workflow uploads only an artifact;
+  # credentialed reporting belongs in an isolated trusted workflow.
   coverage-tests:
     name: Coverage Test
-    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    needs: resolve-pr-context
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     # The coverage run executes the whole suite WITH instrumentation, so it needs
-    # more than the 10-min unit-test cap. The test step is continue-on-error, so
-    # the job passes as long as it finishes (a timeout is its only red signal).
+    # more than the 10-min unit-test cap. Test or instrumentation failures block
+    # this job so a partial report cannot be mistaken for valid coverage.
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Resolve PR context
-        uses: ./.github/actions/checkout-pr
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          pr_number: ${{ inputs.pr_number }}
-          github_token: ${{ github.token }}
+          ref: ${{ needs.resolve-pr-context.outputs.checkout_ref }}
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '22'
+          node-version: '24.18.0'
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
-          cache: true
+          bun-version: '1.3.11'
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Run postinstall
-        run: npm run postinstall || true
-
       - name: Run coverage tests
         id: coverage
-        continue-on-error: true
         run: bun run test:coverage
-
-      - name: Upload coverage to Codecov (Linux coverage only)
-        if: always() && hashFiles('coverage/lcov.info') != '' && github.repository == 'FerroxLabs/wayland'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}
-          files: coverage/lcov.info
-          fail_ci_if_error: false
-          verbose: true
-
-      - name: Skip Codecov upload when preconditions are not met
-        if: always() && hashFiles('coverage/lcov.info') != '' && github.repository != 'FerroxLabs/wayland'
-        shell: bash
-        env:
-          REPO: ${{ github.repository }}
-        run: |
-          echo 'Skipping Codecov upload due to unmet preconditions.'
-          echo "Repository: $REPO"
 
       - name: Coverage result summary
         if: always()
@@ -306,62 +342,66 @@ jobs:
           COVERAGE_OUTCOME: ${{ steps.coverage.outcome }}
         run: |
           if [ "$COVERAGE_OUTCOME" = "failure" ]; then
-            echo "::warning::Coverage tests failed (non-blocking). Check logs for failed test details."
-            echo "## Coverage check (non-blocking warning)" >> $GITHUB_STEP_SUMMARY
+            echo "::error::Coverage tests failed. Check logs for failed test details."
+            echo "## Coverage check failed" >> $GITHUB_STEP_SUMMARY
             echo "Coverage command failed in this run. Please review test failures in logs." >> $GITHUB_STEP_SUMMARY
             if [ -f coverage/lcov.info ]; then
-              echo "lcov.info exists, Codecov upload can still run." >> $GITHUB_STEP_SUMMARY
+              echo "lcov.info exists and will be uploaded as a workflow artifact." >> $GITHUB_STEP_SUMMARY
             else
-              echo "lcov.info not found, Codecov upload was skipped." >> $GITHUB_STEP_SUMMARY
+              echo "lcov.info not found; no coverage artifact will be uploaded." >> $GITHUB_STEP_SUMMARY
             fi
           else
             echo "## Coverage check" >> $GITHUB_STEP_SUMMARY
             echo "Coverage command passed." >> $GITHUB_STEP_SUMMARY
             if [ -f coverage/lcov.info ]; then
-              echo "Uploaded Linux (ubuntu-latest) coverage to Codecov." >> $GITHUB_STEP_SUMMARY
+              echo "Prepared Linux (ubuntu-latest) coverage for artifact upload." >> $GITHUB_STEP_SUMMARY
             else
-              echo "Coverage passed but lcov.info is missing; Codecov upload was skipped." >> $GITHUB_STEP_SUMMARY
+              echo "Coverage passed but lcov.info is missing; artifact upload was skipped." >> $GITHUB_STEP_SUMMARY
             fi
           fi
 
       - name: Upload coverage artifacts
         if: always() && hashFiles('coverage/lcov.info') != ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: coverage-report
           path: coverage/
           if-no-files-found: warn
 
-  # Job 4: I18n validation (warning-only)
+  # Job 4: I18n validation. Existing translation debt remains warning-only;
+  # omissions and empty values introduced by this PR fail the job.
   i18n-check:
     name: I18n Check
-    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    needs: resolve-pr-context
+    if: github.event_name == 'pull_request' && github.event.action != 'closed' && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ needs.resolve-pr-context.outputs.checkout_ref }}
+          fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '22'
+          node-version: '24.18.0'
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
-          cache: true
+          bun-version: '1.3.11'
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Run postinstall
-        run: npm run postinstall || true
-
-      - name: Run i18n validation (warning-only)
+      - name: Run i18n validation
         id: i18n
         shell: bash
+        env:
+          I18N_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -o pipefail
           node scripts/check-i18n.js 2>&1 | tee i18n-check.log
@@ -390,27 +430,33 @@ jobs:
   # was removed -- it now lives in build-matrix.yml (push/cron + flag).
   security-audit:
     name: Security Audit E2E
-    if: github.event.action != 'closed' && github.event.pull_request.draft == false && inputs.skip_build_test != true
+    needs: resolve-pr-context
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ needs.resolve-pr-context.outputs.checkout_ref }}
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          # Pinned to ../mise.toml (node = "24"). engines.node allows >=22 <25.
-          node-version: '24'
+          node-version: '24.18.0'
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          # Pinned to ../mise.toml (bun = "1.3").
-          bun-version: '1.3'
+          bun-version: '1.3.11'
 
       - name: Cache Bun + node_modules
-        uses: actions/cache@v4
+        if: github.event_name == 'pull_request'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.bun/install/cache
@@ -421,9 +467,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
-
-      - name: Postinstall (CI uses prebuilt binaries; see scripts/postinstall.js)
-        run: bun run postinstall || true
 
       - name: Typecheck
         run: bunx tsc --noEmit
@@ -449,8 +492,9 @@ jobs:
       # subject to the external egress cap) and make the install idempotent so a
       # cache-warm binary is reused instead of nuked + re-downloaded every run.
       - name: Restore Electron binary cache
+        if: github.event_name == 'pull_request'
         id: electron-cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             node_modules/electron/dist
@@ -535,8 +579,8 @@ jobs:
       # is good — a truncated download can never poison the cache. Subsequent
       # runs then restore it from GitHub infra, immune to the egress cap.
       - name: Save Electron binary cache
-        if: steps.electron-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
+        if: github.event_name == 'pull_request' && steps.electron-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             node_modules/electron/dist
@@ -571,7 +615,7 @@ jobs:
 
       - name: Upload Playwright report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: pr-checks-playwright-report
           path: tests/e2e/report
@@ -581,12 +625,19 @@ jobs:
   # Job 6: Test release scripts (fast, no build required)
   release-script-test:
     name: Release Script Test
-    if: github.event.action != 'closed' && github.event.pull_request.draft == false
+    needs: resolve-pr-context
+    if: >-
+      github.event_name == 'pull_request' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: ${{ needs.resolve-pr-context.outputs.checkout_ref }}
+          persist-credentials: false
 
       - name: Create mock build artifacts
         shell: bash

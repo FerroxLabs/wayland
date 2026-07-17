@@ -451,11 +451,11 @@ The target for your family is 45 minutes (age 4) and 1 hour (age 7) of recreatio
 
 ## Part 8: Family Agreement
 
-**Our plan starts:** ******\_\_\_******
+**Our plan starts:** **\*\***\_\_\_**\*\***
 
-**Our review date:** ******\_\_\_****** (4 weeks from start)
+**Our review date:** **\*\***\_\_\_**\*\*** (4 weeks from start)
 
-Parent(s): **********\_\_\_**********
+Parent(s): \***\*\*\*\*\***\_\_\_\***\*\*\*\*\***
 
 _"This is our family's plan. When screen time is hard, we go back to the plan. When something isn't working, we wait for review day to adjust it -- not during a tough moment."_
 

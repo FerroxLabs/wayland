@@ -1103,6 +1103,227 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
       });
     });
 
+    it('accepts a bare Codex config model when the session catalog uses effort-qualified IDs', async () => {
+      const agent = await createStartedAgent({ backend: 'codex' });
+      capturedCallbacks.onConfigUpdate({
+        configOptions: [
+          {
+            id: 'model',
+            name: 'Model',
+            type: 'select',
+            category: 'model',
+            currentValue: 'gpt-5.5',
+            options: [
+              { id: 'gpt-5.5', name: 'GPT-5.5' },
+              { id: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+            ],
+          },
+        ],
+        availableCommands: [],
+        cwd: '/workspace/test',
+      });
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.5[high]',
+        availableModels: [
+          { modelId: 'gpt-5.5[high]', name: 'GPT-5.5 (high)' },
+          { modelId: 'gpt-5.6-sol[ultra]', name: 'GPT-5.6 SOL (ultra)' },
+        ],
+        confirmationSource: 'session-models',
+      });
+      mockSessionMethods.setConfigOption.mockResolvedValueOnce(undefined);
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol');
+      const outcome = change.then(
+        (value) => ({ value, error: null }),
+        (error: unknown) => ({ value: null, error })
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(mockSessionMethods.setConfigOption).toHaveBeenCalledWith('model', 'gpt-5.6-sol', 1, expect.any(Function));
+      capturedCallbacks.onModelUpdate(
+        {
+          currentModelId: 'gpt-5.6-sol',
+          availableModels: [{ modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' }],
+          confirmationSource: 'config-option-response',
+        },
+        1
+      );
+
+      expect(await outcome).toMatchObject({
+        value: {
+          currentModelId: 'gpt-5.6-sol',
+          confirmationSource: 'config-option-response',
+        },
+        error: null,
+      });
+    });
+
+    it('dispatches the base Codex model when the requested ID includes reasoning effort', async () => {
+      const agent = await createStartedAgent({ backend: 'codex' });
+      capturedCallbacks.onConfigUpdate({
+        configOptions: [
+          {
+            id: 'model',
+            name: 'Model',
+            type: 'select',
+            category: 'model',
+            currentValue: 'gpt-5.5',
+            options: [
+              { id: 'gpt-5.5', name: 'GPT-5.5' },
+              { id: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' },
+            ],
+          },
+          {
+            id: 'reasoning_effort',
+            name: 'Reasoning effort',
+            type: 'select',
+            category: 'model_config',
+            currentValue: 'ultra',
+            options: [
+              { id: 'high', name: 'High' },
+              { id: 'ultra', name: 'Ultra' },
+            ],
+          },
+        ],
+        availableCommands: [],
+        cwd: '/workspace/test',
+      });
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.5[high]',
+        availableModels: [
+          { modelId: 'gpt-5.5[high]', name: 'GPT-5.5 (high)' },
+          { modelId: 'gpt-5.6-sol[ultra]', name: 'GPT-5.6 SOL (ultra)' },
+        ],
+        confirmationSource: 'session-models',
+      });
+      mockSessionMethods.setConfigOption.mockResolvedValueOnce(undefined);
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol[ultra]');
+      const outcome = change.then(
+        (value) => ({ value, error: null }),
+        (error: unknown) => ({ value: null, error })
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(mockSessionMethods.setConfigOption).toHaveBeenCalledWith('model', 'gpt-5.6-sol', 1, expect.any(Function));
+      capturedCallbacks.onModelUpdate(
+        {
+          currentModelId: 'gpt-5.6-sol',
+          availableModels: [{ modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' }],
+          confirmationSource: 'config-option-response',
+        },
+        1
+      );
+
+      expect(await outcome).toMatchObject({
+        value: {
+          currentModelId: 'gpt-5.6-sol',
+          confirmationSource: 'config-option-response',
+        },
+        error: null,
+      });
+    });
+
+    it('accepts a tagged correlated exact response when the requested model is already the startup baseline', async () => {
+      const agent = await createStartedAgent();
+      const availableModels = [{ modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' }];
+      capturedCallbacks.onConfigUpdate({
+        configOptions: [
+          {
+            id: 'model',
+            name: 'Model',
+            type: 'select',
+            category: 'model',
+            currentValue: 'gpt-5.6-sol',
+            options: [{ id: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' }],
+          },
+        ],
+        availableCommands: [],
+        cwd: '/workspace/test',
+      });
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.6-sol',
+        availableModels,
+        confirmationSource: 'session-models',
+      });
+      mockSessionMethods.setConfigOption.mockResolvedValueOnce(undefined);
+      vi.useFakeTimers();
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol');
+      const outcome = change.then(
+        (value) => ({ value, error: null }),
+        (error: unknown) => ({ value: null, error })
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+      capturedCallbacks.onModelUpdate(
+        {
+          currentModelId: 'gpt-5.6-sol',
+          availableModels,
+          confirmationSource: 'config-option-response',
+        },
+        1
+      );
+      await vi.advanceTimersByTimeAsync(0);
+      expect(await outcome).toMatchObject({
+        value: {
+          currentModelId: 'gpt-5.6-sol',
+          confirmationSource: 'config-option-response',
+        },
+        error: null,
+      });
+    });
+
+    it('does not accept an untagged unchanged startup baseline as correlated confirmation', async () => {
+      const agent = await createStartedAgent();
+      const availableModels = [{ modelId: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' }];
+      capturedCallbacks.onConfigUpdate({
+        configOptions: [
+          {
+            id: 'model',
+            name: 'Model',
+            type: 'select',
+            category: 'model',
+            currentValue: 'gpt-5.6-sol',
+            options: [{ id: 'gpt-5.6-sol', name: 'GPT-5.6 SOL' }],
+          },
+        ],
+        availableCommands: [],
+        cwd: '/workspace/test',
+      });
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.6-sol',
+        availableModels,
+        confirmationSource: 'session-models',
+      });
+      mockSessionMethods.setConfigOption.mockResolvedValueOnce(undefined);
+      vi.useFakeTimers();
+
+      const change = agent.setModelByConfigOption('gpt-5.6-sol');
+      let settled = false;
+      const outcome = change.then(
+        (value) => {
+          settled = true;
+          return { value, error: null };
+        },
+        (error: unknown) => ({ value: null, error })
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+      capturedCallbacks.onModelUpdate({
+        currentModelId: 'gpt-5.6-sol',
+        availableModels,
+        confirmationSource: 'config-option-update',
+      });
+      await Promise.resolve();
+
+      expect(settled).toBe(false);
+      await vi.advanceTimersByTimeAsync(60_000);
+      expect((await outcome).error).toMatchObject({ code: 'model_switch_timeout' });
+    });
+
     it('rejects an unconfirmed Flux request without dispatching a bridge call', async () => {
       const agent = await createStartedAgent();
 

@@ -20,6 +20,7 @@ import { useRecentlyUsedModels } from '@renderer/hooks/usage/useRecentlyUsedMode
 import { marqueeProviderRank } from '@renderer/utils/model/marquee';
 import { providerLabel } from '@renderer/components/onboarding/providerLabel';
 import { describeModel, fluxTierDescriptor, modelKey, priceTier } from './modelRowHelpers';
+import { effortLevelsForBackend } from './modelSelectorTypes';
 import type { ModelRow, ModelSelectorViewModel, ModelZone } from './modelSelectorTypes';
 
 /** Backends whose config supports an effort/reasoning knob. */
@@ -130,6 +131,7 @@ export function useModelSelectorViewModel(backend: string, activeModelKey?: stri
         moreZones: [],
         activeKey: activeModelKey ?? null,
         effortSupported: EFFORT_BACKENDS.has(backend),
+        effortLevels: effortLevelsForBackend(backend),
         empty: true,
       };
     }
@@ -213,6 +215,7 @@ export function useModelSelectorViewModel(backend: string, activeModelKey?: stri
       moreZones,
       activeKey: activeModelKey ?? null,
       effortSupported: EFFORT_BACKENDS.has(backend),
+      effortLevels: effortLevelsForBackend(backend),
       empty: false,
     };
   }, [curated, fluxConnected, pinned, recentlyUsed, backend, activeModelKey]);

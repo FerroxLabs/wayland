@@ -538,8 +538,8 @@ export type TChatConversation =
           cronJobId?: string;
           /** Project ID this conversation belongs to (umbrella scoping). Mirrors cronJobId - read via json_extract(extra,'$.projectId'). */
           projectId?: string;
-          /** Per-conversation reasoning effort (Claude-ACP `effortLevel`). Absent => backend default. */
-          effort?: 'low' | 'medium' | 'high';
+          /** Per-conversation reasoning effort (Claude-ACP `effortLevel`, low..max). Absent => backend default. */
+          effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
         }
       >,
       'model'
@@ -575,8 +575,8 @@ export type TChatConversation =
           cronJobId?: string;
           /** Project ID this conversation belongs to (umbrella scoping). Mirrors cronJobId - read via json_extract(extra,'$.projectId'). */
           projectId?: string;
-          /** Per-conversation reasoning effort (Codex `model_reasoning_effort`). Absent => backend default. */
-          effort?: 'low' | 'medium' | 'high';
+          /** Per-conversation reasoning effort (Codex `model_reasoning_effort`, low..high). Absent => backend default. */
+          effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
         }
       >,
       'model'

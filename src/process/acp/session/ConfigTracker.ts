@@ -1,6 +1,7 @@
 // src/process/acp/session/ConfigTracker.ts
 
 import type { AcpModelConfirmationSource } from '@/common/types/acpTypes';
+import { parseCodexModelId } from '@process/acp/codexModelId';
 import type {
   AvailableCommand,
   ConfigOption,
@@ -29,6 +30,27 @@ type PendingChanges = {
   configOptions: Array<{ id: string; value: string | boolean }>;
 };
 
+function providerModelIdsAgree(left: string, right: string, reconcileCodexIds: boolean): boolean {
+  if (left === right) return true;
+  if (!reconcileCodexIds) return false;
+  const leftParts = parseCodexModelId(left);
+  const rightParts = parseCodexModelId(right);
+  if (leftParts.effort && rightParts.effort) return false;
+  return leftParts.baseModelId === rightParts.baseModelId;
+}
+
+function confirmedModelSatisfiesDesired(confirmed: string, desired: string, reconcileCodexIds: boolean): boolean {
+  if (confirmed === desired) return true;
+  if (!reconcileCodexIds) return false;
+  const confirmedParts = parseCodexModelId(confirmed);
+  const desiredParts = parseCodexModelId(desired);
+  return (
+    confirmedParts.effort !== undefined &&
+    desiredParts.effort === undefined &&
+    confirmedParts.baseModelId === desiredParts.baseModelId
+  );
+}
+
 export class ConfigTracker {
   // Current (confirmed by agent)
   private cwd = '';
@@ -45,8 +67,10 @@ export class ConfigTracker {
   private desiredModelId: string | null = null;
   private desiredModeId: string | null = null;
   private desiredConfigOptions = new Map<string, string | boolean>();
+  private readonly reconcileCodexModelIds: boolean;
 
-  constructor(initialDesired?: InitialDesiredConfig) {
+  constructor(initialDesired?: InitialDesiredConfig, agentBackend?: string) {
+    this.reconcileCodexModelIds = agentBackend === 'codex';
     if (!initialDesired) return;
     if (initialDesired.model) this.desiredModelId = initialDesired.model;
     if (initialDesired.mode) this.desiredModeId = initialDesired.mode;
@@ -73,7 +97,12 @@ export class ConfigTracker {
     this.currentModelId = modelId;
     if (availableModels) this.availableModels = availableModels;
     this.currentModelConfirmationSource = confirmationSource;
-    if (this.desiredModelId === modelId) this.desiredModelId = null;
+    if (
+      this.desiredModelId &&
+      confirmedModelSatisfiesDesired(modelId, this.desiredModelId, this.reconcileCodexModelIds)
+    ) {
+      this.desiredModelId = null;
+    }
     return this.modelSnapshot();
   }
 
@@ -106,7 +135,7 @@ export class ConfigTracker {
     const hasModelConflict =
       result.currentModelId !== undefined &&
       typeof configModel?.currentValue === 'string' &&
-      result.currentModelId !== configModel.currentValue;
+      !providerModelIdsAgree(result.currentModelId, configModel.currentValue, this.reconcileCodexModelIds);
     if (hasModelConflict && result.currentModelId !== undefined && typeof configModel.currentValue === 'string') {
       const configModels = (configModel.options ?? []).map((option) => ({
         modelId: option.id,

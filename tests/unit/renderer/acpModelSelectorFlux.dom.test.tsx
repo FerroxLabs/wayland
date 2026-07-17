@@ -60,7 +60,18 @@ vi.mock('@/common/config/storage', () => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, fallback?: string) => fallback || key,
+    t: (key: string, fallback?: string | Record<string, unknown>) => {
+      if (typeof fallback === 'string') return fallback || key;
+      if (fallback && typeof fallback.defaultValue === 'string') {
+        let value = fallback.defaultValue;
+        for (const [name, replacement] of Object.entries(fallback)) {
+          if (name === 'defaultValue') continue;
+          value = value.replace(new RegExp(`{{${name}}}`, 'g'), String(replacement));
+        }
+        return value;
+      }
+      return key;
+    },
   }),
 }));
 
@@ -87,6 +98,8 @@ const NATIVE_INFO = {
       canSwitch: true,
       source: 'models',
       sourceDetail: 'acp-models',
+      confirmationSource: 'session-models',
+      selectionState: 'confirmed',
     },
   },
 };
@@ -97,7 +110,19 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
     ipcMock.onResponseStream.mockImplementation(() => () => {});
     ipcMock.registryListChanged.mockImplementation(() => () => {});
     ipcMock.getModelConfig.mockResolvedValue([]);
-    ipcMock.setModel.mockResolvedValue({ success: true, data: { modelInfo: null } });
+    ipcMock.setModel.mockResolvedValue({
+      success: true,
+      data: {
+        selection: {
+          ok: true,
+          requestedModelId: null,
+          confirmedModelId: null,
+          modelInfo: null,
+          confirmationSource: 'provider-default',
+          restarted: false,
+        },
+      },
+    });
   });
 
   it('shows Flux models at the top for a Flux-capable backend when Flux is connected', async () => {
@@ -134,6 +159,8 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
           canSwitch: true,
           source: 'models',
           sourceDetail: 'acp-models',
+          confirmationSource: 'session-models',
+          selectionState: 'confirmed',
         },
       },
     });
@@ -175,14 +202,34 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
   it('selecting a Flux model sets the chat model id to the flux id', async () => {
     ipcMock.getModelInfo.mockResolvedValue(NATIVE_INFO);
     ipcMock.registryList.mockResolvedValue([{ providerId: 'flux-router' }]);
+    ipcMock.setModel.mockResolvedValue({
+      success: true,
+      data: {
+        selection: {
+          ok: true,
+          requestedModelId: 'flux-auto',
+          confirmedModelId: 'flux-auto',
+          modelInfo: {
+            ...NATIVE_INFO.data.modelInfo,
+            currentModelId: 'flux-auto',
+            currentModelLabel: 'Flux Auto',
+            confirmationSource: 'spawn-session',
+            selectionState: 'confirmed',
+          },
+          confirmationSource: 'spawn-session',
+          restarted: true,
+        },
+      },
+    });
 
     renderSelector(<AcpModelSelector conversationId='conv-4' backend='qwen' />);
+    const selectorButton = screen.getByRole('button');
 
     await waitFor(() => {
       expect(screen.getAllByText('Qwen Max').length).toBeGreaterThan(0);
     });
 
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(selectorButton);
 
     await waitFor(() => {
       expect(screen.getByText('Flux Auto')).toBeTruthy();
@@ -195,7 +242,7 @@ describe('AcpModelSelector - Flux models in the ACP picker', () => {
     });
     // Button reflects the selected Flux tier.
     await waitFor(() => {
-      expect(screen.getAllByText('Flux Auto').length).toBeGreaterThan(0);
+      expect(selectorButton.textContent).toContain('Flux Auto');
     });
   });
 });

@@ -8,6 +8,7 @@ import { ipcBridge } from '@/common';
 import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import type { TokenUsageData } from '@/common/config/storage';
+import type { AcpModelInfo, AcpModelSelectionFailureCode, AcpModelSelectionState } from '@/common/types/acpTypes';
 import { useAddOrUpdateMessage } from '@/renderer/pages/conversation/Messages/hooks';
 import { useTabResumeEffect } from '@/renderer/hooks/system/useTabResumeEffect';
 import type { ThoughtData } from '@/renderer/components/chat/ThoughtDisplay';
@@ -29,6 +30,9 @@ type UseAcpMessageReturn = {
   hasThinkingMessage: boolean;
   routing: 'flux' | 'native' | 'unknown';
   fluxTurnError: boolean;
+  modelSelectionState: AcpModelSelectionState;
+  modelSelectionFailureCode: AcpModelSelectionFailureCode | null;
+  modelSelectionReady: boolean;
 };
 
 export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
@@ -46,10 +50,14 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
   const [aiProcessing, setAiProcessing] = useState(false); // New loading state for AI response
   const [tokenUsage, setTokenUsage] = useState<TokenUsageData | null>(null);
   const [contextLimit, setContextLimit] = useState<number>(0);
+  const [modelSelectionState, setModelSelectionState] = useState<AcpModelSelectionState>('pending');
+  const [modelSelectionFailureCode, setModelSelectionFailureCode] = useState<AcpModelSelectionFailureCode | null>(null);
+  const [modelSelectionHydratedConversationId, setModelSelectionHydratedConversationId] = useState<string | null>(null);
 
   // Use refs to sync state for immediate access in event handlers
   const runningRef = useRef(running);
   const aiProcessingRef = useRef(aiProcessing);
+  const modelSelectionHydrationGenerationRef = useRef(0);
 
   // Track whether current turn has content output
   const hasContentInTurnRef = useRef(false);
@@ -247,9 +255,19 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
           }
           addOrUpdateMessage(transformedMessage);
           break;
-        case 'acp_model_info':
-          // Model info updates are handled by AcpModelSelector, no action needed here
+        case 'acp_model_info': {
+          const info = message.data as AcpModelInfo;
+          // Older bridges emit model info without transactional state. Those
+          // snapshots may enrich the catalog, but they must never erase a
+          // pending or blocked provider-confirmation state.
+          if (info?.selectionState) {
+            modelSelectionHydrationGenerationRef.current += 1;
+            setModelSelectionState(info.selectionState);
+            setModelSelectionFailureCode(info.selectionFailureCode ?? null);
+            setModelSelectionHydratedConversationId(conversation_id);
+          }
           break;
+        }
         case 'slash_commands_updated':
           // Slash commands became available (often during bootstrap when
           // agent_status events are suppressed). Update acpStatus so
@@ -347,6 +365,10 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
     setAcpStatus(null);
     setTokenUsage(null);
     setContextLimit(0);
+    const modelHydrationGeneration = ++modelSelectionHydrationGenerationRef.current;
+    setModelSelectionState('pending');
+    setModelSelectionFailureCode(null);
+    setModelSelectionHydratedConversationId(null);
     hasContentInTurnRef.current = false;
     turnFinishedRef.current = false;
     hasThinkingMessageRef.current = false;
@@ -361,6 +383,33 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
     runningRef.current = false;
     setAiProcessing(false);
     aiProcessingRef.current = false;
+
+    void ipcBridge.acpConversation.getModelInfo
+      .invoke({ conversationId: conversation_id })
+      .then((result) => {
+        if (cancelled || modelSelectionHydrationGenerationRef.current !== modelHydrationGeneration) return;
+        if (!result.success) {
+          setModelSelectionState('blocked');
+          setModelSelectionFailureCode('bridge_unavailable');
+          setModelSelectionHydratedConversationId(conversation_id);
+          return;
+        }
+        const info = result.data?.modelInfo;
+        if (info?.selectionState) {
+          setModelSelectionState(info.selectionState);
+          setModelSelectionFailureCode(info.selectionFailureCode ?? null);
+        } else {
+          setModelSelectionState('provider-default');
+          setModelSelectionFailureCode(null);
+        }
+        setModelSelectionHydratedConversationId(conversation_id);
+      })
+      .catch(() => {
+        if (cancelled || modelSelectionHydrationGenerationRef.current !== modelHydrationGeneration) return;
+        setModelSelectionState('blocked');
+        setModelSelectionFailureCode('bridge_unavailable');
+        setModelSelectionHydratedConversationId(conversation_id);
+      });
 
     void ipcBridge.conversation.get.invoke({ id: conversation_id }).then((res) => {
       if (cancelled) {
@@ -451,5 +500,10 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
     hasThinkingMessage,
     routing,
     fluxTurnError,
+    modelSelectionState,
+    modelSelectionFailureCode,
+    modelSelectionReady:
+      modelSelectionHydratedConversationId === conversation_id &&
+      (modelSelectionState === 'confirmed' || modelSelectionState === 'provider-default'),
   };
 };

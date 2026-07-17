@@ -507,7 +507,7 @@ _Target: Complete in under 5 minutes_
 - [ ] Review Feature Candidates log for this episode: are there at least 2-3 strong FCs (rated 2 or 3)? If fewer than 2, note it as a "low-yield episode" -- may need to source questions from social media before recording
 - [ ] Log batch metrics in Batch Log table
 - [ ] Confirm next trigger: **\_\_** (next Monday / Thursday / early trigger date if count threshold approaching)
-- [ ] Note one protocol observation (optional): **************\_\_**************
+- [ ] Note one protocol observation (optional): **\*\***\*\***\*\***\_\_**\*\***\*\***\*\***
 
 ---
 

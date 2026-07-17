@@ -168,6 +168,18 @@ describe('useModelSelectorViewModel', () => {
     expect(gemini.current.effortSupported).toBe(false);
   });
 
+  it('exposes provider-specific effort levels (Claude gets xhigh/max, Codex/WCore cap at high)', async () => {
+    mockCuratedForAgent.mockResolvedValue([opus]);
+
+    const { result: claude } = renderHook(() => useModelSelectorViewModel('claude'));
+    await waitFor(() => expect(claude.current.zones.length).toBeGreaterThan(0));
+    expect(claude.current.effortLevels).toEqual(['low', 'medium', 'high', 'xhigh', 'max']);
+
+    const { result: codex } = renderHook(() => useModelSelectorViewModel('codex'));
+    await waitFor(() => expect(codex.current.zones.length).toBeGreaterThan(0));
+    expect(codex.current.effortLevels).toEqual(['low', 'medium', 'high']);
+  });
+
   it('resolves activeKey from the passed current model key', async () => {
     mockCuratedForAgent.mockResolvedValue([opus, sonnet]);
     const { result } = renderHook(() => useModelSelectorViewModel('wcore', 'anthropic:claude-sonnet-4-5'));

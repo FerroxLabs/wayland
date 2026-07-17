@@ -69,10 +69,7 @@ describe('AcpAgentV2.getModelInfo (#184 live-class fallback)', () => {
 
     const info = makeAgent('claude').getModelInfo();
 
-    expect(info?.availableModels.map((model) => model.id)).toEqual([
-      'claude-opus-local',
-      'claude-sonnet-local',
-    ]);
+    expect(info?.availableModels.map((model) => model.id)).toEqual(['claude-opus-local', 'claude-sonnet-local']);
     expect(info?.currentModelId).toBeNull();
     expect(info?.currentModelLabel).toBeNull();
   });

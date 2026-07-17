@@ -17,6 +17,8 @@ const t = (key: string, options?: { defaultValue?: string }) => {
     'settings.sider.general': 'General',
     'settings.sider.notifications': 'Notifications',
     'settings.sider.storage': 'Storage',
+    'settings.sider.tank': 'Tank',
+    'settings.sider.devActions': 'Dev Actions',
     'settings.about': 'About',
   };
 
@@ -47,6 +49,8 @@ describe('getBuiltinSettingsNavItems', () => {
       'general',
       'notifications',
       'storage',
+      'tank',
+      'devActions',
       'ijfw',
       'doctor',
       'about',
@@ -72,6 +76,8 @@ describe('getBuiltinSettingsNavItems', () => {
       'General',
       'Notifications',
       'Storage',
+      'Tank',
+      'Dev Actions',
       'IJFW Memory',
       'Doctor',
       'About',

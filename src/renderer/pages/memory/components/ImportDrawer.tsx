@@ -46,7 +46,7 @@ type VaultEntry = {
 // ---------------------------------------------------------------------------
 
 export function ImportDrawer({ open, onClose }: ImportDrawerProps): React.ReactElement | null {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
 
   // ── claude-mem state ────────────────────────────────────────────────────
   const [claudeMemStatus, setClaudeMemStatus] = useState<ImportStatus>('idle');

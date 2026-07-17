@@ -561,13 +561,13 @@ That is her right. You cannot force this conversation. Options:
 
 Complete this within 24 hours:
 
-- [ ] Healthcare directive: [Exists / Does not exist / Unknown] -- Location: ****\_\_\_\_****
-- [ ] Healthcare POA: [Exists / Does not exist / Unknown] -- Named agent: ****\_\_\_\_****
-- [ ] Financial POA: [Exists / Does not exist / Unknown] -- Named agent: ****\_\_\_\_****
-- [ ] Will: [Exists / Does not exist / Unknown] -- Last updated: **\_\_** -- Attorney: ****\_\_\_\_****
-- [ ] Document storage location: ****\_\_\_\_****
-- [ ] Attorney name and firm: ****\_\_\_\_****
-- [ ] Follow-up items agreed: ****\_\_\_\_****
+- [ ] Healthcare directive: [Exists / Does not exist / Unknown] -- Location: \***\*\_\_\_\_\*\***
+- [ ] Healthcare POA: [Exists / Does not exist / Unknown] -- Named agent: \***\*\_\_\_\_\*\***
+- [ ] Financial POA: [Exists / Does not exist / Unknown] -- Named agent: \***\*\_\_\_\_\*\***
+- [ ] Will: [Exists / Does not exist / Unknown] -- Last updated: **\_\_** -- Attorney: \***\*\_\_\_\_\*\***
+- [ ] Document storage location: \***\*\_\_\_\_\*\***
+- [ ] Attorney name and firm: \***\*\_\_\_\_\*\***
+- [ ] Follow-up items agreed: \***\*\_\_\_\_\*\***
 
 ---
 

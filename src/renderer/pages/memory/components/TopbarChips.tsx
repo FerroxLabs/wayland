@@ -78,7 +78,7 @@ type ChipEntry = {
 // ---------------------------------------------------------------------------
 
 const TopbarChips: React.FC<TopbarChipsProps> = ({ typeCounts, weekDeltas = {}, activeType, onFilterChange }) => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
 
   const totalCount = Object.values(typeCounts).reduce((a, b) => a + b, 0);
 

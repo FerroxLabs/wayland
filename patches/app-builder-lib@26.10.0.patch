@@ -1,0 +1,109 @@
+# Patch: app-builder-lib@26.10.0
+# Purpose: Prevent electron-builder from downloading or loading mutable
+# TrustedSigning code while Azure credentials are present. The release
+# workflow fetches and validates TrustedSigning 0.5.8 before exposing secrets;
+# this patch binds every subprocess to that absolute manifest path, removes
+# Azure variables during catalog/dependency revalidation, then restores them
+# only for the final signing invocation.
+diff --git a/out/codeSign/windowsSignAzureManager.js b/out/codeSign/windowsSignAzureManager.js
+--- a/out/codeSign/windowsSignAzureManager.js
++++ b/out/codeSign/windowsSignAzureManager.js
+@@ -4,6 +4,70 @@ exports.WindowsSignAzureManager = void 0;
+ const builder_util_1 = require("builder-util");
+ const builder_util_runtime_1 = require("builder-util-runtime");
+ const lazy_val_1 = require("lazy-val");
++const TRUSTED_SIGNING_MODULE_VERSION = "0.5.8";
++const TRUSTED_SIGNING_MODULE_PATH_ENV = "WAYLAND_TRUSTED_SIGNING_MODULE_PATH";
++const TRUSTED_SIGNING_DEPENDENCY_MANIFEST_ENV = "WAYLAND_TRUSTED_SIGNING_DEPENDENCY_MANIFEST";
++function createTrustedSigningCommand(invokeCommand = null) {
++    const invocation = invokeCommand == null ? "" : `; ${invokeCommand}`;
++    return `$ErrorActionPreference = 'Stop'
++$modulePath = [Environment]::GetEnvironmentVariable('${TRUSTED_SIGNING_MODULE_PATH_ENV}')
++$dependencyManifestPath = [Environment]::GetEnvironmentVariable('${TRUSTED_SIGNING_DEPENDENCY_MANIFEST_ENV}')
++if ([string]::IsNullOrWhiteSpace($modulePath) -or -not [IO.Path]::IsPathFullyQualified($modulePath) -or -not (Test-Path -LiteralPath $modulePath -PathType Leaf)) {
++  throw 'Pinned TrustedSigning manifest path is missing or invalid.'
++}
++if ([string]::IsNullOrWhiteSpace($dependencyManifestPath) -or -not [IO.Path]::IsPathFullyQualified($dependencyManifestPath) -or -not (Test-Path -LiteralPath $dependencyManifestPath -PathType Leaf)) {
++  throw 'TrustedSigning dependency manifest path is missing or invalid.'
++}
++$azureEnvironment = @{}
++foreach ($name in @('AZURE_TENANT_ID', 'AZURE_CLIENT_ID', 'AZURE_CLIENT_SECRET')) {
++  $azureEnvironment[$name] = [Environment]::GetEnvironmentVariable($name)
++  Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
++}
++try {
++  $moduleRoot = Split-Path -Parent $modulePath
++  $catalogPath = Join-Path $moduleRoot 'catalog.cat'
++  $catalog = Test-FileCatalog -Path $moduleRoot -CatalogFilePath $catalogPath -Detailed
++  if ($catalog.Status -ne 'Valid' -or $catalog.Signature.Status -ne 'Valid') {
++    throw 'TrustedSigning signed catalog validation failed.'
++  }
++  $module = Test-ModuleManifest -Path $modulePath -ErrorAction Stop
++  if ($module.Version -ne [version]'${TRUSTED_SIGNING_MODULE_VERSION}') {
++    throw "TrustedSigning manifest version mismatch: $($module.Version)"
++  }
++  $trustedSigningRoot = [IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDATA 'TrustedSigning') + [IO.Path]::DirectorySeparatorChar)
++  $dependencyRecords = @(Get-Content -LiteralPath $dependencyManifestPath -Raw | ConvertFrom-Json)
++  if ($dependencyRecords.Count -eq 0) {
++    throw 'TrustedSigning dependency manifest is empty.'
++  }
++  foreach ($record in $dependencyRecords) {
++    $dependencyPath = [IO.Path]::GetFullPath([string]$record.Path)
++    if (-not $dependencyPath.StartsWith($trustedSigningRoot, [StringComparison]::OrdinalIgnoreCase) -or -not (Test-Path -LiteralPath $dependencyPath -PathType Leaf)) {
++      throw "TrustedSigning dependency path is missing or outside the pinned root: $dependencyPath"
++    }
++    $actualHash = (Get-FileHash -LiteralPath $dependencyPath -Algorithm SHA256).Hash
++    if (-not [string]::Equals($actualHash, [string]$record.Sha256, [StringComparison]::OrdinalIgnoreCase)) {
++      throw "TrustedSigning dependency hash mismatch: $dependencyPath"
++    }
++  }
++  Import-Module -Name $modulePath -Force -ErrorAction Stop
++  $dependencyModulePath = Join-Path $moduleRoot 'NugetInstall\\NugetInstall.psd1'
++  Import-Module -Name $dependencyModulePath -Force -ErrorAction Stop
++  Get-EveryDependency | Out-Null
++  if (-not (Get-Command Invoke-TrustedSigning -ErrorAction SilentlyContinue)) {
++    throw 'Invoke-TrustedSigning is unavailable.'
++  }
++} finally {
++  foreach ($name in $azureEnvironment.Keys) {
++    $value = $azureEnvironment[$name]
++    if ($null -eq $value) {
++      Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue
++    } else {
++      [Environment]::SetEnvironmentVariable($name, [string]$value, [EnvironmentVariableTarget]::Process)
++    }
++  }
++}
++${invocation}`;
++}
+ class WindowsSignAzureManager {
+     constructor(packager) {
+         this.packager = packager;
+@@ -26,16 +90,8 @@ class WindowsSignAzureManager {
+     async initialize() {
+         const vm = await this.packager.vm.value;
+         const ps = await vm.powershellCommand.value;
+-        builder_util_1.log.info(null, "installing required module (TrustedSigning) with scope CurrentUser");
+-        try {
+-            await vm.exec(ps, ["-NoProfile", "-NonInteractive", "-Command", "Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser"]);
+-        }
+-        catch (error) {
+-            // Might not be needed, seems GH runners already have NuGet set up.
+-            // Logging to debug just in case users run into this. If NuGet isn't present, Install-Module -Name TrustedSigning will fail, so we'll get the logs at that point
+-            builder_util_1.log.debug({ message: error.message || error.stack }, "unable to install PackageProvider Nuget. Might be a false alarm though as some systems already have it installed");
+-        }
+-        await vm.exec(ps, ["-NoProfile", "-NonInteractive", "-Command", "Install-Module -Name TrustedSigning -MinimumVersion 0.5.0 -Force -Repository PSGallery -Scope CurrentUser"]);
++        builder_util_1.log.info({ version: TRUSTED_SIGNING_MODULE_VERSION }, "verifying pinned TrustedSigning module and dependencies");
++        await vm.exec(ps, ["-NoProfile", "-NonInteractive", "-Command", createTrustedSigningCommand()]);
+         // If signing has been misconfigured it, the error from the TrustedSigning module should be descriptive enough to help them fix their configuration.
+         // Options: https://learn.microsoft.com/en-us/dotnet/api/azure.identity.environmentcredential?view=azure-dotnet#definition
+     }
+@@ -65,7 +121,7 @@ class WindowsSignAzureManager {
+             return [...res, `-${field}`, `'${escapedValue}'`];
+         }, [])
+             .join(" ");
+-        await vm.exec(ps, ["-NoProfile", "-NonInteractive", "-Command", `Invoke-TrustedSigning ${paramsString}`]);
++        await vm.exec(ps, ["-NoProfile", "-NonInteractive", "-Command", createTrustedSigningCommand(`Invoke-TrustedSigning ${paramsString}`)]);
+         return true;
+     }
+ }

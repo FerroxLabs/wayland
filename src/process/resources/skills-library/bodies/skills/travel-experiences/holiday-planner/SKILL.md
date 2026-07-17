@@ -53,16 +53,16 @@ Before planning your holiday season, clarify your priorities:
 
 ### Total Budget Allocation Template
 
-| Category              | Suggested % | Your Budget     | Actual Spent    |
-| --------------------- | ----------- | --------------- | --------------- |
-| Gifts                 | 40-50%      | $**\_\_\_**     | $**\_\_\_**     |
-| Food and entertaining | 20-25%      | $**\_\_\_**     | $**\_\_\_**     |
-| Travel                | 15-20%      | $**\_\_\_**     | $**\_\_\_**     |
-| Decorations           | 5-10%       | $**\_\_\_**     | $**\_\_\_**     |
-| Cards and shipping    | 3-5%        | $**\_\_\_**     | $**\_\_\_**     |
-| Charitable giving     | 5-10%       | $**\_\_\_**     | $**\_\_\_**     |
-| Buffer/unexpected     | 5%          | $**\_\_\_**     | $**\_\_\_**     |
-| **Total**             | **100%**    | **$**\_\_\_**** | **$**\_\_\_**** |
+| Category              | Suggested % | Your Budget         | Actual Spent        |
+| --------------------- | ----------- | ------------------- | ------------------- |
+| Gifts                 | 40-50%      | $**\_\_\_**         | $**\_\_\_**         |
+| Food and entertaining | 20-25%      | $**\_\_\_**         | $**\_\_\_**         |
+| Travel                | 15-20%      | $**\_\_\_**         | $**\_\_\_**         |
+| Decorations           | 5-10%       | $**\_\_\_**         | $**\_\_\_**         |
+| Cards and shipping    | 3-5%        | $**\_\_\_**         | $**\_\_\_**         |
+| Charitable giving     | 5-10%       | $**\_\_\_**         | $**\_\_\_**         |
+| Buffer/unexpected     | 5%          | $**\_\_\_**         | $**\_\_\_**         |
+| **Total**             | **100%**    | **$**\_\_\_\*\*\*\* | **$**\_\_\_\*\*\*\* |
 
 ### Gift Budget Tracker
 

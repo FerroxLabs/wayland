@@ -3,7 +3,7 @@
  * Handles native module installation for different environments
  */
 
-const { execSync } = require('child_process');
+const { execFileSync, execSync } = require('child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -125,28 +125,73 @@ function patchOverriddenDepRanges() {
  * packaged build, its own `node_modules/` must be present alongside it.
  *
  * We run `bun install` (or `npm install` if bun is unavailable) inside the
- * bridge dir. Idempotent: skipped silently if the bridge dir is missing.
- * Failures are logged but non-fatal - the rest of the app still installs.
+ * bridge dir. Ordinary developer installs log bridge failures and continue;
+ * packaging builds fail closed because they advertise and ship this bridge.
  */
-function installBridgeDeps() {
-  const bridgeDir = path.join(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
+function verifyBridgeDependencies(bridgeDir) {
+  const bridgePkg = path.join(bridgeDir, 'package.json');
+  const pkg = JSON.parse(fs.readFileSync(bridgePkg, 'utf8'));
+  const dependencyNames = Object.keys(pkg.dependencies || {}).sort();
+  const verificationScript = `
+    const dependencies = ${JSON.stringify(dependencyNames)};
+    for (const dependency of dependencies) {
+      await import(dependency);
+    }
+  `;
+
+  try {
+    execFileSync(process.execPath, ['--input-type=module', '--eval', verificationScript], {
+      cwd: bridgeDir,
+      stdio: 'pipe',
+      timeout: 120_000,
+      windowsHide: true,
+    });
+  } catch (error) {
+    throw new Error(`WhatsApp bridge dependency verification failed: ${error.message}`, {
+      cause: error,
+    });
+  }
+}
+
+function installBridgeDeps(options = {}) {
+  const bridgeDir = options.bridgeDir || path.join(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
+  const runCommand = options.runCommand || execSync;
+  const strict = options.strict ?? process.env.WAYLAND_STRICT_PACKAGING === '1';
+  const verifyDependencies = options.verifyDependencies || verifyBridgeDependencies;
   const bridgePkg = path.join(bridgeDir, 'package.json');
   if (!fs.existsSync(bridgePkg)) {
-    console.log('[postinstall] whatsapp-bridge package.json not found, skipping bridge deps');
+    const message = '[postinstall] whatsapp-bridge package.json not found';
+    if (strict) {
+      throw new Error(`Strict packaging failed: ${message}`);
+    }
+    console.log(`${message}, skipping bridge deps`);
     return;
   }
+
   // Detect bun; fall back to npm.
-  let installer = 'bun install';
+  let installer = 'bun install --frozen-lockfile';
   try {
-    execSync('bun --version', { stdio: 'ignore' });
-  } catch {
+    runCommand('bun --version', { stdio: 'ignore' });
+  } catch (error) {
+    if (strict) {
+      throw new Error(`Strict packaging failed: Bun is required to install WhatsApp bridge dependencies`, {
+        cause: error,
+      });
+    }
     installer = 'npm install --no-audit --no-fund';
   }
+
   console.log(`[postinstall] Installing whatsapp-bridge deps via \`${installer}\``);
   try {
-    execSync(installer, { cwd: bridgeDir, stdio: 'inherit' });
-  } catch (e) {
-    console.error('[postinstall] whatsapp-bridge dep install failed (non-fatal):', e.message);
+    runCommand(installer, { cwd: bridgeDir, stdio: 'inherit' });
+    verifyDependencies(bridgeDir);
+  } catch (error) {
+    if (strict) {
+      throw new Error(`Strict packaging failed: WhatsApp bridge dependencies are incomplete`, {
+        cause: error,
+      });
+    }
+    console.error('[postinstall] whatsapp-bridge dep install failed (non-fatal):', error.message);
   }
 }
 
@@ -192,3 +237,5 @@ if (require.main === module) {
 }
 
 module.exports = runPostInstall;
+module.exports.installBridgeDeps = installBridgeDeps;
+module.exports.verifyBridgeDependencies = verifyBridgeDependencies;

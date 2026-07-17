@@ -35,6 +35,13 @@ vi.mock('@process/utils/mainLogger', () => ({
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { getConfig: vi.fn(() => ({})), get: mockProcessConfigGet },
 }));
+vi.mock('electron', () => ({ app: { getPath: vi.fn(() => 'C:/tmp/wayland-user-data') } }));
+vi.mock('@process/task/codexConfig', () => ({
+  getCodexSandboxModeForSessionMode: vi.fn(() => 'workspace-write'),
+  materializeFluxCodexHome: vi.fn(() => Promise.resolve('C:/tmp/flux-codex-home')),
+  materializeNativeCodexHome: vi.fn(() => Promise.resolve('C:/tmp/native-codex-home')),
+  normalizeCodexSandboxMode: vi.fn((mode?: string) => mode ?? 'workspace-write'),
+}));
 vi.mock('@/common', () => ({
   ipcBridge: { acpConversation: { responseStream: { emit: vi.fn() } } },
 }));
@@ -110,6 +117,13 @@ type ResolveCustomAgentCliConfig = (data: {
   conversation_id: string;
 }) => Promise<{ cliPath?: string; customArgs?: string[]; customEnv?: Record<string, string> }>;
 
+type ResolveAgentCliConfig = (data: {
+  backend: AcpBackend;
+  conversation_id: string;
+  currentModelId?: string;
+  effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+}) => Promise<{ customEnv?: Record<string, string>; routing?: 'flux' | 'native' | 'unknown' }>;
+
 function makeManager() {
   const manager = new AcpAgentManager({
     conversation_id: 'conv-custom-agent-env',
@@ -117,6 +131,24 @@ function makeManager() {
     workspace: '/tmp/workspace',
   });
   return manager as unknown as { resolveCustomAgentCliConfig: ResolveCustomAgentCliConfig };
+}
+
+function makeSpawnConfigManager(backend: AcpBackend, customEnv: Record<string, string> = {}) {
+  const manager = new AcpAgentManager({
+    conversation_id: `conv-${backend}-spawn`,
+    backend,
+    workspace: '/tmp/workspace',
+  });
+  const internals = manager as unknown as Record<string, unknown>;
+  internals.resolveBuiltinBackendConfig = vi.fn().mockResolvedValue({ customEnv });
+  internals.buildConnectedProviderEnv = vi.fn().mockResolvedValue({});
+  internals.buildCodexMcpBearerEnv = vi.fn().mockResolvedValue({});
+  internals.computeFluxRouting = vi.fn().mockResolvedValue({
+    routing: 'native',
+    env: {},
+    stripKeys: [],
+  });
+  return manager as unknown as { resolveAgentCliConfig: ResolveAgentCliConfig };
 }
 
 describe('AcpAgentManager custom-agent CLI resolution (issue #66)', () => {
@@ -174,5 +206,131 @@ describe('AcpAgentManager custom-agent CLI resolution (issue #66)', () => {
     expect(resolved.cliPath).toBe('claude');
     expect(resolved.customArgs).toEqual(['--foo']);
     expect(resolved.customEnv).toEqual({ X: '1' });
+  });
+});
+
+describe('AcpAgentManager exact provider-native spawn model resolution', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockProcessConfigGet.mockResolvedValue(undefined);
+  });
+
+  it.each([
+    'claude-sonnet-4-8-20260701',
+    'opus',
+    'sonnet',
+    'haiku',
+    'anthropic.claude-sonnet-v4:0',
+    'vertex/claude-sonnet-4',
+  ])('passes Claude model identifier %s to ANTHROPIC_MODEL byte-for-byte', async (modelId) => {
+    const manager = makeSpawnConfigManager('claude' as AcpBackend);
+
+    const resolved = await manager.resolveAgentCliConfig({
+      backend: 'claude' as AcpBackend,
+      conversation_id: 'conv-claude-spawn',
+      currentModelId: modelId,
+    });
+
+    expect(resolved.customEnv?.ANTHROPIC_MODEL).toBe(modelId);
+  });
+
+  it('removes a stale Claude model override when provider default is requested', async () => {
+    const manager = makeSpawnConfigManager('claude' as AcpBackend, {
+      ANTHROPIC_MODEL: 'claude-opus-4-8',
+      KEEP_ME: 'yes',
+    });
+
+    const resolved = await manager.resolveAgentCliConfig({
+      backend: 'claude' as AcpBackend,
+      conversation_id: 'conv-claude-spawn',
+    });
+
+    expect(resolved.customEnv).toEqual({
+      KEEP_ME: 'yes',
+      WAYLAND_ACP_UNSET_ENV_KEYS: JSON.stringify(['ANTHROPIC_MODEL']),
+    });
+  });
+
+  it('writes a bare Codex model plus bracket effort without losing unrelated CODEX_CONFIG keys', async () => {
+    const manager = makeSpawnConfigManager('codex' as AcpBackend, {
+      CODEX_CONFIG: JSON.stringify({ model: 'gpt-5.5', model_reasoning_effort: 'low', feature_flag: true }),
+    });
+
+    const resolved = await manager.resolveAgentCliConfig({
+      backend: 'codex' as AcpBackend,
+      conversation_id: 'conv-codex-spawn',
+      currentModelId: 'gpt-5.6-sol[ultra]',
+      effort: 'medium',
+    });
+
+    expect(JSON.parse(resolved.customEnv?.CODEX_CONFIG ?? '{}')).toEqual({
+      model: 'gpt-5.6-sol',
+      model_reasoning_effort: 'ultra',
+      feature_flag: true,
+    });
+  });
+
+  it('parses a known legacy slash effort without corrupting provider-path model IDs', async () => {
+    const manager = makeSpawnConfigManager('codex' as AcpBackend);
+
+    const legacy = await manager.resolveAgentCliConfig({
+      backend: 'codex' as AcpBackend,
+      conversation_id: 'conv-codex-spawn',
+      currentModelId: 'gpt-5.6-sol/xhigh',
+    });
+    const providerPath = await manager.resolveAgentCliConfig({
+      backend: 'codex' as AcpBackend,
+      conversation_id: 'conv-codex-spawn',
+      currentModelId: 'openai/gpt-5.6-sol',
+    });
+
+    expect(JSON.parse(legacy.customEnv?.CODEX_CONFIG ?? '{}')).toMatchObject({
+      model: 'gpt-5.6-sol',
+      model_reasoning_effort: 'xhigh',
+    });
+    expect(JSON.parse(providerPath.customEnv?.CODEX_CONFIG ?? '{}').model).toBe('openai/gpt-5.6-sol');
+  });
+
+  it('preserves an unknown bracket suffix as part of the exact Codex model ID', async () => {
+    const manager = makeSpawnConfigManager('codex' as AcpBackend);
+
+    const resolved = await manager.resolveAgentCliConfig({
+      backend: 'codex' as AcpBackend,
+      conversation_id: 'conv-codex-spawn',
+      currentModelId: 'vendor/model[preview]',
+    });
+
+    expect(JSON.parse(resolved.customEnv?.CODEX_CONFIG ?? '{}')).toEqual({
+      model: 'vendor/model[preview]',
+    });
+  });
+
+  it('removes only the Codex model override for provider default', async () => {
+    const manager = makeSpawnConfigManager('codex' as AcpBackend, {
+      CODEX_CONFIG: JSON.stringify({ model: 'gpt-5.5', model_reasoning_effort: 'high', feature_flag: true }),
+    });
+
+    const resolved = await manager.resolveAgentCliConfig({
+      backend: 'codex' as AcpBackend,
+      conversation_id: 'conv-codex-spawn',
+    });
+
+    expect(JSON.parse(resolved.customEnv?.CODEX_CONFIG ?? '{}')).toEqual({
+      model_reasoning_effort: 'high',
+      feature_flag: true,
+    });
+    expect(resolved.customEnv?.WAYLAND_ACP_UNSET_ENV_KEYS).toBe(JSON.stringify(['CODEX_CONFIG.model']));
+  });
+
+  it('rejects malformed CODEX_CONFIG instead of overwriting it', async () => {
+    const manager = makeSpawnConfigManager('codex' as AcpBackend, { CODEX_CONFIG: '{not-json' });
+
+    await expect(
+      manager.resolveAgentCliConfig({
+        backend: 'codex' as AcpBackend,
+        conversation_id: 'conv-codex-spawn',
+        currentModelId: 'gpt-5.6-sol',
+      })
+    ).rejects.toThrow('CODEX_CONFIG');
   });
 });

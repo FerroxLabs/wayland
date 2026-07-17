@@ -36,8 +36,8 @@ import { join } from 'path';
 export async function materializeFluxClaudeConfigDir(
   userDataDir: string,
   realClaudeDir: string = join(homedir(), '.claude'),
-  /** Per-conversation reasoning effort. When set, overrides the seeded `effortLevel`. */
-  effort?: 'low' | 'medium' | 'high'
+  /** Per-conversation reasoning effort (low..max). When set, overrides the seeded `effortLevel`. */
+  effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max'
 ): Promise<string> {
   const configDir = join(userDataDir, 'flux-claude-home');
   const settingsPath = join(configDir, 'settings.json');

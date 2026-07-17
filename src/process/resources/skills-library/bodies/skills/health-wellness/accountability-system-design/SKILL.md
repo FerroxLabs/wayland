@@ -570,8 +570,8 @@ _Note on your defensiveness:_ The agenda has no place for "why did you miss?" Th
 - 30-day review: [date] -- evaluate format, goal calibration, partnership dynamic
 - 60-day review: [date] -- evaluate graduation or continuation
 
-Signed: ************\_************ Date: ******\_******
-Witnessed/Received by: ******\_****** Date: ******\_******
+Signed: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\*** Date: **\*\***\_**\*\***
+Witnessed/Received by: **\*\***\_**\*\*** Date: **\*\***\_**\*\***
 
 ---
 

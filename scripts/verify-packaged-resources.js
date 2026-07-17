@@ -23,6 +23,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { load } = require('js-yaml');
 
 const TAG = '[verify-packaged-resources]';
 
@@ -35,6 +36,7 @@ const REQUIRED = [
   { rel: 'bundled-bun', critical: true, kind: 'dir' },
   { rel: 'modelsdev-snapshot.json', critical: true, kind: 'file' },
   { rel: 'voice-models', critical: true, kind: 'dir' },
+  { rel: 'app-update.yml', critical: true, kind: 'file' },
   // Degradable features - warn loudly but do not block the release.
   { rel: 'hub', critical: false, kind: 'dir' },
   { rel: 'whatsapp-bridge', critical: false, kind: 'dir' },
@@ -89,6 +91,36 @@ function isNonEmpty(p, kind) {
   }
 }
 
+function validateAppUpdateMetadataText(content) {
+  try {
+    const metadata = load(content);
+    if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return false;
+
+    return metadata.provider === 'github' && metadata.owner === 'FerroxLabs' && metadata.repo === 'wayland';
+  } catch {
+    return false;
+  }
+}
+
+function validateAppUpdateMetadataFile(filePath) {
+  try {
+    return validateAppUpdateMetadataText(fs.readFileSync(filePath, 'utf8'));
+  } catch {
+    return false;
+  }
+}
+
+function verifyResourceDir(resourceDir, requirements = REQUIRED) {
+  return requirements.map((requirement) => {
+    const target = path.join(resourceDir, requirement.rel);
+    const ok =
+      isNonEmpty(target, requirement.kind) &&
+      (requirement.rel !== 'app-update.yml' || validateAppUpdateMetadataFile(target));
+
+    return { requirement, ok };
+  });
+}
+
 function main() {
   const outDir = parseOutDir();
   const resourceDirs = findResourceDirs(outDir);
@@ -104,13 +136,11 @@ function main() {
 
   for (const resDir of resourceDirs) {
     console.log(`${TAG} checking ${resDir}`);
-    for (const req of REQUIRED) {
-      const target = path.join(resDir, req.rel);
-      const ok = isNonEmpty(target, req.kind);
+    for (const { requirement: req, ok } of verifyResourceDir(resDir)) {
       if (ok) {
         console.log(`${TAG}   OK   ${req.rel}`);
       } else if (req.critical) {
-        console.error(`${TAG}   FAIL ${req.rel}  <-- CRITICAL, missing or empty`);
+        console.error(`${TAG}   FAIL ${req.rel}  <-- CRITICAL, missing, empty, or invalid`);
         criticalFailures += 1;
       } else {
         console.warn(`${TAG}   WARN ${req.rel}  (optional, missing or empty)`);
@@ -132,4 +162,12 @@ function main() {
   );
 }
 
-main();
+if (require.main === module) {
+  main();
+}
+
+module.exports = {
+  REQUIRED,
+  validateAppUpdateMetadataText,
+  verifyResourceDir,
+};

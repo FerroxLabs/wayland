@@ -130,8 +130,8 @@ If the employee disagrees with the disposition, they may appeal to [HR lead / ne
 
 ### 12. Signatures
 
-HR: ************\_\_************ Date: ****\_\_****
-Employee acknowledgment: ********\_\_\_******** Date: ****\_\_****
+HR: \***\*\*\*\*\*\*\***\_\_\***\*\*\*\*\*\*\*** Date: \***\*\_\_\*\***
+Employee acknowledgment: **\*\*\*\***\_\_\_**\*\*\*\*** Date: \***\*\_\_\*\***
 (Acknowledgment of receipt; not agreement)
 ```
 

@@ -20,7 +20,7 @@ import {
   isFluxProviderRow,
   FLUX_RECOMMENDED_IMAGE_ID,
 } from '@/common/config/imageModels';
-import type { VoiceAsset } from '@/common/types/voiceAsset';
+import type { VoiceAssetDownloadRequest } from '@/common/types/voiceAsset';
 import { Divider, Form, Message, Button, Switch, Input, Slider, Progress } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -79,34 +79,18 @@ export const normalizeSpeechToTextConfig = (config?: SpeechToTextConfig): Speech
   },
 });
 
-// Whisper model asset descriptor - model + binary are both required for local STT.
-// destPath + sha256 are resolved server-side by voiceAssetRegistry.ts before
-// the download starts; the renderer just supplies the id + url.
-const WHISPER_MODEL_ASSETS: Record<string, VoiceAsset> = {
-  base: {
-    id: 'whisper-ggml-base',
-    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin',
-    destPath: '',
-    sha256: '',
-  },
-  small: {
-    id: 'whisper-ggml-small',
-    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
-    destPath: '',
-    sha256: '',
-  },
+const WHISPER_MODEL_ASSETS: Record<string, VoiceAssetDownloadRequest> = {
+  base: { id: 'whisper-ggml-base' },
+  small: { id: 'whisper-ggml-small' },
 };
 
 type DownloadState = 'idle' | 'downloading' | 'success' | 'error';
 
 /**
- * Shared download-with-progress controller for the local voice models (Whisper
- * + Kokoro). Owns the download lifecycle, the on-disk install probe, and the
- * live progress subscription so both controls render a real <Progress/> bar
- * instead of the old hardcoded 0%. Pass `undefined` when no asset is selected
- * (the hook stays inert until one is).
+ * Download-with-progress controller for registered Whisper models. The main
+ * process owns every source, destination, digest, and size field.
  */
-const useVoiceAssetDownload = (asset: VoiceAsset | undefined) => {
+const useVoiceAssetDownload = (asset: VoiceAssetDownloadRequest | undefined) => {
   const [downloadState, setDownloadState] = useState<DownloadState>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [installed, setInstalled] = useState<boolean | null>(null);
@@ -153,7 +137,7 @@ const useVoiceAssetDownload = (asset: VoiceAsset | undefined) => {
     setDownloadState('downloading');
     setErrorMsg('');
     try {
-      await voiceAsset.download.invoke(asset);
+      await voiceAsset.download.invoke({ id: asset.id });
       if (!cancelledRef.current) setDownloadState('success');
     } catch (err) {
       if (!cancelledRef.current) {
@@ -235,30 +219,11 @@ const WhisperLocalDownloadControl: React.FC<{
 
 export const TTS_CONFIG_CHANGED_EVENT = 'wayland:tts-config-changed';
 
-// Hoisted out of the component body so React doesn't see a new object
-// identity every render - the previous in-body literal forced every
-// useCallback dependent on KOKORO_ASSET to re-create, which in turn
-// thrashed the install probe's effect.
-const KOKORO_ASSET: VoiceAsset = {
-  id: 'kokoro-onnx-model',
-  url: 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
-  destPath: '',
-  sha256: '',
-};
-
 export const TextToSpeechSettingsSection: React.FC<{
   config: TextToSpeechConfig;
   onChange: (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => void;
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
-  const {
-    downloadState,
-    errorMsg,
-    installed,
-    percent,
-    handleDownload: handleDownloadKokoro,
-    handleCancel: handleCancelDownload,
-  } = useVoiceAssetDownload(KOKORO_ASSET);
 
   const handleProviderChange = useCallback(
     (value: string) => {
@@ -343,46 +308,6 @@ export const TextToSpeechSettingsSection: React.FC<{
             onChange={(checked) => onChange((current) => ({ ...current, autoReadResponses: checked }))}
           />
         </Form.Item>
-
-        {config.provider === 'kokoro-local' && (
-          <Form.Item label={t('settings.textToSpeechDownloadModel')}>
-            <div className='flex flex-col gap-8px'>
-              {downloadState === 'downloading' ? (
-                <div className='flex items-center gap-8px'>
-                  <Progress percent={percent} animation className='flex-1' />
-                  <Button size='mini' onClick={handleCancelDownload}>
-                    {t('settings.textToSpeechCancelDownload')}
-                  </Button>
-                </div>
-              ) : installed ? (
-                <div className='flex items-center justify-between gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
-                  <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
-                    <CheckCircle2 size={14} />
-                    {t('settings.textToSpeechModelInstalled', { defaultValue: 'Installed' })}
-                  </span>
-                  <Button
-                    type='text'
-                    size='mini'
-                    icon={<RotateCcw size={12} />}
-                    onClick={handleDownloadKokoro}
-                    className='text-12px text-t-tertiary'
-                  >
-                    {t('settings.textToSpeechRedownload', { defaultValue: 'Re-download' })}
-                  </Button>
-                </div>
-              ) : (
-                <Button type='outline' onClick={handleDownloadKokoro} size='small'>
-                  {t('settings.textToSpeechDownloadModel')}
-                </Button>
-              )}
-              {downloadState === 'error' && (
-                <span className='text-12px text-[var(--danger)]'>
-                  {t('settings.textToSpeechDownloadError')}: {errorMsg}
-                </span>
-              )}
-            </div>
-          </Form.Item>
-        )}
       </Form>
     </div>
   );

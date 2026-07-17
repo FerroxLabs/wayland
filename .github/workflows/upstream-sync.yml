@@ -10,13 +10,17 @@ name: Upstream sync
 # it just updates the branch; otherwise it opens a fresh PR.
 #
 # Note: PRs opened with the default GITHUB_TOKEN do NOT trigger other workflows (CI).
-# To run CI on the sync PR, add a repo secret SYNC_PAT (a PAT with repo scope) — it is
-# used automatically when present.
+# To run CI on the sync PR, add a fine-grained SYNC_PAT limited to this repository
+# with Contents and Pull requests write access. It is exposed only to the API step.
 
 on:
   schedule:
     - cron: '0 7 * * *' # daily 07:00 UTC (GitHub cron can lag up to ~1h)
-  workflow_dispatch:
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+  queue: max
 
 permissions:
   contents: write
@@ -32,10 +36,10 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
-          token: ${{ secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+          persist-credentials: false
 
       - name: Fetch upstream
         run: |
@@ -44,7 +48,8 @@ jobs:
 
       - name: Open or update sync PR
         env:
-          GH_TOKEN: ${{ secrets.SYNC_PAT || secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.SYNC_PAT || github.token }}
+          REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
 
@@ -55,8 +60,20 @@ jobs:
           fi
           echo "${behind} new upstream commit(s) to sync."
 
-          # Point the throwaway sync branch at upstream's tip (safe to force — it holds no local work).
-          git push origin "upstream/${UPSTREAM_BRANCH}:refs/heads/${SYNC_BRANCH}" --force
+          # Point the throwaway sync branch at upstream's immutable commit via
+          # the GitHub API, keeping the write credential out of git config.
+          UPSTREAM_SHA="$(git rev-parse "upstream/${UPSTREAM_BRANCH}^{commit}")"
+          if [[ ! "$UPSTREAM_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Upstream did not resolve to an immutable commit." >&2
+            exit 1
+          fi
+          if gh api "repos/$REPOSITORY/git/ref/heads/$SYNC_BRANCH" >/dev/null 2>&1; then
+            gh api --method PATCH "repos/$REPOSITORY/git/refs/heads/$SYNC_BRANCH" \
+              -f sha="$UPSTREAM_SHA" -F force=true >/dev/null
+          else
+            gh api --method POST "repos/$REPOSITORY/git/refs" \
+              -f ref="refs/heads/$SYNC_BRANCH" -f sha="$UPSTREAM_SHA" >/dev/null
+          fi
 
           if [ -n "$(gh pr list --head "${SYNC_BRANCH}" --base "${TARGET_BRANCH}" --state open --json number --jq '.[].number')" ]; then
             echo "Sync PR already open — branch updated, PR will refresh automatically."

@@ -391,13 +391,19 @@
           "label": "商业账号 ID",
           "placeholder": "987654321098765",
           "help": "可选。可在入站消息事件中提供更丰富的元数据。",
-          "required": ""
+          "required": "Business Account ID is optional for Meta backend"
         },
         "verifyToken": {
           "label": "验证令牌（Verify Token）",
           "placeholder": "一串很长的随机字符串",
           "help": "由运营方自定义的字符串，Meta 在 GET /webhook 握手过程中会回显该字符串。必须与你粘贴到 Meta 控制台中的内容一致。",
-          "required": ""
+          "required": "Verify Token is required for Meta backend"
+        },
+        "appSecret": {
+          "label": "App Secret",
+          "placeholder": "32-character hex string",
+          "help": "Meta App Secret used to verify signed inbound webhook deliveries. Different from the Verify Token.",
+          "required": "App Secret is required for Meta backend"
         }
       },
       "mode": {
@@ -2587,6 +2593,18 @@
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity"
     }
+  },
+  "devActions": {
+    "syncTitle": "从上游同步派生仓库",
+    "syncDescription": "使用已认证的 GitHub CLI 仅更新一次性同步分支，并创建或复用拉取请求。默认分支和派生仓库独有的提交绝不会被强制覆盖。",
+    "syncButton": "准备同步 PR",
+    "syncSelectWarning": "请至少选择一个派生仓库。",
+    "syncSuccess": "同步完成：{{ready}} 个 PR 已就绪；{{upToDate}} 个已是最新。",
+    "syncFailure": "{{count}} 个失败：{{repos}}",
+    "syncUpToDate": "已经是最新。",
+    "syncCounts": "{{upstream}} 个上游提交已就绪；已保留 {{preserved}} 个派生仓库独有提交。",
+    "syncUnknownError": "同步失败。",
+    "syncReviewPr": "查看 PR"
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",

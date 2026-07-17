@@ -302,7 +302,7 @@ Checklist:
 ### Quarter-End Evaluation Template
 
 **Quarter:** Q2 2026
-**Date completed:** ******\_\_\_******
+**Date completed:** **\*\***\_\_\_**\*\***
 
 | Goal        | Result                                        | Achievement Level                 | Key Lesson |
 | ----------- | --------------------------------------------- | --------------------------------- | ---------- |
@@ -312,7 +312,7 @@ Checklist:
 | Reading     | [books]/6                                     | Complete / Partial / Not achieved | [lesson]   |
 
 **Overall quarter rating:** **\_/5
-**Biggest win:** ******\_********
-**Biggest learning:** ******\_\_\_******
-**Carry forward to next quarter:** ******\_\_\_******
+**Biggest win:** \*\*\*\***\_**\*\*\*\***
+**Biggest learning:** **\*\***\_\_\_**\*\***
+**Carry forward to next quarter:** **\*\***\_\_\_**\*\***
 **Side project (deferred from this quarter):** Ready to start? Y/N. If Y, add to Q3 plan.

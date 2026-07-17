@@ -6,22 +6,18 @@
 
 import { existsSync } from 'node:fs';
 import { ipcBridge } from '@/common';
-import { VoiceAssetManager } from '@process/services/voice/VoiceAssetManager';
-import { resolveVoiceAsset } from '@process/services/voice/voiceAssetRegistry';
+import { VoiceAssetDownloadError, VoiceAssetManager } from '@process/services/voice/VoiceAssetManager';
+import { getVoiceAsset } from '@process/services/voice/voiceAssetRegistry';
 import { getVoiceModelsDir } from '@process/extensions/constants';
 import { toAssetUrl } from '@process/extensions/protocol/assetProtocol';
 
 export function initVoiceAssetBridge(): void {
-  ipcBridge.voiceAsset.download.provider(async (asset) => {
-    // Enrich renderer-supplied descriptor with server-known destPath +
-    // pinned sha256 before handing it to the downloader. Empty fields on
-    // the inbound asset get filled from the registry; non-empty fields are
-    // preserved (test overrides + future extension assets).
-    const resolved = resolveVoiceAsset(asset);
-    // Stream per-chunk progress to the renderer so the download bar reflects
-    // real bytes instead of a hardcoded 0%. Cancel is already wired through
-    // the cancel provider + VoiceAssetManager's internal AbortController.
-    return VoiceAssetManager.download(resolved, (progress) => {
+  ipcBridge.voiceAsset.download.provider(async ({ id }) => {
+    const asset = getVoiceAsset(id);
+    if (!asset) {
+      throw new VoiceAssetDownloadError('VOICE_ASSET_UNKNOWN', 'unknown voice asset');
+    }
+    return VoiceAssetManager.download(asset, (progress) => {
       ipcBridge.voiceAsset.downloadProgress.emit(progress);
     });
   });
@@ -29,12 +25,9 @@ export function initVoiceAssetBridge(): void {
     cancelled: VoiceAssetManager.cancel(assetId),
   }));
   ipcBridge.voiceAsset.exists.provider(async ({ id }) => {
-    // Build a minimal descriptor; resolveVoiceAsset returns the canonical
-    // destPath from the registry. If id is unknown the resolved path will
-    // be empty and existsSync('') returns false - same outcome.
-    const resolved = resolveVoiceAsset({ id, url: '', destPath: '', sha256: '' });
-    if (!resolved.destPath) return { installed: false, destPath: null };
-    return { installed: existsSync(resolved.destPath), destPath: resolved.destPath };
+    const asset = getVoiceAsset(id);
+    if (!asset) return { installed: false };
+    return { installed: existsSync(asset.destPath) };
   });
   ipcBridge.voiceAsset.localModelBase.provider(async () => {
     // transformers.js fetches `${localModelPath}/<modelId>/<file>` - return

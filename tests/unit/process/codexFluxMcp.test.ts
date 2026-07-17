@@ -5,7 +5,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { mkdtemp, readFile, rm, writeFile } from 'fs/promises';
+import { lstat, mkdir, mkdtemp, readFile, rm, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { parse as parseToml } from 'smol-toml';
@@ -27,6 +27,19 @@ describe('materializeFluxCodexHome - MCP injection (#56)', () => {
 
   afterEach(async () => {
     await rm(dataDir, { recursive: true, force: true }).catch(() => {});
+  });
+
+  it('starts the official bridge in a fresh state lineage without modifying the legacy Flux database', async () => {
+    const legacyHome = join(dataDir, 'flux-codex-home');
+    const legacyState = join(legacyHome, 'state_5.sqlite');
+    await mkdir(legacyHome, { recursive: true });
+    await writeFile(legacyState, 'legacy-zed-flux-state', 'utf8');
+
+    const home = await materializeFluxCodexHome(dataDir, 'workspace-write', undefined, userConfig);
+
+    expect(home).toBe(join(dataDir, 'flux-codex-home-v2'));
+    expect(await readFile(legacyState, 'utf8')).toBe('legacy-zed-flux-state');
+    await expect(lstat(join(home, 'state_5.sqlite'))).rejects.toMatchObject({ code: 'ENOENT' });
   });
 
   it("carries the user's mcp_servers into the flux home, alongside the flux provider", async () => {

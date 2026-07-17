@@ -169,18 +169,16 @@ win:
   # Azure EnvironmentCredential, which reads AZURE_TENANT_ID / AZURE_CLIENT_ID /
   # AZURE_CLIENT_SECRET from the environment - those three are CI secrets, never
   # committed. The CI build step injects them only for the Windows build, and a
-  # release-tag guard fails the build if AZURE_CLIENT_SECRET is empty so we never
-  # silently ship unsigned again. electron-builder installs the TrustedSigning
-  # PowerShell module itself on the windows-2022 runner.
-  # azureSignOptions disabled — building UNSIGNED (no Azure creds on this fork).
-  # Re-enable by uncommenting and setting AZURE_* repo secrets.
-  # azureSignOptions:
-  #   publisherName: 'Ferrox Labs, LLC'
-  #   endpoint: https://eus.codesigning.azure.net/
-  #   codeSigningAccountName: ferrox-labs-signing
-  #   certificateProfileName: ferroxlabs
-  # Unsigned build: don't require an Authenticode signature for auto-update.
-  verifyUpdateCodeSignature: false
+  # release-tag guard fails the build if any Azure credential is empty so we
+  # never silently ship unsigned again. electron-builder installs the
+  # TrustedSigning PowerShell module itself on the windows-2022 runner.
+  azureSignOptions:
+    publisherName: 'Ferrox Labs, LLC'
+    endpoint: https://eus.codesigning.azure.net/
+    codeSigningAccountName: ferrox-labs-signing
+    certificateProfileName: ferroxlabs
+  forceCodeSigning: true
+  verifyUpdateCodeSignature: true
 
 nsis:
   oneClick: false
@@ -347,7 +345,7 @@ electronDownload:
 
 publish:
   provider: github
-  owner: ShadowsTT
+  owner: FerroxLabs
   repo: wayland
   publishAutoUpdate: true
   releaseType: release

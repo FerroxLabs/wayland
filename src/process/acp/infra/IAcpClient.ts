@@ -46,11 +46,7 @@ export interface AcpClient {
   closeSession(sessionId: string): Promise<void>;
   setModel(sessionId: string, modelId: string): Promise<void>;
   setMode(sessionId: string, modeId: string): Promise<void>;
-  setConfigOption(
-    sessionId: string,
-    id: string,
-    value: string | boolean
-  ): Promise<SetSessionConfigOptionResponse>;
+  setConfigOption(sessionId: string, id: string, value: string | boolean): Promise<SetSessionConfigOptionResponse>;
   extMethod(method: string, params: Record<string, unknown>): Promise<unknown>;
 
   /** Authenticate with the agent (pass-through to SDK). */

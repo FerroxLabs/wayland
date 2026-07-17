@@ -391,13 +391,19 @@
           "label": "Business Account ID",
           "placeholder": "987654321098765",
           "help": "任意。インバウンドメッセージイベントでより豊富なメタデータを有効にします。",
-          "required": ""
+          "required": "Business Account ID is optional for Meta backend"
         },
         "verifyToken": {
           "label": "検証トークン",
           "placeholder": "長いランダムな文字列",
           "help": "GET /webhook ハンドシェイク時に Meta がエコーする、運用者が選んだ文字列。Meta ダッシュボードに貼り付けるものと一致する必要があります。",
-          "required": ""
+          "required": "Verify Token is required for Meta backend"
+        },
+        "appSecret": {
+          "label": "App Secret",
+          "placeholder": "32-character hex string",
+          "help": "Meta App Secret used to verify signed inbound webhook deliveries. Different from the Verify Token.",
+          "required": "App Secret is required for Meta backend"
         }
       },
       "mode": {
@@ -2588,6 +2594,18 @@
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity"
     }
+  },
+  "devActions": {
+    "syncTitle": "アップストリームからフォークを同期",
+    "syncDescription": "認証済みの GitHub CLI を使用して一時的な同期ブランチのみを更新し、プルリクエストを作成または再利用します。既定ブランチとフォーク固有のコミットが強制的に上書きされることはありません。",
+    "syncButton": "同期 PR を準備",
+    "syncSelectWarning": "フォークを1つ以上選択してください。",
+    "syncSuccess": "同期完了: {{ready}} 件の PR を準備し、{{upToDate}} 件は既に最新です。",
+    "syncFailure": "{{count}} 件が失敗しました: {{repos}}",
+    "syncUpToDate": "既に最新です。",
+    "syncCounts": "アップストリームの {{upstream}} コミットを準備し、フォーク固有の {{preserved}} コミットを保持しました。",
+    "syncUnknownError": "同期に失敗しました。",
+    "syncReviewPr": "PR を確認"
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",

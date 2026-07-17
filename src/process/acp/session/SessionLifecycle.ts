@@ -16,23 +16,13 @@ import { AuthNegotiator } from '@process/acp/session/AuthNegotiator';
 import type { ConfigTracker } from '@process/acp/session/ConfigTracker';
 import { McpConfig } from '@process/acp/session/McpConfig';
 import type { MessageTranslator } from '@process/acp/session/MessageTranslator';
-import type {
-  AgentConfig,
-  ConfigOption,
-  ProtocolHandlers,
-  SessionCallbacks,
-  SessionStatus,
-} from '@process/acp/types';
+import type { AgentConfig, ConfigOption, ProtocolHandlers, SessionCallbacks, SessionStatus } from '@process/acp/types';
 
-export function mapSessionConfigOptions(
-  options: readonly SessionConfigOption[] | null | undefined
-): ConfigOption[] {
+export function mapSessionConfigOptions(options: readonly SessionConfigOption[] | null | undefined): ConfigOption[] {
   return (options ?? []).map((option) => {
     const selectOptions =
       option.type === 'select'
-        ? option.options.flatMap((entry) =>
-            'value' in entry ? [entry] : entry.options
-          )
+        ? option.options.flatMap((entry) => ('value' in entry ? [entry] : entry.options))
         : undefined;
     return {
       id: option.id,
@@ -382,11 +372,7 @@ export class SessionLifecycle {
     }
     for (const opt of pending.configOptions) {
       try {
-        const response = await this._client.setConfigOption(
-          this._sessionId,
-          opt.id,
-          opt.value
-        );
+        const response = await this._client.setConfigOption(this._sessionId, opt.id, opt.value);
         const modelUpdate = this.host.configTracker.updateConfigOptions(
           mapSessionConfigOptions(response.configOptions),
           'config-option-response'

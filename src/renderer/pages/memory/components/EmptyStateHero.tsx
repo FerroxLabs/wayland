@@ -71,7 +71,7 @@ const CARDS: CardDef[] = [
 // ---------------------------------------------------------------------------
 
 const EmptyStateHero: React.FC<EmptyStateHeroProps> = ({ onImportComplete, onSearchChange }) => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   const [counts, setCounts] = useState<Partial<Record<CardDef['key'], number>>>({});
   const [loading, setLoading] = useState<Partial<Record<CardDef['key'], boolean>>>({});
 

@@ -406,13 +406,19 @@
           "label": "Business Account ID",
           "placeholder": "987654321098765",
           "help": "Optional. Enables richer metadata in inbound message events.",
-          "required": ""
+          "required": "Business Account ID is optional for Meta backend"
         },
         "verifyToken": {
           "label": "Verify Token",
           "placeholder": "a long random string",
           "help": "Operator-chosen string Meta echoes during the GET /webhook handshake. Must match what you paste into the Meta dashboard.",
-          "required": ""
+          "required": "Verify Token is required for Meta backend"
+        },
+        "appSecret": {
+          "label": "App Secret",
+          "placeholder": "32-character hex string",
+          "help": "Meta App Secret used to verify signed inbound webhook deliveries. Different from the Verify Token.",
+          "required": "App Secret is required for Meta backend"
         }
       },
       "mode": {
@@ -2690,6 +2696,18 @@
       "engineConfig": "Engine config integrity",
       "configPaths": "Config locations"
     }
+  },
+  "devActions": {
+    "syncTitle": "Sync Forks from Upstream",
+    "syncDescription": "Uses your authenticated GitHub CLI to update only a disposable sync branch and open or reuse a pull request. Your default branch and fork-only commits are never force-overwritten.",
+    "syncButton": "Prepare sync PRs",
+    "syncSelectWarning": "Select at least one fork.",
+    "syncSuccess": "Sync complete: {{ready}} PR(s) ready; {{upToDate}} already up to date.",
+    "syncFailure": "{{count}} failed: {{repos}}",
+    "syncUpToDate": "Already up to date.",
+    "syncCounts": "{{upstream}} upstream commit(s) ready; {{preserved}} fork-only commit(s) preserved.",
+    "syncUnknownError": "Sync failed.",
+    "syncReviewPr": "Review PR"
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",

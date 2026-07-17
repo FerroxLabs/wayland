@@ -200,17 +200,17 @@ describe('SignalPlugin lifecycle', () => {
     expect(p.status).toBe('stopped');
   });
 
-  it('passes --http flag with host:port to signal-cli', async () => {
+  it('passes a loopback-only --http flag with host:port to signal-cli', async () => {
     const p = new SignalPlugin();
     await p.initialize(
-      makeConfig({ httpHost: '0.0.0.0', httpPort: 9999 } as Partial<IChannelPluginConfig['credentials']> &
+      makeConfig({ httpHost: 'localhost', httpPort: 9999 } as Partial<IChannelPluginConfig['credentials']> &
         Record<string, unknown>)
     );
     await p.start();
     const [, args] = mockSpawn.mock.calls[0] as [string, string[]];
     const httpIdx = args.indexOf('--http');
     expect(httpIdx).toBeGreaterThan(-1);
-    expect(args[httpIdx + 1]).toBe('0.0.0.0:9999');
+    expect(args[httpIdx + 1]).toBe('localhost:9999');
     await p.stop();
   });
 });

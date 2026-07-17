@@ -35,18 +35,21 @@ Three Composite Actions encapsulate logic shared between both workflows to avoid
 
 Collects the PR diff and list of changed files.
 
-- **Inputs**: `pr_number` (required for manual dispatch)
-- **Outputs**: `skip`, `pr_number`, `additions`, `deletions`, `total_lines`, `file_count`, `diff_truncated`
-- **Temp files**: `pr_diff.txt`, `file_list.json` (written to `RUNNER_TEMP`)
+- **Inputs**: `pr_number` (optional; defaults to the current pull request)
+- **Outputs**: `skip`, `pr_number`, `base_sha`, `head_sha`, `additions`, `deletions`, `total_lines`, `file_count`, `diff_truncated`
+- **Temp files**: `pr_diff.txt`, `file_list.json`, `pr_head_sha.txt` (created exclusively in `RUNNER_TEMP`)
+- **Consistency**: Diff, file metadata, and statistics are gathered from one immutable base/head pair; the action fails closed if the PR head moves during collection
 
 ### `read-file-contents`
 
 Reads the full contents of changed files in priority order for cross-file GPT analysis.
 
+- **Inputs**: `expected_head_sha` (required; pass the `gather-pr-diff` `head_sha` output)
 - **Outputs**: `contents_truncated`
-- **Temp files**: `file_contents.txt` (written to `RUNNER_TEMP`)
-- **Prerequisites**: Requires `checkout` and `gather-pr-diff` to run first
+- **Temp files**: `file_contents.txt` (created exclusively in `RUNNER_TEMP`)
+- **Prerequisites**: Requires an exact checkout of `expected_head_sha` plus `gather-pr-diff`; the checked-out SHA and `pr_head_sha.txt` must both match
 - **Limits**: Skips lock files and binary files; total content capped at 80K characters
+- **Integrity**: Reads regular blobs from the immutable commit tree, not mutable working-tree paths, and fails closed on git/object read errors
 
 File read priority (highest to lowest):
 
@@ -66,7 +69,7 @@ Calls the OpenAI Chat Completions API with automatic retry, truncation hints, an
 - **Temp files read**: `system_prompt.txt`, `user_prompt.txt` (read from `RUNNER_TEMP`)
 - **Temp files written**: `{output_file}` (written to `RUNNER_TEMP`)
 - **Model**: `gpt-5.2`
-- **Retry policy**: Up to 2 retries with exponential backoff (on 429/5xx status codes and network errors)
+- **Retry policy**: Up to 2 retries with exponential backoff (on 429/5xx status codes, network errors, and the five-minute per-request timeout)
 
 ## Data Flow
 

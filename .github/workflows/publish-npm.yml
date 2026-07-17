@@ -1,72 +1,286 @@
-name: Publish getwayland to npm (manual)
+name: Publish getwayland to npm
+run-name: Publish getwayland ${{ github.event.client_payload.tag }} [${{ github.event.client_payload.correlation }}]
 
-# On-demand publish of the getwayland self-host CLI to npm. Checks out the `ref`
-# you specify (a tag or branch) and publishes getwayland at that ref's
-# app/package.json version (build-payload syncs installer/package.json to it).
-# Use it to backfill a release whose automatic npm publish was skipped/failed.
-# Requires the NPM_TOKEN repo secret. Idempotent: a version already on npm is a
-# no-op. Dispatch is restricted to users with write access (workflow_dispatch).
+# This workflow is the sole npm trusted publisher. It always executes from the
+# protected default branch through repository_dispatch, accepts only a strict
+# release tag plus its already-validated commit SHA, verifies that tag is
+# reachable from the default branch and matches package.json, and builds the
+# tarball in a job with no OIDC permission. The approval-gated publish job gets
+# only the sealed artifact and a short-lived npm OIDC credential.
+
+permissions: {}
 
 on:
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Tag or branch to publish from (its app/package.json version is published, e.g. v0.10.2)'
-        required: true
-        default: 'feat/workflows-collaborative-surface'
+  repository_dispatch:
+    types: [npm-publish]
+
+env:
+  PACKAGE_ARTIFACT_NAME: getwayland-npm-package
+
+concurrency:
+  group: publish-getwayland
+  cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Publish getwayland to npm
+  prepare-package:
+    name: Validate tag and prepare npm tarball
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      version: ${{ steps.validate.outputs.version }}
+
     steps:
-      - name: Require an npm token
+      - name: Validate requested tag syntax
+        shell: bash
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          RELEASE_TAG: ${{ github.event.client_payload.tag }}
+          EXPECTED_SHA: ${{ github.event.client_payload.expected_sha }}
+          CORRELATION: ${{ github.event.client_payload.correlation }}
         run: |
-          if [ -z "$NPM_TOKEN" ]; then
-            echo "::error title=NPM_TOKEN missing::Add an npm automation token as the NPM_TOKEN repo secret."
+          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+            echo "::error title=Invalid release tag::Expected a strict vMAJOR.MINOR.PATCH tag with an optional prerelease suffix."
+            exit 1
+          fi
+          VERSION="${RELEASE_TAG#v}"
+          if [[ "$VERSION" == *-* ]]; then
+            IFS='.' read -r -a PRERELEASE_PARTS <<< "${VERSION#*-}"
+            for identifier in "${PRERELEASE_PARTS[@]}"; do
+              if [[ "$identifier" =~ ^[0-9]+$ && "$identifier" != "0" && "$identifier" == 0* ]]; then
+                echo "::error title=Invalid release tag::Numeric prerelease identifiers must not contain leading zeroes."
+                exit 1
+              fi
+            done
+          fi
+          if [[ ! "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error title=Invalid expected commit::Expected a full lowercase Git commit SHA."
+            exit 1
+          fi
+          if [[ ! "$CORRELATION" =~ ^[1-9][0-9]*-[1-9][0-9]*$ ]]; then
+            echo "::error title=Invalid correlation ID::Expected numeric workflow run ID and attempt."
             exit 1
           fi
 
-      # `ref` comes from a write-access maintainer via workflow_dispatch (not
-      # untrusted external input). It only selects which commit to publish.
-      - name: Checkout the ref to publish
-        uses: actions/checkout@v6
+      - name: Checkout the immutable release tag
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
-          ref: ${{ inputs.ref }}
+          ref: refs/tags/${{ github.event.client_payload.tag }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate tag and package version
+        id: validate
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.client_payload.tag }}
+          EXPECTED_SHA: ${{ github.event.client_payload.expected_sha }}
+          DEFAULT_BRANCH_NAME: ${{ github.event.repository.default_branch }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$ ]]; then
+            echo "::error title=Invalid release tag::The checked-out tag is not strict SemVer."
+            exit 1
+          fi
+          git check-ref-format --branch "$DEFAULT_BRANCH_NAME" >/dev/null
+          git fetch --no-tags origin "+refs/heads/$DEFAULT_BRANCH_NAME:refs/remotes/origin/$DEFAULT_BRANCH_NAME"
+          TAG_COMMIT="$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")"
+          HEAD_COMMIT="$(git rev-parse HEAD)"
+          if [ "$TAG_COMMIT" != "$HEAD_COMMIT" ]; then
+            echo "::error title=Tag checkout mismatch::The requested tag did not resolve to the checked-out commit."
+            exit 1
+          fi
+          if [ "$TAG_COMMIT" != "$EXPECTED_SHA" ]; then
+            echo "::error title=Release commit mismatch::The npm request does not match the validated release commit."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$TAG_COMMIT" "refs/remotes/origin/$DEFAULT_BRANCH_NAME"; then
+            echo "::error title=Untrusted release tag::The tag commit is not reachable from the protected default branch."
+            exit 1
+          fi
+
+          VERSION="${RELEASE_TAG#v}"
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$PACKAGE_VERSION" != "$VERSION" ]; then
+            echo "::error title=Release version mismatch::Tag $RELEASE_TAG does not match package.json version $PACKAGE_VERSION."
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
-          node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: '24.18.0'
+          package-manager-cache: false
 
       - name: Setup bun
-        uses: oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: latest
+          bun-version: '1.3.11'
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Build the getwayland payload (syncs version to app/package.json)
+      - name: Build the getwayland payload
         working-directory: installer
         run: node scripts/build-payload.mjs
 
-      - name: Publish to npm
-        working-directory: installer
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Pack one immutable npm tarball
+        shell: bash
         run: |
-          VERSION="$(node -p "require('./package.json').version")"
-          case "$VERSION" in
-            *-*) DIST_TAG=next ;;   # prerelease (rc / beta) -> npm `next`
-            *)   DIST_TAG=latest ;; # stable -> npm `latest`
-          esac
-          echo "Publishing getwayland@$VERSION (dist-tag: $DIST_TAG)"
+          INSTALLER_VERSION="$(node -p "require('./installer/package.json').version")"
+          if [ "$INSTALLER_VERSION" != "${{ steps.validate.outputs.version }}" ]; then
+            echo "::error title=Packed version mismatch::installer/package.json is $INSTALLER_VERSION."
+            exit 1
+          fi
+          mkdir -p npm-package
+          (
+            cd installer
+            npm pack --ignore-scripts --pack-destination ../npm-package
+          )
+          mapfile -t TARBALLS < <(find npm-package -maxdepth 1 -type f -name 'getwayland-*.tgz' -print)
+          if [ "${#TARBALLS[@]}" -ne 1 ]; then
+            echo "::error title=Unexpected npm package count::Expected exactly one getwayland tarball."
+            exit 1
+          fi
+          (
+            cd npm-package
+            sha256sum "$(basename "${TARBALLS[0]}")" > SHA256SUMS
+          )
+
+      - name: Upload verified npm tarball
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ${{ env.PACKAGE_ARTIFACT_NAME }}
+          path: npm-package/
+          if-no-files-found: error
+          retention-days: 1
+          compression-level: 0
+
+  publish:
+    name: Publish verified tarball to npm
+    needs: prepare-package
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Download verified npm tarball
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: ${{ env.PACKAGE_ARTIFACT_NAME }}
+          path: npm-package
+
+      - name: Setup Node.js for npm trusted publishing
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24.18.0'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+
+      - name: Verify downloaded package
+        id: package
+        shell: bash
+        working-directory: npm-package
+        run: |
+          sha256sum --check SHA256SUMS
+          mapfile -t TARBALLS < <(find . -maxdepth 1 -type f -name 'getwayland-*.tgz' -print)
+          if [ "${#TARBALLS[@]}" -ne 1 ]; then
+            echo "::error title=Unexpected npm package count::Expected exactly one verified tarball."
+            exit 1
+          fi
+          TARBALL="${TARBALLS[0]}"
+          VERSION="$(tar -xOf "$TARBALL" package/package.json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).version))")"
+          if [ "$VERSION" != "${{ needs.prepare-package.outputs.version }}" ]; then
+            echo "::error title=Artifact version mismatch::Prepared and downloaded versions differ."
+            exit 1
+          fi
+          echo "tarball=$TARBALL" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Publish verified tarball with OIDC
+        shell: bash
+        working-directory: npm-package
+        run: |
+          set -euo pipefail
+          VERSION="${{ steps.package.outputs.version }}"
+          TARBALL="${{ steps.package.outputs.tarball }}"
+
+          if [ "${{ github.event.client_payload.promote }}" != "true" ]; then
+            DIST_TAG=backfill
+          else
+            case "$VERSION" in
+              *-*) DIST_TAG=next ;;
+              *) DIST_TAG=latest ;;
+            esac
+
+            CURRENT_VERSION="$(npm view "getwayland@$DIST_TAG" version 2>/dev/null || true)"
+            if npm view "getwayland@$VERSION" version >/dev/null 2>&1; then
+              if [ "$CURRENT_VERSION" = "$VERSION" ]; then
+                echo "getwayland@$VERSION already owns the $DIST_TAG dist-tag; skipping."
+                exit 0
+              fi
+              echo "::error title=Existing version is not promoted::getwayland@$VERSION exists, but $DIST_TAG points to ${CURRENT_VERSION:-nothing}. Refusing a false-success release."
+              exit 1
+            fi
+            if [ -n "$CURRENT_VERSION" ]; then
+              node - "$CURRENT_VERSION" "$VERSION" <<'NODE'
+          const [currentVersion, requestedVersion] = process.argv.slice(2);
+
+          const parse = (value) => {
+            const match = /^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?$/.exec(value);
+            if (!match) throw new Error(`Invalid SemVer from npm or release tag: ${value}`);
+            return {
+              core: match.slice(1, 4).map(BigInt),
+              prerelease: match[4]?.split('.') ?? null,
+            };
+          };
+
+          const compare = (leftValue, rightValue) => {
+            const left = parse(leftValue);
+            const right = parse(rightValue);
+            for (let index = 0; index < left.core.length; index += 1) {
+              if (left.core[index] !== right.core[index]) {
+                return left.core[index] > right.core[index] ? 1 : -1;
+              }
+            }
+            if (left.prerelease === null || right.prerelease === null) {
+              if (left.prerelease === right.prerelease) return 0;
+              return left.prerelease === null ? 1 : -1;
+            }
+            const length = Math.max(left.prerelease.length, right.prerelease.length);
+            for (let index = 0; index < length; index += 1) {
+              const leftPart = left.prerelease[index];
+              const rightPart = right.prerelease[index];
+              if (leftPart === undefined || rightPart === undefined) {
+                if (leftPart === rightPart) return 0;
+                return leftPart === undefined ? -1 : 1;
+              }
+              if (leftPart === rightPart) continue;
+              const leftNumeric = /^[0-9]+$/.test(leftPart);
+              const rightNumeric = /^[0-9]+$/.test(rightPart);
+              if (leftNumeric && rightNumeric) {
+                return BigInt(leftPart) > BigInt(rightPart) ? 1 : -1;
+              }
+              if (leftNumeric !== rightNumeric) return leftNumeric ? -1 : 1;
+              return leftPart > rightPart ? 1 : -1;
+            }
+            return 0;
+          };
+
+          if (compare(requestedVersion, currentVersion) <= 0) {
+            console.error(
+              `Requested version must be newer than the current dist-tag: ${requestedVersion} <= ${currentVersion}`
+            );
+            process.exit(1);
+          }
+          NODE
+            fi
+          fi
+
           if npm view "getwayland@$VERSION" version >/dev/null 2>&1; then
-            echo "getwayland@$VERSION is already on npm - skipping."
+            echo "getwayland@$VERSION is already on npm under a non-default tag; skipping backfill."
             exit 0
           fi
-          npm publish --access public --tag "$DIST_TAG"
+
+          npm publish "$TARBALL" --ignore-scripts --access public --tag "$DIST_TAG"

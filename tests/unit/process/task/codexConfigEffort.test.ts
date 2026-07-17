@@ -56,4 +56,27 @@ describe('materializeFluxCodexHome - per-conversation effort', () => {
     const config = await readConfig(home);
     expect(config).not.toContain('model_reasoning_effort');
   });
+
+  it('clamps Claude-only levels (xhigh/max) down to "high" - codex rejects them', async () => {
+    // xhigh/max are valid for Claude but not codex's config knob; a stray value
+    // must never reach model_reasoning_effort or codex fails to start.
+    const results = await Promise.all(
+      (['xhigh', 'max'] as const).map(async (effort) => {
+        // Subdir name avoids the effort word so it can't pollute a substring check.
+        const home = await materializeFluxCodexHome(
+          join(dir, `clamp-${effort}`),
+          'workspace-write',
+          undefined,
+          noUserConfig,
+          effort
+        );
+        return await readConfig(home);
+      })
+    );
+    for (const config of results) {
+      expect(config).toContain('model_reasoning_effort = "high"');
+      expect(config).not.toContain('model_reasoning_effort = "xhigh"');
+      expect(config).not.toContain('model_reasoning_effort = "max"');
+    }
+  });
 });

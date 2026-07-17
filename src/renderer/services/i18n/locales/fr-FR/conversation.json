@@ -433,11 +433,30 @@
     "effortLowDesc": "Fast responses with lighter reasoning",
     "effortMediumDesc": "Balances speed and reasoning depth",
     "effortHighDesc": "Greater reasoning depth for complex problems",
+    "effortXhigh": "Extra high",
+    "effortXhighDesc": "Extended reasoning for hard coding and agentic tasks",
+    "effortMax": "Max",
+    "effortMaxDesc": "Maximum reasoning depth - correctness over cost",
     "emptyTitle": "No models yet",
     "emptySub": "Connect a provider to choose a model.",
     "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
-    "manageModels": "Manage models"
+    "manageModels": "Manage models",
+    "providerDefault": "Utiliser le modèle par défaut du fournisseur",
+    "switching": "Passage à {{model}}…",
+    "blocked": "Changement de modèle bloqué",
+    "retry": "Réessayer",
+    "revert": "Revenir au modèle confirmé",
+    "sendPending": "En attente de la confirmation du modèle…",
+    "sendBlocked": "Changement de modèle bloqué — choisissez un autre modèle ou le modèle par défaut du fournisseur.",
+    "failure": {
+      "unsupported_model": "{{model}} n’est pas disponible auprès de ce fournisseur. Le modèle actif n’a pas changé.",
+      "model_rejected": "Le fournisseur a refusé {{model}}. Le modèle actif n’a pas changé.",
+      "model_mismatch": "Le fournisseur n’a pas confirmé {{model}}. Le modèle actif n’a pas changé.",
+      "confirmation_unavailable": "Le fournisseur ne peut pas confirmer {{model}} pour le moment. Le modèle actif n’a pas changé.",
+      "bridge_unavailable": "Impossible de joindre le fournisseur pour passer à {{model}}. Le modèle actif n’a pas changé.",
+      "model_switch_timeout": "Le délai de confirmation de {{model}} a expiré. Le modèle actif n’a pas changé."
+    }
   }
 }

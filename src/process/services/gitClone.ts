@@ -21,8 +21,8 @@
  *   - `GIT_TERMINAL_PROMPT=0`, `GCM_INTERACTIVE=never`, and a disabled
  *     credential helper make auth failures fail fast instead of hanging on an
  *     invisible prompt.
- *   - {@link scrubSecrets} redacts any Basic header / userinfo before an error
- *     message leaves this module.
+ *   - {@link scrubSecrets} redacts Basic headers plus URL userinfo, query, and
+ *     fragment components before an error message leaves this module.
  */
 
 import { execFile } from 'node:child_process';
@@ -41,6 +41,7 @@ const MAX_BUFFER = 32 * 1024 * 1024;
 const GIT_OPERATION_TIMEOUT_MS = 10 * 60 * 1000;
 
 const DISABLE_CREDENTIAL_HELPER_ARGS = ['-c', 'credential.helper='];
+const DENY_LOCAL_PROTOCOL_ARGS = ['-c', 'protocol.file.allow=never', '-c', 'protocol.ext.allow=never'];
 
 const NON_INTERACTIVE_ENV: NodeJS.ProcessEnv = {
   GIT_TERMINAL_PROMPT: '0',
@@ -103,11 +104,16 @@ export function buildAuthArgs(auth?: IGitCloneAuth): { args: string[]; env: Node
     // caches/persists the credential; extraHeader carries the Basic auth.
     args.push('-c', `http.extraHeader=Authorization: Basic ${basic}`);
   } else if (auth.kind === 'ssh') {
-    const keyPath = auth.privateKeyPath?.trim();
-    if (keyPath) {
-      // IdentitiesOnly stops ssh from offering other agent keys first.
-      const escapedKeyPath = keyPath.replace(/"/g, '\\"');
-      env.GIT_SSH_COMMAND = `ssh -i "${escapedKeyPath}" -o IdentitiesOnly=yes ${SSH_NON_INTERACTIVE_OPTIONS}`;
+    const keyPath = auth.privateKeyPath;
+    if (keyPath?.trim()) {
+      if (keyPath.includes('\0') || keyPath.includes('\r') || keyPath.includes('\n')) {
+        throw new Error('SSH private key path contains prohibited control characters.');
+      }
+      // GIT_SSH_COMMAND is parsed by a shell. Keep it fixed and put the
+      // caller-controlled path in a dedicated variable; expansion inside
+      // double quotes is not re-evaluated as command substitution.
+      env.WAYLAND_GIT_SSH_PRIVATE_KEY_PATH = keyPath;
+      env.GIT_SSH_COMMAND = `ssh -i "$WAYLAND_GIT_SSH_PRIVATE_KEY_PATH" -o IdentitiesOnly=yes ${SSH_NON_INTERACTIVE_OPTIONS}`;
     } else {
       env.GIT_SSH_COMMAND = `ssh ${SSH_NON_INTERACTIVE_OPTIONS}`;
     }
@@ -118,25 +124,41 @@ export function buildAuthArgs(auth?: IGitCloneAuth): { args: string[]; env: Node
 /** Assemble the full `git clone` argv (auth flags + `--` guard). Exported for tests. */
 export function buildCloneArgs(params: CloneParams): { args: string[]; env: NodeJS.ProcessEnv } {
   const { args: authArgs, env } = buildAuthArgs(params.auth);
-  const args = [...authArgs, 'clone'];
+  const args = [...authArgs, ...DENY_LOCAL_PROTOCOL_ARGS, 'clone'];
   if (params.depth && params.depth > 0) args.push('--depth', String(params.depth));
   args.push('--', params.url, params.destDir);
   return { args, env };
 }
 
-/** Redact any Basic auth header or `//user:pass@` userinfo from a string. */
+/** Redact Basic auth plus URL userinfo, query, and fragment components. */
 export function scrubSecrets(text: string): string {
   return (text || '')
     .replace(/Authorization: Basic [A-Za-z0-9+/=]+/gi, 'Authorization: Basic ***')
-    .replace(/\/\/[^@\s/]+:[^@\s/]+@/g, '//***:***@');
+    .replace(
+      /([a-z][a-z0-9+.-]*:\/\/)([^\s/?#]*)([^\s]*)/gi,
+      (_url: string, scheme: string, authority: string, suffix: string) => {
+        const userinfoEnd = authority.lastIndexOf('@');
+        const safeAuthority =
+          userinfoEnd < 0
+            ? authority
+            : `${authority.slice(0, userinfoEnd).includes(':') ? '***:***' : '***'}@${authority.slice(userinfoEnd + 1)}`;
+        const sensitiveSuffixStart = suffix.search(/[?#]/);
+        const safeSuffix =
+          sensitiveSuffixStart < 0
+            ? suffix
+            : `${suffix.slice(0, sensitiveSuffixStart)}${suffix[sensitiveSuffixStart]}***`;
+        return `${scheme}${safeAuthority}${safeSuffix}`;
+      }
+    );
 }
 
 function errText(e: unknown): string {
-  const err = e as { stderr?: string; message?: string; killed?: boolean };
+  const err = e as { stderr?: string; killed?: boolean };
   if (err?.killed === true) {
     return `git command timed out after ${GIT_OPERATION_TIMEOUT_MS / 60000} minutes`;
   }
-  return scrubSecrets(err?.stderr?.trim() || err?.message || String(e));
+  const stderr = err?.stderr?.trim();
+  return stderr ? scrubSecrets(stderr) : 'git command failed';
 }
 
 /** Clone `params.url` into `params.destDir`. Throws a scrubbed Error on failure. */
@@ -151,6 +173,7 @@ export async function cloneRepo(params: CloneParams): Promise<void> {
       maxBuffer: MAX_BUFFER,
       timeout: GIT_OPERATION_TIMEOUT_MS,
       windowsHide: true,
+      shell: false,
     });
   } catch (e) {
     // Attach a SCRUBBED cause (never the raw `e`) so credentials in the

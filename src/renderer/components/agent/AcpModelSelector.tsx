@@ -10,17 +10,16 @@ import { ConfigStorage } from '@/common/config/storage';
 import type { IProvider } from '@/common/config/storage';
 import { FLUX_MODEL_DISPLAY, FLUX_MODEL_IDS, isFluxModelId, type FluxModelId } from '@/common/config/flux';
 import { getFluxCompat } from '@/common/types/acpTypes';
-import type { AcpModelInfo } from '@/common/types/acpTypes';
+import type { AcpModelInfo, AcpModelSelectionFailureCode } from '@/common/types/acpTypes';
 import { useFluxConnected } from '@/renderer/hooks/useFluxConnected';
 import { getModelDisplayLabel } from '@/renderer/utils/model/agentLogo';
 import { formatAcpModelDisplayLabel, getAcpModelSourceLabel } from '@/renderer/utils/model/modelSource';
-import { Button, Dropdown, Menu, Tooltip } from '@arco-design/web-react';
+import { Button, Dropdown, Menu, Message, Tooltip } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import useSWR from 'swr';
 import MarqueePillLabel from './MarqueePillLabel';
-import { resolvePinnedModelInfo } from './acpModelPin';
 import ModelSelectorFlyout from '@renderer/components/model/modelSelector/ModelSelectorFlyout';
 import { useModelSelectorViewModel } from '@renderer/components/model/modelSelector/useModelSelectorViewModel';
 import { usePinnedModels } from '@renderer/hooks/usage/usePinnedModels';
@@ -103,6 +102,10 @@ function isSameModelInfo(a: AcpModelInfo | null | undefined, b: AcpModelInfo | n
     a.canSwitch !== b.canSwitch ||
     a.source !== b.source ||
     a.sourceDetail !== b.sourceDetail ||
+    a.confirmationSource !== b.confirmationSource ||
+    a.selectionState !== b.selectionState ||
+    a.requestedModelId !== b.requestedModelId ||
+    a.selectionFailureCode !== b.selectionFailureCode ||
     a.availableModels.length !== b.availableModels.length
   ) {
     return false;
@@ -112,6 +115,22 @@ function isSameModelInfo(a: AcpModelInfo | null | undefined, b: AcpModelInfo | n
     const other = b.availableModels[index];
     return other && other.id === model.id && other.label === model.label;
   });
+}
+
+/** Merge an untrusted catalog snapshot without allowing it to declare an active model. */
+function mergeCatalogModelInfo(previous: AcpModelInfo | null, catalog: AcpModelInfo): AcpModelInfo {
+  const hasCatalog = catalog.availableModels.length > 0;
+  return {
+    ...catalog,
+    currentModelId: previous?.currentModelId ?? null,
+    currentModelLabel: previous?.currentModelLabel ?? null,
+    availableModels: hasCatalog ? catalog.availableModels : (previous?.availableModels ?? []),
+    canSwitch: hasCatalog ? catalog.canSwitch : (previous?.canSwitch ?? catalog.canSwitch),
+    confirmationSource: previous?.confirmationSource,
+    selectionState: previous?.selectionState ?? 'provider-default',
+    requestedModelId: previous?.requestedModelId ?? null,
+    selectionFailureCode: previous?.selectionFailureCode,
+  };
 }
 
 /**
@@ -132,7 +151,7 @@ const AcpModelSelector: React.FC<{
   backend?: string;
   /** Pre-selected model ID from Guid page */
   initialModelId?: string;
-}> = ({ conversationId, backend, initialModelId }) => {
+}> = ({ conversationId, backend }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   // Initialize synchronously from the warmed module cache so a NEW chat for a
@@ -142,13 +161,7 @@ const AcpModelSelector: React.FC<{
   const [modelInfo, setModelInfo] = useState<AcpModelInfo | null>(() => {
     const cached = backend ? memCache[backend] : undefined;
     if (!cached) return null;
-    const effectiveModelId = initialModelId ?? cached.currentModelId ?? null;
-    return {
-      ...cached,
-      currentModelId: effectiveModelId,
-      currentModelLabel:
-        (effectiveModelId && cached.availableModels.find((m) => m.id === effectiveModelId)?.label) || effectiveModelId,
-    };
+    return mergeCatalogModelInfo(null, cached);
   });
   // Whether the cache lookup (prefetch + this picker's first load) has settled.
   // Lets the render tell "still loading, no models yet" (neutral) apart from
@@ -171,145 +184,107 @@ const AcpModelSelector: React.FC<{
   // Flux models appear at the top of the picker only for Flux-capable backends
   // and only while the flux-router provider is actually connected.
   const showFlux = isFluxCapableBackend(backend) && fluxConnected;
-  // Track whether user has manually switched model via dropdown
-  const hasUserChangedModel = useRef(false);
   // Track the last conversationId to detect tab switches
   const prevConversationIdRef = useRef(conversationId);
-  // A user-selected Flux tier (flux-auto, ...) is carried by the spawn env, so the
-  // agent never reports it as its current model. Pin it so model-info reloads, the
-  // claude 1.5s poll, and stream updates do not wipe the selection back to the
-  // native model (mirrors AcpAgentManager's isFluxOnFluxBackend guard).
-  const selectedFluxModelRef = useRef<FluxModelId | null>(
-    isFluxModelId(initialModelId) ? (initialModelId as FluxModelId) : null
-  );
-  // The native (non-Flux) model the user picked in THIS chat. Like the flux pin
-  // above, this survives the background refreshes (the claude 1.5s poll, model-
-  // info reloads, stream updates) that otherwise revert the pick to the agent's
-  // default (#136 / #146 / #149). Null until the user switches models in-chat;
-  // cleared on conversation switch.
-  const selectedModelRef = useRef<string | null>(null);
+  const selectionGenerationRef = useRef(0);
+  const modelInfoRequestGenerationRef = useRef(0);
+  const activeModelContextRef = useRef({ conversationId, backend });
+  if (
+    activeModelContextRef.current.conversationId !== conversationId ||
+    activeModelContextRef.current.backend !== backend
+  ) {
+    activeModelContextRef.current = { conversationId, backend };
+    selectionGenerationRef.current += 1;
+    modelInfoRequestGenerationRef.current += 1;
+  }
+  const [pendingSelection, setPendingSelection] = useState<{
+    generation: number;
+    modelId: string | null;
+  } | null>(null);
 
-  const updateModelInfo = useCallback(
-    (nextModelInfo: AcpModelInfo) => {
-      setModelInfo((prev) => {
-        const next = resolvePinnedModelInfo(nextModelInfo, {
-          fluxModelId: selectedFluxModelRef.current,
-          showFlux,
-          userChangedModel: hasUserChangedModel.current,
-          selectedModelId: selectedModelRef.current,
-          backend,
-        });
-        return isSameModelInfo(prev, next) ? prev : next;
-      });
-    },
-    [showFlux, backend]
-  );
+  const updateCatalogModelInfo = useCallback((nextModelInfo: AcpModelInfo) => {
+    setModelInfo((prev) => {
+      const next = mergeCatalogModelInfo(prev, nextModelInfo);
+      return isSameModelInfo(prev, next) ? prev : next;
+    });
+  }, []);
 
-  const loadCachedModelInfo = useCallback(
-    async (backendKey: string, options?: { preserveInitialModel?: boolean }) => {
-      try {
-        const cached = await ConfigStorage.get('acp.cachedModels');
-        // Warm the module cache for every backend so sibling/later pickers can
-        // initialize synchronously from this read.
-        warmMemCacheFrom(cached ?? undefined);
-        const cachedInfo = cached?.[backendKey];
-        if (!cachedInfo?.availableModels?.length) return;
+  const updateModelInfo = useCallback((nextModelInfo: AcpModelInfo) => {
+    setModelInfo((prev) => {
+      const next = nextModelInfo.selectionState ? nextModelInfo : mergeCatalogModelInfo(prev, nextModelInfo);
+      return isSameModelInfo(prev, next) ? prev : next;
+    });
+  }, []);
 
-        if (backendKey === 'codex') {
-          console.log('[AcpModelSelector][codex] Loaded cached model info:', cachedInfo);
-        }
+  const loadCachedModelInfo = useCallback(async (backendKey: string): Promise<AcpModelInfo | null> => {
+    try {
+      const cached = await ConfigStorage.get('acp.cachedModels');
+      // Warm the module cache for every backend so sibling/later pickers can
+      // initialize synchronously from this read.
+      warmMemCacheFrom(cached ?? undefined);
+      const cachedInfo = cached?.[backendKey];
+      if (!cachedInfo?.availableModels?.length) return null;
 
-        const effectiveModelId =
-          options?.preserveInitialModel && initialModelId ? initialModelId : (cachedInfo.currentModelId ?? null);
-
-        updateModelInfo({
-          ...cachedInfo,
-          currentModelId: effectiveModelId,
-          currentModelLabel:
-            (effectiveModelId && cachedInfo.availableModels.find((m) => m.id === effectiveModelId)?.label) ||
-            effectiveModelId,
-        });
-      } catch {
-        // Silently ignore
-      }
-    },
-    [initialModelId, updateModelInfo]
-  );
-
-  const reloadModelInfo = useCallback(
-    async (options?: { preserveInitialModel?: boolean }) => {
-      // Pass `backend` so the process can derive a cold-start catalog (e.g.
-      // Claude Code's cc-switch model list) before a task exists, instead of
-      // returning null and forcing the first-connection tooltip.
-      const result = await ipcBridge.acpConversation.getModelInfo.invoke({ conversationId, backend });
-
-      if (result.success && result.data?.modelInfo) {
-        const info = result.data.modelInfo;
-        if (backend === 'codex') {
-          console.log('[AcpModelSelector][codex] Initial model info:', info);
-        }
-        if (info.availableModels?.length > 0) {
-          if (
-            options?.preserveInitialModel &&
-            initialModelId &&
-            !hasUserChangedModel.current &&
-            info.currentModelId !== initialModelId
-          ) {
-            const match = info.availableModels.find((m) => m.id === initialModelId);
-            if (match) {
-              updateModelInfo({
-                ...info,
-                currentModelId: initialModelId,
-                currentModelLabel: match.label || initialModelId,
-              });
-              return;
-            }
-          }
-          updateModelInfo(info);
-          return;
-        }
+      if (backendKey === 'codex') {
+        console.log('[AcpModelSelector][codex] Loaded cached model info:', cachedInfo);
       }
 
-      if (backend) {
-        await loadCachedModelInfo(backend, options);
+      return cachedInfo;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const reloadModelInfo = useCallback(async () => {
+    const requestGeneration = ++modelInfoRequestGenerationRef.current;
+    // Pass `backend` so the process can derive a cold-start catalog (e.g.
+    // Claude Code's cc-switch model list) before a task exists, instead of
+    // returning null and forcing the first-connection tooltip.
+    const result = await ipcBridge.acpConversation.getModelInfo.invoke({ conversationId, backend });
+    if (requestGeneration !== modelInfoRequestGenerationRef.current) return;
+
+    if (result.success && result.data?.modelInfo) {
+      const info = result.data.modelInfo;
+      if (backend === 'codex') {
+        console.log('[AcpModelSelector][codex] Initial model info:', info);
       }
-    },
-    [backend, conversationId, initialModelId, loadCachedModelInfo, updateModelInfo]
-  );
+      updateModelInfo(info);
+      if (info.availableModels?.length > 0) return;
+    }
+
+    if (backend) {
+      const cachedInfo = await loadCachedModelInfo(backend);
+      if (requestGeneration !== modelInfoRequestGenerationRef.current) return;
+      if (cachedInfo) updateCatalogModelInfo(cachedInfo);
+    }
+  }, [backend, conversationId, loadCachedModelInfo, updateCatalogModelInfo, updateModelInfo]);
 
   // Fetch initial model info on mount, fallback to cached models if manager not ready
   useEffect(() => {
-    // If user manually changed model and we're returning to the same conversation, skip reload
-    if (hasUserChangedModel.current && prevConversationIdRef.current === conversationId) return;
-
-    // Reset flag when switching to a different conversation
     if (prevConversationIdRef.current !== conversationId) {
-      hasUserChangedModel.current = false;
-      selectedModelRef.current = null;
+      setPendingSelection(null);
+      const cached = backend ? memCache[backend] : undefined;
+      setModelInfo(cached ? mergeCatalogModelInfo(null, cached) : null);
       prevConversationIdRef.current = conversationId;
     }
 
     // Wait for the module prefetch too, so `cacheChecked` only flips once the
     // persisted catalog has truly been consulted (avoids a premature "first
     // connection" message while ConfigStorage is mid-read).
-    void Promise.all([prefetchCachedModels(), reloadModelInfo({ preserveInitialModel: true })])
+    void Promise.all([prefetchCachedModels(), reloadModelInfo()])
       .catch(() => {
         // loadCachedModelInfo is already handled inside reloadModelInfo
       })
       .finally(() => {
         setCacheChecked(true);
       });
-  }, [conversationId, backend, initialModelId, reloadModelInfo]);
+  }, [conversationId, backend, reloadModelInfo]);
 
   useEffect(() => {
     if (backend !== 'claude') return;
 
     const refresh = () => {
-      // preserveInitialModel keeps the Guid-page model before any in-chat change;
-      // once the user has switched, updateModelInfo's pin keeps THAT selection.
-      // Without either, this 1.5s poll reports the agent default and reverts the
-      // user's model to Default (#136 / #146 / #149).
-      void reloadModelInfo({ preserveInitialModel: true }).catch(() => {
+      void reloadModelInfo().catch(() => {
         // loadCachedModelInfo is already handled inside reloadModelInfo
       });
     };
@@ -339,23 +314,10 @@ const AcpModelSelector: React.FC<{
         if (backend === 'codex') {
           console.log('[AcpModelSelector][codex] Stream model info:', incoming);
         }
-        // Preserve pre-selected model from Guid page until user manually switches.
-        // The agent emits its default model during start (before re-apply), which
-        // would otherwise overwrite the user's Guid page selection.
-        if (initialModelId && !hasUserChangedModel.current && incoming.availableModels?.length > 0) {
-          const match = incoming.availableModels.find((m) => m.id === initialModelId);
-          if (match && incoming.currentModelId !== initialModelId) {
-            updateModelInfo({
-              ...incoming,
-              currentModelId: initialModelId,
-              currentModelLabel: match.label || initialModelId,
-            });
-            return;
-          }
-        }
+        if (incoming.selectionState) modelInfoRequestGenerationRef.current += 1;
         updateModelInfo(incoming);
       } else if (message.type === 'codex_model_info' && message.data) {
-        // Codex model info: always read-only display
+        // Legacy Codex telemetry is catalog-only and cannot declare the active model.
         const data = message.data as { model: string };
         if (data.model) {
           updateModelInfo({
@@ -370,52 +332,114 @@ const AcpModelSelector: React.FC<{
       }
     };
     return ipcBridge.acpConversation.responseStream.on(handler);
-  }, [conversationId, initialModelId, updateModelInfo]);
+  }, [backend, conversationId, updateModelInfo]);
 
   const handleSelectModel = useCallback(
-    (modelId: string) => {
-      hasUserChangedModel.current = true;
-      // Pin or clear the Flux selection so reloads/polls/streams cannot overwrite it.
-      selectedFluxModelRef.current = isFluxModelId(modelId) ? (modelId as FluxModelId) : null;
-      // Pin the user's pick (native models too) against the same refreshes.
-      selectedModelRef.current = modelId;
-      const fluxLabel = isFluxModelId(modelId) ? FLUX_MODEL_DISPLAY[modelId as FluxModelId] : undefined;
-      setModelInfo((prev) => {
-        if (!prev) return prev;
-        const selectedModel = prev.availableModels.find((model) => model.id === modelId);
-        return {
-          ...prev,
-          currentModelId: modelId,
-          currentModelLabel: selectedModel?.label || fluxLabel || modelId,
-        };
-      });
-      ipcBridge.acpConversation.setModel
-        .invoke({ conversationId, modelId })
-        .then((result) => {
-          if (result.success && result.data?.modelInfo) {
-            updateModelInfo(result.data.modelInfo);
-          }
-        })
-        .catch((error) => {
-          console.error('[AcpModelSelector] Failed to set model:', error);
-        });
+    async (modelId: string | null) => {
+      const generation = ++selectionGenerationRef.current;
+      modelInfoRequestGenerationRef.current += 1;
+      setPendingSelection({ generation, modelId });
+      const requestedLabel =
+        (modelId && modelInfo?.availableModels.find((model) => model.id === modelId)?.label) ||
+        (modelId && isFluxModelId(modelId) ? FLUX_MODEL_DISPLAY[modelId as FluxModelId] : modelId) ||
+        t('conversation.modelSelector.providerDefault', { defaultValue: 'Use provider default' });
+      const showFailure = (code: AcpModelSelectionFailureCode) => {
+        Message.error(
+          t('conversation.modelSelector.failure.' + code, {
+            defaultValue: 'Could not confirm {{model}}. The active model was not changed.',
+            model: requestedLabel,
+          })
+        );
+      };
+
+      try {
+        const result = await ipcBridge.acpConversation.setModel.invoke({ conversationId, modelId });
+        if (selectionGenerationRef.current !== generation) return;
+        modelInfoRequestGenerationRef.current += 1;
+        const selection = result.data?.selection;
+        if (!result.success || !selection) {
+          showFailure('bridge_unavailable');
+          return;
+        }
+        if (selection.ok === false) {
+          if (selection.modelInfo) updateModelInfo(selection.modelInfo);
+          showFailure(selection.code);
+          return;
+        }
+        if (modelId !== null && selection.confirmedModelId !== modelId) {
+          if (selection.modelInfo) updateModelInfo(selection.modelInfo);
+          showFailure('model_mismatch');
+          return;
+        }
+        if (selection.modelInfo) {
+          updateModelInfo(selection.modelInfo);
+        } else {
+          await reloadModelInfo();
+        }
+      } catch (error) {
+        if (selectionGenerationRef.current !== generation) return;
+        modelInfoRequestGenerationRef.current += 1;
+        console.error('[AcpModelSelector] Failed to set model:', error);
+        showFailure('bridge_unavailable');
+      } finally {
+        if (selectionGenerationRef.current === generation) {
+          setPendingSelection(null);
+        }
+      }
     },
-    [conversationId, updateModelInfo]
+    [conversationId, modelInfo?.availableModels, reloadModelInfo, t, updateModelInfo]
   );
 
-  const defaultModelLabel = t('common.defaultModel');
-  const currentIsFlux = isFluxModelId(modelInfo?.currentModelId);
-  const rawDisplayLabel = currentIsFlux
-    ? FLUX_MODEL_DISPLAY[modelInfo!.currentModelId as FluxModelId]
-    : modelInfo?.currentModelLabel || modelInfo?.currentModelId || '';
-  const displayLabel = getModelDisplayLabel({
-    selectedValue: modelInfo?.currentModelId,
-    selectedLabel: rawDisplayLabel,
-    defaultModelLabel,
-    fallbackLabel: t('conversation.welcome.useCliModel'),
+  useEffect(
+    () => () => {
+      selectionGenerationRef.current += 1;
+      modelInfoRequestGenerationRef.current += 1;
+    },
+    [conversationId]
+  );
+
+  const providerDefaultLabel = t('conversation.modelSelector.providerDefault', {
+    defaultValue: 'Use provider default',
   });
+  const defaultModelLabel = t('common.defaultModel');
+  const activeModelId = modelInfo?.selectionState === 'provider-default' ? null : modelInfo?.currentModelId;
+  const currentIsFlux = isFluxModelId(activeModelId);
+  const rawDisplayLabel = currentIsFlux
+    ? FLUX_MODEL_DISPLAY[activeModelId as FluxModelId]
+    : activeModelId
+      ? modelInfo?.currentModelLabel || activeModelId
+      : '';
+  const displayLabel =
+    modelInfo?.selectionState === 'provider-default'
+      ? providerDefaultLabel
+      : getModelDisplayLabel({
+          selectedValue: activeModelId,
+          selectedLabel: rawDisplayLabel,
+          defaultModelLabel,
+          fallbackLabel: t('conversation.welcome.useCliModel'),
+        });
   const modelSourceLabel = getAcpModelSourceLabel(modelInfo);
   const buttonLabel = formatAcpModelDisplayLabel(displayLabel, modelSourceLabel);
+  const pendingModelLabel =
+    pendingSelection?.modelId === null
+      ? providerDefaultLabel
+      : pendingSelection?.modelId
+        ? modelInfo?.availableModels.find((model) => model.id === pendingSelection.modelId)?.label ||
+          (isFluxModelId(pendingSelection.modelId)
+            ? FLUX_MODEL_DISPLAY[pendingSelection.modelId as FluxModelId]
+            : pendingSelection.modelId)
+        : null;
+  const selectionStatusLabel = pendingSelection
+    ? t('conversation.modelSelector.switching', {
+        defaultValue: 'Switching to {{model}}…',
+        model: pendingModelLabel,
+      })
+    : modelInfo?.selectionState === 'blocked'
+      ? t('conversation.modelSelector.blocked', { defaultValue: 'Model switch blocked' })
+      : null;
+  const selectionStatus = selectionStatusLabel ? (
+    <span className='text-10px text-3 whitespace-nowrap'>{selectionStatusLabel}</span>
+  ) : null;
   const tooltipContent =
     modelSourceLabel && displayLabel
       ? `${displayLabel}\nSource: ${modelSourceLabel}`
@@ -425,13 +449,13 @@ const AcpModelSelector: React.FC<{
 
   // Get health status for the current model
   const currentModelHealth = React.useMemo(() => {
-    if (!modelInfo?.currentModelId || !modelConfig) return { status: 'unknown', color: 'bg-gray-400' };
+    if (!activeModelId || !modelConfig) return { status: 'unknown', color: 'bg-gray-400' };
     const providerConfig = modelConfig.find((p) => p.platform?.includes(backend || ''));
-    const healthStatus = providerConfig?.modelHealth?.[modelInfo.currentModelId]?.status || 'unknown';
+    const healthStatus = providerConfig?.modelHealth?.[activeModelId]?.status || 'unknown';
     const healthColor =
       healthStatus === 'healthy' ? 'bg-green-500' : healthStatus === 'unhealthy' ? 'bg-red-500' : 'bg-gray-400';
     return { status: healthStatus, color: healthColor };
-  }, [modelInfo?.currentModelId, modelConfig, backend]);
+  }, [activeModelId, modelConfig, backend]);
 
   const healthDot = (modelId: string) => {
     const providerConfig = modelConfig?.find((p) => p.platform?.includes(backend || ''));
@@ -446,14 +470,14 @@ const AcpModelSelector: React.FC<{
   // map to the canonical `flux-router:<id>` (the hero key); native ids match a
   // curated row by bare id, whatever underlying provider it resolved to.
   const resolvedVm = useMemo(() => {
-    const currentId = modelInfo?.currentModelId;
+    const currentId = activeModelId;
     if (!currentId) return { ...vm, activeKey: null };
     if (isFluxModelId(currentId)) return { ...vm, activeKey: `flux-router:${currentId}` };
     const match = [...vm.zones.flatMap((z) => z.rows), ...vm.moreZones.flatMap((z) => z.rows)].find(
       (r) => r.id === currentId
     );
     return { ...vm, activeKey: match ? match.key : null };
-  }, [vm, modelInfo?.currentModelId]);
+  }, [vm, activeModelId]);
 
   // The flyout emits `(modelId, providerId)`; route it through the existing
   // `handleSelectModel` path so the #66 flux-pin guard (`selectedFluxModelRef`)
@@ -489,6 +513,13 @@ const AcpModelSelector: React.FC<{
       onSetEffort={setEffort}
       draftSearch
       notice={notice}
+      defaultAction={{
+        label: providerDefaultLabel,
+        active: modelInfo?.selectionState === 'provider-default',
+        onSelect: () => {
+          void handleSelectModel(null);
+        },
+      }}
     />
   );
 
@@ -518,11 +549,14 @@ const AcpModelSelector: React.FC<{
             flyoutDroplist
           ) : (
             <Menu>
+              <Menu.Item key='provider-default' onClick={() => void handleSelectModel(null)}>
+                <span>{providerDefaultLabel}</span>
+              </Menu.Item>
               <Menu.ItemGroup title={t('conversation.welcome.fluxGroupLabel')}>
                 {FLUX_PICKER_MODELS.map((model) => (
                   <Menu.Item
                     key={model.id}
-                    className={model.id === modelInfo?.currentModelId ? 'bg-2!' : ''}
+                    className={model.id === activeModelId ? 'bg-2!' : ''}
                     onClick={() => handleSelectModel(model.id)}
                   >
                     <div className='flex items-center gap-8px w-full'>
@@ -536,7 +570,7 @@ const AcpModelSelector: React.FC<{
                   {nativeModels.map((model) => (
                     <Menu.Item
                       key={model.id}
-                      className={model.id === modelInfo?.currentModelId ? 'bg-2!' : ''}
+                      className={model.id === activeModelId ? 'bg-2!' : ''}
                       onClick={() => handleSelectModel(model.id)}
                     >
                       <div className='flex items-center gap-8px w-full'>
@@ -557,6 +591,7 @@ const AcpModelSelector: React.FC<{
               <div className={`w-6px h-6px rounded-full shrink-0 ${currentModelHealth.color}`} />
             )}
             <MarqueePillLabel>{currentIsFlux ? displayLabel : buttonLabel}</MarqueePillLabel>
+            {selectionStatus}
           </span>
         </Button>
       </Dropdown>
@@ -603,24 +638,21 @@ const AcpModelSelector: React.FC<{
           <Button className='sendbox-model-btn header-model-btn agent-mode-compact-pill' shape='round' size='small'>
             <span className='flex items-center gap-6px min-w-0 leading-none'>
               <MarqueePillLabel>{defaultModelLabel}</MarqueePillLabel>
+              {selectionStatus}
             </span>
           </Button>
         </Dropdown>
       );
     }
     return (
-      <Tooltip content={t('conversation.welcome.modelSwitchNotSupported')} position='top'>
-        <Button
-          className='sendbox-model-btn header-model-btn agent-mode-compact-pill'
-          shape='round'
-          size='small'
-          style={{ cursor: 'default' }}
-        >
+      <Dropdown trigger='click' droplist={flyoutDroplist}>
+        <Button className='sendbox-model-btn header-model-btn agent-mode-compact-pill' shape='round' size='small'>
           <span className='flex items-center gap-6px min-w-0 leading-none'>
             <MarqueePillLabel>{t('conversation.welcome.useCliModel')}</MarqueePillLabel>
+            {selectionStatus}
           </span>
         </Button>
-      </Tooltip>
+      </Dropdown>
     );
   }
 
@@ -628,7 +660,7 @@ const AcpModelSelector: React.FC<{
   // reached only with Flux off (showFlux returns earlier), so a claude-code chat
   // here has no in-picker path forward at all; fold the #550 guidance into the
   // tooltip so the user still learns how to reach another provider.
-  if (!modelInfo.canSwitch) {
+  if (!modelInfo.canSwitch && modelInfo.selectionState !== 'blocked') {
     const readOnlyTooltip = claudeChatGuidance
       ? [tooltipContent, claudeChatGuidance].filter(Boolean).join('\n\n')
       : tooltipContent;
@@ -645,6 +677,7 @@ const AcpModelSelector: React.FC<{
               <div className={`w-6px h-6px rounded-full shrink-0 ${currentModelHealth.color}`} />
             )}
             <MarqueePillLabel>{buttonLabel}</MarqueePillLabel>
+            {selectionStatus}
           </span>
         </Button>
       </Tooltip>
@@ -660,6 +693,9 @@ const AcpModelSelector: React.FC<{
           flyoutDroplist
         ) : (
           <Menu>
+            <Menu.Item key='provider-default' onClick={() => void handleSelectModel(null)}>
+              <span>{providerDefaultLabel}</span>
+            </Menu.Item>
             {modelInfo.availableModels.map((model) => {
               // Get model health status
               const providerConfig = modelConfig?.find((p) => p.platform?.includes(backend || ''));
@@ -674,7 +710,7 @@ const AcpModelSelector: React.FC<{
               return (
                 <Menu.Item
                   key={model.id}
-                  className={model.id === modelInfo.currentModelId ? 'bg-2!' : ''}
+                  className={model.id === activeModelId ? 'bg-2!' : ''}
                   onClick={() => handleSelectModel(model.id)}
                 >
                   <div className='flex items-center gap-8px w-full'>
@@ -696,6 +732,7 @@ const AcpModelSelector: React.FC<{
             <div className={`w-6px h-6px rounded-full shrink-0 ${currentModelHealth.color}`} />
           )}
           <MarqueePillLabel>{buttonLabel}</MarqueePillLabel>
+          {selectionStatus}
         </span>
       </Button>
     </Dropdown>

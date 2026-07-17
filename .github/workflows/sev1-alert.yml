@@ -5,12 +5,11 @@ name: SEV-1 alert
 on:
   issues:
     types: [labeled]
-  workflow_dispatch: {}
 permissions:
   issues: read
 jobs:
   alert:
-    if: github.event_name == 'workflow_dispatch' || github.event.label.name == 'priority:critical'
+    if: github.event.label.name == 'priority:critical'
     runs-on: ubuntu-latest
     steps:
       - name: Notify Sean on Discord
@@ -19,18 +18,21 @@ jobs:
           ISSUE_NUM: ${{ github.event.issue.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
           ISSUE_URL: ${{ github.event.issue.html_url }}
-          IS_TEST: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
+          set -euo pipefail
+          if [ -z "$DISCORD_BOT_TOKEN" ]; then
+            echo "DISCORD_BOT_TOKEN is required." >&2
+            exit 1
+          fi
           CH=1518108371381911763
           OWNER=896227476408254494
-          if [ "$IS_TEST" = "true" ]; then
-            CONTENT="🧪 <@${OWNER}> SEV-1 wiring test — if this hits your phone, the alert path works."
-          else
-            CONTENT=$(printf '🚨 <@%s> **SEV-1 (priority:critical)** #%s\n%s\n%s\n_Board skipped — handle now._' "$OWNER" "$ISSUE_NUM" "$ISSUE_TITLE" "$ISSUE_URL")
-          fi
+          CONTENT=$(printf '🚨 <@%s> **SEV-1 (priority:critical)** #%s\n%s\n%s\n_Board skipped — handle now._' "$OWNER" "$ISSUE_NUM" "$ISSUE_TITLE" "$ISSUE_URL")
           jq -nc --arg c "$CONTENT" --arg o "$OWNER" '{content:$c, allowed_mentions:{users:[$o]}}' > payload.json
-          curl -sS -X POST \
+          curl --fail-with-body --silent --show-error \
+            --connect-timeout 10 --max-time 30 -X POST \
             -H "Authorization: Bot ${DISCORD_BOT_TOKEN}" \
             -H "Content-Type: application/json" \
             -H "User-Agent: DiscordBot (https://github.com/FerroxLabs/wayland, 1.0)" \
-            "https://discord.com/api/v10/channels/${CH}/messages" -d @payload.json
+            "https://discord.com/api/v10/channels/${CH}/messages" \
+            --data @payload.json --output response.json
+          jq -e '.id | strings | length > 0' response.json >/dev/null

@@ -17,9 +17,11 @@ vi.mock('node:child_process', () => ({
 import * as childProcess from 'node:child_process';
 // eslint-disable-next-line import/first
 import {
+  __buildNodeCandidates,
   __buildNpmCliCandidates,
   __isAcceptableNpmStat,
   __setTrustedNpmCliResolver,
+  __setTrustedNodeResolver,
   defaultResolveTrustedNpm,
   safeSpawn,
 } from '@process/services/ijfw/safeSpawn';
@@ -36,14 +38,18 @@ describe('ijfw/safeSpawn', () => {
   let trustedNpmDir: string;
   let trustedNpmCli: string;
   let trustedNpxCli: string;
+  let trustedNodeRuntime: string;
 
   beforeEach(() => {
     trustedNpmDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ijfw-spawn-'));
     trustedNpmCli = path.join(trustedNpmDir, 'npm-cli.js');
     trustedNpxCli = path.join(trustedNpmDir, 'npx-cli.js');
+    trustedNodeRuntime = path.join(trustedNpmDir, process.platform === 'win32' ? 'node.exe' : 'node');
     fs.writeFileSync(trustedNpmCli, '// npm');
     fs.writeFileSync(trustedNpxCli, '// npx');
+    fs.writeFileSync(trustedNodeRuntime, '');
     __setTrustedNpmCliResolver(async () => trustedNpmCli);
+    __setTrustedNodeResolver(async () => trustedNodeRuntime);
     // Set a minimal env we expect to be forwarded.
     process.env.PATH = '/usr/bin';
     process.env.HOME = '/Users/test';
@@ -55,14 +61,15 @@ describe('ijfw/safeSpawn', () => {
   afterEach(() => {
     fs.rmSync(trustedNpmDir, { recursive: true, force: true });
     __setTrustedNpmCliResolver(null);
+    __setTrustedNodeResolver(null);
   });
 
-  it("spawns node with process.execPath when cmd === 'node'", async () => {
+  it("spawns the trusted Node runtime when cmd === 'node'", async () => {
     await safeSpawn({ cmd: 'node', args: ['--version'] });
     const calls = (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mock.calls;
     expect(calls.length).toBe(1);
     const [argv0, argv] = calls[0];
-    expect(argv0).toBe(process.execPath);
+    expect(argv0).toBe(trustedNodeRuntime);
     expect(argv).toEqual(['--version']);
   });
 
@@ -70,7 +77,7 @@ describe('ijfw/safeSpawn', () => {
     await safeSpawn({ cmd: 'npm', args: ['install', 'foo'] });
     const calls = (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mock.calls;
     const [argv0, argv] = calls[0];
-    expect(argv0).toBe(process.execPath);
+    expect(argv0).toBe(trustedNodeRuntime);
     expect(argv[0]).toBe(trustedNpmCli);
     expect(argv.slice(1)).toEqual(['install', 'foo']);
   });
@@ -79,7 +86,7 @@ describe('ijfw/safeSpawn', () => {
     await safeSpawn({ cmd: 'npx', args: ['cowsay', 'hello'] });
     const calls = (childProcess.spawn as unknown as ReturnType<typeof vi.fn>).mock.calls;
     const [argv0, argv] = calls[0];
-    expect(argv0).toBe(process.execPath);
+    expect(argv0).toBe(trustedNodeRuntime);
     expect(argv[0]).toBe(trustedNpxCli);
     expect(argv.slice(1)).toEqual(['cowsay', 'hello']);
   });
@@ -126,6 +133,18 @@ describe('ijfw/safeSpawn', () => {
       throw new Error('Could not resolve trusted npm');
     });
     await expect(safeSpawn({ cmd: 'npm', args: ['x'] })).rejects.toThrow(/trusted npm/i);
+  });
+
+  describe('__buildNodeCandidates', () => {
+    it('uses node.exe from Windows PATH instead of the packaged Wayland executable', () => {
+      const candidates = __buildNodeCandidates(
+        'win32',
+        { PATH: 'C:\\Tools\\node;C:\\Other' },
+        'C:\\Program Files\\Wayland\\Wayland.exe'
+      );
+      expect(candidates).toContain('C:\\Tools\\node\\node.exe');
+      expect(candidates).not.toContain('C:\\Program Files\\Wayland\\Wayland.exe');
+    });
   });
 
   describe('__buildNpmCliCandidates (#261)', () => {

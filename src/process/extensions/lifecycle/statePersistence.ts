@@ -5,6 +5,7 @@
  */
 
 import { promises as fsAsync } from 'fs';
+import { randomUUID } from 'crypto';
 import * as path from 'path';
 import type { ExtensionState } from '../types';
 import { extensionEventBus, ExtensionSystemEvents } from './ExtensionEventBus';
@@ -90,6 +91,24 @@ export async function loadPersistedStates(): Promise<Map<string, ExtensionState>
  */
 let _pendingSaveStates: Map<string, ExtensionState> | undefined;
 let _saveTimer: ReturnType<typeof setTimeout> | undefined;
+let _saveSequence: Promise<void> = Promise.resolve();
+
+const RENAME_RETRY_DELAYS_MS = [25, 50, 100, 200, 400] as const;
+const RETRYABLE_RENAME_ERRORS = new Set(['EACCES', 'EBUSY', 'EPERM']);
+
+async function renameWithRetry(source: string, destination: string, attempt = 0): Promise<void> {
+  try {
+    await fsAsync.rename(source, destination);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (!code || !RETRYABLE_RENAME_ERRORS.has(code) || attempt >= RENAME_RETRY_DELAYS_MS.length) {
+      throw error;
+    }
+
+    await new Promise<void>((resolve) => setTimeout(resolve, RENAME_RETRY_DELAYS_MS[attempt]));
+    await renameWithRetry(source, destination, attempt + 1);
+  }
+}
 
 export function savePersistedStates(states: Map<string, ExtensionState>): void {
   _pendingSaveStates = states;
@@ -97,46 +116,65 @@ export function savePersistedStates(states: Map<string, ExtensionState>): void {
   _saveTimer = setTimeout(() => _flushPersistedStates(), 500);
 }
 
-async function _flushPersistedStates(): Promise<void> {
+function _flushPersistedStates(): void {
   if (!_pendingSaveStates) return;
   const states = _pendingSaveStates;
   _pendingSaveStates = undefined;
 
   const statesFile = resolveStatesFile();
+  const write = _saveSequence.then(() => _writePersistedStates(states, statesFile));
+  _saveSequence = write.catch((error: unknown) => {
+    console.error('[Extensions] Failed to save persisted states:', error instanceof Error ? error.message : error);
+  });
+}
+
+async function _writePersistedStates(states: Map<string, ExtensionState>, statesFile: string): Promise<void> {
   const statesDir = path.dirname(statesFile);
 
-  try {
-    await fsAsync.mkdir(statesDir, { recursive: true });
+  await fsAsync.mkdir(statesDir, { recursive: true });
 
-    const data: PersistedStates = {
-      version: 1,
-      extensions: {},
+  const data: PersistedStates = {
+    version: 1,
+    extensions: {},
+  };
+
+  for (const [name, state] of states) {
+    data.extensions[name] = {
+      enabled: state.enabled,
+      disabledAt: state.disabledAt?.toISOString(),
+      disabledReason: state.disabledReason,
+      installed: (state as any).installed,
+      lastVersion: (state as any).lastVersion,
+      installError: (state as any).installError,
     };
-
-    for (const [name, state] of states) {
-      data.extensions[name] = {
-        enabled: state.enabled,
-        disabledAt: state.disabledAt?.toISOString(),
-        disabledReason: state.disabledReason,
-        installed: (state as any).installed,
-        lastVersion: (state as any).lastVersion,
-        installError: (state as any).installError,
-      };
-    }
-
-    // Atomic write: write to temp file then rename
-    const tmpFile = statesFile + '.tmp';
-    await fsAsync.writeFile(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
-    await fsAsync.rename(tmpFile, statesFile);
-
-    extensionEventBus.emitLifecycle(ExtensionSystemEvents.STATES_PERSISTED, {
-      extensionName: '*',
-      version: '0.0.0',
-      timestamp: Date.now(),
-    });
-  } catch (error) {
-    console.error('[Extensions] Failed to save persisted states:', error instanceof Error ? error.message : error);
   }
+
+  // Keep the temp file beside the destination so the final rename stays on
+  // one filesystem. A unique name prevents overlapping saves or processes
+  // from clobbering each other's in-progress write.
+  const tmpFile = path.join(statesDir, `.${path.basename(statesFile)}.${process.pid}.${randomUUID()}.tmp`);
+  try {
+    await fsAsync.writeFile(tmpFile, JSON.stringify(data, null, 2), 'utf-8');
+    // Windows can transiently reject replacement while another process has
+    // the destination open. Retrying the atomic rename preserves the old
+    // file until the complete replacement is ready.
+    await renameWithRetry(tmpFile, statesFile);
+  } finally {
+    try {
+      await fsAsync.rm(tmpFile, { force: true });
+    } catch (error) {
+      console.warn(
+        '[Extensions] Failed to remove temporary state file:',
+        error instanceof Error ? error.message : error
+      );
+    }
+  }
+
+  extensionEventBus.emitLifecycle(ExtensionSystemEvents.STATES_PERSISTED, {
+    extensionName: '*',
+    version: '0.0.0',
+    timestamp: Date.now(),
+  });
 }
 
 /**

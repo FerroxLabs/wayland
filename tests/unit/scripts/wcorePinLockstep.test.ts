@@ -20,6 +20,10 @@ import { describe, expect, it } from 'vitest';
 const ROOT = join(__dirname, '..', '..', '..');
 const PREPARE = readFileSync(join(ROOT, 'scripts', 'prepareWaylandCore.js'), 'utf-8');
 const POSTINSTALL = readFileSync(join(ROOT, 'installer', 'scripts', 'postinstall.mjs'), 'utf-8');
+const STAGE_BUMP = readFileSync(join(ROOT, 'scripts', 'stage-wcore-bump.mjs'), 'utf-8');
+const INSTALLER_MANIFEST = JSON.parse(
+  readFileSync(join(ROOT, 'installer', 'scripts', 'wcore-shasums.json'), 'utf-8')
+) as { version: string };
 
 function bundlePin(): string {
   const m = PREPARE.match(/const DEFAULT_WCORE_VERSION = '([^']+)';/);
@@ -41,6 +45,16 @@ describe('wayland-core engine pin lockstep (#451)', () => {
   it('both pins are real vX.Y.Z release tags', () => {
     expect(headlessPin()).toMatch(/^v\d+\.\d+\.\d+$/);
     expect(bundlePin()).toMatch(/^v\d+\.\d+\.\d+$/);
+  });
+
+  it('published installer checksum manifest matches the pinned version', () => {
+    expect(INSTALLER_MANIFEST.version).toBe(headlessPin());
+  });
+
+  it('version bump tooling updates the published installer checksum manifest', () => {
+    expect(STAGE_BUMP).toContain('INSTALLER_SHASUMS_FILE');
+    expect(STAGE_BUMP).toContain('installerManifest');
+    expect(STAGE_BUMP).toContain('fs.writeFileSync(INSTALLER_SHASUMS_FILE');
   });
 
   it('headless installer builds the canonical release asset URL from the pin', () => {

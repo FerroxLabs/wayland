@@ -45,7 +45,7 @@ const STEPS: ReadonlyArray<{ key: StepKey; labelKey: string }> = [
 ];
 
 const InstallingCard: React.FC<InstallingCardProps> = ({ version }) => {
-  const { t } = useTranslation('memory');
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   const [pendingActivation, setPendingActivation] = useState(false);
   const [degraded, setDegraded] = useState(false);
 

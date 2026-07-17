@@ -63,10 +63,7 @@ function formatDateFull(ms: number): string {
   });
 }
 
-function formatFreshnessLabel(
-  f: WikiConcept['freshness'],
-  t: (key: string, defaultVal: string) => string,
-): string {
+function formatFreshnessLabel(f: WikiConcept['freshness'], t: (key: string, defaultVal: string) => string): string {
   if (f === 'fresh') return t('wiki.detail.freshness.fresh', 'Fresh');
   if (f === 'stale') return t('wiki.detail.freshness.stale', 'Stale');
   return t('wiki.detail.freshness.neverReviewed', 'Never reviewed');
@@ -103,13 +100,8 @@ export function WikiDetailPageRoute(): React.ReactElement {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-export function WikiDetailPage({
-  slug,
-  onBack,
-  onNavigate,
-  onSettings,
-}: WikiDetailPageProps): React.ReactElement {
-  const { t } = useTranslation('memory');
+export function WikiDetailPage({ slug, onBack, onNavigate, onSettings }: WikiDetailPageProps): React.ReactElement {
+  const { t } = useTranslation(undefined, { keyPrefix: 'memory' });
   const [concept, setConcept] = useState<WikiConcept | null>(null);
   const [loading, setLoading] = useState(true);
   const [reSynthesizing, setReSynthesizing] = useState(false);
@@ -135,21 +127,18 @@ export function WikiDetailPage({
     };
   }, [slug]);
 
-  const resolveBacklink = useCallback(
-    async (name: string): Promise<{ slug: string | null }> => {
-      if (backlinkCache.current.has(name)) {
-        return { slug: backlinkCache.current.get(name) ?? null };
-      }
-      try {
-        const result = await wikiBridge.resolveBacklink.invoke({ wikilinkText: name });
-        backlinkCache.current.set(name, result.slug);
-        return { slug: result.slug };
-      } catch {
-        return { slug: null };
-      }
-    },
-    [],
-  );
+  const resolveBacklink = useCallback(async (name: string): Promise<{ slug: string | null }> => {
+    if (backlinkCache.current.has(name)) {
+      return { slug: backlinkCache.current.get(name) ?? null };
+    }
+    try {
+      const result = await wikiBridge.resolveBacklink.invoke({ wikilinkText: name });
+      backlinkCache.current.set(name, result.slug);
+      return { slug: result.slug };
+    } catch {
+      return { slug: null };
+    }
+  }, []);
 
   // Synchronous resolver backed by the cache (for WikilinkRenderer prop)
   const resolveBacklinkSync = useCallback(
@@ -161,7 +150,7 @@ export function WikiDetailPage({
       void resolveBacklink(name);
       return { slug: null };
     },
-    [resolveBacklink],
+    [resolveBacklink]
   );
 
   const handleReSynthesize = useCallback(async (): Promise<void> => {
@@ -260,9 +249,15 @@ export function WikiDetailPage({
             ◆ {concept.topicTag}
           </span>
           <span className={styles.metaSep}>&middot;</span>
-          <span className={styles.metaText}>{t('wiki.detail.updatedAgo', 'Updated {{when}}', { when: formatDate(concept.lastSynthesizedAt) })}</span>
+          <span className={styles.metaText}>
+            {t('wiki.detail.updatedAgo', 'Updated {{when}}', { when: formatDate(concept.lastSynthesizedAt) })}
+          </span>
           <span className={styles.metaSep}>&middot;</span>
-          <span className={styles.metaText}>{t('wiki.detail.synthesizedFromMem', 'Synthesized from {{count}} memories', { count: concept.sourceMemoryIds.length })}</span>
+          <span className={styles.metaText}>
+            {t('wiki.detail.synthesizedFromMem', 'Synthesized from {{count}} memories', {
+              count: concept.sourceMemoryIds.length,
+            })}
+          </span>
           <span className={styles.metaSep}>&middot;</span>
           <span className={styles.freshnessBadge} data-testid='freshness-badge'>
             <span className={styles.freshnessDot} />
@@ -279,11 +274,7 @@ export function WikiDetailPage({
         <div className={styles.tldrBlock} data-testid='tldr-block'>
           <div className={styles.tldrLabel}>{t('wiki.detail.tldr', 'TL;DR')}</div>
           <div className={styles.tldrText}>
-            <WikilinkRenderer
-              text={concept.tldr}
-              resolveBacklink={resolveBacklinkSync}
-              onNavigate={onNavigate}
-            />
+            <WikilinkRenderer text={concept.tldr} resolveBacklink={resolveBacklinkSync} onNavigate={onNavigate} />
           </div>
         </div>
 
@@ -312,8 +303,7 @@ export function WikiDetailPage({
 
         {/* Sources */}
         <h2 className={styles.sectionHeading} data-testid='sources-heading'>
-          {t('wiki.detail.sources', 'Sources')}{' '}
-          <span className={styles.sectionCount}>({sources.length})</span>
+          {t('wiki.detail.sources', 'Sources')} <span className={styles.sectionCount}>({sources.length})</span>
         </h2>
         <SourcesBlock sources={sources} />
 
@@ -364,9 +354,12 @@ export function WikiDetailPage({
           <div className={styles.pageFooterMeta}>
             Source file: <code className={styles.filePath}>{filePath}</code>
             <br />
-            {t('wiki.detail.autoSynthesized', 'Auto-synthesized')} &middot; {t('wiki.detail.lastReviewedNever', 'last reviewed by you: never')}
+            {t('wiki.detail.autoSynthesized', 'Auto-synthesized')} &middot;{' '}
+            {t('wiki.detail.lastReviewedNever', 'last reviewed by you: never')}
             <br />
-            {t('wiki.detail.lastSynthesized', 'Last synthesized: {{when}}', { when: formatDateFull(concept.lastSynthesizedAt) })}
+            {t('wiki.detail.lastSynthesized', 'Last synthesized: {{when}}', {
+              when: formatDateFull(concept.lastSynthesizedAt),
+            })}
           </div>
           <div className={styles.footerActions}>
             <button className={`${styles.footerBtn} ${styles.footerBtnReviewed}`}>
@@ -383,7 +376,9 @@ export function WikiDetailPage({
             </button>
             <button className={styles.footerBtn}>{t('wiki.detail.editThisPage', 'Edit this page')}</button>
             <button className={styles.footerBtn} onClick={() => void handleReSynthesize()} disabled={reSynthesizing}>
-              {reSynthesizing ? 'Re-synthesizing…' : t('wiki.detail.reSynthesizeFromSources', 'Re-synthesize from sources')}
+              {reSynthesizing
+                ? 'Re-synthesizing…'
+                : t('wiki.detail.reSynthesizeFromSources', 'Re-synthesize from sources')}
             </button>
           </div>
         </div>
@@ -398,11 +393,15 @@ export function WikiDetailPage({
           {concept.slug}.md
         </div>
         <div className={styles.statusSep} />
-        <div className={styles.statusItem}>{t('wiki.detail.statusTotalConcepts', '{{count}} concepts total', { count: 0 })}</div>
+        <div className={styles.statusItem}>
+          {t('wiki.detail.statusTotalConcepts', '{{count}} concepts total', { count: 0 })}
+        </div>
         <div className={styles.statusSep} />
         <div className={styles.statusNotReviewed}>{t('wiki.detail.statusNotReviewedYet', 'Not reviewed yet')}</div>
         <div className={styles.statusSep} />
-        <div className={styles.statusItem}>{t('wiki.detail.statusLastSync', 'last sync {{when}} ago', { when: '8m' })}</div>
+        <div className={styles.statusItem}>
+          {t('wiki.detail.statusLastSync', 'last sync {{when}} ago', { when: '8m' })}
+        </div>
       </div>
     </div>
   );

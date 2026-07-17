@@ -6,25 +6,23 @@ name: Close fixed-pending-release on stable
 #
 # How "delivered by release $TAG" is decided, per issue (from its wl:pending-release
 # "fixed-in=<repo>@<ver>" marker):
-#   - wayland-desktop@<ver> / FerroxLabs/wayland@<ver> / bare <ver>  -> ver == $TAG (exact)
-#   - wayland-core@<ver>  -> this desktop build BUNDLES engine >= <ver>
+#   - getwayland / wayland-desktop / FerroxLabs/wayland / wayland @<ver>
+#       -> this stable desktop release is >= <ver>
+#   - core / wayland-core @<ver>  -> this desktop build BUNDLES engine >= <ver>
 #                            (read from scripts/prepareWaylandCore.js at the release tag)
 #   - no fixed-in marker, or any other carrier  -> LEFT OPEN (fail safe; never false-close)
 #
-# Triggers: workflow_run (dependable), release (belt+suspenders), workflow_dispatch (manual).
-# Prereleases (tags containing "-") never trigger. Idempotent: only touches OPEN labeled issues.
+# Triggered only by a published, stable GitHub Release. Idempotent: only touches
+# open labeled issues, and rejects ambiguous or untrusted delivery markers.
 
 on:
-  workflow_run:
-    workflows: ['Build and Release']
-    types: [completed]
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release tag to attribute fixes to (e.g. v0.11.1)'
-        required: true
+
+concurrency:
+  group: close-fixed-on-release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+  queue: max
 
 permissions:
   contents: read
@@ -32,31 +30,78 @@ permissions:
 
 jobs:
   close:
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'release' && github.event.release.prerelease == false) ||
-      (github.event_name == 'workflow_run' &&
-       github.event.workflow_run.conclusion == 'success' &&
-       startsWith(github.event.workflow_run.head_branch, 'v') &&
-       !contains(github.event.workflow_run.head_branch, '-'))
+    if: github.event.release.prerelease == false && github.event.release.draft == false
     runs-on: ubuntu-latest
     env:
-      TAG: ${{ github.event.inputs.tag || github.event.release.tag_name || github.event.workflow_run.head_branch }}
+      TAG: ${{ github.event.release.tag_name }}
     steps:
+      - name: Validate the published release event
+        id: validate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ github.event.release.id }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Refusing non-stable or malformed release tag: $TAG" >&2
+            exit 1
+          fi
+          RELEASE="$(gh api --header 'Accept: application/vnd.github+json' "repos/$REPO/releases/$RELEASE_ID")"
+          jq -e --arg tag "$TAG" '
+            .tag_name == $tag and .draft == false and .prerelease == false
+          ' <<<"$RELEASE" >/dev/null
+          TAG_REF="$(gh api --header 'Accept: application/vnd.github+json' "repos/$REPO/git/ref/tags/$TAG")"
+          OBJECT_TYPE="$(jq -er '.object.type' <<<"$TAG_REF")"
+          OBJECT_SHA="$(jq -er '.object.sha' <<<"$TAG_REF")"
+          for _ in {1..8}; do
+            case "$OBJECT_TYPE" in
+              commit) break ;;
+              tag)
+                TAG_OBJECT="$(gh api --header 'Accept: application/vnd.github+json' "repos/$REPO/git/tags/$OBJECT_SHA")"
+                OBJECT_TYPE="$(jq -er '.object.type' <<<"$TAG_OBJECT")"
+                OBJECT_SHA="$(jq -er '.object.sha' <<<"$TAG_OBJECT")"
+                ;;
+              *)
+                echo "Release tag resolves to unsupported object type: $OBJECT_TYPE" >&2
+                exit 1
+                ;;
+            esac
+          done
+          if [ "$OBJECT_TYPE" != commit ] || [[ ! "$OBJECT_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Release tag did not resolve to an immutable commit SHA" >&2
+            exit 1
+          fi
+          printf 'release_sha=%s\n' "$OBJECT_SHA" >>"$GITHUB_OUTPUT"
+
       - name: Check out the release tag (to read the bundled engine version)
-        uses: actions/checkout@v4
-        continue-on-error: true
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
-          ref: ${{ github.event.inputs.tag || github.event.release.tag_name || github.event.workflow_run.head_branch }}
+          ref: ${{ steps.validate.outputs.release_sha }}
+          persist-credentials: false
 
       - name: Close only the issues this release actually delivers
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
+          EXPECTED_RELEASE_SHA: ${{ steps.validate.outputs.release_sha }}
         run: |
           set -euo pipefail
           norm(){ echo "${1#v}"; }
           gte(){ [ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -1)" = "$2" ]; }   # is $1 >= $2 ?
+          if [[ ! "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Refusing non-stable or malformed release tag: $TAG" >&2
+            exit 1
+          fi
+          if [[ ! "$EXPECTED_RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Missing or malformed validated release commit SHA" >&2
+            exit 1
+          fi
+          ACTUAL_RELEASE_SHA="$(git rev-parse HEAD)"
+          if [ "$ACTUAL_RELEASE_SHA" != "$EXPECTED_RELEASE_SHA" ]; then
+            echo "Checked-out release commit does not match the validated release tag" >&2
+            exit 1
+          fi
           TAGV="$(norm "$TAG")"
 
           # bundled engine version shipped by THIS desktop release (read at the tag)
@@ -71,25 +116,44 @@ jobs:
           gh issue list -R "$REPO" --state open --label 'state:fixed-pending-release' --limit 200 \
             --json number --jq '.[].number' | while read -r n; do
             [ -z "$n" ] && continue
-            fixed="$(gh issue view "$n" -R "$REPO" --json comments \
-                      --jq '[.comments[].body]|join("\n")' \
-                      | grep -oE 'fixed-in=[^ >]+' | tail -1 | sed 's/fixed-in=//' || true)"
-            if [ -z "$fixed" ]; then
-              echo "#$n: no fixed-in marker -> leaving OPEN (manual close)"; continue
+            ISSUE="$(gh issue view "$n" -R "$REPO" --json comments)"
+            mapfile -t MARKERS < <(
+              jq -r '
+                .comments[]
+                | select(.authorAssociation == "OWNER" or .authorAssociation == "MEMBER")
+                | .body
+              ' <<<"$ISSUE" \
+                | grep -oE 'fixed-in=[^[:space:]<>]+' \
+                || true
+            )
+            MARKER_COUNT="${#MARKERS[@]}"
+            if [ "$MARKER_COUNT" -ne 1 ]; then
+              echo "#$n: expected one trusted fixed-in marker, found $MARKER_COUNT -> leaving OPEN"
+              continue
+            fi
+            fixed="${MARKERS[0]#fixed-in=}"
+            if [[ ! "$fixed" =~ ^[A-Za-z0-9._/-]+@v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+              echo "#$n: malformed fixed-in marker -> leaving OPEN"
+              continue
             fi
             repo="${fixed%@*}"; ver="$(norm "${fixed#*@}")"; deliver=false
             case "$repo" in
-              wayland-core) { [ -n "$BUNDLED" ] && gte "$BUNDLED" "$ver"; } && deliver=true ;;
-              wayland-desktop|FerroxLabs/wayland|wayland) [ "$ver" = "$TAGV" ] && deliver=true ;;
-              *) [ "$ver" = "$TAGV" ] && deliver=true ;;
+              core|wayland-core) { [ -n "$BUNDLED" ] && gte "$BUNDLED" "$ver"; } && deliver=true ;;
+              getwayland|wayland-desktop|FerroxLabs/wayland|wayland) gte "$TAGV" "$ver" && deliver=true ;;
+              *) echo "#$n: unknown carrier $repo -> leaving OPEN" ;;
             esac
             if [ "$deliver" = true ]; then
               echo "#$n: $fixed delivered by $TAG -> closing"
               note="Shipped in **$TAG**"
-              { [ -n "$BUNDLED" ] && [ "$repo" = "wayland-core" ]; } && note="$note (bundles wayland-core $BUNDLED)"
+              { [ -n "$BUNDLED" ] && { [ "$repo" = "core" ] || [ "$repo" = "wayland-core" ]; }; } \
+                && note="$note (bundles wayland-core $BUNDLED)"
+              gh issue edit "$n" -R "$REPO" --remove-label 'state:fixed-pending-release'
+              if ! gh issue close "$n" -R "$REPO" --reason completed; then
+                echo "#$n: close failed; restoring state:fixed-pending-release" >&2
+                gh issue edit "$n" -R "$REPO" --add-label 'state:fixed-pending-release'
+                exit 1
+              fi
               gh issue comment "$n" -R "$REPO" --body "$note. Closing — update and reopen if you still hit this."
-              gh issue edit "$n" -R "$REPO" --remove-label 'state:fixed-pending-release' || true
-              gh issue close "$n" -R "$REPO" --reason completed
             else
               echo "#$n: $fixed NOT delivered by $TAG (bundled wayland-core@${BUNDLED:-?}) -> leaving OPEN"
             fi

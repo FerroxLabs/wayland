@@ -22,8 +22,16 @@ describe('extractWebSocketToken – cookie parsing with special characters', () 
     TokenMiddleware = mod.TokenMiddleware;
   });
 
-  function fakeReq(headers: Record<string, string | undefined>): IncomingMessage {
-    return { headers } as unknown as IncomingMessage;
+  function fakeReq(headers: Record<string, string | string[] | undefined>, rawHeaders?: string[]): IncomingMessage {
+    return { headers, rawHeaders } as unknown as IncomingMessage;
+  }
+
+  function extractExplicit(req: IncomingMessage): string | null {
+    const middleware = TokenMiddleware as typeof TokenMiddleware & {
+      extractExplicitWebSocketToken?: (request: IncomingMessage) => string | null;
+    };
+    expect(middleware.extractExplicitWebSocketToken).toBeTypeOf('function');
+    return middleware.extractExplicitWebSocketToken?.(req) ?? null;
   }
 
   it('extracts token from a normal cookie', () => {
@@ -67,5 +75,63 @@ describe('extractWebSocketToken – cookie parsing with special characters', () 
       cookie: 'wayland-session=cookietoken',
     });
     expect(TokenMiddleware.extractWebSocketToken(req)).toBe('headertoken');
+  });
+
+  it('extracts an exact non-empty bearer credential without rewriting it', () => {
+    const req = fakeReq({ authorization: 'Bearer abc.def==' });
+
+    expect(extractExplicit(req)).toBe('abc.def==');
+  });
+
+  it('extracts one exact token subprotocol credential', () => {
+    const req = fakeReq({ 'sec-websocket-protocol': 'paired-device-token' });
+
+    expect(extractExplicit(req)).toBe('paired-device-token');
+  });
+
+  it.each([
+    ['empty bearer', { authorization: 'Bearer ' }, undefined],
+    ['whitespace-only bearer', { authorization: 'Bearer   ' }, undefined],
+    ['trailing bearer whitespace', { authorization: 'Bearer token ' }, undefined],
+    ['comma-ambiguous bearer', { authorization: 'Bearer first, Bearer second' }, undefined],
+    ['array authorization', { authorization: ['Bearer token'] }, undefined],
+    [
+      'repeated raw authorization',
+      { authorization: 'Bearer first' },
+      ['Authorization', 'Bearer first', 'Authorization', 'Bearer second'],
+    ],
+  ])('rejects %s', (_label, headers, rawHeaders) => {
+    expect(extractExplicit(fakeReq(headers, rawHeaders))).toBeNull();
+  });
+
+  it.each([
+    ['empty subprotocol', ''],
+    ['mixed token list', 'first-token, second-token'],
+    ['leading empty item', ', token'],
+    ['trailing empty item', 'token,'],
+    ['Vite HMR marker', 'vite-hmr'],
+    ['Vite ping marker', 'vite-ping'],
+  ])('rejects %s', (_label, protocol) => {
+    expect(extractExplicit(fakeReq({ 'sec-websocket-protocol': protocol }))).toBeNull();
+  });
+
+  it('rejects an array subprotocol header', () => {
+    expect(extractExplicit(fakeReq({ 'sec-websocket-protocol': ['paired-device-token'] }))).toBeNull();
+  });
+
+  it('does not fall through a malformed Authorization header to a subprotocol token', () => {
+    const req = fakeReq({
+      authorization: 'Bearer first, Bearer second',
+      'sec-websocket-protocol': 'paired-device-token',
+    });
+
+    expect(extractExplicit(req)).toBeNull();
+  });
+
+  it('ignores the session cookie while the generic extractor keeps browser-cookie support', () => {
+    const req = fakeReq({ cookie: 'wayland-session=cookie-token' });
+
+    expect(extractExplicit(req)).toBeNull();
+    expect(TokenMiddleware.extractWebSocketToken(req)).toBe('cookie-token');
   });
 });

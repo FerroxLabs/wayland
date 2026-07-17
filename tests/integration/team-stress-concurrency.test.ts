@@ -804,22 +804,31 @@ describe('Stress - rapid state transitions in TeammateManager', () => {
 
   it('dispose: no memory leaks - 100 managers created and disposed', () => {
     const initialListeners = teamEventBus.listenerCount('responseStream');
+    const initialMaxListeners = teamEventBus.getMaxListeners();
     const managers: TeammateManager[] = [];
 
-    for (let i = 0; i < 100; i++) {
-      const { mgr } = makeRealStack([makeAgent({ slotId: `slot-${i}`, conversationId: `conv-${i}` })]);
-      managers.push(mgr);
+    // This test intentionally exceeds the production listener ceiling while
+    // all 100 managers are alive. Raise the ceiling only for this emitter and
+    // test, then restore it after every manager has been disposed.
+    teamEventBus.setMaxListeners(Math.max(initialMaxListeners, initialListeners + 100));
+    try {
+      for (let i = 0; i < 100; i++) {
+        const { mgr } = makeRealStack([makeAgent({ slotId: `slot-${i}`, conversationId: `conv-${i}` })]);
+        managers.push(mgr);
+      }
+
+      // 100 new listeners added
+      expect(teamEventBus.listenerCount('responseStream')).toBe(initialListeners + 100);
+    } finally {
+      for (const mgr of managers) {
+        mgr.dispose();
+      }
+      teamEventBus.setMaxListeners(initialMaxListeners);
     }
 
-    // 100 new listeners added
-    expect(teamEventBus.listenerCount('responseStream')).toBe(initialListeners + 100);
-
-    for (const mgr of managers) {
-      mgr.dispose();
-    }
-
-    // All listeners cleaned up
+    // All listeners cleaned up and the production ceiling restored.
     expect(teamEventBus.listenerCount('responseStream')).toBe(initialListeners);
+    expect(teamEventBus.getMaxListeners()).toBe(initialMaxListeners);
   });
 
   it('wake timeout cleanup: 60s inactivity watchdog escalates stuck agents to failed', async () => {

@@ -433,11 +433,30 @@
     "effortLowDesc": "Fast responses with lighter reasoning",
     "effortMediumDesc": "Balances speed and reasoning depth",
     "effortHighDesc": "Greater reasoning depth for complex problems",
+    "effortXhigh": "Extra high",
+    "effortXhighDesc": "Extended reasoning for hard coding and agentic tasks",
+    "effortMax": "Max",
+    "effortMaxDesc": "Maximum reasoning depth - correctness over cost",
     "emptyTitle": "No models yet",
     "emptySub": "Connect a provider to choose a model.",
     "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
-    "manageModels": "Manage models"
+    "manageModels": "Manage models",
+    "providerDefault": "공급자 기본값 사용",
+    "switching": "{{model}}(으)로 전환 중…",
+    "blocked": "모델 전환이 차단됨",
+    "retry": "다시 시도",
+    "revert": "확인된 모델로 되돌리기",
+    "sendPending": "모델 확인 대기 중…",
+    "sendBlocked": "모델 전환이 차단되었습니다. 다른 모델이나 공급자 기본값을 선택하세요.",
+    "failure": {
+      "unsupported_model": "이 공급자에서는 {{model}}을(를) 사용할 수 없습니다. 활성 모델은 변경되지 않았습니다.",
+      "model_rejected": "공급자가 {{model}}을(를) 거부했습니다. 활성 모델은 변경되지 않았습니다.",
+      "model_mismatch": "공급자가 {{model}}을(를) 확인하지 않았습니다. 활성 모델은 변경되지 않았습니다.",
+      "confirmation_unavailable": "공급자가 현재 {{model}}을(를) 확인할 수 없습니다. 활성 모델은 변경되지 않았습니다.",
+      "bridge_unavailable": "{{model}}(으)로 전환하기 위해 공급자에 연결할 수 없습니다. 활성 모델은 변경되지 않았습니다.",
+      "model_switch_timeout": "{{model}} 확인 대기 시간이 초과되었습니다. 활성 모델은 변경되지 않았습니다."
+    }
   }
 }

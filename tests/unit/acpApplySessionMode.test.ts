@@ -45,7 +45,7 @@ vi.mock('../../src/process/agent/acp/AcpAdapter', () => ({
 
 vi.mock('../../src/process/agent/acp/ApprovalStore', () => ({
   AcpApprovalStore: class {
-    constructor() {}
+    load = vi.fn().mockResolvedValue(undefined);
   },
   createAcpApprovalKey: vi.fn(),
 }));

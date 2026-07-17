@@ -102,7 +102,7 @@ export class AcpSession {
     this.metrics = options?.metrics ?? noopMetrics;
     this.callbacks = wrapCallbacks(callbacks);
 
-    this.configTracker = new ConfigTracker(options?.initialDesired);
+    this.configTracker = new ConfigTracker(options?.initialDesired, agentConfig.agentBackend);
     this.messageTranslator = new MessageTranslator(agentConfig.agentId);
     this.inputPreprocessor = new InputPreprocessor((path) => fs.readFileSync(path, 'utf-8'));
     this.permissionResolver = new PermissionResolver({

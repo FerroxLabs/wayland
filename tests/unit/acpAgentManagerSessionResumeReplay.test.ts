@@ -108,6 +108,9 @@ vi.mock('@process/task/BaseAgentManager', () => ({
     getConfirmations() {
       return [];
     }
+    kill() {
+      return Promise.resolve();
+    }
   },
 }));
 
@@ -157,7 +160,7 @@ vi.mock('@process/acp/compat', () => ({
 
 // ── Import real AcpAgentManager after all mocks are set up ───────────────────
 import AcpAgentManager from '../../src/process/task/AcpAgentManager';
-import type { AcpBackend } from '../../src/common/types/acpTypes';
+import type { AcpBackend, AcpModelInfo } from '../../src/common/types/acpTypes';
 import type { IResponseMessage } from '../../src/common/adapter/ipcBridge';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -181,6 +184,16 @@ function streamEvent(manager: AcpAgentManager, message: IResponseMessage, backen
 
 function setBootstrapping(manager: AcpAgentManager, value: boolean) {
   (manager as unknown as { bootstrapping: boolean }).bootstrapping = value;
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -268,5 +281,290 @@ describe('AcpAgentManager - H9 session-resume replay does not duplicate SQLite r
     // hit addOrUpdateMessage synchronously - but the critical fix is that
     // transformMessage IS invoked once bootstrapping is false (proving the
     // gate is the only thing blocking it during resume).
+  });
+
+  it('keeps a mismatched persisted model as blocked intent instead of silently clearing it', async () => {
+    const manager = new AcpAgentManager({
+      conversation_id: 'conv-model-restore',
+      backend: 'claude' as AcpBackend,
+      workspace: '/tmp/workspace',
+      currentModelId: 'claude-sonnet-4-20250514',
+    });
+    const providerInfo: AcpModelInfo = {
+      source: 'models',
+      currentModelId: 'claude-3-5-sonnet-20241022',
+      currentModelLabel: 'Claude 3.5 Sonnet',
+      availableModels: [{ id: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' }],
+      canSwitch: true,
+      confirmationSource: 'spawn-session',
+    };
+    const fakeAgent = {
+      getModelInfo: vi.fn(() => providerInfo),
+      setMode: vi.fn(),
+      setModelByConfigOption: vi.fn(),
+    };
+    (manager as unknown as { agent: typeof fakeAgent }).agent = fakeAgent;
+
+    await (
+      manager as unknown as {
+        restorePersistedState: () => Promise<void>;
+      }
+    ).restorePersistedState();
+
+    const restored = manager.getModelInfo();
+    expect(restored).toMatchObject({
+      currentModelId: null,
+      requestedModelId: 'claude-sonnet-4-20250514',
+      selectionState: 'blocked',
+      selectionFailureCode: 'unsupported_model',
+    });
+    expect((manager as unknown as { persistedModelId: string }).persistedModelId).toBe('claude-sonnet-4-20250514');
+    expect(fakeAgent.setModelByConfigOption).not.toHaveBeenCalled();
+  });
+
+  it('applies and awaits a persisted Codex model before startup becomes confirmed', async () => {
+    const manager = new AcpAgentManager({
+      conversation_id: 'conv-codex-model-restore',
+      backend: 'codex' as AcpBackend,
+      workspace: '/tmp/workspace',
+      currentModelId: 'gpt-5.6-sol[ultra]',
+    });
+    const providerConfirmation = deferred<AcpModelInfo>();
+    let providerInfo: AcpModelInfo = {
+      source: 'models',
+      currentModelId: 'gpt-5.5[high]',
+      currentModelLabel: 'GPT-5.5',
+      availableModels: [
+        { id: 'gpt-5.5[high]', label: 'GPT-5.5' },
+        { id: 'gpt-5.6-sol[ultra]', label: 'GPT-5.6 SOL' },
+      ],
+      canSwitch: true,
+      confirmationSource: 'session-models',
+    };
+    const fakeAgent = {
+      getModelInfo: vi.fn(() => providerInfo),
+      getConfigOptions: vi.fn(() => []),
+      setMode: vi.fn(),
+      setModelByConfigOption: vi.fn(async () => {
+        providerInfo = await providerConfirmation.promise;
+        return providerInfo;
+      }),
+    };
+    (manager as unknown as { agent: typeof fakeAgent }).agent = fakeAgent;
+
+    const restoring = (
+      manager as unknown as {
+        restorePersistedState: () => Promise<void>;
+      }
+    ).restorePersistedState();
+    await vi.waitFor(() => expect(fakeAgent.setModelByConfigOption).toHaveBeenCalledWith('gpt-5.6-sol[ultra]'));
+    expect(manager.getModelInfo()).toMatchObject({
+      requestedModelId: 'gpt-5.6-sol[ultra]',
+      selectionState: 'pending',
+    });
+
+    providerConfirmation.resolve({
+      source: 'models',
+      currentModelId: 'gpt-5.6-sol[ultra]',
+      currentModelLabel: 'GPT-5.6 SOL',
+      availableModels: [{ id: 'gpt-5.6-sol[ultra]', label: 'GPT-5.6 SOL' }],
+      canSwitch: true,
+      confirmationSource: 'config-response',
+    });
+    await restoring;
+
+    expect(manager.getModelInfo()).toMatchObject({
+      currentModelId: 'gpt-5.6-sol[ultra]',
+      requestedModelId: 'gpt-5.6-sol[ultra]',
+      selectionState: 'confirmed',
+      confirmationSource: 'config-response',
+    });
+  });
+
+  it('does not resume a stale persisted model after a newer selection supersedes mode restoration', async () => {
+    const manager = new AcpAgentManager({
+      conversation_id: 'conv-codex-restore-superseded',
+      backend: 'codex' as AcpBackend,
+      workspace: '/tmp/workspace',
+      currentModelId: 'gpt-old',
+    });
+    const modeApplied = deferred<void>();
+    const providerInfo: AcpModelInfo = {
+      source: 'models',
+      currentModelId: 'gpt-old',
+      currentModelLabel: 'GPT Old',
+      availableModels: [
+        { id: 'gpt-old', label: 'GPT Old' },
+        { id: 'gpt-new', label: 'GPT New' },
+      ],
+      canSwitch: true,
+      confirmationSource: 'session-models',
+    };
+    const fakeAgent = {
+      getModelInfo: vi.fn(() => providerInfo),
+      getConfigOptions: vi.fn(() => []),
+      setMode: vi.fn(() => modeApplied.promise),
+      setModelByConfigOption: vi.fn().mockResolvedValue(providerInfo),
+    };
+    const internals = manager as unknown as {
+      agent: typeof fakeAgent;
+      currentMode: string;
+      modelSwitchGeneration: number;
+      modelSwitchAbortController: AbortController;
+      requestedModelId: string;
+      modelSelectionState: string;
+      restorePersistedState: () => Promise<void>;
+    };
+    internals.agent = fakeAgent;
+    internals.currentMode = 'plan';
+
+    const restoring = internals.restorePersistedState();
+    await vi.waitFor(() => expect(fakeAgent.setMode).toHaveBeenCalledWith('plan'));
+    internals.modelSwitchAbortController.abort();
+    internals.modelSwitchAbortController = new AbortController();
+    internals.modelSwitchGeneration = 1;
+    internals.requestedModelId = 'gpt-new';
+    internals.modelSelectionState = 'pending';
+    modeApplied.resolve();
+    await restoring;
+
+    expect(fakeAgent.setModelByConfigOption).not.toHaveBeenCalled();
+    expect(manager.getModelInfo()).toMatchObject({
+      requestedModelId: 'gpt-new',
+      selectionState: 'pending',
+    });
+  });
+
+  it('aborts an outstanding model confirmation as soon as the manager is killed', async () => {
+    vi.useFakeTimers();
+    const manager = makeManager('conv-kill-model-confirmation');
+    const internals = manager as unknown as {
+      agent: { kill: ReturnType<typeof vi.fn> };
+      modelSwitchAbortController: AbortController;
+    };
+    internals.agent = { kill: vi.fn().mockResolvedValue(undefined) };
+    const abort = vi.spyOn(internals.modelSwitchAbortController, 'abort');
+
+    const killed = manager.kill();
+
+    expect(abort).toHaveBeenCalledOnce();
+    await vi.advanceTimersByTimeAsync(500);
+    await killed;
+  });
+
+  it('blocks prompts when the live provider later reports a different authoritative model', () => {
+    const manager = new AcpAgentManager({
+      conversation_id: 'conv-live-model-reversion',
+      backend: 'claude' as AcpBackend,
+      workspace: '/tmp/workspace',
+      currentModelId: 'claude-sonnet-4-20250514',
+    });
+    const providerInfo: AcpModelInfo = {
+      source: 'models',
+      currentModelId: 'claude-3-5-sonnet-20241022',
+      currentModelLabel: 'Claude 3.5 Sonnet',
+      availableModels: [
+        { id: 'claude-sonnet-4-20250514', label: 'Claude Sonnet 4' },
+        { id: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet' },
+      ],
+      canSwitch: true,
+      confirmationSource: 'session-models',
+    };
+    const fakeAgent = {
+      getModelInfo: vi.fn(() => providerInfo),
+      getConfigOptions: vi.fn(() => []),
+    };
+    Object.assign(manager as unknown as Record<string, unknown>, {
+      agent: fakeAgent,
+      bootstrapping: false,
+      persistedModelId: 'claude-sonnet-4-20250514',
+      requestedModelId: 'claude-sonnet-4-20250514',
+      confirmedModelId: 'claude-sonnet-4-20250514',
+      modelSelectionState: 'confirmed',
+      modelBlockedFailure: null,
+      lastConfirmationSource: 'session-models',
+    });
+
+    streamEvent(
+      manager,
+      {
+        type: 'acp_model_info',
+        conversation_id: 'conv-live-model-reversion',
+        msg_id: 'model-reversion',
+        data: providerInfo,
+      } as IResponseMessage,
+      'claude' as AcpBackend
+    );
+
+    expect(manager.getModelInfo()).toMatchObject({
+      currentModelId: 'claude-sonnet-4-20250514',
+      requestedModelId: 'claude-sonnet-4-20250514',
+      selectionState: 'blocked',
+      selectionFailureCode: 'model_mismatch',
+    });
+    expect(mockResponseStreamEmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'acp_model_info',
+        data: expect.objectContaining({
+          currentModelId: 'claude-sonnet-4-20250514',
+          requestedModelId: 'claude-sonnet-4-20250514',
+          selectionState: 'blocked',
+          selectionFailureCode: 'model_mismatch',
+        }),
+      })
+    );
+    expect((manager as unknown as { persistedModelId: string }).persistedModelId).toBe('claude-sonnet-4-20250514');
+    expect(() => (manager as unknown as { assertModelReady: () => void }).assertModelReady()).toThrow(
+      'MODEL_SELECTION_BLOCKED:model_mismatch'
+    );
+  });
+
+  it('emits safe requested/confirmed bridge provenance without prompt or environment secrets', () => {
+    const manager = new AcpAgentManager({
+      conversation_id: 'conv-safe-trace',
+      backend: 'codex' as AcpBackend,
+      workspace: '/tmp/workspace',
+      cliPath: 'C:/private/token-should-not-be-logged/codex.exe',
+      presetContext: 'prompt text API_KEY=secret token=secret',
+      currentModelId: 'gpt-5.6-sol[ultra]',
+    });
+    Object.assign(manager as unknown as Record<string, unknown>, {
+      requestedModelId: 'gpt-5.6-sol[ultra]',
+      confirmedModelId: 'gpt-5.6-sol[ultra]',
+      modelSelectionState: 'confirmed',
+      lastConfirmationSource: 'session-models',
+      lastModelSwitchRestarted: true,
+      bootstrapping: false,
+    });
+
+    streamEvent(
+      manager,
+      {
+        type: 'start',
+        conversation_id: 'conv-safe-trace',
+        msg_id: 'trace-start',
+        data: null,
+      } as IResponseMessage,
+      'codex' as AcpBackend
+    );
+
+    expect(mockResponseStreamEmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'request_trace',
+        data: expect.objectContaining({
+          requestedModelId: 'gpt-5.6-sol[ultra]',
+          confirmedModelId: 'gpt-5.6-sol[ultra]',
+          bridgePackage: '@agentclientprotocol/codex-acp',
+          bridgeVersion: expect.any(String),
+          confirmationSource: 'session-models',
+          explicitExecutableOverride: true,
+          restarted: true,
+        }),
+      })
+    );
+    const serialized = JSON.stringify(mockResponseStreamEmit.mock.calls);
+    expect(serialized).not.toContain('prompt text');
+    expect(serialized).not.toContain('API_KEY');
+    expect(serialized).not.toContain('token-should-not-be-logged');
   });
 });

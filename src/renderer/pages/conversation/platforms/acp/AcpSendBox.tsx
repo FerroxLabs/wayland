@@ -124,6 +124,9 @@ const AcpSendBox: React.FC<{
     hasThinkingMessage,
     routing,
     fluxTurnError,
+    modelSelectionState,
+    modelSelectionFailureCode,
+    modelSelectionReady,
   } = useAcpMessage(conversation_id);
   const { t } = useTranslation();
   const teamPermission = useTeamPermission();
@@ -139,6 +142,8 @@ const AcpSendBox: React.FC<{
   const setContentRef = useLatestRef(setContent);
   const atPathRef = useLatestRef(atPath);
   const routingRef = useLatestRef(routing);
+  const modelSelectionLocked = !modelSelectionReady;
+  const modelSelectionLockedRef = useLatestRef(modelSelectionLocked);
 
   const addOrUpdateMessage = useAddOrUpdateMessage(); // Move this here so it's available in useEffect
   const addOrUpdateMessageRef = useLatestRef(addOrUpdateMessage);
@@ -182,6 +187,7 @@ const AcpSendBox: React.FC<{
   useAcpInitialMessage({
     conversationId: conversation_id,
     backend,
+    enabled: modelSelectionReady,
     workspacePath,
     setAiProcessing,
     checkAndUpdateTitle,
@@ -190,6 +196,13 @@ const AcpSendBox: React.FC<{
 
   const executeCommand = useCallback(
     async ({ input, files }: Pick<ConversationCommandQueueItem, 'input' | 'files'>) => {
+      if (modelSelectionLockedRef.current) {
+        throw new Error(
+          t('conversation.modelSelector.sendBlocked', {
+            defaultValue: 'Wait for the model selection to be confirmed before sending.',
+          })
+        );
+      }
       const msg_id = uuid();
       const displayMessage = buildDisplayMessage(input, files, workspacePath || '');
 
@@ -268,7 +281,17 @@ Please check your local CLI tool authentication status`,
         emitter.emit('acp.workspace.refresh');
       }
     },
-    [agentSlotId, backend, checkAndUpdateTitle, conversation_id, setAiProcessing, t, teamId, workspacePath]
+    [
+      agentSlotId,
+      backend,
+      checkAndUpdateTitle,
+      conversation_id,
+      modelSelectionLockedRef,
+      setAiProcessing,
+      t,
+      teamId,
+      workspacePath,
+    ]
   );
 
   const {
@@ -288,12 +311,13 @@ Please check your local CLI tool authentication status`,
   } = useConversationCommandQueue({
     conversationId: conversation_id,
     enabled: true,
-    isBusy,
+    isBusy: isBusy || modelSelectionLocked,
     isHydrated: hasHydratedRunningState,
     onExecute: executeCommand,
   });
 
   const onSendHandler = async (message: string) => {
+    if (modelSelectionLocked) return;
     const atPathFiles = atPath.map((item) => (typeof item === 'string' ? item : item.path));
     const allFiles = [...uploadFile, ...atPathFiles];
 
@@ -365,6 +389,20 @@ Please check your local CLI tool authentication status`,
       resetActiveExecution('stop');
     }
   };
+  const sendPlaceholder =
+    modelSelectionState === 'pending'
+      ? t('conversation.modelSelector.sendPending', {
+          defaultValue: 'Waiting for model confirmation…',
+        })
+      : modelSelectionState === 'blocked'
+        ? t('conversation.modelSelector.sendBlocked', {
+            defaultValue: 'Model switch blocked — choose another model or provider default.',
+            code: modelSelectionFailureCode,
+          })
+        : t('acp.sendbox.placeholder', {
+            backend: agentName || backend,
+            defaultValue: 'Send message to {{backend}}...',
+          });
 
   return (
     <div className='max-w-800px w-full mx-auto flex flex-col mt-auto mb-16px'>
@@ -392,11 +430,8 @@ Please check your local CLI tool authentication status`,
           setAtPath(items);
         }}
         loading={isBusy}
-        disabled={false}
-        placeholder={t('acp.sendbox.placeholder', {
-          backend: agentName || backend,
-          defaultValue: `Send message to {{backend}}...`,
-        })}
+        disabled={modelSelectionLocked}
+        placeholder={sendPlaceholder}
         onStop={handleStop}
         className='z-10'
         onFilesAdded={handleFilesAdded}

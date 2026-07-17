@@ -103,12 +103,10 @@ const RECEIVE_RPC_TIMEOUT_MS = 60_000;
 export function resolveSignalCliPath(cliPath?: string): string {
   if (cliPath?.trim()) return cliPath.trim();
 
-  // On Windows signal-cli ships as a launcher script (signal-cli.bat) or a
-  // native signal-cli.exe - the extensionless name used on macOS/Linux does
-  // not exist there. Probe the Windows launchers in priority order; POSIX
-  // keeps the single extensionless candidate.
-  const cliNames =
-    process.platform === 'win32' ? ['signal-cli.bat', 'signal-cli.cmd', 'signal-cli.exe'] : ['signal-cli'];
+  // Windows command scripts require cmd.exe and cannot preserve argv as opaque
+  // data. Only a native executable is safe for daemon mode because configDir,
+  // host, and other values originate in persisted channel configuration.
+  const cliNames = process.platform === 'win32' ? ['signal-cli.exe'] : ['signal-cli'];
 
   const existsFirst = (dir: string): string | null => {
     for (const name of cliNames) {
@@ -152,9 +150,9 @@ export function resolveSignalCliPath(cliPath?: string): string {
     if (candidate) return candidate;
   }
 
-  // PATH fallback. On Windows, prefer the .bat launcher name so that the
-  // shell-resolved spawn (see spawnChild) can find it via PATHEXT.
-  return process.platform === 'win32' ? 'signal-cli.bat' : 'signal-cli';
+  // PATH fallback. Windows intentionally requires the native executable;
+  // .bat/.cmd launchers are rejected by buildSignalDaemonSpawnSpec().
+  return process.platform === 'win32' ? 'signal-cli.exe' : 'signal-cli';
 }
 
 /**
@@ -163,7 +161,8 @@ export function resolveSignalCliPath(cliPath?: string): string {
  */
 export async function probeSignalCli(cliPath: string): Promise<string | null> {
   try {
-    const result = await execFileNoThrow(cliPath, ['--version'], { timeoutMs: 10_000 });
+    const command = validateSignalCliExecutable(cliPath);
+    const result = await execFileNoThrow(command, ['--version'], { timeoutMs: 10_000 });
     if (result.exitCode === 0 && result.stdout) {
       // Output is typically "signal-cli 0.13.x"
       return result.stdout.replace(/^signal-cli\s+/i, '').trim() || result.stdout.trim();
@@ -175,6 +174,71 @@ export async function probeSignalCli(cliPath: string): Promise<string | null> {
 }
 
 // ── SignalDaemon class ────────────────────────────────────────────────────────
+
+export type SignalDaemonSpawnSpec = {
+  command: string;
+  args: string[];
+  options: {
+    stdio: ['ignore', 'pipe', 'pipe'];
+    shell: false;
+    windowsHide: boolean;
+  };
+};
+
+export function validateSignalCliExecutable(cliPath: string, platform: NodeJS.Platform = process.platform): string {
+  const command = cliPath.trim();
+  const executableName =
+    platform === 'win32' ? path.win32.basename(command).toLowerCase() : path.posix.basename(command);
+  const expectedName = platform === 'win32' ? 'signal-cli.exe' : 'signal-cli';
+
+  if (!command || executableName !== expectedName || (platform === 'win32' && /\.(?:bat|cmd)$/i.test(command))) {
+    throw new Error(
+      `Signal daemon mode requires a native signal-cli executable named ${expectedName}; arbitrary programs and command-script launchers are not supported`
+    );
+  }
+
+  return command;
+}
+
+export function normalizeSignalConfigDir(configDir: string | undefined): string | undefined {
+  if (configDir === undefined) return undefined;
+  if (configDir.includes('\0') || configDir.includes('\r') || configDir.includes('\n')) {
+    throw new Error('Signal config directory must not contain control characters');
+  }
+
+  const normalized = configDir.trim();
+  if (!normalized) return undefined;
+  if (!path.isAbsolute(normalized)) {
+    throw new Error('Signal config directory must be an absolute path');
+  }
+  return normalized;
+}
+
+/**
+ * Build the only permitted signal-cli launch shape.
+ *
+ * Windows batch launchers are cmd.exe source, not executables. Passing
+ * configuration-derived argv through them reintroduces shell metacharacter
+ * parsing even when Node receives an argv array, so daemon mode requires a
+ * native executable instead.
+ */
+export function buildSignalDaemonSpawnSpec(
+  cliPath: string,
+  args: string[],
+  platform: NodeJS.Platform = process.platform
+): SignalDaemonSpawnSpec {
+  const command = validateSignalCliExecutable(cliPath, platform);
+
+  return {
+    command,
+    args: [...args],
+    options: {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      shell: false,
+      windowsHide: platform === 'win32',
+    },
+  };
+}
 
 export class SignalDaemon {
   private child: ChildProcess | null = null;
@@ -191,10 +255,27 @@ export class SignalDaemon {
   readonly opts: Required<Pick<SignalDaemonOpts, 'httpHost' | 'httpPort'>> & SignalDaemonOpts;
 
   constructor(opts: SignalDaemonOpts) {
+    const httpHost = opts.httpHost?.trim() ? opts.httpHost.trim() : '127.0.0.1';
+    if (!new Set(['127.0.0.1', 'localhost', '::1']).has(httpHost.toLowerCase())) {
+      throw new Error('Signal RPC host must be a loopback address');
+    }
+
+    const httpPort = typeof opts.httpPort === 'number' ? opts.httpPort : 8080;
+    if (!Number.isInteger(httpPort) || httpPort < 1 || httpPort > 65_535) {
+      throw new Error('Signal RPC port must be an integer between 1 and 65535');
+    }
+
+    const configDir = normalizeSignalConfigDir(opts.configDir);
+
+    if (opts.cliPath?.trim()) {
+      buildSignalDaemonSpawnSpec(opts.cliPath.trim(), [], process.platform);
+    }
+
     this.opts = {
       ...opts,
-      httpHost: opts.httpHost?.trim() ? opts.httpHost.trim() : '127.0.0.1',
-      httpPort: typeof opts.httpPort === 'number' ? opts.httpPort : 8080,
+      configDir,
+      httpHost,
+      httpPort,
     };
   }
 
@@ -202,8 +283,13 @@ export class SignalDaemon {
     return this._status;
   }
 
+  private get rpcAddress(): string {
+    const host = this.opts.httpHost === '::1' ? '[::1]' : this.opts.httpHost;
+    return `${host}:${this.opts.httpPort}`;
+  }
+
   get baseUrl(): string {
-    return `http://${this.opts.httpHost}:${this.opts.httpPort}`;
+    return `http://${this.rpcAddress}`;
   }
 
   onMessage(handler: SignalMessageHandler): void {
@@ -285,7 +371,7 @@ export class SignalDaemon {
       this.opts.phoneNumber,
       'daemon',
       '--http',
-      `${this.opts.httpHost}:${this.opts.httpPort}`,
+      this.rpcAddress,
       '--no-receive-stdout',
       // #387: the daemon defaults to `--receive-mode on-connection` (auto-receive
       // in the background), which makes a manual `receive` RPC fail with
@@ -299,15 +385,8 @@ export class SignalDaemon {
     // stdin is `ignore` - RPC travels over HTTP, not stdio.  stdout/stderr
     // remain piped so we can capture signal-cli's log lines for diagnostics.
     //
-    // On Windows, signal-cli is a `.bat`/`.cmd` launcher script; Node cannot
-    // spawn those without `shell:true` (otherwise EINVAL). Mirror the
-    // shellBridge.ts windows pattern: shell + windowsHide to suppress the
-    // console flash. POSIX stays shell-free (argv array, no injection surface).
-    const isWindowsLauncher = process.platform === 'win32' && /\.(bat|cmd)$/i.test(cliPath);
-    const child = spawn(cliPath, args, {
-      stdio: ['ignore', 'pipe', 'pipe'],
-      ...(isWindowsLauncher ? { shell: true, windowsHide: true } : {}),
-    });
+    const spawnSpec = buildSignalDaemonSpawnSpec(cliPath, args);
+    const child = spawn(spawnSpec.command, spawnSpec.args, spawnSpec.options);
 
     this.child = child;
 

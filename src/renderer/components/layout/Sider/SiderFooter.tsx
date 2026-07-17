@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Tooltip } from '@arco-design/web-react';
+import { Button, Tooltip } from '@arco-design/web-react';
 import { ArrowLeftCircle, LogOut, Moon, Settings, Sun } from 'lucide-react';
 import classNames from 'classnames';
 import { iconColors } from '@renderer/styles/colors';
@@ -64,8 +64,11 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
         )}
       >
         <Tooltip {...siderTooltipProps} content={isSettings ? t('common.back') : t('common.settings')} position='right'>
-          <div
+          <Button
+            type='text'
             onClick={onSettingsClick}
+            aria-label={isSettings ? t('common.back') : t('common.settings')}
+            aria-current={isSettings ? 'page' : undefined}
             className={classNames(
               'h-26px flex items-center rd-0.5rem cursor-pointer transition-colors',
               collapsed ? 'w-full justify-center' : 'flex-1 min-w-0 justify-start gap-8px px-8px',
@@ -80,12 +83,14 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
             <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px truncate'>
               {isSettings ? t('common.back') : t('common.settings')}
             </span>
-          </div>
+          </Button>
         </Tooltip>
         {showLogout && onLogoutClick && (
           <Tooltip {...siderTooltipProps} content={t('settings.googleLogout')} position='right'>
-            <div
+            <Button
+              type='text'
               onClick={onLogoutClick}
+              aria-label={t('settings.googleLogout')}
               className={classNames(
                 'h-26px flex items-center rd-0.5rem cursor-pointer transition-colors hover:bg-[rgba(var(--primary-6),0.14)] active:bg-fill-2',
                 collapsed ? 'w-full justify-center' : 'flex-1 min-w-0 justify-start gap-8px px-8px',
@@ -98,7 +103,7 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
               <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px truncate'>
                 {t('settings.googleLogout')}
               </span>
-            </div>
+            </Button>
           </Tooltip>
         )}
         {/* W2c - quick actions row (Bug · WebUI · GitHub). Hidden in collapsed mode. */}
@@ -108,7 +113,8 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
         {/* Theme toggle - lightweight icon button, only while inside Settings page (not in collapsed mode) */}
         {showThemeToggle && (
           <Tooltip {...siderTooltipProps} content={themeTooltip} position='right'>
-            <div
+            <Button
+              type='text'
               onClick={onThemeToggle}
               className={classNames(
                 'h-26px w-32px shrink-0 flex items-center justify-center cursor-pointer rd-0.5rem transition-colors text-t-secondary hover:bg-fill-2 hover:text-t-primary active:bg-fill-3',
@@ -123,7 +129,7 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
                   <Moon size={16} className='block leading-none' />
                 )}
               </span>
-            </div>
+            </Button>
           </Tooltip>
         )}
       </div>

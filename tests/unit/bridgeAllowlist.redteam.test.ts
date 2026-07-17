@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isAllowedForRemote } from '@/common/adapter/bridgeAllowlist';
+import { buildProvider, isAllowedForRemote, isAllowedOutboundToRemote } from '@/common/adapter/bridgeAllowlist';
 
 /**
  * Defense-in-depth red-team coverage: fs/project providers that leak arbitrary
@@ -176,4 +176,112 @@ describe('isAllowedForRemote - memory edit/delete denied (#414)', () => {
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(true);
     }
   );
+});
+
+/**
+ * Dev Actions execute local git/GitHub CLI operations with the desktop user's
+ * credentials. A paired WebUI must not trigger them or receive their logs.
+ */
+describe('isAllowedForRemote - Dev Actions are local-renderer-only', () => {
+  it.each([
+    'dev-actions.commit-and-pr',
+    'dev-actions.build-release',
+    'dev-actions.build-local',
+    'dev-actions.sync-forks',
+    'dev-actions.repo-status',
+  ])('denies subscribe-%s for remote callers', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+  });
+
+  it('does not broadcast Dev Actions logs to paired WebUI clients', () => {
+    expect(isAllowedOutboundToRemote('dev-actions.log')).toBe(false);
+  });
+});
+
+describe('isAllowedForRemote - update, path, and voice acquisition are local-only', () => {
+  it.each([
+    'update.check',
+    'update.download',
+    'auto-update.check',
+    'auto-update.download',
+    'auto-update.quit-and-install',
+    'auto-update.get-defer-while-busy',
+    'auto-update.set-defer-while-busy',
+    'auto-update.get-status',
+    'auto-update.future-provider',
+    'voice-asset.download',
+    'app.get-path',
+  ])('denies subscribe-%s', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+  });
+
+  it.each(['update.download.progress', 'auto-update.status', 'auto-update.future-event'])(
+    'does not broadcast %s',
+    (key) => {
+      expect(isAllowedOutboundToRemote(key)).toBe(false);
+    }
+  );
+
+  it('retains a harmless paired-device read', () => {
+    expect(isAllowedForRemote('subscribe-cron.list-jobs')).toBe(true);
+  });
+});
+
+describe('isAllowedForRemote - every voice asset capability is local-only', () => {
+  it.each([
+    'voice-asset.download',
+    'voice-asset.cancel',
+    'voice-asset.exists',
+    'voice-asset.local-model-base',
+    'voice-asset.future-provider',
+  ])('denies subscribe-%s', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+  });
+
+  it.each(['voice-asset.download-progress', 'voice-asset.future-event'])('does not broadcast %s', (event) => {
+    expect(isAllowedOutboundToRemote(event)).toBe(false);
+  });
+});
+
+describe('isAllowedOutboundToRemote - provider callback confidentiality', () => {
+  const deniedProviderKeys = [
+    'voice-asset.download',
+    'app.get-path',
+    'update.check',
+    'dev-actions.build-release',
+    'hub.future-provider',
+  ] as const;
+  const allowedProviderKeys = ['conversation.list', 'cron.list-jobs'] as const;
+
+  for (const key of [...deniedProviderKeys, ...allowedProviderKeys]) {
+    buildProvider(key);
+  }
+
+  const callbackNames = (key: string): [string, string] => [
+    `subscribe.callback-${key}${key}deadbeef`,
+    `subscribe.callback-${key}deadbeef`,
+  ];
+
+  it.each(deniedProviderKeys)('does not broadcast either callback wire form for denied provider %s', (key) => {
+    for (const callbackName of callbackNames(key)) {
+      expect(isAllowedOutboundToRemote(callbackName)).toBe(false);
+    }
+  });
+
+  it.each(allowedProviderKeys)('preserves both callback wire forms for remote-allowed provider %s', (key) => {
+    for (const callbackName of callbackNames(key)) {
+      expect(isAllowedOutboundToRemote(callbackName)).toBe(true);
+    }
+  });
+
+  it.each([
+    'subscribe.callback-conversation.list',
+    'subscribe.callback-conversation.listdeadbee',
+    'subscribe.callback-conversation.listdeadbeef0',
+    'subscribe.callback-conversation.listDEADBEEF',
+    'subscribe.callback-conversation.listdeadbegg',
+    'subscribe.callback-unregistered.providerdeadbeef',
+  ])('denies malformed or unregistered callback name %s closed', (name) => {
+    expect(isAllowedOutboundToRemote(name)).toBe(false);
+  });
 });

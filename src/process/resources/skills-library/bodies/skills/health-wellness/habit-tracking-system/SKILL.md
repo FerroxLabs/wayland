@@ -452,7 +452,7 @@ STREAK INSURANCE USED: ___ (max 1 per 7-day window)
 **Weekly (10 minutes, every Sunday at 8:00pm):**
 
 1. Add up this week's daily scores for the weekly total: \_\_\_ / 77
-2. Which habit had the most blank cells this week? ******\_\_\_******
+2. Which habit had the most blank cells this week? **\*\***\_\_\_**\*\***
 3. What specific event or pattern caused those misses? (Not "life was busy." What time of day? What came up? What was competing?)
 4. One micro-adjustment for next week (choose one):
    - Change the time of day for [habit]
@@ -470,9 +470,9 @@ STREAK INSURANCE USED: ___ (max 1 per 7-day window)
 2. Longest streak this month per habit:
    - Morning Run: **_ | Journal: _** | Read: **_ | Phone Curfew: _** | Hydration: \_\_\_
 3. Streak insurance uses this month: \_\_\_ / 4 maximum
-4. Habit to investigate (below 50% consistency): ******\_\_\_******
+4. Habit to investigate (below 50% consistency): **\*\***\_\_\_**\*\***
    - Root cause question: "Was the full version too hard, or did I not care enough about this habit this month?"
-5. Habit to celebrate (above 80% consistency for 2 months in a row): ******\_\_\_******
+5. Habit to celebrate (above 80% consistency for 2 months in a row): **\*\***\_\_\_**\*\***
    - Upgrade question: "Is this habit becoming automatic? Should I make the full version harder?"
 6. Alignment check: "Three months from now, which of these five habits will I be most grateful I kept?"
 7. Reward milestone check:

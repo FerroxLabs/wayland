@@ -14,10 +14,11 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // ── Hoisted mocks ────────────────────────────────────────────────────────────
-const { mockSetProcessing, mockIsProcessing, mockNotifyCompletion } = vi.hoisted(() => ({
+const { mockSetProcessing, mockIsProcessing, mockNotifyCompletion, mockAddMessage } = vi.hoisted(() => ({
   mockSetProcessing: vi.fn(),
   mockIsProcessing: vi.fn(() => false),
   mockNotifyCompletion: vi.fn(() => Promise.resolve()),
+  mockAddMessage: vi.fn(),
 }));
 
 vi.mock('@process/services/cron/CronBusyGuard', () => ({
@@ -38,7 +39,7 @@ vi.mock('@process/services/database', () => ({
   getDatabase: vi.fn(() => Promise.resolve({ updateConversation: vi.fn() })),
 }));
 vi.mock('@process/utils/message', () => ({
-  addMessage: vi.fn(),
+  addMessage: mockAddMessage,
   addOrUpdateMessage: vi.fn(),
   nextTickToLocalFinish: vi.fn((cb: () => void) => cb()),
 }));
@@ -109,10 +110,17 @@ vi.mock('@/common/chat/chatLib', () => ({ transformMessage: vi.fn(), uuid: vi.fn
 // ── Import real AcpAgentManager after all mocks are set up ───────────────────
 import AcpAgentManager from '../../src/process/task/AcpAgentManager';
 import type { AcpBackend } from '../../src/common/types/acpTypes';
+import { hasCronCommands } from '@process/task/CronCommandDetector';
+import { processCronInMessage } from '@process/task/MessageMiddleware';
+import { mainWarn } from '@process/utils/mainLogger';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 type MockAgent = { sendMessage: ReturnType<typeof vi.fn> };
+
+const mockHasCronCommands = vi.mocked(hasCronCommands);
+const mockProcessCronInMessage = vi.mocked(processCronInMessage);
+const mockMainWarn = vi.mocked(mainWarn);
 
 function makeManager(conversationId = 'conv-test') {
   const manager = new AcpAgentManager({
@@ -130,6 +138,35 @@ function makeManager(conversationId = 'conv-test') {
   // so the test focuses purely on the success/failure handling branches
   (manager as unknown as { isFirstMessage: boolean }).isFirstMessage = false;
   return { manager, mockAgent };
+}
+
+async function finishWithSystemFeedback(manager: AcpAgentManager): Promise<void> {
+  const internals = manager as unknown as {
+    currentMsgContent: string;
+    modelPromptLease: Promise<void>;
+    handleFinishSignal: (
+      message: {
+        type: 'finish';
+        conversation_id: string;
+        msg_id: string;
+        data: null;
+      },
+      backend: AcpBackend,
+      options: { trackActiveTurn: boolean }
+    ) => Promise<void>;
+  };
+  internals.currentMsgContent = '[CRON_CREATE test]';
+  await internals.handleFinishSignal(
+    {
+      type: 'finish',
+      conversation_id: manager.conversation_id,
+      msg_id: 'finish-feedback',
+      data: null,
+    },
+    'claude' as AcpBackend,
+    { trackActiveTurn: false }
+  );
+  await internals.modelPromptLease;
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -226,6 +263,23 @@ describe('AcpAgentManager.sendMessage - real class cronBusyGuard cleanup', () =>
     expect(manager.status).toBe('finished');
   });
 
+  it('blocks a prompt before persisting it when model confirmation failed', async () => {
+    const { manager, mockAgent } = makeManager('conv-model-blocked');
+    (manager as unknown as { modelSelectionState: string }).modelSelectionState = 'blocked';
+    (manager as unknown as { modelBlockedFailure: string }).modelBlockedFailure = 'model_mismatch';
+    (manager as unknown as { requestedModelId: string }).requestedModelId = 'gpt-5.6-sol';
+    (manager as unknown as { confirmedModelId: string }).confirmedModelId = 'gpt-5.5';
+
+    const result = await manager.sendMessage({ content: 'must not be stored', msg_id: 'msg-blocked' });
+
+    expect(result.success).toBe(false);
+    expect(result.msg ?? result.message).toContain('gpt-5.6-sol');
+    expect(mockAddMessage).not.toHaveBeenCalled();
+    expect(mockAgent.sendMessage).not.toHaveBeenCalled();
+    expect(mockSetProcessing).toHaveBeenCalledWith('conv-model-blocked', false);
+    expect(manager.status).toBe('finished');
+  });
+
   // Shared systemic fix (BUG-5 / BUG-6 GAP-B): a thrown turn must emit a TERMINAL
   // turnCompleted{state:'error'} so workflow steps + cron runs surface the failure
   // instead of hanging forever.
@@ -262,5 +316,43 @@ describe('AcpAgentManager.sendMessage - real class cronBusyGuard cleanup', () =>
 
     expect(mockSetProcessing).toHaveBeenCalledWith('conv-9', true);
     expect(mockSetProcessing).toHaveBeenCalledWith('conv-9', false);
+  });
+
+  it('queues normal cron feedback through the model prompt lease', async () => {
+    const { manager, mockAgent } = makeManager('conv-feedback-ready');
+    mockAgent.sendMessage.mockResolvedValue({ success: true });
+    mockHasCronCommands.mockReturnValue(true);
+    mockProcessCronInMessage.mockImplementation(async (_conversationId, _backend, _message, emitSystemResponse) => {
+      emitSystemResponse('cron created');
+    });
+
+    await finishWithSystemFeedback(manager);
+
+    expect(mockAgent.sendMessage).toHaveBeenCalledWith({ content: '[System Response]\ncron created' });
+  });
+
+  it.each([
+    ['pending', null],
+    ['blocked', 'model_mismatch'],
+  ] as const)('skips cron feedback when model selection is %s', async (selectionState, failureCode) => {
+    const { manager, mockAgent } = makeManager(`conv-feedback-${selectionState}`);
+    Object.assign(manager as unknown as Record<string, unknown>, {
+      modelSelectionState: selectionState,
+      modelBlockedFailure: failureCode,
+      requestedModelId: 'gpt-5.6-sol',
+    });
+    mockHasCronCommands.mockReturnValue(true);
+    mockProcessCronInMessage.mockImplementation(async (_conversationId, _backend, _message, emitSystemResponse) => {
+      emitSystemResponse('cron created');
+    });
+
+    await finishWithSystemFeedback(manager);
+
+    expect(mockAgent.sendMessage).not.toHaveBeenCalled();
+    expect(mockMainWarn).toHaveBeenCalledWith(
+      '[AcpAgentManager]',
+      expect.stringContaining('system feedback'),
+      expect.anything()
+    );
   });
 });

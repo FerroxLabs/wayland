@@ -20,6 +20,8 @@ import { dirname, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 
+import { installPinnedBun } from '../scripts/bun-runtime.mjs';
+
 const PKG_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const PAYLOAD = join(PKG_ROOT, 'payload');
 const SERVER = join(PAYLOAD, 'dist-server', 'server.mjs');
@@ -153,40 +155,34 @@ function withBunPath(env) {
   return cur.split(sep).includes(dir) ? env : { ...env, PATH: dir + sep + cur };
 }
 
-/** bun's installer needs unzip + curl. On a fresh Debian/Ubuntu box neither is
- *  guaranteed - install them via apt (the smoke test caught this). */
-function ensureUnzipCurl() {
-  if (has('unzip') && has('curl')) return;
-  if (!has('apt-get')) return; // non-Debian: user handles prereqs
+function runApt(args) {
   const root = typeof process.getuid === 'function' && process.getuid() === 0;
-  const sudo = root ? '' : 'sudo ';
-  console.log(c.dim('  Installing prerequisites (unzip, curl)…'));
-  spawnSync(
-    'bash',
-    ['-c', `${sudo}apt-get update -qq >/dev/null 2>&1; ${sudo}apt-get install -y -qq unzip curl >/dev/null 2>&1`],
-    { stdio: 'inherit' }
-  );
+  return root
+    ? spawnSync('apt-get', args, { stdio: 'ignore', shell: false })
+    : spawnSync('sudo', ['apt-get', ...args], { stdio: 'ignore', shell: false });
+}
+
+/** The pinned Bun archive needs unzip. On a fresh Debian/Ubuntu box it is not
+ *  guaranteed, so install that prerequisite directly without invoking a shell. */
+function ensureUnzip() {
+  if (has('unzip')) return;
+  if (!has('apt-get')) return; // non-Debian: user handles prereqs
+  console.log(c.dim('  Installing prerequisite (unzip)…'));
+  runApt(['update', '-qq']);
+  runApt(['install', '-y', '-qq', 'unzip']);
 }
 
 /** The bundled wayland-core engine binary links libasound (ALSA). A minimal
  *  Debian/Ubuntu server image ships without it, so the engine aborts on the
  *  first chat turn with "wcore exited with code 127". Install it the same way we
- *  install bun's unzip/curl prereqs - idempotent, apt-only (other distros: the
- *  user installs the equivalent package). */
+ *  install the pinned runtime's unzip prerequisite - idempotent, apt-only
+ *  (other distros: the user installs the equivalent package). */
 function ensureEngineRuntimeLibs() {
   if (!has('apt-get')) return; // non-Debian: user handles prereqs
-  const root = typeof process.getuid === 'function' && process.getuid() === 0;
-  const sudo = root ? '' : 'sudo ';
   console.log(c.dim('  Ensuring engine runtime libraries (libasound2)…'));
   // libasound2t64 on Ubuntu 24.04+ (the t64 ABI transition); libasound2 elsewhere.
-  spawnSync(
-    'bash',
-    [
-      '-c',
-      `${sudo}apt-get install -y -qq libasound2t64 >/dev/null 2>&1 || ${sudo}apt-get install -y -qq libasound2 >/dev/null 2>&1`,
-    ],
-    { stdio: 'inherit' }
-  );
+  const t64 = runApt(['install', '-y', '-qq', 'libasound2t64']);
+  if (t64.status !== 0) runApt(['install', '-y', '-qq', 'libasound2']);
 }
 
 async function ensureBun() {
@@ -197,11 +193,19 @@ async function ensureBun() {
     console.log(c.r('\n  Skipped. Install bun (https://bun.sh) then re-run `wayland setup`.'));
     return false;
   }
-  ensureUnzipCurl();
-  console.log(c.dim('  Installing bun…'));
-  const r = spawnSync('bash', ['-c', 'curl -fsSL https://bun.sh/install | bash'], { stdio: 'inherit' });
-  if (r.status !== 0 || !hasBun()) {
-    console.log(c.r('\n  bun install failed. Install it manually: https://bun.sh, then re-run setup.'));
+  ensureUnzip();
+  if (!has('unzip')) {
+    console.log(c.r('\n  bun install requires `unzip`. Install it, then re-run setup.'));
+    return false;
+  }
+  console.log(c.dim('  Installing the pinned, checksum-verified bun runtime…'));
+  try {
+    await installPinnedBun();
+  } catch (error) {
+    console.log(c.r(`\n  bun install failed: ${error instanceof Error ? error.message : String(error)}`));
+  }
+  if (!hasBun()) {
+    console.log(c.r('  Install bun manually from https://bun.sh, then re-run setup.'));
     console.log(c.dim('  (You may need to open a new shell so `bun` is on your PATH.)'));
     return false;
   }
@@ -288,8 +292,8 @@ ExecStart=${process.execPath} ${bin} start
 Restart=always
 RestartSec=3
 Environment=DATA_DIR=${DATA_DIR}
-# systemd starts with a minimal PATH that excludes ~/.bun/bin (where the bun.sh
-# installer drops bun), so the start command would die with bun-runtime-not-found (#201).
+# systemd starts with a minimal PATH that excludes ~/.bun/bin (where the pinned
+# installer places bun), so the start command would die with bun-runtime-not-found (#201).
 Environment=PATH=${bunBinDir()}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 [Install]

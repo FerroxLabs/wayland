@@ -58,22 +58,22 @@ Complete this review before setting any new goals.
 **Part 1: Wins and Accomplishments**
 List everything you achieved, no matter how small:
 
-- Professional wins: **********************\_\_\_**********************
-- Personal growth: **********************\_\_\_\_**********************
-- Relationship milestones: ********************\_********************
-- Health and wellness: **********************\_**********************
-- Financial progress: **********************\_\_**********************
-- Skills learned: ************************\_\_************************
-- Challenges overcome: ********************\_\_\_\_********************
+- Professional wins: ****\*\*****\*\*****\*\*****\_\_\_****\*\*****\*\*****\*\*****
+- Personal growth: ****\*\*****\*\*****\*\*****\_\_\_\_****\*\*****\*\*****\*\*****
+- Relationship milestones: **\*\*\*\***\*\*\*\***\*\*\*\***\_**\*\*\*\***\*\*\*\***\*\*\*\***
+- Health and wellness: ****\*\*****\*\*****\*\*****\_****\*\*****\*\*****\*\*****
+- Financial progress: ****\*\*****\*\*****\*\*****\_\_****\*\*****\*\*****\*\*****
+- Skills learned: ****\*\*****\*\*\*\*****\*\*****\_\_****\*\*****\*\*\*\*****\*\*****
+- Challenges overcome: **\*\*\*\***\*\*\*\***\*\*\*\***\_\_\_\_**\*\*\*\***\*\*\*\***\*\*\*\***
 
 **Part 2: Lessons Learned**
 What did this year teach you?
 
-- What worked well that you want to continue? **********\_\_\_**********
-- What did not work that you should stop doing? **********\_**********
-- What surprised you about yourself? **************\_\_\_\_**************
-- What would you do differently with the same circumstances? ****\_****
-- What feedback from others was most valuable? **********\_\_**********
+- What worked well that you want to continue? \***\*\*\*\*\***\_\_\_\***\*\*\*\*\***
+- What did not work that you should stop doing? \***\*\*\*\*\***\_\***\*\*\*\*\***
+- What surprised you about yourself? **\*\***\*\***\*\***\_\_\_\_**\*\***\*\***\*\***
+- What would you do differently with the same circumstances? \***\*\_\*\***
+- What feedback from others was most valuable? \***\*\*\*\*\***\_\_\***\*\*\*\*\***
 
 **Part 3: Honest Assessment**
 
@@ -92,9 +92,9 @@ Rate each area of your life from 1-10:
 
 **Part 4: Gratitude and Release**
 
-- Three things you are most grateful for this year: ********\_\_********
-- Three things you are ready to let go of: ************\_\_************
-- Three people who made this year better: ************\_\_\_************
+- Three things you are most grateful for this year: **\*\*\*\***\_\_**\*\*\*\***
+- Three things you are ready to let go of: \***\*\*\*\*\*\*\***\_\_\***\*\*\*\*\*\*\***
+- Three people who made this year better: \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\***
 
 ## Goal-Setting Frameworks
 
@@ -122,27 +122,27 @@ Instead of a long list of resolutions, choose a maximum of three primary goals:
 
 ### Breaking Goals into Action Steps
 
-**Annual Goal:** **********************\_\_\_\_**********************
+**Annual Goal:** ****\*\*****\*\*****\*\*****\_\_\_\_****\*\*****\*\*****\*\*****
 
 **Quarterly Milestones:**
 
-- Q1 (Jan-Mar): ************************\_\_************************
-- Q2 (Apr-Jun): ************************\_\_************************
-- Q3 (Jul-Sep): ************************\_\_************************
-- Q4 (Oct-Dec): ************************\_\_************************
+- Q1 (Jan-Mar): ****\*\*****\*\*\*\*****\*\*****\_\_****\*\*****\*\*\*\*****\*\*****
+- Q2 (Apr-Jun): ****\*\*****\*\*\*\*****\*\*****\_\_****\*\*****\*\*\*\*****\*\*****
+- Q3 (Jul-Sep): ****\*\*****\*\*\*\*****\*\*****\_\_****\*\*****\*\*\*\*****\*\*****
+- Q4 (Oct-Dec): ****\*\*****\*\*\*\*****\*\*****\_\_****\*\*****\*\*\*\*****\*\*****
 
 **Monthly Targets for Q1:**
 
-- January: **************************\_\_**************************
-- February: **************************\_**************************
-- March: **************************\_\_\_\_**************************
+- January: ****\*\*\*\*****\*\*****\*\*\*\*****\_\_****\*\*\*\*****\*\*****\*\*\*\*****
+- February: ****\*\*\*\*****\*\*****\*\*\*\*****\_****\*\*\*\*****\*\*****\*\*\*\*****
+- March: ****\*\*\*\*****\*\*****\*\*\*\*****\_\_\_\_****\*\*\*\*****\*\*****\*\*\*\*****
 
 **Weekly Actions for January:**
 
-- Week 1: **************************\_\_\_**************************
-- Week 2: **************************\_\_\_**************************
-- Week 3: **************************\_\_\_**************************
-- Week 4: **************************\_\_\_**************************
+- Week 1: ****\*\*\*\*****\*\*****\*\*\*\*****\_\_\_****\*\*\*\*****\*\*****\*\*\*\*****
+- Week 2: ****\*\*\*\*****\*\*****\*\*\*\*****\_\_\_****\*\*\*\*****\*\*****\*\*\*\*****
+- Week 3: ****\*\*\*\*****\*\*****\*\*\*\*****\_\_\_****\*\*\*\*****\*\*****\*\*\*\*****
+- Week 4: ****\*\*\*\*****\*\*****\*\*\*\*****\_\_\_****\*\*\*\*****\*\*****\*\*\*\*****
 
 ## Common Goal Categories and Approaches
 

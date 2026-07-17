@@ -433,11 +433,30 @@
     "effortLowDesc": "Fast responses with lighter reasoning",
     "effortMediumDesc": "Balances speed and reasoning depth",
     "effortHighDesc": "Greater reasoning depth for complex problems",
+    "effortXhigh": "Extra high",
+    "effortXhighDesc": "Extended reasoning for hard coding and agentic tasks",
+    "effortMax": "Max",
+    "effortMaxDesc": "Maximum reasoning depth - correctness over cost",
     "emptyTitle": "No models yet",
     "emptySub": "Connect a provider to choose a model.",
     "emptyBody": "No models yet. Connect a provider or sign in to a CLI.",
     "emptyFlux": "Tip: connect Flux Router for one-tap auto-routing across every model you add.",
     "connectProvider": "Connect a provider",
-    "manageModels": "Manage models"
+    "manageModels": "Manage models",
+    "providerDefault": "使用提供商默认模型",
+    "switching": "正在切换到 {{model}}…",
+    "blocked": "模型切换已阻止",
+    "retry": "重试",
+    "revert": "恢复为已确认的模型",
+    "sendPending": "正在等待模型确认…",
+    "sendBlocked": "模型切换已阻止 — 请选择其他模型或提供商默认模型。",
+    "failure": {
+      "unsupported_model": "此提供商不支持 {{model}}。当前模型未更改。",
+      "model_rejected": "提供商拒绝了 {{model}}。当前模型未更改。",
+      "model_mismatch": "提供商未确认 {{model}}。当前模型未更改。",
+      "confirmation_unavailable": "提供商目前无法确认 {{model}}。当前模型未更改。",
+      "bridge_unavailable": "无法连接提供商以切换到 {{model}}。当前模型未更改。",
+      "model_switch_timeout": "等待确认 {{model}} 超时。当前模型未更改。"
+    }
   }
 }
