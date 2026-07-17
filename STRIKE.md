@@ -387,6 +387,40 @@ HIGH/BLOCKER.
 
 Timebox: 45 minutes.
 
+### Subpacket CON-B-LOCK-HARNESS — actual journey lock capability
+
+Dependency: CON-B storage-transaction implementation
+
+File ownership:
+
+- `tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx`
+
+Authority boundary: provide the real hosted HTTP and Desktop IPC consumer
+journey harness with an exclusive Web Locks capability so those actual clients
+exercise the production storage-transaction boundary. This packet may adapt
+the jsdom environment only. It may not add a production fallback, weaken
+fail-closed behavior when Web Locks are absent, or change recovery authority.
+
+Invariants: both actual consumer journeys request a principal-scoped exclusive
+lock before mint/write and terminal compare/remove; the harness returns a lock
+identity to the production callback; hosted and Desktop operation IDs still
+reach their real transport once; absence of Web Locks remains fail-closed in
+the hostile component proof.
+
+Non-claims: a jsdom lock capability does not prove Chromium availability,
+cross-process lock implementation, deployment, packaging, or canary state.
+
+Tests: both previously failing actual hosted HTTP and Desktop IPC Classic
+journeys pass and assert the expected principal-scoped lock requests; the full
+CON-B aggregate and hostile component proof are rerun against exact integration
+HEAD.
+
+Acceptance evidence: exact test-harness commit, scoped format/lint/diff and
+one-file ownership proof, serial integration, exact-head aggregate proof, and
+independent author-excluded audit at zero HIGH/BLOCKER.
+
+Timebox: 20 minutes.
+
 ## Packet SEC-001 — aggregate dependency security
 
 Status is proposal-only until its exact ownership contract is appended before
@@ -704,6 +738,19 @@ did not force these precise interleavings. CON-B remains reopened; the prior
 receipts are historical and no aggregate or acceptance claim survives this
 audit. Remediation must fail closed without cross-window lock authority and
 prove both interleavings under one principal-scoped lock.
+
+CON-B-STORAGE-TRANSACTION implementation commit
+`b2d6ad48bf77faa5614f4274874207009d5b342f` moved absence/read/write and
+terminal compare/remove under a principal-scoped exclusive Web Lock, fails
+closed before mint or dispatch when that authority is unavailable, and added
+hostile two-window and queued-replacement tests. Its packet proof passed 19/19
+hostile DOM tests plus scoped format, lint, typecheck, diff, and two-file
+ownership. The first exact integration aggregate passed 182/184 Vitest tests,
+33/33 Bun tests, and typecheck, but the two actual consumer journey tests had
+no jsdom Web Locks capability and correctly failed closed before transport.
+This is a red aggregate, not a product regression claim. CON-B remains
+reopened while CON-B-LOCK-HARNESS supplies that declared test capability and
+the aggregate is rerun.
 
 ## Authorization gates
 
