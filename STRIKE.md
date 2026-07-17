@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T01:19:18Z
+Last heartbeat: 2026-07-17T01:46:03Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -79,8 +79,8 @@ ownership.
 |---|---|---|---|---|---|---|
 | ARM-001 | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a` | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean` | n/a | none |
 | FIXTURE-ATTR | ARM-001 | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911` | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership` | n/a | none; ledger commit `045671992e68b631790985310af587cebcc0decc` |
-| CON-A | FIXTURE-ATTR | REOPENED | uncommitted tree `1956a8801a3956e4032d64b20841f6ad637dd230` | legacy proof is not a v2 receipt | legacy aggregate green | HIGH: archive abandonment protocol incomplete |
-| CON-B | CON-A | REOPENED | uncommitted tree `751170dbd39b629e7580e4708d0785354eb8f48d` | legacy proof is not a v2 receipt | legacy aggregate green | 2 BLOCKER, 4 HIGH, 2 MEDIUM from independent audit |
+| CON-A | FIXTURE-ATTR | QUEUED | `8974aa9b2cf57cc305cef6a58665fad46cdc0616` | hostile abandonment proof 11/11; exact-commit aggregate proof running | none yet | post-integration re-proof against current integration HEAD |
+| CON-B | CON-A | BUILDING | uncommitted remediation tree | synchronized focused aggregate 55/55 plus typecheck green | none yet | real HTTP/IPC consumer journey, exact packet reconstruction and receipt |
 | SEC-001 | CON-B | PLANNED | none | none | dependency audit red | partition reachable production dependencies and remediate |
 | CON-C | CON-B, SEC-001 | PLANNED | none | none | none | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -209,6 +209,36 @@ BLOCKER/HIGH.
 
 Timebox: 90 minutes per subpacket. Shared DTO, generated code, DI wiring, and
 fixtures are serial seams.
+
+### Subpacket CON-B-JOURNEY — actual recovery consumer paths
+
+File ownership: one new test only,
+`tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx`.
+
+Authority boundary: proves the production archive and Classic route/IPC
+registrations, renderer clients, strict DTO parsers, and live renderer state
+transitions as one composed path. It may inject deterministic service-boundary
+fixtures, but may not replace any route, IPC handler, client, parser, renderer
+component, operation-ID persistence logic, or error reducer.
+
+Invariants: HTTP and IPC preserve the exact client operation UUID; destructive
+requests reach the injected authority once; committed results clear durable
+pending state; malformed or ambiguous evidence still follows the production
+fail-closed reducers; no portable transfer or cleanup surface is introduced.
+
+Non-claims: deterministic service-boundary fixtures do not prove the Native
+helper, packaging, signed builds, deployment, canary, or release state. Those
+remain owned by CON-A/CON-C.
+
+Tests: hosted archive restore and Classic decision through actual Express route
+to actual fetch client to mounted renderer; Desktop archive restore and Classic
+decision through actual registered IPC handler to actual Desktop client parser
+to mounted renderer; hostile operation-ID and durable-state assertions.
+
+Acceptance evidence: an exact CON-B commit whose focused receipt includes this
+test after rebasing onto the accepted CON-A integration HEAD.
+
+Timebox: 60 minutes.
 
 ## Packet SEC-001 — aggregate dependency security
 
