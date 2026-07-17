@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-LOCK-HARNESS-integration-typecheck",
+  "commit": "bccda81c79ea9bf497c26f2672790a9bc7497d9b",
+  "command": "rtk proxy bash -o pipefail -c 'bun run typecheck 2>&1 | tee /tmp/wayland-con-b-lock-harness-integration-typecheck.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5",
+  "timestamp": "2026-07-17T09:33:19Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

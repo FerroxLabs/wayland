@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-STORAGE-TRANSACTION-packet-focused",
+  "commit": "b2d6ad48bf77faa5614f4274874207009d5b342f",
+  "command": "rtk proxy bash -o pipefail -c 'bunx vitest run tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx 2>&1 | tee /tmp/wayland-con-b-storage-transaction-packet-focused.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:935dd41a8722f3f3c5a58076751499331481f57c50c70eb26c80182b162774ca",
+  "timestamp": "2026-07-17T09:33:19Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

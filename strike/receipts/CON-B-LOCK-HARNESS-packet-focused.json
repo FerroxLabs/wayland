@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-LOCK-HARNESS-packet-focused",
+  "commit": "bccda81c79ea9bf497c26f2672790a9bc7497d9b",
+  "command": "rtk proxy bash -o pipefail -c 'bunx vitest run tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx 2>&1 | tee /tmp/wayland-con-b-lock-harness-packet-focused.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:06b8cba4ecab59ab62ad7ac31d3a8ec96581c8e132f71c6438b706d6ef48f25a",
+  "timestamp": "2026-07-17T09:33:19Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

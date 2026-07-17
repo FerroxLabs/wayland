@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-STORAGE-TRANSACTION-packet-ownership",
+  "commit": "b2d6ad48bf77faa5614f4274874207009d5b342f",
+  "command": "rtk proxy bash -o pipefail -c 'git diff --name-only c6b04c242952cfdff2cfdce47e9f5f3ae89973b1..HEAD 2>&1 | tee /tmp/wayland-con-b-storage-transaction-packet-ownership.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:2e3a205a3651a5af59f4bee9038aff50c214c290948bf5c622a6f312a16dfd15",
+  "timestamp": "2026-07-17T09:33:19Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}
