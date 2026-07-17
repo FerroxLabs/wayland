@@ -1,0 +1,9 @@
+{
+  "receipt_id": "FIXTURE-ATTR-ownership",
+  "commit": "e8ba5fdcb00a3e6463f15f44165fa074fc61a911",
+  "command": "rtk git diff --name-only ccbad896951845fc54c659542d5709b0651b7d4e..e8ba5fdcb00a3e6463f15f44165fa074fc61a911",
+  "exit_code": 0,
+  "log_digest": "sha256:c117841331250c260cfdfc8c638dfd2bfab726c8fb3f16bdf30cdbecd630ab6c",
+  "timestamp": "2026-07-17T01:17:47Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

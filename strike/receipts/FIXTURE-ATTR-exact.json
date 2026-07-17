@@ -1,0 +1,9 @@
+{
+  "receipt_id": "FIXTURE-ATTR-exact",
+  "commit": "e8ba5fdcb00a3e6463f15f44165fa074fc61a911",
+  "command": "rtk git check-attr whitespace -- tests/fixtures/constitution-fs/provenance/991c502-fixture-failpoint.patch",
+  "exit_code": 0,
+  "log_digest": "sha256:a31a266dd0deda29db66a48345182447f372eda75ac1f346734d32a2682e8a90",
+  "timestamp": "2026-07-17T01:17:47Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

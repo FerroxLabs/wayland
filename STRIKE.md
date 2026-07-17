@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T01:14:50Z
+Last heartbeat: 2026-07-17T01:17:47Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -78,7 +78,7 @@ ownership.
 | Packet | Dependency | Status | Exact commit | Focused proof | Aggregate proof | Remaining blocker |
 |---|---|---|---|---|---|---|
 | ARM-001 | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a` | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean` | n/a | none |
-| FIXTURE-ATTR | ARM-001 | PLANNED | none | none | n/a | add one exact fixture whitespace classification before CON-A |
+| FIXTURE-ATTR | ARM-001 | LANDED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911` | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership` | n/a | ledger commit pending |
 | CON-A | FIXTURE-ATTR | QUEUED | uncommitted tree `1956a8801a3956e4032d64b20841f6ad637dd230` | legacy proof is not a v2 receipt | legacy aggregate green | must create exact commit and reproducible v2 receipts |
 | CON-B | CON-A | REOPENED | uncommitted tree `751170dbd39b629e7580e4708d0785354eb8f48d` | 51 focused tests green after lint repair, not yet a v2 receipt | exact full rerun active | independent audit and security gate |
 | SEC-001 | CON-B | PLANNED | none | none | dependency audit red | partition reachable production dependencies and remediate |
@@ -316,6 +316,16 @@ Valid v2 receipts now present:
 - `strike/receipts/ARM-001-mixed.json`
 - `strike/receipts/ARM-001-tree-diff.json`
 - `strike/receipts/ARM-001-clean.json`
+
+FIXTURE-ATTR serial landing: integration before
+`ccbad896951845fc54c659542d5709b0651b7d4e`; rebased packet and integration
+after `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`. Focused proof was rerun after
+the rebase and before the fast-forward landing.
+
+- `strike/receipts/FIXTURE-ATTR-exact.json`
+- `strike/receipts/FIXTURE-ATTR-control.json`
+- `strike/receipts/FIXTURE-ATTR-diff.json`
+- `strike/receipts/FIXTURE-ATTR-ownership.json`
 
 ## Authorization gates
 
