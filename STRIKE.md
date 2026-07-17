@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T05:48:22Z
+Last heartbeat: 2026-07-17T06:17:21Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | QUEUED   | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; remediation `0bfb3a6a1a12adc86c98dde4a078e5b8bcff4ae8` | `CON-B-CONFLICT-ID-packet-focused`, `CON-B-CONFLICT-ID-packet-static`, `CON-B-CONFLICT-ID-packet-ownership`                           | prior full suite green        | serial integration and independent exact-HEAD re-audit             |
+| CON-B        | CON-A           | LANDED   | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; remediation/integration `de10630790e21a621c976e93b9fe2e78f8a5c77d` | `CON-B-CONFLICT-ID-rebased-focused`, `CON-B-CONFLICT-ID-rebased-static`, `CON-B-CONFLICT-ID-rebased-ownership`                      | `CON-B-CONFLICT-ID-integration-focused`, `CON-B-CONFLICT-ID-integration-typecheck` | independent exact-HEAD re-audit |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -468,6 +468,19 @@ lint, typecheck, diff, and exact two-file ownership gates pass.
 - `strike/receipts/CON-B-CONFLICT-ID-packet-focused.json`
 - `strike/receipts/CON-B-CONFLICT-ID-packet-static.json`
 - `strike/receipts/CON-B-CONFLICT-ID-packet-ownership.json`
+
+After the queue-control commit, the packet rebased onto integration
+`6672fda77f4989d39ed70a8cda8f3b276db609c9` and became exact commit
+`de10630790e21a621c976e93b9fe2e78f8a5c77d`. Post-rebase proof passed before
+the serial fast-forward landing. The exact integrated implementation then
+passed 173/173 Vitest and 33/33 Bun recovery-consumer tests plus full
+typecheck. Independent author-excluded re-audit remains the acceptance gate.
+
+- `strike/receipts/CON-B-CONFLICT-ID-rebased-focused.json`
+- `strike/receipts/CON-B-CONFLICT-ID-rebased-static.json`
+- `strike/receipts/CON-B-CONFLICT-ID-rebased-ownership.json`
+- `strike/receipts/CON-B-CONFLICT-ID-integration-focused.json`
+- `strike/receipts/CON-B-CONFLICT-ID-integration-typecheck.json`
 
 ## Authorization gates
 
