@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-SHARED-RECOVERY-integration-focused",
+  "commit": "8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495",
+  "command": "rtk proxy bash -o pipefail -c 'set -e; { bunx vitest run tests/unit/preloadWeixinLogin.test.ts tests/unit/process/bridge/constitutionBridge.test.ts tests/unit/process/services/constitution/constitutionClassicRecoveryAuthority.test.ts tests/unit/process/services/constitution/constitutionClassicRecoveryRuntime.test.ts tests/unit/process/services/constitution/constitutionFsService.test.ts tests/unit/process/services/recovery/classicRecoveryLocator.test.ts tests/unit/process/services/recovery/constitutionRecoveryNegativeSurface.test.ts tests/unit/process/utils/initBridgeStandalone.test.ts tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx tests/unit/renderer/ConstitutionRecovery.dom.test.tsx tests/unit/renderer/ConstitutionRecoveryOperationLock.dom.test.ts tests/unit/renderer/ConstitutionService.test.ts tests/unit/renderer/ConstitutionSettings.dom.test.tsx tests/unit/common/constitutionRecovery.test.ts tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx tests/unit/webserver/constitutionRouteClient.native.contract.test.ts tests/unit/webserver/constitutionRoutes.test.ts; bun test tests/unit/process/services/constitution/constitutionClassicRecoveryLocatorService.bun.test.ts tests/unit/process/services/constitution/constitutionClassicRecoveryService.bun.test.ts tests/unit/process/services/recovery/externalRecoveryLauncher.bun.test.ts; } 2>&1 | tee /tmp/wayland-con-b-shared-recovery-integration-focused.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:794d9e6411967afcf87ff0954fd352c8ecf4bd65b09a125a934e0cf05c356e33",
+  "timestamp": "2026-07-17T10:21:14Z",
+  "env_digest": "sha256:37df5fa6efd3a3b19345e65fd4688a4af01401de0d5ac2348f9596435190b9b4"
+}

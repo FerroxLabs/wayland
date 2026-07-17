@@ -3,7 +3,7 @@
 Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
 release, canary promotion, or production claim is authorized by this file.
 
-Last heartbeat: 2026-07-17T06:59:11Z
+Last heartbeat: 2026-07-17T10:21:14Z
 Lane: Desktop (`area:desktop-ui`)
 Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
 Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
@@ -28,10 +28,15 @@ Serial merge queue: ARM-001 -> FIXTURE-ATTR -> CON-A -> CON-B -> SEC-001 -> CON-
 
 Canonical environment string:
 
-`container=none-native-macos;os=macOS-26.3-25D125;kernel=Darwin-25.3.0-arm64;node=v25.8.1;bun=1.3.11;python=3.14.5;rustc=1.94.0-4a4ef493e-2026-03-02;cargo=1.94.0-85eff7c80-2026-01-15;git=2.50.1-Apple-Git-155;xcode=26.6-17F113;package_json=ea4e179b221547780a5ee1238ad25ee71c43a52cefe931791731031c2d7966ce;bun_lock=8e6b0da598732ac3363280365ad51e4d58d53e2875c6462db76b249caa67bb43`
+`container=none-native-macos;os=macOS-26.3-25D125;kernel=Darwin-25.3.0-arm64;node=v25.8.1;bun=1.3.11;python=3.14.5;rustc=1.94.0-4a4ef493e-2026-03-02;cargo=1.94.0-85eff7c80-2026-01-15;git=2.50.1-Apple-Git-155;xcode=26.6-17F113;package_json=ce243fb8a4ab7736d8e6205f70fc920aa7ea4d2220468c64f1c4dabec7bd5989;bun_lock=30b19d307ba3a2abcd5f90e86134a7715443ff661c6db6a3069e0f79e5509e4a`
 
 Environment digest:
+`sha256:37df5fa6efd3a3b19345e65fd4688a4af01401de0d5ac2348f9596435190b9b4`
+
+The prior environment digest
 `sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7`
+remains authoritative only for historical receipts before the declared
+CON-B-SHARED-RECOVERY-TRANSACTION lockfile seam landed.
 
 This is a native macOS proof environment, not a container. Packaging and
 target-platform receipts require separate environment digests.
@@ -75,14 +80,14 @@ ownership.
 
 ## Packet queue
 
-| Packet       | Dependency      | Status   | Exact commit                                                                                                           | Focused proof                                                                                                                                                                                                                                       | Aggregate proof                                                                      | Remaining blocker                                                  |
-| ------------ | --------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                             | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                                                                                                                                          | n/a                                                                                  | none                                                               |
-| FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                             | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                                                                                                                                         | n/a                                                                                  | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
-| CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988`              | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck`                                                                                                                | final aggregate pending CON-B                                                        | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | REOPENED | storage transaction `b2d6ad48bf77faa5614f4274874207009d5b342f`; rejected integration `bccda81c79ea9bf497c26f2672790a9bc7497d9b` | historical only; acceptance audit rejected the archive path                                                                                                                                                                                         | historical only                                                                       | shared hosted/archive transaction and orphan replay                |
-| SEC-001      | CON-B           | PLANNED  | none                                                                                                                   | none                                                                                                                                                                                                                                                | dependency audit red                                                                 | partition reachable production dependencies and remediate          |
-| CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                                   | none                                                                                                                                                                                                                                                | none                                                                                 | signed packages, real journeys, deployment, canary, rollback drill |
+| Packet       | Dependency      | Status   | Exact commit                                                                                              | Focused proof                                                                                                                          | Aggregate proof                           | Remaining blocker                                                  |
+| ------------ | --------------- | -------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------ |
+| ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                             | n/a                                       | none                                                               |
+| FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                            | n/a                                       | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
+| CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck`   | final aggregate pending CON-B             | independent exact-HEAD audit after CON-B                           |
+| CON-B        | CON-A           | LANDED   | shared transaction `8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495`                                             | `CON-B-SHARED-RECOVERY-integration-focused`, `CON-B-SHARED-RECOVERY-integration-static`, `CON-B-SHARED-RECOVERY-integration-ownership` | 197/197 Vitest; 33/33 Bun; full typecheck | independent exact-HEAD audit                                       |
+| SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                   | dependency audit red                      | partition reachable production dependencies and remediate          |
+| CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                   | none                                      | signed packages, real journeys, deployment, canary, rollback drill |
 
 Allowed status values: PLANNED, BUILDING, STALLED, QUEUED, LANDED, REOPENED,
 ACCEPTED. No row may advance from prose alone.
@@ -597,15 +602,15 @@ command:      <exact command executed, verbatim>
 exit_code:    <integer>
 log_digest:   <sha256 of full output log>
 timestamp:    <ISO 8601 UTC>
-env_digest:   sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7
+env_digest:   sha256:37df5fa6efd3a3b19345e65fd4688a4af01401de0d5ac2348f9596435190b9b4
 ```
 
 Receipts against mutable trees or a commit that is no longer the relevant HEAD
 are historical evidence only. After every serial landing, the next packet
 rebases and re-runs focused proof before landing.
 
-No valid v2 execution receipt exists yet. Legacy green runs are preserved as
-recon evidence but cannot be promoted into this ledger retroactively.
+Valid v2 receipts are listed below. Legacy green runs are preserved as recon
+evidence but cannot be promoted into this ledger retroactively.
 
 ARM-001 correction history: initial state commit `3e17a142dcdc2cdaa0e4db4bbd52ceccc7b7bf2b`
 was reopened because committed-tree diff checking exposed one extra blank line
@@ -830,6 +835,34 @@ acceptance gate.
 - `strike/receipts/CON-B-LOCK-HARNESS-packet-ownership.json`
 - `strike/receipts/CON-B-LOCK-HARNESS-integration-focused.json`
 - `strike/receipts/CON-B-LOCK-HARNESS-integration-typecheck.json`
+
+CON-B-SHARED-RECOVERY-TRANSACTION commit and serial integration head
+`8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495` replace the two independent
+localStorage critical sections with one principal-scoped transaction authority.
+Web Locks remain the primary secure-context path; IndexedDB read/write
+transactions provide the cross-context fallback for documented remote HTTP
+origins. Classic and archive recovery now share the authority. Archive evidence
+is validated before mutation, multiple pending identities fail closed, different
+archives cannot mint competing operations, conditional terminal clear preserves
+a replacement, and a response-lost operation remains replayable after its source
+inventory row retires.
+
+The packet and exact integration head passed 41/41 focused hostile and actual
+consumer tests, 197/197 aggregate Constitution Vitest tests, 33/33 Bun authority
+tests, full typecheck, scoped format/lint, diff hygiene, and exact nine-file
+ownership. The first aggregate invocation at this head exited 1 because the
+integration worktree had not hydrated the newly committed test-only
+`fake-indexeddb` dependency; 175 tests passed and three suites failed import
+resolution. The red log digest is
+`sha256:befeac0d3f1a718510d00a6af601b74796988cef40b250d6a643aa3a84b8ef8f`.
+After `bun install --frozen-lockfile`, the same aggregate command passed without
+source or lockfile changes. This was an environment hydration failure, not a
+flaky rerun, and remains recorded rather than discarded. Independent
+author-excluded exact-HEAD audit is still required before CON-B can be ACCEPTED.
+
+- `strike/receipts/CON-B-SHARED-RECOVERY-integration-focused.json`
+- `strike/receipts/CON-B-SHARED-RECOVERY-integration-static.json`
+- `strike/receipts/CON-B-SHARED-RECOVERY-integration-ownership.json`
 
 ## Authorization gates
 
