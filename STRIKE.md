@@ -80,7 +80,7 @@ ownership.
 | ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                           | n/a                           | none                                                               |
 | FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                          | n/a                           | none; ledger commit `045671992e68b631790985310af587cebcc0decc`     |
 | CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988` | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck` | final aggregate pending CON-B | independent exact-HEAD audit after CON-B                           |
-| CON-B        | CON-A           | REOPENED | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; first remediation/integration `de10630790e21a621c976e93b9fe2e78f8a5c77d` | first-remediation receipts are historical evidence only                                                                             | prior aggregate green         | BLOCKER: post-dispatch `OPERATION_ID_CONFLICT` still clears identity |
+| CON-B        | CON-A           | QUEUED   | base packet `af41442374b24bcc8645d6fd11d3eec6aff8c2c6`; terminality packet `67773a35e1029f7aa223ab032f240df0e9d3be9b` | `CON-B-TERMINALITY-packet-focused`, `CON-B-TERMINALITY-packet-static`, `CON-B-TERMINALITY-packet-ownership`                            | prior aggregate green         | serial post-control rebase, re-proof, landing, exact-HEAD audit     |
 | SEC-001      | CON-B           | PLANNED  | none                                                                                                      | none                                                                                                                                 | dependency audit red          | partition reachable production dependencies and remediate          |
 | CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                      | none                                                                                                                                 | none                          | signed packages, real journeys, deployment, canary, rollback drill |
 
@@ -519,6 +519,19 @@ and the receipts below remain historical.
 - `strike/receipts/CON-B-CONFLICT-ID-rebased-ownership.json`
 - `strike/receipts/CON-B-CONFLICT-ID-integration-focused.json`
 - `strike/receipts/CON-B-CONFLICT-ID-integration-typecheck.json`
+
+CON-B-TERMINALITY packet commit
+`67773a35e1029f7aa223ab032f240df0e9d3be9b` removes overloaded error-code
+inference from identity invalidation. It retains the original operation ID,
+action, recovery revision, and projection receipt across post-dispatch
+`OPERATION_ID_CONFLICT` and refreshed-metadata drift; competing actions stay
+disabled until a producer-proven terminal result. The exact packet passes 9/9
+hostile DOM tests, scoped format/lint, full typecheck, diff, and exact two-file
+ownership gates.
+
+- `strike/receipts/CON-B-TERMINALITY-packet-focused.json`
+- `strike/receipts/CON-B-TERMINALITY-packet-static.json`
+- `strike/receipts/CON-B-TERMINALITY-packet-ownership.json`
 
 ## Authorization gates
 

@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-TERMINALITY-packet-focused",
+  "commit": "67773a35e1029f7aa223ab032f240df0e9d3be9b",
+  "command": "rtk proxy sh -o pipefail -c 'bunx vitest run tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx 2>&1 | tee /tmp/wayland-con-b-terminality-packet-focused.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:ab05ce325d38c0236bb3a239b1f0924a2823c3d6b6165c88b69540e6c1c11791",
+  "timestamp": "2026-07-17T07:32:21Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}
