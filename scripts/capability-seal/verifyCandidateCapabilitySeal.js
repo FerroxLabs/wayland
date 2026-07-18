@@ -6,8 +6,8 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const CONTRACT = 'wayland-candidate-capabilities/1.0';
-const RECEIPT_CONTRACT = 'wayland-capability-acceptance/1.0';
-const SEAL_CONTRACT = 'wayland-candidate-capability-seal/1.0';
+const RECEIPT_CONTRACT = 'wayland-capability-acceptance/2.0';
+const SEAL_CONTRACT = 'wayland-candidate-capability-seal/2.0';
 const REQUIRED = new Map([
   ['cowork-office', ['C0-B', 'C1']],
   ['voice', ['M5V-A']],
@@ -151,6 +151,22 @@ function git(root, args) {
   return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
 }
 
+function capabilitySourceDigest(root, commit, capabilityId) {
+  const inventory = EXCLUSION_INVENTORY.get(capabilityId);
+  if (!inventory) throw new Error(`Unknown capability source inventory: ${capabilityId}.`);
+  let entries;
+  try {
+    entries = execFileSync('git', ['-C', root, 'ls-tree', '-r', '-z', '--full-tree', commit, '--', ...inventory], {
+      maxBuffer: 16 * 1024 * 1024,
+    });
+  } catch {
+    throw new Error(`Cannot read ${capabilityId} source inventory at commit ${commit}.`);
+  }
+  return sha256(
+    Buffer.concat([Buffer.from(canonical({ capabilityId, inventory }), 'utf8'), Buffer.from([0]), entries])
+  );
+}
+
 function candidateIdentity(root, overrides = {}) {
   const commit = overrides.commit || git(root, ['rev-parse', 'HEAD']);
   const tree = overrides.tree || git(root, ['rev-parse', 'HEAD^{tree}']);
@@ -163,6 +179,7 @@ function candidateIdentity(root, overrides = {}) {
     tree,
     ancestors: overrides.ancestors || null,
     acceptedTrees: overrides.acceptedTrees || null,
+    sourceDigests: overrides.sourceDigests || null,
   };
 }
 
@@ -209,7 +226,16 @@ function validateSelection(selection) {
 }
 
 function validateReceipt(receipt, capability, candidate, root) {
-  const keys = ['contract', 'capabilityId', 'packets', 'status', 'acceptedCommit', 'acceptedTree', 'proof'];
+  const keys = [
+    'contract',
+    'capabilityId',
+    'packets',
+    'status',
+    'acceptedCommit',
+    'acceptedTree',
+    'sourceSha256',
+    'proof',
+  ];
   if (!exactKeys(receipt, keys) || receipt.contract !== RECEIPT_CONTRACT) {
     throw new Error(`Receipt for ${capability.id} has an invalid contract or critical fields.`);
   }
@@ -222,6 +248,9 @@ function validateReceipt(receipt, capability, candidate, root) {
   }
   if (!COMMIT.test(String(receipt.acceptedCommit)) || !COMMIT.test(String(receipt.acceptedTree))) {
     throw new Error(`Receipt for ${capability.id} has malformed accepted source identity.`);
+  }
+  if (!SHA256.test(String(receipt.sourceSha256))) {
+    throw new Error(`Receipt for ${capability.id} has malformed capability source identity.`);
   }
   const observedAcceptedTree =
     candidate.acceptedTrees?.[receipt.acceptedCommit] ||
@@ -247,6 +276,18 @@ function validateReceipt(receipt, capability, candidate, root) {
       })();
   if (!isAncestor) {
     throw new Error(`Receipt for ${capability.id} is stale or belongs to a source not present in this candidate.`);
+  }
+  const acceptedSourceSha256 =
+    candidate.sourceDigests?.[receipt.acceptedCommit]?.[capability.id] ||
+    capabilitySourceDigest(root, receipt.acceptedCommit, capability.id);
+  if (acceptedSourceSha256 !== receipt.sourceSha256) {
+    throw new Error(`Receipt for ${capability.id} does not bind its accepted capability source.`);
+  }
+  const candidateSourceSha256 =
+    candidate.sourceDigests?.[candidate.commit]?.[capability.id] ||
+    capabilitySourceDigest(root, candidate.commit, capability.id);
+  if (candidateSourceSha256 !== receipt.sourceSha256) {
+    throw new Error(`Capability ${capability.id} source changed after its accepted receipt.`);
   }
   if (!Array.isArray(receipt.proof) || receipt.proof.length === 0 || receipt.proof.some((item) => !SHA256.test(item))) {
     throw new Error(`Receipt for ${capability.id} has no exact proof digests.`);
@@ -293,6 +334,7 @@ function createCapabilitySeal(options = {}) {
       receiptSha256: digest,
       acceptedCommit: receipt.acceptedCommit,
       acceptedTree: receipt.acceptedTree,
+      sourceSha256: receipt.sourceSha256,
     });
   }
 
@@ -318,12 +360,14 @@ function verifyCapabilitySeal(seal) {
   for (const entry of seal.capabilities) {
     const expectedKeys =
       entry?.mode === 'included'
-        ? ['id', 'packets', 'mode', 'receiptSha256', 'acceptedCommit', 'acceptedTree']
+        ? ['id', 'packets', 'mode', 'receiptSha256', 'acceptedCommit', 'acceptedTree', 'sourceSha256']
         : ['id', 'packets', 'mode', 'receiptSha256'];
     if (!exactKeys(entry, expectedKeys)) throw new Error('Packaged capability seal has invalid critical fields.');
     if (
       entry.mode === 'included' &&
-      (!COMMIT.test(String(entry.acceptedCommit)) || !COMMIT.test(String(entry.acceptedTree)))
+      (!COMMIT.test(String(entry.acceptedCommit)) ||
+        !COMMIT.test(String(entry.acceptedTree)) ||
+        !SHA256.test(String(entry.sourceSha256)))
     ) {
       throw new Error(`Packaged capability ${String(entry.id)} has malformed accepted source identity.`);
     }
@@ -355,6 +399,7 @@ module.exports = {
   CONTRACT,
   RECEIPT_CONTRACT,
   SEAL_CONTRACT,
+  capabilitySourceDigest,
   createCapabilitySeal,
   sha256,
   validateSelection,
