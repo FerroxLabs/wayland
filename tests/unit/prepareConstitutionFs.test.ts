@@ -28,8 +28,11 @@ describe('prepareConstitutionFs', () => {
   it('generates target authority before Vite compiles app.asar and declares the helper as a packaged resource', () => {
     const build = fs.readFileSync(path.resolve('scripts/build-with-builder.js'), 'utf8');
     const builder = fs.readFileSync(path.resolve('electron-builder.yml'), 'utf8');
-    expect(build.indexOf('prepareConstitutionFs({ platform:')).toBeGreaterThan(0);
-    expect(build.indexOf('prepareConstitutionFs({ platform:')).toBeLessThan(build.indexOf('electron-vite build'));
+    const prepareCall = build.indexOf('prepareConstitutionFs({');
+    const platformBinding = build.indexOf('platform: packagePlatforms[0]', prepareCall);
+    expect(prepareCall).toBeGreaterThan(0);
+    expect(platformBinding).toBeGreaterThan(prepareCall);
+    expect(prepareCall).toBeLessThan(build.indexOf('electron-vite build'));
     expect(builder).toContain('from: resources/bundled-constitution-fs');
     expect(builder).toContain("'/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$'");
   });
