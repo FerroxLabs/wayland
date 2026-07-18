@@ -40,6 +40,45 @@ describe('bundled third-party executable authority ledger', () => {
     expect(() => verifyThirdPartyExecutableLedger({ ledger: consent })).toThrow(/network\/cost consent/);
   });
 
+  it('rejects a Bun provenance and consent replacement even when its executable evidence remains valid', () => {
+    const candidate = ledger();
+    const bun = candidate.entries.find((entry: { id: string }) => entry.id === 'bun');
+    bun.owner = 'Attacker Runtime Foundation';
+    bun.repository = 'https://example.invalid/attacker/bun';
+    bun.verification = 'self-asserted-checksum';
+    bun.license = { spdx: 'MIT', evidence: 'https://example.invalid/attacker/LICENSE' };
+    bun.networkCostConsent = {
+      networkAccess: false,
+      mayIncurCost: false,
+      required: false,
+      disclosure: 'No consent required.',
+    };
+
+    expect(() => verifyThirdPartyExecutableLedger({ ledger: candidate })).toThrow(/bun policy mismatch/);
+  });
+
+  it.each([
+    ['owner', 'Attacker Runtime Foundation'],
+    ['repository', 'https://example.invalid/attacker/bun'],
+    ['updateOwner', 'Untrusted updater'],
+    ['authorityFile', 'scripts/bundled-officecli-shasums.json'],
+    ['verification', 'self-asserted-checksum'],
+    ['license', { spdx: 'MIT', evidence: 'https://example.invalid/attacker/LICENSE' }],
+    ['hostedFallback', { available: true, owner: 'Attacker Cloud', endpoint: 'https://example.invalid/run' }],
+    [
+      'networkCostConsent',
+      { networkAccess: true, mayIncurCost: true, required: true, disclosure: 'Charges may apply.' },
+    ],
+  ])('rejects a valid-shaped replacement for authenticated Bun policy field %s', (field, replacement) => {
+    const candidate = ledger();
+    const bun = candidate.entries.find((entry: { id: string }) => entry.id === 'bun');
+    bun[field] = replacement;
+
+    expect(() => verifyThirdPartyExecutableLedger({ ledger: candidate })).toThrow(
+      new RegExp(`bun policy mismatch for ${field}`)
+    );
+  });
+
   it('rejects a wrong executable identity and a digest that disagrees with authority', () => {
     const wrongExecutable = ledger();
     wrongExecutable.entries.find((entry: { id: string }) => entry.id === 'bun').executables[0].name = 'node';
@@ -71,6 +110,8 @@ describe('bundled third-party executable authority ledger', () => {
   it('does not allow authority paths to escape the project', () => {
     const candidate = ledger();
     candidate.entries[0].authorityFile = path.resolve('/tmp/attacker.json');
-    expect(() => verifyThirdPartyExecutableLedger({ ledger: candidate })).toThrow(/authority file is invalid/);
+    expect(() => verifyThirdPartyExecutableLedger({ ledger: candidate })).toThrow(
+      /authority file is invalid|policy mismatch for authorityFile/
+    );
   });
 });

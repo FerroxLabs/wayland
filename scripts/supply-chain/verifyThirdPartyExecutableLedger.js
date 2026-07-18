@@ -12,6 +12,77 @@ const EXPECTED_NAMES = {
   '7zip-recovery': new Set(['7za.exe']),
   'signal-cli': new Set(['signal-cli']),
 };
+const POLICY_AUTHORITY = {
+  '7zip-recovery': {
+    owner: '7-Zip / 7zip-bin maintainers',
+    repository: 'https://github.com/develar/7zip-bin',
+    updateOwner: 'FerroxLabs Desktop release engineering',
+    authorityFile: 'scripts/supply-chain/classic-recovery-tools.json',
+    verification: 'package-lock+executable-digest',
+    license: {
+      spdx: 'MIT AND LGPL-2.1-or-later',
+      evidence: 'https://github.com/develar/7zip-bin',
+    },
+    hostedFallback: { available: false, owner: null, endpoint: null },
+    networkCostConsent: {
+      networkAccess: false,
+      mayIncurCost: false,
+      required: false,
+      disclosure: 'Local recovery executable.',
+    },
+  },
+  bun: {
+    owner: 'Oven Inc.',
+    repository: 'https://github.com/oven-sh/bun',
+    updateOwner: 'FerroxLabs Desktop release engineering',
+    authorityFile: 'scripts/bundled-bun-binaries.json',
+    verification: 'official-shasums+extracted-binary-digest',
+    license: { spdx: 'MIT', evidence: 'https://github.com/oven-sh/bun/blob/main/LICENSE.md' },
+    hostedFallback: { available: false, owner: null, endpoint: null },
+    networkCostConsent: {
+      networkAccess: true,
+      mayIncurCost: false,
+      required: true,
+      disclosure: 'Bun may download packages only after the user initiates a tool or MCP install.',
+    },
+  },
+  officecli: {
+    owner: 'iOfficeAI',
+    repository: 'https://github.com/iOfficeAI/OfficeCLI',
+    updateOwner: 'FerroxLabs Desktop release engineering',
+    authorityFile: 'scripts/bundled-officecli-shasums.json',
+    verification: 'pinned-release-digest+platform-signature',
+    license: {
+      spdx: 'Apache-2.0',
+      evidence: 'https://github.com/iOfficeAI/OfficeCLI/blob/main/LICENSE',
+    },
+    hostedFallback: { available: false, owner: null, endpoint: null },
+    networkCostConsent: {
+      networkAccess: false,
+      mayIncurCost: false,
+      required: false,
+      disclosure: 'Local bundled executable.',
+    },
+  },
+  'signal-cli': {
+    owner: 'AsamK',
+    repository: 'https://github.com/AsamK/signal-cli',
+    updateOwner: 'FerroxLabs Desktop release engineering',
+    authorityFile: 'scripts/signal-cli-pinned-release.json',
+    verification: 'pinned-release-asset+archive-and-binary-digest',
+    license: {
+      spdx: 'GPL-3.0-only',
+      evidence: 'https://github.com/AsamK/signal-cli/blob/master/LICENSE',
+    },
+    hostedFallback: { available: false, owner: null, endpoint: null },
+    networkCostConsent: {
+      networkAccess: true,
+      mayIncurCost: true,
+      required: true,
+      disclosure: 'Signal messaging uses the network and carrier or data charges may apply.',
+    },
+  },
+};
 const SHA256 = /^[0-9a-f]{64}$/;
 
 function readJson(filePath) {
@@ -22,6 +93,27 @@ function normalizeSha(value) {
   return String(value || '')
     .replace(/^sha256:/, '')
     .toLowerCase();
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value !== null && typeof value === 'object') {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function verifyPolicyAuthority(entry) {
+  const policy = POLICY_AUTHORITY[entry.id];
+  if (!policy) throw new Error(`${entry.id} has no authenticated policy authority`);
+  for (const [field, authoritative] of Object.entries(policy)) {
+    if (canonicalJson(entry[field]) !== canonicalJson(authoritative)) {
+      throw new Error(`${entry.id} policy mismatch for ${field}`);
+    }
+  }
 }
 
 function validateLedger(ledger, { projectRoot = path.resolve(__dirname, '../..') } = {}) {
@@ -59,6 +151,7 @@ function validateLedger(ledger, { projectRoot = path.resolve(__dirname, '../..')
     if ((!consent.networkAccess && consent.mayIncurCost) || (consent.mayIncurCost && !consent.required)) {
       throw new Error(`${entry.id} has contradictory network/cost consent facts`);
     }
+    verifyPolicyAuthority(entry);
     const authorityPath = path.resolve(projectRoot, entry.authorityFile);
     if (!authorityPath.startsWith(`${projectRoot}${path.sep}`) || !fs.statSync(authorityPath).isFile()) {
       throw new Error(`${entry.id} authority file is invalid`);
