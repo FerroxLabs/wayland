@@ -321,4 +321,113 @@ describe('JsonFileBuilder in-memory cache behavior', () => {
       expect(persisted.payload).toEqual(expected);
     });
   });
+
+  describe('snapshot quiescence', () => {
+    it('captures a detached atomic snapshot and blocks every mutation surface synchronously', async () => {
+      type TestConfig = { value?: number; nested?: { enabled: boolean } };
+      const store = JsonFileBuilder<TestConfig>(filePath);
+      await store.setJson({ value: 1, nested: { enabled: false } });
+      const lease = store.acquireSnapshotLease();
+      const first = lease.read();
+      first.value = 99;
+      first.nested!.enabled = true;
+
+      expect(lease.epoch).toBe(1);
+      expect(store.getMutationEpoch()).toBe(1);
+      expect(lease.read()).toEqual({ value: 1, nested: { enabled: false } });
+      expect(store.toJsonSync()).toEqual({ value: 1, nested: { enabled: false } });
+      expect(() => store.set('value', 2)).toThrow('Mutation blocked while snapshot lease is held');
+      expect(() => store.setJson({ value: 2 })).toThrow('Mutation blocked while snapshot lease is held');
+      expect(() => store.update('value', async () => 2)).toThrow('Mutation blocked while snapshot lease is held');
+      expect(() => store.remove('value')).toThrow('Mutation blocked while snapshot lease is held');
+      expect(() => store.clear()).toThrow('Mutation blocked while snapshot lease is held');
+      const blockedBackup = path.join(tmpDir, 'blocked-backup', 'backup.txt');
+      expect(() => store.backup(blockedBackup)).toThrow('Mutation blocked while snapshot lease is held');
+      expect(existsSync(path.dirname(blockedBackup))).toBe(false);
+
+      lease.release();
+      await expect(store.set('value', 2)).resolves.toBe(2);
+      expect(store.getMutationEpoch()).toBe(2);
+    });
+
+    it('fails snapshot acquisition while a mutation is queued or in flight', async () => {
+      type TestConfig = { value?: number };
+      const store = JsonFileBuilder<TestConfig>(filePath);
+      let continueUpdate: (() => void) | undefined;
+      const gate = new Promise<void>((resolve) => {
+        continueUpdate = resolve;
+      });
+
+      const mutation = store.update('value', async () => {
+        await gate;
+        return 1;
+      });
+
+      expect(() => store.acquireSnapshotLease()).toThrow('Snapshot lease blocked by pending mutation');
+      continueUpdate?.();
+      await mutation;
+
+      const lease = store.acquireSnapshotLease();
+      expect(lease.read()).toEqual({ value: 1 });
+      lease.release();
+    });
+
+    it('rejects overlapping leases and stale idempotent release cannot release a successor', async () => {
+      const store = JsonFileBuilder<Record<string, unknown>>(filePath);
+      const first = store.acquireSnapshotLease();
+      expect(() => store.acquireSnapshotLease()).toThrow('Snapshot lease already held');
+
+      first.release();
+      const second = store.acquireSnapshotLease();
+      first.release();
+      expect(() => first.read()).toThrow('Snapshot lease already released');
+      expect(() => store.set('blocked', true)).toThrow('Mutation blocked while snapshot lease is held');
+
+      second.release();
+      second.release();
+      await expect(store.set('allowed', true)).resolves.toBe(true);
+    });
+
+    it('advances epoch only after successful persistence and recovers after a failed write', async () => {
+      type TestConfig = { value?: number };
+      const store = JsonFileBuilder<TestConfig>(filePath);
+      expect(store.getMutationEpoch()).toBe(0);
+      await store.set('value', 1);
+      expect(store.getMutationEpoch()).toBe(1);
+
+      await fs.rm(filePath);
+      await fs.mkdir(filePath);
+      await expect(store.set('value', 2)).rejects.toThrow();
+      expect(store.getMutationEpoch()).toBe(1);
+      expect(await store.get('value')).toBe(1);
+
+      await fs.rm(filePath, { recursive: true });
+      await store.set('value', 3);
+      expect(store.getMutationEpoch()).toBe(2);
+    });
+
+    it('treats backup as a serialized persisted-state mutation', async () => {
+      const store = JsonFileBuilder<{ value?: number }>(filePath);
+      await store.set('value', 1);
+      const destination = path.join(tmpDir, 'backup', 'config.txt');
+
+      await store.backup(destination);
+
+      expect(store.getMutationEpoch()).toBe(2);
+      expect(existsSync(filePath)).toBe(false);
+      expect(JSON.parse(decode(await fs.readFile(destination, 'utf8')))).toEqual({ value: 1 });
+    });
+
+    it('does not advance epoch when backup fails', async () => {
+      const store = JsonFileBuilder<{ value?: number }>(filePath);
+      await store.set('value', 1);
+      await fs.rm(filePath);
+      await fs.mkdir(filePath);
+
+      await expect(store.backup(path.join(tmpDir, 'failed-backup.txt'))).rejects.toThrow();
+
+      expect(store.getMutationEpoch()).toBe(1);
+      expect(await store.get('value')).toBe(1);
+    });
+  });
 });

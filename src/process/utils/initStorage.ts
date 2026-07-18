@@ -176,6 +176,15 @@ type JsonStorageRootKind = 'object' | 'array';
 const encodeStorage = (data: unknown): string => btoa(encodeURIComponent(String(data)));
 const decodeStorage = (base64: string): string => decodeURIComponent(atob(base64));
 
+export interface JsonStorageSnapshotLease<S extends object> {
+  /** Persisted-state generation captured atomically with the snapshot. */
+  readonly epoch: number;
+  /** Return a detached copy of the state captured when the lease was acquired. */
+  read(): S;
+  /** Release this lease. Releasing the same lease more than once is harmless. */
+  release(): void;
+}
+
 export const JsonFileBuilder = <S extends object = Record<string, unknown>>(
   filePath: string,
   rootKind: JsonStorageRootKind = 'object'
@@ -258,11 +267,41 @@ export const JsonFileBuilder = <S extends object = Record<string, unknown>>(
 
   // -- serialized store-wide mutation/persistence --
   let writeChain: Promise<unknown> = Promise.resolve();
+  let pendingMutations = 0;
+  let mutationEpoch = 0;
+  let activeSnapshotLease: symbol | null = null;
+
+  const assertMutationAllowed = () => {
+    if (activeSnapshotLease !== null) {
+      throw new Error(`[Storage] Mutation blocked while snapshot lease is held: ${filePath}`);
+    }
+  };
+
+  const queueMutation = <R>(operation: () => Promise<R>): Promise<R> => {
+    // The guard and counter are intentionally synchronous. A caller cannot
+    // acquire a snapshot between submitting a mutation and that mutation
+    // entering the serialized persistence chain.
+    assertMutationAllowed();
+    pendingMutations += 1;
+    const writeOp = writeChain.then(operation);
+    writeChain = writeOp.catch(() => {});
+    return writeOp
+      .then(
+        (result) => result,
+        (err) => {
+          console.error(`[Storage] Failed to persist ${filePath}:`, err);
+          throw err;
+        }
+      )
+      .finally(() => {
+        pendingMutations -= 1;
+      });
+  };
 
   const mutate = <R>(build: (current: S) => Promise<{ next: S; result: R }> | { next: S; result: R }): Promise<R> => {
     // Build inside the queue from the last successful cache. No candidate is
     // visible to getters or sibling writers until its disk write succeeds.
-    const writeOp = writeChain.then(async () => {
+    return queueMutation(async () => {
       const { next, result } = await build(ensureLoaded());
       assertStorageRoot(next);
       const { json, promotion } = canonicalizeJsonValue(next);
@@ -270,22 +309,15 @@ export const JsonFileBuilder = <S extends object = Record<string, unknown>>(
       const encoded = encodeStorage(json);
       await WriteFile(filePath, encoded);
       cache = promotion;
+      mutationEpoch += 1;
       return result;
     });
-    writeChain = writeOp.catch(() => {});
-    return writeOp.then(
-      (result) => result,
-      (err) => {
-        console.error(`[Storage] Failed to persist ${filePath}:`, err);
-        throw err;
-      }
-    );
   };
 
   // -- public API (same shape as before) --
   const toJson = async (): Promise<S> => cloneJsonValue(ensureLoaded());
 
-  const setJson = async (data: S): Promise<S> => {
+  const setJson = (data: S): Promise<S> => {
     return mutate(() => {
       const next = cloneJsonValue(data);
       return { next, result: next };
@@ -294,11 +326,44 @@ export const JsonFileBuilder = <S extends object = Record<string, unknown>>(
 
   const toJsonSync = (): S => cloneJsonValue(ensureLoaded());
 
+  const acquireSnapshotLease = (): JsonStorageSnapshotLease<S> => {
+    if (activeSnapshotLease !== null) {
+      throw new Error(`[Storage] Snapshot lease already held: ${filePath}`);
+    }
+    if (pendingMutations !== 0) {
+      throw new Error(`[Storage] Snapshot lease blocked by pending mutation: ${filePath}`);
+    }
+
+    const token = Symbol('json-storage-snapshot-lease');
+    const snapshot = cloneJsonValue(ensureLoaded());
+    const epoch = mutationEpoch;
+    let released = false;
+    activeSnapshotLease = token;
+
+    return Object.freeze({
+      epoch,
+      read: () => {
+        if (released) throw new Error(`[Storage] Snapshot lease already released: ${filePath}`);
+        return cloneJsonValue(snapshot);
+      },
+      release: () => {
+        if (released) return;
+        if (activeSnapshotLease !== token) {
+          throw new Error(`[Storage] Snapshot lease ownership mismatch: ${filePath}`);
+        }
+        activeSnapshotLease = null;
+        released = true;
+      },
+    });
+  };
+
   return {
     toJson,
     setJson,
     toJsonSync,
-    async set<K extends keyof S>(key: K, value: Awaited<S>[K]): Promise<Awaited<S>[K]> {
+    getMutationEpoch: () => mutationEpoch,
+    acquireSnapshotLease,
+    set<K extends keyof S>(key: K, value: Awaited<S>[K]): Promise<Awaited<S>[K]> {
       return mutate((current) => {
         const next = cloneJsonValue(current);
         next[key] = value;
@@ -308,7 +373,7 @@ export const JsonFileBuilder = <S extends object = Record<string, unknown>>(
     async get<K extends keyof S>(key: K): Promise<Awaited<S>[K]> {
       return cloneJsonValue(ensureLoaded()[key]) as Awaited<S>[K];
     },
-    async remove<K extends keyof S>(key: K) {
+    remove<K extends keyof S>(key: K) {
       return mutate((current) => {
         const next = cloneJsonValue(current);
         delete next[key];
@@ -332,21 +397,16 @@ export const JsonFileBuilder = <S extends object = Record<string, unknown>>(
       });
     },
     backup(fullName: string) {
-      const dir = nodePath.dirname(fullName);
-      if (!existsSync(dir)) {
-        mkdirSync(dir);
-      }
       // Backup: copy the file then remove original
-      const doCopy = () => fs.copyFile(filePath, fullName).then(() => fs.rm(filePath, { recursive: true }));
-      const backupOp = writeChain.then(doCopy);
-      writeChain = backupOp.catch(() => {});
-      return backupOp.then(
-        () => {},
-        (err) => {
-          console.error(`[Storage] Backup failed:`, err);
-          throw err;
+      return queueMutation(async () => {
+        const dir = nodePath.dirname(fullName);
+        if (!existsSync(dir)) {
+          mkdirSync(dir);
         }
-      );
+        await fs.copyFile(filePath, fullName);
+        await fs.rm(filePath, { recursive: true });
+        mutationEpoch += 1;
+      });
     },
   };
 };
