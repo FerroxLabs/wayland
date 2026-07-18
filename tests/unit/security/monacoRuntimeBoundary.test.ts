@@ -4,12 +4,53 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const projectRoot = process.cwd();
 const monacoPackage = /@monaco-editor|(?:^|["'/:@])monaco-editor(?:["'/@]|$)/i;
+
+function installedPackageManifests(root: string): string[] {
+  if (!existsSync(root)) return [];
+
+  const manifests: string[] = [];
+  const pending = [root];
+  const visited = new Set<string>();
+
+  while (pending.length > 0) {
+    const directory = pending.pop()!;
+    let canonicalDirectory: string;
+    try {
+      canonicalDirectory = realpathSync(directory);
+    } catch {
+      continue;
+    }
+    if (visited.has(canonicalDirectory)) continue;
+    visited.add(canonicalDirectory);
+
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = resolve(directory, entry.name);
+      if (entry.isFile() && entry.name === 'package.json') {
+        manifests.push(path);
+        continue;
+      }
+      if (entry.isDirectory()) {
+        pending.push(path);
+        continue;
+      }
+      if (entry.isSymbolicLink()) {
+        try {
+          if (statSync(path).isDirectory()) pending.push(path);
+        } catch {
+          // Broken optional-dependency links do not represent installed packages.
+        }
+      }
+    }
+  }
+
+  return manifests;
+}
 
 describe('Monaco-free dependency and build-input boundary', () => {
   it('locks the repaired dependency cohort without Monaco packages', () => {
@@ -60,8 +101,30 @@ describe('Monaco-free dependency and build-input boundary', () => {
 
     expect(declaredDependencySurfaces).not.toMatch(monacoPackage);
     expect(lockfile).not.toMatch(/@monaco-editor|"monaco-editor"\s*:|monaco-editor@\d/i);
-    expect(existsSync(resolve(projectRoot, 'node_modules/@monaco-editor'))).toBe(false);
-    expect(existsSync(resolve(projectRoot, 'node_modules/monaco-editor'))).toBe(false);
+    const installedPackages = installedPackageManifests(resolve(projectRoot, 'node_modules')).map((manifestPath) => {
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
+        name?: string;
+        version?: string;
+      };
+      return { manifestPath, name: manifest.name ?? '', version: manifest.version ?? '' };
+    });
+    const installedMonacoPackages = installedPackages.filter(({ name }) => monacoPackage.test(name));
+
+    expect(installedMonacoPackages).toEqual([]);
+
+    for (const [name, version] of Object.entries({
+      dompurify: '3.4.12',
+      mermaid: '11.16.0',
+      multer: '2.2.0',
+      'react-router-dom': '7.18.1',
+      vite: '6.4.3',
+      ws: '8.21.1',
+    })) {
+      const installedManifest = JSON.parse(
+        readFileSync(resolve(projectRoot, 'node_modules', name, 'package.json'), 'utf8')
+      ) as { name: string; version: string };
+      expect(installedManifest).toMatchObject({ name, version });
+    }
   });
 
   it('keeps Monaco out of the owned renderer build inputs', () => {
