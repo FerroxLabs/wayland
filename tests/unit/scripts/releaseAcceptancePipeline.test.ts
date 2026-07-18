@@ -17,15 +17,16 @@ const { verifySevereDependencyAudit } = require('../../../scripts/release-accept
 const { REQUIRED_GATES } = require('../../../scripts/release-acceptance/produceProtectedAcceptanceEvidence') as {
   REQUIRED_GATES: Record<string, string>;
 };
-const { produceConditionalCapabilityReceipts } = require('../../../scripts/release-acceptance/produceProtectedAcceptanceEvidence') as {
-  produceConditionalCapabilityReceipts: (
-    rawRoot: string,
-    output: string,
-    candidate: { commit: string; tree: string },
-    seal: Record<string, any>,
-    gates: Map<string, { logSha256: string }>
-  ) => void;
-};
+const { produceConditionalCapabilityReceipts } =
+  require('../../../scripts/release-acceptance/produceProtectedAcceptanceEvidence') as {
+    produceConditionalCapabilityReceipts: (
+      rawRoot: string,
+      output: string,
+      candidate: { commit: string; tree: string },
+      seal: Record<string, any>,
+      gates: Map<string, { logSha256: string }>
+    ) => void;
+  };
 
 const roots: string[] = [];
 
@@ -43,17 +44,20 @@ describe('protected release acceptance pipeline', () => {
     mkdirSync(output);
     const digest = (value: string) => `sha256:${createHash('sha256').update(value).digest('hex')}`;
     const candidate = { commit: 'a'.repeat(40), tree: 'b'.repeat(40) };
-    const proofBytes = 'protected cowork proof\n';
-    writeFileSync(join(raw, 'capability-receipts/cowork-office.proof.log'), proofBytes);
+    const logBytes = 'protected cowork proof output\n';
+    writeFileSync(join(raw, 'capability-receipts/cowork-office.proof.log'), logBytes);
+    const proofBytes = `${JSON.stringify({ contract: 'wayland-capability-proof/1.0' })}\n`;
+    writeFileSync(join(raw, 'capability-receipts/cowork-office.proof.json'), proofBytes);
     const receipt = { capabilityId: 'cowork-office', packets: ['C0-B', 'C1'] };
     const receiptBytes = `${JSON.stringify(receipt)}\n`;
     writeFileSync(join(raw, 'capability-receipts/cowork-office.json'), receiptBytes);
     const receiptSha256 = digest(receiptBytes);
     const proofSha256 = digest(proofBytes);
+    const logSha256 = digest(logBytes);
     writeFileSync(
       join(raw, 'capability-receipts/manifest.json'),
       `${JSON.stringify({
-        contract: 'wayland-capability-acceptance-manifest/1.0',
+        contract: 'wayland-capability-acceptance-manifest/2.0',
         candidate,
         selectionSha256: digest('selection'),
         receipts: [
@@ -61,8 +65,10 @@ describe('protected release acceptance pipeline', () => {
             capabilityId: 'cowork-office',
             receiptFile: 'cowork-office.json',
             receiptSha256,
-            proofFile: 'cowork-office.proof.log',
+            proofFile: 'cowork-office.proof.json',
             proofSha256,
+            logFile: 'cowork-office.proof.log',
+            logSha256,
           },
         ],
       })}\n`

@@ -206,6 +206,7 @@ function collectRawAcceptanceEvidence(sourceDirectory, outputDirectory) {
     }
     if (capabilityModes.get(capability) === 'included') {
       fixedFiles.push(`capability-receipts/${capability}.json`);
+      fixedFiles.push(`capability-receipts/${capability}.proof.json`);
       fixedFiles.push(`capability-receipts/${capability}.proof.log`);
     }
   }

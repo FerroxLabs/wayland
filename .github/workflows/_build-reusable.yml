@@ -145,7 +145,7 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Generate exact capability acceptance receipts
+      - name: Generate structured exact capability acceptance receipts
         shell: bash
         run: |
           set -euo pipefail

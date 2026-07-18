@@ -6,8 +6,9 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 
 const CONTRACT = 'wayland-candidate-capabilities/2.0';
-const RECEIPT_CONTRACT = 'wayland-capability-acceptance/2.0';
-const RECEIPT_MANIFEST_CONTRACT = 'wayland-capability-acceptance-manifest/1.0';
+const RECEIPT_CONTRACT = 'wayland-capability-acceptance/3.0';
+const RECEIPT_MANIFEST_CONTRACT = 'wayland-capability-acceptance-manifest/2.0';
+const PROOF_CONTRACT = 'wayland-capability-proof/1.0';
 const SEAL_CONTRACT = 'wayland-candidate-capability-seal/3.0';
 const ATTESTATION_REPOSITORY = 'FerroxLabs/wayland';
 const ATTESTATION_SIGNER = 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml';
@@ -120,6 +121,48 @@ const EXCLUSION_INVENTORY = new Map([
     ],
   ],
 ]);
+const SUITES = Object.freeze({
+  'cowork-office': [
+    'tests/unit/coworkAuthorityIsolation.test.ts',
+    'tests/unit/coworkContract.test.ts',
+    'tests/unit/coworkReplayContract.test.ts',
+    'tests/unit/officecliInstaller.test.ts',
+    'tests/unit/process/services/capabilities/OfficeCliAuthoringCapability.test.ts',
+    'tests/e2e/cowork/replayContract.test.ts',
+  ],
+  voice: [
+    'tests/unit/common/VoiceSessionMachine.test.ts',
+    'tests/unit/common/voiceResponseText.test.ts',
+    'tests/unit/process/services/voice/textToSpeech.test.ts',
+    'tests/unit/process/services/voice/voiceAssetManager.test.ts',
+    'tests/unit/process/bridge/voiceSynthBridge.test.ts',
+    'tests/unit/renderer/conversation/VoiceConversationMode.dom.test.tsx',
+  ],
+  mcp: [
+    'tests/unit/common/mcpSessionReceipt.test.ts',
+    'tests/unit/process/services/mcpServices/mcpSessionTruthGate.test.ts',
+    'tests/unit/process/services/mcpServices/runtimeMcpServers.test.ts',
+    'tests/unit/process/bridge/McpSessionRebindCoordinator.test.ts',
+    'tests/unit/process/agent/wcore/desktopMcpProfile.test.ts',
+    'tests/integration/mcpAgentConsumption.test.ts',
+  ],
+  sandbox: [
+    'tests/unit/extensions/sandboxHost.test.ts',
+    'tests/unit/extensions/sandboxPermission.test.ts',
+    'tests/unit/process/task/codexNativeSandbox.test.ts',
+    'tests/unit/process/team/sandbox/acpFileOpGate.test.ts',
+    'tests/unit/process/team/sandbox/capabilityCheck.test.ts',
+    'tests/unit/process/team/sandbox/workspaceFs.test.ts',
+  ],
+  flux: [
+    'tests/unit/fluxRoutingEvidence.test.ts',
+    'tests/unit/process/flux/FluxRoutingEvidenceAdapter.test.ts',
+    'tests/unit/task/fluxRoutingSafety.test.ts',
+    'tests/unit/task/fluxRoutingResolvedModel.test.ts',
+    'tests/unit/renderer/acpFluxFailover.test.ts',
+    'tests/unit/process/bridge/fluxConnectorBridge.test.ts',
+  ],
+});
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
 const COMMIT = /^[0-9a-f]{40,64}$/;
 
@@ -324,7 +367,17 @@ function readReceiptAuthority(receiptsDir, selection, candidate, options = {}) {
   }
   const receipts = new Map();
   for (const entry of manifest.receipts) {
-    if (!exactKeys(entry, ['capabilityId', 'receiptFile', 'receiptSha256', 'proofFile', 'proofSha256'])) {
+    if (
+      !exactKeys(entry, [
+        'capabilityId',
+        'receiptFile',
+        'receiptSha256',
+        'proofFile',
+        'proofSha256',
+        'logFile',
+        'logSha256',
+      ])
+    ) {
       throw new Error('Capability acceptance manifest receipt has missing or unknown critical fields.');
     }
     if (!included.some((capability) => capability.id === entry.capabilityId) || receipts.has(entry.capabilityId)) {
@@ -333,16 +386,23 @@ function readReceiptAuthority(receiptsDir, selection, candidate, options = {}) {
     if (
       path.basename(entry.receiptFile) !== entry.receiptFile ||
       path.basename(entry.proofFile) !== entry.proofFile ||
+      path.basename(entry.logFile) !== entry.logFile ||
+      entry.receiptFile !== `${entry.capabilityId}.json` ||
+      entry.proofFile !== `${entry.capabilityId}.proof.json` ||
+      entry.logFile !== `${entry.capabilityId}.proof.log` ||
       !SHA256.test(String(entry.receiptSha256)) ||
-      !SHA256.test(String(entry.proofSha256))
+      !SHA256.test(String(entry.proofSha256)) ||
+      !SHA256.test(String(entry.logSha256))
     ) {
       throw new Error(`Capability acceptance manifest path or digest is invalid: ${entry.capabilityId}.`);
     }
     const receiptFile = path.join(receiptsDir, entry.receiptFile);
     const proofFile = path.join(receiptsDir, entry.proofFile);
+    const logFile = path.join(receiptsDir, entry.logFile);
     for (const [file, expected, kind] of [
       [receiptFile, entry.receiptSha256, 'receipt'],
       [proofFile, entry.proofSha256, 'proof'],
+      [logFile, entry.logSha256, 'log'],
     ]) {
       const fileStat = fs.lstatSync(file);
       if (!fileStat.isFile() || fileStat.isSymbolicLink()) {
@@ -359,9 +419,55 @@ function readReceiptAuthority(receiptsDir, selection, candidate, options = {}) {
         trustedCommit
       );
     }
-    receipts.set(entry.capabilityId, { ...entry, receiptFile });
+    receipts.set(entry.capabilityId, { ...entry, receiptFile, proofFile, logFile });
   }
   return { manifestSha256, receipts, selectionSha256 };
+}
+
+function validateProof(proof, capability, candidate, receipt, authority) {
+  if (
+    !exactKeys(proof, ['contract', 'candidate', 'capabilityId', 'command', 'exitCode', 'log', 'source']) ||
+    proof.contract !== PROOF_CONTRACT
+  ) {
+    throw new Error(`Proof for ${capability.id} has an invalid contract or critical fields.`);
+  }
+  if (
+    !exactKeys(proof.candidate, ['commit', 'tree']) ||
+    proof.candidate.commit !== candidate.commit ||
+    proof.candidate.tree !== candidate.tree
+  ) {
+    throw new Error(`Proof for ${capability.id} belongs to a stale or foreign candidate.`);
+  }
+  if (proof.capabilityId !== capability.id || proof.capabilityId !== receipt.capabilityId) {
+    throw new Error(`Proof for ${capability.id} has a mismatched capability identity.`);
+  }
+  const expectedFiles = SUITES[capability.id];
+  if (
+    !expectedFiles ||
+    !exactKeys(proof.command, ['executable', 'arguments']) ||
+    proof.command.executable !== 'bun' ||
+    JSON.stringify(proof.command.arguments) !== JSON.stringify(['run', 'test:vitest', '--', ...expectedFiles])
+  ) {
+    throw new Error(`Proof for ${capability.id} did not execute the canonical capability suite.`);
+  }
+  if (!Number.isInteger(proof.exitCode) || proof.exitCode !== 0) {
+    throw new Error(`Proof for ${capability.id} did not record a successful canonical suite.`);
+  }
+  if (
+    !exactKeys(proof.log, ['file', 'sha256']) ||
+    proof.log.file !== authority.logFileName ||
+    proof.log.sha256 !== authority.logSha256
+  ) {
+    throw new Error(`Proof for ${capability.id} does not bind its exact execution log.`);
+  }
+  const expectedPaths = EXCLUSION_INVENTORY.get(capability.id);
+  if (
+    !exactKeys(proof.source, ['sha256', 'paths']) ||
+    proof.source.sha256 !== receipt.sourceSha256 ||
+    JSON.stringify(proof.source.paths) !== JSON.stringify(expectedPaths)
+  ) {
+    throw new Error(`Proof for ${capability.id} does not bind its canonical capability source inventory.`);
+  }
 }
 
 function validateReceipt(receipt, capability, candidate, root) {
@@ -384,6 +490,9 @@ function validateReceipt(receipt, capability, candidate, root) {
     receipt.status !== 'accepted'
   ) {
     throw new Error(`Receipt for ${capability.id} does not accept the exact required packet set.`);
+  }
+  if (receipt.acceptedCommit !== candidate.commit || receipt.acceptedTree !== candidate.tree) {
+    throw new Error(`Receipt for ${capability.id} does not accept the exact candidate commit and tree.`);
   }
   if (!COMMIT.test(String(receipt.acceptedCommit)) || !COMMIT.test(String(receipt.acceptedTree))) {
     throw new Error(`Receipt for ${capability.id} has malformed accepted source identity.`);
@@ -472,6 +581,16 @@ function createCapabilitySeal(options = {}) {
     if (receipt.proof.length !== 1 || receipt.proof[0] !== authority.proofSha256) {
       throw new Error(`Acceptance receipt proof digest mismatch for ${capability.id}.`);
     }
+    let proof;
+    try {
+      proof = JSON.parse(fs.readFileSync(authority.proofFile, 'utf8'));
+    } catch {
+      throw new Error(`Acceptance proof is not structured JSON for ${capability.id}.`);
+    }
+    validateProof(proof, capability, candidate, receipt, {
+      ...authority,
+      logFileName: path.basename(authority.logFile),
+    });
     capabilities.push({
       id: capability.id,
       packets: capability.packets,
@@ -554,7 +673,9 @@ module.exports = {
   CONTRACT,
   RECEIPT_CONTRACT,
   RECEIPT_MANIFEST_CONTRACT,
+  PROOF_CONTRACT,
   SEAL_CONTRACT,
+  SUITES,
   capabilitySourceDigest,
   createCapabilitySeal,
   sha256,

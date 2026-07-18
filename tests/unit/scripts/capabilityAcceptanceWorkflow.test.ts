@@ -26,7 +26,9 @@ describe('capability acceptance build authority', () => {
     const authority = config.jobs['capability-acceptance'];
     const build = config.jobs.build;
     const capture = authority.steps.find((step) => step.name === 'Capture exact candidate')!;
-    const generate = authority.steps.find((step) => step.name === 'Generate exact capability acceptance receipts')!;
+    const generate = authority.steps.find(
+      (step) => step.name === 'Generate structured exact capability acceptance receipts'
+    )!;
     const attest = authority.steps.find((step) => step.name === 'Attest exact capability acceptance bytes')!;
     const upload = authority.steps.find((step) => step.name === 'Upload capability acceptance authority')!;
 
@@ -34,6 +36,7 @@ describe('capability acceptance build authority', () => {
     expect(capture.run).toContain('"${commit}" != "${GITHUB_SHA}"');
     expect(capture.run).toContain('git status --porcelain=v1 --untracked-files=all');
     expect(generate.run).toContain('generateCapabilityAcceptanceReceipts.js');
+    expect(attest.with!['subject-path']).toContain('capability-acceptance/*');
     expect(attest.uses).toBe('actions/attest-build-provenance@v3');
     expect(attest.with!['subject-path']).toBe('${{ runner.temp }}/capability-acceptance/*');
     expect(upload.with!['if-no-files-found']).toBe('error');

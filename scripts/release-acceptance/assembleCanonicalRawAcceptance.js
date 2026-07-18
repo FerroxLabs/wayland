@@ -139,7 +139,7 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
 
   const capabilityManifest = exactlyOne(
     files,
-    (file) => parseJson(file)?.contract === 'wayland-capability-acceptance-manifest/1.0',
+    (file) => parseJson(file)?.contract === 'wayland-capability-acceptance-manifest/2.0',
     'M8I_CAPABILITY_RECEIPT_INVALID',
     'manifest'
   );
@@ -157,7 +157,8 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
     if (!CAPABILITIES.includes(entry.capabilityId)) fail('M8I_CAPABILITY_RECEIPT_INVALID', 'unknown-capability');
     for (const [sourceName, outputName] of [
       [entry.receiptFile, `${entry.capabilityId}.json`],
-      [entry.proofFile, `${entry.capabilityId}.proof.log`],
+      [entry.proofFile, `${entry.capabilityId}.proof.json`],
+      [entry.logFile, `${entry.capabilityId}.proof.log`],
     ]) {
       if (path.basename(sourceName) !== sourceName) fail('M8I_CAPABILITY_RECEIPT_INVALID', 'unsafe-path');
       copyAbsolute(path.join(capabilityRoot, sourceName), output, `capability-receipts/${outputName}`);

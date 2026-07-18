@@ -175,7 +175,11 @@ function generateTrustRootAcceptance(rawDirectory, outputDirectory) {
     capabilityAuthorityPaths.push(copyRegularFile(rawRoot, relative, inputRoot, relative).path);
   }
   for (const id of CAPABILITIES.filter((capabilityId) => included.has(capabilityId))) {
-    for (const relative of [`capability-receipts/${id}.json`, `capability-receipts/${id}.proof.log`]) {
+    for (const relative of [
+      `capability-receipts/${id}.json`,
+      `capability-receipts/${id}.proof.json`,
+      `capability-receipts/${id}.proof.log`,
+    ]) {
       requireIndexed(indexedPaths, relative);
       capabilityAuthorityPaths.push(copyRegularFile(rawRoot, relative, inputRoot, relative).path);
     }

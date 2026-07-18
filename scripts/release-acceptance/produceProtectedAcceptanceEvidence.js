@@ -101,10 +101,7 @@ function produceConditionalCapabilityReceipts(rawRoot, output, candidate, capabi
     'M8I_CAPABILITY_RECEIPT_INVALID'
   );
   sameCandidate(manifest.candidate, candidate, 'M8I_CAPABILITY_RECEIPT_INVALID');
-  if (
-    manifest.contract !== 'wayland-capability-acceptance-manifest/1.0' ||
-    !Array.isArray(manifest.receipts)
-  ) {
+  if (manifest.contract !== 'wayland-capability-acceptance-manifest/2.0' || !Array.isArray(manifest.receipts)) {
     fail('M8I_CAPABILITY_RECEIPT_INVALID', 'contract-or-coverage');
   }
   const authorityByCapability = new Map(manifest.receipts.map((entry) => [entry.capabilityId, entry]));
@@ -116,24 +113,23 @@ function produceConditionalCapabilityReceipts(rawRoot, output, candidate, capabi
     if (!authority) fail('M8I_CAPABILITY_RECEIPT_INVALID', `missing:${capabilityId}`);
     exactKeys(
       authority,
-      ['capabilityId', 'receiptFile', 'receiptSha256', 'proofFile', 'proofSha256'],
+      ['capabilityId', 'receiptFile', 'receiptSha256', 'proofFile', 'proofSha256', 'logFile', 'logSha256'],
       'M8I_CAPABILITY_RECEIPT_INVALID'
     );
-    const receipt = readJsonFile(
-      rawRoot,
-      `capability-receipts/${capabilityId}.json`,
-      'M8I_CAPABILITY_RECEIPT_INVALID'
-    );
+    const receipt = readJsonFile(rawRoot, `capability-receipts/${capabilityId}.json`, 'M8I_CAPABILITY_RECEIPT_INVALID');
     const proof = regularFile(
       rawRoot,
-      `capability-receipts/${capabilityId}.proof.log`,
+      `capability-receipts/${capabilityId}.proof.json`,
       'M8I_CAPABILITY_RECEIPT_INVALID'
     );
+    const log = regularFile(rawRoot, `capability-receipts/${capabilityId}.proof.log`, 'M8I_CAPABILITY_RECEIPT_INVALID');
     if (
       authority.receiptFile !== `${capabilityId}.json` ||
-      authority.proofFile !== `${capabilityId}.proof.log` ||
+      authority.proofFile !== `${capabilityId}.proof.json` ||
+      authority.logFile !== `${capabilityId}.proof.log` ||
       sha256(receipt.bytes) !== authority.receiptSha256 ||
       sha256(proof.bytes) !== authority.proofSha256 ||
+      sha256(log.bytes) !== authority.logSha256 ||
       capability.receiptSha256 !== authority.receiptSha256 ||
       receipt.value.capabilityId !== capabilityId ||
       !Array.isArray(receipt.value.packets)
@@ -224,7 +220,11 @@ function copyUpdaterObservation(rawRoot, output, target, candidate, verifier) {
   } catch (error) {
     fail('M8I_UPDATER_OBSERVATION_INVALID', `${target}:${error.message}`);
   }
-  exactKeys(trusted, ['contract', 'candidate', 'target', 'authority', 'receiptSha256'], 'M8I_UPDATER_OBSERVATION_INVALID');
+  exactKeys(
+    trusted,
+    ['contract', 'candidate', 'target', 'authority', 'receiptSha256'],
+    'M8I_UPDATER_OBSERVATION_INVALID'
+  );
   sameCandidate(trusted.candidate, candidate, 'M8I_UPDATER_OBSERVATION_INVALID');
   if (
     trusted.contract !== 'wayland-updater-trusted-observation/1.0' ||
@@ -353,9 +353,10 @@ function produceProtectedAcceptanceEvidence(rawDirectory, gatesDirectory, output
     'capability-receipts/manifest.json',
     'publisher-artifacts.json',
     ...CAPABILITIES.filter((id) => capabilityModes.get(id) === 'included').flatMap((id) => [
-        `capability-receipts/${id}.json`,
-        `capability-receipts/${id}.proof.log`,
-      ]),
+      `capability-receipts/${id}.json`,
+      `capability-receipts/${id}.proof.json`,
+      `capability-receipts/${id}.proof.log`,
+    ]),
   ];
   const publisher = readJsonFile(rawRoot, 'publisher-artifacts.json', 'M8I_PUBLISHER_INDEX_INVALID').value;
   for (const artifact of publisher.artifacts || []) passthrough.push(artifact.path);

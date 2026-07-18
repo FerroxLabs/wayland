@@ -58,7 +58,7 @@ describe('capability acceptance receipt generator', () => {
     });
 
     expect(manifest).toMatchObject({
-      contract: 'wayland-capability-acceptance-manifest/1.0',
+      contract: 'wayland-capability-acceptance-manifest/2.0',
       candidate: { commit: candidate.commit, tree: candidate.tree },
     });
     expect(manifest.receipts).toHaveLength(selection.capabilities.length);
@@ -72,15 +72,31 @@ describe('capability acceptance receipt generator', () => {
         acceptedTree: string;
         proof: string[];
       };
-      const proof = readFileSync(join(outDir, entry.proofFile), 'utf8');
+      const proof = JSON.parse(readFileSync(join(outDir, entry.proofFile), 'utf8')) as {
+        contract: string;
+        candidate: { commit: string; tree: string };
+        capabilityId: string;
+        command: { executable: string; arguments: string[] };
+        exitCode: number;
+        log: { file: string; sha256: string };
+        source: { sha256: string; paths: string[] };
+      };
       expect(receipt).toMatchObject({
         capabilityId: entry.capabilityId,
         acceptedCommit: candidate.commit,
         acceptedTree: candidate.tree,
       });
       expect(receipt.proof).toEqual([entry.proofSha256]);
-      expect(proof).toContain(`command: bun run test:vitest -- ${SUITES[entry.capabilityId].join(' ')}`);
-      expect(proof).toContain('exit_code: 0');
+      expect(proof).toMatchObject({
+        contract: 'wayland-capability-proof/1.0',
+        candidate: { commit: candidate.commit, tree: candidate.tree },
+        capabilityId: entry.capabilityId,
+        command: { executable: 'bun', arguments: ['run', 'test:vitest', '--', ...SUITES[entry.capabilityId]] },
+        exitCode: 0,
+        log: { file: entry.logFile, sha256: entry.logSha256 },
+      });
+      expect(proof.source.paths.length).toBeGreaterThan(0);
+      expect(readFileSync(join(outDir, entry.logFile), 'utf8')).toContain(`${entry.capabilityId}: green`);
     }
   });
 

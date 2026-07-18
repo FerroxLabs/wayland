@@ -5,56 +5,15 @@ const path = require('node:path');
 const { execFileSync, spawnSync } = require('node:child_process');
 const {
   CONTRACT,
+  PROOF_CONTRACT,
   RECEIPT_CONTRACT,
   RECEIPT_MANIFEST_CONTRACT,
+  SUITES,
   capabilitySourceDigest,
   selectionDigest,
   sha256,
   validateSelection,
 } = require('./verifyCandidateCapabilitySeal');
-
-const SUITES = Object.freeze({
-  'cowork-office': [
-    'tests/unit/coworkAuthorityIsolation.test.ts',
-    'tests/unit/coworkContract.test.ts',
-    'tests/unit/coworkReplayContract.test.ts',
-    'tests/unit/officecliInstaller.test.ts',
-    'tests/unit/process/services/capabilities/OfficeCliAuthoringCapability.test.ts',
-    'tests/e2e/cowork/replayContract.test.ts',
-  ],
-  voice: [
-    'tests/unit/common/VoiceSessionMachine.test.ts',
-    'tests/unit/common/voiceResponseText.test.ts',
-    'tests/unit/process/services/voice/textToSpeech.test.ts',
-    'tests/unit/process/services/voice/voiceAssetManager.test.ts',
-    'tests/unit/process/bridge/voiceSynthBridge.test.ts',
-    'tests/unit/renderer/conversation/VoiceConversationMode.dom.test.tsx',
-  ],
-  mcp: [
-    'tests/unit/common/mcpSessionReceipt.test.ts',
-    'tests/unit/process/services/mcpServices/mcpSessionTruthGate.test.ts',
-    'tests/unit/process/services/mcpServices/runtimeMcpServers.test.ts',
-    'tests/unit/process/bridge/McpSessionRebindCoordinator.test.ts',
-    'tests/unit/process/agent/wcore/desktopMcpProfile.test.ts',
-    'tests/integration/mcpAgentConsumption.test.ts',
-  ],
-  sandbox: [
-    'tests/unit/extensions/sandboxHost.test.ts',
-    'tests/unit/extensions/sandboxPermission.test.ts',
-    'tests/unit/process/task/codexNativeSandbox.test.ts',
-    'tests/unit/process/team/sandbox/acpFileOpGate.test.ts',
-    'tests/unit/process/team/sandbox/capabilityCheck.test.ts',
-    'tests/unit/process/team/sandbox/workspaceFs.test.ts',
-  ],
-  flux: [
-    'tests/unit/fluxRoutingEvidence.test.ts',
-    'tests/unit/process/flux/FluxRoutingEvidenceAdapter.test.ts',
-    'tests/unit/task/fluxRoutingSafety.test.ts',
-    'tests/unit/task/fluxRoutingResolvedModel.test.ts',
-    'tests/unit/renderer/acpFluxFailover.test.ts',
-    'tests/unit/process/bridge/fluxConnectorBridge.test.ts',
-  ],
-});
 
 function git(root, ...args) {
   return execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
@@ -99,19 +58,27 @@ function generateCapabilityAcceptanceReceipts(options = {}) {
     const files = SUITES[capability.id];
     if (!files || files.length === 0) throw new Error(`No canonical acceptance suite exists for ${capability.id}.`);
     const result = runner(root, files, capability.id);
-    const proofBytes = Buffer.from(
-      [
-        `command: bun run test:vitest -- ${files.join(' ')}`,
-        `exit_code: ${String(result.status)}`,
-        '',
-        String(result.stdout || ''),
-        String(result.stderr || ''),
-      ].join('\n')
+    const logBytes = Buffer.from(
+      [`stdout:`, '', String(result.stdout || ''), `stderr:`, '', String(result.stderr || '')].join('\n')
     );
-    const proofFile = `${capability.id}.proof.log`;
+    if (result.status !== 0) throw new Error(`Canonical capability acceptance suite failed: ${capability.id}.`);
+    const sourceSha256 = capabilitySourceDigest(root, candidate.commit, capability.id);
+    const logFile = `${capability.id}.proof.log`;
+    const logSha256 = sha256(logBytes);
+    writeExclusive(path.join(outDir, logFile), logBytes);
+    const proof = {
+      contract: PROOF_CONTRACT,
+      candidate,
+      capabilityId: capability.id,
+      command: { executable: 'bun', arguments: ['run', 'test:vitest', '--', ...files] },
+      exitCode: 0,
+      log: { file: logFile, sha256: logSha256 },
+      source: { sha256: sourceSha256, paths: capability.excludedPaths },
+    };
+    const proofFile = `${capability.id}.proof.json`;
+    const proofBytes = Buffer.from(`${JSON.stringify(proof, null, 2)}\n`);
     const proofSha256 = sha256(proofBytes);
     writeExclusive(path.join(outDir, proofFile), proofBytes);
-    if (result.status !== 0) throw new Error(`Canonical capability acceptance suite failed: ${capability.id}.`);
     const receipt = {
       contract: RECEIPT_CONTRACT,
       capabilityId: capability.id,
@@ -119,14 +86,22 @@ function generateCapabilityAcceptanceReceipts(options = {}) {
       status: 'accepted',
       acceptedCommit: candidate.commit,
       acceptedTree: candidate.tree,
-      sourceSha256: capabilitySourceDigest(root, candidate.commit, capability.id),
+      sourceSha256,
       proof: [proofSha256],
     };
     const receiptFile = `${capability.id}.json`;
     const receiptBytes = Buffer.from(`${JSON.stringify(receipt, null, 2)}\n`);
     const receiptSha256 = sha256(receiptBytes);
     writeExclusive(path.join(outDir, receiptFile), receiptBytes);
-    manifestEntries.push({ capabilityId: capability.id, receiptFile, receiptSha256, proofFile, proofSha256 });
+    manifestEntries.push({
+      capabilityId: capability.id,
+      receiptFile,
+      receiptSha256,
+      proofFile,
+      proofSha256,
+      logFile,
+      logSha256,
+    });
   }
 
   const manifest = {
