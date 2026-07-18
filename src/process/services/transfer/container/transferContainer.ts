@@ -56,7 +56,17 @@ const RECOVERY_PROTECTION_FIELDS = new Set([
   'salt',
   'cipher',
 ]);
-const DESTINATION_PROTECTION_FIELDS = new Set(['mode', 'hpkeMode', 'kem', 'kdf', 'aead', 'recipientKeyFingerprint']);
+const DESTINATION_PROTECTION_FIELDS = new Set([
+  'mode',
+  'hpkeMode',
+  'kem',
+  'kdf',
+  'aead',
+  'recipientKeyId',
+  'recipientKeyFingerprint',
+  'authorizationBinding',
+  'expiresAt',
+]);
 const RECOVERY_CHUNK_FIELDS = new Set([
   'recordType',
   'bundleId',
@@ -308,7 +318,10 @@ function validateDestinationProtection(value: Record<string, unknown>): void {
   if (value.kem !== 'DHKEM(X25519,HKDF-SHA256)') throw new Error('WT-D1 KEM substitution');
   if (value.kdf !== 'HKDF-SHA256') throw new Error('WT-D1 KDF substitution');
   if (value.aead !== 'ChaCha20-Poly1305') throw new Error('WT-D1 AEAD substitution');
+  assertIdentifier(value.recipientKeyId, 'WT-D1 recipient key id');
   assertDigest(value.recipientKeyFingerprint, 'WT-D1 recipient key fingerprint');
+  assertDigest(value.authorizationBinding, 'WT-D1 authorization binding');
+  assertBoundedInteger(value.expiresAt, 1, Number.MAX_SAFE_INTEGER, 'WT-D1 key expiry');
 }
 
 function parseCanonicalRecord(
@@ -395,15 +408,27 @@ export function recoveryProtection(salt: Uint8Array): TransferRecoveryProtection
   };
 }
 
-export function destinationProtection(recipientKeyFingerprint: `sha256:${string}`): TransferDestinationProtection {
+export function destinationProtection(input: {
+  recipientKeyId: string;
+  recipientKeyFingerprint: `sha256:${string}`;
+  authorizationBinding: `sha256:${string}`;
+  expiresAt: number;
+}): TransferDestinationProtection {
+  assertIdentifier(input.recipientKeyId, 'WT-D1 recipient key id');
+  const recipientKeyFingerprint = input.recipientKeyFingerprint;
   assertDigest(recipientKeyFingerprint, 'WT-D1 recipient key fingerprint');
+  assertDigest(input.authorizationBinding, 'WT-D1 authorization binding');
+  assertBoundedInteger(input.expiresAt, 1, Number.MAX_SAFE_INTEGER, 'WT-D1 key expiry');
   return {
     mode: 'destination-bound',
     hpkeMode: 'base',
     kem: 'DHKEM(X25519,HKDF-SHA256)',
     kdf: 'HKDF-SHA256',
     aead: 'ChaCha20-Poly1305',
+    recipientKeyId: input.recipientKeyId,
     recipientKeyFingerprint,
+    authorizationBinding: input.authorizationBinding,
+    expiresAt: input.expiresAt,
   };
 }
 

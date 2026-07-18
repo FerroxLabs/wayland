@@ -50,7 +50,12 @@ function destinationHeader(overrides: Partial<TransferContainerHeader> = {}): Tr
     declaredChunkCount: 1,
     declaredCiphertextBytes: 32,
     declaredPlaintextBytes: 16,
-    protection: destinationProtection(digest('recipient-key')),
+    protection: destinationProtection({
+      recipientKeyId: 'destination-key-1',
+      recipientKeyFingerprint: digest('recipient-key'),
+      authorizationBinding: digest('destination-authority'),
+      expiresAt: 1_900_000,
+    }),
     ...overrides,
   } as TransferContainerHeader;
 }
@@ -146,6 +151,18 @@ describe('Wayland Transfer v1 outer header', () => {
     const header = destinationHeader();
     const protection = { ...header.protection, [field]: value };
     expect(() => parseTransferContainerHeader(mutateCanonical(header, { protection }))).toThrow(/substitution/);
+  });
+
+  it.each([
+    ['recipientKeyId', ''],
+    ['recipientKeyFingerprint', `sha256:${'00'.repeat(31)}`],
+    ['authorizationBinding', `sha256:${'00'.repeat(31)}`],
+    ['expiresAt', 0],
+    ['expiresAt', Number.MAX_SAFE_INTEGER + 1],
+  ])('rejects malformed WT-D1 authority field %s', (field, value) => {
+    const header = destinationHeader();
+    const protection = { ...header.protection, [field]: value };
+    expect(() => parseTransferContainerHeader(mutateCanonical(header, { protection }))).toThrow();
   });
 
   it('rejects duplicate, unknown, missing, noncanonical, and oversized headers', () => {

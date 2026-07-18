@@ -40,7 +40,10 @@ export type TransferDestinationProtection = Readonly<{
   kem: 'DHKEM(X25519,HKDF-SHA256)';
   kdf: 'HKDF-SHA256';
   aead: 'ChaCha20-Poly1305';
+  recipientKeyId: string;
   recipientKeyFingerprint: `sha256:${string}`;
+  authorizationBinding: `sha256:${string}`;
+  expiresAt: number;
 }>;
 
 type TransferContainerHeaderFields = {
