@@ -13,7 +13,9 @@ import type {
   ExecutionReceipt,
   ExecutionSeed,
   ExecutionSnapshot,
+  ExecutionOutcomeTrust,
   GovernanceConstraint,
+  TrustedArtifactReceipt,
 } from './types';
 
 const DEFAULT_MAX_EVENTS = 4096;
@@ -23,6 +25,7 @@ const DEFAULT_MAX_RECEIPTS = 512;
 const DEFAULT_MAX_OUTCOMES = 256;
 const DEFAULT_MAX_HANDOFFS = 32;
 const EVENT_TYPES = new Set([
+  'evidence-rejected',
   'lifecycle',
   'activity',
   'plan',
@@ -33,8 +36,13 @@ const EVENT_TYPES = new Set([
   'latency',
   'validation',
   'outcome',
+  'policy-revision',
+  'trusted-receipt',
+  'receipt-invalidated',
   'handoff',
 ]);
+
+const SHA256_DIGEST = /^sha256:[0-9a-f]{64}$/;
 
 function isExecutionEventEnvelope(value: unknown): value is ExecutionEvent {
   if (value === null || typeof value !== 'object') return false;
@@ -107,6 +115,32 @@ function authoritativeReceiptValid(event: ExecutionEvent, receipt: ExecutionRece
   return true;
 }
 
+function trustedArtifactReceiptValid(event: ExecutionEvent, receipt: TrustedArtifactReceipt): boolean {
+  return (
+    sameIdentity(event.identity, receipt.identity) &&
+    receipt.kind === 'artifact' &&
+    receipt.authority === 'core' &&
+    receipt.origin === 'core/anvil' &&
+    typeof receipt.contractVersion === 'string' &&
+    receipt.contractVersion.split('.')[0] === '1' &&
+    receipt.status === 'verified' &&
+    receipt.observedAt <= event.observedAt &&
+    typeof receipt.producerSessionId === 'string' &&
+    typeof receipt.producerRunId === 'string' &&
+    typeof receipt.producerTaskId === 'string' &&
+    Boolean(receipt.producerSessionId && receipt.producerRunId && receipt.producerTaskId) &&
+    Number.isSafeInteger(receipt.producerSequence) &&
+    receipt.producerSequence >= 0 &&
+    typeof receipt.artifactDigest === 'string' &&
+    typeof receipt.gateClosureDigest === 'string' &&
+    typeof receipt.bodyDigest === 'string' &&
+    SHA256_DIGEST.test(receipt.artifactDigest) &&
+    SHA256_DIGEST.test(receipt.gateClosureDigest) &&
+    SHA256_DIGEST.test(receipt.bodyDigest) &&
+    (receipt.sourceDependencyDigest === undefined || SHA256_DIGEST.test(receipt.sourceDependencyDigest))
+  );
+}
+
 function costPayloadValid(event: Extract<ExecutionEvent, { type: 'cost' }>): boolean {
   const payload = event as unknown as {
     cost?: { status?: unknown; amount?: unknown; currency?: unknown; receiptId?: unknown };
@@ -166,8 +200,10 @@ export function createExecutionSnapshot(seed: ExecutionSeed): ExecutionSnapshot 
     },
     latency: { status: 'unavailable' as const, reason: 'authoritative-latency-not-observed' },
     validation: { status: 'unvalidated' as const },
+    trustedPolicy: { status: 'unavailable' as const, reason: 'trusted-core-policy-not-observed' },
     receipts: [],
     outcomes: [],
+    outcomeTrust: [],
     handoffs: [],
     integrity: { status: 'valid' as const, reasons: [], lastSequence: -1 },
     mcp: { status: 'unsupported' as const, reason: 'versioned M1M evidence unavailable' as const },
@@ -224,8 +260,10 @@ export function projectExecution(
   let costLedger = initial.costLedger;
   let latency = initial.latency;
   let validation = initial.validation;
-  let receipts = [...initial.receipts];
+  let trustedPolicy = initial.trustedPolicy;
+  let receipts: ExecutionReceipt[] = [...initial.receipts];
   let outcomes = [...initial.outcomes];
+  let outcomeTrust: ExecutionOutcomeTrust[] = [...initial.outcomeTrust];
   let handoffs = [...initial.handoffs];
   let expectedSequence = 0;
   let lastSequence = -1;
@@ -252,7 +290,9 @@ export function projectExecution(
       continue;
     }
 
-    if (event.type === 'lifecycle') {
+    if (event.type === 'evidence-rejected') {
+      reasons.push(`rejected-evidence:${event.reason}`);
+    } else if (event.type === 'lifecycle') {
       if (!transitionAllowed(lifecycle, event.lifecycle, event.action)) {
         reasons.push(`invalid-transition:${lifecycle}->${event.lifecycle}`);
         continue;
@@ -372,8 +412,98 @@ export function projectExecution(
       }
       validation = structuredClone(event.validation);
       if (event.receipt) receipts = [...receipts, structuredClone(event.receipt)].slice(-maxReceipts);
+    } else if (event.type === 'policy-revision') {
+      if (
+        event.policy.status !== 'trusted' ||
+        typeof event.policy.contractVersion !== 'string' ||
+        event.policy.contractVersion.split('.')[0] !== '1' ||
+        !Number.isSafeInteger(event.policy.revision) ||
+        event.policy.revision < 0 ||
+        event.policy.effectiveAt > event.observedAt
+      ) {
+        reasons.push(`invalid-policy-revision:${event.eventId}`);
+        continue;
+      }
+      if (trustedPolicy.status === 'trusted') {
+        if (event.policy.revision < trustedPolicy.revision) {
+          reasons.push(`out-of-order-policy-revision:${event.policy.revision}`);
+          continue;
+        }
+        if (
+          event.policy.revision === trustedPolicy.revision &&
+          JSON.stringify(event.policy) !== JSON.stringify(trustedPolicy)
+        ) {
+          reasons.push(`conflicting-policy-revision:${event.policy.revision}`);
+          continue;
+        }
+      }
+      trustedPolicy = structuredClone(event.policy);
+    } else if (event.type === 'trusted-receipt') {
+      if (!trustedArtifactReceiptValid(event, event.receipt)) {
+        reasons.push(`invalid-trusted-receipt:${event.eventId}`);
+        continue;
+      }
+      const existing = receipts.find((receipt) => receipt.id === event.receipt.id);
+      if (existing && JSON.stringify(existing) !== JSON.stringify(event.receipt)) {
+        reasons.push(`conflicting-trusted-receipt:${event.receipt.id}`);
+        continue;
+      }
+      if (!existing) receipts = [...receipts, structuredClone(event.receipt)].slice(-maxReceipts);
+      const trust = {
+        receiptId: event.receipt.id,
+        artifactDigest: event.receipt.artifactDigest,
+        ...(event.receipt.sourceDependencyDigest
+          ? { sourceDependencyDigest: event.receipt.sourceDependencyDigest }
+          : {}),
+        status: 'verified' as const,
+      };
+      const trustIndex = outcomeTrust.findIndex((item) => item.receiptId === trust.receiptId);
+      if (trustIndex >= 0) outcomeTrust[trustIndex] = trust;
+      else outcomeTrust = [...outcomeTrust, trust].slice(-maxReceipts);
+    } else if (event.type === 'receipt-invalidated') {
+      const receiptIndex = receipts.findIndex(
+        (receipt) => receipt.id === event.receiptId && receipt.kind === 'artifact'
+      );
+      const trustIndex = outcomeTrust.findIndex((item) => item.receiptId === event.receiptId);
+      if (receiptIndex < 0 || trustIndex < 0) {
+        reasons.push(`unknown-invalidated-receipt:${event.receiptId}`);
+        continue;
+      }
+      const receipt = receipts[receiptIndex] as TrustedArtifactReceipt;
+      if (event.priorArtifactDigest && event.priorArtifactDigest !== receipt.artifactDigest) {
+        reasons.push(`invalidation-artifact-mismatch:${event.receiptId}`);
+        continue;
+      }
+      receipts[receiptIndex] = { ...receipt, status: event.status };
+      outcomeTrust[trustIndex] = {
+        ...outcomeTrust[trustIndex],
+        status: event.status,
+        reason: event.reason,
+      };
     } else if (event.type === 'outcome') {
       outcomes = [...outcomes, structuredClone(event.outcome)].slice(-maxOutcomes);
+      if (event.outcome.receiptId) {
+        const trustIndex = outcomeTrust.findIndex((item) => item.receiptId === event.outcome.receiptId);
+        if (trustIndex < 0) {
+          reasons.push(`outcome-missing-receipt:${event.outcome.id}`);
+        } else {
+          const trust = outcomeTrust[trustIndex];
+          const artifactMismatch =
+            !event.outcome.artifactDigest || event.outcome.artifactDigest !== trust.artifactDigest;
+          const sourceMismatch =
+            trust.sourceDependencyDigest !== undefined &&
+            event.outcome.sourceDependencyDigest !== trust.sourceDependencyDigest;
+          outcomeTrust[trustIndex] = {
+            ...trust,
+            outcomeId: event.outcome.id,
+            ...(artifactMismatch
+              ? { status: 'receipt-stale' as const, reason: 'artifact-digest-mismatch' }
+              : sourceMismatch
+                ? { status: 'source-dependency-stale' as const, reason: 'source-dependency-digest-mismatch' }
+                : {}),
+          };
+        }
+      }
     } else if (event.type === 'handoff') {
       if (!authoritativeReceiptValid(event, event.receipt) || !sameIdentity(event.identity, event.handoff.identity)) {
         reasons.push(`invalid-handoff-receipt:${event.eventId}`);
@@ -399,8 +529,10 @@ export function projectExecution(
     costLedger,
     latency,
     validation,
+    trustedPolicy,
     receipts,
     outcomes,
+    outcomeTrust,
     handoffs,
     integrity: {
       status: reasons.length === 0 ? ('valid' as const) : ('invalid' as const),

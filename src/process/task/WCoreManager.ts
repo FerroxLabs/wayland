@@ -1175,7 +1175,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private maybeInvalidateProviderKeyOnAuthError(text: string): void {
     if (this.authKeyInvalidated) return;
     if (!isProviderKeyAuthFailure(text)) return;
-    const providerId = this.model ? registryProviderIdForModel(this.model) ?? this.model.id : undefined;
+    const providerId = this.model ? (registryProviderIdForModel(this.model) ?? this.model.id) : undefined;
     // No provider id, or the turn was routed through Flux (whose key is not this
     // provider's): leave provider state untouched.
     if (!providerId || providerId === 'flux-router') return;
@@ -1352,6 +1352,32 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           msg_id: '',
           data: data.data,
         });
+
+        // Persist a separate main-process acceptance envelope for authority
+        // events. The raw stream frame above remains backwards compatible but
+        // is intentionally inert in the renderer. Only this envelope is
+        // eligible for canonical receipt/policy projection, which prevents a
+        // raw renderer-side IPC injection from manufacturing verified state.
+        if (
+          ['execution_policy', 'anvil_receipt', 'anvil_receipt_invalidated', 'anvil_trust_changed'].includes(data.type)
+        ) {
+          const acceptedAt = Date.now();
+          const evidenceResponse: IResponseMessage = {
+            type: 'execution_evidence',
+            conversation_id: this.conversation_id,
+            msg_id: '',
+            data: {
+              acceptedBy: 'desktop-core-v1-consumer',
+              acceptedAt,
+              event: { type: data.type, ...(data.data as Record<string, unknown>) },
+            },
+          };
+          const evidenceMessage = transformMessage(evidenceResponse);
+          if (evidenceMessage) {
+            addOrUpdateMessage(this.conversation_id, evidenceMessage, 'wcore');
+            ipcBridge.conversation.responseStream.emit(evidenceResponse);
+          }
+        }
         return;
       }
 

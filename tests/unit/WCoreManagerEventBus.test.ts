@@ -718,6 +718,40 @@ describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
       }
     });
 
+    it('persists and re-emits a hidden main-process acceptance envelope for canonical replay', () => {
+      emitEvent(manager, {
+        type: 'anvil_receipt',
+        msg_id: '',
+        data: {
+          type: 'anvil_receipt',
+          receipt_id: 'receipt-1',
+          event_id: 'receipt-event-1',
+          origin: 'core/anvil',
+          contract_version: '1.0',
+          session_id: 'session-1',
+          run_id: 'run-1',
+          task_id: 'task-1',
+          sequence: 0,
+          artifact_digest: `sha256:${'a'.repeat(64)}`,
+          gate_closure_digest: `sha256:${'b'.repeat(64)}`,
+          receipt_body_digest: `sha256:${'c'.repeat(64)}`,
+          desktop_trust_status: 'active',
+        },
+      });
+
+      const accepted = findIpcEmissions('execution_evidence');
+      expect(accepted).toHaveLength(1);
+      expect(accepted[0].data).toMatchObject({
+        acceptedBy: 'desktop-core-v1-consumer',
+        event: { type: 'anvil_receipt', receipt_id: 'receipt-1' },
+      });
+      expect(mockAddOrUpdateMessage).toHaveBeenCalledWith(
+        CONV_ID,
+        expect.objectContaining({ type: 'execution_evidence', hidden: true }),
+        'wcore'
+      );
+    });
+
     it('content events still go to ipcBridge', () => {
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'content', data: 'hello', msg_id: 'msg-1' });

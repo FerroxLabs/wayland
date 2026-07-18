@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { ActivityNode, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
+import type { ActivityNode, IMessageExecutionEvidence, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import type { ExecutionActivity, ExecutionEvent, ExecutionPlanStep } from '../types';
 import type { ExecutionAdapterContext } from './types';
 
@@ -54,7 +54,103 @@ export function adaptWCoreMessages(
 
   for (const message of messages) {
     const observedAt = message.createdAt ?? context.observedAt;
-    if (message.type === 'activity') {
+    if (message.type === 'execution_evidence') {
+      const evidence = (message as IMessageExecutionEvidence).content;
+      if (evidence.acceptedBy !== 'desktop-core-v1-consumer') continue;
+      const event = evidence.event;
+      try {
+        if (event.type === 'execution_policy') {
+          append({
+            eventId: `${message.id}:policy:${event.revision}`,
+            identity: context.identity,
+            observedAt,
+            type: 'policy-revision',
+            policy: {
+              status: 'trusted',
+              contractVersion: event.contract_version,
+              revision: event.revision,
+              reason: event.reason,
+              effectiveAt: event.effective_at_unix_ms,
+              posture: event.policy.posture,
+              approvals: event.policy.approvals,
+              sandbox: event.policy.sandbox,
+              source: event.policy.source,
+              managedFloorActive: event.policy.managed_floor_active,
+              ...(event.policy.dangerous_activation_id
+                ? { dangerousActivationId: event.policy.dangerous_activation_id }
+                : {}),
+              ...(event.policy.dangerous_expires_at_unix_ms
+                ? { dangerousExpiresAt: event.policy.dangerous_expires_at_unix_ms }
+                : {}),
+            },
+          });
+        } else if (event.type === 'anvil_receipt') {
+          const data = event as typeof event & {
+            desktop_trust_status?: string;
+            source_dependency_digest?: string;
+          };
+          if (data.desktop_trust_status !== 'active') continue;
+          append({
+            eventId: event.event_id,
+            identity: context.identity,
+            observedAt,
+            type: 'trusted-receipt',
+            receipt: {
+              id: event.receipt_id,
+              kind: 'artifact',
+              authority: 'core',
+              identity: context.identity,
+              observedAt,
+              origin: 'core/anvil',
+              contractVersion: event.contract_version,
+              producerSessionId: event.session_id,
+              producerRunId: event.run_id,
+              producerTaskId: event.task_id,
+              producerSequence: event.sequence,
+              artifactDigest: event.artifact_digest,
+              gateClosureDigest: event.gate_closure_digest,
+              bodyDigest: event.receipt_body_digest,
+              ...(data.source_dependency_digest ? { sourceDependencyDigest: data.source_dependency_digest } : {}),
+              status: 'verified',
+            },
+          });
+        } else if (event.type === 'anvil_receipt_invalidated') {
+          append({
+            eventId: event.event_id,
+            identity: context.identity,
+            observedAt,
+            type: 'receipt-invalidated',
+            receiptId: event.receipt_id,
+            status: event.reason === 'gate_revoked' ? 'source-dependency-stale' : 'receipt-stale',
+            reason: event.reason,
+            priorArtifactDigest: event.prior_artifact_digest,
+            ...('observed_artifact_digest' in event && typeof event.observed_artifact_digest === 'string'
+              ? { observedArtifactDigest: event.observed_artifact_digest }
+              : {}),
+          });
+        } else if (event.type === 'anvil_trust_changed') {
+          for (const receiptId of event.receipt_ids) {
+            append({
+              eventId: `${message.id}:trust:${receiptId}`,
+              identity: context.identity,
+              observedAt,
+              type: 'receipt-invalidated',
+              receiptId,
+              status: event.reason.includes('source') ? 'source-dependency-stale' : 'receipt-stale',
+              reason: event.reason,
+            });
+          }
+        }
+      } catch {
+        append({
+          eventId: `${message.id}:rejected`,
+          identity: context.identity,
+          observedAt,
+          type: 'evidence-rejected',
+          reason: 'malformed-persisted-core-evidence',
+        });
+      }
+    } else if (message.type === 'activity') {
       append({
         eventId: `${message.id}:lifecycle:running`,
         identity: context.identity,

@@ -35,6 +35,9 @@ export type ExecutionScope = Readonly<{
   trust: ExecutionTrust;
   scheduled: boolean;
   channel?: string;
+  teamId?: string;
+  browserSessionId?: string;
+  surface?: 'chat' | 'team' | 'browser' | 'automation' | 'channel';
 }>;
 
 export type GovernanceRequest = Readonly<{
@@ -138,19 +141,77 @@ export type ExecutionValidation = Readonly<{
   reason?: string;
 }>;
 
+export type OutcomeTrustStatus =
+  | 'unvalidated'
+  | 'domain-valid'
+  | 'integrity-checked'
+  | 'verified'
+  | 'receipt-stale'
+  | 'source-dependency-stale';
+
 export type ExecutionReceipt = Readonly<{
   id: string;
-  kind: 'policy' | 'usage' | 'cost' | 'latency' | 'validation' | 'handoff';
+  kind: 'policy' | 'usage' | 'cost' | 'latency' | 'validation' | 'handoff' | 'artifact';
   authority: 'provider' | 'flux' | 'core' | 'desktop';
   identity: ExecutionIdentity;
   observedAt: number;
+  status?: OutcomeTrustStatus;
 }>;
+
+export type TrustedArtifactReceipt = ExecutionReceipt &
+  Readonly<{
+    kind: 'artifact';
+    authority: 'core';
+    origin: 'core/anvil';
+    contractVersion: string;
+    producerSessionId: string;
+    producerRunId: string;
+    producerTaskId: string;
+    producerSequence: number;
+    artifactDigest: string;
+    gateClosureDigest: string;
+    bodyDigest: string;
+    sourceDependencyDigest?: string;
+    status: OutcomeTrustStatus;
+  }>;
 
 export type ExecutionOutcome = Readonly<{
   id: string;
   kind: 'artifact' | 'file' | 'message' | 'report';
   label: string;
   uri?: string;
+  receiptId?: string;
+  artifactDigest?: string;
+  sourceDependencyDigest?: string;
+}>;
+
+export type ExecutionOutcomeTrust = Readonly<{
+  receiptId: string;
+  outcomeId?: string;
+  artifactDigest: string;
+  sourceDependencyDigest?: string;
+  status: OutcomeTrustStatus;
+  reason?: string;
+}>;
+
+export type TrustedExecutionPolicy = Readonly<{
+  status: 'trusted';
+  contractVersion: string;
+  revision: number;
+  reason: 'launch' | 'mode_change' | 'resume' | 'expiry';
+  effectiveAt: number;
+  posture: 'smart' | 'managed' | 'dangerous';
+  approvals: 'prompt' | 'auto_edit' | 'bypass';
+  sandbox: 'required' | 'bypass';
+  source: string;
+  managedFloorActive: boolean;
+  dangerousActivationId?: string;
+  dangerousExpiresAt?: number;
+}>;
+
+export type UnavailableExecutionPolicy = Readonly<{
+  status: 'unavailable';
+  reason: string;
 }>;
 
 export type ExecutionHandoff = Readonly<{
@@ -185,8 +246,10 @@ export type ExecutionSnapshot = Readonly<{
   costLedger: ExecutionCostLedger;
   latency: AuthoritativeLatency | UnavailableMetric;
   validation: ExecutionValidation;
+  trustedPolicy: TrustedExecutionPolicy | UnavailableExecutionPolicy;
   receipts: readonly ExecutionReceipt[];
   outcomes: readonly ExecutionOutcome[];
+  outcomeTrust: readonly ExecutionOutcomeTrust[];
   handoffs: readonly ExecutionHandoff[];
   integrity: Readonly<{
     status: 'valid' | 'invalid';
@@ -207,6 +270,7 @@ type ExecutionEventBase = Readonly<{
 }>;
 
 export type ExecutionEvent =
+  | (ExecutionEventBase & Readonly<{ type: 'evidence-rejected'; reason: string }>)
   | (ExecutionEventBase &
       Readonly<{ type: 'lifecycle'; lifecycle: ExecutionLifecycle; action?: 'stop' | 'retry' | 'reopen' | 'resume' }>)
   | (ExecutionEventBase & Readonly<{ type: 'activity'; activity: ExecutionActivity }>)
@@ -232,6 +296,17 @@ export type ExecutionEvent =
   | (ExecutionEventBase & Readonly<{ type: 'latency'; latency: AuthoritativeLatency; receipt: ExecutionReceipt }>)
   | (ExecutionEventBase & Readonly<{ type: 'validation'; validation: ExecutionValidation; receipt?: ExecutionReceipt }>)
   | (ExecutionEventBase & Readonly<{ type: 'outcome'; outcome: ExecutionOutcome }>)
+  | (ExecutionEventBase & Readonly<{ type: 'policy-revision'; policy: TrustedExecutionPolicy }>)
+  | (ExecutionEventBase & Readonly<{ type: 'trusted-receipt'; receipt: TrustedArtifactReceipt }>)
+  | (ExecutionEventBase &
+      Readonly<{
+        type: 'receipt-invalidated';
+        receiptId: string;
+        status: 'receipt-stale' | 'source-dependency-stale';
+        reason: string;
+        priorArtifactDigest?: string;
+        observedArtifactDigest?: string;
+      }>)
   | (ExecutionEventBase & Readonly<{ type: 'handoff'; handoff: ExecutionHandoff; receipt: ExecutionReceipt }>);
 
 export type ExecutionSeed = Readonly<{

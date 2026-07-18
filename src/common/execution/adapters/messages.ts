@@ -9,6 +9,7 @@ import type { ExecutionBackend } from '../types';
 
 const isExecutionMessage = (message: TMessage): boolean =>
   message.type === 'activity' ||
+  message.type === 'execution_evidence' ||
   message.type === 'plan' ||
   message.type === 'tool_group' ||
   message.type === 'acp_permission' ||
@@ -37,6 +38,19 @@ export function selectCurrentExecutionMessages(
     const execution = messages.filter(isAcpExecutionMessage);
     const latestPlanIndex = execution.findLastIndex((message) => message.type === 'plan');
     return latestPlanIndex >= 0 ? execution.slice(latestPlanIndex) : execution;
+  }
+
+  if (backend === 'wcore') {
+    const latestUserIndex = messages.findLastIndex(
+      (message) => message.type === 'text' && message.position === 'right'
+    );
+    if (latestUserIndex >= 0) {
+      const current = messages.slice(latestUserIndex + 1).filter(isExecutionMessage);
+      const latestPolicy = messages.findLast(
+        (message) => message.type === 'execution_evidence' && message.content.event.type === 'execution_policy'
+      );
+      return latestPolicy && !current.includes(latestPolicy) ? [latestPolicy, ...current] : current;
+    }
   }
 
   const execution = messages.filter(isExecutionMessage);
