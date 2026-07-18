@@ -9,8 +9,8 @@ import {
   assertTrustedArtifactReceipts,
   inspectNativeArtifact,
   type ArtifactEvidence,
-  type ReceiptSurfaceEvidence,
 } from '../cowork/replayContract';
+import type { TMessage } from '@/common/chat/chatLib';
 
 type Journey = Readonly<{
   id: string;
@@ -122,7 +122,8 @@ async function waitForTurnAndFiles(journey: Journey, timeoutMs = 8 * 60_000): Pr
     // The packaged product is intentionally polled serially: each approval can advance the same turn.
     // eslint-disable-next-line no-await-in-loop
     await clickVisibleApprovals();
-    if (fs.existsSync(docx) && fs.existsSync(pdf) && fs.statSync(docx).size > 255 && fs.statSync(pdf).size > 255) return;
+    if (fs.existsSync(docx) && fs.existsSync(pdf) && fs.statSync(docx).size > 255 && fs.statSync(pdf).size > 255)
+      return;
     // eslint-disable-next-line no-await-in-loop
     const fatal = await page
       .getByText(/API Error|Policy denied|failed to start|not configured|command requires/i)
@@ -149,29 +150,15 @@ async function sendFollowUp(prompt: string): Promise<void> {
   await input.press('Enter');
 }
 
-async function collectTrustedReceiptSurfaces(): Promise<ReceiptSurfaceEvidence[]> {
-  const coreTab = page.getByRole('button', { name: /^Core(?: \(open\))?$/ }).first();
-  if (!(await coreTab.isVisible().catch(() => false))) throw new Error('M8_CORE_EVIDENCE_SURFACE_MISSING');
-  await coreTab.click();
-  const receiptsFacet = page.getByRole('button', { name: /^Receipts$/ }).first();
-  if (!(await receiptsFacet.isVisible().catch(() => false))) throw new Error('M8_RECEIPT_FACET_MISSING');
-  await receiptsFacet.click();
-  return page.locator('[data-testid="receipt-trust-surface"]').evaluateAll((nodes) =>
-    nodes.map((node) => {
-      const terms = [...node.querySelectorAll('dt')];
-      const read = (label: string) => {
-        const term = terms.find((item) => item.textContent?.trim() === label);
-        return term?.nextElementSibling?.textContent?.trim();
-      };
-      return {
-        status: node.getAttribute('data-trust-status') ?? '',
-        origin: read('Origin'),
-        contract: read('Contract'),
-        artifactDigest: read('Artifact'),
-        gateClosureDigest: read('Gate closure'),
-      };
-    })
-  );
+async function collectPersistedCoreEvidence(): Promise<TMessage[]> {
+  const match = new URL(page.url()).hash.match(/^#\/conversation\/([^/?#]+)/);
+  const conversationId = match?.[1] ? decodeURIComponent(match[1]) : '';
+  if (!conversationId) throw new Error('M8_CONVERSATION_ID_MISSING');
+  return invokeBridge<TMessage[]>(page, 'database.get-conversation-messages', {
+    conversation_id: conversationId,
+    page: 0,
+    pageSize: 10_000,
+  });
 }
 
 async function validateJourney(journey: Journey, revised = false): Promise<ArtifactEvidence[]> {
@@ -180,8 +167,8 @@ async function validateJourney(journey: Journey, revised = false): Promise<Artif
     inspectNativeArtifact(path.join(workspace, journey.docx), 'docx', requiredMarkers(journey, revised)),
     inspectNativeArtifact(path.join(workspace, journey.pdf), 'pdf', requiredMarkers(journey, revised)),
   ]);
-  const receipts = await collectTrustedReceiptSurfaces();
-  assertTrustedArtifactReceipts(receipts, artifacts);
+  const messages = await collectPersistedCoreEvidence();
+  const receipts = assertTrustedArtifactReceipts(messages, artifacts);
   writeJourneyEvidence(journey.id, {
     contract: CONTRACT.contract,
     status: 'passed',
@@ -273,6 +260,11 @@ test.describe('M8-D packaged Cowork J17/J23 replay', () => {
     const coworkJourney = CONTRACT.journeys.find((item) => item.id === 'J23-cowork')!;
     const plain = await runJourney(plainJourney);
     const cowork = await runJourney(coworkJourney);
-    assertEquivalentJ23State(plain, cowork, [...CONTRACT.sourceIds, ...CONTRACT.requiredFacts, 'Sources', 'Limitations']);
+    assertEquivalentJ23State(plain, cowork, [
+      ...CONTRACT.sourceIds,
+      ...CONTRACT.requiredFacts,
+      'Sources',
+      'Limitations',
+    ]);
   });
 });
