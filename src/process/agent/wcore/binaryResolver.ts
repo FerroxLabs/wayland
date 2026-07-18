@@ -59,7 +59,7 @@ function lookupOnPath(name: string): string | null {
   // constant today but defensive coding prevents future drift.
   const finder = process.platform === 'win32' ? 'where' : 'which';
   try {
-    const result = execFileSync(finder, [name], { encoding: 'utf-8', timeout: 5000 }).trim();
+    const result = execFileSync(finder, [name], { encoding: 'utf-8', timeout: 5000, windowsHide: true }).trim();
     if (result && existsSync(result)) return result;
   } catch {
     // not found in PATH
@@ -134,6 +134,7 @@ export function detectWCore(): {
     const version = execFileSync(binaryPath, ['--version'], {
       encoding: 'utf-8',
       timeout: 5000,
+      windowsHide: true,
     }).trim();
     return { available: true, version, path: binaryPath };
   } catch {

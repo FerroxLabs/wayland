@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import { POTENTIAL_ACP_CLIS } from '@/common/types/acpTypes';
@@ -58,11 +58,15 @@ class AcpDetector {
       return false;
     }
     try {
-      const out = execSync('wsl.exe -l -q', {
+      // execFileSync runs wsl.exe directly (no cmd.exe shell wrapper) and
+      // windowsHide suppresses the console window - otherwise an empty cmd.exe
+      // window flashes on Windows every time detection re-probes for WSL.
+      const out = execFileSync('wsl.exe', ['-l', '-q'], {
         encoding: 'utf-8',
         stdio: 'pipe',
         timeout: 1500,
         env: this.enhancedEnv,
+        windowsHide: true,
       });
       // `wsl.exe -l -q` emits UTF-16; Node decodes it with embedded NULs.
       this.wslAvailable = out.split('\0').join('').trim().length > 0;
@@ -207,7 +211,13 @@ class AcpDetector {
 
     for (const cmd of safe) {
       try {
-        execSync(`${whichCommand} ${cmd}`, { encoding: 'utf-8', stdio: 'pipe', timeout: 3000, env: this.enhancedEnv });
+        execSync(`${whichCommand} ${cmd}`, {
+          encoding: 'utf-8',
+          stdio: 'pipe',
+          timeout: 3000,
+          env: this.enhancedEnv,
+          windowsHide: true,
+        });
         found.add(cmd);
         continue;
       } catch (err) {
@@ -217,7 +227,7 @@ class AcpDetector {
       try {
         execSync(
           `powershell -NoProfile -NonInteractive -Command "Get-Command -All ${cmd} | Select-Object -First 1 | Out-Null"`,
-          { encoding: 'utf-8', stdio: 'pipe', timeout: 5000, env: this.enhancedEnv }
+          { encoding: 'utf-8', stdio: 'pipe', timeout: 5000, env: this.enhancedEnv, windowsHide: true }
         );
         found.add(cmd);
         continue;
@@ -235,6 +245,7 @@ class AcpDetector {
           stdio: 'pipe',
           timeout: 2000,
           env: this.enhancedEnv,
+          windowsHide: true,
         });
         found.add(cmd);
       } catch (err) {

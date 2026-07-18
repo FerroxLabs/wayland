@@ -35,6 +35,7 @@ export async function testCustomAgentConnection(params: {
       timeout: 5000,
       stdio: 'pipe',
       encoding: 'utf-8',
+      windowsHide: true,
     });
   } catch {
     return {
