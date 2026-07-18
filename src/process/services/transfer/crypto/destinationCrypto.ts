@@ -29,6 +29,8 @@ const ROOT_FIELDS = new Set([
   'aead',
   'recipientKeyId',
   'recipientFingerprint',
+  'authorizationBinding',
+  'expiresAt',
   'bundleId',
   'schema',
   'ordinal',
@@ -51,6 +53,8 @@ export type DestinationRecipientDescriptor = {
   keyId: string;
   publicKey: string;
   fingerprint: string;
+  /** Digest of instance + principal/tenant + scope + policy authorization. */
+  authorizationBinding: `sha256:${string}`;
   expiresAt: number;
 };
 
@@ -66,6 +70,8 @@ export type DestinationChunkEnvelope = RecoveryChunkMetadata & {
   aead: typeof DESTINATION_AEAD;
   recipientKeyId: string;
   recipientFingerprint: string;
+  authorizationBinding: `sha256:${string}`;
+  expiresAt: number;
   encapsulatedKey: string;
   ciphertext: string;
 };
@@ -87,11 +93,13 @@ export class DestinationRecipientKey {
 
   static async issue(input: {
     keyId: string;
+    authorizationBinding: `sha256:${string}`;
     expiresAt: number;
     now?: () => number;
   }): Promise<DestinationRecipientKey> {
     const now = input.now ?? Date.now;
     validateKeyId(input.keyId);
+    validateAuthorizationBinding(input.authorizationBinding);
     if (!Number.isSafeInteger(input.expiresAt)) throw new Error('Invalid destination key expiry');
     const lifetime = input.expiresAt - now();
     if (lifetime <= 0 || lifetime > DESTINATION_MAX_KEY_LIFETIME_MS)
@@ -104,6 +112,7 @@ export class DestinationRecipientKey {
       keyId: input.keyId,
       publicKey: encodeBase64Url(publicKey),
       fingerprint: fingerprint(publicKey),
+      authorizationBinding: input.authorizationBinding,
       expiresAt: input.expiresAt,
     };
     return new DestinationRecipientKey(descriptor, keyPair, now);
@@ -128,7 +137,9 @@ export class DestinationRecipientKey {
     const envelope = parseDestinationChunkEnvelope(serializedEnvelope);
     if (
       envelope.recipientKeyId !== this.recipient.keyId ||
-      envelope.recipientFingerprint !== this.recipient.fingerprint
+      envelope.recipientFingerprint !== this.recipient.fingerprint ||
+      envelope.authorizationBinding !== this.recipient.authorizationBinding ||
+      envelope.expiresAt !== this.recipient.expiresAt
     )
       throw new Error('Destination recipient binding mismatch');
 
@@ -168,10 +179,11 @@ export class DestinationRecipientKey {
 
 export async function encryptDestinationChunk(
   input: DestinationChunkEncryptionInput,
-  recipient: DestinationRecipientDescriptor
+  recipient: DestinationRecipientDescriptor,
+  now: () => number = Date.now
 ): Promise<Uint8Array> {
   validateMetadata(input);
-  validateRecipient(recipient);
+  validateRecipient(recipient, now());
   if (!(input.plaintext instanceof Uint8Array)) throw new Error('Plaintext must be bytes');
   assertPlaintextMatchesMetadata(input.plaintext, input);
 
@@ -190,6 +202,8 @@ export async function encryptDestinationChunk(
     ...input,
     recipientKeyId: recipient.keyId,
     recipientFingerprint: recipient.fingerprint,
+    authorizationBinding: recipient.authorizationBinding,
+    expiresAt: recipient.expiresAt,
   };
   let sealed: { enc: ArrayBuffer; ct: ArrayBuffer };
   try {
@@ -213,6 +227,8 @@ export async function encryptDestinationChunk(
     aead: DESTINATION_AEAD,
     recipientKeyId: recipient.keyId,
     recipientFingerprint: recipient.fingerprint,
+    authorizationBinding: recipient.authorizationBinding,
+    expiresAt: recipient.expiresAt,
     bundleId: input.bundleId,
     schema: input.schema,
     ordinal: input.ordinal,
@@ -250,6 +266,8 @@ export function serializeDestinationChunkEnvelope(envelope: DestinationChunkEnve
       aead: envelope.aead,
       recipientKeyId: envelope.recipientKeyId,
       recipientFingerprint: envelope.recipientFingerprint,
+      authorizationBinding: envelope.authorizationBinding,
+      expiresAt: envelope.expiresAt,
       bundleId: envelope.bundleId,
       schema: envelope.schema,
       ordinal: envelope.ordinal,
@@ -275,13 +293,23 @@ export function buildDestinationAssociatedData(metadata: RecoveryChunkMetadata):
   );
 }
 
-function buildDestinationInfo(recipient: { recipientKeyId: string; recipientFingerprint: string }): Uint8Array {
+function buildDestinationInfo(recipient: {
+  recipientKeyId: string;
+  recipientFingerprint: string;
+  authorizationBinding: string;
+  expiresAt: number;
+}): Uint8Array {
   validateKeyId(recipient.recipientKeyId);
   if (!DIGEST_PATTERN.test(recipient.recipientFingerprint)) throw new Error('Invalid destination fingerprint');
+  validateAuthorizationBinding(recipient.authorizationBinding);
+  if (!Number.isSafeInteger(recipient.expiresAt) || recipient.expiresAt <= 0)
+    throw new Error('Invalid destination key expiry');
   const info = concatBytes(
     lengthPrefixed(encoder.encode(HPKE_INFO_PREFIX)),
     lengthPrefixed(encoder.encode(recipient.recipientKeyId)),
-    hexToBytes(recipient.recipientFingerprint.slice('sha256:'.length))
+    hexToBytes(recipient.recipientFingerprint.slice('sha256:'.length)),
+    hexToBytes(recipient.authorizationBinding.slice('sha256:'.length)),
+    uint64(recipient.expiresAt)
   );
   if (info.length > 128) throw new Error('Destination HPKE info exceeds 128 bytes');
   return info;
@@ -295,16 +323,24 @@ function validateEnvelope(envelope: DestinationChunkEnvelope): void {
   if (envelope.aead !== DESTINATION_AEAD) throw new Error('Destination AEAD drift');
   validateKeyId(envelope.recipientKeyId);
   if (!DIGEST_PATTERN.test(envelope.recipientFingerprint)) throw new Error('Invalid destination fingerprint');
+  validateAuthorizationBinding(envelope.authorizationBinding);
+  if (!Number.isSafeInteger(envelope.expiresAt) || envelope.expiresAt <= 0)
+    throw new Error('Invalid destination key expiry');
   validateMetadata(envelope);
   decodeBase64Url(envelope.encapsulatedKey, DESTINATION_ENCAPSULATED_KEY_BYTES, 'encapsulated key');
   decodeBase64Url(envelope.ciphertext, envelope.declaredLength + DESTINATION_TAG_BYTES, 'ciphertext');
 }
 
-function validateRecipient(recipient: DestinationRecipientDescriptor): void {
+function validateRecipient(recipient: DestinationRecipientDescriptor, now: number): void {
   if (recipient.suite !== DESTINATION_CRYPTO_SUITE) throw new Error('Unknown destination crypto suite');
   validateKeyId(recipient.keyId);
   if (!DIGEST_PATTERN.test(recipient.fingerprint)) throw new Error('Invalid destination fingerprint');
-  if (!Number.isSafeInteger(recipient.expiresAt)) throw new Error('Invalid destination key expiry');
+  validateAuthorizationBinding(recipient.authorizationBinding);
+  if (!Number.isSafeInteger(now) || !Number.isSafeInteger(recipient.expiresAt))
+    throw new Error('Invalid destination key expiry');
+  const remaining = recipient.expiresAt - now;
+  if (remaining <= 0 || remaining > DESTINATION_MAX_KEY_LIFETIME_MS)
+    throw new Error('Destination key is expired or exceeds 15 minutes');
 }
 
 function validateMetadata(metadata: RecoveryChunkMetadata): void {
@@ -328,6 +364,10 @@ function assertPlaintextMatchesMetadata(plaintext: Uint8Array, metadata: Recover
 
 function validateKeyId(keyId: string): void {
   if (!IDENTIFIER_PATTERN.test(keyId)) throw new Error('Invalid destination key id');
+}
+
+function validateAuthorizationBinding(value: string): asserts value is `sha256:${string}` {
+  if (!DIGEST_PATTERN.test(value)) throw new Error('Invalid destination authorization binding');
 }
 
 function fingerprint(publicKey: Uint8Array): string {

@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import {
   buildDestinationAssociatedData,
@@ -13,6 +14,7 @@ import {
 } from '@process/services/transfer/crypto';
 
 const plaintext = new TextEncoder().encode('destination-bound Wayland state');
+const AUTHORIZATION_BINDING = `sha256:${'ab'.repeat(32)}` as const;
 const input: DestinationChunkEncryptionInput = {
   bundleId: 'bundle-destination-1',
   schema: 'wayland-transfer/1',
@@ -22,7 +24,7 @@ const input: DestinationChunkEncryptionInput = {
   plaintext,
 };
 
-async function issue(nowValue = 1_000_000): Promise<{
+async function issue(nowValue = Date.now()): Promise<{
   key: DestinationRecipientKey;
   descriptor: Readonly<DestinationRecipientDescriptor>;
   setNow: (value: number) => void;
@@ -30,6 +32,7 @@ async function issue(nowValue = 1_000_000): Promise<{
   let current = nowValue;
   const key = await DestinationRecipientKey.issue({
     keyId: 'destination-key-1',
+    authorizationBinding: AUTHORIZATION_BINDING,
     expiresAt: nowValue + 15 * 60 * 1000,
     now: () => current,
   });
@@ -73,7 +76,14 @@ describe('WT-D1 destination-bound HPKE', () => {
 
   it('never exposes the private key through the descriptor', async () => {
     const { descriptor } = await issue();
-    expect(Object.keys(descriptor).toSorted()).toEqual(['expiresAt', 'fingerprint', 'keyId', 'publicKey', 'suite']);
+    expect(Object.keys(descriptor).toSorted()).toEqual([
+      'authorizationBinding',
+      'expiresAt',
+      'fingerprint',
+      'keyId',
+      'publicKey',
+      'suite',
+    ]);
     expect(JSON.stringify(descriptor)).not.toMatch(/private|secret/i);
   });
 
@@ -81,6 +91,7 @@ describe('WT-D1 destination-bound HPKE', () => {
     const first = await issue();
     const secondKey = await DestinationRecipientKey.issue({
       keyId: 'destination-key-2',
+      authorizationBinding: AUTHORIZATION_BINDING,
       expiresAt: 1_900_000,
       now: () => 1_000_000,
     });
@@ -94,6 +105,26 @@ describe('WT-D1 destination-bound HPKE', () => {
     issued.setNow(issued.descriptor.expiresAt);
     await expect(issued.key.openChunk(serialized)).rejects.toThrow('expired');
     await expect(issued.key.openChunk(serialized)).rejects.toThrow('destroyed');
+  });
+
+  it('rejects expired, over-lifetime, and substituted source authorization', async () => {
+    const now = 1_000_000;
+    const issued = await issue(now);
+    await expect(
+      encryptDestinationChunk(input, { ...issued.descriptor, expiresAt: now - 1 }, () => now)
+    ).rejects.toThrow(/expired/);
+    await expect(
+      encryptDestinationChunk(input, { ...issued.descriptor, expiresAt: now + 15 * 60 * 1000 + 1 }, () => now)
+    ).rejects.toThrow(/15 minutes/);
+
+    const serialized = await encryptDestinationChunk(input, issued.descriptor, () => now);
+    await expect(
+      issued.key.openChunk(
+        mutate(serialized, (item) => {
+          item.authorizationBinding = `sha256:${'cd'.repeat(32)}`;
+        })
+      )
+    ).rejects.toThrow('recipient binding mismatch');
   });
 
   it('fails after explicit key destruction', async () => {
@@ -136,11 +167,12 @@ describe('WT-D1 destination-bound HPKE', () => {
     ['all-zero public key', 32],
   ])('rejects a %s', async (label, size) => {
     const { descriptor } = await issue();
-    const publicKey = Buffer.alloc(size, label === 'all-zero public key' ? 0 : 1).toString('base64url');
+    const publicKeyBytes = Buffer.alloc(size, label === 'all-zero public key' ? 0 : 1);
+    const publicKey = publicKeyBytes.toString('base64url');
     const hostile = {
       ...descriptor,
       publicKey,
-      fingerprint: `sha256:${'00'.repeat(32)}`,
+      fingerprint: `sha256:${createHash('sha256').update(publicKeyBytes).digest('hex')}`,
     };
     await expect(encryptDestinationChunk(input, hostile)).rejects.toThrow();
   });
@@ -167,6 +199,8 @@ describe('WT-D1 destination-bound HPKE', () => {
       'ordinal',
       'declaredLength',
       'contentDigest',
+      'authorizationBinding',
+      'expiresAt',
     ];
     await Promise.all(
       fields.map(async (field) => {
@@ -182,6 +216,8 @@ describe('WT-D1 destination-bound HPKE', () => {
           changed.ciphertext = `${candidate.ciphertext}A`;
         }
         if (field === 'contentDigest') changed[field] = `sha256:${'00'.repeat(32)}`;
+        if (field === 'authorizationBinding') changed[field] = `sha256:${'cd'.repeat(32)}`;
+        if (field === 'expiresAt') changed[field] = candidate.expiresAt - 1;
         await expect(issued.key.openChunk(JSON.stringify(changed))).rejects.toThrow();
       })
     );
