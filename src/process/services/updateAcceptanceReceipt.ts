@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * Strict shape contract for a claimed signed update -> rollback -> re-upgrade
- * journey. Shape consistency is not acceptance authority: until the packaged
- * runtime emits independently observed, nonce-bound lifecycle events and state
- * snapshots, every otherwise-valid claim is rejected below.
+ * journey. Shape consistency is deliberately separated from acceptance
+ * authority. The canonical authority lives in
+ * scripts/release-acceptance/verifyUpdaterObservation.js, where exact evidence
+ * bytes and their GitHub provenance are verified before a trusted receipt is
+ * minted.
  */
 
 const SHA256 = /^[a-f0-9]{64}$/;
@@ -92,6 +94,22 @@ export type UpdateJourneyReceipt = {
     };
   };
   accepted: true;
+};
+
+export type ClaimedUpdateJourneyValidation = {
+  contract: 'wayland-updater-journey-claim-validation/1.0';
+  status: 'claimed-unverified';
+  authoritative: false;
+  candidate: {
+    commit: string;
+    target: UpdateTarget;
+    version: string;
+    artifactSha256: string;
+  };
+  rollback: {
+    version: '0.11.8';
+    artifactSha256: string;
+  };
 };
 
 function fail(code: string, detail: string): never {
@@ -320,11 +338,27 @@ function validateClaimedUpdateJourney(input: unknown): UpdateJourneyReceipt {
 }
 
 /**
- * Reject caller-authored lifecycle claims until a trusted packaged-runtime
- * observer exists. This function deliberately returns `never`: validating the
- * internal consistency of a JSON document must not mint acceptance authority.
+ * Validate only the internal consistency of a caller-authored journey claim.
+ * The return value is explicitly non-authoritative and cannot satisfy final
+ * acceptance. Trusted authority is minted only by the canonical attested-file
+ * verifier after it independently hashes the packaged artifacts, event log,
+ * package smoke, and lifecycle snapshots.
  */
-export function validateUpdateJourneyReceipt(input: unknown): never {
-  validateClaimedUpdateJourney(input);
-  fail('M8C_TRUSTED_OBSERVATION_UNAVAILABLE', 'packaged-runtime-events-and-state-snapshots-not-independently-observed');
+export function validateUpdateJourneyReceipt(input: unknown): ClaimedUpdateJourneyValidation {
+  const receipt = validateClaimedUpdateJourney(input);
+  return {
+    contract: 'wayland-updater-journey-claim-validation/1.0',
+    status: 'claimed-unverified',
+    authoritative: false,
+    candidate: {
+      commit: receipt.candidate.sourceCommit,
+      target: receipt.candidate.target,
+      version: receipt.candidate.version,
+      artifactSha256: receipt.candidate.sha256,
+    },
+    rollback: {
+      version: receipt.rollback.version,
+      artifactSha256: receipt.rollback.sha256,
+    },
+  };
 }

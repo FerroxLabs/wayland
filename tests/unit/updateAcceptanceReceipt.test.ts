@@ -94,10 +94,19 @@ function clone(): UpdateJourneyReceipt {
 }
 
 describe('signed updater rollback and re-upgrade receipt', () => {
-  it('does not promote an internally consistent caller-authored claim', () => {
-    expect(() => validateUpdateJourneyReceipt(validReceipt())).toThrow(
-      /M8C_TRUSTED_OBSERVATION_UNAVAILABLE:packaged-runtime-events-and-state-snapshots-not-independently-observed/
-    );
+  it('classifies an internally consistent caller-authored claim as non-authoritative', () => {
+    expect(validateUpdateJourneyReceipt(validReceipt())).toEqual({
+      contract: 'wayland-updater-journey-claim-validation/1.0',
+      status: 'claimed-unverified',
+      authoritative: false,
+      candidate: {
+        commit: COMMIT,
+        target: 'darwin-arm64',
+        version: '0.12.0',
+        artifactSha256: CANDIDATE_SHA,
+      },
+      rollback: { version: '0.11.8', artifactSha256: ROLLBACK_SHA },
+    });
   });
 
   it('rejects a model/self-asserted publisher gate', () => {
