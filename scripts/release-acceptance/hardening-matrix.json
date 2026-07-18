@@ -101,7 +101,11 @@
     "updater"
   ],
   "capabilityConditional": {
-    "cowork-office": { "criteria": [], "journeys": ["J17", "J23"], "receipts": ["C0-B", "C1"] },
+    "cowork-office": {
+      "criteria": [],
+      "journeys": ["J17", "J23"],
+      "receipts": ["C0-B", "C1", "C0-RELEASE-CLOSURE"]
+    },
     "voice": { "criteria": ["SC-06E"], "journeys": [], "receipts": ["M5V-A", "M5V-B"] },
     "mcp": { "criteria": ["SC-14A"], "journeys": ["J9"], "receipts": ["M1M", "MCP-4"] },
     "sandbox": { "criteria": ["SC-06F"], "journeys": ["J10", "J25"], "receipts": ["M1S", "SBX-2"] },

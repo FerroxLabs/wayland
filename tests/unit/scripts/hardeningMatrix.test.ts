@@ -65,6 +65,18 @@ describe('M8 release hardening matrix', () => {
     }
   });
 
+  it('requires the final C0 release-closure receipt without replacing C0-B or C1', () => {
+    const candidate = matrix();
+    expect(candidate.capabilityConditional['cowork-office'].receipts).toEqual([
+      'C0-B',
+      'C1',
+      'C0-RELEASE-CLOSURE',
+    ]);
+
+    candidate.capabilityConditional['cowork-office'].receipts = ['C0-B', 'C1'];
+    expect(() => verifyHardeningMatrix(candidate)).toThrow(/cowork-office conditional receipts coverage or ordering mismatch/);
+  });
+
   it('rejects unknown critical fields at every authority boundary', () => {
     const top = matrix();
     top.acceptAnyway = true;
