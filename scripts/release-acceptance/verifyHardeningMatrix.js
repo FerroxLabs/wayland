@@ -41,6 +41,31 @@ const CRITERIA = [
 ];
 const JOURNEYS = Array.from({ length: 25 }, (_, index) => `J${index + 1}`).filter((id) => id !== 'J22');
 const TARGETS = ['darwin-arm64', 'darwin-x64', 'win32-arm64', 'win32-x64', 'linux-arm64', 'linux-x64'];
+const TARGET_GATE_RECEIPT_CONTRACT = 'wayland-target-hardening-gate-receipt/1.0';
+const TARGET_GATE_RECEIPT_SCHEMA = Object.freeze({
+  contract: TARGET_GATE_RECEIPT_CONTRACT,
+  requiredFields: Object.freeze([
+    'contract',
+    'receiptId',
+    'candidate',
+    'target',
+    'gate',
+    'authority',
+    'evidenceSha256',
+  ]),
+  authority: 'canonical-target-hardening-validator',
+});
+const TARGET_PROOF_GATES = ['package-identity-signature', 'install', 'updater', 'rollback', 're-upgrade'];
+const TARGET_GATE_RECEIPTS = TARGETS.flatMap((target) =>
+  TARGET_PROOF_GATES.map((gate) =>
+    Object.freeze({
+      receiptId: `M8-F:${target}:${gate}`,
+      contract: TARGET_GATE_RECEIPT_CONTRACT,
+      target,
+      gate,
+    })
+  )
+);
 const GATES = [
   'accessibility',
   'bundle',
@@ -89,6 +114,39 @@ function readMatrix(file = MATRIX_FILE) {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
+function verifyTargetGateReceiptSchema(schema) {
+  exactKeys(schema, ['contract', 'requiredFields', 'authority'], 'target gate receipt schema');
+  if (
+    schema.contract !== TARGET_GATE_RECEIPT_SCHEMA.contract ||
+    schema.authority !== TARGET_GATE_RECEIPT_SCHEMA.authority
+  ) {
+    throw new Error('target gate receipt schema authority or contract mismatch');
+  }
+  exactArray(schema.requiredFields, TARGET_GATE_RECEIPT_SCHEMA.requiredFields, 'target gate receipt schema fields');
+}
+
+function verifyTargetGateReceipts(receipts) {
+  if (!Array.isArray(receipts) || receipts.length !== TARGET_GATE_RECEIPTS.length) {
+    throw new Error('target gate receipt coverage or ordering mismatch');
+  }
+  const receiptIds = new Set();
+  for (let index = 0; index < TARGET_GATE_RECEIPTS.length; index += 1) {
+    const observed = receipts[index];
+    const expected = TARGET_GATE_RECEIPTS[index];
+    exactKeys(observed, ['receiptId', 'contract', 'target', 'gate'], `target gate receipt ${index}`);
+    if (receiptIds.has(observed.receiptId)) throw new Error(`target gate receipt ID duplicated: ${observed.receiptId}`);
+    receiptIds.add(observed.receiptId);
+    if (
+      observed.receiptId !== expected.receiptId ||
+      observed.contract !== expected.contract ||
+      observed.target !== expected.target ||
+      observed.gate !== expected.gate
+    ) {
+      throw new Error(`target gate receipt coverage or ordering mismatch at ${expected.target}/${expected.gate}`);
+    }
+  }
+}
+
 function verifyHardeningMatrix(matrix = readMatrix()) {
   exactKeys(
     matrix,
@@ -99,6 +157,8 @@ function verifyHardeningMatrix(matrix = readMatrix()) {
       'requiredJourneys',
       'supportedTargets',
       'requiredHardeningGates',
+      'targetGateReceiptSchema',
+      'requiredTargetGateReceipts',
       'capabilityConditional',
     ],
     'hardening matrix'
@@ -109,6 +169,8 @@ function verifyHardeningMatrix(matrix = readMatrix()) {
   exactArray(matrix.requiredJourneys, JOURNEYS, 'mandatory journey');
   exactArray(matrix.supportedTargets, TARGETS, 'supported target');
   exactArray(matrix.requiredHardeningGates, GATES, 'hardening gate');
+  verifyTargetGateReceiptSchema(matrix.targetGateReceiptSchema);
+  verifyTargetGateReceipts(matrix.requiredTargetGateReceipts);
   exactKeys(matrix.capabilityConditional, Object.keys(CONDITIONAL), 'conditional capability map');
   for (const [capability, expected] of Object.entries(CONDITIONAL)) {
     const observed = matrix.capabilityConditional[capability];
@@ -124,6 +186,9 @@ function verifyHardeningMatrix(matrix = readMatrix()) {
     journeys: JOURNEYS.length,
     targets: TARGETS.length,
     gates: GATES.length,
+    targetProofGates: TARGET_PROOF_GATES.length,
+    targetGateReceiptSchema: TARGET_GATE_RECEIPT_SCHEMA,
+    targetGateReceipts: TARGET_GATE_RECEIPTS,
     conditionalCapabilities: Object.keys(CONDITIONAL).length,
   };
 }
@@ -136,6 +201,10 @@ module.exports = {
   JOURNEYS,
   MATRIX_FILE,
   TARGETS,
+  TARGET_GATE_RECEIPT_CONTRACT,
+  TARGET_GATE_RECEIPT_SCHEMA,
+  TARGET_GATE_RECEIPTS,
+  TARGET_PROOF_GATES,
   verifyHardeningMatrix,
 };
 
