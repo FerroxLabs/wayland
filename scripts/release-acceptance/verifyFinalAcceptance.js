@@ -115,9 +115,21 @@ function defaultExpectedPublisherAssets() {
   const active = policy.policies.filter((entry) => entry.status === 'active');
   if (active.length !== 1) fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'no-unique-active-core-release');
   const shasums = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'bundled-wcore-shasums.json'), 'utf8'));
-  const assets = Object.keys(shasums[active[0].releaseTag] || {}).sort();
+  const assets = Object.entries(shasums[active[0].releaseTag] || {})
+    .map(([asset, evidence]) => ({
+      asset,
+      sha256: typeof evidence === 'string' ? evidence : evidence?.archiveSha256,
+    }))
+    .sort((left, right) => left.asset.localeCompare(right.asset));
   if (assets.length !== TARGETS.length) {
     fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'core-release-target-coverage-mismatch');
+  }
+  for (const asset of assets) {
+    exactKeys(asset, ['asset', 'sha256'], 'M8A_PUBLISHER_ATTESTATION_INVALID');
+    if (typeof asset.asset !== 'string' || asset.asset.length === 0) {
+      fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'invalid-authoritative-asset');
+    }
+    digest(asset.sha256, 'M8A_PUBLISHER_ATTESTATION_INVALID');
   }
   return assets;
 }
@@ -409,9 +421,21 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
   if (
     !Array.isArray(expectedPublisherAssets) ||
     expectedPublisherAssets.length !== TARGETS.length ||
-    new Set(expectedPublisherAssets).size !== expectedPublisherAssets.length ||
-    expectedPublisherAssets.some((asset) => typeof asset !== 'string' || asset.length === 0)
+    expectedPublisherAssets.some(
+      (asset) =>
+        !asset ||
+        typeof asset !== 'object' ||
+        Array.isArray(asset) ||
+        Object.keys(asset).length !== 2 ||
+        typeof asset.asset !== 'string' ||
+        asset.asset.length === 0 ||
+        !SHA256.test(String(asset.sha256))
+    )
   ) {
+    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'invalid-authoritative-asset-set');
+  }
+  const expectedPublisherByAsset = new Map(expectedPublisherAssets.map((asset) => [asset.asset, asset.sha256]));
+  if (expectedPublisherByAsset.size !== expectedPublisherAssets.length) {
     fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'invalid-authoritative-asset-set');
   }
   if (
@@ -423,8 +447,17 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
   const publisherReceipts = request.publisherArtifacts.map((artifact) =>
     verifyPublisherReceipt(verifiers.verifyPublisherArtifact(artifact))
   );
-  const observedPublisherAssets = publisherReceipts.map((receipt) => receipt.asset).sort();
-  if (JSON.stringify(observedPublisherAssets) !== JSON.stringify([...expectedPublisherAssets].sort())) {
+  const observedPublisherAssets = new Set();
+  for (const receipt of publisherReceipts) {
+    if (observedPublisherAssets.has(receipt.asset) || !expectedPublisherByAsset.has(receipt.asset)) {
+      fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'missing-duplicate-or-unknown-core-asset');
+    }
+    observedPublisherAssets.add(receipt.asset);
+    if (receipt.sha256 !== expectedPublisherByAsset.get(receipt.asset)) {
+      fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'core-asset-digest-mismatch');
+    }
+  }
+  if (observedPublisherAssets.size !== expectedPublisherByAsset.size) {
     fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'missing-duplicate-or-unknown-core-asset');
   }
 

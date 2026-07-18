@@ -152,7 +152,7 @@ function verifiers() {
       sha256: DIGEST('5'),
       verified: true,
     }),
-    expectedPublisherAssets: () => CORE_ASSETS,
+    expectedPublisherAssets: () => CORE_ASSETS.map((asset) => ({ asset, sha256: DIGEST('5') })),
     verifyUpdaterObservation: () => ({
       contract: 'wayland-updater-trusted-observation/1.0',
       candidate: { commit: COMMIT, tree: TREE },
@@ -245,6 +245,16 @@ describe('M8-A final acceptance controller', () => {
     const duplicate = request();
     duplicate.publisherArtifacts[5] = { ...duplicate.publisherArtifacts[0] };
     expect(() => verifyFinalAcceptance(duplicate, verifiers())).toThrow(/missing-duplicate-or-unknown-core-asset/);
+  });
+
+  it('binds every Core publisher artifact to the pinned release digest', () => {
+    const hostile = verifiers();
+    hostile.verifyPublisherArtifact = (raw: { assetName: string }) => ({
+      ...verifiers().verifyPublisherArtifact(raw),
+      sha256: DIGEST('f'),
+    });
+
+    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/core-asset-digest-mismatch/);
   });
 
   it('requires every exact target and hardening-gate receipt', () => {
