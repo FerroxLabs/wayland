@@ -28,6 +28,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const prepareWaylandCore = require('./prepareWaylandCore');
+const prepareOfficeCli = require('./prepareOfficeCli');
 const bundledBunShasums = require('./bundled-bun-shasums.json');
 const bundledBunBinaries = require('./bundled-bun-binaries.json');
 const signalPinnedRelease = require('./signal-cli-pinned-release.json');
@@ -144,7 +145,7 @@ function verifyConstitutionFsBundle(
   bundleRoot,
   targetPlatform,
   targetArch,
-  authority = loadConstitutionFsAuthority(),
+  authority,
   verifyDarwinSignature = (binaryPath) =>
     execFileSync('/usr/bin/codesign', ['--verify', '--strict', binaryPath], { stdio: 'pipe' })
 ) {
@@ -154,8 +155,12 @@ function verifyConstitutionFsBundle(
   if (entries.length !== 1 || !entries[0].isDirectory() || entries[0].name !== runtime) return false;
   const runtimeRoot = path.join(bundleRoot, runtime);
   const manifestPath = path.join(runtimeRoot, 'manifest.json');
+  const packageAuthorityPath = path.join(runtimeRoot, 'package-authority.json');
   const binaryPath = path.join(runtimeRoot, 'wayland-constitution-fs');
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const packageAuthority = JSON.parse(fs.readFileSync(packageAuthorityPath, 'utf8'));
+  if (authority && JSON.stringify(authority) !== JSON.stringify(packageAuthority)) return false;
+  authority = packageAuthority;
   if (!authority) return false;
   const bytes = fs.readFileSync(binaryPath);
   const digest = `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`;
@@ -419,13 +424,31 @@ function listRelativeFiles(root, current = root, found = []) {
   return found.sort();
 }
 
-function sourceInventory(root, current = root, inventory = []) {
+const WHATSAPP_OMITTED_EMPTY_PLACEHOLDERS = ['node_modules/tr46/lib/.gitkeep'];
+
+function validateOmittedEmptyPlaceholders(sourceDir, bundleDir) {
+  for (const relative of WHATSAPP_OMITTED_EMPTY_PLACEHOLDERS) {
+    const source = path.join(sourceDir, relative);
+    const bundled = path.join(bundleDir, relative);
+    if (!fs.existsSync(source)) continue;
+    const stat = fs.lstatSync(source);
+    if (!stat.isFile() || stat.size !== 0) return false;
+    if (fs.existsSync(bundled)) {
+      const bundledStat = fs.lstatSync(bundled);
+      if (!bundledStat.isFile() || bundledStat.size !== 0) return false;
+    }
+  }
+  return true;
+}
+
+function sourceInventory(root, current = root, inventory = [], ignoredPaths = new Set()) {
   for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
     const target = path.join(current, entry.name);
     const relative = path.relative(root, target).replace(/\\/g, '/');
+    if (ignoredPaths.has(relative)) continue;
     if (entry.isDirectory()) {
       inventory.push(`dir:${relative}`);
-      sourceInventory(root, target, inventory);
+      if (sourceInventory(root, target, inventory, ignoredPaths) === null) return null;
     } else if (entry.isFile()) {
       inventory.push(`file:${relative}:${fs.statSync(target).size}:${sha256File(target)}`);
     } else if (entry.isSymbolicLink()) {
@@ -439,6 +462,136 @@ function sourceInventory(root, current = root, inventory = []) {
     }
   }
   return inventory.sort();
+}
+
+function listNativeIdentities(root, identities = []) {
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    const target = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      if (listNativeIdentities(target, identities) === null) return null;
+    } else if (entry.isFile()) {
+      const identity = inspectExecutable(target);
+      if (/\.(?:node|dylib|dll)$|\.so(?:\.|$)/.test(entry.name) && !identity) return null;
+      if (identity) identities.push(identity);
+    } else {
+      return null;
+    }
+  }
+  return identities;
+}
+
+function expectedSharpPackages(platform, arch) {
+  if (platform === 'darwin') return [`sharp-darwin-${arch}`, `sharp-libvips-darwin-${arch}`];
+  if (platform === 'linux') return [`sharp-linux-${arch}`, `sharp-libvips-linux-${arch}`];
+  if (platform === 'win32') return [`sharp-win32-${arch}`];
+  return [];
+}
+
+const WHATSAPP_APPLE_BARE_PACKAGES = ['bare-fs', 'bare-os', 'bare-url'];
+const WHATSAPP_APPLE_BARE_RUNTIMES = [
+  ['darwin-arm64', 'arm64'],
+  ['darwin-x64', 'x64'],
+  ['ios-arm64', 'arm64'],
+  ['ios-arm64-simulator', 'arm64'],
+  ['ios-x64-simulator', 'x64'],
+];
+
+function verifyWhatsAppDarwinSignIgnoreInventory(sourceDir, arch) {
+  const expected = [
+    {
+      relative: `node_modules/@img/sharp-darwin-${arch}/lib/sharp-darwin-${arch}.node`,
+      arch,
+    },
+    {
+      relative: `node_modules/@img/sharp-libvips-darwin-${arch}/lib/libvips-cpp.8.17.3.dylib`,
+      arch,
+    },
+  ];
+  for (const packageName of WHATSAPP_APPLE_BARE_PACKAGES) {
+    for (const [runtime, runtimeArch] of WHATSAPP_APPLE_BARE_RUNTIMES) {
+      expected.push({
+        relative: `node_modules/${packageName}/prebuilds/${runtime}/${packageName}.bare`,
+        arch: runtimeArch,
+      });
+    }
+  }
+
+  const actual = [];
+  const sharpRoot = path.join(sourceDir, 'node_modules', '@img');
+  for (const packageName of expectedSharpPackages('darwin', arch)) {
+    const packageRoot = path.join(sharpRoot, packageName);
+    if (!fs.existsSync(packageRoot)) return false;
+    const inventory = sourceInventory(packageRoot);
+    if (inventory === null) return false;
+    for (const item of inventory) {
+      const match = item.match(/^file:([^:]+):/);
+      if (match && /\.(?:node|dylib)$/.test(match[1])) {
+        actual.push(path.posix.join('node_modules', '@img', packageName, match[1]));
+      }
+    }
+  }
+  for (const packageName of WHATSAPP_APPLE_BARE_PACKAGES) {
+    const prebuilds = path.join(sourceDir, 'node_modules', packageName, 'prebuilds');
+    if (!fs.existsSync(prebuilds)) return false;
+    for (const [runtime] of WHATSAPP_APPLE_BARE_RUNTIMES) {
+      const runtimeDir = path.join(prebuilds, runtime);
+      if (!fs.existsSync(runtimeDir) || !fs.lstatSync(runtimeDir).isDirectory()) return false;
+      for (const entry of fs.readdirSync(runtimeDir, { withFileTypes: true })) {
+        if (!entry.isFile() || !entry.name.endsWith('.bare')) return false;
+        actual.push(path.posix.join('node_modules', packageName, 'prebuilds', runtime, entry.name));
+      }
+    }
+  }
+
+  const expectedPaths = expected.map(({ relative }) => relative).sort();
+  if (JSON.stringify(actual.sort()) !== JSON.stringify(expectedPaths)) return false;
+  return expected.every(({ relative, arch: expectedArch }) => {
+    const identity = inspectExecutable(path.join(sourceDir, ...relative.split('/')));
+    return identity?.platform === 'darwin' && identity.arch === expectedArch;
+  });
+}
+
+function verifyWhatsAppNativeTarget(sourceDir, platform, arch) {
+  if (!['darwin', 'linux', 'win32'].includes(platform) || !['arm64', 'x64'].includes(arch)) return false;
+  const imageRoot = path.join(sourceDir, 'node_modules', '@img');
+  if (!fs.existsSync(imageRoot)) return true;
+  if (!fs.lstatSync(imageRoot).isDirectory()) return false;
+  const expected = expectedSharpPackages(platform, arch).sort();
+  const installed = fs
+    .readdirSync(imageRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name.startsWith('sharp-') && entry.name !== 'sharp-colour')
+    .map((entry) => entry.name)
+    .sort();
+  if (installed.length === 0) return true;
+  if (JSON.stringify(installed) !== JSON.stringify(expected)) return false;
+  for (const packageName of expected) {
+    const packageRoot = path.join(imageRoot, packageName);
+    const metadata = readJson(path.join(packageRoot, 'package.json'));
+    if (
+      metadata.name !== `@img/${packageName}` ||
+      !Array.isArray(metadata.os) ||
+      !metadata.os.includes(platform) ||
+      !Array.isArray(metadata.cpu) ||
+      !metadata.cpu.includes(arch)
+    ) {
+      return false;
+    }
+    const identities = listNativeIdentities(packageRoot);
+    if (
+      identities === null ||
+      identities.length === 0 ||
+      identities.some((identity) => identity.platform !== platform || identity.arch !== arch)
+    ) {
+      return false;
+    }
+  }
+  if (
+    platform === 'darwin' &&
+    WHATSAPP_APPLE_BARE_PACKAGES.some((name) => fs.existsSync(path.join(sourceDir, 'node_modules', name)))
+  ) {
+    return verifyWhatsAppDarwinSignIgnoreInventory(sourceDir, arch);
+  }
+  return true;
 }
 
 function verifyBridgeLock(sourceDir) {
@@ -458,8 +611,20 @@ function verifyBridgeLock(sourceDir) {
   });
 }
 
-function verifySourceMirror(bundleDir, sourceDir, authority = whatsappBridgeSource) {
-  if (authority.contract !== 'wayland-whatsapp-bridge-source/1.0' || !verifyBridgeLock(sourceDir)) return false;
+function verifySourceMirror(
+  bundleDir,
+  sourceDir,
+  authority = whatsappBridgeSource,
+  targetPlatform = process.platform,
+  targetArch = process.arch
+) {
+  if (
+    authority.contract !== 'wayland-whatsapp-bridge-source/1.0' ||
+    !verifyBridgeLock(sourceDir) ||
+    !verifyWhatsAppNativeTarget(sourceDir, targetPlatform, targetArch) ||
+    !validateOmittedEmptyPlaceholders(sourceDir, bundleDir)
+  )
+    return false;
   for (const [relative, expected] of Object.entries(authority.files || {})) {
     const source = path.join(sourceDir, relative);
     if (
@@ -471,8 +636,11 @@ function verifySourceMirror(bundleDir, sourceDir, authority = whatsappBridgeSour
       return false;
     }
   }
-  const source = sourceInventory(sourceDir);
-  const bundled = sourceInventory(bundleDir);
+  const ignoredPlaceholders = new Set(
+    WHATSAPP_OMITTED_EMPTY_PLACEHOLDERS.filter((relative) => fs.existsSync(path.join(sourceDir, relative)))
+  );
+  const source = sourceInventory(sourceDir, sourceDir, [], ignoredPlaceholders);
+  const bundled = sourceInventory(bundleDir, bundleDir, [], ignoredPlaceholders);
   return source !== null && bundled !== null && JSON.stringify(bundled) === JSON.stringify(source);
 }
 
@@ -656,6 +824,8 @@ function isNonEmpty(
   modelsAuthority = modelsDevSnapshotPin,
   whatsappSourceDir = path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge'),
   whatsappAuthority = whatsappBridgeSource,
+  officeCliAuthority = prepareOfficeCli,
+  verifyOfficeCliDarwinSignature = (binaryPath) => officeCliAuthority.verifyDarwinPublisherSignature(binaryPath),
   constitutionFsAuthority,
   verifyConstitutionFsDarwinSignature
 ) {
@@ -684,13 +854,15 @@ function isNonEmpty(
         const runtimeDir = path.join(p, runtimeKey);
         const manifest = path.join(runtimeDir, 'manifest.json');
         const [platform, arch] = runtimeKey.split('-');
-        const binary = path.join(runtimeDir, platform === 'win32' ? 'officecli.exe' : 'officecli');
+        const version = officeCliAuthority.DEFAULT_OFFICECLI_VERSION;
+        const asset = officeCliAuthority.getAssetName(platform, arch, 'gnu');
+        const binaryName = officeCliAuthority.getBinaryName(platform);
+        const binary = path.join(runtimeDir, binaryName);
         if (!isNonEmpty(manifest, 'file') || !isNonEmpty(binary, 'file')) return false;
         const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
-        const expectedSha = String(metadata.sha256 || '')
-          .replace(/^sha256:/i, '')
-          .toLowerCase();
+        const expectedSha = officeCliAuthority.loadExpectedSha(version, asset);
         const actualSha = sha256File(binary);
+        const identity = inspectExecutable(binary);
         const proof = metadata.contractProof;
         const smoke = metadata.smokeProof;
         const publisherSignature = metadata.publisherSignatureProof;
@@ -721,22 +893,20 @@ function isNonEmpty(
           ].every((primitive) => smoke?.specialistPrimitives?.includes(primitive));
         const crossHostProof =
           proof?.contract === 'not-executable-on-build-host' && smoke?.reason === 'not-executable-on-build-host';
-        const darwinPublisherProof =
-          platform !== 'darwin' ||
-          (publisherSignature?.contract === 'apple-developer-id/1.0' &&
-            publisherSignature?.teamIdentifier === '52JQX2HUSC' &&
-            publisherSignature?.hardenedRuntime === true &&
-            publisherSignature?.secureTimestamp === true &&
-            JSON.stringify(publisherSignature?.entitlements) === JSON.stringify(['com.apple.security.cs.allow-jit']));
+        const expectedPublisherSignature =
+          platform === 'darwin' ? verifyOfficeCliDarwinSignature(binary) : publisherSignature;
         return (
           metadata.contract === 'iofficeai-officecli-native' &&
+          metadata.version === version &&
           metadata.platform === platform &&
           metadata.arch === arch &&
-          metadata.binary === path.basename(binary) &&
-          /^v1\./.test(metadata.version) &&
-          /^[0-9a-f]{64}$/.test(expectedSha) &&
+          metadata.asset === asset &&
+          metadata.binary === binaryName &&
+          metadata.sha256 === `sha256:${expectedSha}` &&
+          identity?.platform === platform &&
+          identity?.arch === arch &&
           expectedSha === actualSha &&
-          darwinPublisherProof &&
+          JSON.stringify(publisherSignature) === JSON.stringify(expectedPublisherSignature) &&
           proof?.release === metadata.version &&
           (executableProof || crossHostProof)
         );
@@ -756,7 +926,8 @@ function isNonEmpty(
     if (kind === 'voice-bundle') return verifyVoiceBundle(p, voiceAuthority);
     if (kind === 'signal-bundle') return verifySignalBundle(p, targetPlatform, targetArch);
     if (kind === 'hub-bundle') return false;
-    if (kind === 'whatsapp-bundle') return verifySourceMirror(p, whatsappSourceDir, whatsappAuthority);
+    if (kind === 'whatsapp-bundle')
+      return verifySourceMirror(p, whatsappSourceDir, whatsappAuthority, targetPlatform, targetArch);
     return hasNonHiddenRegularFile(p);
   } catch {
     return false;
@@ -771,8 +942,15 @@ function verifyPackagedResources(options = {}) {
   const voiceAuthority = options.voiceAuthority || voiceModelPinnedRelease;
   const bunAuthority = options.bunAuthority || bundledBunBinaries;
   const modelsAuthority = options.modelsAuthority || modelsDevSnapshotPin;
-  const constitutionFsAuthority = options.constitutionFsAuthority || loadConstitutionFsAuthority();
+  const officeCliAuthority = options.officeCliAuthority || prepareOfficeCli;
+  const verifyOfficeCliDarwinSignature =
+    options.verifyOfficeCliDarwinSignature ||
+    ((binaryPath) => officeCliAuthority.verifyDarwinPublisherSignature(binaryPath));
+  const constitutionFsAuthority = options.constitutionFsAuthority;
   const verifyConstitutionFsDarwinSignature = options.verifyConstitutionFsDarwinSignature;
+  const verifyDarwinPackageSignature =
+    options.verifyDarwinPackageSignature ||
+    ((appDir) => execFileSync('/usr/bin/codesign', ['--verify', '--deep', '--strict', appDir], { stdio: 'pipe' }));
   const whatsappSourceDir =
     options.whatsappSourceDir || path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
   const whatsappAuthority = options.whatsappAuthority || whatsappBridgeSource;
@@ -804,13 +982,16 @@ function verifyPackagedResources(options = {}) {
           `(detected ${identity ? `${identity.platform}-${identity.arch}` : 'unknown'})`
       );
     }
-    packagedTarget = { resourceDir, executablePath, ...identity };
+    const appDir = targetPlatform === 'darwin' ? path.resolve(resourceDir, '..', '..') : path.dirname(resourceDir);
+    packagedTarget = { appDir, resourceDir, executablePath, ...identity };
   } else {
     packagedTarget = resolvePackagedTarget(outDir, targetPlatform, targetArch, {
       previousSnapshot: options.previousSnapshot,
     });
   }
   const resourceDirs = [packagedTarget.resourceDir];
+
+  if (targetPlatform === 'darwin') verifyDarwinPackageSignature(packagedTarget.appDir);
 
   if (resourceDirs.length === 0) {
     throw new Error(
@@ -840,6 +1021,8 @@ function verifyPackagedResources(options = {}) {
         modelsAuthority,
         whatsappSourceDir,
         whatsappAuthority,
+        officeCliAuthority,
+        verifyOfficeCliDarwinSignature,
         constitutionFsAuthority,
         verifyConstitutionFsDarwinSignature
       );
@@ -877,6 +1060,8 @@ module.exports = {
   verifyPackagedResources,
   verifySignalBundle,
   verifySourceMirror,
+  verifyWhatsAppDarwinSignIgnoreInventory,
+  verifyWhatsAppNativeTarget,
   verifyVoiceBundle,
   verifyModelsSnapshot,
   verifyConstitutionFsBundle,

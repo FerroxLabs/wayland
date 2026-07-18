@@ -165,8 +165,17 @@ extraResources:
     to: whatsapp-bridge
     filter:
       - '**/*'
+      # electron-builder applies its own node_modules exclusions when the
+      # dependency tree is nested below a broader extraResources root. Copy
+      # it through the dedicated matcher below instead of silently producing
+      # a bridge with source files but no runtime dependencies.
+      - '!node_modules/**/*'
       - '!**/*.test.*'
       - '!**/*.spec.*'
+  - from: src/process/channels/whatsapp-bridge/node_modules
+    to: whatsapp-bridge/node_modules
+    filter:
+      - '**/*'
   # signal-cli runtime: native binary spawned by SignalDaemon via child_process.spawn.
   # Must live outside app.asar so the OS can execute it directly.
   # Run `node scripts/install-signal-cli.mjs` to populate bin/ before packaging.
@@ -240,6 +249,9 @@ mac:
   # the standalone tool was built with; the post-package gate rechecks the exact
   # bytes from Contents/Resources.
   signIgnore:
+    - '/Contents/Resources/bundled-bun/[^/]+/bun$'
+    - '/Contents/Resources/whatsapp-bridge/node_modules/@img/sharp-(?:libvips-)?darwin-(?:arm64|x64)/.*(?:\.node|\.dylib)$'
+    - '/Contents/Resources/whatsapp-bridge/node_modules/(?:bare-fs|bare-os|bare-url)/prebuilds/(?:darwin-(?:arm64|x64)|ios-(?:arm64|arm64-simulator|x64-simulator))/[^/]+\.bare$'
     - '/Contents/Resources/bundled-officecli/[^/]+/officecli$'
     - '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$'
     - '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$'

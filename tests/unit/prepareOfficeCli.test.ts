@@ -188,10 +188,26 @@ describe('prepareOfficeCli supply-chain contract', () => {
     const signIgnore = builderConfig.mac?.signIgnore;
 
     expect(signIgnore).toEqual([
+      '/Contents/Resources/bundled-bun/[^/]+/bun$',
+      '/Contents/Resources/whatsapp-bridge/node_modules/@img/sharp-(?:libvips-)?darwin-(?:arm64|x64)/.*(?:\\.node|\\.dylib)$',
+      '/Contents/Resources/whatsapp-bridge/node_modules/(?:bare-fs|bare-os|bare-url)/prebuilds/(?:darwin-(?:arm64|x64)|ios-(?:arm64|arm64-simulator|x64-simulator))/[^/]+\\.bare$',
       '/Contents/Resources/bundled-officecli/[^/]+/officecli$',
       '/Contents/Resources/bundled-wayland-core/[^/]+/wayland-core$',
       '/Contents/Resources/bundled-constitution-fs/[^/]+/wayland-constitution-fs$',
     ]);
+    const bunPath = '/tmp/Wayland.app/Contents/Resources/bundled-bun/darwin-arm64/bun';
+    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(bunPath))).toBe(true);
+    const whatsappNativePath =
+      '/tmp/Wayland.app/Contents/Resources/whatsapp-bridge/node_modules/@img/sharp-darwin-arm64/lib/sharp.node';
+    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(whatsappNativePath))).toBe(true);
+    const whatsappBarePath =
+      '/tmp/Wayland.app/Contents/Resources/whatsapp-bridge/node_modules/bare-fs/prebuilds/ios-arm64/bare-fs.bare';
+    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(whatsappBarePath))).toBe(true);
+    const whatsappAndroidBarePath =
+      '/tmp/Wayland.app/Contents/Resources/whatsapp-bridge/node_modules/bare-fs/prebuilds/android-arm64/bare-fs.bare';
+    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(whatsappAndroidBarePath))).toBe(false);
+    const whatsappJavascriptPath = '/tmp/Wayland.app/Contents/Resources/whatsapp-bridge/node_modules/axios/index.js';
+    expect(signIgnore?.some((pattern) => new RegExp(pattern).test(whatsappJavascriptPath))).toBe(false);
     const officeCliPath = '/tmp/Wayland.app/Contents/Resources/bundled-officecli/darwin-arm64/officecli';
     expect(signIgnore?.some((pattern) => new RegExp(pattern).test(officeCliPath))).toBe(true);
     expect(signIgnore?.some((pattern) => new RegExp(pattern).test('/tmp/Wayland.app/Contents/MacOS/Wayland'))).toBe(

@@ -7,18 +7,26 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 const roots: string[] = [];
 const require = createRequire(import.meta.url);
-const { resolvePackagedTarget, snapshotPackagedTargets, verifyConstitutionFsBundle, verifyPackagedResources } =
-  require('../../scripts/verify-packaged-resources.js') as {
-    resolvePackagedTarget: (
-      out: string,
-      platform: string,
-      arch: string,
-      options?: { previousSnapshot?: Map<string, string> }
-    ) => { executablePath: string; resourceDir: string };
-    snapshotPackagedTargets: (out: string) => Map<string, string>;
-    verifyConstitutionFsBundle: (root: string, platform: string, arch: string) => boolean;
-    verifyPackagedResources: (options: Record<string, unknown>) => { resourceDirs: string[]; warnings: number };
-  };
+const {
+  resolvePackagedTarget,
+  snapshotPackagedTargets,
+  verifyConstitutionFsBundle,
+  verifyPackagedResources,
+  verifyWhatsAppDarwinSignIgnoreInventory,
+  verifyWhatsAppNativeTarget,
+} = require('../../scripts/verify-packaged-resources.js') as {
+  resolvePackagedTarget: (
+    out: string,
+    platform: string,
+    arch: string,
+    options?: { previousSnapshot?: Map<string, string> }
+  ) => { executablePath: string; resourceDir: string };
+  snapshotPackagedTargets: (out: string) => Map<string, string>;
+  verifyConstitutionFsBundle: (root: string, platform: string, arch: string) => boolean;
+  verifyPackagedResources: (options: Record<string, unknown>) => { resourceDirs: string[]; warnings: number };
+  verifyWhatsAppDarwinSignIgnoreInventory: (root: string, arch: string) => boolean;
+  verifyWhatsAppNativeTarget: (root: string, platform: string, arch: string) => boolean;
+};
 const TEST_WCORE_RELEASE = 'v0.12.25';
 const TEST_WCORE_ARCHIVE_SHA = 'a'.repeat(64);
 const TEST_WCORE_BYTES = Buffer.from('deterministic-test-wayland-core');
@@ -63,12 +71,34 @@ const BUN_SHA = {
   baseline: '3e35ad6f53971a9834bf9e6786e2adf72b5f1921cc9a9c5fde073d2972944076',
 };
 
+const TEST_OFFICE_SIGNATURE = {
+  contract: 'apple-developer-id/1.0',
+  teamIdentifier: '52JQX2HUSC',
+  hardenedRuntime: true,
+  secureTimestamp: true,
+  entitlements: ['com.apple.security.cs.allow-jit'],
+};
+
 function machExecutableBytes(arch: 'arm64' | 'x64'): Buffer {
   const binary = Buffer.alloc(16);
   binary.writeUInt32LE(0xfeedfacf, 0);
   binary.writeUInt32LE(arch === 'arm64' ? 0x0100000c : 0x01000007, 4);
   return binary;
 }
+
+const TEST_OFFICE_AUTHORITY = {
+  DEFAULT_OFFICECLI_VERSION: 'v1.0.136',
+  getAssetName(platform: string, arch: string): string {
+    return `officecli-${platform}-${arch}`;
+  },
+  getBinaryName(platform: string): string {
+    return platform === 'win32' ? 'officecli.exe' : 'officecli';
+  },
+  loadExpectedSha(_version: string, asset: string): string {
+    const arch = asset.endsWith('-x64') ? 'x64' : 'arm64';
+    return crypto.createHash('sha256').update(machExecutableBytes(arch)).digest('hex');
+  },
+};
 
 function testConstitutionAuthority(arch: 'arm64' | 'x64') {
   const bytes = machExecutableBytes(arch);
@@ -201,6 +231,7 @@ function addPackagedApp(
       },
     })
   );
+  fs.writeFileSync(path.join(constitutionRuntime, 'package-authority.json'), JSON.stringify(constitutionAuthority));
   if (includeOfficeCli) {
     const officeBinary = path.join(
       resources,
@@ -209,7 +240,9 @@ function addPackagedApp(
       officeCliRuntime.startsWith('win32-') ? 'officecli.exe' : 'officecli'
     );
     fs.mkdirSync(path.dirname(officeBinary), { recursive: true });
-    fs.writeFileSync(officeBinary, 'office-cli');
+    if (officeCliRuntime.startsWith('darwin-'))
+      writeMachExecutable(officeBinary, officeCliRuntime.endsWith('-x64') ? 'x64' : 'arm64');
+    else fs.writeFileSync(officeBinary, 'office-cli');
   }
   const wcoreAsset = testWCoreAuthority.getAssetName('darwin', arch, TEST_WCORE_RELEASE);
   fs.writeFileSync(
@@ -252,17 +285,12 @@ function addPackagedApp(
         version: 'v1.0.136',
         platform,
         arch: officeArch,
+        asset: TEST_OFFICE_AUTHORITY.getAssetName(platform, officeArch),
         binary: binaryName,
         sha256: `sha256:${sha256}`,
         publisherSignatureProof:
           platform === 'darwin'
-            ? {
-                contract: 'apple-developer-id/1.0',
-                teamIdentifier: '52JQX2HUSC',
-                hardenedRuntime: true,
-                secureTimestamp: true,
-                entitlements: ['com.apple.security.cs.allow-jit'],
-              }
+            ? TEST_OFFICE_SIGNATURE
             : { contract: 'not-verifiable-on-build-host', reason: 'not-macos-build-host' },
         contractProof: { contract: 'wayland-officecli-authoring/1.0', release: 'v1.0.136' },
         smokeProof: {
@@ -353,8 +381,10 @@ describe('packaged resource release gate', () => {
       voiceAuthority: TEST_VOICE_AUTHORITY,
       bunAuthority: TEST_BUN_AUTHORITY,
       modelsAuthority: TEST_MODELS_AUTHORITY,
-      constitutionFsAuthority: testConstitutionAuthority(wcoreRuntime.split('-')[1] as 'arm64' | 'x64'),
+      officeCliAuthority: TEST_OFFICE_AUTHORITY,
+      verifyOfficeCliDarwinSignature: () => TEST_OFFICE_SIGNATURE,
       verifyConstitutionFsDarwinSignature: () => undefined,
+      verifyDarwinPackageSignature: () => undefined,
       ...extra,
     });
 
@@ -398,6 +428,16 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out)).toThrow(/CRITICAL resource/);
   });
 
+  it('uses the package-sealed Constitution authority instead of mutable tracked authority', () => {
+    const out = createPackagedResources(true);
+    expect(verify(out)).toMatchObject({ warnings: 3 });
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        constitutionFsAuthority: { ...testConstitutionAuthority('arm64'), sha256: `sha256:${'0'.repeat(64)}` },
+      })
+    ).toThrow(/CRITICAL/);
+  });
+
   it('blocks a package whose native OfficeCLI bundle is absent', () => {
     const out = createPackagedResources(false);
     expect(() => verify(out)).toThrow();
@@ -435,6 +475,19 @@ describe('packaged resource release gate', () => {
     );
     fs.appendFileSync(binary, 'tampered');
     expect(() => verify(out)).toThrow();
+  });
+
+  it('rejects /bin/echo even when the OfficeCLI manifest rewrites its own checksum and signature claim', () => {
+    const out = createPackagedResources(true);
+    const runtime = path.join(packagedResourcesPath(out), 'bundled-officecli', 'darwin-arm64');
+    const binary = path.join(runtime, 'officecli');
+    const manifest = path.join(runtime, 'manifest.json');
+    fs.copyFileSync('/bin/echo', binary);
+    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
+    metadata.sha256 = `sha256:${crypto.createHash('sha256').update(fs.readFileSync(binary)).digest('hex')}`;
+    metadata.publisherSignatureProof = TEST_OFFICE_SIGNATURE;
+    fs.writeFileSync(manifest, JSON.stringify(metadata));
+    expect(() => verify(out)).toThrow(/CRITICAL/);
   });
 
   it('blocks a mac package whose OfficeCLI publisher signature proof is broadened', () => {
@@ -733,7 +786,7 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out)).toThrow(/CRITICAL/);
   });
 
-  it.each(['addition', 'omission', 'drift', 'symlink'])(
+  it.each(['addition', 'omission', 'drift', 'symlink', 'nested-escaping-symlink'])(
     'fails closed when the packaged WhatsApp bridge has source-fidelity %s',
     (failure) => {
       const out = createPackagedResources(true);
@@ -747,6 +800,9 @@ describe('packaged resource release gate', () => {
       );
       fs.writeFileSync(path.join(source, 'bridge.js'), 'bridge');
       fs.writeFileSync(path.join(source, 'node_modules', 'dep', 'index.js'), 'dependency');
+      const placeholder = path.join(source, 'node_modules', 'tr46', 'lib', '.gitkeep');
+      fs.mkdirSync(path.dirname(placeholder), { recursive: true });
+      fs.writeFileSync(placeholder, '');
       const authority = {
         contract: 'wayland-whatsapp-bridge-source/1.0',
         files: Object.fromEntries(
@@ -758,6 +814,7 @@ describe('packaged resource release gate', () => {
       };
       const bridge = path.join(packagedResourcesPath(out), 'whatsapp-bridge');
       fs.cpSync(source, bridge, { recursive: true });
+      fs.rmSync(path.join(bridge, 'node_modules', 'tr46', 'lib', '.gitkeep'));
       const extra = { whatsappSourceDir: source, whatsappAuthority: authority };
       expect(verify(out, 'darwin-arm64', 'darwin-arm64', extra)).toMatchObject({ warnings: 2 });
 
@@ -768,9 +825,111 @@ describe('packaged resource release gate', () => {
         fs.rmSync(path.join(bridge, 'bridge.js'));
         fs.symlinkSync('package.json', path.join(bridge, 'bridge.js'));
       }
+      if (failure === 'nested-escaping-symlink') {
+        fs.rmSync(path.join(bridge, 'node_modules', 'dep', 'index.js'));
+        fs.symlinkSync('/tmp', path.join(bridge, 'node_modules', 'dep', 'index.js'));
+      }
       expect(() => verify(out, 'darwin-arm64', 'darwin-arm64', extra)).toThrow(/CRITICAL/);
     }
   );
+
+  it('rejects payload bytes hidden in the one expected omitted .gitkeep path', () => {
+    const out = createPackagedResources(true);
+    const source = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-whatsapp-gitkeep-'));
+    roots.push(source);
+    fs.mkdirSync(path.join(source, 'node_modules', 'dep'), { recursive: true });
+    fs.mkdirSync(path.join(source, 'node_modules', 'tr46', 'lib'), { recursive: true });
+    fs.writeFileSync(path.join(source, 'package.json'), JSON.stringify({ dependencies: { dep: '1.0.0' } }));
+    fs.writeFileSync(
+      path.join(source, 'bun.lock'),
+      '{\n  "workspaces": { "": {\n    "dependencies": {\n      "dep": "1.0.0"\n    },\n  } },\n  "packages": {\n    "dep": ["dep@1.0.0", "", {}, "sha512-AAAA=="]\n  }\n}\n'
+    );
+    fs.writeFileSync(path.join(source, 'bridge.js'), 'bridge');
+    fs.writeFileSync(path.join(source, 'node_modules', 'dep', 'index.js'), 'dependency');
+    fs.writeFileSync(path.join(source, 'node_modules', 'tr46', 'lib', '.gitkeep'), 'hidden payload');
+    const authority = {
+      contract: 'wayland-whatsapp-bridge-source/1.0',
+      files: Object.fromEntries(
+        ['package.json', 'bun.lock', 'bridge.js'].map((relative) => {
+          const bytes = fs.readFileSync(path.join(source, relative));
+          return [relative, { size: bytes.length, sha256: crypto.createHash('sha256').update(bytes).digest('hex') }];
+        })
+      ),
+    };
+    const bridge = path.join(packagedResourcesPath(out), 'whatsapp-bridge');
+    fs.cpSync(source, bridge, { recursive: true });
+    fs.rmSync(path.join(bridge, 'node_modules', 'tr46', 'lib', '.gitkeep'));
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', { whatsappSourceDir: source, whatsappAuthority: authority })
+    ).toThrow(/CRITICAL/);
+  });
+
+  it('rejects cross-target sharp and libvips optional dependencies', () => {
+    const source = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-whatsapp-native-'));
+    roots.push(source);
+    fs.writeFileSync(path.join(source, 'package.json'), JSON.stringify({ dependencies: { parent: '1.0.0' } }));
+    for (const packageName of ['sharp-darwin-x64', 'sharp-libvips-darwin-x64']) {
+      const packageRoot = path.join(source, 'node_modules', '@img', packageName);
+      fs.mkdirSync(packageRoot, { recursive: true });
+      fs.writeFileSync(
+        path.join(packageRoot, 'package.json'),
+        JSON.stringify({ name: `@img/${packageName}`, os: ['darwin'], cpu: ['x64'] })
+      );
+      writeMachExecutable(path.join(packageRoot, 'native.node'), 'x64');
+    }
+    expect(verifyWhatsAppNativeTarget(source, 'darwin', 'arm64')).toBe(false);
+  });
+
+  it('propagates a nested native inventory failure instead of accepting earlier valid executable bytes', () => {
+    const source = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-whatsapp-native-recursive-'));
+    roots.push(source);
+    fs.writeFileSync(path.join(source, 'package.json'), JSON.stringify({ dependencies: { parent: '1.0.0' } }));
+    for (const packageName of ['sharp-darwin-arm64', 'sharp-libvips-darwin-arm64']) {
+      const packageRoot = path.join(source, 'node_modules', '@img', packageName);
+      fs.mkdirSync(path.join(packageRoot, 'nested'), { recursive: true });
+      fs.writeFileSync(
+        path.join(packageRoot, 'package.json'),
+        JSON.stringify({ name: `@img/${packageName}`, os: ['darwin'], cpu: ['arm64'] })
+      );
+      writeMachExecutable(path.join(packageRoot, 'native.node'), 'arm64');
+    }
+    fs.symlinkSync('/tmp', path.join(source, 'node_modules', '@img', 'sharp-darwin-arm64', 'nested', 'escape'));
+    expect(verifyWhatsAppNativeTarget(source, 'darwin', 'arm64')).toBe(false);
+  });
+
+  it('enumerates every Darwin-signing exemption and rejects an unproven executable in that scope', () => {
+    const source = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-whatsapp-sign-ignore-'));
+    roots.push(source);
+    writeMachExecutable(
+      path.join(source, 'node_modules', '@img', 'sharp-darwin-arm64', 'lib', 'sharp-darwin-arm64.node'),
+      'arm64'
+    );
+    writeMachExecutable(
+      path.join(source, 'node_modules', '@img', 'sharp-libvips-darwin-arm64', 'lib', 'libvips-cpp.8.17.3.dylib'),
+      'arm64'
+    );
+    const appleRuntimes = [
+      ['darwin-arm64', 'arm64'],
+      ['darwin-x64', 'x64'],
+      ['ios-arm64', 'arm64'],
+      ['ios-arm64-simulator', 'arm64'],
+      ['ios-x64-simulator', 'x64'],
+    ] as const;
+    for (const packageName of ['bare-fs', 'bare-os', 'bare-url']) {
+      for (const [runtime, runtimeArch] of appleRuntimes) {
+        writeMachExecutable(
+          path.join(source, 'node_modules', packageName, 'prebuilds', runtime, `${packageName}.bare`),
+          runtimeArch
+        );
+      }
+    }
+    expect(verifyWhatsAppDarwinSignIgnoreInventory(source, 'arm64')).toBe(true);
+    writeMachExecutable(
+      path.join(source, 'node_modules', 'bare-fs', 'prebuilds', 'darwin-arm64', 'unlisted.bare'),
+      'arm64'
+    );
+    expect(verifyWhatsAppDarwinSignIgnoreInventory(source, 'arm64')).toBe(false);
+  });
 
   it.each(['hub', 'signal-cli-runtime'])('fails closed when optional %s bytes are present but invalid', (relative) => {
     const out = createPackagedResources(true);

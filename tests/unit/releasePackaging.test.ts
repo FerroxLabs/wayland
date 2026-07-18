@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
+import { load as parseYaml } from 'js-yaml';
 import { afterEach, describe, expect, it } from 'vitest';
 
 type ProtocolRegistration = {
@@ -29,8 +30,10 @@ const {
   hasFreshTargetDmg,
   prepareOptionalHubResources,
   prepareWhatsAppBridgeResources,
+  preserveGeneratedSource,
   resolveDmgRetryTarget,
   snapshotDmgArtifacts,
+  writeConstitutionPackageAuthority,
 } = require('../../scripts/build-with-builder.js') as {
   cleanGeneratedResourceRoots: (options: { voiceDir: string; skillPackDir: string }) => void;
   hasFreshTargetDmg: (out: string, arch: string, snapshot: Map<string, string>) => boolean;
@@ -40,9 +43,12 @@ const {
   };
   prepareWhatsAppBridgeResources: (options: {
     bridgeDir: string;
+    platform?: string;
+    arch?: string;
     run: (command: string, args: string[], options: { cwd: string }) => void;
     validate: () => boolean;
   }) => { available: true; bridgeDir: string };
+  preserveGeneratedSource: (filePath: string) => () => void;
   resolveDmgRetryTarget: (
     out: string,
     platform: string,
@@ -50,6 +56,7 @@ const {
     snapshot: Map<string, string>
   ) => { executablePath: string };
   snapshotDmgArtifacts: (out: string) => Map<string, string>;
+  writeConstitutionPackageAuthority: (authority: Record<string, unknown>, root: string) => string;
 };
 const { snapshotPackagedTargets } = require('../../scripts/verify-packaged-resources.js') as {
   snapshotPackagedTargets: (out: string) => Map<string, string>;
@@ -183,13 +190,19 @@ describe('release package fail-closed gates', () => {
     let invocation: { command: string; args: string[]; cwd: string } | undefined;
     const result = prepareWhatsAppBridgeResources({
       bridgeDir,
+      platform: 'darwin',
+      arch: 'arm64',
       run(command, args, options) {
         invocation = { command, args, cwd: options.cwd };
         fs.mkdirSync(path.join(bridgeDir, 'node_modules', 'clean'), { recursive: true });
       },
       validate: () => true,
     });
-    expect(invocation).toEqual({ command: 'bun', args: ['install', '--frozen-lockfile'], cwd: bridgeDir });
+    expect(invocation).toEqual({
+      command: 'bun',
+      args: ['install', '--frozen-lockfile', '--os', 'darwin', '--cpu', 'arm64'],
+      cwd: bridgeDir,
+    });
     expect(fs.existsSync(stale)).toBe(false);
     expect(result).toEqual({ available: true, bridgeDir });
 
@@ -204,6 +217,56 @@ describe('release package fail-closed gates', () => {
       })
     ).toThrow(/frozen install failed/);
     expect(fs.existsSync(path.join(bridgeDir, 'node_modules'))).toBe(false);
+  });
+
+  it('restores target-generated source after a build and keeps restoration idempotent', () => {
+    const root = tempRoot('wayland-generated-source-');
+    const generated = path.join(root, 'authority.generated.ts');
+    fs.writeFileSync(generated, 'accepted baseline');
+    const restore = preserveGeneratedSource(generated);
+    fs.writeFileSync(generated, 'target-exact transient authority');
+    restore();
+    restore();
+    expect(fs.readFileSync(generated, 'utf8')).toBe('accepted baseline');
+  });
+
+  it('writes target authority into the package resource tree independently of tracked generated source', () => {
+    const root = tempRoot('wayland-package-authority-');
+    const authority = {
+      supported: true,
+      schemaVersion: 1,
+      protocolVersion: 2,
+      platform: 'darwin',
+      arch: 'arm64',
+      fileName: 'wayland-constitution-fs',
+      sha256: `sha256:${'a'.repeat(64)}`,
+      size: 42,
+    };
+    const target = writeConstitutionPackageAuthority(authority, root);
+    expect(target).toBe(path.join(root, 'bundled-constitution-fs', 'darwin-arm64', 'package-authority.json'));
+    expect(JSON.parse(fs.readFileSync(target, 'utf8'))).toEqual(authority);
+  });
+
+  it('packages the WhatsApp dependency tree through a dedicated resource matcher', () => {
+    const builderConfig = parseYaml(fs.readFileSync(path.resolve('electron-builder.yml'), 'utf8')) as {
+      extraResources?: Array<{ from?: string; to?: string; filter?: string[] }>;
+    };
+    const bridgeSource = builderConfig.extraResources?.find(
+      ({ from }) => from === 'src/process/channels/whatsapp-bridge'
+    );
+    const bridgeDependencies = builderConfig.extraResources?.find(
+      ({ from }) => from === 'src/process/channels/whatsapp-bridge/node_modules'
+    );
+
+    expect(bridgeSource).toMatchObject({
+      to: 'whatsapp-bridge',
+      filter: expect.arrayContaining(['**/*', '!node_modules/**/*']),
+    });
+    expect(bridgeDependencies).toEqual({
+      from: 'src/process/channels/whatsapp-bridge/node_modules',
+      to: 'whatsapp-bridge/node_modules',
+      filter: ['**/*'],
+    });
   });
 
   it('removes stale generated voice and skill-pack roots before regeneration', () => {

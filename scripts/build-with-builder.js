@@ -328,11 +328,17 @@ function prepareOptionalHubResources(options = {}) {
 function prepareWhatsAppBridgeResources(options = {}) {
   const bridgeDir = options.bridgeDir || path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
   const nodeModules = path.join(bridgeDir, 'node_modules');
+  const platform = options.platform || process.platform;
+  const arch = options.arch || process.arch;
   const run = options.run || execFileSync;
-  const validate = options.validate || (() => verifySourceMirror(bridgeDir, bridgeDir));
+  const validate = options.validate || (() => verifySourceMirror(bridgeDir, bridgeDir, undefined, platform, arch));
   fs.rmSync(nodeModules, { recursive: true, force: true });
   try {
-    run('bun', ['install', '--frozen-lockfile'], { cwd: bridgeDir, stdio: 'inherit', env: process.env });
+    run('bun', ['install', '--frozen-lockfile', '--os', platform, '--cpu', arch], {
+      cwd: bridgeDir,
+      stdio: 'inherit',
+      env: process.env,
+    });
     if (!validate()) throw new Error('WhatsApp bridge clean frozen-lock input failed source/dependency validation');
   } catch (error) {
     fs.rmSync(nodeModules, { recursive: true, force: true });
@@ -360,6 +366,31 @@ function cleanGeneratedResourceRoots(options = {}) {
   };
   cleanVoiceDir(voiceDir);
   fs.rmSync(skillPackDir, { recursive: true, force: true });
+}
+
+function preserveGeneratedSource(filePath, fsImpl = fs) {
+  const existed = fsImpl.existsSync(filePath);
+  const bytes = existed ? fsImpl.readFileSync(filePath) : null;
+  let restored = false;
+  return () => {
+    if (restored) return;
+    restored = true;
+    if (existed) {
+      fsImpl.mkdirSync(path.dirname(filePath), { recursive: true });
+      fsImpl.writeFileSync(filePath, bytes);
+    } else {
+      fsImpl.rmSync(filePath, { force: true });
+    }
+  };
+}
+
+function writeConstitutionPackageAuthority(authority, root = path.resolve(__dirname, '..', 'resources')) {
+  if (!authority?.supported) return null;
+  const runtime = `${authority.platform}-${authority.arch}`;
+  const target = path.join(root, 'bundled-constitution-fs', runtime, 'package-authority.json');
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, `${JSON.stringify(authority, null, 2)}\n`);
+  return target;
 }
 
 // Clean stale Windows packaging outputs from previous runs
@@ -398,8 +429,10 @@ if (require.main !== module) {
     hasFreshTargetDmg,
     prepareOptionalHubResources,
     prepareWhatsAppBridgeResources,
+    preserveGeneratedSource,
     resolveDmgRetryTarget,
     snapshotDmgArtifacts,
+    writeConstitutionPackageAuthority,
   };
   return;
 }
@@ -568,6 +601,16 @@ if (forceBuild) console.log('⚡ --force: Force full rebuild');
 const packageJsonPath = path.resolve(__dirname, '../package.json');
 const packagePlatforms = [requestedPlatformTargets[0]?.[1] || process.platform];
 const packageArchitectures = [targetArch];
+const constitutionAuthorityPath = path.resolve(
+  __dirname,
+  '..',
+  'src',
+  'process',
+  'services',
+  'constitution',
+  'constitutionFsAuthority.generated.ts'
+);
+const restoreConstitutionAuthority = preserveGeneratedSource(constitutionAuthorityPath);
 
 try {
   // 1. Ensure package.json main entry is correct for electron-vite
@@ -580,7 +623,11 @@ try {
   // 2. Generate the target-exact Constitution authority before Vite compiles
   // the main process. Generating this after electron-vite would package a
   // binary whose digest is not the authority embedded in app.asar.
-  prepareConstitutionFs({ platform: packagePlatforms[0], arch: packageArchitectures[0] });
+  const constitutionAuthority = prepareConstitutionFs({
+    platform: packagePlatforms[0],
+    arch: packageArchitectures[0],
+  });
+  writeConstitutionPackageAuthority(constitutionAuthority);
 
   // 3. Check if we can skip Vite build (incremental build)
   const skipViteBuild = shouldSkipViteBuild(skipVite, forceBuild);
@@ -655,7 +702,7 @@ try {
   // 5c. Establish the exact self-contained WhatsApp bridge input from its
   // committed Bun lock. Packaging must never bless postinstall's mutable or
   // non-fatal fallback dependency tree.
-  prepareWhatsAppBridgeResources();
+  prepareWhatsAppBridgeResources({ platform: packagePlatforms[0], arch: packageArchitectures[0] });
 
   // electron-builder copies the complete native-resource roots into every
   // artifact. Keep both roots target-exact so stale preparation from a prior
@@ -924,5 +971,7 @@ try {
   console.log('✅ Build completed!');
 } catch (error) {
   console.error('❌ Build failed:', error.message);
-  process.exit(1);
+  process.exitCode = 1;
+} finally {
+  restoreConstitutionAuthority();
 }
