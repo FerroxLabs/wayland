@@ -305,15 +305,30 @@ function produceProtectedAcceptanceEvidence(rawDirectory, gatesDirectory, output
   for (const target of matrix.TARGETS) {
     const relative = `package-smokes/${target}.json`;
     const smokeFile = readJsonFile(rawRoot, relative, 'M8I_PLATFORM_SMOKE_INVALID');
+    const observationRelative = `package-observations/${target}/observation.json`;
+    const observationFile = readJsonFile(rawRoot, observationRelative, 'M8I_PLATFORM_SMOKE_INVALID');
+    const installerName = observationFile.value?.installer?.fileName;
+    if (typeof installerName !== 'string' || require('node:path').basename(installerName) !== installerName) {
+      fail('M8I_PLATFORM_SMOKE_INVALID', `${target}:unsafe-installer-binding`);
+    }
+    const installerRelative = `package-observations/${target}/${installerName}`;
+    const installerFile = regularFile(rawRoot, installerRelative, 'M8I_PLATFORM_SMOKE_INVALID');
     try {
       (options.verifyPlatformPackageSmoke || verifyPlatformPackageSmoke)(
-        { target, receiptPath: smokeFile.absolute },
+        {
+          target,
+          receiptPath: smokeFile.absolute,
+          observationPath: observationFile.absolute,
+          installerPath: installerFile.absolute,
+        },
         { candidate, target }
       );
     } catch (error) {
       fail('M8I_PLATFORM_SMOKE_INVALID', `${target}:${error.message}`);
     }
     copyRegularFile(rawRoot, relative, output);
+    copyRegularFile(rawRoot, observationRelative, output);
+    copyRegularFile(rawRoot, installerRelative, output);
     const updater = copyUpdaterObservation(
       rawRoot,
       output,

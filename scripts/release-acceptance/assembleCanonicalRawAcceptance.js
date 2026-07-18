@@ -81,6 +81,27 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
   });
 
   for (const target of matrix.TARGETS) {
+    const protectedObservation = exactlyOne(
+      files,
+      (file) => {
+        const value = parseJson(file);
+        return (
+          value?.contract === 'wayland-protected-platform-package-observation/1.0' &&
+          value.target === target &&
+          value.candidate?.commit === candidate.commit &&
+          value.candidate?.tree === candidate.tree
+        );
+      },
+      'M8I_PLATFORM_SMOKE_INVALID',
+      `protected-observation:${target}`
+    );
+    const protectedManifest = parseJson(protectedObservation);
+    const protectedRoot = path.dirname(protectedObservation);
+    for (const binding of [protectedManifest.report, protectedManifest.installer]) {
+      if (!binding || path.basename(binding.fileName) !== binding.fileName) {
+        fail('M8I_PLATFORM_SMOKE_INVALID', `${target}:unsafe-protected-binding`);
+      }
+    }
     const smoke = exactlyOne(
       files,
       (file) => {
@@ -95,7 +116,20 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
       'M8I_PLATFORM_SMOKE_INVALID',
       target
     );
+    if (smoke !== path.join(protectedRoot, protectedManifest.report.fileName)) {
+      fail('M8I_PLATFORM_SMOKE_INVALID', `${target}:protected-report-path-mismatch`);
+    }
     copyAbsolute(smoke, output, `package-smokes/${target}.json`);
+    copyAbsolute(protectedObservation, output, `package-observations/${target}/observation.json`);
+    const protectedInstaller = path.join(protectedRoot, protectedManifest.installer.fileName);
+    if (!files.includes(protectedInstaller)) {
+      fail('M8I_PLATFORM_SMOKE_INVALID', `${target}:protected-installer-missing`);
+    }
+    copyAbsolute(
+      protectedInstaller,
+      output,
+      `package-observations/${target}/${protectedManifest.installer.fileName}`
+    );
 
     const observation = exactlyOne(
       files,

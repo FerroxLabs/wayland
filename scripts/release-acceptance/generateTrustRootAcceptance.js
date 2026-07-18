@@ -134,7 +134,23 @@ function generateTrustRootAcceptance(rawDirectory, outputDirectory) {
     const relative = `package-smokes/${target}.json`;
     requireIndexed(indexedPaths, relative);
     const copied = copyRegularFile(rawRoot, relative, inputRoot, relative);
-    return { target, receiptPath: copied.path };
+    const observationRelative = `package-observations/${target}/observation.json`;
+    requireIndexed(indexedPaths, observationRelative);
+    const observation = readJsonFile(rawRoot, observationRelative, 'M8I_PLATFORM_SMOKE_INVALID');
+    const installerName = observation.value?.installer?.fileName;
+    if (typeof installerName !== 'string' || path.basename(installerName) !== installerName) {
+      fail('M8I_PLATFORM_SMOKE_INVALID', `unsafe-installer-binding:${target}`);
+    }
+    const installerRelative = `package-observations/${target}/${installerName}`;
+    requireIndexed(indexedPaths, installerRelative);
+    const copiedObservation = copyRegularFile(rawRoot, observationRelative, inputRoot, observationRelative);
+    const copiedInstaller = copyRegularFile(rawRoot, installerRelative, inputRoot, installerRelative);
+    return {
+      target,
+      receiptPath: copied.path,
+      observationPath: copiedObservation.path,
+      installerPath: copiedInstaller.path,
+    };
   });
 
   const publisherIndex = readJsonFile(rawRoot, 'publisher-artifacts.json', 'M8I_PUBLISHER_INDEX_INVALID').value;
@@ -237,7 +253,7 @@ function generateTrustRootAcceptance(rawDirectory, outputDirectory) {
     claimsManifestPath,
     requestPath,
     path.join(inputRoot, 'capability-seal.json'),
-    ...packageSmokes.map((entry) => entry.receiptPath),
+    ...packageSmokes.flatMap((entry) => [entry.receiptPath, entry.observationPath, entry.installerPath]),
     ...updaterObservations.map((entry) => entry.observationPath),
     ...capabilityAuthorityPaths,
     ...conditionalReceiptPaths,

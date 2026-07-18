@@ -6,11 +6,14 @@
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import crypto from 'node:crypto';
-import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
 const { verifyPlatformPackageSmoke } = require('../../../scripts/release-acceptance/verifyPlatformPackageSmokes');
+const {
+  createProtectedPlatformObservation,
+} = require('../../../scripts/release-acceptance/createProtectedPlatformObservation');
 
 const COMMIT = 'a'.repeat(40);
 const TREE = 'b'.repeat(40);
@@ -90,12 +93,41 @@ function report(target = 'linux-x64') {
 function fixture(value = report()) {
   const root = mkdtempSync(path.join(os.tmpdir(), 'wayland-platform-authority-'));
   roots.push(root);
+  const installerPath = path.join(root, 'Wayland.deb');
+  writeFileSync(installerPath, 'actual native installer bytes');
+  value.installerSnapshotBytesSha256 = crypto.createHash('sha256').update(readFileSync(installerPath)).digest('hex');
   const receiptPath = path.join(root, 'platform-package-smoke-linux-x64.json');
   const bytes = Buffer.from(`${JSON.stringify(value)}\n`);
   writeFileSync(receiptPath, bytes);
-  const fileDigest = crypto.createHash('sha256').update(bytes).digest('hex');
-  const execFileSyncImpl = () =>
-    JSON.stringify([
+  const observationPath = path.join(root, 'protected-platform-observation-linux-x64.json');
+  createProtectedPlatformObservation(
+    {
+      target: 'linux-x64',
+      candidate: { commit: COMMIT, tree: TREE },
+      reportPath: receiptPath,
+      installerPath,
+      outputPath: observationPath,
+      workflow: {
+        repository: 'FerroxLabs/wayland',
+        workflow: '.github/workflows/protected-platform-package-observer.yml',
+        ref: 'refs/heads/release-trust-v1',
+        runId: 123,
+        runAttempt: 1,
+        runnerOs: 'Linux',
+        runnerArch: 'X64',
+      },
+      producer: {
+        repository: 'FerroxLabs/wayland',
+        runId: 99,
+        runAttempt: 2,
+        candidateCommit: COMMIT,
+      },
+    },
+    { platform: 'linux', arch: 'x64' }
+  );
+  const execFileSyncImpl = () => {
+    const fileDigest = crypto.createHash('sha256').update(readFileSync(observationPath)).digest('hex');
+    return JSON.stringify([
       {
         verificationResult: {
           statement: {
@@ -105,7 +137,17 @@ function fixture(value = report()) {
         },
       },
     ]);
-  return { receiptPath, execFileSyncImpl };
+  };
+  return { receiptPath, observationPath, installerPath, execFileSyncImpl };
+}
+
+function input(evidence: ReturnType<typeof fixture>, target = 'linux-x64') {
+  return {
+    target,
+    receiptPath: evidence.receiptPath,
+    observationPath: evidence.observationPath,
+    installerPath: evidence.installerPath,
+  };
 }
 
 afterEach(() => {
@@ -122,7 +164,7 @@ describe('platform package smoke acceptance authority', () => {
     const evidence = fixture();
     expect(
       verifyPlatformPackageSmoke(
-        { target: 'linux-x64', receiptPath: evidence.receiptPath },
+        input(evidence),
         { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
         { execFileSyncImpl: evidence.execFileSyncImpl }
       )
@@ -131,22 +173,27 @@ describe('platform package smoke acceptance authority', () => {
       target: 'linux-x64',
       candidate: { commit: COMMIT, tree: TREE },
       artifacts: {
+        installerBytesSha256: `sha256:${crypto.createHash('sha256').update('actual native installer bytes').digest('hex')}`,
+        installerSizeBytes: Buffer.byteLength('actual native installer bytes'),
         installerDigest: DIGEST('1'),
         executableSha256: DIGEST('3'),
         appAsarSha256: DIGEST('4'),
         verifiedCandidateDigest: DIGEST('5'),
+        reportSha256: `sha256:${crypto.createHash('sha256').update(readFileSync(evidence.receiptPath)).digest('hex')}`,
+        observationSha256: `sha256:${crypto.createHash('sha256').update(readFileSync(evidence.observationPath)).digest('hex')}`,
       },
-      authority: 'canonical-packaged-runtime-observer',
+      authority: 'protected-native-package-observer',
     });
   });
 
   it('rejects a smoke from a sibling candidate', () => {
-    const forged = report();
-    forged.sourceIdentity.commit = 'c'.repeat(40);
-    const evidence = fixture(forged);
+    const evidence = fixture();
+    const observation = JSON.parse(readFileSync(evidence.observationPath, 'utf8'));
+    observation.candidate.commit = 'c'.repeat(40);
+    writeFileSync(evidence.observationPath, `${JSON.stringify(observation)}\n`);
     expect(() =>
       verifyPlatformPackageSmoke(
-        { target: 'linux-x64', receiptPath: evidence.receiptPath },
+        input(evidence),
         { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
         { execFileSyncImpl: evidence.execFileSyncImpl }
       )
@@ -168,7 +215,7 @@ describe('platform package smoke acceptance authority', () => {
       ]);
     expect(() =>
       verifyPlatformPackageSmoke(
-        { target: 'linux-x64', receiptPath: evidence.receiptPath },
+        input(evidence),
         { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
         { execFileSyncImpl: unbound }
       )
@@ -177,11 +224,11 @@ describe('platform package smoke acceptance authority', () => {
 
   it('rejects symlinked receipt paths', () => {
     const evidence = fixture();
-    const link = `${evidence.receiptPath}.link`;
-    symlinkSync(evidence.receiptPath, link);
+    const link = `${evidence.observationPath}.link`;
+    symlinkSync(evidence.observationPath, link);
     expect(() =>
       verifyPlatformPackageSmoke(
-        { target: 'linux-x64', receiptPath: link },
+        { ...input(evidence), observationPath: link },
         { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
         { execFileSyncImpl: evidence.execFileSyncImpl }
       )
@@ -189,28 +236,67 @@ describe('platform package smoke acceptance authority', () => {
   });
 
   it('rejects a smoke that did not finish renderer cleanup', () => {
-    const incomplete = report();
+    const evidence = fixture();
+    const incomplete = JSON.parse(readFileSync(evidence.receiptPath, 'utf8'));
     incomplete.shutdown.descendantsRemaining = 1;
-    const evidence = fixture(incomplete);
+    writeFileSync(evidence.receiptPath, `${JSON.stringify(incomplete)}\n`);
     expect(() =>
       verifyPlatformPackageSmoke(
-        { target: 'linux-x64', receiptPath: evidence.receiptPath },
+        input(evidence),
         { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
         { execFileSyncImpl: evidence.execFileSyncImpl }
       )
-    ).toThrow(/shutdown lifecycle is incomplete/);
+    ).toThrow(/does not bind exact report bytes/);
   });
 
   it('rejects empty semantic structures even when lifecycle booleans are true', () => {
-    const hollow = report();
-    hollow.freshness = {} as never;
-    const evidence = fixture(hollow);
+    const evidence = fixture();
+    const hollow = JSON.parse(readFileSync(evidence.receiptPath, 'utf8'));
+    hollow.freshness = {};
+    writeFileSync(evidence.receiptPath, `${JSON.stringify(hollow)}\n`);
+    expect(() =>
+      verifyPlatformPackageSmoke(
+        input(evidence),
+        { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
+        { execFileSyncImpl: evidence.execFileSyncImpl }
+      )
+    ).toThrow(/does not bind exact report bytes/);
+  });
+
+  it('rejects coherent report JSON without a protected observation', () => {
+    const evidence = fixture();
     expect(() =>
       verifyPlatformPackageSmoke(
         { target: 'linux-x64', receiptPath: evidence.receiptPath },
         { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
         { execFileSyncImpl: evidence.execFileSyncImpl }
       )
-    ).toThrow(/installer freshness has missing or unknown critical fields/);
+    ).toThrow(/missing or unknown critical fields/);
+  });
+
+  it('rejects an installer changed after protected observation', () => {
+    const evidence = fixture();
+    writeFileSync(evidence.installerPath, 'tampered installer');
+    expect(() =>
+      verifyPlatformPackageSmoke(
+        input(evidence),
+        { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
+        { execFileSyncImpl: evidence.execFileSyncImpl }
+      )
+    ).toThrow(/does not bind exact installer bytes/);
+  });
+
+  it('rejects an observation for the wrong target', () => {
+    const evidence = fixture();
+    const observation = JSON.parse(readFileSync(evidence.observationPath, 'utf8'));
+    observation.target = 'linux-arm64';
+    writeFileSync(evidence.observationPath, `${JSON.stringify(observation)}\n`);
+    expect(() =>
+      verifyPlatformPackageSmoke(
+        input(evidence),
+        { target: 'linux-x64', candidate: { commit: COMMIT, tree: TREE } },
+        { execFileSyncImpl: evidence.execFileSyncImpl }
+      )
+    ).toThrow(/contract or authority is invalid/);
   });
 });

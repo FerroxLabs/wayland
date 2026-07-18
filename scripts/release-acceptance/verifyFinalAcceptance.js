@@ -345,11 +345,25 @@ function verifyPlatformReceipt(receipt, candidate, expectedTarget) {
   sameCandidate(result.candidate, candidate, 'M8A_PLATFORM_SMOKE_INVALID');
   const artifacts = exactKeys(
     result.artifacts,
-    ['installerDigest', 'executableSha256', 'appAsarSha256', 'verifiedCandidateDigest'],
+    [
+      'installerBytesSha256',
+      'installerSizeBytes',
+      'installerDigest',
+      'executableSha256',
+      'appAsarSha256',
+      'verifiedCandidateDigest',
+      'reportSha256',
+      'observationSha256',
+    ],
     'M8A_PLATFORM_SMOKE_INVALID'
   );
-  for (const value of Object.values(artifacts)) digest(value, 'M8A_PLATFORM_SMOKE_INVALID');
-  if (result.authority !== 'canonical-packaged-runtime-observer') {
+  for (const [key, value] of Object.entries(artifacts)) {
+    if (key !== 'installerSizeBytes') digest(value, 'M8A_PLATFORM_SMOKE_INVALID');
+  }
+  if (!Number.isSafeInteger(artifacts.installerSizeBytes) || artifacts.installerSizeBytes <= 0) {
+    fail('M8A_PLATFORM_SMOKE_INVALID', 'invalid-installer-size');
+  }
+  if (result.authority !== 'protected-native-package-observer') {
     fail('M8A_PLATFORM_SMOKE_INVALID', 'untrusted-authority');
   }
   return result;

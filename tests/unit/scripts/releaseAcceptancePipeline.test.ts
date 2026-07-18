@@ -117,6 +117,19 @@ describe('protected release acceptance pipeline', () => {
     expect(release).toContain("needs.final-release-acceptance.result == 'success'");
   });
 
+  it('reruns the pinned package smoke against installer bytes on every native protected runner', () => {
+    const observer = readFileSync('.github/workflows/protected-platform-package-observer.yml', 'utf8');
+    expect(observer).toContain("github.ref == 'refs/heads/release-trust-v1'");
+    expect(observer).toContain('ref: ${{ inputs.candidate_commit }}');
+    expect(observer).toContain('node ../trust/scripts/platform-package-smoke.mjs');
+    expect(observer).toContain('--candidate-state-file');
+    expect(observer).toContain('createProtectedPlatformObservation.js');
+    expect(observer).toContain('actions/attest-build-provenance@v2');
+    for (const target of ['darwin-arm64', 'darwin-x64', 'win32-arm64', 'win32-x64', 'linux-arm64', 'linux-x64']) {
+      expect(observer).toContain(`target: ${target}`);
+    }
+  });
+
   it('binds the protected proof plan to the complete required gate set', () => {
     expect(REQUIRED_GATES).toEqual({
       tests: 'bun run test',

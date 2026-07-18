@@ -155,7 +155,17 @@ function collectRawAcceptanceEvidence(sourceDirectory, outputDirectory) {
     'gate-logs/build.log',
     'gate-logs/dependency-security.log',
   ];
-  for (const target of matrix.TARGETS) fixedFiles.push(`package-smokes/${target}.json`);
+  for (const target of matrix.TARGETS) {
+    fixedFiles.push(`package-smokes/${target}.json`);
+    const observationRelative = `package-observations/${target}/observation.json`;
+    fixedFiles.push(observationRelative);
+    const observation = readJsonFile(source, observationRelative, 'M8I_PLATFORM_SMOKE_INVALID').value;
+    const installerName = observation?.installer?.fileName;
+    if (typeof installerName !== 'string' || require('node:path').basename(installerName) !== installerName) {
+      fail('M8I_PLATFORM_SMOKE_INVALID', `unsafe-installer-binding:${target}`);
+    }
+    fixedFiles.push(`package-observations/${target}/${installerName}`);
+  }
   const updaterIndex = readJsonFile(source, 'updater-observation.json', 'M8I_UPDATER_OBSERVATION_INVALID').value;
   exactKeys(updaterIndex, ['contract', 'candidate', 'authority', 'observations'], 'M8I_UPDATER_OBSERVATION_INVALID');
   const updaterCandidate = candidateIdentity(updaterIndex.candidate, 'M8I_UPDATER_OBSERVATION_INVALID');

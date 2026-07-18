@@ -190,12 +190,16 @@ function verifiers() {
       target: raw.target,
       candidate: { commit: COMMIT, tree: TREE },
       artifacts: {
+        installerBytesSha256: DIGEST('a'),
+        installerSizeBytes: 1024 + TARGETS.indexOf(raw.target),
         installerDigest: DIGEST(String(TARGETS.indexOf(raw.target) + 1)),
         executableSha256: DIGEST(String(TARGETS.indexOf(raw.target) + 2)),
         appAsarSha256: DIGEST(String(TARGETS.indexOf(raw.target) + 3)),
         verifiedCandidateDigest: DIGEST(String(TARGETS.indexOf(raw.target) + 4)),
+        reportSha256: DIGEST('b'),
+        observationSha256: DIGEST('c'),
       },
-      authority: 'canonical-packaged-runtime-observer',
+      authority: 'protected-native-package-observer',
     }),
     verifyThirdPartyLedger: () => ({
       contract: 'wayland-third-party-executables/1.0',
