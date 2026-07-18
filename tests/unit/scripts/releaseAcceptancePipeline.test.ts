@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSyn
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
+import YAML from 'yaml';
 
 const { regularFile } = require('../../../scripts/release-acceptance/acceptanceBundle') as {
   regularFile: (root: string, relative: string, code: string) => { bytes: Buffer };
@@ -128,6 +129,38 @@ describe('protected release acceptance pipeline', () => {
     for (const target of ['darwin-arm64', 'darwin-x64', 'win32-arm64', 'win32-x64', 'linux-arm64', 'linux-x64']) {
       expect(observer).toContain(`target: ${target}`);
     }
+  });
+
+  it('trustRootJobSeparation keeps candidate execution outside OIDC and attestation authority', () => {
+    const workflow = YAML.parse(readFileSync('.github/workflows/protected-platform-package-observer.yml', 'utf8'));
+    const observe = workflow.jobs.observe;
+    const sign = workflow.jobs.sign;
+    const observeText = JSON.stringify(observe);
+    const signText = JSON.stringify(sign);
+
+    expect(workflow['run-name']).toContain('candidate=${{ inputs.candidate_commit }}');
+    expect(workflow['run-name']).toContain('producer=${{ inputs.producer_run_id }}');
+    expect(workflow['run-name']).toContain('attempt=${{ inputs.producer_run_attempt }}');
+    expect(observe.permissions).toEqual({ actions: 'read', contents: 'read' });
+    expect(observe.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN).toBe('');
+    expect(observe.env.ACTIONS_ID_TOKEN_REQUEST_URL).toBe('');
+    expect(observeText).toContain('platform-package-smoke.mjs');
+    expect(observeText).toContain('.github/workflows/build-and-release.yml');
+    expect(observeText).toContain('in_progress:null|completed:success');
+    expect(observeText).not.toContain('attest-build-provenance');
+    expect(observeText).not.toContain('createProtectedPlatformObservation.js');
+
+    expect(sign.needs).toBe('observe');
+    expect(sign.permissions).toEqual({
+      actions: 'read',
+      attestations: 'write',
+      contents: 'read',
+      'id-token': 'write',
+    });
+    expect(signText).toContain('createProtectedPlatformObservation.js');
+    expect(signText).toContain('attest-build-provenance');
+    expect(signText).not.toContain('platform-package-smoke.mjs');
+    expect(signText).not.toContain('inputs.candidate_commit","path":"candidate');
   });
 
   it('binds the protected proof plan to the complete required gate set', () => {

@@ -162,28 +162,39 @@ module.exports = { createProtectedPlatformObservation };
 if (require.main === module) {
   try {
     const values = parseArgs(process.argv.slice(2));
-    createProtectedPlatformObservation({
-      target: values.target,
-      candidate: { commit: values.commit, tree: values.tree },
-      reportPath: path.resolve(values.report),
-      installerPath: path.resolve(values.installer),
-      outputPath: path.resolve(values.out),
-      workflow: {
-        repository: process.env.GITHUB_REPOSITORY,
-        workflow: process.env.GITHUB_WORKFLOW_REF?.split('@')[0]?.replace(`${process.env.GITHUB_REPOSITORY}/`, ''),
-        ref: process.env.GITHUB_REF,
-        runId: process.env.GITHUB_RUN_ID,
-        runAttempt: process.env.GITHUB_RUN_ATTEMPT,
-        runnerOs: process.env.RUNNER_OS,
-        runnerArch: process.env.RUNNER_ARCH,
+    const protectedSigningJob = process.env.WAYLAND_PROTECTED_SIGNING_JOB === 'true';
+    const observedPlatform = process.env.WAYLAND_OBSERVED_PLATFORM;
+    const observedArch = process.env.WAYLAND_OBSERVED_ARCH;
+    if (protectedSigningJob && (!observedPlatform || !observedArch)) {
+      throw new Error('protected signing job omitted native observer identity');
+    }
+    createProtectedPlatformObservation(
+      {
+        target: values.target,
+        candidate: { commit: values.commit, tree: values.tree },
+        reportPath: path.resolve(values.report),
+        installerPath: path.resolve(values.installer),
+        outputPath: path.resolve(values.out),
+        workflow: {
+          repository: process.env.GITHUB_REPOSITORY,
+          workflow: process.env.GITHUB_WORKFLOW_REF
+            ?.split('@')[0]
+            ?.replace(`${process.env.GITHUB_REPOSITORY}/`, ''),
+          ref: process.env.GITHUB_REF,
+          runId: process.env.GITHUB_RUN_ID,
+          runAttempt: process.env.GITHUB_RUN_ATTEMPT,
+          runnerOs: process.env.RUNNER_OS,
+          runnerArch: process.env.RUNNER_ARCH,
+        },
+        producer: {
+          repository: process.env.GITHUB_REPOSITORY,
+          runId: process.env.WAYLAND_PRODUCER_RUN_ID,
+          runAttempt: process.env.WAYLAND_PRODUCER_RUN_ATTEMPT,
+          candidateCommit: values.commit,
+        },
       },
-      producer: {
-        repository: process.env.GITHUB_REPOSITORY,
-        runId: process.env.WAYLAND_PRODUCER_RUN_ID,
-        runAttempt: process.env.WAYLAND_PRODUCER_RUN_ATTEMPT,
-        candidateCommit: values.commit,
-      },
-    });
+      protectedSigningJob ? { platform: observedPlatform, arch: observedArch } : {}
+    );
   } catch (error) {
     process.stderr.write(`Protected platform observation rejected: ${error.message}\n`);
     process.exitCode = 1;

@@ -1,4 +1,5 @@
 name: Protected native package observer
+run-name: protected-platform-observer candidate=${{ inputs.candidate_commit }} producer=${{ inputs.producer_run_id }} attempt=${{ inputs.producer_run_attempt }}
 
 on:
   workflow_dispatch:
@@ -28,9 +29,7 @@ on:
 
 permissions:
   actions: read
-  attestations: write
   contents: read
-  id-token: write
 
 concurrency:
   group: protected-platform-observer-${{ inputs.candidate_commit }}-${{ inputs.producer_run_id }}-${{ inputs.producer_run_attempt }}
@@ -39,6 +38,14 @@ concurrency:
 jobs:
   observe:
     if: github.ref == 'refs/heads/release-trust-v1'
+    permissions:
+      actions: read
+      contents: read
+    env:
+      # Candidate application bytes execute in this job. Keep OIDC capability
+      # absent even if a future caller broadens workflow-level permissions.
+      ACTIONS_ID_TOKEN_REQUEST_TOKEN: ''
+      ACTIONS_ID_TOKEN_REQUEST_URL: ''
     strategy:
       fail-fast: false
       matrix:
@@ -153,7 +160,12 @@ jobs:
           actual_attempt="$(printf '%s' "$producer" | jq -r .run_attempt)"
           test "$actual_attempt" = "$PRODUCER_RUN_ATTEMPT"
           test "$(printf '%s' "$producer" | jq -r .head_sha)" = "$EXPECTED_COMMIT"
-          test "$(printf '%s' "$producer" | jq -r .conclusion)" = success
+          test "$(printf '%s' "$producer" | jq -r .path)" = ".github/workflows/build-and-release.yml"
+          producer_state="$(printf '%s' "$producer" | jq -r '[.status, (.conclusion // "null")] | join(":")')"
+          case "$producer_state" in
+            in_progress:null|completed:success) ;;
+            *) echo "producer run is not an admissible exact build state: $producer_state" >&2; exit 1 ;;
+          esac
           gh run download "$PRODUCER_RUN_ID" --repo "$GITHUB_REPOSITORY" --name "$ARTIFACT_NAME" --dir payload
 
       - name: Independently observe installed native package
@@ -174,18 +186,93 @@ jobs:
             --candidate-state-file "$RUNNER_TEMP/protected-package-state.json" \
             --candidate-state-digest "$CANDIDATE_STATE_DIGEST"
 
-      - name: Create protected exact-byte observation receipt
+      - name: Upload untrusted native observation bytes
+        uses: actions/upload-artifact@v6
+        with:
+          name: unsigned-platform-observation-${{ matrix.target }}-${{ inputs.candidate_commit }}
+          path: |
+            payload/platform-package-smoke-${{ matrix.target }}.json
+            payload/*.dmg
+            payload/*.exe
+            payload/*.deb
+          if-no-files-found: error
+          retention-days: 14
+
+  sign:
+    name: Sign protected observation (${{ matrix.target }})
+    needs: observe
+    if: github.ref == 'refs/heads/release-trust-v1'
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      attestations: write
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: darwin-arm64
+            platform: darwin
+            arch: arm64
+            extension: dmg
+          - target: darwin-x64
+            platform: darwin
+            arch: x64
+            extension: dmg
+          - target: win32-arm64
+            platform: win32
+            arch: arm64
+            extension: exe
+          - target: win32-x64
+            platform: win32
+            arch: x64
+            extension: exe
+          - target: linux-arm64
+            platform: linux
+            arch: arm64
+            extension: deb
+          - target: linux-x64
+            platform: linux
+            arch: x64
+            extension: deb
+    steps:
+      - name: Checkout pinned signing authority only
+        uses: actions/checkout@v6
+        with:
+          ref: release-trust-v1
+          path: trust
+          persist-credentials: false
+
+      - name: Verify signing authority identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C trust rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git -C trust status --porcelain=v1 --untracked-files=all)"
+
+      - name: Download same-run untrusted observation bundle
+        uses: actions/download-artifact@v5
+        with:
+          name: unsigned-platform-observation-${{ matrix.target }}-${{ inputs.candidate_commit }}
+          path: payload
+
+      - name: Validate bytes and create protected receipt
         shell: bash
         env:
           TARGET: ${{ matrix.target }}
           CANDIDATE_COMMIT: ${{ inputs.candidate_commit }}
           CANDIDATE_TREE: ${{ inputs.candidate_tree }}
           INSTALLER_EXTENSION: ${{ matrix.extension }}
+          WAYLAND_OBSERVED_PLATFORM: ${{ matrix.platform }}
+          WAYLAND_OBSERVED_ARCH: ${{ matrix.arch }}
+          WAYLAND_PROTECTED_SIGNING_JOB: 'true'
           WAYLAND_PRODUCER_RUN_ID: ${{ inputs.producer_run_id }}
           WAYLAND_PRODUCER_RUN_ATTEMPT: ${{ inputs.producer_run_attempt }}
         run: |
           set -euo pipefail
           report="payload/platform-package-smoke-$TARGET.json"
+          test -f "$report"
           installer_count="$(find payload -maxdepth 1 -type f -iname "*.$INSTALLER_EXTENSION" -print | wc -l | tr -d ' ')"
           test "$installer_count" -eq 1
           installer="$(find payload -maxdepth 1 -type f -iname "*.$INSTALLER_EXTENSION" -print)"
@@ -202,7 +289,7 @@ jobs:
         with:
           subject-path: payload/protected-platform-observation-${{ matrix.target }}.json
 
-      - name: Upload exact observation bundle
+      - name: Upload exact signed observation bundle
         uses: actions/upload-artifact@v6
         with:
           name: protected-platform-observation-${{ matrix.target }}-${{ inputs.candidate_commit }}
