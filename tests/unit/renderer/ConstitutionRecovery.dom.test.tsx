@@ -171,6 +171,9 @@ describe('ConstitutionRecovery', () => {
     expect(window.localStorage.length).toBe(1);
 
     fireEvent.change(password, { target: { value: 'correct' } });
+    await waitFor(() =>
+      expect((screen.getByRole('button', { name: 'Restore archive' }) as HTMLButtonElement).disabled).toBe(false)
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Restore archive' }));
     await waitFor(() => expect(mockRestore).toHaveBeenCalledTimes(2));
     await waitFor(() => expect(window.localStorage.length).toBe(0));
