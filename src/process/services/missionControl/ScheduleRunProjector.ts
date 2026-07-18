@@ -69,7 +69,7 @@ export function projectScheduleRuns(
           isLatestKnownRun && job.state.lastStatus
             ? { status: 'available', value: job.state.lastStatus, source: 'scheduler-state' }
             : { status: 'unavailable', reason: 'per-run scheduler outcome is not retained' },
-        result: readResult(slice, conversation.conversationId, job.id, triggeredAt),
+        result: readResult(slice, promptIds, conversation.conversationId, job.id, triggeredAt),
         receipt: readReceipt(slice, promptIds, conversation.conversationId, canonicalReceiptTrust),
         action: {
           kind: 'navigate',
@@ -102,6 +102,7 @@ function compareMessages(left: TMessage, right: TMessage): number {
 
 function readResult(
   messages: readonly TMessage[],
+  promptIds: ReadonlySet<string>,
   conversationId: string,
   jobId: string,
   triggeredAt: number
@@ -127,6 +128,8 @@ function readResult(
         message.position === 'left' &&
         message.hidden !== true &&
         message.status !== 'pending' &&
+        typeof message.msg_id === 'string' &&
+        promptIds.has(message.msg_id) &&
         message.content.content.trim().length > 0
     );
   if (!result || result.type !== 'text') {

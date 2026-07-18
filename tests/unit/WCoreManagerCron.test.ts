@@ -197,6 +197,7 @@ describe('GAP-4: WCoreManager Cron Command Feedback Loop', () => {
           id: 'cron-prompt-1',
           msg_id: 'cron-prompt-1',
           hidden: true,
+          createdAt: expect.any(Number),
           content: { content: 'Run report', cronMeta },
         })
       );

@@ -657,6 +657,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       type: 'text',
       position: 'right',
       conversation_id: this.conversation_id,
+      createdAt: data.cronMeta ? Math.max(Date.now(), data.cronMeta.triggeredAt + 1) : Date.now(),
       content: {
         content: data.content,
         ...(data.cronMeta && { cronMeta: data.cronMeta }),

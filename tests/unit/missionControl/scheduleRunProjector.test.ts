@@ -60,10 +60,10 @@ function prompt(id: string, triggeredAt: number): TMessage {
   };
 }
 
-function result(id: string, text: string, createdAt: number): TMessage {
+function result(id: string, text: string, createdAt: number, msgId = id): TMessage {
   return {
     id,
-    msg_id: id,
+    msg_id: msgId,
     type: 'text',
     position: 'left',
     conversation_id: 'conversation-1',
@@ -185,7 +185,7 @@ describe('projectScheduleRuns', () => {
       receipt: { status: 'verified'; receiptId: string };
     };
     claimed.receipt = { status: 'verified', receiptId: 'model-claim' };
-    const nestedClaim = result('nested-claim', 'Done', 102) as TMessage & {
+    const nestedClaim = result('nested-claim', 'Done', 102, 'p1') as TMessage & {
       content: TMessage['content'] & { receipt: { receipt_id: string; desktop_trust_status: string } };
     };
     nestedClaim.content.receipt = { receipt_id: 'imported-claim', desktop_trust_status: 'active' };
@@ -235,7 +235,7 @@ describe('projectScheduleRuns', () => {
         messages: [
           trigger('t1', 100),
           prompt('p1', 100),
-          result('scheduled-result', 'Scheduled answer', 102),
+          result('scheduled-result', 'Scheduled answer', 102, 'p1'),
           manualPrompt('manual-prompt', 'Unrelated question', 103),
           result('manual-result', 'Unrelated manual answer', 104),
         ],
@@ -284,8 +284,37 @@ describe('projectScheduleRuns', () => {
     });
   });
 
+  it("does not let an earlier concurrent cron turn's late reply mint this run's result", () => {
+    const otherPrompt = prompt('job-2-prompt', 99);
+    otherPrompt.msg_id = 'job-2-task';
+    otherPrompt.content.cronMeta = {
+      source: 'cron',
+      cronJobId: 'job-2',
+      cronJobName: 'Other job',
+      triggeredAt: 99,
+    };
+    const currentPrompt = prompt('job-1-prompt', 100);
+    currentPrompt.msg_id = 'job-1-task';
+    const [run] = projectScheduleRuns(job({ lastRunAtMs: 100, lastStatus: 'ok' }), [
+      {
+        conversationId: 'conversation-1',
+        messages: [
+          otherPrompt,
+          trigger('t1', 100),
+          currentPrompt,
+          result('job-2-result', 'Other job result', 102, 'job-2-task'),
+        ],
+      },
+    ]);
+
+    expect(run.result).toEqual({
+      status: 'unavailable',
+      reason: 'no persisted assistant result is correlated to this run',
+    });
+  });
+
   it('requires canonical active Desktop trust instead of an accepted envelope alone', () => {
-    const base = [trigger('t1', 100), prompt('p1', 100), result('r1', 'Done', 102)];
+    const base = [trigger('t1', 100), prompt('p1', 100), result('r1', 'Done', 102, 'p1')];
     const withoutTrust = projectScheduleRuns(job({ lastRunAtMs: 100, lastStatus: 'ok' }), [
       { conversationId: 'conversation-1', messages: [...base, receipt('untrusted', 'p1', 103, {})] },
     ])[0];
@@ -310,11 +339,11 @@ describe('projectScheduleRuns', () => {
     const messages = [
       trigger('t1', 100),
       prompt('p1', 100),
-      result('r1', 'First', 102),
+      result('r1', 'First', 102, 'p1'),
       receipt('foreign', 'not-p1', 103),
       trigger('t2', 200),
       prompt('p2', 200),
-      result('r2', 'Second', 202),
+      result('r2', 'Second', 202, 'p2'),
       receipt('second', 'p2', 203),
       trigger('collision', 300, 'different-job'),
     ];
@@ -358,7 +387,7 @@ describe('projectScheduleRuns', () => {
     const runA = [
       trigger('t1', 100),
       prompt('p1', 100),
-      result('r1', 'First', 102),
+      result('r1', 'First', 102, 'p1'),
       receipt('first', 'p1', 103),
       trigger('t2', 200),
       prompt('p2', 200),
@@ -388,7 +417,7 @@ describe('projectScheduleRuns', () => {
         messages: [
           trigger('t1', 100),
           prompt('p1', 100),
-          result('r1', 'First', 102),
+          result('r1', 'First', 102, 'p1'),
           receipt('first', 'p1', 103),
           trigger('t2', 200),
           prompt('p2', 200),
