@@ -19,14 +19,22 @@ import type {
   LedgerSource,
   LedgerStatus,
   MissionControlSnapshot,
+  ScheduleRunRecord,
 } from '@/common/types/missionControl';
 
 export type TaskLedgerSources = {
+  listScheduleRuns?: (jobs: readonly ICronJob[]) => Promise<TaskLedgerScheduleRead>;
   listDesktopWorkflows?: () => Promise<WorkflowSession[]>;
   /** Canonical Core projector. Empty is valid; absence is reported as unavailable. */
   listCoreActivity?: () => Promise<TaskLedgerSourceRead>;
   /** Pending approvals only. Resolved approvals belong in Recent runtime activity. */
   listPendingApprovals?: () => Promise<TaskLedgerSourceRead>;
+};
+
+export type TaskLedgerScheduleRead = {
+  runs: ScheduleRunRecord[];
+  status?: 'ok' | 'partial';
+  detail?: string;
 };
 
 export type TaskLedgerSourceRead = {
@@ -104,7 +112,45 @@ export class TaskLedgerService {
     const observedAt = Date.now();
     try {
       const jobs = await Promise.resolve(cronService.listJobs());
-      return { entries: jobs.flatMap(mapCronJob), health: { source: 'scheduler', status: 'ok', observedAt } };
+      const definitions = jobs.map(mapCronDefinition);
+      let runs: ScheduleRunRecord[];
+      let sourceStatus: 'ok' | 'partial' = 'ok';
+      let sourceDetail: string | undefined;
+      if (this.sources.listScheduleRuns) {
+        try {
+          const read = await this.sources.listScheduleRuns(jobs);
+          runs = read.runs;
+          sourceStatus = read.status ?? 'ok';
+          sourceDetail = read.detail;
+        } catch (error) {
+          runs = jobs.flatMap(fallbackScheduleRun);
+          sourceStatus = 'partial';
+          sourceDetail = `run evidence unavailable: ${error instanceof Error ? error.message : 'projection failed'}`;
+        }
+      } else {
+        runs = jobs.flatMap(fallbackScheduleRun);
+        if (runs.length > 0) {
+          sourceStatus = 'partial';
+          sourceDetail = 'run evidence projector is not initialized';
+        }
+      }
+      const incomplete = runs.filter(
+        (run) =>
+          run.outcome.status !== 'available' || run.result.status !== 'available' || run.receipt.status !== 'verified'
+      ).length;
+      if (incomplete > 0) {
+        sourceStatus = 'partial';
+        sourceDetail ??= `${incomplete}/${runs.length} scheduled runs have partial or unavailable evidence`;
+      }
+      return {
+        entries: [...definitions, ...runs.map(mapScheduleRun)],
+        health: {
+          source: 'scheduler',
+          status: sourceStatus,
+          observedAt,
+          ...(sourceDetail ? { detail: sourceDetail } : {}),
+        },
+      };
     } catch (error) {
       return failedSource('scheduler', observedAt, error);
     }
@@ -224,8 +270,8 @@ function readVerdict(metadata: Record<string, unknown>): 'pass' | 'fail' | undef
   return undefined;
 }
 
-function mapCronJob(job: ICronJob): LedgerEntry[] {
-  const schedule = normalize({
+function mapCronDefinition(job: ICronJob): LedgerEntry {
+  return normalize({
     sourceId: job.id,
     provenance: { origin: 'desktop', kind: 'schedule' },
     title: job.name,
@@ -238,22 +284,49 @@ function mapCronJob(job: ICronJob): LedgerEntry[] {
     startedAt: job.metadata.createdAt,
     updatedAt: job.metadata.updatedAt,
   });
-  if (job.state.lastRunAtMs === undefined || job.state.lastStatus === undefined) return [schedule];
-  const failed = job.state.lastStatus === 'error' || job.state.lastStatus === 'missed';
-  const run = normalize({
-    sourceId: `${job.id}:${job.state.lastRunAtMs}`,
+}
+
+function fallbackScheduleRun(job: ICronJob): ScheduleRunRecord[] {
+  if (job.state.lastRunAtMs === undefined) return [];
+  return [
+    {
+      jobId: job.id,
+      runId: `${job.id}:${job.state.lastRunAtMs}`,
+      title: `${job.name} run`,
+      triggeredAt: job.state.lastRunAtMs,
+      outcome: job.state.lastStatus
+        ? { status: 'available', value: job.state.lastStatus, source: 'scheduler-state' }
+        : { status: 'unavailable', reason: 'scheduler outcome is missing' },
+      result: { status: 'unavailable', reason: 'no persisted result is correlated to this run' },
+      receipt: { status: 'unavailable', reason: 'no accepted receipt is correlated to this run' },
+      action: { kind: 'navigate', path: `/scheduled/${job.id}`, label: 'Open scheduled job' },
+    },
+  ];
+}
+
+function mapScheduleRun(run: ScheduleRunRecord): LedgerEntry {
+  const outcome = run.outcome.status === 'available' ? run.outcome.value : undefined;
+  const failed = outcome === 'error' || outcome === 'missed';
+  const completed = outcome === 'ok';
+  return normalize({
+    sourceId: run.runId,
     provenance: { origin: 'desktop', kind: 'schedule-run' },
-    title: `${job.name} run`,
-    status: failed ? 'failed' : 'done',
-    action: { kind: 'navigate', path: `/scheduled/${job.id}`, label: 'Open run' },
+    title: run.title,
+    status: failed ? 'failed' : completed ? 'done' : 'unknown',
+    action: run.action,
     owner: 'schedule',
-    detail: job.state.lastError,
-    context: job.metadata.conversationTitle,
-    lastRunStatus: job.state.lastStatus,
-    startedAt: job.state.lastRunAtMs,
-    updatedAt: job.state.lastRunAtMs,
+    detail: run.result.status === 'available' ? run.result.summary : run.result.reason,
+    context:
+      run.receipt.status === 'verified'
+        ? `Receipt ${run.receipt.receiptId}`
+        : run.receipt.status === 'partial'
+          ? 'Receipt partial'
+          : 'Receipt unavailable',
+    lastRunStatus: outcome,
+    scheduleRun: { outcome: run.outcome, result: run.result, receipt: run.receipt },
+    startedAt: run.triggeredAt,
+    updatedAt: run.triggeredAt,
   });
-  return [schedule, run];
 }
 
 function mapDesktopWorkflow(session: WorkflowSession): ActivityObservation {

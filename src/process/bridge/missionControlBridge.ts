@@ -9,8 +9,10 @@ import type { TeamSessionService } from '@process/team/TeamSessionService';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import type { IConversationService } from '@process/services/IConversationService';
 import { getWorkflowSessionService } from '@process/services/workflow/workflowSessionServiceSingleton';
+import { getDatabase } from '@process/services/database';
 import { emptyCounts, TaskLedgerService } from '@process/services/missionControl/TaskLedgerService';
-import type { ActivityObservation } from '@/common/types/missionControl';
+import { projectScheduleRuns } from '@process/services/missionControl/ScheduleRunProjector';
+import type { ActivityObservation, ScheduleRunRecord } from '@/common/types/missionControl';
 import type { MissionControlSnapshot } from '@/common/types/missionControl';
 
 /**
@@ -26,6 +28,40 @@ export function initMissionControlBridge(
   conversationService: IConversationService
 ): void {
   const ledger = new TaskLedgerService(teamSessionService, {
+    listScheduleRuns: async (jobs) => {
+      const database = await getDatabase();
+      const results = await Promise.all(
+        jobs.map(async (job): Promise<{ runs: ScheduleRunRecord[]; failed: boolean }> => {
+          try {
+            const conversations = new Map(
+              (await conversationService.getConversationsByCronJob(job.id)).map((conversation) => [
+                conversation.id,
+                conversation,
+              ])
+            );
+            if (job.metadata.conversationId && !conversations.has(job.metadata.conversationId)) {
+              const existing = await conversationService.getConversation(job.metadata.conversationId);
+              if (existing) conversations.set(existing.id, existing);
+            }
+            const evidence = [...conversations.values()].map((conversation) => {
+              const history = database.getConversationMessages(conversation.id, 0, 10_000, 'ASC');
+              if (history.hasMore) throw new Error('schedule history exceeds the bounded complete evidence window');
+              return { conversationId: conversation.id, messages: history.data ?? [] };
+            });
+            return { runs: projectScheduleRuns(job, evidence), failed: false };
+          } catch {
+            return { runs: [], failed: true };
+          }
+        })
+      );
+      const runs = results.flatMap((result) => result.runs);
+      const failedJobs = results.filter((result) => result.failed).length;
+      return {
+        runs,
+        status: failedJobs > 0 ? ('partial' as const) : ('ok' as const),
+        ...(failedJobs > 0 ? { detail: `${failedJobs}/${jobs.length} schedule histories unavailable` } : {}),
+      };
+    },
     listDesktopWorkflows: async () => {
       const service = getWorkflowSessionService();
       if (!service) throw new Error('workflow service not initialized');

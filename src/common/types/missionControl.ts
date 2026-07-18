@@ -23,6 +23,40 @@ export type ActivityDestination = {
   label: string;
 };
 
+export type ScheduleRunOutcome =
+  | { status: 'available'; value: 'ok' | 'error' | 'skipped' | 'missed'; source: 'scheduler-state' }
+  | { status: 'unavailable'; reason: string };
+
+export type ScheduleRunResult =
+  | { status: 'available'; summary: string; conversationId: string; messageId: string }
+  | { status: 'unavailable'; reason: string };
+
+export type ScheduleRunReceipt =
+  | {
+      status: 'verified';
+      receiptId: string;
+      authority: 'core/anvil';
+      runId: string;
+      taskId: string;
+      eventId: string;
+      conversationId: string;
+      evidenceMessageId: string;
+    }
+  | { status: 'partial'; receiptId?: string; reason: string }
+  | { status: 'unavailable'; reason: string };
+
+/** A single execution, distinct from the reusable schedule definition. */
+export type ScheduleRunRecord = {
+  jobId: string;
+  runId: string;
+  title: string;
+  triggeredAt: number;
+  outcome: ScheduleRunOutcome;
+  result: ScheduleRunResult;
+  receipt: ScheduleRunReceipt;
+  action: ActivityDestination;
+};
+
 export type LedgerEntry = {
   /** Stable identity: `<origin>:<kind>:<source id>`. */
   id: string;
@@ -44,6 +78,8 @@ export type LedgerEntry = {
   needsHuman?: boolean;
   nextRunAtMs?: number;
   lastRunStatus?: 'ok' | 'error' | 'skipped' | 'missed';
+  /** Present only for `desktop/schedule-run`; schedule definitions never inherit run claims. */
+  scheduleRun?: Omit<ScheduleRunRecord, 'jobId' | 'runId' | 'title' | 'triggeredAt' | 'action'>;
   startedAt: number;
   updatedAt: number;
 };
