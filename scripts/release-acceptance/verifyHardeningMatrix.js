@@ -1,10 +1,13 @@
 'use strict';
 
 const fs = require('node:fs');
+const crypto = require('node:crypto');
 const path = require('node:path');
+const childProcess = require('node:child_process');
 
 const CONTRACT = 'wayland-release-hardening-matrix/1.0';
 const MATRIX_FILE = path.resolve(__dirname, 'hardening-matrix.json');
+const REPOSITORY_ROOT = path.resolve(__dirname, '..', '..');
 const COMMIT = /^[a-f0-9]{40,64}$/;
 const SHA256 = /^sha256:[a-f0-9]{64}$/;
 const INVARIANTS = Array.from({ length: 21 }, (_, index) => `INV-${String(index + 1).padStart(2, '0')}`);
@@ -57,6 +60,14 @@ const TARGET_GATE_RECEIPT_SCHEMA = Object.freeze({
   ]),
   authority: 'canonical-target-hardening-validator',
 });
+const TARGET_GATE_ATTESTATION_POLICY = Object.freeze({
+  repository: 'FerroxLabs/wayland',
+  signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml',
+  predicateType: 'https://slsa.dev/provenance/v1',
+  runner: 'github-hosted',
+  evidenceDigestReuseAllowlist: Object.freeze([]),
+});
+const TARGET_GATE_VERIFIED_SET_CONTRACT = 'wayland-target-hardening-gate-verification/1.0';
 const TARGET_PROOF_GATES = ['package-identity-signature', 'install', 'updater', 'rollback', 're-upgrade'];
 const TARGET_GATE_REQUIREMENTS = TARGETS.flatMap((target) =>
   TARGET_PROOF_GATES.map((gate) =>
@@ -159,7 +170,7 @@ function verifyTargetGateRequirements(requirements) {
   }
 }
 
-function validateTargetGateReceiptSet(receipts, candidate) {
+function validateTargetGateReceiptClaims(receipts, candidate) {
   const expectedCandidate = verifyCandidate(candidate, 'target gate expected candidate');
   if (!Array.isArray(receipts) || receipts.length !== TARGET_GATE_REQUIREMENTS.length) {
     throw new Error('target gate receipt coverage or ordering mismatch');
@@ -201,6 +212,175 @@ function validateTargetGateReceiptSet(receipts, candidate) {
     });
   }
   return validated;
+}
+
+function validateClaimedTargetGateReceiptSet(receipts, candidate) {
+  const claims = validateTargetGateReceiptClaims(receipts, candidate);
+  return {
+    status: 'claimed-unverified',
+    authoritative: false,
+    candidate: { commit: candidate.commit, tree: candidate.tree },
+    claims: claims.map((receipt) => ({
+      contract: receipt.contract,
+      receiptId: receipt.receiptId,
+      target: receipt.target,
+      gate: receipt.gate,
+      evidenceSha256: receipt.evidenceSha256,
+    })),
+  };
+}
+
+function resolveTargetGateReceiptPaths(receiptsDirectory) {
+  if (typeof receiptsDirectory !== 'string' || receiptsDirectory.length === 0) {
+    throw new Error('target gate receipt directory must be a path');
+  }
+  const root = path.resolve(receiptsDirectory);
+  return TARGET_GATE_REQUIREMENTS.map((requirement) =>
+    path.resolve(root, requirement.target, `${requirement.gate}.json`)
+  );
+}
+
+function sha256(bytes) {
+  return `sha256:${crypto.createHash('sha256').update(bytes).digest('hex')}`;
+}
+
+function verifyCandidateInRepository(candidate) {
+  const expected = verifyCandidate(candidate, 'target gate expected candidate');
+  let commit;
+  let tree;
+  try {
+    commit = String(
+      childProcess.execFileSync(
+        'git',
+        ['-C', REPOSITORY_ROOT, 'rev-parse', '--verify', `${expected.commit}^{commit}`],
+        {
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+        }
+      )
+    ).trim();
+    tree = String(
+      childProcess.execFileSync('git', ['-C', REPOSITORY_ROOT, 'rev-parse', '--verify', `${expected.commit}^{tree}`], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      })
+    ).trim();
+  } catch (error) {
+    throw new Error(`target gate candidate commit does not exist in repository: ${expected.commit}`);
+  }
+  if (commit !== expected.commit) throw new Error('target gate candidate commit identity mismatch');
+  if (tree !== expected.tree) throw new Error('target gate candidate tree mismatch');
+  return expected;
+}
+
+function verifyReceiptAttestation(receiptPath, receiptFileSha256, candidate) {
+  let raw;
+  try {
+    raw = childProcess.execFileSync(
+      'gh',
+      [
+        'attestation',
+        'verify',
+        receiptPath,
+        '--repo',
+        TARGET_GATE_ATTESTATION_POLICY.repository,
+        '--signer-workflow',
+        TARGET_GATE_ATTESTATION_POLICY.signerWorkflow,
+        '--source-digest',
+        candidate.commit,
+        '--predicate-type',
+        TARGET_GATE_ATTESTATION_POLICY.predicateType,
+        '--deny-self-hosted-runners',
+        '--format',
+        'json',
+      ],
+      { encoding: 'utf8', timeout: 120000, stdio: ['ignore', 'pipe', 'pipe'] }
+    );
+  } catch (error) {
+    throw new Error(`target gate receipt attestation verification failed: ${path.basename(receiptPath)}`);
+  }
+  let attestations;
+  try {
+    attestations = JSON.parse(String(raw));
+  } catch (error) {
+    throw new Error(`target gate receipt attestation output is invalid JSON: ${path.basename(receiptPath)}`);
+  }
+  const expectedDigest = receiptFileSha256.slice('sha256:'.length);
+  if (
+    !Array.isArray(attestations) ||
+    attestations.length === 0 ||
+    !attestations.some((entry) => {
+      const statement = entry && entry.verificationResult && entry.verificationResult.statement;
+      return (
+        statement &&
+        statement.predicateType === TARGET_GATE_ATTESTATION_POLICY.predicateType &&
+        Array.isArray(statement.subject) &&
+        statement.subject.some((subject) => subject && subject.digest && subject.digest.sha256 === expectedDigest)
+      );
+    })
+  ) {
+    throw new Error(`target gate receipt attestation does not bind exact file bytes: ${path.basename(receiptPath)}`);
+  }
+}
+
+function verifyEvidenceDigestReuse(receipts) {
+  const byDigest = new Map();
+  for (const receipt of receipts) {
+    const receiptIds = byDigest.get(receipt.evidenceSha256) || [];
+    receiptIds.push(receipt.receiptId);
+    byDigest.set(receipt.evidenceSha256, receiptIds);
+  }
+  for (const [digest, receiptIds] of byDigest) {
+    if (receiptIds.length < 2) continue;
+    const allowed = TARGET_GATE_ATTESTATION_POLICY.evidenceDigestReuseAllowlist.some(
+      (allowlist) => JSON.stringify([...allowlist].sort()) === JSON.stringify([...receiptIds].sort())
+    );
+    if (!allowed) {
+      throw new Error(`target gate evidence digest reused across requirements: ${digest}`);
+    }
+  }
+}
+
+function verifyTargetGateReceiptFiles(receiptsDirectory, candidate) {
+  const expectedCandidate = verifyCandidateInRepository(candidate);
+  const receiptPaths = resolveTargetGateReceiptPaths(receiptsDirectory);
+  const receipts = [];
+  const files = [];
+  for (let index = 0; index < receiptPaths.length; index += 1) {
+    const receiptPath = receiptPaths[index];
+    let stat;
+    try {
+      stat = fs.lstatSync(receiptPath);
+    } catch (error) {
+      throw new Error(`target gate receipt file is missing: ${receiptPath}`);
+    }
+    if (!stat.isFile() || stat.isSymbolicLink()) {
+      throw new Error(`target gate receipt path is not a regular file: ${receiptPath}`);
+    }
+    const bytes = fs.readFileSync(receiptPath);
+    const receiptFileSha256 = sha256(bytes);
+    verifyReceiptAttestation(receiptPath, receiptFileSha256, expectedCandidate);
+    let receipt;
+    try {
+      receipt = JSON.parse(bytes.toString('utf8'));
+    } catch (error) {
+      throw new Error(`target gate receipt file is invalid JSON: ${receiptPath}`);
+    }
+    receipts.push(receipt);
+    files.push({ path: receiptPath, sha256: receiptFileSha256 });
+  }
+  const validated = validateTargetGateReceiptClaims(receipts, expectedCandidate);
+  verifyEvidenceDigestReuse(validated);
+  return {
+    contract: TARGET_GATE_VERIFIED_SET_CONTRACT,
+    authority: TARGET_GATE_RECEIPT_SCHEMA.authority,
+    candidate: { commit: expectedCandidate.commit, tree: expectedCandidate.tree },
+    receipts: validated.map((receipt, index) => ({
+      ...receipt,
+      receiptFile: files[index],
+      attestationVerified: true,
+    })),
+  };
 }
 
 function verifyHardeningMatrix(matrix = readMatrix()) {
@@ -257,11 +437,15 @@ module.exports = {
   JOURNEYS,
   MATRIX_FILE,
   TARGETS,
+  TARGET_GATE_ATTESTATION_POLICY,
   TARGET_GATE_RECEIPT_CONTRACT,
   TARGET_GATE_RECEIPT_SCHEMA,
   TARGET_GATE_REQUIREMENTS,
   TARGET_PROOF_GATES,
-  validateTargetGateReceiptSet,
+  TARGET_GATE_VERIFIED_SET_CONTRACT,
+  resolveTargetGateReceiptPaths,
+  validateClaimedTargetGateReceiptSet,
+  verifyTargetGateReceiptFiles,
   verifyHardeningMatrix,
 };
 
