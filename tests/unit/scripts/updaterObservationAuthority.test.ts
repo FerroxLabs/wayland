@@ -11,8 +11,11 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 const {
+  LINUX_CANDIDATE_PUBLISHER_IDENTITY,
   PREDICATE_TYPE,
   SIGNER_WORKFLOW,
+  expectedPublisherGate,
+  verifyPublisher,
   verifyUpdaterObservation,
 } = require('../../../scripts/release-acceptance/verifyUpdaterObservation');
 
@@ -350,6 +353,51 @@ afterEach(() => {
 });
 
 describe('canonical updater packaged-runtime observation authority', () => {
+  it('accepts Linux candidate bytes only through the exact protected updater attestation authority', () => {
+    expect(expectedPublisherGate('linux-x64', 'candidate')).toBe('github-protected-attestation-ferrox-labs');
+    expect(
+      verifyPublisher(
+        {
+          gate: 'github-protected-attestation-ferrox-labs',
+          verified: true,
+          verifierExitCode: 0,
+          identity: LINUX_CANDIDATE_PUBLISHER_IDENTITY,
+        },
+        'linux-x64',
+        'candidate'
+      )
+    ).toEqual({
+      gate: 'github-protected-attestation-ferrox-labs',
+      verified: true,
+      verifierExitCode: 0,
+      identity: LINUX_CANDIDATE_PUBLISHER_IDENTITY,
+    });
+    expect(() =>
+      verifyPublisher(
+        {
+          gate: 'linux-detached-signature-pinned-keyring',
+          verified: true,
+          verifierExitCode: 0,
+          identity: LINUX_CANDIDATE_PUBLISHER_IDENTITY,
+        },
+        'linux-x64',
+        'candidate'
+      )
+    ).toThrow(/M8C_CANDIDATE_PUBLISHER_INVALID/);
+    expect(() =>
+      verifyPublisher(
+        {
+          gate: 'github-protected-attestation-ferrox-labs',
+          verified: true,
+          verifierExitCode: 0,
+          identity: 'Ferrox Labs',
+        },
+        'linux-x64',
+        'candidate'
+      )
+    ).toThrow(/unexpected-protected-attestation-identity/);
+  });
+
   it('mints the exact final-acceptance receipt only from attested bound evidence', () => {
     const fixture = createFixture();
     expect(verifyUpdaterObservation({ observationPath: fixture.observationPath }, options(fixture))).toEqual({

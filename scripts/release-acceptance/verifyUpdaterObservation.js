@@ -7,8 +7,9 @@ const { execFileSync } = require('node:child_process');
 const { validatePlatformPackageReport } = require('./verifyPlatformPackageSmokes');
 
 const REPOSITORY = 'FerroxLabs/wayland';
-const SIGNER_WORKFLOW = 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml';
+const SIGNER_WORKFLOW = 'FerroxLabs/wayland/.github/workflows/protected-updater-journey-observer.yml';
 const SIGNER_SOURCE_REF = 'refs/heads/release-trust-v1';
+const LINUX_CANDIDATE_PUBLISHER_IDENTITY = `${SIGNER_WORKFLOW}@${SIGNER_SOURCE_REF}`;
 const PREDICATE_TYPE = 'https://slsa.dev/provenance/v1';
 const OBSERVATION_CONTRACT = 'wayland-updater-packaged-observation/1.0';
 const EVENT_CONTRACT = 'wayland-updater-runtime-events/1.0';
@@ -136,7 +137,7 @@ function expectedPublisherGate(target, role) {
   if (target.startsWith('darwin-')) return 'macos-gatekeeper-developer-id-notarization';
   if (target.startsWith('win32-')) return 'windows-authenticode-ferrox-labs';
   if (role === 'rollback' || role === 'initial') return 'github-release-digest-only';
-  return 'linux-detached-signature-pinned-keyring';
+  return 'github-protected-attestation-ferrox-labs';
 }
 
 function verifyPublisher(value, target, role) {
@@ -154,6 +155,10 @@ function verifyPublisher(value, target, role) {
     const version = role === 'initial' ? 'v0.11.18' : 'v0.11.8';
     if (identity !== `FerroxLabs/wayland@${version} compiled release catalog`) {
       fail(code, 'unexpected-catalog-identity');
+    }
+  } else if (target.startsWith('linux-')) {
+    if (identity !== LINUX_CANDIDATE_PUBLISHER_IDENTITY) {
+      fail(code, 'unexpected-protected-attestation-identity');
     }
   } else if (!target.startsWith('linux-') && !identity.includes('Ferrox Labs')) {
     fail(code, 'unexpected-publisher-identity');
@@ -663,5 +668,8 @@ module.exports = {
   RECEIPT_CONTRACT,
   REPOSITORY,
   SIGNER_WORKFLOW,
+  LINUX_CANDIDATE_PUBLISHER_IDENTITY,
+  expectedPublisherGate,
+  verifyPublisher,
   verifyUpdaterObservation,
 };
