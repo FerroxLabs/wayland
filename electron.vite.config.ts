@@ -216,8 +216,8 @@ export default defineConfig(({ mode }) => {
             manualChunks(id: string) {
               if (!id.includes('node_modules')) return undefined;
               // CRITICAL: predicates use STRICT package-name boundaries
-              // (`/node_modules/<pkg>/`) so a package like `@monaco-editor/react`
-              // does NOT greedy-match the bare `/react/` substring and get
+              // (`/node_modules/<pkg>/`) so a React-named wrapper does NOT
+              // greedy-match the bare `/react/` substring and get
               // misclassified into vendor-react. Earlier substring-based
               // predicates created a circular vendor-react → vendor-i18n →
               // vendor-react dependency at module-init time, leaving
@@ -261,17 +261,8 @@ export default defineConfig(({ mode }) => {
 
               if (pkg('react-syntax-highlighter') || pkg('refractor') || pkg('highlight.js')) return 'vendor-highlight';
 
-              // Editor family. NOTE: @monaco-editor/react is bundled HERE (not in
-              // vendor-react) - it's a Monaco wrapper, not React core. Same for
-              // @uiw/react-codemirror.
-              if (
-                pkg('monaco-editor') ||
-                scoped('@monaco-editor') ||
-                pkg('codemirror') ||
-                scoped('@codemirror') ||
-                scoped('@uiw')
-              )
-                return 'vendor-editor';
+              // CodeMirror editor family, kept separate from React core.
+              if (pkg('codemirror') || scoped('@codemirror') || scoped('@uiw')) return 'vendor-editor';
 
               if (pkg('katex')) return 'vendor-katex';
               if (scoped('@icon-park')) return 'vendor-icons';

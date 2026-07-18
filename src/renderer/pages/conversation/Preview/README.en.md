@@ -30,7 +30,7 @@ Supported Viewers:
 Supported Editors:
 
 - **Markdown Editor** - Live preview + split-screen mode
-- **Code Editor** - Monaco Editor integration
+- **Code Editor** - Local CodeMirror integration
 - **HTML Editor** - Real-time HTML editing
 
 ### 3. Advanced Features
@@ -70,7 +70,7 @@ preview/
 │   │   └── URLViewer.tsx              # URL web page viewer
 │   ├── editors/                       # Editor components
 │   │   ├── MarkdownEditor.tsx         # Markdown editor
-│   │   ├── TextEditor.tsx             # Code editor (Monaco)
+│   │   ├── TextEditor.tsx             # Code editor (CodeMirror)
 │   │   └── HTMLEditor.tsx             # HTML editor
 │   └── renderers/                     # Special renderers
 │       ├── HTMLRenderer.tsx           # HTML iframe renderer
@@ -397,7 +397,7 @@ Editable types:
 - Scroll synchronization
 - Syntax highlighting
 
-**Code Editor (Monaco)**:
+**Code Editor (CodeMirror)**:
 
 - Full code editing capabilities
 - Syntax highlighting
@@ -550,4 +550,4 @@ export const FILE_TYPES_WITH_BUILTIN_OPEN = ['pdf', 'word', 'excel', 'ppt'];
 
 - [Workspace Module Documentation](../Workspace/README.en.md)
 - [IPC Bridge Source](../../../../common/adapter/ipcBridge.ts)
-- [Monaco Editor Documentation](https://microsoft.github.io/monaco-editor/)
+- [CodeMirror Documentation](https://codemirror.net/docs/)
