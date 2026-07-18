@@ -86,9 +86,15 @@ import { initPendingSendBridge } from './pendingSendBridge';
 import { initDoctorBridge } from './doctorBridge';
 import { initDesktopFluxRoutingEvidenceAdapter } from '@process/flux/FluxRoutingEvidenceAdapter';
 import { initWorkspaceRetentionBridge } from './workspaceRetentionBridge';
+import { initWaylandTransferBridge } from './waylandTransferBridge';
 import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
 import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { getSystemDir } from '@process/utils/initStorage';
+import { buildWaylandTransferInventoryPreflight } from '@process/services/transfer/inventory/transferPreflight';
+import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
+import { getReleaseTrack } from '@/common/releaseTrack';
+import { app } from 'electron';
+import path from 'node:path';
 
 export interface BridgeDependencies {
   conversationService: IConversationService;
@@ -195,6 +201,32 @@ export function initAllBridges(deps: BridgeDependencies): void {
           workspace: deps.workerTaskManager.getTask(id)?.workspace,
         })),
     },
+  });
+  initWaylandTransferBridge(async (request) => {
+    const namedProfilesRoot = profilesRoot();
+    const projects = await projectServiceSingleton.listProjects();
+    return buildWaylandTransferInventoryPreflight({
+      request,
+      inventory: {
+        userDataRoot: app.getPath('userData'),
+        constitutionRoot: path.dirname(namedProfilesRoot),
+        coreDefaultProfileRoot: nativeConfigDir(),
+        coreNamedProfilesRoot: namedProfilesRoot,
+        externalWorkspaces: projects
+          .filter((project) => Boolean(project.workspace))
+          .map((project) => ({ projectId: project.id, path: project.workspace! })),
+        sourceReleaseTrack: getReleaseTrack(),
+      },
+      // These are capability facts, not aspirations. Preview remains blocked
+      // until live Desktop/Core quiescence and portable sealing are wired.
+      recoveryCapabilities: {
+        sqliteOnlineBackup: true,
+        desktopQuiescence: false,
+        coreQuiescence: false,
+        mutationEpoch: true,
+        sealedSensitiveCopies: false,
+      },
+    });
   });
   initNicknamesBridge();
   initSyncIpc();
