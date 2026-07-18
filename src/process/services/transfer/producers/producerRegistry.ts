@@ -17,7 +17,7 @@ export type TransferProducerRegistration = Readonly<{
   logicalStateId: LogicalStateId;
   outputContract: string;
   outputSchemaVersion: number;
-  produce: () => Promise<TransferSnapshotObjectInput>;
+  produce: () => Promise<readonly TransferSnapshotObjectInput[]>;
 }>;
 
 export type TransferProducerRegistryIssue = Readonly<{
@@ -53,7 +53,7 @@ export const WAYLAND_TRANSFER_PRODUCER_REGISTRY: readonly TransferProducerRegist
     logicalStateId: 'desktop.preferences',
     outputContract: DESKTOP_SETTINGS_SNAPSHOT_CONTRACT,
     outputSchemaVersion: DESKTOP_SETTINGS_SNAPSHOT_SCHEMA_VERSION,
-    produce: produceDesktopSettingsSnapshot,
+    produce: async () => Object.freeze([await produceDesktopSettingsSnapshot()]),
   }),
 ]);
 
