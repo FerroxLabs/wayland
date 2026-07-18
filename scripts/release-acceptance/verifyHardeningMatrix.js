@@ -5,6 +5,8 @@ const path = require('node:path');
 
 const CONTRACT = 'wayland-release-hardening-matrix/1.0';
 const MATRIX_FILE = path.resolve(__dirname, 'hardening-matrix.json');
+const COMMIT = /^[a-f0-9]{40,64}$/;
+const SHA256 = /^sha256:[a-f0-9]{64}$/;
 const INVARIANTS = Array.from({ length: 21 }, (_, index) => `INV-${String(index + 1).padStart(2, '0')}`);
 const CRITERIA = [
   'SC-01',
@@ -56,7 +58,7 @@ const TARGET_GATE_RECEIPT_SCHEMA = Object.freeze({
   authority: 'canonical-target-hardening-validator',
 });
 const TARGET_PROOF_GATES = ['package-identity-signature', 'install', 'updater', 'rollback', 're-upgrade'];
-const TARGET_GATE_RECEIPTS = TARGETS.flatMap((target) =>
+const TARGET_GATE_REQUIREMENTS = TARGETS.flatMap((target) =>
   TARGET_PROOF_GATES.map((gate) =>
     Object.freeze({
       receiptId: `M8-F:${target}:${gate}`,
@@ -125,16 +127,26 @@ function verifyTargetGateReceiptSchema(schema) {
   exactArray(schema.requiredFields, TARGET_GATE_RECEIPT_SCHEMA.requiredFields, 'target gate receipt schema fields');
 }
 
-function verifyTargetGateReceipts(receipts) {
-  if (!Array.isArray(receipts) || receipts.length !== TARGET_GATE_RECEIPTS.length) {
-    throw new Error('target gate receipt coverage or ordering mismatch');
+function verifyCandidate(candidate, label) {
+  exactKeys(candidate, ['commit', 'tree'], label);
+  if (!COMMIT.test(String(candidate.commit)) || !COMMIT.test(String(candidate.tree))) {
+    throw new Error(`${label} commit or tree is malformed`);
+  }
+  return candidate;
+}
+
+function verifyTargetGateRequirements(requirements) {
+  if (!Array.isArray(requirements) || requirements.length !== TARGET_GATE_REQUIREMENTS.length) {
+    throw new Error('target gate requirement coverage or ordering mismatch');
   }
   const receiptIds = new Set();
-  for (let index = 0; index < TARGET_GATE_RECEIPTS.length; index += 1) {
-    const observed = receipts[index];
-    const expected = TARGET_GATE_RECEIPTS[index];
-    exactKeys(observed, ['receiptId', 'contract', 'target', 'gate'], `target gate receipt ${index}`);
-    if (receiptIds.has(observed.receiptId)) throw new Error(`target gate receipt ID duplicated: ${observed.receiptId}`);
+  for (let index = 0; index < TARGET_GATE_REQUIREMENTS.length; index += 1) {
+    const observed = requirements[index];
+    const expected = TARGET_GATE_REQUIREMENTS[index];
+    exactKeys(observed, ['receiptId', 'contract', 'target', 'gate'], `target gate requirement ${index}`);
+    if (receiptIds.has(observed.receiptId)) {
+      throw new Error(`target gate requirement receipt ID duplicated: ${observed.receiptId}`);
+    }
     receiptIds.add(observed.receiptId);
     if (
       observed.receiptId !== expected.receiptId ||
@@ -142,9 +154,53 @@ function verifyTargetGateReceipts(receipts) {
       observed.target !== expected.target ||
       observed.gate !== expected.gate
     ) {
-      throw new Error(`target gate receipt coverage or ordering mismatch at ${expected.target}/${expected.gate}`);
+      throw new Error(`target gate requirement coverage or ordering mismatch at ${expected.target}/${expected.gate}`);
     }
   }
+}
+
+function validateTargetGateReceiptSet(receipts, candidate) {
+  const expectedCandidate = verifyCandidate(candidate, 'target gate expected candidate');
+  if (!Array.isArray(receipts) || receipts.length !== TARGET_GATE_REQUIREMENTS.length) {
+    throw new Error('target gate receipt coverage or ordering mismatch');
+  }
+  const receiptIds = new Set();
+  const validated = [];
+  for (let index = 0; index < TARGET_GATE_REQUIREMENTS.length; index += 1) {
+    const receipt = receipts[index];
+    const requirement = TARGET_GATE_REQUIREMENTS[index];
+    exactKeys(receipt, TARGET_GATE_RECEIPT_SCHEMA.requiredFields, `target gate receipt ${index}`);
+    if (receiptIds.has(receipt.receiptId)) throw new Error(`target gate receipt ID duplicated: ${receipt.receiptId}`);
+    receiptIds.add(receipt.receiptId);
+    if (
+      receipt.contract !== requirement.contract ||
+      receipt.receiptId !== requirement.receiptId ||
+      receipt.target !== requirement.target ||
+      receipt.gate !== requirement.gate
+    ) {
+      throw new Error(`target gate receipt foreign or misbound at ${requirement.target}/${requirement.gate}`);
+    }
+    const receiptCandidate = verifyCandidate(receipt.candidate, `target gate receipt candidate ${receipt.receiptId}`);
+    if (receiptCandidate.commit !== expectedCandidate.commit || receiptCandidate.tree !== expectedCandidate.tree) {
+      throw new Error(`target gate receipt stale or foreign candidate: ${receipt.receiptId}`);
+    }
+    if (receipt.authority !== TARGET_GATE_RECEIPT_SCHEMA.authority) {
+      throw new Error(`target gate receipt authority mismatch: ${receipt.receiptId}`);
+    }
+    if (!SHA256.test(String(receipt.evidenceSha256))) {
+      throw new Error(`target gate receipt evidence digest invalid: ${receipt.receiptId}`);
+    }
+    validated.push({
+      contract: receipt.contract,
+      receiptId: receipt.receiptId,
+      candidate: { commit: receiptCandidate.commit, tree: receiptCandidate.tree },
+      target: receipt.target,
+      gate: receipt.gate,
+      authority: receipt.authority,
+      evidenceSha256: receipt.evidenceSha256,
+    });
+  }
+  return validated;
 }
 
 function verifyHardeningMatrix(matrix = readMatrix()) {
@@ -158,7 +214,7 @@ function verifyHardeningMatrix(matrix = readMatrix()) {
       'supportedTargets',
       'requiredHardeningGates',
       'targetGateReceiptSchema',
-      'requiredTargetGateReceipts',
+      'targetGateRequirements',
       'capabilityConditional',
     ],
     'hardening matrix'
@@ -170,7 +226,7 @@ function verifyHardeningMatrix(matrix = readMatrix()) {
   exactArray(matrix.supportedTargets, TARGETS, 'supported target');
   exactArray(matrix.requiredHardeningGates, GATES, 'hardening gate');
   verifyTargetGateReceiptSchema(matrix.targetGateReceiptSchema);
-  verifyTargetGateReceipts(matrix.requiredTargetGateReceipts);
+  verifyTargetGateRequirements(matrix.targetGateRequirements);
   exactKeys(matrix.capabilityConditional, Object.keys(CONDITIONAL), 'conditional capability map');
   for (const [capability, expected] of Object.entries(CONDITIONAL)) {
     const observed = matrix.capabilityConditional[capability];
@@ -188,7 +244,7 @@ function verifyHardeningMatrix(matrix = readMatrix()) {
     gates: GATES.length,
     targetProofGates: TARGET_PROOF_GATES.length,
     targetGateReceiptSchema: TARGET_GATE_RECEIPT_SCHEMA,
-    targetGateReceipts: TARGET_GATE_RECEIPTS,
+    targetGateRequirements: TARGET_GATE_REQUIREMENTS,
     conditionalCapabilities: Object.keys(CONDITIONAL).length,
   };
 }
@@ -203,8 +259,9 @@ module.exports = {
   TARGETS,
   TARGET_GATE_RECEIPT_CONTRACT,
   TARGET_GATE_RECEIPT_SCHEMA,
-  TARGET_GATE_RECEIPTS,
+  TARGET_GATE_REQUIREMENTS,
   TARGET_PROOF_GATES,
+  validateTargetGateReceiptSet,
   verifyHardeningMatrix,
 };
 

@@ -6,14 +6,29 @@ const require = createRequire(import.meta.url);
 const {
   MATRIX_FILE,
   TARGETS,
+  TARGET_GATE_REQUIREMENTS,
   TARGET_GATE_RECEIPT_SCHEMA,
-  TARGET_GATE_RECEIPTS,
   TARGET_PROOF_GATES,
+  validateTargetGateReceiptSet,
   verifyHardeningMatrix,
 } = require('../../../scripts/release-acceptance/verifyHardeningMatrix');
 
+const COMMIT = 'a'.repeat(40);
+const TREE = 'b'.repeat(40);
+const CANDIDATE = Object.freeze({ commit: COMMIT, tree: TREE });
+const DIGEST = `sha256:${'c'.repeat(64)}`;
+
 function matrix() {
   return JSON.parse(fs.readFileSync(MATRIX_FILE, 'utf8'));
+}
+
+function targetGateReceipts() {
+  return TARGET_GATE_REQUIREMENTS.map((requirement: Record<string, string>) => ({
+    ...requirement,
+    candidate: { ...CANDIDATE },
+    authority: TARGET_GATE_RECEIPT_SCHEMA.authority,
+    evidenceSha256: DIGEST,
+  }));
 }
 
 describe('M8 release hardening matrix', () => {
@@ -27,7 +42,7 @@ describe('M8 release hardening matrix', () => {
       gates: 15,
       targetProofGates: 5,
       targetGateReceiptSchema: TARGET_GATE_RECEIPT_SCHEMA,
-      targetGateReceipts: TARGET_GATE_RECEIPTS,
+      targetGateRequirements: TARGET_GATE_REQUIREMENTS,
       conditionalCapabilities: 5,
     });
   });
@@ -89,34 +104,43 @@ describe('M8 release hardening matrix', () => {
     TARGETS.flatMap((target: string) =>
       TARGET_PROOF_GATES.map((gate: string) => [`${target}/${gate}`, target, gate] as const)
     )
-  )('rejects a missing target gate receipt for %s', (_label, target, gate) => {
-    const candidate = matrix();
-    candidate.requiredTargetGateReceipts = candidate.requiredTargetGateReceipts.filter(
+  )('rejects a missing target gate requirement and actual receipt for %s', (_label, target, gate) => {
+    const candidateMatrix = matrix();
+    candidateMatrix.targetGateRequirements = candidateMatrix.targetGateRequirements.filter(
+      (requirement: { target: string; gate: string }) => requirement.target !== target || requirement.gate !== gate
+    );
+    expect(() => verifyHardeningMatrix(candidateMatrix)).toThrow(
+      /target gate requirement coverage or ordering mismatch/
+    );
+
+    const receipts = targetGateReceipts().filter(
       (receipt: { target: string; gate: string }) => receipt.target !== target || receipt.gate !== gate
     );
-    expect(() => verifyHardeningMatrix(candidate)).toThrow(/target gate receipt coverage or ordering mismatch/);
+    expect(() => validateTargetGateReceiptSet(receipts, CANDIDATE)).toThrow(
+      /target gate receipt coverage or ordering mismatch/
+    );
   });
 
-  it('rejects duplicate receipt IDs and target-misbound receipts', () => {
+  it('rejects duplicate requirement IDs and target-misbound requirements', () => {
     const duplicate = matrix();
-    duplicate.requiredTargetGateReceipts[1].receiptId = duplicate.requiredTargetGateReceipts[0].receiptId;
-    expect(() => verifyHardeningMatrix(duplicate)).toThrow(/receipt ID duplicated/);
+    duplicate.targetGateRequirements[1].receiptId = duplicate.targetGateRequirements[0].receiptId;
+    expect(() => verifyHardeningMatrix(duplicate)).toThrow(/requirement receipt ID duplicated/);
 
     const misbound = matrix();
-    misbound.requiredTargetGateReceipts[0].target = 'linux-x64';
+    misbound.targetGateRequirements[0].target = 'linux-x64';
     expect(() => verifyHardeningMatrix(misbound)).toThrow(/coverage or ordering mismatch/);
   });
 
   it('rejects reordered target gates and a foreign receipt contract', () => {
     const reordered = matrix();
-    [reordered.requiredTargetGateReceipts[0], reordered.requiredTargetGateReceipts[1]] = [
-      reordered.requiredTargetGateReceipts[1],
-      reordered.requiredTargetGateReceipts[0],
+    [reordered.targetGateRequirements[0], reordered.targetGateRequirements[1]] = [
+      reordered.targetGateRequirements[1],
+      reordered.targetGateRequirements[0],
     ];
     expect(() => verifyHardeningMatrix(reordered)).toThrow(/coverage or ordering mismatch/);
 
     const foreign = matrix();
-    foreign.requiredTargetGateReceipts[0].contract = 'caller-authored-proof/1.0';
+    foreign.targetGateRequirements[0].contract = 'caller-authored-proof/1.0';
     expect(() => verifyHardeningMatrix(foreign)).toThrow(/coverage or ordering mismatch/);
   });
 
@@ -141,11 +165,76 @@ describe('M8 release hardening matrix', () => {
     expect(() => verifyHardeningMatrix(nested)).toThrow(/unknown critical fields/);
 
     const receipt = matrix();
-    receipt.requiredTargetGateReceipts[0].acceptAnyway = true;
+    receipt.targetGateRequirements[0].acceptAnyway = true;
     expect(() => verifyHardeningMatrix(receipt)).toThrow(/unknown critical fields/);
 
     const schema = matrix();
     schema.targetGateReceiptSchema.acceptAnyway = true;
     expect(() => verifyHardeningMatrix(schema)).toThrow(/unknown critical fields/);
+  });
+
+  it('accepts the exact canonical candidate-bound target gate receipt set', () => {
+    expect(validateTargetGateReceiptSet(targetGateReceipts(), CANDIDATE)).toEqual(targetGateReceipts());
+  });
+
+  it('rejects stale commit or tree bindings', () => {
+    const staleCommit = targetGateReceipts();
+    staleCommit[0].candidate.commit = 'd'.repeat(40);
+    expect(() => validateTargetGateReceiptSet(staleCommit, CANDIDATE)).toThrow(/stale or foreign candidate/);
+
+    const staleTree = targetGateReceipts();
+    staleTree[0].candidate.tree = 'e'.repeat(40);
+    expect(() => validateTargetGateReceiptSet(staleTree, CANDIDATE)).toThrow(/stale or foreign candidate/);
+  });
+
+  it('rejects malformed candidate identity, wrong authority, and bad evidence digest', () => {
+    expect(() => validateTargetGateReceiptSet(targetGateReceipts(), { commit: 'not-a-commit', tree: TREE })).toThrow(
+      /commit or tree is malformed/
+    );
+
+    const malformedReceiptCandidate = targetGateReceipts();
+    malformedReceiptCandidate[0].candidate.commit = 'not-a-commit';
+    expect(() => validateTargetGateReceiptSet(malformedReceiptCandidate, CANDIDATE)).toThrow(
+      /commit or tree is malformed/
+    );
+
+    const wrongAuthority = targetGateReceipts();
+    wrongAuthority[0].authority = 'caller-authored-acceptance';
+    expect(() => validateTargetGateReceiptSet(wrongAuthority, CANDIDATE)).toThrow(/authority mismatch/);
+
+    const badDigest = targetGateReceipts();
+    badDigest[0].evidenceSha256 = `sha256:${'z'.repeat(64)}`;
+    expect(() => validateTargetGateReceiptSet(badDigest, CANDIDATE)).toThrow(/evidence digest invalid/);
+  });
+
+  it('rejects duplicate, unknown, foreign, and target-misbound actual receipts', () => {
+    const duplicate = targetGateReceipts();
+    duplicate[1].receiptId = duplicate[0].receiptId;
+    expect(() => validateTargetGateReceiptSet(duplicate, CANDIDATE)).toThrow(/receipt ID duplicated/);
+
+    const unknown = targetGateReceipts();
+    unknown[0].receiptId = 'M8-F:unknown-target:install';
+    expect(() => validateTargetGateReceiptSet(unknown, CANDIDATE)).toThrow(/foreign or misbound/);
+
+    const foreign = targetGateReceipts();
+    foreign[0].contract = 'caller-authored-proof/1.0';
+    expect(() => validateTargetGateReceiptSet(foreign, CANDIDATE)).toThrow(/foreign or misbound/);
+
+    const misbound = targetGateReceipts();
+    misbound[0].target = 'linux-x64';
+    expect(() => validateTargetGateReceiptSet(misbound, CANDIDATE)).toThrow(/foreign or misbound/);
+
+    const reordered = targetGateReceipts();
+    [reordered[0], reordered[1]] = [reordered[1], reordered[0]];
+    expect(() => validateTargetGateReceiptSet(reordered, CANDIDATE)).toThrow(/foreign or misbound/);
+  });
+
+  it('rejects unknown critical fields in actual receipts and candidate identities', () => {
+    const receipt = targetGateReceipts();
+    receipt[0].acceptAnyway = true;
+    expect(() => validateTargetGateReceiptSet(receipt, CANDIDATE)).toThrow(/unknown critical fields/);
+
+    const candidate = { ...CANDIDATE, acceptAnyway: true };
+    expect(() => validateTargetGateReceiptSet(targetGateReceipts(), candidate)).toThrow(/unknown critical fields/);
   });
 });

@@ -105,7 +105,7 @@
     "requiredFields": ["contract", "receiptId", "candidate", "target", "gate", "authority", "evidenceSha256"],
     "authority": "canonical-target-hardening-validator"
   },
-  "requiredTargetGateReceipts": [
+  "targetGateRequirements": [
     {
       "receiptId": "M8-F:darwin-arm64:package-identity-signature",
       "contract": "wayland-target-hardening-gate-receipt/1.0",
