@@ -101,7 +101,18 @@ const WorkbenchHost: React.FC<{
   conversationId?: string;
   sections?: readonly WorkbenchSectionRegistration[];
   overlay?: boolean;
-}> = ({ children, conversationId, sections: builtinSections = [], overlay = false }) => {
+  /** Explicit user navigation into a known section. Unknown ids remain inert. */
+  requestedSectionId?: WorkbenchSectionId;
+  /** Stable identity for one navigation request; prevents render-loop reactivation. */
+  requestKey?: string;
+}> = ({
+  children,
+  conversationId,
+  sections: builtinSections = [],
+  overlay = false,
+  requestedSectionId,
+  requestKey,
+}) => {
   const persisted = useMemo(() => loadState(conversationId), [conversationId]);
   const [registered, setRegistered] = useState<Record<string, WorkbenchSectionRegistration>>({});
   const [activeId, setActiveId] = useState<string | undefined>(persisted.activeId);
@@ -109,6 +120,7 @@ const WorkbenchHost: React.FC<{
   const [closedIds, setClosedIds] = useState<Set<string>>(() => new Set(persisted.closedIds));
   const [width, setWidth] = useState(persisted.width ?? DEFAULT_WIDTH);
   const priorRequests = useRef<Record<string, string | number | boolean | undefined>>({});
+  const handledRequest = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     const next = loadState(conversationId);
@@ -117,6 +129,7 @@ const WorkbenchHost: React.FC<{
     setClosedIds(new Set(next.closedIds));
     setWidth(next.width ?? DEFAULT_WIDTH);
     priorRequests.current = {};
+    handledRequest.current = undefined;
   }, [conversationId]);
 
   const register = useCallback((section: WorkbenchSectionRegistration) => {
@@ -201,6 +214,18 @@ const WorkbenchHost: React.FC<{
     const next = allSections.find((section) => section.requestedOpen === true && !closedIds.has(section.id));
     setActiveId(next?.id);
   }, [activeId, allSections, byId, closedIds]);
+
+  // Activity and other external surfaces may navigate directly to the exact
+  // workbench lane that explains an item. This effect deliberately follows
+  // automatic relevance selection so the explicit user action wins. Wait until
+  // descendant registrations exist, then honor the request once. An unknown or
+  // unavailable section fails closed and does nothing.
+  useEffect(() => {
+    if (!requestedSectionId || !requestKey || handledRequest.current === requestKey) return;
+    if (!byId[requestedSectionId]) return;
+    handledRequest.current = requestKey;
+    activate(requestedSectionId);
+  }, [activate, byId, requestKey, requestedSectionId]);
 
   useEffect(() => {
     try {

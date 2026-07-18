@@ -24,6 +24,7 @@ import classNames from 'classnames';
 import { isWindowsEnvironment } from '@/renderer/pages/conversation/utils/detectPlatform';
 import { Layout as ArcoLayout } from '@arco-design/web-react';
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import useSWR from 'swr';
 import VoiceConversationMode from '@/renderer/pages/conversation/voice/VoiceConversationMode';
 import ProjectContextBadge from '../ProjectContext';
@@ -69,6 +70,7 @@ const ChatLayout: React.FC<{
   const { conversationId, workspacePath } = props;
   const { backend, presetAssistant, agentName } = props;
   const { t } = useTranslation();
+  const location = useLocation();
   // #27 phase 2: in a pop-out window, hide the tab bar and surface a Dock-back
   // action. The workspace COMES WITH the chat (the conversation's workspace is
   // its working context), so the panel + its toggle stay enabled in the pop-out;
@@ -133,6 +135,14 @@ const ChatLayout: React.FC<{
 
   const titleAreaMaxWidth = containerWidth ? Math.max(160, Math.min(640, containerWidth - 460)) : 480;
   const workbenchOverlay = isMobile || isPopout || (containerWidth > 0 && containerWidth < 960);
+  const workbenchRequest = React.useMemo(() => {
+    const candidate = (location.state as { workbenchRequest?: unknown } | null)?.workbenchRequest;
+    if (!candidate || typeof candidate !== 'object') return undefined;
+    const { id, key } = candidate as { id?: unknown; key?: unknown };
+    return typeof id === 'string' && typeof key === 'string' && id.length <= 80 && key.length <= 240
+      ? { id, key }
+      : undefined;
+  }, [location.state]);
 
   const workbenchSections = React.useMemo<WorkbenchSectionRegistration[]>(
     () => [
@@ -281,7 +291,13 @@ const ChatLayout: React.FC<{
       }}
     >
       <div ref={containerRef} className='flex flex-1 relative w-full overflow-hidden'>
-        <WorkbenchHost conversationId={conversationId} sections={workbenchSections} overlay={workbenchOverlay}>
+        <WorkbenchHost
+          conversationId={conversationId}
+          sections={workbenchSections}
+          overlay={workbenchOverlay}
+          requestedSectionId={workbenchRequest?.id}
+          requestKey={workbenchRequest?.key}
+        >
           <div className='flex flex-col flex-1 min-w-0 min-h-0 relative'>
             <ArcoLayout.Content
               className='flex flex-col h-full min-w-0'

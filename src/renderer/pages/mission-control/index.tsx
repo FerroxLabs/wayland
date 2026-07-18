@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Button, Tabs } from '@arco-design/web-react';
@@ -14,6 +14,10 @@ import { useIsPopoutMode } from '@/renderer/hooks/system/useIsPopoutMode';
 import { useMissionControl } from './useMissionControl';
 import { CostTab } from './cost/CostTab';
 import PageShell from '@/renderer/components/layout/PageShell';
+import {
+  CatalogPaginationControls,
+  useCatalogPagination,
+} from '@/renderer/components/layout/library/CatalogPagination';
 import type { ActivityGroup, LedgerEntry, LedgerSource, LedgerStatus } from '@/common/types/missionControl';
 import styles from './MissionControl.module.css';
 
@@ -39,6 +43,20 @@ const GROUPS: Array<{ group: ActivityGroup; label: string; accent: string }> = [
   { group: 'upcoming', label: 'Upcoming', accent: STATUS_ACCENT.pending },
   { group: 'recent', label: 'Recent', accent: STATUS_ACCENT.done },
 ];
+
+const ACTIVITY_PAGE_SIZE = 48;
+
+/** Selects only a lane backed by the entry's sealed provenance. */
+export function workbenchSectionForActivity(entry: LedgerEntry): string | undefined {
+  if (!entry.action.path.startsWith('/conversation/')) return undefined;
+  if (entry.provenance.kind === 'approval') return 'projection:consequential';
+  if (entry.provenance.kind === 'workflow' || entry.provenance.kind === 'schedule-run') {
+    return 'projection:automation';
+  }
+  if (entry.provenance.kind === 'team' || entry.provenance.kind === 'sub-agent') return 'projection:team';
+  if (entry.provenance.origin === 'core') return 'projection:core';
+  return 'workspace';
+}
 
 /** Tween a number from its previous value to the target with an ease-out curve. */
 function useCountUp(target: number, durationMs = 700): number {
@@ -124,7 +142,15 @@ const Row: React.FC<{ entry: LedgerEntry; index: number }> = ({ entry, index }) 
       type='button'
       className={styles.row}
       style={{ '--accent': accent, animationDelay: `${Math.min(index, 12) * 32}ms` } as React.CSSProperties}
-      onClick={() => navigate(entry.action.path)}
+      onClick={() => {
+        const sectionId = workbenchSectionForActivity(entry);
+        void navigate(
+          entry.action.path,
+          sectionId
+            ? { state: { workbenchRequest: { id: sectionId, key: `${entry.id}:${entry.updatedAt}` } } }
+            : undefined
+        );
+      }}
       aria-label={`${entry.action.label}: ${entry.title}`}
     >
       <span className={`${styles.dot} ${live ? styles.dotLive : ''}`} />
@@ -167,14 +193,19 @@ function sourceLabel(source: LedgerSource): string {
   return labels[source];
 }
 
-const Section: React.FC<{ label: string; accent: string; entries: LedgerEntry[] }> = ({ label, accent, entries }) => {
+const Section: React.FC<{ label: string; accent: string; entries: LedgerEntry[]; totalCount: number }> = ({
+  label,
+  accent,
+  entries,
+  totalCount,
+}) => {
   if (entries.length === 0) return null;
   return (
     <div className={styles.section}>
       <div className={styles.sectionHead}>
         <span className={styles.sectionDot} style={{ '--accent': accent } as React.CSSProperties} />
         <span className={styles.sectionLabel}>{label}</span>
-        <span className={styles.sectionCount}>{entries.length}</span>
+        <span className={styles.sectionCount}>{totalCount}</span>
       </div>
       <div className={styles.list}>
         {entries.map((entry, i) => (
@@ -185,12 +216,14 @@ const Section: React.FC<{ label: string; accent: string; entries: LedgerEntry[] 
   );
 };
 
-const OperationsView: React.FC = () => {
+export const OperationsView: React.FC = () => {
   const { t } = useTranslation();
   const { snapshot, loading, refresh } = useMissionControl();
   const entries = snapshot?.entries ?? [];
   const groupCounts = snapshot?.groupCounts ?? { 'needs-you': 0, running: 0, upcoming: 0, recent: 0 };
   const unhealthy = snapshot?.sourceHealth.filter((health) => health.status !== 'ok') ?? [];
+  const windowResetKey = useMemo(() => entries.map((entry) => entry.id).join('|'), [entries]);
+  const pagination = useCatalogPagination(entries, windowResetKey, ACTIVITY_PAGE_SIZE);
 
   return (
     <>
@@ -237,14 +270,33 @@ const OperationsView: React.FC = () => {
           </span>
         </div>
       ) : (
-        GROUPS.map((section) => (
-          <Section
-            key={section.group}
-            label={section.label}
-            accent={section.accent}
-            entries={entries.filter((entry) => entry.group === section.group)}
+        <>
+          <div id='mission-control-activity-window' data-testid='mission-control-activity-window'>
+            {GROUPS.map((section) => (
+              <Section
+                key={section.group}
+                label={section.label}
+                accent={section.accent}
+                entries={pagination.visibleItems.filter((entry) => entry.group === section.group)}
+                totalCount={groupCounts[section.group]}
+              />
+            ))}
+          </div>
+          <CatalogPaginationControls
+            visibleCount={pagination.visibleCount}
+            totalCount={pagination.totalCount}
+            remainingCount={pagination.remainingCount}
+            pageSize={pagination.pageSize}
+            firstVisibleIndex={pagination.firstVisibleIndex}
+            lastVisibleIndex={pagination.lastVisibleIndex}
+            hasPrevious={pagination.hasPrevious}
+            hasMore={pagination.hasMore}
+            onNextPage={pagination.nextPage}
+            onPreviousPage={pagination.previousPage}
+            controlsId='mission-control-activity-window'
+            testId='mission-control-activity-next'
           />
-        ))
+        </>
       )}
     </>
   );

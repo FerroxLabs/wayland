@@ -175,4 +175,54 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     expect(mounts).toBe(1);
     expect(unmounts).toBe(0);
   });
+
+  it('honors one explicit external selection after its descendant lane registers', async () => {
+    const { rerender } = render(
+      <WorkbenchHost
+        conversationId='activity-selection'
+        requestedSectionId='projection:core'
+        requestKey='activity:core:1'
+        sections={[section('workspace', true)]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+    expect(await screen.findByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'workspace');
+    fireEvent.click(screen.getByRole('button', { name: 'Pin workbench section' }));
+
+    rerender(
+      <WorkbenchHost
+        conversationId='activity-selection'
+        requestedSectionId='projection:core'
+        requestKey='activity:core:1'
+        sections={[
+          section('workspace', true, undefined, { priority: 100 }),
+          section('projection:core', true, undefined, { priority: 10 }),
+        ]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'projection:core');
+    });
+    expect(screen.getByRole('button', { name: 'Pin workbench section' })).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('does not open an unknown external section', async () => {
+    render(
+      <WorkbenchHost
+        conversationId='unknown-selection'
+        requestedSectionId='projection:not-real'
+        requestKey='activity:unknown:1'
+        sections={[section('workspace', false)]}
+      >
+        <main data-testid='chat'>chat</main>
+      </WorkbenchHost>
+    );
+
+    expect(screen.getByTestId('chat')).toBeInTheDocument();
+    expect(screen.queryByTestId('workbench-panel')).not.toBeInTheDocument();
+  });
 });
