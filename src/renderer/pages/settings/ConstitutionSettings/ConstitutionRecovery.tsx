@@ -63,6 +63,12 @@ function storagePrefix(principalScope: string): string {
   return `wayland:constitution:archive-restore:${encodeURIComponent(principalScope)}:`;
 }
 
+function isExactTimestamp(value: unknown): value is string {
+  if (typeof value !== 'string' || !RFC3339_MILLIS_PATTERN.test(value)) return false;
+  const milliseconds = Date.parse(value);
+  return Number.isFinite(milliseconds) && new Date(milliseconds).toISOString() === value;
+}
+
 function readPending(principalScope: string, archiveId: string): PendingRestoreRead {
   try {
     const raw = localStorage.getItem(storageKey(principalScope, archiveId));
@@ -94,9 +100,7 @@ function readPending(principalScope: string, archiveId: string): PendingRestoreR
       record.contract !== PENDING_CONTRACT ||
       requestFacts === null ||
       requestFacts.archiveId !== archiveId ||
-      typeof record.createdAt !== 'string' ||
-      !RFC3339_MILLIS_PATTERN.test(record.createdAt) ||
-      Number.isNaN(Date.parse(record.createdAt))
+      !isExactTimestamp(record.createdAt)
     ) {
       return { state: 'invalid', reason: 'Pending archive restore evidence failed validation.' };
     }

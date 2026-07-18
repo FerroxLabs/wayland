@@ -70,6 +70,12 @@ function pendingStorageKey(principalScope: string): string {
   return `wayland:constitution:classic-recovery:${encodeURIComponent(principalScope)}`;
 }
 
+function isExactTimestamp(value: unknown): value is string {
+  if (typeof value !== 'string' || !RFC3339_MILLIS_PATTERN.test(value)) return false;
+  const milliseconds = Date.parse(value);
+  return Number.isFinite(milliseconds) && new Date(milliseconds).toISOString() === value;
+}
+
 function canonicalObjectIds(value: unknown): value is readonly string[] {
   if (!Array.isArray(value) || value.length > MAX_PENDING_OBJECTS) return false;
   for (let index = 0; index < value.length; index += 1) {
@@ -150,9 +156,7 @@ function readPending(principalScope: string): PendingReadResult {
       (record.expectedJournalHeadSha256 !== null &&
         (typeof record.expectedJournalHeadSha256 !== 'string' ||
           !/^sha256:[a-f0-9]{64}$/.test(record.expectedJournalHeadSha256))) ||
-      typeof record.createdAt !== 'string' ||
-      !RFC3339_MILLIS_PATTERN.test(record.createdAt) ||
-      Number.isNaN(Date.parse(record.createdAt))
+      !isExactTimestamp(record.createdAt)
     ) {
       return { state: 'invalid', reason: 'Pending Classic recovery evidence failed validation.' };
     }

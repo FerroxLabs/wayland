@@ -11,7 +11,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import express from 'express';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const harness = vi.hoisted(() => ({
   desktop: false,
@@ -95,6 +95,8 @@ import ConstitutionClassicRecovery from '@renderer/pages/settings/ConstitutionSe
 import ConstitutionRecovery from '@renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery';
 
 const operationId = '11111111-1111-4111-8111-111111111111';
+const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const nativeRandomUuid = globalThis.crypto.randomUUID;
 const projectionReceiptSha256 = `sha256:${'a'.repeat(64)}` as const;
 const journalHeadSha256 = `sha256:${'b'.repeat(64)}` as const;
 const archive = {
@@ -279,13 +281,25 @@ describe('Constitution recovery actual consumer journeys', () => {
     vi.spyOn(globalThis.crypto, 'randomUUID').mockReturnValue(operationId);
   });
 
+  afterEach(() => {
+    Object.defineProperty(globalThis.crypto, 'randomUUID', {
+      configurable: true,
+      value: nativeRandomUuid,
+    });
+  });
+
   it.each([
-    ['hosted HTTP', false],
-    ['Desktop IPC', true],
+    ['hosted HTTP with native UUID', false, false],
+    ['Desktop IPC with native UUID', true, false],
+    ['hosted HTTP with cryptographic fallback UUID', false, true],
+    ['Desktop IPC with cryptographic fallback UUID', true, true],
   ] as const)(
     'carries archive operation identity through the actual %s client and mounted renderer',
-    async (_lane, desktop) => {
+    async (_lane, desktop, fallback) => {
       harness.desktop = desktop;
+      if (fallback) {
+        Object.defineProperty(globalThis.crypto, 'randomUUID', { configurable: true, value: undefined });
+      }
       Object.defineProperty(navigator, 'locks', {
         configurable: true,
         value: desktop ? { request: journeyLockRequest } : undefined,
@@ -306,13 +320,16 @@ describe('Constitution recovery actual consumer journeys', () => {
 
       await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1));
       expect(harness.archiveRestore).toHaveBeenCalledTimes(1);
-      expect(harness.archiveRestore.mock.calls[0]![1]).toEqual({
-        operationId,
+      const request = harness.archiveRestore.mock.calls[0]![1] as Record<string, unknown>;
+      expect(request).toEqual({
+        operationId: expect.any(String),
         archiveId: archive.archiveId,
         expectedArchiveRevision: archive.targetRevision,
         password: 'correct',
         expectedRevision: 'rev:v1:live',
       });
+      expect(request.operationId).toMatch(UUID_V4_PATTERN);
+      if (!fallback) expect(request.operationId).toBe(operationId);
       expect(harness.archiveRestore.mock.calls[0]![0]).toMatchObject(
         desktop ? desktopPrincipal : { kind: 'hosted-subject', subject: 'hosted-user' }
       );
@@ -321,12 +338,24 @@ describe('Constitution recovery actual consumer journeys', () => {
   );
 
   it.each([
-    ['hosted HTTP', false],
-    ['Desktop IPC', true],
+    ['hosted HTTP with native UUID', false, false],
+    ['Desktop IPC with native UUID', true, false],
+    ['hosted HTTP with cryptographic fallback UUID', false, true],
+    ['Desktop IPC with cryptographic fallback UUID', true, true],
   ] as const)(
     'carries Classic operation identity through the actual %s client and mounted renderer',
-    async (_lane, desktop) => {
+    async (_lane, desktop, fallback) => {
       harness.desktop = desktop;
+      if (fallback) {
+        Object.defineProperty(globalThis.crypto, 'randomUUID', { configurable: true, value: undefined });
+        harness.classicDecide.mockImplementationOnce(async (_principal, request) => ({
+          ...classicCommitted,
+          data: {
+            ...classicCommitted.data,
+            operationId: (request as { operationId: string }).operationId,
+          },
+        }));
+      }
       Object.defineProperty(navigator, 'locks', {
         configurable: true,
         value: desktop ? { request: journeyLockRequest } : undefined,
@@ -347,13 +376,16 @@ describe('Constitution recovery actual consumer journeys', () => {
 
       await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1));
       expect(harness.classicDecide).toHaveBeenCalledTimes(1);
-      expect(harness.classicDecide.mock.calls[0]![1]).toMatchObject({
-        operationId,
+      const request = harness.classicDecide.mock.calls[0]![1] as Record<string, unknown>;
+      expect(request).toMatchObject({
+        operationId: expect.any(String),
         projectionReceiptSha256,
         expectedRecoveryRevision: 'recovery:v1',
         password: 'correct',
         decision: { kind: 'promote' },
       });
+      expect(request.operationId).toMatch(UUID_V4_PATTERN);
+      if (!fallback) expect(request.operationId).toBe(operationId);
       expect(harness.classicDecide.mock.calls[0]![0]).toMatchObject(
         desktop ? desktopPrincipal : { kind: 'hosted-subject', subject: 'hosted-user' }
       );

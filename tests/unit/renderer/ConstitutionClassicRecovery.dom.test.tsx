@@ -591,6 +591,7 @@ describe('ConstitutionClassicRecovery', () => {
     ['a control character in the recovery revision', pendingOperation({ expectedRecoveryRevision: 'recovery:\nnext' })],
     ['an over-limit recovery revision', pendingOperation({ expectedRecoveryRevision: 'r'.repeat(4097) })],
     ['an inexact creation timestamp', pendingOperation({ createdAt: '2026-07-17T00:00:00Z' })],
+    ['an impossible creation date', pendingOperation({ createdAt: '2026-02-31T00:00:00.000Z' })],
     [
       'a control character in a confirmed object ID',
       pendingOperation({ action: 'discard', confirmedObjectIds: ['constitution\nforged'] }),

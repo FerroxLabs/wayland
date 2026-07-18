@@ -355,6 +355,7 @@ describe('ConstitutionRecovery', () => {
     ['a control character in the target revision', pendingKey, pendingRestore({ expectedRevision: 'rev:\nnext' })],
     ['an over-limit target revision', pendingKey, pendingRestore({ expectedRevision: 'r'.repeat(4097) })],
     ['an inexact creation timestamp', pendingKey, pendingRestore({ createdAt: '2026-07-17T01:03:04Z' })],
+    ['an impossible creation date', pendingKey, pendingRestore({ createdAt: '2026-02-31T01:03:04.005Z' })],
   ])('preserves shaped durable evidence with %s without dispatch', async (_case, key, record) => {
     const raw = JSON.stringify(record);
     window.localStorage.setItem(key, raw);
