@@ -52,6 +52,8 @@ jobs:
   code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: ${{ !inputs.skip_code_quality }}
     env:
       # tsc OOMs at Node's ~2GB default old-space on this codebase; pr-checks.yml
@@ -103,9 +105,8 @@ jobs:
     needs: code-quality
     if: ${{ always() && (inputs.skip_code_quality || needs.code-quality.result == 'success') }}
     permissions:
+      actions: read
       contents: read
-      id-token: write
-      attestations: write
 
     outputs:
       artifact-name: ${{ steps.candidate.outputs.artifact-name }}
@@ -152,12 +153,7 @@ jobs:
           node scripts/capability-seal/generateCapabilityAcceptanceReceipts.js \
             --out "${RUNNER_TEMP}/capability-acceptance"
 
-      - name: Attest exact capability acceptance bytes
-        uses: actions/attest-build-provenance@v3
-        with:
-          subject-path: '${{ runner.temp }}/capability-acceptance/*'
-
-      - name: Upload capability acceptance authority
+      - name: Upload untrusted capability evidence for protected verification
         uses: actions/upload-artifact@v6
         with:
           name: ${{ steps.candidate.outputs.artifact-name }}
@@ -168,6 +164,9 @@ jobs:
   build:
     name: Build ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      actions: read
+      contents: read
     # Defense in depth: without this, a hung step (e.g. codesign blocking on
     # Apple's timestamp server) rides GitHub's 6h default — three v0.9.7 runs
     # wedged 90-160 min before manual cancel. 120 sits clear of a slow-but-healthy
@@ -798,6 +797,8 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [code-quality, build]
     if: always()
 

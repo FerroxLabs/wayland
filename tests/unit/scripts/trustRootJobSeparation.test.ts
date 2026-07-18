@@ -67,6 +67,24 @@ function fixture(audit: unknown = { safe: [{ id: 1, severity: 'moderate' }] }) {
 }
 
 describe('protected release trust-root job separation', () => {
+  it('keeps every candidate-controlled build job free of signing and OIDC authority', () => {
+    const release = parse(readFileSync('.github/workflows/build-and-release.yml', 'utf8'));
+    const reusable = parse(readFileSync('.github/workflows/_build-reusable.yml', 'utf8'));
+    expect(release.permissions).toEqual({ contents: 'read' });
+    expect(release.jobs['build-pipeline'].permissions).toEqual({ actions: 'read', contents: 'read' });
+
+    for (const jobName of ['code-quality', 'capability-acceptance', 'build']) {
+      const job = reusable.jobs[jobName];
+      expect(job.permissions).not.toHaveProperty('id-token');
+      expect(job.permissions).not.toHaveProperty('attestations');
+      expect(job.permissions).not.toHaveProperty('contents', 'write');
+    }
+    const candidateActions = reusable.jobs['capability-acceptance'].steps
+      .map((step: any) => step.uses || '')
+      .join('\n');
+    expect(candidateActions).not.toContain('actions/attest-build-provenance');
+  });
+
   it('grants signing authority only to a job that never executes candidate lifecycle or package commands', () => {
     const workflow = parse(readFileSync('.github/workflows/release-acceptance-trust-root.yml', 'utf8'));
     expect(workflow.permissions).toEqual({ actions: 'read', contents: 'read' });
