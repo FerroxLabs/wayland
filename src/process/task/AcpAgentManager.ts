@@ -95,7 +95,6 @@ import {
   createMcpSessionState,
   recordDesktopMcpSessionFailure,
   recordDesktopMcpSessionPublication,
-  reduceMcpSessionToolInvocation,
   type McpSessionBackend,
   type McpSessionExpectedServer,
   type McpSessionState,
@@ -1203,15 +1202,6 @@ ${collectedResponses.join('\n')}`;
         ipcBridge.acpConversation.responseStream.emit(message);
       }
       return;
-    }
-
-    if (message.type === 'acp_tool_call') {
-      const nativeToolName = (message.data as { update?: { title?: unknown } } | undefined)?.update?.title;
-      const next = reduceMcpSessionToolInvocation(this.mcpSessionState, nativeToolName);
-      if (next !== this.mcpSessionState) {
-        this.mcpSessionState = next;
-        this.publishMcpSessionState();
-      }
     }
 
     this.markTrackedTurnRuntimeActivity();

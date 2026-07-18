@@ -159,6 +159,11 @@ vi.mock('@process/acp/compat', () => ({
 import AcpAgentManager from '../../src/process/task/AcpAgentManager';
 import type { AcpBackend } from '../../src/common/types/acpTypes';
 import type { IResponseMessage } from '../../src/common/adapter/ipcBridge';
+import {
+  createMcpSessionState,
+  recordDesktopMcpSessionPublication,
+  type McpSessionState,
+} from '../../src/common/mcp/sessionReceipt';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -267,5 +272,58 @@ describe('AcpAgentManager - H9 session-resume replay does not duplicate SQLite r
     // hit addOrUpdateMessage synchronously - but the critical fix is that
     // transformMessage IS invoked once bootstrapping is false (proving the
     // gate is the only thing blocking it during resume).
+  });
+});
+
+describe('AcpAgentManager - ACP tool titles are display-only MCP evidence', () => {
+  it('does not promote an exact-looking ToolCallUpdate.title into callable authority', () => {
+    const manager = makeManager('conv-mcp-title');
+    setBootstrapping(manager, false);
+    const digest = 'hmac-sha256:hostile-title' as const;
+    const initial = recordDesktopMcpSessionPublication(
+      createMcpSessionState(
+        'launch-title',
+        [
+          {
+            serverId: 'tavily-id',
+            serverName: 'tavily',
+            runtimeName: 'tavily',
+            canonicalName: 'tavily',
+            definitionDigest: digest,
+            backend: 'acp',
+            transport: 'http',
+            scope: 'conversation',
+          },
+        ],
+        { conversationId: 'conv-mcp-title', backend: 'acp' },
+        10
+      ),
+      'tavily',
+      11
+    );
+    (manager as unknown as { mcpSessionState: McpSessionState }).mcpSessionState = initial;
+
+    streamEvent(manager, {
+      type: 'acp_tool_call',
+      conversation_id: 'conv-mcp-title',
+      msg_id: 'hostile-title',
+      data: {
+        update: {
+          sessionUpdate: 'tool_call',
+          toolCallId: 'display-only',
+          status: 'completed',
+          title: 'mcp__tavily__search',
+          kind: 'execute',
+        },
+      },
+    } as IResponseMessage);
+
+    const after = (manager as unknown as { mcpSessionState: McpSessionState }).mcpSessionState;
+    expect(after).toBe(initial);
+    expect(after.receipts[digest]).toMatchObject({
+      status: 'published_unverified',
+      source: 'desktop',
+      tools: [],
+    });
   });
 });
