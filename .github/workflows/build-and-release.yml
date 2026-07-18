@@ -333,17 +333,148 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+  assemble-raw-release-acceptance:
+    name: Assemble immutable raw release acceptance bytes
+    runs-on: ubuntu-latest
+    needs: [build-pipeline, release-smoke-gate, release-smoke-gate-windows]
+    if: |
+      always() &&
+      needs.build-pipeline.result == 'success' &&
+      needs.release-smoke-gate.result == 'success' &&
+      needs.release-smoke-gate-windows.result == 'success' &&
+      startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Capture exact candidate identity
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse HEAD)"
+          tree="$(git rev-parse 'HEAD^{tree}')"
+          [[ "$commit" == "$GITHUB_SHA" ]] || exit 1
+          [[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] || exit 1
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          echo "tree=$tree" >> "$GITHUB_OUTPUT"
+
+      - name: Download exact canonical build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: canonical-artifacts
+
+      - name: Download exact pinned Wayland Core publisher artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p canonical-artifacts/wayland-core-v0.12.25
+          gh release download v0.12.25 \
+            --repo FerroxLabs/wayland-core \
+            --dir canonical-artifacts/wayland-core-v0.12.25 \
+            --pattern 'wayland-core-v0.12.25-*'
+
+      - name: Assemble complete raw acceptance source
+        run: |
+          node scripts/release-acceptance/assembleCanonicalRawAcceptance.js \
+            --artifacts canonical-artifacts \
+            --candidate '{"commit":"${{ steps.candidate.outputs.commit }}","tree":"${{ steps.candidate.outputs.tree }}"}' \
+            --out "$RUNNER_TEMP/raw-release-acceptance"
+
+      - name: Upload complete raw acceptance source
+        uses: actions/upload-artifact@v6
+        with:
+          name: raw-release-acceptance-${{ github.sha }}
+          path: ${{ runner.temp }}/raw-release-acceptance
+          if-no-files-found: error
+          retention-days: 7
+
+  final-release-acceptance:
+    name: Require protected exact-candidate final acceptance
+    runs-on: ubuntu-latest
+    needs: [assemble-raw-release-acceptance]
+    permissions:
+      actions: write
+      attestations: read
+      contents: read
+    steps:
+      - name: Dispatch protected trust-root workflow
+        id: dispatch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          requested_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          gh workflow run release-acceptance-trust-root.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref release-trust-v1 \
+            -f candidate_ref="$GITHUB_SHA" \
+            -f artifact_run_id="$GITHUB_RUN_ID"
+          echo "requested_at=$requested_at" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve and wait for the protected run
+        id: accepted
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_AT: ${{ steps.dispatch.outputs.requested_at }}
+        run: |
+          set -euo pipefail
+          run_id=''
+          for attempt in $(seq 1 30); do
+            run_id="$(gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/release-acceptance-trust-root.yml/runs?event=workflow_dispatch&branch=release-trust-v1&per_page=20" \
+              --jq ".workflow_runs | map(select(.created_at >= \"$REQUESTED_AT\")) | sort_by(.created_at) | last | .id // empty")"
+            [[ -n "$run_id" ]] && break
+            sleep 10
+          done
+          [[ "$run_id" =~ ^[0-9]+$ ]] || exit 1
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Download exact accepted receipt
+        uses: actions/download-artifact@v7
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ steps.accepted.outputs.run_id }}
+          name: wayland-final-acceptance-${{ github.sha }}
+          path: accepted
+
+      - name: Verify exact accepted receipt and protected provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRUST_ROOT_SHA: ${{ vars.WAYLAND_RELEASE_TRUST_ROOT_SHA }}
+        run: |
+          set -euo pipefail
+          jq -e --arg commit "$GITHUB_SHA" \
+            '.contract == "wayland-final-acceptance/1.0" and .accepted == true and .candidate.commit == $commit' \
+            accepted/final-acceptance-receipt.json >/dev/null
+          gh attestation verify accepted/final-acceptance-receipt.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --signer-workflow FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml \
+            --signer-digest "$TRUST_ROOT_SHA" \
+            --source-digest "$TRUST_ROOT_SHA" \
+            --source-ref refs/heads/release-trust-v1 \
+            --deny-self-hosted-runners
+
   # Publish only after BOTH the macOS and Windows install gates pass. Keeping
   # publish in its own job (instead of inside the macOS gate) makes the draft ->
   # published flip depend on a green Windows signature too.
   publish-release:
     name: Publish Release (both gates passed)
     runs-on: ubuntu-latest
-    needs: [release-smoke-gate, release-smoke-gate-windows]
+    needs: [release-smoke-gate, release-smoke-gate-windows, final-release-acceptance]
     if: |
       always() &&
       needs.release-smoke-gate.result == 'success' &&
       needs.release-smoke-gate-windows.result == 'success' &&
+      needs.final-release-acceptance.result == 'success' &&
       startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
     steps:
       - name: Resolve tag

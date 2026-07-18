@@ -486,15 +486,19 @@ describe('M8-A final acceptance controller', () => {
     expect(() => verifyFinalAcceptance(input, withoutUpdaterAuthority)).toThrow(/M8A_UPDATER_RECEIPT_INVALID/);
   });
 
-  it('has one non-deploying package and GitHub callsite after evidence artifacts exist', () => {
+  it('has one non-deploying protected GitHub callsite after raw evidence exists', () => {
     const packageDocument = JSON.parse(readFileSync('package.json', 'utf8'));
     expect(packageDocument.scripts['verify:release-acceptance']).toBe(
       'node scripts/release-acceptance/verifyFinalAcceptance.js'
     );
 
-    const workflow = readFileSync('.github/workflows/release-acceptance.yml', 'utf8');
-    const download = workflow.indexOf('Download completed evidence artifacts');
-    const gate = workflow.indexOf('bun run verify:release-acceptance');
+    const dispatcher = readFileSync('.github/workflows/release-acceptance.yml', 'utf8');
+    expect(dispatcher).toContain('--ref release-trust-v1');
+    expect(dispatcher).not.toContain('actions/attest-build-provenance');
+
+    const workflow = readFileSync('.github/workflows/release-acceptance-trust-root.yml', 'utf8');
+    const download = workflow.indexOf('Download complete raw acceptance evidence bundle');
+    const gate = workflow.indexOf('trust-root/scripts/release-acceptance/verifyFinalAcceptance.js');
     expect(download).toBeGreaterThan(-1);
     expect(gate).toBeGreaterThan(download);
     expect(workflow).not.toMatch(/gh release edit|softprops\/action-gh-release|kubectl|fly deploy/i);
