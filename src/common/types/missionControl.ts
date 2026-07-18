@@ -4,72 +4,69 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/**
- * Mission Control - the unified task ledger.
- *
- * A read model that projects every running/scheduled unit of work across the
- * app (team tasks, cron jobs; ACP sessions + workflows land later) into one
- * normalized shape so a single pane can show "what is happening right now".
- *
- * P1 covers team tasks + cron jobs. The projection is passive: building a
- * snapshot never starts a team session or mutates anything.
- */
+/** Canonical, sealed provenance. Similar names from different runtimes are not equivalent. */
+export type ActivityProvenance =
+  | { origin: 'desktop'; kind: 'team' | 'workflow' | 'schedule' | 'schedule-run' | 'approval' }
+  | { origin: 'core'; kind: 'turn' | 'sub-agent' | 'workflow' | 'approval' };
 
-/** Where a ledger entry originates. */
-export type LedgerSource = 'team' | 'cron';
+export type LedgerSource = 'desktop-teams' | 'desktop-workflows' | 'scheduler' | 'core-execution' | 'approvals';
 
-/** Normalized status across all sources. */
-export type LedgerStatus = 'running' | 'verifying' | 'pending' | 'blocked' | 'done' | 'failed' | 'zombie' | 'idle';
+export type ActivityGroup = 'needs-you' | 'running' | 'upcoming' | 'recent';
 
-/** One normalized unit of work in the ledger. */
+/** `unknown` is intentional: absence of authoritative progress is not "running". */
+export type LedgerStatus =
+  'running' | 'verifying' | 'pending' | 'blocked' | 'done' | 'failed' | 'zombie' | 'idle' | 'unknown';
+
+export type ActivityDestination = {
+  kind: 'navigate';
+  path: string;
+  label: string;
+};
+
 export type LedgerEntry = {
-  /** Stable, source-prefixed id, e.g. `team:<taskId>` or `cron:<jobId>`. */
+  /** Stable identity: `<origin>:<kind>:<source id>`. */
   id: string;
+  sourceId: string;
   source: LedgerSource;
+  provenance: ActivityProvenance;
+  group: ActivityGroup;
   title: string;
   status: LedgerStatus;
-  /** Who is doing it: teammate slot, agent backend, or 'schedule'. */
+  action: ActivityDestination;
   owner?: string;
-  /** One-line context: team name, schedule summary, or last error. */
   detail?: string;
-  /** Grouping context (team name / conversation title). */
   context?: string;
-  /** Team: how many tasks block this one (0 when unblocked). */
   blockedByCount?: number;
-  /** P2: epoch-ms of the last heartbeat from the running teammate (zombie detection). */
   lastHeartbeat?: number;
-  /** P2: retry budget consumed so far (paired with retryBudget). */
   retriesUsed?: number;
-  /** P2: total retry budget before a reclaim gives up. */
   retryBudget?: number;
-  /** P3: verification verdict once the gate has run. */
   verdict?: 'pass' | 'fail';
-  /** P3: task failed cross-audit twice and is parked for human review. */
   needsHuman?: boolean;
-  /** Cron: epoch-ms of the next scheduled run. */
   nextRunAtMs?: number;
-  /** Cron: status of the most recent run. */
   lastRunStatus?: 'ok' | 'error' | 'skipped' | 'missed';
   startedAt: number;
   updatedAt: number;
 };
 
-/** Aggregate counts for the header strip. */
-export type LedgerCounts = {
-  running: number;
-  verifying: number;
-  pending: number;
-  blocked: number;
-  failed: number;
-  zombie: number;
-  done: number;
-  idle: number;
-  total: number;
+/** Input accepted from canonical runtime projectors before identity/grouping are derived. */
+export type ActivityObservation = Omit<LedgerEntry, 'id' | 'source' | 'group'>;
+
+export type LedgerCounts = Record<LedgerStatus, number> & { total: number };
+export type ActivityGroupCounts = Record<ActivityGroup, number>;
+
+export type ActivitySourceHealth = {
+  source: LedgerSource;
+  status: 'ok' | 'partial' | 'error' | 'unavailable';
+  observedAt: number;
+  detail?: string;
 };
 
-/** A point-in-time projection of all work. */
 export type MissionControlSnapshot = {
   generatedAt: number;
   entries: LedgerEntry[];
   counts: LedgerCounts;
+  groupCounts: ActivityGroupCounts;
+  /** Never omitted: the UI must distinguish true empty from an incomplete projection. */
+  sourceHealth: ActivitySourceHealth[];
+  completeness: 'complete' | 'partial' | 'unavailable';
 };

@@ -171,7 +171,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initRemoteAgentBridge();
   initHubBridge();
   initTeamBridge(deps.teamSessionService);
-  initMissionControlBridge(deps.teamSessionService);
+  initMissionControlBridge(deps.teamSessionService, deps.workerTaskManager, deps.conversationService);
   // A DB / migration failure during registration would otherwise become an
   // unhandled rejection and the `modelRegistry` namespace would silently never
   // register - log it so the failure is at least visible.

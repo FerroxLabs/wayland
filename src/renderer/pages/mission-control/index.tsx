@@ -6,14 +6,15 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { Button, Tabs } from '@arco-design/web-react';
-import { Clock, Gauge, PictureInPicture2, RefreshCw, Users } from 'lucide-react';
+import { AlertTriangle, Bot, Clock, Gauge, GitBranch, PictureInPicture2, RefreshCw, Users } from 'lucide-react';
 import { ipcBridge } from '@/common';
 import { useIsPopoutMode } from '@/renderer/hooks/system/useIsPopoutMode';
 import { useMissionControl } from './useMissionControl';
 import { CostTab } from './cost/CostTab';
 import PageShell from '@/renderer/components/layout/PageShell';
-import type { LedgerCounts, LedgerEntry, LedgerStatus } from '@/common/types/missionControl';
+import type { ActivityGroup, LedgerEntry, LedgerSource, LedgerStatus } from '@/common/types/missionControl';
 import styles from './MissionControl.module.css';
 
 /** Accent color per normalized status (drives the CSS --accent var). */
@@ -26,21 +27,17 @@ const STATUS_ACCENT: Record<LedgerStatus, string> = {
   pending: '#5b8def',
   done: '#2ec27e',
   idle: '#7a818c',
+  unknown: '#7a818c',
 };
 
 /** Statuses that get a pulsing dot (live work). */
 const LIVE_STATUS = new Set<LedgerStatus>(['running', 'verifying', 'failed']);
 
-const STAT_ORDER: LedgerStatus[] = ['running', 'verifying', 'pending', 'blocked', 'failed', 'zombie', 'done', 'idle'];
-
-/** Urgency sections, rendered top-to-bottom; empty ones are skipped. */
-const SECTIONS: Array<{ key: string; statuses: LedgerStatus[]; accent: string }> = [
-  { key: 'attention', statuses: ['failed', 'zombie', 'blocked'], accent: STATUS_ACCENT.failed },
-  { key: 'active', statuses: ['running'], accent: STATUS_ACCENT.running },
-  { key: 'verifying', statuses: ['verifying'], accent: STATUS_ACCENT.verifying },
-  { key: 'scheduled', statuses: ['pending'], accent: STATUS_ACCENT.pending },
-  { key: 'done', statuses: ['done'], accent: STATUS_ACCENT.done },
-  { key: 'idle', statuses: ['idle'], accent: STATUS_ACCENT.idle },
+const GROUPS: Array<{ group: ActivityGroup; label: string; accent: string }> = [
+  { group: 'needs-you', label: 'Needs you', accent: STATUS_ACCENT.failed },
+  { group: 'running', label: 'Running', accent: STATUS_ACCENT.running },
+  { group: 'upcoming', label: 'Upcoming', accent: STATUS_ACCENT.pending },
+  { group: 'recent', label: 'Recent', accent: STATUS_ACCENT.done },
 ];
 
 /** Tween a number from its previous value to the target with an ease-out curve. */
@@ -78,8 +75,7 @@ function relTime(ms: number | undefined): string | null {
   return diff < 0 ? `${unit} ago` : `in ${unit}`;
 }
 
-const StatTile: React.FC<{ status: LedgerStatus; count: number }> = ({ status, count }) => {
-  const { t } = useTranslation();
+const StatTile: React.FC<{ label: string; accent: string; count: number }> = ({ label, accent, count }) => {
   // Guard against a partial/stale snapshot omitting a bucket: a missing count
   // must render as 0, never NaN (which `useCountUp`'s tween would otherwise show).
   const safeCount = Number.isFinite(count) ? count : 0;
@@ -87,20 +83,21 @@ const StatTile: React.FC<{ status: LedgerStatus; count: number }> = ({ status, c
   return (
     <div
       className={`${styles.statTile} ${safeCount === 0 ? styles.zero : ''}`}
-      style={{ '--accent': STATUS_ACCENT[status] } as React.CSSProperties}
+      style={{ '--accent': accent } as React.CSSProperties}
     >
       <span className={styles.statNum}>{shown}</span>
-      <span className={styles.statLabel}>{t(`missionControl.status.${status}`)}</span>
+      <span className={styles.statLabel}>{label}</span>
     </div>
   );
 };
 
 const Row: React.FC<{ entry: LedgerEntry; index: number }> = ({ entry, index }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const accent = STATUS_ACCENT[entry.status];
   const live = LIVE_STATUS.has(entry.status);
   const subtitle = [entry.context, entry.detail].filter(Boolean).join(' · ');
-  const next = entry.source === 'cron' ? relTime(entry.nextRunAtMs) : null;
+  const next = entry.provenance.kind === 'schedule' ? relTime(entry.nextRunAtMs) : null;
   const heartbeat = entry.lastHeartbeat ? relTime(entry.lastHeartbeat) : null;
   const retries =
     entry.retryBudget != null && entry.retriesUsed != null
@@ -123,9 +120,12 @@ const Row: React.FC<{ entry: LedgerEntry; index: number }> = ({ entry, index }) 
           : t('missionControl.meta.updated', { time: relTime(entry.updatedAt) ?? '' });
 
   return (
-    <div
+    <button
+      type='button'
       className={styles.row}
       style={{ '--accent': accent, animationDelay: `${Math.min(index, 12) * 32}ms` } as React.CSSProperties}
+      onClick={() => navigate(entry.action.path)}
+      aria-label={`${entry.action.label}: ${entry.title}`}
     >
       <span className={`${styles.dot} ${live ? styles.dotLive : ''}`} />
       <div className={styles.main}>
@@ -133,21 +133,39 @@ const Row: React.FC<{ entry: LedgerEntry; index: number }> = ({ entry, index }) 
         {subtitle ? <span className={styles.rowSub}>{subtitle}</span> : null}
       </div>
       <span className={styles.pill} style={{ '--accent': accent } as React.CSSProperties}>
-        {t(`missionControl.status.${entry.status}`)}
+        {t(`missionControl.status.${entry.status}`, { defaultValue: entry.status })}
       </span>
       {entry.needsHuman ? <span className={styles.needsHuman}>{t('missionControl.meta.needsHuman')}</span> : null}
       <div className={styles.meta}>
         <span className={styles.sourceChip}>
-          {entry.source === 'cron' ? <Clock size={12} /> : <Users size={12} />}
-          {t(`missionControl.source.${entry.source}`)}
+          <SourceIcon source={entry.source} />
+          {sourceLabel(entry.source)}
         </span>
         {verdict ? <span className={styles.metaTime}>{verdict}</span> : null}
         {retries ? <span className={styles.metaTime}>{retries}</span> : null}
         <span className={styles.metaTime}>{metaTime}</span>
       </div>
-    </div>
+    </button>
   );
 };
+
+function SourceIcon({ source }: { source: LedgerSource }): React.ReactElement {
+  if (source === 'scheduler') return <Clock size={12} />;
+  if (source === 'desktop-teams') return <Users size={12} />;
+  if (source === 'desktop-workflows') return <GitBranch size={12} />;
+  return <Bot size={12} />;
+}
+
+function sourceLabel(source: LedgerSource): string {
+  const labels: Record<LedgerSource, string> = {
+    'desktop-teams': 'Desktop team',
+    'desktop-workflows': 'Desktop workflow',
+    scheduler: 'Schedule',
+    'core-execution': 'Wayland Core',
+    approvals: 'Approval',
+  };
+  return labels[source];
+}
 
 const Section: React.FC<{ label: string; accent: string; entries: LedgerEntry[] }> = ({ label, accent, entries }) => {
   if (entries.length === 0) return null;
@@ -171,17 +189,8 @@ const OperationsView: React.FC = () => {
   const { t } = useTranslation();
   const { snapshot, loading, refresh } = useMissionControl();
   const entries = snapshot?.entries ?? [];
-  const counts: LedgerCounts = snapshot?.counts ?? {
-    running: 0,
-    verifying: 0,
-    pending: 0,
-    blocked: 0,
-    failed: 0,
-    zombie: 0,
-    done: 0,
-    idle: 0,
-    total: 0,
-  };
+  const groupCounts = snapshot?.groupCounts ?? { 'needs-you': 0, running: 0, upcoming: 0, recent: 0 };
+  const unhealthy = snapshot?.sourceHealth.filter((health) => health.status !== 'ok') ?? [];
 
   return (
     <>
@@ -196,24 +205,44 @@ const OperationsView: React.FC = () => {
       </div>
 
       <div className={styles.statRow}>
-        {STAT_ORDER.map((status) => (
-          <StatTile key={status} status={status} count={counts[status]} />
+        {GROUPS.map(({ group, label, accent }) => (
+          <StatTile key={group} label={label} accent={accent} count={groupCounts[group]} />
         ))}
       </div>
+
+      {unhealthy.length > 0 ? (
+        <div className={styles.healthWarning} role='status'>
+          <AlertTriangle size={16} />
+          <div>
+            <strong>Activity is incomplete</strong>
+            <span>
+              {unhealthy
+                .map((health) => `${sourceLabel(health.source)}: ${health.detail ?? health.status}`)
+                .join(' · ')}
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       {entries.length === 0 ? (
         <div className={styles.empty}>
           <Gauge size={40} className={styles.emptyRadar} />
-          <span className={styles.emptyTitle}>{t('missionControl.empty')}</span>
-          <span className={styles.emptyHint}>{t('missionControl.emptyHint')}</span>
+          <span className={styles.emptyTitle}>
+            {snapshot?.completeness === 'complete' ? t('missionControl.empty') : 'No verified activity available'}
+          </span>
+          <span className={styles.emptyHint}>
+            {snapshot?.completeness === 'complete'
+              ? t('missionControl.emptyHint')
+              : 'One or more activity sources could not be read. Refresh or open the source directly.'}
+          </span>
         </div>
       ) : (
-        SECTIONS.map((section) => (
+        GROUPS.map((section) => (
           <Section
-            key={section.key}
-            label={t(`missionControl.section.${section.key}`)}
+            key={section.group}
+            label={section.label}
             accent={section.accent}
-            entries={entries.filter((e) => section.statuses.includes(e.status))}
+            entries={entries.filter((entry) => entry.group === section.group)}
           />
         ))
       )}
