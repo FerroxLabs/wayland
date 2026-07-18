@@ -17,8 +17,10 @@ import {
   TRANSFER_CHUNK_SCHEMA,
   TRANSFER_DESTINATION_SUITE,
   TRANSFER_RECOVERY_SUITE,
+  TransferContainerStreamValidator,
   type TransferChunkDescriptor,
   type TransferContainerHeader,
+  type TransferContainerTerminal,
 } from '@process/services/transfer/container';
 import {
   DESTINATION_AEAD,
@@ -32,10 +34,17 @@ import {
 } from '@process/services/transfer/crypto';
 import { buildTransferObjectGraph, type BuildTransferObjectGraphInput } from '@process/services/transfer/export';
 import {
-  publishDestinationTransfer,
-  publishRecoveryTransfer,
+  publishDestinationTransfer as publishDestinationTransferRaw,
+  publishRecoveryTransfer as publishRecoveryTransferRaw,
+  sourceScopeForGraph,
+  SourceSigningAuthority,
   TRANSFER_PUBLICATION_RECEIPT_CONTRACT,
-  validateTransferPublication,
+  validateTransferPublication as validateTransferPublicationRaw,
+  type PublishDestinationTransferInput,
+  type PublishRecoveryTransferInput,
+  type SourceAuthorizationTarget,
+  type SourceAuthorizationValidationPolicy,
+  type SourceExportAuthorizationInput,
   type TransferPublication,
   type TransferPublicationChunkRecord,
   type TransferPublicationRecord,
@@ -45,6 +54,32 @@ const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 const AUTHORIZATION_BINDING = `sha256:${'ab'.repeat(32)}` as const;
 const NOW = 1_000_000;
+const MUTATION_EPOCH = Object.freeze({ start: 'epoch-7', end: 'epoch-7' });
+const SOURCE_AUTHORITY = SourceSigningAuthority.issue();
+
+function sourceAuthorization(authority = SOURCE_AUTHORITY): SourceExportAuthorizationInput {
+  return {
+    authority,
+    mutationEpoch: MUTATION_EPOCH,
+    expiresAt: NOW + 15 * 60 * 1000,
+  };
+}
+
+async function publishRecoveryTransfer(
+  input: Omit<PublishRecoveryTransferInput, 'sourceAuthorization'>
+): Promise<TransferPublication> {
+  return publishRecoveryTransferRaw({
+    ...input,
+    sourceAuthorization: sourceAuthorization(),
+    now: input.now ?? (() => NOW),
+  });
+}
+
+async function publishDestinationTransfer(
+  input: Omit<PublishDestinationTransferInput, 'sourceAuthorization'>
+): Promise<TransferPublication> {
+  return publishDestinationTransferRaw({ ...input, sourceAuthorization: sourceAuthorization() });
+}
 
 function graphInput(): BuildTransferObjectGraphInput {
   return {
@@ -80,6 +115,36 @@ function graphInput(): BuildTransferObjectGraphInput {
       },
     ],
   };
+}
+
+function validationPolicy(
+  graph: ReturnType<typeof buildTransferObjectGraph>,
+  target: SourceAuthorizationTarget = { mode: 'recovery', recoveryMode: 'passphrase' },
+  now: () => number = () => NOW,
+  authority = SOURCE_AUTHORITY
+): SourceAuthorizationValidationPolicy {
+  return {
+    trustedAuthority: authority.descriptor(),
+    expectedScope: sourceScopeForGraph(
+      graph.manifest.resumability.semanticGraphSha256,
+      graph.manifest.bundleId,
+      graph.manifest.selectedLogicalState,
+      graph.manifest.exclusions,
+      MUTATION_EPOCH,
+      target
+    ),
+    now,
+  };
+}
+
+function validateTransferPublication(
+  records: readonly TransferPublicationRecord[],
+  graph: ReturnType<typeof buildTransferObjectGraph>,
+  target?: SourceAuthorizationTarget,
+  now?: () => number,
+  authority?: SourceSigningAuthority
+) {
+  return validateTransferPublicationRaw(records, validationPolicy(graph, target, now, authority));
 }
 
 function chunkRecords(publication: TransferPublication): TransferPublicationChunkRecord[] {
@@ -129,6 +194,26 @@ function replaceHeader(records: TransferPublicationRecord[], mutation: Partial<T
   };
 }
 
+type TestSourceAuthorizationEnvelope = Record<string, unknown> & {
+  signature: string;
+  payload: Record<string, unknown> & {
+    terminalOutcome: Record<string, unknown> & { chunkCount: number };
+  };
+};
+
+function replaceSourceAuthorization(
+  records: TransferPublicationRecord[],
+  mutate: (envelope: TestSourceAuthorizationEnvelope) => void
+): void {
+  const index = records.findIndex((record) => record.recordType === 'source-authorization');
+  if (index < 0) throw new Error('test publication has no source authorization');
+  const record = records[index];
+  if (record.recordType !== 'source-authorization') throw new Error('test publication has no source authorization');
+  const envelope = JSON.parse(decoder.decode(record.serialized)) as TestSourceAuthorizationEnvelope;
+  mutate(envelope);
+  records[index] = { recordType: 'source-authorization', serialized: encoder.encode(JSON.stringify(envelope)) };
+}
+
 describe('Wayland Transfer encrypted publication pipeline', () => {
   beforeEach(() => {
     vi.mocked(argon2idAsync).mockClear();
@@ -151,7 +236,7 @@ describe('Wayland Transfer encrypted publication pipeline', () => {
     );
     expect(new Set(descriptors.map((descriptor) => descriptor.nonce)).size).toBe(3);
     expect(argon2idAsync).toHaveBeenCalledTimes(1);
-    expect(validateTransferPublication(publication.records)).toEqual(publication.supportReceipt);
+    expect(validateTransferPublication(publication.records, graph)).toEqual(publication.supportReceipt);
   });
 
   it('round-trips every recovery chunk from the generic outer records', async () => {
@@ -253,8 +338,10 @@ describe('Wayland Transfer encrypted publication pipeline', () => {
     const receipt = JSON.stringify(publication.supportReceipt);
 
     expect(visible).not.toMatch(/desktop|chat|project|artifact|customer|cost|private/i);
+    expect(visible).not.toContain(MUTATION_EPOCH.start);
     expect(receipt).not.toMatch(/desktop|chat|project|artifact|customer|cost|private/i);
     expect(publication.supportReceipt.contract).toBe(TRANSFER_PUBLICATION_RECEIPT_CONTRACT);
+    expect(publication.records.at(-1)?.recordType).toBe('source-authorization');
     expect(Object.keys(parseDescriptor(chunkRecords(publication)[0])).toSorted()).toEqual([
       'bundleId',
       'ciphertextDigest',
@@ -266,6 +353,122 @@ describe('Wayland Transfer encrypted publication pipeline', () => {
       'recordType',
       'schema',
     ]);
+  });
+
+  it('requires a trusted Ed25519 source authorization and rejects signature substitution', async () => {
+    const graph = buildTransferObjectGraph(graphInput());
+    const publication = await publishRecoveryTransfer({ graph, passphrase: 'recovery credential' });
+    const unsigned = publication.records.slice(0, -1);
+    expect(() => validateTransferPublication(unsigned, graph)).toThrow(/unsigned/);
+
+    const tamperedSignature = copyRecords(publication.records);
+    replaceSourceAuthorization(tamperedSignature, (envelope) => {
+      const signature = envelope.signature as string;
+      envelope.signature = `${signature[0] === 'A' ? 'B' : 'A'}${signature.slice(1)}`;
+    });
+    expect(() => validateTransferPublication(tamperedSignature, graph)).toThrow(/signature is invalid/);
+
+    const rogueAuthority = SourceSigningAuthority.issue();
+    const roguePublication = await publishRecoveryTransferRaw({
+      graph,
+      passphrase: 'recovery credential',
+      sourceAuthorization: sourceAuthorization(rogueAuthority),
+      now: () => NOW,
+    });
+    expect(() => validateTransferPublication(roguePublication.records, graph)).toThrow(/not trusted/);
+  });
+
+  it('rejects wrong selection, exclusions, mutation epoch, mode, and graph scope', async () => {
+    const graph = buildTransferObjectGraph(graphInput());
+    const publication = await publishRecoveryTransfer({ graph, passphrase: 'recovery credential' });
+    const base = validationPolicy(graph);
+
+    await expect(
+      publishRecoveryTransferRaw({
+        graph,
+        passphrase: 'recovery credential',
+        sourceAuthorization: {
+          ...sourceAuthorization(),
+          mutationEpoch: { start: 'epoch-7', end: 'epoch-8' },
+        },
+        now: () => NOW,
+      })
+    ).rejects.toThrow(/mutation epoch drift/);
+
+    expect(() =>
+      validateTransferPublicationRaw(publication.records, {
+        ...base,
+        expectedScope: { ...base.expectedScope, selectedLogicalStateSha256: `sha256:${'11'.repeat(32)}` },
+      })
+    ).toThrow(/scope or transcript mismatch/);
+    expect(() =>
+      validateTransferPublicationRaw(publication.records, {
+        ...base,
+        expectedScope: { ...base.expectedScope, exclusionsSha256: `sha256:${'22'.repeat(32)}` },
+      })
+    ).toThrow(/scope or transcript mismatch/);
+    expect(() =>
+      validateTransferPublicationRaw(publication.records, {
+        ...base,
+        expectedScope: { ...base.expectedScope, mutationEpoch: { start: 'epoch-8', end: 'epoch-8' } },
+      })
+    ).toThrow(/scope or transcript mismatch/);
+    expect(() =>
+      validateTransferPublicationRaw(publication.records, {
+        ...base,
+        expectedScope: {
+          ...base.expectedScope,
+          mode: 'destination',
+          destinationKeyFingerprint: `sha256:${'33'.repeat(32)}`,
+        },
+      })
+    ).toThrow(/recovery mode mismatch/);
+
+    const different = graphInput();
+    different.objects[0].bytes[0] ^= 0x01;
+    const differentGraph = buildTransferObjectGraph(different);
+    expect(() => validateTransferPublication(publication.records, differentGraph)).toThrow(/bundle mismatch/);
+  });
+
+  it('rejects expired authorization, payload tampering, and coherent outer transcript drift', async () => {
+    const graph = buildTransferObjectGraph(graphInput());
+    const publication = await publishRecoveryTransfer({ graph, passphrase: 'recovery credential' });
+    expect(() =>
+      validateTransferPublication(publication.records, graph, undefined, () => NOW + 15 * 60 * 1000)
+    ).toThrow(/expired/);
+
+    const payloadTamper = copyRecords(publication.records);
+    replaceSourceAuthorization(payloadTamper, (envelope) => {
+      envelope.payload.terminalOutcome.chunkCount += 1;
+    });
+    expect(() => validateTransferPublication(payloadTamper, graph)).toThrow(/scope or transcript mismatch/);
+
+    const transcriptDrift = copyRecords(publication.records);
+    const header = transcriptDrift[0];
+    if (header.recordType !== 'header') throw new Error('test publication has no header');
+    const parsed = parseTransferContainerHeader(header.serialized);
+    if (parsed.suite !== TRANSFER_RECOVERY_SUITE) throw new Error('test publication has wrong mode');
+    replaceHeader(transcriptDrift, {
+      protection: { ...parsed.protection, salt: Buffer.alloc(16, 0x77).toString('base64url') },
+    });
+    const changedHeader = transcriptDrift[0];
+    if (changedHeader.recordType !== 'header') throw new Error('test publication has no header');
+    const validator = new TransferContainerStreamValidator(parseTransferContainerHeader(changedHeader.serialized));
+    for (const chunk of transcriptDrift.filter(
+      (record): record is TransferPublicationChunkRecord => record.recordType === 'chunk'
+    )) {
+      validator.acceptChunk(chunk.descriptor, chunk.ciphertext);
+    }
+    const terminalIndex = transcriptDrift.findIndex((record) => record.recordType === 'terminal');
+    const terminal = transcriptDrift[terminalIndex];
+    if (terminal.recordType !== 'terminal') throw new Error('test publication has no terminal');
+    const parsedTerminal = JSON.parse(decoder.decode(terminal.serialized)) as Record<string, unknown>;
+    parsedTerminal.streamDigest = validator.currentStreamDigest();
+    transcriptDrift[terminalIndex] = {
+      recordType: 'terminal',
+      serialized: serializeTransferContainerRecord(parsedTerminal as TransferContainerTerminal),
+    };
+    expect(() => validateTransferPublication(transcriptDrift, graph)).toThrow(/scope or transcript mismatch/);
   });
 
   it('rejects expired, overlong, and mid-publication destination authority', async () => {
@@ -309,21 +512,21 @@ describe('Wayland Transfer encrypted publication pipeline', () => {
     const graph = buildTransferObjectGraph(graphInput());
     const publication = await publishRecoveryTransfer({ graph, passphrase: 'recovery credential' });
 
-    expect(() => validateTransferPublication(publication.records.slice(0, -1))).toThrow(/truncated/);
-    expect(() => validateTransferPublication([...publication.records, copyRecords(publication.records)[1]])).toThrow(
-      /after terminal/
-    );
+    expect(() => validateTransferPublication(publication.records.slice(0, -1), graph)).toThrow(/unsigned/);
+    expect(() =>
+      validateTransferPublication([...publication.records, copyRecords(publication.records)[1]], graph)
+    ).toThrow(/after terminal/);
 
     const reordered = copyRecords(publication.records);
     replaceDescriptor(reordered, 0, { ordinal: 1 });
-    expect(() => validateTransferPublication(reordered)).toThrow(/gap or reordering/);
+    expect(() => validateTransferPublication(reordered, graph)).toThrow(/gap or reordering/);
 
     const tampered = copyRecords(publication.records);
     const firstChunk = tampered.find(
       (record): record is TransferPublicationChunkRecord => record.recordType === 'chunk'
     )!;
     firstChunk.ciphertext[0] ^= 0x80;
-    expect(() => validateTransferPublication(tampered)).toThrow(/ciphertext digest mismatch/);
+    expect(() => validateTransferPublication(tampered, graph)).toThrow(/ciphertext digest mismatch/);
   });
 
   it('rejects declared-count drift and duplicate recovery nonces or destination encapsulated keys', async () => {
@@ -331,12 +534,12 @@ describe('Wayland Transfer encrypted publication pipeline', () => {
     const recovery = await publishRecoveryTransfer({ graph, passphrase: 'recovery credential' });
     const countDrift = copyRecords(recovery.records);
     replaceHeader(countDrift, { declaredChunkCount: recovery.supportReceipt.chunkCount - 1 });
-    expect(() => validateTransferPublication(countDrift)).toThrow(/count exceeds|count mismatch/);
+    expect(() => validateTransferPublication(countDrift, graph)).toThrow(/count exceeds|count mismatch/);
 
     const duplicateNonce = copyRecords(recovery.records);
     const recoveryDescriptors = chunkRecords({ ...recovery, records: duplicateNonce }).map(parseDescriptor);
     replaceDescriptor(duplicateNonce, 1, { nonce: recoveryDescriptors[0].nonce });
-    expect(() => validateTransferPublication(duplicateNonce)).toThrow(/nonce reuse/);
+    expect(() => validateTransferPublication(duplicateNonce, graph)).toThrow(/nonce reuse/);
 
     const recipient = await DestinationRecipientKey.issue({
       keyId: 'destination-key-1',
@@ -352,7 +555,14 @@ describe('Wayland Transfer encrypted publication pipeline', () => {
     const duplicateKey = copyRecords(destination.records);
     const destinationDescriptors = chunkRecords({ ...destination, records: duplicateKey }).map(parseDescriptor);
     replaceDescriptor(duplicateKey, 1, { encapsulatedKey: destinationDescriptors[0].encapsulatedKey });
-    expect(() => validateTransferPublication(duplicateKey, () => NOW)).toThrow(/encapsulated key reuse/);
+    expect(() =>
+      validateTransferPublication(
+        duplicateKey,
+        graph,
+        { mode: 'destination', destinationKeyFingerprint: recipient.descriptor().fingerprint },
+        () => NOW
+      )
+    ).toThrow(/encapsulated key reuse/);
   });
 
   it('rejects stale destination publications during replay', async () => {
@@ -365,9 +575,14 @@ describe('Wayland Transfer encrypted publication pipeline', () => {
     });
     const publication = await publishDestinationTransfer({ graph, recipient: recipient.descriptor(), now: () => NOW });
 
-    expect(() => validateTransferPublication(publication.records, () => recipient.descriptor().expiresAt)).toThrow(
-      /expired/
-    );
+    expect(() =>
+      validateTransferPublication(
+        publication.records,
+        graph,
+        { mode: 'destination', destinationKeyFingerprint: recipient.descriptor().fingerprint },
+        () => recipient.descriptor().expiresAt
+      )
+    ).toThrow(/expired/);
   });
 
   it('uses only the generic transfer chunk schema in both modes', async () => {

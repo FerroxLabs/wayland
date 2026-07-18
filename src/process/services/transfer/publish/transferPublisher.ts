@@ -35,16 +35,27 @@ import {
 } from '@process/services/transfer/crypto';
 import {
   parseAndValidateTransferObjectGraph,
+  type TransferDigest,
   type TransferObjectGraph,
   type TransferObjectId,
 } from '@process/services/transfer/export';
 
 import {
+  createSourceAuthorizationRecord,
+  sourceScopeForGraph,
+  verifySourceAuthorizationRecord,
+  type SourceAuthorizationTarget,
+  type SourceAuthorizationValidationPolicy,
+  type SourceExportAuthorizationInput,
+} from './sourceAuthorization';
+import {
   TRANSFER_PUBLICATION_RECEIPT_CONTRACT,
   type TransferPublication,
   type TransferPublicationChunkRecord,
+  type TransferPublicationContainerRecord,
   type TransferPublicationReceipt,
   type TransferPublicationRecord,
+  type TransferSourceAuthorizationRecord,
 } from './types';
 
 const DESTINATION_TAG_BYTES = 16;
@@ -53,12 +64,15 @@ const RECOVERY_TAG_BYTES = 16;
 export type PublishDestinationTransferInput = Readonly<{
   graph: TransferObjectGraph;
   recipient: DestinationRecipientDescriptor;
+  sourceAuthorization: SourceExportAuthorizationInput;
   now?: () => number;
 }>;
 
 export type PublishRecoveryTransferInput = Readonly<{
   graph: TransferObjectGraph;
   passphrase: string | Uint8Array;
+  sourceAuthorization: SourceExportAuthorizationInput;
+  now?: () => number;
 }>;
 
 type PlaintextChunk = Readonly<{
@@ -110,7 +124,7 @@ export async function publishDestinationTransfer(input: PublishDestinationTransf
   assertFreshDestinationAuthority(input.recipient, now());
 
   return assemblePublication(
-    snapshot.bundleId,
+    snapshot,
     TRANSFER_DESTINATION_SUITE,
     sealed,
     destinationProtection({
@@ -119,12 +133,14 @@ export async function publishDestinationTransfer(input: PublishDestinationTransf
       authorizationBinding: input.recipient.authorizationBinding,
       expiresAt: input.recipient.expiresAt,
     }),
+    input.sourceAuthorization,
     now
   );
 }
 
 /** Publish a recovery transfer with one Argon2 derivation for the complete bundle. */
 export async function publishRecoveryTransfer(input: PublishRecoveryTransferInput): Promise<TransferPublication> {
+  const now = input.now ?? Date.now;
   const snapshot = snapshotGraph(input.graph);
   const session = await RecoveryBundleCryptoSession.create(input.passphrase);
   try {
@@ -147,10 +163,12 @@ export async function publishRecoveryTransfer(input: PublishRecoveryTransferInpu
     });
 
     return assemblePublication(
-      snapshot.bundleId,
+      snapshot,
       TRANSFER_RECOVERY_SUITE,
       sealed,
-      recoveryProtection(Buffer.from(session.parameters().salt, 'base64url'))
+      recoveryProtection(Buffer.from(session.parameters().salt, 'base64url')),
+      input.sourceAuthorization,
+      now
     );
   } finally {
     session.destroy();
@@ -160,20 +178,33 @@ export async function publishRecoveryTransfer(input: PublishRecoveryTransferInpu
 /** Replay a complete outer publication through the real fail-closed stream reducer. */
 export function validateTransferPublication(
   records: readonly TransferPublicationRecord[],
-  now: () => number = Date.now
+  policy: SourceAuthorizationValidationPolicy
 ): TransferPublicationReceipt {
   if (!Array.isArray(records) || records.length === 0) throw new Error('Transfer publication is empty');
-  const first = records[0];
+  if (!policy) throw new Error('Transfer publication requires source authorization policy');
+  const authorization = records.at(-1);
+  if (!authorization || authorization.recordType !== 'source-authorization') {
+    if (records.some((record) => record.recordType === 'source-authorization')) {
+      throw new Error('Transfer publication contains a record after terminal source authorization');
+    }
+    throw new Error('Transfer publication is unsigned');
+  }
+  if (records.slice(0, -1).some((record) => record.recordType === 'source-authorization')) {
+    throw new Error('Transfer publication contains duplicate source authorization');
+  }
+  const containerRecords = records.slice(0, -1) as readonly TransferPublicationContainerRecord[];
+  const first = containerRecords[0];
+  if (!first) throw new Error('Transfer publication container is empty');
   if (first.recordType !== 'header') throw new Error('Transfer publication must begin with a header');
   assertImmutableBytes(first.serialized, 'header');
   const header = parseTransferContainerHeader(first.serialized);
   if (header.suite === TRANSFER_DESTINATION_SUITE) {
-    assertFreshDestinationProtection(header.protection, now());
+    assertFreshDestinationProtection(header.protection, (policy.now ?? Date.now)());
   }
   const validator = new TransferContainerStreamValidator(header);
   let terminal: TransferContainerTerminal | undefined;
 
-  for (const [index, record] of records.entries()) {
+  for (const [index, record] of containerRecords.entries()) {
     if (index === 0) continue;
     if (record.recordType === 'header') throw new Error('Transfer publication contains a duplicate header');
     if (record.recordType === 'chunk') {
@@ -188,12 +219,21 @@ export function validateTransferPublication(
   const validated = validator.finish();
   if (!terminal || terminal !== validated.terminal) throw new Error('Transfer publication terminal mismatch');
   if (header.suite === TRANSFER_DESTINATION_SUITE) {
-    assertFreshDestinationProtection(header.protection, now());
+    assertFreshDestinationProtection(header.protection, (policy.now ?? Date.now)());
   }
+  verifySourceAuthorizationRecord(authorization, containerRecords, header, terminal, policy);
   return receiptFor(header.suite, validated.terminal);
 }
 
-function snapshotGraph(graph: TransferObjectGraph): { bundleId: string; chunks: readonly PlaintextChunk[] } {
+type PublicationGraphSnapshot = Readonly<{
+  bundleId: string;
+  semanticGraphSha256: TransferDigest;
+  selectedLogicalState: TransferObjectGraph['manifest']['selectedLogicalState'];
+  exclusions: TransferObjectGraph['manifest']['exclusions'];
+  chunks: readonly PlaintextChunk[];
+}>;
+
+function snapshotGraph(graph: TransferObjectGraph): PublicationGraphSnapshot {
   if (!graph || !(graph.manifestBytes instanceof Uint8Array) || !(graph.objects instanceof Map)) {
     throw new Error('Transfer publication requires a complete object graph');
   }
@@ -217,7 +257,13 @@ function snapshotGraph(graph: TransferObjectGraph): { bundleId: string; chunks: 
     chunks.push(plaintextChunk(descriptor.ordinal + 1, bytes));
   }
   assertPlaintextBounds(chunks);
-  return { bundleId: manifest.bundleId, chunks };
+  return {
+    bundleId: manifest.bundleId,
+    semanticGraphSha256: manifest.resumability.semanticGraphSha256,
+    selectedLogicalState: Object.freeze([...manifest.selectedLogicalState]),
+    exclusions: Object.freeze(manifest.exclusions.map((exclusion) => Object.freeze({ ...exclusion }))),
+    chunks,
+  };
 }
 
 function plaintextChunk(ordinal: number, plaintext: Uint8Array): PlaintextChunk {
@@ -228,12 +274,14 @@ function plaintextChunk(ordinal: number, plaintext: Uint8Array): PlaintextChunk 
 }
 
 function assemblePublication(
-  bundleId: string,
+  snapshot: PublicationGraphSnapshot,
   suite: TransferContainerSuite,
   sealed: readonly SealedChunk[],
   protection: TransferContainerHeader['protection'],
-  now?: () => number
+  sourceAuthorization: SourceExportAuthorizationInput,
+  now: () => number
 ): TransferPublication {
+  const bundleId = snapshot.bundleId;
   if (sealed.length === 0 || sealed.length > TRANSFER_MAX_CHUNKS) {
     throw new Error('Transfer publication sealed chunk count is invalid');
   }
@@ -295,8 +343,33 @@ function assemblePublication(
     recordType: 'terminal' as const,
     serialized: serializeTransferContainerRecord(terminal),
   };
-  const records: readonly TransferPublicationRecord[] = [headerRecord, ...chunks, terminalRecord];
-  const receipt = validateTransferPublication(records, now);
+  const containerRecords: readonly TransferPublicationContainerRecord[] = [headerRecord, ...chunks, terminalRecord];
+  const target: SourceAuthorizationTarget =
+    header.suite === TRANSFER_DESTINATION_SUITE
+      ? { mode: 'destination', destinationKeyFingerprint: header.protection.recipientKeyFingerprint }
+      : { mode: 'recovery', recoveryMode: 'passphrase' };
+  const scope = sourceScopeForGraph(
+    snapshot.semanticGraphSha256,
+    snapshot.bundleId,
+    snapshot.selectedLogicalState,
+    snapshot.exclusions,
+    sourceAuthorization.mutationEpoch,
+    target
+  );
+  const authorizationRecord = createSourceAuthorizationRecord(
+    containerRecords,
+    header,
+    terminal,
+    scope,
+    sourceAuthorization,
+    now()
+  );
+  const records: readonly TransferPublicationRecord[] = [...containerRecords, authorizationRecord];
+  const receipt = validateTransferPublication(records, {
+    trustedAuthority: sourceAuthorization.authority.descriptor(),
+    expectedScope: scope,
+    now,
+  });
   return {
     records: records.map(copyRecord),
     supportReceipt: Object.freeze({ ...receipt }),
@@ -346,7 +419,8 @@ function copyRecord(record: TransferPublicationRecord): TransferPublicationRecor
       ciphertext: Uint8Array.from(record.ciphertext),
     });
   }
-  return Object.freeze({ recordType: record.recordType, serialized: Uint8Array.from(record.serialized) });
+  return Object.freeze({ recordType: record.recordType, serialized: Uint8Array.from(record.serialized) }) as
+    TransferPublicationContainerRecord | TransferSourceAuthorizationRecord;
 }
 
 function copyBytes(bytes: Uint8Array, label: string): Uint8Array {

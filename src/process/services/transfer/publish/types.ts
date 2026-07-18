@@ -24,10 +24,15 @@ export type TransferPublicationTerminalRecord = Readonly<{
   serialized: Uint8Array;
 }>;
 
-export type TransferPublicationRecord =
-  | TransferPublicationHeaderRecord
-  | TransferPublicationChunkRecord
-  | TransferPublicationTerminalRecord;
+export type TransferSourceAuthorizationRecord = Readonly<{
+  recordType: 'source-authorization';
+  serialized: Uint8Array;
+}>;
+
+export type TransferPublicationContainerRecord =
+  TransferPublicationHeaderRecord | TransferPublicationChunkRecord | TransferPublicationTerminalRecord;
+
+export type TransferPublicationRecord = TransferPublicationContainerRecord | TransferSourceAuthorizationRecord;
 
 /** Content-free evidence suitable for diagnostics and support logs. */
 export type TransferPublicationReceipt = Readonly<{
