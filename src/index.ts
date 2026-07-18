@@ -8,6 +8,7 @@
 // connects fast/reliable; fixes the IMAP email channel hanging on a slow IPv6 path.
 import './process/utils/dnsOrder';
 import os from 'node:os';
+import { createHash } from 'node:crypto';
 import { createScrubPii } from '@/common/utils/sentryPii';
 
 // L17 (AUDIT-05 F16): expose auto-updater bootstrap status to the renderer so the
@@ -87,6 +88,7 @@ import {
   handleDeepLinkUrl,
   PROTOCOL_SCHEME,
 } from './process/utils/deepLink';
+import { getPackagedReleaseIdentity, getReleaseTrack, getReleaseUpdateChannel } from './common/releaseTrack';
 import {
   bindMainWindowReferences,
   showAndFocusMainWindow,
@@ -98,6 +100,68 @@ import {
   resolveWebUIPort,
   restoreDesktopWebUIFromPreferences,
 } from './process/utils/webuiConfig';
+
+const packageSmokeMarker = process.env.WAYLAND_PACKAGE_SMOKE_MARKER?.trim();
+const packageSmokeEventFile = process.env.WAYLAND_PACKAGE_SMOKE_EVENT_FILE?.trim();
+const packageSmokeUserData = process.env.WAYLAND_E2E_USER_DATA_DIR?.trim();
+let packageSmokeEventSequence = 0;
+
+function packagedRuntimeReleaseIdentity(): {
+  releaseTrack: 'stable' | 'preview';
+  productName: string;
+  executableName: string;
+  bundleName: string;
+  protocolScheme: string;
+  updateChannel: string;
+  shellExperience: 'classic';
+} {
+  const releaseTrack = getReleaseTrack();
+  const { appName: productName } = getPackagedReleaseIdentity(releaseTrack);
+  const executableName =
+    process.platform === 'win32'
+      ? `${productName}.exe`
+      : process.platform === 'linux'
+        ? releaseTrack === 'preview'
+          ? 'wayland-preview'
+          : 'wayland'
+        : productName;
+  return {
+    releaseTrack,
+    productName,
+    executableName,
+    bundleName: `${productName}.app`,
+    protocolScheme: PROTOCOL_SCHEME,
+    updateChannel:
+      getReleaseUpdateChannel(releaseTrack, process) ?? (releaseTrack === 'preview' ? 'preview' : 'latest'),
+    shellExperience: 'classic',
+  };
+}
+
+function recordPackageSmokeEvent(type: string, details: Record<string, unknown> = {}): void {
+  if (
+    process.env.WAYLAND_E2E_TEST !== '1' ||
+    !packageSmokeMarker ||
+    !/^[a-f0-9]{64}$/.test(packageSmokeMarker) ||
+    !packageSmokeEventFile ||
+    !packageSmokeUserData ||
+    !path.isAbsolute(packageSmokeEventFile) ||
+    path.resolve(packageSmokeEventFile) !== path.join(path.resolve(packageSmokeUserData), 'package-smoke-events.jsonl')
+  ) {
+    return;
+  }
+  const event = {
+    contract: 'wayland-package-smoke-event/1',
+    seq: ++packageSmokeEventSequence,
+    markerSha256: `sha256:${createHash('sha256').update(packageSmokeMarker).digest('hex')}`,
+    type,
+    ...details,
+  };
+  try {
+    fs.appendFileSync(packageSmokeEventFile, `${JSON.stringify(event)}\n`, { encoding: 'utf8', mode: 0o600 });
+  } catch (error) {
+    console.error('[Wayland] package smoke event write failed:', error);
+  }
+}
 import {
   createOrUpdateTray,
   destroyTray,
@@ -421,8 +485,25 @@ let isExplicitQuit = false;
 let appReadyDone = false;
 
 let mainWindow: BrowserWindow;
+let packageSmokeBootRecorded = false;
+
+function recordPackageSmokeBootStart(): void {
+  if (packageSmokeBootRecorded) return;
+  packageSmokeBootRecorded = true;
+  recordPackageSmokeEvent('boot-start', { releaseIdentity: packagedRuntimeReleaseIdentity() });
+}
+
+async function createDeferredAmbientWindow(): Promise<void> {
+  try {
+    const { createAmbientWindow } = await import('./process/ambient/ambientWindowManager');
+    await createAmbientWindow();
+  } catch (err) {
+    console.error('[Ambient] deferred create failed:', err);
+  }
+}
 
 const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): void => {
+  recordPackageSmokeBootStart();
   console.log('[Wayland] Creating main window...');
   // Get primary display size
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -678,41 +759,55 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
   // Load the renderer: dev server URL in development, built HTML file in production
   const rendererUrl = process.env['ELECTRON_RENDERER_URL'];
   const fallbackFile = resolveMainBundlePath('../renderer/index.html');
+  const packageSmokeLoadOptions =
+    packageSmokeMarker && /^[a-f0-9]{64}$/.test(packageSmokeMarker)
+      ? { query: { waylandSmokeMarker: packageSmokeMarker } }
+      : undefined;
+  recordPackageSmokeEvent('renderer-load-start');
+  mainWindow.webContents.once('did-finish-load', () => recordPackageSmokeEvent('renderer-loaded'));
 
   if (!app.isPackaged && rendererUrl) {
     console.log(`[Wayland] Loading renderer URL: ${rendererUrl}`);
     mainWindow.loadURL(rendererUrl).catch((error) => {
+      recordPackageSmokeEvent('renderer-load-failed', { stage: 'load-url' });
       console.error('[Wayland] loadURL failed, falling back to file:', error.message || error);
       mainWindow.loadFile(fallbackFile).catch((e2) => {
+        recordPackageSmokeEvent('renderer-load-failed', { stage: 'fallback-file' });
         console.error('[Wayland] loadFile fallback also failed:', e2.message || e2);
       });
     });
   } else {
     console.log(`[Wayland] Loading renderer file: ${fallbackFile}`);
-    mainWindow.loadFile(fallbackFile).catch((error) => {
+    mainWindow.loadFile(fallbackFile, packageSmokeLoadOptions).catch((error) => {
+      recordPackageSmokeEvent('renderer-load-failed', { stage: 'packaged-file' });
       console.error('[Wayland] loadFile failed:', error.message || error);
     });
   }
 
   mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+    recordPackageSmokeEvent('did-fail-load', { errorCode, isMainFrame });
     console.error('[Wayland] did-fail-load:', { errorCode, errorDescription, validatedURL, isMainFrame });
   });
 
   mainWindow.webContents.on('render-process-gone', (_event, details) => {
+    recordPackageSmokeEvent('render-process-gone', { reason: details.reason, exitCode: details.exitCode });
     console.error('[Wayland] render-process-gone:', details);
 
     // Reload the renderer to recover from the crash.
     // The isDestroyed() guard in adapter/main.ts prevents further sends
     // to the dead webContents while the reload is in progress.
     if (!mainWindow.isDestroyed()) {
+      recordPackageSmokeEvent('renderer-recovery-attempt');
       console.log('[Wayland] Attempting to recover from renderer crash by reloading...');
 
       if (!app.isPackaged && rendererUrl) {
         mainWindow.loadURL(rendererUrl).catch((error) => {
+          recordPackageSmokeEvent('renderer-load-failed', { stage: 'recovery-url' });
           console.error('[Wayland] Recovery loadURL failed:', error.message || error);
         });
       } else {
-        mainWindow.loadFile(fallbackFile).catch((error) => {
+        mainWindow.loadFile(fallbackFile, packageSmokeLoadOptions).catch((error) => {
+          recordPackageSmokeEvent('renderer-load-failed', { stage: 'recovery-file' });
           console.error('[Wayland] Recovery loadFile failed:', error.message || error);
         });
       }
@@ -720,6 +815,7 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
   });
 
   mainWindow.webContents.on('unresponsive', () => {
+    recordPackageSmokeEvent('renderer-unresponsive');
     console.warn('[Wayland] Renderer became unresponsive');
   });
 
@@ -995,20 +1091,12 @@ const handleAppReady = async (): Promise<void> => {
         // also helps avoid any startup visual glitch where the bubble
         // appears before the main window is painted.
         if (mainWindow && !mainWindow.isDestroyed()) {
-          const onMainReady = async () => {
-            try {
-              const { createAmbientWindow } = await import('./process/ambient/ambientWindowManager');
-              await createAmbientWindow();
-            } catch (err) {
-              console.error('[Ambient] deferred create failed:', err);
-            }
-          };
           if (mainWindow.webContents.isLoading()) {
             mainWindow.webContents.once('did-finish-load', () => {
-              void onMainReady();
+              void createDeferredAmbientWindow();
             });
           } else {
-            await onMainReady();
+            await createDeferredAmbientWindow();
           }
         } else {
           const { createAmbientWindow } = await import('./process/ambient/ambientWindowManager');
@@ -1284,8 +1372,32 @@ app.on('activate', () => {
   }
 });
 
-app.on('before-quit', async () => {
+let beforeQuitCleanupRunning = false;
+let beforeQuitCleanupComplete = false;
+
+app.on('before-quit', (event) => {
+  if (beforeQuitCleanupComplete) return;
+  event.preventDefault();
+  if (beforeQuitCleanupRunning) return;
+  beforeQuitCleanupRunning = true;
+  void performBeforeQuitCleanup()
+    .catch((error) => {
+      recordPackageSmokeEvent('cleanup-failed', { stage: 'unexpected-cleanup-error', reason: 'rejected' });
+      console.error('[Wayland] unexpected cleanup failure:', error);
+    })
+    .finally(() => {
+      // Electron does not await async event handlers. The first before-quit is
+      // therefore cancelled above and this second request is the only path that
+      // may advance to will-quit. This makes cleanup completion/failure causally
+      // prior to the terminal lifecycle events instead of merely log-adjacent.
+      beforeQuitCleanupComplete = true;
+      app.quit();
+    });
+});
+
+async function performBeforeQuitCleanup(): Promise<void> {
   console.log('[Wayland] before-quit');
+  recordPackageSmokeEvent('cleanup-start');
   setIsQuitting(true);
   isExplicitQuit = true;
   destroyTray();
@@ -1298,6 +1410,7 @@ app.on('before-quit', async () => {
   // starve later steps. Total ceiling stays at 10s.
   const PER_STEP_TIMEOUT_MS = 2000;
   const MASTER_TIMEOUT_MS = 10000;
+  let cleanupFailed = false;
 
   const withTimeout = <T>(label: string, p: Promise<T>, ms: number): Promise<T | undefined> => {
     return new Promise<T | undefined>((resolve) => {
@@ -1305,6 +1418,8 @@ app.on('before-quit', async () => {
       const timer = setTimeout(() => {
         if (settled) return;
         settled = true;
+        cleanupFailed = true;
+        recordPackageSmokeEvent('cleanup-failed', { stage: label, reason: 'timeout' });
         console.warn(`[Wayland] cleanup step "${label}" exceeded ${ms}ms; moving on`);
         resolve(undefined);
       }, ms);
@@ -1319,6 +1434,8 @@ app.on('before-quit', async () => {
           if (settled) return;
           settled = true;
           clearTimeout(timer);
+          cleanupFailed = true;
+          recordPackageSmokeEvent('cleanup-failed', { stage: label, reason: 'rejected' });
           console.error(`[Wayland] cleanup step "${label}" failed:`, err);
           resolve(undefined);
         }
@@ -1334,6 +1451,8 @@ app.on('before-quit', async () => {
       try {
         return await _cleanupModulesPromise;
       } catch {
+        cleanupFailed = true;
+        recordPackageSmokeEvent('cleanup-failed', { stage: 'prefetched-modules', reason: 'rejected' });
         /* fall through to per-module fresh imports */
       }
     }
@@ -1344,6 +1463,8 @@ app.on('before-quit', async () => {
       try {
         return [key, await loader()];
       } catch {
+        cleanupFailed = true;
+        recordPackageSmokeEvent('cleanup-failed', { stage: `module-import:${key}`, reason: 'rejected' });
         return [key, undefined];
       }
     };
@@ -1377,22 +1498,13 @@ app.on('before-quit', async () => {
   const cleanup = async () => {
     const mods = await loadModules();
 
-    // Ordering rationale for the cleanup() chain (top-down):
-    //   1. closeDatabase            - flush + release SQLite handle so cron/worker
-    //                                 work scheduled after it cannot enqueue new
-    //                                 transactions against a half-torn-down DB.
-    //   2. CronService.shutdown     - clear scheduled timers + retry timers so no
-    //                                 new jobs fire (and can't spawn workers) once
-    //                                 the DB is closed.
-    //   3. workerTaskManager.clear  - kill in-flight worker processes; safe to do
-    //                                 after cron is silenced.
-    //   4. everything else          - bridges, channels, webserver, ambient, etc.
-    // All steps run concurrently via Promise.allSettled below; the order above is
-    // the logical precedence the timeouts respect (each has its own 2s budget).
-    // No per-step try/catch - withTimeout + allSettled already absorb failures.
+    // Actual shutdown phases are dependency ordered. Producers are silenced
+    // before workers drain; bridges and servers then stop; force reapers run;
+    // and only then is the database closed. Steps within a phase may run in
+    // parallel, but no later phase starts until the prior phase settles.
 
-    // L15 (AUDIT-05 F17): close DB before worker/cron drain can enqueue new tx.
-    const databaseStep = withTimeout(
+    // Persistent state closes only after producers and workers are stopped.
+    const databaseStep = () => withTimeout(
       'closeDatabase',
       (async () => {
         if (!mods.database) return;
@@ -1402,7 +1514,7 @@ app.on('before-quit', async () => {
     );
 
     // L16 (AUDIT-05 F18): silence cron timers before workers so no fresh jobs fire.
-    const cronStep = withTimeout(
+    const cronStep = () => withTimeout(
       'cronService.shutdown',
       (async () => {
         if (!mods.cron) return;
@@ -1411,11 +1523,12 @@ app.on('before-quit', async () => {
       PER_STEP_TIMEOUT_MS
     );
 
-    // Worker processes after DB + cron (M18 made workerTaskManager.clear() properly
+    // Worker processes after cron (M18 made workerTaskManager.clear() properly
     // await per-agent kill() with its own 3.5s bound).
-    const workerStep = withTimeout('workerTaskManager.clear', workerTaskManager.clear(), PER_STEP_TIMEOUT_MS);
+    const workerStep = () =>
+      withTimeout('workerTaskManager.clear', workerTaskManager.clear(), PER_STEP_TIMEOUT_MS);
 
-    const ambientStep = withTimeout(
+    const ambientStep = () => withTimeout(
       'destroyAmbientWindow',
       (async () => {
         if (!mods.ambient) return;
@@ -1424,9 +1537,9 @@ app.on('before-quit', async () => {
       PER_STEP_TIMEOUT_MS
     );
 
-    const teamStep = withTimeout('disposeAllTeamSessions', disposeAllTeamSessions(), PER_STEP_TIMEOUT_MS);
+    const teamStep = () => withTimeout('disposeAllTeamSessions', disposeAllTeamSessions(), PER_STEP_TIMEOUT_MS);
 
-    const channelsStep = withTimeout(
+    const channelsStep = () => withTimeout(
       'channelManager.shutdown',
       (async () => {
         if (!mods.channels) return;
@@ -1439,7 +1552,7 @@ app.on('before-quit', async () => {
     // the tunnels (the WebhookExposureService singleton does), so they must be
     // torn down explicitly here or the cloudflared/ngrok/tailscale process
     // orphans past the app.
-    const tunnelStep = withTimeout(
+    const tunnelStep = () => withTimeout(
       'stopAllTunnels',
       (async () => {
         if (!mods.tunnel) return;
@@ -1448,7 +1561,7 @@ app.on('before-quit', async () => {
       PER_STEP_TIMEOUT_MS
     );
 
-    const webServerStep = withTimeout(
+    const webServerStep = () => withTimeout(
       'webServer.close',
       (async () => {
         if (!mods.webuiBridge) return;
@@ -1465,7 +1578,7 @@ app.on('before-quit', async () => {
       PER_STEP_TIMEOUT_MS
     );
 
-    const officeWatchStep = withTimeout(
+    const officeWatchStep = () => withTimeout(
       'stopAllOfficeWatchSessions',
       (async () => {
         if (!mods.officeWatch) return;
@@ -1474,7 +1587,7 @@ app.on('before-quit', async () => {
       PER_STEP_TIMEOUT_MS
     );
 
-    const pptPreviewStep = withTimeout(
+    const pptPreviewStep = () => withTimeout(
       'stopAllWatchSessions',
       (async () => {
         if (!mods.pptPreview) return;
@@ -1485,7 +1598,7 @@ app.on('before-quit', async () => {
 
     // REL-WATCH-01: drain renderer-initiated fs.watch handles so they are
     // released deterministically on quit rather than abandoned on Cmd+Q/crash.
-    const fileWatchStep = withTimeout(
+    const fileWatchStep = () => withTimeout(
       'stopAllFileWatchers',
       (async () => {
         if (!mods.fileWatch) return;
@@ -1494,21 +1607,16 @@ app.on('before-quit', async () => {
       PER_STEP_TIMEOUT_MS
     );
 
-    // Run all steps concurrently; allSettled so one slow step can't starve
-    // the rest. Each step has its own 2s budget via withTimeout above.
-    // Listed in the documented top-down ordering above for readability.
+    await cronStep();
+    await Promise.allSettled([workerStep(), teamStep()]);
     await Promise.allSettled([
-      databaseStep,
-      cronStep,
-      workerStep,
-      ambientStep,
-      teamStep,
-      channelsStep,
-      tunnelStep,
-      webServerStep,
-      officeWatchStep,
-      pptPreviewStep,
-      fileWatchStep,
+      ambientStep(),
+      channelsStep(),
+      tunnelStep(),
+      webServerStep(),
+      officeWatchStep(),
+      pptPreviewStep(),
+      fileWatchStep(),
     ]);
 
     // #443: last-resort engine-child reaper. Runs AFTER the graceful path above
@@ -1538,20 +1646,29 @@ app.on('before-quit', async () => {
       })(),
       PER_STEP_TIMEOUT_MS
     );
+
+    // Persistent state is the final dependency to close, after every source
+    // of new work and every force reaper has settled.
+    await databaseStep();
   };
 
   // Master ceiling: hard 10s upper bound on the entire cleanup phase.
   // Per-step timeouts (2s each) handle the common case; this is the
   // last-resort guard if loadModules itself wedges or many steps queue
   // microtasks beyond their budget.
-  const masterCeiling = new Promise<void>((resolve) => {
-    setTimeout(() => {
+  let masterTimer: ReturnType<typeof setTimeout> | undefined;
+  const masterCeiling = new Promise<'timed-out'>((resolve) => {
+    masterTimer = setTimeout(() => {
+      cleanupFailed = true;
+      recordPackageSmokeEvent('cleanup-failed', { stage: 'master-ceiling', reason: 'timeout' });
       console.warn(`[Wayland] Cleanup master ceiling (${MASTER_TIMEOUT_MS}ms) reached; forcing quit`);
-      resolve();
+      resolve('timed-out');
     }, MASTER_TIMEOUT_MS);
   });
 
-  await Promise.race([cleanup(), masterCeiling]);
+  const cleanupResult = await Promise.race([cleanup().then(() => 'completed' as const), masterCeiling]);
+  if (masterTimer) clearTimeout(masterTimer);
+  if (cleanupResult !== 'completed' || cleanupFailed) return;
 
   // #651/#632: LAST step — apply a staged auto-update now that in-flight work is
   // drained (workers cleared, cron silenced, agent children reaped above). This
@@ -1564,15 +1681,20 @@ app.on('before-quit', async () => {
     const { autoUpdaterService } = await import('./process/services/autoUpdaterService');
     autoUpdaterService.installOnQuitIfReady();
   } catch (err) {
+    recordPackageSmokeEvent('cleanup-failed', { stage: 'update-install', reason: 'rejected' });
     console.warn('[Wayland] on-quit update install step failed (ignored):', err);
+    return;
   }
-});
+  recordPackageSmokeEvent('cleanup-complete');
+}
 
 app.on('will-quit', () => {
+  recordPackageSmokeEvent('will-quit');
   console.log('[Wayland] will-quit - all cleanup should be complete');
 });
 
 app.on('quit', (_event, exitCode) => {
+  recordPackageSmokeEvent('quit', { exitCode });
   console.log(`[Wayland] quit (exitCode=${exitCode})`);
 });
 
