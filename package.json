@@ -56,7 +56,7 @@
     "test:vitest": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:contract": "vitest run tests/contract --passWithNoTests",
+    "test:contract": "vitest run tests/unit/process/agent/wcore/desktopContractV1.test.ts tests/unit/fluxRoutingEvidence.test.ts tests/unit/process/flux/FluxRoutingEvidenceAdapter.test.ts tests/unit/wcoreStderrSurfacing.test.ts",
     "test:integration": "vitest run tests/integration",
     "test:packaged:i18n": "vitest run tests/integration/i18n-packaged.test.ts",
     "bench": "vitest bench",
