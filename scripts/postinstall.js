@@ -22,16 +22,18 @@ const OBSOLETE_RUNTIME_PACKAGES = ['@monaco-editor/react', '@monaco-editor/loade
  * the supplied node_modules root, and rmSync removes a symlink itself rather
  * than following it.
  */
-function pruneObsoleteRuntimePackages(
-  nodeModulesRoot = path.join(__dirname, '..', 'node_modules'),
-  obsoletePackages = OBSOLETE_RUNTIME_PACKAGES
-) {
+function pruneObsoleteRuntimePackages(nodeModulesRoot = path.join(__dirname, '..', 'node_modules')) {
   if (!fs.existsSync(nodeModulesRoot)) return [];
 
   const removed = [];
-  for (const packageName of obsoletePackages) {
+  for (const packageName of OBSOLETE_RUNTIME_PACKAGES) {
     const packagePath = path.join(nodeModulesRoot, ...packageName.split('/'));
-    if (!fs.existsSync(packagePath)) continue;
+    try {
+      fs.lstatSync(packagePath);
+    } catch (error) {
+      if (error && error.code === 'ENOENT') continue;
+      throw error;
+    }
     fs.rmSync(packagePath, { recursive: true, force: false });
     removed.push(packageName);
   }

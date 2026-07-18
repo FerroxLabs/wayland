@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { basename, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const postinstall = require('../../../scripts/postinstall.js') as {
@@ -52,5 +52,20 @@ describe('postinstall obsolete runtime pruning', () => {
 
     const emptyRoot = createNodeModulesRoot();
     expect(postinstall.pruneObsoleteRuntimePackages(emptyRoot)).toEqual([]);
+  });
+
+  it('removes an obsolete symlink without following or deleting its target', () => {
+    const root = createNodeModulesRoot();
+    const externalTarget = resolve(root, '..', `${basename(root)}-external-target`);
+    mkdirSync(externalTarget, { recursive: true });
+    writeFileSync(resolve(externalTarget, 'keep.txt'), 'preserve me');
+    testRoots.push(externalTarget);
+
+    const packagePath = resolve(root, 'monaco-editor');
+    symlinkSync(externalTarget, packagePath, 'dir');
+
+    expect(postinstall.pruneObsoleteRuntimePackages(root)).toEqual(['monaco-editor']);
+    expect(existsSync(packagePath)).toBe(false);
+    expect(existsSync(resolve(externalTarget, 'keep.txt'))).toBe(true);
   });
 });
