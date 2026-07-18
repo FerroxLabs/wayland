@@ -57,14 +57,38 @@ function canonical(value) {
   return JSON.stringify(value);
 }
 
-function defaultObserveCandidateIdentity() {
-  const root = path.resolve(__dirname, '..', '..');
+function productionCandidateRoot() {
+  const configured = process.env.WAYLAND_ACCEPTANCE_CANDIDATE_ROOT;
+  if (!configured) fail('M8A_LIVE_CANDIDATE_INVALID', 'WAYLAND_ACCEPTANCE_CANDIDATE_ROOT-required');
+  const root = path.resolve(configured);
+  let stat;
+  try {
+    stat = fs.lstatSync(root);
+  } catch {
+    fail('M8A_LIVE_CANDIDATE_INVALID', 'candidate-root-missing');
+  }
+  if (!stat.isDirectory() || stat.isSymbolicLink() || fs.realpathSync(root) !== root) {
+    fail('M8A_LIVE_CANDIDATE_INVALID', 'candidate-root-must-be-real-directory');
+  }
   const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
-  const candidate = { commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}') };
-  candidateIdentity(candidate, 'M8A_LIVE_CANDIDATE_INVALID');
+  let topLevel;
+  try {
+    topLevel = fs.realpathSync(git('rev-parse', '--show-toplevel'));
+  } catch {
+    fail('M8A_LIVE_CANDIDATE_INVALID', 'candidate-root-is-not-git-worktree');
+  }
+  if (topLevel !== root) fail('M8A_LIVE_CANDIDATE_INVALID', 'candidate-root-is-not-worktree-top-level');
   if (git('status', '--porcelain=v1', '--untracked-files=all')) {
     fail('M8A_LIVE_CANDIDATE_INVALID', 'dirty-source-tree');
   }
+  return root;
+}
+
+function defaultObserveCandidateIdentity() {
+  const root = productionCandidateRoot();
+  const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
+  const candidate = { commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}') };
+  candidateIdentity(candidate, 'M8A_LIVE_CANDIDATE_INVALID');
   return candidate;
 }
 
@@ -118,7 +142,11 @@ function defaultVerifyReleaseClaimsManifest(input, context) {
 function defaultVerifyCapabilitySeal(seal) {
   const authority = require('../capability-seal/verifyCandidateCapabilitySeal');
   const verified = authority.verifyCapabilitySeal(seal);
-  const recreated = authority.createCapabilitySeal();
+  const root = productionCandidateRoot();
+  const recreated = authority.createCapabilitySeal({
+    root,
+    selectionFile: path.join(root, 'scripts', 'capability-seal', 'candidate-capabilities.json'),
+  });
   if (canonical(verified) !== canonical(recreated)) {
     fail('M8A_CAPABILITY_SEAL_INVALID', 'seal-was-not-recreated-from-authoritative-receipts');
   }
@@ -126,11 +154,35 @@ function defaultVerifyCapabilitySeal(seal) {
 }
 
 function defaultVerifyThirdPartyLedger() {
-  return require('../supply-chain/verifyThirdPartyExecutableLedger').verifyThirdPartyExecutableLedger();
+  const root = productionCandidateRoot();
+  return require('../supply-chain/verifyThirdPartyExecutableLedger').verifyThirdPartyExecutableLedger({
+    projectRoot: root,
+    ledgerFile: path.join(root, 'scripts', 'supply-chain', 'third-party-executables.json'),
+  });
+}
+
+function defaultVerifyPlatformSmoke(input, context) {
+  return require('./verifyPlatformPackageSmokes').verifyPlatformPackageSmoke(input, context);
 }
 
 function defaultVerifyPublisherArtifact(artifact) {
   return require('../supply-chain/verifyPublisherAttestation').verifyPublisherAttestation(artifact);
+}
+
+function defaultVerifyUpdaterObservation(input) {
+  return require('./verifyUpdaterObservation').verifyUpdaterObservation(input);
+}
+
+function defaultVerifyConditionalCapability(input, context) {
+  return require('./verifyReleaseAuthorities').verifyConditionalCapability(input, context);
+}
+
+function defaultVerifyFindingsClearance(input, context) {
+  return require('./verifyReleaseAuthorities').verifyFindingsClearance(input, context);
+}
+
+function defaultVerifyReleaseBlockers(input, context) {
+  return require('./verifyReleaseAuthorities').verifyReleaseBlockers(input, context);
 }
 
 function defaultExpectedPublisherAssets() {
@@ -138,7 +190,9 @@ function defaultExpectedPublisherAssets() {
   const policy = readPolicy();
   const active = policy.policies.filter((entry) => entry.status === 'active');
   if (active.length !== 1) fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'no-unique-active-core-release');
-  const shasums = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'bundled-wcore-shasums.json'), 'utf8'));
+  const shasums = JSON.parse(
+    fs.readFileSync(path.join(productionCandidateRoot(), 'scripts', 'bundled-wcore-shasums.json'), 'utf8')
+  );
   const assets = Object.entries(shasums[active[0].releaseTag] || {})
     .map(([asset, evidence]) => ({
       asset,
@@ -158,15 +212,11 @@ function defaultExpectedPublisherAssets() {
   return assets;
 }
 
-function authorityUnavailable(name) {
-  return () => fail(`M8A_${name}_AUTHORITY_UNAVAILABLE`, 'trusted-validator-not-installed');
-}
-
 const DEFAULT_VERIFIERS = Object.freeze({
   observeCandidateIdentity: defaultObserveCandidateIdentity,
   verifyHardeningMatrix: defaultVerifyHardeningMatrix,
   verifyCapabilitySeal: defaultVerifyCapabilitySeal,
-  verifyPlatformSmoke: authorityUnavailable('PLATFORM_SMOKE'),
+  verifyPlatformSmoke: defaultVerifyPlatformSmoke,
   verifyTargetGateReceiptFiles: defaultVerifyTargetGateReceiptFiles,
   expectedReleaseEvidence: defaultExpectedReleaseEvidence,
   verifyReleaseEvidenceManifest: defaultVerifyReleaseEvidenceManifest,
@@ -174,10 +224,10 @@ const DEFAULT_VERIFIERS = Object.freeze({
   verifyThirdPartyLedger: defaultVerifyThirdPartyLedger,
   verifyPublisherArtifact: defaultVerifyPublisherArtifact,
   expectedPublisherAssets: defaultExpectedPublisherAssets,
-  verifyUpdaterObservation: authorityUnavailable('UPDATER'),
-  verifyConditionalCapability: authorityUnavailable('CONDITIONAL_CAPABILITY'),
-  verifyFindingsClearance: authorityUnavailable('FINDINGS_CLEARANCE'),
-  verifyReleaseBlockers: authorityUnavailable('RELEASE_BLOCKERS'),
+  verifyUpdaterObservation: defaultVerifyUpdaterObservation,
+  verifyConditionalCapability: defaultVerifyConditionalCapability,
+  verifyFindingsClearance: defaultVerifyFindingsClearance,
+  verifyReleaseBlockers: defaultVerifyReleaseBlockers,
 });
 
 function verifyMatrixReceipt(receipt) {
@@ -218,7 +268,16 @@ function verifyMatrixReceipt(receipt) {
     schema.contract !== 'wayland-target-hardening-gate-receipt/1.0' ||
     schema.authority !== 'canonical-target-hardening-validator' ||
     JSON.stringify(schema.requiredFields) !==
-      JSON.stringify(['contract', 'receiptId', 'candidate', 'target', 'gate', 'authority', 'evidenceSha256'])
+      JSON.stringify([
+        'contract',
+        'receiptId',
+        'candidate',
+        'target',
+        'gate',
+        'authority',
+        'evidencePath',
+        'evidenceSha256',
+      ])
   ) {
     fail('M8A_MATRIX_RECEIPT_INVALID', 'target-gate-schema-mismatch');
   }
@@ -245,14 +304,15 @@ function verifyMatrixReceipt(receipt) {
 function verifyCapabilitySealReceipt(seal, candidate) {
   const result = exactKeys(
     seal,
-    ['contract', 'candidate', 'selectionSha256', 'capabilities', 'sealSha256'],
+    ['contract', 'candidate', 'selectionSha256', 'receiptManifestSha256', 'capabilities', 'sealSha256'],
     'M8A_CAPABILITY_SEAL_INVALID'
   );
-  if (result.contract !== 'wayland-candidate-capability-seal/2.0') {
+  if (result.contract !== 'wayland-candidate-capability-seal/3.0') {
     fail('M8A_CAPABILITY_SEAL_INVALID', 'unsupported-contract');
   }
   sameCandidate(result.candidate, candidate, 'M8A_CAPABILITY_SEAL_INVALID');
   digest(result.selectionSha256, 'M8A_CAPABILITY_SEAL_INVALID');
+  digest(result.receiptManifestSha256, 'M8A_CAPABILITY_SEAL_INVALID');
   digest(result.sealSha256, 'M8A_CAPABILITY_SEAL_INVALID');
   if (!Array.isArray(result.capabilities) || result.capabilities.length !== CAPABILITIES.length) {
     fail('M8A_CAPABILITY_SEAL_INVALID', 'coverage-mismatch');
@@ -393,7 +453,7 @@ function verifyReleaseEvidenceReceipt(receipt, candidate, expectedByKind) {
   );
   if (
     result.contract !== 'wayland-release-evidence-attestation/1.0' ||
-    result.signerWorkflow !== 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml' ||
+    result.signerWorkflow !== 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml' ||
     result.authority !== 'github-attested-release-evidence'
   ) {
     fail('M8A_RELEASE_EVIDENCE_INVALID', 'untrusted-manifest');
@@ -414,10 +474,13 @@ function verifyReleaseEvidenceReceipt(receipt, candidate, expectedByKind) {
   }
   const observed = new Set();
   for (const evidence of result.evidence) {
-    exactKeys(evidence, ['kind', 'id', 'evidenceSha256'], 'M8A_RELEASE_EVIDENCE_INVALID');
+    exactKeys(evidence, ['kind', 'id', 'evidencePath', 'evidenceSha256'], 'M8A_RELEASE_EVIDENCE_INVALID');
     const key = `${evidence.kind}:${evidence.id}`;
     if (!expected.has(key) || observed.has(key)) {
       fail('M8A_RELEASE_EVIDENCE_INVALID', `unknown-misbound-or-duplicate:${key}`);
+    }
+    if (typeof evidence.evidencePath !== 'string' || evidence.evidencePath.length === 0) {
+      fail('M8A_RELEASE_EVIDENCE_INVALID', `missing-evidence-path:${key}`);
     }
     digest(evidence.evidenceSha256, 'M8A_RELEASE_EVIDENCE_INVALID');
     observed.add(key);
@@ -453,8 +516,10 @@ function verifyTargetGateReceiptSet(receipt, candidate, requirements) {
         'target',
         'gate',
         'authority',
+        'evidencePath',
         'evidenceSha256',
         'receiptFile',
+        'evidenceFile',
         'attestationVerified',
       ],
       'M8A_TARGET_GATE_RECEIPT_INVALID'
@@ -480,6 +545,18 @@ function verifyTargetGateReceiptSet(receipt, candidate, requirements) {
       fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'missing-receipt-file-path');
     }
     digest(file.sha256, 'M8A_TARGET_GATE_RECEIPT_INVALID');
+    const evidenceFile = exactKeys(verified.evidenceFile, ['path', 'sha256'], 'M8A_TARGET_GATE_RECEIPT_INVALID');
+    if (
+      typeof verified.evidencePath !== 'string' ||
+      verified.evidencePath.length === 0 ||
+      evidenceFile.path !== verified.evidencePath ||
+      evidenceFile.sha256 !== verified.evidenceSha256
+    ) {
+      fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'evidence-file-does-not-bind-receipt-claim');
+    }
+    if (file.path === evidenceFile.path) {
+      fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'receipt-and-evidence-path-collide');
+    }
     return verified;
   });
 }
@@ -492,7 +569,7 @@ function verifyReleaseClaimsReceipt(receipt, candidate) {
   );
   if (
     result.contract !== 'wayland-release-claims-attestation/1.0' ||
-    result.signerWorkflow !== 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml' ||
+    result.signerWorkflow !== 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml' ||
     result.authority !== 'github-attested-release-claims'
   ) {
     fail('M8A_RELEASE_CLAIMS_INVALID', 'untrusted-manifest');
@@ -504,9 +581,12 @@ function verifyReleaseClaimsReceipt(receipt, candidate) {
   }
   const claims = new Map();
   for (const claim of result.capabilities) {
-    exactKeys(claim, ['id', 'claimed', 'evidenceSha256'], 'M8A_RELEASE_CLAIMS_INVALID');
+    exactKeys(claim, ['id', 'claimed', 'evidencePath', 'evidenceSha256'], 'M8A_RELEASE_CLAIMS_INVALID');
     if (!CAPABILITIES.includes(claim.id) || claims.has(claim.id) || typeof claim.claimed !== 'boolean') {
       fail('M8A_RELEASE_CLAIMS_INVALID', 'unknown-or-duplicate-capability');
+    }
+    if (typeof claim.evidencePath !== 'string' || claim.evidencePath.length === 0) {
+      fail('M8A_RELEASE_CLAIMS_INVALID', `missing-evidence-path:${claim.id}`);
     }
     digest(claim.evidenceSha256, 'M8A_RELEASE_CLAIMS_INVALID');
     claims.set(claim.id, claim);

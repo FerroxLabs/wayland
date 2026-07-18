@@ -94,10 +94,15 @@ jobs:
         shell: bash
         run: |
           mapfile -d '' target_receipts < <(find acceptance-evidence -type f -path '*/target-gates/*/*.json' -print0)
+          mapfile -d '' platform_smokes < <(find acceptance-evidence -type f -name 'platform-package-smoke-*.json' -print0)
           mapfile -d '' evidence_manifests < <(find acceptance-evidence -type f -name release-evidence-manifest.json -print0)
           mapfile -d '' claims_manifests < <(find acceptance-evidence -type f -name release-claims-manifest.json -print0)
           [[ "${#target_receipts[@]}" -eq 30 ]] || {
             echo "::error::expected exactly 30 target gate receipts, found ${#target_receipts[@]}"
+            exit 1
+          }
+          [[ "${#platform_smokes[@]}" -eq 6 ]] || {
+            echo "::error::expected exactly 6 platform package smoke receipts, found ${#platform_smokes[@]}"
             exit 1
           }
           [[ "${#evidence_manifests[@]}" -eq 1 && "${#claims_manifests[@]}" -eq 1 ]] || {
@@ -105,11 +110,11 @@ jobs:
             exit 1
           }
           mkdir -p attestation-subjects
-          for subject in "${target_receipts[@]}" "${evidence_manifests[@]}" "${claims_manifests[@]}"; do
+          for subject in "${target_receipts[@]}" "${platform_smokes[@]}" "${evidence_manifests[@]}" "${claims_manifests[@]}"; do
             digest="$(sha256sum "$subject" | cut -d' ' -f1)"
             cp "$subject" "attestation-subjects/${digest}.json"
           done
-          [[ "$(find attestation-subjects -type f -name '*.json' | wc -l | tr -d ' ')" -eq 32 ]] || {
+          [[ "$(find attestation-subjects -type f -name '*.json' | wc -l | tr -d ' ')" -eq 38 ]] || {
             echo "::error::acceptance subject digest reuse or staging failure"
             exit 1
           }

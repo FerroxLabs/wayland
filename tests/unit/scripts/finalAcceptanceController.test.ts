@@ -39,7 +39,16 @@ const TARGET_GATE_REQUIREMENTS = TARGETS.flatMap((target) =>
 );
 const TARGET_GATE_SCHEMA = {
   contract: 'wayland-target-hardening-gate-receipt/1.0',
-  requiredFields: ['contract', 'receiptId', 'candidate', 'target', 'gate', 'authority', 'evidenceSha256'],
+  requiredFields: [
+    'contract',
+    'receiptId',
+    'candidate',
+    'target',
+    'gate',
+    'authority',
+    'evidencePath',
+    'evidenceSha256',
+  ],
   authority: 'canonical-target-hardening-validator',
 };
 const RELEASE_EVIDENCE = {
@@ -99,7 +108,12 @@ const RELEASE_EVIDENCE = {
 
 function releaseEvidence() {
   return Object.entries(RELEASE_EVIDENCE).flatMap(([kind, ids]) =>
-    ids.map((id) => ({ kind, id, evidenceSha256: DIGEST('a') }))
+    ids.map((id) => ({
+      kind,
+      id,
+      evidencePath: `/trusted/release-evidence/${kind}/${id}.json`,
+      evidenceSha256: DIGEST('a'),
+    }))
   );
 }
 
@@ -108,8 +122,10 @@ function verifiedTargetGateReceipts() {
     ...receipt,
     candidate: { commit: COMMIT, tree: TREE },
     authority: 'canonical-target-hardening-validator',
+    evidencePath: `/trusted/evidence/${receipt.target}/${receipt.gate}.json`,
     evidenceSha256: INDEX_DIGEST(index + 1),
     receiptFile: { path: `/trusted/${receipt.target}/${receipt.gate}.json`, sha256: INDEX_DIGEST(index + 101) },
+    evidenceFile: { path: `/trusted/evidence/${receipt.target}/${receipt.gate}.json`, sha256: INDEX_DIGEST(index + 1) },
     attestationVerified: true,
   }));
 }
@@ -160,9 +176,10 @@ function verifiers() {
       conditionalCapabilities: 5,
     }),
     verifyCapabilitySeal: () => ({
-      contract: 'wayland-candidate-capability-seal/2.0',
+      contract: 'wayland-candidate-capability-seal/3.0',
       candidate: { commit: COMMIT, tree: TREE },
       selectionSha256: DIGEST('1'),
+      receiptManifestSha256: DIGEST('2'),
       capabilities: Object.keys(CONDITIONAL).map((id) => ({ id, mode: 'included' })),
       sealSha256: DIGEST('2'),
     }),
@@ -195,15 +212,20 @@ function verifiers() {
       candidate: { commit: COMMIT, tree: TREE },
       evidence: releaseEvidence(),
       manifestSha256: DIGEST('b'),
-      signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml',
+      signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml',
       authority: 'github-attested-release-evidence',
     }),
     verifyReleaseClaimsManifest: () => ({
       contract: 'wayland-release-claims-attestation/1.0',
       candidate: { commit: COMMIT, tree: TREE },
-      capabilities: Object.keys(CONDITIONAL).map((id) => ({ id, claimed: true, evidenceSha256: DIGEST('c') })),
+      capabilities: Object.keys(CONDITIONAL).map((id) => ({
+        id,
+        claimed: true,
+        evidencePath: `/trusted/release-claims/${id}.json`,
+        evidenceSha256: DIGEST('c'),
+      })),
       manifestSha256: DIGEST('d'),
-      signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml',
+      signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml',
       authority: 'github-attested-release-claims',
     }),
     verifyPublisherArtifact: (raw: { assetName: string }) => ({
@@ -405,9 +427,7 @@ describe('M8-A final acceptance controller', () => {
   it('does not treat a caller-authored accepted boolean as updater authority', () => {
     const withoutUpdaterAuthority = verifiers();
     delete withoutUpdaterAuthority.verifyUpdaterObservation;
-    expect(() => verifyFinalAcceptance(request(), withoutUpdaterAuthority)).toThrow(
-      /M8A_UPDATER_AUTHORITY_UNAVAILABLE/
-    );
+    expect(() => verifyFinalAcceptance(request(), withoutUpdaterAuthority)).toThrow(/M8C_OBSERVATION_INPUT_INVALID/);
   });
 
   it('rejects an omitted conditional capability receipt', () => {
@@ -443,13 +463,13 @@ describe('M8-A final acceptance controller', () => {
     }
   });
 
-  it('fails closed when updater trusted-observation authority is unavailable', () => {
+  it('fails closed when updater evidence is not a path to a trusted observation', () => {
     const input = request();
     input.updaterEvidence = { contract: 'wayland-updater-rollback-reupgrade/1.0', accepted: true };
     const withoutUpdaterAuthority = verifiers();
     delete withoutUpdaterAuthority.verifyUpdaterObservation;
 
-    expect(() => verifyFinalAcceptance(input, withoutUpdaterAuthority)).toThrow(/trusted-validator-not-installed/);
+    expect(() => verifyFinalAcceptance(input, withoutUpdaterAuthority)).toThrow(/M8C_OBSERVATION_INPUT_INVALID/);
   });
 
   it('has one non-deploying package and GitHub callsite after evidence artifacts exist', () => {

@@ -5,6 +5,8 @@ permissions:
   issues: read
   pull-requests: read
   actions: write
+  id-token: write
+  attestations: write
 
 on:
   push:

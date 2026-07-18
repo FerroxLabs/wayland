@@ -4,15 +4,24 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
-const { CONTRACT, RECEIPT_CONTRACT, capabilitySourceDigest, createCapabilitySeal, sha256, verifyCapabilitySeal } =
-  require('../../../scripts/capability-seal/verifyCandidateCapabilitySeal') as {
-    CONTRACT: string;
-    RECEIPT_CONTRACT: string;
-    capabilitySourceDigest: (root: string, commit: string, capabilityId: string) => string;
-    createCapabilitySeal: (options: Record<string, unknown>) => Record<string, unknown>;
-    sha256: (value: string | Buffer) => string;
-    verifyCapabilitySeal: (seal: unknown) => unknown;
-  };
+const {
+  CONTRACT,
+  RECEIPT_CONTRACT,
+  RECEIPT_MANIFEST_CONTRACT,
+  capabilitySourceDigest,
+  createCapabilitySeal,
+  selectionDigest,
+  sha256,
+  verifyCapabilitySeal,
+} = require('../../../scripts/capability-seal/verifyCandidateCapabilitySeal') as {
+  CONTRACT: string;
+  RECEIPT_CONTRACT: string;
+  capabilitySourceDigest: (root: string, commit: string, capabilityId: string) => string;
+  createCapabilitySeal: (options: Record<string, unknown>) => Record<string, unknown>;
+  selectionDigest: (selection: unknown) => string;
+  sha256: (value: string | Buffer) => string;
+  verifyCapabilitySeal: (seal: unknown) => unknown;
+};
 
 const COMMIT = 'a'.repeat(40);
 const TREE = 'b'.repeat(40);
@@ -43,8 +52,13 @@ function fixture() {
   const receiptsDir = join(root, 'receipts');
   mkdirSync(receiptsDir);
   roots.push(root);
+  const manifestEntries: Array<Record<string, string>> = [];
   const capabilities = [...PACKETS].map(([id, packets]) => {
     const sourceSha256 = sha256(`source:${id}`);
+    const proofFile = `${id}.proof.log`;
+    const proofBytes = `proof:${id}\n`;
+    const proofSha256 = sha256(proofBytes);
+    writeFileSync(join(receiptsDir, proofFile), proofBytes);
     const receipt = {
       contract: RECEIPT_CONTRACT,
       capabilityId: id,
@@ -53,34 +67,68 @@ function fixture() {
       acceptedCommit: ACCEPTED_COMMIT,
       acceptedTree: ACCEPTED_TREE,
       sourceSha256,
-      proof: [`sha256:${'c'.repeat(64)}`],
+      proof: [proofSha256],
     };
+    const receiptFile = `${id}.json`;
     const bytes = `${JSON.stringify(receipt, null, 2)}\n`;
-    writeFileSync(join(receiptsDir, `${id}.json`), bytes);
+    writeFileSync(join(receiptsDir, receiptFile), bytes);
+    manifestEntries.push({ capabilityId: id, receiptFile, receiptSha256: sha256(bytes), proofFile, proofSha256 });
     return {
       id,
       packets,
       mode: 'included',
-      receiptSha256: sha256(bytes),
       excludedPaths: MANIFEST_EXCLUSIONS.get(id)!,
     };
   });
+  const selection = { contract: CONTRACT, capabilities };
+  const candidate = {
+    commit: COMMIT,
+    tree: TREE,
+    status: '',
+    ancestors: [ACCEPTED_COMMIT],
+    acceptedTrees: { [ACCEPTED_COMMIT]: ACCEPTED_TREE },
+    sourceDigests: {
+      [ACCEPTED_COMMIT]: Object.fromEntries([...PACKETS].map(([id]) => [id, sha256(`source:${id}`)])),
+      [COMMIT]: Object.fromEntries([...PACKETS].map(([id]) => [id, sha256(`source:${id}`)])),
+    },
+  };
+  writeFileSync(
+    join(receiptsDir, 'manifest.json'),
+    `${JSON.stringify({ contract: RECEIPT_MANIFEST_CONTRACT, candidate: { commit: COMMIT, tree: TREE }, selectionSha256: selectionDigest(selection), receipts: manifestEntries }, null, 2)}\n`
+  );
   return {
     root,
     receiptsDir,
-    selection: { contract: CONTRACT, capabilities },
-    candidate: {
-      commit: COMMIT,
-      tree: TREE,
-      status: '',
-      ancestors: [ACCEPTED_COMMIT],
-      acceptedTrees: { [ACCEPTED_COMMIT]: ACCEPTED_TREE },
-      sourceDigests: {
-        [ACCEPTED_COMMIT]: Object.fromEntries([...PACKETS].map(([id]) => [id, sha256(`source:${id}`)])),
-        [COMMIT]: Object.fromEntries([...PACKETS].map(([id]) => [id, sha256(`source:${id}`)])),
-      },
-    },
+    selection,
+    candidate,
+    verifyAttestedFile: () => undefined,
   };
+}
+
+function syncManifest(input: ReturnType<typeof fixture> | ReturnType<typeof realGitFixture>): void {
+  const file = join(input.receiptsDir, 'manifest.json');
+  const prior = JSON.parse(readFileSync(file, 'utf8')) as {
+    contract: string;
+    candidate: { commit: string; tree: string };
+    receipts: Array<{
+      capabilityId: string;
+      receiptFile: string;
+      receiptSha256: string;
+      proofFile: string;
+      proofSha256: string;
+    }>;
+  };
+  const included = new Set(
+    input.selection.capabilities.filter((entry) => entry.mode === 'included').map((entry) => entry.id)
+  );
+  prior.receipts = prior.receipts
+    .filter((entry) => included.has(entry.capabilityId))
+    .map((entry) => ({ ...entry, receiptSha256: sha256(readFileSync(join(input.receiptsDir, entry.receiptFile))) }));
+  prior.candidate =
+    'candidate' in input
+      ? { commit: input.candidate.commit, tree: input.candidate.tree }
+      : { commit: git(input.root, 'rev-parse', 'HEAD'), tree: git(input.root, 'rev-parse', 'HEAD^{tree}') };
+  writeFileSync(file, `${JSON.stringify({ ...prior, selectionSha256: selectionDigest(input.selection) }, null, 2)}\n`);
 }
 
 function git(root: string, ...args: string[]): string {
@@ -108,7 +156,12 @@ function realGitFixture() {
   writeFileSync(mcpFile, 'export const version = 1;\n');
   const acceptedCommit = commit(root, 'accepted capability source');
   const acceptedTree = git(root, 'rev-parse', 'HEAD^{tree}');
+  const manifestEntries: Array<Record<string, string>> = [];
   const capabilities = [...PACKETS].map(([id, packets]) => {
+    const proofFile = `${id}.proof.log`;
+    const proofBytes = `proof:${id}\n`;
+    const proofSha256 = sha256(proofBytes);
+    writeFileSync(join(receiptsDir, proofFile), proofBytes);
     const receipt = {
       contract: RECEIPT_CONTRACT,
       capabilityId: id,
@@ -117,44 +170,61 @@ function realGitFixture() {
       acceptedCommit,
       acceptedTree,
       sourceSha256: capabilitySourceDigest(root, acceptedCommit, id),
-      proof: [`sha256:${'c'.repeat(64)}`],
+      proof: [proofSha256],
     };
+    const receiptFile = `${id}.json`;
     const bytes = `${JSON.stringify(receipt, null, 2)}\n`;
-    writeFileSync(join(receiptsDir, `${id}.json`), bytes);
+    writeFileSync(join(receiptsDir, receiptFile), bytes);
+    manifestEntries.push({ capabilityId: id, receiptFile, receiptSha256: sha256(bytes), proofFile, proofSha256 });
     return {
       id,
       packets,
       mode: 'included',
-      receiptSha256: sha256(bytes),
       excludedPaths: MANIFEST_EXCLUSIONS.get(id)!,
     };
   });
+  const selection = { contract: CONTRACT, capabilities };
+  writeFileSync(
+    join(receiptsDir, 'manifest.json'),
+    `${JSON.stringify({ contract: RECEIPT_MANIFEST_CONTRACT, candidate: { commit: acceptedCommit, tree: acceptedTree }, selectionSha256: selectionDigest(selection), receipts: manifestEntries }, null, 2)}\n`
+  );
   return {
     root,
     receiptsDir,
-    selection: { contract: CONTRACT, capabilities },
+    selection,
     mcpFile,
+    verifyAttestedFile: () => undefined,
   };
 }
 
 describe('candidate capability seal', () => {
+  it('refuses to package without a canonical receipt authority directory', () => {
+    const input = fixture();
+    delete (input as { receiptsDir?: string }).receiptsDir;
+
+    expect(() => createCapabilitySeal(input)).toThrow(/WAYLAND_CAPABILITY_RECEIPTS_DIR is required/);
+  });
+
   it('seals the exact candidate only when every required receipt is accepted', () => {
     const input = fixture();
     const seal = createCapabilitySeal(input);
 
     expect(seal).toMatchObject({
-      contract: 'wayland-candidate-capability-seal/2.0',
+      contract: 'wayland-candidate-capability-seal/3.0',
       candidate: { commit: COMMIT, tree: TREE },
     });
     expect((seal.capabilities as unknown[]).length).toBe(5);
     expect(verifyCapabilitySeal(seal)).toBe(seal);
   });
 
-  it('fails closed when an included capability has no pinned receipt digest', () => {
+  it('fails closed when the authority manifest has no pinned receipt digest', () => {
     const input = fixture();
-    input.selection.capabilities[0].receiptSha256 = null as unknown as string;
+    const manifestFile = join(input.receiptsDir, 'manifest.json');
+    const manifest = JSON.parse(readFileSync(manifestFile, 'utf8'));
+    manifest.receipts[0].receiptSha256 = null;
+    writeFileSync(manifestFile, `${JSON.stringify(manifest)}\n`);
 
-    expect(() => createCapabilitySeal(input)).toThrow(/no exact accepted receipt digest/);
+    expect(() => createCapabilitySeal(input)).toThrow(/path or digest is invalid/);
   });
 
   it('rejects a receipt for a sibling or stale candidate', () => {
@@ -172,7 +242,7 @@ describe('candidate capability seal', () => {
     };
     const bytes = `${JSON.stringify(receipt, null, 2)}\n`;
     writeFileSync(receiptFile, bytes);
-    input.selection.capabilities.find((entry) => entry.id === 'mcp')!.receiptSha256 = sha256(bytes);
+    syncManifest(input);
     input.candidate.acceptedTrees[receipt.acceptedCommit] = receipt.acceptedTree;
     input.candidate.sourceDigests[receipt.acceptedCommit] = { mcp: receipt.sourceSha256 };
 
@@ -193,7 +263,7 @@ describe('candidate capability seal', () => {
     receipt.sourceSha256 = sha256('forged accepted source');
     const bytes = `${JSON.stringify(receipt, null, 2)}\n`;
     writeFileSync(receiptFile, bytes);
-    input.selection.capabilities.find((entry) => entry.id === 'mcp')!.receiptSha256 = sha256(bytes);
+    syncManifest(input);
 
     expect(() => createCapabilitySeal(input)).toThrow(/does not bind its accepted capability source/);
   });
@@ -205,7 +275,7 @@ describe('candidate capability seal', () => {
     delete receipt.sourceSha256;
     const bytes = `${JSON.stringify(receipt, null, 2)}\n`;
     writeFileSync(receiptFile, bytes);
-    input.selection.capabilities.find((entry) => entry.id === 'mcp')!.receiptSha256 = sha256(bytes);
+    syncManifest(input);
 
     expect(() => createCapabilitySeal(input)).toThrow(/invalid contract or critical fields/);
   });
@@ -214,7 +284,7 @@ describe('candidate capability seal', () => {
     const input = fixture();
     writeFileSync(join(input.receiptsDir, 'voice.json'), '{}\n');
 
-    expect(() => createCapabilitySeal(input)).toThrow(/digest mismatch for voice/);
+    expect(() => createCapabilitySeal(input)).toThrow(/digest mismatch: voice/);
   });
 
   it('keeps an ancestor receipt valid across an unrelated successor commit', () => {
@@ -223,6 +293,7 @@ describe('candidate capability seal', () => {
     mkdirSync(dirname(unrelated), { recursive: true });
     writeFileSync(unrelated, 'unrelated successor\n');
     commit(input.root, 'unrelated successor');
+    syncManifest(input);
 
     expect(() => createCapabilitySeal(input)).not.toThrow();
   });
@@ -231,6 +302,7 @@ describe('candidate capability seal', () => {
     const input = realGitFixture();
     writeFileSync(input.mcpFile, 'export const version = 2;\n');
     commit(input.root, 'regress accepted mcp source');
+    syncManifest(input);
 
     expect(() => createCapabilitySeal(input)).toThrow(/Capability mcp source changed after its accepted receipt/);
   });
@@ -239,7 +311,6 @@ describe('candidate capability seal', () => {
     const input = fixture();
     const voice = input.selection.capabilities.find((entry) => entry.id === 'voice')!;
     voice.mode = 'excluded';
-    voice.receiptSha256 = null as unknown as string;
     voice.excludedPaths = voice.excludedPaths.slice(1);
 
     expect(() => createCapabilitySeal(input)).toThrow(/physical exclusion inventory does not match authority/);
@@ -257,7 +328,7 @@ describe('candidate capability seal', () => {
       const input = fixture();
       const capability = input.selection.capabilities.find((entry) => entry.id === capabilityId)!;
       capability.mode = 'excluded';
-      capability.receiptSha256 = null as unknown as string;
+      syncManifest(input);
       const absolutePath = join(input.root, implementationPath);
       mkdirSync(dirname(absolutePath), { recursive: true });
       writeFileSync(absolutePath, '// hostile retained implementation\n');

@@ -5,9 +5,13 @@ const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
 
-const CONTRACT = 'wayland-candidate-capabilities/1.0';
+const CONTRACT = 'wayland-candidate-capabilities/2.0';
 const RECEIPT_CONTRACT = 'wayland-capability-acceptance/2.0';
-const SEAL_CONTRACT = 'wayland-candidate-capability-seal/2.0';
+const RECEIPT_MANIFEST_CONTRACT = 'wayland-capability-acceptance-manifest/1.0';
+const SEAL_CONTRACT = 'wayland-candidate-capability-seal/3.0';
+const ATTESTATION_REPOSITORY = 'FerroxLabs/wayland';
+const ATTESTATION_SIGNER = 'FerroxLabs/wayland/.github/workflows/_build-reusable.yml';
+const ATTESTATION_PREDICATE = 'https://slsa.dev/provenance/v1';
 const REQUIRED = new Map([
   ['cowork-office', ['C0-B', 'C1']],
   ['voice', ['M5V-A']],
@@ -192,7 +196,7 @@ function validateSelection(selection) {
   }
   const seen = new Set();
   for (const capability of selection.capabilities) {
-    if (!exactKeys(capability, ['id', 'packets', 'mode', 'receiptSha256', 'excludedPaths'])) {
+    if (!exactKeys(capability, ['id', 'packets', 'mode', 'excludedPaths'])) {
       throw new Error('Capability selection contains unknown or missing critical fields.');
     }
     const expectedPackets = REQUIRED.get(capability.id);
@@ -215,14 +219,124 @@ function validateSelection(selection) {
         throw new Error(`Capability ${capability.id} has an unsafe exclusion path.`);
       }
     }
-    if (capability.mode === 'included' && !SHA256.test(String(capability.receiptSha256))) {
-      throw new Error(`Capability ${capability.id} is present but has no exact accepted receipt digest.`);
-    }
-    if (capability.mode === 'excluded' && capability.receiptSha256 !== null) {
-      throw new Error(`Excluded capability ${capability.id} must not claim an acceptance receipt.`);
-    }
   }
   return selection;
+}
+
+function selectionDigest(selection) {
+  return sha256(canonical(validateSelection(selection)));
+}
+
+function verifyAttestedFile(file, fileSha256, candidate, run = execFileSync) {
+  let output;
+  try {
+    output = run(
+      'gh',
+      [
+        'attestation',
+        'verify',
+        file,
+        '--repo',
+        ATTESTATION_REPOSITORY,
+        '--signer-workflow',
+        ATTESTATION_SIGNER,
+        '--source-digest',
+        candidate.commit,
+        '--predicate-type',
+        ATTESTATION_PREDICATE,
+        '--deny-self-hosted-runners',
+        '--format',
+        'json',
+      ],
+      { encoding: 'utf8', timeout: 120000, stdio: ['ignore', 'pipe', 'pipe'] }
+    );
+  } catch (error) {
+    throw new Error(`Capability acceptance attestation failed for ${path.basename(file)}: ${error.message}`);
+  }
+  let attestations;
+  try {
+    attestations = JSON.parse(String(output));
+  } catch {
+    throw new Error(`Capability acceptance attestation is invalid for ${path.basename(file)}.`);
+  }
+  const expectedDigest = fileSha256.slice('sha256:'.length);
+  if (
+    !Array.isArray(attestations) ||
+    !attestations.some((entry) => {
+      const statement = entry?.verificationResult?.statement;
+      return (
+        statement?.predicateType === ATTESTATION_PREDICATE &&
+        Array.isArray(statement.subject) &&
+        statement.subject.some((subject) => subject?.digest?.sha256 === expectedDigest)
+      );
+    })
+  ) {
+    throw new Error(`Capability acceptance attestation does not bind exact bytes for ${path.basename(file)}.`);
+  }
+}
+
+function readReceiptAuthority(receiptsDir, selection, candidate, options = {}) {
+  const manifestFile = path.join(receiptsDir, 'manifest.json');
+  const stat = fs.lstatSync(manifestFile);
+  if (!stat.isFile() || stat.isSymbolicLink()) throw new Error('Capability acceptance manifest is not a regular file.');
+  const manifestBytes = fs.readFileSync(manifestFile);
+  const manifestSha256 = sha256(manifestBytes);
+  (options.verifyAttestedFile || verifyAttestedFile)(manifestFile, manifestSha256, candidate, options.execFileSyncImpl);
+  const manifest = JSON.parse(manifestBytes.toString('utf8'));
+  if (!exactKeys(manifest, ['contract', 'candidate', 'selectionSha256', 'receipts'])) {
+    throw new Error('Capability acceptance manifest has missing or unknown critical fields.');
+  }
+  if (manifest.contract !== RECEIPT_MANIFEST_CONTRACT)
+    throw new Error('Capability acceptance manifest contract is invalid.');
+  if (
+    !exactKeys(manifest.candidate, ['commit', 'tree']) ||
+    manifest.candidate.commit !== candidate.commit ||
+    manifest.candidate.tree !== candidate.tree
+  ) {
+    throw new Error('Capability acceptance manifest belongs to a stale or foreign candidate.');
+  }
+  const selectionSha256 = selectionDigest(selection);
+  if (manifest.selectionSha256 !== selectionSha256) {
+    throw new Error('Capability acceptance manifest does not bind the selected capabilities.');
+  }
+  const included = selection.capabilities.filter((entry) => entry.mode === 'included');
+  if (!Array.isArray(manifest.receipts) || manifest.receipts.length !== included.length) {
+    throw new Error('Capability acceptance manifest coverage is incomplete.');
+  }
+  const receipts = new Map();
+  for (const entry of manifest.receipts) {
+    if (!exactKeys(entry, ['capabilityId', 'receiptFile', 'receiptSha256', 'proofFile', 'proofSha256'])) {
+      throw new Error('Capability acceptance manifest receipt has missing or unknown critical fields.');
+    }
+    if (!included.some((capability) => capability.id === entry.capabilityId) || receipts.has(entry.capabilityId)) {
+      throw new Error(`Capability acceptance manifest contains unknown or duplicate receipt: ${entry.capabilityId}.`);
+    }
+    if (
+      path.basename(entry.receiptFile) !== entry.receiptFile ||
+      path.basename(entry.proofFile) !== entry.proofFile ||
+      !SHA256.test(String(entry.receiptSha256)) ||
+      !SHA256.test(String(entry.proofSha256))
+    ) {
+      throw new Error(`Capability acceptance manifest path or digest is invalid: ${entry.capabilityId}.`);
+    }
+    const receiptFile = path.join(receiptsDir, entry.receiptFile);
+    const proofFile = path.join(receiptsDir, entry.proofFile);
+    for (const [file, expected, kind] of [
+      [receiptFile, entry.receiptSha256, 'receipt'],
+      [proofFile, entry.proofSha256, 'proof'],
+    ]) {
+      const fileStat = fs.lstatSync(file);
+      if (!fileStat.isFile() || fileStat.isSymbolicLink()) {
+        throw new Error(`Capability acceptance ${kind} is not a regular file: ${entry.capabilityId}.`);
+      }
+      const observed = sha256(fs.readFileSync(file));
+      if (observed !== expected)
+        throw new Error(`Capability acceptance ${kind} digest mismatch: ${entry.capabilityId}.`);
+      (options.verifyAttestedFile || verifyAttestedFile)(file, observed, candidate, options.execFileSyncImpl);
+    }
+    receipts.set(entry.capabilityId, { ...entry, receiptFile });
+  }
+  return { manifestSha256, receipts, selectionSha256 };
 }
 
 function validateReceipt(receipt, capability, candidate, root) {
@@ -297,10 +411,18 @@ function validateReceipt(receipt, capability, candidate, root) {
 function createCapabilitySeal(options = {}) {
   const root = path.resolve(options.root || path.join(__dirname, '..', '..'));
   const selectionFile = path.resolve(options.selectionFile || path.join(__dirname, 'candidate-capabilities.json'));
-  const receiptsDir = path.resolve(options.receiptsDir || process.env.WAYLAND_CAPABILITY_RECEIPTS_DIR || '');
+  const receiptsDirInput = options.receiptsDir || process.env.WAYLAND_CAPABILITY_RECEIPTS_DIR;
+  if (!receiptsDirInput) {
+    throw new Error('WAYLAND_CAPABILITY_RECEIPTS_DIR is required for an evidence-backed package build.');
+  }
+  const receiptsDir = path.resolve(receiptsDirInput);
   const selection = validateSelection(options.selection || readJson(selectionFile));
   const candidateContext = candidateIdentity(root, options.candidate);
   const candidate = { commit: candidateContext.commit, tree: candidateContext.tree };
+  if (!options.receiptsDir && !process.env.WAYLAND_CAPABILITY_RECEIPTS_DIR) {
+    throw new Error('WAYLAND_CAPABILITY_RECEIPTS_DIR is required for capability authority.');
+  }
+  const receiptAuthority = readReceiptAuthority(receiptsDir, selection, candidate, options);
   const capabilities = [];
 
   for (const capability of selection.capabilities) {
@@ -311,22 +433,20 @@ function createCapabilitySeal(options = {}) {
           `Capability ${capability.id} is marked excluded but remains physically present: ${present.join(', ')}.`
         );
       }
-      capabilities.push({ id: capability.id, packets: capability.packets, mode: 'excluded', receiptSha256: null });
+      capabilities.push({ id: capability.id, packets: capability.packets, mode: 'excluded' });
       continue;
     }
-
-    if (!options.receiptsDir && !process.env.WAYLAND_CAPABILITY_RECEIPTS_DIR) {
-      throw new Error('WAYLAND_CAPABILITY_RECEIPTS_DIR is required for included capabilities.');
-    }
-    const receiptFile = path.join(receiptsDir, `${capability.id}.json`);
-    if (!fs.existsSync(receiptFile))
-      throw new Error(`Missing acceptance receipt for ${capability.id}: ${receiptFile}.`);
+    const authority = receiptAuthority.receipts.get(capability.id);
+    if (!authority) throw new Error(`Missing acceptance receipt for ${capability.id}.`);
+    const receiptFile = authority.receiptFile;
     const bytes = fs.readFileSync(receiptFile);
     const digest = sha256(bytes);
-    if (digest !== capability.receiptSha256)
-      throw new Error(`Acceptance receipt digest mismatch for ${capability.id}.`);
+    if (digest !== authority.receiptSha256) throw new Error(`Acceptance receipt digest mismatch for ${capability.id}.`);
     const receipt = JSON.parse(bytes.toString('utf8'));
     validateReceipt(receipt, capability, candidateContext, root);
+    if (receipt.proof.length !== 1 || receipt.proof[0] !== authority.proofSha256) {
+      throw new Error(`Acceptance receipt proof digest mismatch for ${capability.id}.`);
+    }
     capabilities.push({
       id: capability.id,
       packets: capability.packets,
@@ -338,13 +458,24 @@ function createCapabilitySeal(options = {}) {
     });
   }
 
-  const payload = { contract: SEAL_CONTRACT, candidate, selectionSha256: sha256(canonical(selection)), capabilities };
+  const payload = {
+    contract: SEAL_CONTRACT,
+    candidate,
+    selectionSha256: receiptAuthority.selectionSha256,
+    receiptManifestSha256: receiptAuthority.manifestSha256,
+    capabilities,
+  };
   return { ...payload, sealSha256: sha256(canonical(payload)) };
 }
 
 function verifyCapabilitySeal(seal) {
-  const keys = ['contract', 'candidate', 'selectionSha256', 'capabilities', 'sealSha256'];
-  if (!exactKeys(seal, keys) || seal.contract !== SEAL_CONTRACT || !SHA256.test(String(seal.selectionSha256))) {
+  const keys = ['contract', 'candidate', 'selectionSha256', 'receiptManifestSha256', 'capabilities', 'sealSha256'];
+  if (
+    !exactKeys(seal, keys) ||
+    seal.contract !== SEAL_CONTRACT ||
+    !SHA256.test(String(seal.selectionSha256)) ||
+    !SHA256.test(String(seal.receiptManifestSha256))
+  ) {
     throw new Error('Packaged capability seal has invalid identity or critical fields.');
   }
   if (
@@ -361,7 +492,7 @@ function verifyCapabilitySeal(seal) {
     const expectedKeys =
       entry?.mode === 'included'
         ? ['id', 'packets', 'mode', 'receiptSha256', 'acceptedCommit', 'acceptedTree', 'sourceSha256']
-        : ['id', 'packets', 'mode', 'receiptSha256'];
+        : ['id', 'packets', 'mode'];
     if (!exactKeys(entry, expectedKeys)) throw new Error('Packaged capability seal has invalid critical fields.');
     if (
       entry.mode === 'included' &&
@@ -380,7 +511,6 @@ function verifyCapabilitySeal(seal) {
       id: entry.id,
       packets: entry.packets,
       mode: entry.mode,
-      receiptSha256: entry.receiptSha256,
       excludedPaths: EXCLUSION_INVENTORY.get(entry.id),
     })),
   });
@@ -398,10 +528,12 @@ function writeCapabilitySeal(options = {}) {
 module.exports = {
   CONTRACT,
   RECEIPT_CONTRACT,
+  RECEIPT_MANIFEST_CONTRACT,
   SEAL_CONTRACT,
   capabilitySourceDigest,
   createCapabilitySeal,
   sha256,
+  selectionDigest,
   validateSelection,
   verifyCapabilitySeal,
   writeCapabilitySeal,
