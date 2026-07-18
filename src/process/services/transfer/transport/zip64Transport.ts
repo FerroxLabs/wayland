@@ -15,6 +15,13 @@ import {
   type TransferChunkDescriptor,
   type TransferContainerTerminal,
 } from '../container';
+import {
+  validateTransferPublication,
+  type SourceAuthorizationValidationPolicy,
+  type TransferPublicationContainerRecord,
+  type TransferPublicationRecord,
+  type TransferSourceAuthorizationRecord,
+} from '../publish';
 import { crc32 } from './crc32';
 import {
   TRANSFER_ZIP64_CONTRACT,
@@ -46,9 +53,10 @@ const LOCAL_ZIP64_EXTRA_BYTES = 20;
 const CENTRAL_ZIP64_EXTRA_BYTES = 28;
 const MAX_DESCRIPTOR_BYTES = TRANSFER_MAX_RECORD_BYTES;
 const MAX_TERMINAL_BYTES = TRANSFER_MAX_RECORD_BYTES;
+const MAX_SOURCE_AUTHORIZATION_BYTES = TRANSFER_MAX_RECORD_BYTES;
 const NAME_PREFIX = 'wayland-transfer/';
 
-type EntryKind = 'header' | 'descriptor' | 'ciphertext' | 'terminal';
+type EntryKind = 'header' | 'descriptor' | 'ciphertext' | 'terminal' | 'source-authorization';
 
 type SourceEntry = Readonly<{
   kind: EntryKind;
@@ -74,10 +82,11 @@ type CentralEntry = Readonly<{
  */
 export async function writeTransferZip64(
   input: TransferZip64Input,
-  sink: TransferZip64Sink
+  sink: TransferZip64Sink,
+  policy: SourceAuthorizationValidationPolicy
 ): Promise<TransferZip64Receipt> {
   assertSink(sink);
-  const entries = validateAndFlattenInput(input);
+  const entries = validateAndFlattenInput(input, policy);
   const layout = computeLayout(entries);
   const archiveHash = createHash('sha256');
   let written = 0;
@@ -121,12 +130,15 @@ export async function writeTransferZip64(
  * entry order, and the real outer transfer stream before returning an archive
  * handle. The supplied bytes are never exposed directly.
  */
-export function readTransferZip64(archive: Uint8Array): ValidatedTransferZip64Archive {
+export function readTransferZip64(
+  archive: Uint8Array,
+  policy: SourceAuthorizationValidationPolicy
+): ValidatedTransferZip64Archive {
   assertArchiveBytes(archive);
   const archiveDigest = digestHex(archive);
   const entries = parseCentralDirectory(archive);
   validateLocalEntries(archive, entries);
-  const semantic = validateContainerRecords(archive, entries);
+  const semantic = validateContainerRecords(archive, entries, policy);
   return new ValidatedTransferZip64Archive(archive, archiveDigest, entries, semantic);
 }
 
@@ -156,11 +168,19 @@ export class ValidatedTransferZip64Archive {
       descriptor: this.copyEntry(1 + ordinal * 2),
       ciphertext: this.copyEntry(2 + ordinal * 2),
     }));
-    const terminal = this.copyEntry(this.entries.length - 1);
+    const terminal = this.copyEntry(this.entries.length - 2);
+    const sourceAuthorization = this.copyEntry(this.entries.length - 1);
     const validator = new TransferContainerStreamValidator(parseTransferContainerHeader(header));
     for (const chunk of chunks) validator.acceptChunk(chunk.descriptor, chunk.ciphertext);
     validator.acceptTerminal(terminal);
-    return { header, chunks, terminal, validatedContainer: validator.finish() };
+    return {
+      header,
+      chunks,
+      terminal,
+      sourceAuthorization,
+      validatedContainer: validator.finish(),
+      validatedPublication: this.records.validatedPublication,
+    };
   }
 
   private copyEntry(index: number): Uint8Array {
@@ -172,10 +192,14 @@ export class ValidatedTransferZip64Archive {
   }
 }
 
-function validateAndFlattenInput(input: TransferZip64Input): SourceEntry[] {
+function validateAndFlattenInput(
+  input: TransferZip64Input,
+  policy: SourceAuthorizationValidationPolicy
+): SourceEntry[] {
   if (!isRecord(input)) throw new Error('Transfer ZIP64 input must be an object');
   assertOwnedBytes(input.header, TRANSFER_MAX_HEADER_BYTES, 'header');
   assertOwnedBytes(input.terminal, MAX_TERMINAL_BYTES, 'terminal');
+  assertOwnedBytes(input.sourceAuthorization, MAX_SOURCE_AUTHORIZATION_BYTES, 'source authorization');
   if (!Array.isArray(input.chunks) || input.chunks.length < 1 || input.chunks.length > TRANSFER_MAX_CHUNKS) {
     throw new Error('Transfer ZIP64 chunk count is outside bounds');
   }
@@ -197,8 +221,49 @@ function validateAndFlattenInput(input: TransferZip64Input): SourceEntry[] {
   validator.acceptTerminal(input.terminal);
   validator.finish();
   entries.push(sourceEntry('terminal', entries.length, input.terminal));
+  validateTransferPublication(publicationRecords(input), policy);
+  entries.push(sourceEntry('source-authorization', entries.length, input.sourceAuthorization));
   if (entries.length > TRANSFER_ZIP64_MAX_ENTRIES) throw new Error('Transfer ZIP64 entry count is outside bounds');
   return entries;
+}
+
+function publicationRecords(input: TransferZip64Input): readonly TransferPublicationRecord[] {
+  const records: TransferPublicationContainerRecord[] = [
+    Object.freeze({ recordType: 'header', serialized: input.header }),
+  ];
+  for (const chunk of input.chunks) {
+    records.push(Object.freeze({ recordType: 'chunk', descriptor: chunk.descriptor, ciphertext: chunk.ciphertext }));
+  }
+  records.push(Object.freeze({ recordType: 'terminal', serialized: input.terminal }));
+  const authorization: TransferSourceAuthorizationRecord = Object.freeze({
+    recordType: 'source-authorization',
+    serialized: input.sourceAuthorization,
+  });
+  return Object.freeze([...records, authorization]);
+}
+
+function publicationRecordsFromArchive(
+  bytesAt: (index: number) => Uint8Array,
+  chunkCount: number
+): readonly TransferPublicationRecord[] {
+  const records: TransferPublicationContainerRecord[] = [
+    Object.freeze({ recordType: 'header', serialized: bytesAt(0) }),
+  ];
+  for (let ordinal = 0; ordinal < chunkCount; ordinal += 1) {
+    records.push(
+      Object.freeze({
+        recordType: 'chunk',
+        descriptor: bytesAt(1 + ordinal * 2),
+        ciphertext: bytesAt(2 + ordinal * 2),
+      })
+    );
+  }
+  records.push(Object.freeze({ recordType: 'terminal', serialized: bytesAt(1 + chunkCount * 2) }));
+  const authorization: TransferSourceAuthorizationRecord = Object.freeze({
+    recordType: 'source-authorization',
+    serialized: bytesAt(2 + chunkCount * 2),
+  });
+  return Object.freeze([...records, authorization]);
 }
 
 function sourceEntry(kind: EntryKind, index: number, bytes: Uint8Array): SourceEntry {
@@ -279,14 +344,14 @@ function parseCentralDirectory(archive: Uint8Array): CentralEntry[] {
     throw new Error('Transfer ZIP64 multi-disk archives are forbidden');
   const diskEntries = safeU64(readU64(view, zip64EndOffset + 24), 'ZIP64 disk entry count');
   const totalEntries = safeU64(readU64(view, zip64EndOffset + 32), 'ZIP64 entry count');
-  if (diskEntries !== totalEntries || totalEntries < 4 || totalEntries > TRANSFER_ZIP64_MAX_ENTRIES)
+  if (diskEntries !== totalEntries || totalEntries < 5 || totalEntries > TRANSFER_ZIP64_MAX_ENTRIES)
     throw new Error('Transfer ZIP64 entry count is outside bounds');
   const centralBytes = safeU64(readU64(view, zip64EndOffset + 40), 'ZIP64 central size');
   const centralOffset = safeU64(readU64(view, zip64EndOffset + 48), 'ZIP64 central offset');
   if (checkedAdd(centralOffset, centralBytes, 'central directory') !== zip64EndOffset)
     throw new Error('Transfer ZIP64 central directory boundary mismatch');
 
-  const chunkCount = (totalEntries - 2) / 2;
+  const chunkCount = (totalEntries - 3) / 2;
   if (!Number.isInteger(chunkCount) || chunkCount < 1 || chunkCount > TRANSFER_MAX_CHUNKS)
     throw new Error('Transfer ZIP64 entry set is invalid');
 
@@ -383,13 +448,17 @@ function validateLocalEntries(archive: Uint8Array, central: CentralEntry[]): voi
     throw new Error('Transfer ZIP64 material appears between entries and directory');
 }
 
-function validateContainerRecords(archive: Uint8Array, entries: readonly CentralEntry[]): TransferZip64SemanticRecords {
+function validateContainerRecords(
+  archive: Uint8Array,
+  entries: readonly CentralEntry[],
+  policy: SourceAuthorizationValidationPolicy
+): TransferZip64SemanticRecords {
   const bytesAt = (index: number): Uint8Array => {
     const entry = entries[index]!;
     return archive.subarray(entry.dataOffset, entry.dataOffset + entry.size);
   };
   const header = parseTransferContainerHeader(bytesAt(0));
-  const chunkCount = (entries.length - 2) / 2;
+  const chunkCount = (entries.length - 3) / 2;
   if (header.declaredChunkCount !== chunkCount)
     throw new Error('Transfer ZIP64 entry set disagrees with container header');
   const validator = new TransferContainerStreamValidator(header);
@@ -397,12 +466,15 @@ function validateContainerRecords(archive: Uint8Array, entries: readonly Central
   for (let ordinal = 0; ordinal < chunkCount; ordinal += 1) {
     descriptors.push(validator.acceptChunk(bytesAt(1 + ordinal * 2), bytesAt(2 + ordinal * 2)).descriptor);
   }
-  const terminal = validator.acceptTerminal(bytesAt(entries.length - 1));
+  const terminal = validator.acceptTerminal(bytesAt(entries.length - 2));
   validator.finish();
+  const publication = validateTransferPublication(publicationRecordsFromArchive(bytesAt, chunkCount), policy);
   return Object.freeze({
     header,
     descriptors: Object.freeze(descriptors),
     terminal: terminal as TransferContainerTerminal,
+    sourceAuthorizationSha256: `sha256:${digestHex(bytesAt(entries.length - 1))}`,
+    validatedPublication: publication,
   });
 }
 
@@ -522,7 +594,8 @@ function decodeCanonicalName(bytes: Uint8Array): string {
 
 function kindAt(index: number, total: number): EntryKind {
   if (index === 0) return 'header';
-  if (index === total - 1) return 'terminal';
+  if (index === total - 1) return 'source-authorization';
+  if (index === total - 2) return 'terminal';
   return index % 2 === 1 ? 'descriptor' : 'ciphertext';
 }
 

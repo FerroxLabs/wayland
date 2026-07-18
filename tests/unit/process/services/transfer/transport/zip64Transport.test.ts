@@ -14,6 +14,13 @@ import {
   type TransferContainerTerminal,
 } from '@process/services/transfer/container';
 import {
+  createSourceAuthorizationRecord,
+  sourceScopeForGraph,
+  SourceSigningAuthority,
+  type SourceAuthorizationValidationPolicy,
+  type TransferPublicationContainerRecord,
+} from '@process/services/transfer/publish';
+import {
   readTransferZip64,
   TRANSFER_ZIP64_CONTRACT,
   writeTransferZip64,
@@ -25,6 +32,24 @@ const CENTRAL_SIGNATURE = 0x02014b50;
 const ZIP64_END_BYTES = 56;
 const ZIP64_LOCATOR_BYTES = 20;
 const END_BYTES = 22;
+const NOW = 1_784_413_200_000;
+const SOURCE_AUTHORITY = SourceSigningAuthority.issue();
+const SEMANTIC_GRAPH_SHA256 = `sha256:${'a'.repeat(64)}` as const;
+const BUNDLE_ID = `wtb1:${'a'.repeat(64)}`;
+const MUTATION_EPOCH = { start: 'process-config:42', end: 'process-config:42' } as const;
+const SOURCE_SCOPE = sourceScopeForGraph(
+  SEMANTIC_GRAPH_SHA256,
+  BUNDLE_ID,
+  ['desktop.preferences'],
+  [],
+  MUTATION_EPOCH,
+  { mode: 'recovery', recoveryMode: 'passphrase' }
+);
+const SOURCE_POLICY: SourceAuthorizationValidationPolicy = {
+  trustedAuthority: SOURCE_AUTHORITY.descriptor(),
+  expectedScope: SOURCE_SCOPE,
+  now: () => NOW,
+};
 
 const digest = (value: string): `sha256:${string}` => `sha256:${createHash('sha256').update(value).digest('hex')}`;
 
@@ -34,7 +59,7 @@ function fixture(chunkCount = 1): TransferZip64Input {
     recordType: 'header',
     contract: TRANSFER_CONTAINER_CONTRACT,
     formatVersion: TRANSFER_CONTAINER_FORMAT_VERSION,
-    bundleId: 'bundle-zip64-fixture',
+    bundleId: BUNDLE_ID,
     suite: TRANSFER_RECOVERY_SUITE,
     declaredChunkCount: chunkCount,
     declaredCiphertextBytes: ciphertexts.reduce((sum, value) => sum + value.length, 0),
@@ -66,22 +91,42 @@ function fixture(chunkCount = 1): TransferZip64Input {
     ciphertextBytes: header.declaredCiphertextBytes,
     streamDigest: validator.currentStreamDigest(),
   };
-  validator.acceptTerminal(serializeTransferContainerRecord(terminal));
+  const terminalBytes = serializeTransferContainerRecord(terminal);
+  validator.acceptTerminal(terminalBytes);
   validator.finish();
+  const headerBytes = serializeTransferContainerRecord(header);
+  const containerRecords: readonly TransferPublicationContainerRecord[] = [
+    { recordType: 'header', serialized: headerBytes },
+    ...chunks.map((chunk) => ({ recordType: 'chunk' as const, ...chunk })),
+    { recordType: 'terminal', serialized: terminalBytes },
+  ];
+  const sourceAuthorization = createSourceAuthorizationRecord(
+    containerRecords,
+    header,
+    terminal,
+    SOURCE_SCOPE,
+    { authority: SOURCE_AUTHORITY, mutationEpoch: MUTATION_EPOCH, expiresAt: NOW + 60_000 },
+    NOW
+  );
   return {
-    header: serializeTransferContainerRecord(header),
+    header: headerBytes,
     chunks,
-    terminal: serializeTransferContainerRecord(terminal),
+    terminal: terminalBytes,
+    sourceAuthorization: sourceAuthorization.serialized,
   };
 }
 
 async function encode(chunkCount = 1): Promise<Buffer> {
   const parts: Buffer[] = [];
-  await writeTransferZip64(fixture(chunkCount), {
-    write(bytes) {
-      parts.push(Buffer.from(bytes));
+  await writeTransferZip64(
+    fixture(chunkCount),
+    {
+      write(bytes) {
+        parts.push(Buffer.from(bytes));
+      },
     },
-  });
+    SOURCE_POLICY
+  );
   return Buffer.concat(parts);
 }
 
@@ -123,20 +168,24 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
   it('writes and reads the canonical generic record set', async () => {
     const input = fixture(2);
     const chunks: Buffer[] = [];
-    const receipt = await writeTransferZip64(input, {
-      async write(bytes) {
-        chunks.push(Buffer.from(bytes));
+    const receipt = await writeTransferZip64(
+      input,
+      {
+        async write(bytes) {
+          chunks.push(Buffer.from(bytes));
+        },
       },
-    });
+      SOURCE_POLICY
+    );
     const archive = Buffer.concat(chunks);
     expect(receipt).toEqual({
       contract: TRANSFER_ZIP64_CONTRACT,
       archiveBytes: archive.length,
-      entryCount: 6,
+      entryCount: 7,
       archiveDigest: `sha256:${createHash('sha256').update(archive).digest('hex')}`,
     });
     expect(JSON.stringify(receipt)).not.toMatch(/bundle|project|chat|user|secret|recipient/i);
-    const accepted = readTransferZip64(archive);
+    const accepted = readTransferZip64(archive, SOURCE_POLICY);
     expect(accepted.receipt).toEqual(receipt);
     expect(accepted.records.descriptors.map((descriptor) => descriptor.ordinal)).toEqual([0, 1]);
     const materialized = accepted.materialize();
@@ -153,14 +202,45 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
       }))
     );
     expect(Buffer.from(materialized.terminal)).toEqual(Buffer.from(input.terminal));
+    expect(Buffer.from(materialized.sourceAuthorization)).toEqual(Buffer.from(input.sourceAuthorization));
+    expect(materialized.validatedPublication).toEqual(accepted.records.validatedPublication);
     expect(materialized.validatedContainer.terminal.chunkCount).toBe(2);
+  });
+
+  it('rejects an archive whose final source authorization is not trusted', async () => {
+    const archive = await encode();
+    expect(() =>
+      readTransferZip64(archive, {
+        ...SOURCE_POLICY,
+        trustedAuthority: SourceSigningAuthority.issue().descriptor(),
+      })
+    ).toThrow(/authority.*trusted/i);
+  });
+
+  it('rejects source-authorization tampering even when ZIP checksums are repaired', async () => {
+    const archive = await encode();
+    const authorizationEntry = centralEntries(archive).at(-1)!;
+    const dataOffset = localDataOffset(archive, authorizationEntry);
+    const dataLength = Number(
+      view(archive).getBigUint64(
+        authorizationEntry + 46 + view(archive).getUint16(authorizationEntry + 28, true) + 4,
+        true
+      )
+    );
+    const authorization = archive.subarray(dataOffset, dataOffset + dataLength);
+    const signatureMarker = Buffer.from('"signature":"');
+    const signatureOffset = authorization.indexOf(signatureMarker) + signatureMarker.length;
+    expect(signatureOffset).toBeGreaterThan(signatureMarker.length);
+    authorization[signatureOffset] = authorization[signatureOffset] === 0x41 ? 0x42 : 0x41;
+    repairEntryCrc(archive, authorizationEntry, authorization);
+    expect(() => readTransferZip64(archive, SOURCE_POLICY)).toThrow(/signature.*invalid/i);
   });
 
   it('uses STORE-only ZIP64 sentinels and generic ASCII names', async () => {
     const archive = await encode();
     const data = view(archive);
     const entries = centralEntries(archive);
-    expect(entries).toHaveLength(4);
+    expect(entries).toHaveLength(5);
     for (const [index, offset] of entries.entries()) {
       expect(data.getUint16(offset + 6, true)).toBe(45);
       expect(data.getUint16(offset + 8, true)).toBe(0);
@@ -176,13 +256,17 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
   it('rejects classic ZIP rather than silently accepting format drift', () => {
     const classic = Buffer.alloc(22);
     classic.writeUInt32LE(0x06054b50, 0);
-    expect(() => readTransferZip64(classic)).toThrow(/truncated|ZIP64/);
+    expect(() => readTransferZip64(classic, SOURCE_POLICY)).toThrow(/truncated|ZIP64/);
   });
 
   it('rejects trailing/polyglot bytes and truncation', async () => {
     const archive = await encode();
-    expect(() => readTransferZip64(Buffer.concat([archive, Buffer.from('polyglot')]))).toThrow(/trailing|terminal/);
-    expect(() => readTransferZip64(archive.subarray(0, archive.length - 1))).toThrow(/trailing|terminal|truncated/);
+    expect(() => readTransferZip64(Buffer.concat([archive, Buffer.from('polyglot')]), SOURCE_POLICY)).toThrow(
+      /trailing|terminal/
+    );
+    expect(() => readTransferZip64(archive.subarray(0, archive.length - 1), SOURCE_POLICY)).toThrow(
+      /trailing|terminal|truncated/
+    );
   });
 
   it.each([
@@ -194,7 +278,7 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
     const archive = await encode();
     const offset = centralEntries(archive)[0]!;
     archive.writeUInt16LE(value, offset + fieldOffset);
-    expect(() => readTransferZip64(archive)).toThrow(expected);
+    expect(() => readTransferZip64(archive, SOURCE_POLICY)).toThrow(expected);
   });
 
   it('rejects multi-disk archives, attributes, comments, and unknown critical extras', async () => {
@@ -212,7 +296,7 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
     ]) {
       const archive = Buffer.from(original);
       mutate(archive);
-      expect(() => readTransferZip64(archive)).toThrow();
+      expect(() => readTransferZip64(archive, SOURCE_POLICY)).toThrow();
     }
   });
 
@@ -227,7 +311,7 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
     const nameLength = view(archive).getUint16(central + 28, true);
     const name = archive.subarray(central + 46, central + 46 + nameLength);
     mutate(name);
-    expect(() => readTransferZip64(archive)).toThrow(/Unsafe|noncanonical/);
+    expect(() => readTransferZip64(archive, SOURCE_POLICY)).toThrow(/Unsafe|noncanonical/);
   });
 
   it('rejects duplicate/noncanonical names and overlapping local offsets', async () => {
@@ -238,13 +322,13 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
     const secondDescriptor = offsets[3]!;
     const nameLength = view(duplicate).getUint16(firstDescriptor + 28, true);
     duplicate.copy(duplicate, secondDescriptor + 46, firstDescriptor + 46, firstDescriptor + 46 + nameLength);
-    expect(() => readTransferZip64(duplicate)).toThrow(/name|order|Duplicate/);
+    expect(() => readTransferZip64(duplicate, SOURCE_POLICY)).toThrow(/name|order|Duplicate/);
 
     const overlap = Buffer.from(original);
     const second = centralEntries(overlap)[1]!;
     const secondNameLength = view(overlap).getUint16(second + 28, true);
     overlap.writeBigUInt64LE(0n, second + 46 + secondNameLength + 20);
-    expect(() => readTransferZip64(overlap)).toThrow(/overlap|reorder/);
+    expect(() => readTransferZip64(overlap, SOURCE_POLICY)).toThrow(/overlap|reorder/);
   });
 
   it('rejects malformed ZIP64 boundaries before allocation', async () => {
@@ -256,15 +340,15 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
     const fourGiBHeader = Buffer.from(original);
     fourGiBHeader.writeBigUInt64LE(0x1_0000_0000n, extra + 4);
     fourGiBHeader.writeBigUInt64LE(0x1_0000_0000n, extra + 12);
-    expect(() => readTransferZip64(fourGiBHeader)).toThrow(/size.*bounds/);
+    expect(() => readTransferZip64(fourGiBHeader, SOURCE_POLICY)).toThrow(/size.*bounds/);
 
     const unsafe = Buffer.from(original);
     unsafe.writeBigUInt64LE(BigInt(Number.MAX_SAFE_INTEGER) + 1n, extra + 4);
-    expect(() => readTransferZip64(unsafe)).toThrow(/safe integer/);
+    expect(() => readTransferZip64(unsafe, SOURCE_POLICY)).toThrow(/safe integer/);
 
     const malformed = Buffer.from(original);
     malformed.writeUInt16LE(16, extra + 2);
-    expect(() => readTransferZip64(malformed)).toThrow(/extra|malformed/);
+    expect(() => readTransferZip64(malformed, SOURCE_POLICY)).toThrow(/extra|malformed/);
   });
 
   it('rejects payload CRC damage and container damage with repaired CRCs', async () => {
@@ -274,7 +358,7 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
 
     const crcDamage = Buffer.from(original);
     crcDamage[dataOffset] ^= 0x01;
-    expect(() => readTransferZip64(crcDamage)).toThrow(/CRC/);
+    expect(() => readTransferZip64(crcDamage, SOURCE_POLICY)).toThrow(/CRC/);
 
     const semanticDamage = Buffer.from(original);
     semanticDamage[dataOffset] = 0x5b;
@@ -288,25 +372,29 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
       view(semanticDamage).getBigUint64(first + 46 + view(semanticDamage).getUint16(first + 28, true) + 20, true)
     );
     semanticDamage.writeUInt32LE(repairedCrc, localOffset + 14);
-    expect(() => readTransferZip64(semanticDamage)).toThrow(/header|object|canonical|JSON/);
+    expect(() => readTransferZip64(semanticDamage, SOURCE_POLICY)).toThrow(/header|object|canonical|JSON/);
   });
 
   it('detects source mutation during asynchronous writing', async () => {
     const input = fixture();
     let calls = 0;
     await expect(
-      writeTransferZip64(input, {
-        async write() {
-          calls += 1;
-          if (calls === 1) input.terminal[0] ^= 0x01;
+      writeTransferZip64(
+        input,
+        {
+          async write() {
+            calls += 1;
+            if (calls === 1) input.terminal[0] ^= 0x01;
+          },
         },
-      })
+        SOURCE_POLICY
+      )
     ).rejects.toThrow(/changed during write/);
   });
 
   it('detects archive mutation before materialization', async () => {
     const archive = await encode();
-    const accepted = readTransferZip64(archive);
+    const accepted = readTransferZip64(archive, SOURCE_POLICY);
     archive[0] ^= 0x01;
     expect(() => accepted.materialize()).toThrow(/changed after validation/);
   });
@@ -316,7 +404,7 @@ describe('Wayland Transfer strict ZIP64 transport', () => {
     const archive = await encode();
     const shared = new Uint8Array(new SharedArrayBuffer(archive.length));
     shared.set(archive);
-    expect(() => readTransferZip64(shared)).toThrow(/shared mutable/);
+    expect(() => readTransferZip64(shared, SOURCE_POLICY)).toThrow(/shared mutable/);
   });
 });
 
@@ -327,4 +415,12 @@ function crc32ForTest(bytes: Uint8Array): number {
     for (let bit = 0; bit < 8; bit += 1) crc = (crc & 1) === 1 ? 0xedb88320 ^ (crc >>> 1) : crc >>> 1;
   }
   return (crc ^ 0xffffffff) >>> 0;
+}
+
+function repairEntryCrc(archive: Buffer, centralEntry: number, payload: Uint8Array): void {
+  const repaired = crc32ForTest(payload);
+  archive.writeUInt32LE(repaired, centralEntry + 16);
+  const nameLength = view(archive).getUint16(centralEntry + 28, true);
+  const localOffset = Number(view(archive).getBigUint64(centralEntry + 46 + nameLength + 20, true));
+  archive.writeUInt32LE(repaired, localOffset + 14);
 }
