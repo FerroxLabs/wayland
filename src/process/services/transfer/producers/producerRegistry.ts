@@ -5,19 +5,20 @@
  */
 
 import type { LogicalStateId } from '@process/services/recovery/recoveryManifest';
-import type { TransferSnapshotObjectInput } from '@process/services/transfer/export';
 import {
+  captureDesktopSettingsSnapshot,
   DESKTOP_SETTINGS_SNAPSHOT_CONTRACT,
   DESKTOP_SETTINGS_SNAPSHOT_SCHEMA_VERSION,
-  produceDesktopSettingsSnapshot,
 } from '@process/services/transfer/producers/settings';
+
+import type { TransferProducerCaptureResult } from './captureEvidence';
 
 export type TransferProducerRegistration = Readonly<{
   id: string;
   logicalStateId: LogicalStateId;
   outputContract: string;
   outputSchemaVersion: number;
-  produce: () => Promise<readonly TransferSnapshotObjectInput[]>;
+  produce: () => Promise<TransferProducerCaptureResult>;
 }>;
 
 export type TransferProducerRegistryIssue = Readonly<{
@@ -53,7 +54,7 @@ export const WAYLAND_TRANSFER_PRODUCER_REGISTRY: readonly TransferProducerRegist
     logicalStateId: 'desktop.preferences',
     outputContract: DESKTOP_SETTINGS_SNAPSHOT_CONTRACT,
     outputSchemaVersion: DESKTOP_SETTINGS_SNAPSHOT_SCHEMA_VERSION,
-    produce: async () => Object.freeze([await produceDesktopSettingsSnapshot()]),
+    produce: captureDesktopSettingsSnapshot,
   }),
 ]);
 

@@ -5,6 +5,10 @@
  */
 
 import type { TransferSnapshotObjectInput } from '@process/services/transfer/export';
+import {
+  createTransferAuthorityCaptureBinding,
+  type TransferProducerCaptureResult,
+} from '@process/services/transfer/producers/captureEvidence';
 
 export const DESKTOP_SETTINGS_SNAPSHOT_CONTRACT = 'wayland-transfer-desktop-preferences/1.0' as const;
 export const DESKTOP_SETTINGS_SNAPSHOT_SCHEMA_VERSION = 1 as const;
@@ -24,6 +28,16 @@ export type DesktopSettingsSnapshotReader = Readonly<{
   readConfigSnapshot(): Promise<unknown>;
 }>;
 
+export type DesktopSettingsSnapshotLease = Readonly<{
+  epoch: number;
+  read(): unknown;
+  release(): void;
+}>;
+
+export type DesktopSettingsSnapshotLeaseProvider = Readonly<{
+  acquireConfigSnapshotLease(): Promise<DesktopSettingsSnapshotLease>;
+}>;
+
 export type DesktopSettingsTransferDocument = Readonly<{
   contract: typeof DESKTOP_SETTINGS_SNAPSHOT_CONTRACT;
   schemaVersion: typeof DESKTOP_SETTINGS_SNAPSHOT_SCHEMA_VERSION;
@@ -35,6 +49,8 @@ export class DesktopSettingsSnapshotError extends Error {
   constructor(
     readonly code:
       | 'SETTINGS_READ_FAILED'
+      | 'SETTINGS_AUTHORITY_INVALID'
+      | 'SETTINGS_LEASE_RELEASE_FAILED'
       | 'SETTINGS_ROOT_INVALID'
       | 'SETTINGS_VALUE_INVALID'
       | 'SETTINGS_MUTATED_DURING_SNAPSHOT'
@@ -338,6 +354,18 @@ async function readProjected(reader: DesktopSettingsSnapshotReader): Promise<Rea
   }
 }
 
+function projectSnapshot(snapshot: unknown): Readonly<Record<string, Json>> {
+  try {
+    return projectPortableSettings(snapshot);
+  } catch (error) {
+    if (error instanceof DesktopSettingsSnapshotError) throw error;
+    throw new DesktopSettingsSnapshotError(
+      'SETTINGS_VALUE_INVALID',
+      'The Desktop config snapshot contains an unsupported portable value.'
+    );
+  }
+}
+
 /** Real main-process adapter over the current atomic ProcessConfig store. */
 export function createProcessConfigSettingsSnapshotReader(): DesktopSettingsSnapshotReader {
   return {
@@ -346,6 +374,89 @@ export function createProcessConfigSettingsSnapshotReader(): DesktopSettingsSnap
       return ProcessConfig.toJson();
     },
   };
+}
+
+/** Real main-process adapter over ProcessConfig's mutation-blocking lease. */
+export function createProcessConfigSettingsSnapshotLeaseProvider(): DesktopSettingsSnapshotLeaseProvider {
+  return {
+    acquireConfigSnapshotLease: async () => {
+      const { ProcessConfig } = await import('@process/utils/initStorage');
+      return ProcessConfig.acquireSnapshotLease();
+    },
+  };
+}
+
+function buildSettingsSnapshotObject(values: Readonly<Record<string, Json>>): TransferSnapshotObjectInput {
+  const document: DesktopSettingsTransferDocument = {
+    contract: DESKTOP_SETTINGS_SNAPSHOT_CONTRACT,
+    schemaVersion: DESKTOP_SETTINGS_SNAPSHOT_SCHEMA_VERSION,
+    logicalStateId: 'desktop.preferences',
+    values,
+  };
+  const bytes = new TextEncoder().encode(canonicalJson(document as unknown as Json));
+  if (bytes.byteLength > MAX_SNAPSHOT_BYTES) {
+    throw new DesktopSettingsSnapshotError(
+      'SETTINGS_SNAPSHOT_TOO_LARGE',
+      `Desktop settings snapshot exceeds ${MAX_SNAPSHOT_BYTES} bytes.`
+    );
+  }
+
+  return Object.freeze({
+    key: 'desktop-preferences-v1',
+    logicalStateId: 'desktop.preferences',
+    authorityId: 'desktop.config',
+    kind: 'state',
+    provenance: 'snapshot-state',
+    bytes,
+  });
+}
+
+/**
+ * Production capture path. One real ProcessConfig lease owns the detached
+ * snapshot, persistence epoch, mutation exclusion, and release boundary.
+ */
+export async function captureDesktopSettingsSnapshot(
+  provider: DesktopSettingsSnapshotLeaseProvider = createProcessConfigSettingsSnapshotLeaseProvider()
+): Promise<TransferProducerCaptureResult> {
+  let lease: DesktopSettingsSnapshotLease;
+  try {
+    lease = await provider.acquireConfigSnapshotLease();
+  } catch {
+    throw new DesktopSettingsSnapshotError('SETTINGS_READ_FAILED', 'The Desktop config snapshot lease was denied.');
+  }
+
+  let result: TransferProducerCaptureResult | undefined;
+  let captureError: unknown;
+  try {
+    if (!Number.isSafeInteger(lease.epoch) || lease.epoch < 0) {
+      throw new DesktopSettingsSnapshotError(
+        'SETTINGS_AUTHORITY_INVALID',
+        'The Desktop config snapshot lease has an invalid mutation epoch.'
+      );
+    }
+    let snapshot: unknown;
+    try {
+      snapshot = lease.read();
+    } catch {
+      throw new DesktopSettingsSnapshotError('SETTINGS_READ_FAILED', 'The Desktop config snapshot could not be read.');
+    }
+    const object = buildSettingsSnapshotObject(projectSnapshot(snapshot));
+    const objects = Object.freeze([object]);
+    const binding = createTransferAuthorityCaptureBinding('desktop.config', `process-config:${lease.epoch}`, objects);
+    result = Object.freeze({ objects, authorityBindings: Object.freeze([binding]) });
+  } catch (error) {
+    captureError = error;
+  }
+  try {
+    lease.release();
+  } catch {
+    captureError = new DesktopSettingsSnapshotError(
+      'SETTINGS_LEASE_RELEASE_FAILED',
+      'The Desktop config snapshot lease could not be released.'
+    );
+  }
+  if (captureError) throw captureError;
+  return result!;
 }
 
 /**
@@ -365,26 +476,5 @@ export async function produceDesktopSettingsSnapshot(
     );
   }
 
-  const document: DesktopSettingsTransferDocument = {
-    contract: DESKTOP_SETTINGS_SNAPSHOT_CONTRACT,
-    schemaVersion: DESKTOP_SETTINGS_SNAPSHOT_SCHEMA_VERSION,
-    logicalStateId: 'desktop.preferences',
-    values: first,
-  };
-  const bytes = new TextEncoder().encode(canonicalJson(document as unknown as Json));
-  if (bytes.byteLength > MAX_SNAPSHOT_BYTES) {
-    throw new DesktopSettingsSnapshotError(
-      'SETTINGS_SNAPSHOT_TOO_LARGE',
-      `Desktop settings snapshot exceeds ${MAX_SNAPSHOT_BYTES} bytes.`
-    );
-  }
-
-  return Object.freeze({
-    key: 'desktop-preferences-v1',
-    logicalStateId: 'desktop.preferences',
-    authorityId: 'desktop.config',
-    kind: 'state',
-    provenance: 'snapshot-state',
-    bytes,
-  });
+  return buildSettingsSnapshotObject(first);
 }

@@ -7,13 +7,19 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const processConfigToJson = vi.hoisted(() => vi.fn());
+const processConfigAcquireSnapshotLease = vi.hoisted(() => vi.fn());
 
 vi.mock('@process/utils/initStorage', () => ({
-  ProcessConfig: { toJson: processConfigToJson },
+  ProcessConfig: {
+    toJson: processConfigToJson,
+    acquireSnapshotLease: processConfigAcquireSnapshotLease,
+  },
 }));
 
 import {
+  captureDesktopSettingsSnapshot,
   createProcessConfigSettingsSnapshotReader,
+  createProcessConfigSettingsSnapshotLeaseProvider,
   DESKTOP_SETTINGS_SNAPSHOT_CONTRACT,
   DesktopSettingsSnapshotError,
   produceDesktopSettingsSnapshot,
@@ -43,6 +49,7 @@ async function expectCode(promise: Promise<unknown>, code: DesktopSettingsSnapsh
 describe('Desktop settings snapshot producer', () => {
   beforeEach(() => {
     processConfigToJson.mockReset();
+    processConfigAcquireSnapshotLease.mockReset();
   });
 
   it('emits deterministic, versioned bytes with transfer authority metadata', async () => {
@@ -91,6 +98,60 @@ describe('Desktop settings snapshot producer', () => {
 
     expect(processConfigToJson).toHaveBeenCalledTimes(2);
     expect(decode(capture.bytes).values).toEqual({ theme: 'dark' });
+  });
+
+  it('holds one real ProcessConfig lease and binds its exact epoch and canonical content', async () => {
+    let held = true;
+    const release = vi.fn(() => {
+      held = false;
+    });
+    const read = vi.fn(() => {
+      const mutate = () => {
+        if (held) throw new Error('mutation blocked while snapshot lease is held');
+      };
+      expect(mutate).toThrow('mutation blocked while snapshot lease is held');
+      return { theme: 'dark' };
+    });
+    processConfigAcquireSnapshotLease.mockReturnValue({ epoch: 17, read, release });
+
+    const capture = await captureDesktopSettingsSnapshot(createProcessConfigSettingsSnapshotLeaseProvider());
+
+    expect(processConfigAcquireSnapshotLease).toHaveBeenCalledOnce();
+    expect(read).toHaveBeenCalledOnce();
+    expect(release).toHaveBeenCalledOnce();
+    expect(held).toBe(false);
+    expect(capture.objects).toHaveLength(1);
+    expect(capture.authorityBindings).toEqual([
+      expect.objectContaining({
+        authorityId: 'desktop.config',
+        mutationEpoch: 'process-config:17',
+        canonicalContentDigest: expect.stringMatching(/^sha256:[a-f0-9]{64}$/),
+      }),
+    ]);
+  });
+
+  it('fails closed when a pending mutation denies the lease', async () => {
+    processConfigAcquireSnapshotLease.mockImplementation(() => {
+      throw new Error('Snapshot lease blocked by pending mutation: private-path');
+    });
+
+    const error = await captureDesktopSettingsSnapshot(createProcessConfigSettingsSnapshotLeaseProvider()).catch(
+      (caught: unknown) => caught
+    );
+
+    expect(error).toMatchObject({ code: 'SETTINGS_READ_FAILED' });
+    expect(String(error)).not.toContain('private-path');
+  });
+
+  it('releases the lease when projection fails', async () => {
+    const release = vi.fn();
+    processConfigAcquireSnapshotLease.mockReturnValue({ epoch: 3, read: () => null, release });
+
+    await expectCode(
+      captureDesktopSettingsSnapshot(createProcessConfigSettingsSnapshotLeaseProvider()),
+      'SETTINGS_ROOT_INVALID'
+    );
+    expect(release).toHaveBeenCalledOnce();
   });
 
   it('is stable across insertion order and ignored secret changes', async () => {

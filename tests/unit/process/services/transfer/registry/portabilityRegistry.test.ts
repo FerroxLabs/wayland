@@ -45,6 +45,9 @@ describe('Wayland portability registry', () => {
     expect(
       WAYLAND_PORTABILITY_REGISTRY.find(({ logicalStateId }) => logicalStateId === 'desktop.preferences')?.producer
     ).toEqual({ id: 'transfer.desktop-preferences-producer/v1', state: 'available' });
+    expect(
+      WAYLAND_PORTABILITY_REGISTRY.find(({ logicalStateId }) => logicalStateId === 'desktop.preferences')?.authorityIds
+    ).toEqual(['desktop.config']);
   });
 
   it('rejects selected scopes that omit a registered dependency', () => {

@@ -225,7 +225,7 @@ export const WAYLAND_PORTABILITY_REGISTRY: readonly PortabilityDescriptor[] = [
   {
     logicalStateId: 'desktop.preferences',
     descriptorVersion: 1,
-    authorityIds: ['desktop.config', 'desktop.runtime-files'],
+    authorityIds: ['desktop.config'],
     disposition: 'portable',
     producer: available('transfer.desktop-preferences-producer/v1'),
     consumer: blocked('transfer.desktop-preferences-consumer/v1'),

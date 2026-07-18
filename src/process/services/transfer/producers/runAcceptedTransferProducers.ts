@@ -9,6 +9,14 @@ import type { TransferSnapshotObjectInput } from '@process/services/transfer/exp
 import { WAYLAND_PORTABILITY_REGISTRY_VALIDATION } from '@process/services/transfer/registry';
 
 import {
+  aggregateTransferMutationEpoch,
+  canonicalAuthorityContentDigest,
+  isTransferAuthorityCaptureBinding,
+  type TransferAuthorityCaptureBinding,
+  type TransferProducerAggregateCapture,
+  type TransferProducerCaptureResult,
+} from './captureEvidence';
+import {
   resolveAcceptedTransferProducer,
   validateTransferProducerRegistry,
   WAYLAND_TRANSFER_PRODUCER_REGISTRY,
@@ -32,7 +40,12 @@ export class TransferProducerRunError extends Error {
       | 'PRODUCER_UNAVAILABLE'
       | 'PRODUCER_EXECUTION_FAILED'
       | 'PRODUCER_OUTPUT_INVALID'
-      | 'PRODUCER_OUTPUT_TOO_LARGE',
+      | 'PRODUCER_OUTPUT_TOO_LARGE'
+      | 'PRODUCER_AUTHORITY_EVIDENCE_INVALID'
+      | 'PRODUCER_AUTHORITY_EVIDENCE_MISSING'
+      | 'PRODUCER_AUTHORITY_EVIDENCE_DUPLICATE'
+      | 'PRODUCER_AUTHORITY_EVIDENCE_CONFLICT'
+      | 'PRODUCER_AUTHORITY_CONTENT_MISMATCH',
     message: string
   ) {
     super(message);
@@ -77,7 +90,7 @@ function defensiveObject(object: TransferSnapshotObjectInput): TransferSnapshotO
  */
 export async function runAcceptedTransferProducers(
   input: RunAcceptedTransferProducersInput
-): Promise<readonly TransferSnapshotObjectInput[]> {
+): Promise<TransferProducerAggregateCapture> {
   if (!WAYLAND_PORTABILITY_REGISTRY_VALIDATION.valid) {
     fail('PRODUCER_REGISTRY_INVALID', 'The portability registry is invalid.');
   }
@@ -99,6 +112,7 @@ export async function runAcceptedTransferProducers(
     WAYLAND_PORTABILITY_REGISTRY_VALIDATION.descriptors.map((descriptor) => [descriptor.logicalStateId, descriptor])
   );
   const output: TransferSnapshotObjectInput[] = [];
+  const authorityBindings = new Map<string, TransferAuthorityCaptureBinding>();
   const keys = new Set<string>();
 
   for (const logicalStateId of selected) {
@@ -110,13 +124,20 @@ export async function runAcceptedTransferProducers(
     const producer = resolveAcceptedTransferProducer(logicalStateId, descriptor.producer.id, registrations);
     if (!producer) fail('PRODUCER_UNAVAILABLE', `${logicalStateId} has no accepted transfer producer.`);
 
-    let produced: readonly TransferSnapshotObjectInput[];
+    let capture: TransferProducerCaptureResult;
     try {
-      // oxlint-disable-next-line no-await-in-loop -- Producers run serially inside one quiesced mutation epoch.
-      produced = await producer.produce();
+      // oxlint-disable-next-line no-await-in-loop -- Authority captures are intentionally serialized.
+      capture = await producer.produce();
     } catch {
       fail('PRODUCER_EXECUTION_FAILED', `${logicalStateId} transfer capture failed.`);
     }
+    if (!capture || typeof capture !== 'object' || !Array.isArray(capture.objects)) {
+      fail('PRODUCER_OUTPUT_INVALID', `${logicalStateId} transfer producer returned an invalid capture.`);
+    }
+    if (!Array.isArray(capture.authorityBindings)) {
+      fail('PRODUCER_AUTHORITY_EVIDENCE_INVALID', `${logicalStateId} transfer authority evidence is invalid.`);
+    }
+    const produced = capture.objects;
     if (!Array.isArray(produced) || produced.length === 0) {
       fail('PRODUCER_OUTPUT_INVALID', `${logicalStateId} transfer producer returned no objects.`);
     }
@@ -145,6 +166,64 @@ export async function runAcceptedTransferProducers(
       keys.add(object.key);
       output.push(defensiveObject(object));
     }
+
+    const emittedAuthorities = new Set(produced.map((object) => object.authorityId));
+    const producerBindings = new Map<string, TransferAuthorityCaptureBinding>();
+    for (const binding of capture.authorityBindings as readonly unknown[]) {
+      if (!isTransferAuthorityCaptureBinding(binding) || !descriptor.authorityIds.includes(binding.authorityId)) {
+        fail('PRODUCER_AUTHORITY_EVIDENCE_INVALID', `${logicalStateId} transfer authority evidence is invalid.`);
+      }
+      const previous = producerBindings.get(binding.authorityId);
+      if (previous) {
+        const conflicting =
+          previous.mutationEpoch !== binding.mutationEpoch ||
+          previous.canonicalContentDigest !== binding.canonicalContentDigest;
+        fail(
+          conflicting ? 'PRODUCER_AUTHORITY_EVIDENCE_CONFLICT' : 'PRODUCER_AUTHORITY_EVIDENCE_DUPLICATE',
+          `${logicalStateId} transfer authority evidence is not unique.`
+        );
+      }
+      if (!emittedAuthorities.has(binding.authorityId)) {
+        fail('PRODUCER_AUTHORITY_EVIDENCE_INVALID', `${logicalStateId} authority evidence has no emitted object.`);
+      }
+      if (canonicalAuthorityContentDigest(binding.authorityId, produced) !== binding.canonicalContentDigest) {
+        fail('PRODUCER_AUTHORITY_CONTENT_MISMATCH', `${logicalStateId} authority content binding does not match.`);
+      }
+      producerBindings.set(
+        binding.authorityId,
+        Object.freeze({
+          authorityId: binding.authorityId,
+          mutationEpoch: binding.mutationEpoch,
+          canonicalContentDigest: binding.canonicalContentDigest,
+        })
+      );
+    }
+    for (const authorityId of emittedAuthorities) {
+      if (!producerBindings.has(authorityId)) {
+        fail('PRODUCER_AUTHORITY_EVIDENCE_MISSING', `${logicalStateId} authority evidence is missing.`);
+      }
+    }
+    for (const [authorityId, binding] of producerBindings) {
+      const previous = authorityBindings.get(authorityId);
+      if (previous) {
+        const conflicting =
+          previous.mutationEpoch !== binding.mutationEpoch ||
+          previous.canonicalContentDigest !== binding.canonicalContentDigest;
+        fail(
+          conflicting ? 'PRODUCER_AUTHORITY_EVIDENCE_CONFLICT' : 'PRODUCER_AUTHORITY_EVIDENCE_DUPLICATE',
+          `${authorityId} transfer authority evidence is not unique.`
+        );
+      }
+      authorityBindings.set(authorityId, binding);
+    }
   }
-  return Object.freeze(output);
+  const frozenObjects = Object.freeze(output);
+  const frozenBindings = Object.freeze(
+    [...authorityBindings.values()].toSorted((left, right) => left.authorityId.localeCompare(right.authorityId))
+  );
+  return Object.freeze({
+    objects: frozenObjects,
+    authorityBindings: frozenBindings,
+    mutationEpoch: aggregateTransferMutationEpoch(frozenBindings),
+  });
 }
