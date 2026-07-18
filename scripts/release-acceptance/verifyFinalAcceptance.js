@@ -2,6 +2,7 @@
 
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const REQUEST_CONTRACT = 'wayland-final-acceptance-request/1.0';
 const RECEIPT_CONTRACT = 'wayland-final-acceptance/1.0';
@@ -45,6 +46,28 @@ function digest(value, code) {
   return value;
 }
 
+function canonical(value) {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.entries(value)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, entry]) => `${JSON.stringify(key)}:${canonical(entry)}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function defaultObserveCandidateIdentity() {
+  const root = path.resolve(__dirname, '..', '..');
+  const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
+  const candidate = { commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}') };
+  candidateIdentity(candidate, 'M8A_LIVE_CANDIDATE_INVALID');
+  if (git('status', '--porcelain=v1', '--untracked-files=all')) {
+    fail('M8A_LIVE_CANDIDATE_INVALID', 'dirty-source-tree');
+  }
+  return candidate;
+}
+
 function defaultVerifyHardeningMatrix(matrix) {
   let verifier;
   try {
@@ -56,7 +79,13 @@ function defaultVerifyHardeningMatrix(matrix) {
 }
 
 function defaultVerifyCapabilitySeal(seal) {
-  return require('../capability-seal/verifyCandidateCapabilitySeal').verifyCapabilitySeal(seal);
+  const authority = require('../capability-seal/verifyCandidateCapabilitySeal');
+  const verified = authority.verifyCapabilitySeal(seal);
+  const recreated = authority.createCapabilitySeal();
+  if (canonical(verified) !== canonical(recreated)) {
+    fail('M8A_CAPABILITY_SEAL_INVALID', 'seal-was-not-recreated-from-authoritative-receipts');
+  }
+  return verified;
 }
 
 function defaultVerifyThirdPartyLedger() {
@@ -85,6 +114,7 @@ function authorityUnavailable(name) {
 }
 
 const DEFAULT_VERIFIERS = Object.freeze({
+  observeCandidateIdentity: defaultObserveCandidateIdentity,
   verifyHardeningMatrix: defaultVerifyHardeningMatrix,
   verifyCapabilitySeal: defaultVerifyCapabilitySeal,
   verifyPlatformSmoke: authorityUnavailable('PLATFORM_SMOKE'),
@@ -339,6 +369,7 @@ function verifyFinalAcceptance(input, injected = {}) {
   if (request.contract !== REQUEST_CONTRACT) fail('M8A_REQUEST_INVALID', 'unsupported-contract');
   const candidate = candidateIdentity(request.candidate);
   const verifiers = { ...DEFAULT_VERIFIERS, ...injected };
+  sameCandidate(verifiers.observeCandidateIdentity(), candidate, 'M8A_LIVE_CANDIDATE_INVALID');
 
   const matrixReceipt = verifyMatrixReceipt(verifiers.verifyHardeningMatrix(request.hardeningMatrix));
   const capabilitySeal = verifiers.verifyCapabilitySeal(request.capabilitySeal);

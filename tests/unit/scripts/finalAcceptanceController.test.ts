@@ -57,6 +57,7 @@ function request() {
 
 function verifiers() {
   return {
+    observeCandidateIdentity: () => ({ commit: COMMIT, tree: TREE }),
     verifyHardeningMatrix: () => ({
       contract: 'wayland-release-hardening-matrix/1.0',
       invariants: 21,
@@ -189,6 +190,13 @@ describe('M8-A final acceptance controller', () => {
       candidate: { commit: COMMIT, tree: 'e'.repeat(40) },
     });
     expect(() => verifyFinalAcceptance(request(), staleTree)).toThrow(/stale-or-foreign-candidate/);
+  });
+
+  it('rejects a caller-selected candidate that is not the clean observed Git identity', () => {
+    const input = request();
+    input.candidate = { commit: 'f'.repeat(40), tree: TREE };
+
+    expect(() => verifyFinalAcceptance(input, verifiers())).toThrow(/M8A_LIVE_CANDIDATE_INVALID.*stale-or-foreign/);
   });
 
   it('requires publisher attestations for the complete authoritative Core asset set', () => {
