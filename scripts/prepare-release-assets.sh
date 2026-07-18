@@ -94,7 +94,13 @@ echo "==> Writing architecture-specific updater metadata ..."
 echo "==> Validating required metadata ..."
 
 MISSING=0
-for required in "$CHANNEL.yml" "$CHANNEL-mac.yml" "$CHANNEL-linux.yml" "$CHANNEL-linux-arm64.yml"; do
+for required in \
+  "$CHANNEL.yml" \
+  "$CHANNEL-win-arm64.yml" \
+  "$CHANNEL-mac.yml" \
+  "$CHANNEL-arm64-mac.yml" \
+  "$CHANNEL-linux.yml" \
+  "$CHANNEL-linux-arm64.yml"; do
   if [ ! -f "$OUTPUT_DIR/$required" ]; then
     echo "::error::Missing required updater metadata: $required"
     MISSING=1
