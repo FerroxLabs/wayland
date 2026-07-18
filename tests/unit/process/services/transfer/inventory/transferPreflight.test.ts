@@ -91,10 +91,11 @@ describe('Wayland Transfer inventory preflight', () => {
       formatVersion: 1,
       dryRunOnly: true,
       suite: 'WT-D1',
-      readyToExport: true,
+      readyToExport: false,
     });
     expect(result.families).toHaveLength(REQUIRED_LOGICAL_STATE.length);
     expect(result.summary.included).toMatchObject({ familyCount: 1, fileCount: 1 });
+    expect(result.blockers.map(({ code }) => code)).toContain('PORTABILITY_REGISTRY_PRODUCER_UNAVAILABLE');
     expect(result.summary.excluded.familyCount).toBe(REQUIRED_LOGICAL_STATE.length - 1);
     expect(JSON.stringify(result)).not.toContain(root);
     expect(JSON.stringify(result)).not.toContain('wayland.db');
@@ -271,9 +272,7 @@ describe('Wayland Transfer inventory preflight', () => {
       NOW
     );
 
-    expect(result.families.find(({ id }) => id === 'credentials.secrets')?.disposition).toBe(
-      'reconnect-required'
-    );
+    expect(result.families.find(({ id }) => id === 'credentials.secrets')?.disposition).toBe('reconnect-required');
     expect(result.families.find(({ id }) => id === 'external.workspaces')?.disposition).toBe('reference-only');
     expect(result.families.find(({ id }) => id === 'updater.release-channel')?.disposition).toBe('excluded');
     expect(result.families.find(({ id }) => id === 'desktop.scheduler')).toMatchObject({

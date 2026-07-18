@@ -323,7 +323,7 @@ export function unavailableTransferProducers(selected: readonly LogicalStateId[]
   const validation = WAYLAND_PORTABILITY_REGISTRY_VALIDATION;
   if (!validation.valid) return [...validation.issues];
   const selectedSet = new Set(selected);
-  return validation.descriptors
+  const issues = validation.descriptors
     .filter((descriptor) => selectedSet.has(descriptor.logicalStateId))
     .filter((descriptor) => descriptor.producer.state !== 'available')
     .map((descriptor) =>
@@ -333,4 +333,18 @@ export function unavailableTransferProducers(selected: readonly LogicalStateId[]
         descriptor.logicalStateId
       )
     );
+  for (const descriptor of validation.descriptors.filter(({ logicalStateId }) => selectedSet.has(logicalStateId))) {
+    for (const dependency of descriptor.dependencies) {
+      if (!selectedSet.has(dependency)) {
+        issues.push(
+          issue(
+            'REGISTRY_DEPENDENCY_OUT_OF_SCOPE',
+            `${descriptor.logicalStateId} requires ${dependency} in the same transfer scope.`,
+            descriptor.logicalStateId
+          )
+        );
+      }
+    }
+  }
+  return issues;
 }

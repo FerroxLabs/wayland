@@ -21,15 +21,13 @@ import {
   type LogicalStateId,
   type StateAuthorityId,
 } from '@/process/services/recovery/recoveryManifest';
-import {
-  evaluateRecoveryDryRun,
-  type RecoveryCaptureCapabilities,
-} from '@/process/services/recovery/recoveryDryRun';
+import { evaluateRecoveryDryRun, type RecoveryCaptureCapabilities } from '@/process/services/recovery/recoveryDryRun';
 import {
   inventoryRecoveryAuthorities,
   type RecoveryInventory,
   type RecoveryInventoryInputs,
 } from '@/process/services/recovery/stateAuthorityInventory';
+import { unavailableTransferProducers } from '@/process/services/transfer/registry';
 
 const MAX_DESTINATION_BINDING_MS = 15 * 60 * 1_000;
 const LOGICAL_STATE_SET = new Set<string>(REQUIRED_LOGICAL_STATE);
@@ -203,7 +201,10 @@ function validateAuthorization(
   blockers: WaylandTransferPreflightFinding[]
 ): void {
   if (request.ownerConfirmed !== true) {
-    pushUnique(blockers, blocker('OWNER_CONFIRMATION_REQUIRED', 'The data owner must explicitly confirm this preflight.'));
+    pushUnique(
+      blockers,
+      blocker('OWNER_CONFIRMATION_REQUIRED', 'The data owner must explicitly confirm this preflight.')
+    );
   }
   if (request.stepUpAuthenticated !== true) {
     pushUnique(blockers, blocker('STEP_UP_REQUIRED', 'A fresh step-up authentication is required.'));
@@ -211,7 +212,10 @@ function validateAuthorization(
 
   if (request.mode === 'recovery') {
     if (!request.recoveryCredentialReady) {
-      pushUnique(blockers, blocker('RECOVERY_CREDENTIAL_REQUIRED', 'Recovery mode requires a ready recovery credential.'));
+      pushUnique(
+        blockers,
+        blocker('RECOVERY_CREDENTIAL_REQUIRED', 'Recovery mode requires a ready recovery credential.')
+      );
     }
     if (request.destination) {
       pushUnique(blockers, blocker('DESTINATION_NOT_ALLOWED', 'Recovery mode cannot consume a destination binding.'));
@@ -305,16 +309,16 @@ function familyPreview(
   const reason = !selected
     ? 'This state family is outside the explicitly selected transfer scope.'
     : executableCapable
-    ? 'Imported executable-capable state remains paused and requires quarantine review before activation.'
-    : id === 'credentials.secrets'
-      ? 'Credential material is excluded from portable copy and must be reconnected at the destination.'
-      : id === 'external.workspaces'
-        ? 'External workspace content remains user-owned and is transferred as a reference only.'
-        : id === 'external.backend-handles'
-          ? 'External backend configuration remains reference-only and may require reconnection.'
-          : id === 'updater.release-channel'
-            ? 'Updater state is instance-specific and excluded from transfer.'
-            : undefined;
+      ? 'Imported executable-capable state remains paused and requires quarantine review before activation.'
+      : id === 'credentials.secrets'
+        ? 'Credential material is excluded from portable copy and must be reconnected at the destination.'
+        : id === 'external.workspaces'
+          ? 'External workspace content remains user-owned and is transferred as a reference only.'
+          : id === 'external.backend-handles'
+            ? 'External backend configuration remains reference-only and may require reconnection.'
+            : id === 'updater.release-channel'
+              ? 'Updater state is instance-specific and excluded from transfer.'
+              : undefined;
 
   return {
     id,
@@ -369,6 +373,16 @@ export function evaluateWaylandTransferInventoryPreflight(
   validateRegistry(inventory, blockers);
   const selected = validateSelection(normalizedRequest, blockers);
   validateAuthorization(normalizedRequest, selected, now, blockers);
+  for (const registryIssue of unavailableTransferProducers(selected)) {
+    pushUnique(
+      blockers,
+      blocker(
+        `PORTABILITY_${registryIssue.code}`,
+        registryIssue.message,
+        registryIssue.logicalStateId ? { logicalStateId: registryIssue.logicalStateId } : {}
+      )
+    );
+  }
 
   const recoveryDryRun = evaluateRecoveryDryRun(inventory, recoveryCapabilities);
   for (const finding of recoveryDryRun.blockers) {
@@ -396,11 +410,9 @@ export function evaluateWaylandTransferInventoryPreflight(
     if (selectedSet.has(family.id) && family.executableCapable) {
       pushUnique(
         warnings,
-        warning(
-          'EXECUTABLE_IMPORT_QUARANTINED',
-          `${family.id} will remain paused until quarantine review succeeds.`,
-          { logicalStateId: family.id }
-        )
+        warning('EXECUTABLE_IMPORT_QUARANTINED', `${family.id} will remain paused until quarantine review succeeds.`, {
+          logicalStateId: family.id,
+        })
       );
     }
     if (selectedSet.has(family.id) && family.disposition === 'reconnect-required') {
@@ -433,10 +445,5 @@ export async function buildWaylandTransferInventoryPreflight(
   inputs: WaylandTransferInventoryPreflightInputs
 ): Promise<WaylandTransferInventoryPreflight> {
   const inventory = await inventoryRecoveryAuthorities(inputs.inventory);
-  return evaluateWaylandTransferInventoryPreflight(
-    inputs.request,
-    inventory,
-    inputs.recoveryCapabilities,
-    inputs.now
-  );
+  return evaluateWaylandTransferInventoryPreflight(inputs.request, inventory, inputs.recoveryCapabilities, inputs.now);
 }

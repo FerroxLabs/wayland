@@ -37,6 +37,17 @@ describe('Wayland portability registry', () => {
     expect(issues.some(({ logicalStateId }) => logicalStateId === 'updater.release-channel')).toBe(false);
   });
 
+  it('rejects selected scopes that omit a registered dependency', () => {
+    expect(unavailableTransferProducers(['external.workspaces'])).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'REGISTRY_DEPENDENCY_OUT_OF_SCOPE',
+          logicalStateId: 'external.workspaces',
+        }),
+      ])
+    );
+  });
+
   it('rejects missing, duplicate, unknown-authority, unsafe-limit, and cyclic descriptors', () => {
     const first = WAYLAND_PORTABILITY_REGISTRY[0];
     const hostile = [
