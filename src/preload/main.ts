@@ -23,6 +23,11 @@ import type {
   ConstitutionClassicRecoveryMutationResult,
   ConstitutionClassicRecoveryResumeRequest,
 } from '../common/types/constitutionRecovery';
+import type {
+  CockpitReturnReason,
+  CockpitReturnRecordResult,
+  CockpitRolloutStatus,
+} from '../common/types/cohortRollout';
 
 // SECURITY (RT-F4-03): the weixin login channels (qr/scanned/done) carry a
 // single, one-shot login flow. The previous implementation registered a fresh
@@ -144,6 +149,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('webui-direct-change-username', { newUsername, currentPassword }),
   // Feedback: collect and compress recent log files
   collectFeedbackLogs: () => ipcRenderer.invoke('feedback:collect-logs'),
+  cockpitRolloutStatus: (): Promise<CockpitRolloutStatus> => ipcRenderer.invoke('cohort:cockpit-rollout-status'),
+  cohortRecordShellReturn: (reason: CockpitReturnReason): Promise<CockpitReturnRecordResult> =>
+    ipcRenderer.invoke('cohort:shell-returned-to-classic', reason),
   // Wayland Constitution: agent behavioral spec stored at ~/.wayland/CONSTITUTION.md
   readConstitution: (): Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>> =>
     ipcRenderer.invoke('constitution:read'),

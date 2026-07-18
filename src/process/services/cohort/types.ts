@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { COCKPIT_RETURN_REASONS } from '@/common/types/cohortRollout';
+
 export const M0B_SCHEMA_VERSION = 1 as const;
 export const M0B_OBSERVATION_WINDOW_DAYS = 14 as const;
 export const M0B_DAY_MS = 86_400_000;
@@ -23,15 +25,7 @@ export const M0B_PRIMARY_JOURNEYS = [
 ] as const;
 export type M0BPrimaryJourney = (typeof M0B_PRIMARY_JOURNEYS)[number];
 
-export const M0B_RETURN_REASONS = [
-  'performance',
-  'confusing-navigation',
-  'missing-capability',
-  'reliability',
-  'accessibility',
-  'trust-or-control',
-  'other-no-text',
-] as const;
+export const M0B_RETURN_REASONS = COCKPIT_RETURN_REASONS;
 export type M0BReturnReason = (typeof M0B_RETURN_REASONS)[number];
 
 export const M0B_SUPPORT_CATEGORIES = ['blocked', 'setup', 'bug', 'how-to'] as const;

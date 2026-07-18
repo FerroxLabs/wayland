@@ -14,6 +14,7 @@ import type {
   ConstitutionClassicRecoveryMutationResult,
   ConstitutionClassicRecoveryResumeRequest,
 } from './constitutionRecovery';
+import type { CockpitReturnReason, CockpitReturnRecordResult, CockpitRolloutStatus } from './cohortRollout';
 
 // WebUI status interface
 export interface WebUIStatus {
@@ -85,6 +86,10 @@ export interface ElectronBridgeAPI {
   weixinLoginOnDone?: (callback: (data: { accountId: string }) => void) => () => void;
   // Feedback log collection
   collectFeedbackLogs?: () => Promise<{ filename: string; data: number[] } | null>;
+  /** Process-authoritative Cockpit preview eligibility. */
+  cockpitRolloutStatus?: () => Promise<CockpitRolloutStatus>;
+  /** Privacy-safe, content-free return-to-Classic evidence. */
+  cohortRecordShellReturn?: (reason: CockpitReturnReason) => Promise<CockpitReturnRecordResult>;
   // Wayland Constitution: agent behavioral spec at ~/.wayland/CONSTITUTION.md
   readConstitution?: () => Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>>;
   writeConstitution?: (

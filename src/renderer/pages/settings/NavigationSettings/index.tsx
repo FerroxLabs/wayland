@@ -4,8 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Button, Radio, Switch } from '@arco-design/web-react';
-import React from 'react';
+import { Button, Modal, Radio, Select, Switch } from '@arco-design/web-react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Card, PreferenceRow } from '@renderer/components/settings/shared';
@@ -15,6 +15,17 @@ import { useHiddenSiderNavIds, useTitlebarBrandHidden } from '@renderer/hooks/ui
 import { resetNavPreferences, setSiderNavHidden, writeTitlebarBrandHidden } from '@renderer/utils/ui/navPreferences';
 import { useShellExperience } from '@renderer/hooks/ui/useShellExperience';
 import type { ShellExperience } from '@/common/shellExperience';
+import { COCKPIT_RETURN_REASONS, type CockpitReturnReason } from '@/common/types/cohortRollout';
+
+const RETURN_REASON_LABELS: Record<CockpitReturnReason, string> = {
+  performance: 'It felt slow',
+  'confusing-navigation': 'Navigation was confusing',
+  'missing-capability': 'I could not find a capability',
+  reliability: 'Something did not work reliably',
+  accessibility: 'It was difficult to access or use',
+  'trust-or-control': 'I needed clearer control or evidence',
+  'other-no-text': 'Another reason',
+};
 
 /**
  * Settings > Navigation (#118). Controls the left-navigation appearance:
@@ -27,7 +38,28 @@ const NavigationSettings: React.FC = () => {
   const { t } = useTranslation();
   const hiddenNavIds = useHiddenSiderNavIds();
   const brandHidden = useTitlebarBrandHidden();
-  const { shell, loading: shellLoading, setShell } = useShellExperience();
+  const { shell, loading: shellLoading, cockpitRollout, setShell } = useShellExperience();
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [returnReason, setReturnReason] = useState<CockpitReturnReason>('confusing-navigation');
+  const [returningToClassic, setReturningToClassic] = useState(false);
+
+  const chooseShell = (next: ShellExperience): void => {
+    if (next === 'classic' && shell === 'cockpit') {
+      setReturnDialogOpen(true);
+      return;
+    }
+    void setShell(next);
+  };
+
+  const confirmReturnToClassic = async (): Promise<void> => {
+    setReturningToClassic(true);
+    try {
+      await setShell('classic', returnReason);
+      setReturnDialogOpen(false);
+    } finally {
+      setReturningToClassic(false);
+    }
+  };
 
   return (
     <SettingsPageShell
@@ -48,16 +80,50 @@ const NavigationSettings: React.FC = () => {
             type='button'
             value={shell}
             disabled={shellLoading}
-            onChange={(value) => void setShell(value as ShellExperience)}
+            onChange={(value) => chooseShell(value as ShellExperience)}
             data-testid='shell-experience-selector'
           >
             <Radio value='classic'>{t('settings.navigationPage.classicShell', { defaultValue: 'Classic' })}</Radio>
-            <Radio value='cockpit'>
+            <Radio value='cockpit' disabled={!cockpitRollout.eligible}>
               {t('settings.navigationPage.cockpitShell', { defaultValue: 'Cockpit preview' })}
             </Radio>
           </Radio.Group>
         </PreferenceRow>
+        {!shellLoading && !cockpitRollout.eligible && (
+          <p className='mt-8px text-12px text-t-secondary' data-testid='cockpit-rollout-unavailable'>
+            {t('settings.navigationPage.cockpitInvitationRequired', {
+              defaultValue: 'Cockpit remains in controlled preview. This installation has not been invited yet.',
+            })}
+          </p>
+        )}
       </Card>
+
+      <Modal
+        visible={returnDialogOpen}
+        title={t('settings.navigationPage.returnToClassicTitle', { defaultValue: 'Return to Classic' })}
+        onCancel={() => setReturnDialogOpen(false)}
+        onOk={() => void confirmReturnToClassic()}
+        confirmLoading={returningToClassic}
+        okText={t('settings.navigationPage.returnToClassicConfirm', { defaultValue: 'Use Classic' })}
+      >
+        <p className='mb-12px text-13px text-t-secondary'>
+          {t('settings.navigationPage.returnToClassicHelp', {
+            defaultValue: 'What made you switch back? Wayland records only this category, never your chat content.',
+          })}
+        </p>
+        <Select
+          value={returnReason}
+          onChange={(value) => setReturnReason(value as CockpitReturnReason)}
+          className='w-full'
+          data-testid='return-to-classic-reason'
+        >
+          {COCKPIT_RETURN_REASONS.map((reason) => (
+            <Select.Option key={reason} value={reason}>
+              {RETURN_REASON_LABELS[reason]}
+            </Select.Option>
+          ))}
+        </Select>
+      </Modal>
 
       <Card title={t('settings.navigationPage.sidebarEntriesTitle', { defaultValue: 'Sidebar entries' })}>
         {SIDER_NAV_ITEMS.map((item) => (

@@ -53,9 +53,16 @@ import ShellExperienceLayout, {
 import { ConfigStorage } from '@/common/config/storage';
 import { ErrorBoundary } from '@/renderer/components/ErrorBoundary';
 import {
+  CockpitRolloutBlockedError,
   SHELL_EXPERIENCE_CHANGED_EVENT,
   writeShellExperience,
 } from '@/renderer/hooks/ui/useShellExperience';
+
+const originalElectronAPI = window.electronAPI;
+
+afterEach(() => {
+  window.electronAPI = originalElectronAPI;
+});
 
 const missingCockpitLoader: CockpitShellRootLoader = () => Promise.reject(new Error('cockpit chunk missing'));
 
@@ -296,11 +303,7 @@ describe('shell experience composition-root isolation', () => {
       }));
 
       const firstLaunch = render(
-        <ShellExperienceLayout
-          shell='classic'
-          loadClassicRoot={loadClassicRoot}
-          loadCockpitRoot={loadCockpitRoot}
-        />
+        <ShellExperienceLayout shell='classic' loadClassicRoot={loadClassicRoot} loadCockpitRoot={loadCockpitRoot} />
       );
       const classic = await screen.findByTestId('classic-journey-root');
       expect(classic).toHaveAttribute('data-conversation-id', 'conversation-m3-proof');
@@ -308,11 +311,7 @@ describe('shell experience composition-root isolation', () => {
       expect(classic).toHaveAttribute('data-workspace-open', String(workspaceOpen));
 
       firstLaunch.rerender(
-        <ShellExperienceLayout
-          shell='cockpit'
-          loadClassicRoot={loadClassicRoot}
-          loadCockpitRoot={loadCockpitRoot}
-        />
+        <ShellExperienceLayout shell='cockpit' loadClassicRoot={loadClassicRoot} loadCockpitRoot={loadCockpitRoot} />
       );
       const cockpit = await screen.findByTestId('cockpit-journey-root');
       expect(cockpit).toHaveAttribute('data-conversation-id', classic.getAttribute('data-conversation-id'));
@@ -327,11 +326,7 @@ describe('shell experience composition-root isolation', () => {
       // shell never rewrites or duplicates its records.
       firstLaunch.unmount();
       const restarted = render(
-        <ShellExperienceLayout
-          shell='cockpit'
-          loadClassicRoot={loadClassicRoot}
-          loadCockpitRoot={loadCockpitRoot}
-        />
+        <ShellExperienceLayout shell='cockpit' loadClassicRoot={loadClassicRoot} loadCockpitRoot={loadCockpitRoot} />
       );
       const afterRestart = await screen.findByTestId('cockpit-journey-root');
       expect(afterRestart).toHaveAttribute('data-conversation-id', 'conversation-m3-proof');
@@ -348,6 +343,16 @@ describe('shell experience composition-root isolation', () => {
     const events: unknown[] = [];
     const capture = (event: Event) => events.push((event as CustomEvent<unknown>).detail);
     window.addEventListener(SHELL_EXPERIENCE_CHANGED_EVENT, capture);
+    window.electronAPI = {
+      emit: vi.fn(),
+      on: vi.fn(),
+      cockpitRolloutStatus: vi.fn(async () => ({
+        eligible: true,
+        stage: 'internal-dogfood',
+        source: 'development',
+        reason: 'development-build',
+      })),
+    };
 
     await writeShellExperience('cockpit');
 
@@ -363,6 +368,43 @@ describe('shell experience composition-root isolation', () => {
     storageSet.mockRestore();
   });
 
+  it('fails closed before persisting Cockpit when Desktop rollout authority is unavailable', async () => {
+    const storageSet = vi.spyOn(ConfigStorage, 'set').mockResolvedValue(undefined);
+    window.electronAPI = {
+      emit: vi.fn(),
+      on: vi.fn(),
+      cockpitRolloutStatus: vi.fn(async () => ({
+        eligible: false,
+        stage: null,
+        source: 'none',
+        reason: 'authority-missing',
+      })),
+    };
+
+    await expect(writeShellExperience('cockpit')).rejects.toBeInstanceOf(CockpitRolloutBlockedError);
+    expect(storageSet).not.toHaveBeenCalled();
+
+    storageSet.mockRestore();
+  });
+
+  it('always returns to Classic even when optional reason evidence cannot be stored', async () => {
+    const storageSet = vi.spyOn(ConfigStorage, 'set').mockResolvedValue(undefined);
+    const recordReturn = vi.fn(async () => {
+      throw new Error('cohort store unavailable');
+    });
+    window.electronAPI = {
+      emit: vi.fn(),
+      on: vi.fn(),
+      cohortRecordShellReturn: recordReturn,
+    };
+
+    await expect(writeShellExperience('classic', 'reliability')).resolves.toBeUndefined();
+    expect(storageSet).toHaveBeenCalledWith('ui.shell', 'classic');
+    expect(recordReturn).toHaveBeenCalledWith('reliability');
+
+    storageSet.mockRestore();
+  });
+
   it('escalates a shared canonical-service failure to the outer recovery boundary without claiming shell recovery', async () => {
     const loadClassicRoot = vi.fn<ClassicShellRootLoader>();
     const loadCockpitRoot = vi.fn<CockpitShellRootLoader>();
@@ -370,11 +412,7 @@ describe('shell experience composition-root isolation', () => {
     render(
       <ErrorBoundary fallback={(error) => <div data-testid='root-recovery'>{error.message}</div>}>
         <SharedCanonicalServiceFailure />
-        <ShellExperienceLayout
-          shell='cockpit'
-          loadClassicRoot={loadClassicRoot}
-          loadCockpitRoot={loadCockpitRoot}
-        />
+        <ShellExperienceLayout shell='cockpit' loadClassicRoot={loadClassicRoot} loadCockpitRoot={loadCockpitRoot} />
       </ErrorBoundary>
     );
 
