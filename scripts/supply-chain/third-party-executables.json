@@ -1,0 +1,186 @@
+{
+  "contract": "wayland-third-party-executables/1.0",
+  "entries": [
+    {
+      "id": "officecli",
+      "owner": "iOfficeAI",
+      "repository": "https://github.com/iOfficeAI/OfficeCLI",
+      "license": { "spdx": "Apache-2.0", "evidence": "https://github.com/iOfficeAI/OfficeCLI/blob/main/LICENSE" },
+      "version": "v1.0.136",
+      "updateOwner": "FerroxLabs Desktop release engineering",
+      "authorityFile": "scripts/bundled-officecli-shasums.json",
+      "verification": "pinned-release-digest+platform-signature",
+      "executables": [
+        {
+          "asset": "officecli-linux-alpine-arm64",
+          "name": "officecli",
+          "sha256": "6f882ba9ebb9fec4bbae5e60e96a1caa8cf0d4bbf59bd03c0c6302343d38067a"
+        },
+        {
+          "asset": "officecli-linux-alpine-x64",
+          "name": "officecli",
+          "sha256": "566cb70628a9535d2b89bb5708e5957511095bcc4359f835a3377a8cde9e3f21"
+        },
+        {
+          "asset": "officecli-linux-arm64",
+          "name": "officecli",
+          "sha256": "25bda0d225932159b14ea6ade532c8dbecd2136f1b5c672c003b45bd75afbbb2"
+        },
+        {
+          "asset": "officecli-linux-x64",
+          "name": "officecli",
+          "sha256": "2ca3d81be529fd103a7af95a2039b051a08af9d1b5c2c96e85e88731008c402c"
+        },
+        {
+          "asset": "officecli-mac-arm64",
+          "name": "officecli",
+          "sha256": "b8582853cc464fa0bdb2fabc2803821472c9449c38b365a7be79fcb53d6356e7"
+        },
+        {
+          "asset": "officecli-mac-x64",
+          "name": "officecli",
+          "sha256": "f0073b16a5181837d0b0df3e264a338066b02f4ac16f4758538873fbc32bf9b2"
+        },
+        {
+          "asset": "officecli-win-arm64.exe",
+          "name": "officecli.exe",
+          "sha256": "94e5ebb1900974681430197035476e2e6c6e905e2e45c2c71ed7de0a3ba87131"
+        },
+        {
+          "asset": "officecli-win-x64.exe",
+          "name": "officecli.exe",
+          "sha256": "0ba8550bb236a2a23982311a747b22f318d7bd18c1c06a402d96f7642c85fb6a"
+        }
+      ],
+      "hostedFallback": { "available": false, "owner": null, "endpoint": null },
+      "networkCostConsent": {
+        "networkAccess": false,
+        "mayIncurCost": false,
+        "required": false,
+        "disclosure": "Local bundled executable."
+      }
+    },
+    {
+      "id": "bun",
+      "owner": "Oven Inc.",
+      "repository": "https://github.com/oven-sh/bun",
+      "license": { "spdx": "MIT", "evidence": "https://github.com/oven-sh/bun/blob/main/LICENSE.md" },
+      "version": "1.3.14",
+      "updateOwner": "FerroxLabs Desktop release engineering",
+      "authorityFile": "scripts/bundled-bun-binaries.json",
+      "verification": "official-shasums+extracted-binary-digest",
+      "executables": [
+        {
+          "asset": "bun-darwin-aarch64.zip",
+          "name": "bun",
+          "sha256": "e0c90ec15d33363e6b70713d56bc3b2c7585c17f40a0fe0f8fd9305901d4e233",
+          "size": 63096576
+        },
+        {
+          "asset": "bun-darwin-x64.zip",
+          "name": "bun",
+          "sha256": "ea2f223e94bb2f4bf3050895113c3cf346438f6fa0501c8532284e063f72f7a0",
+          "size": 69173328
+        },
+        {
+          "asset": "bun-darwin-x64-baseline.zip",
+          "name": "bun",
+          "sha256": "ea2f223e94bb2f4bf3050895113c3cf346438f6fa0501c8532284e063f72f7a0",
+          "size": 69173328
+        },
+        {
+          "asset": "bun-linux-aarch64.zip",
+          "name": "bun",
+          "sha256": "37141662ebed915a2ab89313156e455e2a1374395f5f6760d06407f49406f086",
+          "size": 91801560
+        },
+        {
+          "asset": "bun-linux-x64.zip",
+          "name": "bun",
+          "sha256": "9fd36f87e4b90b07632b987a2e4ec81ca15a62c81bf983190cea6d715be2ad74",
+          "size": 92752752
+        },
+        {
+          "asset": "bun-linux-x64-baseline.zip",
+          "name": "bun",
+          "sha256": "a8f9ebd1770ddc8e55dab7a68d4ec1ec1eebf374bb97cc65cf2c3cb373fc6791",
+          "size": 91802480
+        },
+        {
+          "asset": "bun-windows-x64.zip",
+          "name": "bun.exe",
+          "sha256": "0187f68d843f825a72ada4a7eca60db896ed753759a7f8252edcd31ac1bf1b9c",
+          "size": 98480216
+        },
+        {
+          "asset": "bun-windows-x64-baseline.zip",
+          "name": "bun.exe",
+          "sha256": "9005d0d585d80425e9b715690de3e614651124c94458ef3d3a302ca1a6d3d813",
+          "size": 97757272
+        }
+      ],
+      "hostedFallback": { "available": false, "owner": null, "endpoint": null },
+      "networkCostConsent": {
+        "networkAccess": true,
+        "mayIncurCost": false,
+        "required": true,
+        "disclosure": "Bun may download packages only after the user initiates a tool or MCP install."
+      }
+    },
+    {
+      "id": "7zip-recovery",
+      "owner": "7-Zip / 7zip-bin maintainers",
+      "repository": "https://github.com/develar/7zip-bin",
+      "license": { "spdx": "MIT AND LGPL-2.1-or-later", "evidence": "https://github.com/develar/7zip-bin" },
+      "version": "5.2.0",
+      "updateOwner": "FerroxLabs Desktop release engineering",
+      "authorityFile": "scripts/supply-chain/classic-recovery-tools.json",
+      "verification": "package-lock+executable-digest",
+      "executables": [
+        {
+          "asset": "win/arm64/7za.exe",
+          "name": "7za.exe",
+          "sha256": "81f67048b7366870e5d49f00a8c570570c6a0dd11c05df7a09a8c52870cc83bd",
+          "size": 1089024
+        },
+        {
+          "asset": "win/x64/7za.exe",
+          "name": "7za.exe",
+          "sha256": "b0cfdeaf429f5cc53f85123dd8f5a5feb92c19d31aa34df257edf9a26be05f95",
+          "size": 1231360
+        }
+      ],
+      "hostedFallback": { "available": false, "owner": null, "endpoint": null },
+      "networkCostConsent": {
+        "networkAccess": false,
+        "mayIncurCost": false,
+        "required": false,
+        "disclosure": "Local recovery executable."
+      }
+    },
+    {
+      "id": "signal-cli",
+      "owner": "AsamK",
+      "repository": "https://github.com/AsamK/signal-cli",
+      "license": { "spdx": "GPL-3.0-only", "evidence": "https://github.com/AsamK/signal-cli/blob/master/LICENSE" },
+      "version": "v0.14.6",
+      "updateOwner": "FerroxLabs Desktop release engineering",
+      "authorityFile": "scripts/signal-cli-pinned-release.json",
+      "verification": "pinned-release-asset+archive-and-binary-digest",
+      "executables": [
+        {
+          "asset": "signal-cli-0.14.6-Linux-native.tar.gz",
+          "name": "signal-cli",
+          "sha256": "0f9850154f51a0ef0ffcb7a52a38c8aa794ec92a4ab6f76210e726c544c01798"
+        }
+      ],
+      "hostedFallback": { "available": false, "owner": null, "endpoint": null },
+      "networkCostConsent": {
+        "networkAccess": true,
+        "mayIncurCost": true,
+        "required": true,
+        "disclosure": "Signal messaging uses the network and carrier or data charges may apply."
+      }
+    }
+  ]
+}

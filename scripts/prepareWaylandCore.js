@@ -2,10 +2,9 @@
  * Prepare wayland-core binary for Electron packaging.
  *
  * Resolution order:
- *  0. A pre-placed binary may be reused by a strict package build only when its
- *     bytes match the independently pinned extracted-binary digest for the
- *     exact release asset. It is then published as `verified-cache`, never as
- *     `local-prebuilt`. Dev-only calls may still use an unverified local binary.
+ *  0. Dev-only calls may use a pre-placed unverified local binary. Strict
+ *     package builds never treat extracted cache bytes as publisher authority;
+ *     they authenticate the exact release archive before publishing.
  *  1. GitHub release download (requires WCORE_VERSION or defaults to "latest"),
  *     SHA-256 verified before extract/copy/execute.
  *
@@ -27,11 +26,12 @@ const crypto = require('crypto');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { verifyPublisherAttestation } = require('./supply-chain/verifyPublisherAttestation');
 
 const GITHUB_OWNER = 'FerroxLabs';
 const GITHUB_REPO = 'wayland-core';
 const BUNDLE_CONTRACT = 'wayland-core-bundle/1.0';
-const BUNDLE_GENERATOR = 'prepareWaylandCore/2';
+const BUNDLE_GENERATOR = 'prepareWaylandCore/3';
 
 // Authoritative per-platform SHA-256 manifest for the downloaded release
 // archives. Supply-chain guard (UPD-03): every release build must fetch the
@@ -377,6 +377,14 @@ function downloadAndExtract(platform, arch, tag, { requireBinaryPin = false } = 
   downloadFile(url, archivePath);
   // Supply-chain gate: verify the downloaded archive before extract/copy/exec.
   verifyArchiveChecksum(archivePath, expected.archiveSha256, assetName, tag);
+  const publisherAttestation = requireBinaryPin
+    ? verifyPublisherAttestation({
+        artifactPath: archivePath,
+        assetName,
+        releaseTag: tag,
+        expectedSha256: expected.archiveSha256,
+      })
+    : null;
   extractArchive(archivePath, extractDir, platform);
 
   const binaryName = getBinaryName(platform);
@@ -401,6 +409,7 @@ function downloadAndExtract(platform, arch, tag, { requireBinaryPin = false } = 
     assetName,
     archiveSha256: expected.archiveSha256,
     binarySha256,
+    publisherAttestation,
   };
 }
 
@@ -417,6 +426,7 @@ function verifiedBundleManifest({
   archiveSha256,
   binaryName,
   binarySha256,
+  publisherAttestation,
 }) {
   return {
     contract: BUNDLE_CONTRACT,
@@ -427,7 +437,7 @@ function verifiedBundleManifest({
     version: tag,
     generatedAt: new Date().toISOString(),
     sourceType,
-    verified: true,
+    verified: Boolean(publisherAttestation),
     source: {
       owner: GITHUB_OWNER,
       repository: GITHUB_REPO,
@@ -439,6 +449,7 @@ function verifiedBundleManifest({
       name: binaryName,
       sha256: `sha256:${binarySha256}`,
     },
+    publisherAttestation: publisherAttestation || null,
     files: [binaryName],
     skipped: false,
   };
@@ -546,31 +557,15 @@ function prepareWaylandCore(options = {}) {
   if (hasPreplaced && !forceDownload) {
     const binarySha256 = computeFileSha256(targetBinaryPath);
     if (strict && binarySha256 === expected.binarySha256) {
-      // The runtime directory is copied wholesale into the app. Preserve only
-      // the independently pinned executable, then regenerate its manifest, so
-      // a stale `wcore`, helper, symlink, or old receipt cannot silently ship.
-      pruneRuntimeDirectory(targetDir, [binaryName]);
-      ensureExecutableMode(targetBinaryPath);
-      writeJson(
-        path.join(targetDir, 'manifest.json'),
-        verifiedBundleManifest({
-          platform,
-          arch,
-          tag,
-          sourceType: 'verified-cache',
-          assetName,
-          archiveSha256: expected.archiveSha256,
-          binaryName,
-          binarySha256,
-        })
+      // The publisher attestation covers the release archive, not this extracted
+      // executable. A digest-matching local cache therefore cannot prove
+      // publisher authority by itself; strict builds re-fetch and authenticate
+      // the exact archive before publishing any bytes.
+      console.warn(
+        `  Strict build: independently pinned wayland-core cache for ${runtimeKey} lacks archive-bound publisher ` +
+          `authentication; downloading and verifying the signed release asset.`
       );
-      console.log(
-        `  Reused independently pinned wayland-core bytes: resources/bundled-wayland-core/${runtimeKey}/${binaryName} ` +
-          `[source=verified-cache binarySha256=${binarySha256.slice(0, 12)}...]`
-      );
-      return { prepared: true, dir: targetDir, sourceType: 'verified-cache', verified: true };
-    }
-    if (!strict) {
+    } else if (!strict) {
       pruneRuntimeDirectory(targetDir, [binaryName]);
       ensureExecutableMode(targetBinaryPath);
       let binaryVersion = tag;
@@ -599,11 +594,12 @@ function prepareWaylandCore(options = {}) {
           `[source=local-prebuilt verified=false binarySha256=${binarySha256.slice(0, 12)}...]`
       );
       return { prepared: true, dir: targetDir, sourceType: 'local-prebuilt', verified: false };
+    } else {
+      console.warn(
+        `  Strict build: pre-placed wayland-core at resources/bundled-wayland-core/${runtimeKey}/${binaryName} ` +
+          `does not match the independently pinned extracted-binary digest; downloading the exact release asset instead.`
+      );
     }
-    console.warn(
-      `  Strict build: pre-placed wayland-core at resources/bundled-wayland-core/${runtimeKey}/${binaryName} ` +
-        `does not match the independently pinned extracted-binary digest; downloading the exact release asset instead.`
-    );
   }
 
   removeDirectorySafe(targetDir);
@@ -615,6 +611,7 @@ function prepareWaylandCore(options = {}) {
   let tempDir = null;
   let archiveSha256 = null;
   let binarySha256 = null;
+  let publisherAttestation = null;
 
   // 1. Download from GitHub releases (archive is SHA-256 verified inside
   //    downloadAndExtract BEFORE it is extracted, copied, or executed).
@@ -627,6 +624,7 @@ function prepareWaylandCore(options = {}) {
       sourceDetail = { url: result.url, asset: result.assetName };
       archiveSha256 = result.archiveSha256;
       binarySha256 = result.binarySha256;
+      publisherAttestation = result.publisherAttestation;
       console.log(
         `  Downloaded + verified from GitHub releases ` +
           `(archiveSha256=${archiveSha256} binarySha256=${binarySha256})`
@@ -667,6 +665,7 @@ function prepareWaylandCore(options = {}) {
       archiveSha256,
       binaryName,
       binarySha256,
+      publisherAttestation,
     });
     if (!strict && !expected.binarySha256) manifest.verified = false;
 

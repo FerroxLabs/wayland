@@ -143,8 +143,12 @@ describe('strict bundled wayland-core provenance', () => {
 
   it('keeps the bundle receipt contract and future bump tooling bound to binary pins', () => {
     const bump = fs.readFileSync(path.resolve('scripts/stage-wcore-bump.mjs'), 'utf8');
+    const prepare = fs.readFileSync(path.resolve('scripts/prepareWaylandCore.js'), 'utf8');
     expect(prepareWaylandCore.BUNDLE_CONTRACT).toBe('wayland-core-bundle/1.0');
-    expect(prepareWaylandCore.BUNDLE_GENERATOR).toBe('prepareWaylandCore/2');
+    expect(prepareWaylandCore.BUNDLE_GENERATOR).toBe('prepareWaylandCore/3');
+    expect(prepare).toContain('verifyPublisherAttestation({');
+    expect(prepare).toContain('publisherAttestation: publisherAttestation || null');
+    expect(prepare).toContain('lacks archive-bound publisher');
     expect(bump).toContain('binarySha256');
     expect(bump).toContain('archive digest drift');
     expect(bump).toContain('did not contain wayland-core executable');

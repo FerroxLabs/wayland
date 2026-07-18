@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wayland.ferroxlabs.dev/schemas/third-party-executables-1.0.json",
+  "title": "Wayland bundled third-party executable authority ledger",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "entries"],
+  "properties": {
+    "contract": { "const": "wayland-third-party-executables/1.0" },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "owner",
+          "repository",
+          "license",
+          "version",
+          "updateOwner",
+          "authorityFile",
+          "verification",
+          "executables",
+          "hostedFallback",
+          "networkCostConsent"
+        ]
+      }
+    }
+  }
+}
