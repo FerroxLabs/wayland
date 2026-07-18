@@ -50,7 +50,12 @@ import ShellExperienceLayout, {
   type ClassicShellRootLoader,
   type CockpitShellRootLoader,
 } from '@/renderer/components/layout/ShellExperience';
-import { SHELL_EXPERIENCE_CHANGED_EVENT } from '@/renderer/hooks/ui/useShellExperience';
+import { ConfigStorage } from '@/common/config/storage';
+import { ErrorBoundary } from '@/renderer/components/ErrorBoundary';
+import {
+  SHELL_EXPERIENCE_CHANGED_EVENT,
+  writeShellExperience,
+} from '@/renderer/hooks/ui/useShellExperience';
 
 const missingCockpitLoader: CockpitShellRootLoader = () => Promise.reject(new Error('cockpit chunk missing'));
 
@@ -69,6 +74,80 @@ async function expectClassicRecovery(): Promise<void> {
   await waitFor(() =>
     expect(screen.getByTestId('shell-recovery-fallback')).toHaveAttribute('data-persistence-state', 'idle')
   );
+}
+
+type CanonicalJourneyState = {
+  conversation: {
+    id: string;
+    projectId: string;
+    messages: ReadonlyArray<{ id: string; role: string; content: string; correlationId: string }>;
+    run: { id: string; status: 'idle' | 'streaming' | 'waiting-approval'; correlationId: string };
+    approval: { id: string; status: 'none' | 'waiting' };
+    workspace: { path: string; open: boolean; unknownFutureField: { retained: true } };
+  };
+  project: { id: string; name: string; unknownCorrelationEnvelope: { traceId: string } };
+};
+
+function canonicalJourneyState(
+  status: CanonicalJourneyState['conversation']['run']['status'],
+  workspaceOpen = false
+): CanonicalJourneyState {
+  return {
+    conversation: {
+      id: 'conversation-m3-proof',
+      projectId: 'project-m3-proof',
+      messages: [
+        {
+          id: 'message-m3-proof',
+          role: 'user',
+          content: 'Preserve this canonical message.',
+          correlationId: 'correlation-message-m3-proof',
+        },
+      ],
+      run: {
+        id: 'run-m3-proof',
+        status,
+        correlationId: 'correlation-run-m3-proof',
+      },
+      approval: {
+        id: 'approval-m3-proof',
+        status: status === 'waiting-approval' ? 'waiting' : 'none',
+      },
+      workspace: {
+        path: '/tmp/wayland-m3-workspace',
+        open: workspaceOpen,
+        unknownFutureField: { retained: true },
+      },
+    },
+    project: {
+      id: 'project-m3-proof',
+      name: 'M3 continuity project',
+      unknownCorrelationEnvelope: { traceId: 'trace-m3-proof' },
+    },
+  };
+}
+
+function journeyRoot(shell: 'classic' | 'cockpit', state: CanonicalJourneyState): React.FC {
+  return function JourneyRoot() {
+    return (
+      <main
+        data-shell-experience={shell}
+        data-testid={`${shell}-journey-root`}
+        data-conversation-id={state.conversation.id}
+        data-project-id={state.project.id}
+        data-message-count={state.conversation.messages.length}
+        data-run-id={state.conversation.run.id}
+        data-run-status={state.conversation.run.status}
+        data-approval-status={state.conversation.approval.status}
+        data-workspace-open={String(state.conversation.workspace.open)}
+        data-trace-id={state.project.unknownCorrelationEnvelope.traceId}
+      />
+    );
+  };
+}
+
+function SharedCanonicalServiceFailure(): never {
+  throw new Error('canonical conversation service unavailable');
 }
 
 describe('shell experience composition-root isolation', () => {
@@ -197,5 +276,111 @@ describe('shell experience composition-root isolation', () => {
     expect(persist).toHaveBeenCalledTimes(2);
     expect(screen.getByRole('status')).toHaveTextContent('Classic se usará de forma predeterminada.');
     window.removeEventListener(SHELL_EXPERIENCE_CHANGED_EVENT, captureSessionActivation);
+  });
+
+  it.each([
+    ['idle', false],
+    ['streaming', false],
+    ['waiting-approval', false],
+    ['idle', true],
+  ] as const)(
+    'keeps one canonical conversation intact across Classic, Cockpit, and restart while %s (workspace open: %s)',
+    async (status, workspaceOpen) => {
+      const canonical = canonicalJourneyState(status, workspaceOpen);
+      const exactBefore = JSON.stringify(canonical);
+      const loadClassicRoot = vi.fn<ClassicShellRootLoader>(async () => ({
+        default: journeyRoot('classic', canonical),
+      }));
+      const loadCockpitRoot = vi.fn<CockpitShellRootLoader>(async () => ({
+        default: journeyRoot('cockpit', canonical),
+      }));
+
+      const firstLaunch = render(
+        <ShellExperienceLayout
+          shell='classic'
+          loadClassicRoot={loadClassicRoot}
+          loadCockpitRoot={loadCockpitRoot}
+        />
+      );
+      const classic = await screen.findByTestId('classic-journey-root');
+      expect(classic).toHaveAttribute('data-conversation-id', 'conversation-m3-proof');
+      expect(classic).toHaveAttribute('data-run-status', status);
+      expect(classic).toHaveAttribute('data-workspace-open', String(workspaceOpen));
+
+      firstLaunch.rerender(
+        <ShellExperienceLayout
+          shell='cockpit'
+          loadClassicRoot={loadClassicRoot}
+          loadCockpitRoot={loadCockpitRoot}
+        />
+      );
+      const cockpit = await screen.findByTestId('cockpit-journey-root');
+      expect(cockpit).toHaveAttribute('data-conversation-id', classic.getAttribute('data-conversation-id'));
+      expect(cockpit).toHaveAttribute('data-project-id', classic.getAttribute('data-project-id'));
+      expect(cockpit).toHaveAttribute('data-message-count', classic.getAttribute('data-message-count'));
+      expect(cockpit).toHaveAttribute('data-run-id', classic.getAttribute('data-run-id'));
+      expect(cockpit).toHaveAttribute('data-approval-status', classic.getAttribute('data-approval-status'));
+      expect(cockpit).toHaveAttribute('data-trace-id', 'trace-m3-proof');
+
+      // A Desktop restart remounts presentation roots while canonical services
+      // remain authoritative. Reuse the same copied state and prove that the
+      // shell never rewrites or duplicates its records.
+      firstLaunch.unmount();
+      const restarted = render(
+        <ShellExperienceLayout
+          shell='cockpit'
+          loadClassicRoot={loadClassicRoot}
+          loadCockpitRoot={loadCockpitRoot}
+        />
+      );
+      const afterRestart = await screen.findByTestId('cockpit-journey-root');
+      expect(afterRestart).toHaveAttribute('data-conversation-id', 'conversation-m3-proof');
+      expect(afterRestart).toHaveAttribute('data-message-count', '1');
+      expect(JSON.stringify(canonical)).toBe(exactBefore);
+      restarted.unmount();
+    }
+  );
+
+  it('writes only ui.shell and leaves copied canonical, correlation, and unknown fields byte-equivalent', async () => {
+    const copiedState = canonicalJourneyState('waiting-approval', true);
+    const exactBefore = JSON.stringify(copiedState);
+    const storageSet = vi.spyOn(ConfigStorage, 'set').mockResolvedValue(undefined);
+    const events: unknown[] = [];
+    const capture = (event: Event) => events.push((event as CustomEvent<unknown>).detail);
+    window.addEventListener(SHELL_EXPERIENCE_CHANGED_EVENT, capture);
+
+    await writeShellExperience('cockpit');
+
+    expect(storageSet).toHaveBeenCalledTimes(1);
+    expect(storageSet).toHaveBeenCalledWith('ui.shell', 'cockpit');
+    expect(events).toEqual(['cockpit']);
+    expect(JSON.stringify(copiedState)).toBe(exactBefore);
+    expect(copiedState.conversation.messages).toHaveLength(1);
+    expect(copiedState.conversation.run.correlationId).toBe('correlation-run-m3-proof');
+    expect(copiedState.conversation.workspace.unknownFutureField).toEqual({ retained: true });
+
+    window.removeEventListener(SHELL_EXPERIENCE_CHANGED_EVENT, capture);
+    storageSet.mockRestore();
+  });
+
+  it('escalates a shared canonical-service failure to the outer recovery boundary without claiming shell recovery', async () => {
+    const loadClassicRoot = vi.fn<ClassicShellRootLoader>();
+    const loadCockpitRoot = vi.fn<CockpitShellRootLoader>();
+
+    render(
+      <ErrorBoundary fallback={(error) => <div data-testid='root-recovery'>{error.message}</div>}>
+        <SharedCanonicalServiceFailure />
+        <ShellExperienceLayout
+          shell='cockpit'
+          loadClassicRoot={loadClassicRoot}
+          loadCockpitRoot={loadCockpitRoot}
+        />
+      </ErrorBoundary>
+    );
+
+    expect(await screen.findByTestId('root-recovery')).toHaveTextContent('canonical conversation service unavailable');
+    expect(screen.queryByTestId('shell-recovery-fallback')).not.toBeInTheDocument();
+    expect(loadClassicRoot).not.toHaveBeenCalled();
+    expect(loadCockpitRoot).not.toHaveBeenCalled();
   });
 });
