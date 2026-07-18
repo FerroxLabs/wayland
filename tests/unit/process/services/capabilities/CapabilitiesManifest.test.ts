@@ -7,6 +7,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import type { IProvider } from '@/common/config/storage';
+import { CAPABILITY_EVIDENCE_CONTRACT, OFFICECLI_CAPABILITY, WAYLAND_CAPABILITY_MANIFEST } from '@/common/capabilities';
 
 const { mockStats, mockList, getInstance, mockGetProviderCatalog, mockProcessConfigGet, mockOfficeAuthoringProbe } =
   vi.hoisted(() => ({
@@ -31,7 +32,7 @@ vi.mock('@process/utils/initStorage', () => ({
 }));
 
 vi.mock('@process/services/capabilities/OfficeCliAuthoringCapability', () => ({
-  probeOfficeCliAuthoringCapability: mockOfficeAuthoringProbe,
+  probeOfficeCliAuthoringEvidence: mockOfficeAuthoringProbe,
 }));
 
 import {
@@ -92,13 +93,40 @@ function primeHappyPath(): void {
 beforeEach(() => {
   vi.clearAllMocks();
   invalidateCapabilitiesManifestCache();
-  mockOfficeAuthoringProbe.mockResolvedValue({
-    state: 'ready',
-    version: '1.0.63',
-    executionMode: 'local-binary',
-    missingCommands: [],
-    reason: 'ready',
-  });
+  mockOfficeAuthoringProbe.mockImplementation(
+    async (context: { correlationId: string; backend: string; now: number }) => ({
+      contract: CAPABILITY_EVIDENCE_CONTRACT,
+      evidenceId: 'officecli:test',
+      capabilityId: OFFICECLI_CAPABILITY.id,
+      capabilityVersion: OFFICECLI_CAPABILITY.version,
+      manifestId: WAYLAND_CAPABILITY_MANIFEST.id,
+      manifestVersion: WAYLAND_CAPABILITY_MANIFEST.version,
+      fixtureDigest: OFFICECLI_CAPABILITY.fixtureDigest,
+      source: 'officecli-bundle',
+      sourceInstance: 'officecli:test',
+      correlationId: context.correlationId,
+      observedAt: context.now,
+      expiresAt: context.now + 60_000,
+      platform: process.platform,
+      arch: process.arch,
+      backend: context.backend,
+      executionMode: 'local-binary',
+      status: 'available',
+      operations: OFFICECLI_CAPABILITY.operations,
+      formats: OFFICECLI_CAPABILITY.formats,
+      dependencies: [],
+      requirements: OFFICECLI_CAPABILITY.requirements,
+      artifact: {
+        binarySha256: OFFICECLI_CAPABILITY.platforms.find(
+          (entry) => entry.platform === process.platform && entry.arch === process.arch
+        )?.binarySha256,
+        publisherProof: OFFICECLI_CAPABILITY.platforms.find(
+          (entry) => entry.platform === process.platform && entry.arch === process.arch
+        )?.publisherProofSha256,
+      },
+      reason: 'ready',
+    })
+  );
 });
 
 describe('buildCapabilitiesManifest', () => {
@@ -235,23 +263,33 @@ describe('buildCapabilitiesManifest', () => {
     expect(mockOfficeAuthoringProbe).not.toHaveBeenCalled();
   });
 
-  it('reports the incompatible hosted-credit contract honestly when requested', async () => {
+  it('reports unavailable evidence honestly when requested', async () => {
     primeHappyPath();
-    mockOfficeAuthoringProbe.mockResolvedValue({
-      state: 'incompatible',
-      version: '0.2.79',
-      executionMode: 'hosted-credits',
-      missingCommands: ['create', 'open'],
-      reason: 'wrong contract',
-    });
+    const readyEvidence = await mockOfficeAuthoringProbe({ correlationId: 'seed', backend: 'acp', now: Date.now() });
+    mockOfficeAuthoringProbe.mockClear();
+    mockOfficeAuthoringProbe.mockImplementation(
+      async (context: { correlationId: string; backend: string; now: number }) => ({
+        ...readyEvidence,
+        correlationId: context.correlationId,
+        backend: context.backend,
+        observedAt: context.now,
+        expiresAt: context.now + 60_000,
+        evidenceId: 'officecli:unavailable',
+        sourceInstance: 'officecli:unavailable',
+        status: 'unavailable',
+        operations: [],
+        formats: [],
+        artifact: undefined,
+        reason: 'The target-exact bundle is unavailable.',
+      })
+    );
 
     const out = await buildCapabilitiesManifest({ includeOfficeAuthoring: true });
 
     expect(out).toContain('Native Office authoring: unavailable');
-    expect(out).toContain('officecli 0.2.79');
-    expect(out).toContain('incompatible hosted-credit contract');
-    expect(out).toContain('Do not invoke it');
-    expect(out).toContain('does not expose hosted generation as an automatic fallback');
+    expect(out).toContain('target-exact bundle is unavailable');
+    expect(out).toContain('Do not guess commands');
+    expect(out).toContain('hosted fallback');
     expect(mockOfficeAuthoringProbe).toHaveBeenCalledOnce();
   });
 

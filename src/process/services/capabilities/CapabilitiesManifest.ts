@@ -30,10 +30,14 @@
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { getProviderCatalog } from '@process/providers/ipc/modelRegistryIpc';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { probeOfficeCliAuthoringEvidence } from '@process/services/capabilities/OfficeCliAuthoringCapability';
 import {
-  probeOfficeCliAuthoringCapability,
-  type OfficeCliAuthoringCapability,
-} from '@process/services/capabilities/OfficeCliAuthoringCapability';
+  OFFICECLI_CAPABILITY_ID,
+  WAYLAND_CAPABILITY_MANIFEST,
+  selectCapabilityReadiness,
+  type CapabilityPlatform,
+  type CapabilityReadiness,
+} from '@/common/capabilities';
 import type { IProvider } from '@/common/config/storage';
 
 export type CapabilitiesManifestOptions = {
@@ -199,18 +203,21 @@ async function buildModelsLine(providers: IProvider[]): Promise<string | null> {
   }
 }
 
-function buildOfficeAuthoringLine(capability: OfficeCliAuthoringCapability): string {
-  const version = capability.version ? ` ${sanitizeToken(capability.version)}` : '';
-  if (capability.state === 'ready') {
-    return `- Native Office authoring: ready with officecli${version}; low-level contract verified.`;
+function buildOfficeAuthoringLine(readiness: CapabilityReadiness): string {
+  if (readiness.state === 'ready' && readiness.canInvoke) {
+    return `- Native Office authoring: ready with officecli ${sanitizeToken(readiness.capabilityVersion)}; target-exact enforced contract verified.`;
   }
-  if (capability.state === 'incompatible' && capability.executionMode === 'hosted-credits') {
-    return `- Native Office authoring: unavailable; officecli${version} offers an incompatible hosted-credit contract. Do not invoke it. Wayland does not expose hosted generation as an automatic fallback.`;
+  if (readiness.state === 'brokered') {
+    return '- Native Office authoring: available only through an explicit broker decision; do not invoke it automatically.';
   }
-  if (capability.state === 'missing') {
-    return '- Native Office authoring: unavailable; officecli was not found. Document preview is a separate capability.';
+  if (readiness.state === 'advisory') {
+    return '- Native Office authoring: advisory evidence only; it is not callable.';
   }
-  return `- Native Office authoring: unavailable; officecli${version} did not expose the required low-level contract. Do not guess commands.`;
+  return `- Native Office authoring: unavailable; ${sanitizeToken(readiness.reason)} Do not guess commands or use a hosted fallback.`;
+}
+
+function normalizeCapabilityBackend(agentKey?: string): 'wcore' | 'gemini' | 'acp' {
+  return agentKey === 'wcore' || agentKey === 'gemini' ? agentKey : 'acp';
 }
 
 /**
@@ -236,7 +243,26 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
     // degrades (omits the signal) instead of propagating.
     const workflowCount = includeWorkflows ? await readWorkflowCount() : null;
     const providers = includeModels ? await readConnectedProviders() : [];
-    const officeAuthoring = includeOfficeAuthoring ? await probeOfficeCliAuthoringCapability() : null;
+    const capabilityBackend = normalizeCapabilityBackend(opts?.agentKey);
+    const capabilityNow = Date.now();
+    const capabilityCorrelation = `capabilities:${capabilityBackend}:${capabilityNow}`;
+    const officeEvidence = includeOfficeAuthoring
+      ? await probeOfficeCliAuthoringEvidence({
+          correlationId: capabilityCorrelation,
+          backend: capabilityBackend,
+          now: capabilityNow,
+        })
+      : null;
+    const officeAuthoring = officeEvidence
+      ? selectCapabilityReadiness(WAYLAND_CAPABILITY_MANIFEST, [officeEvidence], {
+          capabilityId: OFFICECLI_CAPABILITY_ID,
+          correlationId: capabilityCorrelation,
+          platform: process.platform as CapabilityPlatform['platform'],
+          arch: process.arch as CapabilityPlatform['arch'],
+          backend: capabilityBackend,
+          now: capabilityNow,
+        })
+      : null;
 
     // Provider IDENTITY (name + model set), not just count, so swapping provider
     // A for B at equal count - or adding/removing a model inside a provider -
