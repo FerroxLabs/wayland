@@ -329,4 +329,30 @@ describe('Wayland Transfer inventory preflight', () => {
       })
     );
   });
+
+  it('recognizes the executable settings producer without widening any other family', async () => {
+    const { inventory } = await fixture();
+    const result = evaluateWaylandTransferInventoryPreflight(
+      request({
+        selectedLogicalState: ['desktop.preferences'],
+        destination: {
+          ...request().destination!,
+          approvedLogicalState: ['desktop.preferences'],
+        },
+      }),
+      inventory,
+      capabilities,
+      NOW
+    );
+
+    expect(result.blockers).not.toContainEqual(
+      expect.objectContaining({
+        code: 'PORTABILITY_REGISTRY_PRODUCER_UNAVAILABLE',
+        logicalStateId: 'desktop.preferences',
+      })
+    );
+    expect(result.readyToExport).toBe(true);
+    expect(result.families.find(({ id }) => id === 'desktop.preferences')?.disposition).toBe('included');
+    expect(result.families.find(({ id }) => id === 'desktop.chats-projects')?.disposition).toBe('excluded');
+  });
 });
