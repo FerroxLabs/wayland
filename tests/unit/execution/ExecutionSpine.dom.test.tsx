@@ -72,4 +72,58 @@ describe('ExecutionSpine', () => {
     expect(screen.queryByTestId('execution-mission-rail')).toBeNull();
     expect(screen.getByText('ordinary chat')).toBeTruthy();
   });
+
+  it('renders only the current ACP plan when the session id is reused after a completed turn', () => {
+    const messages = [
+      {
+        id: 'old-user',
+        conversation_id: 'conversation-1',
+        type: 'text',
+        position: 'right',
+        content: { content: 'Old turn' },
+      },
+      {
+        id: 'old-tool',
+        conversation_id: 'conversation-1',
+        type: 'acp_tool_call',
+        content: {
+          sessionId: 'same-session',
+          update: {
+            sessionUpdate: 'tool_call',
+            toolCallId: 'old-tool',
+            status: 'completed',
+            title: 'Historical completed tool',
+            kind: 'execute',
+          },
+        },
+      },
+      {
+        id: 'new-user',
+        conversation_id: 'conversation-1',
+        type: 'text',
+        position: 'right',
+        content: { content: 'New turn' },
+      },
+      {
+        id: 'new-plan',
+        conversation_id: 'conversation-1',
+        type: 'plan',
+        content: {
+          sessionId: 'same-session',
+          entries: [{ content: 'Current plan step', status: 'in_progress', priority: 'high' }],
+        },
+      },
+    ] as TMessage[];
+
+    render(
+      <MessageListProvider value={messages}>
+        <ExecutionSpine backend='acp' conversationId='conversation-1' workspaceId='workspace-1' agentId='codex'>
+          <div>conversation</div>
+        </ExecutionSpine>
+      </MessageListProvider>
+    );
+
+    expect(screen.getAllByText('Current plan step')).toHaveLength(2);
+    expect(screen.queryByText('Historical completed tool')).toBeNull();
+  });
 });

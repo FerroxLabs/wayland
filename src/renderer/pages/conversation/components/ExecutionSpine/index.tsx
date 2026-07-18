@@ -7,7 +7,7 @@
 import type { TMessage } from '@/common/chat/chatLib';
 import { selectCanonicalRunSnapshot, type ExecutionBackend, type ExecutionSeed } from '@/common/execution';
 import { useBackendExecutionSnapshot } from '@/renderer/hooks/execution';
-import { useMessageList } from '@/renderer/pages/conversation/Messages/hooks';
+import { useMessageList } from '@/renderer/pages/conversation/Messages/messageListContext';
 import { Progress, Tag, Typography } from '@arco-design/web-react';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -1047,7 +1047,13 @@ export const composeMessage = (
   if (message.type === 'plan') {
     for (let i = 0, len = list.length; i < len; i++) {
       const msg = list[i];
-      if (msg.type === 'plan' && msg.content.sessionId === message.content.sessionId) {
+      // ACP reuses sessionId across turns. Plan updates share a stable msg_id
+      // only within one turn, so sessionId-based merging rewrites a historical
+      // plan in place and makes the current turn impossible to select.
+      const samePlanMessage =
+        msg.type === 'plan' &&
+        (msg.msg_id && message.msg_id ? msg.msg_id === message.msg_id : msg.id === message.id);
+      if (samePlanMessage) {
         // Create new object instead of mutating original
         const merged = { ...msg.content, ...message.content };
         return updateMessage(i, { ...msg, content: merged });

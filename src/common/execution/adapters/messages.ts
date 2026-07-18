@@ -14,12 +14,8 @@ const isExecutionMessage = (message: TMessage): boolean =>
   message.type === 'acp_permission' ||
   message.type === 'acp_tool_call';
 
-function acpSessionId(message: TMessage): string | undefined {
-  if (message.type === 'acp_permission' || message.type === 'acp_tool_call' || message.type === 'plan') {
-    return message.content.sessionId;
-  }
-  return undefined;
-}
+const isAcpExecutionMessage = (message: TMessage): boolean =>
+  message.type === 'acp_permission' || message.type === 'acp_tool_call' || message.type === 'plan';
 
 /** Prevent completed historical turns from being replayed into the active run. */
 export function selectCurrentExecutionMessages(
@@ -27,8 +23,20 @@ export function selectCurrentExecutionMessages(
   messages: readonly TMessage[]
 ): readonly TMessage[] {
   if (backend === 'acp') {
-    const sessionId = messages.toReversed().map(acpSessionId).find(Boolean);
-    return sessionId ? messages.filter((message) => acpSessionId(message) === sessionId) : [];
+    // ACP deliberately reuses one session across conversation turns. The user
+    // message is the authoritative turn boundary; sessionId cannot distinguish
+    // an old completed tool from the plan for the new turn.
+    const latestUserIndex = messages.findLastIndex(
+      (message) => message.type === 'text' && message.position === 'right'
+    );
+    if (latestUserIndex >= 0) return messages.slice(latestUserIndex + 1).filter(isAcpExecutionMessage);
+
+    // Defensive fallback for partial/replayed streams that omit user bubbles.
+    // A latest plan starts the only current turn we can identify without
+    // inventing authority from the reused ACP session identifier.
+    const execution = messages.filter(isAcpExecutionMessage);
+    const latestPlanIndex = execution.findLastIndex((message) => message.type === 'plan');
+    return latestPlanIndex >= 0 ? execution.slice(latestPlanIndex) : execution;
   }
 
   const execution = messages.filter(isExecutionMessage);

@@ -5,7 +5,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import type { TMessage } from '@/common/chat/chatLib';
+import { composeMessage, type TMessage } from '@/common/chat/chatLib';
 import {
   adaptAcpMessages,
   adaptGeminiMessages,
@@ -207,6 +207,67 @@ describe('execution backend adapters', () => {
       'plan-current',
       'current',
     ]);
+  });
+
+  it('uses the ACP user-turn boundary when one session spans an old completed tool and a current plan', () => {
+    const messages = [
+      {
+        id: 'old-user',
+        conversation_id: 'conversation-1',
+        type: 'text',
+        position: 'right',
+        content: { content: 'Finish the old task' },
+      },
+      {
+        id: 'old-plan',
+        msg_id: 'old-plan',
+        conversation_id: 'conversation-1',
+        type: 'plan',
+        content: {
+          sessionId: 'reused-session',
+          entries: [{ content: 'Historical plan', status: 'completed', priority: 'high' }],
+        },
+      },
+      {
+        id: 'old-completed-tool',
+        conversation_id: 'conversation-1',
+        type: 'acp_tool_call',
+        content: {
+          sessionId: 'reused-session',
+          update: {
+            sessionUpdate: 'tool_call',
+            toolCallId: 'old-tool',
+            status: 'completed',
+            title: 'Old tool',
+            kind: 'execute',
+          },
+        },
+      },
+      {
+        id: 'current-user',
+        conversation_id: 'conversation-1',
+        type: 'text',
+        position: 'right',
+        content: { content: 'Start the new task' },
+      },
+      {
+        id: 'current-plan',
+        msg_id: 'current-plan',
+        conversation_id: 'conversation-1',
+        type: 'plan',
+        content: {
+          sessionId: 'reused-session',
+          entries: [{ content: 'Current turn only', status: 'in_progress', priority: 'high' }],
+        },
+      },
+    ] as TMessage[];
+
+    const composed = messages.reduce<TMessage[]>((list, message) => composeMessage(message, list), []);
+    expect(composed.filter((message) => message.type === 'plan').map((message) => message.id)).toEqual([
+      'old-plan',
+      'current-plan',
+    ]);
+    expect(selectCurrentExecutionMessages('acp', composed).map((message) => message.id)).toEqual(['current-plan']);
   });
 
   it('does not promote a WCore MCP display record into canonical MCP authority', () => {
