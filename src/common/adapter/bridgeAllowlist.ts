@@ -156,6 +156,10 @@ const REMOTE_DENIED_PREFIXES: readonly string[] = [
   // the local trusted user, so the ENTIRE workspaceTrust.* namespace is denied to
   // remote callers — a remote peer must never arm or read local trust.
   'workspaceTrust.',
+  // Instance transfer begins with local authority discovery and grows into
+  // privileged export/import publication. Deny the entire namespace so a
+  // future provider cannot become remotely reachable by omission.
+  'waylandTransfer.',
 ];
 // Note: fs provider keys are registered WITHOUT an `fs.` prefix on the wire
 // (e.g. `write-file`, `remove-entry`), so the dangerous fs surface is enumerated
@@ -241,6 +245,10 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   // paths plus conversation/project/schedule identifiers. Keep that diagnostic
   // inventory on the trusted local renderer only.
   'workspaceRetention.preview',
+  // Instance-transfer discovery exposes the local authority inventory and is
+  // also the first step toward a privileged export. Keep it local-only even
+  // though the current provider is read-only.
+  'waylandTransfer.preview',
   // --- Cron write/exec surface. A cron job carries `agentConfig.mode`, which the
   //     executor applies via `task.setMode()` at run time. With the bundled
   //     engine now honoring a wire `set_mode` (WAYLAND_ALLOW_WIRE_FORCE, #495), a

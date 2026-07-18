@@ -2773,6 +2773,18 @@ export const workspaceRetention = {
   ),
 };
 
+/**
+ * Local-human Wayland instance transfer surface. The first shipped operation
+ * is deliberately read-only: it inventories what a future encrypted transfer
+ * can include and reports every blocker before an export is offered.
+ */
+export const waylandTransfer = {
+  preview: buildProvider<
+    import('@/common/types/transfer').WaylandTransferPreflight,
+    import('@/common/types/transfer').WaylandTransferPreflightRequest
+  >('waylandTransfer.preview'),
+};
+
 // v0.4.7 - Kickoff suggestion engine. Yes-bias card surfaced on new-chat
 // empty-state. Engine walks the 5-level cascade in the main process; the
 // renderer just consumes the result through this namespace.
