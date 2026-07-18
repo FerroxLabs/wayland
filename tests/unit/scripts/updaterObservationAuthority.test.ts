@@ -18,6 +18,7 @@ const {
 
 const COMMIT = 'a'.repeat(40);
 const TREE = 'b'.repeat(40);
+const TRUST_COMMIT = 'c'.repeat(40);
 const NONCE = 'c'.repeat(64);
 const DATA = `sha256:${'d'.repeat(64)}`;
 const temporaryRoots: string[] = [];
@@ -194,6 +195,7 @@ function createFixture(): Fixture {
 }
 
 function options(fixture: Fixture, overrides: Record<string, unknown> = {}) {
+  const rollback = fixture.manifest.rollbackArtifact;
   return {
     now: () => Date.parse('2026-07-19T00:10:00.000Z'),
     verifyCandidateInRepositoryImpl: (candidate: { commit: string; tree: string }) => {
@@ -202,7 +204,9 @@ function options(fixture: Fixture, overrides: Record<string, unknown> = {}) {
     execFileSyncImpl: (_command: string, args: string[]) => {
       expect(args).toContain('--deny-self-hosted-runners');
       expect(args[args.indexOf('--signer-workflow') + 1]).toBe(SIGNER_WORKFLOW);
-      expect(args[args.indexOf('--source-digest') + 1]).toBe(COMMIT);
+      expect(args[args.indexOf('--source-digest') + 1]).toBe(TRUST_COMMIT);
+      expect(args[args.indexOf('--signer-digest') + 1]).toBe(TRUST_COMMIT);
+      expect(args[args.indexOf('--source-ref') + 1]).toBe('refs/heads/release-trust-v1');
       const subject = sha256(readFileSync(fixture.observationPath)).slice('sha256:'.length);
       return JSON.stringify([
         {
@@ -211,6 +215,26 @@ function options(fixture: Fixture, overrides: Record<string, unknown> = {}) {
           },
         },
       ]);
+    },
+    trustRootCommit: TRUST_COMMIT,
+    rollbackCatalog: {
+      contract: 'wayland-classic-recovery-release/1.0',
+      repository: 'FerroxLabs/wayland',
+      releaseId: 1,
+      tag: 'v0.11.8',
+      tagCommit: 'd'.repeat(40),
+      version: '0.11.8',
+      publishedAt: '2026-06-30T12:24:04Z',
+      artifacts: [
+        {
+          platform: fixture.manifest.target.split('-')[0],
+          arch: fixture.manifest.target.split('-')[1],
+          name: rollback.file,
+          size: rollback.size,
+          sha256: rollback.sha256.slice('sha256:'.length),
+          publisherGate: rollback.publisher.gate,
+        },
+      ],
     },
     ...overrides,
   };
@@ -230,6 +254,7 @@ describe('canonical updater packaged-runtime observation authority', () => {
     expect(verifyUpdaterObservation({ observationPath: fixture.observationPath }, options(fixture))).toEqual({
       contract: 'wayland-updater-trusted-observation/1.0',
       candidate: { commit: COMMIT, tree: TREE },
+      target: 'darwin-arm64',
       authority: 'nonce-bound-packaged-runtime-observer',
       receiptSha256: sha256(readFileSync(fixture.observationPath)),
     });
@@ -247,6 +272,18 @@ describe('canonical updater packaged-runtime observation authority', () => {
     expect(() => verifyUpdaterObservation({ observationPath: fixture.observationPath }, options(fixture))).toThrow(
       /M8C_CANDIDATE_ARTIFACT_INVALID:digest-mismatch/
     );
+  });
+
+  it('rejects rollback bytes that do not match the compiled recovery catalog', () => {
+    const fixture = createFixture();
+    const forgedCatalog = structuredClone(options(fixture).rollbackCatalog as Record<string, any>);
+    forgedCatalog.artifacts[0].sha256 = 'f'.repeat(64);
+    expect(() =>
+      verifyUpdaterObservation(
+        { observationPath: fixture.observationPath },
+        options(fixture, { rollbackCatalog: forgedCatalog })
+      )
+    ).toThrow(/M8C_ROLLBACK_CATALOG_MISMATCH/);
   });
 
   it('rejects stale packaged-runtime observations', () => {

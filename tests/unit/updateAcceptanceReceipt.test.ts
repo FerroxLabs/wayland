@@ -118,7 +118,7 @@ describe('signed updater rollback and re-upgrade receipt', () => {
   it('rejects a publisher verifier that did not exit cleanly', () => {
     const receipt = clone();
     receipt.candidate.publisher.verifierExitCode = 1 as never;
-    expect(() => validateUpdateJourneyReceipt(receipt)).toThrow(/native-verification-not-proven/);
+    expect(() => validateUpdateJourneyReceipt(receipt)).toThrow(/publisher-evidence-not-proven/);
   });
 
   it('rejects an unexpected publisher identity', () => {
@@ -134,14 +134,15 @@ describe('signed updater rollback and re-upgrade receipt', () => {
     expect(() => validateUpdateJourneyReceipt(receipt)).toThrow(/gate-target-mismatch/);
   });
 
-  it('rejects the digest-only v0.11.8 Linux rollback as unsigned', () => {
+  it('classifies a catalog-bound v0.11.8 Linux rollback as a non-authoritative claim', () => {
     const receipt = clone();
     receipt.candidate.target = 'linux-x64';
     receipt.candidate.publisher.gate = 'linux-detached-signature-pinned-keyring';
     receipt.candidate.packageSmoke.target = 'linux-x64';
     receipt.rollback.target = 'linux-x64';
-    receipt.rollback.publisher.gate = 'linux-detached-signature-pinned-keyring';
-    expect(() => validateUpdateJourneyReceipt(receipt)).toThrow(/M8C_ROLLBACK_PUBLISHER_UNAVAILABLE/);
+    receipt.rollback.publisher.gate = 'github-release-digest-only';
+    receipt.rollback.publisher.identity = 'FerroxLabs/wayland@v0.11.8 compiled release catalog';
+    expect(validateUpdateJourneyReceipt(receipt).authoritative).toBe(false);
   });
 
   it('rejects candidate artifact digest drift', () => {

@@ -18,7 +18,8 @@ const COMMIT = /^[a-f0-9]{40}$/;
 export type UpdatePublisherGate =
   | 'macos-gatekeeper-developer-id-notarization'
   | 'windows-authenticode-ferrox-labs'
-  | 'linux-detached-signature-pinned-keyring';
+  | 'linux-detached-signature-pinned-keyring'
+  | 'github-release-digest-only';
 
 export type UpdateTarget = 'darwin-arm64' | 'darwin-x64' | 'win32-arm64' | 'win32-x64' | 'linux-arm64' | 'linux-x64';
 
@@ -151,6 +152,7 @@ const PUBLISHER_GATES = new Set<UpdatePublisherGate>([
   'macos-gatekeeper-developer-id-notarization',
   'windows-authenticode-ferrox-labs',
   'linux-detached-signature-pinned-keyring',
+  'github-release-digest-only',
 ]);
 const TARGETS = new Set<UpdateTarget>([
   'darwin-arm64',
@@ -161,9 +163,10 @@ const TARGETS = new Set<UpdateTarget>([
   'linux-x64',
 ]);
 
-function expectedPublisherGate(target: UpdateTarget): UpdatePublisherGate {
+function expectedPublisherGate(target: UpdateTarget, role: 'candidate' | 'rollback'): UpdatePublisherGate {
   if (target.startsWith('darwin-')) return 'macos-gatekeeper-developer-id-notarization';
   if (target.startsWith('win32-')) return 'windows-authenticode-ferrox-labs';
+  if (role === 'rollback') return 'github-release-digest-only';
   return 'linux-detached-signature-pinned-keyring';
 }
 
@@ -205,17 +208,20 @@ function artifact(value: unknown, role: 'candidate' | 'rollback'): SignedUpdateA
   if (!PUBLISHER_GATES.has(publisher.gate as UpdatePublisherGate)) {
     fail(`M8C_${role.toUpperCase()}_PUBLISHER_INVALID`, 'unsupported-gate');
   }
-  if (publisher.gate !== expectedPublisherGate(item.target as UpdateTarget)) {
+  if (publisher.gate !== expectedPublisherGate(item.target as UpdateTarget, role)) {
     fail(`M8C_${role.toUpperCase()}_PUBLISHER_INVALID`, 'gate-target-mismatch');
   }
-  if (role === 'rollback' && (item.target as string).startsWith('linux-')) {
-    fail('M8C_ROLLBACK_PUBLISHER_UNAVAILABLE', 'v0.11.8-linux-is-digest-only');
-  }
   if (publisher.verified !== true || publisher.verifierExitCode !== 0) {
-    fail(`M8C_${role.toUpperCase()}_PUBLISHER_INVALID`, 'native-verification-not-proven');
+    fail(`M8C_${role.toUpperCase()}_PUBLISHER_INVALID`, 'publisher-evidence-not-proven');
   }
   const publisherIdentity = string(publisher.identity, `M8C_${role.toUpperCase()}_PUBLISHER_INVALID`);
-  if (!(item.target as string).startsWith('linux-') && !publisherIdentity.includes('Ferrox Labs')) {
+  if (
+    (item.target as string).startsWith('linux-') &&
+    role === 'rollback' &&
+    publisherIdentity !== 'FerroxLabs/wayland@v0.11.8 compiled release catalog'
+  ) {
+    fail(`M8C_${role.toUpperCase()}_PUBLISHER_INVALID`, 'unexpected-catalog-identity');
+  } else if (!(item.target as string).startsWith('linux-') && !publisherIdentity.includes('Ferrox Labs')) {
     fail(`M8C_${role.toUpperCase()}_PUBLISHER_INVALID`, 'unexpected-publisher-identity');
   }
   return item as SignedUpdateArtifactEvidence;

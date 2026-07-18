@@ -10,7 +10,8 @@ const RECEIPT_CONTRACT = 'wayland-capability-acceptance/2.0';
 const RECEIPT_MANIFEST_CONTRACT = 'wayland-capability-acceptance-manifest/1.0';
 const SEAL_CONTRACT = 'wayland-candidate-capability-seal/3.0';
 const ATTESTATION_REPOSITORY = 'FerroxLabs/wayland';
-const ATTESTATION_SIGNER = 'FerroxLabs/wayland/.github/workflows/_build-reusable.yml';
+const ATTESTATION_SIGNER = 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml';
+const ATTESTATION_SOURCE_REF = 'refs/heads/release-trust-v1';
 const ATTESTATION_PREDICATE = 'https://slsa.dev/provenance/v1';
 const REQUIRED = new Map([
   ['cowork-office', ['C0-B', 'C1']],
@@ -227,7 +228,14 @@ function selectionDigest(selection) {
   return sha256(canonical(validateSelection(selection)));
 }
 
-function verifyAttestedFile(file, fileSha256, candidate, run = execFileSync) {
+function trustRootCommit(options = {}) {
+  const commit = options.trustRootCommit || process.env.WAYLAND_RELEASE_TRUST_ROOT_SHA;
+  if (!COMMIT.test(String(commit || ''))) throw new Error('Release acceptance trust root is unavailable.');
+  return String(commit);
+}
+
+function verifyAttestedFile(file, fileSha256, _candidate, run = execFileSync, trustedCommit) {
+  if (!COMMIT.test(String(trustedCommit || ''))) throw new Error('Release acceptance trust root is unavailable.');
   let output;
   try {
     output = run(
@@ -240,8 +248,12 @@ function verifyAttestedFile(file, fileSha256, candidate, run = execFileSync) {
         ATTESTATION_REPOSITORY,
         '--signer-workflow',
         ATTESTATION_SIGNER,
+        '--signer-digest',
+        trustedCommit,
         '--source-digest',
-        candidate.commit,
+        trustedCommit,
+        '--source-ref',
+        ATTESTATION_SOURCE_REF,
         '--predicate-type',
         ATTESTATION_PREDICATE,
         '--deny-self-hosted-runners',
@@ -276,12 +288,19 @@ function verifyAttestedFile(file, fileSha256, candidate, run = execFileSync) {
 }
 
 function readReceiptAuthority(receiptsDir, selection, candidate, options = {}) {
+  const trustedCommit = options.verifyAttestedFile ? undefined : trustRootCommit(options);
   const manifestFile = path.join(receiptsDir, 'manifest.json');
   const stat = fs.lstatSync(manifestFile);
   if (!stat.isFile() || stat.isSymbolicLink()) throw new Error('Capability acceptance manifest is not a regular file.');
   const manifestBytes = fs.readFileSync(manifestFile);
   const manifestSha256 = sha256(manifestBytes);
-  (options.verifyAttestedFile || verifyAttestedFile)(manifestFile, manifestSha256, candidate, options.execFileSyncImpl);
+  (options.verifyAttestedFile || verifyAttestedFile)(
+    manifestFile,
+    manifestSha256,
+    candidate,
+    options.execFileSyncImpl,
+    trustedCommit
+  );
   const manifest = JSON.parse(manifestBytes.toString('utf8'));
   if (!exactKeys(manifest, ['contract', 'candidate', 'selectionSha256', 'receipts'])) {
     throw new Error('Capability acceptance manifest has missing or unknown critical fields.');
@@ -332,7 +351,13 @@ function readReceiptAuthority(receiptsDir, selection, candidate, options = {}) {
       const observed = sha256(fs.readFileSync(file));
       if (observed !== expected)
         throw new Error(`Capability acceptance ${kind} digest mismatch: ${entry.capabilityId}.`);
-      (options.verifyAttestedFile || verifyAttestedFile)(file, observed, candidate, options.execFileSyncImpl);
+      (options.verifyAttestedFile || verifyAttestedFile)(
+        file,
+        observed,
+        candidate,
+        options.execFileSyncImpl,
+        trustedCommit
+      );
     }
     receipts.set(entry.capabilityId, { ...entry, receiptFile });
   }

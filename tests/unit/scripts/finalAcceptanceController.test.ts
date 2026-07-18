@@ -153,7 +153,9 @@ function request() {
     releaseEvidenceManifest: { source: 'canonical' },
     releaseClaimsManifest: { source: 'canonical' },
     publisherArtifacts: CORE_ASSETS.map((assetName) => ({ assetName })),
-    updaterEvidence: { accepted: true },
+    updaterEvidence: {
+      observations: TARGETS.map((target) => ({ target, observationPath: `/trusted/updater/${target}.json` })),
+    },
     conditionalReceipts: Object.keys(CONDITIONAL).map((capabilityId) => ({ capabilityId, accepted: true })),
     findingsEvidence: { accepted: true },
     releaseBlockersEvidence: { accepted: true },
@@ -242,9 +244,10 @@ function verifiers() {
       verified: true,
     }),
     expectedPublisherAssets: () => CORE_ASSETS.map((asset) => ({ asset, sha256: DIGEST('5') })),
-    verifyUpdaterObservation: () => ({
+    verifyUpdaterObservation: (raw: { observationPath: string }) => ({
       contract: 'wayland-updater-trusted-observation/1.0',
       candidate: { commit: COMMIT, tree: TREE },
+      target: TARGETS.find((target) => raw.observationPath.endsWith(`/${target}.json`)),
       authority: 'nonce-bound-packaged-runtime-observer',
       receiptSha256: DIGEST('6'),
     }),
@@ -260,14 +263,14 @@ function verifiers() {
       contract: 'wayland-release-findings-clearance/1.0',
       candidate: { commit: COMMIT, tree: TREE },
       unresolved: { blocker: 0, critical: 0, high: 0 },
-      authority: 'canonical-release-tracker',
+      authority: 'automated-release-tracker',
       evidenceSha256: DIGEST('7'),
     }),
     verifyReleaseBlockers: () => ({
       contract: 'wayland-release-blocker-clearance/1.0',
       candidate: { commit: COMMIT, tree: TREE },
       unresolved: { p0: 0, p1: 0 },
-      authority: 'canonical-release-tracker',
+      authority: 'automated-release-tracker',
       evidenceSha256: DIGEST('8'),
     }),
   };
@@ -284,6 +287,7 @@ describe('M8-A final acceptance controller', () => {
     });
     expect(receipt.targets).toHaveLength(6);
     expect(receipt.targetGates).toHaveLength(30);
+    expect(receipt.updaterReceipts).toHaveLength(6);
     expect(receipt.capabilityReceipts).toHaveLength(5);
   });
 
@@ -427,7 +431,17 @@ describe('M8-A final acceptance controller', () => {
   it('does not treat a caller-authored accepted boolean as updater authority', () => {
     const withoutUpdaterAuthority = verifiers();
     delete withoutUpdaterAuthority.verifyUpdaterObservation;
-    expect(() => verifyFinalAcceptance(request(), withoutUpdaterAuthority)).toThrow(/M8C_OBSERVATION_INPUT_INVALID/);
+    expect(() => verifyFinalAcceptance(request(), withoutUpdaterAuthority)).toThrow(/M8C_OBSERVATION_INVALID/);
+  });
+
+  it('requires one trusted updater observation for every supported target', () => {
+    const missing = request();
+    missing.updaterEvidence.observations.pop();
+    expect(() => verifyFinalAcceptance(missing, verifiers())).toThrow(/target-coverage-mismatch/);
+
+    const duplicate = request();
+    duplicate.updaterEvidence.observations[5] = { ...duplicate.updaterEvidence.observations[0] };
+    expect(() => verifyFinalAcceptance(duplicate, verifiers())).toThrow(/unknown-duplicate-or-malformed-target/);
   });
 
   it('rejects an omitted conditional capability receipt', () => {
@@ -469,7 +483,7 @@ describe('M8-A final acceptance controller', () => {
     const withoutUpdaterAuthority = verifiers();
     delete withoutUpdaterAuthority.verifyUpdaterObservation;
 
-    expect(() => verifyFinalAcceptance(input, withoutUpdaterAuthority)).toThrow(/M8C_OBSERVATION_INPUT_INVALID/);
+    expect(() => verifyFinalAcceptance(input, withoutUpdaterAuthority)).toThrow(/M8A_UPDATER_RECEIPT_INVALID/);
   });
 
   it('has one non-deploying package and GitHub callsite after evidence artifacts exist', () => {

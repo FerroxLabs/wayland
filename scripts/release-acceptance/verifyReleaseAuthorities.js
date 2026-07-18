@@ -6,6 +6,7 @@ const { execFileSync } = require('node:child_process');
 
 const REPOSITORY = 'FerroxLabs/wayland';
 const SIGNER_WORKFLOW = 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml';
+const SIGNER_SOURCE_REF = 'refs/heads/release-trust-v1';
 const PREDICATE_TYPE = 'https://slsa.dev/provenance/v1';
 const COMMIT = /^[a-f0-9]{40,64}$/;
 const SHA256 = /^sha256:[a-f0-9]{64}$/;
@@ -32,6 +33,12 @@ function verifyCandidate(observed, expected, label) {
   }
 }
 
+function trustRootCommit(options = {}) {
+  const commit = options.trustRootCommit || process.env.WAYLAND_RELEASE_TRUST_ROOT_SHA;
+  if (!COMMIT.test(String(commit || ''))) throw new Error('Release acceptance trust root is unavailable');
+  return String(commit);
+}
+
 function readAttestedJson(receiptPath, candidate, options, label) {
   if (typeof receiptPath !== 'string' || receiptPath.length === 0) throw new Error(`${label} path is missing`);
   let stat;
@@ -44,6 +51,7 @@ function readAttestedJson(receiptPath, candidate, options, label) {
   const bytes = fs.readFileSync(receiptPath);
   const receiptSha256 = sha256(bytes);
   const run = options.execFileSyncImpl || execFileSync;
+  const trustedCommit = trustRootCommit(options);
   let output;
   try {
     output = run(
@@ -56,8 +64,12 @@ function readAttestedJson(receiptPath, candidate, options, label) {
         REPOSITORY,
         '--signer-workflow',
         SIGNER_WORKFLOW,
+        '--signer-digest',
+        trustedCommit,
         '--source-digest',
-        candidate.commit,
+        trustedCommit,
+        '--source-ref',
+        SIGNER_SOURCE_REF,
         '--predicate-type',
         PREDICATE_TYPE,
         '--deny-self-hosted-runners',
@@ -138,7 +150,7 @@ function verifyClearance(input, context, options = {}, kind) {
     ['contract', 'candidate', 'unresolved', 'authority', 'evidenceSha256'],
     `${kind} clearance receipt`
   );
-  if (receipt.contract !== contract || receipt.authority !== 'canonical-release-tracker') {
+  if (receipt.contract !== contract || receipt.authority !== 'automated-release-tracker') {
     throw new Error(`${kind} clearance receipt has an invalid contract or authority`);
   }
   verifyCandidate(receipt.candidate, context.candidate, `${kind} clearance receipt`);

@@ -7,6 +7,7 @@ const { execFileSync } = require('node:child_process');
 
 const REPOSITORY = 'FerroxLabs/wayland';
 const SIGNER_WORKFLOW = 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml';
+const SIGNER_SOURCE_REF = 'refs/heads/release-trust-v1';
 const PREDICATE_TYPE = 'https://slsa.dev/provenance/v1';
 const OBSERVATION_CONTRACT = 'wayland-updater-packaged-observation/1.0';
 const EVENT_CONTRACT = 'wayland-updater-runtime-events/1.0';
@@ -21,7 +22,6 @@ const TARGETS = new Set(['darwin-arm64', 'darwin-x64', 'win32-arm64', 'win32-x64
 const PHASES = ['initial', 'failedUpdate', 'rollback', 'reupgrade'];
 const EVENT_TYPES = ['initial-boot', 'update-failed', 'rollback-boot', 'reupgrade-boot'];
 const MAX_OBSERVATION_WINDOW_MS = 24 * 60 * 60 * 1000;
-const REPOSITORY_ROOT = path.resolve(__dirname, '..', '..');
 
 function fail(code, detail) {
   throw new Error(`${code}:${detail}`);
@@ -131,9 +131,10 @@ function parseJson(bytes, code) {
   }
 }
 
-function expectedPublisherGate(target) {
+function expectedPublisherGate(target, role) {
   if (target.startsWith('darwin-')) return 'macos-gatekeeper-developer-id-notarization';
   if (target.startsWith('win32-')) return 'windows-authenticode-ferrox-labs';
+  if (role === 'rollback') return 'github-release-digest-only';
   return 'linux-detached-signature-pinned-keyring';
 }
 
@@ -141,18 +142,60 @@ function verifyPublisher(value, target, role) {
   const code = `M8C_${role.toUpperCase()}_PUBLISHER_INVALID`;
   const publisher = exactKeys(value, ['gate', 'verified', 'verifierExitCode', 'identity'], code);
   if (
-    publisher.gate !== expectedPublisherGate(target) ||
+    publisher.gate !== expectedPublisherGate(target, role) ||
     publisher.verified !== true ||
     publisher.verifierExitCode !== 0
   ) {
-    fail(code, 'native-verification-not-proven');
+    fail(code, 'publisher-evidence-not-proven');
   }
   const identity = nonempty(publisher.identity, code);
-  if (!target.startsWith('linux-') && !identity.includes('Ferrox Labs')) fail(code, 'unexpected-publisher-identity');
+  if (target.startsWith('linux-') && role === 'rollback') {
+    if (identity !== 'FerroxLabs/wayland@v0.11.8 compiled release catalog') {
+      fail(code, 'unexpected-catalog-identity');
+    }
+  } else if (!target.startsWith('linux-') && !identity.includes('Ferrox Labs')) {
+    fail(code, 'unexpected-publisher-identity');
+  }
   return publisher;
 }
 
-function verifyArtifact(value, root, candidate, target, role) {
+function loadRollbackCatalog(options = {}) {
+  if (options.rollbackCatalog) return options.rollbackCatalog;
+  const catalogPath = path.resolve(__dirname, '../../contracts/recovery/classic-v0.11.8-release.json');
+  return parseJson(regularFile(catalogPath, 'M8C_ROLLBACK_CATALOG_INVALID').bytes, 'M8C_ROLLBACK_CATALOG_INVALID');
+}
+
+function verifyRollbackCatalogArtifact(artifact, bound, target, catalog) {
+  const value = exactKeys(
+    catalog,
+    ['contract', 'repository', 'releaseId', 'tag', 'tagCommit', 'version', 'publishedAt', 'artifacts'],
+    'M8C_ROLLBACK_CATALOG_INVALID'
+  );
+  if (
+    value.contract !== 'wayland-classic-recovery-release/1.0' ||
+    value.repository !== REPOSITORY ||
+    value.tag !== 'v0.11.8' ||
+    value.version !== '0.11.8' ||
+    !Array.isArray(value.artifacts)
+  ) {
+    fail('M8C_ROLLBACK_CATALOG_INVALID', 'identity-or-artifacts');
+  }
+  const [platform, arch] = target.split('-');
+  const entry = value.artifacts.find((candidate) => candidate?.platform === platform && candidate?.arch === arch);
+  if (!entry) fail('M8C_ROLLBACK_CATALOG_INVALID', 'target-absent');
+  if (
+    path.basename(artifact.file) !== entry.name ||
+    bound.size !== entry.size ||
+    bound.sha256 !== `sha256:${entry.sha256}`
+  ) {
+    fail('M8C_ROLLBACK_CATALOG_MISMATCH', 'filename-size-or-digest');
+  }
+  if (target.startsWith('linux-') && entry.publisherGate !== 'github-release-digest-only') {
+    fail('M8C_ROLLBACK_CATALOG_INVALID', 'linux-publisher-gate');
+  }
+}
+
+function verifyArtifact(value, root, candidate, target, role, options = {}) {
   const code = `M8C_${role.toUpperCase()}_ARTIFACT_INVALID`;
   const expectedKeys =
     role === 'candidate'
@@ -163,10 +206,10 @@ function verifyArtifact(value, root, candidate, target, role) {
   const version = nonempty(artifact.version, code);
   const publisher = verifyPublisher(artifact.publisher, target, role);
   if (role === 'rollback') {
-    if (target.startsWith('linux-')) fail('M8C_ROLLBACK_PUBLISHER_UNAVAILABLE', 'v0.11.8-linux-is-digest-only');
     if (version !== '0.11.8' || artifact.releaseTag !== 'v0.11.8' || artifact.catalogVerified !== true) {
       fail('M8C_ROLLBACK_IDENTITY_INVALID', 'expected-compiled-v0.11.8-catalog');
     }
+    verifyRollbackCatalogArtifact(artifact, bound, target, loadRollbackCatalog(options));
   }
   return { ...bound, version, publisher, sourceCommit: candidate.commit };
 }
@@ -367,15 +410,46 @@ function verifySemanticDataContinuity(snapshots) {
   if (supported.some((value) => value !== supported[0])) fail('M8C_SUPPORTED_DATA_LOSS', 'semantic-manifest-changed');
 }
 
-function defaultVerifyCandidateInRepository(candidate) {
+function candidateRepositoryRoot(options = {}) {
+  const configured = options.candidateRoot || process.env.WAYLAND_ACCEPTANCE_CANDIDATE_ROOT;
+  if (typeof configured !== 'string' || !configured || !path.isAbsolute(configured)) {
+    fail('M8C_CANDIDATE_INVALID', 'candidate-root-unavailable');
+  }
+  const root = path.resolve(configured);
+  let stat;
+  try {
+    stat = fs.lstatSync(root);
+  } catch {
+    fail('M8C_CANDIDATE_INVALID', 'candidate-root-missing');
+  }
+  if (!stat.isDirectory() || stat.isSymbolicLink() || fs.realpathSync(root) !== root) {
+    fail('M8C_CANDIDATE_INVALID', 'candidate-root-must-be-real-directory');
+  }
+  let topLevel;
+  try {
+    topLevel = fs.realpathSync(
+      execFileSync('git', ['-C', root, 'rev-parse', '--show-toplevel'], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      }).trim()
+    );
+  } catch {
+    fail('M8C_CANDIDATE_INVALID', 'candidate-root-is-not-git-worktree');
+  }
+  if (topLevel !== root) fail('M8C_CANDIDATE_INVALID', 'candidate-root-is-not-worktree-top-level');
+  return root;
+}
+
+function defaultVerifyCandidateInRepository(candidate, options = {}) {
+  const repositoryRoot = candidateRepositoryRoot(options);
   let commit;
   let tree;
   try {
-    commit = execFileSync('git', ['-C', REPOSITORY_ROOT, 'rev-parse', '--verify', `${candidate.commit}^{commit}`], {
+    commit = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', '--verify', `${candidate.commit}^{commit}`], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     }).trim();
-    tree = execFileSync('git', ['-C', REPOSITORY_ROOT, 'rev-parse', '--verify', `${candidate.commit}^{tree}`], {
+    tree = execFileSync('git', ['-C', repositoryRoot, 'rev-parse', '--verify', `${candidate.commit}^{tree}`], {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     }).trim();
@@ -385,7 +459,13 @@ function defaultVerifyCandidateInRepository(candidate) {
   if (commit !== candidate.commit || tree !== candidate.tree) fail('M8C_CANDIDATE_INVALID', 'commit-tree-mismatch');
 }
 
-function verifyAttestation(observationPath, observationSha256, candidate, run) {
+function trustRootCommit(options = {}) {
+  const commit = options.trustRootCommit || process.env.WAYLAND_RELEASE_TRUST_ROOT_SHA;
+  if (!COMMIT.test(String(commit || ''))) fail('M8C_OBSERVATION_ATTESTATION_INVALID', 'trust-root-unavailable');
+  return String(commit);
+}
+
+function verifyAttestation(observationPath, observationSha256, trustedCommit, run) {
   let raw;
   try {
     raw = run(
@@ -398,8 +478,12 @@ function verifyAttestation(observationPath, observationSha256, candidate, run) {
         REPOSITORY,
         '--signer-workflow',
         SIGNER_WORKFLOW,
+        '--signer-digest',
+        trustedCommit,
         '--source-digest',
-        candidate.commit,
+        trustedCommit,
+        '--source-ref',
+        SIGNER_SOURCE_REF,
         '--predicate-type',
         PREDICATE_TYPE,
         '--deny-self-hosted-runners',
@@ -467,12 +551,32 @@ function verifyUpdaterObservation(input, options = {}) {
     fail('M8C_OBSERVER_INVALID', 'untrusted-observer');
   }
   const timeRange = verifyFreshness(manifest, options.now ? options.now() : Date.now());
-  (options.verifyCandidateInRepositoryImpl || defaultVerifyCandidateInRepository)(candidate);
-  verifyAttestation(observationPath, observationSha256, candidate, options.execFileSyncImpl || execFileSync);
+  if (options.verifyCandidateInRepositoryImpl) options.verifyCandidateInRepositoryImpl(candidate);
+  else defaultVerifyCandidateInRepository(candidate, options);
+  verifyAttestation(
+    observationPath,
+    observationSha256,
+    trustRootCommit(options),
+    options.execFileSyncImpl || execFileSync
+  );
 
   const root = path.dirname(observationPath);
-  const candidateArtifact = verifyArtifact(manifest.candidateArtifact, root, candidate, manifest.target, 'candidate');
-  const rollbackArtifact = verifyArtifact(manifest.rollbackArtifact, root, candidate, manifest.target, 'rollback');
+  const candidateArtifact = verifyArtifact(
+    manifest.candidateArtifact,
+    root,
+    candidate,
+    manifest.target,
+    'candidate',
+    options
+  );
+  const rollbackArtifact = verifyArtifact(
+    manifest.rollbackArtifact,
+    root,
+    candidate,
+    manifest.target,
+    'rollback',
+    options
+  );
   if (candidateArtifact.version === rollbackArtifact.version) {
     fail('M8C_CANDIDATE_VERSION_INVALID', 'candidate-must-advance-from-rollback');
   }
@@ -497,6 +601,7 @@ function verifyUpdaterObservation(input, options = {}) {
   return {
     contract: RECEIPT_CONTRACT,
     candidate: { commit: candidate.commit, tree: candidate.tree },
+    target: manifest.target,
     authority: AUTHORITY,
     receiptSha256: observationSha256,
   };

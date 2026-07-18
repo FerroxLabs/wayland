@@ -27,6 +27,7 @@ const COMMIT = 'a'.repeat(40);
 const TREE = 'b'.repeat(40);
 const ACCEPTED_COMMIT = 'd'.repeat(40);
 const ACCEPTED_TREE = 'e'.repeat(40);
+const TRUST_COMMIT = 'f'.repeat(40);
 const PACKETS = new Map<string, string[]>([
   ['cowork-office', ['C0-B', 'C1']],
   ['voice', ['M5V-A']],
@@ -215,6 +216,42 @@ describe('candidate capability seal', () => {
     });
     expect((seal.capabilities as unknown[]).length).toBe(5);
     expect(verifyCapabilitySeal(seal)).toBe(seal);
+  });
+
+  it('pins every capability authority file to the protected trust-root workflow commit and ref', () => {
+    const input = fixture();
+    delete (input as { verifyAttestedFile?: unknown }).verifyAttestedFile;
+    const commands: string[][] = [];
+    const seal = createCapabilitySeal({
+      ...input,
+      trustRootCommit: TRUST_COMMIT,
+      execFileSyncImpl: (_command: string, args: string[]) => {
+        commands.push(args);
+        const file = args[2];
+        const subject = sha256(readFileSync(file)).slice('sha256:'.length);
+        return JSON.stringify([
+          {
+            verificationResult: {
+              statement: {
+                predicateType: 'https://slsa.dev/provenance/v1',
+                subject: [{ digest: { sha256: subject } }],
+              },
+            },
+          },
+        ]);
+      },
+    });
+
+    expect(seal).toMatchObject({ candidate: { commit: COMMIT, tree: TREE } });
+    expect(commands).toHaveLength(11);
+    for (const args of commands) {
+      expect(args[args.indexOf('--signer-workflow') + 1]).toBe(
+        'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml'
+      );
+      expect(args[args.indexOf('--signer-digest') + 1]).toBe(TRUST_COMMIT);
+      expect(args[args.indexOf('--source-digest') + 1]).toBe(TRUST_COMMIT);
+      expect(args[args.indexOf('--source-ref') + 1]).toBe('refs/heads/release-trust-v1');
+    }
   });
 
   it('fails closed when the authority manifest has no pinned receipt digest', () => {

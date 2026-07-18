@@ -389,14 +389,15 @@ function verifyPublisherReceipt(receipt) {
   return result;
 }
 
-function verifyUpdaterReceipt(receipt, candidate) {
+function verifyUpdaterReceipt(receipt, candidate, target) {
   const result = exactKeys(
     receipt,
-    ['contract', 'candidate', 'authority', 'receiptSha256'],
+    ['contract', 'candidate', 'target', 'authority', 'receiptSha256'],
     'M8A_UPDATER_RECEIPT_INVALID'
   );
   if (
     result.contract !== 'wayland-updater-trusted-observation/1.0' ||
+    result.target !== target ||
     result.authority !== 'nonce-bound-packaged-runtime-observer'
   ) {
     fail('M8A_UPDATER_RECEIPT_INVALID', 'untrusted-authority');
@@ -434,7 +435,7 @@ function verifyClearance(receipt, candidate, kind) {
     kind === 'findings' ? 'wayland-release-findings-clearance/1.0' : 'wayland-release-blocker-clearance/1.0';
   const counters = kind === 'findings' ? ['blocker', 'critical', 'high'] : ['p0', 'p1'];
   const result = exactKeys(receipt, ['contract', 'candidate', 'unresolved', 'authority', 'evidenceSha256'], code);
-  if (result.contract !== contract || result.authority !== 'canonical-release-tracker')
+  if (result.contract !== contract || result.authority !== 'automated-release-tracker')
     fail(code, 'untrusted-authority');
   sameCandidate(result.candidate, candidate, code);
   const unresolved = exactKeys(result.unresolved, counters, code);
@@ -719,7 +720,30 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
     fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'missing-duplicate-or-unknown-core-asset');
   }
 
-  const updaterReceipt = verifyUpdaterReceipt(verifiers.verifyUpdaterObservation(request.updaterEvidence), candidate);
+  const updaterInput = exactKeys(request.updaterEvidence, ['observations'], 'M8A_UPDATER_RECEIPT_INVALID');
+  if (!Array.isArray(updaterInput.observations) || updaterInput.observations.length !== TARGETS.length) {
+    fail('M8A_UPDATER_RECEIPT_INVALID', 'target-coverage-mismatch');
+  }
+  const updaterByTarget = new Map();
+  for (const raw of updaterInput.observations) {
+    const observation = exactKeys(raw, ['target', 'observationPath'], 'M8A_UPDATER_RECEIPT_INVALID');
+    if (
+      !TARGETS.includes(observation.target) ||
+      updaterByTarget.has(observation.target) ||
+      typeof observation.observationPath !== 'string' ||
+      observation.observationPath.length === 0
+    ) {
+      fail('M8A_UPDATER_RECEIPT_INVALID', 'unknown-duplicate-or-malformed-target');
+    }
+    updaterByTarget.set(observation.target, observation);
+  }
+  const updaterReceipts = TARGETS.map((target) =>
+    verifyUpdaterReceipt(
+      verifiers.verifyUpdaterObservation({ observationPath: updaterByTarget.get(target).observationPath }),
+      candidate,
+      target
+    )
+  );
 
   if (!Array.isArray(request.conditionalReceipts)) fail('M8A_CONDITIONAL_RECEIPT_INVALID', 'expected-array');
   const rawConditional = new Map();
@@ -780,7 +804,10 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
       evidenceSha256: receipt.evidenceSha256,
     })),
     publisherAssets: publisherReceipts.map((receipt) => ({ asset: receipt.asset, sha256: receipt.sha256 })),
-    updaterReceiptSha256: updaterReceipt.receiptSha256,
+    updaterReceipts: updaterReceipts.map((receipt) => ({
+      target: receipt.target,
+      receiptSha256: receipt.receiptSha256,
+    })),
     capabilityReceipts: conditionalReceipts.map((receipt) => ({
       capabilityId: receipt.capabilityId,
       receiptIds: receipt.receiptIds,

@@ -13,6 +13,7 @@ const { SIGNER_WORKFLOW, verifyConditionalCapability, verifyFindingsClearance, v
   };
 
 const candidate = { commit: 'a'.repeat(40), tree: 'b'.repeat(40) };
+const trustRootCommit = 'c'.repeat(40);
 const roots: string[] = [];
 const digest = (character: string) => `sha256:${character.repeat(64)}`;
 
@@ -26,6 +27,7 @@ function receipt(name: string, value: unknown): string {
 
 function attestation(file: string, capture?: (args: string[]) => void) {
   return {
+    trustRootCommit,
     execFileSyncImpl: (_command: string, args: string[]) => {
       capture?.(args);
       const sha256 = crypto.createHash('sha256').update(readFileSync(file)).digest('hex');
@@ -67,7 +69,9 @@ describe('release acceptance file authorities', () => {
       )
     ).toMatchObject({ capabilityId: 'mcp', candidate });
     expect(commandArgs).toContain(SIGNER_WORKFLOW);
-    expect(commandArgs).toContain(candidate.commit);
+    expect(commandArgs[commandArgs.indexOf('--source-digest') + 1]).toBe(trustRootCommit);
+    expect(commandArgs[commandArgs.indexOf('--signer-digest') + 1]).toBe(trustRootCommit);
+    expect(commandArgs[commandArgs.indexOf('--source-ref') + 1]).toBe('refs/heads/release-trust-v1');
     expect(commandArgs).toContain('--deny-self-hosted-runners');
   });
 
@@ -86,6 +90,7 @@ describe('release acceptance file authorities', () => {
         { capabilityId: 'voice', receiptPath: file },
         { candidate, capabilityId: 'voice', expectedReceiptIds: ['M5V-A', 'M5V-B'] },
         {
+          trustRootCommit,
           execFileSyncImpl: () =>
             JSON.stringify([
               {
@@ -126,14 +131,14 @@ describe('release acceptance file authorities', () => {
       contract: 'wayland-release-findings-clearance/1.0',
       candidate,
       unresolved: { blocker: 0, critical: 0, high: 0 },
-      authority: 'canonical-release-tracker',
+      authority: 'automated-release-tracker',
       evidenceSha256: digest('3'),
     });
     const blockers = receipt('blockers.json', {
       contract: 'wayland-release-blocker-clearance/1.0',
       candidate,
       unresolved: { p0: 0, p1: 0 },
-      authority: 'canonical-release-tracker',
+      authority: 'automated-release-tracker',
       evidenceSha256: digest('4'),
     });
 
@@ -150,7 +155,7 @@ describe('release acceptance file authorities', () => {
       contract: 'wayland-release-findings-clearance/1.0',
       candidate,
       unresolved: { blocker: 0, critical: 0, high: 1 },
-      authority: 'canonical-release-tracker',
+      authority: 'automated-release-tracker',
       evidenceSha256: digest('5'),
     });
     expect(() => verifyFindingsClearance({ receiptPath: file }, { candidate }, attestation(file))).toThrow(
