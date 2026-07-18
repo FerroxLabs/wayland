@@ -34,7 +34,9 @@ describe('Wayland portability registry', () => {
         'credentials.secrets',
       ])
     );
-    expect(issues.some(({ logicalStateId }) => logicalStateId === 'updater.release-channel')).toBe(false);
+    expect(issues.map(({ logicalStateId }) => logicalStateId)).toEqual(
+      expect.arrayContaining(['external.backend-handles', 'updater.release-channel', 'external.workspaces'])
+    );
   });
 
   it('rejects selected scopes that omit a registered dependency', () => {

@@ -305,4 +305,28 @@ describe('Wayland Transfer inventory preflight', () => {
       expect.arrayContaining(['RECOVERY_CREDENTIAL_REQUIRED', 'DESTINATION_NOT_ALLOWED'])
     );
   });
+
+  it('does not accept a descriptor-only reference producer as export-ready', async () => {
+    const { inventory } = await fixture();
+    const result = evaluateWaylandTransferInventoryPreflight(
+      request({
+        selectedLogicalState: ['external.backend-handles'],
+        destination: {
+          ...request().destination!,
+          approvedLogicalState: ['external.backend-handles'],
+        },
+      }),
+      inventory,
+      capabilities,
+      NOW
+    );
+
+    expect(result.readyToExport).toBe(false);
+    expect(result.blockers).toContainEqual(
+      expect.objectContaining({
+        code: 'PORTABILITY_REGISTRY_PRODUCER_UNAVAILABLE',
+        logicalStateId: 'external.backend-handles',
+      })
+    );
+  });
 });

@@ -136,7 +136,6 @@ export function validatePortabilityRegistry(
 }
 
 const blocked = (id: string) => ({ id, state: 'blocked' as const });
-const available = (id: string) => ({ id, state: 'available' as const });
 
 /**
  * Format-v1 registry. Blocked implementation states are intentional: they are
@@ -253,7 +252,9 @@ export const WAYLAND_PORTABILITY_REGISTRY: readonly PortabilityDescriptor[] = [
     descriptorVersion: 1,
     authorityIds: ['external.agent-configs', 'desktop.runtime-files'],
     disposition: 'reference-only',
-    producer: available('transfer.backend-reference-producer/v1'),
+    // A descriptor is not an implementation. This stays blocked until the
+    // producer registry imports an executable, accepted serializer.
+    producer: blocked('transfer.backend-reference-producer/v1'),
     consumer: blocked('transfer.backend-reference-consumer/v1'),
     quiescence: ['desktop'],
     secretPolicy: 'none',
@@ -290,8 +291,8 @@ export const WAYLAND_PORTABILITY_REGISTRY: readonly PortabilityDescriptor[] = [
     descriptorVersion: 1,
     authorityIds: ['updater.state'],
     disposition: 'excluded',
-    producer: available('transfer.updater-exclusion/v1'),
-    consumer: available('transfer.updater-exclusion/v1'),
+    producer: blocked('transfer.updater-exclusion/v1'),
+    consumer: blocked('transfer.updater-exclusion/v1'),
     quiescence: [],
     secretPolicy: 'none',
     dependencies: [],
@@ -305,7 +306,7 @@ export const WAYLAND_PORTABILITY_REGISTRY: readonly PortabilityDescriptor[] = [
     descriptorVersion: 1,
     authorityIds: ['external.workspaces'],
     disposition: 'reference-only',
-    producer: available('transfer.workspace-reference-producer/v1'),
+    producer: blocked('transfer.workspace-reference-producer/v1'),
     consumer: blocked('transfer.workspace-reference-consumer/v1'),
     quiescence: [],
     secretPolicy: 'none',
