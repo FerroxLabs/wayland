@@ -342,15 +342,110 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
+  protected-platform-observations:
+    name: Observe all six native installers under protected code
+    runs-on: ubuntu-24.04
+    needs: [build-pipeline]
+    if: |
+      always() && needs.build-pipeline.result == 'success' &&
+      startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Resolve exact candidate tree without checking out candidate code
+        id: candidate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          tree="$(gh api "repos/${GITHUB_REPOSITORY}/git/commits/$GITHUB_SHA" --jq .tree.sha)"
+          [[ "$tree" =~ ^[0-9a-f]{40,64}$ ]]
+          echo "tree=$tree" >> "$GITHUB_OUTPUT"
+
+      - name: Dispatch deterministic protected native observer
+        id: dispatch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_TREE: ${{ steps.candidate.outputs.tree }}
+        run: |
+          set -euo pipefail
+          requested_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          expected_title="protected-platform-observer candidate=$GITHUB_SHA producer=$GITHUB_RUN_ID attempt=$GITHUB_RUN_ATTEMPT"
+          gh workflow run protected-platform-package-observer.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref release-trust-v1 \
+            -f candidate_commit="$GITHUB_SHA" \
+            -f candidate_tree="$CANDIDATE_TREE" \
+            -f producer_run_id="$GITHUB_RUN_ID" \
+            -f producer_run_attempt="$GITHUB_RUN_ATTEMPT" \
+            -f release_track=stable
+          echo "requested_at=$requested_at" >> "$GITHUB_OUTPUT"
+          echo "expected_title=$expected_title" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve and require the exact protected observer run
+        id: observer
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_AT: ${{ steps.dispatch.outputs.requested_at }}
+          EXPECTED_TITLE: ${{ steps.dispatch.outputs.expected_title }}
+        run: |
+          set -euo pipefail
+          run_id=''
+          for attempt in $(seq 1 30); do
+            run_id="$(gh api \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/protected-platform-package-observer.yml/runs?event=workflow_dispatch&branch=release-trust-v1&per_page=50" \
+              --jq ".workflow_runs | map(select(.created_at >= \"$REQUESTED_AT\" and .display_title == \"$EXPECTED_TITLE\")) | sort_by(.created_at) | last | .id // empty")"
+            test -n "$run_id" && break
+            sleep 10
+          done
+          [[ "$run_id" =~ ^[0-9]+$ ]]
+          gh run watch "$run_id" --repo "$GITHUB_REPOSITORY" --exit-status
+          run="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/$run_id")"
+          test "$(jq -r .display_title <<<"$run")" = "$EXPECTED_TITLE"
+          test "$(jq -r .head_branch <<<"$run")" = 'release-trust-v1'
+          test "$(jq -r .conclusion <<<"$run")" = 'success'
+          echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
+
+      - name: Download all exact signed native observation bundles
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OBSERVER_RUN_ID: ${{ steps.observer.outputs.run_id }}
+        run: |
+          set -euo pipefail
+          mkdir protected-platform-observations
+          for target in darwin-arm64 darwin-x64 win32-arm64 win32-x64 linux-arm64 linux-x64; do
+            name="protected-platform-observation-${target}-${GITHUB_SHA}"
+            gh run download "$OBSERVER_RUN_ID" \
+              --repo "$GITHUB_REPOSITORY" \
+              --name "$name" \
+              --dir "protected-platform-observations/$target"
+            test -f "protected-platform-observations/$target/protected-platform-observation-$target.json"
+            test -f "protected-platform-observations/$target/platform-package-smoke-$target.json"
+          done
+
+      - name: Upload exact protected observation set into the producer run
+        uses: actions/upload-artifact@v6
+        with:
+          name: protected-platform-observations-${{ github.sha }}
+          path: protected-platform-observations
+          if-no-files-found: error
+          retention-days: 7
+
   assemble-raw-release-acceptance:
     name: Assemble immutable raw release acceptance bytes
     runs-on: ubuntu-latest
-    needs: [build-pipeline, release-smoke-gate, release-smoke-gate-windows]
+    needs: [build-pipeline, release-smoke-gate, release-smoke-gate-windows, protected-platform-observations]
     if: |
       always() &&
       needs.build-pipeline.result == 'success' &&
       needs.release-smoke-gate.result == 'success' &&
       needs.release-smoke-gate-windows.result == 'success' &&
+      needs.protected-platform-observations.result == 'success' &&
       startsWith(github.ref, 'refs/tags/') && !contains(github.ref, '-dev-')
     permissions:
       actions: read

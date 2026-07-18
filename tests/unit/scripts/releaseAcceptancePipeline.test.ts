@@ -131,6 +131,27 @@ describe('protected release acceptance pipeline', () => {
     }
   });
 
+  it('dispatches, resolves, and imports the exact six-target protected observer run before raw assembly', () => {
+    const release = YAML.parse(readFileSync('.github/workflows/build-and-release.yml', 'utf8'));
+    const observe = release.jobs['protected-platform-observations'];
+    const assemble = release.jobs['assemble-raw-release-acceptance'];
+    const text = JSON.stringify(observe);
+
+    expect(observe.permissions).toEqual({ actions: 'write', contents: 'read' });
+    expect(text).not.toContain('actions/checkout');
+    expect(text).toContain('protected-platform-package-observer.yml');
+    expect(text).toContain('candidate_commit');
+    expect(text).toContain('candidate_tree');
+    expect(text).toContain('producer_run_id');
+    expect(text).toContain('producer_run_attempt');
+    expect(text).toContain('display_title');
+    for (const target of ['darwin-arm64', 'darwin-x64', 'win32-arm64', 'win32-x64', 'linux-arm64', 'linux-x64']) {
+      expect(text).toContain(target);
+    }
+    expect(assemble.needs).toContain('protected-platform-observations');
+    expect(assemble.if).toContain("needs.protected-platform-observations.result == 'success'");
+  });
+
   it('trustRootJobSeparation keeps candidate execution outside OIDC and attestation authority', () => {
     const workflow = YAML.parse(readFileSync('.github/workflows/protected-platform-package-observer.yml', 'utf8'));
     const observe = workflow.jobs.observe;
