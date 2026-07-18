@@ -88,6 +88,7 @@ const DEFAULT_VERIFIERS = Object.freeze({
   verifyHardeningMatrix: defaultVerifyHardeningMatrix,
   verifyCapabilitySeal: defaultVerifyCapabilitySeal,
   verifyPlatformSmoke: authorityUnavailable('PLATFORM_SMOKE'),
+  verifyTargetGateReceipt: authorityUnavailable('TARGET_GATE_RECEIPT'),
   verifyThirdPartyLedger: defaultVerifyThirdPartyLedger,
   verifyPublisherArtifact: defaultVerifyPublisherArtifact,
   expectedPublisherAssets: defaultExpectedPublisherAssets,
@@ -100,7 +101,17 @@ const DEFAULT_VERIFIERS = Object.freeze({
 function verifyMatrixReceipt(receipt) {
   const result = exactKeys(
     receipt,
-    ['contract', 'invariants', 'criteria', 'journeys', 'targets', 'gates', 'conditionalCapabilities'],
+    [
+      'contract',
+      'invariants',
+      'criteria',
+      'journeys',
+      'targets',
+      'gates',
+      'targetProofGates',
+      'targetGateReceipts',
+      'conditionalCapabilities',
+    ],
     'M8A_MATRIX_RECEIPT_INVALID'
   );
   if (
@@ -110,9 +121,27 @@ function verifyMatrixReceipt(receipt) {
     result.journeys !== 24 ||
     result.targets !== 6 ||
     result.gates !== 15 ||
+    result.targetProofGates !== 5 ||
     result.conditionalCapabilities !== 5
   ) {
     fail('M8A_MATRIX_RECEIPT_INVALID', 'incomplete-coverage');
+  }
+  if (!Array.isArray(result.targetGateReceipts) || result.targetGateReceipts.length !== 30) {
+    fail('M8A_MATRIX_RECEIPT_INVALID', 'target-gate-coverage-mismatch');
+  }
+  const ids = new Set();
+  for (const requirement of result.targetGateReceipts) {
+    exactKeys(requirement, ['receiptId', 'contract', 'target', 'gate'], 'M8A_MATRIX_RECEIPT_INVALID');
+    if (
+      requirement.contract !== 'wayland-target-hardening-gate-receipt/1.0' ||
+      !TARGETS.includes(requirement.target) ||
+      typeof requirement.receiptId !== 'string' ||
+      requirement.receiptId !== `M8-F:${requirement.target}:${requirement.gate}` ||
+      ids.has(requirement.receiptId)
+    ) {
+      fail('M8A_MATRIX_RECEIPT_INVALID', 'invalid-target-gate-requirement');
+    }
+    ids.add(requirement.receiptId);
   }
   return result;
 }
@@ -167,6 +196,35 @@ function verifyPlatformReceipt(receipt, candidate, expectedTarget) {
   if (result.authority !== 'canonical-packaged-runtime-observer') {
     fail('M8A_PLATFORM_SMOKE_INVALID', 'untrusted-authority');
   }
+  return result;
+}
+
+function verifyTargetGateReceipt(receipt, candidate, requirement, artifacts) {
+  const result = exactKeys(
+    receipt,
+    ['contract', 'receiptId', 'target', 'gate', 'candidate', 'artifacts', 'authority', 'evidenceSha256'],
+    'M8A_TARGET_GATE_RECEIPT_INVALID'
+  );
+  if (
+    result.contract !== requirement.contract ||
+    result.receiptId !== requirement.receiptId ||
+    result.target !== requirement.target ||
+    result.gate !== requirement.gate ||
+    result.authority !== 'canonical-target-hardening-observer'
+  ) {
+    fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'requirement-mismatch');
+  }
+  sameCandidate(result.candidate, candidate, 'M8A_TARGET_GATE_RECEIPT_INVALID');
+  const observedArtifacts = exactKeys(
+    result.artifacts,
+    ['installerDigest', 'executableSha256', 'appAsarSha256', 'verifiedCandidateDigest'],
+    'M8A_TARGET_GATE_RECEIPT_INVALID'
+  );
+  for (const value of Object.values(observedArtifacts)) digest(value, 'M8A_TARGET_GATE_RECEIPT_INVALID');
+  if (JSON.stringify(observedArtifacts) !== JSON.stringify(artifacts)) {
+    fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'artifact-identity-mismatch');
+  }
+  digest(result.evidenceSha256, 'M8A_TARGET_GATE_RECEIPT_INVALID');
   return result;
 }
 
@@ -269,6 +327,7 @@ function verifyFinalAcceptance(input, injected = {}) {
       'hardeningMatrix',
       'capabilitySeal',
       'packageSmokes',
+      'targetGateReceipts',
       'publisherArtifacts',
       'updaterEvidence',
       'conditionalReceipts',
@@ -313,6 +372,37 @@ function verifyFinalAcceptance(input, injected = {}) {
   );
   const artifactIdentities = new Set(platformReceipts.map((receipt) => JSON.stringify(receipt.artifacts)));
   if (artifactIdentities.size !== TARGETS.length) fail('M8A_PLATFORM_SMOKE_INVALID', 'duplicate-artifact-identity');
+  const platformByTarget = new Map(platformReceipts.map((receipt) => [receipt.target, receipt]));
+
+  if (!Array.isArray(request.targetGateReceipts) || request.targetGateReceipts.length !== 30) {
+    fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'coverage-mismatch');
+  }
+  const rawTargetGateReceipts = new Map();
+  for (const raw of request.targetGateReceipts) {
+    const receiptId = raw && typeof raw === 'object' ? raw.receiptId : null;
+    if (typeof receiptId !== 'string' || rawTargetGateReceipts.has(receiptId)) {
+      fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'missing-or-duplicate-receipt-id');
+    }
+    rawTargetGateReceipts.set(receiptId, raw);
+  }
+  const targetGateReceipts = matrixReceipt.targetGateReceipts.map((requirement) => {
+    const raw = rawTargetGateReceipts.get(requirement.receiptId);
+    if (!raw) fail('M8A_TARGET_GATE_RECEIPT_INVALID', `missing:${requirement.receiptId}`);
+    const platformReceipt = platformByTarget.get(requirement.target);
+    return verifyTargetGateReceipt(
+      verifiers.verifyTargetGateReceipt(raw, {
+        candidate,
+        requirement,
+        artifacts: platformReceipt.artifacts,
+      }),
+      candidate,
+      requirement,
+      platformReceipt.artifacts
+    );
+  });
+  if (rawTargetGateReceipts.size !== targetGateReceipts.length) {
+    fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'unknown-receipt-id');
+  }
 
   const expectedPublisherAssets = verifiers.expectedPublisherAssets();
   if (
@@ -389,6 +479,12 @@ function verifyFinalAcceptance(input, injected = {}) {
     matrix: matrixReceipt,
     capabilitySealSha256: capabilitySeal.sealSha256,
     targets: platformReceipts.map((receipt) => ({ target: receipt.target, artifacts: receipt.artifacts })),
+    targetGates: targetGateReceipts.map((receipt) => ({
+      receiptId: receipt.receiptId,
+      target: receipt.target,
+      gate: receipt.gate,
+      evidenceSha256: receipt.evidenceSha256,
+    })),
     publisherAssets: publisherReceipts.map((receipt) => ({ asset: receipt.asset, sha256: receipt.sha256 })),
     updaterReceiptSha256: updaterReceipt.receiptSha256,
     capabilityReceipts: conditionalReceipts.map((receipt) => ({

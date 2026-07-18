@@ -18,6 +18,15 @@ const CONDITIONAL: Record<string, string[]> = {
   flux: ['M1F'],
 };
 const CORE_ASSETS = TARGETS.map((target) => `wayland-core-v0.12.25-${target}.archive`);
+const TARGET_GATES = ['package-identity-signature', 'install', 'updater', 'rollback', 're-upgrade'];
+const TARGET_GATE_REQUIREMENTS = TARGETS.flatMap((target) =>
+  TARGET_GATES.map((gate) => ({
+    receiptId: `M8-F:${target}:${gate}`,
+    contract: 'wayland-target-hardening-gate-receipt/1.0',
+    target,
+    gate,
+  }))
+);
 
 function request() {
   return {
@@ -30,12 +39,14 @@ function request() {
       requiredJourneys: [],
       supportedTargets: TARGETS,
       requiredHardeningGates: [],
+      requiredTargetGateReceipts: TARGET_GATE_REQUIREMENTS,
       capabilityConditional: Object.fromEntries(
         Object.entries(CONDITIONAL).map(([id, receipts]) => [id, { criteria: [], journeys: [], receipts }])
       ),
     },
     capabilitySeal: { source: 'canonical' },
     packageSmokes: TARGETS.map((target) => ({ target, source: 'runtime' })),
+    targetGateReceipts: TARGET_GATE_REQUIREMENTS.map((receipt) => ({ ...receipt, source: 'runtime' })),
     publisherArtifacts: CORE_ASSETS.map((assetName) => ({ assetName })),
     updaterEvidence: { accepted: true },
     conditionalReceipts: Object.keys(CONDITIONAL).map((capabilityId) => ({ capabilityId, accepted: true })),
@@ -53,6 +64,8 @@ function verifiers() {
       journeys: 24,
       targets: 6,
       gates: 15,
+      targetProofGates: 5,
+      targetGateReceipts: TARGET_GATE_REQUIREMENTS,
       conditionalCapabilities: 5,
     }),
     verifyCapabilitySeal: () => ({
@@ -78,6 +91,20 @@ function verifiers() {
       contract: 'wayland-third-party-executables/1.0',
       entries: 4,
       ids: ['7zip-recovery', 'bun', 'officecli', 'signal-cli'],
+    }),
+    verifyTargetGateReceipt: (
+      _raw: unknown,
+      context: {
+        candidate: { commit: string; tree: string };
+        requirement: { receiptId: string; contract: string; target: string; gate: string };
+        artifacts: Record<string, string>;
+      }
+    ) => ({
+      ...context.requirement,
+      candidate: context.candidate,
+      artifacts: context.artifacts,
+      authority: 'canonical-target-hardening-observer',
+      evidenceSha256: DIGEST('9'),
     }),
     verifyPublisherArtifact: (raw: { assetName: string }) => ({
       contract: 'wayland-publisher-attestations/1.0',
@@ -134,6 +161,7 @@ describe('M8-A final acceptance controller', () => {
       accepted: true,
     });
     expect(receipt.targets).toHaveLength(6);
+    expect(receipt.targetGates).toHaveLength(30);
     expect(receipt.capabilityReceipts).toHaveLength(5);
   });
 
@@ -171,6 +199,30 @@ describe('M8-A final acceptance controller', () => {
     const duplicate = request();
     duplicate.publisherArtifacts[5] = { ...duplicate.publisherArtifacts[0] };
     expect(() => verifyFinalAcceptance(duplicate, verifiers())).toThrow(/missing-duplicate-or-unknown-core-asset/);
+  });
+
+  it('requires every exact target and hardening-gate receipt', () => {
+    const input = request();
+    input.targetGateReceipts = input.targetGateReceipts.filter(
+      (receipt) => receipt.receiptId !== 'M8-F:linux-x64:re-upgrade'
+    );
+    input.targetGateReceipts.push({
+      ...input.targetGateReceipts[0],
+      receiptId: 'M8-F:linux-x64:not-a-real-gate',
+      gate: 'not-a-real-gate',
+    });
+
+    expect(() => verifyFinalAcceptance(input, verifiers())).toThrow(/missing:M8-F:linux-x64:re-upgrade/);
+  });
+
+  it('binds every target gate to the exact package artifact identity', () => {
+    const hostile = verifiers();
+    hostile.verifyTargetGateReceipt = (raw: { target: string }, context: Record<string, any>) => ({
+      ...verifiers().verifyTargetGateReceipt(raw, context),
+      artifacts: { ...context.artifacts, installerDigest: DIGEST('f') },
+    });
+
+    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/artifact-identity-mismatch/);
   });
 
   it('does not treat a caller-authored accepted boolean as updater authority', () => {
