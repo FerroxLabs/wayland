@@ -19,24 +19,167 @@ concurrency:
   group: release-acceptance-trust-root-${{ inputs.candidate_ref }}
   cancel-in-progress: false
 
+# Candidate execution must never inherit signing or attestation authority.
 permissions:
   actions: read
-  attestations: write
   contents: read
-  id-token: write
 
 jobs:
+  candidate-gates:
+    name: Execute exact candidate without trust authority
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      artifact-digest: ${{ steps.upload.outputs.artifact-digest }}
+      candidate-tree: ${{ steps.identity.outputs.tree }}
+    env:
+      TRUST_ROOT_SHA: ${{ vars.WAYLAND_RELEASE_TRUST_ROOT_SHA }}
+      CANDIDATE_REF: ${{ inputs.candidate_ref }}
+      ACTIONS_ID_TOKEN_REQUEST_URL: ''
+      ACTIONS_ID_TOKEN_REQUEST_TOKEN: ''
+      GH_TOKEN: ''
+      GITHUB_TOKEN: ''
+    steps:
+      - name: Enforce non-authoritative execution context
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REF" == "refs/heads/release-trust-v1" ]] || exit 1
+          [[ "$TRUST_ROOT_SHA" =~ ^[0-9a-f]{40}$ && "$GITHUB_SHA" == "$TRUST_ROOT_SHA" ]] || exit 1
+          [[ "$CANDIDATE_REF" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          [[ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" && -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]] || exit 1
+
+      - name: Checkout exact candidate in untrusted execution job
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.CANDIDATE_REF }}
+          path: candidate
+          persist-credentials: false
+
+      - name: Bind exact candidate source before execution
+        id: identity
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$(git rev-parse HEAD)" == "$CANDIDATE_REF" ]] || exit 1
+          [[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] || exit 1
+          tree="$(git rev-parse 'HEAD^{tree}')"
+          [[ "$tree" =~ ^[0-9a-f]{40,64}$ ]] || exit 1
+          echo "tree=$tree" >> "$GITHUB_OUTPUT"
+
+      - name: Setup pinned untrusted candidate toolchain
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Install exact candidate dependencies without credentials
+        working-directory: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" && -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]] || exit 1
+          bun install --frozen-lockfile
+
+      - name: Run untrusted candidate gates and capture raw outputs
+        working-directory: candidate
+        shell: bash
+        env:
+          GATE_OUTPUT: ${{ runner.temp }}/candidate-gates
+        run: |
+          set -euo pipefail
+          umask 077
+          [[ -z "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" && -z "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ]] || exit 1
+          mkdir "$GATE_OUTPUT"
+          records="$GATE_OUTPUT/gates.ndjson"
+          : > "$records"
+          run_gate() {
+            local id="$1"
+            local command="$2"
+            local log="$GATE_OUTPUT/$id.log"
+            set +e
+            bash -o pipefail -c "$command" 2>&1 | tee "$log"
+            local exit_code="${PIPESTATUS[0]}"
+            set -e
+            [[ "$exit_code" -eq 0 ]] || exit "$exit_code"
+            local digest="sha256:$(sha256sum "$log" | cut -d' ' -f1)"
+            jq -cn \
+              --arg id "$id" --arg command "$command" --arg logPath "$id.log" \
+              --arg logSha256 "$digest" --argjson exitCode "$exit_code" \
+              '{id:$id,command:$command,exitCode:$exitCode,logPath:$logPath,logSha256:$logSha256}' \
+              >> "$records"
+          }
+          run_gate tests 'bun run test'
+          run_gate typecheck 'bunx tsc --noEmit'
+          run_gate lint 'bun run lint'
+          run_gate build 'bun run build:renderer:web'
+          bun audit --json > "$GATE_OUTPUT/dependency-audit.json" 2> "$GATE_OUTPUT/dependency-audit.stderr" || true
+          node -e 'const fs=require("node:fs"); const value=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if (!value || typeof value!=="object" || Array.isArray(value)) process.exit(1)' \
+            "$GATE_OUTPUT/dependency-audit.json"
+
+      - name: Seal candidate gate handoff metadata
+        working-directory: candidate
+        shell: bash
+        env:
+          GATE_OUTPUT: ${{ runner.temp }}/candidate-gates
+          CANDIDATE_TREE: ${{ steps.identity.outputs.tree }}
+        run: |
+          set -euo pipefail
+          [[ "$(git rev-parse HEAD)" == "$CANDIDATE_REF" ]] || exit 1
+          [[ "$(git rev-parse 'HEAD^{tree}')" == "$CANDIDATE_TREE" ]] || exit 1
+          [[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] || exit 1
+          audit_digest="sha256:$(sha256sum "$GATE_OUTPUT/dependency-audit.json" | cut -d' ' -f1)"
+          jq -s \
+            --arg commit "$CANDIDATE_REF" \
+            --arg tree "$CANDIDATE_TREE" \
+            --arg trustRoot "$TRUST_ROOT_SHA" \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg ref "$GITHUB_REF" \
+            --arg sha "$GITHUB_SHA" \
+            --arg workflowRef "$GITHUB_WORKFLOW_REF" \
+            --arg runId "$GITHUB_RUN_ID" \
+            --arg runAttempt "$GITHUB_RUN_ATTEMPT" \
+            --arg job "$GITHUB_JOB" \
+            --arg auditSha256 "$audit_digest" \
+            '{contract:"wayland-untrusted-candidate-gates/1.0",candidate:{commit:$commit,tree:$tree},trustRoot:{commit:$trustRoot},workflow:{repository:$repository,ref:$ref,sha:$sha,workflowRef:$workflowRef,runId:$runId,runAttempt:$runAttempt,job:$job},audit:{path:"dependency-audit.json",sha256:$auditSha256},gates:.}' \
+            "$GATE_OUTPUT/gates.ndjson" > "$GATE_OUTPUT/handoff.json"
+          rm -f "$GATE_OUTPUT/gates.ndjson" "$GATE_OUTPUT/dependency-audit.stderr"
+
+      - name: Upload immutable untrusted candidate gate outputs
+        id: upload
+        uses: actions/upload-artifact@v6
+        with:
+          name: candidate-gates-${{ inputs.candidate_ref }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/candidate-gates
+          if-no-files-found: error
+          retention-days: 7
+
   final-acceptance:
-    name: Seal exact raw bytes with protected authority
+    name: Seal exact bytes with protected authority
+    needs: candidate-gates
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    permissions:
+      actions: read
+      attestations: write
+      contents: read
+      id-token: write
     env:
       TRUST_ROOT_SHA: ${{ vars.WAYLAND_RELEASE_TRUST_ROOT_SHA }}
       CANDIDATE_REF: ${{ inputs.candidate_ref }}
       ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+      GATE_ARTIFACT_ID: ${{ needs.candidate-gates.outputs.artifact-id }}
+      GATE_ARTIFACT_DIGEST: ${{ needs.candidate-gates.outputs.artifact-digest }}
+      CANDIDATE_TREE: ${{ needs.candidate-gates.outputs.candidate-tree }}
     steps:
       - name: Enforce protected immutable workflow identity
+        shell: bash
         run: |
+          set -euo pipefail
           [[ "$GITHUB_REF" == "refs/heads/release-trust-v1" ]] || {
             echo "::error::trust-root workflow must run from refs/heads/release-trust-v1"
             exit 1
@@ -46,7 +189,10 @@ jobs:
             exit 1
           }
           [[ "$CANDIDATE_REF" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          [[ "$CANDIDATE_TREE" =~ ^[0-9a-f]{40,64}$ ]] || exit 1
           [[ "$ARTIFACT_RUN_ID" =~ ^[0-9]+$ ]] || exit 1
+          [[ "$GATE_ARTIFACT_ID" =~ ^[0-9]+$ ]] || exit 1
+          [[ "$GATE_ARTIFACT_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || exit 1
 
       - name: Checkout pinned trust-root authority code
         uses: actions/checkout@v6
@@ -55,24 +201,29 @@ jobs:
           path: trust-root
           persist-credentials: false
 
-      - name: Checkout exact candidate as data only
+      - name: Checkout exact candidate as inert data only
         uses: actions/checkout@v6
         with:
           ref: ${{ env.CANDIDATE_REF }}
           path: candidate
           persist-credentials: false
 
-      - name: Verify candidate checkout identity and immutability
+      - name: Verify candidate data identity and immutability
         working-directory: candidate
+        shell: bash
         run: |
+          set -euo pipefail
           [[ "$(git rev-parse HEAD)" == "$CANDIDATE_REF" ]] || exit 1
+          [[ "$(git rev-parse 'HEAD^{tree}')" == "$CANDIDATE_TREE" ]] || exit 1
           [[ -z "$(git status --porcelain=v1 --untracked-files=all)" ]] || exit 1
-          git rev-parse 'HEAD^{tree}' > ../candidate-tree.txt
+          git rev-parse 'HEAD^{tree}' > "$RUNNER_TEMP/candidate-tree.txt"
 
       - name: Authenticate canonical producer run
         env:
           GH_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
+          set -euo pipefail
           run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${ARTIFACT_RUN_ID}")"
           [[ "$(jq -r '.head_sha' <<<"$run_json")" == "$CANDIDATE_REF" ]] || exit 1
           [[ "$(jq -r '.path' <<<"$run_json")" == ".github/workflows/build-and-release.yml" ]] || exit 1
@@ -81,6 +232,53 @@ jobs:
           [[ "$status" == "in_progress" || "$status" == "completed" ]] || exit 1
           conclusion="$(jq -r '.conclusion // ""' <<<"$run_json")"
           [[ -z "$conclusion" || "$conclusion" == "success" ]] || exit 1
+
+      - name: Authenticate same-run candidate gate artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact="$(gh api "repos/${GITHUB_REPOSITORY}/actions/artifacts/${GATE_ARTIFACT_ID}")"
+          expected_name="candidate-gates-${CANDIDATE_REF}-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          [[ "$(jq -r '.name' <<<"$artifact")" == "$expected_name" ]] || exit 1
+          [[ "$(jq -r '.expired' <<<"$artifact")" == "false" ]] || exit 1
+          [[ "$(jq -r '.workflow_run.id | tostring' <<<"$artifact")" == "$GITHUB_RUN_ID" ]] || exit 1
+          [[ "$(jq -r '.workflow_run.head_sha' <<<"$artifact")" == "$TRUST_ROOT_SHA" ]] || exit 1
+          [[ "$(jq -r '.digest' <<<"$artifact")" == "$GATE_ARTIFACT_DIGEST" ]] || exit 1
+
+      - name: Download exact same-run candidate gate outputs
+        uses: actions/download-artifact@v7
+        with:
+          artifact-ids: ${{ needs.candidate-gates.outputs.artifact-id }}
+          path: candidate-gate-download
+
+      - name: Resolve exactly one candidate gate handoff
+        id: gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -d '' handoffs < <(find candidate-gate-download -type f -name handoff.json -print0)
+          [[ "${#handoffs[@]}" -eq 1 ]] || exit 1
+          root="$(dirname "${handoffs[0]}")"
+          [[ -f "$root/dependency-audit.json" && ! -L "$root/dependency-audit.json" ]] || exit 1
+          echo "path=$root" >> "$GITHUB_OUTPUT"
+
+      - name: Promote authenticated candidate gates with protected code
+        shell: bash
+        run: |
+          set -euo pipefail
+          node trust-root/scripts/release-acceptance/promoteCandidateGateEvidence.js \
+            --source "${{ steps.gates.outputs.path }}" \
+            --out "$RUNNER_TEMP/protected-gates" \
+            --candidateCommit "$CANDIDATE_REF" \
+            --candidateTree "$CANDIDATE_TREE" \
+            --trustRootCommit "$TRUST_ROOT_SHA" \
+            --repository "$GITHUB_REPOSITORY" \
+            --workflowRef "$GITHUB_WORKFLOW_REF" \
+            --runId "$GITHUB_RUN_ID" \
+            --runAttempt "$GITHUB_RUN_ATTEMPT" \
+            --job candidate-gates
 
       - name: Download complete raw acceptance evidence bundle
         uses: actions/download-artifact@v7
@@ -95,18 +293,10 @@ jobs:
         id: raw
         shell: bash
         run: |
+          set -euo pipefail
           mapfile -d '' candidates < <(find raw-download -type f -name candidate.json -print0)
           [[ "${#candidates[@]}" -eq 1 ]] || exit 1
           echo "path=$(dirname "${candidates[0]}")" >> "$GITHUB_OUTPUT"
-
-      - name: Setup pinned protected toolchain
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.14
-
-      - name: Install exact candidate dependencies
-        working-directory: candidate
-        run: bun install --frozen-lockfile
 
       - name: Stage raw authority subjects
         shell: bash
@@ -149,46 +339,6 @@ jobs:
           });
           NODE
 
-      - name: Run protected aggregate gates and capture immutable logs
-        shell: bash
-        working-directory: candidate
-        run: |
-          set -euo pipefail
-          gates="$RUNNER_TEMP/protected-gates"
-          mkdir "$gates"
-          records="$gates/gates.ndjson"
-          : > "$records"
-          run_gate() {
-            local id="$1"
-            local command="$2"
-            local log="$gates/$id.log"
-            set +e
-            bash -o pipefail -c "$command" 2>&1 | tee "$log"
-            local exit_code="${PIPESTATUS[0]}"
-            set -e
-            [[ "$exit_code" -eq 0 ]] || exit "$exit_code"
-            local digest="sha256:$(sha256sum "$log" | cut -d' ' -f1)"
-            jq -cn \
-              --arg id "$id" --arg command "$command" --arg logPath "$id.log" \
-              --arg logSha256 "$digest" --argjson exitCode "$exit_code" \
-              '{id:$id,command:$command,exitCode:$exitCode,logPath:$logPath,logSha256:$logSha256}' \
-              >> "$records"
-          }
-          run_gate tests 'bun run test'
-          run_gate typecheck 'bunx tsc --noEmit'
-          run_gate lint 'bun run lint'
-          run_gate build 'bun run build:renderer:web'
-          bun audit --json > "$gates/dependency-audit.json" 2> "$gates/dependency-audit.stderr" || true
-          cp "$gates/dependency-audit.json" dependency-audit.json
-          run_gate dependency-security \
-            'node ../trust-root/scripts/release-acceptance/verifySevereDependencyAudit.js dependency-audit.json'
-          rm -f dependency-audit.json
-          jq -s \
-            --arg commit "$CANDIDATE_REF" \
-            --arg tree "$(cat ../candidate-tree.txt)" \
-            '{contract:"wayland-protected-release-gates/1.0",candidate:{commit:$commit,tree:$tree},gates:.}' \
-            "$records" > "$gates/gate-results.json"
-
       - name: Produce protected acceptance evidence from actual bytes
         id: protected
         env:
@@ -221,6 +371,7 @@ jobs:
       - name: Stage exact generated acceptance subjects
         shell: bash
         run: |
+          set -euo pipefail
           mkdir attestation-subjects
           jq -e '.contract == "wayland-release-acceptance-attestation-subjects/1.0" and (.subjects | length > 32)' \
             "${{ steps.generate.outputs.path }}/attestation-subjects.json" >/dev/null
