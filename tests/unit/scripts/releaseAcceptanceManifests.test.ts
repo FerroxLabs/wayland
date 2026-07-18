@@ -1,4 +1,4 @@
-import { readFileSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { readFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -14,7 +14,7 @@ const { verifyReleaseClaimsManifest, verifyReleaseEvidenceManifest } =
 
 const COMMIT = 'a'.repeat(40);
 const TREE = 'b'.repeat(40);
-const DIGEST = `sha256:${'c'.repeat(64)}`;
+const TRUST_COMMIT = 'c'.repeat(40);
 const CANDIDATE = { commit: COMMIT, tree: TREE };
 const temporaryDirectories: string[] = [];
 
@@ -24,6 +24,19 @@ function manifestFile(value: unknown) {
   const file = join(directory, 'manifest.json');
   writeFileSync(file, JSON.stringify(value));
   return file;
+}
+
+function manifestFileWithEvidence(factory: (evidence: { evidencePath: string; evidenceSha256: string }) => unknown) {
+  const directory = mkdtempSync(join(tmpdir(), 'wayland-release-acceptance-'));
+  temporaryDirectories.push(directory);
+  const evidencePath = 'evidence/proof.json';
+  const absoluteEvidencePath = join(directory, evidencePath);
+  mkdirSync(join(directory, 'evidence'), { recursive: true });
+  writeFileSync(absoluteEvidencePath, JSON.stringify({ passed: true, proof: 'real-bytes' }));
+  const evidenceSha256 = `sha256:${createHash('sha256').update(readFileSync(absoluteEvidencePath)).digest('hex')}`;
+  const file = join(directory, 'manifest.json');
+  writeFileSync(file, JSON.stringify(factory({ evidencePath, evidenceSha256 })));
+  return { file, absoluteEvidencePath };
 }
 
 function attestationFor(file: string) {
@@ -46,23 +59,26 @@ afterEach(() => {
 
 describe('release acceptance manifest authority', () => {
   it('binds an exact evidence manifest to hosted GitHub provenance and candidate source', () => {
-    const file = manifestFile({
+    const { file } = manifestFileWithEvidence((evidence) => ({
       contract: 'wayland-release-evidence-manifest/1.0',
       candidate: CANDIDATE,
-      evidence: [{ kind: 'invariant', id: 'INV-01', evidenceSha256: DIGEST }],
-    });
+      evidence: [{ kind: 'invariant', id: 'INV-01', ...evidence }],
+    }));
 
     const receipt = verifyReleaseEvidenceManifest(
       { manifestPath: file },
       { candidate: CANDIDATE, expectedByKind: { invariant: ['INV-01'] } },
       {
+        trustRootCommit: TRUST_COMMIT,
         execFileSyncImpl: (command: string, args: string[]) => {
           expect(command).toBe('gh');
           expect(args).toContain('--deny-self-hosted-runners');
           expect(args).toContain('--source-digest');
-          expect(args[args.indexOf('--source-digest') + 1]).toBe(COMMIT);
+          expect(args[args.indexOf('--source-digest') + 1]).toBe(TRUST_COMMIT);
+          expect(args[args.indexOf('--signer-digest') + 1]).toBe(TRUST_COMMIT);
+          expect(args[args.indexOf('--source-ref') + 1]).toBe('refs/heads/release-trust-v1');
           expect(args[args.indexOf('--signer-workflow') + 1]).toBe(
-            'FerroxLabs/wayland/.github/workflows/release-acceptance.yml'
+            'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml'
           );
           return attestationFor(file);
         },
@@ -77,16 +93,16 @@ describe('release acceptance manifest authority', () => {
   });
 
   it('rejects an unattested or foreign evidence manifest', () => {
-    const file = manifestFile({
+    const { file } = manifestFileWithEvidence((evidence) => ({
       contract: 'wayland-release-evidence-manifest/1.0',
       candidate: CANDIDATE,
-      evidence: [{ kind: 'invariant', id: 'INV-01', evidenceSha256: DIGEST }],
-    });
+      evidence: [{ kind: 'invariant', id: 'INV-01', ...evidence }],
+    }));
     expect(() =>
       verifyReleaseEvidenceManifest(
         { manifestPath: file },
         { candidate: CANDIDATE, expectedByKind: { invariant: ['INV-01'] } },
-        { execFileSyncImpl: () => JSON.stringify([]) }
+        { trustRootCommit: TRUST_COMMIT, execFileSyncImpl: () => JSON.stringify([]) }
       )
     ).toThrow(/unattested/);
 
@@ -95,6 +111,7 @@ describe('release acceptance manifest authority', () => {
         { manifestPath: file },
         { candidate: CANDIDATE, expectedByKind: { invariant: ['INV-01'] } },
         {
+          trustRootCommit: TRUST_COMMIT,
           execFileSyncImpl: () =>
             JSON.stringify([
               {
@@ -114,26 +131,62 @@ describe('release acceptance manifest authority', () => {
       verifyReleaseEvidenceManifest(
         { manifestPath: file },
         { candidate: { commit: 'd'.repeat(40), tree: TREE }, expectedByKind: { invariant: ['INV-01'] } },
-        { execFileSyncImpl: () => attestationFor(file) }
+        { trustRootCommit: TRUST_COMMIT, execFileSyncImpl: () => attestationFor(file) }
       )
     ).toThrow(/stale or foreign/);
   });
 
   it('requires exact, non-duplicated claims coverage', () => {
-    const file = manifestFile({
+    const { file } = manifestFileWithEvidence((evidence) => ({
       contract: 'wayland-release-claims-manifest/1.0',
       candidate: CANDIDATE,
       capabilities: [
-        { id: 'voice', claimed: false, evidenceSha256: DIGEST },
-        { id: 'voice', claimed: false, evidenceSha256: DIGEST },
+        { id: 'voice', claimed: false, ...evidence },
+        { id: 'voice', claimed: false, ...evidence },
       ],
-    });
+    }));
     expect(() =>
       verifyReleaseClaimsManifest(
         { manifestPath: file },
         { candidate: CANDIDATE, capabilityIds: ['voice', 'mcp'] },
-        { execFileSyncImpl: () => attestationFor(file) }
+        { trustRootCommit: TRUST_COMMIT, execFileSyncImpl: () => attestationFor(file) }
       )
     ).toThrow(/unknown or duplicated/);
+  });
+
+  it('rejects missing, mutated, symlinked, and escaping underlying evidence bytes', () => {
+    const { file, absoluteEvidencePath } = manifestFileWithEvidence((evidence) => ({
+      contract: 'wayland-release-evidence-manifest/1.0',
+      candidate: CANDIDATE,
+      evidence: [{ kind: 'invariant', id: 'INV-01', ...evidence }],
+    }));
+    writeFileSync(absoluteEvidencePath, 'mutated');
+    expect(() =>
+      verifyReleaseEvidenceManifest(
+        { manifestPath: file },
+        { candidate: CANDIDATE, expectedByKind: { invariant: ['INV-01'] } },
+        { trustRootCommit: TRUST_COMMIT, execFileSyncImpl: () => attestationFor(file) }
+      )
+    ).toThrow(/digest mismatch/);
+
+    const escaping = manifestFile({
+      contract: 'wayland-release-evidence-manifest/1.0',
+      candidate: CANDIDATE,
+      evidence: [
+        {
+          kind: 'invariant',
+          id: 'INV-01',
+          evidencePath: '../foreign.json',
+          evidenceSha256: `sha256:${'d'.repeat(64)}`,
+        },
+      ],
+    });
+    expect(() =>
+      verifyReleaseEvidenceManifest(
+        { manifestPath: escaping },
+        { candidate: CANDIDATE, expectedByKind: { invariant: ['INV-01'] } },
+        { trustRootCommit: TRUST_COMMIT, execFileSyncImpl: () => attestationFor(escaping) }
+      )
+    ).toThrow(/escapes evidence root/);
   });
 });

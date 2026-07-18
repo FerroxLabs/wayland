@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import os from 'node:os';
 import path from 'node:path';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const require = createRequire(import.meta.url);
 const {
@@ -25,6 +25,7 @@ const originalExecFileSync = childProcess.execFileSync;
 const COMMIT = 'a'.repeat(40);
 const TREE = 'b'.repeat(40);
 const CANDIDATE = Object.freeze({ commit: COMMIT, tree: TREE });
+const TRUST_COMMIT = 'c'.repeat(40);
 
 function matrix() {
   return JSON.parse(fs.readFileSync(MATRIX_FILE, 'utf8'));
@@ -35,6 +36,7 @@ function targetGateReceipts(candidate = CANDIDATE) {
     ...requirement,
     candidate: { ...candidate },
     authority: TARGET_GATE_RECEIPT_SCHEMA.authority,
+    evidencePath: `evidence/${index}.json`,
     evidenceSha256: `sha256:${index.toString(16).padStart(64, '0')}`,
   }));
 }
@@ -49,6 +51,11 @@ function writeReceiptFiles(root: string, candidate: { commit: string; tree: stri
   const receiptPaths = resolveTargetGateReceiptPaths(root);
   const receipts = targetGateReceipts(candidate);
   for (let index = 0; index < receiptPaths.length; index += 1) {
+    const evidencePath = path.join(root, receipts[index].evidencePath);
+    fs.mkdirSync(path.dirname(evidencePath), { recursive: true });
+    fs.writeFileSync(evidencePath, JSON.stringify({ receiptId: receipts[index].receiptId, passed: true }));
+    receipts[index].evidenceSha256 =
+      `sha256:${crypto.createHash('sha256').update(fs.readFileSync(evidencePath)).digest('hex')}`;
     fs.mkdirSync(path.dirname(receiptPaths[index]), { recursive: true });
     fs.writeFileSync(receiptPaths[index], JSON.stringify(receipts[index]));
   }
@@ -79,7 +86,12 @@ function mockAttestationVerification(
   });
 }
 
+beforeEach(() => {
+  process.env.WAYLAND_RELEASE_TRUST_ROOT_SHA = TRUST_COMMIT;
+});
+
 afterEach(() => {
+  delete process.env.WAYLAND_RELEASE_TRUST_ROOT_SHA;
   vi.restoreAllMocks();
 });
 
@@ -330,6 +342,7 @@ describe('M8 target-gate receipt authority', () => {
       receiptId: TARGET_GATE_REQUIREMENTS[0].receiptId,
       attestationVerified: true,
       receiptFile: { path: receiptPaths[0], sha256: expect.stringMatching(/^sha256:[a-f0-9]{64}$/) },
+      evidenceFile: { path: expect.any(String), sha256: expect.stringMatching(/^sha256:[a-f0-9]{64}$/) },
     });
     expect(ghCalls).toHaveLength(30);
     for (const args of ghCalls) {
@@ -340,9 +353,13 @@ describe('M8 target-gate receipt authority', () => {
         '--repo',
         'FerroxLabs/wayland',
         '--signer-workflow',
-        'FerroxLabs/wayland/.github/workflows/release-acceptance.yml',
+        'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml',
+        '--signer-digest',
+        TRUST_COMMIT,
         '--source-digest',
-        candidate.commit,
+        TRUST_COMMIT,
+        '--source-ref',
+        'refs/heads/release-trust-v1',
         '--predicate-type',
         'https://slsa.dev/provenance/v1',
         '--deny-self-hosted-runners',
@@ -402,6 +419,26 @@ describe('M8 target-gate receipt authority', () => {
     expect(() => verifyTargetGateReceiptFiles(root, candidate)).toThrow(/does not bind exact file bytes/);
   });
 
+  it('rejects missing, mutated, symlinked, and escaping underlying target evidence bytes', () => {
+    const candidate = repositoryCandidate();
+
+    const mutatedRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'm8f-evidence-mutated-'));
+    const mutatedReceipts = writeReceiptFiles(mutatedRoot, candidate);
+    const mutatedReceipt = JSON.parse(fs.readFileSync(mutatedReceipts[0], 'utf8'));
+    fs.appendFileSync(path.join(mutatedRoot, mutatedReceipt.evidencePath), 'tamper');
+    mockAttestationVerification();
+    expect(() => verifyTargetGateReceiptFiles(mutatedRoot, candidate)).toThrow(/evidence digest mismatch/);
+    vi.restoreAllMocks();
+
+    const escapingRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'm8f-evidence-escape-'));
+    const escapingReceipts = writeReceiptFiles(escapingRoot, candidate);
+    const escapingReceipt = JSON.parse(fs.readFileSync(escapingReceipts[0], 'utf8'));
+    escapingReceipt.evidencePath = '../foreign.json';
+    fs.writeFileSync(escapingReceipts[0], JSON.stringify(escapingReceipt));
+    mockAttestationVerification();
+    expect(() => verifyTargetGateReceiptFiles(escapingRoot, candidate)).toThrow(/evidence escapes receipt root/);
+  });
+
   it('rejects signed JSON with unknown critical fields', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'm8f-signed-fields-'));
     const candidate = repositoryCandidate();
@@ -452,7 +489,8 @@ describe('M8 target-gate receipt authority', () => {
     expect(Object.isFrozen(TARGET_GATE_ATTESTATION_POLICY)).toBe(true);
     expect(TARGET_GATE_ATTESTATION_POLICY).toEqual({
       repository: 'FerroxLabs/wayland',
-      signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml',
+      signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml',
+      sourceRef: 'refs/heads/release-trust-v1',
       predicateType: 'https://slsa.dev/provenance/v1',
       runner: 'github-hosted',
       evidenceDigestReuseAllowlist: [],

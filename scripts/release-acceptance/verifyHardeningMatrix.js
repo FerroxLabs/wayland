@@ -56,13 +56,15 @@ const TARGET_GATE_RECEIPT_SCHEMA = Object.freeze({
     'target',
     'gate',
     'authority',
+    'evidencePath',
     'evidenceSha256',
   ]),
   authority: 'canonical-target-hardening-validator',
 });
 const TARGET_GATE_ATTESTATION_POLICY = Object.freeze({
   repository: 'FerroxLabs/wayland',
-  signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml',
+  signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml',
+  sourceRef: 'refs/heads/release-trust-v1',
   predicateType: 'https://slsa.dev/provenance/v1',
   runner: 'github-hosted',
   evidenceDigestReuseAllowlist: Object.freeze([]),
@@ -201,6 +203,9 @@ function validateTargetGateReceiptClaims(receipts, candidate) {
     if (!SHA256.test(String(receipt.evidenceSha256))) {
       throw new Error(`target gate receipt evidence digest invalid: ${receipt.receiptId}`);
     }
+    if (typeof receipt.evidencePath !== 'string' || !receipt.evidencePath || path.isAbsolute(receipt.evidencePath)) {
+      throw new Error(`target gate receipt evidence path invalid: ${receipt.receiptId}`);
+    }
     validated.push({
       contract: receipt.contract,
       receiptId: receipt.receiptId,
@@ -208,6 +213,7 @@ function validateTargetGateReceiptClaims(receipts, candidate) {
       target: receipt.target,
       gate: receipt.gate,
       authority: receipt.authority,
+      evidencePath: receipt.evidencePath,
       evidenceSha256: receipt.evidenceSha256,
     });
   }
@@ -225,6 +231,7 @@ function validateClaimedTargetGateReceiptSet(receipts, candidate) {
       receiptId: receipt.receiptId,
       target: receipt.target,
       gate: receipt.gate,
+      evidencePath: receipt.evidencePath,
       evidenceSha256: receipt.evidenceSha256,
     })),
   };
@@ -273,7 +280,14 @@ function verifyCandidateInRepository(candidate) {
   return expected;
 }
 
-function verifyReceiptAttestation(receiptPath, receiptFileSha256, candidate) {
+function trustedWorkflowCommit() {
+  const commit = process.env.WAYLAND_RELEASE_TRUST_ROOT_SHA;
+  if (!COMMIT.test(String(commit || ''))) throw new Error('target gate trust root is unavailable');
+  return String(commit);
+}
+
+function verifyReceiptAttestation(receiptPath, receiptFileSha256) {
+  const trustRootCommit = trustedWorkflowCommit();
   let raw;
   try {
     raw = childProcess.execFileSync(
@@ -286,8 +300,12 @@ function verifyReceiptAttestation(receiptPath, receiptFileSha256, candidate) {
         TARGET_GATE_ATTESTATION_POLICY.repository,
         '--signer-workflow',
         TARGET_GATE_ATTESTATION_POLICY.signerWorkflow,
+        '--signer-digest',
+        trustRootCommit,
         '--source-digest',
-        candidate.commit,
+        trustRootCommit,
+        '--source-ref',
+        TARGET_GATE_ATTESTATION_POLICY.sourceRef,
         '--predicate-type',
         TARGET_GATE_ATTESTATION_POLICY.predicateType,
         '--deny-self-hosted-runners',
@@ -321,6 +339,28 @@ function verifyReceiptAttestation(receiptPath, receiptFileSha256, candidate) {
   ) {
     throw new Error(`target gate receipt attestation does not bind exact file bytes: ${path.basename(receiptPath)}`);
   }
+}
+
+function verifyTargetEvidence(receiptsDirectory, receipt) {
+  const root = path.resolve(receiptsDirectory);
+  const resolved = path.resolve(root, receipt.evidencePath);
+  if (resolved === root || !resolved.startsWith(`${root}${path.sep}`)) {
+    throw new Error(`target gate evidence escapes receipt root: ${receipt.receiptId}`);
+  }
+  let stat;
+  try {
+    stat = fs.lstatSync(resolved);
+  } catch {
+    throw new Error(`target gate evidence file is missing: ${receipt.receiptId}`);
+  }
+  if (!stat.isFile() || stat.isSymbolicLink()) {
+    throw new Error(`target gate evidence is not a regular file: ${receipt.receiptId}`);
+  }
+  const observed = sha256(fs.readFileSync(resolved));
+  if (observed !== receipt.evidenceSha256) {
+    throw new Error(`target gate evidence digest mismatch: ${receipt.receiptId}`);
+  }
+  return { path: resolved, sha256: observed };
 }
 
 function verifyEvidenceDigestReuse(receipts) {
@@ -359,7 +399,7 @@ function verifyTargetGateReceiptFiles(receiptsDirectory, candidate) {
     }
     const bytes = fs.readFileSync(receiptPath);
     const receiptFileSha256 = sha256(bytes);
-    verifyReceiptAttestation(receiptPath, receiptFileSha256, expectedCandidate);
+    verifyReceiptAttestation(receiptPath, receiptFileSha256);
     let receipt;
     try {
       receipt = JSON.parse(bytes.toString('utf8'));
@@ -371,6 +411,7 @@ function verifyTargetGateReceiptFiles(receiptsDirectory, candidate) {
   }
   const validated = validateTargetGateReceiptClaims(receipts, expectedCandidate);
   verifyEvidenceDigestReuse(validated);
+  const evidenceFiles = validated.map((receipt) => verifyTargetEvidence(receiptsDirectory, receipt));
   return {
     contract: TARGET_GATE_VERIFIED_SET_CONTRACT,
     authority: TARGET_GATE_RECEIPT_SCHEMA.authority,
@@ -378,6 +419,7 @@ function verifyTargetGateReceiptFiles(receiptsDirectory, candidate) {
     receipts: validated.map((receipt, index) => ({
       ...receipt,
       receiptFile: files[index],
+      evidenceFile: evidenceFiles[index],
       attestationVerified: true,
     })),
   };

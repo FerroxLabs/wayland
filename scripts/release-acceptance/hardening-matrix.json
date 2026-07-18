@@ -102,7 +102,16 @@
   ],
   "targetGateReceiptSchema": {
     "contract": "wayland-target-hardening-gate-receipt/1.0",
-    "requiredFields": ["contract", "receiptId", "candidate", "target", "gate", "authority", "evidenceSha256"],
+    "requiredFields": [
+      "contract",
+      "receiptId",
+      "candidate",
+      "target",
+      "gate",
+      "authority",
+      "evidencePath",
+      "evidenceSha256"
+    ],
     "authority": "canonical-target-hardening-validator"
   },
   "targetGateRequirements": [
