@@ -1,5 +1,8 @@
 'use strict';
 
+const fs = require('node:fs');
+const path = require('node:path');
+
 const REQUEST_CONTRACT = 'wayland-final-acceptance-request/1.0';
 const RECEIPT_CONTRACT = 'wayland-final-acceptance/1.0';
 const TARGETS = ['darwin-arm64', 'darwin-x64', 'win32-arm64', 'win32-x64', 'linux-arm64', 'linux-x64'];
@@ -64,6 +67,19 @@ function defaultVerifyPublisherArtifact(artifact) {
   return require('../supply-chain/verifyPublisherAttestation').verifyPublisherAttestation(artifact);
 }
 
+function defaultExpectedPublisherAssets() {
+  const { readPolicy } = require('../supply-chain/verifyPublisherAttestation');
+  const policy = readPolicy();
+  const active = policy.policies.filter((entry) => entry.status === 'active');
+  if (active.length !== 1) fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'no-unique-active-core-release');
+  const shasums = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'bundled-wcore-shasums.json'), 'utf8'));
+  const assets = Object.keys(shasums[active[0].releaseTag] || {}).sort();
+  if (assets.length !== TARGETS.length) {
+    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'core-release-target-coverage-mismatch');
+  }
+  return assets;
+}
+
 function authorityUnavailable(name) {
   return () => fail(`M8A_${name}_AUTHORITY_UNAVAILABLE`, 'trusted-validator-not-installed');
 }
@@ -74,6 +90,7 @@ const DEFAULT_VERIFIERS = Object.freeze({
   verifyPlatformSmoke: authorityUnavailable('PLATFORM_SMOKE'),
   verifyThirdPartyLedger: defaultVerifyThirdPartyLedger,
   verifyPublisherArtifact: defaultVerifyPublisherArtifact,
+  expectedPublisherAssets: defaultExpectedPublisherAssets,
   verifyUpdaterObservation: authorityUnavailable('UPDATER'),
   verifyConditionalCapability: authorityUnavailable('CONDITIONAL_CAPABILITY'),
   verifyFindingsClearance: authorityUnavailable('FINDINGS_CLEARANCE'),
@@ -297,14 +314,27 @@ function verifyFinalAcceptance(input, injected = {}) {
   const artifactIdentities = new Set(platformReceipts.map((receipt) => JSON.stringify(receipt.artifacts)));
   if (artifactIdentities.size !== TARGETS.length) fail('M8A_PLATFORM_SMOKE_INVALID', 'duplicate-artifact-identity');
 
-  if (!Array.isArray(request.publisherArtifacts) || request.publisherArtifacts.length === 0) {
-    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'missing-core-artifact');
+  const expectedPublisherAssets = verifiers.expectedPublisherAssets();
+  if (
+    !Array.isArray(expectedPublisherAssets) ||
+    expectedPublisherAssets.length !== TARGETS.length ||
+    new Set(expectedPublisherAssets).size !== expectedPublisherAssets.length ||
+    expectedPublisherAssets.some((asset) => typeof asset !== 'string' || asset.length === 0)
+  ) {
+    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'invalid-authoritative-asset-set');
+  }
+  if (
+    !Array.isArray(request.publisherArtifacts) ||
+    request.publisherArtifacts.length !== expectedPublisherAssets.length
+  ) {
+    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'core-asset-coverage-mismatch');
   }
   const publisherReceipts = request.publisherArtifacts.map((artifact) =>
     verifyPublisherReceipt(verifiers.verifyPublisherArtifact(artifact))
   );
-  if (new Set(publisherReceipts.map((receipt) => receipt.asset)).size !== publisherReceipts.length) {
-    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'duplicate-asset');
+  const observedPublisherAssets = publisherReceipts.map((receipt) => receipt.asset).sort();
+  if (JSON.stringify(observedPublisherAssets) !== JSON.stringify([...expectedPublisherAssets].sort())) {
+    fail('M8A_PUBLISHER_ATTESTATION_INVALID', 'missing-duplicate-or-unknown-core-asset');
   }
 
   const updaterReceipt = verifyUpdaterReceipt(verifiers.verifyUpdaterObservation(request.updaterEvidence), candidate);
@@ -382,3 +412,15 @@ module.exports = {
   TARGETS,
   verifyFinalAcceptance,
 };
+
+if (require.main === module) {
+  try {
+    if (process.argv.length !== 3) fail('M8A_USAGE_INVALID', 'expected-one-acceptance-request-json-path');
+    const requestFile = path.resolve(process.argv[2]);
+    const request = JSON.parse(fs.readFileSync(requestFile, 'utf8'));
+    process.stdout.write(`${JSON.stringify(verifyFinalAcceptance(request))}\n`);
+  } catch (error) {
+    process.stderr.write(`Final acceptance rejected: ${error.message}\n`);
+    process.exitCode = 1;
+  }
+}

@@ -17,6 +17,7 @@ const CONDITIONAL: Record<string, string[]> = {
   sandbox: ['M1S', 'SBX-2'],
   flux: ['M1F'],
 };
+const CORE_ASSETS = TARGETS.map((target) => `wayland-core-v0.12.25-${target}.archive`);
 
 function request() {
   return {
@@ -35,7 +36,7 @@ function request() {
     },
     capabilitySeal: { source: 'canonical' },
     packageSmokes: TARGETS.map((target) => ({ target, source: 'runtime' })),
-    publisherArtifacts: [{ assetName: 'wayland-core-v0.12.25.tar.gz' }],
+    publisherArtifacts: CORE_ASSETS.map((assetName) => ({ assetName })),
     updaterEvidence: { accepted: true },
     conditionalReceipts: Object.keys(CONDITIONAL).map((capabilityId) => ({ capabilityId, accepted: true })),
     findingsEvidence: { accepted: true },
@@ -91,6 +92,7 @@ function verifiers() {
       sha256: DIGEST('5'),
       verified: true,
     }),
+    expectedPublisherAssets: () => CORE_ASSETS,
     verifyUpdaterObservation: () => ({
       contract: 'wayland-updater-trusted-observation/1.0',
       candidate: { commit: COMMIT, tree: TREE },
@@ -159,6 +161,16 @@ describe('M8-A final acceptance controller', () => {
       candidate: { commit: COMMIT, tree: 'e'.repeat(40) },
     });
     expect(() => verifyFinalAcceptance(request(), staleTree)).toThrow(/stale-or-foreign-candidate/);
+  });
+
+  it('requires publisher attestations for the complete authoritative Core asset set', () => {
+    const missing = request();
+    missing.publisherArtifacts.pop();
+    expect(() => verifyFinalAcceptance(missing, verifiers())).toThrow(/core-asset-coverage-mismatch/);
+
+    const duplicate = request();
+    duplicate.publisherArtifacts[5] = { ...duplicate.publisherArtifacts[0] };
+    expect(() => verifyFinalAcceptance(duplicate, verifiers())).toThrow(/missing-duplicate-or-unknown-core-asset/);
   });
 
   it('does not treat a caller-authored accepted boolean as updater authority', () => {
