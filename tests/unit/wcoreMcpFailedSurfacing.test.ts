@@ -25,6 +25,7 @@ vi.mock('@process/secrets', () => ({
 }));
 vi.mock('@process/agent/wcore/profilePaths', () => ({
   resolveActiveConfigDir: () => Promise.resolve('/fake/home'),
+  acquireProfileLaunchLease: () => Promise.resolve(async () => {}),
 }));
 vi.mock('@process/agent/wcore/toolKeyStore', () => ({
   getToolKeyStore: () => Promise.resolve({ collectForwardedEnv: () => ({}) }),

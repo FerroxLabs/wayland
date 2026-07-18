@@ -89,10 +89,13 @@ function hasClass(el: Element, name: string): boolean {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockList.mockResolvedValue([
-    { name: 'work', active: true, dir: '/Users/u/.wayland/profiles/work' },
-    { name: 'personal', active: false, dir: '/Users/u/.wayland/profiles/personal' },
-  ]);
+  mockList.mockResolvedValue({
+    ok: true,
+    profiles: [
+      { kind: 'named', name: 'work', active: true, dir: '/Users/u/wayland-core-profiles/work' },
+      { kind: 'named', name: 'personal', active: false, dir: '/Users/u/wayland-core-profiles/personal' },
+    ],
+  });
 });
 
 describe('#729: an active profile is GREEN (healthy), not brand-orange (warning)', () => {
@@ -112,7 +115,10 @@ describe('#729: an active profile is GREEN (healthy), not brand-orange (warning)
   });
 
   it('shows no Active badge on a profile that is not active', async () => {
-    mockList.mockResolvedValue([{ name: 'personal', active: false, dir: '/p' }]);
+    mockList.mockResolvedValue({
+      ok: true,
+      profiles: [{ kind: 'named', name: 'personal', active: false, dir: '/p' }],
+    });
     render(<ProfilesPane />);
     await waitFor(() => expect(screen.getByText('personal')).toBeTruthy());
     expect(screen.queryByText('Active')).toBeNull();

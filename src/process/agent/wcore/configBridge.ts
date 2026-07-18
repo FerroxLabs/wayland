@@ -8,7 +8,7 @@ import { mkdir, open, readFile, rename, unlink } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { parse, stringify } from 'smol-toml';
-import { nativeConfigDir, resolveActiveConfigPath } from './profilePaths';
+import { nativeConfigDir, resolveActiveConfigPath, withProfileAuthorityLock } from './profilePaths';
 
 /**
  * Main-process bridge for the engine's USER `config.toml` (Wayland-Core
@@ -134,6 +134,12 @@ async function atomicWriteToml(target: string, config: Record<string, unknown>):
     await handle.sync();
     await handle.close();
     await rename(tempPath, target);
+    const syncHandle = await open(process.platform === 'win32' ? target : dir, 'r');
+    try {
+      await syncHandle.sync();
+    } finally {
+      await syncHandle.close();
+    }
   } catch (error) {
     await handle.close().catch(() => {});
     await unlink(tempPath).catch((cleanupError: NodeJS.ErrnoException) => {
@@ -154,13 +160,15 @@ export function mutateConfig<T>(
   mutator: (config: Record<string, unknown>) => ConfigMutation<T> | Promise<ConfigMutation<T>>,
   path?: string
 ): Promise<T> {
-  return withWriteLock(async () => {
-    const target = path ?? (await resolveActiveConfigPath());
-    const config = await readConfig(target);
-    const mutation = await mutator(config);
-    if (mutation.changed) await atomicWriteToml(target, config);
-    return mutation.value;
-  });
+  const mutate = () =>
+    withWriteLock(async () => {
+      const target = path ?? (await resolveActiveConfigPath());
+      const config = await readConfig(target);
+      const mutation = await mutator(config);
+      if (mutation.changed) await atomicWriteToml(target, config);
+      return mutation.value;
+    });
+  return path === undefined ? withProfileAuthorityLock(mutate) : mutate();
 }
 
 /**

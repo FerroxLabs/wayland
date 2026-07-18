@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { mkdirSync as _mkdirSync, existsSync, readdirSync, readFileSync } from 'fs';
+import { mkdirSync as _mkdirSync, existsSync, lstatSync, readdirSync, readFileSync, renameSync } from 'fs';
 import fs from 'fs/promises';
 import path from 'path';
+import { randomUUID } from 'node:crypto';
 import { getPlatformServices } from '@/common/platform';
 import { application } from '@/common/adapter/ipcBridge';
 import type { TMessage } from '@/common/chat/chatLib';
@@ -86,8 +87,8 @@ const STORAGE_PATH = {
 
 const getHomePage = getConfigPath;
 
-const mkdirSync = (path: string) => {
-  return _mkdirSync(path, { recursive: true });
+const mkdirSync = (directoryPath: string) => {
+  return _mkdirSync(directoryPath, { recursive: true });
 };
 
 /**
@@ -143,37 +144,108 @@ const WriteFile = async (filePath: string, data: string) => {
   return writeFileAtomic(filePath, data, { mode: 0o600 });
 };
 
+const cloneJsonValue = <T>(data: T): T => structuredClone(data);
+
+/**
+ * Seal a mutation into the exact JSON value that can be persisted. Both clone
+ * and stringify happen before disk IO: functions/other non-cloneable values,
+ * BigInt, and cyclic JSON fail without changing either disk or cache. The
+ * promotion clone is also prepared before the write, so disk success cannot be
+ * followed by an in-memory clone failure.
+ */
+const canonicalizeJsonValue = <T>(data: T): { json: string; promotion: T } => {
+  const detached = cloneJsonValue(data);
+  const json = JSON.stringify(detached);
+  if (json === undefined) throw new TypeError('Storage value must be JSON-serializable');
+  const canonical = JSON.parse(json) as T;
+  return { json, promotion: cloneJsonValue(canonical) };
+};
+
 /**
  * In-memory JSON store backed by a file on disk.
  *
  * Data is loaded once (synchronously on first access) and kept in memory.
- * - `get` / `getSync` read from the in-memory cache (microseconds).
- * - `set` / `remove` / `clear` update the cache first, then persist to disk.
- * - Disk writes are serialized via a simple promise chain to prevent corruption.
+ * - all read APIs return detached clones of the last persisted cache.
+ * - every mutation is canonicalized, persisted, then atomically promoted.
+ * - all keys share one mutation queue, preventing a failed optimistic write
+ *   from leaking into a concurrent sibling key's persisted snapshot.
  *
  * The on-disk format stays base64(encodeURIComponent(JSON)) for backward compat.
  */
-const JsonFileBuilder = <S extends object = Record<string, unknown>>(filePath: string) => {
-  // -- encoding helpers (unchanged, keeps backward compat) --
-  const encode = (data: unknown) => btoa(encodeURIComponent(String(data)));
-  const decode = (base64: string) => decodeURIComponent(atob(base64));
+type JsonStorageRootKind = 'object' | 'array';
+const encodeStorage = (data: unknown): string => btoa(encodeURIComponent(String(data)));
+const decodeStorage = (base64: string): string => decodeURIComponent(atob(base64));
 
+export const JsonFileBuilder = <S extends object = Record<string, unknown>>(
+  filePath: string,
+  rootKind: JsonStorageRootKind = 'object'
+) => {
   // -- in-memory cache --
   let cache: S | null = null;
 
-  const loadSync = (): S => {
+  const assertStorageRoot = (value: unknown): S => {
+    const valid =
+      rootKind === 'array'
+        ? Array.isArray(value)
+        : value !== null && typeof value === 'object' && !Array.isArray(value);
+    if (!valid) throw new TypeError(`storage root must be a JSON ${rootKind}`);
+    return value as S;
+  };
+
+  const quarantineCorruptStorageSync = (error: unknown): S => {
+    let metadata;
     try {
-      const raw = readFileSync(filePath).toString();
-      if (!raw || raw.trim() === '') return {} as S;
-      const decoded = decode(raw);
-      if (!decoded || decoded.trim() === '') return {} as S;
-      const parsed = JSON.parse(decoded) as S;
+      metadata = lstatSync(filePath);
+    } catch (metadataError) {
+      const originalMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`[Storage] Could not inspect corrupt storage after ${originalMessage}: ${filePath}`, {
+        cause: metadataError,
+      });
+    }
+    if (!metadata.isFile() || metadata.isSymbolicLink()) {
+      throw new Error(`[Storage] Refusing to quarantine a non-file storage path: ${filePath}`, { cause: error });
+    }
+    const quarantinePath = `${filePath}.corrupt-${Date.now()}-${randomUUID()}`;
+    try {
+      renameSync(filePath, quarantinePath);
+    } catch (quarantineError) {
+      const originalMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`[Storage] Could not quarantine corrupt storage after ${originalMessage}: ${filePath}`, {
+        cause: quarantineError,
+      });
+    }
+    console.error(
+      `[Storage] Quarantined unreadable storage at ${quarantinePath}; starting with an empty ${rootKind}.`,
+      error
+    );
+    return (rootKind === 'array' ? [] : {}) as S;
+  };
+
+  const loadSync = (): S => {
+    let raw: string;
+    try {
+      raw = readFileSync(filePath).toString();
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
+        return (rootKind === 'array' ? [] : {}) as S;
+      }
+      // Permission, descriptor exhaustion, device and transient I/O failures
+      // say nothing about the bytes. Preserve the source in place and fail
+      // closed instead of mislabelling valid user data as corrupt.
+      throw new Error(`[Storage] Could not read storage without proving corruption: ${filePath}`, { cause: error });
+    }
+
+    try {
+      if (!raw || raw.trim() === '') throw new Error('storage file exists but is empty');
+      const decoded = decodeStorage(raw);
+      if (!decoded || decoded.trim() === '') throw new Error('storage file decodes to empty content');
+      const parsed = assertStorageRoot(JSON.parse(decoded));
       if (filePath.includes('chat.txt') && Object.keys(parsed).length === 0) {
         console.warn(`[Storage] Chat history file appears to be empty: ${filePath}`);
       }
       return parsed;
-    } catch {
-      return {} as S;
+    } catch (error) {
+      return quarantineCorruptStorageSync(error);
     }
   };
 
@@ -184,18 +256,25 @@ const JsonFileBuilder = <S extends object = Record<string, unknown>>(filePath: s
     return cache;
   };
 
-  // -- serialized disk persistence --
+  // -- serialized store-wide mutation/persistence --
   let writeChain: Promise<unknown> = Promise.resolve();
 
-  const persist = (): Promise<S> => {
-    const data = cache ?? ({} as S);
-    const encoded = encode(JSON.stringify(data));
-    // Write once, branch the promise: writeChain stays resolved (so one
-    // failure doesn't block subsequent writes), callers get the real error.
-    const writeOp = writeChain.then(() => WriteFile(filePath, encoded));
+  const mutate = <R>(build: (current: S) => Promise<{ next: S; result: R }> | { next: S; result: R }): Promise<R> => {
+    // Build inside the queue from the last successful cache. No candidate is
+    // visible to getters or sibling writers until its disk write succeeds.
+    const writeOp = writeChain.then(async () => {
+      const { next, result } = await build(ensureLoaded());
+      assertStorageRoot(next);
+      const { json, promotion } = canonicalizeJsonValue(next);
+      assertStorageRoot(promotion);
+      const encoded = encodeStorage(json);
+      await WriteFile(filePath, encoded);
+      cache = promotion;
+      return result;
+    });
     writeChain = writeOp.catch(() => {});
     return writeOp.then(
-      () => data,
+      (result) => result,
       (err) => {
         console.error(`[Storage] Failed to persist ${filePath}:`, err);
         throw err;
@@ -204,45 +283,52 @@ const JsonFileBuilder = <S extends object = Record<string, unknown>>(filePath: s
   };
 
   // -- public API (same shape as before) --
-  const toJson = async (): Promise<S> => ensureLoaded();
+  const toJson = async (): Promise<S> => cloneJsonValue(ensureLoaded());
 
   const setJson = async (data: S): Promise<S> => {
-    cache = data;
-    return persist();
+    return mutate(() => {
+      const next = cloneJsonValue(data);
+      return { next, result: next };
+    });
   };
 
-  const toJsonSync = (): S => ensureLoaded();
+  const toJsonSync = (): S => cloneJsonValue(ensureLoaded());
 
   return {
     toJson,
     setJson,
     toJsonSync,
     async set<K extends keyof S>(key: K, value: Awaited<S>[K]): Promise<Awaited<S>[K]> {
-      const data = ensureLoaded();
-      data[key] = value;
-      await persist();
-      return value;
+      return mutate((current) => {
+        const next = cloneJsonValue(current);
+        next[key] = value;
+        return { next, result: value };
+      });
     },
     async get<K extends keyof S>(key: K): Promise<Awaited<S>[K]> {
-      return ensureLoaded()[key] as Awaited<S>[K];
+      return cloneJsonValue(ensureLoaded()[key]) as Awaited<S>[K];
     },
     async remove<K extends keyof S>(key: K) {
-      const data = ensureLoaded();
-      delete data[key];
-      return persist();
+      return mutate((current) => {
+        const next = cloneJsonValue(current);
+        delete next[key];
+        return { next, result: next };
+      });
     },
     clear() {
-      cache = {} as S;
-      return persist();
+      return mutate(() => {
+        const next = (rootKind === 'array' ? [] : {}) as S;
+        return { next, result: next };
+      });
     },
     getSync<K extends keyof S>(key: K): S[K] {
-      return ensureLoaded()[key];
+      return cloneJsonValue(ensureLoaded()[key]);
     },
     update<K extends keyof S>(key: K, updateFn: (value: S[K], data: S) => Promise<S[K]>) {
-      const data = ensureLoaded();
-      return updateFn(data[key], data).then((value) => {
-        data[key] = value;
-        return persist();
+      return mutate(async (current) => {
+        const next = cloneJsonValue(current);
+        next[key] = await updateFn(next[key], next);
+        return { next, result: next };
       });
     },
     backup(fullName: string) {
@@ -344,7 +430,7 @@ const buildMessageListStorage = (conversation_id: string, dir: string) => {
   if (!existsSync(fullName)) {
     mkdirSync(path.join(dir, 'wayland-chat-history'));
   }
-  return JsonFileBuilder<TMessage[]>(path.join(dir, 'wayland-chat-history', conversation_id + '.txt'));
+  return JsonFileBuilder<TMessage[]>(path.join(dir, 'wayland-chat-history', conversation_id + '.txt'), 'array');
 };
 
 const conversationHistoryProxy = (options: typeof _chatMessageFile, dir: string) => {
@@ -548,7 +634,7 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
             await fs.unlink(filePath);
           }
         }
-      } catch (error) {
+      } catch {
         // Ignore deletion failure
       }
     }
@@ -592,7 +678,7 @@ const initBuiltinAssistantRules = async (): Promise<void> => {
             await fs.unlink(filePath);
           }
         }
-      } catch (error) {
+      } catch {
         // Ignore deletion failure
       }
     }
@@ -1260,7 +1346,8 @@ const initStorage = async () => {
     if (!splitMigrationDone) {
       const legacyCustomAgents =
         ((await configFile.get('acp.customAgents').catch((): undefined => undefined)) as
-          AcpBackendConfig[] | undefined) || [];
+          | AcpBackendConfig[]
+          | undefined) || [];
       const currentAssistants =
         ((await configFile.get('assistants').catch((): undefined => undefined)) as AcpBackendConfig[] | undefined) ||
         [];

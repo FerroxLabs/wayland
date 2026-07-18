@@ -17,7 +17,8 @@
  * import cycle can form.
  *
  * ── The isolation model ────────────────────────────────────────────────────
- * Each profile is a self-contained config tree under `~/.wayland/profiles/<name>/`.
+ * Each named profile is a self-contained config tree under Core's canonical
+ * `<os-config>/wayland-core-profiles/<lowercase-name>/` control plane.
  * The engine reads its ENTIRE state (config.toml, memory.db, skills) relative to
  * `wayland_config_dir()`, which honours `$WAYLAND_HOME` first
  * (`crates/wcore-config/src/config.rs` - `WAYLAND_HOME` is the literal config
@@ -25,22 +26,23 @@
  * profile dir gives that profile its own model, tools, security, and memory -
  * exactly the "directory-isolated, no cross-contamination" contract.
  *
- * The `default` profile maps to the NATIVE config dir
- * (`dirs::config_dir()/wayland-core`), NOT a `profiles/default/` folder, so
- * existing installs keep their config and `default` stays byte-for-byte the
- * engine's own out-of-the-box location. Only NAMED profiles relocate.
+ * An internal Core-invalid `@native` selector maps to the NATIVE config dir
+ * (`dirs::config_dir()/wayland-core`). A real named profile called `default`
+ * remains distinct at `wayland-core-profiles/default/`, exactly matching Core's
+ * producer-owned profile grammar. Only the internal selector bypasses the root.
  *
  * SECURITY (SEC-4): every renderer-supplied `name` is sanitised by
- * {@link assertSafeProfileName} and contained under the profiles root by
- * {@link resolveProfileDir} (realpath-of-parent check) before any fs op.
+ * {@link assertSafeProfileName} and each profile entry is rejected when
+ * symlinked before any fs op. The root may itself be Desktop's intentional
+ * macOS CLI-compatibility symlink.
  */
 
-import { mkdir, readFile, realpath } from 'node:fs/promises';
+import { lstat, mkdir, readFile, readdir, realpath } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { basename, dirname, join, resolve, sep } from 'node:path';
 
-/** Strict profile-name allowlist: ASCII letters, digits, `_`, `-`; 1-64 chars. */
-export const PROFILE_NAME_RE = /^[A-Za-z0-9_-]{1,64}$/;
+/** Core v0.12.25 profile-name grammar before semantic/reserved-name checks. */
+export const PROFILE_NAME_RE = /^[A-Za-z0-9._-]{1,64}$/;
 
 /** Windows-reserved device base names (case-insensitive), never valid as dirs. */
 const WINDOWS_RESERVED = new Set([
@@ -48,15 +50,15 @@ const WINDOWS_RESERVED = new Set([
   'PRN',
   'AUX',
   'NUL',
-  ...Array.from({ length: 9 }, (_, i) => `COM${i + 1}`),
-  ...Array.from({ length: 9 }, (_, i) => `LPT${i + 1}`),
+  ...Array.from({ length: 10 }, (_, i) => `COM${i}`),
+  ...Array.from({ length: 10 }, (_, i) => `LPT${i}`),
 ]);
 
-/** The default profile name, always present and never deletable. */
-export const DEFAULT_PROFILE = 'default';
+/** Internal, deliberately Core-invalid identity for the legacy native home. */
+export const DEFAULT_PROFILE = '@native';
 
 /** Filename of the active-profile marker stored at the profiles root. */
-const ACTIVE_MARKER = '.active';
+const ACTIVE_MARKER = 'active';
 
 /**
  * Throw if `name` is not a safe single-segment profile name. Returns the name
@@ -73,18 +75,32 @@ export function assertSafeProfileName(name: unknown): string {
   if (name.includes('/') || name.includes('\\') || name.includes(sep)) {
     throw new Error('profile name must not contain a path separator');
   }
-  if (WINDOWS_RESERVED.has(name.toUpperCase())) {
+  if (!PROFILE_NAME_RE.test(name)) {
+    throw new Error("profile name must use only ASCII letters, digits, '.', '_', '-' and be 1-64 bytes");
+  }
+  if (name.startsWith('.') || name.startsWith('-') || name.endsWith('.') || /^\.+$/.test(name)) {
+    throw new Error("profile name must not start with '.' or '-', end with '.', or consist only of dots");
+  }
+  const windowsStem = name.split('.')[0]?.toUpperCase() ?? '';
+  if (WINDOWS_RESERVED.has(windowsStem)) {
     throw new Error('profile name must not be a reserved device name');
   }
-  if (!PROFILE_NAME_RE.test(name)) {
-    throw new Error('profile name must match ^[A-Za-z0-9_-]{1,64}$');
+  if (name.toLowerCase() === ACTIVE_MARKER) {
+    throw new Error('profile name is reserved for the profiles control plane');
   }
   return name;
 }
 
-/** Absolute path to the profiles root (`~/.wayland/profiles`). */
+/** Absolute path to Core's canonical named-profile control-plane root. */
 export function profilesRoot(): string {
-  return join(homedir(), '.wayland', 'profiles');
+  const override = process.env.WAYLAND_PROFILES_ROOT;
+  const hasControlCharacter =
+    override?.split('').some((character) => {
+      const code = character.charCodeAt(0);
+      return code <= 0x1f || code === 0x7f;
+    }) ?? false;
+  if (override && resolve(override) === override && !hasControlCharacter) return override;
+  return join(platformConfigBase(), 'wayland-core-profiles');
 }
 
 /**
@@ -96,17 +112,190 @@ export function profilesRoot(): string {
  */
 export async function resolveProfileDir(name: string): Promise<string> {
   assertSafeProfileName(name);
+  const canonicalName = name.toLowerCase();
   const root = profilesRoot();
   await mkdir(root, { recursive: true });
   const realRoot = await realpath(root);
-  const candidate = resolve(realRoot, name);
+  const candidate = resolve(realRoot, canonicalName);
   // Parent of the candidate must BE the real root, and the candidate must be a
   // direct child (basename equals the validated name). A symlinked root or a
   // crafted name cannot satisfy both.
-  if (dirname(candidate) !== realRoot || basename(candidate) !== name) {
+  if (dirname(candidate) !== realRoot || basename(candidate) !== canonicalName) {
     throw new Error('profile path escapes the profiles root');
   }
+  try {
+    const entry = await lstat(candidate);
+    if (entry.isSymbolicLink() || !entry.isDirectory()) {
+      throw new Error('profile path must be a real directory, not a link or file');
+    }
+    const realCandidate = await realpath(candidate);
+    if (dirname(realCandidate) !== realRoot || basename(realCandidate) !== canonicalName) {
+      throw new Error('profile path escapes the profiles root');
+    }
+    return realCandidate;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return candidate;
+    throw error;
+  }
+}
+
+/**
+ * Resolve and atomically create a missing profile directory without following a
+ * link that appears between resolution and creation. Existing entries are
+ * revalidated after the `mkdir` race; links and non-directories fail closed.
+ */
+export async function ensureProfileDir(name: string): Promise<string> {
+  const candidate = await resolveProfileDir(name);
+  try {
+    await mkdir(candidate, { recursive: false, mode: 0o700 });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+  }
+  return resolveProfileDir(name);
+}
+
+/** Resolve an existing contained profile without creating missing state. */
+export async function resolveExistingProfileDir(name: string): Promise<string> {
+  const candidate = await resolveProfileDir(name);
+  const entry = await lstat(candidate);
+  if (entry.isSymbolicLink() || !entry.isDirectory()) {
+    throw new Error('profile path must be a real directory, not a link or file');
+  }
   return candidate;
+}
+
+const MAX_PROFILE_TREE_ENTRIES = 10_000;
+const MAX_PROFILE_TREE_DEPTH = 64;
+
+let profileAuthorityQueue: Promise<void> = Promise.resolve();
+const profileLaunchLeases = new Map<string, number>();
+const releaseNoopProfileLease = async (): Promise<void> => {};
+
+/** Serialize profile marker/tree mutations and launch-lease acquisition. */
+export function withProfileAuthorityLock<T>(operation: () => Promise<T>): Promise<T> {
+  const result = profileAuthorityQueue.then(operation);
+  profileAuthorityQueue = result.then((): void => {}).catch((): void => {});
+  return result;
+}
+
+/** Whether a running Core process still owns the named profile directory. */
+export function hasProfileLaunchLease(directory: string): boolean {
+  return (profileLaunchLeases.get(directory) ?? 0) > 0;
+}
+
+function retainResolvedProfile(identity: ActiveConfigIdentity): () => Promise<void> {
+  if (identity.profile === DEFAULT_PROFILE) return async (): Promise<void> => {};
+  profileLaunchLeases.set(identity.dir, (profileLaunchLeases.get(identity.dir) ?? 0) + 1);
+  let released = false;
+  return async (): Promise<void> => {
+    if (released) return;
+    released = true;
+    await withProfileAuthorityLock(async () => {
+      const remaining = (profileLaunchLeases.get(identity.dir) ?? 1) - 1;
+      if (remaining > 0) profileLaunchLeases.set(identity.dir, remaining);
+      else profileLaunchLeases.delete(identity.dir);
+    });
+  };
+}
+
+export type RuntimeLaunchAuthoritySnapshot =
+  | { raw: true; identity: null; release: () => Promise<void> }
+  | { raw: false; identity: ActiveConfigIdentity; release: () => Promise<void> };
+
+/**
+ * Atomically snapshot the persisted raw/managed choice and, for managed mode,
+ * resolve and retain the exact active profile. The injected preference reader
+ * keeps this path layer dependency-light while placing both authority reads in
+ * one non-reentrant transaction. A corrupt managed profile cannot block a
+ * launch explicitly committed to standalone raw mode.
+ */
+export function acquireRuntimeLaunchAuthority(
+  readRawMode: () => Promise<boolean>
+): Promise<RuntimeLaunchAuthoritySnapshot> {
+  return withProfileAuthorityLock(async () => {
+    const raw = await readRawMode();
+    if (raw) {
+      const snapshot: RuntimeLaunchAuthoritySnapshot = {
+        raw: true,
+        identity: null,
+        release: releaseNoopProfileLease,
+      };
+      return snapshot;
+    }
+    const identity = await resolveActiveConfigIdentity();
+    const snapshot: RuntimeLaunchAuthoritySnapshot = {
+      raw: false,
+      identity,
+      release: retainResolvedProfile(identity),
+    };
+    return snapshot;
+  });
+}
+
+/**
+ * Atomically bind a previously resolved launch directory to the still-current
+ * active profile, then retain it until the engine process exits. The CAS check
+ * closes the resolve->publish/spawn race with activation or removal.
+ */
+export function acquireProfileLaunchLease(expectedDirectory: string): Promise<() => Promise<void>> {
+  return withProfileAuthorityLock(async () => {
+    const identity = await resolveActiveConfigIdentity();
+    if (identity.dir !== expectedDirectory) {
+      throw new ProfileIsolationError(identity.profile, 'active profile changed before launch lease acquisition');
+    }
+    return retainResolvedProfile(identity);
+  });
+}
+
+/**
+ * Reject links anywhere in an isolated named profile before Desktop reads,
+ * clones, or launches Core against the tree. Links would otherwise let
+ * config.toml, memory.db, skills, or future state escape the profile boundary.
+ */
+export async function assertProfileTreeIsSelfContained(root: string): Promise<void> {
+  const canonicalRoot = await realpath(root);
+  let visited = 0;
+
+  const scan = async (directory: string, depth: number): Promise<void> => {
+    if (depth > MAX_PROFILE_TREE_DEPTH) throw new Error('profile tree exceeds the maximum depth');
+    const entries = await readdir(directory, { withFileTypes: true });
+    await Promise.all(
+      entries.map(async (entry) => {
+        visited += 1;
+        if (visited > MAX_PROFILE_TREE_ENTRIES) throw new Error('profile tree exceeds the maximum entry count');
+        const entryPath = join(directory, entry.name);
+        const metadata = await lstat(entryPath);
+        if (metadata.isSymbolicLink()) throw new Error(`profile tree contains a symbolic link: ${entry.name}`);
+        if (!metadata.isDirectory() && !metadata.isFile()) {
+          throw new Error(`profile tree contains an unsupported special file: ${entry.name}`);
+        }
+        if (metadata.isFile() && metadata.nlink !== 1) {
+          throw new Error(`profile tree contains a hard-linked file: ${entry.name}`);
+        }
+        const canonical = await realpath(entryPath);
+        if (canonical !== entryPath && !canonical.startsWith(`${canonicalRoot}${sep}`)) {
+          throw new Error(`profile tree entry escapes the profile root: ${entry.name}`);
+        }
+        if (metadata.isDirectory()) await scan(entryPath, depth + 1);
+      })
+    );
+  };
+
+  await scan(canonicalRoot, 0);
+}
+
+/** Atomically reserve a brand-new contained profile directory. */
+export async function createExclusiveProfileDir(name: string): Promise<string> {
+  const candidate = await resolveProfileDir(name);
+  try {
+    await mkdir(candidate, { recursive: false, mode: 0o700 });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+      throw new Error(`profile "${name}" already exists`, { cause: error });
+    }
+    throw error;
+  }
+  return resolveProfileDir(name);
 }
 
 /** Path to the active-profile marker file. */
@@ -114,21 +303,20 @@ export function activeMarkerPath(): string {
   return join(profilesRoot(), ACTIVE_MARKER);
 }
 
-/** Read the active profile name. Only an absent marker means `default`. */
+/** Read the active profile name. Only an absent marker selects the native home. */
 export async function getActiveProfile(): Promise<string> {
   try {
     const raw = (await readFile(activeMarkerPath(), 'utf-8')).trim();
-    if (!PROFILE_NAME_RE.test(raw)) {
+    try {
+      assertSafeProfileName(raw);
+    } catch {
       throw new ProfileIsolationError(raw || '<empty-marker>', 'active-profile marker is invalid');
     }
-    return raw;
+    return raw.toLowerCase();
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') return DEFAULT_PROFILE;
     if (error instanceof ProfileIsolationError) throw error;
-    throw new ProfileIsolationError(
-      '<unreadable-marker>',
-      error instanceof Error ? error.message : String(error)
-    );
+    throw new ProfileIsolationError('<unreadable-marker>', error instanceof Error ? error.message : String(error));
   }
 }
 
@@ -153,15 +341,37 @@ function platformConfigBase(): string {
 }
 
 /**
- * The NATIVE engine config dir for the `default` profile, mirroring the engine's
+ * Config directory a standalone Core process resolves when Desktop deliberately
+ * does not inject `WAYLAND_HOME` (raw-engine mode).
+ *
+ * Desktop's spawn environment does not forward the parent's `WAYLAND_HOME`,
+ * `XDG_DATA_HOME`, or `XDG_CONFIG_HOME`; carrying any of them into this
+ * projection would display a path the child cannot actually see. This therefore
+ * mirrors the child process's platform fallback, not {@link nativeConfigDir}'s
+ * Desktop-managed override precedence. `%APPDATA%` is forwarded on Windows.
+ */
+export function standaloneConfigDir(): string {
+  const home = homedir();
+  switch (process.platform) {
+    case 'darwin':
+      return join(home, 'Library', 'Application Support', 'wayland-core');
+    case 'win32':
+      return join(process.env.APPDATA ?? join(home, 'AppData', 'Roaming'), 'wayland-core');
+    default:
+      return join(home, '.config', 'wayland-core');
+  }
+}
+
+/**
+ * The NATIVE engine config dir for Desktop's internal `@native` selector, mirroring the engine's
  * `wayland_config_dir()` precedence EXACTLY (config.rs):
  *   1. `$WAYLAND_HOME`              -> `<WAYLAND_HOME>`               (literal dir)
  *   2. `$XDG_DATA_HOME`            -> `<XDG_DATA_HOME>/wayland-core`
  *   3. `dirs::config_dir()`        -> `<config_base>/wayland-core`
  *
  * Reads `process.env` but is otherwise side-effect-free. This is what the engine
- * resolves to when no profile `WAYLAND_HOME` is forced, so `default` writes/reads
- * here and stays backward-compatible with existing installs.
+ * resolves to when no named-profile `WAYLAND_HOME` is forced, preserving
+ * existing standalone installs without conflating them with named `default`.
  */
 export function nativeConfigDir(): string {
   const waylandHome = process.env.WAYLAND_HOME;
@@ -180,8 +390,8 @@ export function nativeConfigDir(): string {
  *
  * Callers must treat this as fatal for whatever they were about to do (#278).
  * See the invariant on {@link resolveActiveConfigDir}: this condition is
- * unreachable for the `default` profile, so "fall back to the native/default
- * dir" is never a safe recovery - it is precisely the cross-account bleed.
+ * unreachable for the native selector, so "fall back to native" is never a
+ * safe recovery for a broken named profile - it is precisely cross-account bleed.
  */
 export class ProfileIsolationError extends Error {
   readonly code = 'PROFILE_ISOLATION' as const;
@@ -226,11 +436,19 @@ export class ProfileIsolationError extends Error {
  *
  * So: narrow on `instanceof ProfileIsolationError` before refusing to proceed.
  */
-export async function resolveActiveConfigDir(): Promise<string> {
+export type ActiveConfigIdentity = {
+  profile: string;
+  dir: string;
+};
+
+/** Resolve the active profile name and directory from one marker read. */
+export async function resolveActiveConfigIdentity(): Promise<ActiveConfigIdentity> {
   const active = await getActiveProfile();
   if (active && active !== DEFAULT_PROFILE) {
     try {
-      return await resolveProfileDir(active);
+      const dir = await resolveExistingProfileDir(active);
+      await assertProfileTreeIsSelfContained(dir);
+      return { profile: active, dir };
     } catch (err) {
       // Fail CLOSED, and do it with a CLASSIFIABLE error. The raw failure here is
       // an fs error, and at least one caller (WCoreMcpAgent.readConfig) treats a
@@ -241,7 +459,11 @@ export async function resolveActiveConfigDir(): Promise<string> {
       throw new ProfileIsolationError(active, err instanceof Error ? err.message : String(err));
     }
   }
-  return nativeConfigDir();
+  return { profile: DEFAULT_PROFILE, dir: nativeConfigDir() };
+}
+
+export async function resolveActiveConfigDir(): Promise<string> {
+  return (await resolveActiveConfigIdentity()).dir;
 }
 
 /** Resolve the active profile's `config.toml` path. */

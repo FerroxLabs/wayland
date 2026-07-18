@@ -15,6 +15,9 @@ const {
   mockMcpServers,
   mockGetWcoreSection,
   mockSetWcoreSection,
+  mockPatchWcoreField,
+  mockGetBrowserPolicy,
+  mockSetBrowserPolicy,
   mockWcoreProfiles,
 } = vi.hoisted(() => ({
   mockNavigate: vi.fn(),
@@ -23,6 +26,9 @@ const {
   mockMcpServers: { value: [] as Array<{ name: string; enabled?: boolean }> },
   mockGetWcoreSection: vi.fn(() => Promise.resolve(undefined)),
   mockSetWcoreSection: vi.fn(() => Promise.resolve({ ok: true })),
+  mockPatchWcoreField: vi.fn(() => Promise.resolve({ ok: true })),
+  mockGetBrowserPolicy: vi.fn(() => Promise.resolve({ defaultAction: 'deny', allowedOrigins: [], deniedOrigins: [] })),
+  mockSetBrowserPolicy: vi.fn(() => Promise.resolve({ ok: true })),
   mockWcoreProfiles: vi.fn(),
 }));
 
@@ -56,8 +62,39 @@ vi.mock('../../../../src/common', () => ({
     },
     // Engine config.toml read/write (Tools / Security / Memory / Runtime panes).
     wcoreConfig: {
-      getSection: { invoke: (params: unknown) => mockGetWcoreSection(params) },
+      getSection: { invoke: async (params: unknown) => ({ ok: true, value: await mockGetWcoreSection(params) }) },
       setSection: { invoke: (params: unknown) => mockSetWcoreSection(params) },
+      patchField: { invoke: (params: unknown) => mockPatchWcoreField(params) },
+      getBrowserPolicy: {
+        invoke: async () => ({ ok: true, policy: await mockGetBrowserPolicy() }),
+      },
+      setBrowserPolicy: { invoke: ({ policy }: { policy: unknown }) => mockSetBrowserPolicy(policy) },
+      getEffectiveRuntime: {
+        invoke: () =>
+          Promise.resolve({
+            ok: true,
+            runtime: {
+              mode: 'desktop-managed',
+              profile: 'default',
+              profileApplied: true,
+              waylandHomeInjected: true,
+              desktopModelOverrideApplied: true,
+              desktopPromptOverlayApplied: true,
+              selectedConnectorsAuthority: 'desktop',
+              teamBridgePolicy: 'host-preserved',
+              toolCredentialPolicy: 'allowlisted-host-forwarding',
+              hostProtocolAuthority: 'desktop',
+              engineConfigDir: '/Users/test/.wayland/profiles/default',
+              engineConfigPath: '/Users/test/.wayland/profiles/default/config.toml',
+              desktopConfigDir: '/Users/test/Library/Application Support/Wayland/config',
+              desktopConfigPath: '/Users/test/Library/Application Support/Wayland/config/wayland-config.txt',
+            },
+          }),
+      },
+      setRawEngineMode: { invoke: () => Promise.resolve({ ok: true }) },
+      getOutputBudget: { invoke: () => Promise.resolve({ ok: true, value: { mode: 'auto' } }) },
+      setOutputBudget: { invoke: () => Promise.resolve({ ok: true }) },
+      openEffectiveRuntimeFolder: { invoke: () => Promise.resolve({ ok: true }) },
     },
     // Tool-backend key presence (Services & Keys pane).
     wcoreToolKeys: {
@@ -104,13 +141,20 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     mockMcpServers.value = [];
     mockGetWcoreSection.mockResolvedValue(undefined);
     mockSetWcoreSection.mockResolvedValue({ ok: true });
-    mockWcoreProfiles.mockResolvedValue([
-      {
-        name: 'default',
-        active: true,
-        dir: '/Users/test/Library/Application Support/wayland-core',
-      },
-    ]);
+    mockPatchWcoreField.mockResolvedValue({ ok: true });
+    mockGetBrowserPolicy.mockResolvedValue({ defaultAction: 'deny', allowedOrigins: [], deniedOrigins: [] });
+    mockSetBrowserPolicy.mockResolvedValue({ ok: true });
+    mockWcoreProfiles.mockResolvedValue({
+      ok: true,
+      profiles: [
+        {
+          kind: 'native',
+          name: 'Default',
+          active: true,
+          dir: '/Users/test/Library/Application Support/wayland-core',
+        },
+      ],
+    });
     mockGetAvailableAgents.mockResolvedValue({
       success: true,
       data: [{ backend: 'wcore', name: 'Wayland Core', cliPath: '/usr/local/bin/wcore' }],
@@ -158,7 +202,10 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
   });
 
   it('fails closed instead of fabricating an active Core profile path', async () => {
-    mockWcoreProfiles.mockResolvedValue([{ name: 'default', active: true }]);
+    mockWcoreProfiles.mockResolvedValue({
+      ok: true,
+      profiles: [{ kind: 'native', name: 'Default', active: true }],
+    });
     render(<WCoreConfig />);
     await waitFor(() => expect(screen.getByText('Path unavailable')).toBeTruthy());
     expect(screen.queryByText('~/.wayland/profiles/default')).toBeNull();
@@ -206,12 +253,171 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     fireEvent.click(container.querySelector('[data-wcore-rail-id="tools"]')!);
     expect(
       screen.getByText(
-        'Every tool is always available to the engine. These switches set whether a tool auto-runs or asks for approval first - they do not turn tools off. Script and RepoMap are the only real on/off gates. Tools that need a credential link straight to where you set it.'
+        'Approval defaults for a curated set of stable Core tools. A switch controls auto-run versus ask-first; it does not prove that a credential-gated, MCP, plugin, voice, or version-specific tool is registered in this session. Script and RepoMap are explicit registration gates.'
       )
     ).toBeTruthy();
   });
 
-  it('keeps unsupported Core security settings read-only instead of persisting false controls', () => {
+  it('links only credentials this UI can configure and explains external setup without a dead-end button', async () => {
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="tools"]')!);
+
+    const supported = await screen.findByRole('button', {
+      name: 'Configure image_generate in Services & Keys',
+    });
+    expect(
+      screen.getByLabelText('Requires DATABASE_URL, POSTGRES_URL, or PG_CONN_STRING in the Core launch environment.')
+    ).not.toHaveAttribute('role', 'button');
+    expect(screen.getAllByText('external setup').length).toBeGreaterThan(0);
+
+    fireEvent.click(supported);
+    expect(
+      screen.getByText(
+        "The engine's tool backends: web search, vision, voice and image. Wayland ships working out of the box; plug in a key to unlock higher limits and better quality."
+      )
+    ).toBeTruthy();
+  });
+
+  it('does not fabricate tool approval or gate truth while authoritative reads are pending', async () => {
+    let release!: (value: undefined) => void;
+    mockGetWcoreSection.mockReturnValue(new Promise<undefined>((resolve) => (release = resolve)));
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="tools"]')!);
+
+    expect(screen.getByRole('status')).toHaveTextContent('Reading authoritative tool settings…');
+    expect(screen.queryByRole('switch', { name: 'Auto-run Read without asking' })).toBeNull();
+    expect(screen.queryByText('Ask first: tools below marked “Auto-runs”')).toBeNull();
+
+    release(undefined);
+    expect(await screen.findByRole('switch', { name: 'Auto-run Read without asking' })).toHaveAttribute(
+      'aria-checked',
+      'true'
+    );
+  });
+
+  it('awaits an atomic tool patch, keeps the last proven state visible, then re-reads authority', async () => {
+    let allowList = ['Read'];
+    let release!: (value: { ok: true }) => void;
+    mockGetWcoreSection.mockImplementation(async (params: unknown) => {
+      const section = (params as { section: string }).section;
+      if (section === 'tools') return { allow_list: allowList };
+      return undefined;
+    });
+    mockPatchWcoreField.mockImplementationOnce(
+      () =>
+        new Promise<{ ok: true }>((resolve) => {
+          release = (value) => {
+            allowList = [];
+            resolve(value);
+          };
+        })
+    );
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="tools"]')!);
+    const readSwitch = await screen.findByRole('switch', { name: 'Auto-run Read without asking' });
+
+    fireEvent.click(readSwitch);
+    expect(readSwitch).toHaveAttribute('aria-checked', 'true');
+    expect(readSwitch).toHaveAttribute('aria-disabled', 'true');
+    expect(mockPatchWcoreField).toHaveBeenCalledWith({
+      patch: { section: 'tools', field: 'allow_list', value: [] },
+    });
+
+    release({ ok: true });
+    await waitFor(() => expect(readSwitch).toHaveAttribute('aria-checked', 'false'));
+  });
+
+  it('renders Force as an effective override while leaving registration gates independent', async () => {
+    mockGetWcoreSection.mockImplementation(async (params: unknown) => {
+      const section = (params as { section: string }).section;
+      if (section === 'tools') return { allow_list: [] };
+      if (section === 'builtin_tools') return { script: { enabled: false }, repomap: { enabled: true } };
+      if (section === 'default') return { approval_mode: 'force' };
+      return undefined;
+    });
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="tools"]')!);
+
+    const read = await screen.findByRole('switch', { name: 'Auto-run Read without asking' });
+    expect(read).toHaveAttribute('aria-checked', 'true');
+    expect(read).toHaveAttribute('aria-disabled', 'true');
+    expect(screen.getAllByText('Auto-runs · Force').length).toBeGreaterThan(0);
+    expect(screen.getByText('8 tools · 6/6 auto-run')).toBeTruthy();
+    expect(screen.getByText(/every registered non-gate tool auto-runs/)).toBeTruthy();
+    expect(screen.getByRole('switch', { name: 'Enable Script' })).toHaveAttribute('aria-disabled', 'false');
+    expect(screen.getByRole('switch', { name: 'Enable Script' })).toHaveAttribute('aria-checked', 'false');
+  });
+
+  it('renders Auto-edit as an exact Write/Edit override and preserves other per-tool settings', async () => {
+    mockGetWcoreSection.mockImplementation(async (params: unknown) => {
+      const section = (params as { section: string }).section;
+      if (section === 'tools') return { allow_list: [] };
+      if (section === 'default') return { approval_mode: 'auto-edit' };
+      return undefined;
+    });
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="tools"]')!);
+
+    const write = await screen.findByRole('switch', { name: 'Auto-run Write without asking' });
+    const edit = screen.getByRole('switch', { name: 'Auto-run Edit without asking' });
+    const read = screen.getByRole('switch', { name: 'Auto-run Read without asking' });
+    expect(write).toHaveAttribute('aria-checked', 'true');
+    expect(write).toHaveAttribute('aria-disabled', 'true');
+    expect(edit).toHaveAttribute('aria-checked', 'true');
+    expect(edit).toHaveAttribute('aria-disabled', 'true');
+    expect(read).toHaveAttribute('aria-checked', 'false');
+    expect(read).toHaveAttribute('aria-disabled', 'false');
+    expect(screen.getAllByText('Auto-runs · Auto-edit')).toHaveLength(2);
+    expect(screen.getByText('8 tools · 2/6 auto-run')).toBeTruthy();
+    expect(screen.getByText(/built-in Write and Edit tools auto-run/)).toBeTruthy();
+  });
+
+  it('fails closed for unreadable Tools and Memory config instead of showing engine defaults', async () => {
+    mockGetWcoreSection.mockRejectedValue(new Error('config parse failed'));
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="tools"]')!);
+    expect(await screen.findByText(/Tool settings are unknown/)).toBeTruthy();
+    expect(screen.queryByRole('switch', { name: 'Auto-run Read without asking' })).toBeNull();
+
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="memory"]')!);
+    expect(await screen.findByText(/Memory settings are unknown/)).toBeTruthy();
+    expect(screen.queryByRole('switch', { name: 'Long-term memory' })).toBeNull();
+    expect(mockPatchWcoreField).not.toHaveBeenCalled();
+  });
+
+  it('renders only the real bundled Core memory field and re-reads it after an atomic patch', async () => {
+    let enabled = true;
+    mockGetWcoreSection.mockImplementation(async (params: unknown) => {
+      const section = (params as { section: string }).section;
+      if (section !== 'memory') return undefined;
+      return {
+        enabled,
+        dream_cycle_throttle_secs: 300,
+        decay_interval_secs: 86_400,
+        embedder: { kind: 'local' },
+      };
+    });
+    mockPatchWcoreField.mockImplementation(async () => {
+      enabled = false;
+      return { ok: true };
+    });
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="memory"]')!);
+
+    const memorySwitch = await screen.findByRole('switch', { name: 'Long-term memory' });
+    expect(memorySwitch).toHaveAttribute('aria-checked', 'true');
+    expect(screen.queryByText('Provider')).toBeNull();
+    expect(screen.queryByText('Recall budget')).toBeNull();
+    expect(screen.queryByText('Auto-consolidate')).toBeNull();
+
+    fireEvent.click(memorySwitch);
+    expect(mockPatchWcoreField).toHaveBeenCalledWith({
+      patch: { section: 'memory', field: 'enabled', value: false },
+    });
+    await waitFor(() => expect(memorySwitch).toHaveAttribute('aria-checked', 'false'));
+  });
+
+  it('edits the supported Core Browser policy without exposing unsupported security controls', async () => {
     const { container } = render(<WCoreConfig />);
     fireEvent.click(container.querySelector('[data-wcore-rail-id="security"]')!);
 
@@ -225,17 +431,54 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(screen.queryByText('Ask every time')).toBeNull();
     expect(screen.queryByText('Turn off firewall')).toBeNull();
     expect(mockSetWcoreSection).not.toHaveBeenCalled();
+
+    const allowed = await screen.findByRole('textbox', { name: 'Allowed origins' });
+    fireEvent.change(allowed, { target: { value: 'Example.com\n*.docs.example.com' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save Browser policy' }));
+    await waitFor(() =>
+      expect(mockSetBrowserPolicy).toHaveBeenCalledWith({
+        defaultAction: 'deny',
+        allowedOrigins: ['example.com', '*.docs.example.com'],
+        deniedOrigins: [],
+      })
+    );
   });
 
-  it('discloses every Desktop overlay bypassed by Raw engine mode', () => {
+  it('explains the Raw engine boundary without claiming host integration is removed', async () => {
     const { container } = render(<WCoreConfig />);
     fireEvent.click(container.querySelector('[data-wcore-rail-id="runtime"]')!);
 
     expect(
       screen.getByText(
-        'Use Core’s standalone config instead of the active Desktop-managed profile. Desktop model, skills, specialists, and selected MCP connectors will not be injected.'
+        'Let Core choose its config, model, prompt, and MCP servers. Wayland still provides its private protocol, permissions, team bridge, and allowlisted host integration.'
       )
     ).toBeTruthy();
+    expect(await screen.findByText('/Users/test/.wayland/profiles/default/config.toml')).toBeTruthy();
+  });
+
+  it('keeps invalid active-profile state explicit and offers a deliberate recovery activation', async () => {
+    mockWcoreProfiles.mockResolvedValue({
+      ok: true,
+      profiles: [
+        {
+          kind: 'native',
+          name: 'Default',
+          active: false,
+          dir: '/Users/test/Library/Application Support/wayland-core',
+        },
+        { kind: 'named', name: 'work', active: false, dir: '/Users/test/.config/wayland-core-profiles/work' },
+      ],
+    });
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="profiles"]')!);
+
+    expect(
+      await screen.findByText(
+        'The active-profile marker is invalid or unreadable. Nothing was activated automatically. Choose Activate on Default or another healthy profile to repair it.'
+      )
+    ).toBeTruthy();
+    expect(screen.getAllByRole('button', { name: 'Activate' })).toHaveLength(2);
+    expect(screen.queryByText('Active')).toBeNull();
   });
 
   it('navigates back to Desktop settings via the back link', () => {

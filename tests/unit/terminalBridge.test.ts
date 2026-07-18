@@ -64,7 +64,11 @@ vi.mock('@process/terminal/terminalRegistry', () => m.reg);
 // `instanceof`), only the resolver is swapped.
 vi.mock('@process/agent/wcore/profilePaths', async (orig) => {
   const actual = await orig<typeof import('@process/agent/wcore/profilePaths')>();
-  return { ...actual, resolveActiveConfigDir: () => m.resolveDir() };
+  return {
+    ...actual,
+    resolveActiveConfigDir: () => m.resolveDir(),
+    acquireProfileLaunchLease: () => Promise.resolve(async () => {}),
+  };
 });
 
 import { ProfileIsolationError } from '@process/agent/wcore/profilePaths';

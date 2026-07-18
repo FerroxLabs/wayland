@@ -3,13 +3,14 @@ import fs from 'fs/promises';
 import { readFileSync, existsSync } from 'fs';
 import path from 'path';
 import os from 'os';
+import { JsonFileBuilder } from '@process/utils/initStorage';
 
 /**
  * Test the in-memory cached JsonFileBuilder behavior.
  *
- * Since JsonFileBuilder is module-private, we replicate its encode/decode
- * logic and verify the file-level contract: data roundtrips correctly,
- * reads come from memory (not disk), and writes persist to disk.
+ * The format assertions retain an independent decoder so backward compatibility
+ * is checked without trusting the implementation under test. Mutation tests use
+ * the real builder and exercise its store-wide persistence boundary.
  */
 
 const encode = (data: unknown) => btoa(encodeURIComponent(String(data)));
@@ -52,34 +53,109 @@ describe('JsonFileBuilder in-memory cache behavior', () => {
       const decoded = JSON.parse(decode(encoded));
       expect(decoded).toEqual(data);
     });
-  });
 
-  describe('backward compatibility with existing files', () => {
-    it('should read a pre-existing base64-encoded file', async () => {
-      const data = { 'gemini.config': { authType: 'oauth', proxy: '' }, theme: 'dark' };
-      await fs.writeFile(filePath, encode(JSON.stringify(data)));
+    describe('backward compatibility with existing files', () => {
+      it('should read a pre-existing base64-encoded file', async () => {
+        const data = { 'gemini.config': { authType: 'oauth', proxy: '' }, theme: 'dark' };
+        await fs.writeFile(filePath, encode(JSON.stringify(data)));
 
-      const raw = readFileSync(filePath).toString();
-      const parsed = JSON.parse(decode(raw));
-      expect(parsed).toEqual(data);
-    });
-
-    it('should return empty object for empty file', () => {
-      // File doesn't exist → readFileSync throws → catch → {} as S
-      expect(existsSync(filePath)).toBe(false);
-    });
-
-    it('should return empty object for corrupted base64', async () => {
-      await fs.writeFile(filePath, '!!!invalid-base64!!!');
-
-      let result = {};
-      try {
         const raw = readFileSync(filePath).toString();
-        result = JSON.parse(decode(raw));
-      } catch {
-        result = {};
-      }
-      expect(result).toEqual({});
+        const parsed = JSON.parse(decode(raw));
+        expect(parsed).toEqual(data);
+      });
+
+      it('should return empty object for empty file', () => {
+        // File doesn't exist → readFileSync throws → catch → {} as S
+        expect(existsSync(filePath)).toBe(false);
+      });
+
+      it('quarantines corrupted base64 before recovering a clean writable store', async () => {
+        await fs.writeFile(filePath, '!!!invalid-base64!!!');
+        const store = JsonFileBuilder<Record<string, unknown>>(filePath);
+
+        await expect(store.get('anything')).resolves.toBeUndefined();
+        await expect(store.set('wcore.rawEngineMode', true)).resolves.toBe(true);
+        const quarantined = (await fs.readdir(tmpDir)).filter((name) => name.startsWith('test-config.txt.corrupt-'));
+        expect(quarantined).toHaveLength(1);
+        expect(await fs.readFile(path.join(tmpDir, quarantined[0]), 'utf8')).toBe('!!!invalid-base64!!!');
+        expect(JSON.parse(decode(await fs.readFile(filePath, 'utf8')))).toEqual({ 'wcore.rawEngineMode': true });
+      });
+
+      it.skipIf(process.platform === 'win32')(
+        'preserves valid bytes in place when a permission failure cannot prove corruption',
+        async () => {
+          const payload = encode(JSON.stringify({ irreplaceable: 'history' }));
+          await fs.writeFile(filePath, payload, { mode: 0o600 });
+          await fs.chmod(filePath, 0o000);
+          const store = JsonFileBuilder<Record<string, unknown>>(filePath);
+
+          await expect(store.toJson()).rejects.toThrow('without proving corruption');
+
+          await fs.chmod(filePath, 0o600);
+          expect(await fs.readFile(filePath, 'utf8')).toBe(payload);
+          expect((await fs.readdir(tmpDir)).filter((name) => name.includes('.corrupt-'))).toEqual([]);
+        }
+      );
+
+      it.each(['', encode('[]'), encode('null'), encode('"scalar"')])(
+        'quarantines an existing non-object storage payload before recovery',
+        async (payload) => {
+          await fs.writeFile(filePath, payload);
+          const store = JsonFileBuilder<Record<string, unknown>>(filePath);
+          await expect(store.toJson()).resolves.toEqual({});
+          await expect(store.set('safe', true)).resolves.toBe(true);
+          const quarantined = (await fs.readdir(tmpDir)).filter((name) => name.startsWith('test-config.txt.corrupt-'));
+          expect(quarantined).toHaveLength(1);
+          expect(await fs.readFile(path.join(tmpDir, quarantined[0]), 'utf8')).toBe(payload);
+          expect(JSON.parse(decode(await fs.readFile(filePath, 'utf8')))).toEqual({ safe: true });
+        }
+      );
+
+      it('loads valid array-root conversation history without weakening object-root stores', async () => {
+        const messages = [{ id: 'm1', content: 'hello' }];
+        await fs.writeFile(filePath, encode(JSON.stringify(messages)));
+
+        const store = JsonFileBuilder<Array<{ id: string; content: string }>>(filePath, 'array');
+
+        expect(await store.toJson()).toEqual(messages);
+      });
+
+      it('quarantines a wrong-root array history before recovering an empty array', async () => {
+        const payload = encode(JSON.stringify({ id: 'not-an-array' }));
+        await fs.writeFile(filePath, payload);
+        const store = JsonFileBuilder<Array<{ id: string }>>(filePath, 'array');
+
+        await expect(store.toJson()).resolves.toEqual([]);
+        await expect(store.setJson([{ id: 'replacement' }])).resolves.toEqual([{ id: 'replacement' }]);
+        const quarantined = (await fs.readdir(tmpDir)).filter((name) => name.startsWith('test-config.txt.corrupt-'));
+        expect(quarantined).toHaveLength(1);
+        expect(await fs.readFile(path.join(tmpDir, quarantined[0]), 'utf8')).toBe(payload);
+      });
+
+      it('initializes a missing array-root history as an empty array', async () => {
+        const store = JsonFileBuilder<unknown[]>(filePath, 'array');
+
+        expect(await store.toJson()).toEqual([]);
+      });
+
+      it('clears and reloads an array-root history as an array', async () => {
+        const store = JsonFileBuilder<Array<{ id: string }>>(filePath, 'array');
+        await store.setJson([{ id: 'before-clear' }]);
+
+        await expect(store.clear()).resolves.toEqual([]);
+        expect(await store.toJson()).toEqual([]);
+        expect(await JsonFileBuilder<unknown[]>(filePath, 'array').toJson()).toEqual([]);
+      });
+
+      it('rejects a wrong-root setJson before changing array storage or cache', async () => {
+        const store = JsonFileBuilder<Array<{ id: string }>>(filePath, 'array');
+        await store.setJson([{ id: 'safe' }]);
+        const before = await fs.readFile(filePath, 'utf8');
+
+        await expect(store.setJson({ id: 'wrong-root' } as never)).rejects.toThrow('storage root must be a JSON array');
+        expect(await fs.readFile(filePath, 'utf8')).toBe(before);
+        expect(await store.toJson()).toEqual([{ id: 'safe' }]);
+      });
     });
   });
 
@@ -119,6 +195,130 @@ describe('JsonFileBuilder in-memory cache behavior', () => {
       expect(Object.keys(parsed)).toHaveLength(20);
       expect(parsed.key0).toBe('value0');
       expect(parsed.key19).toBe('value19');
+    });
+
+    it('does not let a failed key write contaminate a later sibling-key snapshot', async () => {
+      type TestConfig = {
+        'wcore.rawEngineMode': boolean;
+        'wcore.outputBudget': { mode: 'auto' } | { mode: 'fixed'; value: number };
+      };
+
+      const store = JsonFileBuilder<TestConfig>(filePath);
+      await store.setJson({
+        'wcore.rawEngineMode': false,
+        'wcore.outputBudget': { mode: 'auto' },
+      });
+
+      // Replacing the target file with a directory makes the atomic rename fail
+      // after the candidate mutation has been built. The in-memory committed
+      // state must remain unchanged.
+      await fs.rm(filePath);
+      await fs.mkdir(filePath);
+      await expect(store.set('wcore.rawEngineMode', true)).rejects.toThrow();
+      expect(await store.get('wcore.rawEngineMode')).toBe(false);
+
+      // Once persistence is available again, a sibling ProcessConfig write must
+      // be built from the last successful state, never the rejected candidate.
+      await fs.rm(filePath, { recursive: true });
+      await store.set('wcore.outputBudget', { mode: 'fixed', value: 4096 });
+
+      const persisted = JSON.parse(decode(await fs.readFile(filePath, 'utf8'))) as TestConfig;
+      expect(persisted).toEqual({
+        'wcore.rawEngineMode': false,
+        'wcore.outputBudget': { mode: 'fixed', value: 4096 },
+      });
+    });
+
+    it('serializes concurrent sibling-key writes into one complete snapshot', async () => {
+      type TestConfig = { alpha?: number; beta?: number };
+      const store = JsonFileBuilder<TestConfig>(filePath);
+
+      await Promise.all([store.set('alpha', 1), store.set('beta', 2)]);
+
+      const persisted = JSON.parse(decode(await fs.readFile(filePath, 'utf8'))) as TestConfig;
+      expect(persisted).toEqual({ alpha: 1, beta: 2 });
+    });
+
+    it('does not expose the committed cache through a returned mutation result', async () => {
+      type TestConfig = { nested: { enabled: boolean } };
+      const store = JsonFileBuilder<TestConfig>(filePath);
+
+      const result = await store.setJson({ nested: { enabled: false } });
+      result.nested.enabled = true;
+
+      expect((await store.toJson()).nested.enabled).toBe(false);
+      const persisted = JSON.parse(decode(await fs.readFile(filePath, 'utf8'))) as TestConfig;
+      expect(persisted.nested.enabled).toBe(false);
+    });
+
+    it.each(['toJson', 'toJsonSync', 'get', 'getSync'] as const)(
+      '%s returns a detached value that cannot poison sibling persistence',
+      async (surface) => {
+        type TestConfig = { nested: { enabled: boolean }; sibling: string };
+        const store = JsonFileBuilder<TestConfig>(filePath);
+        await store.setJson({ nested: { enabled: false }, sibling: 'before' });
+
+        let exposed: { enabled: boolean };
+        if (surface === 'toJson') exposed = (await store.toJson()).nested;
+        else if (surface === 'toJsonSync') exposed = store.toJsonSync().nested;
+        else if (surface === 'get') exposed = await store.get('nested');
+        else exposed = store.getSync('nested');
+        exposed.enabled = true;
+
+        expect((await store.get('nested')).enabled).toBe(false);
+        await store.set('sibling', 'after');
+
+        const persisted = JSON.parse(decode(await fs.readFile(filePath, 'utf8'))) as TestConfig;
+        expect(persisted).toEqual({ nested: { enabled: false }, sibling: 'after' });
+      }
+    );
+
+    it.each([
+      ['non-cloneable function', { run: () => 'never persisted' }],
+      ['non-JSON BigInt', { amount: 1n }],
+    ])('rejects a %s before disk or cache can diverge', async (_label, candidate) => {
+      type TestConfig = { payload: unknown; sibling: string };
+      const store = JsonFileBuilder<TestConfig>(filePath);
+      await store.setJson({ payload: { safe: true }, sibling: 'before' });
+      const before = await fs.readFile(filePath, 'utf8');
+
+      await expect(store.set('payload', candidate)).rejects.toThrow();
+      expect(await fs.readFile(filePath, 'utf8')).toBe(before);
+      expect(await store.get('payload')).toEqual({ safe: true });
+
+      await store.set('sibling', 'after');
+      const persisted = JSON.parse(decode(await fs.readFile(filePath, 'utf8'))) as TestConfig;
+      expect(persisted).toEqual({ payload: { safe: true }, sibling: 'after' });
+    });
+
+    it('rejects a cyclic candidate before disk or cache can diverge and recovers the queue', async () => {
+      type TestConfig = { payload: unknown; sibling: string };
+      const store = JsonFileBuilder<TestConfig>(filePath);
+      await store.setJson({ payload: { safe: true }, sibling: 'before' });
+      const before = await fs.readFile(filePath, 'utf8');
+      const cyclic: Record<string, unknown> = {};
+      cyclic.self = cyclic;
+
+      await expect(store.set('payload', cyclic)).rejects.toThrow();
+      expect(await fs.readFile(filePath, 'utf8')).toBe(before);
+      expect(await store.get('payload')).toEqual({ safe: true });
+
+      await store.set('sibling', 'after');
+      const persisted = JSON.parse(decode(await fs.readFile(filePath, 'utf8'))) as TestConfig;
+      expect(persisted).toEqual({ payload: { safe: true }, sibling: 'after' });
+    });
+
+    it('promotes the same canonical JSON value that was written to disk', async () => {
+      type TestConfig = { payload: unknown };
+      const store = JsonFileBuilder<TestConfig>(filePath);
+      const date = new Date('2026-07-18T00:00:00.000Z');
+
+      await store.set('payload', { date, nonFinite: Number.POSITIVE_INFINITY, omitted: undefined });
+
+      const expected = { date: date.toISOString(), nonFinite: null };
+      expect(await store.get('payload')).toEqual(expected);
+      const persisted = JSON.parse(decode(await fs.readFile(filePath, 'utf8'))) as TestConfig;
+      expect(persisted.payload).toEqual(expected);
     });
   });
 });

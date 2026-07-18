@@ -9,7 +9,8 @@
  *
  * The engine treats `WAYLAND_HOME` as the single source of truth for which
  * isolated profile a process runs as (its own config.toml, memory.db,
- * credentials, skills). The desktop must therefore set it on EVERY engine spawn.
+ * credentials, skills). The desktop must therefore set it on every
+ * Desktop-managed engine spawn. Raw mode deliberately leaves it unset.
  *
  * The engine ships a fail-closed guard of its own, but it only fires when there
  * is explicit profile intent (`--profile`) AND `WAYLAND_HOME` is unset — and the
@@ -20,7 +21,7 @@
  */
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { TProviderWithModel } from '@/common/config/storage';
@@ -28,6 +29,7 @@ import { ProfileIsolationError } from '@process/agent/wcore/profilePaths';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const spawnMock = vi.fn();
+const collectForwardedEnvMock = vi.fn((): Record<string, string> => ({}));
 vi.mock('node:child_process', async (orig) => {
   const actual = await orig<typeof import('node:child_process')>();
   return { ...actual, spawn: (...args: unknown[]) => spawnMock(...args) };
@@ -36,7 +38,11 @@ vi.mock('node:child_process', async (orig) => {
 const resolveActiveConfigDirMock = vi.fn();
 vi.mock('@process/agent/wcore/profilePaths', async (orig) => {
   const actual = await orig<typeof import('@process/agent/wcore/profilePaths')>();
-  return { ...actual, resolveActiveConfigDir: () => resolveActiveConfigDirMock() };
+  return {
+    ...actual,
+    resolveActiveConfigDir: () => resolveActiveConfigDirMock(),
+    acquireProfileLaunchLease: () => Promise.resolve(async () => {}),
+  };
 });
 
 vi.mock('@process/agent/wcore/binaryResolver', () => ({
@@ -45,7 +51,7 @@ vi.mock('@process/agent/wcore/binaryResolver', () => ({
 }));
 
 vi.mock('@process/agent/wcore/toolKeyStore', () => ({
-  getToolKeyStore: async () => ({ collectForwardedEnv: () => ({}) }),
+  getToolKeyStore: async () => ({ collectForwardedEnv: collectForwardedEnvMock }),
 }));
 
 vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
@@ -113,6 +119,8 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     spawnMock.mockReset();
     spawnMock.mockImplementation(() => makeFakeChild());
     resolveActiveConfigDirMock.mockReset();
+    collectForwardedEnvMock.mockReset();
+    collectForwardedEnvMock.mockReturnValue({});
   });
 
   afterEach(() => {
@@ -128,6 +136,7 @@ describe('#278: the engine spawn must never bind a named profile to the default 
       .catch(() => {});
     await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
     expect(spawnedEnv().WAYLAND_HOME).toBe(PROFILE_DIR);
+    expect(spawnedEnv().BRAVE_SEARCH_API_KEY).toBeUndefined();
   });
 
   it('CONTROL: the default profile still spawns WITH WAYLAND_HOME (every spawn, per the contract)', async () => {
@@ -154,6 +163,81 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
     expect(resolveActiveConfigDirMock).not.toHaveBeenCalled();
     expect(spawnedEnv().WAYLAND_HOME).toBe(PROFILE_DIR);
+  });
+
+  it('raw-engine launch bypasses Desktop overrides but preserves tool, team, and host protocol wiring', async () => {
+    resolveActiveConfigDirMock.mockResolvedValue(PROFILE_DIR);
+    collectForwardedEnvMock.mockReturnValue({ BRAVE_SEARCH_API_KEY: 'brave-test-key' });
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-raw-engine-'));
+    testWorkspaces.push(workspace);
+    const onStreamEvent = vi.fn();
+    const agent = new WCoreAgent({
+      workspace,
+      model: MODEL,
+      rawEngineMode: true,
+      mcpServerNames: ['tavily', 'firecrawl'],
+      stdioMcpServers: [
+        {
+          name: 'wayland-team-bridge',
+          command: '/fake/team-bridge',
+          args: ['--stdio'],
+          env: [{ name: 'WAYLAND_TEAM_ID', value: 'team-7' }],
+        },
+      ],
+      onStreamEvent,
+    });
+
+    const started = agent.start();
+    await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
+    const child = spawnMock.mock.results[0]?.value as ReturnType<typeof makeFakeChild>;
+    let stdin = '';
+    (child.stdin as PassThrough).on('data', (chunk) => {
+      stdin += chunk.toString();
+    });
+    (
+      agent as unknown as {
+        handleEvent: (event: { type: 'ready'; session_id: string; capabilities: Record<string, never> }) => void;
+      }
+    ).handleEvent({ type: 'ready', session_id: 'raw-session', capabilities: {} });
+    await started;
+
+    expect(resolveActiveConfigDirMock).not.toHaveBeenCalled();
+    expect(spawnedEnv().WAYLAND_HOME).toBeUndefined();
+    expect(spawnedEnv().BRAVE_SEARCH_API_KEY).toBe('brave-test-key');
+    const args = spawnMock.mock.calls[0]?.[1] as string[];
+    expect(args).not.toContain('--profile');
+    expect(existsSync(join(workspace, '.wcore.toml'))).toBe(false);
+    expect(stdin).toContain('"type":"add_mcp_server"');
+    expect(stdin).toContain('"name":"wayland-team-bridge"');
+
+    (
+      agent as unknown as {
+        handleEvent: (event: { type: 'stream_start'; msg_id: string }) => void;
+      }
+    ).handleEvent({ type: 'stream_start', msg_id: 'raw-turn' });
+    expect(onStreamEvent).toHaveBeenCalledWith({ type: 'start', data: '', msg_id: 'raw-turn' });
+  });
+
+  it('does not fabricate a team bridge when no host-owned stdio declaration exists', async () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-no-team-bridge-'));
+    testWorkspaces.push(workspace);
+    const agent = new WCoreAgent({ workspace, model: MODEL, rawEngineMode: true, onStreamEvent: () => {} });
+
+    const started = agent.start();
+    await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
+    const child = spawnMock.mock.results[0]?.value as ReturnType<typeof makeFakeChild>;
+    let stdin = '';
+    (child.stdin as PassThrough).on('data', (chunk) => {
+      stdin += chunk.toString();
+    });
+    (
+      agent as unknown as {
+        handleEvent: (event: { type: 'ready'; session_id: string; capabilities: Record<string, never> }) => void;
+      }
+    ).handleEvent({ type: 'ready', session_id: 'raw-session-no-team', capabilities: {} });
+    await started;
+
+    expect(stdin).not.toContain('"type":"add_mcp_server"');
   });
 
   it('REGRESSION: an unresolvable NAMED profile must ABORT the spawn, not fall back to the default home', async () => {

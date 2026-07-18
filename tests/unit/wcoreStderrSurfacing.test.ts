@@ -32,6 +32,7 @@ vi.mock('@process/secrets', () => ({
 }));
 vi.mock('@process/agent/wcore/profilePaths', () => ({
   resolveActiveConfigDir: () => Promise.resolve('/fake/home'),
+  acquireProfileLaunchLease: () => Promise.resolve(async () => {}),
 }));
 vi.mock('@process/agent/wcore/toolKeyStore', () => ({
   getToolKeyStore: () => Promise.resolve({ collectForwardedEnv: () => ({}) }),
@@ -251,6 +252,46 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
       msg_id: 'wire-msg-1',
     });
     await agent.kill();
+  });
+
+  it('reports child termination even when the engine exits before the first turn', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const onProcessTerminated = vi.fn();
+    const agent = new WCoreAgent({ ...baseOptions(), onProcessTerminated });
+    const started = agent.start().catch(() => undefined);
+
+    await flushUntilSpawned(child);
+    child.emit('exit', 1);
+    await started;
+
+    expect(onProcessTerminated).toHaveBeenCalledOnce();
+    expect(onProcessTerminated).toHaveBeenCalledWith(1);
+  });
+
+  it('reports post-turn child termination after stream_end cleared the active message', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const onProcessExit = vi.fn();
+    const onProcessTerminated = vi.fn();
+    const agent = new WCoreAgent({ ...baseOptions(), onProcessExit, onProcessTerminated });
+    const started = agent.start();
+
+    await flushUntilSpawned(child);
+    const contractRoot = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    child.stdout.write(`${readFileSync(path.join(contractRoot, 'events/ready.json'), 'utf8').trimEnd()}\n`);
+    await started;
+    await agent.send('hello', 'turn-1');
+    child.stdout.write(
+      `${JSON.stringify({ type: 'stream_start', msg_id: 'turn-1' })}\n${JSON.stringify({ type: 'stream_end', msg_id: 'turn-1', finish_reason: 'stop' })}\n`
+    );
+    await new Promise((resolve) => setImmediate(resolve));
+
+    child.emit('exit', 0);
+
+    expect(onProcessExit).not.toHaveBeenCalled();
+    expect(onProcessTerminated).toHaveBeenCalledOnce();
+    expect(onProcessTerminated).toHaveBeenCalledWith(0);
   });
 
   it('kills the producer when the production raw stdout boundary receives invalid UTF-8', async () => {

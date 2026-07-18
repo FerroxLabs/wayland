@@ -85,7 +85,9 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
   useEffect(() => {
     void ipcBridge.wcoreProfiles.list
       .invoke()
-      .then((profiles) => setActiveProfile(profiles.find((profile) => profile.active) ?? null))
+      .then((result) =>
+        setActiveProfile(result.ok ? (result.profiles.find((profile) => profile.active) ?? null) : null)
+      )
       .catch(() => setActiveProfile(null));
   }, []);
 

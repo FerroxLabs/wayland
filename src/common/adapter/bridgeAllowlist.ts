@@ -71,7 +71,7 @@ const CONTROL_ALLOWED: ReadonlySet<string> = new Set([
  * Returned object is identical in shape and behavior to the platform's
  * `buildProvider` - this is a pure side-effect wrapper.
  */
-export function buildProvider<Data extends unknown, Params extends unknown = undefined>(
+export function buildProvider<Data, Params = undefined>(
   key: string
 ): ReturnType<typeof bridge.buildProvider<Data, Params>> {
   providerKeys.add(key);
@@ -81,9 +81,7 @@ export function buildProvider<Data extends unknown, Params extends unknown = und
 /**
  * Wrap `bridge.buildEmitter` so every declared emitter key is recorded.
  */
-export function buildEmitter<Params extends unknown = undefined>(
-  key: string
-): ReturnType<typeof bridge.buildEmitter<Params>> {
+export function buildEmitter<Params = undefined>(key: string): ReturnType<typeof bridge.buildEmitter<Params>> {
   emitterKeys.add(key);
   return bridge.buildEmitter<Params>(key);
 }
@@ -225,9 +223,20 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     sandbox policy / env passthrough). A remote caller reaching this could
   //     disable the sandbox or force-allow secrets into bash (SEC-6). ---
   'wcoreConfig.setSection',
+  'wcoreConfig.patchField',
+  'wcoreConfig.setBrowserPolicy',
+  'wcoreConfig.setRawEngineMode',
+  'wcoreConfig.setOutputBudget',
+  'wcoreConfig.openEffectiveRuntimeFolder',
   // Also deny the read: it discloses the engine's security/tools posture to a
   // paired WebUI client (no secret values, but defence-in-depth — SEC review F2).
   'wcoreConfig.getSection',
+  'wcoreConfig.getBrowserPolicy',
+  // Exact runtime config identity includes absolute local filesystem paths.
+  'wcoreConfig.getEffectiveRuntime',
+  // Profile metadata includes local names and filesystem paths. Remote has no
+  // redacted DTO or authority contract, so fail closed.
+  'wcoreProfiles.list',
   // The workspace retention preview is read-only but carries canonical local
   // paths plus conversation/project/schedule identifiers. Keep that diagnostic
   // inventory on the trusted local renderer only.
@@ -474,7 +483,15 @@ const CONFIG_STORAGE_SET_KEY = 'agent.config.storage.set';
  * the next launch — arming trusted-edits with no local user action. Guard the
  * persisted key here too. Selecting the Cowork assistant is a separate axis.
  */
-const REMOTE_DENIED_CONFIG_KEY_PREFIXES: readonly string[] = ['webui.desktop.', 'workspace.trustLevel'];
+const REMOTE_DENIED_CONFIG_KEY_PREFIXES: readonly string[] = [
+  'webui.desktop.',
+  'workspace.trustLevel',
+  'wcore.rawEngineMode',
+  // Output-budget writes must use the dedicated transactional provider. A
+  // remote peer may use that typed path, but must not bypass its validation,
+  // serialization, and explicit failure result through generic storage.
+  'wcore.outputBudget',
+];
 
 /**
  * True iff `(name, data)` is a remote config write to a protected key.

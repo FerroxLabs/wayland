@@ -18,6 +18,7 @@ import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
 import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/workspaceTrust';
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
+import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
 import type { IjfwErrorReason, IjfwInvokeResult, IjfwRuntimeModePublic } from '../types/ijfw';
@@ -1686,7 +1687,13 @@ export interface IConversationTurnCompletedEvent {
   sessionId: string;
   status: 'pending' | 'running' | 'finished';
   state:
-    'ai_generating' | 'ai_waiting_input' | 'ai_waiting_confirmation' | 'initializing' | 'stopped' | 'error' | 'unknown';
+    | 'ai_generating'
+    | 'ai_waiting_input'
+    | 'ai_waiting_confirmation'
+    | 'initializing'
+    | 'stopped'
+    | 'error'
+    | 'unknown';
   detail: string;
   canSendMessage: boolean;
   runtime: {
@@ -2162,7 +2169,8 @@ export const ijfw = {
 export type IjfwDropEntry = { name: string; size: number; mtimeMs: number };
 
 export type IjfwDropIngestResult =
-  { ok: true; name: string } | { ok: false; error: string; errorReason: IjfwErrorReason };
+  | { ok: true; name: string }
+  | { ok: false; error: string; errorReason: IjfwErrorReason };
 
 // --- Models & Providers redesign (Wave 0 contract) ------------------------
 // New two-tier model registry. Distinct from the legacy `providers` namespace
@@ -2439,30 +2447,101 @@ export const wcoreToolKeys = {
 
 /**
  * Wayland Core engine `config.toml` sections (tools / security / memory /
- * profiles, ...). HUMAN/RENDERER ONLY - `setSection` mutates the engine's
- * security-load-bearing runtime config (tool allow-lists, sandbox policy, env
- * passthrough). It is remote-denied in `bridgeAllowlist.ts` and must NEVER be
+ * profiles, ...). HUMAN/RENDERER ONLY - `patchField` mutates a closed subset of
+ * the engine's security-load-bearing runtime config. It is remote-denied in
+ * `bridgeAllowlist.ts` and must NEVER be
  * exposed to the agent/engine tool surface: an agent that could call it could
  * rewrite its own allow-list and escape the sandbox (SEC-6).
  *
- * The setter always targets the real user `config.toml` (no caller-supplied
- * path) and honours the engine's config invariants (atomic, lossless,
- * single-flight) via `configBridge.setSection`.
+ * The patcher always targets the active profile's real `config.toml` (no
+ * caller-supplied path) and honours the engine's config invariants (atomic,
+ * lossless, single-flight) via `configBridge.mutateConfig`.
  */
 export const wcoreConfig = {
   // Read one top-level `config.toml` section (e.g. `tools`, `security`),
   // or undefined when the section is absent.
-  getSection: buildProvider<Record<string, unknown> | undefined, { section: string }>('wcoreConfig.getSection'),
-  // Replace one top-level section wholesale, preserving every other section.
-  // HUMAN-ONLY; remote-denied; never reachable from the agent tool surface.
-  setSection: buildProvider<{ ok: boolean }, { section: string; value: Record<string, unknown> }>(
-    'wcoreConfig.setSection'
+  getSection: buildProvider<IWcoreConfigSectionResult, { section: IWcoreReadableConfigSection }>(
+    'wcoreConfig.getSection'
   ),
+  patchField: buildProvider<IWcoreConfigMutationResult, { patch: IWcoreConfigFieldPatch }>('wcoreConfig.patchField'),
+  /** Sanitized Browser policy only; never returns the surrounding Core config. */
+  getBrowserPolicy: buildProvider<IWcoreBrowserPolicyResult, void>('wcoreConfig.getBrowserPolicy'),
+  setBrowserPolicy: buildProvider<IWcoreConfigMutationResult, { policy: IWcoreBrowserPolicy }>(
+    'wcoreConfig.setBrowserPolicy'
+  ),
+  /** Exact config/profile identity currently selected for Desktop-launched Core sessions. */
+  getEffectiveRuntime: buildProvider<IWcoreEffectiveRuntimeResult, void>('wcoreConfig.getEffectiveRuntime'),
+  /** Local-only transactional raw-mode preference update. */
+  setRawEngineMode: buildProvider<{ ok: boolean; error?: string }, { enabled: boolean }>(
+    'wcoreConfig.setRawEngineMode'
+  ),
+  /** Read/write the main-process output-budget preference with explicit failure truth. */
+  getOutputBudget: buildProvider<IWcoreOutputBudgetResult, void>('wcoreConfig.getOutputBudget'),
+  setOutputBudget: buildProvider<{ ok: boolean; error?: string }, { value: OutputBudget }>(
+    'wcoreConfig.setOutputBudget'
+  ),
+  /** Local-only authoritative folder action; accepts no renderer path. */
+  openEffectiveRuntimeFolder: buildProvider<{ ok: boolean; error?: string }, { target: IWcoreRuntimeFolderTarget }>(
+    'wcoreConfig.openEffectiveRuntimeFolder'
+  ),
+};
+
+export type IWcoreRuntimeFolderTarget = 'core-config' | 'desktop-config';
+
+export type IWcoreConfigSectionResult =
+  | { ok: true; value: Record<string, unknown> | undefined }
+  | { ok: false; error: string };
+
+export type IWcoreReadableConfigSection = 'tools' | 'builtin_tools' | 'default' | 'memory';
+
+export type IWcoreConfigMutationResult = { ok: true } | { ok: false; error: string };
+
+export type IWcoreBrowserPolicy = {
+  defaultAction: 'deny' | 'allow' | 'ask';
+  allowedOrigins: string[];
+  deniedOrigins: string[];
+};
+
+export type IWcoreBrowserPolicyResult = { ok: true; policy: IWcoreBrowserPolicy } | { ok: false; error: string };
+
+/** Closed set of renderer-editable Core fields, merged atomically by main. */
+export type IWcoreConfigFieldPatch =
+  | { section: 'tools'; field: 'allow_list'; value: string[] }
+  | { section: 'builtin_tools'; field: 'script.enabled' | 'repomap.enabled'; value: boolean }
+  | { section: 'default'; field: 'approval_mode'; value: 'default' | 'auto-edit' | 'force' }
+  | { section: 'memory'; field: 'enabled'; value: boolean };
+
+export type IWcoreOutputBudgetResult = { ok: true; value: OutputBudget | undefined } | { ok: false; error: string };
+
+export type IWcoreEffectiveRuntimeResult = { ok: true; runtime: IWcoreEffectiveRuntime } | { ok: false; error: string };
+
+export type IWcoreEffectiveRuntime = {
+  mode: 'desktop-managed' | 'raw-engine';
+  /** Active Desktop profile, or null when raw mode intentionally bypasses it. */
+  profile: string | null;
+  profileApplied: boolean;
+  waylandHomeInjected: boolean;
+  desktopModelOverrideApplied: boolean;
+  desktopPromptOverlayApplied: boolean;
+  /** Policy authority for selected user connectors; observed launch is tested separately. */
+  selectedConnectorsAuthority: 'desktop' | 'core';
+  /** Launch policy: host-owned team coordination stdio is preserved in either mode. */
+  teamBridgePolicy: 'host-preserved';
+  /** Launch policy: only allowlisted Desktop tool credentials may be forwarded. */
+  toolCredentialPolicy: 'allowlisted-host-forwarding';
+  /** Protocol authority remains Desktop-owned; this is not a session health claim. */
+  hostProtocolAuthority: 'desktop';
+  engineConfigDir: string;
+  engineConfigPath: string;
+  desktopConfigDir: string;
+  desktopConfigPath: string;
 };
 
 /** A single Wayland Core profile, as listed by `wcoreProfiles.list`. */
 export type IWcoreProfile = {
-  /** Sanitized profile name (also the directory name under the profiles root). */
+  /** Native legacy home or a producer-owned named Core profile. */
+  kind: 'native' | 'named';
+  /** Human-facing label for native, canonical lowercase directory name for named. */
   name: string;
   /** Whether this profile is the active one. */
   active: boolean;
@@ -2480,31 +2559,38 @@ export type IWcoreProfile = {
   /** `config.toml` last-modified time (epoch ms), for an "updated …" chip. */
   updatedAt?: number;
   /**
-   * Absolute config dir the engine actually reads for this profile. `default`
-   * maps to the native dir (`dirs::config_dir()/wayland-core`); named profiles
-   * to `~/.wayland/profiles/<name>/`. Surfaced so the UI shows the REAL path
-   * (Design B) instead of a fabricated `profiles/default`.
+   * Absolute config dir the engine actually reads for this profile. The tagged
+   * native entry maps to `dirs::config_dir()/wayland-core`; named profiles map
+   * to Core's `<os-config>/wayland-core-profiles/<name>/` control plane.
    */
   dir?: string;
 };
 
+export type IWcoreProfileSelector = { kind: 'native' } | { kind: 'named'; name: string };
+
+export type IWcoreProfileListResult = { ok: true; profiles: IWcoreProfile[] } | { ok: false; error: string };
+
 /**
- * Wayland Core profile directories (`~/.wayland/profiles/<name>/`). HUMAN-ONLY -
+ * Wayland Core profile directories (`<os-config>/wayland-core-profiles/<name>/`). HUMAN-ONLY -
  * create/clone/delete do filesystem mutation under the profiles root with a
  * strict name sanitizer + realpath containment (SEC-4); they are remote-denied.
  */
 export const wcoreProfiles = {
   // List all profiles (name + active flag).
-  list: buildProvider<IWcoreProfile[], void>('wcoreProfiles.list'),
+  list: buildProvider<IWcoreProfileListResult, void>('wcoreProfiles.list'),
   // Create an empty profile directory (sanitized name).
   create: buildProvider<{ ok: boolean; error?: string }, { name: string }>('wcoreProfiles.create'),
   // Clone an existing profile's config into a new one.
-  clone: buildProvider<{ ok: boolean; error?: string }, { from: string; to: string }>('wcoreProfiles.clone'),
+  clone: buildProvider<{ ok: boolean; error?: string }, { from: IWcoreProfileSelector; to: string }>(
+    'wcoreProfiles.clone'
+  ),
   // Activate a profile (persists the active marker). NOTE: the engine must be
   // respawned for an active-profile switch to take effect (SEC-3).
-  activate: buildProvider<{ ok: boolean; error?: string }, { name: string }>('wcoreProfiles.activate'),
+  activate: buildProvider<{ ok: boolean; error?: string }, { selector: IWcoreProfileSelector }>(
+    'wcoreProfiles.activate'
+  ),
   // Soft-delete a profile (moves it to a `.trash` sibling under the root).
-  remove: buildProvider<{ ok: boolean; error?: string }, { name: string }>('wcoreProfiles.remove'),
+  remove: buildProvider<{ ok: boolean; error?: string }, { kind: 'named'; name: string }>('wcoreProfiles.remove'),
 };
 
 // Team Mode API

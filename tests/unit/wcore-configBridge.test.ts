@@ -4,11 +4,27 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { getSection, readConfig, resolveUserConfigPath, setSection } from '@process/agent/wcore/configBridge';
+import {
+  getSection,
+  mutateConfig,
+  readConfig,
+  resolveUserConfigPath,
+  setSection,
+} from '@process/agent/wcore/configBridge';
+import {
+  applyWcoreConfigPatch,
+  isRawEngineModeIntent,
+  parseRawEngineModePreference,
+  validateWcoreBrowserPolicy,
+  validateWcoreConfigPatch,
+  withEffectiveConfigTarget,
+  WCORE_EDITABLE_MEMORY_SCHEMA,
+} from '@process/bridge/wcoreConfigBridge';
+import { withProfileAuthorityLock } from '@process/agent/wcore/profilePaths';
 
 let dir: string;
 
@@ -100,6 +116,227 @@ describe('setSection', () => {
     const after = await readConfig(path);
     expect(after.tools).toEqual({ allow_list: ['ls'] });
     expect(after.memory).toEqual({ enabled: true });
+  });
+});
+
+describe('atomic typed field patches', () => {
+  it('preserves concurrent sibling edits queued behind a held config mutation lock', async () => {
+    const path = join(dir, 'config.toml');
+    await writeFile(
+      path,
+      '[builtin_tools.script]\nenabled = false\nlabel = "keep-script"\n\n[builtin_tools.repomap]\nenabled = true\nlabel = "keep-repomap"\n',
+      'utf-8'
+    );
+    let release!: () => void;
+    let entered!: () => void;
+    const barrier = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const lockEntered = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const holder = mutateConfig(async (config) => {
+      entered();
+      await barrier;
+      config.unrelated = { retained: true };
+      return { value: undefined, changed: true };
+    }, path);
+    await lockEntered;
+
+    const script = applyWcoreConfigPatch({ section: 'builtin_tools', field: 'script.enabled', value: true }, path);
+    const repomap = applyWcoreConfigPatch({ section: 'builtin_tools', field: 'repomap.enabled', value: false }, path);
+    release();
+    await Promise.all([holder, script, repomap]);
+
+    const after = await readConfig(path);
+    expect(after.unrelated).toEqual({ retained: true });
+    expect(after.builtin_tools).toEqual({
+      script: { enabled: true, label: 'keep-script' },
+      repomap: { enabled: false, label: 'keep-repomap' },
+    });
+  });
+
+  it('does not resolve or enter an implicit config operation while profile authority is held', async () => {
+    let release!: () => void;
+    let entered!: () => void;
+    const barrier = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const lockEntered = new Promise<void>((resolve) => {
+      entered = resolve;
+    });
+    const profileMutation = withProfileAuthorityLock(async () => {
+      entered();
+      await barrier;
+    });
+    await lockEntered;
+
+    let operationEntered = false;
+    const patch = withEffectiveConfigTarget(async () => {
+      operationEntered = true;
+    });
+    await Promise.resolve();
+    expect(operationEntered).toBe(false);
+
+    release();
+    await Promise.all([profileMutation, patch]);
+    expect(operationEntered).toBe(true);
+  });
+
+  it('preserves unknown section keys while independently patching every supported surface', async () => {
+    const path = join(dir, 'config.toml');
+    await writeFile(path, '[tools]\nskills = ["keep"]\n\n[memory]\nfuture = "keep"\n', 'utf-8');
+
+    await Promise.all([
+      applyWcoreConfigPatch({ section: 'tools', field: 'allow_list', value: ['Read'] }, path),
+      applyWcoreConfigPatch({ section: 'default', field: 'approval_mode', value: 'auto-edit' }, path),
+      applyWcoreConfigPatch({ section: 'memory', field: 'enabled', value: false }, path),
+    ]);
+
+    const after = await readConfig(path);
+    expect(after.tools).toEqual({ skills: ['keep'], allow_list: ['Read'] });
+    expect(after.default).toEqual({ approval_mode: 'auto-edit' });
+    expect(after.memory).toEqual({
+      future: 'keep',
+      enabled: false,
+    });
+  });
+
+  it.each([
+    [{ section: 'default', field: 'model', value: 'attacker/model' }, 'default.approval_mode is invalid'],
+    [{ section: 'default', field: 'approval_mode', value: 'yolo' }, 'default.approval_mode is invalid'],
+    [{ section: 'builtin_tools', field: 'arbitrary.enabled', value: true }, 'only boolean builtin'],
+    [{ section: 'builtin_tools', field: 'script.enabled', value: 'true' }, 'only boolean builtin'],
+    [{ section: 'memory', field: 'provider', value: 'x' }, 'only memory.enabled'],
+    [{ section: 'memory', field: 'provider', value: 'local' }, 'only memory.enabled'],
+    [{ section: 'memory', field: 'recall_budget', value: 5000 }, 'only memory.enabled'],
+    [{ section: 'memory', field: 'auto_consolidate', value: true }, 'only memory.enabled'],
+  ])('rejects an out-of-contract intent %#', (intent, message) => {
+    expect(validateWcoreConfigPatch(intent)).toContain(message);
+  });
+
+  it('rejects extras, accessors, custom prototypes, and inherited fields before reading values', () => {
+    expect(validateWcoreConfigPatch({ section: 'memory', field: 'enabled', value: true, extra: true })).toContain(
+      'exact plain data object'
+    );
+    const accessor = Object.defineProperty({ section: 'memory', field: 'enabled' }, 'value', {
+      enumerable: true,
+      get: () => true,
+    });
+    expect(validateWcoreConfigPatch(accessor)).toContain('exact plain data object');
+    expect(
+      validateWcoreConfigPatch(
+        Object.assign(Object.create({ inherited: true }), { section: 'memory', field: 'enabled', value: true })
+      )
+    ).toContain('exact plain data object');
+    expect(validateWcoreConfigPatch(Object.create({ section: 'memory', field: 'enabled', value: true }))).toContain(
+      'exact plain data object'
+    );
+    const symbolExtra = { section: 'memory', field: 'enabled', value: true };
+    Object.defineProperty(symbolExtra, Symbol('extra'), { value: true });
+    expect(validateWcoreConfigPatch(symbolExtra)).toContain('exact plain data object');
+    const sparse: string[] = [];
+    sparse.length = 2;
+    sparse[1] = 'Read';
+    expect(validateWcoreConfigPatch({ section: 'tools', field: 'allow_list', value: sparse })).toContain(
+      'only tools.allow_list'
+    );
+  });
+
+  it('pins the editable UI schema to the bundled Core v0.12.25 MemoryConfig', () => {
+    expect(WCORE_EDITABLE_MEMORY_SCHEMA).toEqual({
+      coreVersion: '0.12.25',
+      producerFields: ['enabled', 'dream_cycle_throttle_secs', 'decay_interval_secs', 'embedder'],
+      editableFields: ['enabled'],
+    });
+  });
+});
+
+describe('browser policy producer parity', () => {
+  it('accepts public IPv4 literals and public hostname patterns', () => {
+    expect(
+      validateWcoreBrowserPolicy({
+        defaultAction: 'deny',
+        allowedOrigins: ['example.com', '*.example.org', '1.1.1.1'],
+        deniedOrigins: [],
+      })
+    ).toBeNull();
+  });
+
+  it('accepts public IPv6 literals supported by the bundled Core policy', () => {
+    expect(
+      validateWcoreBrowserPolicy({
+        defaultAction: 'deny',
+        allowedOrigins: ['2001:4860:4860::8888', '::8.8.8.8'],
+        deniedOrigins: ['2606:4700:4700::1111'],
+      })
+    ).toBeNull();
+  });
+
+  it.each(['127.0.0.1', '10.0.0.1', '100.64.0.1', '169.254.169.254', '192.168.1.1', '224.0.0.1'])(
+    'rejects Core-hard-blocked IPv4 literal %s',
+    (origin) => {
+      expect(
+        validateWcoreBrowserPolicy({ defaultAction: 'allow', allowedOrigins: [origin], deniedOrigins: [] })
+      ).toContain('public host patterns');
+    }
+  );
+
+  it.each([
+    '::',
+    '::0',
+    '::1',
+    '::127.0.0.1',
+    '::7f00:1',
+    'fc00::1',
+    'fd12:3456::1',
+    'fe80::1',
+    'ff02::1',
+    '::ffff:0.0.0.0',
+    '::ffff:127.0.0.1',
+    '::ffff:7f00:1',
+  ])(
+    'rejects Core-hard-blocked IPv6 literal %s',
+    (origin) => {
+      expect(
+        validateWcoreBrowserPolicy({ defaultAction: 'allow', allowedOrigins: [origin], deniedOrigins: [] })
+      ).toContain('public host patterns');
+    }
+  );
+
+  it.each(['*.1.1.1', '*.2001:4860:4860::8888'])('rejects nonsensical wildcard IP pattern %s', (origin) => {
+    expect(
+      validateWcoreBrowserPolicy({ defaultAction: 'allow', allowedOrigins: [origin], deniedOrigins: [] })
+    ).toContain('public host patterns');
+  });
+});
+
+describe('raw engine mode intent truth', () => {
+  it('defaults only an absent preference and preserves stored booleans', () => {
+    expect(parseRawEngineModePreference(undefined)).toBe(false);
+    expect(parseRawEngineModePreference(false)).toBe(false);
+    expect(parseRawEngineModePreference(true)).toBe(true);
+  });
+
+  it.each([null, 'false', 0, {}, []])('fails closed on malformed stored preference %#', (value) => {
+    expect(() => parseRawEngineModePreference(value)).toThrow('stored raw engine mode is invalid');
+  });
+
+  it('accepts only an exact plain boolean intent', () => {
+    expect(isRawEngineModeIntent({ enabled: true })).toBe(true);
+    expect(isRawEngineModeIntent({ enabled: false })).toBe(true);
+    expect(isRawEngineModeIntent({ enabled: 'true' })).toBe(false);
+    expect(isRawEngineModeIntent({ enabled: true, extra: true })).toBe(false);
+    expect(isRawEngineModeIntent(Object.assign(Object.create({}), { enabled: true }))).toBe(false);
+    expect(isRawEngineModeIntent(Object.create({ enabled: true }))).toBe(false);
+    expect(
+      isRawEngineModeIntent(
+        Object.defineProperty({}, 'enabled', {
+          enumerable: true,
+          get: () => true,
+        })
+      )
+    ).toBe(false);
   });
 });
 

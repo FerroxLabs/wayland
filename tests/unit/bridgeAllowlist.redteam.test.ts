@@ -134,12 +134,9 @@ describe('isAllowedForRemote - cron write/exec surface denied (#495)', () => {
     'cron.save-skill',
     'cron.confirm-proposal',
     'cron.restore-archived-job',
-  ])(
-    'denies subscribe-%s for remote callers (blocks remote mode escalation / skill planting)',
-    (key) => {
-      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
-    }
-  );
+  ])('denies subscribe-%s for remote callers (blocks remote mode escalation / skill planting)', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+  });
 
   it.each([
     'cron.list-jobs',
@@ -148,12 +145,9 @@ describe('isAllowedForRemote - cron write/exec surface denied (#495)', () => {
     'cron.get-job',
     'cron.has-skill',
     'cron.remove-job',
-  ])(
-    'still allows the read/remove provider subscribe-%s for remote callers',
-    (key) => {
-      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(true);
-    }
-  );
+  ])('still allows the read/remove provider subscribe-%s for remote callers', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(true);
+  });
 });
 
 /**
@@ -225,4 +219,24 @@ describe('isAllowedForRemote - foreground-conversation write denied (#579)', () 
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
     }
   );
+});
+
+describe('isAllowedForRemote - effective Core runtime identity stays local', () => {
+  it('denies identity disclosure, raw-mode mutation, and authoritative host-folder actions', () => {
+    expect(isAllowedForRemote('subscribe-wcoreConfig.getEffectiveRuntime')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.setRawEngineMode')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.openEffectiveRuntimeFolder')).toBe(false);
+  });
+
+  it('keeps output-budget reads remote but denies the mutation', () => {
+    expect(isAllowedForRemote('subscribe-wcoreConfig.getOutputBudget')).toBe(true);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.setOutputBudget')).toBe(false);
+  });
+
+  it('denies atomic Core config patches and unredacted local profile inventory', () => {
+    expect(isAllowedForRemote('subscribe-wcoreConfig.patchField')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.getBrowserPolicy')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.setBrowserPolicy')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreProfiles.list')).toBe(false);
+  });
 });

@@ -10,11 +10,38 @@ import { Button, Input, Message, Modal } from '@arco-design/web-react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { IWcoreProfile } from '@/common/adapter/ipcBridge';
-import ScopeLabel from '../components/ScopeLabel';
 import styles from './Panes.module.css';
 
 /** Mirror of the main-process sanitizer for instant client-side validation. */
-const PROFILE_NAME_RE = /^[A-Za-z0-9_-]{1,64}$/;
+const PROFILE_NAME_RE = /^[A-Za-z0-9._-]{1,64}$/;
+const WINDOWS_RESERVED = new Set([
+  'CON',
+  'PRN',
+  'AUX',
+  'NUL',
+  ...Array.from({ length: 10 }, (_, index) => `COM${index}`),
+  ...Array.from({ length: 10 }, (_, index) => `LPT${index}`),
+]);
+
+function isValidProfileName(name: string): boolean {
+  const stem = name.split('.')[0]?.toUpperCase() ?? '';
+  return (
+    PROFILE_NAME_RE.test(name) &&
+    !name.startsWith('.') &&
+    !name.startsWith('-') &&
+    !name.endsWith('.') &&
+    !/^\.+$/.test(name) &&
+    name.toLowerCase() !== 'active' &&
+    !WINDOWS_RESERVED.has(stem)
+  );
+}
+
+function failureMessage(error: unknown, fallback: string): string {
+  return error instanceof Error && error.message ? error.message : fallback;
+}
+
+const profileSelector = (profile: IWcoreProfile) =>
+  profile.kind === 'native' ? ({ kind: 'native' } as const) : ({ kind: 'named', name: profile.name } as const);
 
 /** Abbreviate a home-rooted absolute path to `~/…` for compact display. */
 function tildify(p: string): string {
@@ -40,43 +67,99 @@ function relativeTime(epochMs: number): string {
 const ProfilesPane: React.FC = () => {
   const { t } = useTranslation();
   const [profiles, setProfiles] = useState<IWcoreProfile[]>([]);
-  const [modal, setModal] = useState<{ mode: 'new' | 'clone'; from?: string } | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [modal, setModal] = useState<{ mode: 'new' | 'clone'; from?: IWcoreProfile } | null>(null);
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
+  const activeMarkerNeedsRepair = profiles.length > 0 && profiles.every((profile) => !profile.active);
 
   const refresh = useCallback(async (): Promise<void> => {
-    const list = await ipcBridge.wcoreProfiles.list.invoke();
-    setProfiles(list);
-  }, []);
+    try {
+      const list = await ipcBridge.wcoreProfiles.list.invoke();
+      if (list.ok === true) {
+        setProfiles(list.profiles);
+        setLoadError(null);
+        return;
+      }
+      setProfiles([]);
+      setLoadError(list.error);
+    } catch (error) {
+      setProfiles([]);
+      setLoadError(
+        failureMessage(
+          error,
+          t('settings.wcoreConfig.profiles.loadFailed', { defaultValue: 'Could not load profiles.' })
+        )
+      );
+    }
+  }, [t]);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
   const activate = useCallback(
-    async (profileName: string): Promise<void> => {
-      const r = await ipcBridge.wcoreProfiles.activate.invoke({ name: profileName });
-      if (r.ok) await refresh();
-      else Message.error(r.error ?? t('settings.wcoreConfig.profiles.activateFailed', { defaultValue: 'Failed.' }));
+    async (profile: IWcoreProfile): Promise<void> => {
+      try {
+        const r = await ipcBridge.wcoreProfiles.activate.invoke({ selector: profileSelector(profile) });
+        if (r.ok) await refresh();
+        else Message.error(r.error ?? t('settings.wcoreConfig.profiles.activateFailed', { defaultValue: 'Failed.' }));
+      } catch (error) {
+        Message.error(
+          failureMessage(
+            error,
+            t('settings.wcoreConfig.profiles.activateFailed', { defaultValue: 'Could not activate profile.' })
+          )
+        );
+      }
     },
     [refresh, t]
   );
 
-  const removeProfile = useCallback(
-    async (profileName: string): Promise<void> => {
-      const r = await ipcBridge.wcoreProfiles.remove.invoke({ name: profileName });
-      if (r.ok) await refresh();
-      else Message.error(r.error ?? t('settings.wcoreConfig.profiles.deleteFailed', { defaultValue: 'Failed.' }));
+  const archiveProfile = useCallback(
+    async (profile: IWcoreProfile): Promise<void> => {
+      if (profile.kind !== 'named') return;
+      try {
+        const r = await ipcBridge.wcoreProfiles.remove.invoke({ kind: 'named', name: profile.name });
+        if (r.ok) await refresh();
+        else Message.error(r.error ?? t('settings.wcoreConfig.profiles.archiveFailed', { defaultValue: 'Failed.' }));
+      } catch (error) {
+        Message.error(
+          failureMessage(
+            error,
+            t('settings.wcoreConfig.profiles.archiveFailed', { defaultValue: 'Could not archive profile.' })
+          )
+        );
+      }
     },
     [refresh, t]
+  );
+
+  const confirmArchive = useCallback(
+    (profile: IWcoreProfile): void => {
+      if (profile.kind !== 'named') return;
+      Modal.confirm({
+        title: t('settings.wcoreConfig.profiles.archiveTitle', { defaultValue: 'Archive profile?' }),
+        content: t('settings.wcoreConfig.profiles.archiveBody', {
+          defaultValue:
+            '“{{name}}” will be moved to Wayland Core’s local profile archive. Running conversations are not interrupted.',
+          name: profile.name,
+        }),
+        okText: t('settings.wcoreConfig.profiles.archive', { defaultValue: 'Archive' }),
+        cancelText: t('common.cancel', { defaultValue: 'Cancel' }),
+        okButtonProps: { status: 'danger' },
+        onOk: () => archiveProfile(profile),
+      });
+    },
+    [archiveProfile, t]
   );
 
   const submit = useCallback(async (): Promise<void> => {
     const target = name.trim();
-    if (!PROFILE_NAME_RE.test(target)) {
+    if (!isValidProfileName(target)) {
       Message.error(
         t('settings.wcoreConfig.profiles.nameInvalid', {
-          defaultValue: 'Names use letters, digits, - and _ only (max 64).',
+          defaultValue: 'Use 1-64 letters, digits, dots, dashes or underscores; reserved system names are unavailable.',
         })
       );
       return;
@@ -85,7 +168,7 @@ const ProfilesPane: React.FC = () => {
     try {
       const r =
         modal?.mode === 'clone' && modal.from
-          ? await ipcBridge.wcoreProfiles.clone.invoke({ from: modal.from, to: target })
+          ? await ipcBridge.wcoreProfiles.clone.invoke({ from: profileSelector(modal.from), to: target })
           : await ipcBridge.wcoreProfiles.create.invoke({ name: target });
       if (r.ok) {
         setModal(null);
@@ -94,6 +177,13 @@ const ProfilesPane: React.FC = () => {
       } else {
         Message.error(r.error ?? t('settings.wcoreConfig.profiles.createFailed', { defaultValue: 'Failed.' }));
       }
+    } catch (error) {
+      Message.error(
+        failureMessage(
+          error,
+          t('settings.wcoreConfig.profiles.createFailed', { defaultValue: 'Could not create profile.' })
+        )
+      );
     } finally {
       setBusy(false);
     }
@@ -107,10 +197,9 @@ const ProfilesPane: React.FC = () => {
         <p className={styles.sub}>
           {t('settings.wcoreConfig.profiles.subtitle', {
             defaultValue:
-              'Directory-isolated configurations. Each profile carries its own model, tools, keys, skills and memory, so you switch context instantly without cross-contamination.',
+              'Directory-isolated Wayland Core configurations. Activation applies to new conversations; conversations already running keep the profile they started with.',
           })}
         </p>
-        <ScopeLabel />
       </div>
 
       <div className={styles.section}>
@@ -122,8 +211,17 @@ const ProfilesPane: React.FC = () => {
           <span className={styles.sectionHeadLine} />
         </div>
         <div className={styles.group}>
+          {loadError && <div className={styles.updateError}>{loadError}</div>}
+          {activeMarkerNeedsRepair && (
+            <div className={styles.updateError} role='alert'>
+              {t('settings.wcoreConfig.profiles.activeMarkerNeedsRepair', {
+                defaultValue:
+                  'The active-profile marker is invalid or unreadable. Nothing was activated automatically. Choose Activate on Default or another healthy profile to repair it.',
+              })}
+            </div>
+          )}
           {profiles.map((p) => (
-            <div key={p.name} className={styles.profile}>
+            <div key={`${p.kind}:${p.name}`} className={styles.profile}>
               <div>
                 <div className={styles.profileName}>
                   {p.name}
@@ -176,16 +274,16 @@ const ProfilesPane: React.FC = () => {
               </div>
               <div className={styles.profileActions}>
                 {!p.active && (
-                  <Button type='primary' size='small' onClick={() => void activate(p.name)}>
+                  <Button type='primary' size='small' onClick={() => void activate(p)}>
                     {t('settings.wcoreConfig.profiles.activate', { defaultValue: 'Activate' })}
                   </Button>
                 )}
-                <Button size='small' onClick={() => setModal({ mode: 'clone', from: p.name })}>
+                <Button size='small' onClick={() => setModal({ mode: 'clone', from: p })}>
                   {t('settings.wcoreConfig.profiles.clone', { defaultValue: 'Clone' })}
                 </Button>
-                {p.name !== 'default' && (
-                  <Button size='small' status='danger' onClick={() => void removeProfile(p.name)}>
-                    {t('settings.wcoreConfig.profiles.delete', { defaultValue: 'Delete' })}
+                {p.kind === 'named' && (
+                  <Button size='small' status='danger' onClick={() => confirmArchive(p)}>
+                    {t('settings.wcoreConfig.profiles.archive', { defaultValue: 'Archive' })}
                   </Button>
                 )}
               </div>
@@ -219,12 +317,20 @@ const ProfilesPane: React.FC = () => {
         okText={t('settings.wcoreConfig.profiles.createOk', { defaultValue: 'Create' })}
       >
         {modal?.mode === 'clone' && (
-          <p className={styles.lrDesc} style={{ marginBottom: 10 }}>
-            {t('settings.wcoreConfig.profiles.cloningFrom', {
-              defaultValue: 'Cloning from “{{from}}”.',
-              from: modal.from,
-            })}
-          </p>
+          <>
+            <p className={styles.lrDesc} style={{ marginBottom: 10 }}>
+              {t('settings.wcoreConfig.profiles.cloningFrom', {
+                defaultValue: 'Cloning configuration and skills from “{{from}}”.',
+                from: modal.from?.name,
+              })}
+            </p>
+            <p className={styles.lrDesc} style={{ marginBottom: 10 }}>
+              {t('settings.wcoreConfig.profiles.cloneSecurityNote', {
+                defaultValue:
+                  'Vaults, history and structured credentials are not copied. User-authored skill files are copied verbatim; review them if you may have embedded secrets.',
+              })}
+            </p>
+          </>
         )}
         <Input
           value={name}

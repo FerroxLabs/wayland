@@ -28,14 +28,15 @@ import {
   type McpSessionState,
   type McpSessionTerminalEvent,
 } from '@/common/mcp/sessionReceipt';
-import { type OutputBudget, resolveFixedBudget } from '@/common/config/outputBudget';
+import { resolveFixedBudget } from '@/common/config/outputBudget';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { readOutputBudgetPreference, readRawEngineModePreference } from '@process/agent/wcore/effectiveRuntimeActions';
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
 import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
-import { resolveActiveConfigDir } from '@process/agent/wcore/profilePaths';
+import { acquireRuntimeLaunchAuthority } from '@process/agent/wcore/profilePaths';
 import type { WCoreCapabilities } from '@process/agent/wcore/protocol';
 import {
   buildSystemInstructionsWithSkillsIndex,
@@ -94,6 +95,12 @@ const NEAR_BUDGET_RATIO = 0.95;
  * before any visible output renders).
  */
 const EMPTY_CONTENT_THRESHOLD_CHARS = 20;
+
+const WCORE_PREFERENCE_AUTHORITY = {
+  get: (key: string) => ProcessConfig.get(key as never) as Promise<unknown>,
+  set: (key: string, value: unknown) => ProcessConfig.set(key as never, value as never),
+  remove: (key: string) => ProcessConfig.remove(key as never),
+};
 
 // WCore-specific approval key - reuses same pattern as GeminiApprovalStore
 type WCoreApprovalKey = IApprovalKey & {
@@ -295,16 +302,17 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private readonly mcpSessionDigestKey = createMcpSessionDigestKey();
   private mcpSessionState: McpSessionState;
   private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
+  private releaseProfileLease: (() => Promise<void>) | null = null;
+  private disposed = false;
 
   constructor(data: WCoreManagerData, model: TProviderWithModel) {
     super('wcore', { ...data, model }, new IpcAgentEventEmitter(), false);
     this.workspace = data.workspace;
     this.conversation_id = data.conversation_id;
-    this.mcpSessionState = createMcpSessionState(
-      this.mcpSessionGeneration,
-      [],
-      { conversationId: this.conversation_id, backend: 'wcore' }
-    );
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, [], {
+      conversationId: this.conversation_id,
+      backend: 'wcore',
+    });
     this.model = model;
     this.currentMode = data.sessionMode || 'default';
 
@@ -317,8 +325,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // error+finish instead of hanging the turn with no reply (S2).
     this.agentReady = this.start().catch((error) => {
       this.startError = error;
+      void this.releaseProfileLaunchLease();
       mainError('[WCoreManager]', 'agent bootstrap (start) failed', error);
     });
+  }
+
+  private async releaseProfileLaunchLease(): Promise<void> {
+    const release = this.releaseProfileLease;
+    this.releaseProfileLease = null;
+    if (release) await release();
   }
 
   /**
@@ -327,6 +342,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * otherwise pass --session-id for a new session.
    */
   override async start() {
+    if (this.disposed) throw new Error('Wayland Core manager was stopped before bootstrap');
     let sessionArgs: { resume?: string; sessionId?: string };
     try {
       const db = await getDatabase();
@@ -357,20 +373,31 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // standalone CLI - so we SKIP (a) the Desktop model override (applied in
     // buildSpawnConfig via the `rawEngineMode` flag passed below), (b) the
     // Constitution/skills/specialist prompt overlay built below, and (c) the
-    // Desktop MCP-connector injection below (raw mode uses only the engine's own
-    // [mcp.servers] table, like the CLI). The renderer (RuntimePane) only
-    // persists the preference; this seam enacts it. A storage read failure falls
-    // back to the normal (overridden) path - never raw.
+    // selected user MCP-connector injection below (raw mode uses the engine's
+    // own [mcp.servers] table, like the CLI). Host-owned team/team-guide stdio
+    // declared above is deliberately preserved, as are WCoreAgent's allowlisted
+    // tool credentials and Desktop ACP/permission/host-message protocol. The
+    // renderer (RuntimePane) requests the preference; this seam enacts it. A
+    // storage read failure is an authority failure: silently selecting either
+    // mode would launch behavior the user did not authorize.
     // Use ProcessConfig (main-process store) NOT ConfigStorage (renderer-bridged):
     // ConfigStorage.get round-trips to the renderer and HANGS when WCore is
     // spawned from a channel (a pure main-process path with no renderer in the
     // loop), wedging every channel-triggered turn. `.catch` cannot save a hang.
-    const rawEngineMode = (await ProcessConfig.get('wcore.rawEngineMode').catch(() => false)) === true;
-    // Capture profile authority once for both persistent MCP publication and
-    // the engine spawn. A profile switch after this point applies to the next
-    // conversation; it cannot split this launch across two credential/config
-    // homes.
-    const launchWaylandHome = rawEngineMode ? undefined : await resolveActiveConfigDir();
+    // Capture raw-mode authority, the exact managed profile identity, and its
+    // launch lease in one profile-authority transaction. Malformed local raw
+    // preference data is removed and safely defaults to managed mode; storage
+    // failures remain fatal because authority could not be proved.
+    const launchAuthority = await acquireRuntimeLaunchAuthority(() =>
+      readRawEngineModePreference(WCORE_PREFERENCE_AUTHORITY)
+    );
+    const rawEngineMode = launchAuthority.raw;
+    const launchWaylandHome = launchAuthority.identity?.dir;
+    this.releaseProfileLease = launchAuthority.release;
+    if (this.disposed) {
+      await this.releaseProfileLaunchLease();
+      throw new Error('Wayland Core manager was stopped during bootstrap');
+    }
 
     // Publish selected connectors into Core's trusted startup config BEFORE
     // spawning it. Current Core deliberately rejects untrusted wire-added stdio
@@ -383,10 +410,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     if (!rawEngineMode) {
       try {
         const mcpConfig = await loadRuntimeMcpServers();
-        const selectedServers = buildWCoreSessionMcpServers(
-          mcpConfig,
-          mergedData.activeMcpServers
-        );
+        const selectedServers = buildWCoreSessionMcpServers(mcpConfig, mergedData.activeMcpServers);
         expectedSessionMcpNames = selectedServers.map((server) => server.name);
 
         if (selectedServers.length === 0) {
@@ -440,8 +464,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // no positive value falls back to Auto. An explicit per-conversation
     // `maxTokens` still wins. Same main-process store rationale as rawEngineMode
     // (ProcessConfig, not the renderer-bridged ConfigStorage which hangs here).
-    const outputBudget = await ProcessConfig.get('wcore.outputBudget').catch((): OutputBudget | undefined => undefined);
-    // Resolve a Fixed budget (clamped to MIN_FIXED_BUDGET); Auto / no value -> undefined.
+    // Imported/hand-edited malformed data is locally removed and recovers to
+    // Auto. A storage read or repair failure still aborts the launch.
+    const outputBudget = await readOutputBudgetPreference(WCORE_PREFERENCE_AUTHORITY);
+    // Resolve a validated Fixed budget; Auto / absent -> undefined.
     const fixedMaxTokens = resolveFixedBudget(outputBudget);
 
     // Prepend Wayland Constitution + specialist overlay AND inject the
@@ -483,12 +509,33 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       mcpServerNames: sessionMcpServerNames,
       waylandHome: launchWaylandHome,
       onStreamEvent: (event) => this.emit('wcore.message', event),
-      onProcessExit: (code, activeMsgId) => this.handleProcessExit(code, activeMsgId),
+      onProcessExit: (code, activeMsgId) => {
+        this.handleProcessExit(code, activeMsgId);
+      },
+      onProcessTerminated: () => {
+        void this.releaseProfileLaunchLease();
+      },
       onPong: () => this.handlePong(),
     });
 
-    await agent.start();
+    if (this.disposed) {
+      await this.releaseProfileLaunchLease();
+      throw new Error('Wayland Core manager was stopped during bootstrap');
+    }
     this.agent = agent;
+    try {
+      await agent.start();
+    } catch (error) {
+      if (this.agent === agent) this.agent = null;
+      await this.releaseProfileLaunchLease();
+      throw error;
+    }
+    if (this.disposed) {
+      await agent.kill().catch(() => {});
+      if (this.agent === agent) this.agent = null;
+      await this.releaseProfileLaunchLease();
+      throw new Error('Wayland Core manager was stopped during bootstrap');
+    }
     this._capabilities = agent.capabilities ?? null;
 
     // Per-conversation reasoning effort: forward to the engine via set_config on
@@ -1183,11 +1230,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   private beginMcpSession(expectedServers: readonly McpSessionExpectedServer[]): void {
-    this.mcpSessionState = createMcpSessionState(
-      this.mcpSessionGeneration,
-      expectedServers,
-      { conversationId: this.conversation_id, backend: 'wcore' }
-    );
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, expectedServers, {
+      conversationId: this.conversation_id,
+      backend: 'wcore',
+    });
     this.publishMcpSessionState();
   }
 
@@ -1732,15 +1778,25 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   override async kill(): Promise<void> {
-    if (this.agent) {
-      try {
-        // Await the engine tree-kill (taskkill /T on Windows) before tearing
-        // down the worker, so WorkerTaskManager.clear() on quit doesn't return
-        // before wayland-core's child tree is actually gone (#139).
-        await this.agent.kill();
-      } catch {
-        // best-effort
+    this.disposed = true;
+    try {
+      if (this.agent) {
+        try {
+          // Await the engine tree-kill (taskkill /T on Windows) before tearing
+          // down the worker, so WorkerTaskManager.clear() on quit doesn't return
+          // before wayland-core's child tree is actually gone (#139).
+          await this.agent.kill();
+        } catch {
+          // best-effort
+        }
       }
+      await this.agentReady;
+      if (this.agent) {
+        await this.agent.kill().catch(() => {});
+        this.agent = null;
+      }
+    } finally {
+      await this.releaseProfileLaunchLease();
     }
     // super.kill() is async (ForkTask M18); await child exit.
     await super.kill();

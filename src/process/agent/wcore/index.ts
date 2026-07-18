@@ -5,7 +5,6 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { Writable } from 'node:stream';
@@ -171,10 +170,13 @@ export type WCoreAgentOptions = {
   sessionId?: string;
   resume?: string;
   /**
-   * Raw-engine (power-user) mode. When true, the spawn omits every Desktop
-   * override (provider/model/auth/tokens/system-prompt/auto-approve) so the
-   * embedded engine runs on its own `config.toml` like the standalone CLI.
-   * `WCoreManager` reads `ConfigStorage` key `wcore.rawEngineMode` and also
+   * Raw-engine (power-user) mode. When true, the spawn omits Desktop's
+   * config/model/prompt/selected-connector overrides so Core resolves those
+   * from its own `config.toml` like the standalone CLI. Desktop's private
+   * protocol, permissions, team bridge, and allowlisted host integration stay
+   * active.
+   * `WCoreManager` reads the main-process `ProcessConfig` key
+   * `wcore.rawEngineMode` and also
    * skips the Constitution/skills/specialist prompt overlay when this is set.
    */
   rawEngineMode?: boolean;
@@ -193,6 +195,8 @@ export type WCoreAgentOptions = {
   waylandHome?: string;
   onStreamEvent: StreamEventHandler;
   onProcessExit?: (code: number | null, activeMsgId: string) => void;
+  /** Unconditional child-lifecycle notification, including idle and post-turn exits. */
+  onProcessTerminated?: (code: number | null) => void;
   onPong?: () => void;
 };
 
@@ -230,6 +234,7 @@ export class WCoreAgent {
   private readyReject!: (err: Error) => void;
   private onStreamEvent: StreamEventHandler;
   private _onProcessExit: WCoreAgentOptions['onProcessExit'];
+  private _onProcessTerminated: WCoreAgentOptions['onProcessTerminated'];
   private _onPong: WCoreAgentOptions['onPong'];
   private options: WCoreAgentOptions;
   private activeMsgId: string | null = null;
@@ -302,6 +307,7 @@ export class WCoreAgent {
     this.stallTimer = new PromptTimer(resolveTurnStallTimeoutMs(), () => this.handleTurnStall());
     this.onStreamEvent = options.onStreamEvent;
     this._onProcessExit = options.onProcessExit;
+    this._onProcessTerminated = options.onProcessTerminated;
     this._onPong = options.onPong;
     this.readyPromise = new Promise((resolve, reject) => {
       this.readyResolve = resolve;
@@ -487,7 +493,11 @@ export class WCoreAgent {
     //
     // The narrowing is what makes fail-closed structurally unable to brick `default`.
     let waylandHome = this.options.waylandHome;
-    if (!waylandHome) {
+    // Raw-engine mode is a deliberate escape hatch to Core's standalone
+    // configuration. Do not re-resolve Desktop's active profile here: doing so
+    // silently turned the supposedly-raw launch back into a Desktop-managed
+    // launch and made the Runtime settings path lie to the user.
+    if (!waylandHome && !this.options.rawEngineMode) {
       try {
         waylandHome = await resolveActiveConfigDir();
       } catch (err) {
@@ -628,6 +638,7 @@ export class WCoreAgent {
       if (this.activeMsgId && this._onProcessExit) {
         this._onProcessExit(code, this.activeMsgId);
       }
+      this._onProcessTerminated?.(code);
       this.activeMsgId = null;
       this.childProcess = null;
     });
