@@ -37,6 +37,14 @@ describe('Wayland portability registry', () => {
     expect(issues.map(({ logicalStateId }) => logicalStateId)).toEqual(
       expect.arrayContaining(['external.backend-handles', 'updater.release-channel', 'external.workspaces'])
     );
+    expect(issues.map(({ logicalStateId }) => logicalStateId)).not.toContain('desktop.preferences');
+  });
+
+  it('accepts desktop preferences only through its executable producer', () => {
+    expect(unavailableTransferProducers(['desktop.preferences'])).toEqual([]);
+    expect(
+      WAYLAND_PORTABILITY_REGISTRY.find(({ logicalStateId }) => logicalStateId === 'desktop.preferences')?.producer
+    ).toEqual({ id: 'transfer.desktop-preferences-producer/v1', state: 'available' });
   });
 
   it('rejects selected scopes that omit a registered dependency', () => {

@@ -10,6 +10,10 @@ import {
   type LogicalStateId,
   type StateAuthorityId,
 } from '@process/services/recovery/recoveryManifest';
+import {
+  resolveAcceptedTransferProducer,
+  WAYLAND_TRANSFER_PRODUCER_REGISTRY_ISSUES,
+} from '@process/services/transfer/producers';
 
 export type PortabilityDisposition = 'portable' | 'reference-only' | 'reconnect-required' | 'excluded';
 export type PortabilityImplementationState = 'available' | 'blocked';
@@ -136,6 +140,7 @@ export function validatePortabilityRegistry(
 }
 
 const blocked = (id: string) => ({ id, state: 'blocked' as const });
+const available = (id: string) => ({ id, state: 'available' as const });
 
 /**
  * Format-v1 registry. Blocked implementation states are intentional: they are
@@ -222,7 +227,7 @@ export const WAYLAND_PORTABILITY_REGISTRY: readonly PortabilityDescriptor[] = [
     descriptorVersion: 1,
     authorityIds: ['desktop.config', 'desktop.runtime-files'],
     disposition: 'portable',
-    producer: blocked('transfer.desktop-preferences-producer/v1'),
+    producer: available('transfer.desktop-preferences-producer/v1'),
     consumer: blocked('transfer.desktop-preferences-consumer/v1'),
     quiescence: ['desktop'],
     secretPolicy: 'encrypted',
@@ -323,10 +328,19 @@ export const WAYLAND_PORTABILITY_REGISTRY_VALIDATION = validatePortabilityRegist
 export function unavailableTransferProducers(selected: readonly LogicalStateId[]): PortabilityRegistryIssue[] {
   const validation = WAYLAND_PORTABILITY_REGISTRY_VALIDATION;
   if (!validation.valid) return [...validation.issues];
+  if (WAYLAND_TRANSFER_PRODUCER_REGISTRY_ISSUES.length > 0) {
+    return WAYLAND_TRANSFER_PRODUCER_REGISTRY_ISSUES.map((producerIssue) =>
+      issue(`REGISTRY_${producerIssue.code}`, producerIssue.message, producerIssue.logicalStateId)
+    );
+  }
   const selectedSet = new Set(selected);
   const issues = validation.descriptors
     .filter((descriptor) => selectedSet.has(descriptor.logicalStateId))
-    .filter((descriptor) => descriptor.producer.state !== 'available')
+    .filter(
+      (descriptor) =>
+        descriptor.producer.state !== 'available' ||
+        !resolveAcceptedTransferProducer(descriptor.logicalStateId, descriptor.producer.id)
+    )
     .map((descriptor) =>
       issue(
         'REGISTRY_PRODUCER_UNAVAILABLE',
