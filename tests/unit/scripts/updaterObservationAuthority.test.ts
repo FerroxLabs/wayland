@@ -47,21 +47,89 @@ function writeBytes(filePath: string, value: string): { file: string; sha256: st
   return { file: path.basename(filePath), sha256: sha256(value), size: Buffer.byteLength(value) };
 }
 
+function platformPackageSmoke(candidate: { file: string; sha256: string }) {
+  return {
+    contract: 'wayland-platform-package-smoke/2',
+    target: 'darwin-arm64',
+    installer: candidate.file,
+    installerDigest: `sha256:${'1'.repeat(64)}`,
+    installerSnapshotBytesSha256: candidate.sha256.slice('sha256:'.length),
+    installedExecutable: 'Wayland.app/Contents/MacOS/Wayland',
+    installedResources: 'Wayland.app/Contents/Resources',
+    executableIdentity: { platform: 'darwin', arch: 'arm64' },
+    executableSha256: '3'.repeat(64),
+    appAsarSha256: '4'.repeat(64),
+    freshness: {
+      artifactDigest: `sha256:${'1'.repeat(64)}`,
+      priorArtifactDigests: [`sha256:${'a'.repeat(64)}`],
+      candidateStateDigest: `sha256:${'b'.repeat(64)}`,
+      captureNonce: 'c'.repeat(64),
+      sourceIdentity: { commit: COMMIT, tree: TREE },
+    },
+    candidateFreshness: {
+      candidateDigest: `sha256:${'5'.repeat(64)}`,
+      priorCandidateDigests: [`sha256:${'d'.repeat(64)}`],
+      candidateStateDigest: `sha256:${'b'.repeat(64)}`,
+      captureNonce: 'c'.repeat(64),
+      sourceIdentity: { commit: COMMIT, tree: TREE },
+      diagnosticTimes: { candidateMtimeMs: 1, appAsarMtimeMs: 2 },
+    },
+    sourceIdentity: { commit: COMMIT, tree: TREE },
+    releaseIdentity: {
+      releaseTrack: 'stable',
+      productName: 'Wayland',
+      executableName: 'Wayland',
+      bundleName: 'Wayland.app',
+      protocolScheme: 'wayland',
+      updateChannel: 'latest-arm64',
+      shellExperience: 'classic',
+    },
+    sandboxMode: 'production-default',
+    productionSandboxProof: 'exercised',
+    verifiedCandidateDigest: `sha256:${'5'.repeat(64)}`,
+    criticalResources: 'verified',
+    optionalCapabilities: {
+      hub: 'available',
+      'whatsapp-bridge': 'unavailable',
+      'signal-cli-runtime': 'available',
+    },
+    electron: {
+      booted: true,
+      rendererReady: true,
+      expectedRendererPath: 'resources/app.asar/out/renderer/index.html',
+      markerSha256: '7'.repeat(64),
+      readyState: 'complete',
+      title: 'Wayland',
+      url: 'file:///resources/app.asar/out/renderer/index.html',
+      bodyChildren: 1,
+      rootChildren: 1,
+      smokeMarker: '<redacted>',
+      shellExperience: 'classic',
+      recoveryFallback: false,
+      fatalErrorBoundary: false,
+    },
+    shutdown: {
+      parentExit: 'zero',
+      subsystemCleanup: 'completed-with-structured-proof',
+      eventEvidence: {
+        contract: 'wayland-package-smoke-event/1',
+        eventCount: 7,
+        terminalSequence: 7,
+      },
+      descendantsObserved: 2,
+      descendantsRemaining: 0,
+    },
+    processTreeIdentitySha256: `sha256:${'6'.repeat(64)}`,
+  };
+}
+
 function createFixture(): Fixture {
   const root = mkdtempSync(path.join(tmpdir(), 'wayland-updater-observation-'));
   temporaryRoots.push(root);
   const initial = writeBytes(path.join(root, 'initial.dmg'), 'initial-package-bytes');
   const candidate = writeBytes(path.join(root, 'candidate.dmg'), 'candidate-package-bytes');
   const rollback = writeBytes(path.join(root, 'rollback.zip'), 'rollback-package-bytes');
-  const packageSmoke = writeJson(path.join(root, 'package-smoke.json'), {
-    contract: 'wayland-platform-package-smoke/2',
-    target: 'darwin-arm64',
-    sourceCommit: COMMIT,
-    installerDigest: candidate.sha256.slice('sha256:'.length),
-    booted: true,
-    rendererReady: true,
-    shutdownComplete: true,
-  });
+  const packageSmoke = writeJson(path.join(root, 'package-smoke.json'), platformPackageSmoke(candidate));
   const baseEvents = [
     {
       sequence: 1,
@@ -304,6 +372,59 @@ describe('canonical updater packaged-runtime observation authority', () => {
     writeFileSync(fixture.files.candidate, 'tampered-candidate');
     expect(() => verifyUpdaterObservation({ observationPath: fixture.observationPath }, options(fixture))).toThrow(
       /M8C_CANDIDATE_ARTIFACT_INVALID:digest-mismatch/
+    );
+  });
+
+  it('rejects a legacy self-authored simplified package-smoke claim', () => {
+    const fixture = createFixture();
+    fixture.manifest.packageSmoke = writeJson(path.join(fixture.root, 'package-smoke.json'), {
+      contract: 'wayland-platform-package-smoke/2',
+      target: 'darwin-arm64',
+      sourceCommit: COMMIT,
+      installerDigest: fixture.manifest.candidateArtifact.sha256.slice('sha256:'.length),
+      booted: true,
+      rendererReady: true,
+      shutdownComplete: true,
+    });
+    rewriteObservation(fixture);
+    expect(() => verifyUpdaterObservation({ observationPath: fixture.observationPath }, options(fixture))).toThrow(
+      /M8C_PACKAGE_SMOKE_INVALID:platform-report-rejected/
+    );
+  });
+
+  it('rejects a native package smoke whose raw installer snapshot digest is forged', () => {
+    const fixture = createFixture();
+    const smokePath = path.join(fixture.root, fixture.manifest.packageSmoke.file);
+    const smoke = JSON.parse(readFileSync(smokePath, 'utf8'));
+    smoke.installerSnapshotBytesSha256 = 'f'.repeat(64);
+    fixture.manifest.packageSmoke = writeJson(smokePath, smoke);
+    rewriteObservation(fixture);
+    expect(() => verifyUpdaterObservation({ observationPath: fixture.observationPath }, options(fixture))).toThrow(
+      /M8C_PACKAGE_SMOKE_INVALID:platform-report-rejected:platform smoke report is not bound to the supplied installer bytes/
+    );
+  });
+
+  it('rejects a native package smoke with incomplete nested lifecycle evidence', () => {
+    const fixture = createFixture();
+    const smokePath = path.join(fixture.root, fixture.manifest.packageSmoke.file);
+    const smoke = JSON.parse(readFileSync(smokePath, 'utf8'));
+    smoke.electron.rendererReady = false;
+    fixture.manifest.packageSmoke = writeJson(smokePath, smoke);
+    rewriteObservation(fixture);
+    expect(() => verifyUpdaterObservation({ observationPath: fixture.observationPath }, options(fixture))).toThrow(
+      /M8C_PACKAGE_SMOKE_INVALID:platform-report-rejected:platform smoke renderer lifecycle is incomplete/
+    );
+  });
+
+  it('rejects a native package smoke from a sibling source identity', () => {
+    const fixture = createFixture();
+    const smokePath = path.join(fixture.root, fixture.manifest.packageSmoke.file);
+    const smoke = JSON.parse(readFileSync(smokePath, 'utf8'));
+    smoke.sourceIdentity.commit = 'f'.repeat(40);
+    fixture.manifest.packageSmoke = writeJson(smokePath, smoke);
+    rewriteObservation(fixture);
+    expect(() => verifyUpdaterObservation({ observationPath: fixture.observationPath }, options(fixture))).toThrow(
+      /M8C_PACKAGE_SMOKE_INVALID:platform-report-rejected:platform smoke belongs to a stale or foreign candidate/
     );
   });
 

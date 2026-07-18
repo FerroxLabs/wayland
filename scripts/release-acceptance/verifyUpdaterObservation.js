@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
+const { validatePlatformPackageReport } = require('./verifyPlatformPackageSmokes');
 
 const REPOSITORY = 'FerroxLabs/wayland';
 const SIGNER_WORKFLOW = 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml';
@@ -255,23 +256,21 @@ function verifyArtifact(value, root, candidate, target, role, options = {}) {
 }
 
 function verifyPackageSmoke(value, candidate, target, candidateArtifact) {
-  const smoke = exactKeys(
-    value,
-    ['contract', 'target', 'sourceCommit', 'installerDigest', 'booted', 'rendererReady', 'shutdownComplete'],
-    'M8C_PACKAGE_SMOKE_INVALID'
-  );
-  if (
-    smoke.contract !== PACKAGE_SMOKE_CONTRACT ||
-    smoke.target !== target ||
-    smoke.sourceCommit !== candidate.commit ||
-    smoke.installerDigest !== candidateArtifact.sha256.slice('sha256:'.length) ||
-    smoke.booted !== true ||
-    smoke.rendererReady !== true ||
-    smoke.shutdownComplete !== true
-  ) {
-    fail('M8C_PACKAGE_SMOKE_INVALID', 'identity-or-lifecycle-mismatch');
+  if (typeof validatePlatformPackageReport !== 'function') {
+    fail('M8C_PACKAGE_SMOKE_INVALID', 'platform-report-validator-unavailable');
   }
-  return smoke;
+  try {
+    validatePlatformPackageReport(value, { target, candidate }, candidateArtifact.bytes);
+  } catch (error) {
+    fail('M8C_PACKAGE_SMOKE_INVALID', `platform-report-rejected:${error.message}`);
+  }
+  if (
+    value.contract !== PACKAGE_SMOKE_CONTRACT ||
+    path.basename(value.installer) !== path.basename(candidateArtifact.filePath)
+  ) {
+    fail('M8C_PACKAGE_SMOKE_INVALID', 'installer-path-mismatch');
+  }
+  return value;
 }
 
 function verifyRuntimeEvents(value, manifest, initialArtifact, candidateArtifact, rollbackArtifact, timeRange) {
