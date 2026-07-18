@@ -94,8 +94,10 @@ function clone(): UpdateJourneyReceipt {
 }
 
 describe('signed updater rollback and re-upgrade receipt', () => {
-  it('accepts one fully correlated observed journey', () => {
-    expect(validateUpdateJourneyReceipt(validReceipt())).toEqual(validReceipt());
+  it('does not promote an internally consistent caller-authored claim', () => {
+    expect(() => validateUpdateJourneyReceipt(validReceipt())).toThrow(
+      /M8C_TRUSTED_OBSERVATION_UNAVAILABLE:packaged-runtime-events-and-state-snapshots-not-independently-observed/
+    );
   });
 
   it('rejects a model/self-asserted publisher gate', () => {

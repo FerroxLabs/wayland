@@ -3,10 +3,10 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Strict acceptance contract for the signed update -> rollback -> re-upgrade
- * journey. This validator intentionally does not trust candidate-authored
- * claims: package identity, native publisher verification, observed runtime
- * identity, and semantic user-data preservation must all agree.
+ * Strict shape contract for a claimed signed update -> rollback -> re-upgrade
+ * journey. Shape consistency is not acceptance authority: until the packaged
+ * runtime emits independently observed, nonce-bound lifecycle events and state
+ * snapshots, every otherwise-valid claim is rejected below.
  */
 
 const SHA256 = /^[a-f0-9]{64}$/;
@@ -207,8 +207,7 @@ function supportedDigest(value: unknown, phase: string): string {
   return digest(value, `M8C_${phase}_SUPPORTED_DATA_INVALID`);
 }
 
-/** Validate one observed, real-package journey. Synthetic unit fixtures must never be promoted as this receipt. */
-export function validateUpdateJourneyReceipt(input: unknown): UpdateJourneyReceipt {
+function validateClaimedUpdateJourney(input: unknown): UpdateJourneyReceipt {
   const receipt = record(input, 'M8C_RECEIPT_INVALID');
   exactKeys(receipt, ['contract', 'candidate', 'rollback', 'journey', 'accepted'], 'M8C_RECEIPT_INVALID');
   if (receipt.contract !== 'wayland-updater-rollback-reupgrade/1.0') fail('M8C_RECEIPT_INVALID', 'contract');
@@ -318,4 +317,14 @@ export function validateUpdateJourneyReceipt(input: unknown): UpdateJourneyRecei
   }
 
   return receipt as UpdateJourneyReceipt;
+}
+
+/**
+ * Reject caller-authored lifecycle claims until a trusted packaged-runtime
+ * observer exists. This function deliberately returns `never`: validating the
+ * internal consistency of a JSON document must not mint acceptance authority.
+ */
+export function validateUpdateJourneyReceipt(input: unknown): never {
+  validateClaimedUpdateJourney(input);
+  fail('M8C_TRUSTED_OBSERVATION_UNAVAILABLE', 'packaged-runtime-events-and-state-snapshots-not-independently-observed');
 }
