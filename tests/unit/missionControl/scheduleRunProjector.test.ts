@@ -263,6 +263,27 @@ describe('projectScheduleRuns', () => {
     });
   });
 
+  it("does not let another job's cron prompt mint this run's result", () => {
+    const foreignPrompt = prompt('foreign-prompt', 100);
+    foreignPrompt.content.cronMeta = {
+      source: 'cron',
+      cronJobId: 'job-2',
+      cronJobName: 'Other job',
+      triggeredAt: 100,
+    };
+    const [run] = projectScheduleRuns(job({ lastRunAtMs: 100, lastStatus: 'ok' }), [
+      {
+        conversationId: 'conversation-1',
+        messages: [trigger('t1', 100), foreignPrompt, result('foreign-result', 'Other job result', 102)],
+      },
+    ]);
+
+    expect(run.result).toEqual({
+      status: 'unavailable',
+      reason: 'no unique persisted cron prompt is correlated to this run',
+    });
+  });
+
   it('requires canonical active Desktop trust instead of an accepted envelope alone', () => {
     const base = [trigger('t1', 100), prompt('p1', 100), result('r1', 'Done', 102)];
     const withoutTrust = projectScheduleRuns(job({ lastRunAtMs: 100, lastStatus: 'ok' }), [

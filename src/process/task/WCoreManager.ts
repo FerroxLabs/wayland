@@ -7,7 +7,7 @@
 import { ipcBridge } from '@/common';
 import * as os from 'node:os';
 import { join } from 'node:path';
-import type { IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
+import type { CronMessageMeta, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
 import { buildResumeSeedTranscript } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
@@ -622,7 +622,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  async sendMessage(data: { content: string; msg_id: string; files?: string[] }) {
+  async sendMessage(data: {
+    content: string;
+    msg_id: string;
+    files?: string[];
+    cronMeta?: CronMessageMeta;
+    hidden?: boolean;
+  }) {
     // Runaway circuit-breaker Phase 1: pre-turn budget pause gate. If a 'pause'
     // budget for this model/backend is already over its limit, hold the turn
     // before anything is persisted or dispatched (no tokens spent) and surface a
@@ -647,10 +653,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
     const message: TMessage = {
       id: data.msg_id,
+      msg_id: data.msg_id,
       type: 'text',
       position: 'right',
       conversation_id: this.conversation_id,
-      content: { content: data.content },
+      content: {
+        content: data.content,
+        ...(data.cronMeta && { cronMeta: data.cronMeta }),
+      },
+      ...(data.hidden && { hidden: true }),
     };
     addMessage(this.conversation_id, message);
     try {

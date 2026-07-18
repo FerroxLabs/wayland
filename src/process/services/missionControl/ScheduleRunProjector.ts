@@ -69,7 +69,7 @@ export function projectScheduleRuns(
           isLatestKnownRun && job.state.lastStatus
             ? { status: 'available', value: job.state.lastStatus, source: 'scheduler-state' }
             : { status: 'unavailable', reason: 'per-run scheduler outcome is not retained' },
-        result: readResult(slice, conversation.conversationId),
+        result: readResult(slice, conversation.conversationId, job.id, triggeredAt),
         receipt: readReceipt(slice, promptIds, conversation.conversationId, canonicalReceiptTrust),
         action: {
           kind: 'navigate',
@@ -100,11 +100,14 @@ function compareMessages(left: TMessage, right: TMessage): number {
   return time !== 0 ? time : left.id.localeCompare(right.id);
 }
 
-function readResult(messages: readonly TMessage[], conversationId: string): ScheduleRunResult {
+function readResult(
+  messages: readonly TMessage[],
+  conversationId: string,
+  jobId: string,
+  triggeredAt: number
+): ScheduleRunResult {
   const promptIndexes = messages.flatMap((message, index) =>
-    message.type === 'text' && message.position === 'right' && message.content.cronMeta?.source === 'cron'
-      ? [index]
-      : []
+    message.position === 'right' && isMatchingPrompt(message, jobId, triggeredAt) ? [index] : []
   );
   if (promptIndexes.length !== 1) {
     return { status: 'unavailable', reason: 'no unique persisted cron prompt is correlated to this run' };
