@@ -1,0 +1,136 @@
+name: Release Acceptance (non-deploying)
+
+# This gate consumes evidence produced by an already-completed artifact run.
+# It never publishes, deploys, edits a release, or grants release authority.
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_ref:
+        description: Exact candidate commit SHA to verify
+        required: true
+        type: string
+      artifact_run_id:
+        description: Completed GitHub Actions run containing the acceptance evidence bundle
+        required: true
+        type: string
+
+concurrency:
+  group: release-acceptance-${{ inputs.candidate_ref }}
+  cancel-in-progress: false
+
+permissions:
+  actions: read
+  attestations: write
+  contents: read
+  id-token: write
+
+jobs:
+  final-acceptance:
+    name: Verify exact artifact-backed release evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Reject non-commit candidate identity
+        env:
+          CANDIDATE_REF: ${{ inputs.candidate_ref }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+        run: |
+          [[ "$CANDIDATE_REF" =~ ^[0-9a-f]{40}$ ]] || {
+            echo "::error::candidate_ref must be one exact 40-character commit SHA"
+            exit 1
+          }
+          [[ "$ARTIFACT_RUN_ID" =~ ^[0-9]+$ ]] || {
+            echo "::error::artifact_run_id must be numeric"
+            exit 1
+          }
+          [[ "$GITHUB_SHA" == "$CANDIDATE_REF" ]] || {
+            echo "::error::dispatch this workflow from candidate_ref; workflow source identity does not match"
+            exit 1
+          }
+
+      - name: Checkout exact candidate
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.candidate_ref }}
+          persist-credentials: false
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Download completed evidence artifacts
+        uses: actions/download-artifact@v7
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.artifact_run_id }}
+          path: acceptance-evidence
+
+      - name: Authenticate the producer run and exact candidate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+          CANDIDATE_REF: ${{ inputs.candidate_ref }}
+        run: |
+          run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${ARTIFACT_RUN_ID}")"
+          [[ "$(jq -r '.conclusion' <<<"$run_json")" == "success" ]] || {
+            echo "::error::evidence producer run did not complete successfully"
+            exit 1
+          }
+          [[ "$(jq -r '.head_sha' <<<"$run_json")" == "$CANDIDATE_REF" ]] || {
+            echo "::error::evidence producer run belongs to a different candidate"
+            exit 1
+          }
+          [[ "$(jq -r '.path' <<<"$run_json")" == ".github/workflows/build-and-release.yml" ]] || {
+            echo "::error::evidence producer is not the canonical build-and-release workflow"
+            exit 1
+          }
+
+      - name: Stage the exact acceptance subjects
+        shell: bash
+        run: |
+          mapfile -d '' target_receipts < <(find acceptance-evidence -type f -path '*/target-gates/*/*.json' -print0)
+          mapfile -d '' evidence_manifests < <(find acceptance-evidence -type f -name release-evidence-manifest.json -print0)
+          mapfile -d '' claims_manifests < <(find acceptance-evidence -type f -name release-claims-manifest.json -print0)
+          [[ "${#target_receipts[@]}" -eq 30 ]] || {
+            echo "::error::expected exactly 30 target gate receipts, found ${#target_receipts[@]}"
+            exit 1
+          }
+          [[ "${#evidence_manifests[@]}" -eq 1 && "${#claims_manifests[@]}" -eq 1 ]] || {
+            echo "::error::expected exactly one release evidence and one release claims manifest"
+            exit 1
+          }
+          mkdir -p attestation-subjects
+          for subject in "${target_receipts[@]}" "${evidence_manifests[@]}" "${claims_manifests[@]}"; do
+            digest="$(sha256sum "$subject" | cut -d' ' -f1)"
+            cp "$subject" "attestation-subjects/${digest}.json"
+          done
+          [[ "$(find attestation-subjects -type f -name '*.json' | wc -l | tr -d ' ')" -eq 32 ]] || {
+            echo "::error::acceptance subject digest reuse or staging failure"
+            exit 1
+          }
+
+      - name: Attest exact acceptance evidence bytes
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: attestation-subjects/*.json
+
+      - name: Resolve exactly one final acceptance request
+        id: request
+        shell: bash
+        run: |
+          mapfile -d '' requests < <(find acceptance-evidence -type f -name final-acceptance-request.json -print0)
+          if [[ "${#requests[@]}" -ne 1 ]]; then
+            echo "::error::expected exactly one final-acceptance-request.json, found ${#requests[@]}"
+            exit 1
+          fi
+          echo "path=${requests[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Run fail-closed final acceptance controller
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bun run verify:release-acceptance -- "${{ steps.request.outputs.path }}"

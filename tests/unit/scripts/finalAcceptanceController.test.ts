@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
@@ -18,6 +19,7 @@ const {
 const COMMIT = 'a'.repeat(40);
 const TREE = 'b'.repeat(40);
 const DIGEST = (character: string) => `sha256:${character.repeat(64)}`;
+const INDEX_DIGEST = (index: number) => `sha256:${index.toString(16).padStart(64, '0')}`;
 const CONDITIONAL: Record<string, string[]> = {
   'cowork-office': ['C0-B', 'C1', 'C0-RELEASE-CLOSURE'],
   voice: ['M5V-A', 'M5V-B'],
@@ -40,6 +42,77 @@ const TARGET_GATE_SCHEMA = {
   requiredFields: ['contract', 'receiptId', 'candidate', 'target', 'gate', 'authority', 'evidenceSha256'],
   authority: 'canonical-target-hardening-validator',
 };
+const RELEASE_EVIDENCE = {
+  invariant: Array.from({ length: 21 }, (_, index) => `INV-${String(index + 1).padStart(2, '0')}`),
+  criterion: [
+    'SC-01',
+    'SC-02',
+    'SC-03',
+    'SC-04',
+    'SC-05',
+    'SC-06',
+    'SC-06A',
+    'SC-06B',
+    'SC-06C',
+    'SC-06D',
+    'SC-06E',
+    'SC-06F',
+    'SC-07',
+    'SC-08',
+    'SC-09',
+    'SC-10',
+    'SC-10A',
+    'SC-11',
+    'SC-12',
+    'SC-13',
+    'SC-14',
+    'SC-14A',
+    'SC-14B',
+    'SC-14C',
+    'SC-15',
+    'SC-16',
+    'SC-17',
+    'SC-18',
+    'SC-19',
+    'SC-20',
+    'SC-21',
+  ],
+  journey: Array.from({ length: 25 }, (_, index) => `J${index + 1}`).filter((id) => id !== 'J22'),
+  'hardening-gate': [
+    'accessibility',
+    'bundle',
+    'crash-recovery',
+    'dependency-security',
+    'extension-isolation',
+    'localization',
+    'memory',
+    'offline-partial-service',
+    'packaging',
+    'performance',
+    'process-cleanup',
+    'rollback',
+    'security',
+    'support-doctor',
+    'updater',
+  ],
+};
+
+function releaseEvidence() {
+  return Object.entries(RELEASE_EVIDENCE).flatMap(([kind, ids]) =>
+    ids.map((id) => ({ kind, id, evidenceSha256: DIGEST('a') }))
+  );
+}
+
+function verifiedTargetGateReceipts() {
+  return TARGET_GATE_REQUIREMENTS.map((receipt, index) => ({
+    ...receipt,
+    candidate: { commit: COMMIT, tree: TREE },
+    authority: 'canonical-target-hardening-validator',
+    evidenceSha256: INDEX_DIGEST(index + 1),
+    receiptFile: { path: `/trusted/${receipt.target}/${receipt.gate}.json`, sha256: INDEX_DIGEST(index + 101) },
+    attestationVerified: true,
+  }));
+}
 
 function request() {
   return {
@@ -60,12 +133,9 @@ function request() {
     },
     capabilitySeal: { source: 'canonical' },
     packageSmokes: TARGETS.map((target) => ({ target, source: 'runtime' })),
-    targetGateReceipts: TARGET_GATE_REQUIREMENTS.map((receipt) => ({
-      ...receipt,
-      candidate: { commit: COMMIT, tree: TREE },
-      authority: 'canonical-target-hardening-validator',
-      evidenceSha256: DIGEST('9'),
-    })),
+    targetGateReceipts: { receiptsDirectory: '/trusted/target-gates' },
+    releaseEvidenceManifest: { source: 'canonical' },
+    releaseClaimsManifest: { source: 'canonical' },
     publisherArtifacts: CORE_ASSETS.map((assetName) => ({ assetName })),
     updaterEvidence: { accepted: true },
     conditionalReceipts: Object.keys(CONDITIONAL).map((capabilityId) => ({ capabilityId, accepted: true })),
@@ -113,32 +183,29 @@ function verifiers() {
       entries: 4,
       ids: ['7zip-recovery', 'bun', 'officecli', 'signal-cli'],
     }),
-    validateTargetGateReceiptSet: (receipts: any[], candidate: { commit: string; tree: string }) => {
-      if (!Array.isArray(receipts) || receipts.length !== TARGET_GATE_REQUIREMENTS.length) {
-        throw new Error('target gate receipt coverage or ordering mismatch');
-      }
-      return receipts.map((receipt, index) => {
-        const requirement = TARGET_GATE_REQUIREMENTS[index];
-        if (
-          receipt.contract !== requirement.contract ||
-          receipt.receiptId !== requirement.receiptId ||
-          receipt.target !== requirement.target ||
-          receipt.gate !== requirement.gate
-        ) {
-          throw new Error(`target gate receipt foreign or misbound: ${requirement.receiptId}`);
-        }
-        if (receipt.candidate.commit !== candidate.commit || receipt.candidate.tree !== candidate.tree) {
-          throw new Error(`target gate receipt stale or foreign candidate: ${receipt.receiptId}`);
-        }
-        if (
-          receipt.authority !== TARGET_GATE_SCHEMA.authority ||
-          !/^sha256:[a-f0-9]{64}$/.test(receipt.evidenceSha256)
-        ) {
-          throw new Error(`target gate receipt authority or digest invalid: ${receipt.receiptId}`);
-        }
-        return receipt;
-      });
-    },
+    verifyTargetGateReceiptFiles: () => ({
+      contract: 'wayland-target-hardening-gate-verification/1.0',
+      authority: 'canonical-target-hardening-validator',
+      candidate: { commit: COMMIT, tree: TREE },
+      receipts: verifiedTargetGateReceipts(),
+    }),
+    expectedReleaseEvidence: () => RELEASE_EVIDENCE,
+    verifyReleaseEvidenceManifest: () => ({
+      contract: 'wayland-release-evidence-attestation/1.0',
+      candidate: { commit: COMMIT, tree: TREE },
+      evidence: releaseEvidence(),
+      manifestSha256: DIGEST('b'),
+      signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml',
+      authority: 'github-attested-release-evidence',
+    }),
+    verifyReleaseClaimsManifest: () => ({
+      contract: 'wayland-release-claims-attestation/1.0',
+      candidate: { commit: COMMIT, tree: TREE },
+      capabilities: Object.keys(CONDITIONAL).map((id) => ({ id, claimed: true, evidenceSha256: DIGEST('c') })),
+      manifestSha256: DIGEST('d'),
+      signerWorkflow: 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml',
+      authority: 'github-attested-release-claims',
+    }),
     verifyPublisherArtifact: (raw: { assetName: string }) => ({
       contract: 'wayland-publisher-attestations/1.0',
       policyId: 'wayland-core-v0.12.25-release',
@@ -258,24 +325,81 @@ describe('M8-A final acceptance controller', () => {
   });
 
   it('requires every exact target and hardening-gate receipt', () => {
-    const input = request();
-    input.targetGateReceipts = input.targetGateReceipts.filter(
+    const hostile = verifiers();
+    const receipts = verifiedTargetGateReceipts().filter(
       (receipt) => receipt.receiptId !== 'M8-F:linux-x64:re-upgrade'
     );
-    input.targetGateReceipts.push({
-      ...input.targetGateReceipts[0],
+    receipts.push({
+      ...receipts[0],
       receiptId: 'M8-F:linux-x64:not-a-real-gate',
       gate: 'not-a-real-gate',
     });
+    hostile.verifyTargetGateReceiptFiles = () => ({
+      ...verifiers().verifyTargetGateReceiptFiles(),
+      receipts,
+    });
 
-    expect(() => verifyFinalAcceptance(input, verifiers())).toThrow(/foreign or misbound: M8-F:linux-x64:re-upgrade/);
+    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/foreign-or-misbound:M8-F:linux-x64:re-upgrade/);
   });
 
   it('rejects a target gate receipt for a stale candidate', () => {
-    const input = request();
-    input.targetGateReceipts[0].candidate = { commit: 'f'.repeat(40), tree: TREE };
+    const hostile = verifiers();
+    const receipts = verifiedTargetGateReceipts();
+    receipts[0].candidate = { commit: 'f'.repeat(40), tree: TREE };
+    hostile.verifyTargetGateReceiptFiles = () => ({
+      ...verifiers().verifyTargetGateReceiptFiles(),
+      receipts,
+    });
 
-    expect(() => verifyFinalAcceptance(input, verifiers())).toThrow(/stale or foreign candidate/);
+    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/stale-or-foreign-candidate/);
+  });
+
+  it('requires exact evidence for every invariant, criterion, journey, and hardening gate', () => {
+    const missing = verifiers();
+    missing.verifyReleaseEvidenceManifest = () => ({
+      ...verifiers().verifyReleaseEvidenceManifest(),
+      evidence: releaseEvidence().slice(0, -1),
+    });
+    expect(() => verifyFinalAcceptance(request(), missing)).toThrow(/coverage-mismatch/);
+
+    const misbound = verifiers();
+    const foreign = releaseEvidence();
+    foreign[0] = { ...foreign[0], id: 'INV-FOREIGN' };
+    misbound.verifyReleaseEvidenceManifest = () => ({
+      ...verifiers().verifyReleaseEvidenceManifest(),
+      evidence: foreign,
+    });
+    expect(() => verifyFinalAcceptance(request(), misbound)).toThrow(/unknown-misbound-or-duplicate/);
+
+    const duplicate = verifiers();
+    const repeated = releaseEvidence();
+    repeated[repeated.length - 1] = { ...repeated[0] };
+    duplicate.verifyReleaseEvidenceManifest = () => ({
+      ...verifiers().verifyReleaseEvidenceManifest(),
+      evidence: repeated,
+    });
+    expect(() => verifyFinalAcceptance(request(), duplicate)).toThrow(/unknown-misbound-or-duplicate/);
+  });
+
+  it('fails closed when the release evidence manifest is unattested', () => {
+    const hostile = verifiers();
+    hostile.verifyReleaseEvidenceManifest = () => {
+      throw new Error('Release acceptance manifest is unattested');
+    };
+    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/manifest is unattested/);
+  });
+
+  it('rejects an excluded capability that remains in release or marketing claims', () => {
+    const hostile = verifiers();
+    hostile.verifyCapabilitySeal = () => ({
+      ...verifiers().verifyCapabilitySeal(),
+      capabilities: Object.keys(CONDITIONAL).map((id) => ({
+        id,
+        mode: id === 'voice' ? 'excluded' : 'included',
+      })),
+    });
+
+    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/excluded-capability-still-claimed:voice/);
   });
 
   it('does not treat a caller-authored accepted boolean as updater authority', () => {
@@ -326,5 +450,19 @@ describe('M8-A final acceptance controller', () => {
     delete withoutUpdaterAuthority.verifyUpdaterObservation;
 
     expect(() => verifyFinalAcceptance(input, withoutUpdaterAuthority)).toThrow(/trusted-validator-not-installed/);
+  });
+
+  it('has one non-deploying package and GitHub callsite after evidence artifacts exist', () => {
+    const packageDocument = JSON.parse(readFileSync('package.json', 'utf8'));
+    expect(packageDocument.scripts['verify:release-acceptance']).toBe(
+      'node scripts/release-acceptance/verifyFinalAcceptance.js'
+    );
+
+    const workflow = readFileSync('.github/workflows/release-acceptance.yml', 'utf8');
+    const download = workflow.indexOf('Download completed evidence artifacts');
+    const gate = workflow.indexOf('bun run verify:release-acceptance');
+    expect(download).toBeGreaterThan(-1);
+    expect(gate).toBeGreaterThan(download);
+    expect(workflow).not.toMatch(/gh release edit|softprops\/action-gh-release|kubectl|fly deploy/i);
   });
 });

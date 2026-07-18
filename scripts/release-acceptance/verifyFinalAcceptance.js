@@ -78,17 +78,41 @@ function defaultVerifyHardeningMatrix(matrix) {
   return verifier(matrix);
 }
 
-function defaultValidateTargetGateReceiptSet(receipts, candidate) {
+function defaultVerifyTargetGateReceiptFiles(input, candidate) {
+  exactKeys(input, ['receiptsDirectory'], 'M8A_TARGET_GATE_RECEIPT_INVALID');
   let verifier;
   try {
-    verifier = require('./verifyHardeningMatrix').validateTargetGateReceiptSet;
+    verifier = require('./verifyHardeningMatrix').verifyTargetGateReceiptFiles;
   } catch {
     fail('M8A_TARGET_GATE_RECEIPT_AUTHORITY_UNAVAILABLE', 'canonical-target-gate-validator-not-installed');
   }
   if (typeof verifier !== 'function') {
     fail('M8A_TARGET_GATE_RECEIPT_AUTHORITY_UNAVAILABLE', 'canonical-target-gate-validator-not-installed');
   }
-  return verifier(receipts, candidate);
+  return verifier(input.receiptsDirectory, candidate);
+}
+
+function defaultExpectedReleaseEvidence() {
+  let matrix;
+  try {
+    matrix = require('./verifyHardeningMatrix');
+  } catch {
+    fail('M8A_RELEASE_EVIDENCE_AUTHORITY_UNAVAILABLE', 'canonical-hardening-matrix-verifier-not-installed');
+  }
+  return {
+    invariant: matrix.INVARIANTS,
+    criterion: matrix.CRITERIA,
+    journey: matrix.JOURNEYS,
+    'hardening-gate': matrix.GATES,
+  };
+}
+
+function defaultVerifyReleaseEvidenceManifest(input, context) {
+  return require('./verifyReleaseAcceptanceManifests').verifyReleaseEvidenceManifest(input, context);
+}
+
+function defaultVerifyReleaseClaimsManifest(input, context) {
+  return require('./verifyReleaseAcceptanceManifests').verifyReleaseClaimsManifest(input, context);
 }
 
 function defaultVerifyCapabilitySeal(seal) {
@@ -143,7 +167,10 @@ const DEFAULT_VERIFIERS = Object.freeze({
   verifyHardeningMatrix: defaultVerifyHardeningMatrix,
   verifyCapabilitySeal: defaultVerifyCapabilitySeal,
   verifyPlatformSmoke: authorityUnavailable('PLATFORM_SMOKE'),
-  validateTargetGateReceiptSet: defaultValidateTargetGateReceiptSet,
+  verifyTargetGateReceiptFiles: defaultVerifyTargetGateReceiptFiles,
+  expectedReleaseEvidence: defaultExpectedReleaseEvidence,
+  verifyReleaseEvidenceManifest: defaultVerifyReleaseEvidenceManifest,
+  verifyReleaseClaimsManifest: defaultVerifyReleaseClaimsManifest,
   verifyThirdPartyLedger: defaultVerifyThirdPartyLedger,
   verifyPublisherArtifact: defaultVerifyPublisherArtifact,
   expectedPublisherAssets: defaultExpectedPublisherAssets,
@@ -358,6 +385,135 @@ function verifyClearance(receipt, candidate, kind) {
   return result;
 }
 
+function verifyReleaseEvidenceReceipt(receipt, candidate, expectedByKind) {
+  const result = exactKeys(
+    receipt,
+    ['contract', 'candidate', 'evidence', 'manifestSha256', 'signerWorkflow', 'authority'],
+    'M8A_RELEASE_EVIDENCE_INVALID'
+  );
+  if (
+    result.contract !== 'wayland-release-evidence-attestation/1.0' ||
+    result.signerWorkflow !== 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml' ||
+    result.authority !== 'github-attested-release-evidence'
+  ) {
+    fail('M8A_RELEASE_EVIDENCE_INVALID', 'untrusted-manifest');
+  }
+  sameCandidate(result.candidate, candidate, 'M8A_RELEASE_EVIDENCE_INVALID');
+  digest(result.manifestSha256, 'M8A_RELEASE_EVIDENCE_INVALID');
+  const expected = new Map();
+  for (const [kind, ids] of Object.entries(expectedByKind)) {
+    if (!Array.isArray(ids)) fail('M8A_RELEASE_EVIDENCE_INVALID', `expected-${kind}-coverage-unavailable`);
+    for (const id of ids) {
+      const key = `${kind}:${id}`;
+      if (expected.has(key)) fail('M8A_RELEASE_EVIDENCE_INVALID', `duplicate-expected-id:${key}`);
+      expected.set(key, { kind, id });
+    }
+  }
+  if (!Array.isArray(result.evidence) || result.evidence.length !== expected.size) {
+    fail('M8A_RELEASE_EVIDENCE_INVALID', 'coverage-mismatch');
+  }
+  const observed = new Set();
+  for (const evidence of result.evidence) {
+    exactKeys(evidence, ['kind', 'id', 'evidenceSha256'], 'M8A_RELEASE_EVIDENCE_INVALID');
+    const key = `${evidence.kind}:${evidence.id}`;
+    if (!expected.has(key) || observed.has(key)) {
+      fail('M8A_RELEASE_EVIDENCE_INVALID', `unknown-misbound-or-duplicate:${key}`);
+    }
+    digest(evidence.evidenceSha256, 'M8A_RELEASE_EVIDENCE_INVALID');
+    observed.add(key);
+  }
+  return result;
+}
+
+function verifyTargetGateReceiptSet(receipt, candidate, requirements) {
+  const result = exactKeys(
+    receipt,
+    ['contract', 'authority', 'candidate', 'receipts'],
+    'M8A_TARGET_GATE_RECEIPT_INVALID'
+  );
+  if (
+    result.contract !== 'wayland-target-hardening-gate-verification/1.0' ||
+    result.authority !== 'canonical-target-hardening-validator'
+  ) {
+    fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'untrusted-verification-set');
+  }
+  sameCandidate(result.candidate, candidate, 'M8A_TARGET_GATE_RECEIPT_INVALID');
+  if (!Array.isArray(result.receipts) || result.receipts.length !== requirements.length) {
+    fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'coverage-mismatch');
+  }
+  const evidence = new Set();
+  return result.receipts.map((verified, index) => {
+    const requirement = requirements[index];
+    exactKeys(
+      verified,
+      [
+        'contract',
+        'receiptId',
+        'candidate',
+        'target',
+        'gate',
+        'authority',
+        'evidenceSha256',
+        'receiptFile',
+        'attestationVerified',
+      ],
+      'M8A_TARGET_GATE_RECEIPT_INVALID'
+    );
+    if (
+      verified.contract !== requirement.contract ||
+      verified.receiptId !== requirement.receiptId ||
+      verified.target !== requirement.target ||
+      verified.gate !== requirement.gate ||
+      verified.authority !== 'canonical-target-hardening-validator' ||
+      verified.attestationVerified !== true
+    ) {
+      fail('M8A_TARGET_GATE_RECEIPT_INVALID', `foreign-or-misbound:${requirement.receiptId}`);
+    }
+    sameCandidate(verified.candidate, candidate, 'M8A_TARGET_GATE_RECEIPT_INVALID');
+    digest(verified.evidenceSha256, 'M8A_TARGET_GATE_RECEIPT_INVALID');
+    if (evidence.has(verified.evidenceSha256)) {
+      fail('M8A_TARGET_GATE_RECEIPT_INVALID', `evidence-digest-reused:${verified.evidenceSha256}`);
+    }
+    evidence.add(verified.evidenceSha256);
+    const file = exactKeys(verified.receiptFile, ['path', 'sha256'], 'M8A_TARGET_GATE_RECEIPT_INVALID');
+    if (typeof file.path !== 'string' || file.path.length === 0) {
+      fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'missing-receipt-file-path');
+    }
+    digest(file.sha256, 'M8A_TARGET_GATE_RECEIPT_INVALID');
+    return verified;
+  });
+}
+
+function verifyReleaseClaimsReceipt(receipt, candidate) {
+  const result = exactKeys(
+    receipt,
+    ['contract', 'candidate', 'capabilities', 'manifestSha256', 'signerWorkflow', 'authority'],
+    'M8A_RELEASE_CLAIMS_INVALID'
+  );
+  if (
+    result.contract !== 'wayland-release-claims-attestation/1.0' ||
+    result.signerWorkflow !== 'FerroxLabs/wayland/.github/workflows/release-acceptance.yml' ||
+    result.authority !== 'github-attested-release-claims'
+  ) {
+    fail('M8A_RELEASE_CLAIMS_INVALID', 'untrusted-manifest');
+  }
+  sameCandidate(result.candidate, candidate, 'M8A_RELEASE_CLAIMS_INVALID');
+  digest(result.manifestSha256, 'M8A_RELEASE_CLAIMS_INVALID');
+  if (!Array.isArray(result.capabilities) || result.capabilities.length !== CAPABILITIES.length) {
+    fail('M8A_RELEASE_CLAIMS_INVALID', 'coverage-mismatch');
+  }
+  const claims = new Map();
+  for (const claim of result.capabilities) {
+    exactKeys(claim, ['id', 'claimed', 'evidenceSha256'], 'M8A_RELEASE_CLAIMS_INVALID');
+    if (!CAPABILITIES.includes(claim.id) || claims.has(claim.id) || typeof claim.claimed !== 'boolean') {
+      fail('M8A_RELEASE_CLAIMS_INVALID', 'unknown-or-duplicate-capability');
+    }
+    digest(claim.evidenceSha256, 'M8A_RELEASE_CLAIMS_INVALID');
+    claims.set(claim.id, claim);
+  }
+  return claims;
+}
+
 function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
   const request = exactKeys(
     input,
@@ -368,6 +524,8 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
       'capabilitySeal',
       'packageSmokes',
       'targetGateReceipts',
+      'releaseEvidenceManifest',
+      'releaseClaimsManifest',
       'publisherArtifacts',
       'updaterEvidence',
       'conditionalReceipts',
@@ -381,8 +539,27 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
   sameCandidate(verifiers.observeCandidateIdentity(), candidate, 'M8A_LIVE_CANDIDATE_INVALID');
 
   const matrixReceipt = verifyMatrixReceipt(verifiers.verifyHardeningMatrix(request.hardeningMatrix));
+  const expectedReleaseEvidence = verifiers.expectedReleaseEvidence();
+  const releaseEvidenceReceipt = verifyReleaseEvidenceReceipt(
+    verifiers.verifyReleaseEvidenceManifest(request.releaseEvidenceManifest, {
+      candidate,
+      expectedByKind: expectedReleaseEvidence,
+    }),
+    candidate,
+    expectedReleaseEvidence
+  );
   const capabilitySeal = verifiers.verifyCapabilitySeal(request.capabilitySeal);
   const capabilities = verifyCapabilitySealReceipt(capabilitySeal, candidate);
+  const releaseClaimsReceipt = verifiers.verifyReleaseClaimsManifest(request.releaseClaimsManifest, {
+    candidate,
+    capabilityIds: CAPABILITIES,
+  });
+  const releaseClaims = verifyReleaseClaimsReceipt(releaseClaimsReceipt, candidate);
+  for (const capabilityId of CAPABILITIES) {
+    if (capabilities.get(capabilityId).mode === 'excluded' && releaseClaims.get(capabilityId).claimed) {
+      fail('M8A_RELEASE_CLAIMS_INVALID', `excluded-capability-still-claimed:${capabilityId}`);
+    }
+  }
   const ledgerReceipt = verifiers.verifyThirdPartyLedger();
   if (
     !ledgerReceipt ||
@@ -412,10 +589,11 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
   );
   const artifactIdentities = new Set(platformReceipts.map((receipt) => JSON.stringify(receipt.artifacts)));
   if (artifactIdentities.size !== TARGETS.length) fail('M8A_PLATFORM_SMOKE_INVALID', 'duplicate-artifact-identity');
-  const targetGateReceipts = verifiers.validateTargetGateReceiptSet(request.targetGateReceipts, candidate);
-  if (!Array.isArray(targetGateReceipts) || targetGateReceipts.length !== matrixReceipt.targetGateRequirements.length) {
-    fail('M8A_TARGET_GATE_RECEIPT_INVALID', 'canonical-validator-returned-incomplete-set');
-  }
+  const targetGateReceipts = verifyTargetGateReceiptSet(
+    verifiers.verifyTargetGateReceiptFiles(request.targetGateReceipts, candidate),
+    candidate,
+    matrixReceipt.targetGateRequirements
+  );
 
   const expectedPublisherAssets = verifiers.expectedPublisherAssets();
   if (
@@ -511,6 +689,8 @@ function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
     contract: RECEIPT_CONTRACT,
     candidate,
     matrix: matrixReceipt,
+    releaseEvidenceManifestSha256: releaseEvidenceReceipt.manifestSha256,
+    releaseClaimsManifestSha256: releaseClaimsReceipt.manifestSha256,
     capabilitySealSha256: capabilitySeal.sealSha256,
     targets: platformReceipts.map((receipt) => ({ target: receipt.target, artifacts: receipt.artifacts })),
     targetGates: targetGateReceipts.map((receipt) => ({
