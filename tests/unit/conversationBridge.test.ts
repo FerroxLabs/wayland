@@ -320,7 +320,7 @@ describe('conversationBridge', () => {
       expect(mockTask.sendMessage).toHaveBeenCalled();
     });
 
-    it('does not rebuild or persist MCP session authority while the preview gate is disabled', async () => {
+    it('rebuilds stale MCP session authority in production without a preview gate', async () => {
       const task = {
         type: 'wcore',
         workspace: '/ws',
@@ -343,15 +343,15 @@ describe('conversationBridge', () => {
         handlers['sendMessage']({ conversation_id: 'c-quarantined', input: 'use tavily', files: [] })
       ).resolves.toEqual({ success: true });
 
-      expect(tm.kill).not.toHaveBeenCalled();
-      expect(attachOAuthTokens).not.toHaveBeenCalled();
+      expect(tm.kill).toHaveBeenCalledWith('c-quarantined');
+      expect(attachOAuthTokens).toHaveBeenCalled();
       expect(
         vi
           .mocked(svc.updateConversation)
           .mock.calls.some(([, updates]) =>
             Boolean((updates as { extra?: { mcpRuntimeFingerprint?: string } }).extra?.mcpRuntimeFingerprint)
           )
-      ).toBe(false);
+      ).toBe(true);
     });
 
     it('waits for a stale MCP session to exit before building and sending through its replacement', async () => {
@@ -443,9 +443,9 @@ describe('conversationBridge', () => {
       expect(svc.updateConversation).toHaveBeenCalledWith(
         'c-oauth',
         expect.objectContaining({
-          extra: {
+          extra: expect.objectContaining({
             mcpRuntimeFingerprint: mcpSessionFingerprint(mcpRuntimeFingerprint([withBearer('fresh-token')]), undefined),
-          },
+          }),
         }),
         true
       );

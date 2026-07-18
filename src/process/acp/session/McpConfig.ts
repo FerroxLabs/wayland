@@ -11,6 +11,17 @@ type MergeParams = {
   teamServer?: McpServer;
 };
 
+export type McpConfigOmission = {
+  server: IMcpServer;
+  reason: string;
+};
+
+export type McpConfigProjection = {
+  servers: McpServer[];
+  omissions: McpConfigOmission[];
+  selectedServers: IMcpServer[];
+};
+
 /**
  * Default MCP capabilities used when no cached initialize result is available.
  * stdio is mandatory per ACP spec; http/sse are conservatively disabled.
@@ -65,9 +76,20 @@ export class McpConfig {
     capabilities?: AcpMcpCapabilities,
     activeServerIds?: readonly string[]
   ): McpServer[] {
-    const caps = capabilities ?? DEFAULT_MCP_CAPABILITIES;
+    return McpConfig.projectStorageConfig(servers, capabilities, activeServerIds).servers;
+  }
 
-    return servers
+  /**
+   * Project storage authority into ACP config without hiding eligible servers
+   * that the negotiated transport contract cannot publish.
+   */
+  static projectStorageConfig(
+    servers: IMcpServer[],
+    capabilities?: AcpMcpCapabilities,
+    activeServerIds?: readonly string[]
+  ): McpConfigProjection {
+    const caps = capabilities ?? DEFAULT_MCP_CAPABILITIES;
+    const eligible = servers
       .filter(
         (s) =>
           // Wayland-managed builtin servers AND user-installed library/custom
@@ -82,42 +104,58 @@ export class McpConfig {
       )
       // This is an authority boundary, not a display preference. Builtins stay
       // available; user connectors must match this conversation's selection.
-      .filter((server) => isServerActiveForSession(server, activeServerIds))
-      .map((server): McpServer | null => {
-        switch (server.transport.type) {
-          case 'stdio': {
-            if (!caps.stdio) return null;
-            // Use the same bundled-Bun tuple as the Library probe so the live
-            // ACP session does not reintroduce a host `npx`/PATH dependency.
-            const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
-            return {
-              name: server.name,
-              command: spawn.command,
-              args: spawn.args,
-              env: toNameValueArray(server.transport.env),
-            };
+      .filter((server) => isServerActiveForSession(server, activeServerIds));
+    const projected: McpServer[] = [];
+    const omissions: McpConfigOmission[] = [];
+    for (const server of eligible) {
+      let runtimeServer: McpServer | undefined;
+      let reason: string | undefined;
+      switch (server.transport.type) {
+        case 'stdio': {
+          if (!caps.stdio) {
+            reason = 'ACP runtime did not advertise stdio MCP transport support';
+            break;
           }
-          case 'http':
-          case 'streamable_http':
-            if (!caps.http) return null;
-            return {
-              type: 'http' as const,
-              name: server.name,
-              url: server.transport.url,
-              headers: toNameValueArray(server.transport.headers),
-            };
-          case 'sse':
-            if (!caps.sse) return null;
-            return {
-              type: 'sse' as const,
-              name: server.name,
-              url: server.transport.url,
-              headers: toNameValueArray(server.transport.headers),
-            };
-          default:
-            return null;
+          const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
+          runtimeServer = {
+            name: server.name,
+            command: spawn.command,
+            args: spawn.args,
+            env: toNameValueArray(server.transport.env),
+          };
+          break;
         }
-      })
-      .filter((s): s is McpServer => s !== null);
+        case 'http':
+        case 'streamable_http':
+          if (!caps.http) {
+            reason = 'ACP runtime did not advertise HTTP MCP transport support';
+            break;
+          }
+          runtimeServer = {
+            type: 'http' as const,
+            name: server.name,
+            url: server.transport.url,
+            headers: toNameValueArray(server.transport.headers),
+          };
+          break;
+        case 'sse':
+          if (!caps.sse) {
+            reason = 'ACP runtime did not advertise SSE MCP transport support';
+            break;
+          }
+          runtimeServer = {
+            type: 'sse' as const,
+            name: server.name,
+            url: server.transport.url,
+            headers: toNameValueArray(server.transport.headers),
+          };
+          break;
+        default:
+          reason = `ACP runtime cannot publish MCP transport: ${(server.transport as { type: string }).type}`;
+      }
+      if (runtimeServer) projected.push(runtimeServer);
+      else omissions.push({ server, reason: reason ?? 'ACP runtime omitted MCP server' });
+    }
+    return { servers: projected, omissions, selectedServers: eligible };
   }
 }

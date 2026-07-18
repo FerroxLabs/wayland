@@ -64,6 +64,9 @@ export default forkTask(({ data }, pipe) => {
   pipe.on('init.history', (event: { text: string }, deferred) => {
     deferred.with(agent.injectConversationHistory(event.text));
   });
+  pipe.on('mcp.tools', (_, deferred) => {
+    deferred.with(Promise.resolve(agent.getRegisteredMcpTools()));
+  });
   pipe.on('send.message', (event: { input: string; msg_id: string; files?: string[] }, deferred) => {
     deferred.with(agent.send(event.input, event.msg_id, event.files));
   });

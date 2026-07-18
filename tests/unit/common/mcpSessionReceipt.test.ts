@@ -11,6 +11,8 @@ import {
   getMcpSessionReceiptForServer,
   recordDesktopMcpSessionFailure,
   recordDesktopMcpSessionPublication,
+  reduceMcpSessionProducerEvent,
+  reduceMcpSessionToolInvocation,
   reduceMcpSessionTerminal,
   type McpSessionBackend,
   type McpSessionDefinitionDigest,
@@ -91,6 +93,118 @@ describe('MCP session receipt reducer', () => {
     expect(next.receipts['hmac-sha256:aaa']).toMatchObject({
       status: 'degraded',
       reason: 'Core loaded the connector but registered no tools',
+    });
+  });
+
+  it.each(['acp', 'gemini', 'codex-native'] as const)(
+    'accepts only exact %s producer evidence bound to this launch and definition',
+    (backend) => {
+      const digest = 'hmac-sha256:aaa' as const;
+      const initial = recordDesktopMcpSessionPublication(
+        stateFor([expected(server(), digest, backend)], backend),
+        'tavily',
+        12
+      );
+      const exact = {
+        generation: 'launch-1',
+        conversationId: 'chat-1',
+        backend,
+        runtimeName: 'tavily',
+        definitionDigest: digest,
+        tools: ['search', ' search ', 'extract'],
+      };
+
+      const registered = reduceMcpSessionProducerEvent(
+        initial,
+        { type: 'mcp_tools_registered', data: exact },
+        20
+      );
+      expect(registered.receipts[digest]).toMatchObject({
+        status: 'registered',
+        source: backend,
+        tools: ['extract', 'search'],
+      });
+      expect(getMcpSessionReceiptForServer(registered, server())?.status).toBe('registered');
+
+      for (const hostile of [
+        { ...exact, generation: 'old-launch' },
+        { ...exact, conversationId: 'other-chat' },
+        { ...exact, backend: 'wcore' as const },
+        { ...exact, definitionDigest: 'hmac-sha256:forged' as const },
+      ]) {
+        expect(
+          reduceMcpSessionProducerEvent(initial, { type: 'mcp_tools_registered', data: hostile }, 20)
+        ).toBe(initial);
+      }
+    }
+  );
+
+  it('keeps connected configuration unverified and makes producer omissions visible', () => {
+    const digest = 'hmac-sha256:aaa' as const;
+    const published = recordDesktopMcpSessionPublication(
+      stateFor([expected(server(), digest, 'acp')], 'acp'),
+      'tavily',
+      12
+    );
+    expect(published.receipts[digest]?.status).toBe('published_unverified');
+
+    const degraded = reduceMcpSessionProducerEvent(
+      published,
+      {
+        type: 'mcp_tools_registered',
+        data: {
+          generation: 'launch-1',
+          conversationId: 'chat-1',
+          backend: 'acp',
+          runtimeName: 'tavily',
+          definitionDigest: digest,
+          tools: [],
+        },
+      },
+      20
+    );
+    expect(degraded.receipts[digest]).toMatchObject({
+      status: 'degraded',
+      source: 'acp',
+      tools: [],
+    });
+
+    const recovered = reduceMcpSessionProducerEvent(
+      degraded,
+      {
+        type: 'mcp_tools_registered',
+        data: {
+          generation: 'launch-1',
+          conversationId: 'chat-1',
+          backend: 'acp',
+          runtimeName: 'tavily',
+          definitionDigest: digest,
+          tools: ['search'],
+        },
+      },
+      25
+    );
+    expect(recovered.receipts[digest]).toMatchObject({ status: 'registered', tools: ['search'] });
+  });
+
+  it('accepts only an exact backend-native MCP invocation name as observed tool evidence', () => {
+    const digest = 'hmac-sha256:aaa' as const;
+    const published = recordDesktopMcpSessionPublication(
+      stateFor([expected(server(), digest, 'codex-native')], 'codex-native'),
+      'tavily',
+      12
+    );
+
+    expect(reduceMcpSessionToolInvocation(published, 'Tavily search')).toBe(published);
+    expect(reduceMcpSessionToolInvocation(published, 'mcp__firecrawl__search')).toBe(published);
+    expect(reduceMcpSessionToolInvocation(published, 'mcp__tavily__search__forged')).toBe(published);
+    expect(reduceMcpSessionToolInvocation(published, 'the model says mcp__tavily__search')).toBe(published);
+
+    const observed = reduceMcpSessionToolInvocation(published, 'mcp__tavily__search', 20);
+    expect(observed.receipts[digest]).toMatchObject({
+      status: 'registered',
+      source: 'codex-native',
+      tools: ['search'],
     });
   });
 

@@ -114,6 +114,7 @@ export class AcpAgentV2 {
   private onSignalEvent?: (data: IResponseMessage) => void;
   private onSessionIdUpdate?: (sessionId: string) => void;
   private onAvailableCommandsUpdate?: (commands: Array<{ name: string; description?: string; hint?: string }>) => void;
+  private onMcpProjection?: OldAcpAgentConfig['onMcpProjection'];
 
   // Cached state from callbacks
   private cachedModelInfo: AcpModelInfo | null = null;
@@ -170,6 +171,7 @@ export class AcpAgentV2 {
     this.onSignalEvent = config.onSignalEvent as ((data: IResponseMessage) => void) | undefined;
     this.onSessionIdUpdate = config.onSessionIdUpdate;
     this.onAvailableCommandsUpdate = config.onAvailableCommandsUpdate;
+    this.onMcpProjection = config.onMcpProjection;
     this.agentConfig = toAgentConfig(config);
   }
 
@@ -234,7 +236,9 @@ export class AcpAgentV2 {
       } catch (err) {
         console.warn('[AcpAgentV2] attachOAuthTokens failed; using stored MCP headers:', err);
       }
-      const userServers = McpConfig.fromStorageConfig(freshened, caps, this.agentConfig.activeMcpServers);
+      const projection = McpConfig.projectStorageConfig(freshened, caps, this.agentConfig.activeMcpServers);
+      this.onMcpProjection?.(projection);
+      const userServers = projection.servers;
       if (userServers.length > 0) {
         (this.agentConfig as { mcpServers?: McpServer[] }).mcpServers = [
           ...(this.agentConfig.mcpServers || []),

@@ -36,7 +36,7 @@ import { ConversationSideQuestionService } from './services/ConversationSideQues
 import { getDatabase } from '@process/services/database';
 import { mcpRuntimeFingerprint, mcpSessionFingerprint } from '@/common/mcp';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
-import { isMcpSessionTruthPreviewEnabled } from '@process/services/mcpServices/mcpSessionTruthGate';
+import { McpSessionRebindCoordinator } from './services/McpSessionRebindCoordinator';
 
 const refreshTrayMenuSafely = async (): Promise<void> => {
   try {
@@ -74,6 +74,7 @@ export function initConversationBridge(
   teamSessionService?: TeamSessionService
 ): void {
   const sideQuestionService = new ConversationSideQuestionService(conversationService);
+  const mcpRebindCoordinator = new McpSessionRebindCoordinator<IAgentManager>();
 
   const emitConversationListChanged = (
     conversation: Pick<TChatConversation, 'id' | 'source'>,
@@ -580,32 +581,52 @@ export function initConversationBridge(
     const preSendConversation = await conversationService
       .getConversation(conversation_id)
       .catch((): undefined => undefined);
-    let currentMcpFingerprint: string | undefined;
-    let appliedMcpFingerprint: string | undefined;
-    if (isMcpSessionTruthPreviewEnabled()) {
-      // Preview only: M0A/M1 must seal the authority/replay contract before
-      // Desktop may restart a user's live session based on connector drift.
-      const runtimeMcpConfig = await loadRuntimeMcpServers();
-      let runtimeMcpAuthority = runtimeMcpConfig;
-      try {
-        const { mcpService } = await import('@process/services/mcpServices/McpService');
-        runtimeMcpAuthority = await mcpService.attachOAuthTokens(runtimeMcpConfig);
-      } catch (error) {
-        console.warn('[conversationBridge] Failed to resolve current MCP OAuth authority:', error);
-      }
-      currentMcpFingerprint = mcpSessionFingerprint(
-        mcpRuntimeFingerprint(runtimeMcpAuthority),
-        (preSendConversation?.extra as { activeMcpServers?: string[] } | undefined)?.activeMcpServers
-      );
-      appliedMcpFingerprint = (preSendConversation?.extra as { mcpRuntimeFingerprint?: string } | undefined)
-        ?.mcpRuntimeFingerprint;
-      const existingTask = workerTaskManager.getTask(conversation_id);
-      if (shouldRebuildForMcpFingerprint(existingTask?.type, appliedMcpFingerprint, currentMcpFingerprint)) {
-        await workerTaskManager.kill(conversation_id);
-      }
-    }
     try {
-      task = await workerTaskManager.getOrBuildTask(conversation_id);
+      const existingTask = workerTaskManager.getTask(conversation_id);
+      const taskType = existingTask?.type ?? preSendConversation?.type;
+      if (taskType && MCP_SESSION_TASK_TYPES.has(taskType)) {
+        const runtimeMcpConfig = await loadRuntimeMcpServers();
+        const { mcpService } = await import('@process/services/mcpServices/McpService');
+        const runtimeMcpAuthority = await mcpService.attachOAuthTokens(runtimeMcpConfig);
+        const currentMcpFingerprint = mcpSessionFingerprint(
+          mcpRuntimeFingerprint(runtimeMcpAuthority),
+          (preSendConversation?.extra as { activeMcpServers?: string[] } | undefined)?.activeMcpServers
+        );
+        const appliedMcpFingerprint = (
+          preSendConversation?.extra as { mcpRuntimeFingerprint?: string } | undefined
+        )?.mcpRuntimeFingerprint;
+        const result = await mcpRebindCoordinator.getOrRebind({
+          conversationId: conversation_id,
+          taskType,
+          appliedFingerprint: appliedMcpFingerprint,
+          currentFingerprint: currentMcpFingerprint,
+          build: async () => workerTaskManager.getOrBuildTask(conversation_id),
+          kill: async () => workerTaskManager.kill(conversation_id),
+          clearAuthority: async (generation) => {
+            await conversationService.updateConversation(
+              conversation_id,
+              {
+                extra: {
+                  mcpRuntimeFingerprint: undefined,
+                  mcpRuntimeGeneration: generation,
+                  mcpSessionState: undefined,
+                },
+              } as Partial<TChatConversation>,
+              true
+            );
+          },
+          persistAuthority: async (fingerprint, generation) => {
+            await conversationService.updateConversation(
+              conversation_id,
+              { extra: { mcpRuntimeFingerprint: fingerprint, mcpRuntimeGeneration: generation } } as Partial<TChatConversation>,
+              true
+            );
+          },
+        });
+        task = result.task;
+      } else {
+        task = await workerTaskManager.getOrBuildTask(conversation_id);
+      }
     } catch (err) {
       console.error(`[conversationBridge] sendMessage: failed to get/build task: ${conversation_id}`, err);
       return {
@@ -616,18 +637,6 @@ export function initConversationBridge(
 
     if (!task) {
       return { success: false, msg: 'conversation not found' };
-    }
-
-    if (isMcpSessionTruthPreviewEnabled() && currentMcpFingerprint && appliedMcpFingerprint !== currentMcpFingerprint) {
-      await conversationService
-        .updateConversation(
-          conversation_id,
-          { extra: { mcpRuntimeFingerprint: currentMcpFingerprint } } as Partial<TChatConversation>,
-          true
-        )
-        .catch((error) => {
-          console.warn('[conversationBridge] Failed to persist applied MCP fingerprint:', error);
-        });
     }
 
     // Handle file paths based on agent type

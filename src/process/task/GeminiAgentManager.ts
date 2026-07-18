@@ -47,9 +47,21 @@ import { extractTextFromMessage, processCronInMessage } from './MessageMiddlewar
 import { stripThinkTags, extractAndStripThinkTags } from './ThinkTagDetector';
 import { teamEventBus } from '@process/team/teamEventBus';
 import * as fs from 'node:fs';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
-import { isMcpSessionTruthPreviewEnabled } from '@process/services/mcpServices/mcpSessionTruthGate';
+import {
+  createMcpSessionDigestKey,
+  createMcpSessionExpectedServer,
+  isMcpSessionTruthPreviewEnabled,
+} from '@process/services/mcpServices/mcpSessionTruthGate';
+import {
+  createMcpSessionState,
+  recordDesktopMcpSessionFailure,
+  recordDesktopMcpSessionPublication,
+  reduceMcpSessionProducerEvent,
+  type McpSessionExpectedServer,
+  type McpSessionState,
+} from '@/common/mcp/sessionReceipt';
 
 // Gemini agent manager class
 export type UiMcpServerConfig = {
@@ -166,6 +178,10 @@ export class GeminiAgentManager extends BaseAgentManager<
 
   /** Fingerprint of MCP config used by the current worker, for change detection */
   private mcpFingerprint: string = '';
+  private readonly mcpSessionGeneration = randomUUID();
+  private readonly mcpSessionDigestKey = createMcpSessionDigestKey();
+  private mcpSessionState: McpSessionState;
+  private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
 
   /** Session-level approval store for "always allow" memory */
   readonly approvalStore = new GeminiApprovalStore();
@@ -268,6 +284,10 @@ export class GeminiAgentManager extends BaseAgentManager<
     super('gemini', { ...data, model }, new IpcAgentEventEmitter());
     this.workspace = data.workspace;
     this.conversation_id = data.conversation_id;
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, [], {
+      conversationId: this.conversation_id,
+      backend: 'gemini',
+    });
     this.model = model;
     this.contextFileName = data.contextFileName;
     this.presetRules = data.presetRules;
@@ -292,6 +312,88 @@ export class GeminiAgentManager extends BaseAgentManager<
     this.bootstrap.catch((e) => {
       mainLog('[GeminiAgentManager]', 'bootstrap failed:', e?.message || String(e));
     });
+  }
+
+  private beginMcpSession(servers: readonly IMcpServer[]): void {
+    const expected: McpSessionExpectedServer[] = servers.map((server) =>
+      createMcpSessionExpectedServer(server, 'gemini', this.mcpSessionDigestKey)
+    );
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, expected, {
+      conversationId: this.conversation_id,
+      backend: 'gemini',
+    });
+    this.publishMcpSessionState();
+  }
+
+  private publishMcpServer(runtimeName: string): void {
+    this.mcpSessionState = recordDesktopMcpSessionPublication(this.mcpSessionState, runtimeName);
+    this.publishMcpSessionState();
+  }
+
+  private publishMcpSessionState(): void {
+    const snapshot: McpSessionState = {
+      ...this.mcpSessionState,
+      expectedServers: this.mcpSessionState.expectedServers.map((server) => ({ ...server })),
+      expectedServerNames: [...this.mcpSessionState.expectedServerNames],
+      receipts: { ...this.mcpSessionState.receipts },
+    };
+    ipcBridge.conversation.responseStream.emit({
+      type: 'mcp_session_state',
+      conversation_id: this.conversation_id,
+      msg_id: '',
+      data: snapshot,
+    });
+    this.mcpSessionPersistQueue = this.mcpSessionPersistQueue
+      .then(async () => {
+        const db = await getDatabase();
+        const result = db.getConversation(this.conversation_id);
+        if (!result.success || !result.data) return;
+        const conversation = result.data;
+        db.updateConversation(this.conversation_id, {
+          extra: { ...conversation.extra, mcpSessionState: snapshot },
+        } as Partial<typeof conversation>);
+      })
+      .catch((error) => mainWarn('[GeminiAgentManager]', 'failed to persist MCP session state', error));
+  }
+
+  private async acceptGeminiMcpRegistry(): Promise<void> {
+    let inventory: Array<{ serverName: string; tools: string[] }> | undefined;
+    try {
+      inventory = (await this.postMessagePromise('mcp.tools', {})) as
+        | Array<{ serverName: string; tools: string[] }>
+        | undefined;
+    } catch (error) {
+      for (const expected of this.mcpSessionState.expectedServers) {
+        this.mcpSessionState = reduceMcpSessionProducerEvent(this.mcpSessionState, {
+          type: 'mcp_registration_failed',
+          data: {
+            generation: this.mcpSessionState.generation,
+            conversationId: this.conversation_id,
+            backend: 'gemini',
+            runtimeName: expected.runtimeName,
+            definitionDigest: expected.definitionDigest,
+            reason: error instanceof Error ? error.message : 'Gemini registry evidence unavailable',
+          },
+        });
+      }
+      this.publishMcpSessionState();
+      return;
+    }
+    const toolsByServer = new Map((inventory ?? []).map(({ serverName, tools }) => [serverName, tools]));
+    for (const expected of this.mcpSessionState.expectedServers) {
+      this.mcpSessionState = reduceMcpSessionProducerEvent(this.mcpSessionState, {
+        type: 'mcp_tools_registered',
+        data: {
+          generation: this.mcpSessionState.generation,
+          conversationId: this.conversation_id,
+          backend: 'gemini',
+          runtimeName: expected.runtimeName,
+          definitionDigest: expected.definitionDigest,
+          tools: toolsByServer.get(expected.runtimeName) ?? [],
+        },
+      });
+    }
+    this.publishMcpSessionState();
   }
 
   /**
@@ -396,6 +498,7 @@ export class GeminiAgentManager extends BaseAgentManager<
       })
       .then(async () => {
         await this.injectHistoryFromDatabase();
+        await this.acceptGeminiMcpRegistry();
       });
   }
 
@@ -456,6 +559,8 @@ export class GeminiAgentManager extends BaseAgentManager<
         mainWarn('[GeminiAgentManager]', 'OAuth refresh failed; using stored MCP headers', error);
       }
 
+      this.beginMcpSession(selectedServers);
+
       selectedServers.forEach((server: IMcpServer) => {
         if (server.transport.type === 'stdio') {
           mcpConfig[server.name] = buildGeminiStdioMcpConfig(server.transport, server.description);
@@ -473,6 +578,7 @@ export class GeminiAgentManager extends BaseAgentManager<
             description: server.description,
           };
         }
+        if (mcpConfig[server.name]) this.publishMcpServer(server.name);
       });
 
       // Inject team MCP server if this agent belongs to a team (stdio mode)
@@ -514,6 +620,14 @@ export class GeminiAgentManager extends BaseAgentManager<
       return mcpConfig;
     } catch (error) {
       this.mcpFingerprint = GeminiAgentManager.computeMcpFingerprint([], this.activeMcpServers);
+      for (const expected of this.mcpSessionState.expectedServers) {
+        this.mcpSessionState = recordDesktopMcpSessionFailure(
+          this.mcpSessionState,
+          expected.runtimeName,
+          error instanceof Error ? error.message : 'Gemini failed to construct MCP session config'
+        );
+      }
+      this.publishMcpSessionState();
       mainWarn('[GeminiAgentManager]', 'Failed to construct MCP session config', error);
       return {};
     }
@@ -528,7 +642,6 @@ export class GeminiAgentManager extends BaseAgentManager<
     silent?: boolean;
   }) {
     if (data.silent) {
-      await this.refreshWorkerIfMcpChanged();
       this.status = 'pending';
       cronBusyGuard.setProcessing(this.conversation_id, true);
       await this.bootstrap
@@ -545,7 +658,10 @@ export class GeminiAgentManager extends BaseAgentManager<
             });
           });
         })
-        .then(() => super.sendMessage(data))
+        .then(async () => {
+          await this.acceptGeminiMcpRegistry();
+          return super.sendMessage(data);
+        })
         .finally(() => {
           cronBusyGuard.setProcessing(this.conversation_id, false);
         });
@@ -587,7 +703,6 @@ export class GeminiAgentManager extends BaseAgentManager<
 
     // Check if MCP config has changed since worker was initialized
     // If changed, kill old worker and re-bootstrap with fresh config
-    await this.refreshWorkerIfMcpChanged();
     this.status = 'pending';
     cronBusyGuard.setProcessing(this.conversation_id, true);
 
@@ -630,7 +745,10 @@ export class GeminiAgentManager extends BaseAgentManager<
           });
         });
       })
-      .then(() => super.sendMessage(sendData))
+      .then(async () => {
+        await this.acceptGeminiMcpRegistry();
+        return super.sendMessage(sendData);
+      })
       .finally(() => {
         cronBusyGuard.setProcessing(this.conversation_id, false);
       });

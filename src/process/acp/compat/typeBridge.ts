@@ -10,6 +10,7 @@ import {
   type AgentBackend,
 } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
+import type { McpConfigProjection } from '@process/acp/session/McpConfig';
 import type { AgentConfig, AgentSource, ConfigOption, InitialDesiredConfig, ModelSnapshot } from '@process/acp/types';
 import { getEnhancedEnv, loadFullShellEnvironment } from '@process/utils/shellEnv';
 /**
@@ -53,6 +54,8 @@ export type OldAcpAgentConfig = {
   onSignalEvent?: (data: unknown) => void;
   onSessionIdUpdate?: (sessionId: string) => void;
   onAvailableCommandsUpdate?: (commands: Array<{ name: string; description?: string; hint?: string }>) => void;
+  /** Exact post-auth transport projection supplied to this ACP launch. */
+  onMcpProjection?: (projection: McpConfigProjection) => void;
 };
 
 /**

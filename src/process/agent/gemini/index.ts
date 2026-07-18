@@ -725,6 +725,25 @@ export class GeminiAgent {
     }
   }
 
+  /** Exact inventory from Gemini's live tool registry after MCP startup. */
+  getRegisteredMcpTools(): Array<{ serverName: string; tools: string[] }> {
+    const grouped = new Map<string, Set<string>>();
+    const registry = this.config?.getToolRegistry?.();
+    for (const tool of registry?.getAllTools?.() ?? []) {
+      const mcpTool = tool as { serverName?: unknown; name?: unknown };
+      if (typeof mcpTool.serverName !== 'string' || typeof mcpTool.name !== 'string') continue;
+      const serverName = mcpTool.serverName.trim();
+      const toolName = mcpTool.name.trim();
+      if (!serverName || !toolName) continue;
+      const tools = grouped.get(serverName) ?? new Set<string>();
+      tools.add(toolName);
+      grouped.set(serverName, tools);
+    }
+    return [...grouped.entries()]
+      .map(([serverName, tools]) => ({ serverName, tools: [...tools].toSorted() }))
+      .toSorted((left, right) => left.serverName.localeCompare(right.serverName));
+  }
+
   submitQuery(
     query: unknown,
     msg_id: string,

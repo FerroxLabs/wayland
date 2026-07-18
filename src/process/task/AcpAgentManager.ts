@@ -43,6 +43,7 @@ import {
 import { codexMcpBearerEnvVar, codexMcpHeaderEnvVar } from '@/common/mcp';
 import type { IMcpServer } from '@/common/config/storage';
 import * as os from 'node:os';
+import { randomUUID } from 'node:crypto';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 import {
   isServerActiveForSession,
@@ -89,6 +90,20 @@ import { extractTextFromMessage, processCronInMessage } from './MessageMiddlewar
 import { ConversationTurnCompletionService } from './ConversationTurnCompletionService';
 import { resolveFluxRouting, type FluxRoutingResult, type RoutingDecision } from '@process/task/fluxRouting';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
+import type { McpConfigProjection } from '@process/acp/session/McpConfig';
+import {
+  createMcpSessionState,
+  recordDesktopMcpSessionFailure,
+  recordDesktopMcpSessionPublication,
+  reduceMcpSessionToolInvocation,
+  type McpSessionBackend,
+  type McpSessionExpectedServer,
+  type McpSessionState,
+} from '@/common/mcp/sessionReceipt';
+import {
+  createMcpSessionDigestKey,
+  createMcpSessionExpectedServer,
+} from '@process/services/mcpServices/mcpSessionTruthGate';
 
 interface AcpAgentManagerData {
   workspace?: string;
@@ -189,17 +204,75 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
    *  long tool-call gaps (>15 s) between stream events are normal and do not
    *  indicate a missing finish signal. */
   private promptInFlight: boolean = false;
+  private readonly mcpSessionGeneration = randomUUID();
+  private readonly mcpSessionDigestKey = createMcpSessionDigestKey();
+  private readonly mcpSessionBackend: McpSessionBackend;
+  private mcpSessionState: McpSessionState;
+  private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
 
   constructor(data: AcpAgentManagerData) {
     super('acp', data, new IpcAgentEventEmitter(), false);
     this.conversation_id = data.conversation_id;
     this.workspace = data.workspace;
     this.options = data;
+    this.mcpSessionBackend = data.backend === 'codex' ? 'codex-native' : 'acp';
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, [], {
+      conversationId: this.conversation_id,
+      backend: this.mcpSessionBackend,
+    });
     this.currentMode = data.sessionMode || 'default';
     this.persistedModelId = data.currentModelId || null;
     this.status = 'pending';
     // Sync yoloMode from sessionMode so addConfirmation auto-approves when Full Auto is selected
     this.yoloMode = this.yoloMode || this.isYoloMode(this.currentMode);
+  }
+
+  private acceptMcpProjection(projection: McpConfigProjection): void {
+    const expected: McpSessionExpectedServer[] = projection.selectedServers.map((server) =>
+      createMcpSessionExpectedServer(server, this.mcpSessionBackend, this.mcpSessionDigestKey)
+    );
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, expected, {
+      conversationId: this.conversation_id,
+      backend: this.mcpSessionBackend,
+    });
+    const publishedNames = new Set(projection.servers.map((server) => server.name));
+    const omittedReasons = new Map(projection.omissions.map(({ server, reason }) => [server.id, reason]));
+    for (const server of projection.selectedServers) {
+      this.mcpSessionState = publishedNames.has(server.name)
+        ? recordDesktopMcpSessionPublication(this.mcpSessionState, server.name)
+        : recordDesktopMcpSessionFailure(
+            this.mcpSessionState,
+            server.name,
+            omittedReasons.get(server.id) ?? 'ACP runtime omitted this connector from the session'
+          );
+    }
+    this.publishMcpSessionState();
+  }
+
+  private publishMcpSessionState(): void {
+    const snapshot: McpSessionState = {
+      ...this.mcpSessionState,
+      expectedServers: this.mcpSessionState.expectedServers.map((server) => ({ ...server })),
+      expectedServerNames: [...this.mcpSessionState.expectedServerNames],
+      receipts: { ...this.mcpSessionState.receipts },
+    };
+    ipcBridge.conversation.responseStream.emit({
+      type: 'mcp_session_state',
+      conversation_id: this.conversation_id,
+      msg_id: '',
+      data: snapshot,
+    });
+    this.mcpSessionPersistQueue = this.mcpSessionPersistQueue
+      .then(async () => {
+        const db = await getDatabase();
+        const result = db.getConversation(this.conversation_id);
+        if (!result.success || !result.data) return;
+        const conversation = result.data;
+        db.updateConversation(this.conversation_id, {
+          extra: { ...conversation.extra, mcpSessionState: snapshot },
+        } as Partial<typeof conversation>);
+      })
+      .catch((error) => mainWarn('[AcpAgentManager]', 'failed to persist MCP session state', error));
   }
 
   private makeStreamBufferKey(message: Extract<TMessage, { type: 'text' }>): string {
@@ -1132,6 +1205,15 @@ ${collectedResponses.join('\n')}`;
       return;
     }
 
+    if (message.type === 'acp_tool_call') {
+      const nativeToolName = (message.data as { update?: { title?: unknown } } | undefined)?.update?.title;
+      const next = reduceMcpSessionToolInvocation(this.mcpSessionState, nativeToolName);
+      if (next !== this.mcpSessionState) {
+        this.mcpSessionState = next;
+        this.publishMcpSessionState();
+      }
+    }
+
     this.markTrackedTurnRuntimeActivity();
 
     const pipelineStart = Date.now();
@@ -1581,6 +1663,9 @@ ${collectedResponses.join('\n')}`;
         },
         onAvailableCommandsUpdate: (commands: Array<{ name: string; description?: string; hint?: string }>) => {
           this.handleAvailableCommandsUpdate(commands);
+        },
+        onMcpProjection: (projection: McpConfigProjection) => {
+          this.acceptMcpProjection(projection);
         },
         onStreamEvent: (message: IResponseMessage) => {
           this.handleStreamEvent(message as IResponseMessage, data.backend);

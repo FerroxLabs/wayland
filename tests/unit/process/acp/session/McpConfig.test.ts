@@ -181,4 +181,32 @@ describe('McpConfig', () => {
       headers: [{ name: 'Authorization', value: 'Bearer beeper-test' }],
     });
   });
+
+  it('reports an eligible connector as omitted when the runtime cannot publish its transport', () => {
+    const tavily = {
+      id: 'tavily',
+      name: 'tavily',
+      source: 'library',
+      enabled: true,
+      status: 'connected',
+      transport: { type: 'streamable_http', url: 'https://mcp.tavily.com/mcp/' },
+      createdAt: 1,
+      updatedAt: 1,
+    } as IMcpServer;
+
+    const projection = McpConfig.projectStorageConfig([tavily], {
+      stdio: true,
+      http: false,
+      sse: false,
+    });
+
+    expect(projection.servers).toEqual([]);
+    expect(projection.selectedServers).toEqual([tavily]);
+    expect(projection.omissions).toEqual([
+      {
+        server: tavily,
+        reason: 'ACP runtime did not advertise HTTP MCP transport support',
+      },
+    ]);
+  });
 });

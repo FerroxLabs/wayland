@@ -9,6 +9,7 @@ import { mcpServerCollisionKey } from '@/common/mcp';
 
 export type McpSessionBackend = 'wcore' | 'acp' | 'gemini' | 'codex-native';
 export type McpSessionDefinitionDigest = `hmac-sha256:${string}`;
+export type McpSessionProducer = Exclude<McpSessionBackend, never>;
 
 export type McpSessionExpectedServer = {
   /** Stable Desktop storage identity. */
@@ -46,13 +47,13 @@ export type McpSessionReceipt =
   | (McpSessionReceiptBinding & {
       status: 'registered';
       tools: string[];
-      source: 'wcore';
+      source: McpSessionProducer;
     })
   | (McpSessionReceiptBinding & {
       status: 'degraded' | 'failed';
       tools: string[];
       reason: string;
-      source: 'wcore' | 'desktop';
+      source: McpSessionProducer | 'desktop';
     });
 
 export type McpSessionState = {
@@ -71,6 +72,35 @@ export type McpSessionState = {
 export type McpSessionTerminalEvent =
   | { type: 'mcp_ready'; data: { name: string; tools?: unknown } }
   | { type: 'mcp_failed'; data: { name: string; reason?: unknown } };
+
+/**
+ * Evidence emitted by the runtime that actually owns a session's tool registry.
+ * Every correlation field is mandatory: a name-only or config-only event can
+ * never manufacture callability for another launch.
+ */
+export type McpSessionProducerEvent =
+  | {
+      type: 'mcp_tools_registered';
+      data: {
+        generation: string;
+        conversationId: string;
+        backend: McpSessionBackend;
+        runtimeName: string;
+        definitionDigest: McpSessionDefinitionDigest;
+        tools?: unknown;
+      };
+    }
+  | {
+      type: 'mcp_registration_failed';
+      data: {
+        generation: string;
+        conversationId: string;
+        backend: McpSessionBackend;
+        runtimeName: string;
+        definitionDigest: McpSessionDefinitionDigest;
+        reason?: unknown;
+      };
+    };
 
 function bindReceipt(
   state: McpSessionState,
@@ -144,6 +174,118 @@ export function recordDesktopMcpSessionPublication(
   };
 }
 
+function canonicalTools(tools: unknown): string[] {
+  return Array.isArray(tools)
+    ? [
+        ...new Set(
+          tools
+            .filter((tool): tool is string => typeof tool === 'string')
+            .map((tool) => tool.trim())
+            .filter(Boolean)
+        ),
+      ].toSorted()
+    : [];
+}
+
+/** Fold exact producer-owned tool-registry evidence into the current launch. */
+export function reduceMcpSessionProducerEvent(
+  state: McpSessionState,
+  event: McpSessionProducerEvent,
+  observedAt: number = Date.now()
+): McpSessionState {
+  const { data } = event;
+  if (
+    data.generation !== state.generation ||
+    data.conversationId !== state.conversationId ||
+    data.backend !== state.backend ||
+    !Number.isFinite(observedAt) ||
+    observedAt < state.startedAt
+  ) {
+    return state;
+  }
+  const expected = findExactExpectedServer(state, data.runtimeName);
+  if (!expected || expected.definitionDigest !== data.definitionDigest) return state;
+  const prior = state.receipts[expected.definitionDigest];
+  if (
+    prior?.status !== 'published_unverified' &&
+    !(
+      (prior?.status === 'registered' || prior?.status === 'degraded' || prior?.status === 'failed') &&
+      prior.source === state.backend
+    )
+  ) {
+    return state;
+  }
+
+  let receipt: McpSessionReceipt;
+  if (event.type === 'mcp_registration_failed') {
+    const reason = event.data.reason;
+    receipt = {
+      ...bindReceipt(state, expected, observedAt),
+      status: 'failed',
+      tools: [],
+      reason: typeof reason === 'string' && reason.trim() ? reason.trim() : 'MCP registration failed',
+      source: state.backend,
+    };
+  } else {
+    const tools = canonicalTools(event.data.tools);
+    const mergedTools = prior?.status === 'registered' ? canonicalTools([...prior.tools, ...tools]) : tools;
+    receipt =
+      mergedTools.length > 0
+        ? {
+            ...bindReceipt(state, expected, observedAt),
+            status: 'registered',
+            tools: mergedTools,
+            source: state.backend,
+          }
+        : {
+            ...bindReceipt(state, expected, observedAt),
+            status: 'degraded',
+            tools: [],
+            reason:
+              state.backend === 'wcore'
+                ? 'Core loaded the connector but registered no tools'
+                : `${state.backend} registered no callable tools`,
+            source: state.backend,
+          };
+  }
+  return { ...state, receipts: { ...state.receipts, [expected.definitionDigest]: receipt } };
+}
+
+/**
+ * Adapt a backend-native MCP invocation name (`mcp__server__tool`) into exact
+ * producer evidence. Human titles and ambiguous aliases are deliberately
+ * ignored; observing a model mention is not registry authority.
+ */
+export function reduceMcpSessionToolInvocation(
+  state: McpSessionState,
+  nativeToolName: unknown,
+  observedAt: number = Date.now()
+): McpSessionState {
+  if (typeof nativeToolName !== 'string' || !nativeToolName.startsWith('mcp__')) return state;
+  const matches = state.expectedServers
+    .map((expected) => ({ expected, prefix: `mcp__${expected.runtimeName}__` }))
+    .filter(({ prefix }) => nativeToolName.startsWith(prefix) && nativeToolName.length > prefix.length);
+  if (matches.length !== 1) return state;
+  const { expected, prefix } = matches[0];
+  const tool = nativeToolName.slice(prefix.length);
+  if (!tool || tool.trim() !== tool || tool.includes('__')) return state;
+  return reduceMcpSessionProducerEvent(
+    state,
+    {
+      type: 'mcp_tools_registered',
+      data: {
+        generation: state.generation,
+        conversationId: state.conversationId,
+        backend: state.backend,
+        runtimeName: expected.runtimeName,
+        definitionDigest: expected.definitionDigest,
+        tools: [tool],
+      },
+    },
+    observedAt
+  );
+}
+
 /**
  * Fold a named Core terminal event into the current launch.
  *
@@ -169,44 +311,33 @@ export function reduceMcpSessionTerminal(
   const prior = state.receipts[expected.definitionDigest];
   if (prior?.status !== 'published_unverified') return state;
 
-  let receipt: McpSessionReceipt;
-  if (event.type === 'mcp_failed') {
-    receipt = {
-      ...bindReceipt(state, expected, observedAt),
-      status: 'failed',
-      tools: [],
-      reason: typeof event.data.reason === 'string' ? event.data.reason : 'MCP server failed to load',
-      source: 'wcore',
-    };
-  } else {
-    const tools = Array.isArray(event.data.tools)
-      ? [
-          ...new Set(
-            event.data.tools
-              .filter((tool): tool is string => typeof tool === 'string')
-              .map((tool) => tool.trim())
-              .filter(Boolean)
-          ),
-        ].toSorted()
-      : [];
-    receipt =
-      tools.length > 0
-        ? {
-            ...bindReceipt(state, expected, observedAt),
-            status: 'registered',
-            tools,
-            source: 'wcore',
-          }
-        : {
-            ...bindReceipt(state, expected, observedAt),
-            status: 'degraded',
-            tools: [],
-            reason: 'Core loaded the connector but registered no tools',
-            source: 'wcore',
-          };
-  }
-
-  return { ...state, receipts: { ...state.receipts, [expected.definitionDigest]: receipt } };
+  return reduceMcpSessionProducerEvent(
+    state,
+    event.type === 'mcp_failed'
+      ? {
+          type: 'mcp_registration_failed',
+          data: {
+            generation: state.generation,
+            conversationId: state.conversationId,
+            backend: 'wcore',
+            runtimeName: expected.runtimeName,
+            definitionDigest: expected.definitionDigest,
+            reason: event.data.reason,
+          },
+        }
+      : {
+          type: 'mcp_tools_registered',
+          data: {
+            generation: state.generation,
+            conversationId: state.conversationId,
+            backend: 'wcore',
+            runtimeName: expected.runtimeName,
+            definitionDigest: expected.definitionDigest,
+            tools: event.data.tools,
+          },
+        },
+    observedAt
+  );
 }
 
 export function recordDesktopMcpSessionFailure(
@@ -254,11 +385,9 @@ export function getMcpSessionReceiptForServer(
   const validSourceForStatus =
     ((receipt.status === 'configured' || receipt.status === 'published_unverified') &&
       receipt.source === 'desktop') ||
-    ((receipt.status === 'registered' || receipt.status === 'degraded') &&
-      state.backend === 'wcore' &&
-      receipt.source === 'wcore') ||
+    ((receipt.status === 'registered' || receipt.status === 'degraded') && receipt.source === state.backend) ||
     (receipt.status === 'failed' &&
-      (receipt.source === 'desktop' || (state.backend === 'wcore' && receipt.source === 'wcore')));
+      (receipt.source === 'desktop' || receipt.source === state.backend));
   const receiptTools = receipt.tools as unknown[];
   const toolsAreCanonical =
     Array.isArray(receiptTools) &&
