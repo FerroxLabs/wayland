@@ -27,6 +27,11 @@ const TARGET_GATE_REQUIREMENTS = TARGETS.flatMap((target) =>
     gate,
   }))
 );
+const TARGET_GATE_SCHEMA = {
+  contract: 'wayland-target-hardening-gate-receipt/1.0',
+  requiredFields: ['contract', 'receiptId', 'candidate', 'target', 'gate', 'authority', 'evidenceSha256'],
+  authority: 'canonical-target-hardening-validator',
+};
 
 function request() {
   return {
@@ -39,14 +44,20 @@ function request() {
       requiredJourneys: [],
       supportedTargets: TARGETS,
       requiredHardeningGates: [],
-      requiredTargetGateReceipts: TARGET_GATE_REQUIREMENTS,
+      targetGateReceiptSchema: TARGET_GATE_SCHEMA,
+      targetGateRequirements: TARGET_GATE_REQUIREMENTS,
       capabilityConditional: Object.fromEntries(
         Object.entries(CONDITIONAL).map(([id, receipts]) => [id, { criteria: [], journeys: [], receipts }])
       ),
     },
     capabilitySeal: { source: 'canonical' },
     packageSmokes: TARGETS.map((target) => ({ target, source: 'runtime' })),
-    targetGateReceipts: TARGET_GATE_REQUIREMENTS.map((receipt) => ({ ...receipt, source: 'runtime' })),
+    targetGateReceipts: TARGET_GATE_REQUIREMENTS.map((receipt) => ({
+      ...receipt,
+      candidate: { commit: COMMIT, tree: TREE },
+      authority: 'canonical-target-hardening-validator',
+      evidenceSha256: DIGEST('9'),
+    })),
     publisherArtifacts: CORE_ASSETS.map((assetName) => ({ assetName })),
     updaterEvidence: { accepted: true },
     conditionalReceipts: Object.keys(CONDITIONAL).map((capabilityId) => ({ capabilityId, accepted: true })),
@@ -66,7 +77,8 @@ function verifiers() {
       targets: 6,
       gates: 15,
       targetProofGates: 5,
-      targetGateReceipts: TARGET_GATE_REQUIREMENTS,
+      targetGateReceiptSchema: TARGET_GATE_SCHEMA,
+      targetGateRequirements: TARGET_GATE_REQUIREMENTS,
       conditionalCapabilities: 5,
     }),
     verifyCapabilitySeal: () => ({
@@ -93,20 +105,32 @@ function verifiers() {
       entries: 4,
       ids: ['7zip-recovery', 'bun', 'officecli', 'signal-cli'],
     }),
-    verifyTargetGateReceipt: (
-      _raw: unknown,
-      context: {
-        candidate: { commit: string; tree: string };
-        requirement: { receiptId: string; contract: string; target: string; gate: string };
-        artifacts: Record<string, string>;
+    validateTargetGateReceiptSet: (receipts: any[], candidate: { commit: string; tree: string }) => {
+      if (!Array.isArray(receipts) || receipts.length !== TARGET_GATE_REQUIREMENTS.length) {
+        throw new Error('target gate receipt coverage or ordering mismatch');
       }
-    ) => ({
-      ...context.requirement,
-      candidate: context.candidate,
-      artifacts: context.artifacts,
-      authority: 'canonical-target-hardening-observer',
-      evidenceSha256: DIGEST('9'),
-    }),
+      return receipts.map((receipt, index) => {
+        const requirement = TARGET_GATE_REQUIREMENTS[index];
+        if (
+          receipt.contract !== requirement.contract ||
+          receipt.receiptId !== requirement.receiptId ||
+          receipt.target !== requirement.target ||
+          receipt.gate !== requirement.gate
+        ) {
+          throw new Error(`target gate receipt foreign or misbound: ${requirement.receiptId}`);
+        }
+        if (receipt.candidate.commit !== candidate.commit || receipt.candidate.tree !== candidate.tree) {
+          throw new Error(`target gate receipt stale or foreign candidate: ${receipt.receiptId}`);
+        }
+        if (
+          receipt.authority !== TARGET_GATE_SCHEMA.authority ||
+          !/^sha256:[a-f0-9]{64}$/.test(receipt.evidenceSha256)
+        ) {
+          throw new Error(`target gate receipt authority or digest invalid: ${receipt.receiptId}`);
+        }
+        return receipt;
+      });
+    },
     verifyPublisherArtifact: (raw: { assetName: string }) => ({
       contract: 'wayland-publisher-attestations/1.0',
       policyId: 'wayland-core-v0.12.25-release',
@@ -220,17 +244,14 @@ describe('M8-A final acceptance controller', () => {
       gate: 'not-a-real-gate',
     });
 
-    expect(() => verifyFinalAcceptance(input, verifiers())).toThrow(/missing:M8-F:linux-x64:re-upgrade/);
+    expect(() => verifyFinalAcceptance(input, verifiers())).toThrow(/foreign or misbound: M8-F:linux-x64:re-upgrade/);
   });
 
-  it('binds every target gate to the exact package artifact identity', () => {
-    const hostile = verifiers();
-    hostile.verifyTargetGateReceipt = (raw: { target: string }, context: Record<string, any>) => ({
-      ...verifiers().verifyTargetGateReceipt(raw, context),
-      artifacts: { ...context.artifacts, installerDigest: DIGEST('f') },
-    });
+  it('rejects a target gate receipt for a stale candidate', () => {
+    const input = request();
+    input.targetGateReceipts[0].candidate = { commit: 'f'.repeat(40), tree: TREE };
 
-    expect(() => verifyFinalAcceptance(request(), hostile)).toThrow(/artifact-identity-mismatch/);
+    expect(() => verifyFinalAcceptance(input, verifiers())).toThrow(/stale or foreign candidate/);
   });
 
   it('does not treat a caller-authored accepted boolean as updater authority', () => {
