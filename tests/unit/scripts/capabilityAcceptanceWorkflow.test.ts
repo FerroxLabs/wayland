@@ -21,7 +21,7 @@ function workflow(name: string): { permissions?: Record<string, string>; jobs: R
 }
 
 describe('capability acceptance build authority', () => {
-  it('generates and attests receipts once before any package matrix job starts', () => {
+  it('generates untrusted structured evidence once before package jobs without holding attestation authority', () => {
     const config = workflow('_build-reusable.yml');
     const authority = config.jobs['capability-acceptance'];
     const build = config.jobs.build;
@@ -29,16 +29,16 @@ describe('capability acceptance build authority', () => {
     const generate = authority.steps.find(
       (step) => step.name === 'Generate structured exact capability acceptance receipts'
     )!;
-    const attest = authority.steps.find((step) => step.name === 'Attest exact capability acceptance bytes')!;
-    const upload = authority.steps.find((step) => step.name === 'Upload capability acceptance authority')!;
+    const attest = authority.steps.find((step) => step.uses?.startsWith('actions/attest-build-provenance'));
+    const upload = authority.steps.find(
+      (step) => step.name === 'Upload untrusted capability evidence for protected verification'
+    )!;
 
-    expect(authority.permissions).toEqual({ contents: 'read', 'id-token': 'write', attestations: 'write' });
+    expect(authority.permissions).toEqual({ actions: 'read', contents: 'read' });
     expect(capture.run).toContain('"${commit}" != "${GITHUB_SHA}"');
     expect(capture.run).toContain('git status --porcelain=v1 --untracked-files=all');
     expect(generate.run).toContain('generateCapabilityAcceptanceReceipts.js');
-    expect(attest.with!['subject-path']).toContain('capability-acceptance/*');
-    expect(attest.uses).toBe('actions/attest-build-provenance@v3');
-    expect(attest.with!['subject-path']).toBe('${{ runner.temp }}/capability-acceptance/*');
+    expect(attest).toBeUndefined();
     expect(upload.with!['if-no-files-found']).toBe('error');
     expect(build.needs).toEqual(['code-quality', 'capability-acceptance']);
     expect(build.if).toContain("needs.capability-acceptance.result == 'success'");
@@ -56,11 +56,12 @@ describe('capability acceptance build authority', () => {
     });
   });
 
-  it('grants the two caller workflows only the authority needed to attest', () => {
+  it('keeps both caller workflows free of attestation authority', () => {
     for (const name of ['build-and-release.yml', 'build-manual.yml']) {
       const permissions = workflow(name).permissions!;
-      expect(permissions['id-token']).toBe('write');
-      expect(permissions.attestations).toBe('write');
+      expect(permissions['id-token']).toBeUndefined();
+      expect(permissions.attestations).toBeUndefined();
+      expect(permissions.contents).toBe('read');
     }
   });
 });

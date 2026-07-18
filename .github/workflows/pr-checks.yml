@@ -61,7 +61,6 @@ permissions:
   pull-requests: write
   issues: read
   checks: write
-  id-token: write
 
 env:
   BUN_INSTALL_REGISTRY: 'https://registry.npmjs.org/'

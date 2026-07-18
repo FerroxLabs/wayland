@@ -1,10 +1,7 @@
 name: '🔨 Manual Build'
 
 permissions:
-  contents: write
-  actions: write
-  id-token: write
-  attestations: write
+  contents: read
 
 on:
   workflow_dispatch:
@@ -40,6 +37,8 @@ jobs:
   prepare-matrix:
     name: Prepare Build Matrix
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
 
@@ -80,6 +79,9 @@ jobs:
   build-pipeline:
     needs: prepare-matrix
     uses: ./.github/workflows/_build-reusable.yml
+    permissions:
+      actions: read
+      contents: read
     with:
       matrix: ${{ needs.prepare-matrix.outputs.matrix }}
       ref: ${{ inputs.branch }}
