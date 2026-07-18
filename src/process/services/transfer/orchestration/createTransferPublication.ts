@@ -7,7 +7,6 @@
 import type { LogicalStateId } from '@process/services/recovery/recoveryManifest';
 import {
   loadProductionSourceSigningAuthority,
-  type LoadedSourceSigningAuthority,
   type SourceSigningAuthorityReceipt,
 } from '@process/services/transfer/authority';
 import type { DestinationRecipientDescriptor } from '@process/services/transfer/crypto';
@@ -26,11 +25,7 @@ import {
   type TransferMutationEpoch,
   type TransferPublication,
 } from '@process/services/transfer/publish';
-import {
-  runAcceptedTransferProducers,
-  type RunAcceptedTransferProducersInput,
-  type TransferProducerAggregateCapture,
-} from '@process/services/transfer/producers';
+import { runAcceptedTransferProducers } from '@process/services/transfer/producers';
 
 export const TRANSFER_EXPORT_COORDINATOR_RECEIPT_CONTRACT = 'wayland-transfer-export-coordinator-receipt/1.0' as const;
 
@@ -71,25 +66,17 @@ export type CreatedTransferPublication = Readonly<{
   sourceAuthorityReceipt: SourceSigningAuthorityReceipt;
 }>;
 
-export type TransferExportCoordinatorDependencies = Readonly<{
-  capture?: (input: RunAcceptedTransferProducersInput) => Promise<TransferProducerAggregateCapture>;
-  loadSourceAuthority?: () => Promise<LoadedSourceSigningAuthority>;
-  publishDestination?: typeof publishDestinationTransfer;
-  publishRecovery?: typeof publishRecoveryTransfer;
-}>;
-
 /**
  * Capture one accepted mutation epoch, construct the complete graph, and bind
  * that exact epoch into the signed encrypted publication. No plaintext object
  * inventory is returned outside the encrypted publication.
  */
 export async function createTransferPublication(
-  input: CreateTransferPublicationInput,
-  dependencies: TransferExportCoordinatorDependencies = {}
+  input: CreateTransferPublicationInput
 ): Promise<CreatedTransferPublication> {
-  const sourceIdentity = await (dependencies.loadSourceAuthority ?? loadProductionSourceSigningAuthority)();
+  const sourceIdentity = await loadProductionSourceSigningAuthority();
   const excludedLogicalState = input.exclusions.map(({ logicalStateId }) => logicalStateId);
-  const capture = await (dependencies.capture ?? runAcceptedTransferProducers)({
+  const capture = await runAcceptedTransferProducers({
     selectedLogicalState: input.selectedLogicalState,
     excludedLogicalState,
   });
@@ -128,13 +115,13 @@ export async function createTransferPublication(
   });
   const publication =
     input.mode === 'destination'
-      ? await (dependencies.publishDestination ?? publishDestinationTransfer)({
+      ? await publishDestinationTransfer({
           graph,
           recipient: input.recipient,
           sourceAuthorization,
           now,
         })
-      : await (dependencies.publishRecovery ?? publishRecoveryTransfer)({
+      : await publishRecoveryTransfer({
           graph,
           passphrase: input.passphrase,
           sourceAuthorization,

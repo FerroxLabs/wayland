@@ -4,7 +4,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const orchestrationMocks = vi.hoisted(() => ({
+  loadProductionSourceSigningAuthority: vi.fn(),
+  publishDestinationTransfer: vi.fn(),
+  publishRecoveryTransfer: vi.fn(),
+  runAcceptedTransferProducers: vi.fn(),
+}));
+
+vi.mock('@process/services/transfer/authority', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@process/services/transfer/authority')>()),
+  loadProductionSourceSigningAuthority: orchestrationMocks.loadProductionSourceSigningAuthority,
+}));
+
+vi.mock('@process/services/transfer/publish', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@process/services/transfer/publish')>()),
+  publishDestinationTransfer: orchestrationMocks.publishDestinationTransfer,
+  publishRecoveryTransfer: orchestrationMocks.publishRecoveryTransfer,
+}));
+
+vi.mock('@process/services/transfer/producers', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@process/services/transfer/producers')>()),
+  runAcceptedTransferProducers: orchestrationMocks.runAcceptedTransferProducers,
+}));
 
 import {
   TRANSFER_SOURCE_SIGNING_AUTHORITY_CONTRACT,
@@ -100,32 +123,34 @@ function loadedIdentity(authority = SourceSigningAuthority.issue()): LoadedSourc
 }
 
 describe('createTransferPublication', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    orchestrationMocks.runAcceptedTransferProducers.mockResolvedValue(CAPTURE);
+  });
+
   it('binds one accepted capture epoch into a recovery publication and content-free receipts', async () => {
     const authority = SourceSigningAuthority.issue();
     const sourceIdentity = loadedIdentity(authority);
-    const capture = vi.fn(async () => CAPTURE);
-    const publishRecovery = vi.fn(async (input: PublishRecoveryTransferInput) =>
+    orchestrationMocks.loadProductionSourceSigningAuthority.mockResolvedValue(sourceIdentity);
+    orchestrationMocks.publishRecoveryTransfer.mockImplementation(async (input: PublishRecoveryTransferInput) =>
       publication(input.graph, TRANSFER_RECOVERY_SUITE)
     );
 
-    const result = await createTransferPublication(
-      {
-        mode: 'recovery',
-        passphrase: 'offline recovery secret',
-        sourceCompatibility: SOURCE_COMPATIBILITY,
-        selectedLogicalState: ['desktop.chats-projects'],
-        exclusions: [],
-        sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
-        now: () => NOW,
-      },
-      { capture, loadSourceAuthority: async () => sourceIdentity, publishRecovery }
-    );
+    const result = await createTransferPublication({
+      mode: 'recovery',
+      passphrase: 'offline recovery secret',
+      sourceCompatibility: SOURCE_COMPATIBILITY,
+      selectedLogicalState: ['desktop.chats-projects'],
+      exclusions: [],
+      sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
+      now: () => NOW,
+    });
 
-    expect(capture).toHaveBeenCalledWith({
+    expect(orchestrationMocks.runAcceptedTransferProducers).toHaveBeenCalledWith({
       selectedLogicalState: ['desktop.chats-projects'],
       excludedLogicalState: [],
     });
-    const publishInput = publishRecovery.mock.calls[0][0];
+    const publishInput = orchestrationMocks.publishRecoveryTransfer.mock.calls[0][0];
     expect(publishInput.sourceAuthorization.mutationEpoch).toEqual({ start: EPOCH, end: EPOCH });
     expect(publishInput.sourceAuthorization.authority).toBe(authority);
     expect(publishInput.graph.manifest.objects).toHaveLength(1);
@@ -153,72 +178,93 @@ describe('createTransferPublication', () => {
 
   it('binds the validated destination fingerprint into the signed scope', async () => {
     const target = recipient();
-    const publishDestination = vi.fn(async (input: PublishDestinationTransferInput) =>
+    orchestrationMocks.loadProductionSourceSigningAuthority.mockResolvedValue(loadedIdentity());
+    orchestrationMocks.publishDestinationTransfer.mockImplementation(async (input: PublishDestinationTransferInput) =>
       publication(input.graph, TRANSFER_DESTINATION_SUITE)
     );
-    const result = await createTransferPublication(
-      {
+    const result = await createTransferPublication({
+      mode: 'destination',
+      recipient: target,
+      sourceCompatibility: SOURCE_COMPATIBILITY,
+      selectedLogicalState: ['desktop.chats-projects'],
+      exclusions: [],
+      sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
+      now: () => NOW,
+    });
+
+    expect(result.archiveValidationPolicy.expectedScope).toMatchObject({
+      mode: 'destination',
+      destinationKeyFingerprint: target.fingerprint,
+    });
+    expect(orchestrationMocks.publishDestinationTransfer).toHaveBeenCalledOnce();
+  });
+
+  it('fails closed on malformed destination identity and publication graph drift', async () => {
+    orchestrationMocks.loadProductionSourceSigningAuthority.mockResolvedValue(loadedIdentity());
+    orchestrationMocks.publishDestinationTransfer.mockImplementation(async (input: PublishDestinationTransferInput) =>
+      publication(input.graph, TRANSFER_DESTINATION_SUITE)
+    );
+    await expect(
+      createTransferPublication({
         mode: 'destination',
-        recipient: target,
+        recipient: recipient('not-a-digest'),
+        sourceCompatibility: SOURCE_COMPATIBILITY,
+        selectedLogicalState: ['desktop.chats-projects'],
+        exclusions: [],
+        sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
+        now: () => NOW,
+      })
+    ).rejects.toThrow(/fingerprint is malformed/);
+    expect(orchestrationMocks.publishDestinationTransfer).not.toHaveBeenCalled();
+
+    orchestrationMocks.publishRecoveryTransfer.mockImplementation(async (input: PublishRecoveryTransferInput) => ({
+      ...publication(input.graph, TRANSFER_RECOVERY_SUITE),
+      supportReceipt: {
+        ...publication(input.graph, TRANSFER_RECOVERY_SUITE).supportReceipt,
+        bundleId: `wtb1:${'ff'.repeat(32)}`,
+      },
+    }));
+
+    await expect(
+      createTransferPublication({
+        mode: 'recovery',
+        passphrase: 'offline recovery secret',
+        sourceCompatibility: SOURCE_COMPATIBILITY,
+        selectedLogicalState: ['desktop.chats-projects'],
+        exclusions: [],
+        sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
+        now: () => NOW,
+      })
+    ).rejects.toThrow(/does not bind the captured graph/);
+  });
+
+  it('ignores an attempted runtime dependency injection and uses the production authority', async () => {
+    const productionIdentity = loadedIdentity();
+    const injectedLoader = vi.fn(async () => loadedIdentity());
+    orchestrationMocks.loadProductionSourceSigningAuthority.mockResolvedValue(productionIdentity);
+    orchestrationMocks.publishRecoveryTransfer.mockImplementation(async (input: PublishRecoveryTransferInput) =>
+      publication(input.graph, TRANSFER_RECOVERY_SUITE)
+    );
+
+    const callWithHostileExtraArgument = createTransferPublication as unknown as (
+      input: Parameters<typeof createTransferPublication>[0],
+      dependencies: { loadSourceAuthority: typeof injectedLoader }
+    ) => ReturnType<typeof createTransferPublication>;
+    const result = await callWithHostileExtraArgument(
+      {
+        mode: 'recovery',
+        passphrase: 'offline recovery secret',
         sourceCompatibility: SOURCE_COMPATIBILITY,
         selectedLogicalState: ['desktop.chats-projects'],
         exclusions: [],
         sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
         now: () => NOW,
       },
-      { capture: async () => CAPTURE, loadSourceAuthority: async () => loadedIdentity(), publishDestination }
+      { loadSourceAuthority: injectedLoader }
     );
 
-    expect(result.archiveValidationPolicy.expectedScope).toMatchObject({
-      mode: 'destination',
-      destinationKeyFingerprint: target.fingerprint,
-    });
-    expect(publishDestination).toHaveBeenCalledOnce();
-  });
-
-  it('fails closed on malformed destination identity and publication graph drift', async () => {
-    const publishDestination = vi.fn(async (input: PublishDestinationTransferInput) =>
-      publication(input.graph, TRANSFER_DESTINATION_SUITE)
-    );
-    await expect(
-      createTransferPublication(
-        {
-          mode: 'destination',
-          recipient: recipient('not-a-digest'),
-          sourceCompatibility: SOURCE_COMPATIBILITY,
-          selectedLogicalState: ['desktop.chats-projects'],
-          exclusions: [],
-          sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
-          now: () => NOW,
-        },
-        { capture: async () => CAPTURE, loadSourceAuthority: async () => loadedIdentity(), publishDestination }
-      )
-    ).rejects.toThrow(/fingerprint is malformed/);
-    expect(publishDestination).not.toHaveBeenCalled();
-
-    await expect(
-      createTransferPublication(
-        {
-          mode: 'recovery',
-          passphrase: 'offline recovery secret',
-          sourceCompatibility: SOURCE_COMPATIBILITY,
-          selectedLogicalState: ['desktop.chats-projects'],
-          exclusions: [],
-          sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
-          now: () => NOW,
-        },
-        {
-          capture: async () => CAPTURE,
-          loadSourceAuthority: async () => loadedIdentity(),
-          publishRecovery: async (input) => ({
-            ...publication(input.graph, TRANSFER_RECOVERY_SUITE),
-            supportReceipt: {
-              ...publication(input.graph, TRANSFER_RECOVERY_SUITE).supportReceipt,
-              bundleId: `wtb1:${'ff'.repeat(32)}`,
-            },
-          }),
-        }
-      )
-    ).rejects.toThrow(/does not bind the captured graph/);
+    expect(injectedLoader).not.toHaveBeenCalled();
+    expect(orchestrationMocks.loadProductionSourceSigningAuthority).toHaveBeenCalledOnce();
+    expect(result.sourceAuthorityReceipt.publicKeyFingerprint).toBe(productionIdentity.receipt.publicKeyFingerprint);
   });
 });
