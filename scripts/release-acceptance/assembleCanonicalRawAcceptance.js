@@ -163,24 +163,6 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
     }
   }
 
-  for (const capabilityId of CAPABILITIES) {
-    const receipt = exactlyOne(
-      files,
-      (file) => {
-        const value = parseJson(file);
-        return (
-          value?.contract === 'wayland-capability-release-acceptance/1.0' &&
-          value.capabilityId === capabilityId &&
-          value.candidate?.commit === candidate.commit &&
-          value.candidate?.tree === candidate.tree
-        );
-      },
-      'M8I_CONDITIONAL_RECEIPT_INVALID',
-      capabilityId
-    );
-    copyAbsolute(receipt, output, `conditional/capability-release-acceptance-${capabilityId}.json`);
-  }
-
   const publisherArtifacts = [];
   for (const target of matrix.TARGETS) {
     const expectedAsset = CORE_ASSET_BY_TARGET[target];

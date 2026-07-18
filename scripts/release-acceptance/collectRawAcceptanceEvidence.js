@@ -194,10 +194,19 @@ function collectRawAcceptanceEvidence(sourceDirectory, outputDirectory) {
     fixedFiles.push(entry.observationPath);
     for (const reference of refs) fixedFiles.push(`updater-observations/${target}/${reference}`);
   }
+  const capabilitySeal = readJsonFile(source, 'capability-seal.json', 'M8I_CAPABILITY_SEAL_INVALID').value;
+  if (!Array.isArray(capabilitySeal.capabilities)) fail('M8I_CAPABILITY_SEAL_INVALID', 'coverage');
+  const capabilityModes = new Map(capabilitySeal.capabilities.map((entry) => [entry.id, entry.mode]));
   for (const capability of CAPABILITIES) {
-    fixedFiles.push(`conditional/capability-release-acceptance-${capability}.json`);
-    fixedFiles.push(`capability-receipts/${capability}.json`);
-    fixedFiles.push(`capability-receipts/${capability}.proof.log`);
+    if (capabilityModes.get(capability) === 'included') {
+      fixedFiles.push(`conditional/capability-release-acceptance-${capability}.json`);
+    } else if (capabilityModes.get(capability) !== 'excluded') {
+      fail('M8I_CAPABILITY_SEAL_INVALID', `unknown-mode:${capability}`);
+    }
+    if (capabilityModes.get(capability) === 'included') {
+      fixedFiles.push(`capability-receipts/${capability}.json`);
+      fixedFiles.push(`capability-receipts/${capability}.proof.log`);
+    }
   }
   fixedFiles.push('capability-receipts/manifest.json');
 

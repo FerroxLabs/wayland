@@ -1,4 +1,5 @@
-import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -16,6 +17,15 @@ const { verifySevereDependencyAudit } = require('../../../scripts/release-accept
 const { REQUIRED_GATES } = require('../../../scripts/release-acceptance/produceProtectedAcceptanceEvidence') as {
   REQUIRED_GATES: Record<string, string>;
 };
+const { produceConditionalCapabilityReceipts } = require('../../../scripts/release-acceptance/produceProtectedAcceptanceEvidence') as {
+  produceConditionalCapabilityReceipts: (
+    rawRoot: string,
+    output: string,
+    candidate: { commit: string; tree: string },
+    seal: Record<string, any>,
+    gates: Map<string, { logSha256: string }>
+  ) => void;
+};
 
 const roots: string[] = [];
 
@@ -24,6 +34,62 @@ afterEach(() => {
 });
 
 describe('protected release acceptance pipeline', () => {
+  it('mints conditional capability receipts only inside protected evidence production', () => {
+    const root = mkdtempSync(join(tmpdir(), 'wayland-protected-capability-'));
+    roots.push(root);
+    const raw = join(root, 'raw');
+    const output = join(root, 'output');
+    mkdirSync(join(raw, 'capability-receipts'), { recursive: true });
+    mkdirSync(output);
+    const digest = (value: string) => `sha256:${createHash('sha256').update(value).digest('hex')}`;
+    const candidate = { commit: 'a'.repeat(40), tree: 'b'.repeat(40) };
+    const proofBytes = 'protected cowork proof\n';
+    writeFileSync(join(raw, 'capability-receipts/cowork-office.proof.log'), proofBytes);
+    const receipt = { capabilityId: 'cowork-office', packets: ['C0-B', 'C1'] };
+    const receiptBytes = `${JSON.stringify(receipt)}\n`;
+    writeFileSync(join(raw, 'capability-receipts/cowork-office.json'), receiptBytes);
+    const receiptSha256 = digest(receiptBytes);
+    const proofSha256 = digest(proofBytes);
+    writeFileSync(
+      join(raw, 'capability-receipts/manifest.json'),
+      `${JSON.stringify({
+        contract: 'wayland-capability-acceptance-manifest/1.0',
+        candidate,
+        selectionSha256: digest('selection'),
+        receipts: [
+          {
+            capabilityId: 'cowork-office',
+            receiptFile: 'cowork-office.json',
+            receiptSha256,
+            proofFile: 'cowork-office.proof.log',
+            proofSha256,
+          },
+        ],
+      })}\n`
+    );
+    produceConditionalCapabilityReceipts(
+      raw,
+      output,
+      candidate,
+      {
+        capabilities: [
+          { id: 'cowork-office', mode: 'included', receiptSha256, sourceSha256: digest('cowork-source') },
+          ...['voice', 'mcp', 'sandbox', 'flux'].map((id) => ({ id, mode: 'excluded' })),
+        ],
+      },
+      new Map([
+        ['tests', { logSha256: digest('tests') }],
+        ['build', { logSha256: digest('build') }],
+      ])
+    );
+    const protectedReceipt = JSON.parse(
+      readFileSync(join(output, 'conditional/capability-release-acceptance-cowork-office.json'), 'utf8')
+    );
+    expect(protectedReceipt.receiptIds).toEqual(['C0-B', 'C1', 'C0-RELEASE-CLOSURE']);
+    expect(new Set(protectedReceipt.receiptDigests).size).toBe(3);
+    expect(protectedReceipt.authority).toBe('canonical-capability-acceptance-validator');
+  });
+
   it('keeps final acceptance authority outside the candidate workflow', () => {
     const dispatcher = readFileSync('.github/workflows/release-acceptance.yml', 'utf8');
     const trustRoot = readFileSync('.github/workflows/release-acceptance-trust-root.yml', 'utf8');

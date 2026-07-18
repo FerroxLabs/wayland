@@ -17,6 +17,7 @@ const { CAPABILITIES, expectedEvidence } = require('./collectRawAcceptanceEviden
 const matrix = require('./verifyHardeningMatrix');
 const { verifyPlatformPackageSmoke } = require('./verifyPlatformPackageSmokes');
 const { verifyUpdaterObservation } = require('./verifyUpdaterObservation');
+const hardeningMatrix = require('./hardening-matrix.json');
 
 const REQUIRED_GATES = Object.freeze({
   tests: 'bun run test',
@@ -92,6 +93,97 @@ function sameCandidate(observed, expected, code) {
   }
 }
 
+function produceConditionalCapabilityReceipts(rawRoot, output, candidate, capabilitySeal, gates) {
+  const manifestFile = readJsonFile(rawRoot, 'capability-receipts/manifest.json', 'M8I_CAPABILITY_RECEIPT_INVALID');
+  const manifest = exactKeys(
+    manifestFile.value,
+    ['contract', 'candidate', 'selectionSha256', 'receipts'],
+    'M8I_CAPABILITY_RECEIPT_INVALID'
+  );
+  sameCandidate(manifest.candidate, candidate, 'M8I_CAPABILITY_RECEIPT_INVALID');
+  if (
+    manifest.contract !== 'wayland-capability-acceptance-manifest/1.0' ||
+    !Array.isArray(manifest.receipts)
+  ) {
+    fail('M8I_CAPABILITY_RECEIPT_INVALID', 'contract-or-coverage');
+  }
+  const authorityByCapability = new Map(manifest.receipts.map((entry) => [entry.capabilityId, entry]));
+  const modes = new Map(capabilitySeal.capabilities.map((entry) => [entry.id, entry]));
+  for (const capabilityId of CAPABILITIES) {
+    const capability = modes.get(capabilityId);
+    if (!capability || capability.mode === 'excluded') continue;
+    const authority = authorityByCapability.get(capabilityId);
+    if (!authority) fail('M8I_CAPABILITY_RECEIPT_INVALID', `missing:${capabilityId}`);
+    exactKeys(
+      authority,
+      ['capabilityId', 'receiptFile', 'receiptSha256', 'proofFile', 'proofSha256'],
+      'M8I_CAPABILITY_RECEIPT_INVALID'
+    );
+    const receipt = readJsonFile(
+      rawRoot,
+      `capability-receipts/${capabilityId}.json`,
+      'M8I_CAPABILITY_RECEIPT_INVALID'
+    );
+    const proof = regularFile(
+      rawRoot,
+      `capability-receipts/${capabilityId}.proof.log`,
+      'M8I_CAPABILITY_RECEIPT_INVALID'
+    );
+    if (
+      authority.receiptFile !== `${capabilityId}.json` ||
+      authority.proofFile !== `${capabilityId}.proof.log` ||
+      sha256(receipt.bytes) !== authority.receiptSha256 ||
+      sha256(proof.bytes) !== authority.proofSha256 ||
+      capability.receiptSha256 !== authority.receiptSha256 ||
+      receipt.value.capabilityId !== capabilityId ||
+      !Array.isArray(receipt.value.packets)
+    ) {
+      fail('M8I_CAPABILITY_RECEIPT_INVALID', `authority-mismatch:${capabilityId}`);
+    }
+    const requirement = hardeningMatrix.capabilityConditional?.[capabilityId];
+    if (!requirement || !Array.isArray(requirement.receipts) || requirement.receipts.length === 0) {
+      fail('M8I_CONDITIONAL_RECEIPT_INVALID', `missing-matrix:${capabilityId}`);
+    }
+    const receiptDigests = requirement.receipts.map((receiptId) => {
+      const packetBound = receipt.value.packets.includes(receiptId);
+      const sources = packetBound
+        ? [authority.receiptSha256, authority.proofSha256, capability.sourceSha256]
+        : [
+            authority.receiptSha256,
+            authority.proofSha256,
+            capability.sourceSha256,
+            gates.get('tests').logSha256,
+            gates.get('build').logSha256,
+          ];
+      if (!packetBound && !['C0-RELEASE-CLOSURE', 'M5V-B'].includes(receiptId)) {
+        fail('M8I_CONDITIONAL_RECEIPT_INVALID', `unmapped:${capabilityId}:${receiptId}`);
+      }
+      return sha256(
+        Buffer.from(
+          JSON.stringify({
+            contract: 'wayland-protected-capability-receipt-binding/1.0',
+            candidate,
+            capabilityId,
+            receiptId,
+            sources,
+          })
+        )
+      );
+    });
+    if (new Set(receiptDigests).size !== receiptDigests.length) {
+      fail('M8I_CONDITIONAL_RECEIPT_INVALID', `non-unique:${capabilityId}`);
+    }
+    writeJson(path.join(output, `conditional/capability-release-acceptance-${capabilityId}.json`), {
+      contract: 'wayland-capability-release-acceptance/1.0',
+      candidate,
+      capabilityId,
+      receiptIds: requirement.receipts,
+      receiptDigests,
+      authority: 'canonical-capability-acceptance-validator',
+    });
+  }
+}
+
 function copyUpdaterObservation(rawRoot, output, target, candidate, verifier) {
   const observationRelative = `updater-observations/${target}/observation.json`;
   const observationFile = readJsonFile(rawRoot, observationRelative, 'M8I_UPDATER_OBSERVATION_INVALID');
@@ -131,10 +223,11 @@ function copyUpdaterObservation(rawRoot, output, target, candidate, verifier) {
   } catch (error) {
     fail('M8I_UPDATER_OBSERVATION_INVALID', `${target}:${error.message}`);
   }
-  exactKeys(trusted, ['contract', 'candidate', 'authority', 'receiptSha256'], 'M8I_UPDATER_OBSERVATION_INVALID');
+  exactKeys(trusted, ['contract', 'candidate', 'target', 'authority', 'receiptSha256'], 'M8I_UPDATER_OBSERVATION_INVALID');
   sameCandidate(trusted.candidate, candidate, 'M8I_UPDATER_OBSERVATION_INVALID');
   if (
     trusted.contract !== 'wayland-updater-trusted-observation/1.0' ||
+    trusted.target !== target ||
     trusted.authority !== 'nonce-bound-packaged-runtime-observer' ||
     trusted.receiptSha256 !== sha256(observationFile.bytes)
   ) {
@@ -205,6 +298,7 @@ function produceProtectedAcceptanceEvidence(rawDirectory, gatesDirectory, output
       sourceEvidenceSha256: sha256(capabilitySealFile.bytes),
     });
   }
+  produceConditionalCapabilityReceipts(rawRoot, output, candidate, capabilitySealFile.value, gates);
 
   for (const target of matrix.TARGETS) {
     const relative = `package-smokes/${target}.json`;
@@ -256,11 +350,10 @@ function produceProtectedAcceptanceEvidence(rawDirectory, gatesDirectory, output
     'capability-seal.json',
     'capability-receipts/manifest.json',
     'publisher-artifacts.json',
-    ...CAPABILITIES.flatMap((id) => [
-      `conditional/capability-release-acceptance-${id}.json`,
-      `capability-receipts/${id}.json`,
-      `capability-receipts/${id}.proof.log`,
-    ]),
+    ...CAPABILITIES.filter((id) => capabilityModes.get(id) === 'included').flatMap((id) => [
+        `capability-receipts/${id}.json`,
+        `capability-receipts/${id}.proof.log`,
+      ]),
   ];
   const publisher = readJsonFile(rawRoot, 'publisher-artifacts.json', 'M8I_PUBLISHER_INDEX_INVALID').value;
   for (const artifact of publisher.artifacts || []) passthrough.push(artifact.path);
@@ -305,7 +398,7 @@ function produceProtectedAcceptanceEvidence(rawDirectory, gatesDirectory, output
   return { candidate, output, gates: gates.size };
 }
 
-module.exports = { REQUIRED_GATES, produceProtectedAcceptanceEvidence };
+module.exports = { REQUIRED_GATES, produceConditionalCapabilityReceipts, produceProtectedAcceptanceEvidence };
 
 if (require.main === module) {
   try {

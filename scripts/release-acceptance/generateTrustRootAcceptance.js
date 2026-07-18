@@ -167,20 +167,20 @@ function generateTrustRootAcceptance(rawDirectory, outputDirectory) {
 
   const capabilityReceiptsDirectory = path.join(inputRoot, 'capability-receipts');
   const capabilityAuthorityPaths = [];
+  const included = new Set(
+    capabilitySeal.value.capabilities.filter((entry) => entry.mode === 'included').map((entry) => entry.id)
+  );
   for (const relative of ['capability-receipts/manifest.json']) {
     requireIndexed(indexedPaths, relative);
     capabilityAuthorityPaths.push(copyRegularFile(rawRoot, relative, inputRoot, relative).path);
   }
-  for (const id of CAPABILITIES) {
+  for (const id of CAPABILITIES.filter((capabilityId) => included.has(capabilityId))) {
     for (const relative of [`capability-receipts/${id}.json`, `capability-receipts/${id}.proof.log`]) {
       requireIndexed(indexedPaths, relative);
       capabilityAuthorityPaths.push(copyRegularFile(rawRoot, relative, inputRoot, relative).path);
     }
   }
 
-  const included = new Set(
-    capabilitySeal.value.capabilities.filter((entry) => entry.mode === 'included').map((entry) => entry.id)
-  );
   const conditionalReceiptPaths = [];
   const conditionalReceipts = CAPABILITIES.filter((id) => included.has(id)).map((capabilityId) => {
     const relative = `conditional/capability-release-acceptance-${capabilityId}.json`;
