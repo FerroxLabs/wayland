@@ -2232,7 +2232,51 @@
     "restoreTooLarge": "That backup file is too large",
     "restoreFailed": "Restore failed",
     "resetFailed": "Couldn't reset Wayland. Your data was not deleted. Please try again.",
-    "exportSuccess": "Legacy file export created"
+    "exportSuccess": "Legacy file export created",
+    "transfer": {
+      "title": "Move this Wayland instance",
+      "description": "See exactly what can move to another Wayland instance before any encrypted bundle is created.",
+      "desktopOnly": "Transfer preview is local-only and must be opened in the Wayland desktop app.",
+      "previewAction": "Preview my transfer",
+      "previewSafety": "Read-only. No bundle or file is created.",
+      "ready": "Preflight ready",
+      "actionRequired": "Action required",
+      "unavailableTitle": "Transfer inventory could not be proven",
+      "unavailableDescription": "Nothing can be exported or imported until Wayland can account for every data family.",
+      "tryAgain": "Try again",
+      "summary": "Transfer summary",
+      "includedCount": "Included",
+      "referenceCount": "Reference only",
+      "excludedCount": "Excluded, reconnect, or blocked",
+      "dataFamilies": "Data families",
+      "pausedOnImport": "Paused and quarantined after import",
+      "blockersTitle": "Required before a bundle can be created",
+      "warningsTitle": "What happens after import",
+      "exportAction": "Export encrypted bundle",
+      "recoveryAction": "Create recovery bundle",
+      "importAction": "Import bundle",
+      "actionsLocked": "Locked until owner approval, verified capture, encryption, and transactional restore are connected.",
+      "families": {
+        "chatsProjects": "Chats and Projects",
+        "schedules": "Schedules and automations",
+        "workflowsTeams": "Workflows and teams",
+        "artifactsReceipts": "Files, outputs, and receipts",
+        "webui": "Cloud and WebUI state",
+        "preferences": "Settings and preferences",
+        "coreEngine": "Wayland Core memory and profiles",
+        "backends": "Connected agents and backends",
+        "credentials": "Credentials and secrets",
+        "updater": "App update state",
+        "workspaces": "External workspace files"
+      },
+      "dispositions": {
+        "included": "Included",
+        "reference-only": "Reference only",
+        "reconnect-required": "Reconnect required",
+        "excluded": "Excluded",
+        "blocked": "Blocked"
+      }
+    }
   },
   "navigationPage": {
     "subtitle": "Choose which entries appear in the sidebar and titlebar.",
