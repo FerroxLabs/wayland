@@ -121,6 +121,7 @@
     "@line/bot-sdk": "^11.0.0",
     "@lydell/node-pty": "^1.2.0-beta.12",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@noble/ciphers": "^2.1.1",
     "@noble/hashes": "^2.2.0",
     "@office-ai/aioncli-core": "^0.30.6",
     "@office-ai/platform": "^0.3.16",
