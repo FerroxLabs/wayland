@@ -134,7 +134,7 @@ function parseJson(bytes, code) {
 function expectedPublisherGate(target, role) {
   if (target.startsWith('darwin-')) return 'macos-gatekeeper-developer-id-notarization';
   if (target.startsWith('win32-')) return 'windows-authenticode-ferrox-labs';
-  if (role === 'rollback') return 'github-release-digest-only';
+  if (role === 'rollback' || role === 'initial') return 'github-release-digest-only';
   return 'linux-detached-signature-pinned-keyring';
 }
 
@@ -149,8 +149,9 @@ function verifyPublisher(value, target, role) {
     fail(code, 'publisher-evidence-not-proven');
   }
   const identity = nonempty(publisher.identity, code);
-  if (target.startsWith('linux-') && role === 'rollback') {
-    if (identity !== 'FerroxLabs/wayland@v0.11.8 compiled release catalog') {
+  if (target.startsWith('linux-') && (role === 'rollback' || role === 'initial')) {
+    const version = role === 'initial' ? 'v0.11.18' : 'v0.11.8';
+    if (identity !== `FerroxLabs/wayland@${version} compiled release catalog`) {
       fail(code, 'unexpected-catalog-identity');
     }
   } else if (!target.startsWith('linux-') && !identity.includes('Ferrox Labs')) {
@@ -163,6 +164,40 @@ function loadRollbackCatalog(options = {}) {
   if (options.rollbackCatalog) return options.rollbackCatalog;
   const catalogPath = path.resolve(__dirname, '../../contracts/recovery/classic-v0.11.8-release.json');
   return parseJson(regularFile(catalogPath, 'M8C_ROLLBACK_CATALOG_INVALID').bytes, 'M8C_ROLLBACK_CATALOG_INVALID');
+}
+
+function loadInitialCatalog(options = {}) {
+  if (options.initialCatalog) return options.initialCatalog;
+  const catalogPath = path.resolve(__dirname, '../../contracts/recovery/classic-v0.11.18-release.json');
+  return parseJson(regularFile(catalogPath, 'M8C_INITIAL_CATALOG_INVALID').bytes, 'M8C_INITIAL_CATALOG_INVALID');
+}
+
+function verifyInitialCatalogArtifact(artifact, bound, target, catalog) {
+  const value = exactKeys(
+    catalog,
+    ['contract', 'repository', 'releaseId', 'tag', 'tagCommit', 'version', 'publishedAt', 'artifacts'],
+    'M8C_INITIAL_CATALOG_INVALID'
+  );
+  if (
+    value.contract !== 'wayland-classic-initial-release/1.0' ||
+    value.repository !== REPOSITORY ||
+    value.tag !== 'v0.11.18' ||
+    value.version !== '0.11.18' ||
+    !Array.isArray(value.artifacts)
+  ) {
+    fail('M8C_INITIAL_CATALOG_INVALID', 'identity-or-artifacts');
+  }
+  const [platform, arch] = target.split('-');
+  const entry = value.artifacts.find((candidate) => candidate?.platform === platform && candidate?.arch === arch);
+  if (!entry) fail('M8C_INITIAL_CATALOG_INVALID', 'target-absent');
+  if (
+    path.basename(artifact.file) !== entry.name ||
+    bound.size !== entry.size ||
+    bound.sha256 !== `sha256:${entry.sha256}` ||
+    artifact.publisher.gate !== entry.publisherGate
+  ) {
+    fail('M8C_INITIAL_CATALOG_MISMATCH', 'filename-size-digest-or-publisher');
+  }
 }
 
 function verifyRollbackCatalogArtifact(artifact, bound, target, catalog) {
@@ -210,6 +245,11 @@ function verifyArtifact(value, root, candidate, target, role, options = {}) {
       fail('M8C_ROLLBACK_IDENTITY_INVALID', 'expected-compiled-v0.11.8-catalog');
     }
     verifyRollbackCatalogArtifact(artifact, bound, target, loadRollbackCatalog(options));
+  } else if (role === 'initial') {
+    if (version !== '0.11.18' || artifact.releaseTag !== 'v0.11.18' || artifact.catalogVerified !== true) {
+      fail('M8C_INITIAL_IDENTITY_INVALID', 'expected-compiled-v0.11.18-catalog');
+    }
+    verifyInitialCatalogArtifact(artifact, bound, target, loadInitialCatalog(options));
   }
   return { ...bound, version, publisher, sourceCommit: candidate.commit };
 }
@@ -234,7 +274,7 @@ function verifyPackageSmoke(value, candidate, target, candidateArtifact) {
   return smoke;
 }
 
-function verifyRuntimeEvents(value, manifest, candidateArtifact, rollbackArtifact, timeRange) {
+function verifyRuntimeEvents(value, manifest, initialArtifact, candidateArtifact, rollbackArtifact, timeRange) {
   const eventsFile = exactKeys(
     value,
     ['contract', 'nonce', 'candidate', 'target', 'events'],
@@ -299,20 +339,20 @@ function verifyRuntimeEvents(value, manifest, candidateArtifact, rollbackArtifac
     digest(item.supportedDataSetSha256, 'M8C_RUNTIME_EVENTS_INVALID');
     if (phase === 'initial') {
       if (
-        item.runningVersion === candidateArtifact.version ||
+        item.runningVersion !== initialArtifact.version ||
         item.attemptedVersion !== null ||
         item.outcome !== 'booted' ||
         item.failureReason !== null ||
         item.rollbackOffered !== false ||
         item.isolatedState !== false ||
-        item.installedArtifactSha256 !== null
+        item.installedArtifactSha256 !== initialArtifact.sha256
       ) {
         fail('M8C_RUNTIME_EVENTS_INVALID', 'initial-event-invalid');
       }
     } else if (phase === 'failedUpdate') {
       if (
         item.attemptedVersion !== candidateArtifact.version ||
-        item.runningVersion !== eventsFile.events[0].runningVersion ||
+        item.runningVersion !== initialArtifact.version ||
         item.outcome !== 'failed' ||
         typeof item.failureReason !== 'string' ||
         item.failureReason.length === 0 ||
@@ -534,6 +574,7 @@ function verifyUpdaterObservation(input, options = {}) {
       'completedAt',
       'expiresAt',
       'observer',
+      'initialArtifact',
       'candidateArtifact',
       'rollbackArtifact',
       'packageSmoke',
@@ -561,6 +602,14 @@ function verifyUpdaterObservation(input, options = {}) {
   );
 
   const root = path.dirname(observationPath);
+  const initialArtifact = verifyArtifact(
+    manifest.initialArtifact,
+    root,
+    candidate,
+    manifest.target,
+    'initial',
+    options
+  );
   const candidateArtifact = verifyArtifact(
     manifest.candidateArtifact,
     root,
@@ -591,6 +640,7 @@ function verifyUpdaterObservation(input, options = {}) {
   const events = verifyRuntimeEvents(
     parseJson(runtimeEventsFile.bytes, 'M8C_RUNTIME_EVENTS_INVALID'),
     manifest,
+    initialArtifact,
     candidateArtifact,
     rollbackArtifact,
     timeRange

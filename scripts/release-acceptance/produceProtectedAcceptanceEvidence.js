@@ -199,6 +199,7 @@ function copyUpdaterObservation(rawRoot, output, target, candidate, verifier) {
       'completedAt',
       'expiresAt',
       'observer',
+      'initialArtifact',
       'candidateArtifact',
       'rollbackArtifact',
       'packageSmoke',
@@ -236,6 +237,7 @@ function copyUpdaterObservation(rawRoot, output, target, candidate, verifier) {
 
   const referenced = [
     observationRelative,
+    `updater-observations/${target}/${observation.initialArtifact.file}`,
     `updater-observations/${target}/${observation.candidateArtifact.file}`,
     `updater-observations/${target}/${observation.rollbackArtifact.file}`,
     `updater-observations/${target}/${observation.packageSmoke.file}`,

@@ -1,0 +1,65 @@
+{
+  "contract": "wayland-classic-initial-release/1.0",
+  "repository": "FerroxLabs/wayland",
+  "releaseId": 354136129,
+  "tag": "v0.11.18",
+  "tagCommit": "1b1c1e91119e3352bec3958188254ee91f150492",
+  "version": "0.11.18",
+  "publishedAt": "2026-07-15T00:09:27Z",
+  "artifacts": [
+    {
+      "assetId": 477321381,
+      "platform": "darwin",
+      "arch": "arm64",
+      "name": "Wayland-0.11.18-mac-arm64.dmg",
+      "size": 448582518,
+      "sha256": "3fa2268483b21a4c1697ab7626056b6055df38dc566090c8128e13c058630a0d",
+      "publisherGate": "macos-gatekeeper-developer-id-notarization"
+    },
+    {
+      "assetId": 477321391,
+      "platform": "darwin",
+      "arch": "x64",
+      "name": "Wayland-0.11.18-mac-x64.dmg",
+      "size": 474923197,
+      "sha256": "948e1edcb696d7d331f3137b4d318cf0bccc0f6437c705ee4a8039d6e0c589ce",
+      "publisherGate": "macos-gatekeeper-developer-id-notarization"
+    },
+    {
+      "assetId": 477321371,
+      "platform": "win32",
+      "arch": "arm64",
+      "name": "Wayland-0.11.18-win-arm64.exe",
+      "size": 358445208,
+      "sha256": "95b4a5f837e88c881b17c9232f8235e19150cd92f599633edeae9efb6bde8cfa",
+      "publisherGate": "windows-authenticode-ferrox-labs"
+    },
+    {
+      "assetId": 477321378,
+      "platform": "win32",
+      "arch": "x64",
+      "name": "Wayland-0.11.18-win-x64.exe",
+      "size": 395273416,
+      "sha256": "9637adf0afff340b8c0a8ed97d4cab81e31517d648cb53fd6bc14617843eac32",
+      "publisherGate": "windows-authenticode-ferrox-labs"
+    },
+    {
+      "assetId": 477321384,
+      "platform": "linux",
+      "arch": "arm64",
+      "name": "Wayland-0.11.18-linux-arm64.deb",
+      "size": 408369880,
+      "sha256": "2ca1e38a5648b72f136644b3611d7f2e97f13b089379900d9918c0748caa8ee8",
+      "publisherGate": "github-release-digest-only"
+    },
+    {
+      "assetId": 477321380,
+      "platform": "linux",
+      "arch": "x64",
+      "name": "Wayland-0.11.18-linux-amd64.deb",
+      "size": 469000460,
+      "sha256": "c3f5187d84e3757ad6fad12f65e2536276d2a332cd73b825deb7922a49d257a6",
+      "publisherGate": "github-release-digest-only"
+    }
+  ]
+}

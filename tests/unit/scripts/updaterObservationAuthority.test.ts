@@ -50,6 +50,7 @@ function writeBytes(filePath: string, value: string): { file: string; sha256: st
 function createFixture(): Fixture {
   const root = mkdtempSync(path.join(tmpdir(), 'wayland-updater-observation-'));
   temporaryRoots.push(root);
+  const initial = writeBytes(path.join(root, 'initial.dmg'), 'initial-package-bytes');
   const candidate = writeBytes(path.join(root, 'candidate.dmg'), 'candidate-package-bytes');
   const rollback = writeBytes(path.join(root, 'rollback.zip'), 'rollback-package-bytes');
   const packageSmoke = writeJson(path.join(root, 'package-smoke.json'), {
@@ -73,7 +74,7 @@ function createFixture(): Fixture {
       failureReason: null,
       rollbackOffered: false,
       isolatedState: false,
-      installedArtifactSha256: null,
+      installedArtifactSha256: initial.sha256,
       supportedDataSetSha256: DATA,
     },
     {
@@ -153,6 +154,18 @@ function createFixture(): Fixture {
     completedAt: '2026-07-19T00:05:00.000Z',
     expiresAt: '2026-07-19T01:05:00.000Z',
     observer: { authority: 'nonce-bound-packaged-runtime-observer', runId: 12345 },
+    initialArtifact: {
+      ...initial,
+      version: '0.11.18',
+      releaseTag: 'v0.11.18',
+      catalogVerified: true,
+      publisher: {
+        gate: 'macos-gatekeeper-developer-id-notarization',
+        verified: true,
+        verifierExitCode: 0,
+        identity: 'Developer ID Application: Ferrox Labs',
+      },
+    },
     candidateArtifact: {
       ...candidate,
       version: '0.12.0',
@@ -195,6 +208,7 @@ function createFixture(): Fixture {
 }
 
 function options(fixture: Fixture, overrides: Record<string, unknown> = {}) {
+  const initial = fixture.manifest.initialArtifact;
   const rollback = fixture.manifest.rollbackArtifact;
   return {
     now: () => Date.parse('2026-07-19T00:10:00.000Z'),
@@ -217,6 +231,25 @@ function options(fixture: Fixture, overrides: Record<string, unknown> = {}) {
       ]);
     },
     trustRootCommit: TRUST_COMMIT,
+    initialCatalog: {
+      contract: 'wayland-classic-initial-release/1.0',
+      repository: 'FerroxLabs/wayland',
+      releaseId: 2,
+      tag: 'v0.11.18',
+      tagCommit: 'e'.repeat(40),
+      version: '0.11.18',
+      publishedAt: '2026-07-15T00:09:27Z',
+      artifacts: [
+        {
+          platform: fixture.manifest.target.split('-')[0],
+          arch: fixture.manifest.target.split('-')[1],
+          name: initial.file,
+          size: initial.size,
+          sha256: initial.sha256.slice('sha256:'.length),
+          publisherGate: initial.publisher.gate,
+        },
+      ],
+    },
     rollbackCatalog: {
       contract: 'wayland-classic-recovery-release/1.0',
       repository: 'FerroxLabs/wayland',

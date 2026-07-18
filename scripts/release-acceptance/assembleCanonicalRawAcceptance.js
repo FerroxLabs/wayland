@@ -115,6 +115,7 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
     const observationRoot = path.dirname(observation);
     const references = [
       ['observation.json', observation],
+      [manifest.initialArtifact?.file, path.resolve(observationRoot, manifest.initialArtifact?.file || '')],
       [manifest.candidateArtifact?.file, path.resolve(observationRoot, manifest.candidateArtifact?.file || '')],
       [manifest.rollbackArtifact?.file, path.resolve(observationRoot, manifest.rollbackArtifact?.file || '')],
       [manifest.packageSmoke?.file, path.resolve(observationRoot, manifest.packageSmoke?.file || '')],

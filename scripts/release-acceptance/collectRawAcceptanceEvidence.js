@@ -182,6 +182,7 @@ function collectRawAcceptanceEvidence(sourceDirectory, outputDirectory) {
     }
     const observation = observationFile.value;
     const refs = [
+      observation.initialArtifact?.file,
       observation.candidateArtifact?.file,
       observation.rollbackArtifact?.file,
       observation.packageSmoke?.file,
