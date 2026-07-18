@@ -29,9 +29,11 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { ipcBridge } from '@/common';
 import {
+  CatalogPaginationControls,
   LibraryFilterRail,
   LibraryFilterRow,
   LibrarySectionHeader,
+  useCatalogPagination,
 } from '@/renderer/components/layout/library';
 import PageShell from '@/renderer/components/layout/PageShell';
 import ImportModal from '@/renderer/components/import/ImportModal';
@@ -47,6 +49,7 @@ import WorkflowDetailModal from './WorkflowDetailModal';
 // with the lifestyle bucket. The list also covers what to do with
 // unknown future categories (fall through to the bottom under "Other").
 type CategoryDef = { slug: string; label: string };
+type SectionedWorkflow = { sectionSlug: string; entry: SkillIndexEntry };
 // Alphabetical by display label (Sean's directive 2026-05-21). Keeps the
 // rail predictable when categories expand - no implicit ranking, no
 // remembering 'is Lifestyle before or after Career?' Scanning a-z is
@@ -120,9 +123,7 @@ const WorkflowsLibraryPage: React.FC = () => {
   const searchFiltered = useMemo(() => {
     if (!searching) return workflows;
     const q = query.toLowerCase();
-    return workflows.filter(
-      (w) => w.name.toLowerCase().includes(q) || w.description.toLowerCase().includes(q),
-    );
+    return workflows.filter((w) => w.name.toLowerCase().includes(q) || w.description.toLowerCase().includes(q));
   }, [workflows, query, searching]);
 
   // Bucket workflows by category for the grouped layout. Featured is
@@ -142,9 +143,7 @@ const WorkflowsLibraryPage: React.FC = () => {
 
   const featured = useMemo(() => {
     const known = new Map(workflows.map((w) => [w.name, w]));
-    return FEATURED_SLUGS.map((slug) => known.get(slug)).filter(
-      (w): w is SkillIndexEntry => w != null,
-    );
+    return FEATURED_SLUGS.map((slug) => known.get(slug)).filter((w): w is SkillIndexEntry => w != null);
   }, [workflows]);
 
   const handleCardClick = useCallback((entry: SkillIndexEntry) => setSelected(entry), []);
@@ -174,6 +173,29 @@ const WorkflowsLibraryPage: React.FC = () => {
     return sections.filter((s) => s.slug === activeCategory);
   }, [sections, activeCategory]);
 
+  const catalogEntries = useMemo<SectionedWorkflow[]>(
+    () =>
+      searching
+        ? searchFiltered.map((entry) => ({ sectionSlug: 'search', entry }))
+        : visibleSections.flatMap((section) => section.entries.map((entry) => ({ sectionSlug: section.slug, entry }))),
+    [searchFiltered, searching, visibleSections]
+  );
+  const pagination = useCatalogPagination(
+    catalogEntries,
+    searching ? `search:${query.trim().toLowerCase()}` : `category:${activeCategory ?? 'all'}`
+  );
+  const pagedSections = useMemo(() => {
+    const visibleBySection = new Map<string, SkillIndexEntry[]>();
+    for (const { sectionSlug, entry } of pagination.visibleItems) {
+      const entries = visibleBySection.get(sectionSlug) ?? [];
+      entries.push(entry);
+      visibleBySection.set(sectionSlug, entries);
+    }
+    return visibleSections
+      .map((section) => ({ ...section, visibleEntries: visibleBySection.get(section.slug) ?? [] }))
+      .filter((section) => section.visibleEntries.length > 0);
+  }, [pagination.visibleItems, visibleSections]);
+
   return (
     <PageShell
       title={t('title', 'Workflows')}
@@ -182,18 +204,10 @@ const WorkflowsLibraryPage: React.FC = () => {
       width='full'
       actions={
         <>
-          <Button
-            type='secondary'
-            icon={<Download size={14} />}
-            onClick={() => setImportOpen(true)}
-          >
+          <Button type='secondary' icon={<Download size={14} />} onClick={() => setImportOpen(true)}>
             {t('actions.import', 'Import workflow')}
           </Button>
-          <Button
-            type='primary'
-            icon={<Sparkles size={14} />}
-            onClick={() => setBuildOpen(true)}
-          >
+          <Button type='primary' icon={<Sparkles size={14} />} onClick={() => setBuildOpen(true)}>
             {t('actions.build', 'Build a workflow')}
           </Button>
         </>
@@ -231,13 +245,10 @@ const WorkflowsLibraryPage: React.FC = () => {
         </LibraryFilterRail>
       }
     >
-      <div className='flex-1 min-w-0 flex flex-col gap-20px'>
+      <div className='flex-1 min-w-0 flex flex-col gap-20px' id='workflows-catalog-items'>
         {searching ? (
           searchFiltered.length === 0 ? (
-            <div
-              className='text-center text-13px py-40px'
-              style={{ color: 'var(--color-text-2)' }}
-            >
+            <div className='text-center text-13px py-40px' style={{ color: 'var(--color-text-2)' }}>
               {t('search.empty', 'No workflows match your search')}
             </div>
           ) : (
@@ -245,8 +256,8 @@ const WorkflowsLibraryPage: React.FC = () => {
               className='grid gap-12px'
               style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))', minWidth: 0 }}
             >
-              {searchFiltered.map((w) => (
-                <WorkflowCard key={w.name} entry={w} onClick={handleCardClick} />
+              {pagination.visibleItems.map(({ entry }) => (
+                <WorkflowCard key={entry.name} entry={entry} onClick={handleCardClick} />
               ))}
             </div>
           )
@@ -279,14 +290,14 @@ const WorkflowsLibraryPage: React.FC = () => {
               />
             ) : null}
 
-            {visibleSections.map((s) => (
+            {pagedSections.map((s) => (
               <section key={s.slug}>
                 <LibrarySectionHeader label={s.label} count={s.entries.length} />
                 <div
                   className='grid gap-12px'
                   style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))', minWidth: 0 }}
                 >
-                  {s.entries.map((w) => (
+                  {s.visibleEntries.map((w) => (
                     <WorkflowCard key={w.name} entry={w} onClick={handleCardClick} />
                   ))}
                 </div>
@@ -294,14 +305,24 @@ const WorkflowsLibraryPage: React.FC = () => {
             ))}
           </>
         )}
+        <CatalogPaginationControls
+          visibleCount={pagination.visibleCount}
+          totalCount={pagination.totalCount}
+          remainingCount={pagination.remainingCount}
+          pageSize={pagination.pageSize}
+          firstVisibleIndex={pagination.firstVisibleIndex}
+          lastVisibleIndex={pagination.lastVisibleIndex}
+          hasPrevious={pagination.hasPrevious}
+          hasMore={pagination.hasMore}
+          onNextPage={pagination.nextPage}
+          onPreviousPage={pagination.previousPage}
+          controlsId='workflows-catalog-items'
+          testId='workflows-load-more'
+        />
       </div>
 
       <WorkflowDetailModal entry={selected} onClose={() => setSelected(null)} />
-      <BuildWorkflowModal
-        visible={buildOpen}
-        onClose={() => setBuildOpen(false)}
-        onSaved={refreshWorkflows}
-      />
+      <BuildWorkflowModal visible={buildOpen} onClose={() => setBuildOpen(false)} onSaved={refreshWorkflows} />
       <ImportModal
         visible={importOpen}
         kind='workflow'

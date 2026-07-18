@@ -9,3 +9,6 @@ export type { LibraryFilterRailProps } from './LibraryFilterRail';
 
 export { default as LibraryFilterRow } from './LibraryFilterRow';
 export type { LibraryFilterRowProps } from './LibraryFilterRow';
+
+export { CatalogPaginationControls, DEFAULT_CATALOG_PAGE_SIZE, useCatalogPagination } from './CatalogPagination';
+export type { CatalogPaginationControlsProps, CatalogPaginationResult } from './CatalogPagination';

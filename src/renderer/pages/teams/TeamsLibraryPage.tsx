@@ -29,16 +29,18 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ipcBridge } from '@/common';
-import { LibrarySectionHeader } from '@/renderer/components/layout/library';
+import {
+  CatalogPaginationControls,
+  LibrarySectionHeader,
+  useCatalogPagination,
+} from '@/renderer/components/layout/library';
 import PageShell from '@/renderer/components/layout/PageShell';
 import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import { useAssistantList } from '@/renderer/hooks/assistant';
 import type { AssistantListItem } from '@/renderer/pages/settings/AssistantSettings/types';
 import type { TeamExport } from '@process/team/importExport/TeamExportSchema';
 import BuildMyOwnTeamCard from './components/BuildMyOwnTeamCard';
-import CapabilityReviewModal, {
-  type TeamCapabilities,
-} from './components/CapabilityReviewModal';
+import CapabilityReviewModal, { type TeamCapabilities } from './components/CapabilityReviewModal';
 import TeamCard from './components/TeamCard';
 import styles from './TeamsLibraryPage.module.css';
 
@@ -93,11 +95,7 @@ const matchesTeamQuery = (team: AssistantListItem, localeKey: string, query: str
   return haystack.includes(query);
 };
 
-const sortTeams = (
-  list: AssistantListItem[],
-  sortKey: TeamSortKey,
-  localeKey: string
-): AssistantListItem[] => {
+const sortTeams = (list: AssistantListItem[], sortKey: TeamSortKey, localeKey: string): AssistantListItem[] => {
   if (sortKey === 'default') return list;
   const sorted = [...list];
   if (sortKey === 'name') {
@@ -124,10 +122,7 @@ const TeamsLibraryPage: React.FC = () => {
   const normalizedQuery = query.trim().toLowerCase();
   const isSearching = normalizedQuery.length > 0;
 
-  const hasAnyTeams = useMemo(
-    () => assistants.some((assistant) => assistant._kind === 'team'),
-    [assistants]
-  );
+  const hasAnyTeams = useMemo(() => assistants.some((assistant) => assistant._kind === 'team'), [assistants]);
 
   const { standing, teams } = useMemo(() => {
     const standingList: AssistantListItem[] = [];
@@ -145,6 +140,17 @@ const TeamsLibraryPage: React.FC = () => {
   }, [assistants, localeKey, normalizedQuery, sortKey]);
 
   const totalTeams = standing.length + teams.length;
+  const orderedTeams = useMemo(() => [...standing, ...teams], [standing, teams]);
+  const pagination = useCatalogPagination(orderedTeams, `${normalizedQuery}\u0000${sortKey}`);
+  const { visibleStanding, visibleTeams } = useMemo(() => {
+    const nextStanding: AssistantListItem[] = [];
+    const nextTeams: AssistantListItem[] = [];
+    for (const team of pagination.visibleItems) {
+      if (team._standing === true) nextStanding.push(team);
+      else nextTeams.push(team);
+    }
+    return { visibleStanding: nextStanding, visibleTeams: nextTeams };
+  }, [pagination.visibleItems]);
 
   // Synchronous navigation guard - debounces double-clicks on launcher cards
   // so we don't push 2 history entries (Bug from adversarial e2e). The ref
@@ -188,9 +194,7 @@ const TeamsLibraryPage: React.FC = () => {
         jsonText = await file.text();
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
-        Message.error(
-          `${t('teams.import.fileReadError', { defaultValue: 'Could not read file' })}: ${message}`
-        );
+        Message.error(`${t('teams.import.fileReadError', { defaultValue: 'Could not read file' })}: ${message}`);
         return;
       }
       try {
@@ -219,9 +223,7 @@ const TeamsLibraryPage: React.FC = () => {
         });
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
-        Message.error(
-          `${t('teams.import.error', { defaultValue: 'Failed to import team' })}: ${message}`
-        );
+        Message.error(`${t('teams.import.error', { defaultValue: 'Failed to import team' })}: ${message}`);
       }
     },
     [t]
@@ -256,9 +258,7 @@ const TeamsLibraryPage: React.FC = () => {
         }
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
-        Message.error(
-          `${t('teams.import.error', { defaultValue: 'Failed to import team' })}: ${message}`
-        );
+        Message.error(`${t('teams.import.error', { defaultValue: 'Failed to import team' })}: ${message}`);
         setImportLoading(false);
       }
     },
@@ -320,7 +320,7 @@ const TeamsLibraryPage: React.FC = () => {
         data-testid='teams-import-file-input'
       />
 
-      <div className={styles.scroll}>
+      <div className={styles.scroll} id='teams-catalog-items'>
         {hasAnyTeams && (
           <div className={styles.controls} data-testid='teams-controls'>
             <Input
@@ -333,27 +333,17 @@ const TeamsLibraryPage: React.FC = () => {
               data-testid='teams-search-input'
             />
             <div className={styles.sortControl}>
-              <span className={styles.sortLabel}>
-                {t('teams.controls.sortLabel', { defaultValue: 'Sort' })}
-              </span>
+              <span className={styles.sortLabel}>{t('teams.controls.sortLabel', { defaultValue: 'Sort' })}</span>
               <Select
                 className={styles.sortSelect}
                 value={sortKey}
                 onChange={(value) => setSortKey(value as TeamSortKey)}
                 data-testid='teams-sort-select'
               >
-                <Select.Option value='default'>
-                  {t('teams.sort.default', { defaultValue: 'Default' })}
-                </Select.Option>
-                <Select.Option value='name'>
-                  {t('teams.sort.name', { defaultValue: 'Name (A-Z)' })}
-                </Select.Option>
-                <Select.Option value='roles'>
-                  {t('teams.sort.roles', { defaultValue: 'Most roles' })}
-                </Select.Option>
-                <Select.Option value='schedule'>
-                  {t('teams.sort.schedule', { defaultValue: 'Schedule' })}
-                </Select.Option>
+                <Select.Option value='default'>{t('teams.sort.default', { defaultValue: 'Default' })}</Select.Option>
+                <Select.Option value='name'>{t('teams.sort.name', { defaultValue: 'Name (A-Z)' })}</Select.Option>
+                <Select.Option value='roles'>{t('teams.sort.roles', { defaultValue: 'Most roles' })}</Select.Option>
+                <Select.Option value='schedule'>{t('teams.sort.schedule', { defaultValue: 'Schedule' })}</Select.Option>
               </Select>
             </div>
           </div>
@@ -371,7 +361,7 @@ const TeamsLibraryPage: React.FC = () => {
           </div>
         )}
 
-        {standing.length > 0 && (
+        {visibleStanding.length > 0 && (
           <section className={styles.sectionGroup} data-testid='teams-group-standing'>
             <LibrarySectionHeader
               label={t('teams.group.standing', { defaultValue: 'Standing Companies' })}
@@ -382,7 +372,7 @@ const TeamsLibraryPage: React.FC = () => {
               })}
             />
             <div className={styles.gridStanding}>
-              {standing.map((team) => (
+              {visibleStanding.map((team) => (
                 <TeamCard key={team.id} team={team} localeKey={localeKey} onLaunch={handleLaunchTeam} />
               ))}
             </div>
@@ -407,13 +397,27 @@ const TeamsLibraryPage: React.FC = () => {
               }
             />
             <div className={styles.gridTeams}>
-              {teams.map((team) => (
+              {visibleTeams.map((team) => (
                 <TeamCard key={team.id} team={team} localeKey={localeKey} onLaunch={handleLaunchTeam} />
               ))}
               {!isSearching && <BuildMyOwnTeamCard onClick={handleBuildMyOwn} />}
             </div>
           </section>
         )}
+        <CatalogPaginationControls
+          visibleCount={pagination.visibleCount}
+          totalCount={pagination.totalCount}
+          remainingCount={pagination.remainingCount}
+          pageSize={pagination.pageSize}
+          firstVisibleIndex={pagination.firstVisibleIndex}
+          lastVisibleIndex={pagination.lastVisibleIndex}
+          hasPrevious={pagination.hasPrevious}
+          hasMore={pagination.hasMore}
+          onNextPage={pagination.nextPage}
+          onPreviousPage={pagination.previousPage}
+          controlsId='teams-catalog-items'
+          testId='teams-load-more'
+        />
       </div>
       {importPreview && (
         <CapabilityReviewModal

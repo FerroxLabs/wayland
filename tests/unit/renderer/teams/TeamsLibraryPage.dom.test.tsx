@@ -106,10 +106,18 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (_key: string, opts?: { defaultValue?: string; count?: number }) => {
-      const fallback = opts?.defaultValue ?? _key;
-      if (opts?.count !== undefined) return fallback.replace('{{count}}', String(opts.count));
-      return fallback;
+    t: (_key: string, opts?: { defaultValue?: string; count?: number; shown?: number | string; total?: number }) => {
+      const translations: Record<string, string> = {
+        'mcpLibrary.browse.showMore': 'Show more',
+        'mcpLibrary.browse.showMoreCount': '({{shown}} of {{total}})',
+        'settings.shared.back': 'Back',
+        'settings.shared.next': 'Next',
+      };
+      const fallback = opts?.defaultValue ?? translations[_key] ?? _key;
+      return fallback
+        .replace('{{count}}', String(opts?.count ?? ''))
+        .replace('{{shown}}', String(opts?.shown ?? ''))
+        .replace('{{total}}', String(opts?.total ?? ''));
     },
   }),
 }));
@@ -153,6 +161,51 @@ const renderPage = (initialRoute = '/teams') =>
   );
 
 describe('TeamsLibraryPage', () => {
+  it('bounds a 1,000-item catalog and expands it by a deterministic keyboard-safe page', async () => {
+    const mutableAssistants = mockAssistants as unknown as Array<Record<string, unknown>>;
+    const originalAssistants = mutableAssistants.slice();
+    mutableAssistants.splice(
+      0,
+      mutableAssistants.length,
+      ...Array.from({ length: 1_000 }, (_, index) => ({
+        id: `scale-team-${String(index).padStart(4, '0')}`,
+        name: `Scale Team ${String(index).padStart(4, '0')}`,
+        nameI18n: { 'en-US': `Scale Team ${String(index).padStart(4, '0')}` },
+        descriptionI18n: { 'en-US': `Scale fixture ${index}` },
+        isBuiltin: false,
+        isPreset: true,
+        presetAgentType: 'gemini',
+        _source: 'extension',
+        _kind: 'team',
+        _standing: index < 100,
+        _teammates: ['lead', 'specialist'],
+        _rituals: [{ name: 'standup', cadence: 'daily' }],
+      }))
+    );
+
+    try {
+      renderPage();
+      await waitFor(() => expect(document.querySelectorAll('[data-card-variant]').length).toBe(48));
+
+      expect(screen.getByTestId('teams-total-count').textContent).toContain('1000');
+      expect(screen.getByTestId('teams-load-more-status').textContent).toContain('1–48 of 1000');
+      const loadMore = screen.getByTestId('teams-load-more');
+      expect(loadMore.tagName).toBe('BUTTON');
+      expect(loadMore.getAttribute('aria-controls')).toBe('teams-catalog-items');
+
+      loadMore.focus();
+      fireEvent.click(loadMore);
+
+      expect(document.querySelectorAll('[data-card-variant]').length).toBe(48);
+      expect(screen.queryByTestId('team-card-scale-team-0000')).toBeNull();
+      expect(screen.getByTestId('team-card-scale-team-0048')).toBeTruthy();
+      expect(screen.getByTestId('teams-load-more-status').textContent).toContain('49–96 of 1000');
+      expect(document.activeElement).toBe(loadMore);
+    } finally {
+      mutableAssistants.splice(0, mutableAssistants.length, ...originalAssistants);
+    }
+  });
+
   it('renders Standing Companies sub-group with exactly 5 cards', async () => {
     renderPage();
     await waitFor(() => screen.getByTestId('teams-group-standing'));

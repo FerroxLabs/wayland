@@ -115,12 +115,30 @@ const setSelectedAgentMock = vi.hoisted(() => vi.fn().mockResolvedValue(undefine
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (_key: string, opts?: { defaultValue?: string; count?: number; backend?: string; name?: string }) => {
-      const fallback = opts?.defaultValue ?? _key;
-      if (opts?.count !== undefined) return fallback.replace('{{count}}', String(opts.count));
-      if (opts?.backend) return fallback.replace('{{backend}}', opts.backend);
-      if (opts?.name) return fallback.replace('{{name}}', opts.name);
-      return fallback;
+    t: (
+      _key: string,
+      opts?: {
+        defaultValue?: string;
+        count?: number;
+        backend?: string;
+        name?: string;
+        shown?: number | string;
+        total?: number;
+      }
+    ) => {
+      const translations: Record<string, string> = {
+        'mcpLibrary.browse.showMore': 'Show more',
+        'mcpLibrary.browse.showMoreCount': '({{shown}} of {{total}})',
+        'settings.shared.back': 'Back',
+        'settings.shared.next': 'Next',
+      };
+      const fallback = opts?.defaultValue ?? translations[_key] ?? _key;
+      return fallback
+        .replace('{{count}}', String(opts?.count ?? ''))
+        .replace('{{backend}}', opts?.backend ?? '')
+        .replace('{{name}}', opts?.name ?? '')
+        .replace('{{shown}}', String(opts?.shown ?? ''))
+        .replace('{{total}}', String(opts?.total ?? ''));
     },
   }),
 }));
@@ -177,12 +195,10 @@ vi.mock('@/common', () => ({
   ipcBridge: {
     extensions: {
       getAssistants: {
-        invoke: vi
-          .fn()
-          .mockResolvedValue([
-            { id: 'ext-fire-sales', category: 'sell' },
-            { id: 'ext-doc-helper', category: 'write' },
-          ]),
+        invoke: vi.fn().mockResolvedValue([
+          { id: 'ext-fire-sales', category: 'sell' },
+          { id: 'ext-doc-helper', category: 'write' },
+        ]),
       },
     },
   },
@@ -223,6 +239,46 @@ const renderPage = (initialRoute = '/assistants') =>
   );
 
 describe('AssistantsLibraryPage', () => {
+  it('bounds a 1,000-item catalog and expands it by a deterministic keyboard-safe page', async () => {
+    const mutableAssistants = mockAssistants as unknown as Array<Record<string, unknown>>;
+    const originalAssistants = mutableAssistants.slice();
+    mutableAssistants.splice(
+      0,
+      mutableAssistants.length,
+      ...Array.from({ length: 1_000 }, (_, index) => ({
+        id: `scale-assistant-${String(index).padStart(4, '0')}`,
+        name: `Scale Assistant ${String(index).padStart(4, '0')}`,
+        nameI18n: { 'en-US': `Scale Assistant ${String(index).padStart(4, '0')}` },
+        descriptionI18n: { 'en-US': `Scale fixture ${index}` },
+        isBuiltin: true,
+        isPreset: true,
+        presetAgentType: 'gemini',
+      }))
+    );
+
+    try {
+      renderPage();
+      await waitFor(() => expect(document.querySelectorAll('[data-card-type]').length).toBe(48));
+
+      expect(screen.getByText('1000 assistants')).toBeTruthy();
+      expect(screen.getByTestId('assistants-load-more-status').textContent).toContain('1–48 of 1000');
+      const loadMore = screen.getByTestId('assistants-load-more');
+      expect(loadMore.tagName).toBe('BUTTON');
+      expect(loadMore.getAttribute('aria-controls')).toBe('assistants-catalog-items');
+
+      loadMore.focus();
+      fireEvent.click(loadMore);
+
+      expect(document.querySelectorAll('[data-card-type]').length).toBe(48);
+      expect(screen.queryByTestId('assistant-card-scale-assistant-0000')).toBeNull();
+      expect(screen.getByTestId('assistant-card-scale-assistant-0048')).toBeTruthy();
+      expect(screen.getByTestId('assistants-load-more-status').textContent).toContain('49–96 of 1000');
+      expect(document.activeElement).toBe(loadMore);
+    } finally {
+      mutableAssistants.splice(0, mutableAssistants.length, ...originalAssistants);
+    }
+  });
+
   it('renders Specialists + Built-ins groups (Teams group removed by W2a)', async () => {
     renderPage();
 

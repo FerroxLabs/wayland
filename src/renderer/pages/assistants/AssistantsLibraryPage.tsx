@@ -21,7 +21,11 @@
 
 import { ipcBridge } from '@/common';
 import coworkSvg from '@/renderer/assets/icons/cowork.svg';
-import { LibrarySectionHeader } from '@/renderer/components/layout/library';
+import {
+  CatalogPaginationControls,
+  LibrarySectionHeader,
+  useCatalogPagination,
+} from '@/renderer/components/layout/library';
 import PageShell from '@/renderer/components/layout/PageShell';
 import {
   useAssistantEditor,
@@ -264,6 +268,24 @@ const AssistantsLibraryPage: React.FC = () => {
     return { specialists, builtins };
   }, [filteredEntries]);
 
+  const orderedEntries = useMemo(
+    () => [...groups.specialists, ...groups.builtins],
+    [groups.builtins, groups.specialists]
+  );
+  const pagination = useCatalogPagination(
+    orderedEntries,
+    `${normalizedQuery}\u0000${selectedType}\u0000${selectedDomain}`
+  );
+  const visibleGroups = useMemo(() => {
+    const specialists: CardEntry[] = [];
+    const builtins: CardEntry[] = [];
+    for (const entry of pagination.visibleItems) {
+      if (entry.type === 'specialist') specialists.push(entry);
+      else if (entry.type === 'builtin') builtins.push(entry);
+    }
+    return { specialists, builtins };
+  }, [pagination.visibleItems]);
+
   // --- Card handlers ---
   const handleLaunch = useCallback(
     (assistant: AssistantListItem) => {
@@ -310,11 +332,17 @@ const AssistantsLibraryPage: React.FC = () => {
     [assistants, navigate]
   );
 
-  const renderGroup = (label: string, entries: CardEntry[], testId: string, includeBuildCard = false) => {
-    if (entries.length === 0 && !includeBuildCard) return null;
+  const renderGroup = (
+    label: string,
+    entries: CardEntry[],
+    totalCount: number,
+    testId: string,
+    includeBuildCard = false
+  ) => {
+    if (totalCount === 0 && !includeBuildCard) return null;
     return (
       <section data-testid={testId}>
-        <LibrarySectionHeader label={label} count={includeBuildCard ? entries.length + 1 : entries.length} />
+        <LibrarySectionHeader label={label} count={includeBuildCard ? totalCount + 1 : totalCount} />
         <div className={styles.grid}>
           {entries.map((entry) => (
             <AssistantCard
@@ -389,7 +417,7 @@ const AssistantsLibraryPage: React.FC = () => {
       }
     >
       {messageContext}
-      <div className={styles.scroll}>
+      <div className={styles.scroll} id='assistants-catalog-items'>
         <section className={styles.launchpadSection} data-testid='assistants-launchpad-section'>
           <div className={styles.launchpadHead}>
             <span className={styles.launchpadTitle}>
@@ -410,15 +438,31 @@ const AssistantsLibraryPage: React.FC = () => {
         )}
         {renderGroup(
           t('assistants.group.specialists', { defaultValue: 'Specialists' }),
-          groups.specialists,
+          visibleGroups.specialists,
+          groups.specialists.length,
           'assistants-group-specialists'
         )}
         {renderGroup(
           t('assistants.group.builtins', { defaultValue: 'Built-ins' }),
-          groups.builtins,
+          visibleGroups.builtins,
+          groups.builtins.length,
           'assistants-group-builtins',
           showBuildCardInBuiltins
         )}
+        <CatalogPaginationControls
+          visibleCount={pagination.visibleCount}
+          totalCount={pagination.totalCount}
+          remainingCount={pagination.remainingCount}
+          pageSize={pagination.pageSize}
+          firstVisibleIndex={pagination.firstVisibleIndex}
+          lastVisibleIndex={pagination.lastVisibleIndex}
+          hasPrevious={pagination.hasPrevious}
+          hasMore={pagination.hasMore}
+          onNextPage={pagination.nextPage}
+          onPreviousPage={pagination.previousPage}
+          controlsId='assistants-catalog-items'
+          testId='assistants-load-more'
+        />
       </div>
 
       <ImportModal
