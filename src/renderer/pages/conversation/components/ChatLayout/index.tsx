@@ -24,11 +24,31 @@ import classNames from 'classnames';
 import { isWindowsEnvironment } from '@/renderer/pages/conversation/utils/detectPlatform';
 import { Layout as ArcoLayout } from '@arco-design/web-react';
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useInRouterContext, useLocation } from 'react-router-dom';
 import useSWR from 'swr';
 import VoiceConversationMode from '@/renderer/pages/conversation/voice/VoiceConversationMode';
 import ProjectContextBadge from '../ProjectContext';
 import './chat-layout.css';
+
+type WorkbenchNavigationRequest = { id: string; key: string };
+
+function parseWorkbenchRequest(state: unknown): WorkbenchNavigationRequest | undefined {
+  const candidate = (state as { workbenchRequest?: unknown } | null)?.workbenchRequest;
+  if (!candidate || typeof candidate !== 'object') return undefined;
+  const { id, key } = candidate as { id?: unknown; key?: unknown };
+  return typeof id === 'string' && typeof key === 'string' && id.length <= 80 && key.length <= 240
+    ? { id, key }
+    : undefined;
+}
+
+/** Keeps ChatLayout usable in standalone/popout/test mounts without a Router. */
+const RouterWorkbenchRequestBridge: React.FC<{
+  onRequest: (request: WorkbenchNavigationRequest | undefined) => void;
+}> = ({ onRequest }) => {
+  const location = useLocation();
+  React.useEffect(() => onRequest(parseWorkbenchRequest(location.state)), [location.state, onRequest]);
+  return null;
+};
 
 // headerExtra allows injecting custom actions (e.g., model picker) into the header's right area
 const ChatLayout: React.FC<{
@@ -70,7 +90,8 @@ const ChatLayout: React.FC<{
   const { conversationId, workspacePath } = props;
   const { backend, presetAssistant, agentName } = props;
   const { t } = useTranslation();
-  const location = useLocation();
+  const isInRouter = useInRouterContext();
+  const [workbenchRequest, setWorkbenchRequest] = React.useState<WorkbenchNavigationRequest>();
   // #27 phase 2: in a pop-out window, hide the tab bar and surface a Dock-back
   // action. The workspace COMES WITH the chat (the conversation's workspace is
   // its working context), so the panel + its toggle stay enabled in the pop-out;
@@ -135,14 +156,6 @@ const ChatLayout: React.FC<{
 
   const titleAreaMaxWidth = containerWidth ? Math.max(160, Math.min(640, containerWidth - 460)) : 480;
   const workbenchOverlay = isMobile || isPopout || (containerWidth > 0 && containerWidth < 960);
-  const workbenchRequest = React.useMemo(() => {
-    const candidate = (location.state as { workbenchRequest?: unknown } | null)?.workbenchRequest;
-    if (!candidate || typeof candidate !== 'object') return undefined;
-    const { id, key } = candidate as { id?: unknown; key?: unknown };
-    return typeof id === 'string' && typeof key === 'string' && id.length <= 80 && key.length <= 240
-      ? { id, key }
-      : undefined;
-  }, [location.state]);
 
   const workbenchSections = React.useMemo<WorkbenchSectionRegistration[]>(
     () => [
@@ -290,6 +303,7 @@ const ChatLayout: React.FC<{
         // fontFamily: `cursive,"anthropicSans","anthropicSans Fallback",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif`,
       }}
     >
+      {isInRouter ? <RouterWorkbenchRequestBridge onRequest={setWorkbenchRequest} /> : null}
       <div ref={containerRef} className='flex flex-1 relative w-full overflow-hidden'>
         <WorkbenchHost
           conversationId={conversationId}

@@ -29,6 +29,13 @@ function latestTurnId(messages: readonly TMessage[], fallback: string): string {
   return fallback;
 }
 
+function isScheduledConversation(messages: readonly TMessage[]): boolean {
+  return messages.some(
+    (message) =>
+      message.type === 'cron_trigger' || (message.type === 'text' && message.content.cronMeta?.source === 'cron')
+  );
+}
+
 const statusColor = (status: string): 'green' | 'red' | 'orange' | 'blue' | 'gray' => {
   if (status === 'completed' || status === 'authoritative') return 'green';
   if (status === 'failed' || status === 'mismatch') return 'red';
@@ -48,6 +55,7 @@ const ExecutionSpine: React.FC<{
   const { t } = useTranslation();
   const messages = useMessageList();
   const turnId = latestTurnId(messages, conversationId);
+  const scheduled = isScheduledConversation(messages);
   const seed = useMemo<ExecutionSeed>(
     () => ({
       identity: { runId: `${conversationId}:${turnId}`, turnId, correlationId: conversationId },
@@ -57,11 +65,12 @@ const ExecutionSpine: React.FC<{
         workspaceId,
         host: 'desktop',
         trust: 'unknown',
-        scheduled: false,
+        scheduled,
+        ...(scheduled ? { surface: 'automation' as const } : {}),
       },
       requestedGovernance: { mode: 'ask', enforceability: 'advisory' },
     }),
-    [agentId, backend, conversationId, projectId, turnId, workspaceId]
+    [agentId, backend, conversationId, projectId, scheduled, turnId, workspaceId]
   );
   const options = useMemo(() => ({ now: Date.now() }), [messages]);
   const snapshot = useBackendExecutionSnapshot(backend, seed, messages, options);

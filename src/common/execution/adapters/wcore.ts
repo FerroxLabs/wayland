@@ -150,6 +150,20 @@ export function adaptWCoreMessages(
           reason: 'malformed-persisted-core-evidence',
         });
       }
+    } else if (message.type === 'cron_trigger') {
+      append({
+        eventId: `${message.id}:cron-trigger`,
+        identity: context.identity,
+        observedAt,
+        type: 'activity',
+        activity: {
+          id: message.id,
+          kind: 'system',
+          name: `Scheduled run: ${message.content.cronJobName}`,
+          status: 'completed',
+          detail: `cron ${message.content.cronJobId} triggered at ${message.content.triggeredAt}`,
+        },
+      });
     } else if (message.type === 'activity') {
       append({
         eventId: `${message.id}:lifecycle:running`,

@@ -78,6 +78,52 @@ describe('ExecutionSpine', () => {
     expect(screen.getByText('ordinary chat')).toBeTruthy();
   });
 
+  it('registers the Automation lane for a persisted scheduled WCore run', async () => {
+    const messages = [
+      {
+        id: 'trigger',
+        msg_id: 'trigger',
+        type: 'cron_trigger',
+        position: 'center',
+        conversation_id: 'conversation-1',
+        content: { cronJobId: 'job-1', cronJobName: 'Daily', triggeredAt: 100 },
+        createdAt: 100,
+        status: 'finish',
+      },
+      {
+        id: 'prompt',
+        msg_id: 'prompt',
+        type: 'text',
+        position: 'right',
+        conversation_id: 'conversation-1',
+        content: {
+          content: 'Run',
+          cronMeta: { source: 'cron', cronJobId: 'job-1', cronJobName: 'Daily', triggeredAt: 100 },
+        },
+        createdAt: 101,
+        hidden: true,
+        status: 'finish',
+      },
+    ] as TMessage[];
+
+    render(
+      <WorkbenchHost
+        conversationId='conversation-1'
+        requestedSectionId='projection:automation'
+        requestKey='desktop:schedule-run:job-1:100'
+      >
+        <MessageListProvider value={messages}>
+          <ExecutionSpine backend='wcore' conversationId='conversation-1' workspaceId='workspace-1' agentId='wcore'>
+            <div>scheduled conversation</div>
+          </ExecutionSpine>
+        </MessageListProvider>
+      </WorkbenchHost>
+    );
+
+    expect(await screen.findByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'projection:automation');
+    expect(screen.getByTestId('workbench-projection-automation')).toHaveTextContent('Scheduled run');
+  });
+
   it('renders only the current ACP plan when the session id is reused after a completed turn', () => {
     const messages = [
       {

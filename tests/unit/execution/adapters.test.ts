@@ -58,6 +58,29 @@ describe('execution backend adapters', () => {
     expect(result.integrity.status).toBe('valid');
   });
 
+  it('projects a persisted WCore cron trigger as canonical automation evidence', () => {
+    const message = {
+      id: 'cron-trigger-1',
+      conversation_id: 'conversation-1',
+      type: 'cron_trigger',
+      content: { cronJobId: 'daily-report', cronJobName: 'Daily report', triggeredAt: now },
+      createdAt: now,
+    } as TMessage;
+    const seed: ExecutionSeed = {
+      ...baseSeed,
+      actor: { backend: 'wcore', agentId: 'core' },
+      scope: { ...baseSeed.scope, scheduled: true, surface: 'automation' },
+    };
+    const result = projectExecution(seed, adaptWCoreMessages([message], { identity, observedAt: now }), { now });
+
+    expect(result.scope).toMatchObject({ scheduled: true, surface: 'automation' });
+    expect(result.activities).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: 'cron-trigger-1', kind: 'system', name: 'Scheduled run: Daily report' }),
+      ])
+    );
+  });
+
   it('adapts ACP permissions and tools without claiming MCP support', () => {
     const messages = [
       {
