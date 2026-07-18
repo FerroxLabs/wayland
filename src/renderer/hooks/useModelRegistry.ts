@@ -142,9 +142,9 @@ export function warmCuratedForAgent(agentKey: string): void {
   });
 }
 
-function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
+function useModelRegistryImpl(skipInitialReload = false, disabled = false): UseModelRegistry {
   const [providers, setProviders] = useState<IModelRegistryProviderView[]>([]);
-  const [loading, setLoading] = useState(!skipInitialReload);
+  const [loading, setLoading] = useState(!skipInitialReload && !disabled);
   const [error, setError] = useState<string | null>(null);
   // Invalidation counter for registry-derived data - see `registryVersion` in
   // the {@link UseModelRegistry} contract.
@@ -183,8 +183,8 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
   }, []);
 
   useEffect(() => {
-    if (!skipInitialReload) void reload();
-  }, [reload, skipInitialReload]);
+    if (!disabled && !skipInitialReload) void reload();
+  }, [disabled, reload, skipInitialReload]);
 
   // Live invalidation: the main process emits `modelRegistry.listChanged` once
   // at the end of every successful global `refreshAll` and after a manual
@@ -193,10 +193,11 @@ function useModelRegistryImpl(skipInitialReload = false): UseModelRegistry {
   // re-fetch the providers list - `reload()` also bumps `registryVersion`, so
   // derived-view consumers (curatedForAgent / getCatalog) re-fetch live.
   useEffect(() => {
+    if (disabled) return;
     return modelRegistry.listChanged.on(() => {
       void reload();
     });
-  }, [reload]);
+  }, [disabled, reload]);
 
   const detectKeys = useCallback(() => modelRegistry.detectKeys.invoke(), []);
 
@@ -386,6 +387,6 @@ export function useModelRegistry(): UseModelRegistry {
   // contract stable for read-only consumers that aren't part of the Models
   // settings tree. The fallback skips the mount-time list() IPC; consumers
   // that care about `providers` should sit inside a `ModelRegistryProvider`.
-  const standalone = useModelRegistryImpl(ctx !== null);
+  const standalone = useModelRegistryImpl(ctx !== null, ctx !== null);
   return ctx ?? standalone;
 }

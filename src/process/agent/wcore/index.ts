@@ -5,6 +5,8 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process';
+import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { Writable } from 'node:stream';
@@ -30,7 +32,11 @@ import {
 import { ProfileIsolationError, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
-import { hydrateModelForSpawn, resolveModelSecretsForSpawn } from '@process/providers/ipc/modelRegistryIpc';
+import {
+  hydrateModelForSpawn,
+  resolveModelSecretsForSpawn,
+} from '@process/providers/ipc/modelRegistryIpc';
+import { vertexSpawnCredentialsForModel } from '@process/providers/vertexSpawnCredentials';
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
@@ -264,6 +270,7 @@ export class WCoreAgent {
    */
   private stallPauseReasons = new Set<string>();
   private projectConfigTransaction: ProjectConfigTransaction | null = null;
+  private vertexCredentialRoot: string | null = null;
   private readonly mcpWaiters = new Map<
     string,
     { resolve: () => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }
@@ -421,20 +428,26 @@ export class WCoreAgent {
       }
     }
 
-    const { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar } = buildSpawnConfig(
-      spawnModel,
-      {
-        workspace,
-        maxTokens: this.options.maxTokens,
-        maxTurns: this.options.maxTurns,
-        autoApprove: this.options.yoloMode,
-        sessionId: this.options.sessionId,
-        resume: this.options.resume,
-        rawEngine: this.options.rawEngineMode,
-        chatGptSubscriptionAvailable,
-        openAiApiKey,
-      }
-    );
+    const {
+      args,
+      env,
+      projectConfig,
+      resolvedMaxTokens,
+      missingRequiredApiKey,
+      requiredKeyEnvVar,
+      spawnEnvDenylist,
+      ambientEnvDenylist,
+    } = buildSpawnConfig(spawnModel, {
+      workspace,
+      maxTokens: this.options.maxTokens,
+      maxTurns: this.options.maxTurns,
+      autoApprove: this.options.yoloMode,
+      sessionId: this.options.sessionId,
+      resume: this.options.resume,
+      rawEngine: this.options.rawEngineMode,
+      chatGptSubscriptionAvailable,
+      openAiApiKey,
+    });
 
     // #629: refuse to spawn a doomed keyless engine. When the chosen provider
     // needs an API key but `model.apiKey` resolved empty (e.g. a Flux/BYO key
@@ -520,11 +533,44 @@ export class WCoreAgent {
         vaultDelivery = planVaultPassphraseDelivery(vaultPassphrase);
       }
     }
-    this.childProcess = spawn(binaryPath, args, {
-      env: buildEngineSpawnEnv({ providerEnv: env, toolKeys, waylandHome, vaultPassphraseEnv: vaultDelivery?.env }),
-      stdio: vaultDelivery?.stdio ?? ['pipe', 'pipe', 'pipe'],
-      cwd: workspace,
-    });
+    const providerEnv = { ...env };
+    const vertexCredentials = vertexSpawnCredentialsForModel(spawnModel);
+    if (vertexCredentials) {
+      // Google auth requires a credential FILE path. Materialize the encrypted
+      // registry value only for this child, inside a private 0700 directory,
+      // and delete it on every child termination/retry/kill path.
+      try {
+        this.cleanupVertexCredentials();
+        const root = mkdtempSync(join(tmpdir(), 'wayland-vertex-'));
+        this.vertexCredentialRoot = root;
+        chmodSync(root, 0o700);
+        const credentialPath = join(root, 'service-account.json');
+        writeFileSync(credentialPath, vertexCredentials.serviceAccountJson, { flag: 'wx', mode: 0o600 });
+        providerEnv.GOOGLE_APPLICATION_CREDENTIALS = credentialPath;
+        providerEnv.VERTEX_PROJECT_ID = vertexCredentials.projectId;
+        providerEnv.VERTEX_REGION = vertexCredentials.region;
+      } catch (error) {
+        this.cleanupVertexCredentials();
+        throw error;
+      }
+    }
+    try {
+      this.childProcess = spawn(binaryPath, args, {
+        env: buildEngineSpawnEnv({
+          providerEnv,
+          toolKeys,
+          waylandHome,
+          vaultPassphraseEnv: vaultDelivery?.env,
+          spawnEnvDenylist,
+          ambientEnvDenylist,
+        }),
+        stdio: vaultDelivery?.stdio ?? ['pipe', 'pipe', 'pipe'],
+        cwd: workspace,
+      });
+    } catch (error) {
+      this.cleanupVertexCredentials();
+      throw error;
+    }
     if (vaultDelivery?.mode === 'fd') {
       // Write the passphrase into the extra pipe and close our end so the
       // engine's read-to-EOF completes. The engine reads it lazily (first
@@ -602,6 +648,7 @@ export class WCoreAgent {
 
     // Handle process exit
     this.childProcess.on('exit', (code) => {
+      this.cleanupVertexCredentials();
       this.anvilMutationWatcher.stop();
       const disconnectedReceipts = this.desktopContract.markDisconnected();
       if (disconnectedReceipts.length > 0) {
@@ -675,6 +722,7 @@ export class WCoreAgent {
           staleChild.stderr?.removeAllListeners();
           await killChild(staleChild, false).catch(() => {});
         }
+        this.cleanupVertexCredentials();
         this.restoreProjectConfig();
         this.childProcess = null;
         this.stderrTail = '';
@@ -1503,6 +1551,7 @@ export class WCoreAgent {
       this.childProcess = null;
       await killChild(child, false);
     }
+    this.cleanupVertexCredentials();
     // Keep the launch-specific config in place until the child is gone; an
     // engine still booting must never fall through to a sibling/user config.
     this.restoreProjectConfig();
@@ -1573,6 +1622,17 @@ export class WCoreAgent {
       // Keep the durable journal for the next launch to heal. Never delete the
       // only recovery evidence after a failed restore.
       console.error('[WCoreAgent] Failed to restore project config transaction', error);
+    }
+  }
+
+  private cleanupVertexCredentials(): void {
+    const root = this.vertexCredentialRoot;
+    this.vertexCredentialRoot = null;
+    if (!root) return;
+    try {
+      rmSync(root, { recursive: true, force: true });
+    } catch (error) {
+      console.error('[WCoreAgent] Failed to remove temporary Vertex credentials', error);
     }
   }
 }

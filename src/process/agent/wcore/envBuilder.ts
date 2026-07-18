@@ -535,6 +535,10 @@ export function buildSpawnConfig(
    * is not wrongly pushed to re-enter it. Undefined for keyless spawns.
    */
   requiredKeyEnvVar?: string;
+  /** Variables that must be absent from the final child environment. */
+  spawnEnvDenylist?: readonly string[];
+  /** Variables that must not be inherited, before explicit provider auth is applied. */
+  ambientEnvDenylist?: readonly string[];
 } {
   // Raw-engine mode: pass ONLY the session-protocol args and let the engine
   // resolve provider/model/auth/tokens/security from its own config.toml. No
@@ -557,6 +561,21 @@ export function buildSpawnConfig(
     chatGptSubscriptionAvailable: options.chatGptSubscriptionAvailable ?? false,
     openAiApiKeyAvailable: !!openAiApiKey,
   });
+  // A v2 Bedrock row is only a handle into the authoritative registry.
+  // Strip ambient AWS authority for every such binding, then let the final env
+  // builder reapply only registry-derived providerEnv. Otherwise access-key
+  // variables can override a correctly resolved profile. When resolution
+  // fails, `mergeResolvedRegistryBinding` removes `bedrockConfig`; that stronger
+  // state terminal-denies all AWS authority after every overlay. The structural
+  // signals survive object spreads/clones.
+  const canonicalBedrockBinding =
+    provider === 'bedrock' &&
+    (model as unknown as Record<string, unknown>).__waylandModelRegistryBridge === 'v2:aws-bedrock';
+  const ambientEnvDenylist = canonicalBedrockBinding ? AWS_AUTHORITY_ENV_KEYS : undefined;
+  const spawnEnvDenylist =
+    canonicalBedrockBinding && !(model as TProviderWithModel & { bedrockConfig?: unknown }).bedrockConfig
+      ? AWS_AUTHORITY_ENV_KEYS
+      : undefined;
   const env: Record<string, string> = {};
   const args: string[] = ['--json-stream', '--provider', provider, '--model', model.useModel];
 
@@ -723,7 +742,16 @@ export function buildSpawnConfig(
   // Generate project config for compat overrides (e.g., max_tokens_field)
   const projectConfig = buildProjectConfig(model, provider);
 
-  return { args, env, projectConfig, resolvedMaxTokens, missingRequiredApiKey, requiredKeyEnvVar };
+  return {
+    args,
+    env,
+    projectConfig,
+    resolvedMaxTokens,
+    missingRequiredApiKey,
+    requiredKeyEnvVar,
+    spawnEnvDenylist,
+    ambientEnvDenylist,
+  };
 }
 
 /**
@@ -870,6 +898,18 @@ const ENGINE_ENV_ALLOWLIST: readonly string[] = [
   'GOOGLE_CLOUD_PROJECT',
 ];
 
+/** AWS variables capable of selecting or supplying Bedrock authority. */
+export const AWS_AUTHORITY_ENV_KEYS = [
+  'AWS_REGION',
+  'AWS_DEFAULT_REGION',
+  'AWS_ACCESS_KEY_ID',
+  'AWS_SECRET_ACCESS_KEY',
+  'AWS_SESSION_TOKEN',
+  'AWS_PROFILE',
+  'AWS_SHARED_CREDENTIALS_FILE',
+  'AWS_CONFIG_FILE',
+] as const;
+
 /**
  * Build the environment for the wcore engine spawn (SEC-1).
  *
@@ -896,13 +936,17 @@ export function buildEngineSpawnEnv(opts: {
   toolKeys?: Record<string, string>;
   waylandHome?: string;
   vaultPassphraseEnv?: Record<string, string>;
+  spawnEnvDenylist?: readonly string[];
+  ambientEnvDenylist?: readonly string[];
 }): Record<string, string> {
   const full = getEnhancedEnv(opts.providerEnv);
   const allowed = new Set(ENGINE_ENV_ALLOWLIST.map((name) => name.toUpperCase()));
+  const ambientDenied = new Set((opts.ambientEnvDenylist ?? []).map((name) => name.toUpperCase()));
 
   const out: Record<string, string> = {};
   for (const [name, value] of Object.entries(full)) {
-    if (typeof value === 'string' && allowed.has(name.toUpperCase())) {
+    const normalizedName = name.toUpperCase();
+    if (typeof value === 'string' && allowed.has(normalizedName) && !ambientDenied.has(normalizedName)) {
       out[name] = value;
     }
   }
@@ -930,6 +974,26 @@ export function buildEngineSpawnEnv(opts: {
   // the desktop's own per-profile provisioning sets them.
   for (const [name, value] of Object.entries(opts.vaultPassphraseEnv ?? {})) {
     out[name] = value;
+  }
+
+  // For canonical authority keys, providerEnv is the only allowed explicit
+  // source. Remove collisions introduced by tool/vault overlays and reapply
+  // only the values produced from the resolved registry binding.
+  if (ambientDenied.size > 0) {
+    for (const name of Object.keys(out)) {
+      if (ambientDenied.has(name.toUpperCase())) delete out[name];
+    }
+    for (const [name, value] of Object.entries(opts.providerEnv)) {
+      if (ambientDenied.has(name.toUpperCase())) out[name] = value;
+    }
+  }
+
+  // A deny is terminal authority, applied after every ambient and explicit
+  // overlay. This prevents a forwarded tool key or provider-env regression
+  // from reintroducing authority that a failed canonical binding revoked.
+  const denied = new Set((opts.spawnEnvDenylist ?? []).map((name) => name.toUpperCase()));
+  for (const name of Object.keys(out)) {
+    if (denied.has(name.toUpperCase())) delete out[name];
   }
 
   // Opt the bundled engine into honoring a wire `set_mode` that loosens

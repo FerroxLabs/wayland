@@ -21,11 +21,12 @@
  */
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, lstatSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { ProfileIsolationError } from '@process/agent/wcore/profilePaths';
+import { attachVertexSpawnCredentials } from '@process/providers/vertexSpawnCredentials';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const spawnMock = vi.fn();
@@ -36,6 +37,8 @@ vi.mock('node:child_process', async (orig) => {
 });
 
 const resolveActiveConfigDirMock = vi.fn();
+let spawnEnvDenylistMock: readonly string[] | undefined;
+let ambientEnvDenylistMock: readonly string[] | undefined;
 vi.mock('@process/agent/wcore/profilePaths', async (orig) => {
   const actual = await orig<typeof import('@process/agent/wcore/profilePaths')>();
   return {
@@ -78,11 +81,14 @@ vi.mock('@process/agent/wcore/envBuilder', async (orig) => {
       resolvedMaxTokens: 4096,
       missingRequiredApiKey: false,
       requiredKeyEnvVar: undefined,
+      spawnEnvDenylist: spawnEnvDenylistMock,
+      ambientEnvDenylist: ambientEnvDenylistMock,
     }),
   };
 });
 
 import { WCoreAgent } from '@process/agent/wcore';
+import { AWS_AUTHORITY_ENV_KEYS } from '@process/agent/wcore/envBuilder';
 
 const NATIVE_DIR = '/native/Application Support/wayland-core';
 const PROFILE_DIR = '/home/u/.wayland/profiles/work';
@@ -121,6 +127,8 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     resolveActiveConfigDirMock.mockReset();
     collectForwardedEnvMock.mockReset();
     collectForwardedEnvMock.mockReturnValue({});
+    spawnEnvDenylistMock = undefined;
+    ambientEnvDenylistMock = undefined;
   });
 
   afterEach(() => {
@@ -146,6 +154,59 @@ describe('#278: the engine spawn must never bind a named profile to the default 
       .catch(() => {});
     await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
     expect(spawnedEnv().WAYLAND_HOME).toBe(NATIVE_DIR);
+  });
+
+  it('applies a credential denylist to the actual child spawn environment', async () => {
+    resolveActiveConfigDirMock.mockResolvedValue(NATIVE_DIR);
+    spawnEnvDenylistMock = AWS_AUTHORITY_ENV_KEYS;
+    ambientEnvDenylistMock = AWS_AUTHORITY_ENV_KEYS;
+    const original = Object.fromEntries(AWS_AUTHORITY_ENV_KEYS.map((key) => [key, process.env[key]]));
+    try {
+      for (const key of AWS_AUTHORITY_ENV_KEYS) process.env[key] = `ambient-spawn-${key}`;
+      void newAgent()
+        .start()
+        .catch(() => {});
+      await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
+      for (const key of AWS_AUTHORITY_ENV_KEYS) expect(spawnedEnv()[key], key).toBeUndefined();
+    } finally {
+      for (const key of AWS_AUTHORITY_ENV_KEYS) {
+        const value = original[key];
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      }
+    }
+  });
+
+  it('materializes Vertex credentials only for the child and removes them on exit', async () => {
+    resolveActiveConfigDirMock.mockResolvedValue(NATIVE_DIR);
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-vertex-spawn-'));
+    testWorkspaces.push(workspace);
+    const model = attachVertexSpawnCredentials(
+      { ...MODEL },
+      {
+        projectId: 'project-a',
+        region: 'us-central1',
+        serviceAccountJson: '{"client_email":"vertex@example.test"}',
+      }
+    );
+    const agent = new WCoreAgent({ workspace, model, onStreamEvent: () => {} });
+
+    void agent.start().catch(() => {});
+    await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
+    const env = spawnedEnv();
+    const credentialPath = env.GOOGLE_APPLICATION_CREDENTIALS;
+    expect(credentialPath).toBeTruthy();
+    expect(readFileSync(credentialPath!, 'utf8')).toContain('vertex@example.test');
+    if (process.platform !== 'win32') {
+      expect(lstatSync(credentialPath!).mode & 0o777).toBe(0o600);
+      expect(lstatSync(join(credentialPath!, '..')).mode & 0o777).toBe(0o700);
+    }
+    expect(env.VERTEX_PROJECT_ID).toBe('project-a');
+    expect(env.VERTEX_REGION).toBe('us-central1');
+
+    const child = spawnMock.mock.results[0]?.value as EventEmitter;
+    child.emit('exit', 0);
+    await vi.waitFor(() => expect(existsSync(credentialPath!)).toBe(false));
   });
 
   it('uses the manager-captured profile home without re-resolving a switched marker', async () => {

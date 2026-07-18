@@ -6,7 +6,10 @@
 
 import { useMemo } from 'react';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
-import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
+import {
+  modelRegistryCapabilitySnapshotGeneration,
+  projectModelRegistryReadiness,
+} from '@/common/chat/capability/modelRegistryCapabilityAdapter';
 
 /**
  * Why the engine's agents are still asleep, when no working inference provider
@@ -15,11 +18,14 @@ import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
  * - `no-provider`  - nothing is connected at all.
  * - `all-errored`  - one or more providers are connected, but every one is in
  *   an error state / carries a blocking connect error.
+ * - `checking`     - connectivity is still being proved and no callable model
+ *   inventory is available yet.
+ * - `no-models`    - credentials are connected but the registry has no model.
  */
-export type ProviderReadinessReason = 'no-provider' | 'all-errored';
+export type ProviderReadinessReason = 'no-provider' | 'all-errored' | 'checking' | 'no-models' | 'registry-error';
 
 export type ProviderReadiness = {
-  /** True once at least one connected provider can serve inference. */
+  /** True once at least one configured provider has inventory the engine may attempt. */
   ready: boolean;
   /** True while the underlying provider list is still loading. */
   loading: boolean;
@@ -28,41 +34,53 @@ export type ProviderReadiness = {
 };
 
 /**
- * A provider is "working" when it is not in an error connection state and
- * carries no blocking connect error. The renderer cannot read API keys (they
- * never cross the process boundary), so readiness is derived purely from the
- * provider STATE the model registry exposes - not from key presence.
+ * Reports whether a provider is configured for a dispatch attempt, so the
+ * in-thread activation card does not block a valid setup before a live request
+ * has had the opportunity to prove or disprove provider liveness.
  *
- * `state: 'testing'` is transient (a connectivity probe is in flight) and is
- * treated as working as long as no error has been classified yet; the engine
- * already has credentials for it.
- */
-function isWorkingProvider(p: IModelRegistryProviderView): boolean {
-  return p.state !== 'error' && p.error === undefined;
-}
-
-/**
- * Reports whether a working inference provider is configured, so the in-thread
- * activation card can decide whether to wake the engine or keep agents asleep.
- *
- * Consumes the same `listProviders` surface as {@link useModelRegistry} - no
- * new IPC. Readiness = "at least one provider in a connected/ready state with
- * no blocking error".
+ * The renderer cannot read API keys, so readiness is derived only from the
+ * renderer-safe registry state, callable inventory, and the main process's
+ * explicit dispatch-eligibility result. A transient `testing` provider is not
+ * promoted until the actual dispatcher accepts that inventory.
  */
 export function useProviderReadiness(): ProviderReadiness {
-  const { providers, loading } = useModelRegistry();
+  const { providers, loading, error } = useModelRegistry();
 
   return useMemo<ProviderReadiness>(() => {
     if (loading) {
       return { ready: false, loading: true };
     }
+    if (error) {
+      return { ready: false, loading: false, reason: 'registry-error' };
+    }
     if (providers.length === 0) {
       return { ready: false, loading: false, reason: 'no-provider' };
     }
-    const ready = providers.some(isWorkingProvider);
+    const projection = projectModelRegistryReadiness(providers, {
+      generation: modelRegistryCapabilitySnapshotGeneration(providers),
+      now: Date.now(),
+    });
+    // A persisted connected row proves only configured dispatch eligibility,
+    // never current provider liveness. It is sufficient to let the engine
+    // attempt the turn when enabled inventory exists; runtime failure remains
+    // authoritative and will move the row to error. A future live-probe
+    // producer may independently yield projection.state === 'ready'.
+    const configuredForDispatch = projection.providers.some(
+      (provider) => provider.status === 'configured' && provider.callableModelCount > 0
+    );
+    const ready = projection.state === 'ready' || configuredForDispatch;
     if (ready) {
       return { ready: true, loading: false };
     }
+    if (projection.state === 'invalid') {
+      return { ready: false, loading: false, reason: 'registry-error' };
+    }
+    if (providers.some((provider) => provider.state === 'testing' && provider.error === undefined)) {
+      return { ready: false, loading: false, reason: 'checking' };
+    }
+    if (providers.some((provider) => provider.state === 'connected' && (provider.callableModelCount ?? 0) === 0)) {
+      return { ready: false, loading: false, reason: 'no-models' };
+    }
     return { ready: false, loading: false, reason: 'all-errored' };
-  }, [providers, loading]);
+  }, [providers, loading, error]);
 }

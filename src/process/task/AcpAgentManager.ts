@@ -30,6 +30,7 @@ import { isFluxModelId } from '@/common/config/flux';
 import { ExtensionRegistry } from '@process/extensions';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
+import { emitModelRegistryChanged } from '@process/providers/modelRegistryEvents';
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 import type { ProviderId } from '@process/providers/types';
 import { BACKEND_AUTH_KEYS } from '@process/acp/compat/typeBridge';
@@ -871,6 +872,7 @@ ${collectedResponses.join('\n')}`;
               '(falling back to native auth). Re-key the provider to restore it.'
           );
         }
+        emitModelRegistryChanged();
         // Drop them from this spawn's record so we don't re-invalidate on repeats.
         const culpritSet = new Set<ProviderId>(culpritIds);
         this.injectedProviderKeys = this.injectedProviderKeys.filter((inj) => !culpritSet.has(inj.providerId));

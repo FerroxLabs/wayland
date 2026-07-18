@@ -75,6 +75,7 @@ import { ProviderCatalogStore, loadBaselineProviderCatalog } from '../catalog/pr
 import { PROVIDER_ENDPOINTS } from '../detection/providerEndpoints';
 import type { CatalogProviderEntry } from '../catalog/catalogProvider';
 import { FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
+import { emitModelRegistryChanged } from '../modelRegistryEvents';
 import { injectFluxVirtualModels } from '../catalog/fluxVirtualModels';
 import {
   buildChatGptSubscriptionCatalog,
@@ -93,6 +94,8 @@ import { runOrphanProviderDedup } from '../migration/orphanProviderDedup';
 import { mirrorConnectOrRekey, mirrorDisconnect } from '../legacyModelConfigBridge';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { isEncryptionAvailable } from '@process/secrets/safeStorage';
+import { attachVertexSpawnCredentials } from '../vertexSpawnCredentials';
+export { vertexSpawnCredentialsForModel } from '../vertexSpawnCredentials';
 
 // ─── Provider classification ──────────────────────────────────────────────────
 
@@ -168,6 +171,7 @@ export type ModelRegistryRepo = Pick<
   ProviderRepository,
   | 'listRegistryProviders'
   | 'getRegistryProvider'
+  | 'getRegistryProviderObservedAt'
   | 'upsertRegistryProvider'
   | 'updateRegistryProviderState'
   | 'updateRegistryProviderCreds'
@@ -548,7 +552,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
       // Refresh the legacy v2 bridge so legacy consumers see the recovered
       // key on the same boot (matches what `connect`/`rekey`/`refresh`
       // wrappers do via `mirrorConnectOrRekey` in `initModelRegistryIpc`).
-      if (_repo) void mirrorConnectOrRekey(_repo, providerId);
+      if (_repo) await mirrorConnectOrRekey(_repo, providerId).catch(() => {});
       return true;
     } catch {
       return false;
@@ -840,20 +844,29 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
     },
 
     async list(): Promise<IModelRegistryProviderView[]> {
-      try {
-        return repo.listRegistryProviders().map((p) => {
-          const view: IModelRegistryProviderView = {
-            providerId: p.providerId,
-            connectedVia: p.connectedVia,
-            state: p.state,
-            modelCount: repo.countRegistryCatalog(p.providerId),
-          };
-          if (p.error) view.error = p.error;
-          return view;
-        });
-      } catch {
-        return [];
-      }
+      // Do not collapse repository failures to an authoritative empty list. The
+      // renderer must distinguish "nothing configured" from "truth unavailable".
+      return repo.listRegistryProviders().map((p) => {
+        const curated = curatedWithCustom(p.providerId);
+        const callable = curated.filter((model) => model.enabled);
+        const stored = repo.getRegistryProviderCreds(p.providerId);
+        const dispatchEligible =
+          stored.status === 'ok' &&
+          callable.length > 0 &&
+          buildChatStartPayload(p.providerId, callable[0].id, stored.creds).kind === 'payload';
+        const observedAt = repo.getRegistryProviderObservedAt(p.providerId);
+        const view: IModelRegistryProviderView = {
+          providerId: p.providerId,
+          connectedVia: p.connectedVia,
+          state: p.state,
+          modelCount: repo.countRegistryCatalog(p.providerId),
+          callableModelCount: callable.length,
+          dispatchEligible,
+        };
+        if (observedAt !== null && Number.isSafeInteger(observedAt) && observedAt >= 0) view.observedAt = observedAt;
+        if (p.error) view.error = p.error;
+        return view;
+      });
     },
 
     async getCatalog({ providerId }): Promise<IModelRegistryCatalogView> {
@@ -1221,7 +1234,24 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 function hasRequiredCloudFields(providerId: ProviderId, fields: Record<string, string>): boolean {
   const required = CLOUD_REQUIRED_FIELDS[providerId];
   if (!required) return Object.keys(fields).length > 0;
-  return required.every((name) => typeof fields[name] === 'string' && fields[name].trim().length > 0);
+  if (!required.every((name) => typeof fields[name] === 'string' && fields[name].trim().length > 0)) {
+    return false;
+  }
+
+  // Vertex is configured explicitly with a service-account JSON document. A
+  // non-empty but malformed string is not dispatchable and must never create a
+  // false `connected` row that fails only after an agent spawn. This is a
+  // structural gate, not an online Google credential check.
+  if (providerId === 'vertex') {
+    try {
+      const parsed: unknown = JSON.parse(fields.serviceAccountJson);
+      return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed);
+    } catch {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**
@@ -1562,6 +1592,7 @@ export type SpawnSecrets = {
   apiKey: string | undefined;
   baseUrl: string;
   bedrockConfig?: IModelRegistryChatStartPayload['bedrockConfig'];
+  cloudFields?: IModelRegistryChatStartPayload['cloudFields'];
 };
 
 /** A binding handle: the non-secret `(provider, account, model)` identity. */
@@ -1593,6 +1624,7 @@ export function resolveSpawnSecretsFromRepo(repo: SpawnSecretRepo, handle: Spawn
     apiKey,
     baseUrl: p.baseUrl,
     ...(p.bedrockConfig ? { bedrockConfig: p.bedrockConfig } : {}),
+    ...(p.cloudFields ? { cloudFields: p.cloudFields } : {}),
   };
 }
 
@@ -1625,12 +1657,24 @@ export function mergeSpawnSecrets<T extends TProviderWithModel>(model: T, secret
   // (empty) rather than inherit a stale legacy `model.apiKey`. A resolved STRING
   // key (cloud / custom provider) is used verbatim.
   const apiKey = secrets.apiKey ?? '';
-  return {
+  const merged = {
     ...model,
     apiKey,
     baseUrl: secrets.baseUrl || model.baseUrl,
     ...(secrets.bedrockConfig ? { bedrockConfig: secrets.bedrockConfig } : {}),
-  };
+  } as T;
+  if (
+    secrets.cloudFields?.projectId &&
+    secrets.cloudFields.region &&
+    secrets.cloudFields.serviceAccountJson
+  ) {
+    attachVertexSpawnCredentials(merged, {
+      projectId: secrets.cloudFields.projectId,
+      region: secrets.cloudFields.region,
+      serviceAccountJson: secrets.cloudFields.serviceAccountJson,
+    });
+  }
+  return merged;
 }
 
 /**
@@ -1647,13 +1691,27 @@ export function mergeSpawnSecrets<T extends TProviderWithModel>(model: T, secret
  * `platform` to `openai-compatible` and assigns a random-uuid `id`, this tag is
  * the ONLY surviving carrier of the real provider id.
  */
-function bridgeProviderId(model: TProviderWithModel): string | undefined {
+export function registryProviderIdForModel(model: TProviderWithModel): string | undefined {
   const tag = (model as unknown as Record<string, unknown>).__waylandModelRegistryBridge;
   if (typeof tag === 'string' && tag.startsWith('v2:')) {
     const id = tag.slice('v2:'.length);
     if (id) return id;
   }
   return undefined;
+}
+
+/** Apply an authoritative registry lookup to a binding, failing closed for v2 handles. */
+export function mergeResolvedRegistryBinding<T extends TProviderWithModel>(model: T, secrets: SpawnSecrets | null): T {
+  if (registryProviderIdForModel(model) && !secrets) {
+    // A canonical v2 row is only a handle into the encrypted registry. When
+    // that authoritative lookup misses, disconnects, or cannot decrypt, every
+    // credential-bearing legacy mirror must be discarded. Keeping a stale
+    // Bedrock block here would let both WCore and Gemini reconstruct AWS spawn
+    // credentials even though the registry explicitly failed closed.
+    const { bedrockConfig: _staleBedrockConfig, ...nonSecretBinding } = model;
+    return { ...nonSecretBinding, apiKey: '', baseUrl: '' } as T;
+  }
+  return mergeSpawnSecrets(model, secrets);
 }
 
 export async function hydrateModelForSpawn<T extends TProviderWithModel>(model: T): Promise<T> {
@@ -1663,18 +1721,21 @@ export async function hydrateModelForSpawn<T extends TProviderWithModel>(model: 
   // misses the registry, so the provider's base URL is never applied and the engine
   // falls back to api.openai.com with a valid non-OpenAI key -> 401. Resolve by the
   // bridge tag first (this generalizes the prior Flux-only special-case).
-  const bridgeId = bridgeProviderId(model);
+  const bridgeId = registryProviderIdForModel(model);
   const providerId = isFluxModelId(model.useModel) ? FLUX_PROVIDER_ID : (bridgeId ?? model.id);
   const secrets = await resolveModelSecretsForSpawn({
     providerId,
     accountId: model.accountId ?? DEFAULT_ACCOUNT_ID,
     modelId: model.useModel,
   });
-  const merged = mergeSpawnSecrets(model, secrets);
+  // A v2 bridge row is only a non-secret handle into the registry. If that
+  // authoritative lookup fails (disconnect, undecryptable row, deleted row),
+  // never fall back to the stale credential mirrored into legacy model.config.
+  const merged = mergeResolvedRegistryBinding(model, secrets);
   // Safety net: if no base URL resolved but the bridge tag names a provider with a
   // known canonical base URL, apply it so an openai-compatible key is never shipped
   // to api.openai.com (covers a binding whose registry row is absent/legacy).
-  if (!merged.baseUrl && bridgeId) {
+  if (secrets && !merged.baseUrl && bridgeId) {
     const canonicalBaseUrl = CHAT_START_BASE_URL[bridgeId as ProviderId];
     if (canonicalBaseUrl) return { ...merged, baseUrl: canonicalBaseUrl };
   }
@@ -1732,7 +1793,7 @@ async function buildProductionDeps(): Promise<ModelRegistryDeps> {
     // `model.config` mirror (awaited so the toast can't precede it), the live
     // picker-invalidation emitter, and the success-only freshness stamp.
     mirror: (providerId) => (_repo ? mirrorConnectOrRekey(_repo, providerId) : Promise.resolve()),
-    emitListChanged: () => ipcBridge.modelRegistry.listChanged.emit(),
+    emitListChanged: emitModelRegistryChanged,
     setLastRefreshedAt: (value) => setLastRefreshedAt(value),
     // Keyless `ollama-local` refreshes from a live daemon probe, never from
     // `buildAndPersistCatalog` (Finding 1). A down/unreachable daemon resolves
@@ -1853,7 +1914,11 @@ export async function initModelRegistryIpc(): Promise<void> {
   ipcBridge.modelRegistry.connect.provider((payload) =>
     connectModelRegistryProvider(payload.providerId, payload.creds)
   );
-  ipcBridge.modelRegistry.testConnection.provider((payload) => h.testConnection(payload));
+  ipcBridge.modelRegistry.testConnection.provider(async (payload) => {
+    const result = await h.testConnection(payload);
+    emitModelRegistryChanged();
+    return result;
+  });
   ipcBridge.modelRegistry.list.provider(() => h.list());
   ipcBridge.modelRegistry.getCatalog.provider((payload) => h.getCatalog(payload));
   ipcBridge.modelRegistry.toggleModel.provider(async (payload) => {
@@ -1870,7 +1935,7 @@ export async function initModelRegistryIpc(): Promise<void> {
     // must land first or they'd revalidate onto the stale row - the exact desync
     // this fix closes. mirrorConnectOrRekey is runSerial-guarded + best-effort.
     if (result.ok && _repo) await mirrorConnectOrRekey(_repo, payload.providerId).catch(() => {});
-    if (result.ok) ipcBridge.modelRegistry.listChanged.emit();
+    if (result.ok) emitModelRegistryChanged();
     return result;
   });
   ipcBridge.modelRegistry.addCustomModel.provider(async (payload) => {
@@ -1879,32 +1944,33 @@ export async function initModelRegistryIpc(): Promise<void> {
     // revalidate them exactly like a toggle does. No legacy `model.config`
     // mirror needed: the flyout resolves the owning provider by its `v2:` bridge
     // tag, so a custom id is never gated on the legacy `model[]` membership.
-    if (result.ok) ipcBridge.modelRegistry.listChanged.emit();
+    if (result.ok) emitModelRegistryChanged();
     return result;
   });
   ipcBridge.modelRegistry.removeCustomModel.provider(async (payload) => {
     const result = await h.removeCustomModel(payload);
-    if (result.ok) ipcBridge.modelRegistry.listChanged.emit();
+    if (result.ok) emitModelRegistryChanged();
     return result;
   });
   ipcBridge.modelRegistry.refresh.provider(async (payload) => {
     const result = await h.refresh(payload);
-    if (result.ok && _repo) void mirrorConnectOrRekey(_repo, payload.providerId);
+    if (result.ok && _repo) await mirrorConnectOrRekey(_repo, payload.providerId).catch(() => {});
     // Live-update any open picker / the Models page after a manual refresh.
-    if (result.ok) ipcBridge.modelRegistry.listChanged.emit();
+    if (result.ok) emitModelRegistryChanged();
     return result;
   });
   ipcBridge.modelRegistry.disconnect.provider(async (payload) => {
     const result = await h.disconnect(payload);
-    if (result.ok) void mirrorDisconnect(payload.providerId);
+    if (result.ok) await mirrorDisconnect(payload.providerId).catch(() => {});
+    if (result.ok) emitModelRegistryChanged();
     return result;
   });
   ipcBridge.modelRegistry.rekey.provider(async (payload) => {
     const result = await h.rekey(payload);
-    if (result.ok && _repo) void mirrorConnectOrRekey(_repo, payload.providerId);
+    if (result.ok && _repo) await mirrorConnectOrRekey(_repo, payload.providerId).catch(() => {});
     // Same as connect: revalidate open pickers so a re-keyed provider's models
     // refresh immediately instead of waiting for a reload.
-    ipcBridge.modelRegistry.listChanged.emit();
+    emitModelRegistryChanged();
     return result;
   });
   ipcBridge.modelRegistry.curatedForAgent.provider((payload) => h.curatedForAgent(payload));
@@ -2235,7 +2301,7 @@ export async function connectModelRegistryProvider(
   const priorFlux = providerId === FLUX_PROVIDER_ID ? _repo?.getRegistryProvider(providerId) : undefined;
   const isFreshFluxConnect = providerId === FLUX_PROVIDER_ID && !!_repo && priorFlux?.state !== 'connected';
   const result = await _handlers.connect({ providerId, creds });
-  if (result.ok && _repo) void mirrorConnectOrRekey(_repo, providerId);
+  if (result.ok && _repo) await mirrorConnectOrRekey(_repo, providerId).catch(() => {});
   // Enable Flux routing once on first connect so the home/chat default resolves
   // flux-auto instead of a tiny local model (e.g. Ollama smollm2:135m) that
   // happens to sort first in the safe-default fallback. Mirrors the headless
@@ -2251,7 +2317,7 @@ export async function connectModelRegistryProvider(
   // Live-update any open picker / the Models page after a connect, the same way
   // the manual refresh handler does. On failure the provider's `error` state
   // must surface too, so emit always.
-  ipcBridge.modelRegistry.listChanged.emit();
+  emitModelRegistryChanged();
   return result;
 }
 
@@ -2310,16 +2376,22 @@ export function connectChatGptSubscriptionProvider(params: {
     // the live fetch, then upgrade to the account's real model list in the
     // background (connect must stay sync for the IPC contract).
     _repo.replaceRegistryCatalog(CHATGPT_SUBSCRIPTION_PROVIDER_ID, buildChatGptSubscriptionCatalog());
-    void mirrorConnectOrRekey(_repo, CHATGPT_SUBSCRIPTION_PROVIDER_ID);
-    ipcBridge.modelRegistry.listChanged.emit();
-    void buildChatGptSubscriptionCatalogLive(params.accessToken).then((models) => {
+    // This entry point is synchronous for its caller, but its legacy mirror and
+    // list notification still have a strict order: subscribers must never wake
+    // up and re-read the stale v2 row. Keep the live-catalog upgrade in the same
+    // sequence so it cannot overtake the initial mirror either.
+    const connectedRepo = _repo;
+    void (async () => {
+      await mirrorConnectOrRekey(connectedRepo, CHATGPT_SUBSCRIPTION_PROVIDER_ID).catch(() => {});
+      emitModelRegistryChanged();
       try {
-        _repo?.replaceRegistryCatalog(CHATGPT_SUBSCRIPTION_PROVIDER_ID, models);
-        ipcBridge.modelRegistry.listChanged.emit();
+        const models = await buildChatGptSubscriptionCatalogLive(params.accessToken);
+        connectedRepo.replaceRegistryCatalog(CHATGPT_SUBSCRIPTION_PROVIDER_ID, models);
+        emitModelRegistryChanged();
       } catch {
         // Keep the static placeholder if the live upgrade can't be persisted.
       }
-    });
+    })();
     return { ok: true };
   } catch {
     return { ok: false, error: 'unknown' };

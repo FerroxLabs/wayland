@@ -54,6 +54,7 @@ const mockDetectKeys = vi.fn();
 const mockConnect = vi.fn();
 const mockDisconnect = vi.fn();
 const mockGoogleLogin = vi.fn();
+const mockListChangedOn = vi.fn(() => vi.fn());
 // Headless write-only HTTP connect route (remote WebUI path).
 const mockConnectProviderHttp = vi.fn();
 
@@ -77,7 +78,7 @@ vi.mock('../../../src/common/adapter/ipcBridge', () => ({
     getRefreshState: { invoke: vi.fn().mockResolvedValue({ lastRefreshedAt: null, refreshing: false }) },
     getAutoRefresh: { invoke: vi.fn().mockResolvedValue(true) },
     setAutoRefresh: { invoke: vi.fn().mockResolvedValue({ ok: true }) },
-    listChanged: { on: vi.fn(() => vi.fn()) },
+    listChanged: { on: (...a: unknown[]) => mockListChangedOn(...a) },
   },
 }));
 
@@ -141,6 +142,7 @@ const detectedKey: IModelRegistryDetectedKey = {
 };
 
 beforeEach(() => {
+  mockListChangedOn.mockClear();
   mockList.mockReset().mockResolvedValue([]);
   mockDetectKeys.mockReset().mockResolvedValue([]);
   mockConnect.mockReset().mockResolvedValue({ ok: true });
@@ -175,6 +177,10 @@ describe('ModelsSettings page', () => {
     // backend emits the literal `api-key`, never a display string.
     expect(screen.getByText('settings.modelsPage.row.via.apiKey')).toBeInTheDocument();
     expect(screen.queryByText('api-key')).not.toBeInTheDocument();
+    // Exactly two owners subscribe: the shared registry provider and the
+    // refresh-state hook. Descendant useModelRegistry calls must not create
+    // hidden standalone subscriptions while consuming the context value.
+    expect(mockListChangedOn).toHaveBeenCalledTimes(2);
   });
 
   it('shows the empty state when there are no providers and no detected keys', async () => {

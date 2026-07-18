@@ -47,7 +47,9 @@ import {
 } from './agentUtils';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
+import { emitModelRegistryChanged } from '@process/providers/modelRegistryEvents';
 import { isProviderKeyAuthFailure } from '@process/providers/detection/authFailure';
+import { registryProviderIdForModel } from '@process/providers/ipc/modelRegistryIpc';
 import { addMessage, addOrUpdateMessage } from '@process/utils/message';
 import { uuid } from '@/common/utils';
 import BaseAgentManager from './BaseAgentManager';
@@ -1173,7 +1175,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private maybeInvalidateProviderKeyOnAuthError(text: string): void {
     if (this.authKeyInvalidated) return;
     if (!isProviderKeyAuthFailure(text)) return;
-    const providerId = this.model?.id;
+    const providerId = this.model ? registryProviderIdForModel(this.model) ?? this.model.id : undefined;
     // No provider id, or the turn was routed through Flux (whose key is not this
     // provider's): leave provider state untouched.
     if (!providerId || providerId === 'flux-router') return;
@@ -1184,6 +1186,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         const db = await getDatabase();
         const repo = new ProviderRepository(db.getDriver());
         repo.updateRegistryProviderState(providerId, 'error', 'unauthorized');
+        emitModelRegistryChanged();
         mainWarn(
           '[WCoreManager]',
           `Provider '${providerId}' key rejected by Wayland Core (401/invalid x-api-key); ` +

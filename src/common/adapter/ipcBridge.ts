@@ -2218,7 +2218,14 @@ export type IModelRegistryProviderView = {
   providerId: ProviderId;
   connectedVia: string;
   state: ProviderConnState;
+  /** Total persisted catalog rows. This is display inventory, not callable truth. */
   modelCount: number;
+  /** Enabled models the picker may actually dispatch to. Required for readiness decisions. */
+  callableModelCount?: number;
+  /** True only when the main-process chat-start resolver can build a dispatch handle. */
+  dispatchEligible?: boolean;
+  /** Producer-owned time when connection or callable inventory last changed. */
+  observedAt?: number;
   error?: ConnectError;
 };
 

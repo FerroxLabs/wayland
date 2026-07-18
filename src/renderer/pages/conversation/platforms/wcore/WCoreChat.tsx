@@ -13,6 +13,7 @@ import AcpAuthFailureCard from '@renderer/components/activation/AcpAuthFailureCa
 import CuaPermissionCard from '@renderer/components/activation/CuaPermissionCard';
 import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
 import { useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
+import { ModelRegistryProvider } from '@renderer/hooks/useModelRegistry';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
 import { MessageListProvider, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
 import { getAcpAuthRemedy, type AcpAuthRemedy } from '@renderer/pages/conversation/platforms/acp/acpAuthFailure';
@@ -270,4 +271,10 @@ const WCoreChat: React.FC<{
   );
 };
 
-export default HOC.Wrapper(MessageListProvider, LocalImageView.Provider)(WCoreChat);
+const WCoreChatWithRegistry: React.FC<React.ComponentProps<typeof WCoreChat>> = (props) => (
+  <ModelRegistryProvider>
+    <WCoreChat {...props} />
+  </ModelRegistryProvider>
+);
+
+export default HOC.Wrapper(MessageListProvider, LocalImageView.Provider)(WCoreChatWithRegistry);
