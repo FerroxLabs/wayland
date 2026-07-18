@@ -5,6 +5,11 @@
  */
 
 import type { LogicalStateId } from '@process/services/recovery/recoveryManifest';
+import {
+  loadProductionSourceSigningAuthority,
+  type LoadedSourceSigningAuthority,
+  type SourceSigningAuthorityReceipt,
+} from '@process/services/transfer/authority';
 import type { DestinationRecipientDescriptor } from '@process/services/transfer/crypto';
 import {
   buildTransferObjectGraph,
@@ -18,7 +23,6 @@ import {
   publishRecoveryTransfer,
   sourceScopeForGraph,
   type SourceAuthorizationValidationPolicy,
-  type SourceSigningAuthority,
   type TransferMutationEpoch,
   type TransferPublication,
 } from '@process/services/transfer/publish';
@@ -44,7 +48,6 @@ export type CreateTransferPublicationInput = Readonly<{
   sourceCompatibility: TransferSourceCompatibility;
   selectedLogicalState: readonly LogicalStateId[];
   exclusions: readonly TransferFamilyExclusion[];
-  sourceAuthority: SourceSigningAuthority;
   sourceAuthorizationExpiresAt: number;
   now?: () => number;
 }> &
@@ -65,10 +68,12 @@ export type CreatedTransferPublication = Readonly<{
   graphReceipt: TransferObjectGraphReceipt;
   coordinatorReceipt: TransferExportCoordinatorReceipt;
   archiveValidationPolicy: SourceAuthorizationValidationPolicy;
+  sourceAuthorityReceipt: SourceSigningAuthorityReceipt;
 }>;
 
 export type TransferExportCoordinatorDependencies = Readonly<{
   capture?: (input: RunAcceptedTransferProducersInput) => Promise<TransferProducerAggregateCapture>;
+  loadSourceAuthority?: () => Promise<LoadedSourceSigningAuthority>;
   publishDestination?: typeof publishDestinationTransfer;
   publishRecovery?: typeof publishRecoveryTransfer;
 }>;
@@ -82,6 +87,7 @@ export async function createTransferPublication(
   input: CreateTransferPublicationInput,
   dependencies: TransferExportCoordinatorDependencies = {}
 ): Promise<CreatedTransferPublication> {
+  const sourceIdentity = await (dependencies.loadSourceAuthority ?? loadProductionSourceSigningAuthority)();
   const excludedLogicalState = input.exclusions.map(({ logicalStateId }) => logicalStateId);
   const capture = await (dependencies.capture ?? runAcceptedTransferProducers)({
     selectedLogicalState: input.selectedLogicalState,
@@ -99,7 +105,7 @@ export async function createTransferPublication(
   });
   const now = input.now ?? Date.now;
   const sourceAuthorization = {
-    authority: input.sourceAuthority,
+    authority: sourceIdentity.authority,
     mutationEpoch,
     expiresAt: input.sourceAuthorizationExpiresAt,
   } as const;
@@ -116,7 +122,7 @@ export async function createTransferPublication(
     target
   );
   const archiveValidationPolicy: SourceAuthorizationValidationPolicy = Object.freeze({
-    trustedAuthority: input.sourceAuthority.descriptor(),
+    trustedAuthority: sourceIdentity.descriptor,
     expectedScope,
     now,
   });
@@ -150,6 +156,7 @@ export async function createTransferPublication(
       objectCount: graph.manifest.objects.length,
     }),
     archiveValidationPolicy,
+    sourceAuthorityReceipt: Object.freeze({ ...sourceIdentity.receipt }),
   });
 }
 

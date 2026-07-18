@@ -6,6 +6,10 @@
 
 import { describe, expect, it, vi } from 'vitest';
 
+import {
+  TRANSFER_SOURCE_SIGNING_AUTHORITY_CONTRACT,
+  type LoadedSourceSigningAuthority,
+} from '@process/services/transfer/authority';
 import { TRANSFER_DESTINATION_SUITE, TRANSFER_RECOVERY_SUITE } from '@process/services/transfer/container';
 import { DESTINATION_CRYPTO_SUITE, type DestinationRecipientDescriptor } from '@process/services/transfer/crypto';
 import type { TransferObjectGraph, TransferSourceCompatibility } from '@process/services/transfer/export';
@@ -15,6 +19,7 @@ import {
 } from '@process/services/transfer/orchestration';
 import {
   SourceSigningAuthority,
+  TRANSFER_SOURCE_AUTHORIZATION_ALGORITHM,
   TRANSFER_PUBLICATION_RECEIPT_CONTRACT,
   type PublishDestinationTransferInput,
   type PublishRecoveryTransferInput,
@@ -79,9 +84,25 @@ function recipient(fingerprint = `sha256:${'33'.repeat(32)}`): DestinationRecipi
   };
 }
 
+function loadedIdentity(authority = SourceSigningAuthority.issue()): LoadedSourceSigningAuthority {
+  const descriptor = authority.descriptor();
+  return Object.freeze({
+    authority,
+    descriptor,
+    receipt: Object.freeze({
+      contract: TRANSFER_SOURCE_SIGNING_AUTHORITY_CONTRACT,
+      algorithm: TRANSFER_SOURCE_AUTHORIZATION_ALGORITHM,
+      publicKeyFingerprint: descriptor.publicKeyFingerprint,
+      stateSha256: `sha256:${'55'.repeat(32)}`,
+      continuity: 'reloaded',
+    }),
+  });
+}
+
 describe('createTransferPublication', () => {
   it('binds one accepted capture epoch into a recovery publication and content-free receipts', async () => {
     const authority = SourceSigningAuthority.issue();
+    const sourceIdentity = loadedIdentity(authority);
     const capture = vi.fn(async () => CAPTURE);
     const publishRecovery = vi.fn(async (input: PublishRecoveryTransferInput) =>
       publication(input.graph, TRANSFER_RECOVERY_SUITE)
@@ -94,11 +115,10 @@ describe('createTransferPublication', () => {
         sourceCompatibility: SOURCE_COMPATIBILITY,
         selectedLogicalState: ['desktop.chats-projects'],
         exclusions: [],
-        sourceAuthority: authority,
         sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
         now: () => NOW,
       },
-      { capture, publishRecovery }
+      { capture, loadSourceAuthority: async () => sourceIdentity, publishRecovery }
     );
 
     expect(capture).toHaveBeenCalledWith({
@@ -126,7 +146,9 @@ describe('createTransferPublication', () => {
       'coordinatorReceipt',
       'graphReceipt',
       'publication',
+      'sourceAuthorityReceipt',
     ]);
+    expect(result.sourceAuthorityReceipt.publicKeyFingerprint).toBe(authority.descriptor().publicKeyFingerprint);
   });
 
   it('binds the validated destination fingerprint into the signed scope', async () => {
@@ -141,11 +163,10 @@ describe('createTransferPublication', () => {
         sourceCompatibility: SOURCE_COMPATIBILITY,
         selectedLogicalState: ['desktop.chats-projects'],
         exclusions: [],
-        sourceAuthority: SourceSigningAuthority.issue(),
         sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
         now: () => NOW,
       },
-      { capture: async () => CAPTURE, publishDestination }
+      { capture: async () => CAPTURE, loadSourceAuthority: async () => loadedIdentity(), publishDestination }
     );
 
     expect(result.archiveValidationPolicy.expectedScope).toMatchObject({
@@ -167,11 +188,10 @@ describe('createTransferPublication', () => {
           sourceCompatibility: SOURCE_COMPATIBILITY,
           selectedLogicalState: ['desktop.chats-projects'],
           exclusions: [],
-          sourceAuthority: SourceSigningAuthority.issue(),
           sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
           now: () => NOW,
         },
-        { capture: async () => CAPTURE, publishDestination }
+        { capture: async () => CAPTURE, loadSourceAuthority: async () => loadedIdentity(), publishDestination }
       )
     ).rejects.toThrow(/fingerprint is malformed/);
     expect(publishDestination).not.toHaveBeenCalled();
@@ -184,12 +204,12 @@ describe('createTransferPublication', () => {
           sourceCompatibility: SOURCE_COMPATIBILITY,
           selectedLogicalState: ['desktop.chats-projects'],
           exclusions: [],
-          sourceAuthority: SourceSigningAuthority.issue(),
           sourceAuthorizationExpiresAt: NOW + 15 * 60 * 1000,
           now: () => NOW,
         },
         {
           capture: async () => CAPTURE,
+          loadSourceAuthority: async () => loadedIdentity(),
           publishRecovery: async (input) => ({
             ...publication(input.graph, TRANSFER_RECOVERY_SUITE),
             supportReceipt: {
