@@ -407,9 +407,8 @@ describe('CronService', () => {
   });
 
   it('restoreArchivedJob restores the definition paused and retires the archive', async () => {
-    const { listArchivedCronJobs, restoreCronSkillFromArchive, markCronArchiveRestored } = await import(
-      '@/process/services/cron/cronArchive'
-    );
+    const { listArchivedCronJobs, restoreCronSkillFromArchive, markCronArchiveRestored } =
+      await import('@/process/services/cron/cronArchive');
     const archivedJob = makeJob({ id: 'cron_restore', enabled: true });
     const summary = {
       archiveId: 'archive-restore',
@@ -439,9 +438,8 @@ describe('CronService', () => {
   });
 
   it('restoreArchivedJob preserves restored skill bytes when database insertion fails', async () => {
-    const { listArchivedCronJobs, restoreCronSkillFromArchive, rollbackRestoredCronSkill } = await import(
-      '@/process/services/cron/cronArchive'
-    );
+    const { listArchivedCronJobs, restoreCronSkillFromArchive, rollbackRestoredCronSkill } =
+      await import('@/process/services/cron/cronArchive');
     const archivedJob = makeJob({ id: 'cron_restore_failed' });
     const summary = {
       archiveId: 'archive-failed',
@@ -485,11 +483,12 @@ describe('CronService', () => {
     // Advance exactly one interval period to fire the timer once.
     await vi.advanceTimersByTimeAsync(60000);
 
-    expect(executor.executeJob).toHaveBeenCalledWith(job, expect.any(Function), undefined);
+    expect(executor.executeJob).toHaveBeenCalledWith(job, expect.any(Function), undefined, expect.any(Number));
+    const triggeredAt = vi.mocked(executor.executeJob).mock.calls[0][3];
     expect(repo.update).toHaveBeenCalledWith(
       'j1',
       expect.objectContaining({
-        state: expect.objectContaining({ lastStatus: 'ok' }),
+        state: expect.objectContaining({ lastStatus: 'ok', lastRunAtMs: triggeredAt }),
       })
     );
     expect(emitter.emitJobUpdated).toHaveBeenCalledWith(updatedJob);

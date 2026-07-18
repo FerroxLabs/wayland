@@ -347,7 +347,7 @@ describe('projectScheduleRuns', () => {
       receipt('second', 'p2', 203),
       trigger('collision', 300, 'different-job'),
     ];
-    const runs = projectScheduleRuns(job({ runCount: 2, lastRunAtMs: 204, lastStatus: 'error' }), [
+    const runs = projectScheduleRuns(job({ runCount: 2, lastRunAtMs: 200, lastStatus: 'error' }), [
       { conversationId: 'conversation-1', messages },
     ]);
 
@@ -374,6 +374,22 @@ describe('projectScheduleRuns', () => {
       status: 'unavailable',
       reason: 'per-run scheduler outcome is not retained',
     });
+  });
+
+  it('does not back-attribute newer scheduler state when its trigger is missing', () => {
+    const [run] = projectScheduleRuns(job({ runCount: 2, lastRunAtMs: 200, lastStatus: 'error' }), [
+      {
+        conversationId: 'conversation-1',
+        messages: [trigger('t1', 100), prompt('p1', 100), result('r1', 'Successful older result', 102, 'p1')],
+      },
+    ]);
+
+    expect(run.triggeredAt).toBe(100);
+    expect(run.outcome).toEqual({
+      status: 'unavailable',
+      reason: 'per-run scheduler outcome is not retained',
+    });
+    expect(run.result).toMatchObject({ status: 'available', summary: 'Successful older result' });
   });
 
   it('keeps a mismatched-origin trigger out of the job run list', () => {

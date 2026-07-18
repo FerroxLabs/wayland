@@ -44,7 +44,12 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     return this.busyGuard.isProcessing(conversationId);
   }
 
-  async executeJob(job: CronJob, onAcquired?: () => void, preparedConversationId?: string): Promise<string | void> {
+  async executeJob(
+    job: CronJob,
+    onAcquired?: () => void,
+    preparedConversationId?: string,
+    triggeredAt = Date.now()
+  ): Promise<string | void> {
     let conversationId = preparedConversationId ?? job.metadata.conversationId;
 
     // Create a conversation when needed (skip if already prepared by runNow):
@@ -141,7 +146,6 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // Other agents: separate follow-up message via onFirstFinish (multi-turn).
     const messageText = this.buildMessageText(job, hasSkill, needsSkillSuggest && isGeminiLike);
 
-    const triggeredAt = Date.now();
     const cronMeta: CronMessageMeta = {
       source: 'cron',
       cronJobId: job.id,
@@ -401,8 +405,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     } else {
       const acpConfig = await ProcessConfig.get('acp.config');
       preferredModelId = (acpConfig?.[backend as AcpBackendAll] as Record<string, unknown>)?.preferredModelId as
-        | string
-        | undefined;
+        string | undefined;
     }
 
     // For gemini, prefer google-auth provider

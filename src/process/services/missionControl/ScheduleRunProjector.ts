@@ -34,10 +34,6 @@ export function projectScheduleRuns(
   conversations: readonly ScheduleConversationEvidence[]
 ): ScheduleRunRecord[] {
   const runs: ScheduleRunRecord[] = [];
-  const latestTriggeredAt = conversations
-    .flatMap((conversation) => conversation.messages)
-    .filter((message) => isMatchingTrigger(message, job.id))
-    .reduce((latest, message) => Math.max(latest, message.content.triggeredAt), Number.NEGATIVE_INFINITY);
 
   for (const conversation of conversations) {
     const messages = conversation.messages.toSorted(compareMessages);
@@ -55,10 +51,10 @@ export function projectScheduleRuns(
           .filter((candidate) => isMatchingPrompt(candidate, job.id, triggeredAt))
           .flatMap((candidate) => [candidate.id, candidate.msg_id].filter((id): id is string => Boolean(id)))
       );
-      const isLatestKnownRun =
-        job.state.lastRunAtMs !== undefined &&
-        job.state.lastRunAtMs >= latestTriggeredAt &&
-        triggeredAt === latestTriggeredAt;
+      // CronService supplies this exact timestamp to the executor, which persists
+      // it in the trigger/prompt envelope. Anything other than equality is not
+      // per-run evidence and must not be back- or forward-attributed.
+      const isLatestKnownRun = job.state.lastRunAtMs !== undefined && job.state.lastRunAtMs === triggeredAt;
 
       runs.push({
         jobId: job.id,

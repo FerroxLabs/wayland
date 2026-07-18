@@ -5,7 +5,7 @@
  */
 
 import { ipcBridge } from '@/common';
-import type { CronMessageMeta, TMessage } from '@/common/chat/chatLib';
+import type { TMessage } from '@/common/chat/chatLib';
 import type { TChatConversation } from '@/common/config/storage';
 import { uuid } from '@/common/utils';
 import { addMessage } from '@process/utils/message';
@@ -812,7 +812,8 @@ export class CronService {
         () => {
           this.registerCompletionNotification(job);
         },
-        preparedConversationId
+        preparedConversationId,
+        lastRunAtMs
       );
 
       // For "existing" mode: persist the newly created conversationId so subsequent executions reuse it
