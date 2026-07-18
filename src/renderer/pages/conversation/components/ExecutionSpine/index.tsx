@@ -12,6 +12,7 @@ import { Tag, Typography } from '@arco-design/web-react';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkbenchSection, type WorkbenchSectionRegistration } from '../WorkbenchHost';
+import ExecutionWorkbenchProjections from '../WorkbenchHost/projections';
 import MissionProgressPanel from './MissionProgressPanel';
 
 function latestTurnId(messages: readonly TMessage[], fallback: string): string {
@@ -95,28 +96,40 @@ const ExecutionSpine: React.FC<{
   );
   useWorkbenchSection(missionSection);
 
-  if (!visible) return <>{children}</>;
+  const projections = <ExecutionWorkbenchProjections snapshot={snapshot} />;
+
+  if (!visible) {
+    return (
+      <>
+        {projections}
+        {children}
+      </>
+    );
+  }
 
   return (
-    <div className='flex flex-1 min-h-0' data-testid='execution-spine' data-run-id={run.identity.runId}>
-      <section className='flex flex-col flex-1 min-w-0'>
-        <div
-          className='mx-20px mt-8px px-12px py-8px rounded-8px bg-fill-1 border border-border-1 flex items-center gap-10px'
-          data-testid='execution-thread-summary'
-          data-run-id={run.identity.runId}
-        >
-          <Tag size='small' color={statusColor(run.lifecycle)}>
-            {run.lifecycle}
-          </Tag>
-          <Typography.Text ellipsis className='min-w-0 text-t-secondary'>
-            {currentStep?.content ??
-              t('conversation.execution.currentActivity', { defaultValue: 'Working through the current task' })}
-          </Typography.Text>
-          {run.progress.total > 0 && <span className='ml-auto text-12px text-t-secondary'>{progressLabel}</span>}
-        </div>
-        <div className='flex flex-1 min-h-0'>{children}</div>
-      </section>
-    </div>
+    <>
+      {projections}
+      <div className='flex flex-1 min-h-0' data-testid='execution-spine' data-run-id={run.identity.runId}>
+        <section className='flex flex-col flex-1 min-w-0'>
+          <div
+            className='mx-20px mt-8px px-12px py-8px rounded-8px bg-fill-1 border border-border-1 flex items-center gap-10px'
+            data-testid='execution-thread-summary'
+            data-run-id={run.identity.runId}
+          >
+            <Tag size='small' color={statusColor(run.lifecycle)}>
+              {run.lifecycle}
+            </Tag>
+            <Typography.Text ellipsis className='min-w-0 text-t-secondary'>
+              {currentStep?.content ??
+                t('conversation.execution.currentActivity', { defaultValue: 'Working through the current task' })}
+            </Typography.Text>
+            {run.progress.total > 0 && <span className='ml-auto text-12px text-t-secondary'>{progressLabel}</span>}
+          </div>
+          <div className='flex flex-1 min-h-0'>{children}</div>
+        </section>
+      </div>
+    </>
   );
 };
 
