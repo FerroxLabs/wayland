@@ -46,10 +46,11 @@ export function projectScheduleRuns(
       const triggeredAt = message.content.triggeredAt;
       const nextIndex = triggerIndexes[triggerPosition + 1]?.index ?? messages.length;
       const slice = messages.slice(index, nextIndex);
+      const matchingPrompts = slice.filter((candidate) => isMatchingPrompt(candidate, job.id, triggeredAt));
       const promptIds = new Set(
-        slice
-          .filter((candidate) => isMatchingPrompt(candidate, job.id, triggeredAt))
-          .flatMap((candidate) => [candidate.id, candidate.msg_id].filter((id): id is string => Boolean(id)))
+        matchingPrompts.flatMap((candidate) =>
+          [candidate.id, candidate.msg_id].filter((id): id is string => Boolean(id))
+        )
       );
       // CronService supplies this exact timestamp to the executor, which persists
       // it in the trigger/prompt envelope. Anything other than equality is not
@@ -66,7 +67,13 @@ export function projectScheduleRuns(
             ? { status: 'available', value: job.state.lastStatus, source: 'scheduler-state' }
             : { status: 'unavailable', reason: 'per-run scheduler outcome is not retained' },
         result: readResult(slice, promptIds, conversation.conversationId, job.id, triggeredAt),
-        receipt: readReceipt(slice, promptIds, conversation.conversationId, canonicalReceiptTrust),
+        receipt: readReceipt(
+          slice,
+          promptIds,
+          matchingPrompts.length === 1,
+          conversation.conversationId,
+          canonicalReceiptTrust
+        ),
         action: {
           kind: 'navigate',
           path: `/conversation/${conversation.conversationId}`,
@@ -143,9 +150,13 @@ function readResult(
 function readReceipt(
   runMessages: readonly TMessage[],
   promptIds: ReadonlySet<string>,
+  hasUniquePrompt: boolean,
   conversationId: string,
   canonical: CanonicalReceiptTrust
 ): ScheduleRunReceipt {
+  if (!hasUniquePrompt) {
+    return { status: 'unavailable', reason: 'no unique persisted cron prompt is correlated to this run' };
+  }
   const observed: Array<{ event: AcceptedAnvilReceipt; messageId: string }> = [];
 
   for (const message of runMessages) {

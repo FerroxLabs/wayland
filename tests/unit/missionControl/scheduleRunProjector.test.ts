@@ -253,11 +253,21 @@ describe('projectScheduleRuns', () => {
     const [run] = projectScheduleRuns(job({ lastRunAtMs: 100, lastStatus: 'ok' }), [
       {
         conversationId: 'conversation-1',
-        messages: [trigger('t1', 100), prompt('p1', 100), prompt('p2', 100), result('r1', 'Ambiguous', 103)],
+        messages: [
+          trigger('t1', 100),
+          prompt('p1', 100),
+          prompt('p2', 100),
+          result('r1', 'Ambiguous', 103),
+          receipt('ambiguous', 'p1', 104),
+        ],
       },
     ]);
 
     expect(run.result).toEqual({
+      status: 'unavailable',
+      reason: 'no unique persisted cron prompt is correlated to this run',
+    });
+    expect(run.receipt).toEqual({
       status: 'unavailable',
       reason: 'no unique persisted cron prompt is correlated to this run',
     });
