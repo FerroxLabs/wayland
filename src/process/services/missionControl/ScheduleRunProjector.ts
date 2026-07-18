@@ -101,7 +101,22 @@ function compareMessages(left: TMessage, right: TMessage): number {
 }
 
 function readResult(messages: readonly TMessage[], conversationId: string): ScheduleRunResult {
+  const promptIndexes = messages.flatMap((message, index) =>
+    message.type === 'text' && message.position === 'right' && message.content.cronMeta?.source === 'cron'
+      ? [index]
+      : []
+  );
+  if (promptIndexes.length !== 1) {
+    return { status: 'unavailable', reason: 'no unique persisted cron prompt is correlated to this run' };
+  }
+
+  const promptIndex = promptIndexes[0];
+  const nextUserTurnOffset = messages
+    .slice(promptIndex + 1)
+    .findIndex((message) => message.type === 'text' && message.position === 'right');
+  const resultBoundary = nextUserTurnOffset === -1 ? messages.length : promptIndex + 1 + nextUserTurnOffset;
   const result = messages
+    .slice(promptIndex + 1, resultBoundary)
     .toReversed()
     .find(
       (message) =>

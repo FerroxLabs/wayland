@@ -73,6 +73,19 @@ function result(id: string, text: string, createdAt: number): TMessage {
   };
 }
 
+function manualPrompt(id: string, text: string, createdAt: number): TMessage {
+  return {
+    id,
+    msg_id: id,
+    type: 'text',
+    position: 'right',
+    conversation_id: 'conversation-1',
+    content: { content: text },
+    createdAt,
+    status: 'finish',
+  };
+}
+
 function receipt(
   id: string,
   taskId: string,
@@ -194,6 +207,60 @@ describe('projectScheduleRuns', () => {
     expect(run.result.status).toBe('unavailable');
     expect(run.receipt.status).toBe('unavailable');
     expect(run.outcome).toEqual({ status: 'available', value: 'ok', source: 'scheduler-state' });
+  });
+
+  it('does not let a later manual reply mint a scheduled result', () => {
+    const [run] = projectScheduleRuns(job({ lastRunAtMs: 100, lastStatus: 'ok' }), [
+      {
+        conversationId: 'conversation-1',
+        messages: [
+          trigger('t1', 100),
+          prompt('p1', 100),
+          manualPrompt('manual-prompt', 'Unrelated question', 102),
+          result('manual-result', 'Unrelated manual answer', 103),
+        ],
+      },
+    ]);
+
+    expect(run.result).toEqual({
+      status: 'unavailable',
+      reason: 'no persisted assistant result is correlated to this run',
+    });
+  });
+
+  it('keeps the scheduled result when a later manual turn exists', () => {
+    const [run] = projectScheduleRuns(job({ lastRunAtMs: 100, lastStatus: 'ok' }), [
+      {
+        conversationId: 'conversation-1',
+        messages: [
+          trigger('t1', 100),
+          prompt('p1', 100),
+          result('scheduled-result', 'Scheduled answer', 102),
+          manualPrompt('manual-prompt', 'Unrelated question', 103),
+          result('manual-result', 'Unrelated manual answer', 104),
+        ],
+      },
+    ]);
+
+    expect(run.result).toMatchObject({
+      status: 'available',
+      summary: 'Scheduled answer',
+      messageId: 'scheduled-result',
+    });
+  });
+
+  it('fails closed when more than one cron prompt claims the same run', () => {
+    const [run] = projectScheduleRuns(job({ lastRunAtMs: 100, lastStatus: 'ok' }), [
+      {
+        conversationId: 'conversation-1',
+        messages: [trigger('t1', 100), prompt('p1', 100), prompt('p2', 100), result('r1', 'Ambiguous', 103)],
+      },
+    ]);
+
+    expect(run.result).toEqual({
+      status: 'unavailable',
+      reason: 'no unique persisted cron prompt is correlated to this run',
+    });
   });
 
   it('requires canonical active Desktop trust instead of an accepted envelope alone', () => {
