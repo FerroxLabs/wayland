@@ -104,11 +104,8 @@ function renderWorkflowLayout({ stepsRailSider }: { stepsRailSider: boolean }) {
   );
 }
 
-function getSider(container: HTMLElement): HTMLElement {
-  const sider = container.querySelector('.chat-layout-right-sider');
-  if (!(sider instanceof HTMLElement)) throw new Error('right sider not rendered');
-  return sider;
-}
+const querySider = (container: HTMLElement): HTMLElement | null =>
+  container.querySelector<HTMLElement>('[data-section-id="workspace"]');
 
 describe('Workflow Steps rail inside ChatLayout (Build #116 regression)', () => {
   beforeEach(() => {
@@ -122,14 +119,13 @@ describe('Workflow Steps rail inside ChatLayout (Build #116 regression)', () => 
     expect(screen.getByText('Steps')).toBeInTheDocument();
     expect(screen.queryByText('Workspace')).not.toBeInTheDocument();
 
-    const sider = getSider(container);
-    // Expanded sider -> min-width 220px (collapsed would be 0px). This is the fix.
-    expect(sider.style.minWidth).toBe('220px');
+    const sider = querySider(container);
+    expect(sider).not.toBeNull();
 
     // The Steps slot host lives inside the sider and receives the portaled rail,
     // proving the rail is actually visible (not hidden behind a collapsed panel).
     const host = screen.getByTestId('workflow-rail-slot-host');
-    expect(sider.contains(host)).toBe(true);
+    expect(sider?.contains(host)).toBe(true);
     await waitFor(() => expect(screen.getByTestId('portaled-rail')).toBeInTheDocument());
     expect(host).toHaveTextContent('RAIL');
   });
@@ -137,9 +133,8 @@ describe('Workflow Steps rail inside ChatLayout (Build #116 regression)', () => 
   it('regression contrast: without stepsRailSider the same sider defaults COLLAPSED', () => {
     const { container } = renderWorkflowLayout({ stepsRailSider: false });
 
-    const sider = getSider(container);
-    // The pre-fix behavior: the shared default hides the rail (min-width 0px).
-    expect(sider.style.minWidth).toBe('0px');
+    // The shared default keeps a dormant workspace out of layout entirely.
+    expect(querySider(container)).toBeNull();
   });
 
   it('honors an explicit per-conversation collapse preference over the expanded default', () => {
@@ -147,7 +142,6 @@ describe('Workflow Steps rail inside ChatLayout (Build #116 regression)', () => 
 
     const { container } = renderWorkflowLayout({ stepsRailSider: true });
 
-    const sider = getSider(container);
-    expect(sider.style.minWidth).toBe('0px');
+    expect(querySider(container)).toBeNull();
   });
 });

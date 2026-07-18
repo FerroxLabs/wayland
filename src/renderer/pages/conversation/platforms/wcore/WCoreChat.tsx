@@ -15,7 +15,7 @@ import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
 import { useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
 import { ModelRegistryProvider } from '@renderer/hooks/useModelRegistry';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
-import { MessageListProvider, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
+import { MessageListProvider, useMessageList, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
 import { getAcpAuthRemedy, type AcpAuthRemedy } from '@renderer/pages/conversation/platforms/acp/acpAuthFailure';
 import {
   routeThroughFluxAndReplay,
@@ -23,7 +23,6 @@ import {
 } from '@renderer/pages/conversation/platforms/acp/acpFluxFailover';
 import { useFluxConnected } from '@renderer/hooks/useFluxConnected';
 import { useObservabilitySettings } from '@renderer/hooks/settings/useObservabilitySettings';
-import { useResizableSplit } from '@renderer/hooks/ui/useResizableSplit';
 import ObservabilityPanel from '@renderer/pages/conversation/Messages/components/ObservabilityPanel';
 import { FLUX_AUTO_MODEL, isFluxModelId } from '@/common/config/flux';
 import type { TProviderWithModel } from '@/common/config/storage';
@@ -37,6 +36,7 @@ import WCoreSendBox from './WCoreSendBox';
 import WCoreContextCeilingCard from './WCoreContextCeilingCard';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 import ExecutionSpine from '../../components/ExecutionSpine';
+import { useWorkbenchSection, type WorkbenchSectionRegistration } from '../../components/WorkbenchHost';
 
 const WCoreChat: React.FC<{
   conversation_id: string;
@@ -188,17 +188,26 @@ const WCoreChat: React.FC<{
     updateLocalImage({ root: workspace });
   }, [workspace]);
 
-  // #252 reframe: the activity tree moves out of the inline message list into an
-  // opt-in right-side panel. The open state + showCost are shared with the header
-  // toggle (WCoreConversationPanel) via the cross-instance settings store; the
-  // split ratio reuses the proven Preview-panel resize machinery.
+  // The activity tree keeps the existing settings and message-list stores, but
+  // delegates its right-side presentation to the one contextual WorkbenchHost.
   const { settings: obs, update: updateObs } = useObservabilitySettings();
-  const { splitRatio, createDragHandle } = useResizableSplit({
-    defaultWidth: 62,
-    minWidth: 45,
-    maxWidth: 80,
-    storageKey: 'observability-panel-split-ratio',
-  });
+  const messages = useMessageList();
+  const observabilitySection = useMemo<WorkbenchSectionRegistration>(
+    () => ({
+      id: 'observability',
+      label: 'Observability',
+      priority: 50,
+      available: true,
+      requestedOpen: obs.panelOpen,
+      activationKey: obs.panelOpen ? 'open' : 'closed',
+      onActivate: () => updateObs('panelOpen', true),
+      onDismiss: () => updateObs('panelOpen', false),
+      testId: 'workbench-observability',
+      content: <ObservabilityPanel messages={messages} onClose={() => updateObs('panelOpen', false)} />,
+    }),
+    [messages, obs.panelOpen, updateObs]
+  );
+  useWorkbenchSection(observabilitySection);
   const conversationValue = useMemo<ConversationContextValue>(() => {
     return {
       conversationId: conversation_id,
@@ -220,10 +229,7 @@ const WCoreChat: React.FC<{
         agentId='wcore'
       >
         <div className='flex-1 flex relative min-h-0'>
-          <div
-            className='flex flex-col px-20px min-h-0'
-            style={obs.panelOpen ? { width: `${splitRatio}%`, minWidth: 0 } : { flex: 1, minWidth: 0 }}
-          >
+          <div className='flex flex-1 flex-col px-20px min-h-0 min-w-0'>
             <FlexFullContainer>
               <MessageList className='flex-1' emptySlot={emptySlot} isProcessing={isProcessing} />
             </FlexFullContainer>
@@ -274,12 +280,6 @@ const WCoreChat: React.FC<{
               />
             </ConversationChatConfirm>
           </div>
-          {obs.panelOpen && (
-            <div className='relative flex flex-col min-h-0' style={{ width: `${100 - splitRatio}%`, minWidth: 0 }}>
-              {createDragHandle({ className: 'left-0 top-0 bottom-0', reverse: true })}
-              <ObservabilityPanel onClose={() => updateObs('panelOpen', false)} />
-            </div>
-          )}
         </div>
       </ExecutionSpine>
     </ConversationProvider>

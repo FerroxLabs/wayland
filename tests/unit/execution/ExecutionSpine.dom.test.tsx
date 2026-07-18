@@ -6,6 +6,7 @@
 
 import type { TMessage } from '@/common/chat/chatLib';
 import ExecutionSpine from '@/renderer/pages/conversation/components/ExecutionSpine';
+import WorkbenchHost from '@/renderer/pages/conversation/components/WorkbenchHost';
 import { MessageListProvider } from '@/renderer/pages/conversation/Messages/hooks';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
@@ -43,17 +44,19 @@ describe('ExecutionSpine', () => {
       },
     ] as TMessage[];
     render(
-      <MessageListProvider value={messages}>
-        <ExecutionSpine
-          backend='wcore'
-          conversationId='conversation-1'
-          workspaceId='workspace-1'
-          projectId='project-1'
-          agentId='wcore'
-        >
-          <div>conversation</div>
-        </ExecutionSpine>
-      </MessageListProvider>
+      <WorkbenchHost conversationId='conversation-1'>
+        <MessageListProvider value={messages}>
+          <ExecutionSpine
+            backend='wcore'
+            conversationId='conversation-1'
+            workspaceId='workspace-1'
+            projectId='project-1'
+            agentId='wcore'
+          >
+            <div>conversation</div>
+          </ExecutionSpine>
+        </MessageListProvider>
+      </WorkbenchHost>
     );
     const thread = screen.getByTestId('execution-thread-summary');
     const rail = screen.getByTestId('execution-mission-rail');
@@ -63,11 +66,13 @@ describe('ExecutionSpine', () => {
 
   it('does not overwhelm an ordinary chat with an empty mission rail', () => {
     render(
-      <MessageListProvider value={[]}>
-        <ExecutionSpine backend='gemini' conversationId='conversation-1' workspaceId='workspace-1' agentId='gemini'>
-          <div>ordinary chat</div>
-        </ExecutionSpine>
-      </MessageListProvider>
+      <WorkbenchHost conversationId='conversation-1'>
+        <MessageListProvider value={[]}>
+          <ExecutionSpine backend='gemini' conversationId='conversation-1' workspaceId='workspace-1' agentId='gemini'>
+            <div>ordinary chat</div>
+          </ExecutionSpine>
+        </MessageListProvider>
+      </WorkbenchHost>
     );
     expect(screen.queryByTestId('execution-mission-rail')).toBeNull();
     expect(screen.getByText('ordinary chat')).toBeTruthy();
@@ -116,11 +121,13 @@ describe('ExecutionSpine', () => {
     ] as TMessage[];
 
     render(
-      <MessageListProvider value={messages}>
-        <ExecutionSpine backend='acp' conversationId='conversation-1' workspaceId='workspace-1' agentId='codex'>
-          <div>conversation</div>
-        </ExecutionSpine>
-      </MessageListProvider>
+      <WorkbenchHost conversationId='conversation-1'>
+        <MessageListProvider value={messages}>
+          <ExecutionSpine backend='acp' conversationId='conversation-1' workspaceId='workspace-1' agentId='codex'>
+            <div>conversation</div>
+          </ExecutionSpine>
+        </MessageListProvider>
+      </WorkbenchHost>
     );
 
     expect(screen.getAllByText('Current plan step')).toHaveLength(2);

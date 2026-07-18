@@ -8,28 +8,20 @@ import AgentBadge from '@/renderer/components/agent/AgentBadge';
 import type { PresetAssistantInfo } from '@/renderer/hooks/agent/usePresetAssistantInfo';
 import FlexFullContainer from '@/renderer/components/layout/FlexFullContainer';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
-import { useResizableSplit } from '@/renderer/hooks/ui/useResizableSplit';
 import ConversationTabs from '@/renderer/pages/conversation/components/ConversationTabs';
 import ChatTitleEditor from '@/renderer/pages/conversation/components/ChatTitleEditor';
 import ConversationTitleMinimap from '@/renderer/pages/conversation/components/ConversationTitleMinimap';
-import MobileWorkspaceOverlay from './MobileWorkspaceOverlay';
-import WorkspacePanelHeader, { DesktopWorkspaceToggle } from './WorkspacePanelHeader';
+import WorkspacePanelHeader from './WorkspacePanelHeader';
+import WorkbenchHost, { type WorkbenchSectionRegistration } from '../WorkbenchHost';
 import { useConversationTabs } from '@/renderer/pages/conversation/hooks/ConversationTabsContext';
 import { useContainerWidth } from '@/renderer/pages/conversation/hooks/useContainerWidth';
-import { useLayoutConstraints } from '@/renderer/pages/conversation/hooks/useLayoutConstraints';
-import { usePreviewAutoCollapse } from '@/renderer/pages/conversation/hooks/usePreviewAutoCollapse';
 import { useTitleRename } from '@/renderer/pages/conversation/hooks/useTitleRename';
 import { useWorkspaceCollapse } from '@/renderer/pages/conversation/hooks/useWorkspaceCollapse';
 import { PreviewPanel, usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { dispatchWorkspaceToggleEvent } from '@/renderer/utils/workspace/workspaceEvents';
 import { ACP_BACKENDS_ALL } from '@/common/types/acpTypes';
 import classNames from 'classnames';
-import { isMacEnvironment, isWindowsEnvironment } from '@/renderer/pages/conversation/utils/detectPlatform';
-import {
-  MIN_WORKSPACE_RATIO,
-  WORKSPACE_HEADER_HEIGHT,
-  calcLayoutMetrics,
-} from '@/renderer/pages/conversation/utils/layoutCalc';
+import { isWindowsEnvironment } from '@/renderer/pages/conversation/utils/detectPlatform';
 import { Layout as ArcoLayout } from '@arco-design/web-react';
 import React from 'react';
 import useSWR from 'swr';
@@ -88,13 +80,11 @@ const ChatLayout: React.FC<{
   // Suppress the header title in that mode; the header keeps its toggle/actions.
   const resolvedSiderTitle = props.stepsRailSider ? undefined : props.siderTitle;
   const layout = useLayoutContext();
-  const isMacRuntime = isMacEnvironment();
   const isWindowsRuntime = isWindowsEnvironment();
-  const isDesktop = !layout?.isMobile;
   const isMobile = Boolean(layout?.isMobile);
 
   // Preview panel state
-  const { isOpen: isPreviewOpen } = usePreviewContext();
+  const { isOpen: isPreviewOpen, closePreview } = usePreviewContext();
 
   // --- Hook A: workspace collapse ---
   const { rightSiderCollapsed, setRightSiderCollapsed } = useWorkspaceCollapse({
@@ -141,79 +131,64 @@ const ChatLayout: React.FC<{
     (backend ? NON_ACP_BACKEND_DISPLAY_NAMES[backend] : undefined) ||
     backend;
 
-  const {
-    splitRatio: workspaceSplitRatio,
-    setSplitRatio: setWorkspaceSplitRatio,
-    createDragHandle: createWorkspaceDragHandle,
-  } = useResizableSplit({
-    defaultWidth: 20,
-    minWidth: MIN_WORKSPACE_RATIO,
-    maxWidth: 40,
-    storageKey: 'chat-workspace-split-ratio',
-  });
+  const titleAreaMaxWidth = containerWidth ? Math.max(160, Math.min(640, containerWidth - 460)) : 480;
+  const workbenchOverlay = isMobile || isPopout || (containerWidth > 0 && containerWidth < 960);
 
-  // Pre-hook metrics: compute dynamic min/max for the chat-preview split hook
-  const { dynamicChatMinRatio, dynamicChatMaxRatio } = calcLayoutMetrics({
-    containerWidth,
-    workspaceSplitRatio,
-    chatSplitRatio: 60, // placeholder; only dynamicChatMinRatio/dynamicChatMaxRatio are used here
-    workspaceEnabled,
-    isDesktop,
-    isPreviewOpen,
-    rightSiderCollapsed,
-    isMobile,
-  });
-
-  const {
-    splitRatio: chatSplitRatio,
-    setSplitRatio: setChatSplitRatio,
-    createDragHandle: createPreviewDragHandle,
-  } = useResizableSplit({
-    defaultWidth: 60,
-    minWidth: dynamicChatMinRatio,
-    maxWidth: dynamicChatMaxRatio,
-    storageKey: 'chat-preview-split-ratio',
-  });
-
-  // Full metrics with real chatSplitRatio
-  const { chatFlex, workspaceFlex, workspaceWidthPx, titleAreaMaxWidth, mobileWorkspaceHandleRight } =
-    calcLayoutMetrics({
-      containerWidth,
-      workspaceSplitRatio,
-      chatSplitRatio,
-      workspaceEnabled,
-      isDesktop,
+  const workbenchSections = React.useMemo<WorkbenchSectionRegistration[]>(
+    () => [
+      {
+        id: 'workspace',
+        label: props.stepsRailSider
+          ? t('conversation.workflow.surface', { defaultValue: 'Workflow' })
+          : resolvedSiderTitle || t('conversation.workspace.title', { defaultValue: 'Workspace' }),
+        priority: props.stepsRailSider ? 80 : 30,
+        available: workspaceEnabled,
+        requestedOpen: workspaceEnabled && !rightSiderCollapsed,
+        activationKey: `${conversationId || 'global'}:${rightSiderCollapsed ? 'closed' : 'open'}`,
+        onActivate: () => setRightSiderCollapsed(false),
+        onDismiss: () => setRightSiderCollapsed(true),
+        testId: 'workbench-workspace',
+        content: (
+          <div className='flex flex-1 min-h-0 flex-col'>
+            {workspacePath && (
+              <WorkspacePanelHeader
+                showToggle={false}
+                collapsed={false}
+                onToggle={() => setRightSiderCollapsed(true)}
+                togglePlacement='right'
+                workspacePath={workspacePath}
+              />
+            )}
+            <div className='flex flex-1 min-h-0 overflow-hidden'>{props.sider}</div>
+          </div>
+        ),
+      },
+      {
+        id: 'preview',
+        label: t('conversation.preview.title', { defaultValue: 'Preview' }),
+        priority: 70,
+        available: isPreviewOpen,
+        requestedOpen: isPreviewOpen,
+        activationKey: isPreviewOpen ? 'open' : 'closed',
+        onDismiss: closePreview,
+        testId: 'workbench-preview',
+        content: <PreviewPanel />,
+      },
+    ],
+    [
+      closePreview,
+      conversationId,
       isPreviewOpen,
+      props.sider,
+      props.stepsRailSider,
+      resolvedSiderTitle,
       rightSiderCollapsed,
-      isMobile,
-    });
-
-  // --- Hook D: preview auto-collapse ---
-  usePreviewAutoCollapse({
-    isPreviewOpen,
-    isDesktop,
-    workspaceEnabled,
-    rightSiderCollapsed,
-    setRightSiderCollapsed,
-    siderCollapsed: layout?.siderCollapsed,
-    setSiderCollapsed: layout?.setSiderCollapsed,
-  });
-
-  // --- Hook E: layout constraints ---
-  useLayoutConstraints({
-    containerWidth,
-    workspaceEnabled,
-    isDesktop,
-    isPreviewOpen,
-    rightSiderCollapsed,
-    setRightSiderCollapsed,
-    workspaceSplitRatio,
-    setWorkspaceSplitRatio,
-    chatSplitRatio,
-    setChatSplitRatio,
-    dynamicChatMinRatio,
-    dynamicChatMaxRatio,
-  });
+      setRightSiderCollapsed,
+      t,
+      workspaceEnabled,
+      workspacePath,
+    ]
+  );
 
   const handleDockBack = React.useCallback(() => {
     if (!conversationId) return;
@@ -306,157 +281,26 @@ const ChatLayout: React.FC<{
       }}
     >
       <div ref={containerRef} className='flex flex-1 relative w-full overflow-hidden'>
-        {isPreviewOpen && isDesktop ? (
-          /* Desktop with preview: header spans chat+preview, preview sits below header */
-          <>
-            <div className='flex flex-col flex-1 min-w-0'>
-              {!props.hideHeader && <div className='shrink-0 !bg-1'>{headerBlock}</div>}
-              <div className='flex flex-1 min-h-0 relative'>
-                <div
-                  className='flex flex-col relative'
-                  style={{
-                    flexGrow: 0,
-                    flexShrink: 0,
-                    flexBasis: `${chatFlex}%`,
-                    minWidth: '240px',
-                  }}
-                >
-                  <ArcoLayout.Content className='flex flex-col flex-1 bg-1 overflow-hidden'>
-                    {props.hideHeader && props.projectId && (
-                      <div className='shrink-0 px-16px pt-8px'>
-                        <ProjectContextBadge projectId={props.projectId} />
-                      </div>
-                    )}
-                    {props.children}
-                  </ArcoLayout.Content>
-                </div>
-                <div
-                  className='preview-panel flex flex-col relative overflow-visible rounded-[15px] mb-[12px] mr-[12px] ml-[8px]'
-                  style={{
-                    flexGrow: 1,
-                    flexShrink: 1,
-                    flexBasis: 0,
-                    border: '1px solid var(--bg-3)',
-                    minWidth: '260px',
-                    boxSizing: 'border-box',
-                  }}
-                >
-                  {createPreviewDragHandle({
-                    className: 'absolute top-0 bottom-0 z-30',
-                    style: { width: '20px', left: '-20px' },
-                    linePlacement: 'end',
-                    lineClassName: 'opacity-30 group-hover:opacity-100 group-active:opacity-100',
-                    lineStyle: { width: '2px' },
-                  })}
-                  <div className='h-full w-full overflow-hidden rounded-[15px]'>
-                    <PreviewPanel />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          /* Desktop without preview / Mobile */
-          <>
-            <div
-              className='flex flex-col relative'
-              style={{
-                flexGrow: chatFlex,
-                flexShrink: 0,
-                flexBasis: 0,
-                display: isPreviewOpen && layout?.isMobile ? 'none' : 'flex',
-                minWidth: isDesktop ? '240px' : '100%',
+        <WorkbenchHost conversationId={conversationId} sections={workbenchSections} overlay={workbenchOverlay}>
+          <div className='flex flex-col flex-1 min-w-0 min-h-0 relative'>
+            <ArcoLayout.Content
+              className='flex flex-col h-full min-w-0'
+              onClick={() => {
+                if (window.innerWidth < 768 && !rightSiderCollapsed) setRightSiderCollapsed(true);
               }}
             >
-              <ArcoLayout.Content
-                className='flex flex-col h-full'
-                onClick={() => {
-                  if (window.innerWidth < 768 && !rightSiderCollapsed) setRightSiderCollapsed(true);
-                }}
-              >
-                {!props.hideHeader && headerBlock}
-                <ArcoLayout.Content className='flex flex-col flex-1 bg-1 overflow-hidden'>
-                  {props.hideHeader && props.projectId && (
-                    <div className='shrink-0 px-16px pt-8px'>
-                      <ProjectContextBadge projectId={props.projectId} />
-                    </div>
-                  )}
-                  {props.children}
-                </ArcoLayout.Content>
-              </ArcoLayout.Content>
-            </div>
-            {isPreviewOpen && (
-              <div
-                className={classNames(
-                  'preview-panel flex flex-col relative overflow-visible rounded-[15px]',
-                  'm-[8px]'
+              {!props.hideHeader && headerBlock}
+              <ArcoLayout.Content className='flex flex-col flex-1 bg-1 overflow-hidden'>
+                {props.hideHeader && props.projectId && (
+                  <div className='shrink-0 px-16px pt-8px'>
+                    <ProjectContextBadge projectId={props.projectId} />
+                  </div>
                 )}
-                style={{
-                  flexGrow: 1,
-                  flexShrink: 1,
-                  flexBasis: 0,
-                  border: '1px solid var(--bg-3)',
-                  width: 'calc(100% - 16px)',
-                  maxWidth: 'calc(100% - 16px)',
-                  minWidth: 0,
-                  boxSizing: 'border-box',
-                }}
-              >
-                <div className='h-full w-full overflow-hidden rounded-[15px]'>
-                  <PreviewPanel />
-                </div>
-              </div>
-            )}
-          </>
-        )}
-        {workspaceEnabled && !layout?.isMobile && (
-          <div
-            className={classNames('!bg-1 relative chat-layout-right-sider layout-sider')}
-            style={{
-              flexGrow: isPreviewOpen ? 0 : workspaceFlex,
-              flexShrink: 0,
-              flexBasis: rightSiderCollapsed ? '0px' : isPreviewOpen ? `${Math.round(workspaceWidthPx)}px` : 0,
-              width: rightSiderCollapsed ? '0px' : isPreviewOpen ? `${Math.round(workspaceWidthPx)}px` : undefined,
-              minWidth: rightSiderCollapsed ? '0px' : '220px',
-              overflow: 'hidden',
-              borderLeft: rightSiderCollapsed ? 'none' : '1px solid var(--bg-3)',
-            }}
-          >
-            {isDesktop &&
-              !rightSiderCollapsed &&
-              createWorkspaceDragHandle({ className: 'absolute left-0 top-0 bottom-0', style: {}, reverse: true })}
-            <WorkspacePanelHeader
-              showToggle={!isMacRuntime && !isWindowsRuntime}
-              collapsed={rightSiderCollapsed}
-              onToggle={() => dispatchWorkspaceToggleEvent()}
-              togglePlacement={layout?.isMobile ? 'left' : 'right'}
-              workspacePath={workspacePath}
-            >
-              {resolvedSiderTitle}
-            </WorkspacePanelHeader>
-            <ArcoLayout.Content style={{ height: `calc(100% - ${WORKSPACE_HEADER_HEIGHT}px)` }}>
-              {props.sider}
+                {props.children}
+              </ArcoLayout.Content>
             </ArcoLayout.Content>
           </div>
-        )}
-
-        {/* Mobile workspace overlay: backdrop + fixed panel + floating collapse handle */}
-        {workspaceEnabled && layout?.isMobile && (
-          <MobileWorkspaceOverlay
-            rightSiderCollapsed={rightSiderCollapsed}
-            setRightSiderCollapsed={setRightSiderCollapsed}
-            workspaceWidthPx={workspaceWidthPx}
-            mobileWorkspaceHandleRight={mobileWorkspaceHandleRight}
-            siderTitle={resolvedSiderTitle}
-            sider={props.sider}
-            workspacePath={workspacePath}
-          />
-        )}
-
-        {/* Desktop expand button when workspace is collapsed */}
-        {!isMacRuntime && !isWindowsRuntime && workspaceEnabled && rightSiderCollapsed && !layout?.isMobile && (
-          <DesktopWorkspaceToggle />
-        )}
+        </WorkbenchHost>
       </div>
     </ArcoLayout>
   );
