@@ -34,14 +34,15 @@ const ROOT_FIELDS = new Set([
   'nonce',
   'ciphertext',
 ]);
-const KDF_FIELDS = new Set([
-  'algorithm',
-  'version',
-  'memoryKiB',
-  'iterations',
-  'parallelism',
-  'keyLength',
-  'salt',
+const KDF_FIELDS = new Set(['algorithm', 'version', 'memoryKiB', 'iterations', 'parallelism', 'keyLength', 'salt']);
+const BUNDLE_CHUNK_FIELDS = new Set([
+  'bundleId',
+  'schema',
+  'ordinal',
+  'declaredLength',
+  'contentDigest',
+  'nonce',
+  'ciphertext',
 ]);
 
 export type RecoveryChunkMetadata = {
@@ -79,13 +80,114 @@ export type DecryptedRecoveryChunk = RecoveryChunkMetadata & {
   plaintext: Uint8Array;
 };
 
+export type RecoveryBundleEncryptedChunk = RecoveryChunkMetadata & {
+  nonce: string;
+  ciphertext: string;
+};
+
+/**
+ * Bundle-scoped WT-R1 authority. Argon2id runs once for the bundle; every
+ * chunk receives a fresh XChaCha20 nonce and independently bound metadata.
+ */
+export class RecoveryBundleCryptoSession {
+  private readonly observedNonces = new Set<string>();
+  private key: Uint8Array | undefined;
+
+  private constructor(
+    key: Uint8Array,
+    private readonly kdf: RecoveryKdfParameters
+  ) {
+    this.key = key;
+  }
+
+  static async create(passphrase: string | Uint8Array): Promise<RecoveryBundleCryptoSession> {
+    const parameters = fixedKdfParameters(Uint8Array.from(randomBytes(RECOVERY_SALT_BYTES)));
+    return new RecoveryBundleCryptoSession(await deriveRecoveryKey(passphrase, parameters), parameters);
+  }
+
+  static async open(
+    passphrase: string | Uint8Array,
+    parameters: RecoveryKdfParameters
+  ): Promise<RecoveryBundleCryptoSession> {
+    validateKdf(parameters);
+    return new RecoveryBundleCryptoSession(
+      await deriveRecoveryKey(passphrase, parameters),
+      Object.freeze({ ...parameters })
+    );
+  }
+
+  parameters(): Readonly<RecoveryKdfParameters> {
+    return Object.freeze({ ...this.kdf });
+  }
+
+  destroy(): void {
+    this.key?.fill(0);
+    this.key = undefined;
+  }
+
+  encryptChunk(input: RecoveryChunkEncryptionInput): RecoveryBundleEncryptedChunk {
+    const key = this.requireKey();
+    validateMetadata(input);
+    if (!(input.plaintext instanceof Uint8Array)) throw new Error('Plaintext must be bytes');
+    assertPlaintextMatchesMetadata(input.plaintext, input);
+    const nonce = Uint8Array.from(randomBytes(RECOVERY_NONCE_BYTES));
+    this.claimNonce(nonce);
+    const ciphertext = xchacha20poly1305(key, nonce, buildRecoveryAssociatedData(input)).encrypt(input.plaintext);
+    return {
+      bundleId: input.bundleId,
+      schema: input.schema,
+      ordinal: input.ordinal,
+      declaredLength: input.declaredLength,
+      contentDigest: input.contentDigest,
+      nonce: encodeBase64Url(nonce),
+      ciphertext: encodeBase64Url(ciphertext),
+    };
+  }
+
+  decryptChunk(chunk: RecoveryBundleEncryptedChunk): DecryptedRecoveryChunk {
+    const key = this.requireKey();
+    assertExactFields(chunk as unknown as Record<string, unknown>, BUNDLE_CHUNK_FIELDS, 'bundle chunk');
+    validateMetadata(chunk);
+    const nonce = decodeBase64Url(chunk.nonce, RECOVERY_NONCE_BYTES, 'nonce');
+    this.claimNonce(nonce);
+    const ciphertext = decodeBase64Url(
+      chunk.ciphertext,
+      chunk.declaredLength + xchacha20poly1305.tagLength,
+      'ciphertext'
+    );
+    let plaintext: Uint8Array;
+    try {
+      plaintext = xchacha20poly1305(key, nonce, buildRecoveryAssociatedData(chunk)).decrypt(ciphertext);
+    } catch {
+      throw new Error('Recovery chunk authentication failed');
+    }
+    assertPlaintextMatchesMetadata(plaintext, chunk);
+    return {
+      bundleId: chunk.bundleId,
+      schema: chunk.schema,
+      ordinal: chunk.ordinal,
+      declaredLength: chunk.declaredLength,
+      contentDigest: chunk.contentDigest,
+      plaintext,
+    };
+  }
+
+  private requireKey(): Uint8Array {
+    if (!this.key) throw new Error('Recovery bundle key is destroyed');
+    return this.key;
+  }
+
+  private claimNonce(nonce: Uint8Array): void {
+    const encoded = encodeBase64Url(nonce);
+    if (this.observedNonces.has(encoded)) throw new Error('Recovery nonce reuse detected');
+    this.observedNonces.add(encoded);
+  }
+}
+
 export class RecoveryCryptoSession {
   private readonly observedNonces = new Set<string>();
 
-  async encryptChunk(
-    input: RecoveryChunkEncryptionInput,
-    passphrase: string | Uint8Array,
-  ): Promise<Uint8Array> {
+  async encryptChunk(input: RecoveryChunkEncryptionInput, passphrase: string | Uint8Array): Promise<Uint8Array> {
     validateMetadata(input);
     if (!(input.plaintext instanceof Uint8Array)) throw new Error('Plaintext must be bytes');
     assertPlaintextMatchesMetadata(input.plaintext, input);
@@ -118,7 +220,7 @@ export class RecoveryCryptoSession {
 
   async decryptChunk(
     serializedEnvelope: Uint8Array | string,
-    passphrase: string | Uint8Array,
+    passphrase: string | Uint8Array
   ): Promise<DecryptedRecoveryChunk> {
     const envelope = parseRecoveryChunkEnvelope(serializedEnvelope);
     const nonce = decodeBase64Url(envelope.nonce, RECOVERY_NONCE_BYTES, 'nonce');
@@ -126,17 +228,13 @@ export class RecoveryCryptoSession {
     const ciphertext = decodeBase64Url(
       envelope.ciphertext,
       envelope.declaredLength + xchacha20poly1305.tagLength,
-      'ciphertext',
+      'ciphertext'
     );
     const key = await deriveRecoveryKey(passphrase, envelope.kdf);
     try {
       let plaintext: Uint8Array;
       try {
-        plaintext = xchacha20poly1305(
-          key,
-          nonce,
-          buildRecoveryAssociatedData(envelope),
-        ).decrypt(ciphertext);
+        plaintext = xchacha20poly1305(key, nonce, buildRecoveryAssociatedData(envelope)).decrypt(ciphertext);
       } catch {
         throw new Error('Recovery chunk authentication failed');
       }
@@ -168,7 +266,7 @@ export function contentDigest(plaintext: Uint8Array): string {
 
 export async function deriveRecoveryKey(
   passphrase: string | Uint8Array,
-  parameters: RecoveryKdfParameters,
+  parameters: RecoveryKdfParameters
 ): Promise<Uint8Array> {
   validateKdf(parameters);
   const password = normalizePassphrase(passphrase);
@@ -198,19 +296,14 @@ export function buildRecoveryAssociatedData(metadata: RecoveryChunkMetadata): Ui
     lengthPrefixed(encoder.encode(metadata.schema)),
     uint64(metadata.ordinal),
     uint64(metadata.declaredLength),
-    hexToBytes(metadata.contentDigest.slice('sha256:'.length)),
+    hexToBytes(metadata.contentDigest.slice('sha256:'.length))
   );
 }
 
-export function parseRecoveryChunkEnvelope(
-  serializedEnvelope: Uint8Array | string,
-): RecoveryChunkEnvelope {
+export function parseRecoveryChunkEnvelope(serializedEnvelope: Uint8Array | string): RecoveryChunkEnvelope {
   let text: string;
   try {
-    text =
-      typeof serializedEnvelope === 'string'
-        ? serializedEnvelope
-        : decoder.decode(serializedEnvelope);
+    text = typeof serializedEnvelope === 'string' ? serializedEnvelope : decoder.decode(serializedEnvelope);
   } catch {
     throw new Error('Recovery envelope is not valid UTF-8');
   }
@@ -226,11 +319,7 @@ export function parseRecoveryChunkEnvelope(
 
 export function serializeRecoveryChunkEnvelope(envelope: RecoveryChunkEnvelope): Uint8Array {
   assertExactFields(envelope as unknown as Record<string, unknown>, ROOT_FIELDS, 'envelope');
-  assertExactFields(
-    envelope.kdf as unknown as Record<string, unknown>,
-    KDF_FIELDS,
-    'KDF parameters',
-  );
+  assertExactFields(envelope.kdf as unknown as Record<string, unknown>, KDF_FIELDS, 'KDF parameters');
   validateEnvelope(envelope);
   return encoder.encode(
     JSON.stringify({
@@ -253,7 +342,7 @@ export function serializeRecoveryChunkEnvelope(envelope: RecoveryChunkEnvelope):
       },
       nonce: envelope.nonce,
       ciphertext: envelope.ciphertext,
-    }),
+    })
   );
 }
 
@@ -264,21 +353,15 @@ function validateEnvelope(envelope: RecoveryChunkEnvelope): void {
   validateMetadata(envelope);
   validateKdf(envelope.kdf);
   decodeBase64Url(envelope.nonce, RECOVERY_NONCE_BYTES, 'nonce');
-  decodeBase64Url(
-    envelope.ciphertext,
-    envelope.declaredLength + xchacha20poly1305.tagLength,
-    'ciphertext',
-  );
+  decodeBase64Url(envelope.ciphertext, envelope.declaredLength + xchacha20poly1305.tagLength, 'ciphertext');
 }
 
 function validateKdf(parameters: RecoveryKdfParameters): void {
   if (parameters.algorithm !== RECOVERY_KDF_ALGORITHM) throw new Error('Unknown recovery KDF');
   if (parameters.version !== RECOVERY_ARGON2_VERSION) throw new Error('Argon2 version drift');
   if (parameters.memoryKiB !== RECOVERY_ARGON2_MEMORY_KIB) throw new Error('Argon2 memory drift');
-  if (parameters.iterations !== RECOVERY_ARGON2_ITERATIONS)
-    throw new Error('Argon2 iteration drift');
-  if (parameters.parallelism !== RECOVERY_ARGON2_PARALLELISM)
-    throw new Error('Argon2 parallelism drift');
+  if (parameters.iterations !== RECOVERY_ARGON2_ITERATIONS) throw new Error('Argon2 iteration drift');
+  if (parameters.parallelism !== RECOVERY_ARGON2_PARALLELISM) throw new Error('Argon2 parallelism drift');
   if (parameters.keyLength !== RECOVERY_KEY_BYTES) throw new Error('Argon2 key-length drift');
   decodeBase64Url(parameters.salt, RECOVERY_SALT_BYTES, 'salt');
 }
@@ -290,18 +373,12 @@ function validateMetadata(metadata: RecoveryChunkMetadata): void {
     throw new Error('Invalid transfer chunk ordinal');
   if (!Number.isSafeInteger(metadata.declaredLength) || metadata.declaredLength < 0)
     throw new Error('Invalid transfer chunk length');
-  if (!CONTENT_DIGEST_PATTERN.test(metadata.contentDigest))
-    throw new Error('Invalid transfer content digest');
+  if (!CONTENT_DIGEST_PATTERN.test(metadata.contentDigest)) throw new Error('Invalid transfer content digest');
 }
 
-function assertPlaintextMatchesMetadata(
-  plaintext: Uint8Array,
-  metadata: RecoveryChunkMetadata,
-): void {
-  if (plaintext.length !== metadata.declaredLength)
-    throw new Error('Recovery chunk declared length mismatch');
-  if (contentDigest(plaintext) !== metadata.contentDigest)
-    throw new Error('Recovery chunk content digest mismatch');
+function assertPlaintextMatchesMetadata(plaintext: Uint8Array, metadata: RecoveryChunkMetadata): void {
+  if (plaintext.length !== metadata.declaredLength) throw new Error('Recovery chunk declared length mismatch');
+  if (contentDigest(plaintext) !== metadata.contentDigest) throw new Error('Recovery chunk content digest mismatch');
 }
 
 function fixedKdfParameters(salt: Uint8Array): RecoveryKdfParameters {
@@ -333,8 +410,7 @@ function encodeBase64Url(bytes: Uint8Array): string {
 }
 
 function decodeBase64Url(value: unknown, expectedLength: number, field: string): Uint8Array {
-  if (typeof value !== 'string' || !/^[A-Za-z0-9_-]+$/.test(value))
-    throw new Error(`Malformed recovery ${field}`);
+  if (typeof value !== 'string' || !/^[A-Za-z0-9_-]+$/.test(value)) throw new Error(`Malformed recovery ${field}`);
   const decoded = Uint8Array.from(Buffer.from(value, 'base64url'));
   if (decoded.length !== expectedLength || encodeBase64Url(decoded) !== value)
     throw new Error(`Malformed recovery ${field}`);
@@ -361,11 +437,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function assertExactFields(
-  value: Record<string, unknown>,
-  expected: ReadonlySet<string>,
-  label: string,
-): void {
+function assertExactFields(value: Record<string, unknown>, expected: ReadonlySet<string>, label: string): void {
   const keys = Object.keys(value);
   for (const key of keys) {
     if (!expected.has(key)) throw new Error(`Unknown critical ${label} field: ${key}`);
