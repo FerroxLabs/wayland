@@ -15,6 +15,7 @@ const {
   PREDICATE_TYPE,
   SIGNER_WORKFLOW,
   expectedPublisherGate,
+  verifyCandidateArtifactAttestation,
   verifyPublisher,
   verifyUpdaterObservation,
 } = require('../../../scripts/release-acceptance/verifyUpdaterObservation');
@@ -353,6 +354,55 @@ afterEach(() => {
 });
 
 describe('canonical updater packaged-runtime observation authority', () => {
+  it('authenticates the exact Linux candidate bytes independently of the observation', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'wayland-linux-candidate-'));
+    temporaryRoots.push(root);
+    const candidatePath = path.join(root, 'candidate.AppImage');
+    writeFileSync(candidatePath, 'candidate-package-bytes');
+    const candidateSha256 = sha256(readFileSync(candidatePath));
+
+    verifyCandidateArtifactAttestation(candidatePath, candidateSha256, {
+      trustRootCommit: TRUST_COMMIT,
+      execFileSyncImpl: (_command: string, args: string[]) => {
+        expect(args[2]).toBe(candidatePath);
+        expect(args[args.indexOf('--signer-workflow') + 1]).toBe(SIGNER_WORKFLOW);
+        expect(args[args.indexOf('--source-ref') + 1]).toBe('refs/heads/release-trust-v1');
+        return JSON.stringify([
+          {
+            verificationResult: {
+              statement: {
+                predicateType: PREDICATE_TYPE,
+                subject: [{ digest: { sha256: candidateSha256.slice('sha256:'.length) } }],
+              },
+            },
+          },
+        ]);
+      },
+    });
+  });
+
+  it('does not let an attested observation substitute for attested Linux candidate bytes', () => {
+    const fixture = createFixture();
+    fixture.manifest.target = 'linux-x64';
+    fixture.manifest.initialArtifact.publisher = {
+      gate: 'github-release-digest-only',
+      verified: true,
+      verifierExitCode: 0,
+      identity: 'FerroxLabs/wayland@v0.11.18 compiled release catalog',
+    };
+    fixture.manifest.candidateArtifact.publisher = {
+      gate: 'github-protected-attestation-ferrox-labs',
+      verified: true,
+      verifierExitCode: 0,
+      identity: LINUX_CANDIDATE_PUBLISHER_IDENTITY,
+    };
+    rewriteObservation(fixture);
+
+    expect(() => verifyUpdaterObservation({ observationPath: fixture.observationPath }, options(fixture))).toThrow(
+      /M8C_CANDIDATE_ATTESTATION_INVALID:subject-digest-mismatch/
+    );
+  });
+
   it('accepts Linux candidate bytes only through the exact protected updater attestation authority', () => {
     expect(expectedPublisherGate('linux-x64', 'candidate')).toBe('github-protected-attestation-ferrox-labs');
     expect(

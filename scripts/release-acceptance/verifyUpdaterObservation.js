@@ -246,6 +246,9 @@ function verifyArtifact(value, root, candidate, target, role, options = {}) {
   const bound = readBoundEvidence(root, { file: artifact.file, sha256: artifact.sha256, size: artifact.size }, code);
   const version = nonempty(artifact.version, code);
   const publisher = verifyPublisher(artifact.publisher, target, role);
+  if (target.startsWith('linux-') && role === 'candidate') {
+    verifyCandidateArtifactAttestation(bound.filePath, bound.sha256, options);
+  }
   if (role === 'rollback') {
     if (version !== '0.11.8' || artifact.releaseTag !== 'v0.11.8' || artifact.catalogVerified !== true) {
       fail('M8C_ROLLBACK_IDENTITY_INVALID', 'expected-compiled-v0.11.8-catalog');
@@ -509,7 +512,7 @@ function trustRootCommit(options = {}) {
   return String(commit);
 }
 
-function verifyAttestation(observationPath, observationSha256, trustedCommit, run) {
+function verifyGitHubAttestation(filePath, fileSha256, trustedCommit, run, code) {
   let raw;
   try {
     raw = run(
@@ -517,7 +520,7 @@ function verifyAttestation(observationPath, observationSha256, trustedCommit, ru
       [
         'attestation',
         'verify',
-        observationPath,
+        filePath,
         '--repo',
         REPOSITORY,
         '--signer-workflow',
@@ -537,15 +540,15 @@ function verifyAttestation(observationPath, observationSha256, trustedCommit, ru
       { encoding: 'utf8', timeout: 120000, stdio: ['ignore', 'pipe', 'pipe'] }
     );
   } catch {
-    fail('M8C_OBSERVATION_ATTESTATION_INVALID', 'verification-failed');
+    fail(code, 'verification-failed');
   }
   let attestations;
   try {
     attestations = JSON.parse(String(raw));
   } catch {
-    fail('M8C_OBSERVATION_ATTESTATION_INVALID', 'invalid-verifier-output');
+    fail(code, 'invalid-verifier-output');
   }
-  const expected = observationSha256.slice('sha256:'.length);
+  const expected = fileSha256.slice('sha256:'.length);
   if (
     !Array.isArray(attestations) ||
     !attestations.some((entry) => {
@@ -558,8 +561,28 @@ function verifyAttestation(observationPath, observationSha256, trustedCommit, ru
       );
     })
   ) {
-    fail('M8C_OBSERVATION_ATTESTATION_INVALID', 'subject-digest-mismatch');
+    fail(code, 'subject-digest-mismatch');
   }
+}
+
+function verifyAttestation(observationPath, observationSha256, trustedCommit, run) {
+  verifyGitHubAttestation(
+    observationPath,
+    observationSha256,
+    trustedCommit,
+    run,
+    'M8C_OBSERVATION_ATTESTATION_INVALID'
+  );
+}
+
+function verifyCandidateArtifactAttestation(filePath, fileSha256, options = {}) {
+  verifyGitHubAttestation(
+    filePath,
+    fileSha256,
+    trustRootCommit(options),
+    options.execFileSyncImpl || execFileSync,
+    'M8C_CANDIDATE_ATTESTATION_INVALID'
+  );
 }
 
 function verifyUpdaterObservation(input, options = {}) {
@@ -670,6 +693,7 @@ module.exports = {
   SIGNER_WORKFLOW,
   LINUX_CANDIDATE_PUBLISHER_IDENTITY,
   expectedPublisherGate,
+  verifyCandidateArtifactAttestation,
   verifyPublisher,
   verifyUpdaterObservation,
 };
