@@ -173,6 +173,69 @@ describeNativeSqlite('SqliteTeamRepository', () => {
   });
 
   // ---------------------------------------------------------------------------
+  // Mailbox: peek-then-mark (#1 CRITICAL - dispatch-safe delivery)
+  // ---------------------------------------------------------------------------
+
+  describe('readUnread (peek) + markReadByIds', () => {
+    const msg = (id: string): MailboxMessage => ({
+      id,
+      teamId: 'team-1',
+      toAgentId: 'agent-a',
+      fromAgentId: 'agent-b',
+      type: 'chat',
+      content: `msg-${id}`,
+      read: false,
+      createdAt: Date.now(),
+    });
+
+    beforeEach(async () => {
+      await repo.create(makeTeam());
+    });
+
+    it('peek (readUnread) does NOT mark messages read - they stay redeliverable', async () => {
+      await repo.writeMessage(msg('m1'));
+      await repo.writeMessage(msg('m2'));
+
+      const first = await repo.readUnread('team-1', 'agent-a');
+      expect(first.map((m) => m.id).toSorted()).toEqual(['m1', 'm2']);
+
+      // A failed dispatch never called markReadByIds, so a second peek still sees them.
+      const second = await repo.readUnread('team-1', 'agent-a');
+      expect(second.map((m) => m.id).toSorted()).toEqual(['m1', 'm2']);
+    });
+
+    it('markReadByIds acks only the given ids; the rest stay unread', async () => {
+      await repo.writeMessage(msg('m1'));
+      await repo.writeMessage(msg('m2'));
+      await repo.writeMessage(msg('m3'));
+
+      await repo.markReadByIds(['m1', 'm3']);
+
+      const remaining = await repo.readUnread('team-1', 'agent-a');
+      expect(remaining.map((m) => m.id)).toEqual(['m2']);
+    });
+
+    it('markReadByIds is a no-op for an empty list', async () => {
+      await repo.writeMessage(msg('m1'));
+      await repo.markReadByIds([]);
+      const remaining = await repo.readUnread('team-1', 'agent-a');
+      expect(remaining.map((m) => m.id)).toEqual(['m1']);
+    });
+
+    it('peek then markReadByIds mirrors a successful dispatch: the acked message is gone', async () => {
+      await repo.writeMessage(msg('m1'));
+
+      const peeked = await repo.readUnread('team-1', 'agent-a');
+      expect(peeked).toHaveLength(1);
+      // Simulate dispatch success -> ack the peeked ids.
+      await repo.markReadByIds(peeked.map((m) => m.id));
+
+      const after = await repo.readUnread('team-1', 'agent-a');
+      expect(after).toHaveLength(0);
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   // Tasks: appendToBlocks (atomic)
   // ---------------------------------------------------------------------------
 

@@ -62,19 +62,24 @@ function makeAgent(overrides: Partial<TeamAgent> = {}): TeamAgent {
 }
 
 function makeMailbox(): Mailbox {
+  const wakeTrigger = [
+    {
+      id: 'msg-1',
+      teamId: 'team-1',
+      toAgentId: 'slot-1',
+      fromAgentId: 'system',
+      content: 'Wake trigger',
+      type: 'message',
+    },
+  ];
   return {
     write: vi.fn().mockResolvedValue({ id: 'msg-1', type: 'message', read: false, createdAt: 1000 }),
-    readUnread: vi.fn().mockResolvedValue([
-      {
-        id: 'msg-1',
-        teamId: 'team-1',
-        toAgentId: 'slot-1',
-        fromAgentId: 'system',
-        content: 'Wake trigger',
-        type: 'message',
-      },
-    ]),
-    peekUnread: vi.fn().mockResolvedValue([]),
+    // #1: wake() now PEEKS the mailbox (does not mark) and marks read only after
+    // a successful dispatch, so the default unread set lives on peekUnread.
+    // readUnread is kept for any legacy assertions/overrides.
+    readUnread: vi.fn().mockResolvedValue([...wakeTrigger]),
+    peekUnread: vi.fn().mockResolvedValue([...wakeTrigger]),
+    markRead: vi.fn().mockResolvedValue(undefined),
     getHistory: vi.fn().mockResolvedValue([]),
   } as unknown as Mailbox;
 }
@@ -564,7 +569,7 @@ describe('TeammateManager', () => {
 
       await mgr.wake('slot-1');
 
-      expect(mailbox.readUnread).toHaveBeenCalledWith('team-1', 'slot-1');
+      expect(mailbox.peekUnread).toHaveBeenCalledWith('team-1', 'slot-1');
       mgr.dispose();
     });
 
@@ -575,7 +580,7 @@ describe('TeammateManager', () => {
       vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
         sendMessage: mockSendMessage,
       } as never);
-      vi.mocked(mailbox.readUnread).mockResolvedValue([
+      vi.mocked(mailbox.peekUnread).mockResolvedValue([
         {
           id: 'msg-1',
           teamId: 'team-1',
@@ -603,7 +608,7 @@ describe('TeammateManager', () => {
       vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
         sendMessage: mockSendMessage,
       } as never);
-      vi.mocked(mailbox.readUnread).mockResolvedValue([
+      vi.mocked(mailbox.peekUnread).mockResolvedValue([
         {
           id: 'msg-1',
           teamId: 'team-1',
@@ -630,7 +635,7 @@ describe('TeammateManager', () => {
       vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
         sendMessage: mockSendMessage,
       } as never);
-      vi.mocked(mailbox.readUnread).mockResolvedValue([
+      vi.mocked(mailbox.peekUnread).mockResolvedValue([
         {
           id: 'msg-1',
           teamId: 'team-1',
@@ -658,7 +663,7 @@ describe('TeammateManager', () => {
       vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
         sendMessage: mockSendMessage,
       } as never);
-      vi.mocked(mailbox.readUnread).mockResolvedValue([
+      vi.mocked(mailbox.peekUnread).mockResolvedValue([
         {
           id: 'msg-1',
           teamId: 'team-1',
@@ -689,6 +694,51 @@ describe('TeammateManager', () => {
       expect(callArg.files).toEqual(['/tmp/a.png', '/tmp/b.pdf', '/tmp/c.txt']);
       // Gemini uses 'input' key
       expect(callArg).toHaveProperty('input');
+      mgr.dispose();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // #1 (CRITICAL) peek-then-mark: a failed dispatch must NOT consume the mailbox
+  // -------------------------------------------------------------------------
+
+  describe('#1 peek-then-mark redelivery', () => {
+    it('does not mark messages read when dispatch fails, then marks them on a successful redelivery', async () => {
+      const agent = makeAgent({ slotId: 'slot-1', status: 'idle', conversationType: 'acp' });
+      const { mgr, mailbox, workerTaskManager } = makeTeammateManager([agent]);
+
+      const unread = [
+        {
+          id: 'm-1',
+          teamId: 'team-1',
+          toAgentId: 'slot-1',
+          fromAgentId: 'user',
+          type: 'message',
+          content: 'do the thing',
+          read: false,
+          createdAt: 1000,
+        },
+      ];
+      // peekUnread keeps returning the SAME message: mimics a row that stays
+      // unread until it is explicitly acked via markRead.
+      vi.mocked(mailbox.peekUnread).mockResolvedValue(unread as never);
+
+      // First dispatch throws -> wake must rethrow and NOT mark the message read.
+      const failingSend = vi.fn().mockRejectedValue(new Error('dispatch boom'));
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValueOnce({ sendMessage: failingSend } as never);
+
+      await expect(mgr.wake('slot-1')).rejects.toThrow('dispatch boom');
+      expect(mailbox.markRead).not.toHaveBeenCalled();
+
+      // Second wake redelivers the still-unread message; dispatch succeeds and
+      // only now are the peeked ids marked read.
+      const okSend = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({ sendMessage: okSend } as never);
+
+      await mgr.wake('slot-1');
+
+      expect(okSend).toHaveBeenCalledOnce();
+      expect(mailbox.markRead).toHaveBeenCalledWith(['m-1']);
       mgr.dispose();
     });
   });
@@ -1214,10 +1264,14 @@ describe('TeammateManager', () => {
           agentName: 'Member',
         });
         const mockSendMessage = vi.fn().mockResolvedValue(undefined);
-        const { mgr, workerTaskManager } = makeTeammateManager([leadAgent, member]);
+        const { mgr, workerTaskManager, mailbox } = makeTeammateManager([leadAgent, member]);
         vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
           sendMessage: mockSendMessage,
         } as never);
+        // #1: the default mailbox peek returns a wake trigger. Force an empty
+        // mailbox so finalizeTurn's re-drain does not re-wake the member (which
+        // would flip it back to 'active' and mask the dedup behaviour under test).
+        vi.mocked(mailbox.peekUnread).mockResolvedValue([]);
 
         // First turn completes
         teamEventBus.emit('responseStream', {
@@ -1275,10 +1329,14 @@ describe('TeammateManager', () => {
           agentName: 'Member',
         });
         const mockSendMessage = vi.fn().mockResolvedValue(undefined);
-        const { mgr, workerTaskManager } = makeTeammateManager([leadAgent, member]);
+        const { mgr, workerTaskManager, mailbox } = makeTeammateManager([leadAgent, member]);
         vi.mocked(workerTaskManager.getOrBuildTask).mockResolvedValue({
           sendMessage: mockSendMessage,
         } as never);
+        // #1: the default mailbox peek returns a wake trigger. Force an empty
+        // mailbox so finalizeTurn's re-drain does not re-wake the member (which
+        // would flip it back to 'active' and mask the dedup behaviour under test).
+        vi.mocked(mailbox.peekUnread).mockResolvedValue([]);
 
         // First turn completes - adds conv-member to finalizedTurns (5s dedup)
         teamEventBus.emit('responseStream', {

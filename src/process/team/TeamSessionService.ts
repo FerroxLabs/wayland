@@ -45,6 +45,14 @@ export class TeamSessionService {
   private readonly sessions: Map<string, TeamSession> = new Map();
   /** Per-team mutex to serialize addAgent calls, preventing read-modify-write race conditions */
   private readonly addAgentLocks: Map<string, Promise<unknown>> = new Map();
+  /**
+   * #2 (CRITICAL) - per-team mutex so concurrent getOrStartSession callers share
+   * ONE in-flight session build. Without it, the check-then-act gap between the
+   * `sessions.get` miss and the `sessions.set` lets two callers each build a full
+   * TeamSession -> two TeamMcpServers (two TCP ports) + duplicated teamEventBus
+   * listeners (every event handled twice) + a leaked zombie session.
+   */
+  private readonly startSessionLocks: Map<string, Promise<TeamSession>> = new Map();
   /** W1e - append-only event log writer shared with TeamSession primitives */
   private readonly eventLogger: EventLogger;
   /** P2 - periodic zombie reclaim sweep over lapsed task leases. */
@@ -1562,6 +1570,33 @@ export class TeamSessionService {
   }
 
   async getOrStartSession(teamId: string): Promise<TeamSession> {
+    const existing = this.sessions.get(teamId);
+    if (existing) return existing;
+    // #2 (CRITICAL): coalesce concurrent starts onto one in-flight build. A
+    // second caller arriving before the build resolves awaits the SAME promise
+    // instead of constructing a duplicate session/MCP server.
+    const inFlight = this.startSessionLocks.get(teamId);
+    if (inFlight) return inFlight;
+    // Store the promise BEFORE any await so a concurrent caller in the same tick
+    // observes it. startSessionUnsafe runs synchronously up to its first await.
+    const build = this.startSessionUnsafe(teamId);
+    this.startSessionLocks.set(teamId, build);
+    try {
+      return await build;
+    } finally {
+      this.startSessionLocks.delete(teamId);
+    }
+  }
+
+  /**
+   * #2 - actual session build. MUST be entered only through getOrStartSession so
+   * the per-team mutex guarantees a single in-flight build. On failure it caches
+   * nothing (the finally in getOrStartSession clears the lock) so the next call
+   * retries cleanly.
+   */
+  private async startSessionUnsafe(teamId: string): Promise<TeamSession> {
+    // Re-check under the lock: an earlier build may have completed while this
+    // call was queued behind the same-tick guard.
     const existing = this.sessions.get(teamId);
     if (existing) return existing;
     const team = await this.getTeam(teamId);

@@ -19,6 +19,8 @@ export interface IMailboxRepository {
   /** Atomically read all unread messages and mark them as read in one transaction. */
   readUnreadAndMark(teamId: string, toAgentId: string): Promise<MailboxMessage[]>;
   markRead(messageId: string): Promise<void>;
+  /** Mark several messages read in one statement. No-op for an empty list. */
+  markReadByIds(ids: string[]): Promise<void>;
   getMailboxHistory(teamId: string, toAgentId: string, limit?: number): Promise<MailboxMessage[]>;
 }
 

@@ -31,6 +31,7 @@ function makeRepo(): ITeamRepository {
     readUnread: vi.fn(),
     readUnreadAndMark: vi.fn(),
     markRead: vi.fn(),
+    markReadByIds: vi.fn(),
     getMailboxHistory: vi.fn(),
     createTask: vi.fn(),
     findTaskById: vi.fn(),
@@ -171,6 +172,39 @@ describe('Mailbox', () => {
       const result = await mailbox.readUnread('team-1', 'slot-2');
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('peekUnread', () => {
+    it('delegates to repo.readUnread WITHOUT marking (peek semantics)', async () => {
+      const messages = [makeMessage({ id: 'msg-1' }), makeMessage({ id: 'msg-2' })];
+      vi.mocked(repo.readUnread).mockResolvedValue(messages);
+
+      const result = await mailbox.peekUnread('team-1', 'slot-2');
+
+      expect(result).toEqual(messages);
+      expect(repo.readUnread).toHaveBeenCalledWith('team-1', 'slot-2');
+      // Peek must NOT mark anything read - that is the whole point of #1.
+      expect(repo.readUnreadAndMark).not.toHaveBeenCalled();
+      expect(repo.markReadByIds).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('markRead', () => {
+    it('delegates the id list to repo.markReadByIds', async () => {
+      vi.mocked(repo.markReadByIds).mockResolvedValue(undefined);
+
+      await mailbox.markRead(['msg-1', 'msg-2']);
+
+      expect(repo.markReadByIds).toHaveBeenCalledWith(['msg-1', 'msg-2']);
+    });
+
+    it('forwards an empty list unchanged (repo handles the no-op)', async () => {
+      vi.mocked(repo.markReadByIds).mockResolvedValue(undefined);
+
+      await mailbox.markRead([]);
+
+      expect(repo.markReadByIds).toHaveBeenCalledWith([]);
     });
   });
 

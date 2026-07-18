@@ -75,6 +75,7 @@ function makeRepo(overrides: Partial<ITeamRepository> = {}): ITeamRepository {
     readUnread: vi.fn(async () => []),
     readUnreadAndMark: vi.fn(async () => []),
     markRead: vi.fn(),
+    markReadByIds: vi.fn(),
     getMailboxHistory: vi.fn(async () => []),
     createTask: vi.fn(),
     findTaskById: vi.fn(),

@@ -81,6 +81,16 @@ export class Mailbox {
   }
 
   /**
+   * Mark the given messages as read. wake() calls this ONLY after the messages
+   * have been successfully dispatched to the agent, so a failed dispatch leaves
+   * them unread and the next wake redelivers them instead of losing them.
+   * Idempotent and a no-op for an empty list.
+   */
+  async markRead(ids: string[]): Promise<void> {
+    return this.repo.markReadByIds(ids);
+  }
+
+  /**
    * Get message history for an agent (newest first).
    */
   async getHistory(teamId: string, agentId: string, limit?: number): Promise<MailboxMessage[]> {

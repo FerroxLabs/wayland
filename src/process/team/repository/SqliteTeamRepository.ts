@@ -336,6 +336,12 @@ export class SqliteTeamRepository implements ITeamRepository {
     db.prepare('UPDATE mailbox SET read = 1 WHERE id = ?').run(messageId);
   }
 
+  async markReadByIds(ids: string[]): Promise<void> {
+    if (ids.length === 0) return;
+    const db = await this.getDb();
+    db.prepare(`UPDATE mailbox SET read = 1 WHERE id IN (${ids.map(() => '?').join(',')})`).run(...ids);
+  }
+
   async getMailboxHistory(teamId: string, toAgentId: string, limit = 50): Promise<MailboxMessage[]> {
     const db = await this.getDb();
     const rows = db

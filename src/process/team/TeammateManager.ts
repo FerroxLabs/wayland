@@ -339,7 +339,11 @@ export class TeammateManager extends EventEmitter {
 
       this.setStatus(slotId, 'active');
 
-      const mailboxMessages = await this.mailbox.readUnread(this.teamId, slotId);
+      // #1 (CRITICAL): PEEK the unread mailbox - this does NOT mark the messages
+      // read. They are marked read only after a successful dispatch below, so if
+      // getOrBuildTask / sendMessage throws, the messages stay unread and the
+      // next wake redelivers them instead of silently consuming them.
+      const mailboxMessages = await this.mailbox.peekUnread(this.teamId, slotId);
       const teammates = this.agents.filter((a) => a.slotId !== slotId);
 
       // Write each mailbox message into agent's conversation as user bubble
@@ -485,6 +489,21 @@ export class TeammateManager extends EventEmitter {
           : { content: message, msg_id: msgId, silent: true, ...(userFiles.length > 0 ? { files: userFiles } : {}) };
 
       await agentTask.sendMessage(messageData);
+
+      // #1 (CRITICAL): dispatch succeeded - only NOW mark the peeked messages
+      // read so they are not consumed on a failed send. Best-effort: a markRead
+      // failure after a successful dispatch risks at most one duplicate
+      // redelivery on the next wake, never message loss.
+      if (mailboxMessages.length > 0) {
+        try {
+          await this.mailbox.markRead(mailboxMessages.map((m) => m.id));
+        } catch (err) {
+          console.warn(
+            `[TeammateManager] wake(${slotId}) markRead failed (messages may redeliver):`,
+            err instanceof Error ? err.message : String(err)
+          );
+        }
+      }
 
       // Release wake lock immediately after message is sent.
       // finalizeTurn will also delete it (safe no-op). This prevents permanent
