@@ -23,6 +23,7 @@ const MAX_PRIVATE_KEY_BYTES = 512;
 
 export type ElectronSafeStorageAuthorityBackend = Readonly<{
   isEncryptionAvailable(): boolean;
+  getSelectedStorageBackend?(): 'basic_text' | 'gnome_libsecret' | 'kwallet' | 'kwallet5' | 'kwallet6' | 'unknown';
   encryptString(value: string): Buffer;
   decryptString(value: Buffer): string;
 }>;
@@ -30,6 +31,7 @@ export type ElectronSafeStorageAuthorityBackend = Readonly<{
 export type LoadProductionSourceSigningAuthorityDependencies = Readonly<{
   userDataRoot?: string;
   safeStorage?: ElectronSafeStorageAuthorityBackend;
+  platform?: NodeJS.Platform;
 }>;
 
 /**
@@ -37,11 +39,18 @@ export type LoadProductionSourceSigningAuthorityDependencies = Readonly<{
  * opaque OS-vault reference. There is no file-key or plaintext fallback.
  */
 export function createElectronSafeStorageSourceSigningAuthorityVaultBackend(
-  safeStorage: ElectronSafeStorageAuthorityBackend
+  safeStorage: ElectronSafeStorageAuthorityBackend,
+  platform: NodeJS.Platform = process.platform
 ): SourceSigningAuthorityVaultBackend {
   const requireAvailable = (): void => {
     if (!safeStorage || !safeStorage.isEncryptionAvailable()) {
       throw new Error('Transfer source signing authority requires an available OS credential store');
+    }
+    if (platform === 'linux') {
+      const backend = safeStorage.getSelectedStorageBackend?.();
+      if (!backend || !['gnome_libsecret', 'kwallet', 'kwallet5', 'kwallet6'].includes(backend)) {
+        throw new Error('Transfer source signing authority rejects the selected Linux credential backend');
+      }
     }
   };
   return Object.freeze({
@@ -116,7 +125,7 @@ export async function loadProductionSourceSigningAuthority(
   const safeStorage = dependencies.safeStorage ?? electron!.safeStorage;
   const identityRoot = await ensurePrivateIdentityDirectory(userDataRoot);
   return loadOrCreateSourceSigningAuthority({
-    vault: createElectronSafeStorageSourceSigningAuthorityVaultBackend(safeStorage),
+    vault: createElectronSafeStorageSourceSigningAuthorityVaultBackend(safeStorage, dependencies.platform),
     state: new FileSourceSigningAuthorityStateBackend(path.join(identityRoot, PUBLIC_STATE_FILE)),
   });
 }

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { access, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -23,11 +23,17 @@ async function temporaryRoot(): Promise<string> {
   return root;
 }
 
-function fakeSafeStorage(available = true): ElectronSafeStorageAuthorityBackend {
+function fakeSafeStorage(
+  available = true,
+  linuxBackend: ReturnType<
+    NonNullable<ElectronSafeStorageAuthorityBackend['getSelectedStorageBackend']>
+  > = 'gnome_libsecret'
+): ElectronSafeStorageAuthorityBackend {
   const values = new Map<string, string>();
   let counter = 0;
   return {
     isEncryptionAvailable: () => available,
+    getSelectedStorageBackend: () => linuxBackend,
     encryptString(value) {
       const token = `opaque-${++counter}-${'aa'.repeat(16)}`;
       values.set(token, value);
@@ -75,4 +81,21 @@ describe('production source signing authority', () => {
       loadProductionSourceSigningAuthority({ userDataRoot: restartRoot, safeStorage: fakeSafeStorage() })
     ).rejects.toMatchObject({ code: 'VAULT_UNAVAILABLE' });
   });
+
+  it.each(['basic_text', 'unknown'] as const)(
+    'rejects the Linux %s backend before publishing identity state',
+    async (linuxBackend) => {
+      const userDataRoot = await temporaryRoot();
+      await expect(
+        loadProductionSourceSigningAuthority({
+          userDataRoot,
+          safeStorage: fakeSafeStorage(true, linuxBackend),
+          platform: 'linux',
+        })
+      ).rejects.toMatchObject({ code: 'VAULT_UNAVAILABLE' });
+      await expect(
+        access(path.join(userDataRoot, 'transfer-source-authority-v1', 'identity.json'))
+      ).rejects.toMatchObject({ code: 'ENOENT' });
+    }
+  );
 });
