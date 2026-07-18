@@ -88,10 +88,12 @@ function mockAttestationVerification(
 
 beforeEach(() => {
   process.env.WAYLAND_RELEASE_TRUST_ROOT_SHA = TRUST_COMMIT;
+  process.env.WAYLAND_ACCEPTANCE_CANDIDATE_ROOT = process.cwd();
 });
 
 afterEach(() => {
   delete process.env.WAYLAND_RELEASE_TRUST_ROOT_SHA;
+  delete process.env.WAYLAND_ACCEPTANCE_CANDIDATE_ROOT;
   vi.restoreAllMocks();
 });
 

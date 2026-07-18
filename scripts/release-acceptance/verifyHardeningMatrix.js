@@ -7,7 +7,6 @@ const childProcess = require('node:child_process');
 
 const CONTRACT = 'wayland-release-hardening-matrix/1.0';
 const MATRIX_FILE = path.resolve(__dirname, 'hardening-matrix.json');
-const REPOSITORY_ROOT = path.resolve(__dirname, '..', '..');
 const COMMIT = /^[a-f0-9]{40,64}$/;
 const SHA256 = /^sha256:[a-f0-9]{64}$/;
 const INVARIANTS = Array.from({ length: 21 }, (_, index) => `INV-${String(index + 1).padStart(2, '0')}`);
@@ -253,21 +252,31 @@ function sha256(bytes) {
 
 function verifyCandidateInRepository(candidate) {
   const expected = verifyCandidate(candidate, 'target gate expected candidate');
+  const configuredRoot = process.env.WAYLAND_ACCEPTANCE_CANDIDATE_ROOT;
+  if (typeof configuredRoot !== 'string' || !configuredRoot || !path.isAbsolute(configuredRoot)) {
+    throw new Error('target gate candidate root is unavailable');
+  }
+  const repositoryRoot = path.resolve(configuredRoot);
+  let repositoryStat;
+  try {
+    repositoryStat = fs.lstatSync(repositoryRoot);
+  } catch {
+    throw new Error('target gate candidate root is missing');
+  }
+  if (!repositoryStat.isDirectory() || repositoryStat.isSymbolicLink()) {
+    throw new Error('target gate candidate root is not a trusted directory');
+  }
   let commit;
   let tree;
   try {
     commit = String(
-      childProcess.execFileSync(
-        'git',
-        ['-C', REPOSITORY_ROOT, 'rev-parse', '--verify', `${expected.commit}^{commit}`],
-        {
-          encoding: 'utf8',
-          stdio: ['ignore', 'pipe', 'pipe'],
-        }
-      )
+      childProcess.execFileSync('git', ['-C', repositoryRoot, 'rev-parse', '--verify', `${expected.commit}^{commit}`], {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      })
     ).trim();
     tree = String(
-      childProcess.execFileSync('git', ['-C', REPOSITORY_ROOT, 'rev-parse', '--verify', `${expected.commit}^{tree}`], {
+      childProcess.execFileSync('git', ['-C', repositoryRoot, 'rev-parse', '--verify', `${expected.commit}^{tree}`], {
         encoding: 'utf8',
         stdio: ['ignore', 'pipe', 'pipe'],
       })
