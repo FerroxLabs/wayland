@@ -35,6 +35,7 @@ import { cleanupSiderTooltips, getSiderTooltipProps } from '@renderer/utils/ui/s
 import SiderFooter from '../Sider/SiderFooter';
 import { SiderRecentChatsSection } from '../Sider/SiderAccordion/SiderRecentChatsSection';
 import styles from './CockpitSider.module.css';
+import { PinnedProjectsSection } from './PinnedProjectsSection';
 
 const SettingsSider = React.lazy(() => import('@renderer/pages/settings/components/SettingsSider'));
 
@@ -247,6 +248,7 @@ const CockpitSider: React.FC<{ onSessionClick?: () => void; collapsed?: boolean 
       </nav>
 
       <div className={styles.scroll}>
+        <PinnedProjectsSection collapsed={collapsed} onNavigate={go} />
         {!collapsed && (
           <SiderRecentChatsSection
             collapsed={collapsed}
