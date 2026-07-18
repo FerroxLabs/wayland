@@ -18,6 +18,8 @@ const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
 const prepareOfficeCli = require('./prepareOfficeCli');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
+const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
+const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
 const {
   VOICE_MODEL_FILES,
   resolvePackagedTarget,
@@ -611,8 +613,20 @@ const constitutionAuthorityPath = path.resolve(
   'constitutionFsAuthority.generated.ts'
 );
 const restoreConstitutionAuthority = preserveGeneratedSource(constitutionAuthorityPath);
+const capabilitySealPath = path.resolve(__dirname, '..', 'public', 'capability-seal.json');
+const restoreCapabilitySeal = preserveGeneratedSource(capabilitySealPath);
 
 try {
+  // Release packaging is capability-evidence driven. Every capability that is
+  // still compiled into the candidate must carry an exact, candidate-bound
+  // acceptance receipt; an excluded capability must be physically absent.
+  // The generated seal is copied by electron-builder's existing public/ rule.
+  verifyThirdPartyExecutableLedger();
+  writeCapabilitySeal({
+    root: path.resolve(__dirname, '..'),
+    outputFile: capabilitySealPath,
+  });
+
   // 1. Ensure package.json main entry is correct for electron-vite
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
   if (packageJson.main !== './out/main/index.js') {
@@ -974,4 +988,5 @@ try {
   process.exitCode = 1;
 } finally {
   restoreConstitutionAuthority();
+  restoreCapabilitySeal();
 }

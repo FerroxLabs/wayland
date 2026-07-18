@@ -204,6 +204,7 @@ function addPackagedApp(
   writeSkillPack(resources, 'bundled-workflows');
   writeBunBundle(resources, arch);
   fs.mkdirSync(resources, { recursive: true });
+  fs.writeFileSync(path.join(resources, 'capability-seal.json'), '{}');
   fs.writeFileSync(path.join(resources, 'modelsdev-snapshot.json'), TEST_MODELS_SNAPSHOT);
   for (const relativePath of VOICE_MODEL_FILES) {
     const target = path.join(resources, 'voice-models', 'whisper-tiny', relativePath);
@@ -262,6 +263,19 @@ function addPackagedApp(
         url: `https://github.com/FerroxLabs/wayland-core/releases/download/${TEST_WCORE_RELEASE}/${wcoreAsset}`,
         asset: wcoreAsset,
         archiveSha256: `sha256:${TEST_WCORE_ARCHIVE_SHA}`,
+      },
+      publisherAttestation: {
+        contract: 'wayland-publisher-attestations/1.0',
+        policyId: 'wayland-core-v0.12.25-release',
+        repository: 'FerroxLabs/wayland-core',
+        signerWorkflow: 'FerroxLabs/wayland-core/.github/workflows/release.yml',
+        sourceRef: 'refs/heads/main',
+        sourceDigest: '61b79c4f90f71fe2cf243affa7620b3c9b607f14',
+        predicateType: 'https://slsa.dev/provenance/v1',
+        runner: 'github-hosted',
+        asset: wcoreAsset,
+        sha256: `sha256:${TEST_WCORE_ARCHIVE_SHA}`,
+        verified: true,
       },
       binary: { name: 'wayland-core', sha256: `sha256:${TEST_WCORE_BINARY_SHA}` },
       files: ['wayland-core'],
@@ -385,12 +399,44 @@ describe('packaged resource release gate', () => {
       verifyOfficeCliDarwinSignature: () => TEST_OFFICE_SIGNATURE,
       verifyConstitutionFsDarwinSignature: () => undefined,
       verifyDarwinPackageSignature: () => undefined,
+      verifyCapabilitySeal: () => undefined,
       ...extra,
     });
 
   it('accepts a non-empty native OfficeCLI binary plus manifest', () => {
     const out = createPackagedResources(true);
     expect(verify(out)).toMatchObject({ warnings: 3 });
+  });
+
+  it('rejects a Core bundle whose publisher attestation is absent or altered', () => {
+    const out = createPackagedResources(true);
+    const manifestPath = wcoreManifestPath(out);
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
+      publisherAttestation: { sourceDigest: string } | null;
+    };
+    manifest.publisherAttestation = null;
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+    expect(() => verify(out)).toThrow(/CRITICAL resource/);
+
+    const altered = createPackagedResources(true);
+    const alteredPath = wcoreManifestPath(altered);
+    const alteredManifest = JSON.parse(fs.readFileSync(alteredPath, 'utf8')) as {
+      publisherAttestation: { sourceDigest: string };
+    };
+    alteredManifest.publisherAttestation.sourceDigest = 'f'.repeat(40);
+    fs.writeFileSync(alteredPath, JSON.stringify(alteredManifest));
+    expect(() => verify(altered)).toThrow(/CRITICAL resource/);
+  });
+
+  it('rejects a missing or malformed packaged capability seal', () => {
+    const malformed = createPackagedResources(true);
+    expect(() => verify(malformed, 'darwin-arm64', 'darwin-arm64', { verifyCapabilitySeal: undefined })).toThrow(
+      /CRITICAL resource/
+    );
+
+    const missing = createPackagedResources(true);
+    fs.rmSync(path.join(packagedResourcesPath(missing), 'capability-seal.json'));
+    expect(() => verify(missing)).toThrow(/CRITICAL resource/);
   });
 
   it('fails closed on Windows unless the unsupported Constitution authority has no packaged helper bytes', () => {

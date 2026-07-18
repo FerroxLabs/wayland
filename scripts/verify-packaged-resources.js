@@ -35,12 +35,15 @@ const signalPinnedRelease = require('./signal-cli-pinned-release.json');
 const voiceModelPinnedRelease = require('./voice-model-pinned-release.json');
 const modelsDevSnapshotPin = require('./modelsdev-snapshot-pin.json');
 const whatsappBridgeSource = require('./whatsapp-bridge-source.json');
+const { verifyCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
+const { CONTRACT: PUBLISHER_CONTRACT, selectPolicy } = require('./supply-chain/verifyPublisherAttestation');
 
 const TAG = '[verify-packaged-resources]';
 
 // resource path (relative to the app Resources dir) -> {critical, kind}
 // kind 'file' = must exist and be non-empty; 'dir' = must exist and be non-empty.
 const REQUIRED = [
+  { rel: 'capability-seal.json', critical: true, kind: 'capability-seal' },
   { rel: 'skills-library', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-workflows', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-wayland-core', critical: true, kind: 'wcore-bundle' },
@@ -365,6 +368,20 @@ function verifyWCoreRuntime(bundleDir, runtimeKey, authority = prepareWaylandCor
     .replace(/^sha256:/i, '')
     .toLowerCase();
   const expectedUrl = `https://github.com/FerroxLabs/wayland-core/releases/download/${releaseTag}/${assetName}`;
+  const publisher = metadata.publisherAttestation;
+  const publisherPolicy = selectPolicy(releaseTag);
+  const publisherVerified =
+    publisher?.contract === PUBLISHER_CONTRACT &&
+    publisher?.policyId === publisherPolicy.id &&
+    publisher?.repository === publisherPolicy.repository &&
+    publisher?.signerWorkflow === publisherPolicy.signerWorkflow &&
+    publisher?.sourceRef === publisherPolicy.sourceRef &&
+    publisher?.sourceDigest === publisherPolicy.sourceDigest &&
+    publisher?.predicateType === publisherPolicy.predicateType &&
+    publisher?.runner === publisherPolicy.runner &&
+    publisher?.asset === assetName &&
+    publisher?.sha256 === `sha256:${expected.archiveSha256}` &&
+    publisher?.verified === true;
 
   return (
     metadata.contract === authority.BUNDLE_CONTRACT &&
@@ -375,6 +392,7 @@ function verifyWCoreRuntime(bundleDir, runtimeKey, authority = prepareWaylandCor
     metadata.version === releaseTag &&
     ['download', 'verified-cache'].includes(metadata.sourceType) &&
     metadata.verified === true &&
+    publisherVerified &&
     metadata.skipped === false &&
     metadata.source?.owner === 'FerroxLabs' &&
     metadata.source?.repository === 'wayland-core' &&
@@ -827,7 +845,8 @@ function isNonEmpty(
   officeCliAuthority = prepareOfficeCli,
   verifyOfficeCliDarwinSignature = (binaryPath) => officeCliAuthority.verifyDarwinPublisherSignature(binaryPath),
   constitutionFsAuthority,
-  verifyConstitutionFsDarwinSignature
+  verifyConstitutionFsDarwinSignature,
+  verifyCandidateCapabilitySeal = verifyCapabilitySeal
 ) {
   try {
     if (kind === 'constitution-fs-bundle' && targetPlatform === 'win32') {
@@ -839,6 +858,11 @@ function isNonEmpty(
       return st.isFile() && st.size === expected.size && sha256File(p) === expected.sha256;
     }
     if (kind === 'models-snapshot') return st.isFile() && verifyModelsSnapshot(p, modelsAuthority);
+    if (kind === 'capability-seal') {
+      if (!st.isFile() || st.size === 0) return false;
+      verifyCandidateCapabilitySeal(JSON.parse(fs.readFileSync(p, 'utf8')));
+      return true;
+    }
     if (!st.isDirectory()) return false;
     if (kind === 'wcore-bundle') {
       return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority);
@@ -948,6 +972,7 @@ function verifyPackagedResources(options = {}) {
     ((binaryPath) => officeCliAuthority.verifyDarwinPublisherSignature(binaryPath));
   const constitutionFsAuthority = options.constitutionFsAuthority;
   const verifyConstitutionFsDarwinSignature = options.verifyConstitutionFsDarwinSignature;
+  const verifyCandidateCapabilitySeal = options.verifyCapabilitySeal || verifyCapabilitySeal;
   const verifyDarwinPackageSignature =
     options.verifyDarwinPackageSignature ||
     ((appDir) => execFileSync('/usr/bin/codesign', ['--verify', '--deep', '--strict', appDir], { stdio: 'pipe' }));
@@ -1024,7 +1049,8 @@ function verifyPackagedResources(options = {}) {
         officeCliAuthority,
         verifyOfficeCliDarwinSignature,
         constitutionFsAuthority,
-        verifyConstitutionFsDarwinSignature
+        verifyConstitutionFsDarwinSignature,
+        verifyCandidateCapabilitySeal
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);

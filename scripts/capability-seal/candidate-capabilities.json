@@ -1,0 +1,43 @@
+{
+  "contract": "wayland-candidate-capabilities/1.0",
+  "capabilities": [
+    {
+      "id": "cowork-office",
+      "packets": ["C0-B", "C1"],
+      "mode": "included",
+      "receiptSha256": null,
+      "excludedPaths": [
+        "resources/bundled-officecli",
+        "src/process/services/capabilities/OfficeCliAuthoringCapability.ts"
+      ]
+    },
+    {
+      "id": "voice",
+      "packets": ["M5V-A"],
+      "mode": "included",
+      "receiptSha256": null,
+      "excludedPaths": ["resources/voice-models", "src/renderer/services/voice"]
+    },
+    {
+      "id": "mcp",
+      "packets": ["M1M", "MCP-4"],
+      "mode": "included",
+      "receiptSha256": null,
+      "excludedPaths": ["src/process/mcp", "src/renderer/pages/settings/MCPSettingsPage.tsx"]
+    },
+    {
+      "id": "sandbox",
+      "packets": ["M1S", "SBX-2"],
+      "mode": "included",
+      "receiptSha256": null,
+      "excludedPaths": ["src/renderer/pages/settings/WCoreConfigPage.tsx"]
+    },
+    {
+      "id": "flux",
+      "packets": ["M1F"],
+      "mode": "included",
+      "receiptSha256": null,
+      "excludedPaths": ["src/process/flux/FluxRoutingEvidenceAdapter.ts"]
+    }
+  ]
+}
