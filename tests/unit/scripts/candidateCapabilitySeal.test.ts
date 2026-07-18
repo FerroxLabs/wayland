@@ -1,6 +1,6 @@
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const { CONTRACT, RECEIPT_CONTRACT, createCapabilitySeal, sha256, verifyCapabilitySeal } =
@@ -23,6 +23,13 @@ const PACKETS = new Map<string, string[]>([
   ['sandbox', ['M1S', 'SBX-2']],
   ['flux', ['M1F']],
 ]);
+const MANIFEST_EXCLUSIONS = new Map<string, string[]>(
+  (
+    JSON.parse(readFileSync(join(process.cwd(), 'scripts/capability-seal/candidate-capabilities.json'), 'utf8')) as {
+      capabilities: Array<{ id: string; excludedPaths: string[] }>;
+    }
+  ).capabilities.map(({ id, excludedPaths }) => [id, excludedPaths])
+);
 const roots: string[] = [];
 
 afterEach(() => {
@@ -51,7 +58,7 @@ function fixture() {
       packets,
       mode: 'included',
       receiptSha256: sha256(bytes),
-      excludedPaths: [`surfaces/${id}`],
+      excludedPaths: MANIFEST_EXCLUSIONS.get(id)!,
     };
   });
   return {
@@ -122,15 +129,38 @@ describe('candidate capability seal', () => {
     expect(() => createCapabilitySeal(input)).toThrow(/digest mismatch for voice/);
   });
 
-  it('accepts exclusion only when every declared source and resource path is absent', () => {
+  it('rejects a selection that omits any authoritative exclusion path', () => {
     const input = fixture();
     const voice = input.selection.capabilities.find((entry) => entry.id === 'voice')!;
     voice.mode = 'excluded';
     voice.receiptSha256 = null as unknown as string;
-    mkdirSync(join(input.root, 'surfaces', 'voice'), { recursive: true });
+    voice.excludedPaths = voice.excludedPaths.slice(1);
 
-    expect(() => createCapabilitySeal(input)).toThrow(/marked excluded but remains physically present/);
+    expect(() => createCapabilitySeal(input)).toThrow(/physical exclusion inventory does not match authority/);
   });
+
+  it.each([
+    ['cowork-office', 'src/process/bridge/officecliInstaller.ts', 'src/process/bridge/officecliInstaller.ts'],
+    ['voice', 'src/process/bridge/voiceSynthBridge.ts', 'src/process/bridge/voiceSynthBridge.ts'],
+    ['mcp', 'src/process/services/mcpServices/McpService.ts', 'src/process/services/mcpServices'],
+    ['sandbox', 'src/process/team/sandbox/workspaceFs.ts', 'src/process/team/sandbox'],
+    ['flux', 'src/process/task/fluxRouting.ts', 'src/process/task/fluxRouting.ts'],
+  ])(
+    'rejects excluded %s when implementation remains at %s',
+    (capabilityId, implementationPath, expectedInventoryPath) => {
+      const input = fixture();
+      const capability = input.selection.capabilities.find((entry) => entry.id === capabilityId)!;
+      capability.mode = 'excluded';
+      capability.receiptSha256 = null as unknown as string;
+      const absolutePath = join(input.root, implementationPath);
+      mkdirSync(dirname(absolutePath), { recursive: true });
+      writeFileSync(absolutePath, '// hostile retained implementation\n');
+
+      expect(() => createCapabilitySeal(input)).toThrow(
+        new RegExp(`Capability ${capabilityId} is marked excluded.*${expectedInventoryPath.replaceAll('/', '\\/')}`)
+      );
+    }
+  );
 
   it('rejects tampering with the packaged seal', () => {
     const input = fixture();

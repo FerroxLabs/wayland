@@ -8,7 +8,23 @@
       "receiptSha256": null,
       "excludedPaths": [
         "resources/bundled-officecli",
-        "src/process/services/capabilities/OfficeCliAuthoringCapability.ts"
+        "src/process/services/capabilities/OfficeCliAuthoringCapability.ts",
+        "src/process/services/capabilities/CapabilitiesManifest.ts",
+        "src/process/resources/assistant/cowork",
+        "src/process/resources/skills/officecli-docx",
+        "src/process/resources/skills/officecli-word-form",
+        "src/process/resources/skills/officecli-pitch-deck",
+        "src/process/resources/skills/officecli-data-dashboard",
+        "src/process/resources/skills/officecli-xlsx",
+        "src/process/resources/skills/officecli-academic-paper",
+        "src/process/resources/skills/officecli-pptx",
+        "src/process/resources/skills/officecli-financial-model",
+        "src/process/resources/skills/_builtin/office-cli",
+        "src/process/bridge/officecliInstaller.ts",
+        "src/process/bridge/officeWatchBridge.ts",
+        "src/process/bridge/pptPreviewBridge.ts",
+        "src/renderer/pages/conversation/components/composerMenu",
+        "src/renderer/assets/icons/cowork.svg"
       ]
     },
     {
@@ -16,28 +32,87 @@
       "packets": ["M5V-A"],
       "mode": "included",
       "receiptSha256": null,
-      "excludedPaths": ["resources/voice-models", "src/renderer/services/voice"]
+      "excludedPaths": [
+        "resources/voice-models",
+        "src/process/services/voice",
+        "src/process/bridge/voiceAssetBridge.ts",
+        "src/process/bridge/voiceSynthBridge.ts",
+        "src/common/voice",
+        "src/common/types/voiceAsset.ts",
+        "src/renderer/services/voice",
+        "src/renderer/pages/conversation/voice",
+        "src/renderer/pages/settings/VoiceSettings"
+      ]
     },
     {
       "id": "mcp",
       "packets": ["M1M", "MCP-4"],
       "mode": "included",
       "receiptSha256": null,
-      "excludedPaths": ["src/process/mcp", "src/renderer/pages/settings/MCPSettingsPage.tsx"]
+      "excludedPaths": [
+        "src/process/services/mcpServices",
+        "src/process/bridge/mcpBridge.ts",
+        "src/process/extensions/resolvers/McpServerResolver.ts",
+        "src/process/doctor/checks/mcpChecks.ts",
+        "src/process/acp/session/McpConfig.ts",
+        "src/process/agent/acp/mcpSessionConfig.ts",
+        "src/process/task/mcpConnectorGuidance.ts",
+        "src/process/utils/mcpScriptDir.ts",
+        "src/process/team/mcp",
+        "src/process/team/mcpReadiness.ts",
+        "src/process/webserver/routes/mcpConfigRoutes.ts",
+        "src/process/webserver/routes/mcpOAuthRoutes.ts",
+        "src/process/services/ijfw/mcpWireProtocol.ts",
+        "src/common/mcp",
+        "src/common/mcp.ts",
+        "src/renderer/mcp-catalog",
+        "src/renderer/hooks/mcp",
+        "src/renderer/pages/settings/McpLibrary",
+        "src/renderer/pages/settings/ToolsSettings/McpAgentStatusDisplay.tsx",
+        "src/renderer/services/McpConfigService.ts",
+        "src/renderer/utils/mcp"
+      ]
     },
     {
       "id": "sandbox",
       "packets": ["M1S", "SBX-2"],
       "mode": "included",
       "receiptSha256": null,
-      "excludedPaths": ["src/renderer/pages/settings/WCoreConfigPage.tsx"]
+      "excludedPaths": [
+        "src/process/extensions/sandbox",
+        "src/process/team/sandbox",
+        "src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx",
+        "src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx"
+      ]
     },
     {
       "id": "flux",
       "packets": ["M1F"],
       "mode": "included",
       "receiptSha256": null,
-      "excludedPaths": ["src/process/flux/FluxRoutingEvidenceAdapter.ts"]
+      "excludedPaths": [
+        "src/process/flux",
+        "src/process/connectors/fluxKey.ts",
+        "src/process/webserver/routes/fluxConnectRoutes.ts",
+        "src/process/task/fluxRouting.ts",
+        "src/process/onboarding/connectFlux.ts",
+        "src/process/bridge/fluxConnectorBridge.ts",
+        "src/process/providers/catalog/fluxVirtualModels.ts",
+        "src/process/utils/fluxSttDefault.ts",
+        "src/process/utils/fluxImageDefault.ts",
+        "src/common/routingEvidence",
+        "src/common/config/flux.ts",
+        "src/common/types/fluxConnector.ts",
+        "src/renderer/services/FluxConnectService.ts",
+        "src/renderer/hooks/useFluxConnected.ts",
+        "src/renderer/pages/conversation/platforms/acp/acpFluxFailover.ts",
+        "src/renderer/components/onboarding/ConnectFluxStep.tsx",
+        "src/renderer/components/layout/Sider/SiderNav/SiderFluxRouterEntry.tsx",
+        "src/renderer/pages/settings/ModelsSettings/components/FluxRouterHero.tsx",
+        "src/renderer/pages/settings/ModelsSettings/components/FluxRouterHero.module.css",
+        "src/renderer/pages/settings/AgentSettings/FluxSetupModal.tsx",
+        "src/renderer/pages/settings/AgentSettings/FluxRouterCard.tsx"
+      ]
     }
   ]
 }

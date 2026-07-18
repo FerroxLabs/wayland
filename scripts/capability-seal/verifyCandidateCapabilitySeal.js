@@ -15,6 +15,106 @@ const REQUIRED = new Map([
   ['sandbox', ['M1S', 'SBX-2']],
   ['flux', ['M1F']],
 ]);
+const EXCLUSION_INVENTORY = new Map([
+  [
+    'cowork-office',
+    [
+      'resources/bundled-officecli',
+      'src/process/services/capabilities/OfficeCliAuthoringCapability.ts',
+      'src/process/services/capabilities/CapabilitiesManifest.ts',
+      'src/process/resources/assistant/cowork',
+      'src/process/resources/skills/officecli-docx',
+      'src/process/resources/skills/officecli-word-form',
+      'src/process/resources/skills/officecli-pitch-deck',
+      'src/process/resources/skills/officecli-data-dashboard',
+      'src/process/resources/skills/officecli-xlsx',
+      'src/process/resources/skills/officecli-academic-paper',
+      'src/process/resources/skills/officecli-pptx',
+      'src/process/resources/skills/officecli-financial-model',
+      'src/process/resources/skills/_builtin/office-cli',
+      'src/process/bridge/officecliInstaller.ts',
+      'src/process/bridge/officeWatchBridge.ts',
+      'src/process/bridge/pptPreviewBridge.ts',
+      'src/renderer/pages/conversation/components/composerMenu',
+      'src/renderer/assets/icons/cowork.svg',
+    ],
+  ],
+  [
+    'voice',
+    [
+      'resources/voice-models',
+      'src/process/services/voice',
+      'src/process/bridge/voiceAssetBridge.ts',
+      'src/process/bridge/voiceSynthBridge.ts',
+      'src/common/voice',
+      'src/common/types/voiceAsset.ts',
+      'src/renderer/services/voice',
+      'src/renderer/pages/conversation/voice',
+      'src/renderer/pages/settings/VoiceSettings',
+    ],
+  ],
+  [
+    'mcp',
+    [
+      'src/process/services/mcpServices',
+      'src/process/bridge/mcpBridge.ts',
+      'src/process/extensions/resolvers/McpServerResolver.ts',
+      'src/process/doctor/checks/mcpChecks.ts',
+      'src/process/acp/session/McpConfig.ts',
+      'src/process/agent/acp/mcpSessionConfig.ts',
+      'src/process/task/mcpConnectorGuidance.ts',
+      'src/process/utils/mcpScriptDir.ts',
+      'src/process/team/mcp',
+      'src/process/team/mcpReadiness.ts',
+      'src/process/webserver/routes/mcpConfigRoutes.ts',
+      'src/process/webserver/routes/mcpOAuthRoutes.ts',
+      'src/process/services/ijfw/mcpWireProtocol.ts',
+      'src/common/mcp',
+      'src/common/mcp.ts',
+      'src/renderer/mcp-catalog',
+      'src/renderer/hooks/mcp',
+      'src/renderer/pages/settings/McpLibrary',
+      'src/renderer/pages/settings/ToolsSettings/McpAgentStatusDisplay.tsx',
+      'src/renderer/services/McpConfigService.ts',
+      'src/renderer/utils/mcp',
+    ],
+  ],
+  [
+    'sandbox',
+    [
+      'src/process/extensions/sandbox',
+      'src/process/team/sandbox',
+      'src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx',
+      'src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx',
+    ],
+  ],
+  [
+    'flux',
+    [
+      'src/process/flux',
+      'src/process/connectors/fluxKey.ts',
+      'src/process/webserver/routes/fluxConnectRoutes.ts',
+      'src/process/task/fluxRouting.ts',
+      'src/process/onboarding/connectFlux.ts',
+      'src/process/bridge/fluxConnectorBridge.ts',
+      'src/process/providers/catalog/fluxVirtualModels.ts',
+      'src/process/utils/fluxSttDefault.ts',
+      'src/process/utils/fluxImageDefault.ts',
+      'src/common/routingEvidence',
+      'src/common/config/flux.ts',
+      'src/common/types/fluxConnector.ts',
+      'src/renderer/services/FluxConnectService.ts',
+      'src/renderer/hooks/useFluxConnected.ts',
+      'src/renderer/pages/conversation/platforms/acp/acpFluxFailover.ts',
+      'src/renderer/components/onboarding/ConnectFluxStep.tsx',
+      'src/renderer/components/layout/Sider/SiderNav/SiderFluxRouterEntry.tsx',
+      'src/renderer/pages/settings/ModelsSettings/components/FluxRouterHero.tsx',
+      'src/renderer/pages/settings/ModelsSettings/components/FluxRouterHero.module.css',
+      'src/renderer/pages/settings/AgentSettings/FluxSetupModal.tsx',
+      'src/renderer/pages/settings/AgentSettings/FluxRouterCard.tsx',
+    ],
+  ],
+]);
 const SHA256 = /^sha256:[0-9a-f]{64}$/;
 const COMMIT = /^[0-9a-f]{40,64}$/;
 
@@ -88,6 +188,10 @@ function validateSelection(selection) {
     if (!['included', 'excluded'].includes(capability.mode)) throw new Error(`Invalid mode for ${capability.id}.`);
     if (!Array.isArray(capability.excludedPaths) || capability.excludedPaths.length === 0) {
       throw new Error(`Capability ${capability.id} has no physical exclusion inventory.`);
+    }
+    const authoritativeInventory = EXCLUSION_INVENTORY.get(capability.id);
+    if (JSON.stringify(capability.excludedPaths) !== JSON.stringify(authoritativeInventory)) {
+      throw new Error(`Capability ${capability.id} physical exclusion inventory does not match authority.`);
     }
     for (const entry of capability.excludedPaths) {
       if (typeof entry !== 'string' || !entry || path.isAbsolute(entry) || entry.includes('..')) {
@@ -233,7 +337,7 @@ function verifyCapabilitySeal(seal) {
       packets: entry.packets,
       mode: entry.mode,
       receiptSha256: entry.receiptSha256,
-      excludedPaths: ['sealed-at-source'],
+      excludedPaths: EXCLUSION_INVENTORY.get(entry.id),
     })),
   });
   return seal;
