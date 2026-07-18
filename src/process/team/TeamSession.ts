@@ -108,6 +108,11 @@ export class TeamSession extends EventEmitter {
         this.teammateManager.removeAgent(slotId);
       },
       wakeAgent: (slotId: string) => this.teammateManager.wake(slotId),
+      // #6 - let the MCP send handler flag an agent failed after wake retries.
+      markAgentFailed: (slotId: string, reason: string) => this.teammateManager.setStatus(slotId, 'failed', reason),
+      // #8 - let the MCP send handler record a member's explicit report so
+      // TeammateManager.finalizeTurn skips the duplicate auto-forward.
+      markReported: (slotId: string) => this.teammateManager.markReportedToLeader(slotId),
     });
   }
 

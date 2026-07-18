@@ -373,6 +373,51 @@ describe('TeamSessionService', () => {
     );
   });
 
+  // #9: launching the same standing launcher twice must NOT stack a second set
+  // of ritual crons. The backend guard skips the ritual install when a persisted
+  // team already sources from the same launcher.
+  it('#9: a second standing launch does not double-install rituals', async () => {
+    mockConfigGet.mockResolvedValue(undefined);
+
+    const installRituals = vi.fn().mockResolvedValue(undefined);
+    const uninstallRituals = vi.fn().mockResolvedValue(undefined);
+    const ritualScheduler = { installRituals, uninstallRituals };
+
+    const repo = makeRepo({
+      // First launch: no sibling team yet. Second launch: a persisted team with
+      // the same sourceLauncherId already exists.
+      findAll: vi
+        .fn()
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([{ id: 'team-existing', sourceLauncherId: 'launcher-x' }]),
+    });
+    const conversationService = makeConversationService({
+      createConversation: vi.fn().mockResolvedValue({ id: 'conv-1', extra: {} }),
+      getConversation: vi.fn().mockResolvedValue({ id: 'conv-1', extra: {} }),
+    });
+    const service = newService(repo, makeWorkerTaskManager() as any, conversationService, ritualScheduler as any);
+
+    await service.createTeam({
+      userId: 'user-1',
+      name: 'Standing A',
+      workspace: '/ws',
+      workspaceMode: 'shared',
+      agents: [makeAgent()],
+      sourceLauncherId: 'launcher-x',
+    });
+    await service.createTeam({
+      userId: 'user-1',
+      name: 'Standing B',
+      workspace: '/ws',
+      workspaceMode: 'shared',
+      agents: [makeAgent()],
+      sourceLauncherId: 'launcher-x',
+    });
+
+    // Installed once (first launch), skipped on the duplicate second launch.
+    expect(installRituals).toHaveBeenCalledTimes(1);
+  });
+
   it('preserves preset assistant identity and only inherits session mode when adding teammates', async () => {
     mockConfigGet.mockImplementation(async (key: string) => {
       if (key === 'gemini.defaultModel') {

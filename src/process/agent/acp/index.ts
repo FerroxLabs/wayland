@@ -42,7 +42,7 @@ import { buildAcpSessionMcpServers, buildTeamMcpServer, type AcpSessionMcpServer
 import { getClaudeModelSlot } from './utils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability.ts';
-import { waitForMcpReady } from '@process/team/mcpReadiness';
+import { waitForMcpReady, isMcpDegraded } from '@process/team/mcpReadiness';
 
 // InitializeResult removed - replaced by AcpInitializeResult from acpTypes.ts
 
@@ -1690,6 +1690,12 @@ export class AcpAgent {
     if (this.extra.teamMcpStdioConfig && teamId) {
       emitMcpStatus?.('mcp_tools_waiting');
       await waitForMcpReady(slotId, 30_000);
+      // #7: readiness resolves even on timeout (graceful degrade). Warn when the
+      // handshake never completed - the agent is starting without team tools.
+      // isMcpDegraded(slotId) is the readable flag for status/finalizeTurn.
+      if (isMcpDegraded(slotId)) {
+        console.warn(`[acp] Team MCP tools unavailable for ${slotId} (readiness timeout); proceeding degraded`);
+      }
       emitMcpStatus?.('mcp_tools_ready');
     }
   }

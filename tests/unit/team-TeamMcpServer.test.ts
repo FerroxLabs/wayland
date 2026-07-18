@@ -455,6 +455,34 @@ describe('TeamMcpServer', () => {
       expect(response.result).toContain('broadcast');
     });
 
+    // #5: a single failed recipient write must NOT abort the whole broadcast.
+    it('broadcast returns partial success when one recipient write fails (allSettled, no throw)', async () => {
+      // Add a second teammate so the broadcast has two recipients.
+      agents.push(makeAgent({ slotId: 'slot-bob', agentName: 'Bob', role: 'teammate' }));
+      vi.mocked(mailbox.write).mockImplementation(async (m: { toAgentId: string }) => {
+        if (m.toAgentId === 'slot-bob') throw new Error('db locked');
+        return { id: 'ok', type: 'message', read: false, createdAt: 1 } as never;
+      });
+
+      const response = (await tcpRequest(server.getPort(), {
+        tool: 'team_send_message',
+        args: { to: '*', message: 'hi all' },
+        from_slot_id: 'slot-lead',
+        auth_token: authToken,
+      })) as Record<string, unknown>;
+
+      // No throw: a result (not an error) is returned...
+      expect(response.error).toBeUndefined();
+      const result = String(response.result);
+      // ...naming the delivered teammate and the failed one.
+      expect(result).toContain('Alice');
+      expect(result).toContain('Bob');
+      expect(result).toContain('Failed to deliver');
+      // Only the successfully-delivered recipient is woken.
+      expect(wakeAgent).toHaveBeenCalledWith('slot-member');
+      expect(wakeAgent).not.toHaveBeenCalledWith('slot-bob');
+    });
+
     it('handles shutdown_approved by removing the sender agent', async () => {
       const response = (await tcpRequest(server.getPort(), {
         tool: 'team_send_message',

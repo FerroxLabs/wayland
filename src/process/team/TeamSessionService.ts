@@ -907,13 +907,40 @@ export class TeamSessionService {
     // scheduler resolves rituals from the live ExtensionRegistry; bundles
     // without rituals (the vast majority of launchers) yield a no-op.
     if (this.ritualScheduler && team.sourceLauncherId) {
+      // #9: rituals install as cron jobs keyed to THIS team's leader
+      // conversation, and every createTeam mints a fresh leader conversation.
+      // So launching the same (standing) launcher twice would stack a SECOND,
+      // independent set of weekly crons that installRituals' per-conversation
+      // idempotency can never dedupe - two standing orgs, doubled ritual fires.
+      // Backend-only guard: if another persisted team already sources from this
+      // launcher, its rituals are already scheduled, so SKIP the re-install here
+      // rather than duplicate them. (Non-standing launchers carry no rituals, so
+      // this only ever suppresses a genuine duplicate.)
+      let alreadyInstalled = false;
       try {
-        await this.ritualScheduler.installRituals(team);
+        const siblings = await this.repo.findAll(params.userId);
+        alreadyInstalled = siblings.some((t) => t.id !== team.id && t.sourceLauncherId === team.sourceLauncherId);
       } catch (err) {
+        // A findAll failure must not block team creation; fall through to install
+        // (the prior behavior) rather than risk a standing team with no rituals.
         console.warn(
-          `[TeamSessionService] failed to install rituals for new team ${team.id}:`,
+          `[TeamSessionService] ritual dedupe lookup failed for team ${team.id}:`,
           err instanceof Error ? err.message : err
         );
+      }
+      if (alreadyInstalled) {
+        console.log(
+          `[TeamSessionService] launcher "${team.sourceLauncherId}" already has a team with rituals installed; skipping duplicate ritual install for team ${team.id}`
+        );
+      } else {
+        try {
+          await this.ritualScheduler.installRituals(team);
+        } catch (err) {
+          console.warn(
+            `[TeamSessionService] failed to install rituals for new team ${team.id}:`,
+            err instanceof Error ? err.message : err
+          );
+        }
       }
     }
     // Notify the sidebar + library page so newly-created teams appear without
@@ -1722,5 +1749,8 @@ export class TeamSessionService {
         console.error(`[TeamSessionService] stopSession(${ids[idx]}) failed:`, result.reason);
       }
     });
+    // P1 - flush any queued/coalesced audit events so nothing is lost at
+    // shutdown (the queue otherwise drains on a microtask/short timer).
+    await this.eventLogger.flush();
   }
 }

@@ -47,6 +47,18 @@ type TeamMcpServerParams = {
   renameAgent?: (slotId: string, newName: string) => void;
   removeAgent?: (slotId: string) => void;
   wakeAgent: (slotId: string) => Promise<void>;
+  /**
+   * #6 - mark an agent failed after safeWake exhausts its retries. Optional so
+   * legacy callers/tests without a status sink keep working (the retry still
+   * logs; it just can't flip the status).
+   */
+  markAgentFailed?: (slotId: string, reason: string) => void;
+  /**
+   * #8 - record that `fromSlotId` reported to the leader this turn (sent it a
+   * non-notification message). Consumed by TeammateManager.finalizeTurn to skip
+   * the duplicate auto-forward. Optional for legacy callers/tests.
+   */
+  markReported?: (fromSlotId: string) => void;
 };
 
 export type StdioMcpConfig = {
@@ -164,16 +176,82 @@ export class TeamMcpServer {
   }
 
   /**
-   * Fire-and-forget wake that logs failures instead of swallowing them.
-   * wakeAgent() can legitimately reject (e.g. dead ACP process, mailbox DB error)
-   * but the MCP tool call must still return to the caller, so we can't await it.
-   * Without this guard the error vanishes silently and the would-be wake target
-   * never runs - which is one of the ways "codex idle-spin" used to present.
+   * #6 - short backoff (ms) between safeWake retries. Two entries = two retries.
+   */
+  private static readonly WAKE_RETRY_BACKOFF_MS = [150, 500];
+
+  /**
+   * Fire-and-forget wake that does not swallow rejections. wakeAgent() can
+   * legitimately reject (dead ACP process, mailbox DB error) but the MCP tool
+   * call must still return to the caller, so we can't await it here.
+   *
+   * #6 - a single dropped wake used to vanish with only a log line, leaving the
+   * target permanently un-run (one of the ways "codex idle-spin" presented). Now
+   * a failed wake is retried with a short bounded backoff; if it still fails the
+   * target is marked failed and a notification is written to the leader's
+   * mailbox so the stall is surfaced instead of silently lost.
    */
   private safeWake(slotId: string, context: string): void {
-    this.params.wakeAgent(slotId).catch((err) => {
-      console.error(`[TeamMcpServer] wake(${slotId}) failed during ${context}:`, err);
-    });
+    void this.wakeWithRetry(slotId, context);
+  }
+
+  private async wakeWithRetry(slotId: string, context: string): Promise<void> {
+    const backoffs = TeamMcpServer.WAKE_RETRY_BACKOFF_MS;
+    for (let attempt = 0; attempt <= backoffs.length; attempt++) {
+      try {
+        await this.params.wakeAgent(slotId);
+        return;
+      } catch (err) {
+        const isLast = attempt === backoffs.length;
+        console.error(
+          `[TeamMcpServer] wake(${slotId}) failed during ${context} (attempt ${attempt + 1}/${backoffs.length + 1}):`,
+          err
+        );
+        if (isLast) {
+          await this.escalateWakeFailure(slotId, context, err);
+          return;
+        }
+        await new Promise((resolve) => setTimeout(resolve, backoffs[attempt]));
+      }
+    }
+  }
+
+  /**
+   * #6 - last-resort handling once wake retries are exhausted: mark the agent
+   * failed and drop a note in the leader's mailbox. Never marks/notifies the
+   * leader about ITSELF (guards infinite recursion), and the leader is woken
+   * with a single best-effort, non-escalating wake so a wedged leader can't loop
+   * back into this path.
+   */
+  private async escalateWakeFailure(slotId: string, context: string, err: unknown): Promise<void> {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    const reason = `wake failed after ${TeamMcpServer.WAKE_RETRY_BACKOFF_MS.length} retries (${context}): ${errMsg}`;
+    this.params.markAgentFailed?.(slotId, reason.slice(0, 200));
+
+    const agents = this.params.getAgents();
+    const target = agents.find((a) => a.slotId === slotId);
+    const leader = agents.find((a) => a.role === 'leader');
+    if (!leader || leader.slotId === slotId) return;
+
+    try {
+      await this.params.mailbox.write({
+        teamId: this.params.teamId,
+        toAgentId: leader.slotId,
+        fromAgentId: slotId,
+        type: 'message',
+        content:
+          `[System] Failed to wake ${target?.agentName ?? slotId} after retries (${context}: ${errMsg}). ` +
+          `The agent has been marked failed; consider restarting or replacing it, or continuing without it.`,
+        summary: `${target?.agentName ?? slotId} wake failed`,
+      });
+      // Best-effort, non-escalating wake so the leader sees the note. NOT via
+      // safeWake: a wedged leader must not recurse back into escalateWakeFailure.
+      this.params.wakeAgent(leader.slotId).catch((e) => {
+        console.error(`[TeamMcpServer] failed to wake leader after wake-failure escalation for ${slotId}:`, e);
+      });
+    } catch (writeErr) {
+      console.error(`[TeamMcpServer] failed to notify leader of wake failure for ${slotId}:`, writeErr);
+    }
   }
 
   // ── TCP connection handler ──────────────────────────────────────────────────
@@ -315,28 +393,50 @@ export class TeamMcpServer {
       agents.find((a) => a.role === 'leader') ??
       agents[0];
     const fromSlotId = fromAgent?.slotId ?? 'unknown';
+    const leaderSlotId = agents.find((a) => a.role === 'leader')?.slotId;
+    const callerIsMember = fromSlotId !== leaderSlotId;
 
     if (to === '*') {
-      const recipients: string[] = [];
-      await Promise.all(
-        agents
-          .filter((agent) => agent.slotId !== fromSlotId)
-          .map((agent) =>
-            mailbox
-              .write({
-                teamId,
-                toAgentId: agent.slotId,
-                fromAgentId: fromSlotId,
-                content: message,
-                summary,
-              })
-              .then(() => {
-                recipients.push(agent.agentName);
-                this.safeWake(agent.slotId, 'broadcast message');
-              })
-          )
+      // #5: deliver to each recipient independently. A single failed mailbox
+      // write must NOT abort the whole broadcast (the old Promise.all rejected
+      // on the first failure, throwing the tool call and stranding every other
+      // recipient). Collect per-recipient outcomes and return a partial-success
+      // result. Only recipients whose write actually landed are woken.
+      const targets = agents.filter((agent) => agent.slotId !== fromSlotId);
+      const settled = await Promise.allSettled(
+        targets.map((agent) =>
+          mailbox.write({
+            teamId,
+            toAgentId: agent.slotId,
+            fromAgentId: fromSlotId,
+            content: message,
+            summary,
+          })
+        )
       );
-      return `Message broadcast to ${recipients.length} teammate(s): ${recipients.join(', ')}`;
+
+      const delivered: string[] = [];
+      const failed: string[] = [];
+      settled.forEach((result, i) => {
+        const agent = targets[i];
+        if (result.status === 'fulfilled') {
+          delivered.push(agent.agentName);
+          this.safeWake(agent.slotId, 'broadcast message');
+        } else {
+          const reason = result.reason instanceof Error ? result.reason.message : String(result.reason);
+          failed.push(`${agent.agentName} (${reason})`);
+        }
+      });
+
+      // #8: a member broadcasting reaches the leader too - count it as reporting.
+      if (callerIsMember && leaderSlotId && leaderSlotId !== fromSlotId) {
+        this.params.markReported?.(fromSlotId);
+      }
+
+      const deliveredMsg = `Message broadcast to ${delivered.length} teammate(s): ${delivered.join(', ') || 'none'}`;
+      return failed.length === 0
+        ? deliveredMsg
+        : `${deliveredMsg}. Failed to deliver to ${failed.length}: ${failed.join(', ')}`;
     }
 
     const targetSlotId = this.resolveSlotId(to);
@@ -389,6 +489,13 @@ export class TeamMcpServer {
       content: message,
       summary,
     });
+
+    // #8: a member sending a normal message to the leader IS its explicit report
+    // for this turn; record it so finalizeTurn skips the duplicate auto-forward.
+    if (callerIsMember && targetSlotId === leaderSlotId) {
+      this.params.markReported?.(fromSlotId);
+    }
+
     this.safeWake(targetSlotId, `send_message to ${to}`);
 
     return `Message sent to ${to}'s inbox. They will process it shortly.`;

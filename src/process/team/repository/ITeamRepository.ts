@@ -92,6 +92,13 @@ export interface ITeamEventRepository {
   /** Persist a single event row. Append-only - no update or delete API. */
   appendEvent(event: TeamEvent): Promise<void>;
   /**
+   * P1 - persist several event rows in ONE transaction. Optional so existing
+   * mock repositories that only implement `appendEvent` keep working; the
+   * EventLogger falls back to a per-event loop when this is absent. Used by the
+   * batched drain to collapse the audit-write storm off the hot path.
+   */
+  appendEvents?(events: TeamEvent[]): Promise<void>;
+  /**
    * List events for a team, newest first.
    * @param since   When provided, returns only events strictly newer than this `createdAt` (ms epoch).
    * @param limit   When provided, caps the result set (default 100).

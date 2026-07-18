@@ -17,6 +17,7 @@ import type { ITaskRepository } from './repository/ITeamRepository';
 import { buildRolePrompt } from './prompts/buildRolePrompt';
 import { formatMessages } from './prompts/formatHelpers';
 import { agentRegistry } from '@process/agent/AgentRegistry';
+import { isMcpDegraded } from './mcpReadiness';
 // W4 audit CRIT-1 (2026-05-19): register / unregister team context for
 // each agent conversation so the ACP file-op gate can resolve the team
 // when sandboxed imported agents request file ops.
@@ -121,6 +122,15 @@ export class TeammateManager extends EventEmitter {
 
   /** Tracks which slotIds currently have an in-progress wake to avoid loops */
   private readonly activeWakes = new Set<string>();
+  /**
+   * #8 - slotIds that already reported to the leader (via team_send_message) in
+   * their CURRENT turn. Set by `markReportedToLeader` (wired from the MCP send
+   * handler), cleared at the start of each wake and again when the turn
+   * finalizes. `finalizeTurn` consults it to skip the auto-forward
+   * idle_notification when the member already reported explicitly, so the
+   * leader doesn't receive the same content twice.
+   */
+  private readonly reportedToLeaderThisTurn = new Set<string>();
   /** Timeout handles for active wakes, keyed by slotId */
   private readonly wakeTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
   /** O(1) lookup set of conversationIds owned by this team, for fast IPC event filtering */
@@ -164,6 +174,20 @@ export class TeammateManager extends EventEmitter {
    * garbage / a value low enough to re-introduce the false positives).
    */
   private static readonly DEFAULT_INACTIVITY_TIMEOUT_MS = 3 * 60 * 1000;
+
+  /**
+   * #4 - minimum length of the last assistant text for the inactivity watchdog
+   * to treat a silent-but-alive member as "completed" rather than "stalled".
+   * A completed answer whose `finish` frame was dropped ends with substantive
+   * text; a hang usually has none (stuck before first token) or a non-text last
+   * message (mid tool-call, which readLastAssistantExcerpt already skips). The
+   * bar is deliberately biased toward the conservative `failed` path: a short
+   * real answer that falls under it is still surfaced to the leader (via the
+   * failed-path notification), we just don't auto-close it as idle.
+   * ponytail: fixed heuristic threshold; make it env-tunable only if real teams
+   * report short completions being false-failed.
+   */
+  private static readonly COMPLETED_ANSWER_MIN_CHARS = 40;
 
   private static resolveInactivityTimeoutMs(): number {
     const raw = process.env.WAYLAND_TEAM_WAKE_TIMEOUT_MS;
@@ -299,6 +323,16 @@ export class TeammateManager extends EventEmitter {
   }
 
   /**
+   * #8 - record that `slotId` explicitly reported to the leader this turn (i.e.
+   * it called team_send_message with the leader as recipient). Wired from
+   * TeamMcpServer's send handler. `finalizeTurn` reads this to suppress the
+   * duplicate auto-forward idle_notification for members that already reported.
+   */
+  markReportedToLeader(slotId: string): void {
+    this.reportedToLeaderThisTurn.add(slotId);
+  }
+
+  /**
    * Wake an agent: read unread mailbox, build payload, send to agent.
    * Sets status to 'active' during API call, 'idle' when done.
    * Skips if the agent's wake is already in progress.
@@ -326,6 +360,8 @@ export class TeammateManager extends EventEmitter {
     if (agent.conversationId) {
       this.finalizedTurns.delete(agent.conversationId);
     }
+    // #8: a fresh turn starts with no explicit report to the leader yet.
+    this.reportedToLeaderThisTurn.delete(slotId);
     try {
       // Determine if this is the first activation or a crash recovery -
       // these need the full role prompt with static instructions.
@@ -505,10 +541,13 @@ export class TeammateManager extends EventEmitter {
         }
       }
 
-      // Release wake lock immediately after message is sent.
-      // finalizeTurn will also delete it (safe no-op). This prevents permanent
-      // deadlock when finish events are lost or finalizeTurn never fires.
-      this.activeWakes.delete(slotId);
+      // #3: KEEP the wake guard set for the WHOLE turn. Releasing it here (right
+      // after dispatch) let a message arriving mid-turn pass the activeWakes
+      // check and inject a SECOND prompt into the still-running turn. The guard
+      // is now cleared only by a terminal signal: finalizeTurn (finish/error),
+      // the inactivity watchdog (handleInactivityTimeout), a crash, or the catch
+      // below. finalizeTurn's peek-and-redrain then delivers any messages that
+      // arrived mid-turn, so nothing is lost by holding the lock longer.
 
       // Arm the inactivity watchdog. Any streaming output from this agent
       // resets it via handleResponseStream → resetWakeTimeout. It only fires
@@ -547,6 +586,7 @@ export class TeammateManager extends EventEmitter {
     }
     this.wakeTimeouts.clear();
     this.activeWakes.clear();
+    this.reportedToLeaderThisTurn.clear();
     this.tokenUsageBaselines.clear();
     // W5 audit HIGH-2 fix (2026-05-19): drain ACP team-context registry
     // entries for every owned conversation so a disposed session cannot
@@ -771,6 +811,39 @@ export class TeammateManager extends EventEmitter {
    * the teammate was "idle-spinning" with no concrete evidence.
    */
   private async handleInactivityTimeout(agent: TeamAgent): Promise<void> {
+    // #3: the wake guard is now held for the WHOLE turn, so the watchdog MUST
+    // release it here - otherwise a stalled slot could never be woken again
+    // (permanent deadlock). Cleared before any early return below.
+    this.activeWakes.delete(agent.slotId);
+
+    // #4: a member that actually FINISHED but whose `finish` frame was dropped
+    // sits `active` until this fires; the old code always flipped it to `failed`
+    // (a 3-min false-fail). Distinguish "silently completed" from "genuinely
+    // stalled" conservatively - only reclassify as completed when BOTH:
+    //   - the worker process is still alive (its task is still cached; a crash
+    //     would have killed + removed it), AND
+    //   - the last assistant message reads like a real, completed answer
+    //     (substantive text; a mid tool-call turn has no trailing text and
+    //     readLastAssistantExcerpt returns null → we stay on the failed path).
+    // When both hold, finalize it as a normal completion (goes idle + notifies/
+    // wakes the leader). If either signal is missing we cannot prove it
+    // finished, so KEEP the conservative `failed` behavior. The 3-min timer
+    // stays the backstop; this only changes the VERDICT once it fires, never the
+    // timing, so it cannot introduce a new hang.
+    const processAlive = agent.conversationId
+      ? this.workerTaskManager.getTask?.(agent.conversationId) !== undefined
+      : false;
+    if (processAlive && agent.conversationId) {
+      const excerpt = await this.readLastAssistantExcerpt(agent.conversationId);
+      if (excerpt && excerpt.trim().length >= TeammateManager.COMPLETED_ANSWER_MIN_CHARS) {
+        console.warn(
+          `[TeammateManager] ${agent.agentName} (${agent.slotId}) went silent but its process is alive and its last output looks complete; finalizing as idle (likely a dropped finish frame).`
+        );
+        await this.finalizeTurn(agent.conversationId);
+        return;
+      }
+    }
+
     const timeoutSeconds = Math.floor(this.inactivityTimeoutMs / 1000);
     const reason = `has not streamed any update in ${timeoutSeconds}s and may be stalled`;
 
@@ -863,19 +936,36 @@ export class TeammateManager extends EventEmitter {
     if (agent.role !== 'leader') {
       const leadAgent = this.agents.find((a) => a.role === 'leader');
       if (leadAgent && leadAgent.slotId !== agent.slotId) {
-        const excerpt = await this.readLastAssistantExcerpt(agent.conversationId);
-        const content = excerpt ? `Turn completed\n\n${excerpt}` : 'Turn completed';
-        await this.mailbox.write({
-          teamId: this.teamId,
-          toAgentId: leadAgent.slotId,
-          fromAgentId: agent.slotId,
-          content,
-          type: 'idle_notification',
-        });
+        // #8: skip the auto-forward when the member already reported to the
+        // leader this turn via team_send_message. The auto-forward is only a
+        // fallback for specialists that answer in their own chat without ever
+        // calling the report tool (Gemini in particular); when the member DID
+        // call it, re-forwarding the same last-assistant text just duplicates
+        // the report in the leader's mailbox. The leader wake decision below
+        // still runs either way, so an explicit report is not stranded.
+        if (!this.reportedToLeaderThisTurn.has(agent.slotId)) {
+          const excerpt = await this.readLastAssistantExcerpt(agent.conversationId);
+          // #7: surface the degraded flag - if this member started without team
+          // tools (MCP readiness timed out), tell the leader so it understands
+          // why the member may not have used team_send_message / team_task_*.
+          const degradedNote = isMcpDegraded(agent.slotId)
+            ? '\n\n[System note] This teammate started without team tools (MCP readiness timed out); it could not call team_* tools this turn.'
+            : '';
+          const content = `${excerpt ? `Turn completed\n\n${excerpt}` : 'Turn completed'}${degradedNote}`;
+          await this.mailbox.write({
+            teamId: this.teamId,
+            toAgentId: leadAgent.slotId,
+            fromAgentId: agent.slotId,
+            content,
+            type: 'idle_notification',
+          });
+        }
         // Only wake leader when ALL non-leader teammates are idle/completed/failed/pending.
         // This prevents death loops where each idle notification triggers a new leader turn.
         this.maybeWakeLeaderWhenAllIdle(leadAgent.slotId);
       }
+      // #8: the report flag is per-turn - clear it now the turn has finalized.
+      this.reportedToLeaderThisTurn.delete(agent.slotId);
 
       // #781: a mailbox message that arrives while this agent's wake is in
       // flight is skipped by the activeWakes guard and would otherwise sit

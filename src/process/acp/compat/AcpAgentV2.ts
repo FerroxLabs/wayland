@@ -30,7 +30,7 @@ import { buildClaudeSlotModelInfo } from '@process/agent/acp/utils';
 // TODO(ACP Discovery): Re-enable when acp_session persistence is restored.
 // import type { IAcpSessionRepository } from '@process/services/database/IAcpSessionRepository';
 import { getTeamGuideStdioConfig } from '@/process/team/mcp/guide/teamGuideSingleton';
-import { waitForMcpReady } from '@/process/team/mcpReadiness';
+import { waitForMcpReady, isMcpDegraded } from '@/process/team/mcpReadiness';
 import { shouldInjectTeamGuideMcp } from '@/process/team/prompts/teamGuideCapability';
 import type { McpServer } from '@agentclientprotocol/sdk';
 import type {
@@ -340,8 +340,19 @@ export class AcpAgentV2 {
         : undefined;
     if (teamSlotId) {
       await waitForMcpReady(teamSlotId, 30_000).catch(() => {
-        console.warn('[AcpAgentV2] Team MCP readiness timeout, proceeding anyway');
+        // waitForMcpReady resolves on timeout (never rejects); this guards an
+        // unexpected throw only.
+        console.warn('[AcpAgentV2] Team MCP readiness wait threw, proceeding anyway');
       });
+      // #7: readiness resolves even on timeout so the session degrades
+      // gracefully. When it degraded (team tools never registered), warn - the
+      // agent is running without team tools. isMcpDegraded(teamSlotId) stays the
+      // readable flag consumed by status/finalizeTurn.
+      if (isMcpDegraded(teamSlotId)) {
+        console.warn(
+          `[AcpAgentV2] Team MCP tools unavailable for ${teamSlotId} (readiness timeout); proceeding degraded`
+        );
+      }
     }
 
     return this.session;

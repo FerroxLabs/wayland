@@ -128,6 +128,7 @@ vi.mock('../../src/process/agent/acp/utils', () => ({
 vi.mock('../../src/process/team/mcpReadiness', () => ({
   waitForMcpReady: vi.fn().mockResolvedValue(undefined),
   notifyMcpReady: vi.fn(),
+  isMcpDegraded: vi.fn().mockReturnValue(false),
 }));
 
 // ─── imports ─────────────────────────────────────────────────────────────────

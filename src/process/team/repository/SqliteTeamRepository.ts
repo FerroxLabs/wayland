@@ -159,8 +159,24 @@ function rowToTask(row: TaskRow): TeamTask {
 // Repository
 // ---------------------------------------------------------------------------
 
+const INSERT_MAILBOX_SQL = `INSERT INTO mailbox (id, team_id, to_agent_id, from_agent_id, type, content, summary, files, read, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+const INSERT_EVENT_SQL = `INSERT INTO team_event_log (id, team_id, event_type, actor_slot_id, target_slot_id, payload, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`;
+
 export class SqliteTeamRepository implements ITeamRepository {
   private readonly _driver: ISqliteDriver | undefined;
+
+  /**
+   * P1 - cached prepared statements for the two hot INSERT paths (mailbox write,
+   * event-log append). Keyed by the driver that prepared them so a swapped
+   * connection (injected test driver vs. the global singleton) is re-prepared
+   * rather than reused against the wrong db.
+   */
+  private stmtDb: ISqliteDriver | undefined;
+  private insertMailboxStmt: ReturnType<ISqliteDriver['prepare']> | undefined;
+  private insertEventStmt: ReturnType<ISqliteDriver['prepare']> | undefined;
 
   /**
    * @param driver - Optional ISqliteDriver for constructor injection (e.g., tests).
@@ -174,6 +190,18 @@ export class SqliteTeamRepository implements ITeamRepository {
     if (this._driver) return this._driver;
     const aionDb = await getDatabase();
     return aionDb.getDriver();
+  }
+
+  /**
+   * P1 - return cached prepared statements, (re)preparing them if the underlying
+   * driver changed. better-sqlite3 caches internally too, but caching here keeps
+   * the hot path off a per-call prepare() lookup entirely.
+   */
+  private ensureStmts(db: ISqliteDriver): void {
+    if (this.stmtDb === db && this.insertMailboxStmt && this.insertEventStmt) return;
+    this.stmtDb = db;
+    this.insertMailboxStmt = db.prepare(INSERT_MAILBOX_SQL);
+    this.insertEventStmt = db.prepare(INSERT_EVENT_SQL);
   }
 
   // -------------------------------------------------------------------------
@@ -284,10 +312,8 @@ export class SqliteTeamRepository implements ITeamRepository {
 
   async writeMessage(message: MailboxMessage): Promise<MailboxMessage> {
     const db = await this.getDb();
-    db.prepare(
-      `INSERT INTO mailbox (id, team_id, to_agent_id, from_agent_id, type, content, summary, files, read, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-    ).run(
+    this.ensureStmts(db);
+    this.insertMailboxStmt!.run(
       message.id,
       message.teamId,
       message.toAgentId,
@@ -615,10 +641,8 @@ export class SqliteTeamRepository implements ITeamRepository {
 
   async appendEvent(event: TeamEvent): Promise<void> {
     const db = await this.getDb();
-    db.prepare(
-      `INSERT INTO team_event_log (id, team_id, event_type, actor_slot_id, target_slot_id, payload, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`
-    ).run(
+    this.ensureStmts(db);
+    this.insertEventStmt!.run(
       event.id,
       event.teamId,
       event.eventType,
@@ -627,6 +651,30 @@ export class SqliteTeamRepository implements ITeamRepository {
       JSON.stringify(event.payload),
       event.createdAt
     );
+  }
+
+  /**
+   * P1 - persist several event rows in ONE transaction using the cached
+   * statement. Empty input is a no-op. Used by EventLogger's batched drain.
+   */
+  async appendEvents(events: TeamEvent[]): Promise<void> {
+    if (events.length === 0) return;
+    const db = await this.getDb();
+    this.ensureStmts(db);
+    const stmt = this.insertEventStmt!;
+    db.transaction(() => {
+      for (const event of events) {
+        stmt.run(
+          event.id,
+          event.teamId,
+          event.eventType,
+          event.actorSlotId ?? null,
+          event.targetSlotId ?? null,
+          JSON.stringify(event.payload),
+          event.createdAt
+        );
+      }
+    })();
   }
 
   async listEvents(
