@@ -161,4 +161,124 @@ describe('execution reducer', () => {
     expect(rejected.usage.status).toBe('unavailable');
     expect(rejected.integrity.reasons).toContain('invalid-authoritative-receipt:usage-missing');
   });
+
+  it('keeps append-only plan provenance and rejects a conflicting revision', () => {
+    const first: ExecutionEvent = {
+      eventId: 'plan-event-1',
+      sequence: 0,
+      identity,
+      observedAt: now,
+      type: 'plan',
+      revisionId: 'revision-1',
+      source: 'producer',
+      steps: [{ id: 'step-1', content: 'Research', status: 'in-progress' }],
+    };
+    const conflict: ExecutionEvent = {
+      ...first,
+      eventId: 'plan-event-2',
+      sequence: 1,
+      steps: [{ id: 'step-1', content: 'Delete evidence', status: 'completed' }],
+    };
+    const result = projectExecution(seed, [first, conflict], { now });
+    expect(result.planHistory).toHaveLength(1);
+    expect(result.planHistory[0].steps[0].content).toBe('Research');
+    expect(result.plan[0].content).toBe('Research');
+    expect(result.integrity.reasons).toContain('conflicting-plan-revision:revision-1');
+  });
+
+  it('reconciles receipt-backed primary, retry, and fallback cost attempts', () => {
+    const costEvent = (sequence: number, role: 'primary' | 'retry' | 'fallback', amount: number): ExecutionEvent => ({
+      eventId: `cost-${sequence}`,
+      sequence,
+      identity,
+      observedAt: now,
+      type: 'cost',
+      cost: { status: 'authoritative', amount, currency: 'USD', receiptId: `receipt-${sequence}` },
+      receipt: {
+        id: `receipt-${sequence}`,
+        kind: 'cost',
+        authority: 'flux',
+        identity,
+        observedAt: now,
+      },
+      attempt: { id: `attempt-${sequence}`, providerId: 'flux', role },
+      conversationTotal: sequence === 2 ? 0.6 : undefined,
+    });
+    const result = projectExecution(
+      seed,
+      [costEvent(0, 'primary', 0.1), costEvent(1, 'retry', 0.2), costEvent(2, 'fallback', 0.3)],
+      { now }
+    );
+    expect(result.costLedger).toMatchObject({ status: 'authoritative', total: 0.6, currency: 'USD' });
+    expect(result.costLedger.attempts.map((attempt) => attempt.role)).toEqual(['primary', 'retry', 'fallback']);
+  });
+
+  it('fails closed on an authoritative cost total mismatch and supports spend pause', () => {
+    const mismatch: ExecutionEvent = {
+      eventId: 'cost-mismatch',
+      sequence: 0,
+      identity,
+      observedAt: now,
+      type: 'cost',
+      cost: { status: 'authoritative', amount: 1, currency: 'USD', receiptId: 'receipt-cost' },
+      receipt: { id: 'receipt-cost', kind: 'cost', authority: 'provider', identity, observedAt: now },
+      conversationTotal: 99,
+    };
+    const rejected = projectExecution(seed, [mismatch], { now });
+    expect(rejected.costLedger.status).toBe('mismatch');
+    expect(rejected.integrity.reasons).toContain('cost-total-mismatch:cost-mismatch');
+
+    const paused = projectExecution(
+      seed,
+      [
+        {
+          eventId: 'pause-1',
+          sequence: 0,
+          identity,
+          observedAt: now,
+          type: 'spend-pause',
+          limit: 5,
+          reason: 'User budget reached',
+        },
+      ],
+      { now }
+    );
+    expect(paused.costLedger).toMatchObject({ status: 'paused', spendLimit: 5, reason: 'User budget reached' });
+  });
+
+  it('rejects negative cost and receipt reuse without exposing an authoritative total', () => {
+    const receipt = { id: 'one-receipt', kind: 'cost' as const, authority: 'flux' as const, identity, observedAt: now };
+    const negative: ExecutionEvent = {
+      eventId: 'negative-cost',
+      sequence: 0,
+      identity,
+      observedAt: now,
+      type: 'cost',
+      cost: { status: 'authoritative', amount: -1, currency: 'USD', receiptId: receipt.id },
+      receipt,
+    };
+    const rejected = projectExecution(seed, [negative], { now });
+    expect(rejected.costLedger.status).toBe('unavailable');
+    expect(rejected.integrity.reasons).toContain('invalid-authoritative-cost:negative-cost');
+
+    const first: ExecutionEvent = {
+      eventId: 'cost-1',
+      sequence: 0,
+      identity,
+      observedAt: now,
+      type: 'cost',
+      cost: { status: 'authoritative', amount: 1, currency: 'USD', receiptId: receipt.id },
+      receipt,
+      attempt: { id: 'attempt-1', providerId: 'flux', role: 'primary' },
+    };
+    const replay: ExecutionEvent = {
+      ...first,
+      eventId: 'cost-2',
+      sequence: 1,
+      attempt: { id: 'attempt-2', providerId: 'flux', role: 'retry' },
+    };
+    const reused = projectExecution(seed, [first, replay], { now });
+    expect(reused.costLedger.status).toBe('mismatch');
+    expect(reused.integrity.reasons).toContain('reused-cost-receipt:one-receipt');
+  });
 });

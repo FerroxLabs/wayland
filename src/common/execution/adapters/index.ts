@@ -7,3 +7,5 @@
 export * from './types';
 export * from './wcore';
 export * from './acp';
+export * from './gemini';
+export * from './messages';

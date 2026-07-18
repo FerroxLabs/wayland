@@ -26,6 +26,7 @@ const EVENT_TYPES = new Set([
   'lifecycle',
   'activity',
   'plan',
+  'spend-pause',
   'governance',
   'usage',
   'cost',
@@ -106,6 +107,37 @@ function authoritativeReceiptValid(event: ExecutionEvent, receipt: ExecutionRece
   return true;
 }
 
+function costPayloadValid(event: Extract<ExecutionEvent, { type: 'cost' }>): boolean {
+  const payload = event as unknown as {
+    cost?: { status?: unknown; amount?: unknown; currency?: unknown; receiptId?: unknown };
+    attempt?: { id?: unknown; providerId?: unknown; modelId?: unknown; role?: unknown };
+    conversationTotal?: unknown;
+  };
+  const cost = payload.cost;
+  const attempt = payload.attempt;
+  return Boolean(
+    cost?.status === 'authoritative' &&
+    typeof cost.amount === 'number' &&
+    Number.isFinite(cost.amount) &&
+    cost.amount >= 0 &&
+    typeof cost.currency === 'string' &&
+    cost.currency.trim() &&
+    typeof cost.receiptId === 'string' &&
+    cost.receiptId.trim() &&
+    (payload.conversationTotal === undefined ||
+      (typeof payload.conversationTotal === 'number' &&
+        Number.isFinite(payload.conversationTotal) &&
+        payload.conversationTotal >= 0)) &&
+    (attempt === undefined ||
+      (typeof attempt.id === 'string' &&
+        attempt.id.trim() &&
+        typeof attempt.providerId === 'string' &&
+        attempt.providerId.trim() &&
+        (attempt.modelId === undefined || (typeof attempt.modelId === 'string' && attempt.modelId.trim())) &&
+        ['primary', 'retry', 'fallback'].includes(String(attempt.role))))
+  );
+}
+
 export function createExecutionSnapshot(seed: ExecutionSeed): ExecutionSnapshot {
   return cloneAndFreeze({
     identity: seed.identity,
@@ -124,8 +156,14 @@ export function createExecutionSnapshot(seed: ExecutionSeed): ExecutionSnapshot 
     },
     activities: [],
     plan: [],
+    planHistory: [],
     usage: { status: 'unavailable' as const, reason: 'authoritative-usage-not-observed' },
     cost: { status: 'unavailable' as const, reason: 'authoritative-cost-not-observed' },
+    costLedger: {
+      status: 'unavailable' as const,
+      attempts: [],
+      reason: 'authoritative-cost-not-observed',
+    },
     latency: { status: 'unavailable' as const, reason: 'authoritative-latency-not-observed' },
     validation: { status: 'unvalidated' as const },
     receipts: [],
@@ -180,8 +218,10 @@ export function projectExecution(
   let governanceConstraints: readonly GovernanceConstraint[] = [];
   let activities = [...initial.activities];
   let plan = [...initial.plan];
+  let planHistory = [...initial.planHistory];
   let usage = initial.usage;
   let cost = initial.cost;
+  let costLedger = initial.costLedger;
   let latency = initial.latency;
   let validation = initial.validation;
   let receipts = [...initial.receipts];
@@ -223,8 +263,42 @@ export function projectExecution(
       if (index >= 0) activities[index] = structuredClone(event.activity);
       else activities = [...activities, structuredClone(event.activity)].slice(-maxActivities);
     } else if (event.type === 'plan') {
+      if (!Array.isArray(event.steps)) {
+        reasons.push(`malformed-plan:${event.eventId}`);
+        continue;
+      }
       if (event.steps.length > maxPlanSteps) reasons.push('plan-bound-exceeded');
-      plan = structuredClone(event.steps.slice(0, maxPlanSteps));
+      const revision = {
+        id: event.revisionId ?? event.eventId,
+        source: event.source ?? ('producer' as const),
+        observedAt: event.observedAt,
+        ...(event.reason ? { reason: event.reason } : {}),
+        steps: structuredClone(event.steps.slice(0, maxPlanSteps)),
+      };
+      const existingRevision = planHistory.find((item) => item.id === revision.id);
+      if (existingRevision && JSON.stringify(existingRevision) !== JSON.stringify(revision)) {
+        reasons.push(`conflicting-plan-revision:${revision.id}`);
+      } else {
+        plan = structuredClone(event.steps.slice(0, maxPlanSteps));
+        if (!existingRevision) planHistory = [...planHistory, revision].slice(-maxEvents);
+      }
+    } else if (event.type === 'spend-pause') {
+      if (
+        typeof event.limit !== 'number' ||
+        !Number.isFinite(event.limit) ||
+        event.limit < 0 ||
+        typeof event.reason !== 'string' ||
+        !event.reason.trim()
+      ) {
+        reasons.push(`invalid-spend-pause:${event.eventId}`);
+        continue;
+      }
+      costLedger = {
+        status: 'paused',
+        attempts: costLedger.attempts,
+        spendLimit: event.limit,
+        reason: event.reason,
+      };
     } else if (event.type === 'governance') {
       governanceConstraints = structuredClone(event.constraints);
       governance = resolveEffectiveGovernance(
@@ -236,12 +310,59 @@ export function projectExecution(
       );
       if (governance.status === 'unavailable') reasons.push(...governance.reasons.map((reason) => `policy:${reason}`));
     } else if (event.type === 'usage' || event.type === 'cost' || event.type === 'latency') {
+      if (event.type === 'cost' && !costPayloadValid(event)) {
+        reasons.push(`invalid-authoritative-cost:${event.eventId}`);
+        continue;
+      }
       if (!authoritativeReceiptValid(event, event.receipt)) {
         reasons.push(`invalid-authoritative-receipt:${event.eventId}`);
         continue;
       }
       if (event.type === 'usage') usage = structuredClone(event.usage);
-      if (event.type === 'cost') cost = structuredClone(event.cost);
+      if (event.type === 'cost') {
+        cost = structuredClone(event.cost);
+        const attemptInput = event.attempt;
+        const attempt = {
+          id: attemptInput?.id ?? event.eventId,
+          providerId: attemptInput?.providerId ?? event.receipt.authority,
+          ...(attemptInput?.modelId ? { modelId: attemptInput.modelId } : {}),
+          role: attemptInput?.role ?? ('primary' as const),
+          status: 'authoritative' as const,
+          amount: event.cost.amount,
+          currency: event.cost.currency,
+          receiptId: event.receipt.id,
+        };
+        const existingAttempt = costLedger.attempts.find((item) => item.id === attempt.id);
+        const reusedReceipt = costLedger.attempts.find(
+          (item) => item.receiptId === attempt.receiptId && item.id !== attempt.id
+        );
+        let attempts = [...costLedger.attempts];
+        if (reusedReceipt) {
+          reasons.push(`reused-cost-receipt:${attempt.receiptId}`);
+          costLedger = { status: 'mismatch', attempts: costLedger.attempts, reason: 'reused-cost-receipt' };
+        } else if (existingAttempt && JSON.stringify(existingAttempt) !== JSON.stringify(attempt)) {
+          reasons.push(`conflicting-cost-attempt:${attempt.id}`);
+          costLedger = { status: 'mismatch', attempts: costLedger.attempts, reason: 'conflicting-cost-attempt' };
+        } else if (!existingAttempt) {
+          attempts = [...attempts, attempt];
+          const currencies = new Set(attempts.flatMap((item) => (item.currency ? [item.currency] : [])));
+          const total = Math.round(attempts.reduce((sum, item) => sum + (item.amount ?? 0), 0) * 1e12) / 1e12;
+          const declaredMismatch =
+            event.conversationTotal !== undefined &&
+            (!Number.isFinite(event.conversationTotal) || Math.abs(event.conversationTotal - total) > 0.000001);
+          if (currencies.size !== 1 || declaredMismatch || !Number.isFinite(total)) {
+            reasons.push(`cost-total-mismatch:${event.eventId}`);
+            costLedger = { status: 'mismatch', attempts, reason: 'authoritative-cost-reconciliation-failed' };
+          } else {
+            costLedger = {
+              status: 'authoritative',
+              attempts,
+              total,
+              currency: [...currencies][0],
+            };
+          }
+        }
+      }
       if (event.type === 'latency') latency = structuredClone(event.latency);
       receipts = [...receipts, structuredClone(event.receipt)].slice(-maxReceipts);
     } else if (event.type === 'validation') {
@@ -272,8 +393,10 @@ export function projectExecution(
     governance: { requested: seed.requestedGovernance, effective: governance },
     activities,
     plan,
+    planHistory,
     usage,
     cost,
+    costLedger,
     latency,
     validation,
     receipts,

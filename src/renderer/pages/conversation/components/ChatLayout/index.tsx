@@ -34,6 +34,7 @@ import { Layout as ArcoLayout } from '@arco-design/web-react';
 import React from 'react';
 import useSWR from 'swr';
 import VoiceConversationMode from '@/renderer/pages/conversation/voice/VoiceConversationMode';
+import ProjectContextBadge from '../ProjectContext';
 import './chat-layout.css';
 
 // headerExtra allows injecting custom actions (e.g., model picker) into the header's right area
@@ -52,6 +53,8 @@ const ChatLayout: React.FC<{
   workspaceEnabled?: boolean;
   /** Conversation ID for mode switching */
   conversationId?: string;
+  /** Canonical umbrella project carried by conversation.extra.projectId. */
+  projectId?: string;
   /** Custom tabs slot; when provided, replaces the default ConversationTabs */
   tabsSlot?: React.ReactNode;
   /** Workspace path for opening in external tools */
@@ -250,6 +253,7 @@ const ChatLayout: React.FC<{
           {(hasTabs || layout?.isMobile) && <ConversationTitleMinimap conversationId={conversationId} hideTrigger />}
         </FlexFullContainer>
         <div className='flex items-center gap-12px shrink-0'>
+          <ProjectContextBadge projectId={props.projectId} />
           {conversationId && (
             <VoiceConversationMode
               conversationId={conversationId}
@@ -297,11 +301,9 @@ const ChatLayout: React.FC<{
   return (
     <ArcoLayout
       className='size-full'
-      style={
-        {
-          // fontFamily: `cursive,"anthropicSans","anthropicSans Fallback",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif`,
-        }
-      }
+      style={{
+        // fontFamily: `cursive,"anthropicSans","anthropicSans Fallback",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif`,
+      }}
     >
       <div ref={containerRef} className='flex flex-1 relative w-full overflow-hidden'>
         {isPreviewOpen && isDesktop ? (
@@ -320,6 +322,11 @@ const ChatLayout: React.FC<{
                   }}
                 >
                   <ArcoLayout.Content className='flex flex-col flex-1 bg-1 overflow-hidden'>
+                    {props.hideHeader && props.projectId && (
+                      <div className='shrink-0 px-16px pt-8px'>
+                        <ProjectContextBadge projectId={props.projectId} />
+                      </div>
+                    )}
                     {props.children}
                   </ArcoLayout.Content>
                 </div>
@@ -369,6 +376,11 @@ const ChatLayout: React.FC<{
               >
                 {!props.hideHeader && headerBlock}
                 <ArcoLayout.Content className='flex flex-col flex-1 bg-1 overflow-hidden'>
+                  {props.hideHeader && props.projectId && (
+                    <div className='shrink-0 px-16px pt-8px'>
+                      <ProjectContextBadge projectId={props.projectId} />
+                    </div>
+                  )}
                   {props.children}
                 </ArcoLayout.Content>
               </ArcoLayout.Content>

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type ExecutionBackend = 'wcore' | 'acp';
+export type ExecutionBackend = 'wcore' | 'acp' | 'gemini';
 export type ExecutionHost = 'desktop' | 'web' | 'community-cloud' | 'hosted-pro';
 export type ExecutionTrust = 'trusted' | 'untrusted' | 'unknown';
 export type ExecutionLifecycle = 'queued' | 'running' | 'waiting' | 'blocked' | 'completed' | 'failed' | 'cancelled';
@@ -77,6 +77,14 @@ export type ExecutionPlanStep = Readonly<{
   priority?: 'low' | 'medium' | 'high';
 }>;
 
+export type ExecutionPlanRevision = Readonly<{
+  id: string;
+  source: 'producer' | 'desktop-local';
+  observedAt: number;
+  reason?: string;
+  steps: readonly ExecutionPlanStep[];
+}>;
+
 export type AuthoritativeUsage = Readonly<{
   status: 'authoritative';
   inputTokens: number;
@@ -90,6 +98,27 @@ export type AuthoritativeCost = Readonly<{
   amount: number;
   currency: string;
   receiptId: string;
+}>;
+
+export type ExecutionCostAttempt = Readonly<{
+  id: string;
+  providerId: string;
+  modelId?: string;
+  role: 'primary' | 'retry' | 'fallback';
+  status: 'authoritative' | 'unavailable';
+  amount?: number;
+  currency?: string;
+  receiptId?: string;
+  reason?: string;
+}>;
+
+export type ExecutionCostLedger = Readonly<{
+  status: 'unavailable' | 'authoritative' | 'mismatch' | 'paused';
+  attempts: readonly ExecutionCostAttempt[];
+  total?: number;
+  currency?: string;
+  spendLimit?: number;
+  reason?: string;
 }>;
 
 export type AuthoritativeLatency = Readonly<{
@@ -150,8 +179,10 @@ export type ExecutionSnapshot = Readonly<{
   }>;
   activities: readonly ExecutionActivity[];
   plan: readonly ExecutionPlanStep[];
+  planHistory: readonly ExecutionPlanRevision[];
   usage: AuthoritativeUsage | UnavailableMetric;
   cost: AuthoritativeCost | UnavailableMetric;
+  costLedger: ExecutionCostLedger;
   latency: AuthoritativeLatency | UnavailableMetric;
   validation: ExecutionValidation;
   receipts: readonly ExecutionReceipt[];
@@ -179,10 +210,25 @@ export type ExecutionEvent =
   | (ExecutionEventBase &
       Readonly<{ type: 'lifecycle'; lifecycle: ExecutionLifecycle; action?: 'stop' | 'retry' | 'reopen' | 'resume' }>)
   | (ExecutionEventBase & Readonly<{ type: 'activity'; activity: ExecutionActivity }>)
-  | (ExecutionEventBase & Readonly<{ type: 'plan'; steps: readonly ExecutionPlanStep[] }>)
+  | (ExecutionEventBase &
+      Readonly<{
+        type: 'plan';
+        steps: readonly ExecutionPlanStep[];
+        revisionId?: string;
+        source?: ExecutionPlanRevision['source'];
+        reason?: string;
+      }>)
   | (ExecutionEventBase & Readonly<{ type: 'governance'; constraints: readonly GovernanceConstraint[] }>)
   | (ExecutionEventBase & Readonly<{ type: 'usage'; usage: AuthoritativeUsage; receipt: ExecutionReceipt }>)
-  | (ExecutionEventBase & Readonly<{ type: 'cost'; cost: AuthoritativeCost; receipt: ExecutionReceipt }>)
+  | (ExecutionEventBase &
+      Readonly<{
+        type: 'cost';
+        cost: AuthoritativeCost;
+        receipt: ExecutionReceipt;
+        attempt?: Omit<ExecutionCostAttempt, 'status' | 'amount' | 'currency' | 'receiptId'>;
+        conversationTotal?: number;
+      }>)
+  | (ExecutionEventBase & Readonly<{ type: 'spend-pause'; limit: number; reason: string }>)
   | (ExecutionEventBase & Readonly<{ type: 'latency'; latency: AuthoritativeLatency; receipt: ExecutionReceipt }>)
   | (ExecutionEventBase & Readonly<{ type: 'validation'; validation: ExecutionValidation; receipt?: ExecutionReceipt }>)
   | (ExecutionEventBase & Readonly<{ type: 'outcome'; outcome: ExecutionOutcome }>)

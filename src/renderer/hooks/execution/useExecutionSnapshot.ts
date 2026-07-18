@@ -8,8 +8,10 @@ import { useMemo } from 'react';
 import type { TMessage } from '@/common/chat/chatLib';
 import {
   adaptAcpMessages,
+  adaptGeminiMessages,
   adaptWCoreMessages,
   projectExecution,
+  selectCurrentExecutionMessages,
   type ExecutionBackend,
   type ExecutionEvent,
   type ExecutionProjectionOptions,
@@ -33,7 +35,13 @@ export function useBackendExecutionSnapshot(
 ): ExecutionSnapshot {
   return useMemo(() => {
     const context = { identity: seed.identity, observedAt: options.now };
-    const events = backend === 'wcore' ? adaptWCoreMessages(messages, context) : adaptAcpMessages(messages, context);
+    const currentMessages = selectCurrentExecutionMessages(backend, messages);
+    const events =
+      backend === 'wcore'
+        ? adaptWCoreMessages(currentMessages, context)
+        : backend === 'gemini'
+          ? adaptGeminiMessages(currentMessages, context)
+          : adaptAcpMessages(currentMessages, context);
     return projectExecution(seed, events, options);
   }, [backend, messages, options, seed]);
 }

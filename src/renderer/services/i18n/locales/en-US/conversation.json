@@ -538,5 +538,19 @@
       "title": "Task failed",
       "body": "{{title}} stopped with an error. {{detail}}"
     }
+  },
+  "execution": {
+    "progressCount": "{{completed}} of {{total}} complete",
+    "currentActivity": "Working through the current task",
+    "missionRail": "Mission progress",
+    "progress": "Progress",
+    "replans": "Plan changes",
+    "replanCount": "{{count}} recorded revisions",
+    "producerPlan": "Agent plan",
+    "localPlan": "Desktop plan",
+    "outputs": "Outputs",
+    "handoffs": "Handoffs",
+    "cost": "Receipt-backed cost",
+    "costMismatch": "Cost evidence does not reconcile. Total hidden."
   }
 }

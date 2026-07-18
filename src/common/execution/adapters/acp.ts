@@ -30,6 +30,8 @@ export function adaptAcpMessages(
 ): readonly ExecutionEvent[] {
   const events: ExecutionEvent[] = [];
   let sequence = context.startSequence ?? 0;
+  let lifecycle: 'queued' | 'running' | 'waiting' | 'completed' | 'failed' = 'queued';
+  const lastToolMessageId = messages.findLast((message) => message.type === 'acp_tool_call')?.id;
   const append = (event: UnsequencedEvent): void => {
     events.push({ ...event, sequence } as ExecutionEvent);
     sequence += 1;
@@ -39,6 +41,17 @@ export function adaptAcpMessages(
     const observedAt = message.createdAt ?? context.observedAt;
     if (message.type === 'acp_tool_call') {
       const update = message.content.update;
+      if (lifecycle !== 'running') {
+        append({
+          eventId: `${message.id}:lifecycle:running`,
+          identity: context.identity,
+          observedAt,
+          type: 'lifecycle',
+          lifecycle: 'running',
+          ...(lifecycle === 'waiting' ? { action: 'resume' as const } : {}),
+        });
+        lifecycle = 'running';
+      }
       append({
         eventId: `${message.id}:tool:${update.toolCallId}`,
         identity: context.identity,
@@ -52,6 +65,16 @@ export function adaptAcpMessages(
           detail: update.kind,
         },
       });
+      if (update.status === 'failed' || (update.status === 'completed' && message.id === lastToolMessageId)) {
+        append({
+          eventId: `${message.id}:lifecycle:${update.status}`,
+          identity: context.identity,
+          observedAt,
+          type: 'lifecycle',
+          lifecycle: update.status,
+        });
+        lifecycle = update.status;
+      }
     } else if (message.type === 'acp_permission') {
       append({
         eventId: `${message.id}:waiting`,
@@ -60,6 +83,7 @@ export function adaptAcpMessages(
         type: 'lifecycle',
         lifecycle: 'waiting',
       });
+      lifecycle = 'waiting';
       append({
         eventId: `${message.id}:approval:${message.content.toolCall.toolCallId}`,
         identity: context.identity,

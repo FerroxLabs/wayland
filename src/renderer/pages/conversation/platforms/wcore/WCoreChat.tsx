@@ -36,6 +36,7 @@ import ConversationChatConfirm from '../../components/ConversationChatConfirm';
 import WCoreSendBox from './WCoreSendBox';
 import WCoreContextCeilingCard from './WCoreContextCeilingCard';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
+import ExecutionSpine from '../../components/ExecutionSpine';
 
 const WCoreChat: React.FC<{
   conversation_id: string;
@@ -50,6 +51,7 @@ const WCoreChat: React.FC<{
   workflowApplyStepMarker?:
     | ((stepN: number, status: StepStatus, source?: StepTransitionSource) => Promise<void>)
     | null;
+  projectId?: string;
 }> = ({
   conversation_id,
   workspace,
@@ -61,6 +63,7 @@ const WCoreChat: React.FC<{
   workflowSessionId,
   workflowTotalSteps,
   workflowApplyStepMarker,
+  projectId,
 }) => {
   useMessageLstCache(conversation_id);
   const navigate = useNavigate();
@@ -209,64 +212,76 @@ const WCoreChat: React.FC<{
 
   return (
     <ConversationProvider value={conversationValue}>
-      <div className='flex-1 flex relative min-h-0'>
-        <div
-          className='flex flex-col px-20px min-h-0'
-          style={obs.panelOpen ? { width: `${splitRatio}%`, minWidth: 0 } : { flex: 1, minWidth: 0 }}
-        >
-          <FlexFullContainer>
-            <MessageList className='flex-1' emptySlot={emptySlot} isProcessing={isProcessing} />
-          </FlexFullContainer>
-          {engineAsleep && (
-            <div className='max-w-800px w-full mx-auto mb-8px'>
-              <ActivationCard onConnectFlux={handleConnectFlux} onUseOwnKey={goToModels} onUseClaudeCode={goToModels} />
-            </div>
-          )}
-          {authRemedy && (
-            <div className='max-w-800px w-full mx-auto mb-12px'>
-              <AcpAuthFailureCard
-                remedy={authRemedy}
-                onAddKey={goToModels}
-                onRouteThroughFlux={onAuthRouteThroughFlux}
-                onDismiss={() => setAuthRemedy(null)}
-              />
-            </div>
-          )}
-          {ceilingRemedy && (
-            <div className='max-w-800px w-full mx-auto mb-12px'>
-              <WCoreContextCeilingCard
-                conversationId={conversation_id}
+      <ExecutionSpine
+        backend='wcore'
+        conversationId={conversation_id}
+        workspaceId={workspace || conversation_id}
+        projectId={projectId}
+        agentId='wcore'
+      >
+        <div className='flex-1 flex relative min-h-0'>
+          <div
+            className='flex flex-col px-20px min-h-0'
+            style={obs.panelOpen ? { width: `${splitRatio}%`, minWidth: 0 } : { flex: 1, minWidth: 0 }}
+          >
+            <FlexFullContainer>
+              <MessageList className='flex-1' emptySlot={emptySlot} isProcessing={isProcessing} />
+            </FlexFullContainer>
+            {engineAsleep && (
+              <div className='max-w-800px w-full mx-auto mb-8px'>
+                <ActivationCard
+                  onConnectFlux={handleConnectFlux}
+                  onUseOwnKey={goToModels}
+                  onUseClaudeCode={goToModels}
+                />
+              </div>
+            )}
+            {authRemedy && (
+              <div className='max-w-800px w-full mx-auto mb-12px'>
+                <AcpAuthFailureCard
+                  remedy={authRemedy}
+                  onAddKey={goToModels}
+                  onRouteThroughFlux={onAuthRouteThroughFlux}
+                  onDismiss={() => setAuthRemedy(null)}
+                />
+              </div>
+            )}
+            {ceilingRemedy && (
+              <div className='max-w-800px w-full mx-auto mb-12px'>
+                <WCoreContextCeilingCard
+                  conversationId={conversation_id}
+                  modelSelection={modelSelection}
+                  model={ceilingRemedy.model}
+                  rawError={ceilingRemedy.rawError}
+                  onRetry={onCeilingRetry}
+                  onDismiss={() => setCeilingRemedy(null)}
+                />
+              </div>
+            )}
+            {hasCuaCapability && !cuaCardDismissed && (
+              <div className='max-w-800px w-full mx-auto mb-12px'>
+                <CuaPermissionCard active={hasCuaCapability} onDismiss={() => setCuaCardDismissed(true)} />
+              </div>
+            )}
+            <ConversationChatConfirm conversation_id={conversation_id}>
+              <WCoreSendBox
+                conversation_id={conversation_id}
                 modelSelection={modelSelection}
-                model={ceilingRemedy.model}
-                rawError={ceilingRemedy.rawError}
-                onRetry={onCeilingRetry}
-                onDismiss={() => setCeilingRemedy(null)}
+                teamId={teamId}
+                agentSlotId={agentSlotId}
+                sessionMode={sessionMode}
+                onRunningChange={setIsProcessing}
               />
-            </div>
-          )}
-          {hasCuaCapability && !cuaCardDismissed && (
-            <div className='max-w-800px w-full mx-auto mb-12px'>
-              <CuaPermissionCard active={hasCuaCapability} onDismiss={() => setCuaCardDismissed(true)} />
-            </div>
-          )}
-          <ConversationChatConfirm conversation_id={conversation_id}>
-            <WCoreSendBox
-              conversation_id={conversation_id}
-              modelSelection={modelSelection}
-              teamId={teamId}
-              agentSlotId={agentSlotId}
-              sessionMode={sessionMode}
-              onRunningChange={setIsProcessing}
-            />
-          </ConversationChatConfirm>
-        </div>
-        {obs.panelOpen && (
-          <div className='relative flex flex-col min-h-0' style={{ width: `${100 - splitRatio}%`, minWidth: 0 }}>
-            {createDragHandle({ className: 'left-0 top-0 bottom-0', reverse: true })}
-            <ObservabilityPanel onClose={() => updateObs('panelOpen', false)} />
+            </ConversationChatConfirm>
           </div>
-        )}
-      </div>
+          {obs.panelOpen && (
+            <div className='relative flex flex-col min-h-0' style={{ width: `${100 - splitRatio}%`, minWidth: 0 }}>
+              {createDragHandle({ className: 'left-0 top-0 bottom-0', reverse: true })}
+              <ObservabilityPanel onClose={() => updateObs('panelOpen', false)} />
+            </div>
+          )}
+        </div>
+      </ExecutionSpine>
     </ConversationProvider>
   );
 };

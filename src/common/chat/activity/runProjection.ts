@@ -1128,6 +1128,10 @@ const invalidSnapshot = (identity: RunIdentity, issues: RunIntegrityIssue[]): Ru
   });
 
 /** Project exactly one identified run into one immutable Cockpit snapshot. */
+/**
+ * @deprecated Legacy message-shape compatibility projection. Production UI
+ * consumes the canonical execution reducer via selectCanonicalRunSnapshot.
+ */
 export const projectRunSnapshot = (expected: RunIdentity, messages: readonly TMessage[]): RunSnapshot => {
   const conversationId = clean(expected.conversationId);
   const turnId = clean(expected.turnId);

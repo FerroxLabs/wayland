@@ -289,5 +289,9 @@
     "orSkipBelow": "or skip below - you can add them anytime",
     "skip": "Skip for now, just get going",
     "create": "Create project"
+  },
+  "contextBadge": {
+    "project": "Project",
+    "unavailable": "Project unavailable"
   }
 }

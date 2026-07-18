@@ -27,5 +27,22 @@ export function selectExecutionNeedsAttention(snapshot: ExecutionSnapshot): bool
 }
 
 export function selectAuthoritativeSpend(snapshot: ExecutionSnapshot): number | null {
-  return snapshot.cost.status === 'authoritative' ? snapshot.cost.amount : null;
+  return snapshot.costLedger.status === 'authoritative' ? (snapshot.costLedger.total ?? null) : null;
+}
+
+/** Canonical view consumed by both the conversation thread and mission rail. */
+export function selectCanonicalRunSnapshot(snapshot: ExecutionSnapshot) {
+  return {
+    identity: snapshot.identity,
+    lifecycle: snapshot.lifecycle,
+    integrity: snapshot.integrity,
+    progress: selectExecutionProgress(snapshot),
+    plan: snapshot.plan,
+    planHistory: snapshot.planHistory,
+    activities: snapshot.activities,
+    outcomes: snapshot.outcomes,
+    handoffs: snapshot.handoffs,
+    costLedger: snapshot.costLedger,
+    needsAttention: selectExecutionNeedsAttention(snapshot),
+  } as const;
 }

@@ -6,7 +6,14 @@
 
 import { describe, expect, it } from 'vitest';
 import type { TMessage } from '@/common/chat/chatLib';
-import { adaptAcpMessages, adaptWCoreMessages, projectExecution, type ExecutionSeed } from '@/common/execution';
+import {
+  adaptAcpMessages,
+  adaptGeminiMessages,
+  adaptWCoreMessages,
+  projectExecution,
+  selectCurrentExecutionMessages,
+  type ExecutionSeed,
+} from '@/common/execution';
 
 const identity = { runId: 'run-1', turnId: 'turn-1', correlationId: 'corr-1' } as const;
 const now = 1_000;
@@ -83,12 +90,123 @@ describe('execution backend adapters', () => {
     ] as TMessage[];
     const seed: ExecutionSeed = { ...baseSeed, actor: { backend: 'acp', agentId: 'codex' } };
     const result = projectExecution(seed, adaptAcpMessages(messages, { identity, observedAt: now }), { now });
-    expect(result.lifecycle).toBe('waiting');
+    expect(result.lifecycle).toBe('completed');
     expect(result.activities).toEqual(
       expect.arrayContaining([expect.objectContaining({ id: 'tool-1', kind: 'tool', status: 'completed' })])
     );
     expect(result.mcp.status).toBe('unsupported');
     expect(result.integrity.status).toBe('valid');
+  });
+
+  it('resumes ACP after permission and fails closed on a failed tool', () => {
+    const messages = [
+      {
+        id: 'permission-1',
+        conversation_id: 'conversation-1',
+        type: 'acp_permission',
+        content: {
+          sessionId: 'session-1',
+          options: [{ optionId: 'yes', name: 'Allow', kind: 'allow_once' }],
+          toolCall: { toolCallId: 'tool-1', title: 'Run command', kind: 'execute' },
+        },
+        createdAt: now,
+      },
+      {
+        id: 'tool-update-1',
+        conversation_id: 'conversation-1',
+        type: 'acp_tool_call',
+        content: {
+          sessionId: 'session-1',
+          update: {
+            sessionUpdate: 'tool_call',
+            toolCallId: 'tool-1',
+            status: 'failed',
+            title: 'Run command',
+            kind: 'execute',
+          },
+        },
+        createdAt: now,
+      },
+    ] as TMessage[];
+    const result = projectExecution(
+      { ...baseSeed, actor: { backend: 'acp', agentId: 'codex' } },
+      adaptAcpMessages(messages, { identity, observedAt: now }),
+      { now }
+    );
+    expect(result.lifecycle).toBe('failed');
+    expect(result.integrity.status).toBe('valid');
+  });
+
+  it('does not terminate an ACP session between multiple completed tools', () => {
+    const tool = (id: string) =>
+      ({
+        id,
+        conversation_id: 'conversation-1',
+        type: 'acp_tool_call',
+        content: {
+          sessionId: 'session-1',
+          update: {
+            sessionUpdate: 'tool_call',
+            toolCallId: id,
+            status: 'completed',
+            title: id,
+            kind: 'execute',
+          },
+        },
+        createdAt: now,
+      }) as TMessage;
+    const result = projectExecution(
+      { ...baseSeed, actor: { backend: 'acp', agentId: 'codex' } },
+      adaptAcpMessages([tool('tool-1'), tool('tool-2')], { identity, observedAt: now }),
+      { now }
+    );
+    expect(result.lifecycle).toBe('completed');
+    expect(result.activities).toHaveLength(2);
+    expect(result.integrity.status).toBe('valid');
+  });
+
+  it('routes Gemini through its explicit canonical adapter', () => {
+    const message = {
+      id: 'activity-gemini',
+      conversation_id: 'conversation-1',
+      type: 'activity',
+      content: { turnId: 'turn-1', status: 'done', nodes: [] },
+      createdAt: now,
+    } as TMessage;
+    const result = projectExecution(
+      { ...baseSeed, actor: { backend: 'gemini', agentId: 'gemini' } },
+      adaptGeminiMessages([message], { identity, observedAt: now }),
+      { now }
+    );
+    expect(result.lifecycle).toBe('completed');
+    expect(result.integrity.status).toBe('valid');
+  });
+
+  it('selects only the current run instead of replaying terminal history', () => {
+    const messages = [
+      {
+        id: 'old',
+        conversation_id: 'conversation-1',
+        type: 'activity',
+        content: { turnId: 'old-turn', status: 'done', nodes: [] },
+      },
+      {
+        id: 'plan-current',
+        conversation_id: 'conversation-1',
+        type: 'plan',
+        content: { sessionId: 'current', entries: [] },
+      },
+      {
+        id: 'current',
+        conversation_id: 'conversation-1',
+        type: 'activity',
+        content: { turnId: 'turn-1', status: 'running', nodes: [] },
+      },
+    ] as TMessage[];
+    expect(selectCurrentExecutionMessages('wcore', messages).map((message) => message.id)).toEqual([
+      'plan-current',
+      'current',
+    ]);
   });
 
   it('does not promote a WCore MCP display record into canonical MCP authority', () => {
