@@ -430,12 +430,21 @@ describe('Wayland Transfer encrypted publication pipeline', () => {
     expect(() => validateTransferPublication(publication.records, differentGraph)).toThrow(/bundle mismatch/);
   });
 
-  it('rejects expired authorization, payload tampering, and coherent outer transcript drift', async () => {
+  it('keeps recovery archives valid while rejecting authorization and transcript tampering', async () => {
     const graph = buildTransferObjectGraph(graphInput());
     const publication = await publishRecoveryTransfer({ graph, passphrase: 'recovery credential' });
     expect(() =>
       validateTransferPublication(publication.records, graph, undefined, () => NOW + 15 * 60 * 1000)
-    ).toThrow(/expired/);
+    ).not.toThrow();
+    expect(() =>
+      validateTransferPublication(publication.records, graph, undefined, () => NOW + 365 * 24 * 60 * 60 * 1000)
+    ).not.toThrow();
+
+    const invalidWindow = copyRecords(publication.records);
+    replaceSourceAuthorization(invalidWindow, (envelope) => {
+      envelope.payload.issuedAt = NOW - 1;
+    });
+    expect(() => validateTransferPublication(invalidWindow, graph)).toThrow(/window exceeds 15 minutes/);
 
     const payloadTamper = copyRecords(publication.records);
     replaceSourceAuthorization(payloadTamper, (envelope) => {
@@ -495,6 +504,16 @@ describe('Wayland Transfer encrypted publication pipeline', () => {
     await expect(
       publishDestinationTransfer({ graph, recipient: recipient.descriptor(), now: expiresDuringPublish })
     ).rejects.toThrow(/expired/);
+
+    const publication = await publishDestinationTransfer({ graph, recipient: recipient.descriptor(), now: () => NOW });
+    expect(() =>
+      validateTransferPublication(
+        publication.records,
+        graph,
+        { mode: 'destination', destinationKeyFingerprint: recipient.descriptor().fingerprint },
+        () => NOW + 15 * 60 * 1000
+      )
+    ).toThrow(/expired/);
   });
 
   it('rejects graph mutation before any publication can be accepted', async () => {

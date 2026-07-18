@@ -148,6 +148,7 @@ type SourceAuthorizationPayload = Readonly<{
   selectedLogicalStateSha256: TransferDigest;
   exclusionsSha256: TransferDigest;
   mutationEpochSha256: TransferDigest;
+  issuedAt: number;
   expiresAt: number;
   transcriptSha256: TransferDigest;
   terminalOutcome: TerminalOutcome;
@@ -192,7 +193,7 @@ export function createSourceAuthorizationRecord(
   input: SourceExportAuthorizationInput,
   now: number
 ): TransferSourceAuthorizationRecord {
-  assertFreshAuthorization(input.expiresAt, now);
+  assertAuthorizationUsableAt(now, input.expiresAt, now, true);
   assertMutationEpoch(input.mutationEpoch);
   if (
     digestCanonical(input.mutationEpoch as unknown as Json) !== digestCanonical(scope.mutationEpoch as unknown as Json)
@@ -209,6 +210,7 @@ export function createSourceAuthorizationRecord(
     exclusionsSha256: scope.exclusionsSha256,
     mutationEpochSha256: digestCanonical(scope.mutationEpoch as unknown as Json),
     ...targetFromScope(scope),
+    issuedAt: now,
     expiresAt: input.expiresAt,
     transcriptSha256: publicationTranscriptDigest(containerRecords),
     terminalOutcome: terminalOutcome(terminal),
@@ -249,7 +251,13 @@ export function verifySourceAuthorizationRecord(
     throw new Error('Transfer source authorization is not canonical');
   }
   assertTrustedAuthority(envelope, policy.trustedAuthority);
-  assertFreshAuthorization(envelope.payload.expiresAt, (policy.now ?? Date.now)());
+  const now = (policy.now ?? Date.now)();
+  assertAuthorizationUsableAt(
+    envelope.payload.issuedAt,
+    envelope.payload.expiresAt,
+    now,
+    envelope.payload.mode === 'destination'
+  );
   assertPayloadMatchesPolicy(envelope.payload, policy.expectedScope, header, terminal, containerRecords);
   const publicKey = parseCanonicalPublicKey(envelope.publicKeyDer);
   const signature = decodeCanonicalBase64Url(
@@ -323,6 +331,7 @@ function parsePayload(value: unknown): SourceAuthorizationPayload {
           'destinationKeyFingerprint',
           'exclusionsSha256',
           'expiresAt',
+          'issuedAt',
           'mode',
           'mutationEpochSha256',
           'selectedLogicalStateSha256',
@@ -335,6 +344,7 @@ function parsePayload(value: unknown): SourceAuthorizationPayload {
           'contract',
           'exclusionsSha256',
           'expiresAt',
+          'issuedAt',
           'mode',
           'mutationEpochSha256',
           'recoveryMode',
@@ -352,6 +362,7 @@ function parsePayload(value: unknown): SourceAuthorizationPayload {
     !isDigest(value.selectedLogicalStateSha256) ||
     !isDigest(value.exclusionsSha256) ||
     !isDigest(value.mutationEpochSha256) ||
+    !Number.isSafeInteger(value.issuedAt) ||
     !Number.isSafeInteger(value.expiresAt) ||
     !isDigest(value.transcriptSha256)
   ) {
@@ -365,6 +376,7 @@ function parsePayload(value: unknown): SourceAuthorizationPayload {
     selectedLogicalStateSha256: value.selectedLogicalStateSha256,
     exclusionsSha256: value.exclusionsSha256,
     mutationEpochSha256: value.mutationEpochSha256,
+    issuedAt: value.issuedAt as number,
     expiresAt: value.expiresAt as number,
     transcriptSha256: value.transcriptSha256,
     terminalOutcome: terminalOutcomeValue,
@@ -416,6 +428,7 @@ function assertPayloadMatchesPolicy(
     exclusionsSha256: scope.exclusionsSha256,
     mutationEpochSha256: digestCanonical(scope.mutationEpoch as unknown as Json),
     ...targetFromScope(scope),
+    issuedAt: payload.issuedAt,
     expiresAt: payload.expiresAt,
     transcriptSha256: publicationTranscriptDigest(records),
     terminalOutcome: terminalOutcome(terminal) as unknown as Json,
@@ -464,13 +477,29 @@ function assertBundleSemanticBinding(bundleId: string, semanticGraphSha256: Tran
   }
 }
 
-function assertFreshAuthorization(expiresAt: number, now: number): void {
-  if (!Number.isSafeInteger(expiresAt) || !Number.isSafeInteger(now)) {
-    throw new Error('Transfer source authorization expiry is invalid');
+function assertAuthorizationUsableAt(
+  issuedAt: number,
+  expiresAt: number,
+  now: number,
+  requireCurrentlyFresh: boolean
+): void {
+  if (
+    !Number.isSafeInteger(issuedAt) ||
+    !Number.isSafeInteger(expiresAt) ||
+    !Number.isSafeInteger(now) ||
+    issuedAt < 0 ||
+    expiresAt < 0 ||
+    now < 0
+  ) {
+    throw new Error('Transfer source authorization window is invalid');
   }
-  const remaining = expiresAt - now;
-  if (remaining <= 0 || remaining > TRANSFER_SOURCE_AUTHORIZATION_MAX_LIFETIME_MS) {
-    throw new Error('Transfer source authorization is expired or exceeds 15 minutes');
+  const lifetime = expiresAt - issuedAt;
+  if (lifetime <= 0 || lifetime > TRANSFER_SOURCE_AUTHORIZATION_MAX_LIFETIME_MS) {
+    throw new Error('Transfer source authorization window exceeds 15 minutes');
+  }
+  if (issuedAt > now) throw new Error('Transfer source authorization was issued in the future');
+  if (requireCurrentlyFresh && expiresAt <= now) {
+    throw new Error('Transfer source authorization is expired');
   }
 }
 
