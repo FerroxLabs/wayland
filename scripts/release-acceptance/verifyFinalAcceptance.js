@@ -346,7 +346,7 @@ function verifyClearance(receipt, candidate, kind) {
   return result;
 }
 
-function verifyFinalAcceptance(input, injected = {}) {
+function verifyFinalAcceptanceWithAuthorities(input, verifiers) {
   const request = exactKeys(
     input,
     [
@@ -366,7 +366,6 @@ function verifyFinalAcceptance(input, injected = {}) {
   );
   if (request.contract !== REQUEST_CONTRACT) fail('M8A_REQUEST_INVALID', 'unsupported-contract');
   const candidate = candidateIdentity(request.candidate);
-  const verifiers = { ...DEFAULT_VERIFIERS, ...injected };
   sameCandidate(verifiers.observeCandidateIdentity(), candidate, 'M8A_LIVE_CANDIDATE_INVALID');
 
   const matrixReceipt = verifyMatrixReceipt(verifiers.verifyHardeningMatrix(request.hardeningMatrix));
@@ -502,12 +501,26 @@ function verifyFinalAcceptance(input, injected = {}) {
   };
 }
 
+function verifyFinalAcceptance(input) {
+  return verifyFinalAcceptanceWithAuthorities(input, DEFAULT_VERIFIERS);
+}
+
+function testOnlyVerifyFinalAcceptance(input, injected = {}) {
+  const receipt = verifyFinalAcceptanceWithAuthorities(input, { ...DEFAULT_VERIFIERS, ...injected });
+  return {
+    ...receipt,
+    contract: 'wayland-final-acceptance-test-only/1.0',
+    accepted: false,
+  };
+}
+
 module.exports = {
   CAPABILITIES,
   DEFAULT_VERIFIERS,
   RECEIPT_CONTRACT,
   REQUEST_CONTRACT,
   TARGETS,
+  testOnlyVerifyFinalAcceptance,
   verifyFinalAcceptance,
 };
 

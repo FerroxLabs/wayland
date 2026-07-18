@@ -2,9 +2,17 @@ import { createRequire } from 'node:module';
 import { describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const { TARGETS, verifyFinalAcceptance } = require('../../../scripts/release-acceptance/verifyFinalAcceptance') as {
+const {
+  TARGETS,
+  testOnlyVerifyFinalAcceptance: verifyFinalAcceptance,
+  verifyFinalAcceptance: verifyProductionAcceptance,
+} = require('../../../scripts/release-acceptance/verifyFinalAcceptance') as {
   TARGETS: string[];
-  verifyFinalAcceptance: (input: unknown, verifiers?: Record<string, (...args: any[]) => any>) => Record<string, any>;
+  testOnlyVerifyFinalAcceptance: (
+    input: unknown,
+    verifiers?: Record<string, (...args: any[]) => any>
+  ) => Record<string, any>;
+  verifyFinalAcceptance: (input: unknown) => Record<string, any>;
 };
 
 const COMMIT = 'a'.repeat(40);
@@ -177,17 +185,23 @@ function verifiers() {
 }
 
 describe('M8-A final acceptance controller', () => {
-  it('accepts only a complete authority-backed exact candidate', () => {
+  it('exercises a complete authority-backed exact candidate without minting production acceptance', () => {
     const receipt = verifyFinalAcceptance(request(), verifiers());
 
     expect(receipt).toMatchObject({
-      contract: 'wayland-final-acceptance/1.0',
+      contract: 'wayland-final-acceptance-test-only/1.0',
       candidate: { commit: COMMIT, tree: TREE },
-      accepted: true,
+      accepted: false,
     });
     expect(receipt.targets).toHaveLength(6);
     expect(receipt.targetGates).toHaveLength(30);
     expect(receipt.capabilityReceipts).toHaveLength(5);
+  });
+
+  it('does not expose verifier injection through the production acceptance entry point', () => {
+    expect(() =>
+      (verifyProductionAcceptance as unknown as (input: unknown, injected: unknown) => unknown)(request(), verifiers())
+    ).toThrow(/M8A_LIVE_CANDIDATE_INVALID|M8A_.*_AUTHORITY_UNAVAILABLE/);
   });
 
   it('rejects a missing or duplicate platform target', () => {
