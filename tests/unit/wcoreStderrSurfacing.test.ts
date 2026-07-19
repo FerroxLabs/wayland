@@ -630,6 +630,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     await started;
 
     const stdinWrite = vi.spyOn(child.stdin, 'write');
+    const startWatchdog = vi.spyOn(agent as unknown as { startStallWatchdog: () => void }, 'startStallWatchdog');
     child.stdin.destroy();
     expect(child.stdin.writable).toBe(false);
 
@@ -644,7 +645,110 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
 
     expect(sendError).toBeInstanceOf(Error);
     expect((sendError as Error).message).toContain('transport');
+    expect(agent.isAlive).toBe(false);
+    expect((agent as unknown as { activeMsgId: string | null }).activeMsgId).toBeNull();
+    expect(startWatchdog).not.toHaveBeenCalled();
     expect(stdinWrite).not.toHaveBeenCalled();
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
+  });
+
+  it('marks an explicit stdin close as dead transport while retaining exact shutdown identity', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const agent = new WCoreAgent(baseOptions());
+    const started = agent.start();
+    await flushUntilSpawned(child);
+
+    const contractRoot = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    child.stdout.write(`${readFileSync(path.join(contractRoot, 'events/ready.json'), 'utf8').trimEnd()}\n`);
+    await started;
+
+    const stdinWrite = vi.spyOn(child.stdin, 'write');
+    const startWatchdog = vi.spyOn(agent as unknown as { startStallWatchdog: () => void }, 'startStallWatchdog');
+    child.stdin.emit('close');
+
+    expect(agent.isAlive).toBe(false);
+    await expect(agent.send('closed pipe turn', 'closed-pipe-turn')).rejects.toThrow('transport');
+    expect((agent as unknown as { activeMsgId: string | null }).activeMsgId).toBeNull();
+    expect(startWatchdog).not.toHaveBeenCalled();
+    expect(stdinWrite).not.toHaveBeenCalled();
+
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
+  });
+
+  it('handles a synchronous stdin write error without losing root-exit or tree-proof authority', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const onProcessExit = vi.fn();
+    const onProcessTerminated = vi.fn();
+    const agent = new WCoreAgent({ ...baseOptions(), onProcessExit, onProcessTerminated });
+    const started = agent.start();
+    await flushUntilSpawned(child);
+
+    const contractRoot = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    child.stdout.write(`${readFileSync(path.join(contractRoot, 'events/ready.json'), 'utf8').trimEnd()}\n`);
+    await started;
+
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const startWatchdog = vi.spyOn(agent as unknown as { startStallWatchdog: () => void }, 'startStallWatchdog');
+    vi.spyOn(child.stdin, 'write').mockImplementationOnce((() => {
+      child.stdin.emit('error', new Error('closed during write'));
+      return true;
+    }) as typeof child.stdin.write);
+
+    await expect(agent.send('raced turn', 'stdin-error-race')).rejects.toThrow('transport');
+    const warningCount = warn.mock.calls.length;
+    warn.mockRestore();
+    expect(warningCount).toBe(1);
+    expect(agent.isAlive).toBe(false);
+    expect((agent as unknown as { activeMsgId: string | null }).activeMsgId).toBeNull();
+    expect(startWatchdog).not.toHaveBeenCalled();
+    expect(onProcessExit).not.toHaveBeenCalled();
+
+    child.emit('exit', 1);
+    child.emit('exit', 1);
+    expect(onProcessTerminated).toHaveBeenCalledOnce();
+
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
+  });
+
+  it('fails an active turn once when stdin errors before a later close and repeated root exit', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const onProcessExit = vi.fn();
+    const onProcessTerminated = vi.fn();
+    const agent = new WCoreAgent({ ...baseOptions(), onProcessExit, onProcessTerminated });
+    const started = agent.start();
+    await flushUntilSpawned(child);
+
+    const contractRoot = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    child.stdout.write(`${readFileSync(path.join(contractRoot, 'events/ready.json'), 'utf8').trimEnd()}\n`);
+    await started;
+    await agent.send('active before pipe failure', 'active-pipe-turn');
+
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    child.stdin.emit('error', new Error('pipe failed after write'));
+    child.stdin.emit('close');
+
+    const warningCount = warn.mock.calls.length;
+    warn.mockRestore();
+    expect(warningCount).toBe(1);
+    expect(agent.isAlive).toBe(false);
+    expect(onProcessExit).toHaveBeenCalledOnce();
+    expect(onProcessExit).toHaveBeenCalledWith(null, 'active-pipe-turn');
+    expect((agent as unknown as { activeMsgId: string | null }).activeMsgId).toBeNull();
+
+    child.emit('exit', 1);
+    child.emit('exit', 1);
+    expect(onProcessExit).toHaveBeenCalledOnce();
+    expect(onProcessTerminated).toHaveBeenCalledOnce();
+
+    await expect(agent.kill()).resolves.toBeUndefined();
     expect(killChildMock).toHaveBeenCalledOnce();
     expect(killChildMock).toHaveBeenCalledWith(child, false);
   });

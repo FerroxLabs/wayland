@@ -236,6 +236,7 @@ export class WCoreAgent {
    * complete tree can be proved stopped; that retained identity is never a
    * writable/live transport. */
   private transportAlive = false;
+  private transportUnavailableReason: 'root-exit' | 'stdin' | null = null;
   /**
    * A failed tree shutdown remains authoritative even if the root process emits
    * `exit`. Without this latch, a second kill could report success while an
@@ -588,6 +589,7 @@ export class WCoreAgent {
         cwd: workspace,
       });
       this.transportAlive = true;
+      this.transportUnavailableReason = null;
     } catch (error) {
       this.cleanupVertexCredentials();
       throw error;
@@ -674,13 +676,27 @@ export class WCoreAgent {
     // and its launch config until that proof succeeds.
     const spawnedChild = this.childProcess;
     let rootExitObserved = false;
+    const markStdinUnavailable = (error?: Error): void => {
+      if (error) {
+        console.warn('[WCoreAgent] stdin transport failed', redactSecrets(error.message));
+      }
+      this.markTransportUnavailable(spawnedChild);
+    };
+    // A child can remain alive after its writable command pipe closes. Treat
+    // that as transport death immediately, but retain `spawnedChild` as the
+    // exact process-tree identity that kill() must still prove stopped.
+    spawnedChild.stdin?.on('error', markStdinUnavailable);
+    spawnedChild.stdin?.on('close', () => markStdinUnavailable());
     spawnedChild.on('exit', (code) => {
       // Node promises one exit event, but keep this boundary idempotent under a
       // hostile/double-emitting child shim. Replaying terminal notifications
       // must not duplicate trust changes or manager termination callbacks.
       if (rootExitObserved) return;
       rootExitObserved = true;
-      if (this.childProcess === spawnedChild) this.transportAlive = false;
+      if (this.childProcess === spawnedChild) {
+        this.transportAlive = false;
+        this.transportUnavailableReason = 'root-exit';
+      }
       this.cleanupVertexCredentials();
       this.anvilMutationWatcher.stop();
       const disconnectedReceipts = this.desktopContract.markDisconnected();
@@ -1494,9 +1510,7 @@ export class WCoreAgent {
   }
 
   sendCommand(cmd: WCoreCommand): void {
-    if (!this.transportAlive || !this.childProcess?.stdin?.writable) return;
-    const validated = this.desktopContract.validateOutboundCommand(cmd);
-    this.childProcess.stdin.write(JSON.stringify(validated) + '\n');
+    this.writeCommand(cmd);
   }
 
   async send(content: string, msgId: string, files?: string[]): Promise<void> {
@@ -1504,19 +1518,25 @@ export class WCoreAgent {
     // A retained child after root exit is shutdown authority, not a live
     // transport. Reject before publishing turn identity or arming the watchdog
     // so a write to dead stdin cannot become a silent ten-minute stall.
-    if (!this.transportAlive) throw new Error('Wayland Core transport exited before the turn could be sent');
     if (this.disposed) throw new Error('Wayland Core agent was stopped before the turn could be sent');
-    // #746: arm the stall watchdog for this turn. Armed at SEND (not at stream_start)
-    // so a turn that never even starts streaming — the engine going silent on the
-    // request itself — is still bounded.
-    this.activeMsgId = msgId;
-    this.startStallWatchdog();
-    this.sendCommand({
+    const written = this.writeCommand({
       type: 'message',
       msg_id: msgId,
       content,
       files,
     });
+    if (!written) {
+      throw new Error(
+        this.transportUnavailableReason === 'root-exit'
+          ? 'Wayland Core transport exited before the turn could be sent'
+          : 'Wayland Core transport is unavailable; the turn was not sent'
+      );
+    }
+    // #746: arm the stall watchdog for this turn. Armed at SEND (not at stream_start)
+    // so a turn that never even starts streaming — the engine going silent on the
+    // request itself — is still bounded.
+    this.activeMsgId = msgId;
+    this.startStallWatchdog();
   }
 
   injectConversationHistory(text: string): Promise<void> {
@@ -1565,6 +1585,52 @@ export class WCoreAgent {
 
   get isAlive(): boolean {
     return this.transportAlive;
+  }
+
+  private markTransportUnavailable(child: ChildProcess): void {
+    if (this.childProcess !== child || !this.transportAlive) return;
+    this.transportAlive = false;
+    this.transportUnavailableReason = 'stdin';
+    this.stopStallWatchdog();
+    if (!this.ready) {
+      this.readyReject(new Error('wcore command transport closed during init'));
+    }
+    const activeMsgId = this.activeMsgId;
+    this.activeMsgId = null;
+    if (activeMsgId) this._onProcessExit?.(null, activeMsgId);
+  }
+
+  private writeCommand(cmd: WCoreCommand): boolean {
+    const child = this.childProcess;
+    const stdin = child?.stdin;
+    if (
+      !child ||
+      !this.transportAlive ||
+      this.disposed ||
+      !stdin ||
+      !stdin.writable ||
+      stdin.destroyed ||
+      stdin.writableEnded
+    ) {
+      if (child && this.transportAlive && (!stdin || !stdin.writable || stdin.destroyed || stdin.writableEnded)) {
+        this.markTransportUnavailable(child);
+      }
+      return false;
+    }
+
+    const validated = this.desktopContract.validateOutboundCommand(cmd);
+    try {
+      stdin.write(JSON.stringify(validated) + '\n');
+    } catch {
+      this.markTransportUnavailable(child);
+      throw new Error('Wayland Core transport write failed; the command was not sent');
+    }
+
+    // A hostile/custom stream can emit error/close synchronously from write().
+    // Do not publish turn authority after such a write boundary collapsed.
+    return (
+      this.transportAlive && this.childProcess === child && stdin.writable && !stdin.destroyed && !stdin.writableEnded
+    );
   }
 
   private stopChildWithTreeProof(child: ChildProcess): Promise<void> {
