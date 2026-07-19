@@ -256,6 +256,17 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
   // ── Heartbeat activation/deactivation ────────────────────────────
 
   describe('shutdown proof', () => {
+    // Lifecycle matrix exercised below:
+    //
+    // start outcome | tree state while cleanup runs | cleanup result | authority result
+    // reject        | alive/pending                  | success        | release + forget
+    // reject        | alive/pending                  | failure        | retain + retry same identity
+    // success       | alive/pending                  | success        | release + forget
+    // success       | alive/pending                  | failure        | retain + retry same identity
+    // either        | already stopped                | success        | release + forget
+    //
+    // WCoreAgent.kill() is the tree-state authority: a root exit alone cannot
+    // resolve it while descendants remain alive.
     it('proves a spawned engine tree stopped before releasing the profile when bootstrap fails', async () => {
       let rejectBootstrap!: (error: Error) => void;
       let resolveTreeShutdown!: () => void;
@@ -279,9 +290,136 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
       rejectBootstrap(new Error('wcore ready timeout (30s)'));
       await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
       expect(releaseProfileLease).not.toHaveBeenCalled();
+      expect((lateManager as unknown as { agent: typeof engine }).agent).toBe(engine);
 
       resolveTreeShutdown();
       await vi.waitFor(() => expect(releaseProfileLease).toHaveBeenCalledOnce());
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+    });
+
+    it('retains failed-bootstrap identity and lease when tree cleanup fails, then retries that identity', async () => {
+      let rejectBootstrap!: (error: Error) => void;
+      const bootstrap = new Promise<void>((_resolve, reject) => {
+        rejectBootstrap = reject;
+      });
+
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-shutdown-retry');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockRejectedValueOnce(new Error('engine descendant still alive')).mockResolvedValueOnce(undefined);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      rejectBootstrap(new Error('wcore ready timeout (30s)'));
+      await (lateManager as unknown as { agentReady: Promise<void> }).agentReady;
+
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine }).agent).toBe(engine);
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      await expect(lateManager.kill()).resolves.toBeUndefined();
+      expect(engine.kill).toHaveBeenCalledTimes(2);
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
+    });
+
+    it('shares one tree-proof attempt when a successful bootstrap is disposed while cleanup is pending', async () => {
+      let resolveBootstrap!: () => void;
+      let resolveTreeShutdown!: () => void;
+      const bootstrap = new Promise<void>((resolve) => {
+        resolveBootstrap = resolve;
+      });
+      const treeShutdown = new Promise<void>((resolve) => {
+        resolveTreeShutdown = resolve;
+      });
+
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-success-shutdown');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockReturnValue(treeShutdown);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      const shutdown = lateManager.kill();
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      resolveBootstrap();
+      await Promise.resolve();
+
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine }).agent).toBe(engine);
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      resolveTreeShutdown();
+      await expect(shutdown).resolves.toBeUndefined();
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
+    });
+
+    it('retains a successfully-started bootstrap identity when concurrent tree cleanup fails', async () => {
+      let resolveBootstrap!: () => void;
+      let rejectTreeShutdown!: (error: Error) => void;
+      const bootstrap = new Promise<void>((resolve) => {
+        resolveBootstrap = resolve;
+      });
+      const treeShutdown = new Promise<void>((_resolve, reject) => {
+        rejectTreeShutdown = reject;
+      });
+
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-success-shutdown-retry');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockReturnValueOnce(treeShutdown).mockResolvedValueOnce(undefined);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      const shutdown = lateManager.kill();
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      resolveBootstrap();
+      await Promise.resolve();
+      rejectTreeShutdown(new Error('engine descendant still alive'));
+
+      await expect(shutdown).rejects.toThrow('engine descendant still alive');
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine }).agent).toBe(engine);
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      await expect(lateManager.kill()).resolves.toBeUndefined();
+      expect(engine.kill).toHaveBeenCalledTimes(2);
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
+    });
+
+    it('releases an already-stopped bootstrap identity without retaining stale authority', async () => {
+      let rejectBootstrap!: (error: Error) => void;
+      const bootstrap = new Promise<void>((_resolve, reject) => {
+        rejectBootstrap = reject;
+      });
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-already-stopped');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockResolvedValue(undefined);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      rejectBootstrap(new Error('wcore exited before ready'));
+      await (lateManager as unknown as { agentReady: Promise<void> }).agentReady;
+
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
     });
 
     it('retains the profile lease until engine-tree shutdown is proved', async () => {
