@@ -1,0 +1,3 @@
+$ oxlint src/process/agent/wcore/index.ts tests/unit/wcoreStderrSurfacing.test.ts
+Found 0 warnings and 0 errors.
+Finished in 17ms on 2 files with 128 rules using 10 threads.

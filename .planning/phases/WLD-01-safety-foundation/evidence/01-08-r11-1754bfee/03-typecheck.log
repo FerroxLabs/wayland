@@ -1,0 +1,2 @@
+$ cross-env NODE_OPTIONS=--max-old-space-size=8192 tsc --noEmit
+exit_code=0

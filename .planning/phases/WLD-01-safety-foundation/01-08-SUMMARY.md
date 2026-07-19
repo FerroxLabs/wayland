@@ -59,6 +59,7 @@ key-decisions:
   - 'A failed termination attempt releases only operation ownership; the exact lease and terminal successor-refusal gate remain available for verified retry.'
   - 'Wayland Core engine-tree shutdown failure remains observable after root exit; manager identity and profile authority survive until exact retry proves the same engine stopped.'
   - 'Root-process exit is notification only; profile-release authority remains held until the exact manager kill proves complete engine-tree shutdown.'
+  - 'Root transport liveness is separate from retained tree-proof identity; exit disables all writes and new turns immediately while preserving the exact child for shutdown proof.'
   - 'Resume fallback cannot replace a stale engine identity unless shutdown of that exact child tree is proved; failure retains the child and profile for identity-bound retry.'
   - 'Conversation deletion atomically captures channel session identities and commit-time source before foreign keys can erase the lookup.'
   - 'Post-commit channel cleanup is idempotent, durably retried, replayed after restart, and retired only after all captured identities complete.'
@@ -93,14 +94,14 @@ coverage:
         status: pass
     human_judgment: false
   - id: D3
-    description: 'The exact R10 Desktop candidate remains green after preservation-first hardening.'
+    description: 'The exact R11 Desktop candidate remains green after preservation-first hardening.'
     requirement: SAF-04
     verification:
       - kind: integration
-        ref: 'Exact R10 aggregate proof is withheld until independent successor audit passes'
+        ref: 'Exact R11 aggregate proof is withheld until independent successor audit passes'
         status: pending
       - kind: unit
-        ref: 'R10 focused suite passes 292 Vitest + 2 Bun-native tests; typecheck and scoped lint/format pass'
+        ref: 'R11 focused suite passes 294 Vitest + 2 Bun-native tests; typecheck and scoped lint/format pass'
         status: pass
     human_judgment: false
   - id: D4
@@ -153,6 +154,7 @@ status: successor-built-pending-independent-audit
 - Separated root-exit notification from profile-release authority, retaining the profile lease through deferred descendant-tree shutdown and releasing it exactly once only after the exact manager kill succeeds.
 - Preserved a spawned Wayland Core identity through ready-timeout and other bootstrap failures, serialized concurrent shutdown callers onto one exact tree-proof attempt, and retained both identity and profile after failed cleanup for an identity-bound retry.
 - Made resume fallback fail closed: an unproved stale-child shutdown retains the exact child and profile, spawns no replacement, and allows only an identity-bound retry; concurrent disposal shares that same proof attempt.
+- Separated root transport liveness from retained tree-proof identity: an idle or active ready-process crash now disables writes and heartbeat immediately, rejects the next turn before watchdog publication, and still proves shutdown against the same exact child.
 
 ## Task Commits
 
@@ -169,6 +171,7 @@ status: successor-built-pending-independent-audit
 11. **Wayland Core resume-fallback authority repair:** `10c9fb43297e0cd6a27b7653767ae6b116276687`
 12. **Wayland Core root-exit notification repair:** `fcc14ef8be61673bc6b116ae321f70bf868be00b`
 13. **Wayland Core spontaneous-root-exit authority repair:** `4e7c9eb3bf7f587dde457980f90b38d76302aee9`
+14. **Wayland Core dead-transport and retained-tree-identity repair:** `1754bfee3165fff2744bb60e41e7ae605947a9c5`
 
 **Rejected predecessor:** `0b98288b02e0b65b260c7b3b1670bd5ea5b68419`
 
@@ -186,9 +189,11 @@ status: successor-built-pending-independent-audit
 
 **Rejected R9 implementation candidate:** `fcc14ef8be61673bc6b116ae321f70bf868be00b` (test-only review commit `8456d5c153228c145049ee088c1e7b4648514c41` proved an unrequested root exit could release launch config and discard child identity without descendant-tree proof)
 
-**Repaired R10 implementation candidate:** `4e7c9eb3bf7f587dde457980f90b38d76302aee9`
+**Rejected R10 implementation candidate:** `4e7c9eb3bf7f587dde457980f90b38d76302aee9` (test-only review commit `55a6e845a528b64a28579464c238df702d343e33` proved a retained exited child was still reported as a live transport, allowing the next turn to be silently dropped under an armed ten-minute stall watchdog)
 
-**R10 source tree:** `b093ebd5b855e656360556b07dfaba3321ed5231`
+**Repaired R11 implementation candidate:** `1754bfee3165fff2744bb60e41e7ae605947a9c5`
+
+**R11 source tree:** `79bc6846fb355cc42633be3d16589d5f85dd1d6a`
 
 **Acceptance state:** pending independent successor re-audit; no acceptance claim is made here.
 
@@ -206,10 +211,11 @@ status: successor-built-pending-independent-audit
 - Bootstrap completion does not own profile release. Start success, start rejection, concurrent disposal, and already-stopped identities all converge on the same tree-proof authority; cleanup failure keeps the exact identity and lease retryable.
 - Resume fallback does not own replacement authority until the exact stale child tree is proved stopped. Failure retains that child and profile, forbids a successor spawn, and restricts later progress to a retry bound to the retained identity.
 - Every captured root-process exit is idempotent notification only, including spontaneous init and ready-process crashes. It cannot restore unconsumed launch config, clear child identity, duplicate terminal effects, or authorize a successor before exact tree proof succeeds.
+- Root transport liveness and retained shutdown authority are distinct. Root exit immediately makes `isAlive` false and blocks every command write; a new turn fails before `activeMsgId` or watchdog setup, while `kill()` retains and proves the exact exited child tree through concurrent, failed, and retried shutdown paths.
 
 ## Deviations from Plan
 
-The independent audits reopened the plan eleven times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, post-commit external-channel cleanup ordering, durable restart replay, transaction-authoritative cleanup identity, identity-bound shutdown retry, observable Wayland Core engine-tree failure, exact profile-release authority after complete tree proof, bootstrap-lifecycle tree-proof convergence, fail-closed resume fallback bound to the exact stale child identity, and idempotent root-exit notification semantics that retain unconsumed launch config and child identity until exact tree proof succeeds. These changes enforce the plan's authority boundary without expanding lifecycle authority.
+The independent audits reopened the plan twelve times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, post-commit external-channel cleanup ordering, durable restart replay, transaction-authoritative cleanup identity, identity-bound shutdown retry, observable Wayland Core engine-tree failure, exact profile-release authority after complete tree proof, bootstrap-lifecycle tree-proof convergence, fail-closed resume fallback bound to the exact stale child identity, idempotent root-exit notification semantics that retain unconsumed launch config and child identity until exact tree proof succeeds, and dead-transport enforcement that rejects post-exit turns without losing tree-proof authority. These changes enforce the plan's authority boundary without expanding lifecycle authority.
 
 ## Issues Encountered
 
@@ -221,22 +227,22 @@ Managed-workspace lifecycle mutation (quarantine, restore, keep, delete, prune) 
 
 ## Self-Check
 
-R10 BUILDER CONSTRUCTION PROOF PASSED; aggregate proof and independent successor re-audit remain required. The repaired implementation passed 292 focused Vitest tests, 2 focused Bun-native hostile tests, typecheck, and scoped formatting. Changed-file lint passed with zero warnings and zero errors across the two R10 implementation/test files. No lifecycle mutation authority was added.
+R11 BUILDER CONSTRUCTION PROOF PASSED; aggregate proof and independent successor re-audit remain required. The repaired implementation passed 294 focused Vitest tests, 2 focused Bun-native hostile tests, typecheck, and scoped formatting. Changed-file lint passed with zero warnings and zero errors across the two R11 implementation/test files. No lifecycle mutation authority was added.
 
 ## Retained Construction Evidence
 
-The in-progress SHA-bound receipts are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r10-4e7c9eb3/`. These receipts retain sanitized command output, timestamp, environment identity, exact implementation commit/tree, and exit code. Secret-shaped values are passed through the command-secret redactor to a fixed point before retention. These are builder receipts, not independent acceptance evidence. Aggregate proof was deliberately not rerun after R9 was rejected; final aggregate counts will be sealed only after R10 passes independent successor audit and the reserved aggregate slot is available.
+The in-progress SHA-bound receipts are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r11-1754bfee/`. These receipts retain sanitized command output, timestamp, environment identity, exact implementation commit/tree, and exit code. Secret-shaped values are passed through the command-secret redactor to a fixed point before retention. These are builder receipts, not independent acceptance evidence. Aggregate proof was deliberately not rerun after R10 was rejected; final aggregate counts will be sealed only after R11 passes independent successor audit and the reserved aggregate slot is available.
 
 | Receipt                    | State                                  | SHA-256                                                            |
 | -------------------------- | -------------------------------------- | ------------------------------------------------------------------ |
-| `00-environment.log`       | captured                               | `653ec71eec970e2457629dfcb01e5cad063685bdc65b47dc37b2f7009e7dcfca` |
-| `01-focused-vitest.log`    | pass: 23 files / 292 tests             | `37eddd30bb3c5dbbcf9b5ee0d2d13a2b30967cd1acacd92da04e36dd510f246e` |
+| `00-environment.log`       | captured                               | `29c085eb9771f06b78c8de0456a19a3f6802bdcc659b3818f2ebb6c89fae10af` |
+| `01-focused-vitest.log`    | pass: 23 files / 294 tests             | `c1cc97cf9e1e1fbd09a4cefca199113e80355a6933a34e5063b9e0316384396a` |
 | `02-bun-native-intent.log` | pass: 2 tests                          | `8c1d987f887d5670c02062dfea37655e435f49e8c011915bcf9dabc918fec410` |
-| `03-typecheck.log`         | pass                                   | `c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5` |
-| `04-scoped-lint.log`       | pass: 0 warnings / 0 errors            | `0c7fd34ff588a46483f025ebb0396272c998c960fb6579e32bdb23e2ef7b430e` |
-| `05-scoped-format.log`     | pass                                   | `e66fe849f9efa85399adeea612eeaaed05418c0dde3112bde72d4a80e7bcbab3` |
+| `03-typecheck.log`         | pass                                   | `53737b49a91e6c0faffd863f27436c38899421a6eb9007e922a5f8aad9f89d49` |
+| `04-scoped-lint.log`       | pass: 0 warnings / 0 errors            | `d7fd090d9405265a5ddec0c690e190f36da65b1dc30d3528434a91e7315813cb` |
+| `05-scoped-format.log`     | pass                                   | `d2434d845b9d90f49d73b47b620850d7a22ff61eee656e235201ddccefc6852f` |
 | aggregate receipt          | pending one isolated authoritative run | pending                                                            |
-| `06-invariants.log`        | pass                                   | `1f4661021d3077ba3277356d8e5cd3b88de68c845d152dde78d002f1dd9843a1` |
+| `06-invariants.log`        | pass                                   | `1e64818ef4c8256dfb7155789b9920aaccbc1b93d5bc00952079bd4698060fd5` |
 
 ---
 
