@@ -17,4 +17,6 @@ export interface IWorkerTaskManager {
   kill(id: string, reason?: AgentKillReason): Promise<void>;
   clear(): Promise<void>;
   listTasks(): Array<{ id: string; type: AgentType }>;
+  /** Process-owned lease identities and their creation-time workspaces for retention authority. */
+  listWorkspaceAuthorities(): Array<{ id: string; workspace?: string }>;
 }

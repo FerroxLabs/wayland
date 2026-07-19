@@ -218,37 +218,41 @@ export async function collectManagedWorkspaceInventory(
 
   let referenceResults: CanonicalWorkspaceReferenceResult[] = [];
   try {
+    // Array.from materializes sparse holes as explicit undefined values. Using
+    // Array#map directly would preserve holes and Promise.all would return
+    // undefined slots that the result loop could later dereference and throw.
+    const rawReferences: unknown[] = Array.isArray(input.references) ? Array.from(input.references) : [];
     referenceResults = await Promise.all(
-      (Array.isArray(input.references) ? input.references : []).map(
-        async (reference): Promise<CanonicalWorkspaceReferenceResult> => {
-          try {
-            if (
-              !reference ||
-              typeof reference !== 'object' ||
-              !REFERENCE_AUTHORITY_SOURCES.has(reference.source) ||
-              typeof reference.id !== 'string' ||
-              !reference.id.trim() ||
-              typeof reference.workspace !== 'string' ||
-              !path.isAbsolute(reference.workspace) ||
-              (reference.userPromoted !== undefined && typeof reference.userPromoted !== 'boolean')
-            ) {
-              return {
-                reference: null,
-                error: 'authority reference is malformed or has no absolute workspace path',
-              };
-            }
-            return {
-              reference: { ...reference, canonicalWorkspace: await fs.realpath(reference.workspace) },
-              error: null,
-            };
-          } catch (error) {
+      rawReferences.map(async (reference): Promise<CanonicalWorkspaceReferenceResult> => {
+        try {
+          if (
+            !reference ||
+            typeof reference !== 'object' ||
+            !REFERENCE_AUTHORITY_SOURCES.has((reference as WorkspaceAuthorityReference).source) ||
+            typeof (reference as WorkspaceAuthorityReference).id !== 'string' ||
+            !(reference as WorkspaceAuthorityReference).id.trim() ||
+            typeof (reference as WorkspaceAuthorityReference).workspace !== 'string' ||
+            !path.isAbsolute((reference as WorkspaceAuthorityReference).workspace) ||
+            ((reference as WorkspaceAuthorityReference).userPromoted !== undefined &&
+              typeof (reference as WorkspaceAuthorityReference).userPromoted !== 'boolean')
+          ) {
             return {
               reference: null,
-              error: `authority reference cannot be canonicalized: ${error instanceof Error ? error.message : String(error)}`,
+              error: 'authority reference is malformed or has no absolute workspace path',
             };
           }
+          const validReference = reference as WorkspaceAuthorityReference;
+          return {
+            reference: { ...validReference, canonicalWorkspace: await fs.realpath(validReference.workspace) },
+            error: null,
+          };
+        } catch (error) {
+          return {
+            reference: null,
+            error: `authority reference cannot be canonicalized: ${error instanceof Error ? error.message : String(error)}`,
+          };
         }
-      )
+      })
     );
   } catch (error) {
     errors.push(`authority references cannot be enumerated: ${error instanceof Error ? error.message : String(error)}`);

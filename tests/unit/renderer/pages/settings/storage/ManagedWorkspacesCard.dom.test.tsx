@@ -158,10 +158,34 @@ describe('ManagedWorkspacesCard', () => {
   it('labels an empty abandoned shell only for later human review', async () => {
     preview.mockResolvedValue({
       ...REPORT,
+      complete: true,
+      authorityCompleteness: {
+        conversation: 'complete',
+        project: 'complete',
+        schedule: 'complete',
+        artifact: 'complete',
+        receipt: 'complete',
+        'active-process': 'complete',
+        provenance: 'complete',
+        snapshot: 'complete',
+      },
       summary: { discovered: 1, preserved: 0, reviewCandidate: 1, unknown: 0 },
       entries: [
         {
           ...REPORT.entries[0],
+          evidence: {
+            managedProvenance: true,
+            inventoryComplete: true,
+            referenceCount: 0,
+            scheduleCount: 0,
+            activeProcessCount: 0,
+            artifactCount: 0,
+            userPromoted: false,
+            userContent: 'absent',
+            modified: false,
+            abandonedForMs: 2678400000,
+            retentionWindowMs: 2592000000,
+          },
           decision: {
             disposition: 'review-candidate',
             classifications: ['empty-abandoned'],
@@ -177,5 +201,38 @@ describe('ManagedWorkspacesCard', () => {
     expect(screen.getByText('Review later - no action available')).toBeTruthy();
     expect(screen.getByText(/complete evidence proves an empty app-managed shell/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: /delete|remove|quarantine|clean|prune/i })).toBeNull();
+  });
+
+  it('rejects an unproven review candidate even when its shape is valid', async () => {
+    preview.mockResolvedValue({
+      ...REPORT,
+      summary: { discovered: 1, preserved: 0, reviewCandidate: 1, unknown: 0 },
+      entries: [
+        {
+          ...REPORT.entries[0],
+          decision: {
+            disposition: 'review-candidate',
+            classifications: ['empty-abandoned'],
+            reasons: ['shape alone is not authority'],
+          },
+        },
+      ],
+    });
+
+    render(<ManagedWorkspacesCard />);
+    expect(
+      await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+    ).toBeTruthy();
+  });
+
+  it('rejects summary counts that do not exactly match the entries', async () => {
+    preview.mockResolvedValue({
+      ...REPORT,
+      summary: { discovered: 999, preserved: 999, reviewCandidate: 0, unknown: 0 },
+    });
+    render(<ManagedWorkspacesCard />);
+    expect(
+      await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+    ).toBeTruthy();
   });
 });

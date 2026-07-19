@@ -7,7 +7,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ICreateConversationParams } from '@/common/adapter/ipcBridge';
 
-const { recordManagedWorkspaceProvenance } = vi.hoisted(() => ({
+const { mkdir, recordManagedWorkspaceProvenance } = vi.hoisted(() => ({
+  mkdir: vi.fn(async () => undefined),
   recordManagedWorkspaceProvenance: vi.fn(async () => undefined),
 }));
 
@@ -15,7 +16,7 @@ const { recordManagedWorkspaceProvenance } = vi.hoisted(() => ({
 // helpers; stub them so the test exercises pure extra-field mapping.
 vi.mock('fs/promises', () => ({
   default: {
-    mkdir: vi.fn(async () => undefined),
+    mkdir,
     stat: vi.fn(async () => {
       throw new Error('ENOENT');
     }),
@@ -102,6 +103,32 @@ describe('createAcpAgent - preset customAgentId fallback (#66)', () => {
       workspace: conv.extra.workspace,
       installationId: 'desktop-test-installation',
     });
+  });
+
+  it('never adopts a pre-existing predictable workspace or mints provenance for it', async () => {
+    const now = 1_736_900_000_000;
+    vi.spyOn(Date, 'now').mockReturnValue(now);
+    mkdir
+      .mockImplementationOnce(async () => undefined)
+      .mockRejectedValueOnce(Object.assign(new Error('already exists'), { code: 'EEXIST' }));
+
+    const conv = await createAcpAgent({
+      type: 'acp',
+      model: {} as never,
+      name: 'Temporary Hermes',
+      extra: { backend: 'hermes', customWorkspace: false },
+    } as ICreateConversationParams);
+
+    const predictable = `/mock/work/hermes-temp-${now}`;
+    expect(mkdir).toHaveBeenNthCalledWith(2, predictable, { recursive: false });
+    expect(conv.extra.workspace).not.toBe(predictable);
+    expect(String(conv.extra.workspace)).toMatch(new RegExp(`^${predictable}-[0-9a-f-]{36}$`));
+    expect(recordManagedWorkspaceProvenance).toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: conv.extra.workspace })
+    );
+    expect(recordManagedWorkspaceProvenance).not.toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: predictable })
+    );
   });
 
   it('never records managed provenance for a user-selected workspace', async () => {

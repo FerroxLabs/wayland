@@ -22,10 +22,13 @@ const AGENT_IDLE_CHECK_INTERVAL_MS = 1 * 60 * 1000;
 export class WorkerTaskManager implements IWorkerTaskManager {
   private taskList: Array<{
     id: string;
+    authorityId: string;
+    workspace?: string;
     task: IAgentManager;
     lifecycle: 'running' | 'terminating';
     termination?: Promise<void>;
   }> = [];
+  private nextAuthorityId = 0;
   private idleCheckTimer: ReturnType<typeof setInterval> | undefined;
   // NOTE(M14/AUDIT-05 F5): single shared `process.on('exit', ...)` handler
   // installed here instead of one-per-ForkTask. Iterates taskList on shutdown
@@ -127,7 +130,14 @@ export class WorkerTaskManager implements IWorkerTaskManager {
         // The failed terminating lease stays authoritative in taskList.
       });
     }
-    this.taskList.push({ id, task, lifecycle: 'running' });
+    this.nextAuthorityId += 1;
+    this.taskList.push({
+      id,
+      authorityId: `active-process-${this.nextAuthorityId}`,
+      workspace: task.workspace,
+      task,
+      lifecycle: 'running',
+    });
   }
 
   kill(id: string, reason?: AgentKillReason): Promise<void> {
@@ -172,5 +182,9 @@ export class WorkerTaskManager implements IWorkerTaskManager {
 
   listTasks(): Array<{ id: string; type: AgentType }> {
     return this.taskList.map((t) => ({ id: t.id, type: t.task.type }));
+  }
+
+  listWorkspaceAuthorities(): Array<{ id: string; workspace?: string }> {
+    return this.taskList.map((lease) => ({ id: lease.authorityId, workspace: lease.workspace }));
   }
 }

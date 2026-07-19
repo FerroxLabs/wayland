@@ -139,9 +139,39 @@ function validDecision(value: unknown): value is ManagedWorkspaceRetentionDecisi
   return (
     exactObject(value, ['classifications', 'disposition', 'reasons']) &&
     Array.isArray(value.classifications) &&
+    value.classifications.length > 0 &&
+    new Set(value.classifications).size === value.classifications.length &&
     value.classifications.every((item) => CLASSIFICATIONS.includes(item as ManagedWorkspaceClassification)) &&
     (value.disposition === 'preserve' || value.disposition === 'review-candidate') &&
     stringArray(value.reasons)
+  );
+}
+
+function isSemanticallyValidReviewCandidate(
+  entry: ManagedWorkspaceInventoryEntry,
+  reportComplete: boolean,
+  authoritiesComplete: boolean
+): boolean {
+  const evidence = entry.evidence;
+  return (
+    reportComplete &&
+    authoritiesComplete &&
+    entry.canonicalPath !== null &&
+    entry.errors.length === 0 &&
+    entry.references.length === 0 &&
+    evidence.managedProvenance &&
+    evidence.inventoryComplete &&
+    evidence.referenceCount === 0 &&
+    evidence.scheduleCount === 0 &&
+    evidence.activeProcessCount === 0 &&
+    evidence.artifactCount === 0 &&
+    evidence.userPromoted === false &&
+    evidence.userContent === 'absent' &&
+    evidence.modified === false &&
+    evidence.abandonedForMs !== null &&
+    evidence.abandonedForMs >= evidence.retentionWindowMs &&
+    entry.decision.classifications.length === 1 &&
+    entry.decision.classifications[0] === 'empty-abandoned'
   );
 }
 
@@ -203,5 +233,38 @@ export function parseManagedWorkspaceInventoryReport(value: unknown): ManagedWor
   ) {
     return null;
   }
-  return value as ManagedWorkspaceInventoryReport;
+  const report = value as ManagedWorkspaceInventoryReport;
+  const authoritiesComplete = WORKSPACE_AUTHORITY_SOURCES.every((source) => completeness[source] === 'complete');
+  const expectedSummary: ManagedWorkspaceInventoryReport['summary'] = {
+    discovered: report.entries.length,
+    preserved: report.entries.filter((entry) => entry.decision.disposition === 'preserve').length,
+    reviewCandidate: report.entries.filter((entry) => entry.decision.disposition === 'review-candidate').length,
+    unknown: report.entries.filter((entry) => entry.decision.classifications.includes('unknown')).length,
+  };
+  if (
+    report.summary.discovered !== expectedSummary.discovered ||
+    report.summary.preserved !== expectedSummary.preserved ||
+    report.summary.reviewCandidate !== expectedSummary.reviewCandidate ||
+    report.summary.unknown !== expectedSummary.unknown
+  ) {
+    return null;
+  }
+  if (
+    report.complete &&
+    (!authoritiesComplete ||
+      report.errors.length > 0 ||
+      report.entries.some((entry) => entry.errors.length > 0 || !entry.evidence.inventoryComplete))
+  ) {
+    return null;
+  }
+  if (
+    report.entries.some(
+      (entry) =>
+        entry.decision.disposition === 'review-candidate' &&
+        !isSemanticallyValidReviewCandidate(entry, report.complete, authoritiesComplete)
+    )
+  ) {
+    return null;
+  }
+  return report;
 }

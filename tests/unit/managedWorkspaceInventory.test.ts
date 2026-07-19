@@ -278,6 +278,25 @@ describe('collectManagedWorkspaceInventory', () => {
     });
   });
 
+  it('materializes sparse reference holes and returns a preservation-safe report', async () => {
+    const candidate = await makeCandidate();
+    const references: WorkspaceAuthorityReference[] = [];
+    references.length = 2;
+    references[1] = { source: 'conversation', id: 'chat-1', workspace: candidate };
+
+    await expect(collect(references)).resolves.toMatchObject({
+      complete: false,
+      summary: { discovered: 1, preserved: 1, reviewCandidate: 0 },
+      entries: [
+        {
+          decision: { disposition: 'preserve' },
+          references: [{ source: 'conversation', id: 'chat-1' }],
+        },
+      ],
+      errors: expect.arrayContaining(['authority reference is malformed or has no absolute workspace path']),
+    });
+  });
+
   it('canonicalizes authority ordering and coalesces exact duplicates deterministically', async () => {
     const candidate = await makeCandidate();
     const first = await collect([

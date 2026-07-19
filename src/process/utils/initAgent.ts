@@ -9,6 +9,7 @@ import type { TChatConversation, TProviderWithModel } from '@/common/config/stor
 import type { AcpBackend, AcpBackendAll } from '@/common/types/acpTypes';
 import { getSkillsDirsForBackend, hasNativeSkillSupport } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
+import { randomUUID } from 'node:crypto';
 
 // Re-export for backward compatibility (tests mock this path)
 export { hasNativeSkillSupport };
@@ -230,6 +231,26 @@ async function setupWorkspaceSkills(
   if (isProjectWorkspace) await writeWorkspaceGitignore(workspace);
 }
 
+async function createExclusiveManagedWorkspace(
+  workRoot: string,
+  defaultWorkspaceName: string,
+  attempt = 0
+): Promise<string> {
+  if (attempt >= 8) throw new Error('Unable to exclusively create a managed workspace');
+  const candidateName = attempt === 0 ? defaultWorkspaceName : `${defaultWorkspaceName}-${randomUUID()}`;
+  const candidate = path.join(workRoot, candidateName);
+  try {
+    // This must be an exclusive create. `recursive: true` would silently
+    // adopt a predictable pre-existing directory and then mint provenance for
+    // content Desktop did not create.
+    await fs.mkdir(candidate, { recursive: false });
+    return candidate;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+    return createExclusiveManagedWorkspace(workRoot, defaultWorkspaceName, attempt + 1);
+  }
+}
+
 /**
  * Create workspace directory (without copying files)
  *
@@ -247,8 +268,11 @@ const buildWorkspaceWidthFiles = async (
 
   if (!workspace) {
     const tempPath = getSystemDir().workDir;
-    workspace = path.join(tempPath, defaultWorkspaceName);
-    await fs.mkdir(workspace, { recursive: true });
+    if (path.basename(defaultWorkspaceName) !== defaultWorkspaceName) {
+      throw new Error('Managed workspace name must be a single path component');
+    }
+    await fs.mkdir(tempPath, { recursive: true });
+    workspace = await createExclusiveManagedWorkspace(tempPath, defaultWorkspaceName);
     try {
       await recordManagedWorkspaceProvenance({
         authorityRoot: getDataPath(),

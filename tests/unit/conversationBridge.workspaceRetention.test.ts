@@ -13,6 +13,58 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 type Provider = (payload?: unknown) => Promise<unknown>;
 
+type TreeSnapshotEntry = {
+  path: string;
+  kind: 'directory' | 'file' | 'symlink' | 'other';
+  mode: number;
+  size: number;
+  mtimeMs: number;
+  ctimeMs: number;
+  birthtimeMs: number;
+  dev: number;
+  ino: number;
+  nlink: number;
+  bytes?: string;
+  target?: string;
+};
+
+async function snapshotTree(root: string): Promise<TreeSnapshotEntry[]> {
+  const entries: TreeSnapshotEntry[] = [];
+  const visit = async (absolute: string, relative: string): Promise<void> => {
+    const stat = await fs.lstat(absolute);
+    const kind = stat.isDirectory()
+      ? 'directory'
+      : stat.isFile()
+        ? 'file'
+        : stat.isSymbolicLink()
+          ? 'symlink'
+          : 'other';
+    const entry: TreeSnapshotEntry = {
+      path: relative,
+      kind,
+      mode: stat.mode,
+      size: stat.size,
+      mtimeMs: stat.mtimeMs,
+      ctimeMs: stat.ctimeMs,
+      birthtimeMs: stat.birthtimeMs,
+      dev: stat.dev,
+      ino: stat.ino,
+      nlink: stat.nlink,
+    };
+    if (kind === 'file') entry.bytes = (await fs.readFile(absolute)).toString('base64');
+    if (kind === 'symlink') entry.target = await fs.readlink(absolute);
+    entries.push(entry);
+    if (kind === 'directory') {
+      const children = (await fs.readdir(absolute)).toSorted();
+      await Promise.all(
+        children.map((child) => visit(path.join(absolute, child), relative === '.' ? child : `${relative}/${child}`))
+      );
+    }
+  };
+  await visit(root, '.');
+  return entries.toSorted((left, right) => left.path.localeCompare(right.path));
+}
+
 const {
   handlers,
   createCommand,
@@ -139,12 +191,52 @@ describe('conversation.remove managed-workspace retention', () => {
     await fs.rm(root, { recursive: true, force: true });
   });
 
-  it('severs the database reference while preserving exact managed workspace bytes', async () => {
+  it('severs the database reference while preserving the complete managed workspace tree', async () => {
     const workspace = path.join(root, 'wcore-temp-1736900000000');
-    const artifact = path.join(workspace, 'report.bin');
+    const nested = path.join(workspace, 'drafts', 'chapter-1');
+    const artifact = path.join(nested, 'report.bin');
+    const notes = path.join(workspace, 'notes.md');
+    const empty = path.join(nested, 'empty.txt');
+    const hardlink = path.join(workspace, 'report-hardlink.bin');
+    const symlink = path.join(workspace, 'report-link.bin');
     const expectedBytes = Uint8Array.from([0, 1, 2, 127, 128, 254, 255]);
-    await fs.mkdir(workspace);
+    await fs.mkdir(nested, { recursive: true });
     await fs.writeFile(artifact, expectedBytes);
+    await fs.writeFile(notes, '# retained\nEvery byte matters.\n');
+    await fs.writeFile(empty, '');
+    let hardlinkSupported = true;
+    let symlinkSupported = true;
+    try {
+      await fs.link(artifact, hardlink);
+    } catch {
+      hardlinkSupported = false;
+    }
+    try {
+      await fs.symlink(artifact, symlink, 'file');
+    } catch {
+      symlinkSupported = false;
+    }
+    const fixedTime = new Date('2026-06-01T12:34:56.000Z');
+    if (process.platform !== 'win32') {
+      await fs.chmod(workspace, 0o750);
+      await fs.chmod(nested, 0o710);
+      await fs.chmod(artifact, 0o640);
+      await fs.chmod(notes, 0o600);
+    }
+    await fs.utimes(artifact, fixedTime, fixedTime);
+    await fs.utimes(notes, fixedTime, fixedTime);
+    await fs.utimes(empty, fixedTime, fixedTime);
+    await fs.utimes(nested, fixedTime, fixedTime);
+    await fs.utimes(path.dirname(nested), fixedTime, fixedTime);
+    await fs.utimes(workspace, fixedTime, fixedTime);
+    const before = await snapshotTree(workspace);
+    if (hardlinkSupported) {
+      const artifactEntry = before.find((entry) => entry.path === 'drafts/chapter-1/report.bin');
+      const hardlinkEntry = before.find((entry) => entry.path === 'report-hardlink.bin');
+      expect(hardlinkEntry?.ino).toBe(artifactEntry?.ino);
+      expect(hardlinkEntry?.nlink).toBeGreaterThanOrEqual(2);
+    }
+    if (symlinkSupported) expect(before.find((entry) => entry.path === 'report-link.bin')?.kind).toBe('symlink');
     const conversation = {
       id: 'conv-1',
       source: 'wayland',
@@ -160,8 +252,8 @@ describe('conversation.remove managed-workspace retention', () => {
     await expect(remove({ id: 'conv-1' })).resolves.toBe(true);
 
     expect(mockDatabase.deleteConversation).toHaveBeenCalledWith('conv-1');
+    expect(await snapshotTree(workspace)).toEqual(before);
     await expect(fs.readFile(artifact)).resolves.toEqual(Buffer.from(expectedBytes));
-    await expect(fs.stat(workspace)).resolves.toMatchObject({ size: expect.any(Number) });
   });
 
   it('retains active-process authority until the agent has actually stopped', async () => {

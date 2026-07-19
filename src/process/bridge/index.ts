@@ -208,10 +208,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
       listProjects: () => projectServiceSingleton.listProjects(),
       listSchedules: () => cronService.listJobs(),
       listActiveProcesses: () =>
-        deps.workerTaskManager.listTasks().map(({ id }) => ({
-          id,
-          workspace: deps.workerTaskManager.getTask(id)?.workspace,
-        })),
+        deps.workerTaskManager.listWorkspaceAuthorities().map(({ id, workspace }) => ({ id, workspace })),
     },
   });
   initWaylandTransferBridge(async (request) => {

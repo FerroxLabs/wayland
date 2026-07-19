@@ -24,11 +24,11 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-function agent(kill: () => Promise<void>) {
+function agent(kill: () => Promise<void>, workspace = '/managed/work/claude-temp-1736900000000') {
   return {
     type: 'acp',
     status: 'running',
-    workspace: '/managed/work/claude-temp-1736900000000',
+    workspace,
     conversation_id: 'conv-1',
     lastActivityAt: Date.now(),
     kill: vi.fn(kill),
@@ -49,6 +49,9 @@ describe('WorkerTaskManager retention authority', () => {
     const termination = manager.kill('conv-1');
     expect(manager.getTask('conv-1')).toBeUndefined();
     expect(manager.listTasks()).toEqual([{ id: 'conv-1', type: 'acp' }]);
+    expect(manager.listWorkspaceAuthorities()).toEqual([
+      { id: 'active-process-1', workspace: '/managed/work/claude-temp-1736900000000' },
+    ]);
 
     shutdown.resolve();
     await termination;
@@ -66,5 +69,27 @@ describe('WorkerTaskManager retention authority', () => {
     await expect(manager.kill('conv-1')).rejects.toThrow('process still alive');
     expect(manager.listTasks()).toEqual([{ id: 'conv-1', type: 'acp' }]);
     expect(running.kill).toHaveBeenCalledOnce();
+  });
+
+  it('preserves each same-ID terminating lease under its real original workspace', async () => {
+    const shutdown = deferred<void>();
+    const manager = new WorkerTaskManager(factory as never, repo);
+    managers.push(manager);
+    const originalWorkspace = '/managed/work/claude-temp-1736900000001';
+    const successorWorkspace = '/managed/work/claude-temp-1736900000002';
+
+    manager.addTask('conv-1', agent(() => shutdown.promise, originalWorkspace) as never);
+    manager.addTask('conv-1', agent(async () => undefined, successorWorkspace) as never);
+
+    expect(manager.getTask('conv-1')?.workspace).toBe(successorWorkspace);
+    expect(manager.listWorkspaceAuthorities()).toEqual([
+      { id: 'active-process-1', workspace: originalWorkspace },
+      { id: 'active-process-2', workspace: successorWorkspace },
+    ]);
+
+    shutdown.resolve();
+    await vi.waitFor(() =>
+      expect(manager.listWorkspaceAuthorities()).toEqual([{ id: 'active-process-2', workspace: successorWorkspace }])
+    );
   });
 });
