@@ -242,6 +242,7 @@ export class LocalM0BCohortEventRepository implements M0BCohortEventRepository {
       }
       if (validation.event.eventId !== expectedEventId) throw new Error('M0B_EVENT_FILENAME_MISMATCH');
       this.assertInsideObservationWindow(validation.event);
+      if (raw !== `${canonicalJson(validation.event)}\n`) throw new Error('M0B_NONCANONICAL_EVENT_FILE');
       return validation.event;
     } finally {
       await handle.close();

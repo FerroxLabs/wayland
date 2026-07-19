@@ -164,6 +164,20 @@ describe('LocalM0BCohortEventRepository hostile persisted state', () => {
     await expect(store.findWindow(START, END)).rejects.toThrow('M0B_CORRUPT_EVENT_FILE');
   });
 
+  it('rejects valid but noncanonical rows, including ambiguous duplicate keys', async () => {
+    const root = path.join(await tempRoot(), 'events');
+    const store = repository(root);
+    await store.findWindow(START, END);
+    const canonical = JSON.stringify(event());
+    await writeFile(
+      path.join(eventDirectory(root), 'event-000001.event.json'),
+      canonical.replace('{', '{"kind":"session_started",'),
+      { mode: 0o600 }
+    );
+
+    await expect(store.findWindow(START, END)).rejects.toThrow('M0B_NONCANONICAL_EVENT_FILE');
+  });
+
   it('revalidates privacy fields when reading persisted events', async () => {
     const root = path.join(await tempRoot(), 'events');
     const store = repository(root);

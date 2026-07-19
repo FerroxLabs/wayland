@@ -127,6 +127,14 @@ describe('M0B privacy contract', () => {
       field: 'experiment',
     });
   });
+
+  it('rejects return-to-Classic evidence attributed to a Classic session', () => {
+    expect(
+      validateM0BCohortEvent(
+        baseEvent(1, 'novice', 'session-0001', 'shell_returned_to_classic', { reason: 'reliability' })
+      )
+    ).toEqual({ ok: false, code: 'invalid_field', field: 'shell' });
+  });
 });
 
 describe('aggregateM0BBaseline', () => {
@@ -204,6 +212,47 @@ describe('aggregateM0BBaseline', () => {
     expect(report.totals.crashFreeSessionRate).toBeNull();
   });
 
+  it('uses the frozen denominators for support, accessibility, and Cockpit returns', () => {
+    const first = baseEvent(1, 'novice', 'session-0001', 'session_started');
+    const second = baseEvent(2, 'novice', 'session-0002', 'session_started');
+    second.participantIdHash = first.participantIdHash;
+    first.shell = 'cockpit';
+    second.shell = 'cockpit';
+    const events = [
+      first,
+      second,
+      baseEvent(3, 'novice', 'session-0001', 'support_contact', { category: 'bug', shell: 'cockpit' }),
+      baseEvent(4, 'novice', 'session-0002', 'support_contact', { category: 'setup', shell: 'cockpit' }),
+      baseEvent(5, 'novice', 'session-0001', 'accessibility_violation', {
+        severity: 'serious',
+        shell: 'cockpit',
+      }),
+      baseEvent(6, 'novice', 'session-0001', 'shell_returned_to_classic', {
+        reason: 'reliability',
+        shell: 'cockpit',
+      }),
+    ];
+    for (const event of events.slice(2)) event.participantIdHash = first.participantIdHash;
+
+    const report = aggregateM0BBaseline(events, config(), END);
+    expect(report.totals.participantCount).toBe(1);
+    expect(report.totals.sessionStartedCount).toBe(2);
+    expect(report.totals.supportContactsPerParticipant).toBe(2);
+    expect(report.totals.accessibilityViolationsPerSession).toBe(0.5);
+    expect(report.totals.returnToClassicRate).toBe(0.5);
+  });
+
+  it('returns null rather than manufacturing rates when a denominator is missing', () => {
+    const report = aggregateM0BBaseline([], config(), END);
+    expect(report.totals.journeyFailureRate).toBeNull();
+    expect(report.totals.journeySuccessRate).toBeNull();
+    expect(report.totals.crashFreeSessionRate).toBeNull();
+    expect(report.totals.supportContactsPerParticipant).toBeNull();
+    expect(report.totals.accessibilityViolationsPerSession).toBeNull();
+    expect(report.totals.returnToClassicRate).toBeNull();
+    expect(report.totals.latencyMs.p95).toBeNull();
+  });
+
   it('counts explicit crashes without inferring crashes from silence', () => {
     const events = [
       baseEvent(1, 'novice', 'session-0001', 'session_started'),
@@ -225,6 +274,16 @@ describe('aggregateM0BBaseline', () => {
     const report = aggregateM0BBaseline([first, duplicate, conflict], config(), END);
     expect(report.quality.duplicateEventCount).toBe(1);
     expect(report.quality.contractErrors).toEqual([{ eventId: 'event-000001', code: 'conflicting_event_id' }]);
+    expect(report.gates.dataQualityPass).toBe(false);
+  });
+
+  it('rejects a participant whose frozen cohort changes between sessions', () => {
+    const first = baseEvent(1, 'novice', 'session-0001', 'session_started');
+    const second = baseEvent(2, 'developer', 'session-0002', 'session_started');
+    second.participantIdHash = first.participantIdHash;
+    const report = aggregateM0BBaseline([first, second], config(), END);
+    expect(report.quality.contractErrors).toEqual([{ eventId: 'event-000002', code: 'participant_cohort_mismatch' }]);
+    expect(report.totals.sessionStartedCount).toBe(1);
     expect(report.gates.dataQualityPass).toBe(false);
   });
 
@@ -262,6 +321,13 @@ describe('aggregateM0BBaseline', () => {
 
     const report = aggregateM0BBaseline(events, config(), END);
     expect(report.totals.zeroToleranceStopCount).toBe(5);
+    expect(report.totals.zeroToleranceStopsByReason).toEqual({
+      'data-loss-or-corruption': 1,
+      'permission-widening': 1,
+      'approval-bypass': 1,
+      'cross-project-leakage': 1,
+      'receipt-forgery': 1,
+    });
     expect(report.gates.automaticStopTriggered).toBe(true);
     expect(report.decision.readyForDecision).toBe(false);
   });

@@ -113,6 +113,7 @@ export function validateM0BCohortEvent(input: unknown): M0BValidationResult {
       return invalid('invalid_field', 'category');
     }
   } else if (kind === 'shell_returned_to_classic') {
+    if (record.shell !== 'cockpit') return invalid('invalid_field', 'shell');
     if (!isOneOf(record.reason, M0B_RETURN_REASONS)) {
       return invalid('invalid_field', 'reason');
     }

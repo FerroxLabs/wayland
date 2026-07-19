@@ -12,12 +12,14 @@ import {
   M0B_PRIMARY_JOURNEYS,
   M0B_RETURN_REASONS,
   M0B_SCHEMA_VERSION,
+  M0B_ZERO_TOLERANCE_REASONS,
   type M0BBaselineConfig,
   type M0BBaselineReport,
   type M0BCohort,
   type M0BCohortEvent,
   type M0BContractErrorCode,
   type M0BMetricSlice,
+  type M0BZeroToleranceReason,
 } from './types';
 
 type SessionState = {
@@ -69,6 +71,13 @@ function blankReturnReasons(): M0BMetricSlice['returnToClassicByReason'] {
   ) as M0BMetricSlice['returnToClassicByReason'];
 }
 
+function blankZeroToleranceReasons(): M0BMetricSlice['zeroToleranceStopsByReason'] {
+  return Object.fromEntries(M0B_ZERO_TOLERANCE_REASONS.map((reason) => [reason, 0])) as Record<
+    M0BZeroToleranceReason,
+    number
+  >;
+}
+
 function metricSlice(sessions: SessionState[], journeys: JourneyState[], events: M0BCohortEvent[]): M0BMetricSlice {
   const terminalJourneys = journeys.filter((journey) => journey.terminal);
   const latencies = terminalJourneys.map((journey) => journey.terminal!.occurredAtMs - journey.start.occurredAtMs);
@@ -78,12 +87,20 @@ function metricSlice(sessions: SessionState[], journeys: JourneyState[], events:
   const ended = explicitTerminals.filter((session) => session.terminal!.kind === 'session_ended').length;
   const crashed = explicitTerminals.filter((session) => session.terminal!.kind === 'session_crashed').length;
   const returnReasons = blankReturnReasons();
+  const stopReasons = blankZeroToleranceReasons();
   for (const event of events) {
     if (event.kind === 'shell_returned_to_classic') returnReasons[event.reason] += 1;
+    if (event.kind === 'zero_tolerance_stop') stopReasons[event.reason] += 1;
   }
+  const participantCount = new Set(sessions.map((session) => session.start.participantIdHash)).size;
+  const cockpitSessionCount = sessions.filter((session) => session.start.shell === 'cockpit').length;
+  const accessibilityViolationCount = events.filter((event) => event.kind === 'accessibility_violation').length;
+  const supportContactCount = events.filter((event) => event.kind === 'support_contact').length;
+  const returnToClassicCount = events.filter((event) => event.kind === 'shell_returned_to_classic').length;
+  const zeroToleranceStopCount = events.filter((event) => event.kind === 'zero_tolerance_stop').length;
 
   return {
-    participantCount: new Set(sessions.map((session) => session.start.participantIdHash)).size,
+    participantCount,
     sessionStartedCount: sessions.length,
     sessionEndedCount: ended,
     sessionCrashedCount: crashed,
@@ -99,11 +116,15 @@ function metricSlice(sessions: SessionState[], journeys: JourneyState[], events:
       p50: percentile(latencies, 0.5),
       p95: percentile(latencies, 0.95),
     },
-    accessibilityViolationCount: events.filter((event) => event.kind === 'accessibility_violation').length,
-    supportContactCount: events.filter((event) => event.kind === 'support_contact').length,
-    returnToClassicCount: events.filter((event) => event.kind === 'shell_returned_to_classic').length,
+    accessibilityViolationCount,
+    accessibilityViolationsPerSession: sessions.length > 0 ? accessibilityViolationCount / sessions.length : null,
+    supportContactCount,
+    supportContactsPerParticipant: participantCount > 0 ? supportContactCount / participantCount : null,
+    returnToClassicCount,
+    returnToClassicRate: cockpitSessionCount > 0 ? returnToClassicCount / cockpitSessionCount : null,
     returnToClassicByReason: returnReasons,
-    zeroToleranceStopCount: events.filter((event) => event.kind === 'zero_tolerance_stop').length,
+    zeroToleranceStopCount,
+    zeroToleranceStopsByReason: stopReasons,
   };
 }
 
@@ -154,6 +175,7 @@ export function aggregateM0BBaseline(
   );
   const sessions = new Map<string, SessionState>();
   const journeys = new Map<string, JourneyState>();
+  const participantCohorts = new Map<string, M0BCohort>();
   const acceptedEvents: M0BCohortEvent[] = [];
 
   const reject = (event: M0BCohortEvent, code: M0BContractErrorCode): void => {
@@ -162,9 +184,13 @@ export function aggregateM0BBaseline(
 
   for (const event of orderedEvents) {
     if (event.kind === 'session_started') {
-      if (sessions.has(event.sessionId)) {
+      const priorCohort = participantCohorts.get(event.participantIdHash);
+      if (priorCohort !== undefined && priorCohort !== event.cohort) {
+        reject(event, 'participant_cohort_mismatch');
+      } else if (sessions.has(event.sessionId)) {
         reject(event, 'duplicate_session_start');
       } else {
+        participantCohorts.set(event.participantIdHash, event.cohort);
         sessions.set(event.sessionId, { start: event });
         acceptedEvents.push(event);
       }

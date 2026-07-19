@@ -116,12 +116,7 @@ export type M0BBaselineConfig = {
 };
 
 export type M0BValidationErrorCode =
-  | 'not_object'
-  | 'unknown_event_kind'
-  | 'unknown_field'
-  | 'forbidden_field'
-  | 'missing_field'
-  | 'invalid_field';
+  'not_object' | 'unknown_event_kind' | 'unknown_field' | 'forbidden_field' | 'missing_field' | 'invalid_field';
 
 export type M0BValidationResult =
   | { ok: true; event: M0BCohortEvent }
@@ -134,6 +129,7 @@ export type M0BValidationResult =
 export type M0BContractErrorCode =
   | 'conflicting_event_id'
   | 'duplicate_session_start'
+  | 'participant_cohort_mismatch'
   | 'missing_session_start'
   | 'identity_mismatch'
   | 'event_after_session_terminal'
@@ -161,10 +157,14 @@ export type M0BMetricSlice = {
     p95: number | null;
   };
   accessibilityViolationCount: number;
+  accessibilityViolationsPerSession: number | null;
   supportContactCount: number;
+  supportContactsPerParticipant: number | null;
   returnToClassicCount: number;
+  returnToClassicRate: number | null;
   returnToClassicByReason: Record<M0BReturnReason, number>;
   zeroToleranceStopCount: number;
+  zeroToleranceStopsByReason: Record<M0BZeroToleranceReason, number>;
 };
 
 export type M0BBaselineReport = {
