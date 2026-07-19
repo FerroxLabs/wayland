@@ -53,6 +53,15 @@ export type RecoveryInventory = {
   }>;
   externalWorkspaces: Array<{ projectId: string; path: string; state: InventoryPathState }>;
   externalAgentConfigs: Array<{ backendId: string; path: string; state: InventoryPathState }>;
+  userDataRoots: UserDataRootInventoryEntry[];
+};
+
+export type UserDataRootInventoryEntry = {
+  relativePath: string;
+  disposition: 'captured' | 'excluded' | 'unknown';
+  authorityIds: StateAuthorityId[];
+  evidence: InventoryPathEvidence;
+  restoreConsequence: string;
 };
 
 export type RecoveryInventoryInputs = {
@@ -67,6 +76,96 @@ export type RecoveryInventoryInputs = {
 };
 
 type ScanBudget = { remaining: number; truncated: boolean };
+
+export const MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT = 20_000;
+
+const codeUnitCompare = (left: string, right: string): number => (left < right ? -1 : left > right ? 1 : 0);
+
+const CAPTURED_USER_DATA_ROOTS: Readonly<Record<string, readonly StateAuthorityId[]>> = {
+  wayland: ['desktop.database'],
+  config: ['desktop.config'],
+  conversations: ['desktop.runtime-files'],
+  attachments: ['desktop.runtime-files'],
+  constitution: ['desktop.runtime-files', 'constitution.revision-authority', 'credentials.key-material'],
+  'transfer-source-authority-v1': ['credentials.key-material'],
+  signal: ['desktop.runtime-files'],
+  'cockpit-rollout': ['desktop.runtime-files'],
+  'cohort-evidence': ['desktop.runtime-files'],
+  voice: ['desktop.runtime-files'],
+  'codex-home': ['credentials.key-material'],
+  '.cursor': ['credentials.key-material'],
+  '.github': ['credentials.key-material'],
+  '.vscode': ['credentials.key-material'],
+  'Local Storage': ['desktop.runtime-files'],
+  'Session Storage': ['desktop.runtime-files'],
+  Cookies: ['desktop.runtime-files'],
+  'Cookies-journal': ['desktop.runtime-files'],
+  DIPS: ['desktop.runtime-files'],
+  'DIPS-wal': ['desktop.runtime-files'],
+  'Local State': ['desktop.runtime-files'],
+  'Network Persistent State': ['desktop.runtime-files'],
+  Preferences: ['desktop.runtime-files'],
+  SharedStorage: ['desktop.runtime-files'],
+  'SharedStorage-wal': ['desktop.runtime-files'],
+  TransportSecurity: ['desktop.runtime-files'],
+  'Trust Tokens': ['desktop.runtime-files'],
+  'Trust Tokens-journal': ['desktop.runtime-files'],
+  '.secret-key': ['credentials.key-material'],
+  'keys.json': ['credentials.key-material'],
+  'pending-update.json': ['updater.state'],
+  'analytics.json': ['desktop.runtime-files'],
+  'cdp.config.json': ['desktop.runtime-files'],
+  'flux-connectors.json': ['desktop.runtime-files'],
+  'flux-connector-backups': ['desktop.runtime-files'],
+  'nicknames.json': ['desktop.runtime-files'],
+  'sync-state.json': ['desktop.runtime-files'],
+  'webhook-audit.log': ['desktop.runtime-files'],
+  'webhook-audit.log.1': ['desktop.runtime-files'],
+  'webui-activity.json': ['desktop.runtime-files'],
+  'webui.config.json': ['desktop.runtime-files'],
+  'modelsdev-cache.json': ['desktop.runtime-files'],
+};
+
+const EXCLUDED_USER_DATA_ROOTS = new Set([
+  '.DS_Store',
+  '.updaterId',
+  '.windsurfrules',
+  'Cache',
+  'Code Cache',
+  'DawnGraphiteCache',
+  'DawnWebGPUCache',
+  'GPUCache',
+  'Shared Dictionary',
+  'blob_storage',
+  'bun-cache',
+  'bun-tmp',
+  'cache',
+  'logs',
+  'DevToolsActivePort',
+  'SingletonCookie',
+  'SingletonLock',
+  'SingletonSocket',
+]);
+
+const CONSTITUTION_USER_DATA_CHILDREN = new Set([
+  'revision-authority.enc',
+  'revision-authority.enc.legacy-v1-migration.json',
+  'restore-operations.enc',
+  'classic-recovery-operations.enc',
+  'external-recovery-authority-v1',
+]);
+
+const DATABASE_USER_DATA_CHILDREN = new Set(['wayland.db', 'wayland.db-wal', 'wayland.db-shm']);
+
+function resolveMaxEntries(value: number | undefined): number {
+  const candidate = value ?? MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT;
+  if (!Number.isSafeInteger(candidate) || candidate < 1 || candidate > MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT) {
+    throw new RangeError(
+      `maxEntriesPerRoot must be a safe integer between 1 and ${MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT}.`
+    );
+  }
+  return candidate;
+}
 
 function emptyEvidence(candidatePath: string, state: InventoryPathState, errorCode?: string): InventoryPathEvidence {
   return {
@@ -112,6 +211,7 @@ async function scanContained(candidatePath: string, budget: ScanBudget): Promise
   } catch (error) {
     return emptyEvidence(candidatePath, 'unreadable', (error as NodeJS.ErrnoException).code ?? 'UNKNOWN');
   }
+  names.sort(codeUnitCompare);
 
   for (const name of names) {
     if (budget.remaining <= 0) {
@@ -136,6 +236,136 @@ async function scanContained(candidatePath: string, budget: ScanBudget): Promise
   }
   evidence.truncated ||= budget.truncated;
   return evidence;
+}
+
+async function inventoryUserDataRoots(
+  userDataRoot: string,
+  maxEntries: number
+): Promise<UserDataRootInventoryEntry[]> {
+  let names: string[];
+  try {
+    names = await readdir(userDataRoot);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === 'ENOENT') return [];
+    return [
+      {
+        relativePath: '.',
+        disposition: 'unknown',
+        authorityIds: [],
+        evidence: emptyEvidence(userDataRoot, 'unreadable', code ?? 'UNKNOWN'),
+        restoreConsequence: 'The user-data namespace could not be enumerated, so recovery cannot prove completeness.',
+      },
+    ];
+  }
+
+  names.sort(codeUnitCompare);
+  const roots = await Promise.all(
+    names.map(async (name): Promise<UserDataRootInventoryEntry> => {
+      const candidate = path.join(userDataRoot, name);
+      const evidence = await inspectRoot(candidate, maxEntries, false);
+      const authorities =
+        CAPTURED_USER_DATA_ROOTS[name] ??
+        (name.startsWith('ijfw-latest-cache-') && name.endsWith('.json') ? ['desktop.runtime-files'] : undefined);
+      if (authorities) {
+        return {
+          relativePath: name,
+          disposition: 'captured',
+          authorityIds: [...authorities],
+          evidence,
+          restoreConsequence: 'This application-owned state is sealed into the recovery point.',
+        };
+      }
+      if (EXCLUDED_USER_DATA_ROOTS.has(name)) {
+        return {
+          relativePath: name,
+          disposition: 'excluded',
+          authorityIds: [],
+          evidence,
+          restoreConsequence: 'This transient cache, lock, or rebuildable runtime artifact is recreated after restore.',
+        };
+      }
+      return {
+        relativePath: name,
+        disposition: 'unknown',
+        authorityIds: [],
+        evidence,
+        restoreConsequence: 'No recovery authority or explicit exclusion owns this root.',
+      };
+    })
+  );
+
+  const constitution = roots.find(({ relativePath }) => relativePath === 'constitution');
+  if (constitution?.evidence.state === 'directory') {
+    let children: string[];
+    try {
+      children = await readdir(path.join(userDataRoot, 'constitution'));
+    } catch (error) {
+      roots.push({
+        relativePath: 'constitution/.',
+        disposition: 'unknown',
+        authorityIds: [],
+        evidence: emptyEvidence(
+          path.join(userDataRoot, 'constitution'),
+          'unreadable',
+          (error as NodeJS.ErrnoException).code ?? 'UNKNOWN'
+        ),
+        restoreConsequence: 'The Constitution authority namespace could not be enumerated.',
+      });
+      return roots.toSorted((left, right) => codeUnitCompare(left.relativePath, right.relativePath));
+    }
+    children.sort(codeUnitCompare);
+    for (const child of children) {
+      if (CONSTITUTION_USER_DATA_CHILDREN.has(child)) continue;
+      const relativePath = `constitution/${child}`;
+      // Sequential inspection preserves deterministic evidence ordering.
+      // oxlint-disable-next-line no-await-in-loop
+      const evidence = await inspectRoot(path.join(userDataRoot, ...relativePath.split('/')), maxEntries, false);
+      roots.push({
+        relativePath,
+        disposition: 'unknown',
+        authorityIds: [],
+        evidence,
+        restoreConsequence: 'No recovery authority or explicit exclusion owns this Constitution child.',
+      });
+    }
+  }
+  const database = roots.find(({ relativePath }) => relativePath === 'wayland');
+  if (database?.evidence.state === 'directory') {
+    let children: string[];
+    try {
+      children = await readdir(path.join(userDataRoot, 'wayland'));
+    } catch (error) {
+      roots.push({
+        relativePath: 'wayland/.',
+        disposition: 'unknown',
+        authorityIds: [],
+        evidence: emptyEvidence(
+          path.join(userDataRoot, 'wayland'),
+          'unreadable',
+          (error as NodeJS.ErrnoException).code ?? 'UNKNOWN'
+        ),
+        restoreConsequence: 'The Desktop database namespace could not be enumerated.',
+      });
+      return roots.toSorted((left, right) => codeUnitCompare(left.relativePath, right.relativePath));
+    }
+    children.sort(codeUnitCompare);
+    for (const child of children) {
+      if (DATABASE_USER_DATA_CHILDREN.has(child)) continue;
+      const relativePath = `wayland/${child}`;
+      // Sequential inspection preserves deterministic evidence ordering.
+      // oxlint-disable-next-line no-await-in-loop
+      const evidence = await inspectRoot(path.join(userDataRoot, 'wayland', child), maxEntries, false);
+      roots.push({
+        relativePath,
+        disposition: 'unknown',
+        authorityIds: [],
+        evidence,
+        restoreConsequence: 'No recovery authority owns this Desktop database child.',
+      });
+    }
+  }
+  return roots.toSorted((left, right) => codeUnitCompare(left.relativePath, right.relativePath));
 }
 
 async function inspectRoot(
@@ -193,7 +423,7 @@ function authority(
  * evidence only: it cannot promote a recovery point to `complete`.
  */
 export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInputs): Promise<RecoveryInventory> {
-  const maxEntries = Math.max(1, inputs.maxEntriesPerRoot ?? 20_000);
+  const maxEntries = resolveMaxEntries(inputs.maxEntriesPerRoot);
   const desktopDataRoot = path.join(inputs.userDataRoot, 'wayland');
   const databaseEvidence = await Promise.all(
     ['wayland.db', 'wayland.db-wal', 'wayland.db-shm'].map((name) =>
@@ -202,6 +432,8 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
   );
   const configEvidence = [await inspectRoot(path.join(inputs.userDataRoot, 'config'), maxEntries)];
   const runtimeFileCandidates = [
+    'conversations',
+    'attachments',
     'analytics.json',
     'cdp.config.json',
     'flux-connectors.json',
@@ -212,9 +444,37 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
     'webhook-audit.log.1',
     'webui-activity.json',
     'webui.config.json',
+    'modelsdev-cache.json',
+    'signal',
+    'cockpit-rollout',
+    'cohort-evidence',
+    'voice',
+    'Local Storage',
+    'Session Storage',
+    'Cookies',
+    'Cookies-journal',
+    'DIPS',
+    'DIPS-wal',
+    'Local State',
+    'Network Persistent State',
+    'Preferences',
+    'SharedStorage',
+    'SharedStorage-wal',
+    'TransportSecurity',
+    'Trust Tokens',
+    'Trust Tokens-journal',
+    path.join('constitution', 'restore-operations.enc'),
+    path.join('constitution', 'classic-recovery-operations.enc'),
   ];
+  const dynamicRuntimeCandidates = (await readdir(inputs.userDataRoot).catch((): string[] => []))
+    .filter((name) => name.startsWith('ijfw-latest-cache-') && name.endsWith('.json'))
+    .toSorted(codeUnitCompare);
   const runtimeEvidence = await Promise.all(
-    runtimeFileCandidates.map((name) => inspectRoot(path.join(inputs.userDataRoot, name), maxEntries))
+    [...runtimeFileCandidates, ...dynamicRuntimeCandidates].map(async (name) => {
+      const evidence = await inspectRoot(path.join(inputs.userDataRoot, name), maxEntries);
+      evidence.authorityRelativePath = name.split(path.sep).join('/');
+      return evidence;
+    })
   );
   const constitutionPaths = [
     'CONSTITUTION.md',
@@ -243,19 +503,39 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
   }
   const defaultCoreEvidence = [await inspectRoot(inputs.coreDefaultProfileRoot, maxEntries)];
   const namedCoreEvidence = [await inspectRoot(inputs.coreNamedProfilesRoot, maxEntries)];
-  const credentialEvidence = [await inspectRoot(path.join(inputs.userDataRoot, '.secret-key'), maxEntries, false)];
+  const credentialEvidence = await Promise.all(
+    [
+      '.secret-key',
+      'keys.json',
+      'transfer-source-authority-v1',
+      'codex-home',
+      '.cursor',
+      '.github',
+      '.vscode',
+      path.join('constitution', 'external-recovery-authority-v1'),
+    ].map(async (name) => {
+      const evidence = await inspectRoot(path.join(inputs.userDataRoot, name), maxEntries);
+      evidence.authorityRelativePath = name.split(path.sep).join('/');
+      return evidence;
+    })
+  );
   const updaterEvidence = [await inspectRoot(path.join(inputs.userDataRoot, 'pending-update.json'), maxEntries, false)];
-  const workspaceInputs = inputs.externalWorkspaces ?? [];
+  const workspaceInputs = (inputs.externalWorkspaces ?? []).toSorted((left, right) =>
+    codeUnitCompare(`${left.projectId}\0${left.path}`, `${right.projectId}\0${right.path}`)
+  );
   const workspaceEvidence = await Promise.all(
     workspaceInputs.map((workspace) => inspectRoot(workspace.path, maxEntries, false))
   );
-  const externalAgentConfigInputs = inputs.externalAgentConfigs ?? [];
+  const externalAgentConfigInputs = (inputs.externalAgentConfigs ?? []).toSorted((left, right) =>
+    codeUnitCompare(`${left.backendId}\0${left.path}`, `${right.backendId}\0${right.path}`)
+  );
   const externalAgentConfigEvidence = await Promise.all(
     externalAgentConfigInputs.map((entry) => inspectRoot(entry.path, maxEntries, false))
   );
 
   const coreCoverage = (evidence: InventoryPathEvidence[]): AuthorityCoverage =>
     classifyInventoryEvidenceState(evidence) === 'absent' ? 'absent' : 'encrypted-copy';
+  const userDataRoots = await inventoryUserDataRoots(inputs.userDataRoot, maxEntries);
 
   return {
     observedAt: new Date().toISOString(),
@@ -450,5 +730,6 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
       path: entry.path,
       state: externalAgentConfigEvidence[index].state,
     })),
+    userDataRoots,
   };
 }

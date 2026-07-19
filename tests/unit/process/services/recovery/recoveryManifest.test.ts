@@ -129,6 +129,7 @@ function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifes
         requiredForRestore: false,
         sensitive: true,
         fileIds: [],
+        referenceIds: ['codex'],
       },
       {
         id: 'external.workspaces',
@@ -138,6 +139,7 @@ function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifes
         requiredForRestore: false,
         sensitive: false,
         fileIds: [],
+        referenceIds: ['project-1'],
       },
     ],
     logicalState: [
@@ -460,6 +462,35 @@ describe('recovery manifest validation', () => {
         'EXTERNAL_REFERENCE_ID_INVALID',
         'EXTERNAL_REFERENCE_PATH_INVALID',
       ])
+    );
+  });
+
+  it('binds external authority evidence one-to-one to the persisted reference identifiers', () => {
+    const missing = makeManifest();
+    delete missing.authorities.find(({ id }) => id === 'external.workspaces')!.referenceIds;
+    expect(validateRecoveryManifest(missing).errors.map(({ code }) => code)).toContain(
+      'EXTERNAL_AUTHORITY_REFERENCE_IDS_INVALID'
+    );
+
+    const reordered = makeManifest();
+    reordered.externalWorkspaces.push({
+      projectId: 'project-2',
+      path: '/work/second',
+      state: 'directory',
+      copyPolicy: 'reference-only',
+    });
+    reordered.authorities.find(({ id }) => id === 'external.workspaces')!.referenceIds = [
+      'project-2',
+      'project-1',
+    ];
+    expect(validateRecoveryManifest(reordered).errors.map(({ code }) => code)).toEqual(
+      expect.arrayContaining(['EXTERNAL_AUTHORITY_REFERENCE_MISMATCH'])
+    );
+
+    const duplicate = makeManifest();
+    duplicate.authorities.find(({ id }) => id === 'external.agent-configs')!.referenceIds = ['codex', 'codex'];
+    expect(validateRecoveryManifest(duplicate).errors.map(({ code }) => code)).toContain(
+      'EXTERNAL_AUTHORITY_REFERENCE_MISMATCH'
     );
   });
 

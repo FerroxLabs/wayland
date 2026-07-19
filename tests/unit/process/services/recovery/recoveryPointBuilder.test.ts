@@ -273,6 +273,7 @@ describe('recovery point builder', () => {
         {
           inventory: data.inventory,
           destinationRoot,
+          protectedRoots: [protectedRoot],
           reason: 'hostile-ancestor-swap',
           sourceAppVersion: '0.11.18',
           desktopSchemaVersion: 53,
@@ -290,6 +291,39 @@ describe('recovery point builder', () => {
       outcome: 'blocked',
       wroteOutsideAdmittedRoot: false,
     });
+  });
+
+  it('fails closed when a destination ancestor is swapped after admission but before the first write', async () => {
+    const data = await fixture();
+    const admittedAncestor = path.join(data.root, 'race-admitted');
+    const retiredAncestor = path.join(data.root, 'race-retired');
+    const protectedRoot = path.join(data.root, 'race-protected');
+    const destinationRoot = path.join(admittedAncestor, 'recovery-points');
+    fs.mkdirSync(admittedAncestor);
+    fs.mkdirSync(protectedRoot);
+    const deps = dependencies({
+      beforeFirstArtifactWrite: async () => {
+        fs.renameSync(admittedAncestor, retiredAncestor);
+        fs.symlinkSync(protectedRoot, admittedAncestor, 'dir');
+      },
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot,
+          protectedRoots: [protectedRoot],
+          reason: 'hostile-write-race',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('identity changed after admission');
+
+    expect(fs.readdirSync(protectedRoot)).toEqual([]);
+    expect(fs.existsSync(path.join(retiredAncestor, 'recovery-points', 'snapshot-test'))).toBe(false);
   });
 
   it('removes partial isolated output when authenticated unsealing fails', async () => {

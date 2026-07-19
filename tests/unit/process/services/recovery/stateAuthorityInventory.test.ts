@@ -53,7 +53,7 @@ describe('state authority inventory', () => {
       requiredConsistency: 'sqlite-online-backup',
     });
     expect(inventory.authorities.find((item) => item.id === 'credentials.key-material')).toMatchObject({
-      state: 'present',
+      state: 'partial',
       recommendedCoverage: 'encrypted-copy',
     });
     expect(inventory.authorities.find((item) => item.id === 'credentials.os-keychain')).toMatchObject({
@@ -176,5 +176,72 @@ describe('state authority inventory', () => {
       'archives/constitution-history',
     ]);
     expect(named.evidence[0].truncated).toBe(true);
+  });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, -1, 0, 1.5, 20_001, '100' as unknown as number])(
+    'rejects an invalid inventory budget before traversal: %s',
+    async (maxEntriesPerRoot) => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-budget-'));
+      roots.push(root);
+      await expect(
+        inventoryRecoveryAuthorities({
+          userDataRoot: path.join(root, 'user-data'),
+          constitutionRoot: path.join(root, 'constitution'),
+          coreDefaultProfileRoot: path.join(root, 'core-default'),
+          coreNamedProfilesRoot: path.join(root, 'core-profiles'),
+          maxEntriesPerRoot,
+        })
+      ).rejects.toThrow('maxEntriesPerRoot must be a safe integer');
+    }
+  );
+
+  it('emits deterministic root and evidence order regardless of creation order', async () => {
+    const rootsByCreationOrder = ['zeta.json', 'alpha.json'];
+    const inventories = await Promise.all([rootsByCreationOrder, rootsByCreationOrder.toReversed()].map(async (order) => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-order-'));
+      roots.push(root);
+      const userDataRoot = path.join(root, 'user-data');
+      fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+      fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+      fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
+      for (const name of order) fs.writeFileSync(path.join(userDataRoot, name), '{}');
+      return inventoryRecoveryAuthorities({
+          userDataRoot,
+          constitutionRoot: path.join(root, 'constitution'),
+          coreDefaultProfileRoot: path.join(root, 'core-default'),
+          coreNamedProfilesRoot: path.join(root, 'core-profiles'),
+        });
+    }));
+
+    expect(inventories[0].userDataRoots.map(({ relativePath }) => relativePath)).toEqual(
+      inventories[1].userDataRoots.map(({ relativePath }) => relativePath)
+    );
+    expect(inventories[0].userDataRoots.map(({ relativePath }) => relativePath)).toEqual([
+      'alpha.json',
+      'config',
+      'wayland',
+      'zeta.json',
+    ]);
+  });
+
+  it('does not let an unknown file hide inside the database authority directory', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-database-child-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'unowned-state.bin'), 'mutable');
+
+    const inventory = await inventoryRecoveryAuthorities({
+      userDataRoot,
+      constitutionRoot: path.join(root, 'constitution'),
+      coreDefaultProfileRoot: path.join(root, 'core-default'),
+      coreNamedProfilesRoot: path.join(root, 'core-profiles'),
+    });
+
+    expect(inventory.userDataRoots).toContainEqual(
+      expect.objectContaining({ relativePath: 'wayland/unowned-state.bin', disposition: 'unknown' })
+    );
   });
 });

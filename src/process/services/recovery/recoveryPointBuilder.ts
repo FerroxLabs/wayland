@@ -6,7 +6,20 @@
 
 import { createHash, randomUUID } from 'node:crypto';
 import { constants, createReadStream, type Stats } from 'node:fs';
-import { copyFile, lstat, mkdir, mkdtemp, readdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
+import {
+  copyFile,
+  type FileHandle,
+  lstat,
+  mkdir,
+  mkdtemp,
+  open,
+  readdir,
+  readFile,
+  realpath,
+  rename,
+  rm,
+  writeFile,
+} from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { evaluateRecoveryDryRun, type RecoveryDryRun } from './recoveryDryRun';
@@ -35,6 +48,10 @@ export type RecoveryPointBuilderDependencies = {
   readMutationEpoch: () => Promise<string>;
   now?: () => Date;
   createSnapshotId?: () => string;
+  /** Test seam used to prove destination identity is revalidated after admission. */
+  afterDestinationAdmission?: () => Promise<void>;
+  /** Test seam used to prove pathname swaps cannot redirect an artifact write. */
+  beforeFirstArtifactWrite?: () => Promise<void>;
 };
 
 export type BuildRecoveryPointInputs = {
@@ -44,6 +61,8 @@ export type BuildRecoveryPointInputs = {
   sourceAppVersion: string;
   targetAppVersion?: string;
   desktopSchemaVersion: number;
+  /** Live authority roots that must never overlap the recovery destination. */
+  protectedRoots?: readonly string[];
 };
 
 export type BuiltRecoveryPoint = {
@@ -61,6 +80,153 @@ export class RecoveryPointBuildBlockedError extends Error {
 }
 
 const COPIED_COVERAGE = new Set<AuthorityCoverage>(['copied', 'encrypted-copy']);
+
+type DestinationPathIdentity = { path: string; dev: number; ino: number };
+type RecoveryDestinationAdmission = {
+  requestedRoot: string;
+  root: string;
+  canonicalRoot: string;
+  operationRoot: string;
+  handle: FileHandle;
+  pathIdentities: DestinationPathIdentity[];
+  canonicalProtectedRoots: string[];
+};
+
+function pathsOverlap(left: string, right: string): boolean {
+  const a = path.resolve(left);
+  const b = path.resolve(right);
+  const relativeAB = path.relative(a, b);
+  const relativeBA = path.relative(b, a);
+  return (
+    a === b ||
+    (relativeAB !== '' && !relativeAB.startsWith('..') && !path.isAbsolute(relativeAB)) ||
+    (relativeBA !== '' && !relativeBA.startsWith('..') && !path.isAbsolute(relativeBA))
+  );
+}
+
+async function canonicalizePotentialPath(candidate: string, missingSegments: string[] = []): Promise<string> {
+  const cursor = path.resolve(candidate);
+  try {
+    await lstat(cursor);
+    return path.resolve(await realpath(cursor), ...missingSegments);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    const parent = path.dirname(cursor);
+    if (parent === cursor) throw error;
+    return canonicalizePotentialPath(parent, [path.basename(cursor), ...missingSegments]);
+  }
+}
+
+/** Reject lexical and symlink-resolved aliases between output and live authority roots. */
+export async function assertRecoveryDestinationDisjoint(
+  destinationRoot: string,
+  protectedRoots: readonly string[]
+): Promise<void> {
+  const canonicalDestination = await canonicalizePotentialPath(destinationRoot);
+  const canonicalProtectedRoots = await Promise.all(protectedRoots.map((root) => canonicalizePotentialPath(root)));
+  for (const [index, protectedRoot] of protectedRoots.entries()) {
+    const canonicalProtected = canonicalProtectedRoots[index];
+    if (pathsOverlap(destinationRoot, protectedRoot) || pathsOverlap(canonicalDestination, canonicalProtected)) {
+      throw new Error(`Recovery destination must be disjoint from live state: ${protectedRoot}`);
+    }
+  }
+}
+
+async function admitRecoveryDestination(
+  destinationRoot: string,
+  protectedRoots: readonly string[]
+): Promise<RecoveryDestinationAdmission> {
+  const requestedRoot = path.resolve(destinationRoot);
+  await assertRecoveryDestinationDisjoint(requestedRoot, protectedRoots);
+  // Resolve trusted platform aliases (macOS /var -> /private/var) before the
+  // no-follow walk. User-controlled aliases remain observable because every
+  // existing segment in the resolved path is subsequently admitted by inode.
+  const root = await canonicalizePotentialPath(requestedRoot);
+  const parsedRoot = path.parse(root).root;
+  const segments = path.relative(parsedRoot, root).split(path.sep).filter(Boolean);
+  const pathIdentities: DestinationPathIdentity[] = [];
+  let cursor = parsedRoot;
+  for (const segment of segments) {
+    cursor = path.join(cursor, segment);
+    let stat: Awaited<ReturnType<typeof lstat>>;
+    try {
+      // Sequential no-follow admission is required for every path component.
+      // oxlint-disable-next-line no-await-in-loop
+      stat = await lstat(cursor);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      // mkdir without recursive mode prevents silently following a newly swapped parent.
+      // oxlint-disable-next-line no-await-in-loop
+      await mkdir(cursor, { mode: 0o700 });
+      // oxlint-disable-next-line no-await-in-loop
+      stat = await lstat(cursor);
+    }
+    if (stat.isSymbolicLink() || !stat.isDirectory()) {
+      throw new Error(`Recovery destination path must contain only real directories: ${cursor}`);
+    }
+    pathIdentities.push({ path: cursor, dev: stat.dev, ino: stat.ino });
+  }
+  const canonicalRoot = await realpath(root);
+  const canonicalProtectedRoots = await Promise.all(protectedRoots.map((candidate) => canonicalizePotentialPath(candidate)));
+  for (const [index, canonicalProtectedRoot] of canonicalProtectedRoots.entries()) {
+    if (pathsOverlap(canonicalRoot, canonicalProtectedRoot)) {
+      throw new Error(`Recovery destination must be disjoint from live state: ${protectedRoots[index]}`);
+    }
+  }
+  if (process.platform !== 'darwin' && process.platform !== 'linux') {
+    throw new Error('Recovery destination publication requires descriptor-relative filesystem support.');
+  }
+  const directoryFlags = constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW;
+  const handle = await open(root, directoryFlags);
+  try {
+    const handleStat = await handle.stat();
+    const rootIdentity = pathIdentities.at(-1);
+    if (
+      !handleStat.isDirectory() ||
+      !rootIdentity ||
+      handleStat.dev !== rootIdentity.dev ||
+      handleStat.ino !== rootIdentity.ino
+    ) {
+      throw new Error('Recovery destination handle does not match the admitted directory.');
+    }
+    const operationRoot = process.platform === 'linux' ? `/proc/self/fd/${handle.fd}` : canonicalRoot;
+    if (process.platform === 'linux') {
+      const operationStat = await lstat(await realpath(operationRoot));
+      if (operationStat.dev !== handleStat.dev || operationStat.ino !== handleStat.ino) {
+        throw new Error('Recovery destination descriptor did not resolve to the admitted directory.');
+      }
+    }
+    return { requestedRoot, root, canonicalRoot, operationRoot, handle, pathIdentities, canonicalProtectedRoots };
+  } catch (error) {
+    await handle.close();
+    throw error;
+  }
+}
+
+async function assertRecoveryDestinationStable(admission: RecoveryDestinationAdmission): Promise<void> {
+  for (const identity of admission.pathIdentities) {
+    let stat: Awaited<ReturnType<typeof lstat>>;
+    try {
+      // Sequential identity checks make any swapped ancestor fail closed.
+      // oxlint-disable-next-line no-await-in-loop
+      stat = await lstat(identity.path);
+    } catch {
+      throw new Error(`Recovery destination identity changed after admission: ${identity.path}`);
+    }
+    if (stat.isSymbolicLink() || !stat.isDirectory() || stat.dev !== identity.dev || stat.ino !== identity.ino) {
+      throw new Error(`Recovery destination identity changed after admission: ${identity.path}`);
+    }
+  }
+  const currentCanonicalRoot = await realpath(admission.requestedRoot);
+  if (currentCanonicalRoot !== admission.canonicalRoot) {
+    throw new Error('Recovery destination canonical identity changed after admission.');
+  }
+  for (const protectedRoot of admission.canonicalProtectedRoots) {
+    if (pathsOverlap(currentCanonicalRoot, protectedRoot)) {
+      throw new Error(`Recovery destination became unsafe after admission: ${protectedRoot}`);
+    }
+  }
+}
 
 function safeSegment(value: string): string {
   const sanitized = value.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '');
@@ -94,10 +260,11 @@ async function listContainedFiles(root: string): Promise<string[]> {
   const files: string[] = [];
   const visit = async (directory: string): Promise<void> => {
     const entries = await readdir(directory, { withFileTypes: true });
-    entries.sort((left, right) => left.name.localeCompare(right.name));
+    entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
     for (const entry of entries) {
       const candidate = path.join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new Error(`Recovery source contains a symlink: ${candidate}`);
+      // oxlint-disable-next-line no-await-in-loop
       if (entry.isDirectory()) await visit(candidate);
       else if (entry.isFile()) files.push(candidate);
       else throw new Error(`Recovery source has an unsupported entry: ${candidate}`);
@@ -128,7 +295,10 @@ function recoveryRestorePath(
   const observedRelative =
     evidenceState === 'file' ? path.basename(evidencePath) : relativeSourcePath(evidencePath, filePath);
   const relative =
-    authorityId === 'constitution.filesystem' && authorityRelativePath
+    (authorityId === 'constitution.filesystem' ||
+      authorityId === 'desktop.runtime-files' ||
+      authorityId === 'credentials.key-material') &&
+    authorityRelativePath
       ? evidenceState === 'file'
         ? authorityRelativePath
         : path.posix.join(authorityRelativePath, ...observedRelative.split(path.sep))
@@ -142,7 +312,11 @@ function recoveryRestorePath(
     case 'desktop.runtime-files':
       return path.posix.join(
         'desktop/runtime',
-        ...(evidenceState === 'file' ? segments : [path.basename(evidencePath), ...segments])
+        ...(authorityRelativePath
+          ? segments
+          : evidenceState === 'file'
+            ? segments
+            : [path.basename(evidencePath), ...segments])
       );
     case 'constitution.filesystem':
       return path.posix.join('constitution/files', ...segments);
@@ -159,7 +333,14 @@ function recoveryRestorePath(
     case 'core.named-profiles':
       return path.posix.join('core/profiles', ...segments);
     case 'credentials.key-material':
-      return path.posix.join('desktop/credentials', ...segments);
+      return path.posix.join(
+        'desktop/credentials',
+        ...(authorityRelativePath
+          ? segments
+          : evidenceState === 'file'
+            ? segments
+            : [path.basename(evidencePath), ...segments])
+      );
     case 'updater.state':
       return path.posix.join('desktop/updater', ...segments);
     default:
@@ -192,8 +373,20 @@ async function addCapturedFile(options: {
   sealFile: RecoveryPointBuilderDependencies['sealFile'];
   capturedSnapshotPaths: Set<string>;
   ordinal: number;
+  assertDestinationStable: () => Promise<void>;
+  beforeArtifactWrite?: () => Promise<void>;
 }): Promise<RecoveryManifestFile> {
-  const { authority, sourcePath, relativePath, stagingRoot, sealFile, capturedSnapshotPaths, ordinal } = options;
+  const {
+    authority,
+    sourcePath,
+    relativePath,
+    stagingRoot,
+    sealFile,
+    capturedSnapshotPaths,
+    ordinal,
+    assertDestinationStable,
+    beforeArtifactWrite,
+  } = options;
   const sourceStat = await assertRegularFile(sourcePath, 'Recovery source');
   const encrypted = authority.sensitive;
   const suffix = encrypted ? '.sealed' : '';
@@ -204,9 +397,14 @@ async function addCapturedFile(options: {
   }
   capturedSnapshotPaths.add(snapshotPath);
   const destinationPath = path.join(stagingRoot, ...snapshotPath.split('/'));
+  await assertDestinationStable();
   await mkdir(path.dirname(destinationPath), { recursive: true });
+  await assertDestinationStable();
+  await beforeArtifactWrite?.();
+  await assertDestinationStable();
   if (encrypted) await sealFile(sourcePath, destinationPath);
   else await copyFile(sourcePath, destinationPath, constants.COPYFILE_EXCL);
+  await assertDestinationStable();
   const snapshotStat = await assertRegularFile(destinationPath, 'Recovery artifact');
 
   return {
@@ -272,25 +470,33 @@ export async function buildRecoveryPoint(
   if (!dryRun.readyToCapture) throw new RecoveryPointBuildBlockedError(dryRun);
 
   const snapshotId = safeSegment(dependencies.createSnapshotId?.() ?? randomUUID());
-  const destinationRoot = path.resolve(inputs.destinationRoot);
+  const destinationAdmission = await admitRecoveryDestination(inputs.destinationRoot, inputs.protectedRoots ?? []);
+  const destinationRoot = destinationAdmission.operationRoot;
   const finalRoot = path.join(destinationRoot, snapshotId);
-  await mkdir(destinationRoot, { recursive: true });
-  try {
-    await lstat(finalRoot);
-    throw new Error(`Recovery point already exists: ${finalRoot}`);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-  }
-  const stagingRoot = await mkdtemp(path.join(destinationRoot, `.${snapshotId}.incomplete-`));
-  const transientRoot = await mkdtemp(path.join(os.tmpdir(), `wayland-recovery-${snapshotId}-`));
+  const publicFinalRoot = path.join(destinationAdmission.requestedRoot, snapshotId);
+  let stagingRoot: string | undefined;
+  let transientRoot: string | undefined;
+  let published = false;
   const authorityFiles = new Map<StateAuthorityId, RecoveryManifestFile[]>();
   const capturedSnapshotPaths = new Set<string>();
   let desktopLease: RecoverySnapshotLease | undefined;
   let coreLease: RecoverySnapshotLease | undefined;
   let mutationStart = '';
   let mutationEnd = '';
+  let artifactWriteHook = dependencies.beforeFirstArtifactWrite;
 
   try {
+    await dependencies.afterDestinationAdmission?.();
+    await assertRecoveryDestinationStable(destinationAdmission);
+    try {
+      await lstat(finalRoot);
+      throw new Error(`Recovery point already exists: ${publicFinalRoot}`);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    }
+    stagingRoot = await mkdtemp(path.join(destinationRoot, `.${snapshotId}.incomplete-`));
+    await assertRecoveryDestinationStable(destinationAdmission);
+    transientRoot = await mkdtemp(path.join(os.tmpdir(), `wayland-recovery-${snapshotId}-`));
     desktopLease = await dependencies.acquireDesktopQuiescence();
     if (corePresent) coreLease = await dependencies.acquireCoreQuiescence!();
     mutationStart = await dependencies.readMutationEpoch();
@@ -305,9 +511,13 @@ export async function buildRecoveryPoint(
         const databaseSource = authority.evidence[0]?.path;
         if (!databaseSource) throw new Error('Desktop database source is missing.');
         const transientDatabase = path.join(transientRoot, 'wayland.db');
+        // Authorities are captured serially under one mutation epoch.
+        // oxlint-disable-next-line no-await-in-loop
         await dependencies.captureSqliteOnline(databaseSource, transientDatabase);
+        // oxlint-disable-next-line no-await-in-loop
         await assertRegularFile(transientDatabase, 'SQLite online backup');
         captured.push(
+          // oxlint-disable-next-line no-await-in-loop
           await addCapturedFile({
             authority,
             sourcePath: transientDatabase,
@@ -319,16 +529,26 @@ export async function buildRecoveryPoint(
             sealFile: dependencies.sealFile,
             capturedSnapshotPaths,
             ordinal: 0,
+            assertDestinationStable: () => assertRecoveryDestinationStable(destinationAdmission),
+            beforeArtifactWrite: artifactWriteHook
+              ? async () => {
+                  const hook = artifactWriteHook;
+                  artifactWriteHook = undefined;
+                  await hook?.();
+                }
+              : undefined,
           })
         );
       } else {
         let ordinal = 0;
         for (const [evidenceIndex, evidence] of authority.evidence.entries()) {
           if (evidence.state === 'absent') continue;
+          // oxlint-disable-next-line no-await-in-loop
           const files = await listContainedFiles(evidence.path);
           for (const filePath of files) {
             if (!authorityOwnsFile(authority.id, evidence.path, evidence.state, filePath)) continue;
             captured.push(
+              // oxlint-disable-next-line no-await-in-loop
               await addCapturedFile({
                 authority,
                 sourcePath: filePath,
@@ -344,6 +564,14 @@ export async function buildRecoveryPoint(
                 sealFile: dependencies.sealFile,
                 capturedSnapshotPaths,
                 ordinal: ordinal++,
+                assertDestinationStable: () => assertRecoveryDestinationStable(destinationAdmission),
+                beforeArtifactWrite: artifactWriteHook
+                  ? async () => {
+                      const hook = artifactWriteHook;
+                      artifactWriteHook = undefined;
+                      await hook?.();
+                    }
+                  : undefined,
               })
             );
           }
@@ -372,6 +600,11 @@ export async function buildRecoveryPoint(
       requiredForRestore: authority.requiredForRestore,
       sensitive: authority.sensitive,
       fileIds: (authorityFiles.get(authority.id) ?? []).map(({ id }) => id),
+      ...(authority.id === 'external.workspaces'
+        ? { referenceIds: inputs.inventory.externalWorkspaces.map(({ projectId }) => projectId) }
+        : authority.id === 'external.agent-configs'
+          ? { referenceIds: inputs.inventory.externalAgentConfigs.map(({ backendId }) => backendId) }
+          : {}),
       ...(authority.credentialBinding ? { credentialBinding: authority.credentialBinding } : {}),
       ...(COPIED_COVERAGE.has(coverage.get(authority.id) ?? 'missing') &&
       (authorityFiles.get(authority.id) ?? []).length === 0
@@ -420,7 +653,9 @@ export async function buildRecoveryPoint(
       throw new Error(`Built recovery manifest is invalid: ${validation.errors.map(({ code }) => code).join(', ')}`);
     }
     const manifestPath = path.join(stagingRoot, 'manifest.json');
+    await assertRecoveryDestinationStable(destinationAdmission);
     await writeFile(manifestPath, JSON.stringify(manifest, null, 2), { mode: 0o600, flag: 'wx' });
+    await assertRecoveryDestinationStable(destinationAdmission);
     const verification = await verifyRecoverySnapshot(await readManifest(manifestPath), stagingRoot);
     if (!verification.valid) {
       throw new Error(
@@ -428,12 +663,27 @@ export async function buildRecoveryPoint(
       );
     }
 
+    await assertRecoveryDestinationStable(destinationAdmission);
     await rename(stagingRoot, finalRoot);
-    return { snapshotPath: finalRoot, manifestPath: path.join(finalRoot, 'manifest.json'), manifest, dryRun };
+    try {
+      await assertRecoveryDestinationStable(destinationAdmission);
+    } catch (error) {
+      await rm(finalRoot, { recursive: true, force: true });
+      throw error;
+    }
+    published = true;
+    return {
+      snapshotPath: publicFinalRoot,
+      manifestPath: path.join(publicFinalRoot, 'manifest.json'),
+      manifest,
+      dryRun,
+    };
   } finally {
     if (coreLease) await coreLease.release();
     if (desktopLease) await desktopLease.release();
-    await rm(transientRoot, { recursive: true, force: true });
-    await rm(stagingRoot, { recursive: true, force: true });
+    if (transientRoot) await rm(transientRoot, { recursive: true, force: true });
+    if (stagingRoot) await rm(stagingRoot, { recursive: true, force: true });
+    if (!published) await rm(finalRoot, { recursive: true, force: true });
+    await destinationAdmission.handle.close();
   }
 }

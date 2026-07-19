@@ -84,6 +84,8 @@ export type RecoveryManifestAuthority = {
   requiredForRestore: boolean;
   sensitive: boolean;
   fileIds: string[];
+  /** Exact ordered identifiers for reference-only authorities. */
+  referenceIds?: string[];
   /** OS-vault binding for encrypted state that can only be restored on this device. */
   credentialBinding?: {
     scope: 'same-device';
@@ -199,6 +201,7 @@ function validateExternalReferences(
   errors: RecoveryManifestIssue[]
 ): void {
   const ids = new Set<string>();
+  let previousKey = '';
   values.forEach((value, index) => {
     const entryPath = `${basePath}[${index}]`;
     if (!isRecord(value)) {
@@ -228,7 +231,65 @@ function validateExternalReferences(
         issue('EXTERNAL_REFERENCE_STATE_INVALID', `${entryPath}.state`, 'External reference state must be explicit.')
       );
     }
+    if (isRecord(value) && typeof id === 'string' && typeof value.path === 'string' && typeof value.state === 'string') {
+      const key = `${id}\0${value.path}\0${value.state}`;
+      if (previousKey && previousKey > key) {
+        errors.push(
+          issue('EXTERNAL_REFERENCE_ORDER_INVALID', entryPath, 'External references must use deterministic order.')
+        );
+      }
+      previousKey = key;
+    }
   });
+}
+
+function validateExternalAuthorityBinding(
+  authorityMap: Map<string, Record<string, unknown>>,
+  authorityId: 'external.workspaces' | 'external.agent-configs',
+  values: unknown[],
+  idKey: 'projectId' | 'backendId',
+  errors: RecoveryManifestIssue[],
+  legacy: boolean
+): void {
+  const authority = authorityMap.get(authorityId);
+  if (!authority) return;
+  const ids = values.flatMap((value) =>
+    isRecord(value) && typeof value[idKey] === 'string' ? [value[idKey] as string] : []
+  );
+  const expectedCoverage = ids.length === 0 ? 'absent' : 'reference-only';
+  const expectedConsistency = ids.length === 0 ? 'not-applicable' : 'reference-snapshot';
+  if (authority.coverage !== expectedCoverage || authority.consistency !== expectedConsistency) {
+    errors.push(
+      issue(
+        'EXTERNAL_AUTHORITY_REFERENCE_MISMATCH',
+        `authorities.${authorityId}`,
+        `${authorityId} coverage must match its persisted reference set.`
+      )
+    );
+  }
+  if (legacy && authority.referenceIds === undefined) return;
+  if (!Array.isArray(authority.referenceIds) || authority.referenceIds.some((value) => typeof value !== 'string')) {
+    errors.push(
+      issue(
+        'EXTERNAL_AUTHORITY_REFERENCE_IDS_INVALID',
+        `authorities.${authorityId}.referenceIds`,
+        'Reference-only authority identifiers must be explicit.'
+      )
+    );
+    return;
+  }
+  if (
+    authority.referenceIds.length !== ids.length ||
+    authority.referenceIds.some((value, index) => value !== ids[index])
+  ) {
+    errors.push(
+      issue(
+        'EXTERNAL_AUTHORITY_REFERENCE_MISMATCH',
+        `authorities.${authorityId}.referenceIds`,
+        'Authority reference identifiers must bind one-to-one to persisted references.'
+      )
+    );
+  }
 }
 
 export function validateRecoveryManifest(value: unknown): RecoveryManifestValidation {
@@ -544,6 +605,17 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
         issue('AUTHORITY_NONCOPY_WITH_FILES', `${authorityPath}.fileIds`, 'Non-copied authorities cannot own files.')
       );
     }
+    const externalReferenceAuthority =
+      rawAuthority.id === 'external.workspaces' || rawAuthority.id === 'external.agent-configs';
+    if (!externalReferenceAuthority && rawAuthority.referenceIds !== undefined) {
+      errors.push(
+        issue(
+          'AUTHORITY_REFERENCE_IDS_UNEXPECTED',
+          `${authorityPath}.referenceIds`,
+          'Only external reference authorities may declare referenceIds.'
+        )
+      );
+    }
     if (
       (rawAuthority.coverage === 'copied' || rawAuthority.coverage === 'encrypted-copy') &&
       rawAuthority.consistency !== 'sqlite-online-backup' &&
@@ -770,6 +842,22 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
   } else {
     validateExternalReferences(value.externalAgentConfigs, 'backendId', 'externalAgentConfigs', errors);
   }
+  validateExternalAuthorityBinding(
+    authorityMap,
+    'external.workspaces',
+    Array.isArray(value.externalWorkspaces) ? value.externalWorkspaces : [],
+    'projectId',
+    errors,
+    isLegacyManifest
+  );
+  validateExternalAuthorityBinding(
+    authorityMap,
+    'external.agent-configs',
+    Array.isArray(value.externalAgentConfigs) ? value.externalAgentConfigs : [],
+    'backendId',
+    errors,
+    isLegacyManifest
+  );
 
   return { valid: errors.length === 0, errors, warnings };
 }

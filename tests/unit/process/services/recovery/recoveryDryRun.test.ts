@@ -104,6 +104,26 @@ describe('recovery capture dry run', () => {
     );
   });
 
+  it('rejects missing, reordered, duplicate, and contradictory external reference evidence', async () => {
+    const missing = await fixture();
+    missing.authorities.find(({ id }) => id === 'external.workspaces')!.evidence = [];
+    expect(evaluateRecoveryDryRun(missing, allCapabilities).blockers.map(({ code }) => code)).toContain(
+      'EXTERNAL_REFERENCE_COUNT_MISMATCH'
+    );
+
+    const contradictory = await fixture();
+    contradictory.externalWorkspaces[0].state = 'file';
+    expect(evaluateRecoveryDryRun(contradictory, allCapabilities).blockers.map(({ code }) => code)).toContain(
+      'EXTERNAL_REFERENCE_EVIDENCE_MISMATCH'
+    );
+
+    const duplicate = await fixture();
+    duplicate.externalWorkspaces.push({ ...duplicate.externalWorkspaces[0] });
+    expect(evaluateRecoveryDryRun(duplicate, allCapabilities).blockers.map(({ code }) => code)).toEqual(
+      expect.arrayContaining(['EXTERNAL_REFERENCE_DUPLICATE', 'EXTERNAL_REFERENCE_COUNT_MISMATCH'])
+    );
+  });
+
   it('rejects missing, duplicate, unknown, and non-read-only authority classifications', async () => {
     const inventory = await fixture({ core: false });
     const database = inventory.authorities.find(({ id }) => id === 'desktop.database')!;

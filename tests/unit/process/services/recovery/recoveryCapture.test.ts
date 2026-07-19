@@ -11,6 +11,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   assertDesktopOnlyRecoveryCaptureReady,
   assertRecoveryDestinationDisjoint,
+  captureProductionRecoveryPoint,
   fingerprintDesktopRecoveryState,
   provisionHealthyV2ExternalRecoveryAuthority,
 } from '@process/services/recovery/recoveryCapture';
@@ -20,6 +21,7 @@ import {
   inventoryRecoveryAuthorities,
   type RecoveryInventory,
 } from '@process/services/recovery/stateAuthorityInventory';
+import type { ISqliteDriver } from '@process/services/database/drivers/ISqliteDriver';
 
 const roots: string[] = [];
 
@@ -54,6 +56,7 @@ function inventory(configPath: string): RecoveryInventory {
     logicalState: [],
     externalWorkspaces: [],
     externalAgentConfigs: [],
+    userDataRoots: [],
   };
 }
 
@@ -146,6 +149,20 @@ describe('Desktop recovery mutation epoch', () => {
 });
 
 describe('Desktop-only production capture boundary', () => {
+  function productionDriver(sourcePath: string, onOpen?: () => void): ISqliteDriver {
+    onOpen?.();
+    return {
+      prepare: () => {
+        throw new Error('prepare is not used by recovery capture');
+      },
+      exec: () => undefined,
+      pragma: () => 53,
+      transaction: (fn) => fn,
+      backup: async (destinationPath) => fs.promises.copyFile(sourcePath, destinationPath),
+      close: () => undefined,
+    };
+  }
+
   async function productionInventory(root: string, includeCore = false): Promise<RecoveryInventory> {
     const userDataRoot = path.join(root, 'user-data');
     const coreDefaultProfileRoot = path.join(root, 'core-default');
@@ -175,7 +192,7 @@ describe('Desktop-only production capture boundary', () => {
     });
   });
 
-  it('blocks capture when userData contains an unclassified mutable authority root', async () => {
+  it('captures conversation state instead of silently omitting it', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-unknown-authority-'));
     roots.push(root);
     const userDataRoot = path.join(root, 'user-data');
@@ -194,15 +211,36 @@ describe('Desktop-only production capture boundary', () => {
       coreNamedProfilesRoot: path.join(root, 'core-profiles'),
     });
 
-    let rejected = false;
-    let readyToCapture = false;
-    try {
-      readyToCapture = assertDesktopOnlyRecoveryCaptureReady(discovered).readyToCapture;
-    } catch {
-      rejected = true;
-    }
+    expect(assertDesktopOnlyRecoveryCaptureReady(discovered).readyToCapture).toBe(true);
+    expect(discovered.userDataRoots).toContainEqual(
+      expect.objectContaining({ relativePath: 'conversations', disposition: 'captured' })
+    );
+    expect(
+      discovered.authorities
+        .find(({ id }) => id === 'desktop.runtime-files')
+        ?.evidence.some(({ path: evidencePath, state }) => evidencePath === conversationsRoot && state === 'directory')
+    ).toBe(true);
+  });
 
-    expect({ rejected, readyToCapture }).toEqual({ rejected: true, readyToCapture: false });
+  it('blocks capture when userData contains a genuinely unclassified mutable authority root', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-unknown-authority-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'mystery-authority'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+    fs.writeFileSync(path.join(userDataRoot, 'mystery-authority', 'state.json'), '{}');
+
+    const discovered = await inventoryRecoveryAuthorities({
+      userDataRoot,
+      constitutionRoot: path.join(root, 'constitution'),
+      coreDefaultProfileRoot: path.join(root, 'core-default'),
+      coreNamedProfilesRoot: path.join(root, 'core-profiles'),
+    });
+
+    expect(() => assertDesktopOnlyRecoveryCaptureReady(discovered)).toThrow('UNKNOWN_AUTHORITY_ROOT');
   });
 
   it('rejects present Core state before capture even if a caller could fabricate local lease behavior', async () => {
@@ -211,6 +249,81 @@ describe('Desktop-only production capture boundary', () => {
     const coreInventory = await productionInventory(root, true);
 
     expect(() => assertDesktopOnlyRecoveryCaptureReady(coreInventory)).toThrow('CORE_QUIESCENCE_UNAVAILABLE');
+  });
+
+  it('composes the production entry point through inventory, dry-run, online backup, sealing, and publication', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-production-compose-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const destinationRoot = path.join(root, 'recovery-points');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite-production');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+    const opened: string[] = [];
+
+    const result = await captureProductionRecoveryPoint(
+      {
+        destinationRoot,
+        userDataRoot,
+        sourceAppVersion: '0.11.18',
+        sourceReleaseTrack: 'stable',
+        desktopProfileLockHeld: true,
+      },
+      {
+        resolveCoreRoots: () => ({
+          defaultCoreRoot: path.join(root, 'absent-core-default'),
+          namedCoreRoot: path.join(root, 'absent-core-profiles'),
+          constitutionRoot: path.join(root, 'absent-constitution'),
+        }),
+        createDatabaseDriver: async (databasePath) => productionDriver(databasePath, () => opened.push(databasePath)),
+        sealFile: async (sourcePath, outputPath) => {
+          await fs.promises.writeFile(outputPath, Buffer.concat([Buffer.from('sealed:'), fs.readFileSync(sourcePath)]));
+        },
+      }
+    );
+
+    expect(opened).toHaveLength(2);
+    expect(result.snapshotPath.startsWith(destinationRoot)).toBe(true);
+    expect(fs.existsSync(result.manifestPath)).toBe(true);
+    expect(result.manifest.files.some(({ authority }) => authority === 'desktop.database')).toBe(true);
+  });
+
+  it('blocks unknown mutable state before opening SQLite or mutating the destination', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-production-block-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const destinationRoot = path.join(root, 'recovery-points');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'unknown-state'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite-production');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+    const driverOpened = vi.fn();
+
+    await expect(
+      captureProductionRecoveryPoint(
+        {
+          destinationRoot,
+          userDataRoot,
+          sourceAppVersion: '0.11.18',
+          sourceReleaseTrack: 'stable',
+          desktopProfileLockHeld: true,
+        },
+        {
+          resolveCoreRoots: () => ({
+            defaultCoreRoot: path.join(root, 'absent-core-default'),
+            namedCoreRoot: path.join(root, 'absent-core-profiles'),
+            constitutionRoot: path.join(root, 'absent-constitution'),
+          }),
+          createDatabaseDriver: async (databasePath) => productionDriver(databasePath, driverOpened),
+          sealFile: async () => undefined,
+        }
+      )
+    ).rejects.toThrow('UNKNOWN_AUTHORITY_ROOT');
+
+    expect(driverOpened).not.toHaveBeenCalled();
+    expect(fs.existsSync(destinationRoot)).toBe(false);
   });
 
   it('rejects a destination whose symlink-resolved path aliases live state', async () => {

@@ -6,14 +6,19 @@
 
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
-import { lstat, readdir, realpath } from 'node:fs/promises';
+import { lstat, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import type { WaylandReleaseTrack } from '@/common/releaseTrack';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
 import { createDriver } from '@process/services/database/drivers/createDriver';
 import { readDatabaseSchemaVersionStrict } from './startupCompatibility';
 import { sealRecoveryFile } from './recoverySealing';
-import { buildRecoveryPoint, RecoveryPointBuildBlockedError, type BuiltRecoveryPoint } from './recoveryPointBuilder';
+import {
+  assertRecoveryDestinationDisjoint,
+  buildRecoveryPoint,
+  RecoveryPointBuildBlockedError,
+  type BuiltRecoveryPoint,
+} from './recoveryPointBuilder';
 import { evaluateRecoveryDryRun, type RecoveryDryRun } from './recoveryDryRun';
 import { inventoryRecoveryAuthorities, type RecoveryInventory } from './stateAuthorityInventory';
 import {
@@ -43,6 +48,13 @@ export type ProductionRecoveryCaptureInputs = {
 export type ProductionRecoveryCaptureDependencies = {
   externalRecoveryVault?: ExternalRecoveryVaultBackend;
   loadOrCreateExternalRecoveryAuthority?: typeof loadOrCreateExternalRecoveryAuthority;
+  resolveCoreRoots?: () => {
+    defaultCoreRoot: string;
+    namedCoreRoot: string;
+    constitutionRoot: string;
+  };
+  createDatabaseDriver?: typeof createDriver;
+  sealFile?: typeof sealRecoveryFile;
 };
 
 const EPOCH_AUTHORITIES = new Set([
@@ -122,45 +134,7 @@ export async function provisionHealthyV2ExternalRecoveryAuthority(
   return receipt;
 }
 
-function pathsOverlap(left: string, right: string): boolean {
-  const a = path.resolve(left);
-  const b = path.resolve(right);
-  const relativeAB = path.relative(a, b);
-  const relativeBA = path.relative(b, a);
-  return (
-    a === b ||
-    (relativeAB !== '' && !relativeAB.startsWith('..') && !path.isAbsolute(relativeAB)) ||
-    (relativeBA !== '' && !relativeBA.startsWith('..') && !path.isAbsolute(relativeBA))
-  );
-}
-
-async function canonicalizePotentialPath(candidate: string, missingSegments: string[] = []): Promise<string> {
-  const cursor = path.resolve(candidate);
-  try {
-    await lstat(cursor);
-    return path.resolve(await realpath(cursor), ...missingSegments);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
-    const parent = path.dirname(cursor);
-    if (parent === cursor) throw error;
-    return canonicalizePotentialPath(parent, [path.basename(cursor), ...missingSegments]);
-  }
-}
-
-/** Reject lexical and symlink-resolved aliases between output and live authority roots. */
-export async function assertRecoveryDestinationDisjoint(
-  destinationRoot: string,
-  protectedRoots: readonly string[]
-): Promise<void> {
-  const canonicalDestination = await canonicalizePotentialPath(destinationRoot);
-  const canonicalProtectedRoots = await Promise.all(protectedRoots.map((root) => canonicalizePotentialPath(root)));
-  for (const [index, protectedRoot] of protectedRoots.entries()) {
-    const canonicalProtected = canonicalProtectedRoots[index];
-    if (pathsOverlap(destinationRoot, protectedRoot) || pathsOverlap(canonicalDestination, canonicalProtected)) {
-      throw new Error(`Recovery destination must be disjoint from live state: ${protectedRoot}`);
-    }
-  }
-}
+export { assertRecoveryDestinationDisjoint };
 
 /**
  * Authenticate the bounded Desktop-only capture boundary. A caller-provided or
@@ -212,7 +186,7 @@ async function addPathToEpoch(
 
   const visit = async (directory: string): Promise<void> => {
     const entries = await readdir(directory, { withFileTypes: true });
-    entries.sort((left, right) => left.name.localeCompare(right.name));
+    entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
     hash.update(`dir\0${path.relative(candidate, directory)}\0`);
     for (const entry of entries) {
       if (directory === candidate && excludedTopLevel.has(entry.name)) continue;
@@ -257,9 +231,14 @@ export async function captureProductionRecoveryPoint(
   dependencies: ProductionRecoveryCaptureDependencies = {}
 ): Promise<BuiltRecoveryPoint> {
   if (!inputs.desktopProfileLockHeld) throw new Error('Desktop recovery capture requires the live profile lock.');
-  const defaultCoreRoot = nativeConfigDir();
-  const namedCoreRoot = profilesRoot();
-  const constitutionRoot = path.dirname(namedCoreRoot);
+  const resolvedCoreRoots = dependencies.resolveCoreRoots?.() ?? {
+    defaultCoreRoot: nativeConfigDir(),
+    namedCoreRoot: profilesRoot(),
+    constitutionRoot: path.dirname(profilesRoot()),
+  };
+  const { defaultCoreRoot, namedCoreRoot, constitutionRoot } = resolvedCoreRoots;
+  const databaseDriverFactory = dependencies.createDatabaseDriver ?? createDriver;
+  const recoverySealer = dependencies.sealFile ?? sealRecoveryFile;
   await assertRecoveryDestinationDisjoint(inputs.destinationRoot, [
     inputs.userDataRoot,
     constitutionRoot,
@@ -277,7 +256,7 @@ export async function captureProductionRecoveryPoint(
   assertDesktopOnlyRecoveryCaptureReady(inventory);
   const databasePath = inventory.authorities.find(({ id }) => id === 'desktop.database')?.evidence[0]?.path;
   if (!databasePath) throw new Error('Desktop recovery capture could not resolve the authoritative database.');
-  const schemaDriver = await createDriver(databasePath, { readonly: true, fileMustExist: true });
+  const schemaDriver = await databaseDriverFactory(databasePath, { readonly: true, fileMustExist: true });
   let desktopSchemaVersion: number;
   try {
     desktopSchemaVersion = readDatabaseSchemaVersionStrict(schemaDriver);
@@ -304,17 +283,18 @@ export async function captureProductionRecoveryPoint(
       reason: 'manual',
       sourceAppVersion: inputs.sourceAppVersion,
       desktopSchemaVersion,
+      protectedRoots: [inputs.userDataRoot, constitutionRoot, defaultCoreRoot, namedCoreRoot],
     },
     {
       captureSqliteOnline: async (sourcePath, destinationPath) => {
-        const driver = await createDriver(sourcePath, { readonly: true, fileMustExist: true });
+        const driver = await databaseDriverFactory(sourcePath, { readonly: true, fileMustExist: true });
         try {
           await driver.backup(destinationPath);
         } finally {
           driver.close();
         }
       },
-      sealFile: sealRecoveryFile,
+      sealFile: recoverySealer,
       acquireDesktopQuiescence: async () => ({ release: async () => undefined }),
       // Intentionally absent until FerroxLabs/wayland#896 is accepted.
       acquireCoreQuiescence: undefined,

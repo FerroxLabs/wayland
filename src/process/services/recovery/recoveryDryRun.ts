@@ -70,7 +70,7 @@ function findAuthority(inventory: RecoveryInventory, id: StateAuthorityId): Stat
 function plannedCoverage(authority: StateAuthorityInventory): AuthorityCoverage {
   if (authority.id === 'credentials.os-keychain') return 'excluded';
   if (authority.id === 'external.agent-configs' || authority.id === 'external.workspaces') {
-    return authority.state === 'absent' ? 'absent' : 'reference-only';
+    return authority.evidence.length === 0 ? 'absent' : 'reference-only';
   }
   return authority.recommendedCoverage;
 }
@@ -113,10 +113,60 @@ function expectedAuthorityPolicy(authority: StateAuthorityInventory): {
     case 'external.agent-configs':
     case 'external.workspaces':
       return {
-        coverage: absent ? 'absent' : 'reference-only',
-        consistency: absent ? 'not-applicable' : 'reference-snapshot',
+        coverage: authority.evidence.length === 0 ? 'absent' : 'reference-only',
+        consistency: authority.evidence.length === 0 ? 'not-applicable' : 'reference-snapshot',
         requiredForRestore: false,
       };
+  }
+}
+
+function codeUnitCompare(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function validateExternalReferenceBinding(
+  inventory: RecoveryInventory,
+  authorityId: 'external.workspaces' | 'external.agent-configs',
+  blockers: RecoveryDryRunFinding[]
+): void {
+  const authority = findAuthority(inventory, authorityId);
+  const references =
+    authorityId === 'external.workspaces'
+      ? inventory.externalWorkspaces.map((entry) => ({ id: entry.projectId, path: entry.path, state: entry.state }))
+      : inventory.externalAgentConfigs.map((entry) => ({ id: entry.backendId, path: entry.path, state: entry.state }));
+  const expected = references.toSorted((left, right) =>
+    codeUnitCompare(`${left.id}\0${left.path}\0${left.state}`, `${right.id}\0${right.path}\0${right.state}`)
+  );
+  const uniqueIds = new Set(references.map(({ id }) => id));
+  const evidence = authority?.evidence ?? [];
+
+  if (uniqueIds.size !== references.length) {
+    blockers.push(block('EXTERNAL_REFERENCE_DUPLICATE', `${authorityId} contains duplicate identifiers.`, { authorityId }));
+  }
+  if (references.some((entry, index) => entry !== expected[index])) {
+    blockers.push(
+      block('EXTERNAL_REFERENCE_ORDER_INVALID', `${authorityId} references are not in deterministic order.`, {
+        authorityId,
+      })
+    );
+  }
+  if (evidence.length !== references.length) {
+    blockers.push(
+      block('EXTERNAL_REFERENCE_COUNT_MISMATCH', `${authorityId} evidence and references are not one-to-one.`, {
+        authorityId,
+      })
+    );
+    return;
+  }
+  for (const [index, reference] of references.entries()) {
+    const observed = evidence[index];
+    if (observed.path !== reference.path || observed.state !== reference.state) {
+      blockers.push(
+        block('EXTERNAL_REFERENCE_EVIDENCE_MISMATCH', `${authorityId} reference ${reference.id} contradicts evidence.`, {
+          authorityId,
+        })
+      );
+    }
   }
 }
 
@@ -136,6 +186,46 @@ export function evaluateRecoveryDryRun(
   if (inventory.readOnly !== true) {
     blockers.push(block('INVENTORY_NOT_READ_ONLY', 'Authority inventory is not authenticated as inspect-only.'));
   }
+
+  if (!Array.isArray(inventory.userDataRoots)) {
+    blockers.push(block('USER_DATA_ROOT_INVENTORY_MISSING', 'The canonical user-data root inventory is missing.'));
+  } else {
+    const seenRoots = new Set<string>();
+    let previous = '';
+    for (const root of inventory.userDataRoots) {
+      if (!root.relativePath || seenRoots.has(root.relativePath)) {
+        blockers.push(block('USER_DATA_ROOT_DUPLICATE', 'The user-data root inventory contains a duplicate path.'));
+      }
+      if (previous && codeUnitCompare(previous, root.relativePath) > 0) {
+        blockers.push(block('USER_DATA_ROOT_ORDER_INVALID', 'The user-data root inventory is not deterministic.'));
+      }
+      seenRoots.add(root.relativePath);
+      previous = root.relativePath;
+      if (root.disposition === 'unknown') {
+        blockers.push(
+          block('UNKNOWN_AUTHORITY_ROOT', `No recovery authority owns user-data path ${root.relativePath}.`)
+        );
+      }
+      if (
+        root.disposition === 'captured' &&
+        (root.authorityIds.length === 0 ||
+          root.evidence.state === 'symlink' ||
+          root.evidence.state === 'unreadable' ||
+          root.evidence.symlinkCount > 0 ||
+          root.evidence.hardlinkCount > 0)
+      ) {
+        blockers.push(block('USER_DATA_ROOT_UNSAFE', `Captured user-data path ${root.relativePath} is unsafe.`));
+      }
+      if (root.disposition === 'excluded' && root.restoreConsequence.trim().length === 0) {
+        blockers.push(
+          block('USER_DATA_EXCLUSION_UNJUSTIFIED', `Excluded user-data path ${root.relativePath} has no consequence.`)
+        );
+      }
+    }
+  }
+
+  validateExternalReferenceBinding(inventory, 'external.workspaces', blockers);
+  validateExternalReferenceBinding(inventory, 'external.agent-configs', blockers);
 
   const requiredAuthorityIds = new Set<string>(REQUIRED_STATE_AUTHORITIES);
   const authorityCounts = new Map<string, number>();
