@@ -110,6 +110,11 @@ describe('M0B usability protocol', () => {
       },
       {
         file: 'src/process/services/cohort/types.ts',
+        from: 'export const M0B_DAY_MS = 86_400_000;',
+        to: '// export const M0B_DAY_MS = 86_400_000;\nexport const M0B_DAY_MS = 1;',
+      },
+      {
+        file: 'src/process/services/cohort/types.ts',
         from: "export const M0B_SHELLS = ['classic', 'cockpit'] as const;",
         to: "export const M0B_SHELLS = ['classic', 'cockpit'].slice(0, 1);",
       },
