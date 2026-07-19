@@ -216,6 +216,44 @@ describe('conciergeConfigBridge apply', () => {
     expect(state.mcpServers).toHaveLength(1);
   });
 
+  it('add_mcp persists an unpublished declaration instead of minting enabled truth', async () => {
+    setMsg({ kind: 'add_mcp', name: 'fs', command: 'npx', args: ['-y', 'srv'], status: 'pending' });
+
+    const result = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
+
+    expect(result.ok).toBe(true);
+    expect(state.mcpServers).toEqual([
+      expect.objectContaining({
+        name: 'fs',
+        enabled: false,
+        status: 'disconnected',
+      }),
+    ]);
+  });
+
+  it('add_mcp rejects a canonical-name collision instead of creating split identity', async () => {
+    state.mcpServers = [
+      {
+        id: 'mcp-existing',
+        name: 'FS',
+        enabled: false,
+        status: 'disconnected',
+        transport: { type: 'stdio', command: 'npx', args: ['-y', 'existing'] },
+        createdAt: 1,
+        updatedAt: 1,
+        source: 'custom',
+      },
+    ];
+    getSpy.mockResolvedValue(structuredClone(state.mcpServers));
+    setMsg({ kind: 'add_mcp', name: 'fs', command: 'npx', args: ['-y', 'replacement'], status: 'pending' });
+
+    const result = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
+
+    expect(result).toEqual({ ok: false, reason: 'mcp_name_exists' });
+    expect(mcpUpdateSpy).not.toHaveBeenCalled();
+    expect(state.mcpServers).toHaveLength(1);
+  });
+
   it('edit_assistant accept writes the rules', async () => {
     setMsg({
       kind: 'edit_assistant',
