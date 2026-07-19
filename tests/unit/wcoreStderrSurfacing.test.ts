@@ -618,6 +618,37 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(killChildMock).toHaveBeenCalledWith(child, false);
   });
 
+  it('fails a turn immediately when stdio closes before the root process exits', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const agent = new WCoreAgent(baseOptions());
+    const started = agent.start();
+    await flushUntilSpawned(child);
+
+    const contractRoot = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    child.stdout.write(`${readFileSync(path.join(contractRoot, 'events/ready.json'), 'utf8').trimEnd()}\n`);
+    await started;
+
+    const stdinWrite = vi.spyOn(child.stdin, 'write');
+    child.stdin.destroy();
+    expect(child.stdin.writable).toBe(false);
+
+    let sendError: unknown;
+    try {
+      await agent.send('do not silently drop this turn', 'closed-stdio-turn');
+    } catch (error) {
+      sendError = error;
+    } finally {
+      await agent.kill();
+    }
+
+    expect(sendError).toBeInstanceOf(Error);
+    expect((sendError as Error).message).toContain('transport');
+    expect(stdinWrite).not.toHaveBeenCalled();
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
+  });
+
   it('serializes concurrent shutdown after an unrequested root exit onto one exact proof', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
