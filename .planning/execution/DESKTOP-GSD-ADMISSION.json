@@ -21,9 +21,7 @@
   "hard_denied_phase_numbers": [5, 6],
   "max_parallel_plans": 3,
   "seam_patterns": {
-    "lock": [
-      "(^|/)(bun\\.lockb?|package-lock\\.json|pnpm-lock\\.yaml|yarn\\.lock|Cargo\\.lock|poetry\\.lock)$"
-    ],
+    "lock": ["(^|/)(bun\\.lockb?|package-lock\\.json|pnpm-lock\\.yaml|yarn\\.lock|Cargo\\.lock|poetry\\.lock)$"],
     "migration": ["(^|/)(migrations?|schema/migrations?)(/|$)"],
     "schema": ["(^|/)(schemas?|schema-registry)(/|$)", "PACKET-GATES\\.json$"],
     "generated": ["(^|/)(generated|__generated__)(/|$)", "i18n-keys\\.d\\.ts$"],
