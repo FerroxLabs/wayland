@@ -77,14 +77,14 @@ coverage:
     requirement: SAF-04
     verification:
       - kind: integration
-        ref: 'bun run test after successor repair (15,199 Vitest + 226 Bun-native pass)'
+        ref: 'GSD_RUNTIME=codex bun run test after successor repair (15,200 Vitest + 226 Bun-native pass)'
         status: pass
       - kind: unit
-        ref: 'repair additions introduce no lint findings; changed legacy files retain 32 baseline warnings and 0 errors; typecheck and scoped oxfmt pass'
+        ref: 'repair additions introduce no lint findings; initAgent retains 11 baseline no-await-in-loop warnings and 0 errors; typecheck and scoped oxfmt pass'
         status: pass
     human_judgment: false
 duration: 3h
-completed: 2026-07-19
+completed: 2026-07-20
 status: candidate-ready
 ---
 
@@ -95,7 +95,7 @@ status: candidate-ready
 ## Performance
 
 - **Duration:** approximately 3 hours including successor repair and aggregate proof
-- **Completed:** 2026-07-19T16:32:00Z
+- **Completed:** 2026-07-20
 - **Tasks:** 3
 - **Files owned:** 58
 
@@ -104,6 +104,8 @@ status: candidate-ready
 - Replaced mutation-suggestive quarantine vocabulary with a non-authoritative `review-candidate` classification and removed the legacy aliases.
 - Made incomplete, malformed, contradictory, unreadable, raced, invalid-date, and active-process evidence preserve by default.
 - Added an encrypted installation-bound provenance ledger at the real temporary-workspace creation seam; matching filenames can no longer mint ownership.
+- Bound provenance publication to the exact canonical root, canonical workspace path, device, and inode observed immediately after exclusive creation; replacing that object before ledger publication now fails closed.
+- Kept CLI-safe root aliases usable by correlating canonical producer entry paths against the report's canonical root, while retaining lexical-root identity as separate evidence.
 - Preserved terminating process authority until actual shutdown and made conversation removal fail closed when shutdown fails.
 - Proved through the production conversation service and SQLite repository adapter that deleting a conversation severs the database reference without altering exact managed-workspace file bytes.
 - Restricted the retention IPC and renderer to read-only explanations, with hostile tests rejecting renderer-supplied roots, paths, classifications, mutation verbs, aliases, and unknown fields.
@@ -119,9 +121,14 @@ status: candidate-ready
 2. **Read-only bridge and review presentation:** `56885e04cc390a6f8f48bf303808313d2bfb9cba`
 3. **Adversarial authority and race repair:** `88f86216576fa70ee50c4d57fafae72f67a2b73a`
 4. **Successor shutdown-proof repair:** `1037c0b82f2c6a7829a4d3b9c36e6279b1db8ee8`
+5. **Alias, creation-identity, parser, and deterministic-test repair:** final handoff commit containing this summary
 
-**Sealed implementation candidate:** `1037c0b82f2c6a7829a4d3b9c36e6279b1db8ee8`  
-**Aggregate-proved source tree:** successor repair tree recorded by the final commit and independent handoff  
+**Rejected predecessor:** `0b98288b02e0b65b260c7b3b1670bd5ea5b68419`
+
+**Repaired implementation candidate:** exact commit and tree are recorded in the independent handoff because a commit cannot contain its own hash
+
+**Aggregate-proved source tree:** final source tree recorded by that handoff
+
 **Acceptance state:** pending independent successor re-audit; no acceptance claim is made here.
 
 ## Decisions Made
@@ -133,7 +140,7 @@ status: candidate-ready
 
 ## Deviations from Plan
 
-The independent audits reopened the plan twice. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, and deterministic idle-rejection observation. These changes enforce the plan's authority boundary without expanding lifecycle authority.
+The independent audits reopened the plan three times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, and deterministic Constitution recovery observation. These changes enforce the plan's authority boundary without expanding lifecycle authority.
 
 ## Issues Encountered
 
@@ -145,7 +152,7 @@ Managed-workspace lifecycle mutation (quarantine, restore, keep, delete, prune) 
 
 ## Self-Check
 
-BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed the focused hostile corpus, typecheck, scoped formatting, 15,199 Vitest tests, and 226 Bun-native tests. New repair lines introduced no lint findings; changed legacy files retain 32 baseline warnings and zero errors. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
+BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed 236 focused tests, typecheck, scoped formatting, 15,200 Vitest tests, and 226 Bun-native tests. New repair lines introduced no lint findings; `initAgent.ts` retains 11 baseline `no-await-in-loop` warnings and zero errors. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
 
 ---
 

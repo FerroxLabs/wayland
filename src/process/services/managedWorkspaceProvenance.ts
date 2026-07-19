@@ -23,6 +23,13 @@ export type ManagedWorkspaceProvenanceRecord = Readonly<{
   createdAtMs: number;
 }>;
 
+export type ManagedWorkspaceCreationIdentity = Readonly<{
+  canonicalRoot: string;
+  canonicalPath: string;
+  device: number;
+  inode: number;
+}>;
+
 type Ledger = Readonly<{
   schemaVersion: 1;
   installationId: string;
@@ -162,6 +169,7 @@ export async function recordManagedWorkspaceProvenance(
     workRoot: string;
     workspace: string;
     installationId: string;
+    creationIdentity: ManagedWorkspaceCreationIdentity;
     createdAtMs?: number;
   }>,
   codec: ManagedWorkspaceProvenanceCodec = DEFAULT_CODEC
@@ -176,12 +184,18 @@ export async function recordManagedWorkspaceProvenance(
       const canonicalPath = await fs.realpath(input.workspace);
       const rootStat = await fs.lstat(canonicalRoot);
       const workspaceStat = await fs.lstat(canonicalPath);
+      const creationIdentity = input.creationIdentity;
       if (
         rootStat.isSymbolicLink() ||
         !rootStat.isDirectory() ||
         workspaceStat.isSymbolicLink() ||
         !workspaceStat.isDirectory() ||
         path.dirname(canonicalPath) !== canonicalRoot ||
+        !creationIdentity ||
+        creationIdentity.canonicalRoot !== canonicalRoot ||
+        creationIdentity.canonicalPath !== canonicalPath ||
+        creationIdentity.device !== workspaceStat.dev ||
+        creationIdentity.inode !== workspaceStat.ino ||
         !input.installationId
       ) {
         throw new Error('MANAGED_WORKSPACE_PROVENANCE_UNSAFE_TARGET');

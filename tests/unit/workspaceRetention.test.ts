@@ -98,7 +98,14 @@ describe('classifyManagedWorkspaceRetention', () => {
 });
 
 function completeReferencedReport() {
-  const evidence = emptyShell({ referenceCount: 1 });
+  const evidence = emptyShell({
+    inventoryComplete: false,
+    referenceCount: 1,
+    scheduleCount: null,
+    activeProcessCount: null,
+    artifactCount: null,
+    userPromoted: null,
+  });
   return {
     generatedAt: '2026-07-19T00:00:00.000Z',
     root: '/managed/work',
@@ -224,12 +231,14 @@ describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
     expect(parseManagedWorkspaceInventoryReport(report)).not.toBeNull();
   });
 
-  it('rejects complete inventory claims whose authoritative counts are unknown', () => {
+  it('rejects per-entry inventory completeness without snapshot authority', () => {
     const report = completeReferencedReport();
-    report.entries[0].evidence.referenceCount = null as unknown as number;
+    report.entries[0].evidence.inventoryComplete = true;
+    report.entries[0].evidence.scheduleCount = 0;
+    report.entries[0].evidence.activeProcessCount = 0;
+    report.entries[0].evidence.artifactCount = 0;
+    report.entries[0].evidence.userPromoted = false;
     report.entries[0].decision = classifyManagedWorkspaceRetention(report.entries[0].evidence);
-    report.entries[0].references = [];
-    report.summary.unknown = 1;
     expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
   });
 });

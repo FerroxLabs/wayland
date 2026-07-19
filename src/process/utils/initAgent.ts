@@ -22,7 +22,10 @@ import { computeOpenClawIdentityHash } from './openclawUtils';
 import { writeWorkspaceGitignore } from './workspaceGitignore';
 import { getDataPath } from './utils';
 import { getInstallUuid } from '@process/services/kickoff/installUuid';
-import { recordManagedWorkspaceProvenance } from '@process/services/managedWorkspaceProvenance';
+import {
+  recordManagedWorkspaceProvenance,
+  type ManagedWorkspaceCreationIdentity,
+} from '@process/services/managedWorkspaceProvenance';
 
 /**
  * Minimal skills.preferences shape used by setupAssistantWorkspace.
@@ -236,7 +239,7 @@ async function createExclusiveManagedWorkspace(
   workRoot: string,
   defaultWorkspaceName: string,
   attempt = 0
-): Promise<string> {
+): Promise<{ workspace: string; creationIdentity: ManagedWorkspaceCreationIdentity }> {
   if (attempt >= 8) throw new Error('Unable to exclusively create a managed workspace');
   const collisionSuffix = BigInt(`0x${randomUUID().replaceAll('-', '')}`)
     .toString(10)
@@ -247,8 +250,26 @@ async function createExclusiveManagedWorkspace(
     // This must be an exclusive create. `recursive: true` would silently
     // adopt a predictable pre-existing directory and then mint provenance for
     // content Desktop did not create.
-    await fs.mkdir(candidate, { recursive: false });
-    return candidate;
+    await fs.mkdir(candidate, { recursive: false, mode: 0o700 });
+    const canonicalRoot = await fs.realpath(workRoot);
+    const canonicalPath = await fs.realpath(candidate);
+    const candidateStat = await fs.lstat(canonicalPath);
+    if (
+      candidateStat.isSymbolicLink() ||
+      !candidateStat.isDirectory() ||
+      path.dirname(canonicalPath) !== canonicalRoot
+    ) {
+      throw new Error('Managed workspace creation identity is unsafe');
+    }
+    return {
+      workspace: candidate,
+      creationIdentity: {
+        canonicalRoot,
+        canonicalPath,
+        device: candidateStat.dev,
+        inode: candidateStat.ino,
+      },
+    };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
     return createExclusiveManagedWorkspace(workRoot, defaultWorkspaceName, attempt + 1);
@@ -276,13 +297,15 @@ const buildWorkspaceWidthFiles = async (
       throw new Error('Managed workspace name does not match the closed temporary-workspace grammar');
     }
     await fs.mkdir(tempPath, { recursive: true });
-    workspace = await createExclusiveManagedWorkspace(tempPath, defaultWorkspaceName);
+    const createdWorkspace = await createExclusiveManagedWorkspace(tempPath, defaultWorkspaceName);
+    workspace = createdWorkspace.workspace;
     try {
       await recordManagedWorkspaceProvenance({
         authorityRoot: getDataPath(),
         workRoot: tempPath,
         workspace,
         installationId: await getInstallUuid(),
+        creationIdentity: createdWorkspace.creationIdentity,
       });
     } catch (error) {
       // Creation may proceed, but the workspace can never become reviewable

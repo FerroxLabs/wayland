@@ -27,6 +27,16 @@ describe('managed workspace provenance', () => {
   let workRoot: string;
   let workspace: string;
 
+  async function creationIdentity() {
+    const stat = await fs.lstat(workspace);
+    return {
+      canonicalRoot: await fs.realpath(workRoot),
+      canonicalPath: await fs.realpath(workspace),
+      device: stat.dev,
+      inode: stat.ino,
+    };
+  }
+
   beforeEach(async () => {
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'wayland-provenance-'));
     authorityRoot = path.join(root, 'authority');
@@ -41,7 +51,14 @@ describe('managed workspace provenance', () => {
 
   it('records and reloads an encrypted installation-bound filesystem identity', async () => {
     const recorded = await recordManagedWorkspaceProvenance(
-      { authorityRoot, workRoot, workspace, installationId: INSTALLATION_ID, createdAtMs: 123 },
+      {
+        authorityRoot,
+        workRoot,
+        workspace,
+        installationId: INSTALLATION_ID,
+        creationIdentity: await creationIdentity(),
+        createdAtMs: 123,
+      },
       codec
     );
     const loaded = await loadManagedWorkspaceProvenance(authorityRoot, INSTALLATION_ID, codec);
@@ -60,7 +77,13 @@ describe('managed workspace provenance', () => {
 
   it('rejects a copied ledger from another installation', async () => {
     await recordManagedWorkspaceProvenance(
-      { authorityRoot, workRoot, workspace, installationId: INSTALLATION_ID },
+      {
+        authorityRoot,
+        workRoot,
+        workspace,
+        installationId: INSTALLATION_ID,
+        creationIdentity: await creationIdentity(),
+      },
       codec
     );
     await expect(loadManagedWorkspaceProvenance(authorityRoot, 'installation-b', codec)).resolves.toMatchObject({
@@ -70,15 +93,47 @@ describe('managed workspace provenance', () => {
   });
 
   it('rejects path reuse when the directory identity changes', async () => {
+    const originalIdentity = await creationIdentity();
     await recordManagedWorkspaceProvenance(
-      { authorityRoot, workRoot, workspace, installationId: INSTALLATION_ID },
+      { authorityRoot, workRoot, workspace, installationId: INSTALLATION_ID, creationIdentity: originalIdentity },
       codec
     );
     await fs.rm(workspace, { recursive: true });
     await fs.mkdir(workspace);
 
     await expect(
-      recordManagedWorkspaceProvenance({ authorityRoot, workRoot, workspace, installationId: INSTALLATION_ID }, codec)
+      recordManagedWorkspaceProvenance(
+        { authorityRoot, workRoot, workspace, installationId: INSTALLATION_ID, creationIdentity: originalIdentity },
+        codec
+      )
+    ).rejects.toThrow('MANAGED_WORKSPACE_PROVENANCE_UNSAFE_TARGET');
+  });
+
+  it('rejects a successor identity even when it reuses the created pathname', async () => {
+    await recordManagedWorkspaceProvenance(
+      {
+        authorityRoot,
+        workRoot,
+        workspace,
+        installationId: INSTALLATION_ID,
+        creationIdentity: await creationIdentity(),
+      },
+      codec
+    );
+    await fs.rm(workspace, { recursive: true });
+    await fs.mkdir(workspace);
+
+    await expect(
+      recordManagedWorkspaceProvenance(
+        {
+          authorityRoot,
+          workRoot,
+          workspace,
+          installationId: INSTALLATION_ID,
+          creationIdentity: await creationIdentity(),
+        },
+        codec
+      )
     ).rejects.toThrow('MANAGED_WORKSPACE_PROVENANCE_PATH_REUSED');
   });
 

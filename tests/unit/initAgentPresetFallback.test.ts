@@ -17,10 +17,14 @@ const { mkdir, recordManagedWorkspaceProvenance } = vi.hoisted(() => ({
 vi.mock('fs/promises', () => ({
   default: {
     mkdir,
+    realpath: vi.fn(async (value: string) => value),
     stat: vi.fn(async () => {
       throw new Error('ENOENT');
     }),
-    lstat: vi.fn(async () => {
+    lstat: vi.fn(async (value: string) => {
+      if (value.startsWith('/mock/work/')) {
+        return { isSymbolicLink: () => false, isDirectory: () => true, dev: 7, ino: 11 };
+      }
       throw new Error('ENOENT');
     }),
     symlink: vi.fn(async () => undefined),
@@ -102,6 +106,12 @@ describe('createAcpAgent - preset customAgentId fallback (#66)', () => {
       workRoot: '/mock/work',
       workspace: conv.extra.workspace,
       installationId: 'desktop-test-installation',
+      creationIdentity: {
+        canonicalRoot: '/mock/work',
+        canonicalPath: conv.extra.workspace,
+        device: 7,
+        inode: 11,
+      },
     });
   });
 
@@ -120,7 +130,7 @@ describe('createAcpAgent - preset customAgentId fallback (#66)', () => {
     } as ICreateConversationParams);
 
     const predictable = `/mock/work/hermes-temp-${now}`;
-    expect(mkdir).toHaveBeenNthCalledWith(2, predictable, { recursive: false });
+    expect(mkdir).toHaveBeenNthCalledWith(2, predictable, { recursive: false, mode: 0o700 });
     expect(conv.extra.workspace).not.toBe(predictable);
     expect(String(conv.extra.workspace)).toMatch(new RegExp(`^${predictable}\\d{39}$`));
     expect(recordManagedWorkspaceProvenance).toHaveBeenCalledWith(

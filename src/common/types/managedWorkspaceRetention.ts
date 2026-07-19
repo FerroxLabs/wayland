@@ -315,6 +315,10 @@ const stringArraysEqual = (left: readonly string[], right: readonly string[]): b
   left.length === right.length && left.every((item, index) => item === right[index]);
 
 function isSemanticallyValidEntry(entry: ManagedWorkspaceInventoryEntry): boolean {
+  // Phase 1 cannot produce a complete per-directory inventory without the
+  // deferred immutable snapshot authority. Reject impossible producer state,
+  // even when its preservation decision happens to be non-destructive.
+  if (entry.evidence.inventoryComplete) return false;
   if (
     entry.evidence.inventoryComplete &&
     [
@@ -427,7 +431,10 @@ export function parseManagedWorkspaceInventoryReport(value: unknown): ManagedWor
   if (
     report.entries.some(
       (entry) =>
-        !isDirectManagedChild(report.root, entry.path) ||
+        // The producer inventories through realpath(canonicalRoot), so entries
+        // are canonical children even when `root` is a supported CLI-safe
+        // symlink alias (including macOS /var -> /private/var).
+        !isDirectManagedChild(report.canonicalRoot ?? report.root, entry.path) ||
         (entry.canonicalPath !== null &&
           (!report.canonicalRoot || !isDirectManagedChild(report.canonicalRoot, entry.canonicalPath)))
     )

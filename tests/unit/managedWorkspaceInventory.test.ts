@@ -12,6 +12,7 @@ import {
   type WorkspaceAuthorityCompleteness,
   type WorkspaceAuthorityReference,
 } from '@/process/services/managedWorkspaceInventory';
+import { parseManagedWorkspaceInventoryReport } from '@/common/types/managedWorkspaceRetention';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -386,6 +387,7 @@ describe('collectManagedWorkspaceInventory', () => {
         summary: { discovered: 1, preserved: 1, reviewCandidate: 0, unknown: 1 },
       });
       expect(report.entries[0].canonicalPath).toBe(await fs.realpath(candidate));
+      expect(parseManagedWorkspaceInventoryReport(report)).not.toBeNull();
     } finally {
       await fs.unlink(alias);
     }
