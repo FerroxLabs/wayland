@@ -1,5 +1,7 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   canonicalProtocolBytes,
@@ -90,6 +92,45 @@ describe('M0B usability protocol', () => {
         maxReturnToClassicRate: 0.1,
       },
     });
+  });
+
+  it('rejects runtime constant expressions whose literal prefix matches the frozen value', () => {
+    const fixtureRoot = mkdtempSync(resolve(tmpdir(), 'wayland-m0b-protocol-audit-'));
+    const files = [
+      'scripts/cohort/verifyM0BUsabilityProtocol.mjs',
+      'contracts/cohort/m0b-usability-protocol.json',
+      'src/process/services/cohort/types.ts',
+      'src/common/types/cohortRollout.ts',
+      'src/process/services/cohort/policy.ts',
+    ];
+    try {
+      for (const file of files) {
+        const destination = resolve(fixtureRoot, file);
+        mkdirSync(dirname(destination), { recursive: true });
+        cpSync(resolve(process.cwd(), file), destination);
+      }
+      const typesPath = resolve(fixtureRoot, 'src/process/services/cohort/types.ts');
+      writeFileSync(
+        typesPath,
+        readFileSync(typesPath, 'utf8').replace(
+          'export const M0B_DAY_MS = 86_400_000;',
+          'export const M0B_DAY_MS = 86_400_000 + 1;'
+        )
+      );
+
+      expect(() =>
+        execFileSync(
+          process.execPath,
+          [
+            resolve(fixtureRoot, 'scripts/cohort/verifyM0BUsabilityProtocol.mjs'),
+            resolve(fixtureRoot, 'contracts/cohort/m0b-usability-protocol.json'),
+          ],
+          { stdio: 'pipe' }
+        )
+      ).toThrow();
+    } finally {
+      rmSync(fixtureRoot, { recursive: true, force: true });
+    }
   });
 
   it.each([
