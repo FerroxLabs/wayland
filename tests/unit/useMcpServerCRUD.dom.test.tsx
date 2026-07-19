@@ -556,6 +556,68 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(adapterKeys).toEqual(new Set());
   });
 
+  it('persists divergence when exhaustion cleanup cannot revoke the last published loser', async () => {
+    const winners = Array.from({ length: 5 }, (_, index) => ({
+      ...server,
+      name: `winner-${index}`,
+      description: `durable winner ${index}`,
+      updatedAt: server.updatedAt + index + 1,
+    }));
+    const readSequence = [
+      winners[0],
+      winners[0],
+      winners[1],
+      winners[1],
+      winners[1],
+      winners[2],
+      winners[2],
+      winners[2],
+      winners[3],
+      winners[3],
+      winners[3],
+      winners[4],
+    ];
+    let stored = [server];
+    let saveCount = 0;
+    let readCount = 0;
+    const adapterKeys = new Set([server.name]);
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      saveCount += 1;
+      if (saveCount === 2) stored = [winners[0]];
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const read = vi.fn(async () => {
+      const winner = readSequence[Math.min(readCount, readSequence.length - 1)];
+      readCount += 1;
+      stored = [winner];
+      return structuredClone(stored);
+    });
+    const remove = vi.fn(async (name: string) => {
+      if (name === winners[3].name) throw new Error('adapter cleanup rejected');
+      adapterKeys.delete(name);
+    });
+    const sync = vi.fn(async (candidate: IMcpServer) => {
+      adapterKeys.add(candidate.name);
+    });
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync, read));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(stored[0]).toMatchObject({
+      id: winners[4].id,
+      name: winners[4].name,
+      enabled: true,
+      status: 'error',
+      lastError: expect.stringContaining('publication rollback incomplete'),
+    });
+    expect(adapterKeys).toEqual(new Set([winners[3].name]));
+    expect(remove).toHaveBeenCalledWith(winners[3].name, undefined, winners[3].transport.type);
+  });
+
   it('retains divergence when exact-key cleanup for a case-fold replacement fails', async () => {
     const canonicalWinner = {
       ...server,

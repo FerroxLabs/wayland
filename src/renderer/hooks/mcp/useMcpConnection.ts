@@ -274,6 +274,13 @@ export const useMcpConnection = (
 
           if (await reconcileAttempt(0)) return;
 
+          // Exhaustion must not leave the last known loser callable. Cleanup
+          // is best-effort: a rejection still flows through the catch below,
+          // which records durable divergence against current truth.
+          if (lastPublished) {
+            await removeMcpFromAgents(lastPublished.name, undefined, lastPublished.transport.type);
+            lastPublished = undefined;
+          }
           await saveMcpServers((prevServers) =>
             retainMcpPublicationReconciliation(prevServers, server.id, desired ?? winner ?? server)
           );
