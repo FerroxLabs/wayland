@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync, realpathSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 const SCRIPT_FILE = fileURLToPath(import.meta.url);
 const REPOSITORY_ROOT = resolve(dirname(SCRIPT_FILE), '../..');
@@ -99,164 +100,163 @@ function finiteNumber(value, path) {
   if (typeof value !== 'number' || !Number.isFinite(value)) fail('M0B_PROTOCOL_NUMBER', path, 'finite-number');
 }
 
-function literalParser(source, constants, path) {
-  let offset = 0;
-  const whitespace = () => {
-    while (/\s/.test(source[offset] ?? '')) offset += 1;
-  };
-  const identifier = () => {
-    whitespace();
-    const match = /^[A-Za-z_$][\w$-]*/.exec(source.slice(offset));
-    if (!match) fail('M0B_RUNTIME_SOURCE', path, `identifier-at-${offset}`);
-    offset += match[0].length;
-    return match[0];
-  };
-  const string = () => {
-    whitespace();
-    const quote = source[offset];
-    if (quote !== "'" && quote !== '"') fail('M0B_RUNTIME_SOURCE', path, `string-at-${offset}`);
-    offset += 1;
-    let result = '';
-    while (offset < source.length && source[offset] !== quote) {
-      if (source[offset] === '\\') {
-        offset += 1;
-        const escaped = source[offset];
-        const escapes = { n: '\n', r: '\r', t: '\t', '\\': '\\', "'": "'", '"': '"' };
-        result += escapes[escaped] ?? escaped;
-      } else {
-        result += source[offset];
-      }
-      offset += 1;
-    }
-    if (source[offset] !== quote) fail('M0B_RUNTIME_SOURCE', path, 'unterminated-string');
-    offset += 1;
-    return result;
-  };
-  const value = () => {
-    whitespace();
-    const character = source[offset];
-    if (character === "'" || character === '"') return string();
-    if (character === '[') {
-      offset += 1;
-      const result = [];
-      whitespace();
-      while (source[offset] !== ']') {
-        result.push(value());
-        whitespace();
-        if (source[offset] === ',') {
-          offset += 1;
-          whitespace();
-          if (source[offset] === ']') break;
-        } else if (source[offset] !== ']') {
-          fail('M0B_RUNTIME_SOURCE', path, `array-delimiter-at-${offset}`);
-        }
-      }
-      if (source[offset] !== ']') fail('M0B_RUNTIME_SOURCE', path, 'unterminated-array');
-      offset += 1;
-      return result;
-    }
-    if (character === '{') {
-      offset += 1;
-      const result = {};
-      whitespace();
-      while (source[offset] !== '}') {
-        const key = source[offset] === "'" || source[offset] === '"' ? string() : identifier();
-        whitespace();
-        if (source[offset] !== ':') fail('M0B_RUNTIME_SOURCE', path, `object-colon-at-${offset}`);
-        offset += 1;
-        result[key] = value();
-        whitespace();
-        if (source[offset] === ',') {
-          offset += 1;
-          whitespace();
-          if (source[offset] === '}') break;
-        } else if (source[offset] !== '}') {
-          fail('M0B_RUNTIME_SOURCE', path, `object-delimiter-at-${offset}`);
-        }
-      }
-      if (source[offset] !== '}') fail('M0B_RUNTIME_SOURCE', path, 'unterminated-object');
-      offset += 1;
-      return result;
-    }
-    const numberMatch = /^-?\d[\d_]*(?:\.\d[\d_]*)?/.exec(source.slice(offset));
-    if (numberMatch) {
-      offset += numberMatch[0].length;
-      return Number(numberMatch[0].replaceAll('_', ''));
-    }
-    const name = identifier();
-    if (name === 'true') return true;
-    if (name === 'false') return false;
-    if (name === 'null') return null;
-    if (constants.has(name)) return constants.get(name);
-    fail('M0B_RUNTIME_SOURCE', path, `unknown-identifier=${name}`);
-  };
-  const parsed = value();
-  whitespace();
-  const suffix = source.slice(offset).trim();
-  if (suffix !== '' && suffix !== 'as const') {
-    fail('M0B_RUNTIME_SOURCE', path, `unconsumed-suffix=${suffix}`);
-  }
-  return parsed;
+function hasModifier(node, kind) {
+  return node.modifiers?.some((modifier) => modifier.kind === kind) ?? false;
 }
 
-function exportedInitializer(source, name, path) {
-  const marker = new RegExp(`export\\s+const\\s+${name}\\b`).exec(source);
-  if (!marker) return undefined;
-  let offset = marker.index + marker[0].length;
-  let depth = 0;
-  let quote = null;
-  let escaped = false;
-  let equals = -1;
-  for (; offset < source.length; offset += 1) {
-    const character = source[offset];
-    if (quote) {
-      if (escaped) escaped = false;
-      else if (character === '\\') escaped = true;
-      else if (character === quote) quote = null;
-      continue;
-    }
-    if (character === "'" || character === '"' || character === '`') quote = character;
-    else if ('([{<'.includes(character)) depth += 1;
-    else if (')]}>'.includes(character)) depth -= 1;
-    else if (character === '=' && depth === 0) {
-      equals = offset;
-      break;
-    } else if (character === ';' && depth === 0) break;
+function evaluateLiteral(node, constants, sourceFile, path) {
+  if (ts.isAsExpression(node)) {
+    if (node.type.getText(sourceFile) !== 'const') fail('M0B_RUNTIME_SOURCE', path, 'non-const-assertion');
+    return evaluateLiteral(node.expression, constants, sourceFile, path);
   }
-  if (equals < 0) fail('M0B_RUNTIME_SOURCE', path, 'initializer-missing');
-  offset = equals + 1;
-  const start = offset;
-  depth = 0;
-  quote = null;
-  escaped = false;
-  for (; offset < source.length; offset += 1) {
-    const character = source[offset];
-    if (quote) {
-      if (escaped) escaped = false;
-      else if (character === '\\') escaped = true;
-      else if (character === quote) quote = null;
-      continue;
-    }
-    if (character === "'" || character === '"' || character === '`') quote = character;
-    else if ('([{'.includes(character)) depth += 1;
-    else if (')]}'.includes(character)) depth -= 1;
-    else if (character === ';' && depth === 0) return source.slice(start, offset).trim();
+  if (ts.isParenthesizedExpression(node)) return evaluateLiteral(node.expression, constants, sourceFile, path);
+  if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) return node.text;
+  if (ts.isNumericLiteral(node)) return Number(node.text.replaceAll('_', ''));
+  if (node.kind === ts.SyntaxKind.TrueKeyword) return true;
+  if (node.kind === ts.SyntaxKind.FalseKeyword) return false;
+  if (node.kind === ts.SyntaxKind.NullKeyword) return null;
+  if (ts.isIdentifier(node)) {
+    if (!constants.has(node.text)) fail('M0B_RUNTIME_SOURCE', path, `unknown-identifier=${node.text}`);
+    return constants.get(node.text);
   }
-  fail('M0B_RUNTIME_SOURCE', path, 'initializer-unterminated');
+  if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.MinusToken) {
+    const operand = evaluateLiteral(node.operand, constants, sourceFile, path);
+    if (typeof operand !== 'number') fail('M0B_RUNTIME_SOURCE', path, 'non-numeric-negative');
+    return -operand;
+  }
+  if (ts.isArrayLiteralExpression(node)) {
+    return node.elements.map((element, index) => {
+      if (ts.isSpreadElement(element)) fail('M0B_RUNTIME_SOURCE', `${path}[${index}]`, 'spread');
+      return evaluateLiteral(element, constants, sourceFile, `${path}[${index}]`);
+    });
+  }
+  if (ts.isObjectLiteralExpression(node)) {
+    const result = {};
+    for (const property of node.properties) {
+      if (
+        !ts.isPropertyAssignment(property) ||
+        property.name === undefined ||
+        ts.isComputedPropertyName(property.name)
+      ) {
+        fail('M0B_RUNTIME_SOURCE', path, 'non-literal-property');
+      }
+      const key = ts.isIdentifier(property.name) || ts.isStringLiteral(property.name) ? property.name.text : undefined;
+      if (key === undefined) fail('M0B_RUNTIME_SOURCE', path, 'invalid-property-name');
+      if (Object.hasOwn(result, key)) fail('M0B_RUNTIME_SOURCE', `${path}.${key}`, 'duplicate-property');
+      result[key] = evaluateLiteral(property.initializer, constants, sourceFile, `${path}.${key}`);
+    }
+    return result;
+  }
+  fail('M0B_RUNTIME_SOURCE', path, `non-literal=${ts.SyntaxKind[node.kind]}`);
+}
+
+function mutationTargets(node, names) {
+  const targetName = ts.isIdentifier(node)
+    ? node.text
+    : ts.isPropertyAccessExpression(node)
+      ? node.expression.getText()
+      : '';
+  return names.has(targetName);
+}
+
+function assertNoRuntimeMutation(sourceFile, names, filePath) {
+  const assignmentOperators = new Set([
+    ts.SyntaxKind.EqualsToken,
+    ts.SyntaxKind.PlusEqualsToken,
+    ts.SyntaxKind.MinusEqualsToken,
+    ts.SyntaxKind.AsteriskEqualsToken,
+    ts.SyntaxKind.SlashEqualsToken,
+    ts.SyntaxKind.PercentEqualsToken,
+    ts.SyntaxKind.AmpersandEqualsToken,
+    ts.SyntaxKind.BarEqualsToken,
+    ts.SyntaxKind.CaretEqualsToken,
+    ts.SyntaxKind.LessThanLessThanEqualsToken,
+    ts.SyntaxKind.GreaterThanGreaterThanEqualsToken,
+    ts.SyntaxKind.GreaterThanGreaterThanGreaterThanEqualsToken,
+    ts.SyntaxKind.AsteriskAsteriskEqualsToken,
+    ts.SyntaxKind.BarBarEqualsToken,
+    ts.SyntaxKind.AmpersandAmpersandEqualsToken,
+    ts.SyntaxKind.QuestionQuestionEqualsToken,
+  ]);
+  const mutatingMethods = new Set([
+    'push',
+    'pop',
+    'shift',
+    'unshift',
+    'splice',
+    'sort',
+    'reverse',
+    'fill',
+    'copyWithin',
+  ]);
+  const visit = (node) => {
+    if (
+      ts.isBinaryExpression(node) &&
+      assignmentOperators.has(node.operatorToken.kind) &&
+      mutationTargets(node.left, names)
+    ) {
+      fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=${node.left.getText(sourceFile)}`);
+    }
+    if (
+      (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) &&
+      (node.operator === ts.SyntaxKind.PlusPlusToken || node.operator === ts.SyntaxKind.MinusMinusToken) &&
+      mutationTargets(node.operand, names)
+    ) {
+      fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=${node.operand.getText(sourceFile)}`);
+    }
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      mutatingMethods.has(node.expression.name.text) &&
+      mutationTargets(node.expression.expression, names)
+    ) {
+      fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=${node.expression.getText(sourceFile)}`);
+    }
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      node.expression.expression.getText(sourceFile) === 'Object' &&
+      node.expression.name.text === 'assign' &&
+      node.arguments[0] &&
+      mutationTargets(node.arguments[0], names)
+    ) {
+      fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=Object.assign`);
+    }
+    ts.forEachChild(node, visit);
+  };
+  ts.forEachChild(sourceFile, visit);
 }
 
 function collectExportedConstants(filePath, seed = new Map()) {
   const source = readFileSync(filePath, 'utf8');
+  const sourceFile = ts.createSourceFile(filePath, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  if (sourceFile.parseDiagnostics.length > 0) fail('M0B_RUNTIME_SOURCE', filePath, 'typescript-parse-error');
   const constants = new Map(seed);
-  const names = [...source.matchAll(/export\s+const\s+([A-Za-z_$][\w$]*)\b/g)].map((match) => match[1]);
-  for (const name of names) {
-    const initializer = exportedInitializer(source, name, `${filePath}:${name}`);
-    try {
-      constants.set(name, literalParser(initializer, constants, `${filePath}:${name}`));
-    } catch (error) {
-      if (!(error instanceof M0BProtocolError) || !error.message.includes('unknown-identifier=')) throw error;
+  const localNames = new Set();
+
+  for (const statement of sourceFile.statements) {
+    if (
+      !ts.isVariableStatement(statement) ||
+      !hasModifier(statement, ts.SyntaxKind.ExportKeyword) ||
+      (statement.declarationList.flags & ts.NodeFlags.Const) === 0
+    ) {
+      continue;
+    }
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.initializer === undefined) {
+        fail('M0B_RUNTIME_SOURCE', filePath, 'non-identifier-exported-const');
+      }
+      const name = declaration.name.text;
+      if (localNames.has(name)) fail('M0B_RUNTIME_SOURCE', `${filePath}:${name}`, 'duplicate-live-export');
+      localNames.add(name);
+      try {
+        constants.set(name, evaluateLiteral(declaration.initializer, constants, sourceFile, `${filePath}:${name}`));
+      } catch (error) {
+        if (!(error instanceof M0BProtocolError) || !error.message.includes('unknown-identifier=')) throw error;
+      }
     }
   }
+  assertNoRuntimeMutation(sourceFile, localNames, filePath);
   return constants;
 }
 

@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -115,6 +115,16 @@ describe('M0B usability protocol', () => {
       },
       {
         file: 'src/process/services/cohort/types.ts',
+        from: 'export const M0B_DAY_MS = 86_400_000;',
+        to: 'export const M0B_DAY_MS = 86_400_000;\nexport const M0B_DAY_MS = 86_400_000;',
+      },
+      {
+        file: 'src/process/services/cohort/types.ts',
+        from: 'export const M0B_DAY_MS = 86_400_000;',
+        to: 'export const M0B_DAY_MS = 86_400_000;\nM0B_DAY_MS += 1;',
+      },
+      {
+        file: 'src/process/services/cohort/types.ts',
         from: "export const M0B_SHELLS = ['classic', 'cockpit'] as const;",
         to: "export const M0B_SHELLS = ['classic', 'cockpit'].slice(0, 1);",
       },
@@ -128,6 +138,11 @@ describe('M0B usability protocol', () => {
         from: '  startsPerPrimaryJourney: 10,\n};',
         to: '  startsPerPrimaryJourney: 10,\n} && { participantsTotal: 1 };',
       },
+      {
+        file: 'src/process/services/cohort/policy.ts',
+        from: '  startsPerPrimaryJourney: 10,\n};',
+        to: '  startsPerPrimaryJourney: 10,\n};\nObject.assign(M0B_DEFAULT_MINIMUMS, { participantsTotal: 1 });',
+      },
     ];
 
     for (const mutation of cases) {
@@ -138,12 +153,17 @@ describe('M0B usability protocol', () => {
           mkdirSync(dirname(destination), { recursive: true });
           cpSync(resolve(process.cwd(), file), destination);
         }
+        symlinkSync(resolve(process.cwd(), 'node_modules'), resolve(fixtureRoot, 'node_modules'), 'dir');
         const target = resolve(fixtureRoot, mutation.file);
         const source = readFileSync(target, 'utf8');
         expect(source).toContain(mutation.from);
         writeFileSync(target, source.replace(mutation.from, mutation.to));
 
-        expect(() => readRuntimeBindings(fixtureRoot), mutation.to).toThrow(/M0B_RUNTIME_SOURCE/);
+        if (mutation.to.startsWith('// export')) {
+          expect(readRuntimeBindings(fixtureRoot).dayMs).toBe(1);
+        } else {
+          expect(() => readRuntimeBindings(fixtureRoot), mutation.to).toThrow(/M0B_RUNTIME_SOURCE/);
+        }
 
         expect(
           () =>
