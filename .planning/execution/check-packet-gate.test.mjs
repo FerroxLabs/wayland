@@ -152,6 +152,9 @@ try {
   await rm(join(receiptDirectory, 'TEST.json'));
   await rm(join(receiptDirectory, 'OTHER.json'));
   assert.equal((await run('ACCEPT_EXCLUSIVE')).ok, false, 'neither exclusive target must fail closed');
+  await writeReceipt('OTHER');
+  assert.equal((await run('ACCEPT_OPEN')).ok, false, 'a valid receipt for the wrong target must not open acceptance');
+  await rm(join(receiptDirectory, 'OTHER.json'));
 
   await rejectsManifest((value) => {
     value.gates.ENTRY_OPEN = { prerequisites: emptyPrerequisites };
