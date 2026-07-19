@@ -52,7 +52,7 @@ const REPORT = {
     receipt: 'unavailable',
     'active-process': 'complete',
   },
-  summary: { discovered: 1, preserved: 1, quarantineEligible: 0, unknown: 0 },
+  summary: { discovered: 1, preserved: 1, reviewCandidate: 0, unknown: 0 },
   errors: [],
   entries: [
     {
@@ -116,5 +116,29 @@ describe('ManagedWorkspacesCard', () => {
     expect(
       await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
     ).toBeTruthy();
+  });
+
+  it('labels an empty abandoned shell only for later human review', async () => {
+    preview.mockResolvedValue({
+      ...REPORT,
+      summary: { discovered: 1, preserved: 0, reviewCandidate: 1, unknown: 0 },
+      entries: [
+        {
+          ...REPORT.entries[0],
+          decision: {
+            disposition: 'review-candidate',
+            classifications: ['empty-abandoned'],
+            reasons: ['complete evidence proves an empty app-managed shell beyond the retention window'],
+          },
+        },
+      ],
+    });
+
+    render(<ManagedWorkspacesCard />);
+
+    expect(await screen.findByText('Later human review')).toBeTruthy();
+    expect(screen.getByText('Review later - no action available')).toBeTruthy();
+    expect(screen.getByText(/complete evidence proves an empty app-managed shell/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /delete|remove|quarantine|clean|prune/i })).toBeNull();
   });
 });

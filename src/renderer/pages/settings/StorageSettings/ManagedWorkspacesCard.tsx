@@ -138,7 +138,7 @@ const ManagedWorkspacesCard: React.FC = () => {
             {[
               [report.summary.discovered, t('settings.storagePage.found', 'Found')],
               [report.summary.preserved, t('settings.storagePage.preserved', 'Protected')],
-              [report.summary.quarantineEligible, t('settings.storagePage.reviewable', 'Reviewable')],
+              [report.summary.reviewCandidate, t('settings.storagePage.reviewable', 'Later human review')],
             ].map(([value, label]) => (
               <div key={String(label)} className='rounded-8px border border-[var(--color-border-2)] px-10px py-8px'>
                 <div className='text-18px font-semibold leading-22px text-[var(--color-text-1)]'>{value}</div>
@@ -175,13 +175,18 @@ const ManagedWorkspacesCard: React.FC = () => {
                     <div className='text-11px text-[var(--color-text-3)]'>
                       {entry.decision.classifications.map((value) => CLASSIFICATION_LABELS[value] ?? value).join(' - ')}
                     </div>
+                    {entry.decision.reasons.length > 0 && (
+                      <div className='text-11px text-[var(--color-text-3)]'>{entry.decision.reasons.join('; ')}</div>
+                    )}
                   </div>
                   <div className='flex shrink-0 items-center gap-6px'>
                     <Button type='text' size='mini' onClick={() => void reveal(entry.path)}>
                       {t('settings.storagePage.showWorkspace', 'Show')}
                     </Button>
-                    <Tag size='small' color='green'>
-                      {t('settings.storagePage.keep', 'Keep')}
+                    <Tag size='small' color={entry.decision.disposition === 'review-candidate' ? 'orange' : 'green'}>
+                      {entry.decision.disposition === 'review-candidate'
+                        ? t('settings.storagePage.reviewLater', 'Review later - no action available')
+                        : t('settings.storagePage.keep', 'Keep')}
                     </Tag>
                   </div>
                 </div>
