@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Button, Modal, Radio, Select, Switch } from '@arco-design/web-react';
+import { Button, Message, Modal, Radio, Select, Switch } from '@arco-design/web-react';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -58,6 +58,15 @@ const NavigationSettings: React.FC = () => {
     try {
       await setShell('classic', returnReason);
       setReturnDialogOpen(false);
+    } catch {
+      // The hook has already switched the live session to Classic. Keep the
+      // user safe and explain only that the restart preference was not saved.
+      setReturnDialogOpen(false);
+      Message.warning(
+        t('settings.navigationPage.returnToClassicSaveFailed', {
+          defaultValue: 'Classic is active now, but the restart preference could not be saved.',
+        })
+      );
     } finally {
       setReturningToClassic(false);
     }

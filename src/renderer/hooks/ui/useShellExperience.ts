@@ -49,16 +49,33 @@ export async function readCockpitRolloutStatus(): Promise<CockpitRolloutStatus> 
 }
 
 export async function writeShellExperience(shell: ShellExperience, returnReason?: CockpitReturnReason): Promise<void> {
+  if (shell === 'classic') {
+    // Rollback is a session-safety action, not a storage transaction. Switch
+    // immediately so a full disk, locked profile, or corrupt preference store
+    // can never strand the user in Cockpit.
+    activateShellExperienceForSession('classic');
+    let persistenceError: unknown;
+    try {
+      await ConfigStorage.set('ui.shell', 'classic');
+    } catch (error) {
+      persistenceError = error;
+    }
+    if (returnReason && window.electronAPI?.cohortRecordShellReturn) {
+      // Returning to the proven shell is never blocked by optional evidence.
+      await window.electronAPI.cohortRecordShellReturn(returnReason).catch((): void => undefined);
+    }
+    // The caller may surface that Classic could not be made durable, but the
+    // already-activated session must remain Classic.
+    if (persistenceError) throw persistenceError;
+    return;
+  }
+
   if (shell === 'cockpit') {
     const status = await readCockpitRolloutStatus();
     if (!status.eligible) throw new CockpitRolloutBlockedError(status);
   }
   await ConfigStorage.set('ui.shell', shell);
   activateShellExperienceForSession(shell);
-  if (shell === 'classic' && returnReason && window.electronAPI?.cohortRecordShellReturn) {
-    // Returning to the proven shell is never blocked by optional evidence.
-    await window.electronAPI.cohortRecordShellReturn(returnReason).catch((): void => undefined);
-  }
 }
 
 export function useShellExperience(): {

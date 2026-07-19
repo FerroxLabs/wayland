@@ -405,6 +405,27 @@ describe('shell experience composition-root isolation', () => {
     storageSet.mockRestore();
   });
 
+  it('activates Classic and records the return even when preference persistence fails', async () => {
+    const storageSet = vi.spyOn(ConfigStorage, 'set').mockRejectedValue(new Error('profile is read-only'));
+    const recordReturn = vi.fn(async () => undefined);
+    const events: unknown[] = [];
+    const capture = (event: Event) => events.push((event as CustomEvent<unknown>).detail);
+    window.addEventListener(SHELL_EXPERIENCE_CHANGED_EVENT, capture);
+    window.electronAPI = {
+      emit: vi.fn(),
+      on: vi.fn(),
+      cohortRecordShellReturn: recordReturn,
+    };
+
+    await expect(writeShellExperience('classic', 'reliability')).rejects.toThrow('profile is read-only');
+    expect(events).toEqual(['classic']);
+    expect(storageSet).toHaveBeenCalledWith('ui.shell', 'classic');
+    expect(recordReturn).toHaveBeenCalledWith('reliability');
+
+    window.removeEventListener(SHELL_EXPERIENCE_CHANGED_EVENT, capture);
+    storageSet.mockRestore();
+  });
+
   it('escalates a shared canonical-service failure to the outer recovery boundary without claiming shell recovery', async () => {
     const loadClassicRoot = vi.fn<ClassicShellRootLoader>();
     const loadCockpitRoot = vi.fn<CockpitShellRootLoader>();
