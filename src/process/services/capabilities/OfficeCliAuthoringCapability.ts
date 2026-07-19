@@ -1,5 +1,5 @@
 /** OfficeCLI capability evidence producer. It never decides readiness. */
-import { constants, type Stats } from 'node:fs';
+import { constants, lstatSync, realpathSync, type Stats } from 'node:fs';
 import { lstat, open, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import {
@@ -40,6 +40,18 @@ type StablePathIdentity = Readonly<{
   size: number;
   mtimeMs: number;
   ctimeMs: number;
+}>;
+
+type AuthenticatedPathSnapshot = Readonly<{
+  path: string;
+  realPath: string;
+  identity: StablePathIdentity;
+}>;
+
+type InstalledOfficeCliSkillSnapshot = Readonly<{
+  root: AuthenticatedPathSnapshot;
+  directories: ReadonlyArray<AuthenticatedPathSnapshot>;
+  files: ReadonlyArray<AuthenticatedPathSnapshot>;
 }>;
 
 function pathIdentity(stat: Stats): StablePathIdentity {
@@ -204,8 +216,11 @@ function canonical(value: unknown): string {
   return JSON.stringify(value);
 }
 /** Re-authenticate the exact installed OfficeCLI skill bytes before advertising the capability. */
-export async function verifyInstalledOfficeCliSkillProof(skillsRoot: string, value: unknown): Promise<boolean> {
-  if (!validOfficeCliSkillProof(value)) return false;
+async function captureInstalledOfficeCliSkillProof(
+  skillsRoot: string,
+  value: unknown
+): Promise<InstalledOfficeCliSkillSnapshot | null> {
+  if (!validOfficeCliSkillProof(value)) return null;
   try {
     const root = await authenticateBundleDirectory(skillsRoot);
     const expected = new Set(OFFICECLI_SKILL_PROOF.skills.map((skill) => skill.path));
@@ -227,17 +242,17 @@ export async function verifyInstalledOfficeCliSkillProof(skillsRoot: string, val
     };
     const topLevelEntries = await readdir(skillsRoot, { withFileTypes: true });
     const officeCliEntries = topLevelEntries.filter((entry) => entry.name.startsWith('officecli-'));
-    if (officeCliEntries.some((entry) => entry.isSymbolicLink() || !entry.isDirectory())) return false;
+    if (officeCliEntries.some((entry) => entry.isSymbolicLink() || !entry.isDirectory())) return null;
     await Promise.all(officeCliEntries.map((entry) => visit(entry.name)));
     const builtinDir = path.join(skillsRoot, '_builtin', 'office-cli');
     try {
       const builtinStat = await lstat(builtinDir);
-      if (builtinStat.isSymbolicLink() || !builtinStat.isDirectory()) return false;
+      if (builtinStat.isSymbolicLink() || !builtinStat.isDirectory()) return null;
       await visit('_builtin/office-cli');
     } catch {
       // Exact-set comparison below rejects the missing builtin skill.
     }
-    if (canonical([...discovered].toSorted()) !== canonical([...expected].toSorted())) return false;
+    if (canonical([...discovered].toSorted()) !== canonical([...expected].toSorted())) return null;
     const files = await Promise.all(
       OFFICECLI_SKILL_PROOF.skills.map(async (skill) => {
         const absolute = path.join(skillsRoot, skill.path);
@@ -245,10 +260,10 @@ export async function verifyInstalledOfficeCliSkillProof(skillsRoot: string, val
         return { file, path: absolute, digestMatches: digestOfficeCliEvidence(file.bytes) === skill.sha256 };
       })
     );
-    if (files.some((file) => !file.digestMatches)) return false;
+    if (files.some((file) => !file.digestMatches)) return null;
 
     const rootAfter = await authenticateBundleDirectory(skillsRoot);
-    if (rootAfter.realPath !== root.realPath || !samePathIdentity(rootAfter.identity, root.identity)) return false;
+    if (rootAfter.realPath !== root.realPath || !samePathIdentity(rootAfter.identity, root.identity)) return null;
     await Promise.all([
       ...[...directories.entries()].map(async ([relativeDir, expectedDirectory]) => {
         const directory = await authenticateContainedDirectory(root.realPath, path.join(skillsRoot, relativeDir));
@@ -272,10 +287,64 @@ export async function verifyInstalledOfficeCliSkillProof(skillsRoot: string, val
         }
       }),
     ]);
-    return true;
+    return {
+      root: { path: skillsRoot, realPath: root.realPath, identity: root.identity },
+      directories: [...directories.entries()].map(([relativeDir, directory]) => ({
+        path: path.join(skillsRoot, relativeDir),
+        realPath: directory.realPath,
+        identity: directory.identity,
+      })),
+      files: files.map((entry) => ({
+        path: entry.path,
+        realPath: entry.file.realPath,
+        identity: entry.file.identity,
+      })),
+    };
   } catch {
-    return false;
+    return null;
   }
+}
+
+/** Re-authenticate the exact installed OfficeCLI skill bytes before advertising the capability. */
+export async function verifyInstalledOfficeCliSkillProof(skillsRoot: string, value: unknown): Promise<boolean> {
+  return (await captureInstalledOfficeCliSkillProof(skillsRoot, value)) !== null;
+}
+
+function verifySnapshotPathNow(snapshot: AuthenticatedPathSnapshot, kind: 'directory' | 'file'): void {
+  const stat = lstatSync(snapshot.path);
+  if (
+    stat.isSymbolicLink() ||
+    (kind === 'directory' ? !stat.isDirectory() : !stat.isFile() || stat.nlink !== 1) ||
+    realpathSync(snapshot.path) !== snapshot.realPath ||
+    !samePathIdentity(pathIdentity(stat), snapshot.identity)
+  ) {
+    throw new Error(`OfficeCLI ${kind} identity changed before capability publication`);
+  }
+}
+
+/**
+ * Perform one non-yielding final identity sweep over both evidence roots. The
+ * asynchronous readers above authenticate bytes; this synchronous boundary
+ * prevents either root from being changed by an in-process callback while the
+ * other root is being rebound immediately before evidence publication.
+ */
+function verifyCombinedSnapshotNow(
+  bundledDir: string,
+  bundleRealPath: string,
+  bundleIdentity: StablePathIdentity,
+  bundleFiles: ReadonlyArray<Readonly<{ name: string; identity: StablePathIdentity; realPath: string }>>,
+  skills: InstalledOfficeCliSkillSnapshot
+): void {
+  verifySnapshotPathNow({ path: bundledDir, realPath: bundleRealPath, identity: bundleIdentity }, 'directory');
+  for (const file of bundleFiles) {
+    verifySnapshotPathNow(
+      { path: path.join(bundledDir, file.name), realPath: file.realPath, identity: file.identity },
+      'file'
+    );
+  }
+  verifySnapshotPathNow(skills.root, 'directory');
+  for (const directory of skills.directories) verifySnapshotPathNow(directory, 'directory');
+  for (const file of skills.files) verifySnapshotPathNow(file, 'file');
 }
 
 function evidenceBase(
@@ -346,7 +415,10 @@ export async function probeOfficeCliAuthoringEvidence(context: OfficeCliProbeCon
         formats: [],
         reason: result.reason,
       };
-    if (!context.skillsRoot || !(await verifyInstalledOfficeCliSkillProof(context.skillsRoot, manifest.skillProof))) {
+    const skillSnapshot = context.skillsRoot
+      ? await captureInstalledOfficeCliSkillProof(context.skillsRoot, manifest.skillProof)
+      : null;
+    if (!skillSnapshot) {
       return {
         ...base,
         evidenceId: `officecli-invalid-skills:${platform}:${arch}`,
@@ -358,9 +430,10 @@ export async function probeOfficeCliAuthoringEvidence(context: OfficeCliProbeCon
       };
     }
     // Skill proof crosses multiple asynchronous filesystem boundaries. Rebind
-    // the capability to the exact bundle identities after that work and
-    // immediately before publishing the available evidence snapshot.
-    await verifyBundleIdentityAfterRead(bundledDir, bundle.realPath, bundle.identity, bundleFiles);
+    // both evidence roots in one non-yielding identity sweep immediately
+    // before publishing the available evidence snapshot. Revalidating either
+    // root with another awaited operation merely moves the race to the other.
+    verifyCombinedSnapshotNow(bundledDir, bundle.realPath, bundle.identity, bundleFiles, skillSnapshot);
     return {
       ...base,
       evidenceId: `officecli:${binarySha256.slice(7)}`,

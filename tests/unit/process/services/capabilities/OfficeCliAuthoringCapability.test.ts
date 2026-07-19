@@ -396,18 +396,17 @@ describe('OfficeCLI target-exact evidence producer', () => {
     if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
     const fixture = createInstalledFixture('wayland-officecli-post-skill-race-');
     if (!fixture) return;
-    const realFs = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
-    let bundleRootChecks = 0;
+    const realFs = await vi.importActual<typeof import('node:fs')>('node:fs');
     let mutated = false;
     vi.resetModules();
-    vi.doMock('node:fs/promises', () => ({
+    vi.doMock('node:fs', () => ({
       ...realFs,
-      realpath: async (target: Parameters<typeof realFs.realpath>[0], options?: BufferEncoding | null) => {
-        if (String(target) === fixture.bundledDir && ++bundleRootChecks === 3) {
+      realpathSync: (target: Parameters<typeof realFs.realpathSync>[0], options?: BufferEncoding | null) => {
+        if (!mutated && String(target) === fixture.bundledDir) {
           mutated = true;
           fs.appendFileSync(path.join(fixture.skillsRoot, OFFICECLI_SKILL_PROOF.skills[0].path), 'post-skill-tamper');
         }
-        return realFs.realpath(target, options as never);
+        return realFs.realpathSync(target, options as never);
       },
     }));
     try {
@@ -426,7 +425,7 @@ describe('OfficeCLI target-exact evidence producer', () => {
       expect(mutated).toBe(true);
       expect(evidence.status).toBe('unavailable');
     } finally {
-      vi.doUnmock('node:fs/promises');
+      vi.doUnmock('node:fs');
       vi.resetModules();
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
