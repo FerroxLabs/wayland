@@ -32,17 +32,23 @@ MCP catalog declaration, saved configuration, authentication requirement, and st
 
 ## Exact construction proof
 
-- Exact repair implementation commit: `f79ccbe6ea389f5e3fd781599e65d98c98e8fcf1`.
-- Exact repair implementation tree: `9d8bf1deaa43a0a01a6f230b45174cda3f1cc0ee`.
-- Focused repair suite: 15 files, 120 tests passed.
+- Exact R3 repair implementation commit: `a5465341aaacdae67cb35e8b84029e15dc9457cb`.
+- Exact R3 repair implementation tree: `2f5002eb6c2e3439a542a0661eb661c4e0ec82e5`.
+- Hostile-test parent: `a4eb8a9d54efb6b4afa56d26fb8a05c68956112c`.
+- Focused repair suite: 16 files, 128 tests passed.
 - Typecheck: passed.
-- Changed-file oxlint: 0 warnings, 0 errors; the successor also retired all eight inherited warnings on its actual changed surface.
+- Changed-file oxlint: 0 warnings, 0 errors.
 - Oxfmt and `git diff --check`: passed.
-- Exact full aggregate: 1,433 Vitest files passed and 21 skipped; 15,167 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
-- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r2-f79ccbe6/RECEIPT.md`.
+- Exact full aggregate: 1,434 Vitest files passed and 21 skipped; 15,175 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
+- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r3-a5465341/RECEIPT.md`.
 - The first successor aggregate attempt exposed one stale Concierge test double that still expected the retired direct MCP setter. The test was migrated to the atomic authority, the add-name invariant was moved inside the atomic mutation, and the exact aggregate was rerun successfully from a clean implementation commit.
 
 ## Successor repair details
+
+- A passive standalone probe cannot erase an unresolved publication-divergence marker. Explicit reconnect republishes first and probes only the newly committed durable enabled revision.
+- Add and batch import bind their storage mutation to the exact declaration revision observed before publication revocation; a concurrent edit wins without being overwritten.
+- Concierge add stores disabled, disconnected declaration truth and rejects canonical case-only name collisions before its atomic main-process mutation.
+- Archive removal and config-persistence compensation failures remain logged and are also returned as explicit rollback-publication failures rather than hiding divergence behind the first error.
 
 - Save-and-connect now re-reads the durable current declaration and commits probe evidence only against the exact current revision; stale render callbacks cannot publish or toggle a superseded definition.
 - Renderer and main-process writers now share one main-process `mcp.config` read-modify-write authority. Renderer writes use retrying compare-and-set and publish only the main-confirmed snapshot; runtime main writers use serialized functional mutations.
