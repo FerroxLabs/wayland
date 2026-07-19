@@ -15,11 +15,45 @@ function fail(errorCode) {
   process.exit(2);
 }
 
+function exactObject(value, required, optional, errorCode) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) fail(errorCode);
+  const allowed = new Set([...required, ...optional]);
+  const actual = Object.keys(value);
+  if (required.some((key) => !Object.hasOwn(value, key)) || actual.some((key) => !allowed.has(key))) fail(errorCode);
+}
+
 async function main() {
   const configPath = join(homedir(), '.config/wayland-gsd/desktop-control.json');
   const config = JSON.parse(await readFile(configPath, 'utf8'));
   const gateId = process.argv[2];
 
+  exactObject(
+    config,
+    [
+      'schema_version',
+      'keys',
+      'control_commit',
+      'controlled_paths',
+      'accepted_packets',
+      'receipt_store',
+      'verifier_lib_path',
+      'verifier_lib_digest',
+      'git_common_dir',
+    ],
+    ['repository', 'note'],
+    'CONTROL_SCHEMA_INVALID'
+  );
+  exactObject(config.receipt_store, ['policy', 'path'], [], 'RECEIPT_STORE_SCHEMA_INVALID');
+  exactObject(
+    config.accepted_packets,
+    [],
+    Object.keys(config.accepted_packets ?? {}),
+    'ACCEPTED_PACKET_REGISTRY_INVALID'
+  );
+  for (const [packet, candidate] of Object.entries(config.accepted_packets)) {
+    if (!/^[A-Z0-9][A-Z0-9-]*$/.test(packet)) fail('ACCEPTED_PACKET_REGISTRY_INVALID');
+    exactObject(candidate, ['commit', 'tree', 'integration_head'], [], 'ACCEPTED_PACKET_REGISTRY_INVALID');
+  }
   if (config.schema_version !== 1 || !Array.isArray(config.keys)) fail('CONTROL_SCHEMA_INVALID');
   if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/.test(config.control_commit ?? '')) fail('CONTROL_COMMIT_INVALID');
   if (!Array.isArray(config.controlled_paths) || config.controlled_paths.length === 0) fail('CONTROLLED_PATHS_MISSING');

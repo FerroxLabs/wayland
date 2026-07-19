@@ -581,6 +581,53 @@ try {
     verifier_lib_digest: sha(await readFile(verifierLibraryPath)),
     git_common_dir: gitCommonDirectory,
   };
+
+  async function rejectsWrapperConfig(label, mutate, errorCode) {
+    const hostileConfig = structuredClone(validWrapperConfig);
+    mutate(hostileConfig);
+    await writeFile(join(wrapperConfigDirectory, 'desktop-control.json'), `${JSON.stringify(hostileConfig)}\n`);
+    const result = spawnSync(
+      process.execPath,
+      [join(projectRoot, '.planning/execution/wayland-gsd-gate.mjs'), 'P2-M3'],
+      { cwd: projectRoot, encoding: 'utf8', env: { ...process.env, HOME: wrapperHome } }
+    );
+    assert.equal(result.status, 2, label);
+    assert.deepEqual(JSON.parse(result.stderr), { ok: false, error_code: errorCode }, label);
+  }
+
+  await rejectsWrapperConfig(
+    'unknown external-control fields fail closed',
+    (config) => {
+      config.receipt_authority = 'candidate';
+    },
+    'CONTROL_SCHEMA_INVALID'
+  );
+  await rejectsWrapperConfig(
+    'missing external-control fields fail closed',
+    (config) => {
+      delete config.control_commit;
+    },
+    'CONTROL_SCHEMA_INVALID'
+  );
+  await rejectsWrapperConfig(
+    'unknown receipt-store fields fail closed',
+    (config) => {
+      config.receipt_store.future_policy = 'candidate';
+    },
+    'RECEIPT_STORE_SCHEMA_INVALID'
+  );
+  await rejectsWrapperConfig(
+    'unknown candidate-authorization fields fail closed',
+    (config) => {
+      config.accepted_packets.TEST = {
+        commit: head,
+        tree,
+        integration_head: head,
+        receipt_authority: 'candidate',
+      };
+    },
+    'ACCEPTED_PACKET_REGISTRY_INVALID'
+  );
   await writeFile(join(wrapperConfigDirectory, 'desktop-control.json'), `${JSON.stringify(validWrapperConfig)}\n`);
   const snapshotWrapper = spawnSync(
     process.execPath,
