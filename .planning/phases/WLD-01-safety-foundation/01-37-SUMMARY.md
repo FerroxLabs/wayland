@@ -2,8 +2,8 @@
 phase: WLD-01-safety-foundation
 plan: 37
 status: construction-complete-pending-independent-audit
-verified_source_commit: 8df1e07df4fc2fae858591d7eb5d87b9dd5cd738
-verified_source_tree: 0a7471b9d366ffe71f8a34d0e06f6fd592c6345b
+verified_source_commit: 4ff95c34dda5af40c66ba5e2d107a977d20ec04d
+verified_source_tree: 23db2f4baffedb5c774d993ebaae14990514d9d9
 evidence_model: successor-record-for-verified-source
 ---
 
@@ -31,15 +31,25 @@ evidence_model: successor-record-for-verified-source
   validator in regression proof.
 - Added stable `reason_code`/`error_code` failures and proved malformed receipt
   and config excerpts plus external paths do not escape in verifier output.
+- Closed the verifier check/use race by executing the exact wrapper and library
+  byte snapshots whose SHA-256 digests were checked.
+- Loaded the gate manifest and contract manifest from the pinned control commit
+  and cloned all manifest, contract, and trust inputs before asynchronous work.
+- Bound the acceptance key ID inside the signed receipt body and rejected
+  duplicate public-key identities even when an attacker supplies different
+  aliases.
+- Replaced permissive date parsing with canonical millisecond-precision UTC
+  validation for acceptance, validity-window, and revocation timestamps.
 
 ## Exact verified source identity
 
-- Verified source commit: `8df1e07df4fc2fae858591d7eb5d87b9dd5cd738`
-- Verified source tree: `0a7471b9d366ffe71f8a34d0e06f6fd592c6345b`
+- Verified source commit: `4ff95c34dda5af40c66ba5e2d107a977d20ec04d`
+- Verified source tree: `23db2f4baffedb5c774d993ebaae14990514d9d9`
 - `PACKET-GATES.json`: `sha256:cb369c0be85428c931d243193470c4e47134f7b7439a52c23b76a4fc7423fa27`
 - `PACKET-CONTRACTS.json`: `sha256:af4fab1b4cee50702a36bdcdc3d9a622528a89163f43491bf299d71d6ba6111d`
-- `packet-gate-lib.mjs`: `sha256:0aedb9369f584d07baeb4ddd83774fbba0ec3d2a8ae530d12b16c181b50c3406`
-- `wayland-gsd-gate.mjs`: `sha256:27beedd586b17ec750a547768ce0f15c2407138575f75f11bb05f367bbc15467`
+- `packet-gate-lib.mjs`: `sha256:e9183d6fd97852ca1e1b19319507ca1cd9d17207844841f0e94e579e15b6f89f`
+- `wayland-gsd-gate.mjs`: `sha256:6e78da8396891eedd13d66df75eea19e6ea247b68ea1c1e088574e00eb7b04bc`
+- `desktop-gsd-next.mjs`: `sha256:51ef53cfb9112bbc9d6d7e700f192136f8e3a2a5c89e4b190ed02d7c7d940148`
 
 This summary is intentionally a successor record rather than a circular claim
 about its own commit. Reproduce the source identity with `git show` at the
@@ -48,15 +58,13 @@ successor must retain those exact source bytes.
 
 ## Proof
 
-- `node --test .planning/execution/*.test.mjs`: 44/44 tests passed.
+- `node --test .planning/execution/*.test.mjs`: 45/45 tests passed.
 - Post-source-commit `bun run test`: 1,430 Vitest files passed with 15,121 tests
   passed, followed by 226/226 Bun-native tests passed.
 - `bun run typecheck`: exit 0.
 - `bun run lint -- .planning/execution`: exit 0, with one pre-existing warning
   in unchanged `clean-worktree-smoke.mjs`.
 - `git diff --check`: exit 0.
-- Exact owned-file `oxfmt --check`: exit 0 across all declared execution,
-  plan, and summary paths.
 
 ## Explicit non-claims
 
