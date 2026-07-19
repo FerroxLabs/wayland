@@ -4,6 +4,40 @@ import type { IMcpServer } from '@/common/config/storage';
 import { ipcBridge } from '@/common';
 import { migrateExistingServers } from './migrateExistingServers';
 
+type McpConfigListener = (servers: IMcpServer[]) => void;
+
+// MCP settings are rendered from several independent screens. Keep one
+// renderer-wide durable mutation queue so those hook instances cannot race and
+// overwrite each other's config snapshots.
+let mcpConfigWriteQueue: Promise<void> = Promise.resolve();
+const mcpConfigListeners = new Set<McpConfigListener>();
+
+function publishMcpConfig(servers: IMcpServer[]): void {
+  for (const listener of mcpConfigListeners) listener(servers);
+}
+
+function enqueueMcpConfigRead(): Promise<IMcpServer[]> {
+  const operation = mcpConfigWriteQueue.then(async () => (await ConfigStorage.get('mcp.config')) ?? []);
+  mcpConfigWriteQueue = operation.then(
+    (): void => undefined,
+    (): void => undefined
+  );
+  return operation;
+}
+
+function enqueueMcpConfigWrite(serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])): Promise<void> {
+  const operation = mcpConfigWriteQueue.then(async () => {
+    const persisted = (await ConfigStorage.get('mcp.config')) ?? [];
+    const next = typeof serversOrUpdater === 'function' ? serversOrUpdater(persisted) : serversOrUpdater;
+    await ConfigStorage.set('mcp.config', next);
+    // Publish only after persistence succeeds. A rejected write must never
+    // manufacture renderer state that the main process cannot subsequently use.
+    publishMcpConfig(next);
+  });
+  mcpConfigWriteQueue = operation.catch((): void => undefined);
+  return operation;
+}
+
 /**
  * MCP server state management hook.
  * Manages loading, saving, and updating the MCP server list.
@@ -14,15 +48,26 @@ export const useMcpServers = () => {
   /** Extension-contributed MCP servers (read-only, from extensions) */
   const [extensionMcpServers, setExtensionMcpServers] = useState<IMcpServer[]>([]);
 
+  useEffect(() => {
+    const listener: McpConfigListener = (servers) => setMcpServers(servers);
+    mcpConfigListeners.add(listener);
+    return () => {
+      mcpConfigListeners.delete(listener);
+    };
+  }, []);
+
   const refreshMcpServers = useCallback(async (): Promise<void> => {
-    const data = (await ConfigStorage.get('mcp.config')) ?? [];
+    const data = await enqueueMcpConfigRead();
     // One-time, idempotent migration: tag any server without an explicit
     // `source` as `source: 'custom'` so the new MCP Library Installed page
     // groups pre-library installs under "Custom".
     const migrated = migrateExistingServers(data);
     const changed = migrated.some((server, idx) => server !== data[idx]);
-    if (changed) await ConfigStorage.set('mcp.config', migrated);
-    setMcpServers(migrated);
+    if (changed) {
+      await enqueueMcpConfigWrite((persisted) => migrateExistingServers(persisted));
+    } else {
+      setMcpServers(migrated);
+    }
   }, []);
 
   // Load MCP server configuration
@@ -59,26 +104,11 @@ export const useMcpServers = () => {
   }, [refreshMcpServers]);
 
   // Save MCP server configuration (user-configured only; extension servers are not persisted)
-  const saveMcpServers = useCallback((serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])) => {
-    return new Promise<void>((resolve, reject) => {
-      setMcpServers((prev) => {
-        // Compute new value
-        const newServers = typeof serversOrUpdater === 'function' ? serversOrUpdater(prev) : serversOrUpdater;
-
-        // Persist to storage asynchronously (in a microtask)
-        queueMicrotask(() => {
-          ConfigStorage.set('mcp.config', newServers)
-            .then(() => resolve())
-            .catch((error) => {
-              console.error('Failed to save MCP servers:', error);
-              reject(error);
-            });
-        });
-
-        return newServers;
-      });
-    });
-  }, []);
+  const saveMcpServers = useCallback(
+    (serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])) =>
+      enqueueMcpConfigWrite(serversOrUpdater),
+    []
+  );
 
   // Combined complete list (user-configured + extension-contributed)
   const allMcpServers = [...mcpServers, ...extensionMcpServers];

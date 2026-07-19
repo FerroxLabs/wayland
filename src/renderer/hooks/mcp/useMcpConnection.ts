@@ -8,6 +8,10 @@ import { globalMessageQueue } from './messageQueue';
 export const MCP_PREPUBLICATION_MAX_AGE_MS = 5 * 60 * 1000;
 const MCP_PREPUBLICATION_MAX_FUTURE_SKEW_MS = 5_000;
 
+function nextMcpRevision(previous: number): number {
+  return Math.max(Date.now(), previous + 1);
+}
+
 export function readCorrelatedMcpPrepublicationTruth(
   server: Pick<IMcpServer, 'id' | 'name' | 'updatedAt'>,
   result: McpConnectionTestResult,
@@ -119,7 +123,7 @@ export const useMcpConnection = (
               return {
                 ...s,
                 status,
-                updatedAt: preserveRevision ? s.updatedAt : Date.now(),
+                updatedAt: preserveRevision ? s.updatedAt : nextMcpRevision(s.updatedAt),
                 ...additionalData,
               };
             })
@@ -131,12 +135,14 @@ export const useMcpConnection = (
         return applied;
       };
 
-      // Keep updatedAt as the declaration revision while the probe runs. Every
-      // terminal write below is compare-and-set against that revision, so an
-      // edit/re-import racing the probe wins and stale evidence is discarded.
-      if (!(await updateServerStatus('testing', undefined, true))) return;
-
       try {
+        // Keep updatedAt as the declaration revision while the probe runs. Every
+        // terminal write below is compare-and-set against that revision, so an
+        // edit/re-import racing the probe wins and stale evidence is discarded.
+        // This belongs inside the try/finally so even a rejected initial write
+        // clears the renderer's in-flight indicator.
+        if (!(await updateServerStatus('testing', undefined, true))) return;
+
         const response = await mcpService.testMcpConnection.invoke(server);
 
         if (response.success && response.data) {
@@ -302,7 +308,7 @@ export const useMcpConnection = (
           prevServers.map((s) => {
             const update = updates.find((u) => u.id === s.id);
             return update && update.expectedUpdatedAt === s.updatedAt
-              ? { ...s, ...update.patch, updatedAt: Date.now() }
+              ? { ...s, ...update.patch, updatedAt: nextMcpRevision(s.updatedAt) }
               : s;
           })
         );

@@ -10,8 +10,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string, values?: { errors?: string }) =>
-      values?.errors ? `${key}:${values.errors}` : key,
+    t: (key: string, values?: { errors?: string }) => (values?.errors ? `${key}:${values.errors}` : key),
   }),
 }));
 
@@ -95,9 +94,32 @@ describe('useMcpOperations publication evidence', () => {
     };
     const { result } = renderHook(() => useMcpOperations([server], message as never));
     await act(async () => {
-      await expect(result.current.syncMcpToAgents(server, true)).rejects.toThrow(
-        'settings.mcpSyncFailedNoAgents'
-      );
+      await expect(result.current.syncMcpToAgents(server, true)).rejects.toThrow('settings.mcpSyncFailedNoAgents');
+    });
+  });
+
+  it('rejects partial sync so one adapter cannot mint publication truth for all adapters', async () => {
+    mocks.syncMcpToAgents.mockResolvedValue({
+      success: true,
+      data: {
+        results: [
+          { agent: 'Claude', success: true },
+          { agent: 'Wayland Core', success: false, error: 'profile write failed' },
+        ],
+      },
+    });
+
+    const server = {
+      id: 'mcp_1',
+      name: 'firecrawl',
+      enabled: true,
+      createdAt: 1,
+      updatedAt: 1,
+      transport: { type: 'stdio' as const, command: 'npx', args: ['firecrawl-mcp'] },
+    };
+    const { result } = renderHook(() => useMcpOperations([server], message as never));
+    await act(async () => {
+      await expect(result.current.syncMcpToAgents(server, true)).rejects.toThrow('settings.mcpSyncFailedNoAgents');
     });
   });
 });

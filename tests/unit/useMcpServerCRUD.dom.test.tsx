@@ -159,6 +159,24 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(stored[0]).toMatchObject({ updatedAt: 101, status: 'disconnected' });
     expect(message.success).not.toHaveBeenCalled();
   });
+
+  it('clears the in-flight indicator when the initial testing-state write fails', async () => {
+    bridgeMocks.testMcpConnection.mockClear();
+    const save = vi.fn().mockRejectedValue(new Error('storage unavailable'));
+    const message = {
+      success: vi.fn(),
+      warning: vi.fn(),
+      error: vi.fn(),
+    } as unknown as ReturnType<typeof Message.useMessage>[0];
+    const { result } = renderHook(() => useMcpConnection([server], save, message));
+
+    await act(async () => {
+      await result.current.handleTestMcpConnection(server);
+    });
+
+    expect(result.current.testingServers[server.id]).toBe(false);
+    expect(bridgeMocks.testMcpConnection).not.toHaveBeenCalled();
+  });
 });
 
 describe('useMcpServerCRUD', () => {
@@ -234,6 +252,26 @@ describe('useMcpServerCRUD', () => {
       expect(syncMcpToAgents).not.toHaveBeenCalled();
     });
 
+    it('advances the declaration revision even when the wall clock does not move', async () => {
+      const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
+      let stored = [makeMockServer({ id: 'existing', name: 'Tavily', enabled: false, updatedAt: 1000 })];
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        stored = (updater as (prev: IMcpServer[]) => IMcpServer[])(stored);
+      });
+
+      const { result } = renderCRUD(stored);
+      await act(async () => {
+        await result.current.handleAddMcpServer({
+          name: 'tavily',
+          enabled: false,
+          transport: { type: 'streamable_http', url: 'https://mcp.tavily.com/mcp/' },
+        });
+      });
+
+      expect(stored[0].updatedAt).toBe(1001);
+      now.mockRestore();
+    });
+
     it('downgrades imported enabled/connected claims to a saved declaration without publishing', async () => {
       let stored: IMcpServer[] = [];
       saveMcpServers.mockImplementation(async (updater: unknown) => {
@@ -281,6 +319,26 @@ describe('useMcpServerCRUD', () => {
       expect(removeMcpFromAgents).toHaveBeenCalledWith('beeper', undefined, 'stdio');
       expect(syncMcpToAgents).not.toHaveBeenCalled();
       expect(stored[0]).toMatchObject({ id: 'existing', enabled: false, status: 'disconnected' });
+    });
+
+    it('restores an old publication when replacement declaration persistence fails', async () => {
+      const existing = makeMockServer({ id: 'existing', name: 'beeper', enabled: true });
+      saveMcpServers.mockRejectedValueOnce(new Error('storage unavailable'));
+      const { result } = renderCRUD([existing]);
+
+      await act(async () => {
+        await expect(
+          result.current.handleAddMcpServer({
+            name: 'beeper',
+            enabled: true,
+            status: 'connected',
+            transport: { type: 'streamable_http', url: 'http://localhost:23373/v0/mcp' },
+          })
+        ).rejects.toThrow('storage unavailable');
+      });
+
+      expect(removeMcpFromAgents).toHaveBeenCalledWith('beeper', undefined, 'stdio');
+      expect(syncMcpToAgents).toHaveBeenCalledWith(existing, true);
     });
   });
 
@@ -347,15 +405,32 @@ describe('useMcpServerCRUD', () => {
       expect(stored).toHaveLength(2);
       expect(stored.every((server) => server.enabled === false && server.status === 'disconnected')).toBe(true);
     });
+
+    it('restores successful revocations when another batch revocation fails', async () => {
+      const first = makeMockServer({ id: 'one', name: 'tavily', enabled: true });
+      const second = makeMockServer({ id: 'two', name: 'firecrawl', enabled: true });
+      removeMcpFromAgents.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('config locked'));
+      const { result } = renderCRUD([first, second]);
+
+      await act(async () => {
+        await expect(
+          result.current.handleBatchImportMcpServers([
+            { name: 'tavily', enabled: false, transport: first.transport },
+            { name: 'firecrawl', enabled: false, transport: second.transport },
+          ])
+        ).rejects.toThrow('Failed to revoke existing MCP publications');
+      });
+
+      expect(syncMcpToAgents).toHaveBeenCalledTimes(1);
+      expect(syncMcpToAgents).toHaveBeenCalledWith(first, true);
+      expect(saveMcpServers).not.toHaveBeenCalled();
+    });
   });
 
   describe('handleToggleMcpServer uses static Message API (Fixes ELECTRON-D)', () => {
     it('calls static Message.error when sync throws, not hook-based message', async () => {
       const server = makeMockServer();
       syncMcpToAgents.mockRejectedValueOnce(new Error('sync failed'));
-      saveMcpServers.mockImplementationOnce(async (updater: unknown) => {
-        if (typeof updater === 'function') (updater as (prev: IMcpServer[]) => IMcpServer[])([server]);
-      });
 
       const { result } = renderCRUD([server]);
 
@@ -366,14 +441,12 @@ describe('useMcpServerCRUD', () => {
 
       expect(Message.error).toHaveBeenCalledWith('settings.mcpSyncError');
       expect(outcome).toBe(false);
+      expect(saveMcpServers).not.toHaveBeenCalled();
     });
 
     it('calls static Message.error when remove throws', async () => {
       const server = makeMockServer({ enabled: false });
       removeMcpFromAgents.mockRejectedValueOnce(new Error('remove failed'));
-      saveMcpServers.mockImplementationOnce(async (updater: unknown) => {
-        if (typeof updater === 'function') (updater as (prev: IMcpServer[]) => IMcpServer[])([server]);
-      });
 
       const { result } = renderCRUD([server]);
 
@@ -383,6 +456,37 @@ describe('useMcpServerCRUD', () => {
       });
 
       expect(Message.error).toHaveBeenCalledWith('settings.mcpRemoveError');
+      expect(outcome).toBe(false);
+      expect(saveMcpServers).not.toHaveBeenCalled();
+    });
+
+    it('revokes a new publication when the enabled-state commit fails', async () => {
+      const server = makeMockServer({ enabled: false });
+      saveMcpServers.mockRejectedValueOnce(new Error('storage unavailable'));
+      const { result } = renderCRUD([server]);
+
+      let outcome: boolean | undefined;
+      await act(async () => {
+        outcome = await result.current.handleToggleMcpServer(server.id, true);
+      });
+
+      expect(syncMcpToAgents).toHaveBeenCalledWith(expect.objectContaining({ enabled: true }), true);
+      expect(removeMcpFromAgents).toHaveBeenCalledWith(server.name, undefined, server.transport.type);
+      expect(outcome).toBe(false);
+    });
+
+    it('restores an old publication when the disabled-state commit fails', async () => {
+      const server = makeMockServer({ enabled: true });
+      saveMcpServers.mockRejectedValueOnce(new Error('storage unavailable'));
+      const { result } = renderCRUD([server]);
+
+      let outcome: boolean | undefined;
+      await act(async () => {
+        outcome = await result.current.handleToggleMcpServer(server.id, false);
+      });
+
+      expect(removeMcpFromAgents).toHaveBeenCalledWith(server.name, undefined, server.transport.type);
+      expect(syncMcpToAgents).toHaveBeenCalledWith(server, true);
       expect(outcome).toBe(false);
     });
   });
@@ -467,6 +571,52 @@ describe('useMcpServerCRUD', () => {
       expect(stored).toEqual([server]);
       expect(syncMcpToAgents).toHaveBeenNthCalledWith(2, server, true);
       expect(Message.error).toHaveBeenCalledWith('settings.mcpSyncError');
+      expect(Message.success).not.toHaveBeenCalled();
+    });
+
+    it('removes the replacement and restores the old publication when the local commit fails', async () => {
+      const server = makeMockServer();
+      saveMcpServers.mockRejectedValueOnce(new Error('storage unavailable'));
+      const { result } = renderCRUD([server]);
+
+      await act(async () => {
+        await expect(
+          result.current.handleEditMcpServer(server, {
+            name: 'updated-server',
+            enabled: true,
+            transport: server.transport,
+          })
+        ).rejects.toThrow('storage unavailable');
+      });
+
+      expect(removeMcpFromAgents).toHaveBeenNthCalledWith(1, 'test-server', undefined, 'stdio');
+      expect(removeMcpFromAgents).toHaveBeenNthCalledWith(2, 'updated-server', undefined, 'stdio');
+      expect(syncMcpToAgents).toHaveBeenNthCalledWith(1, expect.objectContaining({ name: 'updated-server' }), true);
+      expect(syncMcpToAgents).toHaveBeenNthCalledWith(2, server, true);
+      expect(Message.success).not.toHaveBeenCalled();
+    });
+
+    it('rejects a stale edit commit and rolls back both publications', async () => {
+      const server = makeMockServer({ updatedAt: 1000 });
+      let stored = [{ ...server, updatedAt: 1001, description: 'newer edit' }];
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        stored = (updater as (prev: IMcpServer[]) => IMcpServer[])(stored);
+      });
+      const { result } = renderCRUD([server]);
+
+      await act(async () => {
+        await expect(
+          result.current.handleEditMcpServer(server, {
+            name: 'stale-edit',
+            enabled: true,
+            transport: server.transport,
+          })
+        ).rejects.toThrow('changed while edit publication was in progress');
+      });
+
+      expect(stored[0]).toMatchObject({ updatedAt: 1001, description: 'newer edit' });
+      expect(removeMcpFromAgents).toHaveBeenNthCalledWith(2, 'stale-edit', undefined, 'stdio');
+      expect(syncMcpToAgents).toHaveBeenLastCalledWith(server, true);
       expect(Message.success).not.toHaveBeenCalled();
     });
   });

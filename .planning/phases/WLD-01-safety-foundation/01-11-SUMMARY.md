@@ -24,20 +24,22 @@ MCP catalog declaration, saved configuration, authentication requirement, and st
 - Added a closed `wayland-mcp-prepublication/1` evidence union bound to the exact server ID, name, saved declaration revision, observation time, authentication state, probe state, and tool count.
 - Rejects malformed, prototype-inherited, unknown-field, duplicate-tool, identity-mismatched, stale, future, and internally contradictory adapter evidence.
 - Add and batch-import now persist disabled declarations only. Neither catalog presence nor successful persistence silently enables or publishes an MCP server.
-- Probe and refresh writes use compare-and-set semantics so a concurrent declaration edit wins and stale results are discarded.
+- MCP configuration writes are serialized across renderer hook instances, read the latest durable snapshot, and publish UI state only after storage succeeds.
+- Add, edit, import, toggle, probe, and refresh writes use monotonic revisions and compare-and-set semantics so a concurrent declaration edit wins and stale results are discarded.
+- Adapter publication changes are transactional: partial publication is rejected and failed persistence attempts restore the previous external configuration or surface rollback failure.
 - Detection/synchronization fails closed on partial backend observations and canonical identity collisions instead of returning a misleading successful subset.
 - Preserved legacy `connected` only as probe-reachable compatibility display data; it does not mint ACP publication, ToolSearch, or current-chat readiness.
 
 ## Exact construction proof
 
-- Focused plan suite: 5 files, 58 tests passed.
-- Targeted full-gate regressions: 3 files, 15 tests passed.
+- Focused plan suite: 10 files, 86 tests passed.
+- Durable renderer queue and CRUD hostile subset: 3 files, 27 tests passed.
 - Typecheck: passed.
 - MCP catalog validation: passed.
-- Changed-file oxlint with `--deny-warnings`: 0 warnings, 0 errors.
+- Changed-file oxlint: 0 warnings, 0 errors.
 - Scoped plan lint: 0 errors; 24 pre-existing warnings in unchanged MCP agent/message-queue files.
 - Oxfmt and `git diff --check`: passed.
-- Exact aggregate `bun run test`: 1,430 Vitest files passed, 21 skipped; 15,144 tests passed, 145 skipped; 226/226 Bun-native tests passed.
+- The first aggregate attempt exposed an unrelated 30-second timeout ceiling in the production-strength 256 MiB Argon2 correctness vector. That test was corrected to use a 90-second correctness timeout; the repaired vector is 2/2 green in 70.36 seconds. A fresh exact aggregate run remains required before independent acceptance.
 
 ## Authority boundary
 
@@ -45,9 +47,8 @@ This packet does not claim live ACP `McpConfig` publication, active-session regi
 
 ## Deviations from plan
 
-Three existing full-gate regression suites were added to ownership because the stricter result contract required their mocks and expectations to represent process-authored pre-publication evidence. No production authority was widened.
+Three existing full-gate regression suites were added to ownership because the stricter result contract required their mocks and expectations to represent process-authored pre-publication evidence. The shared MCP state hook was brought into scope when adversarial review proved its optimistic persistence and per-instance mutation queues could manufacture unsaved UI state and lost updates. The Argon2 correctness-vector timeout was also corrected after the exact aggregate gate reproduced its invalid latency assumption. No production authority was widened.
 
 ## Acceptance state
 
 The exact commit containing this summary must be independently audited. Until that successor is accepted and serially integrated, plan 01-11 remains constructed rather than accepted.
-
