@@ -74,6 +74,7 @@ function provider(paths: Awaited<ReturnType<typeof fixture>>, installationIdenti
     appVersion: '0.12.0-preview.1',
     releaseTrack: 'preview',
     installationIdentity,
+    authorityScope: () => ({ cohort: 'knowledge-work', window: WINDOW }),
     ...paths,
   });
 }

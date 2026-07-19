@@ -26,11 +26,17 @@ export type CohortAssignmentStatus = Readonly<{
   available: boolean;
   effectiveCohort: CohortAssignment | null;
   classifiedAtMs: number | null;
-  observationState: 'unavailable' | 'ready' | 'locked' | 'active';
+  observationState: 'unavailable' | 'ready' | 'locked' | 'active' | 'revoked' | 'completed';
 }>;
 
 export type CohortAssignmentRequestResult = Readonly<{
-  status: 'classified' | 'unchanged' | 'window-active' | 'storage-error' | 'invalid-request';
+  status:
+    | 'classified'
+    | 'unchanged'
+    | 'window-active'
+    | 'confirmation-denied'
+    | 'storage-error'
+    | 'invalid-request';
   assignment: CohortAssignmentStatus;
 }>;
 
@@ -62,6 +68,6 @@ export type CohortConsentStatus = Readonly<{
 }>;
 
 export type CohortSetConsentResult = Readonly<{
-  status: 'enabled' | 'disabled' | 'storage-error' | 'assignment-unavailable';
+  status: 'enabled' | 'disabled' | 'window-complete' | 'storage-error' | 'assignment-unavailable';
   consent: CohortConsentStatus;
-}>;
+}>; 

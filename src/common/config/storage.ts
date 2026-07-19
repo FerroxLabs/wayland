@@ -213,6 +213,11 @@ export interface IConfigStorageRefer {
     windowEndMs: number | null;
   };
   /**
+   * OS-keychain-sealed, process-authoritative cohort state. Consent,
+   * classification, and the immutable evidence window publish atomically.
+   */
+  'cohort.authorityEnvelope'?: string;
+  /**
    * v0.6.3 - When true, ijfwSystemService.bootstrap() short-circuits and
    * never spawns `npx @ijfw/install`. Wave 6 wires the Settings toggle.
    */

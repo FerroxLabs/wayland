@@ -71,7 +71,7 @@ function parseSetConsentResult(value: unknown): CohortSetConsentResult | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
   const record = value as Record<string, unknown>;
   if (Object.keys(record).toSorted().join('\0') !== ['consent', 'status'].join('\0')) return null;
-  if (!['enabled', 'disabled', 'storage-error', 'assignment-unavailable'].includes(String(record.status))) return null;
+  if (!['enabled', 'disabled', 'window-complete', 'storage-error', 'assignment-unavailable'].includes(String(record.status))) return null;
   const consent = parseConsentStatus(record.consent);
   if (!consent) return null;
   return { status: record.status as CohortSetConsentResult['status'], consent };
@@ -87,7 +87,9 @@ function parseAssignmentStatus(value: unknown): CohortAssignmentStatus | null {
     return null;
   }
   if (typeof record.available !== 'boolean') return null;
-  if (!['unavailable', 'ready', 'locked', 'active'].includes(String(record.observationState))) return null;
+  if (!['unavailable', 'ready', 'locked', 'active', 'revoked', 'completed'].includes(String(record.observationState))) {
+    return null;
+  }
   if (!record.available) {
     return record.effectiveCohort === null &&
       record.classifiedAtMs === null &&
@@ -108,7 +110,7 @@ function parseAssignmentStatus(value: unknown): CohortAssignmentStatus | null {
     available: true,
     effectiveCohort: record.effectiveCohort as CohortAssignment,
     classifiedAtMs: Number(record.classifiedAtMs),
-    observationState: record.observationState as 'ready' | 'locked' | 'active',
+    observationState: record.observationState as 'ready' | 'locked' | 'active' | 'revoked' | 'completed',
   });
 }
 
@@ -210,7 +212,9 @@ const CohortEvidenceConsent: React.FC = () => {
       viewState !== 'ready' ||
       saving ||
       assignment.observationState === 'active' ||
-      assignment.observationState === 'locked'
+      assignment.observationState === 'locked' ||
+      assignment.observationState === 'revoked' ||
+      assignment.observationState === 'completed'
     ) {
       return;
     }
@@ -255,7 +259,10 @@ const CohortEvidenceConsent: React.FC = () => {
       if (!result || result.status !== expectedStatus || result.consent.enabled !== enabled) {
         throw new Error('Consent update was not acknowledged');
       }
+      const refreshedAssignment = parseAssignmentStatus(await api.cohortAssignmentStatus?.());
+      if (!refreshedAssignment) throw new Error('Cohort assignment refresh was not acknowledged');
       setStatus(result.consent);
+      setAssignment(refreshedAssignment);
     } catch {
       // Do not optimistically claim a privacy choice changed. Keep the last
       // authoritative status visible and tell the user that it is unchanged.
@@ -294,7 +301,9 @@ const CohortEvidenceConsent: React.FC = () => {
             viewState !== 'ready' ||
             saving ||
             assignment.observationState === 'active' ||
-            assignment.observationState === 'locked'
+            assignment.observationState === 'locked' ||
+            assignment.observationState === 'revoked' ||
+            assignment.observationState === 'completed'
           }
           onChange={(event) => void requestAssignment(event.target.value as CohortAssignment)}
           aria-label={t('settings.navigationPage.cohortAssignmentLabel')}
@@ -311,7 +320,10 @@ const CohortEvidenceConsent: React.FC = () => {
         </select>
       </PreferenceRow>
       <p className='text-12px text-t-secondary' data-testid='cohort-assignment-state'>
-        {assignment.observationState === 'active' || assignment.observationState === 'locked'
+        {assignment.observationState === 'active' ||
+        assignment.observationState === 'locked' ||
+        assignment.observationState === 'revoked' ||
+        assignment.observationState === 'completed'
           ? t('settings.navigationPage.cohortAssignmentActive')
           : assignment.available
             ? t('settings.navigationPage.cohortAssignmentReady')

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { generateKeyPairSync } from 'node:crypto';
+import { createHmac, generateKeyPairSync, timingSafeEqual } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -12,6 +12,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   createCohortProductionController,
+  type CohortAuthorityStore,
   type CohortAssignmentStore,
   type CohortConsentStore,
   type CohortProductionEnvironment,
@@ -60,25 +61,103 @@ async function fixture(
   initialAssignment: unknown = undefined,
   now: () => number = () => NOW,
   overrides: Partial<
-    Pick<CohortProductionEnvironment, 'isPackaged' | 'appVersion' | 'releaseTrack' | 'installIdentity'>
-  > = {}
+    Pick<
+      CohortProductionEnvironment,
+      'isPackaged' | 'appVersion' | 'releaseTrack' | 'installIdentity' | 'confirmAssignment'
+    >
+  > & { seedAuthenticated?: boolean } = {}
 ) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wayland-production-cohort-'));
   roots.push(root);
   let persistedConsent = initialConsent;
   let persistedAssignment = initialAssignment;
+  let persistedAuthority: unknown;
+  const fixtureSecret = Buffer.from('01-01-hostile-fixture-authority-key');
+  const protectAuthority = (plaintext: string): string => {
+    const payload = Buffer.from(plaintext).toString('base64url');
+    const mac = createHmac('sha256', fixtureSecret).update(payload).digest('base64url');
+    return `test-auth:v1:${payload}.${mac}`;
+  };
+  const unprotectAuthority = (ciphertext: string): string => {
+    const match = /^test-auth:v1:([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)$/.exec(ciphertext);
+    if (!match) throw new Error('invalid authority envelope');
+    const expected = createHmac('sha256', fixtureSecret).update(match[1]).digest();
+    const observed = Buffer.from(match[2], 'base64url');
+    if (expected.length !== observed.length || !timingSafeEqual(expected, observed)) throw new Error('forged authority');
+    return Buffer.from(match[1], 'base64url').toString('utf8');
+  };
+  const exactDisabled = JSON.stringify(initialConsent) === JSON.stringify(disabledConsent);
+  const exactEnabled = JSON.stringify(initialConsent) === JSON.stringify(enabledConsent);
+  const currentAssignment = initialAssignment as ReturnType<typeof assignment> | undefined;
+  const exactAssignmentKeys = [
+    'classifiedAtMs',
+    'classifierVersion',
+    'effectiveCohort',
+    'requestedCohort',
+    'schemaVersion',
+    'windowEndMs',
+    'windowStartMs',
+  ].toSorted();
+  const matches =
+    currentAssignment?.schemaVersion === 2 &&
+    Object.keys(currentAssignment).toSorted().join('\0') === exactAssignmentKeys.join('\0') &&
+    currentAssignment.classifierVersion === 1 &&
+    currentAssignment.requestedCohort === currentAssignment.effectiveCohort &&
+    ((exactDisabled && currentAssignment.windowStartMs === null) ||
+      (exactDisabled && currentAssignment.windowStartMs !== null) ||
+      (exactEnabled && currentAssignment.windowStartMs === NOW && currentAssignment.windowEndMs === END));
+  const seedAuthenticated = !('seedAuthenticated' in overrides) || overrides.seedAuthenticated !== false;
+  if (matches && seedAuthenticated && currentAssignment) {
+    persistedAuthority = protectAuthority(
+      JSON.stringify({
+        schemaVersion: 3,
+        generation: 1,
+        installationIdHash: cohortInstallationIdHash(overrides.installIdentity ?? 'install-alpha'),
+        authorityId: 'authority-fixture',
+        classifierVersion: 2,
+        requestedCohort: currentAssignment.requestedCohort,
+        effectiveCohort: currentAssignment.effectiveCohort,
+        classifiedAtMs: currentAssignment.classifiedAtMs,
+        consentEnabled: exactEnabled,
+        acceptedAtMs: currentAssignment.windowStartMs,
+        windowId: currentAssignment.windowStartMs === null ? null : 'window-fixture',
+        windowStartMs: currentAssignment.windowStartMs,
+        windowEndMs: currentAssignment.windowEndMs,
+      })
+    );
+  }
   const consentStore: CohortConsentStore = {
     get: vi.fn(async () => persistedConsent),
-    set: vi.fn(async (value) => {
-      persistedConsent = structuredClone(value);
-    }),
   };
   const assignmentStore: CohortAssignmentStore = {
     get: vi.fn(async () => persistedAssignment),
+  };
+  const authorityStore: CohortAuthorityStore = {
+    get: vi.fn(async () => persistedAuthority),
     set: vi.fn(async (value) => {
-      persistedAssignment = structuredClone(value);
+      persistedAuthority = value;
+      const parsed = JSON.parse(unprotectAuthority(value)) as Record<string, unknown>;
+      persistedConsent = parsed.consentEnabled
+        ? {
+            schemaVersion: 1,
+            enabled: true,
+            acceptedAtMs: parsed.acceptedAtMs,
+            windowStartMs: parsed.windowStartMs,
+            windowEndMs: parsed.windowEndMs,
+          }
+        : disabledConsent;
+      persistedAssignment = {
+        schemaVersion: 2,
+        classifierVersion: 1,
+        requestedCohort: parsed.requestedCohort,
+        effectiveCohort: parsed.effectiveCohort,
+        classifiedAtMs: parsed.classifiedAtMs,
+        windowStartMs: parsed.windowStartMs,
+        windowEndMs: parsed.windowEndMs,
+      };
     }),
   };
+  const { seedAuthenticated: _seedAuthenticated, ...environmentOverrides } = overrides;
   const environment: CohortProductionEnvironment = {
     userDataPath: path.join(root, 'user-data'),
     resourcesPath: path.join(root, 'resources'),
@@ -86,18 +165,29 @@ async function fixture(
     appVersion: '0.12.0-dev',
     releaseTrack: 'preview',
     installIdentity: 'install-alpha',
+    authorityStore,
     consentStore,
     assignmentStore,
+    protectAuthority,
+    unprotectAuthority,
+    confirmAssignment: vi.fn(async () => true),
+    newAuthorityId: () => 'authority-fixture',
+    newWindowId: () => 'window-fixture',
     now,
-    ...overrides,
+    ...environmentOverrides,
   };
   return {
     root,
     consentStore,
     assignmentStore,
+    authorityStore,
     environment,
     persistedConsent: () => persistedConsent,
     persistedAssignment: () => persistedAssignment,
+    persistedAuthority: () => persistedAuthority,
+    setRawAuthority: (value: unknown) => {
+      persistedAuthority = value;
+    },
     controller: await createCohortProductionController(environment),
   };
 }
@@ -158,12 +248,26 @@ afterEach(async () => {
 
 describe('ProductionCohortController cohort authority', () => {
   it('[CR-01] rejects a valid-looking unsigned persisted assignment after restart', async () => {
-    const subject = await fixture(disabledConsent, assignment('operator'));
+    const subject = await fixture(disabledConsent, assignment('operator'), () => NOW, { seedAuthenticated: false });
 
     await expect(subject.controller.assignmentStatus()).resolves.toEqual({
       available: false,
       effectiveCohort: null,
       classifiedAtMs: null,
+      observationState: 'unavailable',
+    });
+  });
+
+  it('rejects an authenticated authority envelope after any byte is tampered', async () => {
+    const subject = await fixture(disabledConsent);
+    await subject.controller.requestAssignment('operator');
+    const sealed = String(subject.persistedAuthority());
+    subject.setRawAuthority(`${sealed.slice(0, -1)}${sealed.endsWith('A') ? 'B' : 'A'}`);
+
+    const restarted = await createCohortProductionController(subject.environment);
+    await expect(restarted.assignmentStatus()).resolves.toMatchObject({
+      available: false,
+      effectiveCohort: null,
       observationState: 'unavailable',
     });
   });
@@ -224,7 +328,7 @@ describe('ProductionCohortController cohort authority', () => {
       observationState: 'active',
     });
     expect(subject.persistedAssignment()).toEqual(assignment('operator', true));
-    expect(subject.assignmentStore.set).toHaveBeenCalledTimes(1);
+    expect(subject.authorityStore.set).toHaveBeenCalledTimes(1);
   });
 
   it.each([
@@ -250,12 +354,13 @@ describe('ProductionCohortController cohort authority', () => {
       status: 'invalid-request',
       assignment: { available: false },
     });
-    expect(subject.assignmentStore.set).not.toHaveBeenCalled();
+    expect(subject.authorityStore.set).not.toHaveBeenCalled();
   });
 
   it('[CR-03] does not let two renderer literals directly select two effective cohorts', async () => {
-    const novice = await fixture(disabledConsent);
-    const operator = await fixture(disabledConsent);
+    const deny = vi.fn(async () => false);
+    const novice = await fixture(disabledConsent, undefined, () => NOW, { confirmAssignment: deny });
+    const operator = await fixture(disabledConsent, undefined, () => NOW, { confirmAssignment: deny });
 
     const noviceResult = await novice.controller.requestAssignment('novice');
     const operatorResult = await operator.controller.requestAssignment('operator');
@@ -267,28 +372,35 @@ describe('ProductionCohortController cohort authority', () => {
       novice: operatorResult.assignment.effectiveCohort,
       operator: operatorResult.assignment.effectiveCohort,
     });
+    expect([noviceResult.status, operatorResult.status]).toEqual(['confirmation-denied', 'confirmation-denied']);
+    expect(deny).toHaveBeenCalledTimes(2);
   });
 });
 
 describe('ProductionCohortController observation lifecycle', () => {
+  it('uses exact immutable observation boundaries at end minus one, end, and end plus one', async () => {
+    let clock = END - 1;
+    const subject = await fixture(enabledConsent, assignment('developer', true), () => clock);
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({ observationState: 'active' });
+    clock = END;
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({ observationState: 'completed' });
+    clock = END + 1;
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({ observationState: 'completed' });
+    expect(subject.persistedAssignment()).toEqual(assignment('developer', true));
+  });
   it('[CR-02] rejects partial assignment/consent persistence when rollback also fails', async () => {
     const subject = await fixture(disabledConsent, assignment('novice'));
-    const persistAssignment = vi.mocked(subject.assignmentStore.set).getMockImplementation();
-    if (!persistAssignment) throw new Error('test assignment store has no implementation');
-    vi.mocked(subject.assignmentStore.set)
-      .mockImplementationOnce(persistAssignment)
-      .mockRejectedValueOnce(new Error('rollback unavailable'));
-    vi.mocked(subject.consentStore.set).mockRejectedValueOnce(new Error('consent publication unavailable'));
+    vi.mocked(subject.authorityStore.set).mockRejectedValueOnce(new Error('atomic publication unavailable'));
 
     await expect(subject.controller.setConsent(true)).resolves.toMatchObject({ status: 'storage-error' });
     const restarted = await createCohortProductionController(subject.environment);
 
-    await expect(restarted.assignmentStatus()).resolves.toEqual({
-      available: false,
-      effectiveCohort: null,
-      classifiedAtMs: null,
-      observationState: 'unavailable',
+    await expect(restarted.assignmentStatus()).resolves.toMatchObject({
+      available: true,
+      effectiveCohort: 'novice',
+      observationState: 'ready',
     });
+    expect(subject.authorityStore.set).toHaveBeenCalledTimes(1);
   });
 
   it('persists one exact 14-day window and records events with the effective assignment', async () => {
@@ -330,11 +442,11 @@ describe('ProductionCohortController observation lifecycle', () => {
     expect(subject.persistedAssignment()).toEqual(assignment('knowledge-work', true));
     await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({
       effectiveCohort: 'knowledge-work',
-      observationState: 'locked',
+      observationState: 'revoked',
     });
     await expect(subject.controller.requestAssignment('operator')).resolves.toMatchObject({
       status: 'window-active',
-      assignment: { effectiveCohort: 'knowledge-work', observationState: 'locked' },
+      assignment: { effectiveCohort: 'knowledge-work', observationState: 'revoked' },
     });
     expect(subject.persistedAssignment()).toEqual(assignment('knowledge-work', true));
 
@@ -348,10 +460,10 @@ describe('ProductionCohortController observation lifecycle', () => {
     const subject = await fixture(enabledConsent, assignment('developer', true), () => END + 1);
     await expect(subject.controller.requestAssignment('operator')).resolves.toMatchObject({
       status: 'window-active',
-      assignment: { effectiveCohort: 'developer', observationState: 'active' },
+      assignment: { effectiveCohort: 'developer', observationState: 'completed' },
     });
     expect(subject.persistedAssignment()).toEqual(assignment('developer', true));
-    expect(subject.assignmentStore.set).not.toHaveBeenCalled();
+    expect(subject.authorityStore.set).not.toHaveBeenCalled();
   });
 
   it('[CR-04] never replaces an expired observation window through disable and re-enable', async () => {
@@ -360,12 +472,10 @@ describe('ProductionCohortController observation lifecycle', () => {
 
     await subject.controller.setConsent(false);
     clock = END + 2;
-    await subject.controller.setConsent(true);
+    await expect(subject.controller.setConsent(true)).resolves.toMatchObject({ status: 'window-complete' });
 
     expect(subject.persistedAssignment()).toEqual(assignment('developer', true));
-    await expect(subject.controller.consentStatus()).resolves.toMatchObject({
-      observationWindow: { startMs: NOW, endMs: END },
-    });
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({ observationState: 'completed' });
   });
 
   it('[CR-05] rejects signed rollout receipts outside the persisted cohort and window scope', async () => {
@@ -422,7 +532,9 @@ describe('ProductionCohortController observation lifecycle', () => {
 
   it('[WR-01] treats malformed and unreadable consent as unavailable rather than disabled', async () => {
     const malformed = await fixture({ ...disabledConsent, extraAuthority: true }, assignment('developer'));
-    const unreadable = await fixture(disabledConsent, assignment('developer'));
+    const unreadable = await fixture(disabledConsent, assignment('developer'), () => NOW, {
+      seedAuthenticated: false,
+    });
     vi.mocked(unreadable.consentStore.get).mockRejectedValueOnce(new Error('consent unreadable'));
     const unreadableRestart = await createCohortProductionController(unreadable.environment);
     const [malformedStatus, unreadableStatus] = await Promise.all([
@@ -455,14 +567,14 @@ describe('ProductionCohortController observation lifecycle', () => {
     await expect(revoked).resolves.toMatchObject({ status: 'disabled' });
     await expect(afterRevocation).resolves.toEqual({ status: 'consent-disabled' });
 
-    vi.mocked(subject.consentStore.set).mockRejectedValueOnce(new Error('disk unavailable'));
+    vi.mocked(subject.authorityStore.set).mockRejectedValueOnce(new Error('disk unavailable'));
     await expect(subject.controller.setConsent(true)).resolves.toEqual({
       status: 'storage-error',
       consent: { enabled: false, acceptedAtMs: null, observationWindow: null },
     });
     await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({
       effectiveCohort: 'novice',
-      observationState: 'locked',
+      observationState: 'revoked',
     });
   });
 

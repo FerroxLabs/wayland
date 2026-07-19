@@ -11,12 +11,20 @@ import type { WaylandReleaseTrack } from '@/common/releaseTrack';
 import type { CockpitRolloutStatus } from '@/common/types/cohortRollout';
 import type { CockpitRolloutStatusProvider } from './CohortEvidenceRuntime';
 import { evaluateCohortRolloutEligibility, type CohortRolloutVerificationPolicy } from './rolloutAuthority';
+import type { M0BCohort } from './types';
+
+export type CohortRolloutAuthorityScope = Readonly<{
+  cohort: M0BCohort;
+  window: Readonly<{ startMs: number; endMs: number }>;
+}>;
 
 export type ProductionCockpitRolloutStatusProviderInput = Readonly<{
   isPackaged: boolean;
   appVersion: string;
   releaseTrack: WaylandReleaseTrack;
   installationIdentity: string;
+  /** Current authenticated cohort/window. Packaged eligibility has no authority without it. */
+  authorityScope?: () => CohortRolloutAuthorityScope | null;
   receiptPath: string;
   packagedPolicyPath: string;
 }>;
@@ -41,6 +49,9 @@ export class ProductionCockpitRolloutStatusProvider implements CockpitRolloutSta
   async status(): Promise<CockpitRolloutStatus> {
     if (!this.input.isPackaged) return DEVELOPMENT_STATUS;
 
+    const authorityScope = this.input.authorityScope?.() ?? null;
+    if (authorityScope === null) return denied('evidence-gate-failed');
+
     let receipt: Uint8Array;
     let rawPolicy: unknown;
     try {
@@ -61,10 +72,13 @@ export class ProductionCockpitRolloutStatusProvider implements CockpitRolloutSta
         appVersion: this.input.appVersion,
         releaseTrack: this.input.releaseTrack,
         installationIdHash: cohortInstallationIdHash(this.input.installationIdentity),
+        cohort: authorityScope.cohort,
+        window: authorityScope.window,
       },
     } as CohortRolloutVerificationPolicy;
     const decision = evaluateCohortRolloutEligibility(receipt, policy);
     if (decision.eligible === true) {
+      if (decision.cohort !== authorityScope.cohort) return denied('cohort-mismatch');
       return Object.freeze({
         eligible: true,
         stage: decision.stage,
