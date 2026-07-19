@@ -1,0 +1,17 @@
+candidate_head=3f0fbdf6840bf0e52a5e960ac6dddcda85d2a083
+implementation_commit=59013f371612f7db62e8db08cb481ae862281188
+started_utc=2026-07-19T18:49:30Z
+command=GSD_RUNTIME=codex bunx vitest run tests/unit/process/services/cohort/ProductionCohortController.test.ts tests/unit/process/services/cohort/ProductionCohortCredentialVault.test.ts tests/unit/process/services/cohort/ProductionCockpitRolloutStatusProvider.test.ts tests/unit/process/services/cohort/rolloutAuthority.test.ts tests/unit/process/bridge/cohortBridge.test.ts tests/unit/process/bridge/wikiBridge.noProject.test.ts tests/unit/process/services/wiki/wikiAutoSync.test.ts tests/unit/cohortPreloadBridge.test.ts tests/unit/renderer/cohortEvidenceConsent.dom.test.tsx
+
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-reaudit-01-01/app
+
+
+ Test Files  9 passed (9)
+      Tests  129 passed (129)
+   Start at  01:49:30
+   Duration  1.01s (transform 987ms, setup 196ms, import 1.36s, tests 481ms, environment 203ms)
+
+
+exit=0
+finished_utc=2026-07-19T18:49:31Z

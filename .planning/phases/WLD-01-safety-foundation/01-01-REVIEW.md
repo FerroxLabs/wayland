@@ -4,8 +4,8 @@ plan: 01-01
 status: issues-found-and-repaired-pending-reaudit
 original_candidate: 76eec4b4813b6b7f8ba738eaac0befb70a5eb02c
 first_successor: 9817401a24807041ca22a3c7ade9c3a2ae32f23d
-audited_predecessor: 9cc0408a1d7ecb7440a2a61f37803d715445bdf6
-repair_implementation: 2e60b3d8cecf789d973187eb3e15469038ac1c48
+latest_audited_candidate: 3f0fbdf6840bf0e52a5e960ac6dddcda85d2a083
+runtime_implementation: 59013f371612f7db62e8db08cb481ae862281188
 ---
 
 # Plan 01-01 Review History
@@ -45,6 +45,14 @@ The independent successor audit rejected `71b21247761fc9c7a04d30f6c8e3b41455ed6f
 4. **MEDIUM:** the summary contained placeholder commands and omitted exact log digests/final implementation identity.
 5. **MEDIUM:** the aggregate created `.ijfw/wiki-state/index.json` in the source worktree.
 
+## Later clock repair chain
+
+Implementation `ea2f8ef46eba510f9ef2442225f45801e5e07414` added rollback-safe clock handling, followed by evidence commit `0cada6a07d84db6126104419b5ffee004c6c9208`. A later audit reopened invalid-clock coverage. Implementation `59013f371612f7db62e8db08cb481ae862281188` repaired migration, existing-authority, identifier, publication, and accepted-evidence fail-closed boundaries; evidence commit `3f0fbdf6840bf0e52a5e960ac6dddcda85d2a083` sealed that repair.
+
+## Exact 3f0fbdf6 successor audit
+
+The independent successor audit found no runtime issue and rejected acceptance for one **MEDIUM** evidence-integrity finding: the plan mandated retained evidence digests, while the successor receipt claimed log digests existed and the summary explicitly said no logs had been retained. The audit independently reproduced 129/129 focused tests, clean typecheck and scoped lint, 15,207 Vitest passes with 145 skips, and 226/226 Bun-native passes.
+
 ## Current repair disposition
 
-Implementation commit `2e60b3d8cecf789d973187eb3e15469038ac1c48` binds stable authority lineage, repairs planning truth and migration semantics, records exact reproducible evidence, and removes both manual and scheduled no-project cwd fallbacks. Its exact full aggregate passes without source-worktree pollution. The packet remains pending a different auditor's exact-HEAD review.
+The implementation remains `59013f371612f7db62e8db08cb481ae862281188` with tree `2d30b2846c73544e47ed7ca8e857368519b13ab7`. The evidence-only repair retains the seven exact command logs under `evidence/01-01-successor-3f0fbdf6/`, records their SHA-256 digests, and reconciles the exhaustive baseline manifest to 49 paths. The packet remains pending a different auditor's exact-HEAD review.

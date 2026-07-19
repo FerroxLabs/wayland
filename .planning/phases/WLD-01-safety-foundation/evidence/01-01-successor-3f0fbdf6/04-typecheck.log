@@ -1,0 +1,9 @@
+candidate_head=3f0fbdf6840bf0e52a5e960ac6dddcda85d2a083
+implementation_commit=59013f371612f7db62e8db08cb481ae862281188
+started_utc=2026-07-19T18:50:01Z
+command=bun run typecheck
+
+$ cross-env NODE_OPTIONS=--max-old-space-size=8192 tsc --noEmit
+
+exit=0
+finished_utc=2026-07-19T18:50:16Z

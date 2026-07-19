@@ -1,0 +1,11 @@
+candidate_head=3f0fbdf6840bf0e52a5e960ac6dddcda85d2a083
+implementation_commit=59013f371612f7db62e8db08cb481ae862281188
+started_utc=2026-07-19T18:50:01Z
+command=bun run lint -- src/common/config/storage.ts src/process/services/cohort src/process/services/wiki/wikiAutoSync.ts src/common/types/cohortRollout.ts src/common/types/electron.ts src/process/bridge/cohortBridge.ts src/process/bridge/wikiBridge.ts src/preload/main.ts src/renderer/pages/settings/NavigationSettings/CohortEvidenceConsent.tsx tests/unit/process/services/cohort tests/unit/process/services/wiki/wikiAutoSync.test.ts tests/unit/process/bridge/cohortBridge.test.ts tests/unit/process/bridge/wikiBridge.noProject.test.ts tests/unit/cohortPreloadBridge.test.ts tests/unit/renderer/cohortEvidenceConsent.dom.test.tsx
+
+$ oxlint src/common/config/storage.ts src/process/services/cohort src/process/services/wiki/wikiAutoSync.ts src/common/types/cohortRollout.ts src/common/types/electron.ts src/process/bridge/cohortBridge.ts src/process/bridge/wikiBridge.ts src/preload/main.ts src/renderer/pages/settings/NavigationSettings/CohortEvidenceConsent.tsx tests/unit/process/services/cohort tests/unit/process/services/wiki/wikiAutoSync.test.ts tests/unit/process/bridge/cohortBridge.test.ts tests/unit/process/bridge/wikiBridge.noProject.test.ts tests/unit/cohortPreloadBridge.test.ts tests/unit/renderer/cohortEvidenceConsent.dom.test.tsx
+Found 0 warnings and 0 errors.
+Finished in 19ms on 30 files with 128 rules using 10 threads.
+
+exit=0
+finished_utc=2026-07-19T18:50:01Z
