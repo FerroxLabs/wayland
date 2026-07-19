@@ -450,6 +450,75 @@ describe('conversation.remove managed-workspace retention', () => {
     expect(order).toEqual(['delete', 'channel-cleanup']);
   });
 
+  it('does not let a stale Wayland source snapshot suppress commit-authorized cleanup', async () => {
+    const order: string[] = [];
+    mockConversationService.getConversation.mockResolvedValue({
+      id: 'conv-source-race',
+      source: 'wayland',
+      extra: { workspace: path.join(root, 'wcore-temp-1736900000103') },
+    });
+    mockConversationService.prepareDeleteConversation.mockResolvedValue(() => {
+      // The production transaction re-reads the authoritative source here and
+      // records a durable intent when it changed to a channel source.
+      order.push('commit-authorized-intent');
+    });
+    mockCleanupConversation.mockImplementation(async () => {
+      order.push('channel-cleanup');
+      return true;
+    });
+
+    initConversationBridge(
+      mockConversationService as unknown as IConversationService,
+      mockWorkerTaskManager as unknown as IWorkerTaskManager
+    );
+
+    await expect(handlers['conversation.remove']({ id: 'conv-source-race' })).resolves.toBe(true);
+    expect(order).toEqual(['commit-authorized-intent', 'channel-cleanup']);
+  });
+
+  it('deletes exactly once after a failed shutdown is later verified', async () => {
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const manager = new WorkerTaskManager(
+      { create: vi.fn(), register: vi.fn() } as never,
+      { getConversation: vi.fn() } as never
+    );
+    let shutdownAttempts = 0;
+    const running = {
+      type: 'acp',
+      status: 'running',
+      workspace: path.join(root, 'wcore-temp-1736900000104'),
+      conversation_id: 'conv-shutdown-retry',
+      lastActivityAt: Date.now(),
+      kill: vi.fn(async () => {
+        shutdownAttempts += 1;
+        if (shutdownAttempts === 1) throw new Error('transient shutdown proof failure');
+      }),
+    };
+    const deleteCommit = vi.fn();
+    mockConversationService.getConversation.mockResolvedValue({
+      id: 'conv-shutdown-retry',
+      source: 'wayland',
+      extra: { workspace: running.workspace },
+    });
+    mockConversationService.prepareDeleteConversation.mockResolvedValue(deleteCommit);
+    manager.addTask('conv-shutdown-retry', running as never);
+
+    try {
+      initConversationBridge(mockConversationService as unknown as IConversationService, manager);
+      await expect(handlers['conversation.remove']({ id: 'conv-shutdown-retry' })).resolves.toBe(false);
+      expect(deleteCommit).not.toHaveBeenCalled();
+      expect(manager.listWorkspaceAuthorities()).toHaveLength(1);
+
+      await expect(handlers['conversation.remove']({ id: 'conv-shutdown-retry' })).resolves.toBe(true);
+      expect(running.kill).toHaveBeenCalledTimes(2);
+      expect(deleteCommit).toHaveBeenCalledOnce();
+      expect(manager.listWorkspaceAuthorities()).toEqual([]);
+    } finally {
+      errorLog.mockRestore();
+      await manager.clear();
+    }
+  });
+
   it('rejects a deferred removal when a callback-time process refuses to stop', async () => {
     const preparation = deferred<void>();
     const preparationStarted = deferred<void>();

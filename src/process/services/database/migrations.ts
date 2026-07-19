@@ -2383,6 +2383,27 @@ const migration_v54: IMigration = {
   },
 };
 
+/** Migration v54 -> v55: durable post-commit channel cleanup replay. */
+const migration_v55: IMigration = {
+  version: 55,
+  name: 'Add durable conversation channel cleanup intents',
+  up: (db) => {
+    db.exec(`CREATE TABLE IF NOT EXISTS conversation_channel_cleanup_intents (
+      conversation_id TEXT PRIMARY KEY,
+      source TEXT,
+      session_ids_json TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0),
+      last_attempt_at INTEGER
+    )`);
+    console.log('[Migration v55] Added durable conversation channel cleanup intents');
+  },
+  down: (db) => {
+    db.exec('DROP TABLE IF EXISTS conversation_channel_cleanup_intents');
+    console.log('[Migration v55] Rolled back: Removed conversation channel cleanup intents');
+  },
+};
+
 /**
  * All migrations in order
  */
@@ -2397,7 +2418,7 @@ export const ALL_MIGRATIONS: IMigration[] = [
   migration_v37, migration_v38, migration_v39, migration_v40, migration_v41, migration_v42,
   migration_v43, migration_v44, migration_v45, migration_v46, migration_v47,
   migration_v48, migration_v49, migration_v50, migration_v51, migration_v52,
-  migration_v53, migration_v54,
+  migration_v53, migration_v54, migration_v55,
 ];
 
 /**

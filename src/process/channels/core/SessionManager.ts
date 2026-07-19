@@ -220,29 +220,48 @@ export class SessionManager {
    * Used when a conversation is deleted from Wayland
    */
   async clearSessionByConversationId(conversationId: string): Promise<IChannelSession | null> {
-    const db = await getDatabase();
-
     // Find session with this conversation ID
     let foundSession: IChannelSession | null = null;
-    let foundKey: string | null = null;
 
-    for (const [key, session] of this.activeSessions.entries()) {
+    for (const session of this.activeSessions.values()) {
       if (session.conversationId === conversationId) {
         foundSession = session;
+        break;
+      }
+    }
+
+    if (!foundSession) {
+      return null;
+    }
+
+    await this.clearSessionById(foundSession.id);
+
+    return foundSession;
+  }
+
+  /**
+   * Idempotently clear a session by its durable ID.
+   *
+   * Conversation deletion nulls the persisted conversation_id foreign key, so
+   * post-crash cleanup must use the session identity captured by the deletion
+   * transaction rather than rediscovering it through conversation state.
+   */
+  async clearSessionById(sessionId: string): Promise<boolean> {
+    let foundKey: string | null = null;
+    for (const [key, session] of this.activeSessions.entries()) {
+      if (session.id === sessionId) {
         foundKey = key;
         break;
       }
     }
 
-    if (!foundSession || !foundKey) {
-      return null;
+    const db = await getDatabase();
+    const deleted = db.deleteChannelSession(sessionId);
+    if (!deleted.success) {
+      throw new Error(`Channel session deletion failed: ${deleted.error ?? 'unknown database error'}`);
     }
-
-    // Delete from database and cache
-    db.deleteChannelSession(foundSession.id);
-    this.activeSessions.delete(foundKey);
-
-    return foundSession;
+    if (foundKey) this.activeSessions.delete(foundKey);
+    return foundKey !== null || deleted.data === true;
   }
 
   /**

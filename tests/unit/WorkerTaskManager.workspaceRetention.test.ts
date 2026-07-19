@@ -210,6 +210,35 @@ describe('WorkerTaskManager retention authority', () => {
     );
   });
 
+  it('retries the same failed shutdown lease while refusing successors until verified exit', async () => {
+    const manager = new WorkerTaskManager(factory as never, repo);
+    managers.push(manager);
+    let attempts = 0;
+    const original = agent(async () => {
+      attempts += 1;
+      if (attempts === 1) throw new Error('transient shutdown proof failure');
+    }, '/managed/work/wcore-temp-1736900000102');
+    manager.addTask('conv-1', original as never);
+    const authorityBefore = manager.listWorkspaceAuthorities();
+    const commit = vi.fn(() => 'removed');
+
+    await expect(manager.withConversationShutdown('conv-1', async () => 'first-preparation', commit)).rejects.toThrow(
+      'transient shutdown proof failure'
+    );
+
+    expect(manager.listWorkspaceAuthorities()).toEqual(authorityBefore);
+    await expect(manager.getOrBuildTask('conv-1')).rejects.toThrow('Conversation is shutting down');
+    expect(commit).not.toHaveBeenCalled();
+
+    await expect(manager.withConversationShutdown('conv-1', async () => 'retry-preparation', commit)).resolves.toBe(
+      'removed'
+    );
+
+    expect(original.kill).toHaveBeenCalledTimes(2);
+    expect(commit).toHaveBeenCalledOnce();
+    expect(manager.listWorkspaceAuthorities()).toEqual([]);
+  });
+
   it('commits in the same microtask as the final empty-lease observation', async () => {
     const manager = new WorkerTaskManager(factory as never, repo);
     managers.push(manager);

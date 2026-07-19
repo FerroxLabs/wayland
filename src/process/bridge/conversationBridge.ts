@@ -289,9 +289,9 @@ export function initConversationBridge(
 
   ipcBridge.conversation.remove.provider(async ({ id }) => {
     try {
-      // Get conversation source before deletion (for channel cleanup)
+      // Retain the pre-delete projection for the list-changed event only.
+      // Cleanup eligibility is decided atomically by the database commit.
       const conversation = await conversationService.getConversation(id);
-      const source = conversation?.source;
 
       // A chat and its schedules are separate durable user objects. Never
       // cascade-delete schedules as a side effect of removing chat history.
@@ -334,7 +334,7 @@ export function initConversationBridge(
       // only after the durable conversation deletion commits; otherwise a
       // later fail-closed process/database error leaves a retained chat with
       // its channel resources already destroyed.
-      if (removed && source && source !== 'wayland') {
+      if (removed) {
         try {
           // Dynamic import to avoid circular dependency
           const { getChannelManager } = await import('@process/channels/core/ChannelManager');
@@ -344,8 +344,9 @@ export function initConversationBridge(
           }
         } catch (cleanupError) {
           console.warn('[conversationBridge] Failed to cleanup channel resources:', cleanupError);
-          // Durable deletion already committed. Leave cleanup observable and
-          // retryable rather than claiming the chat itself still exists.
+          // Durable deletion already committed. Its transaction retained an
+          // idempotent cleanup intent that ChannelManager retries in-process
+          // and replays after restart.
         }
       }
       try {

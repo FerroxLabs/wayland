@@ -29,6 +29,7 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     termination?: Promise<void>;
   }> = [];
   private readonly conversationShutdowns = new Set<string>();
+  private readonly conversationShutdownOperations = new Set<string>();
   private nextAuthorityId = 0;
   private idleCheckTimer: ReturnType<typeof setInterval> | undefined;
   // NOTE(M14/AUDIT-05 F5): single shared `process.on('exit', ...)` handler
@@ -184,10 +185,11 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     prepare: () => Promise<TPrepared>,
     commit: (prepared: TPrepared) => TResult
   ): Promise<TResult> {
-    if (this.conversationShutdowns.has(id)) {
+    if (this.conversationShutdownOperations.has(id)) {
       throw new Error(`Conversation is already shutting down: ${id}`);
     }
     this.conversationShutdowns.add(id);
+    this.conversationShutdownOperations.add(id);
     let durableOperationCompleted = false;
     try {
       await this.drainConversationTasks(id);
@@ -202,7 +204,10 @@ export class WorkerTaskManager implements IWorkerTaskManager {
         return result;
       });
     } finally {
+      this.conversationShutdownOperations.delete(id);
       // Failed persistence leaves the conversation usable for a safe retry.
+      // A failed process exit keeps the identity-bound lease and terminal gate,
+      // but releases operation ownership so a later verified shutdown may retry.
       // Successful deletion permanently tombstones this process-local ID. An
       // in-flight repository read may still hold the deleted row and must not
       // publish a stale successor after the durable operation returns.
@@ -253,12 +258,24 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     try {
       // Invoke kill synchronously so replacement preserves the established
       // contract that shutdown begins before the successor is published.
-      lease.termination = Promise.resolve(lease.task.kill(reason)).then(() => {
-        const index = this.taskList.indexOf(lease);
-        if (index >= 0) this.taskList.splice(index, 1);
-      });
+      let termination!: Promise<void>;
+      termination = Promise.resolve(lease.task.kill(reason)).then(
+        () => {
+          const index = this.taskList.indexOf(lease);
+          if (index >= 0) this.taskList.splice(index, 1);
+        },
+        (error) => {
+          // Retain the exact authority lease, workspace, and terminal gate, but
+          // release only this failed attempt so a later identity-bound probe can
+          // obtain real exit proof. Successors remain refused throughout.
+          if (lease.termination === termination) lease.termination = undefined;
+          throw error;
+        }
+      );
+      lease.termination = termination;
     } catch (error) {
-      lease.termination = Promise.reject(error);
+      lease.termination = undefined;
+      return Promise.reject(error);
     }
     return lease.termination;
   }
