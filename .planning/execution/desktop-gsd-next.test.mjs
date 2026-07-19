@@ -480,13 +480,23 @@ test('verifier identity timeout and rejection output fail closed without leaking
 
 test('allowlisted external ownership remains conflict-safe when installation plans unlock', () => {
   const root = temporaryRoot()
-  const externalRoot = realpathSync(root)
+  const externalRoot = temporaryRoot()
   const output = select(root, [
     plan('01-01', { files: [`${externalRoot}/bin/tool`] }),
     plan('01-02', { files: [`${externalRoot}/bin`] }),
   ], { admission: { external_ownership_roots: [externalRoot] } })
   assert.equal(output.candidate_plans.length, 1)
   assert.match(output.serialized_after[0].conflicts[0].reason, /^path:/)
+})
+
+test('external ownership roots cannot overlap the repository in either direction', () => {
+  const root = temporaryRoot()
+  for (const externalRoot of [root, dirname(root), join(root, 'nested-ownership')]) {
+    expectSelectionError(
+      () => select(root, [plan('01-01')], { admission: { external_ownership_roots: [externalRoot] } }),
+      'ADMISSION_SCHEMA',
+    )
+  }
 })
 
 test('external ownership allowlists use canonical containment through symlinks', () => {
@@ -574,6 +584,34 @@ test('candidate selection obeys the configured concurrency bound', () => {
   })
 })
 
+test('entry verifiers run only for plans surviving conflict and concurrency selection', () => {
+  const root = temporaryRoot()
+  const plans = ['02-01', '02-02', '02-03', '02-04'].map((id) => plan(id))
+  const gates = Object.fromEntries(plans.map((item) => [item.id, `${item.id}-entry`]))
+  const invoked = []
+  const output = select(root, plans, {
+    admission: { plan_entry_gates: gates },
+    verifyGate: (gate) => {
+      invoked.push(gate)
+      return {
+        schema_version: 2,
+        gate_id: gate,
+        mode: 'entry',
+        ok: true,
+        prerequisites: {
+          ok: true,
+          required: [{ id: 'producer', ok: true }],
+          alternatives: [],
+          exclusive_alternatives: [],
+        },
+        accepted_targets: [],
+      }
+    },
+  })
+  assert.deepEqual(output.candidate_plans.map((item) => item.plan_id), ['02-01', '02-02', '02-03'])
+  assert.deepEqual(invoked, ['02-01-entry', '02-02-entry', '02-03-entry'])
+})
+
 test('CLI pass and failure are byte-for-byte read-only', () => {
   const root = temporaryRoot()
   writeAdmission(root)
@@ -625,6 +663,61 @@ test('operational selection rejects injected plans and emits argv-safe worktree 
   assert.match(command.arguments[4], /spaces ; \$\(\)/)
   assert.equal(typeof command.arguments[4], 'string')
   assert.equal(command.cwd, realpathSync(root))
+})
+
+test('operational selection rejects existing proposed branches and worktree paths', () => {
+  const root = temporaryRoot()
+  writeAdmission(root)
+  writePlan(root, '01-01')
+  const git = initializeGit(root)
+  const base = { repoRoot: root, expectedBranch: 'test-branch', expectedHead: git.head }
+  git.run('branch', 'worktree-agent-desktop-01-01')
+  expectSelectionError(() => selectNext(base), 'WORKTREE_COLLISION')
+  git.run('branch', '-D', 'worktree-agent-desktop-01-01')
+
+  const worktreeParent = temporaryRoot()
+  mkdirSync(join(worktreeParent, 'wayland-desktop-01-01', 'app'), { recursive: true })
+  expectSelectionError(() => selectNext({ ...base, worktreeParent }), 'WORKTREE_COLLISION')
+})
+
+test('operational selection rejects a non-directory worktree ancestor', () => {
+  const root = temporaryRoot()
+  writeAdmission(root)
+  writePlan(root, '01-01')
+  const git = initializeGit(root)
+  const parent = temporaryRoot()
+  const fileParent = join(parent, 'not-a-directory')
+  writeFileSync(fileParent, 'occupied')
+  expectSelectionError(() => selectNext({
+    repoRoot: root,
+    expectedBranch: 'test-branch',
+    expectedHead: git.head,
+    worktreeParent: join(fileParent, 'children'),
+  }), 'WORKTREE_PARENT')
+})
+
+test('exact-HEAD discovery is NUL-safe for unusual phase directory path bytes', () => {
+  const root = temporaryRoot()
+  const phaseName = 'WLD-01-fixture\nnewline'
+  const phaseDir = join(root, '.planning', 'phases', phaseName)
+  mkdirSync(phaseDir, { recursive: true })
+  writeFileSync(join(phaseDir, '01-01-PLAN.md'), [
+    '---',
+    `phase: ${JSON.stringify(phaseName)}`,
+    'plan: 1',
+    'wave: 1',
+    'depends_on: []',
+    'files_modified:',
+    '  - src/unusual-path.ts',
+    'autonomous: true',
+    'requirements: []',
+    '---',
+    '',
+    '<objective>fixture</objective>',
+    '',
+  ].join('\n'))
+  const git = initializeGit(root)
+  assert.deepEqual(discoverPlans(root, { gitHead: git.head }).map((item) => item.id), ['01-01'])
 })
 
 test('operational selection rejects every fixture authority injection', () => {

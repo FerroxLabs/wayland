@@ -2,7 +2,7 @@
 
 import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
+import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
 import { basename, dirname, join, posix, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
@@ -268,7 +268,7 @@ function pairConflicts(left, right, seamPatterns, allowedExternalRoots = []) {
   return [...new Set(reasons)].toSorted()
 }
 
-function validateAdmissionConfig(config) {
+function validateAdmissionConfig(config, repoRoot) {
   if (config?.schema_version !== 1) throw new SelectionError('ADMISSION_SCHEMA', 'Admission schema must be version 1')
   if (config?.verifier_contract?.schema_version !== 2 || config?.verifier_contract?.entry_mode !== 'entry') {
     throw new SelectionError('ADMISSION_SCHEMA', 'Admission verifier contract must require schema-v2 entry mode')
@@ -280,6 +280,12 @@ function validateAdmissionConfig(config) {
     throw new SelectionError('ADMISSION_SCHEMA', 'external_ownership_roots must be an array')
   }
   config.external_ownership_roots = config.external_ownership_roots.map(normalizeExternalRoot)
+  const canonicalRepo = canonicalRoot(repoRoot)
+  for (const root of config.external_ownership_roots) {
+    if (root === canonicalRepo || root.startsWith(`${canonicalRepo}/`) || canonicalRepo.startsWith(`${root}/`)) {
+      throw new SelectionError('ADMISSION_SCHEMA', `External ownership root overlaps the repository: ${root}`)
+    }
+  }
   if (!Number.isInteger(config.max_parallel_plans) || config.max_parallel_plans < 1 || config.max_parallel_plans > 8) {
     throw new SelectionError('ADMISSION_SCHEMA', 'max_parallel_plans must be an integer from 1 through 8')
   }
@@ -401,17 +407,17 @@ function canonicalProspectivePath(path) {
 }
 
 function gitTreePaths(repoRoot, head, prefix) {
-  return execFileSync('git', ['ls-tree', '-r', '--name-only', head, '--', prefix], {
+  return execFileSync('git', ['ls-tree', '-r', '-z', '--name-only', head, '--', prefix], {
     cwd: repoRoot,
     encoding: 'utf8',
-  }).split('\n').filter(Boolean)
+  }).split('\0').filter(Boolean)
 }
 
 function readGitRegularFile(repoRoot, head, source, code, label) {
-  const entry = execFileSync('git', ['ls-tree', head, '--', source], {
+  const entry = execFileSync('git', ['ls-tree', '-z', head, '--', source], {
     cwd: repoRoot,
     encoding: 'utf8',
-  }).trim()
+  }).split('\0')[0] ?? ''
   if (!/^100(?:644|755) blob [0-9a-f]{40,64}\t/.test(entry)) {
     throw new SelectionError(code, `${label} must be a regular file in ${head}: ${source}`)
   }
@@ -444,7 +450,7 @@ function assertGitIdentity(actual, expected) {
   if (actual.status !== '') throw new SelectionError('DIRTY_TREE', 'Worktree is not clean')
 }
 
-function planAdmission(plan, config, options) {
+function planAdmissionGate(plan, config) {
   if (plan.phaseNumber === 1) return null
   if ((config.hard_denied_phase_numbers ?? []).includes(plan.phaseNumber)) {
     throw new SelectionError('PHASE_HARD_DENIED', `Phase ${plan.phaseNumber} construction is hard denied`)
@@ -454,6 +460,11 @@ function planAdmission(plan, config, options) {
   }
   const gate = config.plan_entry_gates[plan.id]
   if (!gate) throw new SelectionError('UNMAPPED_ADMISSION', `No entry gate maps plan ${plan.id}`)
+  return gate
+}
+
+function authenticatePlanAdmission(plan, gate, config, options) {
+  if (gate === null) return null
   const receipt = options.verifyGate
     ? options.verifyGate(gate, plan)
     : invokeVerifier(config.verifier, gate, options.repoRoot)
@@ -475,6 +486,38 @@ function dependencyState(plan, byId) {
 
 function safeWorktreeName(id) {
   return `worktree-agent-desktop-${id.toLowerCase()}`
+}
+
+function assertWorktreeTargetAvailable(repoRoot, branch, path) {
+  const branchResult = spawnSync('git', ['show-ref', '--verify', '--quiet', `refs/heads/${branch}`], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  })
+  if (branchResult.error || ![0, 1].includes(branchResult.status)) {
+    throw new SelectionError('WORKTREE_PREFLIGHT', `Unable to verify proposed branch ${branch}`)
+  }
+  if (branchResult.status === 0) {
+    throw new SelectionError('WORKTREE_COLLISION', `Proposed worktree branch already exists: ${branch}`)
+  }
+  if (existsSync(path)) {
+    throw new SelectionError('WORKTREE_COLLISION', `Proposed worktree path already exists: ${path}`)
+  }
+  let ancestor = dirname(path)
+  while (!existsSync(ancestor)) {
+    const parent = dirname(ancestor)
+    if (parent === ancestor) break
+    ancestor = parent
+  }
+  let stat
+  try {
+    stat = lstatSync(ancestor)
+    accessSync(ancestor, constants.W_OK | constants.X_OK)
+  } catch {
+    throw new SelectionError('WORKTREE_PARENT', `Existing worktree ancestor is not usable: ${ancestor}`)
+  }
+  if (!stat.isDirectory()) {
+    throw new SelectionError('WORKTREE_PARENT', `Existing worktree ancestor is not a directory: ${ancestor}`)
+  }
 }
 
 function selectNextInternal(options) {
@@ -507,7 +550,7 @@ function selectNextInternal(options) {
       'Admission configuration',
     )
   const admission = JSON.parse(admissionText)
-  validateAdmissionConfig(admission)
+  validateAdmissionConfig(admission, repoRoot)
   if (options.verifyGate && !options.skipGitCheck) {
     throw new SelectionError('VERIFIER_IDENTITY', 'Verifier injection is forbidden for operational selection')
   }
@@ -533,11 +576,8 @@ function selectNextInternal(options) {
       blocked.push({ plan_id: plan.id, blockers: dependencyBlockers })
       continue
     }
-    const authenticatedAdmission = planAdmission(plan, admission, {
-      ...options,
-      repoRoot,
-    })
-    eligible.push({ ...plan, effectiveWave: waves.get(plan.id), authenticatedAdmission })
+    const admissionGate = planAdmissionGate(plan, admission)
+    eligible.push({ ...plan, effectiveWave: waves.get(plan.id), admissionGate })
   }
 
   const seamPatterns = compileSeams(admission)
@@ -574,13 +614,35 @@ function selectNextInternal(options) {
     })
   }
   const operational = options.fixtureMode !== true
+  if (operational) {
+    for (const plan of selected) {
+      assertWorktreeTargetAvailable(
+        repoRoot,
+        safeWorktreeName(plan.id),
+        join(worktreeParent, `wayland-desktop-${plan.id}`, 'app'),
+      )
+    }
+  }
+  const admittedSelected = selected.map((plan) => Object.assign({}, plan, {
+    authenticatedAdmission: authenticatePlanAdmission(plan, plan.admissionGate, admission, {
+      ...options,
+      repoRoot,
+    }),
+  }))
+  if (operational) {
+    assertGitIdentity(gitIdentity(repoRoot), {
+      repoRoot,
+      branch: options.expectedBranch,
+      head: options.expectedHead,
+    })
+  }
   return {
     schema_version: 1,
     operational,
     repository: repoRoot,
     branch: options.expectedBranch ?? 'UNVERIFIED',
     head,
-    candidate_plans: selected.map((plan) => ({
+    candidate_plans: admittedSelected.map((plan) => ({
       plan_id: plan.id,
       effective_construction_wave: plan.effectiveWave,
       plan_path: plan.planPath,
