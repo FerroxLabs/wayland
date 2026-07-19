@@ -153,6 +153,14 @@ describe('prepareOfficeCli supply-chain contract', () => {
     fs.rmSync(path.join(root, 'officecli-attacker'), { recursive: true, force: true });
     fs.writeFileSync(path.join(root, path.dirname(contract.requiredSkills[0].path), 'undeclared.md'), 'stale');
     expect(() => prepareOfficeCli.verifyBundledSkillDigests(contract, root)).toThrow('must exactly equal');
+    if (process.platform !== 'win32') {
+      fs.rmSync(path.join(root, path.dirname(contract.requiredSkills[0].path), 'undeclared.md'));
+      fs.symlinkSync(
+        path.join(root, path.dirname(contract.requiredSkills[0].path)),
+        path.join(root, 'officecli-alias')
+      );
+      expect(() => prepareOfficeCli.verifyBundledSkillDigests(contract, root)).toThrow('unsupported top-level entry');
+    }
     fs.rmSync(root, { recursive: true, force: true });
   });
 
@@ -236,8 +244,11 @@ describe('prepareOfficeCli supply-chain contract', () => {
     expect(buildScript).toContain("const prepareOfficeCli = require('./prepareOfficeCli')");
     expect(buildScript).toContain('prepareOfficeCli({ platform, arch })');
     expect(builderConfig).toContain('from: resources/bundled-officecli');
+    expect(builderConfig).toContain('from: resources/managed-cli-shims');
     expect(builderConfig).not.toContain('node_modules/officecli');
     expect(packageVerifier).toContain("{ rel: 'bundled-officecli', critical: true, kind: 'officecli-bundle' }");
+    expect(packageVerifier).toContain("rel: 'managed-cli-shims/officecli'");
+    expect(packageVerifier).toContain("rel: 'managed-cli-shims/officecli.cmd'");
   });
 
   it('preserves the pinned publisher signature instead of applying Electron helper entitlements', () => {

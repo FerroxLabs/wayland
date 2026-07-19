@@ -110,6 +110,45 @@ describe('resolveBundledOfficeCliDir', () => {
     expect(resolveBundledOfficeCliDir(root, 'win32', 'x64')).toBeNull();
     fs.rmSync(root, { recursive: true, force: true });
   });
+
+  it('uses the complete shared manifest decision and requires an executable binary', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const source = path.resolve('resources/bundled-officecli/darwin-arm64');
+    if (!fs.existsSync(path.join(source, 'officecli'))) return;
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-shared-validator-'));
+    const runtime = path.join(root, 'bundled-officecli', 'darwin-arm64');
+    fs.cpSync(source, runtime, { recursive: true });
+    const { resolveBundledOfficeCliDir } = await import('@process/utils/shellEnv');
+
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBe(runtime);
+    const manifestPath = path.join(runtime, 'manifest.json');
+    const original = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+    fs.writeFileSync(manifestPath, JSON.stringify({ ...original, reportedVersion: '1.0.999' }));
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+    fs.writeFileSync(
+      manifestPath,
+      JSON.stringify({ ...original, smokeProof: { ...(original.smokeProof as object), formats: [] } })
+    );
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+    fs.writeFileSync(manifestPath, JSON.stringify(original));
+    fs.chmodSync(path.join(runtime, 'officecli'), 0o644);
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+});
+
+describe('resolveManagedOfficeCliShimDir', () => {
+  it('rejects a tampered fallback guard', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-shim-'));
+    const target = path.join(root, 'managed-cli-shims');
+    fs.cpSync(path.resolve('resources/managed-cli-shims'), target, { recursive: true });
+    const { resolveManagedOfficeCliShimDir } = await import('@process/utils/shellEnv');
+    expect(resolveManagedOfficeCliShimDir(root, process.platform)).toBe(target);
+    const shim = path.join(target, process.platform === 'win32' ? 'officecli.cmd' : 'officecli');
+    fs.appendFileSync(shim, '\nuntrusted fallback\n');
+    expect(resolveManagedOfficeCliShimDir(root, process.platform)).toBeNull();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
 });
 
 // -------------------------------------------------------------------
@@ -160,6 +199,26 @@ describe('getEnhancedEnv', () => {
 
     const { getEnhancedEnv } = await import('@process/utils/shellEnv');
     expect(getEnhancedEnv({ OFFICECLI_SKIP_UPDATE: '0' }).OFFICECLI_SKIP_UPDATE).toBe('1');
+  });
+
+  it('shadows every user or global OfficeCLI fallback with the managed guard', async () => {
+    vi.doMock('child_process', () => ({
+      execFileSync: vi.fn().mockImplementation(() => {
+        throw new Error('shell not available');
+      }),
+      execFile: vi.fn(),
+    }));
+    const untrusted = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-untrusted-officecli-'));
+    fs.writeFileSync(path.join(untrusted, process.platform === 'win32' ? 'officecli.exe' : 'officecli'), 'untrusted');
+    const originalPath = process.env.PATH;
+    process.env.PATH = untrusted;
+    const { getEnhancedEnv, getManagedOfficeCliShimDir } = await import('@process/utils/shellEnv');
+    const env = getEnhancedEnv();
+    const entries = env.PATH.split(process.platform === 'win32' ? ';' : ':');
+    expect(entries.indexOf(getManagedOfficeCliShimDir())).toBeGreaterThanOrEqual(0);
+    expect(entries.indexOf(getManagedOfficeCliShimDir())).toBeLessThan(entries.indexOf(untrusted));
+    process.env.PATH = originalPath;
+    fs.rmSync(untrusted, { recursive: true, force: true });
   });
 
   it('merges shell PATH with process.env.PATH (macOS/Linux, shell returns extra path)', async () => {

@@ -170,6 +170,40 @@ describe('OfficeCLI target-exact evidence producer', () => {
     );
     fs.writeFileSync(path.join(root, path.dirname(OFFICECLI_SKILL_PROOF.skills[0].path), 'undeclared.md'), 'stale');
     await expect(verifyInstalledOfficeCliSkillProof(root, OFFICECLI_SKILL_PROOF)).resolves.toBe(false);
+    if (process.platform !== 'win32') {
+      fs.rmSync(path.join(root, path.dirname(OFFICECLI_SKILL_PROOF.skills[0].path), 'undeclared.md'));
+      fs.symlinkSync(
+        path.join(root, path.dirname(OFFICECLI_SKILL_PROOF.skills[0].path)),
+        path.join(root, 'officecli-alias')
+      );
+      await expect(verifyInstalledOfficeCliSkillProof(root, OFFICECLI_SKILL_PROOF)).resolves.toBe(false);
+    }
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  it('does not advertise a non-executable pinned binary', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const source = path.resolve('resources/bundled-officecli/darwin-arm64');
+    if (!fs.existsSync(path.join(source, 'officecli'))) return;
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-nonexec-'));
+    const bundledDir = path.join(root, 'bundle');
+    const skillsRoot = path.join(root, 'skills');
+    fs.cpSync(source, bundledDir, { recursive: true });
+    for (const skill of OFFICECLI_SKILL_PROOF.skills) {
+      const target = path.join(skillsRoot, skill.path);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(path.resolve('src/process/resources/skills', skill.path), target);
+    }
+    fs.chmodSync(path.join(bundledDir, 'officecli'), 0o644);
+    const evidence = await probeOfficeCliAuthoringEvidence({
+      correlationId: 'capabilities:wcore',
+      backend: 'wcore',
+      platform: 'darwin',
+      arch: 'arm64',
+      bundledDir,
+      skillsRoot,
+    });
+    expect(evidence.status).toBe('unavailable');
     fs.rmSync(root, { recursive: true, force: true });
   });
 });

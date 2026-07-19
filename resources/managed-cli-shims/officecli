@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "Wayland's verified OfficeCLI runtime is unavailable. Repair or update Wayland before using Office authoring." >&2
+exit 126

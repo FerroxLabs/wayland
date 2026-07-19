@@ -235,9 +235,20 @@ function verifyBundledSkillDigests(contract = loadContract(), skillsRoot = SKILL
     }
   };
   for (const entry of fs.readdirSync(skillsRoot, { withFileTypes: true })) {
-    if (entry.isDirectory() && entry.name.startsWith('officecli-')) visit(entry.name);
+    if (!entry.name.startsWith('officecli-')) continue;
+    if (entry.isSymbolicLink() || !entry.isDirectory()) {
+      throw new Error(`OfficeCLI skill namespace has an unsupported top-level entry: ${entry.name}`);
+    }
+    visit(entry.name);
   }
-  if (fs.existsSync(path.join(skillsRoot, '_builtin', 'office-cli'))) visit('_builtin/office-cli');
+  const builtinDir = path.join(skillsRoot, '_builtin', 'office-cli');
+  if (fs.existsSync(builtinDir)) {
+    const builtinStat = fs.lstatSync(builtinDir);
+    if (builtinStat.isSymbolicLink() || !builtinStat.isDirectory()) {
+      throw new Error('OfficeCLI built-in skill namespace has an unsupported top-level entry');
+    }
+    visit('_builtin/office-cli');
+  }
   assertExactStrings(
     discovered,
     declared.map((skill) => skill.path),
