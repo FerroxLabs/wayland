@@ -315,6 +315,26 @@ describe('recovery manifest validation', () => {
     expect(result.errors).toEqual([]);
   });
 
+  it.each([
+    ['referenceIds', 'referenceBindings'],
+    ['referenceBindings', 'referenceIds'],
+  ] as const)('rejects a v2 authority with %s but no %s', (presentField, missingField) => {
+    const previous = structuredClone(makeManifest());
+    previous.formatVersion = 2;
+    const authority = previous.authorities.find(({ id }) => id === 'external.workspaces')!;
+    delete authority[missingField];
+
+    const result = validateRecoveryManifest(previous);
+
+    expect(authority[presentField]).toBeDefined();
+    expect(result.valid).toBe(false);
+    expect(result.errors.map(({ code }) => code)).toContain(
+      missingField === 'referenceIds'
+        ? 'EXTERNAL_AUTHORITY_REFERENCE_IDS_INVALID'
+        : 'EXTERNAL_AUTHORITY_REFERENCE_BINDING_MISMATCH'
+    );
+  });
+
   it('rejects omitted authorities and mutation during snapshot creation', () => {
     const manifest = makeManifest();
     manifest.mutationEpoch.end = 'epoch-8';
@@ -541,6 +561,29 @@ describe('recovery manifest validation', () => {
     expect(drifted.valid).toBe(false);
     expect(drifted.errors.map((error) => error.code)).toEqual(
       expect.arrayContaining(['SNAPSHOT_SIZE_MISMATCH', 'SNAPSHOT_HASH_MISMATCH'])
+    );
+  });
+
+  it('rejects an artifact that is present in the snapshot but absent from the manifest', async () => {
+    const databaseBytes = Buffer.from('database-copy');
+    const manifest = makeManifest(databaseBytes);
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-manifest-'));
+    tempDirectories.push(root);
+    fs.mkdirSync(path.join(root, 'state/desktop'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'state/desktop/wayland.db'), databaseBytes);
+    fs.writeFileSync(path.join(root, 'state/desktop/config.json'), '{}');
+    fs.writeFileSync(path.join(root, 'state/desktop/unlisted.bin'), 'not authenticated by the manifest');
+
+    const result = await verifyRecoverySnapshot(manifest, root);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'SNAPSHOT_ARTIFACT_UNLISTED',
+          path: 'state/desktop/unlisted.bin',
+        }),
+      ])
     );
   });
 

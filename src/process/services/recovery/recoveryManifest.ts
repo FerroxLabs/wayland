@@ -6,7 +6,7 @@
 
 import { createHash } from 'node:crypto';
 import { constants, createReadStream, type Stats } from 'node:fs';
-import { lstat, open, realpath } from 'node:fs/promises';
+import { lstat, open, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 
 export const RECOVERY_MANIFEST_FORMAT_VERSION = 3 as const;
@@ -315,7 +315,6 @@ function validateExternalAuthorityBinding(
       ? [{ id: value[idKey] as string, path: value.path, state: value.state }]
       : []
   );
-  if (isPreviousManifest && authority.referenceBindings === undefined) return;
   if (
     !Array.isArray(authority.referenceBindings) ||
     authority.referenceBindings.length !== expectedBindings.length ||
@@ -959,6 +958,72 @@ export async function verifyRecoverySnapshot(
   if (!validation.valid || !isRecord(manifest) || !Array.isArray(manifest.files)) return validation;
   const errors = [...validation.errors];
   const root = path.resolve(snapshotRoot);
+
+  const expectedArtifacts = new Set((manifest as RecoveryManifest).files.map(({ snapshotPath }) => snapshotPath));
+  const expectedDirectories = new Set<string>();
+  for (const snapshotPath of expectedArtifacts) {
+    const segments = snapshotPath.split('/');
+    for (let index = 1; index < segments.length; index += 1) {
+      expectedDirectories.add(segments.slice(0, index).join('/'));
+    }
+  }
+  let remainingEntries = 20_000;
+  const inventoryDirectory = async (directory: string, relativeRoot: string): Promise<void> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
+    for (const entry of entries) {
+      if (remainingEntries <= 0) {
+        errors.push(
+          issue(
+            'SNAPSHOT_INVENTORY_BOUNDED',
+            'snapshotRoot',
+            'Snapshot inventory exceeded its 20,000-entry verification boundary.'
+          )
+        );
+        return;
+      }
+      remainingEntries -= 1;
+      const relativePath = relativeRoot ? `${relativeRoot}/${entry.name}` : entry.name;
+      const candidate = path.join(directory, entry.name);
+      if (entry.isSymbolicLink()) {
+        errors.push(
+          issue('SNAPSHOT_FILE_TYPE', relativePath, `Snapshot inventory contains a symbolic link: ${relativePath}`)
+        );
+      } else if (entry.isDirectory()) {
+        if (!expectedDirectories.has(relativePath)) {
+          errors.push(
+            issue(
+              'SNAPSHOT_ARTIFACT_UNLISTED',
+              relativePath,
+              `Snapshot contains an unlisted directory: ${relativePath}`
+            )
+          );
+        } else {
+          // Verification is intentionally sequential and bounded.
+          // oxlint-disable-next-line no-await-in-loop
+          await inventoryDirectory(candidate, relativePath);
+        }
+      } else if (entry.isFile()) {
+        if (relativePath !== 'manifest.json' && !expectedArtifacts.has(relativePath)) {
+          errors.push(
+            issue('SNAPSHOT_ARTIFACT_UNLISTED', relativePath, `Snapshot contains an unlisted artifact: ${relativePath}`)
+          );
+        }
+      } else {
+        errors.push(
+          issue('SNAPSHOT_FILE_TYPE', relativePath, `Snapshot inventory contains an unsupported entry: ${relativePath}`)
+        );
+      }
+    }
+  };
+
+  try {
+    await inventoryDirectory(root, '');
+  } catch (error) {
+    errors.push(
+      issue('SNAPSHOT_INVENTORY_UNREADABLE', 'snapshotRoot', error instanceof Error ? error.message : String(error))
+    );
+  }
 
   for (const [index, file] of (manifest as RecoveryManifest).files.entries()) {
     if (!canonicalContainedRelativePath(file.snapshotPath)) continue;

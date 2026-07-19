@@ -55,9 +55,24 @@ export type RecoveryPointBuilderDependencies = {
   beforeFirstArtifactWrite?: () => Promise<void>;
   /** Test seam used to prove descendant admission is component-relative. */
   beforeSourceEntryOpen?: (relativePath: string) => Promise<void>;
+  /** Test seam used to replace an admitted ancestor immediately before publication. */
+  beforePublication?: () => Promise<void>;
+  /** Test seam used to replace an admitted ancestor immediately before output cleanup. */
+  beforeOutputCleanup?: () => Promise<void>;
+  /** Test seam used to prove nested handle-close failures preserve the primary error. */
+  closeFileHandle?: (handle: FileHandle, role: RecoveryFileHandleRole) => Promise<void>;
   /** Test-only path fallback. Production callers must use descriptor-relative publication. */
   allowUnsafePathFallbackForTests?: boolean;
 };
+
+export type RecoveryFileHandleRole =
+  | 'artifact-file'
+  | 'artifact-parent'
+  | 'captured-source'
+  | 'source-descendant'
+  | 'staging-root'
+  | 'source-root'
+  | 'destination-root';
 
 export type BuildRecoveryPointInputs = {
   inventory: RecoveryInventory;
@@ -105,19 +120,47 @@ type RecoveryStagingAdmission = {
   ino: number;
 };
 
-export type RecoveryFilesystemSafetyMode = 'descriptor-relative' | 'identity-guarded';
+export type RecoveryFilesystemSafetyMode = 'descriptor-relative' | 'unsupported';
 
 /**
- * Linux exposes held directory descriptors through /proc. Darwin and Windows
- * use repeated no-follow/reparse and identity checks around every component.
- * Neither platform is blanket-disabled; every unsafe observation fails closed.
+ * Linux exposes held directory descriptors through /proc. Node does not expose
+ * an equivalent identity-bound child-operation primitive on Darwin or Windows,
+ * so production capture fails closed there instead of trusting pathname checks.
  */
 export function recoveryFilesystemSafetyModeForPlatform(platform: NodeJS.Platform): RecoveryFilesystemSafetyMode {
-  return platform === 'linux' ? 'descriptor-relative' : 'identity-guarded';
+  return platform === 'linux' ? 'descriptor-relative' : 'unsupported';
 }
 
 const NO_FOLLOW = typeof constants.O_NOFOLLOW === 'number' ? constants.O_NOFOLLOW : 0;
 const DIRECTORY_ONLY = typeof constants.O_DIRECTORY === 'number' ? constants.O_DIRECTORY : 0;
+
+const defaultCloseFileHandle = (handle: FileHandle): Promise<void> => handle.close();
+
+function asError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error));
+}
+
+function throwPreservingCleanupFailures(primaryError: unknown, cleanupFailures: Error[], message: string): void {
+  if (primaryError !== undefined && cleanupFailures.length > 0) {
+    throw new AggregateError([asError(primaryError), ...cleanupFailures], message, { cause: primaryError });
+  }
+  if (primaryError !== undefined) throw primaryError;
+  if (cleanupFailures.length > 0) throw new AggregateError(cleanupFailures, message);
+}
+
+async function closeRecoveryHandle(
+  handle: FileHandle | undefined,
+  role: RecoveryFileHandleRole,
+  closeFileHandle: RecoveryPointBuilderDependencies['closeFileHandle'],
+  failures: Error[]
+): Promise<void> {
+  if (!handle) return;
+  try {
+    await (closeFileHandle ?? defaultCloseFileHandle)(handle, role);
+  } catch (error) {
+    failures.push(new Error(`Recovery cleanup failed for ${role}.`, { cause: error }));
+  }
+}
 
 type RecoverySourceAdmission = {
   sourcePath: string;
@@ -172,6 +215,14 @@ async function admitRecoveryDestination(
   protectedRoots: readonly string[],
   allowUnsafePathFallbackForTests = false
 ): Promise<RecoveryDestinationAdmission> {
+  if (
+    recoveryFilesystemSafetyModeForPlatform(process.platform) !== 'descriptor-relative' &&
+    !allowUnsafePathFallbackForTests
+  ) {
+    throw new Error(
+      `Recovery capture is unavailable on ${process.platform}: identity-bound filesystem publication is unsupported.`
+    );
+  }
   const requestedRoot = path.resolve(destinationRoot);
   await assertRecoveryDestinationDisjoint(requestedRoot, protectedRoots);
   // Resolve trusted platform aliases (macOS /var -> /private/var) before the
@@ -211,13 +262,11 @@ async function admitRecoveryDestination(
       throw new Error(`Recovery destination must be disjoint from live state: ${protectedRoots[index]}`);
     }
   }
-  // Kept only for compatibility with older test dependency builders. It no
-  // longer weakens production behavior on Darwin or Windows.
-  void allowUnsafePathFallbackForTests;
+  // The pathname branch below exists only for disposable tests on platforms
+  // without descriptor-relative operations. Production was rejected above.
   if (process.platform === 'win32') {
-    // Windows does not allow Node to open directories as FileHandles. Preserve
-    // the admitted reparse-safe path identity and revalidate it around every
-    // component operation instead of blanket-rejecting the platform.
+    // Windows does not allow Node to open directories as FileHandles. This
+    // identity-checked pathname branch is therefore test-only.
     return {
       requestedRoot,
       root,
@@ -372,20 +421,23 @@ async function assertRecoveryStagingStable(admission: RecoveryStagingAdmission):
 
 /**
  * Create one file through a parent directory that has been opened and checked
- * component-by-component. Linux uses the held parent descriptor for the final
- * create. Darwin/Windows re-check the held identity immediately around the
- * exclusive no-follow/reparse-sensitive create and fail closed on drift.
+ * component-by-component. Production uses the held Linux parent descriptor for
+ * the final create; pathname operation is limited to disposable test fixtures.
  */
 async function writeRecoveryArtifact(
   staging: RecoveryStagingAdmission,
   relativePath: string,
   contents: Buffer,
-  afterParentAdmission?: () => Promise<void>
+  afterParentAdmission?: () => Promise<void>,
+  closeFileHandle?: RecoveryPointBuilderDependencies['closeFileHandle']
 ): Promise<Stats> {
   const segments = assertSafeRelativeArtifactPath(relativePath);
   const fileName = segments.pop()!;
   const heldDirectories: Array<{ handle?: FileHandle; path: string; dev: number; ino: number }> = [];
   let operationDirectory = staging.operationRoot;
+  let artifactHandle: FileHandle | undefined;
+  let result: Stats | undefined;
+  let primaryError: unknown;
   try {
     for (const segment of segments) {
       const candidate = path.join(operationDirectory, segment);
@@ -454,25 +506,31 @@ async function writeRecoveryArtifact(
     }
 
     const destinationPath = path.join(operationDirectory, fileName);
-    const handle = await open(
+    artifactHandle = await open(
       destinationPath,
       constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | NO_FOLLOW,
       0o600
     );
-    try {
-      await handle.writeFile(contents);
-      await handle.sync();
-      const stat = await handle.stat();
-      if (!stat.isFile() || stat.nlink !== 1 || stat.size !== contents.length) {
-        throw new Error(`Recovery artifact write was not a single-link regular file: ${relativePath}`);
-      }
-      return stat;
-    } finally {
-      await handle.close();
+    await artifactHandle.writeFile(contents);
+    await artifactHandle.sync();
+    const stat = await artifactHandle.stat();
+    if (!stat.isFile() || stat.nlink !== 1 || stat.size !== contents.length) {
+      throw new Error(`Recovery artifact write was not a single-link regular file: ${relativePath}`);
     }
-  } finally {
-    await Promise.allSettled(heldDirectories.flatMap(({ handle }) => (handle ? [handle.close()] : [])));
+    result = stat;
+  } catch (error) {
+    primaryError = error;
   }
+  const cleanupFailures: Error[] = [];
+  await closeRecoveryHandle(artifactHandle, 'artifact-file', closeFileHandle, cleanupFailures);
+  for (const directory of heldDirectories.toReversed()) {
+    // Close in reverse admission order while retaining every failure.
+    // oxlint-disable-next-line no-await-in-loop
+    await closeRecoveryHandle(directory.handle, 'artifact-parent', closeFileHandle, cleanupFailures);
+  }
+  throwPreservingCleanupFailures(primaryError, cleanupFailures, 'Recovery artifact operation and cleanup failed.');
+  if (!result) throw new Error(`Recovery artifact write completed without a result: ${relativePath}`);
+  return result;
 }
 
 type AdmittedSourceFile = {
@@ -484,7 +542,8 @@ type AdmittedSourceFile = {
 async function visitAdmittedSourceFiles(
   admission: RecoverySourceAdmission,
   visitor: (file: AdmittedSourceFile) => Promise<void>,
-  beforeSourceEntryOpen?: (relativePath: string) => Promise<void>
+  beforeSourceEntryOpen?: (relativePath: string) => Promise<void>,
+  closeFileHandle?: RecoveryPointBuilderDependencies['closeFileHandle']
 ): Promise<void> {
   if (admission.state === 'file') {
     await visitor({
@@ -529,6 +588,7 @@ async function visitAdmittedSourceFiles(
       const directoryFlag = entry.isDirectory() ? DIRECTORY_ONLY : 0;
       const nonBlockingFlag = typeof constants.O_NONBLOCK === 'number' ? constants.O_NONBLOCK : 0;
       let childHandle: FileHandle | undefined;
+      let primaryError: unknown;
       try {
         // Each child is opened relative to its already-admitted parent descriptor.
         // O_NOFOLLOW protects the final component; parent components are pinned handles.
@@ -567,10 +627,17 @@ async function visitAdmittedSourceFiles(
         } else {
           throw new Error(`Recovery source has an unsupported entry: ${relativePath}`);
         }
-      } finally {
-        // oxlint-disable-next-line no-await-in-loop
-        await childHandle?.close();
+      } catch (error) {
+        primaryError = error;
       }
+      const cleanupFailures: Error[] = [];
+      // oxlint-disable-next-line no-await-in-loop
+      await closeRecoveryHandle(childHandle, 'source-descendant', closeFileHandle, cleanupFailures);
+      throwPreservingCleanupFailures(
+        primaryError,
+        cleanupFailures,
+        `Recovery source traversal and cleanup failed for ${relativePath}.`
+      );
     }
   };
   await visitDirectory(admission.handle, '');
@@ -749,6 +816,7 @@ async function addCapturedFile(options: {
   beforeArtifactWrite?: () => Promise<void>;
   sourceHandle?: FileHandle;
   capturedBytes?: Buffer;
+  closeFileHandle?: RecoveryPointBuilderDependencies['closeFileHandle'];
 }): Promise<RecoveryManifestFile> {
   const {
     authority,
@@ -762,12 +830,15 @@ async function addCapturedFile(options: {
     beforeArtifactWrite,
     sourceHandle,
     capturedBytes,
+    closeFileHandle,
   } = options;
   const sourceStat = sourceHandle ? await sourceHandle.stat() : await assertRegularFile(sourcePath, 'Recovery source');
   const openedSourceHandle = capturedBytes
     ? undefined
     : (sourceHandle ?? (await open(sourcePath, constants.O_RDONLY | NO_FOLLOW)));
   let sourceBytes: Buffer | undefined;
+  let result: RecoveryManifestFile | undefined;
+  let primaryError: unknown;
   try {
     if (capturedBytes) {
       sourceBytes = capturedBytes;
@@ -807,14 +878,20 @@ async function addCapturedFile(options: {
     capturedSnapshotPaths.add(snapshotPath);
     await assertDestinationStable();
     const artifactBytes = encrypted ? await sealBytes(sourceBytes) : Buffer.from(sourceBytes);
-    const snapshotStat = await writeRecoveryArtifact(staging, snapshotPath, artifactBytes, async () => {
-      await assertDestinationStable();
-      await beforeArtifactWrite?.();
-      await assertDestinationStable();
-    });
+    const snapshotStat = await writeRecoveryArtifact(
+      staging,
+      snapshotPath,
+      artifactBytes,
+      async () => {
+        await assertDestinationStable();
+        await beforeArtifactWrite?.();
+        await assertDestinationStable();
+      },
+      closeFileHandle
+    );
     await assertDestinationStable();
 
-    return {
+    result = {
       id: `${safeSegment(authority.id)}-${ordinal}`,
       authority: authority.id,
       logicalRole: options.logicalRole ?? relativePath.replaceAll(path.sep, '/'),
@@ -828,10 +905,18 @@ async function addCapturedFile(options: {
       copyPolicy: encrypted ? 'encrypted-copy' : 'copied',
       state: 'complete',
     };
+  } catch (error) {
+    primaryError = error;
   } finally {
     if (authority.sensitive) sourceBytes?.fill(0);
-    if (openedSourceHandle && !sourceHandle) await openedSourceHandle.close();
   }
+  const cleanupFailures: Error[] = [];
+  if (openedSourceHandle && !sourceHandle) {
+    await closeRecoveryHandle(openedSourceHandle, 'captured-source', closeFileHandle, cleanupFailures);
+  }
+  throwPreservingCleanupFailures(primaryError, cleanupFailures, 'Recovery source capture and cleanup failed.');
+  if (!result) throw new Error(`Recovery source capture completed without a result: ${sourcePath}`);
+  return result;
 }
 
 function logicalStatus(
@@ -969,6 +1054,7 @@ export async function buildRecoveryPoint(
                 }
               : undefined,
             capturedBytes: databaseBytes,
+            closeFileHandle: dependencies.closeFileHandle,
           })
         );
       } else {
@@ -1011,10 +1097,12 @@ export async function buildRecoveryPoint(
                         await hook?.();
                       }
                     : undefined,
+                  closeFileHandle: dependencies.closeFileHandle,
                 })
               );
             },
-            dependencies.beforeSourceEntryOpen
+            dependencies.beforeSourceEntryOpen,
+            dependencies.closeFileHandle
           );
         }
       }
@@ -1113,7 +1201,13 @@ export async function buildRecoveryPoint(
     }
     const manifestPath = path.join(stagingAdmission.operationRoot, 'manifest.json');
     await assertRecoveryDestinationStable(destinationAdmission);
-    await writeRecoveryArtifact(stagingAdmission, 'manifest.json', Buffer.from(JSON.stringify(manifest, null, 2)));
+    await writeRecoveryArtifact(
+      stagingAdmission,
+      'manifest.json',
+      Buffer.from(JSON.stringify(manifest, null, 2)),
+      undefined,
+      dependencies.closeFileHandle
+    );
     await assertRecoveryDestinationStable(destinationAdmission);
     const verification = await verifyRecoverySnapshot(await readManifest(manifestPath), stagingAdmission.operationRoot);
     if (!verification.valid) {
@@ -1123,14 +1217,31 @@ export async function buildRecoveryPoint(
     }
 
     await assertRecoveryDestinationStable(destinationAdmission);
-    await stagingAdmission.handle?.close();
+    if (stagingAdmission.handle) {
+      const stagingCloseFailures: Error[] = [];
+      await closeRecoveryHandle(
+        stagingAdmission.handle,
+        'staging-root',
+        dependencies.closeFileHandle,
+        stagingCloseFailures
+      );
+      throwPreservingCleanupFailures(undefined, stagingCloseFailures, 'Recovery staging cleanup failed.');
+    }
     stagingAdmission = undefined;
+    await dependencies.beforePublication?.();
     await rename(stagingRoot, finalRoot);
     try {
       await assertRecoveryDestinationStable(destinationAdmission);
     } catch (error) {
-      await rm(finalRoot, { recursive: true, force: true });
-      throw error;
+      const cleanupErrors: Error[] = [];
+      try {
+        await rm(finalRoot, { recursive: true, force: true });
+      } catch (cleanupError) {
+        cleanupErrors.push(
+          new Error('Recovery cleanup failed for identity-invalid published output.', { cause: cleanupError })
+        );
+      }
+      throwPreservingCleanupFailures(error, cleanupErrors, 'Recovery publication identity check and cleanup failed.');
     }
     published = true;
     builtResult = {
@@ -1152,11 +1263,18 @@ export async function buildRecoveryPoint(
     };
     await cleanup('Core quiescence lease', coreLease ? () => coreLease.release() : undefined);
     await cleanup('Desktop quiescence lease', desktopLease ? () => desktopLease.release() : undefined);
-    await cleanup('staging handle', stagingAdmission?.handle ? () => stagingAdmission.handle!.close() : undefined);
+    await cleanup(
+      'staging handle',
+      stagingAdmission?.handle
+        ? () => (dependencies.closeFileHandle ?? defaultCloseFileHandle)(stagingAdmission!.handle!, 'staging-root')
+        : undefined
+    );
     const sourceHandles = [...sourceAdmissions.values()]
       .map(({ handle }) => handle)
       .filter((handle): handle is FileHandle => handle !== undefined);
-    const sourceHandleResults = await Promise.allSettled(sourceHandles.map((handle) => handle.close()));
+    const sourceHandleResults = await Promise.allSettled(
+      sourceHandles.map((handle) => (dependencies.closeFileHandle ?? defaultCloseFileHandle)(handle, 'source-root'))
+    );
     for (const result of sourceHandleResults) {
       if (result.status === 'rejected') {
         cleanupFailures.push(
@@ -1164,6 +1282,7 @@ export async function buildRecoveryPoint(
         );
       }
     }
+    await cleanup('pre-output-cleanup hook', primaryError !== undefined ? dependencies.beforeOutputCleanup : undefined);
     await cleanup('staging output', stagingRoot ? () => rm(stagingRoot, { recursive: true, force: true }) : undefined);
     await cleanup(
       'unpublished final output',
@@ -1171,7 +1290,10 @@ export async function buildRecoveryPoint(
     );
     await cleanup(
       'destination handle',
-      destinationAdmission.handle ? () => destinationAdmission.handle!.close() : undefined
+      destinationAdmission.handle
+        ? () =>
+            (dependencies.closeFileHandle ?? defaultCloseFileHandle)(destinationAdmission.handle!, 'destination-root')
+        : undefined
     );
   }
   if (primaryError !== undefined && cleanupFailures.length > 0) {

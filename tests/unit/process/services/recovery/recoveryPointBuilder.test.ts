@@ -207,32 +207,34 @@ describe('recovery point builder', () => {
   });
 
   it.runIf(process.platform === 'darwin')(
-    'captures on Darwin with identity-guarded component proof instead of blanket rejection',
+    'fails closed before creating output when identity-bound publication is unavailable on Darwin',
     async () => {
       const data = await fixture();
       const deps = dependencies({ allowUnsafePathFallbackForTests: false });
 
-      const result = await buildRecoveryPoint(
-        {
-          inventory: data.inventory,
-          destinationRoot: data.destinationRoot,
-          protectedRoots: [data.userDataRoot],
-          reason: 'recovery-test',
-          sourceAppVersion: '0.11.18',
-          desktopSchemaVersion: 53,
-        },
-        deps.dependencies
-      );
+      await expect(
+        buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot: data.destinationRoot,
+            protectedRoots: [data.userDataRoot],
+            reason: 'recovery-test',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        )
+      ).rejects.toThrow('identity-bound filesystem publication is unsupported');
 
-      expect(recoveryFilesystemSafetyModeForPlatform('darwin')).toBe('identity-guarded');
-      expect(result.snapshotPath).toBe(path.join(data.destinationRoot, 'snapshot-test'));
+      expect(recoveryFilesystemSafetyModeForPlatform('darwin')).toBe('unsupported');
+      expect(fs.existsSync(data.destinationRoot)).toBe(false);
     }
   );
 
   it('selects explicit safe-path strategies for every production platform', () => {
     expect(recoveryFilesystemSafetyModeForPlatform('linux')).toBe('descriptor-relative');
-    expect(recoveryFilesystemSafetyModeForPlatform('darwin')).toBe('identity-guarded');
-    expect(recoveryFilesystemSafetyModeForPlatform('win32')).toBe('identity-guarded');
+    expect(recoveryFilesystemSafetyModeForPlatform('darwin')).toBe('unsupported');
+    expect(recoveryFilesystemSafetyModeForPlatform('win32')).toBe('unsupported');
   });
 
   it('fails closed on epoch drift, removes partial output, and leaves live state untouched', async () => {
@@ -309,6 +311,52 @@ describe('recovery point builder', () => {
       expect.arrayContaining(['capture sealing failed', 'Recovery cleanup failed for Desktop quiescence lease.'])
     );
     expect(desktopRelease).toHaveBeenCalledOnce();
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+  });
+
+  it('preserves an artifact failure when nested handle cleanup also fails', async () => {
+    const data = await fixture();
+    let injectedCloseFailure = false;
+    const deps = dependencies({
+      beforeFirstArtifactWrite: async () => Promise.reject(new Error('artifact operation failed')),
+      closeFileHandle: async (handle, role) => {
+        await handle.close();
+        if (role === 'artifact-parent' && !injectedCloseFailure) {
+          injectedCloseFailure = true;
+          throw new Error('nested artifact parent close failed');
+        }
+      },
+    });
+
+    let observed: unknown;
+    try {
+      await buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      );
+    } catch (error) {
+      observed = error;
+    }
+
+    const messages: string[] = [];
+    const collectMessages = (error: unknown): void => {
+      if (!(error instanceof Error)) return;
+      messages.push(error.message);
+      if (error instanceof AggregateError) error.errors.forEach(collectMessages);
+    };
+    collectMessages(observed);
+
+    expect(observed).toBeInstanceOf(AggregateError);
+    expect(messages).toEqual(
+      expect.arrayContaining(['artifact operation failed', 'Recovery cleanup failed for artifact-parent.'])
+    );
+    expect(injectedCloseFailure).toBe(true);
     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
   });
 
@@ -530,6 +578,81 @@ describe('recovery point builder', () => {
     expect(fs.readdirSync(protectedRoot)).toEqual([]);
     expect(fs.existsSync(path.join(retiredAncestor, 'recovery-points', 'snapshot-test'))).toBe(false);
   });
+
+  it.runIf(process.platform === 'linux')(
+    'keeps final publication bound to the admitted destination after an ancestor replacement',
+    async () => {
+      const data = await fixture();
+      const admittedAncestor = path.join(data.root, 'publish-admitted');
+      const retiredAncestor = path.join(data.root, 'publish-retired');
+      const protectedRoot = path.join(data.root, 'publish-protected');
+      const destinationRoot = path.join(admittedAncestor, 'recovery-points');
+      fs.mkdirSync(admittedAncestor);
+      fs.mkdirSync(protectedRoot);
+      const deps = dependencies({
+        allowUnsafePathFallbackForTests: false,
+        beforePublication: async () => {
+          fs.renameSync(admittedAncestor, retiredAncestor);
+          fs.symlinkSync(protectedRoot, admittedAncestor, 'dir');
+        },
+      });
+
+      await expect(
+        buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot,
+            protectedRoots: [protectedRoot],
+            reason: 'hostile-publication-race',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        )
+      ).rejects.toThrow('identity changed after admission');
+
+      expect(fs.readdirSync(protectedRoot)).toEqual([]);
+      expect(fs.readdirSync(path.join(retiredAncestor, 'recovery-points'))).toEqual([]);
+    }
+  );
+
+  it.runIf(process.platform === 'linux')(
+    'keeps failed-output cleanup bound to the admitted destination after an ancestor replacement',
+    async () => {
+      const data = await fixture();
+      const admittedAncestor = path.join(data.root, 'cleanup-admitted');
+      const retiredAncestor = path.join(data.root, 'cleanup-retired');
+      const protectedRoot = path.join(data.root, 'cleanup-protected');
+      const destinationRoot = path.join(admittedAncestor, 'recovery-points');
+      fs.mkdirSync(admittedAncestor);
+      fs.mkdirSync(protectedRoot);
+      const deps = dependencies({
+        allowUnsafePathFallbackForTests: false,
+        sealBytes: async () => Promise.reject(new Error('capture failed before cleanup')),
+        beforeOutputCleanup: async () => {
+          fs.renameSync(admittedAncestor, retiredAncestor);
+          fs.symlinkSync(protectedRoot, admittedAncestor, 'dir');
+        },
+      });
+
+      await expect(
+        buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot,
+            protectedRoots: [protectedRoot],
+            reason: 'hostile-cleanup-race',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        )
+      ).rejects.toThrow('capture failed before cleanup');
+
+      expect(fs.readdirSync(protectedRoot)).toEqual([]);
+      expect(fs.readdirSync(path.join(retiredAncestor, 'recovery-points'))).toEqual([]);
+    }
+  );
 
   it('never writes through a replaced staging descendant into protected live state', async () => {
     const data = await fixture();
