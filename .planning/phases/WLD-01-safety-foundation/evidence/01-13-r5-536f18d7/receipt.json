@@ -1,0 +1,99 @@
+{
+  "schema": "wayland-desktop-local-proof/1",
+  "packet": "01-13",
+  "status": "construction-complete-pending-independent-audit",
+  "tested_commit": "536f18d790ece1e4b238dede20cb14d509ba5129",
+  "tested_tree": "0575c334cdcd30539da228b1a23d6709ae13b4ee",
+  "completed_at_utc": "2026-07-19T21:30:39Z",
+  "environment_file": "environment.json",
+  "environment_sha256": "1ec85d49ca8c1b13e0b43bc62899a47336db938935181a3c437318d65cdfd2ab",
+  "commands": [
+    {
+      "id": "focused",
+      "command": "rtk bun run test:vitest -- tests/unit/process/services/capabilities/OfficeCliAuthoringCapability.test.ts tests/unit/process/services/capabilities/CapabilitiesManifest.test.ts tests/unit/prepareOfficeCli.test.ts tests/unit/coworkContract.test.ts tests/unit/shellEnv.test.ts tests/unit/scripts/thirdPartyExecutableLedger.test.ts tests/unit/verifyPackagedResources.test.ts",
+      "exit_code": 0,
+      "result": "7 files passed; 171 tests passed",
+      "log": "01-focused.log",
+      "log_sha256": "b350602f7be84dcf261f81b2865915a412a0f9994f8dc2af4dde9136c52734be"
+    },
+    {
+      "id": "typecheck",
+      "command": "rtk bun run typecheck",
+      "exit_code": 0,
+      "result": "TypeScript completed with no errors",
+      "log": "02-typecheck.log",
+      "log_sha256": "c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5"
+    },
+    {
+      "id": "changed-file-lint",
+      "command": "rtk bunx oxlint --deny-warnings src/process/services/capabilities/OfficeCliAuthoringCapability.ts tests/unit/process/services/capabilities/OfficeCliAuthoringCapability.test.ts",
+      "exit_code": 0,
+      "result": "0 warnings; 0 errors",
+      "log": "03-lint.log",
+      "log_sha256": "083f31159401475555e0bd8de6a47822c76df01ce67b3528d3cb5eb5c55c3104"
+    },
+    {
+      "id": "format",
+      "command": "rtk bunx oxfmt --check src/process/services/capabilities/OfficeCliAuthoringCapability.ts tests/unit/process/services/capabilities/OfficeCliAuthoringCapability.test.ts",
+      "exit_code": 0,
+      "result": "all repair-owned files use the correct format",
+      "log": "04-format.log",
+      "log_sha256": "1bfcda25b85536bd26c57e773a140953d7fac86cf47e99d58900fdd9b1295667"
+    },
+    {
+      "id": "diff-check",
+      "command": "rtk git diff --check 39a38a8ac550f16f03a6b37467e8f57402c585dc..536f18d790ece1e4b238dede20cb14d509ba5129",
+      "exit_code": 0,
+      "result": "clean",
+      "log": "05-diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "producer-clean",
+      "command": "node scripts/prepareOfficeCli.js (with no pre-existing target directory)",
+      "exit_code": 0,
+      "log": "06-producer-clean.log",
+      "log_sha256": "a245065bf5053f153490e171e238e52ea97f16a55659ae2c9b8b6ef18ba0c166"
+    },
+    {
+      "id": "producer-cache",
+      "command": "node scripts/prepareOfficeCli.js (with the verified target from producer-clean)",
+      "exit_code": 0,
+      "log": "07-producer-cache.log",
+      "log_sha256": "7d925054a798b4881bd4c915b2fbec1e6a734949dcfddcccb6d4dfb590fd3b6d"
+    },
+    {
+      "id": "manifest-reproduction",
+      "command": "cmp 08-clean-manifest.json 09-cache-manifest.json",
+      "exit_code": 0,
+      "manifest_sha256": "b8e5e2fe3f85cf4f4dbc713c7360f743b0c44c14dcfcb3ad8e21aafa550b07c7",
+      "log": "10-manifest-repro.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "aggregate",
+      "command": "rtk env GSD_RUNTIME=codex bun run test",
+      "exit_code": 0,
+      "result": "Vitest 1430 files passed, 21 skipped, 15148 tests passed, 145 skipped; Bun-native 226 passed, 0 failed",
+      "sanitized": true,
+      "log": "13-aggregate-sanitized.log",
+      "log_sha256": "21e514988707a2bd855e551cb9176d8dacd108fb1d84c783eefd3c7bbd5208ad"
+    }
+  ],
+  "superseded_observation": {
+    "log": "11-aggregate-rejected-contention.log",
+    "log_sha256": "3cdeb522ef4bb21c18f15f14cbdceacf3cf0cb5baaa54b8be6627c1199ea179e",
+    "reason": "One unrelated timeout occurred while multiple aggregate suites competed for the same host. The isolated test immediately passed, and this observation is not accepted as aggregate proof.",
+    "isolated_reproduction_log": "12-timeout-repro-isolated.log",
+    "isolated_reproduction_sha256": "4b5443deb2f091537e21d98ea6313cb97a0d251456fdc08748a123dd9b169040"
+  },
+  "repair_scope": [
+    "src/process/services/capabilities/OfficeCliAuthoringCapability.ts",
+    "tests/unit/process/services/capabilities/OfficeCliAuthoringCapability.test.ts"
+  ],
+  "non_claims": [
+    "This receipt is local construction evidence, not independent acceptance.",
+    "The rejected contention run is retained as diagnostic history and is not aggregate authority.",
+    "No integration, packaging, deployment, release, or issue action is authorized or claimed."
+  ]
+}

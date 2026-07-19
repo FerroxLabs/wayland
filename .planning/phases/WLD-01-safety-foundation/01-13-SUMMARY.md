@@ -34,9 +34,9 @@ Desktop now reports Office authoring construction evidence only when the target 
 
 ## Exact construction proof
 
-- Tested implementation commit: `39a38a8ac550f16f03a6b37467e8f57402c585dc`.
-- Tested implementation tree: `9087aaf14246d7b7c00b5b71c705e14249a8e6b0`.
-- Focused successor suite: 7 files, 169 tests passed.
+- Tested implementation commit: `536f18d790ece1e4b238dede20cb14d509ba5129`.
+- Tested implementation tree: `0575c334cdcd30539da228b1a23d6709ae13b4ee`.
+- Focused successor suite: 7 files, 171 tests passed.
 - Typecheck: passed.
 - Changed-file oxlint: 0 warnings, 0 errors.
 - Oxfmt and `git diff --check`: passed.
@@ -45,8 +45,8 @@ Desktop now reports Office authoring construction evidence only when the target 
 - Clean-download and verified-cache producer runs emitted byte-identical target manifests.
 - Emitted local target-manifest SHA-256: `b8e5e2fe3f85cf4f4dbc713c7360f743b0c44c14dcfcb3ad8e21aafa550b07c7`.
 - Live local classifier: `office.native-authoring` available for the pinned `darwin-arm64` binary and exact fixture digest.
-- Exact-commit aggregate: 1,430 Vitest files passed, 21 skipped; 15,146 tests passed, 145 skipped; 226/226 Bun-native tests passed.
-- Reproducible command logs, environment identity, output hashes, and machine receipt are retained under `evidence/01-13-r4-39a38a8a/`.
+- Exact-commit aggregate: 1,430 Vitest files passed, 21 skipped; 15,148 tests passed, 145 skipped; 226/226 Bun-native tests passed.
+- Reproducible command logs, environment identity, output hashes, and machine receipt are retained under `evidence/01-13-r5-536f18d7/`.
 
 ## Authority boundary
 
@@ -63,6 +63,12 @@ verified-cache path previously dropped `reportedVersion` and rewrote immutable
 release provenance as the incidental cache path. The same verified bytes now
 produce a byte-identical authority manifest on clean and cached runs.
 
-The exact commit containing this summary must be independently audited. Until
+Independent audit then rejected the predecessor because exact expected bytes
+could be presented through an out-of-bundle symlink. The R5 successor binds the
+bundle, manifest, and executable to stable no-follow filesystem identities and
+revalidates them after reading. Its clean aggregate proof supersedes one
+contention-affected observation retained only as diagnostic history.
+
+The exact source commit identified above must be independently audited. Until
 that successor is accepted and serially integrated, plan 01-13 remains
 constructed rather than accepted.
