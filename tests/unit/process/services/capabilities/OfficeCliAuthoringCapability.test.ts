@@ -65,6 +65,32 @@ function manifest(overrides: Record<string, unknown> = {}) {
   };
 }
 
+function createInstalledFixture(prefix: string) {
+  const source = path.resolve('resources/bundled-officecli/darwin-arm64');
+  if (!fs.existsSync(path.join(source, 'officecli'))) return null;
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  const bundledDir = path.join(root, 'bundle');
+  const skillsRoot = path.join(root, 'skills');
+  fs.cpSync(source, bundledDir, { recursive: true });
+  for (const skill of OFFICECLI_SKILL_PROOF.skills) {
+    const target = path.join(skillsRoot, skill.path);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(path.resolve('src/process/resources/skills', skill.path), target);
+  }
+  return { root, bundledDir, skillsRoot };
+}
+
+async function probeInstalledFixture(bundledDir: string, skillsRoot: string) {
+  return probeOfficeCliAuthoringEvidence({
+    correlationId: 'capabilities:wcore',
+    backend: 'wcore',
+    platform: 'darwin',
+    arch: 'arm64',
+    bundledDir,
+    skillsRoot,
+  });
+}
+
 describe('OfficeCLI target-exact evidence producer', () => {
   it('accepts the exact target digest, authoring contract, smoke proof, and publisher identity', () => {
     expect(classifyBundledOfficeCli(manifest(), TARGET.binarySha256, 'darwin', 'arm64')).toMatchObject({
@@ -209,33 +235,58 @@ describe('OfficeCLI target-exact evidence producer', () => {
 
   it('does not advertise an exact-byte binary reached through a symbolic link', async () => {
     if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
-    const source = path.resolve('resources/bundled-officecli/darwin-arm64');
-    if (!fs.existsSync(path.join(source, 'officecli'))) return;
-    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-symlink-'));
-    const bundledDir = path.join(root, 'bundle');
-    const skillsRoot = path.join(root, 'skills');
-    const substitute = path.join(root, 'substitute-officecli');
-    fs.cpSync(source, bundledDir, { recursive: true });
-    fs.copyFileSync(path.join(source, 'officecli'), substitute);
+    const fixture = createInstalledFixture('wayland-officecli-symlink-');
+    if (!fixture) return;
+    const substitute = path.join(fixture.root, 'substitute-officecli');
+    fs.copyFileSync(path.join(fixture.bundledDir, 'officecli'), substitute);
     fs.chmodSync(substitute, 0o755);
-    fs.rmSync(path.join(bundledDir, 'officecli'));
-    fs.symlinkSync(substitute, path.join(bundledDir, 'officecli'));
-    for (const skill of OFFICECLI_SKILL_PROOF.skills) {
-      const target = path.join(skillsRoot, skill.path);
-      fs.mkdirSync(path.dirname(target), { recursive: true });
-      fs.copyFileSync(path.resolve('src/process/resources/skills', skill.path), target);
-    }
+    fs.rmSync(path.join(fixture.bundledDir, 'officecli'));
+    fs.symlinkSync(substitute, path.join(fixture.bundledDir, 'officecli'));
 
-    const evidence = await probeOfficeCliAuthoringEvidence({
-      correlationId: 'capabilities:wcore',
-      backend: 'wcore',
-      platform: 'darwin',
-      arch: 'arm64',
-      bundledDir,
-      skillsRoot,
-    });
-
+    const evidence = await probeInstalledFixture(fixture.bundledDir, fixture.skillsRoot);
     expect(evidence.status).toBe('unavailable');
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(fixture.root, { recursive: true, force: true });
+  });
+
+  it('rejects symbolic or non-regular bundle, manifest, and binary identities', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const mutations: ReadonlyArray<(fixture: NonNullable<ReturnType<typeof createInstalledFixture>>) => string> = [
+      (fixture) => {
+        const substitute = path.join(fixture.root, 'manifest-substitute.json');
+        fs.copyFileSync(path.join(fixture.bundledDir, 'manifest.json'), substitute);
+        fs.rmSync(path.join(fixture.bundledDir, 'manifest.json'));
+        fs.symlinkSync(substitute, path.join(fixture.bundledDir, 'manifest.json'));
+        return fixture.bundledDir;
+      },
+      (fixture) => {
+        const actual = path.join(fixture.root, 'actual-bundle');
+        fs.renameSync(fixture.bundledDir, actual);
+        fs.symlinkSync(actual, fixture.bundledDir, 'dir');
+        return fixture.bundledDir;
+      },
+      (fixture) => {
+        fs.rmSync(path.join(fixture.bundledDir, 'officecli'));
+        fs.mkdirSync(path.join(fixture.bundledDir, 'officecli'));
+        return fixture.bundledDir;
+      },
+      (fixture) => {
+        fs.rmSync(path.join(fixture.bundledDir, 'manifest.json'));
+        fs.mkdirSync(path.join(fixture.bundledDir, 'manifest.json'));
+        return fixture.bundledDir;
+      },
+    ];
+
+    await Promise.all(
+      mutations.map(async (mutate) => {
+        const fixture = createInstalledFixture('wayland-officecli-path-matrix-');
+        if (!fixture) return;
+        try {
+          const evidence = await probeInstalledFixture(mutate(fixture), fixture.skillsRoot);
+          expect(evidence.status).toBe('unavailable');
+        } finally {
+          fs.rmSync(fixture.root, { recursive: true, force: true });
+        }
+      })
+    );
   });
 });
