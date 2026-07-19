@@ -133,7 +133,9 @@ function evaluateLiteral(node, constants, sourceFile, path) {
   if (ts.isPrefixUnaryExpression(node) && node.operator === ts.SyntaxKind.MinusToken) {
     const operand = evaluateLiteral(node.operand, constants, sourceFile, path);
     if (typeof operand !== 'number') fail('M0B_RUNTIME_SOURCE', path, 'non-numeric-negative');
-    return -operand;
+    const value = -operand;
+    if (Object.is(value, -0)) fail('M0B_RUNTIME_SOURCE', path, 'negative-zero');
+    return value;
   }
   if (ts.isArrayLiteralExpression(node)) {
     return node.elements.map((element, index) => {
