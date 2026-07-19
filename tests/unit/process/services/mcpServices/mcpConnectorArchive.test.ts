@@ -121,6 +121,29 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
     expect(aborted).toHaveLength(1);
   });
 
+  it('surfaces incomplete publication rollback after an adapter-removal failure', async () => {
+    removeResult = {
+      success: false,
+      results: [{ agent: 'codex:Codex', success: false, error: 'config locked' }],
+    };
+    syncResult = {
+      success: false,
+      results: [{ agent: 'wcore:Wayland Core', success: false, error: 'restore refused' }],
+    };
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
+
+    try {
+      await expect(
+        lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'codex', name: 'Codex' }])
+      ).rejects.toThrow('rollback publication failed');
+      expect(active).toEqual([server()]);
+      expect(errorSpy).toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('does not erase a connector edited while adapter removal is in flight and republishes the newer definition', async () => {
     removeFromAgents.mockImplementationOnce(async () => {
       active = [{ ...server(), description: 'newer user edit', updatedAt: 30 }];
