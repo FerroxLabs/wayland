@@ -904,6 +904,7 @@ test('repository Phase 1 candidate set is deterministic without mutating plannin
     skipGitCheck: true,
   })
   assert.deepEqual(second, first)
-  assert.ok(first.candidate_plans.some((candidate) => candidate.plan_id === '01-40'))
+  assert.ok(first.candidate_plans.length > 0)
+  assert.ok(first.candidate_plans.every((candidate) => candidate.plan_id !== '01-40'))
   assert.deepEqual(snapshot(join(repoRoot, '.planning')), before)
 })
