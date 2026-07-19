@@ -8,7 +8,25 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const { previewProvider, collectDesktopManagedWorkspaceInventory } = vi.hoisted(() => ({
   previewProvider: vi.fn(),
-  collectDesktopManagedWorkspaceInventory: vi.fn(async () => ({ marker: 'dry-run' })),
+  collectDesktopManagedWorkspaceInventory: vi.fn(async () => ({
+    generatedAt: '2026-07-16T00:00:00.000Z',
+    root: '/managed/work',
+    canonicalRoot: '/managed/work',
+    authorityCompleteness: {
+      conversation: 'complete',
+      project: 'complete',
+      schedule: 'complete',
+      artifact: 'unavailable',
+      receipt: 'unavailable',
+      'active-process': 'complete',
+      provenance: 'unavailable',
+      snapshot: 'unavailable',
+    },
+    complete: false,
+    entries: [],
+    summary: { discovered: 0, preserved: 0, reviewCandidate: 0, unknown: 0 },
+    errors: [],
+  })),
 }));
 
 vi.mock('@/common', () => ({
@@ -33,14 +51,21 @@ describe('workspaceRetentionBridge', () => {
       listSchedules: vi.fn(async () => []),
       listActiveProcesses: vi.fn(() => []),
     };
-    initWorkspaceRetentionBridge({ getWorkDir: () => '/managed/work', sources });
+    const loadProvenance = vi.fn(async () => ({ state: 'unavailable' as const, records: [] as [], errors: [] }));
+    initWorkspaceRetentionBridge({
+      getWorkDir: () => '/managed/work',
+      getInstallationId: () => 'desktop-test-installation',
+      loadProvenance,
+      sources,
+    });
 
     expect(previewProvider).toHaveBeenCalledTimes(1);
     const handler = previewProvider.mock.calls[0][0] as (request?: unknown) => Promise<unknown>;
-    await expect(handler()).resolves.toEqual({ marker: 'dry-run' });
+    await expect(handler()).resolves.toMatchObject({ root: '/managed/work', complete: false });
     expect(collectDesktopManagedWorkspaceInventory).toHaveBeenCalledWith({
       workDir: '/managed/work',
-      sources,
+      installationId: 'desktop-test-installation',
+      sources: { ...sources, loadProvenance },
     });
   });
 
@@ -56,6 +81,8 @@ describe('workspaceRetentionBridge', () => {
   ])('rejects every renderer-supplied preview payload %#', async (request) => {
     initWorkspaceRetentionBridge({
       getWorkDir: () => '/managed/work',
+      getInstallationId: () => 'desktop-test-installation',
+      loadProvenance: async () => ({ state: 'unavailable', records: [], errors: [] }),
       sources: {
         listConversations: async () => [],
         listProjects: async () => [],

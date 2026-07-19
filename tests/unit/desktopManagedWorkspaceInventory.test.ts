@@ -18,6 +18,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = Date.UTC(2026, 6, 16, 0, 0, 0);
+const INSTALLATION_ID = 'desktop-test-installation';
 
 function conversation(id: string, workspace: string, customWorkspace = false): TChatConversation {
   return {
@@ -85,6 +86,11 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
       listProjects: vi.fn(async () => []),
       listSchedules: vi.fn(async () => []),
       listActiveProcesses: vi.fn(() => []),
+      loadProvenance: vi.fn(async () => ({
+        state: 'unavailable' as const,
+        records: [] as [],
+        errors: ['workspace provenance ledger is absent'],
+      })),
       ...overrides,
     };
   }
@@ -92,6 +98,7 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
   it('joins conversations, Projects, schedules, and active processes by canonical workspace', async () => {
     const report = await collectDesktopManagedWorkspaceInventory({
       workDir: root,
+      installationId: INSTALLATION_ID,
       nowMs: NOW,
       sources: sources({
         listConversations: async () => [conversation('chat-1', candidate, true)],
@@ -109,6 +116,8 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
       artifact: 'unavailable',
       receipt: 'unavailable',
       'active-process': 'complete',
+      provenance: 'unavailable',
+      snapshot: 'unavailable',
     });
     expect(report.complete).toBe(false);
     expect(report.entries[0]).toMatchObject({
@@ -118,16 +127,17 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
       },
     });
     expect(report.entries[0].references).toEqual([
+      { source: 'active-process', id: 'chat-1' },
       { source: 'conversation', id: 'chat-1' },
       { source: 'project', id: 'project-1' },
       { source: 'schedule', id: 'schedule-1' },
-      { source: 'active-process', id: 'chat-1' },
     ]);
   });
 
   it('never calls an old empty shell eligible while artifact and receipt ledgers are unavailable', async () => {
     const report = await collectDesktopManagedWorkspaceInventory({
       workDir: root,
+      installationId: INSTALLATION_ID,
       nowMs: NOW,
       sources: sources(),
     });
@@ -140,6 +150,7 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
   it('fails closed and reports the exact authority when a producer throws', async () => {
     const report = await collectDesktopManagedWorkspaceInventory({
       workDir: root,
+      installationId: INSTALLATION_ID,
       nowMs: NOW,
       sources: sources({
         listSchedules: async () => {
@@ -156,6 +167,7 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
   it('fails closed when a producer returns a malformed non-array payload', async () => {
     const report = await collectDesktopManagedWorkspaceInventory({
       workDir: root,
+      installationId: INSTALLATION_ID,
       nowMs: NOW,
       sources: sources({
         listProjects: vi.fn(async () => ({ forged: 'project' })) as unknown as () => Promise<IProject[]>,
@@ -170,6 +182,7 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
   it('fails closed when a producer returns a malformed record', async () => {
     const report = await collectDesktopManagedWorkspaceInventory({
       workDir: root,
+      installationId: INSTALLATION_ID,
       nowMs: NOW,
       sources: sources({ listSchedules: async () => [{} as CronJob] }),
     });
@@ -185,6 +198,7 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
     forged.extra.customWorkspace = 'yes';
     const report = await collectDesktopManagedWorkspaceInventory({
       workDir: root,
+      installationId: INSTALLATION_ID,
       nowMs: NOW,
       sources: sources({ listConversations: async () => [forged] }),
     });
@@ -196,6 +210,7 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
   it('marks schedule authority erroneous when a persisted job has no resolvable workspace', async () => {
     const report = await collectDesktopManagedWorkspaceInventory({
       workDir: root,
+      installationId: INSTALLATION_ID,
       nowMs: NOW,
       sources: sources({ listSchedules: async () => [schedule('schedule-1', 'missing-chat')] }),
     });
@@ -207,6 +222,7 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
   it('marks live-process authority erroneous when an active process has no resolvable workspace', async () => {
     const report = await collectDesktopManagedWorkspaceInventory({
       workDir: root,
+      installationId: INSTALLATION_ID,
       nowMs: NOW,
       sources: sources({ listActiveProcesses: () => [{ id: 'orphan-process' }] }),
     });

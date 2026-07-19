@@ -5,14 +5,18 @@
  */
 
 import { ipcBridge } from '@/common';
+import { parseManagedWorkspaceInventoryReport } from '@/common/types/managedWorkspaceRetention';
 import {
   collectDesktopManagedWorkspaceInventory,
   type DesktopManagedWorkspaceAuthoritySources,
 } from '@process/services/desktopManagedWorkspaceInventory';
+import type { ManagedWorkspaceProvenanceLoad } from '@process/services/managedWorkspaceProvenance';
 
 export type WorkspaceRetentionBridgeDependencies = {
   getWorkDir: () => string;
-  sources: DesktopManagedWorkspaceAuthoritySources;
+  getInstallationId: () => Promise<string>;
+  loadProvenance: () => Promise<ManagedWorkspaceProvenanceLoad>;
+  sources: Omit<DesktopManagedWorkspaceAuthoritySources, 'loadProvenance'>;
 };
 
 /**
@@ -27,9 +31,13 @@ export function initWorkspaceRetentionBridge(deps: WorkspaceRetentionBridgeDepen
     if (request !== undefined) {
       throw new TypeError('workspace retention preview does not accept request fields');
     }
-    return collectDesktopManagedWorkspaceInventory({
+    const report = await collectDesktopManagedWorkspaceInventory({
       workDir: deps.getWorkDir(),
-      sources: deps.sources,
+      installationId: await deps.getInstallationId(),
+      sources: { ...deps.sources, loadProvenance: deps.loadProvenance },
     });
+    const validated = parseManagedWorkspaceInventoryReport(report);
+    if (!validated) throw new Error('workspace retention produced an invalid report');
+    return validated;
   });
 }

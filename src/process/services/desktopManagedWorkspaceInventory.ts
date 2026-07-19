@@ -7,6 +7,7 @@
 import type { TChatConversation } from '@/common/config/storage';
 import type { IProject } from '@/common/types/project';
 import type { CronJob } from './cron/CronStore';
+import type { ManagedWorkspaceProvenanceLoad } from './managedWorkspaceProvenance';
 import {
   collectManagedWorkspaceInventory,
   type ManagedWorkspaceInventoryReport,
@@ -32,10 +33,12 @@ export type DesktopManagedWorkspaceAuthoritySources = {
   listProjects: () => Promise<IProject[]>;
   listSchedules: () => Promise<CronJob[]>;
   listActiveProcesses: () => ActiveWorkspaceProcess[] | Promise<ActiveWorkspaceProcess[]>;
+  loadProvenance: () => Promise<ManagedWorkspaceProvenanceLoad>;
 };
 
 export type CollectDesktopManagedWorkspaceInventoryInput = {
   workDir: string;
+  installationId: string;
   sources: DesktopManagedWorkspaceAuthoritySources;
   retentionWindowMs?: number;
   nowMs?: number;
@@ -81,11 +84,18 @@ async function loadAuthority<T>(
 export async function collectDesktopManagedWorkspaceInventory(
   input: CollectDesktopManagedWorkspaceInventoryInput
 ): Promise<ManagedWorkspaceInventoryReport> {
-  const [conversationLoad, projectLoad, scheduleLoad, processLoad] = await Promise.all([
+  const [conversationLoad, projectLoad, scheduleLoad, processLoad, provenanceLoad] = await Promise.all([
     loadAuthority('conversation', input.sources.listConversations),
     loadAuthority('project', input.sources.listProjects),
     loadAuthority('schedule', input.sources.listSchedules),
     loadAuthority('active-process', input.sources.listActiveProcesses),
+    input.sources.loadProvenance().catch(
+      (error): ManagedWorkspaceProvenanceLoad => ({
+        state: 'error',
+        records: [],
+        errors: [`provenance authority failed: ${error instanceof Error ? error.message : String(error)}`],
+      })
+    ),
   ]);
 
   const authorityCompleteness: WorkspaceAuthorityCompleteness = {
@@ -95,6 +105,8 @@ export async function collectDesktopManagedWorkspaceInventory(
     artifact: 'unavailable',
     receipt: 'unavailable',
     'active-process': processLoad.state,
+    provenance: provenanceLoad.state,
+    snapshot: 'unavailable',
   };
   const references: WorkspaceAuthorityReference[] = [];
   const conversationsById = new Map<string, TChatConversation>();
@@ -192,6 +204,8 @@ export async function collectDesktopManagedWorkspaceInventory(
     workDir: input.workDir,
     references,
     authorityCompleteness,
+    installationId: input.installationId,
+    provenanceRecords: provenanceLoad.records,
     retentionWindowMs: input.retentionWindowMs ?? DEFAULT_MANAGED_WORKSPACE_RETENTION_MS,
     nowMs: input.nowMs,
   });

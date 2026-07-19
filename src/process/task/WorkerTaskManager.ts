@@ -20,7 +20,12 @@ const DEFAULT_IDLE_TIMEOUT_MS = 5 * 60 * 1000;
 const AGENT_IDLE_CHECK_INTERVAL_MS = 1 * 60 * 1000;
 
 export class WorkerTaskManager implements IWorkerTaskManager {
-  private taskList: Array<{ id: string; task: IAgentManager }> = [];
+  private taskList: Array<{
+    id: string;
+    task: IAgentManager;
+    lifecycle: 'running' | 'terminating';
+    termination?: Promise<void>;
+  }> = [];
   private idleCheckTimer: ReturnType<typeof setInterval> | undefined;
   // NOTE(M14/AUDIT-05 F5): single shared `process.on('exit', ...)` handler
   // installed here instead of one-per-ForkTask. Iterates taskList on shutdown
@@ -75,7 +80,7 @@ export class WorkerTaskManager implements IWorkerTaskManager {
   }
 
   getTask(id: string): IAgentManager | undefined {
-    return this.taskList.find((item) => item.id === id)?.task;
+    return this.taskList.find((item) => item.id === id && item.lifecycle === 'running')?.task;
   }
 
   async getOrBuildTask(id: string, options?: BuildConversationOptions): Promise<IAgentManager> {
@@ -112,27 +117,41 @@ export class WorkerTaskManager implements IWorkerTaskManager {
   }
 
   addTask(id: string, task: IAgentManager): void {
-    const existing = this.taskList.find((item) => item.id === id);
+    const existing = this.taskList.find((item) => item.id === id && item.lifecycle === 'running');
     if (existing) {
       // Kill the old process before replacing to prevent orphaned child processes.
       // Without this, getOrBuildTask(skipCache: true) leaves the old agent running.
       // kill() is async (AUDIT-05 F20 / M18) but addTask itself is sync - the
       // old agent's exit doesn't block creating the replacement.
-      void existing.task.kill();
-      existing.task = task;
-    } else {
-      this.taskList.push({ id, task });
+      void this.beginTermination(existing).catch(() => {
+        // The failed terminating lease stays authoritative in taskList.
+      });
     }
+    this.taskList.push({ id, task, lifecycle: 'running' });
   }
 
   kill(id: string, reason?: AgentKillReason): Promise<void> {
-    const index = this.taskList.findIndex((item) => item.id === id);
-    if (index === -1) return Promise.resolve();
-    // Evict synchronously so no caller can retrieve the stale task while its
-    // process is shutting down. The returned promise lets authority-changing
-    // callers wait before spawning the replacement.
-    const [removed] = this.taskList.splice(index, 1);
-    return removed?.task.kill(reason) ?? Promise.resolve();
+    const running = this.taskList.find((item) => item.id === id && item.lifecycle === 'running');
+    if (running) return this.beginTermination(running, reason);
+    return (
+      this.taskList.find((item) => item.id === id && item.lifecycle === 'terminating')?.termination ?? Promise.resolve()
+    );
+  }
+
+  private beginTermination(lease: (typeof this.taskList)[number], reason?: AgentKillReason): Promise<void> {
+    if (lease.termination) return lease.termination;
+    lease.lifecycle = 'terminating';
+    try {
+      // Invoke kill synchronously so replacement preserves the established
+      // contract that shutdown begins before the successor is published.
+      lease.termination = Promise.resolve(lease.task.kill(reason)).then(() => {
+        const index = this.taskList.indexOf(lease);
+        if (index >= 0) this.taskList.splice(index, 1);
+      });
+    } catch (error) {
+      lease.termination = Promise.reject(error);
+    }
+    return lease.termination;
   }
 
   async clear(): Promise<void> {
@@ -142,21 +161,12 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     // leak listeners on the global `process` emitter.
     process.off('exit', this.shutdownHandler);
     const tasks = [...this.taskList];
-    this.taskList = [];
     // AUDIT-05 F20 / M18: kill() now returns a Promise that resolves when the
     // child has actually exited (or after each agent's internal hard timeout).
     // Use allSettled (not all) so one stuck child doesn't block the others, and
     // await all of them so before-quit doesn't return before children die.
     if (tasks.length > 0) {
-      await Promise.allSettled(
-        tasks.map((item) => {
-          try {
-            return item.task.kill();
-          } catch (err) {
-            return Promise.reject(err);
-          }
-        })
-      );
+      await Promise.allSettled(tasks.map((item) => this.beginTermination(item)));
     }
   }
 

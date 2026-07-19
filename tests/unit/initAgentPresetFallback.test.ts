@@ -7,6 +7,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ICreateConversationParams } from '@/common/adapter/ipcBridge';
 
+const { recordManagedWorkspaceProvenance } = vi.hoisted(() => ({
+  recordManagedWorkspaceProvenance: vi.fn(async () => undefined),
+}));
+
 // createAcpAgent only touches the filesystem via fs mkdir + the skill-symlink
 // helpers; stub them so the test exercises pure extra-field mapping.
 vi.mock('fs/promises', () => ({
@@ -30,6 +34,11 @@ vi.mock('@process/utils/initStorage', () => ({
   getSystemDir: vi.fn(() => ({ workDir: '/mock/work' })),
   ProcessConfig: { get: vi.fn(async () => undefined), set: vi.fn(async () => undefined) },
 }));
+vi.mock('@process/utils/utils', () => ({ getDataPath: vi.fn(() => '/mock/data') }));
+vi.mock('@process/services/kickoff/installUuid', () => ({
+  getInstallUuid: vi.fn(async () => 'desktop-test-installation'),
+}));
+vi.mock('@process/services/managedWorkspaceProvenance', () => ({ recordManagedWorkspaceProvenance }));
 vi.mock('@process/utils/openclawUtils', () => ({ computeOpenClawIdentityHash: vi.fn(() => 'h') }));
 vi.mock('@/common/utils', () => ({ uuid: vi.fn(() => 'mock-uuid') }));
 
@@ -77,5 +86,32 @@ describe('createAcpAgent - preset customAgentId fallback (#66)', () => {
       extra: baseExtra({}),
     } as ICreateConversationParams);
     expect(conv.extra.customAgentId).toBeUndefined();
+  });
+
+  it('records process-owned provenance when Desktop creates a temporary workspace', async () => {
+    const conv = await createAcpAgent({
+      type: 'acp',
+      model: {} as never,
+      name: 'Temporary Hermes',
+      extra: { backend: 'hermes', customWorkspace: false },
+    } as ICreateConversationParams);
+
+    expect(recordManagedWorkspaceProvenance).toHaveBeenCalledWith({
+      authorityRoot: '/mock/data',
+      workRoot: '/mock/work',
+      workspace: conv.extra.workspace,
+      installationId: 'desktop-test-installation',
+    });
+  });
+
+  it('never records managed provenance for a user-selected workspace', async () => {
+    await createAcpAgent({
+      type: 'acp',
+      model: {} as never,
+      name: 'Custom Hermes',
+      extra: baseExtra({}),
+    } as ICreateConversationParams);
+
+    expect(recordManagedWorkspaceProvenance).not.toHaveBeenCalled();
   });
 });

@@ -314,8 +314,10 @@ export function initConversationBridge(
         return false;
       }
 
-      // Kill the running task if exists
-      workerTaskManager.kill(id);
+      // Do not sever persistence or publish an inactive-process view until the
+      // child has actually exited. Rejected shutdown keeps the chat and its
+      // active-process lease intact for a safe retry.
+      await workerTaskManager.kill(id);
 
       // If source is not 'wayland' (e.g., telegram), cleanup channel resources
       if (source && source !== 'wayland') {

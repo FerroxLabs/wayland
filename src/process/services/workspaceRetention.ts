@@ -11,49 +11,16 @@
  * workspace. Filesystem and authority collectors remain separate so an
  * incomplete scan can never be mistaken for an empty directory.
  */
-export type ManagedWorkspaceEvidence = {
-  /** The path is proven to have been created and owned by this Wayland install. */
-  managedProvenance: boolean;
-  /** Every required authority was inspected without truncation or error. */
-  inventoryComplete: boolean;
-  /** Live conversation or Project references to this exact canonical path. */
-  referenceCount: number | null;
-  /** Enabled or disabled schedules that retain this exact canonical path. */
-  scheduleCount: number | null;
-  /** Live agent processes that currently own this exact canonical path. */
-  activeProcessCount: number | null;
-  /** Registered outputs, reports, receipts, or other artifacts rooted here. */
-  artifactCount: number | null;
-  /** Whether the user explicitly promoted/selected this as durable storage. */
-  userPromoted: boolean | null;
-  /** User-authored content after excluding known Wayland-managed scaffolding. */
-  userContent: 'present' | 'absent' | 'unknown';
-  /** Mutation evidence relative to the app-created baseline. */
-  modified: boolean | null;
-  /** Age of the abandoned shell; null when creation/last-reference time is unknown. */
-  abandonedForMs: number | null;
-  /** Declared visible retention window. */
-  retentionWindowMs: number;
-};
+import type {
+  ManagedWorkspaceClassification,
+  ManagedWorkspaceEvidence,
+  ManagedWorkspaceRetentionDecision,
+} from '@/common/types/managedWorkspaceRetention';
 
-export type ManagedWorkspaceClassification =
-  | 'referenced'
-  | 'scheduled'
-  | 'active'
-  | 'artifact-bearing'
-  | 'modified'
-  | 'user-promoted'
-  | 'empty-abandoned'
-  | 'unknown';
-
-export type ManagedWorkspaceRetentionDecision = {
-  classifications: ManagedWorkspaceClassification[];
-  /**
-   * `review-candidate` is classification only. It grants no mutation authority.
-   */
-  disposition: 'preserve' | 'review-candidate';
-  reasons: string[];
-};
+export type {
+  ManagedWorkspaceEvidence,
+  ManagedWorkspaceRetentionDecision,
+} from '@/common/types/managedWorkspaceRetention';
 
 const isKnownCount = (value: number | null): value is number =>
   value !== null && Number.isSafeInteger(value) && value >= 0;
@@ -65,65 +32,81 @@ const isKnownCount = (value: number | null): value is number =>
  * the workspace. There is intentionally no delete/prune operation in this
  * module.
  */
-export function classifyManagedWorkspaceRetention(
-  evidence: ManagedWorkspaceEvidence
-): ManagedWorkspaceRetentionDecision {
+export function classifyManagedWorkspaceRetention(evidence: unknown): ManagedWorkspaceRetentionDecision {
   const classifications: ManagedWorkspaceClassification[] = [];
   const reasons: string[] = [];
 
-  if (isKnownCount(evidence.referenceCount) && evidence.referenceCount > 0) {
+  if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) {
+    return {
+      classifications: ['unknown'],
+      disposition: 'preserve',
+      reasons: ['managed-workspace evidence is malformed or unavailable'],
+    };
+  }
+  let candidate: Partial<ManagedWorkspaceEvidence>;
+  try {
+    candidate = { ...(evidence as Record<string, unknown>) } as Partial<ManagedWorkspaceEvidence>;
+  } catch {
+    return {
+      classifications: ['unknown'],
+      disposition: 'preserve',
+      reasons: ['managed-workspace evidence could not be inspected safely'],
+    };
+  }
+
+  if (isKnownCount(candidate.referenceCount ?? null) && Number(candidate.referenceCount) > 0) {
     classifications.push('referenced');
-    reasons.push(`${evidence.referenceCount} live conversation or Project reference(s)`);
+    reasons.push(`${candidate.referenceCount} live conversation or Project reference(s)`);
   }
-  if (isKnownCount(evidence.scheduleCount) && evidence.scheduleCount > 0) {
+  if (isKnownCount(candidate.scheduleCount ?? null) && Number(candidate.scheduleCount) > 0) {
     classifications.push('scheduled');
-    reasons.push(`${evidence.scheduleCount} schedule reference(s)`);
+    reasons.push(`${candidate.scheduleCount} schedule reference(s)`);
   }
-  if (isKnownCount(evidence.activeProcessCount) && evidence.activeProcessCount > 0) {
+  if (isKnownCount(candidate.activeProcessCount ?? null) && Number(candidate.activeProcessCount) > 0) {
     classifications.push('active');
-    reasons.push(`${evidence.activeProcessCount} active process reference(s)`);
+    reasons.push(`${candidate.activeProcessCount} active process reference(s)`);
   }
-  if (isKnownCount(evidence.artifactCount) && evidence.artifactCount > 0) {
+  if (isKnownCount(candidate.artifactCount ?? null) && Number(candidate.artifactCount) > 0) {
     classifications.push('artifact-bearing');
-    reasons.push(`${evidence.artifactCount} registered artifact or receipt reference(s)`);
+    reasons.push(`${candidate.artifactCount} registered artifact or receipt reference(s)`);
   }
-  if (evidence.modified === true || evidence.userContent === 'present') {
+  if (candidate.modified === true || candidate.userContent === 'present') {
     classifications.push('modified');
     reasons.push('user content or post-creation mutation is present');
   }
-  if (evidence.userPromoted === true) {
+  if (candidate.userPromoted === true) {
     classifications.push('user-promoted');
     reasons.push('the user promoted or selected this workspace as durable');
   }
 
   const evidenceShapeValid =
-    typeof evidence.managedProvenance === 'boolean' &&
-    typeof evidence.inventoryComplete === 'boolean' &&
-    (evidence.userPromoted === null || typeof evidence.userPromoted === 'boolean') &&
-    ['present', 'absent', 'unknown'].includes(evidence.userContent) &&
-    (evidence.modified === null || typeof evidence.modified === 'boolean') &&
-    evidence.retentionWindowMs >= 0 &&
-    Number.isSafeInteger(evidence.retentionWindowMs) &&
-    (evidence.abandonedForMs === null ||
-      (Number.isSafeInteger(evidence.abandonedForMs) && evidence.abandonedForMs >= 0)) &&
-    isKnownCount(evidence.referenceCount) &&
-    isKnownCount(evidence.scheduleCount) &&
-    isKnownCount(evidence.activeProcessCount) &&
-    isKnownCount(evidence.artifactCount);
+    typeof candidate.managedProvenance === 'boolean' &&
+    typeof candidate.inventoryComplete === 'boolean' &&
+    (candidate.userPromoted === null || typeof candidate.userPromoted === 'boolean') &&
+    ['present', 'absent', 'unknown'].includes(String(candidate.userContent)) &&
+    (candidate.modified === null || typeof candidate.modified === 'boolean') &&
+    Number(candidate.retentionWindowMs) >= 0 &&
+    Number.isSafeInteger(candidate.retentionWindowMs) &&
+    (candidate.abandonedForMs === null ||
+      (Number.isSafeInteger(candidate.abandonedForMs) && Number(candidate.abandonedForMs) >= 0)) &&
+    isKnownCount(candidate.referenceCount ?? null) &&
+    isKnownCount(candidate.scheduleCount ?? null) &&
+    isKnownCount(candidate.activeProcessCount ?? null) &&
+    isKnownCount(candidate.artifactCount ?? null);
 
   const provablyEmptyAbandoned =
-    evidence.managedProvenance &&
-    evidence.inventoryComplete &&
+    candidate.managedProvenance &&
+    candidate.inventoryComplete &&
     evidenceShapeValid &&
-    evidence.referenceCount === 0 &&
-    evidence.scheduleCount === 0 &&
-    evidence.activeProcessCount === 0 &&
-    evidence.artifactCount === 0 &&
-    evidence.userPromoted === false &&
-    evidence.userContent === 'absent' &&
-    evidence.modified === false &&
-    evidence.abandonedForMs !== null &&
-    evidence.abandonedForMs >= evidence.retentionWindowMs;
+    candidate.referenceCount === 0 &&
+    candidate.scheduleCount === 0 &&
+    candidate.activeProcessCount === 0 &&
+    candidate.artifactCount === 0 &&
+    candidate.userPromoted === false &&
+    candidate.userContent === 'absent' &&
+    candidate.modified === false &&
+    candidate.abandonedForMs !== null &&
+    Number(candidate.abandonedForMs) >= Number(candidate.retentionWindowMs);
 
   if (provablyEmptyAbandoned) {
     return {
@@ -136,18 +119,18 @@ export function classifyManagedWorkspaceRetention(
   if (classifications.length === 0) {
     classifications.push('unknown');
   }
-  if (!evidence.managedProvenance) reasons.push('Wayland-managed provenance is not proven');
-  if (!evidence.inventoryComplete) reasons.push('the authority inventory is incomplete');
+  if (!candidate.managedProvenance) reasons.push('Wayland-managed provenance is not proven');
+  if (!candidate.inventoryComplete) reasons.push('the authority inventory is incomplete');
   if (!evidenceShapeValid) reasons.push('one or more evidence fields are missing or invalid');
-  if (evidence.userPromoted === null) reasons.push('user-promotion state is unknown');
-  if (evidence.userContent === 'unknown') reasons.push('user-content state is unknown');
-  if (evidence.modified === null) reasons.push('mutation state is unknown');
-  if (evidence.abandonedForMs === null) reasons.push('abandonment age is unknown');
+  if (candidate.userPromoted === null) reasons.push('user-promotion state is unknown');
+  if (candidate.userContent === 'unknown') reasons.push('user-content state is unknown');
+  if (candidate.modified === null) reasons.push('mutation state is unknown');
+  if (candidate.abandonedForMs === null) reasons.push('abandonment age is unknown');
   if (
-    evidence.abandonedForMs !== null &&
-    Number.isSafeInteger(evidence.abandonedForMs) &&
-    evidence.abandonedForMs >= 0 &&
-    evidence.abandonedForMs < evidence.retentionWindowMs
+    candidate.abandonedForMs !== null &&
+    Number.isSafeInteger(candidate.abandonedForMs) &&
+    Number(candidate.abandonedForMs) >= 0 &&
+    Number(candidate.abandonedForMs) < Number(candidate.retentionWindowMs)
   ) {
     reasons.push('the visible retention window has not elapsed');
   }

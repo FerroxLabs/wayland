@@ -16,6 +16,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const DAY = 24 * 60 * 60 * 1000;
 const NOW = Date.UTC(2026, 6, 16, 0, 0, 0);
+const INSTALLATION_ID = 'desktop-test-installation';
 
 const COMPLETE_AUTHORITIES: WorkspaceAuthorityCompleteness = {
   conversation: 'complete',
@@ -24,6 +25,8 @@ const COMPLETE_AUTHORITIES: WorkspaceAuthorityCompleteness = {
   artifact: 'complete',
   receipt: 'complete',
   'active-process': 'complete',
+  provenance: 'unavailable',
+  snapshot: 'unavailable',
 };
 
 describe('collectManagedWorkspaceInventory', () => {
@@ -52,22 +55,24 @@ describe('collectManagedWorkspaceInventory', () => {
       references,
       authorityCompleteness: COMPLETE_AUTHORITIES,
       retentionWindowMs: 30 * DAY,
+      installationId: INSTALLATION_ID,
+      provenanceRecords: [],
       nowMs: NOW,
       ...overrides,
     });
   }
 
-  it('reports an old empty direct child as a review candidate without mutating it', async () => {
+  it('preserves an old empty direct child until an immutable snapshot authority exists', async () => {
     const candidate = await makeCandidate();
     const report = await collect();
 
     expect(report).toMatchObject({
-      complete: true,
-      summary: { discovered: 1, preserved: 0, reviewCandidate: 1, unknown: 0 },
+      complete: false,
+      summary: { discovered: 1, preserved: 1, reviewCandidate: 0, unknown: 1 },
     });
     expect(report.entries[0]).toMatchObject({
       canonicalPath: await fs.realpath(candidate),
-      decision: { disposition: 'review-candidate', classifications: ['empty-abandoned'] },
+      decision: { disposition: 'preserve', classifications: ['unknown'] },
     });
     await expect(fs.stat(candidate)).resolves.toBeTruthy();
   });
@@ -82,6 +87,31 @@ describe('collectManagedWorkspaceInventory', () => {
       evidence: { managedProvenance: false },
       decision: { disposition: 'preserve', classifications: ['unknown'] },
     });
+  });
+
+  it('accepts provenance only when installation, root, path, device, and inode all match', async () => {
+    const candidate = await makeCandidate();
+    const stat = await fs.lstat(candidate);
+    const canonicalRoot = await fs.realpath(root);
+    const canonicalPath = await fs.realpath(candidate);
+    const report = await collect([], {
+      authorityCompleteness: { ...COMPLETE_AUTHORITIES, provenance: 'complete' },
+      provenanceRecords: [
+        {
+          schemaVersion: 1,
+          workspaceId: '0d8ac3d5-3e33-4d40-a236-47b4526ef475',
+          installationId: INSTALLATION_ID,
+          canonicalRoot,
+          canonicalPath,
+          device: stat.dev,
+          inode: stat.ino,
+          createdAtMs: NOW - 31 * DAY,
+        },
+      ],
+    });
+
+    expect(report.entries[0].evidence.managedProvenance).toBe(true);
+    expect(report.entries[0].decision.disposition).toBe('preserve');
   });
 
   it('canonicalizes aliases and preserves every referenced authority', async () => {
@@ -199,9 +229,10 @@ describe('collectManagedWorkspaceInventory', () => {
     await expect(
       fs.readFile(path.join(canonicalCandidate, 'arrived-during-classification.md'), 'utf8')
     ).resolves.toContain('must be preserved');
-    expect({ complete: report.complete, decision: report.entries[0].decision }).toEqual({
-      complete: false,
-      decision: { disposition: 'preserve', classifications: ['unknown'] },
+    expect(report.complete).toBe(false);
+    expect(report.entries[0].decision).toMatchObject({
+      disposition: 'preserve',
+      classifications: ['unknown'],
     });
   });
 
@@ -234,6 +265,49 @@ describe('collectManagedWorkspaceInventory', () => {
 
     expect(report.complete).toBe(false);
     expect(report.entries[0].decision.disposition).toBe('preserve');
+  });
+
+  it('returns a preservation-safe report for malformed runtime input instead of throwing', async () => {
+    await expect(collectManagedWorkspaceInventory(null)).resolves.toMatchObject({
+      complete: false,
+      entries: [],
+    });
+    await expect(collectManagedWorkspaceInventory([])).resolves.toMatchObject({
+      complete: false,
+      entries: [],
+    });
+  });
+
+  it('canonicalizes authority ordering and coalesces exact duplicates deterministically', async () => {
+    const candidate = await makeCandidate();
+    const first = await collect([
+      { source: 'schedule', id: 'schedule-1', workspace: candidate },
+      { source: 'conversation', id: 'chat-1', workspace: candidate },
+      { source: 'conversation', id: 'chat-1', workspace: candidate },
+    ]);
+    const second = await collect([
+      { source: 'conversation', id: 'chat-1', workspace: candidate },
+      { source: 'schedule', id: 'schedule-1', workspace: candidate },
+    ]);
+
+    expect(first.entries[0].references).toEqual(second.entries[0].references);
+    expect(first.entries[0].references).toEqual([
+      { source: 'conversation', id: 'chat-1' },
+      { source: 'schedule', id: 'schedule-1' },
+    ]);
+  });
+
+  it('fails closed for contradictory duplicate authority identities', async () => {
+    const candidate = await makeCandidate();
+    const other = await makeCandidate('gemini-temp-1736900000009');
+    const report = await collect([
+      { source: 'conversation', id: 'chat-1', workspace: candidate },
+      { source: 'conversation', id: 'chat-1', workspace: other },
+    ]);
+
+    expect(report.complete).toBe(false);
+    expect(report.errors).toContain('authority reference conversation:chat-1 is contradictory');
+    expect(report.entries.every((entry) => entry.decision.disposition === 'preserve')).toBe(true);
   });
 
   it('lists but never follows a matching symlink candidate', async () => {
@@ -269,14 +343,16 @@ describe('collectManagedWorkspaceInventory', () => {
         workDir: alias,
         references: [],
         authorityCompleteness: COMPLETE_AUTHORITIES,
+        installationId: INSTALLATION_ID,
+        provenanceRecords: [],
         retentionWindowMs: 30 * DAY,
         nowMs: NOW,
       });
       expect(report).toMatchObject({
         root: path.resolve(alias),
         canonicalRoot: await fs.realpath(root),
-        complete: true,
-        summary: { discovered: 1, reviewCandidate: 1 },
+        complete: false,
+        summary: { discovered: 1, preserved: 1, reviewCandidate: 0, unknown: 1 },
       });
       expect(report.entries[0].canonicalPath).toBe(await fs.realpath(candidate));
     } finally {

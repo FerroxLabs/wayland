@@ -18,6 +18,9 @@ import path from 'path';
 import { getSkillsDir, getBuiltinSkillsCopyDir, getAutoSkillsDir, getSystemDir, ProcessConfig } from './initStorage';
 import { computeOpenClawIdentityHash } from './openclawUtils';
 import { writeWorkspaceGitignore } from './workspaceGitignore';
+import { getDataPath } from './utils';
+import { getInstallUuid } from '@process/services/kickoff/installUuid';
+import { recordManagedWorkspaceProvenance } from '@process/services/managedWorkspaceProvenance';
 
 /**
  * Minimal skills.preferences shape used by setupAssistantWorkspace.
@@ -246,6 +249,18 @@ const buildWorkspaceWidthFiles = async (
     const tempPath = getSystemDir().workDir;
     workspace = path.join(tempPath, defaultWorkspaceName);
     await fs.mkdir(workspace, { recursive: true });
+    try {
+      await recordManagedWorkspaceProvenance({
+        authorityRoot: getDataPath(),
+        workRoot: tempPath,
+        workspace,
+        installationId: await getInstallUuid(),
+      });
+    } catch (error) {
+      // Creation may proceed, but the workspace can never become reviewable
+      // without an authenticated process-owned provenance record.
+      console.warn('[initAgent] Failed to record managed-workspace provenance; retention will preserve it', error);
+    }
   } else {
     // Normalize path: strip trailing slashes and resolve to absolute path
     workspace = path.resolve(workspace);

@@ -51,6 +51,8 @@ const REPORT = {
     artifact: 'unavailable',
     receipt: 'unavailable',
     'active-process': 'complete',
+    provenance: 'unavailable',
+    snapshot: 'unavailable',
   },
   summary: { discovered: 1, preserved: 1, reviewCandidate: 0, unknown: 0 },
   errors: [],
@@ -58,7 +60,19 @@ const REPORT = {
     {
       path: '/managed/work/claude-temp-1736900000000',
       canonicalPath: '/managed/work/claude-temp-1736900000000',
-      evidence: {},
+      evidence: {
+        managedProvenance: false,
+        inventoryComplete: false,
+        referenceCount: 1,
+        scheduleCount: 1,
+        activeProcessCount: null,
+        artifactCount: null,
+        userPromoted: null,
+        userContent: 'absent',
+        modified: false,
+        abandonedForMs: 2678400000,
+        retentionWindowMs: 2592000000,
+      },
       decision: { disposition: 'preserve', classifications: ['referenced', 'scheduled'], reasons: [] },
       references: [],
       errors: [],
@@ -116,6 +130,29 @@ describe('ManagedWorkspacesCard', () => {
     expect(
       await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
     ).toBeTruthy();
+  });
+
+  it('fails closed visibly when the process returns a malformed expanded report', async () => {
+    preview.mockResolvedValue({ ...REPORT, unexpectedAuthority: true });
+    render(<ManagedWorkspacesCard />);
+    expect(
+      await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+    ).toBeTruthy();
+  });
+
+  it('renders active work in human language', async () => {
+    preview.mockResolvedValue({
+      ...REPORT,
+      entries: [
+        {
+          ...REPORT.entries[0],
+          decision: { disposition: 'preserve', classifications: ['active'], reasons: [] },
+        },
+      ],
+    });
+    render(<ManagedWorkspacesCard />);
+    expect(await screen.findByText('Active work')).toBeTruthy();
+    expect(screen.queryByText('active')).toBeNull();
   });
 
   it('labels an empty abandoned shell only for later human review', async () => {

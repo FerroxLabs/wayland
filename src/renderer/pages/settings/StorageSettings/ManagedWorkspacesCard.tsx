@@ -9,7 +9,10 @@ import { FolderClock, ShieldCheck } from 'lucide-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { shell, workspaceRetention } from '@/common/adapter/ipcBridge';
-import type { ManagedWorkspaceInventoryReport } from '@process/services/managedWorkspaceInventory';
+import {
+  parseManagedWorkspaceInventoryReport,
+  type ManagedWorkspaceInventoryReport,
+} from '@/common/types/managedWorkspaceRetention';
 import { Card } from '@renderer/components/settings/shared';
 import { isElectronDesktop } from '@renderer/utils/platform';
 
@@ -20,11 +23,14 @@ const AUTHORITY_LABELS: Record<keyof ManagedWorkspaceInventoryReport['authorityC
   artifact: 'Outputs',
   receipt: 'Receipts',
   'active-process': 'Active work',
+  provenance: 'Creation records',
+  snapshot: 'Stable filesystem snapshot',
 };
 
 const CLASSIFICATION_LABELS: Record<string, string> = {
   referenced: 'In use',
   scheduled: 'Scheduled',
+  active: 'Active work',
   'artifact-bearing': 'Has outputs',
   modified: 'Has files',
   'user-promoted': 'Persistent',
@@ -50,7 +56,9 @@ const ManagedWorkspacesCard: React.FC = () => {
     setLoading(true);
     setError(false);
     try {
-      setReport(await workspaceRetention.preview.invoke());
+      const next = parseManagedWorkspaceInventoryReport(await workspaceRetention.preview.invoke());
+      if (!next) throw new Error('workspace retention returned a malformed report');
+      setReport(next);
     } catch {
       setError(true);
     } finally {

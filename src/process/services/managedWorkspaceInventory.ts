@@ -7,55 +7,31 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
-  classifyManagedWorkspaceRetention,
+  WORKSPACE_AUTHORITY_SOURCES,
   type ManagedWorkspaceEvidence,
-  type ManagedWorkspaceRetentionDecision,
-} from './workspaceRetention';
+  type ManagedWorkspaceInventoryEntry,
+  type ManagedWorkspaceInventoryReport,
+  type WorkspaceAuthorityCompleteness,
+  type WorkspaceAuthorityState,
+  type WorkspaceReferenceAuthoritySource,
+} from '@/common/types/managedWorkspaceRetention';
+import { classifyManagedWorkspaceRetention } from './workspaceRetention';
+import type { ManagedWorkspaceProvenanceRecord } from './managedWorkspaceProvenance';
 
-export type WorkspaceAuthoritySource =
-  | 'conversation'
-  | 'project'
-  | 'schedule'
-  | 'artifact'
-  | 'receipt'
-  | 'active-process';
-
-export type WorkspaceAuthorityState = 'complete' | 'unavailable' | 'error';
-
-export type WorkspaceAuthorityCompleteness = Record<WorkspaceAuthoritySource, WorkspaceAuthorityState>;
+export type {
+  ManagedWorkspaceInventoryEntry,
+  ManagedWorkspaceInventoryReport,
+  WorkspaceAuthorityCompleteness,
+  WorkspaceAuthorityState,
+  WorkspaceReferenceAuthoritySource as WorkspaceAuthoritySource,
+} from '@/common/types/managedWorkspaceRetention';
 
 export type WorkspaceAuthorityReference = {
-  source: WorkspaceAuthoritySource;
+  source: WorkspaceReferenceAuthoritySource;
   id: string;
   workspace: string;
   /** Only conversation/Project collectors may assert explicit user promotion. */
   userPromoted?: boolean;
-};
-
-export type ManagedWorkspaceInventoryEntry = {
-  path: string;
-  canonicalPath: string | null;
-  evidence: ManagedWorkspaceEvidence;
-  decision: ManagedWorkspaceRetentionDecision;
-  references: Array<Pick<WorkspaceAuthorityReference, 'source' | 'id'>>;
-  errors: string[];
-};
-
-export type ManagedWorkspaceInventoryReport = {
-  generatedAt: string;
-  root: string;
-  canonicalRoot: string | null;
-  /** Per-source truth used to decide whether any cleanup candidate is provable. */
-  authorityCompleteness: WorkspaceAuthorityCompleteness;
-  complete: boolean;
-  entries: ManagedWorkspaceInventoryEntry[];
-  summary: {
-    discovered: number;
-    preserved: number;
-    reviewCandidate: number;
-    unknown: number;
-  };
-  errors: string[];
 };
 
 export type CollectManagedWorkspaceInventoryInput = {
@@ -63,6 +39,8 @@ export type CollectManagedWorkspaceInventoryInput = {
   workDir: string;
   references: WorkspaceAuthorityReference[];
   authorityCompleteness: WorkspaceAuthorityCompleteness;
+  installationId: string;
+  provenanceRecords: ManagedWorkspaceProvenanceRecord[];
   retentionWindowMs: number;
   nowMs?: number;
 };
@@ -74,24 +52,40 @@ type CanonicalWorkspaceReferenceResult = {
 };
 
 const TEMP_WORKSPACE_NAME = /^[a-z0-9_-]+-temp-\d{10,}$/i;
-const AUTHORITY_SOURCES: readonly WorkspaceAuthoritySource[] = [
+const REFERENCE_AUTHORITY_SOURCES = new Set<WorkspaceReferenceAuthoritySource>([
   'conversation',
   'project',
   'schedule',
   'artifact',
   'receipt',
   'active-process',
-];
+]);
 const MAX_DATE_MS = 8_640_000_000_000_000;
+const compareCodeUnits = (left: string, right: string): number => (left < right ? -1 : left > right ? 1 : 0);
 
 const isAuthorityComplete = (states: WorkspaceAuthorityCompleteness): boolean => {
-  if (!states || typeof states !== 'object') return false;
-  const keys = Object.keys(states);
-  return (
-    keys.length === AUTHORITY_SOURCES.length &&
-    AUTHORITY_SOURCES.every((source) => keys.includes(source) && states[source] === 'complete')
-  );
+  try {
+    if (!states || typeof states !== 'object') return false;
+    const keys = Object.keys(states);
+    return (
+      keys.length === WORKSPACE_AUTHORITY_SOURCES.length &&
+      WORKSPACE_AUTHORITY_SOURCES.every((source) => keys.includes(source) && states[source] === 'complete')
+    );
+  } catch {
+    return false;
+  }
 };
+
+const unavailableAuthorities = (): WorkspaceAuthorityCompleteness => ({
+  conversation: 'error',
+  project: 'error',
+  schedule: 'error',
+  artifact: 'error',
+  receipt: 'error',
+  'active-process': 'error',
+  provenance: 'error',
+  snapshot: 'unavailable',
+});
 
 const pathIsDirectChild = (root: string, candidate: string): boolean => path.dirname(candidate) === root;
 
@@ -128,11 +122,51 @@ function summarize(entries: ManagedWorkspaceInventoryEntry[]): ManagedWorkspaceI
  * evidence incomplete and therefore fail-closed to `preserve`.
  */
 export async function collectManagedWorkspaceInventory(
-  input: CollectManagedWorkspaceInventoryInput
+  unsafeInput: CollectManagedWorkspaceInventoryInput | unknown
 ): Promise<ManagedWorkspaceInventoryReport> {
-  const nowMs = input.nowMs ?? Date.now();
-  const root = path.resolve(input.workDir);
+  let input: CollectManagedWorkspaceInventoryInput;
+  try {
+    if (!unsafeInput || typeof unsafeInput !== 'object' || Array.isArray(unsafeInput)) {
+      throw new Error('inventory input is not an object');
+    }
+    input = { ...(unsafeInput as CollectManagedWorkspaceInventoryInput) };
+  } catch (error) {
+    return {
+      generatedAt: new Date(0).toISOString(),
+      root: '',
+      canonicalRoot: null,
+      authorityCompleteness: unavailableAuthorities(),
+      complete: false,
+      entries: [],
+      summary: summarize([]),
+      errors: [error instanceof Error ? error.message : String(error)],
+    };
+  }
   const errors: string[] = [];
+  let root = '';
+  try {
+    if (typeof input.workDir !== 'string' || !input.workDir) throw new Error('work root path is malformed');
+    root = path.resolve(input.workDir);
+  } catch (error) {
+    return {
+      generatedAt: new Date(0).toISOString(),
+      root: '',
+      canonicalRoot: null,
+      authorityCompleteness: unavailableAuthorities(),
+      complete: false,
+      entries: [],
+      summary: summarize([]),
+      errors: [error instanceof Error ? error.message : String(error)],
+    };
+  }
+  const nowMs = input.nowMs ?? Date.now();
+  let authorityCompleteness: WorkspaceAuthorityCompleteness;
+  try {
+    authorityCompleteness = { ...input.authorityCompleteness, snapshot: 'unavailable' };
+  } catch {
+    authorityCompleteness = unavailableAuthorities();
+    errors.push('authority completeness is malformed');
+  }
 
   const nowValid = Number.isSafeInteger(nowMs) && nowMs >= 0 && nowMs <= MAX_DATE_MS;
   if (!nowValid) errors.push('invalid inventory timestamp');
@@ -157,7 +191,7 @@ export async function collectManagedWorkspaceInventory(
       generatedAt: new Date(nowValid ? nowMs : 0).toISOString(),
       root,
       canonicalRoot: null,
-      authorityCompleteness: { ...input.authorityCompleteness },
+      authorityCompleteness,
       complete: false,
       entries: [],
       summary: summarize([]),
@@ -174,7 +208,7 @@ export async function collectManagedWorkspaceInventory(
       generatedAt: new Date(nowValid ? nowMs : 0).toISOString(),
       root,
       canonicalRoot,
-      authorityCompleteness: { ...input.authorityCompleteness },
+      authorityCompleteness,
       complete: false,
       entries: [],
       summary: summarize([]),
@@ -182,40 +216,43 @@ export async function collectManagedWorkspaceInventory(
     };
   }
 
-  const referenceResults = await Promise.all(
-    (Array.isArray(input.references) ? input.references : []).map(
-      async (reference): Promise<CanonicalWorkspaceReferenceResult> => {
-        if (
-          !reference ||
-          typeof reference !== 'object' ||
-          !AUTHORITY_SOURCES.includes(reference.source) ||
-          typeof reference.id !== 'string' ||
-          !reference.id.trim() ||
-          typeof reference.workspace !== 'string' ||
-          !path.isAbsolute(reference.workspace) ||
-          (reference.userPromoted !== undefined && typeof reference.userPromoted !== 'boolean')
-        ) {
-          return {
-            reference: null,
-            error: 'authority reference is malformed or has no absolute workspace path',
-          };
+  let referenceResults: CanonicalWorkspaceReferenceResult[] = [];
+  try {
+    referenceResults = await Promise.all(
+      (Array.isArray(input.references) ? input.references : []).map(
+        async (reference): Promise<CanonicalWorkspaceReferenceResult> => {
+          try {
+            if (
+              !reference ||
+              typeof reference !== 'object' ||
+              !REFERENCE_AUTHORITY_SOURCES.has(reference.source) ||
+              typeof reference.id !== 'string' ||
+              !reference.id.trim() ||
+              typeof reference.workspace !== 'string' ||
+              !path.isAbsolute(reference.workspace) ||
+              (reference.userPromoted !== undefined && typeof reference.userPromoted !== 'boolean')
+            ) {
+              return {
+                reference: null,
+                error: 'authority reference is malformed or has no absolute workspace path',
+              };
+            }
+            return {
+              reference: { ...reference, canonicalWorkspace: await fs.realpath(reference.workspace) },
+              error: null,
+            };
+          } catch (error) {
+            return {
+              reference: null,
+              error: `authority reference cannot be canonicalized: ${error instanceof Error ? error.message : String(error)}`,
+            };
+          }
         }
-        try {
-          return {
-            reference: { ...reference, canonicalWorkspace: await fs.realpath(reference.workspace) },
-            error: null,
-          };
-        } catch (error) {
-          return {
-            reference: null,
-            error: `reference ${reference.source}:${reference.id} cannot be canonicalized: ${
-              error instanceof Error ? error.message : String(error)
-            }`,
-          };
-        }
-      }
-    )
-  );
+      )
+    );
+  } catch (error) {
+    errors.push(`authority references cannot be enumerated: ${error instanceof Error ? error.message : String(error)}`);
+  }
   if (!Array.isArray(input.references)) errors.push('authority references are malformed');
   const canonicalReferences: CanonicalWorkspaceReference[] = [];
   let referenceCanonicalizationComplete = true;
@@ -226,9 +263,30 @@ export async function collectManagedWorkspaceInventory(
       errors.push(result.error);
     }
   }
+  canonicalReferences.sort(
+    (left, right) =>
+      compareCodeUnits(left.source, right.source) ||
+      compareCodeUnits(left.id, right.id) ||
+      compareCodeUnits(left.canonicalWorkspace, right.canonicalWorkspace)
+  );
+  const deduplicatedReferences: CanonicalWorkspaceReference[] = [];
+  for (const reference of canonicalReferences) {
+    const previous = deduplicatedReferences.at(-1);
+    if (previous && previous.source === reference.source && previous.id === reference.id) {
+      if (
+        previous.canonicalWorkspace !== reference.canonicalWorkspace ||
+        previous.userPromoted !== reference.userPromoted
+      ) {
+        referenceCanonicalizationComplete = false;
+        errors.push(`authority reference ${reference.source}:${reference.id} is contradictory`);
+      }
+      continue;
+    }
+    deduplicatedReferences.push(reference);
+  }
 
   const authorityInventoryComplete =
-    isAuthorityComplete(input.authorityCompleteness) && referenceCanonicalizationComplete && errors.length === 0;
+    isAuthorityComplete(authorityCompleteness) && referenceCanonicalizationComplete && errors.length === 0;
   const entries = await Promise.all(
     children.map(async (name): Promise<ManagedWorkspaceInventoryEntry> => {
       const candidatePath = path.join(canonicalRoot, name);
@@ -246,7 +304,7 @@ export async function collectManagedWorkspaceInventory(
           throw new Error('candidate escapes the Desktop work root');
         }
 
-        const matchedReferences = canonicalReferences.filter(
+        const matchedReferences = deduplicatedReferences.filter(
           (reference) => reference.canonicalWorkspace === candidateCanonicalPath
         );
         const content = await fs.readdir(candidateCanonicalPath);
@@ -265,7 +323,26 @@ export async function collectManagedWorkspaceInventory(
           throw new Error('candidate changed during inventory');
         }
         const userContent = contentKnown && content.length === 0 ? 'absent' : 'present';
-        const candidateInventoryComplete = authorityInventoryComplete && contentKnown;
+        let managedProvenance = false;
+        try {
+          const matches = (Array.isArray(input.provenanceRecords) ? input.provenanceRecords : []).filter(
+            (record) =>
+              record.installationId === input.installationId &&
+              record.canonicalRoot === canonicalRoot &&
+              record.canonicalPath === candidateCanonicalPath &&
+              record.device === candidateStat.dev &&
+              record.inode === candidateStat.ino
+          );
+          managedProvenance = authorityCompleteness.provenance === 'complete' && matches.length === 1;
+          if (matches.length > 1) entryErrors.push('workspace provenance is duplicated');
+        } catch (error) {
+          entryErrors.push(
+            `workspace provenance cannot be inspected: ${error instanceof Error ? error.message : String(error)}`
+          );
+        }
+        // Node has no portable openat/no-follow immutable directory snapshot.
+        // Never promote an observed empty listing into cleanup-adjacent evidence.
+        const candidateInventoryComplete = false;
         const observedReferenceCount = matchedReferences.filter((reference) =>
           ['conversation', 'project'].includes(reference.source)
         ).length;
@@ -292,7 +369,7 @@ export async function collectManagedWorkspaceInventory(
         const userPromoted = candidateInventoryComplete || observedUserPromotion ? observedUserPromotion : null;
 
         evidence = {
-          managedProvenance: true,
+          managedProvenance,
           inventoryComplete: candidateInventoryComplete,
           referenceCount,
           scheduleCount,
@@ -332,7 +409,7 @@ export async function collectManagedWorkspaceInventory(
     generatedAt: new Date(nowValid ? nowMs : 0).toISOString(),
     root,
     canonicalRoot,
-    authorityCompleteness: { ...input.authorityCompleteness },
+    authorityCompleteness,
     complete: authorityInventoryComplete && entries.every((entry) => entry.errors.length === 0),
     entries,
     summary: summarize(entries),

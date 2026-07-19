@@ -87,10 +87,13 @@ import { initPendingSendBridge } from './pendingSendBridge';
 import { initDoctorBridge } from './doctorBridge';
 import { initDesktopFluxRoutingEvidenceAdapter } from '@process/flux/FluxRoutingEvidenceAdapter';
 import { initWorkspaceRetentionBridge } from './workspaceRetentionBridge';
+import { loadManagedWorkspaceProvenance } from '@process/services/managedWorkspaceProvenance';
+import { getInstallUuid } from '@process/services/kickoff/installUuid';
 import { initWaylandTransferBridge } from './waylandTransferBridge';
 import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
 import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { getSystemDir } from '@process/utils/initStorage';
+import { getDataPath } from '@process/utils';
 import { buildWaylandTransferInventoryPreflight } from '@process/services/transfer/inventory/transferPreflight';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
 import { getReleaseTrack } from '@/common/releaseTrack';
@@ -198,6 +201,8 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initStorageBridge();
   initWorkspaceRetentionBridge({
     getWorkDir: () => getSystemDir().workDir,
+    getInstallationId: () => getInstallUuid(),
+    loadProvenance: async () => loadManagedWorkspaceProvenance(getDataPath(), await getInstallUuid()),
     sources: {
       listConversations: () => deps.conversationRepo.listAllConversations(),
       listProjects: () => projectServiceSingleton.listProjects(),
