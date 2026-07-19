@@ -180,7 +180,7 @@ describe('ConstitutionRecovery', () => {
 
     expect(mockRestore.mock.calls[1][0].operationId).toBe(mockRestore.mock.calls[0][0].operationId);
     expect(window.localStorage.length).toBe(0);
-    expect(onRestored).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(onRestored).toHaveBeenCalledTimes(1));
   });
 
   it('mints and dispatches a cryptographic UUID when remote HTTP lacks randomUUID', async () => {
