@@ -334,8 +334,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   private async releaseProfileLaunchLease(): Promise<void> {
     const release = this.releaseProfileLease;
-    this.releaseProfileLease = null;
-    if (release) await release();
+    if (!release) return;
+    await release();
+    if (this.releaseProfileLease === release) this.releaseProfileLease = null;
   }
 
   /**
@@ -1820,26 +1821,44 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   override async kill(): Promise<void> {
     this.disposed = true;
+    let engineFailure: unknown;
+    let workerFailure: unknown;
+
+    const stopCurrentEngine = async (): Promise<void> => {
+      const engine = this.agent;
+      if (!engine) return;
+      try {
+        // This is process-tree proof, not best effort. WorkerTaskManager may
+        // retire its active-process lease only when this promise resolves.
+        await engine.kill();
+        if (this.agent === engine) this.agent = null;
+      } catch (error) {
+        engineFailure = error;
+      }
+    };
+
+    // Stop an engine already published by bootstrap, then await bootstrap and
+    // stop a successor that may have appeared during that wait. A failed exact
+    // identity is retained for a later verified attempt.
+    await stopCurrentEngine();
+    await this.agentReady;
+    if (!engineFailure) await stopCurrentEngine();
+
     try {
-      if (this.agent) {
-        try {
-          // Await the engine tree-kill (taskkill /T on Windows) before tearing
-          // down the worker, so WorkerTaskManager.clear() on quit doesn't return
-          // before wayland-core's child tree is actually gone (#139).
-          await this.agent.kill();
-        } catch {
-          // best-effort
-        }
-      }
-      await this.agentReady;
-      if (this.agent) {
-        await this.agent.kill().catch(() => {});
-        this.agent = null;
-      }
-    } finally {
-      await this.releaseProfileLaunchLease();
+      await super.kill();
+    } catch (error) {
+      workerFailure = error;
     }
-    // super.kill() is async (ForkTask M18); await child exit.
-    await super.kill();
+
+    if (engineFailure) {
+      if (workerFailure)
+        mainWarn('[WCoreManager]', 'worker teardown also failed during engine shutdown', workerFailure);
+      throw engineFailure;
+    }
+    if (workerFailure) throw workerFailure;
+
+    // Do not let another launch reuse the profile until both engine and worker
+    // exit have been proved. A failed release itself remains retryable.
+    await this.releaseProfileLaunchLease();
   }
 }

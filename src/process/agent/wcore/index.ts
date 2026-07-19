@@ -32,10 +32,7 @@ import {
 import { ProfileIsolationError, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
-import {
-  hydrateModelForSpawn,
-  resolveModelSecretsForSpawn,
-} from '@process/providers/ipc/modelRegistryIpc';
+import { hydrateModelForSpawn, resolveModelSecretsForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { vertexSpawnCredentialsForModel } from '@process/providers/vertexSpawnCredentials';
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
@@ -234,6 +231,12 @@ export function resolveTurnStallTimeoutMs(env: NodeJS.ProcessEnv = process.env):
 
 export class WCoreAgent {
   private childProcess: ChildProcess | null = null;
+  /**
+   * A failed tree shutdown remains authoritative even if the root process emits
+   * `exit` and clears `childProcess`. Without this latch, a second kill could
+   * report success while an unproved descendant from the first attempt remains.
+   */
+  private shutdownFailure: unknown = null;
   private ready = false;
   private readyPromise: Promise<void>;
   private readyResolve!: () => void;
@@ -1542,14 +1545,26 @@ export class WCoreAgent {
         msg_id: '',
       });
     }
+    if (!this.childProcess && this.shutdownFailure) {
+      throw this.shutdownFailure;
+    }
     if (this.childProcess) {
       // wayland-core spawns its own child tree (MCP servers, tool subprocesses).
       // A bare SIGTERM is a no-op on Windows and never reaches the tree, leaving
       // orphaned processes after quit (#139). killChild does a taskkill /T /F on
       // win32 and a SIGTERM->SIGKILL descendant sweep on POSIX.
       const child = this.childProcess;
-      this.childProcess = null;
-      await killChild(child, false);
+      try {
+        await killChild(child, false);
+      } catch (error) {
+        // Keep the exact failed authority. The root may emit `exit` while a
+        // descendant is still alive; a later empty child slot is not proof that
+        // the complete tree exited.
+        this.shutdownFailure = error;
+        throw error;
+      }
+      this.shutdownFailure = null;
+      if (this.childProcess === child) this.childProcess = null;
     }
     this.cleanupVertexCredentials();
     // Keep the launch-specific config in place until the child is gone; an

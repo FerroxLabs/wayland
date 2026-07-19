@@ -92,3 +92,36 @@ contradiction.
 This review is scoped to Plan 01-08 ownership and the exact candidate above. It
 does not assert acceptance, packaging, deployment, release readiness, or the
 deferred managed-workspace lifecycle.
+
+---
+
+## R4 Independent Review — CHANGES REQUIRED
+
+- **Candidate:** `1f0f44c8927c78b675f023ebcfeadb8591750bd5`
+- **Implementation:** `77687d43d996fbffc934fdba348639afea519e4a`
+- **Reviewed:** 2026-07-20
+- **Decision:** **REJECT / REOPEN**
+
+### R4-01 (HIGH): Wayland Core engine-tree failure is swallowed
+
+`WCoreManager.kill()` catches both failures from the engine tree-kill and then
+resolves after worker teardown. `WorkerTaskManager` consequently retires the
+active-process lease even though Wayland Core or one of its descendants may
+remain alive. The exact failing regression is committed at
+`d726723ddad93a5d00141971d1f005ef45f7e67a`: expected the shutdown promise to
+reject with `engine tree still alive`; observed resolution with `undefined`.
+
+### R4-02 (MEDIUM): retained receipts do not authenticate execution
+
+The seven receipt hashes and the implementation commit/tree are internally
+consistent. The retained files contain rewritten result summaries rather than
+sanitized command output, however, and omit execution timestamps and the live
+environment identity. They cannot independently authenticate that the stated
+commands produced the claimed result.
+
+### Required successor
+
+Propagate engine-tree failure, retain the exact failed engine and profile lease
+for verified retry, prevent the worker authority lease from clearing on that
+failure, expand plan ownership to the WCore seams, and retain sanitized command
+output bound to the exact implementation commit and tree.

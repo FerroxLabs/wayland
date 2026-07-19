@@ -79,7 +79,9 @@ function makeChild(): FakeChild {
 async function flushUntilSpawned(child: FakeChild, expectedSpawnCount = 1): Promise<void> {
   for (let i = 0; i < 100; i++) {
     if (spawnMock.mock.calls.length >= expectedSpawnCount && child.listenerCount('exit') >= 2) return;
+    // oxlint-disable-next-line no-await-in-loop -- each bounded probe must observe listener attachment
     if (vi.isFakeTimers()) await vi.advanceTimersByTimeAsync(0);
+    // oxlint-disable-next-line no-await-in-loop -- each bounded probe must observe listener attachment
     else await new Promise((resolve) => setImmediate(resolve));
   }
   throw new Error(`WCore child ${expectedSpawnCount} did not finish attaching its production listeners`);
@@ -305,5 +307,40 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     await new Promise((resolve) => setImmediate(resolve));
 
     expect(killChildMock).toHaveBeenCalledWith(child, false);
+  });
+
+  it('retains failed tree-shutdown authority after the root exit clears its child slot', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const agent = new WCoreAgent(baseOptions());
+    void agent.start().catch(() => {});
+    await flushUntilSpawned(child);
+
+    const failure = new Error('descendant exit remains unproved');
+    killChildMock.mockRejectedValueOnce(failure);
+    const shutdown = agent.kill();
+    child.emit('exit', 0);
+
+    await expect(shutdown).rejects.toBe(failure);
+    expect(agent.isAlive).toBe(false);
+    await expect(agent.kill()).rejects.toBe(failure);
+    expect(killChildMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('retries the same retained child identity when tree shutdown fails before root exit', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const agent = new WCoreAgent(baseOptions());
+    void agent.start().catch(() => {});
+    await flushUntilSpawned(child);
+
+    killChildMock.mockRejectedValueOnce(new Error('temporary tree probe failure')).mockResolvedValueOnce(undefined);
+    await expect(agent.kill()).rejects.toThrow('temporary tree probe failure');
+    expect(agent.isAlive).toBe(true);
+
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenNthCalledWith(1, child, false);
+    expect(killChildMock).toHaveBeenNthCalledWith(2, child, false);
+    expect(agent.isAlive).toBe(false);
   });
 });

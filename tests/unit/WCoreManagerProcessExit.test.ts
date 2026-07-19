@@ -226,11 +226,18 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
 
   describe('shutdown proof', () => {
     it('rejects shutdown when the Wayland Core engine tree exit is unproved', async () => {
-      const engine = { kill: vi.fn().mockRejectedValue(new Error('engine tree still alive')) };
+      const engine = {
+        kill: vi.fn().mockRejectedValueOnce(new Error('engine tree still alive')).mockResolvedValueOnce(undefined),
+      };
       (manager as unknown as { agent: typeof engine }).agent = engine;
       (manager as unknown as { agentReady: Promise<void> }).agentReady = Promise.resolve();
 
       await expect(manager.kill()).rejects.toThrow('engine tree still alive');
+      expect((manager as unknown as { agent: typeof engine }).agent).toBe(engine);
+
+      await expect(manager.kill()).resolves.toBeUndefined();
+      expect(engine.kill).toHaveBeenCalledTimes(2);
+      expect((manager as unknown as { agent: typeof engine | null }).agent).toBeNull();
     });
   });
 
