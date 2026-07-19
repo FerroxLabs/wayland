@@ -130,6 +130,37 @@ describe('prepareOfficeCli supply-chain contract', () => {
     expect(prepareOfficeCli.getCapabilityFixtureDigest()).toMatch(/^sha256:[0-9a-f]{64}$/);
   });
 
+  it('keeps clean-download and verified-cache authority manifests byte-equivalent', () => {
+    const inputs = {
+      version: 'v1.0.136',
+      reportedVersion: '1.0.136',
+      platform: 'darwin',
+      arch: 'arm64',
+      libc: 'gnu',
+      assetName: 'officecli-mac-arm64',
+      binaryName: 'officecli',
+      expectedSha: 'a'.repeat(64),
+      contractSha256: `sha256:${'b'.repeat(64)}`,
+      capabilityFixtureDigest: `sha256:${'c'.repeat(64)}`,
+      skillProof: { contract: 'skills', skills: [] },
+      ledgerProof: { contract: 'ledger' },
+      publisherSignatureProof: { contract: 'publisher' },
+      contractProof: { contract: 'authoring', release: 'v1.0.136' },
+      smokeProof: { formats: ['docx'], operations: ['create'] },
+    };
+
+    const cleanDownload = prepareOfficeCli.buildManifest(inputs);
+    const verifiedCache = prepareOfficeCli.buildManifest(inputs);
+
+    expect(verifiedCache).toEqual(cleanDownload);
+    expect(verifiedCache).toMatchObject({
+      reportedVersion: '1.0.136',
+      source:
+        'https://github.com/iOfficeAI/OfficeCLI/releases/download/v1.0.136/officecli-mac-arm64',
+    });
+    expect(JSON.stringify(verifiedCache)).not.toContain('verified-cache');
+  });
+
   it('rejects substituted, missing, and unexpected skill files', () => {
     const contract = prepareOfficeCli.loadContract();
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-skills-'));

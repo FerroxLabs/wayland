@@ -718,6 +718,47 @@ function writeManifest(targetDir, manifest) {
   fs.writeFileSync(path.join(targetDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 }
 
+function buildManifest({
+  version,
+  reportedVersion,
+  platform,
+  arch,
+  libc,
+  assetName,
+  binaryName,
+  expectedSha,
+  contractSha256,
+  capabilityFixtureDigest,
+  skillProof,
+  ledgerProof,
+  publisherSignatureProof,
+  contractProof,
+  smokeProof,
+}) {
+  return {
+    contract: 'iofficeai-officecli-native',
+    version,
+    reportedVersion,
+    platform,
+    arch,
+    libc: platform === 'linux' ? libc : undefined,
+    asset: assetName,
+    binary: binaryName,
+    sha256: `sha256:${expectedSha}`,
+    // Provenance describes the pinned bytes, not whether this invocation had
+    // to download them. A verified-cache rerun must reproduce the same
+    // authority manifest as a clean preparation.
+    source: `https://github.com/${GITHUB_REPO}/releases/download/${version}/${assetName}`,
+    contractSha256,
+    capabilityFixtureDigest,
+    skillProof,
+    ledgerProof,
+    publisherSignatureProof,
+    contractProof,
+    smokeProof,
+  };
+}
+
 function prepareOfficeCli(options = {}) {
   const platform = options.platform || process.env.OFFICECLI_TARGET_PLATFORM || process.platform;
   const arch = options.arch || process.env.OFFICECLI_TARGET_ARCH || process.arch;
@@ -751,16 +792,16 @@ function prepareOfficeCli(options = {}) {
     const smokeProof = executableOnBuildHost
       ? verifyExecutableSmoke(targetBinary)
       : { formats: [], operations: [], reason: 'not-executable-on-build-host' };
-    writeManifest(targetDir, {
-      contract: 'iofficeai-officecli-native',
+    const reportedVersion = contractProof.release.replace(/^v/i, '');
+    writeManifest(targetDir, buildManifest({
       version,
+      reportedVersion,
       platform,
       arch,
-      libc: platform === 'linux' ? libc : undefined,
-      asset: assetName,
-      binary: binaryName,
-      sha256: `sha256:${expectedSha}`,
-      source: 'verified-cache',
+      libc,
+      assetName,
+      binaryName,
+      expectedSha,
       contractSha256,
       capabilityFixtureDigest,
       skillProof,
@@ -768,7 +809,7 @@ function prepareOfficeCli(options = {}) {
       publisherSignatureProof,
       contractProof,
       smokeProof,
-    });
+    }));
     console.log(`  Bundled OfficeCLI already verified: ${runtimeKey}/${binaryName}`);
     return { prepared: true, dir: targetDir, binary: targetBinary, sha256: expectedSha, source: 'verified-cache' };
   }
@@ -796,17 +837,15 @@ function prepareOfficeCli(options = {}) {
       reportedVersion = contractProof.release.replace(/^v/i, '');
     }
 
-    writeManifest(targetDir, {
-      contract: 'iofficeai-officecli-native',
+    writeManifest(targetDir, buildManifest({
       version,
       reportedVersion,
       platform,
       arch,
-      libc: platform === 'linux' ? libc : undefined,
-      asset: assetName,
-      binary: binaryName,
-      sha256: `sha256:${expectedSha}`,
-      source: `https://github.com/${GITHUB_REPO}/releases/download/${version}/${assetName}`,
+      libc,
+      assetName,
+      binaryName,
+      expectedSha,
       contractSha256,
       capabilityFixtureDigest,
       skillProof,
@@ -814,7 +853,7 @@ function prepareOfficeCli(options = {}) {
       publisherSignatureProof,
       contractProof,
       smokeProof,
-    });
+    }));
     console.log(`  Bundled native OfficeCLI prepared: ${runtimeKey}/${binaryName} (${reportedVersion})`);
     return { prepared: true, dir: targetDir, binary: targetBinary, sha256: expectedSha, source: 'release' };
   } finally {
@@ -839,6 +878,7 @@ module.exports.digestValue = digestValue;
 module.exports.verifyBundledSkillDigests = verifyBundledSkillDigests;
 module.exports.loadOfficeCliLedgerProof = loadOfficeCliLedgerProof;
 module.exports.getCapabilityFixtureDigest = getCapabilityFixtureDigest;
+module.exports.buildManifest = buildManifest;
 
 if (require.main === module) {
   try {
