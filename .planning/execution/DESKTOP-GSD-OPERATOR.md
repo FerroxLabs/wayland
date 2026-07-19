@@ -11,7 +11,9 @@ acceptance, merge, release, or deployment authority.
 ## Operating loop
 
 1. From the clean integration worktree, invoke the selector with the canonical repository
-   root, expected branch, and exact integration HEAD.
+   root, expected branch, and exact integration HEAD copied from the independently recorded
+   serial-integration receipt. Never derive the expected identity from the checkout being
+   tested.
 2. Inspect its JSON candidate set. A missing mapping, verifier mismatch, dirty worktree,
    stale HEAD, dependency ambiguity, or shared seam returns nonzero or a serialized tail.
 3. Manually create exactly one named clean worktree from the declared HEAD for each selected
@@ -30,16 +32,17 @@ Example:
 
 ```sh
 node .planning/execution/desktop-gsd-next.mjs \
-  --repo-root "$(git rev-parse --show-toplevel)" \
-  --expected-branch "$(git rev-parse --abbrev-ref HEAD)" \
-  --expected-head "$(git rev-parse HEAD)"
+  --repo-root "/absolute/path/from/integration-receipt" \
+  --expected-branch "branch/from/integration-receipt" \
+  --expected-head "full-commit-from-integration-receipt"
 ```
 
 ## Admission and checkpoint rules
 
 - Phase 1 local construction needs no invented receipt.
 - Mapped Phase 2-4 construction must use the exact schema-v2 **entry** gate in
-  `DESKTOP-GSD-ADMISSION.json`. The verifier result must identify that gate, report
+  `DESKTOP-GSD-ADMISSION.json`. Both that canonical repository file and the external
+  verifier path/digest are pinned; CLI overrides are rejected. The verifier result must identify that gate, report
   `mode: entry`, prove green prerequisites, and return `accepted_targets: []`.
 - Acceptance-mode gates cannot admit construction. A non-empty accepted target in an entry
   result is a hard failure, not extra evidence.
@@ -52,6 +55,7 @@ node .planning/execution/desktop-gsd-next.mjs \
 ## Absolute prohibitions
 
 - Do not use stock `--next` or unscoped/full phase execution for this milestone.
+- Do not derive expected repository, branch, or HEAD values from the checkout under test.
 - Do not build directly in the integration/planning worktree.
 - Do not integrate concurrently or accept stale proof.
 - Do not infer acceptance from source, tests, SUMMARY presence, top-level verifier `ok`, or a

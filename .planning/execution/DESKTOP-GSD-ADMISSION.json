@@ -5,6 +5,18 @@
     "entry_mode": "entry",
     "required_empty_field": "accepted_targets"
   },
+  "verifier": {
+    "path": "/Users/seandonahoe/.local/bin/wayland-gsd-gate",
+    "digest": "sha256:5d0bade731431ca1d6d440ab27680ea8d46daaba4a5982b16c8f12c6be9f2398",
+    "timeout_ms": 30000,
+    "max_output_bytes": 1048576
+  },
+  "external_ownership_roots": [
+    "/Users/seandonahoe/.local/bin",
+    "/Users/seandonahoe/.local/lib/wayland-gsd",
+    "/Users/seandonahoe/.config/wayland-gsd",
+    "/Users/seandonahoe/.local/share/wayland-gsd"
+  ],
   "plan_entry_gates": {},
   "hard_denied_phase_numbers": [5, 6],
   "seam_patterns": {

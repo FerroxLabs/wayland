@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 import { execFileSync, spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
-import { dirname, join, relative, resolve } from 'node:path'
+import { basename, dirname, join, posix, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import yaml from 'js-yaml'
 
 const PLAN_RE = /^(\d{2})-(\d{2})-PLAN\.md$/
 
@@ -16,22 +18,6 @@ export class SelectionError extends Error {
   }
 }
 
-function parseScalar(value) {
-  const trimmed = value.trim()
-  if (trimmed === 'true') return true
-  if (trimmed === 'false') return false
-  if (/^-?\d+$/.test(trimmed)) return Number(trimmed)
-  if (trimmed === '[]') return []
-  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
-    return trimmed
-      .slice(1, -1)
-      .split(',')
-      .map((item) => item.trim().replace(/^['"]|['"]$/g, ''))
-      .filter(Boolean)
-  }
-  return trimmed.replace(/^['"]|['"]$/g, '')
-}
-
 function frontmatter(text, source) {
   if (!text.startsWith('---\n')) {
     throw new SelectionError('MALFORMED_FRONTMATTER', `${source}: missing opening frontmatter delimiter`)
@@ -41,34 +27,42 @@ function frontmatter(text, source) {
     throw new SelectionError('MALFORMED_FRONTMATTER', `${source}: missing closing frontmatter delimiter`)
   }
 
-  const result = {}
-  const lines = text.slice(4, end).split('\n')
-  let listKey = null
-  for (const [index, line] of lines.entries()) {
-    if (!line.trim() || line.trimStart().startsWith('#')) continue
-    const listItem = line.match(/^\s{2}-\s+(.+)$/)
-    if (listItem && listKey) {
-      result[listKey].push(parseScalar(listItem[1]))
-      continue
-    }
-    const match = line.match(/^([A-Za-z0-9_-]+):(?:\s*(.*))?$/)
-    if (!match) {
-      if (/^\s/.test(line)) continue
-      throw new SelectionError(
-        'MALFORMED_FRONTMATTER',
-        `${source}:${index + 2}: unsupported frontmatter syntax`,
-      )
-    }
-    const [, key, raw = ''] = match
-    if (raw.trim() === '') {
-      result[key] = []
-      listKey = key
-    } else {
-      result[key] = parseScalar(raw)
-      listKey = null
-    }
+  let result
+  try {
+    result = yaml.load(text.slice(4, end), { schema: yaml.JSON_SCHEMA })
+  } catch (error) {
+    throw new SelectionError('MALFORMED_FRONTMATTER', `${source}: ${error.message}`)
+  }
+  if (!result || typeof result !== 'object' || Array.isArray(result)) {
+    throw new SelectionError('MALFORMED_FRONTMATTER', `${source}: frontmatter must be a mapping`)
   }
   return result
+}
+
+function normalizeExternalRoot(path) {
+  if (typeof path !== 'string' || !path.startsWith('/') || path.includes('\0')) {
+    throw new SelectionError('ADMISSION_SCHEMA', `Unsafe external ownership root: ${String(path)}`)
+  }
+  return posix.normalize(path).replace(/\/$/, '')
+}
+
+function canonicalOwnedPath(path, allowedExternalRoots = []) {
+  if (typeof path !== 'string' || path.trim() === '' || path.includes('\0')) {
+    throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `Invalid ownership path: ${String(path)}`)
+  }
+  const slashPath = path.replaceAll('\\', '/')
+  const absolute = slashPath.startsWith('/') || /^[A-Za-z]:\//.test(slashPath)
+  const normalized = posix.normalize(slashPath)
+  if (normalized === '.' || (!absolute && (normalized === '..' || normalized.startsWith('../')))) {
+    throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `Ownership path escapes the repository: ${path}`)
+  }
+  if (absolute) {
+    const allowed = allowedExternalRoots.some((root) => normalized === root || normalized.startsWith(`${root}/`))
+    if (!allowed) {
+      throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `External ownership path is not allowlisted: ${path}`)
+    }
+  }
+  return normalized.replace(/\/$/, '')
 }
 
 function listPhaseDirectories(phasesRoot) {
@@ -81,7 +75,7 @@ function listPhaseDirectories(phasesRoot) {
     .toSorted()
 }
 
-export function discoverPlans(repoRoot) {
+export function discoverPlans(repoRoot, options = {}) {
   const phasesRoot = join(repoRoot, '.planning', 'phases')
   const plans = []
   for (const phaseDir of listPhaseDirectories(phasesRoot)) {
@@ -89,26 +83,43 @@ export function discoverPlans(repoRoot) {
       const match = name.match(PLAN_RE)
       if (!match) continue
       const path = join(phaseDir, name)
-      const data = frontmatter(readFileSync(path, 'utf8'), relative(repoRoot, path))
+      const source = relative(repoRoot, path)
+      const data = frontmatter(readFileSync(path, 'utf8'), source)
       const id = `${match[1]}-${match[2]}`
-      const phaseNumber = Number(match[1])
+      const phaseName = basename(phaseDir)
+      const phaseMatch = phaseName.match(/^WLD-(\d{2})(?:-|$)/)
+      if (!phaseMatch || phaseMatch[1] !== match[1] || data.phase !== phaseName) {
+        throw new SelectionError(
+          'PHASE_ID_MISMATCH',
+          `${source}: filename, directory, and phase frontmatter must identify the same phase`,
+        )
+      }
+      const phaseNumber = Number(phaseMatch[1])
       if (String(data.plan).padStart(2, '0') !== match[2]) {
-        throw new SelectionError('PLAN_ID_MISMATCH', `${relative(repoRoot, path)}: plan ID disagrees with filename`)
+        throw new SelectionError('PLAN_ID_MISMATCH', `${source}: plan ID disagrees with filename`)
       }
       if (!Array.isArray(data.depends_on) || !Array.isArray(data.files_modified)) {
-        throw new SelectionError('MALFORMED_PLAN', `${relative(repoRoot, path)}: missing dependency or ownership list`)
+        throw new SelectionError('MALFORMED_PLAN', `${source}: missing dependency or ownership list`)
       }
       if (typeof data.autonomous !== 'boolean') {
-        throw new SelectionError('MALFORMED_PLAN', `${relative(repoRoot, path)}: autonomous must be boolean`)
+        throw new SelectionError('MALFORMED_PLAN', `${source}: autonomous must be boolean`)
       }
+      if (!Number.isInteger(data.wave) || data.wave < 1) {
+        throw new SelectionError('MALFORMED_PLAN', `${source}: wave must be a positive integer`)
+      }
+      const dependencies = data.depends_on.map(String)
+      if (dependencies.some((dependency) => !/^\d{2}-\d{2}$/.test(dependency)) || new Set(dependencies).size !== dependencies.length) {
+        throw new SelectionError('MALFORMED_PLAN', `${source}: dependencies must be unique NN-NN plan IDs`)
+      }
+      const allowedExternalRoots = options.allowedExternalRoots ?? []
       const summaryPath = join(phaseDir, `${id}-SUMMARY.md`)
       plans.push({
         id,
         phaseNumber,
         declaredWave: Number(data.wave),
         autonomous: data.autonomous,
-        dependencies: data.depends_on.map(String),
-        files: data.files_modified.map(String),
+        dependencies,
+        files: data.files_modified.map((ownedPath) => canonicalOwnedPath(ownedPath, allowedExternalRoots)),
         authoritySeams: Array.isArray(data.authority_seams) ? data.authority_seams.map(String) : [],
         planPath: relative(repoRoot, path),
         summaryPath: relative(repoRoot, summaryPath),
@@ -162,17 +173,15 @@ function compileSeams(config) {
   return compiled
 }
 
-function normalizedOwnedPath(path) {
-  return path.replaceAll('\\', '/').replace(/\/$/, '')
-}
-
 function pairConflicts(left, right, seamPatterns) {
   const reasons = []
   for (const leftPath of left.files) {
-    const a = normalizedOwnedPath(leftPath)
+    const a = canonicalOwnedPath(leftPath)
     for (const rightPath of right.files) {
-      const b = normalizedOwnedPath(rightPath)
-      if (a === b || a.startsWith(`${b}/`) || b.startsWith(`${a}/`)) {
+      const b = canonicalOwnedPath(rightPath)
+      const aKey = a.toLowerCase()
+      const bKey = b.toLowerCase()
+      if (aKey === bKey || aKey.startsWith(`${bKey}/`) || bKey.startsWith(`${aKey}/`)) {
         reasons.push(`path:${a === b ? a : `${a}<->${b}`}`)
       }
     }
@@ -180,8 +189,8 @@ function pairConflicts(left, right, seamPatterns) {
   const leftNamed = new Set(left.authoritySeams)
   for (const seam of right.authoritySeams) if (leftNamed.has(seam)) reasons.push(`authority:${seam}`)
   for (const { name, regex } of seamPatterns) {
-    if (left.files.some((path) => regex.test(normalizedOwnedPath(path))) &&
-        right.files.some((path) => regex.test(normalizedOwnedPath(path)))) {
+    if (left.files.some((path) => regex.test(canonicalOwnedPath(path))) &&
+        right.files.some((path) => regex.test(canonicalOwnedPath(path)))) {
       reasons.push(`seam:${name}`)
     }
   }
@@ -195,6 +204,18 @@ function validateAdmissionConfig(config) {
   }
   if (!config.plan_entry_gates || Array.isArray(config.plan_entry_gates)) {
     throw new SelectionError('ADMISSION_SCHEMA', 'plan_entry_gates must be an object')
+  }
+  if (!Array.isArray(config.external_ownership_roots)) {
+    throw new SelectionError('ADMISSION_SCHEMA', 'external_ownership_roots must be an array')
+  }
+  config.external_ownership_roots = config.external_ownership_roots.map(normalizeExternalRoot)
+  const verifier = config.verifier
+  if (!verifier || typeof verifier !== 'object' || Array.isArray(verifier) ||
+      typeof verifier.path !== 'string' || !verifier.path.startsWith('/') ||
+      !/^sha256:[0-9a-f]{64}$/.test(verifier.digest ?? '') ||
+      !Number.isInteger(verifier.timeout_ms) || verifier.timeout_ms < 100 || verifier.timeout_ms > 120_000 ||
+      !Number.isInteger(verifier.max_output_bytes) || verifier.max_output_bytes < 1024 || verifier.max_output_bytes > 10_485_760) {
+    throw new SelectionError('ADMISSION_SCHEMA', 'verifier identity and execution bounds are invalid')
   }
 }
 
@@ -221,12 +242,42 @@ export function validateEntryReceipt(receipt, expectedGate) {
   return { gate_id: expectedGate, mode: 'entry', prerequisites: 'green', accepted_targets: [] }
 }
 
-export function invokeVerifier(verifierPath, gateId, cwd) {
-  const result = spawnSync(verifierPath, [gateId], { cwd, encoding: 'utf8' })
-  if (result.error) throw new SelectionError('VERIFIER_UNAVAILABLE', result.error.message)
+function fileDigest(path) {
+  return `sha256:${createHash('sha256').update(readFileSync(path)).digest('hex')}`
+}
+
+export function invokeVerifier(verifier, gateId, cwd) {
+  let canonicalPath
+  try {
+    canonicalPath = realpathSync(verifier.path)
+  } catch {
+    throw new SelectionError('VERIFIER_UNAVAILABLE', 'Pinned verifier is unavailable')
+  }
+  if (canonicalPath !== verifier.path || fileDigest(canonicalPath) !== verifier.digest) {
+    throw new SelectionError('VERIFIER_IDENTITY', 'Pinned verifier identity does not match')
+  }
+  const result = spawnSync(canonicalPath, [gateId], {
+    cwd,
+    encoding: 'utf8',
+    timeout: verifier.timeout_ms,
+    maxBuffer: verifier.max_output_bytes,
+    killSignal: 'SIGKILL',
+  })
+  if (result.error?.code === 'ETIMEDOUT') {
+    throw new SelectionError('VERIFIER_TIMEOUT', `Entry gate ${gateId} exceeded its execution bound`)
+  }
+  if (result.error?.code === 'ENOBUFS') {
+    throw new SelectionError('VERIFIER_OUTPUT_LIMIT', `Entry gate ${gateId} exceeded its output bound`)
+  }
+  if (result.error) throw new SelectionError('VERIFIER_UNAVAILABLE', 'Pinned verifier could not execute')
+  if (fileDigest(canonicalPath) !== verifier.digest) {
+    throw new SelectionError('VERIFIER_IDENTITY', 'Pinned verifier changed during execution')
+  }
   if (result.status !== 0) {
     throw new SelectionError('VERIFIER_REJECTED', `Entry gate ${gateId} exited ${result.status}`, {
-      stderr: result.stderr.trim(),
+      exit_code: result.status,
+      signal: result.signal,
+      stderr_bytes: Buffer.byteLength(result.stderr ?? ''),
     })
   }
   let parsed
@@ -277,7 +328,7 @@ function planAdmission(plan, config, options) {
   if (!gate) throw new SelectionError('UNMAPPED_ADMISSION', `No entry gate maps plan ${plan.id}`)
   const receipt = options.verifyGate
     ? options.verifyGate(gate, plan)
-    : invokeVerifier(options.verifierPath, gate, options.repoRoot)
+    : invokeVerifier(config.verifier, gate, options.repoRoot)
   return validateEntryReceipt(receipt, gate)
 }
 
@@ -300,9 +351,6 @@ function safeWorktreeName(id) {
 
 export function selectNext(options) {
   const repoRoot = canonicalRoot(options.repoRoot)
-  const admissionPath = options.admissionPath ?? join(repoRoot, '.planning', 'execution', 'DESKTOP-GSD-ADMISSION.json')
-  const admission = JSON.parse(readFileSync(admissionPath, 'utf8'))
-  validateAdmissionConfig(admission)
   if (!options.skipGitCheck) {
     assertGitIdentity(gitIdentity(repoRoot), {
       repoRoot,
@@ -310,8 +358,27 @@ export function selectNext(options) {
       head: options.expectedHead,
     })
   }
-
-  const plans = options.plans ?? discoverPlans(repoRoot)
+  const canonicalAdmissionPath = join(repoRoot, '.planning', 'execution', 'DESKTOP-GSD-ADMISSION.json')
+  const admissionPath = options.admissionPath ?? canonicalAdmissionPath
+  let actualAdmissionPath
+  try {
+    actualAdmissionPath = realpathSync(admissionPath)
+  } catch {
+    throw new SelectionError('ADMISSION_IDENTITY', 'Canonical admission configuration is unavailable')
+  }
+  if (actualAdmissionPath !== canonicalAdmissionPath) {
+    throw new SelectionError('ADMISSION_IDENTITY', 'Admission configuration must be the canonical repository file')
+  }
+  const admission = JSON.parse(readFileSync(actualAdmissionPath, 'utf8'))
+  validateAdmissionConfig(admission)
+  if (options.verifyGate && !options.skipGitCheck) {
+    throw new SelectionError('VERIFIER_IDENTITY', 'Verifier injection is forbidden for operational selection')
+  }
+  const allowedExternalRoots = admission.external_ownership_roots
+  const discoveredPlans = options.plans ?? discoverPlans(repoRoot, { allowedExternalRoots })
+  const plans = discoveredPlans.map((plan) => Object.assign({}, plan, {
+    files: plan.files.map((ownedPath) => canonicalOwnedPath(ownedPath, allowedExternalRoots)),
+  }))
   const waves = computeEffectiveWaves(plans)
   const byId = new Map(plans.map((plan) => [plan.id, plan]))
   const blocked = []
@@ -368,10 +435,12 @@ export function selectNext(options) {
 
 function parseArgs(argv) {
   const args = {}
+  const allowed = new Set(['repo-root', 'expected-branch', 'expected-head', 'worktree-parent'])
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i]
     if (!token.startsWith('--')) throw new SelectionError('ARGUMENT', `Unexpected argument: ${token}`)
     const key = token.slice(2)
+    if (!allowed.has(key)) throw new SelectionError('ARGUMENT', `Unsupported argument: ${token}`)
     const value = argv[i + 1]
     if (!value || value.startsWith('--')) throw new SelectionError('ARGUMENT', `Missing value for ${token}`)
     args[key] = value
@@ -398,8 +467,6 @@ if (isMain) {
       repoRoot: args['repo-root'],
       expectedBranch: args['expected-branch'],
       expectedHead: args['expected-head'],
-      admissionPath: args.admission,
-      verifierPath: args.verifier ?? '/Users/seandonahoe/.local/bin/wayland-gsd-gate',
       worktreeParent: args['worktree-parent'],
     })
     process.stdout.write(`${JSON.stringify({ ok: true, ...output }, null, 2)}\n`)

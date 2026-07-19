@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import {
+  chmodSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   readdirSync,
   rmSync,
   statSync,
@@ -21,6 +24,7 @@ import {
   pairConflicts,
   selectNext,
   validateEntryReceipt,
+  invokeVerifier,
 } from './desktop-gsd-next.mjs'
 
 const HERE = dirname(fileURLToPath(import.meta.url))
@@ -49,6 +53,13 @@ function admissionConfig(overrides = {}) {
     },
     plan_entry_gates: {},
     hard_denied_phase_numbers: [5, 6],
+    verifier: {
+      path: '/Users/seandonahoe/.local/bin/wayland-gsd-gate',
+      digest: 'sha256:5d0bade731431ca1d6d440ab27680ea8d46daaba4a5982b16c8f12c6be9f2398',
+      timeout_ms: 30_000,
+      max_output_bytes: 1_048_576,
+    },
+    external_ownership_roots: [],
     seam_patterns: {
       lock: ['(^|/)(package-lock\\.json|Cargo\\.lock)$'],
       migration: ['(^|/)migrations?(/|$)'],
@@ -112,7 +123,7 @@ function writePlan(root, id, fields = {}) {
     `phase: WLD-${phase}-fixture`,
     `plan: ${Number(number)}`,
     `wave: ${fields.wave ?? 1}`,
-    'depends_on:',
+    dependencies.length ? 'depends_on:' : 'depends_on: []',
     ...dependencies.map((dependency) => `  - ${dependency}`),
     'files_modified:',
     ...files.map((file) => `  - ${file}`),
@@ -213,6 +224,20 @@ test('exact files and ancestor directories conflict', () => {
   assert.deepEqual(pairConflicts(plan('01-01', { files: ['src'] }), plan('01-02', { files: ['src/a.ts'] }), seams), ['path:src<->src/a.ts'])
 })
 
+test('canonical ownership aliases conflict and unsafe ownership is rejected', () => {
+  assert.deepEqual(
+    pairConflicts(plan('01-01', { files: ['src/a.ts'] }), plan('01-02', { files: ['./src/a.ts'] }), []),
+    ['path:src/a.ts'],
+  )
+  assert.deepEqual(
+    pairConflicts(plan('01-01', { files: ['src/a.ts'] }), plan('01-02', { files: ['src/dir/../a.ts'] }), []),
+    ['path:src/a.ts'],
+  )
+  const root = temporaryRoot()
+  expectSelectionError(() => select(root, [plan('01-01', { files: ['../escape.ts'] })]), 'UNSAFE_OWNERSHIP_PATH')
+  expectSelectionError(() => select(root, [plan('01-01', { files: ['/tmp/escape.ts'] })]), 'UNSAFE_OWNERSHIP_PATH')
+})
+
 test('shared lock schema config generated migration and named authority seams serialize', () => {
   const root = temporaryRoot()
   const cases = [
@@ -287,6 +312,87 @@ test('malformed plan frontmatter fails closed', () => {
   mkdirSync(phaseDir, { recursive: true })
   writeFileSync(join(phaseDir, '01-01-PLAN.md'), 'not frontmatter\n')
   expectSelectionError(() => discoverPlans(root), 'MALFORMED_FRONTMATTER')
+})
+
+test('valid YAML indentation preserves dependencies instead of unlocking a root', () => {
+  const root = temporaryRoot()
+  writePlan(root, '01-01')
+  writePlan(root, '01-02', { dependencies: ['01-01'] })
+  const path = join(root, '.planning', 'phases', 'WLD-01-fixture', '01-02-PLAN.md')
+  writeFileSync(path, readFileSync(path, 'utf8').replace('  - 01-01', '    - 01-01'))
+  assert.deepEqual(discoverPlans(root).find((item) => item.id === '01-02').dependencies, ['01-01'])
+})
+
+test('filename directory and frontmatter phase identity must agree', () => {
+  const root = temporaryRoot()
+  const phaseDir = join(root, '.planning', 'phases', 'WLD-05-release')
+  mkdirSync(phaseDir, { recursive: true })
+  writeFileSync(join(phaseDir, '01-99-PLAN.md'), [
+    '---',
+    'phase: WLD-05-release',
+    'plan: 99',
+    'wave: 1',
+    'depends_on: []',
+    'files_modified: []',
+    'autonomous: true',
+    '---',
+    '',
+  ].join('\n'))
+  expectSelectionError(() => discoverPlans(root), 'PHASE_ID_MISMATCH')
+})
+
+test('external admission and verifier CLI overrides are rejected', () => {
+  const root = temporaryRoot()
+  const externalRoot = temporaryRoot()
+  writeAdmission(root)
+  writePlan(root, '01-01')
+  const git = initializeGit(root)
+  const forged = join(externalRoot, 'forged-admission.json')
+  writeFileSync(forged, '{}\n')
+  expectSelectionError(() => selectNext({
+    repoRoot: root,
+    expectedBranch: 'test-branch',
+    expectedHead: git.head,
+    admissionPath: forged,
+    plans: [],
+  }), 'ADMISSION_IDENTITY')
+  for (const argument of ['--admission', '--verifier']) {
+    const result = spawnSync(process.execPath, [
+      SELECTOR,
+      '--repo-root', root,
+      '--expected-branch', 'test-branch',
+      '--expected-head', git.head,
+      argument, forged,
+    ], { encoding: 'utf8' })
+    assert.equal(result.status, 1)
+    assert.equal(JSON.parse(result.stderr).error.code, 'ARGUMENT')
+  }
+})
+
+function writeVerifier(root, body) {
+  const path = join(root, 'verifier.mjs')
+  writeFileSync(path, `#!/usr/bin/env node\n${body}\n`)
+  chmodSync(path, 0o755)
+  const digest = `sha256:${createHash('sha256').update(readFileSync(path)).digest('hex')}`
+  return { path: realpathSync(path), digest, timeout_ms: 1000, max_output_bytes: 4096 }
+}
+
+test('verifier identity timeout and rejection output fail closed without leaking stderr', () => {
+  const root = temporaryRoot()
+  const rejecting = writeVerifier(root, "process.stderr.write('SECRET-VALUE'); process.exit(7)")
+  assert.throws(
+    () => invokeVerifier(rejecting, 'M2-entry', root),
+    (error) => error.code === 'VERIFIER_REJECTED' &&
+      error.details.exit_code === 7 &&
+      error.details.stderr_bytes === 12 &&
+      !JSON.stringify(error).includes('SECRET-VALUE'),
+  )
+  expectSelectionError(
+    () => invokeVerifier({ ...rejecting, digest: `sha256:${'0'.repeat(64)}` }, 'M2-entry', root),
+    'VERIFIER_IDENTITY',
+  )
+  const hanging = { ...writeVerifier(root, 'setInterval(() => {}, 1000)'), timeout_ms: 100 }
+  expectSelectionError(() => invokeVerifier(hanging, 'M2-entry', root), 'VERIFIER_TIMEOUT')
 })
 
 test('wrong repository branch HEAD and dirty state fail before selection', () => {
