@@ -32,18 +32,26 @@ MCP catalog declaration, saved configuration, authentication requirement, and st
 
 ## Exact construction proof
 
-- Exact R6 repair implementation commit: `b34750dd4bfa925825343a1cfa6766c1b85a6285`.
-- Exact R6 repair implementation tree: `7fd377f4b0ed23d109d149da617c17828aa0c783`.
-- Executable hostile-test parent: `42d2d4ff265680b06123d65d2ac86a05d45b081e`.
-- Focused repair suite: 16 files, 153 tests passed in three deterministic resource-isolated shards.
+- Exact R7 repair implementation commit: `1cef5ffb0a5d9bbc1319544bbcbeb167398795ea`.
+- Exact R7 repair implementation tree: `a56ee55e8d8192a0ec218d29d3244da34aff571d`.
+- Executable hostile-test parent: `1d61bae52fb1fb3c8b5dceebc683d17ae0eb9c9d`.
+- Focused repair suite: 16 files, 158 tests passed in three deterministic resource-isolated shards.
 - Typecheck: passed.
 - Changed-file oxlint: 0 warnings, 0 errors.
 - Oxfmt and `git diff --check`: passed.
-- Exact full aggregate: 1,434 Vitest files passed and 21 skipped; 15,200 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
-- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r6-b34750dd/RECEIPT.md`.
+- Exact bounded-worker aggregate: 1,434 Vitest files passed and 21 skipped; 15,205 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
+- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r7-1cef5ffb/RECEIPT.md`.
 - The first successor aggregate attempt exposed one stale Concierge test double that still expected the retired direct MCP setter. The test was migrated to the atomic authority, the add-name invariant was moved inside the atomic mutation, and the exact aggregate was rerun successfully from a clean implementation commit.
 
 ## Successor repair details
+
+- Failed-probe reconciliation now compares the winner's exact adapter key, not
+  only its canonical collision key. A case-only replacement removes the
+  restored old spelling before publishing the durable winner, preventing
+  case-sensitive agents from retaining two live definitions.
+- Stateful adapter tests cover partial initial removal, restoration, exact-key
+  cleanup, case-only replacement, true rename, concurrent disabled/deleted
+  winners, and fail-closed divergence when cleanup itself fails.
 
 - Failed-probe publication cleanup now treats the durable status commit as an explicit applied/conflict/error outcome. A successful or partial adapter revocation that loses its durable CAS reconciles the exact main-process winner rather than silently returning.
 - The reconciliation outcome matrix covers adapter revocation success/restoration, CAS win/loss, and concurrent enabled, disabled, deleted, renamed, and canonical case-fold replacement declarations. Exact enabled winners are republished, disabled/deleted winners remain absent, renamed winners first revoke the stale key, and any failed reconciliation persists the shared publication-divergence marker.
