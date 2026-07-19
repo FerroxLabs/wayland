@@ -211,12 +211,14 @@ export class ProductionCohortController implements CohortProductionAPI {
 
   async rolloutStatus(): Promise<CockpitRolloutStatus> {
     await this.queue;
+    const now = this.now();
+    if (this.authority !== null && !isValidAuthorityTime(now)) return unavailableRolloutStatus();
     const authoritySnapshot = this.authority;
     const result = await this.rollout.status();
     if (!this.environment.isPackaged || !result.eligible) return result;
 
     return this.enqueue(async () =>
-      sameRolloutAuthority(authoritySnapshot, this.authority, this.now())
+      sameRolloutAuthority(authoritySnapshot, this.authority, now)
         ? result
         : {
             eligible: false,
@@ -239,22 +241,21 @@ export class ProductionCohortController implements CohortProductionAPI {
 
   requestAssignment(requestedCohort: unknown): Promise<CohortAssignmentRequestResult> {
     return this.enqueue(async () => {
-      const requested = parseCohort(requestedCohort);
-      if (requested === null) return this.assignmentResult('invalid-request');
-      if (this.authority?.windowId !== null && this.authority?.windowId !== undefined) {
-        return this.assignmentResult(this.authority.effectiveCohort === requested ? 'unchanged' : 'window-active');
-      }
-      if (this.authority?.effectiveCohort === requested) return this.assignmentResult('unchanged');
-
       const now = this.now();
+      const requested = parseCohort(requestedCohort);
+      if (requested === null) return this.assignmentResult('invalid-request', now);
       if (!isValidAuthorityTime(now) || (this.authority !== null && now < this.authority.classifiedAtMs)) {
-        return this.assignmentResult('storage-error');
+        return this.assignmentResult('storage-error', now);
       }
+      if (this.authority?.windowId !== null && this.authority?.windowId !== undefined) {
+        return this.assignmentResult(this.authority.effectiveCohort === requested ? 'unchanged' : 'window-active', now);
+      }
+      if (this.authority?.effectiveCohort === requested) return this.assignmentResult('unchanged', now);
 
       // A hostile renderer can request a literal, but cannot complete this
       // native, process-owned user confirmation ceremony.
       if (!(await this.environment.confirmAssignment(requested))) {
-        return this.assignmentResult('confirmation-denied');
+        return this.assignmentResult('confirmation-denied', now);
       }
 
       const next: CohortAuthorityEnvelope = {
@@ -272,39 +273,41 @@ export class ProductionCohortController implements CohortProductionAPI {
         windowStartMs: null,
         windowEndMs: null,
       };
-      if (!(await this.publish(next))) return this.assignmentResult('storage-error');
+      if (!(await this.publish(next))) return this.assignmentResult('storage-error', now);
       this.authority = next;
-      return this.assignmentResult('classified');
+      return this.assignmentResult('classified', now);
     });
   }
 
   async consentStatus(): Promise<CohortConsentStatus> {
     await this.queue;
-    return toPublicConsent(this.authority);
+    const now = this.now();
+    return isValidAuthorityTime(now) ? toPublicConsent(this.authority) : unavailableConsent();
   }
 
   setConsent(enabled: boolean): Promise<CohortSetConsentResult> {
     return this.enqueue(async () => {
-      if (this.authority === null) return this.consentResult('assignment-unavailable');
-      if (enabled === this.authority.consentEnabled) return this.consentResult(enabled ? 'enabled' : 'disabled');
-
       const now = this.now();
+      if (this.authority === null) return this.consentResult('assignment-unavailable', now);
+      if (enabled && !isValidAuthorityTime(now)) return this.consentResult('storage-error', now);
+      if (enabled === this.authority.consentEnabled) {
+        return this.consentResult(enabled ? 'enabled' : 'disabled', now);
+      }
       if (
         enabled &&
-        (!isValidAuthorityTime(now) ||
-          now < this.authority.classifiedAtMs ||
+        (now < this.authority.classifiedAtMs ||
           (this.authority.windowStartMs !== null && now < this.authority.windowStartMs))
       ) {
-        return this.consentResult('storage-error');
+        return this.consentResult('storage-error', now);
       }
       if (enabled && this.authority.windowEndMs !== null && now >= this.authority.windowEndMs) {
-        return this.consentResult('window-complete');
+        return this.consentResult('window-complete', now);
       }
 
       const firstStart = enabled && this.authority.windowStartMs === null;
       const startMs = firstStart ? now : this.authority.windowStartMs;
       const candidateEndMs = firstStart ? now + M0B_OBSERVATION_WINDOW_DAYS * M0B_DAY_MS : null;
-      if (firstStart && !Number.isSafeInteger(candidateEndMs)) return this.consentResult('storage-error');
+      if (firstStart && !Number.isSafeInteger(candidateEndMs)) return this.consentResult('storage-error', now);
       const endMs = firstStart ? candidateEndMs : this.authority.windowEndMs;
       const next: CohortAuthorityEnvelope = {
         ...this.authority,
@@ -315,20 +318,23 @@ export class ProductionCohortController implements CohortProductionAPI {
         windowStartMs: startMs,
         windowEndMs: endMs,
       };
-      if (!(await this.publish(next))) return this.consentResult('storage-error');
+      if (!(await this.publish(next))) return this.consentResult('storage-error', now);
 
       this.authority = next;
-      this.runtime = this.createRuntime();
-      return this.consentResult(enabled ? 'enabled' : 'disabled');
+      this.runtime = this.createRuntime(now);
+      return this.consentResult(enabled ? 'enabled' : 'disabled', now);
     });
   }
 
   recordShellReturn(reason: CockpitReturnReason): Promise<CockpitReturnRecordResult> {
     return this.enqueue(async () => {
-      this.runtime ??= this.createRuntime();
-      if (!this.runtime) {
-        return this.authority?.consentEnabled ? { status: 'outside-window' } : { status: 'consent-disabled' };
+      const now = this.now();
+      const authority = this.authority;
+      if (!isRuntimeWindowActive(authority, now)) {
+        return authority?.consentEnabled ? { status: 'outside-window' } : { status: 'consent-disabled' };
       }
+      this.runtime ??= this.createRuntime(now);
+      if (!this.runtime) return { status: 'outside-window' };
       return this.runtime.recordShellReturn(reason);
     });
   }
@@ -342,12 +348,15 @@ export class ProductionCohortController implements CohortProductionAPI {
     return result;
   }
 
-  private assignmentResult(status: CohortAssignmentRequestResult['status']): CohortAssignmentRequestResult {
-    return { status, assignment: toPublicAssignment(this.authority, this.now()) };
+  private assignmentResult(
+    status: CohortAssignmentRequestResult['status'],
+    now: number
+  ): CohortAssignmentRequestResult {
+    return { status, assignment: toPublicAssignment(this.authority, now) };
   }
 
-  private consentResult(status: CohortSetConsentResult['status']): CohortSetConsentResult {
-    const projection = toPublicProjection(this.authority, this.now());
+  private consentResult(status: CohortSetConsentResult['status'], now: number): CohortSetConsentResult {
+    const projection = toPublicProjection(this.authority, now);
     return {
       status,
       ...projection,
@@ -356,15 +365,17 @@ export class ProductionCohortController implements CohortProductionAPI {
 
   private async publish(next: CohortAuthorityEnvelope): Promise<boolean> {
     try {
-      const record: CohortAuthorityRecord = { schemaVersion: 2, authority: next };
-      const lineage = toLineageAnchor(next, this.environment.installIdentity);
+      const validated = parseAuthorityEnvelope(next, this.environment.installIdentity);
+      if (validated === null) return false;
+      const record: CohortAuthorityRecord = { schemaVersion: 2, authority: validated };
+      const lineage = toLineageAnchor(validated, this.environment.installIdentity);
       await this.environment.authorityStore.set(await sealRecord(this.environment, record));
       await this.environment.lineageStore.set(await sealRecord(this.environment, lineage));
       // Advance the non-replaceable anchor last. Any crash before this point
       // leaves a mismatch that fails closed; a first-write failure preserves
       // the prior complete tuple without sacrificing rollback protection.
       await this.environment.stableAuthorityStore.set(
-        await sealRecord(this.environment, toStableAuthorityAnchor(next, this.environment.installIdentity))
+        await sealRecord(this.environment, toStableAuthorityAnchor(validated, this.environment.installIdentity))
       );
       return true;
     } catch {
@@ -374,13 +385,15 @@ export class ProductionCohortController implements CohortProductionAPI {
 
   private async rolloutAuthorityScope(): Promise<CohortRolloutAuthorityScope | null> {
     const authority = this.authority;
+    const now = this.now();
     if (
       authority === null ||
       !authority.consentEnabled ||
       authority.windowId === null ||
       authority.windowStartMs === null ||
       authority.windowEndMs === null ||
-      this.now() < authority.windowEndMs
+      !isValidAuthorityTime(now) ||
+      now < authority.windowEndMs
     ) {
       return null;
     }
@@ -391,7 +404,9 @@ export class ProductionCohortController implements CohortProductionAPI {
       accepted.authorityId !== authority.authorityId ||
       accepted.authorityGeneration !== authority.generation ||
       accepted.windowId !== authority.windowId ||
-      accepted.completedAtMs < authority.windowEndMs
+      !isValidAuthorityTime(accepted.completedAtMs) ||
+      accepted.completedAtMs < authority.windowEndMs ||
+      !isSha256Digest(accepted.baselineAggregateDigest)
     ) {
       return null;
     }
@@ -406,16 +421,14 @@ export class ProductionCohortController implements CohortProductionAPI {
     };
   }
 
-  private createRuntime(): CohortEvidenceRuntime | null {
+  private createRuntime(now = this.now()): CohortEvidenceRuntime | null {
     const authority = this.authority;
+    if (!isRuntimeWindowActive(authority, now)) return null;
     if (
       authority === null ||
-      !authority.consentEnabled ||
       authority.acceptedAtMs === null ||
       authority.windowStartMs === null ||
-      authority.windowEndMs === null ||
-      this.now() < authority.windowStartMs ||
-      this.now() >= authority.windowEndMs
+      authority.windowEndMs === null
     ) {
       return null;
     }
@@ -700,6 +713,8 @@ async function consumeLegacyMigration(
     // Legacy state is classification input only. It never carries forward an
     // observation window or consent, and it needs a fresh native ceremony.
     if (await environment.confirmAssignment(assignment.cohort)) {
+      const classifiedAtMs = environment.now?.() ?? Date.now();
+      if (!isValidAuthorityTime(classifiedAtMs)) return persistMigrationRecord(environment, null);
       authority = {
         schemaVersion: 3,
         generation: 1,
@@ -708,7 +723,7 @@ async function consumeLegacyMigration(
         classifierVersion: 2,
         requestedCohort: assignment.cohort,
         effectiveCohort: assignment.cohort,
-        classifiedAtMs: environment.now?.() ?? Date.now(),
+        classifiedAtMs,
         consentEnabled: false,
         acceptedAtMs: null,
         windowId: null,
@@ -724,6 +739,7 @@ async function persistMigrationRecord(
   environment: CohortProductionEnvironment,
   authority: CohortAuthorityEnvelope | null
 ): Promise<CohortAuthorityEnvelope | null> {
+  if (authority !== null) authority = parseAuthorityEnvelope(authority, environment.installIdentity);
   try {
     const installationIdHash = cohortInstallationIdHash(environment.installIdentity);
     const marker: CohortMigrationMarker = { schemaVersion: 1, installationIdHash, consumed: true };
@@ -792,9 +808,7 @@ function parseInstallationCredential(input: string | null): CohortInstallationCr
       Number(parsed.authorityGeneration) < 0 ||
       !(
         (parsed.authorityGeneration === 0 && parsed.authorityId === null) ||
-        (Number(parsed.authorityGeneration) >= 1 &&
-          typeof parsed.authorityId === 'string' &&
-          parsed.authorityId.length > 0)
+        (Number(parsed.authorityGeneration) >= 1 && isAuthorityIdentifier(parsed.authorityId))
       ) ||
       (!parsed.legacyMigrationConsumed && (parsed.authorityId !== null || parsed.authorityGeneration !== 0))
     ) {
@@ -832,7 +846,7 @@ function parseLineageAnchor(input: unknown, installIdentity: string): CohortLine
     Number(input.generation) < 0 ||
     !(
       (input.generation === 0 && input.authorityId === null) ||
-      (Number(input.generation) >= 1 && typeof input.authorityId === 'string' && input.authorityId.length > 0)
+      (Number(input.generation) >= 1 && isAuthorityIdentifier(input.authorityId))
     )
   ) {
     return null;
@@ -866,7 +880,7 @@ function parseStableAuthorityAnchor(input: unknown, installIdentity: string): Co
     Number(input.generation) < 0 ||
     !(
       (input.generation === 0 && input.authorityId === null) ||
-      (Number(input.generation) >= 1 && typeof input.authorityId === 'string' && input.authorityId.length > 0)
+      (Number(input.generation) >= 1 && isAuthorityIdentifier(input.authorityId))
     )
   ) {
     return null;
@@ -919,6 +933,7 @@ function sameRolloutAuthority(
   now: number
 ): boolean {
   return (
+    isValidAuthorityTime(now) &&
     snapshot !== null &&
     current !== null &&
     snapshot.authorityId === current.authorityId &&
@@ -957,8 +972,7 @@ function parseAuthorityEnvelope(input: unknown, installIdentity: string): Cohort
     !Number.isSafeInteger(input.generation) ||
     Number(input.generation) < 1 ||
     input.installationIdHash !== cohortInstallationIdHash(installIdentity) ||
-    typeof input.authorityId !== 'string' ||
-    input.authorityId.length < 1 ||
+    !isAuthorityIdentifier(input.authorityId) ||
     requested === null ||
     effective === null ||
     requested !== effective ||
@@ -975,8 +989,7 @@ function validLifecycle(input: Record<string, unknown>): boolean {
   const noWindow = input.windowId === null && input.windowStartMs === null && input.windowEndMs === null;
   if (noWindow) return input.consentEnabled === false && input.acceptedAtMs === null;
   if (
-    typeof input.windowId !== 'string' ||
-    input.windowId.length < 1 ||
+    !isAuthorityIdentifier(input.windowId) ||
     !Number.isSafeInteger(input.windowStartMs) ||
     !Number.isSafeInteger(input.windowEndMs) ||
     Number(input.windowStartMs) < Number(input.classifiedAtMs) ||
@@ -990,6 +1003,10 @@ function validLifecycle(input: Record<string, unknown>): boolean {
 
 function isValidAuthorityTime(value: number): boolean {
   return Number.isSafeInteger(value) && value >= 0;
+}
+
+function isAuthorityIdentifier(value: unknown): value is string {
+  return typeof value === 'string' && /^[A-Za-z0-9._:-]{1,128}$/.test(value);
 }
 
 function parseExactLegacyConsent(input: unknown): PersistedConsent | null {
@@ -1050,9 +1067,7 @@ function parseCohort(input: unknown): CohortAssignment | null {
 }
 
 function toPublicAssignment(authority: CohortAuthorityEnvelope | null, now: number): CohortAssignmentStatus {
-  if (authority === null) {
-    return { available: false, effectiveCohort: null, classifiedAtMs: null, observationState: 'unavailable' };
-  }
+  if (authority === null || !isValidAuthorityTime(now)) return unavailableAssignment();
   let observationState: CohortAssignmentStatus['observationState'] = 'ready';
   if (authority.windowEndMs !== null && now >= authority.windowEndMs) observationState = 'completed';
   else if (authority.windowId !== null) {
@@ -1084,7 +1099,44 @@ function toPublicConsent(authority: CohortAuthorityEnvelope | null): CohortConse
   };
 }
 
+function unavailableAssignment(): CohortAssignmentStatus {
+  return { available: false, effectiveCohort: null, classifiedAtMs: null, observationState: 'unavailable' };
+}
+
+function unavailableConsent(): CohortConsentStatus {
+  return { enabled: false, acceptedAtMs: null, observationWindow: null };
+}
+
+function unavailableRolloutStatus(): CockpitRolloutStatus {
+  return {
+    eligible: false,
+    stage: 'internal-dogfood',
+    source: 'none',
+    reason: 'evidence-gate-failed',
+  };
+}
+
+function isRuntimeWindowActive(authority: CohortAuthorityEnvelope | null, now: number): boolean {
+  return (
+    authority !== null &&
+    authority.consentEnabled &&
+    authority.acceptedAtMs !== null &&
+    authority.windowStartMs !== null &&
+    authority.windowEndMs !== null &&
+    isValidAuthorityTime(now) &&
+    now >= authority.windowStartMs &&
+    now < authority.windowEndMs
+  );
+}
+
+function isSha256Digest(value: unknown): value is `sha256:${string}` {
+  return typeof value === 'string' && /^sha256:[0-9a-f]{64}$/.test(value);
+}
+
 function toPublicProjection(authority: CohortAuthorityEnvelope | null, now: number): CohortAuthorityProjection {
+  if (!isValidAuthorityTime(now)) {
+    return Object.freeze({ generation: null, consent: unavailableConsent(), assignment: unavailableAssignment() });
+  }
   return Object.freeze({
     generation: authority?.generation ?? null,
     consent: toPublicConsent(authority),

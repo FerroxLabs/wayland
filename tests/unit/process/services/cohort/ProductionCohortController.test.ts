@@ -26,6 +26,7 @@ import { M0B_COHORTS, M0B_DAY_MS } from '@process/services/cohort/types';
 
 const NOW = Date.UTC(2026, 6, 19);
 const END = NOW + 14 * M0B_DAY_MS;
+const INVALID_AUTHORITY_TIMES = [Number.NaN, -1, 1.5, Number.MAX_SAFE_INTEGER + 1] as const;
 const roots: string[] = [];
 
 const disabledConsent = Object.freeze({
@@ -70,6 +71,8 @@ async function fixture(
       | 'confirmAssignment'
       | 'acceptedEvidence'
       | 'retireLegacy'
+      | 'newAuthorityId'
+      | 'newWindowId'
     >
   > & { seedAuthenticated?: boolean } = {}
 ) {
@@ -612,6 +615,85 @@ describe('ProductionCohortController cohort authority', () => {
     });
   });
 
+  it.each(INVALID_AUTHORITY_TIMES)(
+    '[HF-01][HF-02] burns migration without minting authority when the confirmed migration clock is invalid: %s',
+    async (invalidNow) => {
+      const prior = {
+        schemaVersion: 1,
+        cohort: 'operator',
+        classifiedAtMs: NOW,
+        windowStartMs: NOW,
+        windowEndMs: END,
+      } as const;
+      const subject = await fixture(enabledConsent, prior, () => invalidNow, { seedAuthenticated: false });
+
+      await expect(subject.controller.authorityStatus()).resolves.toEqual({
+        generation: null,
+        consent: { enabled: false, acceptedAtMs: null, observationWindow: null },
+        assignment: {
+          available: false,
+          effectiveCohort: null,
+          classifiedAtMs: null,
+          observationState: 'unavailable',
+        },
+      });
+      expect(subject.environment.confirmAssignment).toHaveBeenCalledWith('operator');
+      expect(subject.persistedAuthority()).toBeUndefined();
+      expect(subject.persistedStableAuthority()).toEqual(expect.any(String));
+
+      const legacyReads = [
+        vi.mocked(subject.consentStore.get).mock.calls.length,
+        vi.mocked(subject.assignmentStore.get).mock.calls.length,
+      ];
+      const restarted = await createCohortProductionController(subject.environment);
+      await expect(restarted.assignmentStatus()).resolves.toMatchObject({ available: false });
+      expect([
+        vi.mocked(subject.consentStore.get).mock.calls.length,
+        vi.mocked(subject.assignmentStore.get).mock.calls.length,
+      ]).toEqual(legacyReads);
+    }
+  );
+
+  it.each(['', `authority-${'x'.repeat(256)}`])(
+    'reparses process-generated authority before publication: %j',
+    async (invalidAuthorityId) => {
+      const subject = await fixture(disabledConsent, undefined, () => NOW, {
+        newAuthorityId: () => invalidAuthorityId,
+      });
+
+      await expect(subject.controller.requestAssignment('developer')).resolves.toEqual({
+        status: 'storage-error',
+        assignment: {
+          available: false,
+          effectiveCohort: null,
+          classifiedAtMs: null,
+          observationState: 'unavailable',
+        },
+      });
+      expect(subject.authorityStore.set).not.toHaveBeenCalled();
+      expect(subject.lineageStore.set).not.toHaveBeenCalled();
+      expect(subject.stableAuthorityStore.set).not.toHaveBeenCalled();
+    }
+  );
+
+  it.each(['', `window-${'x'.repeat(256)}`])(
+    'reparses process-generated observation-window authority before publication: %j',
+    async (invalidWindowId) => {
+      const subject = await fixture(disabledConsent, assignment('developer'), () => NOW, {
+        newWindowId: () => invalidWindowId,
+      });
+
+      await expect(subject.controller.setConsent(true)).resolves.toMatchObject({
+        status: 'storage-error',
+        assignment: { effectiveCohort: 'developer', observationState: 'ready' },
+        consent: { enabled: false },
+      });
+      expect(subject.authorityStore.set).not.toHaveBeenCalled();
+      expect(subject.lineageStore.set).not.toHaveBeenCalled();
+      expect(subject.stableAuthorityStore.set).not.toHaveBeenCalled();
+    }
+  );
+
   it('[HF-02] keeps the external migration marker authoritative when legacy cleanup fails', async () => {
     const prior = {
       schemaVersion: 1,
@@ -670,7 +752,7 @@ describe('ProductionCohortController cohort authority', () => {
     expect(subject.authorityStore.set).not.toHaveBeenCalled();
   });
 
-  it.each([Number.NaN, -1, 1.5])(
+  it.each(INVALID_AUTHORITY_TIMES)(
     'rejects classification when the process clock cannot produce durable authority: %s',
     async (invalidNow) => {
       const subject = await fixture(disabledConsent, undefined, () => invalidNow);
@@ -705,6 +787,60 @@ describe('ProductionCohortController cohort authority', () => {
 });
 
 describe('ProductionCohortController observation lifecycle', () => {
+  it.each(INVALID_AUTHORITY_TIMES)(
+    '[HF-01][HF-03] fails every existing-authority status and runtime surface closed at invalid clock %s',
+    async (invalidNow) => {
+      let clock = NOW;
+      const subject = await fixture(enabledConsent, assignment('operator', true), () => clock);
+      clock = invalidNow;
+
+      await expect(subject.controller.assignmentStatus()).resolves.toEqual({
+        available: false,
+        effectiveCohort: null,
+        classifiedAtMs: null,
+        observationState: 'unavailable',
+      });
+      await expect(subject.controller.authorityStatus()).resolves.toEqual({
+        generation: null,
+        consent: { enabled: false, acceptedAtMs: null, observationWindow: null },
+        assignment: {
+          available: false,
+          effectiveCohort: null,
+          classifiedAtMs: null,
+          observationState: 'unavailable',
+        },
+      });
+      await expect(subject.controller.consentStatus()).resolves.toEqual({
+        enabled: false,
+        acceptedAtMs: null,
+        observationWindow: null,
+      });
+      await expect(subject.controller.requestAssignment('operator')).resolves.toMatchObject({
+        status: 'storage-error',
+        assignment: { available: false, observationState: 'unavailable' },
+      });
+      await expect(subject.controller.setConsent(true)).resolves.toMatchObject({
+        status: 'storage-error',
+        generation: null,
+        consent: { enabled: false },
+        assignment: { available: false, observationState: 'unavailable' },
+      });
+      await expect(subject.controller.recordShellReturn('reliability')).resolves.toEqual({
+        status: 'outside-window',
+      });
+      await expect(subject.controller.rolloutStatus()).resolves.toEqual({
+        eligible: false,
+        stage: 'internal-dogfood',
+        source: 'none',
+        reason: 'evidence-gate-failed',
+      });
+      await expect(fs.stat(path.join(subject.environment.userDataPath, 'cohort-evidence'))).rejects.toMatchObject({
+        code: 'ENOENT',
+      });
+      expect(subject.authorityStore.set).not.toHaveBeenCalled();
+    }
+  );
+
   it('[HF-01] does not publish a consent window that becomes invalid after clock rollback', async () => {
     let clock = NOW;
     const subject = await fixture(disabledConsent, assignment('developer'), () => clock);
