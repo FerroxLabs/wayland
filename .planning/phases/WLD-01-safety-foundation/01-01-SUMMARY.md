@@ -7,42 +7,44 @@ completed: null
 requirements-completed: []
 requirements-addressed: [SAF-02]
 baseline: 3bc531efa97d3a66e60bd2ced9e202002dc5a4d4
-implementation_commit: 0119cbc297622e4d26928adfde3c4fc8a41384d2
-implementation_tree: 35521f75557b59cb184242c544987c05dd30cd75
-rejected_predecessor: 9cc0408a1d7ecb7440a2a61f37803d715445bdf6
+implementation_commit: 2e60b3d8cecf789d973187eb3e15469038ac1c48
+implementation_tree: 71d27d16b73ce4bfcae6da5cc28994afc22c5573
+audited_predecessor: 71b21247761fc9c7a04d30f6c8e3b41455ed6f7c
 ---
 
 # Plan 01-01 Repair Handoff
 
-Plan 01-01 has a proved repair successor, but it is **not accepted**. A different auditor must inspect the exact successor and report zero findings before serial integration.
+Plan 01-01 has a locally proved repair successor, but it is **not accepted**. A different auditor must inspect the exact successor and report zero findings before serial integration.
 
 ## What the repair changed
 
-- Anchored the one-time legacy-migration epoch inside the stable OS credential-vault installation record.
-- Made deletion or replay of the replaceable authority, lineage, and migration-marker records fail closed without rereading mutable legacy config.
-- Added hostile generic-controller and production-keytar regressions for that deletion/replacement sequence.
-- Replaced cross-worktree `node_modules` symlinks with an exact local `bun install --frozen-lockfile` dependency tree.
-- Reconciled the plan's actual baseline, changed-path ownership, and package/lock, receipt-authority, localization, test, and planning seams.
-- Restored review history as explicit rejected-candidate evidence rather than deleting it.
+- Extended the stable OS credential-vault installation record with the latest authority ID and generation.
+- Made replay of a complete old replaceable authority/lineage/marker tuple fail closed, including production-keytar restart proof.
+- Kept the stable anchor write last during normal publication so every interrupted multi-record update either preserves the prior tuple or restarts unavailable.
+- Corrected the migration contract: the legacy schema is classification input only; a fresh native confirmation preserves the effective cohort but never trusts legacy consent/window authority.
+- Corrected `.planning/STATE.md` so 01-01 is pending independent review rather than falsely accepted.
+- Removed both no-project `process.cwd()` fallbacks from manual Wiki access and scheduled Wiki synthesis; neither path may mutate an application/source launch directory.
+- Reconciled the declared ownership manifest to the exact 42-path baseline delta.
 
-## Exact proof run against implementation source
+## Exact proof against the implementation commit
 
-| Command | Exit | Result |
-|---|---:|---|
-| `GSD_RUNTIME=codex bunx vitest run tests/unit/process/services/cohort/ProductionCohortController.test.ts tests/unit/process/services/cohort/ProductionCohortCredentialVault.test.ts` | 0 | 2 files, 50/50 tests passed |
-| `GSD_RUNTIME=codex bunx vitest run <seven 01-01 focused files>` | 0 | 7 files, 97/97 predecessor tests passed before repair; repaired controller/vault subset is 50/50 |
-| `bun run typecheck` | 0 | TypeScript clean |
-| `bun run lint -- <plan-owned source and test paths>` | 0 | 26 files, 0 warnings, 0 errors |
-| `bun run format:check -- <plan-owned source and test paths>` | 0 | 26 files formatted |
-| `bun run i18n:types` | 0 | Generated key surface in sync |
-| `node scripts/check-i18n.js` | 0 | Validation passed; repository-wide pre-existing warnings remain |
-| `GSD_RUNTIME=codex bun run test` | 0 | 1,453 Vitest files: 15,181 passed, 145 skipped; 226/226 Bun-native passed |
+Environment: macOS Darwin 25.3.0 arm64, Bun 1.3.11, Node v25.8.1, local frozen dependency tree.
 
-The complete gate used Bun 1.3.11 with local worktree dependencies. `react` and `swr` both resolved under this worktree; no dependency symlink remained.
+| Command                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Exit | Result                                                                    | Log SHA-256                                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---: | ------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `GSD_RUNTIME=codex bunx vitest run tests/unit/process/services/cohort/ProductionCohortController.test.ts tests/unit/process/services/cohort/ProductionCohortCredentialVault.test.ts tests/unit/process/services/cohort/ProductionCockpitRolloutStatusProvider.test.ts tests/unit/process/services/cohort/rolloutAuthority.test.ts tests/unit/process/bridge/cohortBridge.test.ts tests/unit/process/bridge/wikiBridge.noProject.test.ts tests/unit/process/services/wiki/wikiAutoSync.test.ts tests/unit/cohortPreloadBridge.test.ts tests/unit/renderer/cohortEvidenceConsent.dom.test.tsx`                                                                                                                                         |    0 | 9 files, 109/109 tests passed                                             | `30a75255a7a02e2981e388862a2a2f3680fee543ce4b61ac1b9a2e3e93135709` |
+| `bun run typecheck`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |    0 | TypeScript clean                                                          | `c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5` |
+| `bun run lint -- src/common/config/storage.ts src/process/services/cohort src/process/services/wiki/wikiAutoSync.ts src/common/types/cohortRollout.ts src/common/types/electron.ts src/process/bridge/cohortBridge.ts src/process/bridge/wikiBridge.ts src/preload/main.ts src/renderer/pages/settings/NavigationSettings/CohortEvidenceConsent.tsx tests/unit/process/services/cohort tests/unit/process/services/wiki/wikiAutoSync.test.ts tests/unit/process/bridge/cohortBridge.test.ts tests/unit/process/bridge/wikiBridge.noProject.test.ts tests/unit/cohortPreloadBridge.test.ts tests/unit/renderer/cohortEvidenceConsent.dom.test.tsx`                                                                                    |    0 | 30 files, 0 warnings, 0 errors                                            | `8c5b52817ab9730bbba8b626ba867a39d482ab20abcb4ae3d19708a436195466` |
+| `bun run format:check -- src/common/config/storage.ts src/process/services/cohort src/process/services/wiki/wikiAutoSync.ts src/common/types/cohortRollout.ts src/common/types/electron.ts src/process/bridge/cohortBridge.ts src/process/bridge/wikiBridge.ts src/preload/main.ts src/renderer/pages/settings/NavigationSettings/CohortEvidenceConsent.tsx tests/unit/process/services/cohort tests/unit/process/services/wiki/wikiAutoSync.test.ts tests/unit/process/bridge/cohortBridge.test.ts tests/unit/process/bridge/wikiBridge.noProject.test.ts tests/unit/cohortPreloadBridge.test.ts tests/unit/renderer/cohortEvidenceConsent.dom.test.tsx .planning/STATE.md .planning/phases/WLD-01-safety-foundation/01-01-PLAN.md` |    0 | 32 files formatted                                                        | `b443f2f1378f337d34be911545c352aa7c9c0a6e8715225d5bbbd156e31c04a6` |
+| `bun run i18n:types`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |    0 | Generated key surface unchanged                                           | `151a0c0001ddb8b3e89e92ccdbea59ff85ec6d5accabd7cfbf1f0c8700257f70` |
+| `node scripts/check-i18n.js`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |    0 | Validation passed; repository-wide baseline warnings remain               | `ba022ed3e988fc698a41f7d4f80710186189b4fa0a5cc7e4573eedf97558da90` |
+| `GSD_RUNTIME=codex bun run test`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |    0 | 1,454 Vitest files: 15,187 passed, 145 skipped; 226/226 Bun-native passed | `847e0e96dd748687b0c887598afa8785c1b455d2f5f2d9a983753e6c800a7cab` |
+
+The exact aggregate left the implementation worktree clean and did not create `.ijfw/wiki-state/index.json`. Declared and actual baseline path manifests both contain 42 paths and have identical SHA-256 `301f6d3d037b754cc724488119217f93845afe4c1aad353fa28d7d5811086929`.
 
 ## Non-claims
 
 - This document does not accept Plan 01-01 or SAF-02.
 - It does not claim packaging, deployment, canary, release, or production migration.
 - It does not erase prior rejected candidates or their findings.
-- The final evidence-document commit is intentionally separate from the implementation commit above; an independent auditor must bind its review to the exact final HEAD/tree.
+- The evidence-document commit is intentionally separate from the implementation commit above; an independent auditor must bind review to the exact final HEAD and tree.

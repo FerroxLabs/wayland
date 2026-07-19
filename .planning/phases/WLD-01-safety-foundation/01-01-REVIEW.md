@@ -5,7 +5,7 @@ status: issues-found-and-repaired-pending-reaudit
 original_candidate: 76eec4b4813b6b7f8ba738eaac0befb70a5eb02c
 first_successor: 9817401a24807041ca22a3c7ade9c3a2ae32f23d
 audited_predecessor: 9cc0408a1d7ecb7440a2a61f37803d715445bdf6
-repair_implementation: 0119cbc297622e4d26928adfde3c4fc8a41384d2
+repair_implementation: 2e60b3d8cecf789d973187eb3e15469038ac1c48
 ---
 
 # Plan 01-01 Review History
@@ -33,4 +33,18 @@ The later audit found the functional focused suite green but rejected acceptance
 
 ## Repair disposition
 
-Implementation commit `0119cbc297622e4d26928adfde3c4fc8a41384d2` repairs findings 1 and 3, proves finding 4 on a local frozen dependency tree, and leaves no tracked or untracked pollution. The companion summary and successor review restore honest evidence for finding 2. The packet remains pending independent re-audit.
+Implementation commit `0119cbc297622e4d26928adfde3c4fc8a41384d2` repaired the preceding findings but remained subject to independent successor audit.
+
+## Exact 71b21247 successor audit
+
+The independent successor audit rejected `71b21247761fc9c7a04d30f6c8e3b41455ed6f7c` for:
+
+1. **BLOCKER:** a complete old authority, lineage, and marker tuple remained replayable because the stable installation credential recorded only migration consumption, not the latest authority ID/generation.
+2. **HIGH:** `.planning/STATE.md` falsely called 01-01 complete and pinned a rejected older commit.
+3. **HIGH:** the plan required preserving legacy consent/window authority while the safer implementation deliberately discarded those unauthenticated claims.
+4. **MEDIUM:** the summary contained placeholder commands and omitted exact log digests/final implementation identity.
+5. **MEDIUM:** the aggregate created `.ijfw/wiki-state/index.json` in the source worktree.
+
+## Current repair disposition
+
+Implementation commit `2e60b3d8cecf789d973187eb3e15469038ac1c48` binds stable authority lineage, repairs planning truth and migration semantics, records exact reproducible evidence, and removes both manual and scheduled no-project cwd fallbacks. Its exact full aggregate passes without source-worktree pollution. The packet remains pending a different auditor's exact-HEAD review.
