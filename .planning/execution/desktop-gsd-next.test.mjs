@@ -10,6 +10,8 @@ import {
   readdirSync,
   rmSync,
   statSync,
+  symlinkSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -22,6 +24,7 @@ import {
   computeEffectiveWaves,
   discoverPlans,
   pairConflicts,
+  schedulePlansForTest,
   selectNext,
   validateEntryReceipt,
   invokeVerifier,
@@ -96,7 +99,7 @@ function plan(id, overrides = {}) {
 
 function select(root, plans, options = {}) {
   const admissionPath = options.admissionPath ?? writeAdmission(root, options.admission ?? {})
-  return selectNext({
+  return schedulePlansForTest({
     repoRoot: root,
     expectedBranch: options.expectedBranch ?? 'test-branch',
     expectedHead: options.expectedHead ?? 'a'.repeat(40),
@@ -104,7 +107,7 @@ function select(root, plans, options = {}) {
     plans,
     skipGitCheck: options.skipGitCheck ?? true,
     verifyGate: options.verifyGate,
-    worktreeParent: join(root, 'worktrees'),
+    worktreeParent: join(dirname(root), `${root.split('/').at(-1)}-worktrees`),
   })
 }
 
@@ -257,6 +260,14 @@ test('shared lock schema config generated migration and named authority seams se
     plan('01-02', { authoritySeams: ['receipt-authority'] }),
   ])
   assert.equal(output.serialized_after[0].conflicts[0].reason, 'authority:receipt-authority')
+  assert.deepEqual(
+    pairConflicts(
+      plan('01-01', { authoritySeams: ['Receipt-Authority'] }),
+      plan('01-02', { authoritySeams: ['receipt-authority'] }),
+      [],
+    ),
+    ['authority:receipt-authority'],
+  )
 })
 
 test('entry receipts are target-free schema-v2 construction evidence only', () => {
@@ -277,6 +288,13 @@ test('entry receipts are target-free schema-v2 construction evidence only', () =
     [{ prerequisites: [{ id: 'core', ok: false }] }, 'ENTRY_PREREQUISITES'],
     [{ prerequisites: [] }, 'ENTRY_PREREQUISITES'],
     [{ prerequisites: { ok: true, required: [], alternatives: [] } }, 'ENTRY_PREREQUISITES'],
+    [{
+      prerequisites: {
+        ok: true,
+        items: [{ id: 'visible', ok: true }],
+        required: [{ id: 'hidden-contradiction', ok: false }],
+      },
+    }, 'ENTRY_PREREQUISITES'],
     [{ accepted_targets: ['desktop'] }, 'ENTRY_TARGETS'],
   ]) {
     expectSelectionError(() => validateEntryReceipt({ ...good, ...mutation }, 'M2-entry'), code)
@@ -298,7 +316,9 @@ test('mapped Phase 2 construction is admitted and unmapped work is denied', () =
     admission: { plan_entry_gates: { '02-01': gate } },
     verifyGate: () => receipt,
   })
-  assert.equal(output.candidate_plans[0].authenticated_admission.gate_id, gate)
+  assert.equal(output.operational, false)
+  assert.equal(output.candidate_plans[0].authenticated_admission, null)
+  assert.deepEqual(output.candidate_plans[0].next_commands, [])
   expectSelectionError(() => select(root, [plan('02-01')]), 'UNMAPPED_ADMISSION')
 })
 
@@ -343,6 +363,25 @@ test('filename directory and frontmatter phase identity must agree', () => {
   expectSelectionError(() => discoverPlans(root), 'PHASE_ID_MISMATCH')
 })
 
+test('plan and summary symlinks cannot change selection under an identical HEAD', () => {
+  const root = temporaryRoot()
+  writePlan(root, '01-01')
+  const phaseDir = join(root, '.planning', 'phases', 'WLD-01-fixture')
+  const planPath = join(phaseDir, '01-01-PLAN.md')
+  const externalPlan = join(temporaryRoot(), 'external-plan.md')
+  writeFileSync(externalPlan, readFileSync(planPath))
+  unlinkSync(planPath)
+  symlinkSync(externalPlan, planPath)
+  expectSelectionError(() => discoverPlans(root), 'PLAN_IDENTITY')
+
+  unlinkSync(planPath)
+  writeFileSync(planPath, readFileSync(externalPlan))
+  const externalSummary = join(temporaryRoot(), 'external-summary.md')
+  writeFileSync(externalSummary, 'forged completion\n')
+  symlinkSync(externalSummary, join(phaseDir, '01-01-SUMMARY.md'))
+  expectSelectionError(() => discoverPlans(root), 'SUMMARY_IDENTITY')
+})
+
 test('external admission and verifier CLI overrides are rejected', () => {
   const root = temporaryRoot()
   const externalRoot = temporaryRoot()
@@ -357,7 +396,7 @@ test('external admission and verifier CLI overrides are rejected', () => {
     expectedHead: git.head,
     admissionPath: forged,
     plans: [],
-  }), 'ADMISSION_IDENTITY')
+  }), 'TEST_AUTHORITY')
   for (const argument of ['--admission', '--verifier']) {
     const result = spawnSync(process.execPath, [
       SELECTOR,
@@ -408,6 +447,16 @@ test('allowlisted external ownership remains conflict-safe when installation pla
   assert.match(output.serialized_after[0].conflicts[0].reason, /^path:/)
 })
 
+test('filesystem root cannot become a universal external ownership allowlist', () => {
+  const root = temporaryRoot()
+  expectSelectionError(
+    () => select(root, [plan('01-01', { files: ['/etc/passwd'] })], {
+      admission: { external_ownership_roots: ['/'] },
+    }),
+    'ADMISSION_SCHEMA',
+  )
+})
+
 test('wrong repository branch HEAD and dirty state fail before selection', () => {
   const root = temporaryRoot()
   writeAdmission(root)
@@ -417,7 +466,6 @@ test('wrong repository branch HEAD and dirty state fail before selection', () =>
     repoRoot: root,
     expectedBranch: 'test-branch',
     expectedHead: git.head,
-    admissionPath: join(root, '.planning', 'execution', 'DESKTOP-GSD-ADMISSION.json'),
   }
   assert.deepEqual(selectNext(base).candidate_plans.map((candidate) => candidate.plan_id), ['01-01'])
   expectSelectionError(() => selectNext({ ...base, repoRoot: join(root, '.planning') }), 'WRONG_REPOSITORY')
@@ -464,7 +512,7 @@ test('operational selection rejects injected plans and emits argv-safe worktree 
     expectedBranch: 'test-branch',
     expectedHead: git.head,
     plans: [],
-  }), 'PLAN_IDENTITY')
+  }), 'TEST_AUTHORITY')
   const output = selectNext({
     repoRoot: root,
     expectedBranch: 'test-branch',
@@ -478,6 +526,37 @@ test('operational selection rejects injected plans and emits argv-safe worktree 
   assert.match(command.arguments[4], /spaces ; \$\(\)/)
   assert.equal(typeof command.arguments[4], 'string')
   assert.equal(command.cwd, realpathSync(root))
+})
+
+test('operational selection rejects every fixture authority injection', () => {
+  const root = temporaryRoot()
+  writeAdmission(root)
+  writePlan(root, '01-01')
+  const git = initializeGit(root)
+  const base = { repoRoot: root, expectedBranch: 'test-branch', expectedHead: git.head }
+  for (const mutation of [
+    { skipGitCheck: true },
+    { plans: [plan('02-01')] },
+    { verifyGate: () => ({ ok: true }) },
+    { fixtureMode: true },
+    { admissionPath: join(root, '.planning', 'execution', 'DESKTOP-GSD-ADMISSION.json') },
+  ]) expectSelectionError(() => selectNext({ ...base, ...mutation }), 'TEST_AUTHORITY')
+})
+
+test('symlinked worktree parent cannot resolve inside the integration repository', () => {
+  const root = temporaryRoot()
+  writeAdmission(root)
+  writePlan(root, '01-01')
+  const git = initializeGit(root)
+  const external = temporaryRoot()
+  const link = join(external, 'worktrees')
+  symlinkSync(join(root, '.planning'), link)
+  expectSelectionError(() => selectNext({
+    repoRoot: root,
+    expectedBranch: 'test-branch',
+    expectedHead: git.head,
+    worktreeParent: link,
+  }), 'WORKTREE_PARENT')
 })
 
 test('operator contract prohibits stock routing and preserves authority', () => {
@@ -498,14 +577,14 @@ test('repository Phase 1 candidate set is deterministic without mutating plannin
   const repoRoot = resolve(HERE, '..', '..')
   const admissionPath = join(HERE, 'DESKTOP-GSD-ADMISSION.json')
   const before = snapshot(join(repoRoot, '.planning'))
-  const first = selectNext({
+  const first = schedulePlansForTest({
     repoRoot,
     expectedBranch: 'test',
     expectedHead: 'a'.repeat(40),
     admissionPath,
     skipGitCheck: true,
   })
-  const second = selectNext({
+  const second = schedulePlansForTest({
     repoRoot,
     expectedBranch: 'test',
     expectedHead: 'a'.repeat(40),

@@ -18,6 +18,9 @@ acceptance, merge, release, or deployment authority.
    stale HEAD, dependency ambiguity, or shared seam returns nonzero or a serialized tail.
    Execute `next_commands` as the emitted executable plus argument array; never concatenate
    or evaluate it as shell source.
+   Plans and completion summaries must be tracked regular files; symlinked planning evidence
+   is rejected even when Git reports an unchanged HEAD. Proposed worktree parents are
+   resolved through existing symlinks and must remain outside the integration repository.
 3. Manually create exactly one named clean worktree from the declared HEAD for each selected
    plan. Codex generic agents do not create or bind worktrees automatically.
 4. Bind one builder to that exact worktree and one PLAN. The builder may own only the paths
@@ -62,6 +65,8 @@ node .planning/execution/desktop-gsd-next.mjs \
 - Do not integrate concurrently or accept stale proof.
 - Do not infer acceptance from source, tests, SUMMARY presence, top-level verifier `ok`, or a
   green prerequisite graph.
+- Do not treat fixture scheduling helpers as operational output. They deliberately emit no
+  authenticated admission and no executable worktree command.
 - Do not alter keys, accepted-packet registries, receipts, requirement checkboxes, or Phase 1
   completion through this adapter.
 - Merge to main, issue closure, release, deploy, observation start, cohort promotion, and live

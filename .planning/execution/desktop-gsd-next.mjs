@@ -2,7 +2,7 @@
 
 import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs'
 import { basename, dirname, join, posix, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
@@ -43,7 +43,24 @@ function normalizeExternalRoot(path) {
   if (typeof path !== 'string' || !path.startsWith('/') || path.includes('\0')) {
     throw new SelectionError('ADMISSION_SCHEMA', `Unsafe external ownership root: ${String(path)}`)
   }
-  return posix.normalize(path).replace(/\/$/, '')
+  const normalized = posix.normalize(path)
+  if (normalized === '/') {
+    throw new SelectionError('ADMISSION_SCHEMA', 'The filesystem root cannot be an external ownership root')
+  }
+  return normalized.replace(/\/$/, '')
+}
+
+function regularFileExists(path, code, label) {
+  try {
+    const stat = lstatSync(path)
+    if (stat.isSymbolicLink() || !stat.isFile()) {
+      throw new SelectionError(code, `${label} must be a regular file: ${path}`)
+    }
+    return true
+  } catch (error) {
+    if (error?.code === 'ENOENT') return false
+    throw error
+  }
 }
 
 function canonicalOwnedPath(path, allowedExternalRoots = []) {
@@ -84,6 +101,7 @@ export function discoverPlans(repoRoot, options = {}) {
       if (!match) continue
       const path = join(phaseDir, name)
       const source = relative(repoRoot, path)
+      regularFileExists(path, 'PLAN_IDENTITY', 'Plan')
       const data = frontmatter(readFileSync(path, 'utf8'), source)
       const id = `${match[1]}-${match[2]}`
       const phaseName = basename(phaseDir)
@@ -123,12 +141,13 @@ export function discoverPlans(repoRoot, options = {}) {
         if (typeof seam !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(seam)) {
           throw new SelectionError('MALFORMED_PLAN', `${source}: authority seam is invalid`)
         }
-        return seam
+        return seam.toLowerCase()
       })
       if (new Set(authoritySeams).size !== authoritySeams.length) {
         throw new SelectionError('MALFORMED_PLAN', `${source}: authority seams must be unique`)
       }
       const summaryPath = join(phaseDir, `${id}-SUMMARY.md`)
+      const complete = regularFileExists(summaryPath, 'SUMMARY_IDENTITY', 'Summary')
       plans.push({
         id,
         phaseNumber,
@@ -139,7 +158,7 @@ export function discoverPlans(repoRoot, options = {}) {
         authoritySeams,
         planPath: relative(repoRoot, path),
         summaryPath: relative(repoRoot, summaryPath),
-        complete: existsSync(summaryPath),
+        complete,
       })
     }
   }
@@ -202,8 +221,11 @@ function pairConflicts(left, right, seamPatterns, allowedExternalRoots = []) {
       }
     }
   }
-  const leftNamed = new Set(left.authoritySeams)
-  for (const seam of right.authoritySeams) if (leftNamed.has(seam)) reasons.push(`authority:${seam}`)
+  const leftNamed = new Set(left.authoritySeams.map((seam) => seam.toLowerCase()))
+  for (const seam of right.authoritySeams) {
+    const canonicalSeam = seam.toLowerCase()
+    if (leftNamed.has(canonicalSeam)) reasons.push(`authority:${canonicalSeam}`)
+  }
   for (const { name, regex } of seamPatterns) {
     if (left.files.some((path) => regex.test(canonicalOwnedPath(path, allowedExternalRoots))) &&
         right.files.some((path) => regex.test(canonicalOwnedPath(path, allowedExternalRoots)))) {
@@ -241,13 +263,13 @@ function everyPrerequisiteGreen(prerequisites) {
   }
   if (prerequisites && typeof prerequisites === 'object') {
     if (prerequisites.ok !== true) return false
-    if (Array.isArray(prerequisites.items)) {
-      return prerequisites.items.length > 0 && prerequisites.items.every((item) => item && item.ok === true)
-    }
-    const groups = ['required', 'alternatives', 'exclusive_alternatives']
+    const groupNames = ['items', 'required', 'alternatives', 'exclusive_alternatives']
+    const presentGroups = groupNames
       .filter((key) => Array.isArray(prerequisites[key]))
-      .flatMap((key) => prerequisites[key])
-    return groups.length > 0 && groups.every((item) => item && item.ok === true)
+    if (presentGroups.length === 0) return false
+    return presentGroups.every((key) =>
+      prerequisites[key].length > 0 && prerequisites[key].every((item) => item && item.ok === true),
+    )
   }
   return false
 }
@@ -316,6 +338,18 @@ function canonicalRoot(path) {
   return realpathSync(resolve(path))
 }
 
+function canonicalProspectivePath(path) {
+  const missing = []
+  let cursor = resolve(path)
+  while (!existsSync(cursor)) {
+    const parent = dirname(cursor)
+    if (parent === cursor) break
+    missing.unshift(basename(cursor))
+    cursor = parent
+  }
+  return resolve(realpathSync(cursor), ...missing)
+}
+
 export function gitIdentity(repoRoot) {
   const run = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).trim()
   return {
@@ -372,7 +406,7 @@ function safeWorktreeName(id) {
   return `worktree-agent-desktop-${id.toLowerCase()}`
 }
 
-export function selectNext(options) {
+function selectNextInternal(options) {
   const repoRoot = canonicalRoot(options.repoRoot)
   if (!options.skipGitCheck) {
     assertGitIdentity(gitIdentity(repoRoot), {
@@ -438,12 +472,14 @@ export function selectNext(options) {
   if (typeof options.worktreeParent === 'string' && options.worktreeParent.includes('\0')) {
     throw new SelectionError('WORKTREE_PARENT', 'Worktree parent contains an invalid character')
   }
-  const worktreeParent = resolve(options.worktreeParent ?? dirname(repoRoot))
+  const worktreeParent = canonicalProspectivePath(options.worktreeParent ?? dirname(repoRoot))
   if (worktreeParent === repoRoot || worktreeParent.startsWith(`${repoRoot}/`)) {
     throw new SelectionError('WORKTREE_PARENT', 'Worktree parent must be outside the integration worktree')
   }
+  const operational = options.fixtureMode !== true
   return {
     schema_version: 1,
+    operational,
     repository: repoRoot,
     branch: options.expectedBranch ?? 'UNVERIFIED',
     head,
@@ -452,10 +488,10 @@ export function selectNext(options) {
       effective_construction_wave: plan.effectiveWave,
       plan_path: plan.planPath,
       owned_files: plan.files.toSorted(),
-      authenticated_admission: plan.authenticatedAdmission,
+      authenticated_admission: operational ? plan.authenticatedAdmission : null,
       proposed_worktree: join(worktreeParent, `wayland-desktop-${plan.id}`, 'app'),
       proposed_branch: safeWorktreeName(plan.id),
-      next_commands: [{
+      next_commands: operational ? [{
         executable: 'git',
         arguments: [
           'worktree',
@@ -466,11 +502,26 @@ export function selectNext(options) {
           head,
         ],
         cwd: repoRoot,
-      }],
+      }] : [],
     })),
     serialized_after: serialized,
     blocked,
   }
+}
+
+export function selectNext(options) {
+  for (const key of ['skipGitCheck', 'plans', 'verifyGate', 'admissionPath', 'fixtureMode']) {
+    if (Object.hasOwn(options, key)) {
+      throw new SelectionError('TEST_AUTHORITY', `Operational selection forbids ${key}`)
+    }
+  }
+  return selectNextInternal(options)
+}
+
+// Pure scheduling support for hostile unit fixtures. It never emits authenticated
+// admissions or executable worktree commands and therefore has no operator authority.
+export function schedulePlansForTest(options) {
+  return selectNextInternal({ ...options, skipGitCheck: true, fixtureMode: true })
 }
 
 function parseArgs(argv) {
