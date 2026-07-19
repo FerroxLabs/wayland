@@ -32,7 +32,8 @@ declare const JOURNEY_HANDLE_BRAND: unique symbol;
 export type M0BJourneyHandle = Readonly<{ [JOURNEY_HANDLE_BRAND]: true }>;
 
 export type M0BJourneyStartResult =
-  { status: 'recorded'; handle: M0BJourneyHandle } | Exclude<M0BRecordResult, { status: 'recorded' }>;
+  | { status: 'recorded'; handle: M0BJourneyHandle }
+  | Exclude<M0BRecordResult, { status: 'recorded' }>;
 
 export type CohortJourneyObserverInput = Readonly<{
   service: CohortBaselineService;
@@ -70,6 +71,7 @@ export class CohortJourneyObserver {
   private readonly now: () => number;
   private readonly createId: () => string;
   private readonly journeys = new WeakMap<object, JourneyState>();
+  private readonly pendingEvents = new Map<string, M0BCohortEvent>();
   private sessionState: SessionState = 'idle';
   private operationTail: Promise<void> = Promise.resolve();
 
@@ -92,7 +94,7 @@ export class CohortJourneyObserver {
     return this.enqueue(async () => {
       if (this.sessionState === 'open') return { status: 'recorded' };
       if (this.sessionState !== 'idle') return rejected('sessionState');
-      const result = await this.record(this.event('session_started'));
+      const { result } = await this.recordRetryable('session:start', () => this.event('session_started'));
       if (result.status === 'recorded') this.sessionState = 'open';
       return result;
     });
@@ -111,16 +113,19 @@ export class CohortJourneyObserver {
       if (this.sessionState !== 'open') return rejected('sessionState');
       if (!isOneOf(journeyId, M0B_PRIMARY_JOURNEYS)) return rejected('journeyId');
 
-      const journeyRunId = this.createId();
-      const result = await this.record({
+      const { event, result } = await this.recordRetryable(`journey:start:${journeyId}`, () => ({
         ...this.event('journey_started'),
-        journeyRunId,
+        journeyRunId: this.createId(),
         journeyId,
-      });
+      }));
       if (result.status !== 'recorded') return result;
 
       const handle = Object.freeze({}) as M0BJourneyHandle;
-      this.journeys.set(handle, { journeyRunId, journeyId, terminal: false });
+      this.journeys.set(handle, {
+        journeyRunId: event.journeyRunId,
+        journeyId: event.journeyId,
+        terminal: false,
+      });
       return { status: 'recorded', handle };
     });
   }
@@ -152,7 +157,11 @@ export class CohortJourneyObserver {
       if (this.sessionState !== 'open') return rejected('sessionState');
       if (this.input.shell !== 'cockpit') return rejected('shell');
       if (!isOneOf(reason, M0B_RETURN_REASONS)) return rejected('reason');
-      return this.record({ ...this.event('shell_returned_to_classic'), reason: reason as M0BReturnReason });
+      const { result } = await this.recordRetryable(`shell-return:${reason}`, () => ({
+        ...this.event('shell_returned_to_classic'),
+        reason: reason as M0BReturnReason,
+      }));
+      return result;
     });
   }
 
@@ -169,7 +178,9 @@ export class CohortJourneyObserver {
   ): Promise<M0BRecordResult> {
     return this.enqueue(async () => {
       if (this.sessionState !== 'open') return rejected('sessionState');
-      const result = await this.record(this.event(kind));
+      const pending = this.pendingEvents.get('session:terminal');
+      if (pending && pending.kind !== kind) return rejected('sessionState');
+      const { result } = await this.recordRetryable('session:terminal', () => this.event(kind));
       if (result.status === 'recorded') this.sessionState = state;
       return result;
     });
@@ -184,11 +195,14 @@ export class CohortJourneyObserver {
       const journey = this.journeys.get(handle);
       if (!journey || journey.terminal) return rejected('journeyHandle');
 
-      const result = await this.record({
+      const key = `journey:terminal:${journey.journeyRunId}`;
+      const pending = this.pendingEvents.get(key);
+      if (pending && pending.kind !== kind) return rejected('journeyHandle');
+      const { result } = await this.recordRetryable(key, () => ({
         ...this.event(kind),
         journeyRunId: journey.journeyRunId,
         journeyId: journey.journeyId,
-      });
+      }));
       if (result.status === 'recorded') journey.terminal = true;
       return result;
     });
@@ -203,7 +217,8 @@ export class CohortJourneyObserver {
     return this.enqueue(async () => {
       if (this.sessionState !== 'open') return rejected('sessionState');
       if (!isOneOf(value, allowed)) return rejected(field);
-      return this.record(build(value));
+      const { result } = await this.recordRetryable(`${field}:${value}`, () => build(value));
+      return result;
     });
   }
 
@@ -238,6 +253,23 @@ export class CohortJourneyObserver {
     } catch {
       return { status: 'storage_error' };
     }
+  }
+
+  /**
+   * A storage error is ambiguous: the repository may have atomically published
+   * the event before a later durability step failed. Retrying must therefore
+   * replay the exact event identity until a definitive result is observed.
+   */
+  private async recordRetryable<T extends M0BCohortEvent>(
+    key: string,
+    build: () => T
+  ): Promise<{ event: T; result: M0BRecordResult }> {
+    const existing = this.pendingEvents.get(key);
+    const event = (existing ?? build()) as T;
+    if (!existing) this.pendingEvents.set(key, event);
+    const result = await this.record(event);
+    if (result.status !== 'storage_error') this.pendingEvents.delete(key);
+    return { event, result };
   }
 
   private enqueue<T>(operation: () => Promise<T>): Promise<T> {

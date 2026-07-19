@@ -14,6 +14,7 @@ import {
   M0B_RETURN_REASONS,
   M0B_SUPPORT_CATEGORIES,
   M0B_ZERO_TOLERANCE_REASONS,
+  type M0BCohortEvent,
 } from '@process/services/cohort/types';
 
 function harness(record = vi.fn(async (): Promise<M0BRecordResult> => ({ status: 'recorded' }))) {
@@ -201,6 +202,54 @@ describe('CohortJourneyObserver', () => {
     expect(observedEvents).toHaveLength(2);
     expect(observedEvents[1]?.kind).toBe('session_started');
     expect(observedEvents[1]?.eventId).toBe(observedEvents[0]?.eventId);
+  });
+
+  it('replays exact journey and category events after ambiguous storage failures', async () => {
+    const observedEvents: Array<{ eventId: string; kind: string; journeyRunId?: string }> = [];
+    let failNext = false;
+    const record = vi.fn(async (event: M0BCohortEvent): Promise<M0BRecordResult> => {
+      observedEvents.push(event);
+      if (failNext) {
+        failNext = false;
+        return { status: 'storage_error' };
+      }
+      return { status: 'recorded' };
+    });
+    const { observer } = harness(record);
+    await observer.startSession();
+
+    failNext = true;
+    await expect(observer.startJourney('project.resume')).resolves.toEqual({ status: 'storage_error' });
+    const journey = await observer.startJourney('project.resume');
+    expect(journey.status).toBe('recorded');
+    const [firstStart, retriedStart] = observedEvents.slice(-2);
+    expect(retriedStart).toEqual(firstStart);
+
+    if (journey.status !== 'recorded') throw new Error('test setup failed');
+    failNext = true;
+    await expect(observer.completeJourney(journey.handle)).resolves.toEqual({ status: 'storage_error' });
+    await expect(observer.completeJourney(journey.handle)).resolves.toEqual({ status: 'recorded' });
+    const [firstTerminal, retriedTerminal] = observedEvents.slice(-2);
+    expect(retriedTerminal).toEqual(firstTerminal);
+
+    failNext = true;
+    await expect(observer.recordSupportContact('bug')).resolves.toEqual({ status: 'storage_error' });
+    await expect(observer.recordSupportContact('bug')).resolves.toEqual({ status: 'recorded' });
+    const [firstCategory, retriedCategory] = observedEvents.slice(-2);
+    expect(retriedCategory).toEqual(firstCategory);
+  });
+
+  it('does not change an ambiguous terminal into a conflicting terminal', async () => {
+    const record = vi.fn(
+      async (event: M0BCohortEvent): Promise<M0BRecordResult> =>
+        event.kind === 'session_ended' ? { status: 'storage_error' } : { status: 'recorded' }
+    );
+    const { observer } = harness(record);
+    await observer.startSession();
+
+    await expect(observer.endSession()).resolves.toEqual({ status: 'storage_error' });
+    await expect(observer.crashSession()).resolves.toMatchObject({ status: 'rejected', field: 'sessionState' });
+    expect(record.mock.calls.map(([event]) => event.kind)).toEqual(['session_started', 'session_ended']);
   });
 
   it('retains an unresolved journey as a start when the session ends', async () => {
