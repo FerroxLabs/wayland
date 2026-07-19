@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ConfigStorage } from '@/common/config/storage';
 import type { IMcpServer } from '@/common/config/storage';
 import { ipcBridge } from '@/common';
+import { mcpService } from '@/common/adapter/ipcBridge';
 import { migrateExistingServers } from './migrateExistingServers';
 
 type McpConfigListener = (servers: IMcpServer[]) => void;
@@ -11,13 +11,20 @@ type McpConfigListener = (servers: IMcpServer[]) => void;
 // overwrite each other's config snapshots.
 let mcpConfigWriteQueue: Promise<void> = Promise.resolve();
 const mcpConfigListeners = new Set<McpConfigListener>();
+const MAX_MCP_CONFIG_CAS_ATTEMPTS = 16;
 
 function publishMcpConfig(servers: IMcpServer[]): void {
   for (const listener of mcpConfigListeners) listener(servers);
 }
 
+async function readMcpConfig(): Promise<{ revision: string; servers: IMcpServer[] }> {
+  const response = await mcpService.getMcpConfigSnapshot.invoke();
+  if (!response.success || !response.data) throw new Error(response.msg || 'Failed to read MCP config');
+  return response.data;
+}
+
 function enqueueMcpConfigRead(): Promise<IMcpServer[]> {
-  const operation = mcpConfigWriteQueue.then(async () => (await ConfigStorage.get('mcp.config')) ?? []);
+  const operation = mcpConfigWriteQueue.then(async () => (await readMcpConfig()).servers);
   mcpConfigWriteQueue = operation.then(
     (): void => undefined,
     (): void => undefined
@@ -27,12 +34,27 @@ function enqueueMcpConfigRead(): Promise<IMcpServer[]> {
 
 function enqueueMcpConfigWrite(serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])): Promise<void> {
   const operation = mcpConfigWriteQueue.then(async () => {
-    const persisted = (await ConfigStorage.get('mcp.config')) ?? [];
-    const next = typeof serversOrUpdater === 'function' ? serversOrUpdater(persisted) : serversOrUpdater;
-    await ConfigStorage.set('mcp.config', next);
-    // Publish only after persistence succeeds. A rejected write must never
-    // manufacture renderer state that the main process cannot subsequently use.
-    publishMcpConfig(next);
+    for (let attempt = 0; attempt < MAX_MCP_CONFIG_CAS_ATTEMPTS; attempt += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- every retry must observe the previous CAS result
+      const persisted = await readMcpConfig();
+      const next =
+        typeof serversOrUpdater === 'function'
+          ? serversOrUpdater(persisted.servers)
+          : structuredClone(serversOrUpdater);
+      // oxlint-disable-next-line no-await-in-loop -- CAS retries are intentionally serialized
+      const response = await mcpService.compareAndSetMcpConfig.invoke({
+        expectedRevision: persisted.revision,
+        nextServers: next,
+      });
+      if (!response.success || !response.data) throw new Error(response.msg || 'Failed to write MCP config');
+      if (!response.data.applied) continue;
+
+      // Publish only the main-process-confirmed snapshot after persistence.
+      // A rejected or conflicted write cannot manufacture renderer state.
+      publishMcpConfig(response.data.snapshot.servers);
+      return;
+    }
+    throw new Error('MCP config changed too frequently to commit safely');
   });
   mcpConfigWriteQueue = operation.catch((): void => undefined);
   return operation;
@@ -69,6 +91,8 @@ export const useMcpServers = () => {
       setMcpServers(migrated);
     }
   }, []);
+
+  const readMcpServers = useCallback(async (): Promise<IMcpServer[]> => enqueueMcpConfigRead(), []);
 
   // Load MCP server configuration
   useEffect(() => {
@@ -119,6 +143,7 @@ export const useMcpServers = () => {
     extensionMcpServers,
     setMcpServers,
     saveMcpServers,
+    readMcpServers,
     refreshMcpServers,
   };
 };

@@ -23,7 +23,7 @@ const PAGE = 24;
 export function BrowsePage() {
   const { t } = useTranslation();
   const library = useMcpLibrary();
-  const { mcpServers, saveMcpServers, refreshMcpServers } = useMcpServers();
+  const { mcpServers, saveMcpServers, readMcpServers, refreshMcpServers } = useMcpServers();
   const navigate = useNavigate();
 
   const [message, contextHolder] = Message.useMessage();
@@ -38,9 +38,10 @@ export function BrowsePage() {
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
     setAgentInstallStatus,
-    refreshMcpServers
+    refreshMcpServers,
+    readMcpServers
   );
-  const conn = useMcpConnection(mcpServers, saveMcpServers, message);
+  const conn = useMcpConnection(mcpServers, saveMcpServers, message, undefined, removeMcpFromAgents, syncMcpToAgents);
 
   const handleAddSubmit = useCallback(
     (serverData: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => {

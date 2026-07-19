@@ -972,6 +972,13 @@ export const acpConversation = {
 
 // MCP service related interface
 export const mcpService = {
+  getMcpConfigSnapshot: buildProvider<IBridgeResponse<{ revision: string; servers: IMcpServer[] }>, void>(
+    'mcp.get-config-snapshot'
+  ),
+  compareAndSetMcpConfig: buildProvider<
+    IBridgeResponse<{ applied: boolean; snapshot: { revision: string; servers: IMcpServer[] } }>,
+    { expectedRevision: string; nextServers: IMcpServer[] }
+  >('mcp.compare-and-set-config'),
   getAgentMcpConfigs: buildProvider<
     IBridgeResponse<Array<{ source: McpSource; servers: IMcpServer[] }>>,
     Array<{ backend: string; name: string; cliPath?: string }>

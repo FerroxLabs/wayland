@@ -71,7 +71,11 @@ vi.mock('@renderer/hooks/mcp', () => ({
     allMcpServers: hookState.mcpServers,
     extensionMcpServers: [],
     setMcpServers: vi.fn(),
-    saveMcpServers: vi.fn().mockResolvedValue(undefined),
+    saveMcpServers: vi.fn(async (updater: IMcpServer[] | ((current: IMcpServer[]) => IMcpServer[])) => {
+      hookState.mcpServers = typeof updater === 'function' ? updater(hookState.mcpServers) : updater;
+    }),
+    readMcpServers: vi.fn(async () => structuredClone(hookState.mcpServers)),
+    refreshMcpServers: vi.fn().mockResolvedValue(undefined),
   }),
   useMcpAgentStatus: () => ({
     agentInstallStatus: {},
@@ -222,7 +226,10 @@ test('stdio oauth2-byo: "Sign in" installs + connection-tests and NEVER calls lo
     source: 'library',
     libraryEntryId: GOOGLE_WORKSPACE_ID,
   };
-  handleAddMcpServer.mockResolvedValue(fakeServer);
+  handleAddMcpServer.mockImplementation(async () => {
+    hookState.mcpServers = [fakeServer];
+    return fakeServer;
+  });
   testMcpConnection.mockResolvedValue(probedResponse(fakeServer));
 
   renderDetail(GOOGLE_WORKSPACE_ID);
@@ -257,7 +264,7 @@ test('stdio oauth2-byo: "Sign in" installs + connection-tests and NEVER calls lo
     })
   );
   expect(testMcpConnection).toHaveBeenCalledTimes(1);
-  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_gws', true);
+  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_gws', true, expect.any(Number));
   await waitFor(() => expect(messageSuccess).toHaveBeenCalled());
 });
 
@@ -338,7 +345,10 @@ test('#438 apple FDA: "Done - verify access" installs + connection-tests (no lon
     source: 'library',
     libraryEntryId: APPLE_ID,
   };
-  handleAddMcpServer.mockResolvedValue(fakeServer);
+  handleAddMcpServer.mockImplementation(async () => {
+    hookState.mcpServers = [fakeServer];
+    return fakeServer;
+  });
   testMcpConnection.mockResolvedValue(probedResponse(fakeServer));
 
   renderDetail(APPLE_ID);
@@ -352,6 +362,6 @@ test('#438 apple FDA: "Done - verify access" installs + connection-tests (no lon
   await waitFor(() => expect(handleAddMcpServer).toHaveBeenCalledTimes(1));
   expect(login).not.toHaveBeenCalled();
   expect(testMcpConnection).toHaveBeenCalledTimes(1);
-  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_apple', true);
+  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_apple', true, expect.any(Number));
   await waitFor(() => expect(messageSuccess).toHaveBeenCalled());
 });

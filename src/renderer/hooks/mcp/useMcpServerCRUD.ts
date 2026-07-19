@@ -28,7 +28,8 @@ export const useMcpServerCRUD = (
   removeMcpFromAgents: (serverName: string, successMessage?: string, transportType?: string) => Promise<unknown>,
   checkSingleServerInstallStatus: (serverName: string) => Promise<void>,
   setAgentInstallStatus: React.Dispatch<React.SetStateAction<Record<string, string[]>>>,
-  refreshMcpServers: () => Promise<void>
+  refreshMcpServers: () => Promise<void>,
+  readMcpServers: () => Promise<IMcpServer[]> = async () => mcpServers
 ) => {
   const { t } = useTranslation();
 
@@ -37,18 +38,11 @@ export const useMcpServerCRUD = (
     async (serverData: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => {
       const now = Date.now();
       let serverToSync: IMcpServer | null = null;
-      const existingPublished = mcpServers.find(
+      const currentServers = await readMcpServers();
+      const existingPublished = currentServers.find(
         (server) => mcpServerCollisionKey(server.name) === mcpServerCollisionKey(serverData.name) && server.enabled
       );
-      let revokedExisting = false;
-
-      // Add/import is declaration persistence, never adapter publication. If
-      // this replaces an already-enabled definition, revoke that old
-      // publication first so storage cannot diverge from an agent config.
-      if (existingPublished) {
-        await removeMcpFromAgents(existingPublished.name, undefined, existingPublished.transport.type);
-        revokedExisting = true;
-      }
+      let revocationAttempted = false;
 
       const savedDeclaration: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'> = {
         ...serverData,
@@ -61,7 +55,15 @@ export const useMcpServerCRUD = (
 
       // Use functional update to avoid stale-closure issues
       try {
+        // Add/import is declaration persistence, never adapter publication. If
+        // this replaces an already-enabled definition, revoke that old
+        // publication first so storage cannot diverge from an agent config.
+        if (existingPublished) {
+          revocationAttempted = true;
+          await removeMcpFromAgents(existingPublished.name, undefined, existingPublished.transport.type);
+        }
         await saveMcpServers((prevServers) => {
+          serverToSync = null;
           const incomingKey = mcpServerCollisionKey(serverData.name);
           const existingServerIndex = prevServers.findIndex(
             (server) => mcpServerCollisionKey(server.name) === incomingKey
@@ -89,7 +91,9 @@ export const useMcpServerCRUD = (
           return [...prevServers, newServer];
         });
       } catch (error) {
-        if (revokedExisting && existingPublished) {
+        // A rejected adapter operation may still have mutated a subset. Restore
+        // the prior definition to every target whenever revocation was attempted.
+        if (revocationAttempted && existingPublished) {
           try {
             await syncMcpToAgents(existingPublished, true);
           } catch (rollbackError) {
@@ -109,7 +113,7 @@ export const useMcpServerCRUD = (
       // Return the newly added/updated server for subsequent connection testing
       return serverToSync;
     },
-    [mcpServers, saveMcpServers, syncMcpToAgents, removeMcpFromAgents, checkSingleServerInstallStatus]
+    [mcpServers, readMcpServers, saveMcpServers, syncMcpToAgents, removeMcpFromAgents, checkSingleServerInstallStatus]
   );
 
   // Batch-import MCP servers
@@ -119,19 +123,21 @@ export const useMcpServerCRUD = (
       const addedServers: IMcpServer[] = [];
 
       const incomingKeys = new Set(serversData.map((server) => mcpServerCollisionKey(server.name)));
-      const existingPublished = mcpServers.filter(
+      const currentServers = await readMcpServers();
+      const existingPublished = currentServers.filter(
         (server) => server.enabled && incomingKeys.has(mcpServerCollisionKey(server.name))
       );
       const revocations = await Promise.allSettled(
         existingPublished.map((server) => removeMcpFromAgents(server.name, undefined, server.transport.type))
       );
-      const revokedServers = existingPublished.filter((_server, index) => revocations[index].status === 'fulfilled');
       const revocationFailures = revocations
         .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
         .map((result) => result.reason);
 
       const restoreRevoked = async (): Promise<unknown[]> => {
-        const restorations = await Promise.allSettled(revokedServers.map((server) => syncMcpToAgents(server, true)));
+        // Restore every prior definition, including operations reported as
+        // partial failures: rejected wrappers may already have changed agents.
+        const restorations = await Promise.allSettled(existingPublished.map((server) => syncMcpToAgents(server, true)));
         return restorations
           .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
           .map((result) => result.reason);
@@ -148,6 +154,7 @@ export const useMcpServerCRUD = (
       // Use functional update to avoid stale-closure issues
       try {
         await saveMcpServers((prevServers) => {
+          addedServers.length = 0;
           const updatedServers = [...prevServers];
 
           serversData.forEach((serverData) => {
@@ -206,7 +213,7 @@ export const useMcpServerCRUD = (
       // Return list of newly added servers for subsequent connection testing
       return addedServers;
     },
-    [mcpServers, saveMcpServers, syncMcpToAgents, removeMcpFromAgents, checkSingleServerInstallStatus]
+    [mcpServers, readMcpServers, saveMcpServers, syncMcpToAgents, removeMcpFromAgents, checkSingleServerInstallStatus]
   );
 
   // Edit MCP server
@@ -228,36 +235,37 @@ export const useMcpServerCRUD = (
       // orphan config, then publish the replacement. If either step fails,
       // best-effort restore the old enabled definition and keep local storage
       // unchanged so the user has an honest retry surface.
-      let oldPublicationRevoked = false;
-      let replacementPublished = false;
+      let oldRevocationAttempted = false;
+      let replacementPublicationAttempted = false;
       try {
         if (editingMcpServer.enabled) {
+          oldRevocationAttempted = true;
           await removeMcpFromAgents(editingMcpServer.name, undefined, editingMcpServer.transport.type);
-          oldPublicationRevoked = true;
         }
         if (updatedServer.enabled) {
+          replacementPublicationAttempted = true;
           await syncMcpToAgents(updatedServer, true);
-          replacementPublished = true;
         }
         let committed = false;
-        await saveMcpServers((prevServers) =>
-          prevServers.map((server) => {
+        await saveMcpServers((prevServers) => {
+          committed = false;
+          return prevServers.map((server) => {
             if (server.id !== editingMcpServer.id || server.updatedAt !== editingMcpServer.updatedAt) return server;
             committed = true;
             return updatedServer;
-          })
-        );
+          });
+        });
         if (!committed) throw new Error('MCP declaration changed while edit publication was in progress');
       } catch (error) {
         const rollbackErrors: unknown[] = [];
-        if (replacementPublished) {
+        if (replacementPublicationAttempted) {
           try {
             await removeMcpFromAgents(updatedServer.name, undefined, updatedServer.transport.type);
           } catch (rollbackError) {
             rollbackErrors.push(rollbackError);
           }
         }
-        if (oldPublicationRevoked) {
+        if (oldRevocationAttempted) {
           try {
             await syncMcpToAgents(editingMcpServer, true);
           } catch (rollbackError) {
@@ -314,35 +322,38 @@ export const useMcpServerCRUD = (
 
   // Enable/disable MCP server
   const handleToggleMcpServer = useCallback(
-    async (serverId: string, enabled: boolean) => {
-      const targetServer = mcpServers.find((server) => server.id === serverId);
+    async (serverId: string, enabled: boolean, expectedRevision?: number) => {
+      const currentServers = await readMcpServers();
+      const targetServer = currentServers.find((server) => server.id === serverId);
       if (!targetServer) return false;
+      if (expectedRevision !== undefined && targetServer.updatedAt !== expectedRevision) return false;
       const updatedTargetServer: IMcpServer = {
         ...targetServer,
         enabled,
         updatedAt: nextMcpRevision(targetServer.updatedAt),
       };
-      let externalChanged = false;
+      let externalMutationAttempted = false;
 
       try {
         if (enabled) {
           // Publish before committing the local enabled state. A failed or
           // partial publication can therefore never leave a false-green row.
+          externalMutationAttempted = true;
           await syncMcpToAgents(updatedTargetServer, true);
-          externalChanged = true;
         } else {
+          externalMutationAttempted = true;
           await removeMcpFromAgents(targetServer.name, undefined, targetServer.transport.type);
-          externalChanged = true;
         }
 
         let committed = false;
-        await saveMcpServers((prevServers) =>
-          prevServers.map((server) => {
+        await saveMcpServers((prevServers) => {
+          committed = false;
+          return prevServers.map((server) => {
             if (server.id !== serverId || server.updatedAt !== targetServer.updatedAt) return server;
             committed = true;
             return updatedTargetServer;
-          })
-        );
+          });
+        });
         if (!committed) throw new Error('MCP declaration changed while publication was in progress');
 
         if (enabled) {
@@ -359,7 +370,7 @@ export const useMcpServerCRUD = (
         }
         return true;
       } catch (error) {
-        if (externalChanged) {
+        if (externalMutationAttempted) {
           try {
             if (enabled) {
               await removeMcpFromAgents(updatedTargetServer.name, undefined, updatedTargetServer.transport.type);
@@ -379,6 +390,7 @@ export const useMcpServerCRUD = (
     },
     [
       mcpServers,
+      readMcpServers,
       saveMcpServers,
       syncMcpToAgents,
       removeMcpFromAgents,

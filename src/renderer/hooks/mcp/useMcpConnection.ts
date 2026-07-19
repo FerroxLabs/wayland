@@ -98,7 +98,9 @@ export const useMcpConnection = (
   mcpServers: IMcpServer[],
   saveMcpServers: (serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])) => Promise<void>,
   message: ReturnType<typeof import('@arco-design/web-react').Message.useMessage>[0],
-  onAuthRequired?: (server: IMcpServer) => void // Added: callback fired when authentication is required
+  onAuthRequired?: (server: IMcpServer) => void, // Added: callback fired when authentication is required
+  removeMcpFromAgents?: (serverName: string, successMessage?: string, transportType?: string) => Promise<unknown>,
+  syncMcpToAgents?: (server: IMcpServer, skipRecheck?: boolean) => Promise<unknown>
 ) => {
   const { t } = useTranslation();
   const [testingServers, setTestingServers] = useState<Record<string, boolean>>({});
@@ -116,8 +118,9 @@ export const useMcpConnection = (
       ): Promise<boolean> => {
         let applied = false;
         try {
-          await saveMcpServers((prevServers) =>
-            prevServers.map((s) => {
+          await saveMcpServers((prevServers) => {
+            applied = false;
+            return prevServers.map((s) => {
               if (s.id !== server.id || s.updatedAt !== server.updatedAt) return s;
               applied = true;
               return {
@@ -126,13 +129,39 @@ export const useMcpConnection = (
                 updatedAt: preserveRevision ? s.updatedAt : nextMcpRevision(s.updatedAt),
                 ...additionalData,
               };
-            })
-          );
+            });
+          });
         } catch (error) {
           console.error('Failed to update server status:', error);
           return false;
         }
         return applied;
+      };
+
+      const recordProbeFailure = async (errorMsg: string): Promise<void> => {
+        let publicationRevoked = !server.enabled;
+        if (server.enabled && removeMcpFromAgents && syncMcpToAgents) {
+          try {
+            await removeMcpFromAgents(server.name, undefined, server.transport.type);
+            publicationRevoked = true;
+          } catch {
+            // A rejected removal may have changed a subset of adapters. Restore
+            // the previous enabled definition everywhere and keep local enabled
+            // truth until a later revocation succeeds.
+            await syncMcpToAgents(server, true).catch(() => {});
+          }
+        }
+
+        if (
+          !(await updateServerStatus('error', {
+            ...(publicationRevoked ? { enabled: false } : {}),
+            lastError: errorMsg,
+          }))
+        )
+          return;
+        await globalMessageQueue.add(() => {
+          message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
+        });
       };
 
       try {
@@ -189,34 +218,21 @@ export const useMcpConnection = (
 
             // Standalone probe succeeded; no session-readiness claim is made.
           } else {
-            // Update server status to error and disable install.
-            // On failure, automatically set enabled=false to avoid installing a broken service
             const errorMsg = truncateErrorMessage(result.error || t('settings.mcpError'));
-            if (!(await updateServerStatus('error', { enabled: false, lastError: errorMsg }))) return;
-            await globalMessageQueue.add(() => {
-              message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
-            });
+            await recordProbeFailure(errorMsg);
           }
         } else {
-          // IPC call failed; disable install
           const errorMsg = truncateErrorMessage(response.msg || t('settings.mcpError'));
-          if (!(await updateServerStatus('error', { enabled: false, lastError: errorMsg }))) return;
-          await globalMessageQueue.add(() => {
-            message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
-          });
+          await recordProbeFailure(errorMsg);
         }
       } catch (error) {
-        // Update server status to error and disable install
         const errorMsg = truncateErrorMessage(error instanceof Error ? error.message : t('settings.mcpError'));
-        if (!(await updateServerStatus('error', { enabled: false, lastError: errorMsg }))) return;
-        await globalMessageQueue.add(() => {
-          message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
-        });
+        await recordProbeFailure(errorMsg);
       } finally {
         setTestingServers((prev) => ({ ...prev, [server.id]: false }));
       }
     },
-    [saveMcpServers, message, t, onAuthRequired]
+    [saveMcpServers, message, t, onAuthRequired, removeMcpFromAgents, syncMcpToAgents]
   );
 
   // Passive, non-destructive status refresh. Probes the given ENABLED servers

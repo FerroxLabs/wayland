@@ -28,6 +28,7 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import { connectModelRegistryProvider } from '@process/providers/ipc/modelRegistryIpc';
 import type { ProviderId } from '@process/providers/types';
 import { writeAssistantRules } from './fsBridge';
+import { updateMcpConfig } from '@process/services/mcpServices/mcpConfigAuthority';
 import { uuid } from '@/common/utils';
 import type { TMessage } from '@/common/chat/chatLib';
 import type { IMcpServer } from '@/common/config/storage';
@@ -89,8 +90,6 @@ async function applyProposal(
       return `Set ${content.engine} default model to ${content.label}.`;
     }
     case 'add_mcp': {
-      const existing = (await ProcessConfig.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
-      const list = Array.isArray(existing) ? (existing as IMcpServer[]) : [];
       const now = Date.now();
       const server: IMcpServer = {
         id: uuid(),
@@ -117,7 +116,12 @@ async function applyProposal(
         ),
         source: 'custom',
       };
-      await ProcessConfig.set('mcp.config', [...list, server]);
+      await updateMcpConfig((current) => {
+        if (current.some((candidate) => candidate.name === content.name)) {
+          throw new Error('MCP server name already exists');
+        }
+        return [...current, server];
+      });
       return `Added MCP server "${content.name}".`;
     }
     case 'edit_assistant': {

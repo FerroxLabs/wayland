@@ -177,6 +177,62 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(result.current.testingServers[server.id]).toBe(false);
     expect(bridgeMocks.testMcpConnection).not.toHaveBeenCalled();
   });
+
+  it('revokes an enabled publication before persisting a failed probe as disabled', async () => {
+    let stored = [server];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn().mockResolvedValue(undefined);
+    const sync = vi.fn().mockResolvedValue(undefined);
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({
+      success: true,
+      data: {
+        success: false,
+        error: 'probe unavailable',
+        prepublication: {
+          version: 'wayland-mcp-prepublication/1',
+          serverId: server.id,
+          serverName: server.name,
+          serverUpdatedAt: server.updatedAt,
+          observedAt: Date.now(),
+          state: 'probe-failed',
+          authentication: 'unavailable',
+          probe: 'failed',
+          error: 'probe unavailable',
+        },
+      },
+    });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(remove).toHaveBeenCalledWith(server.name, undefined, server.transport.type);
+    expect(sync).not.toHaveBeenCalled();
+    expect(stored[0]).toMatchObject({ enabled: false, status: 'error' });
+  });
+
+  it('restores all publications and keeps local enabled truth when revocation reports failure', async () => {
+    let stored = [server];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn().mockRejectedValue(new Error('partial removal'));
+    const sync = vi.fn().mockResolvedValue(undefined);
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(sync).toHaveBeenCalledWith(server, true);
+    expect(stored[0]).toMatchObject({ enabled: true, status: 'error' });
+  });
 });
 
 describe('useMcpServerCRUD', () => {
@@ -214,7 +270,7 @@ describe('useMcpServerCRUD', () => {
     bridgeMocks.testMcpConnection.mockReset();
   });
 
-  const renderCRUD = (servers: IMcpServer[] = []) =>
+  const renderCRUD = (servers: IMcpServer[] = [], readMcpServers = async () => servers) =>
     renderHook(() =>
       useMcpServerCRUD(
         servers,
@@ -223,7 +279,8 @@ describe('useMcpServerCRUD', () => {
         removeMcpFromAgents,
         checkSingleServerInstallStatus,
         setAgentInstallStatus,
-        refreshMcpServers
+        refreshMcpServers,
+        readMcpServers
       )
     );
 
@@ -406,7 +463,7 @@ describe('useMcpServerCRUD', () => {
       expect(stored.every((server) => server.enabled === false && server.status === 'disconnected')).toBe(true);
     });
 
-    it('restores successful revocations when another batch revocation fails', async () => {
+    it('restores every prior publication when any batch revocation reports failure', async () => {
       const first = makeMockServer({ id: 'one', name: 'tavily', enabled: true });
       const second = makeMockServer({ id: 'two', name: 'firecrawl', enabled: true });
       removeMcpFromAgents.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('config locked'));
@@ -421,13 +478,46 @@ describe('useMcpServerCRUD', () => {
         ).rejects.toThrow('Failed to revoke existing MCP publications');
       });
 
-      expect(syncMcpToAgents).toHaveBeenCalledTimes(1);
+      expect(syncMcpToAgents).toHaveBeenCalledTimes(2);
       expect(syncMcpToAgents).toHaveBeenCalledWith(first, true);
+      expect(syncMcpToAgents).toHaveBeenCalledWith(second, true);
       expect(saveMcpServers).not.toHaveBeenCalled();
     });
   });
 
   describe('handleToggleMcpServer uses static Message API (Fixes ELECTRON-D)', () => {
+    it('publishes a newly saved revision even when the render closure is stale', async () => {
+      let durable = [makeMockServer({ enabled: false, updatedAt: 41 })];
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        durable = (updater as (current: IMcpServer[]) => IMcpServer[])(durable);
+      });
+      const { result } = renderCRUD([], async () => structuredClone(durable));
+
+      let outcome: boolean | undefined;
+      await act(async () => {
+        outcome = await result.current.handleToggleMcpServer('mcp_1', true, 41);
+      });
+
+      expect(outcome).toBe(true);
+      expect(syncMcpToAgents).toHaveBeenCalledWith(expect.objectContaining({ id: 'mcp_1', enabled: true }), true);
+      expect(durable[0].enabled).toBe(true);
+      expect(durable[0].updatedAt).toBeGreaterThan(41);
+    });
+
+    it('does not publish when the requested declaration revision is stale', async () => {
+      const durable = [makeMockServer({ enabled: false, updatedAt: 42 })];
+      const { result } = renderCRUD([], async () => structuredClone(durable));
+
+      let outcome: boolean | undefined;
+      await act(async () => {
+        outcome = await result.current.handleToggleMcpServer('mcp_1', true, 41);
+      });
+
+      expect(outcome).toBe(false);
+      expect(syncMcpToAgents).not.toHaveBeenCalled();
+      expect(saveMcpServers).not.toHaveBeenCalled();
+    });
+
     it('calls static Message.error when sync throws, not hook-based message', async () => {
       const server = makeMockServer();
       syncMcpToAgents.mockRejectedValueOnce(new Error('sync failed'));
@@ -442,10 +532,11 @@ describe('useMcpServerCRUD', () => {
       expect(Message.error).toHaveBeenCalledWith('settings.mcpSyncError');
       expect(outcome).toBe(false);
       expect(saveMcpServers).not.toHaveBeenCalled();
+      expect(removeMcpFromAgents).toHaveBeenCalledWith(server.name, undefined, server.transport.type);
     });
 
     it('calls static Message.error when remove throws', async () => {
-      const server = makeMockServer({ enabled: false });
+      const server = makeMockServer({ enabled: true });
       removeMcpFromAgents.mockRejectedValueOnce(new Error('remove failed'));
 
       const { result } = renderCRUD([server]);
@@ -458,6 +549,7 @@ describe('useMcpServerCRUD', () => {
       expect(Message.error).toHaveBeenCalledWith('settings.mcpRemoveError');
       expect(outcome).toBe(false);
       expect(saveMcpServers).not.toHaveBeenCalled();
+      expect(syncMcpToAgents).toHaveBeenCalledWith(server, true);
     });
 
     it('revokes a new publication when the enabled-state commit fails', async () => {

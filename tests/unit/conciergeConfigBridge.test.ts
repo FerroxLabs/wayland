@@ -13,26 +13,36 @@ import type {
   ConciergeConfirmParams,
   ConciergeConfirmResult,
 } from '@/common/chat/conciergeConfig';
+import type { IMcpServer } from '@/common/config/storage';
 
-const { state, emitSpy, connectSpy, setSpy, getSpy, writeRulesSpy, updateSpy } = vi.hoisted(() => ({
-  state: {
+const { state, emitSpy, connectSpy, setSpy, getSpy, mcpUpdateSpy, writeRulesSpy, updateSpy } = vi.hoisted(() => {
+  const state = {
     handler: null as null | ((p: ConciergeConfirmParams) => Promise<ConciergeConfirmResult>),
     msg: null as Record<string, unknown> | null,
-  },
-  emitSpy: vi.fn(),
-  connectSpy: vi.fn(async () => ({
-    ok: true as boolean,
-    error: undefined as string | undefined,
-    warning: undefined as string | undefined,
-  })),
-  setSpy: vi.fn(async () => {}),
-  getSpy: vi.fn(async () => [] as unknown[]),
-  writeRulesSpy: vi.fn(async () => true),
-  updateSpy: vi.fn((_id: string, m: Record<string, unknown>) => {
-    // Persist the transition so the status guard sees the latest state.
-    state.msg = m;
-  }),
-}));
+    mcpServers: [] as IMcpServer[],
+  };
+  const setSpy = vi.fn(async () => {});
+  return {
+    state,
+    emitSpy: vi.fn(),
+    connectSpy: vi.fn(async () => ({
+      ok: true as boolean,
+      error: undefined as string | undefined,
+      warning: undefined as string | undefined,
+    })),
+    setSpy,
+    getSpy: vi.fn(async () => [] as unknown[]),
+    mcpUpdateSpy: vi.fn(async (mutator: (current: IMcpServer[]) => IMcpServer[] | Promise<IMcpServer[]>) => {
+      state.mcpServers = structuredClone(await mutator(structuredClone(state.mcpServers)));
+      return { revision: '0'.repeat(64), servers: structuredClone(state.mcpServers) };
+    }),
+    writeRulesSpy: vi.fn(async () => true),
+    updateSpy: vi.fn((_id: string, m: Record<string, unknown>) => {
+      // Persist the transition so the status guard sees the latest state.
+      state.msg = m;
+    }),
+  };
+});
 
 vi.mock('@/common', () => ({
   ipcBridge: {
@@ -56,6 +66,7 @@ vi.mock('@process/services/database', () => ({
 }));
 
 vi.mock('@process/utils/initStorage', () => ({ ProcessConfig: { get: getSpy, set: setSpy } }));
+vi.mock('@process/services/mcpServices/mcpConfigAuthority', () => ({ updateMcpConfig: mcpUpdateSpy }));
 vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({ connectModelRegistryProvider: connectSpy }));
 vi.mock('@process/providers/types', () => ({}));
 vi.mock('@process/bridge/fsBridge', () => ({ writeAssistantRules: writeRulesSpy }));
@@ -70,6 +81,7 @@ function setMsg(content: IConciergeConfigContent, overrides?: Record<string, unk
 const noWrites = () => {
   expect(connectSpy).not.toHaveBeenCalled();
   expect(setSpy).not.toHaveBeenCalled();
+  expect(mcpUpdateSpy).not.toHaveBeenCalled();
   expect(writeRulesSpy).not.toHaveBeenCalled();
 };
 
@@ -78,6 +90,7 @@ initConciergeConfigBridge();
 beforeEach(() => {
   vi.clearAllMocks();
   state.msg = null;
+  state.mcpServers = [];
   getSpy.mockResolvedValue([]);
   connectSpy.mockResolvedValue({ ok: true, error: undefined, warning: undefined });
   writeRulesSpy.mockResolvedValue(true);
@@ -190,18 +203,17 @@ describe('conciergeConfigBridge apply', () => {
     setMsg({ kind: 'add_mcp', name: 'fs', command: 'npx', args: ['-y', 'srv'], status: 'pending' });
     const ok = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
     expect(ok.ok).toBe(true);
-    expect(setSpy).toHaveBeenCalledWith(
-      'mcp.config',
-      expect.arrayContaining([expect.objectContaining({ name: 'fs' })])
-    );
+    expect(mcpUpdateSpy).toHaveBeenCalledTimes(1);
+    expect(state.mcpServers).toEqual(expect.arrayContaining([expect.objectContaining({ name: 'fs' })]));
 
     // Now a duplicate
-    setSpy.mockClear();
+    mcpUpdateSpy.mockClear();
     getSpy.mockResolvedValue([{ name: 'fs' }]);
     setMsg({ kind: 'add_mcp', name: 'fs', command: 'npx', args: [], status: 'pending' });
     const dup = await state.handler!({ conversationId: 'c1', msgId: 'm1', action: 'accept' });
     expect(dup).toEqual({ ok: false, reason: 'mcp_name_exists' });
-    expect(setSpy).not.toHaveBeenCalled();
+    expect(mcpUpdateSpy).not.toHaveBeenCalled();
+    expect(state.mcpServers).toHaveLength(1);
   });
 
   it('edit_assistant accept writes the rules', async () => {

@@ -65,7 +65,7 @@ export function findStaleServers(
  * never writes per-tool `allowed_tools` (Lane 2) or `configBridge.allow_list` (Lane 3).
  */
 export function useConnectedMcps(message: ReturnType<typeof import('@arco-design/web-react').Message.useMessage>[0]) {
-  const { mcpServers, allMcpServers, saveMcpServers, refreshMcpServers } = useMcpServers();
+  const { mcpServers, allMcpServers, saveMcpServers, readMcpServers, refreshMcpServers } = useMcpServers();
   const { agentInstallStatus, setAgentInstallStatus, checkSingleServerInstallStatus, checkAgentInstallStatus } =
     useMcpAgentStatus();
   const { removeMcpFromAgents, syncMcpToAgents } = useMcpOperations(mcpServers, message);
@@ -77,9 +77,10 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
     setAgentInstallStatus,
-    refreshMcpServers
+    refreshMcpServers,
+    readMcpServers
   );
-  const conn = useMcpConnection(mcpServers, saveMcpServers, message);
+  const conn = useMcpConnection(mcpServers, saveMcpServers, message, undefined, removeMcpFromAgents, syncMcpToAgents);
 
   const [stale, setStale] = useState<StaleServerRow[]>([]);
   const [refreshing, setRefreshing] = useState(false);

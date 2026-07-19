@@ -11,16 +11,17 @@ import { useMcpServers } from '@renderer/hooks/mcp/useMcpServers';
 
 const mocks = vi.hoisted(() => ({
   persisted: [] as IMcpServer[],
+  revision: 0,
   failNextWrite: false,
-  get: vi.fn(),
-  set: vi.fn(),
+  getSnapshot: vi.fn(),
+  compareAndSet: vi.fn(),
   getExtensionServers: vi.fn(),
 }));
 
-vi.mock('@/common/config/storage', () => ({
-  ConfigStorage: {
-    get: mocks.get,
-    set: mocks.set,
+vi.mock('@/common/adapter/ipcBridge', () => ({
+  mcpService: {
+    getMcpConfigSnapshot: { invoke: mocks.getSnapshot },
+    compareAndSetMcpConfig: { invoke: mocks.compareAndSet },
   },
 }));
 
@@ -48,15 +49,38 @@ function server(id: string, updatedAt: number): IMcpServer {
 describe('useMcpServers durable mutation queue', () => {
   beforeEach(() => {
     mocks.persisted = [];
+    mocks.revision = 0;
     mocks.failNextWrite = false;
-    mocks.get.mockReset().mockImplementation(async () => mocks.persisted);
-    mocks.set.mockReset().mockImplementation(async (_key: string, next: IMcpServer[]) => {
-      if (mocks.failNextWrite) {
-        mocks.failNextWrite = false;
-        throw new Error('storage unavailable');
-      }
-      mocks.persisted = next;
-    });
+    mocks.getSnapshot.mockReset().mockImplementation(async () => ({
+      success: true,
+      data: { revision: String(mocks.revision), servers: structuredClone(mocks.persisted) },
+    }));
+    mocks.compareAndSet
+      .mockReset()
+      .mockImplementation(async (input: { expectedRevision: string; nextServers: IMcpServer[] }) => {
+        if (mocks.failNextWrite) {
+          mocks.failNextWrite = false;
+          return { success: false, msg: 'storage unavailable' };
+        }
+        if (input.expectedRevision !== String(mocks.revision)) {
+          return {
+            success: true,
+            data: {
+              applied: false,
+              snapshot: { revision: String(mocks.revision), servers: structuredClone(mocks.persisted) },
+            },
+          };
+        }
+        mocks.persisted = structuredClone(input.nextServers);
+        mocks.revision += 1;
+        return {
+          success: true,
+          data: {
+            applied: true,
+            snapshot: { revision: String(mocks.revision), servers: structuredClone(mocks.persisted) },
+          },
+        };
+      });
     mocks.getExtensionServers.mockReset().mockResolvedValue([]);
   });
 
@@ -92,5 +116,32 @@ describe('useMcpServers durable mutation queue', () => {
     expect(mocks.persisted.map(({ id }) => id)).toEqual(['one', 'two']);
     expect(first.result.current.mcpServers.map(({ id }) => id)).toEqual(['one', 'two']);
     expect(second.result.current.mcpServers.map(({ id }) => id)).toEqual(['one', 'two']);
+  });
+
+  it('retries against a main-process mutation instead of overwriting it', async () => {
+    const hook = renderHook(() => useMcpServers());
+    await waitFor(() => expect(mocks.getExtensionServers).toHaveBeenCalled());
+    const mainProcessServer = server('main-process', 2);
+    let conflicted = false;
+    mocks.compareAndSet.mockImplementationOnce(async () => {
+      conflicted = true;
+      mocks.persisted = [mainProcessServer];
+      mocks.revision += 1;
+      return {
+        success: true,
+        data: {
+          applied: false,
+          snapshot: { revision: String(mocks.revision), servers: structuredClone(mocks.persisted) },
+        },
+      };
+    });
+
+    await act(async () => {
+      await hook.result.current.saveMcpServers((current) => [...current, server('renderer', 3)]);
+    });
+
+    expect(conflicted).toBe(true);
+    expect(mocks.persisted.map(({ id }) => id)).toEqual(['main-process', 'renderer']);
+    expect(hook.result.current.mcpServers.map(({ id }) => id)).toEqual(['main-process', 'renderer']);
   });
 });

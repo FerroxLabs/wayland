@@ -126,7 +126,7 @@ export function DetailPage() {
   const library = useMcpLibrary();
 
   const [message, contextHolder] = Message.useMessage();
-  const { mcpServers, saveMcpServers, refreshMcpServers } = useMcpServers();
+  const { mcpServers, saveMcpServers, readMcpServers, refreshMcpServers } = useMcpServers();
   const { agentInstallStatus, setAgentInstallStatus, checkSingleServerInstallStatus } = useMcpAgentStatus();
   const { syncMcpToAgents, removeMcpFromAgents } = useMcpOperations(mcpServers, message);
   const { login, cancel: cancelMcpOAuthIpc, loggingIn, oauthStatus, setByoCredentials } = useMcpOAuth();
@@ -137,9 +137,10 @@ export function DetailPage() {
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
     setAgentInstallStatus,
-    refreshMcpServers
+    refreshMcpServers,
+    readMcpServers
   );
-  const conn = useMcpConnection(mcpServers, saveMcpServers, message);
+  const conn = useMcpConnection(mcpServers, saveMcpServers, message, undefined, removeMcpFromAgents, syncMcpToAgents);
 
   const entry = useMemo(() => library.getEntry(id), [library, id]);
   const guide = useMemo(() => (entry?.['x-wayland'].setupGuide ? library.getGuide(id) : null), [library, id, entry]);
@@ -305,22 +306,30 @@ export function DetailPage() {
         if (server.enabled) await crud.handleToggleMcpServer(server.id, false).catch(() => {});
         return;
       }
-      const probedAt = Date.now();
-      const probedServer: IMcpServer = {
-        ...server,
-        status: 'connected',
-        tools: res.data?.tools?.map((tool) => ({
-          name: tool.name,
-          description: tool.description,
-          ...(tool._meta ? { _meta: tool._meta } : {}),
-        })),
-        lastConnected: probedAt,
-        lastError: undefined,
-        updatedAt: probedAt,
-      };
-      await saveMcpServers((prev) => prev.map((candidate) => (candidate.id === server.id ? probedServer : candidate)));
-      if (!server.enabled) {
-        const published = await crud.handleToggleMcpServer(server.id, true);
+      let probedServer: IMcpServer | undefined;
+      await saveMcpServers((prev) => {
+        probedServer = undefined;
+        return prev.map((candidate) => {
+          if (candidate.id !== server.id || candidate.updatedAt !== server.updatedAt) return candidate;
+          const probedAt = Date.now();
+          probedServer = {
+            ...candidate,
+            status: 'connected',
+            tools: res.data?.tools?.map((tool) => ({
+              name: tool.name,
+              description: tool.description,
+              ...(tool._meta ? { _meta: tool._meta } : {}),
+            })),
+            lastConnected: probedAt,
+            lastError: undefined,
+            updatedAt: Math.max(probedAt, candidate.updatedAt + 1),
+          };
+          return probedServer;
+        });
+      });
+      if (!probedServer) return;
+      if (!probedServer.enabled) {
+        const published = await crud.handleToggleMcpServer(server.id, true, probedServer.updatedAt);
         if (!published) return;
       }
       message.success(
@@ -452,9 +461,9 @@ export function DetailPage() {
     }
     setByoModal({ visible: false, server: null, redirectUri: byoModal.redirectUri });
 
-    // Persist via the renderer cache too so the next pageload sees byoOAuth
-    // without waiting for a useMcpServers re-mount.
-    await saveMcpServers((prev) => prev.map((s) => (s.id === saveResult.server!.id ? saveResult.server! : s)));
+    // Main-process authority already persisted this exact revision. Refresh the
+    // renderer snapshot instead of issuing a stale duplicate full-record write.
+    await refreshMcpServers();
 
     const controller = new AbortController();
     oauthAbortRef.current = controller;
