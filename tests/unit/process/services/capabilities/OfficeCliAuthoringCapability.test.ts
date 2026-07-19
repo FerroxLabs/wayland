@@ -289,4 +289,21 @@ describe('OfficeCLI target-exact evidence producer', () => {
       })
     );
   });
+
+  it('rejects a bundle binary with an out-of-bundle hardlink authority', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const fixture = createInstalledFixture('wayland-officecli-hardlink-');
+    if (!fixture) return;
+    try {
+      fs.linkSync(path.join(fixture.bundledDir, 'officecli'), path.join(fixture.root, 'external-officecli'));
+
+      const evidence = await probeInstalledFixture(fixture.bundledDir, fixture.skillsRoot);
+
+      // An external hardlink can mutate the authenticated inode after the
+      // probe, so it is not exclusively contained by the managed bundle.
+      expect(evidence.status).toBe('unavailable');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
 });
