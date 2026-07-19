@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { IMcpServer } from '@/common/config/storage';
 import {
+  bindMcpPrepublicationProbeTruth,
   createMcpSessionDigestKey,
   createMcpSessionExpectedServer,
   isMcpSessionTruthPreviewEnabled,
@@ -85,5 +86,72 @@ describe('MCP session definition identity', () => {
       transport: 'stdio',
       scope: 'conversation',
     });
+  });
+});
+
+describe('MCP pre-publication probe truth', () => {
+  it('binds successful reachability and authentication without claiming publication', () => {
+    const result = bindMcpPrepublicationProbeTruth(
+      definitionServer('secret'),
+      { success: true, tools: [{ name: 'tavily_search' }] },
+      42
+    );
+
+    expect(result).toEqual({
+      success: true,
+      tools: [{ name: 'tavily_search' }],
+      prepublication: {
+        version: 'wayland-mcp-prepublication/1',
+        serverId: 'tavily-id',
+        serverName: 'Tavily MCP',
+        serverUpdatedAt: 1,
+        observedAt: 42,
+        state: 'probed',
+        authentication: 'validated',
+        probe: 'succeeded',
+        toolCount: 1,
+      },
+    });
+    expect(JSON.stringify(result)).not.toMatch(/published|registered|chat-ready|toolsearch/i);
+  });
+
+  it('keeps authentication-required distinct from probe failure', () => {
+    expect(
+      bindMcpPrepublicationProbeTruth(
+        definitionServer('secret'),
+        { success: false, needsAuth: true, authMethod: 'oauth', error: '401' },
+        43
+      ).prepublication
+    ).toMatchObject({
+      state: 'authentication-required',
+      authentication: 'required',
+      probe: 'not-completed',
+      authMethod: 'oauth',
+    });
+    expect(
+      bindMcpPrepublicationProbeTruth(definitionServer('secret'), { success: false, error: 'spawn failed' }, 44)
+        .prepublication
+    ).toMatchObject({ state: 'probe-failed', authentication: 'unavailable', probe: 'failed' });
+  });
+
+  it.each([
+    [{ success: true }, 'tools array'],
+    [{ success: true, tools: [], needsAuth: true }, 'contradicts'],
+    [{ success: true, tools: [], authMethod: 'oauth' }, 'contradicts'],
+    [{ success: false }, 'non-empty error'],
+    [{ success: false, error: 'failed', tools: [] }, 'cannot report tools'],
+    [{ success: true, tools: [], published: true }, 'unknown field'],
+    [{ success: true, tools: [{ name: 'same' }, { name: 'same' }] }, 'duplicate tool'],
+    [{ success: true, tools: [{ name: 'tool', chatReady: true }] }, 'unknown field'],
+    [{ success: true, tools: [], needsAuth: 'yes' }, 'needsAuth must be boolean'],
+    [{ success: false, needsAuth: true, error: 401 }, 'error must be a string'],
+    [{ success: false, needsAuth: true, wwwAuthenticate: {} }, 'wwwAuthenticate must be a string'],
+    [{ success: false, error: 'failed', authMethod: 'oauth' }, 'requires needsAuth=true'],
+    [
+      Object.assign(Object.create({ inherited: true }) as Record<string, unknown>, { success: true, tools: [] }),
+      'plain object',
+    ],
+  ])('rejects malformed or authority-widening adapter evidence %#', (raw, expected) => {
+    expect(() => bindMcpPrepublicationProbeTruth(definitionServer('secret'), raw as never, 45)).toThrow(expected);
   });
 });

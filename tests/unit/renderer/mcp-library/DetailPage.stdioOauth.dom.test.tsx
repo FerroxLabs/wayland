@@ -109,6 +109,13 @@ vi.mock('@renderer/hooks/mcp', () => ({
     handleTestMcpConnection: vi.fn(),
     refreshServerStatuses: vi.fn(),
   }),
+  readCorrelatedMcpPrepublicationTruth: (
+    _server: IMcpServer,
+    result: { prepublication?: { state: 'probed' | 'probe-failed' | 'authentication-required' } }
+  ) => {
+    if (!result.prepublication) throw new Error('missing pre-publication truth');
+    return result.prepublication;
+  },
 }));
 
 vi.mock('@arco-design/web-react', async () => {
@@ -140,6 +147,48 @@ function renderDetail(entryId: string) {
       </Routes>
     </MemoryRouter>
   );
+}
+
+function probedResponse(server: IMcpServer) {
+  return {
+    success: true,
+    data: {
+      success: true,
+      tools: [],
+      prepublication: {
+        version: 'wayland-mcp-prepublication/1',
+        serverId: server.id,
+        serverName: server.name,
+        serverUpdatedAt: server.updatedAt,
+        observedAt: Date.now(),
+        state: 'probed',
+        authentication: 'validated',
+        probe: 'succeeded',
+        toolCount: 0,
+      },
+    },
+  };
+}
+
+function failedProbeResponse(server: IMcpServer, error: string) {
+  return {
+    success: true,
+    data: {
+      success: false,
+      error,
+      prepublication: {
+        version: 'wayland-mcp-prepublication/1',
+        serverId: server.id,
+        serverName: server.name,
+        serverUpdatedAt: server.updatedAt,
+        observedAt: Date.now(),
+        state: 'probe-failed',
+        authentication: 'unavailable',
+        probe: 'failed',
+        error,
+      },
+    },
+  };
 }
 
 beforeEach(() => {
@@ -174,6 +223,7 @@ test('stdio oauth2-byo: "Sign in" installs + connection-tests and NEVER calls lo
     libraryEntryId: GOOGLE_WORKSPACE_ID,
   };
   handleAddMcpServer.mockResolvedValue(fakeServer);
+  testMcpConnection.mockResolvedValue(probedResponse(fakeServer));
 
   renderDetail(GOOGLE_WORKSPACE_ID);
   await screen.findByText('Google Workspace');
@@ -224,7 +274,7 @@ test('stdio oauth2-byo: a failed connection test does NOT enable the server and 
     libraryEntryId: GOOGLE_WORKSPACE_ID,
   };
   handleAddMcpServer.mockResolvedValue(fakeServer);
-  testMcpConnection.mockResolvedValue({ success: true, data: { success: false, error: 'auth declined' } });
+  testMcpConnection.mockResolvedValue(failedProbeResponse(fakeServer, 'auth declined'));
 
   renderDetail(GOOGLE_WORKSPACE_ID);
   await screen.findByText('Google Workspace');
@@ -289,6 +339,7 @@ test('#438 apple FDA: "Done - verify access" installs + connection-tests (no lon
     libraryEntryId: APPLE_ID,
   };
   handleAddMcpServer.mockResolvedValue(fakeServer);
+  testMcpConnection.mockResolvedValue(probedResponse(fakeServer));
 
   renderDetail(APPLE_ID);
   await screen.findByText('Apple Ecosystem');

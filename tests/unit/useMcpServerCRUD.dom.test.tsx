@@ -1,17 +1,26 @@
 import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useMcpServerCRUD } from '@renderer/hooks/mcp/useMcpServerCRUD';
+import {
+  MCP_PREPUBLICATION_MAX_AGE_MS,
+  readCorrelatedMcpPrepublicationTruth,
+  useMcpConnection,
+} from '@renderer/hooks/mcp/useMcpConnection';
 import { Message } from '@arco-design/web-react';
 import type { IMcpServer } from '@/common/config/storage';
 
 const bridgeMocks = vi.hoisted(() => ({
   getAvailableAgents: vi.fn(),
   archiveConfiguredServer: vi.fn(),
+  testMcpConnection: vi.fn(),
 }));
 
 vi.mock('@/common/adapter/ipcBridge', () => ({
   acpConversation: { getAvailableAgents: { invoke: bridgeMocks.getAvailableAgents } },
-  mcpService: { archiveConfiguredServer: { invoke: bridgeMocks.archiveConfiguredServer } },
+  mcpService: {
+    archiveConfiguredServer: { invoke: bridgeMocks.archiveConfiguredServer },
+    testMcpConnection: { invoke: bridgeMocks.testMcpConnection },
+  },
 }));
 
 vi.mock('@/renderer/utils/platform', () => ({ isElectronDesktop: () => true }));
@@ -40,6 +49,116 @@ const makeMockServer = (overrides?: Partial<IMcpServer>): IMcpServer => ({
   transport: { type: 'stdio' as const, command: 'echo', args: [] },
   originalJson: '{}',
   ...overrides,
+});
+
+describe('MCP pre-publication renderer correlation', () => {
+  const server = makeMockServer({ id: 'mcp-correlated', name: 'Tavily', updatedAt: 100 });
+  const now = 1_000_000;
+  const successfulResult = {
+    success: true,
+    tools: [{ name: 'search' }],
+    prepublication: {
+      version: 'wayland-mcp-prepublication/1' as const,
+      serverId: server.id,
+      serverName: server.name,
+      serverUpdatedAt: server.updatedAt,
+      observedAt: now,
+      state: 'probed' as const,
+      authentication: 'validated' as const,
+      probe: 'succeeded' as const,
+      toolCount: 1,
+    },
+  };
+
+  it('accepts only fresh truth for the exact saved declaration revision', () => {
+    expect(readCorrelatedMcpPrepublicationTruth(server, successfulResult, now)).toMatchObject({
+      state: 'probed',
+      serverUpdatedAt: 100,
+    });
+    expect(() => readCorrelatedMcpPrepublicationTruth({ ...server, updatedAt: 101 }, successfulResult, now)).toThrow(
+      'mismatched'
+    );
+  });
+
+  it('rejects stale, future, and contradictory probe evidence', () => {
+    expect(() =>
+      readCorrelatedMcpPrepublicationTruth(
+        server,
+        {
+          ...successfulResult,
+          prepublication: {
+            ...successfulResult.prepublication,
+            observedAt: now - MCP_PREPUBLICATION_MAX_AGE_MS - 1,
+          },
+        },
+        now
+      )
+    ).toThrow('stale');
+    expect(() =>
+      readCorrelatedMcpPrepublicationTruth(
+        server,
+        { ...successfulResult, prepublication: { ...successfulResult.prepublication, observedAt: now + 5_001 } },
+        now
+      )
+    ).toThrow('stale');
+    expect(() => readCorrelatedMcpPrepublicationTruth(server, { ...successfulResult, success: false }, now)).toThrow(
+      'contradicts'
+    );
+    expect(() =>
+      readCorrelatedMcpPrepublicationTruth(server, { ...successfulResult, authMethod: 'oauth' }, now)
+    ).toThrow('contradicts');
+
+    const authRequired = {
+      success: false,
+      needsAuth: true,
+      authMethod: 'oauth' as const,
+      prepublication: {
+        ...successfulResult.prepublication,
+        state: 'authentication-required' as const,
+        authentication: 'required' as const,
+        probe: 'not-completed' as const,
+        authMethod: 'oauth' as const,
+      },
+    };
+    expect(readCorrelatedMcpPrepublicationTruth(server, authRequired, now)).toMatchObject({
+      state: 'authentication-required',
+      authMethod: 'oauth',
+    });
+    expect(() => readCorrelatedMcpPrepublicationTruth(server, { ...authRequired, authMethod: 'basic' }, now)).toThrow(
+      'contradicts'
+    );
+  });
+
+  it('discards a successful probe when the saved declaration changes in flight', async () => {
+    let stored = [server];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    let resolveProbe!: (value: unknown) => void;
+    bridgeMocks.testMcpConnection.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveProbe = resolve;
+      })
+    );
+    const message = {
+      success: vi.fn(),
+      warning: vi.fn(),
+      error: vi.fn(),
+    } as unknown as ReturnType<typeof Message.useMessage>[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message));
+
+    let pending!: Promise<void>;
+    await act(async () => {
+      pending = result.current.handleTestMcpConnection(server);
+      await Promise.resolve();
+    });
+    stored = [{ ...stored[0], status: 'disconnected', updatedAt: 101 }];
+    resolveProbe({ success: true, data: successfulResult });
+    await act(async () => pending);
+
+    expect(stored[0]).toMatchObject({ updatedAt: 101, status: 'disconnected' });
+    expect(message.success).not.toHaveBeenCalled();
+  });
 });
 
 describe('useMcpServerCRUD', () => {
@@ -74,6 +193,7 @@ describe('useMcpServerCRUD', () => {
         transportType: 'stdio',
       },
     });
+    bridgeMocks.testMcpConnection.mockReset();
   });
 
   const renderCRUD = (servers: IMcpServer[] = []) =>
@@ -89,7 +209,7 @@ describe('useMcpServerCRUD', () => {
       )
     );
 
-  describe('handleAddMcpServer publication transaction', () => {
+  describe('handleAddMcpServer pre-publication transaction', () => {
     it('updates a canonical-name match instead of creating a case-only duplicate', async () => {
       let stored = [makeMockServer({ id: 'existing', name: 'Tavily', enabled: false })];
       saveMcpServers.mockImplementation(async (updater: unknown) => {
@@ -110,11 +230,11 @@ describe('useMcpServerCRUD', () => {
       });
 
       expect(stored).toHaveLength(1);
-      expect(stored[0]).toMatchObject({ id: 'existing', name: 'tavily', enabled: true });
-      expect(syncMcpToAgents).toHaveBeenCalledTimes(1);
+      expect(stored[0]).toMatchObject({ id: 'existing', name: 'tavily', enabled: false, status: 'disconnected' });
+      expect(syncMcpToAgents).not.toHaveBeenCalled();
     });
 
-    it('publishes an enabled URL/import server instead of only saving a false-green record', async () => {
+    it('downgrades imported enabled/connected claims to a saved declaration without publishing', async () => {
       let stored: IMcpServer[] = [];
       saveMcpServers.mockImplementation(async (updater: unknown) => {
         stored =
@@ -134,38 +254,33 @@ describe('useMcpServerCRUD', () => {
         });
       });
 
-      expect(syncMcpToAgents).toHaveBeenCalledTimes(1);
-      expect(syncMcpToAgents).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'beeper', enabled: true }),
-        true
-      );
+      expect(syncMcpToAgents).not.toHaveBeenCalled();
       expect(stored).toHaveLength(1);
+      expect(stored[0]).toMatchObject({ name: 'beeper', enabled: false, status: 'disconnected' });
     });
 
-    it('fails closed when publication throws instead of leaving the connector enabled', async () => {
-      let stored: IMcpServer[] = [];
+    it('revokes a previously enabled same-name definition before replacing it as disabled', async () => {
+      let stored: IMcpServer[] = [makeMockServer({ id: 'existing', name: 'beeper', enabled: true })];
       saveMcpServers.mockImplementation(async (updater: unknown) => {
         stored =
           typeof updater === 'function'
             ? (updater as (prev: IMcpServer[]) => IMcpServer[])(stored)
             : (updater as IMcpServer[]);
       });
-      syncMcpToAgents.mockRejectedValueOnce(new Error('no compatible agent'));
-
-      const { result } = renderCRUD();
+      const { result } = renderCRUD(stored);
 
       await act(async () => {
-        await expect(
-          result.current.handleAddMcpServer({
-            name: 'beeper',
-            enabled: true,
-            status: 'connected',
-            transport: { type: 'streamable_http', url: 'http://localhost:23373/v0/mcp' },
-          })
-        ).rejects.toThrow('no compatible agent');
+        await result.current.handleAddMcpServer({
+          name: 'beeper',
+          enabled: true,
+          status: 'connected',
+          transport: { type: 'streamable_http', url: 'http://localhost:23373/v0/mcp' },
+        });
       });
 
-      expect(stored[0]).toMatchObject({ enabled: false, status: 'disconnected' });
+      expect(removeMcpFromAgents).toHaveBeenCalledWith('beeper', undefined, 'stdio');
+      expect(syncMcpToAgents).not.toHaveBeenCalled();
+      expect(stored[0]).toMatchObject({ id: 'existing', enabled: false, status: 'disconnected' });
     });
   });
 
@@ -202,7 +317,7 @@ describe('useMcpServerCRUD', () => {
       });
     });
 
-    it('rejects the modal transaction and disables only definitions whose publication failed', async () => {
+    it('imports all definitions disabled and ignores incoming connected/publication claims', async () => {
       let stored: IMcpServer[] = [];
       saveMcpServers.mockImplementation(async (updater: unknown) => {
         stored =
@@ -210,33 +325,27 @@ describe('useMcpServerCRUD', () => {
             ? (updater as (prev: IMcpServer[]) => IMcpServer[])(stored)
             : (updater as IMcpServer[]);
       });
-      syncMcpToAgents
-        .mockResolvedValueOnce(undefined)
-        .mockRejectedValueOnce(new Error('n8n publication rejected'));
-
       const { result } = renderCRUD();
       await act(async () => {
-        await expect(
-          result.current.handleBatchImportMcpServers([
-            {
-              name: 'tavily',
-              enabled: true,
-              transport: { type: 'streamable_http', url: 'https://mcp.tavily.com/mcp/' },
-            },
-            {
-              name: 'n8n',
-              enabled: true,
-              transport: { type: 'http', url: 'http://localhost:5678/mcp-server/http' },
-            },
-          ])
-        ).rejects.toThrow('settings.mcpSyncError');
+        await result.current.handleBatchImportMcpServers([
+          {
+            name: 'tavily',
+            enabled: true,
+            status: 'connected',
+            transport: { type: 'streamable_http', url: 'https://mcp.tavily.com/mcp/' },
+          },
+          {
+            name: 'n8n',
+            enabled: true,
+            status: 'connected',
+            transport: { type: 'http', url: 'http://localhost:5678/mcp-server/http' },
+          },
+        ]);
       });
 
-      expect(stored.find((server) => server.name === 'tavily')).toMatchObject({ enabled: true });
-      expect(stored.find((server) => server.name === 'n8n')).toMatchObject({
-        enabled: false,
-        status: 'disconnected',
-      });
+      expect(syncMcpToAgents).not.toHaveBeenCalled();
+      expect(stored).toHaveLength(2);
+      expect(stored.every((server) => server.enabled === false && server.status === 'disconnected')).toBe(true);
     });
   });
 
@@ -342,9 +451,7 @@ describe('useMcpServerCRUD', () => {
       saveMcpServers.mockImplementation(async (updater: unknown) => {
         stored = (updater as (prev: IMcpServer[]) => IMcpServer[])(stored);
       });
-      syncMcpToAgents
-        .mockRejectedValueOnce(new Error('replacement rejected'))
-        .mockResolvedValueOnce(undefined);
+      syncMcpToAgents.mockRejectedValueOnce(new Error('replacement rejected')).mockResolvedValueOnce(undefined);
 
       const { result } = renderCRUD([server]);
       await act(async () => {

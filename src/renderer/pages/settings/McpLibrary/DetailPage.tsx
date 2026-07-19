@@ -33,11 +33,13 @@ import {
   useMcpOAuth,
   useMcpServerCRUD,
   useMcpConnection,
+  readCorrelatedMcpPrepublicationTruth,
 } from '@renderer/hooks/mcp';
 import type { McpOAuthLoginResult } from '@renderer/hooks/mcp/useMcpOAuth';
 import { openExternalUrl } from '@renderer/utils/platform';
 import { mcpService, application } from '@/common/adapter/ipcBridge';
 import type { IMcpServer } from '@/common/config/storage';
+import type { McpPrepublicationTruth } from '@process/services/mcpServices/McpProtocol';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 import { useMcpLibrary } from './hooks/useMcpLibrary';
 import { SetupGuide } from './components/SetupGuide';
@@ -292,7 +294,11 @@ export function DetailPage() {
         return;
       }
       const res = await mcpService.testMcpConnection.invoke(server);
-      const ok = res.success && res.data?.success === true;
+      let probeTruth: McpPrepublicationTruth | undefined;
+      if (res.success && res.data) {
+        probeTruth = readCorrelatedMcpPrepublicationTruth(server, res.data);
+      }
+      const ok = probeTruth?.state === 'probed';
       if (!ok) {
         const err = res.data?.error || res.msg || 'connection failed';
         message.error(t('mcpLibrary.install.connectFailed', 'Could not connect: {{error}}', { error: err }));
@@ -318,10 +324,14 @@ export function DetailPage() {
         if (!published) return;
       }
       message.success(
-        t('mcpLibrary.install.probeSucceeded', '{{name}} responded to the probe ({{count}} tools). New chats will verify availability.', {
-          name: entry.title,
-          count: res.data?.tools?.length ?? 0,
-        })
+        t(
+          'mcpLibrary.install.probeSucceeded',
+          '{{name}} responded to the probe ({{count}} tools). New chats will verify availability.',
+          {
+            name: entry.title,
+            count: res.data?.tools?.length ?? 0,
+          }
+        )
       );
     } catch (err) {
       message.error(
@@ -976,9 +986,13 @@ export function DetailPage() {
                 <div className={styles.setupSuccess} role='status'>
                   <Check size={16} />
                   <span>
-                    {t('mcpLibrary.install.probeComplete', '{{name}} passed its server probe and is enabled. A new chat will verify its tools.', {
-                      name: entry.title,
-                    })}
+                    {t(
+                      'mcpLibrary.install.probeComplete',
+                      '{{name}} passed its server probe and is enabled. A new chat will verify its tools.',
+                      {
+                        name: entry.title,
+                      }
+                    )}
                   </span>
                 </div>
               )}

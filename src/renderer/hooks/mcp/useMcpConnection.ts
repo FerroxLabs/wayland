@@ -2,7 +2,78 @@ import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { mcpService } from '@/common/adapter/ipcBridge';
 import type { IMcpServer } from '@/common/config/storage';
+import type { McpConnectionTestResult, McpPrepublicationTruth } from '@process/services/mcpServices/McpProtocol';
 import { globalMessageQueue } from './messageQueue';
+
+export const MCP_PREPUBLICATION_MAX_AGE_MS = 5 * 60 * 1000;
+const MCP_PREPUBLICATION_MAX_FUTURE_SKEW_MS = 5_000;
+
+export function readCorrelatedMcpPrepublicationTruth(
+  server: Pick<IMcpServer, 'id' | 'name' | 'updatedAt'>,
+  result: McpConnectionTestResult,
+  now: number = Date.now()
+): McpPrepublicationTruth {
+  const truth = result.prepublication;
+  if (
+    !truth ||
+    truth.version !== 'wayland-mcp-prepublication/1' ||
+    truth.serverId !== server.id ||
+    truth.serverName !== server.name ||
+    truth.serverUpdatedAt !== server.updatedAt ||
+    !Number.isSafeInteger(truth.observedAt) ||
+    truth.observedAt <= 0 ||
+    !Number.isSafeInteger(now) ||
+    truth.observedAt > now + MCP_PREPUBLICATION_MAX_FUTURE_SKEW_MS ||
+    now - truth.observedAt > MCP_PREPUBLICATION_MAX_AGE_MS
+  ) {
+    throw new Error('MCP probe returned missing, stale, or mismatched pre-publication evidence');
+  }
+
+  if (truth.state === 'probed') {
+    if (
+      result.success !== true ||
+      result.needsAuth === true ||
+      result.error !== undefined ||
+      result.authMethod !== undefined ||
+      result.wwwAuthenticate !== undefined ||
+      !Array.isArray(result.tools) ||
+      truth.authentication !== 'validated' ||
+      truth.probe !== 'succeeded' ||
+      truth.toolCount !== result.tools.length
+    ) {
+      throw new Error('MCP probe success contradicts its pre-publication evidence');
+    }
+    return truth;
+  }
+
+  if (truth.state === 'authentication-required') {
+    if (
+      result.success !== false ||
+      result.needsAuth !== true ||
+      result.tools !== undefined ||
+      result.authMethod !== truth.authMethod ||
+      truth.authentication !== 'required' ||
+      truth.probe !== 'not-completed'
+    ) {
+      throw new Error('MCP authentication result contradicts its pre-publication evidence');
+    }
+    return truth;
+  }
+
+  if (
+    result.success !== false ||
+    result.needsAuth === true ||
+    result.tools !== undefined ||
+    result.authMethod !== undefined ||
+    result.wwwAuthenticate !== undefined ||
+    result.error !== truth.error ||
+    truth.authentication !== 'unavailable' ||
+    truth.probe !== 'failed'
+  ) {
+    throw new Error('MCP probe failure contradicts its pre-publication evidence');
+  }
+  return truth;
+}
 
 /**
  * Truncate long error messages to keep them readable
@@ -34,31 +105,49 @@ export const useMcpConnection = (
       setTestingServers((prev) => ({ ...prev, [server.id]: true }));
 
       // Update server status - use the unified save function to avoid race conditions
-      const updateServerStatus = async (status: IMcpServer['status'], additionalData?: Partial<IMcpServer>) => {
+      const updateServerStatus = async (
+        status: IMcpServer['status'],
+        additionalData?: Partial<IMcpServer>,
+        preserveRevision = false
+      ): Promise<boolean> => {
+        let applied = false;
         try {
           await saveMcpServers((prevServers) =>
-            prevServers.map((s) =>
-              s.id === server.id ? { ...s, status, updatedAt: Date.now(), ...additionalData } : s
-            )
+            prevServers.map((s) => {
+              if (s.id !== server.id || s.updatedAt !== server.updatedAt) return s;
+              applied = true;
+              return {
+                ...s,
+                status,
+                updatedAt: preserveRevision ? s.updatedAt : Date.now(),
+                ...additionalData,
+              };
+            })
           );
         } catch (error) {
           console.error('Failed to update server status:', error);
+          return false;
         }
+        return applied;
       };
 
-      await updateServerStatus('testing');
+      // Keep updatedAt as the declaration revision while the probe runs. Every
+      // terminal write below is compare-and-set against that revision, so an
+      // edit/re-import racing the probe wins and stale evidence is discarded.
+      if (!(await updateServerStatus('testing', undefined, true))) return;
 
       try {
         const response = await mcpService.testMcpConnection.invoke(server);
 
         if (response.success && response.data) {
           const result = response.data;
+          const truth = readCorrelatedMcpPrepublicationTruth(server, result);
 
           // Check whether authentication is required
-          if (result.needsAuth) {
+          if (truth.state === 'authentication-required') {
             // Needing auth is not a connection error - clear any stale lastError
             // so a previous transport failure can't resurface as the reason.
-            await updateServerStatus('disconnected', { lastError: undefined });
+            if (!(await updateServerStatus('disconnected', { lastError: undefined }))) return;
             await globalMessageQueue.add(() => {
               message.warning(`${server.name}: ${t('settings.mcpAuthRequired') || 'Authentication required'}`);
             });
@@ -70,19 +159,22 @@ export const useMcpConnection = (
             return;
           }
 
-          if (result.success) {
+          if (truth.state === 'probed') {
             // Persist the legacy `connected` value as probe-reachable and save
             // the probe-reported inventory. Session receipts own chat readiness.
             // On success, do not modify the enabled field - let the user decide whether to install
-            await updateServerStatus('connected', {
-              tools: result.tools?.map((tool) => ({
-                name: tool.name,
-                description: tool.description,
-                ...(tool._meta ? { _meta: tool._meta } : {}),
-              })),
-              lastConnected: Date.now(),
-              lastError: undefined,
-            });
+            if (
+              !(await updateServerStatus('connected', {
+                tools: result.tools?.map((tool) => ({
+                  name: tool.name,
+                  description: tool.description,
+                  ...(tool._meta ? { _meta: tool._meta } : {}),
+                })),
+                lastConnected: Date.now(),
+                lastError: undefined,
+              }))
+            )
+              return;
             await globalMessageQueue.add(() => {
               message.success(
                 `${server.name}: ${t('settings.mcpProbeSuccess', 'Server probe succeeded; a new chat will verify its tools')}`
@@ -94,10 +186,7 @@ export const useMcpConnection = (
             // Update server status to error and disable install.
             // On failure, automatically set enabled=false to avoid installing a broken service
             const errorMsg = truncateErrorMessage(result.error || t('settings.mcpError'));
-            await updateServerStatus('error', {
-              enabled: false,
-              lastError: errorMsg,
-            });
+            if (!(await updateServerStatus('error', { enabled: false, lastError: errorMsg }))) return;
             await globalMessageQueue.add(() => {
               message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
             });
@@ -105,10 +194,7 @@ export const useMcpConnection = (
         } else {
           // IPC call failed; disable install
           const errorMsg = truncateErrorMessage(response.msg || t('settings.mcpError'));
-          await updateServerStatus('error', {
-            enabled: false,
-            lastError: errorMsg,
-          });
+          if (!(await updateServerStatus('error', { enabled: false, lastError: errorMsg }))) return;
           await globalMessageQueue.add(() => {
             message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
           });
@@ -116,10 +202,7 @@ export const useMcpConnection = (
       } catch (error) {
         // Update server status to error and disable install
         const errorMsg = truncateErrorMessage(error instanceof Error ? error.message : t('settings.mcpError'));
-        await updateServerStatus('error', {
-          enabled: false,
-          lastError: errorMsg,
-        });
+        if (!(await updateServerStatus('error', { enabled: false, lastError: errorMsg }))) return;
         await globalMessageQueue.add(() => {
           message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
         });
@@ -147,10 +230,7 @@ export const useMcpConnection = (
       const targets = servers.filter(
         (s) =>
           s.enabled === true &&
-          (force ||
-            s.status !== 'connected' ||
-            typeof s.lastConnected !== 'number' ||
-            now - s.lastConnected > STALE_MS)
+          (force || s.status !== 'connected' || typeof s.lastConnected !== 'number' || now - s.lastConnected > STALE_MS)
       );
       if (targets.length === 0) {
         return;
@@ -163,17 +243,23 @@ export const useMcpConnection = (
       });
 
       const updates = await Promise.all(
-        targets.map(async (server): Promise<{ id: string; patch: Partial<IMcpServer> }> => {
+        targets.map(async (server): Promise<{ id: string; expectedUpdatedAt: number; patch: Partial<IMcpServer> }> => {
           try {
             const response = await mcpService.testMcpConnection.invoke(server);
             if (response.success && response.data) {
               const result = response.data;
-              if (result.needsAuth) {
-                return { id: server.id, patch: { status: 'disconnected', lastError: undefined } };
-              }
-              if (result.success) {
+              const truth = readCorrelatedMcpPrepublicationTruth(server, result);
+              if (truth.state === 'authentication-required') {
                 return {
                   id: server.id,
+                  expectedUpdatedAt: server.updatedAt,
+                  patch: { status: 'disconnected', lastError: undefined },
+                };
+              }
+              if (truth.state === 'probed') {
+                return {
+                  id: server.id,
+                  expectedUpdatedAt: server.updatedAt,
                   patch: {
                     status: 'connected',
                     tools: result.tools?.map((tool) => ({
@@ -189,16 +275,19 @@ export const useMcpConnection = (
               // Probe failed: surface the error state but leave `enabled` alone.
               return {
                 id: server.id,
+                expectedUpdatedAt: server.updatedAt,
                 patch: { status: 'error', lastError: truncateErrorMessage(result.error || t('settings.mcpError')) },
               };
             }
             return {
               id: server.id,
+              expectedUpdatedAt: server.updatedAt,
               patch: { status: 'error', lastError: truncateErrorMessage(response.msg || t('settings.mcpError')) },
             };
           } catch (err) {
             return {
               id: server.id,
+              expectedUpdatedAt: server.updatedAt,
               patch: {
                 status: 'error',
                 lastError: truncateErrorMessage(err instanceof Error ? err.message : t('settings.mcpError')),
@@ -212,7 +301,9 @@ export const useMcpConnection = (
         await saveMcpServers((prevServers) =>
           prevServers.map((s) => {
             const update = updates.find((u) => u.id === s.id);
-            return update ? { ...s, ...update.patch, updatedAt: Date.now() } : s;
+            return update && update.expectedUpdatedAt === s.updatedAt
+              ? { ...s, ...update.patch, updatedAt: Date.now() }
+              : s;
           })
         );
       } finally {

@@ -18,6 +18,8 @@ import { WCoreMcpAgent } from './agents/WCoreMcpAgent';
 import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncResult, McpSource } from './McpProtocol';
 import { validateMcpServer, sanitizeMcpServerName } from './validateMcpServer';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
+import { mcpServerCollisionKey } from '@/common/mcp';
+import { bindMcpPrepublicationProbeTruth } from './mcpSessionTruthGate';
 
 /**
  * MCP service - coordinates the MCP operation protocol across agents
@@ -167,9 +169,15 @@ export class McpService {
       const serversByName = merged.get(result.source) ?? new Map<string, IMcpServer>();
 
       result.servers.forEach((server) => {
-        if (!serversByName.has(server.name)) {
-          serversByName.set(server.name, server);
+        const collisionKey = mcpServerCollisionKey(server.name);
+        if (!server.id || !collisionKey) throw new Error(`Invalid MCP detection result for source "${result.source}"`);
+        const existing = serversByName.get(collisionKey);
+        if (existing && JSON.stringify(existing) !== JSON.stringify(server)) {
+          throw new Error(
+            `Conflicting MCP detection results for source "${result.source}" and server "${server.name}"`
+          );
         }
+        serversByName.set(collisionKey, existing ?? server);
       });
 
       merged.set(result.source, serversByName);
@@ -199,12 +207,11 @@ export class McpService {
       const allAgentsToCheck = this.addNativeGeminiIfNeeded(agents);
 
       // Run MCP detection across all agents concurrently
-      const promises = allAgentsToCheck.map(async (agent) => {
+      const promises = allAgentsToCheck.map(async (agent): Promise<DetectedMcpServer> => {
         try {
           const { agentInstance, source } = this.getDetectionTarget(agent);
           if (!agentInstance) {
-            console.warn(`[McpService] No agent instance for backend: ${agent.backend}`);
-            return null;
+            throw new Error(`MCP detection is not supported for backend "${agent.backend}"`);
           }
 
           const servers = await agentInstance.detectMcpServers(agent.cliPath);
@@ -212,21 +219,18 @@ export class McpService {
             `[McpService] Detected ${servers.length} MCP servers for ${agent.backend} (cliPath: ${agent.cliPath || 'default'})`
           );
 
-          if (servers.length > 0) {
-            return {
-              source,
-              servers,
-            };
-          }
-          return null;
+          return { source, servers };
         } catch (error) {
           console.warn(`[McpService] Failed to detect MCP servers for ${agent.backend}:`, error);
-          return null;
+          throw new Error(
+            `Incomplete MCP detection for backend "${agent.backend}": ${error instanceof Error ? error.message : String(error)}`,
+            { cause: error }
+          );
         }
       });
 
       const results = await Promise.all(promises);
-      return this.mergeDetectedServers(results.filter((result): result is DetectedMcpServer => result !== null));
+      return this.mergeDetectedServers(results);
     });
   }
 
@@ -243,6 +247,10 @@ export class McpService {
    * Test connection to an MCP server
    */
   async testMcpConnection(server: IMcpServer): Promise<McpConnectionTestResult> {
+    // A probe is an operation on an exact saved declaration. Validate before
+    // normalization/spawn so malformed or unsafe declarations cannot acquire
+    // probe truth merely because an adapter happened to tolerate them.
+    validateMcpServer(server);
     // Use the first available agent to test the connection; the test logic in the base class is generic
     const firstAgent = this.agents.values().next().value;
     if (firstAgent) {
@@ -258,12 +266,13 @@ export class McpService {
       // never advances to 'connected' - so the Library UI shows "Not connected"
       // even though every agent CLI has the server connected.
       const authedServer = await this.attachOAuthToken(spawnable);
-      return await firstAgent.testMcpConnection(authedServer);
+      const rawResult = await firstAgent.testMcpConnection(authedServer);
+      return bindMcpPrepublicationProbeTruth(server, rawResult);
     }
-    return {
+    return bindMcpPrepublicationProbeTruth(server, {
       success: false,
       error: 'No agent available for connection testing',
-    };
+    });
   }
 
   /**
@@ -289,7 +298,12 @@ export class McpService {
       );
 
     if (enabledServers.length === 0) {
-      return Promise.resolve({ success: true, results: [] });
+      return Promise.resolve({
+        success: false,
+        results: [
+          { agent: 'mcp-service', success: false, error: 'No enabled MCP server was supplied for publication' },
+        ],
+      });
     }
 
     // Reject command-injection-prone names / non-http(s) URLs before any agent
@@ -301,6 +315,12 @@ export class McpService {
     return this.withServiceLock(async () => {
       // Ensure native Gemini CLI is also in the sync list
       const allAgents = this.addNativeGeminiIfNeeded(agents);
+      if (allAgents.length === 0) {
+        return {
+          success: false,
+          results: [{ agent: 'mcp-service', success: false, error: 'No MCP publication target is available' }],
+        };
+      }
 
       // Attach the OAuth bearer for already-authorized servers so the agent
       // CLIs reuse Wayland's token instead of starting their OWN ephemeral-port
@@ -342,7 +362,7 @@ export class McpService {
 
       const results = await Promise.all(promises);
 
-      const allSuccess = results.every((r) => r.success);
+      const allSuccess = results.length > 0 && results.every((r) => r.success);
 
       return { success: allSuccess, results };
     });

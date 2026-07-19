@@ -192,7 +192,7 @@ describe('ACP built-in MCP session config', () => {
           http: true,
         },
       },
-    } as any);
+    });
     expect(caps1.mcpCapabilities).toEqual({
       stdio: true, // always true per spec
       http: true,
@@ -395,7 +395,7 @@ describe('McpService Gemini detection', () => {
     expect(nativeDetect).toHaveBeenCalledOnce();
   });
 
-  it('returns no Gemini entry when built-in detection fails', async () => {
+  it('fails closed when built-in detection fails', async () => {
     const builtinDetect = vi.fn(async () => {
       throw new Error('failed to read mcp config');
     });
@@ -417,9 +417,9 @@ describe('McpService Gemini detection', () => {
     const { McpService } = await import('../../src/process/services/mcpServices/McpService');
     const service = new McpService();
 
-    const result = await service.getAgentMcpConfigs([{ backend: 'gemini', name: 'Gemini CLI', cliPath: undefined }]);
-
-    expect(result).toEqual([]);
+    await expect(
+      service.getAgentMcpConfigs([{ backend: 'gemini', name: 'Gemini CLI', cliPath: undefined }])
+    ).rejects.toThrow('Incomplete MCP detection for backend "gemini": failed to read mcp config');
     expect(builtinDetect).toHaveBeenCalledOnce();
   });
 });

@@ -24,8 +24,8 @@ function fsServer(): IMcpServer {
     name: 'io.modelcontextprotocol-server-filesystem',
     enabled: true,
     transport: { type: 'stdio', command: 'npx', args: [FS], env: { ALLOWED_DIRS: '' } },
-    createdAt: 0,
-    updatedAt: 0,
+    createdAt: 1,
+    updatedAt: 1,
     originalJson: '{}',
   };
 }
@@ -37,11 +37,16 @@ describe('McpService #448 normalization seam', () => {
       .next().value;
     const spy = vi.spyOn(firstAgent, 'testMcpConnection').mockResolvedValue({ success: true, tools: [] });
 
-    await mcpService.testMcpConnection(fsServer());
+    const result = await mcpService.testMcpConnection(fsServer());
 
     expect(spy).toHaveBeenCalledTimes(1);
     const probed = spy.mock.calls[0][0] as IMcpServer;
     expect((probed.transport as { args: string[] }).args).toEqual([FS, os.homedir()]);
+    expect(result.prepublication).toMatchObject({
+      state: 'probed',
+      serverId: 'fs',
+      serverUpdatedAt: 1,
+    });
     spy.mockRestore();
   });
 });

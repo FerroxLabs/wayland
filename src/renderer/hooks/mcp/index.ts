@@ -1,5 +1,5 @@
 export { useMcpAgentStatus } from './useMcpAgentStatus';
-export { useMcpConnection } from './useMcpConnection';
+export { readCorrelatedMcpPrepublicationTruth, useMcpConnection } from './useMcpConnection';
 export { useMcpModal } from './useMcpModal';
 export { useMcpOperations } from './useMcpOperations';
 export { useMcpServerCRUD } from './useMcpServerCRUD';

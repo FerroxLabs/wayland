@@ -41,7 +41,51 @@ export interface McpConnectionTestResult {
   needsAuth?: boolean; // Whether OAuth authentication is needed
   authMethod?: 'oauth' | 'basic'; // Auth method
   wwwAuthenticate?: string; // WWW-Authenticate header content
+  /**
+   * Process-authored, correlated truth for this standalone probe. Agent
+   * implementations never author this field; McpService validates their raw
+   * result and adds it at the IPC boundary. It proves only pre-publication
+   * reachability/authentication, never adapter publication or chat readiness.
+   */
+  prepublication?: McpPrepublicationTruth;
 }
+
+export const MCP_PREPUBLICATION_TRUTH_VERSION = 'wayland-mcp-prepublication/1' as const;
+
+export type McpPrepublicationTruth =
+  | {
+      version: typeof MCP_PREPUBLICATION_TRUTH_VERSION;
+      serverId: string;
+      serverName: string;
+      serverUpdatedAt: number;
+      observedAt: number;
+      state: 'authentication-required';
+      authentication: 'required';
+      probe: 'not-completed';
+      authMethod?: 'oauth' | 'basic';
+    }
+  | {
+      version: typeof MCP_PREPUBLICATION_TRUTH_VERSION;
+      serverId: string;
+      serverName: string;
+      serverUpdatedAt: number;
+      observedAt: number;
+      state: 'probed';
+      authentication: 'validated';
+      probe: 'succeeded';
+      toolCount: number;
+    }
+  | {
+      version: typeof MCP_PREPUBLICATION_TRUTH_VERSION;
+      serverId: string;
+      serverName: string;
+      serverUpdatedAt: number;
+      observedAt: number;
+      state: 'probe-failed';
+      authentication: 'unavailable';
+      probe: 'failed';
+      error: string;
+    };
 
 /**
  * MCP detection result interface
@@ -114,7 +158,7 @@ export interface IMcpProtocol {
 export abstract class AbstractMcpAgent implements IMcpProtocol {
   protected readonly backend: McpSource;
   protected readonly timeout: number;
-  private operationQueue: Promise<any> = Promise.resolve();
+  private operationQueue: Promise<void> = Promise.resolve();
 
   constructor(backend: McpSource, timeout: number = 30000) {
     this.backend = backend;
@@ -138,9 +182,10 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
       });
 
     // Update the queue (ignore errors so the queue keeps moving)
-    this.operationQueue = newOperation.catch(() => {
-      // Empty catch to prevent unhandled rejection
-    });
+    this.operationQueue = newOperation.then<void>(
+      () => undefined,
+      () => undefined
+    );
 
     return newOperation;
   }
@@ -193,14 +238,11 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
    * Generic implementation for testing a Stdio connection
    * Uses the MCP SDK for correct protocol communication
    */
-  protected async testStdioConnection(
-    transport: {
-      command: string;
-      args?: string[];
-      env?: Record<string, string>;
-    },
-    retryCount: number = 0
-  ): Promise<McpConnectionTestResult> {
+  protected async testStdioConnection(transport: {
+    command: string;
+    args?: string[];
+    env?: Record<string, string>;
+  }): Promise<McpConnectionTestResult> {
     let mcpClient: Client | null = null;
     // Hoisted so the catch block can report the resolved spawn argv and the
     // child's stderr even when connect() throws.
@@ -236,16 +278,10 @@ export abstract class AbstractMcpAgent implements IMcpProtocol {
       // tuple. A previous local npx branch here diverged from session injection
       // on macOS/Linux, allowing the Library to report green for bundled Bun
       // while the chat later attempted a bare host `npx` from a different PATH.
-      const resolvedSpawn = resolveMcpStdioSpawn(
-        transport.command,
-        rawArgs,
-        () => resolveNpxPath(enhancedEnv)
-      );
+      const resolvedSpawn = resolveMcpStdioSpawn(transport.command, rawArgs, () => resolveNpxPath(enhancedEnv));
 
       command = builtinRuntime ? builtinRuntime.command : resolvedSpawn.command;
-      args = isBuiltinWaylandMcp
-        ? [getMcpScriptPath(rawArgs[0]), ...rawArgs.slice(1)]
-        : resolvedSpawn.args;
+      args = isBuiltinWaylandMcp ? [getMcpScriptPath(rawArgs[0]), ...rawArgs.slice(1)] : resolvedSpawn.args;
 
       const stdioTransport = new StdioClientTransport({
         command,
