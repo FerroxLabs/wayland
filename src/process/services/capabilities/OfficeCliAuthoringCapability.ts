@@ -328,10 +328,11 @@ export async function probeOfficeCliAuthoringEvidence(context: OfficeCliProbeCon
       readAuthenticatedBundleFile(bundledDir, bundle.realPath, 'manifest.json', false),
       readAuthenticatedBundleFile(bundledDir, bundle.realPath, binaryName, true),
     ]);
-    await verifyBundleIdentityAfterRead(bundledDir, bundle.realPath, bundle.identity, [
+    const bundleFiles = [
       { name: 'manifest.json', identity: manifestFile.identity, realPath: manifestFile.realPath },
       { name: binaryName, identity: binaryFile.identity, realPath: binaryFile.realPath },
-    ]);
+    ];
+    await verifyBundleIdentityAfterRead(bundledDir, bundle.realPath, bundle.identity, bundleFiles);
     const binarySha256 = digestOfficeCliEvidence(binaryFile.bytes);
     const manifest = JSON.parse(manifestFile.bytes.toString('utf8')) as Record<string, unknown>;
     const result = classifyBundledOfficeCli(manifest, binarySha256, platform, arch);
@@ -356,6 +357,10 @@ export async function probeOfficeCliAuthoringEvidence(context: OfficeCliProbeCon
         reason: 'The installed OfficeCLI skill set does not match the executable contract.',
       };
     }
+    // Skill proof crosses multiple asynchronous filesystem boundaries. Rebind
+    // the capability to the exact bundle identities after that work and
+    // immediately before publishing the available evidence snapshot.
+    await verifyBundleIdentityAfterRead(bundledDir, bundle.realPath, bundle.identity, bundleFiles);
     return {
       ...base,
       evidenceId: `officecli:${binarySha256.slice(7)}`,
