@@ -32,13 +32,14 @@ MCP catalog declaration, saved configuration, authentication requirement, and st
 
 ## Exact construction proof
 
-- Exact repair implementation commit: `f7dd56c86f43d845145c0582087d50f74c27650e`.
-- Exact repair implementation tree: `cd7abc708af457cc9ea40b1d7c91d9a77b590cf1`.
-- Focused hostile repair suite: 17 files, 129 tests passed.
+- Exact repair implementation commit: `f79ccbe6ea389f5e3fd781599e65d98c98e8fcf1`.
+- Exact repair implementation tree: `9d8bf1deaa43a0a01a6f230b45174cda3f1cc0ee`.
+- Focused repair suite: 15 files, 120 tests passed.
 - Typecheck: passed.
-- Scoped changed-file oxlint: 0 errors; 6 pre-existing warnings in the shared bridge declaration file.
+- Changed-file oxlint: 0 warnings, 0 errors; the successor also retired all eight inherited warnings on its actual changed surface.
 - Oxfmt and `git diff --check`: passed.
-- Exact full aggregate: 1,433 Vitest files passed and 21 skipped; 15,166 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
+- Exact full aggregate: 1,433 Vitest files passed and 21 skipped; 15,167 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
+- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r2-f79ccbe6/RECEIPT.md`.
 - The first successor aggregate attempt exposed one stale Concierge test double that still expected the retired direct MCP setter. The test was migrated to the atomic authority, the add-name invariant was moved inside the atomic mutation, and the exact aggregate was rerun successfully from a clean implementation commit.
 
 ## Successor repair details
