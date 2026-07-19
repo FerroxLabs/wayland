@@ -313,6 +313,62 @@ describe('Desktop-only production capture boundary', () => {
     expect(result.manifest.files.some(({ authority }) => authority === 'desktop.database')).toBe(true);
   });
 
+  it('captures an external recovery authority provisioned after the initial inventory', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-provisioned-authority-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const destinationRoot = path.join(root, 'recovery-points');
+    const revisionAuthorityPath = path.join(userDataRoot, 'constitution', 'revision-authority.enc');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(path.dirname(revisionAuthorityPath), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite-production');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+    fs.writeFileSync(revisionAuthorityPath, 'healthy-v2-authority');
+    const authorityRoot = resolveExternalRecoveryAuthorityRoot(userDataRoot);
+
+    const result = await captureProductionRecoveryPoint(
+      {
+        destinationRoot,
+        userDataRoot,
+        sourceAppVersion: '0.11.18',
+        sourceReleaseTrack: 'stable',
+        desktopProfileLockHeld: true,
+        externalRecoveryAuthority: { confirmed: true, existingRecordDigests: [] },
+      },
+      {
+        resolveCoreRoots: () => ({
+          defaultCoreRoot: path.join(root, 'absent-core-default'),
+          namedCoreRoot: path.join(root, 'absent-core-profiles'),
+          constitutionRoot: path.join(root, 'absent-constitution'),
+        }),
+        createDatabaseDriver: async (databasePath) => productionDriver(databasePath),
+        sealBytes: async (plaintext) => Buffer.concat([Buffer.from('sealed:'), plaintext]),
+        externalRecoveryVault: new TestVault(),
+        loadOrCreateExternalRecoveryAuthority: async () => {
+          fs.mkdirSync(path.join(authorityRoot, 'events'), { recursive: true });
+          fs.writeFileSync(path.join(authorityRoot, 'events', '000000.json'), '{"created":true}');
+          return {
+            authorityRoot,
+            state: {} as never,
+            canonicalStateBytes: Buffer.from('{}'),
+            activeSecret: Buffer.alloc(32, 7),
+            coveredRecordDigests: [],
+            reconciledState: false,
+          };
+        },
+        allowUnsafePathFallbackForTests: true,
+      }
+    );
+
+    expect(
+      result.manifest.files.some(
+        ({ authority, sourcePath }) =>
+          authority === 'credentials.key-material' && sourcePath.startsWith(`${authorityRoot}${path.sep}`)
+      )
+    ).toBe(true);
+  });
+
   it('rejects a SQLite pathname replacement while opening the pinned snapshot connection', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-database-swap-'));
     roots.push(root);
