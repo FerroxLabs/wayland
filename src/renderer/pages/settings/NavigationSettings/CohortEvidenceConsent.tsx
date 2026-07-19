@@ -9,13 +9,22 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { PreferenceRow } from '@renderer/components/settings/shared';
-import type { CohortConsentStatus, CohortSetConsentResult } from '@/common/types/cohortRollout';
+import {
+  COHORT_ASSIGNMENTS,
+  type CohortAssignment,
+  type CohortAssignmentRequestResult,
+  type CohortAssignmentStatus,
+  type CohortConsentStatus,
+  type CohortSetConsentResult,
+} from '@/common/types/cohortRollout';
 
 const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;
 
 type CohortConsentApi = Readonly<{
   cohortConsentStatus?: () => Promise<unknown>;
   cohortSetConsent?: (enabled: boolean) => Promise<unknown>;
+  cohortAssignmentStatus?: () => Promise<unknown>;
+  cohortRequestAssignment?: (cohort: CohortAssignment) => Promise<unknown>;
 }>;
 
 type ConsentViewState = 'loading' | 'ready' | 'unavailable' | 'error';
@@ -24,6 +33,13 @@ const DISABLED_STATUS: CohortConsentStatus = Object.freeze({
   enabled: false,
   acceptedAtMs: null,
   observationWindow: null,
+});
+
+const UNAVAILABLE_ASSIGNMENT: CohortAssignmentStatus = Object.freeze({
+  available: false,
+  effectiveCohort: null,
+  classifiedAtMs: null,
+  observationState: 'unavailable',
 });
 
 function getCohortConsentApi(): CohortConsentApi | undefined {
@@ -55,10 +71,58 @@ function parseSetConsentResult(value: unknown): CohortSetConsentResult | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
   const record = value as Record<string, unknown>;
   if (Object.keys(record).toSorted().join('\0') !== ['consent', 'status'].join('\0')) return null;
-  if (!['enabled', 'disabled', 'storage-error'].includes(String(record.status))) return null;
+  if (!['enabled', 'disabled', 'storage-error', 'assignment-unavailable'].includes(String(record.status))) return null;
   const consent = parseConsentStatus(record.consent);
   if (!consent) return null;
   return { status: record.status as CohortSetConsentResult['status'], consent };
+}
+
+function parseAssignmentStatus(value: unknown): CohortAssignmentStatus | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  if (
+    Object.keys(record).toSorted().join('\0') !==
+    ['available', 'classifiedAtMs', 'effectiveCohort', 'observationState'].toSorted().join('\0')
+  ) {
+    return null;
+  }
+  if (typeof record.available !== 'boolean') return null;
+  if (!['unavailable', 'ready', 'locked', 'active'].includes(String(record.observationState))) return null;
+  if (!record.available) {
+    return record.effectiveCohort === null &&
+      record.classifiedAtMs === null &&
+      record.observationState === 'unavailable'
+      ? UNAVAILABLE_ASSIGNMENT
+      : null;
+  }
+  if (
+    typeof record.effectiveCohort !== 'string' ||
+    !COHORT_ASSIGNMENTS.includes(record.effectiveCohort as CohortAssignment) ||
+    !Number.isSafeInteger(record.classifiedAtMs) ||
+    Number(record.classifiedAtMs) < 0 ||
+    record.observationState === 'unavailable'
+  ) {
+    return null;
+  }
+  return Object.freeze({
+    available: true,
+    effectiveCohort: record.effectiveCohort as CohortAssignment,
+    classifiedAtMs: Number(record.classifiedAtMs),
+    observationState: record.observationState as 'ready' | 'locked' | 'active',
+  });
+}
+
+function parseAssignmentResult(value: unknown): CohortAssignmentRequestResult | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  if (Object.keys(record).toSorted().join('\0') !== ['assignment', 'status'].join('\0')) return null;
+  if (!['classified', 'unchanged', 'window-active', 'storage-error', 'invalid-request'].includes(String(record.status))) {
+    return null;
+  }
+  const assignment = parseAssignmentStatus(record.assignment);
+  return assignment
+    ? { status: record.status as CohortAssignmentRequestResult['status'], assignment }
+    : null;
 }
 
 function isObservationWindow(value: unknown): value is Readonly<{ startMs: number; endMs: number }> {
@@ -86,35 +150,53 @@ const CohortEvidenceConsent: React.FC = () => {
   const { t } = useTranslation();
   const [viewState, setViewState] = useState<ConsentViewState>('loading');
   const [status, setStatus] = useState<CohortConsentStatus>(DISABLED_STATUS);
+  const [assignment, setAssignment] = useState<CohortAssignmentStatus>(UNAVAILABLE_ASSIGNMENT);
   const [saving, setSaving] = useState(false);
   const [updateFailed, setUpdateFailed] = useState(false);
 
   useEffect(() => {
     let active = true;
     const api = getCohortConsentApi();
-    if (!api?.cohortConsentStatus || !api.cohortSetConsent) {
+    if (
+      !api?.cohortConsentStatus ||
+      !api.cohortSetConsent ||
+      !api.cohortAssignmentStatus ||
+      !api.cohortRequestAssignment
+    ) {
       setViewState('unavailable');
       return () => {
         active = false;
       };
     }
 
-    void api
-      .cohortConsentStatus()
-      .then((result) => {
+    void Promise.all([api.cohortConsentStatus(), api.cohortAssignmentStatus()])
+      .then(([consentResult, assignmentResult]) => {
         if (!active) return;
-        const parsed = parseConsentStatus(result);
-        if (!parsed) {
+        const parsedConsent = parseConsentStatus(consentResult);
+        const parsedAssignment = parseAssignmentStatus(assignmentResult);
+        if (!parsedConsent || !parsedAssignment) {
           setStatus(DISABLED_STATUS);
+          setAssignment(UNAVAILABLE_ASSIGNMENT);
           setViewState('error');
           return;
         }
-        setStatus(parsed);
+        if (
+          (parsedConsent.enabled && parsedAssignment.observationState !== 'active') ||
+          (!parsedConsent.enabled && parsedAssignment.observationState === 'active')
+        ) {
+          setStatus(DISABLED_STATUS);
+          setAssignment(UNAVAILABLE_ASSIGNMENT);
+          setViewState('error');
+          return;
+        }
+        setStatus(parsedConsent);
+        setAssignment(parsedAssignment);
         setViewState('ready');
       })
       .catch(() => {
         if (!active) return;
         setStatus(DISABLED_STATUS);
+        setAssignment(UNAVAILABLE_ASSIGNMENT);
         setViewState('error');
       });
 
@@ -122,6 +204,40 @@ const CohortEvidenceConsent: React.FC = () => {
       active = false;
     };
   }, []);
+
+  const requestAssignment = async (cohort: CohortAssignment): Promise<void> => {
+    if (
+      viewState !== 'ready' ||
+      saving ||
+      assignment.observationState === 'active' ||
+      assignment.observationState === 'locked'
+    ) {
+      return;
+    }
+    const api = getCohortConsentApi();
+    if (!api?.cohortRequestAssignment) {
+      setViewState('unavailable');
+      return;
+    }
+    setSaving(true);
+    setUpdateFailed(false);
+    try {
+      const result = parseAssignmentResult(await api.cohortRequestAssignment(cohort));
+      if (
+        !result ||
+        !['classified', 'unchanged'].includes(result.status) ||
+        !result.assignment.available ||
+        result.assignment.effectiveCohort !== cohort
+      ) {
+        throw new Error('Cohort classification was not acknowledged');
+      }
+      setAssignment(result.assignment);
+    } catch {
+      setUpdateFailed(true);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const setConsent = async (enabled: boolean): Promise<void> => {
     if (viewState !== 'ready' || saving) return;
@@ -152,20 +268,15 @@ const CohortEvidenceConsent: React.FC = () => {
   const unavailable = viewState === 'unavailable' || viewState === 'error';
   const stateText = (() => {
     if (viewState === 'loading') {
-      return t('settings.navigationPage.evidenceChecking', { defaultValue: 'Checking consent status…' });
+      return t('settings.navigationPage.evidenceChecking');
     }
     if (unavailable) {
-      return t('settings.navigationPage.evidenceUnavailable', {
-        defaultValue: 'Evidence sharing is unavailable in this build, so it remains off.',
-      });
+      return t('settings.navigationPage.evidenceUnavailable');
     }
     if (!status.enabled || status.observationWindow === null) {
-      return t('settings.navigationPage.evidenceWindowInactive', {
-        defaultValue: 'No evidence window is active.',
-      });
+      return t('settings.navigationPage.evidenceWindowInactive');
     }
     return t('settings.navigationPage.evidenceWindowActive', {
-      defaultValue: 'Active 14-day window: {{start}} – {{end}}.',
       start: formatDate(status.observationWindow.startMs),
       end: formatDate(status.observationWindow.endMs),
     });
@@ -174,22 +285,48 @@ const CohortEvidenceConsent: React.FC = () => {
   return (
     <div className='mt-10px border-t border-[var(--color-border-2)] pt-8px' data-testid='cohort-evidence-consent'>
       <PreferenceRow
-        label={t('settings.navigationPage.evidenceConsentLabel', {
-          defaultValue: 'Collect local aggregate evidence',
-        })}
-        help={t('settings.navigationPage.evidenceConsentHelp', {
-          defaultValue:
-            'Local aggregate evidence only: session counts, task outcomes, reliability, accessibility, and return-to-Classic reasons. Never chat messages, prompts, file contents, filenames, paths, URLs, tool arguments, or free-form text.',
-        })}
+        label={t('settings.navigationPage.cohortAssignmentLabel')}
+        help={t('settings.navigationPage.cohortAssignmentHelp')}
+      >
+        <select
+          value={assignment.effectiveCohort ?? ''}
+          disabled={
+            viewState !== 'ready' ||
+            saving ||
+            assignment.observationState === 'active' ||
+            assignment.observationState === 'locked'
+          }
+          onChange={(event) => void requestAssignment(event.target.value as CohortAssignment)}
+          aria-label={t('settings.navigationPage.cohortAssignmentLabel')}
+          data-testid='cohort-assignment-select'
+        >
+          <option value='' disabled>
+            {t('settings.navigationPage.cohortAssignmentPlaceholder')}
+          </option>
+          {COHORT_ASSIGNMENTS.map((cohort) => (
+            <option value={cohort} key={cohort}>
+              {t(`settings.navigationPage.cohort.${cohort}`)}
+            </option>
+          ))}
+        </select>
+      </PreferenceRow>
+      <p className='text-12px text-t-secondary' data-testid='cohort-assignment-state'>
+        {assignment.observationState === 'active' || assignment.observationState === 'locked'
+          ? t('settings.navigationPage.cohortAssignmentActive')
+          : assignment.available
+            ? t('settings.navigationPage.cohortAssignmentReady')
+            : t('settings.navigationPage.cohortAssignmentUnavailable')}
+      </p>
+      <PreferenceRow
+        label={t('settings.navigationPage.evidenceConsentLabel')}
+        help={t('settings.navigationPage.evidenceConsentHelp')}
       >
         <Switch
           checked={viewState === 'ready' && status.enabled}
-          disabled={viewState !== 'ready' || saving}
+          disabled={viewState !== 'ready' || saving || !assignment.available}
           loading={saving}
           onChange={(enabled) => void setConsent(enabled)}
-          aria-label={t('settings.navigationPage.evidenceConsentLabel', {
-            defaultValue: 'Collect local aggregate evidence',
-          })}
+          aria-label={t('settings.navigationPage.evidenceConsentLabel')}
           data-testid='cohort-evidence-consent-toggle'
         />
       </PreferenceRow>
@@ -197,15 +334,11 @@ const CohortEvidenceConsent: React.FC = () => {
         {stateText}
       </p>
       <p className='mt-4px text-12px text-t-secondary'>
-        {t('settings.navigationPage.evidenceConsentControl', {
-          defaultValue: 'Off until you explicitly enable it. You can revoke consent at any time.',
-        })}
+        {t('settings.navigationPage.evidenceConsentControl')}
       </p>
       {updateFailed && (
         <p className='mt-4px text-12px text-[var(--danger)]' role='alert'>
-          {t('settings.navigationPage.evidenceConsentUpdateFailed', {
-            defaultValue: "Wayland couldn't update this setting. The last confirmed choice remains in effect.",
-          })}
+          {t('settings.navigationPage.evidenceConsentUpdateFailed')}
         </p>
       )}
     </div>

@@ -2579,6 +2579,23 @@
       "engineConfig": "Engine config integrity"
     }
   },
+  "navigationPage": {
+    "cohortAssignmentLabel": "Tu grupo de evaluación",
+    "cohortAssignmentHelp": "Elige el grupo que mejor describe cómo usas Wayland. Wayland valida y guarda el grupo efectivo; esta pantalla no lo asigna directamente.",
+    "cohortAssignmentPlaceholder": "Elige un grupo",
+    "cohortAssignmentActive": "Bloqueado mientras la ventana de evidencia actual está activa.",
+    "cohortAssignmentReady": "Clasificación confirmada. Puedes iniciar una ventana de evidencia.",
+    "cohortAssignmentUnavailable": "Elige un grupo antes de iniciar una ventana de evidencia.",
+    "cohort": { "novice": "Primeros pasos", "knowledge-work": "Trabajo del conocimiento", "developer": "Desarrollo", "operator": "Operaciones" },
+    "evidenceChecking": "Comprobando consentimiento y clasificación…",
+    "evidenceUnavailable": "El uso compartido de evidencia no está disponible en esta versión, por lo que permanece desactivado.",
+    "evidenceWindowInactive": "No hay ninguna ventana de evidencia activa.",
+    "evidenceWindowActive": "Ventana activa de 14 días: {{start}} – {{end}}.",
+    "evidenceConsentLabel": "Recopilar evidencia agregada local",
+    "evidenceConsentHelp": "Solo evidencia agregada local: recuentos de sesiones, resultados de tareas, fiabilidad, accesibilidad y motivos para volver a Classic. Nunca mensajes, instrucciones, contenido o nombres de archivos, rutas, URL, argumentos de herramientas ni texto libre.",
+    "evidenceConsentControl": "Desactivado hasta que lo habilites explícitamente. Puedes revocar el consentimiento en cualquier momento.",
+    "evidenceConsentUpdateFailed": "Wayland no pudo actualizar esta configuración. Se mantiene la última opción confirmada."
+  },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
   "settings": {},

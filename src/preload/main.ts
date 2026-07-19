@@ -27,6 +27,9 @@ import type {
   CockpitReturnReason,
   CockpitReturnRecordResult,
   CockpitRolloutStatus,
+  CohortAssignment,
+  CohortAssignmentRequestResult,
+  CohortAssignmentStatus,
   CohortConsentStatus,
   CohortSetConsentResult,
 } from '../common/types/cohortRollout';
@@ -155,6 +158,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   cohortRecordShellReturn: (reason: CockpitReturnReason): Promise<CockpitReturnRecordResult> =>
     ipcRenderer.invoke('cohort:shell-returned-to-classic', reason),
   cohortConsentStatus: (): Promise<CohortConsentStatus> => ipcRenderer.invoke('cohort:consent-status'),
+  cohortAssignmentStatus: (): Promise<CohortAssignmentStatus> => ipcRenderer.invoke('cohort:assignment-status'),
+  cohortRequestAssignment: (cohort: CohortAssignment): Promise<CohortAssignmentRequestResult> =>
+    ipcRenderer.invoke('cohort:request-assignment', cohort),
   cohortSetConsent: (enabled: boolean): Promise<CohortSetConsentResult> =>
     ipcRenderer.invoke('cohort:set-consent', enabled),
   // Wayland Constitution: agent behavioral spec stored at ~/.wayland/CONSTITUTION.md

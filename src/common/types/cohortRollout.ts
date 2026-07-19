@@ -18,6 +18,22 @@ export const COCKPIT_RETURN_REASONS = [
 ] as const;
 export type CockpitReturnReason = (typeof COCKPIT_RETURN_REASONS)[number];
 
+/** Closed enrollment values accepted by the process-owned cohort classifier. */
+export const COHORT_ASSIGNMENTS = ['novice', 'knowledge-work', 'developer', 'operator'] as const;
+export type CohortAssignment = (typeof COHORT_ASSIGNMENTS)[number];
+
+export type CohortAssignmentStatus = Readonly<{
+  available: boolean;
+  effectiveCohort: CohortAssignment | null;
+  classifiedAtMs: number | null;
+  observationState: 'unavailable' | 'ready' | 'locked' | 'active';
+}>;
+
+export type CohortAssignmentRequestResult = Readonly<{
+  status: 'classified' | 'unchanged' | 'window-active' | 'storage-error' | 'invalid-request';
+  assignment: CohortAssignmentStatus;
+}>;
+
 export type CockpitRolloutStatus = Readonly<{
   eligible: boolean;
   stage: CockpitRolloutStage | null;
@@ -46,6 +62,6 @@ export type CohortConsentStatus = Readonly<{
 }>;
 
 export type CohortSetConsentResult = Readonly<{
-  status: 'enabled' | 'disabled' | 'storage-error';
+  status: 'enabled' | 'disabled' | 'storage-error' | 'assignment-unavailable';
   consent: CohortConsentStatus;
 }>;

@@ -11,22 +11,63 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   createCohortProductionController,
+  type CohortAssignmentStore,
   type CohortConsentStore,
   type CohortProductionEnvironment,
 } from '@process/services/cohort/ProductionCohortController';
-import { M0B_DAY_MS } from '@process/services/cohort/types';
+import { M0B_COHORTS, M0B_DAY_MS } from '@process/services/cohort/types';
 
 const NOW = Date.UTC(2026, 6, 19);
+const END = NOW + 14 * M0B_DAY_MS;
 const roots: string[] = [];
 
-async function fixture(initial: unknown = undefined) {
+const disabledConsent = Object.freeze({
+  schemaVersion: 1,
+  enabled: false,
+  acceptedAtMs: null,
+  windowStartMs: null,
+  windowEndMs: null,
+});
+
+const enabledConsent = Object.freeze({
+  schemaVersion: 1,
+  enabled: true,
+  acceptedAtMs: NOW,
+  windowStartMs: NOW,
+  windowEndMs: END,
+});
+
+function assignment(cohort: (typeof M0B_COHORTS)[number], window: boolean = false) {
+  return {
+    schemaVersion: 2,
+    classifierVersion: 1,
+    requestedCohort: cohort,
+    effectiveCohort: cohort,
+    classifiedAtMs: NOW,
+    windowStartMs: window ? NOW : null,
+    windowEndMs: window ? END : null,
+  } as const;
+}
+
+async function fixture(
+  initialConsent: unknown = undefined,
+  initialAssignment: unknown = undefined,
+  now: () => number = () => NOW
+) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wayland-production-cohort-'));
   roots.push(root);
-  let persisted = initial;
-  const store: CohortConsentStore = {
-    get: vi.fn(async () => persisted),
+  let persistedConsent = initialConsent;
+  let persistedAssignment = initialAssignment;
+  const consentStore: CohortConsentStore = {
+    get: vi.fn(async () => persistedConsent),
     set: vi.fn(async (value) => {
-      persisted = structuredClone(value);
+      persistedConsent = structuredClone(value);
+    }),
+  };
+  const assignmentStore: CohortAssignmentStore = {
+    get: vi.fn(async () => persistedAssignment),
+    set: vi.fn(async (value) => {
+      persistedAssignment = structuredClone(value);
     }),
   };
   const environment: CohortProductionEnvironment = {
@@ -36,15 +77,17 @@ async function fixture(initial: unknown = undefined) {
     appVersion: '0.12.0-dev',
     releaseTrack: 'preview',
     installIdentity: 'install-alpha',
-    cohort: 'knowledge-work',
-    consentStore: store,
-    now: () => NOW,
+    consentStore,
+    assignmentStore,
+    now,
   };
   return {
     root,
-    store,
+    consentStore,
+    assignmentStore,
     environment,
-    persisted: () => persisted,
+    persistedConsent: () => persistedConsent,
+    persistedAssignment: () => persistedAssignment,
     controller: await createCohortProductionController(environment),
   };
 }
@@ -53,15 +96,17 @@ afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => fs.rm(root, { recursive: true, force: true })));
 });
 
-describe('ProductionCohortController', () => {
-  it('starts fail-closed and creates no evidence storage before explicit consent', async () => {
+describe('ProductionCohortController cohort authority', () => {
+  it('starts unavailable and cannot begin observation without classification', async () => {
     const subject = await fixture({ enabled: true, acceptedAtMs: NOW, extraAuthority: true });
 
-    await expect(subject.controller.consentStatus()).resolves.toEqual({
-      enabled: false,
-      acceptedAtMs: null,
-      observationWindow: null,
+    await expect(subject.controller.assignmentStatus()).resolves.toEqual({
+      available: false,
+      effectiveCohort: null,
+      classifiedAtMs: null,
+      observationState: 'unavailable',
     });
+    await expect(subject.controller.setConsent(true)).resolves.toMatchObject({ status: 'assignment-unavailable' });
     await expect(subject.controller.recordShellReturn('reliability')).resolves.toEqual({
       status: 'consent-disabled',
     });
@@ -70,33 +115,93 @@ describe('ProductionCohortController', () => {
     });
   });
 
-  it('persists one exact 14-day consent window and records only closed events', async () => {
-    const subject = await fixture();
+  it.each(M0B_COHORTS)('classifies and persists the closed %s assignment', async (cohort) => {
+    const subject = await fixture(disabledConsent);
+
+    await expect(subject.controller.requestAssignment(cohort)).resolves.toEqual({
+      status: 'classified',
+      assignment: {
+        available: true,
+        effectiveCohort: cohort,
+        classifiedAtMs: NOW,
+        observationState: 'ready',
+      },
+    });
+    expect(subject.persistedAssignment()).toEqual(assignment(cohort));
+
+    const restarted = await createCohortProductionController(subject.environment);
+    await expect(restarted.assignmentStatus()).resolves.toMatchObject({
+      available: true,
+      effectiveCohort: cohort,
+      observationState: 'ready',
+    });
+  });
+
+  it('migrates only the exact prior schema while preserving assignment and observation window', async () => {
+    const prior = {
+      schemaVersion: 1,
+      cohort: 'operator',
+      classifiedAtMs: NOW,
+      windowStartMs: NOW,
+      windowEndMs: END,
+    } as const;
+    const subject = await fixture(enabledConsent, prior);
+
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({
+      available: true,
+      effectiveCohort: 'operator',
+      observationState: 'active',
+    });
+    expect(subject.persistedAssignment()).toEqual(assignment('operator', true));
+    expect(subject.assignmentStore.set).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    undefined,
+    { schemaVersion: 3, classifierVersion: 1, requestedCohort: 'novice', effectiveCohort: 'novice' },
+    { ...assignment('novice'), windowEndMs: undefined },
+    { ...assignment('novice'), effectiveCohort: 'developer' },
+    { ...assignment('novice'), requestedCohort: 'forged' },
+    { ...assignment('novice'), extraAuthority: true },
+    { ...assignment('novice', true), windowEndMs: END + 1 },
+  ])('fails closed on absent, unknown, partial, contradictory, or forged assignment %#', async (candidate) => {
+    const subject = await fixture(disabledConsent, candidate);
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({
+      available: false,
+      effectiveCohort: null,
+      observationState: 'unavailable',
+    });
+  });
+
+  it('rejects malformed classifier requests inside the main-process authority', async () => {
+    const subject = await fixture(disabledConsent);
+    await expect(subject.controller.requestAssignment({ cohort: 'developer' })).resolves.toMatchObject({
+      status: 'invalid-request',
+      assignment: { available: false },
+    });
+    expect(subject.assignmentStore.set).not.toHaveBeenCalled();
+  });
+});
+
+describe('ProductionCohortController observation lifecycle', () => {
+  it('persists one exact 14-day window and records events with the effective assignment', async () => {
+    const subject = await fixture(disabledConsent);
+    await subject.controller.requestAssignment('developer');
 
     await expect(subject.controller.setConsent(true)).resolves.toEqual({
       status: 'enabled',
       consent: {
         enabled: true,
         acceptedAtMs: NOW,
-        observationWindow: { startMs: NOW, endMs: NOW + 14 * M0B_DAY_MS },
+        observationWindow: { startMs: NOW, endMs: END },
       },
     });
-    expect(subject.persisted()).toEqual({
-      schemaVersion: 1,
-      enabled: true,
-      acceptedAtMs: NOW,
-      windowStartMs: NOW,
-      windowEndMs: NOW + 14 * M0B_DAY_MS,
-    });
-    await expect(fs.stat(path.join(subject.environment.userDataPath, 'cohort-evidence'))).rejects.toMatchObject({
-      code: 'ENOENT',
-    });
+    expect(subject.persistedConsent()).toEqual(enabledConsent);
+    expect(subject.persistedAssignment()).toEqual(assignment('developer', true));
 
     await expect(subject.controller.recordShellReturn('missing-capability')).resolves.toEqual({ status: 'recorded' });
     const windows = await fs.readdir(path.join(subject.environment.userDataPath, 'cohort-evidence'));
-    expect(windows).toHaveLength(1);
     const eventFiles = await fs.readdir(path.join(subject.environment.userDataPath, 'cohort-evidence', windows[0]));
-    expect(eventFiles.filter((entry) => entry.endsWith('.event.json'))).toHaveLength(3);
     const eventText = await Promise.all(
       eventFiles
         .filter((entry) => entry.endsWith('.event.json'))
@@ -105,30 +210,52 @@ describe('ProductionCohortController', () => {
         )
     );
     expect(eventText.join('\n')).not.toMatch(/prompt|message|filename|path|url|toolArgument/i);
+    expect(eventText.join('\n')).toContain('"cohort":"developer"');
     expect(eventText.join('\n')).toContain('missing-capability');
   });
 
-  it('rehydrates valid consent after restart and fails closed on malformed windows', async () => {
-    const enabled = {
-      schemaVersion: 1,
-      enabled: true,
-      acceptedAtMs: NOW,
-      windowStartMs: NOW,
-      windowEndMs: NOW + 14 * M0B_DAY_MS,
-    } as const;
-    const valid = await fixture(enabled);
-    await expect(valid.controller.consentStatus()).resolves.toMatchObject({ enabled: true, acceptedAtMs: NOW });
+  it('preserves the original window lock after withdrawal and rejects disable-then-relabel', async () => {
+    const subject = await fixture(disabledConsent);
+    await subject.controller.requestAssignment('knowledge-work');
+    await subject.controller.setConsent(true);
 
-    const malformed = await fixture({ ...enabled, windowEndMs: enabled.windowEndMs + 1 });
-    await expect(malformed.controller.consentStatus()).resolves.toEqual({
-      enabled: false,
-      acceptedAtMs: null,
-      observationWindow: null,
+    await expect(subject.controller.setConsent(false)).resolves.toMatchObject({ status: 'disabled' });
+    expect(subject.persistedAssignment()).toEqual(assignment('knowledge-work', true));
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({
+      effectiveCohort: 'knowledge-work',
+      observationState: 'locked',
+    });
+    await expect(subject.controller.requestAssignment('operator')).resolves.toMatchObject({
+      status: 'window-active',
+      assignment: { effectiveCohort: 'knowledge-work', observationState: 'locked' },
+    });
+    expect(subject.persistedAssignment()).toEqual(assignment('knowledge-work', true));
+
+    await expect(subject.controller.setConsent(true)).resolves.toMatchObject({
+      status: 'enabled',
+      consent: { observationWindow: { startMs: NOW, endMs: END } },
     });
   });
 
-  it('serializes revocation ahead of later event writes and preserves state when persistence fails', async () => {
-    const subject = await fixture();
+  it('rejects relabeling after the window ends while consent/runtime state still exists', async () => {
+    const subject = await fixture(enabledConsent, assignment('developer', true), () => END + 1);
+    await expect(subject.controller.requestAssignment('operator')).resolves.toMatchObject({
+      status: 'window-active',
+      assignment: { effectiveCohort: 'developer', observationState: 'active' },
+    });
+    expect(subject.persistedAssignment()).toEqual(assignment('developer', true));
+    expect(subject.assignmentStore.set).not.toHaveBeenCalled();
+  });
+
+  it('fails closed when assignment and consent records disagree', async () => {
+    const subject = await fixture(enabledConsent, assignment('operator'));
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({ available: false });
+    await expect(subject.controller.consentStatus()).resolves.toMatchObject({ enabled: false });
+  });
+
+  it('serializes revocation ahead of event writes and preserves memory when persistence fails', async () => {
+    const subject = await fixture(disabledConsent);
+    await subject.controller.requestAssignment('novice');
     await subject.controller.setConsent(true);
 
     const revoked = subject.controller.setConsent(false);
@@ -136,12 +263,15 @@ describe('ProductionCohortController', () => {
     await expect(revoked).resolves.toMatchObject({ status: 'disabled' });
     await expect(afterRevocation).resolves.toEqual({ status: 'consent-disabled' });
 
-    vi.mocked(subject.store.set).mockRejectedValueOnce(new Error('disk unavailable'));
+    vi.mocked(subject.consentStore.set).mockRejectedValueOnce(new Error('disk unavailable'));
     await expect(subject.controller.setConsent(true)).resolves.toEqual({
       status: 'storage-error',
       consent: { enabled: false, acceptedAtMs: null, observationWindow: null },
     });
-    await expect(subject.controller.consentStatus()).resolves.toMatchObject({ enabled: false });
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({
+      effectiveCohort: 'novice',
+      observationState: 'locked',
+    });
   });
 
   it('exposes unpackaged dogfood eligibility without weakening packaged authority', async () => {

@@ -2284,7 +2284,27 @@
     "titlebarTitle": "Titlebar",
     "showLogo": "Show Wayland logo",
     "showLogoHelp": "Display the brand lockup in the desktop titlebar.",
-    "resetDefaults": "Reset to defaults"
+    "resetDefaults": "Reset to defaults",
+    "cohortAssignmentLabel": "Your evaluation group",
+    "cohortAssignmentHelp": "Choose the group that best describes how you use Wayland. Wayland validates and stores the effective group; this screen cannot assign it directly.",
+    "cohortAssignmentPlaceholder": "Choose a group",
+    "cohortAssignmentActive": "Locked while the current evidence window is active.",
+    "cohortAssignmentReady": "Classification confirmed. You can start an evidence window.",
+    "cohortAssignmentUnavailable": "Choose a group before starting an evidence window.",
+    "cohort": {
+      "novice": "Getting started",
+      "knowledge-work": "Knowledge work",
+      "developer": "Developer",
+      "operator": "Operator"
+    },
+    "evidenceChecking": "Checking consent and classification…",
+    "evidenceUnavailable": "Evidence sharing is unavailable in this build, so it remains off.",
+    "evidenceWindowInactive": "No evidence window is active.",
+    "evidenceWindowActive": "Active 14-day window: {{start}} – {{end}}.",
+    "evidenceConsentLabel": "Collect local aggregate evidence",
+    "evidenceConsentHelp": "Local aggregate evidence only: session counts, task outcomes, reliability, accessibility, and return-to-Classic reasons. Never chat messages, prompts, file contents, filenames, paths, URLs, tool arguments, or free-form text.",
+    "evidenceConsentControl": "Off until you explicitly enable it. You can revoke consent at any time.",
+    "evidenceConsentUpdateFailed": "Wayland couldn't update this setting. The last confirmed choice remains in effect."
   },
   "editorPage": {
     "title": "Editor",

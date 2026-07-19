@@ -2579,6 +2579,23 @@
       "engineConfig": "Engine config integrity"
     }
   },
+  "navigationPage": {
+    "cohortAssignmentLabel": "Ваша група оцінювання",
+    "cohortAssignmentHelp": "Виберіть групу, яка найкраще описує вашу роботу з Wayland. Wayland перевіряє та зберігає підсумкову групу; цей екран не призначає її напряму.",
+    "cohortAssignmentPlaceholder": "Виберіть групу",
+    "cohortAssignmentActive": "Заблоковано, поки активне поточне вікно збору даних.",
+    "cohortAssignmentReady": "Класифікацію підтверджено. Можна почати вікно збору даних.",
+    "cohortAssignmentUnavailable": "Виберіть групу перед запуском вікна збору даних.",
+    "cohort": { "novice": "Початок роботи", "knowledge-work": "Інтелектуальна робота", "developer": "Розробник", "operator": "Оператор" },
+    "evidenceChecking": "Перевірка згоди та класифікації…",
+    "evidenceUnavailable": "Обмін даними оцінювання недоступний у цій збірці й залишається вимкненим.",
+    "evidenceWindowInactive": "Активного вікна збору даних немає.",
+    "evidenceWindowActive": "Активне 14-денне вікно: {{start}} – {{end}}.",
+    "evidenceConsentLabel": "Збирати локальні агреговані дані",
+    "evidenceConsentHelp": "Лише локальні агреговані дані: кількість сеансів, результати завдань, надійність, доступність і причини повернення до Classic. Ніколи повідомлення, запити, вміст чи назви файлів, шляхи, URL, аргументи інструментів або довільний текст.",
+    "evidenceConsentControl": "Вимкнено до явного ввімкнення. Згоду можна відкликати будь-коли.",
+    "evidenceConsentUpdateFailed": "Wayland не вдалося оновити налаштування. Останній підтверджений вибір залишається чинним."
+  },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
   "settings": {},

@@ -19,6 +19,16 @@ describe('cohortBridge', () => {
     const runtime = {
       rolloutStatus: vi.fn(async () => ({ eligible: false, stage: null, source: 'none', reason: 'authority-missing' })),
       recordShellReturn: vi.fn(async () => ({ status: 'recorded' })),
+      assignmentStatus: vi.fn(async () => ({
+        available: true,
+        effectiveCohort: 'developer',
+        classifiedAtMs: 1234,
+        observationState: 'ready',
+      })),
+      requestAssignment: vi.fn(async (cohort: string) => ({
+        status: 'classified',
+        assignment: { available: true, effectiveCohort: cohort, classifiedAtMs: 1234, observationState: 'ready' },
+      })),
       consentStatus: vi.fn(async () => ({ enabled: false, acceptedAtMs: null, observationWindow: null })),
       setConsent: vi.fn(async (enabled: boolean) => ({
         status: enabled ? 'enabled' : 'disabled',
@@ -44,6 +54,19 @@ describe('cohortBridge', () => {
     });
     expect(runtime.recordShellReturn).toHaveBeenCalledWith('reliability');
     await expect(handlers.get('cohort:consent-status')(event)).resolves.toMatchObject({ enabled: false });
+    await expect(handlers.get('cohort:assignment-status')(event)).resolves.toMatchObject({
+      effectiveCohort: 'developer',
+    });
+    await expect(handlers.get('cohort:request-assignment')(event, 'operator')).resolves.toMatchObject({
+      assignment: { effectiveCohort: 'operator' },
+    });
+    await expect(handlers.get('cohort:request-assignment')(event, 'forged')).rejects.toThrow(
+      'COHORT_ASSIGNMENT_REQUEST_INVALID'
+    );
+    await expect(handlers.get('cohort:request-assignment')(event, { cohort: 'developer' })).rejects.toThrow(
+      'COHORT_ASSIGNMENT_REQUEST_INVALID'
+    );
+    expect(runtime.requestAssignment).toHaveBeenCalledWith('operator');
     await expect(handlers.get('cohort:set-consent')(event, true)).resolves.toMatchObject({ status: 'enabled' });
     await expect(handlers.get('cohort:set-consent')(event, 'true')).rejects.toThrow('COHORT_CONSENT_VALUE_INVALID');
     expect(runtime.setConsent).toHaveBeenCalledWith(true);

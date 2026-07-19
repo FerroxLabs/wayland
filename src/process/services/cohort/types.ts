@@ -4,14 +4,14 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { COCKPIT_RETURN_REASONS } from '@/common/types/cohortRollout';
+import { COCKPIT_RETURN_REASONS, COHORT_ASSIGNMENTS, type CohortAssignment } from '@/common/types/cohortRollout';
 
 export const M0B_SCHEMA_VERSION = 1 as const;
 export const M0B_OBSERVATION_WINDOW_DAYS = 14 as const;
 export const M0B_DAY_MS = 86_400_000;
 
-export const M0B_COHORTS = ['novice', 'knowledge-work', 'developer', 'operator'] as const;
-export type M0BCohort = (typeof M0B_COHORTS)[number];
+export const M0B_COHORTS = COHORT_ASSIGNMENTS;
+export type M0BCohort = CohortAssignment;
 
 export const M0B_SHELLS = ['classic', 'cockpit'] as const;
 export type M0BShell = (typeof M0B_SHELLS)[number];

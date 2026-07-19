@@ -6,7 +6,12 @@
 
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 
-import { COCKPIT_RETURN_REASONS, type CockpitReturnReason } from '@/common/types/cohortRollout';
+import {
+  COCKPIT_RETURN_REASONS,
+  COHORT_ASSIGNMENTS,
+  type CockpitReturnReason,
+  type CohortAssignment,
+} from '@/common/types/cohortRollout';
 import type { CohortProductionAPI } from '@process/services/cohort/ProductionCohortController';
 
 export type CohortBridgeSenderAuthority = (event: IpcMainInvokeEvent) => boolean;
@@ -31,6 +36,19 @@ export function initCohortBridge(
   ipcMain.handle('cohort:consent-status', async (event) => {
     assertSender(event, isAuthorizedSender);
     return (await runtimeReady).consentStatus();
+  });
+
+  ipcMain.handle('cohort:assignment-status', async (event) => {
+    assertSender(event, isAuthorizedSender);
+    return (await runtimeReady).assignmentStatus();
+  });
+
+  ipcMain.handle('cohort:request-assignment', async (event, value: unknown) => {
+    assertSender(event, isAuthorizedSender);
+    if (typeof value !== 'string' || !COHORT_ASSIGNMENTS.includes(value as CohortAssignment)) {
+      throw new Error('COHORT_ASSIGNMENT_REQUEST_INVALID');
+    }
+    return (await runtimeReady).requestAssignment(value);
   });
 
   ipcMain.handle('cohort:set-consent', async (event, enabled: unknown) => {

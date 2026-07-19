@@ -2579,6 +2579,23 @@
       "engineConfig": "Engine config integrity"
     }
   },
+  "navigationPage": {
+    "cohortAssignmentLabel": "Ihre Evaluierungsgruppe",
+    "cohortAssignmentHelp": "Wählen Sie die Gruppe, die Ihre Nutzung von Wayland am besten beschreibt. Wayland validiert und speichert die effektive Gruppe; diese Ansicht weist sie nicht direkt zu.",
+    "cohortAssignmentPlaceholder": "Gruppe auswählen",
+    "cohortAssignmentActive": "Während des aktiven Nachweiszeitraums gesperrt.",
+    "cohortAssignmentReady": "Klassifizierung bestätigt. Ein Nachweiszeitraum kann gestartet werden.",
+    "cohortAssignmentUnavailable": "Wählen Sie vor dem Start eines Nachweiszeitraums eine Gruppe.",
+    "cohort": { "novice": "Einstieg", "knowledge-work": "Wissensarbeit", "developer": "Entwicklung", "operator": "Betrieb" },
+    "evidenceChecking": "Einwilligung und Klassifizierung werden geprüft…",
+    "evidenceUnavailable": "Die Nachweisfreigabe ist in diesem Build nicht verfügbar und bleibt deaktiviert.",
+    "evidenceWindowInactive": "Kein Nachweiszeitraum ist aktiv.",
+    "evidenceWindowActive": "Aktiver 14-Tage-Zeitraum: {{start}} – {{end}}.",
+    "evidenceConsentLabel": "Lokale aggregierte Nachweise erfassen",
+    "evidenceConsentHelp": "Nur lokale aggregierte Nachweise: Sitzungszahlen, Aufgabenergebnisse, Zuverlässigkeit, Barrierefreiheit und Gründe für die Rückkehr zu Classic. Niemals Chatnachrichten, Prompts, Dateiinhalte, Dateinamen, Pfade, URLs, Werkzeugargumente oder Freitext.",
+    "evidenceConsentControl": "Aus, bis Sie es ausdrücklich aktivieren. Sie können die Einwilligung jederzeit widerrufen.",
+    "evidenceConsentUpdateFailed": "Wayland konnte diese Einstellung nicht aktualisieren. Die letzte bestätigte Auswahl bleibt wirksam."
+  },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
   "settings": {},

@@ -2580,6 +2580,23 @@
       "engineConfig": "Engine config integrity"
     }
   },
+  "navigationPage": {
+    "cohortAssignmentLabel": "你的評估群組",
+    "cohortAssignmentHelp": "選擇最符合你使用 Wayland 方式的群組。Wayland 會驗證並儲存實際群組；此頁面不能直接指派群組。",
+    "cohortAssignmentPlaceholder": "選擇一個群組",
+    "cohortAssignmentActive": "目前證據視窗有效期間無法變更。",
+    "cohortAssignmentReady": "分類已確認，可以啟動證據視窗。",
+    "cohortAssignmentUnavailable": "啟動證據視窗前請選擇一個群組。",
+    "cohort": { "novice": "開始使用", "knowledge-work": "知識工作", "developer": "開發者", "operator": "營運者" },
+    "evidenceChecking": "正在檢查同意與分類…",
+    "evidenceUnavailable": "此版本不支援證據分享，因此維持關閉。",
+    "evidenceWindowInactive": "目前沒有作用中的證據視窗。",
+    "evidenceWindowActive": "作用中的 14 天視窗：{{start}} – {{end}}。",
+    "evidenceConsentLabel": "收集本機彙總證據",
+    "evidenceConsentHelp": "僅收集本機彙總證據：工作階段數量、任務結果、可靠性、無障礙性以及返回 Classic 的原因。絕不收集聊天訊息、提示、檔案內容或名稱、路徑、URL、工具參數或自由文字。",
+    "evidenceConsentControl": "在你明確啟用前維持關閉。你可以隨時撤回同意。",
+    "evidenceConsentUpdateFailed": "Wayland 無法更新此設定。最後確認的選擇仍然有效。"
+  },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
   "settings": {},

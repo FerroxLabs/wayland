@@ -202,6 +202,16 @@ export interface IConfigStorageRefer {
     windowStartMs: number | null;
     windowEndMs: number | null;
   };
+  /** Main-process-owned closed cohort classification. Renderer input is never authoritative. */
+  'cohort.assignment'?: {
+    schemaVersion: 2;
+    classifierVersion: 1;
+    requestedCohort: import('@/common/types/cohortRollout').CohortAssignment;
+    effectiveCohort: import('@/common/types/cohortRollout').CohortAssignment;
+    classifiedAtMs: number;
+    windowStartMs: number | null;
+    windowEndMs: number | null;
+  };
   /**
    * v0.6.3 - When true, ijfwSystemService.bootstrap() short-circuits and
    * never spawns `npx @ijfw/install`. Wave 6 wires the Settings toggle.

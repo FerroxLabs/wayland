@@ -18,6 +18,9 @@ import type {
   CockpitReturnReason,
   CockpitReturnRecordResult,
   CockpitRolloutStatus,
+  CohortAssignment,
+  CohortAssignmentRequestResult,
+  CohortAssignmentStatus,
   CohortConsentStatus,
   CohortSetConsentResult,
 } from './cohortRollout';
@@ -98,6 +101,10 @@ export interface ElectronBridgeAPI {
   cohortRecordShellReturn?: (reason: CockpitReturnReason) => Promise<CockpitReturnRecordResult>;
   /** Explicit local evidence-consent state. */
   cohortConsentStatus?: () => Promise<CohortConsentStatus>;
+  /** Process-authoritative closed cohort classification. */
+  cohortAssignmentStatus?: () => Promise<CohortAssignmentStatus>;
+  /** Request classification; the main process owns the effective result. */
+  cohortRequestAssignment?: (cohort: CohortAssignment) => Promise<CohortAssignmentRequestResult>;
   /** Enable or revoke local evidence collection. */
   cohortSetConsent?: (enabled: boolean) => Promise<CohortSetConsentResult>;
   // Wayland Constitution: agent behavioral spec at ~/.wayland/CONSTITUTION.md

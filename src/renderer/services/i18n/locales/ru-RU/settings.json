@@ -2580,6 +2580,23 @@
       "engineConfig": "Engine config integrity"
     }
   },
+  "navigationPage": {
+    "cohortAssignmentLabel": "Ваша группа оценки",
+    "cohortAssignmentHelp": "Выберите группу, которая лучше всего описывает вашу работу с Wayland. Wayland проверяет и сохраняет итоговую группу; этот экран не назначает её напрямую.",
+    "cohortAssignmentPlaceholder": "Выберите группу",
+    "cohortAssignmentActive": "Заблокировано, пока активно текущее окно сбора данных.",
+    "cohortAssignmentReady": "Классификация подтверждена. Можно запустить окно сбора данных.",
+    "cohortAssignmentUnavailable": "Выберите группу перед запуском окна сбора данных.",
+    "cohort": { "novice": "Начало работы", "knowledge-work": "Интеллектуальная работа", "developer": "Разработчик", "operator": "Оператор" },
+    "evidenceChecking": "Проверка согласия и классификации…",
+    "evidenceUnavailable": "Обмен данными оценки недоступен в этой сборке и остаётся выключенным.",
+    "evidenceWindowInactive": "Активного окна сбора данных нет.",
+    "evidenceWindowActive": "Активное 14-дневное окно: {{start}} – {{end}}.",
+    "evidenceConsentLabel": "Собирать локальные агрегированные данные",
+    "evidenceConsentHelp": "Только локальные агрегированные данные: количество сессий, результаты задач, надёжность, доступность и причины возврата к Classic. Никогда сообщения чата, запросы, содержимое или имена файлов, пути, URL, аргументы инструментов или свободный текст.",
+    "evidenceConsentControl": "Выключено до явного включения. Согласие можно отозвать в любое время.",
+    "evidenceConsentUpdateFailed": "Wayland не удалось обновить настройку. Последний подтверждённый выбор остаётся в силе."
+  },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
