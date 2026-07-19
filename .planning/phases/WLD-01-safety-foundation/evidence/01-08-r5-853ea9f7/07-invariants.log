@@ -1,0 +1,17 @@
+receipt=invariants
+captured_at_utc=2026-07-19T20:11:45Z
+implementation_commit=853ea9f76023e6d1406ae5887b92fc00c9b0529d
+implementation_tree=907b217be36cefdcf02bec430656ef00face34d6
+environment_receipt=00-environment.log
+command=absence of generated wiki state; banned vocabulary scan; implementation diff check; tracked source identity check
+exit_code=0
+sanitization=redactCommandSecrets+conciergeDiagServer.redact fixed-point
+output_begin
+PASS .ijfw/wiki-state/index.json absent after aggregate
+PASS quarantine-eligible and quarantineEligible absent from src and tests
+PASS implementation diff check
+PASS tracked source tree unchanged after implementation commit
+PASS implementation HEAD ••••529d
+PASS implementation tree ••••34d6
+
+output_end

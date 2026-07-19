@@ -1,0 +1,20 @@
+receipt=focused-vitest
+captured_at_utc=2026-07-19T20:11:45Z
+implementation_commit=853ea9f76023e6d1406ae5887b92fc00c9b0529d
+implementation_tree=907b217be36cefdcf02bec430656ef00face34d6
+environment_receipt=00-environment.log
+command=GSD_RUNTIME=codex bunx vitest run tests/unit/workspaceRetention.test.ts tests/unit/managedWorkspaceInventory.test.ts tests/unit/managedWorkspaceProvenance.test.ts tests/unit/desktopManagedWorkspaceInventory.test.ts tests/unit/WorkerTaskManager.workspaceRetention.test.ts tests/unit/WCoreManagerProcessExit.test.ts tests/unit/wcoreStderrSurfacing.test.ts tests/unit/acpAgentManagerCronGuard.test.ts tests/unit/acpKillChild.test.ts tests/unit/conversationBridge.tray.test.ts tests/unit/initAgentPresetFallback.test.ts tests/unit/conversationBridge.workspaceRetention.test.ts tests/unit/conversationBridge.test.ts tests/unit/ConversationServiceImpl.test.ts tests/unit/ConversationChannelCleanup.test.ts tests/unit/SqliteConversationRepository.test.ts tests/unit/process/services/memory/promotionSweep.test.ts tests/unit/process/services/wiki/wikiAutoSync.test.ts tests/unit/process/bridge/workspaceRetentionBridge.test.ts tests/unit/bridgeAllowlistWorkspaceRetention.redteam.test.ts tests/unit/renderer/missionControlActivity.dom.test.tsx tests/unit/renderer/pages/settings/storage/ManagedWorkspacesCard.dom.test.tsx tests/unit/renderer/ConstitutionRecovery.dom.test.tsx
+exit_code=0
+sanitization=redactCommandSecrets+conciergeDiagServer.redact fixed-point
+output_begin
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/••••8-r4/app
+
+
+ Test Files  23 passed (23)
+      Tests  276 passed (276)
+   Start at  03:03:29
+   Duration  8.76s (transform 8.10s, setup 1.15s, import 31.39s, tests 11.14s, environment 3.02s)
+
+
+output_end

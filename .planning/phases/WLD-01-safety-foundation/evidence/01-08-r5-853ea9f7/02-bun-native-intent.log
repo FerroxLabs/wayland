@@ -1,0 +1,24 @@
+receipt=bun-native-intent
+captured_at_utc=2026-07-19T20:11:45Z
+implementation_commit=853ea9f76023e6d1406ae5887b92fc00c9b0529d
+implementation_tree=907b217be36cefdcf02bec430656ef00face34d6
+environment_receipt=00-environment.log
+command=bun test src/process/services/database/conversationChannelCleanupIntent.bun.test.ts
+exit_code=0
+sanitization=redactCommandSecrets+conciergeDiagServer.redact fixed-point
+output_begin
+bun test v1.3.11 (af24e281)
+
+src/process/services/database/••••tent.bun.test.ts:
+[Migration v55] Added durable conversation channel cleanup intents
+[Migration v55] Added durable conversation channel cleanup intents
+(pass) conversation channel cleanup intent native SQLite proof > retains the atomic intent and captured session identity across process restart [7.09ms]
+[Migration v55] Added durable conversation channel cleanup intents
+(pass) conversation channel cleanup intent native SQLite proof > binds eligibility to commit-time source and rolls intent back with a rejected delete [0.69ms]
+
+ 2 pass
+ 0 fail
+ 9 expect() calls
+Ran 2 tests across 1 file. [108.00ms]
+
+output_end

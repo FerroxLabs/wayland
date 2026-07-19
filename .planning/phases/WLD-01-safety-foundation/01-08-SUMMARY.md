@@ -38,6 +38,8 @@ key-files:
     - src/process/bridge/workspaceRetentionBridge.ts
     - src/process/task/AcpAgentManager.ts
     - src/process/task/WorkerTaskManager.ts
+    - src/process/task/WCoreManager.ts
+    - src/process/agent/wcore/index.ts
     - src/process/services/database/index.ts
     - src/process/services/database/migrations.ts
     - src/process/services/database/schema.ts
@@ -55,6 +57,7 @@ key-decisions:
   - 'Without a portable immutable filesystem snapshot, empty-looking shells remain preserved and unknown.'
   - 'A terminating agent remains active authority until shutdown resolves; failed shutdown retains the lease and chat.'
   - 'A failed termination attempt releases only operation ownership; the exact lease and terminal successor-refusal gate remain available for verified retry.'
+  - 'Wayland Core engine-tree shutdown failure remains observable after root exit; manager identity and profile authority survive until exact retry proves the same engine stopped.'
   - 'Conversation deletion atomically captures channel session identities and commit-time source before foreign keys can erase the lookup.'
   - 'Post-commit channel cleanup is idempotent, durably retried, replayed after restart, and retired only after all captured identities complete.'
   - 'Callback-time same-ID successors are refused and drained to a fixed point before removal can report success.'
@@ -120,7 +123,7 @@ status: successor-built-pending-independent-audit
 
 ## Performance
 
-- **Duration:** approximately 4 hours including five successor audits, repair, and aggregate proof
+- **Duration:** approximately 4 hours including six successor audits, repair, and aggregate proof
 - **Completed:** 2026-07-20
 - **Tasks:** 3
 - **Files owned:** 69
@@ -144,6 +147,7 @@ status: successor-built-pending-independent-audit
 - Made that post-commit cleanup a durable idempotent transaction intent, captured before `ON DELETE SET NULL`, retried after throws, and replayed on ChannelManager restart.
 - Moved cleanup eligibility to the transaction's commit-time source so a stale pre-gate source snapshot cannot suppress required cleanup.
 - Preserved the exact terminating lease and fail-closed successor gate after a transient kill failure while allowing a later identity-bound attempt to obtain real exit proof.
+- Propagated Wayland Core engine-tree shutdown failure through `WCoreManager.kill()`, retained the exact manager/profile authority on failure, and prevented a later root `exit` event from turning an unproved descendant shutdown into success.
 
 ## Task Commits
 
@@ -154,14 +158,17 @@ status: successor-built-pending-independent-audit
 5. **Alias, creation-identity, parser, and deterministic-test repair:** `6d4176d14d91b0c13bbe85d91c6324f617748377`
 6. **External-channel rollback repair:** `0b43c3609956d3538e2c0e7275febf5e84652958`
 7. **Durable cleanup and shutdown-retry repair:** `77687d43d996fbffc934fdba348639afea519e4a`
+8. **Wayland Core engine-exit authority repair:** `853ea9f76023e6d1406ae5887b92fc00c9b0529d`
 
 **Rejected predecessor:** `0b98288b02e0b65b260c7b3b1670bd5ea5b68419`
 
+**Rejected R4 evidence candidate:** `1f0f44c8927c78b675f023ebcfeadb8591750bd5` (test-only review commit `d726723ddad93a5d00141971d1f005ef45f7e67a` proved swallowed engine-tree shutdown failure)
+
 **Superseded repair candidate:** `0b43c3609956d3538e2c0e7275febf5e84652958` (evidence commit `0001046836e8d9e2c93fd4c1c225cfa112783f61`)
 
-**Repaired implementation candidate:** `77687d43d996fbffc934fdba348639afea519e4a`
+**Repaired implementation candidate:** `853ea9f76023e6d1406ae5887b92fc00c9b0529d`
 
-**Aggregate-proved source tree:** `0d5bec955c0fda8a923c296c186fdbd8311dc75f`
+**Aggregate-proved source tree:** `907b217be36cefdcf02bec430656ef00face34d6`
 
 **Acceptance state:** pending independent successor re-audit; no acceptance claim is made here.
 
@@ -174,10 +181,11 @@ status: successor-built-pending-independent-audit
 - The database transaction, not a bridge snapshot, is authoritative for channel-cleanup eligibility and captured session identity.
 - Cleanup is at-least-once until durable retirement; repeated external context clear and absent local sessions are treated idempotently.
 - A failed kill does not authorize a successor or discard the original lease, but it does permit a later shutdown attempt against that same identity.
+- Wayland Core shutdown is two-stage authority: root exit alone cannot clear a latched process-tree failure, while a transient pre-exit failure can retry the same child identity and clear authority only after proof succeeds.
 
 ## Deviations from Plan
 
-The independent audits reopened the plan five times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, post-commit external-channel cleanup ordering, durable restart replay, transaction-authoritative cleanup identity, and identity-bound shutdown retry. These changes enforce the plan's authority boundary without expanding lifecycle authority.
+The independent audits reopened the plan six times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, post-commit external-channel cleanup ordering, durable restart replay, transaction-authoritative cleanup identity, identity-bound shutdown retry, and observable Wayland Core engine-tree failure. These changes enforce the plan's authority boundary without expanding lifecycle authority.
 
 ## Issues Encountered
 
@@ -189,21 +197,22 @@ Managed-workspace lifecycle mutation (quarantine, restore, keep, delete, prune) 
 
 ## Self-Check
 
-BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed 243 focused Vitest tests, 2 focused Bun-native hostile tests, typecheck, scoped formatting, 15,207 aggregate Vitest tests, and 228 aggregate Bun-native tests. Scoped lint remained exactly baseline-neutral at 74 warnings and zero errors; the three new linted files introduced no findings. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
+BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed 276 focused Vitest tests, 2 focused Bun-native hostile tests, typecheck, scoped formatting, 15,210 aggregate Vitest tests, and 228 aggregate Bun-native tests. Changed-file lint passed with zero warnings and zero errors across the four Wayland Core engine-authority implementation/test files. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
 
 ## Retained Construction Evidence
 
-The SHA-bound receipts are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r4-77687d43/`. Ephemeral test-generated password values were not retained; aggregate counts and known warnings are recorded. These are builder receipts, not independent acceptance evidence.
+The SHA-bound receipts are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r5-853ea9f7/`. Unlike the superseded compact summaries, these receipts retain the sanitized command output, timestamp, environment identity, exact implementation commit/tree, and exit code. Secret-shaped values are passed through both the command-secret and diagnostics redactors before retention. These are builder receipts, not independent acceptance evidence.
 
 | Receipt                     | SHA-256                                                            |
 | --------------------------- | ------------------------------------------------------------------ |
-| `01-focused-vitest.log`     | `a2902e820e9686a89e0f87222dbc1098532536fe34bf9620c71fb7d64afaa653` |
-| `02-bun-native-intent.log`  | `75a82baaf6dd6c2c14473c989e3ce60b696a5379af1c5c538a5078eae299456c` |
-| `03-typecheck.log`          | `849bf63f0ed898b23fdd7279ca2ee17a2ca4988c61a759351bfee1f1108d0f8d` |
-| `04-scoped-lint.log`        | `8c520931e84f7437276ea73c1429836f468b455f2ab9cc4910e53e099ce3bfaa` |
-| `05-scoped-format-diff.log` | `7f1b8646fa49c7be343eddce06e8092b80fb194ceeb9888e53494ed39edbf26c` |
-| `06-full-aggregate.log`     | `ecdc2b1a8b3a538377c1427c4523f58e43f0eb158c3d9addc98bdc14b339dd6d` |
-| `07-invariants.log`         | `1098c197f0fee6a454a1a52ba1886b18d61ebbc8bb4c95a0a1aed850cefcb502` |
+| `00-environment.log`        | `70d70a6ba4c3bc6b3c0a02c6fd5d351d24b47eb8d4d68e87f19edca121fa4dd1` |
+| `01-focused-vitest.log`     | `e701b123500e4eec0d4205de686c198da159aa6659a0e3a70d0e0af8a98761e6` |
+| `02-bun-native-intent.log`  | `ece973a7d4b81d3254c4359f1df126c8b6cb4b4120ae7a0280cfa901206a6dbc` |
+| `03-typecheck.log`          | `91f4ebfb6755cc3e5dce7e5e436f5d02864c26372dc9acedc4093a9618e60f3c` |
+| `04-scoped-lint.log`        | `d72802f0ba253caaa173e5a79a4e4f44267ea44e56d7d65ab2fc44b41f8db8e9` |
+| `05-scoped-format-diff.log` | `6a4daa2a6ba2f24a75896a92d0410d2304d388ff415318063226e40590e43b56` |
+| `06-full-aggregate.log`     | `2e8a6daf8a026ef41473419fb4f2a169d4e5dd1dd12849c04b0937885e9ddfee` |
+| `07-invariants.log`         | `3f8461631bc197fd840082d82455ee448960c8a7b69dafd9260389ac41977872` |
 
 ---
 
