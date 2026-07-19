@@ -1,0 +1,3 @@
+$ oxlint .planning/execution
+Found 0 warnings and 0 errors.
+Finished in 30ms on 9 files with 128 rules using 10 threads.
