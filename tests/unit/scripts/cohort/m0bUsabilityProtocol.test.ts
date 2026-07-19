@@ -161,6 +161,11 @@ describe('M0B usability protocol', () => {
       {
         file: 'src/process/services/cohort/policy.ts',
         from: '  startsPerPrimaryJourney: 10,\n};',
+        to: '  startsPerPrimaryJourney: 10,\n};\nconst holder = { value: M0B_DEFAULT_MINIMUMS };\nholder.value.participantsTotal = 1;',
+      },
+      {
+        file: 'src/process/services/cohort/policy.ts',
+        from: '  startsPerPrimaryJourney: 10,\n};',
         to: "  startsPerPrimaryJourney: 10,\n};\nReflect.set(M0B_DEFAULT_MINIMUMS, 'participantsTotal', 1);",
       },
       {
