@@ -16,30 +16,30 @@ import type {
 import type { IMcpServer } from '@/common/config/storage';
 
 const { state, emitSpy, connectSpy, setSpy, getSpy, mcpUpdateSpy, writeRulesSpy, updateSpy } = vi.hoisted(() => {
-  const state = {
+  const hoistedState = {
     handler: null as null | ((p: ConciergeConfirmParams) => Promise<ConciergeConfirmResult>),
     msg: null as Record<string, unknown> | null,
     mcpServers: [] as IMcpServer[],
   };
-  const setSpy = vi.fn(async () => {});
+  const hoistedSetSpy = vi.fn(async () => {});
   return {
-    state,
+    state: hoistedState,
     emitSpy: vi.fn(),
     connectSpy: vi.fn(async () => ({
       ok: true as boolean,
       error: undefined as string | undefined,
       warning: undefined as string | undefined,
     })),
-    setSpy,
+    setSpy: hoistedSetSpy,
     getSpy: vi.fn(async () => [] as unknown[]),
     mcpUpdateSpy: vi.fn(async (mutator: (current: IMcpServer[]) => IMcpServer[] | Promise<IMcpServer[]>) => {
-      state.mcpServers = structuredClone(await mutator(structuredClone(state.mcpServers)));
-      return { revision: '0'.repeat(64), servers: structuredClone(state.mcpServers) };
+      hoistedState.mcpServers = structuredClone(await mutator(structuredClone(hoistedState.mcpServers)));
+      return { revision: '0'.repeat(64), servers: structuredClone(hoistedState.mcpServers) };
     }),
     writeRulesSpy: vi.fn(async () => true),
     updateSpy: vi.fn((_id: string, m: Record<string, unknown>) => {
       // Persist the transition so the status guard sees the latest state.
-      state.msg = m;
+      hoistedState.msg = m;
     }),
   };
 });
