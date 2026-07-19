@@ -17,6 +17,16 @@ const setPassword = vi.hoisted(() =>
 );
 const configGet = vi.hoisted(() => vi.fn(async () => undefined));
 const configUpdate = vi.hoisted(() => vi.fn(async () => undefined));
+const showMessageBox = vi.hoisted(() => vi.fn(async () => ({ response: 1 })));
+const translate = vi.hoisted(() =>
+  vi.fn((key: string, options?: { cohort?: string }) =>
+    key === 'settings.navigationPage.cohort.knowledge-work'
+      ? 'Localized knowledge work'
+      : options?.cohort
+        ? `${key}:${options.cohort}`
+        : key
+  )
+);
 
 vi.mock('keytar', () => ({ getPassword, setPassword }));
 vi.mock('electron', () => ({
@@ -25,13 +35,13 @@ vi.mock('electron', () => ({
     getVersion: () => '0.12.0-test',
     isPackaged: true,
   },
-  dialog: { showMessageBox: vi.fn() },
+  dialog: { showMessageBox },
 }));
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { get: configGet, update: configUpdate },
 }));
 vi.mock('@process/services/i18n', () => ({
-  default: { t: (key: string) => key },
+  default: { t: translate },
   i18nReady: Promise.resolve(),
 }));
 
@@ -48,9 +58,10 @@ describe('production cohort OS credential vault', () => {
     const first = await createProductionCohortController();
     await expect(first.authorityStatus()).resolves.toMatchObject({ generation: null });
 
-    expect(setPassword).toHaveBeenCalledTimes(2);
+    expect(setPassword).toHaveBeenCalledTimes(3);
     expect([...vault.keys()].some((key) => key.endsWith(':installation'))).toBe(true);
-    expect([...vault.keys()].some((key) => key.endsWith(':authority'))).toBe(true);
+    expect([...vault.keys()].some((key) => key.endsWith(':lineage'))).toBe(true);
+    expect([...vault.keys()].some((key) => key.endsWith(':migration-consumed'))).toBe(true);
     expect(configUpdate).toHaveBeenCalledTimes(3);
 
     vi.clearAllMocks();
@@ -59,6 +70,22 @@ describe('production cohort OS credential vault', () => {
     expect(setPassword).not.toHaveBeenCalled();
     expect(configGet).not.toHaveBeenCalled();
     expect(configUpdate).not.toHaveBeenCalled();
+  });
+
+  it('[LF-03] renders the native confirmation with the localized cohort label', async () => {
+    const controller = await createProductionCohortController();
+
+    await expect(controller.requestAssignment('knowledge-work')).resolves.toMatchObject({ status: 'classified' });
+
+    expect(translate).toHaveBeenCalledWith('settings.navigationPage.cohort.knowledge-work');
+    expect(translate).toHaveBeenCalledWith('settings.navigationPage.cohortConfirmationMessage', {
+      cohort: 'Localized knowledge work',
+    });
+    expect(showMessageBox).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'settings.navigationPage.cohortConfirmationMessage:Localized knowledge work',
+      })
+    );
   });
 
   it('[MF-01] fails closed when the OS credential vault is unavailable', async () => {
@@ -71,7 +98,8 @@ describe('production cohort OS credential vault', () => {
   it.each(['file:v1:fallback', 'enc:v1:old-backend', '{"schemaVersion":1}'])(
     '[MF-01] never activates config/file/safe-storage material as vault authority: %s',
     async (foreignValue) => {
-      await createProductionCohortController();
+      const controller = await createProductionCohortController();
+      await controller.requestAssignment('novice');
       const authorityKey = [...vault.keys()].find((key) => key.endsWith(':authority'))!;
       vault.set(authorityKey, foreignValue);
       vi.clearAllMocks();

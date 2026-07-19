@@ -78,6 +78,8 @@ async function fixture(
   let persistedConsent = initialConsent;
   let persistedAssignment = initialAssignment;
   let persistedAuthority: unknown;
+  let persistedLineage: unknown;
+  let persistedMigrationMarker: unknown;
   const fixtureSecret = Buffer.from('01-01-hostile-fixture-authority-key');
   const protectAuthority = (plaintext: string): string => {
     const payload = Buffer.from(plaintext).toString('base64url');
@@ -117,8 +119,7 @@ async function fixture(
   if (matches && seedAuthenticated && currentAssignment) {
     persistedAuthority = protectAuthority(
       JSON.stringify({
-        schemaVersion: 1,
-        migrationConsumed: true,
+        schemaVersion: 2,
         authority: {
           schemaVersion: 3,
           generation: 1,
@@ -134,6 +135,21 @@ async function fixture(
           windowStartMs: currentAssignment.windowStartMs,
           windowEndMs: currentAssignment.windowEndMs,
         },
+      })
+    );
+    persistedLineage = protectAuthority(
+      JSON.stringify({
+        schemaVersion: 1,
+        installationIdHash: cohortInstallationIdHash(overrides.installIdentity ?? 'install-alpha'),
+        authorityId: 'authority-fixture',
+        generation: 1,
+      })
+    );
+    persistedMigrationMarker = protectAuthority(
+      JSON.stringify({
+        schemaVersion: 1,
+        installationIdHash: cohortInstallationIdHash(overrides.installIdentity ?? 'install-alpha'),
+        consumed: true,
       })
     );
   }
@@ -169,6 +185,18 @@ async function fixture(
       };
     }),
   };
+  const lineageStore: CohortAuthorityStore = {
+    get: vi.fn(async () => persistedLineage),
+    set: vi.fn(async (value) => {
+      persistedLineage = value;
+    }),
+  };
+  const migrationMarkerStore: CohortAuthorityStore = {
+    get: vi.fn(async () => persistedMigrationMarker),
+    set: vi.fn(async (value) => {
+      persistedMigrationMarker = value;
+    }),
+  };
   const { seedAuthenticated: _seedAuthenticated, ...environmentOverrides } = overrides;
   const environment: CohortProductionEnvironment = {
     userDataPath: path.join(root, 'user-data'),
@@ -178,6 +206,8 @@ async function fixture(
     releaseTrack: 'preview',
     installIdentity: 'install-alpha',
     authorityStore,
+    lineageStore,
+    migrationMarkerStore,
     consentStore,
     assignmentStore,
     protectAuthority,
@@ -190,15 +220,21 @@ async function fixture(
   };
   const controller = await createCohortProductionController(environment);
   vi.mocked(authorityStore.set).mockClear();
+  vi.mocked(lineageStore.set).mockClear();
+  vi.mocked(migrationMarkerStore.set).mockClear();
   return {
     root,
     consentStore,
     assignmentStore,
     authorityStore,
+    lineageStore,
+    migrationMarkerStore,
     environment,
     persistedConsent: () => persistedConsent,
     persistedAssignment: () => persistedAssignment,
     persistedAuthority: () => persistedAuthority,
+    persistedLineage: () => persistedLineage,
+    persistedMigrationMarker: () => persistedMigrationMarker,
     setRawAuthority: (value: unknown) => {
       persistedAuthority = value;
     },
@@ -318,6 +354,23 @@ describe('ProductionCohortController cohort authority', () => {
     });
   });
 
+  it('[HF-01] rejects an old valid authority replayed after its independent lineage advances', async () => {
+    const subject = await fixture(disabledConsent);
+    await subject.controller.requestAssignment('developer');
+    const capturedOldAuthority = subject.persistedAuthority();
+    await subject.controller.setConsent(true);
+    await subject.controller.setConsent(false);
+
+    subject.setRawAuthority(capturedOldAuthority);
+    const restarted = await createCohortProductionController(subject.environment);
+
+    await expect(restarted.authorityStatus()).resolves.toMatchObject({
+      generation: null,
+      assignment: { available: false, effectiveCohort: null, observationState: 'unavailable' },
+      consent: { enabled: false },
+    });
+  });
+
   it('[HF-01] rejects a credential-vault record copied to a different installation identity', async () => {
     const source = await fixture(disabledConsent);
     await source.controller.requestAssignment('operator');
@@ -419,6 +472,32 @@ describe('ProductionCohortController cohort authority', () => {
       vi.mocked(subject.consentStore.get).mock.calls.length,
       vi.mocked(subject.assignmentStore.get).mock.calls.length,
     ]).toEqual(legacyReads);
+  });
+
+  it('[HF-02] cannot remigrate a legacy token after the replaceable authority is deleted', async () => {
+    const prior = {
+      schemaVersion: 1,
+      cohort: 'operator',
+      classifiedAtMs: NOW,
+      windowStartMs: NOW,
+      windowEndMs: END,
+    } as const;
+    const subject = await fixture(enabledConsent, prior, () => NOW, { seedAuthenticated: false });
+    const readsAfterMigration = [
+      vi.mocked(subject.consentStore.get).mock.calls.length,
+      vi.mocked(subject.assignmentStore.get).mock.calls.length,
+    ];
+    subject.setRawAuthority(undefined);
+    subject.setLegacy(enabledConsent, prior);
+
+    const restarted = await createCohortProductionController(subject.environment);
+
+    await expect(restarted.authorityStatus()).resolves.toMatchObject({ generation: null });
+    expect([
+      vi.mocked(subject.consentStore.get).mock.calls.length,
+      vi.mocked(subject.assignmentStore.get).mock.calls.length,
+    ]).toEqual(readsAfterMigration);
+    expect(subject.persistedMigrationMarker()).toEqual(expect.any(String));
   });
 
   it('[HF-02] requires fresh native confirmation and never promotes a legacy consent window', async () => {
@@ -744,6 +823,58 @@ describe('ProductionCohortController observation lifecycle', () => {
     }
   });
 
+  it('[HF-03] cannot return eligible when revocation wins during paused rollout evaluation', async () => {
+    const rolloutNow = END + 1_000;
+    const baselineAggregateDigest = `sha256:${'a'.repeat(64)}` as const;
+    let releaseEvidence!: () => void;
+    let evidenceStarted!: () => void;
+    const started = new Promise<void>((resolve) => {
+      evidenceStarted = resolve;
+    });
+    const evidenceGate = new Promise<void>((resolve) => {
+      releaseEvidence = resolve;
+    });
+    const subject = await fixture(enabledConsent, assignment('operator', true), () => rolloutNow, {
+      isPackaged: true,
+      appVersion: '0.12.0-preview.1',
+      releaseTrack: 'preview',
+      acceptedEvidence: async () => {
+        evidenceStarted();
+        await evidenceGate;
+        return {
+          authorityId: 'authority-fixture',
+          authorityGeneration: 1,
+          windowId: 'window-fixture',
+          completedAtMs: END,
+          baselineAggregateDigest,
+        };
+      },
+    });
+    vi.useFakeTimers();
+    vi.setSystemTime(rolloutNow);
+    try {
+      await installRolloutAuthority(subject.environment, {
+        cohort: 'operator',
+        window: { startMs: NOW, endMs: END },
+        now: rolloutNow,
+      });
+      const evaluating = subject.controller.rolloutStatus();
+      await started;
+      const revoked = subject.controller.setConsent(false);
+      await expect(revoked).resolves.toMatchObject({ status: 'disabled' });
+      releaseEvidence();
+
+      await expect(evaluating).resolves.toEqual({
+        eligible: false,
+        stage: 'internal-dogfood',
+        source: 'none',
+        reason: 'evidence-gate-failed',
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('[WR-01] treats malformed and unreadable consent as unavailable rather than disabled', async () => {
     const malformed = await fixture({ ...disabledConsent, extraAuthority: true }, assignment('developer'));
     const unreadable = await fixture(disabledConsent, assignment('developer'), () => NOW, {
@@ -828,6 +959,7 @@ describe('cohort native confirmation localization', () => {
       'cohortConfirmationConfirm',
       'evidenceWindowCompleted',
     ];
+    const cohortKeys = ['novice', 'knowledge-work', 'developer', 'operator'];
     for (const locale of locales) {
       // oxlint-disable-next-line no-await-in-loop
       const parsed = JSON.parse(
@@ -840,6 +972,11 @@ describe('cohort native confirmation localization', () => {
       for (const key of keys) {
         expect(parsed.navigationPage?.[key], `${locale}:${key}`).toEqual(expect.any(String));
         expect(String(parsed.navigationPage?.[key]).length, `${locale}:${key}`).toBeGreaterThan(0);
+      }
+      const cohort = parsed.navigationPage?.cohort as Record<string, unknown> | undefined;
+      for (const key of cohortKeys) {
+        expect(cohort?.[key], `${locale}:cohort.${key}`).toEqual(expect.any(String));
+        expect(String(cohort?.[key]).length, `${locale}:cohort.${key}`).toBeGreaterThan(0);
       }
     }
   });

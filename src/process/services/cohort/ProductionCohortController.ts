@@ -77,9 +77,21 @@ type CohortAuthorityEnvelope = {
 };
 
 type CohortAuthorityRecord = Readonly<{
+  schemaVersion: 2;
+  authority: CohortAuthorityEnvelope;
+}>;
+
+type CohortLineageAnchor = Readonly<{
   schemaVersion: 1;
-  migrationConsumed: true;
-  authority: CohortAuthorityEnvelope | null;
+  installationIdHash: `sha256:${string}`;
+  authorityId: string | null;
+  generation: number;
+}>;
+
+type CohortMigrationMarker = Readonly<{
+  schemaVersion: 1;
+  installationIdHash: `sha256:${string}`;
+  consumed: true;
 }>;
 
 export type CohortAcceptedEvidence = Readonly<{
@@ -103,6 +115,10 @@ export type CohortAuthorityStore = Readonly<{
   set(value: string): Promise<void>;
 }>;
 
+export type CohortLineageStore = CohortAuthorityStore;
+
+export type CohortMigrationMarkerStore = CohortAuthorityStore;
+
 export type CohortProductionEnvironment = Readonly<{
   userDataPath: string;
   resourcesPath: string;
@@ -111,6 +127,10 @@ export type CohortProductionEnvironment = Readonly<{
   releaseTrack: WaylandReleaseTrack;
   installIdentity: string;
   authorityStore: CohortAuthorityStore;
+  /** Independent monotonic anchor. A replayed authority must match it exactly. */
+  lineageStore: CohortLineageStore;
+  /** Independent one-shot marker. Authority deletion must never reopen migration. */
+  migrationMarkerStore: CohortMigrationMarkerStore;
   /** Read-only, exact-schema sources for the single supported migration. */
   consentStore: CohortConsentStore;
   assignmentStore: CohortAssignmentStore;
@@ -167,7 +187,20 @@ export class ProductionCohortController implements CohortProductionAPI {
 
   async rolloutStatus(): Promise<CockpitRolloutStatus> {
     await this.queue;
-    return this.rollout.status();
+    const authoritySnapshot = this.authority;
+    const result = await this.rollout.status();
+    if (!this.environment.isPackaged || !result.eligible) return result;
+
+    return this.enqueue(async () =>
+      sameRolloutAuthority(authoritySnapshot, this.authority, this.now())
+        ? result
+        : {
+            eligible: false,
+            stage: 'internal-dogfood',
+            source: 'none',
+            reason: 'evidence-gate-failed',
+          }
+    );
   }
 
   async assignmentStatus(): Promise<CohortAssignmentStatus> {
@@ -281,10 +314,10 @@ export class ProductionCohortController implements CohortProductionAPI {
 
   private async publish(next: CohortAuthorityEnvelope): Promise<boolean> {
     try {
-      const record: CohortAuthorityRecord = { schemaVersion: 1, migrationConsumed: true, authority: next };
-      const sealed = await this.environment.protectAuthority(JSON.stringify(record));
-      if (typeof sealed !== 'string' || sealed.length === 0) throw new Error('COHORT_AUTHORITY_SEAL_INVALID');
-      await this.environment.authorityStore.set(sealed);
+      const record: CohortAuthorityRecord = { schemaVersion: 2, authority: next };
+      const lineage = toLineageAnchor(next, this.environment.installIdentity);
+      await this.environment.authorityStore.set(await sealRecord(this.environment, record));
+      await this.environment.lineageStore.set(await sealRecord(this.environment, lineage));
       return true;
     } catch {
       return false;
@@ -292,13 +325,14 @@ export class ProductionCohortController implements CohortProductionAPI {
   }
 
   private async rolloutAuthorityScope(): Promise<CohortRolloutAuthorityScope | null> {
+    const authority = this.authority;
     if (
-      this.authority === null ||
-      !this.authority.consentEnabled ||
-      this.authority.windowId === null ||
-      this.authority.windowStartMs === null ||
-      this.authority.windowEndMs === null ||
-      this.now() < this.authority.windowEndMs
+      authority === null ||
+      !authority.consentEnabled ||
+      authority.windowId === null ||
+      authority.windowStartMs === null ||
+      authority.windowEndMs === null ||
+      this.now() < authority.windowEndMs
     ) {
       return null;
     }
@@ -306,19 +340,19 @@ export class ProductionCohortController implements CohortProductionAPI {
     if (
       accepted === undefined ||
       accepted === null ||
-      accepted.authorityId !== this.authority.authorityId ||
-      accepted.authorityGeneration !== this.authority.generation ||
-      accepted.windowId !== this.authority.windowId ||
-      accepted.completedAtMs < this.authority.windowEndMs
+      accepted.authorityId !== authority.authorityId ||
+      accepted.authorityGeneration !== authority.generation ||
+      accepted.windowId !== authority.windowId ||
+      accepted.completedAtMs < authority.windowEndMs
     ) {
       return null;
     }
     return {
-      authorityId: this.authority.authorityId,
-      authorityGeneration: this.authority.generation,
-      cohort: this.authority.effectiveCohort,
-      windowId: this.authority.windowId,
-      window: { startMs: this.authority.windowStartMs, endMs: this.authority.windowEndMs },
+      authorityId: authority.authorityId,
+      authorityGeneration: authority.generation,
+      cohort: authority.effectiveCohort,
+      windowId: authority.windowId,
+      window: { startMs: authority.windowStartMs, endMs: authority.windowEndMs },
       evidenceCompletedAtMs: accepted.completedAtMs,
       baselineAggregateDigest: accepted.baselineAggregateDigest,
     };
@@ -363,9 +397,22 @@ export class ProductionCohortController implements CohortProductionAPI {
 export async function createCohortProductionController(
   environment: CohortProductionEnvironment
 ): Promise<ProductionCohortController> {
-  const current = await readAuthenticatedAuthority(environment);
-  if (current.kind === 'valid') return new ProductionCohortController(environment, current.record.authority);
-  if (current.kind === 'invalid') return new ProductionCohortController(environment, null);
+  const [current, lineage, migration] = await Promise.all([
+    readAuthenticatedAuthority(environment),
+    readLineageAnchor(environment),
+    readMigrationMarker(environment),
+  ]);
+  if (
+    current.kind === 'valid' &&
+    lineage.kind === 'valid' &&
+    migration.kind === 'valid' &&
+    authorityMatchesLineage(current.record.authority, lineage.record)
+  ) {
+    return new ProductionCohortController(environment, current.record.authority);
+  }
+  if (current.kind !== 'absent' || lineage.kind !== 'absent' || migration.kind !== 'absent') {
+    return new ProductionCohortController(environment, null);
+  }
 
   const migrated = await consumeLegacyMigration(environment);
   return new ProductionCohortController(environment, migrated);
@@ -392,6 +439,14 @@ export async function createProductionCohortController(): Promise<ProductionCoho
       get: () => keytar.getPassword(KEYCHAIN_SERVICE, `${account}:authority`),
       set: (value) => keytar.setPassword(KEYCHAIN_SERVICE, `${account}:authority`, value),
     },
+    lineageStore: {
+      get: () => keytar.getPassword(KEYCHAIN_SERVICE, `${account}:lineage`),
+      set: (value) => keytar.setPassword(KEYCHAIN_SERVICE, `${account}:lineage`, value),
+    },
+    migrationMarkerStore: {
+      get: () => keytar.getPassword(KEYCHAIN_SERVICE, `${account}:migration-consumed`),
+      set: (value) => keytar.setPassword(KEYCHAIN_SERVICE, `${account}:migration-consumed`, value),
+    },
     consentStore: { get: () => ProcessConfig.get(CONSENT_KEY) },
     assignmentStore: { get: () => ProcessConfig.get(ASSIGNMENT_KEY) },
     // The whole record lives in the OS credential vault. No file-backend or
@@ -405,10 +460,11 @@ export async function createProductionCohortController(): Promise<ProductionCoho
     },
     confirmAssignment: async (requestedCohort) => {
       await i18nReady;
+      const localizedCohort = i18n.t(`settings.navigationPage.cohort.${requestedCohort}`);
       const result = await dialog.showMessageBox({
         type: 'question',
         title: i18n.t('settings.navigationPage.cohortConfirmationTitle'),
-        message: i18n.t('settings.navigationPage.cohortConfirmationMessage', { cohort: requestedCohort }),
+        message: i18n.t('settings.navigationPage.cohortConfirmationMessage', { cohort: localizedCohort }),
         detail: i18n.t('settings.navigationPage.cohortConfirmationDetail'),
         buttons: [
           i18n.t('settings.navigationPage.cohortConfirmationCancel'),
@@ -428,6 +484,16 @@ type AuthorityRead =
   | Readonly<{ kind: 'invalid' }>
   | Readonly<{ kind: 'valid'; record: CohortAuthorityRecord }>;
 
+type LineageRead =
+  | Readonly<{ kind: 'absent' }>
+  | Readonly<{ kind: 'invalid' }>
+  | Readonly<{ kind: 'valid'; record: CohortLineageAnchor }>;
+
+type MigrationRead =
+  | Readonly<{ kind: 'absent' }>
+  | Readonly<{ kind: 'invalid' }>
+  | Readonly<{ kind: 'valid'; record: CohortMigrationMarker }>;
+
 async function readAuthenticatedAuthority(environment: CohortProductionEnvironment): Promise<AuthorityRead> {
   let raw: unknown;
   try {
@@ -440,6 +506,46 @@ async function readAuthenticatedAuthority(environment: CohortProductionEnvironme
   try {
     const parsed = JSON.parse(await environment.unprotectAuthority(raw)) as unknown;
     const record = parseAuthorityRecord(parsed, environment.installIdentity);
+    return record ? { kind: 'valid', record } : { kind: 'invalid' };
+  } catch {
+    return { kind: 'invalid' };
+  }
+}
+
+async function readLineageAnchor(environment: CohortProductionEnvironment): Promise<LineageRead> {
+  let raw: unknown;
+  try {
+    raw = await environment.lineageStore.get();
+  } catch {
+    return { kind: 'invalid' };
+  }
+  if (raw === undefined || raw === null) return { kind: 'absent' };
+  if (typeof raw !== 'string' || raw.length === 0) return { kind: 'invalid' };
+  try {
+    const record = parseLineageAnchor(
+      JSON.parse(await environment.unprotectAuthority(raw)),
+      environment.installIdentity
+    );
+    return record ? { kind: 'valid', record } : { kind: 'invalid' };
+  } catch {
+    return { kind: 'invalid' };
+  }
+}
+
+async function readMigrationMarker(environment: CohortProductionEnvironment): Promise<MigrationRead> {
+  let raw: unknown;
+  try {
+    raw = await environment.migrationMarkerStore.get();
+  } catch {
+    return { kind: 'invalid' };
+  }
+  if (raw === undefined || raw === null) return { kind: 'absent' };
+  if (typeof raw !== 'string' || raw.length === 0) return { kind: 'invalid' };
+  try {
+    const record = parseMigrationMarker(
+      JSON.parse(await environment.unprotectAuthority(raw)),
+      environment.installIdentity
+    );
     return record ? { kind: 'valid', record } : { kind: 'invalid' };
   } catch {
     return { kind: 'invalid' };
@@ -491,9 +597,21 @@ async function persistMigrationRecord(
   authority: CohortAuthorityEnvelope | null
 ): Promise<CohortAuthorityEnvelope | null> {
   try {
-    const record: CohortAuthorityRecord = { schemaVersion: 1, migrationConsumed: true, authority };
-    const sealed = await environment.protectAuthority(JSON.stringify(record));
-    await environment.authorityStore.set(sealed);
+    const installationIdHash = cohortInstallationIdHash(environment.installIdentity);
+    const marker: CohortMigrationMarker = { schemaVersion: 1, installationIdHash, consumed: true };
+    await environment.migrationMarkerStore.set(await sealRecord(environment, marker));
+    if (authority !== null) {
+      const record: CohortAuthorityRecord = { schemaVersion: 2, authority };
+      await environment.authorityStore.set(await sealRecord(environment, record));
+    }
+    await environment.lineageStore.set(
+      await sealRecord(
+        environment,
+        authority === null
+          ? { schemaVersion: 1, installationIdHash, authorityId: null, generation: 0 }
+          : toLineageAnchor(authority, environment.installIdentity)
+      )
+    );
   } catch {
     return null;
   }
@@ -510,17 +628,80 @@ async function persistMigrationRecord(
 
 function parseAuthorityRecord(input: unknown, installIdentity: string): CohortAuthorityRecord | null {
   if (!isRecord(input)) return null;
-  const keys = ['authority', 'migrationConsumed', 'schemaVersion'].toSorted();
+  const keys = ['authority', 'schemaVersion'].toSorted();
+  if (Object.keys(input).toSorted().join('\0') !== keys.join('\0') || input.schemaVersion !== 2) return null;
+  const authority = parseAuthorityEnvelope(input.authority, installIdentity);
+  return authority ? Object.freeze({ schemaVersion: 2, authority }) : null;
+}
+
+function parseLineageAnchor(input: unknown, installIdentity: string): CohortLineageAnchor | null {
+  if (!isRecord(input)) return null;
+  const keys = ['authorityId', 'generation', 'installationIdHash', 'schemaVersion'].toSorted();
   if (
     Object.keys(input).toSorted().join('\0') !== keys.join('\0') ||
     input.schemaVersion !== 1 ||
-    input.migrationConsumed !== true
+    input.installationIdHash !== cohortInstallationIdHash(installIdentity) ||
+    !Number.isSafeInteger(input.generation) ||
+    Number(input.generation) < 0 ||
+    !(
+      (input.generation === 0 && input.authorityId === null) ||
+      (Number(input.generation) >= 1 && typeof input.authorityId === 'string' && input.authorityId.length > 0)
+    )
   ) {
     return null;
   }
-  if (input.authority === null) return input as CohortAuthorityRecord;
-  const authority = parseAuthorityEnvelope(input.authority, installIdentity);
-  return authority ? Object.freeze({ schemaVersion: 1, migrationConsumed: true, authority }) : null;
+  return input as CohortLineageAnchor;
+}
+
+function parseMigrationMarker(input: unknown, installIdentity: string): CohortMigrationMarker | null {
+  if (!isRecord(input)) return null;
+  const keys = ['consumed', 'installationIdHash', 'schemaVersion'].toSorted();
+  if (
+    Object.keys(input).toSorted().join('\0') !== keys.join('\0') ||
+    input.schemaVersion !== 1 ||
+    input.installationIdHash !== cohortInstallationIdHash(installIdentity) ||
+    input.consumed !== true
+  ) {
+    return null;
+  }
+  return input as CohortMigrationMarker;
+}
+
+function toLineageAnchor(authority: CohortAuthorityEnvelope, installIdentity: string): CohortLineageAnchor {
+  return Object.freeze({
+    schemaVersion: 1,
+    installationIdHash: cohortInstallationIdHash(installIdentity),
+    authorityId: authority.authorityId,
+    generation: authority.generation,
+  });
+}
+
+function authorityMatchesLineage(authority: CohortAuthorityEnvelope, lineage: CohortLineageAnchor): boolean {
+  return authority.authorityId === lineage.authorityId && authority.generation === lineage.generation;
+}
+
+async function sealRecord(environment: CohortProductionEnvironment, record: unknown): Promise<string> {
+  const sealed = await environment.protectAuthority(JSON.stringify(record));
+  if (typeof sealed !== 'string' || sealed.length === 0) throw new Error('COHORT_AUTHORITY_SEAL_INVALID');
+  return sealed;
+}
+
+function sameRolloutAuthority(
+  snapshot: CohortAuthorityEnvelope | null,
+  current: CohortAuthorityEnvelope | null,
+  now: number
+): boolean {
+  return (
+    snapshot !== null &&
+    current !== null &&
+    snapshot.authorityId === current.authorityId &&
+    snapshot.generation === current.generation &&
+    current.consentEnabled &&
+    current.windowId !== null &&
+    current.windowStartMs !== null &&
+    current.windowEndMs !== null &&
+    now >= current.windowEndMs
+  );
 }
 
 function parseAuthorityEnvelope(input: unknown, installIdentity: string): CohortAuthorityEnvelope | null {
