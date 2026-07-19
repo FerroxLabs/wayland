@@ -224,6 +224,16 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
 
   // ── Heartbeat activation/deactivation ────────────────────────────
 
+  describe('shutdown proof', () => {
+    it('rejects shutdown when the Wayland Core engine tree exit is unproved', async () => {
+      const engine = { kill: vi.fn().mockRejectedValue(new Error('engine tree still alive')) };
+      (manager as unknown as { agent: typeof engine }).agent = engine;
+      (manager as unknown as { agentReady: Promise<void> }).agentReady = Promise.resolve();
+
+      await expect(manager.kill()).rejects.toThrow('engine tree still alive');
+    });
+  });
+
   describe('heartbeat activation on stream lifecycle', () => {
     it('activates heartbeat on stream_start', () => {
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
