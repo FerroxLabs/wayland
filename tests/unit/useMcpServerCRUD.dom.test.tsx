@@ -233,6 +233,29 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(sync).toHaveBeenCalledWith(server, true);
     expect(stored[0]).toMatchObject({ enabled: true, status: 'error' });
   });
+
+  it('surfaces an incomplete publication rollback instead of hiding external divergence', async () => {
+    let stored = [server];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn().mockRejectedValue(new Error('partial removal'));
+    const sync = vi.fn().mockRejectedValue(new Error('restore rejected'));
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(sync).toHaveBeenCalledWith(server, true);
+    expect(stored[0]).toMatchObject({ enabled: true, status: 'error' });
+    expect(stored[0].lastError).toMatch(/rollback|restore|reconcil/i);
+    expect(message.error).toHaveBeenCalledWith(
+      expect.objectContaining({ content: expect.stringMatching(/rollback|restore|reconcil/i) })
+    );
+  });
 });
 
 describe('useMcpServerCRUD', () => {
