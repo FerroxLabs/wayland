@@ -180,6 +180,29 @@ describe('CohortJourneyObserver', () => {
     await expect(observer.completeJourney(journey.handle)).resolves.toEqual({ status: 'recorded' });
   });
 
+  it('reuses lifecycle identity when an ambiguous storage failure is retried', async () => {
+    const observedEvents: Array<{ eventId: string; kind: string }> = [];
+    let firstAttempt = true;
+    const record = vi.fn(async (event: { eventId: string; kind: string }): Promise<M0BRecordResult> => {
+      // A repository can publish the event and still report a later durability
+      // failure. The caller cannot know whether the first event is visible.
+      observedEvents.push(event);
+      if (firstAttempt) {
+        firstAttempt = false;
+        return { status: 'storage_error' };
+      }
+      return { status: 'recorded' };
+    });
+    const { observer } = harness(record as never);
+
+    await expect(observer.startSession()).resolves.toEqual({ status: 'storage_error' });
+    await expect(observer.startSession()).resolves.toEqual({ status: 'recorded' });
+
+    expect(observedEvents).toHaveLength(2);
+    expect(observedEvents[1]?.kind).toBe('session_started');
+    expect(observedEvents[1]?.eventId).toBe(observedEvents[0]?.eventId);
+  });
+
   it('retains an unresolved journey as a start when the session ends', async () => {
     const { observer, record } = harness();
     await observer.startSession();
