@@ -138,7 +138,7 @@ export const useMcpConnection = (
   onAuthRequired?: (server: IMcpServer) => void, // Added: callback fired when authentication is required
   removeMcpFromAgents?: (serverName: string, successMessage?: string, transportType?: string) => Promise<unknown>,
   syncMcpToAgents?: (server: IMcpServer, skipRecheck?: boolean) => Promise<unknown>,
-  readMcpServers: () => Promise<IMcpServer[]> = async () => mcpServers
+  readMcpServers?: () => Promise<IMcpServer[]>
 ) => {
   const { t } = useTranslation();
   const [testingServers, setTestingServers] = useState<Record<string, boolean>>({});
@@ -193,21 +193,90 @@ export const useMcpConnection = (
       ): Promise<void> => {
         if (!removeMcpFromAgents || !syncMcpToAgents) return;
 
+        const findDurableWinner = (servers: IMcpServer[]): IMcpServer | undefined =>
+          servers.find((candidate) => candidate.id === server.id) ??
+          servers.find((candidate) => mcpServerCollisionKey(candidate.name) === mcpServerCollisionKey(server.name));
+        const readDurableWinner = async (): Promise<IMcpServer | undefined> => {
+          if (readMcpServers) return findDurableWinner(await readMcpServers());
+
+          // Tests and legacy callers may not provide a persistence reader. A
+          // no-op update still observes the storage layer's current CAS input;
+          // the render-time mcpServers array is not authoritative after awaits.
+          let durableWinner: IMcpServer | undefined;
+          await saveMcpServers((prevServers) => {
+            durableWinner = findDurableWinner(prevServers);
+            return prevServers;
+          });
+          return durableWinner;
+        };
+        const sameDurableRevision = (left: IMcpServer | undefined, right: IMcpServer | undefined): boolean =>
+          left?.id === right?.id &&
+          left?.updatedAt === right?.updatedAt &&
+          left?.enabled === right?.enabled &&
+          (left === undefined ||
+            right === undefined ||
+            mcpServerCollisionKey(left.name) === mcpServerCollisionKey(right.name));
+
         try {
-          if (winner?.enabled) {
-            // A rename can strand the original config under a different key.
-            // Remove it before publishing the exact durable winner. Same-key
-            // updates are replaced directly by the authoritative sync.
-            if (winner.name !== server.name) {
-              await removeMcpFromAgents(server.name, undefined, server.transport.type);
+          let desired = winner;
+          let lastPublished: IMcpServer | undefined;
+          let originalKeyRemoved = adapterState === 'revoked';
+          let renameCleanupDone = false;
+
+          // Every adapter mutation is followed by a fresh durable read. Four
+          // attempts bound an actively changing declaration; exhaustion is
+          // persisted as divergence instead of publishing an arbitrary loser.
+          const reconcileAttempt = async (attempt: number): Promise<boolean> => {
+            if (attempt >= 4) return false;
+
+            const beforeMutation = await readDurableWinner();
+            if (!sameDurableRevision(beforeMutation, desired)) desired = beforeMutation;
+
+            if (lastPublished && !sameDurableRevision(lastPublished, desired)) {
+              await removeMcpFromAgents(lastPublished.name, undefined, lastPublished.transport.type);
+              lastPublished = undefined;
+              const afterStaleCleanup = await readDurableWinner();
+              if (!sameDurableRevision(afterStaleCleanup, desired)) {
+                desired = afterStaleCleanup;
+                return reconcileAttempt(attempt + 1);
+              }
             }
-            await syncMcpToAgents(winner, true);
-          } else if (adapterState !== 'revoked') {
-            // Disabled/deleted durable truth requires confirmed absence. A
-            // previous rejected revocation or restoration may have left any
-            // subset of adapters carrying the original definition.
-            await removeMcpFromAgents(server.name, undefined, server.transport.type);
-          }
+
+            if (desired?.enabled) {
+              // A rename can strand the original config under a different key.
+              // Remove it before publishing the exact durable winner.
+              if (!renameCleanupDone && desired.name !== server.name) {
+                await removeMcpFromAgents(server.name, undefined, server.transport.type);
+                originalKeyRemoved = true;
+                renameCleanupDone = true;
+                const afterOriginalCleanup = await readDurableWinner();
+                if (!sameDurableRevision(afterOriginalCleanup, desired)) {
+                  desired = afterOriginalCleanup;
+                  return reconcileAttempt(attempt + 1);
+                }
+              }
+
+              await syncMcpToAgents(desired, true);
+              lastPublished = desired;
+            } else if (!originalKeyRemoved) {
+              // Disabled/deleted durable truth requires confirmed absence. A
+              // previous rejected revocation or restoration may have left any
+              // subset of adapters carrying the original definition.
+              await removeMcpFromAgents(server.name, undefined, server.transport.type);
+              originalKeyRemoved = true;
+            }
+
+            const afterMutation = await readDurableWinner();
+            if (sameDurableRevision(afterMutation, desired)) return true;
+            desired = afterMutation;
+            return reconcileAttempt(attempt + 1);
+          };
+
+          if (await reconcileAttempt(0)) return;
+
+          await saveMcpServers((prevServers) =>
+            retainMcpPublicationReconciliation(prevServers, server.id, desired ?? winner ?? server)
+          );
         } catch (reconciliationError) {
           const fallback = winner ?? server;
           try {

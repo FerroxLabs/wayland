@@ -454,6 +454,48 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(exactDurableWinnerPublished || durableTruthFailsClosed).toBe(true);
   });
 
+  it('removes a winner superseded while its publication is in flight', async () => {
+    const firstWinner = {
+      ...server,
+      name: 'first-winner',
+      description: 'first concurrent winner',
+      updatedAt: server.updatedAt + 1,
+    };
+    const finalWinner = {
+      ...server,
+      name: 'final-winner',
+      description: 'later durable winner',
+      updatedAt: server.updatedAt + 2,
+    };
+    let stored = [server];
+    let saveCount = 0;
+    const adapterKeys = new Set([server.name]);
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      saveCount += 1;
+      if (saveCount === 2) stored = [firstWinner];
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn(async (name: string) => {
+      adapterKeys.delete(name);
+    });
+    const sync = vi.fn(async (candidate: IMcpServer) => {
+      adapterKeys.add(candidate.name);
+      if (candidate.name === firstWinner.name) stored = [finalWinner];
+    });
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(stored).toEqual([finalWinner]);
+    expect(adapterKeys).toEqual(new Set([finalWinner.name]));
+    expect(remove).toHaveBeenCalledWith(firstWinner.name, undefined, firstWinner.transport.type);
+    expect(sync).toHaveBeenLastCalledWith(finalWinner, true);
+  });
+
   it('retains divergence when exact-key cleanup for a case-fold replacement fails', async () => {
     const canonicalWinner = {
       ...server,
@@ -573,7 +615,9 @@ describe('MCP pre-publication renderer correlation', () => {
     await act(async () => result.current.handleTestMcpConnection(server));
     errorSpy.mockRestore();
 
-    expect(read).toHaveBeenCalledTimes(1);
+    // One read recovers from the rejected status write; reconciliation then
+    // reads immediately before and after mutating external publication.
+    expect(read).toHaveBeenCalledTimes(3);
     expect(sync).toHaveBeenLastCalledWith(concurrent, true);
     expect(stored).toEqual([concurrent]);
   });
