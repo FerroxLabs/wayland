@@ -673,22 +673,46 @@ describe('useMcpServerCRUD', () => {
       });
       const { result } = renderCRUD([], async () => structuredClone(durable));
 
-      let outcome: boolean | undefined;
+      let outcome: IMcpServer | false | undefined;
       await act(async () => {
         outcome = await result.current.handleToggleMcpServer('mcp_1', true, 41);
       });
 
-      expect(outcome).toBe(true);
+      expect(outcome).toMatchObject({ id: 'mcp_1', enabled: true });
       expect(syncMcpToAgents).toHaveBeenCalledWith(expect.objectContaining({ id: 'mcp_1', enabled: true }), true);
       expect(durable[0].enabled).toBe(true);
       expect(durable[0].updatedAt).toBeGreaterThan(41);
+    });
+
+    it('returns the exact reconciled revision and clears publication divergence after republishing', async () => {
+      let durable = [
+        makeMockServer({
+          enabled: true,
+          status: 'error',
+          lastError: 'probe unavailable; publication rollback incomplete — reconnect this connector',
+          updatedAt: 41,
+        }),
+      ];
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        durable = (updater as (current: IMcpServer[]) => IMcpServer[])(durable);
+      });
+      const { result } = renderCRUD([], async () => structuredClone(durable));
+
+      let outcome: IMcpServer | false | undefined;
+      await act(async () => {
+        outcome = await result.current.handleToggleMcpServer('mcp_1', true, 41);
+      });
+
+      expect(outcome).toEqual(durable[0]);
+      expect(outcome).toMatchObject({ enabled: true, status: 'disconnected', lastError: undefined });
+      expect(syncMcpToAgents).toHaveBeenCalledWith(outcome, true);
     });
 
     it('does not publish when the requested declaration revision is stale', async () => {
       const durable = [makeMockServer({ enabled: false, updatedAt: 42 })];
       const { result } = renderCRUD([], async () => structuredClone(durable));
 
-      let outcome: boolean | undefined;
+      let outcome: IMcpServer | false | undefined;
       await act(async () => {
         outcome = await result.current.handleToggleMcpServer('mcp_1', true, 41);
       });
@@ -704,7 +728,7 @@ describe('useMcpServerCRUD', () => {
 
       const { result } = renderCRUD([server]);
 
-      let outcome: boolean | undefined;
+      let outcome: IMcpServer | false | undefined;
       await act(async () => {
         outcome = await result.current.handleToggleMcpServer('mcp_1', true);
       });
@@ -721,7 +745,7 @@ describe('useMcpServerCRUD', () => {
 
       const { result } = renderCRUD([server]);
 
-      let outcome: boolean | undefined;
+      let outcome: IMcpServer | false | undefined;
       await act(async () => {
         outcome = await result.current.handleToggleMcpServer('mcp_1', false);
       });
@@ -737,7 +761,7 @@ describe('useMcpServerCRUD', () => {
       saveMcpServers.mockRejectedValueOnce(new Error('storage unavailable'));
       const { result } = renderCRUD([server]);
 
-      let outcome: boolean | undefined;
+      let outcome: IMcpServer | false | undefined;
       await act(async () => {
         outcome = await result.current.handleToggleMcpServer(server.id, true);
       });
@@ -752,7 +776,7 @@ describe('useMcpServerCRUD', () => {
       saveMcpServers.mockRejectedValueOnce(new Error('storage unavailable'));
       const { result } = renderCRUD([server]);
 
-      let outcome: boolean | undefined;
+      let outcome: IMcpServer | false | undefined;
       await act(async () => {
         outcome = await result.current.handleToggleMcpServer(server.id, false);
       });

@@ -26,7 +26,7 @@ const { handleAddMcpServer, handleToggleMcpServer, login, messageSuccess, messag
   vi.hoisted(() => ({
     handleAddMcpServer:
       vi.fn<(data: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => Promise<IMcpServer | null>>(),
-    handleToggleMcpServer: vi.fn<(id: string, enabled: boolean) => Promise<boolean>>(),
+    handleToggleMcpServer: vi.fn<(id: string, enabled: boolean) => Promise<IMcpServer | false>>(),
     login: vi.fn<(server: IMcpServer) => Promise<{ success: boolean; error?: string; code?: string }>>(),
     messageSuccess: vi.fn<(msg: string) => void>(),
     messageError: vi.fn<(msg: string) => void>(),
@@ -198,7 +198,15 @@ function failedProbeResponse(server: IMcpServer, error: string) {
 beforeEach(() => {
   hookState.mcpServers = [];
   handleAddMcpServer.mockReset();
-  handleToggleMcpServer.mockReset().mockResolvedValue(true);
+  handleToggleMcpServer.mockReset().mockImplementation(async (id, enabled) => ({
+    id,
+    name: id,
+    enabled,
+    transport: { type: 'stdio', command: 'node' },
+    createdAt: 1,
+    updatedAt: 2,
+    source: 'custom',
+  }));
   login.mockReset().mockResolvedValue({ success: true });
   messageSuccess.mockReset();
   messageError.mockReset();

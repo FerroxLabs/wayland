@@ -88,9 +88,13 @@ export function BrowsePage() {
     () => ({
       serverFor: (libraryEntryId) => serverByLibraryId.get(libraryEntryId),
       onToggle: (serverId, enabled) => void crud.handleToggleMcpServer(serverId, enabled),
-      // Live connection re-probe: re-runs the actual MCP connection test and
-      // writes the fresh status/tools back, so a Reconnect actually reconnects.
-      onReconnect: (server) => void conn.handleTestMcpConnection(server),
+      // Reconcile adapter publication first, then probe the exact committed
+      // declaration revision returned by that publication.
+      onReconnect: (server) => {
+        void crud.handleToggleMcpServer(server.id, true).then(async (publishedServer) => {
+          if (publishedServer) await conn.handleTestMcpConnection(publishedServer);
+        });
+      },
       onConfigure: onSelect,
       onRemove: (serverId) => {
         const target = mcpServers.find((s) => s.id === serverId);

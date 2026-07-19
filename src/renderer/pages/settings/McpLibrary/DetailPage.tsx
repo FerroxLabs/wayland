@@ -558,10 +558,13 @@ export function DetailPage() {
     : null;
   const disabled = installedServer?.enabled === false;
 
-  // Reconnect re-runs the real connection engine (handleTestMcpConnection),
-  // which probes the server, lists tools, and persists the result.
+  // Reconnect reconciles adapter publication, then probes the exact committed
+  // declaration revision returned by that publication.
   const reconnect = () => {
-    if (installedServer) void conn.handleTestMcpConnection(installedServer);
+    if (!installedServer) return;
+    void crud.handleToggleMcpServer(installedServer.id, true).then(async (publishedServer) => {
+      if (publishedServer) await conn.handleTestMcpConnection(publishedServer);
+    });
   };
 
   // Remove deletes the server entirely (and removes it from every synced agent)

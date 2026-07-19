@@ -25,7 +25,7 @@ const { state, toggle, probe, refreshStatuses, checkInstallStatus, readServers }
       published: { ...disabled, enabled: true, updatedAt: 21 } as IMcpServer,
       servers: [disabled],
     },
-    toggle: vi.fn(async () => true),
+    toggle: vi.fn(async () => ({ ...disabled, enabled: true, updatedAt: 21 }) as IMcpServer),
     probe: vi.fn(async () => {}),
     refreshStatuses: vi.fn(async () => {}),
     checkInstallStatus: vi.fn(async () => {}),
@@ -76,7 +76,7 @@ import { useConnectedMcps } from '@renderer/pages/settings/McpLibrary/hooks/useC
 describe('useConnectedMcps reconnect truth', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    toggle.mockResolvedValue(true);
+    toggle.mockResolvedValue(state.published);
     readServers.mockResolvedValue([state.published]);
   });
 
@@ -108,7 +108,7 @@ describe('useConnectedMcps reconnect truth', () => {
 
   it('does not probe a durable revision that superseded the exact reconnect publication', async () => {
     const superseded = { ...state.published, updatedAt: state.published.updatedAt + 1 };
-    toggle.mockResolvedValueOnce(true);
+    toggle.mockResolvedValueOnce(state.published);
     readServers.mockResolvedValueOnce([superseded]);
     const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() };
     const { result } = renderHook(() => useConnectedMcps(message as never));

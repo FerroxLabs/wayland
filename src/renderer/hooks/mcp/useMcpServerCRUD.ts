@@ -8,6 +8,7 @@ import { mcpServerCollisionKey } from '@/common/mcp';
 import { acpConversation, mcpService } from '@/common/adapter/ipcBridge';
 import { archiveConfiguredMcpServerHttp } from '@/renderer/services/McpConfigService';
 import { isElectronDesktop } from '@/renderer/utils/platform';
+import { MCP_PUBLICATION_DIVERGENCE_MARKER } from './useMcpConnection';
 
 function nextMcpRevision(previous?: number): number {
   return Math.max(Date.now(), (previous ?? 0) + 1);
@@ -355,6 +356,9 @@ export const useMcpServerCRUD = (
         ...targetServer,
         enabled,
         updatedAt: nextMcpRevision(targetServer.updatedAt),
+        ...(enabled && targetServer.lastError?.includes(MCP_PUBLICATION_DIVERGENCE_MARKER)
+          ? { status: 'disconnected', lastError: undefined }
+          : {}),
       };
       let externalMutationAttempted = false;
 
@@ -392,7 +396,10 @@ export const useMcpServerCRUD = (
             return updated;
           });
         }
-        return true;
+        // The exact declaration revision published to the adapters is the
+        // reconnect receipt. Callers must probe this object rather than infer a
+        // revision from a later storage read that may already be superseded.
+        return updatedTargetServer;
       } catch (error) {
         if (externalMutationAttempted) {
           try {

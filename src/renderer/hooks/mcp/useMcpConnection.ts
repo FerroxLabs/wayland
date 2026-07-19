@@ -7,7 +7,8 @@ import { globalMessageQueue } from './messageQueue';
 
 export const MCP_PREPUBLICATION_MAX_AGE_MS = 5 * 60 * 1000;
 const MCP_PREPUBLICATION_MAX_FUTURE_SKEW_MS = 5_000;
-const MCP_PUBLICATION_DIVERGENCE_MARKER = 'publication rollback incomplete';
+export const MCP_PUBLICATION_DIVERGENCE_MARKER = 'publication rollback incomplete';
+const MCP_ERROR_MAX_LENGTH = 150;
 
 function nextMcpRevision(previous: number): number {
   return Math.max(Date.now(), previous + 1);
@@ -83,11 +84,19 @@ export function readCorrelatedMcpPrepublicationTruth(
 /**
  * Truncate long error messages to keep them readable
  */
-const truncateErrorMessage = (message: string, maxLength: number = 150): string => {
+const truncateErrorMessage = (message: string, maxLength: number = MCP_ERROR_MAX_LENGTH): string => {
   if (message.length <= maxLength) {
     return message;
   }
-  return message.substring(0, maxLength) + '...';
+  return `${message.substring(0, Math.max(0, maxLength - 3))}...`;
+};
+
+const hasPublicationDivergence = (server: Pick<IMcpServer, 'lastError'>): boolean =>
+  typeof server.lastError === 'string' && server.lastError.includes(MCP_PUBLICATION_DIVERGENCE_MARKER);
+
+const publicationDivergenceError = (probeError: string): string => {
+  const suffix = `; ${MCP_PUBLICATION_DIVERGENCE_MARKER} — reconnect this connector`;
+  return `${truncateErrorMessage(probeError, MCP_ERROR_MAX_LENGTH - suffix.length)}${suffix}`;
 };
 
 /**
@@ -109,6 +118,11 @@ export const useMcpConnection = (
   // Connection test function
   const handleTestMcpConnection = useCallback(
     async (server: IMcpServer) => {
+      // A probe cannot reconcile a partially-mutated external publication. The
+      // explicit reconnect path must first republish the declaration and pass
+      // the exact committed revision back here.
+      if (hasPublicationDivergence(server)) return;
+
       setTestingServers((prev) => ({ ...prev, [server.id]: true }));
 
       // Update server status - use the unified save function to avoid race conditions
@@ -157,9 +171,7 @@ export const useMcpConnection = (
                 revocationError,
                 restorationError,
               });
-              surfacedError = truncateErrorMessage(
-                `${errorMsg}; ${MCP_PUBLICATION_DIVERGENCE_MARKER} — reconnect this connector`
-              );
+              surfacedError = publicationDivergenceError(errorMsg);
             }
           }
         }
@@ -264,11 +276,7 @@ export const useMcpConnection = (
       const targets = servers.filter(
         (s) =>
           s.enabled === true &&
-          !(
-            s.status === 'error' &&
-            typeof s.lastError === 'string' &&
-            s.lastError.includes(MCP_PUBLICATION_DIVERGENCE_MARKER)
-          ) &&
+          !(s.status === 'error' && hasPublicationDivergence(s)) &&
           (force || s.status !== 'connected' || typeof s.lastConnected !== 'number' || now - s.lastConnected > STALE_MS)
       );
       if (targets.length === 0) {

@@ -157,15 +157,12 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     async (server: IMcpServer) => {
       // Reconnect is an explicit reconciliation action, even when local truth
       // remained enabled after an incomplete rollback. Republish first, then
-      // probe only the exact durable revision committed by that publication.
-      const published = await crud.handleToggleMcpServer(server.id, true);
-      if (!published) return;
-      const durable = await readMcpServers();
-      const publishedServer = durable.find((candidate) => candidate.id === server.id);
-      if (!publishedServer?.enabled) return;
+      // probe only the exact revision returned by that publication commit.
+      const publishedServer = await crud.handleToggleMcpServer(server.id, true);
+      if (!publishedServer) return;
       await conn.handleTestMcpConnection(publishedServer);
     },
-    [crud, conn, readMcpServers]
+    [crud, conn]
   );
   const remove = useCallback((serverId: string): void => void crud.handleDeleteMcpServer(serverId), [crud]);
   const removeStale = useCallback(
