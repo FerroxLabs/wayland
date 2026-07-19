@@ -335,16 +335,26 @@ function verifyCombinedSnapshotNow(
   bundleFiles: ReadonlyArray<Readonly<{ name: string; identity: StablePathIdentity; realPath: string }>>,
   skills: InstalledOfficeCliSkillSnapshot
 ): void {
-  verifySnapshotPathNow({ path: bundledDir, realPath: bundleRealPath, identity: bundleIdentity }, 'directory');
-  for (const file of bundleFiles) {
-    verifySnapshotPathNow(
-      { path: path.join(bundledDir, file.name), realPath: file.realPath, identity: file.identity },
-      'file'
-    );
-  }
-  verifySnapshotPathNow(skills.root, 'directory');
-  for (const directory of skills.directories) verifySnapshotPathNow(directory, 'directory');
-  for (const file of skills.files) verifySnapshotPathNow(file, 'file');
+  const snapshots: ReadonlyArray<Readonly<{ snapshot: AuthenticatedPathSnapshot; kind: 'directory' | 'file' }>> = [
+    {
+      snapshot: { path: bundledDir, realPath: bundleRealPath, identity: bundleIdentity },
+      kind: 'directory',
+    },
+    ...bundleFiles.map((file) => ({
+      snapshot: { path: path.join(bundledDir, file.name), realPath: file.realPath, identity: file.identity },
+      kind: 'file' as const,
+    })),
+    { snapshot: skills.root, kind: 'directory' },
+    ...skills.directories.map((snapshot) => ({ snapshot, kind: 'directory' as const })),
+    ...skills.files.map((snapshot) => ({ snapshot, kind: 'file' as const })),
+  ];
+
+  // A forward sweep catches changes to later paths triggered while earlier
+  // paths are checked; the opposing sweep catches changes to earlier paths
+  // triggered while later paths are checked. This is a bounded construction
+  // observation, not an immutable filesystem snapshot or execution grant.
+  for (const entry of snapshots) verifySnapshotPathNow(entry.snapshot, entry.kind);
+  for (const entry of snapshots.toReversed()) verifySnapshotPathNow(entry.snapshot, entry.kind);
 }
 
 function evidenceBase(
