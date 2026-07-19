@@ -7,6 +7,7 @@ import {
   RecoveryPointBuildBlockedError,
   type RecoveryPointBuilderDependencies,
 } from '@process/services/recovery/recoveryPointBuilder';
+import { assertRecoveryDestinationDisjoint } from '@process/services/recovery/recoveryCapture';
 import { verifyRecoverySnapshot } from '@process/services/recovery/recoveryManifest';
 import { materializeIsolatedRecovery } from '@process/services/recovery/isolatedRecovery';
 import { inventoryRecoveryAuthorities } from '@process/services/recovery/stateAuthorityInventory';
@@ -250,6 +251,45 @@ describe('recovery point builder', () => {
 
     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
     expect(deps.desktopRelease).toHaveBeenCalledOnce();
+  });
+
+  it('blocks when an admitted destination ancestor is swapped for a protected-root symlink', async () => {
+    const data = await fixture();
+    const admittedAncestor = path.join(data.root, 'admitted-destination');
+    const retiredAncestor = path.join(data.root, 'retired-destination');
+    const protectedRoot = path.join(data.root, 'protected-live-state');
+    const destinationRoot = path.join(admittedAncestor, 'recovery-points');
+    fs.mkdirSync(admittedAncestor);
+    fs.mkdirSync(protectedRoot);
+
+    await assertRecoveryDestinationDisjoint(destinationRoot, [protectedRoot]);
+    fs.renameSync(admittedAncestor, retiredAncestor);
+    fs.symlinkSync(protectedRoot, admittedAncestor, 'dir');
+
+    const deps = dependencies();
+    let outcome: 'blocked' | 'published' = 'published';
+    try {
+      await buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot,
+          reason: 'hostile-ancestor-swap',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      );
+    } catch {
+      outcome = 'blocked';
+    }
+
+    expect({
+      outcome,
+      wroteOutsideAdmittedRoot: fs.existsSync(path.join(protectedRoot, 'recovery-points')),
+    }).toEqual({
+      outcome: 'blocked',
+      wroteOutsideAdmittedRoot: false,
+    });
   });
 
   it('removes partial isolated output when authenticated unsealing fails', async () => {

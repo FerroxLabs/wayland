@@ -175,6 +175,36 @@ describe('Desktop-only production capture boundary', () => {
     });
   });
 
+  it('blocks capture when userData contains an unclassified mutable authority root', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-unknown-authority-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const conversationsRoot = path.join(userDataRoot, 'conversations');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(conversationsRoot, { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+    fs.writeFileSync(path.join(conversationsRoot, 'conversation-1.json'), '{"messages":["must survive"]}');
+
+    const discovered = await inventoryRecoveryAuthorities({
+      userDataRoot,
+      constitutionRoot: path.join(root, 'constitution'),
+      coreDefaultProfileRoot: path.join(root, 'core-default'),
+      coreNamedProfilesRoot: path.join(root, 'core-profiles'),
+    });
+
+    let rejected = false;
+    let readyToCapture = false;
+    try {
+      readyToCapture = assertDesktopOnlyRecoveryCaptureReady(discovered).readyToCapture;
+    } catch {
+      rejected = true;
+    }
+
+    expect({ rejected, readyToCapture }).toEqual({ rejected: true, readyToCapture: false });
+  });
+
   it('rejects present Core state before capture even if a caller could fabricate local lease behavior', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-core-block-'));
     roots.push(root);
