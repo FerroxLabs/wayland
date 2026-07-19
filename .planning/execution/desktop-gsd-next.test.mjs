@@ -243,6 +243,34 @@ test('canonical ownership aliases conflict and unsafe ownership is rejected', ()
   expectSelectionError(() => select(root, [plan('01-01', { files: ['/tmp/escape.ts'] })]), 'UNSAFE_OWNERSHIP_PATH')
 })
 
+test('repository ownership resolves symlink aliases and rejects symlink escapes', () => {
+  const root = temporaryRoot()
+  const real = join(root, 'real-source')
+  mkdirSync(real)
+  symlinkSync(real, join(root, 'source-alias'))
+  const aliased = select(root, [
+    plan('01-01', { files: ['source-alias/file.ts'] }),
+    plan('01-02', { files: ['real-source/file.ts'] }),
+  ])
+  assert.equal(aliased.candidate_plans.length, 1)
+  assert.match(aliased.serialized_after[0].conflicts[0].reason, /^path:/)
+
+  const outside = temporaryRoot()
+  symlinkSync(outside, join(root, 'escape-alias'))
+  expectSelectionError(
+    () => select(root, [plan('01-01', { files: ['escape-alias/file.ts'] })]),
+    'UNSAFE_OWNERSHIP_PATH',
+  )
+})
+
+test('ownerless autonomous plans fail closed', () => {
+  const root = temporaryRoot()
+  expectSelectionError(
+    () => select(root, [plan('01-01', { files: [], authoritySeams: [] })]),
+    'MALFORMED_PLAN',
+  )
+})
+
 test('shared lock schema config generated migration and named authority seams serialize', () => {
   const root = temporaryRoot()
   const cases = [
@@ -678,6 +706,63 @@ test('operational selection rejects existing proposed branches and worktree path
   const worktreeParent = temporaryRoot()
   mkdirSync(join(worktreeParent, 'wayland-desktop-01-01', 'app'), { recursive: true })
   expectSelectionError(() => selectNext({ ...base, worktreeParent }), 'WORKTREE_COLLISION')
+})
+
+test('operational selection rejects dangling and registered stale worktree paths', () => {
+  const root = temporaryRoot()
+  writeAdmission(root)
+  writePlan(root, '01-01')
+  const git = initializeGit(root)
+  const base = { repoRoot: root, expectedBranch: 'test-branch', expectedHead: git.head }
+
+  const danglingParent = temporaryRoot()
+  const danglingPath = join(danglingParent, 'wayland-desktop-01-01', 'app')
+  mkdirSync(dirname(danglingPath), { recursive: true })
+  symlinkSync(join(danglingParent, 'missing-target'), danglingPath)
+  expectSelectionError(
+    () => selectNext({ ...base, worktreeParent: danglingParent }),
+    'WORKTREE_COLLISION',
+  )
+
+  const registeredParent = temporaryRoot()
+  const registeredPath = join(registeredParent, 'wayland-desktop-01-01', 'app')
+  git.run('worktree', 'add', '--detach', registeredPath, git.head)
+  rmSync(registeredPath, { recursive: true, force: true })
+  expectSelectionError(
+    () => selectNext({ ...base, worktreeParent: registeredParent }),
+    'WORKTREE_COLLISION',
+  )
+})
+
+test('operational selection repeats worktree preflight after verifier execution', () => {
+  const root = temporaryRoot()
+  writePlan(root, '02-01')
+  const gate = 'M2-entry'
+  const receipt = JSON.stringify({
+    schema_version: 2,
+    gate_id: gate,
+    mode: 'entry',
+    ok: true,
+    prerequisites: {
+      ok: true,
+      required: [{ id: 'producer', ok: true }],
+      alternatives: [],
+      exclusive_alternatives: [],
+    },
+    accepted_targets: [],
+  })
+  const verifier = writeVerifier(root, [
+    "import { execFileSync } from 'node:child_process'",
+    "execFileSync('git', ['branch', 'worktree-agent-desktop-02-01'], { cwd: process.cwd() })",
+    `process.stdout.write(${JSON.stringify(receipt)})`,
+  ].join('\n'))
+  writeAdmission(root, { plan_entry_gates: { '02-01': gate }, verifier })
+  const git = initializeGit(root)
+  expectSelectionError(() => selectNext({
+    repoRoot: root,
+    expectedBranch: 'test-branch',
+    expectedHead: git.head,
+  }), 'WORKTREE_COLLISION')
 })
 
 test('operational selection rejects a non-directory worktree ancestor', () => {

@@ -63,7 +63,7 @@ function regularFileExists(path, code, label) {
   }
 }
 
-function canonicalOwnedPath(path, allowedExternalRoots = []) {
+function canonicalOwnedPath(path, allowedExternalRoots = [], repoRoot = undefined) {
   if (typeof path !== 'string' || path.trim() === '' || path.includes('\0')) {
     throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `Invalid ownership path: ${String(path)}`)
   }
@@ -84,7 +84,14 @@ function canonicalOwnedPath(path, allowedExternalRoots = []) {
     }
     return canonical.replace(/\/$/, '')
   }
-  return normalized.replace(/\/$/, '')
+  const lexical = normalized.replace(/\/$/, '')
+  if (repoRoot === undefined) return lexical
+  const canonicalRepo = canonicalRoot(repoRoot)
+  const canonical = canonicalProspectivePath(join(canonicalRepo, lexical))
+  if (canonical !== canonicalRepo && !canonical.startsWith(`${canonicalRepo}/`)) {
+    throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `Repository ownership path escapes through a symlink: ${path}`)
+  }
+  return relative(canonicalRepo, canonical).replaceAll('\\', '/')
 }
 
 function listPhaseDirectories(phasesRoot) {
@@ -158,7 +165,7 @@ export function discoverPlans(repoRoot, options = {}) {
         throw new SelectionError('MALFORMED_PLAN', `${source}: dependencies must be unique NN-NN plan IDs`)
       }
       const allowedExternalRoots = options.allowedExternalRoots ?? []
-      const files = data.files_modified.map((ownedPath) => canonicalOwnedPath(ownedPath, allowedExternalRoots))
+      const files = data.files_modified.map((ownedPath) => canonicalOwnedPath(ownedPath, allowedExternalRoots, repoRoot))
       if (new Set(files.map((ownedPath) => ownedPath.toLowerCase())).size !== files.length) {
         throw new SelectionError('MALFORMED_PLAN', `${source}: ownership paths must be unique after canonicalization`)
       }
@@ -173,6 +180,9 @@ export function discoverPlans(repoRoot, options = {}) {
       })
       if (new Set(authoritySeams).size !== authoritySeams.length) {
         throw new SelectionError('MALFORMED_PLAN', `${source}: authority seams must be unique`)
+      }
+      if (data.autonomous && files.length === 0 && authoritySeams.length === 0) {
+        throw new SelectionError('MALFORMED_PLAN', `${source}: autonomous plan must own a file or authority seam`)
       }
       const summaryPath = join(phaseDir, `${id}-SUMMARY.md`)
       const summarySource = relative(repoRoot, summaryPath)
@@ -499,8 +509,34 @@ function assertWorktreeTargetAvailable(repoRoot, branch, path) {
   if (branchResult.status === 0) {
     throw new SelectionError('WORKTREE_COLLISION', `Proposed worktree branch already exists: ${branch}`)
   }
-  if (existsSync(path)) {
+  try {
+    lstatSync(path)
     throw new SelectionError('WORKTREE_COLLISION', `Proposed worktree path already exists: ${path}`)
+  } catch (error) {
+    if (error instanceof SelectionError) throw error
+    if (error?.code === 'ENOTDIR') {
+      throw new SelectionError('WORKTREE_PARENT', `Proposed worktree path has a non-directory ancestor: ${path}`)
+    }
+    if (error?.code !== 'ENOENT') {
+      throw new SelectionError('WORKTREE_PREFLIGHT', `Unable to inspect proposed worktree path: ${path}`)
+    }
+  }
+  let registered
+  try {
+    registered = execFileSync('git', ['worktree', 'list', '--porcelain', '-z'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+    })
+  } catch {
+    throw new SelectionError('WORKTREE_PREFLIGHT', 'Unable to inspect the Git worktree registry')
+  }
+  const canonicalTarget = canonicalProspectivePath(path)
+  const registeredPaths = registered
+    .split('\0')
+    .filter((field) => field.startsWith('worktree '))
+    .map((field) => canonicalProspectivePath(field.slice('worktree '.length)))
+  if (registeredPaths.includes(canonicalTarget)) {
+    throw new SelectionError('WORKTREE_COLLISION', `Proposed path remains registered as a Git worktree: ${path}`)
   }
   let ancestor = dirname(path)
   while (!existsSync(ancestor)) {
@@ -563,8 +599,13 @@ function selectNextInternal(options) {
     gitHead: options.skipGitCheck ? undefined : options.expectedHead,
   })
   const plans = discoveredPlans.map((plan) => Object.assign({}, plan, {
-    files: plan.files.map((ownedPath) => canonicalOwnedPath(ownedPath, allowedExternalRoots)),
+    files: plan.files.map((ownedPath) => canonicalOwnedPath(ownedPath, allowedExternalRoots, repoRoot)),
   }))
+  for (const plan of plans) {
+    if (plan.autonomous && plan.files.length === 0 && plan.authoritySeams.length === 0) {
+      throw new SelectionError('MALFORMED_PLAN', `${plan.id}: autonomous plan must own a file or authority seam`)
+    }
+  }
   const waves = computeEffectiveWaves(plans)
   const byId = new Map(plans.map((plan) => [plan.id, plan]))
   const blocked = []
@@ -630,6 +671,13 @@ function selectNextInternal(options) {
     }),
   }))
   if (operational) {
+    for (const plan of admittedSelected) {
+      assertWorktreeTargetAvailable(
+        repoRoot,
+        safeWorktreeName(plan.id),
+        join(worktreeParent, `wayland-desktop-${plan.id}`, 'app'),
+      )
+    }
     assertGitIdentity(gitIdentity(repoRoot), {
       repoRoot,
       branch: options.expectedBranch,
