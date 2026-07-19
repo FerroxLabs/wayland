@@ -12,6 +12,7 @@ const COMMON_TYPES_FILE = resolve(REPOSITORY_ROOT, 'src/common/types/cohortRollo
 const POLICY_FILE = resolve(REPOSITORY_ROOT, 'src/process/services/cohort/policy.ts');
 
 const PROTOCOL_VERSION = 'wayland-desktop-m0b-usability/1';
+const FROZEN_CANONICAL_SHA256 = 'sha256:886d38d16a1fe380f83c816d787c228f56c18f9a51e3701a35a97ebd551e252a';
 const PRIVACY_MODES = ['local-aggregate-only', 'structured-cohort-uat'];
 const OUTCOMES = ['success', 'failure', 'abandoned'];
 const CONFUSION_LEVELS = ['none', 'self-recovered', 'moderator-prompt-required', 'blocked'];
@@ -485,6 +486,8 @@ export function validateProtocolObject(input, runtime = readRuntimeBindings()) {
     fail('M0B_PROTOCOL_ARRAY', 'invalidationRules', 'exactly-seven-rules');
   }
   protocol.invalidationRules.forEach((rule, index) => nonEmptyString(rule, `invalidationRules[${index}]`));
+  const canonicalSha256 = `sha256:${createHash('sha256').update(canonicalProtocolBytes(protocol)).digest('hex')}`;
+  exactValue(canonicalSha256, FROZEN_CANONICAL_SHA256, '$.canonicalSha256');
   return protocol;
 }
 

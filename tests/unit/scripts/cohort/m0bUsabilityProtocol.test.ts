@@ -234,6 +234,29 @@ describe('M0B usability protocol', () => {
     expectInvalid((candidate) => (candidate.invalidationRules[0] = ''));
   });
 
+  it('binds every normative free-text field to the frozen protocol semantics', () => {
+    const mutations: Array<(candidate: any) => void> = [
+      (candidate) => (candidate.participantSegments[0].eligibility = 'Any participant.'),
+      (candidate) => (candidate.participantSegments[0].requiredEvidence = 'No evidence required.'),
+      (candidate) => (candidate.scripts.noviceEntry[0].prompt = 'Do anything.'),
+      (candidate) => (candidate.scripts.noviceEntry[0].success = 'Any output.'),
+      (candidate) => (candidate.scripts.noviceEntry[0].failure = 'Never fails.'),
+      (candidate) => (candidate.scripts.primaryJourneys[0].prompt = 'Do anything.'),
+      (candidate) => (candidate.scripts.primaryJourneys[0].success = 'Any output.'),
+      (candidate) => (candidate.scripts.primaryJourneys[0].failure = 'Never fails.'),
+      (candidate) => (candidate.rubrics.disclosurePreference.requirement = 'No disclosure required.'),
+      (candidate) => (candidate.rubrics.disclosurePreference.pass = 'Always passes.'),
+      (candidate) => (candidate.rubrics.disclosurePreference.fail = 'Never fails.'),
+      (candidate) => (candidate.rubrics.authorityComprehension.pass = 'Always passes.'),
+      (candidate) => (candidate.rubrics.authorityComprehension.fail = 'Never fails.'),
+      (candidate) => (candidate.classicComparison.assignment = 'No comparison required.'),
+      (candidate) => (candidate.classicComparison.expertInteractionBudget.interactions = 'Nothing measured.'),
+      (candidate) => (candidate.classicComparison.decisionRule = 'Missing evidence is a pass.'),
+      (candidate) => (candidate.invalidationRules[0] = 'Protocol mutation is allowed.'),
+    ];
+    mutations.forEach((mutate) => expectInvalid(mutate, /canonicalSha256/));
+  });
+
   it('rejects unknown keys at every authority boundary', () => {
     expectInvalid((candidate) => (candidate.unreviewed = true));
     expectInvalid((candidate) => (candidate.lifecycle.unreviewed = true));
