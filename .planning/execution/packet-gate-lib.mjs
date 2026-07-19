@@ -7,6 +7,7 @@ const oid = /^[0-9a-f]{40}([0-9a-f]{24})?$/;
 const digest = /^sha256:[0-9a-f]{64}$/;
 const safePacket = /^[A-Z0-9][A-Z0-9-]*$/;
 const canonicalUtc = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
+export const ACCEPTANCE_FUTURE_SKEW_MS = 60_000;
 const receiptFailureReasons = Object.freeze({
   UNSAFE_PACKET_IDENTIFIER: 'unsafe packet identifier',
   PACKET_CONTRACT_UNSEALED: 'packet contract is not sealed',
@@ -28,6 +29,7 @@ const receiptFailureReasons = Object.freeze({
   EVIDENCE_LOG_DIGEST_INVALID: 'invalid log digest',
   EVIDENCE_ENVIRONMENT_DIGEST_INVALID: 'invalid environment digest',
   ACCEPTANCE_TIMESTAMP_INVALID: 'invalid acceptance timestamp',
+  ACCEPTANCE_TIMESTAMP_IN_FUTURE: 'acceptance timestamp exceeds the verifier clock skew allowance',
   ACCEPTANCE_KEY_ID_MISMATCH: 'acceptance key identity mismatch',
   ACCEPTANCE_SIGNER_UNKNOWN: 'unknown acceptance signer',
   ACCEPTANCE_SIGNER_REVOKED: 'acceptance signer is revoked',
@@ -159,19 +161,22 @@ async function artifactDigest(path) {
   return `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
 }
 
-export async function checkGate({
-  gateId,
-  projectRoot,
-  receiptDirectory,
-  manifestPath,
-  contractsPath,
-  trustRootPath,
-  manifest: manifestSnapshot,
-  contracts: contractsSnapshot,
-  trustRoot: trustRootSnapshot,
-  authorizedCandidates,
-  expectedIntegrationHead,
-}) {
+async function checkGateAtVerificationTime(
+  {
+    gateId,
+    projectRoot,
+    receiptDirectory,
+    manifestPath,
+    contractsPath,
+    trustRootPath,
+    manifest: manifestSnapshot,
+    contracts: contractsSnapshot,
+    trustRoot: trustRootSnapshot,
+    authorizedCandidates,
+    expectedIntegrationHead,
+  },
+  verificationTime
+) {
   // Snapshot caller-provided authority synchronously before the first await.
   // The installed wrapper supplies all three objects from one immutable Git/
   // control-config capture; direct repository tests may still use file paths.
@@ -260,6 +265,9 @@ export async function checkGate({
         return receiptFailure(packet, 'EVIDENCE_ENVIRONMENT_DIGEST_INVALID');
       const acceptedAt = parseCanonicalUtc(signed.accepted_at);
       if (acceptedAt === null) return receiptFailure(packet, 'ACCEPTANCE_TIMESTAMP_INVALID');
+      if (acceptedAt > verificationTime + ACCEPTANCE_FUTURE_SKEW_MS) {
+        return receiptFailure(packet, 'ACCEPTANCE_TIMESTAMP_IN_FUTURE');
+      }
 
       if (signed.acceptance_key_id !== receipt.signature.key_id) {
         return receiptFailure(packet, 'ACCEPTANCE_KEY_ID_MISMATCH');
@@ -366,4 +374,17 @@ export async function checkGate({
     prerequisites,
     accepted_targets: acceptedTargets,
   };
+}
+
+export function checkGate(options) {
+  // Production callers cannot supply a clock. Capture verifier-owned time
+  // synchronously before any authority input is read or awaited.
+  return checkGateAtVerificationTime(options, Date.now());
+}
+
+export function checkGateAtTimeForTest(options, verificationTime) {
+  if (!Number.isSafeInteger(verificationTime) || verificationTime < 0) {
+    throw new TypeError('Test verification time must be a non-negative safe integer');
+  }
+  return checkGateAtVerificationTime(options, verificationTime);
 }

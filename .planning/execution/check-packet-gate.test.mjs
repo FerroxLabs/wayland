@@ -4,7 +4,13 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { canonicalJson, checkGate, contractDigest } from './packet-gate-lib.mjs';
+import {
+  ACCEPTANCE_FUTURE_SKEW_MS,
+  canonicalJson,
+  checkGate,
+  checkGateAtTimeForTest,
+  contractDigest,
+} from './packet-gate-lib.mjs';
 import { validateEntryReceipt } from './desktop-gsd-next.mjs';
 
 const projectRoot = new URL('../..', import.meta.url).pathname;
@@ -54,6 +60,7 @@ const activeKey = {
   valid_until: '2027-01-01T00:00:00.000Z',
 };
 const activeTrustRoot = { schema_version: 1, keys: [activeKey] };
+const verifierNow = Date.parse('2026-07-20T00:00:00.000Z');
 
 async function persistManifest(value = manifest) {
   await writeFile(manifestPath, `${JSON.stringify(value)}\n`);
@@ -104,7 +111,7 @@ const authorizedCandidates = Object.fromEntries(
 );
 
 async function run(gate, options = {}) {
-  return checkGate({
+  const args = {
     gateId: gate,
     projectRoot,
     receiptDirectory,
@@ -113,7 +120,10 @@ async function run(gate, options = {}) {
     trustRootPath,
     authorizedCandidates: options.authorizedCandidates ?? authorizedCandidates,
     expectedIntegrationHead: options.expectedIntegrationHead ?? head,
-  });
+  };
+  return options.productionClock
+    ? checkGate(args)
+    : checkGateAtTimeForTest(args, options.verificationTime ?? verifierNow);
 }
 
 async function rejectsManifest(mutator, pattern) {
@@ -216,16 +226,55 @@ try {
   await assertInvalidTimestamp('2026-02-31T00:00:00.000Z');
   await assertInvalidTimestamp(0);
 
-  await writeFile(
-    trustRootPath,
-    `${JSON.stringify({ schema_version: 1, keys: [{ ...activeKey, valid_until: '2100-01-01T00:00:00.000Z' }] })}\n`
+  const futureTrustRoot = {
+    schema_version: 1,
+    keys: [{ ...activeKey, valid_until: '2100-01-01T00:00:00.000Z' }],
+  };
+  await writeFile(trustRootPath, `${JSON.stringify(futureTrustRoot)}\n`);
+
+  async function futureReceiptAt(offsetMs) {
+    const acceptedAt = new Date(verifierNow + offsetMs).toISOString();
+    await writeReceipt('TEST', { signed: { accepted_at: acceptedAt } });
+    return run('ACCEPT_OPEN');
+  }
+
+  assert.equal(
+    (await futureReceiptAt(ACCEPTANCE_FUTURE_SKEW_MS - 1)).ok,
+    true,
+    'a receipt just inside the explicit clock-skew allowance remains valid'
   );
+  assert.equal(
+    (await futureReceiptAt(ACCEPTANCE_FUTURE_SKEW_MS)).ok,
+    true,
+    'the exact clock-skew boundary remains valid'
+  );
+  const justOutside = await futureReceiptAt(ACCEPTANCE_FUTURE_SKEW_MS + 1);
+  assert.equal(justOutside.ok, false, 'a receipt just outside the clock-skew allowance must fail closed');
+  assert.equal(
+    justOutside.accepted_targets.required[0].reason_code,
+    'ACCEPTANCE_TIMESTAMP_IN_FUTURE',
+    'future rejection must use a stable reason code'
+  );
+  const farFuture = await futureReceiptAt(365 * 24 * 60 * 60 * 1000);
+  assert.equal(farFuture.ok, false, 'a far-future receipt cannot authorize acceptance today');
+  assert.equal(farFuture.accepted_targets.required[0].reason_code, 'ACCEPTANCE_TIMESTAMP_IN_FUTURE');
+
   await writeReceipt('TEST', { signed: { accepted_at: '2099-01-01T00:00:00.000Z' } });
   assert.equal(
-    (await run('ACCEPT_OPEN')).ok,
+    (await run('ACCEPT_OPEN', { productionClock: true, verificationTime: Date.parse('2100-01-01T00:00:00.000Z') })).ok,
     false,
-    'a future-dated receipt cannot authorize acceptance before its claimed acceptance time'
+    'production verification owns its clock and ignores attempted test-time injection'
   );
+
+  const replayAcceptedAt = new Date(verifierNow + ACCEPTANCE_FUTURE_SKEW_MS + 1).toISOString();
+  await writeReceipt('TEST', { signed: { accepted_at: replayAcceptedAt } });
+  assert.equal((await run('ACCEPT_OPEN')).ok, false, 'future receipt replay remains red before its time');
+  assert.equal(
+    (await run('ACCEPT_OPEN', { verificationTime: verifierNow + 1 })).ok,
+    true,
+    'the identical signed receipt becomes valid only when verifier-owned time reaches the allowed boundary'
+  );
+
   await writeFile(trustRootPath, `${JSON.stringify(activeTrustRoot)}\n`);
 
   await writeReceipt('TEST');
