@@ -112,6 +112,22 @@ export function discoverPlans(repoRoot, options = {}) {
         throw new SelectionError('MALFORMED_PLAN', `${source}: dependencies must be unique NN-NN plan IDs`)
       }
       const allowedExternalRoots = options.allowedExternalRoots ?? []
+      const files = data.files_modified.map((ownedPath) => canonicalOwnedPath(ownedPath, allowedExternalRoots))
+      if (new Set(files.map((ownedPath) => ownedPath.toLowerCase())).size !== files.length) {
+        throw new SelectionError('MALFORMED_PLAN', `${source}: ownership paths must be unique after canonicalization`)
+      }
+      if (data.authority_seams !== undefined && !Array.isArray(data.authority_seams)) {
+        throw new SelectionError('MALFORMED_PLAN', `${source}: authority_seams must be a list`)
+      }
+      const authoritySeams = (data.authority_seams ?? []).map((seam) => {
+        if (typeof seam !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._:-]*$/.test(seam)) {
+          throw new SelectionError('MALFORMED_PLAN', `${source}: authority seam is invalid`)
+        }
+        return seam
+      })
+      if (new Set(authoritySeams).size !== authoritySeams.length) {
+        throw new SelectionError('MALFORMED_PLAN', `${source}: authority seams must be unique`)
+      }
       const summaryPath = join(phaseDir, `${id}-SUMMARY.md`)
       plans.push({
         id,
@@ -119,8 +135,8 @@ export function discoverPlans(repoRoot, options = {}) {
         declaredWave: Number(data.wave),
         autonomous: data.autonomous,
         dependencies,
-        files: data.files_modified.map((ownedPath) => canonicalOwnedPath(ownedPath, allowedExternalRoots)),
-        authoritySeams: Array.isArray(data.authority_seams) ? data.authority_seams.map(String) : [],
+        files,
+        authoritySeams,
         planPath: relative(repoRoot, path),
         summaryPath: relative(repoRoot, summaryPath),
         complete: existsSync(summaryPath),
@@ -173,12 +189,12 @@ function compileSeams(config) {
   return compiled
 }
 
-function pairConflicts(left, right, seamPatterns) {
+function pairConflicts(left, right, seamPatterns, allowedExternalRoots = []) {
   const reasons = []
   for (const leftPath of left.files) {
-    const a = canonicalOwnedPath(leftPath)
+    const a = canonicalOwnedPath(leftPath, allowedExternalRoots)
     for (const rightPath of right.files) {
-      const b = canonicalOwnedPath(rightPath)
+      const b = canonicalOwnedPath(rightPath, allowedExternalRoots)
       const aKey = a.toLowerCase()
       const bKey = b.toLowerCase()
       if (aKey === bKey || aKey.startsWith(`${bKey}/`) || bKey.startsWith(`${aKey}/`)) {
@@ -189,8 +205,8 @@ function pairConflicts(left, right, seamPatterns) {
   const leftNamed = new Set(left.authoritySeams)
   for (const seam of right.authoritySeams) if (leftNamed.has(seam)) reasons.push(`authority:${seam}`)
   for (const { name, regex } of seamPatterns) {
-    if (left.files.some((path) => regex.test(canonicalOwnedPath(path))) &&
-        right.files.some((path) => regex.test(canonicalOwnedPath(path)))) {
+    if (left.files.some((path) => regex.test(canonicalOwnedPath(path, allowedExternalRoots))) &&
+        right.files.some((path) => regex.test(canonicalOwnedPath(path, allowedExternalRoots)))) {
       reasons.push(`seam:${name}`)
     }
   }
@@ -220,11 +236,18 @@ function validateAdmissionConfig(config) {
 }
 
 function everyPrerequisiteGreen(prerequisites) {
-  if (Array.isArray(prerequisites)) return prerequisites.every((item) => item && item.ok === true)
+  if (Array.isArray(prerequisites)) {
+    return prerequisites.length > 0 && prerequisites.every((item) => item && item.ok === true)
+  }
   if (prerequisites && typeof prerequisites === 'object') {
-    if (prerequisites.ok === false) return false
-    if (Array.isArray(prerequisites.items)) return prerequisites.items.every((item) => item && item.ok === true)
-    return prerequisites.ok === true
+    if (prerequisites.ok !== true) return false
+    if (Array.isArray(prerequisites.items)) {
+      return prerequisites.items.length > 0 && prerequisites.items.every((item) => item && item.ok === true)
+    }
+    const groups = ['required', 'alternatives', 'exclusive_alternatives']
+      .filter((key) => Array.isArray(prerequisites[key]))
+      .flatMap((key) => prerequisites[key])
+    return groups.length > 0 && groups.every((item) => item && item.ok === true)
   }
   return false
 }
@@ -374,6 +397,9 @@ export function selectNext(options) {
   if (options.verifyGate && !options.skipGitCheck) {
     throw new SelectionError('VERIFIER_IDENTITY', 'Verifier injection is forbidden for operational selection')
   }
+  if (options.plans && !options.skipGitCheck) {
+    throw new SelectionError('PLAN_IDENTITY', 'Plan injection is forbidden for operational selection')
+  }
   const allowedExternalRoots = admission.external_ownership_roots
   const discoveredPlans = options.plans ?? discoverPlans(repoRoot, { allowedExternalRoots })
   const plans = discoveredPlans.map((plan) => Object.assign({}, plan, {
@@ -402,14 +428,20 @@ export function selectNext(options) {
   const serialized = []
   for (const plan of eligible.toSorted((a, b) => a.effectiveWave - b.effectiveWave || a.id.localeCompare(b.id))) {
     const conflicts = selected.flatMap((other) =>
-      pairConflicts(plan, other, seamPatterns).map((reason) => ({ with: other.id, reason })),
+      pairConflicts(plan, other, seamPatterns, allowedExternalRoots).map((reason) => ({ with: other.id, reason })),
     )
     if (conflicts.length) serialized.push({ plan_id: plan.id, conflicts })
     else selected.push(plan)
   }
 
   const head = options.expectedHead ?? 'UNVERIFIED'
-  const worktreeParent = options.worktreeParent ?? dirname(repoRoot)
+  if (typeof options.worktreeParent === 'string' && options.worktreeParent.includes('\0')) {
+    throw new SelectionError('WORKTREE_PARENT', 'Worktree parent contains an invalid character')
+  }
+  const worktreeParent = resolve(options.worktreeParent ?? dirname(repoRoot))
+  if (worktreeParent === repoRoot || worktreeParent.startsWith(`${repoRoot}/`)) {
+    throw new SelectionError('WORKTREE_PARENT', 'Worktree parent must be outside the integration worktree')
+  }
   return {
     schema_version: 1,
     repository: repoRoot,
@@ -423,10 +455,18 @@ export function selectNext(options) {
       authenticated_admission: plan.authenticatedAdmission,
       proposed_worktree: join(worktreeParent, `wayland-desktop-${plan.id}`, 'app'),
       proposed_branch: safeWorktreeName(plan.id),
-      next_commands: [
-        `git worktree add -b ${safeWorktreeName(plan.id)} ${join(worktreeParent, `wayland-desktop-${plan.id}`, 'app')} ${head}`,
-        `cd ${join(worktreeParent, `wayland-desktop-${plan.id}`, 'app')}`,
-      ],
+      next_commands: [{
+        executable: 'git',
+        arguments: [
+          'worktree',
+          'add',
+          '-b',
+          safeWorktreeName(plan.id),
+          join(worktreeParent, `wayland-desktop-${plan.id}`, 'app'),
+          head,
+        ],
+        cwd: repoRoot,
+      }],
     })),
     serialized_after: serialized,
     blocked,
@@ -441,6 +481,7 @@ function parseArgs(argv) {
     if (!token.startsWith('--')) throw new SelectionError('ARGUMENT', `Unexpected argument: ${token}`)
     const key = token.slice(2)
     if (!allowed.has(key)) throw new SelectionError('ARGUMENT', `Unsupported argument: ${token}`)
+    if (Object.hasOwn(args, key)) throw new SelectionError('ARGUMENT', `Duplicate argument: ${token}`)
     const value = argv[i + 1]
     if (!value || value.startsWith('--')) throw new SelectionError('ARGUMENT', `Missing value for ${token}`)
     args[key] = value

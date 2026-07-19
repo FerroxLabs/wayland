@@ -275,6 +275,8 @@ test('entry receipts are target-free schema-v2 construction evidence only', () =
     [{ mode: 'acceptance' }, 'VERIFIER_MODE'],
     [{ ok: false }, 'ENTRY_PREREQUISITES'],
     [{ prerequisites: [{ id: 'core', ok: false }] }, 'ENTRY_PREREQUISITES'],
+    [{ prerequisites: [] }, 'ENTRY_PREREQUISITES'],
+    [{ prerequisites: { ok: true, required: [], alternatives: [] } }, 'ENTRY_PREREQUISITES'],
     [{ accepted_targets: ['desktop'] }, 'ENTRY_TARGETS'],
   ]) {
     expectSelectionError(() => validateEntryReceipt({ ...good, ...mutation }, 'M2-entry'), code)
@@ -395,6 +397,17 @@ test('verifier identity timeout and rejection output fail closed without leaking
   expectSelectionError(() => invokeVerifier(hanging, 'M2-entry', root), 'VERIFIER_TIMEOUT')
 })
 
+test('allowlisted external ownership remains conflict-safe when installation plans unlock', () => {
+  const root = temporaryRoot()
+  const externalRoot = realpathSync(root)
+  const output = select(root, [
+    plan('01-01', { files: [`${externalRoot}/bin/tool`] }),
+    plan('01-02', { files: [`${externalRoot}/bin`] }),
+  ], { admission: { external_ownership_roots: [externalRoot] } })
+  assert.equal(output.candidate_plans.length, 1)
+  assert.match(output.serialized_after[0].conflicts[0].reason, /^path:/)
+})
+
 test('wrong repository branch HEAD and dirty state fail before selection', () => {
   const root = temporaryRoot()
   writeAdmission(root)
@@ -405,9 +418,8 @@ test('wrong repository branch HEAD and dirty state fail before selection', () =>
     expectedBranch: 'test-branch',
     expectedHead: git.head,
     admissionPath: join(root, '.planning', 'execution', 'DESKTOP-GSD-ADMISSION.json'),
-    plans: [],
   }
-  assert.deepEqual(selectNext(base).candidate_plans, [])
+  assert.deepEqual(selectNext(base).candidate_plans.map((candidate) => candidate.plan_id), ['01-01'])
   expectSelectionError(() => selectNext({ ...base, repoRoot: join(root, '.planning') }), 'WRONG_REPOSITORY')
   expectSelectionError(() => selectNext({ ...base, expectedBranch: 'wrong' }), 'WRONG_BRANCH')
   expectSelectionError(() => selectNext({ ...base, expectedHead: '0'.repeat(40) }), 'STALE_HEAD')
@@ -440,6 +452,32 @@ test('CLI pass and failure are byte-for-byte read-only', () => {
   assert.equal(JSON.parse(fail.stderr).error.code, 'STALE_HEAD')
   assert.deepEqual(snapshot(root), before)
   assert.equal(git.run('status', '--porcelain=v1', '--untracked-files=all'), statusBefore)
+})
+
+test('operational selection rejects injected plans and emits argv-safe worktree instructions', () => {
+  const root = temporaryRoot()
+  writeAdmission(root)
+  writePlan(root, '01-01')
+  const git = initializeGit(root)
+  expectSelectionError(() => selectNext({
+    repoRoot: root,
+    expectedBranch: 'test-branch',
+    expectedHead: git.head,
+    plans: [],
+  }), 'PLAN_IDENTITY')
+  const output = selectNext({
+    repoRoot: root,
+    expectedBranch: 'test-branch',
+    expectedHead: git.head,
+    worktreeParent: join(dirname(root), 'spaces ; $()', 'worktrees'),
+  })
+  const command = output.candidate_plans[0].next_commands[0]
+  assert.equal(command.executable, 'git')
+  assert.deepEqual(command.arguments.slice(0, 4), ['worktree', 'add', '-b', 'worktree-agent-desktop-01-01'])
+  assert.equal(command.arguments.length, 6)
+  assert.match(command.arguments[4], /spaces ; \$\(\)/)
+  assert.equal(typeof command.arguments[4], 'string')
+  assert.equal(command.cwd, realpathSync(root))
 })
 
 test('operator contract prohibits stock routing and preserves authority', () => {

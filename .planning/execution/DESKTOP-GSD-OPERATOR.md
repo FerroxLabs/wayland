@@ -16,6 +16,8 @@ acceptance, merge, release, or deployment authority.
    tested.
 2. Inspect its JSON candidate set. A missing mapping, verifier mismatch, dirty worktree,
    stale HEAD, dependency ambiguity, or shared seam returns nonzero or a serialized tail.
+   Execute `next_commands` as the emitted executable plus argument array; never concatenate
+   or evaluate it as shell source.
 3. Manually create exactly one named clean worktree from the declared HEAD for each selected
    plan. Codex generic agents do not create or bind worktrees automatically.
 4. Bind one builder to that exact worktree and one PLAN. The builder may own only the paths
