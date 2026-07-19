@@ -297,13 +297,18 @@ describe('recovery manifest validation', () => {
     expect(result.warnings.map(({ code }) => code)).toContain('LEGACY_CONSTITUTION_FILESYSTEM_ABSENT');
   });
 
-  it('accepts an already-written v2 recovery point without reference bindings', () => {
+  it('accepts the genuine first-writer v2 shape with neither reference IDs nor bindings', () => {
     const previous = structuredClone(makeManifest()) as unknown as {
       formatVersion: number;
       authorities: RecoveryManifest['authorities'];
     };
     previous.formatVersion = 2;
-    for (const authority of previous.authorities) delete authority.referenceBindings;
+    // Commit 6fcc65fad wrote v2 before either external-authority binding field
+    // existed. Preserve that exact absence rather than fabricating empty lists.
+    for (const authority of previous.authorities) {
+      delete authority.referenceIds;
+      delete authority.referenceBindings;
+    }
 
     const result = validateRecoveryManifest(previous);
     expect(result.valid).toBe(true);

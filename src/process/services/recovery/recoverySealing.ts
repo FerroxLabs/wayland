@@ -98,7 +98,7 @@ async function writeExclusive(filePath: string, contents: Buffer): Promise<void>
   }
 }
 
-async function sealPlaintext(backend: SafeStorageBackend, plaintext: Buffer, destinationPath: string): Promise<void> {
+function sealPlaintext(backend: SafeStorageBackend, plaintext: Buffer): Buffer {
   requireBackend(backend);
   if (plaintext.length > MAX_PLAINTEXT_BYTES) {
     throw new Error(`Recovery plaintext must be no larger than ${MAX_PLAINTEXT_BYTES} bytes.`);
@@ -113,27 +113,32 @@ async function sealPlaintext(backend: SafeStorageBackend, plaintext: Buffer, des
   };
   const serialized = Buffer.from(JSON.stringify(envelope), 'utf8');
   if (serialized.length > MAX_ENVELOPE_BYTES) throw new Error('Recovery envelope exceeds its size limit.');
-  await writeExclusive(destinationPath, serialized);
+  return serialized;
 }
 
 /** Build seal/unseal operations around one injected authenticated OS credential backend. */
 export function createRecoveryFileSealer(backend: SafeStorageBackend): {
   sealFile: (sourcePath: string, destinationPath: string) => Promise<void>;
   sealBytes: (plaintext: Buffer, destinationPath: string) => Promise<void>;
+  sealBytesToBuffer: (plaintext: Buffer) => Promise<Buffer>;
   unsealFile: (sourcePath: string, destinationPath: string) => Promise<void>;
 } {
   return {
     async sealFile(sourcePath, destinationPath) {
       const plaintext = await readRegularFileNoFollow(sourcePath, MAX_PLAINTEXT_BYTES, 'Recovery plaintext');
       try {
-        await sealPlaintext(backend, plaintext, destinationPath);
+        await writeExclusive(destinationPath, sealPlaintext(backend, plaintext));
       } finally {
         plaintext.fill(0);
       }
     },
 
     async sealBytes(plaintext, destinationPath) {
-      await sealPlaintext(backend, plaintext, destinationPath);
+      await writeExclusive(destinationPath, sealPlaintext(backend, plaintext));
+    },
+
+    async sealBytesToBuffer(plaintext) {
+      return sealPlaintext(backend, plaintext);
     },
 
     async unsealFile(sourcePath, destinationPath) {
@@ -173,6 +178,10 @@ export async function sealRecoveryFile(sourcePath: string, destinationPath: stri
 
 export async function sealRecoveryBytes(plaintext: Buffer, destinationPath: string): Promise<void> {
   return (await productionSealer()).sealBytes(plaintext, destinationPath);
+}
+
+export async function sealRecoveryBytesToBuffer(plaintext: Buffer): Promise<Buffer> {
+  return (await productionSealer()).sealBytesToBuffer(plaintext);
 }
 
 export async function unsealRecoveryFile(sourcePath: string, destinationPath: string): Promise<void> {

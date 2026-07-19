@@ -146,6 +146,22 @@ describe('Desktop recovery mutation epoch', () => {
 
     await expect(fingerprintDesktopRecoveryState(inventory(config))).rejects.toThrow('refuses hard-linked');
   });
+
+  it('bounds content hashing and rejects a 20,001-entry authority tree', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-epoch-bounded-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const config = path.join(root, 'oversize-config');
+    fs.mkdirSync(userDataRoot);
+    fs.mkdirSync(config);
+    for (let index = 0; index < 20_001; index += 1) {
+      fs.writeFileSync(path.join(config, `${index.toString().padStart(5, '0')}.json`), '{}');
+    }
+    const value = inventory(config);
+    value.userDataRoot = userDataRoot;
+
+    await expect(fingerprintDesktopRecoveryState(value)).rejects.toThrow('bounded content inventory');
+  }, 30_000);
 });
 
 describe('Desktop-only production capture boundary', () => {
@@ -159,6 +175,7 @@ describe('Desktop-only production capture boundary', () => {
       pragma: () => 53,
       transaction: (fn) => fn,
       backup: async (destinationPath) => fs.promises.copyFile(sourcePath, destinationPath),
+      snapshotBytes: () => fs.readFileSync(sourcePath),
       close: () => undefined,
     };
   }
@@ -277,9 +294,7 @@ describe('Desktop-only production capture boundary', () => {
           constitutionRoot: path.join(root, 'absent-constitution'),
         }),
         createDatabaseDriver: async (databasePath) => productionDriver(databasePath, () => opened.push(databasePath)),
-        sealBytes: async (plaintext, outputPath) => {
-          await fs.promises.writeFile(outputPath, Buffer.concat([Buffer.from('sealed:'), plaintext]));
-        },
+        sealBytes: async (plaintext) => Buffer.concat([Buffer.from('sealed:'), plaintext]),
         allowUnsafePathFallbackForTests: true,
       }
     );
@@ -324,7 +339,7 @@ describe('Desktop-only production capture boundary', () => {
                 fs.writeFileSync(path.join(userDataRoot, 'late-unknown', 'state.json'), '{}');
               }
             }),
-          sealBytes: async () => undefined,
+          sealBytes: async () => Buffer.from('sealed'),
           allowUnsafePathFallbackForTests: true,
         }
       )
@@ -361,13 +376,13 @@ describe('Desktop-only production capture boundary', () => {
             constitutionRoot: path.join(root, 'absent-constitution'),
           }),
           createDatabaseDriver: async (databasePath) => productionDriver(databasePath),
-          sealBytes: async (plaintext, outputPath) => {
-            await fs.promises.writeFile(outputPath, plaintext);
+          sealBytes: async (plaintext) => {
             if (!injected) {
               injected = true;
               fs.mkdirSync(path.join(userDataRoot, 'late-after-quiescence'));
               fs.writeFileSync(path.join(userDataRoot, 'late-after-quiescence', 'state.json'), '{}');
             }
+            return Buffer.from(plaintext);
           },
           allowUnsafePathFallbackForTests: true,
         }
@@ -406,7 +421,7 @@ describe('Desktop-only production capture boundary', () => {
             constitutionRoot: path.join(root, 'absent-constitution'),
           }),
           createDatabaseDriver: async (databasePath) => productionDriver(databasePath, driverOpened),
-          sealBytes: async () => undefined,
+          sealBytes: async () => Buffer.from('sealed'),
         }
       )
     ).rejects.toThrow('UNKNOWN_AUTHORITY_ROOT');

@@ -12,7 +12,7 @@ import type { WaylandReleaseTrack } from '@/common/releaseTrack';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
 import { createDriver } from '@process/services/database/drivers/createDriver';
 import { readDatabaseSchemaVersionStrict } from './startupCompatibility';
-import { sealRecoveryBytes } from './recoverySealing';
+import { sealRecoveryBytesToBuffer } from './recoverySealing';
 import {
   assertRecoveryDestinationDisjoint,
   buildRecoveryPoint,
@@ -58,7 +58,7 @@ export type ProductionRecoveryCaptureDependencies = {
     constitutionRoot: string;
   };
   createDatabaseDriver?: typeof createDriver;
-  sealBytes?: typeof sealRecoveryBytes;
+  sealBytes?: typeof sealRecoveryBytesToBuffer;
   /** Test-only path fallback; production remains fail-closed without descriptor-relative publication. */
   allowUnsafePathFallbackForTests?: boolean;
 };
@@ -173,6 +173,7 @@ async function addPathToEpoch(
   candidate: string,
   excludedTopLevel: ReadonlySet<string> = new Set()
 ): Promise<void> {
+  let remaining = MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT;
   let stat: Awaited<ReturnType<typeof lstat>>;
   try {
     stat = await lstat(candidate);
@@ -196,6 +197,10 @@ async function addPathToEpoch(
     hash.update(`dir\0${path.relative(candidate, directory)}\0`);
     for (const entry of entries) {
       if (directory === candidate && excludedTopLevel.has(entry.name)) continue;
+      if (remaining <= 0) {
+        throw new Error('Recovery mutation epoch exceeded its bounded content inventory.');
+      }
+      remaining -= 1;
       const child = path.join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new Error(`Recovery mutation epoch refuses symlink: ${child}`);
       // Sequential traversal is required because this is one ordered hash stream.
@@ -288,7 +293,7 @@ export async function captureProductionRecoveryPoint(
   };
   const { defaultCoreRoot, namedCoreRoot, constitutionRoot } = resolvedCoreRoots;
   const databaseDriverFactory = dependencies.createDatabaseDriver ?? createDriver;
-  const recoverySealer = dependencies.sealBytes ?? sealRecoveryBytes;
+  const recoverySealer = dependencies.sealBytes ?? sealRecoveryBytesToBuffer;
   const inventoryInputs = {
     userDataRoot: inputs.userDataRoot,
     constitutionRoot,
@@ -342,10 +347,13 @@ export async function captureProductionRecoveryPoint(
       protectedRoots: [inputs.userDataRoot, constitutionRoot, defaultCoreRoot, namedCoreRoot],
     },
     {
-      captureSqliteOnline: async (sourcePath, destinationPath) => {
+      captureSqliteOnline: async (sourcePath) => {
         const driver = await databaseDriverFactory(sourcePath, { readonly: true, fileMustExist: true });
         try {
-          await driver.backup(destinationPath);
+          if (!driver.snapshotBytes) {
+            throw new Error('SQLite driver cannot produce an in-memory application-consistent snapshot.');
+          }
+          return Buffer.from(driver.snapshotBytes());
         } finally {
           driver.close();
         }

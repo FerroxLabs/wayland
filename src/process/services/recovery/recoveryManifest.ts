@@ -277,6 +277,13 @@ function validateExternalAuthorityBinding(
   const isLegacyManifest = formatVersion === LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION;
   const isPreviousManifest = formatVersion === PREVIOUS_RECOVERY_MANIFEST_FORMAT_VERSION;
   if (isLegacyManifest && authority.referenceIds === undefined) return;
+  // The first v2 writer predated both referenceIds and referenceBindings. A
+  // genuine already-published v2 record therefore omits both fields. Once a
+  // v2 record carries either field, validate it instead of treating a partial
+  // authority claim as legacy compatibility.
+  if (isPreviousManifest && authority.referenceIds === undefined && authority.referenceBindings === undefined) {
+    return;
+  }
   if (!Array.isArray(authority.referenceIds) || authority.referenceIds.some((value) => typeof value !== 'string')) {
     errors.push(
       issue(

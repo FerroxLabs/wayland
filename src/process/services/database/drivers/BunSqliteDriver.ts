@@ -41,9 +41,7 @@ export class BunSqliteDriver implements ISqliteDriver {
   ) {
     this.db = new Database(
       dbPath,
-      options.readonly
-        ? { readonly: true, create: false }
-        : { readwrite: true, create: options.fileMustExist ? false : true }
+      options.readonly ? { readonly: true, create: false } : { readwrite: true, create: !options.fileMustExist }
     );
   }
 
@@ -89,6 +87,10 @@ export class BunSqliteDriver implements ISqliteDriver {
       flag: 'wx',
       mode: 0o600,
     });
+  }
+
+  snapshotBytes(): Buffer {
+    return Buffer.from(this.db.serialize());
   }
 
   close(): void {

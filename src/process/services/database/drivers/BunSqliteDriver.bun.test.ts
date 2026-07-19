@@ -105,6 +105,27 @@ describe('BunSqliteDriver', () => {
     }
   });
 
+  it('serializes committed WAL state into an application-consistent in-memory image', () => {
+    const directory = temporaryDirectory();
+    const sourcePath = path.join(directory, 'source.db');
+    const snapshotPath = path.join(directory, 'snapshot-from-memory.db');
+    driver = new BunSqliteDriver(sourcePath);
+    driver.pragma('journal_mode = WAL');
+    driver.pragma('wal_autocheckpoint = 0');
+    driver.exec('CREATE TABLE recovery_probe (value TEXT NOT NULL)');
+    driver.prepare('INSERT INTO recovery_probe (value) VALUES (?)').run('committed-in-wal');
+
+    const bytes = driver.snapshotBytes();
+    expect(bytes.subarray(0, 16).toString()).toBe('SQLite format 3\0');
+    fs.writeFileSync(snapshotPath, bytes, { flag: 'wx', mode: 0o600 });
+    const snapshot = new BunSqliteDriver(snapshotPath, { fileMustExist: true });
+    try {
+      expect(snapshot.prepare('SELECT value FROM recovery_probe').get()).toEqual({ value: 'committed-in-wal' });
+    } finally {
+      snapshot.close();
+    }
+  });
+
   it('never overwrites an existing destination', async () => {
     const directory = temporaryDirectory();
     const backupPath = path.join(directory, 'existing.db');

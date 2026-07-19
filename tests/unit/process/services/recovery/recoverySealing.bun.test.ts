@@ -71,6 +71,18 @@ describe('recovery file sealing', () => {
     expect(await readFile(data.restored, 'utf8')).toBe('descriptor-admitted-state');
   });
 
+  it('returns an encrypted envelope without creating any plaintext staging file', async () => {
+    const data = await fixture();
+    const sealer = createRecoveryFileSealer(authenticatedBackend());
+    await rm(data.source);
+
+    const envelope = await sealer.sealBytesToBuffer(Buffer.from('in-memory-sqlite-image'));
+    expect(envelope.toString('utf8')).not.toContain('in-memory-sqlite-image');
+    await writeFile(data.sealed, envelope, { flag: 'wx', mode: 0o600 });
+    await sealer.unsealFile(data.sealed, data.restored);
+    expect(await readFile(data.restored, 'utf8')).toBe('in-memory-sqlite-image');
+  });
+
   it('fails closed when the OS credential store is unavailable', async () => {
     const data = await fixture();
     const sealer = createRecoveryFileSealer(authenticatedBackend(false));
