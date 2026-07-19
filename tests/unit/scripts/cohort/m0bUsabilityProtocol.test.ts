@@ -142,6 +142,11 @@ describe('M0B usability protocol', () => {
       },
       {
         file: 'src/process/services/cohort/policy.ts',
+        from: '  maxJourneyFailureRateDelta: 0,',
+        to: '  maxJourneyFailureRateDelta: -0,',
+      },
+      {
+        file: 'src/process/services/cohort/policy.ts',
         from: '  startsPerPrimaryJourney: 10,\n});',
         to: '  startsPerPrimaryJourney: 10,\n});\nObject.assign(M0B_DEFAULT_MINIMUMS, { participantsTotal: 1 });',
         frozenNoOp: true,
