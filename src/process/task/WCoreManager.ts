@@ -515,9 +515,6 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       onProcessExit: (code, activeMsgId) => {
         this.handleProcessExit(code, activeMsgId);
       },
-      onProcessTerminated: () => {
-        void this.releaseProfileLaunchLease();
-      },
       onPong: () => this.handlePong(),
     });
 

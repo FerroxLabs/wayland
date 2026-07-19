@@ -272,6 +272,45 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
 
       rejectTreeShutdown(new Error('engine descendant still alive'));
       await expect(shutdown).rejects.toThrow('engine descendant still alive');
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+      expect((manager as unknown as { agent: typeof engine }).agent).toBe(engine);
+      expect(
+        (manager as unknown as { releaseProfileLease: typeof releaseProfileLease | null }).releaseProfileLease
+      ).toBe(releaseProfileLease);
+    });
+
+    it('releases the profile lease only after deferred engine-tree shutdown succeeds', async () => {
+      await vi.waitFor(() => expect(wcoreAgentOptions).toHaveLength(1));
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (manager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      let resolveTreeShutdown!: () => void;
+      const engine = {
+        kill: vi.fn(
+          () =>
+            new Promise<void>((resolve) => {
+              resolveTreeShutdown = resolve;
+            })
+        ),
+      };
+      (manager as unknown as { agent: typeof engine }).agent = engine;
+      (manager as unknown as { agentReady: Promise<void> }).agentReady = Promise.resolve();
+
+      const shutdown = manager.kill();
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      wcoreAgentOptions[0].onProcessTerminated?.(0);
+      await Promise.resolve();
+
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      resolveTreeShutdown();
+      await expect(shutdown).resolves.toBeUndefined();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
+      expect((manager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(
+        (manager as unknown as { releaseProfileLease: typeof releaseProfileLease | null }).releaseProfileLease
+      ).toBeNull();
     });
 
     it('rejects shutdown when the Wayland Core engine tree exit is unproved', async () => {
