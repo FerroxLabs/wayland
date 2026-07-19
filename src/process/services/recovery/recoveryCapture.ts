@@ -249,6 +249,7 @@ async function addNamespaceToEpoch(hash: ReturnType<typeof createHash>, userData
     if (directoryStat.isSymbolicLink() || !directoryStat.isDirectory()) {
       throw new Error(`Recovery mutation epoch found unsafe namespace: ${directory}`);
     }
+    hash.update(`namespace-root\0${relativeRoot}\0${directoryStat.dev}\0${directoryStat.ino}\0`);
     const entries = await readdir(directory, { withFileTypes: true });
     entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
     for (const entry of entries) {
@@ -291,9 +292,17 @@ export async function fingerprintDesktopRecoveryState(inventory: RecoveryInvento
   return `sha256:${hash.digest('hex')}`;
 }
 
-function recoveryInventoryCapturePlanIdentity(inventory: RecoveryInventory): string {
+async function recoveryInventoryCapturePlanIdentity(inventory: RecoveryInventory): Promise<string> {
   const { observedAt: _observedAt, ...capturePlan } = inventory;
-  return `sha256:${createHash('sha256').update(JSON.stringify(capturePlan)).digest('hex')}`;
+  const userDataRoot = resolveInventoryUserDataRoot(inventory);
+  const rootIdentity = await lstat(userDataRoot);
+  if (rootIdentity.isSymbolicLink() || !rootIdentity.isDirectory()) {
+    throw new Error('Recovery capture plan requires a real authoritative user-data root.');
+  }
+  return `sha256:${createHash('sha256')
+    .update(JSON.stringify(capturePlan))
+    .update(`\0user-data-root\0${path.resolve(userDataRoot)}\0${rootIdentity.dev}\0${rootIdentity.ino}`)
+    .digest('hex')}`;
 }
 
 /**
@@ -373,7 +382,7 @@ export async function captureProductionRecoveryPoint(
     // was used only to authorize healthy-v2 provisioning.
     inventory = await inventoryRecoveryAuthorities(inventoryInputs);
     assertDesktopOnlyRecoveryCaptureReady(inventory);
-    const authoritativeCapturePlan = recoveryInventoryCapturePlanIdentity(inventory);
+    const authoritativeCapturePlan = await recoveryInventoryCapturePlanIdentity(inventory);
     await dependencies.afterAuthoritativeInventoryForTests?.();
 
     return await buildRecoveryPoint(
@@ -430,7 +439,7 @@ export async function captureProductionRecoveryPoint(
           // inheriting an obsolete authority disposition.
           const currentInventory = await inventoryRecoveryAuthorities(inventoryInputs);
           assertDesktopOnlyRecoveryCaptureReady(currentInventory);
-          if (recoveryInventoryCapturePlanIdentity(currentInventory) !== authoritativeCapturePlan) {
+          if ((await recoveryInventoryCapturePlanIdentity(currentInventory)) !== authoritativeCapturePlan) {
             throw new Error('Recovery authority inventory changed after capture-plan admission.');
           }
           return fingerprintDesktopRecoveryState(currentInventory);

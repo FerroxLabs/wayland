@@ -70,6 +70,7 @@ export type RecoveryFileHandleRole =
   | 'artifact-parent'
   | 'captured-source'
   | 'source-descendant'
+  | 'source-ancestor'
   | 'staging-root'
   | 'source-root'
   | 'destination-root';
@@ -163,6 +164,7 @@ async function closeRecoveryHandle(
 }
 
 type RecoverySourceAdmission = {
+  requestedSourcePath: string;
   sourcePath: string;
   operationRoot: string;
   state: StateAuthorityInventory['evidence'][number]['state'];
@@ -170,7 +172,10 @@ type RecoverySourceAdmission = {
   descriptorRelative: boolean;
   dev: number;
   ino: number;
+  ancestors: RecoverySourceAncestorAdmission[];
 };
+
+type RecoverySourceAncestorAdmission = DestinationPathIdentity & { handle?: FileHandle };
 
 function pathsOverlap(left: string, right: string): boolean {
   const a = path.resolve(left);
@@ -545,6 +550,39 @@ type AdmittedSourceFile = {
 type RecoverySourceProof = { sha256: string; dev: number; ino: number };
 
 async function assertRecoverySourceRootStable(admission: RecoverySourceAdmission): Promise<void> {
+  for (const ancestor of admission.ancestors) {
+    // Rebind every component that gives the source pathname its authority.
+    // A stable leaf inode is insufficient if an ancestor was replaced.
+    // oxlint-disable-next-line no-await-in-loop
+    const currentAncestor = await lstat(ancestor.path);
+    // oxlint-disable-next-line no-await-in-loop
+    const observedAncestor = ancestor.handle ? await ancestor.handle.stat() : currentAncestor;
+    if (
+      currentAncestor.isSymbolicLink() ||
+      !currentAncestor.isDirectory() ||
+      !observedAncestor.isDirectory() ||
+      observedAncestor.dev !== ancestor.dev ||
+      observedAncestor.ino !== ancestor.ino ||
+      currentAncestor.dev !== ancestor.dev ||
+      currentAncestor.ino !== ancestor.ino
+    ) {
+      throw new Error(`Recovery source ancestor identity changed after admission: ${ancestor.path}`);
+    }
+  }
+  const [currentResolvedPath, currentRequested] = await Promise.all([
+    realpath(admission.requestedSourcePath),
+    lstat(admission.requestedSourcePath),
+  ]);
+  if (path.resolve(currentResolvedPath) !== path.resolve(admission.sourcePath)) {
+    throw new Error(`Recovery source alias identity changed after admission: ${admission.requestedSourcePath}`);
+  }
+  if (
+    currentRequested.isSymbolicLink() ||
+    currentRequested.dev !== admission.dev ||
+    currentRequested.ino !== admission.ino
+  ) {
+    throw new Error(`Recovery source pathname identity changed after admission: ${admission.requestedSourcePath}`);
+  }
   const current = await lstat(admission.sourcePath);
   const observed = admission.handle ? await admission.handle.stat() : current;
   const expectedType =
@@ -754,79 +792,253 @@ async function visitAdmittedSourceFiles(
   await visitDirectory(admission.handle, '');
 }
 
+function recoverySourceAncestorPaths(sourcePath: string): string[] {
+  const resolvedSource = path.resolve(sourcePath);
+  const filesystemRoot = path.parse(resolvedSource).root;
+  const paths: string[] = [];
+  let cursor = path.dirname(resolvedSource);
+  while (true) {
+    paths.push(cursor);
+    if (cursor === filesystemRoot) break;
+    const parent = path.dirname(cursor);
+    if (parent === cursor) break;
+    cursor = parent;
+  }
+  return paths.toReversed();
+}
+
+async function admitRecoverySourceAncestorChain(
+  sourcePath: string,
+  closeFileHandle?: RecoveryPointBuilderDependencies['closeFileHandle']
+): Promise<RecoverySourceAncestorAdmission[]> {
+  const ancestors: RecoverySourceAncestorAdmission[] = [];
+  let primaryError: unknown;
+  try {
+    for (const ancestorPath of recoverySourceAncestorPaths(sourcePath)) {
+      const parent = ancestors.at(-1);
+      const operationPath =
+        recoveryFilesystemSafetyModeForPlatform(process.platform) === 'descriptor-relative' && parent?.handle
+          ? path.join(`/proc/self/fd/${parent.handle.fd}`, path.basename(ancestorPath))
+          : ancestorPath;
+      let handle: FileHandle | undefined;
+      try {
+        // oxlint-disable-next-line no-await-in-loop
+        const expected = await lstat(operationPath);
+        if (expected.isSymbolicLink() || !expected.isDirectory()) {
+          throw new Error(`Recovery source ancestor is unsafe: ${ancestorPath}`);
+        }
+        // Windows directory handles are unavailable and production capture is
+        // already rejected there. The pathname-only branch remains test-only.
+        // oxlint-disable-next-line no-await-in-loop
+        handle =
+          process.platform === 'win32'
+            ? undefined
+            : // oxlint-disable-next-line no-await-in-loop
+              await open(operationPath, constants.O_RDONLY | DIRECTORY_ONLY | NO_FOLLOW);
+        // oxlint-disable-next-line no-await-in-loop
+        const observed = handle ? await handle.stat() : expected;
+        // oxlint-disable-next-line no-await-in-loop
+        const current = await lstat(ancestorPath);
+        if (
+          current.isSymbolicLink() ||
+          !current.isDirectory() ||
+          !observed.isDirectory() ||
+          observed.dev !== expected.dev ||
+          observed.ino !== expected.ino ||
+          current.dev !== observed.dev ||
+          current.ino !== observed.ino
+        ) {
+          throw new Error(`Recovery source ancestor identity changed during admission: ${ancestorPath}`);
+        }
+        ancestors.push({ path: ancestorPath, handle, dev: observed.dev, ino: observed.ino });
+      } catch (error) {
+        const currentCleanupFailures: Error[] = [];
+        // oxlint-disable-next-line no-await-in-loop
+        await closeRecoveryHandle(handle, 'source-ancestor', closeFileHandle, currentCleanupFailures);
+        throwPreservingCleanupFailures(
+          error,
+          currentCleanupFailures,
+          `Recovery source ancestor admission failed for ${ancestorPath}.`
+        );
+      }
+    }
+  } catch (error) {
+    primaryError = error;
+  }
+  if (primaryError !== undefined) {
+    const cleanupFailures: Error[] = [];
+    for (const ancestor of ancestors.toReversed()) {
+      // oxlint-disable-next-line no-await-in-loop
+      await closeRecoveryHandle(ancestor.handle, 'source-ancestor', closeFileHandle, cleanupFailures);
+    }
+    throwPreservingCleanupFailures(
+      primaryError,
+      cleanupFailures,
+      'Recovery source ancestor admission and cleanup failed.'
+    );
+  }
+  return ancestors;
+}
+
 async function admitRecoverySource(
   evidence: StateAuthorityInventory['evidence'][number],
-  allowUnsafePathFallbackForTests: boolean
+  allowUnsafePathFallbackForTests: boolean,
+  closeFileHandle?: RecoveryPointBuilderDependencies['closeFileHandle']
 ): Promise<RecoverySourceAdmission> {
   if (evidence.state !== 'file' && evidence.state !== 'directory') {
     throw new Error(`Recovery source cannot be admitted from state ${evidence.state}: ${evidence.path}`);
   }
   void allowUnsafePathFallbackForTests;
+  const lexicalSource = await lstat(evidence.path);
+  if (lexicalSource.isSymbolicLink()) {
+    throw new Error(`Recovery source cannot be a symlink: ${evidence.path}`);
+  }
+  const lexicalTypeMatches = evidence.state === 'directory' ? lexicalSource.isDirectory() : lexicalSource.isFile();
+  if (!lexicalTypeMatches) {
+    throw new Error(`Recovery source type does not match inventory: ${evidence.path}`);
+  }
+  // Resolve platform-owned aliases such as macOS /var -> /private/var once,
+  // then admit and operate against the complete canonical ancestor chain.
+  const canonicalSourcePath = await realpath(evidence.path);
+  const ancestors = await admitRecoverySourceAncestorChain(canonicalSourcePath, closeFileHandle);
+  const closeAncestorsOnFailure = async (primaryError: unknown): Promise<never> => {
+    const cleanupFailures: Error[] = [];
+    for (const ancestor of ancestors.toReversed()) {
+      // oxlint-disable-next-line no-await-in-loop
+      await closeRecoveryHandle(ancestor.handle, 'source-ancestor', closeFileHandle, cleanupFailures);
+    }
+    throwPreservingCleanupFailures(primaryError, cleanupFailures, 'Recovery source admission and cleanup failed.');
+    throw primaryError;
+  };
+  const closeLeafAndAncestorsOnFailure = async (handle: FileHandle, primaryError: unknown): Promise<never> => {
+    const leafCleanupFailures: Error[] = [];
+    await closeRecoveryHandle(handle, 'source-root', closeFileHandle, leafCleanupFailures);
+    const errorWithLeafCleanup =
+      leafCleanupFailures.length > 0
+        ? new AggregateError([asError(primaryError), ...leafCleanupFailures], 'Recovery source admission failed.', {
+            cause: primaryError,
+          })
+        : primaryError;
+    return closeAncestorsOnFailure(errorWithLeafCleanup);
+  };
+  const deepestAncestor = ancestors.at(-1);
+  const operationPath =
+    recoveryFilesystemSafetyModeForPlatform(process.platform) === 'descriptor-relative' && deepestAncestor?.handle
+      ? path.join(`/proc/self/fd/${deepestAncestor.handle.fd}`, path.basename(canonicalSourcePath))
+      : canonicalSourcePath;
   if (recoveryFilesystemSafetyModeForPlatform(process.platform) !== 'descriptor-relative') {
-    const expected = await lstat(evidence.path);
-    if (expected.isSymbolicLink()) throw new Error(`Recovery source cannot be a symlink: ${evidence.path}`);
+    let expected: Awaited<ReturnType<typeof lstat>>;
+    try {
+      expected = await lstat(operationPath);
+    } catch (error) {
+      return closeAncestorsOnFailure(error);
+    }
+    if (expected.isSymbolicLink()) {
+      return closeAncestorsOnFailure(new Error(`Recovery source cannot be a symlink: ${evidence.path}`));
+    }
+    if (expected.dev !== lexicalSource.dev || expected.ino !== lexicalSource.ino) {
+      return closeAncestorsOnFailure(
+        new Error(`Recovery source identity changed while its canonical path was admitted: ${evidence.path}`)
+      );
+    }
     const expectedType = evidence.state === 'directory' ? expected.isDirectory() : expected.isFile();
     if (!expectedType) {
-      throw new Error(`Recovery source type does not match inventory: ${evidence.path}`);
+      return closeAncestorsOnFailure(new Error(`Recovery source type does not match inventory: ${evidence.path}`));
     }
     if (process.platform === 'win32') {
       return {
-        sourcePath: evidence.path,
-        operationRoot: evidence.path,
+        requestedSourcePath: evidence.path,
+        sourcePath: canonicalSourcePath,
+        operationRoot: canonicalSourcePath,
         state: evidence.state,
         descriptorRelative: false,
         dev: expected.dev,
         ino: expected.ino,
+        ancestors,
       };
     }
     const flags = constants.O_RDONLY | NO_FOLLOW | (evidence.state === 'directory' ? DIRECTORY_ONLY : 0);
-    const handle = await open(evidence.path, flags);
+    let handle: FileHandle;
+    try {
+      handle = await open(operationPath, flags);
+    } catch (error) {
+      return closeAncestorsOnFailure(error);
+    }
+    try {
+      const observed = await handle.stat();
+      const current = await lstat(canonicalSourcePath);
+      const observedType = evidence.state === 'directory' ? observed.isDirectory() : observed.isFile();
+      if (
+        !observedType ||
+        current.isSymbolicLink() ||
+        observed.dev !== expected.dev ||
+        observed.ino !== expected.ino ||
+        current.dev !== observed.dev ||
+        current.ino !== observed.ino
+      ) {
+        throw new Error(`Recovery source identity changed during admission: ${evidence.path}`);
+      }
+      return {
+        requestedSourcePath: evidence.path,
+        sourcePath: canonicalSourcePath,
+        operationRoot: canonicalSourcePath,
+        state: evidence.state,
+        handle,
+        descriptorRelative: false,
+        dev: observed.dev,
+        ino: observed.ino,
+        ancestors,
+      };
+    } catch (error) {
+      return closeLeafAndAncestorsOnFailure(handle, error);
+    }
+  }
+
+  let expected: Awaited<ReturnType<typeof lstat>>;
+  try {
+    expected = await lstat(operationPath);
+  } catch (error) {
+    return closeAncestorsOnFailure(error);
+  }
+  if (expected.dev !== lexicalSource.dev || expected.ino !== lexicalSource.ino) {
+    return closeAncestorsOnFailure(
+      new Error(`Recovery source identity changed while its canonical path was admitted: ${evidence.path}`)
+    );
+  }
+  const flags = constants.O_RDONLY | NO_FOLLOW | (evidence.state === 'directory' ? DIRECTORY_ONLY : 0);
+  let handle: FileHandle;
+  try {
+    handle = await open(operationPath, flags);
+  } catch (error) {
+    return closeAncestorsOnFailure(error);
+  }
+  try {
     const observed = await handle.stat();
-    const current = await lstat(evidence.path);
-    const observedType = evidence.state === 'directory' ? observed.isDirectory() : observed.isFile();
+    const current = await lstat(canonicalSourcePath);
+    const expectedType = evidence.state === 'directory' ? observed.isDirectory() : observed.isFile();
     if (
-      !observedType ||
+      !expectedType ||
       current.isSymbolicLink() ||
       observed.dev !== expected.dev ||
       observed.ino !== expected.ino ||
       current.dev !== observed.dev ||
       current.ino !== observed.ino
     ) {
-      await handle.close();
       throw new Error(`Recovery source identity changed during admission: ${evidence.path}`);
     }
     return {
-      sourcePath: evidence.path,
-      operationRoot: evidence.path,
-      state: evidence.state,
-      handle,
-      descriptorRelative: false,
-      dev: observed.dev,
-      ino: observed.ino,
-    };
-  }
-
-  const expected = await lstat(evidence.path);
-  const flags = constants.O_RDONLY | NO_FOLLOW | (evidence.state === 'directory' ? DIRECTORY_ONLY : 0);
-  const handle = await open(evidence.path, flags);
-  try {
-    const observed = await handle.stat();
-    const expectedType = evidence.state === 'directory' ? observed.isDirectory() : observed.isFile();
-    if (!expectedType || observed.dev !== expected.dev || observed.ino !== expected.ino) {
-      throw new Error(`Recovery source identity changed during admission: ${evidence.path}`);
-    }
-    return {
-      sourcePath: evidence.path,
+      requestedSourcePath: evidence.path,
+      sourcePath: canonicalSourcePath,
       operationRoot: `/proc/self/fd/${handle.fd}`,
       state: evidence.state,
       handle,
       descriptorRelative: true,
       dev: observed.dev,
       ino: observed.ino,
+      ancestors,
     };
   } catch (error) {
-    await handle.close();
-    throw error;
+    return closeLeafAndAncestorsOnFailure(handle, error);
   }
 }
 
@@ -1157,7 +1369,11 @@ export async function buildRecoveryPoint(
         if (evidence.state === 'absent') continue;
         // Pin every copied authority root before the mutation epoch begins.
         // oxlint-disable-next-line no-await-in-loop
-        const admission = await admitRecoverySource(evidence, Boolean(dependencies.allowUnsafePathFallbackForTests));
+        const admission = await admitRecoverySource(
+          evidence,
+          Boolean(dependencies.allowUnsafePathFallbackForTests),
+          dependencies.closeFileHandle
+        );
         sourceAdmissions.set(`${authority.id}\0${evidenceIndex}`, admission);
       }
     }
@@ -1478,11 +1694,15 @@ export async function buildRecoveryPoint(
         ? () => (dependencies.closeFileHandle ?? defaultCloseFileHandle)(stagingAdmission!.handle!, 'staging-root')
         : undefined
     );
-    const sourceHandles = [...sourceAdmissions.values()]
-      .map(({ handle }) => handle)
-      .filter((handle): handle is FileHandle => handle !== undefined);
+    const sourceHandles: Array<{ handle: FileHandle; role: 'source-root' | 'source-ancestor' }> = [];
+    for (const admission of sourceAdmissions.values()) {
+      if (admission.handle) sourceHandles.push({ handle: admission.handle, role: 'source-root' });
+      for (const ancestor of admission.ancestors.toReversed()) {
+        if (ancestor.handle) sourceHandles.push({ handle: ancestor.handle, role: 'source-ancestor' });
+      }
+    }
     const sourceHandleResults = await Promise.allSettled(
-      sourceHandles.map((handle) => (dependencies.closeFileHandle ?? defaultCloseFileHandle)(handle, 'source-root'))
+      sourceHandles.map(({ handle, role }) => (dependencies.closeFileHandle ?? defaultCloseFileHandle)(handle, role))
     );
     for (const result of sourceHandleResults) {
       if (result.status === 'rejected') {

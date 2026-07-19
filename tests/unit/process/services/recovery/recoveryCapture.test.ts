@@ -407,6 +407,49 @@ describe('Desktop-only production capture boundary', () => {
     expect(fs.existsSync(destinationRoot) ? fs.readdirSync(destinationRoot) : []).toEqual([]);
   });
 
+  it('rejects replacement of the authoritative user-data root after capture-plan admission', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-root-race-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const retiredUserDataRoot = `${userDataRoot}.retired`;
+    const destinationRoot = path.join(root, 'recovery-points');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite-production');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+
+    await expect(
+      captureProductionRecoveryPoint(
+        {
+          destinationRoot,
+          userDataRoot,
+          sourceAppVersion: '0.11.18',
+          sourceReleaseTrack: 'stable',
+          desktopProfileLockHeld: true,
+        },
+        {
+          resolveCoreRoots: () => ({
+            defaultCoreRoot: path.join(root, 'absent-core-default'),
+            namedCoreRoot: path.join(root, 'absent-core-profiles'),
+            constitutionRoot: path.join(root, 'absent-constitution'),
+          }),
+          createDatabaseDriver: async (databasePath) => productionDriver(databasePath),
+          sealBytes: async (plaintext) => Buffer.from(plaintext),
+          afterAuthoritativeInventoryForTests: () => {
+            fs.renameSync(userDataRoot, retiredUserDataRoot);
+            fs.mkdirSync(userDataRoot);
+            for (const entry of fs.readdirSync(retiredUserDataRoot)) {
+              fs.renameSync(path.join(retiredUserDataRoot, entry), path.join(userDataRoot, entry));
+            }
+          },
+          allowUnsafePathFallbackForTests: true,
+        }
+      )
+    ).rejects.toThrow('Recovery authority inventory changed after capture-plan admission');
+
+    expect(fs.existsSync(destinationRoot) ? fs.readdirSync(destinationRoot) : []).toEqual([]);
+  });
+
   it('rejects mutation of a newly provisioned authority after the epoch begins', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-provisioned-mutation-'));
     roots.push(root);
