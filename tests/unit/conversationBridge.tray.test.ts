@@ -47,11 +47,15 @@ const {
     withConversationShutdown: vi.fn(),
   };
   workerTaskManager.withConversationShutdown.mockImplementation(
-    async (id: string, operation: () => Promise<unknown>) => {
+    async (id: string, prepare: () => Promise<unknown>, commit: (prepared: unknown) => unknown) => {
       await workerTaskManager.kill(id);
-      return operation();
+      const prepared = await prepare();
+      await workerTaskManager.kill(id);
+      return commit(prepared);
     }
   );
+
+  const deleteConversation = vi.fn(async () => {});
 
   return {
     getHandlers: () => handlers,
@@ -62,7 +66,10 @@ const {
     mockListJobsByConversation: vi.fn(async () => []),
     mockConversationService: {
       createConversation: vi.fn(async () => ({ id: 'conv-created', name: 'Created Conversation', source: 'wayland' })),
-      deleteConversation: vi.fn(async () => {}),
+      prepareDeleteConversation: vi.fn(async (id: string) => () => {
+        void deleteConversation(id);
+      }),
+      deleteConversation,
       updateConversation: vi.fn(async () => {}),
       getConversation: vi.fn(async () => ({ id: 'conv-1', source: 'wayland', name: 'Original Name', type: 'gemini' })),
       createWithMigration: vi.fn(async () => ({ id: 'conv-migrated', source: 'wayland' })),
@@ -172,9 +179,11 @@ describe('conversationBridge tray sync', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockWorkerTaskManager.withConversationShutdown.mockImplementation(
-      async (id: string, operation: () => Promise<unknown>) => {
+      async (id: string, prepare: () => Promise<unknown>, commit: (prepared: unknown) => unknown) => {
         await mockWorkerTaskManager.kill(id);
-        return operation();
+        const prepared = await prepare();
+        await mockWorkerTaskManager.kill(id);
+        return commit(prepared);
       }
     );
     mockListJobsByConversation.mockResolvedValue([]);

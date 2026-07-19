@@ -179,7 +179,11 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     ).then((): void => undefined);
   }
 
-  async withConversationShutdown<T>(id: string, operation: () => Promise<T>): Promise<T> {
+  async withConversationShutdown<TPrepared, TResult>(
+    id: string,
+    prepare: () => Promise<TPrepared>,
+    commit: (prepared: TPrepared) => TResult
+  ): Promise<TResult> {
     if (this.conversationShutdowns.has(id)) {
       throw new Error(`Conversation is already shutting down: ${id}`);
     }
@@ -187,19 +191,24 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     let durableOperationCompleted = false;
     try {
       await this.drainConversationTasks(id);
-      const result = await operation();
-      durableOperationCompleted = true;
-      // The durable operation can yield long enough for a caller that already
-      // constructed a task to hit addTask. The terminal gate refuses that task,
-      // but removal is not complete until its shutdown has also been proved.
-      await this.drainConversationTasks(id);
-      return result;
+      const prepared = await prepare();
+      // Preparation can yield long enough for a caller that already constructed
+      // a task to hit addTask. Drain every refused successor before the durable
+      // reference is removed. The commit is deliberately synchronous so no new
+      // task can interleave between this fixed point and persistence deletion.
+      return await this.drainConversationTasksAndCommit(id, () => {
+        const result = commit(prepared);
+        durableOperationCompleted = true;
+        return result;
+      });
     } finally {
       // Failed persistence leaves the conversation usable for a safe retry.
       // Successful deletion permanently tombstones this process-local ID. An
       // in-flight repository read may still hold the deleted row and must not
       // publish a stale successor after the durable operation returns.
-      if (!durableOperationCompleted) this.conversationShutdowns.delete(id);
+      if (!durableOperationCompleted && !this.taskList.some((lease) => lease.id === id)) {
+        this.conversationShutdowns.delete(id);
+      }
     }
   }
 
@@ -211,6 +220,21 @@ export class WorkerTaskManager implements IWorkerTaskManager {
         // oxlint-disable-next-line no-await-in-loop -- fixed-point barrier requires one microtask observation
         await Promise.resolve();
         if (!this.taskList.some((lease) => lease.id === id)) return;
+      }
+      // oxlint-disable-next-line no-await-in-loop -- each pass discovers successors raced into the prior pass
+      await this.kill(id);
+    }
+  }
+
+  private async drainConversationTasksAndCommit<TResult>(id: string, commit: () => TResult): Promise<TResult> {
+    while (true) {
+      if (!this.taskList.some((lease) => lease.id === id)) {
+        // Observe refusal work already queued by preparation, then commit in
+        // this same continuation. Returning to the caller before commit would
+        // create a microtask gap where a stale successor could publish a lease.
+        // oxlint-disable-next-line no-await-in-loop -- fixed-point barrier requires one microtask observation
+        await Promise.resolve();
+        if (!this.taskList.some((lease) => lease.id === id)) return commit();
       }
       // oxlint-disable-next-line no-await-in-loop -- each pass discovers successors raced into the prior pass
       await this.kill(id);

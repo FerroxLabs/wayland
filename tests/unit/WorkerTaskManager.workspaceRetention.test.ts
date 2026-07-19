@@ -145,26 +145,32 @@ describe('WorkerTaskManager retention authority', () => {
     managers.push(manager);
     manager.addTask('conv-1', agent(() => originalShutdown.promise) as never);
 
-    let operationStarted = false;
-    const removal = manager.withConversationShutdown('conv-1', async () => {
-      operationStarted = true;
-      expect(manager.listWorkspaceAuthorities()).toEqual([]);
-    });
+    let preparationStarted = false;
+    const commit = vi.fn();
+    const removal = manager.withConversationShutdown(
+      'conv-1',
+      async () => {
+        preparationStarted = true;
+        expect(manager.listWorkspaceAuthorities()).toEqual([]);
+      },
+      commit
+    );
     await vi.waitFor(() => expect(manager.getTask('conv-1')).toBeUndefined());
 
     const successor = agent(() => successorShutdown.promise, '/managed/work/wcore-temp-1736900000099');
     expect(() => manager.addTask('conv-1', successor as never)).toThrow('Conversation is shutting down');
-    expect(operationStarted).toBe(false);
+    expect(preparationStarted).toBe(false);
     expect(manager.listWorkspaceAuthorities()).toHaveLength(2);
 
     originalShutdown.resolve();
     await vi.waitFor(() => expect(manager.listWorkspaceAuthorities()).toHaveLength(1));
-    expect(operationStarted).toBe(false);
+    expect(preparationStarted).toBe(false);
 
     successorShutdown.resolve();
     await removal;
     expect(successor.kill).toHaveBeenCalledOnce();
-    expect(operationStarted).toBe(true);
+    expect(preparationStarted).toBe(true);
+    expect(commit).toHaveBeenCalledOnce();
     expect(manager.listWorkspaceAuthorities()).toEqual([]);
   });
 
@@ -175,11 +181,16 @@ describe('WorkerTaskManager retention authority', () => {
     const manager = new WorkerTaskManager(factory as never, repo);
     managers.push(manager);
 
-    const removal = manager.withConversationShutdown('conv-1', async () => {
-      persistenceStarted.resolve();
-      await persistence.promise;
-      return 'removed';
-    });
+    const commit = vi.fn(() => 'removed');
+    const removal = manager.withConversationShutdown(
+      'conv-1',
+      async () => {
+        persistenceStarted.resolve();
+        await persistence.promise;
+        return 'prepared';
+      },
+      commit
+    );
     await persistenceStarted.promise;
 
     const successor = agent(() => successorShutdown.promise, '/managed/work/wcore-temp-1736900000100');
@@ -190,12 +201,56 @@ describe('WorkerTaskManager retention authority', () => {
     successorShutdown.reject(new Error('callback-time process still alive'));
     await rejected;
 
+    expect(commit).not.toHaveBeenCalled();
     expect(manager.listWorkspaceAuthorities()).toEqual([
       { id: 'active-process-1', workspace: '/managed/work/wcore-temp-1736900000100' },
     ]);
     expect(() => manager.addTask('conv-1', agent(async () => undefined) as never)).toThrow(
       'Conversation is shutting down'
     );
+  });
+
+  it('commits in the same microtask as the final empty-lease observation', async () => {
+    const manager = new WorkerTaskManager(factory as never, repo);
+    managers.push(manager);
+    const successorAdded = deferred<void>();
+    const order: string[] = [];
+    const successor = agent(async () => {
+      order.push('successor-kill');
+    }, '/managed/work/wcore-temp-1736900000101');
+    const taskList = (manager as unknown as { taskList: unknown[] }).taskList;
+    let someReads = 0;
+    (manager as unknown as { taskList: unknown[] }).taskList = new Proxy(taskList, {
+      get(target, property, receiver) {
+        if (property === 'some') {
+          someReads += 1;
+          if (someReads === 4) {
+            queueMicrotask(() => {
+              try {
+                manager.addTask('conv-1', successor as never);
+              } catch {
+                // The permanent terminal gate must refuse this stale successor.
+              } finally {
+                successorAdded.resolve();
+              }
+            });
+          }
+        }
+        return Reflect.get(target, property, receiver);
+      },
+    });
+
+    await manager.withConversationShutdown(
+      'conv-1',
+      async () => 'prepared',
+      () => {
+        order.push('commit');
+      }
+    );
+    await successorAdded.promise;
+
+    expect(order).toEqual(['commit', 'successor-kill']);
+    expect(manager.listWorkspaceAuthorities()).toEqual([]);
   });
 
   it('observes and catches idle shutdown rejection without an unhandled promise', async () => {
@@ -230,9 +285,13 @@ describe('WorkerTaskManager retention authority', () => {
     managers.push(manager);
 
     await expect(
-      manager.withConversationShutdown('conv-1', async () => {
-        throw new Error('database unavailable');
-      })
+      manager.withConversationShutdown(
+        'conv-1',
+        async () => 'prepared',
+        () => {
+          throw new Error('database unavailable');
+        }
+      )
     ).rejects.toThrow('database unavailable');
 
     expect(() => manager.addTask('conv-1', agent(async () => undefined) as never)).not.toThrow();
@@ -250,7 +309,11 @@ describe('WorkerTaskManager retention authority', () => {
 
     const staleBuild = manager.getOrBuildTask('conv-stale');
     await vi.waitFor(() => expect(localRepo.getConversation).toHaveBeenCalledWith('conv-stale'));
-    await manager.withConversationShutdown('conv-stale', async () => undefined);
+    await manager.withConversationShutdown(
+      'conv-stale',
+      async () => undefined,
+      () => undefined
+    );
 
     lookup.resolve({
       id: 'conv-stale',

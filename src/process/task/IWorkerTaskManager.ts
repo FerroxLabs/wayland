@@ -17,10 +17,14 @@ export interface IWorkerTaskManager {
   kill(id: string, reason?: AgentKillReason): Promise<void>;
   /**
    * Own the terminal lifecycle gate for one conversation while its durable
-   * reference is removed. No successor task can be published until the
-   * operation either completes or fails closed.
+   * reference is removed. Preparation may yield, so every successor raced into
+   * that callback is drained before the synchronous durable commit executes.
    */
-  withConversationShutdown<T>(id: string, operation: () => Promise<T>): Promise<T>;
+  withConversationShutdown<TPrepared, TResult>(
+    id: string,
+    prepare: () => Promise<TPrepared>,
+    commit: (prepared: TPrepared) => TResult
+  ): Promise<TResult>;
   clear(): Promise<void>;
   listTasks(): Array<{ id: string; type: AgentType }>;
   /** Process-owned lease identities and their creation-time workspaces for retention authority. */

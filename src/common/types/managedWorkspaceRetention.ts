@@ -290,34 +290,6 @@ function validDecision(value: unknown): value is ManagedWorkspaceRetentionDecisi
   );
 }
 
-function isSemanticallyValidReviewCandidate(
-  entry: ManagedWorkspaceInventoryEntry,
-  reportComplete: boolean,
-  authoritiesComplete: boolean
-): boolean {
-  const evidence = entry.evidence;
-  return (
-    reportComplete &&
-    authoritiesComplete &&
-    entry.canonicalPath !== null &&
-    entry.errors.length === 0 &&
-    entry.references.length === 0 &&
-    evidence.managedProvenance &&
-    evidence.inventoryComplete &&
-    evidence.referenceCount === 0 &&
-    evidence.scheduleCount === 0 &&
-    evidence.activeProcessCount === 0 &&
-    evidence.artifactCount === 0 &&
-    evidence.userPromoted === false &&
-    evidence.userContent === 'absent' &&
-    evidence.modified === false &&
-    evidence.abandonedForMs !== null &&
-    evidence.abandonedForMs >= evidence.retentionWindowMs &&
-    entry.decision.classifications.length === 1 &&
-    entry.decision.classifications[0] === 'empty-abandoned'
-  );
-}
-
 function validEntry(value: unknown): value is ManagedWorkspaceInventoryEntry {
   return (
     exactObject(value, ['path', 'canonicalPath', 'evidence', 'decision', 'references', 'errors']) &&
@@ -438,6 +410,17 @@ export function parseManagedWorkspaceInventoryReport(value: unknown): ManagedWor
     return null;
   }
   const report = value as ManagedWorkspaceInventoryReport;
+  // Phase 1 deliberately has no portable immutable filesystem snapshot.
+  // A renderer payload cannot promote that deferred authority to complete or
+  // use a fabricated snapshot claim to mint review/lifecycle eligibility.
+  if (
+    report.authorityCompleteness.snapshot !== 'unavailable' ||
+    report.complete ||
+    report.summary.reviewCandidate !== 0 ||
+    report.entries.some((entry) => entry.decision.disposition === 'review-candidate')
+  ) {
+    return null;
+  }
   const normalizedRoot = normalizedAbsolutePath(report.root);
   const normalizedCanonicalRoot = report.canonicalRoot === null ? null : normalizedAbsolutePath(report.canonicalRoot);
   if (!normalizedRoot || (report.canonicalRoot !== null && !normalizedCanonicalRoot)) return null;
@@ -486,14 +469,5 @@ export function parseManagedWorkspaceInventoryReport(value: unknown): ManagedWor
         isKnownCount(entry.evidence.artifactCount)
     );
   if (report.complete !== expectedComplete) return null;
-  if (
-    report.entries.some(
-      (entry) =>
-        entry.decision.disposition === 'review-candidate' &&
-        !isSemanticallyValidReviewCandidate(entry, report.complete, authoritiesComplete)
-    )
-  ) {
-    return null;
-  }
   return report;
 }

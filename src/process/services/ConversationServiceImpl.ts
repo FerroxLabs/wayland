@@ -44,6 +44,10 @@ export class ConversationServiceImpl implements IConversationService {
     await this.repo.deleteConversation(id);
   }
 
+  async prepareDeleteConversation(id: string): Promise<() => void> {
+    return this.repo.prepareDeleteConversation(id);
+  }
+
   async updateConversation(id: string, updates: Partial<TChatConversation>, mergeExtra?: boolean): Promise<void> {
     let finalUpdates = updates;
     if (mergeExtra && updates.extra) {

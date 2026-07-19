@@ -180,7 +180,7 @@ describe('ManagedWorkspacesCard', () => {
     expect(screen.queryByText('active')).toBeNull();
   });
 
-  it('labels an empty abandoned shell only for later human review', async () => {
+  it('rejects a fabricated complete snapshot and review candidate in phase one', async () => {
     preview.mockResolvedValue({
       ...REPORT,
       complete: true,
@@ -223,9 +223,11 @@ describe('ManagedWorkspacesCard', () => {
 
     render(<ManagedWorkspacesCard />);
 
-    expect(await screen.findByText('Later human review')).toBeTruthy();
-    expect(screen.getByText('Review later - no action available')).toBeTruthy();
-    expect(screen.getByText(/Complete evidence marks this empty workspace/)).toBeTruthy();
+    expect(
+      await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+    ).toBeTruthy();
+    expect(screen.queryByText('Later human review')).toBeNull();
+    expect(screen.queryByText('Review later - no action available')).toBeNull();
     expect(screen.queryByRole('button', { name: /delete|remove|quarantine|clean|prune/i })).toBeNull();
   });
 

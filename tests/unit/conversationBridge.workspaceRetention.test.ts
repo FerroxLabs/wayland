@@ -93,11 +93,15 @@ const {
     withConversationShutdown: vi.fn(),
   };
   workerTaskManager.withConversationShutdown.mockImplementation(
-    async (id: string, operation: () => Promise<unknown>) => {
+    async (id: string, prepare: () => Promise<unknown>, commit: (prepared: unknown) => unknown) => {
       await workerTaskManager.kill(id);
-      return operation();
+      const prepared = await prepare();
+      await workerTaskManager.kill(id);
+      return commit(prepared);
     }
   );
+
+  const deleteConversation = vi.fn(async () => {});
 
   return {
     handlers: registered,
@@ -105,12 +109,15 @@ const {
     mockListJobsByConversation: vi.fn(async () => []),
     mockDatabase: {
       getConversation: vi.fn(),
-      deleteConversation: vi.fn(),
+      deleteConversation: vi.fn(() => ({ success: true, data: true })),
       getUserConversations: vi.fn(() => ({ data: [] })),
     },
     mockConversationService: {
       createConversation: vi.fn(),
-      deleteConversation: vi.fn(async () => {}),
+      prepareDeleteConversation: vi.fn(async (id: string) => () => {
+        void deleteConversation(id);
+      }),
+      deleteConversation,
       updateConversation: vi.fn(),
       getConversation: vi.fn(),
       createWithMigration: vi.fn(),
@@ -203,9 +210,11 @@ describe('conversation.remove managed-workspace retention', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
     mockWorkerTaskManager.withConversationShutdown.mockImplementation(
-      async (id: string, operation: () => Promise<unknown>) => {
+      async (id: string, prepare: () => Promise<unknown>, commit: (prepared: unknown) => unknown) => {
         await mockWorkerTaskManager.kill(id);
-        return operation();
+        const prepared = await prepare();
+        await mockWorkerTaskManager.kill(id);
+        return commit(prepared);
       }
     );
     for (const key of Object.keys(handlers)) delete handlers[key];
@@ -386,8 +395,10 @@ describe('conversation.remove managed-workspace retention', () => {
   });
 
   it('rejects a deferred removal when a callback-time process refuses to stop', async () => {
-    const persistence = deferred<void>();
+    const preparation = deferred<void>();
+    const preparationStarted = deferred<void>();
     const successorShutdown = deferred<void>();
+    const deleteCommit = vi.fn();
     const errorLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const manager = new WorkerTaskManager(
       { create: vi.fn(), register: vi.fn() } as never,
@@ -406,25 +417,29 @@ describe('conversation.remove managed-workspace retention', () => {
       source: 'wayland',
       extra: { workspace: successor.workspace },
     });
-    mockConversationService.deleteConversation.mockImplementation(async () => persistence.promise);
+    mockConversationService.prepareDeleteConversation.mockImplementation(async () => {
+      preparationStarted.resolve();
+      await preparation.promise;
+      return deleteCommit;
+    });
 
     try {
       initConversationBridge(mockConversationService as unknown as IConversationService, manager);
       const removal = handlers['conversation.remove']({ id: 'conv-callback-race' });
-      await vi.waitFor(() =>
-        expect(mockConversationService.deleteConversation).toHaveBeenCalledWith('conv-callback-race')
-      );
+      await preparationStarted.promise;
 
       expect(() => manager.addTask('conv-callback-race', successor as never)).toThrow('Conversation is shutting down');
       const result = expect(removal).resolves.toBe(false);
-      persistence.resolve();
+      preparation.resolve();
       successorShutdown.reject(new Error('callback-time process still alive'));
       await result;
 
+      expect(deleteCommit).not.toHaveBeenCalled();
+      expect(mockConversationService.deleteConversation).not.toHaveBeenCalled();
       expect(manager.listWorkspaceAuthorities()).toEqual([{ id: 'active-process-1', workspace: successor.workspace }]);
       expect(errorLog).toHaveBeenCalledWith('[conversationBridge] Failed to remove conversation:', expect.any(Error));
     } finally {
-      persistence.resolve();
+      preparation.resolve();
       successorShutdown.resolve();
       await manager.clear();
       errorLog.mockRestore();

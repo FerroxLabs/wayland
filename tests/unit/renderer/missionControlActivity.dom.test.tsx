@@ -70,7 +70,7 @@ afterEach(() => cleanup());
 describe('Mission Control activity window', () => {
   it('keeps a 1,001-entry ledger bounded while every entry remains reachable', () => {
     state.snapshot = snapshot(1_001);
-    render(
+    const { container } = render(
       <MemoryRouter>
         <OperationsView />
       </MemoryRouter>
@@ -79,7 +79,7 @@ describe('Mission Control activity window', () => {
     const observed = new Set<string>();
     const next = screen.getByTestId('mission-control-activity-next');
     for (let page = 0; page < 30; page += 1) {
-      const rows = screen.getAllByRole('button', { name: /Open activity: Activity/ });
+      const rows = container.querySelectorAll<HTMLButtonElement>('button[aria-label^="Open activity: Activity"]');
       expect(rows.length).toBeLessThanOrEqual(48);
       rows.forEach((row) => observed.add(row.getAttribute('aria-label') ?? ''));
       if (next.getAttribute('aria-disabled') === 'true') break;
@@ -87,7 +87,7 @@ describe('Mission Control activity window', () => {
     }
 
     expect(observed.size).toBe(1_001);
-    expect(screen.getAllByRole('button', { name: /Open activity: Activity/ })).toHaveLength(41);
+    expect(container.querySelectorAll('button[aria-label^="Open activity: Activity"]')).toHaveLength(41);
   });
 
   it('navigates a Core entry to its exact evidence-backed Workbench lane', () => {

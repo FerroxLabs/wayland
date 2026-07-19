@@ -111,9 +111,9 @@ function completeReferencedReport() {
       receipt: 'complete',
       'active-process': 'complete',
       provenance: 'complete',
-      snapshot: 'complete',
+      snapshot: 'unavailable',
     },
-    complete: true,
+    complete: false,
     entries: [
       {
         path: '/managed/work/wcore-temp-1736900000000',
@@ -130,7 +130,7 @@ function completeReferencedReport() {
 }
 
 describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
-  it('accepts a complete report only when evidence, references, and decision agree', () => {
+  it('accepts a phase-one report only when evidence, references, and decision agree', () => {
     expect(parseManagedWorkspaceInventoryReport(completeReferencedReport())).not.toBeNull();
   });
 
@@ -169,9 +169,25 @@ describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
     expect(parseManagedWorkspaceInventoryReport(blank)).toBeNull();
   });
 
-  it('rejects a false incomplete claim when every authority and entry is complete', () => {
+  it('rejects a fabricated complete snapshot claim in phase one', () => {
     const report = completeReferencedReport();
-    report.complete = false;
+    report.authorityCompleteness.snapshot = 'complete';
+    report.complete = true;
+    expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
+  });
+
+  it('rejects a fabricated review candidate while snapshot authority is unavailable', () => {
+    const report = completeReferencedReport();
+    const evidence = emptyShell();
+    report.entries[0] = {
+      path: '/managed/work/wcore-temp-1736900000000',
+      canonicalPath: '/managed/work/wcore-temp-1736900000000',
+      evidence,
+      decision: classifyManagedWorkspaceRetention(evidence),
+      references: [],
+      errors: [],
+    };
+    report.summary = { discovered: 1, preserved: 0, reviewCandidate: 1, unknown: 0 };
     expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
   });
 

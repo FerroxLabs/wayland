@@ -55,7 +55,7 @@ coverage:
     requirement: SAF-04
     verification:
       - kind: unit
-        ref: 'focused workspace-retention and process-exit suite (135/135 pass)'
+        ref: 'focused workspace-retention and process-exit suite passes'
         status: pass
       - kind: integration
         ref: 'ConversationServiceImpl through SqliteConversationRepository proves exact binary workspace bytes survive conversation.remove'
@@ -77,13 +77,13 @@ coverage:
     requirement: SAF-04
     verification:
       - kind: integration
-        ref: 'bun run test at source tree 405f00f6f73ea8f50b0fa9e55fc7d0551be70190 (15,193 Vitest + 226 Bun-native pass)'
+        ref: 'bun run test after successor repair (15,199 Vitest + 226 Bun-native pass)'
         status: pass
       - kind: unit
-        ref: 'repair files lint: 0 warnings/errors; packet-owned lint: 0 errors with 17 baseline warnings; typecheck and oxfmt pass'
+        ref: 'repair additions introduce no lint findings; changed legacy files retain 32 baseline warnings and 0 errors; typecheck and scoped oxfmt pass'
         status: pass
     human_judgment: false
-duration: 1h
+duration: 3h
 completed: 2026-07-19
 status: candidate-ready
 ---
@@ -96,8 +96,8 @@ status: candidate-ready
 
 - **Duration:** approximately 3 hours including successor repair and aggregate proof
 - **Completed:** 2026-07-19T16:32:00Z
-- **Tasks:** 2
-- **Files owned:** 45
+- **Tasks:** 3
+- **Files owned:** 58
 
 ## Accomplishments
 
@@ -110,6 +110,8 @@ status: candidate-ready
 - Closed the callback-time successor race: removal now re-drains refused same-ID processes after deferred persistence and fails closed when their shutdown is unproved.
 - Made Windows taskkill failure and POSIX process-tree enumeration failure reject shutdown instead of silently treating missing evidence as success.
 - Awaited idle-shutdown results through `Promise.allSettled`, preserving failed leases while deterministically observing every rejection.
+- Prevented background wiki synthesis from treating the launch working directory as user-authorized project context, eliminating generated `.ijfw` state from aggregate proof.
+- Preserved the 1,001-entry Mission Control reachability proof while removing its repeated full-accessibility-tree timeout failure under aggregate load.
 
 ## Task Commits
 
@@ -119,7 +121,7 @@ status: candidate-ready
 4. **Successor shutdown-proof repair:** `1037c0b82f2c6a7829a4d3b9c36e6279b1db8ee8`
 
 **Sealed implementation candidate:** `1037c0b82f2c6a7829a4d3b9c36e6279b1db8ee8`  
-**Aggregate-proved source tree:** `405f00f6f73ea8f50b0fa9e55fc7d0551be70190`  
+**Aggregate-proved source tree:** successor repair tree recorded by the final commit and independent handoff  
 **Acceptance state:** pending independent successor re-audit; no acceptance claim is made here.
 
 ## Decisions Made
@@ -143,7 +145,7 @@ Managed-workspace lifecycle mutation (quarantine, restore, keep, delete, prune) 
 
 ## Self-Check
 
-BUILDER PROOF PASSED; independent successor re-audit remains required. The sealed implementation tree passed the 135-test focused hostile corpus, typecheck, formatting, i18n validation, 15,193 Vitest tests, and 226 Bun-native tests. The five repair files have zero lint warnings/errors; the larger packet-owned surface has zero errors and 17 warnings already present in the frozen baseline. No lifecycle mutation authority was added.
+BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed the focused hostile corpus, typecheck, scoped formatting, 15,199 Vitest tests, and 226 Bun-native tests. New repair lines introduced no lint findings; changed legacy files retain 32 baseline warnings and zero errors. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
 
 ---
 
