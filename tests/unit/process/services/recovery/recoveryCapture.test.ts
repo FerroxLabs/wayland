@@ -369,6 +369,108 @@ describe('Desktop-only production capture boundary', () => {
     ).toBe(true);
   });
 
+  it('rejects a recognized authority created after the authoritative capture plan is inventoried', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-plan-race-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const destinationRoot = path.join(root, 'recovery-points');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite-production');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+
+    await expect(
+      captureProductionRecoveryPoint(
+        {
+          destinationRoot,
+          userDataRoot,
+          sourceAppVersion: '0.11.18',
+          sourceReleaseTrack: 'stable',
+          desktopProfileLockHeld: true,
+        },
+        {
+          resolveCoreRoots: () => ({
+            defaultCoreRoot: path.join(root, 'absent-core-default'),
+            namedCoreRoot: path.join(root, 'absent-core-profiles'),
+            constitutionRoot: path.join(root, 'absent-constitution'),
+          }),
+          createDatabaseDriver: async (databasePath) => productionDriver(databasePath),
+          sealBytes: async (plaintext) => Buffer.from(plaintext),
+          afterAuthoritativeInventoryForTests: () => {
+            fs.writeFileSync(path.join(userDataRoot, 'pending-update.json'), '{"version":"0.12.0"}');
+          },
+          allowUnsafePathFallbackForTests: true,
+        }
+      )
+    ).rejects.toThrow('Recovery authority inventory changed after capture-plan admission');
+
+    expect(fs.existsSync(destinationRoot) ? fs.readdirSync(destinationRoot) : []).toEqual([]);
+  });
+
+  it('rejects mutation of a newly provisioned authority after the epoch begins', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-provisioned-mutation-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const destinationRoot = path.join(root, 'recovery-points');
+    const revisionAuthorityPath = path.join(userDataRoot, 'constitution', 'revision-authority.enc');
+    const authorityRoot = resolveExternalRecoveryAuthorityRoot(userDataRoot);
+    const eventPath = path.join(authorityRoot, 'events', '000000.json');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(path.dirname(revisionAuthorityPath), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite-production');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+    fs.writeFileSync(revisionAuthorityPath, 'healthy-v2-authority');
+    let mutated = false;
+
+    await expect(
+      captureProductionRecoveryPoint(
+        {
+          destinationRoot,
+          userDataRoot,
+          sourceAppVersion: '0.11.18',
+          sourceReleaseTrack: 'stable',
+          desktopProfileLockHeld: true,
+          externalRecoveryAuthority: { confirmed: true, existingRecordDigests: [] },
+        },
+        {
+          resolveCoreRoots: () => ({
+            defaultCoreRoot: path.join(root, 'absent-core-default'),
+            namedCoreRoot: path.join(root, 'absent-core-profiles'),
+            constitutionRoot: path.join(root, 'absent-constitution'),
+          }),
+          createDatabaseDriver: async (databasePath) => productionDriver(databasePath),
+          sealBytes: async (plaintext) => {
+            if (!mutated) {
+              mutated = true;
+              fs.writeFileSync(eventPath, '{"created":false}');
+            }
+            return Buffer.concat([Buffer.from('sealed:'), plaintext]);
+          },
+          externalRecoveryVault: new TestVault(),
+          loadOrCreateExternalRecoveryAuthority: async () => {
+            fs.mkdirSync(path.dirname(eventPath), { recursive: true });
+            fs.writeFileSync(eventPath, '{"created":true}');
+            return {
+              authorityRoot,
+              state: {} as never,
+              canonicalStateBytes: Buffer.from('{}'),
+              activeSecret: Buffer.alloc(32, 7),
+              coveredRecordDigests: [],
+              reconciledState: false,
+            };
+          },
+          allowUnsafePathFallbackForTests: true,
+        }
+      )
+    ).rejects.toThrow(
+      /Recovery source bytes changed after capture|State changed during recovery capture|Recovery authority inventory changed after capture-plan admission/
+    );
+
+    expect(mutated).toBe(true);
+    expect(fs.existsSync(destinationRoot) ? fs.readdirSync(destinationRoot) : []).toEqual([]);
+  });
+
   it('rejects a SQLite pathname replacement while opening the pinned snapshot connection', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-database-swap-'));
     roots.push(root);

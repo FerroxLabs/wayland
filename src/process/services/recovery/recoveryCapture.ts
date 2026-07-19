@@ -62,6 +62,8 @@ export type ProductionRecoveryCaptureDependencies = {
   sealBytes?: typeof sealRecoveryBytesToBuffer;
   /** Test-only path fallback; production remains fail-closed without descriptor-relative publication. */
   allowUnsafePathFallbackForTests?: boolean;
+  /** Test-only race seam after the final capture-plan inventory is sealed. */
+  afterAuthoritativeInventoryForTests?: () => Promise<void> | void;
 };
 
 const EPOCH_AUTHORITIES = new Set([
@@ -289,6 +291,11 @@ export async function fingerprintDesktopRecoveryState(inventory: RecoveryInvento
   return `sha256:${hash.digest('hex')}`;
 }
 
+function recoveryInventoryCapturePlanIdentity(inventory: RecoveryInventory): string {
+  const { observedAt: _observedAt, ...capturePlan } = inventory;
+  return `sha256:${createHash('sha256').update(JSON.stringify(capturePlan)).digest('hex')}`;
+}
+
 /**
  * Capture live Desktop state only while bootstrap owns the normal profile lock.
  * Core state deliberately blocks in recoveryPointBuilder until #896 publishes a
@@ -361,6 +368,14 @@ export async function captureProductionRecoveryPoint(
       );
     }
 
+    // Provisioning is an intentional live-state mutation. The builder must
+    // consume an inventory created after it, never the pre-provision plan that
+    // was used only to authorize healthy-v2 provisioning.
+    inventory = await inventoryRecoveryAuthorities(inventoryInputs);
+    assertDesktopOnlyRecoveryCaptureReady(inventory);
+    const authoritativeCapturePlan = recoveryInventoryCapturePlanIdentity(inventory);
+    await dependencies.afterAuthoritativeInventoryForTests?.();
+
     return await buildRecoveryPoint(
       {
         inventory,
@@ -415,6 +430,9 @@ export async function captureProductionRecoveryPoint(
           // inheriting an obsolete authority disposition.
           const currentInventory = await inventoryRecoveryAuthorities(inventoryInputs);
           assertDesktopOnlyRecoveryCaptureReady(currentInventory);
+          if (recoveryInventoryCapturePlanIdentity(currentInventory) !== authoritativeCapturePlan) {
+            throw new Error('Recovery authority inventory changed after capture-plan admission.');
+          }
           return fingerprintDesktopRecoveryState(currentInventory);
         },
         allowUnsafePathFallbackForTests: dependencies.allowUnsafePathFallbackForTests,
