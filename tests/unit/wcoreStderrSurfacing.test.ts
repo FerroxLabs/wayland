@@ -483,7 +483,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     child.emit('exit', 0);
 
     await expect(shutdown).rejects.toBe(failure);
-    expect(agent.isAlive).toBe(true);
+    expect(agent.isAlive).toBe(false);
 
     killChildMock.mockResolvedValueOnce(undefined);
     await expect(agent.kill()).resolves.toBeUndefined();
@@ -511,7 +511,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     child.emit('exit', 1);
     expect(await started).toMatchObject({ message: 'wcore exited with code 1 during init' });
     expect(restore).not.toHaveBeenCalled();
-    expect(agent.isAlive).toBe(true);
+    expect(agent.isAlive).toBe(false);
 
     killChildMock.mockResolvedValueOnce(undefined);
     await expect(agent.kill()).resolves.toBeUndefined();
@@ -523,6 +523,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
   it('retains ready-process identity after an unrequested crash without replaying terminal effects', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
+    const stdinWrite = vi.spyOn(child.stdin, 'write');
     const restore = vi.fn();
     const onProcessTerminated = vi.fn();
     const agent = new WCoreAgent({ ...baseOptions(), onProcessTerminated });
@@ -543,14 +544,51 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     child.emit('exit', 1);
     child.emit('exit', 1);
     expect(onProcessTerminated).toHaveBeenCalledOnce();
-    expect(agent.isAlive).toBe(true);
+    expect(agent.isAlive).toBe(false);
     expect(restore).toHaveBeenCalledOnce();
+
+    const writesAtExit = stdinWrite.mock.calls.length;
+    agent.ping();
+    expect(stdinWrite).toHaveBeenCalledTimes(writesAtExit);
 
     await expect(agent.kill()).resolves.toBeUndefined();
     expect(killChildMock).toHaveBeenCalledOnce();
     expect(killChildMock).toHaveBeenCalledWith(child, false);
     expect(agent.isAlive).toBe(false);
     expect(restore).toHaveBeenCalledOnce();
+  });
+
+  it('fails closed after an active ready transport crash without post-exit writes or watchdog carryover', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const onProcessExit = vi.fn();
+    const agent = new WCoreAgent({ ...baseOptions(), onProcessExit });
+    const started = agent.start();
+    await flushUntilSpawned(child);
+
+    const contractRoot = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    child.stdout.write(`${readFileSync(path.join(contractRoot, 'events/ready.json'), 'utf8').trimEnd()}\n`);
+    await started;
+
+    const stdinWrite = vi.spyOn(child.stdin, 'write');
+    await agent.send('active turn', 'active-turn');
+    expect(stdinWrite).toHaveBeenCalledOnce();
+
+    child.emit('exit', 1);
+    child.emit('exit', 1);
+    expect(agent.isAlive).toBe(false);
+    expect(onProcessExit).toHaveBeenCalledOnce();
+    expect(onProcessExit).toHaveBeenCalledWith(1, 'active-turn');
+
+    const writesAtExit = stdinWrite.mock.calls.length;
+    agent.ping();
+    expect(stdinWrite).toHaveBeenCalledTimes(writesAtExit);
+    await expect(agent.send('next turn', 'post-active-crash')).rejects.toThrow('exited');
+    expect(stdinWrite).toHaveBeenCalledTimes(writesAtExit);
+
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
   });
 
   it('fails a post-crash turn immediately while retaining the exited child for tree proof', async () => {
@@ -654,6 +692,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
 
     child.emit('exit', 1);
     child.emit('exit', 1);
+    expect(agent.isAlive).toBe(false);
 
     await expect(agent.kill()).resolves.toBeUndefined();
     expect(killChildMock).toHaveBeenNthCalledWith(1, child, false);
