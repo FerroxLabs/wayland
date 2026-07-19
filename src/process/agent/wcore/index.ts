@@ -667,7 +667,13 @@ export class WCoreAgent {
     // a pending or failed tree-proof attempt must retain this exact identity
     // and its launch config until that proof succeeds.
     const spawnedChild = this.childProcess;
+    let rootExitObserved = false;
     spawnedChild.on('exit', (code) => {
+      // Node promises one exit event, but keep this boundary idempotent under a
+      // hostile/double-emitting child shim. Replaying terminal notifications
+      // must not duplicate trust changes or manager termination callbacks.
+      if (rootExitObserved) return;
+      rootExitObserved = true;
       this.cleanupVertexCredentials();
       this.anvilMutationWatcher.stop();
       const disconnectedReceipts = this.desktopContract.markDisconnected();
@@ -687,12 +693,10 @@ export class WCoreAgent {
       // against a turn nothing can finish. (activeMsgId is nulled below too, so
       // handleTurnStall would early-return anyway; this just doesn't leak the timer.)
       this.stopStallWatchdog();
-      const treeProofOwnsChild =
-        this.treeShutdownAttempt?.child === spawnedChild || this.failedShutdownChild === spawnedChild;
-      if (this.childProcess === spawnedChild && !treeProofOwnsChild) {
-        this.restoreProjectConfig();
-        this.childProcess = null;
-      }
+      // Root exit is notification only, even when shutdown was unrequested.
+      // Descendants can survive and become reparented, so this event cannot
+      // restore launch config or discard the only identity available to an
+      // exact killChild tree proof. stopChildWithTreeProof owns both actions.
       if (!this.ready) {
         // Surface the engine's real bail reason (its last stderr) alongside the
         // exit code so callers see the cause, not just "exited with code N"

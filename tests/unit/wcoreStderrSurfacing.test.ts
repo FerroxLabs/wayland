@@ -520,6 +520,100 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(agent.isAlive).toBe(false);
   });
 
+  it('retains ready-process identity after an unrequested crash without replaying terminal effects', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const restore = vi.fn();
+    const onProcessTerminated = vi.fn();
+    const agent = new WCoreAgent({ ...baseOptions(), onProcessTerminated });
+    (
+      agent as unknown as {
+        projectConfigTransaction: { restore: () => void };
+      }
+    ).projectConfigTransaction = { restore };
+    const started = agent.start();
+    await flushUntilSpawned(child);
+
+    const contractRoot = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    child.stdout.write(`${readFileSync(path.join(contractRoot, 'events/ready.json'), 'utf8').trimEnd()}\n`);
+    await started;
+    // Ready consumption legitimately releases startup config once.
+    expect(restore).toHaveBeenCalledOnce();
+
+    child.emit('exit', 1);
+    child.emit('exit', 1);
+    expect(onProcessTerminated).toHaveBeenCalledOnce();
+    expect(agent.isAlive).toBe(true);
+    expect(restore).toHaveBeenCalledOnce();
+
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
+    expect(agent.isAlive).toBe(false);
+    expect(restore).toHaveBeenCalledOnce();
+  });
+
+  it('serializes concurrent shutdown after an unrequested root exit onto one exact proof', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    let resolveTreeProof!: () => void;
+    killChildMock.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        resolveTreeProof = resolve;
+      })
+    );
+    const restore = vi.fn();
+    const agent = new WCoreAgent(baseOptions());
+    (
+      agent as unknown as {
+        projectConfigTransaction: { restore: () => void };
+      }
+    ).projectConfigTransaction = { restore };
+    const started = agent.start().catch((error: unknown) => error);
+    await flushUntilSpawned(child);
+
+    child.emit('exit', 1);
+    expect(await started).toMatchObject({ message: 'wcore exited with code 1 during init' });
+    const firstShutdown = agent.kill();
+    const concurrentShutdown = agent.kill();
+    await vi.waitFor(() => expect(killChildMock).toHaveBeenCalledOnce());
+    expect(restore).not.toHaveBeenCalled();
+
+    resolveTreeProof();
+    await expect(Promise.all([firstShutdown, concurrentShutdown])).resolves.toEqual([undefined, undefined]);
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
+    expect(restore).toHaveBeenCalledOnce();
+    expect(agent.isAlive).toBe(false);
+  });
+
+  it('ignores late and repeated root exit after exact shutdown proof already restored config', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const restore = vi.fn();
+    const onProcessTerminated = vi.fn();
+    const agent = new WCoreAgent({ ...baseOptions(), onProcessTerminated });
+    (
+      agent as unknown as {
+        projectConfigTransaction: { restore: () => void };
+      }
+    ).projectConfigTransaction = { restore };
+    const started = agent.start().catch((error: unknown) => error);
+    await flushUntilSpawned(child);
+
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(restore).toHaveBeenCalledOnce();
+    expect(agent.isAlive).toBe(false);
+
+    child.emit('exit', 0);
+    child.emit('exit', 0);
+    expect(await started).toMatchObject({ message: 'wcore exited with code 0 during init' });
+    expect(onProcessTerminated).toHaveBeenCalledOnce();
+    expect(restore).toHaveBeenCalledOnce();
+    expect(agent.isAlive).toBe(false);
+  });
+
   it('retries the same retained child identity when tree shutdown fails before root exit', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
@@ -530,6 +624,9 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     killChildMock.mockRejectedValueOnce(new Error('temporary tree probe failure')).mockResolvedValueOnce(undefined);
     await expect(agent.kill()).rejects.toThrow('temporary tree probe failure');
     expect(agent.isAlive).toBe(true);
+
+    child.emit('exit', 1);
+    child.emit('exit', 1);
 
     await expect(agent.kill()).resolves.toBeUndefined();
     expect(killChildMock).toHaveBeenNthCalledWith(1, child, false);
