@@ -215,6 +215,37 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(stored[0]).toMatchObject({ enabled: false, status: 'error' });
   });
 
+  it('does not leave a concurrent enabled declaration false-green when failed-probe revocation wins but status CAS loses', async () => {
+    const concurrent = { ...server, description: 'concurrent edit', updatedAt: server.updatedAt + 1 };
+    let stored = [server];
+    let saveCount = 0;
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      saveCount += 1;
+      // The initial testing-state write preserves the declaration revision. A
+      // concurrent edit lands after the probe begins but before the failed
+      // probe tries to commit its revoked/disabled truth.
+      if (saveCount === 2) stored = [concurrent];
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn().mockResolvedValue(undefined);
+    const sync = vi.fn().mockResolvedValue(undefined);
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(remove).toHaveBeenCalledWith(server.name, undefined, server.transport.type);
+    const winnerWasRepublished = sync.mock.calls.some(
+      ([published]) => published.id === concurrent.id && published.updatedAt === concurrent.updatedAt
+    );
+    const durableTruthFailsClosed =
+      stored[0].enabled === false || stored[0].lastError?.includes('publication rollback incomplete') === true;
+    expect(winnerWasRepublished || durableTruthFailsClosed).toBe(true);
+  });
+
   it('restores all publications and keeps local enabled truth when revocation reports failure', async () => {
     let stored = [server];
     const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
