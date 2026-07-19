@@ -1,0 +1,9 @@
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-01-13-evidence-r4/app
+
+
+ Test Files  7 passed (7)
+      Tests  169 passed (169)
+   Start at  02:51:32
+   Duration  952ms (transform 574ms, setup 185ms, import 528ms, tests 1.11s, environment 1ms)
+
