@@ -43,6 +43,14 @@ status: constructed
 
 # Phase 1 Plan 06: Recovery Capture Boundary Summary
 
+> **Active successor:** R5 repairs independent HIGH finding F-01 by binding the
+> complete source-ancestor authority chain. Its exact source is
+> `9674fd1ed2e3b8da6357bb3c7248dc061b10a286` / tree
+> `7e81fbfad6e97e8508eb11cd18faeea3a87a278b`. See
+> `01-06-REPAIR-SUCCESSOR-R5.md` and evidence root `01-06-9674fd1e/`. The R5
+> candidate is constructed and awaiting independent audit; the receipt below is
+> retained as historical R3 construction evidence.
+
 The first successor repaired four HIGH and two MEDIUM findings from the original rejected candidate, but independent audit then found a further HIGH: external recovery-authority provisioning happened after inventory admission, so the builder could publish a snapshot that omitted the newly created authority. The repaired successor rebuilds the exact post-provision inventory and fails closed if the capture plan changes before publication. This remains a construction receipt, not an independent acceptance or integration claim.
 
 ## Implemented
@@ -90,7 +98,7 @@ Every listed log, the deterministic environment manifest, and the machine-readab
 
 ## Next Gate
 
-An independent auditor must attack implementation commit `56682b2cfd051ed5757d7af9bbcaef4f6170809f` and verify the committed receipt/log digests. If accepted, integration must re-run seam and aggregate proof on the serial integration head.
+An independent auditor must attack implementation commit `9674fd1ed2e3b8da6357bb3c7248dc061b10a286` and verify the R5 receipt/log digests. If accepted, integration must re-run seam and aggregate proof on the serial integration head.
 
 ---
 
