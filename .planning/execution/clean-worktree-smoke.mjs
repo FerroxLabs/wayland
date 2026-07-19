@@ -18,6 +18,7 @@ const required = [
   '.planning/execution/check-packet-gate.mjs',
   '.planning/execution/packet-gate-lib.mjs',
   '.planning/execution/check-packet-gate.test.mjs',
+  '.planning/execution/packet-gate-manifest.test.mjs',
   '.planning/execution/wayland-gsd-gate.mjs',
 ]
 
@@ -35,6 +36,12 @@ try {
   })
   assert.equal(proof.status, 0, proof.stderr || proof.stdout)
   assert.match(proof.stdout, /authenticated packet gate tests: PASS/)
+  const manifestProof = spawnSync(process.execPath, ['.planning/execution/packet-gate-manifest.test.mjs'], {
+    cwd: worktree,
+    encoding: 'utf8',
+  })
+  assert.equal(manifestProof.status, 0, manifestProof.stderr || manifestProof.stdout)
+  assert.match(manifestProof.stdout, /packet gate manifest tests: PASS/)
   console.log('clean worktree GSD smoke: PASS')
 } finally {
   git(['worktree', 'remove', '--force', worktree])
