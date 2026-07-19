@@ -379,6 +379,73 @@ describe('recovery point builder', () => {
     });
   });
 
+  it('rejects a source directory replacement after handle admission but before the first mutation epoch', async () => {
+    const data = await fixture();
+    const configRoot = path.join(data.userDataRoot, 'config');
+    const retiredConfigRoot = path.join(data.userDataRoot, 'config.retired');
+    const replacementPreferences = '{"theme":"replacement"}';
+    let epochReads = 0;
+    const deps = dependencies({
+      readMutationEpoch: async () => {
+        if (epochReads++ === 0) {
+          fs.renameSync(configRoot, retiredConfigRoot);
+          fs.mkdirSync(configRoot);
+          fs.writeFileSync(path.join(configRoot, 'preferences.json'), replacementPreferences);
+        }
+        return 'epoch-directory-replacement-stable';
+      },
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('Recovery source pathname identity changed after admission');
+
+    expect(fs.readFileSync(path.join(configRoot, 'preferences.json'), 'utf8')).toBe(replacementPreferences);
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+  });
+
+  it('rejects an equal-byte descendant replacement during the final mutation epoch', async () => {
+    const data = await fixture();
+    const preferencesPath = path.join(data.userDataRoot, 'config', 'preferences.json');
+    const retiredPreferencesPath = path.join(data.userDataRoot, 'preferences.retired.json');
+    const originalBytes = fs.readFileSync(preferencesPath);
+    let epochReads = 0;
+    const deps = dependencies({
+      readMutationEpoch: async () => {
+        if (epochReads++ === 1) {
+          fs.renameSync(preferencesPath, retiredPreferencesPath);
+          fs.writeFileSync(preferencesPath, originalBytes);
+        }
+        return 'epoch-descendant-replacement-stable';
+      },
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('Recovery source identity changed after capture');
+
+    expect(fs.readFileSync(preferencesPath)).toEqual(originalBytes);
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+  });
+
   it('does not publish a partial point when sealing fails', async () => {
     const data = await fixture();
     const deps = dependencies({ sealBytes: async () => Promise.reject(new Error('sealer unavailable')) });
