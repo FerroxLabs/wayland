@@ -1,0 +1,57 @@
+authenticated packet gate tests: PASS
+✔ .planning/execution/check-packet-gate.test.mjs (1513.151375ms)
+cross-worktree shared receipt tests: PASS
+✔ .planning/execution/cross-worktree-receipt.test.mjs (3634.298958ms)
+Preparing worktree (detached HEAD 529edf1)
+✔ discovers plan frontmatter and computes dependency-derived waves (8.7435ms)
+✔ unrelated checkpoint does not block an unlocked autonomous plan (1.31825ms)
+✔ explicit checkpoint dependency blocks even when a forged summary exists (0.827042ms)
+✔ incomplete autonomous predecessor is selected while its successor remains blocked (0.789791ms)
+✔ unknown dependencies and cycles fail closed (0.245167ms)
+✔ exact files and ancestor directories conflict (0.139958ms)
+✔ canonical ownership aliases conflict and unsafe ownership is rejected (1.42375ms)
+✔ repository ownership resolves symlink aliases and rejects symlink escapes (2.191833ms)
+✔ ownerless autonomous plans fail closed (0.766292ms)
+✔ shared lock schema config generated migration and named authority seams serialize (2.668ms)
+✔ entry receipts are target-free schema-v2 construction evidence only (0.253ms)
+✔ mapped Phase 2 construction is admitted and unmapped work is denied (0.998167ms)
+✔ Phase 5 and 6 construction remain hard denied (1.04ms)
+✔ malformed plan frontmatter fails closed (1.014042ms)
+✔ malformed in-scope plan filenames cannot disappear from discovery (111.2035ms)
+✔ valid YAML indentation preserves dependencies instead of unlocking a root (1.420875ms)
+✔ filename directory and frontmatter phase identity must agree (0.809458ms)
+✔ plan identity requires an integer rather than string coercion (0.837583ms)
+✔ plan and summary symlinks cannot change selection under an identical HEAD (2.166208ms)
+✔ external admission and verifier CLI overrides are rejected (177.731916ms)
+✔ verifier identity timeout and rejection output fail closed without leaking stderr (148.304708ms)
+✔ verifier executes the immutable digest-checked byte snapshot (61.39775ms)
+✔ allowlisted external ownership remains conflict-safe when installation plans unlock (1.491792ms)
+✔ external ownership roots cannot overlap the repository in either direction (1.240167ms)
+✔ external ownership allowlists use canonical containment through symlinks (2.512958ms)
+✔ filesystem root cannot become a universal external ownership allowlist (0.656959ms)
+✔ wrong repository branch HEAD and dirty state fail before selection (493.461583ms)
+✔ operational selection is bound to exact HEAD through verifier completion (325.540791ms)
+✔ candidate selection obeys the configured concurrency bound (0.97ms)
+✔ entry verifiers run only for plans surviving conflict and concurrency selection (0.873333ms)
+✔ CLI pass and failure are byte-for-byte read-only (422.943042ms)
+✔ operational selection rejects injected plans and emits argv-safe worktree instructions (273.119541ms)
+✔ operational selection rejects existing proposed branches and worktree paths (386.785583ms)
+✔ operational selection rejects dangling and registered stale worktree paths (377.046917ms)
+✔ operational selection repeats worktree preflight after verifier execution (290.121875ms)
+✔ operational selection rejects a non-directory worktree ancestor (221.031875ms)
+✔ exact-HEAD discovery is NUL-safe for unusual phase directory path bytes (107.493542ms)
+✔ operational selection rejects every fixture authority injection (88.923292ms)
+✔ admission requires every mandatory nonempty seam registry class (1.260209ms)
+✔ symlinked worktree parent cannot resolve inside the integration repository (156.787542ms)
+✔ operator contract prohibits stock routing and preserves authority (0.39475ms)
+✔ repository Phase 1 candidate set is deterministic without mutating planning (40.328209ms)
+packet gate manifest tests: PASS
+✔ .planning/execution/packet-gate-manifest.test.mjs (87.482583ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 45
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3788.107916

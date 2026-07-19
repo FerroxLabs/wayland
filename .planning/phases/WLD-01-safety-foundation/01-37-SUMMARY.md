@@ -1,9 +1,9 @@
 ---
 phase: WLD-01-safety-foundation
 plan: 37
-status: construction-complete-pending-independent-audit
-verified_source_commit: bb939cf15aa9198c153fa1ab6ca1ad98510275c9
-verified_source_tree: 069482589440f5c33164b0b7c0aab99fa9aa671e
+status: construction-complete-pending-independent-audit-and-aggregate
+verified_source_commit: 4dad5ba75493086f8d169895a02f471bee5b2354
+verified_source_tree: c3a8e522d3f676c53ccdca52a1073da6b1810a8a
 evidence_model: successor-record-for-verified-source
 ---
 
@@ -40,17 +40,25 @@ evidence_model: successor-record-for-verified-source
   aliases.
 - Replaced permissive date parsing with canonical millisecond-precision UTC
   validation for acceptance, validity-window, and revocation timestamps.
+- Bound signed acceptance time to a verifier-owned production clock with an
+  explicit 60-second future-skew ceiling and a stable fail-closed reason code.
+- Proved the exact skew boundary, just-inside and just-outside values, far-future
+  replay, production rejection of caller time injection, and validity only once
+  verifier-owned time reaches the allowed boundary.
 - Made the detached clean-worktree proof supply the installed dependency tree,
   so it exercises the gate source instead of failing before runtime import.
 - Removed all scoped execution lint and format debt.
 
 ## Exact verified source identity
 
-- Verified source commit: `bb939cf15aa9198c153fa1ab6ca1ad98510275c9`
-- Verified source tree: `069482589440f5c33164b0b7c0aab99fa9aa671e`
+- Rejected R3 source commit: `bb939cf15aa9198c153fa1ab6ca1ad98510275c9`
+  (audit commit `0fa2ee789516cdcf9c150dd2da2ace334adaa2b5` proved a
+  future-dated signed receipt could authorize acceptance before its claimed time)
+- Verified R4 source commit: `4dad5ba75493086f8d169895a02f471bee5b2354`
+- Verified R4 source tree: `c3a8e522d3f676c53ccdca52a1073da6b1810a8a`
 - `PACKET-GATES.json`: `sha256:cb369c0be85428c931d243193470c4e47134f7b7439a52c23b76a4fc7423fa27`
 - `PACKET-CONTRACTS.json`: `sha256:af4fab1b4cee50702a36bdcdc3d9a622528a89163f43491bf299d71d6ba6111d`
-- `packet-gate-lib.mjs`: `sha256:e9183d6fd97852ca1e1b19319507ca1cd9d17207844841f0e94e579e15b6f89f`
+- `packet-gate-lib.mjs`: `sha256:056e2ccbd6c00968ef029b6ab1891fa3c7d5bdc30ea3c7a39d82f2e0cd747d7d`
 - `wayland-gsd-gate.mjs`: `sha256:6e78da8396891eedd13d66df75eea19e6ea247b68ea1c1e088574e00eb7b04bc`
 - `desktop-gsd-next.mjs`: `sha256:befd5a40e3caafe976d9f95b013c9840f175ace5e906ed48ff61cb1645de48e7`
 - `check-packet-gate.mjs`: `sha256:4682121fed5c095dc8f98c45e2ca3500d479c181efab63779031a0fe8b4e3683`
@@ -66,14 +74,14 @@ successor must retain those exact source bytes.
 
 - `node --test .planning/execution/*.test.mjs`: 45/45 tests passed.
 - `node .planning/execution/clean-worktree-smoke.mjs`: passed.
-- Post-source-commit `bun run test`: 1,430 Vitest files passed with 15,121 tests
-  passed, followed by 226/226 Bun-native tests passed.
+- Exact R4 aggregate proof is pending independent successor audit and the
+  reserved aggregate slot. R3 aggregate results do not transfer to R4.
 - `bun run typecheck`: exit 0.
 - `bun run lint -- .planning/execution`: 0 warnings, 0 errors.
 - `bun run format:check -- .planning/execution ...`: passed.
 - `git diff --check`: exit 0.
 - Reproducible sanitized logs, environment identity, exact source digests, and
-  a machine-readable receipt are retained under `evidence/01-37-r3-bb939cf1/`.
+  a machine-readable receipt are retained under `evidence/01-37-r4-4dad5ba7/`.
 
 ## Explicit non-claims
 
