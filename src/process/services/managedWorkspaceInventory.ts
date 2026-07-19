@@ -52,7 +52,7 @@ export type ManagedWorkspaceInventoryReport = {
   summary: {
     discovered: number;
     preserved: number;
-    quarantineEligible: number;
+    reviewCandidate: number;
     unknown: number;
   };
   errors: string[];
@@ -74,9 +74,24 @@ type CanonicalWorkspaceReferenceResult = {
 };
 
 const TEMP_WORKSPACE_NAME = /^[a-z0-9_-]+-temp-\d{10,}$/i;
+const AUTHORITY_SOURCES: readonly WorkspaceAuthoritySource[] = [
+  'conversation',
+  'project',
+  'schedule',
+  'artifact',
+  'receipt',
+  'active-process',
+];
+const MAX_DATE_MS = 8_640_000_000_000_000;
 
-const isAuthorityComplete = (states: WorkspaceAuthorityCompleteness): boolean =>
-  Object.values(states).every((state) => state === 'complete');
+const isAuthorityComplete = (states: WorkspaceAuthorityCompleteness): boolean => {
+  if (!states || typeof states !== 'object') return false;
+  const keys = Object.keys(states);
+  return (
+    keys.length === AUTHORITY_SOURCES.length &&
+    AUTHORITY_SOURCES.every((source) => keys.includes(source) && states[source] === 'complete')
+  );
+};
 
 const pathIsDirectChild = (root: string, candidate: string): boolean => path.dirname(candidate) === root;
 
@@ -86,6 +101,7 @@ function emptyUnknownEvidence(retentionWindowMs: number): ManagedWorkspaceEviden
     inventoryComplete: false,
     referenceCount: null,
     scheduleCount: null,
+    activeProcessCount: null,
     artifactCount: null,
     userPromoted: null,
     userContent: 'unknown',
@@ -99,7 +115,7 @@ function summarize(entries: ManagedWorkspaceInventoryEntry[]): ManagedWorkspaceI
   return {
     discovered: entries.length,
     preserved: entries.filter((entry) => entry.decision.disposition === 'preserve').length,
-    quarantineEligible: entries.filter((entry) => entry.decision.disposition === 'quarantine-eligible').length,
+    reviewCandidate: entries.filter((entry) => entry.decision.disposition === 'review-candidate').length,
     unknown: entries.filter((entry) => entry.decision.classifications.includes('unknown')).length,
   };
 }
@@ -118,7 +134,8 @@ export async function collectManagedWorkspaceInventory(
   const root = path.resolve(input.workDir);
   const errors: string[] = [];
 
-  if (!Number.isSafeInteger(nowMs) || nowMs < 0) errors.push('invalid inventory timestamp');
+  const nowValid = Number.isSafeInteger(nowMs) && nowMs >= 0 && nowMs <= MAX_DATE_MS;
+  if (!nowValid) errors.push('invalid inventory timestamp');
   if (!Number.isSafeInteger(input.retentionWindowMs) || input.retentionWindowMs < 0) {
     errors.push('invalid retention window');
   }
@@ -137,7 +154,7 @@ export async function collectManagedWorkspaceInventory(
   } catch (error) {
     errors.push(`work root unavailable: ${error instanceof Error ? error.message : String(error)}`);
     return {
-      generatedAt: new Date(Number.isSafeInteger(nowMs) && nowMs >= 0 ? nowMs : 0).toISOString(),
+      generatedAt: new Date(nowValid ? nowMs : 0).toISOString(),
       root,
       canonicalRoot: null,
       authorityCompleteness: { ...input.authorityCompleteness },
@@ -154,7 +171,7 @@ export async function collectManagedWorkspaceInventory(
   } catch (error) {
     errors.push(`work root inventory failed: ${error instanceof Error ? error.message : String(error)}`);
     return {
-      generatedAt: new Date(Number.isSafeInteger(nowMs) && nowMs >= 0 ? nowMs : 0).toISOString(),
+      generatedAt: new Date(nowValid ? nowMs : 0).toISOString(),
       root,
       canonicalRoot,
       authorityCompleteness: { ...input.authorityCompleteness },
@@ -166,28 +183,40 @@ export async function collectManagedWorkspaceInventory(
   }
 
   const referenceResults = await Promise.all(
-    input.references.map(async (reference): Promise<CanonicalWorkspaceReferenceResult> => {
-      if (!reference.workspace || !path.isAbsolute(reference.workspace)) {
-        return {
-          reference: null,
-          error: `reference ${reference.source}:${reference.id} has no absolute workspace path`,
-        };
+    (Array.isArray(input.references) ? input.references : []).map(
+      async (reference): Promise<CanonicalWorkspaceReferenceResult> => {
+        if (
+          !reference ||
+          typeof reference !== 'object' ||
+          !AUTHORITY_SOURCES.includes(reference.source) ||
+          typeof reference.id !== 'string' ||
+          !reference.id.trim() ||
+          typeof reference.workspace !== 'string' ||
+          !path.isAbsolute(reference.workspace) ||
+          (reference.userPromoted !== undefined && typeof reference.userPromoted !== 'boolean')
+        ) {
+          return {
+            reference: null,
+            error: 'authority reference is malformed or has no absolute workspace path',
+          };
+        }
+        try {
+          return {
+            reference: { ...reference, canonicalWorkspace: await fs.realpath(reference.workspace) },
+            error: null,
+          };
+        } catch (error) {
+          return {
+            reference: null,
+            error: `reference ${reference.source}:${reference.id} cannot be canonicalized: ${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          };
+        }
       }
-      try {
-        return {
-          reference: { ...reference, canonicalWorkspace: await fs.realpath(reference.workspace) },
-          error: null,
-        };
-      } catch (error) {
-        return {
-          reference: null,
-          error: `reference ${reference.source}:${reference.id} cannot be canonicalized: ${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        };
-      }
-    })
+    )
   );
+  if (!Array.isArray(input.references)) errors.push('authority references are malformed');
   const canonicalReferences: CanonicalWorkspaceReference[] = [];
   let referenceCanonicalizationComplete = true;
   for (const result of referenceResults) {
@@ -222,12 +251,28 @@ export async function collectManagedWorkspaceInventory(
         );
         const content = await fs.readdir(candidateCanonicalPath);
         const contentKnown = Array.isArray(content);
+        const finalStat = await fs.lstat(candidatePath);
+        const finalCanonicalPath = await fs.realpath(candidatePath);
+        if (
+          finalStat.isSymbolicLink() ||
+          !finalStat.isDirectory() ||
+          finalCanonicalPath !== candidateCanonicalPath ||
+          finalStat.dev !== candidateStat.dev ||
+          finalStat.ino !== candidateStat.ino ||
+          finalStat.mtimeMs !== candidateStat.mtimeMs ||
+          finalStat.ctimeMs !== candidateStat.ctimeMs
+        ) {
+          throw new Error('candidate changed during inventory');
+        }
         const userContent = contentKnown && content.length === 0 ? 'absent' : 'present';
         const candidateInventoryComplete = authorityInventoryComplete && contentKnown;
         const observedReferenceCount = matchedReferences.filter((reference) =>
-          ['conversation', 'project', 'active-process'].includes(reference.source)
+          ['conversation', 'project'].includes(reference.source)
         ).length;
         const observedScheduleCount = matchedReferences.filter((reference) => reference.source === 'schedule').length;
+        const observedActiveProcessCount = matchedReferences.filter(
+          (reference) => reference.source === 'active-process'
+        ).length;
         const observedArtifactCount = matchedReferences.filter((reference) =>
           ['artifact', 'receipt'].includes(reference.source)
         ).length;
@@ -241,6 +286,8 @@ export async function collectManagedWorkspaceInventory(
         // authoritative when the entire inventory is complete.
         const referenceCount = candidateInventoryComplete || observedReferenceCount > 0 ? observedReferenceCount : null;
         const scheduleCount = candidateInventoryComplete || observedScheduleCount > 0 ? observedScheduleCount : null;
+        const activeProcessCount =
+          candidateInventoryComplete || observedActiveProcessCount > 0 ? observedActiveProcessCount : null;
         const artifactCount = candidateInventoryComplete || observedArtifactCount > 0 ? observedArtifactCount : null;
         const userPromoted = candidateInventoryComplete || observedUserPromotion ? observedUserPromotion : null;
 
@@ -249,14 +296,12 @@ export async function collectManagedWorkspaceInventory(
           inventoryComplete: candidateInventoryComplete,
           referenceCount,
           scheduleCount,
+          activeProcessCount,
           artifactCount,
           userPromoted,
           userContent,
           modified: contentKnown ? content.length > 0 : null,
-          abandonedForMs:
-            Number.isSafeInteger(nowMs) && nowMs >= candidateStat.mtimeMs
-              ? Math.floor(nowMs - candidateStat.mtimeMs)
-              : null,
+          abandonedForMs: nowValid && nowMs >= candidateStat.mtimeMs ? Math.floor(nowMs - candidateStat.mtimeMs) : null,
           retentionWindowMs: input.retentionWindowMs,
         };
 
@@ -284,7 +329,7 @@ export async function collectManagedWorkspaceInventory(
   );
 
   return {
-    generatedAt: new Date(Number.isSafeInteger(nowMs) && nowMs >= 0 ? nowMs : 0).toISOString(),
+    generatedAt: new Date(nowValid ? nowMs : 0).toISOString(),
     root,
     canonicalRoot,
     authorityCompleteness: { ...input.authorityCompleteness },

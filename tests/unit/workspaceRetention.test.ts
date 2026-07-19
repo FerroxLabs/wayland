@@ -18,6 +18,7 @@ function emptyShell(overrides: Partial<ManagedWorkspaceEvidence> = {}): ManagedW
     inventoryComplete: true,
     referenceCount: 0,
     scheduleCount: 0,
+    activeProcessCount: 0,
     artifactCount: 0,
     userPromoted: false,
     userContent: 'absent',
@@ -29,10 +30,10 @@ function emptyShell(overrides: Partial<ManagedWorkspaceEvidence> = {}): ManagedW
 }
 
 describe('classifyManagedWorkspaceRetention', () => {
-  it('only makes a fully proved empty abandoned shell quarantine-eligible', () => {
+  it('only makes a fully proved empty abandoned shell a non-authoritative review candidate', () => {
     expect(classifyManagedWorkspaceRetention(emptyShell())).toEqual({
       classifications: ['empty-abandoned'],
-      disposition: 'quarantine-eligible',
+      disposition: 'review-candidate',
       reasons: ['complete evidence proves an empty app-managed shell beyond the retention window'],
     });
   });
@@ -40,6 +41,7 @@ describe('classifyManagedWorkspaceRetention', () => {
   it.each([
     ['conversation or Project reference', { referenceCount: 1 }, 'referenced'],
     ['schedule', { scheduleCount: 1 }, 'scheduled'],
+    ['active process', { activeProcessCount: 1 }, 'active'],
     ['artifact or receipt', { artifactCount: 1 }, 'artifact-bearing'],
     ['user-authored file', { userContent: 'present' as const }, 'modified'],
     ['post-creation mutation', { modified: true }, 'modified'],
@@ -55,6 +57,7 @@ describe('classifyManagedWorkspaceRetention', () => {
     ['incomplete inventory', { inventoryComplete: false }],
     ['unknown reference count', { referenceCount: null }],
     ['unknown schedule count', { scheduleCount: null }],
+    ['unknown active-process count', { activeProcessCount: null }],
     ['unknown artifact count', { artifactCount: null }],
     ['unknown user-promotion state', { userPromoted: null }],
     ['unknown content state', { userContent: 'unknown' as const }],
@@ -63,6 +66,8 @@ describe('classifyManagedWorkspaceRetention', () => {
     ['negative count', { referenceCount: -1 }],
     ['non-integer count', { artifactCount: 0.5 }],
     ['invalid retention window', { retentionWindowMs: -1 }],
+    ['malformed provenance', { managedProvenance: 'yes' as unknown as boolean }],
+    ['malformed completeness', { inventoryComplete: 1 as unknown as boolean }],
   ])('fails closed when evidence has %s', (_name, overrides) => {
     const result = classifyManagedWorkspaceRetention(emptyShell(overrides));
     expect(result.disposition).toBe('preserve');

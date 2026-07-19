@@ -298,9 +298,7 @@ export function initConversationBridge(
       // Fail closed if schedule authority cannot prove that the chat is clear;
       // the user can manage the schedules explicitly in Automations and retry.
       try {
-        const { inspectConversationDeletionSchedules } = await import(
-          '@process/services/conversationDeletionSafety'
-        );
+        const { inspectConversationDeletionSchedules } = await import('@process/services/conversationDeletionSafety');
         const inspection = await inspectConversationDeletionSchedules(id);
         if (inspection.jobs.length > 0) {
           console.warn(
@@ -334,6 +332,9 @@ export function initConversationBridge(
         }
       }
 
+      // Conversation deletion severs persisted chat state only. The workspace
+      // path is intentionally never handed to a filesystem mutation service:
+      // managed files remain byte-for-byte available for later human review.
       await conversationService.deleteConversation(id);
       removeFromMessageCache(id);
       if (conversation) {
@@ -473,10 +474,10 @@ export function initConversationBridge(
     };
   })();
 
-  ipcBridge.conversation.getWorkspace.provider(async ({ workspace, search, path }) => {
+  ipcBridge.conversation.getWorkspace.provider(async ({ workspace, search, path: requestedPath }) => {
     try {
       const fileService = GeminiAgent.buildFileServer(workspace);
-      return await readDirectoryRecursive(path, {
+      return await readDirectoryRecursive(requestedPath, {
         root: workspace,
         fileService,
         abortController: buildLastAbortController(),
@@ -592,9 +593,8 @@ export function initConversationBridge(
           mcpRuntimeFingerprint(runtimeMcpAuthority),
           (preSendConversation?.extra as { activeMcpServers?: string[] } | undefined)?.activeMcpServers
         );
-        const appliedMcpFingerprint = (
-          preSendConversation?.extra as { mcpRuntimeFingerprint?: string } | undefined
-        )?.mcpRuntimeFingerprint;
+        const appliedMcpFingerprint = (preSendConversation?.extra as { mcpRuntimeFingerprint?: string } | undefined)
+          ?.mcpRuntimeFingerprint;
         const result = await mcpRebindCoordinator.getOrRebind({
           conversationId: conversation_id,
           taskType,
@@ -618,7 +618,9 @@ export function initConversationBridge(
           persistAuthority: async (fingerprint, generation) => {
             await conversationService.updateConversation(
               conversation_id,
-              { extra: { mcpRuntimeFingerprint: fingerprint, mcpRuntimeGeneration: generation } } as Partial<TChatConversation>,
+              {
+                extra: { mcpRuntimeFingerprint: fingerprint, mcpRuntimeGeneration: generation },
+              } as Partial<TChatConversation>,
               true
             );
           },

@@ -114,7 +114,7 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
     expect(report.entries[0]).toMatchObject({
       decision: {
         disposition: 'preserve',
-        classifications: ['referenced', 'scheduled', 'user-promoted'],
+        classifications: ['referenced', 'scheduled', 'active', 'user-promoted'],
       },
     });
     expect(report.entries[0].references).toEqual([
@@ -132,7 +132,7 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
       sources: sources(),
     });
 
-    expect(report.summary).toEqual({ discovered: 1, preserved: 1, quarantineEligible: 0, unknown: 1 });
+    expect(report.summary).toEqual({ discovered: 1, preserved: 1, reviewCandidate: 0, unknown: 1 });
     expect(report.entries[0].decision.disposition).toBe('preserve');
     await expect(fs.stat(candidate)).resolves.toBeTruthy();
   });
@@ -150,6 +150,46 @@ describe('collectDesktopManagedWorkspaceInventory', () => {
 
     expect(report.authorityCompleteness.schedule).toBe('error');
     expect(report.complete).toBe(false);
+    expect(report.entries[0].decision.disposition).toBe('preserve');
+  });
+
+  it('fails closed when a producer returns a malformed non-array payload', async () => {
+    const report = await collectDesktopManagedWorkspaceInventory({
+      workDir: root,
+      nowMs: NOW,
+      sources: sources({
+        listProjects: vi.fn(async () => ({ forged: 'project' })) as unknown as () => Promise<IProject[]>,
+      }),
+    });
+
+    expect(report.authorityCompleteness.project).toBe('error');
+    expect(report.complete).toBe(false);
+    expect(report.entries[0].decision.disposition).toBe('preserve');
+  });
+
+  it('fails closed when a producer returns a malformed record', async () => {
+    const report = await collectDesktopManagedWorkspaceInventory({
+      workDir: root,
+      nowMs: NOW,
+      sources: sources({ listSchedules: async () => [{} as CronJob] }),
+    });
+
+    expect(report.authorityCompleteness.schedule).toBe('error');
+    expect(report.entries[0].decision.disposition).toBe('preserve');
+  });
+
+  it('fails closed when a conversation forges promotion authority', async () => {
+    const forged = conversation('chat-1', candidate) as TChatConversation & {
+      extra: { workspace: string; customWorkspace: unknown };
+    };
+    forged.extra.customWorkspace = 'yes';
+    const report = await collectDesktopManagedWorkspaceInventory({
+      workDir: root,
+      nowMs: NOW,
+      sources: sources({ listConversations: async () => [forged] }),
+    });
+
+    expect(report.authorityCompleteness.conversation).toBe('error');
     expect(report.entries[0].decision.disposition).toBe('preserve');
   });
 

@@ -20,6 +20,8 @@ export type ManagedWorkspaceEvidence = {
   referenceCount: number | null;
   /** Enabled or disabled schedules that retain this exact canonical path. */
   scheduleCount: number | null;
+  /** Live agent processes that currently own this exact canonical path. */
+  activeProcessCount: number | null;
   /** Registered outputs, reports, receipts, or other artifacts rooted here. */
   artifactCount: number | null;
   /** Whether the user explicitly promoted/selected this as durable storage. */
@@ -37,6 +39,7 @@ export type ManagedWorkspaceEvidence = {
 export type ManagedWorkspaceClassification =
   | 'referenced'
   | 'scheduled'
+  | 'active'
   | 'artifact-bearing'
   | 'modified'
   | 'user-promoted'
@@ -46,10 +49,9 @@ export type ManagedWorkspaceClassification =
 export type ManagedWorkspaceRetentionDecision = {
   classifications: ManagedWorkspaceClassification[];
   /**
-   * `quarantine-eligible` is not deletion authority. A later dry-run, visible
-   * review, recoverable quarantine, and receipt are still mandatory.
+   * `review-candidate` is classification only. It grants no mutation authority.
    */
-  disposition: 'preserve' | 'quarantine-eligible';
+  disposition: 'preserve' | 'review-candidate';
   reasons: string[];
 };
 
@@ -77,6 +79,10 @@ export function classifyManagedWorkspaceRetention(
     classifications.push('scheduled');
     reasons.push(`${evidence.scheduleCount} schedule reference(s)`);
   }
+  if (isKnownCount(evidence.activeProcessCount) && evidence.activeProcessCount > 0) {
+    classifications.push('active');
+    reasons.push(`${evidence.activeProcessCount} active process reference(s)`);
+  }
   if (isKnownCount(evidence.artifactCount) && evidence.artifactCount > 0) {
     classifications.push('artifact-bearing');
     reasons.push(`${evidence.artifactCount} registered artifact or receipt reference(s)`);
@@ -91,12 +97,18 @@ export function classifyManagedWorkspaceRetention(
   }
 
   const evidenceShapeValid =
+    typeof evidence.managedProvenance === 'boolean' &&
+    typeof evidence.inventoryComplete === 'boolean' &&
+    (evidence.userPromoted === null || typeof evidence.userPromoted === 'boolean') &&
+    ['present', 'absent', 'unknown'].includes(evidence.userContent) &&
+    (evidence.modified === null || typeof evidence.modified === 'boolean') &&
     evidence.retentionWindowMs >= 0 &&
     Number.isSafeInteger(evidence.retentionWindowMs) &&
     (evidence.abandonedForMs === null ||
       (Number.isSafeInteger(evidence.abandonedForMs) && evidence.abandonedForMs >= 0)) &&
     isKnownCount(evidence.referenceCount) &&
     isKnownCount(evidence.scheduleCount) &&
+    isKnownCount(evidence.activeProcessCount) &&
     isKnownCount(evidence.artifactCount);
 
   const provablyEmptyAbandoned =
@@ -105,6 +117,7 @@ export function classifyManagedWorkspaceRetention(
     evidenceShapeValid &&
     evidence.referenceCount === 0 &&
     evidence.scheduleCount === 0 &&
+    evidence.activeProcessCount === 0 &&
     evidence.artifactCount === 0 &&
     evidence.userPromoted === false &&
     evidence.userContent === 'absent' &&
@@ -115,7 +128,7 @@ export function classifyManagedWorkspaceRetention(
   if (provablyEmptyAbandoned) {
     return {
       classifications: ['empty-abandoned'],
-      disposition: 'quarantine-eligible',
+      disposition: 'review-candidate',
       reasons: ['complete evidence proves an empty app-managed shell beyond the retention window'],
     };
   }
