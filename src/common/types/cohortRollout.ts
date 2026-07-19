@@ -4,12 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const COCKPIT_ROLLOUT_STAGES = Object.freeze([
-  'internal-dogfood',
-  'invited-alpha',
-  'opt-in-beta',
-  'default-new',
-] as const);
+export const COCKPIT_ROLLOUT_STAGES = ['internal-dogfood', 'invited-alpha', 'opt-in-beta', 'default-new'] as const;
 export type CockpitRolloutStage = (typeof COCKPIT_ROLLOUT_STAGES)[number];
 
 export const COCKPIT_RETURN_REASONS = Object.freeze([

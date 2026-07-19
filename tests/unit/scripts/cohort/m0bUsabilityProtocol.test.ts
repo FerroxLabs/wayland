@@ -94,7 +94,7 @@ describe('M0B usability protocol', () => {
     });
   });
 
-  it('rejects executable suffixes after numeric, array, alias, and object literal prefixes', () => {
+  it('keeps declared and executed runtime bindings exact under hostile source variations', () => {
     const files = [
       'scripts/cohort/verifyM0BUsabilityProtocol.mjs',
       'scripts/cohort/readM0BRuntimeBindings.ts',
