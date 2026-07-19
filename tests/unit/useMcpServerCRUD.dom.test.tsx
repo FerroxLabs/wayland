@@ -411,6 +411,49 @@ describe('MCP pre-publication renderer correlation', () => {
     }
   );
 
+  it('does not publish a superseded winner when durable truth changes during reconciliation', async () => {
+    const firstWinner = {
+      ...server,
+      name: 'first-winner',
+      description: 'first concurrent winner',
+      updatedAt: server.updatedAt + 1,
+    };
+    const finalWinner = {
+      ...server,
+      name: 'final-winner',
+      description: 'later durable winner',
+      updatedAt: server.updatedAt + 2,
+    };
+    let stored = [server];
+    let saveCount = 0;
+    const adapterKeys = new Set([server.name]);
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      saveCount += 1;
+      if (saveCount === 2) stored = [firstWinner];
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn(async (name: string) => {
+      adapterKeys.delete(name);
+      if (remove.mock.calls.length === 2) stored = [finalWinner];
+    });
+    const sync = vi.fn(async (candidate: IMcpServer) => {
+      adapterKeys.add(candidate.name);
+    });
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(stored).toEqual([finalWinner]);
+    const exactDurableWinnerPublished = adapterKeys.has(finalWinner.name) && !adapterKeys.has(firstWinner.name);
+    const durableTruthFailsClosed =
+      stored[0].status === 'error' && stored[0].lastError?.includes('publication rollback incomplete') === true;
+    expect(exactDurableWinnerPublished || durableTruthFailsClosed).toBe(true);
+  });
+
   it('retains divergence when exact-key cleanup for a case-fold replacement fails', async () => {
     const canonicalWinner = {
       ...server,
