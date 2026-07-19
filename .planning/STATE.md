@@ -23,7 +23,7 @@ See: `.planning/PROJECT.md` (updated 2026-07-19)
 Phase: 1 of 7 (Safety Foundation)
 Plan: 01-01 repaired again; independent successor review pending
 Status: Process-owned cohort authority successor built and aggregate-proved; no acceptance or integration claimed
-Last activity: 2026-07-19 — repaired clock rollback, invalid-time persistence, pre-window runtime creation, and misleading outside-window status found by executable hostile testing
+Last activity: 2026-07-20 — repaired invalid-clock legacy migration plus every existing-authority projection, runtime, consent, and rollout surface; exact implementation commit is aggregate-green and pending independent review
 
 Progress: [░░░░░░░░░░] 3%
 
