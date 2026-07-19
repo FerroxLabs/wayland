@@ -413,6 +413,50 @@ describe('recovery point builder', () => {
     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
   });
 
+  it('rejects replacement of an admitted source parent even when every descendant inode is moved back', async () => {
+    const data = await fixture();
+    const originalRootIdentity = fs.statSync(data.userDataRoot);
+    const retiredUserDataRoot = `${data.userDataRoot}.retired`;
+    let epochReads = 0;
+    const deps = dependencies({
+      readMutationEpoch: async () => {
+        if (epochReads++ === 0) {
+          fs.renameSync(data.userDataRoot, retiredUserDataRoot);
+          fs.mkdirSync(data.userDataRoot);
+          for (const entry of fs.readdirSync(retiredUserDataRoot)) {
+            fs.renameSync(path.join(retiredUserDataRoot, entry), path.join(data.userDataRoot, entry));
+          }
+        }
+        return 'epoch-parent-replacement-stable';
+      },
+    });
+
+    let published = false;
+    try {
+      await buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      );
+      published = true;
+    } catch {
+      // The admitted source path must remain rooted in the original parent identity.
+    }
+
+    const currentRootIdentity = fs.statSync(data.userDataRoot);
+    expect({
+      published,
+      parentIdentityChanged:
+        currentRootIdentity.dev !== originalRootIdentity.dev || currentRootIdentity.ino !== originalRootIdentity.ino,
+    }).toEqual({ published: false, parentIdentityChanged: true });
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+  });
+
   it('rejects an equal-byte descendant replacement during the final mutation epoch', async () => {
     const data = await fixture();
     const preferencesPath = path.join(data.userDataRoot, 'config', 'preferences.json');
