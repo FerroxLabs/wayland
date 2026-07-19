@@ -94,6 +94,12 @@ type CohortMigrationMarker = Readonly<{
   consumed: true;
 }>;
 
+type CohortInstallationCredential = Readonly<{
+  schemaVersion: 1;
+  installIdentity: string;
+  legacyMigrationConsumed: boolean;
+}>;
+
 export type CohortAcceptedEvidence = Readonly<{
   authorityId: string;
   authorityGeneration: number;
@@ -131,6 +137,12 @@ export type CohortProductionEnvironment = Readonly<{
   lineageStore: CohortLineageStore;
   /** Independent one-shot marker. Authority deletion must never reopen migration. */
   migrationMarkerStore: CohortMigrationMarkerStore;
+  /**
+   * Migration authority anchored to the stable installation credential. Unlike
+   * the replaceable authority/lineage/marker records, this survives their loss
+   * and prevents mutable legacy config from being authenticated a second time.
+   */
+  migrationConsumptionStore: CohortMigrationMarkerStore;
   /** Read-only, exact-schema sources for the single supported migration. */
   consentStore: CohortConsentStore;
   assignmentStore: CohortAssignmentStore;
@@ -397,20 +409,33 @@ export class ProductionCohortController implements CohortProductionAPI {
 export async function createCohortProductionController(
   environment: CohortProductionEnvironment
 ): Promise<ProductionCohortController> {
-  const [current, lineage, migration] = await Promise.all([
+  const [current, lineage, migration, migrationConsumption] = await Promise.all([
     readAuthenticatedAuthority(environment),
     readLineageAnchor(environment),
     readMigrationMarker(environment),
+    readMigrationConsumptionAnchor(environment),
   ]);
   if (
     current.kind === 'valid' &&
     lineage.kind === 'valid' &&
     migration.kind === 'valid' &&
+    migrationConsumption.kind === 'valid' &&
     authorityMatchesLineage(current.record.authority, lineage.record)
   ) {
     return new ProductionCohortController(environment, current.record.authority);
   }
-  if (current.kind !== 'absent' || lineage.kind !== 'absent' || migration.kind !== 'absent') {
+  if (migrationConsumption.kind === 'valid') {
+    // The stable installation credential says migration was already consumed.
+    // Loss, deletion, replacement, or contradiction in any replaceable record
+    // is therefore unavailable state, never permission to reread legacy config.
+    return new ProductionCohortController(environment, null);
+  }
+  if (
+    migrationConsumption.kind === 'invalid' ||
+    current.kind !== 'absent' ||
+    lineage.kind !== 'absent' ||
+    migration.kind !== 'absent'
+  ) {
     return new ProductionCohortController(environment, null);
   }
 
@@ -423,11 +448,20 @@ export async function createProductionCohortController(): Promise<ProductionCoho
   const userDataPath = app.getPath('userData');
   const account = createHash('sha256').update(path.resolve(userDataPath)).digest('hex');
   const identityAccount = `${account}:installation`;
-  let installIdentity = await keytar.getPassword(KEYCHAIN_SERVICE, identityAccount);
-  if (installIdentity === null) {
-    installIdentity = randomUUID();
-    await keytar.setPassword(KEYCHAIN_SERVICE, identityAccount, installIdentity);
+  const rawInstallationCredential = await keytar.getPassword(KEYCHAIN_SERVICE, identityAccount);
+  let installationCredential = parseInstallationCredential(rawInstallationCredential);
+  if (installationCredential === null) {
+    if (rawInstallationCredential !== null && !isLegacyInstallationIdentity(rawInstallationCredential)) {
+      throw new Error('COHORT_INSTALLATION_CREDENTIAL_INVALID');
+    }
+    installationCredential = Object.freeze({
+      schemaVersion: 1,
+      installIdentity: rawInstallationCredential ?? randomUUID(),
+      legacyMigrationConsumed: false,
+    });
+    await keytar.setPassword(KEYCHAIN_SERVICE, identityAccount, JSON.stringify(installationCredential));
   }
+  const installIdentity = installationCredential.installIdentity;
   return createCohortProductionController({
     userDataPath,
     resourcesPath: process.resourcesPath,
@@ -446,6 +480,31 @@ export async function createProductionCohortController(): Promise<ProductionCoho
     migrationMarkerStore: {
       get: () => keytar.getPassword(KEYCHAIN_SERVICE, `${account}:migration-consumed`),
       set: (value) => keytar.setPassword(KEYCHAIN_SERVICE, `${account}:migration-consumed`, value),
+    },
+    migrationConsumptionStore: {
+      get: async () =>
+        installationCredential.legacyMigrationConsumed
+          ? JSON.stringify({
+              schemaVersion: 1,
+              installationIdHash: cohortInstallationIdHash(installIdentity),
+              consumed: true,
+            } satisfies CohortMigrationMarker)
+          : null,
+      set: async (value) => {
+        let marker: CohortMigrationMarker | null = null;
+        try {
+          marker = parseMigrationMarker(JSON.parse(value), installIdentity);
+        } catch {
+          // Invalid installation-bound migration authority fails closed below.
+        }
+        if (marker === null) throw new Error('COHORT_MIGRATION_CONSUMPTION_INVALID');
+        const next = Object.freeze({
+          ...installationCredential,
+          legacyMigrationConsumed: true,
+        });
+        await keytar.setPassword(KEYCHAIN_SERVICE, identityAccount, JSON.stringify(next));
+        installationCredential = next;
+      },
     },
     consentStore: { get: () => ProcessConfig.get(CONSENT_KEY) },
     assignmentStore: { get: () => ProcessConfig.get(ASSIGNMENT_KEY) },
@@ -552,6 +611,26 @@ async function readMigrationMarker(environment: CohortProductionEnvironment): Pr
   }
 }
 
+async function readMigrationConsumptionAnchor(environment: CohortProductionEnvironment): Promise<MigrationRead> {
+  let raw: unknown;
+  try {
+    raw = await environment.migrationConsumptionStore.get();
+  } catch {
+    return { kind: 'invalid' };
+  }
+  if (raw === undefined || raw === null) return { kind: 'absent' };
+  if (typeof raw !== 'string' || raw.length === 0) return { kind: 'invalid' };
+  try {
+    const record = parseMigrationMarker(
+      JSON.parse(await environment.unprotectAuthority(raw)),
+      environment.installIdentity
+    );
+    return record ? { kind: 'valid', record } : { kind: 'invalid' };
+  } catch {
+    return { kind: 'invalid' };
+  }
+}
+
 async function consumeLegacyMigration(
   environment: CohortProductionEnvironment
 ): Promise<CohortAuthorityEnvelope | null> {
@@ -599,6 +678,10 @@ async function persistMigrationRecord(
   try {
     const installationIdHash = cohortInstallationIdHash(environment.installIdentity);
     const marker: CohortMigrationMarker = { schemaVersion: 1, installationIdHash, consumed: true };
+    // Burn the one-shot epoch in the stable installation credential first. If
+    // any subsequent publication fails, startup remains unavailable rather
+    // than authenticating mutable legacy input again.
+    await environment.migrationConsumptionStore.set(await sealRecord(environment, marker));
     await environment.migrationMarkerStore.set(await sealRecord(environment, marker));
     if (authority !== null) {
       const record: CohortAuthorityRecord = { schemaVersion: 2, authority };
@@ -624,6 +707,33 @@ async function persistMigrationRecord(
     // Deliberately ignored after durable migration consumption.
   }
   return authority;
+}
+
+function parseInstallationCredential(input: string | null): CohortInstallationCredential | null {
+  if (input === null) return null;
+  try {
+    const parsed = JSON.parse(input) as unknown;
+    if (!isRecord(parsed)) return null;
+    const keys = ['installIdentity', 'legacyMigrationConsumed', 'schemaVersion'].toSorted();
+    if (
+      Object.keys(parsed).toSorted().join('\0') !== keys.join('\0') ||
+      parsed.schemaVersion !== 1 ||
+      !isLegacyInstallationIdentity(parsed.installIdentity) ||
+      typeof parsed.legacyMigrationConsumed !== 'boolean'
+    ) {
+      return null;
+    }
+    return Object.freeze(parsed as CohortInstallationCredential);
+  } catch {
+    return null;
+  }
+}
+
+function isLegacyInstallationIdentity(input: unknown): input is string {
+  return (
+    typeof input === 'string' &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(input)
+  );
 }
 
 function parseAuthorityRecord(input: unknown, installIdentity: string): CohortAuthorityRecord | null {

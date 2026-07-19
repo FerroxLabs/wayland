@@ -80,6 +80,7 @@ async function fixture(
   let persistedAuthority: unknown;
   let persistedLineage: unknown;
   let persistedMigrationMarker: unknown;
+  let persistedMigrationConsumption: unknown;
   const fixtureSecret = Buffer.from('01-01-hostile-fixture-authority-key');
   const protectAuthority = (plaintext: string): string => {
     const payload = Buffer.from(plaintext).toString('base64url');
@@ -152,6 +153,7 @@ async function fixture(
         consumed: true,
       })
     );
+    persistedMigrationConsumption = persistedMigrationMarker;
   }
   const consentStore: CohortConsentStore = {
     get: vi.fn(async () => persistedConsent),
@@ -197,6 +199,12 @@ async function fixture(
       persistedMigrationMarker = value;
     }),
   };
+  const migrationConsumptionStore: CohortAuthorityStore = {
+    get: vi.fn(async () => persistedMigrationConsumption),
+    set: vi.fn(async (value) => {
+      persistedMigrationConsumption = value;
+    }),
+  };
   const { seedAuthenticated: _seedAuthenticated, ...environmentOverrides } = overrides;
   const environment: CohortProductionEnvironment = {
     userDataPath: path.join(root, 'user-data'),
@@ -208,6 +216,7 @@ async function fixture(
     authorityStore,
     lineageStore,
     migrationMarkerStore,
+    migrationConsumptionStore,
     consentStore,
     assignmentStore,
     protectAuthority,
@@ -222,6 +231,7 @@ async function fixture(
   vi.mocked(authorityStore.set).mockClear();
   vi.mocked(lineageStore.set).mockClear();
   vi.mocked(migrationMarkerStore.set).mockClear();
+  vi.mocked(migrationConsumptionStore.set).mockClear();
   return {
     root,
     consentStore,
@@ -229,14 +239,22 @@ async function fixture(
     authorityStore,
     lineageStore,
     migrationMarkerStore,
+    migrationConsumptionStore,
     environment,
     persistedConsent: () => persistedConsent,
     persistedAssignment: () => persistedAssignment,
     persistedAuthority: () => persistedAuthority,
     persistedLineage: () => persistedLineage,
     persistedMigrationMarker: () => persistedMigrationMarker,
+    persistedMigrationConsumption: () => persistedMigrationConsumption,
     setRawAuthority: (value: unknown) => {
       persistedAuthority = value;
+    },
+    setRawLineage: (value: unknown) => {
+      persistedLineage = value;
+    },
+    setRawMigrationMarker: (value: unknown) => {
+      persistedMigrationMarker = value;
     },
     setLegacy: (consent: unknown, assignmentValue: unknown) => {
       persistedConsent = consent;
@@ -498,6 +516,44 @@ describe('ProductionCohortController cohort authority', () => {
       vi.mocked(subject.assignmentStore.get).mock.calls.length,
     ]).toEqual(readsAfterMigration);
     expect(subject.persistedMigrationMarker()).toEqual(expect.any(String));
+  });
+
+  it('[HF-02] keeps migration consumed when authority, lineage, and replaceable marker are deleted or replayed', async () => {
+    const prior = {
+      schemaVersion: 1,
+      cohort: 'operator',
+      classifiedAtMs: NOW,
+      windowStartMs: NOW,
+      windowEndMs: END,
+    } as const;
+    const subject = await fixture(enabledConsent, prior, () => NOW, { seedAuthenticated: false });
+    const consumedAnchor = subject.persistedMigrationConsumption();
+    const replaceableMarker = subject.persistedMigrationMarker();
+    const readsAfterMigration = [
+      vi.mocked(subject.consentStore.get).mock.calls.length,
+      vi.mocked(subject.assignmentStore.get).mock.calls.length,
+    ];
+
+    subject.setRawAuthority(undefined);
+    subject.setRawLineage(undefined);
+    subject.setRawMigrationMarker(undefined);
+    subject.setLegacy(enabledConsent, { ...prior, cohort: 'developer' });
+
+    const afterDeletion = await createCohortProductionController(subject.environment);
+    await expect(afterDeletion.authorityStatus()).resolves.toMatchObject({ generation: null });
+    expect(subject.persistedMigrationConsumption()).toBe(consumedAnchor);
+    expect([
+      vi.mocked(subject.consentStore.get).mock.calls.length,
+      vi.mocked(subject.assignmentStore.get).mock.calls.length,
+    ]).toEqual(readsAfterMigration);
+
+    subject.setRawMigrationMarker(replaceableMarker);
+    const afterReplacement = await createCohortProductionController(subject.environment);
+    await expect(afterReplacement.authorityStatus()).resolves.toMatchObject({ generation: null });
+    expect([
+      vi.mocked(subject.consentStore.get).mock.calls.length,
+      vi.mocked(subject.assignmentStore.get).mock.calls.length,
+    ]).toEqual(readsAfterMigration);
   });
 
   it('[HF-02] requires fresh native confirmation and never promotes a legacy consent window', async () => {

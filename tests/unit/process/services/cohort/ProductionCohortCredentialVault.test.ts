@@ -58,7 +58,7 @@ describe('production cohort OS credential vault', () => {
     const first = await createProductionCohortController();
     await expect(first.authorityStatus()).resolves.toMatchObject({ generation: null });
 
-    expect(setPassword).toHaveBeenCalledTimes(3);
+    expect(setPassword).toHaveBeenCalledTimes(4);
     expect([...vault.keys()].some((key) => key.endsWith(':installation'))).toBe(true);
     expect([...vault.keys()].some((key) => key.endsWith(':lineage'))).toBe(true);
     expect([...vault.keys()].some((key) => key.endsWith(':migration-consumed'))).toBe(true);
@@ -70,6 +70,45 @@ describe('production cohort OS credential vault', () => {
     expect(setPassword).not.toHaveBeenCalled();
     expect(configGet).not.toHaveBeenCalled();
     expect(configUpdate).not.toHaveBeenCalled();
+  });
+
+  it('[HF-02] anchors migration consumption in the stable installation credential', async () => {
+    await createProductionCohortController();
+    const installationKey = [...vault.keys()].find((key) => key.endsWith(':installation'))!;
+    const installationCredential = JSON.parse(vault.get(installationKey)!) as {
+      installIdentity: string;
+      legacyMigrationConsumed: boolean;
+    };
+    expect(installationCredential).toMatchObject({ legacyMigrationConsumed: true });
+
+    for (const suffix of [':authority', ':lineage', ':migration-consumed']) {
+      const key = [...vault.keys()].find((candidate) => candidate.endsWith(suffix));
+      if (key) vault.delete(key);
+    }
+    configGet.mockImplementation(async (key: string) =>
+      key === 'cohort.evidenceConsent'
+        ? {
+            schemaVersion: 1,
+            enabled: false,
+            acceptedAtMs: null,
+            windowStartMs: null,
+            windowEndMs: null,
+          }
+        : {
+            schemaVersion: 1,
+            cohort: 'developer',
+            classifiedAtMs: Date.UTC(2026, 6, 19),
+            windowStartMs: null,
+            windowEndMs: null,
+          }
+    );
+    vi.clearAllMocks();
+
+    const restarted = await createProductionCohortController();
+    await expect(restarted.authorityStatus()).resolves.toMatchObject({ generation: null });
+    expect(configGet).not.toHaveBeenCalled();
+    expect(showMessageBox).not.toHaveBeenCalled();
+    expect(JSON.parse(vault.get(installationKey)!)).toEqual(installationCredential);
   });
 
   it('[LF-03] renders the native confirmation with the localized cohort label', async () => {
