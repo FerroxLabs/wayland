@@ -10,6 +10,14 @@ The work is an evidence-gated strangler migration over the current application, 
 
 A provider-agnostic get-shit-done copilot that keeps chat immediately usable, progressively reveals all existing power, and makes AI work for novices, knowledge workers, developers, and operators.
 
+## Requirements
+
+The authoritative requirement inventory and traceability map live in
+`.planning/REQUIREMENTS.md`. The active milestone contains 55 atomic current
+requirements mapped exactly once across Phases 1-7; 13 explicitly deferred
+requirements remain queued for a later milestone. Phase plans may refine how a
+requirement is proven, but may not weaken, silently reclassify, or drop it.
+
 ## Product Model
 
 - **Chat is the center:** users state the outcome before choosing providers, agents, tools, or modes.

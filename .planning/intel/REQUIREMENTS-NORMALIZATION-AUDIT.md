@@ -18,7 +18,7 @@ projection that `REQUIREMENTS.md` and `ROADMAP.md` must implement.
 | FLUX-01 | Pin and replay Flux route/attempt/fallback/cost evidence with full correlation | Master plan M1F | M1F | 1 | 5 |
 | MCP-01 | Remove declaration/probe/publication false-green states | Master plan M1M/MCP-0 | M1M | 1 | 5 |
 | SBX-01 | Show only schema-valid Core controls and correlated effective policy | REQ-truthful-core-settings | M1S/SBX-0 | 1 | 5 |
-| COW-01 | Prove C0-A executable/skill lockstep, authority isolation, and fallback consent | REQ-cowork-capability-readiness; C0-A | C0-A | 1 | 5 |
+| COW-01 | Prove C0-A executable/skill lockstep, authority isolation, and current-host-only execution with no reachable hosted fallback; any future fallback requires a separately accepted explicit-consent contract | REQ-cowork-capability-readiness; C0-A | C0-A | 1 | 5 |
 | KRN-01 | One backend-neutral execution model and universal work kernel | REQ-derived-execution-view | M2 | 2 | 5 |
 | AUTH-01 | Separate requested ceiling from producer-reported/effective authority | REQ-trust-authority-vocabulary; master section 5 | M2 | 2 | 5 |
 | HND-01 | Provider replacement only at declared checkpoints with explicit loss and side effects | REQ-derived-execution-view | M2 | 2 | 5 |

@@ -83,13 +83,14 @@ make the observation startable.
 
 Current source records substantial bounded C0-A evidence: the native
 OfficeCLI `v1.0.136` contract and macOS ARM64 journeys, immutable skill checks,
-provider-neutral readiness injection, Cowork authority isolation, fallback
-disclosure, and focused tests. Phase 1 must reconcile and re-prove that bounded
+provider-neutral readiness injection, Cowork authority isolation, current-host
+execution with no reachable hosted fallback, and focused tests. Phase 1 must reconcile and re-prove that bounded
 claim rather than silently dropping `COW-01` or calling all Cowork readiness
 complete.
 
 - C0-A terminal claim: executable/skill lockstep, authority isolation, and
-  explicit fallback consent in the currently supported local boundary.
+  current-host-only execution with no reachable hosted fallback. Any future
+  fallback requires a separately accepted explicit-consent contract.
 - C0-B remains Phase 2 work after the sole shared M2 readiness schema and
   downgrade/re-upgrade authority proof exist.
 - Final six-target signed application and package closure remains Phase 5/M8.

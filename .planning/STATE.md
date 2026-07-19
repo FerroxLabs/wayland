@@ -4,7 +4,7 @@ status: in_progress
 progress:
   total_phases: 7
   completed_phases: 0
-  total_plans: 0
+  total_plans: 40
   completed_plans: 0
   percent: 0
 ---
@@ -21,9 +21,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-19)
 ## Current Position
 
 Phase: 1 of 7 (Safety Foundation)
-Plan: onboarding and roadmap convergence complete; Phase 1 packet planning next
-Status: Ready to plan — current wiring and consent UI exist; hard-coded `knowledge-work` assignment and missing Classic observation instrumentation block valid Day 0
-Last activity: 2026-07-19 — independently cross-audited the seven-phase roadmap and corrected terminal coverage
+Plan: Phase 1 plans 01-01 through 01-40 authored; plan 01-40 is the first executable slice
+Status: Plan audit convergence — 40-plan dependency graph is structurally valid; final independent adversarial re-audit precedes execution
+Last activity: 2026-07-19 — migrated Phase 1 into 40 dependency-derived GSD plans and corrected execution-admission authority
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -38,7 +38,7 @@ Progress: [░░░░░░░░░░] 0%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Safety Foundation | 0 | TBD | - |
+| 1. Safety Foundation | 0 | 40 | - |
 
 **Recent Trend:** No GSD plans completed yet.
 
@@ -60,9 +60,9 @@ Decisions are logged in `.planning/PROJECT.md`.
 
 ### Pending Todos
 
-- Plan and execute the M0B cohort-authority slice in `.planning/intel/PHASE-1-IMPLEMENTATION-RECON.md`.
-- Plan and execute the separate M0B Day-0 instrumentation slice before observation begins.
-- Reconcile the remaining Wave 0 packet receipts into dependency-ordered Phase 1 plans without rebuilding accepted source.
+- Finish the independent adversarial audit of the exact 40-plan Phase 1 successor and repair every remaining HIGH/BLOCKER.
+- Execute plan 01-40, then the dependency-unlocked Phase 1 construction set through manually isolated worktrees and serial integration.
+- Keep Day-0 observation and every acceptance checkpoint closed until their explicit dependencies and authenticated receipts exist.
 - Import `MCP-DEEP-DIVE.md` before Phase 3 planning.
 
 ### Blockers/Concerns
@@ -70,7 +70,7 @@ Decisions are logged in `.planning/PROJECT.md`.
 - Phase 1: production currently hard-codes every M0B participant to `knowledge-work`; a closed, persisted, process-authoritative cohort identity and hostile proof are required before observation.
 - Phase 1: the real 14-calendar-day Classic observation and signed `M0B.json` remain absent after the cohort-authority repair.
 - Phase 1: production M0B instrumentation cannot yet satisfy Classic/journey denominators or incident reporting.
-- Phase 1: standard full-phase execution is prohibited until the open aggregate-acceptance sentinel verifies signed M0B and every named proof closure.
+- Phase 1: stock full-phase execution remains prohibited; plan 01-40 supplies the bounded selector that avoids long-lived checkpoint deadlock without weakening explicit dependencies.
 - No later phase may promote a dependency-gated capability on source presence alone.
 - Cloud/Pro and secure portability remain separately gated surfaces.
 
@@ -87,5 +87,5 @@ Decisions are logged in `.planning/PROJECT.md`.
 ## Session Continuity
 
 Last session: 2026-07-19
-Stopped at: Current M0B state reconciled; Phase 1 cohort-authority plan is the first executable build slice
-Resume file: `.planning/execution/PACKET-GATES.json`
+Stopped at: Forty Phase 1 plans authored; exact successor awaiting final independent audit before plan 01-40 execution
+Resume file: `.planning/phases/WLD-01-safety-foundation/01-40-PLAN.md`

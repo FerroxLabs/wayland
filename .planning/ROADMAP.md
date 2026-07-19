@@ -34,9 +34,21 @@ The roadmap preserves the master plan's seven dependency waves as the seven acti
   8. **FLUX-01:** The pinned Flux corpus replays route, attempt, retry, fallback, terminal, cost, and degraded evidence with full correlation; absent trusted live delivery keeps dependent claims disabled.
   9. **MCP-01:** MCP declaration, authentication, probe, and publication remain distinct; failed add/import/publication paths fail closed and none can mint chat-ready or live-session status. Persistent lifecycle/session readiness is Phase 3 `MCP-02`.
   10. **SBX-01:** Desktop exposes only schema-valid Core settings and distinguishes requested policy from correlated producer-enforced policy; unsupported controls and false-green effective states remain absent or explicitly unavailable.
-  11. **COW-01:** C0-A proves OfficeCLI executable/skill contract lockstep, Cowork authority isolation, and explicit fallback consent in its bounded local scope; it does not claim Phase 2 C0-B or Phase 5 six-target signed-app closure.
-**Plans**: First slice is the M0B cohort-authority repair; remaining Wave 0 work requires receipt reconciliation
-**Status note**: **IN PROGRESS.** Current baseline already has production controller wiring and consent/window UI, contrary to the stale historical ledger. Its hard-coded cohort blocks valid observation; see `.planning/intel/PHASE-1-IMPLEMENTATION-RECON.md`. No later implementation or receipt may infer this phase complete.
+  11. **COW-01:** C0-A proves OfficeCLI executable/skill contract lockstep, unchanged caller authority, and current-host-only execution with no reachable hosted fallback. Any future fallback requires a separately accepted explicit-consent contract before it can be introduced; C0-A does not claim Phase 2 C0-B or Phase 5 six-target signed-app closure.
+**Plans**: 40 executable plans in eleven dependency-derived waves. The project-specific read-only execution adapter selects only dependency-unlocked autonomous construction; unrelated human checkpoints never stall it, while explicitly depended-on checkpoints still fail closed.
+
+- **Wave 1:** 01-40 bounded GSD execution adapter.
+- **Wave 2:** 01-01 cohort authority; 01-06 authority inventory/capture/quiescence; 01-08 workspace preservation; 01-11 MCP declaration/catalog/CRUD/probe; 01-13 OfficeCLI supply-chain lockstep; 01-23 immutable M0B usability protocol; 01-37 repository target-verifier v2 implementation.
+- **Wave 3:** 01-02 cohort observer/repository core; 01-10 Flux local consumer construction; 01-12 SBX read-only truth projection; 01-15 Constitution transform/replay; 01-16 canonical authority downgrade/re-upgrade; 01-19 deterministic Classic v0.11.18 baseline; 01-21 packaged-Core provenance; 01-24 C0-A authority/fallback construction; 01-35 MCP backend publication/session receipts; 01-38 exact-byte external target-verifier installation and pin proof.
+- **Wave 4:** 01-07 historical artifact/isolated-launch trust; 01-25 cohort-authority acceptance; 01-28 Flux producer acceptance; 01-30 SBX M1S-0 acceptance; 01-31 C0-A acceptance; 01-32 conversation/Project/Cowork/developer cohort bindings.
+- **Wave 5:** 01-33 automation/crash/support/accessibility cohort bindings.
+- **Wave 6:** 01-09 Core contract consumer replay; 01-22 Core/Gemini/ACP backend-state authority ledger; 01-34 cohort production integration and E2E.
+- **Wave 7:** 01-20 exact historical transaction corpus; 01-26 instrumentation acceptance; 01-36 MCP chat-readiness/ToolSearch withholding.
+- **Wave 8:** 01-03 authorized M0B Day-0 start; 01-18 immutable complete six-target M0A harness; 01-29 MCP M1M-0 acceptance.
+- **Wave 9:** 01-04 real 14-calendar-day observation completion; 01-39 six-target M0A execution and acceptance.
+- **Wave 10:** 01-05 independent signed M0B decision; 01-17 mutually exclusive live M1F or NO-FLUX-CLAIMS acceptance; 01-27 Core M1 acceptance.
+- **Wave 11:** 01-14 authenticated aggregate acceptance sentinel, intentionally open until Phase-5 exact-package proof closure.
+**Status note**: **IN PROGRESS.** Current baseline already has production controller wiring and consent/window UI, contrary to the stale historical ledger. Its hard-coded cohort blocks valid observation; see `.planning/intel/PHASE-1-IMPLEMENTATION-RECON.md`. The installed schema-v1 gate also lacks target authentication: 01-37 must implement v2 and 01-38 must separately install/pin the exact bytes before any packet-acceptance plan can run. No later implementation, prerequisite-only gate result, or receipt may infer this phase complete.
 **UI hint**: yes
 
 ### Phase 2: Migration Skeleton

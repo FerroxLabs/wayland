@@ -19,7 +19,7 @@ These are atomic, checkable requirements for the current seven-phase milestone. 
 - [ ] **FLUX-01**: Pin and replay Flux route/attempt/fallback/cost evidence with full correlation.
 - [ ] **MCP-01**: Remove declaration/probe/publication false-green states.
 - [ ] **SBX-01**: Show only schema-valid Core controls and correlated effective policy.
-- [ ] **COW-01**: Prove C0-A executable/skill lockstep, authority isolation, and fallback consent.
+- [ ] **COW-01**: Prove C0-A executable/skill lockstep, authority isolation, and current-host-only execution with no reachable hosted fallback; any future fallback requires a separately accepted explicit-consent contract.
 
 ### Phase 2 — Migration Skeleton
 

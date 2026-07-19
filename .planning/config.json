@@ -6,6 +6,8 @@
   "parallelization": false,
   "workflow": {
     "plan_review_convergence": true,
-    "text_mode": false
+    "text_mode": false,
+    "nyquist_validation": true,
+    "ai_integration_phase": true
   }
 }

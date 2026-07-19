@@ -51,7 +51,8 @@
 
 ## Recommended Next Step
 
-- Generate and verify the Phase 1 PLAN.md packet set against the reconciled
-  evidence state, beginning with cohort authority and Classic observation
-  instrumentation. Do not rebuild accepted source or infer acceptance from
-  code presence.
+- Complete the independent adversarial audit of the exact 40-plan Phase 1
+  successor, then execute 01-40 as the bounded read-only GSD selector before
+  launching dependency-safe construction in manually isolated worktrees.
+- Do not rebuild accepted source or infer packet acceptance from code, tests,
+  a SUMMARY, or a green entry gate.

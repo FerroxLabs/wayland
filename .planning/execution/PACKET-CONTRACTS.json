@@ -14,7 +14,7 @@
     "M1M-LIFECYCLE": { "requirements": ["MCP-02"], "terminal_claim": "The versioned brokered connector lifecycle has exact active-session registration, discovery, invocation, degradation, and revocation receipts." },
     "M1S-0": { "requirements": ["SBX-01"], "terminal_claim": "Desktop shows only schema-valid Core controls and never promotes a requested policy to effective without correlated producer evidence." },
     "M1S-POLICY": { "requirements": ["SBX-02", "SBX-03"], "terminal_claim": "Purpose-scoped Project localhost and toolchain grants are producer-enforced, revocable, isolated, and package-proven." },
-    "C0-A": { "requirements": ["COW-01"], "terminal_claim": "OfficeCLI executable and skill contracts are in lockstep; Cowork authority is isolated and hosted fallback requires explicit consent." },
+    "C0-A": { "requirements": ["COW-01"], "terminal_claim": "OfficeCLI executable and skill contracts are in lockstep; Cowork preserves caller authority and is current-host-only. Any future hosted fallback remains absent and requires a separately accepted explicit-consent contract before introduction." },
     "M2": { "requirements": ["KRN-01", "AUTH-01", "HND-01", "CMP-01"], "terminal_claim": "One backend-neutral execution model, authority intersection, handoff contract, and Web/Cloud composition replay are accepted." },
     "M3": { "requirements": ["SHL-01"], "terminal_claim": "Classic and Cockpit switch reversibly over canonical state with isolated failure and no duplicate authority." },
     "C0-B": { "requirements": ["COW-02"], "terminal_claim": "Cowork readiness conforms to the shared M2 schema and target-exact first-vertical component proof is accepted." },
