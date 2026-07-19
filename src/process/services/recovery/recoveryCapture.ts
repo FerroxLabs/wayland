@@ -6,14 +6,15 @@
 
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
-import { lstat, readdir } from 'node:fs/promises';
+import { lstat, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import type { WaylandReleaseTrack } from '@/common/releaseTrack';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
 import { createDriver } from '@process/services/database/drivers/createDriver';
 import { readDatabaseSchemaVersionStrict } from './startupCompatibility';
 import { sealRecoveryFile } from './recoverySealing';
-import { buildRecoveryPoint, type BuiltRecoveryPoint } from './recoveryPointBuilder';
+import { buildRecoveryPoint, RecoveryPointBuildBlockedError, type BuiltRecoveryPoint } from './recoveryPointBuilder';
+import { evaluateRecoveryDryRun, type RecoveryDryRun } from './recoveryDryRun';
 import { inventoryRecoveryAuthorities, type RecoveryInventory } from './stateAuthorityInventory';
 import {
   loadOrCreateExternalRecoveryAuthority,
@@ -133,10 +134,56 @@ function pathsOverlap(left: string, right: string): boolean {
   );
 }
 
+async function canonicalizePotentialPath(candidate: string, missingSegments: string[] = []): Promise<string> {
+  const cursor = path.resolve(candidate);
+  try {
+    await lstat(cursor);
+    return path.resolve(await realpath(cursor), ...missingSegments);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    const parent = path.dirname(cursor);
+    if (parent === cursor) throw error;
+    return canonicalizePotentialPath(parent, [path.basename(cursor), ...missingSegments]);
+  }
+}
+
+/** Reject lexical and symlink-resolved aliases between output and live authority roots. */
+export async function assertRecoveryDestinationDisjoint(
+  destinationRoot: string,
+  protectedRoots: readonly string[]
+): Promise<void> {
+  const canonicalDestination = await canonicalizePotentialPath(destinationRoot);
+  const canonicalProtectedRoots = await Promise.all(protectedRoots.map((root) => canonicalizePotentialPath(root)));
+  for (const [index, protectedRoot] of protectedRoots.entries()) {
+    const canonicalProtected = canonicalProtectedRoots[index];
+    if (pathsOverlap(destinationRoot, protectedRoot) || pathsOverlap(canonicalDestination, canonicalProtected)) {
+      throw new Error(`Recovery destination must be disjoint from live state: ${protectedRoot}`);
+    }
+  }
+}
+
+/**
+ * Authenticate the bounded Desktop-only capture boundary. A caller-provided or
+ * locally fabricated Core lease cannot pass this production preflight; plan
+ * 01-18 owns the future producer-admitted Core path.
+ */
+export function assertDesktopOnlyRecoveryCaptureReady(inventory: RecoveryInventory): RecoveryDryRun {
+  const dryRun = evaluateRecoveryDryRun(inventory, {
+    sqliteOnlineBackup: true,
+    desktopQuiescence: true,
+    coreQuiescence: false,
+    mutationEpoch: true,
+    sealedSensitiveCopies: true,
+  });
+  if (!dryRun.readyToCapture) throw new RecoveryPointBuildBlockedError(dryRun);
+  return dryRun;
+}
+
 async function addFileToEpoch(hash: ReturnType<typeof createHash>, filePath: string, root: string): Promise<void> {
   const stat = await lstat(filePath);
   if (!stat.isFile() || stat.isSymbolicLink())
     throw new Error(`Recovery mutation epoch found unsafe file: ${filePath}`);
+  if (stat.nlink !== 1) throw new Error(`Recovery mutation epoch refuses hard-linked file: ${filePath}`);
   hash.update(`file\0${path.relative(root, filePath)}\0${stat.size}\0`);
   for await (const chunk of createReadStream(filePath)) hash.update(chunk);
 }
@@ -213,11 +260,12 @@ export async function captureProductionRecoveryPoint(
   const defaultCoreRoot = nativeConfigDir();
   const namedCoreRoot = profilesRoot();
   const constitutionRoot = path.dirname(namedCoreRoot);
-  for (const protectedRoot of [inputs.userDataRoot, constitutionRoot, defaultCoreRoot, namedCoreRoot]) {
-    if (pathsOverlap(inputs.destinationRoot, protectedRoot)) {
-      throw new Error(`Recovery destination must be disjoint from live state: ${protectedRoot}`);
-    }
-  }
+  await assertRecoveryDestinationDisjoint(inputs.destinationRoot, [
+    inputs.userDataRoot,
+    constitutionRoot,
+    defaultCoreRoot,
+    namedCoreRoot,
+  ]);
 
   const inventory = await inventoryRecoveryAuthorities({
     userDataRoot: inputs.userDataRoot,
@@ -226,6 +274,7 @@ export async function captureProductionRecoveryPoint(
     coreNamedProfilesRoot: namedCoreRoot,
     sourceReleaseTrack: inputs.sourceReleaseTrack,
   });
+  assertDesktopOnlyRecoveryCaptureReady(inventory);
   const databasePath = inventory.authorities.find(({ id }) => id === 'desktop.database')?.evidence[0]?.path;
   if (!databasePath) throw new Error('Desktop recovery capture could not resolve the authoritative database.');
   const schemaDriver = await createDriver(databasePath, { readonly: true, fileMustExist: true });

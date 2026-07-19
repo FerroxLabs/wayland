@@ -19,6 +19,7 @@ export type InventoryPathEvidence = {
   fileCount: number;
   directoryCount: number;
   symlinkCount: number;
+  hardlinkCount: number;
   truncated: boolean;
   errorCode?: string;
 };
@@ -75,6 +76,7 @@ function emptyEvidence(candidatePath: string, state: InventoryPathState, errorCo
     fileCount: 0,
     directoryCount: 0,
     symlinkCount: state === 'symlink' ? 1 : 0,
+    hardlinkCount: 0,
     truncated: false,
     ...(errorCode ? { errorCode } : {}),
   };
@@ -95,6 +97,7 @@ async function scanContained(candidatePath: string, budget: ScanBudget): Promise
       ...emptyEvidence(candidatePath, 'file'),
       size: stat.size,
       fileCount: 1,
+      hardlinkCount: stat.nlink === 1 ? 0 : 1,
     };
   }
   if (!stat.isDirectory()) return emptyEvidence(candidatePath, 'unreadable', 'UNSUPPORTED_FILE_TYPE');
@@ -117,11 +120,14 @@ async function scanContained(candidatePath: string, budget: ScanBudget): Promise
       break;
     }
     budget.remaining -= 1;
+    // One shared budget must be consumed deterministically across the tree.
+    // oxlint-disable-next-line no-await-in-loop
     const child = await scanContained(path.join(candidatePath, name), budget);
     evidence.size += child.size;
     evidence.fileCount += child.fileCount;
     evidence.directoryCount += child.directoryCount;
     evidence.symlinkCount += child.symlinkCount;
+    evidence.hardlinkCount += child.hardlinkCount;
     evidence.truncated ||= child.truncated;
     if (child.state === 'unreadable') {
       evidence.state = 'unreadable';
@@ -146,13 +152,23 @@ async function inspectRoot(
     return emptyEvidence(candidatePath, code === 'ENOENT' ? 'absent' : 'unreadable', code ?? 'UNKNOWN');
   }
   if (stat.isSymbolicLink()) return emptyEvidence(candidatePath, 'symlink');
-  if (stat.isFile()) return { ...emptyEvidence(candidatePath, 'file'), size: stat.size, fileCount: 1 };
+  if (stat.isFile()) {
+    return {
+      ...emptyEvidence(candidatePath, 'file'),
+      size: stat.size,
+      fileCount: 1,
+      hardlinkCount: stat.nlink === 1 ? 0 : 1,
+    };
+  }
   if (stat.isDirectory()) return { ...emptyEvidence(candidatePath, 'directory'), directoryCount: 1 };
   return emptyEvidence(candidatePath, 'unreadable', 'UNSUPPORTED_FILE_TYPE');
 }
 
-function summarizeState(evidence: InventoryPathEvidence[]): StateAuthorityInventory['state'] {
-  if (evidence.some((entry) => entry.state === 'symlink' || entry.symlinkCount > 0)) return 'symlink-risk';
+/** Recompute the claimed authority state solely from read-only path evidence. */
+export function classifyInventoryEvidenceState(evidence: InventoryPathEvidence[]): StateAuthorityInventory['state'] {
+  if (evidence.some((entry) => entry.state === 'symlink' || entry.symlinkCount > 0 || entry.hardlinkCount > 0)) {
+    return 'symlink-risk';
+  }
   if (evidence.some((entry) => entry.state === 'unreadable')) return 'unreadable';
   const present = evidence.filter((entry) => entry.state === 'file' || entry.state === 'directory').length;
   if (present === 0) return 'absent';
@@ -168,7 +184,7 @@ function authority(
   }
 ): StateAuthorityInventory {
   const { stateOverride, ...authorityOptions } = options;
-  return { id, state: stateOverride ?? summarizeState(evidence), evidence, ...authorityOptions };
+  return { id, state: stateOverride ?? classifyInventoryEvidenceState(evidence), evidence, ...authorityOptions };
 }
 
 /**
@@ -208,10 +224,11 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
     path.join('archives', 'constitution-history'),
   ];
   const constitutionFilesystemEvidence = await Promise.all(
-    constitutionPaths.map(async (relativePath) => ({
-      ...(await inspectRoot(path.join(inputs.constitutionRoot, relativePath), maxEntries)),
-      authorityRelativePath: relativePath.split(path.sep).join('/'),
-    }))
+    constitutionPaths.map(async (relativePath) => {
+      const evidence = await inspectRoot(path.join(inputs.constitutionRoot, relativePath), maxEntries);
+      evidence.authorityRelativePath = relativePath.split(path.sep).join('/');
+      return evidence;
+    })
   );
   const revisionAuthorityEvidence = [
     await inspectRoot(path.join(inputs.userDataRoot, 'constitution', 'revision-authority.enc'), maxEntries, false),
@@ -238,7 +255,7 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
   );
 
   const coreCoverage = (evidence: InventoryPathEvidence[]): AuthorityCoverage =>
-    summarizeState(evidence) === 'absent' ? 'absent' : 'encrypted-copy';
+    classifyInventoryEvidenceState(evidence) === 'absent' ? 'absent' : 'encrypted-copy';
 
   return {
     observedAt: new Date().toISOString(),
@@ -260,25 +277,30 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
         note: 'Config contains provider and application state and must be quiesced before copying.',
       }),
       authority('desktop.runtime-files', runtimeEvidence, {
-        recommendedCoverage: summarizeState(runtimeEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
-        requiredConsistency: summarizeState(runtimeEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
-        requiredForRestore: summarizeState(runtimeEvidence) !== 'absent',
+        recommendedCoverage: classifyInventoryEvidenceState(runtimeEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
+        requiredConsistency:
+          classifyInventoryEvidenceState(runtimeEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
+        requiredForRestore: classifyInventoryEvidenceState(runtimeEvidence) !== 'absent',
         sensitive: true,
         note: 'Durable root files include WebUI state, connector receipts/backups, sync state, nicknames, and local device preferences.',
       }),
       authority('constitution.filesystem', constitutionFilesystemEvidence, {
-        recommendedCoverage: summarizeState(constitutionFilesystemEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
+        recommendedCoverage:
+          classifyInventoryEvidenceState(constitutionFilesystemEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
         requiredConsistency:
-          summarizeState(constitutionFilesystemEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
-        requiredForRestore: summarizeState(constitutionFilesystemEvidence) !== 'absent',
+          classifyInventoryEvidenceState(constitutionFilesystemEvidence) === 'absent'
+            ? 'not-applicable'
+            : 'quiesced-copy',
+        requiredForRestore: classifyInventoryEvidenceState(constitutionFilesystemEvidence) !== 'absent',
         sensitive: true,
         note: 'Desktop Constitution prose, specialist overlays, authenticated keys, archives, journals, and locks are one filesystem authority.',
       }),
       authority('constitution.revision-authority', revisionAuthorityEvidence, {
-        recommendedCoverage: summarizeState(revisionAuthorityEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
+        recommendedCoverage:
+          classifyInventoryEvidenceState(revisionAuthorityEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
         requiredConsistency:
-          summarizeState(revisionAuthorityEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
-        requiredForRestore: summarizeState(revisionAuthorityEvidence) !== 'absent',
+          classifyInventoryEvidenceState(revisionAuthorityEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
+        requiredForRestore: classifyInventoryEvidenceState(revisionAuthorityEvidence) !== 'absent',
         sensitive: true,
         credentialBinding: {
           scope: 'same-device',
@@ -289,21 +311,25 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
       }),
       authority('core.default-profile', defaultCoreEvidence, {
         recommendedCoverage: coreCoverage(defaultCoreEvidence),
-        requiredConsistency: summarizeState(defaultCoreEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
-        requiredForRestore: summarizeState(defaultCoreEvidence) !== 'absent',
+        requiredConsistency:
+          classifyInventoryEvidenceState(defaultCoreEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
+        requiredForRestore: classifyInventoryEvidenceState(defaultCoreEvidence) !== 'absent',
         sensitive: true,
         note: 'Wayland Core owns this tree; Desktop may copy it only through the negotiated quiescence contract.',
       }),
       authority('core.named-profiles', namedCoreEvidence, {
         recommendedCoverage: coreCoverage(namedCoreEvidence),
-        requiredConsistency: summarizeState(namedCoreEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
-        requiredForRestore: summarizeState(namedCoreEvidence) !== 'absent',
+        requiredConsistency:
+          classifyInventoryEvidenceState(namedCoreEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
+        requiredForRestore: classifyInventoryEvidenceState(namedCoreEvidence) !== 'absent',
         sensitive: true,
         note: 'Every named profile is an independent Core authority and must retain directory isolation.',
       }),
       authority('credentials.key-material', credentialEvidence, {
-        recommendedCoverage: summarizeState(credentialEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
-        requiredConsistency: summarizeState(credentialEvidence) === 'absent' ? 'not-applicable' : 'immutable-copy',
+        recommendedCoverage:
+          classifyInventoryEvidenceState(credentialEvidence) === 'absent' ? 'absent' : 'encrypted-copy',
+        requiredConsistency:
+          classifyInventoryEvidenceState(credentialEvidence) === 'absent' ? 'not-applicable' : 'immutable-copy',
         requiredForRestore: false,
         sensitive: true,
         note: 'File-backed key material must never enter a plaintext recovery point; OS-keychain material is external.',
@@ -317,8 +343,9 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
         note: 'OS-keychain entries cannot be copied by a filesystem recovery point and may require reconnection after restore.',
       }),
       authority('updater.state', updaterEvidence, {
-        recommendedCoverage: summarizeState(updaterEvidence) === 'absent' ? 'absent' : 'copied',
-        requiredConsistency: summarizeState(updaterEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
+        recommendedCoverage: classifyInventoryEvidenceState(updaterEvidence) === 'absent' ? 'absent' : 'copied',
+        requiredConsistency:
+          classifyInventoryEvidenceState(updaterEvidence) === 'absent' ? 'not-applicable' : 'quiesced-copy',
         requiredForRestore: false,
         sensitive: false,
         note: `Pending update markers must agree with the ${inputs.sourceReleaseTrack ?? 'stable'} release track and restored app version.`,
@@ -414,11 +441,13 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
       },
     ],
     externalWorkspaces: workspaceInputs.map((workspace, index) => ({
-      ...workspace,
+      projectId: workspace.projectId,
+      path: workspace.path,
       state: workspaceEvidence[index].state,
     })),
     externalAgentConfigs: externalAgentConfigInputs.map((entry, index) => ({
-      ...entry,
+      backendId: entry.backendId,
+      path: entry.path,
       state: externalAgentConfigEvidence[index].state,
     })),
   };

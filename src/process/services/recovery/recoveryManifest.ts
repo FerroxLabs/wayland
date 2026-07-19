@@ -788,6 +788,8 @@ async function inspectContainedArtifactType(
   let candidate = root;
   for (let index = -1; index < segments.length; index += 1) {
     if (index >= 0) candidate = path.join(candidate, segments[index]);
+    // Ancestors must be inspected in path order so a link is rejected before its child is touched.
+    // oxlint-disable-next-line no-await-in-loop
     const stat = await lstat(candidate);
     if (stat.isSymbolicLink()) {
       return { valid: false, message: `Snapshot path contains a symbolic link: ${candidate}` };
@@ -821,6 +823,8 @@ export async function verifyRecoverySnapshot(
       continue;
     }
     try {
+      // Bound verification to one authenticated artifact at a time.
+      // oxlint-disable-next-line no-await-in-loop
       const artifactType = await inspectContainedArtifactType(root, file.snapshotPath);
       if ('message' in artifactType) {
         errors.push(issue('SNAPSHOT_FILE_TYPE', `files[${index}]`, artifactType.message));
@@ -832,6 +836,8 @@ export async function verifyRecoverySnapshot(
           issue('SNAPSHOT_SIZE_MISMATCH', `files[${index}].size`, 'Snapshot size differs from the manifest.')
         );
       }
+      // Keep file hashing sequential to avoid unbounded recovery I/O.
+      // oxlint-disable-next-line no-await-in-loop
       const digest = await sha256File(candidate);
       if (digest !== file.sha256) {
         errors.push(

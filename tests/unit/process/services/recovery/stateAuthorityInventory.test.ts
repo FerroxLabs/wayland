@@ -117,6 +117,28 @@ describe('state authority inventory', () => {
     expect(core.evidence[0].truncated).toBe(true);
   });
 
+  it('classifies a hard-linked file as unsafe authority evidence', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-hardlink-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const configRoot = path.join(userDataRoot, 'config');
+    const outside = path.join(root, 'outside.json');
+    fs.mkdirSync(configRoot, { recursive: true });
+    fs.writeFileSync(outside, '{}');
+    fs.linkSync(outside, path.join(configRoot, 'linked.json'));
+
+    const inventory = await inventoryRecoveryAuthorities({
+      userDataRoot,
+      constitutionRoot: path.join(root, 'constitution'),
+      coreDefaultProfileRoot: path.join(root, 'core-default'),
+      coreNamedProfilesRoot: path.join(root, 'core-profiles'),
+    });
+    const config = inventory.authorities.find(({ id }) => id === 'desktop.config')!;
+
+    expect(config.state).toBe('symlink-risk');
+    expect(config.evidence[0].hardlinkCount).toBe(1);
+  });
+
   it('keeps production ~/.wayland profiles and unrelated trees out of Constitution ownership and scan budget', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-production-topology-'));
     roots.push(root);

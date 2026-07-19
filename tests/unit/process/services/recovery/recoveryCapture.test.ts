@@ -9,12 +9,17 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  assertDesktopOnlyRecoveryCaptureReady,
+  assertRecoveryDestinationDisjoint,
   fingerprintDesktopRecoveryState,
   provisionHealthyV2ExternalRecoveryAuthority,
 } from '@process/services/recovery/recoveryCapture';
 import { resolveExternalRecoveryAuthorityRoot } from '@process/services/recovery/externalRecoveryAuthority';
 import type { ExternalRecoveryVaultBackend } from '@process/services/recovery/externalRecoveryAuthority';
-import type { RecoveryInventory } from '@process/services/recovery/stateAuthorityInventory';
+import {
+  inventoryRecoveryAuthorities,
+  type RecoveryInventory,
+} from '@process/services/recovery/stateAuthorityInventory';
 
 const roots: string[] = [];
 
@@ -35,6 +40,7 @@ function inventory(configPath: string): RecoveryInventory {
             fileCount: 1,
             directoryCount: 1,
             symlinkCount: 0,
+            hardlinkCount: 0,
             truncated: false,
           },
         ],
@@ -64,6 +70,7 @@ function healthyV2Inventory(configPath: string): RecoveryInventory {
         fileCount: 1,
         directoryCount: 0,
         symlinkCount: 0,
+        hardlinkCount: 0,
         truncated: false,
       },
     ],
@@ -123,6 +130,73 @@ describe('Desktop recovery mutation epoch', () => {
     fs.symlinkSync(path.join(root, 'outside.json'), path.join(config, 'linked.json'));
 
     await expect(fingerprintDesktopRecoveryState(inventory(config))).rejects.toThrow('refuses symlink');
+  });
+
+  it('fails closed on hard-linked state that can mutate outside the authority path', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-epoch-'));
+    roots.push(root);
+    const config = path.join(root, 'config');
+    fs.mkdirSync(config);
+    const outside = path.join(root, 'outside.json');
+    fs.writeFileSync(outside, '{}');
+    fs.linkSync(outside, path.join(config, 'linked.json'));
+
+    await expect(fingerprintDesktopRecoveryState(inventory(config))).rejects.toThrow('refuses hard-linked');
+  });
+});
+
+describe('Desktop-only production capture boundary', () => {
+  async function productionInventory(root: string, includeCore = false): Promise<RecoveryInventory> {
+    const userDataRoot = path.join(root, 'user-data');
+    const coreDefaultProfileRoot = path.join(root, 'core-default');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+    if (includeCore) {
+      fs.mkdirSync(coreDefaultProfileRoot, { recursive: true });
+      fs.writeFileSync(path.join(coreDefaultProfileRoot, 'memory.db'), 'core-state');
+    }
+    return inventoryRecoveryAuthorities({
+      userDataRoot,
+      constitutionRoot: path.join(root, 'constitution'),
+      coreDefaultProfileRoot,
+      coreNamedProfilesRoot: path.join(root, 'core-profiles'),
+    });
+  }
+
+  it('accepts only a complete Desktop-only authority inventory', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-desktop-only-'));
+    roots.push(root);
+
+    expect(assertDesktopOnlyRecoveryCaptureReady(await productionInventory(root))).toMatchObject({
+      readyToCapture: true,
+      dryRunOnly: true,
+    });
+  });
+
+  it('rejects present Core state before capture even if a caller could fabricate local lease behavior', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-core-block-'));
+    roots.push(root);
+    const coreInventory = await productionInventory(root, true);
+
+    expect(() => assertDesktopOnlyRecoveryCaptureReady(coreInventory)).toThrow('CORE_QUIESCENCE_UNAVAILABLE');
+  });
+
+  it('rejects a destination whose symlink-resolved path aliases live state', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-destination-'));
+    roots.push(root);
+    const liveRoot = path.join(root, 'live');
+    const alias = path.join(root, 'live-alias');
+    fs.mkdirSync(liveRoot);
+    fs.symlinkSync(liveRoot, alias);
+
+    await expect(assertRecoveryDestinationDisjoint(path.join(alias, 'snapshots'), [liveRoot])).rejects.toThrow(
+      'disjoint from live state'
+    );
+    await expect(
+      assertRecoveryDestinationDisjoint(path.join(root, 'disposable', 'snapshots'), [liveRoot])
+    ).resolves.toBeUndefined();
   });
 });
 
