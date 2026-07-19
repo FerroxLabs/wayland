@@ -32,20 +32,21 @@ MCP catalog declaration, saved configuration, authentication requirement, and st
 
 ## Exact construction proof
 
-- Exact R3 repair implementation commit: `a5465341aaacdae67cb35e8b84029e15dc9457cb`.
-- Exact R3 repair implementation tree: `2f5002eb6c2e3439a542a0661eb661c4e0ec82e5`.
-- Hostile-test parent: `a4eb8a9d54efb6b4afa56d26fb8a05c68956112c`.
-- Focused repair suite: 16 files, 128 tests passed.
+- Exact R4 repair implementation commit: `012fbb0cfe110eb00e3993ef0d84b81c97057d3d`.
+- Exact R4 repair implementation tree: `0d0649079888d21e9e2867be5be4a2168cb95c4b`.
+- Hostile-test parent: `325096f5b1217619eecb441a9c287b7d7e524e4e`.
+- Focused repair suite: 16 files, 132 tests passed.
 - Typecheck: passed.
 - Changed-file oxlint: 0 warnings, 0 errors.
 - Oxfmt and `git diff --check`: passed.
-- Exact full aggregate: 1,434 Vitest files passed and 21 skipped; 15,175 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
-- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r3-a5465341/RECEIPT.md`.
+- Exact full aggregate: 1,434 Vitest files passed and 21 skipped; 15,179 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
+- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r4-012fbb0c/RECEIPT.md`.
 - The first successor aggregate attempt exposed one stale Concierge test double that still expected the retired direct MCP setter. The test was migrated to the atomic authority, the add-name invariant was moved inside the atomic mutation, and the exact aggregate was rerun successfully from a clean implementation commit.
 
 ## Successor repair details
 
-- A passive standalone probe cannot erase an unresolved publication-divergence marker. Explicit reconnect republishes first and probes only the newly committed durable enabled revision.
+- Neither a passive nor a direct standalone probe can erase an unresolved publication-divergence marker. Explicit reconnect republishes first and probes the exact declaration revision returned by that publication commit, never a later inferred storage revision.
+- Reconciliation error truncation reserves independent space for the publication-divergence marker, so an arbitrarily long provider error cannot hide the required reconnect state.
 - Add and batch import bind their storage mutation to the exact declaration revision observed before publication revocation; a concurrent edit wins without being overwritten.
 - Concierge add stores disabled, disconnected declaration truth and rejects canonical case-only name collisions before its atomic main-process mutation.
 - Archive removal and config-persistence compensation failures remain logged and are also returned as explicit rollback-publication failures rather than hiding divergence behind the first error.

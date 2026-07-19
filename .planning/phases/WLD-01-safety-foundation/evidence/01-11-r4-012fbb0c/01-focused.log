@@ -1,0 +1,9 @@
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-audit-01-11-r3/app
+
+
+ Test Files  16 passed (16)
+      Tests  132 passed (132)
+   Start at  03:20:22
+   Duration  33.90s (transform 6.04s, setup 1.10s, import 15.14s, tests 36.36s, environment 4.81s)
+
