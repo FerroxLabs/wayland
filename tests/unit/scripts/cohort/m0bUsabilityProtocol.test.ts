@@ -205,6 +205,14 @@ describe('M0B usability protocol', () => {
     expectInvalid((candidate) => candidate.measurement.automaticStops.pop());
   });
 
+  it('rejects denominator formula substitution that can manufacture a passing result', () => {
+    expectInvalid(
+      (candidate) =>
+        (candidate.measurement.denominators.journeyFailureRate =
+          'journey_completed / journey_started')
+    );
+  });
+
   it('rejects privacy widening, owner drift, and self-authorization', () => {
     expectInvalid((candidate) => candidate.privacy.excluded.pop());
     expectInvalid((candidate) => candidate.privacy.allowedModes.push('content-upload'));
