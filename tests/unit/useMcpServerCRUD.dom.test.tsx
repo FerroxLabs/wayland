@@ -756,6 +756,50 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(adapterKeys).toEqual(new Set());
   });
 
+  it('retains divergence when cleanup after a partial sync rejection also rejects', async () => {
+    const winner = {
+      ...server,
+      name: 'partial-sync-winner',
+      description: 'durable concurrent winner',
+      updatedAt: server.updatedAt + 1,
+    };
+    let stored = [server];
+    let saveCount = 0;
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      saveCount += 1;
+      if (saveCount === 2) stored = [winner];
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const read = vi.fn(async () => structuredClone(stored));
+    const remove = vi.fn(async (name: string) => {
+      if (name === winner.name) throw new Error('partial-sync cleanup rejected');
+    });
+    const sync = vi.fn(async (candidate: IMcpServer) => {
+      if (candidate.id === winner.id) throw new Error('second adapter rejected publication');
+    });
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync, read));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(stored[0]).toMatchObject({
+      id: winner.id,
+      name: winner.name,
+      enabled: true,
+      status: 'error',
+      lastError: expect.stringContaining('publication rollback incomplete'),
+    });
+    expect(remove).toHaveBeenCalledWith(winner.name, undefined, winner.transport.type);
+    expect(consoleError).toHaveBeenCalledWith(
+      'MCP publication reconciliation retained fail-closed divergence:',
+      expect.objectContaining({ rollbackErrors: expect.arrayContaining([expect.any(Error)]) })
+    );
+  });
+
   it('retains divergence when exact-key cleanup for a case-fold replacement fails', async () => {
     const canonicalWinner = {
       ...server,

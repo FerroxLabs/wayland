@@ -256,8 +256,11 @@ export const useMcpConnection = (
                 }
               }
 
-              await syncMcpToAgents(desired, true);
+              // Multi-adapter publication is not atomic. Record the exact
+              // candidate before dispatch so a partial mutation followed by a
+              // rejected promise is still revoked by the catch path.
               lastPublished = desired;
+              await syncMcpToAgents(desired, true);
             } else if (!originalKeyRemoved) {
               // Disabled/deleted durable truth requires confirmed absence. A
               // previous rejected revocation or restoration may have left any
