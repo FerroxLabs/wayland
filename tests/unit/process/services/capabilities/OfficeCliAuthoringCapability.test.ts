@@ -391,4 +391,44 @@ describe('OfficeCLI target-exact evidence producer', () => {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
+
+  it('rejects installed skill mutation while the bundle is rebound', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const fixture = createInstalledFixture('wayland-officecli-post-skill-race-');
+    if (!fixture) return;
+    const realFs = await vi.importActual<typeof import('node:fs/promises')>('node:fs/promises');
+    let bundleRootChecks = 0;
+    let mutated = false;
+    vi.resetModules();
+    vi.doMock('node:fs/promises', () => ({
+      ...realFs,
+      realpath: async (target: Parameters<typeof realFs.realpath>[0], options?: BufferEncoding | null) => {
+        if (String(target) === fixture.bundledDir && ++bundleRootChecks === 3) {
+          mutated = true;
+          fs.appendFileSync(path.join(fixture.skillsRoot, OFFICECLI_SKILL_PROOF.skills[0].path), 'post-skill-tamper');
+        }
+        return realFs.realpath(target, options as never);
+      },
+    }));
+    try {
+      const { probeOfficeCliAuthoringEvidence: probeWithRace } =
+        await import('@process/services/capabilities/OfficeCliAuthoringCapability');
+
+      const evidence = await probeWithRace({
+        correlationId: 'capabilities:wcore',
+        backend: 'wcore',
+        platform: 'darwin',
+        arch: 'arm64',
+        bundledDir: fixture.bundledDir,
+        skillsRoot: fixture.skillsRoot,
+      });
+
+      expect(mutated).toBe(true);
+      expect(evidence.status).toBe('unavailable');
+    } finally {
+      vi.doUnmock('node:fs/promises');
+      vi.resetModules();
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
 });
