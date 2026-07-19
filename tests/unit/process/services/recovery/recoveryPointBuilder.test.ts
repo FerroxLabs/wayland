@@ -507,6 +507,44 @@ describe('recovery point builder', () => {
     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
   });
 
+  it('rejects a source parent replacement at the publication boundary', async () => {
+    const data = await fixture();
+    const originalRootIdentity = fs.statSync(data.userDataRoot);
+    const retiredUserDataRoot = `${data.userDataRoot}.retired-before-publication`;
+    let replaced = false;
+    const deps = dependencies({
+      beforePublication: async () => {
+        replaced = true;
+        fs.renameSync(data.userDataRoot, retiredUserDataRoot);
+        fs.mkdirSync(data.userDataRoot);
+        for (const entry of fs.readdirSync(retiredUserDataRoot)) {
+          fs.renameSync(path.join(retiredUserDataRoot, entry), path.join(data.userDataRoot, entry));
+        }
+      },
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('Recovery source ancestor identity changed after admission');
+
+    const currentRootIdentity = fs.statSync(data.userDataRoot);
+    expect({
+      replaced,
+      parentIdentityChanged:
+        currentRootIdentity.dev !== originalRootIdentity.dev || currentRootIdentity.ino !== originalRootIdentity.ino,
+    }).toEqual({ replaced: true, parentIdentityChanged: true });
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+  });
+
   it('rejects an equal-byte descendant replacement during the final mutation epoch', async () => {
     const data = await fixture();
     const preferencesPath = path.join(data.userDataRoot, 'config', 'preferences.json');

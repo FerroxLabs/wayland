@@ -601,6 +601,15 @@ async function assertRecoverySourceRootStable(admission: RecoverySourceAdmission
   }
 }
 
+async function assertRecoverySourceAdmissionsStable(admissions: Iterable<RecoverySourceAdmission>): Promise<void> {
+  for (const admission of admissions) {
+    // Every admission is an independent authority edge and must be checked in
+    // deterministic order at each commit boundary.
+    // oxlint-disable-next-line no-await-in-loop
+    await assertRecoverySourceRootStable(admission);
+  }
+}
+
 async function readAdmittedFileFromStart(handle: FileHandle, size: number): Promise<Buffer> {
   if (!Number.isSafeInteger(size) || size < 0) {
     throw new Error('Recovery source size is invalid.');
@@ -1362,7 +1371,7 @@ export async function buildRecoveryPoint(
     desktopLease = await dependencies.acquireDesktopQuiescence();
     if (corePresent) coreLease = await dependencies.acquireCoreQuiescence!();
     for (const authorityPlan of dryRun.authorities) {
-      if (!COPIED_COVERAGE.has(authorityPlan.coverage) || authorityPlan.id === 'desktop.database') continue;
+      if (!COPIED_COVERAGE.has(authorityPlan.coverage)) continue;
       const authority = inputs.inventory.authorities.find(({ id }) => id === authorityPlan.id);
       if (!authority) throw new Error(`Recovery authority disappeared: ${authorityPlan.id}`);
       for (const [evidenceIndex, evidence] of authority.evidence.entries()) {
@@ -1378,12 +1387,9 @@ export async function buildRecoveryPoint(
       }
     }
     mutationStart = await dependencies.readMutationEpoch();
-    for (const admission of sourceAdmissions.values()) {
-      // The epoch callback may itself observe or trigger namespace changes.
-      // Rebind every held root to its authoritative pathname afterwards.
-      // oxlint-disable-next-line no-await-in-loop
-      await assertRecoverySourceRootStable(admission);
-    }
+    // The epoch callback may itself observe or trigger namespace changes.
+    // Rebind every held root to its authoritative pathname afterwards.
+    await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
 
     for (const authorityPlan of dryRun.authorities) {
       if (!COPIED_COVERAGE.has(authorityPlan.coverage)) continue;
@@ -1491,11 +1497,8 @@ export async function buildRecoveryPoint(
     if (mutationStart !== mutationEnd) {
       throw new Error(`State changed during recovery capture (${mutationStart} -> ${mutationEnd}).`);
     }
-    for (const admission of sourceAdmissions.values()) {
-      // Bind roots again after the final epoch read, before any output can be published.
-      // oxlint-disable-next-line no-await-in-loop
-      await assertRecoverySourceRootStable(admission);
-    }
+    // Bind roots again after the final epoch read, before any output can be published.
+    await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
 
     const verifiedSourceProofs = new Map<string, RecoverySourceProof>();
     for (const authorityPlan of dryRun.authorities) {
@@ -1538,11 +1541,10 @@ export async function buildRecoveryPoint(
         throw new Error(`Recovery source identity changed after capture: ${key.split('\0').join('/')}`);
       }
     }
-
-    if (coreLease) await coreLease.release();
-    coreLease = undefined;
-    await desktopLease.release();
-    desktopLease = undefined;
+    // Verification itself is asynchronous and can overlap a namespace swap.
+    // Rebind the complete authority ancestry after the pass while quiescence is
+    // still held; a pre-verification check is not publication authority.
+    await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
 
     const coverage = new Map(dryRun.authorities.map(({ id, coverage: value }) => [id, value]));
     const files = [...authorityFiles.values()].flat();
@@ -1654,9 +1656,14 @@ export async function buildRecoveryPoint(
     }
     stagingAdmission = undefined;
     await dependencies.beforePublication?.();
+    // The publication seam is attacker-controlled in hostile tests and an
+    // asynchronous boundary in production. Check on both sides of the atomic
+    // rename so the committed snapshot is bound to the admitted source roots.
+    await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
     await rename(stagingRoot, finalRoot);
     try {
       await assertRecoveryDestinationStable(destinationAdmission);
+      await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
     } catch (error) {
       const cleanupErrors: Error[] = [];
       try {
@@ -1668,6 +1675,10 @@ export async function buildRecoveryPoint(
       }
       throwPreservingCleanupFailures(error, cleanupErrors, 'Recovery publication identity check and cleanup failed.');
     }
+    if (coreLease) await coreLease.release();
+    coreLease = undefined;
+    await desktopLease.release();
+    desktopLease = undefined;
     published = true;
     builtResult = {
       snapshotPath: publicFinalRoot,
