@@ -492,6 +492,34 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(agent.isAlive).toBe(false);
   });
 
+  it('retains launch config and child identity after an unrequested root exit until tree proof succeeds', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const restore = vi.fn();
+    const agent = new WCoreAgent(baseOptions());
+    (
+      agent as unknown as {
+        projectConfigTransaction: { restore: () => void };
+      }
+    ).projectConfigTransaction = { restore };
+    const started = agent.start().catch((error: unknown) => error);
+    await flushUntilSpawned(child);
+
+    // A root can crash while descendants remain alive. Root exit alone cannot
+    // release config or discard the only identity from which a tree scan can
+    // begin, even when no shutdown attempt was already in flight.
+    child.emit('exit', 1);
+    expect(await started).toMatchObject({ message: 'wcore exited with code 1 during init' });
+    expect(restore).not.toHaveBeenCalled();
+    expect(agent.isAlive).toBe(true);
+
+    killChildMock.mockResolvedValueOnce(undefined);
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
+    expect(restore).toHaveBeenCalledOnce();
+    expect(agent.isAlive).toBe(false);
+  });
+
   it('retries the same retained child identity when tree shutdown fails before root exit', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
