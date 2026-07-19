@@ -93,14 +93,14 @@ coverage:
         status: pass
     human_judgment: false
   - id: D3
-    description: 'The integrated Desktop source remains green after preservation-first hardening.'
+    description: 'The exact R9 Desktop candidate remains green after preservation-first hardening.'
     requirement: SAF-04
     verification:
       - kind: integration
-        ref: 'GSD_RUNTIME=codex bun run test after bootstrap-lifecycle repair (15,217 Vitest + 228 Bun-native pass)'
-        status: pass
+        ref: 'Exact R9 aggregate proof is withheld until independent successor audit passes'
+        status: pending
       - kind: unit
-        ref: 'repair scope remains baseline-neutral at 74 lint warnings and 0 errors; typecheck and scoped oxfmt pass'
+        ref: 'R9 focused suite passes 288 Vitest + 2 Bun-native tests; typecheck and scoped lint/format pass'
         status: pass
     human_judgment: false
   - id: D4
@@ -167,6 +167,7 @@ status: successor-built-pending-independent-audit
 9. **Wayland Core profile-release authority repair:** `78270b812e7112cb38dda2b732c092916bbebc28`
 10. **Wayland Core bootstrap-lifecycle authority repair:** `19e376ad65abefb5cc63fe7a00fbe15bd38a96be`
 11. **Wayland Core resume-fallback authority repair:** `10c9fb43297e0cd6a27b7653767ae6b116276687`
+12. **Wayland Core root-exit notification repair:** `fcc14ef8be61673bc6b116ae321f70bf868be00b`
 
 **Rejected predecessor:** `0b98288b02e0b65b260c7b3b1670bd5ea5b68419`
 
@@ -180,9 +181,11 @@ status: successor-built-pending-independent-audit
 
 **Rejected R7 implementation candidate:** `19e376ad65abefb5cc63fe7a00fbe15bd38a96be` (test-only review commit `ccdf82476f2a437fd71ee8d02f0d75bd8a4891a3` proved resume fallback could swallow stale-child tree-shutdown failure and spawn a replacement against the same profile)
 
-**Repaired R8 implementation candidate:** `10c9fb43297e0cd6a27b7653767ae6b116276687`
+**Rejected R8 implementation candidate:** `10c9fb43297e0cd6a27b7653767ae6b116276687` (test-only review commit `293b1e240b6d342130376feb3fb2fc82cde53a8f` proved root exit restored launch config while descendant-tree proof was still pending)
 
-**R8 source tree:** `f77df6e7eb3c4fcb4b50dec76d20af2b5cbc2525`
+**Repaired R9 implementation candidate:** `fcc14ef8be61673bc6b116ae321f70bf868be00b`
+
+**R9 source tree:** `e1092c5283e238a3add58b3d59b85bbbfe845bc9`
 
 **Acceptance state:** pending independent successor re-audit; no acceptance claim is made here.
 
@@ -199,10 +202,11 @@ status: successor-built-pending-independent-audit
 - Root exit does not own profile release. The profile lease remains held until the exact manager kill proves the complete engine tree stopped; deferred failure preserves both manager and lease for identity-bound retry.
 - Bootstrap completion does not own profile release. Start success, start rejection, concurrent disposal, and already-stopped identities all converge on the same tree-proof authority; cleanup failure keeps the exact identity and lease retryable.
 - Resume fallback does not own replacement authority until the exact stale child tree is proved stopped. Failure retains that child and profile, forbids a successor spawn, and restricts later progress to a retry bound to the retained identity.
+- A captured root-process exit is notification only while exact tree proof is pending or failed. It cannot restore the launch config, clear the child identity, or authorize a resume successor before that proof succeeds.
 
 ## Deviations from Plan
 
-The independent audits reopened the plan nine times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, post-commit external-channel cleanup ordering, durable restart replay, transaction-authoritative cleanup identity, identity-bound shutdown retry, observable Wayland Core engine-tree failure, exact profile-release authority after complete tree proof, bootstrap-lifecycle tree-proof convergence, and fail-closed resume fallback bound to the exact stale child identity. These changes enforce the plan's authority boundary without expanding lifecycle authority.
+The independent audits reopened the plan ten times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, post-commit external-channel cleanup ordering, durable restart replay, transaction-authoritative cleanup identity, identity-bound shutdown retry, observable Wayland Core engine-tree failure, exact profile-release authority after complete tree proof, bootstrap-lifecycle tree-proof convergence, fail-closed resume fallback bound to the exact stale child identity, and root-exit notification semantics that retain launch config and identity until exact tree proof succeeds. These changes enforce the plan's authority boundary without expanding lifecycle authority.
 
 ## Issues Encountered
 
@@ -214,22 +218,22 @@ Managed-workspace lifecycle mutation (quarantine, restore, keep, delete, prune) 
 
 ## Self-Check
 
-R8 BUILDER CONSTRUCTION PROOF PASSED; aggregate proof and independent successor re-audit remain required. The repaired implementation passed 286 focused Vitest tests, 2 focused Bun-native hostile tests, typecheck, and scoped formatting. Changed-file lint passed with zero warnings and zero errors across the two R8 implementation/test files. No lifecycle mutation authority was added.
+R9 BUILDER CONSTRUCTION PROOF PASSED; aggregate proof and independent successor re-audit remain required. The repaired implementation passed 288 focused Vitest tests, 2 focused Bun-native hostile tests, typecheck, and scoped formatting. Changed-file lint passed with zero warnings and zero errors across the two R9 implementation/test files. No lifecycle mutation authority was added.
 
 ## Retained Construction Evidence
 
-The in-progress SHA-bound receipts are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r8-10c9fb43/`. These receipts retain sanitized command output, timestamp, environment identity, exact implementation commit/tree, and exit code. Secret-shaped values are passed through the command-secret redactor to a fixed point before retention. These are builder receipts, not independent acceptance evidence. Final hashes and aggregate counts will be sealed only after the reserved aggregate slot is available.
+The in-progress SHA-bound receipts are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r9-fcc14ef8/`. These receipts retain sanitized command output, timestamp, environment identity, exact implementation commit/tree, and exit code. Secret-shaped values are passed through the command-secret redactor to a fixed point before retention. These are builder receipts, not independent acceptance evidence. Aggregate proof was deliberately not rerun after R8 was rejected; final aggregate counts will be sealed only after R9 passes independent successor audit and the reserved aggregate slot is available.
 
-| Receipt                     | State                                  | SHA-256                                                            |
-| --------------------------- | -------------------------------------- | ------------------------------------------------------------------ |
-| `00-environment.log`        | captured                               | `854b4ecf7b84527f48a997279e63eb8c550b07baafa4fab2cf887fab3fe694c3` |
-| `01-focused-vitest.log`     | pass: 23 files / 286 tests             | `f039df8c445b00e7538e7ff0e2c8e2120444fb39f7225ce81d8ff6961ee92741` |
-| `02-bun-native-intent.log`  | pass: 2 tests                          | `3ed7c41d19b6843a144dd1674ef068067103f09831cc0570e270d38d0924a881` |
-| `03-typecheck.log`          | pass                                   | `c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5` |
-| `04-scoped-lint.log`        | pass: 0 warnings / 0 errors            | `d9820f4e34cb74db3bd45d5c62c9a77abc93ebe8200b68fd62677b32c89aff0f` |
-| `05-scoped-format.log`      | pass                                   | `f8ac3ba7a49895222422c86775b0ee2f10b0d79d6664e92596e126f5d2ac77ff` |
-| `06-full-aggregate.log`     | pending one isolated authoritative run | pending                                                            |
-| `07-invariants.log`         | pass                                   | `2e14fffb14e3f496f9280031b3a7ee2a5557a655385bfc25c178e8ed40668ade` |
+| Receipt                    | State                                  | SHA-256                                                            |
+| -------------------------- | -------------------------------------- | ------------------------------------------------------------------ |
+| `00-environment.log`       | captured                               | `653ec71eec970e2457629dfcb01e5cad063685bdc65b47dc37b2f7009e7dcfca` |
+| `01-focused-vitest.log`    | pass: 23 files / 288 tests             | `8a99875186f33aad12ce209a62ac3b21108c4d524f3ee09473785e119500b33a` |
+| `02-bun-native-intent.log` | pass: 2 tests                          | `8c1d987f887d5670c02062dfea37655e435f49e8c011915bcf9dabc918fec410` |
+| `03-typecheck.log`         | pass                                   | `c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5` |
+| `04-scoped-lint.log`       | pass: 0 warnings / 0 errors            | `11225c06510c80659ab0bb9f24bc7ec997ca95c8c91cf5e96e145bd0376fb111` |
+| `05-scoped-format.log`     | pass                                   | `82beda8d1fb10727c8301ab637c590957315aad70db06ebb1226f976b16a572e` |
+| aggregate receipt          | pending one isolated authoritative run | pending                                                            |
+| `06-invariants.log`        | pass                                   | `7f78c866e83daf9ffe26f61c97953b80c6a86aa78a99ac9e3dfa31da67ce4c38` |
 
 ---
 
