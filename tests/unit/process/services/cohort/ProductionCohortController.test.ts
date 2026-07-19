@@ -80,7 +80,7 @@ async function fixture(
   let persistedAuthority: unknown;
   let persistedLineage: unknown;
   let persistedMigrationMarker: unknown;
-  let persistedMigrationConsumption: unknown;
+  let persistedStableAuthority: unknown;
   const fixtureSecret = Buffer.from('01-01-hostile-fixture-authority-key');
   const protectAuthority = (plaintext: string): string => {
     const payload = Buffer.from(plaintext).toString('base64url');
@@ -153,7 +153,15 @@ async function fixture(
         consumed: true,
       })
     );
-    persistedMigrationConsumption = persistedMigrationMarker;
+    persistedStableAuthority = protectAuthority(
+      JSON.stringify({
+        schemaVersion: 1,
+        installationIdHash: cohortInstallationIdHash(overrides.installIdentity ?? 'install-alpha'),
+        migrationConsumed: true,
+        authorityId: 'authority-fixture',
+        generation: 1,
+      })
+    );
   }
   const consentStore: CohortConsentStore = {
     get: vi.fn(async () => persistedConsent),
@@ -199,10 +207,10 @@ async function fixture(
       persistedMigrationMarker = value;
     }),
   };
-  const migrationConsumptionStore: CohortAuthorityStore = {
-    get: vi.fn(async () => persistedMigrationConsumption),
+  const stableAuthorityStore: CohortAuthorityStore = {
+    get: vi.fn(async () => persistedStableAuthority),
     set: vi.fn(async (value) => {
-      persistedMigrationConsumption = value;
+      persistedStableAuthority = value;
     }),
   };
   const { seedAuthenticated: _seedAuthenticated, ...environmentOverrides } = overrides;
@@ -216,7 +224,7 @@ async function fixture(
     authorityStore,
     lineageStore,
     migrationMarkerStore,
-    migrationConsumptionStore,
+    stableAuthorityStore,
     consentStore,
     assignmentStore,
     protectAuthority,
@@ -231,7 +239,7 @@ async function fixture(
   vi.mocked(authorityStore.set).mockClear();
   vi.mocked(lineageStore.set).mockClear();
   vi.mocked(migrationMarkerStore.set).mockClear();
-  vi.mocked(migrationConsumptionStore.set).mockClear();
+  vi.mocked(stableAuthorityStore.set).mockClear();
   return {
     root,
     consentStore,
@@ -239,14 +247,14 @@ async function fixture(
     authorityStore,
     lineageStore,
     migrationMarkerStore,
-    migrationConsumptionStore,
+    stableAuthorityStore,
     environment,
     persistedConsent: () => persistedConsent,
     persistedAssignment: () => persistedAssignment,
     persistedAuthority: () => persistedAuthority,
     persistedLineage: () => persistedLineage,
     persistedMigrationMarker: () => persistedMigrationMarker,
-    persistedMigrationConsumption: () => persistedMigrationConsumption,
+    persistedStableAuthority: () => persistedStableAuthority,
     setRawAuthority: (value: unknown) => {
       persistedAuthority = value;
     },
@@ -255,6 +263,9 @@ async function fixture(
     },
     setRawMigrationMarker: (value: unknown) => {
       persistedMigrationMarker = value;
+    },
+    setRawStableAuthority: (value: unknown) => {
+      persistedStableAuthority = value;
     },
     setLegacy: (consent: unknown, assignmentValue: unknown) => {
       persistedConsent = consent;
@@ -527,7 +538,7 @@ describe('ProductionCohortController cohort authority', () => {
       windowEndMs: END,
     } as const;
     const subject = await fixture(enabledConsent, prior, () => NOW, { seedAuthenticated: false });
-    const consumedAnchor = subject.persistedMigrationConsumption();
+    const consumedAnchor = subject.persistedStableAuthority();
     const replaceableMarker = subject.persistedMigrationMarker();
     const readsAfterMigration = [
       vi.mocked(subject.consentStore.get).mock.calls.length,
@@ -541,7 +552,7 @@ describe('ProductionCohortController cohort authority', () => {
 
     const afterDeletion = await createCohortProductionController(subject.environment);
     await expect(afterDeletion.authorityStatus()).resolves.toMatchObject({ generation: null });
-    expect(subject.persistedMigrationConsumption()).toBe(consumedAnchor);
+    expect(subject.persistedStableAuthority()).toBe(consumedAnchor);
     expect([
       vi.mocked(subject.consentStore.get).mock.calls.length,
       vi.mocked(subject.assignmentStore.get).mock.calls.length,
@@ -554,6 +565,27 @@ describe('ProductionCohortController cohort authority', () => {
       vi.mocked(subject.consentStore.get).mock.calls.length,
       vi.mocked(subject.assignmentStore.get).mock.calls.length,
     ]).toEqual(readsAfterMigration);
+  });
+
+  it('[HF-01][HF-02] rejects replay of a complete old replaceable authority tuple', async () => {
+    const subject = await fixture(disabledConsent);
+    await subject.controller.requestAssignment('operator');
+    const oldAuthority = subject.persistedAuthority();
+    const oldLineage = subject.persistedLineage();
+    const oldMarker = subject.persistedMigrationMarker();
+
+    await subject.controller.setConsent(true);
+    expect(subject.persistedStableAuthority()).not.toBeUndefined();
+
+    subject.setRawAuthority(oldAuthority);
+    subject.setRawLineage(oldLineage);
+    subject.setRawMigrationMarker(oldMarker);
+    const restarted = await createCohortProductionController(subject.environment);
+
+    await expect(restarted.authorityStatus()).resolves.toMatchObject({
+      generation: null,
+      assignment: { available: false, effectiveCohort: null, observationState: 'unavailable' },
+    });
   });
 
   it('[HF-02] requires fresh native confirmation and never promotes a legacy consent window', async () => {
@@ -683,6 +715,23 @@ describe('ProductionCohortController observation lifecycle', () => {
     });
     expect(subject.authorityStore.set).toHaveBeenCalledTimes(1);
   });
+
+  it.each(['lineage', 'stable-anchor'] as const)(
+    '[CR-02][HF-01] fails closed after a partial %s authority advance',
+    async (failedWrite) => {
+      const subject = await fixture(disabledConsent, assignment('novice'));
+      const target = failedWrite === 'lineage' ? subject.lineageStore : subject.stableAuthorityStore;
+      vi.mocked(target.set).mockRejectedValueOnce(new Error('authority publication interrupted'));
+
+      await expect(subject.controller.setConsent(true)).resolves.toMatchObject({ status: 'storage-error' });
+      const restarted = await createCohortProductionController(subject.environment);
+
+      await expect(restarted.authorityStatus()).resolves.toMatchObject({
+        generation: null,
+        assignment: { available: false, effectiveCohort: null, observationState: 'unavailable' },
+      });
+    }
+  );
 
   it('persists one exact 14-day window and records events with the effective assignment', async () => {
     const subject = await fixture(disabledConsent);

@@ -5,8 +5,8 @@ progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 40
-  completed_plans: 2
-  percent: 5
+  completed_plans: 1
+  percent: 3
 ---
 
 # Project State
@@ -21,26 +21,27 @@ See: `.planning/PROJECT.md` (updated 2026-07-19)
 ## Current Position
 
 Phase: 1 of 7 (Safety Foundation)
-Plan: 01-01 complete; remaining Wave 2 construction stays dependency ordered
-Status: Process-owned cohort authority proven; preparing the next dependency-unlocked construction slice
-Last activity: 2026-07-19 — sealed exact cohort-authority commit dbef48a1 after focused, hostile, static, i18n, and aggregate proof
+Plan: 01-01 repaired; independent successor review pending
+Status: Process-owned cohort authority successor built and locally proved; no acceptance or integration claimed
+Last activity: 2026-07-19 — repaired complete-tuple replay, legacy-semantics contradiction, evidence state, and no-project test pollution found by independent audit
 
-Progress: [▓░░░░░░░░░] 5%
+Progress: [░░░░░░░░░░] 3%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
+
+- Total plans completed: 1
 - Average duration: -
 - Total execution time: 0 hours
 
 **By Phase:**
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| 1. Safety Foundation | 2 | 40 | - |
+| Phase                | Plans | Total | Avg/Plan |
+| -------------------- | ----- | ----- | -------- |
+| 1. Safety Foundation | 1     | 40    | -        |
 
-**Recent Trend:** The first product-code construction slice is accepted in its isolated worktree; the hard-coded cohort blocker is removed without opening observation or promotion gates.
+**Recent Trend:** The first product-code construction slice has a repaired successor in its isolated worktree. It remains pending independent review; the hard-coded cohort blocker is removed without opening observation or promotion gates.
 
 ## Accumulated Context
 
@@ -60,7 +61,8 @@ Decisions are logged in `.planning/PROJECT.md`.
 
 ### Pending Todos
 
-- Serially integrate Plan 01-01, then continue the dependency-unlocked Phase 1 construction set through isolated worktrees.
+- Independently re-audit the exact Plan 01-01 successor; only a zero-finding successor may enter serial integration.
+- After accepted integration of Plan 01-01, continue the dependency-unlocked Phase 1 construction set through isolated worktrees.
 - Keep Day-0 observation and every acceptance checkpoint closed until their explicit dependencies and authenticated receipts exist.
 - Import `MCP-DEEP-DIVE.md` before Phase 3 planning.
 
@@ -74,16 +76,16 @@ Decisions are logged in `.planning/PROJECT.md`.
 
 ## Deferred Items
 
-| Category | Item | Status | Deferred At |
-|----------|------|--------|-------------|
-| Phase import | MCP declaration-to-live-session deep dive | Queued for Phase 3 | Initialization |
-| Follow-on | Encrypted full-instance Wayland Transfer | Assigned to Phase 7 | Initialization |
-| Next milestone | Broad Cowork/native-format and outcome expansion | Queued, non-blocking for first preview | Initialization |
+| Category       | Item                                                         | Status                                                                                       | Deferred At            |
+| -------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------- | ---------------------- |
+| Phase import   | MCP declaration-to-live-session deep dive                    | Queued for Phase 3                                                                           | Initialization         |
+| Follow-on      | Encrypted full-instance Wayland Transfer                     | Assigned to Phase 7                                                                          | Initialization         |
+| Next milestone | Broad Cowork/native-format and outcome expansion             | Queued, non-blocking for first preview                                                       | Initialization         |
 | Next milestone | Managed workspace quarantine/restore/keep/delete (`WSLX-01`) | Queued only after complete trusted output/receipt ledger and separately accepted v2 planning | Plan convergence audit |
-| Next milestone | Community Cloud, Hosted Pro, and cross-surface distribution | Queued, separately gated | Initialization |
+| Next milestone | Community Cloud, Hosted Pro, and cross-surface distribution  | Queued, separately gated                                                                     | Initialization         |
 
 ## Session Continuity
 
 Last session: 2026-07-19
-Stopped at: Plan 01-01 implementation sealed and ready for serial integration
+Stopped at: Plan 01-01 repair successor locally proved and pending independent re-audit
 Resume file: `.planning/phases/WLD-01-safety-foundation/01-01-SUMMARY.md`

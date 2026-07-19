@@ -78,8 +78,14 @@ describe('production cohort OS credential vault', () => {
     const installationCredential = JSON.parse(vault.get(installationKey)!) as {
       installIdentity: string;
       legacyMigrationConsumed: boolean;
+      authorityId: string | null;
+      authorityGeneration: number;
     };
-    expect(installationCredential).toMatchObject({ legacyMigrationConsumed: true });
+    expect(installationCredential).toMatchObject({
+      legacyMigrationConsumed: true,
+      authorityId: null,
+      authorityGeneration: 0,
+    });
 
     for (const suffix of [':authority', ':lineage', ':migration-consumed']) {
       const key = [...vault.keys()].find((candidate) => candidate.endsWith(suffix));
@@ -109,6 +115,30 @@ describe('production cohort OS credential vault', () => {
     expect(configGet).not.toHaveBeenCalled();
     expect(showMessageBox).not.toHaveBeenCalled();
     expect(JSON.parse(vault.get(installationKey)!)).toEqual(installationCredential);
+  });
+
+  it('[HF-01][HF-02] rejects a complete old authority tuple replayed under the current installation credential', async () => {
+    const controller = await createProductionCohortController();
+    await controller.requestAssignment('operator');
+    const authorityKey = [...vault.keys()].find((key) => key.endsWith(':authority'))!;
+    const lineageKey = [...vault.keys()].find((key) => key.endsWith(':lineage'))!;
+    const markerKey = [...vault.keys()].find((key) => key.endsWith(':migration-consumed'))!;
+    const oldTuple = {
+      authority: vault.get(authorityKey)!,
+      lineage: vault.get(lineageKey)!,
+      marker: vault.get(markerKey)!,
+    };
+
+    await controller.setConsent(true);
+    vault.set(authorityKey, oldTuple.authority);
+    vault.set(lineageKey, oldTuple.lineage);
+    vault.set(markerKey, oldTuple.marker);
+
+    const restarted = await createProductionCohortController();
+    await expect(restarted.authorityStatus()).resolves.toMatchObject({
+      generation: null,
+      assignment: { available: false, effectiveCohort: null, observationState: 'unavailable' },
+    });
   });
 
   it('[LF-03] renders the native confirmation with the localized cohort label', async () => {
