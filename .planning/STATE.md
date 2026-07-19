@@ -21,9 +21,9 @@ See: `.planning/PROJECT.md` (updated 2026-07-19)
 ## Current Position
 
 Phase: 1 of 7 (Safety Foundation)
-Plan: 01-01 repaired; independent successor review pending
-Status: Process-owned cohort authority successor built and locally proved; no acceptance or integration claimed
-Last activity: 2026-07-19 — repaired complete-tuple replay, legacy-semantics contradiction, evidence state, and no-project test pollution found by independent audit
+Plan: 01-01 repaired again; independent successor review pending
+Status: Process-owned cohort authority successor built and aggregate-proved; no acceptance or integration claimed
+Last activity: 2026-07-19 — repaired clock rollback, invalid-time persistence, pre-window runtime creation, and misleading outside-window status found by executable hostile testing
 
 Progress: [░░░░░░░░░░] 3%
 
@@ -41,7 +41,7 @@ Progress: [░░░░░░░░░░] 3%
 | -------------------- | ----- | ----- | -------- |
 | 1. Safety Foundation | 1     | 40    | -        |
 
-**Recent Trend:** The first product-code construction slice has a repaired successor in its isolated worktree. It remains pending independent review; the hard-coded cohort blocker is removed without opening observation or promotion gates.
+**Recent Trend:** The first product-code construction slice has an aggregate-green repaired successor in its isolated worktree. It remains pending independent review; the hard-coded cohort blocker is removed without opening observation or promotion gates.
 
 ## Accumulated Context
 
