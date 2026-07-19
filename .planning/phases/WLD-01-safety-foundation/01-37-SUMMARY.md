@@ -1,9 +1,10 @@
 ---
 phase: WLD-01-safety-foundation
 plan: 37
-status: construction-complete
-implementation_commit: 8478cf94600c71c47e0b086e7374b04636a4a6fe
-implementation_tree: 4af421af1fed383a0e099365b03a66c7569c4e81
+status: construction-complete-pending-independent-audit
+verified_source_commit: 8df1e07df4fc2fae858591d7eb5d87b9dd5cd738
+verified_source_tree: 0a7471b9d366ffe71f8a34d0e06f6fd592c6345b
+evidence_model: successor-record-for-verified-source
 ---
 
 # Plan 01-37 Summary: Schema-v2 target verification source
@@ -23,25 +24,39 @@ implementation_tree: 4af421af1fed383a0e099365b03a66c7569c4e81
   targets, empty acceptance targets, unknown contracts, duplicate targets,
   prerequisite/target overlap, both/neither exclusive targets, and stale or
   substituted candidate evidence.
+- Preserved deterministic reuse of one physical-absence receipt across
+  independent exact-one groups while rejecting duplicates within a list,
+  across required/alternative categories, and across `any` groups.
+- Passed the sealed production P5/P6 manifest through the real `checkGate`
+  validator in regression proof.
+- Added stable `reason_code`/`error_code` failures and proved malformed receipt
+  and config excerpts plus external paths do not escape in verifier output.
 
-## Exact local construction identity
+## Exact verified source identity
 
-- Implementation commit: `8478cf94600c71c47e0b086e7374b04636a4a6fe`
-- Implementation tree: `4af421af1fed383a0e099365b03a66c7569c4e81`
+- Verified source commit: `8df1e07df4fc2fae858591d7eb5d87b9dd5cd738`
+- Verified source tree: `0a7471b9d366ffe71f8a34d0e06f6fd592c6345b`
 - `PACKET-GATES.json`: `sha256:cb369c0be85428c931d243193470c4e47134f7b7439a52c23b76a4fc7423fa27`
 - `PACKET-CONTRACTS.json`: `sha256:af4fab1b4cee50702a36bdcdc3d9a622528a89163f43491bf299d71d6ba6111d`
-- `packet-gate-lib.mjs`: `sha256:ffdfe787745a69ee7475732779e5f13b303ab8d4a044fecb8ca21ff9faf411a1`
+- `packet-gate-lib.mjs`: `sha256:0aedb9369f584d07baeb4ddd83774fbba0ec3d2a8ae530d12b16c181b50c3406`
+- `wayland-gsd-gate.mjs`: `sha256:27beedd586b17ec750a547768ce0f15c2407138575f75f11bb05f367bbc15467`
+
+This summary is intentionally a successor record rather than a circular claim
+about its own commit. Reproduce the source identity with `git show` at the
+verified source commit and compare the digests above. The documentation-only
+successor must retain those exact source bytes.
 
 ## Proof
 
 - `node --test .planning/execution/*.test.mjs`: 44/44 tests passed.
-- `bun run test`: 1,430 Vitest files passed with 15,121 tests passed, followed
-  by 226/226 Bun-native tests passed.
+- Post-source-commit `bun run test`: 1,430 Vitest files passed with 15,121 tests
+  passed, followed by 226/226 Bun-native tests passed.
 - `bun run typecheck`: exit 0.
 - `bun run lint -- .planning/execution`: exit 0, with one pre-existing warning
   in unchanged `clean-worktree-smoke.mjs`.
 - `git diff --check`: exit 0.
-- Owned-file `oxfmt --check`: exit 0 after formatting.
+- Exact owned-file `oxfmt --check`: exit 0 across all declared execution,
+  plan, and summary paths.
 
 ## Explicit non-claims
 
@@ -49,6 +64,8 @@ implementation_tree: 4af421af1fed383a0e099365b03a66c7569c4e81
 - The installed verifier, wrapper, trust configuration, receipt store, and
   external control commit were not changed.
 - No acceptance key was created or provisioned.
+- This builder does not self-accept the candidate; an independent audit remains
+  required.
 - Plan 01-38 must independently install and pin these exact committed bytes,
   prove live schema-v2 output, and preserve rollback before any gate result can
   become external authority.
