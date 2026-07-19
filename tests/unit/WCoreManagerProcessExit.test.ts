@@ -18,6 +18,8 @@ const {
   emitConfirmationRemove,
   mockDb,
   mockMainError,
+  mockWcoreAgentStart,
+  wcoreAgents,
   wcoreAgentOptions,
 } = vi.hoisted(() => ({
   emitResponseStream: vi.fn(),
@@ -33,6 +35,11 @@ const {
     updateMessage: vi.fn(),
   },
   mockMainError: vi.fn(),
+  mockWcoreAgentStart: vi.fn<() => Promise<void>>(),
+  wcoreAgents: [] as Array<{
+    start: ReturnType<typeof vi.fn>;
+    kill: ReturnType<typeof vi.fn>;
+  }>,
   wcoreAgentOptions: [] as Array<{ onProcessTerminated?: (code: number | null) => void }>,
 }));
 
@@ -129,8 +136,8 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
 vi.mock('@process/agent/wcore', () => ({
   WCoreAgent: vi.fn().mockImplementation(function (options) {
     wcoreAgentOptions.push(options);
-    return {
-      start: vi.fn().mockResolvedValue(undefined),
+    const agent = {
+      start: vi.fn(() => mockWcoreAgentStart()),
       stop: vi.fn(),
       kill: vi.fn(),
       send: vi.fn().mockResolvedValue(undefined),
@@ -148,6 +155,8 @@ vi.mock('@process/agent/wcore', () => ({
         return Promise.resolve();
       },
     };
+    wcoreAgents.push(agent);
+    return agent;
   }),
 }));
 
@@ -185,6 +194,8 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
+    mockWcoreAgentStart.mockResolvedValue(undefined);
+    wcoreAgents.length = 0;
     wcoreAgentOptions.length = 0;
     manager = createManager();
     vi.spyOn(manager as Record<string, unknown>, 'postMessagePromise' as never).mockResolvedValue(undefined as never);
@@ -245,6 +256,34 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
   // ── Heartbeat activation/deactivation ────────────────────────────
 
   describe('shutdown proof', () => {
+    it('proves a spawned engine tree stopped before releasing the profile when bootstrap fails', async () => {
+      let rejectBootstrap!: (error: Error) => void;
+      let resolveTreeShutdown!: () => void;
+      const bootstrap = new Promise<void>((_resolve, reject) => {
+        rejectBootstrap = reject;
+      });
+      const treeShutdown = new Promise<void>((resolve) => {
+        resolveTreeShutdown = resolve;
+      });
+
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-shutdown');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockReturnValue(treeShutdown);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      rejectBootstrap(new Error('wcore ready timeout (30s)'));
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      resolveTreeShutdown();
+      await vi.waitFor(() => expect(releaseProfileLease).toHaveBeenCalledOnce());
+    });
+
     it('retains the profile lease until engine-tree shutdown is proved', async () => {
       await vi.waitFor(() => expect(wcoreAgentOptions).toHaveLength(1));
       const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
