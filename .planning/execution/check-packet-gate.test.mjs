@@ -30,6 +30,7 @@ const manifest = {
     OPEN: { all: [], any: [] },
     REQUIRED: { all: ['TEST'], any: [] },
     ALTERNATIVE: { all: [], any: [['TEST', 'OTHER']] },
+    EXCLUSIVE: { all: [], any: [], one: [['TEST', 'OTHER']] },
   },
 }
 const contracts = { schema_version: 1, packets: { TEST: contract, OTHER: contract } }
@@ -57,6 +58,7 @@ async function writeReceipt(packet, options = {}) {
     gate_authorizations: {
       REQUIRED: contractDigest(manifest.gates.REQUIRED),
       ALTERNATIVE: contractDigest(manifest.gates.ALTERNATIVE),
+      EXCLUSIVE: contractDigest(manifest.gates.EXCLUSIVE),
     },
     packet_contract_digest: contractDigest(contract),
     candidate: { commit: head, tree, integration_head: head },
@@ -97,6 +99,10 @@ try {
   await writeReceipt('TEST')
   assert.equal((await run('REQUIRED')).ok, true, 'trusted signed exact receipt should open gate')
   assert.equal((await run('ALTERNATIVE')).ok, true, 'one trusted alternative should open gate')
+  assert.equal((await run('EXCLUSIVE')).ok, true, 'exactly one trusted exclusive alternative should open gate')
+
+  await writeReceipt('OTHER')
+  assert.equal((await run('EXCLUSIVE')).ok, false, 'two contradictory exclusive receipts must fail closed')
 
   await writeReceipt('TEST', { signingKey: attacker.privateKey })
   assert.equal((await run('REQUIRED')).ok, false, 'recomputed local forgery must fail')

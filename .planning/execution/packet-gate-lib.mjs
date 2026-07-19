@@ -128,17 +128,24 @@ export async function checkGate({ gateId, projectRoot, receiptDirectory, manifes
   const gate = manifest.gates[gateId]
   const required = await Promise.all(gate.all.map(validateReceipt))
   const alternatives = []
-  for (const group of gate.any) {
+  for (const group of gate.any ?? []) {
     const results = await Promise.all(group.map(validateReceipt))
     alternatives.push({ ok: results.some((result) => result.ok), results })
+  }
+  const exclusiveAlternatives = []
+  for (const group of gate.one ?? []) {
+    const results = await Promise.all(group.map(validateReceipt))
+    const acceptedCount = results.filter((result) => result.ok).length
+    exclusiveAlternatives.push({ ok: acceptedCount === 1, accepted_count: acceptedCount, results })
   }
 
   return {
     gate: gateId,
-    ok: required.every((result) => result.ok) && alternatives.every((group) => group.ok),
+    ok: required.every((result) => result.ok) && alternatives.every((group) => group.ok) && exclusiveAlternatives.every((group) => group.ok),
     source_baseline: manifest.source_baseline,
     gate_manifest_revision: manifest.revision,
     required,
     alternatives,
+    exclusive_alternatives: exclusiveAlternatives,
   }
 }

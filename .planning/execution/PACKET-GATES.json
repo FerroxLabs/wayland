@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "WLD",
   "source_baseline": "6d41c34087b5f40a368c83ca18d2d8e5a7fdb894",
-  "revision": "wld-packet-gates-2026-07-19.5",
+  "revision": "wld-packet-gates-2026-07-19.6",
   "contract_manifest": ".planning/execution/PACKET-CONTRACTS.json",
   "trust_root_policy": "external-verifier-required",
   "receipt_storage_policy": "external-absolute-read-only-cas",
@@ -34,9 +34,9 @@
     "P4-M5VA": { "all": ["M0A", "M2", "M5", "M6"], "any": [] },
     "P4-C1": { "all": ["M0A", "M1", "M2", "M5", "M6", "C0-B"], "any": [] },
     "P5-M8-CONSTRUCTION": { "all": ["M0A", "M1", "M2", "M3", "M4", "M5", "M6", "M7"], "any": [] },
-    "P5-M8-ACCEPTANCE": { "all": ["M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7"], "any": [["M1F", "NO-FLUX-CLAIMS"], ["MCP-4", "MCP-ABSENT"], ["SBX-2", "SBX-ABSENT"], ["IMG-01", "IMAGE-ABSENT"], ["M5V-A", "VOICE-ABSENT"], ["C0-B", "COWORK-ABSENT"], ["C1", "COWORK-ABSENT"]] },
-    "P6-M9": { "all": ["PHASE1-AGGREGATE-ACCEPTANCE", "M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"], "any": [["M1F", "NO-FLUX-CLAIMS"], ["MCP-4", "MCP-ABSENT"], ["SBX-2", "SBX-ABSENT"], ["IMG-01", "IMAGE-ABSENT"], ["M5V-B", "VOICE-ABSENT"], ["C1", "COWORK-ABSENT"], ["FINAL-C0-RELEASE-CLOSURE", "COWORK-ABSENT"]] },
+    "P5-M8-ACCEPTANCE": { "all": ["M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7"], "any": [], "one": [["M1F", "NO-FLUX-CLAIMS"], ["MCP-4", "MCP-ABSENT"], ["SBX-2", "SBX-ABSENT"], ["IMG-01", "IMAGE-ABSENT"], ["M5V-A", "VOICE-ABSENT"], ["C0-B", "COWORK-ABSENT"], ["C1", "COWORK-ABSENT"]] },
+    "P6-M9": { "all": ["PHASE1-AGGREGATE-ACCEPTANCE", "M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"], "any": [], "one": [["M1F", "NO-FLUX-CLAIMS"], ["MCP-4", "MCP-ABSENT"], ["SBX-2", "SBX-ABSENT"], ["IMG-01", "IMAGE-ABSENT"], ["M5V-B", "VOICE-ABSENT"], ["C1", "COWORK-ABSENT"], ["FINAL-C0-RELEASE-CLOSURE", "COWORK-ABSENT"]] },
     "P7-P1": { "all": ["M0A", "M7", "M9"], "any": [] },
-    "P1-AGGREGATE-ACCEPTANCE": { "all": ["M0A", "M0B", "M1", "M1M-0", "M1S-0", "C0-A", "PHASE5-PROOF-CLOSURE"], "any": [["M1F", "NO-FLUX-CLAIMS"]] }
+    "P1-AGGREGATE-ACCEPTANCE": { "all": ["M0A", "M0B", "M1", "M1M-0", "M1S-0", "C0-A", "PHASE5-PROOF-CLOSURE"], "any": [], "one": [["M1F", "NO-FLUX-CLAIMS"]] }
   }
 }

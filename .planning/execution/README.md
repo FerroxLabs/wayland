@@ -42,7 +42,10 @@ signed M0B and the named Phase 5 proof closure; code presence is insufficient.
 Release and Preview preserve both legitimate capability paths: Cowork may ship
 only with C0-B, C1, and final package closure, or be physically absent together
 with its native Office resources, UI surfaces, and release claims. A partial or
-claims-only Cowork state cannot open either gate.
+claims-only Cowork state cannot open either gate. Present and physically absent
+receipts are exclusive alternatives: exactly one must authenticate. Zero or two
+accepted alternatives fail closed for Flux, MCP, sandbox, image, Voice, and
+Cowork release branches.
 
 Automatic GSD parallelization is disabled. Parallel Codex builders are launched
 only after manually creating one clean worktree per plan, confirming disjoint
