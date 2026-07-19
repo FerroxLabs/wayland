@@ -54,7 +54,9 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
     try {
       await execFile('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true, timeout: 5000 });
     } catch (forceError) {
-      console.warn(`[ACP] taskkill /T /F failed for PID ${pid}:`, decodeWindowsError(forceError));
+      throw new Error(`ACP process-tree shutdown failed for PID ${pid}: ${decodeWindowsError(forceError)}`, {
+        cause: forceError,
+      });
     }
     await waitForProcessExit(pid, 2000);
     if (isProcessAlive(pid)) {
@@ -150,8 +152,8 @@ async function collectDescendantPids(rootPid: number): Promise<number[]> {
       }
     }
     return result;
-  } catch {
-    return [];
+  } catch (error) {
+    throw new Error(`Unable to enumerate ACP process tree for PID ${rootPid}`, { cause: error });
   }
 }
 

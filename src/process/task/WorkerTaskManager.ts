@@ -41,7 +41,9 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     private readonly factory: IAgentFactory,
     private readonly repo: IConversationRepository
   ) {
-    this.idleCheckTimer = setInterval(() => this.killIdleCliAgents(), AGENT_IDLE_CHECK_INTERVAL_MS);
+    this.idleCheckTimer = setInterval(() => {
+      void this.killIdleCliAgents();
+    }, AGENT_IDLE_CHECK_INTERVAL_MS);
     this.shutdownHandler = () => {
       // `process.on('exit', ...)` is synchronous - Node will not wait on
       // returned promises here. Fire-and-forget; the actual graceful await
@@ -67,20 +69,22 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     return DEFAULT_IDLE_TIMEOUT_MS;
   }
 
-  private killIdleCliAgents(): void {
-    void this.getIdleTimeoutMs().then((timeoutMs) => {
-      const now = Date.now();
-      const idleTasks = this.taskList.filter(
-        (item) =>
-          (item.task.type === 'acp' || item.task.type === 'wcore') &&
-          item.task.status === 'finished' &&
-          !cronBusyGuard.isProcessing(item.id) &&
-          now - item.task.lastActivityAt > timeoutMs
-      );
-      for (const item of idleTasks) {
-        this.kill(item.id, 'idle_timeout');
+  private async killIdleCliAgents(): Promise<void> {
+    const timeoutMs = await this.getIdleTimeoutMs();
+    const now = Date.now();
+    const idleTasks = this.taskList.filter(
+      (item) =>
+        (item.task.type === 'acp' || item.task.type === 'wcore') &&
+        item.task.status === 'finished' &&
+        !cronBusyGuard.isProcessing(item.id) &&
+        now - item.task.lastActivityAt > timeoutMs
+    );
+    const results = await Promise.allSettled(idleTasks.map((item) => this.kill(item.id, 'idle_timeout')));
+    for (const [index, result] of results.entries()) {
+      if (result.status === 'rejected') {
+        console.warn(`[WorkerTaskManager] failed to stop idle conversation ${idleTasks[index].id}:`, result.reason);
       }
-    });
+    }
   }
 
   getTask(id: string): IAgentManager | undefined {
@@ -180,24 +184,36 @@ export class WorkerTaskManager implements IWorkerTaskManager {
       throw new Error(`Conversation is already shutting down: ${id}`);
     }
     this.conversationShutdowns.add(id);
-    let operationCompleted = false;
+    let durableOperationCompleted = false;
     try {
-      // A refused direct addTask can arrive while an earlier lease is awaiting
-      // termination. Drain until the set is genuinely empty; addTask keeps any
-      // raced successor visible as a terminating authority.
-      while (this.taskList.some((lease) => lease.id === id)) {
-        // oxlint-disable-next-line no-await-in-loop -- each pass discovers successors raced into the prior pass
-        await this.kill(id);
-      }
+      await this.drainConversationTasks(id);
       const result = await operation();
-      operationCompleted = true;
+      durableOperationCompleted = true;
+      // The durable operation can yield long enough for a caller that already
+      // constructed a task to hit addTask. The terminal gate refuses that task,
+      // but removal is not complete until its shutdown has also been proved.
+      await this.drainConversationTasks(id);
       return result;
     } finally {
       // Failed persistence leaves the conversation usable for a safe retry.
       // Successful deletion permanently tombstones this process-local ID. An
       // in-flight repository read may still hold the deleted row and must not
       // publish a stale successor after the durable operation returns.
-      if (!operationCompleted) this.conversationShutdowns.delete(id);
+      if (!durableOperationCompleted) this.conversationShutdowns.delete(id);
+    }
+  }
+
+  private async drainConversationTasks(id: string): Promise<void> {
+    while (true) {
+      if (!this.taskList.some((lease) => lease.id === id)) {
+        // Let refusal work already queued by the callback publish its lease
+        // before declaring the fixed point. The tombstone remains installed.
+        // oxlint-disable-next-line no-await-in-loop -- fixed-point barrier requires one microtask observation
+        await Promise.resolve();
+        if (!this.taskList.some((lease) => lease.id === id)) return;
+      }
+      // oxlint-disable-next-line no-await-in-loop -- each pass discovers successors raced into the prior pass
+      await this.kill(id);
     }
   }
 

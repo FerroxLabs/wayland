@@ -168,6 +168,63 @@ describe('WorkerTaskManager retention authority', () => {
     expect(manager.listWorkspaceAuthorities()).toEqual([]);
   });
 
+  it('rejects removal when a callback-time successor cannot be stopped', async () => {
+    const persistence = deferred<void>();
+    const persistenceStarted = deferred<void>();
+    const successorShutdown = deferred<void>();
+    const manager = new WorkerTaskManager(factory as never, repo);
+    managers.push(manager);
+
+    const removal = manager.withConversationShutdown('conv-1', async () => {
+      persistenceStarted.resolve();
+      await persistence.promise;
+      return 'removed';
+    });
+    await persistenceStarted.promise;
+
+    const successor = agent(() => successorShutdown.promise, '/managed/work/wcore-temp-1736900000100');
+    expect(() => manager.addTask('conv-1', successor as never)).toThrow('Conversation is shutting down');
+
+    const rejected = expect(removal).rejects.toThrow('callback-time process still alive');
+    persistence.resolve();
+    successorShutdown.reject(new Error('callback-time process still alive'));
+    await rejected;
+
+    expect(manager.listWorkspaceAuthorities()).toEqual([
+      { id: 'active-process-1', workspace: '/managed/work/wcore-temp-1736900000100' },
+    ]);
+    expect(() => manager.addTask('conv-1', agent(async () => undefined) as never)).toThrow(
+      'Conversation is shutting down'
+    );
+  });
+
+  it('observes and catches idle shutdown rejection without an unhandled promise', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const manager = new WorkerTaskManager(factory as never, repo);
+    managers.push(manager);
+    const idleAgent = {
+      ...agent(async () => {
+        throw new Error('idle process still alive');
+      }),
+      status: 'finished',
+      lastActivityAt: 0,
+    };
+    manager.addTask('conv-idle', idleAgent as never);
+
+    await (
+      manager as unknown as {
+        killIdleCliAgents(): Promise<void>;
+      }
+    ).killIdleCliAgents();
+
+    expect(warn).toHaveBeenCalledWith(
+      '[WorkerTaskManager] failed to stop idle conversation conv-idle:',
+      expect.objectContaining({ message: 'idle process still alive' })
+    );
+    expect(manager.listWorkspaceAuthorities()).toHaveLength(1);
+    warn.mockRestore();
+  });
+
   it('releases the terminal gate when durable removal fails', async () => {
     const manager = new WorkerTaskManager(factory as never, repo);
     managers.push(manager);

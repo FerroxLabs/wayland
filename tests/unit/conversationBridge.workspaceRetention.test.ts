@@ -187,6 +187,16 @@ const { initConversationBridge } = await import('@/process/bridge/conversationBr
 const { ConversationServiceImpl } = await import('@/process/services/ConversationServiceImpl');
 const { SqliteConversationRepository } = await import('@/process/services/database/SqliteConversationRepository');
 
+function deferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+
 describe('conversation.remove managed-workspace retention', () => {
   let root: string;
 
@@ -373,5 +383,51 @@ describe('conversation.remove managed-workspace retention', () => {
     expect(mockConversationService.deleteConversation).not.toHaveBeenCalled();
     expect(errorLog).toHaveBeenCalledWith('[conversationBridge] Failed to remove conversation:', expect.any(Error));
     errorLog.mockRestore();
+  });
+
+  it('rejects a deferred removal when a callback-time process refuses to stop', async () => {
+    const persistence = deferred<void>();
+    const successorShutdown = deferred<void>();
+    const errorLog = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const manager = new WorkerTaskManager(
+      { create: vi.fn(), register: vi.fn() } as never,
+      { getConversation: vi.fn() } as never
+    );
+    const successor = {
+      type: 'acp',
+      status: 'running',
+      workspace: path.join(root, 'wcore-temp-1736900000200'),
+      conversation_id: 'conv-callback-race',
+      lastActivityAt: Date.now(),
+      kill: vi.fn(() => successorShutdown.promise),
+    };
+    mockConversationService.getConversation.mockResolvedValue({
+      id: 'conv-callback-race',
+      source: 'wayland',
+      extra: { workspace: successor.workspace },
+    });
+    mockConversationService.deleteConversation.mockImplementation(async () => persistence.promise);
+
+    try {
+      initConversationBridge(mockConversationService as unknown as IConversationService, manager);
+      const removal = handlers['conversation.remove']({ id: 'conv-callback-race' });
+      await vi.waitFor(() =>
+        expect(mockConversationService.deleteConversation).toHaveBeenCalledWith('conv-callback-race')
+      );
+
+      expect(() => manager.addTask('conv-callback-race', successor as never)).toThrow('Conversation is shutting down');
+      const result = expect(removal).resolves.toBe(false);
+      persistence.resolve();
+      successorShutdown.reject(new Error('callback-time process still alive'));
+      await result;
+
+      expect(manager.listWorkspaceAuthorities()).toEqual([{ id: 'active-process-1', workspace: successor.workspace }]);
+      expect(errorLog).toHaveBeenCalledWith('[conversationBridge] Failed to remove conversation:', expect.any(Error));
+    } finally {
+      persistence.resolve();
+      successorShutdown.resolve();
+      await manager.clear();
+      errorLog.mockRestore();
+    }
   });
 });
