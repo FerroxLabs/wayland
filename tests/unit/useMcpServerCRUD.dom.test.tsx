@@ -771,6 +771,33 @@ describe('useMcpServerCRUD', () => {
       expect(outcome).toBe(false);
     });
 
+    it('persists an unresolved-divergence marker when publication commit and compensation both fail', async () => {
+      const original = makeMockServer({ enabled: false, updatedAt: 1000 });
+      const concurrent = { ...original, description: 'concurrent edit', updatedAt: 1001 };
+      let durable = [original];
+      syncMcpToAgents.mockResolvedValueOnce(undefined);
+      removeMcpFromAgents.mockRejectedValueOnce(new Error('adapter cleanup failed'));
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        // The adapter publication completed, but another durable edit wins the
+        // compare-and-set before the enabled state can be committed.
+        durable = [concurrent];
+        durable = (updater as (current: IMcpServer[]) => IMcpServer[])(durable);
+      });
+      const { result } = renderCRUD([], async () => [original]);
+
+      await act(async () => {
+        await expect(result.current.handleToggleMcpServer(original.id, true)).rejects.toThrow(
+          'publication rollback was incomplete'
+        );
+      });
+
+      // The replacement publication may still exist externally. Durable truth
+      // must carry the same fail-closed marker used to suppress passive/direct
+      // probing until an explicit reconnect reconciles publication.
+      expect(durable[0]).toMatchObject({ enabled: false, status: 'error' });
+      expect(durable[0].lastError).toContain('publication rollback incomplete');
+    });
+
     it('restores an old publication when the disabled-state commit fails', async () => {
       const server = makeMockServer({ enabled: true });
       saveMcpServers.mockRejectedValueOnce(new Error('storage unavailable'));
