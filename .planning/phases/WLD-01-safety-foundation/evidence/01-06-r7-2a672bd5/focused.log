@@ -1,0 +1,10 @@
+$ vitest run tests/unit/process/services/recovery
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-repair-01-06-r5/app
+
+
+ Test Files  12 passed (12)
+      Tests  183 passed | 3 skipped (186)
+   Start at  04:45:30
+   Duration  9.17s (transform 839ms, setup 229ms, import 918ms, tests 23.70s, environment 1ms)
+
