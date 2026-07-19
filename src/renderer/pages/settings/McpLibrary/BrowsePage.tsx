@@ -41,7 +41,15 @@ export function BrowsePage() {
     refreshMcpServers,
     readMcpServers
   );
-  const conn = useMcpConnection(mcpServers, saveMcpServers, message, undefined, removeMcpFromAgents, syncMcpToAgents);
+  const conn = useMcpConnection(
+    mcpServers,
+    saveMcpServers,
+    message,
+    undefined,
+    removeMcpFromAgents,
+    syncMcpToAgents,
+    readMcpServers
+  );
 
   const handleAddSubmit = useCallback(
     (serverData: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => {

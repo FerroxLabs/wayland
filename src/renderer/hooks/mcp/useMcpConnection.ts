@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { mcpService } from '@/common/adapter/ipcBridge';
 import type { IMcpServer } from '@/common/config/storage';
+import { mcpServerCollisionKey } from '@/common/mcp';
 import type { McpConnectionTestResult, McpPrepublicationTruth } from '@process/services/mcpServices/McpProtocol';
 import { globalMessageQueue } from './messageQueue';
 
@@ -9,6 +10,7 @@ export const MCP_PREPUBLICATION_MAX_AGE_MS = 5 * 60 * 1000;
 const MCP_PREPUBLICATION_MAX_FUTURE_SKEW_MS = 5_000;
 export const MCP_PUBLICATION_DIVERGENCE_MARKER = 'publication rollback incomplete';
 const MCP_ERROR_MAX_LENGTH = 150;
+const MCP_PUBLICATION_DIVERGENCE_ERROR = `${MCP_PUBLICATION_DIVERGENCE_MARKER} — reconnect this connector` as const;
 
 function nextMcpRevision(previous: number): number {
   return Math.max(Date.now(), previous + 1);
@@ -94,6 +96,31 @@ const truncateErrorMessage = (message: string, maxLength: number = MCP_ERROR_MAX
 const hasPublicationDivergence = (server: Pick<IMcpServer, 'lastError'>): boolean =>
   typeof server.lastError === 'string' && server.lastError.includes(MCP_PUBLICATION_DIVERGENCE_MARKER);
 
+export function retainMcpPublicationReconciliation(
+  servers: IMcpServer[],
+  serverId: string,
+  fallback: IMcpServer
+): IMcpServer[] {
+  const exactIndex = servers.findIndex((candidate) => candidate.id === serverId);
+  const canonicalIndex = servers.findIndex(
+    (candidate) => mcpServerCollisionKey(candidate.name) === mcpServerCollisionKey(fallback.name)
+  );
+  const reconciliationIndex = exactIndex >= 0 ? exactIndex : canonicalIndex;
+  const current = reconciliationIndex >= 0 ? servers[reconciliationIndex] : undefined;
+  const reconciliationServer: IMcpServer = {
+    ...(current ?? fallback),
+    enabled: current?.enabled ?? false,
+    status: 'error',
+    lastError: MCP_PUBLICATION_DIVERGENCE_ERROR,
+    updatedAt: nextMcpRevision((current ?? fallback).updatedAt),
+  };
+
+  if (reconciliationIndex < 0) return [...servers, reconciliationServer];
+  const next = [...servers];
+  next[reconciliationIndex] = reconciliationServer;
+  return next;
+}
+
 const publicationDivergenceError = (probeError: string): string => {
   const suffix = `; ${MCP_PUBLICATION_DIVERGENCE_MARKER} — reconnect this connector`;
   return `${truncateErrorMessage(probeError, MCP_ERROR_MAX_LENGTH - suffix.length)}${suffix}`;
@@ -110,7 +137,8 @@ export const useMcpConnection = (
   message: ReturnType<typeof import('@arco-design/web-react').Message.useMessage>[0],
   onAuthRequired?: (server: IMcpServer) => void, // Added: callback fired when authentication is required
   removeMcpFromAgents?: (serverName: string, successMessage?: string, transportType?: string) => Promise<unknown>,
-  syncMcpToAgents?: (server: IMcpServer, skipRecheck?: boolean) => Promise<unknown>
+  syncMcpToAgents?: (server: IMcpServer, skipRecheck?: boolean) => Promise<unknown>,
+  readMcpServers: () => Promise<IMcpServer[]> = async () => mcpServers
 ) => {
   const { t } = useTranslation();
   const [testingServers, setTestingServers] = useState<Record<string, boolean>>({});
@@ -130,11 +158,17 @@ export const useMcpConnection = (
         status: IMcpServer['status'],
         additionalData?: Partial<IMcpServer>,
         preserveRevision = false
-      ): Promise<boolean> => {
+      ): Promise<{ outcome: 'applied' | 'conflict' | 'error'; winner?: IMcpServer }> => {
         let applied = false;
+        let winner: IMcpServer | undefined;
         try {
           await saveMcpServers((prevServers) => {
             applied = false;
+            winner =
+              prevServers.find((candidate) => candidate.id === server.id) ??
+              prevServers.find(
+                (candidate) => mcpServerCollisionKey(candidate.name) === mcpServerCollisionKey(server.name)
+              );
             return prevServers.map((s) => {
               if (s.id !== server.id || s.updatedAt !== server.updatedAt) return s;
               applied = true;
@@ -148,25 +182,64 @@ export const useMcpConnection = (
           });
         } catch (error) {
           console.error('Failed to update server status:', error);
-          return false;
+          return { outcome: 'error' };
         }
-        return applied;
+        return { outcome: applied ? 'applied' : 'conflict', winner };
+      };
+
+      const reconcileLostProbeFailureCas = async (
+        winner: IMcpServer | undefined,
+        adapterState: 'revoked' | 'published-original' | 'unknown'
+      ): Promise<void> => {
+        if (!removeMcpFromAgents || !syncMcpToAgents) return;
+
+        try {
+          if (winner?.enabled) {
+            // A rename can strand the original config under a different key.
+            // Remove it before publishing the exact durable winner. Same-key
+            // updates are replaced directly by the authoritative sync.
+            if (mcpServerCollisionKey(winner.name) !== mcpServerCollisionKey(server.name)) {
+              await removeMcpFromAgents(server.name, undefined, server.transport.type);
+            }
+            await syncMcpToAgents(winner, true);
+          } else if (adapterState !== 'revoked') {
+            // Disabled/deleted durable truth requires confirmed absence. A
+            // previous rejected revocation or restoration may have left any
+            // subset of adapters carrying the original definition.
+            await removeMcpFromAgents(server.name, undefined, server.transport.type);
+          }
+        } catch (reconciliationError) {
+          const fallback = winner ?? server;
+          try {
+            await saveMcpServers((prevServers) => retainMcpPublicationReconciliation(prevServers, server.id, fallback));
+          } catch (persistenceError) {
+            const failure = new Error('MCP probe reconciliation could not persist publication divergence', {
+              cause: reconciliationError,
+            });
+            Object.assign(failure, { rollbackErrors: [reconciliationError, persistenceError] });
+            throw failure;
+          }
+        }
       };
 
       const recordProbeFailure = async (errorMsg: string): Promise<void> => {
         let publicationRevoked = !server.enabled;
+        let adapterState: 'revoked' | 'published-original' | 'unknown' = server.enabled ? 'unknown' : 'revoked';
         let surfacedError = errorMsg;
         if (server.enabled && removeMcpFromAgents && syncMcpToAgents) {
           try {
             await removeMcpFromAgents(server.name, undefined, server.transport.type);
             publicationRevoked = true;
+            adapterState = 'revoked';
           } catch (revocationError) {
             // A rejected removal may have changed a subset of adapters. Restore
             // the previous enabled definition everywhere and keep local enabled
             // truth until a later revocation succeeds.
             try {
               await syncMcpToAgents(server, true);
+              adapterState = 'published-original';
             } catch (restorationError) {
+              adapterState = 'unknown';
               console.error('MCP publication rollback was incomplete:', {
                 revocationError,
                 restorationError,
@@ -176,13 +249,21 @@ export const useMcpConnection = (
           }
         }
 
-        if (
-          !(await updateServerStatus('error', {
-            ...(publicationRevoked ? { enabled: false } : {}),
-            lastError: surfacedError,
-          }))
-        )
+        const statusUpdate = await updateServerStatus('error', {
+          ...(publicationRevoked ? { enabled: false } : {}),
+          lastError: surfacedError,
+        });
+        if (statusUpdate.outcome !== 'applied') {
+          let winner = statusUpdate.winner;
+          if (statusUpdate.outcome === 'error') {
+            const current = await readMcpServers();
+            winner =
+              current.find((candidate) => candidate.id === server.id) ??
+              current.find((candidate) => mcpServerCollisionKey(candidate.name) === mcpServerCollisionKey(server.name));
+          }
+          await reconcileLostProbeFailureCas(winner, adapterState);
           return;
+        }
         await globalMessageQueue.add(() => {
           message.error({ content: `${server.name}: ${surfacedError}`, duration: 5000 });
         });
@@ -194,7 +275,7 @@ export const useMcpConnection = (
         // edit/re-import racing the probe wins and stale evidence is discarded.
         // This belongs inside the try/finally so even a rejected initial write
         // clears the renderer's in-flight indicator.
-        if (!(await updateServerStatus('testing', undefined, true))) return;
+        if ((await updateServerStatus('testing', undefined, true)).outcome !== 'applied') return;
 
         const response = await mcpService.testMcpConnection.invoke(server);
 
@@ -206,7 +287,7 @@ export const useMcpConnection = (
           if (truth.state === 'authentication-required') {
             // Needing auth is not a connection error - clear any stale lastError
             // so a previous transport failure can't resurface as the reason.
-            if (!(await updateServerStatus('disconnected', { lastError: undefined }))) return;
+            if ((await updateServerStatus('disconnected', { lastError: undefined })).outcome !== 'applied') return;
             await globalMessageQueue.add(() => {
               message.warning(`${server.name}: ${t('settings.mcpAuthRequired') || 'Authentication required'}`);
             });
@@ -222,18 +303,16 @@ export const useMcpConnection = (
             // Persist the legacy `connected` value as probe-reachable and save
             // the probe-reported inventory. Session receipts own chat readiness.
             // On success, do not modify the enabled field - let the user decide whether to install
-            if (
-              !(await updateServerStatus('connected', {
-                tools: result.tools?.map((tool) => ({
-                  name: tool.name,
-                  description: tool.description,
-                  ...(tool._meta ? { _meta: tool._meta } : {}),
-                })),
-                lastConnected: Date.now(),
-                lastError: undefined,
-              }))
-            )
-              return;
+            const successUpdate = await updateServerStatus('connected', {
+              tools: result.tools?.map((tool) => ({
+                name: tool.name,
+                description: tool.description,
+                ...(tool._meta ? { _meta: tool._meta } : {}),
+              })),
+              lastConnected: Date.now(),
+              lastError: undefined,
+            });
+            if (successUpdate.outcome !== 'applied') return;
             await globalMessageQueue.add(() => {
               message.success(
                 `${server.name}: ${t('settings.mcpProbeSuccess', 'Server probe succeeded; a new chat will verify its tools')}`
@@ -256,7 +335,7 @@ export const useMcpConnection = (
         setTestingServers((prev) => ({ ...prev, [server.id]: false }));
       }
     },
-    [saveMcpServers, message, t, onAuthRequired, removeMcpFromAgents, syncMcpToAgents]
+    [saveMcpServers, message, t, onAuthRequired, removeMcpFromAgents, syncMcpToAgents, readMcpServers]
   );
 
   // Passive, non-destructive status refresh. Probes the given ENABLED servers

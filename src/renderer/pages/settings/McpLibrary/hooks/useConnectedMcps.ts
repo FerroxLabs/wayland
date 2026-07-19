@@ -80,7 +80,15 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     refreshMcpServers,
     readMcpServers
   );
-  const conn = useMcpConnection(mcpServers, saveMcpServers, message, undefined, removeMcpFromAgents, syncMcpToAgents);
+  const conn = useMcpConnection(
+    mcpServers,
+    saveMcpServers,
+    message,
+    undefined,
+    removeMcpFromAgents,
+    syncMcpToAgents,
+    readMcpServers
+  );
 
   const [stale, setStale] = useState<StaleServerRow[]>([]);
   const [refreshing, setRefreshing] = useState(false);

@@ -140,7 +140,15 @@ export function DetailPage() {
     refreshMcpServers,
     readMcpServers
   );
-  const conn = useMcpConnection(mcpServers, saveMcpServers, message, undefined, removeMcpFromAgents, syncMcpToAgents);
+  const conn = useMcpConnection(
+    mcpServers,
+    saveMcpServers,
+    message,
+    undefined,
+    removeMcpFromAgents,
+    syncMcpToAgents,
+    readMcpServers
+  );
 
   const entry = useMemo(() => library.getEntry(id), [library, id]);
   const guide = useMemo(() => (entry?.['x-wayland'].setupGuide ? library.getGuide(id) : null), [library, id, entry]);

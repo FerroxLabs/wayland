@@ -129,6 +129,29 @@ describe('MCP pre-publication renderer correlation', () => {
     );
   });
 
+  it('persists and reports correlated successful probe truth', async () => {
+    let stored = [server];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({
+      success: true,
+      data: {
+        ...successfulResult,
+        prepublication: { ...successfulResult.prepublication, observedAt: Date.now() },
+      },
+    });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    expect(stored[0]).toMatchObject({ status: 'connected', tools: [{ name: 'search' }], lastError: undefined });
+    expect(message.success).toHaveBeenCalledTimes(1);
+  });
+
   it('discards a successful probe when the saved declaration changes in flight', async () => {
     let stored = [server];
     const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
@@ -244,6 +267,154 @@ describe('MCP pre-publication renderer correlation', () => {
     const durableTruthFailsClosed =
       stored[0].enabled === false || stored[0].lastError?.includes('publication rollback incomplete') === true;
     expect(winnerWasRepublished || durableTruthFailsClosed).toBe(true);
+  });
+
+  it.each([
+    ['revoked', 'enabled'],
+    ['revoked', 'disabled'],
+    ['revoked', 'deleted'],
+    ['revoked', 'canonical'],
+    ['revoked', 'renamed'],
+    ['restored', 'enabled'],
+    ['restored', 'disabled'],
+    ['restored', 'deleted'],
+    ['restored', 'canonical'],
+    ['restored', 'renamed'],
+  ] as const)(
+    'reconciles failed-probe %s publication after lost status CAS to a concurrent %s winner',
+    async (initialAdapterState, concurrentKind) => {
+      const exactWinner = {
+        ...server,
+        description: 'concurrent edit',
+        enabled: concurrentKind !== 'disabled',
+        updatedAt: server.updatedAt + 1,
+      };
+      const canonicalWinner = {
+        ...exactWinner,
+        id: 'canonical-replacement',
+        name: server.name.toUpperCase(),
+      };
+      const renamedWinner = { ...exactWinner, name: 'renamed-server' };
+      const winner =
+        concurrentKind === 'canonical' ? canonicalWinner : concurrentKind === 'renamed' ? renamedWinner : exactWinner;
+      let stored = concurrentKind === 'deleted' ? [] : [winner];
+      let saveCount = 0;
+      const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+        saveCount += 1;
+        if (saveCount === 1) stored = [server];
+        if (saveCount === 2) stored = concurrentKind === 'deleted' ? [] : [winner];
+        stored = typeof updater === 'function' ? updater(stored) : updater;
+      });
+      const remove = vi.fn();
+      if (initialAdapterState === 'restored') {
+        remove.mockRejectedValueOnce(new Error('partial removal')).mockResolvedValue(undefined);
+      } else {
+        remove.mockResolvedValue(undefined);
+      }
+      const sync = vi.fn().mockResolvedValue(undefined);
+      bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+      const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+        typeof Message.useMessage
+      >[0];
+      const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync));
+
+      await act(async () => result.current.handleTestMcpConnection(server));
+
+      if (concurrentKind === 'enabled' || concurrentKind === 'canonical' || concurrentKind === 'renamed') {
+        expect(sync).toHaveBeenLastCalledWith(winner, true);
+        expect(stored).toEqual([winner]);
+        if (concurrentKind === 'renamed') {
+          expect(remove).toHaveBeenLastCalledWith(server.name, undefined, server.transport.type);
+        }
+      } else {
+        expect(remove).toHaveBeenLastCalledWith(server.name, undefined, server.transport.type);
+        expect(stored).toEqual(concurrentKind === 'deleted' ? [] : [winner]);
+      }
+      expect(stored[0]?.lastError ?? '').not.toContain('publication rollback incomplete');
+    }
+  );
+
+  it.each(['enabled', 'disabled', 'deleted', 'canonical', 'renamed'] as const)(
+    'persists fail-closed divergence when concurrent %s reconciliation also fails',
+    async (concurrentKind) => {
+      const exactWinner = {
+        ...server,
+        description: 'concurrent edit',
+        enabled: concurrentKind !== 'disabled',
+        updatedAt: server.updatedAt + 1,
+      };
+      const canonicalWinner = {
+        ...exactWinner,
+        id: 'canonical-replacement',
+        name: server.name.toUpperCase(),
+      };
+      const renamedWinner = { ...exactWinner, name: 'renamed-server' };
+      const winner =
+        concurrentKind === 'canonical' ? canonicalWinner : concurrentKind === 'renamed' ? renamedWinner : exactWinner;
+      let stored = concurrentKind === 'deleted' ? [] : [winner];
+      let saveCount = 0;
+      const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+        saveCount += 1;
+        if (saveCount === 1) stored = [server];
+        if (saveCount === 2) stored = concurrentKind === 'deleted' ? [] : [winner];
+        stored = typeof updater === 'function' ? updater(stored) : updater;
+      });
+      const remove = vi.fn().mockResolvedValue(undefined);
+      const sync = vi.fn().mockResolvedValue(undefined);
+      if (concurrentKind === 'enabled' || concurrentKind === 'canonical' || concurrentKind === 'renamed') {
+        sync.mockRejectedValueOnce(new Error('winner publication failed'));
+      } else {
+        remove
+          .mockRejectedValueOnce(new Error('partial initial removal'))
+          .mockRejectedValueOnce(new Error('reconciliation removal failed'));
+      }
+      bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+      const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+        typeof Message.useMessage
+      >[0];
+      const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync));
+
+      await act(async () => result.current.handleTestMcpConnection(server));
+
+      expect(stored).toHaveLength(1);
+      expect(stored[0]).toMatchObject({
+        enabled: concurrentKind === 'enabled' || concurrentKind === 'canonical' || concurrentKind === 'renamed',
+        status: 'error',
+        lastError: expect.stringContaining('publication rollback incomplete'),
+      });
+      if (concurrentKind === 'canonical') expect(stored[0].id).toBe(canonicalWinner.id);
+      if (concurrentKind === 'deleted') expect(stored[0].enabled).toBe(false);
+    }
+  );
+
+  it('reconciles from an authoritative read when the failed-probe status write itself rejects', async () => {
+    const concurrent = { ...server, description: 'durable winner', updatedAt: server.updatedAt + 1 };
+    let stored = [server];
+    let saveCount = 0;
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      saveCount += 1;
+      if (saveCount === 2) {
+        stored = [concurrent];
+        throw new Error('status persistence unavailable');
+      }
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const read = vi.fn(async () => structuredClone(stored));
+    const remove = vi.fn().mockResolvedValue(undefined);
+    const sync = vi.fn().mockResolvedValue(undefined);
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync, read));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+    errorSpy.mockRestore();
+
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(sync).toHaveBeenLastCalledWith(concurrent, true);
+    expect(stored).toEqual([concurrent]);
   });
 
   it('restores all publications and keeps local enabled truth when revocation reports failure', async () => {

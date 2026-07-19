@@ -8,7 +8,7 @@ import { mcpServerCollisionKey } from '@/common/mcp';
 import { acpConversation, mcpService } from '@/common/adapter/ipcBridge';
 import { archiveConfiguredMcpServerHttp } from '@/renderer/services/McpConfigService';
 import { isElectronDesktop } from '@/renderer/utils/platform';
-import { MCP_PUBLICATION_DIVERGENCE_MARKER } from './useMcpConnection';
+import { MCP_PUBLICATION_DIVERGENCE_MARKER, retainMcpPublicationReconciliation } from './useMcpConnection';
 
 function nextMcpRevision(previous?: number): number {
   return Math.max(Date.now(), (previous ?? 0) + 1);
@@ -22,31 +22,6 @@ function sameDeclarationRevision(expected: IMcpServer | undefined, actual: IMcpS
 
 function newMcpServerId(): string {
   return `mcp_${globalThis.crypto.randomUUID()}`;
-}
-
-const MCP_PUBLICATION_DIVERGENCE_ERROR = `${MCP_PUBLICATION_DIVERGENCE_MARKER} — reconnect this connector` as const;
-
-function retainPublicationReconciliation(servers: IMcpServer[], serverId: string, fallback: IMcpServer): IMcpServer[] {
-  const exactIndex = servers.findIndex((server) => server.id === serverId);
-  const canonicalIndex = servers.findIndex(
-    (server) => mcpServerCollisionKey(server.name) === mcpServerCollisionKey(fallback.name)
-  );
-  const reconciliationIndex = exactIndex >= 0 ? exactIndex : canonicalIndex;
-  const current = reconciliationIndex >= 0 ? servers[reconciliationIndex] : undefined;
-  const reconciliationServer: IMcpServer = {
-    ...(current ?? fallback),
-    // A concurrently deleted declaration must not be recreated as enabled:
-    // external publication is unresolved, not authoritative enabled truth.
-    enabled: current?.enabled ?? false,
-    status: 'error',
-    lastError: MCP_PUBLICATION_DIVERGENCE_ERROR,
-    updatedAt: nextMcpRevision((current ?? fallback).updatedAt),
-  };
-
-  if (reconciliationIndex < 0) return [...servers, reconciliationServer];
-  const next = [...servers];
-  next[reconciliationIndex] = reconciliationServer;
-  return next;
 }
 
 /**
@@ -442,7 +417,7 @@ export const useMcpServerCRUD = (
               // the row was concurrently deleted, recreate only disabled error
               // truth so the unresolved external publication cannot disappear.
               await saveMcpServers((prevServers) =>
-                retainPublicationReconciliation(prevServers, serverId, updatedTargetServer)
+                retainMcpPublicationReconciliation(prevServers, serverId, updatedTargetServer)
               );
             } catch (persistenceError) {
               rollbackErrors.push(persistenceError);
