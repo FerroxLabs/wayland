@@ -212,7 +212,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     killChildMock.mockRejectedValueOnce(new Error('stale resume engine tree remains alive'));
 
     const agent = new WCoreAgent({ ...baseOptions(), resume: 'session-unsafe-fallback' });
-    void agent.start().catch(() => {});
+    const started = agent.start().catch((error: unknown) => error);
 
     await flushUntilSpawned(first);
     await vi.advanceTimersByTimeAsync(30_000);
@@ -221,6 +221,60 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(killChildMock).toHaveBeenCalledWith(first, false);
     // A second engine would share the same profile with an unproved stale tree.
     // Fallback must fail closed before a successor can be spawned.
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+    expect(await started).toMatchObject({ message: 'stale resume engine tree remains alive' });
+  });
+
+  it('retries only the retained resume child identity after a transient tree-proof failure', async () => {
+    vi.useFakeTimers();
+    const first = makeChild();
+    const second = makeChild();
+    spawnMock.mockReturnValueOnce(first).mockReturnValueOnce(second);
+    killChildMock
+      .mockRejectedValueOnce(new Error('transient stale-tree probe failure'))
+      .mockResolvedValueOnce(undefined);
+
+    const agent = new WCoreAgent({ ...baseOptions(), resume: 'session-retry-authority' });
+    const started = agent.start().catch((error: unknown) => error);
+
+    await flushUntilSpawned(first);
+    await vi.advanceTimersByTimeAsync(30_000);
+    expect(await started).toMatchObject({ message: 'transient stale-tree probe failure' });
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenNthCalledWith(1, first, false);
+    expect(killChildMock).toHaveBeenNthCalledWith(2, first, false);
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('shares resume tree proof with concurrent disposal and never spawns a fallback successor', async () => {
+    vi.useFakeTimers();
+    const first = makeChild();
+    const second = makeChild();
+    spawnMock.mockReturnValueOnce(first).mockReturnValueOnce(second);
+    let resolveTreeProof!: () => void;
+    killChildMock.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        resolveTreeProof = resolve;
+      })
+    );
+
+    const agent = new WCoreAgent({ ...baseOptions(), resume: 'session-concurrent-dispose' });
+    const started = agent.start().catch((error: unknown) => error);
+
+    await flushUntilSpawned(first);
+    await vi.advanceTimersByTimeAsync(30_000);
+    await vi.waitFor(() => expect(killChildMock).toHaveBeenCalledOnce());
+
+    const disposed = agent.kill();
+    expect(killChildMock).toHaveBeenCalledOnce();
+    resolveTreeProof();
+
+    await expect(disposed).resolves.toBeUndefined();
+    expect(await started).toMatchObject({ message: 'Wayland Core agent was stopped during resume fallback' });
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(killChildMock).toHaveBeenCalledWith(first, false);
     expect(spawnMock).toHaveBeenCalledTimes(1);
   });
 

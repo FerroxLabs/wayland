@@ -237,6 +237,11 @@ export class WCoreAgent {
    * report success while an unproved descendant from the first attempt remains.
    */
   private shutdownFailure: unknown = null;
+  /** Exact child whose complete process tree still owns shutdown authority. */
+  private failedShutdownChild: ChildProcess | null = null;
+  /** Serialize every tree-proof caller for one exact child identity. */
+  private treeShutdownAttempt: { child: ChildProcess; promise: Promise<void> } | null = null;
+  private disposed = false;
   private ready = false;
   private readyPromise: Promise<void>;
   private readyResolve!: () => void;
@@ -346,6 +351,7 @@ export class WCoreAgent {
   }
 
   async start(): Promise<void> {
+    if (this.disposed) throw new Error('Wayland Core agent was stopped before bootstrap');
     if (this.options.rawEngineMode) {
       return this.startWithProjectConfigLease();
     }
@@ -357,7 +363,12 @@ export class WCoreAgent {
         // Core's ready event proves startup config has been consumed. Restore
         // before releasing the workspace lease so a sibling launch can never
         // observe or inherit this chat's provider/MCP profile.
-        this.restoreProjectConfig();
+        // A failed tree proof does not prove consumption or exit. Keep the
+        // launch-specific config in place until an identity-bound retry proves
+        // the exact stale tree stopped.
+        if (this.ready || (!this.childProcess && !this.failedShutdownChild)) {
+          this.restoreProjectConfig();
+        }
       }
     });
   }
@@ -557,6 +568,7 @@ export class WCoreAgent {
         throw error;
       }
     }
+    if (this.disposed) throw new Error('Wayland Core agent was stopped during bootstrap');
     try {
       this.childProcess = spawn(binaryPath, args, {
         env: buildEngineSpawnEnv({
@@ -716,19 +728,23 @@ export class WCoreAgent {
         // dynamically - once we recurse they'd point at the fresh attempt, so a
         // late exit or stderr chunk from the orphaned child could reject the new
         // session, restore the wrong .wcore.toml, or contaminate the stderr tail.
-        // Detach its listeners, kill it best-effort, and reset the tail so the
-        // next failure surfaces only its own output (#484 audit).
+        // Prove the exact stale tree stopped before detaching its listeners or
+        // replacing its identity. A best-effort kill here can leave an orphan
+        // sharing this profile with the fallback engine.
         const staleChild = this.childProcess;
         if (staleChild) {
+          await this.stopChildWithTreeProof(staleChild);
           staleChild.removeAllListeners();
           staleChild.stdout?.removeAllListeners();
           staleChild.stderr?.removeAllListeners();
-          await killChild(staleChild, false).catch(() => {});
         }
         this.cleanupVertexCredentials();
         this.restoreProjectConfig();
         this.childProcess = null;
         this.stderrTail = '';
+        if (this.disposed) {
+          throw new Error('Wayland Core agent was stopped during resume fallback', { cause: err });
+        }
         this.options = { ...this.options, resume: undefined, sessionId: this.options.resume };
         this.ready = false;
         this.readyPromise = new Promise((resolve, reject) => {
@@ -1526,7 +1542,35 @@ export class WCoreAgent {
     return this.childProcess !== null;
   }
 
+  private stopChildWithTreeProof(child: ChildProcess): Promise<void> {
+    const inFlight = this.treeShutdownAttempt;
+    if (inFlight?.child === child) return inFlight.promise;
+    if (inFlight) {
+      return Promise.reject(new Error('A different Wayland Core engine tree still owns shutdown authority'));
+    }
+
+    const attempt = { child, promise: Promise.resolve() };
+    attempt.promise = Promise.resolve()
+      .then(() => killChild(child, false))
+      .then(() => {
+        if (this.failedShutdownChild === child) this.failedShutdownChild = null;
+        this.shutdownFailure = null;
+        if (this.childProcess === child) this.childProcess = null;
+      })
+      .catch((error) => {
+        this.failedShutdownChild = child;
+        this.shutdownFailure = error;
+        throw error;
+      })
+      .finally(() => {
+        if (this.treeShutdownAttempt === attempt) this.treeShutdownAttempt = null;
+      });
+    this.treeShutdownAttempt = attempt;
+    return attempt.promise;
+  }
+
   async kill(): Promise<void> {
+    this.disposed = true;
     // #746: the agent is going away — a still-armed watchdog would otherwise fire on a
     // dead agent and emit a bogus stall error for a turn nobody is running.
     this.stopStallWatchdog();
@@ -1545,26 +1589,22 @@ export class WCoreAgent {
         msg_id: '',
       });
     }
-    if (!this.childProcess && this.shutdownFailure) {
+    if (this.treeShutdownAttempt) {
+      await this.treeShutdownAttempt.promise;
+    } else if (this.failedShutdownChild) {
+      // Once the failed root emits exit, its descendants are reparented and a
+      // later scan cannot reconstruct the original tree. Retain the failure
+      // rather than laundering the absent root into proof.
+      if (this.childProcess !== this.failedShutdownChild) throw this.shutdownFailure;
+      await this.stopChildWithTreeProof(this.failedShutdownChild);
+    } else if (!this.childProcess && this.shutdownFailure) {
       throw this.shutdownFailure;
-    }
-    if (this.childProcess) {
+    } else if (this.childProcess) {
       // wayland-core spawns its own child tree (MCP servers, tool subprocesses).
       // A bare SIGTERM is a no-op on Windows and never reaches the tree, leaving
       // orphaned processes after quit (#139). killChild does a taskkill /T /F on
       // win32 and a SIGTERM->SIGKILL descendant sweep on POSIX.
-      const child = this.childProcess;
-      try {
-        await killChild(child, false);
-      } catch (error) {
-        // Keep the exact failed authority. The root may emit `exit` while a
-        // descendant is still alive; a later empty child slot is not proof that
-        // the complete tree exited.
-        this.shutdownFailure = error;
-        throw error;
-      }
-      this.shutdownFailure = null;
-      if (this.childProcess === child) this.childProcess = null;
+      await this.stopChildWithTreeProof(this.childProcess);
     }
     this.cleanupVertexCredentials();
     // Keep the launch-specific config in place until the child is gone; an
