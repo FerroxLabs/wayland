@@ -329,6 +329,56 @@ describe('recovery point builder', () => {
     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
   });
 
+  it('rejects a source pathname replacement after handle admission but before the first mutation epoch', async () => {
+    const data = await fixture();
+    const authorityPath = path.join(data.userDataRoot, 'constitution', 'revision-authority.enc');
+    const retiredAuthorityPath = path.join(data.userDataRoot, 'constitution', 'revision-authority.retired.enc');
+    const admittedBytes = fs.readFileSync(authorityPath);
+    const replacementBytes = Buffer.alloc(admittedBytes.length, 0x61);
+    let epochReads = 0;
+    const deps = dependencies({
+      readMutationEpoch: async () => {
+        if (epochReads++ === 0) {
+          fs.renameSync(authorityPath, retiredAuthorityPath);
+          fs.writeFileSync(authorityPath, replacementBytes);
+        }
+        return 'epoch-replacement-stable';
+      },
+    });
+
+    let published = false;
+    let capturedRetiredAuthority = false;
+    try {
+      const result = await buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      );
+      published = true;
+      const captured = result.manifest.files.find(({ authority }) => authority === 'constitution.revision-authority')!;
+      capturedRetiredAuthority = fs
+        .readFileSync(path.join(result.snapshotPath, captured.snapshotPath))
+        .equals(Buffer.concat([Buffer.from('sealed:'), admittedBytes]));
+    } catch {
+      // The authority invariant requires this branch.
+    }
+
+    expect({
+      published,
+      capturedRetiredAuthority,
+      currentPathIsReplacement: fs.readFileSync(authorityPath).equals(replacementBytes),
+    }).toEqual({
+      published: false,
+      capturedRetiredAuthority: false,
+      currentPathIsReplacement: true,
+    });
+  });
+
   it('does not publish a partial point when sealing fails', async () => {
     const data = await fixture();
     const deps = dependencies({ sealBytes: async () => Promise.reject(new Error('sealer unavailable')) });
