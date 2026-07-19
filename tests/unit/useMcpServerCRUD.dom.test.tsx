@@ -800,6 +800,47 @@ describe('MCP pre-publication renderer correlation', () => {
     );
   });
 
+  it('does not emit raw credential-bearing rollback errors to renderer logs', async () => {
+    const winner = {
+      ...server,
+      name: 'sensitive-error-winner',
+      updatedAt: server.updatedAt + 1,
+    };
+    const credential = 'Bearer SENSITIVE_CREDENTIAL_SENTINEL';
+    let stored = [server];
+    let saveCount = 0;
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      saveCount += 1;
+      if (saveCount === 2) stored = [winner];
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const read = vi.fn(async () => structuredClone(stored));
+    const remove = vi.fn(async (name: string) => {
+      if (name === winner.name) throw new Error(`cleanup rejected: Authorization: ${credential}`);
+    });
+    const sync = vi.fn(async () => {
+      throw new Error(`publication rejected: Authorization: ${credential}`);
+    });
+    bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync, read));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+
+    const rollbackLog = consoleError.mock.calls.find(
+      ([label]) => label === 'MCP publication reconciliation retained fail-closed divergence:'
+    );
+    const rollbackErrors = (rollbackLog?.[1] as { rollbackErrors?: unknown[] } | undefined)?.rollbackErrors ?? [];
+    const loggedMessages = rollbackErrors
+      .map((error) => (error instanceof Error ? error.message : String(error)))
+      .join('\n');
+    consoleError.mockRestore();
+    expect(loggedMessages).not.toContain('SENSITIVE_CREDENTIAL_SENTINEL');
+  });
+
   it('retains divergence when exact-key cleanup for a case-fold replacement fails', async () => {
     const canonicalWinner = {
       ...server,
