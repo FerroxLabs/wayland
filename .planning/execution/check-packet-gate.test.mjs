@@ -628,6 +628,17 @@ try {
     },
     'ACCEPTED_PACKET_REGISTRY_INVALID'
   );
+  await rejectsWrapperConfig(
+    'malformed unused candidate authorizations fail closed',
+    (config) => {
+      config.accepted_packets.UNUSED = {
+        commit: 'candidate-asserted',
+        tree,
+        integration_head: head,
+      };
+    },
+    'ACCEPTED_PACKET_REGISTRY_INVALID'
+  );
   await writeFile(join(wrapperConfigDirectory, 'desktop-control.json'), `${JSON.stringify(validWrapperConfig)}\n`);
   const snapshotWrapper = spawnSync(
     process.execPath,

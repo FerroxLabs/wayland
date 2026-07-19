@@ -53,6 +53,13 @@ async function main() {
   for (const [packet, candidate] of Object.entries(config.accepted_packets)) {
     if (!/^[A-Z0-9][A-Z0-9-]*$/.test(packet)) fail('ACCEPTED_PACKET_REGISTRY_INVALID');
     exactObject(candidate, ['commit', 'tree', 'integration_head'], [], 'ACCEPTED_PACKET_REGISTRY_INVALID');
+    if (
+      ![candidate.commit, candidate.tree, candidate.integration_head].every((value) =>
+        /^[0-9a-f]{40}([0-9a-f]{24})?$/.test(value ?? '')
+      )
+    ) {
+      fail('ACCEPTED_PACKET_REGISTRY_INVALID');
+    }
   }
   if (config.schema_version !== 1 || !Array.isArray(config.keys)) fail('CONTROL_SCHEMA_INVALID');
   if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/.test(config.control_commit ?? '')) fail('CONTROL_COMMIT_INVALID');
