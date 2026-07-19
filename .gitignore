@@ -223,9 +223,19 @@ graphify-out/
 
 # Team Blitz workstream (orchestrator-local, never tracked)
 .blackboard/
-.planning/
 design-mockups/
 src/process/channels/signal-cli-runtime/tmp-*/
+
+# Canonical GSD plans/contracts are versioned. Only volatile proof/runtime state
+# and private acceptance material remain local.
+.planning/receipts/
+.planning/evidence/
+.planning/runtime/
+.planning/workspaces/
+.planning/**/*.log
+.planning/**/*.private.*
+.planning/**/*private-key*
+.planning/private/
 
 # Quarantine for deleted skills/assistants - never tracked
 .archive/

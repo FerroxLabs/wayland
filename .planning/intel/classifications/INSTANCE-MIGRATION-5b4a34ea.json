@@ -1,0 +1,21 @@
+{
+  "source_path": "/Users/seandonahoe/gsd-workspaces/wayland-desktop-gsd/app/docs/desktop-overhaul-source/INSTANCE-MIGRATION.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Wayland Transfer — encrypted instance migration",
+  "summary": "Defines encrypted Wayland Transfer requirements for portable instance export, destination-bound or recovery encryption, transactional import, authority, conflict handling, and migration proof.",
+  "scope": [
+    "Wayland Transfer",
+    "instance export",
+    "encrypted transfer bundle",
+    "destination import authority",
+    "transactional import",
+    "credential re-authentication",
+    "portability descriptors"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 3,
+  "notes": ""
+}

@@ -1,0 +1,11 @@
+{
+  "project_code": "WLD",
+  "granularity": "fine",
+  "phase_id_convention": "sequential",
+  "commit_docs": true,
+  "parallelization": false,
+  "workflow": {
+    "plan_review_convergence": true,
+    "text_mode": false
+  }
+}

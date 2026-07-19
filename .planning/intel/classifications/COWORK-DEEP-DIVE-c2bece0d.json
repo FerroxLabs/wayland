@@ -1,0 +1,23 @@
+{
+  "source_path": "/Users/seandonahoe/gsd-workspaces/wayland-desktop-gsd/app/docs/desktop-overhaul-source/COWORK-DEEP-DIVE.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Cowork deep dive and build program",
+  "summary": "Defines Cowork as a provider-neutral knowledge-work capability and audits implementation, packaging, authority, validation, and release-readiness gaps.",
+  "scope": [
+    "Cowork",
+    "knowledge work",
+    "OfficeCLI",
+    "workspace authority",
+    "artifact validation",
+    "release readiness"
+  ],
+  "cross_refs": [
+    "src/process/resources/assistant/cowork/cowork.md",
+    "src/process/resources/assistant/cowork/cowork-skills.md"
+  ],
+  "locked": false,
+  "precedence": 3,
+  "notes": ""
+}

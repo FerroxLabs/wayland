@@ -1,0 +1,46 @@
+docs:
+  - path: docs/desktop-overhaul-source/SYSTEM-CONTRACTS.md
+    type: ADR
+    precedence: 0
+  - path: docs/desktop-overhaul-source/wave-0/WORKSPACE-OWNERSHIP-CONTRACT.md
+    type: ADR
+    precedence: 0
+  - path: docs/desktop-overhaul-source/MASTER-BUILD-PLAN.md
+    type: SPEC
+    precedence: 1
+  - path: docs/desktop-overhaul-source/BUILD-PLAN.md
+    type: SPEC
+    precedence: 1
+  - path: docs/desktop-overhaul-source/wave-0/EXECUTION.md
+    type: SPEC
+    precedence: 1
+  - path: docs/desktop-overhaul-source/CORE-INTEGRATION-MATRIX.md
+    type: SPEC
+    precedence: 1
+  - path: docs/desktop-overhaul-source/MASTER-PLAN-AUDIT.md
+    type: DOC
+    precedence: 2
+  - path: docs/desktop-overhaul-source/PRODUCT-STRATEGY.md
+    type: PRD
+    precedence: 3
+  - path: docs/desktop-overhaul-source/COWORK-DEEP-DIVE.md
+    type: PRD
+    precedence: 3
+  - path: docs/desktop-overhaul-source/SANDBOX-DEVELOPER-JOURNEY.md
+    type: PRD
+    precedence: 3
+  - path: docs/desktop-overhaul-source/VOICE-CONVERSATION-MODE.md
+    type: PRD
+    precedence: 3
+  - path: docs/desktop-overhaul-source/INSTANCE-MIGRATION.md
+    type: PRD
+    precedence: 3
+  - path: docs/desktop-overhaul-source/ADOPTION-DISTRIBUTION.md
+    type: PRD
+    precedence: 3
+  - path: docs/desktop-overhaul-source/CLOUD-PRO.md
+    type: PRD
+    precedence: 4
+  - path: docs/desktop-overhaul-source/CAPABILITY-LEDGER.md
+    type: DOC
+    precedence: 4

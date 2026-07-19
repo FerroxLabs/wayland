@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "keys": [],
+  "note": "Fail-closed production trust root. Sean must explicitly provision or delegate an acceptance public key before any gated receipt can pass. Private keys never live in this repository."
+}

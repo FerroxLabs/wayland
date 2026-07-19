@@ -24,6 +24,17 @@ Observation window, app version, cohort/sample counts, metric definitions, thres
 
 Engineering candidate only; the observation has not started.
 
+> **Current-baseline supersession (2026-07-19):** The implementation bullets
+> below describe the original candidate, but the closing claim that production
+> wiring and consent/visibility UI are absent is stale at baseline
+> `6d41c34087b5f40a368c83ca18d2d8e5a7fdb894`. Those surfaces now exist. Phase 1
+> planning must use `.planning/intel/PHASE-1-IMPLEMENTATION-RECON.md` as the
+> current-state reconciliation. The remaining blockers are the hard-coded
+> `knowledge-work` cohort, missing Classic/five-journey/crash/support/
+> accessibility/zero-tolerance instrumentation, the real 14-calendar-day
+> observation, and a signed `M0B.json`. Existing wiring must be verified, not
+> rebuilt merely because this historical section once listed it as absent.
+
 - `src/process/services/cohort/types.ts` defines a closed schema for four cohorts, two shells, five primary journeys, support/accessibility/return reason enums, and the five zero-tolerance stop classes.
 - `src/process/services/cohort/privacy.ts` rejects unknown fields and every prompt, message, content, file/path, URL, tool-argument, command, query, credential, secret, and freeform metadata field. It never silently strips them.
 - `src/process/services/cohort/CohortBaselineAggregator.ts` deterministically validates event identity and lifecycle, deduplicates identical events, fails data quality on conflicting events, keeps incomplete sessions and unresolved journeys visible, and reports p50/p95 terminal latency.
@@ -33,5 +44,5 @@ Engineering candidate only; the observation has not started.
 
 This candidate intentionally does not reuse generic `usage_events.metadata_json`,
 which permits arbitrary metadata and therefore cannot be cohort authority.
-Product repository wiring, consent and visibility UI, the actual 14-day Classic
-observation, and a signed `M0B.json` remain open.
+The actual 14-day Classic observation and a signed `M0B.json` remain open. See
+the supersession note above for the current engineering blockers.

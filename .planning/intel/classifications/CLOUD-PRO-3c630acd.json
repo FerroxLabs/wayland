@@ -1,0 +1,21 @@
+{
+  "source_path": "/Users/seandonahoe/gsd-workspaces/wayland-desktop-gsd/app/docs/desktop-overhaul-source/CLOUD-PRO.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Wayland Cloud and Pro",
+  "summary": "Defines Free Desktop, Community Cloud, and Hosted Pro boundaries, readiness gaps, hosted architecture, connector strategy, and commercial packaging.",
+  "scope": [
+    "Free Desktop",
+    "Community self-hosted Cloud",
+    "Hosted Pro",
+    "container deployment",
+    "tenant isolation",
+    "connector broker",
+    "commercial tiers"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 4,
+  "notes": ""
+}
