@@ -27,6 +27,8 @@ import type {
   CockpitReturnReason,
   CockpitReturnRecordResult,
   CockpitRolloutStatus,
+  CohortConsentStatus,
+  CohortSetConsentResult,
 } from '../common/types/cohortRollout';
 
 // SECURITY (RT-F4-03): the weixin login channels (qr/scanned/done) carry a
@@ -152,6 +154,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   cockpitRolloutStatus: (): Promise<CockpitRolloutStatus> => ipcRenderer.invoke('cohort:cockpit-rollout-status'),
   cohortRecordShellReturn: (reason: CockpitReturnReason): Promise<CockpitReturnRecordResult> =>
     ipcRenderer.invoke('cohort:shell-returned-to-classic', reason),
+  cohortConsentStatus: (): Promise<CohortConsentStatus> => ipcRenderer.invoke('cohort:consent-status'),
+  cohortSetConsent: (enabled: boolean): Promise<CohortSetConsentResult> =>
+    ipcRenderer.invoke('cohort:set-consent', enabled),
   // Wayland Constitution: agent behavioral spec stored at ~/.wayland/CONSTITUTION.md
   readConstitution: (): Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>> =>
     ipcRenderer.invoke('constitution:read'),

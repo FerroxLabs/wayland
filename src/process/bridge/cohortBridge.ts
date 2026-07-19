@@ -7,12 +7,12 @@
 import { ipcMain, type IpcMainInvokeEvent } from 'electron';
 
 import { COCKPIT_RETURN_REASONS, type CockpitReturnReason } from '@/common/types/cohortRollout';
-import type { CohortEvidenceRuntime } from '@process/services/cohort/CohortEvidenceRuntime';
+import type { CohortProductionAPI } from '@process/services/cohort/ProductionCohortController';
 
 export type CohortBridgeSenderAuthority = (event: IpcMainInvokeEvent) => boolean;
 
 export function initCohortBridge(
-  runtimeReady: PromiseLike<CohortEvidenceRuntime>,
+  runtimeReady: PromiseLike<CohortProductionAPI>,
   isAuthorizedSender: CohortBridgeSenderAuthority
 ): void {
   ipcMain.handle('cohort:cockpit-rollout-status', async (event) => {
@@ -26,6 +26,17 @@ export function initCohortBridge(
       throw new Error('COHORT_RETURN_REASON_INVALID');
     }
     return (await runtimeReady).recordShellReturn(value as CockpitReturnReason);
+  });
+
+  ipcMain.handle('cohort:consent-status', async (event) => {
+    assertSender(event, isAuthorizedSender);
+    return (await runtimeReady).consentStatus();
+  });
+
+  ipcMain.handle('cohort:set-consent', async (event, enabled: unknown) => {
+    assertSender(event, isAuthorizedSender);
+    if (typeof enabled !== 'boolean') throw new Error('COHORT_CONSENT_VALUE_INVALID');
+    return (await runtimeReady).setConsent(enabled);
   });
 }
 

@@ -38,3 +38,14 @@ export type CockpitRolloutStatus = Readonly<{
 export type CockpitReturnRecordResult = Readonly<{
   status: 'recorded' | 'consent-disabled' | 'outside-window' | 'storage-error' | 'session-unavailable';
 }>;
+
+export type CohortConsentStatus = Readonly<{
+  enabled: boolean;
+  acceptedAtMs: number | null;
+  observationWindow: Readonly<{ startMs: number; endMs: number }> | null;
+}>;
+
+export type CohortSetConsentResult = Readonly<{
+  status: 'enabled' | 'disabled' | 'storage-error';
+  consent: CohortConsentStatus;
+}>;

@@ -17,6 +17,8 @@ import { useShellExperience } from '@renderer/hooks/ui/useShellExperience';
 import type { ShellExperience } from '@/common/shellExperience';
 import { COCKPIT_RETURN_REASONS, type CockpitReturnReason } from '@/common/types/cohortRollout';
 
+import CohortEvidenceConsent from './CohortEvidenceConsent';
+
 const RETURN_REASON_LABELS: Record<CockpitReturnReason, string> = {
   performance: 'It felt slow',
   'confusing-navigation': 'Navigation was confusing',
@@ -96,6 +98,7 @@ const NavigationSettings: React.FC = () => {
             })}
           </p>
         )}
+        <CohortEvidenceConsent />
       </Card>
 
       <Modal

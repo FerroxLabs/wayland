@@ -14,7 +14,13 @@ import type {
   ConstitutionClassicRecoveryMutationResult,
   ConstitutionClassicRecoveryResumeRequest,
 } from './constitutionRecovery';
-import type { CockpitReturnReason, CockpitReturnRecordResult, CockpitRolloutStatus } from './cohortRollout';
+import type {
+  CockpitReturnReason,
+  CockpitReturnRecordResult,
+  CockpitRolloutStatus,
+  CohortConsentStatus,
+  CohortSetConsentResult,
+} from './cohortRollout';
 
 // WebUI status interface
 export interface WebUIStatus {
@@ -90,6 +96,10 @@ export interface ElectronBridgeAPI {
   cockpitRolloutStatus?: () => Promise<CockpitRolloutStatus>;
   /** Privacy-safe, content-free return-to-Classic evidence. */
   cohortRecordShellReturn?: (reason: CockpitReturnReason) => Promise<CockpitReturnRecordResult>;
+  /** Explicit local evidence-consent state. */
+  cohortConsentStatus?: () => Promise<CohortConsentStatus>;
+  /** Enable or revoke local evidence collection. */
+  cohortSetConsent?: (enabled: boolean) => Promise<CohortSetConsentResult>;
   // Wayland Constitution: agent behavioral spec at ~/.wayland/CONSTITUTION.md
   readConstitution?: () => Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>>;
   writeConstitution?: (

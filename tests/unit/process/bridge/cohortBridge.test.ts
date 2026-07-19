@@ -10,7 +10,7 @@ const handle = vi.hoisted(() => vi.fn());
 vi.mock('electron', () => ({ ipcMain: { handle } }));
 
 import { initCohortBridge } from '@process/bridge/cohortBridge';
-import type { CohortEvidenceRuntime } from '@process/services/cohort/CohortEvidenceRuntime';
+import type { CohortProductionAPI } from '@process/services/cohort/ProductionCohortController';
 
 describe('cohortBridge', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -19,7 +19,16 @@ describe('cohortBridge', () => {
     const runtime = {
       rolloutStatus: vi.fn(async () => ({ eligible: false, stage: null, source: 'none', reason: 'authority-missing' })),
       recordShellReturn: vi.fn(async () => ({ status: 'recorded' })),
-    } as unknown as CohortEvidenceRuntime;
+      consentStatus: vi.fn(async () => ({ enabled: false, acceptedAtMs: null, observationWindow: null })),
+      setConsent: vi.fn(async (enabled: boolean) => ({
+        status: enabled ? 'enabled' : 'disabled',
+        consent: {
+          enabled,
+          acceptedAtMs: enabled ? 1234 : null,
+          observationWindow: enabled ? { startMs: 1234, endMs: 5678 } : null,
+        },
+      })),
+    } as unknown as CohortProductionAPI;
     initCohortBridge(Promise.resolve(runtime), () => true);
 
     const handlers = new Map(handle.mock.calls.map(([channel, handler]) => [channel, handler]));
@@ -34,6 +43,10 @@ describe('cohortBridge', () => {
       status: 'recorded',
     });
     expect(runtime.recordShellReturn).toHaveBeenCalledWith('reliability');
+    await expect(handlers.get('cohort:consent-status')(event)).resolves.toMatchObject({ enabled: false });
+    await expect(handlers.get('cohort:set-consent')(event, true)).resolves.toMatchObject({ status: 'enabled' });
+    await expect(handlers.get('cohort:set-consent')(event, 'true')).rejects.toThrow('COHORT_CONSENT_VALUE_INVALID');
+    expect(runtime.setConsent).toHaveBeenCalledWith(true);
 
     await expect(
       handlers.get('cohort:cockpit-rollout-status')({ sender: { mainFrame }, senderFrame: sender })

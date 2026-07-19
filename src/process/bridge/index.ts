@@ -19,6 +19,7 @@ import {
 import { initAuthBridge } from './authBridge';
 import { initBedrockBridge } from './bedrockBridge';
 import { initChannelBridge } from './channelBridge';
+import { initCohortBridge } from './cohortBridge';
 import { initConversationBridge } from './conversationBridge';
 import { initCronBridge } from './cronBridge';
 import { initConciergeConfigBridge } from './conciergeConfigBridge';
@@ -93,6 +94,7 @@ import { getSystemDir } from '@process/utils/initStorage';
 import { buildWaylandTransferInventoryPreflight } from '@process/services/transfer/inventory/transferPreflight';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
 import { getReleaseTrack } from '@/common/releaseTrack';
+import { createProductionCohortController } from '@process/services/cohort/ProductionCohortController';
 import { app } from 'electron';
 import path from 'node:path';
 
@@ -138,6 +140,11 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initUpdateBridge();
   initWebuiBridge();
   initChannelBridge(deps.channelRepo);
+  const cohortControllerReady = createProductionCohortController();
+  void cohortControllerReady.catch((error) => {
+    console.error('[cohort] Failed to initialize production controller:', error);
+  });
+  initCohortBridge(cohortControllerReady, (event) => isApplicationMainWindowSender(event.sender.id));
   initDatabaseBridge(deps.conversationRepo);
   initExtensionsBridge(deps.conversationRepo, deps.workerTaskManager);
   initCronBridge();
@@ -260,6 +267,7 @@ export {
   initAuthBridge,
   initBedrockBridge,
   initChannelBridge,
+  initCohortBridge,
   initConversationBridge,
   initCronBridge,
   initConciergeConfigBridge,

@@ -194,6 +194,14 @@ export interface IConfigStorageRefer {
    * installs don't all collapse to the same suggestion on day 1.
    */
   'app.installUuid'?: string;
+  /** Explicit, local-only consent and fixed observation window for privacy-safe Cockpit evidence. */
+  'cohort.evidenceConsent'?: {
+    schemaVersion: 1;
+    enabled: boolean;
+    acceptedAtMs: number | null;
+    windowStartMs: number | null;
+    windowEndMs: number | null;
+  };
   /**
    * v0.6.3 - When true, ijfwSystemService.bootstrap() short-circuits and
    * never spawns `npx @ijfw/install`. Wave 6 wires the Settings toggle.
