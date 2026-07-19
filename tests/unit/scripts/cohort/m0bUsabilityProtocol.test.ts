@@ -180,6 +180,11 @@ describe('M0B usability protocol', () => {
       (candidate) => (candidate.classicComparison.expertInteractionBudget.maximumAdditionalInteractions = 1)
     );
     expectInvalid((candidate) => (candidate.classicComparison.decisionRule = ''));
+    expectInvalid(
+      (candidate) =>
+        (candidate.classicComparison.decisionRule =
+          'Cockpit passes regardless of missing evidence, thresholds, or zero-tolerance stops.')
+    );
   });
 
   it('binds all runtime minimums and comparison thresholds', () => {
