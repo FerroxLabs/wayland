@@ -1,0 +1,3 @@
+$ oxlint src/process/services/capabilities/OfficeCliAuthoringCapability.ts tests/unit/process/services/capabilities/OfficeCliAuthoringCapability.test.ts
+Found 0 warnings and 0 errors.
+Finished in 17ms on 2 files with 128 rules using 10 threads.
