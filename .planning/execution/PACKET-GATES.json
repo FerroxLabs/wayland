@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "WLD",
   "source_baseline": "6d41c34087b5f40a368c83ca18d2d8e5a7fdb894",
-  "revision": "wld-packet-gates-2026-07-19.3",
+  "revision": "wld-packet-gates-2026-07-19.4",
   "contract_manifest": ".planning/execution/PACKET-CONTRACTS.json",
   "trust_root_policy": "external-verifier-required",
   "receipt_directory": ".planning/receipts",
@@ -37,6 +37,6 @@
     "P5-M8-ACCEPTANCE": { "all": ["M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "C0-B", "C1"], "any": [["M1F", "NO-FLUX-CLAIMS"], ["MCP-4", "MCP-ABSENT"], ["SBX-2", "SBX-ABSENT"], ["IMG-01", "IMAGE-ABSENT"], ["M5V-A", "VOICE-ABSENT"]] },
     "P6-M9": { "all": ["PHASE1-AGGREGATE-ACCEPTANCE", "M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "C1", "M8", "FINAL-C0-RELEASE-CLOSURE"], "any": [["M1F", "NO-FLUX-CLAIMS"], ["MCP-4", "MCP-ABSENT"], ["SBX-2", "SBX-ABSENT"], ["IMG-01", "IMAGE-ABSENT"], ["M5V-B", "VOICE-ABSENT"]] },
     "P7-P1": { "all": ["M0A", "M7", "M9"], "any": [] },
-    "P1-AGGREGATE-ACCEPTANCE": { "all": ["M0A", "M0B", "M1", "M1F", "M1M-0", "M1S-0", "C0-A", "PHASE5-PROOF-CLOSURE"], "any": [] }
+    "P1-AGGREGATE-ACCEPTANCE": { "all": ["M0A", "M0B", "M1", "M1M-0", "M1S-0", "C0-A", "PHASE5-PROOF-CLOSURE"], "any": [["M1F", "NO-FLUX-CLAIMS"]] }
   }
 }
