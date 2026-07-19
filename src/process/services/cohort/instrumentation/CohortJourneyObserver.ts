@@ -92,7 +92,9 @@ export class CohortJourneyObserver {
 
   startSession(): Promise<M0BRecordResult> {
     return this.enqueue(async () => {
-      if (this.sessionState === 'open' && !this.hasPendingSessionTerminal()) return { status: 'recorded' };
+      // This is an idempotent status probe once open. A pending terminal still
+      // blocks every evidence-producing API, while allowing its exact replay.
+      if (this.sessionState === 'open') return { status: 'recorded' };
       if (this.sessionState !== 'idle') return rejected('sessionState');
       const { result } = await this.recordRetryable('session:start', () => this.event('session_started'));
       if (result.status === 'recorded') this.sessionState = 'open';
