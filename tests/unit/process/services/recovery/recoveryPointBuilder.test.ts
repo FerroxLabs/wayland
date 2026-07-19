@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { createServer } from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -574,6 +575,188 @@ describe('recovery point builder', () => {
       dev: reservedIdentity?.dev,
       ino: reservedIdentity?.ino,
     });
+  });
+
+  it.each(['file', 'symlink'] as const)(
+    'fails closed without altering a concurrent %s reservation at the publication boundary',
+    async (reservationType) => {
+      const data = await fixture();
+      const collidingRoot = path.join(data.destinationRoot, 'snapshot-test');
+      const symlinkTarget = path.join(data.root, 'publication-symlink-target');
+      fs.writeFileSync(symlinkTarget, 'outside-sentinel');
+      let reservedIdentity: fs.Stats | undefined;
+      const deps = dependencies({
+        beforePublication: async () => {
+          if (reservationType === 'file') fs.writeFileSync(collidingRoot, 'publisher-sentinel');
+          else fs.symlinkSync(symlinkTarget, collidingRoot);
+          reservedIdentity = fs.lstatSync(collidingRoot);
+        },
+      });
+
+      await expect(
+        buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot: data.destinationRoot,
+            reason: 'manual',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        )
+      ).rejects.toThrow('Recovery point already exists');
+
+      const currentIdentity = fs.lstatSync(collidingRoot);
+      expect({ dev: currentIdentity.dev, ino: currentIdentity.ino }).toEqual({
+        dev: reservedIdentity?.dev,
+        ino: reservedIdentity?.ino,
+      });
+      expect(reservationType === 'file' ? fs.readFileSync(collidingRoot, 'utf8') : fs.readlinkSync(collidingRoot)).toBe(
+        reservationType === 'file' ? 'publisher-sentinel' : symlinkTarget
+      );
+      expect(fs.readFileSync(symlinkTarget, 'utf8')).toBe('outside-sentinel');
+    }
+  );
+
+  it.runIf(process.platform !== 'win32')(
+    'fails closed without altering a concurrent socket reservation at the publication boundary',
+    async () => {
+      const data = await fixture();
+      // Darwin limits Unix-domain socket path length, so keep this hostile
+      // reservation root deliberately short.
+      const destinationRoot = fs.mkdtempSync('/tmp/wrp-');
+      roots.push(destinationRoot);
+      const collidingRoot = path.join(destinationRoot, 'snapshot-test');
+      const server = createServer();
+      let reservedIdentity: fs.Stats | undefined;
+      const deps = dependencies({
+        beforePublication: async () => {
+          await new Promise<void>((resolve, reject) => {
+            server.once('error', reject);
+            server.listen(collidingRoot, resolve);
+          });
+          reservedIdentity = fs.lstatSync(collidingRoot);
+        },
+      });
+
+      try {
+        await expect(
+          buildRecoveryPoint(
+            {
+              inventory: data.inventory,
+              destinationRoot,
+              reason: 'manual',
+              sourceAppVersion: '0.11.18',
+              desktopSchemaVersion: 53,
+            },
+            deps.dependencies
+          )
+        ).rejects.toThrow('Recovery point already exists');
+
+        const currentIdentity = fs.lstatSync(collidingRoot);
+        expect(currentIdentity.isSocket()).toBe(true);
+        expect({ dev: currentIdentity.dev, ino: currentIdentity.ino }).toEqual({
+          dev: reservedIdentity?.dev,
+          ino: reservedIdentity?.ino,
+        });
+      } finally {
+        if (server.listening) {
+          await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
+        }
+      }
+    }
+  );
+
+  it('keeps the manifest absent until every sealed artifact is copied into the reserved publication root', async () => {
+    const data = await fixture();
+    const finalRoot = path.join(data.destinationRoot, 'snapshot-test');
+    let inspected = false;
+    const deps = dependencies({
+      beforePublicationCommit: async () => {
+        inspected = true;
+        expect(fs.statSync(finalRoot).isDirectory()).toBe(true);
+        expect(fs.existsSync(path.join(finalRoot, 'manifest.json'))).toBe(false);
+      },
+    });
+
+    const result = await buildRecoveryPoint(
+      {
+        inventory: data.inventory,
+        destinationRoot: data.destinationRoot,
+        reason: 'manual',
+        sourceAppVersion: '0.11.18',
+        desktopSchemaVersion: 53,
+      },
+      deps.dependencies
+    );
+
+    expect(inspected).toBe(true);
+    expect((await verifyRecoverySnapshot(result.manifest, result.snapshotPath)).valid).toBe(true);
+  });
+
+  it('never removes a replacement installed over its reserved publication root', async () => {
+    const data = await fixture();
+    const finalRoot = path.join(data.destinationRoot, 'snapshot-test');
+    const retiredRoot = path.join(data.destinationRoot, 'snapshot-retired');
+    let replacementIdentity: fs.Stats | undefined;
+    const deps = dependencies({
+      beforePublicationCommit: async () => {
+        fs.renameSync(finalRoot, retiredRoot);
+        fs.writeFileSync(finalRoot, 'replacement-sentinel');
+        replacementIdentity = fs.lstatSync(finalRoot);
+      },
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('Recovery staging identity changed after admission');
+
+    const currentIdentity = fs.lstatSync(finalRoot);
+    expect({ dev: currentIdentity.dev, ino: currentIdentity.ino }).toEqual({
+      dev: replacementIdentity?.dev,
+      ino: replacementIdentity?.ino,
+    });
+    expect(fs.readFileSync(finalRoot, 'utf8')).toBe('replacement-sentinel');
+    expect(fs.existsSync(path.join(retiredRoot, 'manifest.json'))).toBe(false);
+  });
+
+  it('removes its reserved publication root when publication-handle cleanup fails', async () => {
+    const data = await fixture();
+    let failedPublicationClose = false;
+    const deps = dependencies({
+      closeFileHandle: async (handle, role) => {
+        await handle.close();
+        if (role === 'publication-root' && !failedPublicationClose) {
+          failedPublicationClose = true;
+          throw new Error('publication handle close failed');
+        }
+      },
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('Recovery publication cleanup failed');
+
+    expect(failedPublicationClose).toBe(true);
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
   });
 
   it('rejects an equal-byte descendant replacement during the final mutation epoch', async () => {

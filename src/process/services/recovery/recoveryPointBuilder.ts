@@ -6,18 +6,7 @@
 
 import { createHash, randomUUID } from 'node:crypto';
 import { constants, type Stats } from 'node:fs';
-import {
-  type FileHandle,
-  lstat,
-  mkdir,
-  mkdtemp,
-  open,
-  readdir,
-  readFile,
-  realpath,
-  rename,
-  rm,
-} from 'node:fs/promises';
+import { type FileHandle, lstat, mkdir, mkdtemp, open, readdir, readFile, realpath, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { evaluateRecoveryDryRun, type RecoveryDryRun } from './recoveryDryRun';
 import {
@@ -57,6 +46,8 @@ export type RecoveryPointBuilderDependencies = {
   beforeSourceEntryOpen?: (relativePath: string) => Promise<void>;
   /** Test seam used to replace an admitted ancestor immediately before publication. */
   beforePublication?: () => Promise<void>;
+  /** Test seam used to inspect or attack the reserved root before its commit marker is written. */
+  beforePublicationCommit?: () => Promise<void>;
   /** Test seam used to replace an admitted ancestor immediately before output cleanup. */
   beforeOutputCleanup?: () => Promise<void>;
   /** Test seam used to prove nested handle-close failures preserve the primary error. */
@@ -72,6 +63,7 @@ export type RecoveryFileHandleRole =
   | 'source-descendant'
   | 'source-ancestor'
   | 'staging-root'
+  | 'publication-root'
   | 'source-root'
   | 'destination-root';
 
@@ -1309,10 +1301,34 @@ async function readManifest(manifestPath: string): Promise<RecoveryManifest> {
   return JSON.parse(await readFile(manifestPath, 'utf8')) as RecoveryManifest;
 }
 
+async function removeRecoveryRootIfOwned(root: string, identity: DestinationPathIdentity | undefined): Promise<void> {
+  if (!identity) return;
+  let current: Awaited<ReturnType<typeof lstat>>;
+  try {
+    current = await lstat(root);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+    throw error;
+  }
+  // Cleanup authority never transfers with a pathname. If another actor has
+  // replaced our reservation, leave its inode untouched and fail closed.
+  if (
+    current.isSymbolicLink() ||
+    !current.isDirectory() ||
+    current.dev !== identity.dev ||
+    current.ino !== identity.ino
+  ) {
+    return;
+  }
+  await rm(root, { recursive: true, force: true });
+}
+
 /**
  * Build an all-or-nothing recovery point. Capture happens in a private staging
- * directory and is published by one rename only after manifest and file proof
- * pass. Live state is read but never renamed, deleted, or repaired.
+ * directory. Publication reserves the final name without replacement, copies
+ * the already-verified sealed artifacts, and writes the verified manifest last
+ * as the commit marker. Readers therefore cannot admit a partial snapshot.
+ * Live state is read but never renamed, deleted, or repaired.
  */
 export async function buildRecoveryPoint(
   inputs: BuildRecoveryPointInputs,
@@ -1342,6 +1358,9 @@ export async function buildRecoveryPoint(
   const publicFinalRoot = path.join(destinationAdmission.requestedRoot, snapshotId);
   let stagingRoot: string | undefined;
   let stagingAdmission: RecoveryStagingAdmission | undefined;
+  let publicationAdmission: RecoveryStagingAdmission | undefined;
+  let finalRootOwned = false;
+  let finalRootIdentity: DestinationPathIdentity | undefined;
   let published = false;
   let builtResult: BuiltRecoveryPoint | undefined;
   const authorityFiles = new Map<StateAuthorityId, RecoveryManifestFile[]>();
@@ -1644,37 +1663,96 @@ export async function buildRecoveryPoint(
     }
 
     await assertRecoveryDestinationStable(destinationAdmission);
-    if (stagingAdmission.handle) {
-      const stagingCloseFailures: Error[] = [];
-      await closeRecoveryHandle(
-        stagingAdmission.handle,
-        'staging-root',
-        dependencies.closeFileHandle,
-        stagingCloseFailures
-      );
-      throwPreservingCleanupFailures(undefined, stagingCloseFailures, 'Recovery staging cleanup failed.');
-    }
-    stagingAdmission = undefined;
     await dependencies.beforePublication?.();
     // The publication seam is attacker-controlled in hostile tests and an
-    // asynchronous boundary in production. Check on both sides of the atomic
-    // rename so the committed snapshot is bound to the admitted source roots.
+    // asynchronous boundary in production. Check before reserving the final
+    // name so the committed snapshot remains bound to admitted source roots.
     await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
-    await rename(stagingRoot, finalRoot);
     try {
-      await assertRecoveryDestinationStable(destinationAdmission);
-      await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
+      // mkdir is the no-replace publication reservation. Unlike rename(), it
+      // cannot overwrite any existing file, directory, symlink, or special
+      // entry installed by a concurrent publisher.
+      await mkdir(finalRoot, { mode: 0o700 });
+      finalRootOwned = true;
     } catch (error) {
-      const cleanupErrors: Error[] = [];
-      try {
-        await rm(finalRoot, { recursive: true, force: true });
-      } catch (cleanupError) {
-        cleanupErrors.push(
-          new Error('Recovery cleanup failed for identity-invalid published output.', { cause: cleanupError })
-        );
+      if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+        throw new Error(`Recovery point already exists: ${publicFinalRoot}`, { cause: error });
       }
-      throwPreservingCleanupFailures(error, cleanupErrors, 'Recovery publication identity check and cleanup failed.');
+      throw error;
     }
+    publicationAdmission = await admitRecoveryStaging(finalRoot);
+    finalRootIdentity = {
+      path: finalRoot,
+      dev: publicationAdmission.dev,
+      ino: publicationAdmission.ino,
+    };
+    await assertRecoveryDestinationStable(destinationAdmission);
+    await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
+
+    // Copy only the manifest-declared, already-verified sealed artifacts into
+    // the reserved root. The manifest is deliberately absent while this loop
+    // runs, so verifyRecoverySnapshotRoot cannot admit an incomplete point.
+    for (const file of manifest.files.toSorted((left, right) => left.snapshotPath.localeCompare(right.snapshotPath))) {
+      // oxlint-disable-next-line no-await-in-loop -- ordered publication under one quiescence epoch.
+      const sealedBytes = await readFile(path.join(stagingAdmission.operationRoot, ...file.snapshotPath.split('/')));
+      try {
+        // oxlint-disable-next-line no-await-in-loop -- ordered publication under one quiescence epoch.
+        await writeRecoveryArtifact(
+          publicationAdmission,
+          file.snapshotPath,
+          sealedBytes,
+          undefined,
+          dependencies.closeFileHandle
+        );
+      } finally {
+        if (file.sensitive) sealedBytes.fill(0);
+      }
+      // oxlint-disable-next-line no-await-in-loop -- every write must remain bound to both authorities.
+      await assertRecoveryDestinationStable(destinationAdmission);
+      // oxlint-disable-next-line no-await-in-loop -- every write must remain bound to both authorities.
+      await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
+    }
+
+    // manifest.json is the logical atomic commit marker and must be last.
+    await dependencies.beforePublicationCommit?.();
+    await assertRecoveryDestinationStable(destinationAdmission);
+    await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
+    await assertRecoveryStagingStable(publicationAdmission);
+    await writeRecoveryArtifact(
+      publicationAdmission,
+      'manifest.json',
+      Buffer.from(JSON.stringify(manifest, null, 2)),
+      undefined,
+      dependencies.closeFileHandle
+    );
+    const publishedVerification = await verifyRecoverySnapshot(
+      await readManifest(path.join(publicationAdmission.operationRoot, 'manifest.json')),
+      publicationAdmission.operationRoot
+    );
+    if (!publishedVerification.valid) {
+      throw new Error(
+        `Published recovery point failed verification: ${publishedVerification.errors.map(({ code }) => code).join(', ')}`
+      );
+    }
+    await assertRecoveryDestinationStable(destinationAdmission);
+    await assertRecoverySourceAdmissionsStable(sourceAdmissions.values());
+
+    const publicationCloseFailures: Error[] = [];
+    await closeRecoveryHandle(
+      publicationAdmission.handle,
+      'publication-root',
+      dependencies.closeFileHandle,
+      publicationCloseFailures
+    );
+    publicationAdmission = undefined;
+    await closeRecoveryHandle(
+      stagingAdmission.handle,
+      'staging-root',
+      dependencies.closeFileHandle,
+      publicationCloseFailures
+    );
+    stagingAdmission = undefined;
+    throwPreservingCleanupFailures(undefined, publicationCloseFailures, 'Recovery publication cleanup failed.');
     if (coreLease) await coreLease.release();
     coreLease = undefined;
     await desktopLease.release();
@@ -1705,6 +1783,13 @@ export async function buildRecoveryPoint(
         ? () => (dependencies.closeFileHandle ?? defaultCloseFileHandle)(stagingAdmission!.handle!, 'staging-root')
         : undefined
     );
+    await cleanup(
+      'publication handle',
+      publicationAdmission?.handle
+        ? () =>
+            (dependencies.closeFileHandle ?? defaultCloseFileHandle)(publicationAdmission!.handle!, 'publication-root')
+        : undefined
+    );
     const sourceHandles: Array<{ handle: FileHandle; role: 'source-root' | 'source-ancestor' }> = [];
     for (const admission of sourceAdmissions.values()) {
       if (admission.handle) sourceHandles.push({ handle: admission.handle, role: 'source-root' });
@@ -1726,7 +1811,7 @@ export async function buildRecoveryPoint(
     await cleanup('staging output', stagingRoot ? () => rm(stagingRoot, { recursive: true, force: true }) : undefined);
     await cleanup(
       'unpublished final output',
-      !published ? () => rm(finalRoot, { recursive: true, force: true }) : undefined
+      finalRootOwned && !published ? () => removeRecoveryRootIfOwned(finalRoot, finalRootIdentity) : undefined
     );
     await cleanup(
       'destination handle',
