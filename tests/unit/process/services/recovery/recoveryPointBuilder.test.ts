@@ -15,10 +15,39 @@ import { materializeIsolatedRecovery } from '@process/services/recovery/isolated
 import { inventoryRecoveryAuthorities } from '@process/services/recovery/stateAuthorityInventory';
 import { ConstitutionRevisionAuthority } from '@process/services/constitution/constitutionRevisionAuthority';
 
+const cleanupRace = vi.hoisted(() => ({
+  armed: false,
+  swapped: false,
+  finalRoot: '',
+  retiredRoot: '',
+  sentinel: '',
+}));
+
+vi.mock('node:fs/promises', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs/promises')>();
+  return {
+    ...actual,
+    rm: async (...args: Parameters<typeof actual.rm>) => {
+      if (cleanupRace.armed && !cleanupRace.swapped && String(args[0]) === cleanupRace.finalRoot) {
+        cleanupRace.swapped = true;
+        await actual.rename(cleanupRace.finalRoot, cleanupRace.retiredRoot);
+        await actual.mkdir(cleanupRace.finalRoot);
+        await actual.writeFile(cleanupRace.sentinel, 'replacement-must-survive');
+      }
+      return actual.rm(...args);
+    },
+  };
+});
+
 describe('recovery point builder', () => {
   const roots: string[] = [];
 
   afterEach(() => {
+    cleanupRace.armed = false;
+    cleanupRace.swapped = false;
+    cleanupRace.finalRoot = '';
+    cleanupRace.retiredRoot = '';
+    cleanupRace.sentinel = '';
     for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true });
   });
 
@@ -727,6 +756,42 @@ describe('recovery point builder', () => {
     });
     expect(fs.readFileSync(finalRoot, 'utf8')).toBe('replacement-sentinel');
     expect(fs.existsSync(path.join(retiredRoot, 'manifest.json'))).toBe(false);
+  });
+
+  it('never removes a replacement swapped in after cleanup observes its owned inode', async () => {
+    const data = await fixture();
+    const admittedDestinationRoot = path.join(
+      fs.realpathSync(path.dirname(data.destinationRoot)),
+      path.basename(data.destinationRoot)
+    );
+    const finalRoot = path.join(admittedDestinationRoot, 'snapshot-test');
+    const retiredRoot = path.join(admittedDestinationRoot, 'snapshot-retired-after-cleanup-check');
+    const replacementSentinel = path.join(finalRoot, 'replacement-sentinel');
+    Object.assign(cleanupRace, { finalRoot, retiredRoot, sentinel: replacementSentinel });
+    const deps = dependencies({
+      beforePublicationCommit: async () => {
+        throw new Error('force unpublished cleanup');
+      },
+      beforeOutputCleanup: async () => {
+        cleanupRace.armed = true;
+      },
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('force unpublished cleanup');
+
+    expect(cleanupRace.swapped).toBe(true);
+    expect(fs.existsSync(replacementSentinel)).toBe(true);
   });
 
   it('removes its reserved publication root when publication-handle cleanup fails', async () => {
