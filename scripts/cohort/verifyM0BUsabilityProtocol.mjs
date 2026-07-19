@@ -16,15 +16,16 @@ const PRIVACY_MODES = ['local-aggregate-only', 'structured-cohort-uat'];
 const OUTCOMES = ['success', 'failure', 'abandoned'];
 const CONFUSION_LEVELS = ['none', 'self-recovered', 'moderator-prompt-required', 'blocked'];
 const NOVICE_SCRIPT_IDS = ['novice.quick-start', 'novice.substantial-work'];
-const DENOMINATOR_KEYS = [
-  'journeyFailureRate',
-  'journeySuccessRate',
-  'p95LatencyMs',
-  'crashFreeSessionRate',
-  'supportContactsPerParticipant',
-  'accessibilityViolationsPerSession',
-  'returnToClassicRate',
-];
+const DENOMINATORS = {
+  journeyFailureRate: 'journey_failed / journey_started',
+  journeySuccessRate: 'journey_completed / journey_started',
+  p95LatencyMs: 'terminal journey duration for journey_completed or journey_failed',
+  crashFreeSessionRate: 'session_ended / (session_ended + session_crashed)',
+  supportContactsPerParticipant: 'support_contact / distinct participantIdHash from session_started',
+  accessibilityViolationsPerSession: 'critical-or-serious accessibility_violation / session_started',
+  returnToClassicRate: 'shell_returned_to_classic / cockpit session_started',
+};
+const DENOMINATOR_KEYS = Object.keys(DENOMINATORS);
 const PRIVACY_EXCLUSIONS = [
   'prompt-or-message-content',
   'file-content-or-path',
@@ -436,7 +437,9 @@ export function validateProtocolObject(input, runtime = readRuntimeBindings()) {
     exactValue(thresholds[key], expected, `measurement.thresholds.${key}`);
   }
   const denominators = exactKeys(measurement.denominators, DENOMINATOR_KEYS, 'measurement.denominators');
-  Object.entries(denominators).forEach(([key, value]) => nonEmptyString(value, `measurement.denominators.${key}`));
+  Object.entries(DENOMINATORS).forEach(([key, value]) =>
+    exactValue(denominators[key], value, `measurement.denominators.${key}`)
+  );
   exactValue(measurement.missingDenominatorPolicy, 'null-and-fail-closed', 'measurement.missingDenominatorPolicy');
   const soak = exactKeys(
     measurement.soak,

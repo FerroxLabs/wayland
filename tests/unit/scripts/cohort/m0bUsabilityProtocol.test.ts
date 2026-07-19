@@ -197,20 +197,19 @@ describe('M0B usability protocol', () => {
     for (const key of Object.keys(protocol.measurement.denominators)) {
       expectInvalid((candidate) => delete candidate.measurement.denominators[key]);
       expectInvalid((candidate) => (candidate.measurement.denominators[key] = ''));
+      expectInvalid(
+        (candidate) =>
+          (candidate.measurement.denominators[key] =
+            key === 'journeyFailureRate'
+              ? 'journey_completed / journey_started'
+              : protocol.measurement.denominators.journeyFailureRate)
+      );
     }
     expectInvalid((candidate) => delete candidate.measurement.soak);
     expectInvalid((candidate) => (candidate.measurement.soak.calendarDays = 1));
     expectInvalid((candidate) => (candidate.measurement.soak.simulationAllowed = true));
     expectInvalid((candidate) => (candidate.measurement.soak.backfillAllowed = true));
     expectInvalid((candidate) => candidate.measurement.automaticStops.pop());
-  });
-
-  it('rejects denominator formula substitution that can manufacture a passing result', () => {
-    expectInvalid(
-      (candidate) =>
-        (candidate.measurement.denominators.journeyFailureRate =
-          'journey_completed / journey_started')
-    );
   });
 
   it('rejects privacy widening, owner drift, and self-authorization', () => {
