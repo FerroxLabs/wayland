@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { generateKeyPairSync } from 'node:crypto';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -15,6 +16,11 @@ import {
   type CohortConsentStore,
   type CohortProductionEnvironment,
 } from '@process/services/cohort/ProductionCohortController';
+import { cohortInstallationIdHash } from '@process/services/cohort/ProductionCockpitRolloutStatusProvider';
+import {
+  describeCohortRolloutPublicKey,
+  issueCohortRolloutAuthorization,
+} from '@process/services/cohort/rolloutAuthority';
 import { M0B_COHORTS, M0B_DAY_MS } from '@process/services/cohort/types';
 
 const NOW = Date.UTC(2026, 6, 19);
@@ -52,7 +58,10 @@ function assignment(cohort: (typeof M0B_COHORTS)[number], window: boolean = fals
 async function fixture(
   initialConsent: unknown = undefined,
   initialAssignment: unknown = undefined,
-  now: () => number = () => NOW
+  now: () => number = () => NOW,
+  overrides: Partial<
+    Pick<CohortProductionEnvironment, 'isPackaged' | 'appVersion' | 'releaseTrack' | 'installIdentity'>
+  > = {}
 ) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'wayland-production-cohort-'));
   roots.push(root);
@@ -80,6 +89,7 @@ async function fixture(
     consentStore,
     assignmentStore,
     now,
+    ...overrides,
   };
   return {
     root,
@@ -92,11 +102,72 @@ async function fixture(
   };
 }
 
+async function installRolloutAuthority(
+  environment: CohortProductionEnvironment,
+  scope: Readonly<{
+    cohort: (typeof M0B_COHORTS)[number];
+    window: Readonly<{ startMs: number; endMs: number }>;
+    now: number;
+  }>
+): Promise<void> {
+  const keys = generateKeyPairSync('ed25519');
+  const trusted = describeCohortRolloutPublicKey('release-key', keys.publicKey);
+  const baselineAggregateDigest = `sha256:${'a'.repeat(64)}` as const;
+  const expected = {
+    appVersion: environment.appVersion,
+    releaseTrack: environment.releaseTrack,
+    currentStage: 'internal-dogfood',
+    stage: 'invited-alpha',
+    cohort: scope.cohort,
+    installationIdHash: cohortInstallationIdHash(environment.installIdentity),
+    window: scope.window,
+    baselineAggregateDigest,
+    decisionOwner: 'Sean Donahoe',
+  } as const;
+  await fs.mkdir(path.join(environment.resourcesPath, 'cockpit-rollout'), { recursive: true });
+  await fs.mkdir(path.join(environment.userDataPath, 'cockpit-rollout'), { recursive: true });
+  await fs.writeFile(
+    path.join(environment.resourcesPath, 'cockpit-rollout', 'policy.json'),
+    JSON.stringify({ expected, trustedPublicKeys: [trusted] })
+  );
+  await fs.writeFile(
+    path.join(environment.userDataPath, 'cockpit-rollout', 'authorization.json'),
+    issueCohortRolloutAuthorization(
+      {
+        schemaVersion: 1,
+        appVersion: environment.appVersion,
+        releaseTrack: environment.releaseTrack,
+        previousStage: 'internal-dogfood',
+        stage: 'invited-alpha',
+        cohort: scope.cohort,
+        installationIdHash: cohortInstallationIdHash(environment.installIdentity),
+        window: scope.window,
+        baselineAggregateDigest,
+        issuedAt: scope.now - 1_000,
+        expiresAt: scope.now + 60_000,
+        decisionOwner: 'Sean Donahoe',
+      },
+      { keyId: trusted.keyId, privateKey: keys.privateKey }
+    )
+  );
+}
+
 afterEach(async () => {
   await Promise.all(roots.splice(0).map((root) => fs.rm(root, { recursive: true, force: true })));
 });
 
 describe('ProductionCohortController cohort authority', () => {
+  it('[CR-01] rejects a valid-looking unsigned persisted assignment after restart', async () => {
+    const subject = await fixture(disabledConsent, assignment('operator'));
+
+    await expect(subject.controller.assignmentStatus()).resolves.toEqual({
+      available: false,
+      effectiveCohort: null,
+      classifiedAtMs: null,
+      observationState: 'unavailable',
+    });
+  });
+
   it('starts unavailable and cannot begin observation without classification', async () => {
     const subject = await fixture({ enabled: true, acceptedAtMs: NOW, extraAuthority: true });
 
@@ -181,9 +252,45 @@ describe('ProductionCohortController cohort authority', () => {
     });
     expect(subject.assignmentStore.set).not.toHaveBeenCalled();
   });
+
+  it('[CR-03] does not let two renderer literals directly select two effective cohorts', async () => {
+    const novice = await fixture(disabledConsent);
+    const operator = await fixture(disabledConsent);
+
+    const noviceResult = await novice.controller.requestAssignment('novice');
+    const operatorResult = await operator.controller.requestAssignment('operator');
+
+    expect({
+      novice: noviceResult.assignment.effectiveCohort,
+      operator: operatorResult.assignment.effectiveCohort,
+    }).toEqual({
+      novice: operatorResult.assignment.effectiveCohort,
+      operator: operatorResult.assignment.effectiveCohort,
+    });
+  });
 });
 
 describe('ProductionCohortController observation lifecycle', () => {
+  it('[CR-02] rejects partial assignment/consent persistence when rollback also fails', async () => {
+    const subject = await fixture(disabledConsent, assignment('novice'));
+    const persistAssignment = vi.mocked(subject.assignmentStore.set).getMockImplementation();
+    if (!persistAssignment) throw new Error('test assignment store has no implementation');
+    vi.mocked(subject.assignmentStore.set)
+      .mockImplementationOnce(persistAssignment)
+      .mockRejectedValueOnce(new Error('rollback unavailable'));
+    vi.mocked(subject.consentStore.set).mockRejectedValueOnce(new Error('consent publication unavailable'));
+
+    await expect(subject.controller.setConsent(true)).resolves.toMatchObject({ status: 'storage-error' });
+    const restarted = await createCohortProductionController(subject.environment);
+
+    await expect(restarted.assignmentStatus()).resolves.toEqual({
+      available: false,
+      effectiveCohort: null,
+      classifiedAtMs: null,
+      observationState: 'unavailable',
+    });
+  });
+
   it('persists one exact 14-day window and records events with the effective assignment', async () => {
     const subject = await fixture(disabledConsent);
     await subject.controller.requestAssignment('developer');
@@ -245,6 +352,91 @@ describe('ProductionCohortController observation lifecycle', () => {
     });
     expect(subject.persistedAssignment()).toEqual(assignment('developer', true));
     expect(subject.assignmentStore.set).not.toHaveBeenCalled();
+  });
+
+  it('[CR-04] never replaces an expired observation window through disable and re-enable', async () => {
+    let clock = END + 1;
+    const subject = await fixture(enabledConsent, assignment('developer', true), () => clock);
+
+    await subject.controller.setConsent(false);
+    clock = END + 2;
+    await subject.controller.setConsent(true);
+
+    expect(subject.persistedAssignment()).toEqual(assignment('developer', true));
+    await expect(subject.controller.consentStatus()).resolves.toMatchObject({
+      observationWindow: { startMs: NOW, endMs: END },
+    });
+  });
+
+  it('[CR-05] rejects signed rollout receipts outside the persisted cohort and window scope', async () => {
+    const rolloutNow = NOW + 60 * M0B_DAY_MS;
+    const currentWindow = {
+      startMs: rolloutNow - 15 * M0B_DAY_MS,
+      endMs: rolloutNow - M0B_DAY_MS,
+    };
+    const currentAssignment = {
+      ...assignment('operator', true),
+      classifiedAtMs: currentWindow.startMs,
+      windowStartMs: currentWindow.startMs,
+      windowEndMs: currentWindow.endMs,
+    };
+    const signedScopes = [
+      { cohort: 'knowledge-work' as const, window: currentWindow },
+      {
+        cohort: 'operator' as const,
+        window: {
+          startMs: currentWindow.startMs - M0B_DAY_MS,
+          endMs: currentWindow.endMs - M0B_DAY_MS,
+        },
+      },
+      {
+        cohort: 'operator' as const,
+        window: {
+          startMs: currentWindow.startMs + M0B_DAY_MS,
+          endMs: currentWindow.endMs + M0B_DAY_MS,
+        },
+      },
+    ];
+    vi.useFakeTimers();
+    vi.setSystemTime(rolloutNow);
+    try {
+      const eligibility: boolean[] = [];
+      for (const scope of signedScopes) {
+        // Each controller owns the persisted current scope; the signed authority deliberately differs by cohort or window.
+        // oxlint-disable-next-line no-await-in-loop
+        const subject = await fixture(disabledConsent, currentAssignment, () => rolloutNow, {
+          isPackaged: true,
+          appVersion: '0.12.0-preview.1',
+          releaseTrack: 'preview',
+        });
+        // oxlint-disable-next-line no-await-in-loop
+        await installRolloutAuthority(subject.environment, { ...scope, now: rolloutNow });
+        // oxlint-disable-next-line no-await-in-loop
+        eligibility.push((await subject.controller.rolloutStatus()).eligible);
+      }
+      expect(eligibility).toEqual([false, false, false]);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('[WR-01] treats malformed and unreadable consent as unavailable rather than disabled', async () => {
+    const malformed = await fixture({ ...disabledConsent, extraAuthority: true }, assignment('developer'));
+    const unreadable = await fixture(disabledConsent, assignment('developer'));
+    vi.mocked(unreadable.consentStore.get).mockRejectedValueOnce(new Error('consent unreadable'));
+    const unreadableRestart = await createCohortProductionController(unreadable.environment);
+    const [malformedStatus, unreadableStatus] = await Promise.all([
+      malformed.controller.assignmentStatus(),
+      unreadableRestart.assignmentStatus(),
+    ]);
+
+    expect({
+      malformedAvailable: malformedStatus.available,
+      unreadableAvailable: unreadableStatus.available,
+    }).toEqual({
+      malformedAvailable: false,
+      unreadableAvailable: false,
+    });
   });
 
   it('fails closed when assignment and consent records disagree', async () => {

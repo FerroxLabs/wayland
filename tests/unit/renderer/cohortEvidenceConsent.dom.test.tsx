@@ -25,7 +25,8 @@ vi.mock('react-i18next', () => ({
         'settings.navigationPage.cohort.developer': 'Developer',
         'settings.navigationPage.cohort.operator': 'Operator',
         'settings.navigationPage.evidenceChecking': 'Checking consent and classification…',
-        'settings.navigationPage.evidenceUnavailable': 'Evidence sharing is unavailable in this build, so it remains off.',
+        'settings.navigationPage.evidenceUnavailable':
+          'Evidence sharing is unavailable in this build, so it remains off.',
         'settings.navigationPage.evidenceWindowInactive': 'No evidence window is active.',
         'settings.navigationPage.evidenceWindowActive': 'Active 14-day window: {{start}} – {{end}}.',
         'settings.navigationPage.evidenceConsentLabel': 'Collect local aggregate evidence',
@@ -172,6 +173,54 @@ describe('CohortEvidenceConsent', () => {
     await waitFor(() => expect(setConsent).toHaveBeenCalledWith(false));
     await waitFor(() => expect(toggle).not.toBeChecked());
     expect(screen.getByTestId('cohort-evidence-window-state')).toHaveTextContent('No evidence window is active');
+  });
+
+  it('[WR-02] refreshes assignment projection after successful enable and revoke', async () => {
+    const enableAssignmentStatus = vi
+      .fn()
+      .mockResolvedValueOnce(readyAssignment)
+      .mockResolvedValueOnce(activeAssignment);
+    setApi({
+      cohortConsentStatus: vi.fn().mockResolvedValue(disabledStatus),
+      cohortSetConsent: vi.fn().mockResolvedValue(enabledResult),
+      cohortAssignmentStatus: enableAssignmentStatus,
+      cohortRequestAssignment: vi.fn(),
+    });
+    const enabled = render(<CohortEvidenceConsent />);
+    let toggle = await screen.findByRole('checkbox', { name: /collect local aggregate evidence/i });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    fireEvent.click(toggle);
+    await waitFor(() => expect(toggle).toBeChecked());
+    const enabledSelectorLocked = (screen.getByRole('combobox', { name: /evaluation group/i }) as HTMLSelectElement)
+      .disabled;
+    enabled.unmount();
+
+    const lockedAssignment = { ...readyAssignment, observationState: 'locked' } as const;
+    const revokeAssignmentStatus = vi
+      .fn()
+      .mockResolvedValueOnce(activeAssignment)
+      .mockResolvedValueOnce(lockedAssignment);
+    setApi({
+      cohortConsentStatus: vi.fn().mockResolvedValue(enabledStatus),
+      cohortSetConsent: vi.fn().mockResolvedValue(disabledResult),
+      cohortAssignmentStatus: revokeAssignmentStatus,
+      cohortRequestAssignment: vi.fn(),
+    });
+    render(<CohortEvidenceConsent />);
+    toggle = await screen.findByRole('checkbox', { name: /collect local aggregate evidence/i });
+    await waitFor(() => expect(toggle).toBeChecked());
+    fireEvent.click(toggle);
+    await waitFor(() => expect(toggle).not.toBeChecked());
+
+    expect({
+      enableAssignmentRefreshes: enableAssignmentStatus.mock.calls.length,
+      enabledSelectorLocked,
+      revokeAssignmentRefreshes: revokeAssignmentStatus.mock.calls.length,
+    }).toEqual({
+      enableAssignmentRefreshes: 2,
+      enabledSelectorLocked: true,
+      revokeAssignmentRefreshes: 2,
+    });
   });
 
   it('keeps the last confirmed choice when an enable or revoke request fails', async () => {
