@@ -818,10 +818,11 @@ describe('MCP pre-publication renderer correlation', () => {
     });
     const read = vi.fn(async () => structuredClone(stored));
     const remove = vi.fn(async (name: string) => {
-      if (name === winner.name) throw new Error(`cleanup rejected: Authorization: ${credential}`);
+      if (name === winner.name)
+        throw Object.assign(new Error(`cleanup rejected: Authorization: ${credential}`), { name: credential });
     });
     const sync = vi.fn(async () => {
-      throw new Error(`publication rejected: Authorization: ${credential}`);
+      throw Object.assign(new Error(`publication rejected: Authorization: ${credential}`), { name: credential });
     });
     bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
     const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
