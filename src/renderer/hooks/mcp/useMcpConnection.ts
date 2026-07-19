@@ -311,7 +311,7 @@ export const useMcpConnection = (
           }
           console.error('MCP publication reconciliation retained fail-closed divergence:', {
             errorCount: rollbackErrors.length,
-            errorTypes: rollbackErrors.map((error) => (error instanceof Error ? error.name : typeof error)),
+            errorTypes: rollbackErrors.map((error) => (error instanceof Error ? 'Error' : typeof error)),
           });
         }
       };
