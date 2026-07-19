@@ -25,6 +25,9 @@ const DEFAULT_OFFICECLI_VERSION = 'v1.0.136';
 const SHASUMS_FILE = path.resolve(__dirname, 'bundled-officecli-shasums.json');
 const OUTPUT_ROOT = path.resolve(__dirname, '../resources/bundled-officecli');
 const CONTRACT_FILE = path.resolve(__dirname, '../contracts/officecli/v1/contract.json');
+const SKILLS_ROOT = path.resolve(__dirname, '../src/process/resources/skills');
+const LEDGER_FILE = path.resolve(__dirname, 'supply-chain/third-party-executables.json');
+const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const DARWIN_PUBLISHER_TEAM_ID = '52JQX2HUSC';
 const DARWIN_ALLOWED_ENTITLEMENTS = ['com.apple.security.cs.allow-jit'];
 
@@ -63,6 +66,32 @@ function loadExpectedSha(version, assetName) {
 
 function computeSha256(filePath) {
   return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+}
+
+function canonical(value) {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
+  if (value !== null && typeof value === 'object') {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function digestValue(value) {
+  return `sha256:${crypto.createHash('sha256').update(canonical(value)).digest('hex')}`;
+}
+
+function assertExactStrings(actual, expected, label) {
+  if (
+    !Array.isArray(actual) ||
+    actual.some((entry) => typeof entry !== 'string' || entry.length === 0) ||
+    new Set(actual).size !== actual.length ||
+    JSON.stringify([...actual].sort()) !== JSON.stringify([...expected].sort())
+  ) {
+    throw new Error(`${label} must exactly equal: ${expected.join(', ')}`);
+  }
 }
 
 function verifyFile(filePath, expectedSha, assetName, version) {
@@ -132,7 +161,150 @@ function verifyDarwinPublisherSignature(binaryPath) {
 }
 
 function loadContract() {
-  return JSON.parse(fs.readFileSync(CONTRACT_FILE, 'utf8'));
+  const contract = JSON.parse(fs.readFileSync(CONTRACT_FILE, 'utf8'));
+  const requiredKeys = [
+    'contract',
+    'major',
+    'minor',
+    'release',
+    'requiredCommands',
+    'requiredFormats',
+    'requiredOperations',
+    'requiredSkills',
+    'requiredElements',
+    'previewCommand',
+  ];
+  if (
+    !contract ||
+    typeof contract !== 'object' ||
+    JSON.stringify(Object.keys(contract).sort()) !== JSON.stringify(requiredKeys.sort()) ||
+    contract.contract !== 'wayland-officecli-authoring' ||
+    contract.major !== 1 ||
+    contract.minor !== 0 ||
+    contract.release !== DEFAULT_OFFICECLI_VERSION ||
+    !contract.requiredElements ||
+    typeof contract.requiredElements !== 'object' ||
+    !Array.isArray(contract.requiredSkills)
+  ) {
+    throw new Error('OfficeCLI authoring contract is malformed or unsupported');
+  }
+  assertExactStrings(contract.requiredFormats, ['docx', 'xlsx', 'pptx'], 'OfficeCLI contract formats');
+  assertExactStrings(
+    contract.requiredOperations,
+    ['create', 'mutate', 'query', 'validate', 'view'],
+    'OfficeCLI contract operations'
+  );
+  assertExactStrings(Object.keys(contract.requiredElements), contract.requiredFormats, 'OfficeCLI element formats');
+  if (!contract.requiredCommands.includes(contract.previewCommand)) {
+    throw new Error('OfficeCLI preview command is not part of the required command set');
+  }
+  return contract;
+}
+
+function verifyBundledSkillDigests(contract = loadContract(), skillsRoot = SKILLS_ROOT) {
+  const declared = contract.requiredSkills.map((skill) => {
+    if (
+      !skill ||
+      typeof skill.id !== 'string' ||
+      typeof skill.path !== 'string' ||
+      !/^sha256:[0-9a-f]{64}$/.test(skill.sha256) ||
+      path.isAbsolute(skill.path) ||
+      skill.path.split(/[\\/]/).includes('..')
+    ) {
+      throw new Error('OfficeCLI skill contract contains a malformed identity');
+    }
+    return skill;
+  });
+  if (new Set(declared.map((skill) => skill.id)).size !== declared.length) {
+    throw new Error('OfficeCLI skill contract contains duplicate ids');
+  }
+  if (new Set(declared.map((skill) => skill.path)).size !== declared.length) {
+    throw new Error('OfficeCLI skill contract contains duplicate paths');
+  }
+
+  const discovered = fs
+    .readdirSync(skillsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && entry.name.startsWith('officecli-'))
+    .map((entry) => `${entry.name}/SKILL.md`);
+  const builtin = '_builtin/office-cli/SKILL.md';
+  if (fs.existsSync(path.join(skillsRoot, builtin))) discovered.push(builtin);
+  assertExactStrings(
+    discovered,
+    declared.map((skill) => skill.path),
+    'OfficeCLI bundled skill paths'
+  );
+
+  const rootReal = fs.realpathSync(skillsRoot);
+  const skills = declared
+    .map((skill) => {
+      const absolute = path.resolve(skillsRoot, skill.path);
+      const real = fs.realpathSync(absolute);
+      if (!real.startsWith(`${rootReal}${path.sep}`) || !fs.statSync(real).isFile()) {
+        throw new Error(`OfficeCLI skill path escapes the canonical skill root: ${skill.path}`);
+      }
+      const actual = `sha256:${computeSha256(real)}`;
+      if (actual !== skill.sha256) throw new Error(`OfficeCLI skill digest mismatch: ${skill.id}`);
+      return { id: skill.id, path: skill.path, sha256: actual };
+    })
+    .sort((left, right) => left.id.localeCompare(right.id));
+  return { contract: 'wayland-officecli-skills/1.0', skills };
+}
+
+function loadOfficeCliLedgerProof() {
+  verifyThirdPartyExecutableLedger();
+  const ledger = JSON.parse(fs.readFileSync(LEDGER_FILE, 'utf8'));
+  const entry = ledger.entries.find((candidate) => candidate.id === 'officecli');
+  if (
+    !entry ||
+    entry.version !== DEFAULT_OFFICECLI_VERSION ||
+    entry.hostedFallback?.available !== false ||
+    entry.hostedFallback?.owner !== null ||
+    entry.hostedFallback?.endpoint !== null ||
+    entry.networkCostConsent?.networkAccess !== false ||
+    entry.networkCostConsent?.mayIncurCost !== false ||
+    entry.networkCostConsent?.required !== false
+  ) {
+    throw new Error('OfficeCLI ledger does not prove an exact local-only executable');
+  }
+  return {
+    contract: ledger.contract,
+    ledgerSha256: digestValue(ledger),
+    entrySha256: digestValue(entry),
+    hostedFallbackAvailable: false,
+  };
+}
+
+function getCapabilityFixtureDigest(contract = loadContract()) {
+  const shasums = JSON.parse(fs.readFileSync(SHASUMS_FILE, 'utf8'))[contract.release];
+  const publisherProofSha256 = 'sha256:70187627656cb6a140ff05ea86682548ca47de196e8aa379152e29eb003b44ff';
+  const platforms = [
+    ['darwin', 'arm64', 'officecli-mac-arm64', publisherProofSha256],
+    ['darwin', 'x64', 'officecli-mac-x64', publisherProofSha256],
+    ['linux', 'arm64', 'officecli-linux-arm64'],
+    ['linux', 'x64', 'officecli-linux-x64'],
+    ['win32', 'arm64', 'officecli-win-arm64.exe'],
+    ['win32', 'x64', 'officecli-win-x64.exe'],
+  ].map(([platform, arch, artifact, publisherProof]) => ({
+    platform,
+    arch,
+    artifact,
+    binarySha256: `sha256:${normalizeSha(shasums[artifact], artifact, contract.release)}`,
+    ...(publisherProof ? { publisherProofSha256: publisherProof } : {}),
+  }));
+  return digestValue({
+    id: 'office.native-authoring',
+    version: contract.release.replace(/^v/, ''),
+    operations: contract.requiredOperations,
+    formats: contract.requiredFormats,
+    dependencies: [],
+    hostAvailability: 'target-bundled',
+    backendSupport: ['acp', 'gemini', 'wcore'],
+    executionMode: 'local-binary',
+    requirements: { permission: 'ask-or-trusted-edits', network: 'none', cost: 'none', credentials: [] },
+    platforms,
+    degradedBehavior: 'unavailable-no-fallback',
+    enforceability: 'enforced',
+  });
 }
 
 function assertContractOutputs(versionOutput, topLevelHelp, formatHelp, watchHelp, contract = loadContract()) {
@@ -142,10 +314,14 @@ function assertContractOutputs(versionOutput, topLevelHelp, formatHelp, watchHel
     throw new Error(`OfficeCLI contract version mismatch: expected ${expectedVersion}, got ${reportedVersion}`);
   }
 
-  for (const command of contract.requiredCommands) {
-    const commandRow = new RegExp(`^\\s{2}${command}(?=\\s|$)`, 'm');
-    if (!commandRow.test(topLevelHelp)) throw new Error(`OfficeCLI contract is missing command: ${command}`);
-  }
+  const helpText = String(topLevelHelp);
+  const commandSection = helpText.includes('Commands:')
+    ? helpText.slice(helpText.indexOf('Commands:') + 'Commands:'.length, helpText.indexOf('Schema Reference'))
+    : helpText;
+  const commandRows = [...commandSection.matchAll(/^ {2}([a-z][a-z0-9-]*)(?=\s|$)/gim)].map((match) =>
+    match[1].toLowerCase()
+  );
+  assertExactStrings(commandRows, contract.requiredCommands, 'OfficeCLI executable commands');
 
   for (const [format, requiredElements] of Object.entries(contract.requiredElements)) {
     const help = String(formatHelp[format] || '');
@@ -532,6 +708,11 @@ function prepareOfficeCli(options = {}) {
   const runtimeKey = `${platform}-${arch}`;
   const targetDir = path.join(OUTPUT_ROOT, runtimeKey);
   const targetBinary = path.join(targetDir, binaryName);
+  const contract = loadContract();
+  const contractSha256 = digestValue(contract);
+  const capabilityFixtureDigest = getCapabilityFixtureDigest(contract);
+  const skillProof = verifyBundledSkillDigests(contract);
+  const ledgerProof = loadOfficeCliLedgerProof();
 
   fs.mkdirSync(targetDir, { recursive: true });
 
@@ -559,6 +740,10 @@ function prepareOfficeCli(options = {}) {
       binary: binaryName,
       sha256: `sha256:${expectedSha}`,
       source: 'verified-cache',
+      contractSha256,
+      capabilityFixtureDigest,
+      skillProof,
+      ledgerProof,
       publisherSignatureProof,
       contractProof,
       smokeProof,
@@ -601,6 +786,10 @@ function prepareOfficeCli(options = {}) {
       binary: binaryName,
       sha256: `sha256:${expectedSha}`,
       source: `https://github.com/${GITHUB_REPO}/releases/download/${version}/${assetName}`,
+      contractSha256,
+      capabilityFixtureDigest,
+      skillProof,
+      ledgerProof,
       publisherSignatureProof,
       contractProof,
       smokeProof,
@@ -624,6 +813,11 @@ module.exports.loadContract = loadContract;
 module.exports.assertContractOutputs = assertContractOutputs;
 module.exports.verifyExecutableContract = verifyExecutableContract;
 module.exports.verifyExecutableSmoke = verifyExecutableSmoke;
+module.exports.canonical = canonical;
+module.exports.digestValue = digestValue;
+module.exports.verifyBundledSkillDigests = verifyBundledSkillDigests;
+module.exports.loadOfficeCliLedgerProof = loadOfficeCliLedgerProof;
+module.exports.getCapabilityFixtureDigest = getCapabilityFixtureDigest;
 
 if (require.main === module) {
   try {

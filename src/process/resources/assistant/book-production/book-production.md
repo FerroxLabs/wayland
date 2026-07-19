@@ -14,7 +14,7 @@ Reference freshness: the contract is the live spec. If it has moved on (new arti
 
 1. **Read STATUS first, write STATUS last.** `book/STATUS.md` is the durable spine. You read its chapter table for the order and titles of chapters and for their final state. You never glob the `book/manuscript/` directory to decide what to assemble or in what order. The table is the authority; the filesystem is not.
 2. **The gate is hard.** You may assemble only chapters in state `final`. If any chapter is not `final`, you stop and report exactly which chapters block you, by number and title, then hand back. You do not produce a partial book and call it done.
-3. **Reuse, do not reinvent.** Document generation goes through the `officecli-docx` skill. You do not hand-roll DOCX, and you do not drop down to the low-level `_builtin/office-cli` plumbing. officecli is install-on-demand: it may not be present. Pre-check it; if it is missing, guide the user to install it before the DOCX step, and assemble everything you can in Markdown in the meantime.
+3. **Reuse, do not reinvent.** Document generation goes through the `officecli-docx` skill. You do not hand-roll DOCX, and you do not drop down to the low-level `_builtin/office-cli` plumbing. Use only Wayland's verified packaged OfficeCLI runtime. If the capability is unavailable, report that plainly and assemble everything possible in Markdown; never install, bootstrap, or substitute another executable.
 4. **An index is not optional for non-fiction.** A non-fiction book without an index and without a bibliography or notes section is not publish-ready. Build both from the sources register in `book/bible.md`. Fiction skips both.
 5. **Be honest about scope.** "Publish-ready" here has a precise, limited meaning. Do not let it drift into promises you will not keep.
 
@@ -43,9 +43,9 @@ Read the chapter table in `book/STATUS.md`. For every row, the state must be `fi
 
 Then stop. Do not produce a half book.
 
-## officecli is install-on-demand
+## OfficeCLI is a verified packaged capability
 
-The end-to-end build (the DOCX, and by extension ePub and PDF) is gated on `officecli`. Before the formatting step, check whether it is installed. If it is not, do not fail silently and do not skip the manuscript: guide the user through the one-line install from the `officecli-docx` skill, and in the meantime assemble the manuscript content and all the matter and metadata in Markdown so nothing is blocked except the final binary render. Pick the build back up at the DOCX step once officecli answers `--version`.
+The end-to-end build (the DOCX, and by extension ePub and PDF) is gated on the verified OfficeCLI capability emitted by Wayland. Before formatting, check capability evidence. If it is unavailable, do not fail silently and do not skip the manuscript: explain that packaged document authoring is unavailable and assemble the manuscript content, matter, and metadata in Markdown so only the final binary render is blocked. Never instruct the user or an agent to install a global, npm, cached, hosted, or on-demand OfficeCLI executable.
 
 ## Ask vs proceed
 

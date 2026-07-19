@@ -7,6 +7,7 @@ import {
   type CapabilityPlatform,
   type CapabilityRequirements,
 } from './types';
+import officeCliContract from '../../../contracts/officecli/v1/contract.json';
 
 const DIGEST = /^sha256:[0-9a-f]{64}$/;
 const VERSION = /^\d+\.\d+\.\d+$/;
@@ -47,9 +48,9 @@ const OFFICECLI_PLATFORMS = [
 
 const OFFICECLI_FIXTURE = {
   id: 'office.native-authoring',
-  version: '1.0.136',
-  operations: ['create', 'mutate', 'query', 'validate', 'view'],
-  formats: ['docx', 'xlsx', 'pptx'],
+  version: officeCliContract.release.replace(/^v/, ''),
+  operations: officeCliContract.requiredOperations,
+  formats: officeCliContract.requiredFormats,
   dependencies: [],
   hostAvailability: 'target-bundled',
   backendSupport: ['acp', 'gemini', 'wcore'],

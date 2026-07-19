@@ -81,7 +81,7 @@ describe('mergePaths', () => {
 });
 
 describe('resolveBundledOfficeCliDir', () => {
-  it('accepts only a runtime containing both the native binary and manifest', async () => {
+  it('rejects existence-only and malformed native runtime claims', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-path-'));
     const runtime = path.join(root, 'bundled-officecli', 'darwin-arm64');
     fs.mkdirSync(runtime, { recursive: true });
@@ -93,7 +93,7 @@ describe('resolveBundledOfficeCliDir', () => {
     expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
 
     fs.writeFileSync(path.join(runtime, 'manifest.json'), '{}');
-    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBe(runtime);
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
     fs.rmSync(root, { recursive: true, force: true });
   });
 
@@ -107,7 +107,7 @@ describe('resolveBundledOfficeCliDir', () => {
     const { resolveBundledOfficeCliDir } = await import('@process/utils/shellEnv');
     expect(resolveBundledOfficeCliDir(root, 'win32', 'x64')).toBeNull();
     fs.writeFileSync(path.join(runtime, 'officecli.exe'), 'binary');
-    expect(resolveBundledOfficeCliDir(root, 'win32', 'x64')).toBe(runtime);
+    expect(resolveBundledOfficeCliDir(root, 'win32', 'x64')).toBeNull();
     fs.rmSync(root, { recursive: true, force: true });
   });
 });
@@ -226,7 +226,7 @@ describe('getEnhancedEnv', () => {
     const result = getEnhancedEnv();
     expect(typeof result.PATH).toBe('string');
     // Spot-check: no undefined string values were injected
-    for (const [k, v] of Object.entries(result)) {
+    for (const [_k, v] of Object.entries(result)) {
       expect(typeof v).toBe('string');
     }
   });

@@ -14,10 +14,14 @@
  */
 
 import { getPlatformServices } from '@/common/platform';
+import { OFFICECLI_CAPABILITY, findCapabilityPlatform } from '@/common/capabilities';
 import { execFile, execFileSync, spawn } from 'child_process';
-import { accessSync, existsSync, readFileSync, readdirSync } from 'fs';
+import { createHash } from 'node:crypto';
+import { accessSync, existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'fs';
 import os from 'os';
 import path from 'path';
+import officeCliContract from '../../../contracts/officecli/v1/contract.json';
+import executableLedger from '../../../scripts/supply-chain/third-party-executables.json';
 
 /** Enable ACP performance diagnostics via ACP_PERF=1 */
 const PERF_LOG = process.env.ACP_PERF === '1';
@@ -106,7 +110,129 @@ export function resolveBundledOfficeCliDir(resourcesRoot: string, platform: stri
   const runtimeDir = path.join(resourcesRoot, 'bundled-officecli', `${platform}-${arch}`);
   const binaryName = platform === 'win32' ? 'officecli.exe' : 'officecli';
   const manifestPath = path.join(runtimeDir, 'manifest.json');
-  return existsSync(path.join(runtimeDir, binaryName)) && existsSync(manifestPath) ? runtimeDir : null;
+  const binaryPath = path.join(runtimeDir, binaryName);
+  try {
+    if (!existsSync(binaryPath) || !existsSync(manifestPath)) return null;
+    if (
+      lstatSync(runtimeDir).isSymbolicLink() ||
+      lstatSync(binaryPath).isSymbolicLink() ||
+      lstatSync(manifestPath).isSymbolicLink()
+    )
+      return null;
+    const rootReal = realpathSync(resourcesRoot);
+    const runtimeReal = realpathSync(runtimeDir);
+    if (!runtimeReal.startsWith(`${rootReal}${path.sep}`)) return null;
+    const target = findCapabilityPlatform(OFFICECLI_CAPABILITY, platform, arch);
+    if (!target) return null;
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+    const manifestKeys = [
+      'contract',
+      'version',
+      'platform',
+      'arch',
+      'asset',
+      'binary',
+      'sha256',
+      'source',
+      'contractSha256',
+      'capabilityFixtureDigest',
+      'skillProof',
+      'ledgerProof',
+      'publisherSignatureProof',
+      'contractProof',
+      'smokeProof',
+    ];
+    const expectedContractSha = `sha256:${createHash('sha256').update(canonicalJson(officeCliContract)).digest('hex')}`;
+    const actualBinarySha = `sha256:${createHash('sha256').update(readFileSync(binaryPath)).digest('hex')}`;
+    const expectedSource = `https://github.com/iOfficeAI/OfficeCLI/releases/download/v${OFFICECLI_CAPABILITY.version}/${target.artifact}`;
+    if (
+      !exactRecordKeys(manifest, manifestKeys, ['reportedVersion', 'libc']) ||
+      manifest.contract !== 'iofficeai-officecli-native' ||
+      manifest.version !== `v${OFFICECLI_CAPABILITY.version}` ||
+      manifest.platform !== platform ||
+      manifest.arch !== arch ||
+      manifest.asset !== target.artifact ||
+      manifest.binary !== binaryName ||
+      manifest.sha256 !== target.binarySha256 ||
+      actualBinarySha !== target.binarySha256 ||
+      manifest.contractSha256 !== expectedContractSha ||
+      manifest.capabilityFixtureDigest !== OFFICECLI_CAPABILITY.fixtureDigest ||
+      (manifest.source !== 'verified-cache' && manifest.source !== expectedSource) ||
+      !validOfficeCliPathProofs(manifest, platform)
+    )
+      return null;
+    return runtimeDir;
+  } catch {
+    return null;
+  }
+}
+
+function exactRecordKeys(
+  value: Record<string, unknown>,
+  required: readonly string[],
+  optional: readonly string[] = []
+) {
+  const allowed = new Set([...required, ...optional]);
+  return required.every((key) => key in value) && Object.keys(value).every((key) => allowed.has(key));
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value !== null && typeof value === 'object') {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .toSorted(([left], [right]) => left.localeCompare(right))
+      .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function validOfficeCliPathProofs(manifest: Record<string, unknown>, platform: string): boolean {
+  const publisher = manifest.publisherSignatureProof;
+  const contractProof = manifest.contractProof;
+  const skillProof = manifest.skillProof;
+  const ledgerProof = manifest.ledgerProof;
+  const officeLedgerEntry = executableLedger.entries.find((entry) => entry.id === 'officecli');
+  const expectedSkills = officeCliContract.requiredSkills
+    .map((skill) => ({ id: skill.id, path: skill.path, sha256: skill.sha256 }))
+    .toSorted((left, right) => left.id.localeCompare(right.id));
+  const expectedLedgerProof = {
+    contract: executableLedger.contract,
+    ledgerSha256: `sha256:${createHash('sha256').update(canonicalJson(executableLedger)).digest('hex')}`,
+    entrySha256: `sha256:${createHash('sha256').update(canonicalJson(officeLedgerEntry)).digest('hex')}`,
+    hostedFallbackAvailable: false,
+  };
+  return (
+    platform === 'darwin' &&
+    publisher !== null &&
+    typeof publisher === 'object' &&
+    exactRecordKeys(publisher as Record<string, unknown>, [
+      'contract',
+      'teamIdentifier',
+      'hardenedRuntime',
+      'secureTimestamp',
+      'entitlements',
+    ]) &&
+    (publisher as Record<string, unknown>).contract === 'apple-developer-id/1.0' &&
+    (publisher as Record<string, unknown>).teamIdentifier === '52JQX2HUSC' &&
+    (publisher as Record<string, unknown>).hardenedRuntime === true &&
+    (publisher as Record<string, unknown>).secureTimestamp === true &&
+    canonicalJson((publisher as Record<string, unknown>).entitlements) ===
+      canonicalJson(['com.apple.security.cs.allow-jit']) &&
+    contractProof !== null &&
+    typeof contractProof === 'object' &&
+    exactRecordKeys(contractProof as Record<string, unknown>, ['contract', 'release']) &&
+    (contractProof as Record<string, unknown>).contract === 'wayland-officecli-authoring/1.0' &&
+    (contractProof as Record<string, unknown>).release === `v${OFFICECLI_CAPABILITY.version}` &&
+    skillProof !== null &&
+    typeof skillProof === 'object' &&
+    exactRecordKeys(skillProof as Record<string, unknown>, ['contract', 'skills']) &&
+    (skillProof as Record<string, unknown>).contract === 'wayland-officecli-skills/1.0' &&
+    canonicalJson((skillProof as Record<string, unknown>).skills) === canonicalJson(expectedSkills) &&
+    ledgerProof !== null &&
+    typeof ledgerProof === 'object' &&
+    canonicalJson(ledgerProof) === canonicalJson(expectedLedgerProof)
+  );
 }
 
 /** Return the native OfficeCLI directory for this dev or packaged runtime. */

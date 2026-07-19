@@ -27,6 +27,9 @@ const prepareOfficeCli = require('../../scripts/prepareOfficeCli') as {
     minor: number;
     release: string;
     requiredCommands: string[];
+    requiredFormats: string[];
+    requiredOperations: string[];
+    requiredSkills: Array<{ id: string; path: string; sha256: string }>;
     requiredElements: Record<string, string[]>;
     previewCommand: string;
   };
@@ -36,6 +39,17 @@ const prepareOfficeCli = require('../../scripts/prepareOfficeCli') as {
     formatHelp: Record<string, string>,
     watchHelp: string
   ): { contract: string; release: string };
+  verifyBundledSkillDigests(
+    contract?: ReturnType<typeof prepareOfficeCli.loadContract>,
+    skillsRoot?: string
+  ): { contract: string; skills: Array<{ id: string; path: string; sha256: string }> };
+  loadOfficeCliLedgerProof(): {
+    contract: string;
+    ledgerSha256: string;
+    entrySha256: string;
+    hostedFallbackAvailable: false;
+  };
+  getCapabilityFixtureDigest(): string;
 };
 
 function collectSkillFiles(directory: string): string[] {
@@ -86,7 +100,7 @@ describe('prepareOfficeCli supply-chain contract', () => {
         formatHelp,
         watchHelp
       )
-    ).toThrow('missing command: query');
+    ).toThrow('must exactly equal');
     expect(() =>
       prepareOfficeCli.assertContractOutputs(
         '1.0.136',
@@ -95,6 +109,48 @@ describe('prepareOfficeCli supply-chain contract', () => {
         watchHelp
       )
     ).toThrow('pptx contract is missing element: notes');
+    expect(() =>
+      prepareOfficeCli.assertContractOutputs('1.0.136', `${topLevelHelp}\n  upload <file>`, formatHelp, watchHelp)
+    ).toThrow('must exactly equal');
+    expect(() =>
+      prepareOfficeCli.assertContractOutputs('1.0.136', `${topLevelHelp}\n  watch <file>`, formatHelp, watchHelp)
+    ).toThrow('must exactly equal');
+  });
+
+  it('binds the exact bundled OfficeCLI skill set, ledger, and capability fixture', () => {
+    const contract = prepareOfficeCli.loadContract();
+    const proof = prepareOfficeCli.verifyBundledSkillDigests(contract);
+    expect(proof.contract).toBe('wayland-officecli-skills/1.0');
+    expect(proof.skills).toHaveLength(contract.requiredSkills.length);
+    expect(proof.skills).toEqual([...proof.skills].toSorted((left, right) => left.id.localeCompare(right.id)));
+    expect(prepareOfficeCli.loadOfficeCliLedgerProof()).toMatchObject({
+      contract: 'wayland-third-party-executables/1.0',
+      hostedFallbackAvailable: false,
+    });
+    expect(prepareOfficeCli.getCapabilityFixtureDigest()).toMatch(/^sha256:[0-9a-f]{64}$/);
+  });
+
+  it('rejects substituted, missing, and unexpected skill files', () => {
+    const contract = prepareOfficeCli.loadContract();
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-skills-'));
+    for (const skill of contract.requiredSkills) {
+      const target = path.join(root, skill.path);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(path.resolve('src/process/resources/skills', skill.path), target);
+    }
+    expect(prepareOfficeCli.verifyBundledSkillDigests(contract, root).skills).toHaveLength(
+      contract.requiredSkills.length
+    );
+    fs.appendFileSync(path.join(root, contract.requiredSkills[0].path), '\ntampered\n');
+    expect(() => prepareOfficeCli.verifyBundledSkillDigests(contract, root)).toThrow('skill digest mismatch');
+    fs.copyFileSync(
+      path.resolve('src/process/resources/skills', contract.requiredSkills[0].path),
+      path.join(root, contract.requiredSkills[0].path)
+    );
+    fs.mkdirSync(path.join(root, 'officecli-attacker'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'officecli-attacker/SKILL.md'), 'attack');
+    expect(() => prepareOfficeCli.verifyBundledSkillDigests(contract, root)).toThrow('must exactly equal');
+    fs.rmSync(root, { recursive: true, force: true });
   });
 
   it('covers every concrete OfficeCLI help element referenced by bundled skills', () => {
