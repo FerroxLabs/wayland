@@ -52,7 +52,9 @@ node .planning/execution/desktop-gsd-next.mjs \
 - Mapped Phase 2-4 construction must use the exact schema-v2 **entry** gate in
   `DESKTOP-GSD-ADMISSION.json`. Both that canonical repository file and the external
   verifier path/digest are pinned; CLI overrides are rejected. The verifier result must identify that gate, report
-  `mode: entry`, prove green prerequisites, and return `accepted_targets: []`.
+  `mode: entry`, prove the exact grouped prerequisite shape (`required`, `alternatives`,
+  and `exclusive_alternatives`) with no unknown or mixed groups, and return
+  `accepted_targets: []`.
 - Acceptance-mode gates cannot admit construction. A non-empty accepted target in an entry
   result is a hard failure, not extra evidence.
 - Unmapped Phase 2-4 construction is denied. Phase 5 and Phase 6 are hard-denied.
@@ -60,6 +62,9 @@ node .planning/execution/desktop-gsd-next.mjs \
   even if someone creates a forged SUMMARY. Checkpoint execution and authentication use
   their dedicated plans and verifier gates.
 - Unrelated incomplete checkpoints do not block dependency-unlocked construction.
+- The mandatory lock, migration, schema, generated, configuration, and execution-authority
+  seam classes must all remain present and nonempty. Removing a seam class is an admission
+  failure, never a way to create more parallel work.
 
 ## Absolute prohibitions
 

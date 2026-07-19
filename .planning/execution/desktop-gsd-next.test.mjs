@@ -70,6 +70,7 @@ function admissionConfig(overrides = {}) {
       schema: ['(^|/)schemas?(/|$)'],
       generated: ['(^|/)generated(/|$)'],
       config: ['(^|/)(package\\.json|tsconfig\\.json)$'],
+      execution_authority: ['(^|/)\\.planning/execution(/|$)'],
     },
     ...overrides,
   }
@@ -282,7 +283,12 @@ test('entry receipts are target-free schema-v2 construction evidence only', () =
     gate_id: 'M2-entry',
     mode: 'entry',
     ok: true,
-    prerequisites: [{ id: 'core', ok: true }],
+    prerequisites: {
+      ok: true,
+      required: [{ id: 'core', ok: true }],
+      alternatives: [],
+      exclusive_alternatives: [],
+    },
     accepted_targets: [],
   }
   assert.deepEqual(validateEntryReceipt({
@@ -300,14 +306,22 @@ test('entry receipts are target-free schema-v2 construction evidence only', () =
     [{ gate_id: 'wrong' }, 'VERIFIER_GATE'],
     [{ mode: 'acceptance' }, 'VERIFIER_MODE'],
     [{ ok: false }, 'ENTRY_PREREQUISITES'],
-    [{ prerequisites: [{ id: 'core', ok: false }] }, 'ENTRY_PREREQUISITES'],
+    [{ prerequisites: { ...good.prerequisites, required: [{ id: 'core', ok: false }] } }, 'ENTRY_PREREQUISITES'],
     [{ prerequisites: [] }, 'ENTRY_PREREQUISITES'],
     [{ prerequisites: { ok: true, required: [], alternatives: [] } }, 'ENTRY_PREREQUISITES'],
     [{
       prerequisites: {
         ok: true,
-        items: [{ id: 'visible', ok: true }],
-        required: [{ id: 'hidden-contradiction', ok: false }],
+        required: [{ id: 'visible', ok: true }],
+        alternatives: [],
+        exclusive_alternatives: [],
+        hidden_claims: [{ id: 'hidden-contradiction', ok: false }],
+      },
+    }, 'ENTRY_PREREQUISITES'],
+    [{
+      prerequisites: {
+        ...good.prerequisites,
+        items: [{ id: 'mixed-representation', ok: true }],
       },
     }, 'ENTRY_PREREQUISITES'],
     [{ accepted_targets: ['desktop'] }, 'ENTRY_TARGETS'],
@@ -324,7 +338,12 @@ test('mapped Phase 2 construction is admitted and unmapped work is denied', () =
     gate_id: gate,
     mode: 'entry',
     ok: true,
-    prerequisites: [{ ok: true }],
+    prerequisites: {
+      ok: true,
+      required: [{ ok: true }],
+      alternatives: [],
+      exclusive_alternatives: [],
+    },
     accepted_targets: [],
   }
   const output = select(root, [plan('02-01')], {
@@ -376,6 +395,14 @@ test('filename directory and frontmatter phase identity must agree', () => {
     '',
   ].join('\n'))
   expectSelectionError(() => discoverPlans(root), 'PHASE_ID_MISMATCH')
+})
+
+test('plan identity requires an integer rather than string coercion', () => {
+  const root = temporaryRoot()
+  writePlan(root, '01-01')
+  const path = join(root, '.planning', 'phases', 'WLD-01-fixture', '01-01-PLAN.md')
+  writeFileSync(path, readFileSync(path, 'utf8').replace('plan: 1', 'plan: [1]'))
+  expectSelectionError(() => discoverPlans(root), 'PLAN_ID_MISMATCH')
 })
 
 test('plan and summary symlinks cannot change selection under an identical HEAD', () => {
@@ -512,7 +539,12 @@ test('operational selection is bound to exact HEAD through verifier completion',
     gate_id: 'M2-entry',
     mode: 'entry',
     ok: true,
-    prerequisites: [{ id: 'core', ok: true }],
+    prerequisites: {
+      ok: true,
+      required: [{ id: 'core', ok: true }],
+      alternatives: [],
+      exclusive_alternatives: [],
+    },
     accepted_targets: [],
   })
   const verifier = writeVerifier(root, [
@@ -608,6 +640,25 @@ test('operational selection rejects every fixture authority injection', () => {
     { fixtureMode: true },
     { admissionPath: join(root, '.planning', 'execution', 'DESKTOP-GSD-ADMISSION.json') },
   ]) expectSelectionError(() => selectNext({ ...base, ...mutation }), 'TEST_AUTHORITY')
+
+  const inherited = Object.assign(Object.create({ skipGitCheck: true }), base)
+  expectSelectionError(() => selectNext(inherited), 'TEST_AUTHORITY')
+})
+
+test('admission requires every mandatory nonempty seam registry class', () => {
+  const root = temporaryRoot()
+  const plans = [plan('01-01')]
+  expectSelectionError(() => select(root, plans, { admission: { seam_patterns: {} } }), 'ADMISSION_SCHEMA')
+  const missingExecution = { ...admissionConfig().seam_patterns }
+  delete missingExecution.execution_authority
+  expectSelectionError(
+    () => select(root, plans, { admission: { seam_patterns: missingExecution } }),
+    'ADMISSION_SCHEMA',
+  )
+  expectSelectionError(
+    () => select(root, plans, { admission: { seam_patterns: { ...admissionConfig().seam_patterns, lock: [] } } }),
+    'ADMISSION_SCHEMA',
+  )
 })
 
 test('symlinked worktree parent cannot resolve inside the integration repository', () => {

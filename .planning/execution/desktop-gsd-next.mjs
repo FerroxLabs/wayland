@@ -141,7 +141,7 @@ export function discoverPlans(repoRoot, options = {}) {
         )
       }
       const phaseNumber = Number(phaseMatch[1])
-      if (String(data.plan).padStart(2, '0') !== match[2]) {
+      if (!Number.isInteger(data.plan) || data.plan !== Number(match[2])) {
         throw new SelectionError('PLAN_ID_MISMATCH', `${source}: plan ID disagrees with filename`)
       }
       if (!Array.isArray(data.depends_on) || !Array.isArray(data.files_modified)) {
@@ -283,6 +283,26 @@ function validateAdmissionConfig(config) {
   if (!Number.isInteger(config.max_parallel_plans) || config.max_parallel_plans < 1 || config.max_parallel_plans > 8) {
     throw new SelectionError('ADMISSION_SCHEMA', 'max_parallel_plans must be an integer from 1 through 8')
   }
+  const mandatorySeams = ['lock', 'migration', 'schema', 'generated', 'config', 'execution_authority']
+  if (!config.seam_patterns || typeof config.seam_patterns !== 'object' || Array.isArray(config.seam_patterns)) {
+    throw new SelectionError('ADMISSION_SCHEMA', 'seam_patterns must be an object')
+  }
+  for (const seam of mandatorySeams) {
+    const patterns = config.seam_patterns[seam]
+    if (!Array.isArray(patterns) || patterns.length === 0 || patterns.some((pattern) => typeof pattern !== 'string' || pattern === '')) {
+      throw new SelectionError('ADMISSION_SCHEMA', `Mandatory seam ${seam} must contain patterns`)
+    }
+  }
+  for (const [seam, patterns] of Object.entries(config.seam_patterns)) {
+    if (!Array.isArray(patterns) || patterns.length === 0 || patterns.some((pattern) => typeof pattern !== 'string' || pattern === '')) {
+      throw new SelectionError('ADMISSION_SCHEMA', `Seam ${seam} must contain patterns`)
+    }
+    try {
+      for (const pattern of patterns) RegExp(pattern, 'i')
+    } catch {
+      throw new SelectionError('ADMISSION_SCHEMA', `Seam ${seam} contains an invalid pattern`)
+    }
+  }
   const verifier = config.verifier
   if (!verifier || typeof verifier !== 'object' || Array.isArray(verifier) ||
       typeof verifier.path !== 'string' || !verifier.path.startsWith('/') ||
@@ -294,17 +314,14 @@ function validateAdmissionConfig(config) {
 }
 
 function everyPrerequisiteGreen(prerequisites) {
-  if (Array.isArray(prerequisites)) {
-    return prerequisites.length > 0 && prerequisites.every((item) => item && item.ok === true)
-  }
-  if (prerequisites && typeof prerequisites === 'object') {
-    if (prerequisites.ok !== true) return false
-    const items = ['items', 'required', 'alternatives', 'exclusive_alternatives']
-      .filter((key) => Array.isArray(prerequisites[key]))
-      .flatMap((key) => prerequisites[key])
-    return items.length > 0 && items.every((item) => item && item.ok === true)
-  }
-  return false
+  if (!prerequisites || typeof prerequisites !== 'object' || Array.isArray(prerequisites)) return false
+  const allowedKeys = new Set(['ok', 'required', 'alternatives', 'exclusive_alternatives'])
+  if (Object.keys(prerequisites).some((key) => !allowedKeys.has(key))) return false
+  if (prerequisites.ok !== true) return false
+  const groupNames = ['required', 'alternatives', 'exclusive_alternatives']
+  if (groupNames.some((key) => !Array.isArray(prerequisites[key]))) return false
+  const items = groupNames.flatMap((key) => prerequisites[key])
+  return items.length > 0 && items.every((item) => item && typeof item === 'object' && !Array.isArray(item) && item.ok === true)
 }
 
 export function validateEntryReceipt(receipt, expectedGate) {
@@ -590,12 +607,23 @@ function selectNextInternal(options) {
 }
 
 export function selectNext(options) {
+  if (!options || typeof options !== 'object' || Array.isArray(options)) {
+    throw new SelectionError('TEST_AUTHORITY', 'Operational selection options must be an object')
+  }
   for (const key of ['skipGitCheck', 'plans', 'verifyGate', 'admissionPath', 'fixtureMode']) {
-    if (Object.hasOwn(options, key)) {
+    if (key in options) {
       throw new SelectionError('TEST_AUTHORITY', `Operational selection forbids ${key}`)
     }
   }
-  return selectNextInternal(options)
+  const allowed = ['repoRoot', 'expectedBranch', 'expectedHead', 'worktreeParent']
+  for (const key of Object.keys(options)) {
+    if (!allowed.includes(key)) throw new SelectionError('TEST_AUTHORITY', `Operational selection forbids ${key}`)
+  }
+  const operationalOptions = Object.create(null)
+  for (const key of allowed) {
+    if (Object.hasOwn(options, key)) operationalOptions[key] = options[key]
+  }
+  return selectNextInternal(operationalOptions)
 }
 
 // Pure scheduling support for hostile unit fixtures. It never emits authenticated
