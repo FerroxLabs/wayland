@@ -4,10 +4,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const COCKPIT_ROLLOUT_STAGES = ['internal-dogfood', 'invited-alpha', 'opt-in-beta', 'default-new'] as const;
+export const COCKPIT_ROLLOUT_STAGES = Object.freeze([
+  'internal-dogfood',
+  'invited-alpha',
+  'opt-in-beta',
+  'default-new',
+] as const);
 export type CockpitRolloutStage = (typeof COCKPIT_ROLLOUT_STAGES)[number];
 
-export const COCKPIT_RETURN_REASONS = [
+export const COCKPIT_RETURN_REASONS = Object.freeze([
   'performance',
   'confusing-navigation',
   'missing-capability',
@@ -15,11 +20,11 @@ export const COCKPIT_RETURN_REASONS = [
   'accessibility',
   'trust-or-control',
   'other-no-text',
-] as const;
+] as const);
 export type CockpitReturnReason = (typeof COCKPIT_RETURN_REASONS)[number];
 
 /** Closed enrollment values accepted by the process-owned cohort classifier. */
-export const COHORT_ASSIGNMENTS = ['novice', 'knowledge-work', 'developer', 'operator'] as const;
+export const COHORT_ASSIGNMENTS = Object.freeze(['novice', 'knowledge-work', 'developer', 'operator'] as const);
 export type CohortAssignment = (typeof COHORT_ASSIGNMENTS)[number];
 
 export type CohortAssignmentStatus = Readonly<{

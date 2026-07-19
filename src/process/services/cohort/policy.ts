@@ -6,20 +6,20 @@
 
 import { M0B_DAY_MS, M0B_OBSERVATION_WINDOW_DAYS, M0B_SCHEMA_VERSION, type M0BBaselineConfig } from './types';
 
-export const M0B_DEFAULT_MINIMUMS: M0BBaselineConfig['minimums'] = {
+export const M0B_DEFAULT_MINIMUMS: M0BBaselineConfig['minimums'] = Object.freeze({
   participantsTotal: 20,
   participantsPerCohort: 5,
   startsPerPrimaryJourney: 10,
-};
+});
 
-export const M0B_DEFAULT_COMPARISON_THRESHOLDS: M0BBaselineConfig['comparisonThresholds'] = {
+export const M0B_DEFAULT_COMPARISON_THRESHOLDS: M0BBaselineConfig['comparisonThresholds'] = Object.freeze({
   maxJourneyFailureRateDelta: 0,
   maxP95LatencyRatio: 1.15,
   minCrashFreeSessionRateDelta: -0.005,
   maxSupportContactsPerParticipantDelta: 0,
   maxAccessibilityViolationsPerSessionDelta: 0,
   maxReturnToClassicRate: 0.1,
-};
+});
 
 export type CreateM0BClassicBaselineConfigInput = {
   appVersion: string;

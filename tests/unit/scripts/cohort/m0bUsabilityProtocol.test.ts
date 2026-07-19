@@ -97,7 +97,9 @@ describe('M0B usability protocol', () => {
   it('rejects executable suffixes after numeric, array, alias, and object literal prefixes', () => {
     const files = [
       'scripts/cohort/verifyM0BUsabilityProtocol.mjs',
+      'scripts/cohort/readM0BRuntimeBindings.ts',
       'contracts/cohort/m0b-usability-protocol.json',
+      'tsconfig.json',
       'src/process/services/cohort/types.ts',
       'src/common/types/cohortRollout.ts',
       'src/process/services/cohort/policy.ts',
@@ -125,8 +127,8 @@ describe('M0B usability protocol', () => {
       },
       {
         file: 'src/process/services/cohort/types.ts',
-        from: "export const M0B_SHELLS = ['classic', 'cockpit'] as const;",
-        to: "export const M0B_SHELLS = ['classic', 'cockpit'].slice(0, 1);",
+        from: "export const M0B_SHELLS = Object.freeze(['classic', 'cockpit'] as const);",
+        to: "export const M0B_SHELLS = Object.freeze(['classic', 'cockpit'].slice(0, 1));",
       },
       {
         file: 'src/process/services/cohort/types.ts',
@@ -135,48 +137,56 @@ describe('M0B usability protocol', () => {
       },
       {
         file: 'src/process/services/cohort/policy.ts',
-        from: '  startsPerPrimaryJourney: 10,\n};',
-        to: '  startsPerPrimaryJourney: 10,\n} && { participantsTotal: 1 };',
+        from: '  startsPerPrimaryJourney: 10,\n});',
+        to: '  startsPerPrimaryJourney: 10,\n}) && Object.freeze({ participantsTotal: 1 });',
       },
       {
         file: 'src/process/services/cohort/policy.ts',
-        from: '  startsPerPrimaryJourney: 10,\n};',
-        to: '  startsPerPrimaryJourney: 10,\n};\nObject.assign(M0B_DEFAULT_MINIMUMS, { participantsTotal: 1 });',
+        from: '  startsPerPrimaryJourney: 10,\n});',
+        to: '  startsPerPrimaryJourney: 10,\n});\nObject.assign(M0B_DEFAULT_MINIMUMS, { participantsTotal: 1 });',
+        frozenNoOp: true,
       },
       {
         file: 'src/process/services/cohort/policy.ts',
-        from: '  startsPerPrimaryJourney: 10,\n};',
-        to: "  startsPerPrimaryJourney: 10,\n};\nM0B_DEFAULT_MINIMUMS['participantsTotal'] = 1;",
+        from: '  startsPerPrimaryJourney: 10,\n});',
+        to: "  startsPerPrimaryJourney: 10,\n});\nM0B_DEFAULT_MINIMUMS['participantsTotal'] = 1;",
+        frozenNoOp: true,
       },
       {
         file: 'src/process/services/cohort/policy.ts',
-        from: '  startsPerPrimaryJourney: 10,\n};',
-        to: "  startsPerPrimaryJourney: 10,\n};\n(M0B_DEFAULT_MINIMUMS as Record<string, number>)['participantsTotal'] = 1;",
+        from: '  startsPerPrimaryJourney: 10,\n});',
+        to: "  startsPerPrimaryJourney: 10,\n});\n(M0B_DEFAULT_MINIMUMS as Record<string, number>)['participantsTotal'] = 1;",
+        frozenNoOp: true,
       },
       {
         file: 'src/process/services/cohort/policy.ts',
-        from: '  startsPerPrimaryJourney: 10,\n};',
-        to: "  startsPerPrimaryJourney: 10,\n};\nconst minimumsAlias = M0B_DEFAULT_MINIMUMS;\nminimumsAlias['participantsTotal'] = 1;",
+        from: '  startsPerPrimaryJourney: 10,\n});',
+        to: "  startsPerPrimaryJourney: 10,\n});\nconst minimumsAlias = M0B_DEFAULT_MINIMUMS;\nminimumsAlias['participantsTotal'] = 1;",
+        frozenNoOp: true,
       },
       {
         file: 'src/process/services/cohort/policy.ts',
-        from: '  startsPerPrimaryJourney: 10,\n};',
-        to: '  startsPerPrimaryJourney: 10,\n};\nconst holder = { value: M0B_DEFAULT_MINIMUMS };\nholder.value.participantsTotal = 1;',
+        from: '  startsPerPrimaryJourney: 10,\n});',
+        to: '  startsPerPrimaryJourney: 10,\n});\nconst holder = { value: M0B_DEFAULT_MINIMUMS };\nholder.value.participantsTotal = 1;',
+        frozenNoOp: true,
       },
       {
         file: 'src/process/services/cohort/policy.ts',
-        from: '  startsPerPrimaryJourney: 10,\n};',
-        to: "  startsPerPrimaryJourney: 10,\n};\nReflect.set(M0B_DEFAULT_MINIMUMS, 'participantsTotal', 1);",
+        from: '  startsPerPrimaryJourney: 10,\n});',
+        to: "  startsPerPrimaryJourney: 10,\n});\nReflect.set(M0B_DEFAULT_MINIMUMS, 'participantsTotal', 1);",
+        frozenNoOp: true,
       },
       {
         file: 'src/process/services/cohort/policy.ts',
-        from: '  startsPerPrimaryJourney: 10,\n};',
-        to: "  startsPerPrimaryJourney: 10,\n};\ndelete M0B_DEFAULT_MINIMUMS['participantsTotal'];",
+        from: '  startsPerPrimaryJourney: 10,\n});',
+        to: "  startsPerPrimaryJourney: 10,\n});\ndelete M0B_DEFAULT_MINIMUMS['participantsTotal'];",
+        frozenNoOp: true,
       },
       {
         file: 'src/process/services/cohort/policy.ts',
-        from: '  startsPerPrimaryJourney: 10,\n};',
-        to: "  startsPerPrimaryJourney: 10,\n};\nfunction alter(value: object) { Reflect.set(value, 'participantsTotal', 1); }\nalter(M0B_DEFAULT_MINIMUMS);",
+        from: '  startsPerPrimaryJourney: 10,\n});',
+        to: "  startsPerPrimaryJourney: 10,\n});\nfunction alter(value: object) { Reflect.set(value, 'participantsTotal', 1); }\nalter(M0B_DEFAULT_MINIMUMS);",
+        frozenNoOp: true,
       },
     ];
 
@@ -194,24 +204,31 @@ describe('M0B usability protocol', () => {
         expect(source).toContain(mutation.from);
         writeFileSync(target, source.replace(mutation.from, mutation.to));
 
+        let runtimeAccepted = false;
         if (mutation.to.startsWith('// export')) {
           expect(readRuntimeBindings(fixtureRoot).dayMs).toBe(1);
+        } else if (mutation.frozenNoOp) {
+          try {
+            expect(readRuntimeBindings(fixtureRoot).minimums.participantsTotal).toBe(20);
+            runtimeAccepted = true;
+          } catch (error) {
+            expect(error).toMatchObject({ code: 'M0B_RUNTIME_EXECUTION' });
+          }
         } else {
-          expect(() => readRuntimeBindings(fixtureRoot), mutation.to).toThrow(/M0B_RUNTIME_SOURCE/);
+          expect(() => readRuntimeBindings(fixtureRoot), mutation.to).toThrow(/M0B_RUNTIME_(?:SOURCE|EXECUTION)/);
         }
 
-        expect(
-          () =>
-            execFileSync(
-              'node',
-              [
-                resolve(fixtureRoot, 'scripts/cohort/verifyM0BUsabilityProtocol.mjs'),
-                resolve(fixtureRoot, 'contracts/cohort/m0b-usability-protocol.json'),
-              ],
-              { stdio: 'pipe' }
-            ),
-          mutation.to
-        ).toThrow();
+        const runCli = () =>
+          execFileSync(
+            'node',
+            [
+              resolve(fixtureRoot, 'scripts/cohort/verifyM0BUsabilityProtocol.mjs'),
+              resolve(fixtureRoot, 'contracts/cohort/m0b-usability-protocol.json'),
+            ],
+            { stdio: 'pipe' }
+          );
+        if (mutation.frozenNoOp && runtimeAccepted) expect(runCli).not.toThrow();
+        else expect(runCli, mutation.to).toThrow();
       } finally {
         rmSync(fixtureRoot, { recursive: true, force: true });
       }
