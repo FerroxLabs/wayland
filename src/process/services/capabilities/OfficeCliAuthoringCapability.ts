@@ -1,5 +1,5 @@
 /** OfficeCLI capability evidence producer. It never decides readiness. */
-import { constants } from 'node:fs';
+import { constants, type Stats } from 'node:fs';
 import { lstat, open, readFile, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import {
@@ -41,7 +41,7 @@ type StablePathIdentity = Readonly<{
   ctimeMs: number;
 }>;
 
-function pathIdentity(stat: Awaited<ReturnType<typeof lstat>>): StablePathIdentity {
+function pathIdentity(stat: Stats): StablePathIdentity {
   return {
     dev: stat.dev,
     ino: stat.ino,
