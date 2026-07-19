@@ -12,7 +12,7 @@ import type { WaylandReleaseTrack } from '@/common/releaseTrack';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
 import { createDriver } from '@process/services/database/drivers/createDriver';
 import { readDatabaseSchemaVersionStrict } from './startupCompatibility';
-import { sealRecoveryFile } from './recoverySealing';
+import { sealRecoveryBytes } from './recoverySealing';
 import {
   assertRecoveryDestinationDisjoint,
   buildRecoveryPoint,
@@ -58,7 +58,7 @@ export type ProductionRecoveryCaptureDependencies = {
     constitutionRoot: string;
   };
   createDatabaseDriver?: typeof createDriver;
-  sealFile?: typeof sealRecoveryFile;
+  sealBytes?: typeof sealRecoveryBytes;
   /** Test-only path fallback; production remains fail-closed without descriptor-relative publication. */
   allowUnsafePathFallbackForTests?: boolean;
 };
@@ -288,7 +288,7 @@ export async function captureProductionRecoveryPoint(
   };
   const { defaultCoreRoot, namedCoreRoot, constitutionRoot } = resolvedCoreRoots;
   const databaseDriverFactory = dependencies.createDatabaseDriver ?? createDriver;
-  const recoverySealer = dependencies.sealFile ?? sealRecoveryFile;
+  const recoverySealer = dependencies.sealBytes ?? sealRecoveryBytes;
   const inventoryInputs = {
     userDataRoot: inputs.userDataRoot,
     constitutionRoot,
@@ -350,7 +350,7 @@ export async function captureProductionRecoveryPoint(
           driver.close();
         }
       },
-      sealFile: recoverySealer,
+      sealBytes: recoverySealer,
       acquireDesktopQuiescence: async () => ({ release: async () => undefined }),
       // Intentionally absent until FerroxLabs/wayland#896 is accepted.
       acquireCoreQuiescence: undefined,

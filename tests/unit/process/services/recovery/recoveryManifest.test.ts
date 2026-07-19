@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  RECOVERY_MANIFEST_FORMAT_VERSION,
   type RecoveryManifest,
   validateRecoveryManifest,
   verifyRecoverySnapshot,
@@ -13,7 +14,7 @@ const sha256 = (value: Buffer | string): string => createHash('sha256').update(v
 
 function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifest {
   return {
-    formatVersion: 2,
+    formatVersion: RECOVERY_MANIFEST_FORMAT_VERSION,
     snapshotId: 'snapshot-fixture-1',
     state: 'complete',
     createdAt: '2026-07-15T00:00:00.000Z',
@@ -294,6 +295,19 @@ describe('recovery manifest validation', () => {
     expect(result.errors).toEqual([]);
     expect(result.warnings.map(({ code }) => code)).toContain('LEGACY_REVISION_AUTHORITY_ABSENT');
     expect(result.warnings.map(({ code }) => code)).toContain('LEGACY_CONSTITUTION_FILESYSTEM_ABSENT');
+  });
+
+  it('accepts an already-written v2 recovery point without reference bindings', () => {
+    const previous = structuredClone(makeManifest()) as unknown as {
+      formatVersion: number;
+      authorities: RecoveryManifest['authorities'];
+    };
+    previous.formatVersion = 2;
+    for (const authority of previous.authorities) delete authority.referenceBindings;
+
+    const result = validateRecoveryManifest(previous);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toEqual([]);
   });
 
   it('rejects omitted authorities and mutation during snapshot creation', () => {

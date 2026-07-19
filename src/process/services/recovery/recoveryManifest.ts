@@ -9,8 +9,9 @@ import { constants, createReadStream, type Stats } from 'node:fs';
 import { lstat, open, realpath } from 'node:fs/promises';
 import path from 'node:path';
 
-export const RECOVERY_MANIFEST_FORMAT_VERSION = 2 as const;
+export const RECOVERY_MANIFEST_FORMAT_VERSION = 3 as const;
 const LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION = 1 as const;
+const PREVIOUS_RECOVERY_MANIFEST_FORMAT_VERSION = 2 as const;
 
 export const REQUIRED_STATE_AUTHORITIES = [
   'desktop.database',
@@ -255,7 +256,7 @@ function validateExternalAuthorityBinding(
   values: unknown[],
   idKey: 'projectId' | 'backendId',
   errors: RecoveryManifestIssue[],
-  legacy: boolean
+  formatVersion: unknown
 ): void {
   const authority = authorityMap.get(authorityId);
   if (!authority) return;
@@ -273,7 +274,9 @@ function validateExternalAuthorityBinding(
       )
     );
   }
-  if (legacy && authority.referenceIds === undefined) return;
+  const isLegacyManifest = formatVersion === LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION;
+  const isPreviousManifest = formatVersion === PREVIOUS_RECOVERY_MANIFEST_FORMAT_VERSION;
+  if (isLegacyManifest && authority.referenceIds === undefined) return;
   if (!Array.isArray(authority.referenceIds) || authority.referenceIds.some((value) => typeof value !== 'string')) {
     errors.push(
       issue(
@@ -296,7 +299,7 @@ function validateExternalAuthorityBinding(
       )
     );
   }
-  if (legacy) return;
+  if (isLegacyManifest) return;
   const expectedBindings = values.flatMap((value) =>
     isRecord(value) &&
     typeof value[idKey] === 'string' &&
@@ -305,6 +308,7 @@ function validateExternalAuthorityBinding(
       ? [{ id: value[idKey] as string, path: value.path, state: value.state }]
       : []
   );
+  if (isPreviousManifest && authority.referenceBindings === undefined) return;
   if (
     !Array.isArray(authority.referenceBindings) ||
     authority.referenceBindings.length !== expectedBindings.length ||
@@ -337,7 +341,8 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
   }
 
   const isLegacyManifest = value.formatVersion === LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION;
-  if (!isLegacyManifest && value.formatVersion !== RECOVERY_MANIFEST_FORMAT_VERSION) {
+  const isPreviousManifest = value.formatVersion === PREVIOUS_RECOVERY_MANIFEST_FORMAT_VERSION;
+  if (!isLegacyManifest && !isPreviousManifest && value.formatVersion !== RECOVERY_MANIFEST_FORMAT_VERSION) {
     errors.push(issue('FORMAT_UNSUPPORTED', 'formatVersion', 'Unsupported recovery manifest format.'));
   }
   if (value.state !== 'complete') {
@@ -893,7 +898,7 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     Array.isArray(value.externalWorkspaces) ? value.externalWorkspaces : [],
     'projectId',
     errors,
-    isLegacyManifest
+    value.formatVersion
   );
   validateExternalAuthorityBinding(
     authorityMap,
@@ -901,7 +906,7 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     Array.isArray(value.externalAgentConfigs) ? value.externalAgentConfigs : [],
     'backendId',
     errors,
-    isLegacyManifest
+    value.formatVersion
   );
 
   return { valid: errors.length === 0, errors, warnings };

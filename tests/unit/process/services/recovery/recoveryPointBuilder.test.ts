@@ -91,8 +91,8 @@ describe('recovery point builder', () => {
       captureSqliteOnline: async (source, destination) => {
         fs.copyFileSync(source, destination);
       },
-      sealFile: async (source, destination) => {
-        fs.writeFileSync(destination, Buffer.concat([Buffer.from('sealed:'), fs.readFileSync(source)]));
+      sealBytes: async (plaintext, destination) => {
+        fs.writeFileSync(destination, Buffer.concat([Buffer.from('sealed:'), plaintext]));
       },
       acquireDesktopQuiescence: async () => ({ release: desktopRelease }),
       acquireCoreQuiescence: async () => ({ release: coreRelease }),
@@ -259,7 +259,7 @@ describe('recovery point builder', () => {
 
   it('does not publish a partial point when sealing fails', async () => {
     const data = await fixture();
-    const deps = dependencies({ sealFile: async () => Promise.reject(new Error('sealer unavailable')) });
+    const deps = dependencies({ sealBytes: async () => Promise.reject(new Error('sealer unavailable')) });
 
     await expect(
       buildRecoveryPoint(
@@ -278,6 +278,60 @@ describe('recovery point builder', () => {
     expect(deps.desktopRelease).toHaveBeenCalledOnce();
   });
 
+  it('preserves the capture error and removes staging when lease cleanup also fails', async () => {
+    const data = await fixture();
+    const desktopRelease = vi.fn(async () => Promise.reject(new Error('lease release unavailable')));
+    const deps = dependencies({
+      sealBytes: async () => Promise.reject(new Error('capture sealing failed')),
+      acquireDesktopQuiescence: async () => ({ release: desktopRelease }),
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('capture sealing failed');
+
+    expect(desktopRelease).toHaveBeenCalledOnce();
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+  });
+
+  it('passes sensitive source bytes directly to the sealer inside private staging', async () => {
+    const data = await fixture();
+    const sealedInputs: Buffer[] = [];
+    const destinations: string[] = [];
+    const deps = dependencies({
+      sealBytes: async (plaintext, destination) => {
+        sealedInputs.push(Buffer.from(plaintext));
+        destinations.push(destination);
+        fs.writeFileSync(destination, Buffer.concat([Buffer.from('sealed:'), plaintext]));
+      },
+    });
+
+    await buildRecoveryPoint(
+      {
+        inventory: data.inventory,
+        destinationRoot: data.destinationRoot,
+        reason: 'recovery-test',
+        sourceAppVersion: '0.11.18',
+        desktopSchemaVersion: 53,
+      },
+      deps.dependencies
+    );
+
+    expect(sealedInputs.some((bytes) => bytes.toString('utf8') === '{"theme":"dark"}')).toBe(true);
+    const canonicalDestinationRoot = fs.realpathSync(data.destinationRoot);
+    expect(destinations.every((destination) => destination.startsWith(canonicalDestinationRoot))).toBe(true);
+    expect(destinations.some((destination) => path.basename(destination).startsWith('source-'))).toBe(false);
+  });
+
   it('seals bytes from the admitted source handle when an authority directory is swapped during sealing', async () => {
     const data = await fixture();
     const configRoot = path.join(data.userDataRoot, 'config');
@@ -287,8 +341,7 @@ describe('recovery point builder', () => {
     fs.writeFileSync(path.join(attackerRoot, 'preferences.json'), 'attacker-controlled');
     let swapped = false;
     const deps = dependencies({
-      sealFile: async (source, destination) => {
-        const bytes = fs.readFileSync(source);
+      sealBytes: async (bytes, destination) => {
         if (!swapped && bytes.toString('utf8') === '{"theme":"dark"}') {
           swapped = true;
           fs.renameSync(configRoot, admittedConfigRoot);
@@ -321,6 +374,43 @@ describe('recovery point builder', () => {
       'sealed:{"theme":"dark"}'
     );
   });
+
+  it.runIf(process.platform === 'linux')(
+    'fails closed when a nested source component is replaced before descriptor-relative open',
+    async () => {
+      const data = await fixture();
+      const constitutionRoot = path.join(data.root, 'constitution-filesystem');
+      const researchPath = path.join(constitutionRoot, 'specialists', 'research.md');
+      const admittedResearchPath = path.join(constitutionRoot, 'specialists', 'research-admitted.md');
+      let replaced = false;
+      const deps = dependencies({
+        allowUnsafePathFallbackForTests: false,
+        beforeSourceEntryOpen: async (relativePath) => {
+          if (!replaced && relativePath === path.join('specialists', 'research.md')) {
+            replaced = true;
+            fs.renameSync(researchPath, admittedResearchPath);
+            fs.writeFileSync(researchPath, '# Replacement overlay');
+          }
+        },
+      });
+
+      await expect(
+        buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot: data.destinationRoot,
+            reason: 'recovery-test',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        )
+      ).rejects.toThrow('identity changed during descendant admission');
+
+      expect(replaced).toBe(true);
+      expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+    }
+  );
 
   it('blocks when an admitted destination ancestor is swapped for a protected-root symlink', async () => {
     const data = await fixture();

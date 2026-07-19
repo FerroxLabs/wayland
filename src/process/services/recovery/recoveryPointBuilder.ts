@@ -7,7 +7,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { constants, createReadStream, type Stats } from 'node:fs';
 import {
-  copyFile,
   type FileHandle,
   lstat,
   mkdir,
@@ -20,7 +19,6 @@ import {
   rm,
   writeFile,
 } from 'node:fs/promises';
-import os from 'node:os';
 import path from 'node:path';
 import { evaluateRecoveryDryRun, type RecoveryDryRun } from './recoveryDryRun';
 import {
@@ -34,15 +32,19 @@ import {
   validateRecoveryManifest,
   verifyRecoverySnapshot,
 } from './recoveryManifest';
-import type { RecoveryInventory, StateAuthorityInventory } from './stateAuthorityInventory';
+import {
+  MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT,
+  type RecoveryInventory,
+  type StateAuthorityInventory,
+} from './stateAuthorityInventory';
 
 export type RecoverySnapshotLease = { release: () => Promise<void> };
 
 export type RecoveryPointBuilderDependencies = {
   /** Produce an application-consistent SQLite backup at destinationPath. */
   captureSqliteOnline: (sourcePath: string, destinationPath: string) => Promise<void>;
-  /** Seal one file into destinationPath. The output must be a regular file. */
-  sealFile: (sourcePath: string, destinationPath: string) => Promise<void>;
+  /** Seal admitted in-memory bytes into destinationPath. The output must be a regular file. */
+  sealBytes: (plaintext: Buffer, destinationPath: string) => Promise<void>;
   acquireDesktopQuiescence: () => Promise<RecoverySnapshotLease>;
   acquireCoreQuiescence?: () => Promise<RecoverySnapshotLease>;
   readMutationEpoch: () => Promise<string>;
@@ -52,6 +54,8 @@ export type RecoveryPointBuilderDependencies = {
   afterDestinationAdmission?: () => Promise<void>;
   /** Test seam used to prove pathname swaps cannot redirect an artifact write. */
   beforeFirstArtifactWrite?: () => Promise<void>;
+  /** Test seam used to prove descendant admission is component-relative. */
+  beforeSourceEntryOpen?: (relativePath: string) => Promise<void>;
   /** Test-only path fallback. Production callers must use descriptor-relative publication. */
   allowUnsafePathFallbackForTests?: boolean;
 };
@@ -99,6 +103,7 @@ type RecoverySourceAdmission = {
   operationRoot: string;
   state: StateAuthorityInventory['evidence'][number]['state'];
   handle?: FileHandle;
+  descriptorRelative: boolean;
 };
 
 function pathsOverlap(left: string, right: string): boolean {
@@ -264,7 +269,7 @@ async function assertRegularFile(filePath: string, label: string): Promise<Stats
   return stat;
 }
 
-async function listContainedFiles(root: string, rootState?: RecoverySourceAdmission['state']): Promise<string[]> {
+async function listUnsafeTestFiles(root: string, rootState?: RecoverySourceAdmission['state']): Promise<string[]> {
   if (rootState === 'file') return [root];
   if (rootState !== 'directory') {
     const stat = await lstat(root);
@@ -290,6 +295,105 @@ async function listContainedFiles(root: string, rootState?: RecoverySourceAdmiss
   return files;
 }
 
+type AdmittedSourceFile = {
+  sourcePath: string;
+  relativePath: string;
+  handle?: FileHandle;
+};
+
+async function visitAdmittedSourceFiles(
+  admission: RecoverySourceAdmission,
+  visitor: (file: AdmittedSourceFile) => Promise<void>,
+  beforeSourceEntryOpen?: (relativePath: string) => Promise<void>
+): Promise<void> {
+  if (!admission.descriptorRelative) {
+    const files = await listUnsafeTestFiles(admission.operationRoot, admission.state);
+    for (const sourcePath of files) {
+      const relativePath =
+        admission.state === 'file'
+          ? path.basename(admission.sourcePath)
+          : relativeSourcePath(admission.operationRoot, sourcePath);
+      // Test-only fallback remains sequential and deliberately cannot authorize production capture.
+      // oxlint-disable-next-line no-await-in-loop
+      await visitor({ sourcePath, relativePath });
+    }
+    return;
+  }
+
+  if (!admission.handle) throw new Error('Descriptor-relative recovery source lost its admitted handle.');
+  if (admission.state === 'file') {
+    await visitor({
+      sourcePath: admission.operationRoot,
+      relativePath: path.basename(admission.sourcePath),
+      handle: admission.handle,
+    });
+    return;
+  }
+
+  let remaining = MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT;
+  const visitDirectory = async (directoryHandle: FileHandle, relativeRoot: string): Promise<void> => {
+    const descriptorRoot = `/proc/self/fd/${directoryHandle.fd}`;
+    const entries = await readdir(descriptorRoot, { withFileTypes: true });
+    entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
+    for (const entry of entries) {
+      if (remaining <= 0) throw new Error('Recovery source traversal exceeded its bounded inventory.');
+      remaining -= 1;
+      const relativePath = path.join(relativeRoot, entry.name);
+      if (entry.isSymbolicLink()) throw new Error(`Recovery source contains a symlink: ${relativePath}`);
+      const candidate = path.join(descriptorRoot, entry.name);
+      // Pin the component identity before the test seam and descriptor-relative open.
+      // oxlint-disable-next-line no-await-in-loop
+      const expected = await lstat(candidate);
+      if (expected.isSymbolicLink()) throw new Error(`Recovery source contains a symlink: ${relativePath}`);
+      // This hook is test-only and runs before the component-relative open.
+      // oxlint-disable-next-line no-await-in-loop
+      await beforeSourceEntryOpen?.(relativePath);
+      const directoryFlag = entry.isDirectory() ? constants.O_DIRECTORY : 0;
+      const nonBlockingFlag = typeof constants.O_NONBLOCK === 'number' ? constants.O_NONBLOCK : 0;
+      let childHandle: FileHandle;
+      try {
+        // Each child is opened relative to its already-admitted parent descriptor.
+        // O_NOFOLLOW protects the final component; parent components are pinned handles.
+        // oxlint-disable-next-line no-await-in-loop
+        childHandle = await open(
+          candidate,
+          constants.O_RDONLY | constants.O_NOFOLLOW | directoryFlag | nonBlockingFlag
+        );
+      } catch (error) {
+        throw new Error(`Recovery source entry could not be admitted safely: ${relativePath}`, { cause: error });
+      }
+      try {
+        // oxlint-disable-next-line no-await-in-loop
+        const [observed, current] = await Promise.all([childHandle.stat(), lstat(candidate)]);
+        if (
+          current.isSymbolicLink() ||
+          observed.dev !== expected.dev ||
+          observed.ino !== expected.ino ||
+          observed.dev !== current.dev ||
+          observed.ino !== current.ino ||
+          (observed.isDirectory() && !current.isDirectory()) ||
+          (observed.isFile() && !current.isFile())
+        ) {
+          throw new Error(`Recovery source identity changed during descendant admission: ${relativePath}`);
+        }
+        if (observed.isDirectory()) {
+          // oxlint-disable-next-line no-await-in-loop
+          await visitDirectory(childHandle, relativePath);
+        } else if (observed.isFile()) {
+          // oxlint-disable-next-line no-await-in-loop
+          await visitor({ sourcePath: candidate, relativePath, handle: childHandle });
+        } else {
+          throw new Error(`Recovery source has an unsupported entry: ${relativePath}`);
+        }
+      } finally {
+        // oxlint-disable-next-line no-await-in-loop
+        await childHandle.close();
+      }
+    }
+  };
+  await visitDirectory(admission.handle, '');
+}
+
 async function admitRecoverySource(
   evidence: StateAuthorityInventory['evidence'][number],
   allowUnsafePathFallbackForTests: boolean
@@ -302,7 +406,12 @@ async function admitRecoverySource(
     if (!unsafeTestFallback) {
       throw new Error('Recovery source capture requires descriptor-relative filesystem support.');
     }
-    return { sourcePath: evidence.path, operationRoot: evidence.path, state: evidence.state };
+    return {
+      sourcePath: evidence.path,
+      operationRoot: evidence.path,
+      state: evidence.state,
+      descriptorRelative: false,
+    };
   }
 
   const expected = await lstat(evidence.path);
@@ -320,6 +429,7 @@ async function admitRecoverySource(
       operationRoot: `/proc/self/fd/${handle.fd}`,
       state: evidence.state,
       handle,
+      descriptorRelative: true,
     };
   } catch (error) {
     await handle.close();
@@ -423,8 +533,7 @@ async function addCapturedFile(options: {
   restorePath: string;
   logicalRole?: string;
   stagingRoot: string;
-  transientRoot: string;
-  sealFile: RecoveryPointBuilderDependencies['sealFile'];
+  sealBytes: RecoveryPointBuilderDependencies['sealBytes'];
   capturedSnapshotPaths: Set<string>;
   ordinal: number;
   assertDestinationStable: () => Promise<void>;
@@ -436,18 +545,17 @@ async function addCapturedFile(options: {
     sourcePath,
     relativePath,
     stagingRoot,
-    sealFile,
+    sealBytes,
     capturedSnapshotPaths,
     ordinal,
     assertDestinationStable,
     beforeArtifactWrite,
-    transientRoot,
     sourceHandle,
   } = options;
   const sourceStat = sourceHandle ? await sourceHandle.stat() : await assertRegularFile(sourcePath, 'Recovery source');
   const noFollow = typeof constants.O_NOFOLLOW === 'number' ? constants.O_NOFOLLOW : 0;
   const openedSourceHandle = sourceHandle ?? (await open(sourcePath, constants.O_RDONLY | noFollow));
-  const stableSourcePath = path.join(transientRoot, `source-${randomUUID()}`);
+  let sourceBytes: Buffer | undefined;
   try {
     const handleStat = await openedSourceHandle.stat();
     const currentStat = sourceHandle ? handleStat : await lstat(sourcePath);
@@ -460,43 +568,55 @@ async function addCapturedFile(options: {
     ) {
       throw new Error(`Recovery source identity changed before capture: ${sourcePath}`);
     }
-    await writeFile(stableSourcePath, await openedSourceHandle.readFile(), { flag: 'wx', mode: 0o600 });
+    sourceBytes = await openedSourceHandle.readFile();
+    const afterReadStat = await openedSourceHandle.stat();
+    if (
+      sourceBytes.length !== handleStat.size ||
+      afterReadStat.dev !== handleStat.dev ||
+      afterReadStat.ino !== handleStat.ino ||
+      afterReadStat.size !== handleStat.size ||
+      afterReadStat.mtimeMs !== handleStat.mtimeMs
+    ) {
+      throw new Error(`Recovery source changed while it was read: ${sourcePath}`);
+    }
+
+    const encrypted = authority.sensitive;
+    const suffix = encrypted ? '.sealed' : '';
+    const snapshotPath =
+      path.posix.join('state', safeSegment(authority.id), ...relativePath.split(path.sep).map(safeSegment)) + suffix;
+    if (capturedSnapshotPaths.has(snapshotPath)) {
+      throw new Error(`Recovery sources collide at snapshot path: ${snapshotPath}`);
+    }
+    capturedSnapshotPaths.add(snapshotPath);
+    const destinationPath = path.join(stagingRoot, ...snapshotPath.split('/'));
+    await assertDestinationStable();
+    await mkdir(path.dirname(destinationPath), { recursive: true });
+    await assertDestinationStable();
+    await beforeArtifactWrite?.();
+    await assertDestinationStable();
+    if (encrypted) await sealBytes(sourceBytes, destinationPath);
+    else await writeFile(destinationPath, sourceBytes, { flag: 'wx', mode: 0o600 });
+    await assertDestinationStable();
+    const snapshotStat = await assertRegularFile(destinationPath, 'Recovery artifact');
+
+    return {
+      id: `${safeSegment(authority.id)}-${ordinal}`,
+      authority: authority.id,
+      logicalRole: options.logicalRole ?? relativePath.replaceAll(path.sep, '/'),
+      sourcePath: options.manifestSourcePath ?? sourcePath,
+      snapshotPath,
+      restorePath: options.restorePath,
+      size: snapshotStat.size,
+      mtimeMs: sourceStat.mtimeMs,
+      sha256: await sha256File(destinationPath),
+      sensitive: authority.sensitive,
+      copyPolicy: encrypted ? 'encrypted-copy' : 'copied',
+      state: 'complete',
+    };
   } finally {
+    if (authority.sensitive) sourceBytes?.fill(0);
     if (!sourceHandle) await openedSourceHandle.close();
   }
-  const encrypted = authority.sensitive;
-  const suffix = encrypted ? '.sealed' : '';
-  const snapshotPath =
-    path.posix.join('state', safeSegment(authority.id), ...relativePath.split(path.sep).map(safeSegment)) + suffix;
-  if (capturedSnapshotPaths.has(snapshotPath)) {
-    throw new Error(`Recovery sources collide at snapshot path: ${snapshotPath}`);
-  }
-  capturedSnapshotPaths.add(snapshotPath);
-  const destinationPath = path.join(stagingRoot, ...snapshotPath.split('/'));
-  await assertDestinationStable();
-  await mkdir(path.dirname(destinationPath), { recursive: true });
-  await assertDestinationStable();
-  await beforeArtifactWrite?.();
-  await assertDestinationStable();
-  if (encrypted) await sealFile(stableSourcePath, destinationPath);
-  else await copyFile(stableSourcePath, destinationPath, constants.COPYFILE_EXCL);
-  await assertDestinationStable();
-  const snapshotStat = await assertRegularFile(destinationPath, 'Recovery artifact');
-
-  return {
-    id: `${safeSegment(authority.id)}-${ordinal}`,
-    authority: authority.id,
-    logicalRole: options.logicalRole ?? relativePath.replaceAll(path.sep, '/'),
-    sourcePath: options.manifestSourcePath ?? sourcePath,
-    snapshotPath,
-    restorePath: options.restorePath,
-    size: snapshotStat.size,
-    mtimeMs: sourceStat.mtimeMs,
-    sha256: await sha256File(destinationPath),
-    sensitive: authority.sensitive,
-    copyPolicy: encrypted ? 'encrypted-copy' : 'copied',
-    state: 'complete',
-  };
 }
 
 function logicalStatus(
@@ -565,6 +685,7 @@ export async function buildRecoveryPoint(
   let mutationStart = '';
   let mutationEnd = '';
   let artifactWriteHook = dependencies.beforeFirstArtifactWrite;
+  let primaryError: unknown;
 
   try {
     await dependencies.afterDestinationAdmission?.();
@@ -577,7 +698,8 @@ export async function buildRecoveryPoint(
     }
     stagingRoot = await mkdtemp(path.join(destinationRoot, `.${snapshotId}.incomplete-`));
     await assertRecoveryDestinationStable(destinationAdmission);
-    transientRoot = await mkdtemp(path.join(os.tmpdir(), `wayland-recovery-${snapshotId}-`));
+    transientRoot = path.join(stagingRoot, '.transient');
+    await mkdir(transientRoot, { mode: 0o700 });
     desktopLease = await dependencies.acquireDesktopQuiescence();
     if (corePresent) coreLease = await dependencies.acquireCoreQuiescence!();
     for (const authorityPlan of dryRun.authorities) {
@@ -619,8 +741,7 @@ export async function buildRecoveryPoint(
             restorePath: 'desktop/database/wayland.db',
             logicalRole: 'desktop SQLite online backup',
             stagingRoot,
-            transientRoot,
-            sealFile: dependencies.sealFile,
+            sealBytes: dependencies.sealBytes,
             capturedSnapshotPaths,
             ordinal: 0,
             assertDestinationStable: () => assertRecoveryDestinationStable(destinationAdmission),
@@ -633,52 +754,55 @@ export async function buildRecoveryPoint(
               : undefined,
           })
         );
+        // Authorities are captured serially under one mutation epoch.
+        // oxlint-disable-next-line no-await-in-loop
+        await rm(transientRoot, { recursive: true, force: true });
+        transientRoot = undefined;
       } else {
         let ordinal = 0;
         for (const [evidenceIndex, evidence] of authority.evidence.entries()) {
           if (evidence.state === 'absent') continue;
           const admission = sourceAdmissions.get(`${authority.id}\0${evidenceIndex}`);
           if (!admission) throw new Error(`Recovery source admission disappeared: ${authority.id}/${evidenceIndex}`);
+          // Descriptor-relative traversal opens and consumes each descendant while its parent handle is pinned.
           // oxlint-disable-next-line no-await-in-loop
-          const files = await listContainedFiles(admission.operationRoot, admission.state);
-          for (const filePath of files) {
-            const relativePath =
-              evidence.state === 'file'
-                ? path.basename(evidence.path)
-                : relativeSourcePath(admission.operationRoot, filePath);
-            const manifestFilePath = evidence.state === 'file' ? evidence.path : path.join(evidence.path, relativePath);
-            if (!authorityOwnsFile(authority.id, evidence.path, evidence.state, manifestFilePath)) continue;
-            captured.push(
-              // oxlint-disable-next-line no-await-in-loop
-              await addCapturedFile({
-                authority,
-                sourcePath: filePath,
-                manifestSourcePath: manifestFilePath,
-                relativePath: `${evidenceIndex}-${relativePath}`,
-                restorePath: recoveryRestorePath(
-                  authority.id,
-                  evidence.path,
-                  evidence.state,
-                  manifestFilePath,
-                  evidence.authorityRelativePath
-                ),
-                stagingRoot,
-                transientRoot,
-                sealFile: dependencies.sealFile,
-                capturedSnapshotPaths,
-                ordinal: ordinal++,
-                sourceHandle: evidence.state === 'file' ? admission.handle : undefined,
-                assertDestinationStable: () => assertRecoveryDestinationStable(destinationAdmission),
-                beforeArtifactWrite: artifactWriteHook
-                  ? async () => {
-                      const hook = artifactWriteHook;
-                      artifactWriteHook = undefined;
-                      await hook?.();
-                    }
-                  : undefined,
-              })
-            );
-          }
+          await visitAdmittedSourceFiles(
+            admission,
+            async ({ sourcePath, relativePath, handle }) => {
+              const manifestFilePath =
+                evidence.state === 'file' ? evidence.path : path.join(evidence.path, relativePath);
+              if (!authorityOwnsFile(authority.id, evidence.path, evidence.state, manifestFilePath)) return;
+              captured.push(
+                await addCapturedFile({
+                  authority,
+                  sourcePath,
+                  manifestSourcePath: manifestFilePath,
+                  relativePath: `${evidenceIndex}-${relativePath}`,
+                  restorePath: recoveryRestorePath(
+                    authority.id,
+                    evidence.path,
+                    evidence.state,
+                    manifestFilePath,
+                    evidence.authorityRelativePath
+                  ),
+                  stagingRoot,
+                  sealBytes: dependencies.sealBytes,
+                  capturedSnapshotPaths,
+                  ordinal: ordinal++,
+                  sourceHandle: handle,
+                  assertDestinationStable: () => assertRecoveryDestinationStable(destinationAdmission),
+                  beforeArtifactWrite: artifactWriteHook
+                    ? async () => {
+                        const hook = artifactWriteHook;
+                        artifactWriteHook = undefined;
+                        await hook?.();
+                      }
+                    : undefined,
+                })
+              );
+            },
+            dependencies.beforeSourceEntryOpen
+          );
         }
       }
       authorityFiles.set(authority.id, captured);
@@ -800,18 +924,47 @@ export async function buildRecoveryPoint(
       manifest,
       dryRun,
     };
+  } catch (error) {
+    primaryError = error;
+    throw error;
   } finally {
-    if (coreLease) await coreLease.release();
-    if (desktopLease) await desktopLease.release();
-    if (transientRoot) await rm(transientRoot, { recursive: true, force: true });
-    await Promise.all(
-      [...sourceAdmissions.values()]
-        .map(({ handle }) => handle)
-        .filter((handle): handle is FileHandle => handle !== undefined)
-        .map((handle) => handle.close())
+    const cleanupFailures: Error[] = [];
+    const cleanup = async (label: string, action: (() => Promise<void>) | undefined): Promise<void> => {
+      if (!action) return;
+      try {
+        await action();
+      } catch (error) {
+        cleanupFailures.push(new Error(`Recovery cleanup failed for ${label}.`, { cause: error }));
+      }
+    };
+    await cleanup('Core quiescence lease', coreLease ? () => coreLease.release() : undefined);
+    await cleanup('Desktop quiescence lease', desktopLease ? () => desktopLease.release() : undefined);
+    await cleanup(
+      'transient capture state',
+      transientRoot ? () => rm(transientRoot, { recursive: true, force: true }) : undefined
     );
-    if (stagingRoot) await rm(stagingRoot, { recursive: true, force: true });
-    if (!published) await rm(finalRoot, { recursive: true, force: true });
-    await destinationAdmission.handle.close();
+    const sourceHandles = [...sourceAdmissions.values()]
+      .map(({ handle }) => handle)
+      .filter((handle): handle is FileHandle => handle !== undefined);
+    const sourceHandleResults = await Promise.allSettled(sourceHandles.map((handle) => handle.close()));
+    for (const result of sourceHandleResults) {
+      if (result.status === 'rejected') {
+        cleanupFailures.push(
+          new Error('Recovery cleanup failed for an admitted source handle.', { cause: result.reason })
+        );
+      }
+    }
+    await cleanup('staging output', stagingRoot ? () => rm(stagingRoot, { recursive: true, force: true }) : undefined);
+    await cleanup(
+      'unpublished final output',
+      !published ? () => rm(finalRoot, { recursive: true, force: true }) : undefined
+    );
+    await cleanup('destination handle', () => destinationAdmission.handle.close());
+    if (primaryError === undefined && cleanupFailures.length > 0) {
+      // The guarded throw cannot replace primary control flow; it only reports cleanup failure after an otherwise
+      // successful build.
+      // oxlint-disable-next-line no-unsafe-finally
+      throw new AggregateError(cleanupFailures, 'Recovery point cleanup did not complete.');
+    }
   }
 }

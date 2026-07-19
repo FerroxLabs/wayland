@@ -277,8 +277,8 @@ describe('Desktop-only production capture boundary', () => {
           constitutionRoot: path.join(root, 'absent-constitution'),
         }),
         createDatabaseDriver: async (databasePath) => productionDriver(databasePath, () => opened.push(databasePath)),
-        sealFile: async (sourcePath, outputPath) => {
-          await fs.promises.writeFile(outputPath, Buffer.concat([Buffer.from('sealed:'), fs.readFileSync(sourcePath)]));
+        sealBytes: async (plaintext, outputPath) => {
+          await fs.promises.writeFile(outputPath, Buffer.concat([Buffer.from('sealed:'), plaintext]));
         },
         allowUnsafePathFallbackForTests: true,
       }
@@ -324,7 +324,7 @@ describe('Desktop-only production capture boundary', () => {
                 fs.writeFileSync(path.join(userDataRoot, 'late-unknown', 'state.json'), '{}');
               }
             }),
-          sealFile: async () => undefined,
+          sealBytes: async () => undefined,
           allowUnsafePathFallbackForTests: true,
         }
       )
@@ -361,8 +361,8 @@ describe('Desktop-only production capture boundary', () => {
             constitutionRoot: path.join(root, 'absent-constitution'),
           }),
           createDatabaseDriver: async (databasePath) => productionDriver(databasePath),
-          sealFile: async (sourcePath, outputPath) => {
-            await fs.promises.copyFile(sourcePath, outputPath);
+          sealBytes: async (plaintext, outputPath) => {
+            await fs.promises.writeFile(outputPath, plaintext);
             if (!injected) {
               injected = true;
               fs.mkdirSync(path.join(userDataRoot, 'late-after-quiescence'));
@@ -406,7 +406,7 @@ describe('Desktop-only production capture boundary', () => {
             constitutionRoot: path.join(root, 'absent-constitution'),
           }),
           createDatabaseDriver: async (databasePath) => productionDriver(databasePath, driverOpened),
-          sealFile: async () => undefined,
+          sealBytes: async () => undefined,
         }
       )
     ).rejects.toThrow('UNKNOWN_AUTHORITY_ROOT');

@@ -60,6 +60,17 @@ describe('recovery file sealing', () => {
     expect(await readFile(data.restored, 'utf8')).toBe('sensitive-recovery-state');
   });
 
+  it('seals admitted bytes without requiring a plaintext source path', async () => {
+    const data = await fixture();
+    const sealer = createRecoveryFileSealer(authenticatedBackend());
+    await rm(data.source);
+
+    await sealer.sealBytes(Buffer.from('descriptor-admitted-state'), data.sealed);
+    expect(await readFile(data.sealed, 'utf8')).not.toContain('descriptor-admitted-state');
+    await sealer.unsealFile(data.sealed, data.restored);
+    expect(await readFile(data.restored, 'utf8')).toBe('descriptor-admitted-state');
+  });
+
   it('fails closed when the OS credential store is unavailable', async () => {
     const data = await fixture();
     const sealer = createRecoveryFileSealer(authenticatedBackend(false));
