@@ -18,9 +18,13 @@ acceptance, merge, release, or deployment authority.
    stale HEAD, dependency ambiguity, or shared seam returns nonzero or a serialized tail.
    Execute `next_commands` as the emitted executable plus argument array; never concatenate
    or evaluate it as shell source.
-   Plans and completion summaries must be tracked regular files; symlinked planning evidence
-   is rejected even when Git reports an unchanged HEAD. Proposed worktree parents are
-   resolved through existing symlinks and must remain outside the integration repository.
+   Admission configuration, plans, and completion summaries are read from the asserted Git
+   tree as tracked regular files, and repository/branch/HEAD/cleanliness are revalidated after
+   selection. Symlinked planning evidence and mutable working-tree substitutions cannot
+   influence an operational result. Proposed worktree parents and external ownership roots
+   are resolved through existing symlinks and must remain outside their forbidden boundaries.
+   The selector emits no more than three candidates per pass; additional otherwise-safe work
+   is serialized behind the configured concurrency limit.
 3. Manually create exactly one named clean worktree from the declared HEAD for each selected
    plan. Codex generic agents do not create or bind worktrees automatically.
 4. Bind one builder to that exact worktree and one PLAN. The builder may own only the paths

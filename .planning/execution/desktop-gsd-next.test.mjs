@@ -56,6 +56,7 @@ function admissionConfig(overrides = {}) {
     },
     plan_entry_gates: {},
     hard_denied_phase_numbers: [5, 6],
+    max_parallel_plans: 3,
     verifier: {
       path: '/Users/seandonahoe/.local/bin/wayland-gsd-gate',
       digest: 'sha256:5d0bade731431ca1d6d440ab27680ea8d46daaba4a5982b16c8f12c6be9f2398',
@@ -255,6 +256,11 @@ test('shared lock schema config generated migration and named authority seams se
     assert.equal(output.candidate_plans.length, 1)
     assert.ok(output.serialized_after[0].conflicts.some((conflict) => conflict.reason === expected))
   }
+  const caseInsensitive = select(root, [
+    plan('01-01', { files: ['PACKAGE-LOCK.JSON'] }),
+    plan('01-02', { files: ['nested/package-lock.json'] }),
+  ])
+  assert.ok(caseInsensitive.serialized_after[0].conflicts.some((conflict) => conflict.reason === 'seam:lock'))
   const output = select(root, [
     plan('01-01', { authoritySeams: ['receipt-authority'] }),
     plan('01-02', { authoritySeams: ['receipt-authority'] }),
@@ -279,6 +285,15 @@ test('entry receipts are target-free schema-v2 construction evidence only', () =
     prerequisites: [{ id: 'core', ok: true }],
     accepted_targets: [],
   }
+  assert.deepEqual(validateEntryReceipt({
+    ...good,
+    prerequisites: {
+      ok: true,
+      required: [{ id: 'required', ok: true }],
+      alternatives: [],
+      exclusive_alternatives: [],
+    },
+  }, 'M2-entry').accepted_targets, [])
   assert.deepEqual(validateEntryReceipt(good, 'M2-entry').accepted_targets, [])
   for (const [mutation, code] of [
     [{ schema_version: 1 }, 'VERIFIER_VERSION'],
@@ -447,6 +462,19 @@ test('allowlisted external ownership remains conflict-safe when installation pla
   assert.match(output.serialized_after[0].conflicts[0].reason, /^path:/)
 })
 
+test('external ownership allowlists use canonical containment through symlinks', () => {
+  const root = temporaryRoot()
+  const externalRoot = temporaryRoot()
+  const outsideRoot = temporaryRoot()
+  symlinkSync(outsideRoot, join(externalRoot, 'escape'))
+  expectSelectionError(
+    () => select(root, [plan('01-01', { files: [join(externalRoot, 'escape', 'tool')] })], {
+      admission: { external_ownership_roots: [externalRoot] },
+    }),
+    'UNSAFE_OWNERSHIP_PATH',
+  )
+})
+
 test('filesystem root cannot become a universal external ownership allowlist', () => {
   const root = temporaryRoot()
   expectSelectionError(
@@ -473,6 +501,45 @@ test('wrong repository branch HEAD and dirty state fail before selection', () =>
   expectSelectionError(() => selectNext({ ...base, expectedHead: '0'.repeat(40) }), 'STALE_HEAD')
   writeFileSync(join(root, 'dirty.txt'), 'dirty')
   expectSelectionError(() => selectNext(base), 'DIRTY_TREE')
+})
+
+test('operational selection is bound to exact HEAD through verifier completion', () => {
+  const root = temporaryRoot()
+  writePlan(root, '02-01')
+  const planPath = join(root, '.planning', 'phases', 'WLD-02-fixture', '02-01-PLAN.md')
+  const receipt = JSON.stringify({
+    schema_version: 2,
+    gate_id: 'M2-entry',
+    mode: 'entry',
+    ok: true,
+    prerequisites: [{ id: 'core', ok: true }],
+    accepted_targets: [],
+  })
+  const verifier = writeVerifier(root, [
+    "import { appendFileSync } from 'node:fs'",
+    `appendFileSync(${JSON.stringify(planPath)}, '\\nmutation-after-head-check\\n')`,
+    `process.stdout.write(${JSON.stringify(receipt)})`,
+  ].join('\n'))
+  writeAdmission(root, {
+    plan_entry_gates: { '02-01': 'M2-entry' },
+    verifier,
+  })
+  const git = initializeGit(root)
+  expectSelectionError(() => selectNext({
+    repoRoot: root,
+    expectedBranch: 'test-branch',
+    expectedHead: git.head,
+  }), 'DIRTY_TREE')
+})
+
+test('candidate selection obeys the configured concurrency bound', () => {
+  const root = temporaryRoot()
+  const output = select(root, [plan('01-01'), plan('01-02'), plan('01-03'), plan('01-04')])
+  assert.deepEqual(output.candidate_plans.map((item) => item.plan_id), ['01-01', '01-02', '01-03'])
+  assert.deepEqual(output.serialized_after.at(-1), {
+    plan_id: '01-04',
+    conflicts: [{ with: null, reason: 'concurrency-limit:3' }],
+  })
 })
 
 test('CLI pass and failure are byte-for-byte read-only', () => {

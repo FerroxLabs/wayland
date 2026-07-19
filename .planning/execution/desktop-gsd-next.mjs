@@ -47,7 +47,7 @@ function normalizeExternalRoot(path) {
   if (normalized === '/') {
     throw new SelectionError('ADMISSION_SCHEMA', 'The filesystem root cannot be an external ownership root')
   }
-  return normalized.replace(/\/$/, '')
+  return canonicalProspectivePath(normalized).replace(/\/$/, '')
 }
 
 function regularFileExists(path, code, label) {
@@ -74,10 +74,15 @@ function canonicalOwnedPath(path, allowedExternalRoots = []) {
     throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `Ownership path escapes the repository: ${path}`)
   }
   if (absolute) {
-    const allowed = allowedExternalRoots.some((root) => normalized === root || normalized.startsWith(`${root}/`))
+    if (!normalized.startsWith('/')) {
+      throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `External ownership path is not supported on this host: ${path}`)
+    }
+    const canonical = canonicalProspectivePath(normalized)
+    const allowed = allowedExternalRoots.some((root) => canonical === root || canonical.startsWith(`${root}/`))
     if (!allowed) {
       throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `External ownership path is not allowlisted: ${path}`)
     }
+    return canonical.replace(/\/$/, '')
   }
   return normalized.replace(/\/$/, '')
 }
@@ -95,14 +100,37 @@ function listPhaseDirectories(phasesRoot) {
 export function discoverPlans(repoRoot, options = {}) {
   const phasesRoot = join(repoRoot, '.planning', 'phases')
   const plans = []
-  for (const phaseDir of listPhaseDirectories(phasesRoot)) {
-    for (const name of readdirSync(phaseDir).toSorted()) {
+  const gitPaths = options.gitHead
+    ? new Set(gitTreePaths(repoRoot, options.gitHead, '.planning/phases'))
+    : null
+  const entries = gitPaths
+    ? [...gitPaths]
+      .filter((source) => {
+        const parts = source.split('/')
+        return parts.length === 4 && parts[0] === '.planning' && parts[1] === 'phases' && PLAN_RE.test(parts[3])
+      })
+      .map((source) => ({
+        phaseDir: join(repoRoot, dirname(source)),
+        name: basename(source),
+        path: join(repoRoot, source),
+        source,
+      }))
+      .toSorted((a, b) => a.source.localeCompare(b.source))
+    : listPhaseDirectories(phasesRoot).flatMap((phaseDir) =>
+      readdirSync(phaseDir).toSorted().filter((name) => PLAN_RE.test(name)).map((name) => ({
+        phaseDir,
+        name,
+        path: join(phaseDir, name),
+        source: relative(repoRoot, join(phaseDir, name)),
+      })),
+    )
+
+  for (const { phaseDir, name, path, source } of entries) {
       const match = name.match(PLAN_RE)
-      if (!match) continue
-      const path = join(phaseDir, name)
-      const source = relative(repoRoot, path)
-      regularFileExists(path, 'PLAN_IDENTITY', 'Plan')
-      const data = frontmatter(readFileSync(path, 'utf8'), source)
+      const text = options.gitHead
+        ? readGitRegularFile(repoRoot, options.gitHead, source, 'PLAN_IDENTITY', 'Plan')
+        : (regularFileExists(path, 'PLAN_IDENTITY', 'Plan'), readFileSync(path, 'utf8'))
+      const data = frontmatter(text, source)
       const id = `${match[1]}-${match[2]}`
       const phaseName = basename(phaseDir)
       const phaseMatch = phaseName.match(/^WLD-(\d{2})(?:-|$)/)
@@ -147,7 +175,13 @@ export function discoverPlans(repoRoot, options = {}) {
         throw new SelectionError('MALFORMED_PLAN', `${source}: authority seams must be unique`)
       }
       const summaryPath = join(phaseDir, `${id}-SUMMARY.md`)
-      const complete = regularFileExists(summaryPath, 'SUMMARY_IDENTITY', 'Summary')
+      const summarySource = relative(repoRoot, summaryPath)
+      const complete = gitPaths
+        ? gitPaths.has(summarySource)
+        : regularFileExists(summaryPath, 'SUMMARY_IDENTITY', 'Summary')
+      if (complete && options.gitHead) {
+        readGitRegularFile(repoRoot, options.gitHead, summarySource, 'SUMMARY_IDENTITY', 'Summary')
+      }
       plans.push({
         id,
         phaseNumber,
@@ -160,7 +194,6 @@ export function discoverPlans(repoRoot, options = {}) {
         summaryPath: relative(repoRoot, summaryPath),
         complete,
       })
-    }
   }
   const ids = new Set()
   for (const plan of plans) {
@@ -203,7 +236,7 @@ export function computeEffectiveWaves(plans) {
 function compileSeams(config) {
   const compiled = []
   for (const [name, patterns] of Object.entries(config.seam_patterns ?? {})) {
-    for (const pattern of patterns) compiled.push({ name, regex: new RegExp(pattern) })
+    for (const pattern of patterns) compiled.push({ name, regex: new RegExp(pattern, 'i') })
   }
   return compiled
 }
@@ -247,6 +280,9 @@ function validateAdmissionConfig(config) {
     throw new SelectionError('ADMISSION_SCHEMA', 'external_ownership_roots must be an array')
   }
   config.external_ownership_roots = config.external_ownership_roots.map(normalizeExternalRoot)
+  if (!Number.isInteger(config.max_parallel_plans) || config.max_parallel_plans < 1 || config.max_parallel_plans > 8) {
+    throw new SelectionError('ADMISSION_SCHEMA', 'max_parallel_plans must be an integer from 1 through 8')
+  }
   const verifier = config.verifier
   if (!verifier || typeof verifier !== 'object' || Array.isArray(verifier) ||
       typeof verifier.path !== 'string' || !verifier.path.startsWith('/') ||
@@ -263,13 +299,10 @@ function everyPrerequisiteGreen(prerequisites) {
   }
   if (prerequisites && typeof prerequisites === 'object') {
     if (prerequisites.ok !== true) return false
-    const groupNames = ['items', 'required', 'alternatives', 'exclusive_alternatives']
-    const presentGroups = groupNames
+    const items = ['items', 'required', 'alternatives', 'exclusive_alternatives']
       .filter((key) => Array.isArray(prerequisites[key]))
-    if (presentGroups.length === 0) return false
-    return presentGroups.every((key) =>
-      prerequisites[key].length > 0 && prerequisites[key].every((item) => item && item.ok === true),
-    )
+      .flatMap((key) => prerequisites[key])
+    return items.length > 0 && items.every((item) => item && item.ok === true)
   }
   return false
 }
@@ -350,6 +383,27 @@ function canonicalProspectivePath(path) {
   return resolve(realpathSync(cursor), ...missing)
 }
 
+function gitTreePaths(repoRoot, head, prefix) {
+  return execFileSync('git', ['ls-tree', '-r', '--name-only', head, '--', prefix], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  }).split('\n').filter(Boolean)
+}
+
+function readGitRegularFile(repoRoot, head, source, code, label) {
+  const entry = execFileSync('git', ['ls-tree', head, '--', source], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  }).trim()
+  if (!/^100(?:644|755) blob [0-9a-f]{40,64}\t/.test(entry)) {
+    throw new SelectionError(code, `${label} must be a regular file in ${head}: ${source}`)
+  }
+  return execFileSync('git', ['show', `${head}:${source}`], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  })
+}
+
 export function gitIdentity(repoRoot) {
   const run = (...args) => execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).trim()
   return {
@@ -426,7 +480,16 @@ function selectNextInternal(options) {
   if (actualAdmissionPath !== canonicalAdmissionPath) {
     throw new SelectionError('ADMISSION_IDENTITY', 'Admission configuration must be the canonical repository file')
   }
-  const admission = JSON.parse(readFileSync(actualAdmissionPath, 'utf8'))
+  const admissionText = options.skipGitCheck
+    ? readFileSync(actualAdmissionPath, 'utf8')
+    : readGitRegularFile(
+      repoRoot,
+      options.expectedHead,
+      '.planning/execution/DESKTOP-GSD-ADMISSION.json',
+      'ADMISSION_IDENTITY',
+      'Admission configuration',
+    )
+  const admission = JSON.parse(admissionText)
   validateAdmissionConfig(admission)
   if (options.verifyGate && !options.skipGitCheck) {
     throw new SelectionError('VERIFIER_IDENTITY', 'Verifier injection is forbidden for operational selection')
@@ -435,7 +498,10 @@ function selectNextInternal(options) {
     throw new SelectionError('PLAN_IDENTITY', 'Plan injection is forbidden for operational selection')
   }
   const allowedExternalRoots = admission.external_ownership_roots
-  const discoveredPlans = options.plans ?? discoverPlans(repoRoot, { allowedExternalRoots })
+  const discoveredPlans = options.plans ?? discoverPlans(repoRoot, {
+    allowedExternalRoots,
+    gitHead: options.skipGitCheck ? undefined : options.expectedHead,
+  })
   const plans = discoveredPlans.map((plan) => Object.assign({}, plan, {
     files: plan.files.map((ownedPath) => canonicalOwnedPath(ownedPath, allowedExternalRoots)),
   }))
@@ -461,6 +527,13 @@ function selectNextInternal(options) {
   const selected = []
   const serialized = []
   for (const plan of eligible.toSorted((a, b) => a.effectiveWave - b.effectiveWave || a.id.localeCompare(b.id))) {
+    if (selected.length >= admission.max_parallel_plans) {
+      serialized.push({
+        plan_id: plan.id,
+        conflicts: [{ with: null, reason: `concurrency-limit:${admission.max_parallel_plans}` }],
+      })
+      continue
+    }
     const conflicts = selected.flatMap((other) =>
       pairConflicts(plan, other, seamPatterns, allowedExternalRoots).map((reason) => ({ with: other.id, reason })),
     )
@@ -475,6 +548,13 @@ function selectNextInternal(options) {
   const worktreeParent = canonicalProspectivePath(options.worktreeParent ?? dirname(repoRoot))
   if (worktreeParent === repoRoot || worktreeParent.startsWith(`${repoRoot}/`)) {
     throw new SelectionError('WORKTREE_PARENT', 'Worktree parent must be outside the integration worktree')
+  }
+  if (!options.skipGitCheck) {
+    assertGitIdentity(gitIdentity(repoRoot), {
+      repoRoot,
+      branch: options.expectedBranch,
+      head: options.expectedHead,
+    })
   }
   const operational = options.fixtureMode !== true
   return {

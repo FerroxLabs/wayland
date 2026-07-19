@@ -19,6 +19,7 @@
   ],
   "plan_entry_gates": {},
   "hard_denied_phase_numbers": [5, 6],
+  "max_parallel_plans": 3,
   "seam_patterns": {
     "lock": [
       "(^|/)(bun\\.lockb?|package-lock\\.json|pnpm-lock\\.yaml|yarn\\.lock|Cargo\\.lock|poetry\\.lock)$"
