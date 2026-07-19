@@ -1,0 +1,12 @@
+implementation_commit=77687d43d996fbffc934fdba348639afea519e4a
+implementation_tree=0d5bec955c0fda8a923c296c186fdbd8311dc75f
+command=GSD_RUNTIME=codex bun run test
+exit=0
+vitest_files=1434 passed, 21 skipped (1455)
+vitest_tests=15207 passed, 145 skipped (15352)
+vitest_duration=132.03s
+bun_native=228 pass, 0 fail, 710 expect calls across 31 files
+bun_native_duration=4.80s
+known_non_failing_output=jsdom canvas, EventEmitter listener-count, and nested vi.mock hoisting warnings
+redaction=ephemeral test-generated password values were not retained
+

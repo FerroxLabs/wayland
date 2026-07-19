@@ -8,6 +8,8 @@ provides:
   - Preservation-first managed-workspace classification
   - Installation-bound encrypted workspace-creation provenance
   - Terminating-process leases retained until shutdown settles
+  - Identity-bound shutdown retry after transient termination failure
+  - Durable, restart-replayed post-commit channel cleanup intents
   - Read-only managed-workspace inventory projection
   - Conversation deletion proof that managed workspace bytes remain unchanged
 affects: [WLD-01-safety-foundation, managed-workspaces, conversation-deletion]
@@ -18,8 +20,12 @@ key-files:
   created:
     - src/common/types/managedWorkspaceRetention.ts
     - src/process/services/managedWorkspaceProvenance.ts
+    - src/process/channels/core/ConversationChannelCleanup.ts
+    - src/process/services/database/conversationChannelCleanupIntent.ts
+    - src/process/services/database/conversationChannelCleanupIntent.bun.test.ts
     - tests/unit/WorkerTaskManager.workspaceRetention.test.ts
     - tests/unit/conversationBridge.workspaceRetention.test.ts
+    - tests/unit/ConversationChannelCleanup.test.ts
     - tests/unit/managedWorkspaceProvenance.test.ts
   modified:
     - src/process/agent/acp/utils.ts
@@ -27,9 +33,15 @@ key-files:
     - src/process/services/managedWorkspaceInventory.ts
     - src/process/services/desktopManagedWorkspaceInventory.ts
     - src/process/bridge/conversationBridge.ts
+    - src/process/channels/core/ChannelManager.ts
+    - src/process/channels/core/SessionManager.ts
     - src/process/bridge/workspaceRetentionBridge.ts
     - src/process/task/AcpAgentManager.ts
     - src/process/task/WorkerTaskManager.ts
+    - src/process/services/database/index.ts
+    - src/process/services/database/migrations.ts
+    - src/process/services/database/schema.ts
+    - src/process/services/database/types.ts
     - src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx
     - tests/unit/workspaceRetention.test.ts
     - tests/unit/managedWorkspaceInventory.test.ts
@@ -42,6 +54,9 @@ key-decisions:
   - 'Filename grammar is discovery only; provenance comes from an encrypted installation-bound creation ledger.'
   - 'Without a portable immutable filesystem snapshot, empty-looking shells remain preserved and unknown.'
   - 'A terminating agent remains active authority until shutdown resolves; failed shutdown retains the lease and chat.'
+  - 'A failed termination attempt releases only operation ownership; the exact lease and terminal successor-refusal gate remain available for verified retry.'
+  - 'Conversation deletion atomically captures channel session identities and commit-time source before foreign keys can erase the lookup.'
+  - 'Post-commit channel cleanup is idempotent, durably retried, replayed after restart, and retired only after all captured identities complete.'
   - 'Callback-time same-ID successors are refused and drained to a fixed point before removal can report success.'
   - 'Failed taskkill or POSIX process-tree enumeration cannot mint backend-exit proof.'
   - 'Renderer IPC accepts no path, root, classification, mutation, legacy alias, or unknown input.'
@@ -77,13 +92,24 @@ coverage:
     requirement: SAF-04
     verification:
       - kind: integration
-        ref: 'GSD_RUNTIME=codex bun run test after rollback repair (15,202 Vitest + 226 Bun-native pass)'
+        ref: 'GSD_RUNTIME=codex bun run test after durable-cleanup repair (15,207 Vitest + 228 Bun-native pass)'
         status: pass
       - kind: unit
-        ref: 'repair additions introduce no lint findings; initAgent retains 11 baseline no-await-in-loop warnings and 0 errors; typecheck and scoped oxfmt pass'
+        ref: 'repair scope remains baseline-neutral at 74 lint warnings and 0 errors; typecheck and scoped oxfmt pass'
         status: pass
     human_judgment: false
-duration: 3h 30m
+  - id: D4
+    description: 'Committed conversation deletion retains enough identity to finish external-channel cleanup after throws, crashes, restarts, and source races.'
+    requirement: SAF-04
+    verification:
+      - kind: unit
+        ref: 'hostile coordinator, bridge, and WorkerTaskManager retry suites pass'
+        status: pass
+      - kind: integration
+        ref: 'Bun-native SQLite close/reopen and transaction rollback proof passes'
+        status: pass
+    human_judgment: false
+duration: 4h
 completed: 2026-07-20
 status: successor-built-pending-independent-audit
 ---
@@ -94,10 +120,10 @@ status: successor-built-pending-independent-audit
 
 ## Performance
 
-- **Duration:** approximately 3.5 hours including four successor audits, repair, and aggregate proof
+- **Duration:** approximately 4 hours including five successor audits, repair, and aggregate proof
 - **Completed:** 2026-07-20
 - **Tasks:** 3
-- **Files owned:** 58
+- **Files owned:** 69
 
 ## Accomplishments
 
@@ -115,6 +141,9 @@ status: successor-built-pending-independent-audit
 - Prevented background wiki synthesis from treating the launch working directory as user-authorized project context, eliminating generated `.ijfw` state from aggregate proof.
 - Preserved the 1,001-entry Mission Control reachability proof while removing its repeated full-accessibility-tree timeout failure under aggregate load.
 - Deferred irreversible external-channel cleanup until after durable conversation deletion commits, so a failed shutdown or database delete cannot retain a chat after destroying its channel resources.
+- Made that post-commit cleanup a durable idempotent transaction intent, captured before `ON DELETE SET NULL`, retried after throws, and replayed on ChannelManager restart.
+- Moved cleanup eligibility to the transaction's commit-time source so a stale pre-gate source snapshot cannot suppress required cleanup.
+- Preserved the exact terminating lease and fail-closed successor gate after a transient kill failure while allowing a later identity-bound attempt to obtain real exit proof.
 
 ## Task Commits
 
@@ -124,12 +153,15 @@ status: successor-built-pending-independent-audit
 4. **Successor shutdown-proof repair:** `1037c0b82f2c6a7829a4d3b9c36e6279b1db8ee8`
 5. **Alias, creation-identity, parser, and deterministic-test repair:** `6d4176d14d91b0c13bbe85d91c6324f617748377`
 6. **External-channel rollback repair:** `0b43c3609956d3538e2c0e7275febf5e84652958`
+7. **Durable cleanup and shutdown-retry repair:** `77687d43d996fbffc934fdba348639afea519e4a`
 
 **Rejected predecessor:** `0b98288b02e0b65b260c7b3b1670bd5ea5b68419`
 
-**Repaired implementation candidate:** `0b43c3609956d3538e2c0e7275febf5e84652958`
+**Superseded repair candidate:** `0b43c3609956d3538e2c0e7275febf5e84652958` (evidence commit `0001046836e8d9e2c93fd4c1c225cfa112783f61`)
 
-**Aggregate-proved source tree:** `5a53433ff6ff471b71946cbb2d97178e20aa8bd5`
+**Repaired implementation candidate:** `77687d43d996fbffc934fdba348639afea519e4a`
+
+**Aggregate-proved source tree:** `0d5bec955c0fda8a923c296c186fdbd8311dc75f`
 
 **Acceptance state:** pending independent successor re-audit; no acceptance claim is made here.
 
@@ -139,10 +171,13 @@ status: successor-built-pending-independent-audit
 - A review candidate remains informational: it is not a deletion, pruning, or quarantine instruction.
 - Current Node filesystem observation cannot safely establish an immutable empty-directory snapshot, so current candidates remain preserved.
 - The preview IPC accepts no renderer request object because the main process owns the canonical workspace root and classification evidence.
+- The database transaction, not a bridge snapshot, is authoritative for channel-cleanup eligibility and captured session identity.
+- Cleanup is at-least-once until durable retirement; repeated external context clear and absent local sessions are treated idempotently.
+- A failed kill does not authorize a successor or discard the original lease, but it does permit a later shutdown attempt against that same identity.
 
 ## Deviations from Plan
 
-The independent audits reopened the plan four times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, and post-commit external-channel cleanup ordering. These changes enforce the plan's authority boundary without expanding lifecycle authority.
+The independent audits reopened the plan five times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, post-commit external-channel cleanup ordering, durable restart replay, transaction-authoritative cleanup identity, and identity-bound shutdown retry. These changes enforce the plan's authority boundary without expanding lifecycle authority.
 
 ## Issues Encountered
 
@@ -154,23 +189,24 @@ Managed-workspace lifecycle mutation (quarantine, restore, keep, delete, prune) 
 
 ## Self-Check
 
-BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed 238 focused tests, typecheck, scoped formatting, 15,202 Vitest tests, and 226 Bun-native tests. New repair lines introduced no lint findings; `initAgent.ts` retains 11 baseline `no-await-in-loop` warnings and zero errors. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
+BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed 243 focused Vitest tests, 2 focused Bun-native hostile tests, typecheck, scoped formatting, 15,207 aggregate Vitest tests, and 228 aggregate Bun-native tests. Scoped lint remained exactly baseline-neutral at 74 warnings and zero errors; the three new linted files introduced no findings. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
 
 ## Retained Construction Evidence
 
-The retained logs are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r3-0b43c360/`. Ephemeral test-generated password values in the aggregate log are replaced with `[REDACTED]`; all result lines and warnings are retained.
+The SHA-bound receipts are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r4-77687d43/`. Ephemeral test-generated password values were not retained; aggregate counts and known warnings are recorded. These are builder receipts, not independent acceptance evidence.
 
-| Receipt | SHA-256 |
-|---|---|
-| `01-focused-vitest.log` | `51111836384634bb675fea182309fc7aee1aed1dfd577d132a895f86a410a9ac` |
-| `02-typecheck.log` | `c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5` |
-| `03-scoped-lint.log` | `5d36849f53bc0d527a2b6042063eabbc5f0bcb234df9187f82d031f6eb236525` |
-| `04-scoped-format.log` | `ce74892a50259be576c24aedc1e0dd4eeea6ac09efda981ebd8c79bc9e8d9f82` |
-| `05-full-aggregate.log` | `8c797d82468f4aad9556cabf5ed68364c193f4f5b203f305ddf768b654d9ee17` |
-| `06-invariants.log` | `963c3032b9552c41e9b216afca35ef4dfe79d672d598a74335cc302db1f5cc58` |
+| Receipt                     | SHA-256                                                            |
+| --------------------------- | ------------------------------------------------------------------ |
+| `01-focused-vitest.log`     | `a2902e820e9686a89e0f87222dbc1098532536fe34bf9620c71fb7d64afaa653` |
+| `02-bun-native-intent.log`  | `75a82baaf6dd6c2c14473c989e3ce60b696a5379af1c5c538a5078eae299456c` |
+| `03-typecheck.log`          | `849bf63f0ed898b23fdd7279ca2ee17a2ca4988c61a759351bfee1f1108d0f8d` |
+| `04-scoped-lint.log`        | `8c520931e84f7437276ea73c1429836f468b455f2ab9cc4910e53e099ce3bfaa` |
+| `05-scoped-format-diff.log` | `7f1b8646fa49c7be343eddce06e8092b80fb194ceeb9888e53494ed39edbf26c` |
+| `06-full-aggregate.log`     | `ecdc2b1a8b3a538377c1427c4523f58e43f0eb158c3d9addc98bdc14b339dd6d` |
+| `07-invariants.log`         | `1098c197f0fee6a454a1a52ba1886b18d61ebbc8bb4c95a0a1aed850cefcb502` |
 
 ---
 
 _Phase: WLD-01-safety-foundation_  
 _Plan: 08_  
-_Completed: 2026-07-19_
+_Completed: 2026-07-20_
