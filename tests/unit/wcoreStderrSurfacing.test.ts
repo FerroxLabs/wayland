@@ -553,6 +553,33 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(restore).toHaveBeenCalledOnce();
   });
 
+  it('fails a post-crash turn immediately while retaining the exited child for tree proof', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+    const agent = new WCoreAgent(baseOptions());
+    const started = agent.start();
+    await flushUntilSpawned(child);
+
+    const contractRoot = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
+    child.stdout.write(`${readFileSync(path.join(contractRoot, 'events/ready.json'), 'utf8').trimEnd()}\n`);
+    await started;
+    child.emit('exit', 1);
+
+    let sendError: unknown;
+    try {
+      await agent.send('do not silently drop this turn', 'post-crash-turn');
+    } catch (error) {
+      sendError = error;
+    } finally {
+      await agent.kill();
+    }
+
+    expect(sendError).toBeInstanceOf(Error);
+    expect((sendError as Error).message).toContain('exited');
+    expect(killChildMock).toHaveBeenCalledOnce();
+    expect(killChildMock).toHaveBeenCalledWith(child, false);
+  });
+
   it('serializes concurrent shutdown after an unrequested root exit onto one exact proof', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
