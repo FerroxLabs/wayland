@@ -45,10 +45,7 @@ import type { IMcpServer } from '@/common/config/storage';
 import * as os from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
-import {
-  isServerActiveForSession,
-  shouldInjectSessionMcpServer,
-} from '@process/agent/acp/mcpSessionConfig';
+import { isServerActiveForSession, shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
 import { validateMcpServer } from '@process/services/mcpServices/validateMcpServer';
 import { addMessage, addOrUpdateMessage, nextTickToLocalFinish } from '@process/utils/message';
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
@@ -681,9 +678,7 @@ ${collectedResponses.join('\n')}`;
     for (const server of servers) {
       if (server.transport.type !== 'http' && server.transport.type !== 'streamable_http') continue;
       const headers = server.transport.headers ?? {};
-      const authorization = Object.entries(headers).find(
-        ([header]) => header.toLowerCase() === 'authorization'
-      )?.[1];
+      const authorization = Object.entries(headers).find(([header]) => header.toLowerCase() === 'authorization')?.[1];
       const bearer = authorization ? /^Bearer\s+(.+)$/i.exec(authorization.trim())?.[1] : undefined;
       if (bearer) env[codexMcpBearerEnvVar(server.name)] = bearer;
       for (const [header, value] of Object.entries(headers)) {
@@ -1644,7 +1639,8 @@ ${collectedResponses.join('\n')}`;
           allowConciergeDiag: isConciergeAssistant(data.presetAssistantId) || isConciergeAssistant(data.customAgentId),
           // Forward team MCP stdio config so AcpAgent.loadBuiltinSessionMcpServers() can inject it
           teamMcpStdioConfig: (data as unknown as Record<string, unknown>).teamMcpStdioConfig as
-            { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> } | undefined,
+            | { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> }
+            | undefined,
         },
         onSessionIdUpdate: (sessionId: string) => {
           // Save ACP session ID to database for resume support
@@ -2599,20 +2595,18 @@ ${collectedResponses.join('\n')}`;
    * kills the immediate worker, leaving the CLI process running as an orphan.
    *
    * Solution: Call agent.kill() first, which triggers AcpConnection.disconnect()
-   * → ChildProcess.kill(). We add a grace period for the process to exit
-   * cleanly before calling super.kill() to tear down the worker.
+   * → killChild(). Only after that promise proves the backend exited do we tear
+   * down the worker.
    *
-   * A hard timeout ensures we don't hang forever if agent.kill() gets stuck.
-   * An idempotent doKill() guard prevents double super.kill() when the hard
-   * timeout and graceful path race against each other.
+   * A hard timeout still tears down the worker, but rejects the shutdown. That
+   * rejection is intentional: lifecycle callers must retain their active lease
+   * and durable conversation reference when backend exit was not proved.
    */
-  kill(_reason?: AgentKillReason): Promise<void> {
+  async kill(_reason?: AgentKillReason): Promise<void> {
     this.flushBufferedStreamTextMessages();
     this.flushThinkingToDb(undefined, 'done');
 
-    let killed = false;
-    const GRACE_PERIOD_MS = 500; // Allow child process time to exit cleanly
-    const HARD_TIMEOUT_MS = 1500; // Force kill if agent.kill() hangs
+    const BACKEND_SHUTDOWN_TIMEOUT_MS = 12_000;
 
     // Clear pending slash command waiters to prevent memory leaks
     const waiters = this.acpAvailableSlashWaiters.splice(0, this.acpAvailableSlashWaiters.length);
@@ -2621,29 +2615,31 @@ ${collectedResponses.join('\n')}`;
     }
     this.acpAvailableSlashCommands = [];
 
-    // Resolved when super.kill() (the underlying worker teardown) has actually
-    // completed, regardless of whether we got there via grace path or hard
-    // timeout. AUDIT-05 F20 / M18: callers (WorkerTaskManager.clear) await this.
-    return new Promise<void>((resolveOuter) => {
-      const doKill = () => {
-        if (killed) return;
-        killed = true;
-        clearTimeout(hardTimer);
-        // super.kill() is now async (ForkTask M18); await it before resolving.
-        void Promise.resolve(super.kill()).finally(resolveOuter);
-      };
-
-      // Hard fallback: force kill after timeout regardless
-      const hardTimer = setTimeout(doKill, HARD_TIMEOUT_MS);
-
-      // Graceful path: agent.kill → grace period → super.kill
-      void (this.agent?.kill?.() || Promise.resolve())
-        .catch((err) => {
-          mainWarn('[AcpAgentManager]', 'agent.kill() failed during kill', err);
-        })
-        .then(() => new Promise<void>((r) => setTimeout(r, GRACE_PERIOD_MS)))
-        .finally(doKill);
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const backendShutdown = this.agent?.kill?.() ?? Promise.resolve();
+    const timeoutFailure = new Promise<never>((_, reject) => {
+      timeout = setTimeout(
+        () => reject(new Error(`ACP backend shutdown timed out after ${BACKEND_SHUTDOWN_TIMEOUT_MS}ms`)),
+        BACKEND_SHUTDOWN_TIMEOUT_MS
+      );
     });
+
+    try {
+      await Promise.race([backendShutdown, timeoutFailure]);
+    } catch (error) {
+      // Stop the immediate worker even when backend proof fails, but propagate
+      // the failure so conversation removal cannot sever durable state.
+      try {
+        await super.kill();
+      } catch (workerError) {
+        mainWarn('[AcpAgentManager]', 'worker teardown also failed during backend shutdown', workerError);
+      }
+      throw error;
+    } finally {
+      if (timeout) clearTimeout(timeout);
+    }
+
+    await super.kill();
   }
 
   /**

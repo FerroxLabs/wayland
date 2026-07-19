@@ -34,6 +34,7 @@ export async function waitForProcessExit(pid: number, timeoutMs: number): Promis
     if (!isProcessAlive(pid)) {
       return;
     }
+    // oxlint-disable-next-line no-await-in-loop -- bounded polling must observe process exit sequentially
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 }
@@ -54,6 +55,10 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
       await execFile('taskkill', ['/PID', String(pid), '/T', '/F'], { windowsHide: true, timeout: 5000 });
     } catch (forceError) {
       console.warn(`[ACP] taskkill /T /F failed for PID ${pid}:`, decodeWindowsError(forceError));
+    }
+    await waitForProcessExit(pid, 2000);
+    if (isProcessAlive(pid)) {
+      throw new Error(`ACP process ${pid} is still alive after taskkill`);
     }
     return;
   }
@@ -90,18 +95,27 @@ export async function killChild(child: ChildProcess, isDetached: boolean, sigter
       }
       await waitForProcessExit(pid, 2000);
     }
+    if (isProcessAlive(pid)) {
+      throw new Error(`ACP process ${pid} is still alive after SIGKILL escalation`);
+    }
   }
 
   // Force-kill any descendants that survived (escaped the process group)
-  for (const dpid of descendantPids) {
-    try {
-      if (isProcessAlive(dpid)) {
-        process.kill(dpid, 'SIGKILL');
+  await Promise.all(
+    descendantPids.map(async (dpid) => {
+      try {
+        if (isProcessAlive(dpid)) {
+          process.kill(dpid, 'SIGKILL');
+        }
+      } catch {
+        // Already exited
       }
-    } catch {
-      // Already exited
-    }
-  }
+      await waitForProcessExit(dpid, 2000);
+      if (isProcessAlive(dpid)) {
+        throw new Error(`ACP descendant process ${dpid} is still alive after SIGKILL escalation`);
+      }
+    })
+  );
 }
 
 /**

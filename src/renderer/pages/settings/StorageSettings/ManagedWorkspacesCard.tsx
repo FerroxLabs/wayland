@@ -5,37 +5,40 @@
  */
 
 import { Button, Message, Spin, Tag } from '@arco-design/web-react';
-import { FolderClock, ShieldCheck } from 'lucide-react';
+import { FolderOpen, Shield } from '@icon-park/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { shell, workspaceRetention } from '@/common/adapter/ipcBridge';
 import {
   parseManagedWorkspaceInventoryReport,
+  type ManagedWorkspaceClassification,
   type ManagedWorkspaceInventoryReport,
 } from '@/common/types/managedWorkspaceRetention';
 import { Card } from '@renderer/components/settings/shared';
 import { isElectronDesktop } from '@renderer/utils/platform';
 
-const AUTHORITY_LABELS: Record<keyof ManagedWorkspaceInventoryReport['authorityCompleteness'], string> = {
-  conversation: 'Chats',
-  project: 'Projects',
-  schedule: 'Schedules',
-  artifact: 'Outputs',
-  receipt: 'Receipts',
-  'active-process': 'Active work',
-  provenance: 'Creation records',
-  snapshot: 'Stable filesystem snapshot',
+type Label = { key: string; fallback: string };
+
+const AUTHORITY_LABELS: Record<keyof ManagedWorkspaceInventoryReport['authorityCompleteness'], Label> = {
+  conversation: { key: 'settings.storagePage.authorityConversation', fallback: 'Chats' },
+  project: { key: 'settings.storagePage.authorityProject', fallback: 'Projects' },
+  schedule: { key: 'settings.storagePage.authoritySchedule', fallback: 'Schedules' },
+  artifact: { key: 'settings.storagePage.authorityArtifact', fallback: 'Outputs' },
+  receipt: { key: 'settings.storagePage.authorityReceipt', fallback: 'Receipts' },
+  'active-process': { key: 'settings.storagePage.authorityActiveProcess', fallback: 'Active work' },
+  provenance: { key: 'settings.storagePage.authorityProvenance', fallback: 'Creation records' },
+  snapshot: { key: 'settings.storagePage.authoritySnapshot', fallback: 'Stable filesystem snapshot' },
 };
 
-const CLASSIFICATION_LABELS: Record<string, string> = {
-  referenced: 'In use',
-  scheduled: 'Scheduled',
-  active: 'Active work',
-  'artifact-bearing': 'Has outputs',
-  modified: 'Has files',
-  'user-promoted': 'Persistent',
-  'empty-abandoned': 'Review candidate',
-  unknown: 'Protected by default',
+const CLASSIFICATION_LABELS: Record<ManagedWorkspaceClassification, Label> = {
+  referenced: { key: 'settings.storagePage.classificationReferenced', fallback: 'In use' },
+  scheduled: { key: 'settings.storagePage.classificationScheduled', fallback: 'Scheduled' },
+  active: { key: 'settings.storagePage.classificationActive', fallback: 'Active work' },
+  'artifact-bearing': { key: 'settings.storagePage.classificationArtifactBearing', fallback: 'Has outputs' },
+  modified: { key: 'settings.storagePage.classificationModified', fallback: 'Has files' },
+  'user-promoted': { key: 'settings.storagePage.classificationUserPromoted', fallback: 'Persistent' },
+  'empty-abandoned': { key: 'settings.storagePage.classificationEmptyAbandoned', fallback: 'Review candidate' },
+  unknown: { key: 'settings.storagePage.classificationUnknown', fallback: 'Protected by default' },
 };
 
 function basename(value: string): string {
@@ -89,7 +92,7 @@ const ManagedWorkspacesCard: React.FC = () => {
   return (
     <Card
       title={t('settings.storagePage.managedWorkspacesTitle', 'Managed workspaces')}
-      titleIcon={FolderClock}
+      titleIcon={FolderOpen}
       statusBadge={report && <Tag color='green'>{t('settings.storagePage.protected', 'Protected')}</Tag>}
       actions={
         desktop ? (
@@ -125,7 +128,7 @@ const ManagedWorkspacesCard: React.FC = () => {
       ) : report ? (
         <div className='flex flex-col gap-12px'>
           <div className='flex items-start gap-10px rounded-8px bg-[var(--color-success-light-1)] px-12px py-10px'>
-            <ShieldCheck size={18} className='mt-1px shrink-0 text-[rgb(var(--green-6))]' aria-hidden />
+            <Shield size={18} className='mt-1px shrink-0 text-[rgb(var(--green-6))]' aria-hidden />
             <div className='flex flex-col gap-2px'>
               <span className='text-13px font-medium text-[var(--color-text-1)]'>
                 {t('settings.storagePage.noAutomaticDeletion', 'Nothing here is deleted automatically')}
@@ -166,7 +169,10 @@ const ManagedWorkspacesCard: React.FC = () => {
                   'Wayland preserves everything until these inventories are complete:'
                 )}{' '}
                 {incompleteAuthorities
-                  .map(([source]) => AUTHORITY_LABELS[source as keyof typeof AUTHORITY_LABELS])
+                  .map(([source]) => {
+                    const label = AUTHORITY_LABELS[source as keyof typeof AUTHORITY_LABELS];
+                    return t(label.key, label.fallback);
+                  })
                   .join(', ')}
               </div>
             </div>
@@ -181,10 +187,25 @@ const ManagedWorkspacesCard: React.FC = () => {
                       {basename(entry.path)}
                     </div>
                     <div className='text-11px text-[var(--color-text-3)]'>
-                      {entry.decision.classifications.map((value) => CLASSIFICATION_LABELS[value] ?? value).join(' - ')}
+                      {entry.decision.classifications
+                        .map((value) => {
+                          const label = CLASSIFICATION_LABELS[value];
+                          return t(label.key, label.fallback);
+                        })
+                        .join(' - ')}
                     </div>
                     {entry.decision.reasons.length > 0 && (
-                      <div className='text-11px text-[var(--color-text-3)]'>{entry.decision.reasons.join('; ')}</div>
+                      <div className='text-11px text-[var(--color-text-3)]'>
+                        {entry.decision.disposition === 'review-candidate'
+                          ? t(
+                              'settings.storagePage.reviewCandidateReason',
+                              'Complete evidence marks this empty workspace for later human review.'
+                            )
+                          : t(
+                              'settings.storagePage.preservedReason',
+                              'Protected because this workspace is in use or its safety evidence is incomplete.'
+                            )}
+                      </div>
                     )}
                   </div>
                   <div className='flex shrink-0 items-center gap-6px'>

@@ -314,36 +314,33 @@ export function initConversationBridge(
         return false;
       }
 
-      // Do not sever persistence or publish an inactive-process view until the
-      // child has actually exited. Rejected shutdown keeps the chat and its
-      // active-process lease intact for a safe retry.
-      await workerTaskManager.kill(id);
-
-      // If source is not 'wayland' (e.g., telegram), cleanup channel resources
-      if (source && source !== 'wayland') {
-        try {
-          // Dynamic import to avoid circular dependency
-          const { getChannelManager } = await import('@process/channels/core/ChannelManager');
-          const channelManager = getChannelManager();
-          if (channelManager.isInitialized()) {
-            await channelManager.cleanupConversation(id);
+      return await workerTaskManager.withConversationShutdown(id, async () => {
+        // If source is not 'wayland' (e.g., telegram), cleanup channel resources
+        if (source && source !== 'wayland') {
+          try {
+            // Dynamic import to avoid circular dependency
+            const { getChannelManager } = await import('@process/channels/core/ChannelManager');
+            const channelManager = getChannelManager();
+            if (channelManager.isInitialized()) {
+              await channelManager.cleanupConversation(id);
+            }
+          } catch (cleanupError) {
+            console.warn('[conversationBridge] Failed to cleanup channel resources:', cleanupError);
+            // Continue with deletion even if cleanup fails
           }
-        } catch (cleanupError) {
-          console.warn('[conversationBridge] Failed to cleanup channel resources:', cleanupError);
-          // Continue with deletion even if cleanup fails
         }
-      }
 
-      // Conversation deletion severs persisted chat state only. The workspace
-      // path is intentionally never handed to a filesystem mutation service:
-      // managed files remain byte-for-byte available for later human review.
-      await conversationService.deleteConversation(id);
-      removeFromMessageCache(id);
-      if (conversation) {
-        emitConversationListChanged(conversation, 'deleted');
-      }
-      await refreshTrayMenuSafely();
-      return true;
+        // Conversation deletion severs persisted chat state only. The workspace
+        // path is intentionally never handed to a filesystem mutation service:
+        // managed files remain byte-for-byte available for later human review.
+        await conversationService.deleteConversation(id);
+        removeFromMessageCache(id);
+        if (conversation) {
+          emitConversationListChanged(conversation, 'deleted');
+        }
+        await refreshTrayMenuSafely();
+        return true;
+      });
     } catch (error) {
       console.error('[conversationBridge] Failed to remove conversation:', error);
       return false;

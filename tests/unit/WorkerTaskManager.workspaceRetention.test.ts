@@ -137,4 +137,70 @@ describe('WorkerTaskManager retention authority', () => {
       { id: 'active-process-1', workspace: '/managed/work/wcore-temp-1736900000012' },
     ]);
   });
+
+  it('blocks and drains a same-ID successor for the entire durable removal operation', async () => {
+    const originalShutdown = deferred<void>();
+    const successorShutdown = deferred<void>();
+    const manager = new WorkerTaskManager(factory as never, repo);
+    managers.push(manager);
+    manager.addTask('conv-1', agent(() => originalShutdown.promise) as never);
+
+    let operationStarted = false;
+    const removal = manager.withConversationShutdown('conv-1', async () => {
+      operationStarted = true;
+      expect(manager.listWorkspaceAuthorities()).toEqual([]);
+    });
+    await vi.waitFor(() => expect(manager.getTask('conv-1')).toBeUndefined());
+
+    const successor = agent(() => successorShutdown.promise, '/managed/work/wcore-temp-1736900000099');
+    expect(() => manager.addTask('conv-1', successor as never)).toThrow('Conversation is shutting down');
+    expect(operationStarted).toBe(false);
+    expect(manager.listWorkspaceAuthorities()).toHaveLength(2);
+
+    originalShutdown.resolve();
+    await vi.waitFor(() => expect(manager.listWorkspaceAuthorities()).toHaveLength(1));
+    expect(operationStarted).toBe(false);
+
+    successorShutdown.resolve();
+    await removal;
+    expect(successor.kill).toHaveBeenCalledOnce();
+    expect(operationStarted).toBe(true);
+    expect(manager.listWorkspaceAuthorities()).toEqual([]);
+  });
+
+  it('releases the terminal gate when durable removal fails', async () => {
+    const manager = new WorkerTaskManager(factory as never, repo);
+    managers.push(manager);
+
+    await expect(
+      manager.withConversationShutdown('conv-1', async () => {
+        throw new Error('database unavailable');
+      })
+    ).rejects.toThrow('database unavailable');
+
+    expect(() => manager.addTask('conv-1', agent(async () => undefined) as never)).not.toThrow();
+  });
+
+  it('tombstones a removed ID against an in-flight stale repository read', async () => {
+    const lookup = deferred<{
+      id: string;
+      extra: { workspace: string };
+    }>();
+    const localRepo = { getConversation: vi.fn(() => lookup.promise) } as unknown as IConversationRepository;
+    const localFactory = { create: vi.fn(() => agent(async () => undefined)), register: vi.fn() };
+    const manager = new WorkerTaskManager(localFactory as never, localRepo);
+    managers.push(manager);
+
+    const staleBuild = manager.getOrBuildTask('conv-stale');
+    await vi.waitFor(() => expect(localRepo.getConversation).toHaveBeenCalledWith('conv-stale'));
+    await manager.withConversationShutdown('conv-stale', async () => undefined);
+
+    lookup.resolve({
+      id: 'conv-stale',
+      extra: { workspace: '/managed/work/wcore-temp-1736900000199' },
+    });
+    await expect(staleBuild).rejects.toThrow('Conversation is shutting down: conv-stale');
+    expect(localFactory.create).not.toHaveBeenCalled();
+    expect(manager.listWorkspaceAuthorities()).toEqual([]);
+  });
 });

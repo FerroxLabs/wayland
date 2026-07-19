@@ -83,6 +83,22 @@ const {
     emit: vi.fn(),
   });
 
+  const workerTaskManager = {
+    getTask: vi.fn(),
+    getOrBuildTask: vi.fn(),
+    addTask: vi.fn(),
+    kill: vi.fn(),
+    clear: vi.fn(),
+    listTasks: vi.fn(() => []),
+    withConversationShutdown: vi.fn(),
+  };
+  workerTaskManager.withConversationShutdown.mockImplementation(
+    async (id: string, operation: () => Promise<unknown>) => {
+      await workerTaskManager.kill(id);
+      return operation();
+    }
+  );
+
   return {
     handlers: registered,
     createCommand: commandFactory,
@@ -101,14 +117,7 @@ const {
       listAllConversations: vi.fn(async () => []),
       getConversationsByCronJob: vi.fn(async () => []),
     },
-    mockWorkerTaskManager: {
-      getTask: vi.fn(),
-      getOrBuildTask: vi.fn(),
-      addTask: vi.fn(),
-      kill: vi.fn(),
-      clear: vi.fn(),
-      listTasks: vi.fn(() => []),
-    },
+    mockWorkerTaskManager: workerTaskManager,
   };
 });
 
@@ -183,6 +192,12 @@ describe('conversation.remove managed-workspace retention', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    mockWorkerTaskManager.withConversationShutdown.mockImplementation(
+      async (id: string, operation: () => Promise<unknown>) => {
+        await mockWorkerTaskManager.kill(id);
+        return operation();
+      }
+    );
     for (const key of Object.keys(handlers)) delete handlers[key];
     root = await fs.mkdtemp(path.join(os.tmpdir(), 'wayland-conversation-remove-'));
     mockListJobsByConversation.mockResolvedValue([]);

@@ -55,8 +55,30 @@ export type ManagedWorkspaceClassification =
 export type ManagedWorkspaceRetentionDecision = {
   classifications: ManagedWorkspaceClassification[];
   disposition: 'preserve' | 'review-candidate';
-  reasons: string[];
+  reasons: ManagedWorkspaceRetentionReason[];
 };
+
+export const MANAGED_WORKSPACE_RETENTION_REASONS = [
+  'malformed-evidence',
+  'uninspectable-evidence',
+  'referenced',
+  'scheduled',
+  'active',
+  'artifact-bearing',
+  'modified',
+  'user-promoted',
+  'empty-abandoned',
+  'provenance-unproven',
+  'inventory-incomplete',
+  'evidence-invalid',
+  'promotion-unknown',
+  'content-unknown',
+  'mutation-unknown',
+  'age-unknown',
+  'retention-window-pending',
+] as const;
+
+export type ManagedWorkspaceRetentionReason = (typeof MANAGED_WORKSPACE_RETENTION_REASONS)[number];
 
 export type ManagedWorkspaceInventoryEntry = {
   path: string;
@@ -93,13 +115,13 @@ const isKnownCount = (value: number | null): value is number =>
  */
 export function classifyManagedWorkspaceRetention(evidence: unknown): ManagedWorkspaceRetentionDecision {
   const classifications: ManagedWorkspaceClassification[] = [];
-  const reasons: string[] = [];
+  const reasons: ManagedWorkspaceRetentionReason[] = [];
 
   if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence)) {
     return {
       classifications: ['unknown'],
       disposition: 'preserve',
-      reasons: ['managed-workspace evidence is malformed or unavailable'],
+      reasons: ['malformed-evidence'],
     };
   }
   let candidate: Partial<ManagedWorkspaceEvidence>;
@@ -109,33 +131,33 @@ export function classifyManagedWorkspaceRetention(evidence: unknown): ManagedWor
     return {
       classifications: ['unknown'],
       disposition: 'preserve',
-      reasons: ['managed-workspace evidence could not be inspected safely'],
+      reasons: ['uninspectable-evidence'],
     };
   }
 
   if (isKnownCount(candidate.referenceCount ?? null) && Number(candidate.referenceCount) > 0) {
     classifications.push('referenced');
-    reasons.push(`${candidate.referenceCount} live conversation or Project reference(s)`);
+    reasons.push('referenced');
   }
   if (isKnownCount(candidate.scheduleCount ?? null) && Number(candidate.scheduleCount) > 0) {
     classifications.push('scheduled');
-    reasons.push(`${candidate.scheduleCount} schedule reference(s)`);
+    reasons.push('scheduled');
   }
   if (isKnownCount(candidate.activeProcessCount ?? null) && Number(candidate.activeProcessCount) > 0) {
     classifications.push('active');
-    reasons.push(`${candidate.activeProcessCount} active process reference(s)`);
+    reasons.push('active');
   }
   if (isKnownCount(candidate.artifactCount ?? null) && Number(candidate.artifactCount) > 0) {
     classifications.push('artifact-bearing');
-    reasons.push(`${candidate.artifactCount} registered artifact or receipt reference(s)`);
+    reasons.push('artifact-bearing');
   }
   if (candidate.modified === true || candidate.userContent === 'present') {
     classifications.push('modified');
-    reasons.push('user content or post-creation mutation is present');
+    reasons.push('modified');
   }
   if (candidate.userPromoted === true) {
     classifications.push('user-promoted');
-    reasons.push('the user promoted or selected this workspace as durable');
+    reasons.push('user-promoted');
   }
 
   const evidenceShapeValid =
@@ -171,25 +193,25 @@ export function classifyManagedWorkspaceRetention(evidence: unknown): ManagedWor
     return {
       classifications: ['empty-abandoned'],
       disposition: 'review-candidate',
-      reasons: ['complete evidence proves an empty app-managed shell beyond the retention window'],
+      reasons: ['empty-abandoned'],
     };
   }
 
   if (classifications.length === 0) classifications.push('unknown');
-  if (!candidate.managedProvenance) reasons.push('Wayland-managed provenance is not proven');
-  if (!candidate.inventoryComplete) reasons.push('the authority inventory is incomplete');
-  if (!evidenceShapeValid) reasons.push('one or more evidence fields are missing or invalid');
-  if (candidate.userPromoted === null) reasons.push('user-promotion state is unknown');
-  if (candidate.userContent === 'unknown') reasons.push('user-content state is unknown');
-  if (candidate.modified === null) reasons.push('mutation state is unknown');
-  if (candidate.abandonedForMs === null) reasons.push('abandonment age is unknown');
+  if (!candidate.managedProvenance) reasons.push('provenance-unproven');
+  if (!candidate.inventoryComplete) reasons.push('inventory-incomplete');
+  if (!evidenceShapeValid) reasons.push('evidence-invalid');
+  if (candidate.userPromoted === null) reasons.push('promotion-unknown');
+  if (candidate.userContent === 'unknown') reasons.push('content-unknown');
+  if (candidate.modified === null) reasons.push('mutation-unknown');
+  if (candidate.abandonedForMs === null) reasons.push('age-unknown');
   if (
     candidate.abandonedForMs !== null &&
     Number.isSafeInteger(candidate.abandonedForMs) &&
     Number(candidate.abandonedForMs) >= 0 &&
     Number(candidate.abandonedForMs) < Number(candidate.retentionWindowMs)
   ) {
-    reasons.push('the visible retention window has not elapsed');
+    reasons.push('retention-window-pending');
   }
 
   return { classifications, disposition: 'preserve', reasons };
@@ -261,7 +283,10 @@ function validDecision(value: unknown): value is ManagedWorkspaceRetentionDecisi
     new Set(value.classifications).size === value.classifications.length &&
     value.classifications.every((item) => CLASSIFICATIONS.includes(item as ManagedWorkspaceClassification)) &&
     (value.disposition === 'preserve' || value.disposition === 'review-candidate') &&
-    stringArray(value.reasons)
+    Array.isArray(value.reasons) &&
+    value.reasons.every((reason) =>
+      MANAGED_WORKSPACE_RETENTION_REASONS.includes(reason as ManagedWorkspaceRetentionReason)
+    )
   );
 }
 
@@ -318,6 +343,17 @@ const stringArraysEqual = (left: readonly string[], right: readonly string[]): b
   left.length === right.length && left.every((item, index) => item === right[index]);
 
 function isSemanticallyValidEntry(entry: ManagedWorkspaceInventoryEntry): boolean {
+  if (
+    entry.evidence.inventoryComplete &&
+    [
+      entry.evidence.referenceCount,
+      entry.evidence.scheduleCount,
+      entry.evidence.activeProcessCount,
+      entry.evidence.artifactCount,
+    ].some((count) => count === null)
+  ) {
+    return false;
+  }
   const identities = entry.references.map(({ source, id }) => `${source}\0${id}`);
   if (new Set(identities).size !== identities.length) return false;
 
@@ -338,6 +374,29 @@ function isSemanticallyValidEntry(entry: ManagedWorkspaceInventoryEntry): boolea
     stringArraysEqual(entry.decision.classifications, expectedDecision.classifications) &&
     stringArraysEqual(entry.decision.reasons, expectedDecision.reasons)
   );
+}
+
+function normalizedAbsolutePath(value: string): string | null {
+  if (value.length === 0 || value.trim() !== value || value.includes('\0')) return null;
+  const slashPath = value.replace(/\\/g, '/');
+  const drivePrefix = /^[a-z]:\//i.exec(slashPath)?.[0];
+  if (!slashPath.startsWith('/') && !drivePrefix) return null;
+
+  const prefix = drivePrefix ? drivePrefix.toLowerCase() : '/';
+  const rest = drivePrefix ? slashPath.slice(drivePrefix.length) : slashPath.slice(1);
+  const segments = rest.split('/');
+  if (segments.some((segment) => segment.length === 0 || segment === '.' || segment === '..')) return null;
+  return `${prefix}${segments.join('/')}`;
+}
+
+function isDirectManagedChild(root: string, candidate: string): boolean {
+  const normalizedRoot = normalizedAbsolutePath(root);
+  const normalizedCandidate = normalizedAbsolutePath(candidate);
+  if (!normalizedRoot || !normalizedCandidate) return false;
+  const prefix = `${normalizedRoot}/`;
+  if (!normalizedCandidate.startsWith(prefix)) return false;
+  const name = normalizedCandidate.slice(prefix.length);
+  return !name.includes('/') && isManagedWorkspaceName(name);
 }
 
 /** Reject malformed or expanded IPC payloads before renderer state admission. */
@@ -379,6 +438,25 @@ export function parseManagedWorkspaceInventoryReport(value: unknown): ManagedWor
     return null;
   }
   const report = value as ManagedWorkspaceInventoryReport;
+  const normalizedRoot = normalizedAbsolutePath(report.root);
+  const normalizedCanonicalRoot = report.canonicalRoot === null ? null : normalizedAbsolutePath(report.canonicalRoot);
+  if (!normalizedRoot || (report.canonicalRoot !== null && !normalizedCanonicalRoot)) return null;
+  if (
+    report.entries.some(
+      (entry) =>
+        !isDirectManagedChild(report.root, entry.path) ||
+        (entry.canonicalPath !== null &&
+          (!report.canonicalRoot || !isDirectManagedChild(report.canonicalRoot, entry.canonicalPath)))
+    )
+  ) {
+    return null;
+  }
+  const entryPaths = report.entries.map((entry) => normalizedAbsolutePath(entry.path));
+  const canonicalPaths = report.entries
+    .map((entry) => (entry.canonicalPath === null ? null : normalizedAbsolutePath(entry.canonicalPath)))
+    .filter((entry): entry is string => entry !== null);
+  if (new Set(entryPaths).size !== entryPaths.length || new Set(canonicalPaths).size !== canonicalPaths.length)
+    return null;
   const authoritiesComplete = WORKSPACE_AUTHORITY_SOURCES.every((source) => completeness[source] === 'complete');
   if (report.entries.some((entry) => !isSemanticallyValidEntry(entry))) return null;
   const expectedSummary: ManagedWorkspaceInventoryReport['summary'] = {
@@ -398,7 +476,15 @@ export function parseManagedWorkspaceInventoryReport(value: unknown): ManagedWor
   const expectedComplete =
     authoritiesComplete &&
     report.errors.length === 0 &&
-    report.entries.every((entry) => entry.errors.length === 0 && entry.evidence.inventoryComplete);
+    report.entries.every(
+      (entry) =>
+        entry.errors.length === 0 &&
+        entry.evidence.inventoryComplete &&
+        isKnownCount(entry.evidence.referenceCount) &&
+        isKnownCount(entry.evidence.scheduleCount) &&
+        isKnownCount(entry.evidence.activeProcessCount) &&
+        isKnownCount(entry.evidence.artifactCount)
+    );
   if (report.complete !== expectedComplete) return null;
   if (
     report.entries.some(

@@ -37,6 +37,22 @@ const {
     emit: vi.fn(),
   });
 
+  const workerTaskManager = {
+    getTask: vi.fn(),
+    getOrBuildTask: vi.fn(async () => ({})),
+    addTask: vi.fn(),
+    kill: vi.fn(),
+    clear: vi.fn(),
+    listTasks: vi.fn(() => []),
+    withConversationShutdown: vi.fn(),
+  };
+  workerTaskManager.withConversationShutdown.mockImplementation(
+    async (id: string, operation: () => Promise<unknown>) => {
+      await workerTaskManager.kill(id);
+      return operation();
+    }
+  );
+
   return {
     getHandlers: () => handlers,
     resetHandlers: reset,
@@ -51,14 +67,7 @@ const {
       getConversation: vi.fn(async () => ({ id: 'conv-1', source: 'wayland', name: 'Original Name', type: 'gemini' })),
       createWithMigration: vi.fn(async () => ({ id: 'conv-migrated', source: 'wayland' })),
     },
-    mockWorkerTaskManager: {
-      getTask: vi.fn(),
-      getOrBuildTask: vi.fn(async () => ({})),
-      addTask: vi.fn(),
-      kill: vi.fn(),
-      clear: vi.fn(),
-      listTasks: vi.fn(() => []),
-    },
+    mockWorkerTaskManager: workerTaskManager,
   };
 });
 
@@ -162,6 +171,12 @@ const getProvider = (key: string): Provider => {
 describe('conversationBridge tray sync', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockWorkerTaskManager.withConversationShutdown.mockImplementation(
+      async (id: string, operation: () => Promise<unknown>) => {
+        await mockWorkerTaskManager.kill(id);
+        return operation();
+      }
+    );
     mockListJobsByConversation.mockResolvedValue([]);
     resetHandlers();
     initConversationBridge(

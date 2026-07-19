@@ -35,7 +35,7 @@ describe('classifyManagedWorkspaceRetention', () => {
     expect(classifyManagedWorkspaceRetention(emptyShell())).toEqual({
       classifications: ['empty-abandoned'],
       disposition: 'review-candidate',
-      reasons: ['complete evidence proves an empty app-managed shell beyond the retention window'],
+      reasons: ['empty-abandoned'],
     });
   });
 
@@ -78,7 +78,7 @@ describe('classifyManagedWorkspaceRetention', () => {
   it('preserves an empty shell until the retention window elapses', () => {
     const result = classifyManagedWorkspaceRetention(emptyShell({ abandonedForMs: 29 * DAY }));
     expect(result).toMatchObject({ classifications: ['unknown'], disposition: 'preserve' });
-    expect(result.reasons).toContain('the visible retention window has not elapsed');
+    expect(result.reasons).toContain('retention-window-pending');
   });
 
   it('does not let an empty classification override any preservation evidence', () => {
@@ -144,7 +144,7 @@ describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
     expect(parseManagedWorkspaceInventoryReport(classification)).toBeNull();
 
     const reason = completeReferencedReport();
-    reason.entries[0].decision.reasons = ['attacker-supplied explanation'];
+    reason.entries[0].decision.reasons = ['attacker-supplied explanation' as never];
     expect(parseManagedWorkspaceInventoryReport(reason)).toBeNull();
   });
 
@@ -172,6 +172,48 @@ describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
   it('rejects a false incomplete claim when every authority and entry is complete', () => {
     const report = completeReferencedReport();
     report.complete = false;
+    expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
+  });
+
+  it.each([
+    ['/etc/wcore-temp-1736900000000', 'outside the declared root'],
+    ['/managed/work/../wcore-temp-1736900000000', 'contains a traversal segment'],
+    ['/managed/work/not-managed', 'does not match the managed workspace grammar'],
+    ['relative/wcore-temp-1736900000000', 'is not absolute'],
+  ])('rejects an entry path that %s (%s)', (entryPath) => {
+    const report = completeReferencedReport();
+    report.entries[0].path = entryPath;
+    expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
+  });
+
+  it('rejects a canonical entry outside the canonical managed root', () => {
+    const report = completeReferencedReport();
+    report.entries[0].canonicalPath = '/private/tmp/wcore-temp-1736900000000';
+    expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
+  });
+
+  it('rejects duplicate workspace identities', () => {
+    const report = completeReferencedReport();
+    report.entries.push(structuredClone(report.entries[0]));
+    report.summary = { discovered: 2, preserved: 2, reviewCandidate: 0, unknown: 0 };
+    expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
+  });
+
+  it('accepts a Windows managed-root child without weakening lexical containment', () => {
+    const report = completeReferencedReport();
+    report.root = 'C:\\Wayland\\workspaces';
+    report.canonicalRoot = 'C:\\Wayland\\workspaces';
+    report.entries[0].path = 'C:\\Wayland\\workspaces\\wcore-temp-1736900000000';
+    report.entries[0].canonicalPath = 'C:\\Wayland\\workspaces\\wcore-temp-1736900000000';
+    expect(parseManagedWorkspaceInventoryReport(report)).not.toBeNull();
+  });
+
+  it('rejects complete inventory claims whose authoritative counts are unknown', () => {
+    const report = completeReferencedReport();
+    report.entries[0].evidence.referenceCount = null as unknown as number;
+    report.entries[0].decision = classifyManagedWorkspaceRetention(report.entries[0].evidence);
+    report.entries[0].references = [];
+    report.summary.unknown = 1;
     expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
   });
 });

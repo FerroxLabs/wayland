@@ -77,12 +77,12 @@ const REPORT = {
         disposition: 'preserve',
         classifications: ['referenced', 'scheduled'],
         reasons: [
-          '1 live conversation or Project reference(s)',
-          '1 schedule reference(s)',
-          'Wayland-managed provenance is not proven',
-          'the authority inventory is incomplete',
-          'one or more evidence fields are missing or invalid',
-          'user-promotion state is unknown',
+          'referenced',
+          'scheduled',
+          'provenance-unproven',
+          'inventory-incomplete',
+          'evidence-invalid',
+          'promotion-unknown',
         ],
       },
       references: [
@@ -169,13 +169,7 @@ describe('ManagedWorkspacesCard', () => {
           decision: {
             disposition: 'preserve',
             classifications: ['active'],
-            reasons: [
-              '1 active process reference(s)',
-              'Wayland-managed provenance is not proven',
-              'the authority inventory is incomplete',
-              'one or more evidence fields are missing or invalid',
-              'user-promotion state is unknown',
-            ],
+            reasons: ['active', 'provenance-unproven', 'inventory-incomplete', 'evidence-invalid', 'promotion-unknown'],
           },
           references: [{ source: 'active-process', id: 'active-process-1' }],
         },
@@ -220,7 +214,7 @@ describe('ManagedWorkspacesCard', () => {
           decision: {
             disposition: 'review-candidate',
             classifications: ['empty-abandoned'],
-            reasons: ['complete evidence proves an empty app-managed shell beyond the retention window'],
+            reasons: ['empty-abandoned'],
           },
           references: [],
         },
@@ -231,7 +225,7 @@ describe('ManagedWorkspacesCard', () => {
 
     expect(await screen.findByText('Later human review')).toBeTruthy();
     expect(screen.getByText('Review later - no action available')).toBeTruthy();
-    expect(screen.getByText(/complete evidence proves an empty app-managed shell/)).toBeTruthy();
+    expect(screen.getByText(/Complete evidence marks this empty workspace/)).toBeTruthy();
     expect(screen.queryByRole('button', { name: /delete|remove|quarantine|clean|prune/i })).toBeNull();
   });
 

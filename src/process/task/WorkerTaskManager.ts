@@ -28,6 +28,7 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     lifecycle: 'running' | 'terminating';
     termination?: Promise<void>;
   }> = [];
+  private readonly conversationShutdowns = new Set<string>();
   private nextAuthorityId = 0;
   private idleCheckTimer: ReturnType<typeof setInterval> | undefined;
   // NOTE(M14/AUDIT-05 F5): single shared `process.on('exit', ...)` handler
@@ -87,6 +88,7 @@ export class WorkerTaskManager implements IWorkerTaskManager {
   }
 
   async getOrBuildTask(id: string, options?: BuildConversationOptions): Promise<IAgentManager> {
+    this.assertConversationOpen(id);
     if (!options?.skipCache) {
       const existing = this.getTask(id);
       if (existing) return existing;
@@ -107,6 +109,10 @@ export class WorkerTaskManager implements IWorkerTaskManager {
           console.error('[WorkerTaskManager] failed to persist #30 workspace correction:', err);
         }
       }
+      // The repository lookup and project reconciliation both yield. Re-check
+      // the terminal gate immediately before the synchronous factory seam so a
+      // concurrent conversation removal cannot spawn an untracked successor.
+      this.assertConversationOpen(id);
       return this._buildAndCache(conversation, options);
     }
 
@@ -120,6 +126,24 @@ export class WorkerTaskManager implements IWorkerTaskManager {
   }
 
   addTask(id: string, task: IAgentManager): void {
+    if (this.conversationShutdowns.has(id)) {
+      // Callers that already constructed a task before observing the gate must
+      // not orphan it. Publish a terminating lease so the removal barrier sees
+      // and awaits the refused successor, then fail the caller closed.
+      this.nextAuthorityId += 1;
+      const refusedLease = {
+        id,
+        authorityId: `active-process-${this.nextAuthorityId}`,
+        workspace: task.workspace,
+        task,
+        lifecycle: 'running' as const,
+      };
+      this.taskList.push(refusedLease);
+      void this.beginTermination(refusedLease).catch(() => {
+        // A failed shutdown intentionally remains authoritative in taskList.
+      });
+      throw new Error(`Conversation is shutting down: ${id}`);
+    }
     const existing = this.taskList.find((item) => item.id === id && item.lifecycle === 'running');
     if (existing) {
       // Kill the old process before replacing to prevent orphaned child processes.
@@ -149,6 +173,38 @@ export class WorkerTaskManager implements IWorkerTaskManager {
     return Promise.all(
       leases.map((lease) => this.beginTermination(lease, lease.lifecycle === 'running' ? reason : undefined))
     ).then((): void => undefined);
+  }
+
+  async withConversationShutdown<T>(id: string, operation: () => Promise<T>): Promise<T> {
+    if (this.conversationShutdowns.has(id)) {
+      throw new Error(`Conversation is already shutting down: ${id}`);
+    }
+    this.conversationShutdowns.add(id);
+    let operationCompleted = false;
+    try {
+      // A refused direct addTask can arrive while an earlier lease is awaiting
+      // termination. Drain until the set is genuinely empty; addTask keeps any
+      // raced successor visible as a terminating authority.
+      while (this.taskList.some((lease) => lease.id === id)) {
+        // oxlint-disable-next-line no-await-in-loop -- each pass discovers successors raced into the prior pass
+        await this.kill(id);
+      }
+      const result = await operation();
+      operationCompleted = true;
+      return result;
+    } finally {
+      // Failed persistence leaves the conversation usable for a safe retry.
+      // Successful deletion permanently tombstones this process-local ID. An
+      // in-flight repository read may still hold the deleted row and must not
+      // publish a stale successor after the durable operation returns.
+      if (!operationCompleted) this.conversationShutdowns.delete(id);
+    }
+  }
+
+  private assertConversationOpen(id: string): void {
+    if (this.conversationShutdowns.has(id)) {
+      throw new Error(`Conversation is shutting down: ${id}`);
+    }
   }
 
   private beginTermination(lease: (typeof this.taskList)[number], reason?: AgentKillReason): Promise<void> {

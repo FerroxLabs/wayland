@@ -162,4 +162,35 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
     await expect(winKillChild(fakeChild, false)).resolves.toBeUndefined();
     expect(execFileMock).toHaveBeenCalledTimes(1);
   });
+
+  it('rejects when taskkill returns success without actually stopping the process', async () => {
+    Object.defineProperty(process, 'platform', { value: 'win32' });
+    vi.useFakeTimers();
+
+    const execFileMock = vi.fn(
+      (_cmd: string, _args: string[], _opts: unknown, cb: (e: unknown, r: unknown) => void) => {
+        cb(null, { stdout: '', stderr: '' });
+      }
+    );
+
+    vi.doMock('child_process', async () => {
+      const actual = await vi.importActual<typeof import('child_process')>('child_process');
+      return { ...actual, execFile: execFileMock };
+    });
+
+    const { killChild: winKillChild } = await import('../../src/process/agent/acp/utils');
+    const fakeChild = {
+      pid: process.pid,
+      kill: vi.fn(),
+    } as unknown as import('child_process').ChildProcess;
+
+    try {
+      const shutdown = winKillChild(fakeChild, true);
+      const rejected = expect(shutdown).rejects.toThrow(`ACP process ${process.pid} is still alive after taskkill`);
+      await vi.advanceTimersByTimeAsync(2_100);
+      await rejected;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
