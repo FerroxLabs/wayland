@@ -261,6 +261,12 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     );
 
     const agent = new WCoreAgent({ ...baseOptions(), resume: 'session-concurrent-dispose' });
+    const restore = vi.fn();
+    (
+      agent as unknown as {
+        projectConfigTransaction: { restore: () => void };
+      }
+    ).projectConfigTransaction = { restore };
     const started = agent.start().catch((error: unknown) => error);
 
     await flushUntilSpawned(first);
@@ -269,6 +275,8 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
 
     const disposed = agent.kill();
     expect(killChildMock).toHaveBeenCalledOnce();
+    first.emit('exit', 1);
+    expect(restore).not.toHaveBeenCalled();
     resolveTreeProof();
 
     await expect(disposed).resolves.toBeUndefined();
@@ -276,6 +284,45 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(killChildMock).toHaveBeenCalledOnce();
     expect(killChildMock).toHaveBeenCalledWith(first, false);
     expect(spawnMock).toHaveBeenCalledTimes(1);
+    expect(restore).toHaveBeenCalledOnce();
+  });
+
+  it('restores config and spawns a resume successor only after exact stale-tree proof succeeds', async () => {
+    vi.useFakeTimers();
+    const first = makeChild();
+    const second = makeChild();
+    spawnMock.mockReturnValueOnce(first).mockReturnValueOnce(second);
+    let resolveTreeProof!: () => void;
+    killChildMock.mockReturnValueOnce(
+      new Promise<void>((resolve) => {
+        resolveTreeProof = resolve;
+      })
+    );
+    const restore = vi.fn();
+
+    const agent = new WCoreAgent({ ...baseOptions(), resume: 'session-root-exit-proof-success' });
+    (
+      agent as unknown as {
+        projectConfigTransaction: { restore: () => void };
+      }
+    ).projectConfigTransaction = { restore };
+    const started = agent.start().catch((error: unknown) => error);
+
+    await flushUntilSpawned(first);
+    await vi.advanceTimersByTimeAsync(30_000);
+    await vi.waitFor(() => expect(killChildMock).toHaveBeenCalledOnce());
+
+    first.emit('exit', 1);
+    expect(restore).not.toHaveBeenCalled();
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+
+    resolveTreeProof();
+    await flushUntilSpawned(second, 2);
+    expect(restore).toHaveBeenCalledOnce();
+    expect(spawnMock).toHaveBeenCalledTimes(2);
+
+    second.emit('exit', 1);
+    expect(await started).toMatchObject({ message: 'wcore exited with code 1 during init' });
   });
 
   it('retains launch config when the stale resume root exits before tree proof settles', async () => {
@@ -310,6 +357,12 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     rejectTreeProof(new Error('resume descendant still alive'));
     expect(await started).toMatchObject({ message: 'resume descendant still alive' });
     expect(restore).not.toHaveBeenCalled();
+
+    killChildMock.mockResolvedValueOnce(undefined);
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenNthCalledWith(2, first, false);
+    expect(restore).toHaveBeenCalledOnce();
+    expect(spawnMock).toHaveBeenCalledTimes(1);
   });
 
   it('redacts high-confidence secret tokens from the surfaced stderr (#484 audit)', async () => {
@@ -417,7 +470,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(killChildMock).toHaveBeenCalledWith(child, false);
   });
 
-  it('retains failed tree-shutdown authority after the root exit clears its child slot', async () => {
+  it('retains failed tree-shutdown identity after root exit for an exact retry', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
     const agent = new WCoreAgent(baseOptions());
@@ -430,9 +483,13 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     child.emit('exit', 0);
 
     await expect(shutdown).rejects.toBe(failure);
+    expect(agent.isAlive).toBe(true);
+
+    killChildMock.mockResolvedValueOnce(undefined);
+    await expect(agent.kill()).resolves.toBeUndefined();
+    expect(killChildMock).toHaveBeenNthCalledWith(1, child, false);
+    expect(killChildMock).toHaveBeenNthCalledWith(2, child, false);
     expect(agent.isAlive).toBe(false);
-    await expect(agent.kill()).rejects.toBe(failure);
-    expect(killChildMock).toHaveBeenCalledTimes(1);
   });
 
   it('retries the same retained child identity when tree shutdown fails before root exit', async () => {

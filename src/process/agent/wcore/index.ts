@@ -661,8 +661,13 @@ export class WCoreAgent {
       console[wcoreStderrLevel(line)]('[wcore]', line);
     });
 
-    // Handle process exit
-    this.childProcess.on('exit', (code) => {
+    // Capture the exact child whose listeners are being installed. Exit is a
+    // root-process notification, not proof that the complete engine tree is
+    // gone: descendants can remain alive after the root exits. In particular,
+    // a pending or failed tree-proof attempt must retain this exact identity
+    // and its launch config until that proof succeeds.
+    const spawnedChild = this.childProcess;
+    spawnedChild.on('exit', (code) => {
       this.cleanupVertexCredentials();
       this.anvilMutationWatcher.stop();
       const disconnectedReceipts = this.desktopContract.markDisconnected();
@@ -682,7 +687,12 @@ export class WCoreAgent {
       // against a turn nothing can finish. (activeMsgId is nulled below too, so
       // handleTurnStall would early-return anyway; this just doesn't leak the timer.)
       this.stopStallWatchdog();
-      this.restoreProjectConfig();
+      const treeProofOwnsChild =
+        this.treeShutdownAttempt?.child === spawnedChild || this.failedShutdownChild === spawnedChild;
+      if (this.childProcess === spawnedChild && !treeProofOwnsChild) {
+        this.restoreProjectConfig();
+        this.childProcess = null;
+      }
       if (!this.ready) {
         // Surface the engine's real bail reason (its last stderr) alongside the
         // exit code so callers see the cause, not just "exited with code N"
@@ -702,7 +712,6 @@ export class WCoreAgent {
       }
       this._onProcessTerminated?.(code);
       this.activeMsgId = null;
-      this.childProcess = null;
     });
 
     // Wait for ready event with timeout. On timeout, include the engine's last
