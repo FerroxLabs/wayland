@@ -217,9 +217,9 @@ export const useMcpConnection = (
             right === undefined ||
             mcpServerCollisionKey(left.name) === mcpServerCollisionKey(right.name));
 
+        let desired = winner;
+        let lastPublished: IMcpServer | undefined;
         try {
-          let desired = winner;
-          let lastPublished: IMcpServer | undefined;
           let originalKeyRemoved = adapterState === 'revoked';
           let renameCleanupDone = false;
 
@@ -285,16 +285,28 @@ export const useMcpConnection = (
             retainMcpPublicationReconciliation(prevServers, server.id, desired ?? winner ?? server)
           );
         } catch (reconciliationError) {
-          const fallback = winner ?? server;
+          const rollbackErrors: unknown[] = [reconciliationError];
+          if (lastPublished) {
+            try {
+              await removeMcpFromAgents(lastPublished.name, undefined, lastPublished.transport.type);
+              lastPublished = undefined;
+            } catch (cleanupError) {
+              rollbackErrors.push(cleanupError);
+            }
+          }
+
+          const fallback = desired ?? winner ?? server;
           try {
             await saveMcpServers((prevServers) => retainMcpPublicationReconciliation(prevServers, server.id, fallback));
           } catch (persistenceError) {
+            rollbackErrors.push(persistenceError);
             const failure = new Error('MCP probe reconciliation could not persist publication divergence', {
               cause: reconciliationError,
             });
-            Object.assign(failure, { rollbackErrors: [reconciliationError, persistenceError] });
+            Object.assign(failure, { rollbackErrors });
             throw failure;
           }
+          console.error('MCP publication reconciliation retained fail-closed divergence:', { rollbackErrors });
         }
       };
 
