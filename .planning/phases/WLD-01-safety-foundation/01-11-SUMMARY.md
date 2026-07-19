@@ -12,7 +12,7 @@ affects: [01-13, 01-29, 01-35, 01-36]
 requirements-completed: []
 requirements-addressed: [MCP-01, SAF-05]
 status: constructed
-completed: 2026-07-19
+completed: 2026-07-20
 ---
 
 # Phase 1 Plan 11: MCP Pre-publication Truth Summary
@@ -32,14 +32,23 @@ MCP catalog declaration, saved configuration, authentication requirement, and st
 
 ## Exact construction proof
 
-- Focused plan suite: 10 files, 86 tests passed.
-- Durable renderer queue and CRUD hostile subset: 3 files, 27 tests passed.
+- Exact repair implementation commit: `f7dd56c86f43d845145c0582087d50f74c27650e`.
+- Exact repair implementation tree: `cd7abc708af457cc9ea40b1d7c91d9a77b590cf1`.
+- Focused hostile repair suite: 17 files, 129 tests passed.
 - Typecheck: passed.
-- MCP catalog validation: passed.
-- Changed-file oxlint: 0 warnings, 0 errors.
-- Scoped plan lint: 0 errors; 24 pre-existing warnings in unchanged MCP agent/message-queue files.
+- Scoped changed-file oxlint: 0 errors; 6 pre-existing warnings in the shared bridge declaration file.
 - Oxfmt and `git diff --check`: passed.
-- The first aggregate attempt exposed an unrelated 30-second timeout ceiling in the production-strength 256 MiB Argon2 correctness vector. That test was corrected to use a 90-second correctness timeout; the repaired vector is 2/2 green in 70.36 seconds. A fresh exact aggregate run remains required before independent acceptance.
+- Exact full aggregate: 1,433 Vitest files passed and 21 skipped; 15,166 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
+- The first successor aggregate attempt exposed one stale Concierge test double that still expected the retired direct MCP setter. The test was migrated to the atomic authority, the add-name invariant was moved inside the atomic mutation, and the exact aggregate was rerun successfully from a clean implementation commit.
+
+## Successor repair details
+
+- Save-and-connect now re-reads the durable current declaration and commits probe evidence only against the exact current revision; stale render callbacks cannot publish or toggle a superseded definition.
+- Renderer and main-process writers now share one main-process `mcp.config` read-modify-write authority. Renderer writes use retrying compare-and-set and publish only the main-confirmed snapshot; runtime main writers use serialized functional mutations.
+- Every adapter operation treats a rejected multi-agent call as potentially partially applied. Add, batch, edit, enable, and disable failures compensate all affected adapters with the prior durable definition or complete revocation.
+- A failed manual probe revokes an enabled external publication before recording local disabled truth. If revocation is partial or fails, the prior enabled definition is restored externally and local state remains enabled rather than claiming a false revocation.
+- Atomic state writes now sync the temporary file before rename, then sync the destination file and parent directory before reporting success. Hostile ordering tests cover both asynchronous and synchronous paths.
+- Archive/restore active-row mutations use compare-and-set. A race at the archive CAS republishes the winning current definition rather than the stale archived snapshot.
 
 ## Authority boundary
 
