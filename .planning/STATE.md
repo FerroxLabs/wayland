@@ -5,8 +5,8 @@ progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 40
-  completed_plans: 1
-  percent: 3
+  completed_plans: 2
+  percent: 5
 ---
 
 # Project State
@@ -21,16 +21,16 @@ See: `.planning/PROJECT.md` (updated 2026-07-19)
 ## Current Position
 
 Phase: 1 of 7 (Safety Foundation)
-Plan: 01-40 complete; Wave 2 planning successor is under final independent audit
-Status: Bounded selector accepted; preparing the dependency-unlocked Wave 2 construction set
-Last activity: 2026-07-19 — accepted exact selector commit beec695df after zero-finding audit and full aggregate proof
+Plan: 01-01 complete; remaining Wave 2 construction stays dependency ordered
+Status: Process-owned cohort authority proven; preparing the next dependency-unlocked construction slice
+Last activity: 2026-07-19 — sealed exact cohort-authority commit dbef48a1 after focused, hostile, static, i18n, and aggregate proof
 
-Progress: [▓░░░░░░░░░] 3%
+Progress: [▓░░░░░░░░░] 5%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
+- Total plans completed: 2
 - Average duration: -
 - Total execution time: 0 hours
 
@@ -38,9 +38,9 @@ Progress: [▓░░░░░░░░░] 3%
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1. Safety Foundation | 1 | 40 | 1h 40m |
+| 1. Safety Foundation | 2 | 40 | - |
 
-**Recent Trend:** The bounded execution adapter is accepted; source construction begins after the Wave 2 plan successor passes audit and integrates cleanly.
+**Recent Trend:** The first product-code construction slice is accepted in its isolated worktree; the hard-coded cohort blocker is removed without opening observation or promotion gates.
 
 ## Accumulated Context
 
@@ -60,14 +60,12 @@ Decisions are logged in `.planning/PROJECT.md`.
 
 ### Pending Todos
 
-- Finish the independent audit and exact integration of the Wave 2 plan amendments.
-- Run the accepted selector, then execute the dependency-unlocked Phase 1 construction set through manually isolated worktrees and serial integration.
+- Serially integrate Plan 01-01, then continue the dependency-unlocked Phase 1 construction set through isolated worktrees.
 - Keep Day-0 observation and every acceptance checkpoint closed until their explicit dependencies and authenticated receipts exist.
 - Import `MCP-DEEP-DIVE.md` before Phase 3 planning.
 
 ### Blockers/Concerns
 
-- Phase 1: production currently hard-codes every M0B participant to `knowledge-work`; a closed, persisted, process-authoritative cohort identity and hostile proof are required before observation.
 - Phase 1: the real 14-calendar-day Classic observation and signed `M0B.json` remain absent after the cohort-authority repair.
 - Phase 1: production M0B instrumentation cannot yet satisfy Classic/journey denominators or incident reporting.
 - Phase 1: stock full-phase execution remains prohibited; plan 01-40 supplies the bounded selector that avoids long-lived checkpoint deadlock without weakening explicit dependencies.
@@ -87,5 +85,5 @@ Decisions are logged in `.planning/PROJECT.md`.
 ## Session Continuity
 
 Last session: 2026-07-19
-Stopped at: Plan 01-40 accepted; Wave 2 plan successor awaiting independent audit and integration
-Resume file: `.planning/phases/WLD-01-safety-foundation/01-40-SUMMARY.md`
+Stopped at: Plan 01-01 implementation sealed and ready for serial integration
+Resume file: `.planning/phases/WLD-01-safety-foundation/01-01-SUMMARY.md`
