@@ -334,12 +334,88 @@ describe('MCP pre-publication renderer correlation', () => {
     }
   );
 
-  it('removes the restored case-sensitive adapter key before publishing a case-fold replacement winner', async () => {
+  it.each([
+    ['case-fold', server.name.toUpperCase()],
+    ['rename', 'renamed-server'],
+  ] as const)(
+    'removes the restored case-sensitive adapter key before publishing a %s winner',
+    async (kind, winnerName) => {
+      const winner = {
+        ...server,
+        id: kind === 'case-fold' ? 'replacement' : server.id,
+        name: winnerName,
+        description: 'concurrent replacement',
+        updatedAt: server.updatedAt + 1,
+      };
+      let stored = [server];
+      let saveCount = 0;
+      const adapterKeys = new Set([server.name]);
+      const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+        saveCount += 1;
+        if (saveCount === 1) stored = [server];
+        if (saveCount === 2) stored = [winner];
+        stored = typeof updater === 'function' ? updater(stored) : updater;
+      });
+      const remove = vi.fn(async (name: string) => {
+        adapterKeys.delete(name);
+        if (remove.mock.calls.length === 1) throw new Error('partial initial removal');
+      });
+      const sync = vi.fn(async (candidate: IMcpServer) => {
+        adapterKeys.add(candidate.name);
+      });
+      bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+      const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+        typeof Message.useMessage
+      >[0];
+      const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync));
+
+      await act(async () => result.current.handleTestMcpConnection(server));
+
+      expect(stored).toEqual([winner]);
+      expect(adapterKeys).toEqual(new Set([winner.name]));
+      expect(remove).toHaveBeenCalledTimes(2);
+    }
+  );
+
+  it.each(['disabled', 'deleted'] as const)(
+    'removes a restored case-sensitive adapter key for a concurrent %s winner',
+    async (concurrentKind) => {
+      const disabledWinner = { ...server, enabled: false, updatedAt: server.updatedAt + 1 };
+      let stored = [server];
+      let saveCount = 0;
+      const adapterKeys = new Set([server.name]);
+      const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+        saveCount += 1;
+        if (saveCount === 1) stored = [server];
+        if (saveCount === 2) stored = concurrentKind === 'deleted' ? [] : [disabledWinner];
+        stored = typeof updater === 'function' ? updater(stored) : updater;
+      });
+      const remove = vi.fn(async (name: string) => {
+        adapterKeys.delete(name);
+        if (remove.mock.calls.length === 1) throw new Error('partial initial removal');
+      });
+      const sync = vi.fn(async (candidate: IMcpServer) => {
+        adapterKeys.add(candidate.name);
+      });
+      bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
+      const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+        typeof Message.useMessage
+      >[0];
+      const { result } = renderHook(() => useMcpConnection([server], save, message, undefined, remove, sync));
+
+      await act(async () => result.current.handleTestMcpConnection(server));
+
+      expect(stored).toEqual(concurrentKind === 'deleted' ? [] : [disabledWinner]);
+      expect(adapterKeys).toEqual(new Set());
+      expect(remove).toHaveBeenCalledTimes(2);
+    }
+  );
+
+  it('retains divergence when exact-key cleanup for a case-fold replacement fails', async () => {
     const canonicalWinner = {
       ...server,
       id: 'canonical-replacement',
       name: server.name.toUpperCase(),
-      description: 'concurrent case-fold replacement',
       updatedAt: server.updatedAt + 1,
     };
     let stored = [server];
@@ -353,7 +429,7 @@ describe('MCP pre-publication renderer correlation', () => {
     });
     const remove = vi.fn(async (name: string) => {
       adapterKeys.delete(name);
-      if (remove.mock.calls.length === 1) throw new Error('partial initial removal');
+      throw new Error(remove.mock.calls.length === 1 ? 'partial initial removal' : 'exact-key cleanup failed');
     });
     const sync = vi.fn(async (candidate: IMcpServer) => {
       adapterKeys.add(candidate.name);
@@ -366,8 +442,14 @@ describe('MCP pre-publication renderer correlation', () => {
 
     await act(async () => result.current.handleTestMcpConnection(server));
 
-    expect(stored).toEqual([canonicalWinner]);
-    expect(adapterKeys).toEqual(new Set([canonicalWinner.name]));
+    expect(stored).toHaveLength(1);
+    expect(stored[0]).toMatchObject({
+      id: canonicalWinner.id,
+      enabled: true,
+      status: 'error',
+      lastError: expect.stringContaining('publication rollback incomplete'),
+    });
+    expect(sync).not.toHaveBeenCalledWith(canonicalWinner, true);
   });
 
   it.each(['enabled', 'disabled', 'deleted', 'canonical', 'renamed'] as const)(

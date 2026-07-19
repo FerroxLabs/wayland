@@ -198,7 +198,7 @@ export const useMcpConnection = (
             // A rename can strand the original config under a different key.
             // Remove it before publishing the exact durable winner. Same-key
             // updates are replaced directly by the authoritative sync.
-            if (mcpServerCollisionKey(winner.name) !== mcpServerCollisionKey(server.name)) {
+            if (winner.name !== server.name) {
               await removeMcpFromAgents(server.name, undefined, server.transport.type);
             }
             await syncMcpToAgents(winner, true);
