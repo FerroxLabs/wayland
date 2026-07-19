@@ -32,18 +32,27 @@ MCP catalog declaration, saved configuration, authentication requirement, and st
 
 ## Exact construction proof
 
-- Exact R4 repair implementation commit: `012fbb0cfe110eb00e3993ef0d84b81c97057d3d`.
-- Exact R4 repair implementation tree: `0d0649079888d21e9e2867be5be4a2168cb95c4b`.
-- Hostile-test parent: `325096f5b1217619eecb441a9c287b7d7e524e4e`.
-- Focused repair suite: 16 files, 132 tests passed.
+- Exact R5 repair implementation commit: `9cf4bb571fc48ea92817dbf3b204e71afc739b5f`.
+- Exact R5 repair implementation tree: `0684fa7019c2dc02f4490bbd2d8ec396fa5e2398`.
+- Executable hostile-test parent: `ce11147978b695187cd942c10c752c462af5c8ab`.
+- Focused repair suite: 16 files, 135 tests passed.
 - Typecheck: passed.
 - Changed-file oxlint: 0 warnings, 0 errors.
 - Oxfmt and `git diff --check`: passed.
-- Exact full aggregate: 1,434 Vitest files passed and 21 skipped; 15,179 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
-- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r4-012fbb0c/RECEIPT.md`.
+- Exact full aggregate: 1,434 Vitest files passed and 21 skipped; 15,182 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
+- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r5-9cf4bb57/RECEIPT.md`.
 - The first successor aggregate attempt exposed one stale Concierge test double that still expected the retired direct MCP setter. The test was migrated to the atomic authority, the add-name invariant was moved inside the atomic mutation, and the exact aggregate was rerun successfully from a clean implementation commit.
 
 ## Successor repair details
+
+- A publication whose durable compare-and-set loses to a concurrent edit can no
+  longer disappear behind ordinary disabled state when adapter compensation
+  also fails. The winning durable row is retained and marked as unresolved
+  publication divergence without overwriting its concurrent fields.
+- If the declaration was concurrently deleted, R5 recreates only a disabled
+  error-state reconciliation handle. If a canonical replacement won, that row
+  is marked instead of creating a case-only duplicate. Passive and direct probe
+  paths continue to withhold until explicit reconnect republishes successfully.
 
 - Neither a passive nor a direct standalone probe can erase an unresolved publication-divergence marker. Explicit reconnect republishes first and probes the exact declaration revision returned by that publication commit, never a later inferred storage revision.
 - Reconciliation error truncation reserves independent space for the publication-divergence marker, so an arbitrarily long provider error cannot hide the required reconnect state.
