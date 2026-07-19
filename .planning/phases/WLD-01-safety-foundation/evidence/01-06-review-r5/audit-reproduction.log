@@ -1,0 +1,39 @@
+$ vitest run tests/unit/process/services/recovery/recoveryPointBuilder.test.ts
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-repair-01-06-r5/app
+
+ ❯ |node| tests/unit/process/services/recovery/recoveryPointBuilder.test.ts (26 tests | 1 failed | 3 skipped) 1218ms
+     × rejects a source parent replacement after the final ancestor check but during source verification 88ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/unit/process/services/recovery/recoveryPointBuilder.test.ts > recovery point builder > rejects a source parent replacement after the final ancestor check but during source verification
+AssertionError: expected { replaced: true, …(2) } to deeply equal { replaced: true, …(2) }
+
+- Expected
++ Received
+
+  {
+    "parentIdentityChanged": true,
+-   "published": false,
++   "published": true,
+    "replaced": true,
+  }
+
+ ❯ tests/unit/process/services/recovery/recoveryPointBuilder.test.ts:506:8
+    504|       parentIdentityChanged:
+    505|         currentRootIdentity.dev !== originalRootIdentity.dev || curren…
+    506|     }).toEqual({ replaced: true, published: false, parentIdentityChang…
+       |        ^
+    507|     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+    508|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 22 passed | 3 skipped (26)
+   Start at  03:42:48
+   Duration  1.41s (transform 93ms, setup 18ms, import 97ms, tests 1.22s, environment 0ms)
+
+error: script "test:vitest" exited with code 1

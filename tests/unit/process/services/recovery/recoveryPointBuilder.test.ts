@@ -457,6 +457,56 @@ describe('recovery point builder', () => {
     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
   });
 
+  it('rejects a source parent replacement after the final ancestor check but during source verification', async () => {
+    const data = await fixture();
+    const originalRootIdentity = fs.statSync(data.userDataRoot);
+    const retiredUserDataRoot = `${data.userDataRoot}.retired-after-epoch`;
+    let epochReads = 0;
+    let replaced = false;
+    const deps = dependencies({
+      readMutationEpoch: async () => {
+        epochReads += 1;
+        return 'epoch-parent-replacement-stable';
+      },
+      closeFileHandle: async (handle, role) => {
+        await handle.close();
+        if (epochReads < 2 || replaced || role !== 'source-descendant') return;
+        replaced = true;
+        fs.renameSync(data.userDataRoot, retiredUserDataRoot);
+        fs.mkdirSync(data.userDataRoot);
+        for (const entry of fs.readdirSync(retiredUserDataRoot)) {
+          fs.renameSync(path.join(retiredUserDataRoot, entry), path.join(data.userDataRoot, entry));
+        }
+      },
+    });
+
+    let published = false;
+    try {
+      await buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      );
+      published = true;
+    } catch {
+      // The admitted source ancestry must remain authoritative until publication.
+    }
+
+    const currentRootIdentity = fs.statSync(data.userDataRoot);
+    expect({
+      replaced,
+      published,
+      parentIdentityChanged:
+        currentRootIdentity.dev !== originalRootIdentity.dev || currentRootIdentity.ino !== originalRootIdentity.ino,
+    }).toEqual({ replaced: true, published: false, parentIdentityChanged: true });
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+  });
+
   it('rejects an equal-byte descendant replacement during the final mutation epoch', async () => {
     const data = await fixture();
     const preferencesPath = path.join(data.userDataRoot, 'config', 'preferences.json');
