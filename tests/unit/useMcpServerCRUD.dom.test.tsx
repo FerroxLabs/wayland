@@ -256,6 +256,47 @@ describe('MCP pre-publication renderer correlation', () => {
       expect.objectContaining({ content: expect.stringMatching(/rollback|restore|reconcil/i) })
     );
   });
+
+  it('does not let a later standalone probe erase an unresolved publication divergence', async () => {
+    let stored = [server];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn().mockRejectedValue(new Error('partial removal'));
+    const sync = vi.fn().mockRejectedValue(new Error('restore rejected'));
+    bridgeMocks.testMcpConnection
+      .mockResolvedValueOnce({ success: false, msg: 'probe unavailable' })
+      .mockImplementationOnce(async () => ({
+        success: true,
+        data: {
+          success: true,
+          tools: [{ name: 'search' }],
+          prepublication: {
+            version: 'wayland-mcp-prepublication/1',
+            serverId: stored[0].id,
+            serverName: stored[0].name,
+            serverUpdatedAt: stored[0].updatedAt,
+            observedAt: Date.now(),
+            state: 'probed',
+            authentication: 'validated',
+            probe: 'succeeded',
+            toolCount: 1,
+          },
+        },
+      }));
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+    expect(stored[0].lastError).toMatch(/rollback|restore|reconcil/i);
+
+    await act(async () => result.current.refreshServerStatuses(stored, { force: true }));
+
+    expect(stored[0]).toMatchObject({ enabled: true, status: 'error' });
+    expect(stored[0].lastError).toMatch(/rollback|restore|reconcil/i);
+  });
 });
 
 describe('useMcpServerCRUD', () => {
@@ -419,6 +460,32 @@ describe('useMcpServerCRUD', () => {
 
       expect(removeMcpFromAgents).toHaveBeenCalledWith('beeper', undefined, 'stdio');
       expect(syncMcpToAgents).toHaveBeenCalledWith(existing, true);
+    });
+
+    it('does not overwrite a declaration that changes after add reads durable state', async () => {
+      const original = makeMockServer({ id: 'existing', name: 'beeper', enabled: true, updatedAt: 1000 });
+      const concurrent = { ...original, description: 'concurrent edit', updatedAt: 1001 };
+      let stored = [original];
+      removeMcpFromAgents.mockImplementationOnce(async () => {
+        stored = [concurrent];
+      });
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        stored = (updater as (prev: IMcpServer[]) => IMcpServer[])(stored);
+      });
+      const { result } = renderCRUD([original], async () => [original]);
+
+      await act(async () => {
+        await expect(
+          result.current.handleAddMcpServer({
+            name: 'beeper',
+            enabled: false,
+            transport: { type: 'streamable_http', url: 'http://localhost:23373/v0/mcp' },
+          })
+        ).rejects.toThrow(/changed|conflict|stale/i);
+      });
+
+      expect(stored).toEqual([concurrent]);
+      expect(syncMcpToAgents).toHaveBeenCalledWith(original, true);
     });
   });
 
