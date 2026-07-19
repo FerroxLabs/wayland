@@ -416,6 +416,27 @@ try {
     { resign: true }
   );
   await rejectsReceiptSchema(
+    'unknown gate-authorization fields fail closed',
+    (receipt) => {
+      receipt.signed.gate_authorizations.FUTURE_GATE = contractDigest(manifest.gates.ACCEPT_OPEN);
+    },
+    { resign: true }
+  );
+  await rejectsReceiptSchema(
+    'missing gate-authorization fields fail closed',
+    (receipt) => {
+      delete receipt.signed.gate_authorizations.ENTRY_OPEN;
+    },
+    { resign: true }
+  );
+  await rejectsReceiptSchema(
+    'malformed gate-authorization digests fail closed',
+    (receipt) => {
+      receipt.signed.gate_authorizations.ENTRY_OPEN = 'candidate-asserted';
+    },
+    { resign: true }
+  );
+  await rejectsReceiptSchema(
     'unknown candidate fields fail closed',
     (receipt) => {
       receipt.signed.candidate.receipt_authority = 'candidate';

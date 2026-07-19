@@ -74,7 +74,7 @@ function exactKeys(value, expected, label) {
   }
 }
 
-function validateReceiptSchema(receipt) {
+function validateReceiptSchema(receipt, manifest) {
   exactKeys(receipt, ['schema_version', 'signed', 'signature'], 'Receipt');
   exactKeys(
     receipt.signed,
@@ -94,6 +94,10 @@ function validateReceiptSchema(receipt) {
     ],
     'Receipt.signed'
   );
+  exactKeys(receipt.signed.gate_authorizations, Object.keys(manifest.gates), 'Receipt.signed.gate_authorizations');
+  for (const authorizationDigest of Object.values(receipt.signed.gate_authorizations)) {
+    if (!digest.test(authorizationDigest)) throw new Error('Receipt gate authorization has an invalid digest');
+  }
   exactKeys(receipt.signed.candidate, ['commit', 'tree', 'integration_head'], 'Receipt.signed.candidate');
   exactKeys(receipt.signed.evidence, ['log_digest', 'environment_digest'], 'Receipt.signed.evidence');
   exactKeys(receipt.signature, ['algorithm', 'key_id', 'value'], 'Receipt.signature');
@@ -268,7 +272,7 @@ async function checkGateAtVerificationTime(
       if (receipt.schema_version !== 2) return receiptFailure(packet, 'RECEIPT_SCHEMA_UNSUPPORTED');
       if (!receipt.signed || !receipt.signature) return receiptFailure(packet, 'RECEIPT_UNSIGNED');
       try {
-        validateReceiptSchema(receipt);
+        validateReceiptSchema(receipt, manifest);
       } catch {
         return receiptFailure(packet, 'RECEIPT_SCHEMA_INVALID');
       }
