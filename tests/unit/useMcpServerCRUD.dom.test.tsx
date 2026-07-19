@@ -553,6 +553,34 @@ describe('useMcpServerCRUD', () => {
       expect(stored.every((server) => server.enabled === false && server.status === 'disconnected')).toBe(true);
     });
 
+    it('does not overwrite a declaration that changes after batch import reads durable state', async () => {
+      const original = makeMockServer({ id: 'existing', name: 'firecrawl', enabled: true, updatedAt: 2000 });
+      const concurrent = { ...original, description: 'concurrent edit', updatedAt: 2001 };
+      let stored = [original];
+      removeMcpFromAgents.mockImplementationOnce(async () => {
+        stored = [concurrent];
+      });
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        stored = (updater as (prev: IMcpServer[]) => IMcpServer[])(stored);
+      });
+      const { result } = renderCRUD([original], async () => [original]);
+
+      await act(async () => {
+        await expect(
+          result.current.handleBatchImportMcpServers([
+            {
+              name: 'firecrawl',
+              enabled: false,
+              transport: { type: 'streamable_http', url: 'https://mcp.firecrawl.dev/v2' },
+            },
+          ])
+        ).rejects.toThrow(/changed|conflict|stale/i);
+      });
+
+      expect(stored).toEqual([concurrent]);
+      expect(syncMcpToAgents).toHaveBeenCalledWith(original, true);
+    });
+
     it('restores every prior publication when any batch revocation reports failure', async () => {
       const first = makeMockServer({ id: 'one', name: 'tavily', enabled: true });
       const second = makeMockServer({ id: 'two', name: 'firecrawl', enabled: true });

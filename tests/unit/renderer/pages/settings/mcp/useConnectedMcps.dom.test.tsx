@@ -84,4 +84,20 @@ describe('useConnectedMcps reconnect truth', () => {
     expect(toggle).toHaveBeenCalledWith(state.disabled.id, true);
     expect(probe).toHaveBeenCalledWith(state.published);
   });
+
+  it('republishes before probing when local enabled truth carries an unresolved divergence', async () => {
+    const divergent = {
+      ...state.disabled,
+      enabled: true,
+      status: 'error' as const,
+      lastError: 'probe unavailable; publication rollback incomplete — reconnect this connector',
+    };
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() };
+    const { result } = renderHook(() => useConnectedMcps(message as never));
+
+    await act(async () => result.current.reconnect(divergent));
+
+    expect(toggle).toHaveBeenCalledWith(divergent.id, true);
+    expect(probe).toHaveBeenCalledWith(state.published);
+  });
 });

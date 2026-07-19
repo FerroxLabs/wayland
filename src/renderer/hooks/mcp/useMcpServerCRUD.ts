@@ -13,6 +13,12 @@ function nextMcpRevision(previous?: number): number {
   return Math.max(Date.now(), (previous ?? 0) + 1);
 }
 
+function sameDeclarationRevision(expected: IMcpServer | undefined, actual: IMcpServer | undefined): boolean {
+  return expected === undefined
+    ? actual === undefined
+    : actual !== undefined && actual.id === expected.id && actual.updatedAt === expected.updatedAt;
+}
+
 function newMcpServerId(): string {
   return `mcp_${globalThis.crypto.randomUUID()}`;
 }
@@ -39,8 +45,10 @@ export const useMcpServerCRUD = (
       const now = Date.now();
       let serverToSync: IMcpServer | null = null;
       const currentServers = await readMcpServers();
+      const incomingKey = mcpServerCollisionKey(serverData.name);
+      const expectedExisting = currentServers.find((server) => mcpServerCollisionKey(server.name) === incomingKey);
       const existingPublished = currentServers.find(
-        (server) => mcpServerCollisionKey(server.name) === mcpServerCollisionKey(serverData.name) && server.enabled
+        (server) => mcpServerCollisionKey(server.name) === incomingKey && server.enabled
       );
       let revocationAttempted = false;
 
@@ -64,7 +72,10 @@ export const useMcpServerCRUD = (
         }
         await saveMcpServers((prevServers) => {
           serverToSync = null;
-          const incomingKey = mcpServerCollisionKey(serverData.name);
+          const actualExisting = prevServers.find((server) => mcpServerCollisionKey(server.name) === incomingKey);
+          if (!sameDeclarationRevision(expectedExisting, actualExisting)) {
+            throw new Error('MCP declaration changed while add was in progress');
+          }
           const existingServerIndex = prevServers.findIndex(
             (server) => mcpServerCollisionKey(server.name) === incomingKey
           );
@@ -124,6 +135,12 @@ export const useMcpServerCRUD = (
 
       const incomingKeys = new Set(serversData.map((server) => mcpServerCollisionKey(server.name)));
       const currentServers = await readMcpServers();
+      const expectedByKey = new Map(
+        [...incomingKeys].map((key) => [
+          key,
+          currentServers.find((server) => mcpServerCollisionKey(server.name) === key),
+        ])
+      );
       const existingPublished = currentServers.filter(
         (server) => server.enabled && incomingKeys.has(mcpServerCollisionKey(server.name))
       );
@@ -156,6 +173,13 @@ export const useMcpServerCRUD = (
         await saveMcpServers((prevServers) => {
           addedServers.length = 0;
           const updatedServers = [...prevServers];
+
+          for (const incomingKey of incomingKeys) {
+            const actual = prevServers.find((server) => mcpServerCollisionKey(server.name) === incomingKey);
+            if (!sameDeclarationRevision(expectedByKey.get(incomingKey), actual)) {
+              throw new Error('MCP declaration changed while import was in progress');
+            }
+          }
 
           serversData.forEach((serverData) => {
             const savedDeclaration: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'> = {

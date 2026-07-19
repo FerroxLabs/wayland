@@ -7,6 +7,7 @@ import { globalMessageQueue } from './messageQueue';
 
 export const MCP_PREPUBLICATION_MAX_AGE_MS = 5 * 60 * 1000;
 const MCP_PREPUBLICATION_MAX_FUTURE_SKEW_MS = 5_000;
+const MCP_PUBLICATION_DIVERGENCE_MARKER = 'publication rollback incomplete';
 
 function nextMcpRevision(previous: number): number {
   return Math.max(Date.now(), previous + 1);
@@ -157,7 +158,7 @@ export const useMcpConnection = (
                 restorationError,
               });
               surfacedError = truncateErrorMessage(
-                `${errorMsg}; publication rollback incomplete — reconnect this connector`
+                `${errorMsg}; ${MCP_PUBLICATION_DIVERGENCE_MARKER} — reconnect this connector`
               );
             }
           }
@@ -263,6 +264,11 @@ export const useMcpConnection = (
       const targets = servers.filter(
         (s) =>
           s.enabled === true &&
+          !(
+            s.status === 'error' &&
+            typeof s.lastError === 'string' &&
+            s.lastError.includes(MCP_PUBLICATION_DIVERGENCE_MARKER)
+          ) &&
           (force || s.status !== 'connected' || typeof s.lastConnected !== 'number' || now - s.lastConnected > STALE_MS)
       );
       if (targets.length === 0) {

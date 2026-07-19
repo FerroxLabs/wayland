@@ -311,15 +311,23 @@ export class McpConnectorLifecycleService {
       try {
         const removal = await this.deps.removeFromAgents(server.name, agents);
         if (!removal.success || removal.results.some((entry) => !entry.success)) {
-          await this.rollbackPublication(server, agents).catch((rollbackError) => {
-            console.error('[McpConnectorArchive] Failed to compensate partial removal:', rollbackError);
-          });
-          throw new Error(
+          const removalError = new Error(
             removal.results
               .filter((entry) => !entry.success)
               .map((entry) => `${entry.agent}: ${entry.error || 'removal failed'}`)
               .join('; ') || 'MCP connector removal failed'
           );
+          try {
+            await this.rollbackPublication(server, agents);
+          } catch (rollbackError) {
+            console.error('[McpConnectorArchive] Failed to compensate partial removal:', rollbackError);
+            const failure = new Error('MCP connector rollback publication failed after adapter removal', {
+              cause: rollbackError,
+            });
+            Object.assign(failure, { rollbackErrors: [rollbackError], removalError });
+            throw failure;
+          }
+          throw removalError;
         }
 
         const current = await this.deps.getActiveServers();
@@ -343,9 +351,16 @@ export class McpConnectorLifecycleService {
             current.filter((candidate) => candidate.id !== serverId)
           );
         } catch (error) {
-          await this.rollbackPublication(server, agents).catch((rollbackError) => {
+          try {
+            await this.rollbackPublication(server, agents);
+          } catch (rollbackError) {
             console.error('[McpConnectorArchive] Failed to restore agent publication:', rollbackError);
-          });
+            const failure = new Error('MCP connector rollback publication failed after config persistence', {
+              cause: rollbackError,
+            });
+            Object.assign(failure, { rollbackErrors: [rollbackError], persistenceError: error });
+            throw failure;
+          }
           throw error;
         }
         if (!committed) {
