@@ -32,18 +32,23 @@ MCP catalog declaration, saved configuration, authentication requirement, and st
 
 ## Exact construction proof
 
-- Exact R5 repair implementation commit: `9cf4bb571fc48ea92817dbf3b204e71afc739b5f`.
-- Exact R5 repair implementation tree: `0684fa7019c2dc02f4490bbd2d8ec396fa5e2398`.
-- Executable hostile-test parent: `ce11147978b695187cd942c10c752c462af5c8ab`.
-- Focused repair suite: 16 files, 135 tests passed.
+- Exact R6 repair implementation commit: `b34750dd4bfa925825343a1cfa6766c1b85a6285`.
+- Exact R6 repair implementation tree: `7fd377f4b0ed23d109d149da617c17828aa0c783`.
+- Executable hostile-test parent: `42d2d4ff265680b06123d65d2ac86a05d45b081e`.
+- Focused repair suite: 16 files, 153 tests passed in three deterministic resource-isolated shards.
 - Typecheck: passed.
 - Changed-file oxlint: 0 warnings, 0 errors.
 - Oxfmt and `git diff --check`: passed.
-- Exact full aggregate: 1,434 Vitest files passed and 21 skipped; 15,182 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
-- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r5-9cf4bb57/RECEIPT.md`.
+- Exact full aggregate: 1,434 Vitest files passed and 21 skipped; 15,200 tests passed and 145 skipped. Bun-native aggregate: 226 passed, 0 failed.
+- Sanitized retained command logs and their SHA-256 digests are recorded in `evidence/01-11-r6-b34750dd/RECEIPT.md`.
 - The first successor aggregate attempt exposed one stale Concierge test double that still expected the retired direct MCP setter. The test was migrated to the atomic authority, the add-name invariant was moved inside the atomic mutation, and the exact aggregate was rerun successfully from a clean implementation commit.
 
 ## Successor repair details
+
+- Failed-probe publication cleanup now treats the durable status commit as an explicit applied/conflict/error outcome. A successful or partial adapter revocation that loses its durable CAS reconciles the exact main-process winner rather than silently returning.
+- The reconciliation outcome matrix covers adapter revocation success/restoration, CAS win/loss, and concurrent enabled, disabled, deleted, renamed, and canonical case-fold replacement declarations. Exact enabled winners are republished, disabled/deleted winners remain absent, renamed winners first revoke the stale key, and any failed reconciliation persists the shared publication-divergence marker.
+- A rejected status write performs an authoritative queued read before reconciliation; it cannot interpret missing callback state as a deleted connector.
+- The shared reconciliation writer is used by both toggle compensation and failed-probe compensation so delete/recreation/canonical-replacement behavior cannot drift between paths.
 
 - A publication whose durable compare-and-set loses to a concurrent edit can no
   longer disappear behind ordinary disabled state when adapter compensation
