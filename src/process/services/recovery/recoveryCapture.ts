@@ -7,6 +7,7 @@
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { lstat, readdir } from 'node:fs/promises';
+import { homedir } from 'node:os';
 import path from 'node:path';
 import type { WaylandReleaseTrack } from '@/common/releaseTrack';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
@@ -73,6 +74,18 @@ const EPOCH_AUTHORITIES = new Set([
 ]);
 
 const EXTERNAL_RECOVERY_SAFE_STORAGE_REF = 'electron-safe-storage:wayland-external-recovery-authority-v1';
+
+export function resolveProductionRecoveryRoots(home = homedir()): {
+  defaultCoreRoot: string;
+  namedCoreRoot: string;
+  constitutionRoot: string;
+} {
+  return {
+    defaultCoreRoot: nativeConfigDir(),
+    namedCoreRoot: profilesRoot(),
+    constitutionRoot: path.join(home, '.wayland'),
+  };
+}
 
 export async function createProductionExternalRecoveryVaultBackend(): Promise<ExternalRecoveryVaultBackend> {
   const { safeStorage } = await import('electron');
@@ -286,11 +299,7 @@ export async function captureProductionRecoveryPoint(
   dependencies: ProductionRecoveryCaptureDependencies = {}
 ): Promise<BuiltRecoveryPoint> {
   if (!inputs.desktopProfileLockHeld) throw new Error('Desktop recovery capture requires the live profile lock.');
-  const resolvedCoreRoots = dependencies.resolveCoreRoots?.() ?? {
-    defaultCoreRoot: nativeConfigDir(),
-    namedCoreRoot: profilesRoot(),
-    constitutionRoot: path.dirname(profilesRoot()),
-  };
+  const resolvedCoreRoots = dependencies.resolveCoreRoots?.() ?? resolveProductionRecoveryRoots();
   const { defaultCoreRoot, namedCoreRoot, constitutionRoot } = resolvedCoreRoots;
   const databaseDriverFactory = dependencies.createDatabaseDriver ?? createDriver;
   const recoverySealer = dependencies.sealBytes ?? sealRecoveryBytesToBuffer;
@@ -312,66 +321,106 @@ export async function captureProductionRecoveryPoint(
   assertDesktopOnlyRecoveryCaptureReady(inventory);
   const databasePath = inventory.authorities.find(({ id }) => id === 'desktop.database')?.evidence[0]?.path;
   if (!databasePath) throw new Error('Desktop recovery capture could not resolve the authoritative database.');
-  const schemaDriver = await databaseDriverFactory(databasePath, { readonly: true, fileMustExist: true });
-  let desktopSchemaVersion: number;
+  const databaseIdentityBeforeOpen = await lstat(databasePath);
+  if (
+    databaseIdentityBeforeOpen.isSymbolicLink() ||
+    !databaseIdentityBeforeOpen.isFile() ||
+    databaseIdentityBeforeOpen.nlink !== 1
+  ) {
+    throw new Error('Desktop recovery database is not a uniquely linked regular file.');
+  }
+  const databaseDriver = await databaseDriverFactory(databasePath, { readonly: true, fileMustExist: true });
+  let databaseCaptureConsumed = false;
   try {
-    desktopSchemaVersion = readDatabaseSchemaVersionStrict(schemaDriver);
-  } finally {
-    schemaDriver.close();
-  }
+    const databaseIdentityAfterOpen = await lstat(databasePath);
+    if (
+      databaseIdentityAfterOpen.isSymbolicLink() ||
+      !databaseIdentityAfterOpen.isFile() ||
+      databaseIdentityAfterOpen.nlink !== 1 ||
+      databaseIdentityAfterOpen.dev !== databaseIdentityBeforeOpen.dev ||
+      databaseIdentityAfterOpen.ino !== databaseIdentityBeforeOpen.ino
+    ) {
+      throw new Error('Desktop recovery database identity changed while its snapshot connection was opened.');
+    }
+    const desktopSchemaVersion = readDatabaseSchemaVersionStrict(databaseDriver);
 
-  // The schema open is an asynchronous boundary. Re-inventory after it so a
-  // root created between discovery and capture cannot inherit stale authority.
-  inventory = await inventoryRecoveryAuthorities(inventoryInputs);
-  assertDesktopOnlyRecoveryCaptureReady(inventory);
+    // Opening the database is an asynchronous boundary. Re-inventory while the
+    // same connection remains pinned so schema and snapshot cannot cross identities.
+    inventory = await inventoryRecoveryAuthorities(inventoryInputs);
+    assertDesktopOnlyRecoveryCaptureReady(inventory);
 
-  if (inputs.externalRecoveryAuthority) {
-    await provisionHealthyV2ExternalRecoveryAuthority(
+    if (inputs.externalRecoveryAuthority) {
+      await provisionHealthyV2ExternalRecoveryAuthority(
+        {
+          userDataRoot: inputs.userDataRoot,
+          desktopSchemaVersion,
+          inventory,
+          request: inputs.externalRecoveryAuthority,
+        },
+        dependencies
+      );
+    }
+
+    return await buildRecoveryPoint(
       {
-        userDataRoot: inputs.userDataRoot,
-        desktopSchemaVersion,
         inventory,
-        request: inputs.externalRecoveryAuthority,
+        destinationRoot: inputs.destinationRoot,
+        reason: 'manual',
+        sourceAppVersion: inputs.sourceAppVersion,
+        desktopSchemaVersion,
+        protectedRoots: [inputs.userDataRoot, constitutionRoot, defaultCoreRoot, namedCoreRoot],
       },
-      dependencies
-    );
-  }
-
-  return buildRecoveryPoint(
-    {
-      inventory,
-      destinationRoot: inputs.destinationRoot,
-      reason: 'manual',
-      sourceAppVersion: inputs.sourceAppVersion,
-      desktopSchemaVersion,
-      protectedRoots: [inputs.userDataRoot, constitutionRoot, defaultCoreRoot, namedCoreRoot],
-    },
-    {
-      captureSqliteOnline: async (sourcePath) => {
-        const driver = await databaseDriverFactory(sourcePath, { readonly: true, fileMustExist: true });
-        try {
-          if (!driver.snapshotBytes) {
+      {
+        captureSqliteOnline: async (sourcePath) => {
+          if (sourcePath !== databasePath || databaseCaptureConsumed) {
+            throw new Error('SQLite recovery capture must consume its admitted database connection exactly once.');
+          }
+          databaseCaptureConsumed = true;
+          const beforeSnapshot = await lstat(databasePath);
+          if (
+            beforeSnapshot.isSymbolicLink() ||
+            !beforeSnapshot.isFile() ||
+            beforeSnapshot.nlink !== 1 ||
+            beforeSnapshot.dev !== databaseIdentityBeforeOpen.dev ||
+            beforeSnapshot.ino !== databaseIdentityBeforeOpen.ino
+          ) {
+            throw new Error('Desktop recovery database identity changed before snapshot.');
+          }
+          if (!databaseDriver.snapshotBytes) {
             throw new Error('SQLite driver cannot produce an in-memory application-consistent snapshot.');
           }
-          return Buffer.from(driver.snapshotBytes());
-        } finally {
-          driver.close();
-        }
-      },
-      sealBytes: recoverySealer,
-      acquireDesktopQuiescence: async () => ({ release: async () => undefined }),
-      // Intentionally absent until FerroxLabs/wayland#896 is accepted.
-      acquireCoreQuiescence: undefined,
-      readMutationEpoch: async () => {
-        // Reclassify at both builder epoch boundaries: after quiescence and
-        // immediately before publication. Namespace hashing detects drift;
-        // this inventory pass also prevents a newly discovered root from
-        // inheriting an obsolete authority disposition.
-        const currentInventory = await inventoryRecoveryAuthorities(inventoryInputs);
-        assertDesktopOnlyRecoveryCaptureReady(currentInventory);
-        return fingerprintDesktopRecoveryState(currentInventory);
-      },
-      allowUnsafePathFallbackForTests: dependencies.allowUnsafePathFallbackForTests,
-    }
-  );
+          const schemaVersion = readDatabaseSchemaVersionStrict(databaseDriver);
+          const bytes = Buffer.from(databaseDriver.snapshotBytes());
+          const afterSnapshot = await lstat(databasePath);
+          if (
+            afterSnapshot.isSymbolicLink() ||
+            !afterSnapshot.isFile() ||
+            afterSnapshot.nlink !== 1 ||
+            afterSnapshot.dev !== databaseIdentityBeforeOpen.dev ||
+            afterSnapshot.ino !== databaseIdentityBeforeOpen.ino
+          ) {
+            bytes.fill(0);
+            throw new Error('Desktop recovery database identity changed during snapshot.');
+          }
+          return { bytes, schemaVersion };
+        },
+        sealBytes: recoverySealer,
+        acquireDesktopQuiescence: async () => ({ release: async () => undefined }),
+        // Intentionally absent until FerroxLabs/wayland#896 is accepted.
+        acquireCoreQuiescence: undefined,
+        readMutationEpoch: async () => {
+          // Reclassify at both builder epoch boundaries: after quiescence and
+          // immediately before publication. Namespace hashing detects drift;
+          // this inventory pass also prevents a newly discovered root from
+          // inheriting an obsolete authority disposition.
+          const currentInventory = await inventoryRecoveryAuthorities(inventoryInputs);
+          assertDesktopOnlyRecoveryCaptureReady(currentInventory);
+          return fingerprintDesktopRecoveryState(currentInventory);
+        },
+        allowUnsafePathFallbackForTests: dependencies.allowUnsafePathFallbackForTests,
+      }
+    );
+  } finally {
+    databaseDriver.close();
+  }
 }

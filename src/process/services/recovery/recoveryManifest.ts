@@ -188,6 +188,22 @@ function issue(code: string, issuePath: string, message: string): RecoveryManife
   return { code, path: issuePath, message };
 }
 
+function validateExactKeys(
+  value: Record<string, unknown>,
+  allowed: readonly string[],
+  issuePath: string,
+  errors: RecoveryManifestIssue[]
+): void {
+  const allowedKeys = new Set(allowed);
+  for (const key of Object.keys(value)) {
+    if (!allowedKeys.has(key)) {
+      errors.push(
+        issue('FIELD_UNKNOWN', issuePath === '$' ? key : `${issuePath}.${key}`, 'Unknown manifest fields are forbidden.')
+      );
+    }
+  }
+}
+
 function canonicalContainedRelativePath(value: string): string | null {
   if (!value || value.includes('\0') || value.includes('\\')) return null;
   if (path.posix.isAbsolute(value) || /^[a-zA-Z]:\//.test(value)) return null;
@@ -348,6 +364,33 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
 
   const isLegacyManifest = value.formatVersion === LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION;
   const isPreviousManifest = value.formatVersion === PREVIOUS_RECOVERY_MANIFEST_FORMAT_VERSION;
+  const isCurrentManifest = value.formatVersion === RECOVERY_MANIFEST_FORMAT_VERSION;
+  if (isCurrentManifest) {
+    validateExactKeys(
+      value,
+      [
+        'formatVersion',
+        'snapshotId',
+        'state',
+        'createdAt',
+        'reason',
+        'sourceAppVersion',
+        'sourceReleaseTrack',
+        'targetAppVersion',
+        'desktopSchemaVersion',
+        'platform',
+        'arch',
+        'mutationEpoch',
+        'authorities',
+        'logicalState',
+        'files',
+        'externalWorkspaces',
+        'externalAgentConfigs',
+      ],
+      '$',
+      errors
+    );
+  }
   if (!isLegacyManifest && !isPreviousManifest && value.formatVersion !== RECOVERY_MANIFEST_FORMAT_VERSION) {
     errors.push(issue('FORMAT_UNSUPPORTED', 'formatVersion', 'Unsupported recovery manifest format.'));
   }
@@ -390,6 +433,9 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
   }
 
   const mutationEpoch = isRecord(value.mutationEpoch) ? value.mutationEpoch : null;
+  if (isCurrentManifest && mutationEpoch) {
+    validateExactKeys(mutationEpoch, ['start', 'end'], 'mutationEpoch', errors);
+  }
   if (
     !mutationEpoch ||
     typeof mutationEpoch.start !== 'string' ||
@@ -419,6 +465,27 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     if (!isRecord(rawFile)) {
       errors.push(issue('FILE_INVALID', filePath, 'File entry must be an object.'));
       return;
+    }
+    if (isCurrentManifest) {
+      validateExactKeys(
+        rawFile,
+        [
+          'id',
+          'authority',
+          'logicalRole',
+          'sourcePath',
+          'snapshotPath',
+          'restorePath',
+          'size',
+          'mtimeMs',
+          'sha256',
+          'sensitive',
+          'copyPolicy',
+          'state',
+        ],
+        filePath,
+        errors
+      );
     }
     if (typeof rawFile.id !== 'string' || rawFile.id.length === 0 || fileIds.has(rawFile.id)) {
       errors.push(issue('FILE_ID_INVALID', `${filePath}.id`, 'File id must be non-empty and unique.'));
@@ -518,6 +585,47 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     if (!isRecord(rawAuthority) || typeof rawAuthority.id !== 'string') {
       errors.push(issue('AUTHORITY_INVALID', authorityPath, 'Authority entry must have an id.'));
       return;
+    }
+    if (isCurrentManifest) {
+      validateExactKeys(
+        rawAuthority,
+        [
+          'id',
+          'sourceRoot',
+          'coverage',
+          'consistency',
+          'requiredForRestore',
+          'sensitive',
+          'fileIds',
+          'referenceIds',
+          'referenceBindings',
+          'credentialBinding',
+          'empty',
+          'note',
+        ],
+        authorityPath,
+        errors
+      );
+      if (isRecord(rawAuthority.credentialBinding)) {
+        validateExactKeys(
+          rawAuthority.credentialBinding,
+          ['scope', 'backend', 'envelope'],
+          `${authorityPath}.credentialBinding`,
+          errors
+        );
+      }
+      if (Array.isArray(rawAuthority.referenceBindings)) {
+        rawAuthority.referenceBindings.forEach((binding, bindingIndex) => {
+          if (isRecord(binding)) {
+            validateExactKeys(
+              binding,
+              ['id', 'path', 'state'],
+              `${authorityPath}.referenceBindings[${bindingIndex}]`,
+              errors
+            );
+          }
+        });
+      }
     }
     if (authorityMap.has(rawAuthority.id)) {
       errors.push(issue('AUTHORITY_DUPLICATE', `${authorityPath}.id`, 'Authority ids must be unique.'));
@@ -737,6 +845,9 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
       errors.push(issue('LOGICAL_STATE_ENTRY_INVALID', logicalPath, 'Logical state entry must have an id.'));
       return;
     }
+    if (isCurrentManifest) {
+      validateExactKeys(rawLogicalState, ['id', 'status', 'authorityIds', 'note'], logicalPath, errors);
+    }
     if (!REQUIRED_LOGICAL_STATE_SET.has(rawLogicalState.id)) {
       errors.push(
         issue('LOGICAL_STATE_ID_UNKNOWN', `${logicalPath}.id`, 'Logical state id is not part of the recovery contract.')
@@ -885,6 +996,13 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
       issue('EXTERNAL_WORKSPACES_INVALID', 'externalWorkspaces', 'External workspace references must be an array.')
     );
   } else {
+    if (isCurrentManifest) {
+      value.externalWorkspaces.forEach((entry, index) => {
+        if (isRecord(entry)) {
+          validateExactKeys(entry, ['projectId', 'path', 'state', 'copyPolicy'], `externalWorkspaces[${index}]`, errors);
+        }
+      });
+    }
     validateExternalReferences(value.externalWorkspaces, 'projectId', 'externalWorkspaces', errors);
   }
   if (!Array.isArray(value.externalAgentConfigs)) {
@@ -896,6 +1014,13 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
       )
     );
   } else {
+    if (isCurrentManifest) {
+      value.externalAgentConfigs.forEach((entry, index) => {
+        if (isRecord(entry)) {
+          validateExactKeys(entry, ['backendId', 'path', 'state', 'copyPolicy'], `externalAgentConfigs[${index}]`, errors);
+        }
+      });
+    }
     validateExternalReferences(value.externalAgentConfigs, 'backendId', 'externalAgentConfigs', errors);
   }
   validateExternalAuthorityBinding(

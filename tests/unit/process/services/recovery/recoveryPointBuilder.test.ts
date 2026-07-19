@@ -89,7 +89,7 @@ describe('recovery point builder', () => {
     const desktopRelease = vi.fn(async () => undefined);
     const coreRelease = vi.fn(async () => undefined);
     const base: RecoveryPointBuilderDependencies = {
-      captureSqliteOnline: async (source) => fs.promises.readFile(source),
+      captureSqliteOnline: async (source) => ({ bytes: await fs.promises.readFile(source), schemaVersion: 53 }),
       sealBytes: async (plaintext) => Buffer.concat([Buffer.from('sealed:'), plaintext]),
       acquireDesktopQuiescence: async () => ({ release: desktopRelease }),
       acquireCoreQuiescence: async () => ({ release: coreRelease }),
@@ -261,6 +261,74 @@ describe('recovery point builder', () => {
     expect(deps.desktopRelease).toHaveBeenCalledOnce();
   });
 
+  it('fails closed when the online SQLite image reports a different schema than the pinned connection', async () => {
+    const data = await fixture();
+    const capturedBytes = Buffer.from('SQLite format 3\0wrong-schema');
+    const deps = dependencies({
+      captureSqliteOnline: async () => ({ bytes: capturedBytes, schemaVersion: 54 }),
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('SQLite schema changed during recovery capture (53 -> 54)');
+
+    expect(capturedBytes).toEqual(Buffer.alloc(capturedBytes.length));
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+  });
+
+  it('detects equal-epoch ABA mutation by re-hashing the admitted source bytes after capture', async () => {
+    const data = await fixture();
+    const configPath = path.join(data.userDataRoot, 'config', 'preferences.json');
+    const original = '{"theme":"dark"}';
+    const transient = '{"theme":"evil"}';
+    expect(Buffer.byteLength(transient)).toBe(Buffer.byteLength(original));
+    let injected = false;
+    let restored = false;
+    const deps = dependencies({
+      readMutationEpoch: async () => 'epoch-stable-but-insufficient',
+      beforeSourceEntryOpen: async (relativePath) => {
+        if (!injected && relativePath === 'preferences.json') {
+          injected = true;
+          fs.writeFileSync(configPath, transient);
+        }
+      },
+      sealBytes: async (plaintext) => {
+        if (!restored && plaintext.toString('utf8') === transient) {
+          restored = true;
+          fs.writeFileSync(configPath, original);
+        }
+        return Buffer.concat([Buffer.from('sealed:'), plaintext]);
+      },
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('Recovery source bytes changed after capture');
+
+    expect(injected).toBe(true);
+    expect(restored).toBe(true);
+    expect(fs.readFileSync(configPath, 'utf8')).toBe(original);
+    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+  });
+
   it('does not publish a partial point when sealing fails', async () => {
     const data = await fixture();
     const deps = dependencies({ sealBytes: async () => Promise.reject(new Error('sealer unavailable')) });
@@ -401,7 +469,7 @@ describe('recovery point builder', () => {
     const deps = dependencies({
       captureSqliteOnline: async () => {
         observedEntries.push(inspectStaging());
-        return Buffer.from(databaseBytes);
+        return { bytes: Buffer.from(databaseBytes), schemaVersion: 53 };
       },
       sealBytes: async (plaintext) => {
         if (plaintext.equals(databaseBytes)) observedEntries.push(inspectStaging());

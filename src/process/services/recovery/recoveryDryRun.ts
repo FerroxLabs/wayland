@@ -224,6 +224,44 @@ export function evaluateRecoveryDryRun(
     }
   }
 
+  if (!Array.isArray(inventory.constitutionRoots)) {
+    blockers.push(block('CONSTITUTION_ROOT_INVENTORY_MISSING', 'The Constitution namespace inventory is missing.'));
+  } else {
+    const seenRoots = new Set<string>();
+    let previous = '';
+    for (const root of inventory.constitutionRoots) {
+      if (!root.relativePath || seenRoots.has(root.relativePath)) {
+        blockers.push(block('CONSTITUTION_ROOT_DUPLICATE', 'The Constitution inventory contains a duplicate path.'));
+      }
+      if (previous && codeUnitCompare(previous, root.relativePath) > 0) {
+        blockers.push(block('CONSTITUTION_ROOT_ORDER_INVALID', 'The Constitution inventory is not deterministic.'));
+      }
+      seenRoots.add(root.relativePath);
+      previous = root.relativePath;
+      if (root.disposition === 'unknown') {
+        blockers.push(
+          block('UNKNOWN_CONSTITUTION_ROOT', `No recovery authority owns Constitution path ${root.relativePath}.`)
+        );
+      }
+      if (
+        root.disposition === 'captured' &&
+        (root.authorityIds.length === 0 ||
+          root.evidence.state === 'symlink' ||
+          root.evidence.state === 'unreadable' ||
+          root.evidence.symlinkCount > 0 ||
+          root.evidence.hardlinkCount > 0 ||
+          root.evidence.truncated)
+      ) {
+        blockers.push(block('CONSTITUTION_ROOT_UNSAFE', `Captured Constitution path ${root.relativePath} is unsafe.`));
+      }
+      if (root.disposition === 'excluded' && root.restoreConsequence.trim().length === 0) {
+        blockers.push(
+          block('CONSTITUTION_EXCLUSION_UNJUSTIFIED', `Excluded Constitution path ${root.relativePath} has no consequence.`)
+        );
+      }
+    }
+  }
+
   validateExternalReferenceBinding(inventory, 'external.workspaces', blockers);
   validateExternalReferenceBinding(inventory, 'external.agent-configs', blockers);
 

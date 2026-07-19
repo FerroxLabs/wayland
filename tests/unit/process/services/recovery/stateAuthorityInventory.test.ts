@@ -3,6 +3,18 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { inventoryRecoveryAuthorities } from '@process/services/recovery/stateAuthorityInventory';
+import {
+  evaluateRecoveryDryRun,
+  type RecoveryCaptureCapabilities,
+} from '@process/services/recovery/recoveryDryRun';
+
+const allCapabilities: RecoveryCaptureCapabilities = {
+  sqliteOnlineBackup: true,
+  desktopQuiescence: true,
+  coreQuiescence: true,
+  mutationEpoch: true,
+  sealedSensitiveCopies: true,
+};
 
 describe('state authority inventory', () => {
   const roots: string[] = [];
@@ -139,7 +151,7 @@ describe('state authority inventory', () => {
     expect(config.evidence[0].hardlinkCount).toBe(1);
   });
 
-  it('keeps production ~/.wayland profiles and unrelated trees out of Constitution ownership and scan budget', async () => {
+  it('separates Core profiles while surfacing every unknown ~/.wayland path as a blocker', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-production-topology-'));
     roots.push(root);
     const userDataRoot = path.join(root, 'user-data');
@@ -160,7 +172,7 @@ describe('state authority inventory', () => {
       constitutionRoot: waylandRoot,
       coreDefaultProfileRoot: path.join(root, 'core-default'),
       coreNamedProfilesRoot: namedProfiles,
-      maxEntriesPerRoot: 2,
+      maxEntriesPerRoot: 20,
     });
     const constitution = inventory.authorities.find(({ id }) => id === 'constitution.filesystem')!;
     const named = inventory.authorities.find(({ id }) => id === 'core.named-profiles')!;
@@ -175,7 +187,49 @@ describe('state authority inventory', () => {
       '.constitution-keys.enc',
       'archives/constitution-history',
     ]);
-    expect(named.evidence[0].truncated).toBe(true);
+    expect(named.evidence[0].truncated).toBe(false);
+    expect(inventory.constitutionRoots).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ relativePath: 'CONSTITUTION.md', disposition: 'captured' }),
+        expect.objectContaining({ relativePath: 'profiles', disposition: 'excluded' }),
+        expect.objectContaining({ relativePath: 'oauth-cache', disposition: 'unknown' }),
+      ])
+    );
+    expect(inventory.constitutionRoots.find(({ relativePath }) => relativePath === 'oauth-cache')?.evidence.state).toBe(
+      'symlink'
+    );
+    expect(evaluateRecoveryDryRun(inventory, allCapabilities).blockers.map(({ code }) => code)).toContain(
+      'UNKNOWN_CONSTITUTION_ROOT'
+    );
+  });
+
+  it('fails closed on wrong Constitution topology and hard-linked Constitution files', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-constitution-hostile-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const constitutionRoot = path.join(root, '.wayland');
+    const outside = path.join(root, 'outside-constitution.md');
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(path.join(constitutionRoot, '.constitution-keys.enc'), { recursive: true });
+    fs.writeFileSync(outside, '# mutable elsewhere');
+    fs.linkSync(outside, path.join(constitutionRoot, 'CONSTITUTION.md'));
+
+    const inventory = await inventoryRecoveryAuthorities({
+      userDataRoot,
+      constitutionRoot,
+      coreDefaultProfileRoot: path.join(root, 'core-default'),
+      coreNamedProfilesRoot: path.join(constitutionRoot, 'profiles'),
+    });
+
+    expect(inventory.constitutionRoots).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ relativePath: '.constitution-keys.enc', disposition: 'unknown' }),
+        expect.objectContaining({ relativePath: 'CONSTITUTION.md', disposition: 'captured' }),
+      ])
+    );
+    expect(evaluateRecoveryDryRun(inventory, allCapabilities).blockers.map(({ code }) => code)).toEqual(
+      expect.arrayContaining(['UNKNOWN_CONSTITUTION_ROOT', 'CONSTITUTION_ROOT_UNSAFE'])
+    );
   });
 
   it.each([Number.NaN, Number.POSITIVE_INFINITY, -1, 0, 1.5, 20_001, '100' as unknown as number])(

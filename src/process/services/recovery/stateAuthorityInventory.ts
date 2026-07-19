@@ -55,6 +55,7 @@ export type RecoveryInventory = {
   externalWorkspaces: Array<{ projectId: string; path: string; state: InventoryPathState }>;
   externalAgentConfigs: Array<{ backendId: string; path: string; state: InventoryPathState }>;
   userDataRoots: UserDataRootInventoryEntry[];
+  constitutionRoots: UserDataRootInventoryEntry[];
 };
 
 export type UserDataRootInventoryEntry = {
@@ -376,6 +377,124 @@ async function inventoryUserDataRoots(userDataRoot: string, maxEntries: number):
   return roots.toSorted((left, right) => codeUnitCompare(left.relativePath, right.relativePath));
 }
 
+function classifyConstitutionPath(
+  relativePath: string,
+  constitutionRoot: string,
+  coreNamedProfilesRoot: string
+): Pick<UserDataRootInventoryEntry, 'disposition' | 'authorityIds' | 'restoreConsequence'> {
+  const normalized = relativePath.split(path.sep).join('/');
+  const captured =
+    normalized === 'CONSTITUTION.md' ||
+    normalized === 'SOUL.md' ||
+    normalized === '.constitution-keys.enc' ||
+    normalized === 'specialists' ||
+    normalized.startsWith('specialists/') ||
+    normalized === 'archives' ||
+    normalized === 'archives/constitution-history' ||
+    normalized.startsWith('archives/constitution-history/');
+  if (captured) {
+    return {
+      disposition: 'captured',
+      authorityIds: ['constitution.filesystem'],
+      restoreConsequence: 'This Constitution-owned state is sealed into the recovery point.',
+    };
+  }
+  if (
+    (normalized === 'profiles' || normalized.startsWith('profiles/')) &&
+    path.resolve(constitutionRoot, 'profiles') === path.resolve(coreNamedProfilesRoot)
+  ) {
+    return {
+      disposition: 'excluded',
+      authorityIds: ['core.named-profiles'],
+      restoreConsequence: 'This producer-owned Core profile state requires the Core quiescence contract.',
+    };
+  }
+  return {
+    disposition: 'unknown',
+    authorityIds: [],
+    restoreConsequence: 'No recovery authority or explicit exclusion owns this Constitution path.',
+  };
+}
+
+function constitutionPathHasExpectedTopology(relativePath: string, evidence: InventoryPathEvidence): boolean {
+  const normalized = relativePath.split(path.sep).join('/');
+  if (normalized === 'CONSTITUTION.md' || normalized === 'SOUL.md' || normalized === '.constitution-keys.enc') {
+    return evidence.state === 'file';
+  }
+  if (normalized === 'specialists' || normalized === 'archives' || normalized === 'archives/constitution-history') {
+    return evidence.state === 'directory';
+  }
+  if (normalized.startsWith('specialists/') || normalized.startsWith('archives/constitution-history/')) {
+    return evidence.state === 'file' || evidence.state === 'directory';
+  }
+  return true;
+}
+
+async function inventoryConstitutionRoots(
+  constitutionRoot: string,
+  coreNamedProfilesRoot: string,
+  maxEntries: number
+): Promise<UserDataRootInventoryEntry[]> {
+  let remaining = maxEntries;
+  const roots: UserDataRootInventoryEntry[] = [];
+
+  const visit = async (directory: string, relativeRoot: string): Promise<void> => {
+    let names: string[];
+    try {
+      names = await readdir(directory);
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code === 'ENOENT' && relativeRoot === '') return;
+      roots.push({
+        relativePath: relativeRoot || '.',
+        disposition: 'unknown',
+        authorityIds: [],
+        evidence: emptyEvidence(directory, code === 'ENOENT' ? 'absent' : 'unreadable', code ?? 'UNKNOWN'),
+        restoreConsequence: 'The Constitution namespace could not be enumerated completely.',
+      });
+      return;
+    }
+    names.sort(codeUnitCompare);
+    for (const name of names) {
+      if (remaining <= 0) {
+        roots.push({
+          relativePath: relativeRoot ? `${relativeRoot}/.` : '.',
+          disposition: 'unknown',
+          authorityIds: [],
+          evidence: {
+            ...emptyEvidence(directory, 'unreadable', 'INVENTORY_TRUNCATED'),
+            truncated: true,
+          },
+          restoreConsequence: 'The Constitution namespace exceeded its bounded inventory.',
+        });
+        return;
+      }
+      remaining -= 1;
+      const relativePath = relativeRoot ? `${relativeRoot}/${name}` : name;
+      const candidate = path.join(directory, name);
+      // Sequential inspection and traversal preserve deterministic evidence ordering.
+      // oxlint-disable-next-line no-await-in-loop
+      const evidence = await inspectRoot(candidate, maxEntries, false);
+      let classification = classifyConstitutionPath(relativePath, constitutionRoot, coreNamedProfilesRoot);
+      if (classification.disposition === 'captured' && !constitutionPathHasExpectedTopology(relativePath, evidence)) {
+        classification = {
+          disposition: 'unknown',
+          authorityIds: [],
+          restoreConsequence: 'The Constitution path has an unexpected filesystem type and cannot be captured.',
+        };
+      }
+      roots.push({ relativePath, evidence, ...classification });
+      if (evidence.state === 'directory' && classification.disposition !== 'excluded') {
+        // oxlint-disable-next-line no-await-in-loop
+        await visit(candidate, relativePath);
+      }
+    }
+  };
+
+  await visit(constitutionRoot, '');
+  return roots.toSorted((left, right) => codeUnitCompare(left.relativePath, right.relativePath));
+}
+
 async function inspectRoot(
   candidatePath: string,
   maxEntries: number,
@@ -546,6 +665,11 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
   const coreCoverage = (evidence: InventoryPathEvidence[]): AuthorityCoverage =>
     classifyInventoryEvidenceState(evidence) === 'absent' ? 'absent' : 'encrypted-copy';
   const userDataRoots = await inventoryUserDataRoots(inputs.userDataRoot, maxEntries);
+  const constitutionRoots = await inventoryConstitutionRoots(
+    inputs.constitutionRoot,
+    inputs.coreNamedProfilesRoot,
+    maxEntries
+  );
 
   return {
     userDataRoot: inputs.userDataRoot,
@@ -742,5 +866,6 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
       state: externalAgentConfigEvidence[index].state,
     })),
     userDataRoots,
+    constitutionRoots,
   };
 }

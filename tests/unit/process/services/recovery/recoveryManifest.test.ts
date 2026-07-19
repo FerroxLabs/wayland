@@ -273,6 +273,41 @@ describe('recovery manifest validation', () => {
     expect(result.warnings.map((warning) => warning.code)).toContain('CREDENTIALS_NOT_RECOVERABLE');
   });
 
+  it('rejects undeclared fields at every current-v3 manifest object boundary', () => {
+    const mutations: Array<[string, (manifest: RecoveryManifest) => void]> = [
+      ['unexpected', (manifest) => Object.assign(manifest, { unexpected: true })],
+      ['mutationEpoch.unexpected', (manifest) => Object.assign(manifest.mutationEpoch, { unexpected: true })],
+      ['files[0].unexpected', (manifest) => Object.assign(manifest.files[0], { unexpected: true })],
+      ['authorities[0].unexpected', (manifest) => Object.assign(manifest.authorities[0], { unexpected: true })],
+      [
+        'authorities[4].credentialBinding.unexpected',
+        (manifest) => Object.assign(manifest.authorities[4].credentialBinding!, { unexpected: true }),
+      ],
+      [
+        'authorities[10].referenceBindings[0].unexpected',
+        (manifest) => Object.assign(manifest.authorities[10].referenceBindings![0], { unexpected: true }),
+      ],
+      ['logicalState[0].unexpected', (manifest) => Object.assign(manifest.logicalState[0], { unexpected: true })],
+      [
+        'externalWorkspaces[0].unexpected',
+        (manifest) => Object.assign(manifest.externalWorkspaces[0], { unexpected: true }),
+      ],
+      [
+        'externalAgentConfigs[0].unexpected',
+        (manifest) => Object.assign(manifest.externalAgentConfigs[0], { unexpected: true }),
+      ],
+    ];
+
+    for (const [expectedPath, mutate] of mutations) {
+      const manifest = makeManifest();
+      mutate(manifest);
+      const result = validateRecoveryManifest(manifest);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ code: 'FIELD_UNKNOWN', path: expectedPath })
+      );
+    }
+  });
+
   it('accepts a legacy v1 recovery point without the later revision authority and marks migration required', () => {
     const legacy = structuredClone(makeManifest()) as unknown as {
       formatVersion: number;

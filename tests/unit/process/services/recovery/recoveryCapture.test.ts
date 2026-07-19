@@ -14,6 +14,7 @@ import {
   captureProductionRecoveryPoint,
   fingerprintDesktopRecoveryState,
   provisionHealthyV2ExternalRecoveryAuthority,
+  resolveProductionRecoveryRoots,
 } from '@process/services/recovery/recoveryCapture';
 import { resolveExternalRecoveryAuthorityRoot } from '@process/services/recovery/externalRecoveryAuthority';
 import type { ExternalRecoveryVaultBackend } from '@process/services/recovery/externalRecoveryAuthority';
@@ -57,6 +58,7 @@ function inventory(configPath: string): RecoveryInventory {
     externalWorkspaces: [],
     externalAgentConfigs: [],
     userDataRoots: [],
+    constitutionRoots: [],
   };
 }
 
@@ -167,6 +169,7 @@ describe('Desktop recovery mutation epoch', () => {
 describe('Desktop-only production capture boundary', () => {
   function productionDriver(sourcePath: string, onOpen?: () => void): ISqliteDriver {
     onOpen?.();
+    const openedBytes = fs.readFileSync(sourcePath);
     return {
       prepare: () => {
         throw new Error('prepare is not used by recovery capture');
@@ -175,10 +178,15 @@ describe('Desktop-only production capture boundary', () => {
       pragma: () => 53,
       transaction: (fn) => fn,
       backup: async (destinationPath) => fs.promises.copyFile(sourcePath, destinationPath),
-      snapshotBytes: () => fs.readFileSync(sourcePath),
+      snapshotBytes: () => Buffer.from(openedBytes),
       close: () => undefined,
     };
   }
+
+  it('resolves the production Constitution root to ~/.wayland instead of its parent directory', () => {
+    const home = path.join(path.sep, 'Users', 'fixture');
+    expect(resolveProductionRecoveryRoots(home).constitutionRoot).toBe(path.join(home, '.wayland'));
+  });
 
   async function productionInventory(root: string, includeCore = false): Promise<RecoveryInventory> {
     const userDataRoot = path.join(root, 'user-data');
@@ -299,10 +307,51 @@ describe('Desktop-only production capture boundary', () => {
       }
     );
 
-    expect(opened).toHaveLength(2);
+    expect(opened).toHaveLength(1);
     expect(result.snapshotPath.startsWith(destinationRoot)).toBe(true);
     expect(fs.existsSync(result.manifestPath)).toBe(true);
     expect(result.manifest.files.some(({ authority }) => authority === 'desktop.database')).toBe(true);
+  });
+
+  it('rejects a SQLite pathname replacement while opening the pinned snapshot connection', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-database-swap-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const destinationRoot = path.join(root, 'recovery-points');
+    const databasePath = path.join(userDataRoot, 'wayland', 'wayland.db');
+    const admittedDatabasePath = path.join(userDataRoot, 'wayland', 'wayland-admitted.db');
+    fs.mkdirSync(path.dirname(databasePath), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.writeFileSync(databasePath, 'admitted-sqlite');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+
+    await expect(
+      captureProductionRecoveryPoint(
+        {
+          destinationRoot,
+          userDataRoot,
+          sourceAppVersion: '0.11.18',
+          sourceReleaseTrack: 'stable',
+          desktopProfileLockHeld: true,
+        },
+        {
+          resolveCoreRoots: () => ({
+            defaultCoreRoot: path.join(root, 'absent-core-default'),
+            namedCoreRoot: path.join(root, 'absent-core-profiles'),
+            constitutionRoot: path.join(root, 'absent-constitution'),
+          }),
+          createDatabaseDriver: async (sourcePath) =>
+            productionDriver(sourcePath, () => {
+              fs.renameSync(databasePath, admittedDatabasePath);
+              fs.writeFileSync(databasePath, 'attacker-sqlite');
+            }),
+          sealBytes: async (plaintext) => Buffer.from(plaintext),
+          allowUnsafePathFallbackForTests: true,
+        }
+      )
+    ).rejects.toThrow('database identity changed while its snapshot connection was opened');
+
+    expect(fs.existsSync(destinationRoot)).toBe(false);
   });
 
   it('blocks a new authority root created after initial inventory but before capture', async () => {

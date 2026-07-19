@@ -41,7 +41,7 @@ export type RecoverySnapshotLease = { release: () => Promise<void> };
 
 export type RecoveryPointBuilderDependencies = {
   /** Produce an application-consistent SQLite image without plaintext disk staging. */
-  captureSqliteOnline: (sourcePath: string) => Promise<Buffer>;
+  captureSqliteOnline: (sourcePath: string) => Promise<{ bytes: Buffer; schemaVersion: number }>;
   /** Seal admitted in-memory bytes and return only the encrypted envelope. */
   sealBytes: (plaintext: Buffer) => Promise<Buffer>;
   acquireDesktopQuiescence: () => Promise<RecoverySnapshotLease>;
@@ -539,6 +539,74 @@ type AdmittedSourceFile = {
   handle?: FileHandle;
 };
 
+async function readAdmittedFileFromStart(handle: FileHandle, size: number): Promise<Buffer> {
+  if (!Number.isSafeInteger(size) || size < 0) {
+    throw new Error('Recovery source size is invalid.');
+  }
+  const bytes = Buffer.alloc(size);
+  let offset = 0;
+  while (offset < size) {
+    // Positional reads are mandatory because file-root admissions reuse their
+    // held descriptor during the final post-capture verification pass.
+    // oxlint-disable-next-line no-await-in-loop
+    const { bytesRead } = await handle.read(bytes, offset, size - offset, offset);
+    if (bytesRead === 0) break;
+    offset += bytesRead;
+  }
+  if (offset !== size) {
+    bytes.fill(0);
+    throw new Error(`Recovery source ended early: expected ${size} bytes, read ${offset}.`);
+  }
+  return bytes;
+}
+
+async function digestAdmittedSourceFile(
+  sourcePath: string,
+  sourceHandle?: FileHandle,
+  closeFileHandle?: RecoveryPointBuilderDependencies['closeFileHandle']
+): Promise<string> {
+  const openedHandle = sourceHandle ?? (await open(sourcePath, constants.O_RDONLY | NO_FOLLOW));
+  let sourceBytes: Buffer | undefined;
+  let digest: string | undefined;
+  let primaryError: unknown;
+  try {
+    const before = await openedHandle.stat();
+    const current = sourceHandle ? before : await lstat(sourcePath);
+    if (
+      !before.isFile() ||
+      current.isSymbolicLink() ||
+      before.dev !== current.dev ||
+      before.ino !== current.ino ||
+      before.nlink !== 1
+    ) {
+      throw new Error(`Recovery source identity changed before verification: ${sourcePath}`);
+    }
+    sourceBytes = await readAdmittedFileFromStart(openedHandle, before.size);
+    const after = await openedHandle.stat();
+    if (
+      sourceBytes.length !== before.size ||
+      after.dev !== before.dev ||
+      after.ino !== before.ino ||
+      after.size !== before.size ||
+      after.mtimeMs !== before.mtimeMs
+    ) {
+      throw new Error(`Recovery source changed while it was verified: ${sourcePath}`);
+    }
+    digest = createHash('sha256').update(sourceBytes).digest('hex');
+  } catch (error) {
+    primaryError = error;
+  } finally {
+    sourceBytes?.fill(0);
+  }
+  const cleanupFailures: Error[] = [];
+  if (!sourceHandle) {
+    await closeRecoveryHandle(openedHandle, 'captured-source', closeFileHandle, cleanupFailures);
+  }
+  throwPreservingCleanupFailures(primaryError, cleanupFailures, 'Recovery source verification and cleanup failed.');
+  if (!digest) throw new Error(`Recovery source verification completed without a digest: ${sourcePath}`);
+  return digest;
+}
+
 async function visitAdmittedSourceFiles(
   admission: RecoverySourceAdmission,
   visitor: (file: AdmittedSourceFile) => Promise<void>,
@@ -817,7 +885,7 @@ async function addCapturedFile(options: {
   sourceHandle?: FileHandle;
   capturedBytes?: Buffer;
   closeFileHandle?: RecoveryPointBuilderDependencies['closeFileHandle'];
-}): Promise<RecoveryManifestFile> {
+}): Promise<{ manifestFile: RecoveryManifestFile; sourceSha256: string }> {
   const {
     authority,
     sourcePath,
@@ -837,7 +905,7 @@ async function addCapturedFile(options: {
     ? undefined
     : (sourceHandle ?? (await open(sourcePath, constants.O_RDONLY | NO_FOLLOW)));
   let sourceBytes: Buffer | undefined;
-  let result: RecoveryManifestFile | undefined;
+  let result: { manifestFile: RecoveryManifestFile; sourceSha256: string } | undefined;
   let primaryError: unknown;
   try {
     if (capturedBytes) {
@@ -855,7 +923,7 @@ async function addCapturedFile(options: {
       ) {
         throw new Error(`Recovery source identity changed before capture: ${sourcePath}`);
       }
-      sourceBytes = await openedSourceHandle.readFile();
+      sourceBytes = await readAdmittedFileFromStart(openedSourceHandle, handleStat.size);
       const afterReadStat = await openedSourceHandle.stat();
       if (
         sourceBytes.length !== handleStat.size ||
@@ -892,18 +960,21 @@ async function addCapturedFile(options: {
     await assertDestinationStable();
 
     result = {
-      id: `${safeSegment(authority.id)}-${ordinal}`,
-      authority: authority.id,
-      logicalRole: options.logicalRole ?? relativePath.replaceAll(path.sep, '/'),
-      sourcePath: options.manifestSourcePath ?? sourcePath,
-      snapshotPath,
-      restorePath: options.restorePath,
-      size: snapshotStat.size,
-      mtimeMs: sourceStat.mtimeMs,
-      sha256: createHash('sha256').update(artifactBytes).digest('hex'),
-      sensitive: authority.sensitive,
-      copyPolicy: encrypted ? 'encrypted-copy' : 'copied',
-      state: 'complete',
+      sourceSha256: createHash('sha256').update(sourceBytes).digest('hex'),
+      manifestFile: {
+        id: `${safeSegment(authority.id)}-${ordinal}`,
+        authority: authority.id,
+        logicalRole: options.logicalRole ?? relativePath.replaceAll(path.sep, '/'),
+        sourcePath: options.manifestSourcePath ?? sourcePath,
+        snapshotPath,
+        restorePath: options.restorePath,
+        size: snapshotStat.size,
+        mtimeMs: sourceStat.mtimeMs,
+        sha256: createHash('sha256').update(artifactBytes).digest('hex'),
+        sensitive: authority.sensitive,
+        copyPolicy: encrypted ? 'encrypted-copy' : 'copied',
+        state: 'complete',
+      },
     };
   } catch (error) {
     primaryError = error;
@@ -981,6 +1052,7 @@ export async function buildRecoveryPoint(
   const authorityFiles = new Map<StateAuthorityId, RecoveryManifestFile[]>();
   const capturedSnapshotPaths = new Set<string>();
   const sourceAdmissions = new Map<string, RecoverySourceAdmission>();
+  const capturedSourceDigests = new Map<string, string>();
   let desktopLease: RecoverySnapshotLease | undefined;
   let coreLease: RecoverySnapshotLease | undefined;
   let mutationStart = '';
@@ -1028,13 +1100,19 @@ export async function buildRecoveryPoint(
         if (!databaseSource) throw new Error('Desktop database source is missing.');
         // Authorities are captured serially under one mutation epoch.
         // oxlint-disable-next-line no-await-in-loop
-        const databaseBytes = await dependencies.captureSqliteOnline(databaseSource);
+        const databaseCapture = await dependencies.captureSqliteOnline(databaseSource);
+        const databaseBytes = databaseCapture.bytes;
         if (!Buffer.isBuffer(databaseBytes) || databaseBytes.length === 0) {
           throw new Error('SQLite online snapshot did not return a non-empty in-memory image.');
         }
-        captured.push(
-          // oxlint-disable-next-line no-await-in-loop
-          await addCapturedFile({
+        if (databaseCapture.schemaVersion !== inputs.desktopSchemaVersion) {
+          databaseBytes.fill(0);
+          throw new Error(
+            `SQLite schema changed during recovery capture (${inputs.desktopSchemaVersion} -> ${databaseCapture.schemaVersion}).`
+          );
+        }
+        // oxlint-disable-next-line no-await-in-loop -- authorities are captured under one ordered mutation epoch.
+        const databaseFile = await addCapturedFile({
             authority,
             sourcePath: databaseSource,
             manifestSourcePath: databaseSource,
@@ -1055,8 +1133,8 @@ export async function buildRecoveryPoint(
               : undefined,
             capturedBytes: databaseBytes,
             closeFileHandle: dependencies.closeFileHandle,
-          })
-        );
+          });
+        captured.push(databaseFile.manifestFile);
       } else {
         let ordinal = 0;
         for (const [evidenceIndex, evidence] of authority.evidence.entries()) {
@@ -1071,8 +1149,7 @@ export async function buildRecoveryPoint(
               const manifestFilePath =
                 evidence.state === 'file' ? evidence.path : path.join(evidence.path, relativePath);
               if (!authorityOwnsFile(authority.id, evidence.path, evidence.state, manifestFilePath)) return;
-              captured.push(
-                await addCapturedFile({
+              const capturedFile = await addCapturedFile({
                   authority,
                   sourcePath,
                   manifestSourcePath: manifestFilePath,
@@ -1098,7 +1175,11 @@ export async function buildRecoveryPoint(
                       }
                     : undefined,
                   closeFileHandle: dependencies.closeFileHandle,
-                })
+                });
+              captured.push(capturedFile.manifestFile);
+              capturedSourceDigests.set(
+                `${authority.id}\0${evidenceIndex}\0${relativePath.split(path.sep).join('/')}`,
+                capturedFile.sourceSha256
               );
             },
             dependencies.beforeSourceEntryOpen,
@@ -1107,6 +1188,45 @@ export async function buildRecoveryPoint(
         }
       }
       authorityFiles.set(authority.id, captured);
+    }
+
+    const verifiedSourceDigests = new Map<string, string>();
+    for (const authorityPlan of dryRun.authorities) {
+      if (!COPIED_COVERAGE.has(authorityPlan.coverage) || authorityPlan.id === 'desktop.database') continue;
+      const authority = inputs.inventory.authorities.find(({ id }) => id === authorityPlan.id);
+      if (!authority) throw new Error(`Recovery authority disappeared during source verification: ${authorityPlan.id}`);
+      for (const [evidenceIndex, evidence] of authority.evidence.entries()) {
+        if (evidence.state === 'absent') continue;
+        const admission = sourceAdmissions.get(`${authority.id}\0${evidenceIndex}`);
+        if (!admission) throw new Error(`Recovery source admission disappeared: ${authority.id}/${evidenceIndex}`);
+        // Revisit the admitted identity after capture. This binds the bytes to
+        // the capture itself and defeats equal-epoch ABA replacements.
+        // oxlint-disable-next-line no-await-in-loop
+        await visitAdmittedSourceFiles(
+          admission,
+          async ({ sourcePath, relativePath, handle }) => {
+            const manifestFilePath =
+              evidence.state === 'file' ? evidence.path : path.join(evidence.path, relativePath);
+            if (!authorityOwnsFile(authority.id, evidence.path, evidence.state, manifestFilePath)) return;
+            const key = `${authority.id}\0${evidenceIndex}\0${relativePath.split(path.sep).join('/')}`;
+            if (verifiedSourceDigests.has(key)) throw new Error(`Recovery source verification duplicated ${key}.`);
+            verifiedSourceDigests.set(
+              key,
+              await digestAdmittedSourceFile(sourcePath, handle, dependencies.closeFileHandle)
+            );
+          },
+          undefined,
+          dependencies.closeFileHandle
+        );
+      }
+    }
+    if (verifiedSourceDigests.size !== capturedSourceDigests.size) {
+      throw new Error('Recovery source set changed after capture.');
+    }
+    for (const [key, capturedDigest] of capturedSourceDigests) {
+      if (verifiedSourceDigests.get(key) !== capturedDigest) {
+        throw new Error(`Recovery source bytes changed after capture: ${key.split('\0').join('/')}`);
+      }
     }
 
     mutationEnd = await dependencies.readMutationEpoch();
