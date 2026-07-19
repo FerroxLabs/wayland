@@ -11,7 +11,7 @@ provides:
 affects: [01-24, 01-31]
 requirements-completed: []
 requirements-addressed: [COW-01, SAF-05]
-status: construction-complete-pending-independent-audit
+status: construction-accepted-pending-integration
 completed: 2026-07-19
 ---
 
@@ -69,6 +69,22 @@ bundle, manifest, and executable to stable no-follow filesystem identities and
 revalidates them after reading. Its clean aggregate proof supersedes one
 contention-affected observation retained only as diagnostic history.
 
-The exact source commit identified above must be independently audited. Until
-that successor is accepted and serially integrated, plan 01-13 remains
-constructed rather than accepted.
+The R5 source identified above was superseded by the accepted R9 successor
+below. Plan 01-13 is construction-accepted but remains unintegrated.
+
+## Accepted R9 successor
+
+Independent successor review accepted exact source commit
+`cdd1e0f161ae3eac79a325c91c7dd189f32d2536` and tree
+`c64a6b9e94646f6f60a2e80bc783a02653154fc3` with no in-scope HIGH or
+BLOCKER finding. The final producer authenticates the bundle and installed
+skill bytes, then performs opposing forward/reverse identity sweeps over both
+evidence roots. The hostile bundle-during-skill and skill-during-bundle races
+fail closed.
+
+The exact focused successor suite passed 178/178 tests across seven files;
+typecheck, changed-file lint, formatting, and diff checks passed. This accepts
+only the bounded construction observation. Mutable-path immutability,
+current-host execution authority, C0-A acceptance, packaging, deployment,
+canary, and release remain explicitly unclaimed and owned by their later
+plans. Serial integration is still pending.
