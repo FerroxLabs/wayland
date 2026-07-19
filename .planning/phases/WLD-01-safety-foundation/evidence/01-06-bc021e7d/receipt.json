@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "receipt_kind": "construction",
+  "acceptance_state": "awaiting_independent_audit",
+  "plan": "01-06",
+  "recorded_at": "2026-07-19T20:10:27Z",
+  "candidate": {
+    "commit": "bc021e7db6308fca019e722835b0d8731898b616",
+    "tree": "8bff34511ef1b05c9de5b24fc57b282aff1d114b",
+    "parent": "b2b01f6132203feb2c21f04982534b4d53091c8d",
+    "subject": "fix(recovery): bind admitted sources to named paths"
+  },
+  "lineage": {
+    "rejected_review_commit": "b2b01f6132203feb2c21f04982534b4d53091c8d",
+    "finding": "F-01",
+    "severity": "HIGH"
+  },
+  "environment": {
+    "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-bc021e7d/environment.json",
+    "sha256": "7de015f8cbedd81e8a8705e1c1847a83ac4f831ff2e567c79610305d9c70f267"
+  },
+  "audit_reproduction": {
+    "candidate_commit": "b2b01f6132203feb2c21f04982534b4d53091c8d",
+    "command": "rtk bun run test:vitest -- tests/unit/process/services/recovery/recoveryPointBuilder.test.ts",
+    "exit_code": 1,
+    "result": "1 failed, 18 passed, 3 skipped",
+    "log": {
+      "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-bc021e7d/audit-reproduction.log",
+      "sha256": "bee66541f43ef718cfdeecd3913ede5ef908633fd8beb87ddceeb1218cb600fb"
+    }
+  },
+  "proofs": [
+    {
+      "gate": "focused-recovery",
+      "command": "rtk bun run test:vitest -- tests/unit/process/services/recovery",
+      "exit_code": 0,
+      "result": "12 files passed; 172 tests passed; 3 tests skipped",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-bc021e7d/focused.log",
+        "sha256": "08783b677a58752e5cdd7bf52d11911c2e69a73f7c386ccad6d87f4a53ef2e0c"
+      }
+    },
+    {
+      "gate": "typecheck",
+      "command": "rtk bun run typecheck",
+      "exit_code": 0,
+      "result": "TypeScript completed with no errors",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-bc021e7d/typecheck.log",
+        "sha256": "f6592bd28e76fca9cf05d8731490d038e45592b8615e6afa4bcfc06cbd6b2ce9"
+      }
+    },
+    {
+      "gate": "changed-file-lint",
+      "command": "rtk bunx oxlint --deny-warnings src/process/services/recovery/recoveryPointBuilder.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts",
+      "exit_code": 0,
+      "result": "0 warnings, 0 errors across 2 changed files",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-bc021e7d/lint.log",
+        "sha256": "ff2bbd8543c5a266cfbf8c3cc1044d34c310cd44f5d69c1d6b08f646dae8661e"
+      }
+    },
+    {
+      "gate": "format",
+      "command": "rtk bunx oxfmt --check src/process/services/recovery/recoveryPointBuilder.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts",
+      "exit_code": 0,
+      "result": "all matched files use the correct format",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-bc021e7d/format.log",
+        "sha256": "9a3b0e88b5cfda92726f5de04e0c99c98154f8f3beb42941d4dd59dbab94b791"
+      }
+    },
+    {
+      "gate": "diff-check",
+      "command": "rtk git diff --check b2b01f6132203feb2c21f04982534b4d53091c8d..bc021e7db6308fca019e722835b0d8731898b616",
+      "exit_code": 0,
+      "result": "clean",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-bc021e7d/diff-check.log",
+        "sha256": "d135d76ac2965cd87ea97401b9617fa6e3a031d47f68c8b30bcc27814cae3eb3"
+      }
+    },
+    {
+      "gate": "aggregate",
+      "command": "rtk env GSD_RUNTIME=codex bun run test",
+      "exit_code": 0,
+      "result": "Vitest 1430 files passed, 21 skipped, 15174 tests passed, 149 skipped; Bun-native 229 passed, 0 failed",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-bc021e7d/aggregate.log",
+        "sha256": "df907f0904c13e14ddd057abcaa750e8221fed5c2af386acc6b1811f3e61bcc9"
+      }
+    }
+  ],
+  "repair_scope": [
+    "src/process/services/recovery/recoveryPointBuilder.ts",
+    "tests/unit/process/services/recovery/recoveryPointBuilder.test.ts"
+  ],
+  "non_claims": [
+    "This construction receipt is not an independent review or acceptance receipt.",
+    "No integration, merge, push, release, deployment, canary, or issue action is authorized or claimed."
+  ]
+}
