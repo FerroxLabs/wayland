@@ -545,6 +545,37 @@ describe('recovery point builder', () => {
     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
   });
 
+  it('fails closed when another publisher reserves the final snapshot name at the publication boundary', async () => {
+    const data = await fixture();
+    const collidingRoot = path.join(data.destinationRoot, 'snapshot-test');
+    let reservedIdentity: fs.Stats | undefined;
+    const deps = dependencies({
+      beforePublication: async () => {
+        fs.mkdirSync(collidingRoot);
+        reservedIdentity = fs.statSync(collidingRoot);
+      },
+    });
+
+    await expect(
+      buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'manual',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      )
+    ).rejects.toThrow('Recovery point already exists');
+
+    const currentIdentity = fs.statSync(collidingRoot);
+    expect({ dev: currentIdentity.dev, ino: currentIdentity.ino }).toEqual({
+      dev: reservedIdentity?.dev,
+      ino: reservedIdentity?.ino,
+    });
+  });
+
   it('rejects an equal-byte descendant replacement during the final mutation epoch', async () => {
     const data = await fixture();
     const preferencesPath = path.join(data.userDataRoot, 'config', 'preferences.json');
