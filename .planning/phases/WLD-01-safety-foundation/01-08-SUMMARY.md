@@ -77,15 +77,15 @@ coverage:
     requirement: SAF-04
     verification:
       - kind: integration
-        ref: 'GSD_RUNTIME=codex bun run test after successor repair (15,200 Vitest + 226 Bun-native pass)'
+        ref: 'GSD_RUNTIME=codex bun run test after rollback repair (15,202 Vitest + 226 Bun-native pass)'
         status: pass
       - kind: unit
         ref: 'repair additions introduce no lint findings; initAgent retains 11 baseline no-await-in-loop warnings and 0 errors; typecheck and scoped oxfmt pass'
         status: pass
     human_judgment: false
-duration: 3h
+duration: 3h 30m
 completed: 2026-07-20
-status: candidate-ready
+status: successor-built-pending-independent-audit
 ---
 
 # Phase 1 Plan 08: Preservation-First Workspace Retention Summary
@@ -94,7 +94,7 @@ status: candidate-ready
 
 ## Performance
 
-- **Duration:** approximately 3 hours including successor repair and aggregate proof
+- **Duration:** approximately 3.5 hours including four successor audits, repair, and aggregate proof
 - **Completed:** 2026-07-20
 - **Tasks:** 3
 - **Files owned:** 58
@@ -114,6 +114,7 @@ status: candidate-ready
 - Awaited idle-shutdown results through `Promise.allSettled`, preserving failed leases while deterministically observing every rejection.
 - Prevented background wiki synthesis from treating the launch working directory as user-authorized project context, eliminating generated `.ijfw` state from aggregate proof.
 - Preserved the 1,001-entry Mission Control reachability proof while removing its repeated full-accessibility-tree timeout failure under aggregate load.
+- Deferred irreversible external-channel cleanup until after durable conversation deletion commits, so a failed shutdown or database delete cannot retain a chat after destroying its channel resources.
 
 ## Task Commits
 
@@ -121,13 +122,14 @@ status: candidate-ready
 2. **Read-only bridge and review presentation:** `56885e04cc390a6f8f48bf303808313d2bfb9cba`
 3. **Adversarial authority and race repair:** `88f86216576fa70ee50c4d57fafae72f67a2b73a`
 4. **Successor shutdown-proof repair:** `1037c0b82f2c6a7829a4d3b9c36e6279b1db8ee8`
-5. **Alias, creation-identity, parser, and deterministic-test repair:** final handoff commit containing this summary
+5. **Alias, creation-identity, parser, and deterministic-test repair:** `6d4176d14d91b0c13bbe85d91c6324f617748377`
+6. **External-channel rollback repair:** `0b43c3609956d3538e2c0e7275febf5e84652958`
 
 **Rejected predecessor:** `0b98288b02e0b65b260c7b3b1670bd5ea5b68419`
 
-**Repaired implementation candidate:** exact commit and tree are recorded in the independent handoff because a commit cannot contain its own hash
+**Repaired implementation candidate:** `0b43c3609956d3538e2c0e7275febf5e84652958`
 
-**Aggregate-proved source tree:** final source tree recorded by that handoff
+**Aggregate-proved source tree:** `5a53433ff6ff471b71946cbb2d97178e20aa8bd5`
 
 **Acceptance state:** pending independent successor re-audit; no acceptance claim is made here.
 
@@ -140,7 +142,7 @@ status: candidate-ready
 
 ## Deviations from Plan
 
-The independent audits reopened the plan three times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, and deterministic Constitution recovery observation. These changes enforce the plan's authority boundary without expanding lifecycle authority.
+The independent audits reopened the plan four times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, and post-commit external-channel cleanup ordering. These changes enforce the plan's authority boundary without expanding lifecycle authority.
 
 ## Issues Encountered
 
@@ -152,7 +154,20 @@ Managed-workspace lifecycle mutation (quarantine, restore, keep, delete, prune) 
 
 ## Self-Check
 
-BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed 236 focused tests, typecheck, scoped formatting, 15,200 Vitest tests, and 226 Bun-native tests. New repair lines introduced no lint findings; `initAgent.ts` retains 11 baseline `no-await-in-loop` warnings and zero errors. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
+BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed 238 focused tests, typecheck, scoped formatting, 15,202 Vitest tests, and 226 Bun-native tests. New repair lines introduced no lint findings; `initAgent.ts` retains 11 baseline `no-await-in-loop` warnings and zero errors. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
+
+## Retained Construction Evidence
+
+The retained logs are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r3-0b43c360/`. Ephemeral test-generated password values in the aggregate log are replaced with `[REDACTED]`; all result lines and warnings are retained.
+
+| Receipt | SHA-256 |
+|---|---|
+| `01-focused-vitest.log` | `51111836384634bb675fea182309fc7aee1aed1dfd577d132a895f86a410a9ac` |
+| `02-typecheck.log` | `c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5` |
+| `03-scoped-lint.log` | `5d36849f53bc0d527a2b6042063eabbc5f0bcb234df9187f82d031f6eb236525` |
+| `04-scoped-format.log` | `ce74892a50259be576c24aedc1e0dd4eeea6ac09efda981ebd8c79bc9e8d9f82` |
+| `05-full-aggregate.log` | `8c797d82468f4aad9556cabf5ed68364c193f4f5b203f305ddf768b654d9ee17` |
+| `06-invariants.log` | `963c3032b9552c41e9b216afca35ef4dfe79d672d598a74335cc302db1f5cc58` |
 
 ---
 

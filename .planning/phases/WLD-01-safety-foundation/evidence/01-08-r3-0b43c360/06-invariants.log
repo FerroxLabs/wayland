@@ -1,0 +1,3 @@
+PASS wiki sidecar absent
+PASS legacy quarantine aliases absent
+PASS git diff check
