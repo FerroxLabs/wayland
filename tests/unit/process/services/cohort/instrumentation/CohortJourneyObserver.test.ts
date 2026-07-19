@@ -252,6 +252,22 @@ describe('CohortJourneyObserver', () => {
     expect(record.mock.calls.map(([event]) => event.kind)).toEqual(['session_started', 'session_ended']);
   });
 
+  it('blocks new lifecycle evidence while a session terminal is ambiguous', async () => {
+    const record = vi.fn(
+      async (event: M0BCohortEvent): Promise<M0BRecordResult> =>
+        event.kind === 'session_ended' ? { status: 'storage_error' } : { status: 'recorded' }
+    );
+    const { observer } = harness(record);
+    await observer.startSession();
+
+    await expect(observer.endSession()).resolves.toEqual({ status: 'storage_error' });
+    await expect(observer.recordSupportContact('bug')).resolves.toMatchObject({
+      status: 'rejected',
+      field: 'sessionState',
+    });
+    expect(record.mock.calls.map(([event]) => event.kind)).toEqual(['session_started', 'session_ended']);
+  });
+
   it('retains an unresolved journey as a start when the session ends', async () => {
     const { observer, record } = harness();
     await observer.startSession();
