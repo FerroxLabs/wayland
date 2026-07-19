@@ -1,151 +1,295 @@
-import { createHash, createPublicKey, verify } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
-import { spawnSync } from 'node:child_process'
+import { createHash, createPublicKey, verify } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
 
-const oid = /^[0-9a-f]{40}([0-9a-f]{24})?$/
-const digest = /^sha256:[0-9a-f]{64}$/
-const safePacket = /^[A-Z0-9][A-Z0-9-]*$/
+const oid = /^[0-9a-f]{40}([0-9a-f]{24})?$/;
+const digest = /^sha256:[0-9a-f]{64}$/;
+const safePacket = /^[A-Z0-9][A-Z0-9-]*$/;
+
+function isRecord(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function exactKeys(value, expected, label) {
+  if (!isRecord(value)) throw new Error(`${label} must be an object`);
+  const actual = Object.keys(value).toSorted();
+  const wanted = expected.toSorted();
+  if (actual.length !== wanted.length || actual.some((key, index) => key !== wanted[index])) {
+    throw new Error(`${label} has unsupported or missing fields`);
+  }
+}
+
+function packetList(value, label, { allowEmpty = true } = {}) {
+  if (!Array.isArray(value) || (!allowEmpty && value.length === 0))
+    throw new Error(`${label} must be ${allowEmpty ? 'an' : 'a non-empty'} array`);
+  const seen = new Set();
+  for (const packet of value) {
+    if (typeof packet !== 'string' || !safePacket.test(packet))
+      throw new Error(`${label} contains an unsafe packet identifier`);
+    if (seen.has(packet)) throw new Error(`${label} contains a duplicate packet`);
+    seen.add(packet);
+  }
+  return value;
+}
+
+function packetGroups(value, label) {
+  if (!Array.isArray(value)) throw new Error(`${label} must be an array`);
+  return value.map((group, index) => packetList(group, `${label}[${index}]`, { allowEmpty: false }));
+}
+
+function validateSelection(value, label, { allowAny }) {
+  exactKeys(value, allowAny ? ['all', 'any', 'one'] : ['all', 'one'], label);
+  const all = packetList(value.all, `${label}.all`);
+  const any = allowAny ? packetGroups(value.any, `${label}.any`) : [];
+  const one = packetGroups(value.one, `${label}.one`);
+  const fixed = new Set(all);
+  for (const packet of [...any.flat(), ...one.flat()]) {
+    if (fixed.has(packet)) throw new Error(`${label} contains ambiguous duplicate packet ${packet}`);
+  }
+  return { all, any, one };
+}
+
+function validateGateSchema(gateId, gate, contracts) {
+  if (!isRecord(gate) || (gate.mode !== 'entry' && gate.mode !== 'acceptance')) {
+    throw new Error(`Gate ${gateId} has missing or unsupported mode`);
+  }
+  exactKeys(
+    gate,
+    gate.mode === 'entry' ? ['mode', 'prerequisites'] : ['mode', 'prerequisites', 'accepts'],
+    `Gate ${gateId}`
+  );
+  const prerequisites = validateSelection(gate.prerequisites, `Gate ${gateId}.prerequisites`, { allowAny: true });
+  const accepts =
+    gate.mode === 'acceptance' ? validateSelection(gate.accepts, `Gate ${gateId}.accepts`, { allowAny: false }) : null;
+  if (accepts && accepts.all.length === 0 && accepts.one.length === 0) {
+    throw new Error(`Acceptance gate ${gateId} has no target`);
+  }
+  const prerequisitePackets = new Set([...prerequisites.all, ...prerequisites.any.flat(), ...prerequisites.one.flat()]);
+  const targetPackets = accepts ? [...accepts.all, ...accepts.one.flat()] : [];
+  const targetSeen = new Set();
+  for (const packet of targetPackets) {
+    if (targetSeen.has(packet)) throw new Error(`Gate ${gateId} contains duplicate target ${packet}`);
+    targetSeen.add(packet);
+    if (prerequisitePackets.has(packet))
+      throw new Error(`Gate ${gateId} uses ${packet} as both prerequisite and target`);
+  }
+  for (const packet of [...prerequisitePackets, ...targetSeen]) {
+    if (!contracts.packets[packet]) throw new Error(`Gate ${gateId} references unsealed packet ${packet}`);
+  }
+  return { mode: gate.mode, prerequisites, accepts };
+}
 
 export function canonicalJson(value) {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
   if (value && typeof value === 'object') {
-    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`
+    return `{${Object.keys(value)
+      .toSorted()
+      .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`)
+      .join(',')}}`;
   }
-  return JSON.stringify(value)
+  return JSON.stringify(value);
 }
 
 export function contractDigest(contract) {
-  return `sha256:${createHash('sha256').update(canonicalJson(contract)).digest('hex')}`
+  return `sha256:${createHash('sha256').update(canonicalJson(contract)).digest('hex')}`;
 }
 
 function git(projectRoot, args) {
-  return spawnSync('git', ['-C', projectRoot, ...args], { encoding: 'utf8' })
+  return spawnSync('git', ['-C', projectRoot, ...args], { encoding: 'utf8' });
 }
 
 async function artifactDigest(path) {
-  const bytes = await readFile(path)
-  return `sha256:${createHash('sha256').update(bytes).digest('hex')}`
+  const bytes = await readFile(path);
+  return `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
 }
 
-export async function checkGate({ gateId, projectRoot, receiptDirectory, manifestPath, contractsPath, trustRootPath, authorizedCandidates, expectedIntegrationHead }) {
+export async function checkGate({
+  gateId,
+  projectRoot,
+  receiptDirectory,
+  manifestPath,
+  contractsPath,
+  trustRootPath,
+  authorizedCandidates,
+  expectedIntegrationHead,
+}) {
   const [manifest, contracts, trustRoot] = await Promise.all([
     readFile(manifestPath, 'utf8').then(JSON.parse),
     readFile(contractsPath, 'utf8').then(JSON.parse),
     readFile(trustRootPath, 'utf8').then(JSON.parse),
-  ])
+  ]);
 
-  if (!gateId || !manifest.gates[gateId]) throw new Error(`Unknown or missing gate: ${gateId ?? '<none>'}`)
-  if (manifest.schema_version !== 1 || contracts.schema_version !== 1 || trustRoot.schema_version !== 1) {
-    throw new Error('Unsupported gate, contract, or trust-root schema')
+  if (!gateId || !manifest.gates?.[gateId]) throw new Error(`Unknown or missing gate: ${gateId ?? '<none>'}`);
+  if (manifest.schema_version !== 2 || contracts.schema_version !== 1 || trustRoot.schema_version !== 1) {
+    throw new Error('Unsupported gate, contract, or trust-root schema');
   }
-  if (!oid.test(expectedIntegrationHead ?? '')) throw new Error('Missing or invalid expected integration HEAD')
-  if (!authorizedCandidates || typeof authorizedCandidates !== 'object') throw new Error('Missing external accepted-packet registry')
-  const observedHead = git(projectRoot, ['rev-parse', 'HEAD'])
+  if (!isRecord(manifest.gates) || !isRecord(contracts.packets)) throw new Error('Invalid gate or contract manifest');
+  const validatedGates = new Map();
+  for (const [id, gate] of Object.entries(manifest.gates)) {
+    validatedGates.set(id, validateGateSchema(id, gate, contracts));
+  }
+  if (!oid.test(expectedIntegrationHead ?? '')) throw new Error('Missing or invalid expected integration HEAD');
+  if (!authorizedCandidates || typeof authorizedCandidates !== 'object')
+    throw new Error('Missing external accepted-packet registry');
+  const observedHead = git(projectRoot, ['rev-parse', 'HEAD']);
   if (observedHead.status !== 0 || observedHead.stdout.trim() !== expectedIntegrationHead) {
-    throw new Error('Integration HEAD does not match the gate CAS')
+    throw new Error('Integration HEAD does not match the gate CAS');
   }
 
-  const trustedKeys = new Map()
+  const trustedKeys = new Map();
   for (const key of trustRoot.keys) {
-    if (!key.key_id || trustedKeys.has(key.key_id)) throw new Error('Missing or duplicate acceptance key ID')
-    trustedKeys.set(key.key_id, key)
+    if (!key.key_id || trustedKeys.has(key.key_id)) throw new Error('Missing or duplicate acceptance key ID');
+    trustedKeys.set(key.key_id, key);
   }
 
   async function validateReceipt(packet) {
-    if (!safePacket.test(packet)) return { ok: false, packet, reason: 'unsafe packet identifier' }
-    const contract = contracts.packets[packet]
-    if (!contract) return { ok: false, packet, reason: 'packet contract is not sealed' }
-    const authorization = authorizedCandidates[packet]
-    if (!authorization) return { ok: false, packet, reason: 'packet candidate is not externally authorized' }
+    if (!safePacket.test(packet)) return { ok: false, packet, reason: 'unsafe packet identifier' };
+    const contract = contracts.packets[packet];
+    if (!contract) return { ok: false, packet, reason: 'packet contract is not sealed' };
+    const authorization = authorizedCandidates[packet];
+    if (!authorization) return { ok: false, packet, reason: 'packet candidate is not externally authorized' };
 
     try {
-      const receipt = JSON.parse(await readFile(resolve(receiptDirectory, `${packet}.json`), 'utf8'))
-      if (receipt.schema_version !== 2) return { ok: false, packet, reason: 'unsupported receipt schema' }
-      if (!receipt.signed || !receipt.signature) return { ok: false, packet, reason: 'unsigned receipt' }
+      const receipt = JSON.parse(await readFile(resolve(receiptDirectory, `${packet}.json`), 'utf8'));
+      if (receipt.schema_version !== 2) return { ok: false, packet, reason: 'unsupported receipt schema' };
+      if (!receipt.signed || !receipt.signature) return { ok: false, packet, reason: 'unsigned receipt' };
 
-      const signed = receipt.signed
-      if (signed.packet !== packet) return { ok: false, packet, reason: 'packet identity mismatch' }
-      if (signed.status !== 'accepted') return { ok: false, packet, reason: 'receipt is not accepted' }
-      if (signed.source_baseline !== manifest.source_baseline) return { ok: false, packet, reason: 'source baseline mismatch' }
-      if (signed.gate_manifest_revision !== manifest.revision) return { ok: false, packet, reason: 'gate manifest revision mismatch' }
-      if (signed.gate_manifest_digest !== contractDigest(manifest)) return { ok: false, packet, reason: 'gate manifest digest mismatch' }
+      const signed = receipt.signed;
+      if (signed.packet !== packet) return { ok: false, packet, reason: 'packet identity mismatch' };
+      if (signed.status !== 'accepted') return { ok: false, packet, reason: 'receipt is not accepted' };
+      if (signed.source_baseline !== manifest.source_baseline)
+        return { ok: false, packet, reason: 'source baseline mismatch' };
+      if (signed.gate_manifest_revision !== manifest.revision)
+        return { ok: false, packet, reason: 'gate manifest revision mismatch' };
+      if (signed.gate_manifest_digest !== contractDigest(manifest))
+        return { ok: false, packet, reason: 'gate manifest digest mismatch' };
       if (signed.gate_authorizations?.[gateId] !== contractDigest(manifest.gates[gateId])) {
-        return { ok: false, packet, reason: 'receipt does not authorize this exact gate prerequisite set' }
+        return { ok: false, packet, reason: 'receipt does not authorize this exact gate prerequisite set' };
       }
-      if (signed.packet_contract_digest !== contractDigest(contract)) return { ok: false, packet, reason: 'packet contract digest mismatch' }
-      if (!oid.test(signed.candidate?.commit ?? '')) return { ok: false, packet, reason: 'invalid exact commit' }
-      if (!oid.test(signed.candidate?.tree ?? '')) return { ok: false, packet, reason: 'invalid exact tree' }
-      if (!oid.test(signed.candidate?.integration_head ?? '')) return { ok: false, packet, reason: 'invalid accepted integration HEAD' }
-      if (signed.candidate.commit !== authorization.commit || signed.candidate.tree !== authorization.tree || signed.candidate.integration_head !== authorization.integration_head) {
-        return { ok: false, packet, reason: 'receipt candidate does not match external authorization' }
+      if (signed.packet_contract_digest !== contractDigest(contract))
+        return { ok: false, packet, reason: 'packet contract digest mismatch' };
+      if (!oid.test(signed.candidate?.commit ?? '')) return { ok: false, packet, reason: 'invalid exact commit' };
+      if (!oid.test(signed.candidate?.tree ?? '')) return { ok: false, packet, reason: 'invalid exact tree' };
+      if (!oid.test(signed.candidate?.integration_head ?? ''))
+        return { ok: false, packet, reason: 'invalid accepted integration HEAD' };
+      if (
+        signed.candidate.commit !== authorization.commit ||
+        signed.candidate.tree !== authorization.tree ||
+        signed.candidate.integration_head !== authorization.integration_head
+      ) {
+        return { ok: false, packet, reason: 'receipt candidate does not match external authorization' };
       }
       if (signed.candidate.commit !== signed.candidate.integration_head) {
-        return { ok: false, packet, reason: 'packet was not accepted at its exact landed commit' }
+        return { ok: false, packet, reason: 'packet was not accepted at its exact landed commit' };
       }
-      if (!digest.test(signed.evidence?.log_digest ?? '')) return { ok: false, packet, reason: 'invalid log digest' }
-      if (!digest.test(signed.evidence?.environment_digest ?? '')) return { ok: false, packet, reason: 'invalid environment digest' }
-      if (!Number.isFinite(Date.parse(signed.accepted_at ?? ''))) return { ok: false, packet, reason: 'invalid acceptance timestamp' }
+      if (!digest.test(signed.evidence?.log_digest ?? '')) return { ok: false, packet, reason: 'invalid log digest' };
+      if (!digest.test(signed.evidence?.environment_digest ?? ''))
+        return { ok: false, packet, reason: 'invalid environment digest' };
+      if (!Number.isFinite(Date.parse(signed.accepted_at ?? '')))
+        return { ok: false, packet, reason: 'invalid acceptance timestamp' };
 
-      const key = trustedKeys.get(receipt.signature.key_id)
-      if (!key || key.issuer !== signed.issuer) return { ok: false, packet, reason: 'unknown acceptance signer' }
-      if (key.revoked_at) return { ok: false, packet, reason: 'acceptance signer is revoked' }
-      const acceptedAt = Date.parse(signed.accepted_at)
-      const validFrom = Date.parse(key.valid_from)
-      const validUntil = Date.parse(key.valid_until)
+      const key = trustedKeys.get(receipt.signature.key_id);
+      if (!key || key.issuer !== signed.issuer) return { ok: false, packet, reason: 'unknown acceptance signer' };
+      if (key.revoked_at) return { ok: false, packet, reason: 'acceptance signer is revoked' };
+      const acceptedAt = Date.parse(signed.accepted_at);
+      const validFrom = Date.parse(key.valid_from);
+      const validUntil = Date.parse(key.valid_until);
       if (!Number.isFinite(validFrom) || !Number.isFinite(validUntil) || validFrom > validUntil) {
-        return { ok: false, packet, reason: 'signer validity window is malformed' }
+        return { ok: false, packet, reason: 'signer validity window is malformed' };
       }
       if (acceptedAt < validFrom || acceptedAt > validUntil) {
-        return { ok: false, packet, reason: 'signer was not valid at acceptance time' }
+        return { ok: false, packet, reason: 'signer was not valid at acceptance time' };
       }
-      if (receipt.signature.algorithm !== 'ed25519') return { ok: false, packet, reason: 'unsupported signature algorithm' }
-      const signatureOk = verify(null, Buffer.from(canonicalJson(signed)), createPublicKey(key.public_key_pem), Buffer.from(receipt.signature.value, 'base64'))
-      if (!signatureOk) return { ok: false, packet, reason: 'acceptance signature mismatch' }
+      if (receipt.signature.algorithm !== 'ed25519')
+        return { ok: false, packet, reason: 'unsupported signature algorithm' };
+      const signatureOk = verify(
+        null,
+        Buffer.from(canonicalJson(signed)),
+        createPublicKey(key.public_key_pem),
+        Buffer.from(receipt.signature.value, 'base64')
+      );
+      if (!signatureOk) return { ok: false, packet, reason: 'acceptance signature mismatch' };
 
-      const commitCheck = git(projectRoot, ['cat-file', '-e', `${signed.candidate.commit}^{commit}`])
-      if (commitCheck.status !== 0) return { ok: false, packet, reason: 'signed commit does not exist in this repository' }
-      const actualTree = git(projectRoot, ['rev-parse', `${signed.candidate.commit}^{tree}`])
+      const commitCheck = git(projectRoot, ['cat-file', '-e', `${signed.candidate.commit}^{commit}`]);
+      if (commitCheck.status !== 0)
+        return { ok: false, packet, reason: 'signed commit does not exist in this repository' };
+      const actualTree = git(projectRoot, ['rev-parse', `${signed.candidate.commit}^{tree}`]);
       if (actualTree.status !== 0 || actualTree.stdout.trim() !== signed.candidate.tree) {
-        return { ok: false, packet, reason: 'signed tree does not match signed commit' }
+        return { ok: false, packet, reason: 'signed tree does not match signed commit' };
       }
-      const ancestry = git(projectRoot, ['merge-base', '--is-ancestor', manifest.source_baseline, signed.candidate.commit])
-      if (ancestry.status !== 0) return { ok: false, packet, reason: 'signed candidate does not descend from the declared source baseline' }
-      const integrated = git(projectRoot, ['merge-base', '--is-ancestor', signed.candidate.integration_head, expectedIntegrationHead])
-      if (integrated.status !== 0) return { ok: false, packet, reason: 'accepted packet is not integrated into the exact gate HEAD' }
+      const ancestry = git(projectRoot, [
+        'merge-base',
+        '--is-ancestor',
+        manifest.source_baseline,
+        signed.candidate.commit,
+      ]);
+      if (ancestry.status !== 0)
+        return { ok: false, packet, reason: 'signed candidate does not descend from the declared source baseline' };
+      const integrated = git(projectRoot, [
+        'merge-base',
+        '--is-ancestor',
+        signed.candidate.integration_head,
+        expectedIntegrationHead,
+      ]);
+      if (integrated.status !== 0)
+        return { ok: false, packet, reason: 'accepted packet is not integrated into the exact gate HEAD' };
 
-      const actualLog = await artifactDigest(resolve(receiptDirectory, `${packet}.log`))
-      const actualEnvironment = await artifactDigest(resolve(receiptDirectory, `${packet}.env.json`))
-      if (actualLog !== signed.evidence.log_digest) return { ok: false, packet, reason: 'evidence log digest mismatch' }
-      if (actualEnvironment !== signed.evidence.environment_digest) return { ok: false, packet, reason: 'environment evidence digest mismatch' }
+      const actualLog = await artifactDigest(resolve(receiptDirectory, `${packet}.log`));
+      const actualEnvironment = await artifactDigest(resolve(receiptDirectory, `${packet}.env.json`));
+      if (actualLog !== signed.evidence.log_digest)
+        return { ok: false, packet, reason: 'evidence log digest mismatch' };
+      if (actualEnvironment !== signed.evidence.environment_digest)
+        return { ok: false, packet, reason: 'environment evidence digest mismatch' };
 
-      return { ok: true, packet, commit: signed.candidate.commit, tree: signed.candidate.tree, issuer: signed.issuer }
+      return { ok: true, packet, commit: signed.candidate.commit, tree: signed.candidate.tree, issuer: signed.issuer };
     } catch (error) {
-      return { ok: false, packet, reason: error.code === 'ENOENT' ? 'receipt or evidence artifact missing' : error.message }
+      return {
+        ok: false,
+        packet,
+        reason: error.code === 'ENOENT' ? 'receipt or evidence artifact missing' : error.message,
+      };
     }
   }
 
-  const gate = manifest.gates[gateId]
-  const required = await Promise.all(gate.all.map(validateReceipt))
-  const alternatives = []
-  for (const group of gate.any ?? []) {
-    const results = await Promise.all(group.map(validateReceipt))
-    alternatives.push({ ok: results.some((result) => result.ok), results })
+  async function evaluateSelection(selection) {
+    const required = await Promise.all(selection.all.map(validateReceipt));
+    const alternatives = await Promise.all(
+      selection.any.map(async (group) => {
+        const results = await Promise.all(group.map(validateReceipt));
+        return { ok: results.some((result) => result.ok), results };
+      })
+    );
+    const exclusiveAlternatives = await Promise.all(
+      selection.one.map(async (group) => {
+        const results = await Promise.all(group.map(validateReceipt));
+        const acceptedCount = results.filter((result) => result.ok).length;
+        return { ok: acceptedCount === 1, accepted_count: acceptedCount, results };
+      })
+    );
+    return {
+      ok:
+        required.every((result) => result.ok) &&
+        alternatives.every((group) => group.ok) &&
+        exclusiveAlternatives.every((group) => group.ok),
+      required,
+      alternatives,
+      exclusive_alternatives: exclusiveAlternatives,
+    };
   }
-  const exclusiveAlternatives = []
-  for (const group of gate.one ?? []) {
-    const results = await Promise.all(group.map(validateReceipt))
-    const acceptedCount = results.filter((result) => result.ok).length
-    exclusiveAlternatives.push({ ok: acceptedCount === 1, accepted_count: acceptedCount, results })
-  }
+
+  const gate = validatedGates.get(gateId);
+  const prerequisites = await evaluateSelection(gate.prerequisites);
+  const acceptedTargets = gate.mode === 'acceptance' ? await evaluateSelection(gate.accepts) : [];
+  const targetsOk = gate.mode === 'entry' || acceptedTargets.ok;
 
   return {
     gate: gateId,
-    ok: required.every((result) => result.ok) && alternatives.every((group) => group.ok) && exclusiveAlternatives.every((group) => group.ok),
+    mode: gate.mode,
+    ok: prerequisites.ok && targetsOk,
     source_baseline: manifest.source_baseline,
     gate_manifest_revision: manifest.revision,
-    required,
-    alternatives,
-    exclusive_alternatives: exclusiveAlternatives,
-  }
+    prerequisites,
+    accepted_targets: acceptedTargets,
+  };
 }

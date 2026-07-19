@@ -1,10 +1,11 @@
 # Target-verification amendment required before packet acceptance
 
-Status: **BLOCKER — not implemented**
+Status: **repository source implemented by plan 01-37; external installation remains BLOCKED on plan 01-38**
 
-This document is a control-plane amendment specification, not evidence that the
-amendment exists. The installed verifier and its external trust configuration
-remain untouched.
+This document records the repository-side amendment implemented and hostile-
+tested by plan 01-37. It is not evidence that the installed verifier changed.
+The installed verifier and its external trust configuration remain untouched;
+plan 01-38 exclusively owns installation and external pinning.
 
 ## Confirmed current behavior
 

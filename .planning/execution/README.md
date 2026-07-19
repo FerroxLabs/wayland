@@ -10,8 +10,16 @@ repository root:
 wayland-gsd-gate <gate-id>
 ```
 
-The checker fails closed unless every required upstream packet has an
-Ed25519-authenticated acceptance receipt in the absolute shared evidence store
+The schema-v2 checker distinguishes construction admission from acceptance.
+Every gate is sealed as either `mode: entry` or `mode: acceptance`. Entry gates
+authenticate prerequisites only, always emit `accepted_targets: []`, and can
+never be cited as packet acceptance. Acceptance gates authenticate their
+declared targets separately from prerequisites; both sections must be green and
+the exact target must appear in `accepted_targets`. A top-level `ok` without the
+declared target is never acceptance.
+
+The checker fails closed unless every required upstream packet and every
+declared acceptance target has an Ed25519-authenticated acceptance receipt in the absolute shared evidence store
 pinned by `~/.config/wayland-gsd/desktop-control.json`. Receipts never live in a
 candidate worktree: every clean packet worktree sees the same externally
 authorized, digest-bound evidence, and a repository-relative override is
@@ -27,14 +35,20 @@ candidate-controlled environment variables cannot substitute a trust root or
 invoke an authoritative in-repo path.
 
 The canonical signature binds packet ID, sealed packet-contract digest, source
-baseline, full gate-manifest digest and revision, the exact authorized gate and
-prerequisite-set digest, exact Git commit and tree, evidence log and environment
+baseline, full gate-manifest digest and revision, the complete exact schema-v2
+gate object (mode, prerequisites, and targets), exact Git commit and tree, evidence log and environment
 digests, acceptance state, issuer, and timestamp. The checker also proves the
 commit exists, derives its actual tree, verifies baseline ancestry, and hashes the exact evidence
 artifacts. Unknown or revoked signers, self-generated local signatures,
 arbitrary/stale/unintegrated sibling commits, wrong baseline/revision/contract, substituted
 evidence, malformed data, and missing receipts all fail closed. A colocated hash
 sidecar is not acceptance authority and is not used.
+
+Repository source is not installed authority. Plan 01-37 supplies and tests the
+schema-v2 source only. Until plan 01-38 installs those exact committed bytes and
+pins the external wrapper, library, trust configuration, and control commit,
+the currently installed verifier remains authoritative and no schema-v2 source
+result may be used to accept a packet.
 
 Phase 1 is intentionally open. Its bounded plans may execute, but it cannot be
 marked complete until `P1-AGGREGATE-ACCEPTANCE` passes. That sentinel requires
