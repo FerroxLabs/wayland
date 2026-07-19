@@ -140,27 +140,38 @@ export const useMcpConnection = (
 
       const recordProbeFailure = async (errorMsg: string): Promise<void> => {
         let publicationRevoked = !server.enabled;
+        let surfacedError = errorMsg;
         if (server.enabled && removeMcpFromAgents && syncMcpToAgents) {
           try {
             await removeMcpFromAgents(server.name, undefined, server.transport.type);
             publicationRevoked = true;
-          } catch {
+          } catch (revocationError) {
             // A rejected removal may have changed a subset of adapters. Restore
             // the previous enabled definition everywhere and keep local enabled
             // truth until a later revocation succeeds.
-            await syncMcpToAgents(server, true).catch(() => {});
+            try {
+              await syncMcpToAgents(server, true);
+            } catch (restorationError) {
+              console.error('MCP publication rollback was incomplete:', {
+                revocationError,
+                restorationError,
+              });
+              surfacedError = truncateErrorMessage(
+                `${errorMsg}; publication rollback incomplete — reconnect this connector`
+              );
+            }
           }
         }
 
         if (
           !(await updateServerStatus('error', {
             ...(publicationRevoked ? { enabled: false } : {}),
-            lastError: errorMsg,
+            lastError: surfacedError,
           }))
         )
           return;
         await globalMessageQueue.add(() => {
-          message.error({ content: `${server.name}: ${errorMsg}`, duration: 5000 });
+          message.error({ content: `${server.name}: ${surfacedError}`, duration: 5000 });
         });
       };
 

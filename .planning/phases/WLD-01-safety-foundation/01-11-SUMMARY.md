@@ -47,6 +47,7 @@ MCP catalog declaration, saved configuration, authentication requirement, and st
 - Renderer and main-process writers now share one main-process `mcp.config` read-modify-write authority. Renderer writes use retrying compare-and-set and publish only the main-confirmed snapshot; runtime main writers use serialized functional mutations.
 - Every adapter operation treats a rejected multi-agent call as potentially partially applied. Add, batch, edit, enable, and disable failures compensate all affected adapters with the prior durable definition or complete revocation.
 - A failed manual probe revokes an enabled external publication before recording local disabled truth. If revocation is partial or fails, the prior enabled definition is restored externally and local state remains enabled rather than claiming a false revocation.
+- If both revocation and restoration fail, the durable row and user-facing error explicitly surface an incomplete publication rollback instead of discarding the external divergence.
 - Atomic state writes now sync the temporary file before rename, then sync the destination file and parent directory before reporting success. Hostile ordering tests cover both asynchronous and synchronous paths.
 - Archive/restore active-row mutations use compare-and-set. A race at the archive CAS republishes the winning current definition rather than the stale archived snapshot.
 
@@ -56,7 +57,7 @@ This packet does not claim live ACP `McpConfig` publication, active-session regi
 
 ## Deviations from plan
 
-Three existing full-gate regression suites were added to ownership because the stricter result contract required their mocks and expectations to represent process-authored pre-publication evidence. The shared MCP state hook was brought into scope when adversarial review proved its optimistic persistence and per-instance mutation queues could manufacture unsaved UI state and lost updates. The Argon2 correctness-vector timeout was also corrected after the exact aggregate gate reproduced its invalid latency assumption. No production authority was widened.
+The ownership manifest now enumerates the complete accepted baseline delta, including the shared process authority, archive, migration, atomic durability, Concierge, settings, and corresponding test surfaces added during adversarial repair. The shared MCP state hook was brought into scope when review proved its optimistic persistence and per-instance mutation queues could manufacture unsaved UI state and lost updates. The Argon2 correctness-vector timeout was also corrected after the exact aggregate gate reproduced its invalid latency assumption. No production authority was widened.
 
 ## Acceptance state
 
