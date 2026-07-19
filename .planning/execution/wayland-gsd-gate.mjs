@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 import { homedir } from 'node:os'
+import { createHash } from 'node:crypto'
 import { isAbsolute, join, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { readFile, realpath } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
 
@@ -21,6 +23,9 @@ function fail(message) {
 if (config.schema_version !== 1 || !Array.isArray(config.keys)) fail('Invalid external control/trust schema')
 if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/.test(config.control_commit ?? '')) fail('Invalid pinned control commit')
 if (!Array.isArray(config.controlled_paths) || config.controlled_paths.length === 0) fail('No externally controlled paths')
+if (!config.accepted_packets || typeof config.accepted_packets !== 'object') fail('No external accepted-packet registry')
+if (!isAbsolute(config.verifier_lib_path ?? '')) fail('External verifier library path is not absolute')
+if (!/^sha256:[0-9a-f]{64}$/.test(config.verifier_lib_digest ?? '')) fail('External verifier library digest is invalid')
 if (!gateId) fail('Missing packet gate ID')
 
 const rootResult = git(process.cwd(), ['rev-parse', '--show-toplevel'])
@@ -35,6 +40,7 @@ const commitCheck = git(projectRoot, ['cat-file', '-e', `${config.control_commit
 if (commitCheck.status !== 0) fail('Pinned control commit does not exist')
 const ancestry = git(projectRoot, ['merge-base', '--is-ancestor', config.control_commit, 'HEAD'])
 if (ancestry.status !== 0) fail('Current candidate does not descend from the pinned control commit')
+const expectedIntegrationHead = git(projectRoot, ['rev-parse', 'HEAD']).stdout.trim()
 
 for (const path of config.controlled_paths) {
   if (isAbsolute(path) || path.includes('..')) fail(`Unsafe controlled path: ${path}`)
@@ -42,16 +48,23 @@ for (const path of config.controlled_paths) {
   if (diff.status !== 0) fail(`Control-plane drift from pinned commit: ${path}`)
 }
 
-const checker = join(projectRoot, '.planning/execution/check-packet-gate.mjs')
-const result = spawnSync(process.execPath, [checker, gateId], {
-  cwd: projectRoot,
-  encoding: 'utf8',
-  env: {
-    ...process.env,
-    WAYLAND_GSD_TRUST_ROOT: configPath,
-    WAYLAND_GSD_CONTROL_COMMIT: config.control_commit,
-  },
+const verifierBytes = await readFile(config.verifier_lib_path)
+const verifierDigest = `sha256:${createHash('sha256').update(verifierBytes).digest('hex')}`
+if (verifierDigest !== config.verifier_lib_digest) fail('External verifier library digest mismatch')
+const { checkGate } = await import(pathToFileURL(config.verifier_lib_path))
+const manifestPath = join(projectRoot, '.planning/execution/PACKET-GATES.json')
+const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
+const result = await checkGate({
+  gateId,
+  projectRoot,
+  receiptDirectory: join(projectRoot, manifest.receipt_directory),
+  manifestPath,
+  contractsPath: join(projectRoot, manifest.contract_manifest),
+  trustRootPath: configPath,
+  authorizedCandidates: config.accepted_packets,
+  expectedIntegrationHead,
 })
-process.stdout.write(result.stdout)
-process.stderr.write(result.stderr)
-process.exit(result.status ?? 2)
+const finalIntegrationHead = git(projectRoot, ['rev-parse', 'HEAD']).stdout.trim()
+if (finalIntegrationHead !== expectedIntegrationHead) fail('Integration HEAD changed during gate verification')
+console.log(JSON.stringify(result, null, 2))
+process.exit(result.ok ? 0 : 1)

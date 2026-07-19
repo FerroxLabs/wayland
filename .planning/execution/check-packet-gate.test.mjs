@@ -16,6 +16,8 @@ await import('node:fs/promises').then(({ mkdir }) => mkdir(receiptDirectory))
 
 const head = spawnSync('git', ['-C', projectRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim()
 const tree = spawnSync('git', ['-C', projectRoot, 'rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).stdout.trim()
+const oldHead = spawnSync('git', ['-C', projectRoot, 'rev-parse', 'HEAD^'], { encoding: 'utf8' }).stdout.trim()
+const oldTree = spawnSync('git', ['-C', projectRoot, 'rev-parse', 'HEAD^^{tree}'], { encoding: 'utf8' }).stdout.trim()
 const { publicKey, privateKey } = generateKeyPairSync('ed25519')
 const attacker = generateKeyPairSync('ed25519')
 const publicPem = publicKey.export({ type: 'spki', format: 'pem' })
@@ -57,7 +59,7 @@ async function writeReceipt(packet, options = {}) {
       ALTERNATIVE: contractDigest(manifest.gates.ALTERNATIVE),
     },
     packet_contract_digest: contractDigest(contract),
-    candidate: { commit: head, tree },
+    candidate: { commit: head, tree, integration_head: head },
     evidence: { log_digest: sha(log), environment_digest: sha(environment) },
     issuer: 'test-acceptor',
     accepted_at: '2026-07-19T00:00:00.000Z',
@@ -70,8 +72,22 @@ async function writeReceipt(packet, options = {}) {
   return receipt
 }
 
-async function run(gate) {
-  return checkGate({ gateId: gate, projectRoot, receiptDirectory, manifestPath, contractsPath, trustRootPath })
+const authorizedCandidates = {
+  TEST: { commit: head, tree, integration_head: head },
+  OTHER: { commit: head, tree, integration_head: head },
+}
+
+async function run(gate, options = {}) {
+  return checkGate({
+    gateId: gate,
+    projectRoot,
+    receiptDirectory,
+    manifestPath,
+    contractsPath,
+    trustRootPath,
+    authorizedCandidates: options.authorizedCandidates ?? authorizedCandidates,
+    expectedIntegrationHead: options.expectedIntegrationHead ?? head,
+  })
 }
 
 try {
@@ -85,7 +101,7 @@ try {
   await writeReceipt('TEST', { signingKey: attacker.privateKey })
   assert.equal((await run('REQUIRED')).ok, false, 'recomputed local forgery must fail')
 
-  await writeReceipt('TEST', { signed: { candidate: { commit: 'a'.repeat(40), tree: 'b'.repeat(40) } } })
+  await writeReceipt('TEST', { signed: { candidate: { commit: 'a'.repeat(40), tree: 'b'.repeat(40), integration_head: 'a'.repeat(40) } } })
   assert.equal((await run('REQUIRED')).ok, false, 'arbitrary commit and tree must fail')
 
   await writeReceipt('TEST', { signed: { source_baseline: 'f'.repeat(40) } })
@@ -97,7 +113,7 @@ try {
   await writeReceipt('TEST', { signed: { gate_authorizations: { REQUIRED: `sha256:${'0'.repeat(64)}` } } })
   assert.equal((await run('REQUIRED')).ok, false, 'wrong prerequisite-set authorization must fail')
 
-  await writeReceipt('TEST', { signed: { candidate: { commit: head, tree: 'b'.repeat(tree.length) } } })
+  await writeReceipt('TEST', { signed: { candidate: { commit: head, tree: 'b'.repeat(tree.length), integration_head: head } } })
   assert.equal((await run('REQUIRED')).ok, false, 'wrong tree for an existing commit must fail')
 
   await writeReceipt('TEST', { keyId: 'unknown-key' })
@@ -117,6 +133,25 @@ try {
   sibling.signed.candidate.commit = spawnSync('git', ['-C', projectRoot, 'rev-parse', 'HEAD^'], { encoding: 'utf8' }).stdout.trim()
   await writeFile(join(receiptDirectory, 'TEST.json'), `${JSON.stringify(sibling)}\n`)
   assert.equal((await run('REQUIRED')).ok, false, 'unsigned sibling-commit substitution must fail')
+
+  await writeReceipt('TEST', { signed: { candidate: { commit: oldHead, tree: oldTree, integration_head: oldHead } } })
+  assert.equal((await run('REQUIRED')).ok, false, 'valid signer cannot authorize an externally unapproved stale commit')
+
+  const siblingCommit = spawnSync('git', ['-C', projectRoot, 'commit-tree', tree, '-p', oldHead], {
+    encoding: 'utf8',
+    input: 'hostile sibling\n',
+    env: {
+      ...process.env,
+      GIT_AUTHOR_NAME: 'Gate Test',
+      GIT_AUTHOR_EMAIL: 'gate@example.invalid',
+      GIT_COMMITTER_NAME: 'Gate Test',
+      GIT_COMMITTER_EMAIL: 'gate@example.invalid',
+    },
+  }).stdout.trim()
+  await writeReceipt('TEST', { signed: { candidate: { commit: siblingCommit, tree, integration_head: siblingCommit } } })
+  assert.equal((await run('REQUIRED', { authorizedCandidates: { ...authorizedCandidates, TEST: { commit: siblingCommit, tree, integration_head: siblingCommit } } })).ok, false, 'valid signed sibling not integrated into current HEAD must fail')
+
+  await assert.rejects(run('OPEN', { expectedIntegrationHead: oldHead }), /Integration HEAD does not match the gate CAS/, 'changed integration HEAD must fail the gate CAS')
 
   await writeReceipt('TEST')
   await writeFile(join(receiptDirectory, 'TEST.log'), 'substituted log\n')

@@ -18,8 +18,10 @@ gate manifest, packet contracts, checker, library, and hostile tests are
 byte-exact to that pinned commit before invoking the in-repo checker. The trust
 root intentionally starts empty and Sean must explicitly provision or delegate
 an acceptance public key. Private keys never live in the repository. Directly
-invoking the in-repo checker is non-authoritative and fails without external
-trust-root injection.
+invoking the in-repo checker is non-authoritative and always fails. The installed
+verifier executes an externally installed, digest-pinned verification library;
+candidate-controlled environment variables cannot substitute a trust root or
+invoke an authoritative in-repo path.
 
 The canonical signature binds packet ID, sealed packet-contract digest, source
 baseline, full gate-manifest digest and revision, the exact authorized gate and
@@ -27,7 +29,7 @@ prerequisite-set digest, exact Git commit and tree, evidence log and environment
 digests, acceptance state, issuer, and timestamp. The checker also proves the
 commit exists, derives its actual tree, verifies baseline ancestry, and hashes the exact evidence
 artifacts. Unknown or revoked signers, self-generated local signatures,
-arbitrary/sibling commits, wrong baseline/revision/contract, substituted
+arbitrary/stale/unintegrated sibling commits, wrong baseline/revision/contract, substituted
 evidence, malformed data, and missing receipts all fail closed. A colocated hash
 sidecar is not acceptance authority and is not used.
 
