@@ -143,6 +143,11 @@ describe('M0B usability protocol', () => {
         from: '  startsPerPrimaryJourney: 10,\n};',
         to: '  startsPerPrimaryJourney: 10,\n};\nObject.assign(M0B_DEFAULT_MINIMUMS, { participantsTotal: 1 });',
       },
+      {
+        file: 'src/process/services/cohort/policy.ts',
+        from: '  startsPerPrimaryJourney: 10,\n};',
+        to: "  startsPerPrimaryJourney: 10,\n};\nM0B_DEFAULT_MINIMUMS['participantsTotal'] = 1;",
+      },
     ];
 
     for (const mutation of cases) {
