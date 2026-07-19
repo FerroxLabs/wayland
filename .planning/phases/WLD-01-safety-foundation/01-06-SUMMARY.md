@@ -43,12 +43,14 @@ status: constructed
 
 # Phase 1 Plan 06: Recovery Capture Boundary Summary
 
-> **Active successor:** R5 repairs independent HIGH finding F-01 by binding the
-> complete source-ancestor authority chain. Its exact source is
-> `9674fd1ed2e3b8da6357bb3c7248dc061b10a286` / tree
-> `7e81fbfad6e97e8508eb11cd18faeea3a87a278b`. See
-> `01-06-REPAIR-SUCCESSOR-R5.md` and evidence root `01-06-9674fd1e/`. The R5
-> candidate is constructed and awaiting independent audit; the receipt below is
+> **Active successor:** R6 repairs independent HIGH finding F-01 by retaining
+> and revalidating the complete source admission identity through publication.
+> Its exact source is
+> `4f6f02e944a4eabf421c224d64747b2702e7ed24` / tree
+> `c294c29afa246ed91386051560d0fb9d6825f899`. See
+> `01-06-REPAIR-SUCCESSOR-R6.md` and evidence root
+> `01-06-r6-4f6f02e9/`. The R6 candidate is constructed and awaiting
+> independent audit; the receipt below is
 > retained as historical R3 construction evidence.
 
 The first successor repaired four HIGH and two MEDIUM findings from the original rejected candidate, but independent audit then found a further HIGH: external recovery-authority provisioning happened after inventory admission, so the builder could publish a snapshot that omitted the newly created authority. The repaired successor rebuilds the exact post-provision inventory and fails closed if the capture plan changes before publication. This remains a construction receipt, not an independent acceptance or integration claim.
