@@ -44,6 +44,11 @@ arbitrary/stale/unintegrated sibling commits, wrong baseline/revision/contract, 
 evidence, malformed data, and missing receipts all fail closed. A colocated hash
 sidecar is not acceptance authority and is not used.
 
+Receipt failures expose a stable `reason_code` plus a fixed human-readable
+`reason`. Parser excerpts, external paths, and runtime exception messages are
+never copied into the result. Unexpected wrapper failures emit only a stable
+`error_code` and the fail-closed exit status.
+
 Repository source is not installed authority. Plan 01-37 supplies and tests the
 schema-v2 source only. Until plan 01-38 installs those exact committed bytes and
 pins the external wrapper, library, trust configuration, and control commit,
@@ -59,7 +64,10 @@ with its native Office resources, UI surfaces, and release claims. A partial or
 claims-only Cowork state cannot open either gate. Present and physically absent
 receipts are exclusive alternatives: exactly one must authenticate. Zero or two
 accepted alternatives fail closed for Flux, MCP, sandbox, image, Voice, and
-Cowork release branches.
+Cowork release branches. A single physical-absence receipt may intentionally be
+shared across independent exact-one groups so one bounded absence claim covers
+the related capability and package-closure branches. Required packets and
+`any` groups may not reuse packet identities across branches.
 
 Automatic GSD parallelization is disabled. Parallel Codex builders are launched
 only after manually creating one clean worktree per plan, confirming disjoint

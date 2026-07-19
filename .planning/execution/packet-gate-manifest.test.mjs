@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { checkGate } from './packet-gate-lib.mjs';
 
 const here = new URL('.', import.meta.url);
 const gates = JSON.parse(await readFile(new URL('PACKET-GATES.json', here), 'utf8'));
@@ -157,5 +161,36 @@ assert.ok(contracts.packets['M0B-OBSERVATION-COMPLETE']);
 assert.match(contracts.packets['M0B-OBSERVATION-COMPLETE'].terminal_claim, /elapsed completely/);
 assert.match(contracts.packets.M8.terminal_claim, /J17 and J23/);
 assert.match(contracts.packets['COWORK-ABSENT'].terminal_claim, /physically absent/);
+
+const projectRoot = new URL('../..', import.meta.url).pathname;
+const productionProof = await mkdtemp(join(tmpdir(), 'wayland-production-gate-manifest-'));
+const trustRootPath = join(productionProof, 'trust.json');
+const expectedIntegrationHead = spawnSync('git', ['-C', projectRoot, 'rev-parse', 'HEAD'], {
+  encoding: 'utf8',
+}).stdout.trim();
+await writeFile(trustRootPath, '{"schema_version":1,"keys":[]}\n');
+try {
+  const productionResults = await Promise.all(
+    ['P5-M8-ACCEPTANCE', 'P6-M9'].map(async (gateId) => ({
+      gateId,
+      result: await checkGate({
+        gateId,
+        projectRoot,
+        receiptDirectory: join(productionProof, 'absent-receipts'),
+        manifestPath: new URL('PACKET-GATES.json', here),
+        contractsPath: new URL('PACKET-CONTRACTS.json', here),
+        trustRootPath,
+        authorizedCandidates: {},
+        expectedIntegrationHead,
+      }),
+    }))
+  );
+  for (const { gateId, result } of productionResults) {
+    assert.equal(result.gate, gateId, `${gateId} must pass real production schema validation`);
+    assert.equal(result.ok, false, `${gateId} must remain red without external candidate authorization`);
+  }
+} finally {
+  await rm(productionProof, { recursive: true, force: true });
+}
 
 console.log('packet gate manifest tests: PASS');

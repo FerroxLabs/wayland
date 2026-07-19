@@ -85,21 +85,21 @@ Required semantics:
 
 ## Required Phase-1 gate targets
 
-| Gate | Prerequisites | Accepted target |
-|---|---|---|
-| `P1-M0B-COHORT` | none | `M0B-COHORT-AUTHORITY` |
-| `P1-M0B-INSTRUMENTATION` | `M0B-COHORT-AUTHORITY` | `M0B-INSTRUMENTATION` |
-| `P1-M0B-DAY0` | `M0B-COHORT-AUTHORITY`, `M0B-INSTRUMENTATION` | `M0B-DAY0` |
-| `P1-M0B-OBSERVATION` | `M0B-DAY0` | `M0B-OBSERVATION-COMPLETE` |
-| `P1-M0B` | `M0B-OBSERVATION-COMPLETE` | `M0B` |
-| `P1-M0A` | none | `M0A` |
-| `P1-FLUX-PRODUCER` | none | `FLUX-PRODUCER-ACCEPTANCE` |
-| `P1-M1` | `M0A` | `M1` |
-| `P1-M1F` | `M0A`, `FLUX-PRODUCER-ACCEPTANCE` | exactly one of `M1F`, `NO-FLUX-CLAIMS` |
-| `P1-M1M0` | none | `M1M-0` |
-| `P1-M1S0` | none | `M1S-0` |
-| `P1-C0A` | none | `C0-A` |
-| `P1-AGGREGATE-ACCEPTANCE` | the existing complete Phase-1 prerequisite DAG | `PHASE1-AGGREGATE-ACCEPTANCE` |
+| Gate                      | Prerequisites                                  | Accepted target                        |
+| ------------------------- | ---------------------------------------------- | -------------------------------------- |
+| `P1-M0B-COHORT`           | none                                           | `M0B-COHORT-AUTHORITY`                 |
+| `P1-M0B-INSTRUMENTATION`  | `M0B-COHORT-AUTHORITY`                         | `M0B-INSTRUMENTATION`                  |
+| `P1-M0B-DAY0`             | `M0B-COHORT-AUTHORITY`, `M0B-INSTRUMENTATION`  | `M0B-DAY0`                             |
+| `P1-M0B-OBSERVATION`      | `M0B-DAY0`                                     | `M0B-OBSERVATION-COMPLETE`             |
+| `P1-M0B`                  | `M0B-OBSERVATION-COMPLETE`                     | `M0B`                                  |
+| `P1-M0A`                  | none                                           | `M0A`                                  |
+| `P1-FLUX-PRODUCER`        | none                                           | `FLUX-PRODUCER-ACCEPTANCE`             |
+| `P1-M1`                   | `M0A`                                          | `M1`                                   |
+| `P1-M1F`                  | `M0A`, `FLUX-PRODUCER-ACCEPTANCE`              | exactly one of `M1F`, `NO-FLUX-CLAIMS` |
+| `P1-M1M0`                 | none                                           | `M1M-0`                                |
+| `P1-M1S0`                 | none                                           | `M1S-0`                                |
+| `P1-C0A`                  | none                                           | `C0-A`                                 |
+| `P1-AGGREGATE-ACCEPTANCE` | the existing complete Phase-1 prerequisite DAG | `PHASE1-AGGREGATE-ACCEPTANCE`          |
 
 `M0B-OBSERVATION-COMPLETE` must be added to the sealed packet contracts with
 the bounded terminal claim already defined by plan 01-04. It is evidence of an
@@ -114,13 +114,20 @@ current gate is classified from the master packet dependency contract:
 
 The Phase-1 gates in the table above are acceptance gates. In addition:
 
-| Gate | Prerequisites | Accepted target |
-|---|---|---|
-| `P5-M8-ACCEPTANCE` | existing M0A/M0B/M1-M7 plus all existing exact-one capability/absence groups | `M8` |
+| Gate               | Prerequisites                                                                | Accepted target |
+| ------------------ | ---------------------------------------------------------------------------- | --------------- |
+| `P5-M8-ACCEPTANCE` | existing M0A/M0B/M1-M7 plus all existing exact-one capability/absence groups | `M8`            |
 
 `P5-M8-ACCEPTANCE` preserves every existing mutually exclusive physical-
 absence branch as a prerequisite. Those branches are not targets and cannot
 mint `M8`; the separately authenticated M8 receipt does.
+
+The same bounded physical-absence receipt may appear in multiple independent
+exact-one groups when it is the common fallback for related present-state
+receipts. Duplicate identities within one list, across required and alternative
+categories, or across `any` groups remain invalid. Receipt failures expose only
+stable reason codes and fixed descriptions; raw parser excerpts, external paths,
+and runtime exception messages are not returned.
 
 ### Entry gates
 
@@ -174,8 +181,8 @@ targets, and attempts to cite an entry result as accepted-target evidence.
 ## Replanning rule
 
 Plan 01-37 implements and tests the repository-owned source. Plan 01-38 then
-installs those exact committed bytes and pins the external wrapper/library/control
-without provisioning an acceptance key. Every packet-acceptance plan depends on
-01-38 and may invoke only the gate ID implemented by 01-37 and proven live by
-01-38. This document and repository source never substitute for that installation
-proof.
+installs those exact committed bytes and pins the external
+wrapper/library/control without provisioning an acceptance key. Every
+packet-acceptance plan depends on 01-38 and may invoke only the gate ID
+implemented by 01-37 and proven live by 01-38. This document and repository
+source never substitute for that installation proof.

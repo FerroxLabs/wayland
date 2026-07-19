@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash, generateKeyPairSync, sign } from 'node:crypto';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -12,7 +12,7 @@ const receiptDirectory = join(directory, 'receipts');
 const manifestPath = join(directory, 'gates.json');
 const contractsPath = join(directory, 'contracts.json');
 const trustRootPath = join(directory, 'keys.json');
-await import('node:fs/promises').then(({ mkdir }) => mkdir(receiptDirectory));
+await mkdir(receiptDirectory);
 
 const head = spawnSync('git', ['-C', projectRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).stdout.trim();
 const tree = spawnSync('git', ['-C', projectRoot, 'rev-parse', 'HEAD^{tree}'], { encoding: 'utf8' }).stdout.trim();
@@ -140,6 +140,7 @@ try {
   const split = await run('ACCEPT_REQUIRED');
   assert.equal(split.prerequisites.ok, true, 'prerequisite should be independently green');
   assert.equal(split.accepted_targets.ok, false, 'missing target must remain independently red');
+  assert.equal(split.accepted_targets.required[0].reason_code, 'RECEIPT_OR_EVIDENCE_MISSING');
   assert.equal(split.ok, false, 'green prerequisites cannot substitute for a red target');
 
   await writeReceipt('TARGET');
@@ -183,6 +184,25 @@ try {
   await rejectsManifest((value) => {
     value.gates.ENTRY_ALTERNATIVE.prerequisites.one = [['TEST', 'OTHER']];
   }, /ambiguous duplicate packet TEST/);
+  const sharedExclusive = structuredClone(manifest);
+  sharedExclusive.gates.ENTRY_SHARED_EXCLUSIVE = {
+    mode: 'entry',
+    prerequisites: {
+      all: [],
+      any: [],
+      one: [
+        ['TEST', 'OTHER'],
+        ['TARGET', 'OTHER'],
+      ],
+    },
+  };
+  await persistManifest(sharedExclusive);
+  assert.equal(
+    (await run('ENTRY_SHARED_EXCLUSIVE')).ok,
+    false,
+    'a shared exact-one fallback is valid schema even when its receipts are absent'
+  );
+  await persistManifest();
   await rejectsManifest((value) => {
     value.gates.ACCEPT_REQUIRED.accepts.all = ['TEST'];
   }, /both prerequisite and target/);
@@ -242,6 +262,32 @@ try {
   await writeReceipt('TEST');
   await writeFile(join(receiptDirectory, 'TEST.log'), 'substituted log\n');
   assert.equal((await run('ACCEPT_OPEN')).ok, false, 'substituted evidence bytes must fail');
+
+  const receiptMarker = 'receipt-private-marker';
+  await writeFile(join(receiptDirectory, 'TEST.json'), `[${receiptMarker}]\n`);
+  const malformed = await run('ACCEPT_OPEN');
+  assert.equal(malformed.accepted_targets.required[0].reason_code, 'RECEIPT_MALFORMED');
+  assert.equal(JSON.stringify(malformed).includes(receiptMarker), false, 'hostile receipt excerpts must not escape');
+  assert.equal(JSON.stringify(malformed).includes(receiptDirectory), false, 'receipt-store paths must not escape');
+
+  const wrapperHome = join(directory, 'wrapper-home');
+  const wrapperConfigDirectory = join(wrapperHome, '.config', 'wayland-gsd');
+  await mkdir(wrapperConfigDirectory, { recursive: true });
+  const configMarker = 'config-private-marker';
+  await writeFile(join(wrapperConfigDirectory, 'desktop-control.json'), `[${configMarker}]\n`);
+  const wrapper = spawnSync(
+    process.execPath,
+    [join(projectRoot, '.planning/execution/wayland-gsd-gate.mjs'), 'ENTRY_OPEN'],
+    {
+      cwd: projectRoot,
+      encoding: 'utf8',
+      env: { ...process.env, HOME: wrapperHome },
+    }
+  );
+  assert.equal(wrapper.status, 2, 'unexpected wrapper failures must use the fail-closed exit');
+  assert.deepEqual(JSON.parse(wrapper.stderr), { ok: false, error_code: 'GATE_INTERNAL_ERROR' });
+  assert.equal(wrapper.stderr.includes(configMarker), false, 'hostile config excerpts must not escape');
+  assert.equal(wrapper.stderr.includes(wrapperHome), false, 'external config paths must not escape');
 
   console.log('authenticated packet gate tests: PASS');
 } finally {

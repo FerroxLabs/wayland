@@ -6,6 +6,47 @@ import { spawnSync } from 'node:child_process';
 const oid = /^[0-9a-f]{40}([0-9a-f]{24})?$/;
 const digest = /^sha256:[0-9a-f]{64}$/;
 const safePacket = /^[A-Z0-9][A-Z0-9-]*$/;
+const receiptFailureReasons = Object.freeze({
+  UNSAFE_PACKET_IDENTIFIER: 'unsafe packet identifier',
+  PACKET_CONTRACT_UNSEALED: 'packet contract is not sealed',
+  PACKET_CANDIDATE_UNAUTHORIZED: 'packet candidate is not externally authorized',
+  RECEIPT_SCHEMA_UNSUPPORTED: 'unsupported receipt schema',
+  RECEIPT_UNSIGNED: 'unsigned receipt',
+  PACKET_IDENTITY_MISMATCH: 'packet identity mismatch',
+  RECEIPT_NOT_ACCEPTED: 'receipt is not accepted',
+  SOURCE_BASELINE_MISMATCH: 'source baseline mismatch',
+  GATE_MANIFEST_REVISION_MISMATCH: 'gate manifest revision mismatch',
+  GATE_MANIFEST_DIGEST_MISMATCH: 'gate manifest digest mismatch',
+  GATE_AUTHORIZATION_MISMATCH: 'receipt does not authorize this exact gate object',
+  PACKET_CONTRACT_DIGEST_MISMATCH: 'packet contract digest mismatch',
+  CANDIDATE_COMMIT_INVALID: 'invalid exact commit',
+  CANDIDATE_TREE_INVALID: 'invalid exact tree',
+  INTEGRATION_HEAD_INVALID: 'invalid accepted integration HEAD',
+  EXTERNAL_AUTHORIZATION_MISMATCH: 'receipt candidate does not match external authorization',
+  LANDED_COMMIT_MISMATCH: 'packet was not accepted at its exact landed commit',
+  EVIDENCE_LOG_DIGEST_INVALID: 'invalid log digest',
+  EVIDENCE_ENVIRONMENT_DIGEST_INVALID: 'invalid environment digest',
+  ACCEPTANCE_TIMESTAMP_INVALID: 'invalid acceptance timestamp',
+  ACCEPTANCE_SIGNER_UNKNOWN: 'unknown acceptance signer',
+  ACCEPTANCE_SIGNER_REVOKED: 'acceptance signer is revoked',
+  SIGNER_VALIDITY_WINDOW_INVALID: 'signer validity window is malformed',
+  SIGNER_NOT_VALID_AT_ACCEPTANCE: 'signer was not valid at acceptance time',
+  SIGNATURE_ALGORITHM_UNSUPPORTED: 'unsupported signature algorithm',
+  SIGNATURE_MISMATCH: 'acceptance signature mismatch',
+  CANDIDATE_COMMIT_NOT_FOUND: 'signed commit does not exist in this repository',
+  CANDIDATE_TREE_MISMATCH: 'signed tree does not match signed commit',
+  SOURCE_BASELINE_ANCESTRY_MISMATCH: 'signed candidate does not descend from the declared source baseline',
+  INTEGRATION_ANCESTRY_MISMATCH: 'accepted packet is not integrated into the exact gate HEAD',
+  EVIDENCE_LOG_DIGEST_MISMATCH: 'evidence log digest mismatch',
+  EVIDENCE_ENVIRONMENT_DIGEST_MISMATCH: 'environment evidence digest mismatch',
+  RECEIPT_OR_EVIDENCE_MISSING: 'receipt or evidence artifact missing',
+  RECEIPT_MALFORMED: 'receipt is malformed',
+  RECEIPT_VALIDATION_UNAVAILABLE: 'receipt validation is unavailable',
+});
+
+function receiptFailure(packet, reasonCode) {
+  return { ok: false, packet, reason_code: reasonCode, reason: receiptFailureReasons[reasonCode] };
+}
 
 function isRecord(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -43,10 +84,13 @@ function validateSelection(value, label, { allowAny }) {
   const all = packetList(value.all, `${label}.all`);
   const any = allowAny ? packetGroups(value.any, `${label}.any`) : [];
   const one = packetGroups(value.one, `${label}.one`);
-  const seen = new Set();
-  for (const packet of [...all, ...any.flat(), ...one.flat()]) {
+  const seen = new Set(all);
+  for (const packet of any.flat()) {
     if (seen.has(packet)) throw new Error(`${label} contains ambiguous duplicate packet ${packet}`);
     seen.add(packet);
+  }
+  for (const packet of one.flat()) {
+    if (seen.has(packet)) throw new Error(`${label} contains ambiguous duplicate packet ${packet}`);
   }
   return { all, any, one };
 }
@@ -145,79 +189,77 @@ export async function checkGate({
   }
 
   async function validateReceipt(packet) {
-    if (!safePacket.test(packet)) return { ok: false, packet, reason: 'unsafe packet identifier' };
+    if (!safePacket.test(packet)) return receiptFailure(packet, 'UNSAFE_PACKET_IDENTIFIER');
     const contract = contracts.packets[packet];
-    if (!contract) return { ok: false, packet, reason: 'packet contract is not sealed' };
+    if (!contract) return receiptFailure(packet, 'PACKET_CONTRACT_UNSEALED');
     const authorization = authorizedCandidates[packet];
-    if (!authorization) return { ok: false, packet, reason: 'packet candidate is not externally authorized' };
+    if (!authorization) return receiptFailure(packet, 'PACKET_CANDIDATE_UNAUTHORIZED');
 
     try {
       const receipt = JSON.parse(await readFile(resolve(receiptDirectory, `${packet}.json`), 'utf8'));
-      if (receipt.schema_version !== 2) return { ok: false, packet, reason: 'unsupported receipt schema' };
-      if (!receipt.signed || !receipt.signature) return { ok: false, packet, reason: 'unsigned receipt' };
+      if (receipt.schema_version !== 2) return receiptFailure(packet, 'RECEIPT_SCHEMA_UNSUPPORTED');
+      if (!receipt.signed || !receipt.signature) return receiptFailure(packet, 'RECEIPT_UNSIGNED');
 
       const signed = receipt.signed;
-      if (signed.packet !== packet) return { ok: false, packet, reason: 'packet identity mismatch' };
-      if (signed.status !== 'accepted') return { ok: false, packet, reason: 'receipt is not accepted' };
+      if (signed.packet !== packet) return receiptFailure(packet, 'PACKET_IDENTITY_MISMATCH');
+      if (signed.status !== 'accepted') return receiptFailure(packet, 'RECEIPT_NOT_ACCEPTED');
       if (signed.source_baseline !== manifest.source_baseline)
-        return { ok: false, packet, reason: 'source baseline mismatch' };
+        return receiptFailure(packet, 'SOURCE_BASELINE_MISMATCH');
       if (signed.gate_manifest_revision !== manifest.revision)
-        return { ok: false, packet, reason: 'gate manifest revision mismatch' };
+        return receiptFailure(packet, 'GATE_MANIFEST_REVISION_MISMATCH');
       if (signed.gate_manifest_digest !== contractDigest(manifest))
-        return { ok: false, packet, reason: 'gate manifest digest mismatch' };
+        return receiptFailure(packet, 'GATE_MANIFEST_DIGEST_MISMATCH');
       if (signed.gate_authorizations?.[gateId] !== contractDigest(manifest.gates[gateId])) {
-        return { ok: false, packet, reason: 'receipt does not authorize this exact gate prerequisite set' };
+        return receiptFailure(packet, 'GATE_AUTHORIZATION_MISMATCH');
       }
       if (signed.packet_contract_digest !== contractDigest(contract))
-        return { ok: false, packet, reason: 'packet contract digest mismatch' };
-      if (!oid.test(signed.candidate?.commit ?? '')) return { ok: false, packet, reason: 'invalid exact commit' };
-      if (!oid.test(signed.candidate?.tree ?? '')) return { ok: false, packet, reason: 'invalid exact tree' };
+        return receiptFailure(packet, 'PACKET_CONTRACT_DIGEST_MISMATCH');
+      if (!oid.test(signed.candidate?.commit ?? '')) return receiptFailure(packet, 'CANDIDATE_COMMIT_INVALID');
+      if (!oid.test(signed.candidate?.tree ?? '')) return receiptFailure(packet, 'CANDIDATE_TREE_INVALID');
       if (!oid.test(signed.candidate?.integration_head ?? ''))
-        return { ok: false, packet, reason: 'invalid accepted integration HEAD' };
+        return receiptFailure(packet, 'INTEGRATION_HEAD_INVALID');
       if (
         signed.candidate.commit !== authorization.commit ||
         signed.candidate.tree !== authorization.tree ||
         signed.candidate.integration_head !== authorization.integration_head
       ) {
-        return { ok: false, packet, reason: 'receipt candidate does not match external authorization' };
+        return receiptFailure(packet, 'EXTERNAL_AUTHORIZATION_MISMATCH');
       }
       if (signed.candidate.commit !== signed.candidate.integration_head) {
-        return { ok: false, packet, reason: 'packet was not accepted at its exact landed commit' };
+        return receiptFailure(packet, 'LANDED_COMMIT_MISMATCH');
       }
-      if (!digest.test(signed.evidence?.log_digest ?? '')) return { ok: false, packet, reason: 'invalid log digest' };
+      if (!digest.test(signed.evidence?.log_digest ?? '')) return receiptFailure(packet, 'EVIDENCE_LOG_DIGEST_INVALID');
       if (!digest.test(signed.evidence?.environment_digest ?? ''))
-        return { ok: false, packet, reason: 'invalid environment digest' };
+        return receiptFailure(packet, 'EVIDENCE_ENVIRONMENT_DIGEST_INVALID');
       if (!Number.isFinite(Date.parse(signed.accepted_at ?? '')))
-        return { ok: false, packet, reason: 'invalid acceptance timestamp' };
+        return receiptFailure(packet, 'ACCEPTANCE_TIMESTAMP_INVALID');
 
       const key = trustedKeys.get(receipt.signature.key_id);
-      if (!key || key.issuer !== signed.issuer) return { ok: false, packet, reason: 'unknown acceptance signer' };
-      if (key.revoked_at) return { ok: false, packet, reason: 'acceptance signer is revoked' };
+      if (!key || key.issuer !== signed.issuer) return receiptFailure(packet, 'ACCEPTANCE_SIGNER_UNKNOWN');
+      if (key.revoked_at) return receiptFailure(packet, 'ACCEPTANCE_SIGNER_REVOKED');
       const acceptedAt = Date.parse(signed.accepted_at);
       const validFrom = Date.parse(key.valid_from);
       const validUntil = Date.parse(key.valid_until);
       if (!Number.isFinite(validFrom) || !Number.isFinite(validUntil) || validFrom > validUntil) {
-        return { ok: false, packet, reason: 'signer validity window is malformed' };
+        return receiptFailure(packet, 'SIGNER_VALIDITY_WINDOW_INVALID');
       }
       if (acceptedAt < validFrom || acceptedAt > validUntil) {
-        return { ok: false, packet, reason: 'signer was not valid at acceptance time' };
+        return receiptFailure(packet, 'SIGNER_NOT_VALID_AT_ACCEPTANCE');
       }
-      if (receipt.signature.algorithm !== 'ed25519')
-        return { ok: false, packet, reason: 'unsupported signature algorithm' };
+      if (receipt.signature.algorithm !== 'ed25519') return receiptFailure(packet, 'SIGNATURE_ALGORITHM_UNSUPPORTED');
       const signatureOk = verify(
         null,
         Buffer.from(canonicalJson(signed)),
         createPublicKey(key.public_key_pem),
         Buffer.from(receipt.signature.value, 'base64')
       );
-      if (!signatureOk) return { ok: false, packet, reason: 'acceptance signature mismatch' };
+      if (!signatureOk) return receiptFailure(packet, 'SIGNATURE_MISMATCH');
 
       const commitCheck = git(projectRoot, ['cat-file', '-e', `${signed.candidate.commit}^{commit}`]);
-      if (commitCheck.status !== 0)
-        return { ok: false, packet, reason: 'signed commit does not exist in this repository' };
+      if (commitCheck.status !== 0) return receiptFailure(packet, 'CANDIDATE_COMMIT_NOT_FOUND');
       const actualTree = git(projectRoot, ['rev-parse', `${signed.candidate.commit}^{tree}`]);
       if (actualTree.status !== 0 || actualTree.stdout.trim() !== signed.candidate.tree) {
-        return { ok: false, packet, reason: 'signed tree does not match signed commit' };
+        return receiptFailure(packet, 'CANDIDATE_TREE_MISMATCH');
       }
       const ancestry = git(projectRoot, [
         'merge-base',
@@ -225,31 +267,26 @@ export async function checkGate({
         manifest.source_baseline,
         signed.candidate.commit,
       ]);
-      if (ancestry.status !== 0)
-        return { ok: false, packet, reason: 'signed candidate does not descend from the declared source baseline' };
+      if (ancestry.status !== 0) return receiptFailure(packet, 'SOURCE_BASELINE_ANCESTRY_MISMATCH');
       const integrated = git(projectRoot, [
         'merge-base',
         '--is-ancestor',
         signed.candidate.integration_head,
         expectedIntegrationHead,
       ]);
-      if (integrated.status !== 0)
-        return { ok: false, packet, reason: 'accepted packet is not integrated into the exact gate HEAD' };
+      if (integrated.status !== 0) return receiptFailure(packet, 'INTEGRATION_ANCESTRY_MISMATCH');
 
       const actualLog = await artifactDigest(resolve(receiptDirectory, `${packet}.log`));
       const actualEnvironment = await artifactDigest(resolve(receiptDirectory, `${packet}.env.json`));
-      if (actualLog !== signed.evidence.log_digest)
-        return { ok: false, packet, reason: 'evidence log digest mismatch' };
+      if (actualLog !== signed.evidence.log_digest) return receiptFailure(packet, 'EVIDENCE_LOG_DIGEST_MISMATCH');
       if (actualEnvironment !== signed.evidence.environment_digest)
-        return { ok: false, packet, reason: 'environment evidence digest mismatch' };
+        return receiptFailure(packet, 'EVIDENCE_ENVIRONMENT_DIGEST_MISMATCH');
 
       return { ok: true, packet, commit: signed.candidate.commit, tree: signed.candidate.tree, issuer: signed.issuer };
     } catch (error) {
-      return {
-        ok: false,
-        packet,
-        reason: error.code === 'ENOENT' ? 'receipt or evidence artifact missing' : error.message,
-      };
+      if (error?.code === 'ENOENT') return receiptFailure(packet, 'RECEIPT_OR_EVIDENCE_MISSING');
+      if (error instanceof SyntaxError) return receiptFailure(packet, 'RECEIPT_MALFORMED');
+      return receiptFailure(packet, 'RECEIPT_VALIDATION_UNAVAILABLE');
     }
   }
 
