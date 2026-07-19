@@ -15,10 +15,10 @@ const required = [
   '.planning/config.json',
   '.planning/execution/PACKET-GATES.json',
   '.planning/execution/PACKET-CONTRACTS.json',
-  '.planning/execution/TRUSTED-ACCEPTANCE-KEYS.json',
   '.planning/execution/check-packet-gate.mjs',
   '.planning/execution/packet-gate-lib.mjs',
   '.planning/execution/check-packet-gate.test.mjs',
+  '.planning/execution/wayland-gsd-gate.mjs',
 ]
 
 function git(args) {

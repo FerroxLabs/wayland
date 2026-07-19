@@ -4,7 +4,7 @@
   "source_baseline": "6d41c34087b5f40a368c83ca18d2d8e5a7fdb894",
   "revision": "wld-packet-gates-2026-07-19.2",
   "contract_manifest": ".planning/execution/PACKET-CONTRACTS.json",
-  "trust_root": ".planning/execution/TRUSTED-ACCEPTANCE-KEYS.json",
+  "trust_root_policy": "external-verifier-required",
   "receipt_directory": ".planning/receipts",
   "phase_1_completion_policy": "open-until-aggregate-sentinel",
   "parallel_execution_policy": "manual-clean-worktrees-only",

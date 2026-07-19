@@ -3,17 +3,23 @@
 This milestone stays flat. GSD workstreams are separate milestones and are not
 used to model the master plan's packet DAG.
 
-Before any gated plan executes, run:
+Before any gated plan executes, run the separately installed verifier from the
+repository root:
 
 ```sh
-node .planning/execution/check-packet-gate.mjs <gate-id>
+wayland-gsd-gate <gate-id>
 ```
 
 The checker fails closed unless every required upstream packet has an
-Ed25519-authenticated acceptance receipt under `.planning/receipts/`. The
-committed trust root pins allowed acceptance public keys; it intentionally
-starts empty and Sean must explicitly provision or delegate one. Private keys
-never live in the repository.
+Ed25519-authenticated acceptance receipt under `.planning/receipts/`. The trust
+root and exact control-plane commit live outside the mutable candidate at
+`~/.config/wayland-gsd/desktop-control.json`. The external verifier checks the
+gate manifest, packet contracts, checker, library, and hostile tests are
+byte-exact to that pinned commit before invoking the in-repo checker. The trust
+root intentionally starts empty and Sean must explicitly provision or delegate
+an acceptance public key. Private keys never live in the repository. Directly
+invoking the in-repo checker is non-authoritative and fails without external
+trust-root injection.
 
 The canonical signature binds packet ID, sealed packet-contract digest, source
 baseline, full gate-manifest digest and revision, the exact authorized gate and
