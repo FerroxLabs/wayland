@@ -148,6 +148,31 @@ describe('M0B usability protocol', () => {
         from: '  startsPerPrimaryJourney: 10,\n};',
         to: "  startsPerPrimaryJourney: 10,\n};\nM0B_DEFAULT_MINIMUMS['participantsTotal'] = 1;",
       },
+      {
+        file: 'src/process/services/cohort/policy.ts',
+        from: '  startsPerPrimaryJourney: 10,\n};',
+        to: "  startsPerPrimaryJourney: 10,\n};\n(M0B_DEFAULT_MINIMUMS as Record<string, number>)['participantsTotal'] = 1;",
+      },
+      {
+        file: 'src/process/services/cohort/policy.ts',
+        from: '  startsPerPrimaryJourney: 10,\n};',
+        to: "  startsPerPrimaryJourney: 10,\n};\nconst minimumsAlias = M0B_DEFAULT_MINIMUMS;\nminimumsAlias['participantsTotal'] = 1;",
+      },
+      {
+        file: 'src/process/services/cohort/policy.ts',
+        from: '  startsPerPrimaryJourney: 10,\n};',
+        to: "  startsPerPrimaryJourney: 10,\n};\nReflect.set(M0B_DEFAULT_MINIMUMS, 'participantsTotal', 1);",
+      },
+      {
+        file: 'src/process/services/cohort/policy.ts',
+        from: '  startsPerPrimaryJourney: 10,\n};',
+        to: "  startsPerPrimaryJourney: 10,\n};\ndelete M0B_DEFAULT_MINIMUMS['participantsTotal'];",
+      },
+      {
+        file: 'src/process/services/cohort/policy.ts',
+        from: '  startsPerPrimaryJourney: 10,\n};',
+        to: "  startsPerPrimaryJourney: 10,\n};\nfunction alter(value: object) { Reflect.set(value, 'participantsTotal', 1); }\nalter(M0B_DEFAULT_MINIMUMS);",
+      },
     ];
 
     for (const mutation of cases) {

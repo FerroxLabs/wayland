@@ -150,16 +150,84 @@ function evaluateLiteral(node, constants, sourceFile, path) {
   fail('M0B_RUNTIME_SOURCE', path, `non-literal=${ts.SyntaxKind[node.kind]}`);
 }
 
+function unwrapExpression(node) {
+  let current = node;
+  while (
+    ts.isParenthesizedExpression(current) ||
+    ts.isAsExpression(current) ||
+    ts.isTypeAssertionExpression(current) ||
+    ts.isNonNullExpression(current) ||
+    ts.isSatisfiesExpression(current)
+  ) {
+    current = current.expression;
+  }
+  return current;
+}
+
 function mutationTargets(node, names) {
-  const targetName = ts.isIdentifier(node)
-    ? node.text
-    : ts.isPropertyAccessExpression(node)
-      ? node.expression.getText()
-      : '';
-  return names.has(targetName);
+  const current = unwrapExpression(node);
+  if (ts.isIdentifier(current)) return names.has(current.text);
+  if (ts.isPropertyAccessExpression(current) || ts.isElementAccessExpression(current)) {
+    return mutationTargets(current.expression, names);
+  }
+  return false;
+}
+
+function callName(node) {
+  const current = unwrapExpression(node);
+  if (!ts.isPropertyAccessExpression(current) && !ts.isElementAccessExpression(current)) return null;
+  const receiver = unwrapExpression(current.expression);
+  if (!ts.isIdentifier(receiver)) return null;
+  const property = ts.isPropertyAccessExpression(current)
+    ? current.name.text
+    : current.argumentExpression &&
+        (ts.isStringLiteral(current.argumentExpression) ||
+          ts.isNoSubstitutionTemplateLiteral(current.argumentExpression))
+      ? current.argumentExpression.text
+      : null;
+  return property === null ? null : `${receiver.text}.${property}`;
+}
+
+function collectBindingNames(name, output) {
+  if (ts.isIdentifier(name)) {
+    output.add(name.text);
+    return;
+  }
+  for (const element of name.elements) {
+    if (!ts.isOmittedExpression(element)) collectBindingNames(element.name, output);
+  }
+}
+
+function collectProtectedAliases(sourceFile, protectedNames) {
+  const aliases = new Set(protectedNames);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    const visit = (node) => {
+      if (ts.isVariableDeclaration(node) && node.initializer && mutationTargets(node.initializer, aliases)) {
+        const before = aliases.size;
+        collectBindingNames(node.name, aliases);
+        changed ||= aliases.size !== before;
+      }
+      if (
+        ts.isBinaryExpression(node) &&
+        node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+        ts.isIdentifier(unwrapExpression(node.left)) &&
+        mutationTargets(node.right, aliases)
+      ) {
+        const before = aliases.size;
+        aliases.add(unwrapExpression(node.left).text);
+        changed ||= aliases.size !== before;
+      }
+      ts.forEachChild(node, visit);
+    };
+    ts.forEachChild(sourceFile, visit);
+  }
+  return aliases;
 }
 
 function assertNoRuntimeMutation(sourceFile, names, filePath) {
+  const protectedNames = collectProtectedAliases(sourceFile, names);
   const assignmentOperators = new Set([
     ts.SyntaxKind.EqualsToken,
     ts.SyntaxKind.PlusEqualsToken,
@@ -193,34 +261,79 @@ function assertNoRuntimeMutation(sourceFile, names, filePath) {
     if (
       ts.isBinaryExpression(node) &&
       assignmentOperators.has(node.operatorToken.kind) &&
-      mutationTargets(node.left, names)
+      mutationTargets(node.left, protectedNames)
     ) {
       fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=${node.left.getText(sourceFile)}`);
     }
     if (
       (ts.isPrefixUnaryExpression(node) || ts.isPostfixUnaryExpression(node)) &&
       (node.operator === ts.SyntaxKind.PlusPlusToken || node.operator === ts.SyntaxKind.MinusMinusToken) &&
-      mutationTargets(node.operand, names)
+      mutationTargets(node.operand, protectedNames)
     ) {
       fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=${node.operand.getText(sourceFile)}`);
     }
+    if (ts.isDeleteExpression(node) && mutationTargets(node.expression, protectedNames)) {
+      fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=delete ${node.expression.getText(sourceFile)}`);
+    }
+    const callee = ts.isCallExpression(node) ? unwrapExpression(node.expression) : null;
+    const methodName =
+      callee && ts.isPropertyAccessExpression(callee)
+        ? callee.name.text
+        : callee &&
+            ts.isElementAccessExpression(callee) &&
+            callee.argumentExpression &&
+            (ts.isStringLiteral(callee.argumentExpression) ||
+              ts.isNoSubstitutionTemplateLiteral(callee.argumentExpression))
+          ? callee.argumentExpression.text
+          : null;
+    const receiver =
+      callee && (ts.isPropertyAccessExpression(callee) || ts.isElementAccessExpression(callee))
+        ? callee.expression
+        : null;
     if (
       ts.isCallExpression(node) &&
-      ts.isPropertyAccessExpression(node.expression) &&
-      mutatingMethods.has(node.expression.name.text) &&
-      mutationTargets(node.expression.expression, names)
+      methodName !== null &&
+      mutatingMethods.has(methodName) &&
+      receiver !== null &&
+      mutationTargets(receiver, protectedNames)
     ) {
       fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=${node.expression.getText(sourceFile)}`);
     }
-    if (
-      ts.isCallExpression(node) &&
-      ts.isPropertyAccessExpression(node.expression) &&
-      node.expression.expression.getText(sourceFile) === 'Object' &&
-      node.expression.name.text === 'assign' &&
-      node.arguments[0] &&
-      mutationTargets(node.arguments[0], names)
-    ) {
-      fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=Object.assign`);
+    if (ts.isCallExpression(node)) {
+      const mutationApi = callName(node.expression);
+      const mutationApis = new Set([
+        'Object.assign',
+        'Object.defineProperty',
+        'Object.defineProperties',
+        'Object.setPrototypeOf',
+        'Reflect.set',
+        'Reflect.defineProperty',
+        'Reflect.deleteProperty',
+        'Reflect.setPrototypeOf',
+      ]);
+      if (
+        mutationApi &&
+        mutationApis.has(mutationApi) &&
+        node.arguments[0] &&
+        mutationTargets(node.arguments[0], protectedNames)
+      ) {
+        fail('M0B_RUNTIME_SOURCE', filePath, `post-declaration-mutation=${mutationApi}`);
+      }
+      if (
+        node.arguments.some((argument) => mutationTargets(argument, protectedNames)) &&
+        mutationApi !== 'Object.freeze'
+      ) {
+        fail('M0B_RUNTIME_SOURCE', filePath, `protected-reference-escape=${node.expression.getText(sourceFile)}`);
+      }
+      if (
+        ts.isIdentifier(unwrapExpression(node.expression)) &&
+        ['eval', 'Function'].includes(unwrapExpression(node.expression).text)
+      ) {
+        fail('M0B_RUNTIME_SOURCE', filePath, `dynamic-code=${unwrapExpression(node.expression).text}`);
+      }
+    }
+    if (ts.isNewExpression(node) && node.arguments?.some((argument) => mutationTargets(argument, protectedNames))) {
+      fail('M0B_RUNTIME_SOURCE', filePath, `protected-reference-escape=new ${node.expression.getText(sourceFile)}`);
     }
     ts.forEachChild(node, visit);
   };
