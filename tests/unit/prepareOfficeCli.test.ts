@@ -155,8 +155,7 @@ describe('prepareOfficeCli supply-chain contract', () => {
     expect(verifiedCache).toEqual(cleanDownload);
     expect(verifiedCache).toMatchObject({
       reportedVersion: '1.0.136',
-      source:
-        'https://github.com/iOfficeAI/OfficeCLI/releases/download/v1.0.136/officecli-mac-arm64',
+      source: 'https://github.com/iOfficeAI/OfficeCLI/releases/download/v1.0.136/officecli-mac-arm64',
     });
     expect(JSON.stringify(verifiedCache)).not.toContain('verified-cache');
   });

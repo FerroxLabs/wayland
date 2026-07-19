@@ -793,23 +793,26 @@ function prepareOfficeCli(options = {}) {
       ? verifyExecutableSmoke(targetBinary)
       : { formats: [], operations: [], reason: 'not-executable-on-build-host' };
     const reportedVersion = contractProof.release.replace(/^v/i, '');
-    writeManifest(targetDir, buildManifest({
-      version,
-      reportedVersion,
-      platform,
-      arch,
-      libc,
-      assetName,
-      binaryName,
-      expectedSha,
-      contractSha256,
-      capabilityFixtureDigest,
-      skillProof,
-      ledgerProof,
-      publisherSignatureProof,
-      contractProof,
-      smokeProof,
-    }));
+    writeManifest(
+      targetDir,
+      buildManifest({
+        version,
+        reportedVersion,
+        platform,
+        arch,
+        libc,
+        assetName,
+        binaryName,
+        expectedSha,
+        contractSha256,
+        capabilityFixtureDigest,
+        skillProof,
+        ledgerProof,
+        publisherSignatureProof,
+        contractProof,
+        smokeProof,
+      })
+    );
     console.log(`  Bundled OfficeCLI already verified: ${runtimeKey}/${binaryName}`);
     return { prepared: true, dir: targetDir, binary: targetBinary, sha256: expectedSha, source: 'verified-cache' };
   }
@@ -837,23 +840,26 @@ function prepareOfficeCli(options = {}) {
       reportedVersion = contractProof.release.replace(/^v/i, '');
     }
 
-    writeManifest(targetDir, buildManifest({
-      version,
-      reportedVersion,
-      platform,
-      arch,
-      libc,
-      assetName,
-      binaryName,
-      expectedSha,
-      contractSha256,
-      capabilityFixtureDigest,
-      skillProof,
-      ledgerProof,
-      publisherSignatureProof,
-      contractProof,
-      smokeProof,
-    }));
+    writeManifest(
+      targetDir,
+      buildManifest({
+        version,
+        reportedVersion,
+        platform,
+        arch,
+        libc,
+        assetName,
+        binaryName,
+        expectedSha,
+        contractSha256,
+        capabilityFixtureDigest,
+        skillProof,
+        ledgerProof,
+        publisherSignatureProof,
+        contractProof,
+        smokeProof,
+      })
+    );
     console.log(`  Bundled native OfficeCLI prepared: ${runtimeKey}/${binaryName} (${reportedVersion})`);
     return { prepared: true, dir: targetDir, binary: targetBinary, sha256: expectedSha, source: 'release' };
   } finally {
