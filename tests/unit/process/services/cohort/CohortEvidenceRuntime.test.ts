@@ -100,4 +100,25 @@ describe('CohortEvidenceRuntime', () => {
       'session_ended',
     ]);
   });
+
+  it('rejects a conflicting return reason after an ambiguous return write', async () => {
+    let firstReturn = true;
+    const record = vi.fn(async (event: { kind: string }) => {
+      if (event.kind === 'shell_returned_to_classic' && firstReturn) {
+        firstReturn = false;
+        return { status: 'storage_error' as const };
+      }
+      return { status: 'recorded' as const };
+    });
+    const { subject } = runtime(record);
+
+    await expect(subject.recordShellReturn('reliability')).resolves.toEqual({ status: 'storage-error' });
+    await expect(subject.recordShellReturn('confusing-navigation')).resolves.toEqual({
+      status: 'session-unavailable',
+    });
+    expect(record.mock.calls.map(([event]) => event.kind)).toEqual([
+      'session_started',
+      'shell_returned_to_classic',
+    ]);
+  });
 });
