@@ -122,7 +122,7 @@ function validProjectionCombination(
 ): boolean {
   if (generation === null) return !assignment.available && !consent.enabled;
   if (!assignment.available) return false;
-  if (consent.enabled) return assignment.observationState === 'active' || assignment.observationState === 'completed';
+  if (consent.enabled) return ['locked', 'active', 'completed'].includes(assignment.observationState);
   return assignment.observationState !== 'active';
 }
 

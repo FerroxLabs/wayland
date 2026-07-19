@@ -670,6 +670,20 @@ describe('ProductionCohortController cohort authority', () => {
     expect(subject.authorityStore.set).not.toHaveBeenCalled();
   });
 
+  it.each([Number.NaN, -1, 1.5])(
+    'rejects classification when the process clock cannot produce durable authority: %s',
+    async (invalidNow) => {
+      const subject = await fixture(disabledConsent, undefined, () => invalidNow);
+
+      await expect(subject.controller.requestAssignment('developer')).resolves.toMatchObject({
+        status: 'storage-error',
+        assignment: { available: false },
+      });
+      expect(subject.environment.confirmAssignment).not.toHaveBeenCalled();
+      expect(subject.authorityStore.set).not.toHaveBeenCalled();
+    }
+  );
+
   it('[CR-03] does not let two renderer literals directly select two effective cohorts', async () => {
     const deny = vi.fn(async () => false);
     const novice = await fixture(disabledConsent, undefined, () => NOW, { confirmAssignment: deny });
@@ -691,6 +705,42 @@ describe('ProductionCohortController cohort authority', () => {
 });
 
 describe('ProductionCohortController observation lifecycle', () => {
+  it('[HF-01] does not publish a consent window that becomes invalid after clock rollback', async () => {
+    let clock = NOW;
+    const subject = await fixture(disabledConsent, assignment('developer'), () => clock);
+    clock = NOW - 1;
+
+    await expect(subject.controller.setConsent(true)).resolves.not.toMatchObject({ status: 'enabled' });
+    const restarted = await createCohortProductionController(subject.environment);
+    await expect(restarted.assignmentStatus()).resolves.toMatchObject({
+      available: true,
+      effectiveCohort: 'developer',
+      observationState: 'ready',
+    });
+  });
+
+  it('does not publish an observation window whose end timestamp is not a safe integer', async () => {
+    const subject = await fixture(disabledConsent, assignment('developer'), () => Number.MAX_SAFE_INTEGER - 1);
+
+    await expect(subject.controller.setConsent(true)).resolves.toMatchObject({ status: 'storage-error' });
+    expect(subject.authorityStore.set).not.toHaveBeenCalled();
+  });
+
+  it('locks a future persisted window and resumes recording only when its immutable start arrives', async () => {
+    let clock = NOW - 1;
+    const subject = await fixture(enabledConsent, assignment('developer', true), () => clock);
+
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({ observationState: 'locked' });
+    await expect(subject.controller.recordShellReturn('reliability')).resolves.toEqual({ status: 'outside-window' });
+    await expect(fs.stat(path.join(subject.environment.userDataPath, 'cohort-evidence'))).rejects.toMatchObject({
+      code: 'ENOENT',
+    });
+
+    clock = NOW;
+    await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({ observationState: 'active' });
+    await expect(subject.controller.recordShellReturn('reliability')).resolves.toEqual({ status: 'recorded' });
+  });
+
   it('uses exact immutable observation boundaries at end minus one, end, and end plus one', async () => {
     let clock = END - 1;
     const subject = await fixture(enabledConsent, assignment('developer', true), () => clock);

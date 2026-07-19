@@ -246,6 +246,11 @@ export class ProductionCohortController implements CohortProductionAPI {
       }
       if (this.authority?.effectiveCohort === requested) return this.assignmentResult('unchanged');
 
+      const now = this.now();
+      if (!isValidAuthorityTime(now) || (this.authority !== null && now < this.authority.classifiedAtMs)) {
+        return this.assignmentResult('storage-error');
+      }
+
       // A hostile renderer can request a literal, but cannot complete this
       // native, process-owned user confirmation ceremony.
       if (!(await this.environment.confirmAssignment(requested))) {
@@ -260,7 +265,7 @@ export class ProductionCohortController implements CohortProductionAPI {
         classifierVersion: 2,
         requestedCohort: requested,
         effectiveCohort: requested,
-        classifiedAtMs: this.now(),
+        classifiedAtMs: now,
         consentEnabled: false,
         acceptedAtMs: null,
         windowId: null,
@@ -284,13 +289,23 @@ export class ProductionCohortController implements CohortProductionAPI {
       if (enabled === this.authority.consentEnabled) return this.consentResult(enabled ? 'enabled' : 'disabled');
 
       const now = this.now();
+      if (
+        enabled &&
+        (!isValidAuthorityTime(now) ||
+          now < this.authority.classifiedAtMs ||
+          (this.authority.windowStartMs !== null && now < this.authority.windowStartMs))
+      ) {
+        return this.consentResult('storage-error');
+      }
       if (enabled && this.authority.windowEndMs !== null && now >= this.authority.windowEndMs) {
         return this.consentResult('window-complete');
       }
 
       const firstStart = enabled && this.authority.windowStartMs === null;
       const startMs = firstStart ? now : this.authority.windowStartMs;
-      const endMs = firstStart ? now + M0B_OBSERVATION_WINDOW_DAYS * M0B_DAY_MS : this.authority.windowEndMs;
+      const candidateEndMs = firstStart ? now + M0B_OBSERVATION_WINDOW_DAYS * M0B_DAY_MS : null;
+      if (firstStart && !Number.isSafeInteger(candidateEndMs)) return this.consentResult('storage-error');
+      const endMs = firstStart ? candidateEndMs : this.authority.windowEndMs;
       const next: CohortAuthorityEnvelope = {
         ...this.authority,
         generation: this.authority.generation + 1,
@@ -310,7 +325,10 @@ export class ProductionCohortController implements CohortProductionAPI {
 
   recordShellReturn(reason: CockpitReturnReason): Promise<CockpitReturnRecordResult> {
     return this.enqueue(async () => {
-      if (!this.runtime) return { status: 'consent-disabled' };
+      this.runtime ??= this.createRuntime();
+      if (!this.runtime) {
+        return this.authority?.consentEnabled ? { status: 'outside-window' } : { status: 'consent-disabled' };
+      }
       return this.runtime.recordShellReturn(reason);
     });
   }
@@ -396,6 +414,7 @@ export class ProductionCohortController implements CohortProductionAPI {
       authority.acceptedAtMs === null ||
       authority.windowStartMs === null ||
       authority.windowEndMs === null ||
+      this.now() < authority.windowStartMs ||
       this.now() >= authority.windowEndMs
     ) {
       return null;
@@ -969,6 +988,10 @@ function validLifecycle(input: Record<string, unknown>): boolean {
   return true;
 }
 
+function isValidAuthorityTime(value: number): boolean {
+  return Number.isSafeInteger(value) && value >= 0;
+}
+
 function parseExactLegacyConsent(input: unknown): PersistedConsent | null {
   if (!isRecord(input)) return null;
   const keys = ['acceptedAtMs', 'enabled', 'schemaVersion', 'windowEndMs', 'windowStartMs'].toSorted();
@@ -1032,7 +1055,10 @@ function toPublicAssignment(authority: CohortAuthorityEnvelope | null, now: numb
   }
   let observationState: CohortAssignmentStatus['observationState'] = 'ready';
   if (authority.windowEndMs !== null && now >= authority.windowEndMs) observationState = 'completed';
-  else if (authority.windowId !== null) observationState = authority.consentEnabled ? 'active' : 'revoked';
+  else if (authority.windowId !== null) {
+    if (!authority.consentEnabled) observationState = 'revoked';
+    else observationState = authority.windowStartMs !== null && now < authority.windowStartMs ? 'locked' : 'active';
+  }
   return {
     available: true,
     effectiveCohort: authority.effectiveCohort,

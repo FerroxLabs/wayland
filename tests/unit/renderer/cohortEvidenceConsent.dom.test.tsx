@@ -387,6 +387,24 @@ describe('CohortEvidenceConsent', () => {
     expect(screen.getByTestId('cohort-assignment-state')).toHaveTextContent(/locked/i);
   });
 
+  it('accepts a process-owned locked projection while the system clock is before the immutable window', async () => {
+    setApi({
+      cohortAuthorityStatus: vi.fn().mockResolvedValue({
+        generation: 1,
+        consent: enabledStatus,
+        assignment: { ...readyAssignment, observationState: 'locked' },
+      }),
+      cohortSetConsent: vi.fn(),
+      cohortRequestAssignment: vi.fn(),
+    });
+    render(<CohortEvidenceConsent />);
+
+    const selector = await screen.findByRole('combobox', { name: /evaluation group/i });
+    await waitFor(() => expect(selector).toBeDisabled());
+    expect(screen.getByRole('checkbox', { name: /collect local aggregate evidence/i })).toBeChecked();
+    expect(screen.queryByText(/unavailable in this build/i)).not.toBeInTheDocument();
+  });
+
   it('fails closed on a forged effective assignment projection', async () => {
     setApi({
       cohortConsentStatus: vi.fn().mockResolvedValue(disabledStatus),
