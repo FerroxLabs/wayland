@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "verifier_contract": {
+    "schema_version": 2,
+    "entry_mode": "entry",
+    "required_empty_field": "accepted_targets"
+  },
+  "plan_entry_gates": {},
+  "hard_denied_phase_numbers": [5, 6],
+  "seam_patterns": {
+    "lock": [
+      "(^|/)(bun\\.lockb?|package-lock\\.json|pnpm-lock\\.yaml|yarn\\.lock|Cargo\\.lock|poetry\\.lock)$"
+    ],
+    "migration": ["(^|/)(migrations?|schema/migrations?)(/|$)"],
+    "schema": ["(^|/)(schemas?|schema-registry)(/|$)", "PACKET-GATES\\.json$"],
+    "generated": ["(^|/)(generated|__generated__)(/|$)", "i18n-keys\\.d\\.ts$"],
+    "config": [
+      "(^|/)\\.env($|\\.)",
+      "(^|/)(tsconfig|vite|vitest|playwright|electron-builder)(\\.|$)",
+      "(^|/)(package\\.json|Cargo\\.toml)$"
+    ],
+    "execution_authority": ["(^|/)\\.planning/execution(/|$)"]
+  }
+}
