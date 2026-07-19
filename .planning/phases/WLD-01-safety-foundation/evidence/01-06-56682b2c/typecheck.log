@@ -1,0 +1,5 @@
+started_at=2026-07-19T19:34:57Z
+$ bun run typecheck
+$ cross-env NODE_OPTIONS=--max-old-space-size=8192 tsc --noEmit
+exit_code=0
+finished_at=2026-07-19T19:35:10Z

@@ -14,7 +14,10 @@ tech-stack:
   added: []
   patterns: [descriptor-relative capture, source-byte binding, fail-closed manifest parsing]
 key-files:
-  created: []
+  created:
+    - .planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/receipt.json
+    - .planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/environment.json
+    - .planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/audit-reproduction.log
   modified:
     - src/process/services/recovery/recoveryCapture.ts
     - src/process/services/recovery/recoveryDryRun.ts
@@ -26,10 +29,12 @@ key-files:
     - tests/unit/process/services/recovery/recoveryPointBuilder.test.ts
     - tests/unit/process/services/recovery/stateAuthorityInventory.test.ts
 key-decisions:
-  - "Production Constitution discovery is rooted at ~/.wayland; Core profiles are an explicit nested producer-owned exclusion."
-  - "Schema discovery and SQLite snapshot bytes must come from the same identity-pinned driver connection."
-  - "Start/end epoch equality is necessary but insufficient; every admitted non-database source byte set is rebound after capture."
-  - "Current v3 manifests reject undeclared fields recursively while genuine v1/v2 compatibility remains unchanged."
+  - 'Production Constitution discovery is rooted at ~/.wayland; Core profiles are an explicit nested producer-owned exclusion.'
+  - 'Schema discovery and SQLite snapshot bytes must come from the same identity-pinned driver connection.'
+  - 'Start/end epoch equality is necessary but insufficient; every admitted non-database source byte set is rebound after capture.'
+  - 'Current v3 manifests reject undeclared fields recursively while genuine v1/v2 compatibility remains unchanged.'
+  - 'Any intentional external-authority provisioning invalidates the admission inventory; capture rebuilds and seals the complete authority plan afterward.'
+  - 'Every epoch read revalidates both source content and the exact authoritative capture-plan identity before publication.'
 requirements-completed: []
 requirements-addressed: [SAF-01, SAF-03, SAF-05]
 completed: 2026-07-20
@@ -38,7 +43,7 @@ status: constructed
 
 # Phase 1 Plan 06: Recovery Capture Boundary Summary
 
-The successor repairs all four HIGH and both MEDIUM findings from the rejected 01-06 candidate. This remains a construction receipt, not an independent acceptance or integration claim.
+The first successor repaired four HIGH and two MEDIUM findings from the original rejected candidate, but independent audit then found a further HIGH: external recovery-authority provisioning happened after inventory admission, so the builder could publish a snapshot that omitted the newly created authority. The repaired successor rebuilds the exact post-provision inventory and fails closed if the capture plan changes before publication. This remains a construction receipt, not an independent acceptance or integration claim.
 
 ## Implemented
 
@@ -50,24 +55,31 @@ The successor repairs all four HIGH and both MEDIUM findings from the rejected 0
 - Made descriptor reads positional so reused admitted file handles always verify from byte zero.
 - Added recursive exact-key allowlists for every current-v3 manifest object boundary while preserving genuine v1/v2 compatibility.
 - Added hostile proofs for the corrected production root, unknown and unsafe Constitution entries, wrong topology, SQLite pathname replacement, cross-schema snapshot substitution, equal-epoch ABA mutation, and undeclared nested manifest fields.
+- Re-inventories and re-admits all authority roots after optional external recovery-authority provisioning, then passes only that post-provision inventory to the builder.
+- Seals a deterministic capture-plan identity that excludes observation time but includes the complete authority disposition and source metadata; both epoch reads re-inventory and compare it before accepting source-content fingerprints.
+- Added executable regressions for post-provision authority omission, recognized-authority creation after final admission, and mutation of a newly provisioned authority during capture. Every hostile failure leaves the destination unpublished.
 
 ## Exact Construction Receipt
 
-- **Rejected base commit:** `8832dbe1fecf3370ddc83bf86122546a2c109fe2`
-- **Rejected base tree:** `e49727e08d486d96f239f061c0d35aee51f709cf`
-- **Successor implementation commit:** `77b832f8b6cf48ab905c11270706e279f38b7133`
-- **Successor implementation tree:** `d226aa371528b91e53175fc70683401c8a1cf4d0`
-- **Proof timestamp:** `2026-07-19T18:20:38Z`
+- **Rejected evidence successor:** `8e7c5c4f9951939e1512548e21bfcb3f8ffb5d5b` / tree `397bdb004809c1367df9301f2050104db36d2de9`
+- **Rejected implementation:** `77b832f8b6cf48ab905c11270706e279f38b7133` / tree `d226aa371528b91e53175fc70683401c8a1cf4d0`
+- **Executable audit reproduction:** `0012150f41610b3feb3545ceee7c9a8773f106f7` / tree `16a06fbc81890e9390db3806fbfb6ebcaba88c2c`
+- **Repaired implementation:** `56682b2cfd051ed5757d7af9bbcaef4f6170809f` / tree `6c9f130c20674bd3a9feba2d7adc0e3d5b92417c`
 - **Environment:** Bun `1.3.11`; Node `v25.8.1`; Git `2.50.1`; macOS `26.3` build `25D125`; Darwin `25.3.0`; `arm64`
-- **Environment digest:** `sha256:f8f6cfbc3073c24e704d2a6d64fea7ec5828657913f1ae6d7989138adf4d4b15`
+- **Environment manifest digest:** `sha256:e6b6a502e68933e790aa165d23113c6866f4873a12eb8797e978e942c20b4c3e`
+- **Machine-readable construction receipt:** `.planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/receipt.json`
 
-| Gate | Exact command | Exit | Result | Log SHA-256 |
-|---|---|---:|---|---|
-| Aggregate | `rtk bun run test` | 0 | Vitest: 1,430 files passed, 21 skipped; 15,168 tests passed, 149 skipped. Bun-native: 229 passed, 0 failed. | `98faa2d96bd26763fd09453986ec43d9918f3fc52b2f7551a033aee5f268e733` |
-| Typecheck | `rtk bun run typecheck` | 0 | TypeScript completed with no errors. | `c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5` |
-| Successor-owned lint | `rtk bun run lint -- src/process/services/recovery/recoveryCapture.ts src/process/services/recovery/recoveryDryRun.ts src/process/services/recovery/recoveryManifest.ts src/process/services/recovery/recoveryPointBuilder.ts src/process/services/recovery/stateAuthorityInventory.ts tests/unit/process/services/recovery/recoveryCapture.test.ts tests/unit/process/services/recovery/recoveryManifest.test.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts tests/unit/process/services/recovery/stateAuthorityInventory.test.ts` | 0 | 0 warnings, 0 errors across the exact nine-file successor diff. | `17fb6e08acce252a3fc865f635a321f53fc11a1321d8a8815b0fa3e8c9737189` |
+| Gate                 | Exact command                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Exit | Result                                                                                                      | Log SHA-256                                                        |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---: | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Audit reproduction   | `rtk bun run test:vitest -- tests/unit/process/services/recovery/recoveryCapture.test.ts`                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |    1 | Rejected candidate omitted the newly provisioned authority: 1 failed, 18 passed.                            | `8206179a7b1f6ab02c6bf9366195ea7a8f0ffe834d206a817130e74be222b082` |
+| Focused              | `rtk bun run test:vitest -- tests/unit/process/services/recovery/recoveryCapture.test.ts tests/unit/process/services/recovery/recoveryManifest.test.ts tests/unit/process/services/recovery/recoveryDryRun.test.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts tests/unit/process/services/recovery/stateAuthorityInventory.test.ts`                                                                                                                                                                                                |    0 | 5 files; 83 passed, 3 skipped.                                                                              | `962f513641e091b857f54a08c982ab6b021cb120ee89254e9e68b163f0ccf017` |
+| Successor-owned lint | `rtk bun run lint -- src/process/services/recovery/recoveryCapture.ts src/process/services/recovery/recoveryDryRun.ts src/process/services/recovery/recoveryManifest.ts src/process/services/recovery/recoveryPointBuilder.ts src/process/services/recovery/stateAuthorityInventory.ts tests/unit/process/services/recovery/recoveryCapture.test.ts tests/unit/process/services/recovery/recoveryManifest.test.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts tests/unit/process/services/recovery/stateAuthorityInventory.test.ts` |    0 | 0 warnings, 0 errors across 9 files.                                                                        | `830234ba276f827a2a4ab5a799d0ca55ffcc3152863aea8794b50f1dd6393978` |
+| Format               | `rtk bunx prettier --check src/process/services/recovery/recoveryCapture.ts tests/unit/process/services/recovery/recoveryCapture.test.ts`                                                                                                                                                                                                                                                                                                                                                                                                                 |    0 | Both repaired files conform.                                                                                | `dd3b3794bdefd6c9ae406fda5f1dc989958852ccef6d414855944e9cf768eddc` |
+| Diff check           | `rtk git diff --check 8e7c5c4f9951939e1512548e21bfcb3f8ffb5d5b..56682b2cfd051ed5757d7af9bbcaef4f6170809f`                                                                                                                                                                                                                                                                                                                                                                                                                                                 |    0 | Clean.                                                                                                      | `ab98a6c7258c1cc05aa792a7a94d812bd25c4fee505a7e1625c29c7848b32221` |
+| Aggregate            | `rtk bun run test`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |    0 | Vitest: 1,430 files passed, 21 skipped; 15,171 tests passed, 149 skipped. Bun-native: 229 passed, 0 failed. | `d287b705907baf7e730eb61d7f13ef19c63929cee3591b2a1cab0eefd087cc81` |
+| Typecheck            | `rtk bun run typecheck`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |    0 | TypeScript completed with no errors.                                                                        | `9a50f847892069844c9724f0df5e37b90009ef5d35a160446019f709ef4887df` |
 
-The three full logs were retained locally at `/tmp/wayland-01-06-77b832f-{test,typecheck,lint}.log`. The summary commit is evidence-only control-plane metadata; the receipt above binds the exact implementation commit and tree that were executed.
+Every listed log, the deterministic environment manifest, and the machine-readable receipt are committed under the evidence root. The receipt binds exact source commit/tree, command, timestamps, exit code, log digest, repair ownership, lineage, and non-claims.
 
 ## Boundaries and Non-Claims
 
@@ -78,9 +90,10 @@ The three full logs were retained locally at `/tmp/wayland-01-06-77b832f-{test,t
 
 ## Next Gate
 
-An independent auditor must attack implementation commit `77b832f8b6cf48ab905c11270706e279f38b7133`. If accepted, integration must re-run seam and aggregate proof on the serial integration head.
+An independent auditor must attack implementation commit `56682b2cfd051ed5757d7af9bbcaef4f6170809f` and verify the committed receipt/log digests. If accepted, integration must re-run seam and aggregate proof on the serial integration head.
 
 ---
-*Phase: WLD-01-safety-foundation*  
-*Plan: 06*  
-*State: constructed, awaiting independent review*
+
+_Phase: WLD-01-safety-foundation_
+_Plan: 06_
+_State: constructed, awaiting independent review_
