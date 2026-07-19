@@ -317,21 +317,6 @@ export function initConversationBridge(
       const removed = await workerTaskManager.withConversationShutdown(
         id,
         async () => {
-          // If source is not 'wayland' (e.g., telegram), cleanup channel resources
-          if (source && source !== 'wayland') {
-            try {
-              // Dynamic import to avoid circular dependency
-              const { getChannelManager } = await import('@process/channels/core/ChannelManager');
-              const channelManager = getChannelManager();
-              if (channelManager.isInitialized()) {
-                await channelManager.cleanupConversation(id);
-              }
-            } catch (cleanupError) {
-              console.warn('[conversationBridge] Failed to cleanup channel resources:', cleanupError);
-              // Continue with deletion even if cleanup fails
-            }
-          }
-
           // Resolve the database authority while the terminal gate is held, but
           // do not sever persisted chat state until every successor raced into
           // this asynchronous preparation has also stopped.
@@ -345,6 +330,24 @@ export function initConversationBridge(
           return true;
         }
       );
+      // Channel cleanup is an irreversible external side effect. It must run
+      // only after the durable conversation deletion commits; otherwise a
+      // later fail-closed process/database error leaves a retained chat with
+      // its channel resources already destroyed.
+      if (removed && source && source !== 'wayland') {
+        try {
+          // Dynamic import to avoid circular dependency
+          const { getChannelManager } = await import('@process/channels/core/ChannelManager');
+          const channelManager = getChannelManager();
+          if (channelManager.isInitialized()) {
+            await channelManager.cleanupConversation(id);
+          }
+        } catch (cleanupError) {
+          console.warn('[conversationBridge] Failed to cleanup channel resources:', cleanupError);
+          // Durable deletion already committed. Leave cleanup observable and
+          // retryable rather than claiming the chat itself still exists.
+        }
+      }
       try {
         removeFromMessageCache(id);
       } catch (cacheError) {

@@ -73,6 +73,7 @@ const {
   mockWorkerTaskManager,
   mockListJobsByConversation,
   mockDatabase,
+  mockCleanupConversation,
 } = vi.hoisted(() => {
   const registered: Record<string, Provider> = {};
   const commandFactory = (key: string) => ({
@@ -107,6 +108,7 @@ const {
     handlers: registered,
     createCommand: commandFactory,
     mockListJobsByConversation: vi.fn(async () => []),
+    mockCleanupConversation: vi.fn(async () => {}),
     mockDatabase: {
       getConversation: vi.fn(),
       deleteConversation: vi.fn(() => ({ success: true, data: true })),
@@ -130,6 +132,13 @@ const {
 
 vi.mock('@process/services/cron/cronServiceSingleton', () => ({
   cronService: { listJobsByConversation: mockListJobsByConversation },
+}));
+
+vi.mock('@process/channels/core/ChannelManager', () => ({
+  getChannelManager: vi.fn(() => ({
+    isInitialized: vi.fn(() => true),
+    cleanupConversation: mockCleanupConversation,
+  })),
 }));
 
 vi.mock('@/agent/gemini', () => ({
@@ -392,6 +401,53 @@ describe('conversation.remove managed-workspace retention', () => {
     expect(mockConversationService.deleteConversation).not.toHaveBeenCalled();
     expect(errorLog).toHaveBeenCalledWith('[conversationBridge] Failed to remove conversation:', expect.any(Error));
     errorLog.mockRestore();
+  });
+
+  it('does not destroy channel resources when deletion later fails closed', async () => {
+    mockConversationService.getConversation.mockResolvedValue({
+      id: 'conv-channel-rollback',
+      source: 'telegram',
+      extra: { workspace: path.join(root, 'wcore-temp-1736900000100') },
+    });
+    mockWorkerTaskManager.withConversationShutdown.mockImplementation(
+      async (_id: string, prepare: () => Promise<unknown>) => {
+        await prepare();
+        throw new Error('process successor remains alive');
+      }
+    );
+
+    initConversationBridge(
+      mockConversationService as unknown as IConversationService,
+      mockWorkerTaskManager as unknown as IWorkerTaskManager
+    );
+
+    await expect(handlers['conversation.remove']({ id: 'conv-channel-rollback' })).resolves.toBe(false);
+    expect(mockConversationService.prepareDeleteConversation).toHaveBeenCalledWith('conv-channel-rollback');
+    expect(mockCleanupConversation).not.toHaveBeenCalled();
+  });
+
+  it('cleans channel resources only after durable deletion commits', async () => {
+    const order: string[] = [];
+    mockWorkerTaskManager.kill.mockResolvedValue(undefined);
+    mockConversationService.getConversation.mockResolvedValue({
+      id: 'conv-channel-success',
+      source: 'telegram',
+      extra: { workspace: path.join(root, 'wcore-temp-1736900000101') },
+    });
+    mockConversationService.prepareDeleteConversation.mockResolvedValue(() => {
+      order.push('delete');
+    });
+    mockCleanupConversation.mockImplementation(async () => {
+      order.push('channel-cleanup');
+    });
+
+    initConversationBridge(
+      mockConversationService as unknown as IConversationService,
+      mockWorkerTaskManager as unknown as IWorkerTaskManager
+    );
+
+    await expect(handlers['conversation.remove']({ id: 'conv-channel-success' })).resolves.toBe(true);
+    expect(order).toEqual(['delete', 'channel-cleanup']);
   });
 
   it('rejects a deferred removal when a callback-time process refuses to stop', async () => {
