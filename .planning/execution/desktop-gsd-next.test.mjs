@@ -261,6 +261,12 @@ test('repository ownership resolves symlink aliases and rejects symlink escapes'
     () => select(root, [plan('01-01', { files: ['escape-alias/file.ts'] })]),
     'UNSAFE_OWNERSHIP_PATH',
   )
+
+  symlinkSync('.', join(root, 'repo-root-alias'))
+  expectSelectionError(
+    () => select(root, [plan('01-01', { files: ['repo-root-alias'] })]),
+    'UNSAFE_OWNERSHIP_PATH',
+  )
 })
 
 test('ownerless autonomous plans fail closed', () => {
@@ -396,6 +402,16 @@ test('malformed plan frontmatter fails closed', () => {
   mkdirSync(phaseDir, { recursive: true })
   writeFileSync(join(phaseDir, '01-01-PLAN.md'), 'not frontmatter\n')
   expectSelectionError(() => discoverPlans(root), 'MALFORMED_FRONTMATTER')
+})
+
+test('malformed in-scope plan filenames cannot disappear from discovery', () => {
+  const root = temporaryRoot()
+  writePlan(root, '01-01')
+  const phaseDir = join(root, '.planning', 'phases', 'WLD-01-fixture')
+  writeFileSync(join(phaseDir, '01-X-PLAN.md'), readFileSync(join(phaseDir, '01-01-PLAN.md')))
+  expectSelectionError(() => discoverPlans(root), 'MALFORMED_PLAN')
+  const git = initializeGit(root)
+  expectSelectionError(() => discoverPlans(root, { gitHead: git.head }), 'MALFORMED_PLAN')
 })
 
 test('valid YAML indentation preserves dependencies instead of unlocking a root', () => {

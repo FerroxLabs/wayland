@@ -88,7 +88,10 @@ function canonicalOwnedPath(path, allowedExternalRoots = [], repoRoot = undefine
   if (repoRoot === undefined) return lexical
   const canonicalRepo = canonicalRoot(repoRoot)
   const canonical = canonicalProspectivePath(join(canonicalRepo, lexical))
-  if (canonical !== canonicalRepo && !canonical.startsWith(`${canonicalRepo}/`)) {
+  if (canonical === canonicalRepo) {
+    throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `Repository ownership cannot claim the repository root: ${path}`)
+  }
+  if (!canonical.startsWith(`${canonicalRepo}/`)) {
     throw new SelectionError('UNSAFE_OWNERSHIP_PATH', `Repository ownership path escapes through a symlink: ${path}`)
   }
   return relative(canonicalRepo, canonical).replaceAll('\\', '/')
@@ -114,7 +117,7 @@ export function discoverPlans(repoRoot, options = {}) {
     ? [...gitPaths]
       .filter((source) => {
         const parts = source.split('/')
-        return parts.length === 4 && parts[0] === '.planning' && parts[1] === 'phases' && PLAN_RE.test(parts[3])
+        return parts.length === 4 && parts[0] === '.planning' && parts[1] === 'phases' && parts[3].endsWith('-PLAN.md')
       })
       .map((source) => ({
         phaseDir: join(repoRoot, dirname(source)),
@@ -124,7 +127,7 @@ export function discoverPlans(repoRoot, options = {}) {
       }))
       .toSorted((a, b) => a.source.localeCompare(b.source))
     : listPhaseDirectories(phasesRoot).flatMap((phaseDir) =>
-      readdirSync(phaseDir).toSorted().filter((name) => PLAN_RE.test(name)).map((name) => ({
+      readdirSync(phaseDir).toSorted().filter((name) => name.endsWith('-PLAN.md')).map((name) => ({
         phaseDir,
         name,
         path: join(phaseDir, name),
@@ -134,6 +137,9 @@ export function discoverPlans(repoRoot, options = {}) {
 
   for (const { phaseDir, name, path, source } of entries) {
       const match = name.match(PLAN_RE)
+      if (!match) {
+        throw new SelectionError('MALFORMED_PLAN', `${source}: plan filename must use NN-NN-PLAN.md`)
+      }
       const text = options.gitHead
         ? readGitRegularFile(repoRoot, options.gitHead, source, 'PLAN_IDENTITY', 'Plan')
         : (regularFileExists(path, 'PLAN_IDENTITY', 'Plan'), readFileSync(path, 'utf8'))
