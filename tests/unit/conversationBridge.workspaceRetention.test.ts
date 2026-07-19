@@ -151,4 +151,31 @@ describe('conversation.remove managed-workspace retention', () => {
     await expect(fs.readFile(artifact)).resolves.toEqual(Buffer.from(expectedBytes));
     await expect(fs.stat(workspace)).resolves.toMatchObject({ size: expect.any(Number) });
   });
+
+  it('retains active-process authority until the agent has actually stopped', async () => {
+    let finishShutdown!: () => void;
+    const shutdown = new Promise<void>((resolve) => {
+      finishShutdown = resolve;
+    });
+    mockConversationService.getConversation.mockResolvedValue({
+      id: 'conv-pending',
+      source: 'wayland',
+      extra: { workspace: path.join(root, 'wcore-temp-1736900000001') },
+    });
+    mockWorkerTaskManager.kill.mockReturnValue(shutdown);
+
+    initConversationBridge(
+      mockConversationService as unknown as IConversationService,
+      mockWorkerTaskManager as unknown as IWorkerTaskManager
+    );
+    const remove = handlers['conversation.remove'];
+    const removal = remove({ id: 'conv-pending' });
+
+    await vi.waitFor(() => expect(mockWorkerTaskManager.kill).toHaveBeenCalledWith('conv-pending'));
+    expect(mockConversationService.deleteConversation).not.toHaveBeenCalled();
+
+    finishShutdown();
+    await expect(removal).resolves.toBe(true);
+    expect(mockConversationService.deleteConversation).toHaveBeenCalledWith('conv-pending');
+  });
 });

@@ -72,6 +72,18 @@ describe('collectManagedWorkspaceInventory', () => {
     await expect(fs.stat(candidate)).resolves.toBeTruthy();
   });
 
+  it('does not treat a matching filename as process-owned workspace provenance', async () => {
+    const foreignWorkspace = await makeCandidate('client-temp-1736900000000');
+
+    const report = await collect();
+
+    expect(report.entries[0]).toMatchObject({
+      canonicalPath: await fs.realpath(foreignWorkspace),
+      evidence: { managedProvenance: false },
+      decision: { disposition: 'preserve', classifications: ['unknown'] },
+    });
+  });
+
   it('canonicalizes aliases and preserves every referenced authority', async () => {
     const candidate = await makeCandidate();
     const alias = path.join(root, 'candidate-alias');
@@ -167,6 +179,30 @@ describe('collectManagedWorkspaceInventory', () => {
       errors: ['candidate changed during inventory'],
     });
     await expect(fs.stat(candidate)).resolves.toBeTruthy();
+  });
+
+  it('does not publish empty-shell evidence when content appears after the final stat check', async () => {
+    const candidate = await makeCandidate();
+    const canonicalCandidate = await fs.realpath(candidate);
+    const lstat = fs.lstat.bind(fs);
+    let candidateStats = 0;
+    vi.spyOn(fs, 'lstat').mockImplementation(async (value, options) => {
+      const result = await lstat(value, options as never);
+      if (String(value) === canonicalCandidate && ++candidateStats === 2) {
+        await fs.writeFile(path.join(canonicalCandidate, 'arrived-during-classification.md'), '# must be preserved');
+      }
+      return result;
+    });
+
+    const report = await collect();
+
+    await expect(
+      fs.readFile(path.join(canonicalCandidate, 'arrived-during-classification.md'), 'utf8')
+    ).resolves.toContain('must be preserved');
+    expect({ complete: report.complete, decision: report.entries[0].decision }).toEqual({
+      complete: false,
+      decision: { disposition: 'preserve', classifications: ['unknown'] },
+    });
   });
 
   it('fails closed rather than throwing for an invalid date-range timestamp', async () => {
