@@ -25,6 +25,16 @@ describe('cohortBridge', () => {
         classifiedAtMs: 1234,
         observationState: 'ready',
       })),
+      authorityStatus: vi.fn(async () => ({
+        generation: 1,
+        consent: { enabled: false, acceptedAtMs: null, observationWindow: null },
+        assignment: {
+          available: true,
+          effectiveCohort: 'developer',
+          classifiedAtMs: 1234,
+          observationState: 'ready',
+        },
+      })),
       requestAssignment: vi.fn(async (cohort: string) => ({
         status: 'classified',
         assignment: { available: true, effectiveCohort: cohort, classifiedAtMs: 1234, observationState: 'ready' },
@@ -56,6 +66,10 @@ describe('cohortBridge', () => {
     await expect(handlers.get('cohort:consent-status')(event)).resolves.toMatchObject({ enabled: false });
     await expect(handlers.get('cohort:assignment-status')(event)).resolves.toMatchObject({
       effectiveCohort: 'developer',
+    });
+    await expect(handlers.get('cohort:authority-status')(event)).resolves.toMatchObject({
+      generation: 1,
+      assignment: { effectiveCohort: 'developer' },
     });
     await expect(handlers.get('cohort:request-assignment')(event, 'operator')).resolves.toMatchObject({
       assignment: { effectiveCohort: 'operator' },

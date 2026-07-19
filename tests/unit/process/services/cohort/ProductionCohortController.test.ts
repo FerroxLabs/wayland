@@ -63,7 +63,13 @@ async function fixture(
   overrides: Partial<
     Pick<
       CohortProductionEnvironment,
-      'isPackaged' | 'appVersion' | 'releaseTrack' | 'installIdentity' | 'confirmAssignment'
+      | 'isPackaged'
+      | 'appVersion'
+      | 'releaseTrack'
+      | 'installIdentity'
+      | 'confirmAssignment'
+      | 'acceptedEvidence'
+      | 'retireLegacy'
     >
   > & { seedAuthenticated?: boolean } = {}
 ) {
@@ -83,7 +89,8 @@ async function fixture(
     if (!match) throw new Error('invalid authority envelope');
     const expected = createHmac('sha256', fixtureSecret).update(match[1]).digest();
     const observed = Buffer.from(match[2], 'base64url');
-    if (expected.length !== observed.length || !timingSafeEqual(expected, observed)) throw new Error('forged authority');
+    if (expected.length !== observed.length || !timingSafeEqual(expected, observed))
+      throw new Error('forged authority');
     return Buffer.from(match[1], 'base64url').toString('utf8');
   };
   const exactDisabled = JSON.stringify(initialConsent) === JSON.stringify(disabledConsent);
@@ -110,19 +117,23 @@ async function fixture(
   if (matches && seedAuthenticated && currentAssignment) {
     persistedAuthority = protectAuthority(
       JSON.stringify({
-        schemaVersion: 3,
-        generation: 1,
-        installationIdHash: cohortInstallationIdHash(overrides.installIdentity ?? 'install-alpha'),
-        authorityId: 'authority-fixture',
-        classifierVersion: 2,
-        requestedCohort: currentAssignment.requestedCohort,
-        effectiveCohort: currentAssignment.effectiveCohort,
-        classifiedAtMs: currentAssignment.classifiedAtMs,
-        consentEnabled: exactEnabled,
-        acceptedAtMs: currentAssignment.windowStartMs,
-        windowId: currentAssignment.windowStartMs === null ? null : 'window-fixture',
-        windowStartMs: currentAssignment.windowStartMs,
-        windowEndMs: currentAssignment.windowEndMs,
+        schemaVersion: 1,
+        migrationConsumed: true,
+        authority: {
+          schemaVersion: 3,
+          generation: 1,
+          installationIdHash: cohortInstallationIdHash(overrides.installIdentity ?? 'install-alpha'),
+          authorityId: 'authority-fixture',
+          classifierVersion: 2,
+          requestedCohort: currentAssignment.requestedCohort,
+          effectiveCohort: currentAssignment.effectiveCohort,
+          classifiedAtMs: currentAssignment.classifiedAtMs,
+          consentEnabled: exactEnabled,
+          acceptedAtMs: currentAssignment.windowStartMs,
+          windowId: currentAssignment.windowStartMs === null ? null : 'window-fixture',
+          windowStartMs: currentAssignment.windowStartMs,
+          windowEndMs: currentAssignment.windowEndMs,
+        },
       })
     );
   }
@@ -136,7 +147,8 @@ async function fixture(
     get: vi.fn(async () => persistedAuthority),
     set: vi.fn(async (value) => {
       persistedAuthority = value;
-      const parsed = JSON.parse(unprotectAuthority(value)) as Record<string, unknown>;
+      const record = JSON.parse(unprotectAuthority(value)) as { authority: Record<string, unknown> | null };
+      const parsed = record.authority ?? {};
       persistedConsent = parsed.consentEnabled
         ? {
             schemaVersion: 1,
@@ -176,6 +188,8 @@ async function fixture(
     now,
     ...environmentOverrides,
   };
+  const controller = await createCohortProductionController(environment);
+  vi.mocked(authorityStore.set).mockClear();
   return {
     root,
     consentStore,
@@ -188,7 +202,11 @@ async function fixture(
     setRawAuthority: (value: unknown) => {
       persistedAuthority = value;
     },
-    controller: await createCohortProductionController(environment),
+    setLegacy: (consent: unknown, assignmentValue: unknown) => {
+      persistedConsent = consent;
+      persistedAssignment = assignmentValue;
+    },
+    controller,
   };
 }
 
@@ -210,8 +228,12 @@ async function installRolloutAuthority(
     stage: 'invited-alpha',
     cohort: scope.cohort,
     installationIdHash: cohortInstallationIdHash(environment.installIdentity),
+    authorityId: 'authority-fixture',
+    authorityGeneration: 1,
+    windowId: 'window-fixture',
     window: scope.window,
     baselineAggregateDigest,
+    evidenceCompletedAtMs: scope.window.endMs,
     decisionOwner: 'Sean Donahoe',
   } as const;
   await fs.mkdir(path.join(environment.resourcesPath, 'cockpit-rollout'), { recursive: true });
@@ -224,16 +246,20 @@ async function installRolloutAuthority(
     path.join(environment.userDataPath, 'cockpit-rollout', 'authorization.json'),
     issueCohortRolloutAuthorization(
       {
-        schemaVersion: 1,
+        schemaVersion: 2,
         appVersion: environment.appVersion,
         releaseTrack: environment.releaseTrack,
         previousStage: 'internal-dogfood',
         stage: 'invited-alpha',
         cohort: scope.cohort,
         installationIdHash: cohortInstallationIdHash(environment.installIdentity),
+        authorityId: 'authority-fixture',
+        authorityGeneration: 1,
+        windowId: 'window-fixture',
         window: scope.window,
         baselineAggregateDigest,
-        issuedAt: scope.now - 1_000,
+        evidenceCompletedAtMs: scope.window.endMs,
+        issuedAt: Math.max(scope.window.endMs, scope.now - 1_000),
         expiresAt: scope.now + 60_000,
         decisionOwner: 'Sean Donahoe',
       },
@@ -271,6 +297,49 @@ describe('ProductionCohortController cohort authority', () => {
       observationState: 'unavailable',
     });
   });
+
+  it('[HF-01] ignores replayed mutable config after the external authority advances', async () => {
+    const subject = await fixture(disabledConsent);
+    await subject.controller.requestAssignment('developer');
+    await subject.controller.setConsent(true);
+    subject.setLegacy(disabledConsent, {
+      schemaVersion: 1,
+      cohort: 'novice',
+      classifiedAtMs: NOW,
+      windowStartMs: null,
+      windowEndMs: null,
+    });
+
+    const restarted = await createCohortProductionController(subject.environment);
+    await expect(restarted.authorityStatus()).resolves.toMatchObject({
+      generation: 2,
+      assignment: { effectiveCohort: 'developer', observationState: 'active' },
+      consent: { enabled: true },
+    });
+  });
+
+  it('[HF-01] rejects a credential-vault record copied to a different installation identity', async () => {
+    const source = await fixture(disabledConsent);
+    await source.controller.requestAssignment('operator');
+    const target = await fixture(undefined, undefined, () => NOW, {
+      installIdentity: 'different-installation',
+      seedAuthenticated: false,
+    });
+    target.setRawAuthority(source.persistedAuthority());
+
+    const restarted = await createCohortProductionController(target.environment);
+    await expect(restarted.assignmentStatus()).resolves.toMatchObject({ available: false, effectiveCohort: null });
+  });
+
+  it.each(['file:v1:config-fallback', 'enc:v1:corrupt', '{"schemaVersion":1}'])(
+    '[MF-01] fails closed on non-vault, corrupt, or backend-changed authority %s',
+    async (raw) => {
+      const subject = await fixture();
+      subject.setRawAuthority(raw);
+      const restarted = await createCohortProductionController(subject.environment);
+      await expect(restarted.authorityStatus()).resolves.toMatchObject({ generation: null });
+    }
+  );
 
   it('starts unavailable and cannot begin observation without classification', async () => {
     const subject = await fixture({ enabled: true, acceptedAtMs: NOW, extraAuthority: true });
@@ -312,7 +381,7 @@ describe('ProductionCohortController cohort authority', () => {
     });
   });
 
-  it('migrates only the exact prior schema while preserving assignment and observation window', async () => {
+  it('migrates only the exact prior classification and retires legacy consent/window authority', async () => {
     const prior = {
       schemaVersion: 1,
       cohort: 'operator',
@@ -325,10 +394,87 @@ describe('ProductionCohortController cohort authority', () => {
     await expect(subject.controller.assignmentStatus()).resolves.toMatchObject({
       available: true,
       effectiveCohort: 'operator',
-      observationState: 'active',
+      observationState: 'ready',
     });
-    expect(subject.persistedAssignment()).toEqual(assignment('operator', true));
-    expect(subject.authorityStore.set).toHaveBeenCalledTimes(1);
+    expect(subject.persistedAssignment()).toEqual(assignment('operator'));
+  });
+
+  it('[HF-02] consumes migration once and ignores delete-and-reseed legacy state', async () => {
+    const subject = await fixture(undefined, undefined, () => NOW, { seedAuthenticated: false });
+    const legacyReads = [
+      vi.mocked(subject.consentStore.get).mock.calls.length,
+      vi.mocked(subject.assignmentStore.get).mock.calls.length,
+    ];
+    subject.setLegacy(enabledConsent, {
+      schemaVersion: 1,
+      cohort: 'operator',
+      classifiedAtMs: NOW,
+      windowStartMs: NOW,
+      windowEndMs: END,
+    });
+
+    const restarted = await createCohortProductionController(subject.environment);
+    await expect(restarted.authorityStatus()).resolves.toMatchObject({ generation: null });
+    expect([
+      vi.mocked(subject.consentStore.get).mock.calls.length,
+      vi.mocked(subject.assignmentStore.get).mock.calls.length,
+    ]).toEqual(legacyReads);
+  });
+
+  it('[HF-02] requires fresh native confirmation and never promotes a legacy consent window', async () => {
+    const deny = vi.fn(async () => false);
+    const prior = {
+      schemaVersion: 1,
+      cohort: 'operator',
+      classifiedAtMs: NOW,
+      windowStartMs: NOW,
+      windowEndMs: END,
+    } as const;
+    const denied = await fixture(enabledConsent, prior, () => NOW, {
+      seedAuthenticated: false,
+      confirmAssignment: deny,
+    });
+    await expect(denied.controller.authorityStatus()).resolves.toMatchObject({ generation: null });
+    expect(deny).toHaveBeenCalledWith('operator');
+
+    const accepted = await fixture(enabledConsent, prior, () => NOW, { seedAuthenticated: false });
+    await expect(accepted.controller.authorityStatus()).resolves.toMatchObject({
+      generation: 1,
+      consent: { enabled: false, observationWindow: null },
+      assignment: { effectiveCohort: 'operator', observationState: 'ready' },
+    });
+  });
+
+  it('[HF-02] keeps the external migration marker authoritative when legacy cleanup fails', async () => {
+    const prior = {
+      schemaVersion: 1,
+      cohort: 'operator',
+      classifiedAtMs: NOW,
+      windowStartMs: NOW,
+      windowEndMs: END,
+    } as const;
+    const subject = await fixture(enabledConsent, prior, () => NOW, {
+      seedAuthenticated: false,
+      retireLegacy: async () => {
+        throw new Error('legacy cleanup unavailable');
+      },
+    });
+
+    await expect(subject.controller.authorityStatus()).resolves.toMatchObject({
+      generation: 1,
+      consent: { enabled: false },
+      assignment: { effectiveCohort: 'operator', observationState: 'ready' },
+    });
+    const readsAfterMigration = [
+      vi.mocked(subject.consentStore.get).mock.calls.length,
+      vi.mocked(subject.assignmentStore.get).mock.calls.length,
+    ];
+    const restarted = await createCohortProductionController(subject.environment);
+    await expect(restarted.authorityStatus()).resolves.toMatchObject({ generation: 1 });
+    expect([
+      vi.mocked(subject.consentStore.get).mock.calls.length,
+      vi.mocked(subject.assignmentStore.get).mock.calls.length,
+    ]).toEqual(readsAfterMigration);
   });
 
   it.each([
@@ -407,7 +553,7 @@ describe('ProductionCohortController observation lifecycle', () => {
     const subject = await fixture(disabledConsent);
     await subject.controller.requestAssignment('developer');
 
-    await expect(subject.controller.setConsent(true)).resolves.toEqual({
+    await expect(subject.controller.setConsent(true)).resolves.toMatchObject({
       status: 'enabled',
       consent: {
         enabled: true,
@@ -530,6 +676,74 @@ describe('ProductionCohortController observation lifecycle', () => {
     }
   });
 
+  it('[HF-03] fails closed for active, revoked, incomplete, and foreign-lineage evidence', async () => {
+    const baselineAggregateDigest = `sha256:${'a'.repeat(64)}` as const;
+    const accepted = {
+      authorityId: 'authority-fixture',
+      authorityGeneration: 1,
+      windowId: 'window-fixture',
+      completedAtMs: END,
+      baselineAggregateDigest,
+    } as const;
+    const active = await fixture(enabledConsent, assignment('operator', true), () => END - 1, {
+      isPackaged: true,
+      acceptedEvidence: async () => accepted,
+    });
+    const incomplete = await fixture(enabledConsent, assignment('operator', true), () => END + 1, {
+      isPackaged: true,
+      acceptedEvidence: async () => null,
+    });
+    const foreign = await fixture(enabledConsent, assignment('operator', true), () => END + 1, {
+      isPackaged: true,
+      acceptedEvidence: async () => ({ ...accepted, authorityId: 'foreign-authority' }),
+    });
+    const revoked = await fixture(enabledConsent, assignment('operator', true), () => END - 1, {
+      isPackaged: true,
+      acceptedEvidence: async () => ({ ...accepted, authorityGeneration: 2 }),
+    });
+    await revoked.controller.setConsent(false);
+
+    for (const controller of [active.controller, incomplete.controller, foreign.controller, revoked.controller]) {
+      // oxlint-disable-next-line no-await-in-loop
+      await expect(controller.rolloutStatus()).resolves.toMatchObject({
+        eligible: false,
+        reason: 'evidence-gate-failed',
+      });
+    }
+  });
+
+  it('[HF-03] accepts only completed evidence bound to the exact authority lineage and digest', async () => {
+    const rolloutNow = END + 1_000;
+    const baselineAggregateDigest = `sha256:${'a'.repeat(64)}` as const;
+    const subject = await fixture(enabledConsent, assignment('operator', true), () => rolloutNow, {
+      isPackaged: true,
+      appVersion: '0.12.0-preview.1',
+      releaseTrack: 'preview',
+      acceptedEvidence: async () => ({
+        authorityId: 'authority-fixture',
+        authorityGeneration: 1,
+        windowId: 'window-fixture',
+        completedAtMs: END,
+        baselineAggregateDigest,
+      }),
+    });
+    vi.useFakeTimers();
+    vi.setSystemTime(rolloutNow);
+    try {
+      await installRolloutAuthority(subject.environment, {
+        cohort: 'operator',
+        window: { startMs: NOW, endMs: END },
+        now: rolloutNow,
+      });
+      await expect(subject.controller.rolloutStatus()).resolves.toMatchObject({
+        eligible: true,
+        source: 'signed-authority',
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('[WR-01] treats malformed and unreadable consent as unavailable rather than disabled', async () => {
     const malformed = await fixture({ ...disabledConsent, extraAuthority: true }, assignment('developer'));
     const unreadable = await fixture(disabledConsent, assignment('developer'), () => NOW, {
@@ -568,7 +782,7 @@ describe('ProductionCohortController observation lifecycle', () => {
     await expect(afterRevocation).resolves.toEqual({ status: 'consent-disabled' });
 
     vi.mocked(subject.authorityStore.set).mockRejectedValueOnce(new Error('disk unavailable'));
-    await expect(subject.controller.setConsent(true)).resolves.toEqual({
+    await expect(subject.controller.setConsent(true)).resolves.toMatchObject({
       status: 'storage-error',
       consent: { enabled: false, acceptedAtMs: null, observationWindow: null },
     });
@@ -586,5 +800,47 @@ describe('ProductionCohortController observation lifecycle', () => {
       source: 'development',
       reason: 'development-build',
     });
+  });
+});
+
+describe('cohort native confirmation localization', () => {
+  it('[LF-03] defines the native ceremony and completed lifecycle in every supported locale', async () => {
+    const locales = [
+      'de-DE',
+      'en-US',
+      'es-ES',
+      'fr-FR',
+      'ja-JP',
+      'ko-KR',
+      'pt-BR',
+      'ru-RU',
+      'tr-TR',
+      'uk-UA',
+      'zh-CN',
+      'zh-TW',
+    ];
+    const keys = [
+      'cohortAssignmentCompleted',
+      'cohortConfirmationTitle',
+      'cohortConfirmationMessage',
+      'cohortConfirmationDetail',
+      'cohortConfirmationCancel',
+      'cohortConfirmationConfirm',
+      'evidenceWindowCompleted',
+    ];
+    for (const locale of locales) {
+      // oxlint-disable-next-line no-await-in-loop
+      const parsed = JSON.parse(
+        // oxlint-disable-next-line no-await-in-loop
+        await fs.readFile(
+          path.join(process.cwd(), 'src/renderer/services/i18n/locales', locale, 'settings.json'),
+          'utf8'
+        )
+      ) as { navigationPage?: Record<string, unknown> };
+      for (const key of keys) {
+        expect(parsed.navigationPage?.[key], `${locale}:${key}`).toEqual(expect.any(String));
+        expect(String(parsed.navigationPage?.[key]).length, `${locale}:${key}`).toBeGreaterThan(0);
+      }
+    }
   });
 });

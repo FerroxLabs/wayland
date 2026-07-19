@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Switch } from '@arco-design/web-react';
+import { Select, Switch } from '@arco-design/web-react';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -14,6 +14,7 @@ import {
   type CohortAssignment,
   type CohortAssignmentRequestResult,
   type CohortAssignmentStatus,
+  type CohortAuthorityProjection,
   type CohortConsentStatus,
   type CohortSetConsentResult,
 } from '@/common/types/cohortRollout';
@@ -21,9 +22,8 @@ import {
 const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;
 
 type CohortConsentApi = Readonly<{
-  cohortConsentStatus?: () => Promise<unknown>;
+  cohortAuthorityStatus?: () => Promise<unknown>;
   cohortSetConsent?: (enabled: boolean) => Promise<unknown>;
-  cohortAssignmentStatus?: () => Promise<unknown>;
   cohortRequestAssignment?: (cohort: CohortAssignment) => Promise<unknown>;
 }>;
 
@@ -70,11 +70,60 @@ function parseConsentStatus(value: unknown): CohortConsentStatus | null {
 function parseSetConsentResult(value: unknown): CohortSetConsentResult | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
   const record = value as Record<string, unknown>;
-  if (Object.keys(record).toSorted().join('\0') !== ['consent', 'status'].join('\0')) return null;
-  if (!['enabled', 'disabled', 'window-complete', 'storage-error', 'assignment-unavailable'].includes(String(record.status))) return null;
+  if (Object.keys(record).toSorted().join('\0') !== ['assignment', 'consent', 'generation', 'status'].join('\0'))
+    return null;
+  if (
+    !['enabled', 'disabled', 'window-complete', 'storage-error', 'assignment-unavailable'].includes(
+      String(record.status)
+    )
+  )
+    return null;
   const consent = parseConsentStatus(record.consent);
-  if (!consent) return null;
-  return { status: record.status as CohortSetConsentResult['status'], consent };
+  const assignment = parseAssignmentStatus(record.assignment);
+  if (
+    !consent ||
+    !assignment ||
+    !validGeneration(record.generation) ||
+    !validProjectionCombination(record.generation, consent, assignment)
+  )
+    return null;
+  return {
+    status: record.status as CohortSetConsentResult['status'],
+    generation: record.generation,
+    consent,
+    assignment,
+  };
+}
+
+function parseAuthorityProjection(value: unknown): CohortAuthorityProjection | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  if (Object.keys(record).toSorted().join('\0') !== ['assignment', 'consent', 'generation'].join('\0')) return null;
+  const consent = parseConsentStatus(record.consent);
+  const assignment = parseAssignmentStatus(record.assignment);
+  if (
+    !consent ||
+    !assignment ||
+    !validGeneration(record.generation) ||
+    !validProjectionCombination(record.generation, consent, assignment)
+  )
+    return null;
+  return Object.freeze({ generation: record.generation, consent, assignment });
+}
+
+function validGeneration(value: unknown): value is number | null {
+  return value === null || (Number.isSafeInteger(value) && Number(value) >= 1);
+}
+
+function validProjectionCombination(
+  generation: number | null,
+  consent: CohortConsentStatus,
+  assignment: CohortAssignmentStatus
+): boolean {
+  if (generation === null) return !assignment.available && !consent.enabled;
+  if (!assignment.available) return false;
+  if (consent.enabled) return assignment.observationState === 'active' || assignment.observationState === 'completed';
+  return assignment.observationState !== 'active';
 }
 
 function parseAssignmentStatus(value: unknown): CohortAssignmentStatus | null {
@@ -118,13 +167,15 @@ function parseAssignmentResult(value: unknown): CohortAssignmentRequestResult | 
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
   const record = value as Record<string, unknown>;
   if (Object.keys(record).toSorted().join('\0') !== ['assignment', 'status'].join('\0')) return null;
-  if (!['classified', 'unchanged', 'window-active', 'storage-error', 'invalid-request'].includes(String(record.status))) {
+  if (
+    !['classified', 'unchanged', 'window-active', 'confirmation-denied', 'storage-error', 'invalid-request'].includes(
+      String(record.status)
+    )
+  ) {
     return null;
   }
   const assignment = parseAssignmentStatus(record.assignment);
-  return assignment
-    ? { status: record.status as CohortAssignmentRequestResult['status'], assignment }
-    : null;
+  return assignment ? { status: record.status as CohortAssignmentRequestResult['status'], assignment } : null;
 }
 
 function isObservationWindow(value: unknown): value is Readonly<{ startMs: number; endMs: number }> {
@@ -159,40 +210,26 @@ const CohortEvidenceConsent: React.FC = () => {
   useEffect(() => {
     let active = true;
     const api = getCohortConsentApi();
-    if (
-      !api?.cohortConsentStatus ||
-      !api.cohortSetConsent ||
-      !api.cohortAssignmentStatus ||
-      !api.cohortRequestAssignment
-    ) {
+    if (!api?.cohortAuthorityStatus || !api.cohortSetConsent || !api.cohortRequestAssignment) {
       setViewState('unavailable');
       return () => {
         active = false;
       };
     }
 
-    void Promise.all([api.cohortConsentStatus(), api.cohortAssignmentStatus()])
-      .then(([consentResult, assignmentResult]) => {
+    void api
+      .cohortAuthorityStatus()
+      .then((authorityResult) => {
         if (!active) return;
-        const parsedConsent = parseConsentStatus(consentResult);
-        const parsedAssignment = parseAssignmentStatus(assignmentResult);
-        if (!parsedConsent || !parsedAssignment) {
+        const projection = parseAuthorityProjection(authorityResult);
+        if (!projection) {
           setStatus(DISABLED_STATUS);
           setAssignment(UNAVAILABLE_ASSIGNMENT);
           setViewState('error');
           return;
         }
-        if (
-          (parsedConsent.enabled && parsedAssignment.observationState !== 'active') ||
-          (!parsedConsent.enabled && parsedAssignment.observationState === 'active')
-        ) {
-          setStatus(DISABLED_STATUS);
-          setAssignment(UNAVAILABLE_ASSIGNMENT);
-          setViewState('error');
-          return;
-        }
-        setStatus(parsedConsent);
-        setAssignment(parsedAssignment);
+        setStatus(projection.consent);
+        setAssignment(projection.assignment);
         setViewState('ready');
       })
       .catch(() => {
@@ -227,6 +264,7 @@ const CohortEvidenceConsent: React.FC = () => {
     setUpdateFailed(false);
     try {
       const result = parseAssignmentResult(await api.cohortRequestAssignment(cohort));
+      if (result?.status === 'confirmation-denied') return;
       if (
         !result ||
         !['classified', 'unchanged'].includes(result.status) ||
@@ -259,10 +297,8 @@ const CohortEvidenceConsent: React.FC = () => {
       if (!result || result.status !== expectedStatus || result.consent.enabled !== enabled) {
         throw new Error('Consent update was not acknowledged');
       }
-      const refreshedAssignment = parseAssignmentStatus(await api.cohortAssignmentStatus?.());
-      if (!refreshedAssignment) throw new Error('Cohort assignment refresh was not acknowledged');
       setStatus(result.consent);
-      setAssignment(refreshedAssignment);
+      setAssignment(result.assignment);
     } catch {
       // Do not optimistically claim a privacy choice changed. Keep the last
       // authoritative status visible and tell the user that it is unchanged.
@@ -283,10 +319,15 @@ const CohortEvidenceConsent: React.FC = () => {
     if (!status.enabled || status.observationWindow === null) {
       return t('settings.navigationPage.evidenceWindowInactive');
     }
-    return t('settings.navigationPage.evidenceWindowActive', {
-      start: formatDate(status.observationWindow.startMs),
-      end: formatDate(status.observationWindow.endMs),
-    });
+    return t(
+      assignment.observationState === 'completed'
+        ? 'settings.navigationPage.evidenceWindowCompleted'
+        : 'settings.navigationPage.evidenceWindowActive',
+      {
+        start: formatDate(status.observationWindow.startMs),
+        end: formatDate(status.observationWindow.endMs),
+      }
+    );
   })();
 
   return (
@@ -295,7 +336,7 @@ const CohortEvidenceConsent: React.FC = () => {
         label={t('settings.navigationPage.cohortAssignmentLabel')}
         help={t('settings.navigationPage.cohortAssignmentHelp')}
       >
-        <select
+        <Select
           value={assignment.effectiveCohort ?? ''}
           disabled={
             viewState !== 'ready' ||
@@ -305,26 +346,26 @@ const CohortEvidenceConsent: React.FC = () => {
             assignment.observationState === 'revoked' ||
             assignment.observationState === 'completed'
           }
-          onChange={(event) => void requestAssignment(event.target.value as CohortAssignment)}
+          onChange={(value) => void requestAssignment(value as CohortAssignment)}
           aria-label={t('settings.navigationPage.cohortAssignmentLabel')}
           data-testid='cohort-assignment-select'
-        >
-          <option value='' disabled>
-            {t('settings.navigationPage.cohortAssignmentPlaceholder')}
-          </option>
-          {COHORT_ASSIGNMENTS.map((cohort) => (
-            <option value={cohort} key={cohort}>
-              {t(`settings.navigationPage.cohort.${cohort}`)}
-            </option>
-          ))}
-        </select>
+          placeholder={t('settings.navigationPage.cohortAssignmentPlaceholder')}
+          options={COHORT_ASSIGNMENTS.map((cohort) => ({
+            value: cohort,
+            label: t(`settings.navigationPage.cohort.${cohort}`),
+          }))}
+        />
       </PreferenceRow>
       <p className='text-12px text-t-secondary' data-testid='cohort-assignment-state'>
         {assignment.observationState === 'active' ||
         assignment.observationState === 'locked' ||
         assignment.observationState === 'revoked' ||
         assignment.observationState === 'completed'
-          ? t('settings.navigationPage.cohortAssignmentActive')
+          ? t(
+              assignment.observationState === 'completed'
+                ? 'settings.navigationPage.cohortAssignmentCompleted'
+                : 'settings.navigationPage.cohortAssignmentActive'
+            )
           : assignment.available
             ? t('settings.navigationPage.cohortAssignmentReady')
             : t('settings.navigationPage.cohortAssignmentUnavailable')}
@@ -345,9 +386,7 @@ const CohortEvidenceConsent: React.FC = () => {
       <p className='text-12px text-t-secondary' data-testid='cohort-evidence-window-state'>
         {stateText}
       </p>
-      <p className='mt-4px text-12px text-t-secondary'>
-        {t('settings.navigationPage.evidenceConsentControl')}
-      </p>
+      <p className='mt-4px text-12px text-t-secondary'>{t('settings.navigationPage.evidenceConsentControl')}</p>
       {updateFailed && (
         <p className='mt-4px text-12px text-[var(--danger)]' role='alert'>
           {t('settings.navigationPage.evidenceConsentUpdateFailed')}

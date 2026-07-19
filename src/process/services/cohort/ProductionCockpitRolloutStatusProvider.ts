@@ -14,8 +14,13 @@ import { evaluateCohortRolloutEligibility, type CohortRolloutVerificationPolicy 
 import type { M0BCohort } from './types';
 
 export type CohortRolloutAuthorityScope = Readonly<{
+  authorityId: string;
+  authorityGeneration: number;
   cohort: M0BCohort;
+  windowId: string;
   window: Readonly<{ startMs: number; endMs: number }>;
+  evidenceCompletedAtMs: number;
+  baselineAggregateDigest: `sha256:${string}`;
 }>;
 
 export type ProductionCockpitRolloutStatusProviderInput = Readonly<{
@@ -24,7 +29,7 @@ export type ProductionCockpitRolloutStatusProviderInput = Readonly<{
   releaseTrack: WaylandReleaseTrack;
   installationIdentity: string;
   /** Current authenticated cohort/window. Packaged eligibility has no authority without it. */
-  authorityScope?: () => CohortRolloutAuthorityScope | null;
+  authorityScope?: () => Promise<CohortRolloutAuthorityScope | null> | CohortRolloutAuthorityScope | null;
   receiptPath: string;
   packagedPolicyPath: string;
 }>;
@@ -49,7 +54,7 @@ export class ProductionCockpitRolloutStatusProvider implements CockpitRolloutSta
   async status(): Promise<CockpitRolloutStatus> {
     if (!this.input.isPackaged) return DEVELOPMENT_STATUS;
 
-    const authorityScope = this.input.authorityScope?.() ?? null;
+    const authorityScope = (await this.input.authorityScope?.()) ?? null;
     if (authorityScope === null) return denied('evidence-gate-failed');
 
     let receipt: Uint8Array;
@@ -74,6 +79,11 @@ export class ProductionCockpitRolloutStatusProvider implements CockpitRolloutSta
         installationIdHash: cohortInstallationIdHash(this.input.installationIdentity),
         cohort: authorityScope.cohort,
         window: authorityScope.window,
+        authorityId: authorityScope.authorityId,
+        authorityGeneration: authorityScope.authorityGeneration,
+        windowId: authorityScope.windowId,
+        evidenceCompletedAtMs: authorityScope.evidenceCompletedAtMs,
+        baselineAggregateDigest: authorityScope.baselineAggregateDigest,
       },
     } as CohortRolloutVerificationPolicy;
     const decision = evaluateCohortRolloutEligibility(receipt, policy);

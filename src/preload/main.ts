@@ -32,6 +32,7 @@ import type {
   CohortAssignmentStatus,
   CohortConsentStatus,
   CohortSetConsentResult,
+  CohortAuthorityProjection,
 } from '../common/types/cohortRollout';
 
 // SECURITY (RT-F4-03): the weixin login channels (qr/scanned/done) carry a
@@ -159,6 +160,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('cohort:shell-returned-to-classic', reason),
   cohortConsentStatus: (): Promise<CohortConsentStatus> => ipcRenderer.invoke('cohort:consent-status'),
   cohortAssignmentStatus: (): Promise<CohortAssignmentStatus> => ipcRenderer.invoke('cohort:assignment-status'),
+  cohortAuthorityStatus: (): Promise<CohortAuthorityProjection> => ipcRenderer.invoke('cohort:authority-status'),
   cohortRequestAssignment: (cohort: CohortAssignment): Promise<CohortAssignmentRequestResult> =>
     ipcRenderer.invoke('cohort:request-assignment', cohort),
   cohortSetConsent: (enabled: boolean): Promise<CohortSetConsentResult> =>

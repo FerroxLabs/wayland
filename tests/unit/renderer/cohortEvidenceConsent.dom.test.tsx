@@ -10,6 +10,8 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { CohortAssignmentStatus } from '@/common/types/cohortRollout';
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) => {
@@ -19,6 +21,7 @@ vi.mock('react-i18next', () => ({
         'settings.navigationPage.cohortAssignmentPlaceholder': 'Choose a group',
         'settings.navigationPage.cohortAssignmentActive': 'Locked while the current evidence window is active.',
         'settings.navigationPage.cohortAssignmentReady': 'Classification confirmed.',
+        'settings.navigationPage.cohortAssignmentCompleted': 'The evidence window is complete and locked.',
         'settings.navigationPage.cohortAssignmentUnavailable': 'Choose a group before starting.',
         'settings.navigationPage.cohort.novice': 'Getting started',
         'settings.navigationPage.cohort.knowledge-work': 'Knowledge work',
@@ -29,6 +32,7 @@ vi.mock('react-i18next', () => ({
           'Evidence sharing is unavailable in this build, so it remains off.',
         'settings.navigationPage.evidenceWindowInactive': 'No evidence window is active.',
         'settings.navigationPage.evidenceWindowActive': 'Active 14-day window: {{start}} – {{end}}.',
+        'settings.navigationPage.evidenceWindowCompleted': 'Completed 14-day window: {{start}} – {{end}}.',
         'settings.navigationPage.evidenceConsentLabel': 'Collect local aggregate evidence',
         'settings.navigationPage.evidenceConsentHelp':
           'Local aggregate evidence only. Never chat messages, prompts, file contents, filenames, paths, URLs, tool arguments, or free-form text.',
@@ -48,6 +52,36 @@ vi.mock('react-i18next', () => ({
 }));
 
 vi.mock('@arco-design/web-react', () => ({
+  Select: ({
+    value,
+    disabled,
+    onChange,
+    options,
+    'aria-label': ariaLabel,
+    'data-testid': testId,
+  }: {
+    value?: string;
+    disabled?: boolean;
+    onChange?: (value: string) => void;
+    options?: Array<{ value: string; label: string }>;
+    'aria-label'?: string;
+    'data-testid'?: string;
+  }) => (
+    <select
+      value={value}
+      disabled={disabled}
+      onChange={(event) => onChange?.(event.target.value)}
+      aria-label={ariaLabel}
+      data-testid={testId}
+    >
+      <option value='' disabled />
+      {options?.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  ),
   Switch: ({
     checked,
     disabled,
@@ -94,6 +128,7 @@ const enabledResult = Object.freeze({ status: 'enabled', consent: enabledStatus 
 const disabledResult = Object.freeze({ status: 'disabled', consent: disabledStatus });
 
 type ConsentApi = {
+  cohortAuthorityStatus?: ReturnType<typeof vi.fn>;
   cohortConsentStatus?: ReturnType<typeof vi.fn>;
   cohortSetConsent?: ReturnType<typeof vi.fn>;
   cohortAssignmentStatus?: ReturnType<typeof vi.fn>;
@@ -110,7 +145,44 @@ const readyAssignment = Object.freeze({
 const activeAssignment = Object.freeze({ ...readyAssignment, observationState: 'active' });
 
 function setApi(api: ConsentApi | undefined): void {
-  Object.defineProperty(window, 'electronAPI', { configurable: true, writable: true, value: api });
+  if (!api) {
+    Object.defineProperty(window, 'electronAPI', { configurable: true, writable: true, value: api });
+    return;
+  }
+  const authorityStatus =
+    api.cohortAuthorityStatus ??
+    vi.fn(async () => {
+      const assignment = (await api.cohortAssignmentStatus?.()) as CohortAssignmentStatus | undefined;
+      return {
+        generation: assignment?.available ? 1 : null,
+        consent: await api.cohortConsentStatus?.(),
+        assignment,
+      };
+    });
+  const setConsent = api.cohortAuthorityStatus
+    ? api.cohortSetConsent
+    : api.cohortSetConsent
+      ? vi.fn(async (enabled: boolean) => {
+          const result = (await api.cohortSetConsent?.(enabled)) as Record<string, unknown>;
+          const projected = (await api.cohortAssignmentStatus?.()) as CohortAssignmentStatus;
+          const assignment =
+            enabled && projected.observationState === 'ready'
+              ? { ...projected, observationState: 'active' as const }
+              : !enabled && projected.observationState === 'active'
+                ? { ...projected, observationState: 'revoked' as const }
+                : projected;
+          return {
+            ...result,
+            generation: 2,
+            assignment,
+          };
+        })
+      : undefined;
+  Object.defineProperty(window, 'electronAPI', {
+    configurable: true,
+    writable: true,
+    value: { ...api, cohortAuthorityStatus: authorityStatus, cohortSetConsent: setConsent },
+  });
 }
 
 describe('CohortEvidenceConsent', () => {
@@ -343,5 +415,110 @@ describe('CohortEvidenceConsent', () => {
     expect(container.querySelector('input:not([type="checkbox"])')).toBeNull();
     expect(screen.getByText(/local aggregate evidence only/i)).toHaveTextContent(/never chat messages/i);
     expect(screen.getByText(/off until you explicitly enable it/i)).toHaveTextContent(/revoke consent at any time/i);
+  });
+
+  it('[MF-03] consumes one aggregate generation for initial state and consent mutation', async () => {
+    const authorityStatus = vi.fn().mockResolvedValue({
+      generation: 1,
+      consent: disabledStatus,
+      assignment: readyAssignment,
+    });
+    const setConsent = vi.fn().mockResolvedValue({
+      status: 'enabled',
+      generation: 2,
+      consent: enabledStatus,
+      assignment: activeAssignment,
+    });
+    setApi({ cohortAuthorityStatus: authorityStatus, cohortSetConsent: setConsent, cohortRequestAssignment: vi.fn() });
+    render(<CohortEvidenceConsent />);
+
+    const toggle = await screen.findByRole('checkbox', { name: /collect local aggregate evidence/i });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    fireEvent.click(toggle);
+    await waitFor(() => expect(toggle).toBeChecked());
+    expect(authorityStatus).toHaveBeenCalledTimes(1);
+    expect(setConsent).toHaveBeenCalledWith(true);
+  });
+
+  it('[MF-03] rejects a torn aggregate mutation response instead of joining incompatible state', async () => {
+    const setConsent = vi.fn().mockResolvedValue({
+      status: 'enabled',
+      generation: 2,
+      consent: enabledStatus,
+      assignment: readyAssignment,
+    });
+    setApi({
+      cohortAuthorityStatus: vi.fn().mockResolvedValue({
+        generation: 1,
+        consent: disabledStatus,
+        assignment: readyAssignment,
+      }),
+      cohortSetConsent: setConsent,
+      cohortRequestAssignment: vi.fn(),
+    });
+    render(<CohortEvidenceConsent />);
+
+    const toggle = await screen.findByRole('checkbox', { name: /collect local aggregate evidence/i });
+    await waitFor(() => expect(toggle).toBeEnabled());
+    fireEvent.click(toggle);
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('last confirmed choice'));
+    expect(toggle).not.toBeChecked();
+  });
+
+  it('[MF-03] rejects an available assignment without a matching authority generation', async () => {
+    setApi({
+      cohortAuthorityStatus: vi.fn().mockResolvedValue({
+        generation: null,
+        consent: disabledStatus,
+        assignment: readyAssignment,
+      }),
+      cohortSetConsent: vi.fn(),
+      cohortRequestAssignment: vi.fn(),
+    });
+    render(<CohortEvidenceConsent />);
+
+    await waitFor(() => expect(screen.getByText(/unavailable in this build/i)).toBeInTheDocument());
+    expect(screen.getByRole('checkbox')).toBeDisabled();
+    expect(screen.getByRole('combobox')).toBeDisabled();
+  });
+
+  it('[MF-04] renders a completed enabled window as a valid, controllable lifecycle', async () => {
+    setApi({
+      cohortAuthorityStatus: vi.fn().mockResolvedValue({
+        generation: 3,
+        consent: enabledStatus,
+        assignment: { ...activeAssignment, observationState: 'completed' },
+      }),
+      cohortSetConsent: vi.fn(),
+      cohortRequestAssignment: vi.fn(),
+    });
+    render(<CohortEvidenceConsent />);
+
+    const toggle = await screen.findByRole('checkbox', { name: /collect local aggregate evidence/i });
+    expect(toggle).toBeChecked();
+    expect(toggle).toBeEnabled();
+    expect(screen.getByTestId('cohort-assignment-state')).toHaveTextContent(/complete and locked/i);
+    expect(screen.getByTestId('cohort-evidence-window-state')).toHaveTextContent(/completed 14-day window/i);
+  });
+
+  it('[LF-01] treats native assignment cancellation as neutral and preserves confirmed state', async () => {
+    setApi({
+      cohortAuthorityStatus: vi.fn().mockResolvedValue({
+        generation: 1,
+        consent: disabledStatus,
+        assignment: readyAssignment,
+      }),
+      cohortSetConsent: vi.fn(),
+      cohortRequestAssignment: vi.fn().mockResolvedValue({
+        status: 'confirmation-denied',
+        assignment: readyAssignment,
+      }),
+    });
+    render(<CohortEvidenceConsent />);
+
+    const select = await screen.findByTestId('cohort-assignment-select');
+    fireEvent.change(select, { target: { value: 'operator' } });
+    await waitFor(() => expect(select).toHaveValue('developer'));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });

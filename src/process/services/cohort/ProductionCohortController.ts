@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { app, dialog } from 'electron';
+import * as keytar from 'keytar';
 
 import { getReleaseTrack, type WaylandReleaseTrack } from '@/common/releaseTrack';
 import type {
@@ -16,12 +17,12 @@ import type {
   CohortAssignment,
   CohortAssignmentRequestResult,
   CohortAssignmentStatus,
+  CohortAuthorityProjection,
   CohortConsentStatus,
   CohortSetConsentResult,
 } from '@/common/types/cohortRollout';
 import { COHORT_ASSIGNMENTS } from '@/common/types/cohortRollout';
-import { decryptString, encryptString, CIPHER_PREFIX, isEncryptionAvailable } from '@process/secrets/safeStorage';
-import { getInstallUuid } from '@process/services/kickoff/installUuid';
+import i18n, { i18nReady } from '@process/services/i18n';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { CohortBaselineService } from './CohortBaselineService';
 import { CohortEvidenceRuntime } from './CohortEvidenceRuntime';
@@ -37,6 +38,7 @@ import { M0B_DAY_MS, M0B_OBSERVATION_WINDOW_DAYS } from './types';
 const CONSENT_KEY = 'cohort.evidenceConsent' as const;
 const ASSIGNMENT_KEY = 'cohort.assignment' as const;
 const AUTHORITY_KEY = 'cohort.authorityEnvelope' as const;
+const KEYCHAIN_SERVICE = 'com.ferroxlabs.wayland.cohort-authority';
 const AUTHORITY_DIRECTORY = 'cockpit-rollout';
 const AUTHORITY_RECEIPT = 'authorization.json';
 const PACKAGED_POLICY = 'policy.json';
@@ -74,6 +76,20 @@ type CohortAuthorityEnvelope = {
   windowEndMs: number | null;
 };
 
+type CohortAuthorityRecord = Readonly<{
+  schemaVersion: 1;
+  migrationConsumed: true;
+  authority: CohortAuthorityEnvelope | null;
+}>;
+
+export type CohortAcceptedEvidence = Readonly<{
+  authorityId: string;
+  authorityGeneration: number;
+  windowId: string;
+  completedAtMs: number;
+  baselineAggregateDigest: `sha256:${string}`;
+}>;
+
 export type CohortConsentStore = Readonly<{
   get(): Promise<unknown>;
 }>;
@@ -101,6 +117,9 @@ export type CohortProductionEnvironment = Readonly<{
   protectAuthority(plaintext: string): Promise<string> | string;
   unprotectAuthority(ciphertext: string): Promise<string> | string;
   confirmAssignment(requestedCohort: CohortAssignment): Promise<boolean>;
+  /** Accepted final aggregate. Absence is an explicit fail-closed rollout gate. */
+  acceptedEvidence?: () => Promise<CohortAcceptedEvidence | null>;
+  retireLegacy?: () => Promise<void>;
   newAuthorityId?: () => string;
   newWindowId?: () => string;
   now?: () => number;
@@ -110,6 +129,7 @@ export type CohortProductionEnvironment = Readonly<{
 export type CohortProductionAPI = Readonly<{
   rolloutStatus(): Promise<CockpitRolloutStatus>;
   assignmentStatus(): Promise<CohortAssignmentStatus>;
+  authorityStatus(): Promise<CohortAuthorityProjection>;
   requestAssignment(requestedCohort: unknown): Promise<CohortAssignmentRequestResult>;
   consentStatus(): Promise<CohortConsentStatus>;
   setConsent(enabled: boolean): Promise<CohortSetConsentResult>;
@@ -145,13 +165,19 @@ export class ProductionCohortController implements CohortProductionAPI {
     this.runtime = this.createRuntime();
   }
 
-  rolloutStatus(): Promise<CockpitRolloutStatus> {
+  async rolloutStatus(): Promise<CockpitRolloutStatus> {
+    await this.queue;
     return this.rollout.status();
   }
 
   async assignmentStatus(): Promise<CohortAssignmentStatus> {
     await this.queue;
     return toPublicAssignment(this.authority, this.now());
+  }
+
+  async authorityStatus(): Promise<CohortAuthorityProjection> {
+    await this.queue;
+    return toPublicProjection(this.authority, this.now());
   }
 
   requestAssignment(requestedCohort: unknown): Promise<CohortAssignmentRequestResult> {
@@ -246,15 +272,17 @@ export class ProductionCohortController implements CohortProductionAPI {
   }
 
   private consentResult(status: CohortSetConsentResult['status']): CohortSetConsentResult {
+    const projection = toPublicProjection(this.authority, this.now());
     return {
       status,
-      consent: toPublicConsent(this.authority),
+      ...projection,
     };
   }
 
   private async publish(next: CohortAuthorityEnvelope): Promise<boolean> {
     try {
-      const sealed = await this.environment.protectAuthority(JSON.stringify(next));
+      const record: CohortAuthorityRecord = { schemaVersion: 1, migrationConsumed: true, authority: next };
+      const sealed = await this.environment.protectAuthority(JSON.stringify(record));
       if (typeof sealed !== 'string' || sealed.length === 0) throw new Error('COHORT_AUTHORITY_SEAL_INVALID');
       await this.environment.authorityStore.set(sealed);
       return true;
@@ -263,17 +291,36 @@ export class ProductionCohortController implements CohortProductionAPI {
     }
   }
 
-  private rolloutAuthorityScope(): CohortRolloutAuthorityScope | null {
+  private async rolloutAuthorityScope(): Promise<CohortRolloutAuthorityScope | null> {
     if (
       this.authority === null ||
+      !this.authority.consentEnabled ||
+      this.authority.windowId === null ||
       this.authority.windowStartMs === null ||
-      this.authority.windowEndMs === null
+      this.authority.windowEndMs === null ||
+      this.now() < this.authority.windowEndMs
+    ) {
+      return null;
+    }
+    const accepted = await this.environment.acceptedEvidence?.();
+    if (
+      accepted === undefined ||
+      accepted === null ||
+      accepted.authorityId !== this.authority.authorityId ||
+      accepted.authorityGeneration !== this.authority.generation ||
+      accepted.windowId !== this.authority.windowId ||
+      accepted.completedAtMs < this.authority.windowEndMs
     ) {
       return null;
     }
     return {
+      authorityId: this.authority.authorityId,
+      authorityGeneration: this.authority.generation,
       cohort: this.authority.effectiveCohort,
+      windowId: this.authority.windowId,
       window: { startMs: this.authority.windowStartMs, endMs: this.authority.windowEndMs },
+      evidenceCompletedAtMs: accepted.completedAtMs,
+      baselineAggregateDigest: accepted.baselineAggregateDigest,
     };
   }
 
@@ -317,51 +364,56 @@ export async function createCohortProductionController(
   environment: CohortProductionEnvironment
 ): Promise<ProductionCohortController> {
   const current = await readAuthenticatedAuthority(environment);
-  if (current.kind === 'valid') return new ProductionCohortController(environment, current.authority);
+  if (current.kind === 'valid') return new ProductionCohortController(environment, current.record.authority);
   if (current.kind === 'invalid') return new ProductionCohortController(environment, null);
 
-  const migrated = await migrateExactLegacyAuthority(environment);
+  const migrated = await consumeLegacyMigration(environment);
   return new ProductionCohortController(environment, migrated);
 }
 
 /** Compose the production controller from process-authoritative Electron state. */
 export async function createProductionCohortController(): Promise<ProductionCohortController> {
-  const installIdentity = await getInstallUuid();
+  const userDataPath = app.getPath('userData');
+  const account = createHash('sha256').update(path.resolve(userDataPath)).digest('hex');
+  const identityAccount = `${account}:installation`;
+  let installIdentity = await keytar.getPassword(KEYCHAIN_SERVICE, identityAccount);
+  if (installIdentity === null) {
+    installIdentity = randomUUID();
+    await keytar.setPassword(KEYCHAIN_SERVICE, identityAccount, installIdentity);
+  }
   return createCohortProductionController({
-    userDataPath: app.getPath('userData'),
+    userDataPath,
     resourcesPath: process.resourcesPath,
     isPackaged: app.isPackaged,
     appVersion: app.getVersion(),
     releaseTrack: getReleaseTrack(),
     installIdentity,
     authorityStore: {
-      get: () => ProcessConfig.get(AUTHORITY_KEY),
-      set: async (value): Promise<void> => {
-        // ProcessConfig.update is one serialized JsonFileBuilder root mutation.
-        await ProcessConfig.update(AUTHORITY_KEY, async () => value);
-      },
+      get: () => keytar.getPassword(KEYCHAIN_SERVICE, `${account}:authority`),
+      set: (value) => keytar.setPassword(KEYCHAIN_SERVICE, `${account}:authority`, value),
     },
     consentStore: { get: () => ProcessConfig.get(CONSENT_KEY) },
     assignmentStore: { get: () => ProcessConfig.get(ASSIGNMENT_KEY) },
-    protectAuthority: (plaintext) => {
-      if (!isEncryptionAvailable()) throw new Error('COHORT_OS_AUTHORITY_UNAVAILABLE');
-      const sealed = encryptString(plaintext);
-      if (!sealed.startsWith(CIPHER_PREFIX)) throw new Error('COHORT_OS_AUTHORITY_REQUIRED');
-      return sealed;
-    },
-    unprotectAuthority: (ciphertext) => {
-      if (!isEncryptionAvailable() || !ciphertext.startsWith(CIPHER_PREFIX)) {
-        throw new Error('COHORT_OS_AUTHORITY_REQUIRED');
-      }
-      return decryptString(ciphertext);
+    // The whole record lives in the OS credential vault. No file-backend or
+    // decryptable config mirror is an authority source.
+    protectAuthority: (plaintext) => plaintext,
+    unprotectAuthority: (ciphertext) => ciphertext,
+    retireLegacy: async () => {
+      await ProcessConfig.update(CONSENT_KEY, async (): Promise<undefined> => undefined);
+      await ProcessConfig.update(ASSIGNMENT_KEY, async (): Promise<undefined> => undefined);
+      await ProcessConfig.update(AUTHORITY_KEY, async (): Promise<undefined> => undefined);
     },
     confirmAssignment: async (requestedCohort) => {
+      await i18nReady;
       const result = await dialog.showMessageBox({
         type: 'question',
-        title: 'Confirm evaluation group',
-        message: `Use ${requestedCohort} as this installation's evaluation group?`,
-        detail: 'This selection is owned by Wayland and cannot be changed after evidence collection begins.',
-        buttons: ['Cancel', 'Confirm'],
+        title: i18n.t('settings.navigationPage.cohortConfirmationTitle'),
+        message: i18n.t('settings.navigationPage.cohortConfirmationMessage', { cohort: requestedCohort }),
+        detail: i18n.t('settings.navigationPage.cohortConfirmationDetail'),
+        buttons: [
+          i18n.t('settings.navigationPage.cohortConfirmationCancel'),
+          i18n.t('settings.navigationPage.cohortConfirmationConfirm'),
+        ],
         defaultId: 1,
         cancelId: 0,
         noLink: true,
@@ -374,7 +426,7 @@ export async function createProductionCohortController(): Promise<ProductionCoho
 type AuthorityRead =
   | Readonly<{ kind: 'absent' }>
   | Readonly<{ kind: 'invalid' }>
-  | Readonly<{ kind: 'valid'; authority: CohortAuthorityEnvelope }>;
+  | Readonly<{ kind: 'valid'; record: CohortAuthorityRecord }>;
 
 async function readAuthenticatedAuthority(environment: CohortProductionEnvironment): Promise<AuthorityRead> {
   let raw: unknown;
@@ -387,14 +439,14 @@ async function readAuthenticatedAuthority(environment: CohortProductionEnvironme
   if (typeof raw !== 'string' || raw.length === 0) return { kind: 'invalid' };
   try {
     const parsed = JSON.parse(await environment.unprotectAuthority(raw)) as unknown;
-    const authority = parseAuthorityEnvelope(parsed, environment.installIdentity);
-    return authority ? { kind: 'valid', authority } : { kind: 'invalid' };
+    const record = parseAuthorityRecord(parsed, environment.installIdentity);
+    return record ? { kind: 'valid', record } : { kind: 'invalid' };
   } catch {
     return { kind: 'invalid' };
   }
 }
 
-async function migrateExactLegacyAuthority(
+async function consumeLegacyMigration(
   environment: CohortProductionEnvironment
 ): Promise<CohortAuthorityEnvelope | null> {
   let consentInput: unknown;
@@ -405,34 +457,70 @@ async function migrateExactLegacyAuthority(
       environment.assignmentStore.get(),
     ]);
   } catch {
-    return null;
+    return persistMigrationRecord(environment, null);
   }
   const consent = parseExactLegacyConsent(consentInput);
   const assignment = parseExactLegacyAssignment(assignmentInput);
-  if (consent === null || assignment === null || !legacyMatches(assignment, consent)) return null;
+  let authority: CohortAuthorityEnvelope | null = null;
+  if (consent !== null && assignment !== null && legacyMatches(assignment, consent)) {
+    // Legacy state is classification input only. It never carries forward an
+    // observation window or consent, and it needs a fresh native ceremony.
+    if (await environment.confirmAssignment(assignment.cohort)) {
+      authority = {
+        schemaVersion: 3,
+        generation: 1,
+        installationIdHash: cohortInstallationIdHash(environment.installIdentity),
+        authorityId: (environment.newAuthorityId ?? randomUUID)(),
+        classifierVersion: 2,
+        requestedCohort: assignment.cohort,
+        effectiveCohort: assignment.cohort,
+        classifiedAtMs: environment.now?.() ?? Date.now(),
+        consentEnabled: false,
+        acceptedAtMs: null,
+        windowId: null,
+        windowStartMs: null,
+        windowEndMs: null,
+      };
+    }
+  }
+  return persistMigrationRecord(environment, authority);
+}
 
-  const authority: CohortAuthorityEnvelope = {
-    schemaVersion: 3,
-    generation: 1,
-    installationIdHash: cohortInstallationIdHash(environment.installIdentity),
-    authorityId: (environment.newAuthorityId ?? randomUUID)(),
-    classifierVersion: 2,
-    requestedCohort: assignment.cohort,
-    effectiveCohort: assignment.cohort,
-    classifiedAtMs: assignment.classifiedAtMs,
-    consentEnabled: consent.enabled,
-    acceptedAtMs: consent.enabled ? consent.acceptedAtMs : assignment.windowStartMs,
-    windowId: assignment.windowStartMs === null ? null : (environment.newWindowId ?? randomUUID)(),
-    windowStartMs: assignment.windowStartMs,
-    windowEndMs: assignment.windowEndMs,
-  };
+async function persistMigrationRecord(
+  environment: CohortProductionEnvironment,
+  authority: CohortAuthorityEnvelope | null
+): Promise<CohortAuthorityEnvelope | null> {
   try {
-    const sealed = await environment.protectAuthority(JSON.stringify(authority));
+    const record: CohortAuthorityRecord = { schemaVersion: 1, migrationConsumed: true, authority };
+    const sealed = await environment.protectAuthority(JSON.stringify(record));
     await environment.authorityStore.set(sealed);
-    return authority;
   } catch {
     return null;
   }
+  // The external marker is the authority boundary. Legacy cleanup is hygiene:
+  // once that marker lands, a cleanup failure must not create a split current
+  // state or make the next boot reconsider legacy input.
+  try {
+    await environment.retireLegacy?.();
+  } catch {
+    // Deliberately ignored after durable migration consumption.
+  }
+  return authority;
+}
+
+function parseAuthorityRecord(input: unknown, installIdentity: string): CohortAuthorityRecord | null {
+  if (!isRecord(input)) return null;
+  const keys = ['authority', 'migrationConsumed', 'schemaVersion'].toSorted();
+  if (
+    Object.keys(input).toSorted().join('\0') !== keys.join('\0') ||
+    input.schemaVersion !== 1 ||
+    input.migrationConsumed !== true
+  ) {
+    return null;
+  }
+  if (input.authority === null) return input as CohortAuthorityRecord;
+  const authority = parseAuthorityEnvelope(input.authority, installIdentity);
+  return authority ? Object.freeze({ schemaVersion: 1, migrationConsumed: true, authority }) : null;
 }
 
 function parseAuthorityEnvelope(input: unknown, installIdentity: string): CohortAuthorityEnvelope | null {
@@ -579,6 +667,14 @@ function toPublicConsent(authority: CohortAuthorityEnvelope | null): CohortConse
     acceptedAtMs: authority.acceptedAtMs,
     observationWindow: { startMs: authority.windowStartMs, endMs: authority.windowEndMs },
   };
+}
+
+function toPublicProjection(authority: CohortAuthorityEnvelope | null, now: number): CohortAuthorityProjection {
+  return Object.freeze({
+    generation: authority?.generation ?? null,
+    consent: toPublicConsent(authority),
+    assignment: toPublicAssignment(authority, now),
+  });
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

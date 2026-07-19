@@ -34,15 +34,19 @@ const trustedDescriptor = describeCohortRolloutPublicKey('release-authority-2026
 
 function payload(overrides: Partial<CohortRolloutAuthorizationPayload> = {}): CohortRolloutAuthorizationPayload {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     appVersion: '0.12.0-preview.1',
     releaseTrack: 'preview',
     previousStage: 'internal-dogfood',
     stage: 'invited-alpha',
     cohort: 'knowledge-work',
     installationIdHash: INSTALLATION_DIGEST,
+    authorityId: 'authority-1',
+    authorityGeneration: 3,
+    windowId: 'window-1',
     window: WINDOW,
     baselineAggregateDigest: BASELINE_DIGEST,
+    evidenceCompletedAtMs: WINDOW.endMs,
     issuedAt: NOW - 1_000,
     expiresAt: NOW + 60_000,
     decisionOwner: 'Sean Donahoe',
@@ -59,8 +63,12 @@ function policy(overrides: Partial<CohortRolloutVerificationPolicy['expected']> 
       stage: 'invited-alpha',
       cohort: 'knowledge-work',
       installationIdHash: INSTALLATION_DIGEST,
+      authorityId: 'authority-1',
+      authorityGeneration: 3,
+      windowId: 'window-1',
       window: WINDOW,
       baselineAggregateDigest: BASELINE_DIGEST,
+      evidenceCompletedAtMs: WINDOW.endMs,
       decisionOwner: 'Sean Donahoe',
       ...overrides,
     },
@@ -158,7 +166,11 @@ describe('cohort rollout authority', () => {
     ['releaseTrack', 'stable'],
     ['cohort', 'developer'],
     ['installationIdHash', `sha256:${'d'.repeat(64)}`],
+    ['authorityId', 'authority-2'],
+    ['authorityGeneration', 2],
+    ['windowId', 'window-2'],
     ['baselineAggregateDigest', `sha256:${'b'.repeat(64)}`],
+    ['evidenceCompletedAtMs', WINDOW.endMs + 1],
     ['decisionOwner', 'Local User'],
   ] as const)('rejects a signed receipt for the wrong %s', (field, value) => {
     const receipt = issue({ [field]: value });
@@ -192,6 +204,20 @@ describe('cohort rollout authority', () => {
     });
 
     expect(evaluateCohortRolloutEligibility(receipt, policy())).toEqual({
+      eligible: false,
+      reason: 'malformed-receipt',
+    });
+  });
+
+  it('[HF-03] refuses to issue or accept authority before evidence completion', () => {
+    expect(() => issue({ evidenceCompletedAtMs: NOW, issuedAt: NOW - 1 })).toThrow(
+      'receipt precedes completed evidence'
+    );
+    const prematureFinalization = resign((raw) => {
+      raw.evidenceCompletedAtMs = NOW;
+      raw.issuedAt = NOW - 1;
+    });
+    expect(evaluateCohortRolloutEligibility(prematureFinalization, policy())).toEqual({
       eligible: false,
       reason: 'malformed-receipt',
     });
@@ -240,14 +266,14 @@ describe('cohort rollout authority', () => {
     });
 
     const wrongContract = read(issue());
-    wrongContract.contract = 'wayland-desktop-cohort-rollout/2.0';
+    wrongContract.contract = 'wayland-desktop-cohort-rollout/1.0';
     expect(evaluateCohortRolloutEligibility(encode(wrongContract as Json), policy())).toEqual({
       eligible: false,
       reason: 'malformed-receipt',
     });
 
     const wrongSchema = resign((raw) => {
-      raw.schemaVersion = 2;
+      raw.schemaVersion = 1;
     });
     expect(evaluateCohortRolloutEligibility(wrongSchema, policy())).toEqual({
       eligible: false,

@@ -48,6 +48,7 @@ describe('cohort preload boundary', () => {
     expect(cohortKeys).toEqual(
       [
         'cohortAssignmentStatus',
+        'cohortAuthorityStatus',
         'cohortConsentStatus',
         'cohortRecordShellReturn',
         'cohortRequestAssignment',
@@ -57,9 +58,11 @@ describe('cohort preload boundary', () => {
     expect(cohortKeys).not.toContain('cohortSetEffectiveAssignment');
 
     await exposedApi.cohortAssignmentStatus();
+    await exposedApi.cohortAuthorityStatus();
     await exposedApi.cohortRequestAssignment('operator');
 
     expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(1, 'cohort:assignment-status');
-    expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(2, 'cohort:request-assignment', 'operator');
+    expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(2, 'cohort:authority-status');
+    expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(3, 'cohort:request-assignment', 'operator');
   });
 });

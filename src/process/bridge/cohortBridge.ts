@@ -43,6 +43,11 @@ export function initCohortBridge(
     return (await runtimeReady).assignmentStatus();
   });
 
+  ipcMain.handle('cohort:authority-status', async (event) => {
+    assertSender(event, isAuthorizedSender);
+    return (await runtimeReady).authorityStatus();
+  });
+
   ipcMain.handle('cohort:request-assignment', async (event, value: unknown) => {
     assertSender(event, isAuthorizedSender);
     if (typeof value !== 'string' || !COHORT_ASSIGNMENTS.includes(value as CohortAssignment)) {

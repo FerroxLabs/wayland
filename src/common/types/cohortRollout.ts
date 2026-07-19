@@ -30,13 +30,7 @@ export type CohortAssignmentStatus = Readonly<{
 }>;
 
 export type CohortAssignmentRequestResult = Readonly<{
-  status:
-    | 'classified'
-    | 'unchanged'
-    | 'window-active'
-    | 'confirmation-denied'
-    | 'storage-error'
-    | 'invalid-request';
+  status: 'classified' | 'unchanged' | 'window-active' | 'confirmation-denied' | 'storage-error' | 'invalid-request';
   assignment: CohortAssignmentStatus;
 }>;
 
@@ -69,5 +63,14 @@ export type CohortConsentStatus = Readonly<{
 
 export type CohortSetConsentResult = Readonly<{
   status: 'enabled' | 'disabled' | 'window-complete' | 'storage-error' | 'assignment-unavailable';
+  generation: number | null;
   consent: CohortConsentStatus;
-}>; 
+  assignment: CohortAssignmentStatus;
+}>;
+
+/** One process-owned snapshot. Consumers must not join separate generations. */
+export type CohortAuthorityProjection = Readonly<{
+  generation: number | null;
+  consent: CohortConsentStatus;
+  assignment: CohortAssignmentStatus;
+}>;

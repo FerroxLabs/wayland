@@ -10,8 +10,8 @@ import type { WaylandReleaseTrack } from '@/common/releaseTrack';
 
 import { M0B_COHORTS, M0B_DAY_MS, M0B_OBSERVATION_WINDOW_DAYS, type M0BCohort } from './types';
 
-export const COHORT_ROLLOUT_CONTRACT = 'wayland-desktop-cohort-rollout/1.0' as const;
-export const COHORT_ROLLOUT_SCHEMA_VERSION = 1 as const;
+export const COHORT_ROLLOUT_CONTRACT = 'wayland-desktop-cohort-rollout/2.0' as const;
+export const COHORT_ROLLOUT_SCHEMA_VERSION = 2 as const;
 export const COHORT_ROLLOUT_ALGORITHM = 'Ed25519' as const;
 export const COHORT_ROLLOUT_MAX_RECEIPT_LIFETIME_MS = 24 * 60 * 60 * 1000;
 export const COHORT_ROLLOUT_BASELINE_WINDOW_MS = M0B_OBSERVATION_WINDOW_DAYS * M0B_DAY_MS;
@@ -35,8 +35,12 @@ export type CohortRolloutAuthorizationPayload = Readonly<{
   stage: CohortRolloutStage;
   cohort: M0BCohort;
   installationIdHash: Digest;
+  authorityId: string;
+  authorityGeneration: number;
+  windowId: string;
   window: CohortRolloutWindow;
   baselineAggregateDigest: Digest;
+  evidenceCompletedAtMs: number;
   issuedAt: number;
   expiresAt: number;
   decisionOwner: string;
@@ -61,8 +65,12 @@ export type CohortRolloutExpectedScope = Readonly<{
   stage: CohortRolloutStage;
   cohort: M0BCohort;
   installationIdHash: Digest;
+  authorityId: string;
+  authorityGeneration: number;
+  windowId: string;
   window: CohortRolloutWindow;
   baselineAggregateDigest: Digest;
+  evidenceCompletedAtMs: number;
   decisionOwner: string;
 }>;
 
@@ -135,6 +143,7 @@ export function issueCohortRolloutAuthorization(
 ): Uint8Array {
   const payload = parsePayload(payloadInput);
   assertReceiptWindow(payload, Date.now());
+  assertCompletedEvidence(payload);
   assertSequentialTransition(payload.previousStage, payload.stage);
   assertIdentifier(authority.keyId, 'key ID');
   assertEd25519Key(authority.privateKey, 'private');
@@ -202,6 +211,11 @@ export function evaluateCohortRolloutEligibility(
   if (lifetime <= 0 || lifetime > COHORT_ROLLOUT_MAX_RECEIPT_LIFETIME_MS) {
     return denied('malformed-receipt');
   }
+  try {
+    assertCompletedEvidence(envelope.payload);
+  } catch {
+    return denied('malformed-receipt');
+  }
   if (envelope.payload.issuedAt > now) return denied('not-yet-valid');
   if (envelope.payload.expiresAt <= now) return denied('expired');
   if (!isSequentialTransition(envelope.payload.previousStage, envelope.payload.stage)) {
@@ -267,10 +281,13 @@ function parsePayload(value: unknown): CohortRolloutAuthorizationPayload {
   if (!isRecord(value)) throw new Error('payload');
   assertExactKeys(value, [
     'appVersion',
+    'authorityGeneration',
+    'authorityId',
     'baselineAggregateDigest',
     'cohort',
     'decisionOwner',
     'expiresAt',
+    'evidenceCompletedAtMs',
     'installationIdHash',
     'issuedAt',
     'previousStage',
@@ -278,6 +295,7 @@ function parsePayload(value: unknown): CohortRolloutAuthorizationPayload {
     'schemaVersion',
     'stage',
     'window',
+    'windowId',
   ]);
   if (
     value.schemaVersion !== COHORT_ROLLOUT_SCHEMA_VERSION ||
@@ -288,7 +306,14 @@ function parsePayload(value: unknown): CohortRolloutAuthorizationPayload {
     !isStage(value.stage) ||
     !isCohort(value.cohort) ||
     !isDigest(value.installationIdHash) ||
+    typeof value.authorityId !== 'string' ||
+    !IDENTIFIER.test(value.authorityId) ||
+    !Number.isSafeInteger(value.authorityGeneration) ||
+    Number(value.authorityGeneration) < 1 ||
+    typeof value.windowId !== 'string' ||
+    !IDENTIFIER.test(value.windowId) ||
     !isDigest(value.baselineAggregateDigest) ||
+    !isTimestamp(value.evidenceCompletedAtMs) ||
     !isTimestamp(value.issuedAt) ||
     !isTimestamp(value.expiresAt) ||
     typeof value.decisionOwner !== 'string' ||
@@ -304,8 +329,12 @@ function parsePayload(value: unknown): CohortRolloutAuthorizationPayload {
     stage: value.stage,
     cohort: value.cohort,
     installationIdHash: value.installationIdHash,
+    authorityId: value.authorityId,
+    authorityGeneration: Number(value.authorityGeneration),
+    windowId: value.windowId,
     window: parseWindow(value.window),
     baselineAggregateDigest: value.baselineAggregateDigest,
+    evidenceCompletedAtMs: value.evidenceCompletedAtMs,
     issuedAt: value.issuedAt,
     expiresAt: value.expiresAt,
     decisionOwner: value.decisionOwner,
@@ -342,14 +371,18 @@ function parseExpectedScope(value: unknown): CohortRolloutExpectedScope {
   if (!isRecord(value)) throw new Error('expected scope');
   assertExactKeys(value, [
     'appVersion',
+    'authorityGeneration',
+    'authorityId',
     'baselineAggregateDigest',
     'cohort',
     'currentStage',
     'decisionOwner',
+    'evidenceCompletedAtMs',
     'installationIdHash',
     'releaseTrack',
     'stage',
     'window',
+    'windowId',
   ]);
   if (
     typeof value.appVersion !== 'string' ||
@@ -359,7 +392,14 @@ function parseExpectedScope(value: unknown): CohortRolloutExpectedScope {
     !isStage(value.stage) ||
     !isCohort(value.cohort) ||
     !isDigest(value.installationIdHash) ||
+    typeof value.authorityId !== 'string' ||
+    !IDENTIFIER.test(value.authorityId) ||
+    !Number.isSafeInteger(value.authorityGeneration) ||
+    Number(value.authorityGeneration) < 1 ||
+    typeof value.windowId !== 'string' ||
+    !IDENTIFIER.test(value.windowId) ||
     !isDigest(value.baselineAggregateDigest) ||
+    !isTimestamp(value.evidenceCompletedAtMs) ||
     typeof value.decisionOwner !== 'string' ||
     !isHumanLabel(value.decisionOwner)
   ) {
@@ -373,8 +413,12 @@ function parseExpectedScope(value: unknown): CohortRolloutExpectedScope {
     stage: value.stage,
     cohort: value.cohort,
     installationIdHash: value.installationIdHash,
+    authorityId: value.authorityId,
+    authorityGeneration: Number(value.authorityGeneration),
+    windowId: value.windowId,
     window: parseWindow(value.window),
     baselineAggregateDigest: value.baselineAggregateDigest,
+    evidenceCompletedAtMs: value.evidenceCompletedAtMs,
     decisionOwner: value.decisionOwner,
   });
 }
@@ -418,6 +462,12 @@ function assertReceiptWindow(payload: CohortRolloutAuthorizationPayload, now: nu
   if (payload.expiresAt <= now) throw new Error('receipt expired');
 }
 
+function assertCompletedEvidence(payload: CohortRolloutAuthorizationPayload): void {
+  if (payload.evidenceCompletedAtMs < payload.window.endMs || payload.issuedAt < payload.evidenceCompletedAtMs) {
+    throw new Error('receipt precedes completed evidence');
+  }
+}
+
 function matchesExpectedScope(
   payload: CohortRolloutAuthorizationPayload,
   expected: CohortRolloutExpectedScope
@@ -429,9 +479,13 @@ function matchesExpectedScope(
     payload.stage === expected.stage &&
     payload.cohort === expected.cohort &&
     payload.installationIdHash === expected.installationIdHash &&
+    payload.authorityId === expected.authorityId &&
+    payload.authorityGeneration === expected.authorityGeneration &&
+    payload.windowId === expected.windowId &&
     payload.window.startMs === expected.window.startMs &&
     payload.window.endMs === expected.window.endMs &&
     payload.baselineAggregateDigest === expected.baselineAggregateDigest &&
+    payload.evidenceCompletedAtMs === expected.evidenceCompletedAtMs &&
     payload.decisionOwner === expected.decisionOwner
   );
 }

@@ -40,8 +40,12 @@ async function fixture(installationIdentity = INSTALLATION) {
     stage: 'invited-alpha',
     cohort: 'knowledge-work',
     installationIdHash: `sha256:${'0'.repeat(64)}`,
+    authorityId: 'authority-1',
+    authorityGeneration: 3,
+    windowId: 'window-1',
     window: WINDOW,
     baselineAggregateDigest: BASELINE,
+    evidenceCompletedAtMs: WINDOW.endMs,
     decisionOwner: 'Sean Donahoe',
   } as const;
   await writeFile(packagedPolicyPath, JSON.stringify({ expected, trustedPublicKeys: [trusted] }));
@@ -49,15 +53,19 @@ async function fixture(installationIdentity = INSTALLATION) {
     receiptPath,
     issueCohortRolloutAuthorization(
       {
-        schemaVersion: 1,
+        schemaVersion: 2,
         appVersion: '0.12.0-preview.1',
         releaseTrack: 'preview',
         previousStage: 'internal-dogfood',
         stage: 'invited-alpha',
         cohort: 'knowledge-work',
         installationIdHash: cohortInstallationIdHash(installationIdentity),
+        authorityId: 'authority-1',
+        authorityGeneration: 3,
+        windowId: 'window-1',
         window: WINDOW,
         baselineAggregateDigest: BASELINE,
+        evidenceCompletedAtMs: WINDOW.endMs,
         issuedAt: NOW - 1_000,
         expiresAt: NOW + 60_000,
         decisionOwner: 'Sean Donahoe',
@@ -74,7 +82,15 @@ function provider(paths: Awaited<ReturnType<typeof fixture>>, installationIdenti
     appVersion: '0.12.0-preview.1',
     releaseTrack: 'preview',
     installationIdentity,
-    authorityScope: () => ({ cohort: 'knowledge-work', window: WINDOW }),
+    authorityScope: () => ({
+      authorityId: 'authority-1',
+      authorityGeneration: 3,
+      cohort: 'knowledge-work',
+      windowId: 'window-1',
+      window: WINDOW,
+      evidenceCompletedAtMs: WINDOW.endMs,
+      baselineAggregateDigest: BASELINE,
+    }),
     ...paths,
   });
 }

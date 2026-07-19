@@ -23,6 +23,7 @@ import type {
   CohortAssignmentStatus,
   CohortConsentStatus,
   CohortSetConsentResult,
+  CohortAuthorityProjection,
 } from './cohortRollout';
 
 // WebUI status interface
@@ -103,6 +104,8 @@ export interface ElectronBridgeAPI {
   cohortConsentStatus?: () => Promise<CohortConsentStatus>;
   /** Process-authoritative closed cohort classification. */
   cohortAssignmentStatus?: () => Promise<CohortAssignmentStatus>;
+  /** Atomic process-owned cohort, consent, and generation projection. */
+  cohortAuthorityStatus?: () => Promise<CohortAuthorityProjection>;
   /** Request classification; the main process owns the effective result. */
   cohortRequestAssignment?: (cohort: CohortAssignment) => Promise<CohortAssignmentRequestResult>;
   /** Enable or revoke local evidence collection. */
