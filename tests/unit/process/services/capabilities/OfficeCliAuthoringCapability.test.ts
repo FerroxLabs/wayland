@@ -206,4 +206,36 @@ describe('OfficeCLI target-exact evidence producer', () => {
     expect(evidence.status).toBe('unavailable');
     fs.rmSync(root, { recursive: true, force: true });
   });
+
+  it('does not advertise an exact-byte binary reached through a symbolic link', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const source = path.resolve('resources/bundled-officecli/darwin-arm64');
+    if (!fs.existsSync(path.join(source, 'officecli'))) return;
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-symlink-'));
+    const bundledDir = path.join(root, 'bundle');
+    const skillsRoot = path.join(root, 'skills');
+    const substitute = path.join(root, 'substitute-officecli');
+    fs.cpSync(source, bundledDir, { recursive: true });
+    fs.copyFileSync(path.join(source, 'officecli'), substitute);
+    fs.chmodSync(substitute, 0o755);
+    fs.rmSync(path.join(bundledDir, 'officecli'));
+    fs.symlinkSync(substitute, path.join(bundledDir, 'officecli'));
+    for (const skill of OFFICECLI_SKILL_PROOF.skills) {
+      const target = path.join(skillsRoot, skill.path);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(path.resolve('src/process/resources/skills', skill.path), target);
+    }
+
+    const evidence = await probeOfficeCliAuthoringEvidence({
+      correlationId: 'capabilities:wcore',
+      backend: 'wcore',
+      platform: 'darwin',
+      arch: 'arm64',
+      bundledDir,
+      skillsRoot,
+    });
+
+    expect(evidence.status).toBe('unavailable');
+    fs.rmSync(root, { recursive: true, force: true });
+  });
 });
