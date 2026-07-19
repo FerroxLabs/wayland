@@ -204,6 +204,26 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(err.message).not.toContain('attempt 1');
   });
 
+  it('refuses a resume fallback when the stale engine tree cannot be proved stopped', async () => {
+    vi.useFakeTimers();
+    const first = makeChild();
+    const second = makeChild();
+    spawnMock.mockReturnValueOnce(first).mockReturnValueOnce(second);
+    killChildMock.mockRejectedValueOnce(new Error('stale resume engine tree remains alive'));
+
+    const agent = new WCoreAgent({ ...baseOptions(), resume: 'session-unsafe-fallback' });
+    void agent.start().catch(() => {});
+
+    await flushUntilSpawned(first);
+    await vi.advanceTimersByTimeAsync(30_000);
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(killChildMock).toHaveBeenCalledWith(first, false);
+    // A second engine would share the same profile with an unproved stale tree.
+    // Fallback must fail closed before a successor can be spawned.
+    expect(spawnMock).toHaveBeenCalledTimes(1);
+  });
+
   it('redacts high-confidence secret tokens from the surfaced stderr (#484 audit)', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
