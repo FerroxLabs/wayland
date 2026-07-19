@@ -122,7 +122,7 @@ describe('createAcpAgent - preset customAgentId fallback (#66)', () => {
     const predictable = `/mock/work/hermes-temp-${now}`;
     expect(mkdir).toHaveBeenNthCalledWith(2, predictable, { recursive: false });
     expect(conv.extra.workspace).not.toBe(predictable);
-    expect(String(conv.extra.workspace)).toMatch(new RegExp(`^${predictable}-[0-9a-f-]{36}$`));
+    expect(String(conv.extra.workspace)).toMatch(new RegExp(`^${predictable}\\d{39}$`));
     expect(recordManagedWorkspaceProvenance).toHaveBeenCalledWith(
       expect.objectContaining({ workspace: conv.extra.workspace })
     );

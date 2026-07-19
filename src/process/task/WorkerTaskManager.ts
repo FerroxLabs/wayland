@@ -141,11 +141,14 @@ export class WorkerTaskManager implements IWorkerTaskManager {
   }
 
   kill(id: string, reason?: AgentKillReason): Promise<void> {
-    const running = this.taskList.find((item) => item.id === id && item.lifecycle === 'running');
-    if (running) return this.beginTermination(running, reason);
-    return (
-      this.taskList.find((item) => item.id === id && item.lifecycle === 'terminating')?.termination ?? Promise.resolve()
-    );
+    // A replacement can coexist with one or more older same-ID leases that
+    // are still terminating. Conversation removal is safe only after every
+    // lease owned by that durable conversation has actually stopped.
+    const leases = this.taskList.filter((item) => item.id === id);
+    if (leases.length === 0) return Promise.resolve();
+    return Promise.all(
+      leases.map((lease) => this.beginTermination(lease, lease.lifecycle === 'running' ? reason : undefined))
+    ).then((): void => undefined);
   }
 
   private beginTermination(lease: (typeof this.taskList)[number], reason?: AgentKillReason): Promise<void> {

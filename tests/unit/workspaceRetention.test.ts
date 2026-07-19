@@ -8,6 +8,7 @@ import {
   classifyManagedWorkspaceRetention,
   type ManagedWorkspaceEvidence,
 } from '@/process/services/workspaceRetention';
+import { parseManagedWorkspaceInventoryReport } from '@/common/types/managedWorkspaceRetention';
 import { describe, expect, it } from 'vitest';
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -93,5 +94,84 @@ describe('classifyManagedWorkspaceRetention', () => {
       'user-promoted',
     ]);
     expect(result.classifications).not.toContain('empty-abandoned');
+  });
+});
+
+function completeReferencedReport() {
+  const evidence = emptyShell({ referenceCount: 1 });
+  return {
+    generatedAt: '2026-07-19T00:00:00.000Z',
+    root: '/managed/work',
+    canonicalRoot: '/managed/work',
+    authorityCompleteness: {
+      conversation: 'complete',
+      project: 'complete',
+      schedule: 'complete',
+      artifact: 'complete',
+      receipt: 'complete',
+      'active-process': 'complete',
+      provenance: 'complete',
+      snapshot: 'complete',
+    },
+    complete: true,
+    entries: [
+      {
+        path: '/managed/work/wcore-temp-1736900000000',
+        canonicalPath: '/managed/work/wcore-temp-1736900000000',
+        evidence,
+        decision: classifyManagedWorkspaceRetention(evidence),
+        references: [{ source: 'conversation', id: 'chat-1' }],
+        errors: [],
+      },
+    ],
+    summary: { discovered: 1, preserved: 1, reviewCandidate: 0, unknown: 0 },
+    errors: [],
+  };
+}
+
+describe('parseManagedWorkspaceInventoryReport semantic admission', () => {
+  it('accepts a complete report only when evidence, references, and decision agree', () => {
+    expect(parseManagedWorkspaceInventoryReport(completeReferencedReport())).not.toBeNull();
+  });
+
+  it('rejects classifications and reasons that contradict the shared classifier', () => {
+    const classification = completeReferencedReport();
+    classification.entries[0].decision = {
+      classifications: ['unknown'],
+      disposition: 'preserve',
+      reasons: classification.entries[0].decision.reasons,
+    };
+    expect(parseManagedWorkspaceInventoryReport(classification)).toBeNull();
+
+    const reason = completeReferencedReport();
+    reason.entries[0].decision.reasons = ['attacker-supplied explanation'];
+    expect(parseManagedWorkspaceInventoryReport(reason)).toBeNull();
+  });
+
+  it('rejects authority counts that contradict projected references', () => {
+    const report = completeReferencedReport();
+    report.entries[0].references = [];
+    expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
+  });
+
+  it('rejects duplicate or blank projected authority identities', () => {
+    const duplicate = completeReferencedReport();
+    duplicate.entries[0].evidence.referenceCount = 2;
+    duplicate.entries[0].decision = classifyManagedWorkspaceRetention(duplicate.entries[0].evidence);
+    duplicate.entries[0].references = [
+      { source: 'conversation', id: 'chat-1' },
+      { source: 'conversation', id: 'chat-1' },
+    ];
+    expect(parseManagedWorkspaceInventoryReport(duplicate)).toBeNull();
+
+    const blank = completeReferencedReport();
+    blank.entries[0].references[0].id = '   ';
+    expect(parseManagedWorkspaceInventoryReport(blank)).toBeNull();
+  });
+
+  it('rejects a false incomplete claim when every authority and entry is complete', () => {
+    const report = completeReferencedReport();
+    report.complete = false;
+    expect(parseManagedWorkspaceInventoryReport(report)).toBeNull();
   });
 });

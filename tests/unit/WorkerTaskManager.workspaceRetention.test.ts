@@ -92,4 +92,49 @@ describe('WorkerTaskManager retention authority', () => {
       expect(manager.listWorkspaceAuthorities()).toEqual([{ id: 'active-process-2', workspace: successorWorkspace }])
     );
   });
+
+  it('awaits every same-ID lease before conversation shutdown is complete', async () => {
+    const originalShutdown = deferred<void>();
+    const successorShutdown = deferred<void>();
+    const manager = new WorkerTaskManager(factory as never, repo);
+    managers.push(manager);
+
+    manager.addTask('conv-1', agent(() => originalShutdown.promise, '/managed/work/wcore-temp-1736900000010') as never);
+    manager.addTask(
+      'conv-1',
+      agent(() => successorShutdown.promise, '/managed/work/wcore-temp-1736900000011') as never
+    );
+
+    let settled = false;
+    const termination = manager.kill('conv-1').then(() => {
+      settled = true;
+    });
+    successorShutdown.resolve();
+    await vi.waitFor(() => expect(manager.listWorkspaceAuthorities()).toHaveLength(1));
+    expect(settled).toBe(false);
+    expect(manager.listWorkspaceAuthorities()).toEqual([
+      { id: 'active-process-1', workspace: '/managed/work/wcore-temp-1736900000010' },
+    ]);
+
+    originalShutdown.resolve();
+    await termination;
+    expect(manager.listWorkspaceAuthorities()).toEqual([]);
+  });
+
+  it('fails same-ID shutdown closed when an older terminating lease rejects', async () => {
+    const manager = new WorkerTaskManager(factory as never, repo);
+    managers.push(manager);
+    manager.addTask(
+      'conv-1',
+      agent(async () => {
+        throw new Error('older process still alive');
+      }, '/managed/work/wcore-temp-1736900000012') as never
+    );
+    manager.addTask('conv-1', agent(async () => undefined, '/managed/work/wcore-temp-1736900000013') as never);
+
+    await expect(manager.kill('conv-1')).rejects.toThrow('older process still alive');
+    expect(manager.listWorkspaceAuthorities()).toEqual([
+      { id: 'active-process-1', workspace: '/managed/work/wcore-temp-1736900000012' },
+    ]);
+  });
 });

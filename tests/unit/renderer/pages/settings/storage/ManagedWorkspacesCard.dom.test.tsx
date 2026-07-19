@@ -73,8 +73,22 @@ const REPORT = {
         abandonedForMs: 2678400000,
         retentionWindowMs: 2592000000,
       },
-      decision: { disposition: 'preserve', classifications: ['referenced', 'scheduled'], reasons: [] },
-      references: [],
+      decision: {
+        disposition: 'preserve',
+        classifications: ['referenced', 'scheduled'],
+        reasons: [
+          '1 live conversation or Project reference(s)',
+          '1 schedule reference(s)',
+          'Wayland-managed provenance is not proven',
+          'the authority inventory is incomplete',
+          'one or more evidence fields are missing or invalid',
+          'user-promotion state is unknown',
+        ],
+      },
+      references: [
+        { source: 'conversation', id: 'chat-1' },
+        { source: 'schedule', id: 'schedule-1' },
+      ],
       errors: [],
     },
   ],
@@ -146,7 +160,24 @@ describe('ManagedWorkspacesCard', () => {
       entries: [
         {
           ...REPORT.entries[0],
-          decision: { disposition: 'preserve', classifications: ['active'], reasons: [] },
+          evidence: {
+            ...REPORT.entries[0].evidence,
+            referenceCount: null,
+            scheduleCount: null,
+            activeProcessCount: 1,
+          },
+          decision: {
+            disposition: 'preserve',
+            classifications: ['active'],
+            reasons: [
+              '1 active process reference(s)',
+              'Wayland-managed provenance is not proven',
+              'the authority inventory is incomplete',
+              'one or more evidence fields are missing or invalid',
+              'user-promotion state is unknown',
+            ],
+          },
+          references: [{ source: 'active-process', id: 'active-process-1' }],
         },
       ],
     });
@@ -191,6 +222,7 @@ describe('ManagedWorkspacesCard', () => {
             classifications: ['empty-abandoned'],
             reasons: ['complete evidence proves an empty app-managed shell beyond the retention window'],
           },
+          references: [],
         },
       ],
     });

@@ -353,6 +353,18 @@ describe('collectManagedWorkspaceInventory', () => {
     expect(report.entries).toEqual([]);
   });
 
+  it('discovers collision-safe managed names that remain inside the shared grammar', async () => {
+    const collisionSafe = `wcore-temp-1736900000000${'7'.repeat(39)}`;
+    const candidate = await makeCandidate(collisionSafe);
+    const report = await collect();
+
+    expect(report.summary.discovered).toBe(1);
+    expect(report.entries[0]).toMatchObject({
+      path: await fs.realpath(candidate),
+      decision: { disposition: 'preserve' },
+    });
+  });
+
   it('captures a canonical directory from Wayland’s CLI-safe work-root alias', async () => {
     const candidate = await makeCandidate();
     const alias = `${root}-alias`;

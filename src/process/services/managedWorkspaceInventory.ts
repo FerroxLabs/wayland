@@ -8,6 +8,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
   WORKSPACE_AUTHORITY_SOURCES,
+  isManagedWorkspaceName,
   type ManagedWorkspaceEvidence,
   type ManagedWorkspaceInventoryEntry,
   type ManagedWorkspaceInventoryReport,
@@ -51,7 +52,6 @@ type CanonicalWorkspaceReferenceResult = {
   error: string | null;
 };
 
-const TEMP_WORKSPACE_NAME = /^[a-z0-9_-]+-temp-\d{10,}$/i;
 const REFERENCE_AUTHORITY_SOURCES = new Set<WorkspaceReferenceAuthoritySource>([
   'conversation',
   'project',
@@ -201,7 +201,7 @@ export async function collectManagedWorkspaceInventory(
 
   let children: string[];
   try {
-    children = (await fs.readdir(canonicalRoot)).filter((name) => TEMP_WORKSPACE_NAME.test(name)).toSorted();
+    children = (await fs.readdir(canonicalRoot)).filter(isManagedWorkspaceName).toSorted();
   } catch (error) {
     errors.push(`work root inventory failed: ${error instanceof Error ? error.message : String(error)}`);
     return {

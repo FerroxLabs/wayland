@@ -9,6 +9,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { IConversationService } from '@/process/services/IConversationService';
 import type { IWorkerTaskManager } from '@/process/task/IWorkerTaskManager';
+import { WorkerTaskManager } from '@/process/task/WorkerTaskManager';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 type Provider = (payload?: unknown) => Promise<unknown>;
@@ -281,6 +282,61 @@ describe('conversation.remove managed-workspace retention', () => {
     finishShutdown();
     await expect(removal).resolves.toBe(true);
     expect(mockConversationService.deleteConversation).toHaveBeenCalledWith('conv-pending');
+  });
+
+  it('keeps persistence until every replaced same-ID process has stopped', async () => {
+    let finishOriginal!: () => void;
+    let finishSuccessor!: () => void;
+    const originalShutdown = new Promise<void>((resolve) => {
+      finishOriginal = resolve;
+    });
+    const successorShutdown = new Promise<void>((resolve) => {
+      finishSuccessor = resolve;
+    });
+    const manager = new WorkerTaskManager(
+      { create: vi.fn(), register: vi.fn() } as never,
+      { getConversation: vi.fn() } as never
+    );
+    const makeAgent = (workspace: string, kill: () => Promise<void>) =>
+      ({
+        type: 'acp',
+        status: 'running',
+        workspace,
+        conversation_id: 'conv-replaced',
+        lastActivityAt: Date.now(),
+        kill: vi.fn(kill),
+      }) as never;
+    manager.addTask(
+      'conv-replaced',
+      makeAgent(path.join(root, 'wcore-temp-1736900000010'), () => originalShutdown)
+    );
+    manager.addTask(
+      'conv-replaced',
+      makeAgent(path.join(root, 'wcore-temp-1736900000011'), () => successorShutdown)
+    );
+    mockConversationService.getConversation.mockResolvedValue({
+      id: 'conv-replaced',
+      source: 'wayland',
+      extra: { workspace: path.join(root, 'wcore-temp-1736900000011') },
+    });
+
+    try {
+      initConversationBridge(mockConversationService as unknown as IConversationService, manager);
+      const removal = handlers['conversation.remove']({ id: 'conv-replaced' });
+
+      finishSuccessor();
+      await vi.waitFor(() => expect(manager.listWorkspaceAuthorities()).toHaveLength(1));
+      expect(mockConversationService.deleteConversation).not.toHaveBeenCalled();
+
+      finishOriginal();
+      await expect(removal).resolves.toBe(true);
+      expect(manager.listWorkspaceAuthorities()).toEqual([]);
+      expect(mockConversationService.deleteConversation).toHaveBeenCalledWith('conv-replaced');
+    } finally {
+      finishOriginal();
+      finishSuccessor();
+      await manager.clear();
+    }
   });
 
   it('keeps the conversation reference when process shutdown fails', async () => {

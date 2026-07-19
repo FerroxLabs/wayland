@@ -8,6 +8,7 @@ import type { ICreateConversationParams } from '@/common/adapter/ipcBridge';
 import type { TChatConversation, TProviderWithModel } from '@/common/config/storage';
 import type { AcpBackend, AcpBackendAll } from '@/common/types/acpTypes';
 import { getSkillsDirsForBackend, hasNativeSkillSupport } from '@/common/types/acpTypes';
+import { isManagedWorkspaceName } from '@/common/types/managedWorkspaceRetention';
 import { uuid } from '@/common/utils';
 import { randomUUID } from 'node:crypto';
 
@@ -237,7 +238,10 @@ async function createExclusiveManagedWorkspace(
   attempt = 0
 ): Promise<string> {
   if (attempt >= 8) throw new Error('Unable to exclusively create a managed workspace');
-  const candidateName = attempt === 0 ? defaultWorkspaceName : `${defaultWorkspaceName}-${randomUUID()}`;
+  const collisionSuffix = BigInt(`0x${randomUUID().replaceAll('-', '')}`)
+    .toString(10)
+    .padStart(39, '0');
+  const candidateName = attempt === 0 ? defaultWorkspaceName : `${defaultWorkspaceName}${collisionSuffix}`;
   const candidate = path.join(workRoot, candidateName);
   try {
     // This must be an exclusive create. `recursive: true` would silently
@@ -268,8 +272,8 @@ const buildWorkspaceWidthFiles = async (
 
   if (!workspace) {
     const tempPath = getSystemDir().workDir;
-    if (path.basename(defaultWorkspaceName) !== defaultWorkspaceName) {
-      throw new Error('Managed workspace name must be a single path component');
+    if (path.basename(defaultWorkspaceName) !== defaultWorkspaceName || !isManagedWorkspaceName(defaultWorkspaceName)) {
+      throw new Error('Managed workspace name does not match the closed temporary-workspace grammar');
     }
     await fs.mkdir(tempPath, { recursive: true });
     workspace = await createExclusiveManagedWorkspace(tempPath, defaultWorkspaceName);
