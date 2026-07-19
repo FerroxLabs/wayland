@@ -215,6 +215,19 @@ try {
   await assertInvalidTimestamp('2026');
   await assertInvalidTimestamp('2026-02-31T00:00:00.000Z');
   await assertInvalidTimestamp(0);
+
+  await writeFile(
+    trustRootPath,
+    `${JSON.stringify({ schema_version: 1, keys: [{ ...activeKey, valid_until: '2100-01-01T00:00:00.000Z' }] })}\n`
+  );
+  await writeReceipt('TEST', { signed: { accepted_at: '2099-01-01T00:00:00.000Z' } });
+  assert.equal(
+    (await run('ACCEPT_OPEN')).ok,
+    false,
+    'a future-dated receipt cannot authorize acceptance before its claimed acceptance time'
+  );
+  await writeFile(trustRootPath, `${JSON.stringify(activeTrustRoot)}\n`);
+
   await writeReceipt('TEST');
   await writeFile(
     trustRootPath,
