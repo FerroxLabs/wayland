@@ -370,6 +370,14 @@ try {
   await writeReceipt('TEST', { signingKey: attacker.privateKey });
   assert.equal((await run('ACCEPT_OPEN')).ok, false, 'recomputed local forgery must fail');
   await writeReceipt('TEST', {
+    signed: { critical_extension: { receipt_authority: 'candidate-asserted' } },
+  });
+  assert.equal(
+    (await run('ACCEPT_OPEN')).ok,
+    false,
+    'a correctly signed receipt with an unknown critical field must fail closed'
+  );
+  await writeReceipt('TEST', {
     signed: { candidate: { commit: 'a'.repeat(40), tree: 'b'.repeat(40), integration_head: 'a'.repeat(40) } },
   });
   assert.equal((await run('ACCEPT_OPEN')).ok, false, 'arbitrary commit and tree must fail');
