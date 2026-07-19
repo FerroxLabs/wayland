@@ -150,6 +150,9 @@ describe('prepareOfficeCli supply-chain contract', () => {
     fs.mkdirSync(path.join(root, 'officecli-attacker'), { recursive: true });
     fs.writeFileSync(path.join(root, 'officecli-attacker/SKILL.md'), 'attack');
     expect(() => prepareOfficeCli.verifyBundledSkillDigests(contract, root)).toThrow('must exactly equal');
+    fs.rmSync(path.join(root, 'officecli-attacker'), { recursive: true, force: true });
+    fs.writeFileSync(path.join(root, path.dirname(contract.requiredSkills[0].path), 'undeclared.md'), 'stale');
+    expect(() => prepareOfficeCli.verifyBundledSkillDigests(contract, root)).toThrow('must exactly equal');
     fs.rmSync(root, { recursive: true, force: true });
   });
 

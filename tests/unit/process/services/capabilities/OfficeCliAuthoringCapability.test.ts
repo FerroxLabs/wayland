@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { OFFICECLI_CAPABILITY } from '@/common/capabilities';
 import {
@@ -7,6 +10,7 @@ import {
   OFFICECLI_PINNED_AUTHORING_VERSION,
   OFFICECLI_SKILL_PROOF,
   probeOfficeCliAuthoringEvidence,
+  verifyInstalledOfficeCliSkillProof,
 } from '@process/services/capabilities/OfficeCliAuthoringCapability';
 
 const TARGET = OFFICECLI_CAPABILITY.platforms.find((entry) => entry.platform === 'darwin' && entry.arch === 'arm64')!;
@@ -148,5 +152,24 @@ describe('OfficeCLI target-exact evidence producer', () => {
     });
     expect(evidence.status).toBe('unavailable');
     expect(evidence.reason).toContain('target-exact bundled');
+  });
+
+  it('re-authenticates installed skill bytes and rejects undeclared nested files', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-installed-skills-'));
+    for (const skill of OFFICECLI_SKILL_PROOF.skills) {
+      const target = path.join(root, skill.path);
+      fs.mkdirSync(path.dirname(target), { recursive: true });
+      fs.copyFileSync(path.resolve('src/process/resources/skills', skill.path), target);
+    }
+    await expect(verifyInstalledOfficeCliSkillProof(root, OFFICECLI_SKILL_PROOF)).resolves.toBe(true);
+    fs.appendFileSync(path.join(root, OFFICECLI_SKILL_PROOF.skills[0].path), '\nstale\n');
+    await expect(verifyInstalledOfficeCliSkillProof(root, OFFICECLI_SKILL_PROOF)).resolves.toBe(false);
+    fs.copyFileSync(
+      path.resolve('src/process/resources/skills', OFFICECLI_SKILL_PROOF.skills[0].path),
+      path.join(root, OFFICECLI_SKILL_PROOF.skills[0].path)
+    );
+    fs.writeFileSync(path.join(root, path.dirname(OFFICECLI_SKILL_PROOF.skills[0].path), 'undeclared.md'), 'stale');
+    await expect(verifyInstalledOfficeCliSkillProof(root, OFFICECLI_SKILL_PROOF)).resolves.toBe(false);
+    fs.rmSync(root, { recursive: true, force: true });
   });
 });

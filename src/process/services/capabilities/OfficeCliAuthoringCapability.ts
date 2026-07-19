@@ -1,6 +1,6 @@
 /** OfficeCLI capability evidence producer. It never decides readiness. */
 import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { lstat, readFile, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import {
   CAPABILITY_EVIDENCE_CONTRACT,
@@ -65,6 +65,7 @@ export type OfficeCliProbeContext = Readonly<{
   platform?: CapabilityPlatform['platform'];
   arch?: CapabilityPlatform['arch'];
   bundledDir?: string | null;
+  skillsRoot?: string | null;
 }>;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -134,6 +135,53 @@ function validSkillProof(value: unknown): boolean {
     value.contract === OFFICECLI_SKILL_PROOF.contract &&
     canonical(value.skills) === canonical(OFFICECLI_SKILL_PROOF.skills)
   );
+}
+
+/** Re-authenticate the exact installed OfficeCLI skill bytes before advertising the capability. */
+export async function verifyInstalledOfficeCliSkillProof(skillsRoot: string, value: unknown): Promise<boolean> {
+  if (!validSkillProof(value)) return false;
+  try {
+    const rootReal = await realpath(skillsRoot);
+    const expected = new Set(OFFICECLI_SKILL_PROOF.skills.map((skill) => skill.path));
+    const discovered = new Set<string>();
+    const visit = async (relativeDir: string): Promise<void> => {
+      const absoluteDir = path.join(skillsRoot, relativeDir);
+      await Promise.all(
+        (await readdir(absoluteDir, { withFileTypes: true })).map(async (entry) => {
+          const relative = path.posix.join(relativeDir.split(path.sep).join('/'), entry.name);
+          if (entry.isSymbolicLink()) throw new Error('symbolic skill path');
+          if (entry.isDirectory()) await visit(relative);
+          else if (entry.isFile()) discovered.add(relative);
+          else throw new Error('unsupported skill path');
+        })
+      );
+    };
+    await Promise.all(
+      (await readdir(skillsRoot, { withFileTypes: true }))
+        .filter((entry) => entry.isDirectory() && entry.name.startsWith('officecli-'))
+        .map((entry) => visit(entry.name))
+    );
+    const builtinDir = path.join(skillsRoot, '_builtin', 'office-cli');
+    try {
+      if ((await lstat(builtinDir)).isDirectory()) await visit('_builtin/office-cli');
+    } catch {
+      // Exact-set comparison below rejects the missing builtin skill.
+    }
+    if (canonical([...discovered].toSorted()) !== canonical([...expected].toSorted())) return false;
+    const checks = await Promise.all(
+      OFFICECLI_SKILL_PROOF.skills.map(async (skill) => {
+        const absolute = path.join(skillsRoot, skill.path);
+        const stat = await lstat(absolute);
+        if (!stat.isFile() || stat.isSymbolicLink()) return false;
+        const canonicalPath = await realpath(absolute);
+        if (!canonicalPath.startsWith(`${rootReal}${path.sep}`)) return false;
+        return digest(await readFile(canonicalPath)) === skill.sha256;
+      })
+    );
+    return checks.every(Boolean);
+  } catch {
+    return false;
+  }
 }
 
 function validLedgerProof(value: unknown): boolean {
@@ -288,7 +336,8 @@ export async function probeOfficeCliAuthoringEvidence(context: OfficeCliProbeCon
       readFile(path.join(bundledDir, binaryName)),
     ]);
     const binarySha256 = digest(binaryBytes);
-    const result = classifyBundledOfficeCli(JSON.parse(manifestBytes.toString('utf8')), binarySha256, platform, arch);
+    const manifest = JSON.parse(manifestBytes.toString('utf8')) as OfficeCliManifest;
+    const result = classifyBundledOfficeCli(manifest, binarySha256, platform, arch);
     if ('reason' in result)
       return {
         ...base,
@@ -299,6 +348,17 @@ export async function probeOfficeCliAuthoringEvidence(context: OfficeCliProbeCon
         formats: [],
         reason: result.reason,
       };
+    if (!context.skillsRoot || !(await verifyInstalledOfficeCliSkillProof(context.skillsRoot, manifest.skillProof))) {
+      return {
+        ...base,
+        evidenceId: `officecli-invalid-skills:${platform}:${arch}`,
+        sourceInstance: `officecli-invalid-skills:${platform}:${arch}`,
+        status: 'unavailable',
+        operations: [],
+        formats: [],
+        reason: 'The installed OfficeCLI skill set does not match the executable contract.',
+      };
+    }
     return {
       ...base,
       evidenceId: `officecli:${binarySha256.slice(7)}`,

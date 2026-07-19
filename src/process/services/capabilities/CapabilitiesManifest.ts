@@ -29,7 +29,7 @@
 
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { getProviderCatalog } from '@process/providers/ipc/modelRegistryIpc';
-import { ProcessConfig } from '@process/utils/initStorage';
+import { getBuiltinSkillsCopyDir, ProcessConfig } from '@process/utils/initStorage';
 import { probeOfficeCliAuthoringEvidence } from '@process/services/capabilities/OfficeCliAuthoringCapability';
 import {
   OFFICECLI_CAPABILITY_ID,
@@ -251,6 +251,7 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
           correlationId: capabilityCorrelation,
           backend: capabilityBackend,
           now: capabilityNow,
+          skillsRoot: getBuiltinSkillsCopyDir(),
         })
       : null;
     const officeAuthoring = officeEvidence

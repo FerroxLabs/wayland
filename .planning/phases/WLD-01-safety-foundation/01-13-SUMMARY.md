@@ -30,7 +30,7 @@ Desktop now reports Office authoring construction evidence only when the target 
 
 ## Exact construction proof
 
-- Focused plan suite: 6 files, 104 tests passed.
+- Focused successor suite: 6 files, 105 tests passed.
 - Typecheck: passed.
 - Changed-file oxlint: 0 warnings, 0 errors.
 - Oxfmt and `git diff --check`: passed.
@@ -38,7 +38,8 @@ Desktop now reports Office authoring construction evidence only when the target 
 - Exact current-build-host producer `node scripts/prepareOfficeCli.js`: passed for `darwin-arm64`.
 - Emitted local target-manifest SHA-256: `0d779185b21da928f7919d38624b0bd6cc4d8972d3bd00ea986480b5e56da363`.
 - Live local classifier: `office.native-authoring` available for the pinned `darwin-arm64` binary and exact fixture digest.
-- Exact aggregate `GSD_RUNTIME=codex bun run test`: 1,430 Vitest files passed, 21 skipped; 15,131 tests passed, 145 skipped; 226/226 Bun-native tests passed.
+- Pre-commit aggregate: 1,430 Vitest files passed, 21 skipped; 15,131 tests passed, 145 skipped; 226/226 Bun-native tests passed.
+- The prior exact-commit aggregate was not green: one unrelated Mission Control test hit its 10-second timeout. This successor must not claim exact aggregate acceptance until it is re-proved after the deterministic test-harness predecessor is integrated.
 
 ## Authority boundary
 
@@ -46,7 +47,7 @@ This packet does not mint immutable current-host evidence, external C0-A accepta
 
 ## Deviations from plan
 
-`src/common/capabilities/manifest.ts` was added explicitly to plan ownership because the shared capability fixture must derive its version, formats, and operations from the same OfficeCLI contract instead of duplicating them.
+`src/common/capabilities/manifest.ts` was added explicitly to plan ownership because the shared capability fixture must derive its version, formats, and operations from the same OfficeCLI contract instead of duplicating them. Independent audit also found that runtime evidence trusted the construction-time skill proof without re-hashing the installed skill bytes; the successor now requires exact installed-file digests and rejects undeclared nested files before advertising Office authoring.
 
 ## Acceptance state
 

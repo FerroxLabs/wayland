@@ -222,12 +222,22 @@ function verifyBundledSkillDigests(contract = loadContract(), skillsRoot = SKILL
     throw new Error('OfficeCLI skill contract contains duplicate paths');
   }
 
-  const discovered = fs
-    .readdirSync(skillsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && entry.name.startsWith('officecli-'))
-    .map((entry) => `${entry.name}/SKILL.md`);
-  const builtin = '_builtin/office-cli/SKILL.md';
-  if (fs.existsSync(path.join(skillsRoot, builtin))) discovered.push(builtin);
+  const discovered = [];
+  const visit = (relativeDir) => {
+    const absoluteDir = path.join(skillsRoot, relativeDir);
+    for (const entry of fs.readdirSync(absoluteDir, { withFileTypes: true })) {
+      const relative = path.posix.join(relativeDir.split(path.sep).join('/'), entry.name);
+      const absolute = path.join(skillsRoot, relative);
+      if (entry.isSymbolicLink()) throw new Error(`OfficeCLI skill path is symbolic: ${relative}`);
+      if (entry.isDirectory()) visit(relative);
+      else if (entry.isFile()) discovered.push(relative);
+      else throw new Error(`OfficeCLI skill path has an unsupported type: ${relative}`);
+    }
+  };
+  for (const entry of fs.readdirSync(skillsRoot, { withFileTypes: true })) {
+    if (entry.isDirectory() && entry.name.startsWith('officecli-')) visit(entry.name);
+  }
+  if (fs.existsSync(path.join(skillsRoot, '_builtin', 'office-cli'))) visit('_builtin/office-cli');
   assertExactStrings(
     discovered,
     declared.map((skill) => skill.path),

@@ -29,6 +29,7 @@ vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
 
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { get: mockProcessConfigGet },
+  getBuiltinSkillsCopyDir: vi.fn(() => '/missing-builtin-skills'),
 }));
 
 vi.mock('@process/services/capabilities/OfficeCliAuthoringCapability', () => ({
