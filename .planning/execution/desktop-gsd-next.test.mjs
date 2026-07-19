@@ -522,6 +522,17 @@ test('verifier identity timeout and rejection output fail closed without leaking
   expectSelectionError(() => invokeVerifier(hanging, 'M2-entry', root), 'VERIFIER_TIMEOUT')
 })
 
+test('verifier executes the immutable digest-checked byte snapshot', () => {
+  const root = temporaryRoot()
+  const verifier = writeVerifier(root, `process.stdout.write(JSON.stringify({ source: 'verified-snapshot' }))`)
+  const result = invokeVerifier(verifier, 'M2-entry', root, {
+    afterSnapshot: () => {
+      writeFileSync(verifier.path, "#!/usr/bin/env node\nprocess.exit(19)\n")
+    },
+  })
+  assert.deepEqual(result, { source: 'verified-snapshot' })
+})
+
 test('allowlisted external ownership remains conflict-safe when installation plans unlock', () => {
   const root = temporaryRoot()
   const externalRoot = temporaryRoot()

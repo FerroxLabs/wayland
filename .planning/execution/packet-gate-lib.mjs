@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 const oid = /^[0-9a-f]{40}([0-9a-f]{24})?$/;
 const digest = /^sha256:[0-9a-f]{64}$/;
 const safePacket = /^[A-Z0-9][A-Z0-9-]*$/;
+const canonicalUtc = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const receiptFailureReasons = Object.freeze({
   UNSAFE_PACKET_IDENTIFIER: 'unsafe packet identifier',
   PACKET_CONTRACT_UNSEALED: 'packet contract is not sealed',
@@ -27,8 +28,10 @@ const receiptFailureReasons = Object.freeze({
   EVIDENCE_LOG_DIGEST_INVALID: 'invalid log digest',
   EVIDENCE_ENVIRONMENT_DIGEST_INVALID: 'invalid environment digest',
   ACCEPTANCE_TIMESTAMP_INVALID: 'invalid acceptance timestamp',
+  ACCEPTANCE_KEY_ID_MISMATCH: 'acceptance key identity mismatch',
   ACCEPTANCE_SIGNER_UNKNOWN: 'unknown acceptance signer',
   ACCEPTANCE_SIGNER_REVOKED: 'acceptance signer is revoked',
+  SIGNER_REVOCATION_TIMESTAMP_INVALID: 'signer revocation timestamp is malformed',
   SIGNER_VALIDITY_WINDOW_INVALID: 'signer validity window is malformed',
   SIGNER_NOT_VALID_AT_ACCEPTANCE: 'signer was not valid at acceptance time',
   SIGNATURE_ALGORITHM_UNSUPPORTED: 'unsupported signature algorithm',
@@ -50,6 +53,13 @@ function receiptFailure(packet, reasonCode) {
 
 function isRecord(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function parseCanonicalUtc(value) {
+  if (typeof value !== 'string' || !canonicalUtc.test(value)) return null;
+  const timestamp = Date.parse(value);
+  if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString() !== value) return null;
+  return timestamp;
 }
 
 function exactKeys(value, expected, label) {
@@ -156,13 +166,22 @@ export async function checkGate({
   manifestPath,
   contractsPath,
   trustRootPath,
+  manifest: manifestSnapshot,
+  contracts: contractsSnapshot,
+  trustRoot: trustRootSnapshot,
   authorizedCandidates,
   expectedIntegrationHead,
 }) {
+  // Snapshot caller-provided authority synchronously before the first await.
+  // The installed wrapper supplies all three objects from one immutable Git/
+  // control-config capture; direct repository tests may still use file paths.
+  const suppliedManifest = manifestSnapshot === undefined ? undefined : structuredClone(manifestSnapshot);
+  const suppliedContracts = contractsSnapshot === undefined ? undefined : structuredClone(contractsSnapshot);
+  const suppliedTrustRoot = trustRootSnapshot === undefined ? undefined : structuredClone(trustRootSnapshot);
   const [manifest, contracts, trustRoot] = await Promise.all([
-    readFile(manifestPath, 'utf8').then(JSON.parse),
-    readFile(contractsPath, 'utf8').then(JSON.parse),
-    readFile(trustRootPath, 'utf8').then(JSON.parse),
+    manifestSnapshot === undefined ? readFile(manifestPath, 'utf8').then(JSON.parse) : suppliedManifest,
+    contractsSnapshot === undefined ? readFile(contractsPath, 'utf8').then(JSON.parse) : suppliedContracts,
+    trustRootSnapshot === undefined ? readFile(trustRootPath, 'utf8').then(JSON.parse) : suppliedTrustRoot,
   ]);
 
   if (!gateId || !manifest.gates?.[gateId]) throw new Error(`Unknown or missing gate: ${gateId ?? '<none>'}`);
@@ -182,10 +201,18 @@ export async function checkGate({
     throw new Error('Integration HEAD does not match the gate CAS');
   }
 
+  if (!Array.isArray(trustRoot.keys)) throw new Error('Invalid acceptance key registry');
   const trustedKeys = new Map();
+  const trustedPublicKeys = new Set();
   for (const key of trustRoot.keys) {
     if (!key.key_id || trustedKeys.has(key.key_id)) throw new Error('Missing or duplicate acceptance key ID');
-    trustedKeys.set(key.key_id, key);
+    const keyObject = createPublicKey(key.public_key_pem);
+    const publicKeyIdentity = createHash('sha256')
+      .update(keyObject.export({ type: 'spki', format: 'der' }))
+      .digest('hex');
+    if (trustedPublicKeys.has(publicKeyIdentity)) throw new Error('Duplicate acceptance public-key identity');
+    trustedPublicKeys.add(publicKeyIdentity);
+    trustedKeys.set(key.key_id, { key, keyObject });
   }
 
   async function validateReceipt(packet) {
@@ -231,16 +258,24 @@ export async function checkGate({
       if (!digest.test(signed.evidence?.log_digest ?? '')) return receiptFailure(packet, 'EVIDENCE_LOG_DIGEST_INVALID');
       if (!digest.test(signed.evidence?.environment_digest ?? ''))
         return receiptFailure(packet, 'EVIDENCE_ENVIRONMENT_DIGEST_INVALID');
-      if (!Number.isFinite(Date.parse(signed.accepted_at ?? '')))
-        return receiptFailure(packet, 'ACCEPTANCE_TIMESTAMP_INVALID');
+      const acceptedAt = parseCanonicalUtc(signed.accepted_at);
+      if (acceptedAt === null) return receiptFailure(packet, 'ACCEPTANCE_TIMESTAMP_INVALID');
 
-      const key = trustedKeys.get(receipt.signature.key_id);
+      if (signed.acceptance_key_id !== receipt.signature.key_id) {
+        return receiptFailure(packet, 'ACCEPTANCE_KEY_ID_MISMATCH');
+      }
+      const trustedKey = trustedKeys.get(receipt.signature.key_id);
+      const key = trustedKey?.key;
       if (!key || key.issuer !== signed.issuer) return receiptFailure(packet, 'ACCEPTANCE_SIGNER_UNKNOWN');
-      if (key.revoked_at) return receiptFailure(packet, 'ACCEPTANCE_SIGNER_REVOKED');
-      const acceptedAt = Date.parse(signed.accepted_at);
-      const validFrom = Date.parse(key.valid_from);
-      const validUntil = Date.parse(key.valid_until);
-      if (!Number.isFinite(validFrom) || !Number.isFinite(validUntil) || validFrom > validUntil) {
+      if (key.revoked_at !== undefined && key.revoked_at !== null) {
+        if (parseCanonicalUtc(key.revoked_at) === null) {
+          return receiptFailure(packet, 'SIGNER_REVOCATION_TIMESTAMP_INVALID');
+        }
+        return receiptFailure(packet, 'ACCEPTANCE_SIGNER_REVOKED');
+      }
+      const validFrom = parseCanonicalUtc(key.valid_from);
+      const validUntil = parseCanonicalUtc(key.valid_until);
+      if (validFrom === null || validUntil === null || validFrom > validUntil) {
         return receiptFailure(packet, 'SIGNER_VALIDITY_WINDOW_INVALID');
       }
       if (acceptedAt < validFrom || acceptedAt > validUntil) {
@@ -250,7 +285,7 @@ export async function checkGate({
       const signatureOk = verify(
         null,
         Buffer.from(canonicalJson(signed)),
-        createPublicKey(key.public_key_pem),
+        trustedKey.keyObject,
         Buffer.from(receipt.signature.value, 'base64')
       );
       if (!signatureOk) return receiptFailure(packet, 'SIGNATURE_MISMATCH');

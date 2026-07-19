@@ -3,7 +3,6 @@
 import { homedir } from 'node:os';
 import { createHash } from 'node:crypto';
 import { isAbsolute, join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import { readFile, realpath } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 
@@ -35,8 +34,7 @@ async function main() {
   const rootResult = git(process.cwd(), ['rev-parse', '--show-toplevel']);
   if (rootResult.status !== 0) fail('GIT_WORKTREE_REQUIRED');
   const projectRoot = rootResult.stdout.trim();
-  const manifestPath = join(projectRoot, '.planning/execution/PACKET-GATES.json');
-  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  const manifestPath = '.planning/execution/PACKET-GATES.json';
   const commonResult = git(projectRoot, ['rev-parse', '--git-common-dir']);
   if (commonResult.status !== 0) fail('GIT_COMMON_DIRECTORY_UNAVAILABLE');
   const commonDir = await realpath(
@@ -45,7 +43,6 @@ async function main() {
       : resolve(projectRoot, commonResult.stdout.trim())
   );
   if (commonDir !== (await realpath(config.git_common_dir))) fail('PINNED_REPOSITORY_MISMATCH');
-  if ('receipt_directory' in manifest) fail('REPOSITORY_RECEIPT_OVERRIDE_FORBIDDEN');
   const receiptDirectory = await realpath(config.receipt_store.path);
   const projectReal = await realpath(projectRoot);
   if (
@@ -63,23 +60,44 @@ async function main() {
   if (ancestry.status !== 0) fail('CONTROL_COMMIT_ANCESTRY_MISMATCH');
   const expectedIntegrationHead = git(projectRoot, ['rev-parse', 'HEAD']).stdout.trim();
 
-  for (const path of config.controlled_paths) {
+  const controlledPaths = new Set(config.controlled_paths);
+  for (const path of controlledPaths) {
     if (isAbsolute(path) || path.includes('..')) fail('CONTROLLED_PATH_UNSAFE');
     const diff = git(projectRoot, ['diff', '--quiet', config.control_commit, '--', path]);
     if (diff.status !== 0) fail('CONTROL_PLANE_DRIFT');
   }
 
+  if (!controlledPaths.has(manifestPath)) fail('GATE_MANIFEST_NOT_CONTROLLED');
+  const manifestResult = git(projectRoot, ['show', `${config.control_commit}:${manifestPath}`]);
+  if (manifestResult.status !== 0) fail('GATE_MANIFEST_SNAPSHOT_UNAVAILABLE');
+  const manifest = JSON.parse(manifestResult.stdout);
+  if ('receipt_directory' in manifest) fail('REPOSITORY_RECEIPT_OVERRIDE_FORBIDDEN');
+  if (
+    typeof manifest.contract_manifest !== 'string' ||
+    isAbsolute(manifest.contract_manifest) ||
+    manifest.contract_manifest.includes('..') ||
+    !controlledPaths.has(manifest.contract_manifest)
+  ) {
+    fail('CONTRACT_MANIFEST_NOT_CONTROLLED');
+  }
+  const contractsResult = git(projectRoot, ['show', `${config.control_commit}:${manifest.contract_manifest}`]);
+  if (contractsResult.status !== 0) fail('CONTRACT_MANIFEST_SNAPSHOT_UNAVAILABLE');
+  const contracts = JSON.parse(contractsResult.stdout);
+
   const verifierBytes = await readFile(config.verifier_lib_path);
   const verifierDigest = `sha256:${createHash('sha256').update(verifierBytes).digest('hex')}`;
   if (verifierDigest !== config.verifier_lib_digest) fail('VERIFIER_LIBRARY_DIGEST_MISMATCH');
-  const { checkGate } = await import(pathToFileURL(config.verifier_lib_path));
+  // Import the exact bytes whose digest was checked. Reopening a mutable path
+  // here would make verification and execution two different operations.
+  const verifierModule = `data:text/javascript;base64,${verifierBytes.toString('base64')}`;
+  const { checkGate } = await import(verifierModule);
   const result = await checkGate({
     gateId,
     projectRoot,
     receiptDirectory,
-    manifestPath,
-    contractsPath: join(projectRoot, manifest.contract_manifest),
-    trustRootPath: configPath,
+    manifest,
+    contracts,
+    trustRoot: config,
     authorizedCandidates: config.accepted_packets,
     expectedIntegrationHead,
   });

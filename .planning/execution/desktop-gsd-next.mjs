@@ -359,21 +359,34 @@ export function validateEntryReceipt(receipt, expectedGate) {
   return { gate_id: expectedGate, mode: 'entry', prerequisites: 'green', accepted_targets: [] }
 }
 
-function fileDigest(path) {
-  return `sha256:${createHash('sha256').update(readFileSync(path)).digest('hex')}`
+function verifiedNodeSource(bytes) {
+  const source = bytes.toString('utf8')
+  if (!Buffer.from(source).equals(bytes) || !source.startsWith('#!/usr/bin/env node\n')) {
+    throw new SelectionError('VERIFIER_IDENTITY', 'Pinned verifier is not the canonical Node wrapper')
+  }
+  return source.slice(source.indexOf('\n') + 1)
 }
 
-export function invokeVerifier(verifier, gateId, cwd) {
+export function invokeVerifier(verifier, gateId, cwd, { afterSnapshot } = {}) {
   let canonicalPath
   try {
     canonicalPath = realpathSync(verifier.path)
   } catch {
     throw new SelectionError('VERIFIER_UNAVAILABLE', 'Pinned verifier is unavailable')
   }
-  if (canonicalPath !== verifier.path || fileDigest(canonicalPath) !== verifier.digest) {
+  const verifierBytes = readFileSync(canonicalPath)
+  const observedDigest = `sha256:${createHash('sha256').update(verifierBytes).digest('hex')}`
+  if (canonicalPath !== verifier.path || observedDigest !== verifier.digest) {
     throw new SelectionError('VERIFIER_IDENTITY', 'Pinned verifier identity does not match')
   }
-  const result = spawnSync(canonicalPath, [gateId], {
+  const source = verifiedNodeSource(verifierBytes)
+  afterSnapshot?.()
+  const result = spawnSync(process.execPath, [
+    '--input-type=module',
+    '--eval',
+    `process.argv.splice(1, 0, 'wayland-gsd-gate');\n${source}`,
+    gateId,
+  ], {
     cwd,
     encoding: 'utf8',
     timeout: verifier.timeout_ms,
@@ -387,9 +400,6 @@ export function invokeVerifier(verifier, gateId, cwd) {
     throw new SelectionError('VERIFIER_OUTPUT_LIMIT', `Entry gate ${gateId} exceeded its output bound`)
   }
   if (result.error) throw new SelectionError('VERIFIER_UNAVAILABLE', 'Pinned verifier could not execute')
-  if (fileDigest(canonicalPath) !== verifier.digest) {
-    throw new SelectionError('VERIFIER_IDENTITY', 'Pinned verifier changed during execution')
-  }
   if (result.status !== 0) {
     throw new SelectionError('VERIFIER_REJECTED', `Entry gate ${gateId} exited ${result.status}`, {
       exit_code: result.status,

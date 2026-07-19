@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash, generateKeyPairSync, sign } from 'node:crypto';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -53,6 +53,7 @@ const activeKey = {
   valid_from: '2026-01-01T00:00:00.000Z',
   valid_until: '2027-01-01T00:00:00.000Z',
 };
+const activeTrustRoot = { schema_version: 1, keys: [activeKey] };
 
 async function persistManifest(value = manifest) {
   await writeFile(manifestPath, `${JSON.stringify(value)}\n`);
@@ -60,7 +61,7 @@ async function persistManifest(value = manifest) {
 
 await persistManifest();
 await writeFile(contractsPath, `${JSON.stringify(contracts)}\n`);
-await writeFile(trustRootPath, `${JSON.stringify({ schema_version: 1, keys: [activeKey] })}\n`);
+await writeFile(trustRootPath, `${JSON.stringify(activeTrustRoot)}\n`);
 
 function sha(bytes) {
   return `sha256:${createHash('sha256').update(bytes).digest('hex')}`;
@@ -84,6 +85,7 @@ async function writeReceipt(packet, options = {}) {
     candidate: { commit: head, tree, integration_head: head },
     evidence: { log_digest: sha(log), environment_digest: sha(environment) },
     issuer: 'test-acceptor',
+    acceptance_key_id: options.keyId ?? 'acceptance-1',
     accepted_at: '2026-07-19T00:00:00.000Z',
     ...options.signed,
   };
@@ -152,6 +154,88 @@ try {
 
   await writeReceipt('TARGET');
   assert.equal((await run('ACCEPT_REQUIRED')).ok, true, 'prerequisite and target together should open acceptance');
+
+  const snapshotManifest = structuredClone(manifest);
+  const snapshotContracts = structuredClone(contracts);
+  const snapshotTrustRoot = structuredClone(activeTrustRoot);
+  await writeReceipt('TEST');
+  const snapshotCheck = checkGate({
+    gateId: 'ACCEPT_OPEN',
+    projectRoot,
+    receiptDirectory,
+    manifest: snapshotManifest,
+    contracts: snapshotContracts,
+    trustRoot: snapshotTrustRoot,
+    authorizedCandidates,
+    expectedIntegrationHead: head,
+  });
+  snapshotManifest.revision = 'caller-mutated-after-capture';
+  snapshotContracts.packets = {};
+  snapshotTrustRoot.keys = [];
+  await Promise.all([
+    writeFile(manifestPath, '{"schema_version":0}\n'),
+    writeFile(contractsPath, '{"schema_version":0}\n'),
+    writeFile(trustRootPath, '{"schema_version":0}\n'),
+  ]);
+  assert.equal((await snapshotCheck).ok, true, 'one captured authority snapshot must drive the complete check');
+  await persistManifest();
+  await writeFile(contractsPath, `${JSON.stringify(contracts)}\n`);
+  await writeFile(trustRootPath, `${JSON.stringify(activeTrustRoot)}\n`);
+
+  const secondKey = {
+    ...activeKey,
+    key_id: 'acceptance-2',
+    public_key_pem: attacker.publicKey.export({ type: 'spki', format: 'pem' }),
+  };
+  await writeFile(trustRootPath, `${JSON.stringify({ schema_version: 1, keys: [activeKey, secondKey] })}\n`);
+  const relabelledReceipt = await writeReceipt('TEST');
+  relabelledReceipt.signature.key_id = secondKey.key_id;
+  await writeFile(join(receiptDirectory, 'TEST.json'), `${JSON.stringify(relabelledReceipt)}\n`);
+  assert.equal(
+    (await run('ACCEPT_OPEN')).accepted_targets.required[0].reason_code,
+    'ACCEPTANCE_KEY_ID_MISMATCH',
+    'the authenticated key identity cannot be relabelled by its unsigned envelope'
+  );
+
+  await writeFile(
+    trustRootPath,
+    `${JSON.stringify({ schema_version: 1, keys: [activeKey, { ...activeKey, key_id: 'acceptance-alias' }] })}\n`
+  );
+  await assert.rejects(run('ACCEPT_OPEN'), /Duplicate acceptance public-key identity/);
+  await writeFile(trustRootPath, `${JSON.stringify(activeTrustRoot)}\n`);
+
+  async function assertInvalidTimestamp(invalidTimestamp) {
+    await writeReceipt('TEST', { signed: { accepted_at: invalidTimestamp } });
+    assert.equal(
+      (await run('ACCEPT_OPEN')).accepted_targets.required[0].reason_code,
+      'ACCEPTANCE_TIMESTAMP_INVALID',
+      'non-canonical acceptance time must fail closed'
+    );
+  }
+  await assertInvalidTimestamp('2026');
+  await assertInvalidTimestamp('2026-02-31T00:00:00.000Z');
+  await assertInvalidTimestamp(0);
+  await writeReceipt('TEST');
+  await writeFile(
+    trustRootPath,
+    `${JSON.stringify({ schema_version: 1, keys: [{ ...activeKey, valid_from: '2026' }] })}\n`
+  );
+  assert.equal(
+    (await run('ACCEPT_OPEN')).accepted_targets.required[0].reason_code,
+    'SIGNER_VALIDITY_WINDOW_INVALID',
+    'non-canonical key validity time must fail closed'
+  );
+  await writeFile(
+    trustRootPath,
+    `${JSON.stringify({ schema_version: 1, keys: [{ ...activeKey, revoked_at: '2026-07-19' }] })}\n`
+  );
+  assert.equal(
+    (await run('ACCEPT_OPEN')).accepted_targets.required[0].reason_code,
+    'SIGNER_REVOCATION_TIMESTAMP_INVALID',
+    'non-canonical key revocation time must fail closed'
+  );
+  await writeFile(trustRootPath, `${JSON.stringify(activeTrustRoot)}\n`);
+  await writeReceipt('TEST');
 
   await rm(join(receiptDirectory, 'OTHER.json'), { force: true });
   assert.equal((await run('ACCEPT_EXCLUSIVE')).ok, true, 'exactly one authenticated target should pass');
@@ -295,6 +379,39 @@ try {
   assert.deepEqual(JSON.parse(wrapper.stderr), { ok: false, error_code: 'GATE_INTERNAL_ERROR' });
   assert.equal(wrapper.stderr.includes(configMarker), false, 'hostile config excerpts must not escape');
   assert.equal(wrapper.stderr.includes(wrapperHome), false, 'external config paths must not escape');
+
+  const verifierLibraryPath = join(projectRoot, '.planning/execution/packet-gate-lib.mjs');
+  const gitCommonDirectory = spawnSync(
+    'git',
+    ['-C', projectRoot, 'rev-parse', '--path-format=absolute', '--git-common-dir'],
+    { encoding: 'utf8' }
+  ).stdout.trim();
+  const validWrapperConfig = {
+    schema_version: 1,
+    keys: [],
+    control_commit: head,
+    controlled_paths: ['.planning/execution/PACKET-GATES.json', '.planning/execution/PACKET-CONTRACTS.json'],
+    accepted_packets: {},
+    receipt_store: { policy: 'external-absolute-read-only-cas', path: receiptDirectory },
+    verifier_lib_path: verifierLibraryPath,
+    verifier_lib_digest: sha(await readFile(verifierLibraryPath)),
+    git_common_dir: gitCommonDirectory,
+  };
+  await writeFile(join(wrapperConfigDirectory, 'desktop-control.json'), `${JSON.stringify(validWrapperConfig)}\n`);
+  const snapshotWrapper = spawnSync(
+    process.execPath,
+    [join(projectRoot, '.planning/execution/wayland-gsd-gate.mjs'), 'P2-M3'],
+    { cwd: projectRoot, encoding: 'utf8', env: { ...process.env, HOME: wrapperHome } }
+  );
+  assert.equal(snapshotWrapper.status, 1, snapshotWrapper.stderr);
+  const snapshotOutput = JSON.parse(snapshotWrapper.stdout);
+  assert.equal(snapshotOutput.schema_version, 2);
+  assert.equal(snapshotOutput.gate_id, 'P2-M3');
+  assert.equal(
+    snapshotOutput.ok,
+    false,
+    'immutable pinned snapshot must remain red without an authorized prerequisite'
+  );
 
   console.log('authenticated packet gate tests: PASS');
 } finally {

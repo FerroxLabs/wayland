@@ -35,10 +35,20 @@ packet. The installed verifier executes an externally installed, digest-pinned v
 candidate-controlled environment variables cannot substitute a trust root or
 invoke an authoritative in-repo path.
 
+Verification and execution use the same immutable byte snapshot. The selector
+executes the digest-checked wrapper bytes from memory instead of reopening its
+mutable path. The wrapper imports the digest-checked verifier-library bytes
+from memory and evaluates the gate manifest and packet contracts read from the
+exact pinned Git commit together with one captured external trust/config
+snapshot. A mixture of before/after manifest, contract, trust-root, or verifier
+bytes is not an authority state.
+
 The canonical signature binds packet ID, sealed packet-contract digest, source
 baseline, full gate-manifest digest and revision, the complete exact schema-v2
 gate object (mode, prerequisites, and targets), exact Git commit and tree, evidence log and environment
-digests, acceptance state, issuer, and timestamp. The checker also proves the
+digests, acceptance state, issuer, acceptance-key ID, and canonical UTC
+timestamp. Trust roots reject duplicate public-key identities so a revoked or
+expired identity cannot be relabelled through another key record. The checker also proves the
 commit exists, derives its actual tree, verifies baseline ancestry, and hashes the exact evidence
 artifacts. Unknown or revoked signers, self-generated local signatures,
 arbitrary/stale/unintegrated sibling commits, wrong baseline/revision/contract, substituted

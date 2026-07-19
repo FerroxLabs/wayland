@@ -72,6 +72,7 @@ try {
     candidate: { commit: head, tree, integration_head: head },
     evidence: { log_digest: sha(log), environment_digest: sha(environment) },
     issuer: key.issuer,
+    acceptance_key_id: key.key_id,
     accepted_at: '2026-07-19T00:00:00.000Z',
   };
   const receipt = {

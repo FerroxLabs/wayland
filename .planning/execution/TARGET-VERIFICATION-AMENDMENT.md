@@ -84,6 +84,12 @@ Required semantics:
    including `accepts`; a v1 authorization cannot be replayed.
 8. `accepts.one` requires exactly one authenticated target. Both and neither
    fail closed.
+9. Digest-checked wrapper and verifier-library code executes from the exact
+   bytes already captured, while manifest, contracts, trust root, and candidate
+   authorization are consumed as one immutable authority snapshot.
+10. The signed body binds its acceptance-key ID, trust roots reject duplicate
+    public-key identities, and receipt/key timestamps use canonical UTC
+    milliseconds (`YYYY-MM-DDTHH:mm:ss.sssZ`).
 
 ## Required Phase-1 gate targets
 
@@ -161,9 +167,13 @@ Repository-controlled and therefore requiring a new pinned control commit:
 
 - `.planning/execution/PACKET-GATES.json`
 - `.planning/execution/PACKET-CONTRACTS.json`
+- `.planning/execution/packet-gate-lib.mjs`
+- `.planning/execution/wayland-gsd-gate.mjs`
+- `.planning/execution/desktop-gsd-next.mjs`
 - `.planning/execution/packet-gate-manifest.test.mjs`
 - `.planning/execution/check-packet-gate.test.mjs`
 - `.planning/execution/cross-worktree-receipt.test.mjs`
+- `.planning/execution/desktop-gsd-next.test.mjs`
 - `.planning/execution/README.md`
 
 Externally installed and explicitly not edited by this planning pass:
@@ -178,7 +188,10 @@ prerequisite-only receipts, wrong target identity, stale v1 gate authorization,
 both/neither exclusive targets, sibling commit/tree substitution, and a green
 prerequisite paired with a red target. It must also cover unclassified gates,
 mixed schema objects, entry gates with targets, acceptance gates without
-targets, and attempts to cite an entry result as accepted-target evidence.
+targets, attempts to cite an entry result as accepted-target evidence, mutable
+path replacement between digest and execution, split authority snapshots,
+acceptance-key relabelling, duplicate public-key identities, and non-canonical
+timestamps.
 
 ## Replanning rule
 
