@@ -94,8 +94,7 @@ describe('M0B usability protocol', () => {
     });
   });
 
-  it('rejects runtime constant expressions whose literal prefix matches the frozen value', () => {
-    const fixtureRoot = mkdtempSync(resolve(tmpdir(), 'wayland-m0b-protocol-audit-'));
+  it('rejects executable suffixes after numeric, array, alias, and object literal prefixes', () => {
     const files = [
       'scripts/cohort/verifyM0BUsabilityProtocol.mjs',
       'contracts/cohort/m0b-usability-protocol.json',
@@ -103,33 +102,59 @@ describe('M0B usability protocol', () => {
       'src/common/types/cohortRollout.ts',
       'src/process/services/cohort/policy.ts',
     ];
-    try {
-      for (const file of files) {
-        const destination = resolve(fixtureRoot, file);
-        mkdirSync(dirname(destination), { recursive: true });
-        cpSync(resolve(process.cwd(), file), destination);
-      }
-      const typesPath = resolve(fixtureRoot, 'src/process/services/cohort/types.ts');
-      writeFileSync(
-        typesPath,
-        readFileSync(typesPath, 'utf8').replace(
-          'export const M0B_DAY_MS = 86_400_000;',
-          'export const M0B_DAY_MS = 86_400_000 + 1;'
-        )
-      );
+    const cases = [
+      {
+        file: 'src/process/services/cohort/types.ts',
+        from: 'export const M0B_DAY_MS = 86_400_000;',
+        to: 'export const M0B_DAY_MS = 86_400_000 + 1;',
+      },
+      {
+        file: 'src/process/services/cohort/types.ts',
+        from: "export const M0B_SHELLS = ['classic', 'cockpit'] as const;",
+        to: "export const M0B_SHELLS = ['classic', 'cockpit'].slice(0, 1);",
+      },
+      {
+        file: 'src/process/services/cohort/types.ts',
+        from: 'export const M0B_COHORTS = COHORT_ASSIGNMENTS;',
+        to: "export const M0B_COHORTS = COHORT_ASSIGNMENTS.concat('forged');",
+      },
+      {
+        file: 'src/process/services/cohort/policy.ts',
+        from: '  startsPerPrimaryJourney: 10,\n};',
+        to: '  startsPerPrimaryJourney: 10,\n} && { participantsTotal: 1 };',
+      },
+    ];
 
-      expect(() =>
-        execFileSync(
-          process.execPath,
-          [
-            resolve(fixtureRoot, 'scripts/cohort/verifyM0BUsabilityProtocol.mjs'),
-            resolve(fixtureRoot, 'contracts/cohort/m0b-usability-protocol.json'),
-          ],
-          { stdio: 'pipe' }
-        )
-      ).toThrow();
-    } finally {
-      rmSync(fixtureRoot, { recursive: true, force: true });
+    for (const mutation of cases) {
+      const fixtureRoot = mkdtempSync(resolve(tmpdir(), 'wayland-m0b-protocol-audit-'));
+      try {
+        for (const file of files) {
+          const destination = resolve(fixtureRoot, file);
+          mkdirSync(dirname(destination), { recursive: true });
+          cpSync(resolve(process.cwd(), file), destination);
+        }
+        const target = resolve(fixtureRoot, mutation.file);
+        const source = readFileSync(target, 'utf8');
+        expect(source).toContain(mutation.from);
+        writeFileSync(target, source.replace(mutation.from, mutation.to));
+
+        expect(() => readRuntimeBindings(fixtureRoot), mutation.to).toThrow(/M0B_RUNTIME_SOURCE/);
+
+        expect(
+          () =>
+            execFileSync(
+              'node',
+              [
+                resolve(fixtureRoot, 'scripts/cohort/verifyM0BUsabilityProtocol.mjs'),
+                resolve(fixtureRoot, 'contracts/cohort/m0b-usability-protocol.json'),
+              ],
+              { stdio: 'pipe' }
+            ),
+          mutation.to
+        ).toThrow();
+      } finally {
+        rmSync(fixtureRoot, { recursive: true, force: true });
+      }
     }
   });
 

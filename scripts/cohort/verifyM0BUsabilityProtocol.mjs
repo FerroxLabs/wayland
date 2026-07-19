@@ -1,15 +1,12 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const SCRIPT_FILE = fileURLToPath(import.meta.url);
 const REPOSITORY_ROOT = resolve(dirname(SCRIPT_FILE), '../..');
-const TYPES_FILE = resolve(REPOSITORY_ROOT, 'src/process/services/cohort/types.ts');
-const COMMON_TYPES_FILE = resolve(REPOSITORY_ROOT, 'src/common/types/cohortRollout.ts');
-const POLICY_FILE = resolve(REPOSITORY_ROOT, 'src/process/services/cohort/policy.ts');
 
 const PROTOCOL_VERSION = 'wayland-desktop-m0b-usability/1';
 const FROZEN_CANONICAL_SHA256 = 'sha256:886d38d16a1fe380f83c816d787c228f56c18f9a51e3701a35a97ebd551e252a';
@@ -193,7 +190,13 @@ function literalParser(source, constants, path) {
     if (constants.has(name)) return constants.get(name);
     fail('M0B_RUNTIME_SOURCE', path, `unknown-identifier=${name}`);
   };
-  return value();
+  const parsed = value();
+  whitespace();
+  const suffix = source.slice(offset).trim();
+  if (suffix !== '' && suffix !== 'as const') {
+    fail('M0B_RUNTIME_SOURCE', path, `unconsumed-suffix=${suffix}`);
+  }
+  return parsed;
 }
 
 function exportedInitializer(source, name, path) {
@@ -262,10 +265,13 @@ function requiredConstant(constants, name) {
   return constants.get(name);
 }
 
-export function readRuntimeBindings() {
-  const common = collectExportedConstants(COMMON_TYPES_FILE);
-  const cohort = collectExportedConstants(TYPES_FILE, common);
-  const policy = collectExportedConstants(POLICY_FILE, cohort);
+export function readRuntimeBindings(repositoryRoot = REPOSITORY_ROOT) {
+  const commonTypesFile = resolve(repositoryRoot, 'src/common/types/cohortRollout.ts');
+  const typesFile = resolve(repositoryRoot, 'src/process/services/cohort/types.ts');
+  const policyFile = resolve(repositoryRoot, 'src/process/services/cohort/policy.ts');
+  const common = collectExportedConstants(commonTypesFile);
+  const cohort = collectExportedConstants(typesFile, common);
+  const policy = collectExportedConstants(policyFile, cohort);
   return {
     schemaVersion: requiredConstant(cohort, 'M0B_SCHEMA_VERSION'),
     observationWindowDays: requiredConstant(cohort, 'M0B_OBSERVATION_WINDOW_DAYS'),
@@ -595,7 +601,7 @@ export function verifyProtocolFile(filePath) {
   return verifyProtocolBytes(readFileSync(resolve(filePath), 'utf8'));
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_FILE) {
+if (process.argv[1] && realpathSync(resolve(process.argv[1])) === realpathSync(SCRIPT_FILE)) {
   const protocolPath = process.argv[2];
   if (!protocolPath || process.argv.length !== 3) {
     process.stderr.write('usage: verifyM0BUsabilityProtocol.mjs <protocol.json>\n');
