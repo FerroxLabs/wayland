@@ -18,6 +18,7 @@ const {
   emitConfirmationRemove,
   mockDb,
   mockMainError,
+  wcoreAgentOptions,
 } = vi.hoisted(() => ({
   emitResponseStream: vi.fn(),
   emitConfirmationAdd: vi.fn(),
@@ -32,6 +33,7 @@ const {
     updateMessage: vi.fn(),
   },
   mockMainError: vi.fn(),
+  wcoreAgentOptions: [] as Array<{ onProcessTerminated?: (code: number | null) => void }>,
 }));
 
 // ── Module mocks ───────────────────────────────────────────────────
@@ -80,6 +82,19 @@ vi.mock('@process/services/database/export', () => ({
 
 vi.mock('@process/utils/initStorage', () => ({
   ProcessChat: { get: vi.fn(() => Promise.resolve([])) },
+  ProcessConfig: {
+    get: vi.fn(async () => undefined),
+    set: vi.fn(async () => undefined),
+    remove: vi.fn(async () => undefined),
+  },
+}));
+
+vi.mock('@process/agent/wcore/profilePaths', () => ({
+  acquireRuntimeLaunchAuthority: vi.fn(async () => ({
+    raw: true,
+    identity: { dir: '/test/profile' },
+    release: vi.fn().mockResolvedValue(undefined),
+  })),
 }));
 
 vi.mock('@process/utils/message', () => ({
@@ -112,25 +127,28 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
 }));
 
 vi.mock('@process/agent/wcore', () => ({
-  WCoreAgent: vi.fn().mockImplementation(() => ({
-    start: vi.fn().mockResolvedValue(undefined),
-    stop: vi.fn(),
-    kill: vi.fn(),
-    send: vi.fn().mockResolvedValue(undefined),
-    approveTool: vi.fn(),
-    denyTool: vi.fn(),
-    setConfig: vi.fn(),
-    setMode: vi.fn(),
-    sendCommand: vi.fn(),
-    ping: vi.fn(),
-    get isAlive() {
-      return true;
-    },
-    injectConversationHistory: vi.fn().mockResolvedValue(undefined),
-    get bootstrap() {
-      return Promise.resolve();
-    },
-  })),
+  WCoreAgent: vi.fn().mockImplementation(function (options) {
+    wcoreAgentOptions.push(options);
+    return {
+      start: vi.fn().mockResolvedValue(undefined),
+      stop: vi.fn(),
+      kill: vi.fn(),
+      send: vi.fn().mockResolvedValue(undefined),
+      approveTool: vi.fn(),
+      denyTool: vi.fn(),
+      setConfig: vi.fn(),
+      setMode: vi.fn(),
+      sendCommand: vi.fn(),
+      ping: vi.fn(),
+      get isAlive() {
+        return true;
+      },
+      injectConversationHistory: vi.fn().mockResolvedValue(undefined),
+      get bootstrap() {
+        return Promise.resolve();
+      },
+    };
+  }),
 }));
 
 // ── Import under test ──────────────────────────────────────────────
@@ -144,6 +162,7 @@ function createManager(conversationId = 'conv-pe-1'): WCoreManager {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: conversationId,
+    teamMcpStdioConfig: { name: 'test-team', command: 'node', args: [], env: [] },
   };
   return new WCoreManager(data as Record<string, unknown>, data.model as Record<string, unknown>);
 }
@@ -166,6 +185,7 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
+    wcoreAgentOptions.length = 0;
     manager = createManager();
     vi.spyOn(manager as Record<string, unknown>, 'postMessagePromise' as never).mockResolvedValue(undefined as never);
   });
@@ -225,6 +245,35 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
   // ── Heartbeat activation/deactivation ────────────────────────────
 
   describe('shutdown proof', () => {
+    it('retains the profile lease until engine-tree shutdown is proved', async () => {
+      await vi.waitFor(() => expect(wcoreAgentOptions).toHaveLength(1));
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (manager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      let rejectTreeShutdown!: (error: Error) => void;
+      const engine = {
+        kill: vi.fn(
+          () =>
+            new Promise<void>((_resolve, reject) => {
+              rejectTreeShutdown = reject;
+            })
+        ),
+      };
+      (manager as unknown as { agent: typeof engine }).agent = engine;
+      (manager as unknown as { agentReady: Promise<void> }).agentReady = Promise.resolve();
+
+      const shutdown = manager.kill();
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      wcoreAgentOptions[0].onProcessTerminated?.(0);
+      await Promise.resolve();
+
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      rejectTreeShutdown(new Error('engine descendant still alive'));
+      await expect(shutdown).rejects.toThrow('engine descendant still alive');
+    });
+
     it('rejects shutdown when the Wayland Core engine tree exit is unproved', async () => {
       const engine = {
         kill: vi.fn().mockRejectedValueOnce(new Error('engine tree still alive')).mockResolvedValueOnce(undefined),
