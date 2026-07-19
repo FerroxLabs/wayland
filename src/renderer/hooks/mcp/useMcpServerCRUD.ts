@@ -24,6 +24,31 @@ function newMcpServerId(): string {
   return `mcp_${globalThis.crypto.randomUUID()}`;
 }
 
+const MCP_PUBLICATION_DIVERGENCE_ERROR = `${MCP_PUBLICATION_DIVERGENCE_MARKER} — reconnect this connector` as const;
+
+function retainPublicationReconciliation(servers: IMcpServer[], serverId: string, fallback: IMcpServer): IMcpServer[] {
+  const exactIndex = servers.findIndex((server) => server.id === serverId);
+  const canonicalIndex = servers.findIndex(
+    (server) => mcpServerCollisionKey(server.name) === mcpServerCollisionKey(fallback.name)
+  );
+  const reconciliationIndex = exactIndex >= 0 ? exactIndex : canonicalIndex;
+  const current = reconciliationIndex >= 0 ? servers[reconciliationIndex] : undefined;
+  const reconciliationServer: IMcpServer = {
+    ...(current ?? fallback),
+    // A concurrently deleted declaration must not be recreated as enabled:
+    // external publication is unresolved, not authoritative enabled truth.
+    enabled: current?.enabled ?? false,
+    status: 'error',
+    lastError: MCP_PUBLICATION_DIVERGENCE_ERROR,
+    updatedAt: nextMcpRevision((current ?? fallback).updatedAt),
+  };
+
+  if (reconciliationIndex < 0) return [...servers, reconciliationServer];
+  const next = [...servers];
+  next[reconciliationIndex] = reconciliationServer;
+  return next;
+}
+
 /**
  * MCP server CRUD operations hook.
  * Handles add/edit/delete and enable/disable for MCP servers.
@@ -409,9 +434,22 @@ export const useMcpServerCRUD = (
               await syncMcpToAgents(targetServer, true);
             }
           } catch (rollbackError) {
+            const rollbackErrors: unknown[] = [rollbackError];
+            try {
+              // The adapter operation may have survived its failed
+              // compensation. Retain a durable, current-row reconciliation
+              // handle without overwriting a concurrent declaration edit. If
+              // the row was concurrently deleted, recreate only disabled error
+              // truth so the unresolved external publication cannot disappear.
+              await saveMcpServers((prevServers) =>
+                retainPublicationReconciliation(prevServers, serverId, updatedTargetServer)
+              );
+            } catch (persistenceError) {
+              rollbackErrors.push(persistenceError);
+            }
             Message.error(enabled ? t('settings.mcpSyncError') : t('settings.mcpRemoveError'));
             const failure = new Error('MCP toggle failed and publication rollback was incomplete', { cause: error });
-            Object.assign(failure, { rollbackErrors: [rollbackError] });
+            Object.assign(failure, { rollbackErrors });
             throw failure;
           }
         }

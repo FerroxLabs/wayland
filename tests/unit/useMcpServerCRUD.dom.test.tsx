@@ -798,6 +798,66 @@ describe('useMcpServerCRUD', () => {
       expect(durable[0].lastError).toContain('publication rollback incomplete');
     });
 
+    it('retains a disabled reconciliation handle when the declaration is concurrently deleted', async () => {
+      const original = makeMockServer({ enabled: false, updatedAt: 1000 });
+      let durable = [original];
+      let firstWrite = true;
+      removeMcpFromAgents.mockRejectedValueOnce(new Error('adapter cleanup failed'));
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        if (firstWrite) {
+          durable = [];
+          firstWrite = false;
+        }
+        durable = (updater as (current: IMcpServer[]) => IMcpServer[])(durable);
+      });
+      const { result } = renderCRUD([], async () => [original]);
+
+      await act(async () => {
+        await expect(result.current.handleToggleMcpServer(original.id, true)).rejects.toThrow(
+          'publication rollback was incomplete'
+        );
+      });
+
+      expect(durable).toHaveLength(1);
+      expect(durable[0]).toMatchObject({
+        id: original.id,
+        enabled: false,
+        status: 'error',
+        lastError: expect.stringContaining('publication rollback incomplete'),
+      });
+    });
+
+    it('marks a concurrent canonical replacement instead of creating a duplicate reconciliation row', async () => {
+      const original = makeMockServer({ id: 'old-id', name: 'Tavily', enabled: false, updatedAt: 1000 });
+      const replacement = makeMockServer({ id: 'new-id', name: 'tavily', enabled: false, updatedAt: 1001 });
+      let durable = [original];
+      let firstWrite = true;
+      removeMcpFromAgents.mockRejectedValueOnce(new Error('adapter cleanup failed'));
+      saveMcpServers.mockImplementation(async (updater: unknown) => {
+        if (firstWrite) {
+          durable = [replacement];
+          firstWrite = false;
+        }
+        durable = (updater as (current: IMcpServer[]) => IMcpServer[])(durable);
+      });
+      const { result } = renderCRUD([], async () => [original]);
+
+      await act(async () => {
+        await expect(result.current.handleToggleMcpServer(original.id, true)).rejects.toThrow(
+          'publication rollback was incomplete'
+        );
+      });
+
+      expect(durable).toHaveLength(1);
+      expect(durable[0]).toMatchObject({
+        id: replacement.id,
+        name: replacement.name,
+        enabled: false,
+        status: 'error',
+        lastError: expect.stringContaining('publication rollback incomplete'),
+      });
+    });
+
     it('restores an old publication when the disabled-state commit fails', async () => {
       const server = makeMockServer({ enabled: true });
       saveMcpServers.mockRejectedValueOnce(new Error('storage unavailable'));
