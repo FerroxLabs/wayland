@@ -1,5 +1,5 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useMcpServerCRUD } from '@renderer/hooks/mcp/useMcpServerCRUD';
 import {
   MCP_PREPUBLICATION_MAX_AGE_MS,
@@ -50,6 +50,8 @@ const makeMockServer = (overrides?: Partial<IMcpServer>): IMcpServer => ({
   originalJson: '{}',
   ...overrides,
 });
+
+afterEach(() => vi.restoreAllMocks());
 
 describe('MCP pre-publication renderer correlation', () => {
   const server = makeMockServer({ id: 'mcp-correlated', name: 'Tavily', updatedAt: 100 });
@@ -707,7 +709,7 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(remove).toHaveBeenCalledWith(winner.name, undefined, winner.transport.type);
     expect(consoleError).toHaveBeenCalledWith(
       'MCP publication reconciliation retained fail-closed divergence:',
-      expect.objectContaining({ rollbackErrors: expect.arrayContaining([expect.any(Error)]) })
+      expect.objectContaining({ errorCount: 2, errorTypes: ['Error', 'Error'] })
     );
   });
 
@@ -796,7 +798,7 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(remove).toHaveBeenCalledWith(winner.name, undefined, winner.transport.type);
     expect(consoleError).toHaveBeenCalledWith(
       'MCP publication reconciliation retained fail-closed divergence:',
-      expect.objectContaining({ rollbackErrors: expect.arrayContaining([expect.any(Error)]) })
+      expect.objectContaining({ errorCount: 2, errorTypes: ['Error', 'Error'] })
     );
   });
 
@@ -833,12 +835,7 @@ describe('MCP pre-publication renderer correlation', () => {
     const rollbackLog = consoleError.mock.calls.find(
       ([label]) => label === 'MCP publication reconciliation retained fail-closed divergence:'
     );
-    const rollbackErrors = (rollbackLog?.[1] as { rollbackErrors?: unknown[] } | undefined)?.rollbackErrors ?? [];
-    const loggedMessages = rollbackErrors
-      .map((error) => (error instanceof Error ? error.message : String(error)))
-      .join('\n');
-    consoleError.mockRestore();
-    expect(loggedMessages).not.toContain('SENSITIVE_CREDENTIAL_SENTINEL');
+    expect(JSON.stringify(rollbackLog)).not.toContain('SENSITIVE_CREDENTIAL_SENTINEL');
   });
 
   it('retains divergence when exact-key cleanup for a case-fold replacement fails', async () => {
