@@ -430,4 +430,43 @@ describe('OfficeCLI target-exact evidence producer', () => {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
+
+  it('rejects bundle mutation while the combined sweep checks skills', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const fixture = createInstalledFixture('wayland-officecli-combined-sweep-race-');
+    if (!fixture) return;
+    const realFs = await vi.importActual<typeof import('node:fs')>('node:fs');
+    let mutated = false;
+    vi.resetModules();
+    vi.doMock('node:fs', () => ({
+      ...realFs,
+      realpathSync: (target: Parameters<typeof realFs.realpathSync>[0], options?: BufferEncoding | null) => {
+        if (!mutated && String(target) === fixture.skillsRoot) {
+          mutated = true;
+          fs.appendFileSync(path.join(fixture.bundledDir, 'officecli'), 'post-bundle-sweep-tamper');
+        }
+        return realFs.realpathSync(target, options as never);
+      },
+    }));
+    try {
+      const { probeOfficeCliAuthoringEvidence: probeWithRace } =
+        await import('@process/services/capabilities/OfficeCliAuthoringCapability');
+
+      const evidence = await probeWithRace({
+        correlationId: 'capabilities:wcore',
+        backend: 'wcore',
+        platform: 'darwin',
+        arch: 'arm64',
+        bundledDir: fixture.bundledDir,
+        skillsRoot: fixture.skillsRoot,
+      });
+
+      expect(mutated).toBe(true);
+      expect(evidence.status).toBe('unavailable');
+    } finally {
+      vi.doUnmock('node:fs');
+      vi.resetModules();
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
 });
