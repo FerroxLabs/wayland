@@ -58,6 +58,7 @@ key-decisions:
   - 'A terminating agent remains active authority until shutdown resolves; failed shutdown retains the lease and chat.'
   - 'A failed termination attempt releases only operation ownership; the exact lease and terminal successor-refusal gate remain available for verified retry.'
   - 'Wayland Core engine-tree shutdown failure remains observable after root exit; manager identity and profile authority survive until exact retry proves the same engine stopped.'
+  - 'Root-process exit is notification only; profile-release authority remains held until the exact manager kill proves complete engine-tree shutdown.'
   - 'Conversation deletion atomically captures channel session identities and commit-time source before foreign keys can erase the lookup.'
   - 'Post-commit channel cleanup is idempotent, durably retried, replayed after restart, and retired only after all captured identities complete.'
   - 'Callback-time same-ID successors are refused and drained to a fixed point before removal can report success.'
@@ -148,6 +149,7 @@ status: successor-built-pending-independent-audit
 - Moved cleanup eligibility to the transaction's commit-time source so a stale pre-gate source snapshot cannot suppress required cleanup.
 - Preserved the exact terminating lease and fail-closed successor gate after a transient kill failure while allowing a later identity-bound attempt to obtain real exit proof.
 - Propagated Wayland Core engine-tree shutdown failure through `WCoreManager.kill()`, retained the exact manager/profile authority on failure, and prevented a later root `exit` event from turning an unproved descendant shutdown into success.
+- Separated root-exit notification from profile-release authority, retaining the profile lease through deferred descendant-tree shutdown and releasing it exactly once only after the exact manager kill succeeds.
 
 ## Task Commits
 
@@ -159,6 +161,7 @@ status: successor-built-pending-independent-audit
 6. **External-channel rollback repair:** `0b43c3609956d3538e2c0e7275febf5e84652958`
 7. **Durable cleanup and shutdown-retry repair:** `77687d43d996fbffc934fdba348639afea519e4a`
 8. **Wayland Core engine-exit authority repair:** `853ea9f76023e6d1406ae5887b92fc00c9b0529d`
+9. **Wayland Core profile-release authority repair:** `78270b812e7112cb38dda2b732c092916bbebc28`
 
 **Rejected predecessor:** `0b98288b02e0b65b260c7b3b1670bd5ea5b68419`
 
@@ -166,9 +169,11 @@ status: successor-built-pending-independent-audit
 
 **Superseded repair candidate:** `0b43c3609956d3538e2c0e7275febf5e84652958` (evidence commit `0001046836e8d9e2c93fd4c1c225cfa112783f61`)
 
-**Repaired implementation candidate:** `853ea9f76023e6d1406ae5887b92fc00c9b0529d`
+**Superseded R5 implementation candidate:** `853ea9f76023e6d1406ae5887b92fc00c9b0529d` (test-only review commit `3e7b92c8678a6cf1433567dd078593c54ffc428b` proved root exit released the profile lease before descendant-tree shutdown settled)
 
-**Aggregate-proved source tree:** `907b217be36cefdcf02bec430656ef00face34d6`
+**Repaired implementation candidate:** `78270b812e7112cb38dda2b732c092916bbebc28`
+
+**Aggregate-proved source tree:** `a6b323f58a96f6b72b0e36b1163aa8d43844ae34`
 
 **Acceptance state:** pending independent successor re-audit; no acceptance claim is made here.
 
@@ -182,10 +187,11 @@ status: successor-built-pending-independent-audit
 - Cleanup is at-least-once until durable retirement; repeated external context clear and absent local sessions are treated idempotently.
 - A failed kill does not authorize a successor or discard the original lease, but it does permit a later shutdown attempt against that same identity.
 - Wayland Core shutdown is two-stage authority: root exit alone cannot clear a latched process-tree failure, while a transient pre-exit failure can retry the same child identity and clear authority only after proof succeeds.
+- Root exit does not own profile release. The profile lease remains held until the exact manager kill proves the complete engine tree stopped; deferred failure preserves both manager and lease for identity-bound retry.
 
 ## Deviations from Plan
 
-The independent audits reopened the plan six times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, post-commit external-channel cleanup ordering, durable restart replay, transaction-authoritative cleanup identity, identity-bound shutdown retry, and observable Wayland Core engine-tree failure. These changes enforce the plan's authority boundary without expanding lifecycle authority.
+The independent audits reopened the plan seven times. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, deterministic idle-rejection observation, canonical alias correlation, creation-time object identity, impossible phase-1 evidence rejection, deterministic Constitution recovery observation, post-commit external-channel cleanup ordering, durable restart replay, transaction-authoritative cleanup identity, identity-bound shutdown retry, observable Wayland Core engine-tree failure, and exact profile-release authority after complete tree proof. These changes enforce the plan's authority boundary without expanding lifecycle authority.
 
 ## Issues Encountered
 
@@ -197,22 +203,22 @@ Managed-workspace lifecycle mutation (quarantine, restore, keep, delete, prune) 
 
 ## Self-Check
 
-BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed 276 focused Vitest tests, 2 focused Bun-native hostile tests, typecheck, scoped formatting, 15,210 aggregate Vitest tests, and 228 aggregate Bun-native tests. Changed-file lint passed with zero warnings and zero errors across the four Wayland Core engine-authority implementation/test files. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
+BUILDER PROOF PASSED; independent successor re-audit remains required. The repaired implementation passed 278 focused Vitest tests, 2 focused Bun-native hostile tests, typecheck, scoped formatting, 15,212 aggregate Vitest tests, and 228 aggregate Bun-native tests. Changed-file lint passed with zero warnings and zero errors across the two R6 implementation/test files. Aggregate proof left no generated `.ijfw/wiki-state/index.json` behind. No lifecycle mutation authority was added.
 
 ## Retained Construction Evidence
 
-The SHA-bound receipts are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r5-853ea9f7/`. Unlike the superseded compact summaries, these receipts retain the sanitized command output, timestamp, environment identity, exact implementation commit/tree, and exit code. Secret-shaped values are passed through both the command-secret and diagnostics redactors before retention. These are builder receipts, not independent acceptance evidence.
+The SHA-bound receipts are under `.planning/phases/WLD-01-safety-foundation/evidence/01-08-r6-78270b81/`. These receipts retain sanitized command output, timestamp, environment identity, exact implementation commit/tree, and exit code. Secret-shaped values are passed through the command-secret redactor to a fixed point before retention. These are builder receipts, not independent acceptance evidence.
 
 | Receipt                     | SHA-256                                                            |
 | --------------------------- | ------------------------------------------------------------------ |
-| `00-environment.log`        | `70d70a6ba4c3bc6b3c0a02c6fd5d351d24b47eb8d4d68e87f19edca121fa4dd1` |
-| `01-focused-vitest.log`     | `e701b123500e4eec0d4205de686c198da159aa6659a0e3a70d0e0af8a98761e6` |
-| `02-bun-native-intent.log`  | `ece973a7d4b81d3254c4359f1df126c8b6cb4b4120ae7a0280cfa901206a6dbc` |
-| `03-typecheck.log`          | `91f4ebfb6755cc3e5dce7e5e436f5d02864c26372dc9acedc4093a9618e60f3c` |
-| `04-scoped-lint.log`        | `d72802f0ba253caaa173e5a79a4e4f44267ea44e56d7d65ab2fc44b41f8db8e9` |
-| `05-scoped-format-diff.log` | `6a4daa2a6ba2f24a75896a92d0410d2304d388ff415318063226e40590e43b56` |
-| `06-full-aggregate.log`     | `2e8a6daf8a026ef41473419fb4f2a169d4e5dd1dd12849c04b0937885e9ddfee` |
-| `07-invariants.log`         | `3f8461631bc197fd840082d82455ee448960c8a7b69dafd9260389ac41977872` |
+| `00-environment.log`        | `f0904a396d1f219f673e2416171c9ee9b65da7edece8bcd4fccf90be9f6f9b73` |
+| `01-focused-vitest.log`     | `1b1da8ab4f2270308378a1b253539dae6deab5018b5a97e1c52bcb3195f6658a` |
+| `02-bun-native-intent.log`  | `f2232f374651f4d44d8159c5f993ceb2b9dc467229fd8d8405e135b301c1d563` |
+| `03-typecheck.log`          | `c3a98779f343ea1278181ddcf2468e96672603e9b8e65508f729f67f221dfd2d` |
+| `04-scoped-lint.log`        | `c64efa41cbed4ab788a1ebc6caa0dc2a6256fb30fc15ce25e7b409936fdabf4c` |
+| `05-scoped-format-diff.log` | `fd024b3c848d51490b88129d99d9271bfda73d42634b75f421391ab7cf70f96f` |
+| `06-full-aggregate.log`     | `701f58e7e4b61234cc01911d4215035d88cf1215defaa8645b4b9f0ccbf53904` |
+| `07-invariants.log`         | `959e10fcd5a61465bd584e86e0ce806789aac5257d0a43e0ff8f090984522eaa` |
 
 ---
 

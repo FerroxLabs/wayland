@@ -1,0 +1,15 @@
+receipt=scoped-format-diff
+captured_at_utc=2026-07-19T20:35:31.353Z
+implementation_commit=78270b812e7112cb38dda2b732c092916bbebc28
+implementation_tree=a6b323f58a96f6b72b0e36b1163aa8d43844ae34
+environment_receipt=00-environment.log
+command=bun run format -- --check src/process/task/WCoreManager.ts tests/unit/WCoreManagerProcessExit.test.ts && git diff --check 3e7b92c8..78270b81
+exit_code=0
+sanitization=redactCommandSecrets fixed-point
+output_begin
+$ oxfmt --check src/process/task/WCoreManager.ts tests/unit/WCoreManagerProcessExit.test.ts
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 35ms on 2 files using 10 threads.
+output_end
