@@ -175,6 +175,15 @@ try {
     value.gates.ACCEPT_OPEN.accepts.all = ['TEST', 'TEST'];
   }, /duplicate packet/);
   await rejectsManifest((value) => {
+    value.gates.ENTRY_ALTERNATIVE.prerequisites.any = [
+      ['TEST', 'OTHER'],
+      ['TEST', 'TARGET'],
+    ];
+  }, /ambiguous duplicate packet TEST/);
+  await rejectsManifest((value) => {
+    value.gates.ENTRY_ALTERNATIVE.prerequisites.one = [['TEST', 'OTHER']];
+  }, /ambiguous duplicate packet TEST/);
+  await rejectsManifest((value) => {
     value.gates.ACCEPT_REQUIRED.accepts.all = ['TEST'];
   }, /both prerequisite and target/);
   await rejectsManifest((value) => {

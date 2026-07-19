@@ -43,9 +43,10 @@ function validateSelection(value, label, { allowAny }) {
   const all = packetList(value.all, `${label}.all`);
   const any = allowAny ? packetGroups(value.any, `${label}.any`) : [];
   const one = packetGroups(value.one, `${label}.one`);
-  const fixed = new Set(all);
-  for (const packet of [...any.flat(), ...one.flat()]) {
-    if (fixed.has(packet)) throw new Error(`${label} contains ambiguous duplicate packet ${packet}`);
+  const seen = new Set();
+  for (const packet of [...all, ...any.flat(), ...one.flat()]) {
+    if (seen.has(packet)) throw new Error(`${label} contains ambiguous duplicate packet ${packet}`);
+    seen.add(packet);
   }
   return { all, any, one };
 }
