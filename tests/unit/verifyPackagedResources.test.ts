@@ -504,6 +504,25 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out)).toThrow(/CRITICAL/);
   });
 
+  it('blocks a package whose managed POSIX OfficeCLI guard is not executable', () => {
+    if (process.platform === 'win32') return;
+    const out = createPackagedResources(true);
+    const guard = path.join(packagedResourcesPath(out), 'managed-cli-shims', 'officecli');
+    fs.chmodSync(guard, 0o644);
+    expect(() => verify(out)).toThrow(/CRITICAL/);
+  });
+
+  it('blocks a package whose managed OfficeCLI guard is a symbolic link', () => {
+    if (process.platform === 'win32') return;
+    const out = createPackagedResources(true);
+    const guard = path.join(packagedResourcesPath(out), 'managed-cli-shims', 'officecli');
+    const substitute = path.join(out, 'substitute-officecli');
+    fs.copyFileSync(guard, substitute);
+    fs.rmSync(guard);
+    fs.symlinkSync(substitute, guard);
+    expect(() => verify(out)).toThrow(/CRITICAL/);
+  });
+
   it('blocks a package whose Classic recovery extractor bytes drift', () => {
     const out = createPackagedResources(true);
     const extractor = path.join(
