@@ -25,6 +25,7 @@ type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 const NOW = 2_000_000_000_000;
 const DAY_MS = 86_400_000;
 const BASELINE_DIGEST = `sha256:${'a'.repeat(64)}` as const;
+const INSTALLATION_DIGEST = `sha256:${'c'.repeat(64)}` as const;
 const WINDOW = Object.freeze({ startMs: NOW - 15 * DAY_MS, endMs: NOW - DAY_MS });
 
 const trustedKeys = generateKeyPairSync('ed25519');
@@ -39,6 +40,7 @@ function payload(overrides: Partial<CohortRolloutAuthorizationPayload> = {}): Co
     previousStage: 'internal-dogfood',
     stage: 'invited-alpha',
     cohort: 'knowledge-work',
+    installationIdHash: INSTALLATION_DIGEST,
     window: WINDOW,
     baselineAggregateDigest: BASELINE_DIGEST,
     issuedAt: NOW - 1_000,
@@ -56,6 +58,7 @@ function policy(overrides: Partial<CohortRolloutVerificationPolicy['expected']> 
       currentStage: 'internal-dogfood',
       stage: 'invited-alpha',
       cohort: 'knowledge-work',
+      installationIdHash: INSTALLATION_DIGEST,
       window: WINDOW,
       baselineAggregateDigest: BASELINE_DIGEST,
       decisionOwner: 'Sean Donahoe',
@@ -154,6 +157,7 @@ describe('cohort rollout authority', () => {
     ['appVersion', '0.12.0-preview.2'],
     ['releaseTrack', 'stable'],
     ['cohort', 'developer'],
+    ['installationIdHash', `sha256:${'d'.repeat(64)}`],
     ['baselineAggregateDigest', `sha256:${'b'.repeat(64)}`],
     ['decisionOwner', 'Local User'],
   ] as const)('rejects a signed receipt for the wrong %s', (field, value) => {
@@ -174,11 +178,22 @@ describe('cohort rollout authority', () => {
   });
 
   it('rejects a signed receipt for another baseline window', () => {
-    const receipt = issue({ window: { startMs: WINDOW.startMs - 1, endMs: WINDOW.endMs } });
+    const receipt = issue({ window: { startMs: WINDOW.startMs - 1, endMs: WINDOW.endMs - 1 } });
 
     expect(evaluateCohortRolloutEligibility(receipt, policy())).toEqual({
       eligible: false,
       reason: 'scope-mismatch',
+    });
+  });
+
+  it('rejects a signed digest claim whose baseline window is not exactly fourteen days', () => {
+    const receipt = resign((raw) => {
+      raw.window = { startMs: WINDOW.startMs, endMs: WINDOW.endMs - 1 };
+    });
+
+    expect(evaluateCohortRolloutEligibility(receipt, policy())).toEqual({
+      eligible: false,
+      reason: 'malformed-receipt',
     });
   });
 

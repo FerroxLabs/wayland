@@ -8,13 +8,13 @@ import { createHash, createPublicKey, sign, timingSafeEqual, verify, type KeyObj
 
 import type { WaylandReleaseTrack } from '@/common/releaseTrack';
 
-import { M0B_COHORTS, type M0BCohort } from './types';
+import { M0B_COHORTS, M0B_DAY_MS, M0B_OBSERVATION_WINDOW_DAYS, type M0BCohort } from './types';
 
 export const COHORT_ROLLOUT_CONTRACT = 'wayland-desktop-cohort-rollout/1.0' as const;
 export const COHORT_ROLLOUT_SCHEMA_VERSION = 1 as const;
 export const COHORT_ROLLOUT_ALGORITHM = 'Ed25519' as const;
 export const COHORT_ROLLOUT_MAX_RECEIPT_LIFETIME_MS = 24 * 60 * 60 * 1000;
-export const COHORT_ROLLOUT_MAX_BASELINE_WINDOW_MS = 31 * 24 * 60 * 60 * 1000;
+export const COHORT_ROLLOUT_BASELINE_WINDOW_MS = M0B_OBSERVATION_WINDOW_DAYS * M0B_DAY_MS;
 
 export const COHORT_ROLLOUT_STAGES = ['internal-dogfood', 'invited-alpha', 'opt-in-beta', 'default-new'] as const;
 export type CohortRolloutStage = (typeof COHORT_ROLLOUT_STAGES)[number];
@@ -34,6 +34,7 @@ export type CohortRolloutAuthorizationPayload = Readonly<{
   previousStage: CohortRolloutStage | null;
   stage: CohortRolloutStage;
   cohort: M0BCohort;
+  installationIdHash: Digest;
   window: CohortRolloutWindow;
   baselineAggregateDigest: Digest;
   issuedAt: number;
@@ -59,6 +60,7 @@ export type CohortRolloutExpectedScope = Readonly<{
   currentStage: CohortRolloutStage | null;
   stage: CohortRolloutStage;
   cohort: M0BCohort;
+  installationIdHash: Digest;
   window: CohortRolloutWindow;
   baselineAggregateDigest: Digest;
   decisionOwner: string;
@@ -269,6 +271,7 @@ function parsePayload(value: unknown): CohortRolloutAuthorizationPayload {
     'cohort',
     'decisionOwner',
     'expiresAt',
+    'installationIdHash',
     'issuedAt',
     'previousStage',
     'releaseTrack',
@@ -284,6 +287,7 @@ function parsePayload(value: unknown): CohortRolloutAuthorizationPayload {
     !isNullableStage(value.previousStage) ||
     !isStage(value.stage) ||
     !isCohort(value.cohort) ||
+    !isDigest(value.installationIdHash) ||
     !isDigest(value.baselineAggregateDigest) ||
     !isTimestamp(value.issuedAt) ||
     !isTimestamp(value.expiresAt) ||
@@ -299,6 +303,7 @@ function parsePayload(value: unknown): CohortRolloutAuthorizationPayload {
     previousStage: value.previousStage,
     stage: value.stage,
     cohort: value.cohort,
+    installationIdHash: value.installationIdHash,
     window: parseWindow(value.window),
     baselineAggregateDigest: value.baselineAggregateDigest,
     issuedAt: value.issuedAt,
@@ -312,7 +317,7 @@ function parseWindow(value: unknown): CohortRolloutWindow {
   assertExactKeys(value, ['endMs', 'startMs']);
   if (!isTimestamp(value.startMs) || !isTimestamp(value.endMs)) throw new Error('window fields');
   const duration = value.endMs - value.startMs;
-  if (duration <= 0 || duration > COHORT_ROLLOUT_MAX_BASELINE_WINDOW_MS) throw new Error('window duration');
+  if (duration !== COHORT_ROLLOUT_BASELINE_WINDOW_MS) throw new Error('window duration');
   return Object.freeze({ startMs: value.startMs, endMs: value.endMs });
 }
 
@@ -341,6 +346,7 @@ function parseExpectedScope(value: unknown): CohortRolloutExpectedScope {
     'cohort',
     'currentStage',
     'decisionOwner',
+    'installationIdHash',
     'releaseTrack',
     'stage',
     'window',
@@ -352,6 +358,7 @@ function parseExpectedScope(value: unknown): CohortRolloutExpectedScope {
     !isNullableStage(value.currentStage) ||
     !isStage(value.stage) ||
     !isCohort(value.cohort) ||
+    !isDigest(value.installationIdHash) ||
     !isDigest(value.baselineAggregateDigest) ||
     typeof value.decisionOwner !== 'string' ||
     !isHumanLabel(value.decisionOwner)
@@ -365,6 +372,7 @@ function parseExpectedScope(value: unknown): CohortRolloutExpectedScope {
     currentStage: value.currentStage,
     stage: value.stage,
     cohort: value.cohort,
+    installationIdHash: value.installationIdHash,
     window: parseWindow(value.window),
     baselineAggregateDigest: value.baselineAggregateDigest,
     decisionOwner: value.decisionOwner,
@@ -420,6 +428,7 @@ function matchesExpectedScope(
     payload.previousStage === expected.currentStage &&
     payload.stage === expected.stage &&
     payload.cohort === expected.cohort &&
+    payload.installationIdHash === expected.installationIdHash &&
     payload.window.startMs === expected.window.startMs &&
     payload.window.endMs === expected.window.endMs &&
     payload.baselineAggregateDigest === expected.baselineAggregateDigest &&
