@@ -241,6 +241,7 @@ describe('MCP pre-publication renderer correlation', () => {
     });
     const remove = vi.fn().mockRejectedValue(new Error('partial removal'));
     const sync = vi.fn().mockRejectedValue(new Error('restore rejected'));
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     bridgeMocks.testMcpConnection.mockResolvedValueOnce({ success: false, msg: 'probe unavailable' });
     const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
       typeof Message.useMessage
@@ -248,6 +249,7 @@ describe('MCP pre-publication renderer correlation', () => {
     const { result } = renderHook(() => useMcpConnection(stored, save, message, undefined, remove, sync));
 
     await act(async () => result.current.handleTestMcpConnection(server));
+    errorSpy.mockRestore();
 
     expect(sync).toHaveBeenCalledWith(server, true);
     expect(stored[0]).toMatchObject({ enabled: true, status: 'error' });
@@ -255,6 +257,27 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(message.error).toHaveBeenCalledWith(
       expect.objectContaining({ content: expect.stringMatching(/rollback|restore|reconcil/i) })
     );
+  });
+
+  it('does not truncate the publication-divergence marker behind a long probe error', async () => {
+    let stored = [server];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    const remove = vi.fn().mockRejectedValue(new Error('partial removal'));
+    const sync = vi.fn().mockRejectedValue(new Error('restore rejected'));
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    bridgeMocks.testMcpConnection.mockReset().mockResolvedValueOnce({ success: false, msg: 'x'.repeat(300) });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message, undefined, remove, sync));
+
+    await act(async () => result.current.handleTestMcpConnection(server));
+    errorSpy.mockRestore();
+
+    expect(stored[0]).toMatchObject({ enabled: true, status: 'error' });
+    expect(stored[0].lastError).toContain('publication rollback incomplete');
   });
 
   it('does not let a later standalone probe erase an unresolved publication divergence', async () => {
@@ -293,6 +316,45 @@ describe('MCP pre-publication renderer correlation', () => {
     expect(stored[0].lastError).toMatch(/rollback|restore|reconcil/i);
 
     await act(async () => result.current.refreshServerStatuses(stored, { force: true }));
+
+    expect(stored[0]).toMatchObject({ enabled: true, status: 'error' });
+    expect(stored[0].lastError).toMatch(/rollback|restore|reconcil/i);
+  });
+
+  it('does not let a direct reconnect probe erase an unresolved publication divergence', async () => {
+    const divergent = makeMockServer({
+      ...server,
+      status: 'error',
+      lastError: 'probe unavailable; publication rollback incomplete — reconnect this connector',
+    });
+    let stored = [divergent];
+    const save = vi.fn(async (updater: IMcpServer[] | ((previous: IMcpServer[]) => IMcpServer[])) => {
+      stored = typeof updater === 'function' ? updater(stored) : updater;
+    });
+    bridgeMocks.testMcpConnection.mockReset().mockResolvedValueOnce({
+      success: true,
+      data: {
+        success: true,
+        tools: [{ name: 'search' }],
+        prepublication: {
+          version: 'wayland-mcp-prepublication/1',
+          serverId: divergent.id,
+          serverName: divergent.name,
+          serverUpdatedAt: divergent.updatedAt,
+          observedAt: Date.now(),
+          state: 'probed',
+          authentication: 'validated',
+          probe: 'succeeded',
+          toolCount: 1,
+        },
+      },
+    });
+    const message = { success: vi.fn(), warning: vi.fn(), error: vi.fn() } as unknown as ReturnType<
+      typeof Message.useMessage
+    >[0];
+    const { result } = renderHook(() => useMcpConnection(stored, save, message));
+
+    await act(async () => result.current.handleTestMcpConnection(divergent));
 
     expect(stored[0]).toMatchObject({ enabled: true, status: 'error' });
     expect(stored[0].lastError).toMatch(/rollback|restore|reconcil/i);
