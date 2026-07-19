@@ -52,6 +52,8 @@ export type RecoveryPointBuilderDependencies = {
   afterDestinationAdmission?: () => Promise<void>;
   /** Test seam used to prove pathname swaps cannot redirect an artifact write. */
   beforeFirstArtifactWrite?: () => Promise<void>;
+  /** Test-only path fallback. Production callers must use descriptor-relative publication. */
+  allowUnsafePathFallbackForTests?: boolean;
 };
 
 export type BuildRecoveryPointInputs = {
@@ -90,6 +92,13 @@ type RecoveryDestinationAdmission = {
   handle: FileHandle;
   pathIdentities: DestinationPathIdentity[];
   canonicalProtectedRoots: string[];
+};
+
+type RecoverySourceAdmission = {
+  sourcePath: string;
+  operationRoot: string;
+  state: StateAuthorityInventory['evidence'][number]['state'];
+  handle?: FileHandle;
 };
 
 function pathsOverlap(left: string, right: string): boolean {
@@ -134,7 +143,8 @@ export async function assertRecoveryDestinationDisjoint(
 
 async function admitRecoveryDestination(
   destinationRoot: string,
-  protectedRoots: readonly string[]
+  protectedRoots: readonly string[],
+  allowUnsafePathFallbackForTests = false
 ): Promise<RecoveryDestinationAdmission> {
   const requestedRoot = path.resolve(destinationRoot);
   await assertRecoveryDestinationDisjoint(requestedRoot, protectedRoots);
@@ -167,13 +177,16 @@ async function admitRecoveryDestination(
     pathIdentities.push({ path: cursor, dev: stat.dev, ino: stat.ino });
   }
   const canonicalRoot = await realpath(root);
-  const canonicalProtectedRoots = await Promise.all(protectedRoots.map((candidate) => canonicalizePotentialPath(candidate)));
+  const canonicalProtectedRoots = await Promise.all(
+    protectedRoots.map((candidate) => canonicalizePotentialPath(candidate))
+  );
   for (const [index, canonicalProtectedRoot] of canonicalProtectedRoots.entries()) {
     if (pathsOverlap(canonicalRoot, canonicalProtectedRoot)) {
       throw new Error(`Recovery destination must be disjoint from live state: ${protectedRoots[index]}`);
     }
   }
-  if (process.platform !== 'darwin' && process.platform !== 'linux') {
+  const unsafeTestFallback = process.env.NODE_ENV === 'test' && allowUnsafePathFallbackForTests;
+  if (process.platform !== 'linux' && !unsafeTestFallback) {
     throw new Error('Recovery destination publication requires descriptor-relative filesystem support.');
   }
   const directoryFlags = constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW;
@@ -251,11 +264,14 @@ async function assertRegularFile(filePath: string, label: string): Promise<Stats
   return stat;
 }
 
-async function listContainedFiles(root: string): Promise<string[]> {
-  const stat = await lstat(root);
-  if (stat.isSymbolicLink()) throw new Error(`Recovery source cannot be a symlink: ${root}`);
-  if (stat.isFile()) return [root];
-  if (!stat.isDirectory()) throw new Error(`Recovery source has an unsupported type: ${root}`);
+async function listContainedFiles(root: string, rootState?: RecoverySourceAdmission['state']): Promise<string[]> {
+  if (rootState === 'file') return [root];
+  if (rootState !== 'directory') {
+    const stat = await lstat(root);
+    if (stat.isSymbolicLink()) throw new Error(`Recovery source cannot be a symlink: ${root}`);
+    if (stat.isFile()) return [root];
+    if (!stat.isDirectory()) throw new Error(`Recovery source has an unsupported type: ${root}`);
+  }
 
   const files: string[] = [];
   const visit = async (directory: string): Promise<void> => {
@@ -272,6 +288,43 @@ async function listContainedFiles(root: string): Promise<string[]> {
   };
   await visit(root);
   return files;
+}
+
+async function admitRecoverySource(
+  evidence: StateAuthorityInventory['evidence'][number],
+  allowUnsafePathFallbackForTests: boolean
+): Promise<RecoverySourceAdmission> {
+  if (evidence.state !== 'file' && evidence.state !== 'directory') {
+    throw new Error(`Recovery source cannot be admitted from state ${evidence.state}: ${evidence.path}`);
+  }
+  const unsafeTestFallback = process.env.NODE_ENV === 'test' && allowUnsafePathFallbackForTests;
+  if (process.platform !== 'linux') {
+    if (!unsafeTestFallback) {
+      throw new Error('Recovery source capture requires descriptor-relative filesystem support.');
+    }
+    return { sourcePath: evidence.path, operationRoot: evidence.path, state: evidence.state };
+  }
+
+  const expected = await lstat(evidence.path);
+  const flags =
+    constants.O_RDONLY | constants.O_NOFOLLOW | (evidence.state === 'directory' ? constants.O_DIRECTORY : 0);
+  const handle = await open(evidence.path, flags);
+  try {
+    const observed = await handle.stat();
+    const expectedType = evidence.state === 'directory' ? observed.isDirectory() : observed.isFile();
+    if (!expectedType || observed.dev !== expected.dev || observed.ino !== expected.ino) {
+      throw new Error(`Recovery source identity changed during admission: ${evidence.path}`);
+    }
+    return {
+      sourcePath: evidence.path,
+      operationRoot: `/proc/self/fd/${handle.fd}`,
+      state: evidence.state,
+      handle,
+    };
+  } catch (error) {
+    await handle.close();
+    throw error;
+  }
 }
 
 function relativeSourcePath(root: string, filePath: string): string {
@@ -370,11 +423,13 @@ async function addCapturedFile(options: {
   restorePath: string;
   logicalRole?: string;
   stagingRoot: string;
+  transientRoot: string;
   sealFile: RecoveryPointBuilderDependencies['sealFile'];
   capturedSnapshotPaths: Set<string>;
   ordinal: number;
   assertDestinationStable: () => Promise<void>;
   beforeArtifactWrite?: () => Promise<void>;
+  sourceHandle?: FileHandle;
 }): Promise<RecoveryManifestFile> {
   const {
     authority,
@@ -386,8 +441,29 @@ async function addCapturedFile(options: {
     ordinal,
     assertDestinationStable,
     beforeArtifactWrite,
+    transientRoot,
+    sourceHandle,
   } = options;
-  const sourceStat = await assertRegularFile(sourcePath, 'Recovery source');
+  const sourceStat = sourceHandle ? await sourceHandle.stat() : await assertRegularFile(sourcePath, 'Recovery source');
+  const noFollow = typeof constants.O_NOFOLLOW === 'number' ? constants.O_NOFOLLOW : 0;
+  const openedSourceHandle = sourceHandle ?? (await open(sourcePath, constants.O_RDONLY | noFollow));
+  const stableSourcePath = path.join(transientRoot, `source-${randomUUID()}`);
+  try {
+    const handleStat = await openedSourceHandle.stat();
+    const currentStat = sourceHandle ? handleStat : await lstat(sourcePath);
+    if (
+      !handleStat.isFile() ||
+      handleStat.dev !== sourceStat.dev ||
+      handleStat.ino !== sourceStat.ino ||
+      currentStat.dev !== handleStat.dev ||
+      currentStat.ino !== handleStat.ino
+    ) {
+      throw new Error(`Recovery source identity changed before capture: ${sourcePath}`);
+    }
+    await writeFile(stableSourcePath, await openedSourceHandle.readFile(), { flag: 'wx', mode: 0o600 });
+  } finally {
+    if (!sourceHandle) await openedSourceHandle.close();
+  }
   const encrypted = authority.sensitive;
   const suffix = encrypted ? '.sealed' : '';
   const snapshotPath =
@@ -402,8 +478,8 @@ async function addCapturedFile(options: {
   await assertDestinationStable();
   await beforeArtifactWrite?.();
   await assertDestinationStable();
-  if (encrypted) await sealFile(sourcePath, destinationPath);
-  else await copyFile(sourcePath, destinationPath, constants.COPYFILE_EXCL);
+  if (encrypted) await sealFile(stableSourcePath, destinationPath);
+  else await copyFile(stableSourcePath, destinationPath, constants.COPYFILE_EXCL);
   await assertDestinationStable();
   const snapshotStat = await assertRegularFile(destinationPath, 'Recovery artifact');
 
@@ -470,7 +546,11 @@ export async function buildRecoveryPoint(
   if (!dryRun.readyToCapture) throw new RecoveryPointBuildBlockedError(dryRun);
 
   const snapshotId = safeSegment(dependencies.createSnapshotId?.() ?? randomUUID());
-  const destinationAdmission = await admitRecoveryDestination(inputs.destinationRoot, inputs.protectedRoots ?? []);
+  const destinationAdmission = await admitRecoveryDestination(
+    inputs.destinationRoot,
+    inputs.protectedRoots ?? [],
+    dependencies.allowUnsafePathFallbackForTests
+  );
   const destinationRoot = destinationAdmission.operationRoot;
   const finalRoot = path.join(destinationRoot, snapshotId);
   const publicFinalRoot = path.join(destinationAdmission.requestedRoot, snapshotId);
@@ -479,6 +559,7 @@ export async function buildRecoveryPoint(
   let published = false;
   const authorityFiles = new Map<StateAuthorityId, RecoveryManifestFile[]>();
   const capturedSnapshotPaths = new Set<string>();
+  const sourceAdmissions = new Map<string, RecoverySourceAdmission>();
   let desktopLease: RecoverySnapshotLease | undefined;
   let coreLease: RecoverySnapshotLease | undefined;
   let mutationStart = '';
@@ -499,6 +580,18 @@ export async function buildRecoveryPoint(
     transientRoot = await mkdtemp(path.join(os.tmpdir(), `wayland-recovery-${snapshotId}-`));
     desktopLease = await dependencies.acquireDesktopQuiescence();
     if (corePresent) coreLease = await dependencies.acquireCoreQuiescence!();
+    for (const authorityPlan of dryRun.authorities) {
+      if (!COPIED_COVERAGE.has(authorityPlan.coverage) || authorityPlan.id === 'desktop.database') continue;
+      const authority = inputs.inventory.authorities.find(({ id }) => id === authorityPlan.id);
+      if (!authority) throw new Error(`Recovery authority disappeared: ${authorityPlan.id}`);
+      for (const [evidenceIndex, evidence] of authority.evidence.entries()) {
+        if (evidence.state === 'absent') continue;
+        // Pin every copied authority root before the mutation epoch begins.
+        // oxlint-disable-next-line no-await-in-loop
+        const admission = await admitRecoverySource(evidence, Boolean(dependencies.allowUnsafePathFallbackForTests));
+        sourceAdmissions.set(`${authority.id}\0${evidenceIndex}`, admission);
+      }
+    }
     mutationStart = await dependencies.readMutationEpoch();
 
     for (const authorityPlan of dryRun.authorities) {
@@ -526,6 +619,7 @@ export async function buildRecoveryPoint(
             restorePath: 'desktop/database/wayland.db',
             logicalRole: 'desktop SQLite online backup',
             stagingRoot,
+            transientRoot,
             sealFile: dependencies.sealFile,
             capturedSnapshotPaths,
             ordinal: 0,
@@ -543,27 +637,37 @@ export async function buildRecoveryPoint(
         let ordinal = 0;
         for (const [evidenceIndex, evidence] of authority.evidence.entries()) {
           if (evidence.state === 'absent') continue;
+          const admission = sourceAdmissions.get(`${authority.id}\0${evidenceIndex}`);
+          if (!admission) throw new Error(`Recovery source admission disappeared: ${authority.id}/${evidenceIndex}`);
           // oxlint-disable-next-line no-await-in-loop
-          const files = await listContainedFiles(evidence.path);
+          const files = await listContainedFiles(admission.operationRoot, admission.state);
           for (const filePath of files) {
-            if (!authorityOwnsFile(authority.id, evidence.path, evidence.state, filePath)) continue;
+            const relativePath =
+              evidence.state === 'file'
+                ? path.basename(evidence.path)
+                : relativeSourcePath(admission.operationRoot, filePath);
+            const manifestFilePath = evidence.state === 'file' ? evidence.path : path.join(evidence.path, relativePath);
+            if (!authorityOwnsFile(authority.id, evidence.path, evidence.state, manifestFilePath)) continue;
             captured.push(
               // oxlint-disable-next-line no-await-in-loop
               await addCapturedFile({
                 authority,
                 sourcePath: filePath,
-                relativePath: `${evidenceIndex}-${relativeSourcePath(evidence.path, filePath)}`,
+                manifestSourcePath: manifestFilePath,
+                relativePath: `${evidenceIndex}-${relativePath}`,
                 restorePath: recoveryRestorePath(
                   authority.id,
                   evidence.path,
                   evidence.state,
-                  filePath,
+                  manifestFilePath,
                   evidence.authorityRelativePath
                 ),
                 stagingRoot,
+                transientRoot,
                 sealFile: dependencies.sealFile,
                 capturedSnapshotPaths,
                 ordinal: ordinal++,
+                sourceHandle: evidence.state === 'file' ? admission.handle : undefined,
                 assertDestinationStable: () => assertRecoveryDestinationStable(destinationAdmission),
                 beforeArtifactWrite: artifactWriteHook
                   ? async () => {
@@ -601,9 +705,27 @@ export async function buildRecoveryPoint(
       sensitive: authority.sensitive,
       fileIds: (authorityFiles.get(authority.id) ?? []).map(({ id }) => id),
       ...(authority.id === 'external.workspaces'
-        ? { referenceIds: inputs.inventory.externalWorkspaces.map(({ projectId }) => projectId) }
+        ? {
+            referenceIds: inputs.inventory.externalWorkspaces.map(({ projectId }) => projectId),
+            referenceBindings: inputs.inventory.externalWorkspaces.map(
+              ({ projectId: id, path: referencePath, state }) => ({
+                id,
+                path: referencePath,
+                state,
+              })
+            ),
+          }
         : authority.id === 'external.agent-configs'
-          ? { referenceIds: inputs.inventory.externalAgentConfigs.map(({ backendId }) => backendId) }
+          ? {
+              referenceIds: inputs.inventory.externalAgentConfigs.map(({ backendId }) => backendId),
+              referenceBindings: inputs.inventory.externalAgentConfigs.map(
+                ({ backendId: id, path: referencePath, state }) => ({
+                  id,
+                  path: referencePath,
+                  state,
+                })
+              ),
+            }
           : {}),
       ...(authority.credentialBinding ? { credentialBinding: authority.credentialBinding } : {}),
       ...(COPIED_COVERAGE.has(coverage.get(authority.id) ?? 'missing') &&
@@ -682,6 +804,12 @@ export async function buildRecoveryPoint(
     if (coreLease) await coreLease.release();
     if (desktopLease) await desktopLease.release();
     if (transientRoot) await rm(transientRoot, { recursive: true, force: true });
+    await Promise.all(
+      [...sourceAdmissions.values()]
+        .map(({ handle }) => handle)
+        .filter((handle): handle is FileHandle => handle !== undefined)
+        .map((handle) => handle.close())
+    );
     if (stagingRoot) await rm(stagingRoot, { recursive: true, force: true });
     if (!published) await rm(finalRoot, { recursive: true, force: true });
     await destinationAdmission.handle.close();

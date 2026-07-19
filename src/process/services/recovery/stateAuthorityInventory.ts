@@ -41,6 +41,7 @@ export type StateAuthorityInventory = {
 };
 
 export type RecoveryInventory = {
+  userDataRoot?: string;
   observedAt: string;
   readOnly: true;
   sourceReleaseTrack: 'stable' | 'preview';
@@ -92,6 +93,8 @@ const CAPTURED_USER_DATA_ROOTS: Readonly<Record<string, readonly StateAuthorityI
   'cockpit-rollout': ['desktop.runtime-files'],
   'cohort-evidence': ['desktop.runtime-files'],
   voice: ['desktop.runtime-files'],
+  runtime: ['desktop.runtime-files'],
+  'weixin-monitor': ['desktop.runtime-files'],
   'codex-home': ['credentials.key-material'],
   '.cursor': ['credentials.key-material'],
   '.github': ['credentials.key-material'],
@@ -145,7 +148,13 @@ const EXCLUDED_USER_DATA_ROOTS = new Set([
   'SingletonCookie',
   'SingletonLock',
   'SingletonSocket',
+  'weixin-uploads',
 ]);
+
+const EXCLUDED_USER_DATA_RESTORE_CONSEQUENCES: Readonly<Record<string, string>> = {
+  'weixin-uploads':
+    'Downloaded Weixin message attachments are a bounded delivery cache and are not authoritative conversation state.',
+};
 
 const CONSTITUTION_USER_DATA_CHILDREN = new Set([
   'revision-authority.enc',
@@ -238,10 +247,7 @@ async function scanContained(candidatePath: string, budget: ScanBudget): Promise
   return evidence;
 }
 
-async function inventoryUserDataRoots(
-  userDataRoot: string,
-  maxEntries: number
-): Promise<UserDataRootInventoryEntry[]> {
+async function inventoryUserDataRoots(userDataRoot: string, maxEntries: number): Promise<UserDataRootInventoryEntry[]> {
   let names: string[];
   try {
     names = await readdir(userDataRoot);
@@ -282,7 +288,9 @@ async function inventoryUserDataRoots(
           disposition: 'excluded',
           authorityIds: [],
           evidence,
-          restoreConsequence: 'This transient cache, lock, or rebuildable runtime artifact is recreated after restore.',
+          restoreConsequence:
+            EXCLUDED_USER_DATA_RESTORE_CONSEQUENCES[name] ??
+            'This transient cache, lock, or rebuildable runtime artifact is recreated after restore.',
         };
       }
       return {
@@ -434,6 +442,8 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
   const runtimeFileCandidates = [
     'conversations',
     'attachments',
+    'runtime',
+    'weixin-monitor',
     'analytics.json',
     'cdp.config.json',
     'flux-connectors.json',
@@ -538,6 +548,7 @@ export async function inventoryRecoveryAuthorities(inputs: RecoveryInventoryInpu
   const userDataRoots = await inventoryUserDataRoots(inputs.userDataRoot, maxEntries);
 
   return {
+    userDataRoot: inputs.userDataRoot,
     observedAt: new Date().toISOString(),
     readOnly: true,
     sourceReleaseTrack: inputs.sourceReleaseTrack ?? 'stable',

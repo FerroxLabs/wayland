@@ -197,21 +197,23 @@ describe('state authority inventory', () => {
 
   it('emits deterministic root and evidence order regardless of creation order', async () => {
     const rootsByCreationOrder = ['zeta.json', 'alpha.json'];
-    const inventories = await Promise.all([rootsByCreationOrder, rootsByCreationOrder.toReversed()].map(async (order) => {
-      const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-order-'));
-      roots.push(root);
-      const userDataRoot = path.join(root, 'user-data');
-      fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
-      fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
-      fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
-      for (const name of order) fs.writeFileSync(path.join(userDataRoot, name), '{}');
-      return inventoryRecoveryAuthorities({
+    const inventories = await Promise.all(
+      [rootsByCreationOrder, rootsByCreationOrder.toReversed()].map(async (order) => {
+        const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-order-'));
+        roots.push(root);
+        const userDataRoot = path.join(root, 'user-data');
+        fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+        fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+        fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
+        for (const name of order) fs.writeFileSync(path.join(userDataRoot, name), '{}');
+        return inventoryRecoveryAuthorities({
           userDataRoot,
           constitutionRoot: path.join(root, 'constitution'),
           coreDefaultProfileRoot: path.join(root, 'core-default'),
           coreNamedProfilesRoot: path.join(root, 'core-profiles'),
         });
-    }));
+      })
+    );
 
     expect(inventories[0].userDataRoots.map(({ relativePath }) => relativePath)).toEqual(
       inventories[1].userDataRoots.map(({ relativePath }) => relativePath)
@@ -242,6 +244,47 @@ describe('state authority inventory', () => {
 
     expect(inventory.userDataRoots).toContainEqual(
       expect.objectContaining({ relativePath: 'wayland/unowned-state.bin', disposition: 'unknown' })
+    );
+  });
+
+  it('classifies shipped Weixin and Gemini writers with explicit recovery consequences', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-channel-writers-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'weixin-monitor'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'weixin-uploads'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'runtime', 'gemini-websearch'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
+    fs.writeFileSync(path.join(userDataRoot, 'weixin-monitor', 'account.buf'), 'cursor');
+    fs.writeFileSync(path.join(userDataRoot, 'weixin-monitor', 'account.uin'), 'uin');
+    fs.writeFileSync(path.join(userDataRoot, 'weixin-uploads', 'temporary.bin'), 'cache');
+    fs.writeFileSync(path.join(userDataRoot, 'runtime', 'gemini-websearch', 'session.json'), '{}');
+
+    const inventory = await inventoryRecoveryAuthorities({
+      userDataRoot,
+      constitutionRoot: path.join(root, 'constitution'),
+      coreDefaultProfileRoot: path.join(root, 'core-default'),
+      coreNamedProfilesRoot: path.join(root, 'core-profiles'),
+    });
+    const runtime = inventory.authorities.find(({ id }) => id === 'desktop.runtime-files')!;
+
+    expect(runtime.evidence.map(({ authorityRelativePath }) => authorityRelativePath)).toEqual(
+      expect.arrayContaining(['runtime', 'weixin-monitor'])
+    );
+    expect(inventory.userDataRoots).toContainEqual(
+      expect.objectContaining({ relativePath: 'weixin-monitor', disposition: 'captured' })
+    );
+    expect(inventory.userDataRoots).toContainEqual(
+      expect.objectContaining({
+        relativePath: 'weixin-uploads',
+        disposition: 'excluded',
+        restoreConsequence: expect.stringContaining('delivery cache'),
+      })
+    );
+    expect(inventory.userDataRoots).toContainEqual(
+      expect.objectContaining({ relativePath: 'runtime', disposition: 'captured' })
     );
   });
 });

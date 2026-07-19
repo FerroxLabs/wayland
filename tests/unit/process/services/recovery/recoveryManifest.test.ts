@@ -130,6 +130,7 @@ function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifes
         sensitive: true,
         fileIds: [],
         referenceIds: ['codex'],
+        referenceBindings: [{ id: 'codex', path: '/home/user/.codex', state: 'directory' }],
       },
       {
         id: 'external.workspaces',
@@ -140,6 +141,7 @@ function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifes
         sensitive: false,
         fileIds: [],
         referenceIds: ['project-1'],
+        referenceBindings: [{ id: 'project-1', path: '/work/book', state: 'directory' }],
       },
     ],
     logicalState: [
@@ -304,6 +306,19 @@ describe('recovery manifest validation', () => {
     expect(result.errors.map((error) => error.code)).toEqual(
       expect.arrayContaining(['MUTATION_DURING_SNAPSHOT', 'AUTHORITY_OMITTED'])
     );
+  });
+
+  it('rejects an external reference whose path or observed state no longer matches its authority evidence', () => {
+    const manifest = makeManifest();
+    manifest.externalWorkspaces[0] = {
+      ...manifest.externalWorkspaces[0],
+      path: '/work/attacker-controlled',
+      state: 'file',
+    };
+
+    const result = validateRecoveryManifest(manifest);
+    expect(result.valid).toBe(false);
+    expect(result.errors.map(({ code }) => code)).toContain('EXTERNAL_AUTHORITY_REFERENCE_BINDING_MISMATCH');
   });
 
   it('rejects omitted or unaccounted logical state even when physical files validate', () => {
@@ -479,10 +494,7 @@ describe('recovery manifest validation', () => {
       state: 'directory',
       copyPolicy: 'reference-only',
     });
-    reordered.authorities.find(({ id }) => id === 'external.workspaces')!.referenceIds = [
-      'project-2',
-      'project-1',
-    ];
+    reordered.authorities.find(({ id }) => id === 'external.workspaces')!.referenceIds = ['project-2', 'project-1'];
     expect(validateRecoveryManifest(reordered).errors.map(({ code }) => code)).toEqual(
       expect.arrayContaining(['EXTERNAL_AUTHORITY_REFERENCE_MISMATCH'])
     );

@@ -99,6 +99,7 @@ describe('recovery point builder', () => {
       readMutationEpoch: async () => 'epoch-12',
       now: () => new Date('2026-07-15T12:00:00.000Z'),
       createSnapshotId: () => 'snapshot-test',
+      allowUnsafePathFallbackForTests: true,
       ...overrides,
     };
     return { dependencies: base, desktopRelease, coreRelease };
@@ -208,6 +209,30 @@ describe('recovery point builder', () => {
     expect(fs.readdirSync(data.destinationRoot)).toEqual(['snapshot-test']);
   });
 
+  it.runIf(process.platform === 'darwin')(
+    'fails closed on Darwin before publication without descriptor-relative support',
+    async () => {
+      const data = await fixture();
+      const deps = dependencies({ allowUnsafePathFallbackForTests: false });
+
+      await expect(
+        buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot: data.destinationRoot,
+            protectedRoots: [data.userDataRoot],
+            reason: 'hostile-darwin-publication',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        )
+      ).rejects.toThrow('descriptor-relative filesystem support');
+
+      expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+    }
+  );
+
   it('fails closed on epoch drift, removes partial output, and leaves live state untouched', async () => {
     const data = await fixture();
     const originalDatabase = fs.readFileSync(path.join(data.userDataRoot, 'wayland', 'wayland.db'));
@@ -251,6 +276,50 @@ describe('recovery point builder', () => {
 
     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
     expect(deps.desktopRelease).toHaveBeenCalledOnce();
+  });
+
+  it('seals bytes from the admitted source handle when an authority directory is swapped during sealing', async () => {
+    const data = await fixture();
+    const configRoot = path.join(data.userDataRoot, 'config');
+    const admittedConfigRoot = path.join(data.userDataRoot, 'config-admitted');
+    const attackerRoot = path.join(data.root, 'attacker-config');
+    fs.mkdirSync(attackerRoot);
+    fs.writeFileSync(path.join(attackerRoot, 'preferences.json'), 'attacker-controlled');
+    let swapped = false;
+    const deps = dependencies({
+      sealFile: async (source, destination) => {
+        const bytes = fs.readFileSync(source);
+        if (!swapped && bytes.toString('utf8') === '{"theme":"dark"}') {
+          swapped = true;
+          fs.renameSync(configRoot, admittedConfigRoot);
+          fs.symlinkSync(attackerRoot, configRoot, 'dir');
+        }
+        fs.writeFileSync(destination, Buffer.concat([Buffer.from('sealed:'), bytes]));
+        if (swapped && fs.lstatSync(configRoot).isSymbolicLink()) {
+          fs.unlinkSync(configRoot);
+          fs.renameSync(admittedConfigRoot, configRoot);
+        }
+      },
+    });
+
+    const result = await buildRecoveryPoint(
+      {
+        inventory: data.inventory,
+        destinationRoot: data.destinationRoot,
+        reason: 'recovery-test',
+        sourceAppVersion: '0.11.18',
+        desktopSchemaVersion: 53,
+      },
+      deps.dependencies
+    );
+    const config = result.manifest.files.find(
+      ({ authority, restorePath }) => authority === 'desktop.config' && restorePath.endsWith('/preferences.json')
+    )!;
+
+    expect(swapped).toBe(true);
+    expect(fs.readFileSync(path.join(result.snapshotPath, config.snapshotPath), 'utf8')).toBe(
+      'sealed:{"theme":"dark"}'
+    );
   });
 
   it('blocks when an admitted destination ancestor is swapped for a protected-root symlink', async () => {

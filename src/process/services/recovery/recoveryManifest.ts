@@ -86,6 +86,7 @@ export type RecoveryManifestAuthority = {
   fileIds: string[];
   /** Exact ordered identifiers for reference-only authorities. */
   referenceIds?: string[];
+  referenceBindings?: Array<{ id: string; path: string; state: string }>;
   /** OS-vault binding for encrypted state that can only be restored on this device. */
   credentialBinding?: {
     scope: 'same-device';
@@ -231,7 +232,12 @@ function validateExternalReferences(
         issue('EXTERNAL_REFERENCE_STATE_INVALID', `${entryPath}.state`, 'External reference state must be explicit.')
       );
     }
-    if (isRecord(value) && typeof id === 'string' && typeof value.path === 'string' && typeof value.state === 'string') {
+    if (
+      isRecord(value) &&
+      typeof id === 'string' &&
+      typeof value.path === 'string' &&
+      typeof value.state === 'string'
+    ) {
       const key = `${id}\0${value.path}\0${value.state}`;
       if (previousKey && previousKey > key) {
         errors.push(
@@ -287,6 +293,36 @@ function validateExternalAuthorityBinding(
         'EXTERNAL_AUTHORITY_REFERENCE_MISMATCH',
         `authorities.${authorityId}.referenceIds`,
         'Authority reference identifiers must bind one-to-one to persisted references.'
+      )
+    );
+  }
+  if (legacy) return;
+  const expectedBindings = values.flatMap((value) =>
+    isRecord(value) &&
+    typeof value[idKey] === 'string' &&
+    typeof value.path === 'string' &&
+    typeof value.state === 'string'
+      ? [{ id: value[idKey] as string, path: value.path, state: value.state }]
+      : []
+  );
+  if (
+    !Array.isArray(authority.referenceBindings) ||
+    authority.referenceBindings.length !== expectedBindings.length ||
+    authority.referenceBindings.some((binding, index) => {
+      const expected = expectedBindings[index];
+      return (
+        !isRecord(binding) ||
+        binding.id !== expected?.id ||
+        binding.path !== expected?.path ||
+        binding.state !== expected?.state
+      );
+    })
+  ) {
+    errors.push(
+      issue(
+        'EXTERNAL_AUTHORITY_REFERENCE_BINDING_MISMATCH',
+        `authorities.${authorityId}.referenceBindings`,
+        'Authority reference bindings must match identifier, path, and observed state one-to-one.'
       )
     );
   }
@@ -613,6 +649,15 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
           'AUTHORITY_REFERENCE_IDS_UNEXPECTED',
           `${authorityPath}.referenceIds`,
           'Only external reference authorities may declare referenceIds.'
+        )
+      );
+    }
+    if (!externalReferenceAuthority && rawAuthority.referenceBindings !== undefined) {
+      errors.push(
+        issue(
+          'AUTHORITY_REFERENCE_BINDINGS_UNEXPECTED',
+          `${authorityPath}.referenceBindings`,
+          'Only external reference authorities may declare referenceBindings.'
         )
       );
     }

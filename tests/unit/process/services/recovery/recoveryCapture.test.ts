@@ -280,6 +280,7 @@ describe('Desktop-only production capture boundary', () => {
         sealFile: async (sourcePath, outputPath) => {
           await fs.promises.writeFile(outputPath, Buffer.concat([Buffer.from('sealed:'), fs.readFileSync(sourcePath)]));
         },
+        allowUnsafePathFallbackForTests: true,
       }
     );
 
@@ -287,6 +288,94 @@ describe('Desktop-only production capture boundary', () => {
     expect(result.snapshotPath.startsWith(destinationRoot)).toBe(true);
     expect(fs.existsSync(result.manifestPath)).toBe(true);
     expect(result.manifest.files.some(({ authority }) => authority === 'desktop.database')).toBe(true);
+  });
+
+  it('blocks a new authority root created after initial inventory but before capture', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-late-root-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const destinationRoot = path.join(root, 'recovery-points');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite-production');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+    let opens = 0;
+
+    await expect(
+      captureProductionRecoveryPoint(
+        {
+          destinationRoot,
+          userDataRoot,
+          sourceAppVersion: '0.11.18',
+          sourceReleaseTrack: 'stable',
+          desktopProfileLockHeld: true,
+        },
+        {
+          resolveCoreRoots: () => ({
+            defaultCoreRoot: path.join(root, 'absent-core-default'),
+            namedCoreRoot: path.join(root, 'absent-core-profiles'),
+            constitutionRoot: path.join(root, 'absent-constitution'),
+          }),
+          createDatabaseDriver: async (databasePath) =>
+            productionDriver(databasePath, () => {
+              opens += 1;
+              if (opens === 1) {
+                fs.mkdirSync(path.join(userDataRoot, 'late-unknown'));
+                fs.writeFileSync(path.join(userDataRoot, 'late-unknown', 'state.json'), '{}');
+              }
+            }),
+          sealFile: async () => undefined,
+          allowUnsafePathFallbackForTests: true,
+        }
+      )
+    ).rejects.toThrow('UNKNOWN_AUTHORITY_ROOT');
+
+    expect(opens).toBe(1);
+    expect(fs.existsSync(destinationRoot)).toBe(false);
+  });
+
+  it('reclassifies the namespace immediately before publication and removes staging on late drift', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-post-quiescence-root-'));
+    roots.push(root);
+    const userDataRoot = path.join(root, 'user-data');
+    const destinationRoot = path.join(root, 'recovery-points');
+    fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+    fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+    fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite-production');
+    fs.writeFileSync(path.join(userDataRoot, 'config', 'preferences.json'), '{}');
+    let injected = false;
+
+    await expect(
+      captureProductionRecoveryPoint(
+        {
+          destinationRoot,
+          userDataRoot,
+          sourceAppVersion: '0.11.18',
+          sourceReleaseTrack: 'stable',
+          desktopProfileLockHeld: true,
+        },
+        {
+          resolveCoreRoots: () => ({
+            defaultCoreRoot: path.join(root, 'absent-core-default'),
+            namedCoreRoot: path.join(root, 'absent-core-profiles'),
+            constitutionRoot: path.join(root, 'absent-constitution'),
+          }),
+          createDatabaseDriver: async (databasePath) => productionDriver(databasePath),
+          sealFile: async (sourcePath, outputPath) => {
+            await fs.promises.copyFile(sourcePath, outputPath);
+            if (!injected) {
+              injected = true;
+              fs.mkdirSync(path.join(userDataRoot, 'late-after-quiescence'));
+              fs.writeFileSync(path.join(userDataRoot, 'late-after-quiescence', 'state.json'), '{}');
+            }
+          },
+          allowUnsafePathFallbackForTests: true,
+        }
+      )
+    ).rejects.toThrow('UNKNOWN_AUTHORITY_ROOT');
+
+    expect(injected).toBe(true);
+    expect(fs.existsSync(destinationRoot) ? fs.readdirSync(destinationRoot) : []).toEqual([]);
   });
 
   it('blocks unknown mutable state before opening SQLite or mutating the destination', async () => {

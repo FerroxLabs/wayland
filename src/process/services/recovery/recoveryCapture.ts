@@ -20,7 +20,11 @@ import {
   type BuiltRecoveryPoint,
 } from './recoveryPointBuilder';
 import { evaluateRecoveryDryRun, type RecoveryDryRun } from './recoveryDryRun';
-import { inventoryRecoveryAuthorities, type RecoveryInventory } from './stateAuthorityInventory';
+import {
+  inventoryRecoveryAuthorities,
+  MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT,
+  type RecoveryInventory,
+} from './stateAuthorityInventory';
 import {
   loadOrCreateExternalRecoveryAuthority,
   type ExternalRecoveryVaultBackend,
@@ -55,6 +59,8 @@ export type ProductionRecoveryCaptureDependencies = {
   };
   createDatabaseDriver?: typeof createDriver;
   sealFile?: typeof sealRecoveryFile;
+  /** Test-only path fallback; production remains fail-closed without descriptor-relative publication. */
+  allowUnsafePathFallbackForTests?: boolean;
 };
 
 const EPOCH_AUTHORITIES = new Set([
@@ -203,9 +209,53 @@ async function addPathToEpoch(
   await visit(candidate);
 }
 
+function resolveInventoryUserDataRoot(inventory: RecoveryInventory): string {
+  if (inventory.userDataRoot) return inventory.userDataRoot;
+  const configRoot = inventory.authorities
+    .find(({ id }) => id === 'desktop.config')
+    ?.evidence.find(({ state }) => state !== 'absent')?.path;
+  if (configRoot) return path.dirname(configRoot);
+  const databasePath = inventory.authorities
+    .find(({ id }) => id === 'desktop.database')
+    ?.evidence.find(({ state }) => state !== 'absent')?.path;
+  if (databasePath) return path.dirname(path.dirname(databasePath));
+  throw new Error('Recovery mutation epoch requires the authoritative user-data root.');
+}
+
+async function addNamespaceToEpoch(hash: ReturnType<typeof createHash>, userDataRoot: string): Promise<void> {
+  let remaining = MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT;
+  const addDirectory = async (directory: string, relativeRoot: string): Promise<void> => {
+    const directoryStat = await lstat(directory);
+    if (directoryStat.isSymbolicLink() || !directoryStat.isDirectory()) {
+      throw new Error(`Recovery mutation epoch found unsafe namespace: ${directory}`);
+    }
+    const entries = await readdir(directory, { withFileTypes: true });
+    entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
+    for (const entry of entries) {
+      if (remaining <= 0) throw new Error('Recovery mutation epoch exceeded its bounded namespace inventory.');
+      remaining -= 1;
+      const candidate = path.join(directory, entry.name);
+      // Re-stat every entry without following links; Dirent alone is not authority evidence.
+      // oxlint-disable-next-line no-await-in-loop
+      const stat = await lstat(candidate);
+      if (stat.isSymbolicLink()) throw new Error(`Recovery mutation epoch refuses symlink: ${candidate}`);
+      const state = stat.isDirectory() ? 'directory' : stat.isFile() ? 'file' : 'other';
+      const relativePath = path.posix.join(relativeRoot, entry.name);
+      hash.update(`namespace\0${relativePath}\0${state}\0${stat.dev}\0${stat.ino}\0`);
+      if (relativeRoot === '' && stat.isDirectory() && (entry.name === 'constitution' || entry.name === 'wayland')) {
+        // These two namespaces contain independently classified authorities.
+        // oxlint-disable-next-line no-await-in-loop
+        await addDirectory(candidate, entry.name);
+      }
+    }
+  };
+  await addDirectory(userDataRoot, '');
+}
+
 /** Content-bound epoch for Desktop-owned copied state; SQLite has its own online-backup authority. */
 export async function fingerprintDesktopRecoveryState(inventory: RecoveryInventory): Promise<string> {
   const hash = createHash('sha256');
+  await addNamespaceToEpoch(hash, resolveInventoryUserDataRoot(inventory));
   for (const authority of inventory.authorities.filter(({ id }) => EPOCH_AUTHORITIES.has(id))) {
     hash.update(`authority\0${authority.id}\0`);
     for (const evidence of authority.evidence) {
@@ -239,6 +289,13 @@ export async function captureProductionRecoveryPoint(
   const { defaultCoreRoot, namedCoreRoot, constitutionRoot } = resolvedCoreRoots;
   const databaseDriverFactory = dependencies.createDatabaseDriver ?? createDriver;
   const recoverySealer = dependencies.sealFile ?? sealRecoveryFile;
+  const inventoryInputs = {
+    userDataRoot: inputs.userDataRoot,
+    constitutionRoot,
+    coreDefaultProfileRoot: defaultCoreRoot,
+    coreNamedProfilesRoot: namedCoreRoot,
+    sourceReleaseTrack: inputs.sourceReleaseTrack,
+  } as const;
   await assertRecoveryDestinationDisjoint(inputs.destinationRoot, [
     inputs.userDataRoot,
     constitutionRoot,
@@ -246,13 +303,7 @@ export async function captureProductionRecoveryPoint(
     namedCoreRoot,
   ]);
 
-  const inventory = await inventoryRecoveryAuthorities({
-    userDataRoot: inputs.userDataRoot,
-    constitutionRoot,
-    coreDefaultProfileRoot: defaultCoreRoot,
-    coreNamedProfilesRoot: namedCoreRoot,
-    sourceReleaseTrack: inputs.sourceReleaseTrack,
-  });
+  let inventory = await inventoryRecoveryAuthorities(inventoryInputs);
   assertDesktopOnlyRecoveryCaptureReady(inventory);
   const databasePath = inventory.authorities.find(({ id }) => id === 'desktop.database')?.evidence[0]?.path;
   if (!databasePath) throw new Error('Desktop recovery capture could not resolve the authoritative database.');
@@ -263,6 +314,11 @@ export async function captureProductionRecoveryPoint(
   } finally {
     schemaDriver.close();
   }
+
+  // The schema open is an asynchronous boundary. Re-inventory after it so a
+  // root created between discovery and capture cannot inherit stale authority.
+  inventory = await inventoryRecoveryAuthorities(inventoryInputs);
+  assertDesktopOnlyRecoveryCaptureReady(inventory);
 
   if (inputs.externalRecoveryAuthority) {
     await provisionHealthyV2ExternalRecoveryAuthority(
@@ -298,7 +354,16 @@ export async function captureProductionRecoveryPoint(
       acquireDesktopQuiescence: async () => ({ release: async () => undefined }),
       // Intentionally absent until FerroxLabs/wayland#896 is accepted.
       acquireCoreQuiescence: undefined,
-      readMutationEpoch: () => fingerprintDesktopRecoveryState(inventory),
+      readMutationEpoch: async () => {
+        // Reclassify at both builder epoch boundaries: after quiescence and
+        // immediately before publication. Namespace hashing detects drift;
+        // this inventory pass also prevents a newly discovered root from
+        // inheriting an obsolete authority disposition.
+        const currentInventory = await inventoryRecoveryAuthorities(inventoryInputs);
+        assertDesktopOnlyRecoveryCaptureReady(currentInventory);
+        return fingerprintDesktopRecoveryState(currentInventory);
+      },
+      allowUnsafePathFallbackForTests: dependencies.allowUnsafePathFallbackForTests,
     }
   );
 }
