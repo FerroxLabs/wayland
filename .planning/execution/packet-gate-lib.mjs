@@ -322,7 +322,8 @@ export async function checkGate({
   const targetsOk = gate.mode === 'entry' || acceptedTargets.ok;
 
   return {
-    gate: gateId,
+    schema_version: manifest.schema_version,
+    gate_id: gateId,
     mode: gate.mode,
     ok: prerequisites.ok && targetsOk,
     source_baseline: manifest.source_baseline,

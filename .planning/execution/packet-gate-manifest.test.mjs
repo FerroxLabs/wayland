@@ -186,7 +186,8 @@ try {
     }))
   );
   for (const { gateId, result } of productionResults) {
-    assert.equal(result.gate, gateId, `${gateId} must pass real production schema validation`);
+    assert.equal(result.schema_version, 2, `${gateId} must emit the schema-v2 output contract`);
+    assert.equal(result.gate_id, gateId, `${gateId} must pass real production schema validation`);
     assert.equal(result.ok, false, `${gateId} must remain red without external candidate authorization`);
   }
 } finally {

@@ -75,9 +75,11 @@ Required semantics:
    ancestry checks.
 5. Acceptance-gate success requires every prerequisite group and every target group to
    pass. A prerequisite receipt can never substitute for a target receipt.
-6. The result exposes separate `prerequisites` and `accepted_targets` objects.
-   Plans close only from `accepted_targets`, never from the top-level `ok` alone.
-   Entry results identify `mode: entry` and contain no green accepted target.
+6. The result identifies `schema_version: 2` and the exact `gate_id`, then
+   exposes separate `prerequisites` and `accepted_targets` objects. Plans close
+   only from `accepted_targets`, never from the top-level `ok` alone. Entry
+   results identify `mode: entry` and contain no green accepted target. The
+   emitted entry shape must pass the pinned selector's real consumer validator.
 7. The signed receipt binds the digest of the complete schema-v2 gate object,
    including `accepts`; a v1 authorization cannot be replayed.
 8. `accepts.one` requires exactly one authenticated target. Both and neither

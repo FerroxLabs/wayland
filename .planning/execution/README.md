@@ -29,8 +29,9 @@ gate manifest, packet contracts, checker, library, and hostile tests are
 byte-exact to that pinned commit before invoking the in-repo checker. The trust
 root intentionally starts empty and Sean must explicitly provision or delegate
 an acceptance public key. Private keys never live in the repository. Directly
-invoking the in-repo checker is non-authoritative and always fails. The installed
-verifier executes an externally installed, digest-pinned verification library;
+invoking the in-repo checker can produce a syntactically green result from
+caller-supplied inputs, but that result is non-authoritative and cannot accept a
+packet. The installed verifier executes an externally installed, digest-pinned verification library;
 candidate-controlled environment variables cannot substitute a trust root or
 invoke an authoritative in-repo path.
 

@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { canonicalJson, checkGate, contractDigest } from './packet-gate-lib.mjs';
+import { validateEntryReceipt } from './desktop-gsd-next.mjs';
 
 const projectRoot = new URL('../..', import.meta.url).pathname;
 const directory = await mkdtemp(join(tmpdir(), 'wayland-gate-'));
@@ -133,7 +134,13 @@ try {
 
   await writeReceipt('TEST');
   assert.equal((await run('ENTRY_REQUIRED')).ok, true, 'trusted prerequisite opens only the entry gate');
-  assert.deepEqual((await run('ENTRY_REQUIRED')).accepted_targets, [], 'green entry cannot be cited as acceptance');
+  const producedEntry = await run('ENTRY_REQUIRED');
+  assert.deepEqual(producedEntry.accepted_targets, [], 'green entry cannot be cited as acceptance');
+  assert.deepEqual(
+    validateEntryReceipt(producedEntry, 'ENTRY_REQUIRED'),
+    { gate_id: 'ENTRY_REQUIRED', mode: 'entry', prerequisites: 'green', accepted_targets: [] },
+    'schema-v2 producer output must satisfy the pinned selector contract'
+  );
   assert.equal((await run('ENTRY_ALTERNATIVE')).ok, true, 'one trusted alternative should open an entry gate');
   assert.equal((await run('ACCEPT_OPEN')).ok, true, 'trusted exact target should open acceptance');
 
