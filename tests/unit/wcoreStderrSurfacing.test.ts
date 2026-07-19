@@ -278,6 +278,40 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(spawnMock).toHaveBeenCalledTimes(1);
   });
 
+  it('retains launch config when the stale resume root exits before tree proof settles', async () => {
+    vi.useFakeTimers();
+    const first = makeChild();
+    spawnMock.mockReturnValue(first);
+    let rejectTreeProof!: (error: Error) => void;
+    killChildMock.mockReturnValueOnce(
+      new Promise<void>((_resolve, reject) => {
+        rejectTreeProof = reject;
+      })
+    );
+    const restore = vi.fn();
+
+    const agent = new WCoreAgent({ ...baseOptions(), resume: 'session-root-exit-before-tree-proof' });
+    (
+      agent as unknown as {
+        projectConfigTransaction: { restore: () => void };
+      }
+    ).projectConfigTransaction = { restore };
+    const started = agent.start().catch((error: unknown) => error);
+
+    await flushUntilSpawned(first);
+    await vi.advanceTimersByTimeAsync(30_000);
+    await vi.waitFor(() => expect(killChildMock).toHaveBeenCalledOnce());
+
+    // Root exit is notification only. Descendants can remain alive while the
+    // process-tree proof is pending, so launch config must stay pinned.
+    first.emit('exit', 1);
+    expect(restore).not.toHaveBeenCalled();
+
+    rejectTreeProof(new Error('resume descendant still alive'));
+    expect(await started).toMatchObject({ message: 'resume descendant still alive' });
+    expect(restore).not.toHaveBeenCalled();
+  });
+
   it('redacts high-confidence secret tokens from the surfaced stderr (#484 audit)', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
