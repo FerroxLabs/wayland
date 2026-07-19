@@ -97,7 +97,7 @@ async function main() {
     receiptDirectory,
     manifest,
     contracts,
-    trustRoot: config,
+    trustRoot: { schema_version: config.schema_version, keys: config.keys },
     authorizedCandidates: config.accepted_packets,
     expectedIntegrationHead,
   });

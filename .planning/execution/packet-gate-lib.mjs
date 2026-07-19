@@ -13,6 +13,7 @@ const receiptFailureReasons = Object.freeze({
   PACKET_CONTRACT_UNSEALED: 'packet contract is not sealed',
   PACKET_CANDIDATE_UNAUTHORIZED: 'packet candidate is not externally authorized',
   RECEIPT_SCHEMA_UNSUPPORTED: 'unsupported receipt schema',
+  RECEIPT_SCHEMA_INVALID: 'receipt has unsupported or missing fields',
   RECEIPT_UNSIGNED: 'unsigned receipt',
   PACKET_IDENTITY_MISMATCH: 'packet identity mismatch',
   RECEIPT_NOT_ACCEPTED: 'receipt is not accepted',
@@ -70,6 +71,41 @@ function exactKeys(value, expected, label) {
   const wanted = expected.toSorted();
   if (actual.length !== wanted.length || actual.some((key, index) => key !== wanted[index])) {
     throw new Error(`${label} has unsupported or missing fields`);
+  }
+}
+
+function validateReceiptSchema(receipt) {
+  exactKeys(receipt, ['schema_version', 'signed', 'signature'], 'Receipt');
+  exactKeys(
+    receipt.signed,
+    [
+      'packet',
+      'status',
+      'source_baseline',
+      'gate_manifest_revision',
+      'gate_manifest_digest',
+      'gate_authorizations',
+      'packet_contract_digest',
+      'candidate',
+      'evidence',
+      'issuer',
+      'acceptance_key_id',
+      'accepted_at',
+    ],
+    'Receipt.signed'
+  );
+  exactKeys(receipt.signed.candidate, ['commit', 'tree', 'integration_head'], 'Receipt.signed.candidate');
+  exactKeys(receipt.signed.evidence, ['log_digest', 'environment_digest'], 'Receipt.signed.evidence');
+  exactKeys(receipt.signature, ['algorithm', 'key_id', 'value'], 'Receipt.signature');
+}
+
+function validateTrustRootSchema(trustRoot) {
+  exactKeys(trustRoot, ['schema_version', 'keys'], 'Trust root');
+  if (!Array.isArray(trustRoot.keys)) throw new Error('Invalid acceptance key registry');
+  for (const [index, key] of trustRoot.keys.entries()) {
+    const fields = ['key_id', 'issuer', 'public_key_pem', 'valid_from', 'valid_until'];
+    if (Object.hasOwn(key ?? {}, 'revoked_at')) fields.push('revoked_at');
+    exactKeys(key, fields, `Trust root key ${index}`);
   }
 }
 
@@ -206,7 +242,7 @@ async function checkGateAtVerificationTime(
     throw new Error('Integration HEAD does not match the gate CAS');
   }
 
-  if (!Array.isArray(trustRoot.keys)) throw new Error('Invalid acceptance key registry');
+  validateTrustRootSchema(trustRoot);
   const trustedKeys = new Map();
   const trustedPublicKeys = new Set();
   for (const key of trustRoot.keys) {
@@ -231,6 +267,11 @@ async function checkGateAtVerificationTime(
       const receipt = JSON.parse(await readFile(resolve(receiptDirectory, `${packet}.json`), 'utf8'));
       if (receipt.schema_version !== 2) return receiptFailure(packet, 'RECEIPT_SCHEMA_UNSUPPORTED');
       if (!receipt.signed || !receipt.signature) return receiptFailure(packet, 'RECEIPT_UNSIGNED');
+      try {
+        validateReceiptSchema(receipt);
+      } catch {
+        return receiptFailure(packet, 'RECEIPT_SCHEMA_INVALID');
+      }
 
       const signed = receipt.signed;
       if (signed.packet !== packet) return receiptFailure(packet, 'PACKET_IDENTITY_MISMATCH');

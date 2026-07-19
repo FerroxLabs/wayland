@@ -106,6 +106,11 @@ async function writeReceipt(packet, options = {}) {
   return receipt;
 }
 
+async function persistSignedReceipt(packet, receipt) {
+  receipt.signature.value = sign(null, Buffer.from(canonicalJson(receipt.signed)), privateKey).toString('base64');
+  await writeFile(join(receiptDirectory, `${packet}.json`), `${JSON.stringify(receipt)}\n`);
+}
+
 const authorizedCandidates = Object.fromEntries(
   ['TEST', 'OTHER', 'TARGET'].map((packet) => [packet, { commit: head, tree, integration_head: head }])
 );
@@ -377,6 +382,94 @@ try {
     false,
     'a correctly signed receipt with an unknown critical field must fail closed'
   );
+  assert.equal(
+    (await run('ACCEPT_OPEN')).accepted_targets.required[0].reason_code,
+    'RECEIPT_SCHEMA_INVALID',
+    'unknown receipt fields must use a stable fail-closed reason'
+  );
+
+  async function rejectsReceiptSchema(label, mutate, { resign = false } = {}) {
+    const receipt = await writeReceipt('TEST');
+    mutate(receipt);
+    if (resign) await persistSignedReceipt('TEST', receipt);
+    else await writeFile(join(receiptDirectory, 'TEST.json'), `${JSON.stringify(receipt)}\n`);
+    const result = await run('ACCEPT_OPEN');
+    assert.equal(result.ok, false, label);
+    assert.equal(result.accepted_targets.required[0].reason_code, 'RECEIPT_SCHEMA_INVALID', label);
+  }
+
+  await rejectsReceiptSchema('unknown receipt-envelope fields fail closed', (receipt) => {
+    receipt.critical_extension = true;
+  });
+  await rejectsReceiptSchema(
+    'unknown signed fields fail closed',
+    (receipt) => {
+      receipt.signed.future_authority = true;
+    },
+    { resign: true }
+  );
+  await rejectsReceiptSchema(
+    'missing signed fields fail closed',
+    (receipt) => {
+      delete receipt.signed.issuer;
+    },
+    { resign: true }
+  );
+  await rejectsReceiptSchema(
+    'unknown candidate fields fail closed',
+    (receipt) => {
+      receipt.signed.candidate.receipt_authority = 'candidate';
+    },
+    { resign: true }
+  );
+  await rejectsReceiptSchema(
+    'missing candidate fields fail closed',
+    (receipt) => {
+      delete receipt.signed.candidate.tree;
+    },
+    { resign: true }
+  );
+  await rejectsReceiptSchema(
+    'unknown evidence fields fail closed',
+    (receipt) => {
+      receipt.signed.evidence.provider_claim = 'trusted';
+    },
+    { resign: true }
+  );
+  await rejectsReceiptSchema(
+    'missing evidence fields fail closed',
+    (receipt) => {
+      delete receipt.signed.evidence.log_digest;
+    },
+    { resign: true }
+  );
+  await rejectsReceiptSchema('unknown signature fields fail closed', (receipt) => {
+    receipt.signature.authority = 'candidate';
+  });
+  await rejectsReceiptSchema('missing signature fields fail closed', (receipt) => {
+    delete receipt.signature.value;
+  });
+  await rejectsReceiptSchema(
+    'prototype-adjacent signed fields fail closed',
+    (receipt) => {
+      Object.defineProperty(receipt.signed, '__proto__', { value: 'authority', enumerable: true });
+    },
+    { resign: true }
+  );
+
+  await writeFile(trustRootPath, `${JSON.stringify({ ...activeTrustRoot, critical_extension: true })}\n`);
+  await assert.rejects(run('ACCEPT_OPEN'), /Trust root has unsupported or missing fields/);
+  await writeFile(
+    trustRootPath,
+    `${JSON.stringify({ schema_version: 1, keys: [{ ...activeKey, receipt_authority: 'candidate' }] })}\n`
+  );
+  await assert.rejects(run('ACCEPT_OPEN'), /Trust root key 0 has unsupported or missing fields/);
+  const missingTrustField = { ...activeKey };
+  delete missingTrustField.issuer;
+  await writeFile(trustRootPath, `${JSON.stringify({ schema_version: 1, keys: [missingTrustField] })}\n`);
+  await assert.rejects(run('ACCEPT_OPEN'), /Trust root key 0 has unsupported or missing fields/);
+  await writeFile(trustRootPath, `${JSON.stringify(activeTrustRoot)}\n`);
+
   await writeReceipt('TEST', {
     signed: { candidate: { commit: 'a'.repeat(40), tree: 'b'.repeat(40), integration_head: 'a'.repeat(40) } },
   });
