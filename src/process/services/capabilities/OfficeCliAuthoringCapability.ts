@@ -1,6 +1,6 @@
 /** OfficeCLI capability evidence producer. It never decides readiness. */
 import { constants, type Stats } from 'node:fs';
-import { lstat, open, readFile, readdir, realpath } from 'node:fs/promises';
+import { lstat, open, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import {
   CAPABILITY_EVIDENCE_CONTRACT,
@@ -35,6 +35,7 @@ const EVIDENCE_TTL_MS = 5 * 60_000;
 type StablePathIdentity = Readonly<{
   dev: number;
   ino: number;
+  nlink: number;
   mode: number;
   size: number;
   mtimeMs: number;
@@ -45,6 +46,7 @@ function pathIdentity(stat: Stats): StablePathIdentity {
   return {
     dev: stat.dev,
     ino: stat.ino,
+    nlink: stat.nlink,
     mode: stat.mode,
     size: stat.size,
     mtimeMs: stat.mtimeMs,
@@ -56,6 +58,7 @@ function samePathIdentity(left: StablePathIdentity, right: StablePathIdentity): 
   return (
     left.dev === right.dev &&
     left.ino === right.ino &&
+    left.nlink === right.nlink &&
     left.mode === right.mode &&
     left.size === right.size &&
     left.mtimeMs === right.mtimeMs &&
@@ -72,6 +75,19 @@ async function authenticateBundleDirectory(bundledDir: string): Promise<{
   return { realPath: await realpath(bundledDir), identity: pathIdentity(stat) };
 }
 
+async function authenticateContainedDirectory(
+  rootRealPath: string,
+  directoryPath: string
+): Promise<{ realPath: string; identity: StablePathIdentity }> {
+  const stat = await lstat(directoryPath);
+  if (stat.isSymbolicLink() || !stat.isDirectory()) throw new Error('invalid OfficeCLI skill directory');
+  const canonicalPath = await realpath(directoryPath);
+  if (canonicalPath !== rootRealPath && !canonicalPath.startsWith(`${rootRealPath}${path.sep}`)) {
+    throw new Error('OfficeCLI skill directory escapes its root');
+  }
+  return { realPath: canonicalPath, identity: pathIdentity(stat) };
+}
+
 async function readAuthenticatedBundleFile(
   bundledDir: string,
   bundleRealPath: string,
@@ -80,7 +96,8 @@ async function readAuthenticatedBundleFile(
 ): Promise<{ bytes: Buffer; identity: StablePathIdentity; realPath: string }> {
   const filePath = path.join(bundledDir, name);
   const before = await lstat(filePath);
-  if (before.isSymbolicLink() || !before.isFile()) throw new Error('invalid OfficeCLI bundle file');
+  if (before.isSymbolicLink() || !before.isFile() || before.nlink !== 1)
+    throw new Error('invalid OfficeCLI bundle file');
   const beforeIdentity = pathIdentity(before);
   const beforeRealPath = await realpath(filePath);
   if (path.dirname(beforeRealPath) !== bundleRealPath) throw new Error('OfficeCLI bundle file escapes its directory');
@@ -92,6 +109,7 @@ async function readAuthenticatedBundleFile(
     const openedIdentity = pathIdentity(opened);
     if (
       !opened.isFile() ||
+      opened.nlink !== 1 ||
       !samePathIdentity(beforeIdentity, openedIdentity) ||
       (executable && process.platform !== 'win32' && (opened.mode & 0o111) === 0)
     ) {
@@ -101,6 +119,37 @@ async function readAuthenticatedBundleFile(
     const afterRead = pathIdentity(await handle.stat());
     if (!samePathIdentity(openedIdentity, afterRead)) {
       throw new Error('OfficeCLI bundle file identity changed during read');
+    }
+    return { bytes, identity: openedIdentity, realPath: beforeRealPath };
+  } finally {
+    await handle.close();
+  }
+}
+
+async function readAuthenticatedContainedFile(
+  rootRealPath: string,
+  filePath: string
+): Promise<{ bytes: Buffer; identity: StablePathIdentity; realPath: string }> {
+  const before = await lstat(filePath);
+  if (before.isSymbolicLink() || !before.isFile() || before.nlink !== 1)
+    throw new Error('invalid OfficeCLI skill file');
+  const beforeIdentity = pathIdentity(before);
+  const beforeRealPath = await realpath(filePath);
+  if (!beforeRealPath.startsWith(`${rootRealPath}${path.sep}`)) {
+    throw new Error('OfficeCLI skill file escapes its root');
+  }
+
+  const noFollow = process.platform === 'win32' ? 0 : constants.O_NOFOLLOW;
+  const handle = await open(filePath, constants.O_RDONLY | noFollow);
+  try {
+    const opened = await handle.stat();
+    const openedIdentity = pathIdentity(opened);
+    if (!opened.isFile() || opened.nlink !== 1 || !samePathIdentity(beforeIdentity, openedIdentity)) {
+      throw new Error('OfficeCLI skill file identity changed before read');
+    }
+    const bytes = await handle.readFile();
+    if (!samePathIdentity(openedIdentity, pathIdentity(await handle.stat()))) {
+      throw new Error('OfficeCLI skill file identity changed during read');
     }
     return { bytes, identity: openedIdentity, realPath: beforeRealPath };
   } finally {
@@ -125,6 +174,7 @@ async function verifyBundleIdentityAfterRead(
       if (
         stat.isSymbolicLink() ||
         !stat.isFile() ||
+        stat.nlink !== 1 ||
         !samePathIdentity(pathIdentity(stat), expected.identity) ||
         canonicalPath !== expected.realPath
       ) {
@@ -157,11 +207,14 @@ function canonical(value: unknown): string {
 export async function verifyInstalledOfficeCliSkillProof(skillsRoot: string, value: unknown): Promise<boolean> {
   if (!validOfficeCliSkillProof(value)) return false;
   try {
-    const rootReal = await realpath(skillsRoot);
+    const root = await authenticateBundleDirectory(skillsRoot);
     const expected = new Set(OFFICECLI_SKILL_PROOF.skills.map((skill) => skill.path));
     const discovered = new Set<string>();
+    const directories = new Map<string, { identity: StablePathIdentity; realPath: string }>();
     const visit = async (relativeDir: string): Promise<void> => {
       const absoluteDir = path.join(skillsRoot, relativeDir);
+      const directory = await authenticateContainedDirectory(root.realPath, absoluteDir);
+      directories.set(relativeDir, directory);
       await Promise.all(
         (await readdir(absoluteDir, { withFileTypes: true })).map(async (entry) => {
           const relative = path.posix.join(relativeDir.split(path.sep).join('/'), entry.name);
@@ -185,17 +238,41 @@ export async function verifyInstalledOfficeCliSkillProof(skillsRoot: string, val
       // Exact-set comparison below rejects the missing builtin skill.
     }
     if (canonical([...discovered].toSorted()) !== canonical([...expected].toSorted())) return false;
-    const checks = await Promise.all(
+    const files = await Promise.all(
       OFFICECLI_SKILL_PROOF.skills.map(async (skill) => {
         const absolute = path.join(skillsRoot, skill.path);
-        const stat = await lstat(absolute);
-        if (!stat.isFile() || stat.isSymbolicLink()) return false;
-        const canonicalPath = await realpath(absolute);
-        if (!canonicalPath.startsWith(`${rootReal}${path.sep}`)) return false;
-        return digestOfficeCliEvidence(await readFile(canonicalPath)) === skill.sha256;
+        const file = await readAuthenticatedContainedFile(root.realPath, absolute);
+        return { file, path: absolute, digestMatches: digestOfficeCliEvidence(file.bytes) === skill.sha256 };
       })
     );
-    return checks.every(Boolean);
+    if (files.some((file) => !file.digestMatches)) return false;
+
+    const rootAfter = await authenticateBundleDirectory(skillsRoot);
+    if (rootAfter.realPath !== root.realPath || !samePathIdentity(rootAfter.identity, root.identity)) return false;
+    await Promise.all([
+      ...[...directories.entries()].map(async ([relativeDir, expectedDirectory]) => {
+        const directory = await authenticateContainedDirectory(root.realPath, path.join(skillsRoot, relativeDir));
+        if (
+          directory.realPath !== expectedDirectory.realPath ||
+          !samePathIdentity(directory.identity, expectedDirectory.identity)
+        ) {
+          throw new Error('OfficeCLI skill directory identity changed during read');
+        }
+      }),
+      ...files.map(async (expectedFile) => {
+        const [stat, canonicalPath] = await Promise.all([lstat(expectedFile.path), realpath(expectedFile.path)]);
+        if (
+          stat.isSymbolicLink() ||
+          !stat.isFile() ||
+          stat.nlink !== 1 ||
+          !samePathIdentity(pathIdentity(stat), expectedFile.file.identity) ||
+          canonicalPath !== expectedFile.file.realPath
+        ) {
+          throw new Error('OfficeCLI skill file identity changed after read');
+        }
+      }),
+    ]);
+    return true;
   } catch {
     return false;
   }

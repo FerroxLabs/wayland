@@ -306,4 +306,50 @@ describe('OfficeCLI target-exact evidence producer', () => {
       fs.rmSync(fixture.root, { recursive: true, force: true });
     }
   });
+
+  it('rejects a bundle manifest with an out-of-bundle hardlink authority', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const fixture = createInstalledFixture('wayland-officecli-manifest-hardlink-');
+    if (!fixture) return;
+    try {
+      fs.linkSync(path.join(fixture.bundledDir, 'manifest.json'), path.join(fixture.root, 'external-manifest.json'));
+
+      const evidence = await probeInstalledFixture(fixture.bundledDir, fixture.skillsRoot);
+
+      expect(evidence.status).toBe('unavailable');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects installed skill bytes with an out-of-root hardlink authority', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const fixture = createInstalledFixture('wayland-officecli-skill-hardlink-');
+    if (!fixture) return;
+    try {
+      const skillPath = path.join(fixture.skillsRoot, OFFICECLI_SKILL_PROOF.skills[0].path);
+      fs.linkSync(skillPath, path.join(fixture.root, 'external-skill.md'));
+
+      const evidence = await probeInstalledFixture(fixture.bundledDir, fixture.skillsRoot);
+
+      expect(evidence.status).toBe('unavailable');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects a symbolic installed skill root even when every byte is exact', async () => {
+    if (process.platform === 'win32') return;
+    const fixture = createInstalledFixture('wayland-officecli-skill-root-symlink-');
+    if (!fixture) return;
+    const linkedRoot = path.join(fixture.root, 'linked-skills');
+    fs.symlinkSync(fixture.skillsRoot, linkedRoot, 'dir');
+    try {
+      const evidence = await probeInstalledFixture(fixture.bundledDir, linkedRoot);
+
+      expect(evidence.status).toBe('unavailable');
+    } finally {
+      fs.rmSync(fixture.root, { recursive: true, force: true });
+    }
+  });
 });
