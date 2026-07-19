@@ -19,6 +19,7 @@ const required = [
   '.planning/execution/packet-gate-lib.mjs',
   '.planning/execution/check-packet-gate.test.mjs',
   '.planning/execution/packet-gate-manifest.test.mjs',
+  '.planning/execution/cross-worktree-receipt.test.mjs',
   '.planning/execution/wayland-gsd-gate.mjs',
 ]
 
@@ -42,6 +43,12 @@ try {
   })
   assert.equal(manifestProof.status, 0, manifestProof.stderr || manifestProof.stdout)
   assert.match(manifestProof.stdout, /packet gate manifest tests: PASS/)
+  const sharedReceiptProof = spawnSync(process.execPath, ['.planning/execution/cross-worktree-receipt.test.mjs'], {
+    cwd: worktree,
+    encoding: 'utf8',
+  })
+  assert.equal(sharedReceiptProof.status, 0, sharedReceiptProof.stderr || sharedReceiptProof.stdout)
+  assert.match(sharedReceiptProof.stdout, /cross-worktree shared receipt tests: PASS/)
   console.log('clean worktree GSD smoke: PASS')
 } finally {
   git(['worktree', 'remove', '--force', worktree])

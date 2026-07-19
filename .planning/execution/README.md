@@ -11,9 +11,12 @@ wayland-gsd-gate <gate-id>
 ```
 
 The checker fails closed unless every required upstream packet has an
-Ed25519-authenticated acceptance receipt under `.planning/receipts/`. The trust
-root and exact control-plane commit live outside the mutable candidate at
-`~/.config/wayland-gsd/desktop-control.json`. The external verifier checks the
+Ed25519-authenticated acceptance receipt in the absolute shared evidence store
+pinned by `~/.config/wayland-gsd/desktop-control.json`. Receipts never live in a
+candidate worktree: every clean packet worktree sees the same externally
+authorized, digest-bound evidence, and a repository-relative override is
+rejected. The trust root and exact control-plane commit also live outside the
+mutable candidate. The external verifier checks the
 gate manifest, packet contracts, checker, library, and hostile tests are
 byte-exact to that pinned commit before invoking the in-repo checker. The trust
 root intentionally starts empty and Sean must explicitly provision or delegate
@@ -36,6 +39,10 @@ sidecar is not acceptance authority and is not used.
 Phase 1 is intentionally open. Its bounded plans may execute, but it cannot be
 marked complete until `P1-AGGREGATE-ACCEPTANCE` passes. That sentinel requires
 signed M0B and the named Phase 5 proof closure; code presence is insufficient.
+Release and Preview preserve both legitimate capability paths: Cowork may ship
+only with C0-B, C1, and final package closure, or be physically absent together
+with its native Office resources, UI surfaces, and release claims. A partial or
+claims-only Cowork state cannot open either gate.
 
 Automatic GSD parallelization is disabled. Parallel Codex builders are launched
 only after manually creating one clean worktree per plan, confirming disjoint

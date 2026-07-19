@@ -24,6 +24,8 @@ if (config.schema_version !== 1 || !Array.isArray(config.keys)) fail('Invalid ex
 if (!/^[0-9a-f]{40}([0-9a-f]{24})?$/.test(config.control_commit ?? '')) fail('Invalid pinned control commit')
 if (!Array.isArray(config.controlled_paths) || config.controlled_paths.length === 0) fail('No externally controlled paths')
 if (!config.accepted_packets || typeof config.accepted_packets !== 'object') fail('No external accepted-packet registry')
+if (!config.receipt_store || config.receipt_store.policy !== 'external-absolute-read-only-cas') fail('Invalid external receipt-store policy')
+if (!isAbsolute(config.receipt_store.path ?? '')) fail('External receipt-store path is not absolute')
 if (!isAbsolute(config.verifier_lib_path ?? '')) fail('External verifier library path is not absolute')
 if (!/^sha256:[0-9a-f]{64}$/.test(config.verifier_lib_digest ?? '')) fail('External verifier library digest is invalid')
 if (!gateId) fail('Missing packet gate ID')
@@ -31,10 +33,18 @@ if (!gateId) fail('Missing packet gate ID')
 const rootResult = git(process.cwd(), ['rev-parse', '--show-toplevel'])
 if (rootResult.status !== 0) fail('Not inside a Git worktree')
 const projectRoot = rootResult.stdout.trim()
+const manifestPath = join(projectRoot, '.planning/execution/PACKET-GATES.json')
+const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
 const commonResult = git(projectRoot, ['rev-parse', '--git-common-dir'])
 if (commonResult.status !== 0) fail('Cannot resolve Git common directory')
 const commonDir = await realpath(isAbsolute(commonResult.stdout.trim()) ? commonResult.stdout.trim() : resolve(projectRoot, commonResult.stdout.trim()))
 if (commonDir !== await realpath(config.git_common_dir)) fail('Worktree does not belong to the externally pinned repository')
+if ('receipt_directory' in manifest) fail('Repository-controlled receipt-directory override is forbidden')
+const receiptDirectory = await realpath(config.receipt_store.path)
+const projectReal = await realpath(projectRoot)
+if (receiptDirectory === projectReal || receiptDirectory.startsWith(`${projectReal}/`) || receiptDirectory === commonDir || receiptDirectory.startsWith(`${commonDir}/`)) {
+  fail('Receipt store must be external to the repository and Git common directory')
+}
 
 const commitCheck = git(projectRoot, ['cat-file', '-e', `${config.control_commit}^{commit}`])
 if (commitCheck.status !== 0) fail('Pinned control commit does not exist')
@@ -52,12 +62,10 @@ const verifierBytes = await readFile(config.verifier_lib_path)
 const verifierDigest = `sha256:${createHash('sha256').update(verifierBytes).digest('hex')}`
 if (verifierDigest !== config.verifier_lib_digest) fail('External verifier library digest mismatch')
 const { checkGate } = await import(pathToFileURL(config.verifier_lib_path))
-const manifestPath = join(projectRoot, '.planning/execution/PACKET-GATES.json')
-const manifest = JSON.parse(await readFile(manifestPath, 'utf8'))
 const result = await checkGate({
   gateId,
   projectRoot,
-  receiptDirectory: join(projectRoot, manifest.receipt_directory),
+  receiptDirectory,
   manifestPath,
   contractsPath: join(projectRoot, manifest.contract_manifest),
   trustRootPath: configPath,
