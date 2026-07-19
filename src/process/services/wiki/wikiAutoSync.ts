@@ -34,22 +34,14 @@ function writeConceptFile(projectPath: string, concept: import('@/common/types/m
   // Guard against path traversal
   const resolvedWikiDir = path.resolve(wikiDir);
   const resolvedFilePath = path.resolve(filePath);
-  if (
-    !resolvedFilePath.startsWith(resolvedWikiDir + path.sep) &&
-    resolvedFilePath !== resolvedWikiDir
-  ) {
+  if (!resolvedFilePath.startsWith(resolvedWikiDir + path.sep) && resolvedFilePath !== resolvedWikiDir) {
     throw new Error(`Concept filename escapes wiki directory: ${concept.name}`);
   }
 
   const aliasesYaml =
-    concept.aliases.length > 0
-      ? `aliases: [${concept.aliases.map((a) => `"${a}"`).join(', ')}]`
-      : 'aliases: []';
+    concept.aliases.length > 0 ? `aliases: [${concept.aliases.map((a) => `"${a}"`).join(', ')}]` : 'aliases: []';
 
-  const tagsYaml =
-    concept.tags.length > 0
-      ? `tags: [${concept.tags.map((t) => `"${t}"`).join(', ')}]`
-      : 'tags: []';
+  const tagsYaml = concept.tags.length > 0 ? `tags: [${concept.tags.map((t) => `"${t}"`).join(', ')}]` : 'tags: []';
 
   const lines = [
     '---',
@@ -84,11 +76,7 @@ function persistLastSyncAt(projectPath: string, state: WikiState, lastSyncAt: nu
     if (!fs.existsSync(stateDir)) {
       fs.mkdirSync(stateDir, { recursive: true });
     }
-    fs.writeFileSync(
-      path.join(stateDir, 'index.json'),
-      JSON.stringify(updated, null, 2),
-      'utf8',
-    );
+    fs.writeFileSync(path.join(stateDir, 'index.json'), JSON.stringify(updated, null, 2), 'utf8');
   } catch (err) {
     log.warn('[wiki-auto-sync] could not persist lastSyncAt', { err });
   }
@@ -111,12 +99,14 @@ export async function runSynthesisSweep(): Promise<number> {
   let projectPath: string;
   try {
     const projects = await svc.getProjects();
-    if (projects.length > 0) {
-      const sorted = [...projects].sort((a, b) => b.lastActive - a.lastActive);
-      projectPath = sorted[0].path;
-    } else {
-      projectPath = process.cwd();
+    if (projects.length === 0) {
+      // A scheduled sweep without an active project has no persistence
+      // authority. The application launch directory is not a workspace.
+      log.info('[wiki-auto-sync] skipped: no active project');
+      return 0;
     }
+    const sorted = projects.toSorted((a, b) => b.lastActive - a.lastActive);
+    projectPath = sorted[0].path;
   } catch (err) {
     log.warn('[wiki-auto-sync] could not resolve project path', { err });
     return 0;
@@ -145,9 +135,7 @@ export async function runSynthesisSweep(): Promise<number> {
     };
   }
 
-  const existingSourceIds = new Set(
-    existingState.concepts.flatMap((c) => c.sourceMemoryIds),
-  );
+  const existingSourceIds = new Set(existingState.concepts.flatMap((c) => c.sourceMemoryIds));
 
   let newConcepts: import('@/common/types/memory').WikiConcept[];
   try {

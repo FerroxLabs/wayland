@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { startWikiAutoSync } from '@process/services/wiki/wikiAutoSync';
+import { runSynthesisSweep, startWikiAutoSync } from '@process/services/wiki/wikiAutoSync';
 
 // ===== Mock heavy dependencies so unit tests stay fast =====
 
@@ -43,6 +43,7 @@ vi.mock('@process/services/wiki/wikiSynthesizer', () => ({
 
 describe('startWikiAutoSync', () => {
   beforeEach(() => {
+    vi.clearAllMocks();
     vi.useFakeTimers();
   });
 
@@ -56,9 +57,21 @@ describe('startWikiAutoSync', () => {
     handle.stop();
   });
 
+  it('skips a sweep when no project is active instead of using the launch directory', async () => {
+    const cwd = vi.spyOn(process, 'cwd');
+    const { buildWikiState } = await import('@process/services/wiki/wikiIndex');
+    const { synthesizeMany } = await import('@process/services/wiki/wikiSynthesizer');
+
+    await expect(runSynthesisSweep()).resolves.toBe(0);
+
+    expect(cwd).not.toHaveBeenCalled();
+    expect(buildWikiState).not.toHaveBeenCalled();
+    expect(synthesizeMany).not.toHaveBeenCalled();
+    cwd.mockRestore();
+  });
+
   it('stop() prevents further interval ticks', () => {
     let tickCount = 0;
-    const origSetInterval = globalThis.setInterval;
     // Spy on interval creation but use real fake timers
     const handle = startWikiAutoSync(1000);
     handle.stop();
