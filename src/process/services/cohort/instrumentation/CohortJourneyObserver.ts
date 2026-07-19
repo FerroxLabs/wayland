@@ -92,7 +92,7 @@ export class CohortJourneyObserver {
 
   startSession(): Promise<M0BRecordResult> {
     return this.enqueue(async () => {
-      if (this.sessionState === 'open') return { status: 'recorded' };
+      if (this.sessionState === 'open' && !this.hasPendingSessionTerminal()) return { status: 'recorded' };
       if (this.sessionState !== 'idle') return rejected('sessionState');
       const { result } = await this.recordRetryable('session:start', () => this.event('session_started'));
       if (result.status === 'recorded') this.sessionState = 'open';
@@ -110,7 +110,7 @@ export class CohortJourneyObserver {
 
   startJourney(journeyId: unknown): Promise<M0BJourneyStartResult> {
     return this.enqueue(async () => {
-      if (this.sessionState !== 'open') return rejected('sessionState');
+      if (!this.canRecordSessionEvidence()) return rejected('sessionState');
       if (!isOneOf(journeyId, M0B_PRIMARY_JOURNEYS)) return rejected('journeyId');
 
       const { event, result } = await this.recordRetryable(`journey:start:${journeyId}`, () => ({
@@ -154,7 +154,7 @@ export class CohortJourneyObserver {
 
   recordShellReturn(reason: unknown): Promise<M0BRecordResult> {
     return this.enqueue(async () => {
-      if (this.sessionState !== 'open') return rejected('sessionState');
+      if (!this.canRecordSessionEvidence()) return rejected('sessionState');
       if (this.input.shell !== 'cockpit') return rejected('shell');
       if (!isOneOf(reason, M0B_RETURN_REASONS)) return rejected('reason');
       const { result } = await this.recordRetryable(`shell-return:${reason}`, () => ({
@@ -188,7 +188,7 @@ export class CohortJourneyObserver {
 
   private terminalJourney(handle: unknown, kind: 'journey_completed' | 'journey_failed'): Promise<M0BRecordResult> {
     return this.enqueue(async () => {
-      if (this.sessionState !== 'open') return rejected('sessionState');
+      if (!this.canRecordSessionEvidence()) return rejected('sessionState');
       if (handle === null || (typeof handle !== 'object' && typeof handle !== 'function')) {
         return rejected('journeyHandle');
       }
@@ -215,7 +215,7 @@ export class CohortJourneyObserver {
     build: (valid: T) => M0BCohortEvent
   ): Promise<M0BRecordResult> {
     return this.enqueue(async () => {
-      if (this.sessionState !== 'open') return rejected('sessionState');
+      if (!this.canRecordSessionEvidence()) return rejected('sessionState');
       if (!isOneOf(value, allowed)) return rejected(field);
       const { result } = await this.recordRetryable(`${field}:${value}`, () => build(value));
       return result;
@@ -253,6 +253,14 @@ export class CohortJourneyObserver {
     } catch {
       return { status: 'storage_error' };
     }
+  }
+
+  private hasPendingSessionTerminal(): boolean {
+    return this.pendingEvents.has('session:terminal');
+  }
+
+  private canRecordSessionEvidence(): boolean {
+    return this.sessionState === 'open' && !this.hasPendingSessionTerminal();
   }
 
   /**
