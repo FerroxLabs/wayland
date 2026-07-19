@@ -22,11 +22,14 @@ key-files:
     - tests/unit/conversationBridge.workspaceRetention.test.ts
     - tests/unit/managedWorkspaceProvenance.test.ts
   modified:
+    - src/process/agent/acp/utils.ts
     - src/process/services/workspaceRetention.ts
     - src/process/services/managedWorkspaceInventory.ts
     - src/process/services/desktopManagedWorkspaceInventory.ts
     - src/process/bridge/conversationBridge.ts
     - src/process/bridge/workspaceRetentionBridge.ts
+    - src/process/task/AcpAgentManager.ts
+    - src/process/task/WorkerTaskManager.ts
     - src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx
     - tests/unit/workspaceRetention.test.ts
     - tests/unit/managedWorkspaceInventory.test.ts
@@ -39,6 +42,8 @@ key-decisions:
   - 'Filename grammar is discovery only; provenance comes from an encrypted installation-bound creation ledger.'
   - 'Without a portable immutable filesystem snapshot, empty-looking shells remain preserved and unknown.'
   - 'A terminating agent remains active authority until shutdown resolves; failed shutdown retains the lease and chat.'
+  - 'Callback-time same-ID successors are refused and drained to a fixed point before removal can report success.'
+  - 'Failed taskkill or POSIX process-tree enumeration cannot mint backend-exit proof.'
   - 'Renderer IPC accepts no path, root, classification, mutation, legacy alias, or unknown input.'
 patterns-established:
   - 'Classification does not grant lifecycle mutation authority.'
@@ -50,7 +55,7 @@ coverage:
     requirement: SAF-04
     verification:
       - kind: unit
-        ref: 'focused workspace-retention suite (99/99 pass)'
+        ref: 'focused workspace-retention and process-exit suite (135/135 pass)'
         status: pass
       - kind: integration
         ref: 'ConversationServiceImpl through SqliteConversationRepository proves exact binary workspace bytes survive conversation.remove'
@@ -72,15 +77,15 @@ coverage:
     requirement: SAF-04
     verification:
       - kind: integration
-        ref: 'bun run test (15,278 Vitest + 226 Bun-native pass)'
+        ref: 'bun run test at source tree 405f00f6f73ea8f50b0fa9e55fc7d0551be70190 (15,193 Vitest + 226 Bun-native pass)'
         status: pass
       - kind: unit
-        ref: 'owned lint: 0 errors; typecheck pass; oxfmt pass'
+        ref: 'repair files lint: 0 warnings/errors; packet-owned lint: 0 errors with 17 baseline warnings; typecheck and oxfmt pass'
         status: pass
     human_judgment: false
 duration: 1h
 completed: 2026-07-19
-status: complete
+status: candidate-ready
 ---
 
 # Phase 1 Plan 08: Preservation-First Workspace Retention Summary
@@ -89,10 +94,10 @@ status: complete
 
 ## Performance
 
-- **Duration:** approximately 1 hour
-- **Completed:** 2026-07-19T07:08:28Z
+- **Duration:** approximately 3 hours including successor repair and aggregate proof
+- **Completed:** 2026-07-19T16:32:00Z
 - **Tasks:** 2
-- **Files modified:** 22
+- **Files owned:** 45
 
 ## Accomplishments
 
@@ -102,15 +107,20 @@ status: complete
 - Preserved terminating process authority until actual shutdown and made conversation removal fail closed when shutdown fails.
 - Proved through the production conversation service and SQLite repository adapter that deleting a conversation severs the database reference without altering exact managed-workspace file bytes.
 - Restricted the retention IPC and renderer to read-only explanations, with hostile tests rejecting renderer-supplied roots, paths, classifications, mutation verbs, aliases, and unknown fields.
+- Closed the callback-time successor race: removal now re-drains refused same-ID processes after deferred persistence and fails closed when their shutdown is unproved.
+- Made Windows taskkill failure and POSIX process-tree enumeration failure reject shutdown instead of silently treating missing evidence as success.
+- Awaited idle-shutdown results through `Promise.allSettled`, preserving failed leases while deterministically observing every rejection.
 
 ## Task Commits
 
 1. **Conservative classifier and real deletion-path proof:** `d73fce99ea53a134b7325c3f2f50f6120532bab9`
 2. **Read-only bridge and review presentation:** `56885e04cc390a6f8f48bf303808313d2bfb9cba`
 3. **Adversarial authority and race repair:** `88f86216576fa70ee50c4d57fafae72f67a2b73a`
+4. **Successor shutdown-proof repair:** `1037c0b82f2c6a7829a4d3b9c36e6279b1db8ee8`
 
-**Accepted implementation commit:** `88f86216576fa70ee50c4d57fafae72f67a2b73a`  
-**Accepted implementation tree:** `34b4b2b47bbb2b6ce335609dc385c8673d017d10`
+**Sealed implementation candidate:** `1037c0b82f2c6a7829a4d3b9c36e6279b1db8ee8`  
+**Aggregate-proved source tree:** `405f00f6f73ea8f50b0fa9e55fc7d0551be70190`  
+**Acceptance state:** pending independent successor re-audit; no acceptance claim is made here.
 
 ## Decisions Made
 
@@ -121,7 +131,7 @@ status: complete
 
 ## Deviations from Plan
 
-The independent audit reopened the plan with eight findings. The repair added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, and production service/repository deletion proof. These changes enforce the plan's authority boundary without expanding lifecycle authority.
+The independent audits reopened the plan twice. Repairs added creation provenance, immutable-snapshot fail-closed behavior, terminating-process leases, total IPC parsing, canonical authority ordering, contradictory-duplicate rejection, human-readable active-work labels, production service/repository deletion proof, callback-time successor draining, fail-closed process-tree enumeration, and deterministic idle-rejection observation. These changes enforce the plan's authority boundary without expanding lifecycle authority.
 
 ## Issues Encountered
 
@@ -133,7 +143,7 @@ Managed-workspace lifecycle mutation (quarantine, restore, keep, delete, prune) 
 
 ## Self-Check
 
-PASSED pending independent successor re-audit. The repaired implementation, 99-test focused hostile corpus, lint, formatting, typecheck, and exact full test suite are green; no lifecycle mutation authority was added.
+BUILDER PROOF PASSED; independent successor re-audit remains required. The sealed implementation tree passed the 135-test focused hostile corpus, typecheck, formatting, i18n validation, 15,193 Vitest tests, and 226 Bun-native tests. The five repair files have zero lint warnings/errors; the larger packet-owned surface has zero errors and 17 warnings already present in the frozen baseline. No lifecycle mutation authority was added.
 
 ---
 
