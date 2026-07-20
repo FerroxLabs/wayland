@@ -10,6 +10,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import type { CompareResult, FileChangeInfo, SnapshotInfo } from '@/common/types/fileSnapshot';
+import { recordWorkspaceChange } from '@process/services/cohort/instrumentation/CohortWorkJourneyAuthority';
 import { getSystemDir } from '@process/utils/initStorage';
 
 const execFileAsync = promisify(execFile);
@@ -105,6 +106,17 @@ export class WorkspaceSnapshotService {
   }
 
   async compare(workspacePath: string): Promise<CompareResult> {
+    const result = await this.computeCompare(workspacePath);
+    // cowork.create-artifact / developer.modify-and-verify durable-file authority
+    // (SAF-02): forward the real created/modified/deleted counts this comparison
+    // observed under the workspace. The work-journey authority decides terminals
+    // - it only credits a correlated workspace, never an uncorrelated directory
+    // and never a change-free comparison. Inert until observation is installed.
+    this.observeDurableChange(workspacePath, result);
+    return result;
+  }
+
+  private async computeCompare(workspacePath: string): Promise<CompareResult> {
     const state = this.snapshots.get(workspacePath);
     if (!state) {
       return { staged: [], unstaged: [] };
@@ -114,6 +126,24 @@ export class WorkspaceSnapshotService {
       return this.compareGitRepo(workspacePath);
     }
     return this.compareSnapshot(state);
+  }
+
+  private observeDurableChange(workspacePath: string, result: CompareResult): void {
+    let createdCount = 0;
+    let modifiedCount = 0;
+    let deletedCount = 0;
+    for (const change of [...result.staged, ...result.unstaged]) {
+      if (change.operation === 'create') createdCount += 1;
+      else if (change.operation === 'modify') modifiedCount += 1;
+      else if (change.operation === 'delete') deletedCount += 1;
+    }
+    recordWorkspaceChange({
+      occurredAtMs: Date.now(),
+      workspace: workspacePath,
+      createdCount,
+      modifiedCount,
+      deletedCount,
+    });
   }
 
   async getBaselineContent(workspacePath: string, filePath: string): Promise<string | null> {

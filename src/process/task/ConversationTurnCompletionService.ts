@@ -4,6 +4,7 @@ import { getBridgeEmitter } from '@/common/adapter/registry';
 import type { TChatConversation } from '@/common/config/storage';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
 import { getDatabase } from '@process/services/database';
+import { recordConversationCompletion } from '@process/services/cohort/instrumentation/CohortWorkJourneyAuthority';
 import { mainWarn } from '@process/utils/mainLogger';
 import type { AgentStatus } from './agentTypes';
 
@@ -104,5 +105,17 @@ export class ConversationTurnCompletionService {
     // listeners fire. Renderer delivery is unaffected (separate channel); no
     // double-delivery because the normal emit path does not touch the local emitter.
     getBridgeEmitter()?.emit('conversation.turn.completed', event);
+
+    // chat.first-response terminal authority (SAF-02). Bound here, after the
+    // persisted conversation is loaded and a real completed turn is accepted -
+    // never on renderer inference or an in-flight/partial turn. The work-journey
+    // authority owns dedup (first accepted completion per conversation only) and
+    // is inert until a live observation session is installed.
+    recordConversationCompletion({
+      occurredAtMs: Date.now(),
+      conversationId,
+      turnAccepted: Boolean(conversation) && status === 'finished',
+      workspace: workspace || undefined,
+    });
   }
 }
