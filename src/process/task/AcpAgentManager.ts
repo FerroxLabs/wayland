@@ -90,16 +90,10 @@ import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 import type { McpConfigProjection } from '@process/acp/session/McpConfig';
 import {
   createMcpSessionState,
-  recordDesktopMcpSessionFailure,
-  recordDesktopMcpSessionPublication,
   type McpSessionBackend,
-  type McpSessionExpectedServer,
   type McpSessionState,
 } from '@/common/mcp/sessionReceipt';
-import {
-  createMcpSessionDigestKey,
-  createMcpSessionExpectedServer,
-} from '@process/services/mcpServices/mcpSessionTruthGate';
+import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 interface AcpAgentManagerData {
   workspace?: string;
@@ -224,24 +218,10 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
   }
 
   private acceptMcpProjection(projection: McpConfigProjection): void {
-    const expected: McpSessionExpectedServer[] = projection.selectedServers.map((server) =>
-      createMcpSessionExpectedServer(server, this.mcpSessionBackend, this.mcpSessionDigestKey)
-    );
-    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, expected, {
-      conversationId: this.conversation_id,
-      backend: this.mcpSessionBackend,
-    });
-    const publishedNames = new Set(projection.servers.map((server) => server.name));
-    const omittedReasons = new Map(projection.omissions.map(({ server, reason }) => [server.id, reason]));
-    for (const server of projection.selectedServers) {
-      this.mcpSessionState = publishedNames.has(server.name)
-        ? recordDesktopMcpSessionPublication(this.mcpSessionState, server.name)
-        : recordDesktopMcpSessionFailure(
-            this.mcpSessionState,
-            server.name,
-            omittedReasons.get(server.id) ?? 'ACP runtime omitted this connector from the session'
-          );
-    }
+    // The receipt-bound projection minted the correlated current-session truth
+    // (built with this manager's generation + digest key), so adopt it directly
+    // rather than reconstructing publication state from the returned server list.
+    this.mcpSessionState = projection.sessionState;
     this.publishMcpSessionState();
   }
 
@@ -1641,6 +1621,17 @@ ${collectedResponses.join('\n')}`;
           teamMcpStdioConfig: (data as unknown as Record<string, unknown>).teamMcpStdioConfig as
             | { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> }
             | undefined,
+        },
+        // Receipt-bound publication identity for the live ACP projection. The
+        // runtime supplies this correlated input (this manager's generation +
+        // per-launch digest key) so McpConfig mints current-session receipts
+        // instead of trusting a stored connected/selected declaration.
+        mcpPublication: {
+          generation: this.mcpSessionGeneration,
+          conversationId: this.conversation_id,
+          backend: this.mcpSessionBackend,
+          sessionKey: this.mcpSessionDigestKey,
+          activeServerIds: data.activeMcpServers,
         },
         onSessionIdUpdate: (sessionId: string) => {
           // Save ACP session ID to database for resume support

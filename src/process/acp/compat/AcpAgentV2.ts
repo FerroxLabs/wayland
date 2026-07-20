@@ -39,8 +39,11 @@ import type {
 import { ProcessConfig } from '@process/utils/initStorage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { McpConfig } from '../session/McpConfig';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import type { McpSessionBackend, McpSessionPublicationInput } from '@/common/mcp/sessionReceipt';
+import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 /**
  * Temporary: backend-specific CLI login arguments.
@@ -96,6 +99,9 @@ type PendingOp<T> = {
   timer: ReturnType<typeof setTimeout>;
 };
 
+/** Correlated publication identity plus this conversation's active-server selection. */
+type McpSessionPublicationBinding = McpSessionPublicationInput & { activeServerIds?: readonly string[] };
+
 /**
  * AcpAgentV2 - Compatibility adapter that presents the OLD AcpAgent interface
  * while internally delegating to the NEW AcpSession.
@@ -115,6 +121,11 @@ export class AcpAgentV2 {
   private onSessionIdUpdate?: (sessionId: string) => void;
   private onAvailableCommandsUpdate?: (commands: Array<{ name: string; description?: string; hint?: string }>) => void;
   private onMcpProjection?: OldAcpAgentConfig['onMcpProjection'];
+  // Receipt-bound publication identity supplied by the owning runtime (manager).
+  // Read directly off the raw config (like onMcpProjection) so no receipt-optional
+  // legacy path exists: the live projection is always minted against a current
+  // correlated launch. Falls back to a self-minted identity only when unset.
+  private readonly mcpPublicationBinding?: McpSessionPublicationBinding;
 
   // Cached state from callbacks
   private cachedModelInfo: AcpModelInfo | null = null;
@@ -172,7 +183,26 @@ export class AcpAgentV2 {
     this.onSessionIdUpdate = config.onSessionIdUpdate;
     this.onAvailableCommandsUpdate = config.onAvailableCommandsUpdate;
     this.onMcpProjection = config.onMcpProjection;
+    this.mcpPublicationBinding = (config as { mcpPublication?: McpSessionPublicationBinding }).mcpPublication;
     this.agentConfig = toAgentConfig(config);
+  }
+
+  /**
+   * Resolve the receipt-bound publication identity for the live ACP projection.
+   * Prefers the runtime-supplied correlated binding; when absent (e.g. a direct
+   * construction with no owning manager) a fresh single-launch identity is minted
+   * so publication is still bound to this exact launch rather than stored state.
+   */
+  private resolveMcpPublication(): McpSessionPublicationBinding {
+    if (this.mcpPublicationBinding) return this.mcpPublicationBinding;
+    const backend: McpSessionBackend = this.agentConfig.agentBackend === 'codex' ? 'codex-native' : 'acp';
+    return {
+      generation: randomUUID(),
+      conversationId: this.conversationId,
+      backend,
+      sessionKey: createMcpSessionDigestKey(),
+      activeServerIds: this.agentConfig.activeMcpServers,
+    };
   }
 
   /**
@@ -236,7 +266,17 @@ export class AcpAgentV2 {
       } catch (err) {
         console.warn('[AcpAgentV2] attachOAuthTokens failed; using stored MCP headers:', err);
       }
-      const projection = McpConfig.projectStorageConfig(freshened, caps, this.agentConfig.activeMcpServers);
+      const binding = this.resolveMcpPublication();
+      const projection = McpConfig.projectStorageConfig(freshened, {
+        publication: {
+          generation: binding.generation,
+          conversationId: binding.conversationId,
+          backend: binding.backend,
+          sessionKey: binding.sessionKey,
+        },
+        capabilities: caps,
+        activeServerIds: binding.activeServerIds,
+      });
       this.onMcpProjection?.(projection);
       const userServers = projection.servers;
       if (userServers.length > 0) {

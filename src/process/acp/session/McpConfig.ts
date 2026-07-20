@@ -4,6 +4,14 @@ import type { AcpMcpCapabilities } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
 import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 import { isServerActiveForSession } from '@process/agent/acp/mcpSessionConfig';
+import {
+  createMcpSessionState,
+  recordDesktopMcpSessionFailure,
+  recordDesktopMcpSessionPublication,
+  type McpSessionPublicationInput,
+  type McpSessionState,
+} from '@/common/mcp/sessionReceipt';
+import { createMcpSessionExpectedServer } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 type MergeParams = {
   userServers?: McpServer[];
@@ -16,10 +24,31 @@ export type McpConfigOmission = {
   reason: string;
 };
 
+/**
+ * Receipt-bound publication request for the live ACP session projection.
+ *
+ * The correlated `publication` identity is mandatory: publication truth is
+ * minted only for the current launch and cannot be reconstructed from a stored
+ * `connected`/selected declaration. `capabilities` and `activeServerIds` shape
+ * which eligible connectors this session may carry, but neither can manufacture
+ * a receipt without the correlated publication input.
+ */
+export type McpConfigPublicationRequest = {
+  publication: McpSessionPublicationInput;
+  capabilities?: AcpMcpCapabilities;
+  activeServerIds?: readonly string[];
+};
+
 export type McpConfigProjection = {
   servers: McpServer[];
   omissions: McpConfigOmission[];
   selectedServers: IMcpServer[];
+  /**
+   * Correlated current-session receipt truth for this exact publication. Every
+   * eligible connector is recorded as either desktop publication (reachable to
+   * the backend, awaiting producer registration) or a fail-closed omission.
+   */
+  sessionState: McpSessionState;
 };
 
 /**
@@ -62,33 +91,28 @@ export class McpConfig {
 
   /**
    * Convert user-configured MCP servers (from ProcessConfig / IMcpServer[])
-   * to SDK McpServer[] with transport capability filtering.
+   * to SDK McpServer[] for the current, receipt-bound ACP launch.
    *
-   * Only builtin + enabled + connected servers are included.
-   * Transport types unsupported by the agent are dropped.
+   * Publication is gated on the correlated `request.publication` identity, so a
+   * stored `connected`/selected declaration alone never reaches the agent.
+   * Transport types unsupported by the agent are dropped (fail-closed omission).
    *
    * @param servers  Raw server configs from `ProcessConfig.get('mcp.config')`
-   * @param capabilities  Agent MCP capabilities (from cached init result).
-   *                      Defaults to stdio-only when not available.
+   * @param request  Receipt-bound publication input for this exact launch.
    */
-  static fromStorageConfig(
-    servers: IMcpServer[],
-    capabilities?: AcpMcpCapabilities,
-    activeServerIds?: readonly string[]
-  ): McpServer[] {
-    return McpConfig.projectStorageConfig(servers, capabilities, activeServerIds).servers;
+  static fromStorageConfig(servers: IMcpServer[], request: McpConfigPublicationRequest): McpServer[] {
+    return McpConfig.projectStorageConfig(servers, request).servers;
   }
 
   /**
-   * Project storage authority into ACP config without hiding eligible servers
-   * that the negotiated transport contract cannot publish.
+   * Project storage authority into ACP config, minting the correlated
+   * current-session publication receipts as the single source of truth. Eligible
+   * servers the negotiated transport contract cannot publish are surfaced as
+   * fail-closed omissions and recorded as desktop failures, never publications.
    */
-  static projectStorageConfig(
-    servers: IMcpServer[],
-    capabilities?: AcpMcpCapabilities,
-    activeServerIds?: readonly string[]
-  ): McpConfigProjection {
-    const caps = capabilities ?? DEFAULT_MCP_CAPABILITIES;
+  static projectStorageConfig(servers: IMcpServer[], request: McpConfigPublicationRequest): McpConfigProjection {
+    const { publication, activeServerIds } = request;
+    const caps = request.capabilities ?? DEFAULT_MCP_CAPABILITIES;
     const eligible = servers
       .filter(
         (s) =>
@@ -156,6 +180,31 @@ export class McpConfig {
       if (runtimeServer) projected.push(runtimeServer);
       else omissions.push({ server, reason: reason ?? 'ACP runtime omitted MCP server' });
     }
-    return { servers: projected, omissions, selectedServers: eligible };
+
+    // Mint correlated current-session receipt truth. Publication is the single
+    // authority: an eligible connector that actually reaches the backend is a
+    // desktop publication (awaiting producer registration); one the runtime
+    // cannot carry is a fail-closed desktop failure. No stored `connected` or
+    // `selected` state can produce a receipt without this correlated launch.
+    const expectedServers = eligible.map((server) =>
+      createMcpSessionExpectedServer(server, publication.backend, publication.sessionKey)
+    );
+    let sessionState = createMcpSessionState(publication.generation, expectedServers, {
+      conversationId: publication.conversationId,
+      backend: publication.backend,
+    });
+    const publishedNames = new Set(projected.map((server) => server.name));
+    const omittedReasons = new Map(omissions.map(({ server, reason }) => [server.id, reason]));
+    for (const server of eligible) {
+      sessionState = publishedNames.has(server.name)
+        ? recordDesktopMcpSessionPublication(sessionState, server.name)
+        : recordDesktopMcpSessionFailure(
+            sessionState,
+            server.name,
+            omittedReasons.get(server.id) ?? 'ACP runtime omitted this connector from the session'
+          );
+    }
+
+    return { servers: projected, omissions, selectedServers: eligible, sessionState };
   }
 }

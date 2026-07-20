@@ -69,6 +69,21 @@ export type McpSessionState = {
   startedAt: number;
 };
 
+/**
+ * Correlated identity a live backend runtime must supply before its saved
+ * storage config can be projected into a session. Every field binds the
+ * resulting publication receipt to one Desktop-managed launch, so there is no
+ * receipt-optional projection: a stored `connected`, enabled, or selected
+ * declaration alone can never mint current-session publication truth.
+ */
+export type McpSessionPublicationInput = {
+  generation: string;
+  conversationId: string;
+  backend: McpSessionBackend;
+  /** Process-local HMAC key for the exact definition digest; never persisted. */
+  sessionKey: Uint8Array;
+};
+
 export type McpSessionTerminalEvent =
   | { type: 'mcp_ready'; data: { name: string; tools?: unknown } }
   | { type: 'mcp_failed'; data: { name: string; reason?: unknown } };

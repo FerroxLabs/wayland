@@ -21,6 +21,9 @@ import type {
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import { randomUUID } from 'node:crypto';
+import type { McpSessionBackend } from '@/common/mcp/sessionReceipt';
+import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 // 30 minutes. 5 minutes was far too aggressive for interactive chat: normal
 // think-time between messages exceeds it, so the agent process was killed and
@@ -119,7 +122,20 @@ export class AcpRuntime {
       } catch (err) {
         console.warn('[AcpRuntime] attachOAuthTokens failed; using stored MCP headers:', err);
       }
-      const userServers = McpConfig.fromStorageConfig(freshened, caps, config.activeMcpServers);
+      // Bind this launch's publication to a fresh correlated identity so the
+      // projection mints current-session receipt truth rather than trusting a
+      // stored connected/selected declaration.
+      const backend: McpSessionBackend = config.agentBackend === 'codex' ? 'codex-native' : 'acp';
+      const userServers = McpConfig.fromStorageConfig(freshened, {
+        publication: {
+          generation: randomUUID(),
+          conversationId: convId,
+          backend,
+          sessionKey: createMcpSessionDigestKey(),
+        },
+        capabilities: caps,
+        activeServerIds: config.activeMcpServers,
+      });
       if (userServers.length > 0) {
         config.mcpServers = [...(config.mcpServers || []), ...userServers];
       }
