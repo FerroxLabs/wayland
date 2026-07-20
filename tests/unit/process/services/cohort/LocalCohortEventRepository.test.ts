@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { chmod, lstat, mkdir, mkdtemp, readFile, readdir, rm, symlink, writeFile } from 'node:fs/promises';
+import { chmod, lstat, mkdir, mkdtemp, readdir, rm, symlink, utimes, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -74,19 +74,22 @@ describe('LocalM0BCohortEventRepository consent and privacy boundary', () => {
     await expect(lstat(root)).rejects.toMatchObject({ code: 'ENOENT' });
   });
 
-  it('persists only the closed event shape when an object inherits a hostile serializer', async () => {
+  it('rejects an event object with a hostile prototype before creating storage', async () => {
     const root = path.join(await tempRoot(), 'events');
+    let serializerCalls = 0;
     const input = Object.assign(
       Object.create({
-        toJSON: () => ({ ...event(), prompt: 'private customer request' }),
+        toJSON: () => {
+          serializerCalls += 1;
+          return { ...event(), prompt: 'private customer request' };
+        },
       }) as M0BCohortEvent,
       event()
     );
 
-    await repository(root).append(input);
-    const stored = await readFile(path.join(eventDirectory(root), 'event-000001.event.json'), 'utf8');
-    expect(stored).not.toContain('private customer request');
-    expect(JSON.parse(stored)).toEqual(event());
+    await expect(repository(root).append(input)).rejects.toThrow('M0B_INVALID_EVENT:not_object:');
+    expect(serializerCalls).toBe(0);
+    await expect(lstat(root)).rejects.toMatchObject({ code: 'ENOENT' });
   });
 
   it('restricts storage directories and event files to the current OS user', async () => {
@@ -138,6 +141,21 @@ describe('LocalM0BCohortEventRepository durability and authority', () => {
     expect(rejected?.reason).toMatchObject({ message: 'M0B_CONFLICTING_EVENT_ID' });
   });
 
+  it('enforces maxEvents atomically across independent repository instances', async () => {
+    const root = path.join(await tempRoot(), 'events');
+    const results = await Promise.allSettled([
+      repository(root, { maxEvents: 1 }).append(event()),
+      repository(root, { maxEvents: 1 }).append(event({ eventId: 'event-000002' })),
+    ]);
+
+    expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
+    expect(results.filter((result) => result.status === 'rejected')).toHaveLength(1);
+    expect(
+      results.find((result): result is PromiseRejectedResult => result.status === 'rejected')?.reason
+    ).toMatchObject({ message: 'M0B_EVENT_LIMIT_REACHED' });
+    await expect(repository(root).findWindow(START, END)).resolves.toHaveLength(1);
+  });
+
   it('does not expose a partially written temporary event', async () => {
     const root = path.join(await tempRoot(), 'events');
     const store = repository(root);
@@ -152,6 +170,22 @@ describe('LocalM0BCohortEventRepository durability and authority', () => {
 
     await expect(store.findWindow(START, END)).resolves.toEqual([]);
   });
+
+  it('removes an abandoned temporary file after its bounded recovery age', async () => {
+    const root = path.join(await tempRoot(), 'events');
+    const store = repository(root);
+    await store.findWindow(START, END);
+    const temporary = path.join(
+      eventDirectory(root),
+      '.event-000001.event.json.00000000-0000-4000-8000-000000000000.tmp'
+    );
+    await writeFile(temporary, '{', { mode: 0o600 });
+    const staleSeconds = (Date.now() - M0B_DAY_MS - 1_000) / 1_000;
+    await utimes(temporary, staleSeconds, staleSeconds);
+
+    await expect(store.findWindow(START, END)).resolves.toEqual([]);
+    await expect(lstat(temporary)).rejects.toMatchObject({ code: 'ENOENT' });
+  });
 });
 
 describe('LocalM0BCohortEventRepository hostile persisted state', () => {
@@ -162,6 +196,20 @@ describe('LocalM0BCohortEventRepository hostile persisted state', () => {
     await writeFile(path.join(eventDirectory(root), 'event-000001.event.json'), '{', { mode: 0o600 });
 
     await expect(store.findWindow(START, END)).rejects.toThrow('M0B_CORRUPT_EVENT_FILE');
+  });
+
+  it('rejects valid but noncanonical rows, including ambiguous duplicate keys', async () => {
+    const root = path.join(await tempRoot(), 'events');
+    const store = repository(root);
+    await store.findWindow(START, END);
+    const canonical = JSON.stringify(event());
+    await writeFile(
+      path.join(eventDirectory(root), 'event-000001.event.json'),
+      canonical.replace('{', '{"kind":"session_started",'),
+      { mode: 0o600 }
+    );
+
+    await expect(store.findWindow(START, END)).rejects.toThrow('M0B_NONCANONICAL_EVENT_FILE');
   });
 
   it('revalidates privacy fields when reading persisted events', async () => {

@@ -127,6 +127,38 @@ describe('M0B privacy contract', () => {
       field: 'experiment',
     });
   });
+
+  it('does not confuse Object prototype names with registered event kinds', () => {
+    const input = baseEvent(1, 'novice', 'session-0001', 'toString');
+    expect(validateM0BCohortEvent(input)).toEqual({
+      ok: false,
+      code: 'unknown_event_kind',
+      field: 'kind',
+    });
+  });
+
+  it('rejects inherited event fields and never invokes inherited serialization hooks', () => {
+    let serializerCalls = 0;
+    const input = Object.create({
+      ...baseEvent(1, 'novice', 'session-0001', 'session_started'),
+      toJSON: () => {
+        serializerCalls += 1;
+        return {};
+      },
+    }) as Record<string, unknown>;
+    input.kind = 'session_started';
+
+    expect(validateM0BCohortEvent(input)).toEqual({ ok: false, code: 'not_object', field: undefined });
+    expect(serializerCalls).toBe(0);
+  });
+
+  it('rejects return-to-Classic evidence attributed to a Classic session', () => {
+    expect(
+      validateM0BCohortEvent(
+        baseEvent(1, 'novice', 'session-0001', 'shell_returned_to_classic', { reason: 'reliability' })
+      )
+    ).toEqual({ ok: false, code: 'invalid_field', field: 'shell' });
+  });
 });
 
 describe('aggregateM0BBaseline', () => {
@@ -204,6 +236,47 @@ describe('aggregateM0BBaseline', () => {
     expect(report.totals.crashFreeSessionRate).toBeNull();
   });
 
+  it('uses the frozen denominators for support, accessibility, and Cockpit returns', () => {
+    const first = baseEvent(1, 'novice', 'session-0001', 'session_started');
+    const second = baseEvent(2, 'novice', 'session-0002', 'session_started');
+    second.participantIdHash = first.participantIdHash;
+    first.shell = 'cockpit';
+    second.shell = 'cockpit';
+    const events = [
+      first,
+      second,
+      baseEvent(3, 'novice', 'session-0001', 'support_contact', { category: 'bug', shell: 'cockpit' }),
+      baseEvent(4, 'novice', 'session-0002', 'support_contact', { category: 'setup', shell: 'cockpit' }),
+      baseEvent(5, 'novice', 'session-0001', 'accessibility_violation', {
+        severity: 'serious',
+        shell: 'cockpit',
+      }),
+      baseEvent(6, 'novice', 'session-0001', 'shell_returned_to_classic', {
+        reason: 'reliability',
+        shell: 'cockpit',
+      }),
+    ];
+    for (const event of events.slice(2)) event.participantIdHash = first.participantIdHash;
+
+    const report = aggregateM0BBaseline(events, config(), END);
+    expect(report.totals.participantCount).toBe(1);
+    expect(report.totals.sessionStartedCount).toBe(2);
+    expect(report.totals.supportContactsPerParticipant).toBe(2);
+    expect(report.totals.accessibilityViolationsPerSession).toBe(0.5);
+    expect(report.totals.returnToClassicRate).toBe(0.5);
+  });
+
+  it('returns null rather than manufacturing rates when a denominator is missing', () => {
+    const report = aggregateM0BBaseline([], config(), END);
+    expect(report.totals.journeyFailureRate).toBeNull();
+    expect(report.totals.journeySuccessRate).toBeNull();
+    expect(report.totals.crashFreeSessionRate).toBeNull();
+    expect(report.totals.supportContactsPerParticipant).toBeNull();
+    expect(report.totals.accessibilityViolationsPerSession).toBeNull();
+    expect(report.totals.returnToClassicRate).toBeNull();
+    expect(report.totals.latencyMs.p95).toBeNull();
+  });
+
   it('counts explicit crashes without inferring crashes from silence', () => {
     const events = [
       baseEvent(1, 'novice', 'session-0001', 'session_started'),
@@ -228,6 +301,16 @@ describe('aggregateM0BBaseline', () => {
     expect(report.gates.dataQualityPass).toBe(false);
   });
 
+  it('rejects a participant whose frozen cohort changes between sessions', () => {
+    const first = baseEvent(1, 'novice', 'session-0001', 'session_started');
+    const second = baseEvent(2, 'developer', 'session-0002', 'session_started');
+    second.participantIdHash = first.participantIdHash;
+    const report = aggregateM0BBaseline([first, second], config(), END);
+    expect(report.quality.contractErrors).toEqual([{ eventId: 'event-000002', code: 'participant_cohort_mismatch' }]);
+    expect(report.totals.sessionStartedCount).toBe(1);
+    expect(report.gates.dataQualityPass).toBe(false);
+  });
+
   it('rejects terminals without starts and events after a session terminal', () => {
     const events = [
       baseEvent(1, 'novice', 'session-0001', 'journey_completed', {
@@ -246,6 +329,23 @@ describe('aggregateM0BBaseline', () => {
     expect(report.totals.supportContactCount).toBe(0);
   });
 
+  it('fails closed when same-timestamp evidence makes terminal order unknowable', () => {
+    const started = baseEvent(1, 'novice', 'session-0001', 'session_started');
+    const ended = baseEvent(2, 'novice', 'session-0001', 'session_ended');
+    const support = baseEvent(3, 'novice', 'session-0001', 'support_contact', { category: 'bug' });
+    ended.occurredAtMs = START + 2_000;
+    support.occurredAtMs = START + 2_000;
+
+    const report = aggregateM0BBaseline([started, ended, support], config(), END);
+    expect(report.quality.contractErrors).toEqual([
+      { eventId: 'event-000002', code: 'ambiguous_event_order' },
+      { eventId: 'event-000003', code: 'ambiguous_event_order' },
+    ]);
+    expect(report.totals.sessionEndedCount).toBe(0);
+    expect(report.totals.supportContactCount).toBe(0);
+    expect(report.gates.dataQualityPass).toBe(false);
+  });
+
   it('triggers an automatic stop for every zero-tolerance incident class', () => {
     const reasons = [
       'data-loss-or-corruption',
@@ -262,6 +362,13 @@ describe('aggregateM0BBaseline', () => {
 
     const report = aggregateM0BBaseline(events, config(), END);
     expect(report.totals.zeroToleranceStopCount).toBe(5);
+    expect(report.totals.zeroToleranceStopsByReason).toEqual({
+      'data-loss-or-corruption': 1,
+      'permission-widening': 1,
+      'approval-bypass': 1,
+      'cross-project-leakage': 1,
+      'receipt-forgery': 1,
+    });
     expect(report.gates.automaticStopTriggered).toBe(true);
     expect(report.decision.readyForDecision).toBe(false);
   });
@@ -270,6 +377,30 @@ describe('aggregateM0BBaseline', () => {
     expect(() => aggregateM0BBaseline([], config({ windowEndMs: END - 1 }), END)).toThrow(
       'M0B_CONFIG_WINDOW_MUST_BE_14_DAYS'
     );
+  });
+
+  it.each([
+    ['privacy mode', { privacyMode: 'anything' }],
+    ['alpha flag', { invitedAlphaEnabled: 1 }],
+    ['signed timestamp', { decisionSignedAtMs: Number.NaN }],
+    ['minimum', { minimums: { ...config().minimums, participantsTotal: 0 } }],
+    [
+      'threshold',
+      {
+        comparisonThresholds: {
+          ...config().comparisonThresholds,
+          maxJourneyFailureRateDelta: Number.POSITIVE_INFINITY,
+        },
+      },
+    ],
+  ])('rejects malformed %s authority configuration', (_label, overrides) => {
+    expect(() => aggregateM0BBaseline([], config(overrides as Partial<M0BBaselineConfig>), END)).toThrow(
+      /^M0B_CONFIG_/
+    );
+  });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, -1])('rejects malformed as-of time %s', (asOfMs) => {
+    expect(() => aggregateM0BBaseline([], config(), asOfMs)).toThrow('M0B_AS_OF_INVALID');
   });
 });
 
@@ -297,6 +428,20 @@ describe('CohortBaselineService', () => {
     expect(await service.record(baseEvent(1, 'novice', 'session-0001', 'session_started'))).toEqual({
       status: 'disabled',
     });
+    expect(repository.events).toHaveLength(0);
+  });
+
+  it.each([
+    ['non-boolean enabled flag', { enabled: 1 as never, acceptedAtMs: START }],
+    ['NaN consent time', { enabled: true, acceptedAtMs: Number.NaN }],
+    ['negative consent time', { enabled: true, acceptedAtMs: -1 }],
+    ['consent after event', { enabled: true, acceptedAtMs: START + 2_000 }],
+  ])('records nothing for %s', async (_label, consent) => {
+    const repository = new MemoryRepository();
+    const service = new CohortBaselineService(repository, config(), consent);
+
+    const result = await service.record(baseEvent(1, 'novice', 'session-0001', 'session_started'));
+    expect(['disabled', 'outside_observation_window']).toContain(result.status);
     expect(repository.events).toHaveLength(0);
   });
 

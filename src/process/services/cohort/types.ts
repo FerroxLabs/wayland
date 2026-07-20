@@ -134,6 +134,7 @@ export type M0BValidationResult =
 export type M0BContractErrorCode =
   | 'conflicting_event_id'
   | 'duplicate_session_start'
+  | 'participant_cohort_mismatch'
   | 'missing_session_start'
   | 'identity_mismatch'
   | 'event_after_session_terminal'
@@ -141,7 +142,8 @@ export type M0BContractErrorCode =
   | 'missing_journey_start'
   | 'journey_identity_mismatch'
   | 'duplicate_journey_terminal'
-  | 'terminal_before_start';
+  | 'terminal_before_start'
+  | 'ambiguous_event_order';
 
 export type M0BMetricSlice = {
   participantCount: number;
@@ -161,10 +163,14 @@ export type M0BMetricSlice = {
     p95: number | null;
   };
   accessibilityViolationCount: number;
+  accessibilityViolationsPerSession: number | null;
   supportContactCount: number;
+  supportContactsPerParticipant: number | null;
   returnToClassicCount: number;
+  returnToClassicRate: number | null;
   returnToClassicByReason: Record<M0BReturnReason, number>;
   zeroToleranceStopCount: number;
+  zeroToleranceStopsByReason: Record<M0BZeroToleranceReason, number>;
 };
 
 export type M0BBaselineReport = {
