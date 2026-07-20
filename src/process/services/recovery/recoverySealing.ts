@@ -98,26 +98,47 @@ async function writeExclusive(filePath: string, contents: Buffer): Promise<void>
   }
 }
 
+function sealPlaintext(backend: SafeStorageBackend, plaintext: Buffer): Buffer {
+  requireBackend(backend);
+  if (plaintext.length > MAX_PLAINTEXT_BYTES) {
+    throw new Error(`Recovery plaintext must be no larger than ${MAX_PLAINTEXT_BYTES} bytes.`);
+  }
+  const envelope: RecoveryEnvelope = {
+    formatVersion: FORMAT_VERSION,
+    cipher: CIPHER,
+    plaintextEncoding: 'base64',
+    plaintextSize: plaintext.length,
+    plaintextSha256: sha256(plaintext),
+    ciphertext: backend.encryptString(plaintext.toString('base64')).toString('base64'),
+  };
+  const serialized = Buffer.from(JSON.stringify(envelope), 'utf8');
+  if (serialized.length > MAX_ENVELOPE_BYTES) throw new Error('Recovery envelope exceeds its size limit.');
+  return serialized;
+}
+
 /** Build seal/unseal operations around one injected authenticated OS credential backend. */
 export function createRecoveryFileSealer(backend: SafeStorageBackend): {
   sealFile: (sourcePath: string, destinationPath: string) => Promise<void>;
+  sealBytes: (plaintext: Buffer, destinationPath: string) => Promise<void>;
+  sealBytesToBuffer: (plaintext: Buffer) => Promise<Buffer>;
   unsealFile: (sourcePath: string, destinationPath: string) => Promise<void>;
 } {
   return {
     async sealFile(sourcePath, destinationPath) {
-      requireBackend(backend);
       const plaintext = await readRegularFileNoFollow(sourcePath, MAX_PLAINTEXT_BYTES, 'Recovery plaintext');
-      const envelope: RecoveryEnvelope = {
-        formatVersion: FORMAT_VERSION,
-        cipher: CIPHER,
-        plaintextEncoding: 'base64',
-        plaintextSize: plaintext.length,
-        plaintextSha256: sha256(plaintext),
-        ciphertext: backend.encryptString(plaintext.toString('base64')).toString('base64'),
-      };
-      const serialized = Buffer.from(JSON.stringify(envelope), 'utf8');
-      if (serialized.length > MAX_ENVELOPE_BYTES) throw new Error('Recovery envelope exceeds its size limit.');
-      await writeExclusive(destinationPath, serialized);
+      try {
+        await writeExclusive(destinationPath, sealPlaintext(backend, plaintext));
+      } finally {
+        plaintext.fill(0);
+      }
+    },
+
+    async sealBytes(plaintext, destinationPath) {
+      await writeExclusive(destinationPath, sealPlaintext(backend, plaintext));
+    },
+
+    async sealBytesToBuffer(plaintext) {
+      return sealPlaintext(backend, plaintext);
     },
 
     async unsealFile(sourcePath, destinationPath) {
@@ -132,9 +153,10 @@ export function createRecoveryFileSealer(backend: SafeStorageBackend): {
       const envelope = parseEnvelope(parsed);
       const ciphertext = decodeCanonicalBase64(envelope.ciphertext, 'Recovery ciphertext');
       const plaintextBase64 = backend.decryptString(ciphertext);
-      const plaintext = envelope.plaintextSize === 0 && plaintextBase64 === ''
-        ? Buffer.alloc(0)
-        : decodeCanonicalBase64(plaintextBase64, 'Recovery plaintext');
+      const plaintext =
+        envelope.plaintextSize === 0 && plaintextBase64 === ''
+          ? Buffer.alloc(0)
+          : decodeCanonicalBase64(plaintextBase64, 'Recovery plaintext');
       if (plaintext.length !== envelope.plaintextSize || sha256(plaintext) !== envelope.plaintextSha256) {
         throw new Error('Recovery plaintext failed its size or digest check.');
       }
@@ -152,6 +174,14 @@ async function productionSealer(): Promise<ReturnType<typeof createRecoveryFileS
 
 export async function sealRecoveryFile(sourcePath: string, destinationPath: string): Promise<void> {
   return (await productionSealer()).sealFile(sourcePath, destinationPath);
+}
+
+export async function sealRecoveryBytes(plaintext: Buffer, destinationPath: string): Promise<void> {
+  return (await productionSealer()).sealBytes(plaintext, destinationPath);
+}
+
+export async function sealRecoveryBytesToBuffer(plaintext: Buffer): Promise<Buffer> {
+  return (await productionSealer()).sealBytesToBuffer(plaintext);
 }
 
 export async function unsealRecoveryFile(sourcePath: string, destinationPath: string): Promise<void> {

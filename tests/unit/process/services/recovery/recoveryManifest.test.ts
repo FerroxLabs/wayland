@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import {
+  RECOVERY_MANIFEST_FORMAT_VERSION,
   type RecoveryManifest,
   validateRecoveryManifest,
   verifyRecoverySnapshot,
@@ -13,7 +14,7 @@ const sha256 = (value: Buffer | string): string => createHash('sha256').update(v
 
 function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifest {
   return {
-    formatVersion: 2,
+    formatVersion: RECOVERY_MANIFEST_FORMAT_VERSION,
     snapshotId: 'snapshot-fixture-1',
     state: 'complete',
     createdAt: '2026-07-15T00:00:00.000Z',
@@ -129,6 +130,8 @@ function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifes
         requiredForRestore: false,
         sensitive: true,
         fileIds: [],
+        referenceIds: ['codex'],
+        referenceBindings: [{ id: 'codex', path: '/home/user/.codex', state: 'directory' }],
       },
       {
         id: 'external.workspaces',
@@ -138,6 +141,8 @@ function makeManifest(fileBytes = Buffer.from('database-copy')): RecoveryManifes
         requiredForRestore: false,
         sensitive: false,
         fileIds: [],
+        referenceIds: ['project-1'],
+        referenceBindings: [{ id: 'project-1', path: '/work/book', state: 'directory' }],
       },
     ],
     logicalState: [
@@ -268,6 +273,41 @@ describe('recovery manifest validation', () => {
     expect(result.warnings.map((warning) => warning.code)).toContain('CREDENTIALS_NOT_RECOVERABLE');
   });
 
+  it('rejects undeclared fields at every current-v3 manifest object boundary', () => {
+    const mutations: Array<[string, (manifest: RecoveryManifest) => void]> = [
+      ['unexpected', (manifest) => Object.assign(manifest, { unexpected: true })],
+      ['mutationEpoch.unexpected', (manifest) => Object.assign(manifest.mutationEpoch, { unexpected: true })],
+      ['files[0].unexpected', (manifest) => Object.assign(manifest.files[0], { unexpected: true })],
+      ['authorities[0].unexpected', (manifest) => Object.assign(manifest.authorities[0], { unexpected: true })],
+      [
+        'authorities[4].credentialBinding.unexpected',
+        (manifest) => Object.assign(manifest.authorities[4].credentialBinding!, { unexpected: true }),
+      ],
+      [
+        'authorities[10].referenceBindings[0].unexpected',
+        (manifest) => Object.assign(manifest.authorities[10].referenceBindings![0], { unexpected: true }),
+      ],
+      ['logicalState[0].unexpected', (manifest) => Object.assign(manifest.logicalState[0], { unexpected: true })],
+      [
+        'externalWorkspaces[0].unexpected',
+        (manifest) => Object.assign(manifest.externalWorkspaces[0], { unexpected: true }),
+      ],
+      [
+        'externalAgentConfigs[0].unexpected',
+        (manifest) => Object.assign(manifest.externalAgentConfigs[0], { unexpected: true }),
+      ],
+    ];
+
+    for (const [expectedPath, mutate] of mutations) {
+      const manifest = makeManifest();
+      mutate(manifest);
+      const result = validateRecoveryManifest(manifest);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ code: 'FIELD_UNKNOWN', path: expectedPath })
+      );
+    }
+  });
+
   it('accepts a legacy v1 recovery point without the later revision authority and marks migration required', () => {
     const legacy = structuredClone(makeManifest()) as unknown as {
       formatVersion: number;
@@ -292,6 +332,44 @@ describe('recovery manifest validation', () => {
     expect(result.warnings.map(({ code }) => code)).toContain('LEGACY_CONSTITUTION_FILESYSTEM_ABSENT');
   });
 
+  it('accepts the genuine first-writer v2 shape with neither reference IDs nor bindings', () => {
+    const previous = structuredClone(makeManifest()) as unknown as {
+      formatVersion: number;
+      authorities: RecoveryManifest['authorities'];
+    };
+    previous.formatVersion = 2;
+    // Commit 6fcc65fad wrote v2 before either external-authority binding field
+    // existed. Preserve that exact absence rather than fabricating empty lists.
+    for (const authority of previous.authorities) {
+      delete authority.referenceIds;
+      delete authority.referenceBindings;
+    }
+
+    const result = validateRecoveryManifest(previous);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toEqual([]);
+  });
+
+  it.each([
+    ['referenceIds', 'referenceBindings'],
+    ['referenceBindings', 'referenceIds'],
+  ] as const)('rejects a v2 authority with %s but no %s', (presentField, missingField) => {
+    const previous = structuredClone(makeManifest());
+    previous.formatVersion = 2;
+    const authority = previous.authorities.find(({ id }) => id === 'external.workspaces')!;
+    delete authority[missingField];
+
+    const result = validateRecoveryManifest(previous);
+
+    expect(authority[presentField]).toBeDefined();
+    expect(result.valid).toBe(false);
+    expect(result.errors.map(({ code }) => code)).toContain(
+      missingField === 'referenceIds'
+        ? 'EXTERNAL_AUTHORITY_REFERENCE_IDS_INVALID'
+        : 'EXTERNAL_AUTHORITY_REFERENCE_BINDING_MISMATCH'
+    );
+  });
+
   it('rejects omitted authorities and mutation during snapshot creation', () => {
     const manifest = makeManifest();
     manifest.mutationEpoch.end = 'epoch-8';
@@ -302,6 +380,19 @@ describe('recovery manifest validation', () => {
     expect(result.errors.map((error) => error.code)).toEqual(
       expect.arrayContaining(['MUTATION_DURING_SNAPSHOT', 'AUTHORITY_OMITTED'])
     );
+  });
+
+  it('rejects an external reference whose path or observed state no longer matches its authority evidence', () => {
+    const manifest = makeManifest();
+    manifest.externalWorkspaces[0] = {
+      ...manifest.externalWorkspaces[0],
+      path: '/work/attacker-controlled',
+      state: 'file',
+    };
+
+    const result = validateRecoveryManifest(manifest);
+    expect(result.valid).toBe(false);
+    expect(result.errors.map(({ code }) => code)).toContain('EXTERNAL_AUTHORITY_REFERENCE_BINDING_MISMATCH');
   });
 
   it('rejects omitted or unaccounted logical state even when physical files validate', () => {
@@ -463,6 +554,32 @@ describe('recovery manifest validation', () => {
     );
   });
 
+  it('binds external authority evidence one-to-one to the persisted reference identifiers', () => {
+    const missing = makeManifest();
+    delete missing.authorities.find(({ id }) => id === 'external.workspaces')!.referenceIds;
+    expect(validateRecoveryManifest(missing).errors.map(({ code }) => code)).toContain(
+      'EXTERNAL_AUTHORITY_REFERENCE_IDS_INVALID'
+    );
+
+    const reordered = makeManifest();
+    reordered.externalWorkspaces.push({
+      projectId: 'project-2',
+      path: '/work/second',
+      state: 'directory',
+      copyPolicy: 'reference-only',
+    });
+    reordered.authorities.find(({ id }) => id === 'external.workspaces')!.referenceIds = ['project-2', 'project-1'];
+    expect(validateRecoveryManifest(reordered).errors.map(({ code }) => code)).toEqual(
+      expect.arrayContaining(['EXTERNAL_AUTHORITY_REFERENCE_MISMATCH'])
+    );
+
+    const duplicate = makeManifest();
+    duplicate.authorities.find(({ id }) => id === 'external.agent-configs')!.referenceIds = ['codex', 'codex'];
+    expect(validateRecoveryManifest(duplicate).errors.map(({ code }) => code)).toContain(
+      'EXTERNAL_AUTHORITY_REFERENCE_MISMATCH'
+    );
+  });
+
   it('verifies snapshot sizes and hashes and detects post-manifest drift', async () => {
     const databaseBytes = Buffer.from('database-copy');
     const manifest = makeManifest(databaseBytes);
@@ -479,6 +596,29 @@ describe('recovery manifest validation', () => {
     expect(drifted.valid).toBe(false);
     expect(drifted.errors.map((error) => error.code)).toEqual(
       expect.arrayContaining(['SNAPSHOT_SIZE_MISMATCH', 'SNAPSHOT_HASH_MISMATCH'])
+    );
+  });
+
+  it('rejects an artifact that is present in the snapshot but absent from the manifest', async () => {
+    const databaseBytes = Buffer.from('database-copy');
+    const manifest = makeManifest(databaseBytes);
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-manifest-'));
+    tempDirectories.push(root);
+    fs.mkdirSync(path.join(root, 'state/desktop'), { recursive: true });
+    fs.writeFileSync(path.join(root, 'state/desktop/wayland.db'), databaseBytes);
+    fs.writeFileSync(path.join(root, 'state/desktop/config.json'), '{}');
+    fs.writeFileSync(path.join(root, 'state/desktop/unlisted.bin'), 'not authenticated by the manifest');
+
+    const result = await verifyRecoverySnapshot(manifest, root);
+
+    expect(result.valid).toBe(false);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'SNAPSHOT_ARTIFACT_UNLISTED',
+          path: 'state/desktop/unlisted.bin',
+        }),
+      ])
     );
   });
 

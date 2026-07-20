@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "receipt_kind": "construction",
+  "acceptance_state": "awaiting_independent_audit",
+  "plan": "01-06",
+  "recorded_at": "2026-07-19T21:46:00Z",
+  "candidate": {
+    "commit": "2a672bd54464be4143dca27ccdf1d2db8c0a76ac",
+    "tree": "29a76c2db0331763440333051ff17158ed3e9e76",
+    "parent": "f99137474252c48a46bb0182e1e4c768c741c4d0",
+    "subject": "fix(recovery): prevent publication replacement"
+  },
+  "lineage": {
+    "rejected_candidate": "4f6f02e944a4eabf421c224d64747b2702e7ed24",
+    "audit_test_commit": "f99137474252c48a46bb0182e1e4c768c741c4d0",
+    "finding": "R6-PUBLICATION-COLLISION",
+    "severity": "MEDIUM",
+    "reproduction": "rtk bun run test:vitest -- tests/unit/process/services/recovery/recoveryPointBuilder.test.ts -t \"fails closed when another publisher reserves the final snapshot name at the publication boundary\""
+  },
+  "environment": {
+    "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-r7-2a672bd5/environment.json",
+    "sha256": "e4057e35b2e4a033050bb2b52c53919e1205414e9d8e834b7f8b789472f9d403"
+  },
+  "proofs": [
+    {
+      "gate": "focused-recovery",
+      "command": "rtk bun run test:vitest -- tests/unit/process/services/recovery",
+      "exit_code": 0,
+      "result": "12 files passed; 183 tests passed; 3 tests skipped",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-r7-2a672bd5/focused.log",
+        "sha256": "c9321a0e93d988cfa11346d4a46c6c93845c3c975fdc78cc98982ba10f7d7ac0"
+      }
+    },
+    {
+      "gate": "typecheck",
+      "command": "rtk bun run typecheck",
+      "exit_code": 0,
+      "result": "TypeScript completed with no errors",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-r7-2a672bd5/typecheck.log",
+        "sha256": "c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5"
+      }
+    },
+    {
+      "gate": "changed-file-lint",
+      "command": "rtk bunx oxlint --deny-warnings src/process/services/recovery/recoveryPointBuilder.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts",
+      "exit_code": 0,
+      "result": "0 warnings, 0 errors across 2 repair-owned files",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-r7-2a672bd5/lint.log",
+        "sha256": "13261879fcb316f870d3bc4ef17541387c342dadb0a64529f644122f7c0fa48d"
+      }
+    },
+    {
+      "gate": "format",
+      "command": "rtk bunx oxfmt --check src/process/services/recovery/recoveryPointBuilder.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts",
+      "exit_code": 0,
+      "result": "all repair-owned files use the correct format",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-r7-2a672bd5/format.log",
+        "sha256": "c510df01cd21dfa21b1275ee2d6a201a96961b05abf47016e4cfe5cada513e74"
+      }
+    },
+    {
+      "gate": "diff-check",
+      "command": "rtk git diff --check f99137474252c48a46bb0182e1e4c768c741c4d0..2a672bd54464be4143dca27ccdf1d2db8c0a76ac",
+      "exit_code": 0,
+      "result": "clean",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-r7-2a672bd5/diff-check.log",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+      }
+    },
+    {
+      "gate": "aggregate",
+      "command": "rtk env GSD_RUNTIME=codex bun run test",
+      "exit_code": 0,
+      "result": "Vitest 1430 files passed, 21 skipped, 15185 tests passed, 149 skipped; Bun-native 229 passed, 0 failed",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-r7-2a672bd5/aggregate.log",
+        "sha256": "d54fbb3fa8ff03c1b9728320f59d17a272c5d41be3642f5eeebbf1ab517e4a4d"
+      }
+    }
+  ],
+  "claims": [
+    "The final snapshot name is reserved with no-replace mkdir semantics.",
+    "A concurrent file, directory, symlink, or supported special entry is rejected and preserved.",
+    "The manifest is written last as the logical publication commit marker.",
+    "Failure cleanup removes the final root only while its inode still matches the builder-owned reservation.",
+    "Source and destination identities remain revalidated through publication."
+  ],
+  "non_claims": [
+    "This is construction evidence, not independent acceptance.",
+    "Logical publication atomicity does not claim a native single-syscall directory exchange.",
+    "No integration, merge, push, release, deployment, canary, or issue action is authorized or claimed."
+  ]
+}

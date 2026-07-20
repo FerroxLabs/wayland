@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "receipt_kind": "construction",
+  "acceptance_state": "awaiting_independent_audit",
+  "plan": "01-06",
+  "candidate": {
+    "commit": "56682b2cfd051ed5757d7af9bbcaef4f6170809f",
+    "tree": "6c9f130c20674bd3a9feba2d7adc0e3d5b92417c",
+    "parent": "0012150f41610b3feb3545ceee7c9a8773f106f7",
+    "subject": "fix(recovery): resolve F-01 post-provision inventory authority"
+  },
+  "lineage": {
+    "rejected_candidate_commit": "8e7c5c4f9951939e1512548e21bfcb3f8ffb5d5b",
+    "rejected_candidate_tree": "397bdb004809c1367df9301f2050104db36d2de9",
+    "rejected_implementation_commit": "77b832f8b6cf48ab905c11270706e279f38b7133",
+    "rejected_implementation_tree": "d226aa371528b91e53175fc70683401c8a1cf4d0",
+    "audit_reproduction_commit": "0012150f41610b3feb3545ceee7c9a8773f106f7",
+    "audit_reproduction_tree": "16a06fbc81890e9390db3806fbfb6ebcaba88c2c"
+  },
+  "environment": {
+    "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/environment.json",
+    "sha256": "e6b6a502e68933e790aa165d23113c6866f4873a12eb8797e978e942c20b4c3e",
+    "capture_commands": ["bun --version", "node --version", "git --version", "sw_vers", "uname -mrs"]
+  },
+  "audit_reproduction": {
+    "command": "bun run test:vitest -- tests/unit/process/services/recovery/recoveryCapture.test.ts",
+    "exit_code": 1,
+    "result": "1 failed, 18 passed; newly provisioned external recovery authority omitted",
+    "log": {
+      "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/audit-reproduction.log",
+      "sha256": "8206179a7b1f6ab02c6bf9366195ea7a8f0ffe834d206a817130e74be222b082"
+    }
+  },
+  "proofs": [
+    {
+      "id": "focused",
+      "command": "bun run test:vitest -- tests/unit/process/services/recovery/recoveryCapture.test.ts tests/unit/process/services/recovery/recoveryManifest.test.ts tests/unit/process/services/recovery/recoveryDryRun.test.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts tests/unit/process/services/recovery/stateAuthorityInventory.test.ts",
+      "started_at": "2026-07-19T19:28:58Z",
+      "finished_at": "2026-07-19T19:29:12Z",
+      "exit_code": 0,
+      "result": "5 files; 83 passed, 3 skipped",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/focused.log",
+        "sha256": "962f513641e091b857f54a08c982ab6b021cb120ee89254e9e68b163f0ccf017"
+      }
+    },
+    {
+      "id": "lint",
+      "command": "bun run lint -- src/process/services/recovery/recoveryCapture.ts src/process/services/recovery/recoveryDryRun.ts src/process/services/recovery/recoveryManifest.ts src/process/services/recovery/recoveryPointBuilder.ts src/process/services/recovery/stateAuthorityInventory.ts tests/unit/process/services/recovery/recoveryCapture.test.ts tests/unit/process/services/recovery/recoveryManifest.test.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts tests/unit/process/services/recovery/stateAuthorityInventory.test.ts",
+      "started_at": "2026-07-19T19:29:30Z",
+      "finished_at": "2026-07-19T19:29:30Z",
+      "exit_code": 0,
+      "result": "0 warnings, 0 errors across 9 files",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/lint.log",
+        "sha256": "830234ba276f827a2a4ab5a799d0ca55ffcc3152863aea8794b50f1dd6393978"
+      }
+    },
+    {
+      "id": "format",
+      "command": "bunx prettier --check src/process/services/recovery/recoveryCapture.ts tests/unit/process/services/recovery/recoveryCapture.test.ts",
+      "started_at": "2026-07-19T19:29:30Z",
+      "finished_at": "2026-07-19T19:29:31Z",
+      "exit_code": 0,
+      "result": "all matched files use Prettier style",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/format.log",
+        "sha256": "dd3b3794bdefd6c9ae406fda5f1dc989958852ccef6d414855944e9cf768eddc"
+      }
+    },
+    {
+      "id": "diff_check",
+      "command": "git diff --check 8e7c5c4f9951939e1512548e21bfcb3f8ffb5d5b..56682b2cfd051ed5757d7af9bbcaef4f6170809f",
+      "started_at": "2026-07-19T19:29:30Z",
+      "finished_at": "2026-07-19T19:29:30Z",
+      "exit_code": 0,
+      "result": "clean",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/diff-check.log",
+        "sha256": "ab98a6c7258c1cc05aa792a7a94d812bd25c4fee505a7e1625c29c7848b32221"
+      }
+    },
+    {
+      "id": "aggregate",
+      "command": "bun run test",
+      "started_at": "2026-07-19T19:31:44Z",
+      "finished_at": "2026-07-19T19:34:00Z",
+      "exit_code": 0,
+      "result": "Vitest: 1430 files passed, 21 skipped; 15171 tests passed, 149 skipped. Bun-native: 229 passed, 0 failed",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/aggregate.log",
+        "sha256": "d287b705907baf7e730eb61d7f13ef19c63929cee3591b2a1cab0eefd087cc81"
+      }
+    },
+    {
+      "id": "typecheck",
+      "command": "bun run typecheck",
+      "started_at": "2026-07-19T19:34:57Z",
+      "finished_at": "2026-07-19T19:35:10Z",
+      "exit_code": 0,
+      "result": "TypeScript completed with no errors",
+      "log": {
+        "path": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c/typecheck.log",
+        "sha256": "9a50f847892069844c9724f0df5e37b90009ef5d35a160446019f709ef4887df"
+      }
+    }
+  ],
+  "ownership": {
+    "implementation_files": [
+      "src/process/services/recovery/recoveryCapture.ts",
+      "tests/unit/process/services/recovery/recoveryCapture.test.ts"
+    ],
+    "evidence_root": ".planning/phases/WLD-01-safety-foundation/evidence/01-06-56682b2c",
+    "outside_plan_ownership_changes": []
+  },
+  "non_claims": [
+    "This receipt is not an independent acceptance.",
+    "This receipt does not authorize integration, merge to main, release, deployment, canary promotion, or issue closure.",
+    "Core lease semantics remain owned by plan 01-18 and issue 896.",
+    "Darwin and Windows production capture remain unsupported pending target-specific identity-bound filesystem proof."
+  ]
+}

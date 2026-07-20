@@ -16,5 +16,11 @@ export interface ISqliteDriver {
    * destination. Implementations must include committed WAL state.
    */
   backup(destinationPath: string): Promise<void>;
+  /**
+   * Return an application-consistent SQLite image without ever materializing a
+   * plaintext staging file. Recovery capture requires this capability so a
+   * process crash cannot strand a readable database beside the snapshot.
+   */
+  snapshotBytes?(): Buffer;
   close(): void;
 }

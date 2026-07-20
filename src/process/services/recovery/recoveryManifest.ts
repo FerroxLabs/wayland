@@ -6,11 +6,12 @@
 
 import { createHash } from 'node:crypto';
 import { constants, createReadStream, type Stats } from 'node:fs';
-import { lstat, open, realpath } from 'node:fs/promises';
+import { lstat, open, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 
-export const RECOVERY_MANIFEST_FORMAT_VERSION = 2 as const;
+export const RECOVERY_MANIFEST_FORMAT_VERSION = 3 as const;
 const LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION = 1 as const;
+const PREVIOUS_RECOVERY_MANIFEST_FORMAT_VERSION = 2 as const;
 
 export const REQUIRED_STATE_AUTHORITIES = [
   'desktop.database',
@@ -84,6 +85,9 @@ export type RecoveryManifestAuthority = {
   requiredForRestore: boolean;
   sensitive: boolean;
   fileIds: string[];
+  /** Exact ordered identifiers for reference-only authorities. */
+  referenceIds?: string[];
+  referenceBindings?: Array<{ id: string; path: string; state: string }>;
   /** OS-vault binding for encrypted state that can only be restored on this device. */
   credentialBinding?: {
     scope: 'same-device';
@@ -184,6 +188,22 @@ function issue(code: string, issuePath: string, message: string): RecoveryManife
   return { code, path: issuePath, message };
 }
 
+function validateExactKeys(
+  value: Record<string, unknown>,
+  allowed: readonly string[],
+  issuePath: string,
+  errors: RecoveryManifestIssue[]
+): void {
+  const allowedKeys = new Set(allowed);
+  for (const key of Object.keys(value)) {
+    if (!allowedKeys.has(key)) {
+      errors.push(
+        issue('FIELD_UNKNOWN', issuePath === '$' ? key : `${issuePath}.${key}`, 'Unknown manifest fields are forbidden.')
+      );
+    }
+  }
+}
+
 function canonicalContainedRelativePath(value: string): string | null {
   if (!value || value.includes('\0') || value.includes('\\')) return null;
   if (path.posix.isAbsolute(value) || /^[a-zA-Z]:\//.test(value)) return null;
@@ -199,6 +219,7 @@ function validateExternalReferences(
   errors: RecoveryManifestIssue[]
 ): void {
   const ids = new Set<string>();
+  let previousKey = '';
   values.forEach((value, index) => {
     const entryPath = `${basePath}[${index}]`;
     if (!isRecord(value)) {
@@ -228,7 +249,109 @@ function validateExternalReferences(
         issue('EXTERNAL_REFERENCE_STATE_INVALID', `${entryPath}.state`, 'External reference state must be explicit.')
       );
     }
+    if (
+      isRecord(value) &&
+      typeof id === 'string' &&
+      typeof value.path === 'string' &&
+      typeof value.state === 'string'
+    ) {
+      const key = `${id}\0${value.path}\0${value.state}`;
+      if (previousKey && previousKey > key) {
+        errors.push(
+          issue('EXTERNAL_REFERENCE_ORDER_INVALID', entryPath, 'External references must use deterministic order.')
+        );
+      }
+      previousKey = key;
+    }
   });
+}
+
+function validateExternalAuthorityBinding(
+  authorityMap: Map<string, Record<string, unknown>>,
+  authorityId: 'external.workspaces' | 'external.agent-configs',
+  values: unknown[],
+  idKey: 'projectId' | 'backendId',
+  errors: RecoveryManifestIssue[],
+  formatVersion: unknown
+): void {
+  const authority = authorityMap.get(authorityId);
+  if (!authority) return;
+  const ids = values.flatMap((value) =>
+    isRecord(value) && typeof value[idKey] === 'string' ? [value[idKey] as string] : []
+  );
+  const expectedCoverage = ids.length === 0 ? 'absent' : 'reference-only';
+  const expectedConsistency = ids.length === 0 ? 'not-applicable' : 'reference-snapshot';
+  if (authority.coverage !== expectedCoverage || authority.consistency !== expectedConsistency) {
+    errors.push(
+      issue(
+        'EXTERNAL_AUTHORITY_REFERENCE_MISMATCH',
+        `authorities.${authorityId}`,
+        `${authorityId} coverage must match its persisted reference set.`
+      )
+    );
+  }
+  const isLegacyManifest = formatVersion === LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION;
+  const isPreviousManifest = formatVersion === PREVIOUS_RECOVERY_MANIFEST_FORMAT_VERSION;
+  if (isLegacyManifest && authority.referenceIds === undefined) return;
+  // The first v2 writer predated both referenceIds and referenceBindings. A
+  // genuine already-published v2 record therefore omits both fields. Once a
+  // v2 record carries either field, validate it instead of treating a partial
+  // authority claim as legacy compatibility.
+  if (isPreviousManifest && authority.referenceIds === undefined && authority.referenceBindings === undefined) {
+    return;
+  }
+  if (!Array.isArray(authority.referenceIds) || authority.referenceIds.some((value) => typeof value !== 'string')) {
+    errors.push(
+      issue(
+        'EXTERNAL_AUTHORITY_REFERENCE_IDS_INVALID',
+        `authorities.${authorityId}.referenceIds`,
+        'Reference-only authority identifiers must be explicit.'
+      )
+    );
+    return;
+  }
+  if (
+    authority.referenceIds.length !== ids.length ||
+    authority.referenceIds.some((value, index) => value !== ids[index])
+  ) {
+    errors.push(
+      issue(
+        'EXTERNAL_AUTHORITY_REFERENCE_MISMATCH',
+        `authorities.${authorityId}.referenceIds`,
+        'Authority reference identifiers must bind one-to-one to persisted references.'
+      )
+    );
+  }
+  if (isLegacyManifest) return;
+  const expectedBindings = values.flatMap((value) =>
+    isRecord(value) &&
+    typeof value[idKey] === 'string' &&
+    typeof value.path === 'string' &&
+    typeof value.state === 'string'
+      ? [{ id: value[idKey] as string, path: value.path, state: value.state }]
+      : []
+  );
+  if (
+    !Array.isArray(authority.referenceBindings) ||
+    authority.referenceBindings.length !== expectedBindings.length ||
+    authority.referenceBindings.some((binding, index) => {
+      const expected = expectedBindings[index];
+      return (
+        !isRecord(binding) ||
+        binding.id !== expected?.id ||
+        binding.path !== expected?.path ||
+        binding.state !== expected?.state
+      );
+    })
+  ) {
+    errors.push(
+      issue(
+        'EXTERNAL_AUTHORITY_REFERENCE_BINDING_MISMATCH',
+        `authorities.${authorityId}.referenceBindings`,
+        'Authority reference bindings must match identifier, path, and observed state one-to-one.'
+      )
+    );
+  }
 }
 
 export function validateRecoveryManifest(value: unknown): RecoveryManifestValidation {
@@ -240,7 +363,35 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
   }
 
   const isLegacyManifest = value.formatVersion === LEGACY_RECOVERY_MANIFEST_FORMAT_VERSION;
-  if (!isLegacyManifest && value.formatVersion !== RECOVERY_MANIFEST_FORMAT_VERSION) {
+  const isPreviousManifest = value.formatVersion === PREVIOUS_RECOVERY_MANIFEST_FORMAT_VERSION;
+  const isCurrentManifest = value.formatVersion === RECOVERY_MANIFEST_FORMAT_VERSION;
+  if (isCurrentManifest) {
+    validateExactKeys(
+      value,
+      [
+        'formatVersion',
+        'snapshotId',
+        'state',
+        'createdAt',
+        'reason',
+        'sourceAppVersion',
+        'sourceReleaseTrack',
+        'targetAppVersion',
+        'desktopSchemaVersion',
+        'platform',
+        'arch',
+        'mutationEpoch',
+        'authorities',
+        'logicalState',
+        'files',
+        'externalWorkspaces',
+        'externalAgentConfigs',
+      ],
+      '$',
+      errors
+    );
+  }
+  if (!isLegacyManifest && !isPreviousManifest && value.formatVersion !== RECOVERY_MANIFEST_FORMAT_VERSION) {
     errors.push(issue('FORMAT_UNSUPPORTED', 'formatVersion', 'Unsupported recovery manifest format.'));
   }
   if (value.state !== 'complete') {
@@ -282,6 +433,9 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
   }
 
   const mutationEpoch = isRecord(value.mutationEpoch) ? value.mutationEpoch : null;
+  if (isCurrentManifest && mutationEpoch) {
+    validateExactKeys(mutationEpoch, ['start', 'end'], 'mutationEpoch', errors);
+  }
   if (
     !mutationEpoch ||
     typeof mutationEpoch.start !== 'string' ||
@@ -311,6 +465,27 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     if (!isRecord(rawFile)) {
       errors.push(issue('FILE_INVALID', filePath, 'File entry must be an object.'));
       return;
+    }
+    if (isCurrentManifest) {
+      validateExactKeys(
+        rawFile,
+        [
+          'id',
+          'authority',
+          'logicalRole',
+          'sourcePath',
+          'snapshotPath',
+          'restorePath',
+          'size',
+          'mtimeMs',
+          'sha256',
+          'sensitive',
+          'copyPolicy',
+          'state',
+        ],
+        filePath,
+        errors
+      );
     }
     if (typeof rawFile.id !== 'string' || rawFile.id.length === 0 || fileIds.has(rawFile.id)) {
       errors.push(issue('FILE_ID_INVALID', `${filePath}.id`, 'File id must be non-empty and unique.'));
@@ -410,6 +585,47 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     if (!isRecord(rawAuthority) || typeof rawAuthority.id !== 'string') {
       errors.push(issue('AUTHORITY_INVALID', authorityPath, 'Authority entry must have an id.'));
       return;
+    }
+    if (isCurrentManifest) {
+      validateExactKeys(
+        rawAuthority,
+        [
+          'id',
+          'sourceRoot',
+          'coverage',
+          'consistency',
+          'requiredForRestore',
+          'sensitive',
+          'fileIds',
+          'referenceIds',
+          'referenceBindings',
+          'credentialBinding',
+          'empty',
+          'note',
+        ],
+        authorityPath,
+        errors
+      );
+      if (isRecord(rawAuthority.credentialBinding)) {
+        validateExactKeys(
+          rawAuthority.credentialBinding,
+          ['scope', 'backend', 'envelope'],
+          `${authorityPath}.credentialBinding`,
+          errors
+        );
+      }
+      if (Array.isArray(rawAuthority.referenceBindings)) {
+        rawAuthority.referenceBindings.forEach((binding, bindingIndex) => {
+          if (isRecord(binding)) {
+            validateExactKeys(
+              binding,
+              ['id', 'path', 'state'],
+              `${authorityPath}.referenceBindings[${bindingIndex}]`,
+              errors
+            );
+          }
+        });
+      }
     }
     if (authorityMap.has(rawAuthority.id)) {
       errors.push(issue('AUTHORITY_DUPLICATE', `${authorityPath}.id`, 'Authority ids must be unique.'));
@@ -544,6 +760,26 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
         issue('AUTHORITY_NONCOPY_WITH_FILES', `${authorityPath}.fileIds`, 'Non-copied authorities cannot own files.')
       );
     }
+    const externalReferenceAuthority =
+      rawAuthority.id === 'external.workspaces' || rawAuthority.id === 'external.agent-configs';
+    if (!externalReferenceAuthority && rawAuthority.referenceIds !== undefined) {
+      errors.push(
+        issue(
+          'AUTHORITY_REFERENCE_IDS_UNEXPECTED',
+          `${authorityPath}.referenceIds`,
+          'Only external reference authorities may declare referenceIds.'
+        )
+      );
+    }
+    if (!externalReferenceAuthority && rawAuthority.referenceBindings !== undefined) {
+      errors.push(
+        issue(
+          'AUTHORITY_REFERENCE_BINDINGS_UNEXPECTED',
+          `${authorityPath}.referenceBindings`,
+          'Only external reference authorities may declare referenceBindings.'
+        )
+      );
+    }
     if (
       (rawAuthority.coverage === 'copied' || rawAuthority.coverage === 'encrypted-copy') &&
       rawAuthority.consistency !== 'sqlite-online-backup' &&
@@ -608,6 +844,9 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     if (!isRecord(rawLogicalState) || typeof rawLogicalState.id !== 'string') {
       errors.push(issue('LOGICAL_STATE_ENTRY_INVALID', logicalPath, 'Logical state entry must have an id.'));
       return;
+    }
+    if (isCurrentManifest) {
+      validateExactKeys(rawLogicalState, ['id', 'status', 'authorityIds', 'note'], logicalPath, errors);
     }
     if (!REQUIRED_LOGICAL_STATE_SET.has(rawLogicalState.id)) {
       errors.push(
@@ -757,6 +996,13 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
       issue('EXTERNAL_WORKSPACES_INVALID', 'externalWorkspaces', 'External workspace references must be an array.')
     );
   } else {
+    if (isCurrentManifest) {
+      value.externalWorkspaces.forEach((entry, index) => {
+        if (isRecord(entry)) {
+          validateExactKeys(entry, ['projectId', 'path', 'state', 'copyPolicy'], `externalWorkspaces[${index}]`, errors);
+        }
+      });
+    }
     validateExternalReferences(value.externalWorkspaces, 'projectId', 'externalWorkspaces', errors);
   }
   if (!Array.isArray(value.externalAgentConfigs)) {
@@ -768,8 +1014,31 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
       )
     );
   } else {
+    if (isCurrentManifest) {
+      value.externalAgentConfigs.forEach((entry, index) => {
+        if (isRecord(entry)) {
+          validateExactKeys(entry, ['backendId', 'path', 'state', 'copyPolicy'], `externalAgentConfigs[${index}]`, errors);
+        }
+      });
+    }
     validateExternalReferences(value.externalAgentConfigs, 'backendId', 'externalAgentConfigs', errors);
   }
+  validateExternalAuthorityBinding(
+    authorityMap,
+    'external.workspaces',
+    Array.isArray(value.externalWorkspaces) ? value.externalWorkspaces : [],
+    'projectId',
+    errors,
+    value.formatVersion
+  );
+  validateExternalAuthorityBinding(
+    authorityMap,
+    'external.agent-configs',
+    Array.isArray(value.externalAgentConfigs) ? value.externalAgentConfigs : [],
+    'backendId',
+    errors,
+    value.formatVersion
+  );
 
   return { valid: errors.length === 0, errors, warnings };
 }
@@ -788,6 +1057,8 @@ async function inspectContainedArtifactType(
   let candidate = root;
   for (let index = -1; index < segments.length; index += 1) {
     if (index >= 0) candidate = path.join(candidate, segments[index]);
+    // Ancestors must be inspected in path order so a link is rejected before its child is touched.
+    // oxlint-disable-next-line no-await-in-loop
     const stat = await lstat(candidate);
     if (stat.isSymbolicLink()) {
       return { valid: false, message: `Snapshot path contains a symbolic link: ${candidate}` };
@@ -813,6 +1084,72 @@ export async function verifyRecoverySnapshot(
   const errors = [...validation.errors];
   const root = path.resolve(snapshotRoot);
 
+  const expectedArtifacts = new Set((manifest as RecoveryManifest).files.map(({ snapshotPath }) => snapshotPath));
+  const expectedDirectories = new Set<string>();
+  for (const snapshotPath of expectedArtifacts) {
+    const segments = snapshotPath.split('/');
+    for (let index = 1; index < segments.length; index += 1) {
+      expectedDirectories.add(segments.slice(0, index).join('/'));
+    }
+  }
+  let remainingEntries = 20_000;
+  const inventoryDirectory = async (directory: string, relativeRoot: string): Promise<void> => {
+    const entries = await readdir(directory, { withFileTypes: true });
+    entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
+    for (const entry of entries) {
+      if (remainingEntries <= 0) {
+        errors.push(
+          issue(
+            'SNAPSHOT_INVENTORY_BOUNDED',
+            'snapshotRoot',
+            'Snapshot inventory exceeded its 20,000-entry verification boundary.'
+          )
+        );
+        return;
+      }
+      remainingEntries -= 1;
+      const relativePath = relativeRoot ? `${relativeRoot}/${entry.name}` : entry.name;
+      const candidate = path.join(directory, entry.name);
+      if (entry.isSymbolicLink()) {
+        errors.push(
+          issue('SNAPSHOT_FILE_TYPE', relativePath, `Snapshot inventory contains a symbolic link: ${relativePath}`)
+        );
+      } else if (entry.isDirectory()) {
+        if (!expectedDirectories.has(relativePath)) {
+          errors.push(
+            issue(
+              'SNAPSHOT_ARTIFACT_UNLISTED',
+              relativePath,
+              `Snapshot contains an unlisted directory: ${relativePath}`
+            )
+          );
+        } else {
+          // Verification is intentionally sequential and bounded.
+          // oxlint-disable-next-line no-await-in-loop
+          await inventoryDirectory(candidate, relativePath);
+        }
+      } else if (entry.isFile()) {
+        if (relativePath !== 'manifest.json' && !expectedArtifacts.has(relativePath)) {
+          errors.push(
+            issue('SNAPSHOT_ARTIFACT_UNLISTED', relativePath, `Snapshot contains an unlisted artifact: ${relativePath}`)
+          );
+        }
+      } else {
+        errors.push(
+          issue('SNAPSHOT_FILE_TYPE', relativePath, `Snapshot inventory contains an unsupported entry: ${relativePath}`)
+        );
+      }
+    }
+  };
+
+  try {
+    await inventoryDirectory(root, '');
+  } catch (error) {
+    errors.push(
+      issue('SNAPSHOT_INVENTORY_UNREADABLE', 'snapshotRoot', error instanceof Error ? error.message : String(error))
+    );
+  }
+
   for (const [index, file] of (manifest as RecoveryManifest).files.entries()) {
     if (!canonicalContainedRelativePath(file.snapshotPath)) continue;
     const candidate = path.resolve(root, file.snapshotPath);
@@ -821,6 +1158,8 @@ export async function verifyRecoverySnapshot(
       continue;
     }
     try {
+      // Bound verification to one authenticated artifact at a time.
+      // oxlint-disable-next-line no-await-in-loop
       const artifactType = await inspectContainedArtifactType(root, file.snapshotPath);
       if ('message' in artifactType) {
         errors.push(issue('SNAPSHOT_FILE_TYPE', `files[${index}]`, artifactType.message));
@@ -832,6 +1171,8 @@ export async function verifyRecoverySnapshot(
           issue('SNAPSHOT_SIZE_MISMATCH', `files[${index}].size`, 'Snapshot size differs from the manifest.')
         );
       }
+      // Keep file hashing sequential to avoid unbounded recovery I/O.
+      // oxlint-disable-next-line no-await-in-loop
       const digest = await sha256File(candidate);
       if (digest !== file.sha256) {
         errors.push(

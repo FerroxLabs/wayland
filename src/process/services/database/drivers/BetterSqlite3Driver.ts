@@ -89,6 +89,10 @@ export class BetterSqlite3Driver implements ISqliteDriver {
     }
   }
 
+  snapshotBytes(): Buffer {
+    return this.db.serialize();
+  }
+
   close(): void {
     this.db.close();
   }

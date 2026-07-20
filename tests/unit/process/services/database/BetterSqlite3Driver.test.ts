@@ -2,10 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import {
-  BetterSqlite3Driver,
-  toBetterSqlite3Options,
-} from '@process/services/database/drivers/BetterSqlite3Driver';
+import { BetterSqlite3Driver, toBetterSqlite3Options } from '@process/services/database/drivers/BetterSqlite3Driver';
 
 describe('BetterSqlite3Driver options', () => {
   it('omits absent booleans instead of passing undefined into better-sqlite3', () => {
@@ -61,6 +58,32 @@ describe.skipIf(!process.versions.electron)('BetterSqlite3Driver backup', () => 
       }
       if (process.platform !== 'win32') {
         expect(fs.statSync(backupPath).mode & 0o777).toBe(0o600);
+      }
+    } finally {
+      source.close();
+    }
+  });
+
+  it('serializes committed WAL state into an application-consistent in-memory image', () => {
+    const directory = temporaryDirectory();
+    const sourcePath = path.join(directory, 'source.db');
+    const snapshotPath = path.join(directory, 'snapshot-from-memory.db');
+    const source = new BetterSqlite3Driver(sourcePath);
+
+    try {
+      source.pragma('journal_mode = WAL');
+      source.pragma('wal_autocheckpoint = 0');
+      source.exec('CREATE TABLE recovery_probe (value TEXT NOT NULL)');
+      source.prepare('INSERT INTO recovery_probe (value) VALUES (?)').run('committed-in-wal');
+
+      const bytes = source.snapshotBytes();
+      expect(bytes.subarray(0, 16).toString()).toBe('SQLite format 3\0');
+      fs.writeFileSync(snapshotPath, bytes, { flag: 'wx', mode: 0o600 });
+      const snapshot = new BetterSqlite3Driver(snapshotPath, { readonly: true, fileMustExist: true });
+      try {
+        expect(snapshot.prepare('SELECT value FROM recovery_probe').get()).toEqual({ value: 'committed-in-wal' });
+      } finally {
+        snapshot.close();
       }
     } finally {
       source.close();

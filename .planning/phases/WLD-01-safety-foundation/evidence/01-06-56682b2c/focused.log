@@ -1,0 +1,13 @@
+started_at=2026-07-19T19:28:58Z
+$ vitest run tests/unit/process/services/recovery/recoveryCapture.test.ts tests/unit/process/services/recovery/recoveryManifest.test.ts tests/unit/process/services/recovery/recoveryDryRun.test.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts tests/unit/process/services/recovery/stateAuthorityInventory.test.ts
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-repair-01-06-r2/app
+
+
+ Test Files  5 passed (5)
+      Tests  83 passed | 3 skipped (86)
+   Start at  02:28:59
+   Duration  13.45s (transform 1.18s, setup 259ms, import 1.46s, tests 14.32s, environment 0ms)
+
+exit_code=0
+finished_at=2026-07-19T19:29:12Z

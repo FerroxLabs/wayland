@@ -7,14 +7,25 @@
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { lstat, readdir } from 'node:fs/promises';
+import { homedir } from 'node:os';
 import path from 'node:path';
 import type { WaylandReleaseTrack } from '@/common/releaseTrack';
 import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
 import { createDriver } from '@process/services/database/drivers/createDriver';
 import { readDatabaseSchemaVersionStrict } from './startupCompatibility';
-import { sealRecoveryFile } from './recoverySealing';
-import { buildRecoveryPoint, type BuiltRecoveryPoint } from './recoveryPointBuilder';
-import { inventoryRecoveryAuthorities, type RecoveryInventory } from './stateAuthorityInventory';
+import { sealRecoveryBytesToBuffer } from './recoverySealing';
+import {
+  assertRecoveryDestinationDisjoint,
+  buildRecoveryPoint,
+  RecoveryPointBuildBlockedError,
+  type BuiltRecoveryPoint,
+} from './recoveryPointBuilder';
+import { evaluateRecoveryDryRun, type RecoveryDryRun } from './recoveryDryRun';
+import {
+  inventoryRecoveryAuthorities,
+  MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT,
+  type RecoveryInventory,
+} from './stateAuthorityInventory';
 import {
   loadOrCreateExternalRecoveryAuthority,
   type ExternalRecoveryVaultBackend,
@@ -42,6 +53,17 @@ export type ProductionRecoveryCaptureInputs = {
 export type ProductionRecoveryCaptureDependencies = {
   externalRecoveryVault?: ExternalRecoveryVaultBackend;
   loadOrCreateExternalRecoveryAuthority?: typeof loadOrCreateExternalRecoveryAuthority;
+  resolveCoreRoots?: () => {
+    defaultCoreRoot: string;
+    namedCoreRoot: string;
+    constitutionRoot: string;
+  };
+  createDatabaseDriver?: typeof createDriver;
+  sealBytes?: typeof sealRecoveryBytesToBuffer;
+  /** Test-only path fallback; production remains fail-closed without descriptor-relative publication. */
+  allowUnsafePathFallbackForTests?: boolean;
+  /** Test-only race seam after the final capture-plan inventory is sealed. */
+  afterAuthoritativeInventoryForTests?: () => Promise<void> | void;
 };
 
 const EPOCH_AUTHORITIES = new Set([
@@ -54,6 +76,18 @@ const EPOCH_AUTHORITIES = new Set([
 ]);
 
 const EXTERNAL_RECOVERY_SAFE_STORAGE_REF = 'electron-safe-storage:wayland-external-recovery-authority-v1';
+
+export function resolveProductionRecoveryRoots(home = homedir()): {
+  defaultCoreRoot: string;
+  namedCoreRoot: string;
+  constitutionRoot: string;
+} {
+  return {
+    defaultCoreRoot: nativeConfigDir(),
+    namedCoreRoot: profilesRoot(),
+    constitutionRoot: path.join(home, '.wayland'),
+  };
+}
 
 export async function createProductionExternalRecoveryVaultBackend(): Promise<ExternalRecoveryVaultBackend> {
   const { safeStorage } = await import('electron');
@@ -121,22 +155,30 @@ export async function provisionHealthyV2ExternalRecoveryAuthority(
   return receipt;
 }
 
-function pathsOverlap(left: string, right: string): boolean {
-  const a = path.resolve(left);
-  const b = path.resolve(right);
-  const relativeAB = path.relative(a, b);
-  const relativeBA = path.relative(b, a);
-  return (
-    a === b ||
-    (relativeAB !== '' && !relativeAB.startsWith('..') && !path.isAbsolute(relativeAB)) ||
-    (relativeBA !== '' && !relativeBA.startsWith('..') && !path.isAbsolute(relativeBA))
-  );
+export { assertRecoveryDestinationDisjoint };
+
+/**
+ * Authenticate the bounded Desktop-only capture boundary. A caller-provided or
+ * locally fabricated Core lease cannot pass this production preflight; plan
+ * 01-18 owns the future producer-admitted Core path.
+ */
+export function assertDesktopOnlyRecoveryCaptureReady(inventory: RecoveryInventory): RecoveryDryRun {
+  const dryRun = evaluateRecoveryDryRun(inventory, {
+    sqliteOnlineBackup: true,
+    desktopQuiescence: true,
+    coreQuiescence: false,
+    mutationEpoch: true,
+    sealedSensitiveCopies: true,
+  });
+  if (!dryRun.readyToCapture) throw new RecoveryPointBuildBlockedError(dryRun);
+  return dryRun;
 }
 
 async function addFileToEpoch(hash: ReturnType<typeof createHash>, filePath: string, root: string): Promise<void> {
   const stat = await lstat(filePath);
   if (!stat.isFile() || stat.isSymbolicLink())
     throw new Error(`Recovery mutation epoch found unsafe file: ${filePath}`);
+  if (stat.nlink !== 1) throw new Error(`Recovery mutation epoch refuses hard-linked file: ${filePath}`);
   hash.update(`file\0${path.relative(root, filePath)}\0${stat.size}\0`);
   for await (const chunk of createReadStream(filePath)) hash.update(chunk);
 }
@@ -146,6 +188,7 @@ async function addPathToEpoch(
   candidate: string,
   excludedTopLevel: ReadonlySet<string> = new Set()
 ): Promise<void> {
+  let remaining = MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT;
   let stat: Awaited<ReturnType<typeof lstat>>;
   try {
     stat = await lstat(candidate);
@@ -165,10 +208,14 @@ async function addPathToEpoch(
 
   const visit = async (directory: string): Promise<void> => {
     const entries = await readdir(directory, { withFileTypes: true });
-    entries.sort((left, right) => left.name.localeCompare(right.name));
+    entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
     hash.update(`dir\0${path.relative(candidate, directory)}\0`);
     for (const entry of entries) {
       if (directory === candidate && excludedTopLevel.has(entry.name)) continue;
+      if (remaining <= 0) {
+        throw new Error('Recovery mutation epoch exceeded its bounded content inventory.');
+      }
+      remaining -= 1;
       const child = path.join(directory, entry.name);
       if (entry.isSymbolicLink()) throw new Error(`Recovery mutation epoch refuses symlink: ${child}`);
       // Sequential traversal is required because this is one ordered hash stream.
@@ -182,9 +229,54 @@ async function addPathToEpoch(
   await visit(candidate);
 }
 
+function resolveInventoryUserDataRoot(inventory: RecoveryInventory): string {
+  if (inventory.userDataRoot) return inventory.userDataRoot;
+  const configRoot = inventory.authorities
+    .find(({ id }) => id === 'desktop.config')
+    ?.evidence.find(({ state }) => state !== 'absent')?.path;
+  if (configRoot) return path.dirname(configRoot);
+  const databasePath = inventory.authorities
+    .find(({ id }) => id === 'desktop.database')
+    ?.evidence.find(({ state }) => state !== 'absent')?.path;
+  if (databasePath) return path.dirname(path.dirname(databasePath));
+  throw new Error('Recovery mutation epoch requires the authoritative user-data root.');
+}
+
+async function addNamespaceToEpoch(hash: ReturnType<typeof createHash>, userDataRoot: string): Promise<void> {
+  let remaining = MAX_RECOVERY_INVENTORY_ENTRIES_PER_ROOT;
+  const addDirectory = async (directory: string, relativeRoot: string): Promise<void> => {
+    const directoryStat = await lstat(directory);
+    if (directoryStat.isSymbolicLink() || !directoryStat.isDirectory()) {
+      throw new Error(`Recovery mutation epoch found unsafe namespace: ${directory}`);
+    }
+    hash.update(`namespace-root\0${relativeRoot}\0${directoryStat.dev}\0${directoryStat.ino}\0`);
+    const entries = await readdir(directory, { withFileTypes: true });
+    entries.sort((left, right) => (left.name < right.name ? -1 : left.name > right.name ? 1 : 0));
+    for (const entry of entries) {
+      if (remaining <= 0) throw new Error('Recovery mutation epoch exceeded its bounded namespace inventory.');
+      remaining -= 1;
+      const candidate = path.join(directory, entry.name);
+      // Re-stat every entry without following links; Dirent alone is not authority evidence.
+      // oxlint-disable-next-line no-await-in-loop
+      const stat = await lstat(candidate);
+      if (stat.isSymbolicLink()) throw new Error(`Recovery mutation epoch refuses symlink: ${candidate}`);
+      const state = stat.isDirectory() ? 'directory' : stat.isFile() ? 'file' : 'other';
+      const relativePath = path.posix.join(relativeRoot, entry.name);
+      hash.update(`namespace\0${relativePath}\0${state}\0${stat.dev}\0${stat.ino}\0`);
+      if (relativeRoot === '' && stat.isDirectory() && (entry.name === 'constitution' || entry.name === 'wayland')) {
+        // These two namespaces contain independently classified authorities.
+        // oxlint-disable-next-line no-await-in-loop
+        await addDirectory(candidate, entry.name);
+      }
+    }
+  };
+  await addDirectory(userDataRoot, '');
+}
+
 /** Content-bound epoch for Desktop-owned copied state; SQLite has its own online-backup authority. */
 export async function fingerprintDesktopRecoveryState(inventory: RecoveryInventory): Promise<string> {
   const hash = createHash('sha256');
+  await addNamespaceToEpoch(hash, resolveInventoryUserDataRoot(inventory));
   for (const authority of inventory.authorities.filter(({ id }) => EPOCH_AUTHORITIES.has(id))) {
     hash.update(`authority\0${authority.id}\0`);
     for (const evidence of authority.evidence) {
@@ -200,6 +292,19 @@ export async function fingerprintDesktopRecoveryState(inventory: RecoveryInvento
   return `sha256:${hash.digest('hex')}`;
 }
 
+async function recoveryInventoryCapturePlanIdentity(inventory: RecoveryInventory): Promise<string> {
+  const { observedAt: _observedAt, ...capturePlan } = inventory;
+  const userDataRoot = resolveInventoryUserDataRoot(inventory);
+  const rootIdentity = await lstat(userDataRoot);
+  if (rootIdentity.isSymbolicLink() || !rootIdentity.isDirectory()) {
+    throw new Error('Recovery capture plan requires a real authoritative user-data root.');
+  }
+  return `sha256:${createHash('sha256')
+    .update(JSON.stringify(capturePlan))
+    .update(`\0user-data-root\0${path.resolve(userDataRoot)}\0${rootIdentity.dev}\0${rootIdentity.ino}`)
+    .digest('hex')}`;
+}
+
 /**
  * Capture live Desktop state only while bootstrap owns the normal profile lock.
  * Core state deliberately blocks in recoveryPointBuilder until #896 publishes a
@@ -210,66 +315,139 @@ export async function captureProductionRecoveryPoint(
   dependencies: ProductionRecoveryCaptureDependencies = {}
 ): Promise<BuiltRecoveryPoint> {
   if (!inputs.desktopProfileLockHeld) throw new Error('Desktop recovery capture requires the live profile lock.');
-  const defaultCoreRoot = nativeConfigDir();
-  const namedCoreRoot = profilesRoot();
-  const constitutionRoot = path.dirname(namedCoreRoot);
-  for (const protectedRoot of [inputs.userDataRoot, constitutionRoot, defaultCoreRoot, namedCoreRoot]) {
-    if (pathsOverlap(inputs.destinationRoot, protectedRoot)) {
-      throw new Error(`Recovery destination must be disjoint from live state: ${protectedRoot}`);
-    }
-  }
-
-  const inventory = await inventoryRecoveryAuthorities({
+  const resolvedCoreRoots = dependencies.resolveCoreRoots?.() ?? resolveProductionRecoveryRoots();
+  const { defaultCoreRoot, namedCoreRoot, constitutionRoot } = resolvedCoreRoots;
+  const databaseDriverFactory = dependencies.createDatabaseDriver ?? createDriver;
+  const recoverySealer = dependencies.sealBytes ?? sealRecoveryBytesToBuffer;
+  const inventoryInputs = {
     userDataRoot: inputs.userDataRoot,
     constitutionRoot,
     coreDefaultProfileRoot: defaultCoreRoot,
     coreNamedProfilesRoot: namedCoreRoot,
     sourceReleaseTrack: inputs.sourceReleaseTrack,
-  });
+  } as const;
+  await assertRecoveryDestinationDisjoint(inputs.destinationRoot, [
+    inputs.userDataRoot,
+    constitutionRoot,
+    defaultCoreRoot,
+    namedCoreRoot,
+  ]);
+
+  let inventory = await inventoryRecoveryAuthorities(inventoryInputs);
+  assertDesktopOnlyRecoveryCaptureReady(inventory);
   const databasePath = inventory.authorities.find(({ id }) => id === 'desktop.database')?.evidence[0]?.path;
   if (!databasePath) throw new Error('Desktop recovery capture could not resolve the authoritative database.');
-  const schemaDriver = await createDriver(databasePath, { readonly: true, fileMustExist: true });
-  let desktopSchemaVersion: number;
+  const databaseIdentityBeforeOpen = await lstat(databasePath);
+  if (
+    databaseIdentityBeforeOpen.isSymbolicLink() ||
+    !databaseIdentityBeforeOpen.isFile() ||
+    databaseIdentityBeforeOpen.nlink !== 1
+  ) {
+    throw new Error('Desktop recovery database is not a uniquely linked regular file.');
+  }
+  const databaseDriver = await databaseDriverFactory(databasePath, { readonly: true, fileMustExist: true });
+  let databaseCaptureConsumed = false;
   try {
-    desktopSchemaVersion = readDatabaseSchemaVersionStrict(schemaDriver);
-  } finally {
-    schemaDriver.close();
-  }
-
-  if (inputs.externalRecoveryAuthority) {
-    await provisionHealthyV2ExternalRecoveryAuthority(
-      {
-        userDataRoot: inputs.userDataRoot,
-        desktopSchemaVersion,
-        inventory,
-        request: inputs.externalRecoveryAuthority,
-      },
-      dependencies
-    );
-  }
-
-  return buildRecoveryPoint(
-    {
-      inventory,
-      destinationRoot: inputs.destinationRoot,
-      reason: 'manual',
-      sourceAppVersion: inputs.sourceAppVersion,
-      desktopSchemaVersion,
-    },
-    {
-      captureSqliteOnline: async (sourcePath, destinationPath) => {
-        const driver = await createDriver(sourcePath, { readonly: true, fileMustExist: true });
-        try {
-          await driver.backup(destinationPath);
-        } finally {
-          driver.close();
-        }
-      },
-      sealFile: sealRecoveryFile,
-      acquireDesktopQuiescence: async () => ({ release: async () => undefined }),
-      // Intentionally absent until FerroxLabs/wayland#896 is accepted.
-      acquireCoreQuiescence: undefined,
-      readMutationEpoch: () => fingerprintDesktopRecoveryState(inventory),
+    const databaseIdentityAfterOpen = await lstat(databasePath);
+    if (
+      databaseIdentityAfterOpen.isSymbolicLink() ||
+      !databaseIdentityAfterOpen.isFile() ||
+      databaseIdentityAfterOpen.nlink !== 1 ||
+      databaseIdentityAfterOpen.dev !== databaseIdentityBeforeOpen.dev ||
+      databaseIdentityAfterOpen.ino !== databaseIdentityBeforeOpen.ino
+    ) {
+      throw new Error('Desktop recovery database identity changed while its snapshot connection was opened.');
     }
-  );
+    const desktopSchemaVersion = readDatabaseSchemaVersionStrict(databaseDriver);
+
+    // Opening the database is an asynchronous boundary. Re-inventory while the
+    // same connection remains pinned so schema and snapshot cannot cross identities.
+    inventory = await inventoryRecoveryAuthorities(inventoryInputs);
+    assertDesktopOnlyRecoveryCaptureReady(inventory);
+
+    if (inputs.externalRecoveryAuthority) {
+      await provisionHealthyV2ExternalRecoveryAuthority(
+        {
+          userDataRoot: inputs.userDataRoot,
+          desktopSchemaVersion,
+          inventory,
+          request: inputs.externalRecoveryAuthority,
+        },
+        dependencies
+      );
+    }
+
+    // Provisioning is an intentional live-state mutation. The builder must
+    // consume an inventory created after it, never the pre-provision plan that
+    // was used only to authorize healthy-v2 provisioning.
+    inventory = await inventoryRecoveryAuthorities(inventoryInputs);
+    assertDesktopOnlyRecoveryCaptureReady(inventory);
+    const authoritativeCapturePlan = await recoveryInventoryCapturePlanIdentity(inventory);
+    await dependencies.afterAuthoritativeInventoryForTests?.();
+
+    return await buildRecoveryPoint(
+      {
+        inventory,
+        destinationRoot: inputs.destinationRoot,
+        reason: 'manual',
+        sourceAppVersion: inputs.sourceAppVersion,
+        desktopSchemaVersion,
+        protectedRoots: [inputs.userDataRoot, constitutionRoot, defaultCoreRoot, namedCoreRoot],
+      },
+      {
+        captureSqliteOnline: async (sourcePath) => {
+          if (sourcePath !== databasePath || databaseCaptureConsumed) {
+            throw new Error('SQLite recovery capture must consume its admitted database connection exactly once.');
+          }
+          databaseCaptureConsumed = true;
+          const beforeSnapshot = await lstat(databasePath);
+          if (
+            beforeSnapshot.isSymbolicLink() ||
+            !beforeSnapshot.isFile() ||
+            beforeSnapshot.nlink !== 1 ||
+            beforeSnapshot.dev !== databaseIdentityBeforeOpen.dev ||
+            beforeSnapshot.ino !== databaseIdentityBeforeOpen.ino
+          ) {
+            throw new Error('Desktop recovery database identity changed before snapshot.');
+          }
+          if (!databaseDriver.snapshotBytes) {
+            throw new Error('SQLite driver cannot produce an in-memory application-consistent snapshot.');
+          }
+          const schemaVersion = readDatabaseSchemaVersionStrict(databaseDriver);
+          const bytes = Buffer.from(databaseDriver.snapshotBytes());
+          const afterSnapshot = await lstat(databasePath);
+          if (
+            afterSnapshot.isSymbolicLink() ||
+            !afterSnapshot.isFile() ||
+            afterSnapshot.nlink !== 1 ||
+            afterSnapshot.dev !== databaseIdentityBeforeOpen.dev ||
+            afterSnapshot.ino !== databaseIdentityBeforeOpen.ino
+          ) {
+            bytes.fill(0);
+            throw new Error('Desktop recovery database identity changed during snapshot.');
+          }
+          return { bytes, schemaVersion };
+        },
+        sealBytes: recoverySealer,
+        acquireDesktopQuiescence: async () => ({ release: async () => undefined }),
+        // Intentionally absent until FerroxLabs/wayland#896 is accepted.
+        acquireCoreQuiescence: undefined,
+        readMutationEpoch: async () => {
+          // Reclassify at both builder epoch boundaries: after quiescence and
+          // immediately before publication. Namespace hashing detects drift;
+          // this inventory pass also prevents a newly discovered root from
+          // inheriting an obsolete authority disposition.
+          const currentInventory = await inventoryRecoveryAuthorities(inventoryInputs);
+          assertDesktopOnlyRecoveryCaptureReady(currentInventory);
+          if ((await recoveryInventoryCapturePlanIdentity(currentInventory)) !== authoritativeCapturePlan) {
+            throw new Error('Recovery authority inventory changed after capture-plan admission.');
+          }
+          return fingerprintDesktopRecoveryState(currentInventory);
+        },
+        allowUnsafePathFallbackForTests: dependencies.allowUnsafePathFallbackForTests,
+      }
+    );
+  } finally {
+    databaseDriver.close();
+  }
 }
