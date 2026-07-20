@@ -6,7 +6,7 @@
 
 import { createHash, randomUUID } from 'node:crypto';
 import { constants, type Stats } from 'node:fs';
-import { type FileHandle, lstat, mkdir, mkdtemp, open, readdir, readFile, realpath, rm } from 'node:fs/promises';
+import { type FileHandle, lstat, mkdir, mkdtemp, open, readdir, readFile, realpath, rm, rmdir } from 'node:fs/promises';
 import path from 'node:path';
 import { evaluateRecoveryDryRun, type RecoveryDryRun } from './recoveryDryRun';
 import {
@@ -1320,7 +1320,38 @@ async function removeRecoveryRootIfOwned(root: string, identity: DestinationPath
   ) {
     return;
   }
-  await rm(root, { recursive: true, force: true });
+  // Empty the reserved inode's own contents. Each child is removed individually
+  // after the parent identity above was verified.
+  for (const entry of await readdir(root)) {
+    // oxlint-disable-next-line no-await-in-loop -- ordered cleanup of a single reserved root.
+    await rm(path.join(root, entry), { recursive: true, force: true });
+  }
+  // Retire only the emptied shell, and never through a recursive pathname
+  // delete. The identity check above proves nothing about the object present at
+  // any later instant: between it and this removal a concurrent publisher can
+  // rename our emptied reservation away and install a populated replacement at
+  // the same name. A non-recursive removal cannot cascade into such a
+  // replacement's contents (rm reports EISDIR for any directory and rmdir
+  // reports ENOTEMPTY/ENOTDIR for a non-empty or non-directory replacement), so
+  // no object this builder never reserved is ever destroyed.
+  try {
+    await rm(root, { recursive: false });
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    // EISDIR is expected: our reservation is a directory, so the non-recursive
+    // rm never removes it (or any directory swapped over the name). ENOENT means
+    // the reservation is already gone. Both leave the directory case to rmdir.
+    if (code !== 'ERR_FS_EISDIR' && code !== 'ENOENT') throw error;
+  }
+  try {
+    await rmdir(root);
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    // A racing publisher replaced our emptied reservation. Leaving the orphan is
+    // the fail-closed outcome; a re-resolved pathname is never deleted merely
+    // because it now occupies the reserved name.
+    if (code !== 'ENOTEMPTY' && code !== 'ENOTDIR' && code !== 'ENOENT') throw error;
+  }
 }
 
 /**
