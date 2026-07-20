@@ -2512,12 +2512,15 @@ export type IWcoreBrowserPolicy = {
 export type IWcoreBrowserPolicyProjection = {
   schemaVersion: 1;
   coreVersion: '0.12.25';
-  requested: null | {
-    policy: IWcoreBrowserPolicy;
+  /** Exact config authority inspected for this projection, even when policy is absent. */
+  source: {
     mode: 'desktop-managed' | 'raw-engine';
     profile: string | null;
     engineConfigPath: string;
     desktopConfigPath: string;
+  };
+  requested: null | {
+    policy: IWcoreBrowserPolicy;
   };
   /** No v0.12.25 producer receipt exists for current-session enforcement. */
   effective: null;

@@ -145,12 +145,14 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     mockGetBrowserPolicy.mockResolvedValue({
       schemaVersion: 1,
       coreVersion: '0.12.25',
-      requested: {
-        policy: { defaultAction: 'deny', allowedOrigins: [], deniedOrigins: [] },
+      source: {
         mode: 'desktop-managed',
         profile: 'default',
         engineConfigPath: '/Users/test/.wayland/profiles/default/config.toml',
         desktopConfigPath: '/Users/test/Library/Application Support/Wayland/config/wayland-config.txt',
+      },
+      requested: {
+        policy: { defaultAction: 'deny', allowedOrigins: [], deniedOrigins: [] },
       },
       effective: null,
       effectiveState: 'producer-evidence-unavailable',
@@ -445,7 +447,9 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(screen.queryByText('Turn off firewall')).toBeNull();
     expect(mockSetWcoreSection).not.toHaveBeenCalled();
 
-    expect(await screen.findByText('deny · 0 allowed · 0 denied')).toBeTruthy();
+    expect(await screen.findByText('Deny · 0 allowed · 0 denied')).toBeTruthy();
+    expect(screen.getByText('Allowed origins: none')).toBeTruthy();
+    expect(screen.getByText('Denied origins: none')).toBeTruthy();
     expect(screen.getByText('Desktop managed · profile default')).toBeTruthy();
     expect(screen.getByText('Core config: /Users/test/.wayland/profiles/default/config.toml')).toBeTruthy();
     expect(
@@ -460,10 +464,16 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(mockSetBrowserPolicy).not.toHaveBeenCalled();
   });
 
-  it('renders an absent requested policy without inventing defaults or an effective state', async () => {
+  it('shows the inspected config identity even when no requested policy is present', async () => {
     mockGetBrowserPolicy.mockResolvedValue({
       schemaVersion: 1,
       coreVersion: '0.12.25',
+      source: {
+        mode: 'desktop-managed',
+        profile: 'default',
+        engineConfigPath: '/Users/test/.wayland/profiles/default/config.toml',
+        desktopConfigPath: '/Users/test/Library/Application Support/Wayland/config/wayland-config.txt',
+      },
       requested: null,
       effective: null,
       effectiveState: 'producer-evidence-unavailable',
@@ -475,7 +485,15 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(await screen.findByText('No Browser policy is configured in the selected Core config.')).toBeTruthy();
     expect(screen.getByText(/does not provide session-correlated enforcement evidence/)).toBeTruthy();
     expect(screen.getByText(/a saved request is not proof/)).toBeTruthy();
-    expect(screen.queryByText(/Core config:/)).toBeNull();
+    // Config identity is authority truth and must remain visible with no policy.
+    expect(screen.getByText('Desktop managed · profile default')).toBeTruthy();
+    expect(screen.getByText('Core config: /Users/test/.wayland/profiles/default/config.toml')).toBeTruthy();
+    expect(
+      screen.getByText('Desktop config: /Users/test/Library/Application Support/Wayland/config/wayland-config.txt')
+    ).toBeTruthy();
+    // No policy means no origin lists are fabricated.
+    expect(screen.queryByText(/Allowed origins:/)).toBeNull();
+    expect(screen.queryByText(/Denied origins:/)).toBeNull();
     expect(mockSetBrowserPolicy).not.toHaveBeenCalled();
   });
 
@@ -483,12 +501,14 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     mockGetBrowserPolicy.mockResolvedValue({
       schemaVersion: 1,
       coreVersion: '0.12.25',
-      requested: {
-        policy: { defaultAction: 'ask', allowedOrigins: ['example.com'], deniedOrigins: [] },
+      source: {
         mode: 'raw-engine',
         profile: null,
         engineConfigPath: '/Users/test/.wayland/config.toml',
         desktopConfigPath: '/Users/test/Library/Application Support/Wayland/config/wayland-config.txt',
+      },
+      requested: {
+        policy: { defaultAction: 'ask', allowedOrigins: ['example.com'], deniedOrigins: ['blocked.example.net'] },
       },
       effective: null,
       effectiveState: 'producer-evidence-unavailable',
@@ -497,10 +517,27 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     const { container } = render(<WCoreConfig />);
     fireEvent.click(container.querySelector('[data-wcore-rail-id="security"]')!);
 
-    expect(await screen.findByText('ask · 1 allowed · 0 denied')).toBeTruthy();
+    expect(await screen.findByText('Ask · 1 allowed · 1 denied')).toBeTruthy();
+    expect(screen.getByText('Allowed origins: example.com')).toBeTruthy();
+    expect(screen.getByText('Denied origins: blocked.example.net')).toBeTruthy();
     expect(screen.getByText('Raw engine · profile none')).toBeTruthy();
     expect(screen.getByText('Core config: /Users/test/.wayland/config.toml')).toBeTruthy();
     expect(screen.getByText(/does not provide session-correlated enforcement evidence/)).toBeTruthy();
+    expect(mockSetBrowserPolicy).not.toHaveBeenCalled();
+  });
+
+  it('surfaces a rejected Browser policy load as an accessible alert without fabricating truth', async () => {
+    mockGetBrowserPolicy.mockRejectedValue(new Error('config parse failed'));
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="security"]')!);
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(/Browser policy is unknown/);
+    expect(alert).toHaveTextContent('config parse failed');
+    // A failed read must not invent requested, effective, or restart truth.
+    expect(screen.queryByTestId('browser-policy-truth')).toBeNull();
+    expect(screen.queryByText(/does not provide session-correlated enforcement evidence/)).toBeNull();
+    expect(screen.queryByText('Reading Browser policy…')).toBeNull();
     expect(mockSetBrowserPolicy).not.toHaveBeenCalled();
   });
 

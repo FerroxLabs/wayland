@@ -9,8 +9,15 @@ import { AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ScopeLabel from '../components/ScopeLabel';
 import { useWcoreConfig } from '@renderer/hooks/useWcoreConfig';
-import type { IWcoreBrowserPolicyProjection } from '@/common/adapter/ipcBridge';
+import type { IWcoreBrowserPolicy, IWcoreBrowserPolicyProjection } from '@/common/adapter/ipcBridge';
 import styles from './Panes.module.css';
+
+/** Localised label + fallback for each Core Browser default-action value. */
+const ACTION_LABEL: Record<IWcoreBrowserPolicy['defaultAction'], { key: string; fallback: string }> = {
+  deny: { key: 'settings.wcoreConfig.security.actionDeny', fallback: 'Deny' },
+  allow: { key: 'settings.wcoreConfig.security.actionAllow', fallback: 'Allow' },
+  ask: { key: 'settings.wcoreConfig.security.actionAsk', fallback: 'Ask' },
+};
 
 /**
  * Core v0.12.25 does not accept the controls this pane previously wrote:
@@ -94,7 +101,9 @@ const SecurityPane: React.FC = () => {
                       {projection.requested
                         ? t('settings.wcoreConfig.security.requestedPolicyValue', {
                             defaultValue: '{{action}} · {{allowed}} allowed · {{denied}} denied',
-                            action: projection.requested.policy.defaultAction,
+                            action: t(ACTION_LABEL[projection.requested.policy.defaultAction].key, {
+                              defaultValue: ACTION_LABEL[projection.requested.policy.defaultAction].fallback,
+                            }),
                             allowed: projection.requested.policy.allowedOrigins.length,
                             denied: projection.requested.policy.deniedOrigins.length,
                           })
@@ -105,36 +114,55 @@ const SecurityPane: React.FC = () => {
                     {projection.requested ? (
                       <>
                         <div className={styles.lrDesc}>
-                          {t('settings.wcoreConfig.security.requestedPolicySource', {
-                            defaultValue: '{{mode}} · profile {{profile}}',
-                            mode: t(
-                              projection.requested.mode === 'raw-engine'
-                                ? 'settings.wcoreConfig.security.modeRawEngine'
-                                : 'settings.wcoreConfig.security.modeDesktopManaged',
-                              {
-                                defaultValue:
-                                  projection.requested.mode === 'raw-engine' ? 'Raw engine' : 'Desktop managed',
-                              }
-                            ),
-                            profile:
-                              projection.requested.profile ??
-                              t('settings.wcoreConfig.security.profileNone', { defaultValue: 'none' }),
+                          {t('settings.wcoreConfig.security.requestedAllowedOrigins', {
+                            defaultValue: 'Allowed origins: {{origins}}',
+                            origins:
+                              projection.requested.policy.allowedOrigins.length > 0
+                                ? projection.requested.policy.allowedOrigins.join(', ')
+                                : t('settings.wcoreConfig.security.originsNone', { defaultValue: 'none' }),
                           })}
                         </div>
                         <div className={styles.lrDesc}>
-                          {t('settings.wcoreConfig.security.engineConfigSource', {
-                            defaultValue: 'Core config: {{path}}',
-                            path: projection.requested.engineConfigPath,
-                          })}
-                        </div>
-                        <div className={styles.lrDesc}>
-                          {t('settings.wcoreConfig.security.desktopConfigSource', {
-                            defaultValue: 'Desktop config: {{path}}',
-                            path: projection.requested.desktopConfigPath,
+                          {t('settings.wcoreConfig.security.requestedDeniedOrigins', {
+                            defaultValue: 'Denied origins: {{origins}}',
+                            origins:
+                              projection.requested.policy.deniedOrigins.length > 0
+                                ? projection.requested.policy.deniedOrigins.join(', ')
+                                : t('settings.wcoreConfig.security.originsNone', { defaultValue: 'none' }),
                           })}
                         </div>
                       </>
                     ) : null}
+                    {/* Config identity is always shown — the inspected authority is
+                        the truth even when no Browser policy is present. */}
+                    <div className={styles.lrDesc}>
+                      {t('settings.wcoreConfig.security.requestedPolicySource', {
+                        defaultValue: '{{mode}} · profile {{profile}}',
+                        mode: t(
+                          projection.source.mode === 'raw-engine'
+                            ? 'settings.wcoreConfig.security.modeRawEngine'
+                            : 'settings.wcoreConfig.security.modeDesktopManaged',
+                          {
+                            defaultValue: projection.source.mode === 'raw-engine' ? 'Raw engine' : 'Desktop managed',
+                          }
+                        ),
+                        profile:
+                          projection.source.profile ??
+                          t('settings.wcoreConfig.security.profileNone', { defaultValue: 'none' }),
+                      })}
+                    </div>
+                    <div className={styles.lrDesc}>
+                      {t('settings.wcoreConfig.security.engineConfigSource', {
+                        defaultValue: 'Core config: {{path}}',
+                        path: projection.source.engineConfigPath,
+                      })}
+                    </div>
+                    <div className={styles.lrDesc}>
+                      {t('settings.wcoreConfig.security.desktopConfigSource', {
+                        defaultValue: 'Desktop config: {{path}}',
+                        path: projection.source.desktopConfigPath,
+                      })}
+                    </div>
                   </div>
                 </div>
                 <div className={styles.listRow}>
@@ -165,11 +193,18 @@ const SecurityPane: React.FC = () => {
                 </div>
               </div>
             ) : !error ? (
-              <div className={styles.lrDesc}>
+              <div className={styles.lrDesc} role='status'>
                 {t('settings.wcoreConfig.security.readingPolicy', { defaultValue: 'Reading Browser policy…' })}
               </div>
             ) : null}
-            {error ? <div className={styles.runtimeTruthError}>{error}</div> : null}
+            {error ? (
+              <div className={styles.runtimeTruthError} role='alert'>
+                {t('settings.wcoreConfig.security.policyReadError', {
+                  defaultValue: 'Browser policy is unknown. Nothing is shown as enforced until Core can be read:',
+                })}{' '}
+                {error}
+              </div>
+            ) : null}
           </div>
           <div className={styles.listRow}>
             <div>

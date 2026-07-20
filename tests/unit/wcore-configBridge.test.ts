@@ -376,12 +376,14 @@ describe('browser policy producer parity', () => {
     expect(projection).toEqual({
       schemaVersion: 1,
       coreVersion: '0.12.25',
-      requested: {
-        policy: source,
+      source: {
         mode: 'desktop-managed',
         profile: 'default',
         engineConfigPath: '/profiles/default/config.toml',
         desktopConfigPath: '/desktop/wayland-config.txt',
+      },
+      requested: {
+        policy: source,
       },
       effective: null,
       effectiveState: 'producer-evidence-unavailable',
@@ -389,6 +391,36 @@ describe('browser policy producer parity', () => {
     });
     source.allowedOrigins.push('later.example.com');
     expect(projection.requested?.policy.allowedOrigins).toEqual(['example.com']);
+  });
+
+  it('exposes the inspected config identity even when no requested policy exists', () => {
+    const projection = projectWcoreBrowserPolicyRequest(null, {
+      mode: 'raw-engine',
+      profile: null,
+      profileApplied: false,
+      waylandHomeInjected: false,
+      desktopModelOverrideApplied: false,
+      desktopPromptOverlayApplied: false,
+      selectedConnectorsAuthority: 'engine',
+      teamBridgePolicy: 'host-preserved',
+      toolCredentialPolicy: 'allowlisted-host-forwarding',
+      hostProtocolAuthority: 'engine',
+      engineConfigDir: '/standalone',
+      engineConfigPath: '/standalone/config.toml',
+      desktopConfigDir: '/desktop',
+      desktopConfigPath: '/desktop/wayland-config.txt',
+    });
+
+    expect(projection.requested).toBeNull();
+    expect(projection.source).toEqual({
+      mode: 'raw-engine',
+      profile: null,
+      engineConfigPath: '/standalone/config.toml',
+      desktopConfigPath: '/desktop/wayland-config.txt',
+    });
+    expect(projection.effective).toBeNull();
+    expect(projection.effectiveState).toBe('producer-evidence-unavailable');
+    expect(projection.restartState).toBe('unknown');
   });
 
   it('refuses to project an invalid caller-supplied requested policy', () => {

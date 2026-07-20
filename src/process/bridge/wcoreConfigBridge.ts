@@ -235,16 +235,13 @@ export function projectWcoreBrowserPolicyRequest(
   return {
     schemaVersion: WCORE_BROWSER_POLICY_PROJECTION_SCHEMA.schemaVersion,
     coreVersion: WCORE_BROWSER_POLICY_PROJECTION_SCHEMA.coreVersion,
-    requested:
-      requested === null
-        ? null
-        : {
-            policy: structuredClone(requested),
-            mode: runtime.mode,
-            profile: runtime.profile,
-            engineConfigPath: runtime.engineConfigPath,
-            desktopConfigPath: runtime.desktopConfigPath,
-          },
+    source: {
+      mode: runtime.mode,
+      profile: runtime.profile,
+      engineConfigPath: runtime.engineConfigPath,
+      desktopConfigPath: runtime.desktopConfigPath,
+    },
+    requested: requested === null ? null : { policy: structuredClone(requested) },
     effective: null,
     effectiveState: WCORE_BROWSER_POLICY_PROJECTION_SCHEMA.effectiveState,
     restartState: WCORE_BROWSER_POLICY_PROJECTION_SCHEMA.restartState,
