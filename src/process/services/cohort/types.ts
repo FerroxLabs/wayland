@@ -13,34 +13,34 @@ export const M0B_DAY_MS = 86_400_000;
 export const M0B_COHORTS = COHORT_ASSIGNMENTS;
 export type M0BCohort = CohortAssignment;
 
-export const M0B_SHELLS = ['classic', 'cockpit'] as const;
+export const M0B_SHELLS = Object.freeze(['classic', 'cockpit'] as const);
 export type M0BShell = (typeof M0B_SHELLS)[number];
 
-export const M0B_PRIMARY_JOURNEYS = [
+export const M0B_PRIMARY_JOURNEYS = Object.freeze([
   'chat.first-response',
   'project.resume',
   'cowork.create-artifact',
   'developer.modify-and-verify',
   'operator.run-automation',
-] as const;
+] as const);
 export type M0BPrimaryJourney = (typeof M0B_PRIMARY_JOURNEYS)[number];
 
 export const M0B_RETURN_REASONS = COCKPIT_RETURN_REASONS;
 export type M0BReturnReason = (typeof M0B_RETURN_REASONS)[number];
 
-export const M0B_SUPPORT_CATEGORIES = ['blocked', 'setup', 'bug', 'how-to'] as const;
+export const M0B_SUPPORT_CATEGORIES = Object.freeze(['blocked', 'setup', 'bug', 'how-to'] as const);
 export type M0BSupportCategory = (typeof M0B_SUPPORT_CATEGORIES)[number];
 
-export const M0B_ACCESSIBILITY_SEVERITIES = ['critical', 'serious'] as const;
+export const M0B_ACCESSIBILITY_SEVERITIES = Object.freeze(['critical', 'serious'] as const);
 export type M0BAccessibilitySeverity = (typeof M0B_ACCESSIBILITY_SEVERITIES)[number];
 
-export const M0B_ZERO_TOLERANCE_REASONS = [
+export const M0B_ZERO_TOLERANCE_REASONS = Object.freeze([
   'data-loss-or-corruption',
   'permission-widening',
   'approval-bypass',
   'cross-project-leakage',
   'receipt-forgery',
-] as const;
+] as const);
 export type M0BZeroToleranceReason = (typeof M0B_ZERO_TOLERANCE_REASONS)[number];
 
 type M0BBaseEvent = {

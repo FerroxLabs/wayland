@@ -1,0 +1,217 @@
+{
+  "protocolVersion": "wayland-desktop-m0b-usability/1",
+  "lifecycle": {
+    "state": "frozen-pre-day0",
+    "observationStartedAtMs": null,
+    "observationWindowDays": 14,
+    "dayMs": 86400000,
+    "mutationPolicy": "any-byte-change-after-day0-invalidates-observation"
+  },
+  "runtimeContract": {
+    "schemaVersion": 1,
+    "cohorts": ["novice", "knowledge-work", "developer", "operator"],
+    "shells": ["classic", "cockpit"],
+    "primaryJourneys": [
+      "chat.first-response",
+      "project.resume",
+      "cowork.create-artifact",
+      "developer.modify-and-verify",
+      "operator.run-automation"
+    ],
+    "returnReasons": [
+      "performance",
+      "confusing-navigation",
+      "missing-capability",
+      "reliability",
+      "accessibility",
+      "trust-or-control",
+      "other-no-text"
+    ],
+    "supportCategories": ["blocked", "setup", "bug", "how-to"],
+    "accessibilitySeverities": ["critical", "serious"],
+    "zeroToleranceReasons": [
+      "data-loss-or-corruption",
+      "permission-widening",
+      "approval-bypass",
+      "cross-project-leakage",
+      "receipt-forgery"
+    ]
+  },
+  "participantSegments": [
+    {
+      "id": "novice",
+      "eligibility": "Uses AI for outcomes but does not configure agents, models, permissions, or tools as part of normal work.",
+      "requiredEvidence": "Completes both novice entry scripts and explains effective authority in plain language."
+    },
+    {
+      "id": "knowledge-work",
+      "eligibility": "Regularly creates, researches, analyzes, or revises non-code work products.",
+      "requiredEvidence": "Completes chat, project-resume, and cowork artifact journeys."
+    },
+    {
+      "id": "developer",
+      "eligibility": "Regularly changes source code and verifies the result with development tools.",
+      "requiredEvidence": "Completes chat, project-resume, and developer modify-and-verify journeys."
+    },
+    {
+      "id": "operator",
+      "eligibility": "Regularly runs repeatable or scheduled operational work and reviews its outcome.",
+      "requiredEvidence": "Completes chat, project-resume, and operator automation journeys."
+    }
+  ],
+  "scripts": {
+    "noviceEntry": [
+      {
+        "id": "novice.quick-start",
+        "prompt": "Ask Wayland to draft a useful reply to a supplied everyday message, then copy the result.",
+        "success": "A usable result is produced without choosing an agent, model, mode, or permission preset.",
+        "failure": "The participant cannot start, must select internal architecture, loses input, or cannot retrieve the result."
+      },
+      {
+        "id": "novice.substantial-work",
+        "prompt": "Ask Wayland to research a supplied topic, create a structured reusable brief, and show where the finished output is stored.",
+        "success": "The participant starts without choosing an agent, model, or mode and can find the resulting artifact and progress.",
+        "failure": "The participant cannot start, cannot understand progress or authority, or cannot locate the finished output."
+      }
+    ],
+    "primaryJourneys": [
+      {
+        "id": "chat.first-response",
+        "prompt": "Start a new chat, ask a concrete question, and identify the first complete response.",
+        "success": "One response completes and remains attached to the intended chat.",
+        "failure": "No terminal response, wrong-chat output, crash, or blocked start."
+      },
+      {
+        "id": "project.resume",
+        "prompt": "Open an existing project, resume its most recent task, and identify the context Wayland retained.",
+        "success": "The correct project and prior task context are resumed without cross-project leakage.",
+        "failure": "Wrong project, missing context, cross-project context, or blocked resume."
+      },
+      {
+        "id": "cowork.create-artifact",
+        "prompt": "Create a reusable work artifact from supplied source material and open the finished file.",
+        "success": "The artifact is created, visible, editable, and traceable to the task.",
+        "failure": "Missing, inaccessible, corrupt, untraceable, or content-bearing work is discarded."
+      },
+      {
+        "id": "developer.modify-and-verify",
+        "prompt": "Make a bounded source change in a supplied test project and run its stated verification.",
+        "success": "The intended files change, verification result is visible, and no authority is silently widened.",
+        "failure": "Wrong-file mutation, missing verification, concealed failure, or unauthorized action."
+      },
+      {
+        "id": "operator.run-automation",
+        "prompt": "Run a supplied repeatable automation, inspect progress, and identify its terminal outcome and output.",
+        "success": "The intended automation runs once with visible progress, authority, and terminal evidence.",
+        "failure": "Duplicate execution, hidden state, missing output, ambiguous terminal state, or approval bypass."
+      }
+    ]
+  },
+  "rubrics": {
+    "outcome": ["success", "failure", "abandoned"],
+    "confusion": ["none", "self-recovered", "moderator-prompt-required", "blocked"],
+    "disclosurePreference": {
+      "requirement": "A participant can reveal more detail or keep defaults concise, and that preference persists without obscuring the effective default.",
+      "pass": "The selected detail preference survives navigation and the effective provider, authority, and destination remain discoverable.",
+      "fail": "The preference resets, hides the effective default, or implies authority the runtime does not hold."
+    },
+    "authorityComprehension": {
+      "questions": ["Who is acting?", "Where will the work happen?", "What can it change without asking?"],
+      "pass": "The participant answers all three accurately in plain language without naming internal architecture.",
+      "fail": "Any answer is wrong, unknown, or requires knowledge of internal agent or transport names."
+    }
+  },
+  "classicComparison": {
+    "baselineShell": "classic",
+    "candidateShell": "cockpit",
+    "assignment": "within-cohort paired scripts where practical; otherwise matched cohort and journey samples",
+    "expertInteractionBudget": {
+      "reference": "classic",
+      "maximumAdditionalInteractions": 0,
+      "interactions": "clicks, taps, or keyboard commands needed to reach model, provider, permission, workspace, and execution controls"
+    },
+    "decisionRule": "Cockpit must satisfy every zero-tolerance rule, minimum, and comparison threshold; missing or incomparable evidence is not a pass."
+  },
+  "measurement": {
+    "minimums": {
+      "participantsTotal": 20,
+      "participantsPerCohort": 5,
+      "startsPerPrimaryJourney": 10
+    },
+    "thresholds": {
+      "maxJourneyFailureRateDelta": 0,
+      "maxP95LatencyRatio": 1.15,
+      "minCrashFreeSessionRateDelta": -0.005,
+      "maxSupportContactsPerParticipantDelta": 0,
+      "maxAccessibilityViolationsPerSessionDelta": 0,
+      "maxReturnToClassicRate": 0.1
+    },
+    "denominators": {
+      "journeyFailureRate": "journey_failed / journey_started",
+      "journeySuccessRate": "journey_completed / journey_started",
+      "p95LatencyMs": "terminal journey duration for journey_completed or journey_failed",
+      "crashFreeSessionRate": "session_ended / (session_ended + session_crashed)",
+      "supportContactsPerParticipant": "support_contact / distinct participantIdHash from session_started",
+      "accessibilityViolationsPerSession": "critical-or-serious accessibility_violation / session_started",
+      "returnToClassicRate": "shell_returned_to_classic / cockpit session_started"
+    },
+    "missingDenominatorPolicy": "null-and-fail-closed",
+    "soak": {
+      "calendarDays": 14,
+      "simulationAllowed": false,
+      "backfillAllowed": false
+    },
+    "automaticStops": [
+      "data-loss-or-corruption",
+      "permission-widening",
+      "approval-bypass",
+      "cross-project-leakage",
+      "receipt-forgery"
+    ]
+  },
+  "privacy": {
+    "allowedModes": ["local-aggregate-only", "structured-cohort-uat"],
+    "consent": "explicit-opt-in",
+    "excluded": [
+      "prompt-or-message-content",
+      "file-content-or-path",
+      "url-or-query",
+      "tool-arguments-or-command",
+      "credential-or-secret",
+      "freeform-metadata"
+    ],
+    "participantIdentity": "one-way participantIdHash only"
+  },
+  "decisionAuthority": {
+    "id": "sean-donahoe",
+    "displayName": "Sean Donahoe",
+    "role": "M0B decision owner",
+    "invitedAlphaEnabledByProtocol": false
+  },
+  "signing": {
+    "receiptVersion": "wayland-desktop-m0b-observation/1",
+    "requiredBindings": [
+      "protocolSha256",
+      "candidateCommit",
+      "candidateTree",
+      "appVersion",
+      "windowStartMs",
+      "windowEndMs",
+      "aggregateReportSha256",
+      "decisionOwner",
+      "decisionSignedAtMs",
+      "signature"
+    ],
+    "signatureLocation": "external-receipt",
+    "protocolMaySelfAuthorize": false
+  },
+  "invalidationRules": [
+    "protocol bytes change after Day 0",
+    "runtime vocabulary or fixed constants differ from the bound contract",
+    "observation is simulated, shortened, paused, or backfilled",
+    "required cohort, journey, minimum, threshold, denominator, or stop evidence is missing",
+    "participant contents or excluded privacy fields are collected",
+    "candidate identity, aggregate digest, decision owner, or signature binding is missing",
+    "a zero-tolerance stop occurs"
+  ]
+}
