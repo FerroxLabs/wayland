@@ -80,8 +80,13 @@ function setupMocks() {
 
   // The installer is unit-tested separately; mock it so the bridge's ENOENT
   // delegation + the installer's no-retry latch can be driven deterministically.
+  // The verified lockstep capability resolves to its exact executable here, so
+  // control reaches spawn — where the mocked child then emits ENOENT (the binary
+  // vanished between resolution and spawn), exercising the recovery boundary.
   vi.doMock('../../src/process/bridge/officecliInstaller', () => ({
     installOfficecli: (...args: unknown[]) => installSpy(...args),
+    resolveVerifiedOfficecliCommand: () => '/verified/bundled-officecli/officecli',
+    OFFICECLI_MISSING_RUNTIME_MESSAGE: 'The verified OfficeCLI runtime is missing; reinstall or update Wayland',
   }));
 
   // Mock node:net - findFreePort needs createServer().listen() to resolve a port
