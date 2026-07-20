@@ -904,8 +904,76 @@ describe('recovery point builder', () => {
     ).rejects.toThrow('Recovery publication cleanup failed');
 
     expect(failedPublicationClose).toBe(true);
-    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+    if (recoveryFilesystemSafetyModeForPlatform(process.platform) === 'descriptor-relative') {
+      // Descriptor-relative platform: the retired publication handle leaves no
+      // inode-binding descriptor for cleanup. Rather than delete through the
+      // re-resolvable reserved name, cleanup fails closed and leaves the orphan.
+      expect(fs.readdirSync(data.destinationRoot)).toEqual(['snapshot-test']);
+    } else {
+      // Test-only pathname fallback platform: no descriptor primitive exists, so
+      // the reserved root is removed by name.
+      expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+    }
   });
+
+  // The strong descriptor-relative proof of the above: when the fd-close-failure
+  // precondition strips the binding handle AND a publisher swaps the reserved
+  // name during cleanup, a pathname-based readdir/child-delete would re-resolve
+  // into the swapped-in replacement and destroy it. Failing closed means cleanup
+  // performs no pathname child removal at all, so the swap never fires and the
+  // reserved inode is left intact as an orphan.
+  it.runIf(process.platform === 'linux')(
+    'fails closed without pathname deletion when the binding handle is lost to a close failure',
+    async () => {
+      const data = await fixture();
+      const admittedDestinationRoot = path.join(
+        fs.realpathSync(path.dirname(data.destinationRoot)),
+        path.basename(data.destinationRoot)
+      );
+      const finalRoot = path.join(admittedDestinationRoot, 'snapshot-test');
+      const retiredRoot = path.join(admittedDestinationRoot, 'snapshot-retired-fail-closed');
+      Object.assign(cleanupRace, { mode: 'child', finalRoot, retiredRoot, sentinel: '' });
+      let failedPublicationClose = false;
+      const deps = dependencies({
+        allowUnsafePathFallbackForTests: false,
+        // Fully publish, then fail the publication-root close. This strips
+        // publicationAdmission before the finally-block cleanup runs, so
+        // removeRecoveryRootIfOwned is invoked with no binding handle.
+        closeFileHandle: async (handle, role) => {
+          await handle.close();
+          if (role === 'publication-root' && !failedPublicationClose) {
+            failedPublicationClose = true;
+            throw new Error('publication handle close failed');
+          }
+        },
+        beforeOutputCleanup: async () => {
+          cleanupRace.armed = true;
+        },
+      });
+
+      await expect(
+        buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot: data.destinationRoot,
+            reason: 'manual',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        )
+      ).rejects.toThrow('Recovery publication cleanup failed');
+
+      expect(failedPublicationClose).toBe(true);
+      // No pathname child removal ran, so the swap never fired.
+      expect(cleanupRace.swapped).toBe(false);
+      // The reserved inode is left intact as an orphan (fail closed) with its
+      // published contents, rather than pathname-deleted.
+      expect(fs.existsSync(finalRoot)).toBe(true);
+      expect(fs.existsSync(path.join(finalRoot, 'manifest.json'))).toBe(true);
+      expect(fs.existsSync(retiredRoot)).toBe(false);
+    }
+  );
 
   it('rejects an equal-byte descendant replacement during the final mutation epoch', async () => {
     const data = await fixture();

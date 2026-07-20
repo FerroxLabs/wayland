@@ -1340,13 +1340,27 @@ async function removeRecoveryRootIfOwned(
     // never the re-resolvable name. The handle is re-stat'd against the admitted
     // identity first; if it no longer resolves to our reservation we fail closed
     // and leave the orphan rather than delete through a re-resolved pathname.
-    let childBase = root;
+    // If no binding handle is available at all (e.g. the publication descriptor
+    // was retired before this unpublished-cleanup path could claim it, then its
+    // close failed and forced cleanup), a pathname-based child delete would
+    // re-resolve `path.join(root, entry)` through the re-resolvable name and a
+    // same-name swap could redirect it into a replacement. On a
+    // descriptor-relative platform we therefore fail closed and leave the orphan
+    // rather than delete through the name. The pathname branch below is reserved
+    // strictly for test-only fallback platforms, where no descriptor-bound
+    // child-operation primitive exists and production capture is refused anyway.
+    let childBase: string;
     if (handle) {
       const pinned = await handle.stat();
       if (!pinned.isDirectory() || pinned.dev !== identity.dev || pinned.ino !== identity.ino) {
         return;
       }
       childBase = admission!.operationRoot;
+    } else {
+      if (recoveryFilesystemSafetyModeForPlatform(process.platform) === 'descriptor-relative') {
+        return;
+      }
+      childBase = root;
     }
     for (const entry of await readdir(childBase)) {
       // oxlint-disable-next-line no-await-in-loop -- ordered cleanup of a single reserved root.
