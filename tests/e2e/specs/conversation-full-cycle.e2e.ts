@@ -23,7 +23,13 @@ import {
   agentPillByBackend,
   SKILLS_INDICATOR,
   SKILLS_INDICATOR_COUNT,
+  expectUrlContains,
 } from '../helpers';
+import classicJourneyBaseline from '../../../contracts/recovery/classic-journey-baseline.json';
+
+type ClassicBaselineJourney = { id: string; usesProviderFixture: boolean };
+const CLASSIC_FOCUSED_JOURNEYS = classicJourneyBaseline.journeys as ClassicBaselineJourney[];
+const CLASSIC_PROVIDER_FIXTURE_ROUTE = classicJourneyBaseline.providerFixture.route;
 
 // Generous timeout for AI responses
 test.describe.configure({ timeout: 180_000 });
@@ -869,5 +875,30 @@ test.describe('Conversation Full Cycle', () => {
     expect(url).toContain('/settings/assistants');
 
     await deleteConversation(page, conversationId);
+  });
+});
+
+// ── Classic v0.11.18 focused journeys ────────────────────────────────────────
+//
+// Proves the focused Classic journey inventory (chat, Project resume, artifact,
+// developer verification, automation) the M0A baseline seals, plus that the
+// deterministic chat entry surface bound to the v0.11.18 provider fixture is
+// reachable. Baseline construction only; no six-target package acceptance claim.
+
+test.describe('Classic v0.11.18 focused journeys', () => {
+  const FOCUSED_JOURNEY_IDS = ['artifact', 'automation', 'chat', 'developer-verification', 'project-resume'];
+
+  test('baseline seals exactly the focused Classic journeys', () => {
+    expect(CLASSIC_FOCUSED_JOURNEYS.map((journey) => journey.id).sort()).toEqual(FOCUSED_JOURNEY_IDS);
+    const chat = CLASSIC_FOCUSED_JOURNEYS.find((journey) => journey.id === 'chat');
+    expect(chat?.usesProviderFixture).toBe(true);
+    expect(CLASSIC_PROVIDER_FIXTURE_ROUTE).toBe('guid');
+  });
+
+  test('deterministic chat journey entry surface is reachable', async ({ page }) => {
+    await goToGuid(page);
+    await expectUrlContains(page, CLASSIC_PROVIDER_FIXTURE_ROUTE);
+    const input = page.locator('textarea, [contenteditable="true"], [role="textbox"]').first();
+    await expect(input).toBeVisible({ timeout: 5000 });
   });
 });

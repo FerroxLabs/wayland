@@ -1,0 +1,37 @@
+{
+  "contract": "wayland-classic-provider-fixture/1.0",
+  "schemaVersion": 1,
+  "boundRelease": {
+    "repository": "FerroxLabs/wayland",
+    "tag": "v0.11.18",
+    "version": "0.11.18"
+  },
+  "route": "guid",
+  "model": "wayland-classic-deterministic-v0.11.18",
+  "capability": "chat.completions",
+  "request": {
+    "temperature": 0,
+    "topP": 1,
+    "seed": 111811,
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are the deterministic Classic v0.11.18 baseline agent."
+      },
+      {
+        "role": "user",
+        "content": "Confirm the Classic v0.11.18 baseline is reachable."
+      }
+    ]
+  },
+  "response": {
+    "role": "assistant",
+    "finishReason": "stop",
+    "content": "Classic v0.11.18 baseline reachable. Deterministic fixture acknowledged.",
+    "usage": {
+      "promptTokens": 24,
+      "completionTokens": 12,
+      "totalTokens": 36
+    }
+  }
+}
