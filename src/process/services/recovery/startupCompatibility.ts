@@ -9,6 +9,14 @@ import path from 'node:path';
 import { createDriver } from '../database/drivers/createDriver';
 import type { ISqliteDriver } from '../database/drivers/ISqliteDriver';
 import { CURRENT_DB_VERSION } from '../database/schema';
+import {
+  authorityRank,
+  canonicalizeAuthority,
+  parseAuthorityDowngradeDelta,
+  type AuthorityDowngradeDelta,
+  type AuthoritySourceIdentity,
+  type CanonicalAuthorityLevel,
+} from './recoveryStateTransformer';
 
 export type DatabaseSchemaCompatibilityStatus =
   | 'new'
@@ -181,3 +189,205 @@ export async function assertDatabaseSchemaCompatible(databasePath: string): Prom
 export async function preflightDesktopState(userDataPath: string): Promise<DatabaseSchemaCompatibility> {
   return assertDatabaseSchemaCompatible(resolvePhysicalDesktopDatabasePath(userDataPath));
 }
+
+/* ------------------------------------------------------------------------- *
+ * Classic startup + delta-safe re-upgrade gate (SAF-03, D-01, D-07)
+ *
+ * Signed Classic v0.11.8 supports schema 52 only. It must never open the newer,
+ * unclassified schema-53 state directly, nor any live/direct binary path — only
+ * an isolated, transformed tree. On re-upgrade the current app reapplies the
+ * source-bound authority delta produced at downgrade time and fails closed on a
+ * missing/malformed delta, a stale source epoch, an unknown schema, a direct
+ * state path, or any effective-authority increase over the source.
+ * ------------------------------------------------------------------------- */
+
+/** Schema the signed Classic v0.11.8 recovery binary natively supports. */
+export const CLASSIC_RECOVERY_SCHEMA_VERSION = 52;
+/** The newer Desktop schema a Classic downgrade is produced FROM. */
+export const DOWNGRADE_SOURCE_SCHEMA_VERSION = 53;
+
+export type StartupStatePathKind = 'isolated-transformed-tree' | 'direct-binary-path';
+
+export type ClassicStartupIsolationCode =
+  | 'CLASSIC_DIRECT_STATE_PATH'
+  | 'CLASSIC_UNCLASSIFIED_FUTURE_SCHEMA'
+  | 'CLASSIC_SCHEMA_INCOMPATIBLE';
+
+export class ClassicStartupIsolationError extends Error {
+  constructor(
+    readonly code: ClassicStartupIsolationCode,
+    message: string
+  ) {
+    super(message);
+    this.name = 'ClassicStartupIsolationError';
+  }
+}
+
+export type ClassicStartupRequest = {
+  /** Where the signed Classic binary is being pointed. */
+  path: StartupStatePathKind;
+  /** Schema version of the state the binary would open. */
+  schemaVersion: number;
+};
+
+/**
+ * Fail closed unless signed Classic v0.11.8 opens an isolated transformed tree
+ * at exactly schema 52. A direct/live path, or unclassified schema 53+, is
+ * rejected before any historical binary can execute.
+ */
+export function assertClassicStartupIsolated(request: ClassicStartupRequest): void {
+  if (request.path !== 'isolated-transformed-tree') {
+    throw new ClassicStartupIsolationError(
+      'CLASSIC_DIRECT_STATE_PATH',
+      'Signed Classic v0.11.8 may only open an isolated transformed tree, never live or direct state.'
+    );
+  }
+  if (!Number.isSafeInteger(request.schemaVersion)) {
+    throw new ClassicStartupIsolationError(
+      'CLASSIC_SCHEMA_INCOMPATIBLE',
+      `Classic startup schema version is not a safe integer: ${String(request.schemaVersion)}.`
+    );
+  }
+  if (request.schemaVersion >= DOWNGRADE_SOURCE_SCHEMA_VERSION) {
+    throw new ClassicStartupIsolationError(
+      'CLASSIC_UNCLASSIFIED_FUTURE_SCHEMA',
+      `Signed Classic v0.11.8 cannot open unclassified schema ${request.schemaVersion} state; ` +
+        `transform to schema ${CLASSIC_RECOVERY_SCHEMA_VERSION} first.`
+    );
+  }
+  if (request.schemaVersion !== CLASSIC_RECOVERY_SCHEMA_VERSION) {
+    throw new ClassicStartupIsolationError(
+      'CLASSIC_SCHEMA_INCOMPATIBLE',
+      `Signed Classic v0.11.8 requires schema ${CLASSIC_RECOVERY_SCHEMA_VERSION}, received ${request.schemaVersion}.`
+    );
+  }
+}
+
+export type ReupgradeAdmissionCode =
+  | 'REUPGRADE_DIRECT_STATE_PATH'
+  | 'REUPGRADE_UNKNOWN_SCHEMA'
+  | 'REUPGRADE_MISSING_DELTA'
+  | 'REUPGRADE_STALE_SOURCE_EPOCH'
+  | 'REUPGRADE_AUTHORITY_INCREASE';
+
+export class ReupgradeAdmissionError extends Error {
+  constructor(
+    readonly code: ReupgradeAdmissionCode,
+    message: string
+  ) {
+    super(message);
+    this.name = 'ReupgradeAdmissionError';
+  }
+}
+
+export type ReupgradeAdmissionRequest = {
+  /** Where the current app is re-adopting state from. */
+  path: StartupStatePathKind;
+  /** Schema of the isolated transformed tree Classic ran on (must be schema 52). */
+  treeSchemaVersion: number;
+  /** Source-bound authority delta produced at downgrade time. */
+  reupgradeDelta: unknown;
+  /** Source identity the current app expects to re-adopt (schema 53 + its epoch). */
+  expectedSource: AuthoritySourceIdentity;
+  /**
+   * Authority Classic left in the transformed tree, per workspace. Re-upgrade
+   * NEVER derives authority from this — it is compared against the source-bound
+   * delta purely to reject any attempted widening.
+   */
+  classicObservedAuthority?: Readonly<Record<string, unknown>>;
+};
+
+export type ReupgradeAdmission = {
+  schemaVersion: number;
+  sourceEpoch: number;
+  entries: Array<{ workspace: string; restoredAuthority: CanonicalAuthorityLevel }>;
+};
+
+/**
+ * Admit a delta-safe re-upgrade or fail closed. On success the returned entries
+ * are the ONLY authority the current app reapplies — exactly the source-bound
+ * authority, never widened by anything Classic left behind.
+ */
+export function assertReupgradeAdmissible(request: ReupgradeAdmissionRequest): ReupgradeAdmission {
+  if (request.path !== 'isolated-transformed-tree') {
+    throw new ReupgradeAdmissionError(
+      'REUPGRADE_DIRECT_STATE_PATH',
+      'Re-upgrade may only re-adopt an isolated transformed tree, never live or direct state.'
+    );
+  }
+  if (
+    !Number.isSafeInteger(request.treeSchemaVersion) ||
+    request.treeSchemaVersion !== CLASSIC_RECOVERY_SCHEMA_VERSION
+  ) {
+    throw new ReupgradeAdmissionError(
+      'REUPGRADE_UNKNOWN_SCHEMA',
+      `Re-upgrade requires the transformed tree at schema ${CLASSIC_RECOVERY_SCHEMA_VERSION}, ` +
+        `received ${String(request.treeSchemaVersion)}.`
+    );
+  }
+  if (request.expectedSource?.schemaVersion !== DOWNGRADE_SOURCE_SCHEMA_VERSION) {
+    throw new ReupgradeAdmissionError(
+      'REUPGRADE_UNKNOWN_SCHEMA',
+      `Re-upgrade only re-adopts schema ${DOWNGRADE_SOURCE_SCHEMA_VERSION} source state, ` +
+        `received ${String(request.expectedSource?.schemaVersion)}.`
+    );
+  }
+  if (request.reupgradeDelta == null) {
+    throw new ReupgradeAdmissionError('REUPGRADE_MISSING_DELTA', 'Re-upgrade requires a source-bound authority delta.');
+  }
+
+  let delta: AuthorityDowngradeDelta;
+  try {
+    delta = parseAuthorityDowngradeDelta(request.reupgradeDelta);
+  } catch (error) {
+    throw new ReupgradeAdmissionError(
+      'REUPGRADE_MISSING_DELTA',
+      `Re-upgrade authority delta is unusable: ${errorMessage(error)}`
+    );
+  }
+  if (delta.source.schemaVersion !== request.expectedSource.schemaVersion) {
+    throw new ReupgradeAdmissionError(
+      'REUPGRADE_UNKNOWN_SCHEMA',
+      `Re-upgrade delta binds schema ${delta.source.schemaVersion}, expected ${request.expectedSource.schemaVersion}.`
+    );
+  }
+  if (delta.source.sourceEpoch !== request.expectedSource.sourceEpoch) {
+    throw new ReupgradeAdmissionError(
+      'REUPGRADE_STALE_SOURCE_EPOCH',
+      `Re-upgrade delta binds source epoch ${delta.source.sourceEpoch}, expected ${request.expectedSource.sourceEpoch}.`
+    );
+  }
+
+  const sourceByWorkspace = new Map<string, CanonicalAuthorityLevel>();
+  for (const entry of delta.entries) {
+    // parseAuthorityDowngradeDelta already rejects classicAuthority above
+    // sourceAuthority; this guards the invariant at the admission boundary too.
+    if (authorityRank(entry.classicAuthority) > authorityRank(entry.sourceAuthority)) {
+      throw new ReupgradeAdmissionError(
+        'REUPGRADE_AUTHORITY_INCREASE',
+        `Re-upgrade delta widens ${entry.workspace} above its source authority.`
+      );
+    }
+    sourceByWorkspace.set(entry.workspace, entry.sourceAuthority);
+  }
+
+  const observed = request.classicObservedAuthority ?? {};
+  for (const [workspace, rawAuthority] of Object.entries(observed)) {
+    const bound = sourceByWorkspace.get(workspace) ?? AUTHORITY_FLOOR_FOR_UNKNOWN_WORKSPACE;
+    if (authorityRank(canonicalizeAuthority(rawAuthority)) > authorityRank(bound)) {
+      throw new ReupgradeAdmissionError(
+        'REUPGRADE_AUTHORITY_INCREASE',
+        `Re-upgrade rejected an effective-authority increase for ${workspace} left by Classic.`
+      );
+    }
+  }
+
+  return {
+    schemaVersion: delta.source.schemaVersion,
+    sourceEpoch: delta.source.sourceEpoch,
+    entries: delta.entries.map((entry) => ({ workspace: entry.workspace, restoredAuthority: entry.sourceAuthority })),
+  };
+}
+
+/** A workspace absent from the source-bound delta may not be re-widened past the floor. */
+const AUTHORITY_FLOOR_FOR_UNKNOWN_WORKSPACE: CanonicalAuthorityLevel = 'ask';

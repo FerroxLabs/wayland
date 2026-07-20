@@ -10,7 +10,17 @@ import os from 'node:os';
 import path from 'node:path';
 import { createDriver } from '@process/services/database/drivers/createDriver';
 import { readDatabaseSchemaVersionStrict } from '@process/services/recovery/startupCompatibility';
-import { transformDesktopState53To52 } from '@process/services/recovery/recoveryStateTransformer';
+import {
+  authorityRank,
+  canonicalizeAuthority,
+  classifyPersistedAuthority,
+  downgradeAuthorityForClassic,
+  parseAuthorityDowngradeDelta,
+  reapplyAuthorityDelta,
+  transformDesktopState53To52,
+  type AuthorityDowngradeDelta,
+  type CanonicalAuthorityLevel,
+} from '@process/services/recovery/recoveryStateTransformer';
 
 const roots: string[] = [];
 
@@ -198,5 +208,165 @@ describe('transformDesktopState53To52', () => {
 
     expect(result.destinationRoot).toBe(path.join(await realpath(path.dirname(destination)), path.basename(destination)));
     expect(await exists(result.databasePath)).toBe(true);
+  });
+});
+
+const SOURCE = { schemaVersion: 53, sourceEpoch: 7 } as const;
+
+describe('canonical authority classification', () => {
+  it('maps the full vocabulary to canonical levels without widening', () => {
+    // Canonical values pass through; legacy values migrate; everything else is
+    // rejected AS AUTHORITY and conservatively floored to `ask` (rank 0).
+    const cases: Array<{ raw: unknown; disposition: string; level: CanonicalAuthorityLevel }> = [
+      { raw: 'ask', disposition: 'canonical', level: 'ask' },
+      { raw: 'trusted-edits', disposition: 'canonical', level: 'trusted-edits' },
+      { raw: 'chat', disposition: 'legacy-migrated', level: 'ask' },
+      { raw: 'cowork', disposition: 'legacy-migrated', level: 'trusted-edits' },
+      // Any OTHER persistent vocabulary is rejected, never honored.
+      { raw: 'trusted-exec', disposition: 'rejected', level: 'ask' },
+      { raw: 'admin', disposition: 'rejected', level: 'ask' },
+      { raw: 'TRUSTED-EDITS', disposition: 'rejected', level: 'ask' },
+      { raw: 'COWORK', disposition: 'rejected', level: 'ask' },
+      { raw: '', disposition: 'rejected', level: 'ask' },
+      // Malformed / future shapes.
+      { raw: null, disposition: 'rejected', level: 'ask' },
+      { raw: undefined, disposition: 'rejected', level: 'ask' },
+      { raw: 1, disposition: 'rejected', level: 'ask' },
+      { raw: true, disposition: 'rejected', level: 'ask' },
+      { raw: { level: 'trusted-edits' }, disposition: 'rejected', level: 'ask' },
+      { raw: ['trusted-edits'], disposition: 'rejected', level: 'ask' },
+    ];
+    for (const { raw, disposition, level } of cases) {
+      const classification = classifyPersistedAuthority(raw);
+      expect(classification.disposition).toBe(disposition as never);
+      expect(classification.level).toBe(level);
+      expect(canonicalizeAuthority(raw)).toBe(level);
+      // Non-widening: no input ever yields more than the trusted-edits ceiling,
+      // and unknown/malformed never exceed the ask floor.
+      expect(authorityRank(classification.level)).toBeLessThanOrEqual(authorityRank('trusted-edits'));
+      if (disposition === 'rejected') expect(authorityRank(classification.level)).toBe(authorityRank('ask'));
+    }
+  });
+});
+
+describe('downgradeAuthorityForClassic', () => {
+  it('produces a conservative, source-bound, non-widening delta', () => {
+    const delta = downgradeAuthorityForClassic(SOURCE, [
+      { workspace: '/ws/ask', authority: 'ask' },
+      { workspace: '/ws/trusted', authority: 'trusted-edits' },
+      { workspace: '/ws/legacy-chat', authority: 'chat' },
+      { workspace: '/ws/legacy-cowork', authority: 'cowork' },
+      // A future high-authority token floors to ask on the Classic side.
+      { workspace: '/ws/future', authority: 'trusted-exec' },
+    ]);
+
+    expect(delta.source).toEqual({ schemaVersion: 53, sourceEpoch: 7 });
+    expect(delta.entries).toEqual([
+      { workspace: '/ws/ask', disposition: 'canonical', sourceAuthority: 'ask', classicAuthority: 'ask' },
+      {
+        workspace: '/ws/trusted',
+        disposition: 'canonical',
+        sourceAuthority: 'trusted-edits',
+        classicAuthority: 'trusted-edits',
+      },
+      { workspace: '/ws/legacy-chat', disposition: 'legacy-migrated', sourceAuthority: 'ask', classicAuthority: 'ask' },
+      {
+        workspace: '/ws/legacy-cowork',
+        disposition: 'legacy-migrated',
+        sourceAuthority: 'trusted-edits',
+        classicAuthority: 'trusted-edits',
+      },
+      { workspace: '/ws/future', disposition: 'rejected', sourceAuthority: 'ask', classicAuthority: 'ask' },
+    ]);
+    // Every entry maps to equal-or-less Classic authority than its source.
+    for (const entry of delta.entries) {
+      expect(authorityRank(entry.classicAuthority)).toBeLessThanOrEqual(authorityRank(entry.sourceAuthority));
+    }
+    expect(delta.digest).toMatch(/^[a-f0-9]{64}$/);
+    // The delta round-trips its own digest check.
+    expect(parseAuthorityDowngradeDelta(delta)).toEqual(delta);
+  });
+
+  it('never infers broader authority from model, mode, or feature labels', () => {
+    const delta = downgradeAuthorityForClassic(SOURCE, [
+      {
+        workspace: '/ws/labelled',
+        authority: 'ask',
+        labels: { model: 'trusted-edits', mode: 'cowork', features: ['auto-approve-everything'] },
+      },
+    ]);
+    expect(delta.entries[0]).toMatchObject({ sourceAuthority: 'ask', classicAuthority: 'ask' });
+  });
+
+  it('rejects duplicate and malformed workspaces and invalid source identity', () => {
+    expect(() =>
+      downgradeAuthorityForClassic(SOURCE, [
+        { workspace: '/ws/dup', authority: 'ask' },
+        { workspace: '/ws/dup', authority: 'trusted-edits' },
+      ])
+    ).toThrow('duplicate workspace');
+    expect(() => downgradeAuthorityForClassic(SOURCE, [{ workspace: '', authority: 'ask' }])).toThrow(
+      'invalid workspace'
+    );
+    expect(() => downgradeAuthorityForClassic({ schemaVersion: -1, sourceEpoch: 7 }, [])).toThrow(
+      'invalid schema version'
+    );
+    expect(() => downgradeAuthorityForClassic({ schemaVersion: 53, sourceEpoch: 1.5 }, [])).toThrow(
+      'invalid source epoch'
+    );
+  });
+});
+
+describe('reapplyAuthorityDelta', () => {
+  const baseDelta = () =>
+    downgradeAuthorityForClassic(SOURCE, [
+      { workspace: '/ws/trusted', authority: 'trusted-edits' },
+      { workspace: '/ws/legacy-cowork', authority: 'cowork' },
+      { workspace: '/ws/future', authority: 'trusted-exec' },
+    ]);
+
+  it('restores exactly the source-bound authority', () => {
+    const result = reapplyAuthorityDelta(baseDelta(), SOURCE);
+    expect(result).toEqual({
+      schemaVersion: 53,
+      sourceEpoch: 7,
+      entries: [
+        { workspace: '/ws/trusted', restoredAuthority: 'trusted-edits' },
+        { workspace: '/ws/legacy-cowork', restoredAuthority: 'trusted-edits' },
+        // The future token is not silently re-widened; it stays floored at ask.
+        { workspace: '/ws/future', restoredAuthority: 'ask' },
+      ],
+    });
+  });
+
+  it('fails closed on a stale source epoch', () => {
+    expect(() => reapplyAuthorityDelta(baseDelta(), { schemaVersion: 53, sourceEpoch: 8 })).toThrow(
+      'stale source epoch'
+    );
+  });
+
+  it('fails closed on a schema mismatch', () => {
+    expect(() => reapplyAuthorityDelta(baseDelta(), { schemaVersion: 52, sourceEpoch: 7 })).toThrow('schema mismatch');
+  });
+
+  it('fails closed when the digest no longer binds a tampered delta', () => {
+    const tampered = baseDelta() as AuthorityDowngradeDelta;
+    // Attempt to widen a workspace without recomputing the source-binding digest.
+    tampered.entries[0].sourceAuthority = 'trusted-edits';
+    tampered.entries[0].classicAuthority = 'trusted-edits';
+    tampered.entries.push({
+      workspace: '/ws/injected',
+      disposition: 'canonical',
+      sourceAuthority: 'trusted-edits',
+      classicAuthority: 'trusted-edits',
+    });
+    expect(() => reapplyAuthorityDelta(tampered, SOURCE)).toThrow('digest does not bind');
+  });
+
+  it('rejects a delta whose entry widens Classic above its source', () => {
+    const widened = JSON.parse(JSON.stringify(baseDelta())) as AuthorityDowngradeDelta;
+    widened.entries[0].sourceAuthority = 'ask';
+    widened.entries[0].classicAuthority = 'trusted-edits';
+    expect(() => parseAuthorityDowngradeDelta(widened)).toThrow('widens Classic authority above its source');
   });
 });
