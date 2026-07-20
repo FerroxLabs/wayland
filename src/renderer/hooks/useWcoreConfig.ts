@@ -10,6 +10,7 @@ import type {
   IWcoreConfigFieldPatch,
   IWcoreConfigMutationResult,
   IWcoreBrowserPolicy,
+  IWcoreBrowserPolicyProjection,
   IWcoreEffectiveRuntime,
   IWcoreReadableConfigSection,
   IWcoreRuntimeFolderTarget,
@@ -32,7 +33,7 @@ export type UseWcoreConfig = {
   getSection: <T = Record<string, unknown>>(section: IWcoreReadableConfigSection) => Promise<T | undefined>;
   /** Atomically merge one validated field under the main-process config lock. */
   patchField: (patch: IWcoreConfigFieldPatch) => Promise<IWcoreConfigMutationResult>;
-  getBrowserPolicy: () => Promise<IWcoreBrowserPolicy>;
+  getBrowserPolicy: () => Promise<IWcoreBrowserPolicyProjection>;
   setBrowserPolicy: (policy: IWcoreBrowserPolicy) => Promise<IWcoreConfigMutationResult>;
   /** Exact config/profile identity currently selected for Desktop-launched Core sessions. */
   getEffectiveRuntime: () => Promise<IWcoreEffectiveRuntime>;
@@ -59,9 +60,9 @@ export function useWcoreConfig(): UseWcoreConfig {
     return ipcBridge.wcoreConfig.patchField.invoke({ patch });
   }, []);
 
-  const getBrowserPolicy = useCallback(async (): Promise<IWcoreBrowserPolicy> => {
+  const getBrowserPolicy = useCallback(async (): Promise<IWcoreBrowserPolicyProjection> => {
     const result = await ipcBridge.wcoreConfig.getBrowserPolicy.invoke();
-    if (result.ok) return result.policy;
+    if (result.ok) return result.projection;
     throw new Error('error' in result ? result.error : 'Core Browser policy could not be read.');
   }, []);
 
