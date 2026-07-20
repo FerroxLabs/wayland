@@ -6,6 +6,10 @@
  */
 import { test, expect } from '../fixtures';
 import { goToGuid, goToSettings, ROUTES, expectUrlContains, takeScreenshot, type SettingsTab } from '../helpers';
+import classicJourneyBaseline from '../../../contracts/recovery/classic-journey-baseline.json';
+
+type ClassicBaselineRoute = { id: string; kind: 'guid' | 'settings'; tab?: string };
+const CLASSIC_CURRENT_ROUTES = classicJourneyBaseline.currentRoutes as ClassicBaselineRoute[];
 
 // ── Guid Page ────────────────────────────────────────────────────────────────
 
@@ -82,6 +86,29 @@ test.describe('Settings Pages', () => {
       await takeScreenshot(page, `settings-${tab}`);
     }
   });
+});
+
+// ── Classic v0.11.18 current-route baseline ──────────────────────────────────
+//
+// Repairs and proves the exact v0.11.18 current-route navigation set that every
+// M0A target cell consumes. Each route in the sealed baseline must load. This is
+// baseline construction only; it makes no six-target package acceptance claim.
+
+test.describe('Classic v0.11.18 current-route baseline', () => {
+  for (const route of CLASSIC_CURRENT_ROUTES) {
+    test(`current route loads: ${route.id}`, async ({ page }) => {
+      if (route.kind === 'guid') {
+        await goToGuid(page);
+        await expectUrlContains(page, 'guid');
+        return;
+      }
+      const tab = route.tab as SettingsTab;
+      await goToSettings(page, tab);
+      await expectUrlContains(page, ROUTES.settings[tab].slice(1));
+      const body = await page.locator('body').textContent();
+      expect(body!.length).toBeGreaterThan(10);
+    });
+  }
 });
 
 // ── Cross-page navigation ────────────────────────────────────────────────────
