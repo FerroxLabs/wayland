@@ -30,6 +30,7 @@ import { isFluxModelId } from '@/common/config/flux';
 import { ExtensionRegistry } from '@process/extensions';
 import { getDatabase } from '@process/services/database';
 import { recordVerificationResult } from '@process/services/cohort/instrumentation/CohortWorkJourneyAuthority';
+import { recordSessionTerminal } from '@process/services/cohort/instrumentation/CohortIncidentAuthority';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
 import { emitModelRegistryChanged } from '@process/providers/modelRegistryEvents';
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
@@ -1894,6 +1895,10 @@ ${collectedResponses.join('\n')}`;
     } catch (e) {
       this.flushBufferedStreamTextMessages();
       this.clearBusyState();
+      // Crash-terminal seam (SAF-02). A crashed/disconnected/timed-out ACP turn is
+      // the session_crashed terminal; it can never be recorded as a normal end.
+      // Inert until observation is installed; the incident authority owns dedup.
+      recordSessionTerminal({ occurredAtMs: Date.now(), kind: 'crash' });
       // Turn the raw session-start timeout into something a user can act on, so a
       // cron-fired (or interactive) run that hits a slow cold start surfaces a
       // clear, non-cryptic message instead of leaving the surface dead (BUG-5).

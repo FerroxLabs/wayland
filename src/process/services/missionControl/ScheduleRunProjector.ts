@@ -8,6 +8,7 @@ import type { ICronJob } from '@/common/adapter/ipcBridge';
 import type { TMessage } from '@/common/chat/chatLib';
 import { adaptWCoreMessages, projectExecution, type ExecutionSeed } from '@/common/execution';
 import type { ScheduleRunReceipt, ScheduleRunRecord, ScheduleRunResult } from '@/common/types/missionControl';
+import { recordAutomationRun } from '@process/services/cohort/instrumentation/CohortIncidentAuthority';
 
 export type ScheduleConversationEvidence = {
   conversationId: string;
@@ -81,6 +82,22 @@ export function projectScheduleRuns(
         },
       });
     });
+  }
+
+  // operator.run-automation terminal seam (SAF-02). A definitive scheduler
+  // outcome projected against the run's correlated runId (`${jobId}:${triggeredAt}`,
+  // the exact id WorkerTaskManagerJobExecutor opened the run with) is the
+  // automation journey terminal: `ok` completes it, `error` fails it. `skipped`
+  // and `missed` are not run terminals. Inert until observation is installed;
+  // the incident authority dedups replays, so re-projecting the schedule page
+  // never double-emits a terminal.
+  for (const run of runs) {
+    if (run.outcome.status !== 'available') continue;
+    if (run.outcome.value === 'ok') {
+      recordAutomationRun({ occurredAtMs: run.triggeredAt, runId: run.runId, phase: 'completed' });
+    } else if (run.outcome.value === 'error') {
+      recordAutomationRun({ occurredAtMs: run.triggeredAt, runId: run.runId, phase: 'failed' });
+    }
   }
 
   return runs.toSorted((left, right) => right.triggeredAt - left.triggeredAt || left.runId.localeCompare(right.runId));

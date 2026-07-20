@@ -26,6 +26,16 @@ export type M0BRecordResult =
   | { status: 'storage_error' };
 
 /**
+ * The authenticated observer authority for real support-contact and
+ * accessibility-violation incidents. It is drained once, immediately before
+ * aggregation, so the only support/accessibility evidence in a report comes from
+ * verified signed observation envelopes admitted through {@link record}.
+ */
+export interface M0BObservationIncidentIngestor {
+  ingestPending(): Promise<void>;
+}
+
+/**
  * Consent-gated process boundary for M0B. Raw content cannot pass the closed
  * parser, and the only public export surface is an aggregate report without
  * participant, session, event, or journey-run identifiers.
@@ -34,7 +44,8 @@ export class CohortBaselineService {
   constructor(
     private readonly repository: M0BCohortEventRepository,
     private readonly config: M0BBaselineConfig,
-    private readonly consent: M0BRecordingConsent
+    private readonly consent: M0BRecordingConsent,
+    private readonly incidentIngestor?: M0BObservationIncidentIngestor
   ) {}
 
   async record(input: unknown): Promise<M0BRecordResult> {
@@ -71,6 +82,13 @@ export class CohortBaselineService {
   }
 
   async aggregate(asOfMs = Date.now()): Promise<M0BBaselineReport> {
+    // Admit any verified support/accessibility observation envelopes into the
+    // append-only stream before the window is read. A drain failure never
+    // fabricates evidence: aggregation proceeds over whatever was durably
+    // admitted.
+    if (this.incidentIngestor) {
+      await this.incidentIngestor.ingestPending().catch((): void => undefined);
+    }
     const events = await this.repository.findWindow(this.config.windowStartMs, this.config.windowEndMs);
     return aggregateM0BBaseline(events, this.config, asOfMs);
   }

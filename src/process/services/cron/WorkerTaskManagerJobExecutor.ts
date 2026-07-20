@@ -26,6 +26,7 @@ import { addMessage } from '@process/utils/message';
 import { getCronSkillDir, hasCronSkillFile } from './cronSkillFile';
 import { AcpSkillManager } from '@process/task/AcpSkillManager';
 import { skillSuggestWatcher } from './SkillSuggestWatcher';
+import { recordAutomationRun } from '@process/services/cohort/instrumentation/CohortIncidentAuthority';
 
 /** Lazy-import to break circular dependency: cronServiceSingleton ↔ conversationServiceSingleton */
 async function getConversationService() {
@@ -160,6 +161,13 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     // linking back to the scheduled task detail page.
     this.emitCronTriggerMessage(conversationId, job.id, job.name, triggeredAt);
 
+    // operator.run-automation start seam (SAF-02). The correlated run identity is
+    // `${job.id}:${triggeredAt}` - the exact runId ScheduleRunProjector emits the
+    // terminal against. Inert until observation is installed; the incident
+    // authority owns dedup and every near-miss rejection.
+    const automationRunId = `${job.id}:${triggeredAt}`;
+    recordAutomationRun({ occurredAtMs: triggeredAt, runId: automationRunId, phase: 'started' });
+
     // Pass both content and input - each agent type picks the field it uses.
     try {
       await task.sendMessage({
@@ -171,6 +179,9 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
         hidden,
       });
     } catch (err) {
+      // A failed dispatch is the automation run's error terminal, correlated to
+      // the same runId the start opened.
+      recordAutomationRun({ occurredAtMs: Date.now(), runId: automationRunId, phase: 'failed' });
       // A session-start timeout / crash leaves the agent half-started. Kill the
       // task so the NEXT cron fire rebuilds a fully fresh one instead of reusing
       // a poisoned task and crash-looping (BUG-5). AcpAgentManager's bootstrap

@@ -35,6 +35,10 @@ import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
 import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { recordVerificationResult } from '@process/services/cohort/instrumentation/CohortWorkJourneyAuthority';
+import {
+  recordIncidentStop,
+  recordSessionTerminal,
+} from '@process/services/cohort/instrumentation/CohortIncidentAuthority';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
 import { acquireRuntimeLaunchAuthority } from '@process/agent/wcore/profilePaths';
@@ -1160,6 +1164,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           kind: trip.kind,
           count: trip.count,
         });
+        // Runaway-halt incident seam (SAF-02). A loop-detection halt is forwarded
+        // as a stop, but it carries a runaway `kind`, not a zero-tolerance reason,
+        // so the incident authority mints no zero_tolerance_stop: a benign halt
+        // can never become a zero-tolerance event.
+        recordIncidentStop({ occurredAtMs: Date.now(), source: 'runaway-halt', reason: trip.kind });
         return;
       }
     }
@@ -1198,6 +1207,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
     this.status = 'finished';
     void this.handleTurnEnd();
+
+    // Crash-terminal seam (SAF-02). A wcore process exiting during an active turn
+    // is the session_crashed terminal; it can never be recorded as a normal end.
+    // Inert until observation is installed; the incident authority owns dedup.
+    recordSessionTerminal({ occurredAtMs: Date.now(), kind: 'crash' });
 
     const errorMessage: IResponseMessage = {
       type: 'error',
