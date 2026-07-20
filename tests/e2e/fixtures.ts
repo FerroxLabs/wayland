@@ -279,7 +279,12 @@ export async function launchAppWithEnv(extraEnv: Record<string, string> = {}): P
       `[E2E] Launching PACKAGED app: ${packaged.executablePath}${extraEnv.WAYLAND_AMBIENT === '1' ? ' (ambient)' : ''}`
     );
 
-    const launchArgs: string[] = [];
+    // Route safeStorage to the app's file-backed fallback instead of the OS
+    // keychain. The unsigned dev/test Electron is not keychain-trusted on macOS,
+    // so touching it throws a blocking "Keychain Not Found" native modal that
+    // hangs the suite. Tests must also never read or mutate the developer's real
+    // login keychain.
+    const launchArgs: string[] = ['--password-store=basic'];
     if (process.platform === 'linux' && process.env.CI) {
       launchArgs.push('--no-sandbox');
     }
@@ -307,7 +312,10 @@ export async function launchAppWithEnv(extraEnv: Record<string, string> = {}): P
   // Dev mode: launch via electron .
   console.log(`[E2E] Launching DEV app from: ${projectRoot}${extraEnv.WAYLAND_AMBIENT === '1' ? ' (ambient)' : ''}`);
 
-  const launchArgs = ['.'];
+  // See packaged path above: force the file-backed secret fallback so the
+  // unsigned dev Electron never triggers a blocking macOS keychain modal or
+  // touches the developer's real login keychain.
+  const launchArgs = ['.', '--password-store=basic'];
   if (process.platform === 'linux' && process.env.CI) {
     launchArgs.push('--no-sandbox');
   }
