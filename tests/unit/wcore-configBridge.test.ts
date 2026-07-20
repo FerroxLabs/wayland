@@ -19,9 +19,12 @@ import {
   applyWcoreConfigPatch,
   isRawEngineModeIntent,
   parseRawEngineModePreference,
+  projectWcoreBrowserPolicyRequest,
+  readWcoreBrowserPolicyRequest,
   validateWcoreBrowserPolicy,
   validateWcoreConfigPatch,
   withEffectiveConfigTarget,
+  WCORE_BROWSER_POLICY_PROJECTION_SCHEMA,
   WCORE_EDITABLE_MEMORY_SCHEMA,
 } from '@process/bridge/wcoreConfigBridge';
 import { withProfileAuthorityLock } from '@process/agent/wcore/profilePaths';
@@ -295,19 +298,106 @@ describe('browser policy producer parity', () => {
     '::ffff:0.0.0.0',
     '::ffff:127.0.0.1',
     '::ffff:7f00:1',
-  ])(
-    'rejects Core-hard-blocked IPv6 literal %s',
-    (origin) => {
-      expect(
-        validateWcoreBrowserPolicy({ defaultAction: 'allow', allowedOrigins: [origin], deniedOrigins: [] })
-      ).toContain('public host patterns');
-    }
-  );
+  ])('rejects Core-hard-blocked IPv6 literal %s', (origin) => {
+    expect(
+      validateWcoreBrowserPolicy({ defaultAction: 'allow', allowedOrigins: [origin], deniedOrigins: [] })
+    ).toContain('public host patterns');
+  });
 
   it.each(['*.1.1.1', '*.2001:4860:4860::8888'])('rejects nonsensical wildcard IP pattern %s', (origin) => {
     expect(
       validateWcoreBrowserPolicy({ defaultAction: 'allow', allowedOrigins: [origin], deniedOrigins: [] })
     ).toContain('public host patterns');
+  });
+
+  it('does not fabricate a requested policy when the Browser section or policy is absent', () => {
+    expect(readWcoreBrowserPolicyRequest({})).toBeNull();
+    expect(readWcoreBrowserPolicyRequest({ browser: { user_agent: 'Wayland' } })).toBeNull();
+  });
+
+  it('reads only the exact requested policy stored in the selected Core config', () => {
+    expect(
+      readWcoreBrowserPolicyRequest({
+        browser: {
+          policy: {
+            default_action: 'ask',
+            allowed_origins: ['example.com'],
+            denied_origins: ['blocked.example.com'],
+          },
+        },
+      })
+    ).toEqual({
+      defaultAction: 'ask',
+      allowedOrigins: ['example.com'],
+      deniedOrigins: ['blocked.example.com'],
+    });
+  });
+
+  it.each([
+    { browser: null },
+    { browser: 'policy' },
+    { browser: [] },
+    { browser: { policy: null } },
+    {
+      browser: {
+        policy: { default_action: 'deny', allowed_origins: [], denied_origins: [], future_claim: true },
+      },
+    },
+    { browser: { policy: { default_action: 'deny', allowed_origins: [] } } },
+  ])('fails closed on malformed or unknown requested-policy evidence %#', (config) => {
+    expect(() => readWcoreBrowserPolicyRequest(config as Record<string, unknown>)).toThrow(/malformed|unknown/);
+  });
+
+  it('projects requested truth against one exact runtime identity without claiming enforcement', () => {
+    const source = { defaultAction: 'deny' as const, allowedOrigins: ['example.com'], deniedOrigins: [] };
+    const projection = projectWcoreBrowserPolicyRequest(source, {
+      mode: 'desktop-managed',
+      profile: 'default',
+      profileApplied: true,
+      waylandHomeInjected: true,
+      desktopModelOverrideApplied: true,
+      desktopPromptOverlayApplied: true,
+      selectedConnectorsAuthority: 'desktop',
+      teamBridgePolicy: 'host-preserved',
+      toolCredentialPolicy: 'allowlisted-host-forwarding',
+      hostProtocolAuthority: 'desktop',
+      engineConfigDir: '/profiles/default',
+      engineConfigPath: '/profiles/default/config.toml',
+      desktopConfigDir: '/desktop',
+      desktopConfigPath: '/desktop/wayland-config.txt',
+    });
+
+    expect(WCORE_BROWSER_POLICY_PROJECTION_SCHEMA).toEqual({
+      schemaVersion: 1,
+      coreVersion: '0.12.25',
+      effectiveState: 'producer-evidence-unavailable',
+      restartState: 'unknown',
+    });
+    expect(projection).toEqual({
+      schemaVersion: 1,
+      coreVersion: '0.12.25',
+      requested: {
+        policy: source,
+        mode: 'desktop-managed',
+        profile: 'default',
+        engineConfigPath: '/profiles/default/config.toml',
+        desktopConfigPath: '/desktop/wayland-config.txt',
+      },
+      effective: null,
+      effectiveState: 'producer-evidence-unavailable',
+      restartState: 'unknown',
+    });
+    source.allowedOrigins.push('later.example.com');
+    expect(projection.requested?.policy.allowedOrigins).toEqual(['example.com']);
+  });
+
+  it('refuses to project an invalid caller-supplied requested policy', () => {
+    expect(() =>
+      projectWcoreBrowserPolicyRequest(
+        { defaultAction: 'allow', allowedOrigins: ['localhost'], deniedOrigins: [] },
+        {} as never
+      )
+    ).toThrow('Requested Core Browser policy is invalid');
   });
 });
 

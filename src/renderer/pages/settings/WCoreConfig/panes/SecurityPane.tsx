@@ -9,14 +9,8 @@ import { AlertTriangle, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import ScopeLabel from '../components/ScopeLabel';
 import { useWcoreConfig } from '@renderer/hooks/useWcoreConfig';
-import type { IWcoreBrowserPolicy } from '@/common/adapter/ipcBridge';
+import type { IWcoreBrowserPolicyProjection } from '@/common/adapter/ipcBridge';
 import styles from './Panes.module.css';
-
-const parsePatterns = (value: string): string[] =>
-  value
-    .split(/\r?\n|,/)
-    .map((entry) => entry.trim().toLowerCase())
-    .filter(Boolean);
 
 /**
  * Core v0.12.25 does not accept the controls this pane previously wrote:
@@ -33,22 +27,16 @@ const parsePatterns = (value: string): string[] =>
  */
 const SecurityPane: React.FC = () => {
   const { t } = useTranslation();
-  const { getBrowserPolicy, setBrowserPolicy } = useWcoreConfig();
-  const [policy, setPolicy] = useState<IWcoreBrowserPolicy | null>(null);
-  const [allowedText, setAllowedText] = useState('');
-  const [deniedText, setDeniedText] = useState('');
+  const { getBrowserPolicy } = useWcoreConfig();
+  const [projection, setProjection] = useState<IWcoreBrowserPolicyProjection | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
 
   const loadPolicy = async () => {
     setError(null);
     try {
-      const current = await getBrowserPolicy();
-      setPolicy(current);
-      setAllowedText(current.allowedOrigins.join('\n'));
-      setDeniedText(current.deniedOrigins.join('\n'));
+      setProjection(await getBrowserPolicy());
     } catch (loadError) {
-      setPolicy(null);
+      setProjection(null);
       setError(loadError instanceof Error ? loadError.message : String(loadError));
     }
   };
@@ -59,30 +47,12 @@ const SecurityPane: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getBrowserPolicy]);
 
-  const savePolicy = async () => {
-    if (!policy || saving) return;
-    setSaving(true);
-    setError(null);
-    const next: IWcoreBrowserPolicy = {
-      ...policy,
-      allowedOrigins: parsePatterns(allowedText),
-      deniedOrigins: parsePatterns(deniedText),
-    };
-    try {
-      const result = await setBrowserPolicy(next);
-      if (result.ok === false) throw new Error(result.error);
-      await loadPolicy();
-    } catch (saveError) {
-      setError(saveError instanceof Error ? saveError.message : String(saveError));
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
     <div className={styles.pane}>
       <div className={styles.head}>
-        <div className={styles.eyebrow}>Wayland Core</div>
+        <div className={styles.eyebrow}>
+          {t('settings.wcoreConfig.security.engineName', { defaultValue: 'Wayland Core' })}
+        </div>
         <h1 className={styles.title}>
           {t('settings.wcoreConfig.rail.security', { defaultValue: 'Security & Permissions' })}
         </h1>
@@ -113,60 +83,91 @@ const SecurityPane: React.FC = () => {
                   'Core hard-blocks loopback, private, link-local and metadata addresses. Denied origins always win. When Allowed origins is nonempty it becomes an exclusive allow-list, even if Unmatched origins says Allow.',
               })}
             </div>
-            {policy ? (
-              <>
-                <label className={styles.policyField}>
-                  <span>{t('settings.wcoreConfig.security.defaultAction', { defaultValue: 'Unmatched origins' })}</span>
-                  <select
-                    aria-label={t('settings.wcoreConfig.security.defaultAction', { defaultValue: 'Unmatched origins' })}
-                    value={policy.defaultAction}
-                    disabled={saving}
-                    onChange={(event) =>
-                      setPolicy({
-                        ...policy,
-                        defaultAction: event.target.value as IWcoreBrowserPolicy['defaultAction'],
-                      })
-                    }
-                  >
-                    <option value='deny'>Deny</option>
-                    <option value='ask'>Ask</option>
-                    <option value='allow'>Allow unmatched public origins</option>
-                  </select>
-                </label>
-                <label className={styles.policyField}>
-                  <span>{t('settings.wcoreConfig.security.allowedOrigins', { defaultValue: 'Allowed origins' })}</span>
-                  <textarea
-                    aria-label={t('settings.wcoreConfig.security.allowedOrigins', { defaultValue: 'Allowed origins' })}
-                    value={allowedText}
-                    disabled={saving}
-                    rows={4}
-                    placeholder={'example.com\n*.example.org\n1.1.1.1'}
-                    onChange={(event) => setAllowedText(event.target.value)}
-                  />
-                </label>
-                <label className={styles.policyField}>
-                  <span>
-                    {t('settings.wcoreConfig.security.deniedOrigins', { defaultValue: 'Always denied origins' })}
-                  </span>
-                  <textarea
-                    aria-label={t('settings.wcoreConfig.security.deniedOrigins', {
-                      defaultValue: 'Always denied origins',
-                    })}
-                    value={deniedText}
-                    disabled={saving}
-                    rows={3}
-                    placeholder={'blocked.example.com'}
-                    onChange={(event) => setDeniedText(event.target.value)}
-                  />
-                </label>
-                <button className={styles.policySave} type='button' disabled={saving} onClick={() => void savePolicy()}>
-                  {saving
-                    ? t('settings.wcoreConfig.security.savingPolicy', { defaultValue: 'Saving…' })
-                    : t('settings.wcoreConfig.security.savePolicy', { defaultValue: 'Save Browser policy' })}
-                </button>
-              </>
+            {projection ? (
+              <div className={styles.group} data-testid='browser-policy-truth'>
+                <div className={styles.listRow}>
+                  <div>
+                    <div className={styles.lrLabel}>
+                      {t('settings.wcoreConfig.security.requestedPolicy', { defaultValue: 'Requested policy' })}
+                    </div>
+                    <div className={styles.lrDesc}>
+                      {projection.requested
+                        ? t('settings.wcoreConfig.security.requestedPolicyValue', {
+                            defaultValue: '{{action}} · {{allowed}} allowed · {{denied}} denied',
+                            action: projection.requested.policy.defaultAction,
+                            allowed: projection.requested.policy.allowedOrigins.length,
+                            denied: projection.requested.policy.deniedOrigins.length,
+                          })
+                        : t('settings.wcoreConfig.security.requestedPolicyAbsent', {
+                            defaultValue: 'No Browser policy is configured in the selected Core config.',
+                          })}
+                    </div>
+                    {projection.requested ? (
+                      <>
+                        <div className={styles.lrDesc}>
+                          {t('settings.wcoreConfig.security.requestedPolicySource', {
+                            defaultValue: '{{mode}} · profile {{profile}}',
+                            mode: t(
+                              projection.requested.mode === 'raw-engine'
+                                ? 'settings.wcoreConfig.security.modeRawEngine'
+                                : 'settings.wcoreConfig.security.modeDesktopManaged',
+                              {
+                                defaultValue:
+                                  projection.requested.mode === 'raw-engine' ? 'Raw engine' : 'Desktop managed',
+                              }
+                            ),
+                            profile:
+                              projection.requested.profile ??
+                              t('settings.wcoreConfig.security.profileNone', { defaultValue: 'none' }),
+                          })}
+                        </div>
+                        <div className={styles.lrDesc}>
+                          {t('settings.wcoreConfig.security.engineConfigSource', {
+                            defaultValue: 'Core config: {{path}}',
+                            path: projection.requested.engineConfigPath,
+                          })}
+                        </div>
+                        <div className={styles.lrDesc}>
+                          {t('settings.wcoreConfig.security.desktopConfigSource', {
+                            defaultValue: 'Desktop config: {{path}}',
+                            path: projection.requested.desktopConfigPath,
+                          })}
+                        </div>
+                      </>
+                    ) : null}
+                  </div>
+                </div>
+                <div className={styles.listRow}>
+                  <div>
+                    <div className={styles.lrLabel}>
+                      {t('settings.wcoreConfig.security.effectivePolicy', { defaultValue: 'Effective policy' })}
+                    </div>
+                    <div className={styles.lrDesc}>
+                      {t('settings.wcoreConfig.security.effectivePolicyUnavailable', {
+                        defaultValue:
+                          'Unavailable: Core v0.12.25 does not provide session-correlated enforcement evidence to Desktop.',
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <div className={styles.listRow}>
+                  <div>
+                    <div className={styles.lrLabel}>
+                      {t('settings.wcoreConfig.security.restartStatus', { defaultValue: 'Restart status' })}
+                    </div>
+                    <div className={styles.lrDesc}>
+                      {t('settings.wcoreConfig.security.restartStatusUnknown', {
+                        defaultValue:
+                          'Unknown: a saved request is not proof that the current Core session loaded or enforced it.',
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
             ) : !error ? (
-              <div className={styles.lrDesc}>Reading Browser policy…</div>
+              <div className={styles.lrDesc}>
+                {t('settings.wcoreConfig.security.readingPolicy', { defaultValue: 'Reading Browser policy…' })}
+              </div>
             ) : null}
             {error ? <div className={styles.runtimeTruthError}>{error}</div> : null}
           </div>

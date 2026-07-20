@@ -2471,7 +2471,7 @@ export const wcoreConfig = {
     'wcoreConfig.getSection'
   ),
   patchField: buildProvider<IWcoreConfigMutationResult, { patch: IWcoreConfigFieldPatch }>('wcoreConfig.patchField'),
-  /** Sanitized Browser policy only; never returns the surrounding Core config. */
+  /** Requested Browser policy plus explicit absence of producer-enforced evidence. */
   getBrowserPolicy: buildProvider<IWcoreBrowserPolicyResult, void>('wcoreConfig.getBrowserPolicy'),
   setBrowserPolicy: buildProvider<IWcoreConfigMutationResult, { policy: IWcoreBrowserPolicy }>(
     'wcoreConfig.setBrowserPolicy'
@@ -2509,7 +2509,25 @@ export type IWcoreBrowserPolicy = {
   deniedOrigins: string[];
 };
 
-export type IWcoreBrowserPolicyResult = { ok: true; policy: IWcoreBrowserPolicy } | { ok: false; error: string };
+export type IWcoreBrowserPolicyProjection = {
+  schemaVersion: 1;
+  coreVersion: '0.12.25';
+  requested: null | {
+    policy: IWcoreBrowserPolicy;
+    mode: 'desktop-managed' | 'raw-engine';
+    profile: string | null;
+    engineConfigPath: string;
+    desktopConfigPath: string;
+  };
+  /** No v0.12.25 producer receipt exists for current-session enforcement. */
+  effective: null;
+  effectiveState: 'producer-evidence-unavailable';
+  restartState: 'unknown';
+};
+
+export type IWcoreBrowserPolicyResult =
+  | { ok: true; projection: IWcoreBrowserPolicyProjection }
+  | { ok: false; error: string };
 
 /** Closed set of renderer-editable Core fields, merged atomically by main. */
 export type IWcoreConfigFieldPatch =

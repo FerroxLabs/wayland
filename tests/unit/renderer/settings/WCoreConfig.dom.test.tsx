@@ -27,7 +27,7 @@ const {
   mockGetWcoreSection: vi.fn(() => Promise.resolve(undefined)),
   mockSetWcoreSection: vi.fn(() => Promise.resolve({ ok: true })),
   mockPatchWcoreField: vi.fn(() => Promise.resolve({ ok: true })),
-  mockGetBrowserPolicy: vi.fn(() => Promise.resolve({ defaultAction: 'deny', allowedOrigins: [], deniedOrigins: [] })),
+  mockGetBrowserPolicy: vi.fn(),
   mockSetBrowserPolicy: vi.fn(() => Promise.resolve({ ok: true })),
   mockWcoreProfiles: vi.fn(),
 }));
@@ -66,7 +66,7 @@ vi.mock('../../../../src/common', () => ({
       setSection: { invoke: (params: unknown) => mockSetWcoreSection(params) },
       patchField: { invoke: (params: unknown) => mockPatchWcoreField(params) },
       getBrowserPolicy: {
-        invoke: async () => ({ ok: true, policy: await mockGetBrowserPolicy() }),
+        invoke: async () => ({ ok: true, projection: await mockGetBrowserPolicy() }),
       },
       setBrowserPolicy: { invoke: ({ policy }: { policy: unknown }) => mockSetBrowserPolicy(policy) },
       getEffectiveRuntime: {
@@ -142,7 +142,20 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     mockGetWcoreSection.mockResolvedValue(undefined);
     mockSetWcoreSection.mockResolvedValue({ ok: true });
     mockPatchWcoreField.mockResolvedValue({ ok: true });
-    mockGetBrowserPolicy.mockResolvedValue({ defaultAction: 'deny', allowedOrigins: [], deniedOrigins: [] });
+    mockGetBrowserPolicy.mockResolvedValue({
+      schemaVersion: 1,
+      coreVersion: '0.12.25',
+      requested: {
+        policy: { defaultAction: 'deny', allowedOrigins: [], deniedOrigins: [] },
+        mode: 'desktop-managed',
+        profile: 'default',
+        engineConfigPath: '/Users/test/.wayland/profiles/default/config.toml',
+        desktopConfigPath: '/Users/test/Library/Application Support/Wayland/config/wayland-config.txt',
+      },
+      effective: null,
+      effectiveState: 'producer-evidence-unavailable',
+      restartState: 'unknown',
+    });
     mockSetBrowserPolicy.mockResolvedValue({ ok: true });
     mockWcoreProfiles.mockResolvedValue({
       ok: true,
@@ -417,7 +430,7 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     await waitFor(() => expect(memorySwitch).toHaveAttribute('aria-checked', 'false'));
   });
 
-  it('edits the supported Core Browser policy without exposing unsupported security controls', async () => {
+  it('shows requested Browser policy separately from unavailable effective and restart truth', async () => {
     const { container } = render(<WCoreConfig />);
     fireEvent.click(container.querySelector('[data-wcore-rail-id="security"]')!);
 
@@ -432,16 +445,63 @@ describe('WCoreConfig - Wayland Core configuration surface', () => {
     expect(screen.queryByText('Turn off firewall')).toBeNull();
     expect(mockSetWcoreSection).not.toHaveBeenCalled();
 
-    const allowed = await screen.findByRole('textbox', { name: 'Allowed origins' });
-    fireEvent.change(allowed, { target: { value: 'Example.com\n*.docs.example.com' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save Browser policy' }));
-    await waitFor(() =>
-      expect(mockSetBrowserPolicy).toHaveBeenCalledWith({
-        defaultAction: 'deny',
-        allowedOrigins: ['example.com', '*.docs.example.com'],
-        deniedOrigins: [],
-      })
-    );
+    expect(await screen.findByText('deny · 0 allowed · 0 denied')).toBeTruthy();
+    expect(screen.getByText('Desktop managed · profile default')).toBeTruthy();
+    expect(screen.getByText('Core config: /Users/test/.wayland/profiles/default/config.toml')).toBeTruthy();
+    expect(
+      screen.getByText('Desktop config: /Users/test/Library/Application Support/Wayland/config/wayland-config.txt')
+    ).toBeTruthy();
+    expect(screen.getByText('Effective policy')).toBeTruthy();
+    expect(screen.getByText(/does not provide session-correlated enforcement evidence/)).toBeTruthy();
+    expect(screen.getByText('Restart status')).toBeTruthy();
+    expect(screen.getByText(/a saved request is not proof/)).toBeTruthy();
+    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Save Browser policy' })).toBeNull();
+    expect(mockSetBrowserPolicy).not.toHaveBeenCalled();
+  });
+
+  it('renders an absent requested policy without inventing defaults or an effective state', async () => {
+    mockGetBrowserPolicy.mockResolvedValue({
+      schemaVersion: 1,
+      coreVersion: '0.12.25',
+      requested: null,
+      effective: null,
+      effectiveState: 'producer-evidence-unavailable',
+      restartState: 'unknown',
+    });
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="security"]')!);
+
+    expect(await screen.findByText('No Browser policy is configured in the selected Core config.')).toBeTruthy();
+    expect(screen.getByText(/does not provide session-correlated enforcement evidence/)).toBeTruthy();
+    expect(screen.getByText(/a saved request is not proof/)).toBeTruthy();
+    expect(screen.queryByText(/Core config:/)).toBeNull();
+    expect(mockSetBrowserPolicy).not.toHaveBeenCalled();
+  });
+
+  it('identifies the standalone config path when requested policy comes from Raw engine mode', async () => {
+    mockGetBrowserPolicy.mockResolvedValue({
+      schemaVersion: 1,
+      coreVersion: '0.12.25',
+      requested: {
+        policy: { defaultAction: 'ask', allowedOrigins: ['example.com'], deniedOrigins: [] },
+        mode: 'raw-engine',
+        profile: null,
+        engineConfigPath: '/Users/test/.wayland/config.toml',
+        desktopConfigPath: '/Users/test/Library/Application Support/Wayland/config/wayland-config.txt',
+      },
+      effective: null,
+      effectiveState: 'producer-evidence-unavailable',
+      restartState: 'unknown',
+    });
+    const { container } = render(<WCoreConfig />);
+    fireEvent.click(container.querySelector('[data-wcore-rail-id="security"]')!);
+
+    expect(await screen.findByText('ask · 1 allowed · 0 denied')).toBeTruthy();
+    expect(screen.getByText('Raw engine · profile none')).toBeTruthy();
+    expect(screen.getByText('Core config: /Users/test/.wayland/config.toml')).toBeTruthy();
+    expect(screen.getByText(/does not provide session-correlated enforcement evidence/)).toBeTruthy();
+    expect(mockSetBrowserPolicy).not.toHaveBeenCalled();
   });
 
   it('explains the Raw engine boundary without claiming host integration is removed', async () => {

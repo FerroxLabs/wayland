@@ -42,13 +42,25 @@ import { initWcoreProfileIpc } from '@process/agent/wcore/profileStore';
 import { ProcessConfig, resolveConciergeDiagDeps } from '@process/utils/initStorage';
 import { ipcBridge } from '@/common';
 import type { IWcoreConfigFieldPatch } from '@/common/adapter/ipcBridge';
-import type { IWcoreBrowserPolicy } from '@/common/adapter/ipcBridge';
+import type {
+  IWcoreBrowserPolicy,
+  IWcoreBrowserPolicyProjection,
+  IWcoreEffectiveRuntime,
+} from '@/common/adapter/ipcBridge';
 
 /** Exact editable MemoryConfig surface in the bundled Core producer. */
 export const WCORE_EDITABLE_MEMORY_SCHEMA = {
   coreVersion: '0.12.25',
   producerFields: ['enabled', 'dream_cycle_throttle_secs', 'decay_interval_secs', 'embedder'],
   editableFields: ['enabled'],
+} as const;
+
+/** Desktop can project requested policy, but Core v0.12.25 exposes no effective-policy receipt. */
+export const WCORE_BROWSER_POLICY_PROJECTION_SCHEMA = {
+  schemaVersion: 1,
+  coreVersion: '0.12.25',
+  effectiveState: 'producer-evidence-unavailable',
+  restartState: 'unknown',
 } as const;
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -65,6 +77,16 @@ function isExactDataObject(value: unknown, keys: readonly string[]): value is Re
   const expected = [...keys].toSorted();
   if (actual.length !== expected.length || actual.some((key, index) => key !== expected[index])) return false;
   return Object.values(descriptors).every((descriptor) => 'value' in descriptor && !descriptor.get && !descriptor.set);
+}
+
+function isPlainDataObject(value: unknown): value is Record<string, unknown> {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) return false;
+  if (Object.getOwnPropertySymbols(value).length > 0) return false;
+  return Object.values(Object.getOwnPropertyDescriptors(value)).every(
+    (descriptor) => 'value' in descriptor && !descriptor.get && !descriptor.set
+  );
 }
 
 function isPlainStringArray(value: unknown): value is string[] {
@@ -180,17 +202,53 @@ export function validateWcoreBrowserPolicy(value: unknown): string | null {
   return null;
 }
 
-function readBrowserPolicy(config: Record<string, unknown>): IWcoreBrowserPolicy {
-  const browser = asRecord(config.browser);
-  const policy = asRecord(browser.policy);
+export function readWcoreBrowserPolicyRequest(config: Record<string, unknown>): IWcoreBrowserPolicy | null {
+  if (!Object.hasOwn(config, 'browser')) return null;
+  if (!isPlainDataObject(config.browser)) {
+    throw new Error('Stored Core Browser section is malformed');
+  }
+  const browser = config.browser;
+  if (!Object.hasOwn(browser, 'policy')) return null;
+  const policy = browser.policy;
+  const policyKeys = ['default_action', 'allowed_origins', 'denied_origins'] as const;
+  if (!isExactDataObject(policy, policyKeys)) {
+    throw new Error('Stored Core Browser policy contains unknown or malformed fields');
+  }
   const candidate = {
-    defaultAction: policy.default_action ?? 'deny',
-    allowedOrigins: policy.allowed_origins ?? [],
-    deniedOrigins: policy.denied_origins ?? [],
+    defaultAction: policy.default_action,
+    allowedOrigins: policy.allowed_origins,
+    deniedOrigins: policy.denied_origins,
   };
   const error = validateWcoreBrowserPolicy(candidate);
   if (error) throw new Error(`Stored Core Browser policy is invalid: ${error}`);
   return candidate as IWcoreBrowserPolicy;
+}
+
+export function projectWcoreBrowserPolicyRequest(
+  requested: IWcoreBrowserPolicy | null,
+  runtime: IWcoreEffectiveRuntime
+): IWcoreBrowserPolicyProjection {
+  if (requested !== null) {
+    const error = validateWcoreBrowserPolicy(requested);
+    if (error) throw new Error(`Requested Core Browser policy is invalid: ${error}`);
+  }
+  return {
+    schemaVersion: WCORE_BROWSER_POLICY_PROJECTION_SCHEMA.schemaVersion,
+    coreVersion: WCORE_BROWSER_POLICY_PROJECTION_SCHEMA.coreVersion,
+    requested:
+      requested === null
+        ? null
+        : {
+            policy: structuredClone(requested),
+            mode: runtime.mode,
+            profile: runtime.profile,
+            engineConfigPath: runtime.engineConfigPath,
+            desktopConfigPath: runtime.desktopConfigPath,
+          },
+    effective: null,
+    effectiveState: WCORE_BROWSER_POLICY_PROJECTION_SCHEMA.effectiveState,
+    restartState: WCORE_BROWSER_POLICY_PROJECTION_SCHEMA.restartState,
+  };
 }
 
 export function validateWcoreConfigPatch(patch: unknown): string | null {
@@ -333,9 +391,14 @@ export function initWcoreConfigBridge(): void {
 
   ipcBridge.wcoreConfig.getBrowserPolicy.provider(async () => {
     try {
+      const projection = await withProfileAuthorityLock(async () => {
+        const runtime = await resolveEffectiveRuntimeUnlocked();
+        const requested = readWcoreBrowserPolicyRequest(await readConfig(runtime.engineConfigPath));
+        return projectWcoreBrowserPolicyRequest(requested, runtime);
+      });
       return {
         ok: true,
-        policy: await withEffectiveConfigTarget(async (path) => readBrowserPolicy(await readConfig(path))),
+        projection,
       };
     } catch (error) {
       return { ok: false, error: error instanceof Error ? error.message : String(error) };
