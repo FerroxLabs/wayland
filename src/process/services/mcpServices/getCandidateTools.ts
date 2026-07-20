@@ -5,36 +5,52 @@
  */
 
 import type { IMcpServer } from '@/common/config/storage';
+import { getMcpSessionReceiptForServer, type McpSessionState } from '@/common/mcp/sessionReceipt';
 import type { CandidateTool } from '../tools/toolContract';
 
 /**
- * Build the candidate tool pool for Lane 3 (#344) to rank + cap (#348).
+ * Receipt-bound ToolSearch candidate gate (#344 Lane 2 -> Lane 3, MCP-01).
  *
- * For every ENABLED + CONNECTED server, emit each of its tools (from the
- * persisted `tools[]` populated by McpProtocol.listTools on connect) that the
- * user hasn't disabled via `allowedTools`. `allowedTools === undefined` means
- * all of that server's tools are enabled (default); `[]` means none.
+ * A tool becomes a callable candidate only when the CURRENT launch's correlated
+ * publication receipt proves it registered. Saved `status: 'connected'`, a
+ * Library probe, an enabled flag, a selected-but-unpublished declaration, a
+ * stale/cross-session receipt, or a later revocation (`degraded`/`failed`) all
+ * yield NOTHING: `getMcpSessionReceiptForServer` returns a receipt only when
+ * every session/definition binding (server id, generation, conversation,
+ * backend, definition digest, runtime name, transport, scope, observed time)
+ * still matches this exact launch, and this gate then accepts only a
+ * `registered` receipt carrying a non-empty tool inventory.
  *
- * Pure and synchronous by design: the caller (the ACP session builder, which
- * already holds the loaded server list at session start) passes `servers` in.
- * The contract's no-arg `GetCandidateTools` type is the consumer-facing view —
- * the persisted server source (ProcessConfig.get) is async, so a no-arg sync
- * reader isn't possible; Lane 3 binds this over its already-loaded servers.
- * See the note posted to #348.
+ * The receipt's `tools` inventory is authoritative for WHICH tools exist; the
+ * saved `server.tools[]` is consulted only to attach a human description to a
+ * registered tool name. The per-server `allowedTools` toggle still scopes the
+ * pool (`undefined` => all registered tools; `[]` => none).
+ *
+ * Pure and synchronous by design: the caller (each backend session builder,
+ * which holds both the current `McpSessionState` and the loaded server list)
+ * passes them in. Without a current session state, or for any server the
+ * session did not correlate, the gate withholds the whole server.
  */
-export function getCandidateTools(servers: IMcpServer[]): CandidateTool[] {
+export function getCandidateTools(
+  sessionState: McpSessionState | undefined,
+  servers: readonly IMcpServer[]
+): CandidateTool[] {
+  if (!sessionState) return [];
   const candidates: CandidateTool[] = [];
   for (const server of servers) {
-    // Only servers that are installed (enabled) AND have a live connection can
-    // contribute tools the engine can actually call.
-    if (!server.enabled || server.status !== 'connected') continue;
-    const allowed = server.allowedTools; // undefined => all enabled
-    for (const tool of server.tools ?? []) {
-      if (allowed !== undefined && !allowed.includes(tool.name)) continue;
+    // A saved-disabled connector is never a current-session candidate, even if
+    // a receipt for an earlier enabled launch were somehow presented.
+    if (!server.enabled) continue;
+    const receipt = getMcpSessionReceiptForServer(sessionState, server);
+    if (!receipt || receipt.status !== 'registered' || receipt.tools.length === 0) continue;
+    const allowed = server.allowedTools; // undefined => all registered tools
+    const describedBy = new Map((server.tools ?? []).map((tool) => [tool.name, tool.description ?? '']));
+    for (const name of receipt.tools) {
+      if (allowed !== undefined && !allowed.includes(name)) continue;
       candidates.push({
         serverId: server.id,
-        name: tool.name,
-        description: tool.description ?? '',
+        name,
+        description: describedBy.get(name) ?? '',
       });
     }
   }

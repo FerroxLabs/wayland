@@ -5,6 +5,7 @@
  */
 
 import type { IMcpServer } from '@/common/config/storage';
+import type { McpSessionState } from '@/common/mcp/sessionReceipt';
 
 /**
  * Contract for the desktop MCP candidate-tool pool (#348 Lane 2).
@@ -32,10 +33,15 @@ export type CandidateTool = {
 };
 
 /**
- * Builds the candidate pool from the loaded MCP servers: each ENABLED +
- * connected server's tools, filtered by its `allowedTools` toggle
- * (absent => all). Pure and synchronous — the caller loads the servers (an
- * async source with no sync snapshot) and passes them in, so this stays
- * trivially testable and free of I/O.
+ * Builds the candidate pool from the CURRENT launch's correlated publication
+ * receipts (MCP-01): each server the session registered with a non-empty tool
+ * inventory, filtered by its `allowedTools` toggle (absent => all). Saved
+ * `connected` status, probe state, or a stale/revoked receipt contribute
+ * nothing. Pure and synchronous — the caller holds the current `McpSessionState`
+ * plus the loaded servers and passes them in, so this stays trivially testable
+ * and free of I/O.
  */
-export type GetCandidateTools = (servers: readonly IMcpServer[]) => CandidateTool[];
+export type GetCandidateTools = (
+  sessionState: McpSessionState | undefined,
+  servers: readonly IMcpServer[]
+) => CandidateTool[];
