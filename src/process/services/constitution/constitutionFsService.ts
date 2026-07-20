@@ -8,6 +8,7 @@ import {
   mkdirSync,
   openSync,
   readFileSync,
+  realpathSync,
   renameSync,
   unlinkSync,
   writeFileSync,
@@ -206,7 +207,16 @@ export class ConstitutionFsService {
     resourcesPath = process.resourcesPath,
     options: ConstitutionFsProductionOptions = {}
   ): ConstitutionFsService {
-    const root = options.root ?? path.join(os.homedir(), '.wayland');
+    const configuredRoot = options.root ?? path.join(os.homedir(), '.wayland');
+    // The configured root is routinely a symlink into platform app-data
+    // (e.g. ~/.wayland -> ~/Library/Application Support/Wayland/wayland). The
+    // device/inode identity pin uses lstat and rejects symlinks outright, which
+    // would throw here and crash bootstrap on every install using that layout.
+    // Canonicalize an existing root so the pin binds the real directory; any
+    // post-pin swap still trips the identity-mismatch guard, so the anti-redirect
+    // guarantee is preserved. A not-yet-created root is left as-is and created
+    // lazily on first write.
+    const root = existsSync(configuredRoot) ? realpathSync.native(configuredRoot) : configuredRoot;
     const secretBackend = options.secretBackend ?? { encryptString, decryptString };
     try {
       const binary = (options.verifyPackagedBinary ?? verifyPackagedConstitutionFsBinary)(resourcesPath);

@@ -9,6 +9,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import os from 'node:os';
@@ -567,6 +568,36 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
         service.writeConstitution('supported', absent.revision, '66666666-6666-4666-8666-666666666666')
       ).toMatchObject({ status: 'committed', revision: expect.stringMatching(/^rev:v2:/) });
       expect(service.readConstitution()).toMatchObject({ status: 'present', content: 'supported' });
+    }, 30_000);
+
+    it('accepts a symlinked root by pinning its real directory (regression: ~/.wayland symlink boot crash)', () => {
+      // Reproduces the real bootstrap crash: ~/.wayland is commonly a symlink
+      // into platform app-data. The identity pin uses lstat and rejects
+      // symlinks, which pre-fix threw CONSTITUTION_FS_UNSAFE_ROOT from the
+      // constructor and crashed app startup. The root must be canonicalized so
+      // the pin binds the real directory and the app boots.
+      const parent = mkdtempSync(path.join(os.tmpdir(), 'constitution-symlink-root-'));
+      const realRoot = path.join(parent, 'app-support', 'wayland');
+      mkdirSync(realRoot, { recursive: true, mode: 0o700 });
+      const symlinkRoot = path.join(parent, '.wayland');
+      symlinkSync(realRoot, symlinkRoot);
+
+      const service = ConstitutionFsService.createProduction('test-resources', {
+        root: symlinkRoot,
+        revisionAuthorityPath: path.join(parent, 'userData', 'constitution', 'revision-authority.enc'),
+        secretBackend,
+        verifyPackagedBinary: () => realBinary(),
+      });
+
+      const absent = service.readConstitution();
+      expect(absent.status).toBe('absent');
+      const committed = service.writeConstitution(
+        'via symlink',
+        absent.revision,
+        '77777777-7777-4777-8777-777777777777'
+      );
+      expect(committed).toMatchObject({ status: 'committed' });
+      expect(service.readConstitution()).toMatchObject({ status: 'present', content: 'via symlink' });
     }, 30_000);
 
     it('quarantines existing Constitution state when the external revision authority is lost', () => {
