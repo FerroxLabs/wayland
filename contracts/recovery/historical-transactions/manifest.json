@@ -1,0 +1,362 @@
+{
+  "contract": "wayland-historical-transaction-corpus/1.0",
+  "schemaVersion": 1,
+  "corpusRoot": "tests/fixtures/constitution-fs",
+  "producer": {
+    "commit": "991c502e74506ec3702f92e429a8b31b655412ba",
+    "tree": "1af0b2f9f6e3a12eb3234d1c7ad7a22145e32e5e",
+    "archiveSha256": "sha256:2e7e4a40f0517c0dadd6b4652b5075c5a02799d1d14c896fb8e5dfa6ae82890a",
+    "archiveCommand": "git archive --format=tar 991c502e74506ec3702f92e429a8b31b655412ba | shasum -a 256"
+  },
+  "source": {
+    "path": "src/process/services/constitution/constitutionFsTransaction.ts",
+    "gitBlobOid": "2e63d75ccb74026545e075d2bc62bb74bde81c84",
+    "contentSha256": "sha256:33929dc0715b4c4ebf666c604cba2283b87636f024363e2b24034b13db58607b",
+    "size": 48907,
+    "role": "transaction protocol, receipt schema, and ledger/journal contract definer"
+  },
+  "harnessPatch": {
+    "artifact": "harness-only.patch",
+    "sha256": "sha256:6045787b16bbd549b3e9599c0d449c0e8ad31df56fda5a825424c870c953efa5",
+    "originArtifact": "tests/fixtures/constitution-fs/provenance/991c502-fixture-failpoint.patch",
+    "transactionRegionFile": "native/constitution-fs/src/main.rs",
+    "transactionRegionLines": "4306-4331",
+    "transactionRegionBeforeSha256": "sha256:52b7a371cfd2668df1013711dc8f5b7ec3e226d26b6ffca59cb96d4182cf1e27",
+    "transactionRegionAfterSha256": "sha256:52b7a371cfd2668df1013711dc8f5b7ec3e226d26b6ffca59cb96d4182cf1e27",
+    "proofCommand": "git show 991c502e74506ec3702f92e429a8b31b655412ba:native/constitution-fs/src/main.rs | sed -n '4306,4331p' | shasum -a 256; sed -n '4306,4331p' native/constitution-fs/src/main.rs | shasum -a 256",
+    "scope": "additive main-only environment failpoint forwarding into the pre-existing transaction hook; transaction, serialization, format, and durability regions are byte-identical"
+  },
+  "toolchain": {
+    "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02) aarch64-apple-darwin",
+    "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15) aarch64-apple-darwin",
+    "bun": "1.3.11",
+    "node": "v25.8.1"
+  },
+  "generator": {
+    "artifact": "tests/fixtures/constitution-fs/provenance/generateHistoricalConstitutionFixture.ts",
+    "sha256": "sha256:f810a5e61c0785e84ee99a11ec2415a99ea0d0316c171045501535190ffb1c3f",
+    "version": 1,
+    "command": "cd /tmp/wayland-constitution-base-991c && OUT=$CANDIDATE/tests/fixtures/constitution-fs/base-991c502-committed MODE=committed bun run scripts/generateHistoricalConstitutionFixture.ts"
+  },
+  "finalizer": {
+    "artifact": "tests/fixtures/constitution-fs/provenance/finalizeHistoricalConstitutionFixture.ts",
+    "sha256": "sha256:ea861ef5f2891b6f6e494468b166177e2cf064b67560328adfd9388a31e368ef",
+    "version": 1,
+    "inputs": "finalizer-inputs.json",
+    "claim": "Deterministically enriches the producer-emitted raw manifest with the bound source, harness, toolchain, helper, generator, finalizer, and reproduction evidence; it never changes fixture state bytes."
+  },
+  "helper": {
+    "binarySha256": "sha256:3844ad1e75571750b784e66edcab986e6c86e953074564b959188ec927612cfd",
+    "buildReceiptArtifact": "tests/fixtures/constitution-fs/provenance/helper-build-receipt.json",
+    "buildReceiptSha256": "sha256:270d6192e53401ac0a6cabf1fdbcebeca3971ec0ce2dda735c59fd5683475fae",
+    "buildCommand": "cargo build --locked --manifest-path /tmp/wayland-constitution-base-991c/native/constitution-fs/Cargo.toml",
+    "routineClaim": "the helper executable is not retained; routine verification hashes retained bytes and never rebuilds it"
+  },
+  "provenanceArtifact": {
+    "path": "tests/fixtures/constitution-fs/provenance/reproduction.json",
+    "sha256": "sha256:da5a0c6e6f7e55d486f4eca71b32284c3e570c1833faa5113909eeb0223710fa"
+  },
+  "provenanceFiles": [
+    {
+      "path": "provenance/991c502-fixture-failpoint.patch",
+      "size": 793,
+      "sha256": "sha256:6045787b16bbd549b3e9599c0d449c0e8ad31df56fda5a825424c870c953efa5"
+    },
+    {
+      "path": "provenance/finalizeHistoricalConstitutionFixture.ts",
+      "size": 4957,
+      "sha256": "sha256:ea861ef5f2891b6f6e494468b166177e2cf064b67560328adfd9388a31e368ef"
+    },
+    {
+      "path": "provenance/generateHistoricalConstitutionFixture.ts",
+      "size": 5806,
+      "sha256": "sha256:f810a5e61c0785e84ee99a11ec2415a99ea0d0316c171045501535190ffb1c3f"
+    },
+    {
+      "path": "provenance/helper-build-receipt.json",
+      "size": 1507,
+      "sha256": "sha256:270d6192e53401ac0a6cabf1fdbcebeca3971ec0ce2dda735c59fd5683475fae"
+    },
+    {
+      "path": "provenance/reproduction.json",
+      "size": 4545,
+      "sha256": "sha256:da5a0c6e6f7e55d486f4eca71b32284c3e570c1833faa5113909eeb0223710fa"
+    },
+    {
+      "path": "provenance/vite.fixture.config.ts",
+      "size": 300,
+      "sha256": "sha256:f72bbbac40d79c586a0310449e54945f2c253322eea5b9fbdd4bb7b94ff8f5e5"
+    }
+  ],
+  "bases": [
+    {
+      "id": "base-991c502-committed",
+      "classification": "captured",
+      "crashPoint": "committed",
+      "protocolVersion": 1,
+      "producerCommit": "991c502e74506ec3702f92e429a8b31b655412ba",
+      "backendIdentity": "deterministic-fenc-v1-base64-test-backend",
+      "fixtureManifest": {
+        "path": "tests/fixtures/constitution-fs/base-991c502-committed/fixture-manifest.json",
+        "sha256": "sha256:bf1edb1d214087610a48eee32ac15d214689d0e67b04bebe75cfd0bcd4a784c2"
+      },
+      "forbiddenFiles": [
+        "revision-authority.enc",
+        "revision-authority.enc.legacy-v1-migration.json"
+      ],
+      "transactions": [
+        {
+          "transactionId": "11111111-1111-4111-8111-111111111111",
+          "ledgerStates": [
+            "indexed",
+            "journal_bound"
+          ],
+          "hasReceipt": true,
+          "hasJournal": true,
+          "outcome": "committed"
+        },
+        {
+          "transactionId": "22222222-2222-4222-8222-222222222222",
+          "ledgerStates": [
+            "indexed",
+            "journal_bound"
+          ],
+          "hasReceipt": true,
+          "hasJournal": true,
+          "outcome": "committed"
+        },
+        {
+          "transactionId": "33333333-3333-4333-8333-333333333333",
+          "ledgerStates": [
+            "indexed",
+            "journal_bound"
+          ],
+          "hasReceipt": true,
+          "hasJournal": true,
+          "outcome": "committed"
+        }
+      ],
+      "fileCount": 15,
+      "files": [
+        {
+          "path": "base-991c502-committed/.constitution-keys.enc",
+          "size": 204,
+          "sha256": "sha256:c2b8e007f2a89e4bfe753ca1a3d42b3e36e168c0050bbf3c6808288d76a31f52"
+        },
+        {
+          "path": "base-991c502-committed/CONSTITUTION.md",
+          "size": 29,
+          "sha256": "sha256:4e6d83b78d78866e0f20afba24e9b70145ea59ae2ad15d1da10f61d5075c2c69"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/active/7703759f-0fda-4ed2-9d99-d2e0681d677a.json",
+          "size": 365,
+          "sha256": "sha256:91721ded0c96d80d87f0b8bc63f5447a58ccd86cda84dbbd874c67a8b83a05fb"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/receipts/11111111-1111-4111-8111-111111111111.json",
+          "size": 1472,
+          "sha256": "sha256:8dc07a91639ea1431d79ff05c0a6e6d4585a74838065f096cc4076c6dcc7db34"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/receipts/22222222-2222-4222-8222-222222222222.json",
+          "size": 1500,
+          "sha256": "sha256:c8c5cbad88a891dc7b992ca74b127273811efe4bff41b5e9b7b69b13a2bb8f2b"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/receipts/33333333-3333-4333-8333-333333333333.json",
+          "size": 1872,
+          "sha256": "sha256:bc4b3a590966cf79e62c1f0ac63acd030a647ae8f07e10f1dc9e97fb82dc2354"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/recovery/33333333-3333-4333-8333-333333333333.displaced",
+          "size": 26,
+          "sha256": "sha256:00743047cb667755830a7e162b441d2cba174cee339ada97da3accaee1c0217b"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/seal-keys/2a4079c2-194c-44f0-a7c0-a22e6f771050.json",
+          "size": 138,
+          "sha256": "sha256:3bc03fa51405cb144ea958140eab4cae474a53c9a1fd7f76d8c276cf87ffea2f"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/transaction-ledger.jsonl",
+          "size": 4012,
+          "sha256": "sha256:8f385d121118c5a434fe38514c5040f0e7a4bb7a42527f6cb08bd9f81cdf6284"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/transaction.lock",
+          "size": 0,
+          "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/transactions/11111111-1111-4111-8111-111111111111.jsonl",
+          "size": 1196,
+          "sha256": "sha256:f08629c3d11d50b0e303ab2a84b8efb8908489b2cdaab7c41c7554936c5e63d1"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/transactions/22222222-2222-4222-8222-222222222222.jsonl",
+          "size": 1216,
+          "sha256": "sha256:bb8e5622a9252dbeb8c9568f0fb401678519bfc0384ebaa2745b10b193418af7"
+        },
+        {
+          "path": "base-991c502-committed/archives/constitution-history/transactions/33333333-3333-4333-8333-333333333333.jsonl",
+          "size": 2095,
+          "sha256": "sha256:0c439056d987a383732f778e4ad84f5dc8f15c8df4432303df42d37c9a186f60"
+        },
+        {
+          "path": "base-991c502-committed/fixture-manifest.json",
+          "size": 5797,
+          "sha256": "sha256:bf1edb1d214087610a48eee32ac15d214689d0e67b04bebe75cfd0bcd4a784c2"
+        },
+        {
+          "path": "base-991c502-committed/specialists/research.md",
+          "size": 30,
+          "sha256": "sha256:8230ffac57b91e5a4f620b7de32ffb48a7674f5528d580c0a2b57f5fa643cf48"
+        }
+      ]
+    },
+    {
+      "id": "base-991c502-pending-ledger-only",
+      "classification": "captured",
+      "crashPoint": "after-ledger-before-journal",
+      "protocolVersion": 1,
+      "producerCommit": "991c502e74506ec3702f92e429a8b31b655412ba",
+      "backendIdentity": "deterministic-fenc-v1-base64-test-backend",
+      "fixtureManifest": {
+        "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/fixture-manifest.json",
+        "sha256": "sha256:24239454815f55b2d337f51b3b3fd2348ad9f71241cb0e64356efe9821f379e1"
+      },
+      "forbiddenFiles": [
+        "revision-authority.enc",
+        "revision-authority.enc.legacy-v1-migration.json"
+      ],
+      "transactions": [
+        {
+          "transactionId": "11111111-1111-4111-8111-111111111111",
+          "ledgerStates": [
+            "indexed",
+            "journal_bound"
+          ],
+          "hasReceipt": true,
+          "hasJournal": true,
+          "outcome": "committed"
+        },
+        {
+          "transactionId": "22222222-2222-4222-8222-222222222222",
+          "ledgerStates": [
+            "indexed",
+            "journal_bound"
+          ],
+          "hasReceipt": true,
+          "hasJournal": true,
+          "outcome": "committed"
+        },
+        {
+          "transactionId": "33333333-3333-4333-8333-333333333333",
+          "ledgerStates": [
+            "indexed",
+            "journal_bound"
+          ],
+          "hasReceipt": true,
+          "hasJournal": true,
+          "outcome": "committed"
+        },
+        {
+          "transactionId": "55555555-5555-4555-8555-555555555555",
+          "ledgerStates": [
+            "indexed"
+          ],
+          "hasReceipt": false,
+          "hasJournal": false,
+          "outcome": "pending"
+        }
+      ],
+      "fileCount": 15,
+      "files": [
+        {
+          "path": "base-991c502-pending-ledger-only/.constitution-keys.enc",
+          "size": 204,
+          "sha256": "sha256:eb5e6438fb0c0dc974706d3a14cbeb31ba701d754b26dfa8f2289136549b037c"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/CONSTITUTION.md",
+          "size": 29,
+          "sha256": "sha256:4e6d83b78d78866e0f20afba24e9b70145ea59ae2ad15d1da10f61d5075c2c69"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/active/ccaea749-72d3-4c76-b73d-03fed5414796.json",
+          "size": 365,
+          "sha256": "sha256:b1b8fdbe91a48936464fb01cb847843bcce91ded65ed0d597ad76318ad810268"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/receipts/11111111-1111-4111-8111-111111111111.json",
+          "size": 1472,
+          "sha256": "sha256:969fb85905137829b559fe1b39f214e71ca966e55d65e3eb79cf6cbb51788398"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/receipts/22222222-2222-4222-8222-222222222222.json",
+          "size": 1500,
+          "sha256": "sha256:5e404c682b42102348319f943c668a2c012fe2b7df8e3a353a64793f15f7000c"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/receipts/33333333-3333-4333-8333-333333333333.json",
+          "size": 1872,
+          "sha256": "sha256:c9d2c9651d39b2cd93ee354c225003feb44be5a7fe37e595fcb46c352817a2ed"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/recovery/33333333-3333-4333-8333-333333333333.displaced",
+          "size": 26,
+          "sha256": "sha256:00743047cb667755830a7e162b441d2cba174cee339ada97da3accaee1c0217b"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/seal-keys/3be5cd48-7319-41ba-b8e9-ab94becad1de.json",
+          "size": 138,
+          "sha256": "sha256:236c58dcbcb58f7049620d2073b6231c683da86bfeab5fbcdd1ce1f73c4a66ec"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/transaction-ledger.jsonl",
+          "size": 5224,
+          "sha256": "sha256:500f40095c2ab23d3384f13f4ab0ba0f708c3a6bc86a344a2eee25c91dc21f30"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/transaction.lock",
+          "size": 0,
+          "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/transactions/11111111-1111-4111-8111-111111111111.jsonl",
+          "size": 1196,
+          "sha256": "sha256:e6217d7fa689ee03b470c0de5e5006ae55bf3534f8533cffcc2c9ee8b8a17723"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/transactions/22222222-2222-4222-8222-222222222222.jsonl",
+          "size": 1216,
+          "sha256": "sha256:0b858601875874852e8f272f3df79fa7ed5f7ce4e8929d4caf6df8d7b425a631"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/archives/constitution-history/transactions/33333333-3333-4333-8333-333333333333.jsonl",
+          "size": 2095,
+          "sha256": "sha256:8a626003fe71205a12dac1f2cfe00733ca33e5555a4a4b75fc9f9428ba3fcc91"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/fixture-manifest.json",
+          "size": 6017,
+          "sha256": "sha256:24239454815f55b2d337f51b3b3fd2348ad9f71241cb0e64356efe9821f379e1"
+        },
+        {
+          "path": "base-991c502-pending-ledger-only/specialists/research.md",
+          "size": 30,
+          "sha256": "sha256:8230ffac57b91e5a4f620b7de32ffb48a7674f5528d580c0a2b57f5fa643cf48"
+        }
+      ]
+    }
+  ],
+  "classificationCounts": {
+    "capturedBases": 2,
+    "syntheticBases": 0,
+    "capturedFiles": 36,
+    "syntheticFiles": 0,
+    "committedTransactions": 6,
+    "pendingTransactions": 1
+  }
+}
