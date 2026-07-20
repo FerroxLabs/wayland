@@ -13,9 +13,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // sign in" spinning for every BYO-OAuth MCP. These tests pin the storage path
 // and the save behavior (resolving = not hanging).
 
-const { getMock, setMock } = vi.hoisted(() => ({
-  getMock: vi.fn(),
-  setMock: vi.fn(),
+const { updateMock, storage } = vi.hoisted(() => ({
+  updateMock: vi.fn(),
+  storage: { servers: [] as Array<Record<string, unknown>> },
 }));
 
 // Top-level imports of mcpBridge only need these to exist; the IPC handlers in
@@ -32,7 +32,7 @@ vi.mock('@process/services/mcpServices/McpOAuthService', () => ({
   },
 }));
 vi.mock('@process/utils/initStorage', () => ({
-  ProcessConfig: { get: getMock, set: setMock },
+  ProcessConfig: { update: updateMock },
 }));
 
 import { persistMcpByoOAuthCredentials } from '@process/bridge/mcpBridge';
@@ -44,8 +44,13 @@ const ghServer = {
 };
 
 beforeEach(() => {
-  getMock.mockReset().mockResolvedValue([{ ...ghServer }]);
-  setMock.mockReset().mockResolvedValue(undefined);
+  storage.servers = [{ ...ghServer }];
+  updateMock
+    .mockReset()
+    .mockImplementation(async (_key: string, updater: (current: unknown[]) => Promise<unknown[]>) => {
+      storage.servers = (await updater(storage.servers)) as Array<Record<string, unknown>>;
+      return storage.servers;
+    });
 });
 afterEach(() => {
   vi.clearAllMocks();
@@ -57,21 +62,20 @@ describe('persistMcpByoOAuthCredentials (#283)', () => {
 
     expect(result.ok).toBe(true);
     // Regression guard: the save MUST go through the main-process accessor.
-    expect(getMock).toHaveBeenCalledWith('mcp.config');
-    expect(setMock).toHaveBeenCalledTimes(1);
-    const [key, written] = setMock.mock.calls[0];
+    expect(updateMock).toHaveBeenCalledTimes(1);
+    const [key] = updateMock.mock.calls[0];
     expect(key).toBe('mcp.config');
-    expect(written[0].byoOAuth).toEqual({ clientId: 'CID', clientSecret: 'SEC' });
+    expect(storage.servers[0].byoOAuth).toEqual({ clientId: 'CID', clientSecret: 'SEC' });
   });
 
   it('returns ok:false without writing when the server id is not found', async () => {
-    getMock.mockResolvedValue([{ ...ghServer, id: 'other' }]);
+    storage.servers = [{ ...ghServer, id: 'other' }];
 
     const result = await persistMcpByoOAuthCredentials({ serverId: 'gh-1', clientId: 'CID', clientSecret: 'SEC' });
 
     expect(result.ok).toBe(false);
     expect(result.msg).toContain('not found');
-    expect(setMock).not.toHaveBeenCalled();
+    expect(storage.servers[0].id).toBe('other');
   });
 
   it('rejects an empty clientId before touching storage', async () => {
@@ -79,7 +83,6 @@ describe('persistMcpByoOAuthCredentials (#283)', () => {
 
     expect(result.ok).toBe(false);
     expect(result.msg).toBe('clientId is required');
-    expect(getMock).not.toHaveBeenCalled();
-    expect(setMock).not.toHaveBeenCalled();
+    expect(updateMock).not.toHaveBeenCalled();
   });
 });

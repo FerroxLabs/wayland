@@ -9,7 +9,12 @@ import { Divider, Form, Switch, Message, Button } from '@arco-design/web-react';
 import { Wand2, Plug, RefreshCw, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { ConfigStorage, BUILTIN_IMAGE_GEN_ID, type IConfigStorageRefer, type IMcpServer } from '@/common/config/storage';
+import {
+  ConfigStorage,
+  BUILTIN_IMAGE_GEN_ID,
+  type IConfigStorageRefer,
+  type IMcpServer,
+} from '@/common/config/storage';
 import {
   isImageModelName,
   imageModelDisplayLabel,
@@ -17,17 +22,12 @@ import {
   FLUX_RECOMMENDED_IMAGE_ID,
 } from '@/common/config/imageModels';
 import useConfigModelListWithImage from '@renderer/hooks/agent/useConfigModelListWithImage';
-import {
-  useMcpServers,
-  useMcpAgentStatus,
-  useMcpOperations,
-} from '@renderer/hooks/mcp';
+import { useMcpServers, useMcpAgentStatus, useMcpOperations } from '@renderer/hooks/mcp';
 import WaylandSelect from '@renderer/components/base/WaylandSelect';
 import McpAgentStatusDisplay from '@renderer/pages/settings/ToolsSettings/McpAgentStatusDisplay';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 
-const isBuiltinImageGenServer = (server: IMcpServer) =>
-  server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
+const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
 
 const ImageGenSettings: React.FC = () => {
   const { t } = useTranslation();
@@ -110,10 +110,20 @@ const ImageGenSettings: React.FC = () => {
       if (model.useModel) env.WAYLAND_IMG_MODEL = model.useModel;
       else delete env.WAYLAND_IMG_MODEL;
 
-      const updated: IMcpServer = { ...server, transport: { ...server.transport, env }, updatedAt: Date.now() };
-      const next = mcpServers.map((s) => (s.id === BUILTIN_IMAGE_GEN_ID ? updated : s));
-      await saveMcpServers(next);
-      if (updated.enabled) await syncMcpToAgents(updated, true);
+      let updated: IMcpServer | undefined;
+      await saveMcpServers((current) => {
+        updated = undefined;
+        return current.map((candidate) => {
+          if (candidate.id !== BUILTIN_IMAGE_GEN_ID || candidate.transport.type !== 'stdio') return candidate;
+          updated = {
+            ...candidate,
+            transport: { ...candidate.transport, env },
+            updatedAt: Math.max(Date.now(), candidate.updatedAt + 1),
+          };
+          return updated;
+        });
+      });
+      if (updated?.enabled) await syncMcpToAgents(updated, true);
     },
     [mcpServers, saveMcpServers, syncMcpToAgents]
   );
@@ -144,12 +154,24 @@ const ImageGenSettings: React.FC = () => {
   const handleToggle = useCallback(
     async (checked: boolean) => {
       if (!builtinImageGenServer) return;
-      const updated: IMcpServer = { ...builtinImageGenServer, enabled: checked, updatedAt: Date.now() };
 
       setIsUpdating(true);
       skipNextAutoCheckRef.current = checked;
       try {
-        await saveMcpServers((prev) => prev.map((s) => (isBuiltinImageGenServer(s) ? updated : s)));
+        let updated: IMcpServer | undefined;
+        await saveMcpServers((current) => {
+          updated = undefined;
+          return current.map((candidate) => {
+            if (!isBuiltinImageGenServer(candidate)) return candidate;
+            updated = {
+              ...candidate,
+              enabled: checked,
+              updatedAt: Math.max(Date.now(), candidate.updatedAt + 1),
+            };
+            return updated;
+          });
+        });
+        if (!updated) return;
 
         setImageGenerationModel((prev) => {
           if (!prev) return prev;
@@ -196,10 +218,7 @@ const ImageGenSettings: React.FC = () => {
     isUpdating || !builtinImageGenServer || !imageModelList.length || !imageGenerationModel?.useModel;
 
   return (
-    <SettingsPageShell
-      title={t('settings.imageGenPage.title')}
-      subtitle={t('settings.imageGenPage.subtitle')}
-    >
+    <SettingsPageShell title={t('settings.imageGenPage.title')} subtitle={t('settings.imageGenPage.subtitle')}>
       {messageContext}
 
       {/* MCP server enable/disable */}

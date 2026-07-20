@@ -791,15 +791,20 @@ const ToolsModalContent: React.FC = () => {
         delete env.WAYLAND_IMG_MODEL;
       }
 
-      const updatedServer: IMcpServer = {
-        ...builtinServer,
-        transport: { ...builtinServer.transport, env },
-        updatedAt: Date.now(),
-      };
-
-      const updatedServers = mcpServers.map((s) => (s.id === BUILTIN_IMAGE_GEN_ID ? updatedServer : s));
-      await saveMcpServers(updatedServers);
-      if (updatedServer.enabled) {
+      let updatedServer: IMcpServer | undefined;
+      await saveMcpServers((current) => {
+        updatedServer = undefined;
+        return current.map((candidate) => {
+          if (candidate.id !== BUILTIN_IMAGE_GEN_ID || candidate.transport.type !== 'stdio') return candidate;
+          updatedServer = {
+            ...candidate,
+            transport: { ...candidate.transport, env },
+            updatedAt: Math.max(Date.now(), candidate.updatedAt + 1),
+          };
+          return updatedServer;
+        });
+      });
+      if (updatedServer?.enabled) {
         await syncMcpToAgents(updatedServer, true);
       }
     },
@@ -851,18 +856,23 @@ const ToolsModalContent: React.FC = () => {
     async (checked: boolean) => {
       if (!builtinImageGenServer) return;
 
-      const updatedServer: IMcpServer = {
-        ...builtinImageGenServer,
-        enabled: checked,
-        updatedAt: Date.now(),
-      };
-
       setIsUpdatingImageGeneration(true);
       skipNextImageGenerationAutoCheckRef.current = checked;
       try {
-        await saveMcpServers((prevServers) =>
-          prevServers.map((server) => (isBuiltinImageGenServer(server) ? updatedServer : server))
-        );
+        let updatedServer: IMcpServer | undefined;
+        await saveMcpServers((current) => {
+          updatedServer = undefined;
+          return current.map((candidate) => {
+            if (!isBuiltinImageGenServer(candidate)) return candidate;
+            updatedServer = {
+              ...candidate,
+              enabled: checked,
+              updatedAt: Math.max(Date.now(), candidate.updatedAt + 1),
+            };
+            return updatedServer;
+          });
+        });
+        if (!updatedServer) return;
 
         setImageGenerationModel((prev) => {
           if (!prev) return prev;

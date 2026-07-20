@@ -53,8 +53,10 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
     syncToAgents = vi.fn(async () => syncResult);
     deps = {
       getActiveServers: vi.fn(async () => structuredClone(active)),
-      setActiveServers: vi.fn(async (next: IMcpServer[]) => {
+      compareAndSetActiveServers: vi.fn(async (expected: IMcpServer[], next: IMcpServer[]) => {
+        if (JSON.stringify(active) !== JSON.stringify(expected)) return false;
         active = structuredClone(next);
+        return true;
       }),
       removeFromAgents,
       syncToAgents,
@@ -67,7 +69,9 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
 
   it('archives the complete definition before removal and restores it disabled without losing secrets or setup', async () => {
     const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
-    const archived = await lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'wcore', name: 'Wayland Core' }]);
+    const archived = await lifecycle.archiveConfiguredServer('mcp_customer', [
+      { backend: 'wcore', name: 'Wayland Core' },
+    ]);
 
     expect(active).toEqual([]);
     expect(removeFromAgents).toHaveBeenCalledWith('customer-tools', [{ backend: 'wcore', name: 'Wayland Core' }]);
@@ -110,14 +114,37 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
       lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'codex', name: 'Codex' }])
     ).rejects.toThrow('config locked');
     expect(active).toEqual([server()]);
-    expect(deps.setActiveServers).not.toHaveBeenCalled();
+    expect(deps.compareAndSetActiveServers).not.toHaveBeenCalled();
     expect(syncToAgents).toHaveBeenCalledWith([server()], [{ backend: 'codex', name: 'Codex' }]);
     expect(await lifecycle.listArchivedServers()).toEqual([]);
     const aborted = await fs.readdir(path.join(root, 'archives', 'mcp-connectors', 'aborted'));
     expect(aborted).toHaveLength(1);
   });
 
-  it('does not erase a connector edited while adapter removal is in flight and republishes the archived definition', async () => {
+  it('surfaces incomplete publication rollback after an adapter-removal failure', async () => {
+    removeResult = {
+      success: false,
+      results: [{ agent: 'codex:Codex', success: false, error: 'config locked' }],
+    };
+    syncResult = {
+      success: false,
+      results: [{ agent: 'wcore:Wayland Core', success: false, error: 'restore refused' }],
+    };
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
+
+    try {
+      await expect(
+        lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'codex', name: 'Codex' }])
+      ).rejects.toThrow('rollback publication failed');
+      expect(active).toEqual([server()]);
+      expect(errorSpy).toHaveBeenCalled();
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('does not erase a connector edited while adapter removal is in flight and republishes the newer definition', async () => {
     removeFromAgents.mockImplementationOnce(async () => {
       active = [{ ...server(), description: 'newer user edit', updatedAt: 30 }];
       return removeResult;
@@ -134,12 +161,30 @@ describe('McpConnectorArchiveStore and lifecycle', () => {
     );
   });
 
+  it('republishes the winning definition when a concurrent edit lands at the active-row CAS', async () => {
+    deps.compareAndSetActiveServers = vi.fn(async () => {
+      active = [{ ...server(), description: 'CAS winner', updatedAt: 40 }];
+      return false;
+    });
+    const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
+
+    await expect(
+      lifecycle.archiveConfiguredServer('mcp_customer', [{ backend: 'wcore', name: 'Wayland Core' }])
+    ).rejects.toThrow('changed while it was being archived');
+    expect(active[0].description).toBe('CAS winner');
+    expect(syncToAgents).toHaveBeenCalledWith(
+      [expect.objectContaining({ description: 'CAS winner', updatedAt: 40 })],
+      [{ backend: 'wcore', name: 'Wayland Core' }]
+    );
+  });
+
   it('republishes the connector and restores active state when config persistence fails after agent removal', async () => {
     let writes = 0;
-    deps.setActiveServers = vi.fn(async (next: IMcpServer[]) => {
+    deps.compareAndSetActiveServers = vi.fn(async (_expected: IMcpServer[], next: IMcpServer[]) => {
       writes += 1;
       if (writes === 1) throw new Error('disk full');
       active = structuredClone(next);
+      return true;
     });
     const lifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(root), deps);
 

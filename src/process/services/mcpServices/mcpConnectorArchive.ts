@@ -48,7 +48,7 @@ export interface McpLifecycleMutationResult {
 
 export interface McpConnectorLifecycleDependencies {
   getActiveServers(): Promise<IMcpServer[]>;
-  setActiveServers(servers: IMcpServer[]): Promise<void>;
+  compareAndSetActiveServers(expected: IMcpServer[], servers: IMcpServer[]): Promise<boolean>;
   removeFromAgents(serverName: string, agents: McpLifecycleAgent[]): Promise<McpLifecycleMutationResult>;
   syncToAgents(servers: IMcpServer[], agents: McpLifecycleAgent[]): Promise<McpLifecycleMutationResult>;
 }
@@ -311,15 +311,23 @@ export class McpConnectorLifecycleService {
       try {
         const removal = await this.deps.removeFromAgents(server.name, agents);
         if (!removal.success || removal.results.some((entry) => !entry.success)) {
-          await this.rollbackPublication(server, agents).catch((rollbackError) => {
-            console.error('[McpConnectorArchive] Failed to compensate partial removal:', rollbackError);
-          });
-          throw new Error(
+          const removalError = new Error(
             removal.results
               .filter((entry) => !entry.success)
               .map((entry) => `${entry.agent}: ${entry.error || 'removal failed'}`)
               .join('; ') || 'MCP connector removal failed'
           );
+          try {
+            await this.rollbackPublication(server, agents);
+          } catch (rollbackError) {
+            console.error('[McpConnectorArchive] Failed to compensate partial removal:', rollbackError);
+            const failure = new Error('MCP connector rollback publication failed after adapter removal', {
+              cause: rollbackError,
+            });
+            Object.assign(failure, { rollbackErrors: [rollbackError], removalError });
+            throw failure;
+          }
+          throw removalError;
         }
 
         const current = await this.deps.getActiveServers();
@@ -336,14 +344,32 @@ export class McpConnectorLifecycleService {
           throw new Error('MCP connector changed while it was being archived');
         }
 
+        let committed: boolean;
         try {
-          await this.deps.setActiveServers(current.filter((candidate) => candidate.id !== serverId));
+          committed = await this.deps.compareAndSetActiveServers(
+            current,
+            current.filter((candidate) => candidate.id !== serverId)
+          );
         } catch (error) {
-          await this.rollbackPublication(server, agents).catch((rollbackError) => {
+          try {
+            await this.rollbackPublication(server, agents);
+          } catch (rollbackError) {
             console.error('[McpConnectorArchive] Failed to restore agent publication:', rollbackError);
-          });
-          await this.deps.setActiveServers(current).catch(() => {});
+            const failure = new Error('MCP connector rollback publication failed after config persistence', {
+              cause: rollbackError,
+            });
+            Object.assign(failure, { rollbackErrors: [rollbackError], persistenceError: error });
+            throw failure;
+          }
           throw error;
+        }
+        if (!committed) {
+          // The CAS loser must never republish the stale pre-archive snapshot.
+          // Restore only the latest durable definition, if it still exists.
+          const latest = await this.deps.getActiveServers();
+          const latestServer = latest.find((candidate) => candidate.id === serverId);
+          if (latestServer) await this.rollbackPublication(latestServer, agents);
+          throw new Error('MCP connector changed while it was being archived');
         }
         return toSummary(archive);
       } catch (error) {
@@ -362,8 +388,7 @@ export class McpConnectorLifecycleService {
       const activeNames = new Set(active.map((server) => mcpServerCollisionKey(server.name)));
       return records
         .filter(
-          (record) =>
-            !activeIds.has(record.server.id) && !activeNames.has(mcpServerCollisionKey(record.server.name))
+          (record) => !activeIds.has(record.server.id) && !activeNames.has(mcpServerCollisionKey(record.server.name))
         )
         .map(toSummary);
     });
@@ -374,7 +399,9 @@ export class McpConnectorLifecycleService {
       const record = await this.archives.read(archiveId);
       const active = await this.deps.getActiveServers();
       const collision = active.some(
-        (server) => server.id === record.server.id || mcpServerCollisionKey(server.name) === mcpServerCollisionKey(record.server.name)
+        (server) =>
+          server.id === record.server.id ||
+          mcpServerCollisionKey(server.name) === mcpServerCollisionKey(record.server.name)
       );
       if (collision) throw new Error('An active MCP connector already uses this identity or name');
 
@@ -384,12 +411,8 @@ export class McpConnectorLifecycleService {
         status: 'disconnected',
         updatedAt: Date.now(),
       };
-      try {
-        await this.deps.setActiveServers([...active, restored]);
-      } catch (error) {
-        await this.deps.setActiveServers(active).catch(() => {});
-        throw error;
-      }
+      const committed = await this.deps.compareAndSetActiveServers(active, [...active, restored]);
+      if (!committed) throw new Error('MCP connector inventory changed while restore was in progress');
       await this.archives.retire(archiveId, 'restored').catch((error) => {
         console.error('[McpConnectorArchive] Restored connector but could not retire archive:', error);
       });

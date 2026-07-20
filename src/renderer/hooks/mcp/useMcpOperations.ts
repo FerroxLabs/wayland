@@ -132,10 +132,9 @@ export const useMcpOperations = (
             })
           : await removeMcpFromAgentsHttp(serverName);
         await handleMcpOperationResult(removeResponse, 'remove', successMessage, true); // Skip re-detection
-        const failedRemovals = removeResponse.success
-          ? (removeResponse.data?.results.filter((result) => !result.success) ?? [])
-          : [];
-        if (!removeResponse.success || failedRemovals.length > 0) {
+        const removalResults = removeResponse.data?.results ?? [];
+        const failedRemovals = removalResults.filter((result) => !result.success);
+        if (!removeResponse.success || removalResults.length === 0 || failedRemovals.length > 0) {
           throw new Error(
             removeResponse.msg ||
               failedRemovals.map((result) => `${result.agent}: ${result.error || 'removal failed'}`).join(', ') ||
@@ -175,10 +174,9 @@ export const useMcpOperations = (
           : await syncMcpToAgentsHttp(server.id);
 
         await handleMcpOperationResult(syncResponse, 'sync', undefined, skipRecheck);
-        const successfulPublications = syncResponse.success
-          ? (syncResponse.data?.results.filter((result) => result.success).length ?? 0)
-          : 0;
-        if (successfulPublications === 0) {
+        const publicationResults = syncResponse.data?.results ?? [];
+        const failedPublications = publicationResults.filter((result) => !result.success);
+        if (!syncResponse.success || publicationResults.length === 0 || failedPublications.length > 0) {
           throw new Error(syncResponse.msg || t('settings.mcpSyncFailedNoAgents'));
         }
         return syncResponse.data?.results ?? [];

@@ -8,6 +8,21 @@ import { mcpServerCollisionKey } from '@/common/mcp';
 import { acpConversation, mcpService } from '@/common/adapter/ipcBridge';
 import { archiveConfiguredMcpServerHttp } from '@/renderer/services/McpConfigService';
 import { isElectronDesktop } from '@/renderer/utils/platform';
+import { MCP_PUBLICATION_DIVERGENCE_MARKER, retainMcpPublicationReconciliation } from './useMcpConnection';
+
+function nextMcpRevision(previous?: number): number {
+  return Math.max(Date.now(), (previous ?? 0) + 1);
+}
+
+function sameDeclarationRevision(expected: IMcpServer | undefined, actual: IMcpServer | undefined): boolean {
+  return expected === undefined
+    ? actual === undefined
+    : actual !== undefined && actual.id === expected.id && actual.updatedAt === expected.updatedAt;
+}
+
+function newMcpServerId(): string {
+  return `mcp_${globalThis.crypto.randomUUID()}`;
+}
 
 /**
  * MCP server CRUD operations hook.
@@ -20,7 +35,8 @@ export const useMcpServerCRUD = (
   removeMcpFromAgents: (serverName: string, successMessage?: string, transportType?: string) => Promise<unknown>,
   checkSingleServerInstallStatus: (serverName: string) => Promise<void>,
   setAgentInstallStatus: React.Dispatch<React.SetStateAction<Record<string, string[]>>>,
-  refreshMcpServers: () => Promise<void>
+  refreshMcpServers: () => Promise<void>,
+  readMcpServers: () => Promise<IMcpServer[]> = async () => mcpServers
 ) => {
   const { t } = useTranslation();
 
@@ -29,68 +45,87 @@ export const useMcpServerCRUD = (
     async (serverData: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => {
       const now = Date.now();
       let serverToSync: IMcpServer | null = null;
+      const currentServers = await readMcpServers();
+      const incomingKey = mcpServerCollisionKey(serverData.name);
+      const expectedExisting = currentServers.find((server) => mcpServerCollisionKey(server.name) === incomingKey);
+      const existingPublished = currentServers.find(
+        (server) => mcpServerCollisionKey(server.name) === incomingKey && server.enabled
+      );
+      let revocationAttempted = false;
+
+      const savedDeclaration: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'> = {
+        ...serverData,
+        enabled: false,
+        status: 'disconnected' as const,
+        tools: undefined,
+        lastConnected: undefined,
+        lastError: undefined,
+      };
 
       // Use functional update to avoid stale-closure issues
-      await saveMcpServers((prevServers) => {
-        const incomingKey = mcpServerCollisionKey(serverData.name);
-        const existingServerIndex = prevServers.findIndex(
-          (server) => mcpServerCollisionKey(server.name) === incomingKey
-        );
+      try {
+        // Add/import is declaration persistence, never adapter publication. If
+        // this replaces an already-enabled definition, revoke that old
+        // publication first so storage cannot diverge from an agent config.
+        if (existingPublished) {
+          revocationAttempted = true;
+          await removeMcpFromAgents(existingPublished.name, undefined, existingPublished.transport.type);
+        }
+        await saveMcpServers((prevServers) => {
+          serverToSync = null;
+          const actualExisting = prevServers.find((server) => mcpServerCollisionKey(server.name) === incomingKey);
+          if (!sameDeclarationRevision(expectedExisting, actualExisting)) {
+            throw new Error('MCP declaration changed while add was in progress');
+          }
+          const existingServerIndex = prevServers.findIndex(
+            (server) => mcpServerCollisionKey(server.name) === incomingKey
+          );
 
-        if (existingServerIndex !== -1) {
-          // If a server with the same name exists, update the existing one
-          const updatedServers = [...prevServers];
-          updatedServers[existingServerIndex] = {
-            ...updatedServers[existingServerIndex],
-            ...serverData,
-            updatedAt: now,
-          };
-          serverToSync = updatedServers[existingServerIndex];
-          return updatedServers;
-        } else {
+          if (existingServerIndex !== -1) {
+            // If a server with the same name exists, update the existing one
+            const updatedServers = [...prevServers];
+            updatedServers[existingServerIndex] = {
+              ...updatedServers[existingServerIndex],
+              ...savedDeclaration,
+              updatedAt: nextMcpRevision(updatedServers[existingServerIndex].updatedAt),
+            };
+            serverToSync = updatedServers[existingServerIndex];
+            return updatedServers;
+          }
           // If no server with the same name exists, add a new server
           const newServer: IMcpServer = {
-            ...serverData,
-            id: `mcp_${now}`,
+            ...savedDeclaration,
+            id: newMcpServerId(),
             createdAt: now,
             updatedAt: now,
           };
           serverToSync = newServer;
           return [...prevServers, newServer];
+        });
+      } catch (error) {
+        // A rejected adapter operation may still have mutated a subset. Restore
+        // the prior definition to every target whenever revocation was attempted.
+        if (revocationAttempted && existingPublished) {
+          try {
+            await syncMcpToAgents(existingPublished, true);
+          } catch (rollbackError) {
+            const failure = new Error('Failed to save MCP declaration and restore publication', { cause: error });
+            Object.assign(failure, { rollbackErrors: [rollbackError] });
+            throw failure;
+          }
         }
-      });
+        throw error;
+      }
 
       // Check install status
       if (serverToSync) {
         setTimeout(() => void checkSingleServerInstallStatus(serverToSync.name), 100);
       }
 
-      // An enabled record is a publication request, not merely a persistence
-      // preference. URL/JSON imports used to stop after the save, leaving an
-      // enabled + `connected` record that no agent config or future session had
-      // ever received. Publish through the same adapter transaction as the
-      // explicit enable switch. If publication throws, fail closed so the
-      // Library cannot retain a false-enabled record.
-      if (serverToSync?.enabled) {
-        try {
-          await syncMcpToAgents(serverToSync, true);
-        } catch (error) {
-          await saveMcpServers((prevServers) =>
-            prevServers.map((server) =>
-              server.id === serverToSync?.id
-                ? { ...server, enabled: false, status: 'disconnected', updatedAt: Date.now() }
-                : server
-            )
-          );
-          Message.error(t('settings.mcpSyncError'));
-          throw error;
-        }
-      }
-
       // Return the newly added/updated server for subsequent connection testing
       return serverToSync;
     },
-    [saveMcpServers, syncMcpToAgents, t, checkSingleServerInstallStatus]
+    [mcpServers, readMcpServers, saveMcpServers, syncMcpToAgents, removeMcpFromAgents, checkSingleServerInstallStatus]
   );
 
   // Batch-import MCP servers
@@ -98,42 +133,100 @@ export const useMcpServerCRUD = (
     async (serversData: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>[]) => {
       const now = Date.now();
       const addedServers: IMcpServer[] = [];
-      const serversToSync: IMcpServer[] = [];
+
+      const incomingKeys = new Set(serversData.map((server) => mcpServerCollisionKey(server.name)));
+      const currentServers = await readMcpServers();
+      const expectedByKey = new Map(
+        [...incomingKeys].map((key) => [
+          key,
+          currentServers.find((server) => mcpServerCollisionKey(server.name) === key),
+        ])
+      );
+      const existingPublished = currentServers.filter(
+        (server) => server.enabled && incomingKeys.has(mcpServerCollisionKey(server.name))
+      );
+      const revocations = await Promise.allSettled(
+        existingPublished.map((server) => removeMcpFromAgents(server.name, undefined, server.transport.type))
+      );
+      const revocationFailures = revocations
+        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+        .map((result) => result.reason);
+
+      const restoreRevoked = async (): Promise<unknown[]> => {
+        // Restore every prior definition, including operations reported as
+        // partial failures: rejected wrappers may already have changed agents.
+        const restorations = await Promise.allSettled(existingPublished.map((server) => syncMcpToAgents(server, true)));
+        return restorations
+          .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
+          .map((result) => result.reason);
+      };
+
+      if (revocationFailures.length > 0) {
+        const restorationFailures = await restoreRevoked();
+        throw new AggregateError(
+          [...revocationFailures, ...restorationFailures],
+          'Failed to revoke existing MCP publications for import'
+        );
+      }
 
       // Use functional update to avoid stale-closure issues
-      await saveMcpServers((prevServers) => {
-        const updatedServers = [...prevServers];
+      try {
+        await saveMcpServers((prevServers) => {
+          addedServers.length = 0;
+          const updatedServers = [...prevServers];
 
-        serversData.forEach((serverData, index) => {
-          const incomingKey = mcpServerCollisionKey(serverData.name);
-          const existingServerIndex = updatedServers.findIndex(
-            (server) => mcpServerCollisionKey(server.name) === incomingKey
-          );
-
-          if (existingServerIndex !== -1) {
-            // If a server with the same name exists, update the existing one
-            updatedServers[existingServerIndex] = {
-              ...updatedServers[existingServerIndex],
-              ...serverData,
-              updatedAt: now,
-            };
-            serversToSync.push(updatedServers[existingServerIndex]);
-          } else {
-            // If no server with the same name exists, add a new server
-            const newServer: IMcpServer = {
-              ...serverData,
-              id: `mcp_${now}_${index}`,
-              createdAt: now,
-              updatedAt: now,
-            };
-            updatedServers.push(newServer);
-            addedServers.push(newServer);
-            serversToSync.push(newServer);
+          for (const incomingKey of incomingKeys) {
+            const actual = prevServers.find((server) => mcpServerCollisionKey(server.name) === incomingKey);
+            if (!sameDeclarationRevision(expectedByKey.get(incomingKey), actual)) {
+              throw new Error('MCP declaration changed while import was in progress');
+            }
           }
-        });
 
-        return updatedServers;
-      });
+          serversData.forEach((serverData) => {
+            const savedDeclaration: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'> = {
+              ...serverData,
+              enabled: false,
+              status: 'disconnected' as const,
+              tools: undefined,
+              lastConnected: undefined,
+              lastError: undefined,
+            };
+            const incomingKey = mcpServerCollisionKey(serverData.name);
+            const existingServerIndex = updatedServers.findIndex(
+              (server) => mcpServerCollisionKey(server.name) === incomingKey
+            );
+
+            if (existingServerIndex !== -1) {
+              // If a server with the same name exists, update the existing one
+              updatedServers[existingServerIndex] = {
+                ...updatedServers[existingServerIndex],
+                ...savedDeclaration,
+                updatedAt: nextMcpRevision(updatedServers[existingServerIndex].updatedAt),
+              };
+            } else {
+              // If no server with the same name exists, add a new server
+              const newServer: IMcpServer = {
+                ...savedDeclaration,
+                id: newMcpServerId(),
+                createdAt: now,
+                updatedAt: now,
+              };
+              updatedServers.push(newServer);
+              addedServers.push(newServer);
+            }
+          });
+
+          return updatedServers;
+        });
+      } catch (error) {
+        const restorationFailures = await restoreRevoked();
+        if (restorationFailures.length > 0) {
+          const failure = new Error('Failed to save MCP import and restore publication', { cause: error });
+          Object.assign(failure, { rollbackErrors: restorationFailures });
+          throw failure;
+        }
+        throw error;
+      }
 
       // Check install status
       setTimeout(() => {
@@ -142,32 +235,10 @@ export const useMcpServerCRUD = (
         });
       }, 100);
 
-      // Batch import follows the same publication contract as single add. A
-      // failure is isolated to that connector and persisted disabled; other
-      // definitions can still publish successfully and remain inspectable.
-      const enabledServers = serversToSync.filter((candidate) => candidate.enabled);
-      const publicationResults = await Promise.allSettled(
-        enabledServers.map((server) => syncMcpToAgents(server, true))
-      );
-      const failedIds = new Set(
-        publicationResults.flatMap((result, index) => (result.status === 'rejected' ? [enabledServers[index].id] : []))
-      );
-      if (failedIds.size > 0) {
-        await saveMcpServers((prevServers) =>
-          prevServers.map((candidate) =>
-            failedIds.has(candidate.id)
-              ? { ...candidate, enabled: false, status: 'disconnected', updatedAt: Date.now() }
-              : candidate
-          )
-        );
-        Message.error(t('settings.mcpSyncError'));
-        throw new Error(t('settings.mcpSyncError'));
-      }
-
       // Return list of newly added servers for subsequent connection testing
       return addedServers;
     },
-    [saveMcpServers, syncMcpToAgents, t, checkSingleServerInstallStatus]
+    [mcpServers, readMcpServers, saveMcpServers, syncMcpToAgents, removeMcpFromAgents, checkSingleServerInstallStatus]
   );
 
   // Edit MCP server
@@ -181,7 +252,7 @@ export const useMcpServerCRUD = (
       const updatedServer: IMcpServer = {
         ...editingMcpServer,
         ...serverData,
-        updatedAt: Date.now(),
+        updatedAt: nextMcpRevision(editingMcpServer.updatedAt),
       };
 
       // Treat an edit as an agent-publication transaction. Revoke the old
@@ -189,29 +260,51 @@ export const useMcpServerCRUD = (
       // orphan config, then publish the replacement. If either step fails,
       // best-effort restore the old enabled definition and keep local storage
       // unchanged so the user has an honest retry surface.
+      let oldRevocationAttempted = false;
+      let replacementPublicationAttempted = false;
       try {
         if (editingMcpServer.enabled) {
+          oldRevocationAttempted = true;
           await removeMcpFromAgents(editingMcpServer.name, undefined, editingMcpServer.transport.type);
         }
         if (updatedServer.enabled) {
+          replacementPublicationAttempted = true;
           await syncMcpToAgents(updatedServer, true);
         }
+        let committed = false;
+        await saveMcpServers((prevServers) => {
+          committed = false;
+          return prevServers.map((server) => {
+            if (server.id !== editingMcpServer.id || server.updatedAt !== editingMcpServer.updatedAt) return server;
+            committed = true;
+            return updatedServer;
+          });
+        });
+        if (!committed) throw new Error('MCP declaration changed while edit publication was in progress');
       } catch (error) {
-        if (editingMcpServer.enabled) {
+        const rollbackErrors: unknown[] = [];
+        if (replacementPublicationAttempted) {
+          try {
+            await removeMcpFromAgents(updatedServer.name, undefined, updatedServer.transport.type);
+          } catch (rollbackError) {
+            rollbackErrors.push(rollbackError);
+          }
+        }
+        if (oldRevocationAttempted) {
           try {
             await syncMcpToAgents(editingMcpServer, true);
-          } catch {
-            // The original declaration remains persisted and visibly enabled;
-            // its next session receipt will expose any failed restoration.
+          } catch (rollbackError) {
+            rollbackErrors.push(rollbackError);
           }
         }
         Message.error(t('settings.mcpSyncError'));
+        if (rollbackErrors.length > 0) {
+          const failure = new Error('MCP edit failed and publication rollback was incomplete', { cause: error });
+          Object.assign(failure, { rollbackErrors });
+          throw failure;
+        }
         throw error;
       }
-
-      await saveMcpServers((prevServers) =>
-        prevServers.map((server) => (server.id === editingMcpServer.id ? updatedServer : server))
-      );
 
       Message.success(t('settings.mcpImportSuccess'));
       // Immediately re-check install status for this server after editing (install status only)
@@ -254,72 +347,101 @@ export const useMcpServerCRUD = (
 
   // Enable/disable MCP server
   const handleToggleMcpServer = useCallback(
-    async (serverId: string, enabled: boolean) => {
-      let targetServer: IMcpServer | undefined;
-      let updatedTargetServer: IMcpServer | undefined;
-
-      // Use functional update to avoid stale-closure issues
-      await saveMcpServers((prevServers) => {
-        targetServer = prevServers.find((server) => server.id === serverId);
-        if (!targetServer) return prevServers;
-
-        return prevServers.map((server) => {
-          if (server.id === serverId) {
-            updatedTargetServer = { ...server, enabled, updatedAt: Date.now() };
-            return updatedTargetServer;
-          }
-          return server;
-        });
-      });
-
-      if (!targetServer || !updatedTargetServer) return false;
+    async (serverId: string, enabled: boolean, expectedRevision?: number) => {
+      const currentServers = await readMcpServers();
+      const targetServer = currentServers.find((server) => server.id === serverId);
+      if (!targetServer) return false;
+      if (expectedRevision !== undefined && targetServer.updatedAt !== expectedRevision) return false;
+      const updatedTargetServer: IMcpServer = {
+        ...targetServer,
+        enabled,
+        updatedAt: nextMcpRevision(targetServer.updatedAt),
+        ...(enabled && targetServer.lastError?.includes(MCP_PUBLICATION_DIVERGENCE_MARKER)
+          ? { status: 'disconnected', lastError: undefined }
+          : {}),
+      };
+      let externalMutationAttempted = false;
 
       try {
         if (enabled) {
-          // If the MCP server is enabled, sync only the current server to all detected agents
+          // Publish before committing the local enabled state. A failed or
+          // partial publication can therefore never leave a false-green row.
+          externalMutationAttempted = true;
           await syncMcpToAgents(updatedTargetServer, true);
-          // Immediately re-check install status after enabling (install status only)
+        } else {
+          externalMutationAttempted = true;
+          await removeMcpFromAgents(targetServer.name, undefined, targetServer.transport.type);
+        }
+
+        let committed = false;
+        await saveMcpServers((prevServers) => {
+          committed = false;
+          return prevServers.map((server) => {
+            if (server.id !== serverId || server.updatedAt !== targetServer.updatedAt) return server;
+            committed = true;
+            return updatedTargetServer;
+          });
+        });
+        if (!committed) throw new Error('MCP declaration changed while publication was in progress');
+
+        if (enabled) {
           setTimeout(() => void checkSingleServerInstallStatus(targetServer.name), 100);
         } else {
-          // If the MCP server is disabled, remove the config from all agents
-          await removeMcpFromAgents(targetServer.name, undefined, targetServer.transport.type);
-          // After disabling, update UI state directly; no re-detection needed
           setAgentInstallStatus((prev) => {
             const updated = { ...prev };
             delete updated[targetServer.name];
-            // Also update local storage
             void ConfigStorage.set('mcp.agentInstallStatus', updated).catch(() => {
-              // Handle storage error silently
+              // Install-status cache is non-authoritative UI evidence.
             });
             return updated;
           });
         }
-        return true;
-      } catch {
-        if (enabled) {
-          // Enabling is fail-closed: if zero real adapters published it, revert
-          // the local intent instead of leaving another green-but-unusable row.
-          await saveMcpServers((prevServers) =>
-            prevServers.map((server) =>
-              server.id === serverId
-                ? { ...server, enabled: false, status: 'disconnected' as const, updatedAt: Date.now() }
-                : server
-            )
-          );
-        } else {
-          // Keep it disabled locally (Desktop will not inject it), but preserve
-          // the record and flag cleanup failure so removal can be retried.
-          await saveMcpServers((prevServers) =>
-            prevServers.map((server) =>
-              server.id === serverId ? { ...server, status: 'error' as const, updatedAt: Date.now() } : server
-            )
-          );
+        // The exact declaration revision published to the adapters is the
+        // reconnect receipt. Callers must probe this object rather than infer a
+        // revision from a later storage read that may already be superseded.
+        return updatedTargetServer;
+      } catch (error) {
+        if (externalMutationAttempted) {
+          try {
+            if (enabled) {
+              await removeMcpFromAgents(updatedTargetServer.name, undefined, updatedTargetServer.transport.type);
+            } else {
+              await syncMcpToAgents(targetServer, true);
+            }
+          } catch (rollbackError) {
+            const rollbackErrors: unknown[] = [rollbackError];
+            try {
+              // The adapter operation may have survived its failed
+              // compensation. Retain a durable, current-row reconciliation
+              // handle without overwriting a concurrent declaration edit. If
+              // the row was concurrently deleted, recreate only disabled error
+              // truth so the unresolved external publication cannot disappear.
+              await saveMcpServers((prevServers) =>
+                retainMcpPublicationReconciliation(prevServers, serverId, updatedTargetServer)
+              );
+            } catch (persistenceError) {
+              rollbackErrors.push(persistenceError);
+            }
+            Message.error(enabled ? t('settings.mcpSyncError') : t('settings.mcpRemoveError'));
+            const failure = new Error('MCP toggle failed and publication rollback was incomplete', { cause: error });
+            Object.assign(failure, { rollbackErrors });
+            throw failure;
+          }
         }
         Message.error(enabled ? t('settings.mcpSyncError') : t('settings.mcpRemoveError'));
         return false;
       }
     },
-    [saveMcpServers, syncMcpToAgents, removeMcpFromAgents, checkSingleServerInstallStatus, setAgentInstallStatus, t]
+    [
+      mcpServers,
+      readMcpServers,
+      saveMcpServers,
+      syncMcpToAgents,
+      removeMcpFromAgents,
+      checkSingleServerInstallStatus,
+      setAgentInstallStatus,
+      t,
+    ]
   );
 
   return {

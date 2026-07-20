@@ -204,14 +204,14 @@ export const conversation = {
     { conversation_id: string; afterTimestamp: number }
   >('conversation.delete-messages-after'),
   confirmation: {
-    add: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.add'),
-    update: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.update'),
+    add: buildEmitter<IConfirmation & { conversation_id: string }>('confirmation.add'),
+    update: buildEmitter<IConfirmation & { conversation_id: string }>('confirmation.update'),
     confirm: buildProvider<
       IBridgeResponse,
       // #504: `answer` carries an AskUserQuestion choice back to the engine.
-      { conversation_id: string; msg_id: string; data: any; callId: string; answer?: string }
+      { conversation_id: string; msg_id: string; data: unknown; callId: string; answer?: string }
     >('confirmation.confirm'),
-    list: buildProvider<IConfirmation<any>[], { conversation_id: string }>('confirmation.list'),
+    list: buildProvider<IConfirmation[], { conversation_id: string }>('confirmation.list'),
     remove: buildEmitter<{ conversation_id: string; id: string }>('confirmation.remove'),
   },
   // Session-level approval memory for "always allow" decisions
@@ -972,6 +972,13 @@ export const acpConversation = {
 
 // MCP service related interface
 export const mcpService = {
+  getMcpConfigSnapshot: buildProvider<IBridgeResponse<{ revision: string; servers: IMcpServer[] }>, void>(
+    'mcp.get-config-snapshot'
+  ),
+  compareAndSetMcpConfig: buildProvider<
+    IBridgeResponse<{ applied: boolean; snapshot: { revision: string; servers: IMcpServer[] } }>,
+    { expectedRevision: string; nextServers: IMcpServer[] }
+  >('mcp.compare-and-set-config'),
   getAgentMcpConfigs: buildProvider<
     IBridgeResponse<Array<{ source: McpSource; servers: IMcpServer[] }>>,
     Array<{ backend: string; name: string; cliPath?: string }>
@@ -1049,7 +1056,7 @@ export const mcpService = {
           authorizationUrl?: string;
         }
     >,
-    { server: IMcpServer; config?: any }
+    { server: IMcpServer; config?: unknown }
   >('mcp.login-oauth'),
   /**
    * Abort an in-flight loginMcpOAuth. Optional serverName targets a single
@@ -3041,7 +3048,6 @@ export const cost = {
 
 import type {
   MemoryEntry,
-  MemoryStats,
   ListFilter,
   ProjectSummary,
   TagCount,

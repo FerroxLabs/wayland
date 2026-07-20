@@ -26,7 +26,7 @@ const { handleAddMcpServer, handleToggleMcpServer, login, messageSuccess, messag
   vi.hoisted(() => ({
     handleAddMcpServer:
       vi.fn<(data: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => Promise<IMcpServer | null>>(),
-    handleToggleMcpServer: vi.fn<(id: string, enabled: boolean) => Promise<boolean>>(),
+    handleToggleMcpServer: vi.fn<(id: string, enabled: boolean) => Promise<IMcpServer | false>>(),
     login: vi.fn<(server: IMcpServer) => Promise<{ success: boolean; error?: string; code?: string }>>(),
     messageSuccess: vi.fn<(msg: string) => void>(),
     messageError: vi.fn<(msg: string) => void>(),
@@ -71,7 +71,11 @@ vi.mock('@renderer/hooks/mcp', () => ({
     allMcpServers: hookState.mcpServers,
     extensionMcpServers: [],
     setMcpServers: vi.fn(),
-    saveMcpServers: vi.fn().mockResolvedValue(undefined),
+    saveMcpServers: vi.fn(async (updater: IMcpServer[] | ((current: IMcpServer[]) => IMcpServer[])) => {
+      hookState.mcpServers = typeof updater === 'function' ? updater(hookState.mcpServers) : updater;
+    }),
+    readMcpServers: vi.fn(async () => structuredClone(hookState.mcpServers)),
+    refreshMcpServers: vi.fn().mockResolvedValue(undefined),
   }),
   useMcpAgentStatus: () => ({
     agentInstallStatus: {},
@@ -109,6 +113,13 @@ vi.mock('@renderer/hooks/mcp', () => ({
     handleTestMcpConnection: vi.fn(),
     refreshServerStatuses: vi.fn(),
   }),
+  readCorrelatedMcpPrepublicationTruth: (
+    _server: IMcpServer,
+    result: { prepublication?: { state: 'probed' | 'probe-failed' | 'authentication-required' } }
+  ) => {
+    if (!result.prepublication) throw new Error('missing pre-publication truth');
+    return result.prepublication;
+  },
 }));
 
 vi.mock('@arco-design/web-react', async () => {
@@ -142,10 +153,60 @@ function renderDetail(entryId: string) {
   );
 }
 
+function probedResponse(server: IMcpServer) {
+  return {
+    success: true,
+    data: {
+      success: true,
+      tools: [],
+      prepublication: {
+        version: 'wayland-mcp-prepublication/1',
+        serverId: server.id,
+        serverName: server.name,
+        serverUpdatedAt: server.updatedAt,
+        observedAt: Date.now(),
+        state: 'probed',
+        authentication: 'validated',
+        probe: 'succeeded',
+        toolCount: 0,
+      },
+    },
+  };
+}
+
+function failedProbeResponse(server: IMcpServer, error: string) {
+  return {
+    success: true,
+    data: {
+      success: false,
+      error,
+      prepublication: {
+        version: 'wayland-mcp-prepublication/1',
+        serverId: server.id,
+        serverName: server.name,
+        serverUpdatedAt: server.updatedAt,
+        observedAt: Date.now(),
+        state: 'probe-failed',
+        authentication: 'unavailable',
+        probe: 'failed',
+        error,
+      },
+    },
+  };
+}
+
 beforeEach(() => {
   hookState.mcpServers = [];
   handleAddMcpServer.mockReset();
-  handleToggleMcpServer.mockReset().mockResolvedValue(true);
+  handleToggleMcpServer.mockReset().mockImplementation(async (id, enabled) => ({
+    id,
+    name: id,
+    enabled,
+    transport: { type: 'stdio', command: 'node' },
+    createdAt: 1,
+    updatedAt: 2,
+    source: 'custom',
+  }));
   login.mockReset().mockResolvedValue({ success: true });
   messageSuccess.mockReset();
   messageError.mockReset();
@@ -173,7 +234,11 @@ test('stdio oauth2-byo: "Sign in" installs + connection-tests and NEVER calls lo
     source: 'library',
     libraryEntryId: GOOGLE_WORKSPACE_ID,
   };
-  handleAddMcpServer.mockResolvedValue(fakeServer);
+  handleAddMcpServer.mockImplementation(async () => {
+    hookState.mcpServers = [fakeServer];
+    return fakeServer;
+  });
+  testMcpConnection.mockResolvedValue(probedResponse(fakeServer));
 
   renderDetail(GOOGLE_WORKSPACE_ID);
   await screen.findByText('Google Workspace');
@@ -207,7 +272,7 @@ test('stdio oauth2-byo: "Sign in" installs + connection-tests and NEVER calls lo
     })
   );
   expect(testMcpConnection).toHaveBeenCalledTimes(1);
-  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_gws', true);
+  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_gws', true, expect.any(Number));
   await waitFor(() => expect(messageSuccess).toHaveBeenCalled());
 });
 
@@ -224,7 +289,7 @@ test('stdio oauth2-byo: a failed connection test does NOT enable the server and 
     libraryEntryId: GOOGLE_WORKSPACE_ID,
   };
   handleAddMcpServer.mockResolvedValue(fakeServer);
-  testMcpConnection.mockResolvedValue({ success: true, data: { success: false, error: 'auth declined' } });
+  testMcpConnection.mockResolvedValue(failedProbeResponse(fakeServer, 'auth declined'));
 
   renderDetail(GOOGLE_WORKSPACE_ID);
   await screen.findByText('Google Workspace');
@@ -288,7 +353,11 @@ test('#438 apple FDA: "Done - verify access" installs + connection-tests (no lon
     source: 'library',
     libraryEntryId: APPLE_ID,
   };
-  handleAddMcpServer.mockResolvedValue(fakeServer);
+  handleAddMcpServer.mockImplementation(async () => {
+    hookState.mcpServers = [fakeServer];
+    return fakeServer;
+  });
+  testMcpConnection.mockResolvedValue(probedResponse(fakeServer));
 
   renderDetail(APPLE_ID);
   await screen.findByText('Apple Ecosystem');
@@ -301,6 +370,6 @@ test('#438 apple FDA: "Done - verify access" installs + connection-tests (no lon
   await waitFor(() => expect(handleAddMcpServer).toHaveBeenCalledTimes(1));
   expect(login).not.toHaveBeenCalled();
   expect(testMcpConnection).toHaveBeenCalledTimes(1);
-  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_apple', true);
+  expect(handleToggleMcpServer).toHaveBeenCalledWith('mcp_apple', true, expect.any(Number));
   await waitFor(() => expect(messageSuccess).toHaveBeenCalled());
 });

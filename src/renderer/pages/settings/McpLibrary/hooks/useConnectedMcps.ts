@@ -65,7 +65,7 @@ export function findStaleServers(
  * never writes per-tool `allowed_tools` (Lane 2) or `configBridge.allow_list` (Lane 3).
  */
 export function useConnectedMcps(message: ReturnType<typeof import('@arco-design/web-react').Message.useMessage>[0]) {
-  const { mcpServers, allMcpServers, saveMcpServers, refreshMcpServers } = useMcpServers();
+  const { mcpServers, allMcpServers, saveMcpServers, readMcpServers, refreshMcpServers } = useMcpServers();
   const { agentInstallStatus, setAgentInstallStatus, checkSingleServerInstallStatus, checkAgentInstallStatus } =
     useMcpAgentStatus();
   const { removeMcpFromAgents, syncMcpToAgents } = useMcpOperations(mcpServers, message);
@@ -77,9 +77,18 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
     setAgentInstallStatus,
-    refreshMcpServers
+    refreshMcpServers,
+    readMcpServers
   );
-  const conn = useMcpConnection(mcpServers, saveMcpServers, message);
+  const conn = useMcpConnection(
+    mcpServers,
+    saveMcpServers,
+    message,
+    undefined,
+    removeMcpFromAgents,
+    syncMcpToAgents,
+    readMcpServers
+  );
 
   const [stale, setStale] = useState<StaleServerRow[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -154,11 +163,12 @@ export function useConnectedMcps(message: ReturnType<typeof import('@arco-design
   const disconnect = useCallback((serverId: string): void => void crud.handleToggleMcpServer(serverId, false), [crud]);
   const reconnect = useCallback(
     async (server: IMcpServer) => {
-      if (!server.enabled) {
-        const published = await crud.handleToggleMcpServer(server.id, true);
-        if (!published) return;
-      }
-      await conn.handleTestMcpConnection(server);
+      // Reconnect is an explicit reconciliation action, even when local truth
+      // remained enabled after an incomplete rollback. Republish first, then
+      // probe only the exact revision returned by that publication commit.
+      const publishedServer = await crud.handleToggleMcpServer(server.id, true);
+      if (!publishedServer) return;
+      await conn.handleTestMcpConnection(publishedServer);
     },
     [crud, conn]
   );

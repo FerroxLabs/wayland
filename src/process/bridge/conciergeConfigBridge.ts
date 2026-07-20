@@ -28,9 +28,11 @@ import { ProcessConfig } from '@process/utils/initStorage';
 import { connectModelRegistryProvider } from '@process/providers/ipc/modelRegistryIpc';
 import type { ProviderId } from '@process/providers/types';
 import { writeAssistantRules } from './fsBridge';
+import { updateMcpConfig } from '@process/services/mcpServices/mcpConfigAuthority';
 import { uuid } from '@/common/utils';
 import type { TMessage } from '@/common/chat/chatLib';
 import type { IMcpServer } from '@/common/config/storage';
+import { mcpServerCollisionKey } from '@/common/mcp';
 import {
   type IConciergeConfigContent,
   type ConciergeConfirmResult,
@@ -89,13 +91,12 @@ async function applyProposal(
       return `Set ${content.engine} default model to ${content.label}.`;
     }
     case 'add_mcp': {
-      const existing = (await ProcessConfig.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
-      const list = Array.isArray(existing) ? (existing as IMcpServer[]) : [];
       const now = Date.now();
       const server: IMcpServer = {
         id: uuid(),
         name: content.name,
-        enabled: true,
+        enabled: false,
+        status: 'disconnected',
         transport: {
           type: 'stdio',
           command: content.command,
@@ -117,7 +118,13 @@ async function applyProposal(
         ),
         source: 'custom',
       };
-      await ProcessConfig.set('mcp.config', [...list, server]);
+      await updateMcpConfig((current) => {
+        const incomingKey = mcpServerCollisionKey(content.name);
+        if (current.some((candidate) => mcpServerCollisionKey(candidate.name) === incomingKey)) {
+          throw new Error('MCP server name already exists');
+        }
+        return [...current, server];
+      });
       return `Added MCP server "${content.name}".`;
     }
     case 'edit_assistant': {
@@ -185,7 +192,8 @@ export function initConciergeConfigBridge(): void {
       if (content.kind === 'add_mcp') {
         const existing = (await ProcessConfig.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
         const list = Array.isArray(existing) ? (existing as IMcpServer[]) : [];
-        if (list.some((s) => s?.name === content.name)) {
+        const incomingKey = mcpServerCollisionKey(content.name);
+        if (list.some((s) => s?.name && mcpServerCollisionKey(s.name) === incomingKey)) {
           return { ok: false, reason: 'mcp_name_exists' };
         }
       }

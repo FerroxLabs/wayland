@@ -23,7 +23,7 @@ const PAGE = 24;
 export function BrowsePage() {
   const { t } = useTranslation();
   const library = useMcpLibrary();
-  const { mcpServers, saveMcpServers, refreshMcpServers } = useMcpServers();
+  const { mcpServers, saveMcpServers, readMcpServers, refreshMcpServers } = useMcpServers();
   const navigate = useNavigate();
 
   const [message, contextHolder] = Message.useMessage();
@@ -38,9 +38,18 @@ export function BrowsePage() {
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
     setAgentInstallStatus,
-    refreshMcpServers
+    refreshMcpServers,
+    readMcpServers
   );
-  const conn = useMcpConnection(mcpServers, saveMcpServers, message);
+  const conn = useMcpConnection(
+    mcpServers,
+    saveMcpServers,
+    message,
+    undefined,
+    removeMcpFromAgents,
+    syncMcpToAgents,
+    readMcpServers
+  );
 
   const handleAddSubmit = useCallback(
     (serverData: Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -87,9 +96,13 @@ export function BrowsePage() {
     () => ({
       serverFor: (libraryEntryId) => serverByLibraryId.get(libraryEntryId),
       onToggle: (serverId, enabled) => void crud.handleToggleMcpServer(serverId, enabled),
-      // Live connection re-probe: re-runs the actual MCP connection test and
-      // writes the fresh status/tools back, so a Reconnect actually reconnects.
-      onReconnect: (server) => void conn.handleTestMcpConnection(server),
+      // Reconcile adapter publication first, then probe the exact committed
+      // declaration revision returned by that publication.
+      onReconnect: (server) => {
+        void crud.handleToggleMcpServer(server.id, true).then(async (publishedServer) => {
+          if (publishedServer) await conn.handleTestMcpConnection(publishedServer);
+        });
+      },
       onConfigure: onSelect,
       onRemove: (serverId) => {
         const target = mcpServers.find((s) => s.id === serverId);
