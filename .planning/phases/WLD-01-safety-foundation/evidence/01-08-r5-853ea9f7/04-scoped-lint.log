@@ -1,0 +1,14 @@
+receipt=scoped-lint
+captured_at_utc=2026-07-19T20:11:45Z
+implementation_commit=853ea9f76023e6d1406ae5887b92fc00c9b0529d
+implementation_tree=907b217be36cefdcf02bec430656ef00face34d6
+environment_receipt=00-environment.log
+command=bun run lint -- src/process/agent/wcore/index.ts src/process/task/WCoreManager.ts tests/unit/WCoreManagerProcessExit.test.ts tests/unit/wcoreStderrSurfacing.test.ts
+exit_code=0
+sanitization=redactCommandSecrets+conciergeDiagServer.redact fixed-point
+output_begin
+$ oxlint src/process/agent/wcore/index.ts src/process/task/WCoreManager.ts tests/unit/WCoreManagerProcessExit.test.ts tests/unit/wcoreStderrSurfacing.test.ts
+Found 0 warnings and 0 errors.
+Finished in 25ms on 4 files with 128 rules using 10 threads.
+
+output_end

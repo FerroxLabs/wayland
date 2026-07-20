@@ -60,6 +60,25 @@ describe('SqliteConversationRepository', () => {
     expect(mockDb.deleteConversation).toHaveBeenCalledWith('c1');
   });
 
+  it('prepares deletion without mutating until the synchronous commit runs', async () => {
+    mockDb.deleteConversation.mockReturnValue({ success: true, data: true });
+    const repo = new SqliteConversationRepository();
+
+    const commit = await repo.prepareDeleteConversation('c1');
+    expect(mockDb.deleteConversation).not.toHaveBeenCalled();
+
+    commit();
+    expect(mockDb.deleteConversation).toHaveBeenCalledWith('c1');
+  });
+
+  it('fails a prepared deletion closed when the database rejects the commit', async () => {
+    mockDb.deleteConversation.mockReturnValue({ success: false, error: 'disk unavailable' });
+    const repo = new SqliteConversationRepository();
+
+    const commit = await repo.prepareDeleteConversation('c1');
+    expect(() => commit()).toThrow('Conversation deletion failed: disk unavailable');
+  });
+
   it('getMessages maps to PaginatedResult shape', async () => {
     mockDb.getConversationMessages.mockReturnValue({ data: [{ id: 'm1' }], total: 1, hasMore: false });
     const repo = new SqliteConversationRepository();

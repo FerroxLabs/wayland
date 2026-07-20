@@ -1,0 +1,5 @@
+PASS .ijfw/wiki-state/index.json is absent
+PASS legacy quarantine-eligible aliases are absent from src and tests
+PASS git diff --check 293b1e240b6d342130376feb3fb2fc82cde53a8f..fcc14ef8be61673bc6b116ae321f70bf868be00b
+PASS implementation commit fcc14ef8be61673bc6b116ae321f70bf868be00b
+PASS implementation tree e1092c5283e238a3add58b3d59b85bbbfe845bc9

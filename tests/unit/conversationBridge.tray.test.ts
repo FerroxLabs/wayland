@@ -37,6 +37,26 @@ const {
     emit: vi.fn(),
   });
 
+  const workerTaskManager = {
+    getTask: vi.fn(),
+    getOrBuildTask: vi.fn(async () => ({})),
+    addTask: vi.fn(),
+    kill: vi.fn(),
+    clear: vi.fn(),
+    listTasks: vi.fn(() => []),
+    withConversationShutdown: vi.fn(),
+  };
+  workerTaskManager.withConversationShutdown.mockImplementation(
+    async (id: string, prepare: () => Promise<unknown>, commit: (prepared: unknown) => unknown) => {
+      await workerTaskManager.kill(id);
+      const prepared = await prepare();
+      await workerTaskManager.kill(id);
+      return commit(prepared);
+    }
+  );
+
+  const deleteConversation = vi.fn(async () => {});
+
   return {
     getHandlers: () => handlers,
     resetHandlers: reset,
@@ -46,19 +66,15 @@ const {
     mockListJobsByConversation: vi.fn(async () => []),
     mockConversationService: {
       createConversation: vi.fn(async () => ({ id: 'conv-created', name: 'Created Conversation', source: 'wayland' })),
-      deleteConversation: vi.fn(async () => {}),
+      prepareDeleteConversation: vi.fn(async (id: string) => () => {
+        void deleteConversation(id);
+      }),
+      deleteConversation,
       updateConversation: vi.fn(async () => {}),
       getConversation: vi.fn(async () => ({ id: 'conv-1', source: 'wayland', name: 'Original Name', type: 'gemini' })),
       createWithMigration: vi.fn(async () => ({ id: 'conv-migrated', source: 'wayland' })),
     },
-    mockWorkerTaskManager: {
-      getTask: vi.fn(),
-      getOrBuildTask: vi.fn(async () => ({})),
-      addTask: vi.fn(),
-      kill: vi.fn(),
-      clear: vi.fn(),
-      listTasks: vi.fn(() => []),
-    },
+    mockWorkerTaskManager: workerTaskManager,
   };
 });
 
@@ -162,6 +178,14 @@ const getProvider = (key: string): Provider => {
 describe('conversationBridge tray sync', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockWorkerTaskManager.withConversationShutdown.mockImplementation(
+      async (id: string, prepare: () => Promise<unknown>, commit: (prepared: unknown) => unknown) => {
+        await mockWorkerTaskManager.kill(id);
+        const prepared = await prepare();
+        await mockWorkerTaskManager.kill(id);
+        return commit(prepared);
+      }
+    );
     mockListJobsByConversation.mockResolvedValue([]);
     resetHandlers();
     initConversationBridge(

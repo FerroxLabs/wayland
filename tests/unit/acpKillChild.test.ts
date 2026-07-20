@@ -140,7 +140,7 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
     expect(kill).not.toHaveBeenCalled();
   });
 
-  it('swallows a taskkill failure without throwing (best-effort kill)', async () => {
+  it('fails closed when taskkill cannot prove whole-tree shutdown', async () => {
     Object.defineProperty(process, 'platform', { value: 'win32' });
 
     const execFileMock = vi.fn(
@@ -158,8 +158,61 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
 
     const fakeChild = { pid: 99, kill: vi.fn() } as unknown as import('child_process').ChildProcess;
 
-    // A dead/unkillable PID must not crash the caller.
-    await expect(winKillChild(fakeChild, false)).resolves.toBeUndefined();
+    await expect(winKillChild(fakeChild, false)).rejects.toThrow(
+      'ACP process-tree shutdown failed for PID 99: taskkill: process not found'
+    );
     expect(execFileMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('fails closed before signalling when POSIX process-tree enumeration fails', async () => {
+    Object.defineProperty(process, 'platform', { value: 'darwin' });
+
+    const execFileMock = vi.fn(
+      (_cmd: string, _args: string[], _opts: unknown, cb: (e: unknown, r: unknown) => void) => {
+        cb(new Error('ps unavailable'), null);
+      }
+    );
+
+    vi.doMock('child_process', async () => {
+      const actual = await vi.importActual<typeof import('child_process')>('child_process');
+      return { ...actual, execFile: execFileMock };
+    });
+
+    const { killChild: posixKillChild } = await import('../../src/process/agent/acp/utils');
+    const fakeChild = { pid: 4242, kill: vi.fn() } as unknown as import('child_process').ChildProcess;
+
+    await expect(posixKillChild(fakeChild, false)).rejects.toThrow('Unable to enumerate ACP process tree for PID 4242');
+    expect(fakeChild.kill).not.toHaveBeenCalled();
+  });
+
+  it('rejects when taskkill returns success without actually stopping the process', async () => {
+    Object.defineProperty(process, 'platform', { value: 'win32' });
+    vi.useFakeTimers();
+
+    const execFileMock = vi.fn(
+      (_cmd: string, _args: string[], _opts: unknown, cb: (e: unknown, r: unknown) => void) => {
+        cb(null, { stdout: '', stderr: '' });
+      }
+    );
+
+    vi.doMock('child_process', async () => {
+      const actual = await vi.importActual<typeof import('child_process')>('child_process');
+      return { ...actual, execFile: execFileMock };
+    });
+
+    const { killChild: winKillChild } = await import('../../src/process/agent/acp/utils');
+    const fakeChild = {
+      pid: process.pid,
+      kill: vi.fn(),
+    } as unknown as import('child_process').ChildProcess;
+
+    try {
+      const shutdown = winKillChild(fakeChild, true);
+      const rejected = expect(shutdown).rejects.toThrow(`ACP process ${process.pid} is still alive after taskkill`);
+      await vi.advanceTimersByTimeAsync(2_100);
+      await rejected;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

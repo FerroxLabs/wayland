@@ -32,6 +32,7 @@
   "exclude": [
     "src/process/services/database/drivers/BunSqliteDriver.ts",
     "src/process/services/database/drivers/BunSqliteDriver.bun.test.ts",
+    "src/process/services/database/conversationChannelCleanupIntent.bun.test.ts",
     "src/process/services/database/migration_v41.bun.test.ts",
     "src/process/services/database/migration_v42.bun.test.ts",
     "src/process/services/database/migration_v43.bun.test.ts",

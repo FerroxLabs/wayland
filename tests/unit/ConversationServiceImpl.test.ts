@@ -50,6 +50,7 @@ function makeRepo(overrides: Partial<IConversationRepository> = {}): IConversati
     getConversation: vi.fn(),
     createConversation: vi.fn(),
     updateConversation: vi.fn(),
+    prepareDeleteConversation: vi.fn(async () => () => {}),
     deleteConversation: vi.fn(),
     getMessages: vi.fn(() => ({ data: [], total: 0, hasMore: false })),
     insertMessage: vi.fn(),
@@ -131,6 +132,19 @@ describe('ConversationServiceImpl.deleteConversation', () => {
     // deleteConversation only calls repo - cron cleanup is handled at the bridge layer
     expect(repo.deleteConversation).toHaveBeenCalledWith('conv-1');
     expect(mockCronService.listJobsByConversation).not.toHaveBeenCalled();
+  });
+
+  it('prepares a synchronous deletion commit without mutating persistence early', async () => {
+    const commit = vi.fn();
+    const repo = makeRepo({ prepareDeleteConversation: vi.fn(async () => commit) });
+    const svc = new ConversationServiceImpl(repo);
+
+    const prepared = await svc.prepareDeleteConversation('conv-1');
+
+    expect(repo.prepareDeleteConversation).toHaveBeenCalledWith('conv-1');
+    expect(commit).not.toHaveBeenCalled();
+    prepared();
+    expect(commit).toHaveBeenCalledOnce();
   });
 });
 

@@ -1,0 +1,18 @@
+receipt=focused-vitest
+captured_at_utc=2026-07-19T20:35:30.193Z
+implementation_commit=78270b812e7112cb38dda2b732c092916bbebc28
+implementation_tree=a6b323f58a96f6b72b0e36b1163aa8d43844ae34
+environment_receipt=00-environment.log
+command=GSD_RUNTIME=codex bunx vitest run tests/unit/workspaceRetention.test.ts tests/unit/managedWorkspaceInventory.test.ts tests/unit/managedWorkspaceProvenance.test.ts tests/unit/desktopManagedWorkspaceInventory.test.ts tests/unit/WorkerTaskManager.workspaceRetention.test.ts tests/unit/WCoreManagerProcessExit.test.ts tests/unit/wcoreStderrSurfacing.test.ts tests/unit/acpAgentManagerCronGuard.test.ts tests/unit/acpKillChild.test.ts tests/unit/conversationBridge.tray.test.ts tests/unit/initAgentPresetFallback.test.ts tests/unit/conversationBridge.workspaceRetention.test.ts tests/unit/conversationBridge.test.ts tests/unit/ConversationServiceImpl.test.ts tests/unit/ConversationChannelCleanup.test.ts tests/unit/SqliteConversationRepository.test.ts tests/unit/process/services/memory/promotionSweep.test.ts tests/unit/process/services/wiki/wikiAutoSync.test.ts tests/unit/process/bridge/workspaceRetentionBridge.test.ts tests/unit/bridgeAllowlistWorkspaceRetention.redteam.test.ts tests/unit/renderer/missionControlActivity.dom.test.tsx tests/unit/renderer/pages/settings/storage/ManagedWorkspacesCard.dom.test.tsx tests/unit/renderer/ConstitutionRecovery.dom.test.tsx
+exit_code=0
+sanitization=redactCommandSecrets fixed-point
+output_begin
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-repair-01-08-r6/app
+
+
+ Test Files  23 passed (23)
+      Tests  278 passed (278)
+   Start at  03:27:24
+   Duration  3.64s (transform 4.28s, setup 510ms, import 13.41s, tests 4.88s, environment 1.16s)
+output_end

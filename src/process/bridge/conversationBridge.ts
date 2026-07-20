@@ -289,18 +289,16 @@ export function initConversationBridge(
 
   ipcBridge.conversation.remove.provider(async ({ id }) => {
     try {
-      // Get conversation source before deletion (for channel cleanup)
+      // Retain the pre-delete projection for the list-changed event only.
+      // Cleanup eligibility is decided atomically by the database commit.
       const conversation = await conversationService.getConversation(id);
-      const source = conversation?.source;
 
       // A chat and its schedules are separate durable user objects. Never
       // cascade-delete schedules as a side effect of removing chat history.
       // Fail closed if schedule authority cannot prove that the chat is clear;
       // the user can manage the schedules explicitly in Automations and retry.
       try {
-        const { inspectConversationDeletionSchedules } = await import(
-          '@process/services/conversationDeletionSafety'
-        );
+        const { inspectConversationDeletionSchedules } = await import('@process/services/conversationDeletionSafety');
         const inspection = await inspectConversationDeletionSchedules(id);
         if (inspection.jobs.length > 0) {
           console.warn(
@@ -316,11 +314,27 @@ export function initConversationBridge(
         return false;
       }
 
-      // Kill the running task if exists
-      workerTaskManager.kill(id);
-
-      // If source is not 'wayland' (e.g., telegram), cleanup channel resources
-      if (source && source !== 'wayland') {
+      const removed = await workerTaskManager.withConversationShutdown(
+        id,
+        async () => {
+          // Resolve the database authority while the terminal gate is held, but
+          // do not sever persisted chat state until every successor raced into
+          // this asynchronous preparation has also stopped.
+          return conversationService.prepareDeleteConversation(id);
+        },
+        (commitDelete) => {
+          // Conversation deletion severs persisted chat state only. The workspace
+          // path is intentionally never handed to a filesystem mutation service:
+          // managed files remain byte-for-byte available for later human review.
+          commitDelete();
+          return true;
+        }
+      );
+      // Channel cleanup is an irreversible external side effect. It must run
+      // only after the durable conversation deletion commits; otherwise a
+      // later fail-closed process/database error leaves a retained chat with
+      // its channel resources already destroyed.
+      if (removed) {
         try {
           // Dynamic import to avoid circular dependency
           const { getChannelManager } = await import('@process/channels/core/ChannelManager');
@@ -330,17 +344,25 @@ export function initConversationBridge(
           }
         } catch (cleanupError) {
           console.warn('[conversationBridge] Failed to cleanup channel resources:', cleanupError);
-          // Continue with deletion even if cleanup fails
+          // Durable deletion already committed. Its transaction retained an
+          // idempotent cleanup intent that ChannelManager retries in-process
+          // and replays after restart.
         }
       }
-
-      await conversationService.deleteConversation(id);
-      removeFromMessageCache(id);
+      try {
+        removeFromMessageCache(id);
+      } catch (cacheError) {
+        console.warn('[conversationBridge] Failed to remove deleted conversation from message cache:', cacheError);
+      }
       if (conversation) {
-        emitConversationListChanged(conversation, 'deleted');
+        try {
+          emitConversationListChanged(conversation, 'deleted');
+        } catch (eventError) {
+          console.warn('[conversationBridge] Failed to emit deleted conversation state:', eventError);
+        }
       }
       await refreshTrayMenuSafely();
-      return true;
+      return removed;
     } catch (error) {
       console.error('[conversationBridge] Failed to remove conversation:', error);
       return false;
@@ -473,10 +495,10 @@ export function initConversationBridge(
     };
   })();
 
-  ipcBridge.conversation.getWorkspace.provider(async ({ workspace, search, path }) => {
+  ipcBridge.conversation.getWorkspace.provider(async ({ workspace, search, path: requestedPath }) => {
     try {
       const fileService = GeminiAgent.buildFileServer(workspace);
-      return await readDirectoryRecursive(path, {
+      return await readDirectoryRecursive(requestedPath, {
         root: workspace,
         fileService,
         abortController: buildLastAbortController(),
@@ -592,9 +614,8 @@ export function initConversationBridge(
           mcpRuntimeFingerprint(runtimeMcpAuthority),
           (preSendConversation?.extra as { activeMcpServers?: string[] } | undefined)?.activeMcpServers
         );
-        const appliedMcpFingerprint = (
-          preSendConversation?.extra as { mcpRuntimeFingerprint?: string } | undefined
-        )?.mcpRuntimeFingerprint;
+        const appliedMcpFingerprint = (preSendConversation?.extra as { mcpRuntimeFingerprint?: string } | undefined)
+          ?.mcpRuntimeFingerprint;
         const result = await mcpRebindCoordinator.getOrRebind({
           conversationId: conversation_id,
           taskType,
@@ -618,7 +639,9 @@ export function initConversationBridge(
           persistAuthority: async (fingerprint, generation) => {
             await conversationService.updateConversation(
               conversation_id,
-              { extra: { mcpRuntimeFingerprint: fingerprint, mcpRuntimeGeneration: generation } } as Partial<TChatConversation>,
+              {
+                extra: { mcpRuntimeFingerprint: fingerprint, mcpRuntimeGeneration: generation },
+              } as Partial<TChatConversation>,
               true
             );
           },

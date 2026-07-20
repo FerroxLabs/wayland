@@ -1,0 +1,6 @@
+RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-repair-01-08-r6/app
+
+Test Files  23 passed (23)
+Tests       294 passed (294)
+Start at    05:11:31
+Duration    3.60s (transform 4.29s, setup 420ms, import 13.51s, tests 5.49s, environment 1.15s)

@@ -13,6 +13,7 @@ import { runMigrations as executeMigrations } from './migrations';
 import { CURRENT_DB_VERSION, initSchema, setDatabaseVersion } from './schema';
 import type {
   IConversationRow,
+  IConversationChannelCleanupIntent,
   IMessageRow,
   IPaginatedResult,
   IProjectRow,
@@ -50,6 +51,7 @@ import {
   isNativeModuleLoadError,
   readDatabaseSchemaVersionStrict,
 } from '../recovery/startupCompatibility';
+import { deleteConversationWithChannelCleanupIntent } from './conversationChannelCleanupIntent';
 
 type IConversationMessageSearchRow = IConversationRow & {
   message_id: string;
@@ -58,7 +60,38 @@ type IConversationMessageSearchRow = IConversationRow & {
   message_created_at: number;
 };
 
+type IConversationChannelCleanupIntentRow = {
+  conversation_id: string;
+  source: string | null;
+  session_ids_json: string;
+  created_at: number;
+  attempt_count: number;
+  last_attempt_at: number | null;
+};
+
+const rowToConversationChannelCleanupIntent = (
+  row: IConversationChannelCleanupIntentRow
+): IConversationChannelCleanupIntent => {
+  const sessionIds = JSON.parse(row.session_ids_json) as unknown;
+  if (
+    !Array.isArray(sessionIds) ||
+    sessionIds.some((sessionId) => typeof sessionId !== 'string' || sessionId.length === 0) ||
+    new Set(sessionIds).size !== sessionIds.length
+  ) {
+    throw new Error(`Malformed channel cleanup intent for conversation ${row.conversation_id}`);
+  }
+  return {
+    conversationId: row.conversation_id,
+    source: row.source as ConversationSource | null,
+    sessionIds,
+    createdAt: row.created_at,
+    attemptCount: row.attempt_count,
+    lastAttemptAt: row.last_attempt_at,
+  };
+};
+
 const escapeLikePattern = (value: string): string => value.replace(/[\\%_]/g, (match) => `\\${match}`);
+const errorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
 const extractSearchPreviewText = (rawContent: string): string => {
   const collectStrings = (value: unknown, bucket: string[]): void => {
@@ -934,18 +967,68 @@ export class WaylandUIDatabase {
 
   deleteConversation(conversationId: string): IQueryResult<boolean> {
     try {
-      const stmt = this.db.prepare('DELETE FROM conversations WHERE id = ?');
-      const result = stmt.run(conversationId);
+      // Capture cleanup identity before DELETE applies assistant_sessions'
+      // ON DELETE SET NULL foreign key. This transaction is the authority for
+      // eligibility; an earlier bridge/source snapshot cannot suppress it.
+      const deleted = deleteConversationWithChannelCleanupIntent(this.db, conversationId);
 
       return {
         success: true,
-        data: result.changes > 0,
+        data: deleted,
       };
     } catch (error: any) {
       return {
         success: false,
         error: error.message,
       };
+    }
+  }
+
+  getConversationChannelCleanupIntent(conversationId: string): IQueryResult<IConversationChannelCleanupIntent | null> {
+    try {
+      const row = this.db
+        .prepare('SELECT * FROM conversation_channel_cleanup_intents WHERE conversation_id = ?')
+        .get(conversationId) as IConversationChannelCleanupIntentRow | undefined;
+      return { success: true, data: row ? rowToConversationChannelCleanupIntent(row) : null };
+    } catch (error: unknown) {
+      return { success: false, error: errorMessage(error) };
+    }
+  }
+
+  getConversationChannelCleanupIntents(): IQueryResult<IConversationChannelCleanupIntent[]> {
+    try {
+      const rows = this.db
+        .prepare('SELECT * FROM conversation_channel_cleanup_intents ORDER BY created_at, conversation_id')
+        .all() as IConversationChannelCleanupIntentRow[];
+      return { success: true, data: rows.map(rowToConversationChannelCleanupIntent) };
+    } catch (error: unknown) {
+      return { success: false, error: errorMessage(error), data: [] };
+    }
+  }
+
+  recordConversationChannelCleanupAttempt(conversationId: string): IQueryResult<boolean> {
+    try {
+      const result = this.db
+        .prepare(
+          `UPDATE conversation_channel_cleanup_intents
+           SET attempt_count = attempt_count + 1, last_attempt_at = ?
+           WHERE conversation_id = ?`
+        )
+        .run(Date.now(), conversationId);
+      return { success: true, data: result.changes > 0 };
+    } catch (error: unknown) {
+      return { success: false, error: errorMessage(error) };
+    }
+  }
+
+  retireConversationChannelCleanupIntent(conversationId: string): IQueryResult<boolean> {
+    try {
+      const result = this.db
+        .prepare('DELETE FROM conversation_channel_cleanup_intents WHERE conversation_id = ?')
+        .run(conversationId);
+      return { success: true, data: result.changes > 0 };
+    } catch (error: unknown) {
+      return { success: false, error: errorMessage(error) };
     }
   }
 

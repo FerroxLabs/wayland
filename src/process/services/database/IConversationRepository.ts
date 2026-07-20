@@ -22,6 +22,8 @@ export interface IConversationRepository {
   getConversation(id: string): Promise<TChatConversation | undefined>;
   createConversation(conversation: TChatConversation): Promise<void>;
   updateConversation(id: string, updates: Partial<TChatConversation>): Promise<void>;
+  /** Resolve persistence authority before a later synchronous deletion commit. */
+  prepareDeleteConversation(id: string): Promise<() => void>;
   deleteConversation(id: string): Promise<void>;
   getMessages(id: string, page: number, pageSize: number, order?: 'ASC' | 'DESC'): Promise<PaginatedResult<TMessage>>;
   insertMessage(message: TMessage): Promise<void>;

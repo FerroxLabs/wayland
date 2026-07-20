@@ -1,0 +1,513 @@
+receipt=full-aggregate
+captured_at_utc=2026-07-19T20:11:45Z
+implementation_commit=853ea9f76023e6d1406ae5887b92fc00c9b0529d
+implementation_tree=907b217be36cefdcf02bec430656ef00face34d6
+environment_receipt=00-environment.log
+command=GSD_RUNTIME=codex bun run test
+exit_code=0
+sanitization=redactCommandSecrets+conciergeDiagServer.redact fixed-point
+output_begin
+$ bun run test:vitest && bun run test:bun
+$ vitest run
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/••••8-r4/app
+
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+  New Password: ••••••••
+   Password: ••••••••
+   Password: ••••••••
+   Password: ••••••••
+   Password: ••••••••
+(node:89684) ••••ning: Possible EventEmitter memory leak detected. 51 responseStream listeners added to [EventEmitter]. MaxListeners is 50. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+Warning: A vi.mock("@process/utils/initStorage") call in "/Users/seandonahoe/gsd-workspaces/••••8-r4/app/tests/unit/process/services/skills/skillLibrary.test.ts" is not at the top level of the module. Although it appears nested, it will be hoisted and executed before any tests run. Move it to the top level to reflect its actual execution order. This will become an error in a future version.
+See: https://vitest.dev/guide/mocking/modules#how-it-works
+Warning: A vi.mock("@process/utils/mainLogger") call in "/Users/seandonahoe/gsd-workspaces/••••8-r4/app/tests/unit/process/services/skills/skillLibrary.test.ts" is not at the top level of the module. Although it appears nested, it will be hoisted and executed before any tests run. Move it to the top level to reflect its actual execution order. This will become an error in a future version.
+See: https://vitest.dev/guide/mocking/modules#how-it-works
+[prepareVoiceModel] downloading config.json ... ok (0.0 MB)
+
+ Test Files  1434 passed | 21 skipped (1455)
+      Tests  15210 passed | 145 skipped (15355)
+   Start at  03:04:24
+   Duration  146.61s (transform 31.06s, setup 50.55s, import 495.12s, tests 344.21s, environment 128.02s)
+
+$ bun scripts/run-bun-native-tests.mjs
+bun test v1.3.11 (af24e281)
+
+src/common/adapter/bridgeAllowlist.budgets.bun.test.ts:
+build.buildStorage global
+build.buildStorage system
+(pass) bridgeAllowlist - cost budget keys are remote-denied > denies subscribe-cost.upsertBudget [2.52ms]
+(pass) bridgeAllowlist - cost budget keys are remote-denied > denies subscribe-cost.deleteBudget [0.01ms]
+(pass) bridgeAllowlist - cost budget keys are remote-denied > denies subscribe-cost.listBudgets
+(pass) bridgeAllowlist - cost budget keys are remote-denied > denies subscribe-cost.budgetAlert [8.57ms]
+(pass) bridgeAllowlist - cost budget keys are remote-denied > denies subscribe-cost.byConversation
+(pass) bridgeAllowlist - cost budget keys are remote-denied > denies subscribe-cost.series
+(pass) bridgeAllowlist - cost budget keys are remote-denied > denies subscribe-cost.summary
+(pass) bridgeAllowlist - cost budget keys are remote-denied > still allows a non-cost provider
+
+src/process/services/database/migration_v43.bun.test.ts:
+[Migration v43] Added projects table
+(pass) Migration v43 - projects table (bun:sqlite) > is registered in ALL_MIGRATIONS at version 43 [2.38ms]
+[Migration v43] Added projects table
+(pass) Migration v43 - projects table (bun:sqlite) > creates the projects table with the expected columns [0.56ms]
+[Migration v43] Added projects table
+(pass) Migration v43 - projects table (bun:sqlite) > does NOT create a Foundry-style execution lock column [0.22ms]
+[Migration v43] Added projects table
+(pass) Migration v43 - projects table (bun:sqlite) > insert + select round-trips a project row [0.18ms]
+[Migration v43] Added projects table
+(pass) Migration v43 - projects table (bun:sqlite) > json_extract filters conversations by extra.projectId [0.21ms]
+[Migration v43] Added projects table
+(pass) Migration v43 - projects table (bun:sqlite) > json_remove detaches conversations from a project without deleting them [0.15ms]
+[Migration v43] Added projects table
+[Migration v43] Rolled back: dropped projects table
+(pass) Migration v43 - projects table (bun:sqlite) > rollback drops the projects table [0.16ms]
+
+src/process/services/database/migration_v46.bun.test.ts:
+(pass) Migration v46 - teams verification_policy column (bun:sqlite) > is registered in ALL_MIGRATIONS at version 46 [0.45ms]
+[Migration v46] Added verification_policy column to teams
+(pass) Migration v46 - teams verification_policy column (bun:sqlite) > adds the verification_policy column [0.24ms]
+[Migration v46] Added verification_policy column to teams
+(pass) Migration v46 - teams verification_policy column (bun:sqlite) > defaults existing rows to NULL (resolves to advisory at the gate) [0.12ms]
+[Migration v46] Added verification_policy column to teams
+(pass) Migration v46 - teams verification_policy column (bun:sqlite) > stores and reads back each policy value (off | advisory | blocking) [0.16ms]
+[Migration v46] Added verification_policy column to teams
+[Migration v46] Added verification_policy column to teams
+(pass) Migration v46 - teams verification_policy column (bun:sqlite) > up() is idempotent (re-run does not throw or duplicate the column) [0.13ms]
+
+src/process/services/database/migration_v53.bun.test.ts:
+(pass) Migration v53 - model_registry_custom_models (bun:sqlite) > is registered in ALL_MIGRATIONS at version 53 [0.45ms]
+[Migration v53] Added model_registry_custom_models
+(pass) Migration v53 - model_registry_custom_models (bun:sqlite) > creates the model_registry_custom_models table [0.39ms]
+[Migration v53] Added model_registry_custom_models
+(pass) Migration v53 - model_registry_custom_models (bun:sqlite) > stores and reads back a custom model id verbatim (preset with @ and /) [0.22ms]
+[Migration v53] Added model_registry_custom_models
+(pass) Migration v53 - model_registry_custom_models (bun:sqlite) > enforces the (provider_id, model_id) primary key [0.01ms]
+[Migration v53] Added model_registry_custom_models
+(pass) Migration v53 - model_registry_custom_models (bun:sqlite) > cascades on provider delete (FK ON DELETE CASCADE) [0.33ms]
+[Migration v53] Added model_registry_custom_models
+[Migration v53] Added model_registry_custom_models
+(pass) Migration v53 - model_registry_custom_models (bun:sqlite) > up() is idempotent (re-run does not throw or drop existing rows) [0.27ms]
+[Migration v53] Added model_registry_custom_models
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) Migration v53 - model_registry_custom_models (bun:sqlite) > down() drops the table
+
+src/process/services/database/migration_v45.bun.test.ts:
+(pass) Migration v45 - team_tasks lease/heartbeat/retry columns (bun:sqlite) > is registered in ALL_MIGRATIONS at version 45 [6.97ms]
+[Migration v45] Added lease/heartbeat/retry columns to team_tasks
+(pass) Migration v45 - team_tasks lease/heartbeat/retry columns (bun:sqlite) > adds all five durable-execution columns [0.65ms]
+[Migration v45] Added lease/heartbeat/retry columns to team_tasks
+(pass) Migration v45 - team_tasks lease/heartbeat/retry columns (bun:sqlite) > applies the retry defaults (budget 3, used 0) to existing rows [0.49ms]
+[Migration v45] Added lease/heartbeat/retry columns to team_tasks
+[Migration v45] Added lease/heartbeat/retry columns to team_tasks
+(pass) Migration v45 - team_tasks lease/heartbeat/retry columns (bun:sqlite) > up() is idempotent (re-run does not throw or duplicate columns) [0.48ms]
+[Migration v45] Added lease/heartbeat/retry columns to team_tasks
+(pass) Migration v45 - team_tasks lease/heartbeat/retry columns (bun:sqlite) > leaves status as a constraint-free TEXT column (verifying/zombie allowed) [0.38ms]
+
+src/process/services/database/migration_v49.bun.test.ts:
+(pass) Migration v49 - budgets table (bun:sqlite) > is registered in ALL_MIGRATIONS at version 49 [3.09ms]
+[Migration v49] Created budgets table
+(pass) Migration v49 - budgets table (bun:sqlite) > creates the budgets table [0.32ms]
+[Migration v49] Created budgets table
+(pass) Migration v49 - budgets table (bun:sqlite) > declares NO foreign keys (foreign_key_check stays clean) [0.23ms]
+[Migration v49] Created budgets table
+(pass) Migration v49 - budgets table (bun:sqlite) > creates the scope index [0.23ms]
+[Migration v49] Created budgets table
+(pass) Migration v49 - budgets table (bun:sqlite) > stores and reads back a budget row [0.24ms]
+[Migration v49] Created budgets table
+(pass) Migration v49 - budgets table (bun:sqlite) > allows NULL scope_key (global budget, no FKs) [0.20ms]
+[Migration v49] Created budgets table
+[Migration v49] Created budgets table
+(pass) Migration v49 - budgets table (bun:sqlite) > up() is idempotent (re-run does not throw or drop existing rows) [0.17ms]
+[Migration v49] Created budgets table
+[Migration v49] Dropped budgets table
+(pass) Migration v49 - budgets table (bun:sqlite) > down() drops the table [0.22ms]
+
+src/process/services/database/migration_v52.bun.test.ts:
+(pass) Migration v52 - heal orphaned team-child rows (bun:sqlite) > is registered in ALL_MIGRATIONS at version 52 [0.15ms]
+(pass) Migration v52 - heal orphaned team-child rows (bun:sqlite) > starts with orphans that fail foreign_key_check [0.52ms]
+[Migration v52] Deleted 2 orphaned row(s) from mailbox
+[Migration v52] Deleted 1 orphaned row(s) from team_tasks
+[Migration v52] Deleted 1 orphaned row(s) from team_event_log
+(pass) Migration v52 - heal orphaned team-child rows (bun:sqlite) > deletes orphaned rows, keeps valid rows, leaves foreign_key_check clean [0.70ms]
+[Migration v52] Deleted 2 orphaned row(s) from mailbox
+[Migration v52] Deleted 1 orphaned row(s) from team_tasks
+[Migration v52] Deleted 1 orphaned row(s) from team_event_log
+(pass) Migration v52 - heal orphaned team-child rows (bun:sqlite) > is idempotent (re-run is a no-op, does not throw) [0.41ms]
+[Migration v52] Deleted 2 orphaned row(s) from mailbox
+(pass) Migration v52 - heal orphaned team-child rows (bun:sqlite) > is safe when a child table does not exist [0.43ms]
+
+src/process/services/database/migration_v47.bun.test.ts:
+(pass) Migration v47 - channel_welcome table (bun:sqlite) > is registered in ALL_MIGRATIONS at version 47 [0.06ms]
+[Migration v47] Created channel_welcome table
+(pass) Migration v47 - channel_welcome table (bun:sqlite) > creates the channel_welcome table [0.24ms]
+[Migration v47] Created channel_welcome table
+(pass) Migration v47 - channel_welcome table (bun:sqlite) > stores and reads back a (platform, account_id) marker [0.04ms]
+[Migration v47] Created channel_welcome table
+(pass) Migration v47 - channel_welcome table (bun:sqlite) > keys uniquely on platform + account_id (composite PK rejects duplicates) [0.15ms]
+[Migration v47] Created channel_welcome table
+[Migration v47] Created channel_welcome table
+(pass) Migration v47 - channel_welcome table (bun:sqlite) > up() is idempotent (re-run does not throw or drop existing rows) [0.04ms]
+[Migration v47] Created channel_welcome table
+[Migration v47] Dropped channel_welcome table
+(pass) Migration v47 - channel_welcome table (bun:sqlite) > down() drops the table [0.11ms]
+
+src/process/services/database/migration_v42.bun.test.ts:
+[Migration v41] Added workflow_sessions table
+[Migration v42] Added begin_sent_at column to workflow_sessions
+(pass) Migration v42 - begin_sent_at column (bun:sqlite) > is registered in ALL_MIGRATIONS at version 42 [0.81ms]
+[Migration v41] Added workflow_sessions table
+[Migration v42] Added begin_sent_at column to workflow_sessions
+(pass) Migration v42 - begin_sent_at column (bun:sqlite) > adds begin_sent_at column to workflow_sessions after running v41 + v42 [0.19ms]
+[Migration v41] Added workflow_sessions table
+[Migration v42] Added begin_sent_at column to workflow_sessions
+(pass) Migration v42 - begin_sent_at column (bun:sqlite) > insert + select round-trips a non-null begin_sent_at [0.20ms]
+[Migration v41] Added workflow_sessions table
+[Migration v42] Added begin_sent_at column to workflow_sessions
+(pass) Migration v42 - begin_sent_at column (bun:sqlite) > insert + select round-trips a NULL begin_sent_at [0.10ms]
+[Migration v41] Added workflow_sessions table
+[Migration v42] Added begin_sent_at column to workflow_sessions
+(pass) Migration v42 - begin_sent_at column (bun:sqlite) > is idempotent - re-running migration_v42.up does not throw [0.07ms]
+[Migration v41] Added workflow_sessions table
+[Migration v42] Added begin_sent_at column to workflow_sessions
+[Migration v42] Rolled back: removed begin_sent_at column
+(pass) Migration v42 - begin_sent_at column (bun:sqlite) > rollback removes the begin_sent_at column [0.85ms]
+
+src/process/services/database/migration_v54.bun.test.ts:
+[Migration v51] Created audit_log table
+[Migration v54] Added audit_log result
+(pass) Migration v54 - audit mutation result > adds a constrained result column while preserving legacy rows [2.96ms]
+[Migration v51] Created audit_log table
+[Migration v54] Added audit_log result
+[Migration v54] Added audit_log result
+(pass) Migration v54 - audit mutation result > is idempotent [0.11ms]
+
+src/process/services/database/••••tent.bun.test.ts:
+[Migration v55] Added durable conversation channel cleanup intents
+[Migration v55] Added durable conversation channel cleanup intents
+(pass) conversation channel cleanup intent native SQLite proof > retains the atomic intent and captured session identity across process restart [2.76ms]
+[Migration v55] Added durable conversation channel cleanup intents
+(pass) conversation channel cleanup intent native SQLite proof > binds eligibility to commit-time source and rolls intent back with a rejected delete [0.69ms]
+
+src/process/services/database/migration_v48.bun.test.ts:
+(pass) Migration v48 - cost_events table (bun:sqlite) > is registered in ALL_MIGRATIONS at version 48 [0.20ms]
+[Migration v48] Created cost_events table
+(pass) Migration v48 - cost_events table (bun:sqlite) > creates the cost_events table [0.38ms]
+[Migration v48] Created cost_events table
+(pass) Migration v48 - cost_events table (bun:sqlite) > declares NO foreign keys (foreign_key_check stays clean) [0.29ms]
+[Migration v48] Created cost_events table
+(pass) Migration v48 - cost_events table (bun:sqlite) > creates the four expected indexes [0.25ms]
+[Migration v48] Created cost_events table
+(pass) Migration v48 - cost_events table (bun:sqlite) > stores and reads back a cost_event row
+[Migration v48] Created cost_events table
+(pass) Migration v48 - cost_events table (bun:sqlite) > allows NULL model_id / cron_id / team_id (soft references, no FKs) [0.56ms]
+[Migration v48] Created cost_events table
+[Migration v48] Created cost_events table
+(pass) Migration v48 - cost_events table (bun:sqlite) > up() is idempotent (re-run does not throw or drop existing rows) [0.75ms]
+[Migration v48] Created cost_events table
+[Migration v48] Dropped cost_events table
+(pass) Migration v48 - cost_events table (bun:sqlite) > down() drops the table [0.40ms]
+
+src/process/services/database/migration_v41.bun.test.ts:
+[Migration v41] Added workflow_sessions table
+(pass) Migration v41 - workflow_sessions table (bun:sqlite) > is registered in ALL_MIGRATIONS at version 41 [0.20ms]
+[Migration v41] Added workflow_sessions table
+(pass) Migration v41 - workflow_sessions table (bun:sqlite) > creates the workflow_sessions table with all required columns [0.21ms]
+[Migration v41] Added workflow_sessions table
+(pass) Migration v41 - workflow_sessions table (bun:sqlite) > enforces CHECK constraints (status enum + monotonic step bounds) [0.34ms]
+[Migration v41] Added workflow_sessions table
+(pass) Migration v41 - workflow_sessions table (bun:sqlite) > creates all three workflow_sessions indexes [0.10ms]
+[Migration v41] Added workflow_sessions table
+[Migration v41] Added workflow_sessions table
+(pass) Migration v41 - workflow_sessions table (bun:sqlite) > is idempotent - re-running migration_v41.up does not throw [0.15ms]
+
+src/process/services/database/migration_v44.bun.test.ts:
+(pass) Migration v44 - drop legacy provider tables (bun:sqlite) > is registered in ALL_MIGRATIONS at version 44 [0.02ms]
+[Migration v44] Dropped legacy provider_catalogs / provider_models / default_models tables
+(pass) Migration v44 - drop legacy provider tables (bun:sqlite) > drops all three legacy tables and their indexes, removing weak-key ciphertext [0.34ms]
+[Migration v44] Dropped legacy provider_catalogs / provider_models / default_models tables
+[Migration v44] Dropped legacy provider_catalogs / provider_models / default_models tables
+(pass) Migration v44 - drop legacy provider tables (bun:sqlite) > up() is idempotent on a fresh DB that never had the legacy tables [0.06ms]
+[Migration v44] Dropped legacy provider_catalogs / provider_models / default_models tables
+(pass) Migration v44 - drop legacy provider tables (bun:sqlite) > does NOT touch the model_registry_* tables [0.24ms]
+[Migration v44] Dropped legacy provider_catalogs / provider_models / default_models tables
+[Migration v44] Rolled back: recreated legacy provider tables (empty)
+(pass) Migration v44 - drop legacy provider tables (bun:sqlite) > rollback recreates the legacy table shape (empty, no ciphertext) [0.23ms]
+
+src/process/services/database/migration_v51.bun.test.ts:
+(pass) Migration v51 - audit_log table (bun:sqlite) > is registered in ALL_MIGRATIONS at version 51
+[Migration v51] Created audit_log table
+(pass) Migration v51 - audit_log table (bun:sqlite) > creates the audit_log table [0.24ms]
+[Migration v51] Created audit_log table
+(pass) Migration v51 - audit_log table (bun:sqlite) > declares NO foreign keys (foreign_key_check stays clean) [0.10ms]
+[Migration v51] Created audit_log table
+(pass) Migration v51 - audit_log table (bun:sqlite) > creates the created_at and user indexes [0.09ms]
+[Migration v51] Created audit_log table
+(pass) Migration v51 - audit_log table (bun:sqlite) > stores and reads back an audit row [0.11ms]
+[Migration v51] Created audit_log table
+(pass) Migration v51 - audit_log table (bun:sqlite) > allows NULL user_id / target / ip / reached_via (soft references, no FKs) [0.05ms]
+[Migration v51] Created audit_log table
+[Migration v51] Created audit_log table
+(pass) Migration v51 - audit_log table (bun:sqlite) > up() is idempotent (re-run does not throw or drop existing rows) [0.06ms]
+[Migration v51] Created audit_log table
+[Migration v51] Dropped audit_log table
+(pass) Migration v51 - audit_log table (bun:sqlite) > down() drops the table
+
+src/process/services/recovery/startupCompatibility.bun.test.ts:
+(pass) startup compatibility against a real SQLite database > rejects a future schema without checkpointing, deleting, or changing persistent SQLite data [38.69ms]
+
+src/process/services/cost/gatewayUsage.bun.test.ts:
+(pass) parseGatewayUsage > returns undefined when usage is absent or not an object [0.04ms]
+(pass) parseGatewayUsage > returns undefined when no recognizable token field is present [0.04ms]
+(pass) parseGatewayUsage > reads snake_case token •••••••• [0.01ms]
+(pass) parseGatewayUsage > reads camelCase and prompt/completion aliases
+(pass) parseGatewayUsage > captures cache-read tokens when present
+(pass) parseGatewayUsage > rejects negative, NaN, and non-numeric token ••••••••
+(pass) parseGatewayUsage > records a partial split when only one side is reported
+[Migration v48] Created cost_events table
+(pass) gateway usage -> CostRecorder integration > records one tokens-only unknown row for a parsed gateway split [0.40ms]
+
+src/process/services/cost/SqliteCostRepository.bun.test.ts:
+[Migration v48] Created cost_events table
+(pass) SqliteCostRepository (bun:sqlite) > insert returns the assigned autoincrement id [0.35ms]
+[Migration v48] Created cost_events table
+(pass) SqliteCostRepository (bun:sqlite) > aggregate groups by model within the window, ordered by cost desc [0.27ms]
+[Migration v48] Created cost_events table
+(pass) SqliteCostRepository (bun:sqlite) > aggregate by backend collapses a null group to the empty-string key [0.16ms]
+[Migration v48] Created cost_events table
+(pass) SqliteCostRepository (bun:sqlite) > aggregate respects the window bounds (inclusive from, exclusive to) [0.04ms]
+[Migration v48] Created cost_events table
+(pass) SqliteCostRepository (bun:sqlite) > series buckets cost by fixed width aligned to the window start [0.15ms]
+[Migration v48] Created cost_events table
+(pass) SqliteCostRepository (bun:sqlite) > series rejects a non-positive bucket [0.09ms]
+[Migration v48] Created cost_events table
+(pass) SqliteCostRepository (bun:sqlite) > total sums cost + tokens + count within the window [0.08ms]
+[Migration v48] Created cost_events table
+(pass) SqliteCostRepository (bun:sqlite) > prune deletes only rows older than the cutoff and returns the count
+[Migration v48] Created cost_events table
+(pass) SqliteCostRepository (bun:sqlite) > prune returns 0 when nothing is old enough [0.10ms]
+
+src/process/services/cost/ModelPricing.bun.test.ts:
+(pass) ModelPricing.priceTokens > prices a known model from input/output split (claude-opus-4-5: input 5, output 25 per 1M) [20.29ms]
+(pass) ModelPricing.priceTokens > adds cacheRead at the dedicated cache_read rate when present (opus cache_read 0.5 per 1M) [14.20ms]
+(pass) ModelPricing.priceTokens > prices cacheRead at the input rate when the model has no cache_read rate (solar-mini input 0.15) [9.44ms]
+(pass) ModelPricing.priceTokens > resolves a provider-prefixed model id by stripping the prefix (anthropic/claude-opus-4-5) [8.05ms]
+(pass) ModelPricing.priceTokens > returns undefined for an unknown model id [30.57ms]
+(pass) ModelPricing.priceTokens > returns undefined for an undefined model id [0.06ms]
+(pass) ModelPricing.priceTokens > does not re-read the snapshot per call (lazy singleton index) [31.49ms]
+
+src/process/services/cost/CostRecorder.bun.test.ts:
+(pass) extractAcpCumulativeUsd > accepts finite non-negative USD amounts case-insensitively [1.09ms]
+(pass) extractAcpCumulativeUsd > fails closed for missing, foreign, negative, or non-finite values [5.75ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > engine path records per-turn deltas across a cumulative sequence [0.84ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > engine path clamps a reset-to-lower cumulative to a 0 delta [0.38ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > keeps independent baselines per conversation [0.44ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > keeps independent baselines for new meter sessions in one conversation [0.28ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > resetBaseline clears every meter for the conversation [0.24ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > records no billable token total when engine supplies cost without cumulative tokens [0.13ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > computed path prices a per-turn split via ModelPricing (no baseline) [0.14ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > computed path downgrades to unknown / cost 0 when pricing is undefined [0.17ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > unknown path records cost 0 and any tokens present [0.13ms]
+[Migration v48] Created cost_events table
+(pass) CostRecorder (bun:sqlite) > writes exactly one row per recordTurnFinish call [0.14ms]
+
+src/process/services/cost/SqliteBudgetRepository.bun.test.ts:
+[Migration v49] Created budgets table
+(pass) SqliteBudgetRepository (bun:sqlite) > upsert inserts a new row, getById reads it back
+[Migration v49] Created budgets table
+(pass) SqliteBudgetRepository (bun:sqlite) > upsert replaces an existing row in place (ON CONFLICT)
+[Migration v49] Created budgets table
+(pass) SqliteBudgetRepository (bun:sqlite) > global scope round-trips a null scopeKey as undefined
+[Migration v49] Created budgets table
+(pass) SqliteBudgetRepository (bun:sqlite) > list returns newest first
+[Migration v49] Created budgets table
+(pass) SqliteBudgetRepository (bun:sqlite) > delete removes the row and returns the count
+
+src/process/services/cost/BudgetController.bun.test.ts:
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > periodStart > day = local midnight [0.58ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > periodStart > week = midnight on the most recent Monday [0.25ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > periodStart > month = midnight on the 1st
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > upsert / list / remove > creates a budget with generated id and timestamps [0.83ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > upsert / list / remove > drops scopeKey for global scope [0.25ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > upsert / list / remove > updates in place and preserves createdAt
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > upsert / list / remove > remove deletes the budget [0.96ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > listStatus current-period spend > global budget sums all spend in the period [0.32ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > listStatus current-period spend > model budget sums only the matching model [0.37ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > listStatus current-period spend > backend budget sums only the matching backend [0.17ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > listStatus current-period spend > excludes spend from before the period start [0.22ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > evaluate > splits over-limit budgets by action [0.24ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > evaluate > does not flag budgets under their limit [0.16ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > evaluate > treats spend exactly at the limit as a breach [0.13ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > canStartTurn (opt-in pause gate) > allows by default when no pause budget is over limit [0.25ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > canStartTurn (opt-in pause gate) > blocks when a matching pause budget is over limit [0.17ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > canStartTurn (opt-in pause gate) > ignores warn budgets (never blocks) [0.14ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > canStartTurn (opt-in pause gate) > does not block a turn whose scope does not match the pause budget [0.14ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > checkAfterTurn (warn enforcement) > emits a one-time alert when a warn budget goes over [0.14ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > checkAfterTurn (warn enforcement) > does not emit when under the limit [0.22ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > checkAfterTurn (warn enforcement) > does not emit for pause budgets (handled by canStartTurn) [0.10ms]
+[Migration v48] Created cost_events table
+[Migration v49] Created budgets table
+(pass) BudgetController (bun:sqlite) > checkAfterTurn (warn enforcement) > re-arms the alert after the budget is updated [0.20ms]
+
+src/process/services/skills/SkillLibrary.paths.bun.test.ts:
+(pass) ••••ates > never produces a doubled app.asar.unpacked.unpacked path [0.13ms]
+(pass) ••••ates > includes the correct three-levels-up extraResources dir when resourcesPath is undefined (subprocess) [0.04ms]
+(pass) ••••ates > prefers resourcesPath when present (main process)
+(pass) ••••ates > collapses the electron-vite chunks subdir before resolving [0.03ms]
+(pass) ••••ates > resolves the dev source-tree dir from out/main
+(pass) ••••ates > works the same for the bundled-workflows resource
+
+src/process/services/database/drivers/BunSqliteDriver.bun.test.ts:
+(pass) BunSqliteDriver > exec and prepare().get() roundtrip [0.35ms]
+(pass) BunSqliteDriver > prepare().all() returns array [0.23ms]
+(pass) BunSqliteDriver > prepare().run() returns changes and lastInsertRowid [0.10ms]
+(pass) BunSqliteDriver > pragma() getter with simple:true returns scalar
+(pass) BunSqliteDriver > pragma() setter does not throw [0.23ms]
+(pass) BunSqliteDriver > pragma() getter without options returns array [0.06ms]
+(pass) BunSqliteDriver > transaction() wraps function [0.16ms]
+(pass) BunSqliteDriver > captures committed WAL state into a standalone database [7.55ms]
+(pass) BunSqliteDriver > never overwrites an existing destination [0.84ms]
+(pass) BunSqliteDriver > refuses to back up over its source database [0.64ms]
+
+tests/unit/process/services/recovery/••••cher.bun.test.ts:
+(pass) Classic external recovery launcher > orders authority paths by deterministic Unicode code units without locale collation [0.20ms]
+(pass) Classic external recovery launcher > isolates the v0.11.8 homedir on both POSIX and Windows rollback launches
+(pass) Classic external recovery launcher > validates an existing external authority through a disposable copy without touching live userData [62.24ms]
+(pass) Classic external recovery launcher > fails closed when read-only Classic authority validation has no live authority [14.76ms]
+(pass) Classic external recovery launcher > publishes production projection, Classic root, and restart locator in the required order without touching live state [84.11ms]
+(pass) Classic external recovery launcher > builds deterministic extraction plans for every release delivery type [0.24ms]
+(pass) Classic external recovery launcher > refuses a Windows extraction plan without a verified packaged extractor
+(pass) Classic external recovery launcher > requires exact macOS publisher, team, bundle, and notarization evidence lines
+(pass) Classic external recovery launcher > requires one exact Windows signer common name and valid Authenticode status [0.70ms]
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) Classic external recovery launcher > publishes a schema-52, side-effect-neutralized tree isolated from Desktop and Core live state [54.89ms]
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) Classic external recovery launcher > projects an accepted legacy snapshot without inventing a v2 revision authority [43.02ms]
+(pass) Classic external recovery launcher > fails closed when a materialized file no longer matches its receipt [19.96ms]
+(pass) Classic external recovery launcher > never executes an untrusted binary to discover its version [25.92ms]
+(pass) Classic external recovery launcher > rejects a Classic binary that does not match the caller-pinned digest [14.91ms]
+(pass) Classic external recovery launcher > refuses a destination inside live userData [18.20ms]
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) Classic external recovery launcher > spawns Classic only with the prepared isolated arguments and environment [49.43ms]
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) Classic external recovery launcher > revalidates one stable binary trust identity before preparation publication and spawn [48.79ms]
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) Classic external recovery launcher > refuses publication when binary trust identity changes between gates [50.48ms]
+(pass) Classic external recovery launcher > forbids test-only trust receipts outside the test runtime [22.82ms]
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) Classic external recovery launcher > refuses launch when the pinned Classic binary changes after preparation [44.10ms]
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) Classic external recovery launcher > chains snapshot materialization into preparation and removes the transient plaintext tree [52.98ms]
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) Classic external recovery launcher > downloads, prepares, materializes, and launches the pinned release as one action [52.31ms]
+(pass) Classic external recovery launcher > removes the acquired release and prepared binary runtime when snapshot preparation fails [20.28ms]
+
+tests/unit/process/services/recovery/recoverySealing.bun.test.ts:
+(pass) recovery file sealing > round-trips through an authenticated envelope without writing plaintext into the snapshot [3.14ms]
+(pass) recovery file sealing > fails closed when the OS credential store is unavailable [0.87ms]
+(pass) recovery file sealing > rejects ciphertext tampering and never publishes plaintext output [1.71ms]
+
+tests/unit/process/services/recovery/••••rmer.bun.test.ts:
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) ••••To52 > atomically creates schema 52 while preserving source and exporting post-baseline models [20.95ms]
+(pass) ••••To52 > fails closed for a source schema other than 53 and publishes nothing [10.55ms]
+(pass) ••••To52 > fails closed when the schema-53 custom-model table is missing [6.50ms]
+(pass) ••••To52 > never replaces an existing destination [8.29ms]
+(pass) ••••To52 > fails closed when the source has SQLite sidecar state [8.19ms]
+[Migration v53] Rolled back: Removed model_registry_custom_models
+(pass) ••••To52 > uses a safe staging prefix when an injected transform id sanitizes to empty [9.47ms]
+
+tests/unit/process/services/recovery/••••tion.bun.test.ts:
+(pass) Classic Constitution promotion authority > rejects legacy defaults and test codecs at production projection entrypoints [0.76ms]
+(pass) Classic Constitution promotion authority > promotes canonical replace/create/delete changes through persisted CAS identities [88.92ms]
+(pass) Classic Constitution promotion authority > maps a legacy SOUL primary to the one canonical Constitution destination [58.56ms]
+(pass) Classic Constitution promotion authority > rejects simultaneous SOUL and CONSTITUTION primaries before any destination mutation [9.59ms]
+(pass) Classic Constitution promotion authority > replays a dispatched item with its persisted UUID after response loss and completes once [62.66ms]
+(pass) Classic Constitution promotion authority > records stable partial conflict evidence and resumes only the remaining pending items [90.24ms]
+(pass) Classic Constitution promotion authority > turns a partial promotion into terminal local preservation without another destination mutation [97.50ms]
+(pass) Classic Constitution promotion authority > preserves both copies in authenticated rescue on concurrent v2 conflict [16.70ms]
+(pass) Classic Constitution promotion authority > rejects authenticated canonical projection records with unknown fields before any destination read or CAS [4.94ms]
+(pass) Classic Constitution promotion authority > requires exact named-object confirmation before discard and retains rescue [15.02ms]
+(pass) Classic Constitution promotion authority > keeps v2 unchanged while sealing the complete Classic delta for indefinite local recovery [14.68ms]
+(pass) Classic Constitution promotion authority > surfaces a torn pending HEAD as authenticated reconciliation with no further CAS [52.52ms]
+(pass) Classic Constitution promotion authority > authenticates and finishes the exact claimed event after loss before HEAD publication [59.11ms]
+(pass) Classic Constitution promotion authority > seals the immutable rescue payload before dispatching the first destination CAS [45.79ms]
+(pass) Classic Constitution promotion authority > rejects a concurrent live journal writer before replay [61.62ms]
+(pass) Classic Constitution promotion authority > rejects authenticated but noncanonical journal bytes before any replay [63.94ms]
+
+tests/unit/process/services/constitution/••••vice.bun.test.ts:
+(pass) ••••vice > publishes exact awaiting metadata, promotes once, and replays the byte-equivalent result [123.75ms]
+(pass) ••••vice > keeps v2 unchanged while surfacing authenticated indefinite local rescue metadata [36.79ms]
+(pass) ••••vice > requires the rotating challenge and exact object set before pre-dispatch discard [69.82ms]
+(pass) ••••vice > fails stale revisions and wrong passwords before reserving or mutating an operation [36.12ms]
+(pass) ••••vice > binds partial replay to the authenticated journal head and preserves unresolved work on keep-v2 [306.53ms]
+(pass) ••••vice > reconciles response loss from the durable dispatched operation without a second destination mutation [106.11ms]
+(pass) ••••vice > requires fresh authentication before redispatching a response-lost resume [176.74ms]
+(pass) ••••vice > fails closed when locator activation changes before response-loss reconciliation [67.93ms]
+(pass) ••••vice > does not enumerate another principal operation and fails closed on projection tampering [70.05ms]
+
+tests/unit/process/services/constitution/••••vice.bun.test.ts:
+(pass) Constitution Classic recovery locator service > discovers after restart, commits once, seals terminal evidence, and replays after another restart [966.87ms]
+
+tests/unit/process/services/constitution/••••ence.bun.test.ts:
+(pass) Constitution mutation quiescence authority > excludes recovery while an interactive mutation owns the authority [0.17ms]
+(pass) Constitution mutation quiescence authority > excludes every interactive mutation for the complete recovery lease
+(pass) Constitution mutation quiescence authority > releases both synchronous and asynchronous interactive failures
+
+ 228 pass
+ 0 fail
+ 710 expect() calls
+Ran 228 tests across 31 files. [4.00s]
+
+output_end

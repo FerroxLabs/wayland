@@ -7,15 +7,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ICreateConversationParams } from '@/common/adapter/ipcBridge';
 
+const { mkdir, recordManagedWorkspaceProvenance } = vi.hoisted(() => ({
+  mkdir: vi.fn(async () => undefined),
+  recordManagedWorkspaceProvenance: vi.fn(async () => undefined),
+}));
+
 // createAcpAgent only touches the filesystem via fs mkdir + the skill-symlink
 // helpers; stub them so the test exercises pure extra-field mapping.
 vi.mock('fs/promises', () => ({
   default: {
-    mkdir: vi.fn(async () => undefined),
+    mkdir,
+    realpath: vi.fn(async (value: string) => value),
     stat: vi.fn(async () => {
       throw new Error('ENOENT');
     }),
-    lstat: vi.fn(async () => {
+    lstat: vi.fn(async (value: string) => {
+      if (value.startsWith('/mock/work/')) {
+        return { isSymbolicLink: () => false, isDirectory: () => true, dev: 7, ino: 11 };
+      }
       throw new Error('ENOENT');
     }),
     symlink: vi.fn(async () => undefined),
@@ -30,6 +39,11 @@ vi.mock('@process/utils/initStorage', () => ({
   getSystemDir: vi.fn(() => ({ workDir: '/mock/work' })),
   ProcessConfig: { get: vi.fn(async () => undefined), set: vi.fn(async () => undefined) },
 }));
+vi.mock('@process/utils/utils', () => ({ getDataPath: vi.fn(() => '/mock/data') }));
+vi.mock('@process/services/kickoff/installUuid', () => ({
+  getInstallUuid: vi.fn(async () => 'desktop-test-installation'),
+}));
+vi.mock('@process/services/managedWorkspaceProvenance', () => ({ recordManagedWorkspaceProvenance }));
 vi.mock('@process/utils/openclawUtils', () => ({ computeOpenClawIdentityHash: vi.fn(() => 'h') }));
 vi.mock('@/common/utils', () => ({ uuid: vi.fn(() => 'mock-uuid') }));
 
@@ -77,5 +91,64 @@ describe('createAcpAgent - preset customAgentId fallback (#66)', () => {
       extra: baseExtra({}),
     } as ICreateConversationParams);
     expect(conv.extra.customAgentId).toBeUndefined();
+  });
+
+  it('records process-owned provenance when Desktop creates a temporary workspace', async () => {
+    const conv = await createAcpAgent({
+      type: 'acp',
+      model: {} as never,
+      name: 'Temporary Hermes',
+      extra: { backend: 'hermes', customWorkspace: false },
+    } as ICreateConversationParams);
+
+    expect(recordManagedWorkspaceProvenance).toHaveBeenCalledWith({
+      authorityRoot: '/mock/data',
+      workRoot: '/mock/work',
+      workspace: conv.extra.workspace,
+      installationId: 'desktop-test-installation',
+      creationIdentity: {
+        canonicalRoot: '/mock/work',
+        canonicalPath: conv.extra.workspace,
+        device: 7,
+        inode: 11,
+      },
+    });
+  });
+
+  it('never adopts a pre-existing predictable workspace or mints provenance for it', async () => {
+    const now = 1_736_900_000_000;
+    vi.spyOn(Date, 'now').mockReturnValue(now);
+    mkdir
+      .mockImplementationOnce(async () => undefined)
+      .mockRejectedValueOnce(Object.assign(new Error('already exists'), { code: 'EEXIST' }));
+
+    const conv = await createAcpAgent({
+      type: 'acp',
+      model: {} as never,
+      name: 'Temporary Hermes',
+      extra: { backend: 'hermes', customWorkspace: false },
+    } as ICreateConversationParams);
+
+    const predictable = `/mock/work/hermes-temp-${now}`;
+    expect(mkdir).toHaveBeenNthCalledWith(2, predictable, { recursive: false, mode: 0o700 });
+    expect(conv.extra.workspace).not.toBe(predictable);
+    expect(String(conv.extra.workspace)).toMatch(new RegExp(`^${predictable}\\d{39}$`));
+    expect(recordManagedWorkspaceProvenance).toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: conv.extra.workspace })
+    );
+    expect(recordManagedWorkspaceProvenance).not.toHaveBeenCalledWith(
+      expect.objectContaining({ workspace: predictable })
+    );
+  });
+
+  it('never records managed provenance for a user-selected workspace', async () => {
+    await createAcpAgent({
+      type: 'acp',
+      model: {} as never,
+      name: 'Custom Hermes',
+      extra: baseExtra({}),
+    } as ICreateConversationParams);
+
+    expect(recordManagedWorkspaceProvenance).not.toHaveBeenCalled();
   });
 });

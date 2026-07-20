@@ -51,16 +51,44 @@ const REPORT = {
     artifact: 'unavailable',
     receipt: 'unavailable',
     'active-process': 'complete',
+    provenance: 'unavailable',
+    snapshot: 'unavailable',
   },
-  summary: { discovered: 1, preserved: 1, quarantineEligible: 0, unknown: 0 },
+  summary: { discovered: 1, preserved: 1, reviewCandidate: 0, unknown: 0 },
   errors: [],
   entries: [
     {
       path: '/managed/work/claude-temp-1736900000000',
       canonicalPath: '/managed/work/claude-temp-1736900000000',
-      evidence: {},
-      decision: { disposition: 'preserve', classifications: ['referenced', 'scheduled'], reasons: [] },
-      references: [],
+      evidence: {
+        managedProvenance: false,
+        inventoryComplete: false,
+        referenceCount: 1,
+        scheduleCount: 1,
+        activeProcessCount: null,
+        artifactCount: null,
+        userPromoted: null,
+        userContent: 'absent',
+        modified: false,
+        abandonedForMs: 2678400000,
+        retentionWindowMs: 2592000000,
+      },
+      decision: {
+        disposition: 'preserve',
+        classifications: ['referenced', 'scheduled'],
+        reasons: [
+          'referenced',
+          'scheduled',
+          'provenance-unproven',
+          'inventory-incomplete',
+          'evidence-invalid',
+          'promotion-unknown',
+        ],
+      },
+      references: [
+        { source: 'conversation', id: 'chat-1' },
+        { source: 'schedule', id: 'schedule-1' },
+      ],
       errors: [],
     },
   ],
@@ -112,6 +140,124 @@ describe('ManagedWorkspacesCard', () => {
 
   it('fails closed visibly when the inventory provider rejects', async () => {
     preview.mockRejectedValue(new Error('inventory unavailable'));
+    render(<ManagedWorkspacesCard />);
+    expect(
+      await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+    ).toBeTruthy();
+  });
+
+  it('fails closed visibly when the process returns a malformed expanded report', async () => {
+    preview.mockResolvedValue({ ...REPORT, unexpectedAuthority: true });
+    render(<ManagedWorkspacesCard />);
+    expect(
+      await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+    ).toBeTruthy();
+  });
+
+  it('renders active work in human language', async () => {
+    preview.mockResolvedValue({
+      ...REPORT,
+      entries: [
+        {
+          ...REPORT.entries[0],
+          evidence: {
+            ...REPORT.entries[0].evidence,
+            referenceCount: null,
+            scheduleCount: null,
+            activeProcessCount: 1,
+          },
+          decision: {
+            disposition: 'preserve',
+            classifications: ['active'],
+            reasons: ['active', 'provenance-unproven', 'inventory-incomplete', 'evidence-invalid', 'promotion-unknown'],
+          },
+          references: [{ source: 'active-process', id: 'active-process-1' }],
+        },
+      ],
+    });
+    render(<ManagedWorkspacesCard />);
+    expect(await screen.findByText('Active work')).toBeTruthy();
+    expect(screen.queryByText('active')).toBeNull();
+  });
+
+  it('rejects a fabricated complete snapshot and review candidate in phase one', async () => {
+    preview.mockResolvedValue({
+      ...REPORT,
+      complete: true,
+      authorityCompleteness: {
+        conversation: 'complete',
+        project: 'complete',
+        schedule: 'complete',
+        artifact: 'complete',
+        receipt: 'complete',
+        'active-process': 'complete',
+        provenance: 'complete',
+        snapshot: 'complete',
+      },
+      summary: { discovered: 1, preserved: 0, reviewCandidate: 1, unknown: 0 },
+      entries: [
+        {
+          ...REPORT.entries[0],
+          evidence: {
+            managedProvenance: true,
+            inventoryComplete: true,
+            referenceCount: 0,
+            scheduleCount: 0,
+            activeProcessCount: 0,
+            artifactCount: 0,
+            userPromoted: false,
+            userContent: 'absent',
+            modified: false,
+            abandonedForMs: 2678400000,
+            retentionWindowMs: 2592000000,
+          },
+          decision: {
+            disposition: 'review-candidate',
+            classifications: ['empty-abandoned'],
+            reasons: ['empty-abandoned'],
+          },
+          references: [],
+        },
+      ],
+    });
+
+    render(<ManagedWorkspacesCard />);
+
+    expect(
+      await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+    ).toBeTruthy();
+    expect(screen.queryByText('Later human review')).toBeNull();
+    expect(screen.queryByText('Review later - no action available')).toBeNull();
+    expect(screen.queryByRole('button', { name: /delete|remove|quarantine|clean|prune/i })).toBeNull();
+  });
+
+  it('rejects an unproven review candidate even when its shape is valid', async () => {
+    preview.mockResolvedValue({
+      ...REPORT,
+      summary: { discovered: 1, preserved: 0, reviewCandidate: 1, unknown: 0 },
+      entries: [
+        {
+          ...REPORT.entries[0],
+          decision: {
+            disposition: 'review-candidate',
+            classifications: ['empty-abandoned'],
+            reasons: ['shape alone is not authority'],
+          },
+        },
+      ],
+    });
+
+    render(<ManagedWorkspacesCard />);
+    expect(
+      await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')
+    ).toBeTruthy();
+  });
+
+  it('rejects summary counts that do not exactly match the entries', async () => {
+    preview.mockResolvedValue({
+      ...REPORT,
+      summary: { discovered: 999, preserved: 999, reviewCandidate: 0, unknown: 0 },
+    });
     render(<ManagedWorkspacesCard />);
     expect(
       await screen.findByText('Wayland could not prove the inventory, so every workspace remains protected.')

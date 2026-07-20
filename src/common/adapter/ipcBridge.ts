@@ -2775,7 +2775,7 @@ export const storage = {
  * callers, so the provider is remote-denied in bridgeAllowlist.ts.
  */
 export const workspaceRetention = {
-  preview: buildProvider<import('@process/services/managedWorkspaceInventory').ManagedWorkspaceInventoryReport, void>(
+  preview: buildProvider<import('@/common/types/managedWorkspaceRetention').ManagedWorkspaceInventoryReport, void>(
     'workspaceRetention.preview'
   ),
 };

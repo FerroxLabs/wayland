@@ -8,7 +8,9 @@ import type { ICreateConversationParams } from '@/common/adapter/ipcBridge';
 import type { TChatConversation, TProviderWithModel } from '@/common/config/storage';
 import type { AcpBackend, AcpBackendAll } from '@/common/types/acpTypes';
 import { getSkillsDirsForBackend, hasNativeSkillSupport } from '@/common/types/acpTypes';
+import { isManagedWorkspaceName } from '@/common/types/managedWorkspaceRetention';
 import { uuid } from '@/common/utils';
+import { randomUUID } from 'node:crypto';
 
 // Re-export for backward compatibility (tests mock this path)
 export { hasNativeSkillSupport };
@@ -18,6 +20,12 @@ import path from 'path';
 import { getSkillsDir, getBuiltinSkillsCopyDir, getAutoSkillsDir, getSystemDir, ProcessConfig } from './initStorage';
 import { computeOpenClawIdentityHash } from './openclawUtils';
 import { writeWorkspaceGitignore } from './workspaceGitignore';
+import { getDataPath } from './utils';
+import { getInstallUuid } from '@process/services/kickoff/installUuid';
+import {
+  recordManagedWorkspaceProvenance,
+  type ManagedWorkspaceCreationIdentity,
+} from '@process/services/managedWorkspaceProvenance';
 
 /**
  * Minimal skills.preferences shape used by setupAssistantWorkspace.
@@ -227,6 +235,47 @@ async function setupWorkspaceSkills(
   if (isProjectWorkspace) await writeWorkspaceGitignore(workspace);
 }
 
+async function createExclusiveManagedWorkspace(
+  workRoot: string,
+  defaultWorkspaceName: string,
+  attempt = 0
+): Promise<{ workspace: string; creationIdentity: ManagedWorkspaceCreationIdentity }> {
+  if (attempt >= 8) throw new Error('Unable to exclusively create a managed workspace');
+  const collisionSuffix = BigInt(`0x${randomUUID().replaceAll('-', '')}`)
+    .toString(10)
+    .padStart(39, '0');
+  const candidateName = attempt === 0 ? defaultWorkspaceName : `${defaultWorkspaceName}${collisionSuffix}`;
+  const candidate = path.join(workRoot, candidateName);
+  try {
+    // This must be an exclusive create. `recursive: true` would silently
+    // adopt a predictable pre-existing directory and then mint provenance for
+    // content Desktop did not create.
+    await fs.mkdir(candidate, { recursive: false, mode: 0o700 });
+    const canonicalRoot = await fs.realpath(workRoot);
+    const canonicalPath = await fs.realpath(candidate);
+    const candidateStat = await fs.lstat(canonicalPath);
+    if (
+      candidateStat.isSymbolicLink() ||
+      !candidateStat.isDirectory() ||
+      path.dirname(canonicalPath) !== canonicalRoot
+    ) {
+      throw new Error('Managed workspace creation identity is unsafe');
+    }
+    return {
+      workspace: candidate,
+      creationIdentity: {
+        canonicalRoot,
+        canonicalPath,
+        device: candidateStat.dev,
+        inode: candidateStat.ino,
+      },
+    };
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+    return createExclusiveManagedWorkspace(workRoot, defaultWorkspaceName, attempt + 1);
+  }
+}
+
 /**
  * Create workspace directory (without copying files)
  *
@@ -244,8 +293,25 @@ const buildWorkspaceWidthFiles = async (
 
   if (!workspace) {
     const tempPath = getSystemDir().workDir;
-    workspace = path.join(tempPath, defaultWorkspaceName);
-    await fs.mkdir(workspace, { recursive: true });
+    if (path.basename(defaultWorkspaceName) !== defaultWorkspaceName || !isManagedWorkspaceName(defaultWorkspaceName)) {
+      throw new Error('Managed workspace name does not match the closed temporary-workspace grammar');
+    }
+    await fs.mkdir(tempPath, { recursive: true });
+    const createdWorkspace = await createExclusiveManagedWorkspace(tempPath, defaultWorkspaceName);
+    workspace = createdWorkspace.workspace;
+    try {
+      await recordManagedWorkspaceProvenance({
+        authorityRoot: getDataPath(),
+        workRoot: tempPath,
+        workspace,
+        installationId: await getInstallUuid(),
+        creationIdentity: createdWorkspace.creationIdentity,
+      });
+    } catch (error) {
+      // Creation may proceed, but the workspace can never become reviewable
+      // without an authenticated process-owned provenance record.
+      console.warn('[initAgent] Failed to record managed-workspace provenance; retention will preserve it', error);
+    }
   } else {
     // Normalize path: strip trailing slashes and resolve to absolute path
     workspace = path.resolve(workspace);

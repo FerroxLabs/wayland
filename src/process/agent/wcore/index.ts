@@ -32,10 +32,7 @@ import {
 import { ProfileIsolationError, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
-import {
-  hydrateModelForSpawn,
-  resolveModelSecretsForSpawn,
-} from '@process/providers/ipc/modelRegistryIpc';
+import { hydrateModelForSpawn, resolveModelSecretsForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { vertexSpawnCredentialsForModel } from '@process/providers/vertexSpawnCredentials';
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
@@ -234,6 +231,23 @@ export function resolveTurnStallTimeoutMs(env: NodeJS.ProcessEnv = process.env):
 
 export class WCoreAgent {
   private childProcess: ChildProcess | null = null;
+  /** Root stdio transport liveness is separate from retained tree-proof
+   * identity. A root may exit while `childProcess` must remain captured so its
+   * complete tree can be proved stopped; that retained identity is never a
+   * writable/live transport. */
+  private transportAlive = false;
+  private transportUnavailableReason: 'root-exit' | 'stdin' | null = null;
+  /**
+   * A failed tree shutdown remains authoritative even if the root process emits
+   * `exit`. Without this latch, a second kill could report success while an
+   * unproved descendant from the first attempt remains.
+   */
+  private shutdownFailure: unknown = null;
+  /** Exact child whose complete process tree still owns shutdown authority. */
+  private failedShutdownChild: ChildProcess | null = null;
+  /** Serialize every tree-proof caller for one exact child identity. */
+  private treeShutdownAttempt: { child: ChildProcess; promise: Promise<void> } | null = null;
+  private disposed = false;
   private ready = false;
   private readyPromise: Promise<void>;
   private readyResolve!: () => void;
@@ -343,6 +357,7 @@ export class WCoreAgent {
   }
 
   async start(): Promise<void> {
+    if (this.disposed) throw new Error('Wayland Core agent was stopped before bootstrap');
     if (this.options.rawEngineMode) {
       return this.startWithProjectConfigLease();
     }
@@ -354,7 +369,12 @@ export class WCoreAgent {
         // Core's ready event proves startup config has been consumed. Restore
         // before releasing the workspace lease so a sibling launch can never
         // observe or inherit this chat's provider/MCP profile.
-        this.restoreProjectConfig();
+        // A failed tree proof does not prove consumption or exit. Keep the
+        // launch-specific config in place until an identity-bound retry proves
+        // the exact stale tree stopped.
+        if (this.ready || (!this.childProcess && !this.failedShutdownChild)) {
+          this.restoreProjectConfig();
+        }
       }
     });
   }
@@ -554,6 +574,7 @@ export class WCoreAgent {
         throw error;
       }
     }
+    if (this.disposed) throw new Error('Wayland Core agent was stopped during bootstrap');
     try {
       this.childProcess = spawn(binaryPath, args, {
         env: buildEngineSpawnEnv({
@@ -567,6 +588,8 @@ export class WCoreAgent {
         stdio: vaultDelivery?.stdio ?? ['pipe', 'pipe', 'pipe'],
         cwd: workspace,
       });
+      this.transportAlive = true;
+      this.transportUnavailableReason = null;
     } catch (error) {
       this.cleanupVertexCredentials();
       throw error;
@@ -646,8 +669,34 @@ export class WCoreAgent {
       console[wcoreStderrLevel(line)]('[wcore]', line);
     });
 
-    // Handle process exit
-    this.childProcess.on('exit', (code) => {
+    // Capture the exact child whose listeners are being installed. Exit is a
+    // root-process notification, not proof that the complete engine tree is
+    // gone: descendants can remain alive after the root exits. In particular,
+    // a pending or failed tree-proof attempt must retain this exact identity
+    // and its launch config until that proof succeeds.
+    const spawnedChild = this.childProcess;
+    let rootExitObserved = false;
+    const markStdinUnavailable = (error?: Error): void => {
+      if (error) {
+        console.warn('[WCoreAgent] stdin transport failed', redactSecrets(error.message));
+      }
+      this.markTransportUnavailable(spawnedChild);
+    };
+    // A child can remain alive after its writable command pipe closes. Treat
+    // that as transport death immediately, but retain `spawnedChild` as the
+    // exact process-tree identity that kill() must still prove stopped.
+    spawnedChild.stdin?.on('error', markStdinUnavailable);
+    spawnedChild.stdin?.on('close', () => markStdinUnavailable());
+    spawnedChild.on('exit', (code) => {
+      // Node promises one exit event, but keep this boundary idempotent under a
+      // hostile/double-emitting child shim. Replaying terminal notifications
+      // must not duplicate trust changes or manager termination callbacks.
+      if (rootExitObserved) return;
+      rootExitObserved = true;
+      if (this.childProcess === spawnedChild) {
+        this.transportAlive = false;
+        this.transportUnavailableReason = 'root-exit';
+      }
       this.cleanupVertexCredentials();
       this.anvilMutationWatcher.stop();
       const disconnectedReceipts = this.desktopContract.markDisconnected();
@@ -667,7 +716,10 @@ export class WCoreAgent {
       // against a turn nothing can finish. (activeMsgId is nulled below too, so
       // handleTurnStall would early-return anyway; this just doesn't leak the timer.)
       this.stopStallWatchdog();
-      this.restoreProjectConfig();
+      // Root exit is notification only, even when shutdown was unrequested.
+      // Descendants can survive and become reparented, so this event cannot
+      // restore launch config or discard the only identity available to an
+      // exact killChild tree proof. stopChildWithTreeProof owns both actions.
       if (!this.ready) {
         // Surface the engine's real bail reason (its last stderr) alongside the
         // exit code so callers see the cause, not just "exited with code N"
@@ -687,7 +739,6 @@ export class WCoreAgent {
       }
       this._onProcessTerminated?.(code);
       this.activeMsgId = null;
-      this.childProcess = null;
     });
 
     // Wait for ready event with timeout. On timeout, include the engine's last
@@ -713,19 +764,23 @@ export class WCoreAgent {
         // dynamically - once we recurse they'd point at the fresh attempt, so a
         // late exit or stderr chunk from the orphaned child could reject the new
         // session, restore the wrong .wcore.toml, or contaminate the stderr tail.
-        // Detach its listeners, kill it best-effort, and reset the tail so the
-        // next failure surfaces only its own output (#484 audit).
+        // Prove the exact stale tree stopped before detaching its listeners or
+        // replacing its identity. A best-effort kill here can leave an orphan
+        // sharing this profile with the fallback engine.
         const staleChild = this.childProcess;
         if (staleChild) {
+          await this.stopChildWithTreeProof(staleChild);
           staleChild.removeAllListeners();
           staleChild.stdout?.removeAllListeners();
           staleChild.stderr?.removeAllListeners();
-          await killChild(staleChild, false).catch(() => {});
         }
         this.cleanupVertexCredentials();
         this.restoreProjectConfig();
         this.childProcess = null;
         this.stderrTail = '';
+        if (this.disposed) {
+          throw new Error('Wayland Core agent was stopped during resume fallback', { cause: err });
+        }
         this.options = { ...this.options, resume: undefined, sessionId: this.options.resume };
         this.ready = false;
         this.readyPromise = new Promise((resolve, reject) => {
@@ -1455,24 +1510,33 @@ export class WCoreAgent {
   }
 
   sendCommand(cmd: WCoreCommand): void {
-    if (!this.childProcess?.stdin?.writable) return;
-    const validated = this.desktopContract.validateOutboundCommand(cmd);
-    this.childProcess.stdin.write(JSON.stringify(validated) + '\n');
+    this.writeCommand(cmd);
   }
 
   async send(content: string, msgId: string, files?: string[]): Promise<void> {
     await this.readyPromise;
-    // #746: arm the stall watchdog for this turn. Armed at SEND (not at stream_start)
-    // so a turn that never even starts streaming — the engine going silent on the
-    // request itself — is still bounded.
-    this.activeMsgId = msgId;
-    this.startStallWatchdog();
-    this.sendCommand({
+    // A retained child after root exit is shutdown authority, not a live
+    // transport. Reject before publishing turn identity or arming the watchdog
+    // so a write to dead stdin cannot become a silent ten-minute stall.
+    if (this.disposed) throw new Error('Wayland Core agent was stopped before the turn could be sent');
+    const written = this.writeCommand({
       type: 'message',
       msg_id: msgId,
       content,
       files,
     });
+    if (!written) {
+      throw new Error(
+        this.transportUnavailableReason === 'root-exit'
+          ? 'Wayland Core transport exited before the turn could be sent'
+          : 'Wayland Core transport is unavailable; the turn was not sent'
+      );
+    }
+    // #746: arm the stall watchdog for this turn. Armed at SEND (not at stream_start)
+    // so a turn that never even starts streaming — the engine going silent on the
+    // request itself — is still bounded.
+    this.activeMsgId = msgId;
+    this.startStallWatchdog();
   }
 
   injectConversationHistory(text: string): Promise<void> {
@@ -1520,10 +1584,87 @@ export class WCoreAgent {
   }
 
   get isAlive(): boolean {
-    return this.childProcess !== null;
+    return this.transportAlive;
+  }
+
+  private markTransportUnavailable(child: ChildProcess): void {
+    if (this.childProcess !== child || !this.transportAlive) return;
+    this.transportAlive = false;
+    this.transportUnavailableReason = 'stdin';
+    this.stopStallWatchdog();
+    if (!this.ready) {
+      this.readyReject(new Error('wcore command transport closed during init'));
+    }
+    const activeMsgId = this.activeMsgId;
+    this.activeMsgId = null;
+    if (activeMsgId) this._onProcessExit?.(null, activeMsgId);
+  }
+
+  private writeCommand(cmd: WCoreCommand): boolean {
+    const child = this.childProcess;
+    const stdin = child?.stdin;
+    if (
+      !child ||
+      !this.transportAlive ||
+      this.disposed ||
+      !stdin ||
+      !stdin.writable ||
+      stdin.destroyed ||
+      stdin.writableEnded
+    ) {
+      if (child && this.transportAlive && (!stdin || !stdin.writable || stdin.destroyed || stdin.writableEnded)) {
+        this.markTransportUnavailable(child);
+      }
+      return false;
+    }
+
+    const validated = this.desktopContract.validateOutboundCommand(cmd);
+    try {
+      stdin.write(JSON.stringify(validated) + '\n');
+    } catch {
+      this.markTransportUnavailable(child);
+      throw new Error('Wayland Core transport write failed; the command was not sent');
+    }
+
+    // A hostile/custom stream can emit error/close synchronously from write().
+    // Do not publish turn authority after such a write boundary collapsed.
+    return (
+      this.transportAlive && this.childProcess === child && stdin.writable && !stdin.destroyed && !stdin.writableEnded
+    );
+  }
+
+  private stopChildWithTreeProof(child: ChildProcess): Promise<void> {
+    const inFlight = this.treeShutdownAttempt;
+    if (inFlight?.child === child) return inFlight.promise;
+    if (inFlight) {
+      return Promise.reject(new Error('A different Wayland Core engine tree still owns shutdown authority'));
+    }
+
+    const attempt = { child, promise: Promise.resolve() };
+    attempt.promise = Promise.resolve()
+      .then(() => killChild(child, false))
+      .then(() => {
+        if (this.failedShutdownChild === child) this.failedShutdownChild = null;
+        this.shutdownFailure = null;
+        if (this.childProcess === child) {
+          this.transportAlive = false;
+          this.childProcess = null;
+        }
+      })
+      .catch((error) => {
+        this.failedShutdownChild = child;
+        this.shutdownFailure = error;
+        throw error;
+      })
+      .finally(() => {
+        if (this.treeShutdownAttempt === attempt) this.treeShutdownAttempt = null;
+      });
+    this.treeShutdownAttempt = attempt;
+    return attempt.promise;
   }
 
   async kill(): Promise<void> {
+    this.disposed = true;
     // #746: the agent is going away — a still-armed watchdog would otherwise fire on a
     // dead agent and emit a bogus stall error for a turn nobody is running.
     this.stopStallWatchdog();
@@ -1542,14 +1683,22 @@ export class WCoreAgent {
         msg_id: '',
       });
     }
-    if (this.childProcess) {
+    if (this.treeShutdownAttempt) {
+      await this.treeShutdownAttempt.promise;
+    } else if (this.failedShutdownChild) {
+      // Once the failed root emits exit, its descendants are reparented and a
+      // later scan cannot reconstruct the original tree. Retain the failure
+      // rather than laundering the absent root into proof.
+      if (this.childProcess !== this.failedShutdownChild) throw this.shutdownFailure;
+      await this.stopChildWithTreeProof(this.failedShutdownChild);
+    } else if (!this.childProcess && this.shutdownFailure) {
+      throw this.shutdownFailure;
+    } else if (this.childProcess) {
       // wayland-core spawns its own child tree (MCP servers, tool subprocesses).
       // A bare SIGTERM is a no-op on Windows and never reaches the tree, leaving
       // orphaned processes after quit (#139). killChild does a taskkill /T /F on
       // win32 and a SIGTERM->SIGKILL descendant sweep on POSIX.
-      const child = this.childProcess;
-      this.childProcess = null;
-      await killChild(child, false);
+      await this.stopChildWithTreeProof(this.childProcess);
     }
     this.cleanupVertexCredentials();
     // Keep the launch-specific config in place until the child is gone; an

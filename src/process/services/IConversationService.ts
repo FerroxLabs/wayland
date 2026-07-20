@@ -47,6 +47,8 @@ export interface MigrateConversationParams {
 
 export interface IConversationService {
   createConversation(params: CreateConversationParams): Promise<TChatConversation>;
+  /** Resolve deletion authority before a later synchronous persistence commit. */
+  prepareDeleteConversation(id: string): Promise<() => void>;
   deleteConversation(id: string): Promise<void>;
   updateConversation(id: string, updates: Partial<TChatConversation>, mergeExtra?: boolean): Promise<void>;
   getConversation(id: string): Promise<TChatConversation | undefined>;

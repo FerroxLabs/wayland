@@ -1,10 +1,9 @@
 import classNames from 'classnames';
-import { type LucideIcon } from 'lucide-react';
 import React from 'react';
 
 type CardProps = {
   title?: React.ReactNode;
-  titleIcon?: LucideIcon;
+  titleIcon?: React.ElementType<{ size?: number; className?: string }>;
   statusBadge?: React.ReactNode;
   actions?: React.ReactNode;
   children?: React.ReactNode;

@@ -101,10 +101,13 @@ export async function runSynthesisSweep(): Promise<number> {
     const projects = await svc.getProjects();
     if (projects.length === 0) {
       // A scheduled sweep without an active project has no persistence
-      // authority. The application launch directory is not a workspace.
+      // authority. The application launch/process working directory is launch
+      // context, not user-authorized project context — falling back to it can
+      // create an unexpected `.ijfw` tree in the install dir or test checkout.
       log.info('[wiki-auto-sync] skipped: no active project');
       return 0;
     }
+    // Deterministic selection of the most recently active real project.
     const sorted = projects.toSorted((a, b) => b.lastActive - a.lastActive);
     projectPath = sorted[0].path;
   } catch (err) {

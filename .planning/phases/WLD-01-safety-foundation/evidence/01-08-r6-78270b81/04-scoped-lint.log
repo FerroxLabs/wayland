@@ -1,0 +1,13 @@
+receipt=scoped-lint
+captured_at_utc=2026-07-19T20:35:31.053Z
+implementation_commit=78270b812e7112cb38dda2b732c092916bbebc28
+implementation_tree=a6b323f58a96f6b72b0e36b1163aa8d43844ae34
+environment_receipt=00-environment.log
+command=bun run lint -- src/process/task/WCoreManager.ts tests/unit/WCoreManagerProcessExit.test.ts
+exit_code=0
+sanitization=redactCommandSecrets fixed-point
+output_begin
+$ oxlint src/process/task/WCoreManager.ts tests/unit/WCoreManagerProcessExit.test.ts
+Found 0 warnings and 0 errors.
+Finished in 18ms on 2 files with 128 rules using 10 threads.
+output_end

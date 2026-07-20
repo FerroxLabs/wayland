@@ -104,6 +104,7 @@ import { MCP_SESSION_TRUTH_PREVIEW_ENV } from '../../src/process/services/mcpSer
 function makeService(overrides?: Partial<IConversationService>): IConversationService {
   return {
     createConversation: vi.fn(),
+    prepareDeleteConversation: vi.fn(async () => () => {}),
     deleteConversation: vi.fn(),
     updateConversation: vi.fn(async () => {}),
     getConversation: vi.fn(async () => undefined),
@@ -121,8 +122,10 @@ function makeTaskManager(overrides?: Partial<IWorkerTaskManager>): IWorkerTaskMa
     }),
     addTask: vi.fn(),
     kill: vi.fn(),
+    withConversationShutdown: vi.fn(async (_id, prepare, commit) => commit(await prepare())),
     clear: vi.fn(),
     listTasks: vi.fn(() => []),
+    listWorkspaceAuthorities: vi.fn(() => []),
     ...overrides,
   };
 }

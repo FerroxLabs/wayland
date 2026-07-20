@@ -305,6 +305,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private mcpSessionState: McpSessionState;
   private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
   private releaseProfileLease: (() => Promise<void>) | null = null;
+  /** One exact engine identity may have only one tree-shutdown proof attempt in
+   * flight. A rejected attempt is forgotten only as an attempt; `agent` stays
+   * published so a later manager kill retries that same identity. */
+  private engineShutdownAttempt: { agent: WCoreAgent; promise: Promise<void> } | null = null;
   private disposed = false;
 
   constructor(data: WCoreManagerData, model: TProviderWithModel) {
@@ -325,17 +329,65 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // Capture (don't swallow) a failed start: agentReady still resolves so the
     // sendMessage path is reached, where startError is surfaced as a real
     // error+finish instead of hanging the turn with no reply (S2).
-    this.agentReady = this.start().catch((error) => {
-      this.startError = error;
-      void this.releaseProfileLaunchLease();
-      mainError('[WCoreManager]', 'agent bootstrap (start) failed', error);
+    this.agentReady = this.start().catch(async (error) => {
+      let surfacedError = error;
+
+      // A bootstrap path that never published an engine identity owns no
+      // process tree, so its profile can be returned. If an identity remains,
+      // shutdown failed and both it and the lease are deliberately retained for
+      // an identity-bound retry through kill().
+      if (!this.agent) {
+        try {
+          await this.releaseProfileLaunchLease();
+        } catch (releaseError) {
+          surfacedError = new AggregateError(
+            [error, releaseError],
+            'Wayland Core bootstrap failed and its runtime profile lease could not be released'
+          );
+        }
+      }
+
+      this.startError = surfacedError;
+      mainError('[WCoreManager]', 'agent bootstrap (start) failed', surfacedError);
     });
   }
 
   private async releaseProfileLaunchLease(): Promise<void> {
     const release = this.releaseProfileLease;
-    this.releaseProfileLease = null;
-    if (release) await release();
+    if (!release) return;
+    await release();
+    if (this.releaseProfileLease === release) this.releaseProfileLease = null;
+  }
+
+  private stopEngineWithTreeProof(agent: WCoreAgent): Promise<void> {
+    const inFlight = this.engineShutdownAttempt;
+    if (inFlight?.agent === agent) return inFlight.promise;
+
+    const attempt = { agent, promise: Promise.resolve() };
+    attempt.promise = Promise.resolve()
+      .then(() => agent.kill())
+      .then(() => {
+        if (this.agent === agent) this.agent = null;
+      })
+      .finally(() => {
+        if (this.engineShutdownAttempt === attempt) this.engineShutdownAttempt = null;
+      });
+    this.engineShutdownAttempt = attempt;
+    return attempt.promise;
+  }
+
+  private async stopBootstrapEngine(agent: WCoreAgent, bootstrapError: unknown): Promise<void> {
+    if (this.agent !== agent) return;
+    try {
+      await this.stopEngineWithTreeProof(agent);
+    } catch (shutdownError) {
+      const failure = new AggregateError(
+        [bootstrapError, shutdownError],
+        'Wayland Core bootstrap failed and engine-tree shutdown is unproved'
+      );
+      failure.cause = shutdownError;
+      throw failure;
+    }
   }
 
   /**
@@ -514,9 +566,6 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       onProcessExit: (code, activeMsgId) => {
         this.handleProcessExit(code, activeMsgId);
       },
-      onProcessTerminated: () => {
-        void this.releaseProfileLaunchLease();
-      },
       onPong: () => this.handlePong(),
     });
 
@@ -528,15 +577,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     try {
       await agent.start();
     } catch (error) {
-      if (this.agent === agent) this.agent = null;
-      await this.releaseProfileLaunchLease();
+      await this.stopBootstrapEngine(agent, error);
+      if (!this.agent) await this.releaseProfileLaunchLease();
       throw error;
     }
     if (this.disposed) {
-      await agent.kill().catch(() => {});
-      if (this.agent === agent) this.agent = null;
-      await this.releaseProfileLaunchLease();
-      throw new Error('Wayland Core manager was stopped during bootstrap');
+      const stoppedDuringBootstrap = new Error('Wayland Core manager was stopped during bootstrap');
+      await this.stopBootstrapEngine(agent, stoppedDuringBootstrap);
+      if (!this.agent) await this.releaseProfileLaunchLease();
+      throw stoppedDuringBootstrap;
     }
     this._capabilities = agent.capabilities ?? null;
 
@@ -1820,26 +1869,43 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   override async kill(): Promise<void> {
     this.disposed = true;
+    let engineFailure: unknown;
+    let workerFailure: unknown;
+
+    const stopCurrentEngine = async (): Promise<void> => {
+      const engine = this.agent;
+      if (!engine) return;
+      try {
+        // This is process-tree proof, not best effort. WorkerTaskManager may
+        // retire its active-process lease only when this promise resolves.
+        await this.stopEngineWithTreeProof(engine);
+      } catch (error) {
+        engineFailure = error;
+      }
+    };
+
+    // Stop an engine already published by bootstrap, then await bootstrap and
+    // stop a successor that may have appeared during that wait. A failed exact
+    // identity is retained for a later verified attempt.
+    await stopCurrentEngine();
+    await this.agentReady;
+    if (!engineFailure) await stopCurrentEngine();
+
     try {
-      if (this.agent) {
-        try {
-          // Await the engine tree-kill (taskkill /T on Windows) before tearing
-          // down the worker, so WorkerTaskManager.clear() on quit doesn't return
-          // before wayland-core's child tree is actually gone (#139).
-          await this.agent.kill();
-        } catch {
-          // best-effort
-        }
-      }
-      await this.agentReady;
-      if (this.agent) {
-        await this.agent.kill().catch(() => {});
-        this.agent = null;
-      }
-    } finally {
-      await this.releaseProfileLaunchLease();
+      await super.kill();
+    } catch (error) {
+      workerFailure = error;
     }
-    // super.kill() is async (ForkTask M18); await child exit.
-    await super.kill();
+
+    if (engineFailure) {
+      if (workerFailure)
+        mainWarn('[WCoreManager]', 'worker teardown also failed during engine shutdown', workerFailure);
+      throw engineFailure;
+    }
+    if (workerFailure) throw workerFailure;
+
+    // Do not let another launch reuse the profile until both engine and worker
+    // exit have been proved. A failed release itself remains retryable.
+    await this.releaseProfileLaunchLease();
   }
 }
