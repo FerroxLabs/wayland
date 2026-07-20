@@ -68,8 +68,25 @@ function dispatch(agent: WCoreAgent, event: WCoreEvent | Record<string, unknown>
   (agent as unknown as { handleEvent: (event: WCoreEvent) => void }).handleEvent(event as WCoreEvent);
 }
 
+/**
+ * Install the live, writable command transport that a successful `start()` leaves
+ * behind: a child with writable stdin AND `transportAlive` flipped true. `send()`
+ * fails closed when there is no writable transport (a write to dead stdin must
+ * never silently arm a ten-minute stall), so the watchdog logic is only reachable
+ * once a real transport exists. We inject it directly rather than run `start()`,
+ * which spawns a real process tree and races a 30s ready timeout this unit does
+ * not need.
+ */
+function attachWritableTransport(agent: WCoreAgent): void {
+  const stdin = { writable: true, destroyed: false, writableEnded: false, write: vi.fn() };
+  const internals = agent as unknown as { childProcess: { stdin: typeof stdin }; transportAlive: boolean };
+  internals.childProcess = { stdin };
+  internals.transportAlive = true;
+}
+
 /** Resolve the agent's readyPromise so send() can proceed, then start a turn. */
 async function startTurn(agent: WCoreAgent): Promise<void> {
+  attachWritableTransport(agent);
   dispatch(agent, { type: 'ready', session_id: 's1', capabilities: {} });
   await agent.send('trace the auth flow', MSG);
 }
