@@ -49,6 +49,8 @@ import { teamEventBus } from '@process/team/teamEventBus';
 import * as fs from 'node:fs';
 import { createHash, randomUUID } from 'node:crypto';
 import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import { getCandidateTools } from '@process/services/mcpServices/getCandidateTools';
+import type { CandidateTool } from '@process/services/tools/toolContract';
 import {
   createMcpSessionDigestKey,
   createMcpSessionExpectedServer,
@@ -196,6 +198,8 @@ export class GeminiAgentManager extends BaseAgentManager<
   private readonly mcpSessionGeneration = randomUUID();
   private readonly mcpSessionDigestKey = createMcpSessionDigestKey();
   private mcpSessionState: McpSessionState;
+  /** Exact servers that produced this launch's receipts; the candidate gate's allowedTools/description source. */
+  private sessionMcpServers: IMcpServer[] = [];
   private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
 
   /** Session-level approval store for "always allow" memory */
@@ -333,11 +337,23 @@ export class GeminiAgentManager extends BaseAgentManager<
     const expected: McpSessionExpectedServer[] = servers.map((server) =>
       createMcpSessionExpectedServer(server, 'gemini', this.mcpSessionDigestKey)
     );
+    // Retain the exact servers that minted the expected receipts so the
+    // receipt-bound ToolSearch candidate gate scopes over this launch.
+    this.sessionMcpServers = [...servers];
     this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, expected, {
       conversationId: this.conversation_id,
       backend: 'gemini',
     });
     this.publishMcpSessionState();
+  }
+
+  /**
+   * Receipt-bound ToolSearch candidate pool for THIS launch. Callable tools come
+   * only from the current correlated publication receipts; saved/probed/stale
+   * connectors are withheld.
+   */
+  getMcpCandidateTools(): CandidateTool[] {
+    return getCandidateTools(this.mcpSessionState, this.sessionMcpServers);
   }
 
   private publishMcpServer(runtimeName: string): void {
@@ -409,6 +425,13 @@ export class GeminiAgentManager extends BaseAgentManager<
       });
     }
     this.publishMcpSessionState();
+    // Project the receipt-bound candidate gate immediately after Gemini reports
+    // its registry, proving callable tools track the current publication.
+    const candidates = this.getMcpCandidateTools();
+    mainLog(
+      '[GeminiAgentManager]',
+      `MCP ToolSearch candidate pool: ${candidates.length} tools from current-session receipts`
+    );
   }
 
   /**

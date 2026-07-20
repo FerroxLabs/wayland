@@ -52,7 +52,9 @@ import { validateMcpServer } from '@process/services/mcpServices/validateMcpServ
 import { addMessage, addOrUpdateMessage, nextTickToLocalFinish } from '@process/utils/message';
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
-import { mainWarn, mainError } from '@process/utils/mainLogger';
+import { mainLog, mainWarn, mainError } from '@process/utils/mainLogger';
+import { getCandidateTools } from '@process/services/mcpServices/getCandidateTools';
+import type { CandidateTool } from '@process/services/tools/toolContract';
 import {
   getCodexSandboxModeForSessionMode,
   materializeFluxCodexHome,
@@ -216,6 +218,8 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
   private readonly mcpSessionDigestKey = createMcpSessionDigestKey();
   private readonly mcpSessionBackend: McpSessionBackend;
   private mcpSessionState: McpSessionState;
+  /** Exact servers that produced this launch's receipts; the candidate gate's allowedTools/description source. */
+  private sessionMcpServers: IMcpServer[] = [];
   private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
 
   constructor(data: AcpAgentManagerData) {
@@ -240,7 +244,27 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
     // (built with this manager's generation + digest key), so adopt it directly
     // rather than reconstructing publication state from the returned server list.
     this.mcpSessionState = projection.sessionState;
+    // Retain the exact eligible servers that minted the receipts so the
+    // receipt-bound ToolSearch candidate gate scopes over this launch.
+    this.sessionMcpServers = projection.selectedServers;
     this.publishMcpSessionState();
+    // Project the receipt-bound candidate gate immediately after publication,
+    // proving callable tools track the current publication, not saved status.
+    const candidates = this.getMcpCandidateTools();
+    mainLog(
+      '[AcpAgentManager]',
+      `MCP ToolSearch candidate pool: ${candidates.length} tools from current-session receipts`
+    );
+  }
+
+  /**
+   * Receipt-bound ToolSearch candidate pool for THIS launch. Callable tools come
+   * only from the current correlated publication receipts; saved/probed/stale
+   * connectors are withheld. ACP proves callability at invocation, so the pool
+   * stays empty until the producer registers a non-empty inventory.
+   */
+  getMcpCandidateTools(): CandidateTool[] {
+    return getCandidateTools(this.mcpSessionState, this.sessionMcpServers);
   }
 
   private publishMcpSessionState(): void {

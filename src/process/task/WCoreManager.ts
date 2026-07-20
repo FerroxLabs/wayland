@@ -19,6 +19,9 @@ import { WCoreMcpAgent } from '@process/services/mcpServices/agents/WCoreMcpAgen
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 import { validateMcpServer } from '@process/services/mcpServices/validateMcpServer';
+import { getCandidateTools } from '@process/services/mcpServices/getCandidateTools';
+import type { CandidateTool } from '@process/services/tools/toolContract';
+import type { IMcpServer } from '@/common/config/storage';
 import {
   createMcpSessionState,
   recordDesktopMcpSessionFailure,
@@ -308,6 +311,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private readonly mcpSessionGeneration = uuid();
   private readonly mcpSessionDigestKey = createMcpSessionDigestKey();
   private mcpSessionState: McpSessionState;
+  /** Exact servers that produced this launch's receipts; the candidate gate's allowedTools/description source. */
+  private sessionMcpServers: IMcpServer[] = [];
   private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
   private releaseProfileLease: (() => Promise<void>) | null = null;
   /** One exact engine identity may have only one tree-shutdown proof attempt in
@@ -488,6 +493,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           expectedSessionMcpServers = authedServers.map((server) =>
             createMcpSessionExpectedServer(server, 'wcore', this.mcpSessionDigestKey)
           );
+          // Retain the exact servers that minted the expected receipts so the
+          // receipt-bound ToolSearch candidate gate scopes over this launch.
+          this.sessionMcpServers = authedServers;
           this.beginMcpSession(expectedSessionMcpServers);
           const publication = await new WCoreMcpAgent(join(launchWaylandHome!, 'config.toml')).installMcpServers(
             authedServers
@@ -1357,6 +1365,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private acceptMcpSessionTerminal(event: McpSessionTerminalEvent): void {
     this.mcpSessionState = reduceMcpSessionTerminal(this.mcpSessionState, event);
     this.publishMcpSessionState();
+    // Project the receipt-bound candidate gate immediately after Core registers,
+    // proving callable tools track the current publication, not saved status.
+    const candidates = this.getMcpCandidateTools();
+    mainLog(
+      '[WCoreManager]',
+      `MCP ToolSearch candidate pool: ${candidates.length} tools from current-session receipts`
+    );
   }
 
   /** Persist and broadcast the whole immutable snapshot; queued DB writes prevent lost concurrent receipts. */
@@ -1836,6 +1851,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
   getCapabilities(): WCoreCapabilities | null {
     return this._capabilities;
+  }
+
+  /**
+   * Receipt-bound ToolSearch candidate pool for THIS launch. Callable tools come
+   * only from the current correlated publication receipts; saved/probed/stale
+   * connectors are withheld.
+   */
+  getMcpCandidateTools(): CandidateTool[] {
+    return getCandidateTools(this.mcpSessionState, this.sessionMcpServers);
   }
 
   setConfig(config: { model?: string; thinking?: string; thinking_budget?: number; effort?: string }): void {
