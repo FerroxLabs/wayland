@@ -34,6 +34,7 @@ import { readOutputBudgetPreference, readRawEngineModePreference } from '@proces
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
 import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
+import { recordVerificationResult } from '@process/services/cohort/instrumentation/CohortWorkJourneyAuthority';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
 import { acquireRuntimeLaunchAuthority } from '@process/agent/wcore/profilePaths';
@@ -1164,6 +1165,34 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
+  /**
+   * developer.modify-and-verify verification authority (SAF-02). Forward each
+   * completed tool RESULT (Success or Error) to the work-journey authority,
+   * which only credits a successful `execute` result that follows a correlated
+   * durable change - a tool start, a failed command, an edit/read tool, or an
+   * uncorrelated workspace never terminalizes. Inert until observation is
+   * installed; forwarding is best-effort and never disturbs the turn.
+   */
+  private observeVerificationResults(message: IMessageToolGroup): void {
+    const items = Array.isArray(message.content) ? message.content : [];
+    for (const item of items) {
+      if (item.status !== 'Success' && item.status !== 'Error') continue;
+      const name = (item.name ?? '').toLowerCase();
+      const kind =
+        name.includes('exec') || name.includes('run') || name.includes('shell') || name.includes('command')
+          ? 'execute'
+          : 'other';
+      recordVerificationResult({
+        occurredAtMs: Date.now(),
+        workspace: this.workspace,
+        conversationId: this.conversation_id,
+        kind,
+        isToolResult: true,
+        success: item.status === 'Success',
+      });
+    }
+  }
+
   private handleProcessExit(code: number | null, activeMsgId: string): void {
     mainError('[WCoreManager]', `wcore process exited unexpectedly (code=${code}) during active turn ${activeMsgId}`);
 
@@ -1706,6 +1735,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           if (tMessage.type === 'tool_group') {
             this.handleConformationMessage(tMessage);
             this.checkRunaway(tMessage);
+            this.observeVerificationResults(tMessage);
           }
         }
       }
