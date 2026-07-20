@@ -1,0 +1,23 @@
+diff --git a/native/constitution-fs/src/main.rs b/native/constitution-fs/src/main.rs
+index efe254817..fa84585e5 100644
+--- a/native/constitution-fs/src/main.rs
++++ b/native/constitution-fs/src/main.rs
+@@ -4347,7 +4347,17 @@ fn run() -> Result<Receipt> {
+             "request is not exact protocol JSON",
+         )
+     })?;
+-    transaction(&request, None)
++    if let Ok(failpoint) = std::env::var("WAYLAND_CONSTITUTION_FS_FIXTURE_FAILPOINT") {
++        let hook = |point: &str| {
++            if point == failpoint {
++                return Err(FsError::new("INJECTED_FIXTURE_CRASH", "exact-producer fixture failpoint"));
++            }
++            Ok(())
++        };
++        transaction(&request, Some(&hook))
++    } else {
++        transaction(&request, None)
++    }
+ }
+ 
+ fn main() {
