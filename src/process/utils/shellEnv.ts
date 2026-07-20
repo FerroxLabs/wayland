@@ -14,10 +14,15 @@
  */
 
 import { getPlatformServices } from '@/common/platform';
+import type { CapabilityPlatform } from '@/common/capabilities';
 import { execFile, execFileSync, spawn } from 'child_process';
-import { accessSync, existsSync, readFileSync, readdirSync } from 'fs';
+import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'fs';
 import os from 'os';
 import path from 'path';
+import {
+  classifyBundledOfficeCli,
+  digestOfficeCliEvidence,
+} from '@process/services/capabilities/OfficeCliContractValidator';
 
 /** Enable ACP performance diagnostics via ACP_PERF=1 */
 const PERF_LOG = process.env.ACP_PERF === '1';
@@ -102,11 +107,34 @@ function getBundledNodeModulesRoot(): string | null {
 }
 
 /** Resolve a checksum-pinned native OfficeCLI runtime without executing it. */
-export function resolveBundledOfficeCliDir(resourcesRoot: string, platform: string, arch: string): string | null {
+export function resolveBundledOfficeCliDir(
+  resourcesRoot: string,
+  platform: CapabilityPlatform['platform'],
+  arch: CapabilityPlatform['arch']
+): string | null {
   const runtimeDir = path.join(resourcesRoot, 'bundled-officecli', `${platform}-${arch}`);
   const binaryName = platform === 'win32' ? 'officecli.exe' : 'officecli';
   const manifestPath = path.join(runtimeDir, 'manifest.json');
-  return existsSync(path.join(runtimeDir, binaryName)) && existsSync(manifestPath) ? runtimeDir : null;
+  const binaryPath = path.join(runtimeDir, binaryName);
+  try {
+    if (!existsSync(binaryPath) || !existsSync(manifestPath)) return null;
+    if (
+      lstatSync(runtimeDir).isSymbolicLink() ||
+      lstatSync(binaryPath).isSymbolicLink() ||
+      lstatSync(manifestPath).isSymbolicLink()
+    )
+      return null;
+    const rootReal = realpathSync(resourcesRoot);
+    const runtimeReal = realpathSync(runtimeDir);
+    if (!runtimeReal.startsWith(`${rootReal}${path.sep}`)) return null;
+    if (platform !== 'win32') accessSync(binaryPath, constants.X_OK);
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as unknown;
+    const binarySha256 = digestOfficeCliEvidence(readFileSync(binaryPath));
+    if (!classifyBundledOfficeCli(manifest, binarySha256, platform, arch).available) return null;
+    return runtimeDir;
+  } catch {
+    return null;
+  }
 }
 
 /** Return the native OfficeCLI directory for this dev or packaged runtime. */
@@ -114,7 +142,48 @@ export function getBundledOfficeCliDir(): string | null {
   const resourcesRoot = getPlatformServices().paths.isPackaged()
     ? process.resourcesPath
     : path.join(process.cwd(), 'resources');
-  return resolveBundledOfficeCliDir(resourcesRoot, process.platform, process.arch);
+  return resolveBundledOfficeCliDir(
+    resourcesRoot,
+    process.platform as CapabilityPlatform['platform'],
+    process.arch as CapabilityPlatform['arch']
+  );
+}
+
+/** Resolve the packaged fail-closed command that shadows every fallback. */
+export function resolveManagedOfficeCliShimDir(resourcesRoot: string, platform: NodeJS.Platform): string | null {
+  const shimDir = path.join(resourcesRoot, 'managed-cli-shims');
+  const shimName = platform === 'win32' ? 'officecli.cmd' : 'officecli';
+  const shimPath = path.join(shimDir, shimName);
+  const expectedSha256 =
+    platform === 'win32'
+      ? 'sha256:268a4892123162e5264b7f31d6d0ac659b64960e588c808445f39898e7e81055'
+      : 'sha256:b77af087b9ce061bd26957e387b6dc56491ef894409e52317d11692a63ac327f';
+  try {
+    const rootReal = realpathSync(resourcesRoot);
+    const shimDirReal = realpathSync(shimDir);
+    const shimStat = lstatSync(shimPath);
+    if (
+      !shimDirReal.startsWith(`${rootReal}${path.sep}`) ||
+      shimStat.isSymbolicLink() ||
+      !shimStat.isFile() ||
+      (platform !== 'win32' && (shimStat.mode & 0o111) === 0) ||
+      digestOfficeCliEvidence(readFileSync(shimPath)) !== expectedSha256
+    ) {
+      return null;
+    }
+    return shimDir;
+  } catch {
+    return null;
+  }
+}
+
+export function getManagedOfficeCliShimDir(): string {
+  const resourcesRoot = getPlatformServices().paths.isPackaged()
+    ? process.resourcesPath
+    : path.join(process.cwd(), 'resources');
+  const shimDir = resolveManagedOfficeCliShimDir(resourcesRoot, process.platform);
+  if (!shimDir) throw new Error('Wayland managed OfficeCLI fallback guard is unavailable');
+  return shimDir;
 }
 
 /**
@@ -126,6 +195,7 @@ function getBundledNpmBinDirs(): string[] {
   const candidates: string[] = [];
   const nativeOfficeCliDir = getBundledOfficeCliDir();
   if (nativeOfficeCliDir) candidates.push(nativeOfficeCliDir);
+  candidates.push(getManagedOfficeCliShimDir());
 
   const root = getBundledNodeModulesRoot();
   if (!root) return candidates;

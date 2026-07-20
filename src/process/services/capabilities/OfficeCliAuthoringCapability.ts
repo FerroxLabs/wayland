@@ -1,61 +1,200 @@
 /** OfficeCLI capability evidence producer. It never decides readiness. */
-import { createHash } from 'node:crypto';
-import { readFile } from 'node:fs/promises';
+import { constants, lstatSync, realpathSync, type Stats } from 'node:fs';
+import { lstat, open, readdir, realpath } from 'node:fs/promises';
 import path from 'node:path';
 import {
   CAPABILITY_EVIDENCE_CONTRACT,
   OFFICECLI_CAPABILITY,
   WAYLAND_CAPABILITY_MANIFEST,
-  findCapabilityPlatform,
   type CapabilityEvidence,
   type CapabilityPlatform,
 } from '@/common/capabilities';
 import { getBundledOfficeCliDir } from '@process/utils/shellEnv';
+import {
+  OFFICECLI_CONTRACT_SHA256,
+  OFFICECLI_LEDGER_PROOF,
+  OFFICECLI_PINNED_AUTHORING_VERSION,
+  OFFICECLI_SKILL_PROOF,
+  REQUIRED_OFFICECLI_AUTHORING_COMMANDS,
+  classifyBundledOfficeCli,
+  digestOfficeCliEvidence,
+  validOfficeCliSkillProof,
+} from './OfficeCliContractValidator';
 
-export const OFFICECLI_PINNED_AUTHORING_VERSION = OFFICECLI_CAPABILITY.version;
-export const REQUIRED_OFFICECLI_AUTHORING_COMMANDS = [
-  'create',
-  'open',
-  'close',
-  'add',
-  'set',
-  'query',
-  'validate',
-  'view',
-] as const;
+export {
+  OFFICECLI_CONTRACT_SHA256,
+  OFFICECLI_LEDGER_PROOF,
+  OFFICECLI_PINNED_AUTHORING_VERSION,
+  OFFICECLI_SKILL_PROOF,
+  REQUIRED_OFFICECLI_AUTHORING_COMMANDS,
+  classifyBundledOfficeCli,
+} from './OfficeCliContractValidator';
+
 const EVIDENCE_TTL_MS = 5 * 60_000;
-const DARWIN_TEAM_ID = '52JQX2HUSC';
-const DARWIN_ENTITLEMENTS = ['com.apple.security.cs.allow-jit'];
-const OFFICECLI_MANIFEST_REQUIRED_KEYS = [
-  'contract',
-  'version',
-  'platform',
-  'arch',
-  'asset',
-  'binary',
-  'sha256',
-  'source',
-  'publisherSignatureProof',
-  'contractProof',
-  'smokeProof',
-] as const;
-const OFFICECLI_MANIFEST_OPTIONAL_KEYS = ['reportedVersion', 'libc'] as const;
 
-type OfficeCliManifest = {
-  contract: string;
-  version: string;
-  reportedVersion?: string;
-  platform: string;
-  arch: string;
-  libc?: string;
-  asset: string;
-  binary: string;
-  sha256: string;
-  source: string;
-  publisherSignatureProof: unknown;
-  contractProof: unknown;
-  smokeProof: unknown;
-};
+type StablePathIdentity = Readonly<{
+  dev: number;
+  ino: number;
+  nlink: number;
+  mode: number;
+  size: number;
+  mtimeMs: number;
+  ctimeMs: number;
+}>;
+
+type AuthenticatedPathSnapshot = Readonly<{
+  path: string;
+  realPath: string;
+  identity: StablePathIdentity;
+}>;
+
+type InstalledOfficeCliSkillSnapshot = Readonly<{
+  root: AuthenticatedPathSnapshot;
+  directories: ReadonlyArray<AuthenticatedPathSnapshot>;
+  files: ReadonlyArray<AuthenticatedPathSnapshot>;
+}>;
+
+function pathIdentity(stat: Stats): StablePathIdentity {
+  return {
+    dev: stat.dev,
+    ino: stat.ino,
+    nlink: stat.nlink,
+    mode: stat.mode,
+    size: stat.size,
+    mtimeMs: stat.mtimeMs,
+    ctimeMs: stat.ctimeMs,
+  };
+}
+
+function samePathIdentity(left: StablePathIdentity, right: StablePathIdentity): boolean {
+  return (
+    left.dev === right.dev &&
+    left.ino === right.ino &&
+    left.nlink === right.nlink &&
+    left.mode === right.mode &&
+    left.size === right.size &&
+    left.mtimeMs === right.mtimeMs &&
+    left.ctimeMs === right.ctimeMs
+  );
+}
+
+async function authenticateBundleDirectory(bundledDir: string): Promise<{
+  realPath: string;
+  identity: StablePathIdentity;
+}> {
+  const stat = await lstat(bundledDir);
+  if (stat.isSymbolicLink() || !stat.isDirectory()) throw new Error('invalid OfficeCLI bundle directory');
+  return { realPath: await realpath(bundledDir), identity: pathIdentity(stat) };
+}
+
+async function authenticateContainedDirectory(
+  rootRealPath: string,
+  directoryPath: string
+): Promise<{ realPath: string; identity: StablePathIdentity }> {
+  const stat = await lstat(directoryPath);
+  if (stat.isSymbolicLink() || !stat.isDirectory()) throw new Error('invalid OfficeCLI skill directory');
+  const canonicalPath = await realpath(directoryPath);
+  if (canonicalPath !== rootRealPath && !canonicalPath.startsWith(`${rootRealPath}${path.sep}`)) {
+    throw new Error('OfficeCLI skill directory escapes its root');
+  }
+  return { realPath: canonicalPath, identity: pathIdentity(stat) };
+}
+
+async function readAuthenticatedBundleFile(
+  bundledDir: string,
+  bundleRealPath: string,
+  name: string,
+  executable: boolean
+): Promise<{ bytes: Buffer; identity: StablePathIdentity; realPath: string }> {
+  const filePath = path.join(bundledDir, name);
+  const before = await lstat(filePath);
+  if (before.isSymbolicLink() || !before.isFile() || before.nlink !== 1)
+    throw new Error('invalid OfficeCLI bundle file');
+  const beforeIdentity = pathIdentity(before);
+  const beforeRealPath = await realpath(filePath);
+  if (path.dirname(beforeRealPath) !== bundleRealPath) throw new Error('OfficeCLI bundle file escapes its directory');
+
+  const noFollow = process.platform === 'win32' ? 0 : constants.O_NOFOLLOW;
+  const handle = await open(filePath, constants.O_RDONLY | noFollow);
+  try {
+    const opened = await handle.stat();
+    const openedIdentity = pathIdentity(opened);
+    if (
+      !opened.isFile() ||
+      opened.nlink !== 1 ||
+      !samePathIdentity(beforeIdentity, openedIdentity) ||
+      (executable && process.platform !== 'win32' && (opened.mode & 0o111) === 0)
+    ) {
+      throw new Error('OfficeCLI bundle file identity changed before read');
+    }
+    const bytes = await handle.readFile();
+    const afterRead = pathIdentity(await handle.stat());
+    if (!samePathIdentity(openedIdentity, afterRead)) {
+      throw new Error('OfficeCLI bundle file identity changed during read');
+    }
+    return { bytes, identity: openedIdentity, realPath: beforeRealPath };
+  } finally {
+    await handle.close();
+  }
+}
+
+async function readAuthenticatedContainedFile(
+  rootRealPath: string,
+  filePath: string
+): Promise<{ bytes: Buffer; identity: StablePathIdentity; realPath: string }> {
+  const before = await lstat(filePath);
+  if (before.isSymbolicLink() || !before.isFile() || before.nlink !== 1)
+    throw new Error('invalid OfficeCLI skill file');
+  const beforeIdentity = pathIdentity(before);
+  const beforeRealPath = await realpath(filePath);
+  if (!beforeRealPath.startsWith(`${rootRealPath}${path.sep}`)) {
+    throw new Error('OfficeCLI skill file escapes its root');
+  }
+
+  const noFollow = process.platform === 'win32' ? 0 : constants.O_NOFOLLOW;
+  const handle = await open(filePath, constants.O_RDONLY | noFollow);
+  try {
+    const opened = await handle.stat();
+    const openedIdentity = pathIdentity(opened);
+    if (!opened.isFile() || opened.nlink !== 1 || !samePathIdentity(beforeIdentity, openedIdentity)) {
+      throw new Error('OfficeCLI skill file identity changed before read');
+    }
+    const bytes = await handle.readFile();
+    if (!samePathIdentity(openedIdentity, pathIdentity(await handle.stat()))) {
+      throw new Error('OfficeCLI skill file identity changed during read');
+    }
+    return { bytes, identity: openedIdentity, realPath: beforeRealPath };
+  } finally {
+    await handle.close();
+  }
+}
+
+async function verifyBundleIdentityAfterRead(
+  bundledDir: string,
+  expectedRealPath: string,
+  expectedIdentity: StablePathIdentity,
+  expectedFiles: ReadonlyArray<Readonly<{ name: string; identity: StablePathIdentity; realPath: string }>>
+): Promise<void> {
+  const afterBundle = await authenticateBundleDirectory(bundledDir);
+  if (afterBundle.realPath !== expectedRealPath || !samePathIdentity(afterBundle.identity, expectedIdentity)) {
+    throw new Error('OfficeCLI bundle directory identity changed during read');
+  }
+  await Promise.all(
+    expectedFiles.map(async (expected) => {
+      const filePath = path.join(bundledDir, expected.name);
+      const [stat, canonicalPath] = await Promise.all([lstat(filePath), realpath(filePath)]);
+      if (
+        stat.isSymbolicLink() ||
+        !stat.isFile() ||
+        stat.nlink !== 1 ||
+        !samePathIdentity(pathIdentity(stat), expected.identity) ||
+        canonicalPath !== expected.realPath
+      ) {
+        throw new Error('OfficeCLI bundle file identity changed after read');
+      }
+    })
+  );
+}
 
 export type OfficeCliProbeContext = Readonly<{
   correlationId: string;
@@ -64,96 +203,158 @@ export type OfficeCliProbeContext = Readonly<{
   platform?: CapabilityPlatform['platform'];
   arch?: CapabilityPlatform['arch'];
   bundledDir?: string | null;
+  skillsRoot?: string | null;
 }>;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === 'object' && !Array.isArray(value));
-}
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
-  if (isRecord(value))
+  if (value && typeof value === 'object')
     return `{${Object.entries(value)
       .toSorted(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
       .map(([k, v]) => `${JSON.stringify(k)}:${canonical(v)}`)
       .join(',')}}`;
   return JSON.stringify(value);
 }
-function digest(value: Buffer | string): `sha256:${string}` {
-  return `sha256:${createHash('sha256').update(value).digest('hex')}`;
-}
-function exactStringArray(value: unknown, expected: readonly string[]) {
-  return Array.isArray(value) && expected.every((entry) => value.includes(entry));
-}
-function hasExactManifestShape(value: Record<string, unknown>): boolean {
-  const allowed = new Set<string>([...OFFICECLI_MANIFEST_REQUIRED_KEYS, ...OFFICECLI_MANIFEST_OPTIONAL_KEYS]);
-  return (
-    OFFICECLI_MANIFEST_REQUIRED_KEYS.every((key) => key in value) && Object.keys(value).every((key) => allowed.has(key))
-  );
-}
-function validPublisherProof(platform: string, proof: unknown): boolean {
-  if (platform !== 'darwin' || !isRecord(proof)) return false;
-  return (
-    proof.contract === 'apple-developer-id/1.0' &&
-    proof.teamIdentifier === DARWIN_TEAM_ID &&
-    proof.hardenedRuntime === true &&
-    proof.secureTimestamp === true &&
-    Array.isArray(proof.entitlements) &&
-    canonical([...proof.entitlements].toSorted()) === canonical(DARWIN_ENTITLEMENTS)
-  );
+/** Re-authenticate the exact installed OfficeCLI skill bytes before advertising the capability. */
+async function captureInstalledOfficeCliSkillProof(
+  skillsRoot: string,
+  value: unknown
+): Promise<InstalledOfficeCliSkillSnapshot | null> {
+  if (!validOfficeCliSkillProof(value)) return null;
+  try {
+    const root = await authenticateBundleDirectory(skillsRoot);
+    const expected = new Set(OFFICECLI_SKILL_PROOF.skills.map((skill) => skill.path));
+    const discovered = new Set<string>();
+    const directories = new Map<string, { identity: StablePathIdentity; realPath: string }>();
+    const visit = async (relativeDir: string): Promise<void> => {
+      const absoluteDir = path.join(skillsRoot, relativeDir);
+      const directory = await authenticateContainedDirectory(root.realPath, absoluteDir);
+      directories.set(relativeDir, directory);
+      await Promise.all(
+        (await readdir(absoluteDir, { withFileTypes: true })).map(async (entry) => {
+          const relative = path.posix.join(relativeDir.split(path.sep).join('/'), entry.name);
+          if (entry.isSymbolicLink()) throw new Error('symbolic skill path');
+          if (entry.isDirectory()) await visit(relative);
+          else if (entry.isFile()) discovered.add(relative);
+          else throw new Error('unsupported skill path');
+        })
+      );
+    };
+    const topLevelEntries = await readdir(skillsRoot, { withFileTypes: true });
+    const officeCliEntries = topLevelEntries.filter((entry) => entry.name.startsWith('officecli-'));
+    if (officeCliEntries.some((entry) => entry.isSymbolicLink() || !entry.isDirectory())) return null;
+    await Promise.all(officeCliEntries.map((entry) => visit(entry.name)));
+    const builtinDir = path.join(skillsRoot, '_builtin', 'office-cli');
+    try {
+      const builtinStat = await lstat(builtinDir);
+      if (builtinStat.isSymbolicLink() || !builtinStat.isDirectory()) return null;
+      await visit('_builtin/office-cli');
+    } catch {
+      // Exact-set comparison below rejects the missing builtin skill.
+    }
+    if (canonical([...discovered].toSorted()) !== canonical([...expected].toSorted())) return null;
+    const files = await Promise.all(
+      OFFICECLI_SKILL_PROOF.skills.map(async (skill) => {
+        const absolute = path.join(skillsRoot, skill.path);
+        const file = await readAuthenticatedContainedFile(root.realPath, absolute);
+        return { file, path: absolute, digestMatches: digestOfficeCliEvidence(file.bytes) === skill.sha256 };
+      })
+    );
+    if (files.some((file) => !file.digestMatches)) return null;
+
+    const rootAfter = await authenticateBundleDirectory(skillsRoot);
+    if (rootAfter.realPath !== root.realPath || !samePathIdentity(rootAfter.identity, root.identity)) return null;
+    await Promise.all([
+      ...[...directories.entries()].map(async ([relativeDir, expectedDirectory]) => {
+        const directory = await authenticateContainedDirectory(root.realPath, path.join(skillsRoot, relativeDir));
+        if (
+          directory.realPath !== expectedDirectory.realPath ||
+          !samePathIdentity(directory.identity, expectedDirectory.identity)
+        ) {
+          throw new Error('OfficeCLI skill directory identity changed during read');
+        }
+      }),
+      ...files.map(async (expectedFile) => {
+        const [stat, canonicalPath] = await Promise.all([lstat(expectedFile.path), realpath(expectedFile.path)]);
+        if (
+          stat.isSymbolicLink() ||
+          !stat.isFile() ||
+          stat.nlink !== 1 ||
+          !samePathIdentity(pathIdentity(stat), expectedFile.file.identity) ||
+          canonicalPath !== expectedFile.file.realPath
+        ) {
+          throw new Error('OfficeCLI skill file identity changed after read');
+        }
+      }),
+    ]);
+    return {
+      root: { path: skillsRoot, realPath: root.realPath, identity: root.identity },
+      directories: [...directories.entries()].map(([relativeDir, directory]) => ({
+        path: path.join(skillsRoot, relativeDir),
+        realPath: directory.realPath,
+        identity: directory.identity,
+      })),
+      files: files.map((entry) => ({
+        path: entry.path,
+        realPath: entry.file.realPath,
+        identity: entry.file.identity,
+      })),
+    };
+  } catch {
+    return null;
+  }
 }
 
-export type OfficeCliClassification = Readonly<
-  | { available: true; binarySha256: `sha256:${string}`; publisherProof: `sha256:${string}` }
-  | { available: false; reason: string }
->;
+/** Re-authenticate the exact installed OfficeCLI skill bytes before advertising the capability. */
+export async function verifyInstalledOfficeCliSkillProof(skillsRoot: string, value: unknown): Promise<boolean> {
+  return (await captureInstalledOfficeCliSkillProof(skillsRoot, value)) !== null;
+}
 
-/** Pure target-exact classifier used by both the IO producer and hostile tests. */
-export function classifyBundledOfficeCli(
-  raw: unknown,
-  actualBinarySha256: `sha256:${string}`,
-  platform: CapabilityPlatform['platform'],
-  arch: CapabilityPlatform['arch']
-): OfficeCliClassification {
-  const target = findCapabilityPlatform(OFFICECLI_CAPABILITY, platform, arch);
-  if (!target) return { available: false, reason: 'OfficeCLI is not declared for this target.' };
-  if (!isRecord(raw) || !hasExactManifestShape(raw))
-    return { available: false, reason: 'OfficeCLI manifest is malformed.' };
-  const manifest = raw as OfficeCliManifest;
-  const binary = platform === 'win32' ? 'officecli.exe' : 'officecli';
+function verifySnapshotPathNow(snapshot: AuthenticatedPathSnapshot, kind: 'directory' | 'file'): void {
+  const stat = lstatSync(snapshot.path);
   if (
-    manifest.contract !== 'iofficeai-officecli-native' ||
-    manifest.version !== `v${OFFICECLI_CAPABILITY.version}` ||
-    manifest.platform !== platform ||
-    manifest.arch !== arch ||
-    manifest.asset !== target.artifact ||
-    manifest.binary !== binary ||
-    manifest.sha256 !== target.binarySha256 ||
-    actualBinarySha256 !== target.binarySha256
+    stat.isSymbolicLink() ||
+    (kind === 'directory' ? !stat.isDirectory() : !stat.isFile() || stat.nlink !== 1) ||
+    realpathSync(snapshot.path) !== snapshot.realPath ||
+    !samePathIdentity(pathIdentity(stat), snapshot.identity)
   ) {
-    return { available: false, reason: 'OfficeCLI manifest identity, target, or checksum does not match.' };
+    throw new Error(`OfficeCLI ${kind} identity changed before capability publication`);
   }
-  if (!validPublisherProof(platform, manifest.publisherSignatureProof)) {
-    return { available: false, reason: 'OfficeCLI publisher proof is unavailable or invalid for this target.' };
-  }
-  if (
-    !isRecord(manifest.contractProof) ||
-    manifest.contractProof.contract !== 'wayland-officecli-authoring/1.0' ||
-    manifest.contractProof.release !== manifest.version
-  ) {
-    return { available: false, reason: 'OfficeCLI authoring contract proof is invalid.' };
-  }
-  if (
-    !isRecord(manifest.smokeProof) ||
-    !exactStringArray(manifest.smokeProof.formats, OFFICECLI_CAPABILITY.formats) ||
-    !exactStringArray(manifest.smokeProof.operations, OFFICECLI_CAPABILITY.operations)
-  ) {
-    return { available: false, reason: 'OfficeCLI smoke proof does not cover the declared contract.' };
-  }
-  return {
-    available: true,
-    binarySha256: actualBinarySha256,
-    publisherProof: digest(canonical(manifest.publisherSignatureProof)),
-  };
+}
+
+/**
+ * Perform one non-yielding final identity sweep over both evidence roots. The
+ * asynchronous readers above authenticate bytes; this synchronous boundary
+ * prevents either root from being changed by an in-process callback while the
+ * other root is being rebound immediately before evidence publication.
+ */
+function verifyCombinedSnapshotNow(
+  bundledDir: string,
+  bundleRealPath: string,
+  bundleIdentity: StablePathIdentity,
+  bundleFiles: ReadonlyArray<Readonly<{ name: string; identity: StablePathIdentity; realPath: string }>>,
+  skills: InstalledOfficeCliSkillSnapshot
+): void {
+  const snapshots: ReadonlyArray<Readonly<{ snapshot: AuthenticatedPathSnapshot; kind: 'directory' | 'file' }>> = [
+    {
+      snapshot: { path: bundledDir, realPath: bundleRealPath, identity: bundleIdentity },
+      kind: 'directory',
+    },
+    ...bundleFiles.map((file) => ({
+      snapshot: { path: path.join(bundledDir, file.name), realPath: file.realPath, identity: file.identity },
+      kind: 'file' as const,
+    })),
+    { snapshot: skills.root, kind: 'directory' },
+    ...skills.directories.map((snapshot) => ({ snapshot, kind: 'directory' as const })),
+    ...skills.files.map((snapshot) => ({ snapshot, kind: 'file' as const })),
+  ];
+
+  // A forward sweep catches changes to later paths triggered while earlier
+  // paths are checked; the opposing sweep catches changes to earlier paths
+  // triggered while later paths are checked. This is a bounded construction
+  // observation, not an immutable filesystem snapshot or execution grant.
+  for (const entry of snapshots) verifySnapshotPathNow(entry.snapshot, entry.kind);
+  for (const entry of snapshots.toReversed()) verifySnapshotPathNow(entry.snapshot, entry.kind);
 }
 
 function evidenceBase(
@@ -201,12 +402,19 @@ export async function probeOfficeCliAuthoringEvidence(context: OfficeCliProbeCon
     };
   try {
     const binaryName = platform === 'win32' ? 'officecli.exe' : 'officecli';
-    const [manifestBytes, binaryBytes] = await Promise.all([
-      readFile(path.join(bundledDir, 'manifest.json')),
-      readFile(path.join(bundledDir, binaryName)),
+    const bundle = await authenticateBundleDirectory(bundledDir);
+    const [manifestFile, binaryFile] = await Promise.all([
+      readAuthenticatedBundleFile(bundledDir, bundle.realPath, 'manifest.json', false),
+      readAuthenticatedBundleFile(bundledDir, bundle.realPath, binaryName, true),
     ]);
-    const binarySha256 = digest(binaryBytes);
-    const result = classifyBundledOfficeCli(JSON.parse(manifestBytes.toString('utf8')), binarySha256, platform, arch);
+    const bundleFiles = [
+      { name: 'manifest.json', identity: manifestFile.identity, realPath: manifestFile.realPath },
+      { name: binaryName, identity: binaryFile.identity, realPath: binaryFile.realPath },
+    ];
+    await verifyBundleIdentityAfterRead(bundledDir, bundle.realPath, bundle.identity, bundleFiles);
+    const binarySha256 = digestOfficeCliEvidence(binaryFile.bytes);
+    const manifest = JSON.parse(manifestFile.bytes.toString('utf8')) as Record<string, unknown>;
+    const result = classifyBundledOfficeCli(manifest, binarySha256, platform, arch);
     if ('reason' in result)
       return {
         ...base,
@@ -217,6 +425,25 @@ export async function probeOfficeCliAuthoringEvidence(context: OfficeCliProbeCon
         formats: [],
         reason: result.reason,
       };
+    const skillSnapshot = context.skillsRoot
+      ? await captureInstalledOfficeCliSkillProof(context.skillsRoot, manifest.skillProof)
+      : null;
+    if (!skillSnapshot) {
+      return {
+        ...base,
+        evidenceId: `officecli-invalid-skills:${platform}:${arch}`,
+        sourceInstance: `officecli-invalid-skills:${platform}:${arch}`,
+        status: 'unavailable',
+        operations: [],
+        formats: [],
+        reason: 'The installed OfficeCLI skill set does not match the executable contract.',
+      };
+    }
+    // Skill proof crosses multiple asynchronous filesystem boundaries. Rebind
+    // both evidence roots in one non-yielding identity sweep immediately
+    // before publishing the available evidence snapshot. Revalidating either
+    // root with another awaited operation merely moves the race to the other.
+    verifyCombinedSnapshotNow(bundledDir, bundle.realPath, bundle.identity, bundleFiles, skillSnapshot);
     return {
       ...base,
       evidenceId: `officecli:${binarySha256.slice(7)}`,

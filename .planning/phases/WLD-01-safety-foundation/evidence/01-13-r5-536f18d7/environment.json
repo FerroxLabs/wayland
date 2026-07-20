@@ -1,0 +1,12 @@
+{
+  "schema": "wayland-local-proof-environment/1",
+  "captured_at_utc": "2026-07-19T21:13:40.011Z",
+  "os": "Darwin Kernel Version 25.3.0: Wed Jan 28 20:54:05 PST 2026; root:xnu-12377.81.4~5/RELEASE_ARM64_T8142",
+  "architecture": "arm64",
+  "node": "v25.8.1",
+  "bun": "1.3.11",
+  "git": "git version 2.50.1 (Apple Git-155)",
+  "source_commit": "536f18d790ece1e4b238dede20cb14d509ba5129",
+  "source_tree": "0575c334cdcd30539da228b1a23d6709ae13b4ee",
+  "bun_lock_sha256": "819b4bca770ed7ef660561308f88fa71922e58bde4e7504f45277b204622b0c1"
+}

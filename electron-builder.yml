@@ -130,6 +130,11 @@ extraResources:
   # and SHA-256 verified before packaging. No hosted npm fallback is bundled.
   - from: resources/bundled-officecli
     to: bundled-officecli
+  # A fail-closed shadow command follows the verified OfficeCLI directory on
+  # PATH. If the verified binary is absent or disappears, a user/global binary
+  # can never become an implicit fallback.
+  - from: resources/managed-cli-shims
+    to: managed-cli-shims
   # Exact Windows NSIS extractors used only to materialize the separately
   # SHA-256-pinned Classic v0.11.8 recovery executable. Runtime verifies these
   # bytes again before use; both architectures are bundled on every target so

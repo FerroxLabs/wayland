@@ -1,0 +1,115 @@
+{
+  "contract": "iofficeai-officecli-native",
+  "version": "v1.0.136",
+  "reportedVersion": "1.0.136",
+  "platform": "darwin",
+  "arch": "arm64",
+  "asset": "officecli-mac-arm64",
+  "binary": "officecli",
+  "sha256": "sha256:b8582853cc464fa0bdb2fabc2803821472c9449c38b365a7be79fcb53d6356e7",
+  "source": "https://github.com/iOfficeAI/OfficeCLI/releases/download/v1.0.136/officecli-mac-arm64",
+  "contractSha256": "sha256:7694ef4a76ac976a1c82f1440b73cb33d9f988327ee9619e736e6635609a28fb",
+  "capabilityFixtureDigest": "sha256:6ad7304ac9484a04da06db954a6166e6af62682691febfa4bdead61bf8fbd6f8",
+  "skillProof": {
+    "contract": "wayland-officecli-skills/1.0",
+    "skills": [
+      {
+        "id": "_builtin/office-cli",
+        "path": "_builtin/office-cli/SKILL.md",
+        "sha256": "sha256:20677ccb68a04b8ca92e6ab953c9fb01fd0aadfaa1f66c988959cd4f7476a794"
+      },
+      {
+        "id": "officecli-academic-paper",
+        "path": "officecli-academic-paper/SKILL.md",
+        "sha256": "sha256:ed92cda7121e9482f6362d59db758c9dabe31ff2be3593e0428feb2c7f08cf5a"
+      },
+      {
+        "id": "officecli-data-dashboard",
+        "path": "officecli-data-dashboard/SKILL.md",
+        "sha256": "sha256:20dd30211d68aa89c5ae374a90947402068223a1dd06e7a849f1eb22125a1df3"
+      },
+      {
+        "id": "officecli-docx",
+        "path": "officecli-docx/SKILL.md",
+        "sha256": "sha256:6718635f6d04490e0cc92548f1ba8301275bf0b1fd8f0caa173b7e82ed21c35e"
+      },
+      {
+        "id": "officecli-financial-model",
+        "path": "officecli-financial-model/SKILL.md",
+        "sha256": "sha256:255c726b304544ebbff8a8428b7af3c79d1ed7afb2ccc004c89dd897079edb49"
+      },
+      {
+        "id": "officecli-pitch-deck",
+        "path": "officecli-pitch-deck/SKILL.md",
+        "sha256": "sha256:f61aec35330feb62474b1e971ce67f69cde35d271f6eea76fc666a7432ca0b16"
+      },
+      {
+        "id": "officecli-pptx",
+        "path": "officecli-pptx/SKILL.md",
+        "sha256": "sha256:175029d96192c96726186413bcf9a8c4db24a85ace30ee1655d030220971ee46"
+      },
+      {
+        "id": "officecli-word-form",
+        "path": "officecli-word-form/SKILL.md",
+        "sha256": "sha256:a1c253363e60f6f68a610267e10bf633a64f55edc9c016e8f1f3eed61776b59d"
+      },
+      {
+        "id": "officecli-xlsx",
+        "path": "officecli-xlsx/SKILL.md",
+        "sha256": "sha256:753923f15c10d81fe62a7b1f6011feafec2cc30c2637411a395309b5fd1099c9"
+      }
+    ]
+  },
+  "ledgerProof": {
+    "contract": "wayland-third-party-executables/1.0",
+    "ledgerSha256": "sha256:1e9765cd74f70ff902495117e4c63ea252f803cace63931b762d569ba96b7348",
+    "entrySha256": "sha256:8f99ee8a29279b5bdbdf551cb3099075dcab0501025ce3adb63aebc2dcd0be9a",
+    "hostedFallbackAvailable": false
+  },
+  "publisherSignatureProof": {
+    "contract": "apple-developer-id/1.0",
+    "teamIdentifier": "52JQX2HUSC",
+    "hardenedRuntime": true,
+    "secureTimestamp": true,
+    "entitlements": [
+      "com.apple.security.cs.allow-jit"
+    ]
+  },
+  "contractProof": {
+    "contract": "wayland-officecli-authoring/1.0",
+    "release": "v1.0.136"
+  },
+  "smokeProof": {
+    "formats": [
+      "docx",
+      "xlsx",
+      "pptx"
+    ],
+    "operations": [
+      "create",
+      "mutate",
+      "query",
+      "validate",
+      "view"
+    ],
+    "specialistPacks": [
+      "officecli-financial-model",
+      "officecli-data-dashboard",
+      "officecli-word-form",
+      "officecli-pitch-deck"
+    ],
+    "specialistPrimitives": [
+      "formula-evaluation",
+      "named-range",
+      "data-validation",
+      "conditional-formatting",
+      "xlsx-chart",
+      "structured-content-control",
+      "legacy-form-field",
+      "document-protection",
+      "connected-shapes",
+      "speaker-notes",
+      "pptx-embedded-chart"
+    ]
+  }
+}

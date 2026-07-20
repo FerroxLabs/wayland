@@ -1,0 +1,48 @@
+$ bun run test:vitest && bun run test:bun
+$ vitest run
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-01-13-evidence-r4/app
+
+stdout | tests/unit/renderer/missionControlActivity.dom.test.tsx
+build.buildStorage global
+build.buildStorage system
+
+ ❯ |dom| tests/unit/renderer/missionControlActivity.dom.test.tsx (2 tests | 1 failed) 20696ms
+     × keeps a 1,001-entry ledger bounded while every entry remains reachable 20675ms
+Not implemented: HTMLCanvasElement's getContext() method: without installing the canvas npm package
+   Password: <REDACTED>
+   Password: <REDACTED>
+  New Password: <REDACTED>
+   Password: <REDACTED>
+   Password: <REDACTED>
+(node:4172) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 51 responseStream listeners added to [EventEmitter]. MaxListeners is 50. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+[prepareVoiceModel] downloading config.json ... ok (0.0 MB)
+Warning: A vi.mock("@process/utils/initStorage") call in "/Users/seandonahoe/gsd-workspaces/wayland-desktop-01-13-evidence-r4/app/tests/unit/process/services/skills/skillLibrary.test.ts" is not at the top level of the module. Although it appears nested, it will be hoisted and executed before any tests run. Move it to the top level to reflect its actual execution order. This will become an error in a future version.
+See: https://vitest.dev/guide/mocking/modules#how-it-works
+Warning: A vi.mock("@process/utils/mainLogger") call in "/Users/seandonahoe/gsd-workspaces/wayland-desktop-01-13-evidence-r4/app/tests/unit/process/services/skills/skillLibrary.test.ts" is not at the top level of the module. Although it appears nested, it will be hoisted and executed before any tests run. Move it to the top level to reflect its actual execution order. This will become an error in a future version.
+See: https://vitest.dev/guide/mocking/modules#how-it-works
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |dom| tests/unit/renderer/missionControlActivity.dom.test.tsx > Mission Control activity window > keeps a 1,001-entry ledger bounded while every entry remains reachable
+Error: Test timed out in 10000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/renderer/missionControlActivity.dom.test.tsx:71:3
+     69|
+     70| describe('Mission Control activity window', () => {
+     71|   it('keeps a 1,001-entry ledger bounded while every entry remains rea…
+       |   ^
+     72|     state.snapshot = snapshot(1_001);
+     73|     render(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1429 passed | 21 skipped (1451)
+      Tests  1 failed | 15147 passed | 145 skipped (15293)
+   Start at  04:14:01
+   Duration  270.06s (transform 53.58s, setup 83.67s, import 772.49s, tests 649.86s, environment 567.69s)
+
+error: script "test:vitest" exited with code 1
+error: script "test" exited with code 1

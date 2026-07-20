@@ -204,6 +204,9 @@ function addPackagedApp(
   writeSkillPack(resources, 'bundled-workflows');
   writeBunBundle(resources, arch);
   fs.mkdirSync(resources, { recursive: true });
+  fs.cpSync(path.resolve('resources/managed-cli-shims'), path.join(resources, 'managed-cli-shims'), {
+    recursive: true,
+  });
   fs.writeFileSync(path.join(resources, 'capability-seal.json'), '{}');
   fs.writeFileSync(path.join(resources, 'modelsdev-snapshot.json'), TEST_MODELS_SNAPSHOT);
   for (const relativePath of VOICE_MODEL_FILES) {
@@ -487,6 +490,37 @@ describe('packaged resource release gate', () => {
   it('blocks a package whose native OfficeCLI bundle is absent', () => {
     const out = createPackagedResources(false);
     expect(() => verify(out)).toThrow();
+  });
+
+  it.each(['officecli', 'officecli.cmd'])('blocks a package whose managed %s guard is absent', (name) => {
+    const out = createPackagedResources(true);
+    fs.rmSync(path.join(packagedResourcesPath(out), 'managed-cli-shims', name));
+    expect(() => verify(out)).toThrow(/CRITICAL/);
+  });
+
+  it.each(['officecli', 'officecli.cmd'])('blocks a package whose managed %s guard bytes drift', (name) => {
+    const out = createPackagedResources(true);
+    fs.appendFileSync(path.join(packagedResourcesPath(out), 'managed-cli-shims', name), 'tampered');
+    expect(() => verify(out)).toThrow(/CRITICAL/);
+  });
+
+  it('blocks a package whose managed POSIX OfficeCLI guard is not executable', () => {
+    if (process.platform === 'win32') return;
+    const out = createPackagedResources(true);
+    const guard = path.join(packagedResourcesPath(out), 'managed-cli-shims', 'officecli');
+    fs.chmodSync(guard, 0o644);
+    expect(() => verify(out)).toThrow(/CRITICAL/);
+  });
+
+  it('blocks a package whose managed OfficeCLI guard is a symbolic link', () => {
+    if (process.platform === 'win32') return;
+    const out = createPackagedResources(true);
+    const guard = path.join(packagedResourcesPath(out), 'managed-cli-shims', 'officecli');
+    const substitute = path.join(out, 'substitute-officecli');
+    fs.copyFileSync(guard, substitute);
+    fs.rmSync(guard);
+    fs.symlinkSync(substitute, guard);
+    expect(() => verify(out)).toThrow(/CRITICAL/);
   });
 
   it('blocks a package whose Classic recovery extractor bytes drift', () => {

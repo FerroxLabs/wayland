@@ -48,6 +48,21 @@ const REQUIRED = [
   { rel: 'bundled-workflows', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-wayland-core', critical: true, kind: 'wcore-bundle' },
   { rel: 'bundled-officecli', critical: true, kind: 'officecli-bundle' },
+  {
+    rel: 'managed-cli-shims/officecli',
+    critical: true,
+    kind: 'hashed-file',
+    posixExecutable: true,
+    size: 139,
+    sha256: 'b77af087b9ce061bd26957e387b6dc56491ef894409e52317d11692a63ac327f',
+  },
+  {
+    rel: 'managed-cli-shims/officecli.cmd',
+    critical: true,
+    kind: 'hashed-file',
+    size: 141,
+    sha256: '268a4892123162e5264b7f31d6d0ac659b64960e588c808445f39898e7e81055',
+  },
   { rel: 'bundled-constitution-fs', critical: true, kind: 'constitution-fs-bundle' },
   {
     rel: 'classic-recovery-tools/win/arm64/7za.exe',
@@ -852,10 +867,11 @@ function isNonEmpty(
     if (kind === 'constitution-fs-bundle' && targetPlatform === 'win32') {
       return !fs.existsSync(p);
     }
-    const st = fs.statSync(p);
+    const st = kind === 'hashed-file' ? fs.lstatSync(p) : fs.statSync(p);
     if (kind === 'file') return st.isFile() && st.size > 0;
     if (kind === 'hashed-file') {
-      return st.isFile() && st.size === expected.size && sha256File(p) === expected.sha256;
+      const executable = !expected.posixExecutable || targetPlatform === 'win32' || (st.mode & 0o111) !== 0;
+      return st.isFile() && executable && st.size === expected.size && sha256File(p) === expected.sha256;
     }
     if (kind === 'models-snapshot') return st.isFile() && verifyModelsSnapshot(p, modelsAuthority);
     if (kind === 'capability-seal') {
