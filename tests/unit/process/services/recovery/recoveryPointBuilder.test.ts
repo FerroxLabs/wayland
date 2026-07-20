@@ -18,6 +18,10 @@ import { ConstitutionRevisionAuthority } from '@process/services/constitution/co
 const cleanupRace = vi.hoisted(() => ({
   armed: false,
   swapped: false,
+  // 'root' swaps on the exact reserved-root removal; 'child' swaps during the
+  // readdir -> child-remove window so the swapped-in replacement carries a
+  // same-named child subtree that must survive.
+  mode: 'root' as 'root' | 'child',
   finalRoot: '',
   retiredRoot: '',
   sentinel: '',
@@ -28,11 +32,35 @@ vi.mock('node:fs/promises', async (importOriginal) => {
   return {
     ...actual,
     rm: async (...args: Parameters<typeof actual.rm>) => {
-      if (cleanupRace.armed && !cleanupRace.swapped && String(args[0]) === cleanupRace.finalRoot) {
-        cleanupRace.swapped = true;
-        await actual.rename(cleanupRace.finalRoot, cleanupRace.retiredRoot);
-        await actual.mkdir(cleanupRace.finalRoot);
-        await actual.writeFile(cleanupRace.sentinel, 'replacement-must-survive');
+      if (cleanupRace.armed && !cleanupRace.swapped) {
+        const target = String(args[0]);
+        const recursive = Boolean((args[1] as { recursive?: boolean } | undefined)?.recursive);
+        const rootHit = cleanupRace.mode === 'root' && target === cleanupRace.finalRoot;
+        // A child removal is any recursive delete that is neither the reserved
+        // root itself nor the private staging tree ('.incomplete-'). In
+        // descriptor-relative mode the target is '/proc/self/fd/<fd>/<child>',
+        // so the reserved child's name is its basename.
+        const childHit =
+          cleanupRace.mode === 'child' &&
+          recursive &&
+          target !== cleanupRace.finalRoot &&
+          !target.includes('.incomplete-');
+        if (rootHit || childHit) {
+          cleanupRace.swapped = true;
+          await actual.rename(cleanupRace.finalRoot, cleanupRace.retiredRoot);
+          await actual.mkdir(cleanupRace.finalRoot);
+          if (childHit) {
+            // Install a replacement whose same-named child subtree must not be
+            // re-resolved into and destroyed by the pending child removal.
+            const childName = target.slice(target.lastIndexOf('/') + 1);
+            const replacementChild = `${cleanupRace.finalRoot}/${childName}`;
+            cleanupRace.sentinel = `${replacementChild}/replacement-sentinel`;
+            await actual.mkdir(replacementChild, { recursive: true });
+            await actual.writeFile(cleanupRace.sentinel, 'replacement-must-survive');
+          } else {
+            await actual.writeFile(cleanupRace.sentinel, 'replacement-must-survive');
+          }
+        }
       }
       return actual.rm(...args);
     },
@@ -45,6 +73,7 @@ describe('recovery point builder', () => {
   afterEach(() => {
     cleanupRace.armed = false;
     cleanupRace.swapped = false;
+    cleanupRace.mode = 'root';
     cleanupRace.finalRoot = '';
     cleanupRace.retiredRoot = '';
     cleanupRace.sentinel = '';
@@ -793,6 +822,60 @@ describe('recovery point builder', () => {
     expect(cleanupRace.swapped).toBe(true);
     expect(fs.existsSync(replacementSentinel)).toBe(true);
   });
+
+  // Descriptor-relative binding (Linux) is the only mode in which child removal
+  // is proven inode-bound; the pathname fallback is test-only and never runs in
+  // production (admitRecoveryDestination fails closed off Linux).
+  it.runIf(process.platform === 'linux')(
+    'never re-resolves a child removal into a replacement swapped in during readdir',
+    async () => {
+      const data = await fixture();
+      const admittedDestinationRoot = path.join(
+        fs.realpathSync(path.dirname(data.destinationRoot)),
+        path.basename(data.destinationRoot)
+      );
+      const finalRoot = path.join(admittedDestinationRoot, 'snapshot-test');
+      const retiredRoot = path.join(admittedDestinationRoot, 'snapshot-retired-during-child-cleanup');
+      // The swapped-in replacement's same-named child sentinel is assigned by the
+      // mock (it derives the child name from the pending removal target).
+      Object.assign(cleanupRace, { mode: 'child', finalRoot, retiredRoot, sentinel: '' });
+      const deps = dependencies({
+        // Production descriptor-relative mode: no pathname fallback.
+        allowUnsafePathFallbackForTests: false,
+        beforePublicationCommit: async () => {
+          throw new Error('force unpublished cleanup');
+        },
+        beforeOutputCleanup: async () => {
+          cleanupRace.armed = true;
+        },
+      });
+
+      await expect(
+        buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot: data.destinationRoot,
+            reason: 'manual',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        )
+      ).rejects.toThrow('force unpublished cleanup');
+
+      // The swap fired on a path.join(root, entry) child removal, not the exact
+      // root removal, and the replacement's same-named child subtree survives.
+      expect(cleanupRace.swapped).toBe(true);
+      expect(cleanupRace.sentinel).not.toBe('');
+      expect(fs.existsSync(cleanupRace.sentinel)).toBe(true);
+      expect(fs.readFileSync(cleanupRace.sentinel, 'utf8')).toBe('replacement-must-survive');
+      // The replacement occupies the reserved name and is never retired into.
+      expect(fs.existsSync(finalRoot)).toBe(true);
+      // Our own reserved inode (now at the retired name) had its children removed
+      // through the pinned descriptor, proving cleanup deleted only what we owned.
+      expect(fs.readdirSync(retiredRoot)).toEqual([]);
+    }
+  );
 
   it('removes its reserved publication root when publication-handle cleanup fails', async () => {
     const data = await fixture();

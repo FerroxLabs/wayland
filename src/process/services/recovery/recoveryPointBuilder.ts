@@ -1301,57 +1301,89 @@ async function readManifest(manifestPath: string): Promise<RecoveryManifest> {
   return JSON.parse(await readFile(manifestPath, 'utf8')) as RecoveryManifest;
 }
 
-async function removeRecoveryRootIfOwned(root: string, identity: DestinationPathIdentity | undefined): Promise<void> {
+async function removeRecoveryRootIfOwned(
+  root: string,
+  identity: DestinationPathIdentity | undefined,
+  admission: RecoveryStagingAdmission | undefined,
+  closeFileHandle: RecoveryPointBuilderDependencies['closeFileHandle']
+): Promise<void> {
   if (!identity) return;
-  let current: Awaited<ReturnType<typeof lstat>>;
+  const handle = admission?.handle;
+  const closeFailures: Error[] = [];
   try {
-    current = await lstat(root);
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
-    throw error;
+    let current: Awaited<ReturnType<typeof lstat>>;
+    try {
+      current = await lstat(root);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+      throw error;
+    }
+    // Cleanup authority never transfers with a pathname. If another actor has
+    // replaced our reservation, leave its inode untouched and fail closed.
+    if (
+      current.isSymbolicLink() ||
+      !current.isDirectory() ||
+      current.dev !== identity.dev ||
+      current.ino !== identity.ino
+    ) {
+      return;
+    }
+    // Empty the reserved inode's own contents. Removing a populated reservation
+    // requires enumerating and deleting descendants, and each `rm` below would
+    // otherwise re-resolve `path.join(root, entry)` through the reservation's
+    // *name*. A publisher that renames our reservation away and installs a
+    // populated replacement between this readdir and a child delete would then
+    // have that child delete cascade into the replacement's same-named subtree.
+    // Bind the enumeration and every child delete to the pinned publication
+    // descriptor instead: `admission.operationRoot` is `/proc/self/fd/<fd>` in
+    // descriptor-relative mode, so it resolves through the held handle's inode,
+    // never the re-resolvable name. The handle is re-stat'd against the admitted
+    // identity first; if it no longer resolves to our reservation we fail closed
+    // and leave the orphan rather than delete through a re-resolved pathname.
+    let childBase = root;
+    if (handle) {
+      const pinned = await handle.stat();
+      if (!pinned.isDirectory() || pinned.dev !== identity.dev || pinned.ino !== identity.ino) {
+        return;
+      }
+      childBase = admission!.operationRoot;
+    }
+    for (const entry of await readdir(childBase)) {
+      // oxlint-disable-next-line no-await-in-loop -- ordered cleanup of a single reserved root.
+      await rm(path.join(childBase, entry), { recursive: true, force: true });
+    }
+    // Retire only the emptied shell, and never through a recursive pathname
+    // delete. The identity check above proves nothing about the object present at
+    // any later instant: between it and this removal a concurrent publisher can
+    // rename our emptied reservation away and install a populated replacement at
+    // the same name. A non-recursive removal cannot cascade into such a
+    // replacement's contents (rm reports EISDIR for any directory and rmdir
+    // reports ENOTEMPTY/ENOTDIR for a non-empty or non-directory replacement), so
+    // no object this builder never reserved is ever destroyed.
+    try {
+      await rm(root, { recursive: false });
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      // EISDIR is expected: our reservation is a directory, so the non-recursive
+      // rm never removes it (or any directory swapped over the name). ENOENT means
+      // the reservation is already gone. Both leave the directory case to rmdir.
+      if (code !== 'ERR_FS_EISDIR' && code !== 'ENOENT') throw error;
+    }
+    try {
+      await rmdir(root);
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      // A racing publisher replaced our emptied reservation. Leaving the orphan is
+      // the fail-closed outcome; a re-resolved pathname is never deleted merely
+      // because it now occupies the reserved name.
+      if (code !== 'ENOTEMPTY' && code !== 'ENOTDIR' && code !== 'ENOENT') throw error;
+    }
+  } finally {
+    // The pinned publication descriptor is retired here, after the descriptor
+    // has served the inode-bound removal above.
+    await closeRecoveryHandle(handle, 'publication-root', closeFileHandle, closeFailures);
   }
-  // Cleanup authority never transfers with a pathname. If another actor has
-  // replaced our reservation, leave its inode untouched and fail closed.
-  if (
-    current.isSymbolicLink() ||
-    !current.isDirectory() ||
-    current.dev !== identity.dev ||
-    current.ino !== identity.ino
-  ) {
-    return;
-  }
-  // Empty the reserved inode's own contents. Each child is removed individually
-  // after the parent identity above was verified.
-  for (const entry of await readdir(root)) {
-    // oxlint-disable-next-line no-await-in-loop -- ordered cleanup of a single reserved root.
-    await rm(path.join(root, entry), { recursive: true, force: true });
-  }
-  // Retire only the emptied shell, and never through a recursive pathname
-  // delete. The identity check above proves nothing about the object present at
-  // any later instant: between it and this removal a concurrent publisher can
-  // rename our emptied reservation away and install a populated replacement at
-  // the same name. A non-recursive removal cannot cascade into such a
-  // replacement's contents (rm reports EISDIR for any directory and rmdir
-  // reports ENOTEMPTY/ENOTDIR for a non-empty or non-directory replacement), so
-  // no object this builder never reserved is ever destroyed.
-  try {
-    await rm(root, { recursive: false });
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    // EISDIR is expected: our reservation is a directory, so the non-recursive
-    // rm never removes it (or any directory swapped over the name). ENOENT means
-    // the reservation is already gone. Both leave the directory case to rmdir.
-    if (code !== 'ERR_FS_EISDIR' && code !== 'ENOENT') throw error;
-  }
-  try {
-    await rmdir(root);
-  } catch (error) {
-    const code = (error as NodeJS.ErrnoException).code;
-    // A racing publisher replaced our emptied reservation. Leaving the orphan is
-    // the fail-closed outcome; a re-resolved pathname is never deleted merely
-    // because it now occupies the reserved name.
-    if (code !== 'ENOTEMPTY' && code !== 'ENOTDIR' && code !== 'ENOENT') throw error;
-  }
+  throwPreservingCleanupFailures(undefined, closeFailures, 'Recovery publication cleanup failed.');
 }
 
 /**
@@ -1814,9 +1846,14 @@ export async function buildRecoveryPoint(
         ? () => (dependencies.closeFileHandle ?? defaultCloseFileHandle)(stagingAdmission!.handle!, 'staging-root')
         : undefined
     );
+    // The publication descriptor is retired inside removeRecoveryRootIfOwned when
+    // an unpublished reservation is being cleaned up, because that removal must
+    // delete children through the still-open descriptor. Close it here only when
+    // no such removal will run.
+    const removingUnpublishedOutput = finalRootOwned && !published;
     await cleanup(
       'publication handle',
-      publicationAdmission?.handle
+      publicationAdmission?.handle && !removingUnpublishedOutput
         ? () =>
             (dependencies.closeFileHandle ?? defaultCloseFileHandle)(publicationAdmission!.handle!, 'publication-root')
         : undefined
@@ -1842,7 +1879,10 @@ export async function buildRecoveryPoint(
     await cleanup('staging output', stagingRoot ? () => rm(stagingRoot, { recursive: true, force: true }) : undefined);
     await cleanup(
       'unpublished final output',
-      finalRootOwned && !published ? () => removeRecoveryRootIfOwned(finalRoot, finalRootIdentity) : undefined
+      removingUnpublishedOutput
+        ? () =>
+            removeRecoveryRootIfOwned(finalRoot, finalRootIdentity, publicationAdmission, dependencies.closeFileHandle)
+        : undefined
     );
     await cleanup(
       'destination handle',
