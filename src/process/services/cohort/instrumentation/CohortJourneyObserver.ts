@@ -159,7 +159,11 @@ export class CohortJourneyObserver {
       if (!this.canRecordSessionEvidence()) return rejected('sessionState');
       if (this.input.shell !== 'cockpit') return rejected('shell');
       if (!isOneOf(reason, M0B_RETURN_REASONS)) return rejected('reason');
-      const { result } = await this.recordRetryable(`shell-return:${reason}`, () => ({
+      const pending = this.pendingEvents.get('shell-return');
+      if (pending && (pending.kind !== 'shell_returned_to_classic' || pending.reason !== reason)) {
+        return rejected('reason');
+      }
+      const { result } = await this.recordRetryable('shell-return', () => ({
         ...this.event('shell_returned_to_classic'),
         reason: reason as M0BReturnReason,
       }));

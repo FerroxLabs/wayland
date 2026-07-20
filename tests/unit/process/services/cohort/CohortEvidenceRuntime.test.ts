@@ -116,9 +116,6 @@ describe('CohortEvidenceRuntime', () => {
     await expect(subject.recordShellReturn('confusing-navigation')).resolves.toEqual({
       status: 'session-unavailable',
     });
-    expect(record.mock.calls.map(([event]) => event.kind)).toEqual([
-      'session_started',
-      'shell_returned_to_classic',
-    ]);
+    expect(record.mock.calls.map(([event]) => event.kind)).toEqual(['session_started', 'shell_returned_to_classic']);
   });
 });
