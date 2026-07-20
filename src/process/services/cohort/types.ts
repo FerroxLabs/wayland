@@ -116,7 +116,12 @@ export type M0BBaselineConfig = {
 };
 
 export type M0BValidationErrorCode =
-  'not_object' | 'unknown_event_kind' | 'unknown_field' | 'forbidden_field' | 'missing_field' | 'invalid_field';
+  | 'not_object'
+  | 'unknown_event_kind'
+  | 'unknown_field'
+  | 'forbidden_field'
+  | 'missing_field'
+  | 'invalid_field';
 
 export type M0BValidationResult =
   | { ok: true; event: M0BCohortEvent }
@@ -137,7 +142,8 @@ export type M0BContractErrorCode =
   | 'missing_journey_start'
   | 'journey_identity_mismatch'
   | 'duplicate_journey_terminal'
-  | 'terminal_before_start';
+  | 'terminal_before_start'
+  | 'ambiguous_event_order';
 
 export type M0BMetricSlice = {
   participantCount: number;

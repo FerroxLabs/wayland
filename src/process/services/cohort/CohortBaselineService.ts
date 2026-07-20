@@ -38,7 +38,11 @@ export class CohortBaselineService {
   ) {}
 
   async record(input: unknown): Promise<M0BRecordResult> {
-    if (!this.consent.enabled || this.consent.acceptedAtMs === null) {
+    if (
+      this.consent.enabled !== true ||
+      !Number.isSafeInteger(this.consent.acceptedAtMs) ||
+      Number(this.consent.acceptedAtMs) < 0
+    ) {
       return { status: 'disabled' };
     }
 
@@ -51,6 +55,7 @@ export class CohortBaselineService {
       };
     }
     if (
+      Number(this.consent.acceptedAtMs) > validation.event.occurredAtMs ||
       validation.event.occurredAtMs < this.config.windowStartMs ||
       validation.event.occurredAtMs >= this.config.windowEndMs
     ) {

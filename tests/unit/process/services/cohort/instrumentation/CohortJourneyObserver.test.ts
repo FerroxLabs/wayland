@@ -83,7 +83,7 @@ describe('CohortJourneyObserver', () => {
     }
   });
 
-  it('emits every closed support, accessibility, return, and stop category', async () => {
+  it('emits every closed support, accessibility, and stop category', async () => {
     let nextId = 0;
     const record = vi.fn(async (): Promise<M0BRecordResult> => ({ status: 'recorded' }));
     const observer = new CohortJourneyObserver({
@@ -98,7 +98,6 @@ describe('CohortJourneyObserver', () => {
 
     await Promise.all(M0B_SUPPORT_CATEGORIES.map((category) => observer.recordSupportContact(category)));
     await Promise.all(M0B_ACCESSIBILITY_SEVERITIES.map((severity) => observer.recordAccessibilityViolation(severity)));
-    await Promise.all(M0B_RETURN_REASONS.map((reason) => observer.recordShellReturn(reason)));
     await Promise.all(M0B_ZERO_TOLERANCE_REASONS.map((reason) => observer.recordZeroToleranceStop(reason)));
 
     const events = record.mock.calls.map(([event]) => event);
@@ -108,12 +107,48 @@ describe('CohortJourneyObserver', () => {
     expect(events.filter((event) => event.kind === 'accessibility_violation').map((event) => event.severity)).toEqual(
       M0B_ACCESSIBILITY_SEVERITIES
     );
-    expect(events.filter((event) => event.kind === 'shell_returned_to_classic').map((event) => event.reason)).toEqual(
-      M0B_RETURN_REASONS
-    );
     expect(events.filter((event) => event.kind === 'zero_tolerance_stop').map((event) => event.reason)).toEqual(
       M0B_ZERO_TOLERANCE_REASONS
     );
+  });
+
+  it.each(M0B_RETURN_REASONS)('emits the frozen return reason %s from a fresh cockpit session', async (reason) => {
+    let nextId = 0;
+    const record = vi.fn(async (): Promise<M0BRecordResult> => ({ status: 'recorded' }));
+    const observer = new CohortJourneyObserver({
+      service: { record } as unknown as CohortBaselineService,
+      installIdentity: `private-install-${reason}`,
+      cohort: 'developer',
+      shell: 'cockpit',
+      now: () => 1_234,
+      createId: () => `processid${String(++nextId).padStart(8, '0')}`,
+    });
+
+    await observer.startSession();
+    await expect(observer.recordShellReturn(reason)).resolves.toEqual({ status: 'recorded' });
+    expect(record.mock.calls.at(-1)?.[0]).toMatchObject({ kind: 'shell_returned_to_classic', reason });
+  });
+
+  it('rejects a second successful return event in the same cockpit session', async () => {
+    let nextId = 0;
+    const record = vi.fn(async (): Promise<M0BRecordResult> => ({ status: 'recorded' }));
+    const observer = new CohortJourneyObserver({
+      service: { record } as unknown as CohortBaselineService,
+      installIdentity: 'private-install-identity',
+      cohort: 'developer',
+      shell: 'cockpit',
+      now: () => 1_234,
+      createId: () => `processid${String(++nextId).padStart(8, '0')}`,
+    });
+
+    await observer.startSession();
+    await expect(observer.recordShellReturn('reliability')).resolves.toEqual({ status: 'recorded' });
+    await expect(observer.recordShellReturn('performance')).resolves.toEqual({
+      status: 'rejected',
+      code: 'invalid_field',
+      field: 'reason',
+    });
+    expect(record.mock.calls.filter(([entry]) => entry.kind === 'shell_returned_to_classic')).toHaveLength(1);
   });
 
   it('rejects case aliases, unknown values, objects, and content-shaped payloads before persistence', async () => {

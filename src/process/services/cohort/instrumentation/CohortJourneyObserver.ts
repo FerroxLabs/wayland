@@ -73,6 +73,7 @@ export class CohortJourneyObserver {
   private readonly journeys = new WeakMap<object, JourneyState>();
   private readonly pendingEvents = new Map<string, M0BCohortEvent>();
   private sessionState: SessionState = 'idle';
+  private shellReturnRecorded = false;
   private operationTail: Promise<void> = Promise.resolve();
 
   constructor(private readonly input: CohortJourneyObserverInput) {
@@ -159,6 +160,7 @@ export class CohortJourneyObserver {
       if (!this.canRecordSessionEvidence()) return rejected('sessionState');
       if (this.input.shell !== 'cockpit') return rejected('shell');
       if (!isOneOf(reason, M0B_RETURN_REASONS)) return rejected('reason');
+      if (this.shellReturnRecorded) return rejected('reason');
       const pending = this.pendingEvents.get('shell-return');
       if (pending && (pending.kind !== 'shell_returned_to_classic' || pending.reason !== reason)) {
         return rejected('reason');
@@ -167,6 +169,7 @@ export class CohortJourneyObserver {
         ...this.event('shell_returned_to_classic'),
         reason: reason as M0BReturnReason,
       }));
+      if (result.status === 'recorded') this.shellReturnRecorded = true;
       return result;
     });
   }

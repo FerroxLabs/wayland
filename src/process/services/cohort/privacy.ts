@@ -63,9 +63,23 @@ export function validateM0BCohortEvent(input: unknown): M0BValidationResult {
     return invalid('not_object');
   }
 
-  const record = input as Record<string, unknown>;
+  const prototype = Object.getPrototypeOf(input);
+  if (prototype !== Object.prototype && prototype !== null) return invalid('not_object');
+  if (Object.getOwnPropertySymbols(input).length > 0) return invalid('unknown_field');
+  const descriptors = Object.getOwnPropertyDescriptors(input);
+  for (const [key, descriptor] of Object.entries(descriptors)) {
+    if (!descriptor.enumerable || !('value' in descriptor) || descriptor.get || descriptor.set) {
+      return invalid('invalid_field', key);
+    }
+  }
+  const record = Object.fromEntries(
+    Object.entries(descriptors).map(([key, descriptor]) => [
+      key,
+      (descriptor as PropertyDescriptor & { value: unknown }).value,
+    ])
+  );
   const kind = record.kind;
-  if (typeof kind !== 'string' || !(kind in EVENT_FIELDS)) {
+  if (typeof kind !== 'string' || !Object.hasOwn(EVENT_FIELDS, kind)) {
     return invalid('unknown_event_kind', 'kind');
   }
 
@@ -76,7 +90,7 @@ export function validateM0BCohortEvent(input: unknown): M0BValidationResult {
     }
   }
   for (const key of allowedFields) {
-    if (!(key in record)) {
+    if (!Object.hasOwn(record, key)) {
       return invalid('missing_field', key);
     }
   }
@@ -123,5 +137,6 @@ export function validateM0BCohortEvent(input: unknown): M0BValidationResult {
     }
   }
 
-  return { ok: true, event: record as M0BCohortEvent };
+  const event = Object.fromEntries([...allowedFields].map((key) => [key, record[key]])) as M0BCohortEvent;
+  return { ok: true, event };
 }

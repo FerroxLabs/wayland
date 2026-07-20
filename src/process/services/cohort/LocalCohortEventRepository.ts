@@ -5,7 +5,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { constants as fsConstants } from 'node:fs';
+import { constants as fsConstants, type Dirent } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { M0BCohortEventRepository } from './CohortBaselineService';
@@ -17,6 +17,11 @@ const EVENT_FILE_PATTERN = /^([A-Za-z0-9_-]{8,128})\.event\.json$/;
 const TEMP_FILE_PATTERN = /^\.[A-Za-z0-9_-]{8,128}\.event\.json\.[0-9a-f-]{36}\.tmp$/;
 const DEFAULT_MAX_EVENTS = 100_000;
 const DEFAULT_MAX_EVENT_BYTES = 4 * 1024;
+const READ_CONCURRENCY = 32;
+const TEMP_FILE_MAX_AGE_MS = M0B_DAY_MS;
+const CAPACITY_LOCK_NAME = '.capacity.lock';
+const CAPACITY_LOCK_STALE_MS = 60_000;
+const CAPACITY_LOCK_ATTEMPTS = 200;
 const NO_FOLLOW = (fsConstants as { O_NOFOLLOW?: number }).O_NOFOLLOW ?? 0;
 
 export type LocalM0BCohortEventRepositoryOptions = {
@@ -130,46 +135,61 @@ export class LocalM0BCohortEventRepository implements M0BCohortEventRepository {
       if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
     }
 
-    const entries = await fs.readdir(this.eventDirectory);
-    const eventCount = entries.filter((entry) => EVENT_FILE_PATTERN.test(entry)).length;
-    if (eventCount >= this.maxEvents) throw new Error('M0B_EVENT_LIMIT_REACHED');
-
-    const temporary = path.join(this.eventDirectory, `.${validation.event.eventId}${EVENT_SUFFIX}.${randomUUID()}.tmp`);
-    const handle = await fs.open(temporary, 'wx', 0o600);
-    let closed = false;
-    try {
-      await handle.writeFile(bytes, 'utf8');
-      await handle.sync();
-      await handle.close();
-      closed = true;
+    await this.withCapacityLock(async () => {
       try {
-        await fs.link(temporary, target);
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+        await fs.access(target, fsConstants.F_OK);
         await this.assertExistingEventMatches(target, validation.event);
         return;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
       }
-      await syncDirectory(this.eventDirectory);
-    } finally {
-      if (!closed) {
+
+      const entries = await fs.readdir(this.eventDirectory);
+      const eventCount = entries.filter((entry) => EVENT_FILE_PATTERN.test(entry)).length;
+      if (eventCount >= this.maxEvents) throw new Error('M0B_EVENT_LIMIT_REACHED');
+
+      const temporary = path.join(
+        this.eventDirectory,
+        `.${validation.event.eventId}${EVENT_SUFFIX}.${randomUUID()}.tmp`
+      );
+      const handle = await fs.open(temporary, 'wx', 0o600);
+      let closed = false;
+      try {
+        await handle.writeFile(bytes, 'utf8');
+        await handle.sync();
+        await handle.close();
+        closed = true;
         try {
-          await handle.close();
-        } catch {
-          // Preserve the primary write/publication failure.
+          await fs.link(temporary, target);
+        } catch (error) {
+          if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+          await this.assertExistingEventMatches(target, validation.event);
+          return;
         }
+        await syncDirectory(this.eventDirectory);
+      } finally {
+        if (!closed) {
+          try {
+            await handle.close();
+          } catch {
+            // Preserve the primary write/publication failure.
+          }
+        }
+        await fs.unlink(temporary).catch((error: NodeJS.ErrnoException) => {
+          if (error.code !== 'ENOENT') throw error;
+        });
       }
-      await fs.unlink(temporary).catch((error: NodeJS.ErrnoException) => {
-        if (error.code !== 'ENOENT') throw error;
-      });
-    }
+    });
   }
 
   async findWindow(startMs: number, endMs: number): Promise<M0BCohortEvent[]> {
     this.assertQueryWindow(startMs, endMs);
     await this.ensureStore();
     const entries = await fs.readdir(this.eventDirectory, { withFileTypes: true });
+    await this.cleanupStaleTemporaryFiles(entries);
     const eventEntries = entries.filter((entry) => {
       if (TEMP_FILE_PATTERN.test(entry.name) && entry.isFile() && !entry.isSymbolicLink()) return false;
+      if (entry.name === CAPACITY_LOCK_NAME && entry.isFile() && !entry.isSymbolicLink()) return false;
       if (!EVENT_FILE_PATTERN.test(entry.name) || !entry.isFile() || entry.isSymbolicLink()) {
         throw new Error('M0B_UNEXPECTED_STORAGE_ENTRY');
       }
@@ -177,13 +197,19 @@ export class LocalM0BCohortEventRepository implements M0BCohortEventRepository {
     });
     if (eventEntries.length > this.maxEvents) throw new Error('M0B_EVENT_LIMIT_EXCEEDED');
 
-    const storedEvents = await Promise.all(
-      eventEntries.map(async (entry) => {
-        const match = EVENT_FILE_PATTERN.exec(entry.name);
-        if (!match) throw new Error('M0B_INVALID_EVENT_FILENAME');
-        return this.readEventFile(path.join(this.eventDirectory, entry.name), match[1]);
-      })
-    );
+    const storedEvents: M0BCohortEvent[] = [];
+    for (let offset = 0; offset < eventEntries.length; offset += READ_CONCURRENCY) {
+      const batch = eventEntries.slice(offset, offset + READ_CONCURRENCY);
+      storedEvents.push(
+        ...(await Promise.all(
+          batch.map(async (entry) => {
+            const match = EVENT_FILE_PATTERN.exec(entry.name);
+            if (!match) throw new Error('M0B_INVALID_EVENT_FILENAME');
+            return this.readEventFile(path.join(this.eventDirectory, entry.name), match[1]);
+          })
+        ))
+      );
+    }
     const events = storedEvents.filter((event) => event.occurredAtMs >= startMs && event.occurredAtMs < endMs);
 
     return events.toSorted(
@@ -194,6 +220,54 @@ export class LocalM0BCohortEventRepository implements M0BCohortEventRepository {
   private async ensureStore(): Promise<void> {
     await ensurePrivateDirectory(this.rootDirectory);
     await ensurePrivateDirectory(this.eventDirectory);
+  }
+
+  private async withCapacityLock<T>(operation: () => Promise<T>): Promise<T> {
+    const lockPath = path.join(this.eventDirectory, CAPACITY_LOCK_NAME);
+    let handle: Awaited<ReturnType<typeof fs.open>> | null = null;
+    for (let attempt = 0; attempt < CAPACITY_LOCK_ATTEMPTS; attempt += 1) {
+      try {
+        handle = await fs.open(lockPath, 'wx', 0o600);
+        break;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+        try {
+          const stat = await fs.lstat(lockPath);
+          const ageMs = Date.now() - stat.mtimeMs;
+          if (!stat.isFile() || stat.isSymbolicLink()) throw new Error('M0B_UNSAFE_CAPACITY_LOCK');
+          if (ageMs >= CAPACITY_LOCK_STALE_MS) {
+            await fs.unlink(lockPath);
+            continue;
+          }
+        } catch (statError) {
+          if ((statError as NodeJS.ErrnoException).code === 'ENOENT') continue;
+          throw statError;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 5));
+      }
+    }
+    if (!handle) throw new Error('M0B_STORAGE_BUSY');
+    try {
+      return await operation();
+    } finally {
+      await handle.close();
+      await fs.unlink(lockPath).catch((error: NodeJS.ErrnoException) => {
+        if (error.code !== 'ENOENT') throw error;
+      });
+    }
+  }
+
+  private async cleanupStaleTemporaryFiles(entries: Dirent[]): Promise<void> {
+    const now = Date.now();
+    for (const entry of entries) {
+      if (!TEMP_FILE_PATTERN.test(entry.name)) continue;
+      if (!entry.isFile() || entry.isSymbolicLink()) throw new Error('M0B_UNEXPECTED_STORAGE_ENTRY');
+      const temporaryPath = path.join(this.eventDirectory, entry.name);
+      const stat = await fs.lstat(temporaryPath);
+      if (now >= stat.mtimeMs && now - stat.mtimeMs >= TEMP_FILE_MAX_AGE_MS) {
+        await fs.unlink(temporaryPath);
+      }
+    }
   }
 
   private eventPath(eventId: string): string {
