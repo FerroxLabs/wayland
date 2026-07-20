@@ -141,6 +141,15 @@ export type CohortProductionEnvironment = Readonly<{
   userDataPath: string;
   resourcesPath: string;
   isPackaged: boolean;
+  /**
+   * Product decision (2026-07-20): the Adaptive Cockpit is a plain opt-in
+   * preview available to everyone, not a cohort-invited rollout. When set, the
+   * killed M0B/signed-authority eligibility gate is bypassed and rolloutStatus
+   * reports the Cockpit generally available; the user still opts in via the
+   * Classic/Cockpit toggle and Classic remains the default. The signed-authority
+   * machinery below is retained until the scheduled cohort-subsystem deletion.
+   */
+  cockpitPreviewOpenToAll?: boolean;
   appVersion: string;
   releaseTrack: WaylandReleaseTrack;
   installIdentity: string;
@@ -211,6 +220,11 @@ export class ProductionCohortController implements CohortProductionAPI {
 
   async rolloutStatus(): Promise<CockpitRolloutStatus> {
     await this.queue;
+    // Preview-open product decision bypasses the killed cohort/M0B eligibility
+    // gate entirely: the Cockpit is generally available as an opt-in preview.
+    // This is the single ungate point — it precedes both the signed-authority
+    // provider and the packaged same-authority downgrade below.
+    if (this.environment.cockpitPreviewOpenToAll) return cockpitPreviewOpenStatus();
     const now = this.now();
     if (this.authority !== null && !isValidAuthorityTime(now)) return unavailableRolloutStatus();
     const authoritySnapshot = this.authority;
@@ -519,6 +533,8 @@ export async function createProductionCohortController(): Promise<ProductionCoho
     userDataPath,
     resourcesPath: process.resourcesPath,
     isPackaged: app.isPackaged,
+    // Cockpit ships as an open opt-in preview (no cohort invitation).
+    cockpitPreviewOpenToAll: true,
     appVersion: app.getVersion(),
     releaseTrack: getReleaseTrack(),
     installIdentity,
@@ -1113,6 +1129,16 @@ function unavailableRolloutStatus(): CockpitRolloutStatus {
     stage: 'internal-dogfood',
     source: 'none',
     reason: 'evidence-gate-failed',
+  };
+}
+
+/** Cockpit as a generally-available opt-in preview (no cohort authority). */
+function cockpitPreviewOpenStatus(): CockpitRolloutStatus {
+  return {
+    eligible: true,
+    stage: 'opt-in-beta',
+    source: 'product-default',
+    reason: 'preview-open',
   };
 }
 

@@ -65,6 +65,7 @@ async function fixture(
     Pick<
       CohortProductionEnvironment,
       | 'isPackaged'
+      | 'cockpitPreviewOpenToAll'
       | 'appVersion'
       | 'releaseTrack'
       | 'installIdentity'
@@ -840,6 +841,24 @@ describe('ProductionCohortController observation lifecycle', () => {
       expect(subject.authorityStore.set).not.toHaveBeenCalled();
     }
   );
+
+  it('reports the Cockpit generally available when preview-open is set, bypassing the killed cohort gate', async () => {
+    // Product decision 2026-07-20: Cockpit is an open opt-in preview. Even a
+    // packaged build with NO cohort authority must report eligible, so the
+    // "Cockpit preview" toggle is enabled for everyone. This is the ungate.
+    const subject = await fixture(undefined, undefined, () => NOW, {
+      cockpitPreviewOpenToAll: true,
+      isPackaged: true,
+    });
+    await expect(subject.controller.rolloutStatus()).resolves.toEqual({
+      eligible: true,
+      stage: 'opt-in-beta',
+      source: 'product-default',
+      reason: 'preview-open',
+    });
+    // Eligibility was granted by product policy, not by minting any authority.
+    expect(subject.authorityStore.set).not.toHaveBeenCalled();
+  });
 
   it('[HF-01] does not publish a consent window that becomes invalid after clock rollback', async () => {
     let clock = NOW;

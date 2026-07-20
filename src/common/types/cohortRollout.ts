@@ -37,10 +37,11 @@ export type CohortAssignmentRequestResult = Readonly<{
 export type CockpitRolloutStatus = Readonly<{
   eligible: boolean;
   stage: CockpitRolloutStage | null;
-  source: 'development' | 'signed-authority' | 'none';
+  source: 'development' | 'signed-authority' | 'product-default' | 'none';
   reason:
     | 'development-build'
     | 'authorized'
+    | 'preview-open'
     | 'authority-missing'
     | 'authority-invalid'
     | 'authority-expired'
