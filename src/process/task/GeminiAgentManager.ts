@@ -146,6 +146,21 @@ export async function replaceGeminiMcpWorker(
   await start();
 }
 
+/**
+ * Authoritative backend-session facts consumed by the recovery state-authority
+ * ledger (plan 01-22). Gemini persists only `sessionMode` (approval) and the
+ * selected model via {@link GeminiAgentManager.saveSessionMode}; it exposes no
+ * backend conversation session handle, so a live Gemini process is never
+ * evidence of a resumable session. The recovery adapter binds this fact and
+ * refuses to treat process existence as resumability.
+ */
+export const GEMINI_SESSION_AUTHORITY = {
+  producer: 'gemini-cli',
+  handleSource: 'gemini.none',
+  resumability: 'non-resumable',
+  proven: false,
+} as const;
+
 export class GeminiAgentManager extends BaseAgentManager<
   {
     workspace: string;

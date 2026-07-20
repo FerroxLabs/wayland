@@ -1,0 +1,86 @@
+{
+  "contract": "wayland-state-authority-ledger/1.0",
+  "schemaVersion": 1,
+  "adapters": [
+    {
+      "id": "acp.session",
+      "producer": "acp-backend",
+      "sessionHandle": {
+        "source": "acp.conversation-extra.acpSessionId",
+        "identity": "ACP backends persist acpSessionId plus a pinned acpWrapperVersion (<backend>@<version>) in conversations.extra; a fresh spawn resumes the same session through session/load replay, or self-heals through wrapper-mismatch history replay."
+      },
+      "resumability": "backend-session-replay",
+      "mutationEpoch": {
+        "source": "backend-session-updated-at",
+        "bound": true
+      },
+      "quiescence": "backend-owned",
+      "restoreOwner": "acp-backend",
+      "validationReceipt": "acp-wrapper-version-pin",
+      "secretDisposition": "reference-only",
+      "failureBehavior": "fail-closed",
+      "proven": true,
+      "cohortEligible": true,
+      "note": "The ACP backend owns its session; resumability is proven by the persisted session id bound to a pinned wrapper version, not by process liveness."
+    },
+    {
+      "id": "core.session",
+      "producer": "wayland-core",
+      "sessionHandle": {
+        "source": "core.conversation-id",
+        "identity": "Wayland Core resumes a conversation with --resume <conversationId>; the durable transcript and session state are producer-owned and Desktop only seeds best-effort history."
+      },
+      "resumability": "producer-quiesced",
+      "mutationEpoch": {
+        "source": "producer-quiescence-lease",
+        "bound": false
+      },
+      "quiescence": "producer-owned-blocked",
+      "restoreOwner": "wayland-core",
+      "validationReceipt": "core-quiescence-lease",
+      "secretDisposition": "external-producer",
+      "failureBehavior": "fail-closed",
+      "proven": false,
+      "cohortEligible": false,
+      "deferredBlocker": "FerroxLabs/wayland#896",
+      "note": "Core session capture is producer-quiescence dependent; the quiescence lease is deferred to #896, so Core cannot enter the cohort and fails closed until the producer-owned successor is accepted."
+    },
+    {
+      "id": "gemini.session",
+      "producer": "gemini-cli",
+      "sessionHandle": {
+        "source": "gemini.none",
+        "identity": "Gemini persists only sessionMode (approval) and the selected model; it exposes no backend conversation session handle, so a live Gemini process is never evidence of a resumable session."
+      },
+      "resumability": "non-resumable",
+      "mutationEpoch": {
+        "source": "none",
+        "bound": false
+      },
+      "quiescence": "not-applicable",
+      "restoreOwner": "none",
+      "validationReceipt": "none",
+      "secretDisposition": "excluded",
+      "failureBehavior": "degraded-read-only",
+      "proven": false,
+      "cohortEligible": false,
+      "note": "Gemini has no backend session/handle to capture or resume; it is truthfully degraded to read-only and excluded from the cohort rather than normalized into success."
+    }
+  ],
+  "storageAuthorities": [
+    {
+      "id": "desktop.sqlite",
+      "owner": "desktop",
+      "kind": "storage",
+      "substitutesBackendAdapter": false,
+      "note": "Desktop SQLite (wayland.db) is a separately inventoried Desktop-owned storage authority; it is never a backend session adapter and cannot substitute for one."
+    },
+    {
+      "id": "office.artifact-workspace",
+      "owner": "desktop",
+      "kind": "storage",
+      "substitutesBackendAdapter": false,
+      "note": "Office and artifact workspaces are separately inventoried Desktop-owned storage; they never stand in for backend session/handle authority."
+    }
+  ]
+}
