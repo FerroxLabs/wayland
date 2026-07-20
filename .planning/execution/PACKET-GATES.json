@@ -1,42 +1,146 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "project": "WLD",
   "source_baseline": "6d41c34087b5f40a368c83ca18d2d8e5a7fdb894",
-  "revision": "wld-packet-gates-2026-07-19.6",
+  "revision": "wld-packet-gates-2026-07-19.7",
   "contract_manifest": ".planning/execution/PACKET-CONTRACTS.json",
   "trust_root_policy": "external-verifier-required",
   "receipt_storage_policy": "external-absolute-read-only-cas",
   "phase_1_completion_policy": "open-until-aggregate-sentinel",
   "parallel_execution_policy": "manual-clean-worktrees-only",
   "gates": {
-    "P1-M0B-COHORT": { "all": [], "any": [] },
-    "P1-M0B-INSTRUMENTATION": { "all": ["M0B-COHORT-AUTHORITY"], "any": [] },
-    "P1-M0B-DAY0": { "all": ["M0B-COHORT-AUTHORITY", "M0B-INSTRUMENTATION"], "any": [] },
-    "P1-M0B-OBSERVATION": { "all": ["M0B-DAY0"], "any": [] },
-    "P1-M0A": { "all": [], "any": [] },
-    "P1-M1": { "all": ["M0A"], "any": [] },
-    "P1-M1F": { "all": ["M0A", "FLUX-PRODUCER-ACCEPTANCE"], "any": [] },
-    "P1-M1M0": { "all": [], "any": [] },
-    "P1-M1S0": { "all": [], "any": [] },
-    "P1-C0A": { "all": [], "any": [] },
-    "P2-M2-BASE": { "all": ["M0A", "M1"], "any": [["M1F", "NO-FLUX-DEGRADED"]] },
-    "P2-M2-MCP": { "all": ["M0A", "M1", "M1M-LIFECYCLE"], "any": [["M1F", "NO-FLUX-DEGRADED"]] },
-    "P2-M3": { "all": ["M0A"], "any": [] },
-    "P2-C0B": { "all": ["C0-A", "M2"], "any": [] },
-    "P3-M4": { "all": ["M3"], "any": [] },
-    "P3-M5": { "all": ["M2", "M3", "M4"], "any": [] },
-    "P3-MCP12": { "all": ["M0A", "M1", "M1M-0"], "any": [] },
-    "P3-SBX1": { "all": ["M0A", "M1", "M1S-0"], "any": [] },
-    "P3-IMG": { "all": ["M2", "M5"], "any": [] },
-    "P4-M6": { "all": ["M1", "M2", "M5", "RECEIPT-CONTRACT"], "any": [] },
-    "P4-M7": { "all": ["M4", "M5", "M6"], "any": [] },
-    "P4-MCP3": { "all": ["M5", "MCP-1-2"], "any": [] },
-    "P4-M5VA": { "all": ["M0A", "M2", "M5", "M6"], "any": [] },
-    "P4-C1": { "all": ["M0A", "M1", "M2", "M5", "M6", "C0-B"], "any": [] },
-    "P5-M8-CONSTRUCTION": { "all": ["M0A", "M1", "M2", "M3", "M4", "M5", "M6", "M7"], "any": [] },
-    "P5-M8-ACCEPTANCE": { "all": ["M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7"], "any": [], "one": [["M1F", "NO-FLUX-CLAIMS"], ["MCP-4", "MCP-ABSENT"], ["SBX-2", "SBX-ABSENT"], ["IMG-01", "IMAGE-ABSENT"], ["M5V-A", "VOICE-ABSENT"], ["C0-B", "COWORK-ABSENT"], ["C1", "COWORK-ABSENT"]] },
-    "P6-M9": { "all": ["PHASE1-AGGREGATE-ACCEPTANCE", "M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"], "any": [], "one": [["M1F", "NO-FLUX-CLAIMS"], ["MCP-4", "MCP-ABSENT"], ["SBX-2", "SBX-ABSENT"], ["IMG-01", "IMAGE-ABSENT"], ["M5V-B", "VOICE-ABSENT"], ["C1", "COWORK-ABSENT"], ["FINAL-C0-RELEASE-CLOSURE", "COWORK-ABSENT"]] },
-    "P7-P1": { "all": ["M0A", "M7", "M9"], "any": [] },
-    "P1-AGGREGATE-ACCEPTANCE": { "all": ["M0A", "M0B", "M1", "M1M-0", "M1S-0", "C0-A", "PHASE5-PROOF-CLOSURE"], "any": [], "one": [["M1F", "NO-FLUX-CLAIMS"]] }
+    "P1-M0B-COHORT": {
+      "mode": "acceptance",
+      "prerequisites": { "all": [], "any": [], "one": [] },
+      "accepts": { "all": ["M0B-COHORT-AUTHORITY"], "one": [] }
+    },
+    "P1-M0B-INSTRUMENTATION": {
+      "mode": "acceptance",
+      "prerequisites": { "all": ["M0B-COHORT-AUTHORITY"], "any": [], "one": [] },
+      "accepts": { "all": ["M0B-INSTRUMENTATION"], "one": [] }
+    },
+    "P1-M0B-DAY0": {
+      "mode": "acceptance",
+      "prerequisites": { "all": ["M0B-COHORT-AUTHORITY", "M0B-INSTRUMENTATION"], "any": [], "one": [] },
+      "accepts": { "all": ["M0B-DAY0"], "one": [] }
+    },
+    "P1-M0B-OBSERVATION": {
+      "mode": "acceptance",
+      "prerequisites": { "all": ["M0B-DAY0"], "any": [], "one": [] },
+      "accepts": { "all": ["M0B-OBSERVATION-COMPLETE"], "one": [] }
+    },
+    "P1-M0B": {
+      "mode": "acceptance",
+      "prerequisites": { "all": ["M0B-OBSERVATION-COMPLETE"], "any": [], "one": [] },
+      "accepts": { "all": ["M0B"], "one": [] }
+    },
+    "P1-M0A": {
+      "mode": "acceptance",
+      "prerequisites": { "all": [], "any": [], "one": [] },
+      "accepts": { "all": ["M0A"], "one": [] }
+    },
+    "P1-FLUX-PRODUCER": {
+      "mode": "acceptance",
+      "prerequisites": { "all": [], "any": [], "one": [] },
+      "accepts": { "all": ["FLUX-PRODUCER-ACCEPTANCE"], "one": [] }
+    },
+    "P1-M1": {
+      "mode": "acceptance",
+      "prerequisites": { "all": ["M0A"], "any": [], "one": [] },
+      "accepts": { "all": ["M1"], "one": [] }
+    },
+    "P1-M1F": {
+      "mode": "acceptance",
+      "prerequisites": { "all": ["M0A", "FLUX-PRODUCER-ACCEPTANCE"], "any": [], "one": [] },
+      "accepts": { "all": [], "one": [["M1F", "NO-FLUX-CLAIMS"]] }
+    },
+    "P1-M1M0": {
+      "mode": "acceptance",
+      "prerequisites": { "all": [], "any": [], "one": [] },
+      "accepts": { "all": ["M1M-0"], "one": [] }
+    },
+    "P1-M1S0": {
+      "mode": "acceptance",
+      "prerequisites": { "all": [], "any": [], "one": [] },
+      "accepts": { "all": ["M1S-0"], "one": [] }
+    },
+    "P1-C0A": {
+      "mode": "acceptance",
+      "prerequisites": { "all": [], "any": [], "one": [] },
+      "accepts": { "all": ["C0-A"], "one": [] }
+    },
+    "P2-M2-BASE": {
+      "mode": "entry",
+      "prerequisites": { "all": ["M0A", "M1"], "any": [["M1F", "NO-FLUX-DEGRADED"]], "one": [] }
+    },
+    "P2-M2-MCP": {
+      "mode": "entry",
+      "prerequisites": { "all": ["M0A", "M1", "M1M-LIFECYCLE"], "any": [["M1F", "NO-FLUX-DEGRADED"]], "one": [] }
+    },
+    "P2-M3": { "mode": "entry", "prerequisites": { "all": ["M0A"], "any": [], "one": [] } },
+    "P2-C0B": { "mode": "entry", "prerequisites": { "all": ["C0-A", "M2"], "any": [], "one": [] } },
+    "P3-M4": { "mode": "entry", "prerequisites": { "all": ["M3"], "any": [], "one": [] } },
+    "P3-M5": { "mode": "entry", "prerequisites": { "all": ["M2", "M3", "M4"], "any": [], "one": [] } },
+    "P3-MCP12": { "mode": "entry", "prerequisites": { "all": ["M0A", "M1", "M1M-0"], "any": [], "one": [] } },
+    "P3-SBX1": { "mode": "entry", "prerequisites": { "all": ["M0A", "M1", "M1S-0"], "any": [], "one": [] } },
+    "P3-IMG": { "mode": "entry", "prerequisites": { "all": ["M2", "M5"], "any": [], "one": [] } },
+    "P4-M6": {
+      "mode": "entry",
+      "prerequisites": { "all": ["M1", "M2", "M5", "RECEIPT-CONTRACT"], "any": [], "one": [] }
+    },
+    "P4-M7": { "mode": "entry", "prerequisites": { "all": ["M4", "M5", "M6"], "any": [], "one": [] } },
+    "P4-MCP3": { "mode": "entry", "prerequisites": { "all": ["M5", "MCP-1-2"], "any": [], "one": [] } },
+    "P4-M5VA": { "mode": "entry", "prerequisites": { "all": ["M0A", "M2", "M5", "M6"], "any": [], "one": [] } },
+    "P4-C1": {
+      "mode": "entry",
+      "prerequisites": { "all": ["M0A", "M1", "M2", "M5", "M6", "C0-B"], "any": [], "one": [] }
+    },
+    "P5-M8-CONSTRUCTION": {
+      "mode": "entry",
+      "prerequisites": { "all": ["M0A", "M1", "M2", "M3", "M4", "M5", "M6", "M7"], "any": [], "one": [] }
+    },
+    "P5-M8-ACCEPTANCE": {
+      "mode": "acceptance",
+      "prerequisites": {
+        "all": ["M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7"],
+        "any": [],
+        "one": [
+          ["M1F", "NO-FLUX-CLAIMS"],
+          ["MCP-4", "MCP-ABSENT"],
+          ["SBX-2", "SBX-ABSENT"],
+          ["IMG-01", "IMAGE-ABSENT"],
+          ["M5V-A", "VOICE-ABSENT"],
+          ["C0-B", "COWORK-ABSENT"],
+          ["C1", "COWORK-ABSENT"]
+        ]
+      },
+      "accepts": { "all": ["M8"], "one": [] }
+    },
+    "P6-M9": {
+      "mode": "entry",
+      "prerequisites": {
+        "all": ["PHASE1-AGGREGATE-ACCEPTANCE", "M0A", "M0B", "M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8"],
+        "any": [],
+        "one": [
+          ["M1F", "NO-FLUX-CLAIMS"],
+          ["MCP-4", "MCP-ABSENT"],
+          ["SBX-2", "SBX-ABSENT"],
+          ["IMG-01", "IMAGE-ABSENT"],
+          ["M5V-B", "VOICE-ABSENT"],
+          ["C1", "COWORK-ABSENT"],
+          ["FINAL-C0-RELEASE-CLOSURE", "COWORK-ABSENT"]
+        ]
+      }
+    },
+    "P7-P1": { "mode": "entry", "prerequisites": { "all": ["M0A", "M7", "M9"], "any": [], "one": [] } },
+    "P1-AGGREGATE-ACCEPTANCE": {
+      "mode": "acceptance",
+      "prerequisites": {
+        "all": ["M0A", "M0B", "M1", "M1M-0", "M1S-0", "C0-A", "PHASE5-PROOF-CLOSURE"],
+        "any": [],
+        "one": [["M1F", "NO-FLUX-CLAIMS"]]
+      },
+      "accepts": { "all": ["PHASE1-AGGREGATE-ACCEPTANCE"], "one": [] }
+    }
   }
 }

@@ -1,0 +1,82 @@
+{
+  "schema": "wayland-desktop-local-proof/1",
+  "packet": "01-37",
+  "status": "construction-complete-pending-independent-audit",
+  "tested_commit": "bb939cf15aa9198c153fa1ab6ca1ad98510275c9",
+  "tested_tree": "069482589440f5c33164b0b7c0aab99fa9aa671e",
+  "completed_at_utc": "2026-07-19T20:09:01Z",
+  "environment_file": "environment.json",
+  "environment_sha256": "d56942b3991853666f659056f67eba3bdcfa02f45c7b9951b95afb20d00bda75",
+  "commands": [
+    {
+      "id": "focused",
+      "command": "node --test .planning/execution/*.test.mjs",
+      "exit_code": 0,
+      "log": "01-focused.log",
+      "log_sha256": "84ff8c9965d7145e5fdb426f1b726dd4e25a2721b538f076ac4efaf96b055f90"
+    },
+    {
+      "id": "clean-worktree",
+      "command": "node .planning/execution/clean-worktree-smoke.mjs",
+      "exit_code": 0,
+      "log": "02-clean-worktree.log",
+      "log_sha256": "d92199b5d1c645e24df94146f66137ec29d3d3a87fdfe893b8a721c0a57cd86e"
+    },
+    {
+      "id": "typecheck",
+      "command": "bun run typecheck",
+      "exit_code": 0,
+      "log": "03-typecheck.log",
+      "log_sha256": "c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5"
+    },
+    {
+      "id": "lint",
+      "command": "bun run lint -- .planning/execution",
+      "exit_code": 0,
+      "log": "04-lint.log",
+      "log_sha256": "347d66eda250faaef7aa45c96ae4fac62cc62a1f2d96058d9311908f1f90b387"
+    },
+    {
+      "id": "format",
+      "command": "bun run format:check -- .planning/execution .planning/phases/WLD-01-safety-foundation/01-37-PLAN.md",
+      "exit_code": 0,
+      "log": "05-format.log",
+      "log_sha256": "e472e652cc8e6426efe13323fec23b969866fbbe664cdd7c36b60325a5638772"
+    },
+    {
+      "id": "diff-check",
+      "command": "git diff --check",
+      "exit_code": 0,
+      "log": "06-diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "aggregate",
+      "command": "bun run test",
+      "exit_code": 0,
+      "log": "07-aggregate-sanitized.log",
+      "log_sha256": "6f2fab2688d768e6d8a72800e9b98cd55c470adee8dd234af31421b409d7c7f6"
+    }
+  ],
+  "source_digests": {
+    "packet_gates": "cb369c0be85428c931d243193470c4e47134f7b7439a52c23b76a4fc7423fa27",
+    "packet_contracts": "af4fab1b4cee50702a36bdcdc3d9a622528a89163f43491bf299d71d6ba6111d",
+    "packet_gate_lib": "e9183d6fd97852ca1e1b19319507ca1cd9d17207844841f0e94e579e15b6f89f",
+    "gate_wrapper": "6e78da8396891eedd13d66df75eea19e6ea247b68ea1c1e088574e00eb7b04bc",
+    "desktop_selector": "befd5a40e3caafe976d9f95b013c9840f175ace5e906ed48ff61cb1645de48e7",
+    "gate_cli": "4682121fed5c095dc8f98c45e2ca3500d479c181efab63779031a0fe8b4e3683",
+    "admission_config": "91e4011849b054b94ecdac5f1f702ec4f9201d44eec6ef0021447370116d6c91",
+    "clean_worktree_smoke": "d51efcf9725157a75c39d1e9574c28ac727804d75e17e8f4a908a762da4ac217"
+  },
+  "results": {
+    "focused": "45 passed, 0 failed",
+    "clean_worktree": "passed",
+    "lint": "0 warnings, 0 errors",
+    "aggregate_vitest": "1430 files passed, 15121 tests passed, 21 files skipped, 145 tests skipped",
+    "aggregate_bun": "226 passed, 0 failed"
+  },
+  "non_claims": [
+    "This receipt is local construction evidence, not independent acceptance.",
+    "It does not install the external verifier or authorize integration, deployment, release, or issue closure."
+  ]
+}

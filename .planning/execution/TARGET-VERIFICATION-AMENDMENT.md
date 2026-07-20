@@ -1,10 +1,11 @@
 # Target-verification amendment required before packet acceptance
 
-Status: **BLOCKER — not implemented**
+Status: **repository source implemented by plan 01-37; external installation remains BLOCKED on plan 01-38**
 
-This document is a control-plane amendment specification, not evidence that the
-amendment exists. The installed verifier and its external trust configuration
-remain untouched.
+This document records the repository-side amendment implemented and hostile-
+tested by plan 01-37. It is not evidence that the installed verifier changed.
+The installed verifier and its external trust configuration remain untouched;
+plan 01-38 exclusively owns installation and external pinning.
 
 ## Confirmed current behavior
 
@@ -74,31 +75,39 @@ Required semantics:
    ancestry checks.
 5. Acceptance-gate success requires every prerequisite group and every target group to
    pass. A prerequisite receipt can never substitute for a target receipt.
-6. The result exposes separate `prerequisites` and `accepted_targets` objects.
-   Plans close only from `accepted_targets`, never from the top-level `ok` alone.
-   Entry results identify `mode: entry` and contain no green accepted target.
+6. The result identifies `schema_version: 2` and the exact `gate_id`, then
+   exposes separate `prerequisites` and `accepted_targets` objects. Plans close
+   only from `accepted_targets`, never from the top-level `ok` alone. Entry
+   results identify `mode: entry` and contain no green accepted target. The
+   emitted entry shape must pass the pinned selector's real consumer validator.
 7. The signed receipt binds the digest of the complete schema-v2 gate object,
    including `accepts`; a v1 authorization cannot be replayed.
 8. `accepts.one` requires exactly one authenticated target. Both and neither
    fail closed.
+9. Digest-checked wrapper and verifier-library code executes from the exact
+   bytes already captured, while manifest, contracts, trust root, and candidate
+   authorization are consumed as one immutable authority snapshot.
+10. The signed body binds its acceptance-key ID, trust roots reject duplicate
+    public-key identities, and receipt/key timestamps use canonical UTC
+    milliseconds (`YYYY-MM-DDTHH:mm:ss.sssZ`).
 
 ## Required Phase-1 gate targets
 
-| Gate | Prerequisites | Accepted target |
-|---|---|---|
-| `P1-M0B-COHORT` | none | `M0B-COHORT-AUTHORITY` |
-| `P1-M0B-INSTRUMENTATION` | `M0B-COHORT-AUTHORITY` | `M0B-INSTRUMENTATION` |
-| `P1-M0B-DAY0` | `M0B-COHORT-AUTHORITY`, `M0B-INSTRUMENTATION` | `M0B-DAY0` |
-| `P1-M0B-OBSERVATION` | `M0B-DAY0` | `M0B-OBSERVATION-COMPLETE` |
-| `P1-M0B` | `M0B-OBSERVATION-COMPLETE` | `M0B` |
-| `P1-M0A` | none | `M0A` |
-| `P1-FLUX-PRODUCER` | none | `FLUX-PRODUCER-ACCEPTANCE` |
-| `P1-M1` | `M0A` | `M1` |
-| `P1-M1F` | `M0A`, `FLUX-PRODUCER-ACCEPTANCE` | exactly one of `M1F`, `NO-FLUX-CLAIMS` |
-| `P1-M1M0` | none | `M1M-0` |
-| `P1-M1S0` | none | `M1S-0` |
-| `P1-C0A` | none | `C0-A` |
-| `P1-AGGREGATE-ACCEPTANCE` | the existing complete Phase-1 prerequisite DAG | `PHASE1-AGGREGATE-ACCEPTANCE` |
+| Gate                      | Prerequisites                                  | Accepted target                        |
+| ------------------------- | ---------------------------------------------- | -------------------------------------- |
+| `P1-M0B-COHORT`           | none                                           | `M0B-COHORT-AUTHORITY`                 |
+| `P1-M0B-INSTRUMENTATION`  | `M0B-COHORT-AUTHORITY`                         | `M0B-INSTRUMENTATION`                  |
+| `P1-M0B-DAY0`             | `M0B-COHORT-AUTHORITY`, `M0B-INSTRUMENTATION`  | `M0B-DAY0`                             |
+| `P1-M0B-OBSERVATION`      | `M0B-DAY0`                                     | `M0B-OBSERVATION-COMPLETE`             |
+| `P1-M0B`                  | `M0B-OBSERVATION-COMPLETE`                     | `M0B`                                  |
+| `P1-M0A`                  | none                                           | `M0A`                                  |
+| `P1-FLUX-PRODUCER`        | none                                           | `FLUX-PRODUCER-ACCEPTANCE`             |
+| `P1-M1`                   | `M0A`                                          | `M1`                                   |
+| `P1-M1F`                  | `M0A`, `FLUX-PRODUCER-ACCEPTANCE`              | exactly one of `M1F`, `NO-FLUX-CLAIMS` |
+| `P1-M1M0`                 | none                                           | `M1M-0`                                |
+| `P1-M1S0`                 | none                                           | `M1S-0`                                |
+| `P1-C0A`                  | none                                           | `C0-A`                                 |
+| `P1-AGGREGATE-ACCEPTANCE` | the existing complete Phase-1 prerequisite DAG | `PHASE1-AGGREGATE-ACCEPTANCE`          |
 
 `M0B-OBSERVATION-COMPLETE` must be added to the sealed packet contracts with
 the bounded terminal claim already defined by plan 01-04. It is evidence of an
@@ -113,13 +122,20 @@ current gate is classified from the master packet dependency contract:
 
 The Phase-1 gates in the table above are acceptance gates. In addition:
 
-| Gate | Prerequisites | Accepted target |
-|---|---|---|
-| `P5-M8-ACCEPTANCE` | existing M0A/M0B/M1-M7 plus all existing exact-one capability/absence groups | `M8` |
+| Gate               | Prerequisites                                                                | Accepted target |
+| ------------------ | ---------------------------------------------------------------------------- | --------------- |
+| `P5-M8-ACCEPTANCE` | existing M0A/M0B/M1-M7 plus all existing exact-one capability/absence groups | `M8`            |
 
 `P5-M8-ACCEPTANCE` preserves every existing mutually exclusive physical-
 absence branch as a prerequisite. Those branches are not targets and cannot
 mint `M8`; the separately authenticated M8 receipt does.
+
+The same bounded physical-absence receipt may appear in multiple independent
+exact-one groups when it is the common fallback for related present-state
+receipts. Duplicate identities within one list, across required and alternative
+categories, or across `any` groups remain invalid. Receipt failures expose only
+stable reason codes and fixed descriptions; raw parser excerpts, external paths,
+and runtime exception messages are not returned.
 
 ### Entry gates
 
@@ -151,9 +167,13 @@ Repository-controlled and therefore requiring a new pinned control commit:
 
 - `.planning/execution/PACKET-GATES.json`
 - `.planning/execution/PACKET-CONTRACTS.json`
+- `.planning/execution/packet-gate-lib.mjs`
+- `.planning/execution/wayland-gsd-gate.mjs`
+- `.planning/execution/desktop-gsd-next.mjs`
 - `.planning/execution/packet-gate-manifest.test.mjs`
 - `.planning/execution/check-packet-gate.test.mjs`
 - `.planning/execution/cross-worktree-receipt.test.mjs`
+- `.planning/execution/desktop-gsd-next.test.mjs`
 - `.planning/execution/README.md`
 
 Externally installed and explicitly not edited by this planning pass:
@@ -168,13 +188,16 @@ prerequisite-only receipts, wrong target identity, stale v1 gate authorization,
 both/neither exclusive targets, sibling commit/tree substitution, and a green
 prerequisite paired with a red target. It must also cover unclassified gates,
 mixed schema objects, entry gates with targets, acceptance gates without
-targets, and attempts to cite an entry result as accepted-target evidence.
+targets, attempts to cite an entry result as accepted-target evidence, mutable
+path replacement between digest and execution, split authority snapshots,
+acceptance-key relabelling, duplicate public-key identities, and non-canonical
+timestamps.
 
 ## Replanning rule
 
 Plan 01-37 implements and tests the repository-owned source. Plan 01-38 then
-installs those exact committed bytes and pins the external wrapper/library/control
-without provisioning an acceptance key. Every packet-acceptance plan depends on
-01-38 and may invoke only the gate ID implemented by 01-37 and proven live by
-01-38. This document and repository source never substitute for that installation
-proof.
+installs those exact committed bytes and pins the external
+wrapper/library/control without provisioning an acceptance key. Every
+packet-acceptance plan depends on 01-38 and may invoke only the gate ID
+implemented by 01-37 and proven live by 01-38. This document and repository
+source never substitute for that installation proof.
