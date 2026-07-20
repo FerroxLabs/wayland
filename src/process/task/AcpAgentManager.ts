@@ -154,6 +154,22 @@ type BufferedStreamTextMessage = {
 
 type CustomAgentLaunchConfig = Pick<AcpBackendConfig, 'id' | 'name' | 'defaultCliPath' | 'acpArgs' | 'env'>;
 
+/**
+ * Authoritative backend-session facts consumed by the recovery state-authority
+ * ledger (plan 01-22). An ACP backend persists `acpSessionId` plus a pinned
+ * `acpWrapperVersion` (`<backend>@<version>`) in `conversations.extra` via
+ * {@link AcpAgentManager.saveAcpSessionId}; a fresh spawn resumes the same
+ * session through `session/load` replay, or self-heals through a wrapper-mismatch
+ * history replay. Resumability is proven by that persisted, wrapper-pinned handle
+ * — not by process liveness.
+ */
+export const ACP_SESSION_AUTHORITY = {
+  producer: 'acp-backend',
+  handleSource: 'acp.conversation-extra.acpSessionId',
+  resumability: 'backend-session-replay',
+  proven: true,
+} as const;
+
 class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissionOption> {
   workspace: string;
   agent: AcpAgentV2;
