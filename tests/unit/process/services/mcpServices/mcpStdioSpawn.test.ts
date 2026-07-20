@@ -28,7 +28,15 @@ import { buildAcpSessionMcpServers, buildWCoreUserStdioMcpServers } from '@proce
 import { McpConfig } from '@process/acp/session/McpConfig';
 import { toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import { buildGeminiStdioMcpConfig } from '@process/task/GeminiAgentManager';
+import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 import type { IMcpServer } from '@/common/config/storage';
+
+const publication = () => ({
+  generation: 'launch-stdio',
+  conversationId: 'chat-stdio',
+  backend: 'acp' as const,
+  sessionKey: createMcpSessionDigestKey(),
+});
 
 const npxStdioTransport = { type: 'stdio', command: 'npx', args: ['-y', '@playwright/mcp@0.0.75'] } as Extract<
   IMcpServer['transport'],
@@ -130,7 +138,7 @@ describe('#827 session-injection parity — win32 resolves npx at every path', (
 
   it('McpConfig.fromStorageConfig (live ACP path)', () => {
     setPlatform('win32');
-    const [srv] = McpConfig.fromStorageConfig([npxServer()], caps);
+    const [srv] = McpConfig.fromStorageConfig([npxServer()], { publication: publication(), capabilities: caps });
     assertResolved((srv as { command: string }).command, (srv as { args: string[] }).args);
   });
 

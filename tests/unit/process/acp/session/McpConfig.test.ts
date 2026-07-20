@@ -1,12 +1,27 @@
 // tests/unit/process/acp/session/McpConfig.test.ts
 import { describe, it, expect } from 'vitest';
-import { McpConfig } from '@process/acp/session/McpConfig';
+import { McpConfig, type McpConfigPublicationRequest } from '@process/acp/session/McpConfig';
 import type { McpServerConfig } from '@process/acp/types';
 import type { IMcpServer } from '@/common/config/storage';
+import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
+import { getMcpSessionReceiptForServer } from '@/common/mcp/sessionReceipt';
 
 function mcp(name: string, command: string): McpServerConfig {
   return { name, command, args: [], env: [] };
 }
+
+const publication = () => ({
+  generation: 'launch-mcpconfig',
+  conversationId: 'chat-mcpconfig',
+  backend: 'acp' as const,
+  sessionKey: createMcpSessionDigestKey(),
+});
+
+const request = (over: Partial<McpConfigPublicationRequest> = {}): McpConfigPublicationRequest => ({
+  publication: publication(),
+  capabilities: { stdio: true, http: true, sse: true },
+  ...over,
+});
 
 describe('McpConfig', () => {
   it('never manufactures optional HTTP or SSE support for an ACP agent', () => {
@@ -89,14 +104,10 @@ describe('McpConfig', () => {
       },
     ] as IMcpServer[];
 
-    const scoped = McpConfig.fromStorageConfig(
-      stored,
-      { stdio: true, http: true, sse: true },
-      ['tavily']
-    );
+    const scoped = McpConfig.fromStorageConfig(stored, request({ activeServerIds: ['tavily'] }));
     expect(scoped.map((server) => server.name).toSorted()).toEqual(['skill-search', 'tavily']);
 
-    const none = McpConfig.fromStorageConfig(stored, { stdio: true, http: true, sse: true }, []);
+    const none = McpConfig.fromStorageConfig(stored, request({ activeServerIds: [] }));
     expect(none.map((server) => server.name)).toEqual(['skill-search']);
   });
 
@@ -159,8 +170,7 @@ describe('McpConfig', () => {
 
     const result = McpConfig.fromStorageConfig(
       stored,
-      { stdio: true, http: true, sse: true },
-      ['tavily', 'firecrawl', 'n8n', 'beeper']
+      request({ activeServerIds: ['tavily', 'firecrawl', 'n8n', 'beeper'] })
     );
     expect(result.map((server) => server.name).toSorted()).toEqual(['beeper', 'firecrawl', 'n8n', 'tavily']);
     expect(result.find((server) => server.name === 'tavily')).toMatchObject({
@@ -194,11 +204,10 @@ describe('McpConfig', () => {
       updatedAt: 1,
     } as IMcpServer;
 
-    const projection = McpConfig.projectStorageConfig([tavily], {
-      stdio: true,
-      http: false,
-      sse: false,
-    });
+    const projection = McpConfig.projectStorageConfig(
+      [tavily],
+      request({ capabilities: { stdio: true, http: false, sse: false } })
+    );
 
     expect(projection.servers).toEqual([]);
     expect(projection.selectedServers).toEqual([tavily]);
@@ -208,5 +217,91 @@ describe('McpConfig', () => {
         reason: 'ACP runtime did not advertise HTTP MCP transport support',
       },
     ]);
+  });
+
+  it('mints current-session publication receipts only for connectors that reach the backend', () => {
+    const stored = [
+      {
+        id: 'tavily',
+        name: 'tavily',
+        source: 'custom',
+        enabled: true,
+        status: 'connected',
+        transport: { type: 'stdio', command: 'tavily', args: [] },
+        createdAt: 1,
+        updatedAt: 1,
+      },
+      {
+        id: 'beeper',
+        name: 'beeper',
+        source: 'custom',
+        enabled: true,
+        status: 'connected',
+        transport: { type: 'streamable_http', url: 'http://localhost:23373/v0/mcp' },
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    ] as IMcpServer[];
+
+    // stdio-only runtime: tavily reaches the backend; the selected-but-unpublishable
+    // beeper is a fail-closed desktop failure, never a publication.
+    const projection = McpConfig.projectStorageConfig(
+      stored,
+      request({
+        capabilities: { stdio: true, http: false, sse: false },
+        activeServerIds: ['tavily', 'beeper'],
+      })
+    );
+
+    expect(projection.servers.map((s) => s.name)).toEqual(['tavily']);
+    expect(getMcpSessionReceiptForServer(projection.sessionState, stored[0])?.status).toBe('published_unverified');
+    expect(getMcpSessionReceiptForServer(projection.sessionState, stored[1])?.status).toBe('failed');
+  });
+
+  it('never mints a publication for a stored-connected connector left out of this session selection', () => {
+    const stored = [
+      {
+        id: 'tavily',
+        name: 'tavily',
+        source: 'custom',
+        enabled: true,
+        status: 'connected',
+        transport: { type: 'stdio', command: 'tavily', args: [] },
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    ] as IMcpServer[];
+
+    // Compatibility `connected` is not session authority: an unselected connector
+    // is neither published nor even a tracked receipt for this launch.
+    const projection = McpConfig.projectStorageConfig(stored, request({ activeServerIds: [] }));
+    expect(projection.servers).toEqual([]);
+    expect(projection.selectedServers).toEqual([]);
+    expect(getMcpSessionReceiptForServer(projection.sessionState, stored[0])).toBeUndefined();
+  });
+
+  it('binds every published receipt to the exact correlated launch identity', () => {
+    const stored = [
+      {
+        id: 'tavily',
+        name: 'tavily',
+        source: 'custom',
+        enabled: true,
+        status: 'connected',
+        transport: { type: 'stdio', command: 'tavily', args: [] },
+        createdAt: 1,
+        updatedAt: 1,
+      },
+    ] as IMcpServer[];
+    const req = request({ activeServerIds: ['tavily'] });
+    const projection = McpConfig.projectStorageConfig(stored, req);
+    const receipt = getMcpSessionReceiptForServer(projection.sessionState, stored[0]);
+    expect(receipt).toMatchObject({
+      status: 'published_unverified',
+      generation: req.publication.generation,
+      conversationId: req.publication.conversationId,
+      backend: 'acp',
+      source: 'desktop',
+    });
   });
 });
