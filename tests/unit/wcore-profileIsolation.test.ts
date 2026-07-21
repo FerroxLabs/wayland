@@ -267,7 +267,7 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     expect(spawnedEnv().BRAVE_SEARCH_API_KEY).toBe('brave-test-key');
     const args = spawnMock.mock.calls[0]?.[1] as string[];
     expect(args).not.toContain('--profile');
-    expect(existsSync(join(workspace, '.wcore.toml'))).toBe(false);
+    expect(existsSync(join(workspace, '.wayland-core.toml'))).toBe(false);
     expect(stdin).toContain('"type":"add_mcp_server"');
     expect(stdin).toContain('"name":"wayland-team-bridge"');
 
@@ -349,7 +349,7 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     const args = spawnMock.mock.calls[0]?.[1] as string[];
     expect(args).toContain('--profile');
     expect(args[args.indexOf('--profile') + 1]).toBe('__wayland_desktop_session');
-    const projectConfig = readFileSync(join(workspace, '.wcore.toml'), 'utf-8');
+    const projectConfig = readFileSync(join(workspace, '.wayland-core.toml'), 'utf-8');
     expect(projectConfig).toContain('[profiles.__wayland_desktop_session]');
     expect(projectConfig).toContain('"firecrawl"');
     expect(projectConfig).toContain('"tavily"');

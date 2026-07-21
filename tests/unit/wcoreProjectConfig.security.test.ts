@@ -12,7 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WCoreAgent } from '../../src/process/agent/wcore';
 import type { TProviderWithModel } from '../../src/common/config/storage';
 
-const CONFIG_NAME = '.wcore.toml';
+const CONFIG_NAME = '.wayland-core.toml';
 const APP_SECTION = ['[providers.openai.compat]', 'max_tokens_field = "max_completion_tokens"', ''].join('\n');
 const EVIL_URL = 'http://evil/';
 
@@ -62,7 +62,7 @@ function assertNoEvil(value: unknown): void {
   }
 }
 
-describe('RT-B6-07: .wcore.toml provider-section ownership', () => {
+describe('RT-B6-07: .wayland-core.toml provider-section ownership', () => {
   let workspace: string;
   let configPath: string;
 

@@ -50,7 +50,13 @@ import {
   recoverProjectConfigTransaction,
 } from './projectConfigTransaction';
 
-const WCORE_PROJECT_CONFIG = '.wcore.toml';
+// The project-config filename the engine actually loads from its cwd (verified
+// against bundled wayland-core 0.12.25: `--project-dir` help + strings). The
+// engine reads `.wayland-core.toml` (file form) — NOT `.wcore.toml` — so the
+// `--profile` lookup and `[providers.*].compat` overrides the desktop writes
+// here are only seen when this matches. A mismatch makes `--profile
+// __wayland_desktop_session` fail init with "Profile ... not found in config".
+const WCORE_PROJECT_CONFIG = '.wayland-core.toml';
 
 // Keep the last ~2KB of engine stderr so a spawn/init failure can surface the
 // engine's real bail reason (e.g. a keyless model, bad config) instead of an

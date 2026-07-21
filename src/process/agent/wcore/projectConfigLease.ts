@@ -1,7 +1,10 @@
 import { realpath } from 'node:fs/promises';
 import { join } from 'node:path';
 
-const WCORE_PROJECT_CONFIG = '.wcore.toml';
+// Must match the engine's project-config filename (see index.ts). The engine
+// loads `.wayland-core.toml` from its cwd, so the lease that serializes the
+// temporary write window keys on that exact path.
+const WCORE_PROJECT_CONFIG = '.wayland-core.toml';
 const leaseTails = new Map<string, Promise<void>>();
 
 /**
