@@ -87,6 +87,30 @@ export function isBuiltinWaylandMcpFilename(arg: string | undefined | null): arg
 export type McpStdioScriptName = (typeof MCP_STDIO_SCRIPT_NAMES)[number];
 
 /**
+ * The subset of {@link MCP_STDIO_SCRIPT_NAMES} that ships as user-facing built-in
+ * MCP servers registered in `mcp.config` with `{ command: 'node', args: [<abs
+ * path>] }` — image generation, skill search, and concierge diagnostics. The
+ * `team-*-stdio.js` scripts are spawned through other channels (an in-process TCP
+ * server), never the MCP transport spawn path, so they are excluded here.
+ */
+export const BUILTIN_MCP_JS_SCRIPT_NAMES = MCP_STDIO_SCRIPT_NAMES.filter((name) =>
+  name.startsWith('builtin-mcp-')
+) as readonly string[];
+
+/**
+ * True if `arg` is (or ends in) one of the bundled built-in `.js` MCP server
+ * scripts. These are persisted with an absolute path as `args[0]`, so the match
+ * is on the basename — surviving dev/packaged path differences and either OS
+ * separator. Used by the spawn resolver to reroute `node` launches of our own
+ * builtins onto a resolved JS runtime when no system `node` is on PATH.
+ */
+export function isBundledBuiltinMcpScriptArg(arg: string | undefined | null): boolean {
+  if (!arg) return false;
+  const base = arg.split(/[/\\]/).pop() ?? '';
+  return BUILTIN_MCP_JS_SCRIPT_NAMES.includes(base);
+}
+
+/**
  * Resolve the directory containing the bundled MCP stdio scripts.
  *
  * Returns:

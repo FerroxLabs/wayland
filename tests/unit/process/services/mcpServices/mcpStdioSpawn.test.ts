@@ -95,6 +95,54 @@ describe('#827 resolveMcpStdioSpawn (win32-only)', () => {
   });
 });
 
+// Runtime stubs for the injectable `resolveRuntime` arg. Packaged runtimes
+// (bundled-bun/system-node) carry no env; dev electron-node needs ELECTRON_RUN_AS_NODE.
+const bundledBun = () => ({ command: '/bundled/bun', env: {}, kind: 'bundled-bun' as const });
+const systemNode = () => ({ command: 'node.exe', env: {}, kind: 'system-node' as const });
+const electronNode = () => ({
+  command: '/app/Wayland.exe',
+  env: { ELECTRON_RUN_AS_NODE: '1' },
+  kind: 'electron-node' as const,
+});
+const winBuiltin = 'C:\\Program Files\\Wayland\\resources\\app.asar.unpacked\\out\\main\\builtin-mcp-search-skills.js';
+const posixBuiltin =
+  '/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main/builtin-mcp-concierge-diag.js';
+
+describe('resolveMcpStdioSpawn — bundled builtin `.js` node servers', () => {
+  it('win32: reroutes a builtin `node` server onto the resolved runtime, keeping the abs path', () => {
+    const r = resolveMcpStdioSpawn('node', [winBuiltin], () => '/bundled/bun', 'win32', bundledBun);
+    expect(r).toEqual({ command: '/bundled/bun', args: [winBuiltin] });
+  });
+
+  it('darwin: reroutes a builtin `node` server too (a bare `node` fails when none is installed)', () => {
+    const r = resolveMcpStdioSpawn('node', [posixBuiltin], () => '/bundled/bun', 'darwin', bundledBun);
+    expect(r).toEqual({ command: '/bundled/bun', args: [posixBuiltin] });
+  });
+
+  it('accepts a `node.exe` command as well', () => {
+    const r = resolveMcpStdioSpawn('node.exe', [winBuiltin], () => '/bundled/bun', 'win32', systemNode);
+    expect(r).toEqual({ command: 'node.exe', args: [winBuiltin] });
+  });
+
+  it('linux: leaves the builtin `node` server raw (no stale abs path in AppImage config.toml)', () => {
+    const r = resolveMcpStdioSpawn('node', [posixBuiltin], () => '/bundled/bun', 'linux', bundledBun);
+    expect(r).toEqual({ command: 'node', args: [posixBuiltin] });
+  });
+
+  it('leaves a non-builtin `node` script untouched (only OUR builtins are rerouted)', () => {
+    const custom = '/Users/me/custom-server.js';
+    expect(resolveMcpStdioSpawn('node', [custom], () => '/bundled/bun', 'win32', bundledBun)).toEqual({
+      command: 'node',
+      args: [custom],
+    });
+  });
+
+  it('leaves the builtin raw when the runtime needs env (dev electron-node — no env plumbing here)', () => {
+    const r = resolveMcpStdioSpawn('node', [winBuiltin], () => '/bundled/bun', 'win32', electronNode);
+    expect(r).toEqual({ command: 'node', args: [winBuiltin] });
+  });
+});
+
 // A resolved stdio server runs bun (`bun`/`bun.exe`/an abs path), never `npx`, and
 // routes through `bun x --bun` with the npx-only `-y` stripped.
 const assertResolved = (command: string, args: readonly string[]) => {
