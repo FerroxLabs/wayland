@@ -23,6 +23,7 @@ import { test, expect } from '../fixtures';
 import { navigateTo, waitForSettle } from '../helpers';
 import {
   baselineFor,
+  baselineHas,
   gatedViolationIds,
   isBaselineUpdateRun,
   newViolations,
@@ -38,10 +39,21 @@ const SURFACES: Surface[] = [
   { key: 'settings-channels', hash: '#/settings/channels', label: 'Channels settings' },
 ];
 
+// Floor guard: proves the suite actually scanned something. Without it, a
+// regression that white-screens every surface could make all tests skip and
+// the run exit green while asserting nothing.
+let scannedCount = 0;
+
 test.describe('accessibility (WCAG 2.x A/AA regression gate)', () => {
+  test.afterAll(() => {
+    // Not enforced during a baseline (re)record.
+    if (isBaselineUpdateRun()) return;
+    expect(scannedCount, 'a11y gate scanned zero surfaces — nothing was verified; the app likely failed to render').toBeGreaterThan(0);
+  });
+
   for (const surface of SURFACES) {
     test(`${surface.label} has no new serious/critical a11y violations`, async ({ page }) => {
-      // Best-effort navigation; skip (don't fail) if the surface doesn't render.
+      // Best-effort navigation.
       let loaded = true;
       try {
         await navigateTo(page, surface.hash);
@@ -49,13 +61,28 @@ test.describe('accessibility (WCAG 2.x A/AA regression gate)', () => {
         loaded = false;
       }
       await waitForSettle(page, 4000);
+      // Prefer a settled document before scanning so axe doesn't read a partial
+      // DOM and miss a late-rendered violation. Residual limitation: async SPA
+      // content (post-fetch lists, lazy modals) may still render after this;
+      // the gate covers first-paint state, which is the high-value case.
+      await page.waitForFunction(() => document.readyState === 'complete', undefined, { timeout: 5000 }).catch(() => {});
       const bodyLen = await page.evaluate(() => document.body.textContent?.length ?? 0).catch(() => 0);
       if (!loaded || bodyLen < 50) {
-        test.skip(true, `Surface ${surface.key} did not render (${surface.hash}); skipping a11y scan.`);
+        // A baselined surface has rendered before, so a non-render now is a
+        // REGRESSION (fail), not an absent surface (skip). Only a surface with
+        // no baseline entry may skip.
+        if (baselineHas(surface.key)) {
+          throw new Error(
+            `A11y surface "${surface.key}" (${surface.hash}) is in the baseline but did not render ` +
+              `(loaded=${loaded}, bodyLen=${bodyLen}). Treating render death as a regression.`
+          );
+        }
+        test.skip(true, `Surface ${surface.key} not in baseline and did not render (${surface.hash}); skipping.`);
         return;
       }
 
       const violations = await runAxe(page);
+      scannedCount += 1;
       const gated = gatedViolationIds(violations);
 
       if (isBaselineUpdateRun()) {

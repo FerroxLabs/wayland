@@ -7,7 +7,8 @@
 /**
  * Accessibility (QA-01) harness helpers.
  *
- * Wraps `@axe-core/playwright` so specs can scan a rendered surface and gate on
+ * Scans a rendered surface with axe-core (injected in-page — see `runAxe`; NOT
+ * `@axe-core/playwright`, which cannot run in Electron) and gates on
  * regressions. We gate on `serious` + `critical` impact only — the severities
  * that block real users — and compare against a committed per-surface baseline
  * so pre-existing debt does not fail the build while any NEW serious/critical
@@ -78,6 +79,16 @@ function readBaseline(): Baseline {
 /** The known/accepted gate-level violation ids for a surface (empty if none). */
 export function baselineFor(surface: string): string[] {
   return readBaseline()[surface] ?? [];
+}
+
+/**
+ * Whether a surface has a baseline entry at all. A surface present here has
+ * proven it can render, so a later failure to render is a REGRESSION (fail),
+ * not an absent surface (skip). Distinct from `baselineFor`, which returns `[]`
+ * both for "known, no violations" and "unknown surface".
+ */
+export function baselineHas(surface: string): boolean {
+  return Object.prototype.hasOwnProperty.call(readBaseline(), surface);
 }
 
 /**
