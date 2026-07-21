@@ -1,21 +1,19 @@
 {
   "guid-home": [
     "aria-allowed-attr",
-    "color-contrast",
-    "html-has-lang"
+    "aria-prohibited-attr",
+    "color-contrast"
   ],
   "settings-channels": [
     "aria-prohibited-attr",
     "aria-required-parent",
     "color-contrast",
-    "html-has-lang",
     "scrollable-region-focusable"
   ],
   "settings-models": [
     "aria-prohibited-attr",
     "button-name",
     "color-contrast",
-    "html-has-lang",
     "scrollable-region-focusable"
   ]
 }
