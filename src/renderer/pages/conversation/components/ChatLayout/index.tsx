@@ -304,23 +304,27 @@ const ChatLayout: React.FC<{
       }}
     >
       {isInRouter ? <RouterWorkbenchRequestBridge onRequest={setWorkbenchRequest} /> : null}
-      <div ref={containerRef} className='flex flex-1 relative w-full overflow-hidden'>
-        <WorkbenchHost
-          conversationId={conversationId}
-          sections={workbenchSections}
-          overlay={workbenchOverlay}
-          requestedSectionId={workbenchRequest?.id}
-          requestKey={workbenchRequest?.key}
-        >
-          <div className='flex flex-col flex-1 min-w-0 min-h-0 relative'>
-            <ArcoLayout.Content
-              className='flex flex-col h-full min-w-0'
-              onClick={() => {
-                if (window.innerWidth < 768 && !rightSiderCollapsed) setRightSiderCollapsed(true);
-              }}
-            >
-              {!props.hideHeader && headerBlock}
-              <ArcoLayout.Content className='flex flex-col flex-1 bg-1 overflow-hidden'>
+      {/* Column: header + tabs sit ABOVE the workbench dock. The dock's
+          full-height rail/overlay panel are absolutely positioned to its own
+          container's top; keeping the header outside that container stops them
+          from rendering over the header and conversation tab strip. */}
+      <div ref={containerRef} className='flex flex-col flex-1 relative w-full overflow-hidden'>
+        {!props.hideHeader && headerBlock}
+        <div className='flex flex-1 relative min-w-0 min-h-0'>
+          <WorkbenchHost
+            conversationId={conversationId}
+            sections={workbenchSections}
+            overlay={workbenchOverlay}
+            requestedSectionId={workbenchRequest?.id}
+            requestKey={workbenchRequest?.key}
+          >
+            <div className='flex flex-col flex-1 min-w-0 min-h-0 relative'>
+              <ArcoLayout.Content
+                className='flex flex-col flex-1 bg-1 overflow-hidden'
+                onClick={() => {
+                  if (window.innerWidth < 768 && !rightSiderCollapsed) setRightSiderCollapsed(true);
+                }}
+              >
                 {props.hideHeader && props.projectId && (
                   <div className='shrink-0 px-16px pt-8px'>
                     <ProjectContextBadge projectId={props.projectId} />
@@ -328,9 +332,9 @@ const ChatLayout: React.FC<{
                 )}
                 {props.children}
               </ArcoLayout.Content>
-            </ArcoLayout.Content>
-          </div>
-        </WorkbenchHost>
+            </div>
+          </WorkbenchHost>
+        </div>
       </div>
     </ArcoLayout>
   );
