@@ -14,6 +14,8 @@
  */
 import { test, expect } from '../fixtures';
 import { invokeBridge } from '../helpers';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 
 interface ILoadedExtension {
   name?: string;
@@ -27,32 +29,32 @@ test.describe('Extensions sandbox + bridge', () => {
   // rendered DOM if/when an extension is loaded; this one defends against a
   // regression in the JSX literal itself.
   test('H2: ExtensionSettings tab content + page declare sandbox="allow-scripts" without allow-same-origin', async ({ electronApp }) => {
-    const result = await electronApp.evaluate(async ({ app }) => {
-      const fs = await import('node:fs/promises');
-      const path = await import('node:path');
-      const appPath = app.getAppPath();
-      const targets = [
-        path.join(appPath, 'src/renderer/components/settings/SettingsModal/contents/ExtensionSettingsTabContent.tsx'),
-        path.join(appPath, 'src/renderer/pages/settings/ExtensionSettingsPage.tsx'),
-      ];
-      const reports: Array<{ file: string; sandbox: string | null; hasAllowSameOrigin: boolean; hasAllowScripts: boolean }> = [];
-      for (const file of targets) {
-        try {
-          const txt = await fs.readFile(file, 'utf8');
-          const m = txt.match(/sandbox\s*=\s*['"]([^'"]+)['"]/);
-          const value = m ? m[1] : null;
-          reports.push({
-            file: path.basename(file),
-            sandbox: value,
-            hasAllowSameOrigin: !!value && /allow-same-origin/.test(value),
-            hasAllowScripts: !!value && /allow-scripts/.test(value),
-          });
-        } catch {
-          reports.push({ file: path.basename(file), sandbox: null, hasAllowSameOrigin: false, hasAllowScripts: false });
-        }
+    // Read the .tsx sources from the Node test process rather than inside
+    // `electronApp.evaluate` - a dynamic `import()` in the serialized
+    // main-process callback throws "dynamic import callback was not specified"
+    // under electron-vite's bundling. We only need the app root from the main
+    // process; the file IO happens here in the Node worker (which has fs/path).
+    const appPath = await electronApp.evaluate(({ app }) => app.getAppPath());
+    const targets = [
+      path.join(appPath, 'src/renderer/components/settings/SettingsModal/contents/ExtensionSettingsTabContent.tsx'),
+      path.join(appPath, 'src/renderer/pages/settings/ExtensionSettingsPage.tsx'),
+    ];
+    const result: Array<{ file: string; sandbox: string | null; hasAllowSameOrigin: boolean; hasAllowScripts: boolean }> = [];
+    for (const file of targets) {
+      try {
+        const txt = await fs.readFile(file, 'utf8');
+        const m = txt.match(/sandbox\s*=\s*['"]([^'"]+)['"]/);
+        const value = m ? m[1] : null;
+        result.push({
+          file: path.basename(file),
+          sandbox: value,
+          hasAllowSameOrigin: !!value && /allow-same-origin/.test(value),
+          hasAllowScripts: !!value && /allow-scripts/.test(value),
+        });
+      } catch {
+        result.push({ file: path.basename(file), sandbox: null, hasAllowSameOrigin: false, hasAllowScripts: false });
       }
-      return reports;
-    });
+    }
 
     // In packaged mode the .tsx sources aren't shipped - accept that path.
     // In dev mode they must exist and they must NOT contain allow-same-origin.

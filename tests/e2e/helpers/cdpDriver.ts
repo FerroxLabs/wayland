@@ -34,6 +34,7 @@
 
 import { spawn, type ChildProcess } from 'node:child_process';
 import path from 'node:path';
+import { WebSocket as NodeWebSocket } from 'ws';
 
 const APP_ROOT = path.resolve(__dirname, '../../..');
 const ELECTRON_BIN = path.join(
@@ -129,9 +130,15 @@ export async function launchAppViaCdp(opts: CdpAppOptions): Promise<CdpApp> {
   const page = pages.find((p) => p.type === 'page');
   if (!page) throw new Error('No CDP page found');
 
-  // Bun + Node both have a global WebSocket - avoid the `ws` package
-  // (Bun's `ws` rejects valid 101 responses).
-  const ws = new (globalThis as { WebSocket: typeof WebSocket }).WebSocket(page.webSocketDebuggerUrl);
+  // Playwright test workers run under Node, which had no global WebSocket
+  // before Node 21 - fall back to the `ws` package there. Bun DOES ship a
+  // global WebSocket, so prefer it when present (Bun's `ws` rejects valid 101
+  // responses). `ws` exposes the same addEventListener / send / close surface
+  // this driver uses; the only wrinkle is text frames arrive as a Buffer, which
+  // the message handler below coerces to a string.
+  const WebSocketImpl =
+    (globalThis as { WebSocket?: typeof WebSocket }).WebSocket ?? (NodeWebSocket as unknown as typeof WebSocket);
+  const ws = new WebSocketImpl(page.webSocketDebuggerUrl);
   await new Promise<void>((resolve, reject) => {
     ws.addEventListener('open', () => resolve(), { once: true });
     ws.addEventListener('error', (e) => reject(new Error('CDP WS error: ' + ((e as ErrorEvent).message ?? 'unknown'))), { once: true });
@@ -142,7 +149,10 @@ export async function launchAppViaCdp(opts: CdpAppOptions): Promise<CdpApp> {
     const id = ++msgId;
     return new Promise<unknown>((resolve, reject) => {
       const onMessage = (ev: MessageEvent) => {
-        const msg = JSON.parse(typeof ev.data === 'string' ? ev.data : '');
+        // Global WebSocket delivers text frames as a string; the `ws` fallback
+        // delivers them as a Buffer - normalise both to a string before parsing.
+        const raw = typeof ev.data === 'string' ? ev.data : (ev.data as { toString(): string })?.toString?.() ?? '';
+        const msg = JSON.parse(raw);
         if (msg.id !== id) return;
         ws.removeEventListener('message', onMessage);
         if (msg.error) reject(new Error(`CDP ${method} error: ${msg.error.message}`));
