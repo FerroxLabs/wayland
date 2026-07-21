@@ -52,7 +52,7 @@ import {
 
 // The project-config filename the engine actually loads from its cwd (verified
 // against bundled wayland-core 0.12.25: `--project-dir` help + strings). The
-// engine reads `.wayland-core.toml` (file form) — NOT `.wayland-core.toml` — so the
+// engine reads `.wayland-core.toml` (file form) — NOT `.wcore.toml` — so the
 // `--profile` lookup and `[providers.*].compat` overrides the desktop writes
 // here are only seen when this matches. A mismatch makes `--profile
 // __wayland_desktop_session` fail init with "Profile ... not found in config".
