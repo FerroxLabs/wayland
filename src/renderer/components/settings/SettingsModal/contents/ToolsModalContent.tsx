@@ -34,6 +34,7 @@ import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { useSettingsViewMode } from '../settingsViewContext';
 import MicrophoneCheck from '@/renderer/pages/settings/VoiceSettings/MicrophoneCheck';
+import { useHostedVoiceConsent } from '@/renderer/hooks/voice/useHostedVoiceConsent';
 
 const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
 export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
@@ -259,18 +260,23 @@ export const TextToSpeechSettingsSection: React.FC<{
   const { t } = useTranslation();
   const testAudioRef = useRef<HTMLAudioElement | null>(null);
   const testAudioUrlRef = useRef<string | null>(null);
+  const { ensureConsent, consentModal } = useHostedVoiceConsent();
 
   const handleProviderChange = useCallback(
     (value: string) => {
       if (!isTextToSpeechProvider(value)) return;
-      onChange((current) => ({
-        ...current,
-        provider: value,
-        voice: value === 'openai' ? 'marin' : 'default',
-        model: value === 'openai' ? 'gpt-4o-mini-tts' : undefined,
-      }));
+      // Hosted providers require the VOC-03 disclosure before selection sticks.
+      void ensureConsent(value).then((accepted) => {
+        if (!accepted) return;
+        onChange((current) => ({
+          ...current,
+          provider: value,
+          voice: value === 'openai' ? 'marin' : 'default',
+          model: value === 'openai' ? 'gpt-4o-mini-tts' : undefined,
+        }));
+      });
     },
-    [onChange]
+    [onChange, ensureConsent]
   );
 
   const clearTestAudio = useCallback(() => {
@@ -313,6 +319,7 @@ export const TextToSpeechSettingsSection: React.FC<{
 
   return (
     <div className='px-[12px] md:px-[32px] py-[24px] bg-[var(--color-bg-2)] rd-12px border-2 border-solid border-[var(--color-border-2)]'>
+      {consentModal}
       <div className='flex items-center justify-between gap-12px mb-8px'>
         <div className='flex flex-col gap-4px'>
           <span className='text-14px text-t-primary'>{t('settings.textToSpeech')}</span>
@@ -416,6 +423,7 @@ export const SpeechToTextSettingsSection: React.FC<{
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { ensureConsent, consentModal } = useHostedVoiceConsent();
   // Whether OpenAI is connected in the shared provider registry (the same store
   // Models/Providers shows as "Connected"). When it is, OpenAI Whisper uses that
   // key automatically, so the panel confirms the key is present instead of
@@ -460,12 +468,16 @@ export const SpeechToTextSettingsSection: React.FC<{
 
   const handleProviderChange = useCallback(
     (value: string) => {
-      onChange((current) => ({
-        ...current,
-        provider: value as SpeechToTextProvider,
-      }));
+      // Hosted STT providers require the VOC-03 disclosure before selection sticks.
+      void ensureConsent(value).then((accepted) => {
+        if (!accepted) return;
+        onChange((current) => ({
+          ...current,
+          provider: value as SpeechToTextProvider,
+        }));
+      });
     },
-    [onChange]
+    [onChange, ensureConsent]
   );
 
   const handleOpenAIChange = useCallback(
@@ -496,6 +508,7 @@ export const SpeechToTextSettingsSection: React.FC<{
 
   return (
     <div className='px-[12px] md:px-[32px] py-[24px] bg-[var(--color-bg-2)] rd-12px border-2 border-solid border-[var(--color-border-2)]'>
+      {consentModal}
       <div className='flex items-center justify-between gap-12px mb-8px'>
         <div className='flex flex-col gap-4px'>
           <span className='text-14px text-t-primary'>{t('settings.speechToText')}</span>

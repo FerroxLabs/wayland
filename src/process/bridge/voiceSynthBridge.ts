@@ -8,6 +8,7 @@ import { ipcBridge } from '@/common';
 import { synthesize } from '@process/services/voice/TextToSpeechService';
 import { normalizeTextToSpeechConfig } from '@/common/types/ttsTypes';
 import { ConfigStorage } from '@/common/config/storage';
+import { hostedVoiceConsentGranted } from '@/common/types/voiceConsent';
 
 const publicErrorCode = (
   error: unknown
@@ -18,6 +19,7 @@ const publicErrorCode = (
   | 'TTS_OPENAI_AUTH_ERROR'
   | 'TTS_OPENAI_RATE_LIMITED'
   | 'TTS_OPENAI_REQUEST_FAILED'
+  | 'TTS_HOSTED_CONSENT_REQUIRED'
   | 'TTS_SYNTHESIS_FAILED' => {
   if (error instanceof Error) {
     if (error.message.startsWith('TTS_KOKORO_LOCAL_UNAVAILABLE')) {
@@ -38,6 +40,9 @@ const publicErrorCode = (
     if (error.message.startsWith('TTS_OPENAI_REQUEST_FAILED')) {
       return 'TTS_OPENAI_REQUEST_FAILED';
     }
+    if (error.message.startsWith('TTS_HOSTED_CONSENT_REQUIRED')) {
+      return 'TTS_HOSTED_CONSENT_REQUIRED';
+    }
   }
   return 'TTS_SYNTHESIS_FAILED';
 };
@@ -47,6 +52,14 @@ export function initVoiceSynthBridge(): void {
     try {
       const stored = await ConfigStorage.get('tools.textToSpeech');
       const config = normalizeTextToSpeechConfig(stored);
+      // VOC-03: hosted TTS ('openai') POSTs the response text off-device.
+      // Fail closed unless the user has acknowledged the disclosure for it.
+      if (config.provider === 'openai') {
+        const consent = await ConfigStorage.get('tools.voiceHostedConsent');
+        if (!hostedVoiceConsentGranted('openai', consent)) {
+          return { ok: false, errorCode: 'TTS_HOSTED_CONSENT_REQUIRED' };
+        }
+      }
       const audio = await synthesize(text, config);
       return { ok: true, data: Array.from(audio.data), mimeType: audio.mimeType };
     } catch (error) {

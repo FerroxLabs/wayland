@@ -74,5 +74,6 @@ export type TextToSpeechBridgeResult =
         | 'TTS_OPENAI_AUTH_ERROR'
         | 'TTS_OPENAI_RATE_LIMITED'
         | 'TTS_OPENAI_REQUEST_FAILED'
+        | 'TTS_HOSTED_CONSENT_REQUIRED'
         | 'TTS_SYNTHESIS_FAILED';
     };

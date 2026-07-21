@@ -84,4 +84,35 @@ describe('voiceSynthBridge', () => {
       errorCode,
     });
   });
+
+  // VOC-03: hosted TTS ('openai') must not run without recorded consent.
+  const openaiConfig = { enabled: true, provider: 'openai', voice: 'marin', speed: 1, autoReadResponses: false };
+  const keyAwareConfig = (consent: unknown) => (key: string) =>
+    Promise.resolve(key === 'tools.voiceHostedConsent' ? consent : openaiConfig);
+
+  it('fails closed for hosted TTS when consent is absent and never synthesizes', async () => {
+    getConfig.mockImplementation(keyAwareConfig(null));
+    initVoiceSynthBridge();
+
+    await expect(speakCallback!({ text: 'Hello' })).resolves.toEqual({
+      ok: false,
+      errorCode: 'TTS_HOSTED_CONSENT_REQUIRED',
+    });
+    expect(synthesize).not.toHaveBeenCalled();
+  });
+
+  it('allows hosted TTS once consent is recorded for openai', async () => {
+    getConfig.mockImplementation(
+      keyAwareConfig({ version: 1, acceptedProviders: ['openai'], updatedAt: 1 })
+    );
+    synthesize.mockResolvedValue({ data: new Uint8Array([9]), mimeType: 'audio/wav' });
+    initVoiceSynthBridge();
+
+    await expect(speakCallback!({ text: 'Hello' })).resolves.toEqual({
+      ok: true,
+      data: [9],
+      mimeType: 'audio/wav',
+    });
+    expect(synthesize).toHaveBeenCalledTimes(1);
+  });
 });

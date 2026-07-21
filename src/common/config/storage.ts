@@ -7,6 +7,7 @@
 import type { AcpBackend, AcpBackendAll, AcpBackendConfig } from '@/common/types/acpTypes';
 import type { SpeechToTextConfig } from '@/common/types/speech';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
+import type { HostedVoiceConsent } from '@/common/types/voiceConsent';
 import type { McpSessionState } from '@/common/mcp/sessionReceipt';
 // C1: route through wrapped buildStorage so every namespace's storage.{get,set,clear,remove}
 // wire key is recorded in the bridge allowlist. The raw `storage.buildStorage` from
@@ -254,6 +255,8 @@ export interface IConfigStorageRefer {
   };
   'tools.speechToText'?: SpeechToTextConfig;
   'tools.textToSpeech'?: TextToSpeechConfig;
+  /** VOC-03: per-provider acknowledgment that hosted voice sends data off-device. */
+  'tools.voiceHostedConsent'?: HostedVoiceConsent;
   // Per-category notification preferences (master switch lives in system.notificationEnabled via systemSettingsBridge)
   'notifications.agentFinished'?: boolean;
   'notifications.agentError'?: boolean;

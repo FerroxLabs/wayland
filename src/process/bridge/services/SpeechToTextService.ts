@@ -18,6 +18,7 @@ import { WhisperLocal } from '@process/services/voice/WhisperLocal';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 import { readConnectedProviderKey } from '@process/connectors/providerKey';
 import { resolveFluxSttDefault } from '@process/utils/fluxSttDefault';
+import { hostedVoiceConsentGranted, isHostedVoiceProvider } from '@/common/types/voiceConsent';
 
 type OpenAITranscriptionResponse = {
   language?: string;
@@ -288,6 +289,18 @@ export class SpeechToTextService {
         provider: config.provider,
         model: resolveProviderModel(config),
       });
+
+      // VOC-03: hosted STT ('openai'/'deepgram'/'flux-voice') POSTs microphone
+      // audio off-device. Fail closed unless the user has acknowledged the
+      // disclosure for that specific provider. Local whisper never gets here.
+      if (isHostedVoiceProvider(config.provider)) {
+        const consent = await ProcessConfig.get('tools.voiceHostedConsent');
+        if (!hostedVoiceConsentGranted(config.provider, consent)) {
+          throw new Error(
+            `STT_HOSTED_CONSENT_REQUIRED: accept the hosted-voice disclosure for ${config.provider} in Voice settings before transcribing`
+          );
+        }
+      }
 
       const result =
         config.provider === 'flux-voice'
