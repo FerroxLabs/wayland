@@ -52,11 +52,13 @@ export async function saveAssistant(page: Page): Promise<void> {
   await page.locator('[data-testid="btn-save-assistant"]').click();
 }
 
-/** Click the Delete button in the edit drawer, then confirm. */
+/** Click the Delete button in the edit drawer, then confirm the Archive modal. */
 export async function deleteAssistant(page: Page): Promise<void> {
   await page.locator('[data-testid="btn-delete-assistant"]').click();
-  // Wait for confirm modal (uses wrapClassName='delete-assistant-modal')
-  const confirmBtn = page.locator('.delete-assistant-modal .arco-btn-status-danger');
+  // Delete was redesigned into a non-destructive "Archive" modal
+  // (DeleteAssistantModal, wrapClassName='delete-assistant-modal'). Its OK button
+  // is default-styled and labelled "Archive" — the old arco-btn-status-danger is gone.
+  const confirmBtn = page.locator('.delete-assistant-modal').getByRole('button', { name: 'Archive' });
   await confirmBtn.waitFor({ state: 'visible', timeout: 5_000 });
   await confirmBtn.click();
 }
