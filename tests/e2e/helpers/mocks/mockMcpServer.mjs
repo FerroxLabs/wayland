@@ -1,38 +1,27 @@
 /**
- * Tiny stdio MCP server used by tests/e2e/specs/mcp.e2e.ts to verify the
- * Wayland MCP bridge can speak the @modelcontextprotocol/sdk@1.29 wire
- * protocol end-to-end without depending on a published MCP server binary.
+ * Tiny stdio MCP server used by MCP tests to verify the Wayland MCP bridge can
+ * speak the @modelcontextprotocol/sdk@1.29 wire protocol end-to-end without
+ * depending on a published MCP server binary.
  *
- * Exposes a single tool `echo` that returns the input text verbatim, plus
- * the standard `initialize` / `tools/list` / `tools/call` lifecycle.
+ * Exposes a single tool `echo` that returns the input text verbatim, plus the
+ * standard `initialize` / `tools/list` / `tools/call` lifecycle.
  *
- * Boot via:
- *   bun tests/e2e/helpers/mocks/mockMcpServer.ts
+ * Plain ESM JavaScript (NOT TypeScript) on purpose: tests spawn it with the
+ * ambient runtime via `process.execPath`, which is often a Node version that
+ * cannot execute a `.ts` file (Node < 23.6 without `--experimental-strip-types`
+ * crashes on the type syntax, which manifested as "MCP fixture timeout:
+ * initialize"). A `.mjs` runs on every Node/Electron/bun runtime unchanged.
  *
  * The script is intentionally dependency-free: it speaks the JSON-RPC line
  * protocol over stdio directly so we don't have to bundle the SDK into the
  * fixture path.
  */
 
-type JsonRpcRequest = {
-  jsonrpc: '2.0';
-  id?: number | string;
-  method: string;
-  params?: Record<string, unknown>;
-};
-
-type JsonRpcResponse = {
-  jsonrpc: '2.0';
-  id: number | string;
-  result?: unknown;
-  error?: { code: number; message: string };
-};
-
-function send(msg: JsonRpcResponse): void {
+function send(msg) {
   process.stdout.write(JSON.stringify(msg) + '\n');
 }
 
-function handle(req: JsonRpcRequest): JsonRpcResponse | null {
+function handle(req) {
   const id = req.id ?? 0;
   switch (req.method) {
     case 'initialize':
@@ -68,8 +57,8 @@ function handle(req: JsonRpcRequest): JsonRpcResponse | null {
         },
       };
     case 'tools/call': {
-      const name = (req.params?.name as string) || '';
-      const args = (req.params?.arguments as Record<string, unknown>) || {};
+      const name = (req.params && req.params.name) || '';
+      const args = (req.params && req.params.arguments) || {};
       if (name !== 'echo') {
         return {
           jsonrpc: '2.0',
@@ -98,7 +87,7 @@ function handle(req: JsonRpcRequest): JsonRpcResponse | null {
 
 let buf = '';
 process.stdin.setEncoding('utf8');
-process.stdin.on('data', (chunk: string) => {
+process.stdin.on('data', (chunk) => {
   buf += chunk;
   let idx = buf.indexOf('\n');
   while (idx !== -1) {
@@ -106,7 +95,7 @@ process.stdin.on('data', (chunk: string) => {
     buf = buf.slice(idx + 1);
     if (line.length > 0) {
       try {
-        const req = JSON.parse(line) as JsonRpcRequest;
+        const req = JSON.parse(line);
         const resp = handle(req);
         if (resp) send(resp);
       } catch {
