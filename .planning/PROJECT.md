@@ -1,5 +1,17 @@
 # Wayland Desktop Adaptive Cockpit and Cowork
 
+> ## ▶ 2026-07-21 RECONCILIATION — READ FIRST (supersedes conflicting detail below)
+>
+> The 2026-07-20 pivot **killed** the cohort/M0B acceptance ceremony. Acceptance is now
+> **Sean + Claude live-test together; a green Playwright sweep IS acceptance.** Cohort backend deleted
+> (`9b661a948`). Phase 1 is **CLOSED, accepted-by-live-test**. See `.planning/STATE.md` +
+> `.planning/ROADMAP.md` (reconciliation header) for the live plan (Milestones A/B/C).
+>
+> **Everything below that describes M0B / cohort acceptance / the `wayland-gsd-gate` verifier / an
+> "open" Phase 1 / "invited alpha requires M0A+M0B" is HISTORICAL and no longer governs** — in
+> particular the "Current State" (reconciled inline), "Safety Evidence State Separation", and
+> "Milestone Boundaries" sections. Retained as trail, not as directives.
+
 ## What This Is
 
 Wayland Desktop is an Electron application for macOS, Windows, and Linux. This project evolves it into an adaptive, provider-agnostic cockpit that starts as immediately usable chat and progressively reveals the existing power needed for substantial work. Projects continue to group chats, shared context, and artifacts; contextual Workbench, Cowork, automation, developer, operator, and Voice experiences project over the same underlying work rather than becoming competing products or stores.
@@ -36,9 +48,13 @@ requirement is proven, but may not weaken, silently reclassify, or drop it.
 
 ## Current State
 
-Substantial Wave 0 and Cockpit implementation already exists at the current proven baseline, including safety, shell, execution-projection, and retention work. This is not acceptance evidence by itself.
+> **RECONCILED 2026-07-21 (see `.planning/ROADMAP.md` header + `STATE.md`).** The 2026-07-20 pivot
+> killed the cohort/M0B acceptance ceremony; acceptance is now Sean + Claude live-test (green sweep =
+> acceptance). Cohort backend deleted (`9b661a948`).
 
-Phase 1 remains **in progress**. Signed M0B observation and acceptance are incomplete, so later work remains dependent on the named safety and contract receipts even where code is already present. No real-user enrollment, release promotion, or capability claim may substitute code presence for a passing gate.
+Phase 1 safety construction is **CLOSED, accepted-by-live-test**: the 20 non-cohort safety packets ship in Desktop v0.11.18 (code present, wired, tested) and were exercised by the live sweep + full green suite (15,510 pass). The 20 cohort/M0B packets are **SUPERSEDED — do not build** (14 acceptance ceremony + 6 construction whose code was deleted).
+
+Active work is **Milestone A — Cockpit Preview Ship** (Wave A package + matched-engine smoke → Wave B trust/a11y floor → Wave C hygiene). Milestone B (scope decisions) is parallel/non-blocking; Milestone C (secure portability) is deferred. No real-user enrollment, release promotion, merge, or deploy without Sean.
 
 ## Scope
 

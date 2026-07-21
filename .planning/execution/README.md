@@ -1,5 +1,14 @@
 # Receipt-Gated GSD Execution
 
+> **⛔ DORMANT / SUPERSEDED — pivot 2026-07-20.** This entire receipt-gated packet machinery
+> (`wayland-gsd-gate` external verifier, M0A/M0B acceptance receipts, the `P1-AGGREGATE-ACCEPTANCE`
+> sentinel, the schema-v2 checker, and the `desktop-gsd-next.mjs` adapter) implemented the cohort/M0B
+> acceptance ceremony that Sean killed. It is NO LONGER the acceptance model. Acceptance is now
+> **Sean + Claude live-test together; a green Playwright sweep IS acceptance.** `STATE.md` +
+> `ROADMAP.md` (see its 2026-07-21 reconciliation header) are the source of truth for `/ferrox-progress`.
+> These files are retained as trail; do NOT run this gate to accept work. Never run the Ferrox
+> milestone lifecycle here (it deletes worktrees).
+
 This milestone stays flat. GSD workstreams are separate milestones and are not
 used to model the master plan's packet DAG.
 

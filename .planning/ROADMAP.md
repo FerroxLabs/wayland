@@ -1,5 +1,35 @@
 # Roadmap: Wayland Desktop Adaptive Cockpit and Cowork
 
+> ## ▶ 2026-07-21 RECONCILIATION — READ FIRST (supersedes conflicting detail below)
+>
+> The 2026-07-20 pivot **killed** the cohort/M0B external-cohort acceptance ceremony.
+> Acceptance is now **Sean + Claude live-test together; a green Playwright sweep IS acceptance.**
+> The 7-phase / 40-packet model below is preserved as the audit trail but is recast into
+> **three milestones**. Where the detailed sections below describe cohort/M0A/M0B/`wayland-gsd-gate`
+> promotion, **that model is SUPERSEDED** — see the banners on those sections.
+>
+> **Reconciled Phase-1 truth (verified against git + source, 2026-07-21):**
+> - **Accepted-by-live-test (construction complete):** the 20 non-cohort safety packets
+>   (01-06/07/08/09/10/11/12/13/15/16/19/20/21/22/24/35/36/37/38/40) — all ship in Desktop
+>   v0.11.18, code present + wired + tested, exercised by the live sweep + full green suite (15,510 pass).
+> - **SUPERSEDED — do not build:** the 20 cohort/M0B packets. 14 acceptance/ceremony
+>   (01-03/04/05/14/17/18/25/26/27/28/29/30/31/39) + 6 construction whose code was DELETED
+>   in `9b661a948` (01-01/02/23/32/33/34).
+> - **Phase 1 = CLOSED, accepted-by-live-test.** Zero remaining construction. The per-packet
+>   SUMMARY/independent-audit ceremony is superseded by the same pivot.
+>
+> **The three milestones (the live plan):**
+> - **Milestone A — Cockpit Preview Ship** (ACTIVE): Wave A package + matched-engine smoke ·
+>   Wave B trust/a11y floor · Wave C hygiene. (Replaces old "Phase 6 Preview" ROL-01/02/03,
+>   which were the killed cohort rollout — SUPERSEDED, NOT relabeled.)
+> - **Milestone B — Scope Decisions** (parallel, non-blocking): COW-04/05/06, SBX-02, IMG-01,
+>   VOC-04, CMP-01 — a decisions ledger, not build work.
+> - **Milestone C — Secure Portability** (deferred): the old Phase 7 transfer engine. Does not block preview.
+>
+> The `execution/` packet adapter + `wayland-gsd-gate` verifier are **DORMANT** (part of the killed
+> ceremony). STATE.md + this reconciliation section are the source of truth for `/ferrox-progress`.
+> Wave A + B are tracked as new `NN-NN-PLAN.md` packets under `phases/WLD-A-preview-ship/`.
+
 ## Overview
 
 The roadmap preserves the master plan's seven dependency waves as the seven active phases: establish recovery and producer truth, migrate over shared state, deliver the daily cockpit, reveal power and trusted outcomes, harden exact release artifacts, run evidence-gated preview cohorts, and then deliver secure full-instance portability. The 33 synthesized source requirement families plus the user-reported image/vision parity gap are normalized into 55 atomic current-milestone acceptance slices and 13 queued next-milestone slices so packet ownership and proof closure stay falsifiable without losing source provenance.
@@ -8,13 +38,15 @@ The roadmap preserves the master plan's seven dependency waves as the seven acti
 
 **Phase Numbering:** sequential. Phases 1-7 are the preserved master-plan waves and the complete active milestone.
 
-- [ ] **Phase 1: Safety Foundation** - Prove recovery, authority, producer contracts, and truthful baseline evidence before promotion.
-- [ ] **Phase 2: Migration Skeleton** - Establish one backend-neutral work kernel and reversible Classic/Cockpit composition over shared state.
-- [ ] **Phase 3: Daily Cockpit** - Make chat-first Home, Projects, navigation, connectors, and bounded developer recovery work end to end.
-- [ ] **Phase 4: Power and Outcomes** - Deliver contextual Workbench, first Cowork vertical, trusted outcomes, Library/Activity, and provider-neutral Voice.
-- [ ] **Phase 5: Release Hardening** - Prove the exact signed Desktop candidate, updater/recovery, Voice gates, accessibility, security, and platform matrix.
-- [ ] **Phase 6: Preview** - Expand Cockpit cohorts only from measured verified value and explicit stop/rollback decisions.
-- [ ] **Phase 7: Secure Portability** - Deliver encrypted, authority-bound, transactional full-instance Wayland Transfer after preview authorities stabilize.
+> Reconciled status per the 2026-07-21 header. Original goals retained as trail.
+
+- [x] **Phase 1: Safety Foundation** - CLOSED, accepted-by-live-test (20 non-cohort packets ship; 20 cohort packets superseded).
+- [x] **Phase 2: Migration Skeleton** - Construction ships in v0.11.18 (never separately GSD-decomposed).
+- [x] **Phase 3: Daily Cockpit** - Construction ships in v0.11.18 (never separately GSD-decomposed).
+- [x] **Phase 4: Power and Outcomes** - Ships; residual scope calls tracked as **Milestone B**.
+- [x] **Phase 5: Release Hardening** - Folded into **Milestone A** (package + smoke).
+- [ ] **~~Phase 6: Preview~~ → Milestone A** - SUPERSEDED cohort rollout (ROL-01/02/03); replaced by Milestone A package + smoke + trust floor.
+- [ ] **Phase 7: Secure Portability → Milestone C** - Deferred; encrypted full-instance transfer. Does not block preview.
 
 ## Phase Details
 
@@ -35,7 +67,13 @@ The roadmap preserves the master plan's seven dependency waves as the seven acti
   9. **MCP-01:** MCP declaration, authentication, probe, and publication remain distinct; failed add/import/publication paths fail closed and none can mint chat-ready or live-session status. Persistent lifecycle/session readiness is Phase 3 `MCP-02`.
   10. **SBX-01:** Desktop exposes only schema-valid Core settings and distinguishes requested policy from correlated producer-enforced policy; unsupported controls and false-green effective states remain absent or explicitly unavailable.
   11. **COW-01:** C0-A proves OfficeCLI executable/skill contract lockstep, unchanged caller authority, and current-host-only execution with no reachable hosted fallback. Any future fallback requires a separately accepted explicit-consent contract before it can be introduced; C0-A does not claim Phase 2 C0-B or Phase 5 six-target signed-app closure.
-**Plans**: 40 executable plans in eleven dependency-derived waves. The project-specific read-only execution adapter selects only dependency-unlocked autonomous construction; unrelated human checkpoints never stall it, while explicitly depended-on checkpoints still fail closed.
+**Plans**: 40 executable plans in eleven dependency-derived waves.
+
+> **▶ RECONCILED 2026-07-21.** Phase 1 = CLOSED, accepted-by-live-test. Of the 40: the 20 non-cohort
+> packets (01-06/07/08/09/10/11/12/13/15/16/19/20/21/22/24/35/36/37/38/40) ship in v0.11.18 and are
+> accepted via live-test + green suite. The 20 cohort/M0B packets are **SUPERSEDED — do not build**:
+> ceremony 01-03/04/05/14/17/18/25/26/27/28/29/30/31/39 (all `autonomous:false`) + construction
+> 01-01/02/23/32/33/34 (code DELETED in `9b661a948`). The wave list below is historical trail.
 
 - **Wave 1:** 01-40 bounded GSD execution adapter.
 - **Wave 2:** 01-01 cohort authority; 01-06 authority inventory/capture/quiescence; 01-08 workspace preservation; 01-11 MCP declaration/catalog/CRUD/probe; 01-13 OfficeCLI supply-chain lockstep; 01-37 repository target-verifier v2 implementation.
@@ -48,7 +86,7 @@ The roadmap preserves the master plan's seven dependency waves as the seven acti
 - **Wave 9:** 01-04 real 14-calendar-day observation completion; 01-39 six-target M0A execution and acceptance.
 - **Wave 10:** 01-05 independent signed M0B decision; 01-17 mutually exclusive live M1F or NO-FLUX-CLAIMS acceptance; 01-27 Core M1 acceptance.
 - **Wave 11:** 01-14 authenticated aggregate acceptance sentinel, intentionally open until Phase-5 exact-package proof closure.
-**Status note**: **IN PROGRESS.** Current baseline already has production controller wiring and consent/window UI, contrary to the stale historical ledger. Its hard-coded cohort blocks valid observation; see `.planning/intel/PHASE-1-IMPLEMENTATION-RECON.md`. The installed schema-v1 gate also lacks target authentication: 01-37 must implement v2 and 01-38 must separately install/pin the exact bytes before any packet-acceptance plan can run. No later implementation, prerequisite-only gate result, or receipt may infer this phase complete.
+**Status note** (⛔ HISTORICAL — superseded 2026-07-21; Phase 1 = CLOSED, accepted-by-live-test): ~~**IN PROGRESS.**~~ Current baseline already has production controller wiring and consent/window UI, contrary to the stale historical ledger. Its hard-coded cohort blocks valid observation; see `.planning/intel/PHASE-1-IMPLEMENTATION-RECON.md`. The installed schema-v1 gate also lacks target authentication: 01-37 must implement v2 and 01-38 must separately install/pin the exact bytes before any packet-acceptance plan can run. No later implementation, prerequisite-only gate result, or receipt may infer this phase complete.
 **UI hint**: yes
 
 ### Phase 2: Migration Skeleton
@@ -125,6 +163,10 @@ The roadmap preserves the master plan's seven dependency waves as the seven acti
 
 ### Phase 6: Preview
 
+> **⛔ SUPERSEDED — pivot 2026-07-20.** ROL-01/02/03 below are the cohort-gated staged-rollout
+> ceremony that was killed. They are NOT satisfied by, and are NOT relabeled as, Milestone A
+> (package + smoke + trust floor). Preview acceptance is now the live-test sweep. Retained as trail.
+
 **Goal**: Users receive Cockpit only as cohort evidence proves verified value, safe recovery, and a better or equal experience to Classic.
 **Depends on**: Phases 1-5, including both M0A and signed M0B plus immutable release receipts
 **Requirements**: ROL-01, ROL-02, ROL-03
@@ -161,6 +203,12 @@ These are deliberately outside active Phase 1-7 execution authority:
 They require a new-milestone discussion, requirements split, roadmap, and acceptance review. Phase 4 proves only the first C1 cited DOCX/PDF vertical; shared Web/Cloud compilation proves only composition compatibility.
 
 ## Packet-Level Dependency and Promotion Rule
+
+> **⛔ SUPERSEDED — pivot 2026-07-20.** The M0A/M0B receipt-gated promotion model, the
+> `wayland-gsd-gate` external verifier, and the aggregate-acceptance sentinel (01-14) are killed.
+> Acceptance is now the live-test sweep. This section + the "Evidence State Model", "Master Contract
+> Coverage", and SC-xx/INV-xx/journey traceability tables below are retained as trail only — they no
+> longer gate anything.
 
 The seven phases preserve product and evidence order, but they are not whole-phase construction barriers. A packet may start as soon as its exact upstream packet receipts are accepted:
 
@@ -319,16 +367,27 @@ Coverage check: all 21 invariants, all 31 master-plan success criteria, all 24 m
 | Future: Managed Workspace Lifecycle | 1 | Queued until a complete trusted output/receipt ledger exists |
 | **Normalized total** | **68** | **68/68 atomic slices classified exactly once; all retain source provenance** |
 
-## Progress
+## Progress (RECONCILED 2026-07-21 — milestone model)
 
-**Execution Order:** Phases 1-7 preserve dependency order. Queued future requirements do not expand first-preview implementation authority.
+The old 7-phase progress table is superseded. Truth by milestone:
+
+| Milestone | Status | Detail |
+|-----------|--------|--------|
+| Phase 1 safety construction | **ACCEPTED-BY-LIVE-TEST** | 20 non-cohort packets ship in v0.11.18 + green suite; 20 cohort packets SUPERSEDED |
+| **A — Cockpit Preview Ship** | **ACTIVE** | Wave A (package + matched-engine smoke) not started; Wave B (trust/a11y) partially landed; Wave C (hygiene) pending |
+| B — Scope Decisions | Not started | 5 decisions: COW-04/05/06, SBX-02, IMG-01, VOC-04, CMP-01 |
+| C — Secure Portability | Deferred | old Phase 7 transfer engine; does not block preview |
+
+<details><summary>Historical 7-phase table (superseded — was the fictional whole-phase build over already-shipping code)</summary>
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Safety Foundation | 0/TBD | In progress — M0B incomplete | - |
-| 2. Migration Skeleton | 0/TBD | Not started in GSD; existing code unaccepted | - |
-| 3. Daily Cockpit | 0/TBD | Not started; MCP import queued | - |
-| 4. Power and Outcomes | 0/TBD | Not started; bounded C1/M5V-A scope | - |
-| 5. Release Hardening | 0/TBD | Not started | - |
-| 6. Preview | 0/TBD | Not started | - |
-| 7. Secure Portability | 0/TBD | Not started; follow-on | - |
+| 1. Safety Foundation | reconciled | Accepted-by-live-test; cohort half superseded | 2026-07-21 |
+| 2. Migration Skeleton | n/a | Construction ships in v0.11.18; never GSD-decomposed | - |
+| 3. Daily Cockpit | n/a | Construction ships in v0.11.18; never GSD-decomposed | - |
+| 4. Power and Outcomes | n/a | Ships; scope calls tracked as Milestone B | - |
+| 5. Release Hardening | n/a | Folded into Milestone A packaging | - |
+| 6. Preview | superseded | ROL-01/02/03 were cohort rollout — killed; replaced by Milestone A | - |
+| 7. Secure Portability | deferred | → Milestone C | - |
+
+</details>
