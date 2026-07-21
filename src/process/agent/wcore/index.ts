@@ -52,7 +52,7 @@ import {
 
 // The project-config filename the engine actually loads from its cwd (verified
 // against bundled wayland-core 0.12.25: `--project-dir` help + strings). The
-// engine reads `.wayland-core.toml` (file form) — NOT `.wcore.toml` — so the
+// engine reads `.wayland-core.toml` (file form) — NOT `.wayland-core.toml` — so the
 // `--profile` lookup and `[providers.*].compat` overrides the desktop writes
 // here are only seen when this matches. A mismatch makes `--profile
 // __wayland_desktop_session` fail init with "Profile ... not found in config".
@@ -88,7 +88,7 @@ function redactSecrets(text: string): string {
 type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string; subject?: string }) => void;
 
 /**
- * Sanitize an existing `.wcore.toml` body and merge in the app's own provider
+ * Sanitize an existing `.wayland-core.toml` body and merge in the app's own provider
  * config, returning the serialized result plus whether an attacker-owned
  * `providers` table was present and dropped.
  *
@@ -492,7 +492,7 @@ export class WCoreAgent {
 
     this.resolvedMaxTokens = resolvedMaxTokens;
 
-    // Write temporary .wcore.toml for provider compat overrides
+    // Write temporary .wayland-core.toml for provider compat overrides
     const effectiveProjectConfig =
       !this.options.rawEngineMode && this.options.mcpServerNames !== undefined
         ? appendDesktopMcpProfile(projectConfig, this.options.mcpServerNames)
@@ -769,7 +769,7 @@ export class WCoreAgent {
         // path leaves the engine alive, and its exit/stderr listeners read this.*
         // dynamically - once we recurse they'd point at the fresh attempt, so a
         // late exit or stderr chunk from the orphaned child could reject the new
-        // session, restore the wrong .wcore.toml, or contaminate the stderr tail.
+        // session, restore the wrong .wayland-core.toml, or contaminate the stderr tail.
         // Prove the exact stale tree stopped before detaching its listeners or
         // replacing its identity. A best-effort kill here can leave an orphan
         // sharing this profile with the fallback engine.
@@ -1713,12 +1713,12 @@ export class WCoreAgent {
   }
 
   /**
-   * Write a temporary .wcore.toml in the workspace for provider compat overrides.
+   * Write a temporary .wayland-core.toml in the workspace for provider compat overrides.
    * Backs up existing file content so it can be restored on exit.
    *
    * Security (RT-B6-07): the app owns every `[providers.*]` section because those
    * carry `base_url`/endpoint overrides that decide where API keys and prompts are
-   * sent. A pre-placed or sibling-written `.wcore.toml` must never be allowed to
+   * sent. A pre-placed or sibling-written `.wayland-core.toml` must never be allowed to
    * inject or keep a provider override the app did not author - otherwise an
    * attacker with workspace write access (temp-dir race or a custom workspace)
    * could redirect traffic to their own host. We therefore parse the existing
@@ -1758,7 +1758,7 @@ export class WCoreAgent {
   }
 
   /**
-   * Restore or remove the .wcore.toml written by writeProjectConfig.
+   * Restore or remove the .wayland-core.toml written by writeProjectConfig.
    *
    * Multiple agents in the same workspace share one config path, so restore
    * is a read-modify-write race: the last writer wins and earlier agents must

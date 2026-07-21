@@ -755,7 +755,7 @@ export function buildSpawnConfig(
 }
 
 /**
- * Build `.wcore.toml` project config content for provider compat overrides.
+ * Build `.wayland-core.toml` project config content for provider compat overrides.
  * Returns non-empty string only when overrides are needed.
  *
  * - Gemini's OpenAI-compatible endpoint already includes version in the base URL

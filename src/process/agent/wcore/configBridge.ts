@@ -26,7 +26,7 @@ import { nativeConfigDir, resolveActiveConfigPath, withProfileAuthorityLock } fr
  *    sections/keys (including future engine config we don't model) survive.
  *
  * This bridge owns ONLY the user `config.toml`. The per-spawn project-local
- * `.wcore.toml` provider-override file written by `WCoreAgent` is a different
+ * `.wayland-core.toml` provider-override file written by `WCoreAgent` is a different
  * path and is NOT managed here.
  */
 
