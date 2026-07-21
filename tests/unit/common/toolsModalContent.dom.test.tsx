@@ -323,6 +323,13 @@ describe('ToolsModalContent image generation status refresh', () => {
         });
       }
 
+      // VOC-03: grant hosted-voice consent so switching to a hosted STT/TTS
+      // provider (openai/deepgram/flux-voice) applies directly instead of
+      // opening the consent disclosure modal.
+      if (key === 'tools.voiceHostedConsent') {
+        return Promise.resolve({ version: 1, acceptedProviders: ['openai', 'deepgram', 'flux-voice'], updatedAt: 1 });
+      }
+
       return Promise.resolve(undefined);
     });
   });

@@ -17,9 +17,18 @@ vi.mock('@process/utils/mainLogger', () => ({
   mainError: vi.fn(),
 }));
 
+// VOC-03: `sttConfigMock` serves the STT config; the consent key is served from
+// a dedicated `hostedConsentMock` (granted by default in beforeEach) so these
+// flux-voice error-mapping tests exercise the request path.
+const { sttConfigMock, hostedConsentMock } = vi.hoisted(() => ({
+  sttConfigMock: vi.fn(),
+  hostedConsentMock: vi.fn(),
+}));
+
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: {
-    get: vi.fn(),
+    get: (key: string, ...rest: unknown[]) =>
+      key === 'tools.voiceHostedConsent' ? hostedConsentMock() : sttConfigMock(key, ...rest),
   },
 }));
 
@@ -36,7 +45,6 @@ vi.mock('@process/services/voice/WhisperLocal', () => ({
 }));
 
 import { SpeechToTextService } from '@/process/bridge/services/SpeechToTextService';
-import { ProcessConfig } from '@process/utils/initStorage';
 
 const FLUX_VOICE_CONFIG = {
   enabled: true,
@@ -63,7 +71,12 @@ function makeResponse(status: number, body: unknown = {}): Response {
 
 describe('SpeechToTextService — Flux Voice error mapping', () => {
   beforeEach(() => {
-    vi.mocked(ProcessConfig.get).mockResolvedValue(FLUX_VOICE_CONFIG);
+    sttConfigMock.mockResolvedValue(FLUX_VOICE_CONFIG);
+    hostedConsentMock.mockResolvedValue({
+      version: 1,
+      acceptedProviders: ['openai', 'deepgram', 'flux-voice'],
+      updatedAt: 1,
+    });
     vi.stubGlobal('fetch', vi.fn());
   });
 
