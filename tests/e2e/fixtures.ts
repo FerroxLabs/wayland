@@ -44,7 +44,12 @@ export function seedCompletedOnboarding(userDataDir: string): void {
 }
 
 async function assertE2EUserDataPath(electronApp: ElectronApplication, expectedPath: string): Promise<void> {
-  const deadline = Date.now() + 5_000;
+  // `electronApp.evaluate` transiently throws "Execution context was destroyed,
+  // most likely because of a navigation" while the app is still redirecting
+  // through its startup routes (onboarding-seeded profiles churn longer). The
+  // main-process path is stable once navigation settles, so retry until it does
+  // — 5s was too short for the heavier specs and cascaded whole beforeAll suites.
+  const deadline = Date.now() + 20_000;
   let actualPath: string | null = null;
   let lastError: unknown;
   while (Date.now() < deadline && actualPath === null) {
@@ -52,7 +57,7 @@ async function assertE2EUserDataPath(electronApp: ElectronApplication, expectedP
       actualPath = await electronApp.evaluate(({ app: electronApp }) => electronApp.getPath('userData'));
     } catch (error) {
       lastError = error;
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
   if (actualPath === null) {
