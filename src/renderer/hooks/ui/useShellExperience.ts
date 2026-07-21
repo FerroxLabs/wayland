@@ -7,7 +7,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ConfigStorage } from '@/common/config/storage';
 import { resolveShellExperience, type ShellExperience } from '@/common/shellExperience';
-import type { CockpitReturnReason, CockpitRolloutStatus } from '@/common/types/cohortRollout';
+import type { CockpitRolloutStatus } from '@/common/types/cohortRollout';
 
 export const SHELL_EXPERIENCE_CHANGED_EVENT = 'wayland:shell-experience-changed';
 
@@ -48,7 +48,7 @@ export async function readCockpitRolloutStatus(): Promise<CockpitRolloutStatus> 
   }
 }
 
-export async function writeShellExperience(shell: ShellExperience, returnReason?: CockpitReturnReason): Promise<void> {
+export async function writeShellExperience(shell: ShellExperience): Promise<void> {
   if (shell === 'classic') {
     // Rollback is a session-safety action, not a storage transaction. Switch
     // immediately so a full disk, locked profile, or corrupt preference store
@@ -59,10 +59,6 @@ export async function writeShellExperience(shell: ShellExperience, returnReason?
       await ConfigStorage.set('ui.shell', 'classic');
     } catch (error) {
       persistenceError = error;
-    }
-    if (returnReason && window.electronAPI?.cohortRecordShellReturn) {
-      // Returning to the proven shell is never blocked by optional evidence.
-      await window.electronAPI.cohortRecordShellReturn(returnReason).catch((): void => undefined);
     }
     // The caller may surface that Classic could not be made durable, but the
     // already-activated session must remain Classic.
@@ -82,7 +78,7 @@ export function useShellExperience(): {
   shell: ShellExperience;
   loading: boolean;
   cockpitRollout: CockpitRolloutStatus;
-  setShell: (shell: ShellExperience, returnReason?: CockpitReturnReason) => Promise<void>;
+  setShell: (shell: ShellExperience) => Promise<void>;
 } {
   const [shell, setShellState] = useState<ShellExperience>('classic');
   const [loading, setLoading] = useState(true);
@@ -120,8 +116,8 @@ export function useShellExperience(): {
     };
   }, []);
 
-  const setShell = useCallback(async (next: ShellExperience, returnReason?: CockpitReturnReason) => {
-    await writeShellExperience(next, returnReason);
+  const setShell = useCallback(async (next: ShellExperience) => {
+    await writeShellExperience(next);
     if (next === 'cockpit') setCockpitRollout(await readCockpitRolloutStatus());
   }, []);
   return { shell, loading, cockpitRollout, setShell };

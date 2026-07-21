@@ -23,17 +23,7 @@ import type {
   ConstitutionClassicRecoveryMutationResult,
   ConstitutionClassicRecoveryResumeRequest,
 } from '../common/types/constitutionRecovery';
-import type {
-  CockpitReturnReason,
-  CockpitReturnRecordResult,
-  CockpitRolloutStatus,
-  CohortAssignment,
-  CohortAssignmentRequestResult,
-  CohortAssignmentStatus,
-  CohortConsentStatus,
-  CohortSetConsentResult,
-  CohortAuthorityProjection,
-} from '../common/types/cohortRollout';
+import type { CockpitRolloutStatus } from '../common/types/cohortRollout';
 
 // SECURITY (RT-F4-03): the weixin login channels (qr/scanned/done) carry a
 // single, one-shot login flow. The previous implementation registered a fresh
@@ -156,15 +146,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // Feedback: collect and compress recent log files
   collectFeedbackLogs: () => ipcRenderer.invoke('feedback:collect-logs'),
   cockpitRolloutStatus: (): Promise<CockpitRolloutStatus> => ipcRenderer.invoke('cohort:cockpit-rollout-status'),
-  cohortRecordShellReturn: (reason: CockpitReturnReason): Promise<CockpitReturnRecordResult> =>
-    ipcRenderer.invoke('cohort:shell-returned-to-classic', reason),
-  cohortConsentStatus: (): Promise<CohortConsentStatus> => ipcRenderer.invoke('cohort:consent-status'),
-  cohortAssignmentStatus: (): Promise<CohortAssignmentStatus> => ipcRenderer.invoke('cohort:assignment-status'),
-  cohortAuthorityStatus: (): Promise<CohortAuthorityProjection> => ipcRenderer.invoke('cohort:authority-status'),
-  cohortRequestAssignment: (cohort: CohortAssignment): Promise<CohortAssignmentRequestResult> =>
-    ipcRenderer.invoke('cohort:request-assignment', cohort),
-  cohortSetConsent: (enabled: boolean): Promise<CohortSetConsentResult> =>
-    ipcRenderer.invoke('cohort:set-consent', enabled),
   // Wayland Constitution: agent behavioral spec stored at ~/.wayland/CONSTITUTION.md
   readConstitution: (): Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>> =>
     ipcRenderer.invoke('constitution:read'),

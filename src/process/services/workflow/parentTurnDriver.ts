@@ -30,7 +30,6 @@
 
 import type { IConversationTurnCompletedEvent } from '@/common/adapter/ipcBridge';
 import type { WorkflowSession } from '@/common/types/workflowTypes';
-import { recordAutomationRun } from '@process/services/cohort/instrumentation/CohortIncidentAuthority';
 import type { AfterTurnDecision } from './runDriver';
 import type { TurnState } from './WorkflowSessionService';
 
@@ -139,19 +138,6 @@ export async function handleParentWorkflowTurn(
       pendingConfirmations,
       endedWithUserQuestion,
     });
-
-    // operator.run-automation binding (SAF-02). A parent workflow run is an
-    // automation; correlate it by its session-scoped runId, then emit exactly
-    // one terminal when the brain reaches `complete` (normal) or `halt` (error).
-    // `advance`/`await_input` are still-running and never terminal. Inert until
-    // observation is installed; the incident authority owns dedup and rejection.
-    const automationRunId = `workflow:${session.id}`;
-    recordAutomationRun({ occurredAtMs: Date.now(), runId: automationRunId, phase: 'started' });
-    if (decision === 'complete') {
-      recordAutomationRun({ occurredAtMs: Date.now(), runId: automationRunId, phase: 'completed' });
-    } else if (decision === 'halt') {
-      recordAutomationRun({ occurredAtMs: Date.now(), runId: automationRunId, phase: 'failed' });
-    }
 
     if (decision === 'advance' && directive) {
       try {

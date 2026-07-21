@@ -31,7 +31,6 @@ import { copyFilesToDirectory, readDirectoryRecursive } from '@process/utils';
 import { computeOpenClawIdentityHash } from '@process/utils/openclawUtils';
 import fs from 'fs';
 import path from 'path';
-import { recordIncidentStop } from '@process/services/cohort/instrumentation/CohortIncidentAuthority';
 import { migrateConversationToDatabase } from './migrationUtils';
 import { ConversationSideQuestionService } from './services/ConversationSideQuestionService';
 import { getDatabase } from '@process/services/database';
@@ -526,11 +525,6 @@ export function initConversationBridge(
     const task = workerTaskManager.getTask(conversation_id);
     if (!task) return { success: true, msg: 'conversation not found' };
     await task.stop();
-    // Explicit user-stop incident seam (SAF-02). A user stopping their turn is a
-    // benign stop: it carries no zero-tolerance reason, so the incident authority
-    // mints no evidence. Forwarding it proves a normal stop can never become a
-    // zero_tolerance_stop. Inert until observation is installed.
-    recordIncidentStop({ occurredAtMs: Date.now(), source: 'user-stop', reason: 'user-requested-stop' });
     return { success: true };
   });
 

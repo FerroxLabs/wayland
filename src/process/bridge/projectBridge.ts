@@ -22,10 +22,6 @@ import {
   readProjectIjfwMemory,
 } from '@process/services/projectKnowledge/knowledge';
 import { hasUsableModel, oneShotComplete, oneShotCompleteBest } from '@process/services/completion/oneShot';
-import {
-  getWorkJourneyAuthority,
-  recordProjectResume,
-} from '@process/services/cohort/instrumentation/CohortWorkJourneyAuthority';
 
 /** Prompt the cheap model with a knowledge doc and ask for a single-sentence summary. */
 const SUMMARY_KIND_LABEL = { context: 'project instructions', rules: 'project rules', decisions: 'project decisions' };
@@ -127,22 +123,6 @@ export function initProjectBridge(): void {
 
   ipcBridge.project.get.provider(async ({ id }) => {
     const project = await projectService.getProject(id);
-    // project.resume terminal authority (SAF-02): the process returned an
-    // actually-persisted Project that already owns conversations. A miss or a
-    // freshly created empty Project is a CRUD result, never a resume - the
-    // authority rejects those. The extra conversation lookup is skipped entirely
-    // unless a live observation session is installed, so `project.get` keeps its
-    // single-query cost in production.
-    if (getWorkJourneyAuthority()) {
-      const conversationCount = project ? (await projectService.getProjectConversations(id)).length : 0;
-      recordProjectResume({
-        occurredAtMs: Date.now(),
-        projectId: id,
-        persisted: Boolean(project),
-        conversationCount,
-        workspace: project?.workspace || undefined,
-      });
-    }
     return project;
   });
 

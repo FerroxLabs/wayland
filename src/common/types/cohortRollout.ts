@@ -7,33 +7,6 @@
 export const COCKPIT_ROLLOUT_STAGES = ['internal-dogfood', 'invited-alpha', 'opt-in-beta', 'default-new'] as const;
 export type CockpitRolloutStage = (typeof COCKPIT_ROLLOUT_STAGES)[number];
 
-export const COCKPIT_RETURN_REASONS = Object.freeze([
-  'performance',
-  'confusing-navigation',
-  'missing-capability',
-  'reliability',
-  'accessibility',
-  'trust-or-control',
-  'other-no-text',
-] as const);
-export type CockpitReturnReason = (typeof COCKPIT_RETURN_REASONS)[number];
-
-/** Closed enrollment values accepted by the process-owned cohort classifier. */
-export const COHORT_ASSIGNMENTS = Object.freeze(['novice', 'knowledge-work', 'developer', 'operator'] as const);
-export type CohortAssignment = (typeof COHORT_ASSIGNMENTS)[number];
-
-export type CohortAssignmentStatus = Readonly<{
-  available: boolean;
-  effectiveCohort: CohortAssignment | null;
-  classifiedAtMs: number | null;
-  observationState: 'unavailable' | 'ready' | 'locked' | 'active' | 'revoked' | 'completed';
-}>;
-
-export type CohortAssignmentRequestResult = Readonly<{
-  status: 'classified' | 'unchanged' | 'window-active' | 'confirmation-denied' | 'storage-error' | 'invalid-request';
-  assignment: CohortAssignmentStatus;
-}>;
-
 export type CockpitRolloutStatus = Readonly<{
   eligible: boolean;
   stage: CockpitRolloutStage | null;
@@ -50,28 +23,4 @@ export type CockpitRolloutStatus = Readonly<{
     | 'cohort-mismatch'
     | 'evidence-gate-failed'
     | 'service-unavailable';
-}>;
-
-export type CockpitReturnRecordResult = Readonly<{
-  status: 'recorded' | 'consent-disabled' | 'outside-window' | 'storage-error' | 'session-unavailable';
-}>;
-
-export type CohortConsentStatus = Readonly<{
-  enabled: boolean;
-  acceptedAtMs: number | null;
-  observationWindow: Readonly<{ startMs: number; endMs: number }> | null;
-}>;
-
-export type CohortSetConsentResult = Readonly<{
-  status: 'enabled' | 'disabled' | 'window-complete' | 'storage-error' | 'assignment-unavailable';
-  generation: number | null;
-  consent: CohortConsentStatus;
-  assignment: CohortAssignmentStatus;
-}>;
-
-/** One process-owned snapshot. Consumers must not join separate generations. */
-export type CohortAuthorityProjection = Readonly<{
-  generation: number | null;
-  consent: CohortConsentStatus;
-  assignment: CohortAssignmentStatus;
 }>;

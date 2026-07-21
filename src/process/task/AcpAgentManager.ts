@@ -29,8 +29,6 @@ import { ACP_BACKENDS_ALL, getCurrentWrapperVersion, getFluxCompat } from '@/com
 import { isFluxModelId } from '@/common/config/flux';
 import { ExtensionRegistry } from '@process/extensions';
 import { getDatabase } from '@process/services/database';
-import { recordVerificationResult } from '@process/services/cohort/instrumentation/CohortWorkJourneyAuthority';
-import { recordSessionTerminal } from '@process/services/cohort/instrumentation/CohortIncidentAuthority';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
 import { emitModelRegistryChanged } from '@process/providers/modelRegistryEvents';
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
@@ -1242,15 +1240,6 @@ ${collectedResponses.join('\n')}`;
       this.status = 'finished';
     }
 
-    // developer.modify-and-verify verification authority (SAF-02): forward a
-    // terminal ACP tool result (completed/failed). The work-journey authority
-    // only credits a successful `execute` result that follows a correlated
-    // durable change - an in-progress tool start, a failed command, an
-    // edit/read tool, or an uncorrelated workspace never terminalizes.
-    if (message.type === 'acp_tool_call') {
-      this.observeAcpVerificationResult(message);
-    }
-
     // Emit request trace on each model generation start
     if (message.type === 'start') {
       const modelInfo = this.agent?.getModelInfo();
@@ -1935,10 +1924,6 @@ ${collectedResponses.join('\n')}`;
     } catch (e) {
       this.flushBufferedStreamTextMessages();
       this.clearBusyState();
-      // Crash-terminal seam (SAF-02). A crashed/disconnected/timed-out ACP turn is
-      // the session_crashed terminal; it can never be recorded as a normal end.
-      // Inert until observation is installed; the incident authority owns dedup.
-      recordSessionTerminal({ occurredAtMs: Date.now(), kind: 'crash' });
       // Turn the raw session-start timeout into something a user can act on, so a
       // cron-fired (or interactive) run that hits a slow cold start surfaces a
       // clear, non-cryptic message instead of leaving the surface dead (BUG-5).
@@ -2055,29 +2040,6 @@ ${collectedResponses.join('\n')}`;
    * Emit a thinking message to the UI stream.
    * Creates a new thinking msg_id on first call per turn, reuses it for subsequent calls.
    */
-  /**
-   * developer.modify-and-verify verification seam (SAF-02). Reads the terminal
-   * status/kind off an ACP tool-call frame and forwards it to the work-journey
-   * authority. Best-effort and inert until observation is installed; the
-   * authority owns all correlation and near-miss rejection.
-   */
-  private observeAcpVerificationResult(message: IResponseMessage): void {
-    const update = (message.data as { update?: { status?: unknown; kind?: unknown } } | null)?.update;
-    const status = update?.status;
-    // Only terminal results are verification evidence; pending/in_progress are
-    // tool starts and must never be treated as a result.
-    if (status !== 'completed' && status !== 'failed') return;
-    const kind = update?.kind === 'execute' || update?.kind === 'edit' || update?.kind === 'read' ? update.kind : 'other';
-    recordVerificationResult({
-      occurredAtMs: Date.now(),
-      workspace: this.workspace,
-      conversationId: this.conversation_id,
-      kind,
-      isToolResult: true,
-      success: status === 'completed',
-    });
-  }
-
   private emitThinkingMessage(content: string, status: 'thinking' | 'done' = 'thinking'): void {
     if (!this.thinkingMsgId) {
       this.thinkingMsgId = uuid();

@@ -40,29 +40,13 @@ beforeEach(async () => {
   await import('../../src/preload/main');
 });
 
-describe('cohort preload boundary', () => {
-  it('exposes the declared read/request methods and no assignment minting aliases', async () => {
-    const cohortKeys = Object.keys(exposedApi)
-      .filter((key) => key.toLowerCase().includes('cohort'))
-      .toSorted();
-    expect(cohortKeys).toEqual(
-      [
-        'cohortAssignmentStatus',
-        'cohortAuthorityStatus',
-        'cohortConsentStatus',
-        'cohortRecordShellReturn',
-        'cohortRequestAssignment',
-        'cohortSetConsent',
-      ].toSorted()
-    );
-    expect(cohortKeys).not.toContain('cohortSetEffectiveAssignment');
+describe('cockpit preload boundary', () => {
+  it('exposes only the read-only cockpit rollout status and no cohort minting aliases', async () => {
+    const cohortKeys = Object.keys(exposedApi).filter((key) => key.toLowerCase().includes('cohort'));
+    expect(cohortKeys).toEqual([]);
 
-    await exposedApi.cohortAssignmentStatus();
-    await exposedApi.cohortAuthorityStatus();
-    await exposedApi.cohortRequestAssignment('operator');
-
-    expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(1, 'cohort:assignment-status');
-    expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(2, 'cohort:authority-status');
-    expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(3, 'cohort:request-assignment', 'operator');
+    expect(typeof exposedApi.cockpitRolloutStatus).toBe('function');
+    await exposedApi.cockpitRolloutStatus();
+    expect(ipcRenderer.invoke).toHaveBeenCalledWith('cohort:cockpit-rollout-status');
   });
 });

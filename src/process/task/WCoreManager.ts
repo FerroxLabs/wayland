@@ -37,11 +37,6 @@ import { readOutputBudgetPreference, readRawEngineModePreference } from '@proces
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
 import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
-import { recordVerificationResult } from '@process/services/cohort/instrumentation/CohortWorkJourneyAuthority';
-import {
-  recordIncidentStop,
-  recordSessionTerminal,
-} from '@process/services/cohort/instrumentation/CohortIncidentAuthority';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
 import { acquireRuntimeLaunchAuthority } from '@process/agent/wcore/profilePaths';
@@ -1172,41 +1167,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           kind: trip.kind,
           count: trip.count,
         });
-        // Runaway-halt incident seam (SAF-02). A loop-detection halt is forwarded
-        // as a stop, but it carries a runaway `kind`, not a zero-tolerance reason,
-        // so the incident authority mints no zero_tolerance_stop: a benign halt
-        // can never become a zero-tolerance event.
-        recordIncidentStop({ occurredAtMs: Date.now(), source: 'runaway-halt', reason: trip.kind });
         return;
       }
-    }
-  }
-
-  /**
-   * developer.modify-and-verify verification authority (SAF-02). Forward each
-   * completed tool RESULT (Success or Error) to the work-journey authority,
-   * which only credits a successful `execute` result that follows a correlated
-   * durable change - a tool start, a failed command, an edit/read tool, or an
-   * uncorrelated workspace never terminalizes. Inert until observation is
-   * installed; forwarding is best-effort and never disturbs the turn.
-   */
-  private observeVerificationResults(message: IMessageToolGroup): void {
-    const items = Array.isArray(message.content) ? message.content : [];
-    for (const item of items) {
-      if (item.status !== 'Success' && item.status !== 'Error') continue;
-      const name = (item.name ?? '').toLowerCase();
-      const kind =
-        name.includes('exec') || name.includes('run') || name.includes('shell') || name.includes('command')
-          ? 'execute'
-          : 'other';
-      recordVerificationResult({
-        occurredAtMs: Date.now(),
-        workspace: this.workspace,
-        conversationId: this.conversation_id,
-        kind,
-        isToolResult: true,
-        success: item.status === 'Success',
-      });
     }
   }
 
@@ -1215,11 +1177,6 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
     this.status = 'finished';
     void this.handleTurnEnd();
-
-    // Crash-terminal seam (SAF-02). A wcore process exiting during an active turn
-    // is the session_crashed terminal; it can never be recorded as a normal end.
-    // Inert until observation is installed; the incident authority owns dedup.
-    recordSessionTerminal({ occurredAtMs: Date.now(), kind: 'crash' });
 
     const errorMessage: IResponseMessage = {
       type: 'error',
@@ -1764,7 +1721,6 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           if (tMessage.type === 'tool_group') {
             this.handleConformationMessage(tMessage);
             this.checkRunaway(tMessage);
-            this.observeVerificationResults(tMessage);
           }
         }
       }

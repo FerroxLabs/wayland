@@ -14,17 +14,7 @@ import type {
   ConstitutionClassicRecoveryMutationResult,
   ConstitutionClassicRecoveryResumeRequest,
 } from './constitutionRecovery';
-import type {
-  CockpitReturnReason,
-  CockpitReturnRecordResult,
-  CockpitRolloutStatus,
-  CohortAssignment,
-  CohortAssignmentRequestResult,
-  CohortAssignmentStatus,
-  CohortConsentStatus,
-  CohortSetConsentResult,
-  CohortAuthorityProjection,
-} from './cohortRollout';
+import type { CockpitRolloutStatus } from './cohortRollout';
 
 // WebUI status interface
 export interface WebUIStatus {
@@ -98,18 +88,6 @@ export interface ElectronBridgeAPI {
   collectFeedbackLogs?: () => Promise<{ filename: string; data: number[] } | null>;
   /** Process-authoritative Cockpit preview eligibility. */
   cockpitRolloutStatus?: () => Promise<CockpitRolloutStatus>;
-  /** Privacy-safe, content-free return-to-Classic evidence. */
-  cohortRecordShellReturn?: (reason: CockpitReturnReason) => Promise<CockpitReturnRecordResult>;
-  /** Explicit local evidence-consent state. */
-  cohortConsentStatus?: () => Promise<CohortConsentStatus>;
-  /** Process-authoritative closed cohort classification. */
-  cohortAssignmentStatus?: () => Promise<CohortAssignmentStatus>;
-  /** Atomic process-owned cohort, consent, and generation projection. */
-  cohortAuthorityStatus?: () => Promise<CohortAuthorityProjection>;
-  /** Request classification; the main process owns the effective result. */
-  cohortRequestAssignment?: (cohort: CohortAssignment) => Promise<CohortAssignmentRequestResult>;
-  /** Enable or revoke local evidence collection. */
-  cohortSetConsent?: (enabled: boolean) => Promise<CohortSetConsentResult>;
   // Wayland Constitution: agent behavioral spec at ~/.wayland/CONSTITUTION.md
   readConstitution?: () => Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>>;
   writeConstitution?: (

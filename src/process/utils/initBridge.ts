@@ -36,7 +36,6 @@ import {
   AUTONOMOUS_WATCHDOG_INTERVAL_MS,
 } from '@process/services/workflow/autonomousWatchdog';
 import { handleParentWorkflowTurn } from '@process/services/workflow/parentTurnDriver';
-import { recordAutomationRun } from '@process/services/cohort/instrumentation/CohortIncidentAuthority';
 import { resumeInterruptedParentRuns } from '@process/services/workflow/resumeRuns';
 import { sweepStalledParentRuns, PARENT_WATCHDOG_INTERVAL_MS } from '@process/services/workflow/parentWatchdog';
 import { setWorkflowSessionService } from '@process/services/workflow/workflowSessionServiceSingleton';
@@ -469,12 +468,6 @@ void getDatabase()
           await Promise.all(
             swept.map(async (s) => {
               console.warn(`[initBridge] parent watchdog parked stalled workflow run ${s.sessionId}/${s.stepN}`);
-              // operator.run-automation error-terminal seam (SAF-02). A parent run
-              // the watchdog had to force-park never emitted its own terminal turn;
-              // this is its error terminal, correlated by the same `workflow:` runId
-              // parentTurnDriver opened. Inert until observation is installed; the
-              // incident authority ignores it when the run already terminalized.
-              recordAutomationRun({ occurredAtMs: Date.now(), runId: `workflow:${s.sessionId}`, phase: 'failed' });
               await usageLogger.record({
                 eventType: 'workflow.parent_run_stalled',
                 metadata: { session_id: s.sessionId, step_n: s.stepN },

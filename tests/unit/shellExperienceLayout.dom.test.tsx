@@ -387,40 +387,19 @@ describe('shell experience composition-root isolation', () => {
     storageSet.mockRestore();
   });
 
-  it('always returns to Classic even when optional reason evidence cannot be stored', async () => {
-    const storageSet = vi.spyOn(ConfigStorage, 'set').mockResolvedValue(undefined);
-    const recordReturn = vi.fn(async () => {
-      throw new Error('cohort store unavailable');
-    });
-    window.electronAPI = {
-      emit: vi.fn(),
-      on: vi.fn(),
-      cohortRecordShellReturn: recordReturn,
-    };
-
-    await expect(writeShellExperience('classic', 'reliability')).resolves.toBeUndefined();
-    expect(storageSet).toHaveBeenCalledWith('ui.shell', 'classic');
-    expect(recordReturn).toHaveBeenCalledWith('reliability');
-
-    storageSet.mockRestore();
-  });
-
-  it('activates Classic and records the return even when preference persistence fails', async () => {
+  it('activates Classic for the session even when preference persistence fails', async () => {
     const storageSet = vi.spyOn(ConfigStorage, 'set').mockRejectedValue(new Error('profile is read-only'));
-    const recordReturn = vi.fn(async () => undefined);
     const events: unknown[] = [];
     const capture = (event: Event) => events.push((event as CustomEvent<unknown>).detail);
     window.addEventListener(SHELL_EXPERIENCE_CHANGED_EVENT, capture);
     window.electronAPI = {
       emit: vi.fn(),
       on: vi.fn(),
-      cohortRecordShellReturn: recordReturn,
     };
 
-    await expect(writeShellExperience('classic', 'reliability')).rejects.toThrow('profile is read-only');
+    await expect(writeShellExperience('classic')).rejects.toThrow('profile is read-only');
     expect(events).toEqual(['classic']);
     expect(storageSet).toHaveBeenCalledWith('ui.shell', 'classic');
-    expect(recordReturn).toHaveBeenCalledWith('reliability');
 
     window.removeEventListener(SHELL_EXPERIENCE_CHANGED_EVENT, capture);
     storageSet.mockRestore();

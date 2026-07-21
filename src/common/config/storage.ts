@@ -195,29 +195,6 @@ export interface IConfigStorageRefer {
    * installs don't all collapse to the same suggestion on day 1.
    */
   'app.installUuid'?: string;
-  /** Explicit, local-only consent and fixed observation window for privacy-safe Cockpit evidence. */
-  'cohort.evidenceConsent'?: {
-    schemaVersion: 1;
-    enabled: boolean;
-    acceptedAtMs: number | null;
-    windowStartMs: number | null;
-    windowEndMs: number | null;
-  };
-  /** Main-process-owned closed cohort classification. Renderer input is never authoritative. */
-  'cohort.assignment'?: {
-    schemaVersion: 2;
-    classifierVersion: 1;
-    requestedCohort: import('@/common/types/cohortRollout').CohortAssignment;
-    effectiveCohort: import('@/common/types/cohortRollout').CohortAssignment;
-    classifiedAtMs: number;
-    windowStartMs: number | null;
-    windowEndMs: number | null;
-  };
-  /**
-   * OS-keychain-sealed, process-authoritative cohort state. Consent,
-   * classification, and the immutable evidence window publish atomically.
-   */
-  'cohort.authorityEnvelope'?: string;
   /**
    * v0.6.3 - When true, ijfwSystemService.bootstrap() short-circuits and
    * never spawns `npx @ijfw/install`. Wave 6 wires the Settings toggle.
