@@ -490,3 +490,9 @@ body[arco-theme='dark'] .arco-message-error {
 .wl-image-model-popup .arco-select-option {
   padding-left: 28px;
 }
+
+/* Arco's default empty-state description (#78787a) is only ~3.3:1 on dark
+   surfaces (fails WCAG AA). Use our readable muted token instead (QA-01/B-02). */
+.arco-empty-description {
+  color: var(--text-muted);
+}

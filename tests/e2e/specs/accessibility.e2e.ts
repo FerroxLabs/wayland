@@ -37,6 +37,12 @@ const SURFACES: Surface[] = [
   { key: 'guid-home', hash: '#/guid', label: 'Chat home' },
   { key: 'settings-models', hash: '#/settings/models', label: 'Models & providers settings' },
   { key: 'settings-channels', hash: '#/settings/channels', label: 'Channels settings' },
+  // B-02 coverage expansion: Voice settings (hosts the VOC-03 consent surface),
+  // Assistants, and General. Cockpit Home/nav need shell activation the hash-nav
+  // spec doesn't drive yet — tracked as a follow-on.
+  { key: 'settings-voice', hash: '#/settings/voice', label: 'Voice settings' },
+  { key: 'settings-assistants', hash: '#/settings/assistants', label: 'Assistants settings' },
+  { key: 'settings-general', hash: '#/settings/general', label: 'General settings' },
 ];
 
 // Floor guard: proves the suite actually scanned something. Without it, a

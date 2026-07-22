@@ -4,16 +4,41 @@
     "aria-prohibited-attr",
     "color-contrast"
   ],
+  "settings-assistants": [
+    "aria-prohibited-attr",
+    "aria-required-parent",
+    "aria-valid-attr-value",
+    "button-name",
+    "color-contrast",
+    "scrollable-region-focusable"
+  ],
   "settings-channels": [
     "aria-prohibited-attr",
     "aria-required-parent",
     "color-contrast",
     "scrollable-region-focusable"
   ],
+  "settings-general": [
+    "aria-prohibited-attr",
+    "aria-valid-attr-value",
+    "button-name",
+    "color-contrast",
+    "label",
+    "nested-interactive",
+    "scrollable-region-focusable"
+  ],
   "settings-models": [
     "aria-prohibited-attr",
     "button-name",
     "color-contrast",
+    "scrollable-region-focusable"
+  ],
+  "settings-voice": [
+    "aria-input-field-name",
+    "aria-prohibited-attr",
+    "button-name",
+    "color-contrast",
+    "label",
     "scrollable-region-focusable"
   ]
 }
