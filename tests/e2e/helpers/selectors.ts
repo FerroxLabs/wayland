@@ -1,10 +1,10 @@
 /**
  * Reusable selectors for E2E tests.
  *
- * Because the app currently has **no** `data-testid` attributes, we rely on
- * CSS class names, Arco-Design component classes, and text-content matching.
- *
- * When the app adds `data-testid` later, update these selectors in one place.
+ * A mix of `data-testid` attributes (where the app emits them) and CSS class /
+ * Arco-component / text-content matching (where it does not). Message wrappers
+ * carry `data-testid="message-<type>-<position>"` plus `data-message-position`
+ * (see `MessageList.tsx`), so the AI/user selectors below anchor on position.
  */
 
 // ── Generic ──────────────────────────────────────────────────────────────────
@@ -56,11 +56,22 @@ export function modeMenuItemByValue(value: string): string {
 /** Agent status message badge (connecting / session_active / error). */
 export const AGENT_STATUS_MESSAGE = '.agent-status-message';
 
-/** AI (left-aligned) text message container. */
+/**
+ * AI (left) text message container. `message-text-left` is the derived
+ * `message-<type>-<position>` testid for a plain text reply. An AGENTIC reply
+ * (Flux Auto / Concierge) is a different message *type* on the same side, so
+ * prefer {@link AI_MESSAGE} when the backend may answer as an agent.
+ */
 export const AI_TEXT_MESSAGE = '[data-testid="message-text-left"]';
 
-/** User (right-aligned) text message container. */
+/** Any assistant-side message, type-agnostic (text, agentic, tool, …). */
+export const AI_MESSAGE = '[data-message-position="left"]';
+
+/** User (right) text message container. */
 export const USER_TEXT_MESSAGE = '[data-testid="message-text-right"]';
+
+/** Any user-side message, type-agnostic. */
+export const USER_MESSAGE = '[data-message-position="right"]';
 
 /** Text content element inside a message (works for both user/AI). */
 export const MESSAGE_TEXT_CONTENT = '[data-testid="message-text-content"]';
