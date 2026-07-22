@@ -9,6 +9,16 @@ autonomous: false
 blocking: true
 ---
 
+> **STATUS 2026-07-22 — BLOCKED (CI-authority boundary, by design).** The evidence-backed
+> `dist:preview:mac` build enforces a capability seal (`writeCapabilitySeal` →
+> `verifyCandidateCapabilitySeal`) that requires (1) repo var `WAYLAND_RELEASE_TRUST_ROOT_SHA` and
+> (2) capability receipts **Sigstore-attested by the CI release-acceptance workflow** (`gh attestation
+> verify`, protected branch `release-trust-v1`). Local receipts CAN be generated (done: all 5 caps'
+> 30 acceptance suites pass) but CANNOT be attested locally — that's the trust root's purpose.
+> **A sealed packaged build is CI + owner authority only.** Sean's call (2026-07-22): do Wave B first;
+> trigger the CI release-acceptance build to produce + live-test the sealed candidate when ready. Do
+> NOT circumvent the attestation gate.
+
 <objective>
 Build the preview artifact with the matched engine and prove it boots + works as a PACKAGED app
 (not dev mode). The packaged artifact — not `electron .` — is the acceptance surface.

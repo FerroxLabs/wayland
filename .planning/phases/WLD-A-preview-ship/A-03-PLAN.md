@@ -9,6 +9,13 @@ autonomous: false
 blocking: true
 ---
 
+> **STATUS 2026-07-22 — DECLARATION DONE; live-test pending packaged candidate.**
+> `scripts/capability-seal/candidate-capabilities.json` declares all five capabilities **IN**:
+> cowork-office, voice, mcp, sandbox, flux. Honest (classification proved the code ships). Local
+> capability-acceptance receipts generated — **all 5 caps' canonical suites (30 total) pass** (voice
+> incl. `voiceSynthBridge`/VOC-03). Final IN-with-live-test-evidence closes when the CI sealed
+> candidate is live-tested (see A-02). No capability is silently half-present.
+
 <objective>
 Declare each capability-conditional feature — Voice, MCP, sandbox — as either IN the preview
 candidate (and live-tested) or PHYSICALLY ABSENT. Honest absence satisfies the conditional criteria.

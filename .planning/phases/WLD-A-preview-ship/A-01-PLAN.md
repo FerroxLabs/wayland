@@ -13,6 +13,11 @@ autonomous: false
 blocking: true
 ---
 
+> **STATUS 2026-07-22 — DONE (satisfied at baseline).** Core **v0.12.25** (latest signed release) is
+> already pinned across all 4 files (DEFAULT_WCORE_VERSION, postinstall, shasums, manifest), bundled
+> for darwin-arm64, and SHA-verified (`WCORE_REQUIRE_VERIFIED=1 node scripts/prepareWaylandCore.js`
+> → archive+binary sha match manifest). No bump needed; matched engine confirmed.
+
 <objective>
 Stage the exact signed Core the preview candidate will bundle, so the packaged app runs a matched
 engine (not a mismatched dev engine). Release-adjacent — do deliberately with Sean.
