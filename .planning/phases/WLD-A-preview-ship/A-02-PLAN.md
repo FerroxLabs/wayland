@@ -18,6 +18,21 @@ blocking: true
 > **A sealed packaged build is CI + owner authority only.** Sean's call (2026-07-22): do Wave B first;
 > trigger the CI release-acceptance build to produce + live-test the sealed candidate when ready. Do
 > NOT circumvent the attestation gate.
+>
+> **UPDATE 2026-07-22 — LOCAL packaged smoke DONE (functional risk retired).** Per an independent
+> cross-audit that corrected an earlier overstatement (the seal is release *evidence*, not a runtime
+> gate): built a faithful UNSEALED `--dir` preview via a throwaway copy of build-with-builder (seal
+> skipped, `--dir` forced; original untouched; copy deleted after). Result: **`out-preview/mac-arm64/
+> Wayland Preview.app` assembles with the MATCHED bundled engine v0.12.25 + all resources** (2
+> non-blocking gaps: `capability-seal.json` skipped by design; `bundled-officecli` absent locally →
+> only Cowork office-authoring, not Cockpit/chat). **The packaged app BOOTS + runs** — direct launch
+> log shows renderer loaded, main window shown, `[Integrity] codesign seal OK`, engine catalog loaded
+> (7 models), fully operational, no crash. Automated Playwright Cockpit/chat drive is BLOCKED because
+> the packaged build has `EnableNodeCliInspectArguments` fuse **Disabled** (security hardening — can't
+> attach a debugger). So the packaged Cockpit+chat walk = Sean-opens-it (live-test acceptance) OR the
+> CI official `platform-package-smoke.mjs`. Dev sweep already proved Cockpit renders + real Flux chat
+> (same renderer bundle). **Net: A-02 functional risk retired locally; the SEALED distributable
+> candidate + automated sweep remain the CI/owner step.**
 
 <objective>
 Build the preview artifact with the matched engine and prove it boots + works as a PACKAGED app
