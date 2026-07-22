@@ -39,16 +39,32 @@ type PendingRequest = { provider: HostedVoiceProvider; resolve: (accepted: boole
 
 export function useHostedVoiceConsent(): {
   ensureConsent: (provider: string) => Promise<boolean>;
+  /**
+   * Reactive: true when `provider` is hosted AND not yet consented, so a section
+   * can render an inline "review consent" affordance. Re-selecting the already
+   * selected hosted provider fires no Select onChange, so without this the only
+   * recovery for an existing hosted-but-unconsented user is switch-away-and-back.
+   */
+  needsConsent: (provider: string) => boolean;
   consentModal: React.ReactNode;
 } {
   const consentRef = useRef<HostedVoiceConsent | null>(null);
+  const [consent, setConsent] = useState<HostedVoiceConsent | null>(null);
+  // Gates the affordance until the stored consent has been read once, so an
+  // already-consented user never sees a spurious "review consent" flash on the
+  // first render (when `consent` is still null before the async load resolves).
+  const [loaded, setLoaded] = useState(false);
   const [pending, setPending] = useState<PendingRequest | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     const load = () => {
       void ConfigStorage.get('tools.voiceHostedConsent').then((stored) => {
-        if (!cancelled) consentRef.current = (stored as HostedVoiceConsent | undefined) ?? null;
+        if (cancelled) return;
+        const next = (stored as HostedVoiceConsent | undefined) ?? null;
+        consentRef.current = next;
+        setConsent(next);
+        setLoaded(true);
       });
     };
     load();
@@ -66,6 +82,12 @@ export function useHostedVoiceConsent(): {
     return new Promise<boolean>((resolve) => setPending({ provider, resolve }));
   }, []);
 
+  const needsConsent = useCallback(
+    (provider: string): boolean =>
+      loaded && isHostedVoiceProvider(provider) && !hostedVoiceConsentGranted(provider, consent),
+    [consent, loaded]
+  );
+
   const settle = useCallback(
     async (accepted: boolean) => {
       const request = pending;
@@ -74,6 +96,7 @@ export function useHostedVoiceConsent(): {
       if (accepted) {
         const next = grantHostedVoiceConsent(request.provider, Date.now(), consentRef.current);
         consentRef.current = next;
+        setConsent(next);
         try {
           await ConfigStorage.set('tools.voiceHostedConsent', next);
           window.dispatchEvent(new CustomEvent(VOICE_HOSTED_CONSENT_CHANGED_EVENT));
@@ -116,5 +139,20 @@ export function useHostedVoiceConsent(): {
     </Modal>
   );
 
-  return { ensureConsent, consentModal };
+  return { ensureConsent, needsConsent, consentModal };
+}
+
+/**
+ * Maps the fail-closed hosted-consent error codes surfaced by the TTS/STT bridges
+ * to human guidance. Returns null for any other code so callers fall back to the
+ * raw code. Kept here so both settings sections and voice surfaces share one map.
+ */
+export function hostedVoiceConsentErrorGuidance(errorCode: string): string | null {
+  // Normalize: the STT service throws a verbose `CODE: message` form while the
+  // TTS bridge returns the bare code. Match on the leading code either way.
+  const code = String(errorCode).split(':')[0]?.trim();
+  if (code === 'TTS_HOSTED_CONSENT_REQUIRED' || code === 'STT_HOSTED_CONSENT_REQUIRED') {
+    return 'Hosted voice needs your consent. Open Voice settings and accept the disclosure for this provider, then try again.';
+  }
+  return null;
 }

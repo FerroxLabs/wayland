@@ -34,7 +34,7 @@ import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { useSettingsViewMode } from '../settingsViewContext';
 import MicrophoneCheck from '@/renderer/pages/settings/VoiceSettings/MicrophoneCheck';
-import { useHostedVoiceConsent } from '@/renderer/hooks/voice/useHostedVoiceConsent';
+import { useHostedVoiceConsent, hostedVoiceConsentErrorGuidance } from '@/renderer/hooks/voice/useHostedVoiceConsent';
 
 const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
 export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
@@ -260,7 +260,7 @@ export const TextToSpeechSettingsSection: React.FC<{
   const { t } = useTranslation();
   const testAudioRef = useRef<HTMLAudioElement | null>(null);
   const testAudioUrlRef = useRef<string | null>(null);
-  const { ensureConsent, consentModal } = useHostedVoiceConsent();
+  const { ensureConsent, needsConsent, consentModal } = useHostedVoiceConsent();
 
   const handleProviderChange = useCallback(
     (value: string) => {
@@ -308,12 +308,18 @@ export const TextToSpeechSettingsSection: React.FC<{
       await audio.play();
     } catch (error) {
       clearTestAudio();
-      Message.error(
-        t('settings.textToSpeechTestFailed', {
-          defaultValue: 'Voice test failed: {{reason}}',
-          reason: error instanceof Error ? error.message : 'unavailable',
-        })
-      );
+      const code = error instanceof Error ? error.message : 'unavailable';
+      const guidance = hostedVoiceConsentErrorGuidance(code);
+      if (guidance) {
+        Message.error(t('settings.voiceHostedConsentRequired', { defaultValue: guidance }));
+      } else {
+        Message.error(
+          t('settings.textToSpeechTestFailed', {
+            defaultValue: 'Voice test failed: {{reason}}',
+            reason: code,
+          })
+        );
+      }
     }
   }, [clearTestAudio, config, t]);
 
@@ -351,6 +357,21 @@ export const TextToSpeechSettingsSection: React.FC<{
               {t('settings.textToSpeechTestVoice', 'Test voice')}
             </Button>
           </div>
+          {needsConsent(config.provider) && (
+            <div className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'>
+              <span>
+                {t('settings.voiceHostedConsentPending', 'This provider processes audio and text off your device.')}
+              </span>
+              <Button
+                type='text'
+                size='mini'
+                className='!px-0 !h-auto'
+                onClick={() => void ensureConsent(config.provider)}
+              >
+                {t('settings.voiceReviewHostedConsent', 'Review consent')}
+              </Button>
+            </div>
+          )}
         </Form.Item>
 
         <Form.Item label={t('settings.textToSpeechVoice')}>
@@ -423,7 +444,7 @@ export const SpeechToTextSettingsSection: React.FC<{
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { ensureConsent, consentModal } = useHostedVoiceConsent();
+  const { ensureConsent, needsConsent, consentModal } = useHostedVoiceConsent();
   // Whether OpenAI is connected in the shared provider registry (the same store
   // Models/Providers shows as "Connected"). When it is, OpenAI Whisper uses that
   // key automatically, so the panel confirms the key is present instead of
@@ -536,6 +557,21 @@ export const SpeechToTextSettingsSection: React.FC<{
               {t('settings.speechToTextProviderWhisperLocal')}
             </WaylandSelect.Option>
           </WaylandSelect>
+          {needsConsent(config.provider) && (
+            <div className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'>
+              <span>
+                {t('settings.voiceHostedConsentPending', 'This provider processes audio and text off your device.')}
+              </span>
+              <Button
+                type='text'
+                size='mini'
+                className='!px-0 !h-auto'
+                onClick={() => void ensureConsent(config.provider)}
+              >
+                {t('settings.voiceReviewHostedConsent', 'Review consent')}
+              </Button>
+            </div>
+          )}
         </Form.Item>
 
         <Form.Item label={t('settings.voiceMicCheckLabel', 'Microphone')}>
