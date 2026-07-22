@@ -104,6 +104,10 @@ typings/
 # Electron-Forge
 out/
 
+# Local unsealed smoke build (`bun run build:smoke`) and its smoke reports
+out-preview/
+.smoke/
+
 # IDE and Editor files
 .idea
 .vscode
