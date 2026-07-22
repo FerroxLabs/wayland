@@ -413,12 +413,11 @@ async function walkSurfaces(page, consoleErrors, reportDir) {
 const REPLY_NONCE = `WLD${Math.floor(Math.random() * 1e9)
   .toString(36)
   .toUpperCase()}`;
-const PROMPT = `Reply with this exact token on its own line: ${REPLY_NONCE} - then one short sentence about what you are.`;
-
-const countOccurrences = (haystack, needle) => haystack.split(needle).length - 1;
-
-/** Collapse whitespace so wrapped/re-flowed renderings compare as one string. */
-const normalize = (text) => String(text).replace(/\s+/g, ' ').trim();
+// The distinctive instruction phrase. The agent's reasoning block quotes it back
+// (`The task is: Reply with this exact token…`), so an assistant message that
+// contains the nonce but NOT this phrase is the actual answer, not the echo.
+const PROMPT_MARKER = 'Reply with this exact token';
+const PROMPT = `${PROMPT_MARKER} on its own line: ${REPLY_NONCE} - then one short sentence about what you are.`;
 
 /** The persisted default-model pin — what the composer will actually send with. */
 async function readModelPin(page) {
@@ -427,7 +426,16 @@ async function readModelPin(page) {
 }
 
 async function runChat(page, reportDir) {
-  const result = { ok: false, selectedModel: null, sendMethod: null, messageBlocks: 0, reply: '', error: null };
+  const result = {
+    ok: false,
+    selectedModel: null,
+    sendMethod: null,
+    sendLanded: false,
+    messageBlocks: 0,
+    answerVerifiedInDom: false,
+    reply: '',
+    error: null,
+  };
   try {
     await page.evaluate(() => {
       window.location.hash = '#/guid';
@@ -498,73 +506,101 @@ async function runChat(page, reportDir) {
     result.sendMethod = 'button';
     result.selectedModel = await readModelPin(page);
 
-    // Read ONLY assistant-authored regions. `MessageText` lays the user side out
-    // with `items-end` and the assistant side with `items-start`, so dropping
-    // `.items-end` removes our own echoed prompt, and dropping
-    // `.chat-layout-header` removes the AI-generated conversation title — which
-    // is produced by a SEPARATE cheap model call that can succeed while chat is
-    // broken, and would otherwise satisfy the nonce on its own.
-    // Only a real assistant MESSAGE counts. Scoping merely to "not the user
-    // bubble" is not enough: an agentic backend restates the task inside its
-    // progress/reasoning panel, so the nonce shows up there verbatim while no
-    // answer has been produced. `message-text-content` inside an `items-start`
-    // column is the assistant's actual message body; the progress panel is not
-    // one. This errs toward a false NEGATIVE, which is the correct direction.
-    const assistantText = () =>
+    // Identify the assistant's ANSWER robustly.
+    //
+    // Every message wrapper carries `data-message-position` (MessageList.tsx:114):
+    // 'left' = assistant, 'right' = user. But the agent puts TWO messages on the
+    // left — its reasoning ("Thought for Ns") and the actual answer — and the
+    // reasoning restates the prompt, nonce and all. So position alone is not
+    // enough (three earlier schemes false-greened on the echo). The clean
+    // discriminator: the answer contains the nonce but does NOT quote the
+    // instruction phrase, whereas the reasoning quotes it verbatim
+    // ("The task is: Reply with this exact token…"). `innerText`, not
+    // `textContent`, so a collapsed reasoning body cannot bleed in.
+    //
+    // This proves the full round-trip: the message pipeline accepted our input
+    // (a right-side bubble carries the nonce) AND the backend produced a real
+    // answer that followed the instruction.
+    const findAnswer = () =>
       page
-        .evaluate(() => {
-          // Resolve the NEAREST message column and check its side. A descendant
-          // selector like `.items-start [data-testid=...]` is wrong: an outer
-          // wrapper also carries `items-start`, so the user's own `items-end`
-          // bubble matches through it and the prompt scores as the reply.
-          const nodes = document.querySelectorAll('[data-testid="message-text-content"]');
-          return Array.from(nodes)
-            .filter((node) => node.closest('.items-end, .items-start')?.classList.contains('items-start'))
-            .map((node) => node.textContent ?? '')
-            .join(' \n ');
-        })
-        .catch(() => '');
+        .evaluate(
+          ({ nonce, marker }) => {
+            const rightHasNonce = Array.from(document.querySelectorAll('[data-message-position="right"]')).some(
+              (node) => (node.innerText ?? '').includes(nonce)
+            );
+            const lefts = Array.from(document.querySelectorAll('[data-message-position="left"]'));
+            const answerNode = lefts.find((node) => {
+              const text = node.innerText ?? '';
+              return text.includes(nonce) && !text.includes(marker);
+            });
+            return {
+              rightHasNonce,
+              leftCount: lefts.length,
+              answer: answerNode ? (answerNode.innerText ?? '').trim().slice(0, 300) : null,
+            };
+          },
+          { nonce: REPLY_NONCE, marker: PROMPT_MARKER }
+        )
+        .catch(() => ({ rightHasNonce: false, leftCount: 0, answer: null }));
 
-    // Flux Auto answers as an AGENT and reasons first, so allow ~5 minutes.
+    result.sendLanded = false;
+    // Flux Auto answers as an agent and reasons first, so allow ~5 minutes.
     for (let attempt = 0; attempt < 150; attempt += 1) {
       await sleep(2_000);
-      const text = normalize(await assistantText());
-      result.messageBlocks = await page
-        .locator('[data-testid="message-text-content"]')
-        .count()
-        .catch(() => 0);
-      if (countOccurrences(text, REPLY_NONCE) > 0) {
-        const index = text.indexOf(REPLY_NONCE);
-        result.reply = text.slice(index, index + 200).trim();
+      const probe = await findAnswer();
+      if (probe.rightHasNonce) result.sendLanded = true;
+      result.messageBlocks = probe.leftCount;
+      if (result.sendLanded && probe.answer) {
         result.ok = true;
+        result.reply = probe.answer;
+        result.answerVerifiedInDom = true;
         break;
       }
     }
     if (!result.ok) {
-      // Record what the assistant region actually held, so a failure names the
-      // DOM it saw instead of leaving the next reader to guess at selectors.
-      result.transcriptTail = normalize(await assistantText()).slice(-400);
-      // Name the failure precisely. An empty assistant region after a successful
-      // send is a KNOWN harness limitation, not necessarily a broken app: an
-      // agentic reply (Flux Auto -> Concierge) renders into the workflow/progress
-      // panel rather than an assistant `message-text-content` node, so there is
-      // nothing message-shaped to assert on. Verified manually by screenshot;
-      // needs a data-testid on the agentic reply body to automate. Until then,
-      // use --no-chat for the surface gate.
-      if (result.sendMethod && !result.transcriptTail) {
-        result.limitation = 'assistant reply not message-shaped (agentic path) — see A-02-SUMMARY';
-      }
-      // Surface whatever the composer/toast is showing — an unsent message still
-      // sitting in the textarea is the signature of a rejected send.
-      result.error = await page
-        .evaluate(() => {
-          const textarea = document.querySelector('.guid-input-card-shell textarea');
-          const toast = document.querySelector('.arco-message, [role="alert"]');
-          return `composer=${JSON.stringify(textarea?.value?.slice(0, 80) ?? '')} toast=${JSON.stringify(
-            toast?.textContent?.trim()?.slice(0, 120) ?? ''
-          )}`;
-        })
-        .catch(() => 'no reply and probe failed');
+      const probe = await findAnswer();
+      result.transcriptTail = await page
+        .evaluate(() =>
+          Array.from(document.querySelectorAll('[data-message-position="left"]'))
+            .map((node) => node.innerText ?? '')
+            .join(' | ')
+            .replace(/\s+/g, ' ')
+            .slice(-400)
+        )
+        .catch(() => '');
+      // Self-documenting: if the nonce is anywhere on screen, record the ancestor
+      // chain (tag + testid + message-position) of the node holding it. A clean
+      // backend run then reveals exactly which container the agentic answer lives
+      // in, so the discriminator above can be anchored precisely without guessing.
+      result.nonceLocation = await page
+        .evaluate((nonce) => {
+          const hit = Array.from(document.querySelectorAll('*')).find(
+            (node) => node.childElementCount === 0 && (node.textContent ?? '').includes(nonce)
+          );
+          if (!hit) return null;
+          const chain = [];
+          for (let node = hit; node && chain.length < 8; node = node.parentElement) {
+            const testid = node.getAttribute?.('data-testid');
+            const pos = node.getAttribute?.('data-message-position');
+            chain.push(`${node.tagName.toLowerCase()}${testid ? `#${testid}` : ''}${pos ? `@${pos}` : ''}`);
+          }
+          return chain.join(' < ');
+        }, REPLY_NONCE)
+        .catch(() => null);
+      // Name why: no user bubble means the send never registered (input/model
+      // gate); a user bubble but no answer message means the backend produced no
+      // reply (provider/routing, or a stall).
+      result.error = result.sendLanded
+        ? `send landed but no answer message appeared within ~5min (leftMessages=${probe.leftCount})`
+        : await page
+            .evaluate(() => {
+              const textarea = document.querySelector('.guid-input-card-shell textarea');
+              const toast = document.querySelector('.arco-message, [role="alert"]');
+              return `send never registered: composer=${JSON.stringify(
+                textarea?.value?.slice(0, 80) ?? ''
+              )} toast=${JSON.stringify(toast?.textContent?.trim()?.slice(0, 120) ?? '')}`;
+            })
+            .catch(() => 'no reply and probe failed');
     }
   } catch (error) {
     result.error = String(error).slice(0, 200);
