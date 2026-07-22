@@ -19,7 +19,8 @@ completed: 2026-07-22
 Color-contrast is a **broad dark-theme burn-down**, NOT a single-token fix (the mock-up implied the latter from the one light-theme pair I'd found by inspection). The gate samples the DARK theme; the live axe scan found many low-contrast elements, largely Arco component defaults, beyond the 4 top offenders fixed here (my diagnostic dump was node-capped, so the true count is higher). **color-contrast still appears in the baseline on all 6 surfaces** — the fixes reduced offending nodes but did not clear the rule.
 
 ## Remaining (needs decisions / a focused pass)
-- **DESIGN CALL — orange "Recommended" tag** (`FluxRouterHero.module.css .recommendedTag`): white on brand `--brand #ff6b35` = 2.83:1. Recommended: keep the brand orange, use **dark text `#1a1a1a`** = 6.14:1 (common legible badge pattern). Pending Sean.
+- ✅ **DONE — orange "Recommended" tag** (`FluxRouterHero.module.css .recommendedTag`): white on brand `#ff6b35` (2.83:1) → **dark text `#1a1a1a` (6.14:1)**, brand orange kept. Sean-approved 2026-07-22.
+- **Sean's call (2026-07-22): DEFER the rest as a tracked non-blocking task** — the gate blocks NEW regressions and the debt is baselined; not preview-blocking. A dedicated full-clearance pass covers:
 - **Full color-contrast clearance:** enumerate every remaining offender (uncapped scan) and fix — dedicated pass; many are Arco defaults fixable via `arco-override.css`.
 - **Mechanical rules** (button-name, aria-prohibited-attr, aria-required-parent, aria-valid-attr-value, scrollable-region-focusable, label, nested-interactive, aria-input-field-name): targeted node-by-node fixes; each surface's set is in `baseline.json`.
 - **Cockpit Home/nav coverage:** needs shell-activation in the a11y spec (hash-nav only reaches Classic surfaces).
