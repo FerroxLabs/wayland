@@ -2,7 +2,7 @@
  * MCP - stdio mock server round-trip.
  *
  * Validates the W4 L35 bump to @modelcontextprotocol/sdk@^1.29.0 by spinning
- * up a tiny dependency-free stdio MCP server (tests/e2e/helpers/mocks/mockMcpServer.ts)
+ * up a tiny dependency-free stdio MCP server (tests/e2e/helpers/mocks/mockMcpServer.mjs)
  * and asking the Wayland bridge to (a) test the connection, (b) enumerate
  * tools, and (c) round-trip an `echo` call. If the SDK shape changed under
  * us, this spec catches it before the agent surface notices.
@@ -19,7 +19,7 @@ type TestEnvelope =
   | { success: true; data: { success: boolean; tools?: Tool[]; error?: string } }
   | { success: false; msg: string };
 
-const mockServerPath = path.resolve(__dirname, '../helpers/mocks/mockMcpServer.ts');
+const mockServerPath = path.resolve(__dirname, '../helpers/mocks/mockMcpServer.mjs');
 
 test.describe('MCP stdio bridge', () => {
   test.beforeAll(() => {

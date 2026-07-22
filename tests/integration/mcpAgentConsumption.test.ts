@@ -32,7 +32,7 @@ describe('MCP agent-consumption seam', () => {
       binary: 'opencode',
       mcpEcho: { serverName: 'deterministic-echo', text: expected },
     });
-    const mcpScript = resolve(process.cwd(), 'tests/e2e/helpers/mocks/mockMcpServer.ts');
+    const mcpScript = resolve(process.cwd(), 'tests/e2e/helpers/mocks/mockMcpServer.mjs');
 
     connection = new AcpConnection();
     const chunks: string[] = [];
