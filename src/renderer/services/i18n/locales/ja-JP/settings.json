@@ -2634,35 +2634,6 @@
       "engineConfig": "Engine config integrity"
     }
   },
-  "navigationPage": {
-    "cohortAssignmentLabel": "評価グループ",
-    "cohortAssignmentHelp": "Wayland の使い方に最も近いグループを選択してください。有効なグループは Wayland が検証して保存し、この画面から直接割り当てることはできません。",
-    "cohortAssignmentPlaceholder": "グループを選択",
-    "cohortAssignmentActive": "現在の評価期間中は変更できません。",
-    "cohortAssignmentReady": "分類が確認されました。評価期間を開始できます。",
-    "cohortAssignmentCompleted": "評価期間は完了し、ロックされています。",
-    "cohortConfirmationTitle": "評価グループを確認",
-    "cohortConfirmationMessage": "このインストールの評価グループとして {{cohort}} を使用しますか？",
-    "cohortConfirmationDetail": "この選択は Wayland が管理し、データ収集開始後はロックされます。",
-    "cohortConfirmationCancel": "キャンセル",
-    "cohortConfirmationConfirm": "確認",
-    "cohortAssignmentUnavailable": "評価期間を開始する前にグループを選択してください。",
-    "cohort": {
-      "novice": "はじめて使う",
-      "knowledge-work": "ナレッジワーク",
-      "developer": "開発者",
-      "operator": "運用担当"
-    },
-    "evidenceChecking": "同意と分類を確認しています…",
-    "evidenceUnavailable": "このビルドでは評価データ共有を利用できないため、無効のままです。",
-    "evidenceWindowInactive": "有効な評価期間はありません。",
-    "evidenceWindowActive": "14 日間の評価期間: {{start}} – {{end}}。",
-    "evidenceWindowCompleted": "完了した 14 日間の評価期間: {{start}} – {{end}}。",
-    "evidenceConsentLabel": "ローカル集計データを収集",
-    "evidenceConsentHelp": "ローカル集計データのみ: セッション数、タスク結果、信頼性、アクセシビリティ、Classic に戻った理由。チャット、プロンプト、ファイル内容・名前、パス、URL、ツール引数、自由記述は収集しません。",
-    "evidenceConsentControl": "明示的に有効にするまでオフです。同意はいつでも取り消せます。",
-    "evidenceConsentUpdateFailed": "Wayland はこの設定を更新できませんでした。最後に確認された選択が引き続き有効です。"
-  },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
   "settings": {},

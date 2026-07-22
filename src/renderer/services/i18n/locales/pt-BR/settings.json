@@ -2633,35 +2633,6 @@
       "engineConfig": "Engine config integrity"
     }
   },
-  "navigationPage": {
-    "cohortAssignmentLabel": "Seu grupo de avaliação",
-    "cohortAssignmentHelp": "Escolha o grupo que melhor descreve como você usa o Wayland. O Wayland valida e salva o grupo efetivo; esta tela não o atribui diretamente.",
-    "cohortAssignmentPlaceholder": "Escolha um grupo",
-    "cohortAssignmentActive": "Bloqueado enquanto a janela de evidências atual estiver ativa.",
-    "cohortAssignmentReady": "Classificação confirmada. Você pode iniciar uma janela de evidências.",
-    "cohortAssignmentCompleted": "A janela de evidências foi concluída e bloqueada.",
-    "cohortConfirmationTitle": "Confirmar grupo de avaliação",
-    "cohortConfirmationMessage": "Usar {{cohort}} como grupo de avaliação desta instalação?",
-    "cohortConfirmationDetail": "O Wayland controla esta seleção e a bloqueia após o início da coleta.",
-    "cohortConfirmationCancel": "Cancelar",
-    "cohortConfirmationConfirm": "Confirmar",
-    "cohortAssignmentUnavailable": "Escolha um grupo antes de iniciar uma janela de evidências.",
-    "cohort": {
-      "novice": "Primeiros passos",
-      "knowledge-work": "Trabalho intelectual",
-      "developer": "Desenvolvedor",
-      "operator": "Operações"
-    },
-    "evidenceChecking": "Verificando consentimento e classificação…",
-    "evidenceUnavailable": "O compartilhamento de evidências não está disponível nesta versão e permanece desativado.",
-    "evidenceWindowInactive": "Nenhuma janela de evidências está ativa.",
-    "evidenceWindowActive": "Janela ativa de 14 dias: {{start}} – {{end}}.",
-    "evidenceWindowCompleted": "Janela concluída de 14 dias: {{start}} – {{end}}.",
-    "evidenceConsentLabel": "Coletar evidências agregadas locais",
-    "evidenceConsentHelp": "Somente evidências agregadas locais: contagens de sessões, resultados de tarefas, confiabilidade, acessibilidade e motivos para voltar ao Classic. Nunca mensagens, prompts, conteúdo ou nomes de arquivos, caminhos, URLs, argumentos de ferramentas ou texto livre.",
-    "evidenceConsentControl": "Desativado até você habilitar explicitamente. Você pode revogar o consentimento a qualquer momento.",
-    "evidenceConsentUpdateFailed": "O Wayland não conseguiu atualizar esta configuração. A última escolha confirmada continua valendo."
-  },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
