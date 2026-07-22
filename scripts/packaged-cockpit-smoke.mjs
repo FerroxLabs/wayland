@@ -78,15 +78,27 @@ function parseArgs(argv) {
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
-    const next = () => argv[(i += 1)];
+    // A flag missing its value must be an error, not a silent fallback: an
+    // unnoticed `--app` with nothing after it would smoke a different binary
+    // than the one asked for, and a bad `--timeout` becomes NaN and "fails"
+    // instantly against a perfectly healthy app.
+    const next = () => {
+      const value = argv[(i += 1)];
+      if (value === undefined || value.startsWith('--')) throw new Error(`${TAG} ${arg} requires a value`);
+      return value;
+    };
     if (arg === '--app') options.app = next();
     else if (arg === '--out-dir') options.outDir = next();
     else if (arg === '--key-file') options.keyFile = next();
     else if (arg === '--report-dir') options.reportDir = next();
     else if (arg === '--no-chat') options.chat = false;
     else if (arg === '--keep-open') options.keepOpen = true;
-    else if (arg === '--timeout') options.timeoutMs = Number(next());
-    else throw new Error(`${TAG} unknown argument: ${arg}`);
+    else if (arg === '--timeout') {
+      options.timeoutMs = Number(next());
+      if (!Number.isFinite(options.timeoutMs) || options.timeoutMs <= 0) {
+        throw new Error(`${TAG} --timeout must be a positive number of milliseconds`);
+      }
+    } else throw new Error(`${TAG} unknown argument: ${arg}`);
   }
   return options;
 }
@@ -146,7 +158,34 @@ function resolvePackagedApp(outRoot) {
  * changes which model the cold-start resolver picks. Allowlist, don't denylist:
  * a new credential variable must not be able to leak in by default.
  */
-const ENV_ALLOWLIST = ['PATH', 'HOME', 'TMPDIR', 'USER', 'LOGNAME', 'LANG', 'LC_ALL', 'SHELL', 'DISPLAY', 'XAUTHORITY'];
+const ENV_ALLOWLIST = [
+  'PATH',
+  'HOME',
+  'TMPDIR',
+  'USER',
+  'LOGNAME',
+  'LANG',
+  'LC_ALL',
+  'SHELL',
+  // Linux: Chromium needs a session bus and display handles.
+  'DISPLAY',
+  'XAUTHORITY',
+  'XDG_RUNTIME_DIR',
+  'DBUS_SESSION_BUS_ADDRESS',
+  'WAYLAND_DISPLAY',
+  // Windows: Chromium will not start without SystemRoot, and Electron needs the
+  // per-user app-data roots.
+  'SystemRoot',
+  'windir',
+  'APPDATA',
+  'LOCALAPPDATA',
+  'USERPROFILE',
+  'TEMP',
+  'TMP',
+  'COMSPEC',
+  'ProgramData',
+  'NUMBER_OF_PROCESSORS',
+];
 
 function buildChildEnv(extra) {
   const env = {};
@@ -290,9 +329,13 @@ async function walkSurfaces(page, consoleErrors, reportDir) {
           bodyLen: text.length,
           hash: window.location.hash,
           sider: !!document.querySelector('[data-testid="cockpit-sider"]'),
-          errorBoundary: !!document.querySelector(
-            '[data-testid="shell-recover-classic"], [data-testid="error-boundary-fallback"]'
-          ),
+          // `ShellRecoveryFallback` is the only rendered recovery testid. Route
+          // ErrorBoundary has none and its copy is ~67 chars, i.e. comfortably
+          // over the blank floor — so match its text too, or a contained route
+          // crash reports as a healthy page.
+          errorBoundary:
+            !!document.querySelector('[data-testid="shell-recovery-fallback"]') ||
+            /Something went wrong/i.test(main?.innerText ?? ''),
           contentFound: !!main,
           sample: text.slice(0, 160),
         };
@@ -309,16 +352,23 @@ async function walkSurfaces(page, consoleErrors, reportDir) {
     const navErrors = consoleErrors.slice(errorsBefore);
     await page.screenshot({ path: path.join(reportDir, `${surface.id}.png`) }).catch(() => {});
 
+    // Router.tsx has a catch-all that redirects unknown paths to /guid. Without
+    // comparing the landed hash, a deleted or renamed route silently reports OK
+    // while the harness is really looking at the home page 12 times over.
+    const landed = probe.hash === surface.hash;
+
     const verdict = probe.errorBoundary
       ? 'ERROR-FALLBACK'
       : !probe.contentFound
         ? 'NO-CONTENT-REGION'
-        : probe.bodyLen < 40
-          ? 'BLANK'
-          : navErrors.length
-            ? 'RENDERED+ERRORS'
-            : 'OK';
-    findings.push({ ...surface, verdict, navMethod, ...probe, navErrors });
+        : !landed
+          ? 'WRONG-ROUTE'
+          : probe.bodyLen < 40
+            ? 'BLANK'
+            : navErrors.length
+              ? 'RENDERED+ERRORS'
+              : 'OK';
+    findings.push({ ...surface, verdict, navMethod, landed, ...probe, navErrors });
     log(
       `${surface.label.padEnd(16)} -> ${verdict} (${navMethod}, ${probe.bodyLen} chars${
         navErrors.length ? `, ${navErrors.length} console err` : ''
@@ -338,18 +388,32 @@ async function walkSurfaces(page, consoleErrors, reportDir) {
  * a bad default is visible in the report rather than silently degrading chat.
  */
 /**
- * Any sentinel we name is also echoed back inside the prompt (the transcript
- * renders the user's message as a bubble, a tab label and a progress entry), so
- * a plain `includes()` scores our own message as the reply. Deriving the token
- * instead ("reverse GNOP") pushes the model into an agentic reasoning run that
- * can stall, so keep the prompt trivially answerable and disambiguate by COUNT:
- * every echo carries at most one sentinel and one prompt marker, so the reply is
- * the occurrence that makes sentinels outnumber markers. Truncation only ever
- * drops the tail, so this errs toward a false negative, never a false positive.
+ * Chat round-trip proof.
+ *
+ * Getting this assertion right is harder than it looks; three earlier versions
+ * reported a reply that never happened:
+ *   1. `message-text-content` is shared by the user and assistant bubbles, so
+ *      matching it returned our own prompt.
+ *   2. Any sentinel named in the prompt is echoed back by the transcript (bubble,
+ *      tab label, progress entry), and TRUNCATED echoes defeat exact-string
+ *      stripping.
+ *   3. Counting sentinel-vs-prompt-marker occurrences still fails, because the
+ *      app generates an LLM conversation TITLE from the first user message
+ *      (`useAutoTitle` -> `titleGenerationService`, which runs whenever the
+ *      message exceeds 30 chars). That title is a *different, cheaper model
+ *      call*: it can succeed while chat itself is broken, and it may quote the
+ *      sentinel without the prompt marker — tipping the count and turning a dead
+ *      chat green, non-deterministically.
+ *
+ * So: the sentinel is a per-run RANDOM nonce that appears nowhere in the prompt
+ * text (the model is asked to derive nothing — it is told to echo a token), and
+ * the search is scoped to the message transcript with the title/tab chrome
+ * excluded. A title that happens to quote the nonce therefore cannot satisfy it.
  */
-const REPLY_SENTINEL = 'PONG';
-const PROMPT_MARKER = 'Reply with exactly:';
-const PROMPT = 'Reply with exactly: PONG, then one short sentence about what you are.';
+const REPLY_NONCE = `WLD${Math.floor(Math.random() * 1e9)
+  .toString(36)
+  .toUpperCase()}`;
+const PROMPT = `Reply with this exact token on its own line: ${REPLY_NONCE} - then one short sentence about what you are.`;
 
 const countOccurrences = (haystack, needle) => haystack.split(needle).length - 1;
 
@@ -434,41 +498,62 @@ async function runChat(page, reportDir) {
     result.sendMethod = 'button';
     result.selectedModel = await readModelPin(page);
 
-    // Assert on what the user can actually see in the transcript, not on a
-    // message testid. Routing through Flux Auto answers as an AGENT: the reply
-    // lands in workflow/progress components, not in the `message-text-content`
-    // bubble a plain chat turn would use — so a testid-scoped assertion reports
-    // "no reply" while the answer is plainly on screen.
-    //
-    // PONG is the sentinel: the prompt asks for it verbatim, so its presence
-    // anywhere in the transcript proves the round-trip completed AND that the
-    // model actually followed the instruction. Flux Auto can take well over a
-    // minute to answer, so this waits ~3 minutes before calling chat broken.
-    const transcript = page.locator('.layout-content');
+    // Read ONLY assistant-authored regions. `MessageText` lays the user side out
+    // with `items-end` and the assistant side with `items-start`, so dropping
+    // `.items-end` removes our own echoed prompt, and dropping
+    // `.chat-layout-header` removes the AI-generated conversation title — which
+    // is produced by a SEPARATE cheap model call that can succeed while chat is
+    // broken, and would otherwise satisfy the nonce on its own.
+    // Only a real assistant MESSAGE counts. Scoping merely to "not the user
+    // bubble" is not enough: an agentic backend restates the task inside its
+    // progress/reasoning panel, so the nonce shows up there verbatim while no
+    // answer has been produced. `message-text-content` inside an `items-start`
+    // column is the assistant's actual message body; the progress panel is not
+    // one. This errs toward a false NEGATIVE, which is the correct direction.
+    const assistantText = () =>
+      page
+        .evaluate(() => {
+          // Resolve the NEAREST message column and check its side. A descendant
+          // selector like `.items-start [data-testid=...]` is wrong: an outer
+          // wrapper also carries `items-start`, so the user's own `items-end`
+          // bubble matches through it and the prompt scores as the reply.
+          const nodes = document.querySelectorAll('[data-testid="message-text-content"]');
+          return Array.from(nodes)
+            .filter((node) => node.closest('.items-end, .items-start')?.classList.contains('items-start'))
+            .map((node) => node.textContent ?? '')
+            .join(' \n ');
+        })
+        .catch(() => '');
+
+    // Flux Auto answers as an AGENT and reasons first, so allow ~5 minutes.
     for (let attempt = 0; attempt < 150; attempt += 1) {
       await sleep(2_000);
-      const raw = (await transcript.textContent({ timeout: 2_000 }).catch(() => '')) ?? '';
+      const text = normalize(await assistantText());
       result.messageBlocks = await page
         .locator('[data-testid="message-text-content"]')
         .count()
         .catch(() => 0);
-      const text = normalize(raw);
-      const sentinels = countOccurrences(text, REPLY_SENTINEL);
-      const echoes = countOccurrences(text, PROMPT_MARKER);
-      if (sentinels > echoes) {
-        const index = text.lastIndexOf(REPLY_SENTINEL);
+      if (countOccurrences(text, REPLY_NONCE) > 0) {
+        const index = text.indexOf(REPLY_NONCE);
         result.reply = text.slice(index, index + 200).trim();
         result.ok = true;
         break;
       }
     }
     if (!result.ok) {
-      // Record what the transcript actually held, so a failure names the DOM it
-      // saw instead of leaving the next reader to guess at selectors.
-      result.transcriptTail = ((await transcript.textContent({ timeout: 2_000 }).catch(() => '')) ?? '')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .slice(-400);
+      // Record what the assistant region actually held, so a failure names the
+      // DOM it saw instead of leaving the next reader to guess at selectors.
+      result.transcriptTail = normalize(await assistantText()).slice(-400);
+      // Name the failure precisely. An empty assistant region after a successful
+      // send is a KNOWN harness limitation, not necessarily a broken app: an
+      // agentic reply (Flux Auto -> Concierge) renders into the workflow/progress
+      // panel rather than an assistant `message-text-content` node, so there is
+      // nothing message-shaped to assert on. Verified manually by screenshot;
+      // needs a data-testid on the agentic reply body to automate. Until then,
+      // use --no-chat for the surface gate.
+      if (result.sendMethod && !result.transcriptTail) {
+        result.limitation = 'assistant reply not message-shaped (agentic path) — see A-02-SUMMARY';
+      }
       // Surface whatever the composer/toast is showing — an unsent message still
       // sitting in the textarea is the signature of a rejected send.
       result.error = await page
@@ -503,19 +588,22 @@ async function main() {
       `${TAG} no packaged app found under out-preview/ or out/. Build one first, e.g.\n` +
         `        WAYLAND_RELEASE_TRACK=preview node scripts/build-with-builder.js arm64 --mac --arm64 --pack-only`
     );
-    process.exit(1);
+    return 1;
   }
 
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const reportDir = path.resolve(projectRoot, options.reportDir ?? path.join('.smoke', stamp));
   fs.mkdirSync(reportDir, { recursive: true });
-  const userDataDir = path.join(reportDir, 'user-data');
-  fs.mkdirSync(userDataDir, { recursive: true });
+  // The profile holds the provider credential (encrypted with a key stored in
+  // that same directory when safeStorage is unavailable, i.e. headless CI). Keep
+  // it OUT of the report directory, which is exactly what gets tarred and
+  // uploaded as a CI artifact alongside the screenshots.
+  const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-smoke-'));
 
   const key = readKeyFile(options.keyFile);
   if (!key && options.chat) {
     console.error(`${TAG} no provider key at ${options.keyFile} — pass --no-chat or provision one.`);
-    process.exit(1);
+    return 1;
   }
 
   const port = await findFreePort();
@@ -536,6 +624,7 @@ async function main() {
     }),
     stdio: ['ignore', 'pipe', 'pipe'],
   });
+  launchedChild = child;
   const appOutput = [];
   for (const stream of [child.stdout, child.stderr]) {
     stream?.on('data', (chunk) => {
@@ -554,10 +643,10 @@ async function main() {
     await sleep(1_000);
   }
   if (!up) {
-    child.kill('SIGTERM');
+    await shutdown(child);
     fs.writeFileSync(path.join(reportDir, 'app-output.log'), appOutput.join(''));
     console.error(`${TAG} CDP endpoint never came up within ${options.timeoutMs}ms — see app-output.log`);
-    process.exit(1);
+    return 1;
   }
 
   const { browser, page } = await attachRenderer(port, 20_000);
@@ -653,9 +742,19 @@ async function main() {
   if (options.chat) log(`chat: ${chat.ok ? `replied (${chat.sendMethod})` : `NO REPLY — ${chat.error}`}`);
 
   const failures = findings.filter((finding) =>
-    ['BLANK', 'ERROR-FALLBACK', 'NO-CONTENT-REGION'].includes(finding.verdict)
+    ['BLANK', 'ERROR-FALLBACK', 'NO-CONTENT-REGION', 'WRONG-ROUTE'].includes(finding.verdict)
   );
-  const passed = bridgeOk && siderPresent && failures.length === 0 && chat.ok !== false;
+  // Everything the header claims this harness proves must actually gate the
+  // exit code. Previously providerConnected and the catalog were computed,
+  // logged, written to the report - and ignored.
+  const catalogOk = Array.isArray(catalogProviders) && catalogProviders.some((p) => (p?.modelCount ?? 0) > 0);
+  const modelConfigOk = Array.isArray(modelConfig.value) && modelConfig.value.some((p) => (p?.model?.length ?? 0) > 0);
+  const passed =
+    bridgeOk &&
+    siderPresent &&
+    failures.length === 0 &&
+    chat.ok !== false &&
+    (key ? providerConnected === true && catalogOk && modelConfigOk : true);
 
   const report = {
     passed,
@@ -668,6 +767,8 @@ async function main() {
     modelConfigSummary,
     chat,
     surfaces: findings,
+    catalogOk,
+    modelConfigOk,
     consoleErrorCount: consoleErrors.length,
     consoleErrors: consoleErrors.slice(0, 25),
   };
@@ -677,14 +778,40 @@ async function main() {
 
   if (!options.keepOpen) {
     await browser.close().catch(() => {});
-    child.kill('SIGTERM');
+    await shutdown(child);
   }
 
   log(passed ? 'PASS' : 'FAIL');
-  process.exit(passed ? 0 : 1);
+  return passed ? 0 : 1;
 }
 
-main().catch((error) => {
-  console.error(`${TAG} failed:`, error);
-  process.exit(1);
-});
+/**
+ * Terminate the packaged app and wait for it to actually go. SIGTERM alone can
+ * be ignored or merely slow, and the previous code exited the parent
+ * immediately afterwards - leaving a live Electron process holding a provider
+ * credential and an open CDP port.
+ */
+async function shutdown(child) {
+  if (!child || child.exitCode !== null || child.signalCode !== null) return;
+  const exited = new Promise((resolve) => child.once('exit', resolve));
+  child.kill('SIGTERM');
+  const timer = new Promise((resolve) => setTimeout(() => resolve('timeout'), 10_000));
+  if ((await Promise.race([exited, timer])) === 'timeout') {
+    child.kill('SIGKILL');
+    await Promise.race([exited, new Promise((resolve) => setTimeout(resolve, 3_000))]);
+  }
+}
+
+// `child` is hoisted so the failure path can still reap it: previously every
+// throw inside main() (no renderer page, a destroyed page context, a failed
+// report write) left the packaged app running.
+let launchedChild = null;
+main()
+  .then(async (code) => {
+    process.exitCode = code;
+  })
+  .catch(async (error) => {
+    console.error(`${TAG} failed:`, error);
+    await shutdown(launchedChild);
+    process.exitCode = 1;
+  });
