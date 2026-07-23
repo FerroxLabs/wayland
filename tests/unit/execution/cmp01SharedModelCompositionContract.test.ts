@@ -64,7 +64,7 @@ function digestOf(value: unknown): `sha256:${string}` {
 // Pinned contract digests. If the shared model or manifest changes shape, these
 // must be regenerated deliberately — that is the replay-contract guard.
 const MANIFEST_CONTRACT_DIGEST = 'sha256:82e5e650ca0777d38acaed94e758a5e6205a9626d786b5a6bf41d690ad569750';
-const SNAPSHOT_CONTRACT_DIGEST = 'sha256:287500782caa080c7e154212446704e2d3ca0e0a01ac2f171df7be66bcbb8493';
+const SNAPSHOT_CONTRACT_DIGEST = 'sha256:162d1fbcd88214efe980bca8516a0d9486ba6b6e73d0325a1f83ea432770b8d2';
 
 const IDENTITY = { runId: 'run-1', turnId: 'turn-1', correlationId: 'corr-1' } as const;
 const NOW = 10_000;
@@ -254,6 +254,10 @@ describe('CMP-01 shared model + capability manifest replay through the standalon
     expect(snapshot.validation.status).toBe('valid');
     expect(snapshot.outcomeTrust).toHaveLength(1);
     expect(snapshot.outcomeTrust[0]).toMatchObject({ status: 'verified', outcomeId: 'out-1' });
+    // COW-04/05 extended the canonical model: the fixture log carries no citation
+    // events, so the ledger projects empty, and validation carries its type-aware
+    // fields. Asserting these anchors the digest re-pin to a verified shape.
+    expect(snapshot.citations).toEqual([]);
     expect(digestOf(snapshot)).toBe(SNAPSHOT_CONTRACT_DIGEST);
   });
 
