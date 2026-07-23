@@ -61,6 +61,22 @@ body,
   border-color: var(--aou-2) !important;
 }
 
+/* Primary buttons are white-on-brand-orange (#fff on #ff6b35 = 2.83:1, fails
+   WCAG AA). Dark text on the brand orange reads 6.14:1 and keeps the brand
+   color — the same call already made for the Flux "Recommended" tag. Scoped to
+   default (orange) primary buttons: excludes the disabled state (own treatment
+   above) and buttons that override their background to a dark custom fill
+   (e.g. the black composer Send button, `.send-button-custom`, whose icon is an
+   explicit-color SVG and is unaffected either way). */
+.arco-btn-primary:not(.arco-btn-disabled):not(.send-button-custom) {
+  color: #1a1a1a;
+}
+.arco-btn-primary:not(.arco-btn-disabled):not(.send-button-custom):hover,
+.arco-btn-primary:not(.arco-btn-disabled):not(.send-button-custom):focus-visible,
+.arco-btn-primary:not(.arco-btn-disabled):not(.send-button-custom):active {
+  color: #1a1a1a;
+}
+
 .arco-collapse {
   border: none;
   border-radius: 8px;

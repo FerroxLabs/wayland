@@ -8,8 +8,7 @@
     "aria-prohibited-attr",
     "aria-required-parent",
     "aria-valid-attr-value",
-    "button-name",
-    "color-contrast"
+    "button-name"
   ],
   "settings-channels": [
     "aria-prohibited-attr",
@@ -24,8 +23,7 @@
   ],
   "settings-models": [
     "aria-prohibited-attr",
-    "button-name",
-    "color-contrast"
+    "button-name"
   ],
   "settings-voice": [
     "aria-input-field-name",
