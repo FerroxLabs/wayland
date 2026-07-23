@@ -72,7 +72,7 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 - **Milestone A / Wave C (i18n done):** cohort i18n keys removed + types regenerated (814 tests pass). Remaining: drop dead `stateAuthorityInventory` cohort registry entries (verify not load-bearing first — `cohortEligible` in authorityAdapters.ts IS a load-bearing invariant, do NOT remove).
 - **Wave 2 (B-01 consent E2E): DONE** (`3c11691b4`) — `tests/e2e/specs/voice-consent.e2e.ts`, 2 tests pass: switch to hosted provider → disclosure → cancel fails closed (provider unchanged) / accept persists across remount. Added `tts/stt-provider-select` hooks.
 - **Milestone B:** make the 7 scope calls using `.planning/phases/WLD-B-scope/B-DECISIONS.md`. Recommended: BUILD COW-06 + IMG-01, prompt-back COW-04/05, defer VOC-04/CMP-01/SBX-02.
-- **Follow-up bugs filed this session:** (1) onboarding restarts from step 1 on any remount — persist progress (`A-02-FINDINGS-onboarding.md`); (2) 3 unit tests fail against stale bundled build output — strengthen the exists-guard (`A-02-FINDINGS-test-fragility.md`); (3) cold-start model resolver can pick a non-conversational model when the catalog has no marquee provider.
+- **Follow-up bugs:** (1) onboarding restarts from step 1 on any remount — **FIXED** `fd1ad049e` (persist `onboarding.progress` to localStorage, resume-not-restart; 3 DOM tests; `A-02-FINDINGS-onboarding.md`); (2) 3 unit tests fail against stale bundled build output — strengthen the exists-guard (`A-02-FINDINGS-test-fragility.md`); (3) cold-start model resolver can pick a non-conversational model when the catalog has no marquee provider. NOTE: `constitutionFsService.test.ts` observed as a full-suite-only flake (passes isolated 14/14 + on re-run) — parallel resource contention, like the WorkflowDetailModal flake.
 
 ### Blockers/Concerns
 
@@ -101,6 +101,10 @@ Stopped at: two more verified local commits on top of the Milestone-B handoff
 - `3c11691b4` **B-01 hosted-voice consent E2E** (Sean's pick) — `tests/e2e/specs/voice-consent.e2e.ts`,
   2 tests pass: disclosure fail-closed on cancel + accept-persists-across-remount. Added
   `tts/stt-provider-select` test hooks.
+- `fd1ad049e` **onboarding resume fix** (Sean-reported "reloads on multi-agent mode") — persist
+  `onboarding.progress` to localStorage → any remount resumes instead of restarting at step 1;
+  3 DOM tests. Chosen as the recommended action: real, desktop-only (Core-independent), improves
+  the live-test loop — vs Core-gated/ship-adjacent work Sean flagged as premature with Core in motion.
 Process lesson locked: **always `bun run package`, never raw `npx electron-vite build`** —
 the latter skips the prepackage hook that generates launch-required artifacts, so the
 packaged app crashes on launch (cost a debug loop this session).
