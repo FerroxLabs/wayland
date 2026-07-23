@@ -10,6 +10,7 @@ import type { TChatConversation } from '@/common/config/storage';
 import { buildAgentConversationParams } from '@/common/utils/buildAgentConversationParams';
 import { emitter } from '@/renderer/utils/emitter';
 import { buildDisplayMessage } from '@/renderer/utils/file/messageFiles';
+import { resolveImageVisionBlock } from '@/renderer/utils/model/imageVisionGate';
 import { updateWorkspaceTime } from '@/renderer/utils/workspace/workspaceHistory';
 import { Message } from '@arco-design/web-react';
 import { useCallback, useRef } from 'react';
@@ -191,6 +192,21 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     const excludeBuiltinSkills = guidDisabledBuiltinSkills ?? resolveDisabledBuiltinSkills(agentInfo);
 
     const finalEffectiveAgentType = effectiveAgentType;
+
+    // IMG-01: fail-closed image/vision gate. Only model-backed backends
+    // (gemini / wcore) route the image through `currentModel`; ACP agents spawn
+    // their own model and handle attachments themselves, so they are exempt.
+    // Blocks a concrete non-vision model from silently swallowing an image;
+    // Flux routers are trusted to route to a vision-capable target.
+    const imageBackend = isPreset ? finalEffectiveAgentType : selectedAgent;
+    const imageModelGated = !imageBackend || imageBackend === 'gemini' || imageBackend === 'wcore';
+    if (imageModelGated) {
+      const imageBlock = resolveImageVisionBlock(currentModel, files);
+      if (imageBlock) {
+        Message.warning(t(imageBlock.reasonKey, imageBlock.reasonParams));
+        return false;
+      }
+    }
 
     // Gemini path
     if (!selectedAgent || selectedAgent === 'gemini' || (isPreset && finalEffectiveAgentType === 'gemini')) {

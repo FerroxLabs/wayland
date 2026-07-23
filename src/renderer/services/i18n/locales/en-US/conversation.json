@@ -552,5 +552,6 @@
     "handoffs": "Handoffs",
     "cost": "Receipt-backed cost",
     "costMismatch": "Cost evidence does not reconcile. Total hidden."
-  }
+  },
+  "imageVisionBlocked": "{{model}} can’t read images. Pick a vision-capable model (e.g. GPT-4o, Claude, or Gemini) or remove the image."
 }

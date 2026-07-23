@@ -572,6 +572,7 @@ export type I18nKey =
   | 'conversation.historySearch.title'
   | 'conversation.historySearch.tooltip'
   | 'conversation.historySearch.untitled'
+  | 'conversation.imageVisionBlocked'
   | 'conversation.minimap.count'
   | 'conversation.minimap.empty'
   | 'conversation.minimap.noMatch'
