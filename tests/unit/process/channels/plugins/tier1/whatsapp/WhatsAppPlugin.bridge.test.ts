@@ -264,3 +264,44 @@ describe('WhatsAppPlugin - bridge JSON-RPC plumbing', () => {
     );
   });
 });
+
+describe('WhatsAppPlugin - stdout pollution tolerance (#890)', () => {
+  beforeEach(() => {
+    spawnSpy.mockClear();
+    stdinWrites.length = 0;
+  });
+
+  it('drops non-frame pollution without throwing, and still dispatches a valid frame', async () => {
+    const plugin = new WhatsAppPlugin();
+    await plugin.initialize(configFor('baileys'));
+    const pending = plugin.sendMessage('chat@x', { type: 'text', text: 'hi' });
+    const req = lastRpc();
+
+    // Interleave the kinds of pollution a leak could put on the stdout pipe:
+    // app log lines, a stray pino NDJSON object, and JSON primitives (a bare
+    // number/bool must not throw on `'id' in parsed`). None may throw.
+    expect(() => {
+      fakeChild.stdout.emit('data', '[Wayland:init] booting\n');
+      fakeChild.stdout.emit('data', '{"level":30,"time":1,"msg":"baileys warn"}\n');
+      fakeChild.stdout.emit('data', '5\n');
+      fakeChild.stdout.emit('data', 'true\n');
+      fakeChild.stdout.emit('data', 'not json at all\n');
+      fakeChild.stdout.emit('data', '[]\n');
+    }).not.toThrow();
+
+    emitFromBridge({ jsonrpc: '2.0', id: req.id, result: { messageId: 'WA_OK' } });
+    await expect(pending).resolves.toBe('WA_OK');
+  });
+
+  it('reassembles a valid frame split across two stdout chunks', async () => {
+    const plugin = new WhatsAppPlugin();
+    await plugin.initialize(configFor('baileys'));
+    const pending = plugin.sendMessage('chat@y', { type: 'text', text: 'split' });
+    const req = lastRpc();
+    const frame = JSON.stringify({ jsonrpc: '2.0', id: req.id, result: { messageId: 'WA_SPLIT' } });
+    const mid = Math.floor(frame.length / 2);
+    fakeChild.stdout.emit('data', frame.slice(0, mid));
+    fakeChild.stdout.emit('data', `${frame.slice(mid)}\n`);
+    await expect(pending).resolves.toBe('WA_SPLIT');
+  });
+});
