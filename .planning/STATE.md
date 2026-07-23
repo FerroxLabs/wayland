@@ -68,9 +68,9 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 ### Pending Todos
 
 - **Milestone A / Wave A (SEALED build — owner/CI only):** stage the matched signed Core (`scripts/stage-wcore-bump.mjs vX.Y.Z --write`), build the sealed preview, run packaged smoke on the ARTIFACT, declare Voice/MCP/sandbox each IN or physically-absent. NOTE: the *functional* risk is already retired — `node scripts/packaged-cockpit-smoke.mjs` proves the unsealed packaged app + matched engine works (A-02-SUMMARY). Only the sealed/attested distributable remains, which needs Sean's CI trust root.
-- **Milestone A / Wave B (mostly done):** a11y burn-down landed (87% of nodes cleared, gate green). Remaining a11y debt (documented, non-blocking): ~18 scattered settings-toggle labels (SystemModalContent/voice/models — proven aria-label pattern); ~24 Arco-internal ARIA nodes (aria-prohibited-attr / aria-required-parent / aria-valid-attr-value / label / nested-interactive); **brand primary-button contrast** (white-on-orange ~2.83:1 — needs Sean's brand call: dark-on-orange vs lighter orange); expand a11y spec to Cockpit Home/nav (needs shell activation in the spec).
+- **Milestone A / Wave B (mostly done):** a11y burn-down landed; `902afd147` cleared 8 more gated rule-IDs (`aria-prohibited-attr` ×5 settings surfaces + `aria-allowed-attr` on chat home via Sider toggle role=button fixes; `label` on general via PreferenceRow aria-labelledby). Gate green 6/6, baseline tightened. Remaining a11y debt (documented, non-blocking): per-switch `button-name` on Arco Switches OUTSIDE the local PreferenceRow (voice/models/general — proven aria-label / aria-labelledby pattern); Arco-internal nodes (`aria-required-parent` Tabs, `nested-interactive` Collapse, `aria-valid-attr-value` InputNumber's aria-valuemin=-Infinity, Slider `aria-input-field-name`); one `color-contrast` `.arco-empty-description` on chat home (`--text-muted` insufficient there); expand a11y spec to Cockpit Home/nav (needs shell activation). Brand primary-button contrast already fixed earlier (dark-on-orange 6.14:1).
 - **Milestone A / Wave C (i18n done):** cohort i18n keys removed + types regenerated (814 tests pass). Remaining: drop dead `stateAuthorityInventory` cohort registry entries (verify not load-bearing first — `cohortEligible` in authorityAdapters.ts IS a load-bearing invariant, do NOT remove).
-- **Wave 2 (B-01 consent E2E):** test hooks now in place (`tts/stt-consent-pending`, `*-consent-review`, `voice-consent-accept/cancel`). Write the packaged E2E: switch to a hosted provider → assert disclosure → accept → assert persistence → assert unconsented path fails closed.
+- **Wave 2 (B-01 consent E2E): DONE** (`3c11691b4`) — `tests/e2e/specs/voice-consent.e2e.ts`, 2 tests pass: switch to hosted provider → disclosure → cancel fails closed (provider unchanged) / accept persists across remount. Added `tts/stt-provider-select` hooks.
 - **Milestone B:** make the 7 scope calls using `.planning/phases/WLD-B-scope/B-DECISIONS.md`. Recommended: BUILD COW-06 + IMG-01, prompt-back COW-04/05, defer VOC-04/CMP-01/SBX-02.
 - **Follow-up bugs filed this session:** (1) onboarding restarts from step 1 on any remount — persist progress (`A-02-FINDINGS-onboarding.md`); (2) 3 unit tests fail against stale bundled build output — strengthen the exists-guard (`A-02-FINDINGS-test-fragility.md`); (3) cold-start model resolver can pick a non-conversational model when the catalog has no marquee provider.
 
@@ -91,7 +91,25 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 
 ## Session Continuity
 
-Last session: 2026-07-23 (overnight + build-all)
-Stopped at: **All 7 Milestone B scope items BUILT + integrated + verified** (Sean's "build them all, no deferments"), plus Waves 1/3/4/5. 20 local commits (`9aa836c86..fc1e75d0c`), nothing pushed. Full suite 15,611 pass / 0 real failures.
-Resume: read `.planning/HANDOFF-2026-07-23-milestone-b-built.md` FIRST. Next = (1) SBX-02 wiring + honest UI + Core hook; (2) COW-04 live citation population (Core event + whitelist); (3) VOC-04 renderer surfacing; (4) a11y residuals; (5) B-01 consent E2E; (6) Wave A sealed build (Sean/CI).
+Last session: 2026-07-23 (post-build-all continuation — a11y burn-down + B-01 E2E)
+Stopped at: two more verified local commits on top of the Milestone-B handoff
+(`80072f7f5`), nothing pushed:
+- `902afd147` **a11y trust-floor increment** — 3 structural fixes clearing 8 gated axe
+  rule-IDs (Sider theme/memory toggles → role=button+keyboard clears `aria-prohibited-attr`
+  ×5 surfaces + `aria-allowed-attr` on chat home; local `PreferenceRow` `aria-labelledby`
+  clears general-settings `label`). Gate green 6/6, baseline re-recorded, full suite 15,612/0.
+- `3c11691b4` **B-01 hosted-voice consent E2E** (Sean's pick) — `tests/e2e/specs/voice-consent.e2e.ts`,
+  2 tests pass: disclosure fail-closed on cancel + accept-persists-across-remount. Added
+  `tts/stt-provider-select` test hooks.
+Process lesson locked: **always `bun run package`, never raw `npx electron-vite build`** —
+the latter skips the prepackage hook that generates launch-required artifacts, so the
+packaged app crashes on launch (cost a debug loop this session).
+SBX-02 wiring reviewed + deliberately NOT built: it is **Core-gated** (bundled Core ships
+no localhost exception), so an inert grant UI would be the security theater the SecurityPane
+exists to prevent — a hard external dependency, not a descope.
+Resume: `.planning/HANDOFF-2026-07-23-milestone-b-built.md` FIRST. Remaining follow-ons =
+(1) SBX-02 wiring — BLOCKED on Core hook (honest UI could ship as disclosure-only if Sean wants);
+(2) COW-04 live citation population — BLOCKED on Core `source_citation` event;
+(3) VOC-04 renderer surfacing; (4) remaining a11y (per-switch `button-name` outside PreferenceRow
++ Arco-internal Tabs/Collapse/InputNumber); (5) Wave A sealed build (Sean/CI).
 Resume file: `.planning/HANDOFF-2026-07-23-milestone-b-built.md` → then STATE/ROADMAP/B-DECISIONS.
