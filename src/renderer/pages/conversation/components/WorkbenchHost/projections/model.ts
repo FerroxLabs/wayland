@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type {
-  ConsequentialActionPreview,
-  ExecutionActivity,
-  ExecutionOutcome,
-  ExecutionSnapshot,
+import {
+  selectCitationLedger,
+  type CitationLocator,
+  type ConsequentialActionPreview,
+  type ExecutionActivity,
+  type ExecutionOutcome,
+  type ExecutionSnapshot,
 } from '@/common/execution';
 
 export type WorkbenchProjectionId =
@@ -74,6 +76,27 @@ const TEST = [/test/i, /spec/i, /vitest/i, /jest/i, /pytest/i, /cargo test/i];
 const PREVIEW = [/preview/i, /localhost/i, /browser/i, /render/i];
 const SCHEDULE = [/schedule/i, /cron/i, /recurr/i, /trigger/i];
 
+function formatLocator(locator: CitationLocator): string {
+  switch (locator.kind) {
+    case 'page':
+      return `p.${locator.page}`;
+    case 'sheet':
+      return locator.cell ? `${locator.sheet}!${locator.cell}` : locator.sheet;
+    case 'cell':
+      return locator.sheet ? `${locator.sheet}!${locator.cell}` : locator.cell;
+    case 'slide':
+      return `slide ${locator.slide}`;
+    case 'url':
+      return locator.fragment ? `${locator.url}#${locator.fragment}` : locator.url;
+    case 'message':
+      return `message ${locator.messageId}`;
+    case 'record':
+      return `record ${locator.recordId}`;
+    case 'section':
+      return locator.section;
+  }
+}
+
 function parseDestination(detail: string | undefined): string {
   if (!detail) return '';
   return detail.match(/(?:https?:\/\/|mailto:)[^\s"')]+/i)?.[0] ?? '';
@@ -111,7 +134,31 @@ export function deriveWorkbenchProjections(snapshot: ExecutionSnapshot): readonl
     ...activities.filter((item) => matches(activityText(item), SOURCE)).map(activityEvidence),
     ...outcomes.filter((item) => matches(outcomeText(item), SOURCE)).map(outcomeEvidence),
   ];
-  const citations = outcomes.filter((item) => matches(outcomeText(item), CITATION)).map(outcomeEvidence);
+  const citations = [
+    ...selectCitationLedger(snapshot).map((citation) => ({
+      id: citation.id,
+      label: citation.claim,
+      detail: `${citation.source.label ?? citation.source.sourceId} · ${formatLocator(citation.locator)}`,
+      uri: citation.source.uri,
+    })),
+    ...outcomes.filter((item) => matches(outcomeText(item), CITATION)).map(outcomeEvidence),
+  ];
+  const validation = snapshot.validation;
+  const validationEvidence =
+    validation.status !== 'unvalidated' || validation.declaredType
+      ? [
+          {
+            id: `${snapshot.identity.runId}:validation`,
+            label: `${validation.declaredType ?? 'artifact'}: ${validation.status}`,
+            detail: validation.reason ?? validation.method ?? undefined,
+          },
+          ...(validation.limits ?? []).map((limit, index) => ({
+            id: `${snapshot.identity.runId}:validation-limit:${index}`,
+            label: `Limit: ${limit.check}`,
+            detail: limit.reason,
+          })),
+        ]
+      : [];
   const outline = [
     ...snapshot.plan.map((step) => ({ id: step.id, label: step.content, detail: step.status })),
     ...activities.filter((item) => matches(activityText(item), OUTLINE)).map(activityEvidence),
@@ -123,9 +170,13 @@ export function deriveWorkbenchProjections(snapshot: ExecutionSnapshot): readonl
     facet('sources', 'Sources', sources),
     facet('outline', 'Outline', outline),
     facet('citations', 'Citations', citations),
+    facet('validation', 'Validation', validationEvidence),
     facet('output', 'Output', knowledgeOutput),
   ]);
-  if (knowledgeFacets.length > 0 && (sources.length > 0 || citations.length > 0 || knowledgeOutput.length > 0)) {
+  if (
+    knowledgeFacets.length > 0 &&
+    (sources.length > 0 || citations.length > 0 || validationEvidence.length > 0 || knowledgeOutput.length > 0)
+  ) {
     projections.push({ id: 'knowledge', label: 'Knowledge', priority: 45, facets: knowledgeFacets });
   }
 
