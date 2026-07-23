@@ -537,6 +537,10 @@
     "agentError": {
       "title": "Task failed",
       "body": "{{title}} stopped with an error. {{detail}}"
+    },
+    "workflowInput": {
+      "title": "Workflow needs your input",
+      "body": "“{{title}}” is waiting on you to continue."
     }
   },
   "execution": {

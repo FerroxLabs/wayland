@@ -124,7 +124,15 @@ export function isUserFacingConversation(conversation: TChatConversation, workfl
   // An ACTIVE workflow advances its parent conversation with a hidden directive
   // per step. Those are control messages, not the user's task. (The workflow's own
   // completion deserves its own notification one day — it is not this turn event.)
-  if (workflow && workflow.status === 'active') return false;
+  //
+  // EXCEPTION: a workflow parked on `run_mode === 'awaiting_input'` is blocked
+  // pending a human action — the exact moment the user needs telling (#842).
+  // `pause()`/`setRunMode()` mutate run_mode only, so status stays 'active'; without
+  // this the block is silenced forever. This is a once-per-park signal, not a storm:
+  // the driver skips non-running sessions (resumeRuns: `run_mode !== 'running'` →
+  // skip), so no further turn.completed fires while parked, and it is fail-safe — if
+  // the read races ahead of the park transition it silences (status quo), never rings twice.
+  if (workflow && workflow.status === 'active' && workflow.run_mode !== 'awaiting_input') return false;
 
   // A channel-inbound turn (Telegram / Lark / DingTalk / WeChat / iMessage …) was
   // not started at the desk and is already answered in the channel the user is
@@ -185,7 +193,12 @@ async function handleTurnCompleted(
     mainWarn('[taskCompletionNotifier]', 'No conversation for the completed turn; not notifying', event.sessionId);
     return;
   }
-  if (!isUserFacingConversation(conversation, deps.findWorkflowByConversationId(event.sessionId))) return;
+  const workflow = deps.findWorkflowByConversationId(event.sessionId);
+  if (!isUserFacingConversation(conversation, workflow)) return;
+
+  // A workflow that just parked pending human input gets its own copy — "needs
+  // your input", not "task complete" — since it is blocked, not finished (#842).
+  const needsInput = workflow?.status === 'active' && workflow.run_mode === 'awaiting_input';
 
   const errored = event.state === 'error';
   const enabled =
@@ -203,13 +216,22 @@ async function handleTurnCompleted(
   const detail = redactCommandSecrets((event.detail ?? '').trim());
 
   // `showNotification` still applies the master switch (system.notificationEnabled).
+  const resolvedTitle = errored
+    ? i18n.t('conversation.notification.agentError.title')
+    : needsInput
+      ? i18n.t('conversation.notification.workflowInput.title', { defaultValue: 'Workflow needs your input' })
+      : i18n.t('conversation.notification.agentFinished.title');
+  const resolvedBody = errored
+    ? i18n.t('conversation.notification.agentError.body', { title, detail: truncate(detail) })
+    : needsInput
+      ? i18n.t('conversation.notification.workflowInput.body', {
+          title,
+          defaultValue: '“{{title}}” is waiting on you to continue.',
+        })
+      : i18n.t('conversation.notification.agentFinished.body', { title });
   await showNotification({
-    title: errored
-      ? i18n.t('conversation.notification.agentError.title')
-      : i18n.t('conversation.notification.agentFinished.title'),
-    body: errored
-      ? i18n.t('conversation.notification.agentError.body', { title, detail: truncate(detail) })
-      : i18n.t('conversation.notification.agentFinished.body', { title }),
+    title: resolvedTitle,
+    body: resolvedBody,
     conversationId: event.sessionId,
     silent: await resolveSilent(new Date()),
   });

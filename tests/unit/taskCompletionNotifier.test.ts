@@ -163,6 +163,13 @@ describe('#579 isUserFacingConversation — machinery must not raise banners', (
 
   it('a parent driven by an ACTIVE workflow is NOT (hidden directive per step)', () => {
     expect(isUserFacingConversation(conv({}), { status: 'active' } as never)).toBe(false);
+    // A running step is still machinery — silenced.
+    expect(isUserFacingConversation(conv({}), { status: 'active', run_mode: 'running' } as never)).toBe(false);
+  });
+
+  it('...UNLESS that workflow is parked on awaiting_input — the user is being waited on (#842)', () => {
+    // status stays 'active' while parked; run_mode is the discriminator.
+    expect(isUserFacingConversation(conv({}), { status: 'active', run_mode: 'awaiting_input' } as never)).toBe(true);
   });
 
   it("...but once that workflow is complete the chat is the user's again", () => {
