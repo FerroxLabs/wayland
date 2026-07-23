@@ -110,6 +110,14 @@ const SiderFooter: React.FC<SiderFooterProps> = ({
           <Tooltip {...siderTooltipProps} content={themeTooltip} position='right'>
             <div
               onClick={onThemeToggle}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  onThemeToggle();
+                }
+              }}
+              role='button'
+              tabIndex={0}
               className={classNames(
                 'h-26px w-32px shrink-0 flex items-center justify-center cursor-pointer rd-0.5rem transition-colors text-t-secondary hover:bg-fill-2 hover:text-t-primary active:bg-fill-3',
                 isMobile && 'sider-footer-btn-mobile'

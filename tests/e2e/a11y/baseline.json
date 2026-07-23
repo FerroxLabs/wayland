@@ -1,33 +1,25 @@
 {
   "guid-home": [
-    "aria-allowed-attr",
-    "aria-prohibited-attr",
     "color-contrast"
   ],
   "settings-assistants": [
-    "aria-prohibited-attr",
     "aria-required-parent",
     "aria-valid-attr-value",
     "button-name"
   ],
   "settings-channels": [
-    "aria-prohibited-attr",
     "aria-required-parent"
   ],
   "settings-general": [
-    "aria-prohibited-attr",
     "aria-valid-attr-value",
     "button-name",
-    "label",
     "nested-interactive"
   ],
   "settings-models": [
-    "aria-prohibited-attr",
     "button-name"
   ],
   "settings-voice": [
     "aria-input-field-name",
-    "aria-prohibited-attr",
     "button-name",
     "label"
   ]

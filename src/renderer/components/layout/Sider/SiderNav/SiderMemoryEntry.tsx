@@ -154,6 +154,15 @@ const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({
             : 'hover:bg-fill-3 active:bg-fill-4'
         )}
         onClick={toggleExpanded}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleExpanded();
+          }
+        }}
+        role='button'
+        tabIndex={0}
+        aria-label={label}
         data-testid='sider-memory-entry'
         aria-expanded={expanded}
       >
