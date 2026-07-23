@@ -105,6 +105,14 @@ Stopped at: two more verified local commits on top of the Milestone-B handoff
   `onboarding.progress` to localStorage → any remount resumes instead of restarting at step 1;
   3 DOM tests. Chosen as the recommended action: real, desktop-only (Core-independent), improves
   the live-test loop — vs Core-gated/ship-adjacent work Sean flagged as premature with Core in motion.
+- **GH-issue knock-out batch** (via `ferrox-inbox` triage → `.planning/INBOX-TRIAGE.md`; Sean's call
+  = Tier-1 desktop-side Core-independent): `25a69fd3d` **#836** darken light-mode `--success`
+  emerald-400→700 (1.9→5.48:1 as text; a11y gate green); `730230eaf` **#842** notify when a workflow
+  parks on `awaiting_input` (distinct "needs your input" copy; +2 tests); `59a9c879a` triage doc.
+  **#780 already resolved** on this branch (`9c622b082`/PR #784) — GH issue just stale, close on ship.
+  Inbox: 63 Core/Flux-gated SKIP (incl. #911 = the SBX-02 Core hook), ~10 vague stubs, rest desktop
+  Tier 2/3 in INBOX-TRIAGE.md (#838, #882, #891, #890, #885). Recurring constitution flake
+  (`ConstitutionClassicRecovery`/`constitutionFsService`) under full-suite parallelism — pass isolated.
 Process lesson locked: **always `bun run package`, never raw `npx electron-vite build`** —
 the latter skips the prepackage hook that generates launch-required artifacts, so the
 packaged app crashes on launch (cost a debug loop this session).
