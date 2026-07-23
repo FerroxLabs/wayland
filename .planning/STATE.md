@@ -128,7 +128,18 @@ Resume file: **`.planning/HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`** (fu
 per-issue files + guardrails). Sean's gating calls already made: #723 = in-place per-step reset (reconfirm
 at D4), #853 scope = exec/process failures only, #882 kept lowest. Local only.
 
-**D1 PLANNED (2026-07-23) — ready to build, awaiting Sean's go.** Ran the full disciplined loop
+**WORKTREE RELOCATED (2026-07-23, Sean's call).** All Milestone A/B/D work (branch
+`worktree-agent-desktop-integration`, 510 commits) was living in a stray `~/gsd-workspaces/`
+clone-of-a-clone. Sean flagged it: work belongs in **canonical Ferrox Desktop (`~/dev/wayland/app`,
+remote `ferrox` → FerroxLabs/wayland)**. The branch was 509 ahead / 0 behind canonical `main`
+(`b3694a18f`) — a clean linear extension, no divergence. Pushed the branch into canonical (main +
+its live WIP untouched) and checked it out as a proper worktree at
+**`~/dev/wayland-worktrees/desktop-integration`** — WORK HERE NOW, not gsd-workspaces. The old
+gsd worktree is abandoned (physical cleanup of the gsd sprawl is a separate pass). NOTE: active
+worktrees actually live in `~/dev/app-worktrees/wt-*`; this one is under `wayland-worktrees/` per
+Sean's menu pick (movable).
+
+**D1 IN PROGRESS (2026-07-23).** Ran the full disciplined loop
 (researcher → planner → plan-checker, all independent subagents) in `.planning/phases/WLD-D-inbox-repairs/`:
 `D-CONTEXT.md`, `D-01-RESEARCH.md`, `D-01-PLAN.md` (#890), `D-02-PLAN.md` (#537).
 **Root cause of #890 was OVERTURNED by research + re-verified against source:** NOT the council's

@@ -1,8 +1,13 @@
 # HANDOFF — 2026-07-23 — Milestone D: Desktop Inbox Repairs
 
 **Read this first on resume.** All code work is LOCAL on branch
-`worktree-agent-desktop-integration`, HEAD `9db87f1eb`, nothing pushed, in worktree
-`~/gsd-workspaces/wayland-desktop-integration/app`. Run tooling from there.
+`worktree-agent-desktop-integration`, in the **canonical Ferrox Desktop worktree
+`~/dev/wayland-worktrees/desktop-integration`** (a worktree of `~/dev/wayland/app`, remote
+`ferrox` → FerroxLabs/wayland). Run tooling from there. **DO NOT use the old
+`~/gsd-workspaces/wayland-desktop-integration/app`** — that stray clone-of-a-clone was abandoned
+2026-07-23 when Sean had the branch relocated into canonical (it was 509 ahead / 0 behind main,
+a clean push). D1 (#890) build is in progress here; latest checkpoint `f2a4a4bce`. Nothing pushed
+to the `ferrox` GitHub remote without Sean.
 
 ## What just happened (this session)
 Two things: (1) shipped a set of desktop fixes locally; (2) triaged the whole GitHub
