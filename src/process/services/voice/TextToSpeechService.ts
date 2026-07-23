@@ -4,12 +4,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { TextToSpeechAudio, TextToSpeechConfig } from '@/common/types/ttsTypes';
+import type { TextToSpeechAudio, TextToSpeechConfig, TextToSpeechProvider } from '@/common/types/ttsTypes';
 import { getPlatformServices } from '@/common/platform';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { readConnectedProviderKey } from '@process/connectors/providerKey';
 import { KokoroLocal, type KokoroLocalRuntime } from '@process/services/voice/KokoroLocal';
+import { VoiceAdapterRegistry, type VoiceAdapter } from '@/common/voice/adapterRegistry';
+import type { VoiceReceipt } from '@/common/voice/voiceReceipt';
+import { buildTtsTurnReceipt } from '@process/services/voice/voiceReceiptFactory';
+import { mainLog } from '@process/utils/mainLogger';
+
+const TTS_LOG_TAG = '[TextToSpeech]';
+
+const createTtsTurnId = () => `tts-${Date.now().toString(36)}-${Math.random().toString(16).slice(2, 8)}`;
 
 const execFileAsync = promisify(execFile);
 const DEFAULT_OPENAI_TTS_MODEL = 'gpt-4o-mini-tts';
@@ -110,8 +118,99 @@ const synthesizeSystemNative = async (text: string, config: TextToSpeechConfig):
   );
 };
 
+/** Injectable runtimes threaded to whichever adapter a turn resolves to. */
+export type TextToSpeechRuntimes = {
+  kokoro?: KokoroLocalRuntime;
+  openai?: OpenAITtsRuntime;
+};
+
 /**
- * Routes synthesis requests to the appropriate backend based on `config.provider`.
+ * VOC-04 speech adapter contract. A provider is registered against this contract
+ * (see `textToSpeechRegistry`), never hard-coded into a switch. `onDevice`
+ * feeds the VoiceReceipt cost derivation (on-device → estimated 0; hosted →
+ * cost honestly unavailable).
+ */
+export interface TextToSpeechAdapter extends VoiceAdapter<TextToSpeechProvider> {
+  readonly onDevice: boolean;
+  synthesize(text: string, config: TextToSpeechConfig, runtimes: TextToSpeechRuntimes): Promise<TextToSpeechAudio>;
+}
+
+export const textToSpeechRegistry = new VoiceAdapterRegistry<TextToSpeechProvider, TextToSpeechAdapter>();
+
+textToSpeechRegistry
+  .register({
+    provider: 'kokoro-local',
+    onDevice: true,
+    synthesize: (text, config, runtimes) => KokoroLocal.synthesize(text, config, runtimes.kokoro),
+  })
+  .register({
+    provider: 'system-native',
+    onDevice: true,
+    synthesize: (text, config) => synthesizeSystemNative(text, config),
+  })
+  .register({
+    provider: 'openai',
+    onDevice: false,
+    synthesize: (text, config, runtimes) => synthesizeOpenAI(text, config, runtimes.openai),
+  });
+
+/** The model/voice identity the desktop actually called, for the receipt. */
+const resolveTtsModel = (config: TextToSpeechConfig): string => {
+  if (config.provider === 'openai') {
+    return config.model || DEFAULT_OPENAI_TTS_MODEL;
+  }
+  return `${config.provider}:${config.voice}`;
+};
+
+export type TextToSpeechTurn = {
+  audio: TextToSpeechAudio;
+  receipt: VoiceReceipt;
+};
+
+/**
+ * Canonical text-to-speech turn. Resolves the provider adapter through the
+ * registry, measures the observed boundary, and returns the audio together with
+ * an authoritative VoiceReceipt — a turn cannot complete without emitting one.
+ */
+export const synthesizeTurn = async (
+  text: string,
+  config: TextToSpeechConfig,
+  runtimes: TextToSpeechRuntimes = {}
+): Promise<TextToSpeechTurn> => {
+  const turnId = createTtsTurnId();
+  const adapter = textToSpeechRegistry.resolve(config.provider);
+  const startedAt = Date.now();
+  const audio = await adapter.synthesize(text, config, runtimes);
+  const completedAt = Date.now();
+
+  const receipt = buildTtsTurnReceipt({
+    turnId,
+    provider: config.provider,
+    model: resolveTtsModel(config),
+    onDevice: adapter.onDevice,
+    text,
+    audio: audio.data,
+    startedAt,
+    completedAt,
+    terminalState: 'completed',
+  });
+
+  mainLog(TTS_LOG_TAG, 'Synthesis turn completed', {
+    turnId,
+    provider: receipt.provider,
+    model: receipt.model,
+    durationMs: receipt.timing.durationMs,
+    audioOutputBytes: receipt.usage.audioOutputBytes,
+    terminalState: receipt.terminalState,
+  });
+
+  return { audio, receipt };
+};
+
+/**
+ * Routes synthesis requests to the registered provider adapter and returns the
+ * audio. Preserved signature for the IPC bridge; the receipt is emitted by the
+ * underlying `synthesizeTurn`.
  *
  * - `'kokoro-local'`  → KokoroLocal (offline ONNX; unavailable until its runtime is installed)
  * - `'system-native'` → macOS `say` command (zero-download fallback)
@@ -127,12 +226,6 @@ export const synthesize = async (
   kokoroRuntime?: KokoroLocalRuntime,
   openAIRuntime?: OpenAITtsRuntime
 ): Promise<TextToSpeechAudio> => {
-  switch (config.provider) {
-    case 'kokoro-local':
-      return KokoroLocal.synthesize(text, config, kokoroRuntime);
-    case 'system-native':
-      return synthesizeSystemNative(text, config);
-    case 'openai':
-      return synthesizeOpenAI(text, config, openAIRuntime);
-  }
+  const { audio } = await synthesizeTurn(text, config, { kokoro: kokoroRuntime, openai: openAIRuntime });
+  return audio;
 };

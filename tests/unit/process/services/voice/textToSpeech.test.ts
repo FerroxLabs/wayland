@@ -7,9 +7,21 @@
 import { DEFAULT_TTS_CONFIG, normalizeTextToSpeechConfig } from '@/common/types/ttsTypes';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
 import { KokoroLocal, KokoroLocalUnavailableError, type KokoroLocalRuntime } from '@process/services/voice/KokoroLocal';
-import { buildSystemNativeSayArgs, synthesize, synthesizeOpenAI } from '@process/services/voice/TextToSpeechService';
+import {
+  buildSystemNativeSayArgs,
+  synthesize,
+  synthesizeOpenAI,
+  synthesizeTurn,
+  textToSpeechRegistry,
+} from '@process/services/voice/TextToSpeechService';
 import type { OpenAITtsRuntime, TextToSpeechUnavailableError } from '@process/services/voice/TextToSpeechService';
 import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@process/utils/mainLogger', () => ({
+  mainError: vi.fn(),
+  mainLog: vi.fn(),
+  mainWarn: vi.fn(),
+}));
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -263,5 +275,63 @@ describe('synthesize (TextToSpeechService)', () => {
     await expect(synthesize('Hi', baseConfig({ provider: 'kokoro-local' }), runtime)).rejects.toBeInstanceOf(
       KokoroLocalUnavailableError
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// VOC-04: adapter registry + VoiceReceipt
+// ---------------------------------------------------------------------------
+
+describe('textToSpeechRegistry (VOC-04)', () => {
+  it('registers every supported provider as an adapter', () => {
+    expect(new Set(textToSpeechRegistry.providers())).toEqual(
+      new Set(['kokoro-local', 'system-native', 'openai'])
+    );
+  });
+
+  it('marks local engines on-device and hosted OpenAI off-device', () => {
+    expect(textToSpeechRegistry.resolve('kokoro-local').onDevice).toBe(true);
+    expect(textToSpeechRegistry.resolve('system-native').onDevice).toBe(true);
+    expect(textToSpeechRegistry.resolve('openai').onDevice).toBe(false);
+  });
+});
+
+describe('synthesizeTurn (VOC-04 VoiceReceipt)', () => {
+  it('returns audio plus an on-device receipt for kokoro-local synthesis', async () => {
+    const runtime = fakeKokoroRuntime({ run: vi.fn(async () => new Uint8Array([1, 2, 3, 4])) });
+    const { audio, receipt } = await synthesizeTurn('Hello', baseConfig({ provider: 'kokoro-local', voice: 'en-us' }), {
+      kokoro: runtime,
+    });
+
+    expect(audio.data.length).toBe(4);
+    expect(receipt.modality).toBe('tts');
+    expect(receipt.provider).toBe('kokoro-local');
+    expect(receipt.model).toBe('kokoro-local:en-us');
+    expect(receipt.terminalState).toBe('completed');
+    // Observed usage: 'Hello' characters in, 4 audio bytes out.
+    expect(receipt.usage.characterCount).toBe('Hello'.length);
+    expect(receipt.usage.audioOutputBytes).toBe(4);
+    // On-device → estimated zero cost.
+    expect(receipt.cost).toEqual({
+      status: 'estimated',
+      amount: 0,
+      currency: 'USD',
+      basis: 'on-device inference; no marginal provider cost',
+    });
+    expect(receipt.content.responseDigest).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it('returns a hosted receipt with unavailable cost for OpenAI synthesis', async () => {
+    const runtime = fakeOpenAIRuntime();
+    const { receipt } = await synthesizeTurn(
+      'Read this',
+      baseConfig({ provider: 'openai', model: 'gpt-4o-mini-tts' }),
+      { openai: runtime }
+    );
+
+    expect(receipt.provider).toBe('openai');
+    expect(receipt.model).toBe('gpt-4o-mini-tts');
+    expect(receipt.cost.status).toBe('unavailable');
+    expect(receipt.usage.characterCount).toBe('Read this'.length);
   });
 });

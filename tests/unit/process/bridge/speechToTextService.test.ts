@@ -29,7 +29,7 @@ vi.mock('@process/connectors/fluxKey', () => ({
   readConnectedFluxKey: vi.fn(async () => undefined),
 }));
 
-import { SpeechToTextService } from '@process/bridge/services/SpeechToTextService';
+import { SpeechToTextService, speechToTextRegistry } from '@process/bridge/services/SpeechToTextService';
 import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
 import { readConnectedProviderKey } from '@process/connectors/providerKey';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
@@ -348,5 +348,79 @@ describe('SpeechToTextService', () => {
         mimeType: 'audio/webm',
       })
     ).rejects.toThrow('STT_OPENAI_NOT_CONFIGURED');
+  });
+
+  // VOC-04: adapter registry replaces the nested provider ternary.
+  describe('speechToTextRegistry (VOC-04)', () => {
+    it('registers every supported provider as an adapter', () => {
+      expect(new Set(speechToTextRegistry.providers())).toEqual(
+        new Set(['flux-voice', 'openai', 'deepgram', 'whisper-local'])
+      );
+    });
+
+    it('marks whisper-local on-device and hosted providers off-device', () => {
+      expect(speechToTextRegistry.resolve('whisper-local').onDevice).toBe(true);
+      expect(speechToTextRegistry.resolve('openai').onDevice).toBe(false);
+      expect(speechToTextRegistry.resolve('deepgram').onDevice).toBe(false);
+      expect(speechToTextRegistry.resolve('flux-voice').onDevice).toBe(false);
+    });
+
+    it('fails closed for an unregistered provider', () => {
+      expect(() =>
+        speechToTextRegistry.resolve('made-up' as Parameters<typeof speechToTextRegistry.resolve>[0])
+      ).toThrow('no voice adapter registered');
+    });
+  });
+
+  // VOC-04: every completed turn returns one authoritative VoiceReceipt derived
+  // from the observed audio-in / transcript-out boundary.
+  describe('transcribeTurn (VOC-04 VoiceReceipt)', () => {
+    it('emits a receipt derived from the observed boundary for a hosted turn', async () => {
+      sttConfigMock.mockResolvedValue({
+        enabled: true,
+        provider: 'openai',
+        openai: { apiKey: 'openai-key', model: 'whisper-1' },
+      });
+      const fetchMock = vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: ' hello world ' })));
+      vi.stubGlobal('fetch', fetchMock);
+
+      const { result, receipt } = await SpeechToTextService.transcribeTurn({
+        audioBuffer: new Uint8Array([1, 2, 3]),
+        fileName: 'sample.webm',
+        mimeType: 'audio/webm',
+      });
+
+      expect(result.text).toBe('hello world');
+      expect(receipt.modality).toBe('stt');
+      expect(receipt.provider).toBe('openai');
+      expect(receipt.model).toBe('whisper-1');
+      expect(receipt.terminalState).toBe('completed');
+      expect(receipt.authority).toBe('desktop');
+      // Observed usage: 3 audio bytes in, 'hello world' characters out.
+      expect(receipt.usage.audioInputBytes).toBe(3);
+      expect(receipt.usage.transcriptCharacterCount).toBe('hello world'.length);
+      // Hosted provider → no fabricated cost.
+      expect(receipt.cost.status).toBe('unavailable');
+      expect(receipt.content.requestBytes).toBe(3);
+      expect(receipt.content.requestDigest).toMatch(/^[0-9a-f]{64}$/);
+      expect(receipt.timing.durationMs).toBeGreaterThanOrEqual(0);
+    });
+
+    it('projects transcribe() to the receipt result so the IPC contract is unchanged', async () => {
+      sttConfigMock.mockResolvedValue({
+        enabled: true,
+        provider: 'openai',
+        openai: { apiKey: 'openai-key', model: 'whisper-1' },
+      });
+      vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: 'hi' }))));
+
+      const result = await SpeechToTextService.transcribe({
+        audioBuffer: new Uint8Array([1, 2, 3]),
+        fileName: 'sample.webm',
+        mimeType: 'audio/webm',
+      });
+
+      expect(result).toEqual({ language: 'en', model: 'whisper-1', provider: 'openai', text: 'hi' });
+    });
   });
 });
