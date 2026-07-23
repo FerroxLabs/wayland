@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { ExecutionSnapshot } from './types';
+import type { ExecutionCitation, ExecutionSnapshot } from './types';
 
 export function selectExecutionProgress(snapshot: ExecutionSnapshot): Readonly<{
   completed: number;
@@ -28,6 +28,18 @@ export function selectExecutionNeedsAttention(snapshot: ExecutionSnapshot): bool
 
 export function selectAuthoritativeSpend(snapshot: ExecutionSnapshot): number | null {
   return snapshot.costLedger.status === 'authoritative' ? (snapshot.costLedger.total ?? null) : null;
+}
+
+/**
+ * The effective source/citation ledger: the durable per-claim entries with
+ * superseded revisions folded out, so the current cited state is what renders.
+ * Superseded entries stay in `snapshot.citations` for provenance history.
+ */
+export function selectCitationLedger(snapshot: ExecutionSnapshot): readonly ExecutionCitation[] {
+  const superseded = new Set(
+    snapshot.citations.flatMap((citation) => (citation.supersedes ? [citation.supersedes] : []))
+  );
+  return snapshot.citations.filter((citation) => !superseded.has(citation.id));
 }
 
 /** Canonical view consumed by both the conversation thread and mission rail. */

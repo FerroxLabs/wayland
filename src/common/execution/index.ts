@@ -7,6 +7,7 @@
 export * from './types';
 export * from './policy';
 export * from './consequential';
+export * from './delivery';
 export * from './handoff';
 export * from './reducer';
 export * from './selectors';

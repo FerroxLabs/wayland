@@ -5,8 +5,28 @@
  */
 
 import type { ActivityNode, IMessageExecutionEvidence, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
-import type { ExecutionActivity, ExecutionEvent, ExecutionPlanStep } from '../types';
+import type { DeclaredArtifactType, ExecutionActivity, ExecutionEvent, ExecutionPlanStep } from '../types';
 import type { ExecutionAdapterContext } from './types';
+
+type OfficeCliValidation = Readonly<{ declaredType: DeclaredArtifactType; status: 'valid' | 'invalid' }>;
+
+/**
+ * Recognise an `officecli validate` tool run and map its terminal outcome onto
+ * the canonical type-aware validation slot (COW-05). Only a completed run with
+ * an inferable native target type is promoted; anything still running, or a
+ * different tool, produces no validation evidence. This is desktop-observable
+ * (officecli is a bundled tool) and needs no Core protocol change.
+ */
+function detectOfficeCliValidation(tool: IMessageToolGroup['content'][number]): OfficeCliValidation | null {
+  const text = `${tool.name} ${tool.description ?? ''}`;
+  if (!/officecli/i.test(text) || !/\bvalidate\b/i.test(text)) return null;
+  const typeMatch = text.match(/\.(docx|pdf|xlsx|pptx)\b/i);
+  if (!typeMatch) return null;
+  const declaredType = typeMatch[1].toLowerCase() as DeclaredArtifactType;
+  if (tool.status === 'Success') return { declaredType, status: 'valid' };
+  if (tool.status === 'Error') return { declaredType, status: 'invalid' };
+  return null;
+}
 
 type UnsequencedEvent = ExecutionEvent extends infer Event
   ? Event extends ExecutionEvent
@@ -224,6 +244,21 @@ export function adaptWCoreMessages(
             detail: tool.description,
           },
         });
+        const officeValidation = detectOfficeCliValidation(tool);
+        if (officeValidation) {
+          append({
+            eventId: `${message.id}:validation:${tool.callId}`,
+            identity: context.identity,
+            observedAt,
+            type: 'validation',
+            validation: {
+              status: officeValidation.status,
+              declaredType: officeValidation.declaredType,
+              method: 'officecli',
+              ...(tool.description ? { reason: tool.description } : {}),
+            },
+          });
+        }
       }
     }
   }

@@ -6,6 +6,7 @@
 
 import { resolveEffectiveGovernance } from './policy';
 import type {
+  ExecutionCitation,
   ExecutionEvent,
   ExecutionIdentity,
   ExecutionLifecycle,
@@ -14,6 +15,7 @@ import type {
   ExecutionSeed,
   ExecutionSnapshot,
   ExecutionOutcomeTrust,
+  ExecutionValidation,
   GovernanceConstraint,
   TrustedArtifactReceipt,
 } from './types';
@@ -35,6 +37,7 @@ const EVENT_TYPES = new Set([
   'cost',
   'latency',
   'validation',
+  'citation',
   'outcome',
   'policy-revision',
   'trusted-receipt',
@@ -172,6 +175,67 @@ function costPayloadValid(event: Extract<ExecutionEvent, { type: 'cost' }>): boo
   );
 }
 
+const DECLARED_ARTIFACT_TYPES = new Set(['docx', 'pdf', 'xlsx', 'pptx', 'html', 'markdown', 'text']);
+const VALIDATION_METHODS = new Set(['officecli', 'pdf-structural', 'render', 'domain', 'none']);
+
+function validationPayloadValid(validation: ExecutionValidation): boolean {
+  if (!validation || typeof validation !== 'object') return false;
+  if (!['unvalidated', 'valid', 'invalid'].includes(validation.status)) return false;
+  if (validation.declaredType !== undefined && !DECLARED_ARTIFACT_TYPES.has(validation.declaredType)) return false;
+  if (validation.method !== undefined && !VALIDATION_METHODS.has(validation.method)) return false;
+  if (validation.limits !== undefined) {
+    if (!Array.isArray(validation.limits)) return false;
+    if (
+      !validation.limits.every(
+        (limit) =>
+          Boolean(limit) &&
+          typeof limit.check === 'string' &&
+          limit.check.trim() &&
+          typeof limit.reason === 'string' &&
+          limit.reason.trim()
+      )
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function citationLocatorValid(locator: ExecutionCitation['locator']): boolean {
+  if (!locator || typeof locator !== 'object') return false;
+  switch (locator.kind) {
+    case 'page':
+      return Number.isInteger(locator.page) && locator.page > 0;
+    case 'sheet':
+      return typeof locator.sheet === 'string' && locator.sheet.trim().length > 0;
+    case 'cell':
+      return typeof locator.cell === 'string' && locator.cell.trim().length > 0;
+    case 'slide':
+      return Number.isInteger(locator.slide) && locator.slide > 0;
+    case 'url':
+      return typeof locator.url === 'string' && locator.url.trim().length > 0;
+    case 'message':
+      return typeof locator.messageId === 'string' && locator.messageId.trim().length > 0;
+    case 'record':
+      return typeof locator.recordId === 'string' && locator.recordId.trim().length > 0;
+    case 'section':
+      return typeof locator.section === 'string' && locator.section.trim().length > 0;
+    default:
+      return false;
+  }
+}
+
+function citationValid(citation: ExecutionCitation): boolean {
+  if (!citation || typeof citation !== 'object') return false;
+  if (typeof citation.id !== 'string' || !citation.id.trim()) return false;
+  if (typeof citation.claim !== 'string' || !citation.claim.trim()) return false;
+  if (!Number.isFinite(citation.observedAt)) return false;
+  const source = citation.source;
+  if (!source || typeof source !== 'object') return false;
+  if (typeof source.sourceId !== 'string' || !source.sourceId.trim()) return false;
+  return citationLocatorValid(citation.locator);
+}
+
 export function createExecutionSnapshot(seed: ExecutionSeed): ExecutionSnapshot {
   return cloneAndFreeze({
     identity: seed.identity,
@@ -191,6 +255,7 @@ export function createExecutionSnapshot(seed: ExecutionSeed): ExecutionSnapshot 
     activities: [],
     plan: [],
     planHistory: [],
+    citations: [],
     usage: { status: 'unavailable' as const, reason: 'authoritative-usage-not-observed' },
     cost: { status: 'unavailable' as const, reason: 'authoritative-cost-not-observed' },
     costLedger: {
@@ -255,6 +320,7 @@ export function projectExecution(
   let activities = [...initial.activities];
   let plan = [...initial.plan];
   let planHistory = [...initial.planHistory];
+  let citations = [...initial.citations];
   let usage = initial.usage;
   let cost = initial.cost;
   let costLedger = initial.costLedger;
@@ -406,12 +472,27 @@ export function projectExecution(
       if (event.type === 'latency') latency = structuredClone(event.latency);
       receipts = [...receipts, structuredClone(event.receipt)].slice(-maxReceipts);
     } else if (event.type === 'validation') {
+      if (!validationPayloadValid(event.validation)) {
+        reasons.push(`invalid-validation:${event.eventId}`);
+        continue;
+      }
       if (event.receipt && !authoritativeReceiptValid(event, event.receipt)) {
         reasons.push(`invalid-validation-receipt:${event.eventId}`);
         continue;
       }
       validation = structuredClone(event.validation);
       if (event.receipt) receipts = [...receipts, structuredClone(event.receipt)].slice(-maxReceipts);
+    } else if (event.type === 'citation') {
+      if (!citationValid(event.citation)) {
+        reasons.push(`invalid-citation:${event.eventId}`);
+        continue;
+      }
+      const existing = citations.find((item) => item.id === event.citation.id);
+      if (existing && JSON.stringify(existing) !== JSON.stringify(event.citation)) {
+        reasons.push(`conflicting-citation:${event.citation.id}`);
+        continue;
+      }
+      if (!existing) citations = [...citations, structuredClone(event.citation)].slice(-maxOutcomes);
     } else if (event.type === 'policy-revision') {
       if (
         event.policy.status !== 'trusted' ||
@@ -524,6 +605,7 @@ export function projectExecution(
     activities,
     plan,
     planHistory,
+    citations,
     usage,
     cost,
     costLedger,

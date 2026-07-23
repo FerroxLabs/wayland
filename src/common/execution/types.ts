@@ -135,10 +135,62 @@ export type UnavailableMetric = Readonly<{
   reason: string;
 }>;
 
+/** Native target type declared for an artifact before work commits to a path. */
+export type DeclaredArtifactType = 'docx' | 'pdf' | 'xlsx' | 'pptx' | 'html' | 'markdown' | 'text';
+
+/** How the declared target type was validated (or why it could not be). */
+export type ValidationMethod = 'officecli' | 'pdf-structural' | 'render' | 'domain' | 'none';
+
+/** An honest, specific validation limitation surfaced to the user, not hidden. */
+export type ValidationLimit = Readonly<{
+  check: string;
+  reason: string;
+}>;
+
 export type ExecutionValidation = Readonly<{
   status: 'unvalidated' | 'valid' | 'invalid';
+  declaredType?: DeclaredArtifactType;
+  method?: ValidationMethod;
   receiptId?: string;
   reason?: string;
+  limits?: readonly ValidationLimit[];
+}>;
+
+/**
+ * A precise, per-claim provenance locator inside a source. A discriminated
+ * union keeps the address honest: the locator kind names exactly which of a
+ * page, sheet/cell, slide, URL, message, record, or section pins the claim.
+ */
+export type CitationLocator =
+  | Readonly<{ kind: 'page'; page: number }>
+  | Readonly<{ kind: 'sheet'; sheet: string; cell?: string }>
+  | Readonly<{ kind: 'cell'; sheet?: string; cell: string }>
+  | Readonly<{ kind: 'slide'; slide: number }>
+  | Readonly<{ kind: 'url'; url: string; fragment?: string }>
+  | Readonly<{ kind: 'message'; messageId: string }>
+  | Readonly<{ kind: 'record'; recordId: string }>
+  | Readonly<{ kind: 'section'; section: string }>;
+
+export type CitationSource = Readonly<{
+  sourceId: string;
+  label?: string;
+  uri?: string;
+  contentDigest?: string;
+}>;
+
+/**
+ * One durable, typed ledger entry binding an asserted claim to the source and
+ * precise locator it was inspected from. Captured on write, kept append-only so
+ * it survives revision and delivery; a revision supersedes rather than erases.
+ */
+export type ExecutionCitation = Readonly<{
+  id: string;
+  claim: string;
+  source: CitationSource;
+  locator: CitationLocator;
+  observedAt: number;
+  outcomeId?: string;
+  supersedes?: string;
 }>;
 
 export type OutcomeTrustStatus =
@@ -241,6 +293,7 @@ export type ExecutionSnapshot = Readonly<{
   activities: readonly ExecutionActivity[];
   plan: readonly ExecutionPlanStep[];
   planHistory: readonly ExecutionPlanRevision[];
+  citations: readonly ExecutionCitation[];
   usage: AuthoritativeUsage | UnavailableMetric;
   cost: AuthoritativeCost | UnavailableMetric;
   costLedger: ExecutionCostLedger;
@@ -295,6 +348,7 @@ export type ExecutionEvent =
   | (ExecutionEventBase & Readonly<{ type: 'spend-pause'; limit: number; reason: string }>)
   | (ExecutionEventBase & Readonly<{ type: 'latency'; latency: AuthoritativeLatency; receipt: ExecutionReceipt }>)
   | (ExecutionEventBase & Readonly<{ type: 'validation'; validation: ExecutionValidation; receipt?: ExecutionReceipt }>)
+  | (ExecutionEventBase & Readonly<{ type: 'citation'; citation: ExecutionCitation }>)
   | (ExecutionEventBase & Readonly<{ type: 'outcome'; outcome: ExecutionOutcome }>)
   | (ExecutionEventBase & Readonly<{ type: 'policy-revision'; policy: TrustedExecutionPolicy }>)
   | (ExecutionEventBase & Readonly<{ type: 'trusted-receipt'; receipt: TrustedArtifactReceipt }>)
