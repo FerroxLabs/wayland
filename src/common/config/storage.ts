@@ -220,6 +220,17 @@ export interface IConfigStorageRefer {
   };
   'wcore.defaultModel'?: { id: string; useModel: string; accountId?: string };
   /**
+   * SBX-02 — purpose-scoped Project localhost/toolchain grants. Fail-closed:
+   * absence means every Project-scoped exception stays blocked. Shape defined by
+   * `ProjectCapabilityGrant` in `@/common/security/projectCapabilityGrants`.
+   */
+  'project.capabilityGrants'?: Array<{
+    projectId: string;
+    capability: 'localhost' | 'toolchain';
+    grantedAtMs: number;
+    purpose?: string;
+  }>;
+  /**
    * User-pinned models for the composer model picker, as `providerId:modelId`
    * keys. Surfaced in a dedicated "Pinned" zone at the top of the picker so a
    * subset of a large catalog (e.g. Flux Router's many models) stays one click
