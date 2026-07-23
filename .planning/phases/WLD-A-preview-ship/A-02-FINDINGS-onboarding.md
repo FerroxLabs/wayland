@@ -64,3 +64,22 @@ step transition, and rehydrate on mount. A blunter alternative — mark onboardi
 as soon as it *starts* — stops the loop but silently drops anyone who quits halfway.
 
 Independent of the trigger, this fix removes the user-visible symptom.
+
+## FIXED — 2026-07-23 (`OnboardingFlow.tsx`)
+
+Implemented the persistence fix, mirrored to **localStorage** rather than
+`ConfigStorage` — synchronous and always-local, exactly like the existing
+`onboardingCompleted` marker, so it survives a remount with no async window that
+could jump the user backward. Details:
+
+- `onboarding.progress` = `{ screen, name, picks, work }` written on every
+  step/answer change; the cold-start API key (a secret being typed) and transient
+  UI state (busy/errors/scan progress) are excluded.
+- Read once in a lazy `useState` initializer so a remount RESUMES at the stored
+  screen; an invalid/corrupt entry falls back to `quickstart`.
+- Cleared in `finishAll` so a completed user can't reopen a stale mid-flow state.
+
+Trigger-independent by design: any remount (dev Vite reload OR the real
+multi-agent shell swap) now resumes instead of restarting. Proven by
+`tests/unit/renderer/onboarding/onboardingResume.dom.test.tsx` (3 tests: restore
+mid-flow, persist-on-mount, reject-corrupt). Full suite green.
