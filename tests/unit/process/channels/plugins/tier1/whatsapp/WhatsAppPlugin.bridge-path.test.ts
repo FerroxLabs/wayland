@@ -37,8 +37,9 @@ vi.mock('electron', () => ({
 
 // child_process is unused by resolveBridgeEntryPath but the module imports it
 // at top-level. Stub so vitest does not pull in the real implementation.
+// (#890 migrated the bridge from child_process.fork to spawn.)
 vi.mock('child_process', () => ({
-  fork: vi.fn(),
+  spawn: vi.fn(),
   ChildProcess: class {},
 }));
 

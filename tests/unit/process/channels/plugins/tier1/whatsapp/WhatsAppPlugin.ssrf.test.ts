@@ -73,7 +73,12 @@ const { forkSpy, fakeChild, dnsLookupMock, axiosGetMock } = vi.hoisted(() => {
 });
 
 vi.mock('child_process', () => ({
-  fork: (...args: unknown[]) => forkSpy(...args),
+  spawn: (...args: unknown[]) => forkSpy(...args),
+}));
+
+// #890: forkBridge resolves a real JS runtime before spawning; pin it.
+vi.mock('@process/utils/jsRuntime', () => ({
+  resolveJsRuntime: () => ({ command: 'node', env: {}, kind: 'bundled-bun' }),
 }));
 
 vi.mock('node:dns/promises', () => ({

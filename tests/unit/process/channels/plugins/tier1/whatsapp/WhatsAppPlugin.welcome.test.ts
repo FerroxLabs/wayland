@@ -77,8 +77,13 @@ const { forkSpy, fakeChild, stdinWrites, rearmSpy } = vi.hoisted(() => {
 });
 
 vi.mock('child_process', () => ({
-  fork: forkSpy,
+  spawn: forkSpy,
   ChildProcess: class {},
+}));
+
+// #890: forkBridge resolves a real JS runtime before spawning; pin it.
+vi.mock('@process/utils/jsRuntime', () => ({
+  resolveJsRuntime: () => ({ command: 'node', env: {}, kind: 'bundled-bun' }),
 }));
 
 vi.mock('electron', () => ({

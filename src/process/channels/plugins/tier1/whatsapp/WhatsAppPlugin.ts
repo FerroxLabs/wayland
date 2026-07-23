@@ -31,7 +31,7 @@
  */
 
 import type { ChildProcess} from 'child_process';
-import { fork } from 'child_process';
+import { spawn } from 'child_process';
 import { randomUUID } from 'crypto';
 import dns from 'node:dns/promises';
 import net from 'node:net';
@@ -49,7 +49,9 @@ import type {
   IUnifiedOutgoingMessage,
   PluginType,
 } from '../../../types';
+import { resolveJsRuntime } from '@process/utils/jsRuntime';
 import { BasePlugin } from '../../BasePlugin';
+import { buildBridgeSpawnConfig } from './bridgeSpawnConfig';
 import { getChannelWelcomeService } from '../../../gateway/ChannelWelcomeService';
 
 /** Backend selector for the whatsapp-bridge subprocess. */
@@ -684,11 +686,22 @@ export class WhatsAppPlugin extends BasePlugin {
 
   private forkBridge(): void {
     const entry = resolveBridgeEntryPath();
-    this.child = fork(entry, ['--backend', this.backend], {
-      // silent: pipe stdin/stdout for JSON-RPC; inherit stderr for parent logs.
-      silent: true,
-      stdio: ['pipe', 'pipe', 'inherit', 'ipc'],
+    // #890/#706: spawn a REAL JS runtime, never `child_process.fork`. Packaged
+    // builds blow the RunAsNode fuse (`afterPack.js`, SEC-ELEC-05), so a `fork`
+    // boots a SECOND Electron app instead of Node running bridge.js — that
+    // instance loses the single-instance lock and `app.quit()`s (code=0), the
+    // reconnect ladder exhausts, and the channel parks `error`; baileys/QR never
+    // run. `resolveJsRuntime()` returns bundled Bun when packaged (the app binary
+    // as Node only in dev). stdin+stdout stay the JSON-RPC pipes; stderr is
+    // inherited; there is no `'ipc'` slot (the child carries no data over IPC).
+    // Mirrors the shipped #706 fix in `safeSpawn.ts`.
+    const { command, argv, stdio, env } = buildBridgeSpawnConfig({
+      runtime: resolveJsRuntime(),
+      entry,
+      backend: this.backend,
+      parentEnv: process.env,
     });
+    this.child = spawn(command, argv, { stdio, env });
 
     const { stdout } = this.child;
     if (stdout) {
@@ -778,13 +791,19 @@ export class WhatsAppPlugin extends BasePlugin {
   }
 
   private handleFrame(line: string): void {
-    let frame: JsonRpcFrame;
+    let parsed: unknown;
     try {
-      frame = JSON.parse(line) as JsonRpcFrame;
+      parsed = JSON.parse(line);
     } catch (err) {
       console.warn('[whatsappPlugin] bridge emitted invalid JSON:', line.slice(0, 200), err);
       return;
     }
+    // #890 hardening: a protocol frame is a non-null object. Primitives, null,
+    // and arrays are stdout pollution (a bare pino NDJSON value, a stray log
+    // number) — drop them quietly, and never let `'id' in frame` throw a
+    // TypeError on a non-object (which would escape the stdout `data` handler).
+    if (typeof parsed !== 'object' || parsed === null) return;
+    const frame = parsed as JsonRpcFrame;
     if ('id' in frame && typeof frame.id === 'number') {
       this.resolvePending(frame);
       return;

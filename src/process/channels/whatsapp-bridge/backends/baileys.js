@@ -25,7 +25,7 @@ import path from 'path';
 import fs from 'fs';
 import { mkdirSync, existsSync, readFileSync, copyFileSync, statSync, chmodSync } from 'fs';
 import { Boom } from '@hapi/boom';
-import pino from 'pino';
+import { createBridgeLogger } from './bridgeLogger.js';
 import qrcode from 'qrcode-terminal';
 import {
   makeWASocket,
@@ -118,7 +118,7 @@ export async function createBackend({ emit, sessionDir }) {
     : path.join(process.env.HOME || process.env.USERPROFILE || '.', '.wayland', 'whatsapp', 'baileys');
   mkdirSync(authDir, { recursive: true });
 
-  const logger = pino({ level: 'warn' });
+  const logger = createBridgeLogger();
   /** @type {ReturnType<typeof makeWASocket> | null} */
   let sock = null;
   let connectionState = 'disconnected';
@@ -189,12 +189,16 @@ export async function createBackend({ emit, sessionDir }) {
 
       if (qr) {
         // Render to stderr only for humans running the bridge directly during
-        // dev (no IPC parent). Under the Electron parent the renderer paints
+        // dev (no Wayland parent). Under the Electron parent the renderer paints
         // the QR via QRCodeSVG and stderr is inherited into the packaged-app
         // log file - left unguarded, every QR refresh would dump 50 lines of
         // ANSI into the log every ~minute until pairing completes.
-        const hasIpc = typeof process.send === 'function';
-        if (!hasIpc) {
+        // #890: the parent now spawns us without an IPC channel, so the old
+        // `typeof process.send === 'function'` heuristic no longer detects the
+        // parent. WhatsAppPlugin sets WAYLAND_BRIDGE_UNDER_PARENT=1 instead —
+        // runtime-agnostic (identical under dev electron-node and packaged Bun).
+        const underParent = process.env.WAYLAND_BRIDGE_UNDER_PARENT === '1';
+        if (!underParent) {
           try {
             qrcode.generate(qr, { small: true }, (rendered) => {
               process.stderr.write(`${rendered}\n`);
