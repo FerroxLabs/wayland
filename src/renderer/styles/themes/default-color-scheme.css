@@ -177,7 +177,10 @@ body[arco-theme='light'] {
 
   /* ---- Semantic ---- */
   --primary: #ff6b35;
-  --success: #34d399;
+  /* Emerald-700, not the dark-surface emerald-400 (#34d399): as TEXT on a light
+     surface the bright green is ~1.9:1 (fails WCAG AA); #047857 is 5.48:1 on white
+     and behind white text, and stays clearly green. Dark mode keeps #34d399. (#836) */
+  --success: #047857;
   --warning: #fbbf24;
   --danger: #f87171;
   --info: #ff6b35;
