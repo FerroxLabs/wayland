@@ -52,7 +52,7 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 | Milestone | Scope | Status |
 | --------- | ----- | ------ |
 | **A — Cockpit Preview Ship** | Wave A package + matched-engine smoke · Wave B trust/a11y floor · Wave C hygiene | **ACTIVE** |
-| **B — Scope Decisions** | COW-04/05/06, SBX-02, IMG-01, VOC-04, CMP-01 — decide prompt-vs-enforced / descope / in-out | Parallel, non-blocking |
+| **B — Scope Decisions** | COW-04/05/06, SBX-02, IMG-01, VOC-04, CMP-01 — **Sean's call 2026-07-23: BUILD ALL, no deferments. All 7 landed locally** (see B-DECISIONS.md capture table). SBX-02/COW-04/VOC-04 carry documented Core-hook / UI follow-ons. | **Built** |
 | **C — Secure Portability** | Encrypted full-instance Wayland Transfer engine (old Phase 7) | Deferred |
 
 ## Accumulated Context

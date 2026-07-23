@@ -97,14 +97,30 @@ preview (matches A-03 IN-or-physically-absent).
 
 ---
 
-## Decision capture (fill in)
+## Decision capture
 
-| Item | Sean's call | Notes |
-|------|-------------|-------|
-| COW-06 | | |
-| IMG-01 | | |
-| COW-04 | | |
-| COW-05 | | |
-| VOC-04 | | |
-| CMP-01 | | |
-| SBX-02 | | |
+**Sean's call (2026-07-23): BUILD ALL SEVEN, no deferments.** All landed locally on
+`worktree-agent-desktop-integration` (nothing pushed). Full suite 15,611 pass / 0 real
+failures (1 pre-existing WorkflowDetailModal flake, passes isolated).
+
+| Item | Call | Status | Commit |
+|------|------|--------|--------|
+| IMG-01 | BUILD, enforced | ✅ fail-closed image/vision send gate + 7 tests | `a0b8c82d2` |
+| CMP-01 | BUILD | ✅ composition contract test (5, digest-pinned, host-neutral) | `ff26e32dc` (+re-pin `fdf332c64`) |
+| SBX-02 | BUILD (desktop core) | ✅ fail-closed grant resolver + SSRF host-class + 42 tests. Wiring/Core-hook = next increment | `9a70287ee` |
+| VOC-04 | BUILD, both halves | ✅ adapter registries + VoiceReceipt; VOC-03 consent gate verified intact; 110 tests | `172a1a0a7`, `68231d960` |
+| COW-04 | BUILD, enforced | ✅ citation ledger folded into canonical execution model (no parallel store) | `0bdda68de` |
+| COW-05 | BUILD, enforced | ✅ type-aware validation + scoped-revision delivery gate (real officecli) | `0bdda68de` |
+| COW-06 | BUILD | ✅ end-to-end journey wired + Workbench validation facet + journey test | `033abc541` |
+
+### Honest limitations carried forward (documented Core hooks, NOT descopes)
+- **SBX-02:** the security-critical resolver is built + tested (grants only ever NARROW Core's
+  block). Remaining: process-side request-gate consult, the desktop→Core contract field, and an
+  HONEST SecurityPane affordance (must say "pending Core support", never imply localhost works —
+  Core ships no localhost exception). End-to-end egress needs the Core capability.
+- **COW-04:** ledger + enforcement + rendering built. Live population needs Core to emit a
+  `source_citation` evidence event + widening the `chatLib.ts` transform whitelist — deliberately
+  NOT widened for an event Core doesn't yet emit. COW-05 validation has no such gap (populated
+  today from real `officecli validate` runs).
+- **VOC-04:** VoiceReceipt is return-value-enforced + advisory-logged; renderer UI surfacing is
+  the follow-on. Hosted-provider cost is honestly reported `unavailable` (no faked number).
