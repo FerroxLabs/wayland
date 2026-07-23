@@ -54,7 +54,7 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 | **A — Cockpit Preview Ship** | Wave A package + matched-engine smoke · Wave B trust/a11y floor · Wave C hygiene | **ACTIVE** |
 | **B — Scope Decisions** | COW-04/05/06, SBX-02, IMG-01, VOC-04, CMP-01 — **Sean's call 2026-07-23: BUILD ALL, no deferments. All 7 landed locally** (see B-DECISIONS.md capture table). SBX-02/COW-04/VOC-04 carry documented Core-hook / UI follow-ons. | **Built** |
 | **C — Secure Portability** | Encrypted full-instance Wayland Transfer engine (old Phase 7) | Deferred |
-| **D — Desktop Inbox Repairs** | GitHub-issue repairs confirmed desktop-side + Core-independent by a 3-agent research council. Phases D1 Bridge reliability (#890, #537) · D2 Skills trust (#885) · D3 Honest diagnostics (#891, #853) · D5 UI clarity (#909, #910, #508, #882) · D4 Token efficiency (#723, gated). Build order D1→D2→D3→D5→D4. Each via full Factory loop. See `HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`. | **APPROVED — plan D1 next** |
+| **D — Desktop Inbox Repairs** | GitHub-issue repairs confirmed desktop-side + Core-independent by a 3-agent research council. Phases D1 Bridge reliability (#890, #537) · D2 Skills trust (#885) · D3 Honest diagnostics (#891, #853) · D5 UI clarity (#909, #910, #508, #882) · D4 Token efficiency (#723, gated). Build order D1→D2→D3→D5→D4. Each via full Factory loop. See `HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`. | **D1 PLANNED + checker-verified — ready to build** (D2–D5 unplanned) |
 
 ## Accumulated Context
 
@@ -125,9 +125,22 @@ After the inbox triage + council, **Milestone D (Desktop Inbox Repairs) is APPRO
 inbox comms are DONE (11 closed, 7 need-info, 2 relabeled — live on FerroxLabs/wayland). Next work
 = BUILD the confirmed desktop repairs through Ferrox Factory, order **D1→D2→D3→D5→D4**.
 Resume file: **`.planning/HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`** (full root-cause map +
-per-issue files + guardrails). Start: `ferrox-plan-phase` on **D1** (#890 WhatsApp bridge pino→stderr
-+ #537 Core-hook verify). Sean's gating calls already made: #723 = in-place per-step reset (reconfirm
-at D4), #853 scope = exec/process failures only, #882 kept lowest. HEAD `9db87f1eb`, local only.
+per-issue files + guardrails). Sean's gating calls already made: #723 = in-place per-step reset (reconfirm
+at D4), #853 scope = exec/process failures only, #882 kept lowest. Local only.
+
+**D1 PLANNED (2026-07-23) — ready to build, awaiting Sean's go.** Ran the full disciplined loop
+(researcher → planner → plan-checker, all independent subagents) in `.planning/phases/WLD-D-inbox-repairs/`:
+`D-CONTEXT.md`, `D-01-RESEARCH.md`, `D-01-PLAN.md` (#890), `D-02-PLAN.md` (#537).
+**Root cause of #890 was OVERTURNED by research + re-verified against source:** NOT the council's
+pino→stderr theory — it is the **RunAsNode fuse** breaking `child_process.fork` in packaged builds
+(`WhatsAppPlugin.ts:687` is the one spawn site never migrated to the shipped #706 `resolveJsRuntime()`
+pattern at `safeSpawn.ts:151-156`); the packaged "fork" boots a 2nd Electron instance that loses the
+single-instance lock and `app.quit()`s (code=0) → 12× reconnect → `error`, baileys/QR never run. Fix =
+migrate fork→spawn via `resolveJsRuntime()` (+ pino→fd2 companion, must ship together). Plan-checker
+caught a BLOCKING false-green (acceptance must be a FUSED `dist:preview:mac` build, NOT `bun run package`
+/ `--pack-only` which are unfused) — fixed. #537 = closeable by one live delegated-email-send (bundled
+Core v0.12.25 already carries the host-send symbols; verified via `strings`). NEXT = build D-01 then D-02
+through the Factory loop (tests-first, fused packaged smoke, cross-audit), no push without Sean.
 
 Prior handoff (Milestone A/B, still valid context): `.planning/HANDOFF-2026-07-23-milestone-b-built.md`.
 Core-gated follow-ons (do NOT build against the moving Core): SBX-02 wiring, COW-04 live citations.
