@@ -7,7 +7,7 @@ progress:
   completed_milestones: 0
   active_milestone: 'A — Cockpit Preview Ship'
   phase1_construction: accepted-by-live-test
-  percent: 70
+  percent: 78
 ---
 
 # Project State
@@ -31,11 +31,17 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 **Milestone A — Cockpit Preview Ship** (ACTIVE) — the only live build work.
-Wave A (package + matched-engine smoke) not started; Wave B (trust/a11y floor) partially landed this session; Wave C (hygiene) pending.
+Wave A (package + matched-engine smoke) **landed** (A-02: packaged app proven working over CDP); Wave B (trust/a11y floor) largely landed; Wave C (hygiene) partially landed.
 
-Last activity: 2026-07-21 — planning reconciliation; VOC-03 hosted-voice consent gate, QA-01 a11y regression gate, cohort backend deletion, and the MCP fixture fix landed as local commits (nothing pushed); full suite 15,510 pass / 0 fail; Cockpit live-swept clean across all 13 surfaces + real Flux chat.
+Last activity: 2026-07-23 overnight — 9 local commits (nothing pushed):
+- **A-02 packaged smoke harness** `scripts/packaged-cockpit-smoke.mjs` — drives the PACKAGED hardened app over CDP (no fuse weakened); 12/12 surfaces + bridge + Flux connect + chat all pass. Hardened against 5 false-green paths found by an independent adversarial audit.
+- **B-02 a11y burn-down** — 87% of gated violation nodes cleared (374 → 49); a11y gate green 6/6, baseline tightened.
+- **Wave C i18n hygiene** — 22 orphaned cohort keys removed across 12 locales; 814 i18n tests pass.
+- **Milestone B decision dossier** — all 7 scope items researched + recommended (`.planning/phases/WLD-B-scope/B-DECISIONS.md`), awaiting Sean's calls.
+- **B-01 consent test hooks** added (unblocks the packaged consent E2E).
+- Findings filed: onboarding-restarts-from-step-1 root cause; a stale-bundled-artifact test fragility (3 unit tests fail locally, pass clean — cleared).
 
-Progress: [███████░░░] ~70% (construction accepted; preview packaging + trust floor remain)
+Progress: [████████░░] ~78% (packaged smoke proven; a11y floor largely done; scope decisions armed)
 
 ### Reconciled Phase-1 truth (the old 40-packet safety foundation)
 - **Accepted-by-live-test (construction complete):** the 20 non-cohort safety packets — all ship in Desktop v0.11.18, code present + wired + tested, exercised by the live sweep + full green suite. (01-06/07/08/09/10/11/12/13/15/16/19/20/21/22/24/35/36/37/38/40.)
@@ -61,10 +67,12 @@ Progress: [███████░░░] ~70% (construction accepted; preview 
 
 ### Pending Todos
 
-- **Milestone A / Wave A:** stage the matched signed Core (`scripts/stage-wcore-bump.mjs vX.Y.Z --write`), build the preview (`bun run dist:preview:mac`), run packaged smoke on the ARTIFACT (not dev), declare Voice/MCP/sandbox each IN or physically-absent.
-- **Milestone A / Wave B:** VOC-03 follow-ups (inline re-consent affordance; friendlier `*_HOSTED_CONSENT_REQUIRED` copy + i18n; live-click the modal); a11y burn-down (color-contrast, aria-*, button-name; expand spec to Cockpit Home/nav + Voice settings).
-- **Milestone A / Wave C:** remove orphaned i18n keys (`settings.navigationPage.{cohort*,evidenceConsent*}`) + regenerate `i18n-keys.d.ts`; drop dead `stateAuthorityInventory` cohort registry entries.
-- **Milestone B:** run the five scope decisions.
+- **Milestone A / Wave A (SEALED build — owner/CI only):** stage the matched signed Core (`scripts/stage-wcore-bump.mjs vX.Y.Z --write`), build the sealed preview, run packaged smoke on the ARTIFACT, declare Voice/MCP/sandbox each IN or physically-absent. NOTE: the *functional* risk is already retired — `node scripts/packaged-cockpit-smoke.mjs` proves the unsealed packaged app + matched engine works (A-02-SUMMARY). Only the sealed/attested distributable remains, which needs Sean's CI trust root.
+- **Milestone A / Wave B (mostly done):** a11y burn-down landed (87% of nodes cleared, gate green). Remaining a11y debt (documented, non-blocking): ~18 scattered settings-toggle labels (SystemModalContent/voice/models — proven aria-label pattern); ~24 Arco-internal ARIA nodes (aria-prohibited-attr / aria-required-parent / aria-valid-attr-value / label / nested-interactive); **brand primary-button contrast** (white-on-orange ~2.83:1 — needs Sean's brand call: dark-on-orange vs lighter orange); expand a11y spec to Cockpit Home/nav (needs shell activation in the spec).
+- **Milestone A / Wave C (i18n done):** cohort i18n keys removed + types regenerated (814 tests pass). Remaining: drop dead `stateAuthorityInventory` cohort registry entries (verify not load-bearing first — `cohortEligible` in authorityAdapters.ts IS a load-bearing invariant, do NOT remove).
+- **Wave 2 (B-01 consent E2E):** test hooks now in place (`tts/stt-consent-pending`, `*-consent-review`, `voice-consent-accept/cancel`). Write the packaged E2E: switch to a hosted provider → assert disclosure → accept → assert persistence → assert unconsented path fails closed.
+- **Milestone B:** make the 7 scope calls using `.planning/phases/WLD-B-scope/B-DECISIONS.md`. Recommended: BUILD COW-06 + IMG-01, prompt-back COW-04/05, defer VOC-04/CMP-01/SBX-02.
+- **Follow-up bugs filed this session:** (1) onboarding restarts from step 1 on any remount — persist progress (`A-02-FINDINGS-onboarding.md`); (2) 3 unit tests fail against stale bundled build output — strengthen the exists-guard (`A-02-FINDINGS-test-fragility.md`); (3) cold-start model resolver can pick a non-conversational model when the catalog has no marquee provider.
 
 ### Blockers/Concerns
 
@@ -83,6 +91,7 @@ Progress: [███████░░░] ~70% (construction accepted; preview 
 
 ## Session Continuity
 
-Last session: 2026-07-21
-Stopped at: planning reconciliation applied (STATE/ROADMAP/PROJECT rewritten to reality); Milestone A next.
-Resume file: `.planning/ROADMAP.md` (reconciled milestone structure).
+Last session: 2026-07-23 (overnight)
+Stopped at: Waves 1/3/4/5 delivered + committed locally (9 commits, nothing pushed). Packaged smoke harness proven + audit-hardened; a11y 87% burned down; i18n hygiene done; Milestone B dossiers ready for Sean's calls; B-01 consent E2E unblocked.
+Resume: (1) Sean makes the 7 Milestone B calls in `B-DECISIONS.md`; (2) write the B-01 consent E2E against the new test hooks; (3) Wave A sealed build is Sean+CI when ready — functional risk already retired.
+Resume file: `.planning/ROADMAP.md` + `.planning/phases/WLD-B-scope/B-DECISIONS.md`.
