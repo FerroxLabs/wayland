@@ -54,6 +54,7 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 | **A — Cockpit Preview Ship** | Wave A package + matched-engine smoke · Wave B trust/a11y floor · Wave C hygiene | **ACTIVE** |
 | **B — Scope Decisions** | COW-04/05/06, SBX-02, IMG-01, VOC-04, CMP-01 — **Sean's call 2026-07-23: BUILD ALL, no deferments. All 7 landed locally** (see B-DECISIONS.md capture table). SBX-02/COW-04/VOC-04 carry documented Core-hook / UI follow-ons. | **Built** |
 | **C — Secure Portability** | Encrypted full-instance Wayland Transfer engine (old Phase 7) | Deferred |
+| **D — Desktop Inbox Repairs** | GitHub-issue repairs confirmed desktop-side + Core-independent by a 3-agent research council. Phases D1 Bridge reliability (#890, #537) · D2 Skills trust (#885) · D3 Honest diagnostics (#891, #853) · D5 UI clarity (#909, #910, #508, #882) · D4 Token efficiency (#723, gated). Build order D1→D2→D3→D5→D4. Each via full Factory loop. See `HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`. | **APPROVED — plan D1 next** |
 
 ## Accumulated Context
 
@@ -119,9 +120,14 @@ packaged app crashes on launch (cost a debug loop this session).
 SBX-02 wiring reviewed + deliberately NOT built: it is **Core-gated** (bundled Core ships
 no localhost exception), so an inert grant UI would be the security theater the SecurityPane
 exists to prevent — a hard external dependency, not a descope.
-Resume: `.planning/HANDOFF-2026-07-23-milestone-b-built.md` FIRST. Remaining follow-ons =
-(1) SBX-02 wiring — BLOCKED on Core hook (honest UI could ship as disclosure-only if Sean wants);
-(2) COW-04 live citation population — BLOCKED on Core `source_citation` event;
-(3) VOC-04 renderer surfacing; (4) remaining a11y (per-switch `button-name` outside PreferenceRow
-+ Arco-internal Tabs/Collapse/InputNumber); (5) Wave A sealed build (Sean/CI).
-Resume file: `.planning/HANDOFF-2026-07-23-milestone-b-built.md` → then STATE/ROADMAP/B-DECISIONS.
+### ACTIVE RESUME (2026-07-23, latest) — Milestone D
+After the inbox triage + council, **Milestone D (Desktop Inbox Repairs) is APPROVED**. The GitHub
+inbox comms are DONE (11 closed, 7 need-info, 2 relabeled — live on FerroxLabs/wayland). Next work
+= BUILD the confirmed desktop repairs through Ferrox Factory, order **D1→D2→D3→D5→D4**.
+Resume file: **`.planning/HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`** (full root-cause map +
+per-issue files + guardrails). Start: `ferrox-plan-phase` on **D1** (#890 WhatsApp bridge pino→stderr
++ #537 Core-hook verify). Sean's gating calls already made: #723 = in-place per-step reset (reconfirm
+at D4), #853 scope = exec/process failures only, #882 kept lowest. HEAD `9db87f1eb`, local only.
+
+Prior handoff (Milestone A/B, still valid context): `.planning/HANDOFF-2026-07-23-milestone-b-built.md`.
+Core-gated follow-ons (do NOT build against the moving Core): SBX-02 wiring, COW-04 live citations.

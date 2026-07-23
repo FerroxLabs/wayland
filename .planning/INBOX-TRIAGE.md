@@ -54,3 +54,26 @@ Start with **Tier 1** as a batch (#836 → #780 → #842): all small, exact, low
 Core-independent, and each independently verifiable. #836 continues the a11y/contrast
 work already loaded; #838 is a natural follow-on to #842. Skip the 63 Core/Flux-gated
 until Core lands.
+
+---
+
+## EXECUTED — 2026-07-23 (3-agent council + comms)
+
+Council verified every desktop-related issue against the live code. Comms run as FerroxLabs,
+Sean Writer voice, zero em dashes, signed "The Wayland Team".
+
+**Closed already-fixed (cited commit):** #645 terminal mode (`41a4b768f`), #275 AV false-positive
+(skill-pack #309), #490 registry residue (`3afb6b93c`), #663 approval/trust HITL
+(`602db7db0`+`b3ed2e7b5`+`e9ce0d4f7`), #180 History timeline (ProjectHistoryPanel.tsx), #780 e2e
+(`9c622b082`/PR #784).
+**Closed stub/dup/stale/support:** #871/#898/#917 (empty), #915 (dup #916), #409 (stale), #446 (answered).
+**Need-info posted (open):** #902, #449, #487, #507, #916, #396, #873.
+**Relabeled enhancement:** #909 (runtime pill), #910 (naming).
+
+**Signing fact:** desktop app IS Authenticode-signed (Win Azure Trusted Signing + macOS notarized,
+CI refuses unsigned); bundled `wayland-core.exe` only linker-signed → #914 Smart-App-Control gap is Core-side.
+
+**→ MILESTONE D (approved) builds the confirmed desktop repairs.** Full plan + root-cause map:
+`.planning/HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`. Order D1(#890,#537) → D2(#885) →
+D3(#891,#853) → D5(#909,#910,#508,#882) → D4(#723, gated). Routing/product calls pending Sean:
+#914 (Core sign), #685 (Core money guard), #247 (product), #551 (Intel-mac).
