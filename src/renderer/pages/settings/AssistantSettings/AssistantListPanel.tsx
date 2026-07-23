@@ -193,6 +193,10 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
           <Switch
             size='small'
             data-testid={`switch-enabled-${assistant.id}`}
+            aria-label={t('settings.toggleAssistantEnabled', {
+              defaultValue: 'Enable {{name}}',
+              name: assistant.nameI18n?.[localeKey] || assistant.name,
+            })}
             checked={assistantIsExtension ? true : assistant.enabled !== false}
             disabled={assistantIsExtension}
             onChange={(checked) => {
@@ -205,6 +209,10 @@ const AssistantListPanel: React.FC<AssistantListPanelProps> = ({
             icon={<Settings size={16} />}
             className='!rounded-10px'
             data-testid={`btn-edit-${assistant.id}`}
+            aria-label={t('settings.editAssistantAction', {
+              defaultValue: 'Edit {{name}}',
+              name: assistant.nameI18n?.[localeKey] || assistant.name,
+            })}
             onClick={() => {
               onEdit(assistant);
             }}

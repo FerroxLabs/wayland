@@ -267,6 +267,11 @@ const SettingsSider: React.FC<{ collapsed?: boolean; tooltipEnabled?: boolean }>
 
   return (
     <div
+      // Keyboard users must be able to scroll this region (axe
+      // scrollable-region-focusable); a nav landmark also names it for AT.
+      tabIndex={0}
+      role='navigation'
+      aria-label={t('settings.title', { defaultValue: 'Settings' })}
       className={classNames('h-full settings-sider flex flex-col gap-2px overflow-y-auto overflow-x-hidden', {
         'settings-sider--collapsed': collapsed,
       })}

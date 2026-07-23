@@ -2797,5 +2797,7 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "Defer updates while busy",
-  "deferUpdateWhileBusyDesc": "Wait for active chats, scheduled tasks, and teams to finish before restarting to update. The update still applies on idle or on quit."
+  "deferUpdateWhileBusyDesc": "Wait for active chats, scheduled tasks, and teams to finish before restarting to update. The update still applies on idle or on quit.",
+  "toggleAssistantEnabled": "Enable {{name}}",
+  "editAssistantAction": "Edit {{name}}"
 }

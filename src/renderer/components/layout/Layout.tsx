@@ -687,7 +687,7 @@ const Layout: React.FC<{
                   <span className='text-14px font-700 text-t-primary leading-none tracking-[0.01em]'>
                     {t('common.brand')}
                   </span>
-                  <span className='text-10px font-500 uppercase tracking-[0.16em] text-[var(--text-dim,#555)] leading-none'>
+                  <span className='text-10px font-500 uppercase tracking-[0.16em] text-[var(--text-muted)] leading-none'>
                     {t('common.brandTagline')}
                   </span>
                 </div>
