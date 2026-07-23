@@ -91,7 +91,7 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 
 ## Session Continuity
 
-Last session: 2026-07-23 (overnight)
-Stopped at: Waves 1/3/4/5 delivered + committed locally (9 commits, nothing pushed). Packaged smoke harness proven + audit-hardened; a11y 87% burned down; i18n hygiene done; Milestone B dossiers ready for Sean's calls; B-01 consent E2E unblocked.
-Resume: (1) Sean makes the 7 Milestone B calls in `B-DECISIONS.md`; (2) write the B-01 consent E2E against the new test hooks; (3) Wave A sealed build is Sean+CI when ready — functional risk already retired.
-Resume file: `.planning/ROADMAP.md` + `.planning/phases/WLD-B-scope/B-DECISIONS.md`.
+Last session: 2026-07-23 (overnight + build-all)
+Stopped at: **All 7 Milestone B scope items BUILT + integrated + verified** (Sean's "build them all, no deferments"), plus Waves 1/3/4/5. 20 local commits (`9aa836c86..fc1e75d0c`), nothing pushed. Full suite 15,611 pass / 0 real failures.
+Resume: read `.planning/HANDOFF-2026-07-23-milestone-b-built.md` FIRST. Next = (1) SBX-02 wiring + honest UI + Core hook; (2) COW-04 live citation population (Core event + whitelist); (3) VOC-04 renderer surfacing; (4) a11y residuals; (5) B-01 consent E2E; (6) Wave A sealed build (Sean/CI).
+Resume file: `.planning/HANDOFF-2026-07-23-milestone-b-built.md` → then STATE/ROADMAP/B-DECISIONS.
