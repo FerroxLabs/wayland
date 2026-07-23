@@ -344,7 +344,12 @@ export const TextToSpeechSettingsSection: React.FC<{
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.textToSpeechProvider')}>
           <div className='flex items-center gap-8px'>
-            <WaylandSelect value={config.provider} onChange={handleProviderChange} className='flex-1'>
+            <WaylandSelect
+              value={config.provider}
+              onChange={handleProviderChange}
+              className='flex-1'
+              data-testid='tts-provider-select'
+            >
               <WaylandSelect.Option value='system-native'>
                 {t('settings.textToSpeechProviderSystemNative')}
               </WaylandSelect.Option>
@@ -554,7 +559,7 @@ export const SpeechToTextSettingsSection: React.FC<{
 
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.speechToTextProvider')}>
-          <WaylandSelect value={config.provider} onChange={handleProviderChange}>
+          <WaylandSelect value={config.provider} onChange={handleProviderChange} data-testid='stt-provider-select'>
             <WaylandSelect.Option value='openai'>{t('settings.speechToTextProviderOpenAI')}</WaylandSelect.Option>
             <WaylandSelect.Option value='deepgram'>{t('settings.speechToTextProviderDeepgram')}</WaylandSelect.Option>
             <WaylandSelect.Option value='whisper-local'>
