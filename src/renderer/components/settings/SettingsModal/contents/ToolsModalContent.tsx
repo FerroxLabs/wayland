@@ -358,7 +358,10 @@ export const TextToSpeechSettingsSection: React.FC<{
             </Button>
           </div>
           {needsConsent(config.provider) && (
-            <div className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'>
+            <div
+              data-testid='tts-consent-pending'
+              className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'
+            >
               <span>
                 {t('settings.voiceHostedConsentPending', 'This provider processes audio and text off your device.')}
               </span>
@@ -366,6 +369,7 @@ export const TextToSpeechSettingsSection: React.FC<{
                 type='text'
                 size='mini'
                 className='!px-0 !h-auto'
+                data-testid='tts-consent-review'
                 onClick={() => void ensureConsent(config.provider)}
               >
                 {t('settings.voiceReviewHostedConsent', 'Review consent')}
@@ -558,7 +562,10 @@ export const SpeechToTextSettingsSection: React.FC<{
             </WaylandSelect.Option>
           </WaylandSelect>
           {needsConsent(config.provider) && (
-            <div className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'>
+            <div
+              data-testid='stt-consent-pending'
+              className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'
+            >
               <span>
                 {t('settings.voiceHostedConsentPending', 'This provider processes audio and text off your device.')}
               </span>
@@ -566,6 +573,7 @@ export const SpeechToTextSettingsSection: React.FC<{
                 type='text'
                 size='mini'
                 className='!px-0 !h-auto'
+                data-testid='stt-consent-review'
                 onClick={() => void ensureConsent(config.provider)}
               >
                 {t('settings.voiceReviewHostedConsent', 'Review consent')}

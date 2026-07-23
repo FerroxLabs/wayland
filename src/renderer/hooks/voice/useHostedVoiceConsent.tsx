@@ -119,6 +119,8 @@ export function useHostedVoiceConsent(): {
       cancelText='Cancel'
       onOk={() => void settle(true)}
       onCancel={() => void settle(false)}
+      okButtonProps={{ 'data-testid': 'voice-consent-accept' } as Record<string, unknown>}
+      cancelButtonProps={{ 'data-testid': 'voice-consent-cancel' } as Record<string, unknown>}
       maskClosable={false}
       escToExit
       className='hosted-voice-consent-modal'
