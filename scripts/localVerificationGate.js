@@ -18,18 +18,54 @@ function isLocalVerificationBuild(env) {
   return Boolean(env) && env.WAYLAND_LOCAL_VERIFICATION === '1';
 }
 
+// Every token build-with-builder.js legitimately accepts on a directory-only
+// build. Anything OUTSIDE this set (a positional distributable target like `dmg`
+// / `zip` / `nsis`, a negation like `--no-dir` or a `--dir false` value, or a `--`
+// terminator) means the effective electron-builder target is NOT provably a bare
+// directory — so we must NOT skip the seal. An allowlist (not a denylist) so no
+// unenumerated distributable form can slip through.
+const CANONICAL_DIR_BUILD_TOKENS = new Set([
+  'auto',
+  '--dir',
+  '--mac',
+  '--win',
+  '--windows',
+  '--linux',
+  '--skip-vite',
+  '--skip-native',
+  '--pack-only',
+  '--force',
+]);
+
+const ARCH_TOKEN = /^--?(x64|arm64|armv7l|ia32|universal)$/;
+
 /**
- * The seal is skipped ONLY for an explicitly-local, UNPACKED (`--dir`) build —
- * never a distributable (dmg/zip/nsis) build. Binding the skip to `--dir` means a
- * leaked `WAYLAND_LOCAL_VERIFICATION=1` env var can never deseal a shippable
- * artifact: a release/CI build (no `--dir`) always writes the seal regardless.
+ * True iff argv is an unambiguous directory-only build: `--dir` is present AND
+ * every token is allowlisted (platform/arch/dir/build flags). Rejects electron-
+ * builder forms where a distributable target could override `--dir`
+ * (`--mac dmg --dir`, `--dir false`, `--dir --no-dir`, `-- --dir`).
+ *
+ * @param {string[]} argv
+ * @returns {boolean}
+ */
+function isCanonicalDirOnlyArgs(argv) {
+  if (!Array.isArray(argv) || !argv.includes('--dir')) return false;
+  return argv.every((token) => CANONICAL_DIR_BUILD_TOKENS.has(token) || ARCH_TOKEN.test(token));
+}
+
+/**
+ * The seal is skipped ONLY for an explicitly-local, UNAMBIGUOUS directory-only
+ * build — never a distributable (dmg/zip/nsis) build. A leaked
+ * `WAYLAND_LOCAL_VERIFICATION=1` env var can never deseal a shippable artifact:
+ * a release/CI build (no `--dir`, or with any distributable/negation token) fails
+ * this check, so the seal is written (fail-safe to the release path).
  *
  * @param {Record<string, string | undefined>} env
  * @param {string[]} argv build arguments (e.g. process.argv.slice(2))
- * @returns {boolean} true iff the flag is exactly '1' AND `--dir` is present
+ * @returns {boolean} true iff the flag is exactly '1' AND argv is canonically dir-only
  */
 function isLocalVerificationDirBuild(env, argv) {
-  return isLocalVerificationBuild(env) && Array.isArray(argv) && argv.includes('--dir');
+  return isLocalVerificationBuild(env) && isCanonicalDirOnlyArgs(argv);
 }
 
-module.exports = { isLocalVerificationBuild, isLocalVerificationDirBuild };
+module.exports = { isLocalVerificationBuild, isLocalVerificationDirBuild, isCanonicalDirOnlyArgs };

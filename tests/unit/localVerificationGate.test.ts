@@ -2,9 +2,10 @@ import { describe, expect, it } from 'vitest';
 
 import localVerificationGate = require('../../scripts/localVerificationGate.js');
 
-const { isLocalVerificationBuild, isLocalVerificationDirBuild } = localVerificationGate as {
+const { isLocalVerificationBuild, isLocalVerificationDirBuild, isCanonicalDirOnlyArgs } = localVerificationGate as {
   isLocalVerificationBuild: (env: Record<string, string | undefined>) => boolean;
   isLocalVerificationDirBuild: (env: Record<string, string | undefined>, argv: string[]) => boolean;
+  isCanonicalDirOnlyArgs: (argv: string[]) => boolean;
 };
 
 // This encodes the core release-safety invariant: the capability seal is written
@@ -65,5 +66,43 @@ describe('isLocalVerificationDirBuild', () => {
 
   it('returns false when argv is missing or not an array', () => {
     expect(isLocalVerificationDirBuild(ON, undefined as unknown as string[])).toBe(false);
+  });
+
+  // Cross-audit (Codex, reproduced vs electron-builder 26.10): a literal `--dir`
+  // token does NOT prove an effective directory-only build. A positional
+  // distributable target or a --dir negation must fall to the RELEASE path.
+  it('returns false when a distributable target could override --dir', () => {
+    expect(isLocalVerificationDirBuild(ON, ['auto', '--mac', 'dmg', '--dir'])).toBe(false);
+    expect(isLocalVerificationDirBuild(ON, ['auto', '--mac', '--dir', 'false'])).toBe(false);
+    expect(isLocalVerificationDirBuild(ON, ['auto', '--mac', '--dir', '--no-dir'])).toBe(false);
+    expect(isLocalVerificationDirBuild(ON, ['auto', '--mac', '--', '--dir'])).toBe(false);
+    expect(isLocalVerificationDirBuild(ON, ['auto', '--mac', 'zip', '--dir'])).toBe(false);
+  });
+
+  it('returns true for the sanctioned dir-only forms (with/without explicit arch)', () => {
+    expect(isLocalVerificationDirBuild(ON, ['auto', '--mac', '--dir'])).toBe(true);
+    expect(isLocalVerificationDirBuild(ON, ['auto', '--mac', '--arm64', '--dir'])).toBe(true);
+  });
+});
+
+// Allowlist guard: an unambiguous directory-only build is `--dir` present and
+// EVERY token allowlisted; any distributable/negation/terminator token fails it.
+describe('isCanonicalDirOnlyArgs', () => {
+  it('accepts platform + arch + --dir and nothing else', () => {
+    expect(isCanonicalDirOnlyArgs(['auto', '--mac', '--dir'])).toBe(true);
+    expect(isCanonicalDirOnlyArgs(['auto', '--mac', '--arm64', '--dir'])).toBe(true);
+    expect(isCanonicalDirOnlyArgs(['auto', '--win', '--x64', '--dir'])).toBe(true);
+  });
+
+  it('rejects args without --dir', () => {
+    expect(isCanonicalDirOnlyArgs(['auto', '--mac'])).toBe(false);
+  });
+
+  it('rejects a positional distributable target, a --dir value, or a terminator', () => {
+    expect(isCanonicalDirOnlyArgs(['auto', '--mac', 'dmg', '--dir'])).toBe(false);
+    expect(isCanonicalDirOnlyArgs(['auto', '--mac', 'nsis', '--dir'])).toBe(false);
+    expect(isCanonicalDirOnlyArgs(['auto', '--mac', '--dir', 'false'])).toBe(false);
+    expect(isCanonicalDirOnlyArgs(['auto', '--mac', '--dir', '--no-dir'])).toBe(false);
+    expect(isCanonicalDirOnlyArgs(['--', '--dir'])).toBe(false);
   });
 });
