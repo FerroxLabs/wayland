@@ -139,8 +139,7 @@ gsd worktree is abandoned (physical cleanup of the gsd sprawl is a separate pass
 worktrees actually live in `~/dev/app-worktrees/wt-*`; this one is under `wayland-worktrees/` per
 Sean's menu pick (movable).
 
-**D1 (#890) + D2 (#885) + D3 (#891/#853) + D5 (#909/#910/#508/#882) DONE 2026-07-24. #537 draft-close pending. D4 (#723, GATED) is the last packet.**
-Latest commit `9523ac534`, local only. **D5 was the first packet through the CORRECTED 4-model cross-audit panel (Codex 5.6 Sol + Gemini 3.1 Pro + Kimi K3 + internal Claude) — Sean corrected the method mid-session; see [[cross-audit-panel-invocations]]. Retro-panel D2/D3 + packaged-GUI live-verify all batched into the pre-publish pass.**
+**ALL Milestone-D packets BUILT 2026-07-24 (D1 #890 · D2 #885 · D3 #891/#853 · D5 #909/#910/#508/#882 · D4/D-07 #723) — local only, converging on ONE by-hand live-verify pass.** #537 draft-close still pending Sean's nod. **Cross-audit method CORRECTED mid-session (Sean, ×2): 4-model panel = Codex 5.6 Sol + Gemini 3.1 Pro + Kimi K3 + internal Claude, native subscription CLIs (see [[cross-audit-panel-invocations]]).** Process correction (Sean, "done right / too long on audits"): audits gate PLANNED scope only; verify a threat is reachable before guarding it; calibrate audit depth to blast radius ([[feedback-audit-intensity-and-self-invented-scope]]). Batched for the pre-publish pass: packaged-GUI live-verify (all packets) + D-07 token-cost sweep + #910b "Chats" ratify + retro-panel D2/D3.
 
 - **Root cause (research OVERTURNED the council's pino theory):** the **RunAsNode fuse**. Packaged
   builds disable it (`afterPack.js`), so `WhatsAppPlugin.forkBridge`'s `child_process.fork` booted a
@@ -242,10 +241,29 @@ Commits `1cb523bb0`..`9523ac534` (10 build + 3 panel-fix + 1 comment + docs). Al
 - **Residual (batched, Sean's call):** packaged-GUI live-verify (all four surfaces + axe button-name gate) + #910b "Chats"
   ratify. `D-06-SUMMARY.md` at acceptance.
 
-**NEXT: D4 (#723 token efficiency — in-conversation per-step context reset, FIX, L) — GATED.** Sean's arch call =
-IN-PLACE per-step context reset; RECONFIRM with Sean before building (it's money + UX). Root-cause map in the handoff
-(autonomous path already resets per step; the in-conversation auto-advance in `parentTurnDriver.ts`→`continueRun` inherits
-the full transcript 1..N with no cap — that's the fix target). Pairs with a Core tail-cap for defense-in-depth. No push without Sean.
+**D4 / D-07 (#723 token efficiency — in-place per-step context reset): DONE — arch reconfirmed by Sean, built + audited.**
+Commits `0307f5da3`..`aa49fcc40`. Core mechanism: on a wcore workflow advance, `sendWorkflowAdvanceDirective`
+respawns the backend session via `getOrBuildTask({skipCache:true, workflowResetSeed})` (kills the accumulated
+1..N-1 session → O(N²)→O(N)) and re-seeds only the immediately-prior assistant TURN (text + its tool calls/results,
+boundary-stopped, head-clipped) via `resumeSeed.ts` `priorTurnOnly`. Directive sent `hidden:true` → visible SQLite
+transcript untouched. wcore-only gate; ACP unchanged; #457 default seed byte-identical.
+- **Audit story (the LESSON):** rounds 1-2 of the 4-model panel + my own harness caught a REAL production blocker —
+  the seed was INERT on the live message shape (the current advance directive is persisted before the seed read, so the
+  prior-turn walk collapsed to a 1000-char fallback; unit tests were false-green because they omitted the trailing
+  directive). Fixed by stripping trailing `right` rows before the boundary; **proven on the live shape by my own harness**
+  (deliverable + tool findings survive, current directive not leaked). Then I over-engineered "FIX 5" (a turn-settle
+  serialization guard) and burned 2 rounds hardening my own addition. **RESOLVED by verifying the race was unreachable**
+  (`acceptStep` fires only from a settled `awaiting_input` checkpoint — no in-flight step to kill) and DELETING FIX 5
+  (commit `c8e48905c`), keeping the simple release-on-dispatch chain. See [[feedback-audit-intensity-and-self-invented-scope]].
+- Full suite **15,688/0**, tsc clean. Records: `D-07-{RESEARCH,PLAN,XAUDIT}.md`.
+- **Live-verify PENDING (money, by hand — Sean + me):** run a ≥4-step wcore workflow where a later step is tool-heavy/long
+  and depends on an earlier one; confirm per-step `session_cost` input stays FLAT (O(1), not climbing), the dependent step
+  still works (carry-forward intact), and the visible transcript shows every step. Deeper/permanent home for the per-step
+  bound = the Core tail-cap (defense-in-depth, Core-side).
+
+**MILESTONE D BUILD QUEUE COMPLETE.** Remaining = the batched by-hand pre-publish pass (Sean + me): packaged-GUI
+live-verify of every packet + D-07 token-cost sweep + #910b "Chats" ratify + #537 close (on Sean's nod) + optionally
+retro-panel D2/D3 through the corrected 4-model panel. No push/merge/release without Sean.
 
 Prior handoff (Milestone A/B, still valid context): `.planning/HANDOFF-2026-07-23-milestone-b-built.md`.
 Core-gated follow-ons (do NOT build against the moving Core): SBX-02 wiring, COW-04 live citations.
