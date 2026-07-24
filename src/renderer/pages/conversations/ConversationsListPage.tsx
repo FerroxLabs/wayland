@@ -336,7 +336,7 @@ const ConversationsListPage: React.FC = () => {
                 </section>
               )}
 
-              {/* Starred */}
+              {/* Pinned */}
               {pinnedList.length > 0 && (
                 <section className='flex flex-col gap-6px'>
                   <span className={`${styles.sectionLabel} px-12px`}>
