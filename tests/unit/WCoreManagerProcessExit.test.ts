@@ -64,7 +64,7 @@ vi.mock('@/common', () => ({
 
 vi.mock('@/common/platform', () => ({
   getPlatformServices: () => ({
-    paths: { isPackaged: () => false, getAppPath: () => null },
+    paths: { isPackaged: () => false, getAppPath: () => null, getLogsDir: () => '/test/logs' },
     worker: {
       fork: vi.fn(() => ({
         on: vi.fn().mockReturnThis(),
@@ -250,6 +250,18 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
       (manager as Record<string, (...args: unknown[]) => void>)['handleProcessExit'](null, 'msg-active-1');
 
       expect(handleTurnEndSpy).toHaveBeenCalled();
+    });
+
+    // ── #853: a kill signal names the signal, not "code null" ──────
+    it('surfaces the kill signal (not "code null") and the logs path on a SIGKILL exit', () => {
+      (manager as Record<string, (...args: unknown[]) => void>)['handleProcessExit'](null, 'msg-active-1', 'SIGKILL');
+
+      const errors = findEmissions('error');
+      expect(errors).toHaveLength(1);
+      const data = String(errors[0].data);
+      expect(data).toContain('SIGKILL');
+      expect(data).toContain('/test/logs');
+      expect(data).not.toContain('code null');
     });
   });
 

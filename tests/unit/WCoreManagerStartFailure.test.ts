@@ -53,7 +53,7 @@ vi.mock('@/common', () => ({
 
 vi.mock('@/common/platform', () => ({
   getPlatformServices: () => ({
-    paths: { isPackaged: () => false, getAppPath: () => null },
+    paths: { isPackaged: () => false, getAppPath: () => null, getLogsDir: () => '/test/logs' },
     worker: {
       fork: vi.fn(() => ({
         on: vi.fn().mockReturnThis(),
@@ -212,5 +212,38 @@ describe('WCoreManager bootstrap failure surfaces error + finish (S2)', () => {
     const failureErrors = findEmissions('error').filter((e) => String(e.data).startsWith('Agent failed to start'));
     expect(failureErrors).toHaveLength(0);
     expect((manager as unknown as { agent: unknown }).agent).not.toBeNull();
+  });
+
+  // ── #853: real exec-failure reason + discoverable log link ─────────
+
+  it('surfaces the real errno launch reason and appends the discoverable logs path', async () => {
+    agentStart.mockRejectedValue(
+      new Error('Wayland Core could not be launched: the engine binary is missing or was blocked (ENOENT).')
+    );
+    const manager = createManager('conv-sf-853-errno');
+
+    await manager.sendMessage({ content: 'hello', msg_id: 'msg-sf-853-errno' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    const data = String(errors[0].data);
+    // The real errno reason survives to the user...
+    expect(data).toContain('ENOENT');
+    // ...and the user is pointed at the log that holds the detail.
+    expect(data).toContain('/test/logs');
+  });
+
+  it('masks a secret-shaped token in the surfaced start-failure reason (redaction proof)', async () => {
+    const token = 'sk-ant-abcdef0123456789ABCDEF';
+    agentStart.mockRejectedValue(new Error(`Wayland Core could not be launched: leaked ${token} in the reason`));
+    const manager = createManager('conv-sf-853-redact');
+
+    await manager.sendMessage({ content: 'hello', msg_id: 'msg-sf-853-redact' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    const data = String(errors[0].data);
+    // redactCommandSecrets must have masked the recognized secret shape.
+    expect(data).not.toContain(token);
   });
 });
