@@ -155,6 +155,41 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
     await pa;
   });
 
+  it('4c. holds the chain through the turn (awaitTurnSettled) so a concurrent advance cannot respawn mid-turn', async () => {
+    const order: string[] = [];
+    let spawnCount = 0;
+    let releaseTurn!: () => void;
+    const turnGate = new Promise<void>((resolve) => {
+      releaseTurn = resolve;
+    });
+    const sendMessage = vi.fn().mockImplementation(async () => {
+      order.push('dispatch');
+    });
+    const getOrBuildTask = vi.fn().mockImplementation(async () => {
+      order.push(`spawn${++spawnCount}`);
+      return { sendMessage };
+    });
+    const getConversationType = vi.fn().mockResolvedValue('wcore');
+    // The first advance's turn stays in-flight until releaseTurn().
+    let settleCount = 0;
+    const awaitTurnSettled = vi.fn().mockImplementation(async () => {
+      if (++settleCount === 1) await turnGate;
+    });
+    const deps: WorkflowAdvanceResetDeps = { getOrBuildTask, getConversationType, awaitTurnSettled };
+
+    const p1 = sendWorkflowAdvanceDirective('conv-1', 'step 2', deps);
+    const p2 = sendWorkflowAdvanceDirective('conv-1', 'step 3', deps);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    // The first send DISPATCHED but its turn has not settled, so the second
+    // advance has NOT respawned (it would kill the in-flight step).
+    expect(order).toEqual(['spawn1', 'dispatch']);
+    expect(spawnCount).toBe(1);
+
+    releaseTurn(); // turn finishes -> chain releases -> second advance proceeds
+    await Promise.all([p1, p2]);
+    expect(order).toEqual(['spawn1', 'dispatch', 'spawn2', 'dispatch']);
+  });
+
   it('5. type-lookup failure is safe: falls back to the non-reset send, never crashes the advance', async () => {
     const throwing = makeDeps(() => {
       throw new Error('conversation lookup exploded');

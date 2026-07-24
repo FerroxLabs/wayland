@@ -82,6 +82,16 @@ interface AdvanceTask {
 export interface WorkflowAdvanceResetDeps {
   getOrBuildTask(conversationId: string, options: BuildConversationOptions): Promise<AdvanceTask>;
   getConversationType(conversationId: string): Promise<string | null>;
+  /**
+   * Optional: resolve when the conversation's current turn reaches a terminal
+   * state (finished / stopped / error). When provided, the per-conversation
+   * serialization chain is held through the turn so a concurrent advance cannot
+   * respawn (skipCache kill) the still-in-flight step - `sendMessage` resolves
+   * when the directive is DISPATCHED, not when the turn finishes. Must be
+   * bounded (its own timeout) so the chain can never block forever. Absent (in
+   * unit tests) the chain releases on dispatch, as before.
+   */
+  awaitTurnSettled?(conversationId: string): Promise<void>;
 }
 
 /**
@@ -92,8 +102,11 @@ export interface WorkflowAdvanceResetDeps {
  * and kill the other's fresh session mid-flight -> a stalled or double-run
  * workflow. Chaining each send behind the prior one for that conversation makes
  * the respawns strictly sequential (the latest advance cleanly supersedes),
- * never interleaved. Different conversations are independent (separate chains).
- * The map entry is dropped once its chain is the tail, so it stays bounded.
+ * never interleaved. When `awaitTurnSettled` is provided the chain is held
+ * through the whole turn (not just the dispatch) so a concurrent advance WAITS
+ * for the in-flight step instead of killing it. Different conversations are
+ * independent (separate chains). The map entry is dropped once its chain is the
+ * tail, so it stays bounded.
  */
 const advanceChains = new Map<string, Promise<void>>();
 
@@ -147,4 +160,15 @@ async function runAdvance(
     msg_id: `workflow-advance-${conversationId}-${Date.now()}`,
     hidden: true,
   });
+
+  // Hold the per-conversation chain through the turn's terminal finish so the
+  // next advance waits for this step instead of respawning (killing) it. Bounded
+  // by the dep's own timeout; a failure/timeout releases rather than blocks.
+  if (deps.awaitTurnSettled) {
+    try {
+      await deps.awaitTurnSettled(conversationId);
+    } catch {
+      // Never let a settle-wait failure block the conversation's advance chain.
+    }
+  }
 }

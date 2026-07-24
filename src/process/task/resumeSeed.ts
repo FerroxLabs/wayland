@@ -33,6 +33,12 @@ const FILE_REF_MAX_DEPTH = 8;
 const FILE_REF_MAX_COUNT = 20;
 
 const FILE_REF_KEYS = new Set(['file', 'fileName', 'filename', 'filePath', 'path', 'relative_path']);
+/**
+ * #723: per-tool-result findings cap for the prior-turn seed. A tool-centric
+ * prior step (a Search/Read whose OUTPUT is the deliverable) must carry its
+ * findings, but bounded so one large result can't dominate the seed.
+ */
+const TOOL_RESULT_CHARS = 600;
 
 type ToolGroupItem = IMessageToolGroup['content'][number];
 
@@ -48,6 +54,21 @@ function extractEditedFile(item: ToolGroupItem): string | undefined {
   if (rd && typeof rd === 'object' && 'fileName' in rd) return rd.fileName;
   const cd = item.confirmationDetails;
   if (cd && cd.type === 'edit') return cd.fileName;
+  return undefined;
+}
+
+/**
+ * #723: a bounded findings summary for a tool-group item - the string
+ * `resultDisplay` (e.g. a Search/Read whose output IS the deliverable). File
+ * diffs / images are surfaced via `extractEditedFile`, not here. Whitespace is
+ * collapsed so the summary stays compact.
+ */
+function extractToolResultText(item: ToolGroupItem): string | undefined {
+  const rd = item.resultDisplay;
+  if (typeof rd === 'string') {
+    const trimmed = rd.replace(/\s+/g, ' ').trim();
+    return trimmed || undefined;
+  }
   return undefined;
 }
 
@@ -85,8 +106,13 @@ function collectFileRefs(value: unknown): string[] {
   return [...refs];
 }
 
-/** Format one persisted message as a compact transcript line, or null to skip. */
-function formatSeedLine(message: TMessage, perEntryChars: number): string | null {
+/**
+ * Format one persisted message as a compact transcript line, or null to skip.
+ * `includeToolResults` (#723 prior-turn seed only) additionally carries a
+ * bounded tool findings / error summary so a tool-centric prior step is not
+ * seeded contentless; it defaults false so the #457 default seed is unchanged.
+ */
+function formatSeedLine(message: TMessage, perEntryChars: number, includeToolResults = false): string | null {
   switch (message.type) {
     case 'text': {
       const content = typeof message.content?.content === 'string' ? message.content.content.trim() : '';
@@ -98,7 +124,12 @@ function formatSeedLine(message: TMessage, perEntryChars: number): string | null
       const status = message.content?.status ? ` (${message.content.status})` : '';
       const files = collectFileRefs(message.content?.args);
       const filePart = files.length ? ` -> ${files.join(', ')}` : '';
-      return clip(`[tool ${name}${status}${filePart}]`, perEntryChars);
+      // #723: carry a bounded error so a failed tool step's cause survives.
+      const err =
+        includeToolResults && typeof message.content?.error === 'string' && message.content.error.trim()
+          ? `: ${clip(message.content.error.replace(/\s+/g, ' ').trim(), TOOL_RESULT_CHARS)}`
+          : '';
+      return clip(`[tool ${name}${status}${filePart}${err}]`, perEntryChars);
     }
     case 'tool_group': {
       const items = Array.isArray(message.content) ? message.content : [];
@@ -108,7 +139,11 @@ function formatSeedLine(message: TMessage, perEntryChars: number): string | null
         .filter((item): item is ToolGroupItem => item != null)
         .map((item) => {
           const file = extractEditedFile(item);
-          return `${item.name}${file ? ` -> ${file}` : ''} (${item.status})`;
+          // #723: carry the tool's string findings (a Search/Read output) so a
+          // tool-centric prior step's result survives the reset, bounded.
+          const result = includeToolResults ? extractToolResultText(item) : undefined;
+          const resultPart = result ? `: ${clip(result, TOOL_RESULT_CHARS)}` : '';
+          return `${item.name}${file ? ` -> ${file}` : ''} (${item.status})${resultPart}`;
         });
       return parts.length ? clip(`[tools ${parts.join('; ')}]`, perEntryChars) : null;
     }
@@ -134,16 +169,15 @@ export interface ResumeSeedOptions {
   /**
    * #723 in-place per-step context reset: when true, seed ONLY the
    * immediately-prior assistant TURN - every row (assistant text AND its tool
-   * calls / tool results) from the tail back to, but not crossing, the previous
-   * `right` boundary (the user/hidden-directive that started this step). This is
-   * the minimal carry-forward a dependent step needs ("review the file you just
-   * wrote", "refine the draft you just wrote") done correctly: it keeps the
+   * calls / tool results). The just-sent hidden advance directive (and any
+   * trailing `right` rows) are stripped first, then the walk goes from that tail
+   * back to, but not crossing, the PRIOR step's `right` boundary. It keeps the
    * whole prior turn's tool context (not just the last text row), never crosses
    * into an older step, and handles a tool-only prior step (carries that turn's
-   * tool/file summary) and a trailing-status/split deliverable (carries the
-   * whole turn). NOT the 1..N-1 history and NOT a rolling summary. When the
-   * prior turn is empty (the tail IS a `right` row), falls through to the
-   * default bounded tail so a resume is never seeded blank.
+   * tool/file summary + findings) and a trailing-status/split deliverable
+   * (carries the whole turn). NOT the 1..N-1 history and NOT a rolling summary.
+   * When the prior turn is empty or a trivial fragment, falls through to the
+   * default bounded tail so a resume is never seeded blank or starved.
    */
   priorTurnOnly?: boolean;
   /**
@@ -157,43 +191,72 @@ export interface ResumeSeedOptions {
   priorTurnMaxChars?: number;
 }
 
+/** #723: minimum assistant-text length for a prior turn to count as a real
+ * deliverable. Below this, with no tool work, the turn is a trivial fragment
+ * (a mid-step "looks good" -> "Thanks!") and we fall back to the default tail. */
+const MIN_PRIOR_TURN_TEXT_CHARS = 40;
+
 /**
- * Seed the immediately-prior assistant TURN: walk from the newest row back to
+ * Seed the immediately-prior assistant TURN: walk from the (real) tail back to
  * (but not across) the previous `right` boundary, formatting every row in that
  * turn - assistant text AND tool calls / tool results (mirrors #457's
- * retain-tool-history philosophy, bounded to this ONE turn). Returns the rows
- * in chronological order, head-clipped to `maxChars` (preserving the opening).
- * Returns null when the turn is empty (tail is a `right` row) or has no
- * replayable rows, so the caller can fall back to the default tail. Never
- * reaches into an older step.
+ * retain-tool-history philosophy, bounded to this ONE turn). Rows are kept in
+ * chronological order and head-clipped to `maxChars` (preserving the opening).
+ * Returns null so the caller falls back to the default tail when: the turn is
+ * empty, has no replayable rows, or is a trivial fragment (no substantive
+ * deliverable). Never reaches into an older step.
  */
 function buildPriorTurnSeed(messages: TMessage[], maxChars: number): string | null {
-  // The boundary is the most recent `right` row (the user / hidden advance
-  // directive that started this turn). Everything AFTER it is the prior turn.
+  // The live reset path persists the just-sent hidden advance directive
+  // (position 'right') to SQLite BEFORE start() reads history, so the tail row
+  // is the CURRENT directive, not the prior deliverable. Strip trailing `right`
+  // rows so the boundary lands on the PRIOR step's directive - otherwise the
+  // walk finds an empty turn and the deliverable is lost to the default tail.
+  let end = messages.length;
+  while (end > 0 && messages[end - 1]?.position === 'right') end--;
+  // The boundary is the most recent `right` row before `end` (the directive /
+  // user turn that started this deliverable). Everything after it is the turn.
   let boundary = -1;
-  for (let i = messages.length - 1; i >= 0; i--) {
+  for (let i = end - 1; i >= 0; i--) {
     if (messages[i]?.position === 'right') {
       boundary = i;
       break;
     }
   }
-  const turn = messages.slice(boundary + 1);
+  const turn = messages.slice(boundary + 1, end);
   if (turn.length === 0) return null;
 
+  // Reserve a slice of the budget for the turn's tool rows so a large text
+  // deliverable cannot evict its own file/tool context via the final head-clip.
+  const toolReserve = Math.min(2000, Math.floor(maxChars / 4));
+  const textBudget = Math.max(1, maxChars - toolReserve);
+  const perToolChars = Math.max(1, Math.min(1000, toolReserve));
+
+  let assistantTextChars = 0;
+  let hasToolWork = false;
   const lines: string[] = [];
   for (const message of turn) {
-    // Per-entry cap = the turn budget: tool lines are structurally short
-    // (name/status/file refs only, results are never inlined), so this only
-    // lets the assistant text deliverable use the full budget.
+    const isAssistantText = message.type === 'text' && message.position !== 'right';
     let line: string | null = null;
     try {
-      line = formatSeedLine(message, maxChars);
+      line = formatSeedLine(message, isAssistantText ? textBudget : perToolChars, true);
     } catch {
       line = null;
     }
-    if (line) lines.push(line);
+    if (!line) continue;
+    lines.push(line);
+    if (message.type === 'text' && message.position !== 'right') {
+      const content = typeof message.content?.content === 'string' ? message.content.content.trim() : '';
+      assistantTextChars += content.length;
+    } else {
+      hasToolWork = true;
+    }
   }
   if (lines.length === 0) return null;
+  // A trivial fragment is not a deliverable - fall back to the broader default
+  // tail (which still holds the real prior output) rather than seed the fragment.
+  if (assistantTextChars < MIN_PRIOR_TURN_TEXT_CHARS && !hasToolWork) return null;
+
   return clip(lines.join('\n'), maxChars);
 }
 

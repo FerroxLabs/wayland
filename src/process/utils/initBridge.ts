@@ -292,6 +292,36 @@ void getDatabase()
     // accumulated 1..N-1 context; non-wcore (ACP) keeps today's exact behavior.
     // The visible SQLite transcript is untouched (directive sent hidden; the
     // reset only reads the message store).
+    // #723 FIX 5: resolve when a conversation's current turn reaches a terminal
+    // state, so the reset serialization chain holds through the turn and a
+    // concurrent advance waits for the in-flight step instead of respawning
+    // (killing) it. Bounded by WORKFLOW_ADVANCE_TURN_TIMEOUT_MS so the chain can
+    // never block forever if a terminal event is missed.
+    const WORKFLOW_ADVANCE_TURN_TIMEOUT_MS = 10 * 60_000;
+    const awaitWorkflowTurnSettled = (conversationId: string): Promise<void> =>
+      new Promise<void>((resolve) => {
+        let settled = false;
+        let off: (() => void) | undefined;
+        const timer = setTimeout(() => finish(), WORKFLOW_ADVANCE_TURN_TIMEOUT_MS);
+        function finish(): void {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          try {
+            off?.();
+          } catch {
+            /* noop */
+          }
+          resolve();
+        }
+        off = ipcBridge.conversation?.turnCompleted?.on?.((event) => {
+          if (event?.sessionId !== conversationId) return;
+          const terminal = event.state === 'ai_waiting_input' || event.state === 'stopped' || event.state === 'error';
+          if (terminal) finish();
+        });
+        // If the emitter is unavailable (early boot), don't hang the chain.
+        if (!off) finish();
+      });
     const sendWorkflowDirective = (conversationId: string, directive: string): Promise<void> =>
       sendWorkflowAdvanceDirective(conversationId, directive, {
         getOrBuildTask: (id, opts) => workerTaskManager.getOrBuildTask(id, opts),
@@ -299,6 +329,7 @@ void getDatabase()
           const conv = await conversationServiceImpl.getConversation(id);
           return conv?.type ?? null;
         },
+        awaitTurnSettled: awaitWorkflowTurnSettled,
       });
     initWorkflowBridge(workflowService, {
       conversationService: conversationServiceImpl,
