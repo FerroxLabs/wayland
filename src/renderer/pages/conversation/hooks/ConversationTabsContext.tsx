@@ -21,6 +21,10 @@ export interface ConversationTab {
   workspace: string;
   /** Conversation type */
   type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' | 'wcore';
+  /** Owning project id, resolved to a name at render (#882). Absent on tabs
+   *  restored from localStorage before this field existed - acceptable
+   *  graceful degradation; no migration. */
+  projectId?: string;
   /** Whether there are unsaved changes */
   isDirty?: boolean;
 }
@@ -133,6 +137,7 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
           name: conversation.name,
           workspace: conversation.extra?.workspace || '',
           type: conversation.type,
+          projectId: (conversation.extra as { projectId?: string } | undefined)?.projectId,
         },
       ];
       if (appended.length > MAX_OPEN_TABS) {

@@ -52,6 +52,12 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en' } }),
 }));
 
+// ConversationTabs now resolves an optional project label via useProjects (#882);
+// stub it so this close-behavior test does not need the project IPC.
+vi.mock('@/renderer/pages/projects/hooks/useProjects', () => ({
+  useProjects: () => ({ projects: [] }),
+}));
+
 import { STORAGE_KEYS } from '../../../src/common/config/storageKeys';
 import ConversationTabs from '../../../src/renderer/pages/conversation/components/ConversationTabs';
 import { ConversationTabsProvider } from '../../../src/renderer/pages/conversation/hooks/ConversationTabsContext';

@@ -19,9 +19,10 @@ import { emitter } from '@/renderer/utils/emitter';
 import { cleanupSiderTooltips } from '@/renderer/utils/ui/siderTooltip';
 import { updateWorkspaceTime } from '@/renderer/utils/workspace/workspaceHistory';
 import { Dropdown, Menu, Message, Tag } from '@arco-design/web-react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useProjects } from '@/renderer/pages/projects/hooks/useProjects';
 import { useConversationTabs, type ConversationTab } from '../hooks/ConversationTabsContext';
 import { useConversationAgents } from '../hooks/useConversationAgents';
 import { applyDefaultConversationName } from '../utils/newConversationName';
@@ -39,6 +40,8 @@ interface TabFadeState {
 interface ConversationTabViewProps {
   tabId: string;
   tabName: string;
+  /** Resolved owning-project name, rendered as a muted secondary label (#882). */
+  projectName?: string;
   isActive: boolean;
   isMobile: boolean;
   /** This tab's conversation is open in a pop-out window (dimmed, non-navigable). */
@@ -54,6 +57,7 @@ interface ConversationTabViewProps {
 const ConversationTabView: React.FC<ConversationTabViewProps> = ({
   tabId,
   tabName,
+  projectName,
   isActive,
   isMobile,
   isPoppedOut,
@@ -76,9 +80,27 @@ const ConversationTabView: React.FC<ConversationTabViewProps> = ({
         // A popped-out tab is a non-navigable placeholder; clicking it focuses
         // the pop-out window instead of switching the main view.
         onClick={() => (isPoppedOut ? onPopout(tabId) : onSwitch(tabId))}
-        title={isPoppedOut ? t('conversation.tabs.poppedOut') : isMobile ? undefined : tabName}
+        title={
+          isPoppedOut
+            ? t('conversation.tabs.poppedOut')
+            : isMobile
+              ? undefined
+              : projectName
+                ? `${tabName} · ${projectName}`
+                : tabName
+        }
       >
-        <span className='text-15px whitespace-nowrap overflow-hidden text-ellipsis select-none flex-1'>{tabName}</span>
+        <span className='text-15px whitespace-nowrap overflow-hidden text-ellipsis select-none flex-1 min-w-0'>
+          {tabName}
+        </span>
+        {projectName && (
+          <span
+            data-testid='tab-project-label'
+            className='shrink-0 max-w-80px whitespace-nowrap overflow-hidden text-ellipsis text-12px text-[color:var(--color-text-3)] select-none'
+          >
+            {projectName}
+          </span>
+        )}
         {canPopout && !isPoppedOut && (
           <PictureInPicture2
             size={13}
@@ -166,6 +188,9 @@ const ConversationTabs: React.FC = () => {
   } = useConversationTabs();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { projects } = useProjects();
+  // Resolve project names at render (tabs store only the id - names can change).
+  const projectNameById = useMemo(() => new Map(projects.map((p) => [p.id, p.name])), [projects]);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const [tabFadeState, setTabFadeState] = useState<TabFadeState>({ left: false, right: false });
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
@@ -604,6 +629,7 @@ const ConversationTabs: React.FC = () => {
                   key={tab.id}
                   tabId={tab.id}
                   tabName={tab.name}
+                  projectName={tab.projectId ? projectNameById.get(tab.projectId) : undefined}
                   isActive={tab.id === activeTabId}
                   isMobile={isMobile}
                   isPoppedOut={poppedOutIds.has(tab.id)}
