@@ -190,6 +190,37 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
     expect(order).toEqual(['spawn1', 'dispatch', 'spawn2', 'dispatch']);
   });
 
+  it('4d. subscribes to turn-settle BEFORE dispatch: a terminal event during sendMessage does not stall', async () => {
+    // Race: the terminal `turnCompleted` fires DURING sendMessage's IPC round-
+    // trip. The settle listener must already be attached (awaitTurnSettled
+    // called BEFORE send) or the event is lost and the chain stalls for the full
+    // backstop. We model the listener attach as awaitTurnSettled being invoked.
+    let settleResolve: (() => void) | null = null;
+    let subscribedBeforeSend = false;
+    const awaitTurnSettled = vi.fn().mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          settleResolve = resolve; // "listener attached"
+        })
+    );
+    const sendMessage = vi.fn().mockImplementation(async () => {
+      // The terminal event can only be caught if the listener is already up.
+      subscribedBeforeSend = settleResolve !== null;
+      // Simulate the terminal firing during the dispatch round-trip.
+      settleResolve?.();
+    });
+    const getOrBuildTask = vi.fn().mockResolvedValue({ sendMessage });
+    const getConversationType = vi.fn().mockResolvedValue('wcore');
+    const deps: WorkflowAdvanceResetDeps = { getOrBuildTask, getConversationType, awaitTurnSettled };
+
+    // If the listener were attached AFTER send (the old bug), settleResolve
+    // would be null when the terminal fires -> the resolve is lost -> this
+    // promise would never settle and the test would time out.
+    await sendWorkflowAdvanceDirective('conv-1', 'step 2', deps);
+    expect(subscribedBeforeSend).toBe(true);
+    expect(awaitTurnSettled).toHaveBeenCalledTimes(1);
+  });
+
   it('5. type-lookup failure is safe: falls back to the non-reset send, never crashes the advance', async () => {
     const throwing = makeDeps(() => {
       throw new Error('conversation lookup exploded');

@@ -293,10 +293,14 @@ void getDatabase()
     // The visible SQLite transcript is untouched (directive sent hidden; the
     // reset only reads the message store).
     // #723 FIX 5: resolve when a conversation's current turn reaches a terminal
-    // state, so the reset serialization chain holds through the turn and a
-    // concurrent advance waits for the in-flight step instead of respawning
-    // (killing) it. Bounded by WORKFLOW_ADVANCE_TURN_TIMEOUT_MS so the chain can
-    // never block forever if a terminal event is missed.
+    // state (ai_waiting_input / stopped / error - matching the parent driver's
+    // completion set), so the reset serialization chain holds through the turn
+    // and a concurrent advance waits for the in-flight step instead of
+    // respawning (killing) it. The caller subscribes BEFORE dispatch so a fast
+    // terminal event is not missed. WORKFLOW_ADVANCE_TURN_TIMEOUT_MS is a
+    // degraded-state backstop (the normal release is the terminal turn event);
+    // if an event is genuinely missed the chain releases after the bound rather
+    // than blocking forever.
     const WORKFLOW_ADVANCE_TURN_TIMEOUT_MS = 10 * 60_000;
     const awaitWorkflowTurnSettled = (conversationId: string): Promise<void> =>
       new Promise<void>((resolve) => {

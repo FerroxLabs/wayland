@@ -84,12 +84,13 @@ export interface WorkflowAdvanceResetDeps {
   getConversationType(conversationId: string): Promise<string | null>;
   /**
    * Optional: resolve when the conversation's current turn reaches a terminal
-   * state (finished / stopped / error). When provided, the per-conversation
-   * serialization chain is held through the turn so a concurrent advance cannot
-   * respawn (skipCache kill) the still-in-flight step - `sendMessage` resolves
-   * when the directive is DISPATCHED, not when the turn finishes. Must be
-   * bounded (its own timeout) so the chain can never block forever. Absent (in
-   * unit tests) the chain releases on dispatch, as before.
+   * state (`ai_waiting_input` / `stopped` / `error` - matching the parent
+   * driver, where `ai_waiting_input` is the normal successful completion). When
+   * provided, the per-conversation serialization chain is held through the turn
+   * so a concurrent advance cannot respawn (skipCache kill) the still-in-flight
+   * step - `sendMessage` resolves when the directive is DISPATCHED, not when the
+   * turn finishes. Must be bounded (its own backstop timeout) so the chain can
+   * never block forever. Absent (in unit tests) the chain releases on dispatch.
    */
   awaitTurnSettled?(conversationId: string): Promise<void>;
 }
@@ -154,6 +155,15 @@ async function runAdvance(
       : { yoloMode: true };
 
   const task = await deps.getOrBuildTask(conversationId, options);
+
+  // Subscribe to the turn-settle signal BEFORE dispatch. A terminal
+  // `turnCompleted` can fire during `sendMessage`'s IPC round-trip; registering
+  // the listener only after sendMessage resolved would MISS that fast event and
+  // stall the per-conversation chain for the full backstop timeout. Start the
+  // settle wait first (it attaches its listener synchronously), then send, then
+  // await it. The prior turn's terminal already fired before runAdvance was
+  // called, so this listener targets the NEW turn started by this dispatch.
+  const settled = deps.awaitTurnSettled ? deps.awaitTurnSettled(conversationId) : null;
   await task.sendMessage({
     content: directive,
     input: directive,
@@ -162,11 +172,15 @@ async function runAdvance(
   });
 
   // Hold the per-conversation chain through the turn's terminal finish so the
-  // next advance waits for this step instead of respawning (killing) it. Bounded
-  // by the dep's own timeout; a failure/timeout releases rather than blocks.
-  if (deps.awaitTurnSettled) {
+  // next advance waits for this step instead of respawning (killing) it. The
+  // dep's own backstop timeout releases (degraded) rather than blocks if a
+  // terminal event is missed. This settle layer is intentionally type-AGNOSTIC
+  // (it runs for every conversation type, not just wcore): it only prevents
+  // overlapping directives, which is safe for ACP too, even though the reset
+  // itself is wcore-only (LO-04).
+  if (settled) {
     try {
-      await deps.awaitTurnSettled(conversationId);
+      await settled;
     } catch {
       // Never let a settle-wait failure block the conversation's advance chain.
     }

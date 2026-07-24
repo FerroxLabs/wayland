@@ -227,7 +227,9 @@ function buildPriorTurnSeed(messages: TMessage[], maxChars: number): string | nu
   if (turn.length === 0) return null;
 
   // Reserve a slice of the budget for the turn's tool rows so a large text
-  // deliverable cannot evict its own file/tool context via the final head-clip.
+  // deliverable does not evict the turn's trailing tool context via the final
+  // head-clip. The reserve guarantees ~`toolReserve` chars of tool context
+  // survive (typically the last few tool rows), not necessarily every tool row.
   const toolReserve = Math.min(2000, Math.floor(maxChars / 4));
   const textBudget = Math.max(1, maxChars - toolReserve);
   const perToolChars = Math.max(1, Math.min(1000, toolReserve));
