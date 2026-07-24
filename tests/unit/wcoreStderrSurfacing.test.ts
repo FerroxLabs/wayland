@@ -574,11 +574,13 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     await agent.send('active turn', 'active-turn');
     expect(stdinWrite).toHaveBeenCalledOnce();
 
-    child.emit('exit', 1);
-    child.emit('exit', 1);
+    // #853: Node fires 'exit' as (code, signal) — signal is null on a code-exit.
+    // The agent forwards both, so onProcessExit now carries the signal arg.
+    child.emit('exit', 1, null);
+    child.emit('exit', 1, null);
     expect(agent.isAlive).toBe(false);
     expect(onProcessExit).toHaveBeenCalledOnce();
-    expect(onProcessExit).toHaveBeenCalledWith(1, 'active-turn');
+    expect(onProcessExit).toHaveBeenCalledWith(1, 'active-turn', null);
 
     const writesAtExit = stdinWrite.mock.calls.length;
     agent.ping();

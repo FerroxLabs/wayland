@@ -5,6 +5,7 @@
  */
 
 import { ipcBridge } from '@/common';
+import { getPlatformServices } from '@/common/platform';
 import * as os from 'node:os';
 import { join } from 'node:path';
 import type { CronMessageMeta, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
@@ -39,6 +40,7 @@ import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
+import { describeExitReason } from '@process/agent/wcore/execFailureReason';
 import { acquireRuntimeLaunchAuthority } from '@process/agent/wcore/profilePaths';
 import type { WCoreCapabilities } from '@process/agent/wcore/protocol';
 import {
@@ -571,8 +573,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       mcpServerNames: sessionMcpServerNames,
       waylandHome: launchWaylandHome,
       onStreamEvent: (event) => this.emit('wcore.message', event),
-      onProcessExit: (code, activeMsgId) => {
-        this.handleProcessExit(code, activeMsgId);
+      onProcessExit: (code, activeMsgId, signal) => {
+        this.handleProcessExit(code, activeMsgId, signal);
       },
       onPong: () => this.handlePong(),
     });
@@ -1172,17 +1174,37 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  private handleProcessExit(code: number | null, activeMsgId: string): void {
-    mainError('[WCoreManager]', `wcore process exited unexpectedly (code=${code}) during active turn ${activeMsgId}`);
+  /**
+   * #853: a discoverable, redacted logs-path suffix appended to an exec/process
+   * failure so the user can reach the log that holds the detail. Path-as-text
+   * (the clickable "Open logs" affordance is deferred). Degrades to an empty
+   * string if no logs dir is available; never throws.
+   */
+  private logLinkSuffix(): string {
+    try {
+      const dir = getPlatformServices().paths.getLogsDir?.();
+      return dir ? `\n\nLogs: ${dir}` : '';
+    } catch {
+      return '';
+    }
+  }
+
+  private handleProcessExit(code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null): void {
+    mainError(
+      '[WCoreManager]',
+      `wcore process exited unexpectedly (code=${code}, signal=${signal ?? 'none'}) during active turn ${activeMsgId}`
+    );
 
     this.status = 'finished';
     void this.handleTurnEnd();
 
+    // #853: name the real exit reason (a kill signal, not "code null") and point
+    // the user at the log holding the detail, redacted before it is surfaced.
     const errorMessage: IResponseMessage = {
       type: 'error',
       conversation_id: this.conversation_id,
       msg_id: activeMsgId,
-      data: `Agent process exited unexpectedly (code ${code})`,
+      data: redactCommandSecrets(`Agent process ${describeExitReason(code, signal ?? null)}${this.logLinkSuffix()}`),
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);
     this.emitToEventBuses(errorMessage);
@@ -1209,11 +1231,14 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     cronBusyGuard.setProcessing(this.conversation_id, false);
 
     const detail = error instanceof Error ? error.message : String(error ?? 'unknown error');
+    // #853: `detail` already carries the errno/signal launch reason from the
+    // agent-side reject. Append the discoverable logs path and redact the whole
+    // user-facing string before surfacing.
     const errorMessage: IResponseMessage = {
       type: 'error',
       conversation_id: this.conversation_id,
       msg_id: activeMsgId,
-      data: `Agent failed to start: ${detail}`,
+      data: redactCommandSecrets(`Agent failed to start: ${detail}${this.logLinkSuffix()}`),
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);
     this.emitToEventBuses(errorMessage);

@@ -18,6 +18,7 @@ import { VAULT_PASSPHRASE_CHILD_FD, resolveSpawnVaultPassphrase } from '@process
 // AcpSession's prompt timeout.
 import { PromptTimer } from '@process/acp/session/PromptTimer';
 import { resolveWCoreBinary } from './binaryResolver';
+import { describeSpawnError, describeExitReason } from './execFailureReason';
 import {
   buildEngineSpawnEnv,
   buildSpawnConfig,
@@ -203,7 +204,7 @@ export type WCoreAgentOptions = {
    */
   waylandHome?: string;
   onStreamEvent: StreamEventHandler;
-  onProcessExit?: (code: number | null, activeMsgId: string) => void;
+  onProcessExit?: (code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null) => void;
   /** Unconditional child-lifecycle notification, including idle and post-turn exits. */
   onProcessTerminated?: (code: number | null) => void;
   onPong?: () => void;
@@ -693,7 +694,23 @@ export class WCoreAgent {
     // exact process-tree identity that kill() must still prove stopped.
     spawnedChild.stdin?.on('error', markStdinUnavailable);
     spawnedChild.stdin?.on('close', () => markStdinUnavailable());
-    spawnedChild.on('exit', (code) => {
+    // #853: the ONLY honest surface for a launch failure. Node delivers a spawn
+    // ENOENT/EACCES/EPERM on this event and no 'exit'/'ready' ever fires, so
+    // without this listener the errno is (a) an unhandled 'error' event that can
+    // crash the main process and (b) invisible to the user (a bare 30s ready
+    // timeout with empty stderr). Installed synchronously beside the exit
+    // listener so no spawn error can arrive before it is attached. A post-ready
+    // spawn 'error' is near-nonexistent (errnos fire pre-ready), so that branch
+    // deliberately surfaces the reason without the log-link suffix (W3, accepted).
+    spawnedChild.on('error', (err: NodeJS.ErrnoException) => {
+      const reason = redactSecrets(describeSpawnError(err));
+      if (!this.ready) {
+        this.readyReject(new Error(reason));
+      } else {
+        this.onStreamEvent({ type: 'error', data: reason, msg_id: this.activeMsgId ?? '' });
+      }
+    });
+    spawnedChild.on('exit', (code, signal) => {
       // Node promises one exit event, but keep this boundary idempotent under a
       // hostile/double-emitting child shim. Replaying terminal notifications
       // must not duplicate trust changes or manager termination callbacks.
@@ -729,19 +746,18 @@ export class WCoreAgent {
       if (!this.ready) {
         // Surface the engine's real bail reason (its last stderr) alongside the
         // exit code so callers see the cause, not just "exited with code N"
-        // (#484). The "exited with code" wording distinguishes an engine that
-        // died during init from the separate 30s ready-timeout below.
+        // (#484). #853: compose via describeExitReason so a signal-kill (AV
+        // SIGKILL) reads "killed by SIGKILL …" instead of "exited with code null"
+        // — a numeric exit stays byte-exactly "exited with code N", keeping this
+        // wording distinct from the separate 30s ready-timeout below.
         const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
+        const reason = describeExitReason(code, signal);
         this.readyReject(
-          new Error(
-            detail
-              ? `wcore exited with code ${code} during init: ${detail}`
-              : `wcore exited with code ${code} during init`
-          )
+          new Error(detail ? `wcore ${reason} during init: ${detail}` : `wcore ${reason} during init`)
         );
       }
       if (this.activeMsgId && this._onProcessExit) {
-        this._onProcessExit(code, this.activeMsgId);
+        this._onProcessExit(code, this.activeMsgId, signal);
       }
       this._onProcessTerminated?.(code);
       this.activeMsgId = null;
