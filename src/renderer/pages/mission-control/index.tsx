@@ -311,6 +311,14 @@ const MissionControlPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'cost' ? 'cost' : 'operations');
 
+  // Re-sync when the deep-link changes while the page is ALREADY mounted (e.g.
+  // clicking SpendPill from Mission Control): the one-shot initial state above
+  // would otherwise leave the tab stale (xaudit finding 1).
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'cost' || tab === 'operations') setActiveTab(tab);
+  }, [searchParams]);
+
   // Hide the pop-out trigger when this page is itself rendered inside a pop-out
   // window - there is nothing to pop out into from there (#157).
   const actions = isPopout ? undefined : (

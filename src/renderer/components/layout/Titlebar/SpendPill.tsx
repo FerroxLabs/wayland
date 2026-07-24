@@ -49,7 +49,9 @@ export const SpendPill: React.FC = () => {
   // Keep the pill fresh when a budget alert fires (same source BudgetsPanel uses).
   useEffect(() => {
     const off = ipcBridge.cost.budgetAlert.on(() => {
-      void mutate();
+      // Swallow transient IPC/mutate failures - the pill self-heals on the next
+      // SWR revalidation; an unhandled rejection here would be noise (xaudit finding 4).
+      void mutate().catch(() => {});
     });
     return () => off();
   }, [mutate]);
@@ -64,6 +66,11 @@ export const SpendPill: React.FC = () => {
   if (!budget) return null;
 
   const { spentUsd, limitUsd } = budget;
+  // Guard against malformed budget data: require finite spend and a finite,
+  // positive limit, else the pill would render "$NaN" or a bad severity tier
+  // (xaudit finding 3). Treat bad data like no budget - render nothing.
+  if (!Number.isFinite(spentUsd) || !Number.isFinite(limitUsd) || limitUsd <= 0) return null;
+
   const severity = budgetSeverity(spentUsd, limitUsd);
   const spendText = `${formatUsd(spentUsd)} / ${formatUsd(limitUsd)}`;
   const ariaLabel = `${t('missionControl.cost.totalSpend')}: ${spendText}`;

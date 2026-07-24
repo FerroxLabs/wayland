@@ -89,7 +89,31 @@ describe('SpendPill (#508)', () => {
     const pill = await screen.findByRole('button');
     expect(pill.tagName).toBe('BUTTON');
     const label = pill.getAttribute('aria-label') ?? '';
+    // Uses the localized missionControl.cost.totalSpend key, not an English-only string.
+    expect(label).toContain('Total spend');
     expect(label).toContain('$3.10');
     expect(label).toContain('$10.00');
+  });
+
+  it('renders nothing for malformed budget data (zero / negative / NaN limit)', async () => {
+    for (const badLimit of [0, -5, Number.NaN]) {
+      listBudgets.mockReset();
+      listBudgets.mockResolvedValue([{ ...globalBudget, limitUsd: badLimit }]);
+      const { container, unmount } = renderPill();
+      await Promise.resolve();
+      await Promise.resolve();
+      expect(screen.queryByRole('button')).not.toBeInTheDocument();
+      expect(container).toBeEmptyDOMElement();
+      unmount();
+    }
+  });
+
+  it('renders nothing when the spend is not finite', async () => {
+    listBudgets.mockResolvedValue([{ ...globalBudget, spentUsd: Number.NaN }]);
+    const { container } = renderPill();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(container).toBeEmptyDOMElement();
   });
 });
