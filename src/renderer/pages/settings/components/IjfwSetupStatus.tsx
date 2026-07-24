@@ -35,7 +35,8 @@ import type { IjfwInvokeResult } from '@/common/types/ijfw';
  */
 const probeFailureReason = (r: IjfwInvokeResult): string | undefined => {
   const fail = r as { ok: false; error?: string; errorReason?: string };
-  return fail.error ?? fail.errorReason;
+  // `||` (not `??`) so an empty-string `error` falls through to the code.
+  return fail.error || fail.errorReason;
 };
 
 export type IjfwSetupStatusProps = {
@@ -168,11 +169,12 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
           ? t('memory.settings.status_runtime_full', { defaultValue: 'Live' })
           : runtimeState === 'warn'
             ? runtimeReason
-              ? // #891: surface the real reason. The reason is a machine string
-                // received from the client (never translate it), so concatenate
-                // it OUTSIDE t() — a translated lead + the raw reason as data.
-                `${t('memory.settings.status_runtime_degraded_lead', {
-                  defaultValue: 'Degraded',
+              ? // #891: surface the real reason. Reuse the EXISTING localized
+                // degraded label as the lead (so every locale keeps its own
+                // translation) and append the raw machine reason OUTSIDE t()
+                // (a received string — never translated).
+                `${t('memory.settings.status_runtime_degraded', {
+                  defaultValue: 'Degraded (not reachable)',
                 })}: ${runtimeReason}`
               : t('memory.settings.status_runtime_degraded', {
                   defaultValue: 'Degraded (not reachable)',
@@ -273,9 +275,10 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
             <CloseOne theme='filled' size={14} fill='rgb(var(--danger-6))' />
             <Typography.Text style={{ color: 'rgb(var(--danger-6))' }} className='text-12px'>
               {testFailReason
-                ? // #891: translated lead + the raw reason as data (outside t()).
-                  `${t('memory.settings.test_fail_lead', {
-                    defaultValue: 'Memory did not respond',
+                ? // #891: reuse the EXISTING localized fail label as the lead +
+                  // the raw reason as data (outside t()).
+                  `${t('memory.settings.test_fail', {
+                    defaultValue: 'Memory did not respond. Check the install status above.',
                   })}: ${testFailReason}`
                 : t('memory.settings.test_fail', {
                     defaultValue: 'Memory did not respond. Check the install status above.',

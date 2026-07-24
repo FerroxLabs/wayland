@@ -153,6 +153,16 @@ describe('IjfwSetupStatus (#414)', () => {
     });
   });
 
+  it('mount probe with an empty-string error falls through to the errorReason code (#891)', async () => {
+    brainInvoke.mockResolvedValue({ ok: false, error: '', errorReason: 'timeout' });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    await waitFor(() => {
+      const runtime = screen.getByTestId('ijfw-status-item-runtime');
+      expect(runtime.getAttribute('data-status')).toBe('pending');
+      expect(runtime.textContent).toContain('timeout');
+    });
+  });
+
   it('mount probe with no reason preserves the bare degraded label without crashing (#891 regression guard)', async () => {
     brainInvoke.mockResolvedValue({ ok: false });
     render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
