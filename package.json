@@ -31,6 +31,8 @@
     "dist": "node scripts/build-with-builder.js",
     "predist:mac": "bun run verify:modelsdev-snapshot && bun run build:skill-pack",
     "dist:mac": "node scripts/build-with-builder.js auto --mac",
+    "predist:verify:mac": "bun run verify:modelsdev-snapshot && bun run build:skill-pack",
+    "dist:verify:mac": "cross-env WAYLAND_LOCAL_VERIFICATION=1 node scripts/build-with-builder.js auto --mac --dir",
     "predist:win": "bun run verify:modelsdev-snapshot && bun run build:skill-pack",
     "dist:win": "node scripts/build-with-builder.js auto --win",
     "predist:linux": "bun run verify:modelsdev-snapshot && bun run build:skill-pack",

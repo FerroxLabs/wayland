@@ -20,6 +20,7 @@ const prepareOfficeCli = require('./prepareOfficeCli');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
+const { isLocalVerificationBuild } = require('./localVerificationGate');
 const {
   VOICE_MODEL_FILES,
   resolvePackagedTarget,
@@ -622,10 +623,21 @@ try {
   // acceptance receipt; an excluded capability must be physically absent.
   // The generated seal is copied by electron-builder's existing public/ rule.
   verifyThirdPartyExecutableLedger();
-  writeCapabilitySeal({
-    root: path.resolve(__dirname, '..'),
-    outputFile: capabilitySealPath,
-  });
+  // The capability seal is release-gated. A local verification build
+  // (WAYLAND_LOCAL_VERIFICATION=1) OMITS it — it does not forge one — so a local
+  // `--dir` build can produce a launchable `.app` for packaged-cockpit-smoke.mjs.
+  // Neither the app runtime nor the smoke ever read the seal (Q-C/Q-D), so its
+  // absence is inert. Default-OFF: any other value writes the seal (release path).
+  if (isLocalVerificationBuild(process.env)) {
+    console.warn(
+      '⚠️  LOCAL VERIFICATION BUILD — NOT A RELEASE (WAYLAND_LOCAL_VERIFICATION=1): capability seal omitted; this artifact must never ship as a release.'
+    );
+  } else {
+    writeCapabilitySeal({
+      root: path.resolve(__dirname, '..'),
+      outputFile: capabilitySealPath,
+    });
+  }
 
   // 1. Ensure package.json main entry is correct for electron-vite
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
