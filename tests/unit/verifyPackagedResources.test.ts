@@ -442,6 +442,25 @@ describe('packaged resource release gate', () => {
     expect(() => verify(missing)).toThrow(/CRITICAL resource/);
   });
 
+  it('accepts an intentionally-omitted seal on a local verification build (--allow-missing-seal)', () => {
+    const out = createPackagedResources(true);
+    fs.rmSync(path.join(packagedResourcesPath(out), 'capability-seal.json'));
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        argv: [...verifyArgs(out, 'darwin-arm64', 'darwin-arm64'), '--allow-missing-seal'],
+      })
+    ).not.toThrow();
+  });
+
+  it('rejects a seal that is PRESENT on a local verification build (enforces omit-not-forge)', () => {
+    const out = createPackagedResources(true); // fixture writes capability-seal.json
+    expect(() =>
+      verify(out, 'darwin-arm64', 'darwin-arm64', {
+        argv: [...verifyArgs(out, 'darwin-arm64', 'darwin-arm64'), '--allow-missing-seal'],
+      })
+    ).toThrow(/CRITICAL resource/);
+  });
+
   it('fails closed on Windows unless the unsupported Constitution authority has no packaged helper bytes', () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'constitution-fs-windows-'));
     roots.push(root);

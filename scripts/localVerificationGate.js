@@ -18,4 +18,18 @@ function isLocalVerificationBuild(env) {
   return Boolean(env) && env.WAYLAND_LOCAL_VERIFICATION === '1';
 }
 
-module.exports = { isLocalVerificationBuild };
+/**
+ * The seal is skipped ONLY for an explicitly-local, UNPACKED (`--dir`) build —
+ * never a distributable (dmg/zip/nsis) build. Binding the skip to `--dir` means a
+ * leaked `WAYLAND_LOCAL_VERIFICATION=1` env var can never deseal a shippable
+ * artifact: a release/CI build (no `--dir`) always writes the seal regardless.
+ *
+ * @param {Record<string, string | undefined>} env
+ * @param {string[]} argv build arguments (e.g. process.argv.slice(2))
+ * @returns {boolean} true iff the flag is exactly '1' AND `--dir` is present
+ */
+function isLocalVerificationDirBuild(env, argv) {
+  return isLocalVerificationBuild(env) && Array.isArray(argv) && argv.includes('--dir');
+}
+
+module.exports = { isLocalVerificationBuild, isLocalVerificationDirBuild };

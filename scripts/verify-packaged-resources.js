@@ -999,6 +999,11 @@ function verifyPackagedResources(options = {}) {
   const { platform: targetPlatform, arch: targetArch } = parseTarget(argv);
   const requiredOfficeCliRuntimes = parseRequiredRuntimes(argv, '--officecli-runtime', 'OfficeCLI');
   const requiredWCoreRuntimes = parseRequiredRuntimes(argv, '--wcore-runtime', 'wayland-core');
+  // Local verification builds (`build-with-builder.js` with WAYLAND_LOCAL_VERIFICATION=1
+  // + `--dir`) intentionally OMIT the release capability seal. When this flag is set we
+  // require the seal to be ABSENT (not present-and-valid) — enforcing omit-not-forge —
+  // while every other critical resource + signature check stays fully in force.
+  const allowMissingSeal = argv.includes('--allow-missing-seal');
   const expectedRuntime = `${targetPlatform}-${targetArch}`;
   if (
     JSON.stringify(requiredOfficeCliRuntimes) !== JSON.stringify([expectedRuntime]) ||
@@ -1048,6 +1053,17 @@ function verifyPackagedResources(options = {}) {
     logger.log(`${TAG} checking ${resDir}`);
     for (const req of REQUIRED) {
       const target = path.join(resDir, req.rel);
+      if (req.kind === 'capability-seal' && allowMissingSeal) {
+        // Verification build: the seal MUST be absent. A present seal (stale or
+        // manually placed) is a forge risk, so treat its presence as a failure.
+        if (fs.existsSync(target)) {
+          logger.error(`${TAG}   FAIL ${req.rel}  <-- local verification build must NOT contain a capability seal`);
+          criticalFailures += 1;
+        } else {
+          logger.log(`${TAG}   SKIP ${req.rel}  (intentionally omitted - local verification build)`);
+        }
+        continue;
+      }
       const ok = isNonEmpty(
         target,
         req.kind,

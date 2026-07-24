@@ -20,7 +20,7 @@ const prepareOfficeCli = require('./prepareOfficeCli');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
-const { isLocalVerificationBuild } = require('./localVerificationGate');
+const { isLocalVerificationDirBuild } = require('./localVerificationGate');
 const {
   VOICE_MODEL_FILES,
   resolvePackagedTarget,
@@ -505,6 +505,10 @@ const skipVite = args.includes('--skip-vite');
 const skipNative = args.includes('--skip-native');
 const packOnly = args.includes('--pack-only');
 const forceBuild = args.includes('--force');
+// A local verification build (WAYLAND_LOCAL_VERIFICATION=1 AND `--dir`) OMITS the
+// release capability seal so packaged-cockpit-smoke.mjs has a launchable `.app`.
+// Bound to `--dir` so a leaked env var can never deseal a distributable build.
+const localVerificationBuild = isLocalVerificationDirBuild(process.env, args);
 
 const builderArgs = args
   .filter((arg) => {
@@ -624,14 +628,19 @@ try {
   // The generated seal is copied by electron-builder's existing public/ rule.
   verifyThirdPartyExecutableLedger();
   // The capability seal is release-gated. A local verification build
-  // (WAYLAND_LOCAL_VERIFICATION=1) OMITS it — it does not forge one — so a local
-  // `--dir` build can produce a launchable `.app` for packaged-cockpit-smoke.mjs.
+  // (WAYLAND_LOCAL_VERIFICATION=1 AND `--dir`) OMITS it — it does not forge one —
+  // so a local build can produce a launchable `.app` for packaged-cockpit-smoke.mjs.
   // Neither the app runtime nor the smoke ever read the seal (Q-C/Q-D), so its
   // absence is inert. Default-OFF: any other value writes the seal (release path).
-  if (isLocalVerificationBuild(process.env)) {
+  if (localVerificationBuild) {
     console.warn(
       '⚠️  LOCAL VERIFICATION BUILD — NOT A RELEASE (WAYLAND_LOCAL_VERIFICATION=1): capability seal omitted; this artifact must never ship as a release.'
     );
+    // Genuine omission, not a stale forge: a real seal left in public/ from an
+    // earlier build (or manually placed) would otherwise be copied into the `.app`
+    // by electron-builder's public/ rule. Delete it so the artifact carries NO
+    // seal. preserveGeneratedSource() restores any pre-existing file in `finally`.
+    fs.rmSync(capabilitySealPath, { force: true });
   } else {
     writeCapabilitySeal({
       root: path.resolve(__dirname, '..'),
@@ -990,6 +999,10 @@ try {
       packagedTarget.executablePath,
       ...wcoreRuntimeArgs.split(' '),
       ...officeCliRuntimeArgs.split(' '),
+      // On a local verification build the seal is intentionally absent; tell the
+      // verifier to require its ABSENCE (not its presence) while still enforcing
+      // every other critical resource + signature check.
+      ...(localVerificationBuild ? ['--allow-missing-seal'] : []),
     ],
     { stdio: 'inherit', env: process.env }
   );
