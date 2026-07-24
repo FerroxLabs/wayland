@@ -20,6 +20,7 @@ import { useWorkspaceCollapse } from '@/renderer/pages/conversation/hooks/useWor
 import { PreviewPanel, usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { dispatchWorkspaceToggleEvent } from '@/renderer/utils/workspace/workspaceEvents';
 import { ACP_BACKENDS_ALL } from '@/common/types/acpTypes';
+import { NON_ACP_BACKEND_DISPLAY_NAMES, resolveRuntimeName } from './runtimeName';
 import classNames from 'classnames';
 import { isWindowsEnvironment } from '@/renderer/pages/conversation/utils/detectPlatform';
 import { Layout as ArcoLayout } from '@arco-design/web-react';
@@ -138,13 +139,6 @@ const ChatLayout: React.FC<{
     ConfigStorage.get('acp.customAgents')
   );
 
-  // Display names for non-ACP backends (the ACP_BACKENDS_ALL registry only
-  // covers ACP-protocol agents; native-spawn backends like wcore need
-  // their own friendly-name lookup so the badge doesn't show the raw id).
-  const NON_ACP_BACKEND_DISPLAY_NAMES: Record<string, string> = {
-    wcore: 'Wayland Core',
-  };
-
   // Compute display name with fallback chain
   const displayName =
     presetAssistant?.name ||
@@ -154,15 +148,10 @@ const ChatLayout: React.FC<{
     (backend ? NON_ACP_BACKEND_DISPLAY_NAMES[backend] : undefined) ||
     backend;
 
-  // Friendly runtime name for the header pill (#909). Reuses the same resolver
-  // chain as displayName but keyed off the runtime (backend) only, so the badge
-  // can show the assistant AND the runtime it runs on (e.g. Concierge · Wayland
-  // Core) instead of collapsing to the assistant alone.
-  const runtimeName = backend
-    ? NON_ACP_BACKEND_DISPLAY_NAMES[backend] ||
-      ACP_BACKENDS_ALL[backend as keyof typeof ACP_BACKENDS_ALL]?.name ||
-      backend
-    : undefined;
+  // Friendly runtime name for the header pill (#909). Resolves to a friendly
+  // display name only; an unknown backend yields undefined so the badge shows a
+  // single label instead of leaking the raw id (D-06 xaudit finding 2).
+  const runtimeName = resolveRuntimeName(backend);
 
   const titleAreaMaxWidth = containerWidth ? Math.max(160, Math.min(640, containerWidth - 460)) : 480;
   const workbenchOverlay = isMobile || isPopout || (containerWidth > 0 && containerWidth < 960);

@@ -23,6 +23,7 @@ import { describe, expect, it } from 'vitest';
  */
 
 import AgentBadge from '../../../src/renderer/components/agent/AgentBadge';
+import { resolveRuntimeName } from '../../../src/renderer/pages/conversation/components/ChatLayout/runtimeName';
 
 const renderBadge = (props: React.ComponentProps<typeof AgentBadge>) =>
   render(
@@ -69,5 +70,29 @@ describe('AgentBadge runtime label (#909)', () => {
     const badge = screen.getByTestId('agent-badge');
     expect(badge).toHaveTextContent('Concierge');
     expect(within(badge).queryByTestId('agent-badge-runtime')).not.toBeInTheDocument();
+  });
+
+  it('does not render a runtime label for a raw/unknown backend id', () => {
+    // A backend not in the friendly maps yields no runtimeName (ChatLayout passes
+    // undefined), so the badge must not leak "Assistant · gemini".
+    renderBadge({ backend: 'gemini', agentName: 'Assistant', runtimeName: resolveRuntimeName('gemini') });
+
+    const badge = screen.getByTestId('agent-badge');
+    expect(within(badge).queryByTestId('agent-badge-runtime')).not.toBeInTheDocument();
+    expect(badge).not.toHaveTextContent('gemini');
+  });
+});
+
+describe('resolveRuntimeName (#909 xaudit finding 2)', () => {
+  it('resolves known backends to their friendly name', () => {
+    expect(resolveRuntimeName('wcore')).toBe('Wayland Core');
+    expect(resolveRuntimeName('claude')).toBe('Claude Code');
+  });
+
+  it('returns undefined for raw/unknown backends instead of leaking the id', () => {
+    expect(resolveRuntimeName('gemini')).toBeUndefined();
+    expect(resolveRuntimeName('totally-unknown-backend')).toBeUndefined();
+    expect(resolveRuntimeName(undefined)).toBeUndefined();
+    expect(resolveRuntimeName('')).toBeUndefined();
   });
 });
