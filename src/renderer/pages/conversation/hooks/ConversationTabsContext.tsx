@@ -125,9 +125,21 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
     // Browser-like tabs: EVERY chat opened (new or existing) becomes a tab, not
     // just custom-workspace ones. Opening a chat that already has a tab just
     // re-activates it; a new one is appended (with a soft cap, see below).
+    const incomingProjectId = (conversation.extra as { projectId?: string } | undefined)?.projectId;
     setOpenTabs((prev) => {
-      const exists = prev.find((tab) => tab.id === conversation.id);
-      if (exists) {
+      const existsIdx = prev.findIndex((tab) => tab.id === conversation.id);
+      if (existsIdx !== -1) {
+        const existing = prev[existsIdx];
+        // Backfill projectId for tabs restored from persistence before this field
+        // existed (#882 xaudit finding 5). Tabs restored from localStorage carry
+        // no projectId; resolve it the moment the conversation is (re)opened or
+        // viewed - conversation/index.tsx calls openTab(data) on load - so restored
+        // tabs are not permanently label-less.
+        if (incomingProjectId && existing.projectId !== incomingProjectId) {
+          const next = [...prev];
+          next[existsIdx] = { ...existing, projectId: incomingProjectId };
+          return next;
+        }
         return prev;
       }
       const appended: ConversationTab[] = [
@@ -137,7 +149,7 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
           name: conversation.name,
           workspace: conversation.extra?.workspace || '',
           type: conversation.type,
-          projectId: (conversation.extra as { projectId?: string } | undefined)?.projectId,
+          projectId: incomingProjectId,
         },
       ];
       if (appended.length > MAX_OPEN_TABS) {

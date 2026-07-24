@@ -54,7 +54,10 @@ vi.mock('@/renderer/pages/projects/hooks/useProjects', () => ({
 
 import { STORAGE_KEYS } from '../../../src/common/config/storageKeys';
 import ConversationTabs from '../../../src/renderer/pages/conversation/components/ConversationTabs';
-import { ConversationTabsProvider } from '../../../src/renderer/pages/conversation/hooks/ConversationTabsContext';
+import {
+  ConversationTabsProvider,
+  useConversationTabs,
+} from '../../../src/renderer/pages/conversation/hooks/ConversationTabsContext';
 
 type SeedTab = {
   id: string;
@@ -120,5 +123,47 @@ describe('ConversationTabs project label (#882)', () => {
     const tab = tabOf('No project chat');
     expect(within(tab).queryByTestId('tab-project-label')).not.toBeInTheDocument();
     expect(tab).not.toHaveTextContent('undefined');
+  });
+
+  it('keeps the close control shrink-0 so it survives title truncation', () => {
+    const longTitle = 'Reconcile every continuity file across all open workstreams before end of day';
+    seedTabs([{ id: 'c6', name: longTitle, workspace: '/w', type: 'gemini', projectId: 'proj-1' }], 'c6');
+    renderTabs('c6');
+
+    const tab = tabOf(longTitle);
+    // The X close control must not shrink away when the title is long.
+    // (SVG className is an SVGAnimatedString, so read the class attribute.)
+    const closeIcon = within(tab).getByTestId('icon-X');
+    expect(closeIcon.getAttribute('class') ?? '').toContain('shrink-0');
+  });
+
+  it('backfills the project label for a restored tab when its conversation is (re)opened', async () => {
+    // A tab restored from persistence before the projectId field existed has no
+    // projectId; opening its conversation (conversation/index.tsx calls openTab)
+    // must backfill it so the label appears (xaudit finding 5).
+    seedTabs([{ id: 'c7', name: 'Restored chat', workspace: '/w', type: 'gemini' }], 'c7');
+
+    const Reopener: React.FC = () => {
+      const { openTab } = useConversationTabs();
+      React.useEffect(() => {
+        openTab({ id: 'c7', name: 'Restored chat', type: 'gemini', extra: { projectId: 'proj-1' } } as never);
+      }, [openTab]);
+      return null;
+    };
+
+    render(
+      <ConversationTabsProvider>
+        <MemoryRouter initialEntries={['/conversation/c7']}>
+          <ConversationTabs />
+          <Reopener />
+          <Routes>
+            <Route path='/conversation/:id' element={<div />} />
+          </Routes>
+        </MemoryRouter>
+      </ConversationTabsProvider>
+    );
+
+    const label = await screen.findByTestId('tab-project-label');
+    expect(label).toHaveTextContent('Continuity');
   });
 });
