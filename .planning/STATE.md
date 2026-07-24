@@ -139,8 +139,8 @@ gsd worktree is abandoned (physical cleanup of the gsd sprawl is a separate pass
 worktrees actually live in `~/dev/app-worktrees/wt-*`; this one is under `wayland-worktrees/` per
 Sean's menu pick (movable).
 
-**D1 (#890) + D2 (#885) DONE — real-data live-verified 2026-07-24. #537 draft-close pending. D3 (#891/#853) is NEXT.**
-Latest commit `ff5fa4795`, local only.
+**D1 (#890) + D2 (#885) + D3 (#891/#853) DONE — real-data live-verified 2026-07-24. #537 draft-close pending. D5 (#909/#910/#508/#882) is NEXT.**
+Latest commit `9cb3d4695`, local only.
 
 - **Root cause (research OVERTURNED the council's pino theory):** the **RunAsNode fuse**. Packaged
   builds disable it (`afterPack.js`), so `WhatsAppPlugin.forkBridge`'s `child_process.fork` booted a
@@ -193,10 +193,44 @@ Latest commit `ff5fa4795`, local only.
   confirm a builtin loads while an imported still blocks) batched into the pre-publish pass — fix is
   fuse-independent and proven on real data. `D-03-SUMMARY.md` authored at that acceptance.
 
-**NEXT: D3 (#891 memory false "Degraded" FIX+BUILD + #853 surface exec/process errors BUILD)** —
-`ferrox-plan-phase` → build via `ferrox-executor` → `ferrox-code-reviewer` → `ferrox-verifier` +
-live-verify by hand. Root-cause map in the handoff (#853 scope = exec/process failures only, Sean's call).
-Then D5 (#909/#910/#508/#882) → D4 (#723, gated). No push without Sean.
+**D3 (Honest diagnostics): DONE — two packets, full Ferrox loop each, local only.**
+- **D-04 (#891 memory false "Degraded"):** commits `7cf75d746` (tests) · `da25c88e5` (fix) · `2a1fec79f`
+  (cross-audit fold). Root cause = renderer discard: `ijfwMcpClient` already returns
+  `{ok:false, error, errorReason}` + logs main-side; `IjfwSetupStatus.tsx` read only `r?.ok` and rendered
+  a hard-coded "Degraded". Fix = thread the real reason into both the mount runtime-row and the Test-fail
+  text, REUSING existing localized keys (`status_runtime_degraded`/`test_fail`) so no new translation debt;
+  `||` empty-string fallthrough. Renderer-only, verb `state` unchanged, NO 37891/HTTP probe (reporter's
+  premise was wrong — 0 grep hits). Loop: plan-checker PASS → cross-audit GO (cast helper sound, necessary
+  under strictNullChecks:false) → verify GOAL MET 6/6. DOM 15/15, tsc clean. Deferred (Sean's discretion):
+  `state → memory_*` probe-verb alignment — surfacing the reason resolves the reporter's literal complaint;
+  a working memory on an OLDER MCP server would still show amber, now WITH the reason.
+- **D-05 (#853 surface exec/process errors, scope LOCKED to exec/process only):** commits `d0236f079`
+  (tests) · `50b16a91c` (fix). Gaps fixed: NO `child.on('error')` handler existed (spawn ENOENT/EACCES →
+  unhandled → main crash risk); `signal` dropped on exit (SIGKILL → "code null"); no log link. Fix = new
+  pure leaf `execFailureReason.ts` (`describeSpawnError`/`describeExitReason`, both surfaces route through
+  it), `on('error')` errno capture (also kills the crash path), signal capture threaded through init-reject
+  + `handleProcessExit`, redacted `getLogsDir()` log link. Double-redacted (`redactSecrets` +
+  `redactCommandSecrets`). Provider API errors untouched (already verbatim). Loop: plan-checker PASS (W1
+  regression trap flagged — `describeExitReason(N,null)` must stay byte-exact `exited with code N`; held) →
+  cross-audit GO → verify GOAL MET 6/6. 67/67 exec tests, tsc clean.
+- **LIVE verify (by hand, harness, real events):** fired the D-05 describers at REAL Node child_process
+  events — real missing binary → genuine `ENOENT` → "engine binary is missing or was blocked by antivirus…
+  (ENOENT)"; real `SIGKILL` → genuine `exit(null,'SIGKILL')` → "killed by SIGKILL…", NOT "code null".
+  Proves the describers handle production event shapes, not fixtures. Throwaway not committed.
+- **Residual (parked, Sean's call):** packaged-GUI live-verify for BOTH — D-04 (degraded MCP install shows
+  the real reason on both surfaces + in electron-log; healthy stays Live) + D-05 (rename/`chmod 000` the
+  wcore binary → real errno/signal + reachable log; provider API errors still verbatim) — batched into the
+  pre-publish pass. `D-04-SUMMARY.md`/`D-05-SUMMARY.md` authored at that acceptance.
+- **Cross-audit follow-ups (tracked, pre-existing / non-blocking):** D-05 compound-failure path
+  (`WCoreManager.ts:350`) — when lease-release ALSO fails, the errno is wrapped in an `AggregateError`
+  whose `.message` drops the errno (pre-existing, out of D-05 scope). #422 TODO at `WCoreManager.ts:1052`
+  (pre-existing). D-04 clickable "Open logs" button deferred (no logs-dir IPC to renderer yet).
+
+**NEXT: D5 (UI clarity batch — all BUILD, S):** #909 runtime pill shows Concierge, hide-nothing surface the
+runtime (Wayland Core) alongside; #910 label alignment (pin vs "Starred", "Chats" vs "Conversations"); #508
+compact spend indicator on the top bar (cost UI already built, only the top-bar delta remains); #882 (LOWEST)
+secondary project label per conversation tab. Then D4 (#723, gated — reconfirm in-place-reset arch with Sean).
+Root-cause map in the handoff. No push without Sean.
 
 Prior handoff (Milestone A/B, still valid context): `.planning/HANDOFF-2026-07-23-milestone-b-built.md`.
 Core-gated follow-ons (do NOT build against the moving Core): SBX-02 wiring, COW-04 live citations.
