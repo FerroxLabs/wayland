@@ -14,6 +14,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { buildResumeSeedTranscript } from '@/process/task/resumeSeed';
+import { WORKFLOW_RESET_SEED_BOUND } from '@process/services/workflow/workflowAdvanceReset';
 import type { TMessage } from '@/common/chat/chatLib';
 
 const textMsg = (position: 'left' | 'right', content: string, id: string): TMessage =>
@@ -219,5 +220,82 @@ describe('buildResumeSeedTranscript (#457)', () => {
     // The tail (latest) survives; the head is dropped.
     expect(seed).toContain('message number 49');
     expect(seed).not.toContain('message number 0');
+  });
+});
+
+describe('#723 carry-forward contract - WORKFLOW_RESET_SEED_BOUND', () => {
+  // A REALISTIC per-step reset history, mirroring the real DB shape at reset
+  // time: 5 step deliverables interleaved with hidden advance directives
+  // (`right` rows) and tool rows, and a TOOL-HEAVY tail after the last
+  // deliverable, plus a >4000-char final deliverable. This is the shape a tiny
+  // fixture cannot expose (W1): with a naive `slice(-4)` tail bound a tool-heavy
+  // step pushes the actual deliverable OUT of the window, and a >4000-char
+  // deliverable is truncated to its LAST 4000 chars - so the load-bearing HEAD a
+  // dependent step needs is lost. The bound must carry the immediately-prior
+  // deliverable's load-bearing content regardless.
+  const DELIVERABLE_HEAD = 'DRAFT-V5-HEADING: the canonical release plan';
+  // >4000 chars so a raw char-tail slice would truncate the head.
+  const bigDeliverable = `${DELIVERABLE_HEAD}\n` + 'body '.repeat(1200);
+
+  const history: TMessage[] = [
+    textMsg('right', 'Proceed to step 1: Intro', 'd1'), // hidden advance directive (user row)
+    textMsg('left', 'step 1 output', 's1'),
+    toolCallMsg('Grep', 't1'),
+    textMsg('right', 'Proceed to step 2: Research', 'd2'),
+    textMsg('left', 'step 2 output', 's2'),
+    fileEditGroupMsg('src/research.md', 'g2'),
+    textMsg('right', 'Proceed to step 3: Outline', 'd3'),
+    textMsg('left', 'step 3 output', 's3'),
+    textMsg('right', 'Proceed to step 4: Draft', 'd4'),
+    textMsg('left', 'step 4 output', 's4'),
+    fileEditGroupMsg('src/draft.md', 'g4'),
+    textMsg('right', 'Proceed to step 5: Expand', 'd5'),
+    textMsg('left', bigDeliverable, 's5'), // the immediately-prior deliverable
+    // Tool-heavy tail AFTER the deliverable - a naive slice(-4) would evict s5.
+    toolCallMsg('Read', 't5a'),
+    fileEditGroupMsg('src/draft.md', 'g5'),
+    toolCallMsg('Grep', 't5b'),
+  ];
+
+  it('carries the immediately-prior deliverable (load-bearing head intact), not the 1..N-2 history', () => {
+    const seed = buildResumeSeedTranscript(history, WORKFLOW_RESET_SEED_BOUND);
+
+    // The dependent step ("refine the draft you just wrote") gets the prior
+    // deliverable, HEAD included - the tool-heavy tail did not evict it and the
+    // >4000-char body was not truncated away from its heading.
+    expect(seed).toContain(DELIVERABLE_HEAD);
+    expect(seed).toContain('Assistant:');
+
+    // The seed is the LAST deliverable only - not the earlier steps' text and
+    // not the trailing tool rows. This is the O(1)-per-step carry-forward.
+    expect(seed).not.toContain('step 1 output');
+    expect(seed).not.toContain('step 2 output');
+    expect(seed).not.toContain('step 4 output'); // only the immediately-prior step
+    expect(seed).not.toContain('WriteFile'); // trailing/older tool rows dropped
+  });
+
+  it('leaves the default-bound seed (no opts) unchanged - the tight bound is opt-in (#457 not regressed)', () => {
+    const tight = buildResumeSeedTranscript(history, WORKFLOW_RESET_SEED_BOUND);
+    const dflt = buildResumeSeedTranscript(history);
+
+    // The default #457 seed is broad: it retains tool/file-edit history and the
+    // earlier steps. The tight per-step bound explicitly drops them.
+    expect(dflt).toContain('WriteFile');
+    expect(dflt).toContain('step 1 output');
+    expect(dflt).toContain(DELIVERABLE_HEAD);
+    // Opt-in tightening genuinely changes the output.
+    expect(dflt).not.toBe(tight);
+  });
+
+  it('falls back to the default bounded tail when there is no assistant deliverable', () => {
+    // A history with only user rows + tools (no assistant text) must not seed
+    // empty - it falls through to the normal bounded tail so resume is not blank.
+    const noAssistant: TMessage[] = [
+      textMsg('right', 'Proceed to step 1', 'd1'),
+      toolCallMsg('Grep', 't1'),
+    ];
+    const seed = buildResumeSeedTranscript(noAssistant, WORKFLOW_RESET_SEED_BOUND);
+    expect(seed).toContain('User: Proceed to step 1');
+    expect(seed).toContain('Grep');
   });
 });
