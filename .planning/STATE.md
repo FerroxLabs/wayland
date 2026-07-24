@@ -12,6 +12,15 @@ progress:
 
 # Project State
 
+> **📍 2026-07-25 READ FIRST.** Resume from
+> `.planning/HANDOFF-2026-07-25-D08-done-D01-regression-pending.md`. **D-08 (local packaged-verification
+> build path) is DONE** — 5 commits `1d8dcabb9..8e21e5b4e`, 4-model cross-audit + class-closing fix, full
+> suite 15,711/0, LOCAL only. `bun run dist:verify:mac` now produces a launchable `out/mac-arm64/*.app` for
+> `packaged-cockpit-smoke.mjs` without touching the release trust boundary (grep-provable). Its first real
+> run caught a **D-01 (#890) regression**: `scripts/whatsapp-bridge-source.json` is stale (baileys.js drift +
+> unpinned bridgeLogger.js) → every packaged build fails. **ONE decision pending from Sean:** regenerate that
+> supply-chain pin (recommended) or track as a D-01 follow-up. Detail: D-08-SUMMARY + the handoff.
+
 > **2026-07-21 RECONCILIATION.** This file was rewritten to match reality after the
 > 2026-07-20 pivot. The prior state (3%, "Phase 1 / cohort authority successor",
 > "signed M0B pending") described a cohort/M0B acceptance ceremony that Sean **killed**.
