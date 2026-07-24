@@ -39,6 +39,7 @@ import { handleParentWorkflowTurn } from '@process/services/workflow/parentTurnD
 import { resumeInterruptedParentRuns } from '@process/services/workflow/resumeRuns';
 import { sweepStalledParentRuns, PARENT_WATCHDOG_INTERVAL_MS } from '@process/services/workflow/parentWatchdog';
 import { setWorkflowSessionService } from '@process/services/workflow/workflowSessionServiceSingleton';
+import { sendWorkflowAdvanceDirective } from '@process/services/workflow/workflowAdvanceReset';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { agentRegistry } from '@process/agent/AgentRegistry';
@@ -284,15 +285,21 @@ void getDatabase()
     // worker-task send path cron uses). Defined here so the `acceptStep` IPC
     // handler can reuse it; the parent driver loop below shares it too. Sent
     // `hidden` so the control prompt never appears in the chat tape.
-    const sendWorkflowDirective = async (conversationId: string, directive: string): Promise<void> => {
-      const task = await workerTaskManager.getOrBuildTask(conversationId, { yoloMode: true });
-      await task.sendMessage({
-        content: directive,
-        input: directive,
-        msg_id: `workflow-advance-${conversationId}-${Date.now()}`,
-        hidden: true,
+    //
+    // #723: delegates to the reset-aware send module. On a wcore advance it
+    // respawns the backend session (skipCache) and re-seeds only the
+    // immediately-prior deliverable (per-step hard reset), dropping the
+    // accumulated 1..N-1 context; non-wcore (ACP) keeps today's exact behavior.
+    // The visible SQLite transcript is untouched (directive sent hidden; the
+    // reset only reads the message store).
+    const sendWorkflowDirective = (conversationId: string, directive: string): Promise<void> =>
+      sendWorkflowAdvanceDirective(conversationId, directive, {
+        getOrBuildTask: (id, opts) => workerTaskManager.getOrBuildTask(id, opts),
+        getConversationType: async (id) => {
+          const conv = await conversationServiceImpl.getConversation(id);
+          return conv?.type ?? null;
+        },
       });
-    };
     initWorkflowBridge(workflowService, {
       conversationService: conversationServiceImpl,
       workerTaskManager,

@@ -1,0 +1,113 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/**
+ * #723 - in-place per-step context reset for in-conversation workflows.
+ *
+ * An in-conversation multi-step workflow sends each next-step directive into
+ * the SAME live backend agent session, which replays turns 1..N-1 to the model
+ * on step N. Per-step model input grows O(N); the run costs O(N^2) input tokens
+ * (a money bug on the default wcore/Flux path).
+ *
+ * This HAND performs a HARD per-step reset (NOT a rolling summary, NOT
+ * compaction): on a wcore advance it RESPAWNS the backend session
+ * (`skipCache: true`, which kills the old engine process and drops the
+ * accumulated 1..N-1 context) and re-seeds the fresh session with ONLY the
+ * immediately-prior deliverable (`workflowResetSeed`), then sends the directive
+ * `hidden: true` exactly as before. Per-step input becomes O(1); the run O(N).
+ *
+ * The user-visible SQLite transcript is UNTOUCHED: the directive is sent hidden
+ * so the control prompt never enters the chat tape, and the reset path only
+ * READS the message store (to seed the fresh session) - it never writes or
+ * deletes a row. Model input (backend session) and the visible transcript are
+ * separate stores.
+ *
+ * Scope gate (v1): the reset fires ONLY when the conversation's agent type is
+ * `wcore` (the money-critical default). Every other type (ACP: codex/claude/
+ * qwen) keeps today's exact send path - a wcore DB-seed bound does not apply to
+ * a CLI's own session reload; ACP is a tracked follow-on. A type-lookup failure
+ * is treated as non-wcore so a launch hiccup can never break the parent chat.
+ *
+ * This module has NO import of `initBridge` so it is unit-provable in isolation
+ * via an injected dependency bag (`getOrBuildTask`, `getConversationType`).
+ */
+
+import type { BuildConversationOptions } from '@process/task/agentTypes';
+import type { ResumeSeedOptions } from '@process/task/resumeSeed';
+
+/**
+ * The carry-forward bound for a per-step reset seed. `preferLastAssistant`
+ * carries only the immediately-prior assistant deliverable (dropping trailing
+ * tool rows / hidden directives so a tool-heavy tail cannot evict it), and the
+ * generous `maxChars` holds one full long deliverable (e.g. a multi-hundred-
+ * word draft a later step refines) while staying O(1) per step - it does not
+ * grow with the step index. Starting value (research Open-Q1); tunable in the
+ * live sweep - widen only if a dependent step starves.
+ *
+ * INVARIANT (#723 wiring): this exact object is passed as the
+ * `workflowResetSeed` field of `BuildConversationOptions` and must survive the
+ * chain BuildConversationOptions.workflowResetSeed -> the wcore creator's
+ * `WCoreManagerData.workflowResetSeed` -> `WCoreManager.start()`'s conditional
+ * `buildResumeSeedTranscript(msgs, mergedData.workflowResetSeed)`. The field
+ * name `workflowResetSeed` is identical at every hop by design; the live-verify
+ * `session_cost`-per-step check is the end-to-end guard on that spawn-only path.
+ */
+export const WORKFLOW_RESET_SEED_BOUND: ResumeSeedOptions = {
+  preferLastAssistant: true,
+  maxChars: 16000,
+};
+
+/** The minimal task surface the reset HAND drives (a hidden directive send). */
+interface AdvanceTask {
+  sendMessage(message: {
+    content: string;
+    input: string;
+    msg_id: string;
+    hidden: boolean;
+  }): Promise<unknown>;
+}
+
+/**
+ * Injected dependencies. Deliberately narrow: the HAND can respawn+seed a task
+ * and resolve a conversation's agent type - it has NO message-mutation surface,
+ * which is the structural guarantee that the visible transcript is untouched.
+ */
+export interface WorkflowAdvanceResetDeps {
+  getOrBuildTask(conversationId: string, options: BuildConversationOptions): Promise<AdvanceTask>;
+  getConversationType(conversationId: string): Promise<string | null>;
+}
+
+/**
+ * Send a workflow-advance directive into a conversation, performing the in-place
+ * per-step context reset on wcore conversations. See the module header.
+ */
+export async function sendWorkflowAdvanceDirective(
+  conversationId: string,
+  directive: string,
+  deps: WorkflowAdvanceResetDeps
+): Promise<void> {
+  let conversationType: string | null = null;
+  try {
+    conversationType = await deps.getConversationType(conversationId);
+  } catch {
+    // A type-lookup failure must not break the advance: treat as non-wcore and
+    // take today's (non-reset) send path rather than crashing the parent chat.
+    conversationType = null;
+  }
+
+  const options: BuildConversationOptions =
+    conversationType === 'wcore'
+      ? { yoloMode: true, skipCache: true, workflowResetSeed: WORKFLOW_RESET_SEED_BOUND }
+      : { yoloMode: true };
+
+  const task = await deps.getOrBuildTask(conversationId, options);
+  await task.sendMessage({
+    content: directive,
+    input: directive,
+    msg_id: `workflow-advance-${conversationId}-${Date.now()}`,
+    hidden: true,
+  });
+}

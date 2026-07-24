@@ -10,7 +10,7 @@ import * as os from 'node:os';
 import { join } from 'node:path';
 import type { CronMessageMeta, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
-import { buildResumeSeedTranscript } from '@process/task/resumeSeed';
+import { buildResumeSeedTranscript, type ResumeSeedOptions } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
@@ -157,6 +157,14 @@ type WCoreManagerData = {
   resume?: string;
   /** Per-conversation reasoning effort (sent to the engine via set_config). Absent => engine default. */
   effort?: 'low' | 'medium' | 'high';
+  /**
+   * #723 per-step context reset: when set, start()'s resume branch seeds the
+   * fresh engine with ONLY this bounded carry-forward (the immediately-prior
+   * deliverable) instead of the default #457 resume seed. Threaded verbatim from
+   * `BuildConversationOptions.workflowResetSeed`. Absent => default seed (today).
+   * The field name `workflowResetSeed` is identical across every hop (INVARIANT).
+   */
+  workflowResetSeed?: ResumeSeedOptions;
   /**
    * Per-conversation MCP scoping (#348): the user-server ids active for this
    * chat. `undefined` => all enabled servers; `[]` => no user servers. Forwarded
@@ -618,7 +626,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         const history = historyDb.getConversationMessages(this.conversation_id, 0, 10000);
         // #457: retain tool/file-edit history (not just text) so a rebuilt
         // session keeps the in-progress work instead of restarting from scratch.
-        const text = buildResumeSeedTranscript((history.data ?? []) as TMessage[]);
+        // #723: on a workflow-advance reset spawn, seed ONLY the bounded
+        // carry-forward (the immediately-prior deliverable) so per-step model
+        // input stays O(1); absent the flag this is byte-identical to #457.
+        const text = mergedData.workflowResetSeed
+          ? buildResumeSeedTranscript((history.data ?? []) as TMessage[], mergedData.workflowResetSeed)
+          : buildResumeSeedTranscript((history.data ?? []) as TMessage[]);
         if (text) await agent.injectConversationHistory(text);
       } catch {
         // Best-effort: resume still proceeds without seeded history.

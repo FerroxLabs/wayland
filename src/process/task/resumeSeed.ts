@@ -127,19 +127,63 @@ function formatSeedLine(message: TMessage, perEntryChars: number): string | null
   }
 }
 
+export interface ResumeSeedOptions {
+  maxChars?: number;
+  maxMessages?: number;
+  perEntryChars?: number;
+  /**
+   * #723 in-place per-step context reset: when true, seed ONLY the
+   * immediately-prior assistant deliverable (the last non-user text row),
+   * dropping the trailing tool rows and hidden advance directives so a
+   * tool-heavy tail cannot evict the deliverable from the window and a long
+   * deliverable keeps its load-bearing HEAD. This is the minimal carry-forward
+   * a dependent step needs ("refine the draft you just wrote") - NOT the
+   * 1..N-1 history and NOT a rolling summary. Falls back to the normal bounded
+   * tail when there is no assistant text (so a resume is never seeded blank).
+   */
+  preferLastAssistant?: boolean;
+}
+
+/**
+ * The immediately-prior assistant deliverable as a seed line, or null when the
+ * history has no non-empty assistant text. Scans from the newest row so a
+ * tool-heavy or directive-heavy tail cannot hide the deliverable; the line is
+ * clipped to `maxChars` from the HEAD (via `formatSeedLine`), preserving the
+ * deliverable's opening (title/thesis) that a dependent step anchors on.
+ */
+function findLastAssistantDeliverable(messages: TMessage[], maxChars: number): string | null {
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i];
+    if (!message || message.type !== 'text' || message.position === 'right') continue;
+    let line: string | null = null;
+    try {
+      line = formatSeedLine(message, maxChars);
+    } catch {
+      line = null;
+    }
+    if (line) return line;
+  }
+  return null;
+}
+
 /**
  * Build the transcript text replayed over `init_history` on resume. Includes
  * tool/file-edit history so a rebuilt engine session retains in-progress work.
  * Each entry is capped (per-entry budget) and the most recent tail is kept
  * within the total char budget.
  */
-export function buildResumeSeedTranscript(
-  messages: TMessage[],
-  opts: { maxChars?: number; maxMessages?: number; perEntryChars?: number } = {}
-): string {
+export function buildResumeSeedTranscript(messages: TMessage[], opts: ResumeSeedOptions = {}): string {
   const maxChars = opts.maxChars ?? DEFAULT_MAX_CHARS;
   const maxMessages = opts.maxMessages ?? DEFAULT_MAX_MESSAGES;
   const perEntryChars = opts.perEntryChars ?? DEFAULT_PER_ENTRY_CHARS;
+
+  // #723 per-step reset: carry only the immediately-prior deliverable. Falls
+  // through to the default bounded tail below when no assistant text exists.
+  if (opts.preferLastAssistant) {
+    const deliverable = findLastAssistantDeliverable(messages, maxChars);
+    if (deliverable) return deliverable;
+  }
+
   const recent = messages.slice(-maxMessages);
   const lines: string[] = [];
   for (const message of recent) {
