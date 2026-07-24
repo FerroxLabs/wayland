@@ -13,7 +13,7 @@
  * tool_call + tool_group (file-edit) entries so resumed work is preserved.
  */
 import { describe, it, expect } from 'vitest';
-import { buildResumeSeedTranscript } from '@/process/task/resumeSeed';
+import { buildResumeSeedTranscript, composeResetSeed } from '@/process/task/resumeSeed';
 import { WORKFLOW_RESET_SEED_BOUND } from '@process/services/workflow/workflowAdvanceReset';
 import type { TMessage } from '@/common/chat/chatLib';
 
@@ -223,18 +223,15 @@ describe('buildResumeSeedTranscript (#457)', () => {
   });
 });
 
-describe('#723 carry-forward contract - WORKFLOW_RESET_SEED_BOUND', () => {
+describe('#723 carry-forward contract - WORKFLOW_RESET_SEED_BOUND (whole prior turn)', () => {
   // A REALISTIC per-step reset history, mirroring the real DB shape at reset
   // time: 5 step deliverables interleaved with hidden advance directives
   // (`right` rows) and tool rows, and a TOOL-HEAVY tail after the last
-  // deliverable, plus a >4000-char final deliverable. This is the shape a tiny
-  // fixture cannot expose (W1): with a naive `slice(-4)` tail bound a tool-heavy
-  // step pushes the actual deliverable OUT of the window, and a >4000-char
-  // deliverable is truncated to its LAST 4000 chars - so the load-bearing HEAD a
-  // dependent step needs is lost. The bound must carry the immediately-prior
-  // deliverable's load-bearing content regardless.
+  // deliverable. The carry-forward is the WHOLE immediately-prior TURN (text +
+  // its tool calls / results) back to, but not across, the previous `right`
+  // boundary - not a single last text row (which drops tool context and can
+  // cross into an older step on a tool-only or trailing-status step).
   const DELIVERABLE_HEAD = 'DRAFT-V5-HEADING: the canonical release plan';
-  // >4000 chars so a raw char-tail slice would truncate the head.
   const bigDeliverable = `${DELIVERABLE_HEAD}\n` + 'body '.repeat(1200);
 
   const history: TMessage[] = [
@@ -249,53 +246,126 @@ describe('#723 carry-forward contract - WORKFLOW_RESET_SEED_BOUND', () => {
     textMsg('right', 'Proceed to step 4: Draft', 'd4'),
     textMsg('left', 'step 4 output', 's4'),
     fileEditGroupMsg('src/draft.md', 'g4'),
-    textMsg('right', 'Proceed to step 5: Expand', 'd5'),
+    textMsg('right', 'Proceed to step 5: Expand', 'd5'), // boundary that starts the prior turn
     textMsg('left', bigDeliverable, 's5'), // the immediately-prior deliverable
-    // Tool-heavy tail AFTER the deliverable - a naive slice(-4) would evict s5.
+    // Tool-heavy tail - PART OF THE SAME (step 5) turn: a dependent step that
+    // says "review the file you just wrote" needs this tool/file context.
     toolCallMsg('Read', 't5a'),
-    fileEditGroupMsg('src/draft.md', 'g5'),
+    fileEditGroupMsg('src/final-draft.md', 'g5'),
     toolCallMsg('Grep', 't5b'),
   ];
 
-  it('carries the immediately-prior deliverable (load-bearing head intact), not the 1..N-2 history', () => {
+  it('carries the WHOLE prior turn (deliverable HEAD + its tool/file context), not the 1..N-2 history', () => {
     const seed = buildResumeSeedTranscript(history, WORKFLOW_RESET_SEED_BOUND);
 
-    // The dependent step ("refine the draft you just wrote") gets the prior
-    // deliverable, HEAD included - the tool-heavy tail did not evict it and the
-    // >4000-char body was not truncated away from its heading.
+    // The dependent step gets the prior deliverable, HEAD included...
     expect(seed).toContain(DELIVERABLE_HEAD);
     expect(seed).toContain('Assistant:');
+    // ...AND the same turn's tool/file context (the file it just wrote) - the
+    // single-last-text selector would have dropped this (BLOCKER 1).
+    expect(seed).toContain('src/final-draft.md');
 
-    // The seed is the LAST deliverable only - not the earlier steps' text and
-    // not the trailing tool rows. This is the O(1)-per-step carry-forward.
+    // But NOTHING from an earlier step: the walk stops at the `right` boundary.
     expect(seed).not.toContain('step 1 output');
     expect(seed).not.toContain('step 2 output');
-    expect(seed).not.toContain('step 4 output'); // only the immediately-prior step
-    expect(seed).not.toContain('WriteFile'); // trailing/older tool rows dropped
+    expect(seed).not.toContain('step 4 output'); // only the immediately-prior turn
+    expect(seed).not.toContain('src/draft.md'); // step 4's file (older turn) excluded
   });
 
-  it('leaves the default-bound seed (no opts) unchanged - the tight bound is opt-in (#457 not regressed)', () => {
+  it('leaves the default-bound seed (no opts) unchanged - the reset bound is opt-in (#457 not regressed)', () => {
     const tight = buildResumeSeedTranscript(history, WORKFLOW_RESET_SEED_BOUND);
     const dflt = buildResumeSeedTranscript(history);
 
-    // The default #457 seed is broad: it retains tool/file-edit history and the
-    // earlier steps. The tight per-step bound explicitly drops them.
-    expect(dflt).toContain('WriteFile');
+    // The default #457 seed is broad: it retains the earlier steps too.
     expect(dflt).toContain('step 1 output');
     expect(dflt).toContain(DELIVERABLE_HEAD);
-    // Opt-in tightening genuinely changes the output.
+    // The per-step turn bound genuinely differs (drops 1..N-2).
     expect(dflt).not.toBe(tight);
+    expect(dflt).toContain('step 4 output');
+    expect(tight).not.toContain('step 4 output');
   });
 
-  it('falls back to the default bounded tail when there is no assistant deliverable', () => {
-    // A history with only user rows + tools (no assistant text) must not seed
-    // empty - it falls through to the normal bounded tail so resume is not blank.
-    const noAssistant: TMessage[] = [
-      textMsg('right', 'Proceed to step 1', 'd1'),
-      toolCallMsg('Grep', 't1'),
+  it('tool-only prior step: carries that turn’s tool/file summary, never an older step', () => {
+    // Step 5 produced NO assistant text - only tool work. The single-last-text
+    // selector would scan PAST the boundary and seed step 4's text (wrong step).
+    const toolOnly: TMessage[] = [
+      textMsg('right', 'Proceed to step 4: Draft', 'd4'),
+      textMsg('left', 'step 4 output PROSE', 's4'),
+      textMsg('right', 'Proceed to step 5: Save', 'd5'),
+      toolCallMsg('ReadFile', 't5'),
+      fileEditGroupMsg('src/saved.md', 'g5'),
     ];
-    const seed = buildResumeSeedTranscript(noAssistant, WORKFLOW_RESET_SEED_BOUND);
-    expect(seed).toContain('User: Proceed to step 1');
-    expect(seed).toContain('Grep');
+    const seed = buildResumeSeedTranscript(toolOnly, WORKFLOW_RESET_SEED_BOUND);
+    expect(seed).toContain('src/saved.md'); // step 5's tool/file work
+    expect(seed).toContain('WriteFile');
+    expect(seed).not.toContain('step 4 output PROSE'); // did NOT cross into step 4
+  });
+
+  it('trailing status text: carries the deliverable, not just the closer', () => {
+    // The turn ends with a short "saved" closer after the real draft; the
+    // single-last-text selector would seed only the closer.
+    const trailing: TMessage[] = [
+      textMsg('right', 'Proceed to step 5: Draft', 'd5'),
+      textMsg('left', 'DRAFT-BODY: the canonical plan text', 's5a'),
+      fileEditGroupMsg('src/draft.md', 'g5'),
+      textMsg('left', 'Draft saved ✓', 's5b'),
+    ];
+    const seed = buildResumeSeedTranscript(trailing, WORKFLOW_RESET_SEED_BOUND);
+    expect(seed).toContain('DRAFT-BODY: the canonical plan text'); // the actual deliverable
+    expect(seed).toContain('Draft saved ✓'); // whole turn, closer included
+  });
+
+  it('split deliverable: carries every fragment of the prior turn', () => {
+    const split: TMessage[] = [
+      textMsg('right', 'Proceed to step 5: Draft', 'd5'),
+      textMsg('left', 'PART-ONE: intro paragraph', 's5a'),
+      toolCallMsg('Read', 't5'),
+      textMsg('left', 'PART-TWO: closing paragraph', 's5b'),
+    ];
+    const seed = buildResumeSeedTranscript(split, WORKFLOW_RESET_SEED_BOUND);
+    expect(seed).toContain('PART-ONE: intro paragraph');
+    expect(seed).toContain('PART-TWO: closing paragraph');
+  });
+
+  it('>16000-char deliverable: head-clip preserves the opening, bound is enforced (BLOCKER 2)', () => {
+    const HEAD_MARKER = 'HEAD-16K: the opening thesis a refine step anchors on';
+    const TAIL_MARKER = 'TAIL-16K-CONCLUSION';
+    // ~20k chars so the >16000 boundary is genuinely crossed.
+    const huge = `${HEAD_MARKER}\n` + 'x'.repeat(20000) + `\n${TAIL_MARKER}`;
+    const history16k: TMessage[] = [
+      textMsg('right', 'Proceed to step 5: Expand', 'd5'),
+      textMsg('left', huge, 's5'),
+    ];
+    const seed = buildResumeSeedTranscript(history16k, WORKFLOW_RESET_SEED_BOUND);
+    // The load-bearing HEAD survives the clip...
+    expect(seed).toContain(HEAD_MARKER);
+    // ...the bound is enforced (head-clip): the tail is dropped and the seed is
+    // bounded to ~priorTurnMaxChars (plus the 'Assistant: ' prefix + ellipsis).
+    expect(seed).not.toContain(TAIL_MARKER);
+    expect(seed.length).toBeLessThanOrEqual(16000 + 20);
+    expect(seed.endsWith('…')).toBe(true);
+  });
+
+  it('empty prior turn (tail IS a right row): falls back to the default bounded tail', () => {
+    // Defensive: if the tail is a user/directive row with no assistant turn
+    // after it, seed the default bounded tail (standard budget) - never blank.
+    const emptyTurn: TMessage[] = [
+      textMsg('left', 'prior assistant work', 's1'),
+      textMsg('right', 'a late user interjection', 'd1'),
+    ];
+    const seed = buildResumeSeedTranscript(emptyTurn, WORKFLOW_RESET_SEED_BOUND);
+    expect(seed).toContain('Assistant: prior assistant work');
+    expect(seed).toContain('User: a late user interjection');
+  });
+
+  it('composeResetSeed wiring: applies the bound when set, default #457 seed when absent (W2)', () => {
+    // Closes the W2 wiring gap: the exact conditional WCoreManager.start() runs.
+    const withBound = composeResetSeed(history, WORKFLOW_RESET_SEED_BOUND);
+    expect(withBound).toContain(DELIVERABLE_HEAD);
+    expect(withBound).not.toContain('step 1 output'); // bounded to the prior turn
+
+    const withoutBound = composeResetSeed(history);
+    expect(withoutBound).toBe(buildResumeSeedTranscript(history)); // byte-identical #457 default
+    expect(withoutBound).toContain('step 1 output');
   });
 });

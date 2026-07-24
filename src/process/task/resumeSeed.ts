@@ -133,37 +133,68 @@ export interface ResumeSeedOptions {
   perEntryChars?: number;
   /**
    * #723 in-place per-step context reset: when true, seed ONLY the
-   * immediately-prior assistant deliverable (the last non-user text row),
-   * dropping the trailing tool rows and hidden advance directives so a
-   * tool-heavy tail cannot evict the deliverable from the window and a long
-   * deliverable keeps its load-bearing HEAD. This is the minimal carry-forward
-   * a dependent step needs ("refine the draft you just wrote") - NOT the
-   * 1..N-1 history and NOT a rolling summary. Falls back to the normal bounded
-   * tail when there is no assistant text (so a resume is never seeded blank).
+   * immediately-prior assistant TURN - every row (assistant text AND its tool
+   * calls / tool results) from the tail back to, but not crossing, the previous
+   * `right` boundary (the user/hidden-directive that started this step). This is
+   * the minimal carry-forward a dependent step needs ("review the file you just
+   * wrote", "refine the draft you just wrote") done correctly: it keeps the
+   * whole prior turn's tool context (not just the last text row), never crosses
+   * into an older step, and handles a tool-only prior step (carries that turn's
+   * tool/file summary) and a trailing-status/split deliverable (carries the
+   * whole turn). NOT the 1..N-1 history and NOT a rolling summary. When the
+   * prior turn is empty (the tail IS a `right` row), falls through to the
+   * default bounded tail so a resume is never seeded blank.
    */
-  preferLastAssistant?: boolean;
+  priorTurnOnly?: boolean;
+  /**
+   * #723 char budget for the prior-turn head-clip. Isolated from `maxChars` so
+   * the no-prior-turn FALLBACK path uses the standard default budget, not this
+   * (larger) per-step value. A deliverable longer than this loses its TAIL
+   * (head-clip preserves the opening title/thesis a dependent step anchors on);
+   * for a deliverable ending in a structurally-required closer (e.g. a closing
+   * code fence) widen this bound. Tunable in the live sweep.
+   */
+  priorTurnMaxChars?: number;
 }
 
 /**
- * The immediately-prior assistant deliverable as a seed line, or null when the
- * history has no non-empty assistant text. Scans from the newest row so a
- * tool-heavy or directive-heavy tail cannot hide the deliverable; the line is
- * clipped to `maxChars` from the HEAD (via `formatSeedLine`), preserving the
- * deliverable's opening (title/thesis) that a dependent step anchors on.
+ * Seed the immediately-prior assistant TURN: walk from the newest row back to
+ * (but not across) the previous `right` boundary, formatting every row in that
+ * turn - assistant text AND tool calls / tool results (mirrors #457's
+ * retain-tool-history philosophy, bounded to this ONE turn). Returns the rows
+ * in chronological order, head-clipped to `maxChars` (preserving the opening).
+ * Returns null when the turn is empty (tail is a `right` row) or has no
+ * replayable rows, so the caller can fall back to the default tail. Never
+ * reaches into an older step.
  */
-function findLastAssistantDeliverable(messages: TMessage[], maxChars: number): string | null {
+function buildPriorTurnSeed(messages: TMessage[], maxChars: number): string | null {
+  // The boundary is the most recent `right` row (the user / hidden advance
+  // directive that started this turn). Everything AFTER it is the prior turn.
+  let boundary = -1;
   for (let i = messages.length - 1; i >= 0; i--) {
-    const message = messages[i];
-    if (!message || message.type !== 'text' || message.position === 'right') continue;
+    if (messages[i]?.position === 'right') {
+      boundary = i;
+      break;
+    }
+  }
+  const turn = messages.slice(boundary + 1);
+  if (turn.length === 0) return null;
+
+  const lines: string[] = [];
+  for (const message of turn) {
+    // Per-entry cap = the turn budget: tool lines are structurally short
+    // (name/status/file refs only, results are never inlined), so this only
+    // lets the assistant text deliverable use the full budget.
     let line: string | null = null;
     try {
       line = formatSeedLine(message, maxChars);
     } catch {
       line = null;
     }
-    if (line) return line;
+    if (line) lines.push(line);
   }
-  return null;
+  if (lines.length === 0) return null;
+  return clip(lines.join('\n'), maxChars);
 }
 
 /**
@@ -177,11 +208,11 @@ export function buildResumeSeedTranscript(messages: TMessage[], opts: ResumeSeed
   const maxMessages = opts.maxMessages ?? DEFAULT_MAX_MESSAGES;
   const perEntryChars = opts.perEntryChars ?? DEFAULT_PER_ENTRY_CHARS;
 
-  // #723 per-step reset: carry only the immediately-prior deliverable. Falls
-  // through to the default bounded tail below when no assistant text exists.
-  if (opts.preferLastAssistant) {
-    const deliverable = findLastAssistantDeliverable(messages, maxChars);
-    if (deliverable) return deliverable;
+  // #723 per-step reset: carry only the immediately-prior turn. Falls through to
+  // the default bounded tail (standard `maxChars` budget) when the turn is empty.
+  if (opts.priorTurnOnly) {
+    const turnSeed = buildPriorTurnSeed(messages, opts.priorTurnMaxChars ?? DEFAULT_MAX_CHARS);
+    if (turnSeed) return turnSeed;
   }
 
   const recent = messages.slice(-maxMessages);
@@ -200,4 +231,18 @@ export function buildResumeSeedTranscript(messages: TMessage[], opts: ResumeSeed
     if (line) lines.push(line);
   }
   return lines.join('\n').slice(-maxChars);
+}
+
+/**
+ * #723 wiring seam: select the resume seed for a (re)spawn. When a per-step
+ * reset bound is threaded (`workflowResetSeed`), seed only the immediately-prior
+ * turn; otherwise the default #457 seed. Extracted so the selection conditional
+ * is unit-tested directly - the field-name plumbing
+ * `WCoreManagerData.workflowResetSeed` -> here is a bare object spread, and this
+ * function is the one branch a typo would break (closes the W2 wiring gap).
+ */
+export function composeResetSeed(messages: TMessage[], workflowResetSeed?: ResumeSeedOptions): string {
+  return workflowResetSeed
+    ? buildResumeSeedTranscript(messages, workflowResetSeed)
+    : buildResumeSeedTranscript(messages);
 }

@@ -92,18 +92,67 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
     expect(sendMessage).toHaveBeenCalledWith(expect.objectContaining({ hidden: true }));
   });
 
-  it('4. visible transcript untouched: no message-store mutation on either branch', async () => {
-    for (const type of ['wcore', 'acp'] as const) {
-      const { deps, deleteMessage, updateMessage } = makeDeps(type);
-      await sendWorkflowAdvanceDirective('conv-x', 'Proceed to step 2', deps);
-      // The reset only respawns + seeds + sends hidden; it never deletes or
-      // rewrites a persisted message row.
-      expect(deleteMessage).not.toHaveBeenCalled();
-      expect(updateMessage).not.toHaveBeenCalled();
-      // The module is not even GIVEN a message-mutation surface.
-      expect(deps).not.toHaveProperty('deleteMessage');
-      expect(deps).not.toHaveProperty('updateMessage');
-    }
+  it('4. serializes concurrent advances on the same conversation (destructive respawn cannot race)', async () => {
+    const order: string[] = [];
+    let spawnCount = 0;
+    let sendCount = 0;
+    let releaseFirstSend!: () => void;
+    const firstSendGate = new Promise<void>((resolve) => {
+      releaseFirstSend = resolve;
+    });
+    const sendMessage = vi.fn().mockImplementation(async () => {
+      const n = ++sendCount;
+      order.push(`send${n}-start`);
+      if (n === 1) await firstSendGate; // hold the first send open
+      order.push(`send${n}-end`);
+    });
+    const getOrBuildTask = vi.fn().mockImplementation(async () => {
+      order.push(`spawn${++spawnCount}`);
+      return { sendMessage };
+    });
+    const getConversationType = vi.fn().mockResolvedValue('wcore');
+    const deps: WorkflowAdvanceResetDeps = { getOrBuildTask, getConversationType };
+
+    const p1 = sendWorkflowAdvanceDirective('conv-1', 'step 2', deps);
+    const p2 = sendWorkflowAdvanceDirective('conv-1', 'step 3', deps);
+    // Flush the event loop: the second advance must NOT have respawned yet - the
+    // first send is still holding the (single-conversation) chain open.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(spawnCount).toBe(1);
+    expect(order).toEqual(['spawn1', 'send1-start']);
+    releaseFirstSend();
+    await Promise.all([p1, p2]);
+
+    // The second respawn happened strictly AFTER the first send completed - the
+    // destructive skipCache respawns never interleaved.
+    expect(order.indexOf('spawn2')).toBeGreaterThan(order.indexOf('send1-end'));
+    expect(order).toEqual(['spawn1', 'send1-start', 'send1-end', 'spawn2', 'send2-start', 'send2-end']);
+  });
+
+  it('4b. different conversations are not serialized against each other', async () => {
+    // A slow reset on conv-A must not block an advance on conv-B (independent chains).
+    let releaseA!: () => void;
+    const aGate = new Promise<void>((r) => {
+      releaseA = r;
+    });
+    const makeGated = (gate: Promise<void> | null) => {
+      const sendMessage = vi.fn().mockImplementation(async () => {
+        if (gate) await gate;
+      });
+      const getOrBuildTask = vi.fn().mockResolvedValue({ sendMessage });
+      const getConversationType = vi.fn().mockResolvedValue('wcore');
+      return { deps: { getOrBuildTask, getConversationType } as WorkflowAdvanceResetDeps, sendMessage };
+    };
+    const a = makeGated(aGate);
+    const b = makeGated(null);
+
+    const pa = sendWorkflowAdvanceDirective('conv-A', 'step 2', a.deps);
+    const pb = sendWorkflowAdvanceDirective('conv-B', 'step 2', b.deps);
+    // conv-B completes while conv-A is still gated.
+    await expect(pb).resolves.toBeUndefined();
+    expect(b.sendMessage).toHaveBeenCalledTimes(1);
+    releaseA();
+    await pa;
   });
 
   it('5. type-lookup failure is safe: falls back to the non-reset send, never crashes the advance', async () => {

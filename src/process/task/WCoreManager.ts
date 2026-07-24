@@ -10,7 +10,7 @@ import * as os from 'node:os';
 import { join } from 'node:path';
 import type { CronMessageMeta, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
-import { buildResumeSeedTranscript, type ResumeSeedOptions } from '@process/task/resumeSeed';
+import { composeResetSeed, type ResumeSeedOptions } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
@@ -626,12 +626,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         const history = historyDb.getConversationMessages(this.conversation_id, 0, 10000);
         // #457: retain tool/file-edit history (not just text) so a rebuilt
         // session keeps the in-progress work instead of restarting from scratch.
-        // #723: on a workflow-advance reset spawn, seed ONLY the bounded
-        // carry-forward (the immediately-prior deliverable) so per-step model
-        // input stays O(1); absent the flag this is byte-identical to #457.
-        const text = mergedData.workflowResetSeed
-          ? buildResumeSeedTranscript((history.data ?? []) as TMessage[], mergedData.workflowResetSeed)
-          : buildResumeSeedTranscript((history.data ?? []) as TMessage[]);
+        // #723: on a workflow-advance reset spawn (mergedData.workflowResetSeed
+        // set), composeResetSeed seeds ONLY the immediately-prior turn so
+        // per-step model input stays O(1); absent the flag it is byte-identical
+        // to the #457 default seed. The field name is identical at every hop.
+        const text = composeResetSeed((history.data ?? []) as TMessage[], mergedData.workflowResetSeed);
         if (text) await agent.injectConversationHistory(text);
       } catch {
         // Best-effort: resume still proceeds without seeded history.
