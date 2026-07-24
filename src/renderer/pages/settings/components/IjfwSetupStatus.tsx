@@ -21,6 +21,22 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { IjfwLifecycleStatus } from '@/common/adapter/ipcBridge';
+import type { IjfwInvokeResult } from '@/common/types/ijfw';
+
+/**
+ * Pull the real failure reason off a failed probe result (#891): the human
+ * `error` message, else the `errorReason` code, else undefined.
+ *
+ * `strictNullChecks` is off project-wide, so the `IjfwInvokeResult`
+ * discriminated union does NOT narrow its arm-specific optional props after an
+ * `if (r.ok)` check — reading `r.error` on the union is a type error. Cast to
+ * the failure arm to read the fields the caller has already established are
+ * present (this runs only on the `ok:false` path).
+ */
+const probeFailureReason = (r: IjfwInvokeResult): string | undefined => {
+  const fail = r as { ok: false; error?: string; errorReason?: string };
+  return fail.error ?? fail.errorReason;
+};
 
 export type IjfwSetupStatusProps = {
   /** Latest lifecycle status from `ipcBridge.ijfw.getStatus`. */
@@ -57,6 +73,13 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
   const { t } = useTranslation();
   const [testState, setTestState] = useState<TestState>('idle');
   const [runtimeReachable, setRuntimeReachable] = useState<boolean | null>(null);
+  // #891: the real reason a failing probe reported (`error`, else `errorReason`
+  // code, else undefined). Threaded into the degraded detail so the runtime row
+  // says WHY it is degraded instead of a bare label. Undefined on every
+  // success/reset/reject path so the fallback label shows and we never render
+  // "undefined".
+  const [runtimeReason, setRuntimeReason] = useState<string | undefined>(undefined);
+  const [testFailReason, setTestFailReason] = useState<string | undefined>(undefined);
 
   const installOk = status === 'installed_current' || status === 'installed_pending_activation';
   const clisOk = cliCount > 0;
@@ -75,16 +98,30 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
   useEffect(() => {
     if (!installOk) {
       setRuntimeReachable(null);
+      setRuntimeReason(undefined);
       return;
     }
     let disposed = false;
     void ipcBridge.ijfw.brainInvoke
       .invoke({ verb: 'state' })
       .then((r) => {
-        if (!disposed) setRuntimeReachable(!!r?.ok);
+        if (disposed) return;
+        if (r.ok) {
+          setRuntimeReachable(true);
+          setRuntimeReason(undefined);
+        } else {
+          // #891: keep the real reason the probe returned. `error` is the human
+          // message; fall back to the `errorReason` code; undefined if neither.
+          setRuntimeReachable(false);
+          setRuntimeReason(probeFailureReason(r));
+        }
       })
       .catch(() => {
-        if (!disposed) setRuntimeReachable(false);
+        // A rejected probe carries no structured reason; leave it undefined so
+        // the bare degraded label shows.
+        if (disposed) return;
+        setRuntimeReachable(false);
+        setRuntimeReason(undefined);
       });
     return () => {
       disposed = true;
@@ -130,9 +167,16 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
         runtimeState === 'ok'
           ? t('memory.settings.status_runtime_full', { defaultValue: 'Live' })
           : runtimeState === 'warn'
-            ? t('memory.settings.status_runtime_degraded', {
-                defaultValue: 'Degraded (not reachable)',
-              })
+            ? runtimeReason
+              ? // #891: surface the real reason. The reason is a machine string
+                // received from the client (never translate it), so concatenate
+                // it OUTSIDE t() — a translated lead + the raw reason as data.
+                `${t('memory.settings.status_runtime_degraded_lead', {
+                  defaultValue: 'Degraded',
+                })}: ${runtimeReason}`
+              : t('memory.settings.status_runtime_degraded', {
+                  defaultValue: 'Degraded (not reachable)',
+                })
             : runtimeState === 'checking'
               ? t('memory.settings.status_runtime_checking', { defaultValue: 'Checking…' })
               : t('memory.settings.status_runtime_idle', { defaultValue: 'Waiting for install' }),
@@ -142,11 +186,21 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
   const handleTest = useCallback(async () => {
     if (testState === 'running') return;
     setTestState('running');
+    setTestFailReason(undefined);
     try {
       const result = await ipcBridge.ijfw.brainInvoke.invoke({ verb: 'state' });
-      setTestState(result?.ok ? 'pass' : 'fail');
+      if (result.ok) {
+        setTestState('pass');
+        setTestFailReason(undefined);
+      } else {
+        // #891: keep the real reason so the fail text says WHY.
+        setTestState('fail');
+        setTestFailReason(probeFailureReason(result));
+      }
     } catch {
+      // A thrown probe carries no structured reason; fall back to the fixed text.
       setTestState('fail');
+      setTestFailReason(undefined);
     }
   }, [testState]);
 
@@ -218,9 +272,14 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
           >
             <CloseOne theme='filled' size={14} fill='rgb(var(--danger-6))' />
             <Typography.Text style={{ color: 'rgb(var(--danger-6))' }} className='text-12px'>
-              {t('memory.settings.test_fail', {
-                defaultValue: 'Memory did not respond. Check the install status above.',
-              })}
+              {testFailReason
+                ? // #891: translated lead + the raw reason as data (outside t()).
+                  `${t('memory.settings.test_fail_lead', {
+                    defaultValue: 'Memory did not respond',
+                  })}: ${testFailReason}`
+                : t('memory.settings.test_fail', {
+                    defaultValue: 'Memory did not respond. Check the install status above.',
+                  })}
             </Typography.Text>
           </span>
         )}
