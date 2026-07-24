@@ -54,7 +54,7 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 | **A — Cockpit Preview Ship** | Wave A package + matched-engine smoke · Wave B trust/a11y floor · Wave C hygiene | **ACTIVE** |
 | **B — Scope Decisions** | COW-04/05/06, SBX-02, IMG-01, VOC-04, CMP-01 — **Sean's call 2026-07-23: BUILD ALL, no deferments. All 7 landed locally** (see B-DECISIONS.md capture table). SBX-02/COW-04/VOC-04 carry documented Core-hook / UI follow-ons. | **Built** |
 | **C — Secure Portability** | Encrypted full-instance Wayland Transfer engine (old Phase 7) | Deferred |
-| **D — Desktop Inbox Repairs** | GitHub-issue repairs confirmed desktop-side + Core-independent by a 3-agent research council. Phases D1 Bridge reliability (#890, #537) · D2 Skills trust (#885) · D3 Honest diagnostics (#891, #853) · D5 UI clarity (#909, #910, #508, #882) · D4 Token efficiency (#723, gated). Build order D1→D2→D3→D5→D4. Each via full Factory loop. See `HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`. | **D1 PLANNED + checker-verified — ready to build** (D2–D5 unplanned) |
+| **D — Desktop Inbox Repairs** | GitHub-issue repairs confirmed desktop-side + Core-independent by a 3-agent research council. Phases D1 Bridge reliability (#890, #537) · D2 Skills trust (#885) · D3 Honest diagnostics (#891, #853) · D5 UI clarity (#909, #910, #508, #882) · D4 Token efficiency (#723, gated). Build order D1→D2→D3→D5→D4. Each via full Factory loop. See `HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`. | **D1 (#890) DONE + live-verified; #537 draft-close pending Sean. D2 (#885) NEXT** (D3–D5 unplanned) |
 
 ## Accumulated Context
 
@@ -139,19 +139,40 @@ gsd worktree is abandoned (physical cleanup of the gsd sprawl is a separate pass
 worktrees actually live in `~/dev/app-worktrees/wt-*`; this one is under `wayland-worktrees/` per
 Sean's menu pick (movable).
 
-**D1 IN PROGRESS (2026-07-23).** Ran the full disciplined loop
-(researcher → planner → plan-checker, all independent subagents) in `.planning/phases/WLD-D-inbox-repairs/`:
-`D-CONTEXT.md`, `D-01-RESEARCH.md`, `D-01-PLAN.md` (#890), `D-02-PLAN.md` (#537).
-**Root cause of #890 was OVERTURNED by research + re-verified against source:** NOT the council's
-pino→stderr theory — it is the **RunAsNode fuse** breaking `child_process.fork` in packaged builds
-(`WhatsAppPlugin.ts:687` is the one spawn site never migrated to the shipped #706 `resolveJsRuntime()`
-pattern at `safeSpawn.ts:151-156`); the packaged "fork" boots a 2nd Electron instance that loses the
-single-instance lock and `app.quit()`s (code=0) → 12× reconnect → `error`, baileys/QR never run. Fix =
-migrate fork→spawn via `resolveJsRuntime()` (+ pino→fd2 companion, must ship together). Plan-checker
-caught a BLOCKING false-green (acceptance must be a FUSED `dist:preview:mac` build, NOT `bun run package`
-/ `--pack-only` which are unfused) — fixed. #537 = closeable by one live delegated-email-send (bundled
-Core v0.12.25 already carries the host-send symbols; verified via `strings`). NEXT = build D-01 then D-02
-through the Factory loop (tests-first, fused packaged smoke, cross-audit), no push without Sean.
+**D1 (#890) DONE — live-verified 2026-07-24. #537 draft-close pending. D2 (#885) is NEXT.**
+Latest commit `6a33e21ce`, local only.
+
+- **Root cause (research OVERTURNED the council's pino theory):** the **RunAsNode fuse**. Packaged
+  builds disable it (`afterPack.js`), so `WhatsAppPlugin.forkBridge`'s `child_process.fork` booted a
+  2nd Electron instance that `app.quit()`d (code=0) → 12× reconnect → `error`; baileys/QR never ran.
+  `forkBridge` was the one spawn site never migrated to the shipped #706 `resolveJsRuntime()` pattern
+  (`safeSpawn.ts:151-156`). Pino→stderr alone would have done nothing (baileys never runs).
+- **Fix (shipped, local):** `forkBridge` fork→spawn via `resolveJsRuntime()` + new pure
+  `bridgeSpawnConfig.ts` (drops ipc slot, `WAYLAND_BRIDGE_UNDER_PARENT` env flag); baileys pino→fd2
+  via new `bridgeLogger.js`; `handleFrame` object-guard. 4 src + 11 test files.
+- **Ferrox loop:** plan (`ferrox-plan-phase`; checker caught a false-green — acceptance must be FUSED,
+  not `bun run package`) → build → cross-audit (`ferrox-code-reviewer`: GO, 0 Crit/High) → verify
+  (`ferrox-verifier`: GOAL MET static). Full suite **15,625/0**, tsc clean.
+- **LIVE verify (by hand through the harness):** ran the real `bridge.js` under system Bun 1.3.11
+  (= bundled) with a `connect` RPC → baileys reached **qr.update** (the exact #890 symptom "never
+  reaches QR"), stdout 6 frames / **0 pollution** (pino→fd2 works live), clean lifecycle, no code=0
+  death. baileys-under-Bun risk RETIRED. 2 benign Bun `ws`-shim warnings on stderr (QR reached).
+  Docs: `D-01-SUMMARY.md`, `D-01-REVIEW.md`, `D-01-VERIFICATION.md`.
+- **Residual (parked, low-risk):** the full FUSED packaged smoke needs the capability-seal receipts
+  ceremony (`WAYLAND_CAPABILITY_RECEIPTS_DIR`, owner/CI-adjacent). The fix spawns bundled Bun directly
+  (sidesteps the fuse by construction) and the runtime path is proven live, so residual is low.
+  Watch-item: message send/receive under Bun's `ws` shim (QR proven).
+- **#537 (D-02): static-confirmed closeable** (desktop hook armed in-tree; Core v0.12.25 carries the
+  host-send symbols). Sean's call (2026-07-24): **draft-and-close on his nod, skip the live-email
+  setup.** Draft comment prepared this session (in `D-02-CLOSE-COMMENT.md`) — post as FerroxLabs on approval.
+- **Cross-audit follow-ups (pre-existing, NOT D1 regressions):** WR-01 bridge child inherits full
+  `process.env` vs `safeSpawn`'s allowlist; WR-02 dead `--session` per-instance isolation.
+- **Cleanup (2026-07-24):** reclaimed ~60 GB — removed 135 stale worktrees (gsd-workspaces 231G→6.9G)
+  + Docker unused images; all 92 gsd-clone branches + active app-worktrees preserved.
+
+**NEXT: D2 (#885 Skill Guard builtin exemption)** — `ferrox-plan-phase` → build via `ferrox-executor`
+→ `ferrox-code-reviewer` → `ferrox-verifier` + live-verify by hand. Root-cause map in the handoff.
+Then D3 (#891/#853) → D5 (#909/#910/#508/#882) → D4 (#723, gated). No push without Sean.
 
 Prior handoff (Milestone A/B, still valid context): `.planning/HANDOFF-2026-07-23-milestone-b-built.md`.
 Core-gated follow-ons (do NOT build against the moving Core): SBX-02 wiring, COW-04 live citations.

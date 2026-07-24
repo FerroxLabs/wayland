@@ -6,8 +6,17 @@
 `ferrox` → FerroxLabs/wayland). Run tooling from there. **DO NOT use the old
 `~/gsd-workspaces/wayland-desktop-integration/app`** — that stray clone-of-a-clone was abandoned
 2026-07-23 when Sean had the branch relocated into canonical (it was 509 ahead / 0 behind main,
-a clean push). D1 (#890) build is in progress here; latest checkpoint `f2a4a4bce`. Nothing pushed
-to the `ferrox` GitHub remote without Sean.
+a clean push). Nothing pushed to the `ferrox` GitHub remote without Sean.
+
+> **STATUS 2026-07-24 — D1 (#890) DONE + live-verified; D2 (#885) is NEXT.** Latest commit
+> `6a33e21ce`. #890 shipped through the full Ferrox loop (plan/build/cross-audit GO/verify GOAL MET)
+> and live-verified by hand (baileys reached QR under Bun, stdout clean, no code=0 death). See
+> STATE.md "ACTIVE RESUME" for the full detail + the D1 fix summary. #537 (D-02) is static-confirmed
+> closeable; Sean's call = draft-and-close on his nod (draft in `D-02-CLOSE-COMMENT.md`). **Resume =
+> `ferrox-plan-phase` on D2 (#885 Skill Guard), then build via `ferrox-executor` → `ferrox-code-reviewer`
+> → `ferrox-verifier` + live-verify by hand.** Ferrox Factory is used for ALL FOUR of Planning /
+> Building / Cross-Auditing / Verifying (Sean's standing directive); the live-testing part of Verify I
+> run myself through the controller/harness. The D2–D5 root-cause map is below unchanged.
 
 ## What just happened (this session)
 Two things: (1) shipped a set of desktop fixes locally; (2) triaged the whole GitHub
