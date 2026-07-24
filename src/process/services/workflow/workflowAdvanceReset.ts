@@ -82,17 +82,6 @@ interface AdvanceTask {
 export interface WorkflowAdvanceResetDeps {
   getOrBuildTask(conversationId: string, options: BuildConversationOptions): Promise<AdvanceTask>;
   getConversationType(conversationId: string): Promise<string | null>;
-  /**
-   * Optional: resolve when the conversation's current turn reaches a terminal
-   * state (`ai_waiting_input` / `stopped` / `error` - matching the parent
-   * driver, where `ai_waiting_input` is the normal successful completion). When
-   * provided, the per-conversation serialization chain is held through the turn
-   * so a concurrent advance cannot respawn (skipCache kill) the still-in-flight
-   * step - `sendMessage` resolves when the directive is DISPATCHED, not when the
-   * turn finishes. Must be bounded (its own backstop timeout) so the chain can
-   * never block forever. Absent (in unit tests) the chain releases on dispatch.
-   */
-  awaitTurnSettled?(conversationId: string): Promise<void>;
 }
 
 /**
@@ -103,11 +92,14 @@ export interface WorkflowAdvanceResetDeps {
  * and kill the other's fresh session mid-flight -> a stalled or double-run
  * workflow. Chaining each send behind the prior one for that conversation makes
  * the respawns strictly sequential (the latest advance cleanly supersedes),
- * never interleaved. When `awaitTurnSettled` is provided the chain is held
- * through the whole turn (not just the dispatch) so a concurrent advance WAITS
- * for the in-flight step instead of killing it. Different conversations are
- * independent (separate chains). The map entry is dropped once its chain is the
- * tail, so it stays bounded.
+ * never interleaved. Release-on-dispatch is sufficient: `acceptStep` fires only
+ * from a run parked at `awaiting_input` (the StepReviewBeat checkpoint), i.e. the
+ * prior turn is already terminal, so there is no in-flight step to kill; and in
+ * step mode the driver is parked (not advancing) while awaiting the accept. The
+ * chain therefore only needs to prevent two respawns from interleaving, which it
+ * does. Different conversations are independent (separate chains). The map entry
+ * is dropped once its chain is the tail, so it stays bounded. (A fuller
+ * per-step context bound belongs in the Core tail-cap, not a desktop timer.)
  */
 const advanceChains = new Map<string, Promise<void>>();
 
@@ -156,33 +148,10 @@ async function runAdvance(
 
   const task = await deps.getOrBuildTask(conversationId, options);
 
-  // Subscribe to the turn-settle signal BEFORE dispatch. A terminal
-  // `turnCompleted` can fire during `sendMessage`'s IPC round-trip; registering
-  // the listener only after sendMessage resolved would MISS that fast event and
-  // stall the per-conversation chain for the full backstop timeout. Start the
-  // settle wait first (it attaches its listener synchronously), then send, then
-  // await it. The prior turn's terminal already fired before runAdvance was
-  // called, so this listener targets the NEW turn started by this dispatch.
-  const settled = deps.awaitTurnSettled ? deps.awaitTurnSettled(conversationId) : null;
   await task.sendMessage({
     content: directive,
     input: directive,
     msg_id: `workflow-advance-${conversationId}-${Date.now()}`,
     hidden: true,
   });
-
-  // Hold the per-conversation chain through the turn's terminal finish so the
-  // next advance waits for this step instead of respawning (killing) it. The
-  // dep's own backstop timeout releases (degraded) rather than blocks if a
-  // terminal event is missed. This settle layer is intentionally type-AGNOSTIC
-  // (it runs for every conversation type, not just wcore): it only prevents
-  // overlapping directives, which is safe for ACP too, even though the reset
-  // itself is wcore-only (LO-04).
-  if (settled) {
-    try {
-      await settled;
-    } catch {
-      // Never let a settle-wait failure block the conversation's advance chain.
-    }
-  }
 }
