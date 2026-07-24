@@ -283,7 +283,7 @@ const ConversationsListPage: React.FC = () => {
 
   return (
     <PageShell
-      title={t('conversations.list.title', { defaultValue: 'Conversations' })}
+      title={t('conversations.list.title', { defaultValue: 'Chats' })}
       icon={<MessagesSquare size={20} />}
       subtitle={t('conversations.list.subtitle', { defaultValue: 'Every chat and session' })}
       actions={newChatButton}
