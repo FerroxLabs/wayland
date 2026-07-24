@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 
 import localVerificationGate = require('../../scripts/localVerificationGate.js');
 
-const { isLocalVerificationBuild, isLocalVerificationDirBuild, isCanonicalDirOnlyArgs } = localVerificationGate as {
-  isLocalVerificationBuild: (env: Record<string, string | undefined>) => boolean;
-  isLocalVerificationDirBuild: (env: Record<string, string | undefined>, argv: string[]) => boolean;
-  isCanonicalDirOnlyArgs: (argv: string[]) => boolean;
-};
+const { isLocalVerificationBuild, isLocalVerificationDirBuild, isCanonicalDirOnlyArgs, findDistributableArtifacts } =
+  localVerificationGate as {
+    isLocalVerificationBuild: (env: Record<string, string | undefined>) => boolean;
+    isLocalVerificationDirBuild: (env: Record<string, string | undefined>, argv: string[]) => boolean;
+    isCanonicalDirOnlyArgs: (argv: string[]) => boolean;
+    findDistributableArtifacts: (fileNames: string[]) => string[];
+  };
 
 // This encodes the core release-safety invariant: the capability seal is written
 // (the RELEASE path) unless the operator explicitly opts into a local verification
@@ -104,5 +106,24 @@ describe('isCanonicalDirOnlyArgs', () => {
     expect(isCanonicalDirOnlyArgs(['auto', '--mac', '--dir', 'false'])).toBe(false);
     expect(isCanonicalDirOnlyArgs(['auto', '--mac', '--dir', '--no-dir'])).toBe(false);
     expect(isCanonicalDirOnlyArgs(['--', '--dir'])).toBe(false);
+  });
+});
+
+// Class-closing backstop: whatever a verification build produces, a distributable
+// artifact in the output must fail the build (catches the DMG-retry path + any future one).
+describe('findDistributableArtifacts', () => {
+  it('flags dmg/pkg/zip/exe/installer artifacts', () => {
+    expect(findDistributableArtifacts(['Wayland.dmg', 'Wayland.app', 'blockmap.txt'])).toEqual(['Wayland.dmg']);
+    expect(findDistributableArtifacts(['Wayland.pkg', 'Wayland-1.0.0-mac.zip'])).toEqual([
+      'Wayland.pkg',
+      'Wayland-1.0.0-mac.zip',
+    ]);
+    expect(findDistributableArtifacts(['Setup.exe', 'app.msi', 'x.AppImage', 'p.deb', 'q.rpm', 'r.snap']).length).toBe(6);
+  });
+
+  it('returns empty for a clean directory-only build (only the .app + support files)', () => {
+    expect(findDistributableArtifacts(['Wayland.app', 'builder-debug.yml', 'latest-mac.yml'])).toEqual([]);
+    expect(findDistributableArtifacts([])).toEqual([]);
+    expect(findDistributableArtifacts(undefined as unknown as string[])).toEqual([]);
   });
 });

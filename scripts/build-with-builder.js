@@ -20,7 +20,7 @@ const prepareOfficeCli = require('./prepareOfficeCli');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
 const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
-const { isLocalVerificationDirBuild } = require('./localVerificationGate');
+const { isLocalVerificationDirBuild, findDistributableArtifacts } = require('./localVerificationGate');
 const {
   VOICE_MODEL_FILES,
   resolvePackagedTarget,
@@ -275,7 +275,7 @@ function resolveDmgRetryTarget(outDir, targetPlatform, targetArch, previousPacka
   });
 }
 
-function buildWithDmgRetry(cmd, targetPlatform, targetArch, previousPackages, previousDmgs) {
+function buildWithDmgRetry(cmd, targetPlatform, targetArch, previousPackages, previousDmgs, allowDmgRetry = true) {
   const isMac = process.platform === 'darwin';
   const outDir = BUILDER_OUTPUT_DIR;
 
@@ -283,6 +283,11 @@ function buildWithDmgRetry(cmd, targetPlatform, targetArch, previousPackages, pr
     execSync(cmd, { stdio: 'inherit', shell: process.platform === 'win32' });
     return;
   } catch (error) {
+    // A local verification build is directory-only and MUST NOT synthesize a
+    // distributable. Never recover a failed build into a DMG here — the retried
+    // DMG would be built from the intentionally-unsealed `.app` (an unsealed
+    // shippable artifact). Rethrow so the verification build simply fails.
+    if (!allowDmgRetry) throw error;
     // On non-macOS or if .app doesn't exist, just throw
     let packagedTarget = null;
     if (isMac) {
@@ -919,7 +924,14 @@ try {
   const previousPackages = snapshotPackagedTargets(BUILDER_OUTPUT_DIR);
   const previousDmgs = snapshotDmgArtifacts(BUILDER_OUTPUT_DIR);
   try {
-    buildWithDmgRetry(builderCommand, packagePlatforms[0], targetArch, previousPackages, previousDmgs);
+    buildWithDmgRetry(
+      builderCommand,
+      packagePlatforms[0],
+      targetArch,
+      previousPackages,
+      previousDmgs,
+      !localVerificationBuild
+    );
   } catch (error) {
     const winExePath = path.join(BUILDER_OUTPUT_DIR, 'win-unpacked', BUILDER_EXECUTABLE_NAME);
     const firstError = formatExecError(error);
@@ -952,7 +964,8 @@ try {
         packagePlatforms[0],
         targetArch,
         previousPackages,
-        previousDmgs
+        previousDmgs,
+        !localVerificationBuild
       );
     } catch (retryError) {
       const retryFailure = formatExecError(retryError);
@@ -966,6 +979,36 @@ try {
         ].join('\n')
       );
     }
+  }
+
+  // 6.5. Class-closing invariant for local verification builds: the seal was
+  // omitted, so the artifact must be an unpacked `.app`/dir ONLY. Fail hard if any
+  // distributable/installer (dmg/pkg/zip/...) was produced by any path (a stray
+  // target arg, a DMG-retry, a future regression) — an unsealed distributable
+  // must never exist. Scans the output dir top level + one level of subdirs
+  // (where electron-builder writes artifacts); does not descend into the `.app`.
+  if (localVerificationBuild) {
+    const artifactNames = [];
+    if (fs.existsSync(BUILDER_OUTPUT_DIR)) {
+      for (const entry of fs.readdirSync(BUILDER_OUTPUT_DIR, { withFileTypes: true })) {
+        if (entry.isFile()) {
+          artifactNames.push(entry.name);
+        } else if (entry.isDirectory()) {
+          for (const child of fs.readdirSync(path.join(BUILDER_OUTPUT_DIR, entry.name), { withFileTypes: true })) {
+            if (child.isFile()) artifactNames.push(child.name);
+          }
+        }
+      }
+    }
+    const distributables = findDistributableArtifacts(artifactNames);
+    if (distributables.length) {
+      throw new Error(
+        `Local verification build (WAYLAND_LOCAL_VERIFICATION) must be directory-only, but produced ` +
+          `distributable artifact(s): ${distributables.join(', ')}. Refusing — a verification build must ` +
+          `never yield a shippable artifact.`
+      );
+    }
+    console.log('🔒 Local verification build: confirmed directory-only (no distributable artifact).');
   }
 
   // 7. Fail-hard gate: assert the packaged app actually contains every critical

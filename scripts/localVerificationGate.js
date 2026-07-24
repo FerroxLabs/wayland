@@ -68,4 +68,24 @@ function isLocalVerificationDirBuild(env, argv) {
   return isLocalVerificationBuild(env) && isCanonicalDirOnlyArgs(argv);
 }
 
-module.exports = { isLocalVerificationBuild, isLocalVerificationDirBuild, isCanonicalDirOnlyArgs };
+// Primary electron-builder distributable/installer artifact extensions. A local
+// verification (`--dir`) build must emit ONLY an unpacked `.app`/dir — none of
+// these. This is the class-closing backstop: even if some future arg or retry
+// path tried to synthesize a distributable, its presence fails the build.
+const DISTRIBUTABLE_ARTIFACT = /\.(dmg|pkg|zip|exe|msi|appx|appimage|deb|rpm|snap)$/i;
+
+/**
+ * @param {string[]} fileNames basenames produced by the build (top-level artifacts)
+ * @returns {string[]} the subset that are distributable/installer artifacts
+ */
+function findDistributableArtifacts(fileNames) {
+  if (!Array.isArray(fileNames)) return [];
+  return fileNames.filter((name) => typeof name === 'string' && DISTRIBUTABLE_ARTIFACT.test(name));
+}
+
+module.exports = {
+  isLocalVerificationBuild,
+  isLocalVerificationDirBuild,
+  isCanonicalDirOnlyArgs,
+  findDistributableArtifacts,
+};
