@@ -6,7 +6,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Tabs } from '@arco-design/web-react';
 import { AlertTriangle, Bot, Clock, Gauge, GitBranch, PictureInPicture2, RefreshCw, Users } from 'lucide-react';
 import { ipcBridge } from '@/common';
@@ -306,6 +306,11 @@ const MissionControlPage: React.FC = () => {
   const { t } = useTranslation();
   const isPopout = useIsPopoutMode();
 
+  // Honor a `?tab=` deep-link (e.g. the Titlebar SpendPill opens ?tab=cost),
+  // while keeping the tab user-switchable.
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'cost' ? 'cost' : 'operations');
+
   // Hide the pop-out trigger when this page is itself rendered inside a pop-out
   // window - there is nothing to pop out into from there (#157).
   const actions = isPopout ? undefined : (
@@ -329,7 +334,7 @@ const MissionControlPage: React.FC = () => {
       width='full'
       actions={actions}
     >
-      <Tabs defaultActiveTab='operations' className={styles.tabs}>
+      <Tabs activeTab={activeTab} onChange={setActiveTab} className={styles.tabs}>
         <Tabs.TabPane key='operations' title={t('missionControl.tabs.operations')}>
           <OperationsView />
         </Tabs.TabPane>

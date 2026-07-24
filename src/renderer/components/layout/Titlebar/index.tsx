@@ -15,6 +15,7 @@ import { isElectronDesktop, isMacOS } from '@/renderer/utils/platform';
 import { useIsPopoutMode } from '@/renderer/hooks/system/useIsPopoutMode';
 import { useTitlebarBrandHidden } from '@/renderer/hooks/ui/useNavPreferences';
 import UpdatePill from './UpdatePill';
+import SpendPill from './SpendPill';
 // Full brand lockups (orbit mark + wordmark + ™). Dark wordmark shows on light
 // theme, white wordmark on dark theme - toggled purely via CSS on [data-theme].
 import lockupDark from '@renderer/assets/logos/brand/wayland-lockup-dark.png';
@@ -351,6 +352,7 @@ const Titlebar: React.FC<TitlebarProps> = ({ workspaceAvailable }) => {
           </>
         )}
       </div>
+      <SpendPill />
       <UpdatePill />
       {(layout?.isMobile || !brandHidden) && (
         <div
