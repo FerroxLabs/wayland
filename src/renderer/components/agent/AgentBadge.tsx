@@ -15,6 +15,9 @@ export type AgentBadgeProps = {
   backend?: string;
   /** Display name for the agent */
   agentName?: string;
+  /** Runtime friendly name (e.g. "Wayland Core"); shown as a muted secondary
+   *  label when it differs from the assistant name (#909). */
+  runtimeName?: string;
   /** Custom agent logo (SVG path or emoji string) */
   agentLogo?: string;
   /** Whether the logo is an emoji */
@@ -54,12 +57,26 @@ export const AgentLogoIcon: React.FC<
  * When `assistantId` is provided, clicking navigates to AssistantSettings editor.
  * Otherwise renders as a static display badge.
  */
-const AgentBadge: React.FC<AgentBadgeProps> = ({ backend, agentName, agentLogo, agentLogoIsEmoji, assistantId }) => {
+const AgentBadge: React.FC<AgentBadgeProps> = ({
+  backend,
+  agentName,
+  runtimeName,
+  agentLogo,
+  agentLogoIsEmoji,
+  assistantId,
+}) => {
   const navigate = useNavigate();
   const handleClick = useCallback(() => {
     if (!assistantId) return;
     navigate(`/settings/assistants?highlight=${encodeURIComponent(assistantId)}`);
   }, [assistantId, navigate]);
+
+  const primaryLabel = agentName || backend;
+  // Only surface the runtime when it adds information: it must be present and
+  // differ (case-insensitively) from the primary label, so a raw wcore chat
+  // never reads "Wayland Core" twice.
+  const showRuntime =
+    !!runtimeName && !!primaryLabel && runtimeName.toLowerCase() !== String(primaryLabel).toLowerCase();
 
   return (
     <div
@@ -73,7 +90,17 @@ const AgentBadge: React.FC<AgentBadgeProps> = ({ backend, agentName, agentLogo, 
         agentLogo={agentLogo}
         agentLogoIsEmoji={agentLogoIsEmoji}
       />
-      <span className='text-sm text-t-primary'>{agentName || backend}</span>
+      <span className='text-sm text-t-primary'>{primaryLabel}</span>
+      {showRuntime && (
+        <>
+          <span className='text-t-tertiary' aria-hidden='true'>
+            ·
+          </span>
+          <span className='text-sm text-t-tertiary' data-testid='agent-badge-runtime'>
+            {runtimeName}
+          </span>
+        </>
+      )}
     </div>
   );
 };

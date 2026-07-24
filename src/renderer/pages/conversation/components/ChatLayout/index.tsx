@@ -154,6 +154,16 @@ const ChatLayout: React.FC<{
     (backend ? NON_ACP_BACKEND_DISPLAY_NAMES[backend] : undefined) ||
     backend;
 
+  // Friendly runtime name for the header pill (#909). Reuses the same resolver
+  // chain as displayName but keyed off the runtime (backend) only, so the badge
+  // can show the assistant AND the runtime it runs on (e.g. Concierge · Wayland
+  // Core) instead of collapsing to the assistant alone.
+  const runtimeName = backend
+    ? NON_ACP_BACKEND_DISPLAY_NAMES[backend] ||
+      ACP_BACKENDS_ALL[backend as keyof typeof ACP_BACKENDS_ALL]?.name ||
+      backend
+    : undefined;
+
   const titleAreaMaxWidth = containerWidth ? Math.max(160, Math.min(640, containerWidth - 460)) : 480;
   const workbenchOverlay = isMobile || isPopout || (containerWidth > 0 && containerWidth < 960);
 
@@ -275,6 +285,7 @@ const ChatLayout: React.FC<{
             <AgentBadge
               backend={backend}
               agentName={displayName}
+              runtimeName={runtimeName}
               agentLogo={presetAssistant?.logo}
               agentLogoIsEmoji={presetAssistant?.isEmoji}
               assistantId={presetAssistant?.id}
