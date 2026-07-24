@@ -139,8 +139,8 @@ gsd worktree is abandoned (physical cleanup of the gsd sprawl is a separate pass
 worktrees actually live in `~/dev/app-worktrees/wt-*`; this one is under `wayland-worktrees/` per
 Sean's menu pick (movable).
 
-**D1 (#890) + D2 (#885) + D3 (#891/#853) DONE — real-data live-verified 2026-07-24. #537 draft-close pending. D5 (#909/#910/#508/#882) is NEXT.**
-Latest commit `9cb3d4695`, local only.
+**D1 (#890) + D2 (#885) + D3 (#891/#853) + D5 (#909/#910/#508/#882) DONE 2026-07-24. #537 draft-close pending. D4 (#723, GATED) is the last packet.**
+Latest commit `9523ac534`, local only. **D5 was the first packet through the CORRECTED 4-model cross-audit panel (Codex 5.6 Sol + Gemini 3.1 Pro + Kimi K3 + internal Claude) — Sean corrected the method mid-session; see [[cross-audit-panel-invocations]]. Retro-panel D2/D3 + packaged-GUI live-verify all batched into the pre-publish pass.**
 
 - **Root cause (research OVERTURNED the council's pino theory):** the **RunAsNode fuse**. Packaged
   builds disable it (`afterPack.js`), so `WhatsAppPlugin.forkBridge`'s `child_process.fork` booted a
@@ -226,11 +226,26 @@ Latest commit `9cb3d4695`, local only.
   whose `.message` drops the errno (pre-existing, out of D-05 scope). #422 TODO at `WCoreManager.ts:1052`
   (pre-existing). D-04 clickable "Open logs" button deferred (no logs-dir IPC to renderer yet).
 
-**NEXT: D5 (UI clarity batch — all BUILD, S):** #909 runtime pill shows Concierge, hide-nothing surface the
-runtime (Wayland Core) alongside; #910 label alignment (pin vs "Starred", "Chats" vs "Conversations"); #508
-compact spend indicator on the top bar (cost UI already built, only the top-bar delta remains); #882 (LOWEST)
-secondary project label per conversation tab. Then D4 (#723, gated — reconfirm in-place-reset arch with Sean).
-Root-cause map in the handoff. No push without Sean.
+**D5 (UI clarity batch): DONE — one packet (D-06), five task groups, full Ferrox loop + 4-model cross-audit panel.**
+Commits `1cb523bb0`..`9523ac534` (10 build + 3 panel-fix + 1 comment + docs). All renderer-side, Core-independent.
+- **#909** runtime pill: `resolveRuntimeName()` shows the runtime (Wayland Core) alongside the assistant when they
+  differ, one label when same, NEVER a raw backend id (panel caught it leaking "· gemini"; fixed to friendly-or-hide).
+- **#910a** pin/star aligned to "Pin" reusing existing translated keys; **#910b** aggregation → "Chats" (English-only
+  default, standalone commit `8f713ea04`, independently revertible — **Sean ratifies "Chats" at live-verify**).
+- **#508** compact SpendPill in the Titlebar reading existing `cost.listBudgets`; real <button> + localized aria-label;
+  hides on no/malformed budget; deep-link switches the cost tab; mutate rejection caught.
+- **#882** secondary project label per tab; no-project shows just the name; truncation-safe; restored tabs backfill projectId.
+- **CROSS-AUDIT (corrected method):** 4-model panel returned FIX-FIRST (Gemini High on the deep-link; Codex caught a
+  void-mutate unhandled rejection + restored-tabs-lose-labels that the single internal audit missed). All 6 findings
+  fixed (3 commits) → clean RE-AUDIT GO across all 4 legs. Full suite 15,671 pass / 1 known flake, tsc clean. Verify
+  GOAL MET 5/5. Records: `D-06-XAUDIT.md`, `D-06-VERIFICATION.md`.
+- **Residual (batched, Sean's call):** packaged-GUI live-verify (all four surfaces + axe button-name gate) + #910b "Chats"
+  ratify. `D-06-SUMMARY.md` at acceptance.
+
+**NEXT: D4 (#723 token efficiency — in-conversation per-step context reset, FIX, L) — GATED.** Sean's arch call =
+IN-PLACE per-step context reset; RECONFIRM with Sean before building (it's money + UX). Root-cause map in the handoff
+(autonomous path already resets per step; the in-conversation auto-advance in `parentTurnDriver.ts`→`continueRun` inherits
+the full transcript 1..N with no cap — that's the fix target). Pairs with a Core tail-cap for defense-in-depth. No push without Sean.
 
 Prior handoff (Milestone A/B, still valid context): `.planning/HANDOFF-2026-07-23-milestone-b-built.md`.
 Core-gated follow-ons (do NOT build against the moving Core): SBX-02 wiring, COW-04 live citations.
