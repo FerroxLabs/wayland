@@ -139,8 +139,8 @@ gsd worktree is abandoned (physical cleanup of the gsd sprawl is a separate pass
 worktrees actually live in `~/dev/app-worktrees/wt-*`; this one is under `wayland-worktrees/` per
 Sean's menu pick (movable).
 
-**D1 (#890) DONE — live-verified 2026-07-24. #537 draft-close pending. D2 (#885) is NEXT.**
-Latest commit `6a33e21ce`, local only.
+**D1 (#890) + D2 (#885) DONE — real-data live-verified 2026-07-24. #537 draft-close pending. D3 (#891/#853) is NEXT.**
+Latest commit `ff5fa4795`, local only.
 
 - **Root cause (research OVERTURNED the council's pino theory):** the **RunAsNode fuse**. Packaged
   builds disable it (`afterPack.js`), so `WhatsAppPlugin.forkBridge`'s `child_process.fork` booted a
@@ -170,9 +170,33 @@ Latest commit `6a33e21ce`, local only.
 - **Cleanup (2026-07-24):** reclaimed ~60 GB — removed 135 stale worktrees (gsd-workspaces 231G→6.9G)
   + Docker unused images; all 92 gsd-clone branches + active app-worktrees preserved.
 
-**NEXT: D2 (#885 Skill Guard builtin exemption)** — `ferrox-plan-phase` → build via `ferrox-executor`
-→ `ferrox-code-reviewer` → `ferrox-verifier` + live-verify by hand. Root-cause map in the handoff.
-Then D3 (#891/#853) → D5 (#909/#910/#508/#882) → D4 (#723, gated). No push without Sean.
+**D2 (#885 Skill Guard builtin exemption): DONE — full Ferrox loop, local only.** Commits on
+`0188de8f6`: `109ebadc7` (tests) · `e8edc12c2` (fix) · `ff5fa4795` (Ferrox artifacts).
+- **Root cause (research CORRECTED the handoff):** builtin `wayland-library` skills hit the same
+  `SkillGuard` sweep as imported; real first-party bodies trip critical rules (`| bash`, `Bearer`,
+  `~/.ssh/`) → `computeVerdict` `blocked` (`SkillGuard.ts:72`) → `loadBody:432` refuses load. The
+  handoff said "exempt wayland-library/team" — WRONG: `team` bodies live in writable user-data and are
+  spoofable, so only `wayland-library` is exempted.
+- **Fix (shipped, local):** producer-only exemption in `SkillLibrary.rescanStale`/`rescanIfStale` —
+  `isTrustedBundleSkill = source === 'wayland-library' && !path.isAbsolute(entry.path)` (BOTH facts;
+  source-only = security hole) → synthesized `clean` without scanning/body-read. Zero enforcement-gate
+  edits. New `skillGuardExemption.test.ts` (6 incl. absolute-path spoof-regression) + sweep-fixture
+  re-sourcing. Task 2 (user unblock-override store) DEFERRED — #885 fully closed without it.
+- **Ferrox loop:** plan-checker PASS → build (suite **15,631/0**, tsc clean) → cross-audit
+  (`ferrox-code-reviewer`: GO, 0 Crit/High/Med; traced all 5 `registerSource` callers) → verify
+  (`ferrox-verifier`: GOAL MET 6/6). Docs: `D-03-{RESEARCH,PLAN,VERIFICATION}.md`.
+- **LIVE verify (by hand, harness, real data):** real guard fired at real shipped bodies —
+  `forensics-analyst` → verdict **blocked** (the #885 symptom on production content); index.json
+  **2106/2106** `wayland-library` relative, **0** absolute, **0** external-relative → every builtin
+  exempted, zero spoof surface. Throwaway harness not committed.
+- **Residual (parked, Sean's call 2026-07-24):** packaged-GUI live-verify (`bun run package` + launch,
+  confirm a builtin loads while an imported still blocks) batched into the pre-publish pass — fix is
+  fuse-independent and proven on real data. `D-03-SUMMARY.md` authored at that acceptance.
+
+**NEXT: D3 (#891 memory false "Degraded" FIX+BUILD + #853 surface exec/process errors BUILD)** —
+`ferrox-plan-phase` → build via `ferrox-executor` → `ferrox-code-reviewer` → `ferrox-verifier` +
+live-verify by hand. Root-cause map in the handoff (#853 scope = exec/process failures only, Sean's call).
+Then D5 (#909/#910/#508/#882) → D4 (#723, gated). No push without Sean.
 
 Prior handoff (Milestone A/B, still valid context): `.planning/HANDOFF-2026-07-23-milestone-b-built.md`.
 Core-gated follow-ons (do NOT build against the moving Core): SBX-02 wiring, COW-04 live citations.
