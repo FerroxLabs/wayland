@@ -57,6 +57,9 @@ vi.mock('@/common', () => ({
     database: {
       getUserConversations: { invoke: vi.fn(() => Promise.resolve([PINNED_CONV])) },
     },
+    conversation: {
+      listChanged: { on: vi.fn(() => () => void 0) },
+    },
   },
 }));
 

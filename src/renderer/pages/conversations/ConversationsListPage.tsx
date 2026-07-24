@@ -340,7 +340,7 @@ const ConversationsListPage: React.FC = () => {
               {pinnedList.length > 0 && (
                 <section className='flex flex-col gap-6px'>
                   <span className={`${styles.sectionLabel} px-12px`}>
-                    {t('conversations.group.starred', { defaultValue: 'Starred' })}
+                    {t('conversation.history.pinnedSection', { defaultValue: 'Pinned' })}
                   </span>
                   <div className='flex flex-col'>{pinnedList.map(renderRow)}</div>
                 </section>

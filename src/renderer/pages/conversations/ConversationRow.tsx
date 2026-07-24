@@ -9,8 +9,9 @@ import { FLUX_MODEL_DISPLAY, isFluxModelId, type FluxModelId } from '@/common/co
 import type { IProject } from '@/common/types/project';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import { Dropdown } from '@arco-design/web-react';
-import { Folder, MessageSquare, MoreHorizontal, Star } from 'lucide-react';
+import { Folder, MessageSquare, MoreHorizontal, Pin, PinOff } from 'lucide-react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ConversationMenu, { type ConversationMenuAction } from './ConversationMenu';
 import styles from './conversationCards.module.css';
 
@@ -36,6 +37,7 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
   onOpen,
   onAction,
 }) => {
+  const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const logo = getAgentLogo(conversation.type);
   const rawModel = 'model' in conversation ? conversation.model.useModel : '';
@@ -68,7 +70,7 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
 
       <div className='flex-1 min-w-0 flex flex-col gap-2px'>
         <div className='flex items-center gap-7px min-w-0'>
-          {pinned && <Star size={12} className='shrink-0 text-[rgb(var(--primary-6))]' fill='currentColor' />}
+          {pinned && <Pin size={12} className='shrink-0 text-[rgb(var(--primary-6))]' fill='currentColor' />}
           <span className='text-14px text-t-primary truncate'>{conversation.name || 'Untitled'}</span>
         </div>
         <div className='flex items-center gap-8px min-w-0 text-12px text-t-tertiary'>
@@ -92,10 +94,14 @@ const ConversationRow: React.FC<ConversationRowProps> = ({
         <button
           type='button'
           className={`${styles.iconBtn} ${pinned ? styles.iconBtnActive : ''}`}
-          aria-label={pinned ? 'Unstar' : 'Star'}
+          aria-label={
+            pinned
+              ? t('conversation.history.unpin', { defaultValue: 'Unpin' })
+              : t('conversation.history.pin', { defaultValue: 'Pin' })
+          }
           onClick={() => onAction('pin')}
         >
-          <Star size={15} fill={pinned ? 'currentColor' : 'none'} />
+          {pinned ? <PinOff size={15} /> : <Pin size={15} />}
         </button>
         <Dropdown
           trigger='click'

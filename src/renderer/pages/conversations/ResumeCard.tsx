@@ -8,7 +8,7 @@ import type { TChatConversation } from '@/common/config/storage';
 import { FLUX_MODEL_DISPLAY, isFluxModelId, type FluxModelId } from '@/common/config/flux';
 import { getAgentLogo } from '@/renderer/utils/model/agentLogo';
 import { Dropdown } from '@arco-design/web-react';
-import { MessageSquare, MoreHorizontal, Star } from 'lucide-react';
+import { MessageSquare, MoreHorizontal, Pin } from 'lucide-react';
 import React, { useState } from 'react';
 import ConversationMenu, { type ConversationMenuAction } from './ConversationMenu';
 import styles from './conversationCards.module.css';
@@ -65,7 +65,7 @@ const ResumeCard: React.FC<ResumeCardProps> = ({ conversation, pinned, timeLabel
           )}
         </span>
         <div className='flex items-center gap-3px' onClick={(e) => e.stopPropagation()}>
-          {pinned && <Star size={13} className='text-[rgb(var(--primary-6))]' fill='currentColor' />}
+          {pinned && <Pin size={13} className='text-[rgb(var(--primary-6))]' fill='currentColor' />}
           <Dropdown
             trigger='click'
             position='br'

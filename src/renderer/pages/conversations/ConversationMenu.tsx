@@ -43,8 +43,8 @@ const ConversationMenu: React.FC<ConversationMenuProps> = ({ pinned, onAction })
           {pinned ? <PinOff size={14} /> : <Pin size={14} />}
           <span>
             {pinned
-              ? t('conversations.menu.unstar', { defaultValue: 'Unstar' })
-              : t('conversations.menu.star', { defaultValue: 'Star' })}
+              ? t('conversation.history.unpin', { defaultValue: 'Unpin' })
+              : t('conversation.history.pin', { defaultValue: 'Pin' })}
           </span>
         </div>
       </Menu.Item>
