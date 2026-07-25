@@ -34,6 +34,26 @@ const journalKey = Buffer.alloc(32, 42);
 const archiveKeyId = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
 const archiveKey = Buffer.alloc(32, 73);
 
+/**
+ * The Constitution filesystem has no proven handle-relative backend on win32, so
+ * SUPPORTED_PLATFORMS excludes it and every call that reaches
+ * withHeldVerifiedConstitutionFsBinary - which is every dispatched operation -
+ * fails closed with CONSTITUTION_FS_UNSAFE_PLATFORM by design. Only the
+ * assertions that need that held descriptor are gated, matching the suite-level
+ * gate at constitutionFsService.test.ts:260. Pre-dispatch validation is
+ * platform-independent and keeps running on win32, as does the fail-closed
+ * assertion at the end of the first suite.
+ */
+const heldExecutionSupported = process.platform === 'darwin' || process.platform === 'linux';
+const itOnHeldExecution = it.runIf(heldExecutionSupported);
+/**
+ * verifyConstitutionFsBinary takes platform as an explicit parameter, so the
+ * pre-dispatch tests can bind a helper on win32 by naming a supported platform
+ * instead of being skipped. On darwin and linux this is the real process
+ * platform, so those runners still exercise the production default.
+ */
+const boundPlatform: NodeJS.Platform = heldExecutionSupported ? process.platform : 'linux';
+
 function binaryFixture(script: string | Buffer = '#!/bin/sh\nexit 0\n') {
   const installRoot = mkdtempSync(path.join(os.tmpdir(), 'constitution-fs-runner-'));
   const binaryPath = path.join(installRoot, 'wayland-constitution-fs');
@@ -47,7 +67,7 @@ function binaryFixture(script: string | Buffer = '#!/bin/sh\nexit 0\n') {
     JSON.stringify({
       schemaVersion: 1,
       protocolVersion: 2,
-      platform: process.platform,
+      platform: boundPlatform,
       arch: process.arch,
       binary: { fileName: path.basename(binaryPath), sha256, size: bytes.byteLength },
     })
@@ -55,13 +75,16 @@ function binaryFixture(script: string | Buffer = '#!/bin/sh\nexit 0\n') {
   const authority = createTestOnlyConstitutionFsBinaryAuthority({
     sha256,
     size: bytes.byteLength,
-    platform: process.platform,
+    platform: boundPlatform,
     arch: process.arch,
     fileName: path.basename(binaryPath),
     installRoot,
     packaged: false,
   });
-  return { binaryPath, verified: verifyConstitutionFsBinary({ binaryPath, manifestPath, authority }) };
+  return {
+    binaryPath,
+    verified: verifyConstitutionFsBinary({ binaryPath, manifestPath, authority, platform: boundPlatform }),
+  };
 }
 
 function requestFixture(): {
@@ -167,7 +190,7 @@ function archiveInventory() {
 }
 
 describe('Constitution filesystem transaction wrapper', () => {
-  it('accepts only an exact request-bound receipt', () => {
+  itOnHeldExecution('accepts only an exact request-bound receipt', () => {
     const { verified } = binaryFixture();
     const { request, rootAuthority } = requestFixture();
     const receipt = runConstitutionFsTransaction(
@@ -199,7 +222,7 @@ describe('Constitution filesystem transaction wrapper', () => {
     expect(executor).not.toHaveBeenCalled();
   });
 
-  it.each([
+  itOnHeldExecution.each([
     ['previousSha256', 'sha256:0000000000000000000000000000000000000000000000000000000000000000'],
     ['replacementSha256', 'sha256:0000000000000000000000000000000000000000000000000000000000000000'],
     ['archiveName', 'other.json'],
@@ -219,7 +242,10 @@ describe('Constitution filesystem transaction wrapper', () => {
     );
   });
 
-  it('rejects a swapped initialization-time root before executing', () => {
+  // Root identity is pinned as POSIX device plus inode; win32 file ids are not the
+  // proven identity primitive this guarantee is built on, and the guarantee is
+  // only reachable on a supported platform anyway.
+  it.runIf(process.platform !== 'win32')('rejects a swapped initialization-time root before executing', () => {
     const { verified } = binaryFixture();
     const { root, request, rootAuthority } = requestFixture();
     renameSync(root, `${root}-old`);
@@ -238,7 +264,7 @@ describe('Constitution filesystem transaction wrapper', () => {
     );
   });
 
-  it('rejects false guarantees, malformed output, oversized output, and stable helper errors', () => {
+  itOnHeldExecution('rejects false guarantees, malformed output, oversized output, and stable helper errors', () => {
     const { verified } = binaryFixture();
     const { request, rootAuthority } = requestFixture();
     expect(() =>
@@ -279,7 +305,7 @@ describe('Constitution filesystem transaction wrapper', () => {
     ).toThrowError(expect.objectContaining({ code: 'CONSTITUTION_FS_CONFLICT' }));
   });
 
-  it('reverifies the held binary immediately before execution', () => {
+  itOnHeldExecution('reverifies the held binary immediately before execution', () => {
     const fixture = binaryFixture();
     const { request, rootAuthority } = requestFixture();
     writeFileSync(fixture.binaryPath, 'tampered');
@@ -292,7 +318,7 @@ describe('Constitution filesystem transaction wrapper', () => {
     ).toThrowError(expect.objectContaining({ code: 'CONSTITUTION_FS_BINARY_UNVERIFIED' }));
   });
 
-  it('injects the exact trusted archive-key inventory only for archive-bearing operations without exposing raw keys in receipts', () => {
+  itOnHeldExecution('injects the exact trusted archive-key inventory only for archive-bearing operations without exposing raw keys in receipts', () => {
     const { verified } = binaryFixture();
     const { root, rootAuthority } = requestFixture();
     const inventory = archiveInventory();
@@ -403,7 +429,24 @@ describe('Constitution filesystem transaction wrapper', () => {
     expect(executor).not.toHaveBeenCalled();
   });
 
-  it('binds legacy migration to exact SOUL bytes and a fingerprinted v2 receipt', () => {
+  /**
+   * Runs on every runner, including the win32 shard where the whole backend is
+   * unsupported. A helper bound to an unsupported platform must be refused with
+   * CONSTITUTION_FS_UNSAFE_PLATFORM - the code ConstitutionService branches on -
+   * and must never be dispatched, so an unsupported host cannot reach a
+   * Constitution mutation at all.
+   */
+  it('fails closed without dispatching a helper bound to an unsupported platform', () => {
+    const { verified } = binaryFixture();
+    const { request, rootAuthority } = requestFixture();
+    const executor = vi.fn<ConstitutionFsExecutor>();
+    expect(() =>
+      runConstitutionFsTransaction(request, { ...verified, platform: 'win32' }, options(rootAuthority, executor))
+    ).toThrowError(expect.objectContaining({ code: 'CONSTITUTION_FS_UNSAFE_PLATFORM' }));
+    expect(executor).not.toHaveBeenCalled();
+  });
+
+  itOnHeldExecution('binds legacy migration to exact SOUL bytes and a fingerprinted v2 receipt', () => {
     const { verified } = binaryFixture();
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-migrate-wrapper-'));
     const rootAuthority = pinConstitutionFsRootAuthority(root);
@@ -443,7 +486,7 @@ describe('Constitution filesystem transaction wrapper', () => {
     expect(receipt).toMatchObject({ operation: 'migrate_legacy', requestFingerprint });
   });
 
-  it('resolves ambiguous commits only through fingerprint-bound committed lookup', () => {
+  itOnHeldExecution('resolves ambiguous commits only through fingerprint-bound committed lookup', () => {
     const { verified } = binaryFixture();
     const { request, rootAuthority } = requestFixture();
     const lookupTx = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
@@ -513,7 +556,8 @@ describe('Constitution filesystem transaction wrapper', () => {
   });
 });
 
-describe('Constitution reconciliation receipt binding', () => {
+// Every assertion in this suite dispatches the helper through a held descriptor.
+describe.runIf(heldExecutionSupported)('Constitution reconciliation receipt binding', () => {
   it('accepts only exact authenticated pending facts and rejects caller-mintable detail drift', () => {
     const { verified } = binaryFixture();
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-pending-detail-'));
@@ -811,7 +855,8 @@ function sealReceipt(operation: string, overrides: Record<string, unknown>) {
   );
 }
 
-describe('Constitution seal-key wrapper', () => {
+// Every assertion in this suite dispatches the helper through a held descriptor.
+describe.runIf(heldExecutionSupported)('Constitution seal-key wrapper', () => {
   it('binds inventory, read, and exclusive-create receipts exactly', () => {
     const { verified } = binaryFixture();
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-seals-'));
@@ -867,7 +912,7 @@ describe('Constitution read-only wrapper', () => {
     expect(executor).not.toHaveBeenCalled();
   });
 
-  it('binds anchored live bytes and sorted inventories', () => {
+  itOnHeldExecution('binds anchored live bytes and sorted inventories', () => {
     const { verified } = binaryFixture();
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-reads-'));
     const rootAuthority = pinConstitutionFsRootAuthority(root);
@@ -958,7 +1003,7 @@ describe('Constitution read-only wrapper', () => {
     ).toEqual([]);
   });
 
-  it('wires trusted key history into archive reads and binds the returned record', () => {
+  itOnHeldExecution('wires trusted key history into archive reads and binds the returned record', () => {
     const { verified } = binaryFixture();
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-archive-read-'));
     const rootAuthority = pinConstitutionFsRootAuthority(root);
@@ -1023,7 +1068,7 @@ describe('Constitution read-only wrapper', () => {
     expect(result.sha256).toBe(archive.sha256);
   });
 
-  it('uses operation-specific response caps at the exact boundary and rejects one byte over', () => {
+  itOnHeldExecution('uses operation-specific response caps at the exact boundary and rejects one byte over', () => {
     const { verified } = binaryFixture();
     const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-read-caps-'));
     const rootAuthority = pinConstitutionFsRootAuthority(root);

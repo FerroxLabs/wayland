@@ -9,6 +9,22 @@ import {
   withHeldVerifiedConstitutionFsBinary,
 } from '@process/services/constitution/constitutionFsBinary';
 
+/**
+ * The Constitution filesystem is deliberately unsupported on win32: there is no
+ * proven handle-relative primitive there, so verification and held-descriptor
+ * execution fail closed with CONSTITUTION_FS_UNSAFE_PLATFORM by design. Same
+ * gate as constitutionFsService.test.ts:260.
+ */
+const heldExecutionSupported = process.platform === 'darwin' || process.platform === 'linux';
+/**
+ * verifyConstitutionFsBinary takes platform as an explicit parameter, so the
+ * platform-independent manifest, digest, and authority-binding assertions below
+ * name a supported platform and keep running on win32 instead of being skipped.
+ * On darwin and linux this is the real process platform, so those runners still
+ * exercise the production default.
+ */
+const boundPlatform: NodeJS.Platform = heldExecutionSupported ? process.platform : 'linux';
+
 function fixture(bytes = Buffer.from('#!/bin/sh\nexit 0\n')) {
   const installRoot = mkdtempSync(path.join(os.tmpdir(), 'constitution-fs-binary-'));
   const binaryPath = path.join(installRoot, 'wayland-constitution-fs');
@@ -21,7 +37,7 @@ function fixture(bytes = Buffer.from('#!/bin/sh\nexit 0\n')) {
     JSON.stringify({
       schemaVersion: 1,
       protocolVersion: 2,
-      platform: process.platform,
+      platform: boundPlatform,
       arch: process.arch,
       binary: { fileName: path.basename(binaryPath), sha256, size: bytes.byteLength },
     })
@@ -29,13 +45,13 @@ function fixture(bytes = Buffer.from('#!/bin/sh\nexit 0\n')) {
   const authority = createTestOnlyConstitutionFsBinaryAuthority({
     sha256,
     size: bytes.byteLength,
-    platform: process.platform,
+    platform: boundPlatform,
     arch: process.arch,
     fileName: path.basename(binaryPath),
     installRoot,
     packaged: false,
   });
-  return { binaryPath, manifestPath, authority };
+  return { binaryPath, manifestPath, authority, platform: boundPlatform };
 }
 
 describe('Constitution filesystem binary verification', () => {
@@ -71,13 +87,20 @@ describe('Constitution filesystem binary verification', () => {
     );
   });
 
-  it('rejects symlinks and the wrong installation root', () => {
+  // Creating a symlink is an unprivileged POSIX primitive but a privileged one on
+  // win32, so only the symlink half is gated, matching
+  // constitutionRevisionAuthority.test.ts:150.
+  it.runIf(process.platform !== 'win32')('rejects symlinks', () => {
     const input = fixture();
     const link = path.join(input.authority.installRoot, 'linked-helper');
     symlinkSync(input.binaryPath, link);
     expect(() => verifyConstitutionFsBinary({ ...input, binaryPath: link })).toThrowError(
       expect.objectContaining({ code: 'CONSTITUTION_FS_BINARY_UNVERIFIED' })
     );
+  });
+
+  it('rejects the wrong installation root', () => {
+    const input = fixture();
     expect(() =>
       verifyConstitutionFsBinary({ ...input, binaryPath: path.join(os.tmpdir(), input.authority.fileName) })
     ).toThrowError(expect.objectContaining({ code: 'CONSTITUTION_FS_BINARY_UNVERIFIED' }));
@@ -90,7 +113,34 @@ describe('Constitution filesystem binary verification', () => {
     );
   });
 
-  it('executes from a sealed verified snapshot immune to source-inode mutation', () => {
+  // The win32 fail-closed contract asserted against the real running platform,
+  // not just the injected string above: an unsupported host must never bind a
+  // helper, which is what the renderer's CONSTITUTION_FS_UNSAFE_PLATFORM branch
+  // depends on.
+  it.runIf(process.platform === 'win32')('fails closed for the running platform on win32', () => {
+    const input = fixture();
+    expect(() =>
+      verifyConstitutionFsBinary({
+        binaryPath: input.binaryPath,
+        manifestPath: input.manifestPath,
+        authority: input.authority,
+      })
+    ).toThrowError(
+      expect.objectContaining<Partial<ConstitutionFsBinaryError>>({ code: 'CONSTITUTION_FS_UNSAFE_PLATFORM' })
+    );
+  });
+
+  it('refuses held-descriptor execution for a helper bound to an unsupported platform', () => {
+    const input = fixture();
+    const verified = verifyConstitutionFsBinary(input);
+    expect(() =>
+      withHeldVerifiedConstitutionFsBinary({ ...verified, platform: 'win32' }, () => 'unreachable')
+    ).toThrowError(
+      expect.objectContaining<Partial<ConstitutionFsBinaryError>>({ code: 'CONSTITUTION_FS_UNSAFE_PLATFORM' })
+    );
+  });
+
+  it.runIf(heldExecutionSupported)('executes from a sealed verified snapshot immune to source-inode mutation', () => {
     const input = fixture();
     const original = readFileSync(input.binaryPath);
     const verified = verifyConstitutionFsBinary(input);
