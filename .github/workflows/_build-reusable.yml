@@ -175,8 +175,6 @@ jobs:
     timeout-minutes: 120
     needs: [code-quality, capability-acceptance]
     if: ${{ always() && (inputs.skip_code_quality || needs.code-quality.result == 'success') && needs.capability-acceptance.result == 'success' }}
-    env:
-      WAYLAND_CAPABILITY_RECEIPTS_DIR: ${{ runner.temp }}/capability-acceptance
 
     outputs:
       commit-short: ${{ steps.commit.outputs.short }}
@@ -249,6 +247,19 @@ jobs:
         with:
           name: ${{ needs.capability-acceptance.outputs.artifact-name }}
           path: ${{ runner.temp }}/capability-acceptance
+
+      # This used to be a job-level `env:` entry, but the `runner` context does
+      # not exist there (only github/inputs/needs/matrix/strategy/secrets/vars do),
+      # so the whole workflow file failed validation and every push produced a
+      # zero-job failed run. Exporting it from a step, where `runner` IS
+      # available, keeps the same job-wide value for the three electron-builder
+      # steps that consume it. The expression is identical to the download path
+      # above so the two cannot drift apart.
+      - name: Export capability acceptance authority path
+        shell: bash
+        env:
+          RECEIPTS_DIR: ${{ runner.temp }}/capability-acceptance
+        run: echo "WAYLAND_CAPABILITY_RECEIPTS_DIR=${RECEIPTS_DIR}" >> "$GITHUB_ENV"
 
       - name: Setup Windows native dependencies (for Windows only)
         if: startsWith(matrix.platform, 'windows')

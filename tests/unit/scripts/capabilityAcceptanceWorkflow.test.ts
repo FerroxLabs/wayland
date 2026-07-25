@@ -47,13 +47,25 @@ describe('capability acceptance build authority', () => {
   it('downloads the exact authority into every native package job', () => {
     const build = workflow('_build-reusable.yml').jobs.build;
     const download = build.steps.find((step) => step.name === 'Download exact capability acceptance authority')!;
+    const exportPath = build.steps.find((step) => step.name === 'Export capability acceptance authority path')!;
 
-    expect(build.env!.WAYLAND_CAPABILITY_RECEIPTS_DIR).toBe('${{ runner.temp }}/capability-acceptance');
     expect(download.uses).toBe('actions/download-artifact@v7');
     expect(download.with).toEqual({
       name: '${{ needs.capability-acceptance.outputs.artifact-name }}',
       path: '${{ runner.temp }}/capability-acceptance',
     });
+
+    // The receipts directory must NOT come back as a job-level `env:` entry: the
+    // `runner` context is unavailable there, which invalidates the entire
+    // workflow file and makes every run fail before a single job starts. It is
+    // exported from a step instead, from the same expression the download uses.
+    expect(build.env?.WAYLAND_CAPABILITY_RECEIPTS_DIR).toBeUndefined();
+    expect(exportPath.env).toEqual({ RECEIPTS_DIR: '${{ runner.temp }}/capability-acceptance' });
+    expect(exportPath.run).toContain('WAYLAND_CAPABILITY_RECEIPTS_DIR=${RECEIPTS_DIR}');
+    expect(exportPath.run).toContain('$GITHUB_ENV');
+    expect(build.steps.indexOf(exportPath)).toBeGreaterThan(build.steps.indexOf(download));
+    const firstConsumer = build.steps.findIndex((step) => step.name?.startsWith('Build with electron-builder'));
+    expect(firstConsumer).toBeGreaterThan(build.steps.indexOf(exportPath));
   });
 
   it('keeps both caller workflows free of attestation authority', () => {
