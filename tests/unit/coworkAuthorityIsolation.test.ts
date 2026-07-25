@@ -7,10 +7,25 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
+
+// The fail-closed assertion below used to depend on ambient machine state:
+// getBundledOfficeCliDir() resolves `${cwd}/resources` outside a packaged app, so
+// the test only passed on a machine that had never staged an OfficeCLI bundle.
+// Running the (entirely legitimate) prepareOfficeCli step turned the suite red
+// without any product change. Own the precondition instead of inheriting it.
+vi.mock('@process/utils/shellEnv', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@process/utils/shellEnv')>()),
+  getBundledOfficeCliDir: vi.fn(),
+}));
+
+// eslint-disable-next-line import/first
 import { resolveVerifiedOfficecliCommand } from '@process/bridge/officecliInstaller';
+// eslint-disable-next-line import/first
 import { OFFICECLI_LEDGER_PROOF } from '@process/services/capabilities/OfficeCliContractValidator';
+// eslint-disable-next-line import/first
+import { getBundledOfficeCliDir } from '@process/utils/shellEnv';
 
 function sourceFiles(root: string): string[] {
   return fs.readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
@@ -63,11 +78,40 @@ describe('Cowork office bridges invoke only the exact verified OfficeCLI capabil
     }
   });
 
+  const mockedBundledDir = vi.mocked(getBundledOfficeCliDir);
+
+  beforeEach(() => {
+    mockedBundledDir.mockReset();
+  });
+
   it('resolves no executable when the verified lockstep capability is unavailable (fail closed)', () => {
     // With no verified bundled capability registered, the authority boundary
     // yields nothing. Callers fail closed: there is no bare-PATH, npm/global,
     // or hosted fallback to reach.
+    mockedBundledDir.mockReturnValue(null);
+
     expect(resolveVerifiedOfficecliCommand()).toBeNull();
+  });
+
+  it('fails closed when digest re-validation throws rather than surfacing a path', () => {
+    // getBundledOfficeCliDir re-validates the pinned digest and can throw. A
+    // throw must never fall through to an unverified executable.
+    mockedBundledDir.mockImplementation(() => {
+      throw new Error('digest mismatch');
+    });
+
+    expect(resolveVerifiedOfficecliCommand()).toBeNull();
+  });
+
+  it('resolves the exact binary inside the verified directory when one is registered', () => {
+    // Positive control: proves the null results above come from the authority
+    // boundary refusing, not from the resolver being inert.
+    mockedBundledDir.mockReturnValue('/verified/bundled-officecli/darwin-arm64');
+    const binary = process.platform === 'win32' ? 'officecli.exe' : 'officecli';
+
+    expect(resolveVerifiedOfficecliCommand()).toBe(
+      path.join('/verified/bundled-officecli/darwin-arm64', binary)
+    );
   });
 
   it('represents any future alternative only as an unavailable, non-executing fallback', () => {
