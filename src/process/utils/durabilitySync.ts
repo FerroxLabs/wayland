@@ -28,7 +28,7 @@
  * including `wayland-config.txt`.
  */
 
-import { closeSync, constants, fsyncSync, openSync } from 'fs';
+import { closeSync, constants, fsyncSync, openSync, promises as fsPromises } from 'fs';
 
 /**
  * Flags for opening a file solely in order to flush it.
@@ -81,4 +81,38 @@ export function syncDirectorySync(directory: string): void {
 export function syncPublicationTargetSync(target: string): void {
   if (canSyncDirectory()) syncDirectorySync(target);
   else syncFileSync(target);
+}
+
+/** Promise-based {@link syncFileSync}. */
+export async function syncFile(filePath: string, extraFlags = 0): Promise<void> {
+  const handle = await fsPromises.open(filePath, fileSyncFlags() | extraFlags);
+  try {
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+}
+
+/**
+ * Promise-based {@link syncDirectorySync}.
+ *
+ * Nine near-identical hand-rolled versions of this existed across the process
+ * tree; five of them tried `path.join(directory, '.')` on Windows, which fails
+ * with EPERM exactly like the plain directory does, so those flows threw rather
+ * than degrading. That is the reason this lives in one module.
+ */
+export async function syncDirectory(directory: string): Promise<void> {
+  if (!canSyncDirectory()) return;
+  const handle = await fsPromises.open(directory, constants.O_RDONLY);
+  try {
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+}
+
+/** Promise-based {@link syncPublicationTargetSync}. */
+export async function syncPublicationTarget(target: string): Promise<void> {
+  if (canSyncDirectory()) await syncDirectory(target);
+  else await syncFile(target);
 }

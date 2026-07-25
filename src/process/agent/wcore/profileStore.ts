@@ -214,13 +214,10 @@ async function writeActiveProfileMarker(name: string): Promise<void> {
 
     // Persist the rename ordering. Windows cannot open a directory through
     // Node without backup-semantics flags, so flush the renamed file there;
-    // NTFS journals the directory mutation.
-    const syncHandle = await open(process.platform === 'win32' ? target : root, 'r');
-    try {
-      await syncHandle.sync();
-    } finally {
-      await syncHandle.close();
-    }
+    // NTFS journals the directory mutation. The flag matters as much as the
+    // path: 'r' is O_RDONLY, which Windows refuses to fsync, so this threw
+    // EPERM on every profile write and left the store looking already-created.
+    await syncPublicationTarget(process.platform === 'win32' ? target : root);
   } catch (error) {
     await handle.close().catch(() => {});
     await unlink(temp).catch((cleanupError: NodeJS.ErrnoException) => {
@@ -319,6 +316,7 @@ export {
   profilesRoot,
   resolveProfileDir,
 } from './profilePaths';
+import { syncPublicationTarget } from '@process/utils/durabilitySync';
 
 /**
  * List every profile directory under Core's canonical root (plus Desktop's

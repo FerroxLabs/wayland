@@ -21,6 +21,7 @@ import {
   createExternalRecoveryRecordCodec,
 } from './externalRecoveryRecordCodec';
 import type { ClassicAuthorityEnvelopeCodec } from './classicConstitutionPromotion';
+import { syncDirectory as syncDirectoryDurably } from '@process/utils/durabilitySync';
 
 const LOCATOR_EVENT_CONTRACT = 'wayland-constitution-classic-recovery-locator-event/1.0' as const;
 const LOCATOR_EVENT_DOMAIN = 'wayland.classic-recovery.locator-event/1.0' as const;
@@ -219,13 +220,15 @@ async function ensureDirectory(directory: string, parent: string, label: string)
   if ((await realpath(directory)) !== directory) throw new Error(`${label} is not canonical.`);
 }
 
+/**
+ * Commit the directory entry a rename/link created.
+ *
+ * Delegates to the shared platform rule. The previous local copy opened
+ * `path.join(directory, '.')` on Windows, which fails with EPERM exactly like
+ * the plain directory does, so this flow threw there instead of degrading.
+ */
 async function syncDirectory(directory: string): Promise<void> {
-  const handle = await open(process.platform === 'win32' ? path.join(directory, '.') : directory, constants.O_RDONLY);
-  try {
-    await handle.sync();
-  } finally {
-    await handle.close();
-  }
+  await syncDirectoryDurably(directory);
 }
 
 async function readRegularNoFollow(

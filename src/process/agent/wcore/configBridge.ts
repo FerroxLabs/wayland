@@ -9,6 +9,7 @@ import { dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { parse, stringify } from 'smol-toml';
 import { nativeConfigDir, resolveActiveConfigPath, withProfileAuthorityLock } from './profilePaths';
+import { syncPublicationTarget } from '@process/utils/durabilitySync';
 
 /**
  * Main-process bridge for the engine's USER `config.toml` (Wayland-Core
@@ -134,12 +135,9 @@ async function atomicWriteToml(target: string, config: Record<string, unknown>):
     await handle.sync();
     await handle.close();
     await rename(tempPath, target);
-    const syncHandle = await open(process.platform === 'win32' ? target : dir, 'r');
-    try {
-      await syncHandle.sync();
-    } finally {
-      await syncHandle.close();
-    }
+    // 'r' is O_RDONLY, which Windows refuses to fsync; route through the shared
+    // platform rule so the win32 file-fallback actually works.
+    await syncPublicationTarget(process.platform === 'win32' ? target : dir);
   } catch (error) {
     await handle.close().catch(() => {});
     await unlink(tempPath).catch((cleanupError: NodeJS.ErrnoException) => {

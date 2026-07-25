@@ -15,6 +15,7 @@ import {
   type SourceSigningAuthorityDescriptor,
 } from '@process/services/transfer/publish/sourceAuthorization';
 import { parseStrictJson } from '@process/services/transfer/crypto/strictJson';
+import { syncDirectory as syncDirectoryDurably } from '@process/utils/durabilitySync';
 
 export const TRANSFER_SOURCE_SIGNING_AUTHORITY_CONTRACT = 'wayland-transfer-source-signing-authority/1.0' as const;
 export const TRANSFER_SOURCE_SIGNING_AUTHORITY_SLOT = 'wayland-transfer-source-signing-authority-v1' as const;
@@ -433,11 +434,13 @@ function assertSafeStateStat(stat: Awaited<ReturnType<typeof lstat>>): void {
   }
 }
 
+/**
+ * Commit the directory entry a rename/link created.
+ *
+ * Delegates to the shared platform rule. The previous local copy opened
+ * `path.join(directory, '.')` on Windows, which fails with EPERM exactly like
+ * the plain directory does, so this flow threw there instead of degrading.
+ */
 async function syncDirectory(directory: string): Promise<void> {
-  const handle = await open(process.platform === 'win32' ? path.join(directory, '.') : directory, constants.O_RDONLY);
-  try {
-    await handle.sync();
-  } finally {
-    await handle.close();
-  }
+  await syncDirectoryDurably(directory);
 }

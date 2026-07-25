@@ -17,6 +17,7 @@ import {
   parseCanonicalRecoveryJson,
   type RecoveryKeyState,
 } from './externalRecoveryCrypto';
+import { syncDirectory as syncDirectoryDurably } from '@process/utils/durabilitySync';
 
 export const EXTERNAL_RECOVERY_AUTHORITY_DIRECTORY = 'external-recovery-authority-v1' as const;
 
@@ -150,13 +151,15 @@ async function ensureRealDirectory(directory: string, parent: string, label: str
   }
 }
 
+/**
+ * Commit the directory entry a rename/link created.
+ *
+ * Delegates to the shared platform rule. The previous local copy opened
+ * `path.join(directory, '.')` on Windows, which fails with EPERM exactly like
+ * the plain directory does, so this flow threw there instead of degrading.
+ */
 async function syncDirectory(directory: string): Promise<void> {
-  const handle = await open(process.platform === 'win32' ? path.join(directory, '.') : directory, constants.O_RDONLY);
-  try {
-    await handle.sync();
-  } finally {
-    await handle.close();
-  }
+  await syncDirectoryDurably(directory);
 }
 
 async function readRegularNoFollow(filePath: string): Promise<Buffer> {

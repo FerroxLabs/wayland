@@ -12,6 +12,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { ConstitutionMutationResult, ConstitutionReadResult } from '../constitution/constitutionFsService';
 import { canonicalizeRecoveryJson, parseCanonicalRecoveryJson } from './externalRecoveryCrypto';
+import { syncDirectory as syncDirectoryDurably } from '@process/utils/durabilitySync';
 
 const AUTHORITY_CONTRACT = 'wayland-constitution-classic-projection-authority/1.0' as const;
 const DELTA_CONTRACT = 'wayland-constitution-classic-delta/1.0' as const;
@@ -577,13 +578,15 @@ function validateObjectCollisions(objectIds: readonly string[]): void {
   }
 }
 
+/**
+ * Commit the directory entry a rename/link created.
+ *
+ * Delegates to the shared platform rule. The previous local copy opened
+ * `path.join(directory, '.')` on Windows, which fails with EPERM exactly like
+ * the plain directory does, so this flow threw there instead of degrading.
+ */
 async function syncDirectory(directory: string): Promise<void> {
-  const handle = await open(process.platform === 'win32' ? path.join(directory, '.') : directory, constants.O_RDONLY);
-  try {
-    await handle.sync();
-  } finally {
-    await handle.close();
-  }
+  await syncDirectoryDurably(directory);
 }
 
 async function writeExclusiveDurable(filePath: string, bytes: Buffer | string): Promise<void> {
