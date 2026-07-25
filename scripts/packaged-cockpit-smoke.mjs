@@ -73,6 +73,7 @@ function parseArgs(argv) {
     keyFile: path.join(os.homedir(), '.config', 'wayland-smoke', 'flux-test-key'),
     reportDir: null,
     chat: true,
+    surfaces: true,
     keepOpen: false,
     timeoutMs: 60_000,
   };
@@ -92,6 +93,7 @@ function parseArgs(argv) {
     else if (arg === '--key-file') options.keyFile = next();
     else if (arg === '--report-dir') options.reportDir = next();
     else if (arg === '--no-chat') options.chat = false;
+    else if (arg === '--no-surfaces') options.surfaces = false;
     else if (arg === '--keep-open') options.keepOpen = true;
     else if (arg === '--timeout') {
       options.timeoutMs = Number(next());
@@ -525,18 +527,37 @@ async function runChat(page, reportDir) {
       page
         .evaluate(
           ({ nonce, marker }) => {
+            // 4th false verdict, opposite direction: the assistant's rendered
+            // markdown lives in a SHADOW ROOT, and neither innerText nor
+            // textContent traverses one - so the answer was invisible to this
+            // probe while being plainly on screen (and in the screenshot). Walk
+            // shadow roots explicitly rather than leaning on a selector engine's
+            // piercing behaviour.
+            const deepText = (root) => {
+              let out = '';
+              const visit = (node) => {
+                if (node.nodeType === Node.TEXT_NODE) {
+                  out += node.nodeValue ?? '';
+                  return;
+                }
+                if (node.shadowRoot) visit(node.shadowRoot);
+                for (const child of node.childNodes) visit(child);
+              };
+              visit(root);
+              return out;
+            };
             const rightHasNonce = Array.from(document.querySelectorAll('[data-message-position="right"]')).some(
-              (node) => (node.innerText ?? '').includes(nonce)
+              (node) => deepText(node).includes(nonce)
             );
             const lefts = Array.from(document.querySelectorAll('[data-message-position="left"]'));
             const answerNode = lefts.find((node) => {
-              const text = node.innerText ?? '';
+              const text = deepText(node);
               return text.includes(nonce) && !text.includes(marker);
             });
             return {
               rightHasNonce,
               leftCount: lefts.length,
-              answer: answerNode ? (answerNode.innerText ?? '').trim().slice(0, 300) : null,
+              answer: answerNode ? deepText(answerNode).trim().slice(0, 300) : null,
             };
           },
           { nonce: REPLY_NONCE, marker: PROMPT_MARKER }
@@ -586,6 +607,53 @@ async function runChat(page, reportDir) {
           }
           return chain.join(' < ');
         }, REPLY_NONCE)
+        .catch(() => null);
+      // nonceLocation above stops at the FIRST leaf in document order, which is
+      // always the user's own right-side bubble - so it never reveals where the
+      // assistant answer lives. Dump every left node with the two discriminator
+      // flags so a failure names the exact container to anchor on.
+      // EVERY leaf holding the nonce, with its ancestor chain - the first one is
+      // always the user bubble, so only the later ones can reveal the answer's
+      // container. Also compare textContent (layout-independent) against
+      // innerText (layout-dependent) to tell "not in the DOM" from "not rendered".
+      result.nonceLeaves = await page
+        .evaluate((nonce) => {
+          const chainOf = (start) => {
+            const chain = [];
+            for (let node = start; node && chain.length < 9; node = node.parentElement) {
+              const testid = node.getAttribute?.('data-testid');
+              const pos = node.getAttribute?.('data-message-position');
+              chain.push(`${node.tagName.toLowerCase()}${testid ? `#${testid}` : ''}${pos ? `@${pos}` : ''}`);
+            }
+            return chain.join(' < ');
+          };
+          const leaves = Array.from(document.querySelectorAll('*')).filter(
+            (node) => node.childElementCount === 0 && (node.textContent ?? '').includes(nonce)
+          );
+          return {
+            count: leaves.length,
+            chains: leaves.map(chainOf),
+            bodyTextContentHits: (document.body.textContent ?? '').split(nonce).length - 1,
+            bodyInnerTextHits: (document.body.innerText ?? '').split(nonce).length - 1,
+          };
+        }, REPLY_NONCE)
+        .catch(() => null);
+      result.leftNodes = await page
+        .evaluate(
+          ({ nonce, marker }) =>
+            Array.from(document.querySelectorAll('[data-message-position="left"]')).map((node, index) => {
+              const text = node.innerText ?? '';
+              return {
+                index,
+                testid: node.getAttribute('data-testid'),
+                type: node.getAttribute('data-message-type'),
+                hasNonce: text.includes(nonce),
+                hasMarker: text.includes(marker),
+                text: text.replace(/\s+/g, ' ').slice(0, 200),
+              };
+            }),
+          { nonce: REPLY_NONCE, marker: PROMPT_MARKER }
+        )
         .catch(() => null);
       // Name why: no user bubble means the send never registered (input/model
       // gate); a user bubble but no answer message means the backend produced no
@@ -773,7 +841,11 @@ async function main() {
     : { error: modelConfig.error ?? 'unexpected payload' };
   log(`home model config: ${JSON.stringify(modelConfigSummary)}`);
 
-  const findings = await walkSurfaces(page, consoleErrors, reportDir);
+  // --no-surfaces exists to iterate on the chat assertion without paying for the
+  // full navigation walk every time. It weakens the run, so it is never a pass:
+  // the final verdict below treats a skipped walk as not-a-green-gate.
+  const findings = options.surfaces ? await walkSurfaces(page, consoleErrors, reportDir) : [];
+  if (!options.surfaces) log('surfaces: SKIPPED (--no-surfaces) — this run cannot certify the cockpit');
   const chat = options.chat ? await runChat(page, reportDir) : { ok: null, skipped: true };
   if (options.chat) log(`chat: ${chat.ok ? `replied (${chat.sendMethod})` : `NO REPLY — ${chat.error}`}`);
 
@@ -788,6 +860,9 @@ async function main() {
   const passed =
     bridgeOk &&
     siderPresent &&
+    // An empty findings list satisfies `failures.length === 0`, so --no-surfaces
+    // would otherwise buy a green gate by asserting nothing. Never pass on it.
+    options.surfaces &&
     failures.length === 0 &&
     chat.ok !== false &&
     (key ? providerConnected === true && catalogOk && modelConfigOk : true);
@@ -802,6 +877,7 @@ async function main() {
     catalogProviders,
     modelConfigSummary,
     chat,
+    surfacesWalked: options.surfaces,
     surfaces: findings,
     catalogOk,
     modelConfigOk,
