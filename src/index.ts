@@ -62,6 +62,7 @@ import { pathToFileURL } from 'url';
 import { initMainAdapterWithWindow } from './common/adapter/main';
 import { ipcBridge } from './common';
 import { closeAllPopouts, isPopoutWebContents } from '@process/utils/popoutWindowManager';
+import { shouldDisableIjfw } from '@process/utils/ijfwGuard';
 import { initPopoutBridge } from '@process/bridge/popoutBridge';
 import { AION_ASSET_PROTOCOL } from '@process/extensions';
 import { resolveAllowedAssetPath } from '@process/extensions/protocol/assetAllowlist';
@@ -723,7 +724,10 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
   }
 
   // Initialize IJFW system service (skip when disabled via env, e.g. E2E / CI / explicit opt-out)
-  const disableIjfw = isCiRuntime || process.env.WAYLAND_DISABLE_IJFW === '1' || process.env.WAYLAND_E2E_TEST === '1';
+  // See ijfwGuard.ts: WAYLAND_E2E_TEST used to mean BOTH "isolate the profile"
+  // and "disable IJFW", so no packaged smoke could ever cover Memory. The guard
+  // now honours an explicit WAYLAND_DISABLE_IJFW=0 opt-in; defaults unchanged.
+  const disableIjfw = shouldDisableIjfw(process.env);
   if (!disableIjfw) {
     import('./process/services/ijfwSystemService')
       .then(async ({ ijfwSystemService }) => {
