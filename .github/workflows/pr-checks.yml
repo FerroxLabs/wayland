@@ -43,14 +43,15 @@ on:
   pull_request:
     types: [opened, synchronize, edited, closed, ready_for_review, reopened]
     branches: [main, dev, 'feat/**', 'release/**', 'integration/**']
-    paths-ignore:
-      - '**/*.md'
-      - 'docs/**'
-      - 'design-mockups/**'
-      - '.planning/**'
-      - '.blackboard/**'
-      - '.vscode/**'
-      - '.github/ISSUE_TEMPLATE/**'
+    # NO paths-ignore. This workflow is the ONLY owner of the required check
+    # names (`Code Quality`, `Unit Tests (<os>)`), so it must run on every PR —
+    # including docs-only ones — or those checks never report at all.
+    #
+    # Docs-only PRs are handled INSIDE the workflow: the `changed-files` job below
+    # classifies the diff and the expensive jobs skip themselves, while the
+    # aggregators still stamp a real verdict. Splitting that decision into a
+    # second workflow is what produced the #925 gate bypass (a stub workflow
+    # publishing green under these same names on mixed PRs). Do not reintroduce it.
 
 concurrency:
   group: pr-checks-${{ github.event.pull_request.number || inputs.pr_number }}
@@ -78,17 +79,73 @@ jobs:
     steps:
       - run: echo "PR closed, cancelling in-progress runs via concurrency."
 
-  # Job 1: Code quality checks (TypeScript, Oxlint, Oxfmt via prek)
-  code-quality:
-    name: Code Quality
-    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+  # Job 0: classify the diff. Owns the docs-only decision for every job below.
+  # Deliberately NOT a required check — it is an input to the gate, not the gate.
+  changed-files:
+    name: Classify Changed Files
+    if: github.event.action != 'closed'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
+    outputs:
+      docs_only: ${{ steps.classify.outputs.docs_only }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Classify changed paths
+        id: classify
+        env:
+          # SHAs only, via env — never interpolated into the shell.
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
+            # workflow_dispatch has no PR payload. Fail closed: run everything.
+            echo "No PR diff context (manual dispatch); treating as NOT docs-only."
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          node scripts/docs-only-changes.mjs --base "$BASE_SHA" --head "$HEAD_SHA"
+
+  # Job 1: Code quality checks (TypeScript, Oxlint, Oxfmt via prek)
+  code-quality:
+    name: Code Quality
+    # `always()` and the absence of `needs:` are both load-bearing. This is a
+    # required check, and GitHub counts a SKIPPED required check as a PASS — so a
+    # skipped `Code Quality` reports green. It must therefore always run and
+    # always reach a step that stamps a real verdict, including on drafts.
+    if: always() && github.event.action != 'closed'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Fails in ~20s of runner time rather than reporting green-by-skip.
+      - name: Refuse to report green on a draft PR
+        if: github.event_name != 'workflow_dispatch' && github.event.pull_request.draft == true
+        run: |
+          echo "::error::Draft PR - the quality gate did NOT run. This required check is red on purpose: it must never report green when the checks it gates did not execute. Mark the PR ready for review to run it."
+          exit 1
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Classified inline rather than via `needs: changed-files`, because a
+      # failing dependency would SKIP this job, and a skipped required check
+      # reads as a pass.
+      - name: Classify changed paths
+        id: classify
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
+            echo "docs_only=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          node scripts/docs-only-changes.mjs --base "$BASE_SHA" --head "$HEAD_SHA"
 
       - name: Resolve PR context
         uses: ./.github/actions/checkout-pr
@@ -121,15 +178,22 @@ jobs:
           PR_BASE_REF: ${{ env.PR_BASE_REF }}
         run: prek run --from-ref "origin/$PR_BASE_REF" --to-ref HEAD
 
+      # Skipped on docs-only PRs: no shipped code changed, so there is no new
+      # claim to prove. Skipping a STEP is safe — the job still stamps its own
+      # real conclusion, unlike a skipped job.
       - name: Prove Constitution filesystem authority from a cold checkout
+        if: steps.classify.outputs.docs_only != 'true'
         run: |
           cargo test --locked --manifest-path native/constitution-fs/Cargo.toml
           node scripts/prepareConstitutionFs.js
           bunx vitest run tests/unit/process/services/constitution/constitutionFsTransaction.test.ts tests/unit/process/services/constitution/constitutionFsService.test.ts tests/unit/verifyPackagedResources.test.ts
 
   # Job 2: Unit tests across all platforms.
-  # NOTE: job name "Unit Tests (<os>)" is a required check; pr-checks-docs.yml
-  # mirrors these for docs-only PRs. Do not rename or collapse.
+  # NOTE: job name "Unit Tests (<os>)" is a required check, and THIS WORKFLOW IS
+  # ITS ONLY OWNER. There used to be a pr-checks-docs.yml mirroring these names
+  # with echo jobs; it was deleted because on a mixed PR it published green under
+  # the required names while the real shards failed (#925). Docs-only PRs are
+  # handled by the `changed-files` job instead. Do not rename or collapse.
   # Sharded worker jobs: the full vitest suite exceeds the 10-min job timeout on
   # a single runner (native better-sqlite3 + timer-based channel-plugin tests),
   # so split it across 4 file-shards per OS that each finish well under the cap.
@@ -137,7 +201,13 @@ jobs:
   # jobs below (so branch protection + pr-checks-docs.yml need no changes).
   unit-tests:
     name: Unit Tests Shard (${{ matrix.os }} ${{ matrix.shard }}/4)
-    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    # Safe to skip these (they are NOT required checks) — the aggregators below
+    # are, and they convert "shards skipped" into a real verdict.
+    needs: changed-files
+    if: |
+      needs.changed-files.outputs.docs_only != 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.action != 'closed' && github.event.pull_request.draft == false))
     runs-on: ${{ matrix.os }}
     # #358: shard 1/4 was ~19m on ubuntu (vs the ~3.5m average) from real-timer
     # error-path tests + the skillRecall BM25 full-corpus gate. Those are now
@@ -232,17 +302,46 @@ jobs:
   # "Unit Tests (windows-2022)". Per-OS gating needs the matrix restructured.
   unit-tests-ubuntu:
     name: Unit Tests (ubuntu-latest)
-    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
-    needs: unit-tests
+    # The draft gate was REMOVED from this `if:` on purpose. It used to skip these
+    # jobs on a draft PR, and GitHub counts a skipped required check as a PASS —
+    # so every draft showed three green "Unit Tests (<os>)" checks while nothing
+    # ran. These jobs now always run and always stamp a real verdict; the draft
+    # case is handled in the step below.
+    if: always() && github.event.action != 'closed'
+    needs: [changed-files, unit-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all unit-test shards passed
         env:
           SHARDS_RESULT: ${{ needs.unit-tests.result }}
+          CLASSIFY_RESULT: ${{ needs.changed-files.result }}
+          DOCS_ONLY: ${{ needs.changed-files.outputs.docs_only }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
         run: |
           if [ "$SHARDS_RESULT" = "success" ]; then
             echo "All unit-test shards passed."
             exit 0
+          fi
+
+          # Checked BEFORE the docs-only pass so a draft never reports green,
+          # matching the Code Quality job.
+          if [ "$IS_DRAFT" = "true" ] && [ "$SHARDS_RESULT" = "skipped" ]; then
+            echo "::error::Draft PR - the unit tests did NOT run. This required check is red on purpose: it must never report green when the tests it gates did not execute. Mark the PR ready for review to run them."
+            exit 1
+          fi
+
+          # The ONLY legitimate green-without-running case: the diff provably
+          # touches nothing that can change runtime behaviour. Authority is
+          # scripts/docs-only-changes.mjs, exercised by
+          # tests/unit/scripts/docsOnlyChanges.test.ts.
+          if [ "$DOCS_ONLY" = "true" ] && [ "$SHARDS_RESULT" = "skipped" ]; then
+            echo "Docs-only PR: no shipped code changed, so the unit shards did not run."
+            exit 0
+          fi
+
+          if [ "$CLASSIFY_RESULT" != "success" ]; then
+            echo "::error::Could not classify the diff (Classify Changed Files: $CLASSIFY_RESULT), so this gate cannot prove the PR is docs-only. Failing closed."
+            exit 1
           fi
 
           if [ "$SHARDS_RESULT" = "cancelled" ]; then
@@ -267,17 +366,46 @@ jobs:
 
   unit-tests-macos:
     name: Unit Tests (macos-14)
-    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
-    needs: unit-tests
+    # The draft gate was REMOVED from this `if:` on purpose. It used to skip these
+    # jobs on a draft PR, and GitHub counts a skipped required check as a PASS —
+    # so every draft showed three green "Unit Tests (<os>)" checks while nothing
+    # ran. These jobs now always run and always stamp a real verdict; the draft
+    # case is handled in the step below.
+    if: always() && github.event.action != 'closed'
+    needs: [changed-files, unit-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all unit-test shards passed
         env:
           SHARDS_RESULT: ${{ needs.unit-tests.result }}
+          CLASSIFY_RESULT: ${{ needs.changed-files.result }}
+          DOCS_ONLY: ${{ needs.changed-files.outputs.docs_only }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
         run: |
           if [ "$SHARDS_RESULT" = "success" ]; then
             echo "All unit-test shards passed."
             exit 0
+          fi
+
+          # Checked BEFORE the docs-only pass so a draft never reports green,
+          # matching the Code Quality job.
+          if [ "$IS_DRAFT" = "true" ] && [ "$SHARDS_RESULT" = "skipped" ]; then
+            echo "::error::Draft PR - the unit tests did NOT run. This required check is red on purpose: it must never report green when the tests it gates did not execute. Mark the PR ready for review to run them."
+            exit 1
+          fi
+
+          # The ONLY legitimate green-without-running case: the diff provably
+          # touches nothing that can change runtime behaviour. Authority is
+          # scripts/docs-only-changes.mjs, exercised by
+          # tests/unit/scripts/docsOnlyChanges.test.ts.
+          if [ "$DOCS_ONLY" = "true" ] && [ "$SHARDS_RESULT" = "skipped" ]; then
+            echo "Docs-only PR: no shipped code changed, so the unit shards did not run."
+            exit 0
+          fi
+
+          if [ "$CLASSIFY_RESULT" != "success" ]; then
+            echo "::error::Could not classify the diff (Classify Changed Files: $CLASSIFY_RESULT), so this gate cannot prove the PR is docs-only. Failing closed."
+            exit 1
           fi
 
           if [ "$SHARDS_RESULT" = "cancelled" ]; then
@@ -302,17 +430,46 @@ jobs:
 
   unit-tests-windows:
     name: Unit Tests (windows-2022)
-    if: always() && (github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false))
-    needs: unit-tests
+    # The draft gate was REMOVED from this `if:` on purpose. It used to skip these
+    # jobs on a draft PR, and GitHub counts a skipped required check as a PASS —
+    # so every draft showed three green "Unit Tests (<os>)" checks while nothing
+    # ran. These jobs now always run and always stamp a real verdict; the draft
+    # case is handled in the step below.
+    if: always() && github.event.action != 'closed'
+    needs: [changed-files, unit-tests]
     runs-on: ubuntu-latest
     steps:
       - name: Verify all unit-test shards passed
         env:
           SHARDS_RESULT: ${{ needs.unit-tests.result }}
+          CLASSIFY_RESULT: ${{ needs.changed-files.result }}
+          DOCS_ONLY: ${{ needs.changed-files.outputs.docs_only }}
+          IS_DRAFT: ${{ github.event.pull_request.draft }}
         run: |
           if [ "$SHARDS_RESULT" = "success" ]; then
             echo "All unit-test shards passed."
             exit 0
+          fi
+
+          # Checked BEFORE the docs-only pass so a draft never reports green,
+          # matching the Code Quality job.
+          if [ "$IS_DRAFT" = "true" ] && [ "$SHARDS_RESULT" = "skipped" ]; then
+            echo "::error::Draft PR - the unit tests did NOT run. This required check is red on purpose: it must never report green when the tests it gates did not execute. Mark the PR ready for review to run them."
+            exit 1
+          fi
+
+          # The ONLY legitimate green-without-running case: the diff provably
+          # touches nothing that can change runtime behaviour. Authority is
+          # scripts/docs-only-changes.mjs, exercised by
+          # tests/unit/scripts/docsOnlyChanges.test.ts.
+          if [ "$DOCS_ONLY" = "true" ] && [ "$SHARDS_RESULT" = "skipped" ]; then
+            echo "Docs-only PR: no shipped code changed, so the unit shards did not run."
+            exit 0
+          fi
+
+          if [ "$CLASSIFY_RESULT" != "success" ]; then
+            echo "::error::Could not classify the diff (Classify Changed Files: $CLASSIFY_RESULT), so this gate cannot prove the PR is docs-only. Failing closed."
+            exit 1
           fi
 
           if [ "$SHARDS_RESULT" = "cancelled" ]; then
@@ -338,7 +495,11 @@ jobs:
   # Job 3: Coverage test (Linux only) + Codecov upload
   coverage-tests:
     name: Coverage Test
-    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    needs: changed-files
+    if: |
+      needs.changed-files.outputs.docs_only != 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.action != 'closed' && github.event.pull_request.draft == false))
     runs-on: ubuntu-latest
     # The coverage run executes the whole suite WITH instrumentation, so it needs
     # more than the 10-min unit-test cap. The test step is continue-on-error, so
@@ -434,7 +595,11 @@ jobs:
   # Job 4: I18n validation (warning-only)
   i18n-check:
     name: I18n Check
-    if: github.event_name == 'workflow_dispatch' || (github.event.action != 'closed' && github.event.pull_request.draft == false)
+    needs: changed-files
+    if: |
+      needs.changed-files.outputs.docs_only != 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       (github.event.action != 'closed' && github.event.pull_request.draft == false))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -489,7 +654,12 @@ jobs:
   # was removed -- it now lives in build-matrix.yml (push/cron + flag).
   security-audit:
     name: Security Audit E2E
-    if: github.event.action != 'closed' && github.event.pull_request.draft == false && inputs.skip_build_test != true
+    needs: changed-files
+    if: |
+      needs.changed-files.outputs.docs_only != 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.draft == false &&
+      inputs.skip_build_test != true
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -680,7 +850,11 @@ jobs:
   # Job 6: Test release scripts (fast, no build required)
   release-script-test:
     name: Release Script Test
-    if: github.event.action != 'closed' && github.event.pull_request.draft == false
+    needs: changed-files
+    if: |
+      needs.changed-files.outputs.docs_only != 'true' &&
+      github.event.action != 'closed' &&
+      github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
