@@ -10,6 +10,9 @@ for it would be the exact drift this file exists to prevent.
 Work location `~/dev/wayland-worktrees/desktop-integration`, branch
 `worktree-agent-desktop-integration`, PR #925 → `main`. Nothing merged. Nothing tagged.
 
+**Latest narrative handoff: `.planning/HANDOFF-2026-07-25-F-windows-and-truth.md`** — read it for the
+Windows class, the four doors on the pinned-artifact trap, and F-06 explained in plain terms.
+
 ---
 
 ## 1. Build discipline (the gates)
@@ -51,6 +54,22 @@ not have.
 
 **G8 — No merge, no tag, no release without Sean.** `build-and-release.yml` triggers on ANY tag
 (`tags: ['*']`).
+
+**G9 — Verify a "pending $PERSON" claim before repeating it.** The WhatsApp bridge regen was reported as
+waiting on Sean twice. The staleness it described had already been fixed by `e29ccb85a`, and the break
+that actually existed was caused by this session's own formatting pass. A memory note is evidence of
+what was true once, not of what is true now.
+
+**G10 — Split CI failures by runner before theorising.** F-02's "one ambient class" thesis survived only
+until the shards were separated: Windows 40 files, ubuntu 6, macOS 2. Never read an aggregate
+`Unit Tests (<os>)` result as a verdict either - it goes red when one shard is cancelled by the next
+push.
+
+**G11 — A formatter exclusion list is only as good as the last thing that broke it.** Four separate
+pinned trees have now been hit (modelsdev snapshot, OfficeCLI skill bodies, fixture corpora, the
+WhatsApp bridge). Two of the four were caught only by the FULL unit suite, and one only by a packaged
+build. Also: oxfmt 0.41.0 formats those files DIFFERENTLY on linux-x64 vs darwin-arm64, so a green local
+prek can be a false negative - reproduce with docker + `oxfmt@0.41.0`.
 
 ---
 
