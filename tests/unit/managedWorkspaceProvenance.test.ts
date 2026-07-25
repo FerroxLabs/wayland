@@ -45,6 +45,26 @@ describe('managed workspace provenance', () => {
     await fs.mkdir(workspace, { recursive: true });
   });
 
+  /**
+   * Replace `workspace` with a directory that is genuinely a different object.
+   *
+   * `rm` then `mkdir` at the same path is NOT enough. Linux hands the freed
+   * inode straight back, so the replacement is indistinguishable from the
+   * original and the identity checks under test never trip; macOS APFS never
+   * reuses an inode. Measured 3/3 reused on ubuntu and 3/3 fresh on APFS, which
+   * is exactly why these two cases passed locally and failed only on ubuntu.
+   *
+   * Creating the successor while the original still exists guarantees a distinct
+   * inode, and a rename preserves the inode it was created with, so this holds
+   * on every filesystem.
+   */
+  async function replaceWorkspaceWithDistinctDirectory(): Promise<void> {
+    const successor = `${workspace}.successor`;
+    await fs.mkdir(successor);
+    await fs.rm(workspace, { recursive: true });
+    await fs.rename(successor, workspace);
+  }
+
   afterEach(async () => {
     await fs.rm(root, { recursive: true, force: true });
   });
@@ -98,8 +118,9 @@ describe('managed workspace provenance', () => {
       { authorityRoot, workRoot, workspace, installationId: INSTALLATION_ID, creationIdentity: originalIdentity },
       codec
     );
-    await fs.rm(workspace, { recursive: true });
-    await fs.mkdir(workspace);
+    await replaceWorkspaceWithDistinctDirectory();
+    // Prove the premise instead of trusting the filesystem to provide it.
+    expect((await fs.lstat(workspace)).ino).not.toBe(originalIdentity.inode);
 
     await expect(
       recordManagedWorkspaceProvenance(
@@ -110,7 +131,7 @@ describe('managed workspace provenance', () => {
   });
 
   it('rejects a successor identity even when it reuses the created pathname', async () => {
-    await recordManagedWorkspaceProvenance(
+    const recorded = await recordManagedWorkspaceProvenance(
       {
         authorityRoot,
         workRoot,
@@ -120,8 +141,8 @@ describe('managed workspace provenance', () => {
       },
       codec
     );
-    await fs.rm(workspace, { recursive: true });
-    await fs.mkdir(workspace);
+    await replaceWorkspaceWithDistinctDirectory();
+    expect((await fs.lstat(workspace)).ino).not.toBe(recorded.inode);
 
     await expect(
       recordManagedWorkspaceProvenance(
