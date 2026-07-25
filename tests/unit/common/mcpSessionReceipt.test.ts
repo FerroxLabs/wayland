@@ -54,7 +54,10 @@ describe('MCP session receipt reducer', () => {
   it('requires publication before a Core ready event can register exact named tools', () => {
     const tavily = server();
     const firecrawl = server({ id: 'firecrawl-id', name: 'firecrawl' });
-    const initial = stateFor([expected(tavily, 'hmac-sha256:aaa'), expected(firecrawl, 'hmac-sha256:bbb')]);
+    const initial = stateFor([
+      expected(tavily, 'hmac-sha256:aaa'),
+      expected(firecrawl, 'hmac-sha256:bbb'),
+    ]);
 
     const rejected = reduceMcpSessionTerminal(
       initial,
@@ -81,7 +84,11 @@ describe('MCP session receipt reducer', () => {
   });
 
   it('degrades a published connector when Core registers no tools', () => {
-    const initial = recordDesktopMcpSessionPublication(stateFor([expected(server(), 'hmac-sha256:aaa')]), 'tavily', 15);
+    const initial = recordDesktopMcpSessionPublication(
+      stateFor([expected(server(), 'hmac-sha256:aaa')]),
+      'tavily',
+      15
+    );
     const next = reduceMcpSessionTerminal(initial, { type: 'mcp_ready', data: { name: 'tavily', tools: [] } }, 20);
     expect(next.receipts['hmac-sha256:aaa']).toMatchObject({
       status: 'degraded',
@@ -107,7 +114,11 @@ describe('MCP session receipt reducer', () => {
         tools: ['search', ' search ', 'extract'],
       };
 
-      const registered = reduceMcpSessionProducerEvent(initial, { type: 'mcp_tools_registered', data: exact }, 20);
+      const registered = reduceMcpSessionProducerEvent(
+        initial,
+        { type: 'mcp_tools_registered', data: exact },
+        20
+      );
       expect(registered.receipts[digest]).toMatchObject({
         status: 'registered',
         source: backend,
@@ -121,9 +132,9 @@ describe('MCP session receipt reducer', () => {
         { ...exact, backend: 'wcore' as const },
         { ...exact, definitionDigest: 'hmac-sha256:forged' as const },
       ]) {
-        expect(reduceMcpSessionProducerEvent(initial, { type: 'mcp_tools_registered', data: hostile }, 20)).toBe(
-          initial
-        );
+        expect(
+          reduceMcpSessionProducerEvent(initial, { type: 'mcp_tools_registered', data: hostile }, 20)
+        ).toBe(initial);
       }
     }
   );
@@ -200,7 +211,10 @@ describe('MCP session receipt reducer', () => {
   it('records an exact runtime failure and preserves another definition receipt', () => {
     const tavily = server();
     const firecrawl = server({ id: 'firecrawl-id', name: 'firecrawl' });
-    let state = stateFor([expected(tavily, 'hmac-sha256:aaa'), expected(firecrawl, 'hmac-sha256:bbb')]);
+    let state = stateFor([
+      expected(tavily, 'hmac-sha256:aaa'),
+      expected(firecrawl, 'hmac-sha256:bbb'),
+    ]);
     state = recordDesktopMcpSessionPublication(state, 'tavily');
     state = recordDesktopMcpSessionPublication(state, 'firecrawl');
     state = reduceMcpSessionTerminal(state, {
@@ -280,9 +294,7 @@ describe('MCP session receipt reducer', () => {
       },
     };
     expect(getMcpSessionReceiptForServer(tampered, tavily)).toBeUndefined();
-    expect(
-      getMcpSessionReceiptForServer(state, { ...tavily, transport: { type: 'sse', url: 'https://x' } })
-    ).toBeUndefined();
+    expect(getMcpSessionReceiptForServer(state, { ...tavily, transport: { type: 'sse', url: 'https://x' } })).toBeUndefined();
   });
 
   it('rejects hostile persisted snapshots with mismatched identity or impossible source/status pairs', () => {
@@ -307,7 +319,10 @@ describe('MCP session receipt reducer', () => {
     expect(getMcpSessionReceiptForServer(hostileSnapshot({ tools: [] }), tavily)).toBeUndefined();
     expect(getMcpSessionReceiptForServer(hostileSnapshot({ observedAt: 0 }), tavily)).toBeUndefined();
     expect(
-      getMcpSessionReceiptForServer(hostileSnapshot({ status: 'configured', source: 'wcore', tools: [] }), tavily)
+      getMcpSessionReceiptForServer(
+        hostileSnapshot({ status: 'configured', source: 'wcore', tools: [] }),
+        tavily
+      )
     ).toBeUndefined();
   });
 });

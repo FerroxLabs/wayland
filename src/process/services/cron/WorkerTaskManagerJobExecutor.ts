@@ -405,8 +405,7 @@ export class WorkerTaskManagerJobExecutor implements ICronJobExecutor {
     } else {
       const acpConfig = await ProcessConfig.get('acp.config');
       preferredModelId = (acpConfig?.[backend as AcpBackendAll] as Record<string, unknown>)?.preferredModelId as
-        | string
-        | undefined;
+        string | undefined;
     }
 
     // For gemini, prefer google-auth provider

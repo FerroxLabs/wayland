@@ -11,7 +11,6 @@ audit: cross-audit-panel
 `git diff 57d8dcee6..1c0f72371`. Raw outputs in scratchpad `xaudit-d07/`. **All 4 legs: FIX-FIRST.**
 
 ## What all 4 legs CONFIRMED sound
-
 - Reset genuinely drops accumulation: `getOrBuildTask({skipCache:true})` → `_buildAndCache` → `addTask`
   `beginTermination(existing)` kills the old engine process (internal leg traced live). The engine's
   `--resume` does NOT reliably restore history (`WCoreManager.ts:617-621`); context comes ONLY from the
@@ -21,10 +20,8 @@ audit: cross-audit-panel
 - wcore gate correct; visible transcript untouched (directive `hidden:true`, filtered at MessageList.tsx:325).
 
 ## BLOCKER (unanimous) — carry-forward selector is wrong for agentic steps
-
 `findLastAssistantDeliverable` (resumeSeed.ts:154-167) returns a SINGLE last `left`+`text` row scanning
 newest→oldest, with NO step-boundary stop and NO tool context. Failure modes (all real, all silent):
-
 1. **Tool-heavy prior step** (Gemini + Codex CRITICAL): filters `type==='text'` only → drops the tool
    calls/results. A step whose deliverable was a file write leaves the seed empty or grabs an older step;
    "review the file you just wrote" has no file context.
@@ -40,7 +37,6 @@ Do NOT cross the previous `right` boundary into an older step. If the prior turn
 (pure tool step), carry that turn's tool/file summary, NOT an older step.
 
 ## Also fix
-
 - **16K head-clip** (Codex High, Gemini Med, Kimi Low): >16000-char deliverable loses its tail/closing
   structure. Add a >16K fixture asserting required content survives; decide clip strategy (accept + a
   telemetry counter is fine for v1, but TEST the boundary — the ~6K fixture never exercises it).
@@ -52,7 +48,6 @@ Do NOT cross the previous `right` boundary into an older step. If the prior turn
   (W2 wiring). Drop/rewrite the vacuous reset-test #4.
 
 ## Live-verify gates (money, by hand — Sean + orchestrator)
-
 - Per-step `session_cost` input tokens stay FLAT (O(1)) across a ≥4-step wcore workflow — the definitive
   answer to Codex's "inert?" concern.
 - A tool-heavy dependent step ("refine the 2000-word draft / review the file you just wrote") works.

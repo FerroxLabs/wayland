@@ -46,12 +46,12 @@ future output/receipt events rather than creating a retention-only shadow store.
 
 ## Current proof
 
-| Command                                                               | Result                      |
-| --------------------------------------------------------------------- | --------------------------- |
-| focused retention/lifecycle/bridge/UI Vitest matrix                   | PASS — 10 files, 109 tests  |
+| Command | Result |
+|---|---|
+| focused retention/lifecycle/bridge/UI Vitest matrix | PASS — 10 files, 109 tests |
 | targeted Oxlint over the bounded retention/deletion modules and tests | PASS — 0 warnings, 0 errors |
-| `bun run typecheck`                                                   | PASS                        |
-| `git diff --check` over the bounded implementation/planning files     | PASS                        |
+| `bun run typecheck` | PASS |
+| `git diff --check` over the bounded implementation/planning files | PASS |
 
 The retention adversarial matrix covers every preservation reason, missing
 counts, unknown user/content/mutation/age state, incomplete inventory,

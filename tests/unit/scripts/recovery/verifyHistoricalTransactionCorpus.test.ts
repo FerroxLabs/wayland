@@ -4,8 +4,7 @@ import { createRequire } from 'node:module';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 const require = createRequire(import.meta.url);
-const harness =
-  require('../../../../scripts/recovery/verifyHistoricalTransactionCorpus.mjs') as HistoricalCorpusHarness;
+const harness = require('../../../../scripts/recovery/verifyHistoricalTransactionCorpus.mjs') as HistoricalCorpusHarness;
 
 const {
   REPO_ROOT,
@@ -36,9 +35,7 @@ interface HistoricalCorpusHarness {
   verifyInventory: (manifest: any, provider: CorpusProvider) => { fileCount: number };
   verifyBaseReplay: (base: any, provider: CorpusProvider) => unknown;
   parseLedgerChain: (text: string) => Array<Record<string, unknown>>;
-  classifyLedgerTransactions: (
-    entries: Array<Record<string, unknown>>
-  ) => Array<{ transactionId: string; outcome: string }>;
+  classifyLedgerTransactions: (entries: Array<Record<string, unknown>>) => Array<{ transactionId: string; outcome: string }>;
   runHistoricalTransactionCorpusVerification: (opts?: {
     manifest?: any;
     provider?: CorpusProvider;
@@ -293,8 +290,6 @@ describe('historical transaction corpus verifier', () => {
   it('fails closed end-to-end when the corpus is incomplete', () => {
     const provider = memoryProvider();
     provider.store.delete('base-991c502-committed/CONSTITUTION.md');
-    expect(() => runHistoricalTransactionCorpusVerification({ provider, git: false })).toThrow(
-      /missing declared files/
-    );
+    expect(() => runHistoricalTransactionCorpusVerification({ provider, git: false })).toThrow(/missing declared files/);
   });
 });

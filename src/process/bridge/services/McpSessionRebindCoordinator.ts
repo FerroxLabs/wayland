@@ -88,7 +88,10 @@ export class McpSessionRebindCoordinator<T> {
     return { task, generation, rebound: false };
   }
 
-  private async replace(request: McpSessionRebindRequest<T>, generation: string): Promise<McpSessionRebindResult<T>> {
+  private async replace(
+    request: McpSessionRebindRequest<T>,
+    generation: string
+  ): Promise<McpSessionRebindResult<T>> {
     const fingerprint = request.currentFingerprint;
     if (!fingerprint) return { task: await request.build(), rebound: false };
 

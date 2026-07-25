@@ -24,7 +24,11 @@ interface ArchivedMcpConnectorsModalProps {
   onRestored(): Promise<void>;
 }
 
-export default function ArchivedMcpConnectorsModal({ visible, onClose, onRestored }: ArchivedMcpConnectorsModalProps) {
+export default function ArchivedMcpConnectorsModal({
+  visible,
+  onClose,
+  onRestored,
+}: ArchivedMcpConnectorsModalProps) {
   const { t } = useTranslation();
   const [archives, setArchives] = useState<ArchivedConnector[]>([]);
   const [loading, setLoading] = useState(false);

@@ -93,7 +93,9 @@ class StrictJsonParser {
   }
 
   private parseNumber(): number {
-    const match = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(this.input.slice(this.offset));
+    const match = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(
+      this.input.slice(this.offset),
+    );
     if (!match) this.fail('malformed number');
     this.offset += match[0].length;
     const value = Number(match[0]);

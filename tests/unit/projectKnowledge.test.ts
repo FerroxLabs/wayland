@@ -122,8 +122,12 @@ describe('project knowledge', () => {
     await saveProjectReferenceUploads(ws, [{ name: 'source.txt', data: Buffer.from('recover me') }]);
     await removeProjectReference(ws, 'source.txt');
 
-    await expect(restoreProjectReference(ws, '../outside')).rejects.toThrow('Invalid archived reference identifier');
-    expect((await listArchivedProjectReferences(ws)).map((entry) => entry.name)).toEqual(['source.txt']);
+    await expect(restoreProjectReference(ws, '../outside')).rejects.toThrow(
+      'Invalid archived reference identifier'
+    );
+    expect((await listArchivedProjectReferences(ws)).map((entry) => entry.name)).toEqual([
+      'source.txt',
+    ]);
   });
 
   // #55 - browser/WebUI upload path: bytes arrive over HTTP, not a host path.

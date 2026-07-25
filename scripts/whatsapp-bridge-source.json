@@ -3,22 +3,10 @@
   "files": {
     "README.md": { "size": 4539, "sha256": "90be6d3e40e64068ce4ebd5e42c6284b8ed7b0d5d555bd0f5a1b202010482aa3" },
     "allowlist.js": { "size": 3463, "sha256": "5826dedb90dbf034e073626817f0dd35700394db790223e726431da73448f450" },
-    "backends/baileys.js": {
-      "size": 15582,
-      "sha256": "d174babb3e4ce812b72460984349c1a3ab5841ecd77a509d0981fed1ba18870d"
-    },
-    "backends/bridgeLogger.js": {
-      "size": 1071,
-      "sha256": "4c54e2dc26014adc320763e27ac54c1c61aa8022a7a8d0f404209646f9cde8c8"
-    },
-    "backends/meta-business.js": {
-      "size": 9472,
-      "sha256": "5221e9b542b4405ee8c720b80ae09d379b39a4535e639c74727d0f3a80215196"
-    },
-    "backends/whatsapp-web.js": {
-      "size": 7425,
-      "sha256": "58faa9fd2a7c577ebfd05687a325a7f0fec3a07f810eb23b2edf05eb84545f3d"
-    },
+    "backends/baileys.js": { "size": 15582, "sha256": "d174babb3e4ce812b72460984349c1a3ab5841ecd77a509d0981fed1ba18870d" },
+    "backends/bridgeLogger.js": { "size": 1071, "sha256": "4c54e2dc26014adc320763e27ac54c1c61aa8022a7a8d0f404209646f9cde8c8" },
+    "backends/meta-business.js": { "size": 9472, "sha256": "5221e9b542b4405ee8c720b80ae09d379b39a4535e639c74727d0f3a80215196" },
+    "backends/whatsapp-web.js": { "size": 7425, "sha256": "58faa9fd2a7c577ebfd05687a325a7f0fec3a07f810eb23b2edf05eb84545f3d" },
     "bridge.js": { "size": 5931, "sha256": "0e9c4d0b28674410f6e52386fb34839004cb0cfb7789b894f34ccda2bb0c7239" },
     "bun.lock": { "size": 62753, "sha256": "771b5b5751ef6ab116f01ddb8a6d616e521d6f53ebe780e54024ef59b3da44b4" },
     "package.json": { "size": 554, "sha256": "7a7de7bcad8333fd9a44bfd6fb83e63686992bac6616f5dd108fc2667a4dc56d" }

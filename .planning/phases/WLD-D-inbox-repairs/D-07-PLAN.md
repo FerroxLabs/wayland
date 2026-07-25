@@ -43,7 +43,6 @@ control block (`conversationBridge` send path); it never resets anything.
 
 The fix is **desktop-side and Core-independent** — every seam already exists and is already used in
 production:
-
 - **Reset lever:** `getOrBuildTask(conversationId, { skipCache: true })` kills the accumulated
   backend session and respawns a fresh one (`WorkerTaskManager.getOrBuildTask` at `:95`; `skipCache`
   → `_buildAndCache` → `addTask` kills the old process at `:152-161`). Precedent:
@@ -63,7 +62,6 @@ production:
   what the model sees next step; it does not touch the visible thread. `[VERIFIED: codebase read]`
 
 **Deliver (LOCKED scope):**
-
 - Reroute the single advance HAND so a **workflow-advance send on a wcore conversation** respawns the
   backend session (`skipCache: true`) with a **carry-forward-bounded seed**, then sends the directive
   `hidden: true` exactly as today. Extract the reset-aware send into one small **testable module**
@@ -89,7 +87,6 @@ cold ACP restart per step costs latency with no proven token win. Widen to ACP o
 sweep shows workflows running on ACP agents. The wcore gate is explicit and unit-tested.
 
 **Explicitly OUT of scope (do NOT touch):**
-
 - The directive builder (`WorkflowSessionService.ts:782-783` and the sibling `:909-910`),
   `composeStepContext.ts`, and the whole autonomous-dispatch path (already `O(1)` — it is the
   template, not the target). Leave every one byte-identical.
@@ -138,8 +135,8 @@ drop.
   5. **type-lookup failure is safe:** when `getConversationType` throws/returns null, the module falls
      back to the non-reset send (no `skipCache`) rather than crashing the advance (a launch failure
      must not break the parent chat).
-     RED: the module does not exist yet (import fails). This is the seam-level proof that a wcore advance
-     respawns with a bounded carry-forward seed while the visible thread is left alone.
+  RED: the module does not exist yet (import fails). This is the seam-level proof that a wcore advance
+  respawns with a bounded carry-forward seed while the visible thread is left alone.
 - **Extend `tests/unit/resumeSeedTranscript.test.ts`** — add a describe block locking the
   carry-forward contract. Build a fixture of `N=5` step deliverables as left/text messages
   (`step 1 output` … `step 5 output`) plus interleaved tool rows, then assert:
@@ -150,14 +147,14 @@ drop.
     for the per-step token drop.)
   - The existing default-bound behavior (`buildResumeSeedTranscript(messages)` with no opts) is
     unchanged — the tighter bound is opt-in and does not regress the #457 default seed.
-    GREEN immediately for the mechanism (`buildResumeSeedTranscript` already accepts opts) once the
-    constant exists; it is the regression guard that pins the carry-forward envelope. Keep every
-    pre-existing #457 assertion unchanged and passing.
-    Verify: `bun run test:vitest workflowAdvanceReset` (all RED — module absent);
-    `bun run test:vitest resumeSeedTranscript` (new carry-forward block RED only on the missing
-    constant import, existing #457 assertions GREEN).
-    Done: both test files committed as `test(D-07): ...` before any production edit; the new reset +
-    carry-forward assertions are RED (module/constant absent), all pre-existing assertions GREEN.
+  GREEN immediately for the mechanism (`buildResumeSeedTranscript` already accepts opts) once the
+  constant exists; it is the regression guard that pins the carry-forward envelope. Keep every
+  pre-existing #457 assertion unchanged and passing.
+  Verify: `bun run test:vitest workflowAdvanceReset` (all RED — module absent);
+  `bun run test:vitest resumeSeedTranscript` (new carry-forward block RED only on the missing
+  constant import, existing #457 assertions GREEN).
+  Done: both test files committed as `test(D-07): ...` before any production edit; the new reset +
+  carry-forward assertions are RED (module/constant absent), all pre-existing assertions GREEN.
 
 **Task 2 — The in-place per-step reset (commit `fix(D-07): ...`).**
 One cohesive change for #723 across a new module and four production files; flips every Task-1
@@ -176,9 +173,9 @@ Touch ONLY the sites named.
     Behavior: resolve the conversation type (guarded — on throw/null, treat as non-wcore); if the type
     is `wcore`, call `getOrBuildTask(conversationId, { yoloMode: true, skipCache: true, workflowResetSeed: WORKFLOW_RESET_SEED_BOUND })`
     (respawn + bounded seed); otherwise call `getOrBuildTask(conversationId, { yoloMode: true })`
-    (today's behavior — ACP untouched). Then `await task.sendMessage({ content: directive, input: directive, msg_id: \`workflow-advance-${conversationId}-${Date.now()}\`, hidden: true })`in BOTH
-branches. Add a head comment: this is the in-place per-step reset — it respawns the wcore backend
-session to drop accumulated`1..N-1` context and re-seeds only the immediately-prior deliverable;
+    (today's behavior — ACP untouched). Then `await task.sendMessage({ content: directive, input: directive, msg_id: \`workflow-advance-${conversationId}-${Date.now()}\`, hidden: true })` in BOTH
+    branches. Add a head comment: this is the in-place per-step reset — it respawns the wcore backend
+    session to drop accumulated `1..N-1` context and re-seeds only the immediately-prior deliverable;
     it is not a rolling summary; the visible SQLite transcript is untouched because the directive is
     sent hidden and the reset only reads the message store. Do NOT reference the autonomous path here.
 - **`src/process/utils/initBridge.ts` (`sendWorkflowDirective`, `:287-295`):** replace the inline
@@ -210,19 +207,18 @@ session to drop accumulated`1..N-1` context and re-seeds only the immediately-pr
     `await this.agentReady` readiness gate (`~:339` / `~:736`) — that gate is what guarantees the fresh
     session is seeded before the directive lands (Pitfall 5). Leave `session_cost` (`~:1584-1587`)
     untouched; it is the live-sweep measurement hook.
-    Verify: `bun run test:vitest workflowAdvanceReset` GREEN (wcore respawns with the bound + hidden
-    send; ACP branch has no skipCache; no message mutation; type-failure falls back safely);
-    `bun run test:vitest resumeSeedTranscript` GREEN (carry-forward block passes, #457 defaults
-    unchanged); `bun run test:vitest parentTurnDriver` and `bun run test:vitest workflowContinueRunAdvance`
-    and `bun run test:vitest WorkflowSessionService` GREEN unchanged (the directive builder and the
-    advance decision are untouched); `bun run test:vitest` full suite green; `tsc --noEmit` clean.
-    Done: a wcore workflow advance respawns the backend session (`skipCache`) and re-seeds only the
-    immediately-prior deliverable (bounded); the directive is still sent hidden so the visible transcript
-    is untouched; ACP is untouched (scope gate); the directive builder, `composeStepContext`, and the
-    autonomous path are byte-identical.
+  Verify: `bun run test:vitest workflowAdvanceReset` GREEN (wcore respawns with the bound + hidden
+  send; ACP branch has no skipCache; no message mutation; type-failure falls back safely);
+  `bun run test:vitest resumeSeedTranscript` GREEN (carry-forward block passes, #457 defaults
+  unchanged); `bun run test:vitest parentTurnDriver` and `bun run test:vitest workflowContinueRunAdvance`
+  and `bun run test:vitest WorkflowSessionService` GREEN unchanged (the directive builder and the
+  advance decision are untouched); `bun run test:vitest` full suite green; `tsc --noEmit` clean.
+  Done: a wcore workflow advance respawns the backend session (`skipCache`) and re-seeds only the
+  immediately-prior deliverable (bounded); the directive is still sent hidden so the visible transcript
+  is untouched; ACP is untouched (scope gate); the directive builder, `composeStepContext`, and the
+  autonomous path are byte-identical.
 
 **Task 3 — Exit bar + live-verify handoff (human checkpoint, no code commit).**
-
 - Full automated floor: `bun run test:vitest` (full unit suite) green and `tsc --noEmit` clean; the
   a11y gate `bun run test:e2e:a11y` green at the wave merge. Constitution tests may flake under
   full-suite parallelism (pass isolated) — not a regression, per `D-CONTEXT.md`. Build the packaged app
@@ -246,17 +242,17 @@ session to drop accumulated`1..N-1` context and re-seeds only the immediately-pr
   2. **dependent steps still work** — the refine step correctly references the prior deliverable, so
      the carry-forward is intact (not starved).
   3. **visible transcript intact** — the chat still shows every step's output, full thread, in order.
-     A regressed build would either keep climbing (no reset), break the dependent step (carry-forward
-     too tight), or drop visible steps (touched the wrong store). Note respawn-per-step latency during the
-     sweep (research Pitfall 3 — precedent shows it is acceptable; a blocker only if a step visibly
-     stalls).
-     Verify: full suite + `tsc --noEmit` + a11y green; out-of-scope paths byte-identical; packaged
-     live-verify shows bounded per-step `session_cost`, a working dependent step, and the full visible
-     thread.
-     Done: #723 symptom retired (in-conversation multi-step per-step input is `O(1)`, run `O(N)`), the
-     carry-forward contract holds, the visible transcript is intact, and the packet is live-test-accepted
-     by Sean + Claude. #723 auto-closes on merge (`github_issue: 723`). LOCAL only — no push/merge
-     without Sean.
+  A regressed build would either keep climbing (no reset), break the dependent step (carry-forward
+  too tight), or drop visible steps (touched the wrong store). Note respawn-per-step latency during the
+  sweep (research Pitfall 3 — precedent shows it is acceptable; a blocker only if a step visibly
+  stalls).
+  Verify: full suite + `tsc --noEmit` + a11y green; out-of-scope paths byte-identical; packaged
+  live-verify shows bounded per-step `session_cost`, a working dependent step, and the full visible
+  thread.
+  Done: #723 symptom retired (in-conversation multi-step per-step input is `O(1)`, run `O(N)`), the
+  carry-forward contract holds, the visible transcript is intact, and the packet is live-test-accepted
+  by Sean + Claude. #723 auto-closes on merge (`github_issue: 723`). LOCAL only — no push/merge
+  without Sean.
 
 </tasks>
 
@@ -266,13 +262,12 @@ conversation's own prior model/agent output as the fresh session's seed and resp
 backend session via an already-prod-used lever. Trust boundary: the carry-forward text crossing from
 the desktop DB back into the fresh backend session context.
 
-| Threat ID | STRIDE                 | Component                                                                           | Severity | Disposition | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                |
-| --------- | ---------------------- | ----------------------------------------------------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| T-D07-01  | Information disclosure | carry-forward seed re-injects prior agent/model output as the fresh session context | low      | accept      | Same content the model already produced in the SAME conversation — no new trust boundary crossed. `buildResumeSeedTranscript` already clips/guards each entry (`resumeSeed.ts:40-42, 146-156`). No new mitigation; keep the seed sourced from the conversation's own persisted output only.                                                                                                                               |
-| T-D07-02  | Tampering              | seed sourced from the wrong conversation could inject cross-conversation context    | low      | mitigate    | `WCoreManager.start()` reads history strictly from `this.conversation_id` (`~:618`); the reset never seeds from another conversation. The unit test drives a single `conversationId` end to end.                                                                                                                                                                                                                          |
-| T-D07-03  | Denial of service      | respawn-per-step cold start could stall a run                                       | low      | mitigate    | Reset gated to wcore only; the `this.agentReady`/`await this.agentReady` gate (`~:339`/`~:736`) is preserved so a directive never lands before the fresh session is ready; precedent (`TeamSessionService.ts:1624`, the autonomous per-step spawn) proves the pattern acceptable; the live sweep flags any visible stall (Pitfall 3). A type-lookup failure falls back to the non-reset send, never crashing the advance. |
-| T-D07-SC  | Tampering              | supply-chain (new packages)                                                         | n/a      | accept      | No new packages — Node builtins + existing in-repo modules (`getOrBuildTask`, `buildResumeSeedTranscript`, `conversationService`) only. Package Legitimacy Gate N/A.                                                                                                                                                                                                                                                      |
-
+| Threat ID | STRIDE | Component | Severity | Disposition | Mitigation |
+|-----------|--------|-----------|----------|-------------|------------|
+| T-D07-01 | Information disclosure | carry-forward seed re-injects prior agent/model output as the fresh session context | low | accept | Same content the model already produced in the SAME conversation — no new trust boundary crossed. `buildResumeSeedTranscript` already clips/guards each entry (`resumeSeed.ts:40-42, 146-156`). No new mitigation; keep the seed sourced from the conversation's own persisted output only. |
+| T-D07-02 | Tampering | seed sourced from the wrong conversation could inject cross-conversation context | low | mitigate | `WCoreManager.start()` reads history strictly from `this.conversation_id` (`~:618`); the reset never seeds from another conversation. The unit test drives a single `conversationId` end to end. |
+| T-D07-03 | Denial of service | respawn-per-step cold start could stall a run | low | mitigate | Reset gated to wcore only; the `this.agentReady`/`await this.agentReady` gate (`~:339`/`~:736`) is preserved so a directive never lands before the fresh session is ready; precedent (`TeamSessionService.ts:1624`, the autonomous per-step spawn) proves the pattern acceptable; the live sweep flags any visible stall (Pitfall 3). A type-lookup failure falls back to the non-reset send, never crashing the advance. |
+| T-D07-SC | Tampering | supply-chain (new packages) | n/a | accept | No new packages — Node builtins + existing in-repo modules (`getOrBuildTask`, `buildResumeSeedTranscript`, `conversationService`) only. Package Legitimacy Gate N/A. |
 </threat_model>
 
 <verification>
@@ -296,15 +291,14 @@ the desktop DB back into the fresh backend session context.
 **Goal-backward check — each acceptance test maps to "step N input is bounded AND the visible
 transcript is intact AND dependent steps still work":**
 
-| Must be TRUE (goal)                                                                | Producer behavior that makes it true                                                                                                              | Proven by                                                                                                                                                                              |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Step `N` model input is bounded (`O(1)` per step, not `1..N-1` replay)             | wcore advance respawns the session (`getOrBuildTask({ skipCache: true })`) dropping accumulated context, and seeds only the bounded carry-forward | `workflowAdvanceReset` test 1 (skipCache + bound on wcore) + `resumeSeedTranscript` carry-forward block (seed excludes `1..N-2`) + packaged live-verify (`session_cost` flat per step) |
-| Dependent steps still work (carry-forward intact)                                  | the reset seed carries the immediately-prior step's final assistant output via `buildResumeSeedTranscript(…, WORKFLOW_RESET_SEED_BOUND)`          | `resumeSeedTranscript` carry-forward block (last step's output present) + packaged live-verify (refine step references the prior deliverable)                                          |
-| The visible transcript is intact after N resets                                    | the directive is sent `hidden: true` and the reset path only READS the message store (respawn + seed), never writes/deletes it                    | `workflowAdvanceReset` tests 2 + 4 (hidden send, no message mutation) + packaged live-verify (full thread shown)                                                                       |
-| ACP is not disturbed (scope boundary)                                              | the reset fires only when the conversation type is `wcore`; every other type keeps today's send                                                   | `workflowAdvanceReset` test 3 (non-wcore has no skipCache/bound)                                                                                                                       |
-| A launch/type-lookup failure cannot break the parent chat                          | a type-lookup throw/null falls back to the non-reset send; `parentTurnDriver` still parks a failed send                                           | `workflowAdvanceReset` test 5 (safe fallback) + existing `parentTurnDriver` park-on-send-failure test (unchanged)                                                                      |
-| The directive builder, `composeStepContext`, and the autonomous path are unchanged | edits confined to the send seam + the seed threading                                                                                              | grep gate + full-suite green + `WorkflowSessionService`/`workflowContinueRunAdvance` tests unchanged                                                                                   |
-
+| Must be TRUE (goal) | Producer behavior that makes it true | Proven by |
+|---------------------|--------------------------------------|-----------|
+| Step `N` model input is bounded (`O(1)` per step, not `1..N-1` replay) | wcore advance respawns the session (`getOrBuildTask({ skipCache: true })`) dropping accumulated context, and seeds only the bounded carry-forward | `workflowAdvanceReset` test 1 (skipCache + bound on wcore) + `resumeSeedTranscript` carry-forward block (seed excludes `1..N-2`) + packaged live-verify (`session_cost` flat per step) |
+| Dependent steps still work (carry-forward intact) | the reset seed carries the immediately-prior step's final assistant output via `buildResumeSeedTranscript(…, WORKFLOW_RESET_SEED_BOUND)` | `resumeSeedTranscript` carry-forward block (last step's output present) + packaged live-verify (refine step references the prior deliverable) |
+| The visible transcript is intact after N resets | the directive is sent `hidden: true` and the reset path only READS the message store (respawn + seed), never writes/deletes it | `workflowAdvanceReset` tests 2 + 4 (hidden send, no message mutation) + packaged live-verify (full thread shown) |
+| ACP is not disturbed (scope boundary) | the reset fires only when the conversation type is `wcore`; every other type keeps today's send | `workflowAdvanceReset` test 3 (non-wcore has no skipCache/bound) |
+| A launch/type-lookup failure cannot break the parent chat | a type-lookup throw/null falls back to the non-reset send; `parentTurnDriver` still parks a failed send | `workflowAdvanceReset` test 5 (safe fallback) + existing `parentTurnDriver` park-on-send-failure test (unchanged) |
+| The directive builder, `composeStepContext`, and the autonomous path are unchanged | edits confined to the send seam + the seed threading | grep gate + full-suite green + `WorkflowSessionService`/`workflowContinueRunAdvance` tests unchanged |
 </verification>
 
 <success_criteria>

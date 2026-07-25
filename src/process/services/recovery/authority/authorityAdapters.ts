@@ -132,9 +132,7 @@ function canonicalize(value: unknown): unknown {
 
 /** Hash of the stable canonical serialization. */
 export function stateAuthorityLedgerDigest(value: unknown): string {
-  return createHash('sha256')
-    .update(JSON.stringify(canonicalize(value)))
-    .digest('hex');
+  return createHash('sha256').update(JSON.stringify(canonicalize(value))).digest('hex');
 }
 
 function asRecord(value: unknown, label: string): Record<string, unknown> {
@@ -262,7 +260,11 @@ function parseAdapter(value: unknown, label: string): StateAuthorityAdapter {
 }
 
 function parseStorageAuthority(value: unknown, label: string): StorageAuthority {
-  const record = exactRecord(value, ['id', 'owner', 'kind', 'substitutesBackendAdapter', 'note'], label);
+  const record = exactRecord(
+    value,
+    ['id', 'owner', 'kind', 'substitutesBackendAdapter', 'note'],
+    label
+  );
   const id = requireMember(record.id, STORAGE_AUTHORITY_IDS, `${label}.id`);
   if (record.owner !== 'desktop') throw new Error(`${label}.owner must be desktop.`);
   if (record.kind !== 'storage') throw new Error(`${label}.kind must be storage.`);
@@ -426,21 +428,13 @@ export function evaluateBackendCaptureRequest(request: BackendCaptureRequest): B
   // A backend session can never be captured by a generic filesystem copy — that
   // would forge resumable state out of on-disk bytes the producer does not bless.
   if (request.captureMethod === 'filesystem-copy') {
-    return reject(
-      adapter.id,
-      'GENERIC_FILESYSTEM_COPY',
-      'A generic filesystem copy cannot capture backend session state.'
-    );
+    return reject(adapter.id, 'GENERIC_FILESYSTEM_COPY', 'A generic filesystem copy cannot capture backend session state.');
   }
 
   // Self-assertion: the receipt must come from the producer, not the adapter
   // vouching for itself.
   if (request.assertedBy === adapter.id || request.assertedBy !== adapter.producer) {
-    return reject(
-      adapter.id,
-      'ADAPTER_SELF_ASSERTION',
-      'A validation receipt must be asserted by the producer, not the adapter.'
-    );
+    return reject(adapter.id, 'ADAPTER_SELF_ASSERTION', 'A validation receipt must be asserted by the producer, not the adapter.');
   }
 
   // Mutation epoch: present, single, and unexpired.

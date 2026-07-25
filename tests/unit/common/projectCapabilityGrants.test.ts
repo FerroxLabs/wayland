@@ -29,12 +29,14 @@ const req = (over: Partial<GrantCheckRequest> = {}): GrantCheckRequest => ({
 });
 
 describe('SBX-02 classifyHost', () => {
-  it.each(['127.0.0.1', '127.7.7.7', 'localhost', '::1', '::ffff:127.0.0.1', '[::1]'])('treats %s as loopback', (h) =>
-    expect(classifyHost(h)).toBe('loopback')
+  it.each(['127.0.0.1', '127.7.7.7', 'localhost', '::1', '::ffff:127.0.0.1', '[::1]'])(
+    'treats %s as loopback',
+    (h) => expect(classifyHost(h)).toBe('loopback')
   );
 
-  it.each(['169.254.169.254', 'metadata.google.internal', '169.254.10.20'])('treats %s as metadata/link-local', (h) =>
-    expect(classifyHost(h)).toBe('metadata')
+  it.each(['169.254.169.254', 'metadata.google.internal', '169.254.10.20'])(
+    'treats %s as metadata/link-local',
+    (h) => expect(classifyHost(h)).toBe('metadata')
   );
 
   it.each(['10.0.0.5', '172.16.0.1', '172.31.255.255', '192.168.1.1', 'fd00::1', 'fe80::1'])(
@@ -42,8 +44,9 @@ describe('SBX-02 classifyHost', () => {
     (h) => expect(classifyHost(h)).toBe('private')
   );
 
-  it.each(['8.8.8.8', '1.1.1.1', 'example.com', 'evil.internal', '2606:4700::1111'])('treats %s as public', (h) =>
-    expect(classifyHost(h)).toBe('public')
+  it.each(['8.8.8.8', '1.1.1.1', 'example.com', 'evil.internal', '2606:4700::1111'])(
+    'treats %s as public',
+    (h) => expect(classifyHost(h)).toBe('public')
   );
 
   it.each(['', undefined, '999.1.1.1', '0.0.0.0'])('treats %s as invalid', (h) =>

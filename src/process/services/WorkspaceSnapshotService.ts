@@ -283,14 +283,10 @@ export class WorkspaceSnapshotService {
           })
         );
         await Promise.allSettled(
-          owned
-            .filter((candidate): candidate is string => candidate !== null)
-            .map((candidate) =>
-              fs.rm(candidate, {
-                recursive: true,
-                force: true,
-              })
-            )
+          owned.filter((candidate): candidate is string => candidate !== null).map((candidate) => fs.rm(candidate, {
+            recursive: true,
+            force: true,
+          }))
         );
       })
     );

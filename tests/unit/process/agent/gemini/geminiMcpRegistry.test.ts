@@ -24,3 +24,4 @@ describe('GeminiAgent MCP registry evidence', () => {
     ]);
   });
 });
+

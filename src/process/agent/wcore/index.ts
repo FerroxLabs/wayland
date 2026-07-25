@@ -752,7 +752,9 @@ export class WCoreAgent {
         // wording distinct from the separate 30s ready-timeout below.
         const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
         const reason = describeExitReason(code, signal);
-        this.readyReject(new Error(detail ? `wcore ${reason} during init: ${detail}` : `wcore ${reason} during init`));
+        this.readyReject(
+          new Error(detail ? `wcore ${reason} during init: ${detail}` : `wcore ${reason} during init`)
+        );
       }
       if (this.activeMsgId && this._onProcessExit) {
         this._onProcessExit(code, this.activeMsgId, signal);

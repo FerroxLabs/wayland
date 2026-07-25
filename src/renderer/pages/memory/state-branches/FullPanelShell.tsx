@@ -74,11 +74,9 @@ type PromotionThresholdModalModule = { default: React.ComponentType<{ onClose: (
 
 const PromotionThresholdModalLazy = lazy(
   () =>
-    import('../components/PromotionThresholdModal').catch(
-      (): PromotionThresholdModalModule => ({
-        default: () => null,
-      })
-    ) as Promise<PromotionThresholdModalModule>
+    import('../components/PromotionThresholdModal').catch((): PromotionThresholdModalModule => ({
+      default: () => null,
+    })) as Promise<PromotionThresholdModalModule>
 );
 
 // ---------------------------------------------------------------------------

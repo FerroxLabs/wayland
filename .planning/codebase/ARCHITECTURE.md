@@ -1,5 +1,4 @@
 <!-- refreshed: 2026-07-19 -->
-
 # Architecture
 
 **Analysis Date:** 2026-07-19
@@ -39,34 +38,33 @@ The runtime is an Electron multi-process application with an optional browser tr
 
 ## Component Responsibilities
 
-| Component                  | Responsibility                                                                                                                   | File                                                                           |
-| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Dependency-light bootstrap | Registers privileged schemes, runs recovery commands and database compatibility preflight, then imports the stateful main module | `src/bootstrap.ts`                                                             |
-| Electron lifecycle         | Owns single-instance behavior, windows, tray, deep links, desktop WebUI startup, initialization, and ordered shutdown            | `src/index.ts`                                                                 |
-| Standalone lifecycle       | Boots storage, non-Electron bridges, channels, extensions, and the WebUI without importing Electron adapters                     | `src/server.ts`                                                                |
-| Process composition        | Initializes durable storage, extensions, and channel subsystems                                                                  | `src/process/index.ts`                                                         |
-| Preload boundary           | Exposes the restricted renderer API through `contextBridge` and converts bridge calls to Electron IPC                            | `src/preload/main.ts`                                                          |
-| Typed bridge contract      | Declares provider/emitter names and shared request/response types used by renderer, main, and WebUI                              | `src/common/adapter/ipcBridge.ts`                                              |
-| Bridge allowlist           | Records declared bridge names and applies reduced remote capability policy                                                       | `src/common/adapter/bridgeAllowlist.ts`                                        |
-| Electron adapter           | Routes allowlisted renderer calls to bridge handlers and broadcasts emitted events to windows and WebSocket clients              | `src/common/adapter/main.ts`                                                   |
-| Standalone adapter         | Routes Node/WebSocket messages without loading Electron's adapter                                                                | `src/common/adapter/standalone.ts`                                             |
-| Bridge registration        | Wires repositories, services, task managers, and domain bridge handlers for the desktop process                                  | `src/process/utils/initBridge.ts` and `src/process/bridge/index.ts`            |
-| Web transport              | Provides Express routes, JWT-authenticated WebSockets, static renderer hosting, and remote bridge dispatch                       | `src/process/webserver/index.ts` and `src/process/webserver/adapter.ts`        |
-| Conversation service       | Owns conversation creation/update semantics, Project workspace reconciliation, and backend-specific construction inputs          | `src/process/services/ConversationServiceImpl.ts`                              |
-| Persistence                | Owns SQLite schema/migrations/repositories plus compatibility-aware recovery                                                     | `src/process/services/database/index.ts`                                       |
-| Runtime registry           | Rehydrates a conversation, selects an agent manager through the factory, caches live tasks, and reaps idle/shutdown children     | `src/process/task/WorkerTaskManager.ts` and `src/process/task/AgentFactory.ts` |
-| Core adapter               | Owns one Wayland Core session, policy/approval handling, message persistence, protocol translation, and renderer stream emission | `src/process/task/WCoreManager.ts` and `src/process/agent/wcore/`              |
-| Renderer composition       | Mounts providers, authentication, router, and the selected shell                                                                 | `src/renderer/main.tsx`                                                        |
-| Shell boundary             | Lazy-loads independent Classic/Cockpit roots and falls back to Classic on Cockpit failure                                        | `src/renderer/components/layout/ShellExperience/`                              |
-| Execution projection       | Adapts backend messages into immutable, bounded, backend-neutral execution snapshots                                             | `src/common/execution/`                                                        |
-| Contextual workbench       | Registers presentation-only workspace, preview, observability, mission, and receipt projections over canonical stores            | `src/renderer/pages/conversation/components/WorkbenchHost/`                    |
+| Component | Responsibility | File |
+|-----------|----------------|------|
+| Dependency-light bootstrap | Registers privileged schemes, runs recovery commands and database compatibility preflight, then imports the stateful main module | `src/bootstrap.ts` |
+| Electron lifecycle | Owns single-instance behavior, windows, tray, deep links, desktop WebUI startup, initialization, and ordered shutdown | `src/index.ts` |
+| Standalone lifecycle | Boots storage, non-Electron bridges, channels, extensions, and the WebUI without importing Electron adapters | `src/server.ts` |
+| Process composition | Initializes durable storage, extensions, and channel subsystems | `src/process/index.ts` |
+| Preload boundary | Exposes the restricted renderer API through `contextBridge` and converts bridge calls to Electron IPC | `src/preload/main.ts` |
+| Typed bridge contract | Declares provider/emitter names and shared request/response types used by renderer, main, and WebUI | `src/common/adapter/ipcBridge.ts` |
+| Bridge allowlist | Records declared bridge names and applies reduced remote capability policy | `src/common/adapter/bridgeAllowlist.ts` |
+| Electron adapter | Routes allowlisted renderer calls to bridge handlers and broadcasts emitted events to windows and WebSocket clients | `src/common/adapter/main.ts` |
+| Standalone adapter | Routes Node/WebSocket messages without loading Electron's adapter | `src/common/adapter/standalone.ts` |
+| Bridge registration | Wires repositories, services, task managers, and domain bridge handlers for the desktop process | `src/process/utils/initBridge.ts` and `src/process/bridge/index.ts` |
+| Web transport | Provides Express routes, JWT-authenticated WebSockets, static renderer hosting, and remote bridge dispatch | `src/process/webserver/index.ts` and `src/process/webserver/adapter.ts` |
+| Conversation service | Owns conversation creation/update semantics, Project workspace reconciliation, and backend-specific construction inputs | `src/process/services/ConversationServiceImpl.ts` |
+| Persistence | Owns SQLite schema/migrations/repositories plus compatibility-aware recovery | `src/process/services/database/index.ts` |
+| Runtime registry | Rehydrates a conversation, selects an agent manager through the factory, caches live tasks, and reaps idle/shutdown children | `src/process/task/WorkerTaskManager.ts` and `src/process/task/AgentFactory.ts` |
+| Core adapter | Owns one Wayland Core session, policy/approval handling, message persistence, protocol translation, and renderer stream emission | `src/process/task/WCoreManager.ts` and `src/process/agent/wcore/` |
+| Renderer composition | Mounts providers, authentication, router, and the selected shell | `src/renderer/main.tsx` |
+| Shell boundary | Lazy-loads independent Classic/Cockpit roots and falls back to Classic on Cockpit failure | `src/renderer/components/layout/ShellExperience/` |
+| Execution projection | Adapts backend messages into immutable, bounded, backend-neutral execution snapshots | `src/common/execution/` |
+| Contextual workbench | Registers presentation-only workspace, preview, observability, mission, and receipt projections over canonical stores | `src/renderer/pages/conversation/components/WorkbenchHost/` |
 
 ## Pattern Overview
 
 **Overall:** Layered multi-process architecture with ports/adapters, repository/service boundaries, pluggable agent managers, and independently loadable presentation composition roots.
 
 **Key Characteristics:**
-
 - Keep Electron main, browser renderer, preload, and fork-worker APIs separated by directory and import aliases.
 - Declare cross-process operations once as typed providers/emitters in `src/common/adapter/ipcBridge.ts`; transports must route those declarations rather than inventing parallel APIs.
 - Keep durable product authority in repositories/services. Classic and Cockpit are presentation roots over the same routes and state.
@@ -77,7 +75,6 @@ The runtime is an Electron multi-process application with an optional browser tr
 ## Layers
 
 **Bootstrap and Host Lifecycle:**
-
 - Purpose: Prove state compatibility before stateful modules load, choose the host mode, and own process/window shutdown.
 - Location: `src/bootstrap.ts`, `src/index.ts`, `src/server.ts`
 - Contains: Electron/Node entry points, recovery CLI handling, window/server lifecycle, shutdown sequencing.
@@ -85,7 +82,6 @@ The runtime is an Electron multi-process application with an optional browser tr
 - Used by: Packaged Electron, development Electron, and standalone server launch commands.
 
 **Renderer Presentation:**
-
 - Purpose: Compose routes, shell chrome, pages, conversation UI, and contextual projections.
 - Location: `src/renderer/`
 - Contains: React pages, shared components, hooks, contexts, services, styles, and client workers.
@@ -94,7 +90,6 @@ The runtime is an Electron multi-process application with an optional browser tr
 - Rule: Put one-page behavior under `src/renderer/pages/<page>/`; promote only genuinely shared UI to `src/renderer/components/` or `src/renderer/hooks/`.
 
 **Shared Contracts and Pure Domain Projection:**
-
 - Purpose: Share serializable types, bridge contracts, navigation manifests, capability declarations, and pure reducers across processes.
 - Location: `src/common/`
 - Contains: `adapter/`, `config/`, `execution/`, `capabilities/`, `chat/`, `navigation/`, `security/`, and shared types/utilities.
@@ -103,7 +98,6 @@ The runtime is an Electron multi-process application with an optional browser tr
 - Rule: Do not add React, Electron-main, filesystem, or child-process behavior to shared modules.
 
 **Transport and IPC:**
-
 - Purpose: Carry the same named provider/emitter protocol over Electron IPC or authenticated WebSockets.
 - Location: `src/preload/`, `src/common/adapter/`, `src/process/webserver/`
 - Contains: `contextBridge`, bridge allowlists, Electron/standalone adapters, WebSocket dispatch, HTTP/auth routes.
@@ -112,7 +106,6 @@ The runtime is an Electron multi-process application with an optional browser tr
 - Rule: Add a typed provider/emitter first, then register its main-process handler; apply remote reductions for operations unavailable to paired browsers.
 
 **Main-Process Application:**
-
 - Purpose: Enforce product rules and coordinate IO without exposing implementation details to the renderer.
 - Location: `src/process/bridge/`, `src/process/services/`, `src/process/providers/`, `src/process/permissions/`, `src/process/storage/`
 - Contains: Thin transport handlers, domain services, repositories, provider registries, trust policy, migration/recovery, storage operations.
@@ -121,7 +114,6 @@ The runtime is an Electron multi-process application with an optional browser tr
 - Rule: Keep bridges thin; put reusable rules in a service and database access in a repository.
 
 **Agent and Automation Runtime:**
-
 - Purpose: Create, cache, supervise, and communicate with heterogeneous agent backends and scheduled/team execution.
 - Location: `src/process/task/`, `src/process/agent/`, `src/process/worker/`, `src/process/team/`, `src/process/services/cron/`
 - Contains: Agent factory/managers, Core protocol adapter, ACP connections, fork protocol, team sessions, scheduler.
@@ -130,7 +122,6 @@ The runtime is an Electron multi-process application with an optional browser tr
 - Rule: Backend-owned runtime state stays behind an `IAgentManager`; Desktop-owned chats, Projects, schedules, and Teams remain in Desktop services.
 
 **Persistence and External Effects:**
-
 - Purpose: Store durable product data and coordinate local files, secrets, extensions, channels, and external processes.
 - Location: `src/process/services/database/`, `src/process/utils/initStorage.ts`, `src/process/secrets/`, `src/process/extensions/`, `src/process/channels/`
 - Contains: SQLite schema/migrations, JSON compatibility stores, safe-storage wrappers, extension registry, channel gateways.
@@ -167,7 +158,6 @@ The runtime is an Electron multi-process application with an optional browser tr
 4. The user may persist Classic as the default, but failure to persist cannot undo the already-safe session switch.
 
 **State Management:**
-
 - Durable relational state uses SQLite repositories in `src/process/services/database/`; `WaylandUIDatabase` owns schema initialization, migrations, compatibility checks, and corruption quarantine.
 - Backward-compatible config/chat namespaces use serialized JSON stores built in `src/process/utils/initStorage.ts` and accessed through typed `ConfigStorage`, `ChatStorage`, and `ChatMessageStorage` declarations in `src/common/config/storage.ts`.
 - Renderer server state is fetched through bridge calls and synchronized by emitters, SWR, contexts, and page/domain hooks. Avoid introducing a second renderer-authoritative product store.
@@ -177,43 +167,36 @@ The runtime is an Electron multi-process application with an optional browser tr
 ## Key Abstractions
 
 **Typed Provider/Emitter Bridge:**
-
 - Purpose: Define one transport-neutral operation/event contract.
 - Examples: `src/common/adapter/ipcBridge.ts`, `src/common/adapter/bridgeAllowlist.ts`, `src/process/bridge/conversationBridge.ts`
 - Pattern: Typed ports with Electron and standalone/WebSocket adapters.
 
 **Service and Repository:**
-
 - Purpose: Separate product semantics from persistence mechanics.
 - Examples: `src/process/services/IConversationService.ts`, `src/process/services/ConversationServiceImpl.ts`, `src/process/services/database/IConversationRepository.ts`, `src/process/services/database/SqliteConversationRepository.ts`
 - Pattern: Interface plus concrete service/repository, injected at composition roots.
 
 **Agent Manager and Factory:**
-
 - Purpose: Give heterogeneous backends a common lifecycle while isolating backend protocols.
 - Examples: `src/process/task/IAgentManager.ts`, `src/process/task/AgentFactory.ts`, `src/process/task/WCoreManager.ts`, `src/process/task/AcpAgentManager.ts`
 - Pattern: Registry/factory plus cached supervised instances.
 
 **Execution Snapshot:**
-
 - Purpose: Give conversation, mission rail, Activity, approvals, cost, and receipts one backend-neutral interpretation.
 - Examples: `src/common/execution/types.ts`, `src/common/execution/reducer.ts`, `src/common/execution/adapters/`, `src/common/execution/selectors.ts`
 - Pattern: Pure event adapters + bounded immutable reducer + selectors.
 
 **Workbench Section Registration:**
-
 - Purpose: Let canonical stores request contextual presentation without copying their state.
 - Examples: `src/renderer/pages/conversation/components/WorkbenchHost/index.tsx`, `src/renderer/pages/conversation/components/ExecutionSpine/index.tsx`
 - Pattern: Registry/context with priority, activation keys, pin/dismiss, and presentation-only persistence.
 
 **Shell Composition Root:**
-
 - Purpose: Keep Classic and Cockpit independently loadable over shared routes/services.
 - Examples: `src/renderer/components/layout/ShellExperience/ClassicShellRoot.tsx`, `src/renderer/components/layout/ShellExperience/CockpitShellRoot.tsx`
 - Pattern: Lazy composition roots behind an error-isolated selector.
 
 **Platform Services:**
-
 - Purpose: Make shared/main code explicit about Electron versus pure-Node host behavior.
 - Examples: `src/common/platform/IPlatformServices.ts`, `src/common/platform/ElectronPlatformServices.ts`, `src/common/platform/NodePlatformServices.ts`
 - Pattern: Host registration plus interface-based access.
@@ -221,37 +204,31 @@ The runtime is an Electron multi-process application with an optional browser tr
 ## Entry Points
 
 **Electron Bootstrap:**
-
 - Location: `src/bootstrap.ts`
 - Triggers: Electron main bundle.
 - Responsibilities: Register schemes, handle recovery CLI operations, preflight state, dynamically load the main application.
 
 **Electron Main:**
-
 - Location: `src/index.ts`
 - Triggers: Successful bootstrap preflight.
 - Responsibilities: App lifecycle, window/tray/deep-link behavior, run-mode selection, bridge/process initialization, cleanup.
 
 **Standalone Server:**
-
 - Location: `src/server.ts`
 - Triggers: Server/headless command.
 - Responsibilities: Register Node platform and standalone bridge adapters, initialize state and subsystems, start WebUI, handle signals.
 
 **Renderer:**
-
 - Location: `src/renderer/main.tsx`
 - Triggers: Electron `BrowserWindow` or WebUI document loading `src/renderer/index.html`.
 - Responsibilities: Browser adapter, global providers/styles/i18n, authentication, router, shell composition.
 
 **Preload:**
-
 - Location: `src/preload/main.ts`
 - Triggers: Electron window preload configuration.
 - Responsibilities: Expose the narrow `electronAPI`; no application state or DOM manipulation.
 
 **Ambient Preload:**
-
 - Location: `src/preload/ambientPreload.ts`
 - Triggers: Optional ambient bubble window.
 - Responsibilities: Expose the narrower ambient-window API.
@@ -304,7 +281,6 @@ The runtime is an Electron multi-process application with an optional browser tr
 **Strategy:** Fail closed at compatibility, trust, and transport boundaries; isolate presentation failures; convert expected operational failures into typed results/events; log and continue only for explicitly optional startup subsystems.
 
 **Patterns:**
-
 - `src/bootstrap.ts` blocks launch on unreadable/future database state before importing stateful `src/index.ts`.
 - `src/process/services/database/index.ts` distinguishes native-driver failures from proven corruption and quarantines the complete SQLite DB/WAL/SHM set transactionally.
 - `src/common/adapter/main.ts` rejects undeclared bridge names; `src/process/webserver/adapter.ts` adds a reduced remote allowlist and settles rejected provider calls instead of leaving promises pending.
@@ -323,4 +299,4 @@ The runtime is an Electron multi-process application with an optional browser tr
 
 ---
 
-_Architecture analysis: 2026-07-19_
+*Architecture analysis: 2026-07-19*

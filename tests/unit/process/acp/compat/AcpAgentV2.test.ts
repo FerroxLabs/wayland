@@ -1325,7 +1325,9 @@ describe('AcpAgentV2 - live receipt-bound MCP publication (Tavily/Firecrawl/n8n/
     const caps: Caps = opts.capabilities ?? { stdio: true, http: true, sse: true };
     vi.mocked(loadRuntimeMcpServers).mockResolvedValue(opts.servers);
     getSpy.mockImplementation(async (key: string) =>
-      key === 'acp.cachedInitializeResult' ? { claude: { capabilities: { mcpCapabilities: caps } } } : undefined
+      key === 'acp.cachedInitializeResult'
+        ? { claude: { capabilities: { mcpCapabilities: caps } } }
+        : undefined
     );
 
     let captured: McpConfigProjection | undefined;

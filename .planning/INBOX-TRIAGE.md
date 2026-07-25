@@ -19,7 +19,6 @@
 ## Knock-out shortlist (desktop-side, Core-independent, actionable)
 
 ### Tier 1 — small, exact, low-risk (fastest wins)
-
 - **#836 — Status-green (`--success #34d399`) fails contrast as text in light mode.**
   Pure CSS token fix in `default-color-scheme.css` (:179 light) + the badge/chip
   families that map `var(--success)` to text. ~1.9:1 → needs ≥4.5:1. Verifiable by
@@ -33,7 +32,6 @@
   `WorkflowSessionService.ts`, `taskCompletionNotifier.isUserFacingConversation`.
 
 ### Tier 2 — medium, well-specified
-
 - **#838 — Gemini/OpenClaw/NanoBot/Remote never emit turn-completion** (starves the
   notifier + workflow driver). Four managers only emit `finish`/`error` but never
   call `notifyPotentialCompletion()`; exact file:line given. Pairs naturally with #842.
@@ -43,7 +41,6 @@
   127.0.0.1:37891/api/health. Desktop health-check false-negative (wrong probe).
 
 ### Tier 3 — larger / more investigation
-
 - **#890 — WhatsApp (baileys) bridge stdout polluted by Wayland's own startup logs**
   → invalid-JSON → bridge exits. Desktop log-hygiene fix (keep startup logs off the
   bridge IPC channel).
@@ -53,7 +50,6 @@
   UX so users see the real cli/AV/firewall cause.
 
 ## Recommendation
-
 Start with **Tier 1** as a batch (#836 → #780 → #842): all small, exact, low-risk,
 Core-independent, and each independently verifiable. #836 continues the a11y/contrast
 work already loaded; #838 is a natural follow-on to #842. Skip the 63 Core/Flux-gated

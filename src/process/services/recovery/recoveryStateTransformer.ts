@@ -190,8 +190,9 @@ export async function transformDesktopState53To52(
           // an explicit human re-enable in the isolated copy.
           safety = {
             cronJobsDisabled: driver.prepare('UPDATE cron_jobs SET enabled = 0 WHERE enabled != 0').run().changes,
-            channelPluginsDisabled: driver.prepare('UPDATE assistant_plugins SET enabled = 0 WHERE enabled != 0').run()
-              .changes,
+            channelPluginsDisabled: driver
+              .prepare('UPDATE assistant_plugins SET enabled = 0 WHERE enabled != 0')
+              .run().changes,
             workflowSessionsParked: driver
               .prepare(
                 "UPDATE workflow_sessions SET run_mode = 'awaiting_input' WHERE status = 'active' AND run_mode = 'running'"
@@ -468,11 +469,7 @@ function parseAuthorityDowngradeEntry(value: unknown, index: number): AuthorityD
   if (typeof entry.workspace !== 'string' || entry.workspace.length === 0) {
     throw new Error(`Authority downgrade entry ${index} has an invalid workspace identity.`);
   }
-  if (
-    entry.disposition !== 'canonical' &&
-    entry.disposition !== 'legacy-migrated' &&
-    entry.disposition !== 'rejected'
-  ) {
+  if (entry.disposition !== 'canonical' && entry.disposition !== 'legacy-migrated' && entry.disposition !== 'rejected') {
     throw new Error(`Authority downgrade entry ${index} has an unknown disposition.`);
   }
   if (!isCanonicalAuthorityLevel(entry.sourceAuthority) || !isCanonicalAuthorityLevel(entry.classicAuthority)) {

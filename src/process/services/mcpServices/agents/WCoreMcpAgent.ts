@@ -190,16 +190,19 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
             };
           }
         }
-        await mutateConfig((rawConfig) => {
-          const config = rawConfig as WCoreConfigFile;
-          config.mcp ??= { servers: {} };
-          config.mcp.servers ??= {};
-          for (const server of mcpServers) {
-            config.mcp.servers[server.name] = toWCoreConfig(server);
-            console.log(`[WCoreMcpAgent] Added MCP server: ${server.name}`);
-          }
-          return { value: undefined, changed: mcpServers.length > 0 };
-        }, this.configPath);
+        await mutateConfig(
+          (rawConfig) => {
+            const config = rawConfig as WCoreConfigFile;
+            config.mcp ??= { servers: {} };
+            config.mcp.servers ??= {};
+            for (const server of mcpServers) {
+              config.mcp.servers[server.name] = toWCoreConfig(server);
+              console.log(`[WCoreMcpAgent] Added MCP server: ${server.name}`);
+            }
+            return { value: undefined, changed: mcpServers.length > 0 };
+          },
+          this.configPath
+        );
 
         // #465 first-run browser provisioning: once the bundled Playwright MCP
         // is written to the engine config, make sure chromium is installed into
@@ -225,13 +228,16 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
   removeMcpServer(mcpServerName: string): Promise<McpOperationResult> {
     const removeOperation = async () => {
       try {
-        const removed = await mutateConfig((rawConfig) => {
-          const config = rawConfig as WCoreConfigFile;
-          const servers = config.mcp?.servers;
-          if (!servers || !(mcpServerName in servers)) return { value: false, changed: false };
-          delete servers[mcpServerName];
-          return { value: true, changed: true };
-        }, this.configPath);
+        const removed = await mutateConfig(
+          (rawConfig) => {
+            const config = rawConfig as WCoreConfigFile;
+            const servers = config.mcp?.servers;
+            if (!servers || !(mcpServerName in servers)) return { value: false, changed: false };
+            delete servers[mcpServerName];
+            return { value: true, changed: true };
+          },
+          this.configPath
+        );
         if (!removed) {
           console.log(`[WCoreMcpAgent] MCP server ${mcpServerName} not found (may already be removed)`);
           return { success: true };

@@ -186,7 +186,12 @@ describe('ConnectorsFlyout active-session MCP truth', () => {
     scope: 'conversation',
   };
   const session = () =>
-    createMcpSessionState('launch-1', [expected], { conversationId: 'chat-1', backend: 'wcore' }, 1);
+    createMcpSessionState(
+      'launch-1',
+      [expected],
+      { conversationId: 'chat-1', backend: 'wcore' },
+      1
+    );
 
   it('does not present a successful Library probe as chat readiness', () => {
     renderFlyout({ servers: [tavily], onScopeChange: noop });

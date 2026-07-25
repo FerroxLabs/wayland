@@ -86,13 +86,7 @@ const journey: readonly ExecutionEvent[] = [
     identity,
     observedAt: now,
     type: 'activity',
-    activity: {
-      id: 'a1',
-      kind: 'tool',
-      name: 'Read source workbook',
-      status: 'completed',
-      detail: 'source: metrics.xlsx',
-    },
+    activity: { id: 'a1', kind: 'tool', name: 'Read source workbook', status: 'completed', detail: 'source: metrics.xlsx' },
   },
   {
     eventId: 'e4',

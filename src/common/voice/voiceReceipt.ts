@@ -127,8 +127,7 @@ export const onDeviceVoiceCost = (): VoiceCostEstimate => ({
  */
 export const hostedVoiceCostUnavailable = (): VoiceCostEstimate => ({
   status: 'unavailable',
-  reason:
-    'authoritative hosted-provider voice cost requires a provider/Flux cost receipt not yet emitted for the voice path',
+  reason: 'authoritative hosted-provider voice cost requires a provider/Flux cost receipt not yet emitted for the voice path',
 });
 
 /** Assembles a VoiceReceipt from already-observed boundary values. Pure. */

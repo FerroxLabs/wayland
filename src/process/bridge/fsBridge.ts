@@ -1232,6 +1232,7 @@ export function initFsBridge(): void {
         } catch (emitError) {
           console.error('[fsBridge] Failed to emit file stream delete:', emitError);
         }
+
       }
       return { success: true };
     } catch (error) {

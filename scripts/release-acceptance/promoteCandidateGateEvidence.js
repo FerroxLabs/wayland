@@ -138,18 +138,7 @@ function promoteCandidateGateEvidence(sourceDirectory, outputDirectory, context)
 
 function parseArgs(argv) {
   const options = {};
-  const known = new Set([
-    'source',
-    'out',
-    'candidateCommit',
-    'candidateTree',
-    'trustRootCommit',
-    'repository',
-    'workflowRef',
-    'runId',
-    'runAttempt',
-    'job',
-  ]);
+  const known = new Set(['source', 'out', 'candidateCommit', 'candidateTree', 'trustRootCommit', 'repository', 'workflowRef', 'runId', 'runAttempt', 'job']);
   for (let index = 0; index < argv.length; index += 2) {
     const raw = argv[index];
     const value = argv[index + 1];

@@ -284,7 +284,9 @@ describe('synthesize (TextToSpeechService)', () => {
 
 describe('textToSpeechRegistry (VOC-04)', () => {
   it('registers every supported provider as an adapter', () => {
-    expect(new Set(textToSpeechRegistry.providers())).toEqual(new Set(['kokoro-local', 'system-native', 'openai']));
+    expect(new Set(textToSpeechRegistry.providers())).toEqual(
+      new Set(['kokoro-local', 'system-native', 'openai'])
+    );
   });
 
   it('marks local engines on-device and hosted OpenAI off-device', () => {

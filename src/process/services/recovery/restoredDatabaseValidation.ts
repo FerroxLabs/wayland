@@ -28,8 +28,7 @@ export async function validateRestoredDatabase(
       throw new Error(`Restored database schema mismatch (${schemaVersion} != ${expectedSchemaVersion}).`);
     }
     const integrity = integrityResult(driver.pragma('integrity_check'));
-    if (integrity !== 'ok')
-      throw new Error(`Restored database integrity check failed: ${integrity ?? 'invalid result'}`);
+    if (integrity !== 'ok') throw new Error(`Restored database integrity check failed: ${integrity ?? 'invalid result'}`);
     return { schemaVersion, integrity: 'ok' };
   } finally {
     driver.close();

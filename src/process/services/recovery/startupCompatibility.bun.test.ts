@@ -79,7 +79,9 @@ function classicRanDelta() {
 
 describe('assertClassicStartupIsolated', () => {
   it('admits an isolated schema-52 transformed tree', () => {
-    expect(() => assertClassicStartupIsolated({ path: 'isolated-transformed-tree', schemaVersion: 52 })).not.toThrow();
+    expect(() =>
+      assertClassicStartupIsolated({ path: 'isolated-transformed-tree', schemaVersion: 52 })
+    ).not.toThrow();
   });
 
   it('rejects a direct/live binary path before any historical binary executes', () => {
@@ -179,7 +181,10 @@ describe('assertReupgradeAdmissible', () => {
   });
 
   it('fails closed on an effective-authority increase left by Classic', () => {
-    expectCode({ ...base(), classicObservedAuthority: { '/ws/ask': 'trusted-edits' } }, 'REUPGRADE_AUTHORITY_INCREASE');
+    expectCode(
+      { ...base(), classicObservedAuthority: { '/ws/ask': 'trusted-edits' } },
+      'REUPGRADE_AUTHORITY_INCREASE'
+    );
   });
 
   it('fails closed when a widened authority appears for an unknown workspace', () => {

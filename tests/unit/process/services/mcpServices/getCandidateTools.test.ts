@@ -100,11 +100,7 @@ describe('getCandidateTools receipt-bound gate (MCP-01)', () => {
 
   it('is authoritative on the receipt inventory: a registered tool absent from the saved list still appears (empty description)', () => {
     const s = server({ tools: [{ name: 'a', description: 'A' }] });
-    const state = sessionFor(
-      [s],
-      () => 'registered',
-      () => ['a', 'z']
-    );
+    const state = sessionFor([s], () => 'registered', () => ['a', 'z']);
     const out = getCandidateTools(state, [s]);
     expect(out).toEqual([
       { serverId: 's1', name: 'a', description: 'A' },
@@ -193,11 +189,7 @@ describe('getCandidateTools receipt-bound gate (MCP-01)', () => {
   it('tags each candidate with its owning serverId across multiple registered servers', () => {
     const s1 = server({ id: 's1', name: 'one', tools: [{ name: 'a' }] });
     const s2 = server({ id: 's2', name: 'two', tools: [{ name: 'c', description: 'C' }] });
-    const state = sessionFor(
-      [s1, s2],
-      () => 'registered',
-      (name) => (name === 'one' ? ['a'] : ['c'])
-    );
+    const state = sessionFor([s1, s2], () => 'registered', (name) => (name === 'one' ? ['a'] : ['c']));
     expect(getCandidateTools(state, [s1, s2])).toEqual([
       { serverId: 's1', name: 'a', description: '' },
       { serverId: 's2', name: 'c', description: 'C' },

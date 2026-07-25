@@ -6,7 +6,6 @@ worktree **`~/dev/wayland-worktrees/desktop-integration`** (worktree of `~/dev/w
 `.planning/HANDOFF-2026-07-24-milestone-D-complete.md`.
 
 ## TL;DR
-
 1. **D-08 (local packaged-verification build path) is DONE, cross-audited, full-suite-green, local-only.**
    It gives us a sanctioned `bun run dist:verify:mac` that produces a launchable `out/mac-arm64/*.app`
    for `scripts/packaged-cockpit-smoke.mjs` WITHOUT touching the release trust boundary. Detail:
@@ -18,7 +17,6 @@ worktree **`~/dev/wayland-worktrees/desktop-integration`** (worktree of `~/dev/w
    pre-publish pass (packaged-GUI live-verify of D-03..D-07 + D-07 token-cost sweep + #910b + #537).
 
 ## D-08 — what was built (5 commits `1d8dcabb9..8e21e5b4e`)
-
 Full Ferrox loop: research → plan → plan-check (PASS) → build (executor) → **4-model cross-audit** →
 remediation → re-audits → **class-closing fix**. Full unit suite **15,711/0**, tsc clean.
 
@@ -28,7 +26,6 @@ CI-only release-acceptance artifact (trust root + `gh attestation verify`) the r
 never read — so omitting it locally crosses no security line.
 
 Cross-audit findings, all closed (see D-08-SUMMARY for file:line):
-
 - F1 seal-is-also-a-critical-packaged-resource (dead build) → `--allow-missing-seal` threaded to the verifier.
 - F2 stale seal rides into the `.app` → `fs.rmSync` in skip branch + verifier fails closed on a present seal.
 - F3 `argv.includes('--dir')` ≠ effective dir build (unsealed DMG via `--mac dmg --dir`, Codex reproduced
@@ -46,11 +43,9 @@ Proven working: live `dist:verify:mac` fired the guard, produced a seal-free art
 (good)`), cleared the seal gate.
 
 ## THE ONE PENDING DECISION — D-01 (#890) whatsapp-bridge source-mirror regression
-
 **Diagnosis (verified):** `scripts/build-with-builder.js:prepareWhatsAppBridgeResources` runs
 `verifySourceMirror` (in `verify-packaged-resources.js:647`) which pins exact size+sha256 of each bridge
 source file via `scripts/whatsapp-bridge-source.json`. D-01's fork→spawn / pino→fd2 migration (`f2a4a4bce`):
-
 - **CHANGED `src/process/channels/whatsapp-bridge/backends/baileys.js`** — actual sha `d174babb…` size 15582
   vs pinned `655a1959…` size 15207.
 - **ADDED `src/process/channels/whatsapp-bridge/backends/bridgeLogger.js`** — not in the authority at all.
@@ -69,7 +64,6 @@ our own reviewed D-01 code we intend to ship, so re-pinning to match is the corr
 After regen: re-run `bun run dist:verify:mac` → should complete → run the smoke.
 
 ## NEXT (once D-01 pin is regenerated — the batched pre-publish pass, was blocked on a packaged build)
-
 1. `bun run dist:verify:mac` → `WAYLAND_CDP_PORT=9340 node scripts/packaged-cockpit-smoke.mjs` GREEN
    (boot + all cockpit surfaces + IPC + chat round-trip via burner key `~/.config/wayland-smoke/flux-test-key`),
    then `git checkout -- src/process/services/constitution/constitutionFsAuthority.generated.ts`.
@@ -83,7 +77,6 @@ After regen: re-run `bun run dist:verify:mac` → should complete → run the sm
    can be `fixed-pending-release` until pushed/shipped.
 
 ## Cross-audit method (CORRECTED — carry forward)
-
 4-model panel on the same diff, native subscription CLIs: Codex 5.6 Sol (`codex exec --skip-git-repo-check
 -m gpt-5.6-sol -s read-only "$PROMPT" < /dev/null`) + Gemini (`cat combined.txt | gemini -m
 gemini-3.1-pro-preview --skip-trust -p "…"` — model id is `-preview`; plain `gemini-3.1-pro` 404s) + Kimi K3
@@ -93,7 +86,6 @@ Calibration lesson reaffirmed: close the CLASS with a fail-closed invariant inst
 edge across rounds.
 
 ## Guardrails (unchanged)
-
 LOCAL only — no push/merge/release without Sean. gh writes = FerroxLabs (re-assert; drifts to TradeCanyon).
 Sean Writer voice, zero em dashes, no backticks in comment bodies, no AI signatures in commits/PRs. Never
 touch `~/dev/wayland/app` directly. Source of truth: this file → `.planning/STATE.md` → D-08-SUMMARY.

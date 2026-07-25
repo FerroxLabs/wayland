@@ -10,7 +10,7 @@
 The in-conversation workflow auto-advance path sends each next-step directive into the **same live
 backend agent session**. The backend (wcore engine / ACP CLI) holds every turn of that session and
 replays turns `1..N-1` to the model on step `N`, so per-step model input grows `O(N)` and the whole
-run costs `O(N²)` input tokens. `composeStepContext.ts` only _prepends_ an ≤8 KB control block — it
+run costs `O(N²)` input tokens. `composeStepContext.ts` only *prepends* an ≤8 KB control block — it
 never resets anything. The autonomous path does not have this problem because
 `dispatchAutonomousStep.ts` spawns a **fresh child conversation (and therefore a fresh backend
 session) per step**, so each step's model input is `O(1)`.
@@ -36,11 +36,9 @@ directive-only composition (`composeDirective`), but keep it on the **same `conv
 user-visible thread is untouched.
 
 <user_constraints>
-
 ## User Constraints (from D-CONTEXT.md + Sean's reconfirmed architecture)
 
 ### Locked Decisions
-
 - **Architecture (RECONFIRMED by Sean):** IN-PLACE PER-STEP CONTEXT RESET — a hard reset of the
   model input context per step. **NOT a rolling summary.** The reset applies to what is **sent to
   the model** (the context-window input), and must **not** destroy the visible conversation the user
@@ -57,38 +55,34 @@ user-visible thread is untouched.
   American spelling. No AI signatures in commits/PRs.
 
 ### Claude's Discretion
-
 - The exact granularity of the carry-forward seed (last assistant turn vs. a step-scoped DB slice)
   and the exact seam for threading a "bounded-reset spawn" flag into `WCoreManager.start()`.
 - Whether to scope v1 to the wcore/Flux backend (the money-critical default) or also force a
   new-session reset for ACP backends in the same packet (see Continuity Safety / Pitfalls).
 
 ### Deferred Ideas (OUT OF SCOPE)
-
 - Core-side tail-cap (separate Core issue).
 - Any rolling-summary / compaction approach (explicitly rejected by Sean — hard reset only).
 - Changing the autonomous-dispatch path (already `O(1)`; it is the template, not the target).
-  </user_constraints>
+</user_constraints>
 
 <phase_requirements>
-
 ## Phase Requirements
 
-| ID   | Description                                                                                                   | Research Support                                                                                                                                                                        |
-| ---- | ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ID | Description | Research Support |
+|----|-------------|------------------|
 | #723 | In-conversation multi-step workflows re-send the whole transcript every step; per-step cost grows unboundedly | Confirmed accumulation chain (below); reset intervention point at `sendWorkflowDirective`; Core-independent lever via `skipCache` respawn + bounded seed; separability proof; test plan |
-
 </phase_requirements>
 
 ## Architectural Responsibility Map
 
-| Capability                               | Primary Tier                                                      | Secondary Tier                  | Rationale                                   |
-| ---------------------------------------- | ----------------------------------------------------------------- | ------------------------------- | ------------------------------------------- |
-| Deciding when to advance a step          | Main-process workflow service (`continueRun`)                     | —                               | Already owns the run state machine          |
-| Sending the next-step directive          | Main-process HAND (`sendWorkflowDirective`)                       | —                               | Single choke point for advance sends        |
-| Holding/replaying model context          | Agent backend (wcore engine / ACP CLI)                            | —                               | Backend owns the session context window     |
-| Seeding a fresh backend session          | Main-process (`WCoreManager.start` → `buildResumeSeedTranscript`) | Desktop SQLite (source of seed) | Desktop controls what the fresh engine sees |
-| Storing/rendering the visible transcript | Desktop SQLite + renderer                                         | —                               | Separate store from model context           |
+| Capability | Primary Tier | Secondary Tier | Rationale |
+|------------|-------------|----------------|-----------|
+| Deciding when to advance a step | Main-process workflow service (`continueRun`) | — | Already owns the run state machine |
+| Sending the next-step directive | Main-process HAND (`sendWorkflowDirective`) | — | Single choke point for advance sends |
+| Holding/replaying model context | Agent backend (wcore engine / ACP CLI) | — | Backend owns the session context window |
+| Seeding a fresh backend session | Main-process (`WCoreManager.start` → `buildResumeSeedTranscript`) | Desktop SQLite (source of seed) | Desktop controls what the fresh engine sees |
+| Storing/rendering the visible transcript | Desktop SQLite + renderer | — | Separate store from model context |
 
 **Key tier fact:** the model-input context is owned by the **backend agent process**, and the
 desktop's only Core-independent levers over it are (a) respawn the session (drop it) and (b) control
@@ -124,7 +118,7 @@ The in-conversation auto-advance path, end to end:
    (`composeStepContext.ts:63`) is **prepended** to `other.input`. That block is capped at 8 KB
    (`MAX_BODY_BYTES`, `composeStepContext.ts:22`) and carries the current step body + a transitions
    tape. **It only prepends; it never resets.**
-6. **The backend replays `1..N-1`.** `task.sendMessage` targets the _existing live_ backend session:
+6. **The backend replays `1..N-1`.** `task.sendMessage` targets the *existing live* backend session:
    - **wcore** (`WCoreManager.ts`): the engine session is keyed by `conversation_id`
      (`WCoreManager.ts:412`) and keeps its running turn history in-process; each directive appends a
      turn and the whole session is re-sent to the model. Comment at `WCoreManager.ts:1057` confirms
@@ -134,7 +128,7 @@ The in-conversation auto-advance path, end to end:
 
 **Quantified.** Step `N` sends today: full accumulated backend session (turns `1..N-1`) + the
 ≤8 KB step-context block + the directive ≈ **`O(N)`**. Across the whole run: `Σ_{k=1..N} O(k)` =
-**`O(N²)`** input tokens. What step `N` _needs_ is: the directive + the current step body (already in
+**`O(N²)`** input tokens. What step `N` *needs* is: the directive + the current step body (already in
 `composeStepContext`) + the immediately-prior step's output = **`O(1)`** per step, **`O(N)`** run
 total. `[VERIFIED: codebase read of the listed files at HEAD 57d8dcee6]`
 
@@ -184,7 +178,6 @@ a build/conversation flag understood by `WCoreManager.start()`.
 one HAND for advance sends — shared by `parentTurnDriver` (`initBridge.ts:411`), by `acceptStep`
 (`workflowBridge.ts:209-222`), and by boot-resume (`resumeRuns.ts:132`). For a **workflow-advance**
 send, change it to:
-
 1. `getOrBuildTask(conversationId, { skipCache: true })` — respawn a fresh backend session.
 2. Ensure `WCoreManager.start()` seeds that session with the **carry-forward only** (bounded
    `buildResumeSeedTranscript`), not the full replay.
@@ -209,7 +202,6 @@ workflow, step `N` legitimately references step `N-1`'s result (e.g. "now refine
 wrote"). A pure directive-only reset (matching autonomous) would break those dependent steps.
 
 **Minimal carry-forward contract (recommended):** the reset seed for step `N` =
-
 - the **immediately-prior step's final assistant output** (the deliverable) — bounded, retrieved
   from the DB. The existing `getLastAgentText(conversationId)` helper (`initBridge.ts:392-406`) already
   pulls "the agent's most recent non-user text reply," and `buildResumeSeedTranscript` bounded to the
@@ -217,7 +209,7 @@ wrote"). A pure directive-only reset (matching autonomous) would break those dep
 - the step directive (`Proceed to step N…`, already built at `WorkflowSessionService.ts:782-783`); **plus**
 - the `composeStepContext` block (already prepended in `conversationBridge.ts:721`), which carries
   the current step body **and** the whole transitions tape (`composeStepContext.ts:78-81`) — i.e. the
-  model still sees _which_ steps ran and their status, just not their full text.
+  model still sees *which* steps ran and their status, just not their full text.
 
 That is **not** a rolling summary (Sean's hard-reset constraint holds) and **not** the full
 `1..N-1` transcript — it is exactly the last handoff plus the step control block. Anything a step
@@ -232,7 +224,7 @@ still shows the user everything.
 - **Even the bare-respawn floor** (no carry-forward tightening) caps per-step context at the
   `buildResumeSeedTranscript` bound (≤8 KB / 60 msgs), i.e. `O(1)` per step, `O(N)` run — the tighter
   carry-forward seed just makes the constant smaller.
-- **Prompt-caching note:** a growing prefix does not make growth free — cache _reads_ still scale with
+- **Prompt-caching note:** a growing prefix does not make growth free — cache *reads* still scale with
   context size and accumulate across steps (`O(N²)` cache-read tokens over the run), and provider
   hopping can defeat caching entirely (see memory: `token-burn-flux-auto-cache-defeat`). The reset
   removes the accumulation regardless of cache behavior.
@@ -262,17 +254,16 @@ for step `N` does **not** contain step `1..N-2` content (message-count / char-co
 
 Existing workflow test files to extend (all under `tests/unit/process/services/workflow/` unless noted):
 
-| File                                    | Role in this packet                                                                                                                                                                                 |
-| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `parentTurnDriver.test.ts`              | Extend: on `decision === 'advance'`, assert the HAND respawns with `{ skipCache: true }` before send (mock `workerTaskManager`). Existing harness at `:23-59` builds `turn()`/`session()` fixtures. |
-| `workflowContinueRunAdvance.test.ts`    | Extend: brain still advances correctly; directive unchanged. Uses the in-memory mock-repo harness (no native sqlite).                                                                               |
-| `WorkflowSessionService.test.ts`        | Directive composition regression (`:782-783`).                                                                                                                                                      |
-| `dispatchAutonomousStep.test.ts`        | Reference the `O(1)` template; assert the in-conversation reset reaches parity.                                                                                                                     |
-| `tests/unit/process/task/` (resumeSeed) | Add: `buildResumeSeedTranscript(msgs, { maxMessages, maxChars })` bounded to the last step's output yields a seed with no earlier-step text.                                                        |
-| `workflowBridge.test.ts`                | `acceptStep` (step-mode) advance also routes through the reset HAND.                                                                                                                                |
+| File | Role in this packet |
+|------|---------------------|
+| `parentTurnDriver.test.ts` | Extend: on `decision === 'advance'`, assert the HAND respawns with `{ skipCache: true }` before send (mock `workerTaskManager`). Existing harness at `:23-59` builds `turn()`/`session()` fixtures. |
+| `workflowContinueRunAdvance.test.ts` | Extend: brain still advances correctly; directive unchanged. Uses the in-memory mock-repo harness (no native sqlite). |
+| `WorkflowSessionService.test.ts` | Directive composition regression (`:782-783`). |
+| `dispatchAutonomousStep.test.ts` | Reference the `O(1)` template; assert the in-conversation reset reaches parity. |
+| `tests/unit/process/task/` (resumeSeed) | Add: `buildResumeSeedTranscript(msgs, { maxMessages, maxChars })` bounded to the last step's output yields a seed with no earlier-step text. |
+| `workflowBridge.test.ts` | `acceptStep` (step-mode) advance also routes through the reset HAND. |
 
 **Assertion shapes:**
-
 - Seam test at `sendWorkflowDirective` / `handleParentWorkflowTurn`: with a mock `workerTaskManager`,
   assert `getOrBuildTask(convId, { skipCache: true })` is called on advance, and that the seed passed
   to the fresh session excludes earlier-step content (message/char bound).
@@ -286,37 +277,35 @@ with step index (telemetry or provider dashboard). Full suite `bun run test:vite
 
 ## Recommended Change Surface (for the planner)
 
-| File                                                                | Change                                                                                                                                  |
-| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/process/utils/initBridge.ts` (`sendWorkflowDirective`, `:287`) | For workflow-advance sends: `skipCache: true` respawn + request a carry-forward-bounded seed, then send.                                |
-| `src/process/task/WCoreManager.ts` (`start`, `:405-626`)            | Honor a "bounded-reset spawn" flag: seed via `buildResumeSeedTranscript` bounded to the prior step's output instead of the full replay. |
-| `src/process/task/resumeSeed.ts`                                    | (Likely no change — already accepts `{ maxChars, maxMessages }`; may add a helper to slice to the last step.)                           |
-| `src/process/task/agentTypes.ts` (`BuildConversationOptions`)       | Possibly thread the reset/seed-bound flag through build options.                                                                        |
-| Tests                                                               | Extend the files in the table above.                                                                                                    |
+| File | Change |
+|------|--------|
+| `src/process/utils/initBridge.ts` (`sendWorkflowDirective`, `:287`) | For workflow-advance sends: `skipCache: true` respawn + request a carry-forward-bounded seed, then send. |
+| `src/process/task/WCoreManager.ts` (`start`, `:405-626`) | Honor a "bounded-reset spawn" flag: seed via `buildResumeSeedTranscript` bounded to the prior step's output instead of the full replay. |
+| `src/process/task/resumeSeed.ts` | (Likely no change — already accepts `{ maxChars, maxMessages }`; may add a helper to slice to the last step.) |
+| `src/process/task/agentTypes.ts` (`BuildConversationOptions`) | Possibly thread the reset/seed-bound flag through build options. |
+| Tests | Extend the files in the table above. |
 
 Keep it minimal and surgical (AGENTS.md §3). The directive builder, `composeStepContext`, and the
 autonomous path stay unchanged.
 
 ## Don't Hand-Roll
 
-| Problem                                | Don't Build                                          | Use Instead                                                     | Why                                                                                 |
-| -------------------------------------- | ---------------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Dropping accumulated backend context   | A custom "context trimmer" or message-window manager | `getOrBuildTask(id, { skipCache: true })`                       | Existing, prod-used respawn that kills+rebuilds the session cleanly                 |
-| Rebuilding the fresh session's context | A new seed serializer                                | `buildResumeSeedTranscript(..., { maxChars, maxMessages })`     | Already handles text + tool/file-edit history, per-entry caps, malformed-row guards |
-| Injecting the seed into the engine     | A new IPC/protocol call                              | `agent.injectConversationHistory(text)` (`WCoreManager.ts:622`) | Existing `init_history` channel                                                     |
-| Getting the prior deliverable          | A new query                                          | `getLastAgentText` (`initBridge.ts:392`) / DB slice             | Already used by the #123 prose-question guard                                       |
+| Problem | Don't Build | Use Instead | Why |
+|---------|-------------|-------------|-----|
+| Dropping accumulated backend context | A custom "context trimmer" or message-window manager | `getOrBuildTask(id, { skipCache: true })` | Existing, prod-used respawn that kills+rebuilds the session cleanly |
+| Rebuilding the fresh session's context | A new seed serializer | `buildResumeSeedTranscript(..., { maxChars, maxMessages })` | Already handles text + tool/file-edit history, per-entry caps, malformed-row guards |
+| Injecting the seed into the engine | A new IPC/protocol call | `agent.injectConversationHistory(text)` (`WCoreManager.ts:622`) | Existing `init_history` channel |
+| Getting the prior deliverable | A new query | `getLastAgentText` (`initBridge.ts:392`) / DB slice | Already used by the #123 prose-question guard |
 
 ## Common Pitfalls
 
 ### Pitfall 1: Respawn without bounding the seed
-
 **What goes wrong:** `skipCache` respawn alone still hits `WCoreManager.start()`'s `--resume` branch,
 which re-seeds from the DB. The default bound is 60 msgs / 8 KB — better than unbounded, but if the
 last several steps' text fits in that window you have not achieved a true per-step hard reset.
 **Avoid:** thread a tighter, step-scoped seed bound for workflow auto-run.
 
 ### Pitfall 2: ACP backends re-accumulate on respawn via `session/load`
-
 **What goes wrong:** for ACP agents (codex/claude), a respawn resumes the CLI's own session
 (`AcpAgentManager.ts:161-163`) and re-loads its full history — the wcore DB-seed bounding does not
 apply. **Avoid:** for ACP, force a **new** session (not `session/load`) at the reset boundary, or
@@ -324,20 +313,17 @@ scope v1 to the wcore/Flux default (the money-critical path) and file ACP as a f
 explicitly in the plan.
 
 ### Pitfall 3: Respawn latency per step
-
 **What goes wrong:** cold-starting the engine every step adds latency. **Context:** the autonomous
 path already spawns a fresh session per step, and `TeamSessionService` already `skipCache`-rebuilds,
 so the pattern is proven acceptable — but flag it for the live sweep and consider whether the fresh
 session can be warmed before the directive lands.
 
 ### Pitfall 4: Breaking a dependent step by carrying nothing
-
 **What goes wrong:** copying the autonomous path literally (directive-only, zero carry-forward)
 breaks steps that reference the prior result. **Avoid:** carry the immediately-prior step's output
 (the minimal contract above).
 
 ### Pitfall 5: Timing — respawn must complete before the directive send
-
 **What goes wrong:** `getOrBuildTask` returns the task synchronously after `factory.create`, but the
 backend `start()`/bootstrap is async. Sending the directive before the fresh session is ready can
 drop or misorder it. **Avoid:** ensure the fresh session is ready (awaited/handshaked) before
@@ -345,18 +331,18 @@ drop or misorder it. **Avoid:** ensure the fresh session is ready (awaited/hands
 
 ## Assumptions Log
 
-| #   | Claim                                                                                                                                                    | Section   | Risk if Wrong                                                                                                                                                                                   |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A1  | The wcore engine replays its full running session to the model each turn (standard chat-completion semantics), so a live multi-step session grows `O(N)` | Q1 / Q5   | If the engine already caps its own context server-side, the desktop win is smaller — but the desktop reset is still correct and Core-independent. Verify in the live sweep via token telemetry. |
-| A2  | For ACP backends, a `skipCache` respawn resumes the prior CLI session (re-accumulates) unless a new session is forced                                    | Pitfall 2 | If ACP respawn already starts fresh, no extra ACP work is needed. Confirm against `AcpAgentManager` session-id persistence during planning.                                                     |
+| # | Claim | Section | Risk if Wrong |
+|---|-------|---------|---------------|
+| A1 | The wcore engine replays its full running session to the model each turn (standard chat-completion semantics), so a live multi-step session grows `O(N)` | Q1 / Q5 | If the engine already caps its own context server-side, the desktop win is smaller — but the desktop reset is still correct and Core-independent. Verify in the live sweep via token telemetry. |
+| A2 | For ACP backends, a `skipCache` respawn resumes the prior CLI session (re-accumulates) unless a new session is forced | Pitfall 2 | If ACP respawn already starts fresh, no extra ACP work is needed. Confirm against `AcpAgentManager` session-id persistence during planning. |
 
-_All other claims in this document are `[VERIFIED: codebase read at HEAD 57d8dcee6]`._
+*All other claims in this document are `[VERIFIED: codebase read at HEAD 57d8dcee6]`.*
 
 ## Open Questions
 
 1. **Carry-forward granularity** — last assistant turn vs. a step-boundary DB slice?
    - Known: `getLastAgentText` and a tail-bounded `buildResumeSeedTranscript` both work.
-   - Unclear: whether some workflows need the last _two_ deliverables.
+   - Unclear: whether some workflows need the last *two* deliverables.
    - Recommendation: start with the immediately-prior step's output; widen only if the live sweep
      shows a dependent step starving.
 2. **v1 backend scope** — wcore-only or wcore + ACP?
@@ -366,40 +352,35 @@ _All other claims in this document are `[VERIFIED: codebase read at HEAD 57d8dce
 ## Validation Architecture
 
 ### Test Framework
-
-| Property           | Value                                                                                                    |
-| ------------------ | -------------------------------------------------------------------------------------------------------- |
-| Framework          | vitest                                                                                                   |
-| Config file        | `vitest.config.ts` (repo root)                                                                           |
-| Quick run command  | `bun run test:vitest tests/unit/process/services/workflow/parentTurnDriver.test.ts`                      |
+| Property | Value |
+|----------|-------|
+| Framework | vitest |
+| Config file | `vitest.config.ts` (repo root) |
+| Quick run command | `bun run test:vitest tests/unit/process/services/workflow/parentTurnDriver.test.ts` |
 | Full suite command | `bun run test:vitest` (a.k.a. `npm test`, ~2 min; expect the known constitution-flake under parallelism) |
 
 ### Phase Requirements → Test Map
-
-| Req  | Behavior                                                        | Test Type | Automated Command                                                                             | File                                               |
-| ---- | --------------------------------------------------------------- | --------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| #723 | Advance path respawns backend session (`skipCache`) before send | unit      | `bun run test:vitest tests/unit/process/services/workflow/parentTurnDriver.test.ts`           | extend `parentTurnDriver.test.ts`                  |
-| #723 | Step-`N` model-input seed excludes step `1..N-2` content        | unit      | `bun run test:vitest tests/unit/process/task/`                                                | new/extend resumeSeed test                         |
-| #723 | Visible transcript unchanged after N resets                     | unit      | same as above                                                                                 | assert `getConversationMessages` returns all steps |
-| #723 | Directive composition unchanged                                 | unit      | `bun run test:vitest tests/unit/process/services/workflow/workflowContinueRunAdvance.test.ts` | extend                                             |
+| Req | Behavior | Test Type | Automated Command | File |
+|-----|----------|-----------|-------------------|------|
+| #723 | Advance path respawns backend session (`skipCache`) before send | unit | `bun run test:vitest tests/unit/process/services/workflow/parentTurnDriver.test.ts` | extend `parentTurnDriver.test.ts` |
+| #723 | Step-`N` model-input seed excludes step `1..N-2` content | unit | `bun run test:vitest tests/unit/process/task/` | new/extend resumeSeed test |
+| #723 | Visible transcript unchanged after N resets | unit | same as above | assert `getConversationMessages` returns all steps |
+| #723 | Directive composition unchanged | unit | `bun run test:vitest tests/unit/process/services/workflow/workflowContinueRunAdvance.test.ts` | extend |
 
 ### Sampling Rate
-
 - **Per task commit:** the single extended workflow test file.
 - **Per wave merge:** full `bun run test:vitest` + `bun run test:e2e:a11y`.
 - **Phase gate:** full suite green + Sean+Claude live-test on the packaged build.
 
 ### Wave 0 Gaps
-
 - None — existing workflow test infrastructure (`tests/unit/process/services/workflow/*`) and the
   in-memory mock-repo harness cover this phase. New assertions extend existing files.
 
 ## Security Domain
 
 Low surface — no new I/O, no new packages, no new external inputs. One relevant note:
-
 - **V5 Input Validation / prompt-injection:** the carry-forward seed is prior model/agent output
-  re-injected as the fresh session's context. This is the _same_ content the model already produced
+  re-injected as the fresh session's context. This is the *same* content the model already produced
   in the same conversation (no new trust boundary crossed), and `buildResumeSeedTranscript` already
   clips/guards each entry (`resumeSeed.ts:40-42, 146-156`). No new mitigation required, but keep the
   carry-forward sourced from the conversation's own persisted output, never from an unrelated
@@ -408,7 +389,6 @@ Low surface — no new I/O, no new packages, no new external inputs. One relevan
 ## Sources
 
 ### Primary (HIGH confidence)
-
 - Live code at HEAD `57d8dcee6`, worktree `~/dev/wayland-worktrees/desktop-integration`:
   `parentTurnDriver.ts`, `WorkflowSessionService.ts`, `composeStepContext.ts`,
   `dispatchAutonomousStep.ts`, `runDriver.ts`, `conversationBridge.ts`, `initBridge.ts`,
@@ -420,7 +400,6 @@ Low surface — no new I/O, no new packages, no new external inputs. One relevan
 ## Metadata
 
 **Confidence breakdown:**
-
 - Accumulation root cause: HIGH — traced end-to-end with file:line.
 - Reset intervention + Core-independence: HIGH — every seam exists and is prod-used (`skipCache`
   respawn at `TeamSessionService.ts:1624`; DB seed at `WCoreManager.ts:609-626`).
@@ -447,8 +426,8 @@ Low surface — no new I/O, no new packages, no new external inputs. One relevan
   `WCoreManager.start()`, then send. Template = `dispatchAutonomousStep`'s directive-only
   `composeDirective`, applied **in-place on the same `conversation_id`**.
 - **Minimal carry-forward contract:** step `N` keeps only [immediately-prior step's final output]
-  - [the `Proceed to step N…` directive] + [the `composeStepContext` block: current step body +
-    transitions tape]. Not the full `1..N` history, not a rolling summary.
+  + [the `Proceed to step N…` directive] + [the `composeStepContext` block: current step body +
+  transitions tape]. Not the full `1..N` history, not a rolling summary.
 - **Model-input vs visible-transcript separation:** visible = desktop SQLite
   (`getConversationMessages`, directives sent `hidden:true`); model input = backend session re-seeded
   from the DB on spawn (`WCoreManager.ts:609-626`), with ACP replay-suppression (`:1207-1214`)

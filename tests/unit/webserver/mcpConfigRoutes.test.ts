@@ -241,7 +241,10 @@ describe('mcp config routes (W3.D write-only MCP config)', () => {
 
     mockArchive.mockRejectedValueOnce(new Error('archive sk-live-SECRET123456 failed'));
     const archiveRes = makeRes();
-    await captureHandlers()['/api/mcp/archive-configured-server'](makeReq({ body: { serverId: 'srv-1' } }), archiveRes);
+    await captureHandlers()['/api/mcp/archive-configured-server'](
+      makeReq({ body: { serverId: 'srv-1' } }),
+      archiveRes
+    );
     expect(archiveRes._status).toBe(500);
     expect(JSON.stringify(archiveRes._json)).not.toContain('SECRET123456');
 

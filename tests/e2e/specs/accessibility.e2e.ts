@@ -54,10 +54,7 @@ test.describe('accessibility (WCAG 2.x A/AA regression gate)', () => {
   test.afterAll(() => {
     // Not enforced during a baseline (re)record.
     if (isBaselineUpdateRun()) return;
-    expect(
-      scannedCount,
-      'a11y gate scanned zero surfaces — nothing was verified; the app likely failed to render'
-    ).toBeGreaterThan(0);
+    expect(scannedCount, 'a11y gate scanned zero surfaces — nothing was verified; the app likely failed to render').toBeGreaterThan(0);
   });
 
   for (const surface of SURFACES) {
@@ -74,9 +71,7 @@ test.describe('accessibility (WCAG 2.x A/AA regression gate)', () => {
       // DOM and miss a late-rendered violation. Residual limitation: async SPA
       // content (post-fetch lists, lazy modals) may still render after this;
       // the gate covers first-paint state, which is the high-value case.
-      await page
-        .waitForFunction(() => document.readyState === 'complete', undefined, { timeout: 5000 })
-        .catch(() => {});
+      await page.waitForFunction(() => document.readyState === 'complete', undefined, { timeout: 5000 }).catch(() => {});
       const bodyLen = await page.evaluate(() => document.body.textContent?.length ?? 0).catch(() => 0);
       if (!loaded || bodyLen < 50) {
         // A baselined surface has rendered before, so a non-render now is a

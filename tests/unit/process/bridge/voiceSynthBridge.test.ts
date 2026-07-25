@@ -102,7 +102,9 @@ describe('voiceSynthBridge', () => {
   });
 
   it('allows hosted TTS once consent is recorded for openai', async () => {
-    getConfig.mockImplementation(keyAwareConfig({ version: 1, acceptedProviders: ['openai'], updatedAt: 1 }));
+    getConfig.mockImplementation(
+      keyAwareConfig({ version: 1, acceptedProviders: ['openai'], updatedAt: 1 })
+    );
     synthesize.mockResolvedValue({ data: new Uint8Array([9]), mimeType: 'audio/wav' });
     initVoiceSynthBridge();
 

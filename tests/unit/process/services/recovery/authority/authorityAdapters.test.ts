@@ -32,7 +32,8 @@ import {
 
 // A mutable deep copy of the sealed, validated ledger. Every attack starts from
 // a structurally valid ledger and mutates exactly one fact.
-const clone = (): StateAuthorityLedger => JSON.parse(JSON.stringify(STATE_AUTHORITY_LEDGER)) as StateAuthorityLedger;
+const clone = (): StateAuthorityLedger =>
+  JSON.parse(JSON.stringify(STATE_AUTHORITY_LEDGER)) as StateAuthorityLedger;
 
 describe('sealed state-authority ledger', () => {
   it('binds an explicit authority for Core, Gemini, and ACP plus the separate storage authorities', () => {

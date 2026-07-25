@@ -71,15 +71,27 @@
     "teamIdentifier": "52JQX2HUSC",
     "hardenedRuntime": true,
     "secureTimestamp": true,
-    "entitlements": ["com.apple.security.cs.allow-jit"]
+    "entitlements": [
+      "com.apple.security.cs.allow-jit"
+    ]
   },
   "contractProof": {
     "contract": "wayland-officecli-authoring/1.0",
     "release": "v1.0.136"
   },
   "smokeProof": {
-    "formats": ["docx", "xlsx", "pptx"],
-    "operations": ["create", "mutate", "query", "validate", "view"],
+    "formats": [
+      "docx",
+      "xlsx",
+      "pptx"
+    ],
+    "operations": [
+      "create",
+      "mutate",
+      "query",
+      "validate",
+      "view"
+    ],
     "specialistPacks": [
       "officecli-financial-model",
       "officecli-data-dashboard",

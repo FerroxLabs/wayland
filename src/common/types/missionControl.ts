@@ -15,15 +15,7 @@ export type ActivityGroup = 'needs-you' | 'running' | 'upcoming' | 'recent';
 
 /** `unknown` is intentional: absence of authoritative progress is not "running". */
 export type LedgerStatus =
-  | 'running'
-  | 'verifying'
-  | 'pending'
-  | 'blocked'
-  | 'done'
-  | 'failed'
-  | 'zombie'
-  | 'idle'
-  | 'unknown';
+  'running' | 'verifying' | 'pending' | 'blocked' | 'done' | 'failed' | 'zombie' | 'idle' | 'unknown';
 
 export type ActivityDestination = {
   kind: 'navigate';

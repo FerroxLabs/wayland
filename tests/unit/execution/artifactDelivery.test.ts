@@ -30,11 +30,7 @@ const seed: ExecutionSeed = {
   requestedGovernance: { mode: 'trusted-edits', enforceability: 'enforced' },
 };
 
-function validationEvent(
-  sequence: number,
-  validation: ExecutionValidation,
-  receipt?: ExecutionReceipt
-): ExecutionEvent {
+function validationEvent(sequence: number, validation: ExecutionValidation, receipt?: ExecutionReceipt): ExecutionEvent {
   return {
     eventId: `validation-${sequence}`,
     sequence,
@@ -92,15 +88,7 @@ describe('COW-05 type-aware validation and scoped revision', () => {
     const limits = [{ check: 'embedded-chart-render', reason: 'No renderer available in this environment' }];
     const invalid = projectExecution(
       seed,
-      [
-        validationEvent(0, {
-          status: 'invalid',
-          declaredType: 'pdf',
-          method: 'officecli',
-          reason: 'EOF missing',
-          limits,
-        }),
-      ],
+      [validationEvent(0, { status: 'invalid', declaredType: 'pdf', method: 'officecli', reason: 'EOF missing', limits })],
       { now }
     );
     const decision = evaluateArtifactDelivery(invalid, request({ declaredType: 'pdf' }));

@@ -32,14 +32,24 @@
               "const": false
             }
           },
-          "required": ["profile", "reason", "activation", "route_explanations", "cost_claims", "provider_attempts"],
+          "required": [
+            "profile",
+            "reason",
+            "activation",
+            "route_explanations",
+            "cost_claims",
+            "provider_attempts"
+          ],
           "type": "object"
         },
         "features": {
           "additionalProperties": false,
           "properties": {
             "cost": {
-              "enum": ["authoritative_when_priced", "unavailable"]
+              "enum": [
+                "authoritative_when_priced",
+                "unavailable"
+              ]
             },
             "explicit_native_passthrough": {
               "const": true
@@ -48,7 +58,10 @@
               "type": "boolean"
             },
             "latency": {
-              "enum": ["producer_observed_ms", "unavailable"]
+              "enum": [
+                "producer_observed_ms",
+                "unavailable"
+              ]
             },
             "provider_attempts": {
               "type": "boolean"
@@ -84,11 +97,17 @@
               "const": "flux-router"
             }
           },
-          "required": ["name", "baseline_commit"],
+          "required": [
+            "name",
+            "baseline_commit"
+          ],
           "type": "object"
         },
         "reason": {
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "ttl_seconds": {
           "minimum": 1,
@@ -134,7 +153,13 @@
           "type": "string"
         }
       },
-      "required": ["correlation_id", "desktop_task_id", "desktop_turn_id", "backend_spawn_id", "request_id"],
+      "required": [
+        "correlation_id",
+        "desktop_task_id",
+        "desktop_turn_id",
+        "backend_spawn_id",
+        "request_id"
+      ],
       "type": "object"
     },
     "event": {
@@ -248,17 +273,27 @@
                 "additionalProperties": false,
                 "properties": {
                   "replaced_mode": {
-                    "enum": ["explicit_native", "flux_auto"]
+                    "enum": [
+                      "explicit_native",
+                      "flux_auto"
+                    ]
                   },
                   "requested_model": {
                     "minLength": 1,
                     "type": "string"
                   },
                   "route_mode": {
-                    "enum": ["explicit_native", "flux_auto"]
+                    "enum": [
+                      "explicit_native",
+                      "flux_auto"
+                    ]
                   }
                 },
-                "required": ["route_mode", "requested_model", "replaced_mode"],
+                "required": [
+                  "route_mode",
+                  "requested_model",
+                  "replaced_mode"
+                ],
                 "type": "object"
               }
             }
@@ -290,7 +325,11 @@
                     "type": "string"
                   }
                 },
-                "required": ["attempt_id", "provider", "model"],
+                "required": [
+                  "attempt_id",
+                  "provider",
+                  "model"
+                ],
                 "type": "object"
               }
             }
@@ -321,7 +360,11 @@
                     "type": "boolean"
                   }
                 },
-                "required": ["attempt_id", "reason_code", "retryable"],
+                "required": [
+                  "attempt_id",
+                  "reason_code",
+                  "retryable"
+                ],
                 "type": "object"
               }
             }
@@ -353,7 +396,11 @@
                     "type": "integer"
                   }
                 },
-                "required": ["after_attempt_id", "retry_number", "backoff_ms"],
+                "required": [
+                  "after_attempt_id",
+                  "retry_number",
+                  "backoff_ms"
+                ],
                 "type": "object"
               }
             }
@@ -373,10 +420,14 @@
                 "additionalProperties": false,
                 "oneOf": [
                   {
-                    "required": ["from_attempt_id"]
+                    "required": [
+                      "from_attempt_id"
+                    ]
                   },
                   {
-                    "required": ["from_circuit_id"]
+                    "required": [
+                      "from_circuit_id"
+                    ]
                   }
                 ],
                 "properties": {
@@ -401,7 +452,11 @@
                     "type": "string"
                   }
                 },
-                "required": ["provider", "model", "reason_code"],
+                "required": [
+                  "provider",
+                  "model",
+                  "reason_code"
+                ],
                 "type": "object"
               }
             }
@@ -440,7 +495,13 @@
                     "type": "string"
                   }
                 },
-                "required": ["circuit_id", "provider", "model", "degraded", "reason_code"],
+                "required": [
+                  "circuit_id",
+                  "provider",
+                  "model",
+                  "degraded",
+                  "reason_code"
+                ],
                 "type": "object"
               }
             }
@@ -460,13 +521,22 @@
                 "additionalProperties": false,
                 "properties": {
                   "credential_state": {
-                    "enum": ["unknown", "invalid"]
+                    "enum": [
+                      "unknown",
+                      "invalid"
+                    ]
                   },
                   "reason_code": {
-                    "enum": ["disconnected", "invalid_credential"]
+                    "enum": [
+                      "disconnected",
+                      "invalid_credential"
+                    ]
                   }
                 },
-                "required": ["reason_code", "credential_state"],
+                "required": [
+                  "reason_code",
+                  "credential_state"
+                ],
                 "type": "object"
               }
             }
@@ -506,7 +576,13 @@
                         "const": "priced"
                       }
                     },
-                    "required": ["attempt_id", "price_status", "cost_microusd", "currency", "latency_ms"],
+                    "required": [
+                      "attempt_id",
+                      "price_status",
+                      "cost_microusd",
+                      "currency",
+                      "latency_ms"
+                    ],
                     "type": "object"
                   },
                   {
@@ -562,17 +638,27 @@
                 "additionalProperties": false,
                 "properties": {
                   "attempt_id": {
-                    "type": ["string", "null"]
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "outcome": {
-                    "enum": ["success", "failure"]
+                    "enum": [
+                      "success",
+                      "failure"
+                    ]
                   },
                   "reason_code": {
                     "minLength": 1,
                     "type": "string"
                   }
                 },
-                "required": ["outcome", "reason_code", "attempt_id"],
+                "required": [
+                  "outcome",
+                  "reason_code",
+                  "attempt_id"
+                ],
                 "type": "object"
               }
             }
@@ -616,7 +702,15 @@
           "type": "integer"
         }
       },
-      "required": ["contract_version", "event_id", "event_type", "sequence", "emitted_at", "correlation", "evidence"],
+      "required": [
+        "contract_version",
+        "event_id",
+        "event_type",
+        "sequence",
+        "emitted_at",
+        "correlation",
+        "evidence"
+      ],
       "type": "object"
     },
     "fixture": {
@@ -626,10 +720,15 @@
           "if": {
             "properties": {
               "scenario": {
-                "enum": ["disconnected", "invalid-credential"]
+                "enum": [
+                  "disconnected",
+                  "invalid-credential"
+                ]
               }
             },
-            "required": ["scenario"]
+            "required": [
+              "scenario"
+            ]
           },
           "then": {
             "properties": {
@@ -651,7 +750,10 @@
           "type": "array"
         },
         "expected_profile": {
-          "enum": ["flux", "no_flux"]
+          "enum": [
+            "flux",
+            "no_flux"
+          ]
         },
         "fixture_version": {
           "const": 1
@@ -661,7 +763,13 @@
           "type": "string"
         }
       },
-      "required": ["fixture_version", "scenario", "expected_profile", "correlation", "events"],
+      "required": [
+        "fixture_version",
+        "scenario",
+        "expected_profile",
+        "correlation",
+        "events"
+      ],
       "type": "object"
     }
   },

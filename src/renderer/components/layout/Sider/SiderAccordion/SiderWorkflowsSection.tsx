@@ -120,8 +120,7 @@ export const SiderWorkflowsSection: React.FC<SiderWorkflowsSectionProps> = ({ co
       Modal.confirm({
         title: t('workflow.delete.title', { defaultValue: 'Stop workflow?' }),
         content: t('workflow.delete.confirm', {
-          defaultValue:
-            'This stops the workflow and removes it from the active list. Its plan, chat, outputs, and files are kept.',
+          defaultValue: 'This stops the workflow and removes it from the active list. Its plan, chat, outputs, and files are kept.',
         }),
         okText: t('workflow.delete.stop', { defaultValue: 'Stop workflow' }),
         cancelText: t('common.cancel', { defaultValue: 'Cancel' }),

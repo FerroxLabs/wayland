@@ -178,10 +178,9 @@ function makeManager(conversationId = 'conv-resume') {
 
 /** Invoke the private handleStreamEvent on a manager. */
 function streamEvent(manager: AcpAgentManager, message: IResponseMessage, backend: AcpBackend = 'claude') {
-  return (manager as unknown as { handleStreamEvent: (m: IResponseMessage, b: AcpBackend) => void }).handleStreamEvent(
-    message,
-    backend
-  );
+  return (
+    manager as unknown as { handleStreamEvent: (m: IResponseMessage, b: AcpBackend) => void }
+  ).handleStreamEvent(message, backend);
 }
 
 function setBootstrapping(manager: AcpAgentManager, value: boolean) {

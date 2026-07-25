@@ -14,13 +14,11 @@ Sweep driver: `scratchpad/sweep-cockpit.mjs` (connect Flux → activate Cockpit 
 the human work-tracking unit; a SUMMARY is written when a packet is live-test-accepted.
 
 ## Waves
-
 - **Wave A — Package & matched-engine smoke** (BLOCKING, release-adjacent, do WITH Sean): A-01, A-02, A-03.
 - **Wave B — Trust/quality floor** (BLOCKING for an honest preview): B-01, B-02.
 - **Wave C — Hygiene** (non-blocking, tracked as a checklist in STATE.md, not packets).
 
 ## Guardrails
-
 LOCAL only — no push/merge/release/deploy without Sean. Never touch `/Users/seandonahoe/dev/wayland/app`.
 Independent audit + full suite (`bun run test:vitest`) before every commit. `electron .` loads the BUILT
 `out/renderer` — run `bun run package` (~25s) after source edits before a sweep reflects them.

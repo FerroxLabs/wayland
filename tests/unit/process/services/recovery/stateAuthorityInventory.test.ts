@@ -3,7 +3,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { inventoryRecoveryAuthorities } from '@process/services/recovery/stateAuthorityInventory';
-import { evaluateRecoveryDryRun, type RecoveryCaptureCapabilities } from '@process/services/recovery/recoveryDryRun';
+import {
+  evaluateRecoveryDryRun,
+  type RecoveryCaptureCapabilities,
+} from '@process/services/recovery/recoveryDryRun';
 
 const allCapabilities: RecoveryCaptureCapabilities = {
   sqliteOnlineBackup: true,

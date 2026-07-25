@@ -638,33 +638,34 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
               : t('onboarding.flow.scan.subScanning')}
           </p>
 
-          {!scanDone && (
-            <div className={styles.scanwrap}>
-              <div className={styles.radar}>
-                <span className={styles.radarCore}>
-                  <Search size={26} />
-                </span>
-              </div>
-              <div className={styles.scanlog}>{t(SCAN_LINE_KEYS[scanLog])}</div>
+        {!scanDone && (
+          <div className={styles.scanwrap}>
+            <div className={styles.radar}>
+              <span className={styles.radarCore}>
+                <Search size={26} />
+              </span>
             </div>
-          )}
+            <div className={styles.scanlog}>{t(SCAN_LINE_KEYS[scanLog])}</div>
+          </div>
+        )}
 
-          {scanDone && !noFindings && (
-            <div className={`${styles.block} ${styles.twocol}`}>
-              {agentChips.length > 0 && (
-                <div className={styles.col}>
-                  <p className={styles.groupLabel}>{t('onboarding.flow.scan.groupAgents')}</p>
-                  <div className={styles.chips}>{agentChips.map(renderChip)}</div>
-                </div>
-              )}
-              {modelChips.length > 0 && (
-                <div className={styles.col}>
-                  <p className={styles.groupLabel}>{t('onboarding.flow.scan.groupModels')}</p>
-                  <div className={styles.chips}>{modelChips.map(renderChip)}</div>
-                </div>
-              )}
-            </div>
-          )}
+        {scanDone && !noFindings && (
+          <div className={`${styles.block} ${styles.twocol}`}>
+            {agentChips.length > 0 && (
+              <div className={styles.col}>
+                <p className={styles.groupLabel}>{t('onboarding.flow.scan.groupAgents')}</p>
+                <div className={styles.chips}>{agentChips.map(renderChip)}</div>
+              </div>
+            )}
+            {modelChips.length > 0 && (
+              <div className={styles.col}>
+                <p className={styles.groupLabel}>{t('onboarding.flow.scan.groupModels')}</p>
+                <div className={styles.chips}>{modelChips.map(renderChip)}</div>
+              </div>
+            )}
+          </div>
+        )}
+
         </div>
 
         {scanDone && (

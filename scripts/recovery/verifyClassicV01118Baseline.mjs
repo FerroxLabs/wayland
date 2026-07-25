@@ -32,15 +32,7 @@ const FIXTURE_PATH = path.join(CONTRACTS, 'classic-v0.11.18-provider-fixture.jso
 export const EXPECTED_BASELINE_DIGEST = '5204526ac93579e68b5c898d52627216aae85d0af45de9b9896d423db56a3034';
 export const EXPECTED_PROVIDER_FIXTURE_DIGEST = '4951e5e0c241a519e893741002e1edeaf09d3a63455796f03e266a5c6e73fcb6';
 
-const QUARANTINE_FIELDS = [
-  'failure',
-  'command',
-  'owner',
-  'expiry',
-  'affectedTarget',
-  'affectedJourney',
-  'excludesClaim',
-];
+const QUARANTINE_FIELDS = ['failure', 'command', 'owner', 'expiry', 'affectedTarget', 'affectedJourney', 'excludesClaim'];
 const ISO_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?Z$/;
 
 /** Stable canonical serialization: sort object keys by codepoint, recurse. */
@@ -58,9 +50,7 @@ export function canonicalize(value) {
 
 /** Hash of the stable canonical serialization. */
 export function canonicalDigest(value) {
-  return createHash('sha256')
-    .update(JSON.stringify(canonicalize(value)))
-    .digest('hex');
+  return createHash('sha256').update(JSON.stringify(canonicalize(value))).digest('hex');
 }
 
 function readJson(filePath) {
@@ -154,7 +144,9 @@ export function runJourneyBaselineVerification({ candidates, quarantines = [], n
   if (!Array.isArray(candidates)) throw new Error('Verification candidates must be an array.');
   const knownJourneys = integrity.journeys;
 
-  const validatedQuarantines = quarantines.map((record) => validateQuarantineRecord(record, { knownJourneys, nowMs }));
+  const validatedQuarantines = quarantines.map((record) =>
+    validateQuarantineRecord(record, { knownJourneys, nowMs })
+  );
   const quarantinedJourneys = new Set();
   for (const record of validatedQuarantines) {
     if (quarantinedJourneys.has(record.affectedJourney)) {

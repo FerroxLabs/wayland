@@ -84,7 +84,6 @@ signals:
     domain: content
     name: post-rewrite
 ---
-
 ## Coordination (READ EVERY TASK — multi-agent blackboard)
 
 You are the **desktop** lane (area label **area:desktop-ui**). Coordination state lives on GitHub
@@ -317,13 +316,9 @@ All user-facing text must use i18n keys - never hardcode strings. Languages and 
 See the `i18n` skill (`.claude/skills/i18n/SKILL.md`) for complete workflow, key naming, and validation steps.
 
 <!-- IJFW-MEMORY-START -->
-
 Project memory at .ijfw/memory/. Call `ijfw_memory_prelude` for full context.
-
 <!-- IJFW-MEMORY-END -->
 
 <!-- IJFW-AGENTS-START -->
-
 No project agents yet. Run `ijfw team` to set them up.
-
 <!-- IJFW-AGENTS-END -->

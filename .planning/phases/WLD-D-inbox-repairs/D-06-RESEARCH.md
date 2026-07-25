@@ -32,14 +32,12 @@ accessible label, and the only product-vocabulary decision needing Sean's nod is
 Chats".
 
 <user_constraints>
-
 ## User Constraints (from D-CONTEXT.md + HANDOFF)
 
 > There is no separate `CONTEXT.md` for D5; `D-CONTEXT.md` is the milestone-wide context and its
 > guardrails are the locked constraints for this packet.
 
 ### Locked Decisions / Guardrails
-
 - **LOCAL only** — no push/merge/release/PR without Sean. Never touch
   `/Users/seandonahoe/dev/wayland/app`. Work in
   `/Users/seandonahoe/dev/wayland-worktrees/desktop-integration` on branch
@@ -62,42 +60,38 @@ Chats".
   voice, zero em dashes, no backticks in comment bodies, signed "All the best, The Wayland Team".
 
 ### Claude's Discretion
-
 - Exact visual treatment of each secondary label (separator vs. subtitle, muted color token).
 - Whether the #508 pill hides when no budget is configured (recommended) vs. shows month-to-date
   spend.
 - Test file layout (new file vs. extend an existing DOM test) within the established patterns.
 
 ### Deferred / Out of Scope
-
 - Any Core-gated behavior (SBX-02 wiring, COW-04 live citations). Not touched here.
 - Renaming "Chat" → "Conversation" globally (the inverse of the #910(b) recommendation) — rejected
   as a large, core-CTA-touching change.
 - Fixing the pre-existing a11y debt on `AgentBadge` (clickable `div` with no role/tabindex) beyond
   preserving its current accessible content — out of scope for these clarity fixes.
-  </user_constraints>
+</user_constraints>
 
 <phase_requirements>
-
 ## Phase Requirements
 
-| ID   | Description                                                     | Research Support                                                                                                                                                                                                                                                                                           |
-| ---- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | -------------------------------------------------------------------------------------------------------------------------------- |
-| #909 | Runtime not visible: header pill shows assistant, hides runtime | Root cause at `AgentBadge.tsx:76` (single-line `agentName                                                                                                                                                                                                                                                  |     | backend`); runtime already threaded as `backend:'wcore'`from`ChatConversation.tsx:262`. Fix = render runtime as secondary label. |
-| #910 | Label alignment: pin↔Star, Chats↔Conversations                  | pin/star outlier isolated to Conversations page (`ConversationMenu.tsx:46-47`, `ConversationsListPage.tsx:343`, `ConversationRow.tsx:71,95,98`, `ResumeCard.tsx:68`); reusable translated keys `conversation.history.pin/unpin/pinnedSection` confirmed. "Conversations" labels are English-only defaults. |
-| #508 | Compact spend indicator on top bar                              | Cost UI confirmed built; data source `ipcBridge.cost.listBudgets`→`BudgetStatus{spentUsd,limitUsd,period,scope}`; helpers `budgetSeverity`/`budgetFraction`/`formatUsd` exist; insertion point `Titlebar/index.tsx`.                                                                                       |
-| #882 | Project name on conversation tabs                               | `ConversationTab` interface lacks `projectId`; source is `conversation.extra.projectId`; name via `useProjects()`; render point `ConversationTabView` (`ConversationTabs.tsx:81`).                                                                                                                         |
-
+| ID | Description | Research Support |
+|----|-------------|------------------|
+| #909 | Runtime not visible: header pill shows assistant, hides runtime | Root cause at `AgentBadge.tsx:76` (single-line `agentName || backend`); runtime already threaded as `backend:'wcore'` from `ChatConversation.tsx:262`. Fix = render runtime as secondary label. |
+| #910 | Label alignment: pin↔Star, Chats↔Conversations | pin/star outlier isolated to Conversations page (`ConversationMenu.tsx:46-47`, `ConversationsListPage.tsx:343`, `ConversationRow.tsx:71,95,98`, `ResumeCard.tsx:68`); reusable translated keys `conversation.history.pin/unpin/pinnedSection` confirmed. "Conversations" labels are English-only defaults. |
+| #508 | Compact spend indicator on top bar | Cost UI confirmed built; data source `ipcBridge.cost.listBudgets`→`BudgetStatus{spentUsd,limitUsd,period,scope}`; helpers `budgetSeverity`/`budgetFraction`/`formatUsd` exist; insertion point `Titlebar/index.tsx`. |
+| #882 | Project name on conversation tabs | `ConversationTab` interface lacks `projectId`; source is `conversation.extra.projectId`; name via `useProjects()`; render point `ConversationTabView` (`ConversationTabs.tsx:81`). |
 </phase_requirements>
 
 ## Architectural Responsibility Map
 
-| Capability                        | Primary Tier                        | Secondary Tier                         | Rationale                                                  |
-| --------------------------------- | ----------------------------------- | -------------------------------------- | ---------------------------------------------------------- |
-| #909 runtime label in chat header | Browser / Renderer                  | —                                      | Pure presentation; `backend` already in props              |
-| #910 vocabulary alignment         | Browser / Renderer (i18n resources) | —                                      | Display strings + icons only                               |
-| #508 compact spend pill           | Browser / Renderer                  | API (existing `cost.*` IPC, read-only) | Reads existing remote-denied cost providers; no new IPC    |
-| #882 project label on tabs        | Browser / Renderer                  | —                                      | Derives from `conversation.extra.projectId` already loaded |
+| Capability | Primary Tier | Secondary Tier | Rationale |
+|------------|-------------|----------------|-----------|
+| #909 runtime label in chat header | Browser / Renderer | — | Pure presentation; `backend` already in props |
+| #910 vocabulary alignment | Browser / Renderer (i18n resources) | — | Display strings + icons only |
+| #508 compact spend pill | Browser / Renderer | API (existing `cost.*` IPC, read-only) | Reads existing remote-denied cost providers; no new IPC |
+| #882 project label on tabs | Browser / Renderer | — | Derives from `conversation.extra.projectId` already loaded |
 
 All four sit entirely in the renderer. #508's only cross-tier touch is reading the already-shipped,
 already-allowlisted `cost.listBudgets` provider — no process/main changes.
@@ -106,15 +100,15 @@ already-allowlisted `cost.listBudgets` provider — no process/main changes.
 
 No new dependencies. Everything uses in-repo modules already imported by neighboring components.
 
-| Module                                                                            | Purpose                      | Already imported by                      |
-| --------------------------------------------------------------------------------- | ---------------------------- | ---------------------------------------- |
-| `react-i18next` `useTranslation`                                                  | translated labels            | every touched component                  |
-| `lucide-react` (`Pin`, `PinOff`, `FolderKanban`/`Folder`)                         | icons                        | ConversationMenu, ConversationRow        |
-| `@/renderer/pages/projects/hooks/useProjects`                                     | project id→name lookup       | ConversationsListPage (existing pattern) |
-| `@/common` `ipcBridge` (`cost.listBudgets`, `cost.budgetAlert`)                   | budget data                  | BudgetsPanel                             |
-| `budgetSeverity` / `budgetFraction` (`mission-control/cost/costChart.ts:109,120`) | severity tier + bar fraction | BudgetsPanel, BudgetBar                  |
-| `formatUsd` (`@/renderer/utils/format/tokens.ts:35`)                              | `$` formatting               | all cost components                      |
-| `BudgetBar` (`mission-control/cost/BudgetBar.tsx`)                                | optional compact bar         | reusable                                 |
+| Module | Purpose | Already imported by |
+|--------|---------|---------------------|
+| `react-i18next` `useTranslation` | translated labels | every touched component |
+| `lucide-react` (`Pin`, `PinOff`, `FolderKanban`/`Folder`) | icons | ConversationMenu, ConversationRow |
+| `@/renderer/pages/projects/hooks/useProjects` | project id→name lookup | ConversationsListPage (existing pattern) |
+| `@/common` `ipcBridge` (`cost.listBudgets`, `cost.budgetAlert`) | budget data | BudgetsPanel |
+| `budgetSeverity` / `budgetFraction` (`mission-control/cost/costChart.ts:109,120`) | severity tier + bar fraction | BudgetsPanel, BudgetBar |
+| `formatUsd` (`@/renderer/utils/format/tokens.ts:35`) | `$` formatting | all cost components |
+| `BudgetBar` (`mission-control/cost/BudgetBar.tsx`) | optional compact bar | reusable |
 
 **Installation:** none.
 
@@ -124,7 +118,7 @@ N/A — no external packages installed. Node builtins + in-repo modules only.
 
 ## Per-Issue Root Cause + Minimal Fix
 
-### #909 — Runtime pill shows assistant, hides runtime [VERIFIED: codebase]
+### #909 — Runtime pill shows assistant, hides runtime  [VERIFIED: codebase]
 
 **Confirmed render path (the pill the reporter sees):** a `wcore` "Concierge" chat renders via the
 local `WCoreConversationPanel` (`ChatConversation.tsx:221`, dispatched at `:578-579`), NOT the
@@ -133,7 +127,6 @@ generic ChatLayout at the bottom of the file. The upper-right pill is `AgentBadg
 at `ChatLayout/index.tsx:274-282`.
 
 **Data source for each label — both already present at the badge:**
-
 - Assistant name: `presetAssistant?.name` = "Concierge", from
   `usePresetAssistantInfo(conversation)` (`ChatConversation.tsx:241,263`).
 - Runtime: `backend: 'wcore'` is passed **unconditionally** (`ChatConversation.tsx:262`). ChatLayout
@@ -147,10 +140,9 @@ one line: `{agentName || backend}` → "Concierge". "Wayland Core" is never show
 loaded. Exactly the reporter's complaint.
 
 **Minimal fix (2 files, display-only):**
-
 1. In `ChatLayout/index.tsx`, compute a `runtimeName` from `backend` using the existing friendly
    resolver chain (`NON_ACP_BACKEND_DISPLAY_NAMES[backend] || ACP_BACKENDS_ALL[backend]?.name ||
-backend`). Pass it to `AgentBadge` as a new optional `runtimeName` prop.
+   backend`). Pass it to `AgentBadge` as a new optional `runtimeName` prop.
 2. In `AgentBadge.tsx`, when `runtimeName` is present AND differs from `agentName`
    (case-insensitive), render it as a muted secondary span inside the same pill (e.g.
    `Concierge` + muted `Wayland Core`, or `Concierge · Wayland Core`). When they are equal (a raw
@@ -162,11 +154,11 @@ the assistant-name precedence (assistants still lead). The badge remains clickab
 when `assistantId` is set.
 
 **a11y:** set the badge's accessible name to include both, e.g. `aria-label={runtimeName &&
-runtimeName !== agentName ? \`${agentName} on ${runtimeName}\` : agentName}`so a screen reader hears
-the runtime. Keep`data-testid='agent-badge'`; add `data-testid='agent-badge-runtime'` on the new
+runtimeName !== agentName ? \`${agentName} on ${runtimeName}\` : agentName}` so a screen reader hears
+the runtime. Keep `data-testid='agent-badge'`; add `data-testid='agent-badge-runtime'` on the new
 span for testability. Do NOT expand scope to fix the pre-existing "clickable div, no role" debt.
 
-### #910 — Label alignment [VERIFIED: codebase + i18n]
+### #910 — Label alignment  [VERIFIED: codebase + i18n]
 
 Two independent inconsistencies. **Critical i18n finding:** the `conversations.*` namespace used by
 the Conversations page is **English-only** — there is **no `conversations.json` locale file** (only
@@ -177,7 +169,6 @@ touches no other locale and creates no drift. [VERIFIED: `find … -name convers
 #### (a) pin vs. "Star" — DECISION: **"Pin" wins**
 
 Evidence that "Pin" predominates and is the source of truth:
-
 - Data model: `isConversationPinned`, `getConversationPinnedAt`, `togglePin`, `pinnedAt` — all "pin".
 - Icons: `Pin`/`PinOff` (lucide) on the conversations context menu (`ConversationMenu.tsx:8,43`) and
   project workspace menu (`ProjectWorkspacePage.tsx:349-350`).
@@ -190,13 +181,13 @@ Evidence that "Pin" predominates and is the source of truth:
 Align the Conversations page to "Pin" by **reusing the existing translated keys** (satisfies the
 D-04 lesson — no new strings, translations already exist in all locales):
 
-| File:line                        | Today                                                 | Change to (reuse translated key)                                        |
-| -------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------- |
-| `ConversationMenu.tsx:46-47`     | `conversations.menu.unstar`/`.star` → "Unstar"/"Star" | `conversation.history.unpin`/`conversation.history.pin` ("Unpin"/"Pin") |
-| `ConversationsListPage.tsx:343`  | `conversations.group.starred` → "Starred"             | `conversation.history.pinnedSection` ("Pinned")                         |
-| `ConversationRow.tsx:95`         | aria `pinned ? 'Unstar' : 'Star'`                     | "Unpin"/"Pin"                                                           |
-| `ConversationRow.tsx:71,98` icon | `Star` (lucide)                                       | `Pin`/`PinOff` to match the menu                                        |
-| `ResumeCard.tsx:68` icon         | `Star`                                                | `Pin`                                                                   |
+| File:line | Today | Change to (reuse translated key) |
+|-----------|-------|----------------------------------|
+| `ConversationMenu.tsx:46-47` | `conversations.menu.unstar`/`.star` → "Unstar"/"Star" | `conversation.history.unpin`/`conversation.history.pin` ("Unpin"/"Pin") |
+| `ConversationsListPage.tsx:343` | `conversations.group.starred` → "Starred" | `conversation.history.pinnedSection` ("Pinned") |
+| `ConversationRow.tsx:95` | aria `pinned ? 'Unstar' : 'Star'` | "Unpin"/"Pin" |
+| `ConversationRow.tsx:71,98` icon | `Star` (lucide) | `Pin`/`PinOff` to match the menu |
+| `ResumeCard.tsx:68` icon | `Star` | `Pin` |
 
 Icon swap is included so the vocabulary is consistent visually as well as textually (the reporter's
 core complaint is the same action wearing two names). Keep it minimal — only these files.
@@ -206,7 +197,6 @@ core complaint is the same action wearing two names). Keep it minimal — only t
 The unit is a **"Chat"** everywhere the user creates or reads one: "New Chat"
 (`conversations.list.newButton`), "Recent Chats", "chat history", "No chat history", "Every chat and
 session" (`conversations.list.subtitle`). Only the **aggregation** is named "Conversations":
-
 - Sider nav entry: `navItems.tsx` `labelKey:'conversations.siderEntry'`, `defaultLabel:'Conversations'`.
 - Page H1: `conversations.list.title` → "Conversations" (`ConversationsListPage.tsx`).
 
@@ -223,7 +213,7 @@ aggregates") plus the app's own predominant "Chat" vocabulary make **"Chats"** t
   Sean+Claude anyway). If Sean prefers keeping "Conversations", drop only #910(b); #910(a) stands
   independently.
 
-### #508 — Compact spend indicator on the top bar [VERIFIED: codebase]
+### #508 — Compact spend indicator on the top bar  [VERIFIED: codebase]
 
 **Confirmed already built (do NOT rebuild):** `src/renderer/pages/mission-control/cost/` ships
 `CostTab`, `BudgetsPanel`, `CostBreakdown`, `BudgetBar`, `CostTrend`, `useCostAnalytics`;
@@ -243,9 +233,8 @@ period). Subscribe to `ipcBridge.cost.budgetAlert` (`:3057`) or SWR-poll (Budget
 freshness.
 
 **Minimal addition:** a small `SpendPill.tsx` in `Titlebar/`:
-
 - Read `listBudgets`; pick the **global** budget (default seed is `{scope:'global', limitUsd:10,
-period:'month', action:'warn'}` per `BudgetsPanel.tsx`), prefer `period:'month'`.
+  period:'month', action:'warn'}` per `BudgetsPanel.tsx`), prefer `period:'month'`.
 - Render `formatUsd(spentUsd) / formatUsd(limitUsd)` with severity color via
   `budgetSeverity(spentUsd, limitUsd)` (`costChart.ts:120`) — reuse `Cost.module.css` bar classes or
   a colored dot; optionally a mini `BudgetBar fraction={budgetFraction(spentUsd,limitUsd)}`.
@@ -261,7 +250,7 @@ existing `missionControl.cost.*` translated key if one fits, else add under that
 namespace and flag the locale files, or use an English `defaultValue` aria-label. Recommend reusing a
 `missionControl.cost.*` key.
 
-### #882 — Project label on conversation tabs (LOWEST priority) [VERIFIED: codebase]
+### #882 — Project label on conversation tabs (LOWEST priority)  [VERIFIED: codebase]
 
 `ConversationTabs.tsx` renders `tab.name` only: `ConversationTabView` at `:81`
 (`<span …>{tabName}</span>`), fed from `openTabs.map(... tabName={tab.name})` at `:602-606`.
@@ -274,7 +263,6 @@ projectId**. The source of truth is `conversation.extra.projectId` (same accesso
 (`pages/projects/hooks/useProjects`) returns `projects` with names.
 
 **Minimal fix (touches the context interface + builder + view + one lookup):**
-
 1. Add `projectId?: string` to `ConversationTab` (`ConversationTabsContext.tsx:15`).
 2. Populate it in `openTabImpl` (`:131-136`) from `(conversation.extra as {projectId?:string})?.projectId`.
    (Persisted tabs restored from localStorage lack it until reopened — acceptable graceful
@@ -315,7 +303,6 @@ tab's existing hover `title`. No new interactive element, no role/name change.
 ```
 
 ### Recommended structure (files touched)
-
 ```
 src/renderer/
 ├── components/agent/AgentBadge.tsx            # #909 render runtime secondary
@@ -335,50 +322,45 @@ src/renderer/
 ```
 
 ### Anti-patterns to avoid
-
 - **#508:** do NOT add a new IPC or a second cost store; `listBudgets` already carries spend+limit.
   Do NOT pull in `useCostAnalytics` for a compact pill (6 IPCs, wrong default period).
-- **#909:** do NOT change the assistant-name precedence or invent a runtime _selector_ — the issue
+- **#909:** do NOT change the assistant-name precedence or invent a runtime *selector* — the issue
   asks for **visibility**, not a new control. A picker is scope creep.
 - **#910:** do NOT add new English-only `conversations.*` keys when translated `conversation.history.*`
   equivalents exist. Do NOT chase every "Conversation" string app-wide — only the two aggregation
   labels.
-- **#882:** do NOT persist project _names_ on tabs (names change/rename) — store `projectId`, resolve
+- **#882:** do NOT persist project *names* on tabs (names change/rename) — store `projectId`, resolve
   the name at render.
 
 ## Don't Hand-Roll
 
-| Problem                    | Don't build       | Use instead                                                         | Why                                          |
-| -------------------------- | ----------------- | ------------------------------------------------------------------- | -------------------------------------------- |
-| Budget severity / fraction | custom thresholds | `budgetSeverity`/`budgetFraction` (`costChart.ts`)                  | Already the app's tiers (≥1 over, ≥0.8 warn) |
-| `$` formatting             | `toFixed`         | `formatUsd` (`utils/format/tokens.ts:35`)                           | Consistent currency format                   |
-| Runtime friendly name      | new map           | `NON_ACP_BACKEND_DISPLAY_NAMES` + `ACP_BACKENDS_ALL` (`ChatLayout`) | wcore→"Wayland Core" already defined         |
-| Pin/Unpin labels           | new strings       | `conversation.history.pin/unpin/pinnedSection`                      | Translated in all locales                    |
-| Project name lookup        | new IPC           | `useProjects()`                                                     | Existing hook, already cached                |
+| Problem | Don't build | Use instead | Why |
+|---------|-------------|-------------|-----|
+| Budget severity / fraction | custom thresholds | `budgetSeverity`/`budgetFraction` (`costChart.ts`) | Already the app's tiers (≥1 over, ≥0.8 warn) |
+| `$` formatting | `toFixed` | `formatUsd` (`utils/format/tokens.ts:35`) | Consistent currency format |
+| Runtime friendly name | new map | `NON_ACP_BACKEND_DISPLAY_NAMES` + `ACP_BACKENDS_ALL` (`ChatLayout`) | wcore→"Wayland Core" already defined |
+| Pin/Unpin labels | new strings | `conversation.history.pin/unpin/pinnedSection` | Translated in all locales |
+| Project name lookup | new IPC | `useProjects()` | Existing hook, already cached |
 
 ## Common Pitfalls
 
 ### Pitfall 1: #909 fixed in the wrong ChatLayout
-
 The bottom-of-file generic ChatLayout (`ChatConversation.tsx:714`) is NOT the path for a wcore
 Concierge chat — that dispatches to `WCoreConversationPanel` at `:578`. The badge lives in
 `ChatLayout/index.tsx` (shared), fed by `WCoreConversationPanel`'s props. Fix in `ChatLayout` +
 `AgentBadge`, verify with a wcore chat.
 
 ### Pitfall 2: #910 "Star" text vs Pin icon inconsistency looks like two bugs
-
 The Conversations context menu already renders the **Pin icon** with **"Star" text**. Aligning text
 to "Pin" without swapping the `ConversationRow`/`ResumeCard` `Star` icons would leave the list rows
 starred while menus say Pin. Do the text AND the icon in the same pass.
 
 ### Pitfall 3: #882 persisted tabs
-
 Tabs are restored from localStorage (`ConversationTabsContext.tsx:67-`). Pre-existing tabs won't have
 `projectId` until reopened; the label simply won't show for them. Acceptable; do not write a
 migration. New/reopened tabs get the label.
 
 ### Pitfall 4: #508 a11y button-name gate
-
 A clickable pill that isn't a `<button>` with an `aria-label` will fail the `button-name` axe rule
 in `bun run test:e2e:a11y`. Use a real button with a label from the start.
 
@@ -391,12 +373,12 @@ touched is `STORAGE_KEYS.CONVERSATION_TABS` (localStorage), which tolerates the 
 
 ## Assumptions Log
 
-| #   | Claim                                                                             | Section | Risk if wrong                                                                         |
-| --- | --------------------------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------- |
-| A1  | "Pin" is the desired winning term for #910(a)                                     | #910(a) | Low — data model + majority + icons all say pin; reversible                           |
-| A2  | "Chats" is the desired aggregation name for #910(b)                               | #910(b) | Medium — product-vocab call; flagged for Sean's ratify; drop #910(b) only if rejected |
-| A3  | Hiding the #508 pill when no budget is configured is acceptable                   | #508    | Low — discretion; alt is month-to-date spend                                          |
-| A4  | Showing runtime as an inline muted suffix (not a two-line subtitle) fits the pill | #909    | Low — visual discretion; both fit                                                     |
+| # | Claim | Section | Risk if wrong |
+|---|-------|---------|---------------|
+| A1 | "Pin" is the desired winning term for #910(a) | #910(a) | Low — data model + majority + icons all say pin; reversible |
+| A2 | "Chats" is the desired aggregation name for #910(b) | #910(b) | Medium — product-vocab call; flagged for Sean's ratify; drop #910(b) only if rejected |
+| A3 | Hiding the #508 pill when no budget is configured is acceptable | #508 | Low — discretion; alt is month-to-date spend |
+| A4 | Showing runtime as an inline muted suffix (not a two-line subtitle) fits the pill | #909 | Low — visual discretion; both fit |
 
 ## Open Questions
 
@@ -416,35 +398,31 @@ in-repo and confirmed registered + allowlisted (`ipcBridge.ts:3018,3055,3057`;
 ## Validation Architecture
 
 ### Test Framework
-
-| Property    | Value                                                                                 |
-| ----------- | ------------------------------------------------------------------------------------- |
-| Framework   | Vitest (jsdom) for `*.dom.test.tsx`; Playwright + axe for the a11y gate               |
-| Config file | `vitest.config.*` (present); `playwright.config.ts`                                   |
-| Quick run   | `bun run test:vitest <pattern>` (alias `vitest run`)                                  |
-| Full suite  | `npm test` (`bun run test:vitest && bun run test:bun`)                                |
-| a11y gate   | `bun run test:e2e:a11y` (`tests/e2e/specs/accessibility.e2e.ts`, baseline in `a11y/`) |
+| Property | Value |
+|----------|-------|
+| Framework | Vitest (jsdom) for `*.dom.test.tsx`; Playwright + axe for the a11y gate |
+| Config file | `vitest.config.*` (present); `playwright.config.ts` |
+| Quick run | `bun run test:vitest <pattern>` (alias `vitest run`) |
+| Full suite | `npm test` (`bun run test:vitest && bun run test:bun`) |
+| a11y gate | `bun run test:e2e:a11y` (`tests/e2e/specs/accessibility.e2e.ts`, baseline in `a11y/`) |
 
 ### Phase Requirements → Test Map
-
-| Issue | Behavior                                                                                        | Type     | Command                                            | File                                                                                                                                                   |
-| ----- | ----------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| #909  | badge shows both assistant + runtime; no dup when equal                                         | unit/DOM | `bun run test:vitest AgentBadge`                   | ❌ Wave 0 — new `tests/unit/renderer/agent/AgentBadge.dom.test.tsx` (no existing AgentBadge test)                                                      |
-| #910a | group renders "Pinned"; menu renders "Pin"/"Unpin"; row uses Pin icon                           | unit/DOM | `bun run test:vitest conversationVocabulary`       | ❌ Wave 0 — new `tests/unit/renderer/conversations/conversationVocabulary.dom.test.tsx`                                                                |
-| #910b | list title + sider label render "Chats"                                                         | unit/DOM | same file                                          | ❌ Wave 0 — same new file                                                                                                                              |
-| #508  | pill renders `$spent / $limit` + severity for a mocked global budget; renders nothing when none | unit/DOM | `bun run test:vitest spendPill`                    | ❌ Wave 0 — new `tests/unit/renderer/titlebar/spendPill.dom.test.tsx` (mock `ipcBridge.cost.listBudgets`)                                              |
-| #882  | tab with `extra.projectId` renders resolved project name; none without                          | unit/DOM | `bun run test:vitest conversationTabsProjectLabel` | ⚠️ extend pattern from `tests/unit/renderer/conversationTabsClose.dom.test.tsx`; new `…conversationTabsProjectLabel.dom.test.tsx` (mock `useProjects`) |
-| all   | no new axe violations (esp. #508 `button-name`, #909 accessible name)                           | e2e/a11y | `bun run test:e2e:a11y`                            | existing `accessibility.e2e.ts`                                                                                                                        |
+| Issue | Behavior | Type | Command | File |
+|-------|----------|------|---------|------|
+| #909 | badge shows both assistant + runtime; no dup when equal | unit/DOM | `bun run test:vitest AgentBadge` | ❌ Wave 0 — new `tests/unit/renderer/agent/AgentBadge.dom.test.tsx` (no existing AgentBadge test) |
+| #910a | group renders "Pinned"; menu renders "Pin"/"Unpin"; row uses Pin icon | unit/DOM | `bun run test:vitest conversationVocabulary` | ❌ Wave 0 — new `tests/unit/renderer/conversations/conversationVocabulary.dom.test.tsx` |
+| #910b | list title + sider label render "Chats" | unit/DOM | same file | ❌ Wave 0 — same new file |
+| #508 | pill renders `$spent / $limit` + severity for a mocked global budget; renders nothing when none | unit/DOM | `bun run test:vitest spendPill` | ❌ Wave 0 — new `tests/unit/renderer/titlebar/spendPill.dom.test.tsx` (mock `ipcBridge.cost.listBudgets`) |
+| #882 | tab with `extra.projectId` renders resolved project name; none without | unit/DOM | `bun run test:vitest conversationTabsProjectLabel` | ⚠️ extend pattern from `tests/unit/renderer/conversationTabsClose.dom.test.tsx`; new `…conversationTabsProjectLabel.dom.test.tsx` (mock `useProjects`) |
+| all | no new axe violations (esp. #508 `button-name`, #909 accessible name) | e2e/a11y | `bun run test:e2e:a11y` | existing `accessibility.e2e.ts` |
 
 ### Sampling
-
 - Per task commit: the issue's targeted `bun run test:vitest <pattern>`.
 - Per packet: `npm test` (full unit) + `bun run test:e2e:a11y` green; `npx tsc --noEmit` clean.
 - Gate: packaged live-verify (`bun run package`, revert the generated constitution file) — confirm
   each of the four in the running app with Sean.
 
 ### Wave 0 Gaps
-
 - [ ] `tests/unit/renderer/agent/AgentBadge.dom.test.tsx` — #909 (no existing AgentBadge test)
 - [ ] `tests/unit/renderer/conversations/conversationVocabulary.dom.test.tsx` — #910a/#910b
 - [ ] `tests/unit/renderer/titlebar/spendPill.dom.test.tsx` — #508 (mock `cost.listBudgets`)
@@ -462,7 +440,6 @@ already-stored trusted data). No ASVS category is newly engaged.
 **ONE D-06 packet, four task groups (#909, #910, #508, #882).** [Confidence: HIGH]
 
 Reasoning:
-
 - All four are small, renderer-only, Core-independent, and touch **disjoint file sets** (chat header;
   conversations vocabulary; titlebar; conversation tabs) — zero cross-conflict, so no ordering or
   isolation benefit from splitting.
@@ -483,7 +460,6 @@ Team"). This is a mechanical ship detail, not a reason to split.
 ## Sources
 
 ### Primary (HIGH — verified in this worktree, HEAD `4d1c7c7793`)
-
 - `AgentBadge.tsx:57-79`, `ChatLayout/index.tsx:144-155,274-282`, `ChatConversation.tsx:221-277,578`
   — #909 render path + data flow
 - `ConversationMenu.tsx:8,41-50`, `ConversationsListPage.tsx:339-347`, `ConversationRow.tsx:71,95,98`,
@@ -497,13 +473,11 @@ Team"). This is a mechanical ship detail, not a reason to split.
 - GitHub issues #909/#910/#508/#882 (fetched via `gh issue view`) — reporter intent
 
 ### Secondary / Tertiary
-
 - None required — all claims verified against source.
 
 ## Metadata
 
 **Confidence breakdown:**
-
 - Root causes (all four): HIGH — traced to exact file:line in this tree.
 - Fix boundaries: HIGH for #909/#508/#882 (data sources confirmed present); HIGH for #910(a)
   (reusable translated keys confirmed).
@@ -520,7 +494,6 @@ or tabs context is refactored).
 **Confidence:** HIGH
 
 ### Confirmed root cause + minimal fix (file:line)
-
 - **#909** — `AgentBadge.tsx:76` renders one line (`agentName || backend`); runtime `backend:'wcore'`
   is already passed (`ChatConversation.tsx:262`) and ChatLayout already knows "Wayland Core"
   (`ChatLayout/index.tsx:144-155`). Fix: compute `runtimeName` in ChatLayout, pass to `AgentBadge`,
@@ -538,20 +511,17 @@ or tabs context is refactored).
   resolve name via `useProjects()`, render a muted secondary label that survives title truncation.
 
 ### Vocabulary decision (#910)
-
 - **pin vs star → "Pin"** (data model, icons, and the majority of translated surfaces already say
   Pin; the Conversations page is the lone, internally-inconsistent outlier). Reuse existing keys.
 - **Chats vs Conversations → "Chats"** for the aggregation (recommended; Sean to ratify — the only
   product-vocab call). English-only defaults, so no locale drift; drop only #910(b) if rejected.
 
 ### Packet recommendation
-
 **ONE D-06 packet, four disjoint task groups.** No BLOCKER; nothing exceeds small BUILD. Splitting
 would only multiply Factory-loop overhead. Stamp all four issue numbers in frontmatter (confirm
 list-vs-singular close mechanic).
 
 ### i18n / a11y notes
-
 - i18n: `conversations.*` is English-only (no locale file) — reuse translated `conversation.history.*`
   for pin labels (no new strings); the "Chats" rename touches only English defaults. Only possibly-new
   user-facing string is the #508 pill aria-label — reuse a `missionControl.cost.*` key if possible.
@@ -560,7 +530,6 @@ list-vs-singular close mechanic).
   runtime. #910/#882 add no interactive elements. Run `bun run test:e2e:a11y` after.
 
 ### Per-issue test plan (Vitest DOM + a11y gate)
-
 - #909 → new `AgentBadge.dom.test.tsx` (both labels shown; no dup when equal).
 - #910 → new `conversationVocabulary.dom.test.tsx` ("Pinned" group + "Pin"/"Unpin" menu + "Chats" title).
 - #508 → new `spendPill.dom.test.tsx` (mock `cost.listBudgets`; `$X / $Y` + severity; empty when none).
@@ -568,6 +537,5 @@ list-vs-singular close mechanic).
 - All → `bun run test:e2e:a11y` + `npm test` + `npx tsc --noEmit`, then packaged live-verify.
 
 ### Ready for planning
-
 Research complete. Planner can create the single D-06 packet with four task groups; the only decision
 to surface to Sean is #910(b) "Conversations → Chats".

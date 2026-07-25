@@ -59,7 +59,8 @@ export const SpendPill: React.FC = () => {
   const budgets = data ?? [];
   // Prefer the monthly global budget; fall back to any global budget.
   const budget =
-    budgets.find((b) => b.scope === 'global' && b.period === 'month') ?? budgets.find((b) => b.scope === 'global');
+    budgets.find((b) => b.scope === 'global' && b.period === 'month') ??
+    budgets.find((b) => b.scope === 'global');
 
   // Budget-runway visibility only: no configured budget means nothing to show.
   if (!budget) return null;

@@ -48,7 +48,10 @@
       }
     ]
   },
-  "forbiddenFiles": ["revision-authority.enc", "revision-authority.enc.legacy-v1-migration.json"],
+  "forbiddenFiles": [
+    "revision-authority.enc",
+    "revision-authority.enc.legacy-v1-migration.json"
+  ],
   "files": [
     {
       "path": ".constitution-keys.enc",

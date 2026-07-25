@@ -13,15 +13,15 @@ inferring it from a green dev-mode run.
 The packaged, hardened (`--dir`, unsealed) preview build was driven end-to-end as a user.
 **It works.**
 
-| Check                                               | Result                                                                                         |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Boots with matched engine (`wayland-core` v0.12.25) | ✅                                                                                             |
-| Cockpit shell activates                             | ✅                                                                                             |
-| 12 navigation destinations render real content      | ✅ 12/12                                                                                       |
-| IPC bridge answers                                  | ✅ (`modelRegistry.list` → provider array)                                                     |
-| Provider connect (Flux Router)                      | ✅ `state: connected`, 84 models, 66 callable                                                  |
-| **Live chat round-trip**                            | ✅ replied `PONG / "I'm Wayland, your local AI assistant for this app."` (screenshot evidence) |
-| Console errors                                      | 1 benign (CSP blocks the web-only blank-root recovery inline script)                           |
+| Check | Result |
+| --- | --- |
+| Boots with matched engine (`wayland-core` v0.12.25) | ✅ |
+| Cockpit shell activates | ✅ |
+| 12 navigation destinations render real content | ✅ 12/12 |
+| IPC bridge answers | ✅ (`modelRegistry.list` → provider array) |
+| Provider connect (Flux Router) | ✅ `state: connected`, 84 models, 66 callable |
+| **Live chat round-trip** | ✅ replied `PONG / "I'm Wayland, your local AI assistant for this app."` (screenshot evidence) |
+| Console errors | 1 benign (CSP blocks the web-only blank-root recovery inline script) |
 
 Evidence: `.smoke/<timestamp>/report.json` + per-surface screenshots (gitignored).
 
@@ -65,7 +65,7 @@ of capability receipts (`--signer-workflow … --source-ref refs/heads/release-t
 Receipts can be generated locally but never attested locally. Two independent audits
 confirmed this is a genuine authority boundary, not a workaround gap. **Sean triggers CI.**
 
-What A-02 closes is the _functional_ risk — "does the packaged app with the matched engine
+What A-02 closes is the *functional* risk — "does the packaged app with the matched engine
 actually work" — which no longer blocks the preview ship decision.
 
 ## Findings raised (not fixed here)

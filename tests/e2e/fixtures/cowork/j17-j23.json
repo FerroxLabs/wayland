@@ -1,7 +1,10 @@
 {
   "contract": "wayland-desktop-cowork-replay/1.0",
   "sourceIds": ["LOCAL-001", "WEB-001"],
-  "requiredFacts": ["71 percent to 84 percent", "19 hours to 7 hours"],
+  "requiredFacts": [
+    "71 percent to 84 percent",
+    "19 hours to 7 hours"
+  ],
   "journeys": [
     {
       "id": "J17",

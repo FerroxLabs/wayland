@@ -146,7 +146,7 @@ implementation hint:
   entries fail closed. `authorityHeadSha256` is the digest of the latest
   authenticated key-lifecycle event, not of the state object itself. An event
   has exactly `{contract,sequence,previousEventSha256,kind,oldKeyId,newKeyId,
-newVaultRef,createdAt,coveredRecordDigests,macs}`. Contract is
+  newVaultRef,createdAt,coveredRecordDigests,macs}`. Contract is
   `wayland-constitution-recovery-key-event/1.0`; genesis has sequence zero,
   null predecessor/old key and kind `created`; rotation increments sequence,
   uses kind `rotated`, and binds the exact predecessor, old/new IDs, and the
@@ -189,7 +189,7 @@ newVaultRef,createdAt,coveredRecordDigests,macs}`. Contract is
   supplied values. Duplicate tuple detection quarantines both records.
 - A same-device backup envelope has exactly
   `{contract,keyId,createdAt,vaultProvider,vaultRef,wrappedSecretBase64url,
-wrappedCiphertextSha256}` with contract
+  wrappedCiphertextSha256}` with contract
   `wayland-constitution-recovery-same-device-wrap/1.0`. `vaultProvider` and
   `vaultRef` must match the active platform-vault authority; wrapped bytes are
   the vault-produced authenticated ciphertext for exactly the 32-byte secret,

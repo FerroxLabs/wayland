@@ -84,10 +84,7 @@ function executableMappingVectors(): readonly unknown[] {
             ...(dispatchEligible === undefined ? {} : { dispatchEligible }),
             ...(error === undefined ? {} : { error }),
           };
-          return {
-            input: { providerId, state, dispatchEligible: dispatchEligible ?? null, error: error ?? null },
-            output: mapProviderPayload(input),
-          };
+          return { input: { providerId, state, dispatchEligible: dispatchEligible ?? null, error: error ?? null }, output: mapProviderPayload(input) };
         })
       )
     )

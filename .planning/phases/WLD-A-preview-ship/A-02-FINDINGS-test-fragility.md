@@ -15,7 +15,7 @@ On a clean checkout (or CI) the same commits pass 95/0.
 
 These tests are guarded with `if (!fs.existsSync(<bundled resource>)) return;` — they SKIP
 when the gitignored build output `resources/bundled-officecli/` is absent (fresh CI checkout)
-and RUN when it is present. When they run, they validate the _real_ bundled artifact against
+and RUN when it is present. When they run, they validate the *real* bundled artifact against
 the current manifest/binary contract.
 
 The local `resources/bundled-officecli/darwin-arm64/` was left by an earlier packaging run and
@@ -23,7 +23,6 @@ is **stale** relative to current source, so the happy-path assertion
 (`resolveBundledOfficeCliDir(root, 'darwin', 'arm64')` should equal the runtime dir) fails.
 
 Proven both directions:
-
 - Cherry-picked the session's commits onto a clean worktree off `9aa836c86` → **95 pass / 0 fail**.
 - Deleted the stale `resources/bundled-officecli/` from the working tree → the same 3 files → **95 pass / 0 fail**.
 

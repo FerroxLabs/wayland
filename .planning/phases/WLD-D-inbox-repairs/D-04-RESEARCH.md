@@ -37,19 +37,18 @@ missing-capability problem; both are "stop discarding the reason you already com
 **Primary recommendation:** Ship as **TWO packets** — **D-04 (#891, renderer-side, S)** and
 **D-05 (#853, main-process + chat, M)**. The fixes touch disjoint files across different tiers,
 are different sizes, and the milestone's `github_issue: NN` auto-close frontmatter is singular
-(one issue per packet, matching D-01/#890 and D-03/#885). They share a _principle_ (#656) but
-almost no _code_.
+(one issue per packet, matching D-01/#890 and D-03/#885). They share a *principle* (#656) but
+almost no *code*.
 
 ## User Constraints (from D-CONTEXT.md + task brief)
 
 ### Locked Decisions
-
 - **LOCAL only** — no push/merge/release without Sean. Never touch `/Users/seandonahoe/dev/wayland/app`.
 - **#853 scope is LOCKED (Sean's call): exec/process failures ONLY.** In scope: spawn errno
   (`ENOENT`/`EACCES`/`EPERM`), nonzero/`null` exit during init, kill signals (`SIGKILL`/`SIGTERM`
   = AV/OS/signature kill), ready-timeout, unexpected mid-turn process exit. **NOT** a full
   error-taxonomy rebuild. Provider/model API errors are already handled — do not touch them.
-- **Desktop-only, Core-independent** — the exec-error _surfacing_ is desktop-side. Do not depend
+- **Desktop-only, Core-independent** — the exec-error *surfacing* is desktop-side. Do not depend
   on any new wcore/Core behavior (Core is mid-rebuild).
 - Both roll up to Sean's **#656** principle: honest diagnostics, surface the REAL reason.
 - Minimal surgical fixes, match existing patterns, American spelling, vitest (`bun run test:vitest`).
@@ -57,39 +56,36 @@ almost no _code_.
   revert `constitutionFsAuthority.generated.ts` after any package build.
 
 ### Claude's Discretion
-
 - Whether #891 also **aligns the probe verb** to a memory-path verb (secondary hardening) vs.
   surface-reason-only (primary). Recommendation below.
 - Exact "log link" affordance (append path text vs. reuse `shell.openPath`/`showItemInFolder`).
 - Packet split (recommended TWO — see below).
 
 ### Deferred Ideas (OUT OF SCOPE)
-
 - Full error-taxonomy / error-code catalog for wcore (Sean explicitly excluded).
 - Any Core-side change (wcore signing #914, provider-routing errors, HTTP health daemon).
 - Rewriting the memory probe to a new transport.
 
 ## Phase Requirements
 
-| ID   | Description                                                                                                      | Research Support                                                                                                                                    |
-| ---- | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| #891 | Memory settings shows false "Degraded" with no reason; log the real MCP failure and surface it                   | Renderer discards `error`/`errorReason` already returned by `ijfwMcpClient`; main-side already logs. Fix is renderer-side surface + verify logging. |
-| #853 | Core/exec-level failures (AV/firewall/signature/spawn) show generic text; surface real stderr/errno + a log link | Missing `on('error')` handler, missing `signal` capture, missing log link in `WCoreManager` surfaces. Provider API errors already verbatim.         |
+| ID | Description | Research Support |
+|----|-------------|------------------|
+| #891 | Memory settings shows false "Degraded" with no reason; log the real MCP failure and surface it | Renderer discards `error`/`errorReason` already returned by `ijfwMcpClient`; main-side already logs. Fix is renderer-side surface + verify logging. |
+| #853 | Core/exec-level failures (AV/firewall/signature/spawn) show generic text; surface real stderr/errno + a log link | Missing `on('error')` handler, missing `signal` capture, missing log link in `WCoreManager` surfaces. Provider API errors already verbatim. |
 
 ## Architectural Responsibility Map
 
-| Capability                                   | Primary Tier                             | Secondary Tier                  | Rationale                                                                                                  |
-| -------------------------------------------- | ---------------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| Memory probe reason display (#891)           | Renderer (settings component)            | —                               | The structured reason already crosses the IPC bridge intact; only the renderer discards it.                |
-| Memory MCP failure logging (#891)            | Main process (`ijfwMcpClient`)           | —                               | Already logs; verify coverage, add reason to the returned result path if any gap.                          |
-| wcore spawn/exit error capture (#853)        | Main process (`WCoreAgent` / `index.ts`) | —                               | Errno/signal are only observable at the spawn site.                                                        |
-| wcore error → user message + log link (#853) | Main process (`WCoreManager`)            | Renderer (error message + link) | Manager composes the `type:'error'` stream message; renderer renders it and the log-open affordance.       |
-| Log-folder open affordance                   | Main process (shell bridge)              | Renderer                        | `shell.openPath`/`showItemInFolder` already exist; a logs-dir target/IPC is the only possible new surface. |
+| Capability | Primary Tier | Secondary Tier | Rationale |
+|------------|-------------|----------------|-----------|
+| Memory probe reason display (#891) | Renderer (settings component) | — | The structured reason already crosses the IPC bridge intact; only the renderer discards it. |
+| Memory MCP failure logging (#891) | Main process (`ijfwMcpClient`) | — | Already logs; verify coverage, add reason to the returned result path if any gap. |
+| wcore spawn/exit error capture (#853) | Main process (`WCoreAgent` / `index.ts`) | — | Errno/signal are only observable at the spawn site. |
+| wcore error → user message + log link (#853) | Main process (`WCoreManager`) | Renderer (error message + link) | Manager composes the `type:'error'` stream message; renderer renders it and the log-open affordance. |
+| Log-folder open affordance | Main process (shell bridge) | Renderer | `shell.openPath`/`showItemInFolder` already exist; a logs-dir target/IPC is the only possible new surface. |
 
 ## Confirmed Root Cause — #891 (Memory false "Degraded")
 
 **Probe path, end to end (verified):**
-
 1. `IjfwSetupStatus.tsx:75-92` (mount `useEffect`, gated on `installOk`) and `:142-151` (Test
    button) both call `ipcBridge.ijfw.brainInvoke.invoke({ verb: 'state' })`.
 2. `ipcBridge.ts:2156` → provider `'ijfw.brain-invoke'`.
@@ -105,7 +101,6 @@ almost no _code_.
 5. `IjfwInvokeResult` (`common/types/ijfw.ts:52-55`) **carries `error` + `errorReason`** on failure.
 
 **The bug:** the renderer reads **only `r?.ok`**:
-
 - Mount probe: `.then((r) => setRuntimeReachable(!!r?.ok))` and `.catch(() => setRuntimeReachable(false))`
   (`IjfwSetupStatus.tsx:83-88`) — `r.error`/`r.errorReason` discarded.
 - Runtime row renders a **hard-coded** `'Degraded (not reachable)'` when `runtimeReachable === false`
@@ -136,7 +131,6 @@ ijfwMcpClient.ts, ijfwBridge.ts, ijfw.ts]`
 ## Confirmed Root Cause — #853 (Generic exec errors)
 
 **Surfacing chain (verified):**
-
 - `WCoreManager` starts the agent (`:337` `this.start().catch(...)` → sets `this.startError`, `:355`).
 - On the next `sendMessage`, if `startError || !agent`, it calls
   `emitStartFailure(msg_id, startError)` (`:741-742`).
@@ -147,12 +141,11 @@ ijfwMcpClient.ts, ijfwBridge.ts, ijfw.ts]`
 
 **What already works (#484):** In `WCoreAgent` (`agent/wcore/index.ts`), the exit-during-init reject
 (`:729-742`) and the ready-timeout reject (`:755-759`) both fold in
-`redactSecrets(stripAnsi(this.stderrTail).trim())` + the exit code. So for an engine that _starts
-then dies/hangs with stderr_, `detail` is already the real reason. `stderrTail` is captured at
+`redactSecrets(stripAnsi(this.stderrTail).trim())` + the exit code. So for an engine that *starts
+then dies/hangs with stderr*, `detail` is already the real reason. `stderrTail` is captured at
 `:663-665` (2048-byte tail, `WCORE_STDERR_TAIL_MAX`).
 
 **The three real gaps (exec-specific, in scope):**
-
 1. **No `childProcess.on('error')` handler.** Verified: the only `.on('error')` in `index.ts` are
    `fdStream` (`:610`) and `stdin` (`:694`) — **never on the child itself**. On spawn `ENOENT`
    (binary missing / AV-quarantined) or `EACCES`/`EPERM` (macOS signature/exec block), Node emits an
@@ -174,21 +167,20 @@ path (`:622-637`) also already surfaces a real `detail`. Do not touch these.
 
 ## Don't Hand-Roll
 
-| Problem                           | Don't Build                          | Use Instead                                                             | Why                                                                                    |
-| --------------------------------- | ------------------------------------ | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| Get the memory failure reason     | A new health endpoint / second probe | The `error`/`errorReason` already on `IjfwInvokeResult`                 | It already crosses the bridge intact; only the renderer discards it.                   |
-| Log the MCP failure               | New logging in the component         | The existing `electron-log` calls in `ijfwMcpClient`                    | Already logs spawn/crash/decode/timeout with secret redaction.                         |
-| Capture spawn errno               | A pre-spawn `fs.access` probe        | `childProcess.on('error', err => err.code/errno/syscall)`               | Node hands you the exact errno on the error event; a pre-check races and duplicates.   |
-| Redact secrets in surfaced stderr | New redaction                        | `redactSecrets` / `redactCommandSecrets` (already imported)             | The #484 path and MCP stderr path already use them; reuse for consistency.             |
-| Open the logs folder              | New file dialog                      | `ipcBridge.shell.openPath` / `showItemInFolder` + `app.getPath('logs')` | Both IPCs exist and are used across the app (UpdateModal, MemoryStatusBar, Workspace). |
+| Problem | Don't Build | Use Instead | Why |
+|---------|-------------|-------------|-----|
+| Get the memory failure reason | A new health endpoint / second probe | The `error`/`errorReason` already on `IjfwInvokeResult` | It already crosses the bridge intact; only the renderer discards it. |
+| Log the MCP failure | New logging in the component | The existing `electron-log` calls in `ijfwMcpClient` | Already logs spawn/crash/decode/timeout with secret redaction. |
+| Capture spawn errno | A pre-spawn `fs.access` probe | `childProcess.on('error', err => err.code/errno/syscall)` | Node hands you the exact errno on the error event; a pre-check races and duplicates. |
+| Redact secrets in surfaced stderr | New redaction | `redactSecrets` / `redactCommandSecrets` (already imported) | The #484 path and MCP stderr path already use them; reuse for consistency. |
+| Open the logs folder | New file dialog | `ipcBridge.shell.openPath` / `showItemInFolder` + `app.getPath('logs')` | Both IPCs exist and are used across the app (UpdateModal, MemoryStatusBar, Workspace). |
 
 **Key insight:** Every reason these bugs want is already computed one layer below the surface that
-lies. The fix is _propagation and display_, not new detection.
+lies. The fix is *propagation and display*, not new detection.
 
 ## Architecture Patterns
 
 ### Pattern 1: Surface-the-reason (both issues)
-
 **What:** A status/error UI must render the structured reason it received, never a hard-coded label.
 **#891:** Thread `error`/`errorReason` into the runtime-row `detail` and the Test-fail text. Keep a
 short, human lead ("Memory runtime not reachable") + the real reason ("mcp_error: method not found:
@@ -198,7 +190,6 @@ existing `emitStartFailure`/`handleProcessExit` already interpolate `detail` —
 carry errno/signal, and append a log-link marker.
 
 ### Pattern 2: Discoverable log link (#853, optional reuse for #891)
-
 **What:** On an exec failure, give the user a one-click way to reach the log file.
 **How:** `app.getPath('logs')` is the electron-log dir (see `feedbackBridge.ts:57-61`,
 `initStorage.ts:1632-1633` `getLogsDir()`). Reuse `ipcBridge.shell.openPath`/`showItemInFolder`.
@@ -207,7 +198,6 @@ text to the error `data`; the richer version renders an "Open logs" link on `typ
 Recommend the richer version only if it's a small renderer touch; otherwise ship the path in text.
 
 ### Anti-Patterns to Avoid
-
 - **Changing the probe transport** for #891 (rewriting to HTTP/37891). There is no such daemon;
   the stdio MCP is authoritative. Don't build one.
 - **Building an error-code taxonomy** for #853. Sean locked scope to exec/process only.
@@ -216,12 +206,12 @@ Recommend the richer version only if it's a small renderer touch; otherwise ship
 
 ## Shared Surfacing Pattern
 
-There **is** a shared _principle_ (never show a bare status; carry reason + a log link) but the
+There **is** a shared *principle* (never show a bare status; carry reason + a log link) but the
 **code overlap is minimal**: #891's surface is a settings checklist row consuming an
 `IjfwInvokeResult`; #853's is a conversation `type:'error'` stream message from a spawn errno. They
 live in different tiers and consume different shapes. A single shared helper would be over-abstraction
 for two call sites. The one genuinely reusable primitive is the **"open logs" affordance**
-(`app.getPath('logs')` + `shell.openPath`), which #853 needs and #891 _could_ adopt for its Test-fail
+(`app.getPath('logs')` + `shell.openPath`), which #853 needs and #891 *could* adopt for its Test-fail
 row. Recommend building the log-open affordance in D-05 (#853) and, if trivial, reusing it in D-04
 (#891); do not block D-04 on it.
 
@@ -229,13 +219,13 @@ row. Recommend building the log-open affordance in D-05 (#853) and, if trivial, 
 
 **Recommendation: TWO packets — D-04 (#891) and D-05 (#853).** (This single RESEARCH.md seeds both.)
 
-| Factor                     | #891                                                   | #853                                                                                   |
-| -------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| Tier                       | Renderer (settings)                                    | Main process (engine + manager) + chat renderer                                        |
-| Files                      | `IjfwSetupStatus.tsx` (+ maybe a probe-verb tweak)     | `agent/wcore/index.ts`, `task/WCoreManager.ts`, shell/logs IPC, error-message renderer |
-| Size                       | S                                                      | M                                                                                      |
-| Auto-close                 | `github_issue: 891`                                    | `github_issue: 853`                                                                    |
-| Shared code with the other | Almost none (different result shapes, different tiers) | Almost none                                                                            |
+| Factor | #891 | #853 |
+|--------|------|------|
+| Tier | Renderer (settings) | Main process (engine + manager) + chat renderer |
+| Files | `IjfwSetupStatus.tsx` (+ maybe a probe-verb tweak) | `agent/wcore/index.ts`, `task/WCoreManager.ts`, shell/logs IPC, error-message renderer |
+| Size | S | M |
+| Auto-close | `github_issue: 891` | `github_issue: 853` |
+| Shared code with the other | Almost none (different result shapes, different tiers) | Almost none |
 
 The milestone convention is one issue per packet with a singular `github_issue` frontmatter that
 auto-closes on merge (D-01=#890, D-03=#885). Two build-issues in one packet would either fail to
@@ -245,7 +235,6 @@ live-verify surfaces are cleanly separable. **Split into D-04 and D-05.**
 ## Recommended Minimal Fixes (file:line targets)
 
 ### #891 → D-04 (renderer, S)
-
 - **`src/renderer/pages/settings/components/IjfwSetupStatus.tsx`**
   - Store the failed result, not just a boolean: replace `runtimeReachable: boolean | null` with a
     small state holding `{reachable: boolean, reason?: string, code?: IjfwErrorReason}` populated
@@ -262,12 +251,11 @@ live-verify surfaces are cleanly separable. **Split into D-04 and D-05.**
   decision, since it changes what "reachable" asserts.
 
 ### #853 → D-05 (main + chat, M)
-
 - **`src/process/agent/wcore/index.ts`**
   - Add `spawnedChild.on('error', (err) => …)` near the existing stdin/exit listeners (`:694-696`):
     reject `readyReject` (when `!this.ready`) with a structured message including
     `err.code`/`err.errno`/`err.syscall` (e.g. `wcore could not be launched: ENOENT (spawn) — the
-engine binary is missing or was blocked (antivirus / code signature)`), routed through
+    engine binary is missing or was blocked (antivirus / code signature)`), routed through
     `redactSecrets`. This is the primary new capture.
   - Capture `signal` in the exit handler (`:696` `on('exit', (code) => …)` → `(code, signal)`) and
     include it in the exit-during-init reject (`:729-742`): when `code === null && signal`, say
@@ -292,27 +280,23 @@ touching in-memory error/status propagation only.**
 ## Common Pitfalls
 
 ### Pitfall 1: Re-logging what's already logged (#891)
-
 **What goes wrong:** Adding logging in the renderer or duplicating `ijfwMcpClient`'s logs.
 **How to avoid:** The client already logs every failure path. The fix surfaces the reason to the
 UI; verify the log exists, don't add a second one.
 
 ### Pitfall 2: Leaking secrets in surfaced stderr/errno (#853)
-
 **What goes wrong:** Raw wcore stderr / spawn env can contain provider keys.
 **How to avoid:** Route every newly-surfaced string through `redactSecrets` /
 `redactCommandSecrets` — exactly as the #484 path (`index.ts:734,757`) and the MCP stderr path
 (`ijfwMcpClient.ts:352`) already do.
 
 ### Pitfall 3: Unhandled 'error' event crashing main (#853)
-
 **What goes wrong:** Adding the errno message but forgetting that until an `on('error')` listener
-exists, the spawn failure is _unhandled_ and can crash the process before any message is emitted.
+exists, the spawn failure is *unhandled* and can crash the process before any message is emitted.
 **How to avoid:** The `on('error')` handler is the fix, not an add-on — install it before relying
 on the reject reaching `emitStartFailure`.
 
 ### Pitfall 4: Over-scoping #853 into a taxonomy
-
 **What goes wrong:** Building error-code enums / categorization for every wcore failure.
 **How to avoid:** Sean locked scope to exec/process. Touch only the spawn-error, exit-signal, and
 log-link paths. Leave provider/stream errors alone.
@@ -320,27 +304,24 @@ log-link paths. Leave provider/stream errors alone.
 ## Validation Architecture
 
 ### Test Framework
-
-| Property   | Value                                                                      |
-| ---------- | -------------------------------------------------------------------------- |
-| Framework  | vitest (`vitest run`)                                                      |
-| Config     | project vitest config; DOM tests use `// @vitest-environment jsdom`        |
-| Quick run  | `bun run test:vitest` (single file: `bun run test:vitest <path>`)          |
+| Property | Value |
+|----------|-------|
+| Framework | vitest (`vitest run`) |
+| Config | project vitest config; DOM tests use `// @vitest-environment jsdom` |
+| Quick run | `bun run test:vitest` (single file: `bun run test:vitest <path>`) |
 | Full suite | `npm test` (~2 min; expect the known constitution flake under parallelism) |
-| a11y gate  | `bun run test:e2e:a11y`                                                    |
+| a11y gate | `bun run test:e2e:a11y` |
 
 ### Phase Requirements → Test Map
-
-| Req  | Behavior                                                                                                                           | Type         | Command                                                                         | File Exists?                                                                                                   |
-| ---- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------ | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| #891 | A `{ok:false, error:'…', errorReason:'mcp_error'}` probe result renders the real reason (not a bare "Degraded") in the runtime row | unit (jsdom) | `bun run test:vitest tests/unit/renderer/settings/IjfwSetupStatus.dom.test.tsx` | ✅ extend (mock `brainInvoke` to return a structured failure; assert reason text)                              |
-| #891 | Test-button fail shows the returned reason, not the fixed string                                                                   | unit (jsdom) | same file                                                                       | ✅ extend                                                                                                      |
-| #891 | Client returns structured reason on spawn/mcp/timeout failure                                                                      | unit         | `bun run test:vitest tests/unit/process/services/ijfw/ijfwMcpClient.test.ts`    | ✅ already covers structured returns; assert no regression                                                     |
-| #853 | A spawn `ENOENT`/`EACCES` errno surfaces "…ENOENT…" (not generic / not a crash) + a log link                                       | unit         | `bun run test:vitest tests/unit/WCoreManagerStartFailure.test.ts`               | ✅ extend (reject `agentStart` with an errno-shaped Error; assert `data` contains the errno + log-link marker) |
-| #853 | A `code=null` + `SIGKILL` exit surfaces the signal + log link                                                                      | unit         | `bun run test:vitest tests/unit/WCoreManagerProcessExit.test.ts`                | ✅ extend                                                                                                      |
+| Req | Behavior | Type | Command | File Exists? |
+|-----|----------|------|---------|-------------|
+| #891 | A `{ok:false, error:'…', errorReason:'mcp_error'}` probe result renders the real reason (not a bare "Degraded") in the runtime row | unit (jsdom) | `bun run test:vitest tests/unit/renderer/settings/IjfwSetupStatus.dom.test.tsx` | ✅ extend (mock `brainInvoke` to return a structured failure; assert reason text) |
+| #891 | Test-button fail shows the returned reason, not the fixed string | unit (jsdom) | same file | ✅ extend |
+| #891 | Client returns structured reason on spawn/mcp/timeout failure | unit | `bun run test:vitest tests/unit/process/services/ijfw/ijfwMcpClient.test.ts` | ✅ already covers structured returns; assert no regression |
+| #853 | A spawn `ENOENT`/`EACCES` errno surfaces "…ENOENT…" (not generic / not a crash) + a log link | unit | `bun run test:vitest tests/unit/WCoreManagerStartFailure.test.ts` | ✅ extend (reject `agentStart` with an errno-shaped Error; assert `data` contains the errno + log-link marker) |
+| #853 | A `code=null` + `SIGKILL` exit surfaces the signal + log link | unit | `bun run test:vitest tests/unit/WCoreManagerProcessExit.test.ts` | ✅ extend |
 
 ### Live-verify surface
-
 - **#891:** Point the app at an install where `ijfw_state` is missing / MCP server absent; open
   Memory settings; confirm the runtime row + Test button show the **real** reason, and the reason
   is present in the electron-log file.
@@ -349,28 +330,26 @@ log-link paths. Leave provider/stream errors alone.
   "Open logs" link. Packaged build (`bun run package`) is the acceptance artifact.
 
 ### Wave 0 Gaps
-
 - None — `IjfwSetupStatus.dom.test.tsx`, `ijfwMcpClient.test.ts`, `WCoreManagerStartFailure.test.ts`,
   and `WCoreManagerProcessExit.test.ts` all exist with the exact mock harnesses needed. Extend them.
 
 ## Security Domain
 
 Low surface, but two real controls:
-
 - **V6/Logging — secret redaction.** Surfacing stderr/errno/spawn context to the UI and logs must
   keep the existing redaction (`redactSecrets`, `redactCommandSecrets`). Both fixes reuse it; no
   new crypto.
-- **V5 — no new untrusted input.** Both fixes only _display_ strings the app already produces
+- **V5 — no new untrusted input.** Both fixes only *display* strings the app already produces
   (MCP result, wcore stderr, Node errno). No new parsing, no new external input.
 - No auth/session/access-control changes. ASVS V2/V3/V4 not applicable.
 
 ## Assumptions Log
 
-| #   | Claim                                                                                                                  | Section         | Risk if Wrong                                                                                                                                                                        |
-| --- | ---------------------------------------------------------------------------------------------------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| A1  | The #891 false-negative is most likely the `ijfw_state` verb missing on an older MCP server (vs. timeout/backoff race) | Root Cause #891 | LOW — the fix (surface the reason) is correct regardless of which vector; A1 only informs the optional verb-alignment follow-up. Needs the reporter's log to confirm.                |
-| A2  | Adding `on('error')` is sufficient to capture AV/signature exec blocks as `EACCES`/`EPERM`/`ENOENT`                    | Root Cause #853 | LOW — Node surfaces these as error-event errnos; some AV kills instead let the process start then `SIGKILL` it, which the `signal` capture (gap 2) covers. Both paths are addressed. |
-| A3  | The chat `type:'error'` renderer can host or link a logs affordance with a small touch                                 | Fixes #853      | MEDIUM — if the renderer touch is non-trivial, fall back to appending the logs path as text in `data`. Planner should confirm the renderer cost during planning.                     |
+| # | Claim | Section | Risk if Wrong |
+|---|-------|---------|---------------|
+| A1 | The #891 false-negative is most likely the `ijfw_state` verb missing on an older MCP server (vs. timeout/backoff race) | Root Cause #891 | LOW — the fix (surface the reason) is correct regardless of which vector; A1 only informs the optional verb-alignment follow-up. Needs the reporter's log to confirm. |
+| A2 | Adding `on('error')` is sufficient to capture AV/signature exec blocks as `EACCES`/`EPERM`/`ENOENT` | Root Cause #853 | LOW — Node surfaces these as error-event errnos; some AV kills instead let the process start then `SIGKILL` it, which the `signal` capture (gap 2) covers. Both paths are addressed. |
+| A3 | The chat `type:'error'` renderer can host or link a logs affordance with a small touch | Fixes #853 | MEDIUM — if the renderer touch is non-trivial, fall back to appending the logs path as text in `data`. Planner should confirm the renderer cost during planning. |
 
 ## Open Questions
 
@@ -385,7 +364,6 @@ Low surface, but two real controls:
 ## Sources
 
 ### Primary (HIGH confidence — verified in this worktree, HEAD)
-
 - `src/renderer/pages/settings/components/IjfwSetupStatus.tsx` — probe + render (#891)
 - `src/process/services/ijfw/ijfwMcpClient.ts` — structured results + logging (#891)
 - `src/process/bridge/ijfwBridge.ts` — thin pass-through (#891)
@@ -401,7 +379,6 @@ Low surface, but two real controls:
 ## Metadata
 
 **Confidence breakdown:**
-
 - Root cause (both): HIGH — traced end-to-end in code, no inference gaps.
 - Fix targets: HIGH — file:line confirmed; only the renderer log-link cost (A3) is unsized.
 - #891 live-failure vector: MEDIUM — needs the reporter's log to pin (does not block the fix).
@@ -413,7 +390,6 @@ Low surface, but two real controls:
 ## RESEARCH COMPLETE
 
 **Confirmed root cause:**
-
 - **#891** — The memory probe already receives a structured `{ok:false, error, errorReason}` from
   `ijfwMcpClient` (via a thin `ijfwBridge` pass-through), and the main process already logs every
   failure. `IjfwSetupStatus.tsx` reads only `r?.ok` and renders a hard-coded "Degraded (not
@@ -429,7 +405,6 @@ Low surface, but two real controls:
   `type:'error'`) — out of scope.
 
 **Recommended minimal fix:**
-
 - **#891 (D-04, renderer, S):** thread `error`/`errorReason` into the runtime-row detail
   (`IjfwSetupStatus.tsx:133-135`) and Test-fail text (`:221-224`); verify (don't duplicate) the
   existing client logging; optionally align the probe verb to a memory-path read (Sean/planner call).

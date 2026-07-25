@@ -12,7 +12,9 @@ export const WAYLAND_TRANSFER_DESTINATION_SUITE = 'WT-D1' as const;
 export const WAYLAND_TRANSFER_RECOVERY_SUITE = 'WT-R1' as const;
 
 export type WaylandTransferMode = 'destination-bound' | 'recovery';
-export type WaylandTransferSuite = typeof WAYLAND_TRANSFER_DESTINATION_SUITE | typeof WAYLAND_TRANSFER_RECOVERY_SUITE;
+export type WaylandTransferSuite =
+  | typeof WAYLAND_TRANSFER_DESTINATION_SUITE
+  | typeof WAYLAND_TRANSFER_RECOVERY_SUITE;
 export type WaylandTransferScope = 'full' | 'selected';
 
 export type WaylandTransferDestinationBinding = {

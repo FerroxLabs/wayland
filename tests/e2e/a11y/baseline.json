@@ -1,8 +1,26 @@
 {
-  "guid-home": ["color-contrast"],
-  "settings-assistants": ["aria-required-parent", "aria-valid-attr-value", "button-name"],
-  "settings-channels": ["aria-required-parent"],
-  "settings-general": ["aria-valid-attr-value", "button-name", "nested-interactive"],
-  "settings-models": ["button-name"],
-  "settings-voice": ["aria-input-field-name", "button-name", "label"]
+  "guid-home": [
+    "color-contrast"
+  ],
+  "settings-assistants": [
+    "aria-required-parent",
+    "aria-valid-attr-value",
+    "button-name"
+  ],
+  "settings-channels": [
+    "aria-required-parent"
+  ],
+  "settings-general": [
+    "aria-valid-attr-value",
+    "button-name",
+    "nested-interactive"
+  ],
+  "settings-models": [
+    "button-name"
+  ],
+  "settings-voice": [
+    "aria-input-field-name",
+    "button-name",
+    "label"
+  ]
 }

@@ -11,12 +11,10 @@ audit: cross-audit-panel
 `git diff 4d1c7c779..2ddbf09d9`. Raw outputs in scratchpad `xaudit-d06/{codex2,gemini2,kimi}.out`.
 
 ## Aggregate verdict: FIX-FIRST
-
 No leg found Critical/High EXCEPT Gemini rated the deep-link sync bug High → FIX-FIRST. Codex added
 two robustness findings the internal leg missed. All confirmed real; fixing before packet close.
 
 ## Findings to fix (convergence in parens)
-
 1. **Mission Control `?tab=cost` deep-link inert** — `mission-control/index.tsx` `activeTab` is a
    one-shot `useState` from searchParams; clicking SpendPill while Mission Control is already open
    updates the URL but not the tab. (ALL 4 — Gemini High, Codex/Kimi Medium, Claude Low.) Fix:
@@ -40,7 +38,6 @@ two robustness findings the internal leg missed. All confirmed real; fixing befo
    should assert the close control survives truncation (layout contract).
 
 ## Not fixing (out of scope / accepted)
-
 - AgentBadge role-less clickable div (pre-existing a11y debt, not in D-06 scope).
 - #882 `useProjects()` per-project count fan-out (perf, bounded, out of v1 scope) — noted for a later
   lighter id→name selector.

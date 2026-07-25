@@ -25,56 +25,56 @@ This is not evidence that sandboxing should be removed. It is evidence that the 
 
 ## 2. Reproduction statements
 
-| ID      | Expected                                                                                              | Observed/current result                                                                                                                                     | Classification                                  |
-| ------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| SBX-R1  | A local Project can deliberately allow its own `http://localhost:3100` Browser target.                | Browser rejects the hostname before the allowlist and exposes no loopback exception.                                                                        | Core contract gap                               |
-| SBX-R2  | Turning off “Block private & loopback fetches” changes the effective Browser policy.                  | Desktop writes `[security].block_private_urls`; Core defines no such field and ignores it.                                                                  | Desktop false control + Core missing capability |
-| SBX-R3  | Changing approval mode in Desktop changes Core's persisted default.                                   | Desktop writes `[security].approval_mode` using `ask`/`auto-edit`/`yolo`; Core expects `[default].approval_mode` using `default`/`auto-edit`/`force`.       | Desktop schema mismatch                         |
-| SBX-R4  | Adding an environment name exposes it to sandboxed tools.                                             | Desktop writes `[security].env_passthrough`; Core expects `[tools].env_passthrough`.                                                                        | Desktop schema mismatch                         |
-| SBX-R5  | Turning the Desktop egress switch off disables the Core egress gate.                                  | Desktop writes the field but does not add Core's required risk-acceptance CLI flag.                                                                         | Desktop spawn-contract mismatch                 |
-| SBX-R6  | A fresh chat explains which global profile, Project policy, workspace, and tool policy are effective. | The chat is placed in `wcore-temp-*`; global profile still applies, project-local policy does not, and the UI does not show the source chain.               | Desktop explainability gap                      |
-| SBX-R7  | A local developer chat can use an installed full Xcode toolchain and its normal build outputs.        | `/Applications/Xcode.app` is outside the macOS read roots and normal DerivedData is outside writable roots.                                                 | Core macOS policy gap                           |
-| SBX-R8  | Desktop shows one canonical app-config location and the exact active Core profile/config source.      | UI/support output exposes multiple path spellings without proving whether they are symlink aliases, distinct app/engine stores, or stale migration residue. | Desktop explainability/diagnostic gap           |
-| SBX-R9  | Raw Engine Mode states every overlay and connector behavior it changes before activation.             | Current copy mentions model/skills only; runtime also drops Desktop MCP publication and active Desktop profile override.                                    | Desktop unsafe disclosure gap                   |
-| SBX-R10 | Deleting chats has an explicit, recoverable relationship to managed workspace files.                  | Conversation deletion removes the DB record only; generated `wcore-temp-*` directories can remain indefinitely.                                             | Desktop storage-lifecycle gap                   |
-| SBX-R11 | “Install and restart” installs the selected version and relaunches the signed app.                    | Mike observed no restart and required manual installation; current code has guards but no immutable packaged relaunch receipt.                              | Desktop updater packaged-proof gap              |
-| SBX-R12 | Troubleshooting remains useful without exhausting the active chat.                                    | Individual diagnostic output is bounded, but the end-to-end support flow has no proven context budget, compaction receipt, or continuation handoff.         | Desktop conversation/support journey gap        |
+| ID | Expected | Observed/current result | Classification |
+|---|---|---|---|
+| SBX-R1 | A local Project can deliberately allow its own `http://localhost:3100` Browser target. | Browser rejects the hostname before the allowlist and exposes no loopback exception. | Core contract gap |
+| SBX-R2 | Turning off “Block private & loopback fetches” changes the effective Browser policy. | Desktop writes `[security].block_private_urls`; Core defines no such field and ignores it. | Desktop false control + Core missing capability |
+| SBX-R3 | Changing approval mode in Desktop changes Core's persisted default. | Desktop writes `[security].approval_mode` using `ask`/`auto-edit`/`yolo`; Core expects `[default].approval_mode` using `default`/`auto-edit`/`force`. | Desktop schema mismatch |
+| SBX-R4 | Adding an environment name exposes it to sandboxed tools. | Desktop writes `[security].env_passthrough`; Core expects `[tools].env_passthrough`. | Desktop schema mismatch |
+| SBX-R5 | Turning the Desktop egress switch off disables the Core egress gate. | Desktop writes the field but does not add Core's required risk-acceptance CLI flag. | Desktop spawn-contract mismatch |
+| SBX-R6 | A fresh chat explains which global profile, Project policy, workspace, and tool policy are effective. | The chat is placed in `wcore-temp-*`; global profile still applies, project-local policy does not, and the UI does not show the source chain. | Desktop explainability gap |
+| SBX-R7 | A local developer chat can use an installed full Xcode toolchain and its normal build outputs. | `/Applications/Xcode.app` is outside the macOS read roots and normal DerivedData is outside writable roots. | Core macOS policy gap |
+| SBX-R8 | Desktop shows one canonical app-config location and the exact active Core profile/config source. | UI/support output exposes multiple path spellings without proving whether they are symlink aliases, distinct app/engine stores, or stale migration residue. | Desktop explainability/diagnostic gap |
+| SBX-R9 | Raw Engine Mode states every overlay and connector behavior it changes before activation. | Current copy mentions model/skills only; runtime also drops Desktop MCP publication and active Desktop profile override. | Desktop unsafe disclosure gap |
+| SBX-R10 | Deleting chats has an explicit, recoverable relationship to managed workspace files. | Conversation deletion removes the DB record only; generated `wcore-temp-*` directories can remain indefinitely. | Desktop storage-lifecycle gap |
+| SBX-R11 | “Install and restart” installs the selected version and relaunches the signed app. | Mike observed no restart and required manual installation; current code has guards but no immutable packaged relaunch receipt. | Desktop updater packaged-proof gap |
+| SBX-R12 | Troubleshooting remains useful without exhausting the active chat. | Individual diagnostic output is bounded, but the end-to-end support flow has no proven context budget, compaction receipt, or continuation handoff. | Desktop conversation/support journey gap |
 
 ## 3. Source-of-truth map
 
 ### Released Core `v0.12.25`
 
-| Contract                 | Source                                                                | What it proves                                                                                 |
-| ------------------------ | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| Browser config schema    | `crates/wcore-config/src/browser.rs` (`BrowserPolicyConfig`)          | No `allowLoopbackHostnames` or `block_private_urls` field exists.                              |
-| Browser evaluation order | `crates/wcore-browser/src/policy.rs` (`BrowserPolicy::evaluate`)      | Hard host checks run before denied/allowed origins.                                            |
-| Loopback block           | `crates/wcore-browser/src/policy.rs` (`blocked_host_reason`)          | `localhost`, `*.localhost`, loopback/private IPs, and metadata classes are hard denied.        |
-| General egress schema    | `crates/wcore-config/src/config.rs` (`SecurityConfig`)                | Only `enabled` and `egress_allow`; disabling requires `--i-accept-exfil-risk`.                 |
-| Approval schema          | `crates/wcore-config/src/config.rs` (`DefaultConfig`, `ApprovalMode`) | Correct path is `[default].approval_mode`; wire values are `default`, `auto-edit`, `force`.    |
-| Environment schema       | `crates/wcore-config/src/config.rs` (`ToolsConfig`)                   | Correct path is `[tools].env_passthrough`.                                                     |
-| Mis-section behavior     | `crates/wcore-config/src/config.rs` (`warn_unknown_config_keys`)      | Mis-sectioned fields warn and have no effect rather than failing config load.                  |
-| Local filesystem roots   | `crates/wcore-tools/src/workspace_policy.rs` (`trusted_local`)        | Home is readable; only workspace/scratch and selected caches are writable extras.              |
-| macOS enforcement        | `crates/wcore-sandbox/src/backends/sandbox_exec.rs` (`build_profile`) | System roots are allowed, manifest roots are added, `/Applications` is not implicitly allowed. |
+| Contract | Source | What it proves |
+|---|---|---|
+| Browser config schema | `crates/wcore-config/src/browser.rs` (`BrowserPolicyConfig`) | No `allowLoopbackHostnames` or `block_private_urls` field exists. |
+| Browser evaluation order | `crates/wcore-browser/src/policy.rs` (`BrowserPolicy::evaluate`) | Hard host checks run before denied/allowed origins. |
+| Loopback block | `crates/wcore-browser/src/policy.rs` (`blocked_host_reason`) | `localhost`, `*.localhost`, loopback/private IPs, and metadata classes are hard denied. |
+| General egress schema | `crates/wcore-config/src/config.rs` (`SecurityConfig`) | Only `enabled` and `egress_allow`; disabling requires `--i-accept-exfil-risk`. |
+| Approval schema | `crates/wcore-config/src/config.rs` (`DefaultConfig`, `ApprovalMode`) | Correct path is `[default].approval_mode`; wire values are `default`, `auto-edit`, `force`. |
+| Environment schema | `crates/wcore-config/src/config.rs` (`ToolsConfig`) | Correct path is `[tools].env_passthrough`. |
+| Mis-section behavior | `crates/wcore-config/src/config.rs` (`warn_unknown_config_keys`) | Mis-sectioned fields warn and have no effect rather than failing config load. |
+| Local filesystem roots | `crates/wcore-tools/src/workspace_policy.rs` (`trusted_local`) | Home is readable; only workspace/scratch and selected caches are writable extras. |
+| macOS enforcement | `crates/wcore-sandbox/src/backends/sandbox_exec.rs` (`build_profile`) | System roots are allowed, manifest roots are added, `/Applications` is not implicitly allowed. |
 
 ### Desktop `v0.11.18` overhaul worktree
 
-| Contract                    | Source                                                                                                          | What it proves                                                                                                                                  |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Security UI                 | `src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx`                                                | Three mis-sectioned/unknown settings plus the incomplete egress-off switch are user-visible.                                                    |
-| Config persistence          | `src/process/agent/wcore/configBridge.ts`                                                                       | The bridge preserves unknown keys and reports file-write success without Core-schema/effective-policy validation.                               |
-| Core spawn arguments        | `src/process/agent/wcore/envBuilder.ts`                                                                         | Desktop emits no `--i-accept-exfil-risk` argument.                                                                                              |
-| Active profile spawn        | `src/process/agent/wcore/index.ts` and `profilePaths.ts`                                                        | Core is spawned with the active profile directory through `WAYLAND_HOME`.                                                                       |
-| Profile creation            | `src/process/agent/wcore/profileStore.ts`                                                                       | Create produces an empty directory; inheritance requires Clone.                                                                                 |
-| Temporary chat workspace    | `src/process/utils/initAgent.ts`                                                                                | A no-folder Core chat receives `wcore-temp-<timestamp>` and `customWorkspace=false`.                                                            |
-| Browser denial projection   | `src/process/agent/wcore/index.ts`                                                                              | Desktop renders the denial as a generic error string, without effective-policy source or recovery actions.                                      |
-| Desktop config alias        | `src/process/utils/utils.ts` (`getConfigPath`)                                                                  | macOS uses the real app config directory plus a CLI-safe `~/.wayland-config` symlink; two spellings should normally resolve to the same target. |
-| App/engine diagnostic roots | `src/process/utils/initStorage.ts` (`resolveConciergeDiagDeps`) and `src/process/doctor/checks/configChecks.ts` | Desktop and Core config directories are intentionally distinct, but the diagnostic surface must show canonical identity and authority.          |
-| Raw Engine Mode runtime     | `src/process/task/WCoreManager.ts`                                                                              | Raw mode skips Desktop profile, model, specialist/skills, and MCP publication overlays.                                                         |
-| Raw Engine Mode copy        | `src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx`                                                 | The current description omits connector/profile consequences and exact source paths.                                                            |
-| Temp-workspace creation     | `src/process/utils/initAgent.ts` (`buildWorkspaceWidthFiles`, `createWCoreAgent`)                               | No-folder chats create `wcore-temp-<timestamp>` under the managed work directory.                                                               |
-| Conversation deletion       | `src/process/services/ConversationServiceImpl.ts` (`deleteConversation`)                                        | Deletion removes the repository record and performs no managed-workspace inventory, archive, or prune.                                          |
-| Diagnostic bounds           | `src/process/resources/builtinMcp/conciergeDiagServer.ts` (`sanitize`, `recentErrors`)                          | Individual diagnostic results cap strings/items/log tails; the remaining risk is cumulative conversation context.                               |
-| Updater restart path        | `src/process/services/autoUpdaterService.ts` and `src/process/bridge/updateBridge.ts`                           | Pending-install and restart safeguards are code-present, but signed-package relaunch/version advancement remains unproven.                      |
+| Contract | Source | What it proves |
+|---|---|---|
+| Security UI | `src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx` | Three mis-sectioned/unknown settings plus the incomplete egress-off switch are user-visible. |
+| Config persistence | `src/process/agent/wcore/configBridge.ts` | The bridge preserves unknown keys and reports file-write success without Core-schema/effective-policy validation. |
+| Core spawn arguments | `src/process/agent/wcore/envBuilder.ts` | Desktop emits no `--i-accept-exfil-risk` argument. |
+| Active profile spawn | `src/process/agent/wcore/index.ts` and `profilePaths.ts` | Core is spawned with the active profile directory through `WAYLAND_HOME`. |
+| Profile creation | `src/process/agent/wcore/profileStore.ts` | Create produces an empty directory; inheritance requires Clone. |
+| Temporary chat workspace | `src/process/utils/initAgent.ts` | A no-folder Core chat receives `wcore-temp-<timestamp>` and `customWorkspace=false`. |
+| Browser denial projection | `src/process/agent/wcore/index.ts` | Desktop renders the denial as a generic error string, without effective-policy source or recovery actions. |
+| Desktop config alias | `src/process/utils/utils.ts` (`getConfigPath`) | macOS uses the real app config directory plus a CLI-safe `~/.wayland-config` symlink; two spellings should normally resolve to the same target. |
+| App/engine diagnostic roots | `src/process/utils/initStorage.ts` (`resolveConciergeDiagDeps`) and `src/process/doctor/checks/configChecks.ts` | Desktop and Core config directories are intentionally distinct, but the diagnostic surface must show canonical identity and authority. |
+| Raw Engine Mode runtime | `src/process/task/WCoreManager.ts` | Raw mode skips Desktop profile, model, specialist/skills, and MCP publication overlays. |
+| Raw Engine Mode copy | `src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx` | The current description omits connector/profile consequences and exact source paths. |
+| Temp-workspace creation | `src/process/utils/initAgent.ts` (`buildWorkspaceWidthFiles`, `createWCoreAgent`) | No-folder chats create `wcore-temp-<timestamp>` under the managed work directory. |
+| Conversation deletion | `src/process/services/ConversationServiceImpl.ts` (`deleteConversation`) | Deletion removes the repository record and performs no managed-workspace inventory, archive, or prune. |
+| Diagnostic bounds | `src/process/resources/builtinMcp/conciergeDiagServer.ts` (`sanitize`, `recentErrors`) | Individual diagnostic results cap strings/items/log tails; the remaining risk is cumulative conversation context. |
+| Updater restart path | `src/process/services/autoUpdaterService.ts` and `src/process/bridge/updateBridge.ts` | Pending-install and restart safeguards are code-present, but signed-package relaunch/version advancement remains unproven. |
 
 ## 4. Ownership and sequencing
 

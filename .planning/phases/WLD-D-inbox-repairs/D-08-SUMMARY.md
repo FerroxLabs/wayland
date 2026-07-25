@@ -9,7 +9,6 @@ boundary (no forged attestations / spoofed trust-root SHA) and WITHOUT changing 
 (148 skipped), tsc clean.
 
 ## What shipped
-
 - **`scripts/localVerificationGate.js`** (new, pure/dependency-free): `isLocalVerificationBuild(env)`
   (exact `'1'` only), `isLocalVerificationDirBuild(env, argv)` (flag AND canonical `--dir`),
   `isCanonicalDirOnlyArgs(argv)` (allowlist: platform/arch/`--dir`/build flags only),
@@ -25,16 +24,14 @@ boundary (no forged attestations / spoofed trust-root SHA) and WITHOUT changing 
   requires the seal to be ABSENT (present seal = critical failure); every other critical resource +
   signature check stays fully enforced.
 - **`package.json`**: `dist:verify:mac` = `cross-env WAYLAND_LOCAL_VERIFICATION=1 node
-scripts/build-with-builder.js auto --mac --dir` + `predist:verify:mac` (mirror of `predist:mac`).
+  scripts/build-with-builder.js auto --mac --dir` + `predist:verify:mac` (mirror of `predist:mac`).
 - **`justfile`**: `verify-package` → `dist:verify:mac`; `smoke-cockpit` → build then
   `WAYLAND_CDP_PORT=9340 node scripts/packaged-cockpit-smoke.mjs`.
 - Tests: `tests/unit/localVerificationGate.test.ts` (predicate + arg-bypass + distributable helper),
   `tests/unit/verifyPackagedResources.test.ts` (+ allow-missing-seal present/absent).
 
 ## Cross-audit (4-model panel + re-audits) — every finding closed
-
 Panel = Codex 5.6 Sol + Gemini 3.1 Pro (`gemini-3.1-pro-preview`) + Kimi K3 + internal Claude.
-
 - **F1 (HIGH):** the seal is also a `critical:true` PACKAGED-resource check (`verify-packaged-resources.js`
   run at `build-with-builder.js:~1027`), so `dist:verify:mac` died there. → thread `--allow-missing-seal`.
 - **F2 (HIGH):** a stale real seal in `public/` could ride into the unsealed `.app`. → `fs.rmSync` in the
@@ -48,25 +45,21 @@ Panel = Codex 5.6 Sol + Gemini 3.1 Pro (`gemini-3.1-pro-preview`) + Kimi K3 + in
   invariant, not a per-path patch. Audit loop stopped there (no round-4 whack-a-mole).
 
 ## Release-safety (provable)
-
 Flag absent ⇒ release path byte-identical (the `else` branch is the verbatim `writeCapabilitySeal` call).
 `git diff 72bfb618e..HEAD -- scripts/capability-seal/` is EMPTY. No trust-root/attestation/fuse/signing
 edits. `grep -rniE "capability[-_]?seal" src/` empty (no runtime consumer). CI/release scripts never set
 the flag and never pass `--dir`.
 
 ## Proven working
-
 The live `dist:verify:mac` fired the guard (`⚠️ LOCAL VERIFICATION BUILD … capability seal omitted`),
 produced a genuinely seal-free artifact (`seal absent (good)`), and cleared the seal gate that blocked
 every prior packaged-build attempt this session.
 
 ## What D-08 immediately caught (see handoff)
-
 The build then failed at the NEXT gate — a real **D-01 (#890) regression**: `scripts/whatsapp-bridge-source.json`
 is stale (baileys.js drifted, bridgeLogger.js unpinned). That is NOT a D-08 issue; it is the pending item.
 
 ## Run it
-
 ```
 bun run dist:verify:mac
 WAYLAND_CDP_PORT=9340 node scripts/packaged-cockpit-smoke.mjs

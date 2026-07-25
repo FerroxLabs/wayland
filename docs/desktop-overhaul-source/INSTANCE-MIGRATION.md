@@ -38,7 +38,7 @@ encrypted payloads.
   parallelism exactly one, a 32-byte derived key, and a fresh 128-bit salt.
   Offline recovery uses a high-entropy recovery phrase or passphrase. The
   non-sensitive outer header repeats those exact values for deterministic
-  validation; any lower _or higher_ value, integer overflow, duplicate field,
+  validation; any lower *or higher* value, integer overflow, duplicate field,
   or unsupported Argon2 version is rejected before KDF allocation. A future
   resource profile requires a new transfer-format/suite version, never
   unauthenticated parameter negotiation inside `WT-R1`.

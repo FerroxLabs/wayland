@@ -30,9 +30,10 @@ describe('McpService.removeMcpFromAgents (S12)', () => {
     // addNativeGeminiIfNeeded would otherwise append a real native gemini agent
     // when the `gemini` CLI happens to be installed on the dev box. Force it off
     // so the removal set is exactly the agents we pass in.
-    vi.spyOn(service as unknown as { isCliAvailable: (cmd: string) => boolean }, 'isCliAvailable').mockReturnValue(
-      false
-    );
+    vi.spyOn(
+      service as unknown as { isCliAvailable: (cmd: string) => boolean },
+      'isCliAvailable'
+    ).mockReturnValue(false);
   });
 
   function injectAgent(source: string, agent: IMcpProtocol): void {
@@ -77,7 +78,9 @@ describe('McpService.removeMcpFromAgents (S12)', () => {
   });
 
   it('fails closed when a backend has no MCP removal adapter', async () => {
-    const result = await service.removeMcpFromAgents('test-server', [{ backend: 'unknown-backend', name: 'Unknown' }]);
+    const result = await service.removeMcpFromAgents('test-server', [
+      { backend: 'unknown-backend', name: 'Unknown' },
+    ]);
 
     expect(result.success).toBe(false);
     expect(result.results).toEqual([

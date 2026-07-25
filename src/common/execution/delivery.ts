@@ -4,7 +4,12 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { DeclaredArtifactType, ExecutionIdentity, ExecutionSnapshot, ValidationLimit } from './types';
+import type {
+  DeclaredArtifactType,
+  ExecutionIdentity,
+  ExecutionSnapshot,
+  ValidationLimit,
+} from './types';
 
 /**
  * Native target types whose delivery is gated behind executable, type-aware

@@ -419,7 +419,9 @@ describe('platform package smoke contract', () => {
     fs.utimesSync(path.join(candidate.resourceDir, 'app.asar'), future, future);
     expect(() =>
       assertFreshCandidate(candidate, stateFile, before.digest, 'linux', 'x64', 'stable', cleanSourceDependencies())
-    ).toThrow('content digest is unchanged');
+    ).toThrow(
+      'content digest is unchanged'
+    );
 
     fs.appendFileSync(path.join(candidate.resourceDir, 'app.asar'), ' rebuilt');
     const after = assertFreshCandidate(
@@ -448,7 +450,9 @@ describe('platform package smoke contract', () => {
     const candidate = writeUnpackedTarget(outDir, 'linux', 'x64');
     expect(() =>
       assertFreshCandidate(candidate, stateFile, captured.digest, 'linux', 'x64', 'stable', cleanSourceDependencies())
-    ).toThrow('source commit/tree changed since candidate capture');
+    ).toThrow(
+      'source commit/tree changed since candidate capture'
+    );
   });
 
   it('rejects tracked source drift instead of attributing it to the committed tree', () => {
@@ -535,7 +539,9 @@ describe('platform package smoke contract', () => {
         'stable',
         cleanSourceDependencies()
       )
-    ).toThrow('stale installer output');
+    ).toThrow(
+      'stale installer output'
+    );
     fs.appendFileSync(artifact, 'installer-two');
     expect(
       assertFreshInstaller(
@@ -576,7 +582,9 @@ describe('platform package smoke contract', () => {
     fs.writeFileSync(stateFile, rewrittenBytes);
     expect(() =>
       assertFreshCandidate(candidate, stateFile, captured.digest, 'linux', 'x64', 'stable', cleanSourceDependencies())
-    ).toThrow('candidate state digest mismatch');
+    ).toThrow(
+      'candidate state digest mismatch'
+    );
 
     const currentFile = path.join(root, 'current-state.json');
     const current = captureCandidateState(outDir, 'linux', 'x64', currentFile, {
@@ -587,12 +595,16 @@ describe('platform package smoke contract', () => {
     fs.writeFileSync(currentFile, original);
     expect(() =>
       assertFreshCandidate(candidate, currentFile, current.digest, 'linux', 'x64', 'stable', cleanSourceDependencies())
-    ).toThrow('candidate state digest mismatch');
+    ).toThrow(
+      'candidate state digest mismatch'
+    );
 
     fs.writeFileSync(stateFile, original);
     expect(() =>
       assertFreshCandidate(candidate, stateFile, captured.digest, 'win32', 'x64', 'stable', cleanSourceDependencies())
-    ).toThrow('wrong-target candidate state');
+    ).toThrow(
+      'wrong-target candidate state'
+    );
   });
 
   it('hashes confined framework symlinks but rejects dangling or escaping links', () => {
@@ -1081,9 +1093,12 @@ describe('real installer extraction and lifecycle evidence', () => {
     });
     const execFileSync = vi.fn(() => (alive ? `${original}\n` : ''));
     await expect(
-      terminateProcessTree(child, 'linux', { execFileSync, processKill, treeKillSettleMs: 0 }, [
-        { pid: 99, parentPid: 1, identity: `Mon Jul 18 20:00:00 2026\0/opt/Wayland/wayland-core` },
-      ])
+      terminateProcessTree(
+        child,
+        'linux',
+        { execFileSync, processKill, treeKillSettleMs: 0 },
+        [{ pid: 99, parentPid: 1, identity: `Mon Jul 18 20:00:00 2026\0/opt/Wayland/wayland-core` }]
+      )
     ).resolves.toHaveLength(1);
     expect(processKill).toHaveBeenCalledWith(-child.pid, 'SIGKILL');
     expect(processKill).toHaveBeenCalledWith(99, 'SIGKILL');

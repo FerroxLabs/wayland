@@ -25,13 +25,13 @@ not part of the checkpoint.
 
 ## Isolated remediation lanes
 
-| Lane                   | Branch                                 | Boundary                                                                                                                                       |
-| ---------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Safety                 | `codex/desktop-strike-safety`          | Constitution archive-before-mutation and restore                                                                                               |
-| Runtime truth          | `codex/desktop-strike-runtime`         | MCP exact-active-session readiness; no probe-derived green state                                                                               |
-| Shell resilience       | `codex/desktop-strike-experience`      | Classic independence from Cockpit import/render failure                                                                                        |
-| Packaging follow-up    | `codex/desktop-strike-packaging`       | Exact platform/architecture output selection, DMG retry identity, and fresh optional-resource verification; starts from integrated `623dace07` |
-| Constitution FS helper | `codex/desktop-strike-constitution-fs` | New anchored native transaction backend and no-fallback wrapper only; starts from integrated `623dace07`                                       |
+| Lane | Branch | Boundary |
+|---|---|---|
+| Safety | `codex/desktop-strike-safety` | Constitution archive-before-mutation and restore |
+| Runtime truth | `codex/desktop-strike-runtime` | MCP exact-active-session readiness; no probe-derived green state |
+| Shell resilience | `codex/desktop-strike-experience` | Classic independence from Cockpit import/render failure |
+| Packaging follow-up | `codex/desktop-strike-packaging` | Exact platform/architecture output selection, DMG retry identity, and fresh optional-resource verification; starts from integrated `623dace07` |
+| Constitution FS helper | `codex/desktop-strike-constitution-fs` | New anchored native transaction backend and no-fallback wrapper only; starts from integrated `623dace07` |
 
 Each lane must return a local commit, focused tests, TypeScript, bounded lint,
 and `git diff --check`. Root integration remains the only authority permitted to
@@ -85,13 +85,13 @@ Result: 9 files passed; 60 tests passed; zero failures.
 This ledger records work derived from the immutable checkpoint. It does not
 change the checkpoint identity or convert it into an acceptance receipt.
 
-| Root commit                                | Result                                                                                                | Evidence boundary                                                                                   |
-| ------------------------------------------ | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `654456221`                                | Restored the full Vitest collection after checkpoint test-harness drift                               | Test-authority correction only                                                                      |
-| `705e5b890`                                | First Cockpit failure containment                                                                     | Rejected as insufficient composition-root isolation; retained only as history pending the follow-up |
-| `34c6cb6d1e393267a6cda72318c97975e15942ba` | Required `bun run test` and PR CI now execute every Bun-native suite as well as Vitest                | Test-authority correction; not product acceptance                                                   |
-| `b9f4e0baf828e735669beda811bd80a8c12df0ca` | Exact-session MCP publication and Core receipt correlation with process-local HMAC definition binding | Bounded runtime-truth implementation; no MCP-2 or live-vendor claim                                 |
-| `623dace0737f4f1644a32d8f839355cb48b11977` | Independent Classic/Cockpit lazy composition roots and session-only Cockpit failure recovery          | Independent re-audit: zero HIGH; bounded Shell resilience only                                      |
+| Root commit | Result | Evidence boundary |
+|---|---|---|
+| `654456221` | Restored the full Vitest collection after checkpoint test-harness drift | Test-authority correction only |
+| `705e5b890` | First Cockpit failure containment | Rejected as insufficient composition-root isolation; retained only as history pending the follow-up |
+| `34c6cb6d1e393267a6cda72318c97975e15942ba` | Required `bun run test` and PR CI now execute every Bun-native suite as well as Vitest | Test-authority correction; not product acceptance |
+| `b9f4e0baf828e735669beda811bd80a8c12df0ca` | Exact-session MCP publication and Core receipt correlation with process-local HMAC definition binding | Bounded runtime-truth implementation; no MCP-2 or live-vendor claim |
+| `623dace0737f4f1644a32d8f839355cb48b11977` | Independent Classic/Cockpit lazy composition roots and session-only Cockpit failure recovery | Independent re-audit: zero HIGH; bounded Shell resilience only |
 
 Exact integration baseline after those commits and before the pending Shell and
 Safety corrections:

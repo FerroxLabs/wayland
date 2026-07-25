@@ -198,11 +198,7 @@ function validateExactKeys(
   for (const key of Object.keys(value)) {
     if (!allowedKeys.has(key)) {
       errors.push(
-        issue(
-          'FIELD_UNKNOWN',
-          issuePath === '$' ? key : `${issuePath}.${key}`,
-          'Unknown manifest fields are forbidden.'
-        )
+        issue('FIELD_UNKNOWN', issuePath === '$' ? key : `${issuePath}.${key}`, 'Unknown manifest fields are forbidden.')
       );
     }
   }
@@ -1003,12 +999,7 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     if (isCurrentManifest) {
       value.externalWorkspaces.forEach((entry, index) => {
         if (isRecord(entry)) {
-          validateExactKeys(
-            entry,
-            ['projectId', 'path', 'state', 'copyPolicy'],
-            `externalWorkspaces[${index}]`,
-            errors
-          );
+          validateExactKeys(entry, ['projectId', 'path', 'state', 'copyPolicy'], `externalWorkspaces[${index}]`, errors);
         }
       });
     }
@@ -1026,12 +1017,7 @@ export function validateRecoveryManifest(value: unknown): RecoveryManifestValida
     if (isCurrentManifest) {
       value.externalAgentConfigs.forEach((entry, index) => {
         if (isRecord(entry)) {
-          validateExactKeys(
-            entry,
-            ['backendId', 'path', 'state', 'copyPolicy'],
-            `externalAgentConfigs[${index}]`,
-            errors
-          );
+          validateExactKeys(entry, ['backendId', 'path', 'state', 'copyPolicy'], `externalAgentConfigs[${index}]`, errors);
         }
       });
     }

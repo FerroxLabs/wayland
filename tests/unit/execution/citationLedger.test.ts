@@ -40,12 +40,7 @@ function citationEvent(sequence: number, citation: ExecutionCitation): Execution
 const claimA: ExecutionCitation = {
   id: 'claim-1',
   claim: 'Cycle time fell from 19 hours to 7 hours',
-  source: {
-    sourceId: 'metrics.xlsx',
-    label: 'Q3 metrics',
-    uri: 'file:///work/metrics.xlsx',
-    contentDigest: 'sha256:aa',
-  },
+  source: { sourceId: 'metrics.xlsx', label: 'Q3 metrics', uri: 'file:///work/metrics.xlsx', contentDigest: 'sha256:aa' },
   locator: { kind: 'sheet', sheet: 'Summary', cell: 'B7' },
   observedAt: now,
   outcomeId: 'artifact-1',

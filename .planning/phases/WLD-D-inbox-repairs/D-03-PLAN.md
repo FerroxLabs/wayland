@@ -75,9 +75,9 @@ exemption behavior and the anti-spoof guard.
 - **New file `tests/unit/process/services/skills/skillGuardExemption.test.ts`** — mirror the
   existing `skillLibrarySweep.test.ts` harness exactly: `describe`/`it`, an injected
   `readFile` mock keyed by path suffix, `SkillLibrary.getInstance({ resourceDir, readFile })`
-  - `resetInstance()` in `beforeEach`, and `vi.spyOn(SkillGuard, 'scan')` to observe whether
-    the guard ran. Seed every fixture UNSCANNED (no `security` field → `scannerVersion` 0) so it
-    enters the sweep. Assert:
+  + `resetInstance()` in `beforeEach`, and `vi.spyOn(SkillGuard, 'scan')` to observe whether
+  the guard ran. Seed every fixture UNSCANNED (no `security` field → `scannerVersion` 0) so it
+  enters the sweep. Assert:
   1. **Builtin loads despite a critical pattern (the #885 fix).** A `wayland-library` entry
      with a **relative** path (`bodies/trusted-critical.md`) whose body contains a critical
      pattern (e.g. references a dot-env secrets file and a piped-to-shell command) → after
@@ -88,7 +88,7 @@ exemption behavior and the anti-spoof guard.
      with the same critical body → `rescanStale()` scans it → `security.verdict` is `blocked`
      and `loadBody` returns `null`. GREEN both before and after (proves the exemption does not
      leak to non-trusted sources).
-  3. **SECURITY REGRESSION — spoof rejected (the anti-spoof lock).** An entry that _claims_
+  3. **SECURITY REGRESSION — spoof rejected (the anti-spoof lock).** An entry that *claims*
      `source: 'wayland-library'` but carries an **absolute** path (e.g. `/evil/spoof.md`) with
      a critical body → NOT exempted → scanned → `security.verdict` is `blocked`, `SkillGuard.scan`
      WAS invoked for it. This proves `isTrustedBundleSkill` requires the bundle-anchored
@@ -111,28 +111,26 @@ exemption behavior and the anti-spoof guard.
     sizes `[10,25,25]` at `:139`): re-source the bulk fixtures to `source: 'imported'` (or
     `'user'`) so they are scanned and the batching/`progress`/stalled-LLM/unreadable-body tests
     keep exercising the real scan pipeline. `rescanned` totals are unchanged.
-    Verify: `bun run test:vitest skillGuardExemption` — tests 1 RED (exemption not built yet),
-    2/3/4 GREEN (old code scans everything). `bun run test:vitest skillLibrarySweep` — GREEN
-    (fixture re-sourcing is behavior-preserving on old code: `imported` was already scanned
-    identically).
-    Done: both test files committed as `test(D-03): ...` before any production edit; the
-    exemption assertion (test 1) is RED.
+  Verify: `bun run test:vitest skillGuardExemption` — tests 1 RED (exemption not built yet),
+  2/3/4 GREEN (old code scans everything). `bun run test:vitest skillLibrarySweep` — GREEN
+  (fixture re-sourcing is behavior-preserving on old code: `imported` was already scanned
+  identically).
+  Done: both test files committed as `test(D-03): ...` before any production edit; the
+  exemption assertion (test 1) is RED.
 
-\*\*Task 2 — Producer-layer exemption: `isTrustedBundleSkill` + short-circuit in `rescanStale`
-
-- `rescanIfStale` (commit `fix(D-03): ...`).\*\*
-
-* Add a module-level pure helper in `SkillLibrary.ts` (alongside the other pure resolvers, near
+**Task 2 — Producer-layer exemption: `isTrustedBundleSkill` + short-circuit in `rescanStale`
++ `rescanIfStale` (commit `fix(D-03): ...`).**
+- Add a module-level pure helper in `SkillLibrary.ts` (alongside the other pure resolvers, near
   the top), typed `(entry: SkillIndexEntry) => boolean`, returning
   `entry.source === 'wayland-library' && !path.isAbsolute(entry.path)`. `path` is already
   imported (`:16`); `SkillIndexEntry` is already imported (`:21`). Add a head-comment explaining
   the two-fact bundle anchor and why `team` is excluded (writable user-data). Do NOT reference
   the specific critical literals the guard matches in the comment text.
-* Define the synthesized clean report shape once (inline const or tiny helper):
+- Define the synthesized clean report shape once (inline const or tiny helper):
   `{ verdict: 'clean', findings: [], scannedAt: Date.now(), scannerVersion: SKILL_SCANNER_VERSION,
-llmScanned: false }`. Omit `contentHash` (optional per `skillTypes.ts:57`) — trust is by
+  llmScanned: false }`. Omit `contentHash` (optional per `skillTypes.ts:57`) — trust is by
   provenance, not content, and skipping the read avoids ~2,000 body reads on boot (a perf win).
-* **`rescanStale` (`:549`)**: partition `stale` into `trusted = stale.filter(isTrustedBundleSkill)`
+- **`rescanStale` (`:549`)**: partition `stale` into `trusted = stale.filter(isTrustedBundleSkill)`
   and `untrusted = stale.filter(e => !isTrustedBundleSkill(e))`. For each `trusted` entry, assign
   the synthesized clean report in place and fire `opts?.onProgress?.({ done, total, currentName })`
   so trusted entries still count toward `total` and the monotonic `done` sequence. Feed ONLY
@@ -140,10 +138,10 @@ llmScanned: false }`. Omit `contentHash` (optional per `skillTypes.ts:57`) — t
   `total = stale.length` and `return { rescanned: total }` so the count still reflects every stale
   entry. Idempotency is preserved: trusted entries now sit at `scannerVersion === SKILL_SCANNER_VERSION`,
   so a second sweep skips them.
-* **`rescanIfStale` (`:496`)**: after the existing `stored >= SKILL_SCANNER_VERSION` early-return
+- **`rescanIfStale` (`:496`)**: after the existing `stored >= SKILL_SCANNER_VERSION` early-return
   (`:501`) and before reading the body / calling `SkillGuard.scan`, add:
   `if (isTrustedBundleSkill(entry)) { entry.security = <synthesized clean report>; return entry.security; }`.
-* Do NOT touch `loadBody` or ANY enforcement gate. Do NOT touch `SkillGuard`, `SkillImport`, or
+- Do NOT touch `loadBody` or ANY enforcement gate. Do NOT touch `SkillGuard`, `SkillImport`, or
   `skillsBridge.save/updateBody` — those produce verdicts for imported/user content and must stay
   fully scanning. Do NOT alter `TRUSTED_SOURCES` (`:305`, import de-dup only, not a guard-skip).
   Verify: `bun run test:vitest skillGuardExemption` GREEN (test 1 flips to pass, 2/3/4 stay green);
@@ -154,7 +152,6 @@ llmScanned: false }`. Omit `contentHash` (optional per `skillTypes.ts:57`) — t
   no gate touched.
 
 **Task 3 — Exit bar + live-verify handoff (human checkpoint, no code commit).**
-
 - Full automated floor: `bun run test:vitest` (full unit suite) green, and `tsc --noEmit` clean.
   Constitution tests may flake under full-suite parallelism (pass isolated) — not a regression,
   per `D-CONTEXT.md`.
@@ -167,7 +164,7 @@ llmScanned: false }`. Omit `contentHash` (optional per `skillTypes.ts:57`) — t
   step regenerates). In the running app, open a builtin/library skill that previously showed
   `blocked` (a security/credential-referencing library skill, e.g. security-review or a
   CLI/API-docs skill) and confirm it now **loads and is retrievable**; separately confirm a
-  deliberately-malicious _imported_ skill is still blocked. Broken build = builtin still
+  deliberately-malicious *imported* skill is still blocked. Broken build = builtin still
   quarantined; fixed build = it loads.
   Verify: full suite + `tsc --noEmit` green; enforcement gates unchanged; packaged builtin skill
   loads while imported malicious skill stays blocked.
@@ -183,14 +180,13 @@ by the bundled `index.json` (server-side), and vendored bodies resolve from the 
 `skill-bodies.bin` inside `extraResources` (`electron-builder.yml`: `.skill-pack/skills-library
 → skills-library`, read-only).
 
-| Threat ID | STRIDE    | Component                                                                  | Severity | Disposition | Mitigation                                                                                                                                                                                                                                                                                  |
-| --------- | --------- | -------------------------------------------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| T-D03-01  | Spoofing  | malicious skill self-labels `source:'wayland-library'` to bypass the guard | high     | mitigate    | No IPC/import/CLI/team vector accepts a caller-supplied source (`D-03-RESEARCH.md §2`); `'wayland-library'` is minted only by the bundled `index.json`. Test 1/`skillGuardExemption` locks it.                                                                                              |
-| T-D03-02  | Tampering | write a skill into a writable dir and get it trusted by source             | high     | mitigate    | `isTrustedBundleSkill` also requires `!path.isAbsolute(entry.path)` — every externally-rooted source uses an absolute path; only vendored bundle bodies are relative. Security-regression test 3 (absolute path + `wayland-library` claim → NOT exempted → blocked) locks it.               |
-| T-D03-03  | Tampering | trust `team` skills whose bodies live in writable user-data                | high     | mitigate    | `team` is deliberately excluded from the exemption; it stays fully scanned. Test 4 locks it.                                                                                                                                                                                                |
-| T-D03-04  | Tampering | compromised-but-signature-valid bundle                                     | low      | accept      | No per-skill hash/signature manifest ships today (`D-03-RESEARCH.md §3`); provenance-by-location is the honest integrity signal. A signed per-skill manifest is a separate, larger hardening effort outside #885's threat model. Do NOT invent a hash check with nothing to verify against. |
-| T-D03-SC  | Tampering | supply-chain (new packages)                                                | n/a      | accept      | No new packages — Node builtins + in-repo modules only (`D-03-RESEARCH.md`: Package Legitimacy Audit N/A).                                                                                                                                                                                  |
-
+| Threat ID | STRIDE | Component | Severity | Disposition | Mitigation |
+|-----------|--------|-----------|----------|-------------|------------|
+| T-D03-01 | Spoofing | malicious skill self-labels `source:'wayland-library'` to bypass the guard | high | mitigate | No IPC/import/CLI/team vector accepts a caller-supplied source (`D-03-RESEARCH.md §2`); `'wayland-library'` is minted only by the bundled `index.json`. Test 1/`skillGuardExemption` locks it. |
+| T-D03-02 | Tampering | write a skill into a writable dir and get it trusted by source | high | mitigate | `isTrustedBundleSkill` also requires `!path.isAbsolute(entry.path)` — every externally-rooted source uses an absolute path; only vendored bundle bodies are relative. Security-regression test 3 (absolute path + `wayland-library` claim → NOT exempted → blocked) locks it. |
+| T-D03-03 | Tampering | trust `team` skills whose bodies live in writable user-data | high | mitigate | `team` is deliberately excluded from the exemption; it stays fully scanned. Test 4 locks it. |
+| T-D03-04 | Tampering | compromised-but-signature-valid bundle | low | accept | No per-skill hash/signature manifest ships today (`D-03-RESEARCH.md §3`); provenance-by-location is the honest integrity signal. A signed per-skill manifest is a separate, larger hardening effort outside #885's threat model. Do NOT invent a hash check with nothing to verify against. |
+| T-D03-SC | Tampering | supply-chain (new packages) | n/a | accept | No new packages — Node builtins + in-repo modules only (`D-03-RESEARCH.md`: Package Legitimacy Audit N/A). |
 </threat_model>
 
 <verification>
@@ -210,13 +206,12 @@ by the bundled `index.json` (server-side), and vendored bodies resolve from the 
 
 **Goal-backward check — each acceptance test maps to the exemption behavior:**
 
-| Must be TRUE (goal)                                       | Producer behavior that makes it true                                                | Proven by                                             |
-| --------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| A builtin skill with legit "scary" content loads          | `rescanStale`/`rescanIfStale` stamp trusted-bundle entries `clean` without scanning | Test 1 (clean + no scan + loadBody returns body)      |
-| The guard is NOT weakened for untrusted skills            | non-`wayland-library` entries still go through `SkillGuard.scan`                    | Test 2 (imported → blocked) + Test 4 (team → blocked) |
-| A spoofed `wayland-library` label cannot bypass the guard | exemption also requires a bundle-anchored relative path                             | Test 3 (absolute path → not exempted → blocked)       |
-| No enforcement gate behavior changed                      | producer-only edit; gates untouched                                                 | grep gate + `loadBody` blocked-skill test stays green |
-
+| Must be TRUE (goal) | Producer behavior that makes it true | Proven by |
+|---------------------|--------------------------------------|-----------|
+| A builtin skill with legit "scary" content loads | `rescanStale`/`rescanIfStale` stamp trusted-bundle entries `clean` without scanning | Test 1 (clean + no scan + loadBody returns body) |
+| The guard is NOT weakened for untrusted skills | non-`wayland-library` entries still go through `SkillGuard.scan` | Test 2 (imported → blocked) + Test 4 (team → blocked) |
+| A spoofed `wayland-library` label cannot bypass the guard | exemption also requires a bundle-anchored relative path | Test 3 (absolute path → not exempted → blocked) |
+| No enforcement gate behavior changed | producer-only edit; gates untouched | grep gate + `loadBody` blocked-skill test stays green |
 </verification>
 
 <success_criteria>
@@ -232,7 +227,6 @@ enforcement gates are untouched. Full unit suite + `tsc --noEmit` green. #885 au
 follow-up; #885 is fully closed without it.
 
 Design (from `D-03-RESEARCH.md §4`, ready to lift when scheduled):
-
 - Extend `IConfigStorageRefer['skills.preferences']` (`src/common/config/storage.ts:386`) with
   `unblocked?: Array<{ name: string; contentHash: string }>` (reuse the one revision counter /
   migration surface; do not add a new store).

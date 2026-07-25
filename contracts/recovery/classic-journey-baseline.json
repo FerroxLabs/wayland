@@ -16,70 +16,28 @@
   },
   "representativeState": {
     "chats": [
-      {
-        "id": "chat-alpha",
-        "path": "conversations/chat-alpha.json",
-        "messageCount": 6,
-        "digest": "0000000000000000000000000000000000000000000000000000000000000001"
-      },
-      {
-        "id": "chat-bravo",
-        "path": "conversations/chat-bravo.json",
-        "messageCount": 3,
-        "digest": "0000000000000000000000000000000000000000000000000000000000000002"
-      }
+      { "id": "chat-alpha", "path": "conversations/chat-alpha.json", "messageCount": 6, "digest": "0000000000000000000000000000000000000000000000000000000000000001" },
+      { "id": "chat-bravo", "path": "conversations/chat-bravo.json", "messageCount": 3, "digest": "0000000000000000000000000000000000000000000000000000000000000002" }
     ],
     "projects": [
-      {
-        "id": "project-atlas",
-        "path": "projects/project-atlas/manifest.json",
-        "digest": "0000000000000000000000000000000000000000000000000000000000000011"
-      },
-      {
-        "id": "project-orion",
-        "path": "projects/project-orion/manifest.json",
-        "digest": "0000000000000000000000000000000000000000000000000000000000000012"
-      }
+      { "id": "project-atlas", "path": "projects/project-atlas/manifest.json", "digest": "0000000000000000000000000000000000000000000000000000000000000011" },
+      { "id": "project-orion", "path": "projects/project-orion/manifest.json", "digest": "0000000000000000000000000000000000000000000000000000000000000012" }
     ],
     "teams": [
-      {
-        "id": "team-forge",
-        "path": "teams/team-forge.json",
-        "digest": "0000000000000000000000000000000000000000000000000000000000000021"
-      }
+      { "id": "team-forge", "path": "teams/team-forge.json", "digest": "0000000000000000000000000000000000000000000000000000000000000021" }
     ],
     "schedules": [
-      {
-        "id": "schedule-nightly",
-        "path": "cron/schedule-nightly.json",
-        "digest": "0000000000000000000000000000000000000000000000000000000000000031"
-      }
+      { "id": "schedule-nightly", "path": "cron/schedule-nightly.json", "digest": "0000000000000000000000000000000000000000000000000000000000000031" }
     ],
     "artifacts": [
-      {
-        "id": "artifact-report",
-        "path": "artifacts/artifact-report.md",
-        "digest": "0000000000000000000000000000000000000000000000000000000000000041"
-      }
+      { "id": "artifact-report", "path": "artifacts/artifact-report.md", "digest": "0000000000000000000000000000000000000000000000000000000000000041" }
     ],
     "managedWorkspaces": [
-      {
-        "id": "workspace-primary",
-        "path": "workspaces/workspace-primary/.wayland/state.json",
-        "digest": "0000000000000000000000000000000000000000000000000000000000000051"
-      }
+      { "id": "workspace-primary", "path": "workspaces/workspace-primary/.wayland/state.json", "digest": "0000000000000000000000000000000000000000000000000000000000000051" }
     ],
     "settings": [
-      {
-        "id": "settings-general",
-        "path": "settings/general.json",
-        "digest": "0000000000000000000000000000000000000000000000000000000000000061"
-      },
-      {
-        "id": "settings-models",
-        "path": "settings/models.json",
-        "digest": "0000000000000000000000000000000000000000000000000000000000000062"
-      }
+      { "id": "settings-general", "path": "settings/general.json", "digest": "0000000000000000000000000000000000000000000000000000000000000061" },
+      { "id": "settings-models", "path": "settings/models.json", "digest": "0000000000000000000000000000000000000000000000000000000000000062" }
     ],
     "authorityValues": [
       { "id": "authority-core-constitution", "authority": "core", "disposition": "fail-closed" },
@@ -102,36 +60,11 @@
     { "id": "route-settings-wcore", "kind": "settings", "tab": "wcore" }
   ],
   "journeys": [
-    {
-      "id": "artifact",
-      "title": "Open a preserved artifact",
-      "expectedOutcome": "green",
-      "usesProviderFixture": false
-    },
-    {
-      "id": "automation",
-      "title": "Resume a scheduled automation",
-      "expectedOutcome": "green",
-      "usesProviderFixture": false
-    },
-    {
-      "id": "chat",
-      "title": "Send and receive a deterministic chat",
-      "expectedOutcome": "green",
-      "usesProviderFixture": true
-    },
-    {
-      "id": "developer-verification",
-      "title": "Run developer verification of a session",
-      "expectedOutcome": "green",
-      "usesProviderFixture": false
-    },
-    {
-      "id": "project-resume",
-      "title": "Resume a preserved Project workspace",
-      "expectedOutcome": "green",
-      "usesProviderFixture": false
-    }
+    { "id": "artifact", "title": "Open a preserved artifact", "expectedOutcome": "green", "usesProviderFixture": false },
+    { "id": "automation", "title": "Resume a scheduled automation", "expectedOutcome": "green", "usesProviderFixture": false },
+    { "id": "chat", "title": "Send and receive a deterministic chat", "expectedOutcome": "green", "usesProviderFixture": true },
+    { "id": "developer-verification", "title": "Run developer verification of a session", "expectedOutcome": "green", "usesProviderFixture": false },
+    { "id": "project-resume", "title": "Resume a preserved Project workspace", "expectedOutcome": "green", "usesProviderFixture": false }
   ],
   "outcomes": [
     { "journey": "artifact", "status": "green", "evidence": "baseline:representativeState.artifacts" },
@@ -145,5 +78,10 @@
     "forbiddenLoss": ["conversation-message-drop", "project-workspace-drop", "authority-value-drop"],
     "forbiddenWidening": ["core-authority-preserve", "external-reference-authorization"]
   },
-  "preservedIdentities": ["chat.id", "project.id", "providerFixture.digest", "release.tagCommit"]
+  "preservedIdentities": [
+    "chat.id",
+    "project.id",
+    "providerFixture.digest",
+    "release.tagCommit"
+  ]
 }

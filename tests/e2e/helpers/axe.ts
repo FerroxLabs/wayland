@@ -98,11 +98,7 @@ export function baselineHas(surface: string): boolean {
 export function updateBaseline(surface: string, ids: string[]): void {
   const baseline = readBaseline();
   baseline[surface] = [...ids].sort();
-  const ordered = Object.fromEntries(
-    Object.keys(baseline)
-      .sort()
-      .map((k) => [k, baseline[k]])
-  );
+  const ordered = Object.fromEntries(Object.keys(baseline).sort().map((k) => [k, baseline[k]]));
   fs.mkdirSync(path.dirname(BASELINE_PATH), { recursive: true });
   fs.writeFileSync(BASELINE_PATH, JSON.stringify(ordered, null, 2) + '\n');
 }

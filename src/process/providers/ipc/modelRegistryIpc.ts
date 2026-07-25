@@ -1663,7 +1663,11 @@ export function mergeSpawnSecrets<T extends TProviderWithModel>(model: T, secret
     baseUrl: secrets.baseUrl || model.baseUrl,
     ...(secrets.bedrockConfig ? { bedrockConfig: secrets.bedrockConfig } : {}),
   } as T;
-  if (secrets.cloudFields?.projectId && secrets.cloudFields.region && secrets.cloudFields.serviceAccountJson) {
+  if (
+    secrets.cloudFields?.projectId &&
+    secrets.cloudFields.region &&
+    secrets.cloudFields.serviceAccountJson
+  ) {
     attachVertexSpawnCredentials(merged, {
       projectId: secrets.cloudFields.projectId,
       region: secrets.cloudFields.region,

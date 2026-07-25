@@ -163,21 +163,10 @@ function verifyFreshness(report) {
 function verifySemanticRuntime(report, platform, arch) {
   const releaseIdentity = exactKeys(
     report.releaseIdentity,
-    [
-      'releaseTrack',
-      'productName',
-      'executableName',
-      'bundleName',
-      'protocolScheme',
-      'updateChannel',
-      'shellExperience',
-    ],
+    ['releaseTrack', 'productName', 'executableName', 'bundleName', 'protocolScheme', 'updateChannel', 'shellExperience'],
     'platform smoke release identity'
   );
-  if (
-    JSON.stringify(releaseIdentity) !==
-    JSON.stringify(expectedReleaseIdentity(releaseIdentity.releaseTrack, platform, arch))
-  ) {
+  if (JSON.stringify(releaseIdentity) !== JSON.stringify(expectedReleaseIdentity(releaseIdentity.releaseTrack, platform, arch))) {
     throw new Error('platform smoke release identity is misbound');
   }
   const optional = exactKeys(
@@ -487,7 +476,11 @@ function verifyPlatformPackageSmoke(input, context, options = {}) {
   } catch {
     throw new Error('platform smoke receipt is not valid JSON');
   }
-  const { platform, arch, rawInstallerSha256 } = validatePlatformPackageReport(report, context, installerFile.bytes);
+  const { platform, arch, rawInstallerSha256 } = validatePlatformPackageReport(
+    report,
+    context,
+    installerFile.bytes
+  );
   const native = exactKeys(
     observation.nativeObservation,
     [

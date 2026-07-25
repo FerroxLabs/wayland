@@ -18,7 +18,6 @@ github_issue: 891
 > re-derive the diagnosis — this is a renderer-side discard, not a missing capability.
 >
 > **Verified before planning (live code, this tree):**
->
 > - `IjfwInvokeResult` (`common/types/ijfw.ts:53-55`) carries `error?` + `errorReason?` on
 >   the `ok:false` arm — the reason is already on the wire.
 > - `ijfwMcpClient` ALREADY returns the structured reason on every failure path
@@ -28,13 +27,13 @@ github_issue: 891
 > - `ijfwBridge.ts` is a thin pass-through — the reason crosses the IPC bridge intact.
 > - The producer contract is ALREADY pinned by existing tests: `ijfwMcpClient.test.ts:592-612`
 >   asserts a `-32601` "method not found" reply → `{ ok:false, error:'method not found',
-errorReason:'mcp_error' }` — the exact #891 vector (older MCP server missing `ijfw_state`).
+>   errorReason:'mcp_error' }` — the exact #891 vector (older MCP server missing `ijfw_state`).
 >   So D-04 does NOT touch the client or its test; it fixes the ONE consumer that throws the
 >   reason away.
 > - `IjfwSetupStatus.tsx` reads only `r?.ok` and renders hard-coded strings in BOTH the mount
 >   probe (`:83-88` → runtime-row `warn` detail `:132-135`, `'Degraded (not reachable)'`) and
 >   the Test button (`:146-147` → fail text `:221-223`, `'Memory did not respond. Check the
-install status above.'`). That discard is the whole bug.
+>   install status above.'`). That discard is the whole bug.
 > - No `127.0.0.1:37891` / HTTP health daemon exists in `src` (0 grep hits). The reporter's
 >   "check the daemon on 37891" premise is WRONG — the stdio MCP probe already targets the
 >   authoritative surface (what runtime memory actually uses). Do NOT add an HTTP probe.
@@ -72,7 +71,7 @@ suite and confirmed by a packaged live-verify.
 is the entire buildable scope of this packet. The research's optional **probe-verb alignment**
 (switching the `state` probe to a `memory_*` read so "reachable" asserts the path runtime memory
 actually uses, eliminating the `ijfw_state`-missing false negative) is a SEPARABLE follow-up: it
-changes what "reachable" _means_, is MEDIUM-risk, and the research recommends deciding it only
+changes what "reachable" *means*, is MEDIUM-risk, and the research recommends deciding it only
 after the honest reason confirms the live vector. Per Milestone D's minimal-surgical-fix
 guardrail it is **DEFERRED** here (captured in `<deferred>` so the follow-up is actionable). Ship
 the exact #891 fix — surface the reason — do not widen the blast radius.
@@ -98,7 +97,7 @@ failing probe renders its real reason, not a bare label" and guard the no-reason
   reason via a substring/regex text match, never an interpolated key), and the `@/common` mock.
   Add:
   1. **Mount probe surfaces the real reason (the #891 fix).** `brainInvoke.mockResolvedValue({
-ok: false, error: 'method not found: ijfw_state', errorReason: 'mcp_error' })`, render with
+     ok: false, error: 'method not found: ijfw_state', errorReason: 'mcp_error' })`, render with
      `status='installed_current'`. After the probe settles, the runtime row
      (`ijfw-status-item-runtime`) has `data-status='pending'` (warn) AND its rendered text
      contains `method not found: ijfw_state`. RED on today's code (renders only the bare
@@ -115,9 +114,9 @@ ok: false, error: 'method not found: ijfw_state', errorReason: 'mcp_error' })`, 
      installed → runtime row `data-status='pending'`, no crash. GREEN before and after (mirrors
      the existing "marks the runtime row pending when the mount probe rejects" test).
   5. **Test button surfaces the real reason.** `mockResolvedValue({ ok: false, error: 'method
-not found: ijfw_state', errorReason: 'mcp_error' })`, click `ijfw-settings-test-button` →
+     not found: ijfw_state', errorReason: 'mcp_error' })`, click `ijfw-settings-test-button` →
      `ijfw-settings-test-result` has `data-result='fail'` AND its text contains `method not
-found: ijfw_state` (not the fixed "Memory did not respond" string). RED today; GREEN after.
+     found: ijfw_state` (not the fixed "Memory did not respond" string). RED today; GREEN after.
   6. **Test-button no-reason fallback preserved (regression guard).**
      `mockResolvedValue({ ok: false })`, click → `data-result='fail'` and the existing fixed
      fail string still renders. GREEN before and after.
@@ -148,9 +147,9 @@ transport, verb (`state`), gating (`installOk`), and timing byte-for-byte unchan
   logic (`:59, :97-103`) — the row still turns amber via the existing `warn` path.
 - **Render the reason in the runtime-row `warn` detail (`:132-135`).** Replace the hard-coded
   `'Degraded (not reachable)'` with: when `runtimeReason` is present, a translated human lead
-  concatenated with the raw reason **outside `t()`** (e.g. `${t('memory.settings.status_runtime_degraded_lead', { defaultValue: 'Degraded' })}: ${runtimeReason}`);
+  concatenated with the raw reason **outside `t()`** (e.g. ``${t('memory.settings.status_runtime_degraded_lead', { defaultValue: 'Degraded' })}: ${runtimeReason}``);
   when absent, keep the existing bare `t('memory.settings.status_runtime_degraded', {
-defaultValue: 'Degraded (not reachable)' })`. Concatenating the raw reason outside `t()` is
+  defaultValue: 'Degraded (not reachable)' })`. Concatenating the raw reason outside `t()` is
   required — the reason is a machine string received from the client (do not translate it), and
   the DOM-test i18n mock does not interpolate. Do NOT embed the reason via a `{{reason}}` i18n
   placeholder.
@@ -160,7 +159,7 @@ defaultValue: 'Degraded (not reachable)' })`. Concatenating the raw reason outsi
   the `testState === 'fail'` span, when `testFailReason` is present render a translated lead +
   the raw reason outside `t()` (e.g. `'Memory did not respond'` + `: ${testFailReason}`); when
   absent, keep the existing fixed `t('memory.settings.test_fail', { defaultValue: 'Memory did
-not respond. Check the install status above.' })`.
+  not respond. Check the install status above.' })`.
 - **i18n:** add any new keys following the file's existing inline-`defaultValue` pattern
   (`memory.settings.status_runtime_degraded_lead`, `memory.settings.test_fail_lead` or similar);
   the raw reason is appended as data, never a translation key. Optionally humanize the bare
@@ -172,14 +171,13 @@ not respond. Check the install status above.' })`.
   Verify: `bun run test:vitest tests/unit/renderer/settings/IjfwSetupStatus.dom.test.tsx` GREEN
   (tests 1, 2, 5 flip to pass; 3, 4, 6 and all pre-existing tests stay green); `tsc --noEmit`
   clean; a review of the diff confirms the probe still calls `brainInvoke.invoke({ verb: 'state'
-})` in both the mount `useEffect` and `handleTest` (transport/target unchanged) and that the
+  })` in both the mount `useEffect` and `handleTest` (transport/target unchanged) and that the
   only files touched are `IjfwSetupStatus.tsx` and its DOM test.
   Done: a failing probe (mount or Test) renders its real `error`/`errorReason` in the panel; a
   reasonless failure and a rejected probe fall back to the prior labels without crashing; no
   probe-target, main-side, or happy-path behavior changed.
 
 **Task 3 — Exit bar + live-verify handoff (human checkpoint, no code commit).**
-
 - Full automated floor: `bun run test:vitest` (full unit suite) green, and `tsc --noEmit` clean.
   Constitution tests may flake under full-suite parallelism (pass isolated) — not a regression,
   per `D-CONTEXT.md`.
@@ -215,12 +213,11 @@ already logs. No new input is parsed, no new transport is opened, no auth/access
 touched. Trust boundary crossed: IJFW MCP child → main → IPC bridge → renderer; the renderer now
 renders a field (`IjfwInvokeResult.error` / `errorReason`) that main composed.
 
-| Threat ID | STRIDE                 | Component                                                                                                   | Severity | Disposition | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| --------- | ---------------------- | ----------------------------------------------------------------------------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| T-D04-01  | Information Disclosure | renderer now surfaces `IjfwInvokeResult.error`/`errorReason` in the settings panel and it lands in DOM/logs | low      | accept      | The surfaced string is an app-composed protocol/spawn message (`(err as Error).message` for `spawn_error`, the MCP reply's `error.message` for `mcp_error`, a fixed `timeout` string), NOT raw engine stderr or process env — the client already routes raw stderr through `redactCommandSecrets` (`ijfwMcpClient.ts:352`) on the logging path and does not fold it into the returned `error`. No secret-bearing field is newly exposed. Guard: if a future client change folds raw stderr into `error`, it must pass through the existing redaction before return. |
-| T-D04-02  | Tampering / DoS        | a hostile/oversized `error` string from a compromised MCP child renders unbounded text in the panel         | low      | accept      | The `error` originates from the local, first-party stdio MCP the user installed (same trust as runtime memory itself); it is rendered as inert text in an existing `Typography.Text`, not HTML/markup (React escapes it), so no injection. Length is bounded in practice by the client's own message construction. No new mitigation warranted for a first-party local string.                                                                                                                                                                                      |
-| T-D04-SC  | Tampering              | supply-chain (new packages)                                                                                 | n/a      | accept      | No new packages — renderer-only edit reusing existing types (`IjfwInvokeResult`), the existing `ipcBridge`, and the existing i18n. Package Legitimacy Audit N/A.                                                                                                                                                                                                                                                                                                                                                                                                    |
-
+| Threat ID | STRIDE | Component | Severity | Disposition | Mitigation |
+|-----------|--------|-----------|----------|-------------|------------|
+| T-D04-01 | Information Disclosure | renderer now surfaces `IjfwInvokeResult.error`/`errorReason` in the settings panel and it lands in DOM/logs | low | accept | The surfaced string is an app-composed protocol/spawn message (`(err as Error).message` for `spawn_error`, the MCP reply's `error.message` for `mcp_error`, a fixed `timeout` string), NOT raw engine stderr or process env — the client already routes raw stderr through `redactCommandSecrets` (`ijfwMcpClient.ts:352`) on the logging path and does not fold it into the returned `error`. No secret-bearing field is newly exposed. Guard: if a future client change folds raw stderr into `error`, it must pass through the existing redaction before return. |
+| T-D04-02 | Tampering / DoS | a hostile/oversized `error` string from a compromised MCP child renders unbounded text in the panel | low | accept | The `error` originates from the local, first-party stdio MCP the user installed (same trust as runtime memory itself); it is rendered as inert text in an existing `Typography.Text`, not HTML/markup (React escapes it), so no injection. Length is bounded in practice by the client's own message construction. No new mitigation warranted for a first-party local string. |
+| T-D04-SC | Tampering | supply-chain (new packages) | n/a | accept | No new packages — renderer-only edit reusing existing types (`IjfwInvokeResult`), the existing `ipcBridge`, and the existing i18n. Package Legitimacy Audit N/A. |
 </threat_model>
 
 <verification>
@@ -244,15 +241,14 @@ renders a field (`IjfwInvokeResult.error` / `errorReason`) that main composed.
 
 **Goal-backward check — each acceptance test maps to "the real reason is surfaced":**
 
-| Must be TRUE (goal: a Degraded runtime shows WHY)                     | Renderer behavior that makes it true                                                  | Proven by                                                                           |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| A failed mount probe shows the real cause, not a bare "Degraded"      | probe threads `error`→ (fallback `errorReason`) into the runtime-row `warn` detail    | DOM test 1 (real `error` text) + test 2 (`errorReason` code fallback)               |
-| A failed Test-button probe shows the real cause, not the fixed string | `handleTest` threads `error`/`errorReason` into the fail text                         | DOM test 5                                                                          |
-| A reasonless failure never regresses or crashes                       | undefined reason → existing bare labels retained                                      | DOM test 3 (runtime) + test 6 (Test button) + test 4 (reject path)                  |
-| The reason the UI shows is the one the client actually produces       | consumer reads the already-structured `IjfwInvokeResult`; producer contract unchanged | existing `ijfwMcpClient.test.ts:592-612` (`-32601`→`error`+`mcp_error`) stays green |
-| The cause is discoverable in the log, as the reporter asked           | main-side failure logging already exists and is untouched                             | grep-verify `ijfwMcpClient.ts` log lines present at exit bar (Task 3)               |
-| Nothing but the display changed (no probe-target / main-side drift)   | renderer-only, verb `state` unchanged, no HTTP probe                                  | diff-scope gate (Task 3)                                                            |
-
+| Must be TRUE (goal: a Degraded runtime shows WHY) | Renderer behavior that makes it true | Proven by |
+|---------------------------------------------------|--------------------------------------|-----------|
+| A failed mount probe shows the real cause, not a bare "Degraded" | probe threads `error`→ (fallback `errorReason`) into the runtime-row `warn` detail | DOM test 1 (real `error` text) + test 2 (`errorReason` code fallback) |
+| A failed Test-button probe shows the real cause, not the fixed string | `handleTest` threads `error`/`errorReason` into the fail text | DOM test 5 |
+| A reasonless failure never regresses or crashes | undefined reason → existing bare labels retained | DOM test 3 (runtime) + test 6 (Test button) + test 4 (reject path) |
+| The reason the UI shows is the one the client actually produces | consumer reads the already-structured `IjfwInvokeResult`; producer contract unchanged | existing `ijfwMcpClient.test.ts:592-612` (`-32601`→`error`+`mcp_error`) stays green |
+| The cause is discoverable in the log, as the reporter asked | main-side failure logging already exists and is untouched | grep-verify `ijfwMcpClient.ts` log lines present at exit bar (Task 3) |
+| Nothing but the display changed (no probe-target / main-side drift) | renderer-only, verb `state` unchanged, no HTTP probe | diff-scope gate (Task 3) |
 </verification>
 
 <success_criteria>
@@ -270,7 +266,6 @@ is a single renderer-layer change (one component + its DOM test); the probe tran
 Tracked for a follow-up; #891 is fully closed without it.
 
 Design (from `D-04-RESEARCH.md` "Recommended Minimal Fixes / Open Questions"):
-
 - Today the mount probe and Test button both call `brainInvoke.invoke({ verb: 'state' })`, which
   maps to `ijfw_state` in the client's `DIRECT_TOOL_MAP`. On an older `~/.ijfw/mcp-server` that
   lacks `ijfw_state`, the server replies `-32601` → `errorReason:'mcp_error'` → the row goes
@@ -278,12 +273,12 @@ Design (from `D-04-RESEARCH.md` "Recommended Minimal Fixes / Open Questions"):
 - The follow-up would align "reachable" to the surface runtime memory actually uses (a lightweight
   `memory_*` liveness read) so a working memory is never shown as Degraded, keeping `state` (or
   switching both) for the Test button.
-- Why deferred: it changes what "reachable" _asserts_ (MEDIUM-risk, semantic change), and the
+- Why deferred: it changes what "reachable" *asserts* (MEDIUM-risk, semantic change), and the
   research recommends deciding it only **after** the honest reason (shipped by this packet)
   confirms the live vector on first reproduction. Surfacing the reason is the low-risk correct
   fix and makes the vector self-evident; the verb change is a separate call for Sean. Milestone D
   mandates minimal surgical fixes, so it stays out of the #891 packet.
-  </deferred>
+</deferred>
 
 <output>
 Write `D-04-SUMMARY.md` when the packet is live-test-accepted, recording: the renderer change

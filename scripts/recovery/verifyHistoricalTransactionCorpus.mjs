@@ -355,17 +355,13 @@ export function verifyBaseReplay(base, provider) {
 
     if (derived.outcome === 'committed') {
       if (!hasReceipt || !hasJournal) {
-        throw new Error(
-          `Committed transaction ${derived.transactionId} in ${base.id} is missing its receipt or journal.`
-        );
+        throw new Error(`Committed transaction ${derived.transactionId} in ${base.id} is missing its receipt or journal.`);
       }
     } else {
       // A crash after ledger publication but before journal/receipt completion:
       // a receipt or journal here is a post-terminal fabrication.
       if (hasReceipt || hasJournal) {
-        throw new Error(
-          `Pending transaction ${derived.transactionId} in ${base.id} has a post-terminal receipt or journal.`
-        );
+        throw new Error(`Pending transaction ${derived.transactionId} in ${base.id} has a post-terminal receipt or journal.`);
       }
     }
   }
@@ -380,7 +376,11 @@ export function verifyBaseReplay(base, provider) {
 
 // ── Orchestration ────────────────────────────────────────────────────────────
 
-export function runHistoricalTransactionCorpusVerification({ manifest = loadManifest(), provider, git = true } = {}) {
+export function runHistoricalTransactionCorpusVerification({
+  manifest = loadManifest(),
+  provider,
+  git = true,
+} = {}) {
   const manifestDigest = verifyManifestIntegrity(manifest);
   const corpusAbs = path.resolve(REPO_ROOT, manifest.corpusRoot);
   const activeProvider = provider ?? createDiskCorpusProvider(corpusAbs);

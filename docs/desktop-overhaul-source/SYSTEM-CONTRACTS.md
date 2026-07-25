@@ -2,13 +2,13 @@
 
 ## Target architecture
 
-| System          | Product responsibility                                                                                                                                                    | Must not own                                                                                                   |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Wayland Core    | Act as Wayland's native first-party agent: reason, plan, invoke capabilities, enforce its execution policy, and emit evidence/receipts through the shared agent contract. | Orchestration of every external CLI, Desktop navigation, provider catalogue UX, hosted tenancy.                |
-| Flux Router     | Select models/routes, enforce budget and routing policy, expose attempts/fallbacks/cost/latency.                                                                          | Task identity, workspace ownership, generic UI state.                                                          |
-| Wayland Desktop | Universal cockpit and orchestration layer over Core, external agent CLIs, providers, tools, hosts, workspaces, artifacts, approvals, and local OS integrations.           | Treating every agent as if it runs inside Core, a private fork of the Core protocol, or a separate task truth. |
-| Wayland Cloud   | Durable remote hosts, cross-device continuity, managed identity/secrets/connectors, observability, backups.                                                               | A hand-maintained subset of Desktop capability semantics.                                                      |
-| Ecosystem       | Portable assistants, workflows, skills, extensions, connector definitions, templates.                                                                                     | Undeclared access or bypass of the common trust model.                                                         |
+| System | Product responsibility | Must not own |
+|---|---|---|
+| Wayland Core | Act as Wayland's native first-party agent: reason, plan, invoke capabilities, enforce its execution policy, and emit evidence/receipts through the shared agent contract. | Orchestration of every external CLI, Desktop navigation, provider catalogue UX, hosted tenancy. |
+| Flux Router | Select models/routes, enforce budget and routing policy, expose attempts/fallbacks/cost/latency. | Task identity, workspace ownership, generic UI state. |
+| Wayland Desktop | Universal cockpit and orchestration layer over Core, external agent CLIs, providers, tools, hosts, workspaces, artifacts, approvals, and local OS integrations. | Treating every agent as if it runs inside Core, a private fork of the Core protocol, or a separate task truth. |
+| Wayland Cloud | Durable remote hosts, cross-device continuity, managed identity/secrets/connectors, observability, backups. | A hand-maintained subset of Desktop capability semantics. |
+| Ecosystem | Portable assistants, workflows, skills, extensions, connector definitions, templates. | Undeclared access or bypass of the common trust model. |
 
 ## Shared product primitives
 

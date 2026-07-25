@@ -33,13 +33,19 @@ interface SiderMemoryEntryProps {
   onClick?: () => void;
 }
 
-const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({ isMobile, isActive, collapsed, siderTooltipProps }) => {
+const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({
+  isMobile,
+  isActive,
+  collapsed,
+  siderTooltipProps,
+}) => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const label = t('sider.memory');
 
-  const isOnMemoryOrWiki = location.pathname.startsWith('/memory') || location.pathname.startsWith('/wiki');
+  const isOnMemoryOrWiki =
+    location.pathname.startsWith('/memory') || location.pathname.startsWith('/wiki');
 
   const [expanded, setExpanded] = useState<boolean>(() => {
     try {
@@ -95,7 +101,7 @@ const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({ isMobile, isActive,
     (path: string) => {
       navigate(path);
     },
-    [navigate]
+    [navigate],
   );
 
   const isArchiveActive = location.pathname.startsWith('/memory');
@@ -112,7 +118,11 @@ const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({ isMobile, isActive,
           onClick={toggleExpanded}
           data-testid='sider-memory-entry'
         >
-          <Brain size={16} className='block leading-none shrink-0' style={{ lineHeight: 0 }} />
+          <Brain
+            size={16}
+            className='block leading-none shrink-0'
+            style={{ lineHeight: 0 }}
+          />
           {orphanCount > 0 && (
             <span
               style={{
@@ -173,7 +183,9 @@ const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({ isMobile, isActive,
             />
           )}
         </span>
-        <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px flex-1'>{label}</span>
+        <span className='collapsed-hidden text-t-primary text-12px font-medium leading-20px flex-1'>
+          {label}
+        </span>
         <span className='collapsed-hidden text-t-3 flex items-center'>
           {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
         </span>
@@ -195,7 +207,9 @@ const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({ isMobile, isActive,
             <span className='w-20px h-20px flex items-center justify-center shrink-0'>
               <Archive size={14} className='block leading-none' style={{ lineHeight: 0 }} />
             </span>
-            <span className='collapsed-hidden text-12px font-medium leading-22px'>Archive</span>
+            <span className='collapsed-hidden text-12px font-medium leading-22px'>
+              Archive
+            </span>
           </div>
 
           <div
@@ -211,7 +225,9 @@ const SiderMemoryEntry: React.FC<SiderMemoryEntryProps> = ({ isMobile, isActive,
             <span className='w-20px h-20px flex items-center justify-center shrink-0'>
               <BookOpen size={14} className='block leading-none' style={{ lineHeight: 0 }} />
             </span>
-            <span className='collapsed-hidden text-12px font-medium leading-22px'>Wiki</span>
+            <span className='collapsed-hidden text-12px font-medium leading-22px'>
+              Wiki
+            </span>
           </div>
         </>
       )}

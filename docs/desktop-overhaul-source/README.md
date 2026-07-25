@@ -54,14 +54,14 @@ This directory separates four questions that are too often collapsed into one:
 
 ## Evidence vocabulary
 
-| State          | Meaning                                                          |
-| -------------- | ---------------------------------------------------------------- |
-| Claimed        | Documentation or product copy says it exists.                    |
-| Present        | Relevant implementation exists in the pinned source.             |
-| Wired          | A reachable production surface invokes it.                       |
-| Journey-proven | A representative user outcome passed live.                       |
-| Release-gated  | CI blocks a release when that outcome regresses.                 |
-| Operable       | Diagnostics, recovery, versioning, and support boundaries exist. |
+| State | Meaning |
+|---|---|
+| Claimed | Documentation or product copy says it exists. |
+| Present | Relevant implementation exists in the pinned source. |
+| Wired | A reachable production surface invokes it. |
+| Journey-proven | A representative user outcome passed live. |
+| Release-gated | CI blocks a release when that outcome regresses. |
+| Operable | Diagnostics, recovery, versioning, and support boundaries exist. |
 
 No row should be promoted by inference. A unit test proves a unit; it does not prove a packaged outcome.
 
@@ -85,19 +85,19 @@ permits root integration. Cycle 20 additionally makes preservation of supported
 work created in the isolated signed-v0.11.8 session a mandatory Stage C/M0A
 gate: exact historical transaction replay, externally authenticated projection,
 canonical Classic deltas, durable per-item promotion replay, explicit user
-disposition, encrypted rescue, and signed Classic journeys must pass. The
-current Wave 0 local-recovery plan rebaseline passed its fresh independent
-current-byte BLOCKER/HIGH audit in Cycle 40; no historical Cycle
-22 or Cycle 27 hash authorizes these changed bytes. Implementation remains
-non-promoting and must satisfy the named receipts and exact-HEAD audit
-independently. Cycle 32 additionally requires restart-safe discovery through
-the derived sealed Classic locator registry: no caller path, mutable process
-memory, or write into live v2 state may stand in for that authority. M0B
-privacy/aggregation machinery is a tested engineering
+  disposition, encrypted rescue, and signed Classic journeys must pass. The
+  current Wave 0 local-recovery plan rebaseline passed its fresh independent
+  current-byte BLOCKER/HIGH audit in Cycle 40; no historical Cycle
+  22 or Cycle 27 hash authorizes these changed bytes. Implementation remains
+  non-promoting and must satisfy the named receipts and exact-HEAD audit
+  independently. Cycle 32 additionally requires restart-safe discovery through
+  the derived sealed Classic locator registry: no caller path, mutable process
+  memory, or write into live v2 state may stand in for that authority. M0B
+  privacy/aggregation machinery is a tested engineering
 candidate, but its product capture, actual 14-day observation, and signed
 receipt do not exist. Dependency-safe Wave 0 engineering may continue; M0A,
 M0B, C0, MCP-2, M8, six-target release proof, invited alpha, and cohort
-promotion remain locked. `ROADMAP.md` retains the wider Desktop/Cloud/Pro
+  promotion remain locked. `ROADMAP.md` retains the wider Desktop/Cloud/Pro
 program history; where its older information architecture conflicts with the
 approved adaptive-cockpit mental model, the master plan controls.
 

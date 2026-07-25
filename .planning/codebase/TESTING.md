@@ -66,13 +66,13 @@ Install the pinned dependencies first with `bun install --frozen-lockfile`. At m
 ```typescript
 describe('parseTunnelUrl', () => {
   it('parses a valid tunnel URL', () => {
-    expect(parseTunnelUrl(value)).toEqual(expected);
-  });
+    expect(parseTunnelUrl(value)).toEqual(expected)
+  })
 
   it('returns null for malformed input', () => {
-    expect(parseTunnelUrl(value)).toBeNull();
-  });
-});
+    expect(parseTunnelUrl(value)).toBeNull()
+  })
+})
 ```
 
 This behavior-first arrangement is exemplified by `tests/unit/channels/tunnel/parseTunnelUrl.test.ts`: group by exported behavior, cover valid and invalid inputs, and assert returned domain values rather than implementation details.
@@ -269,4 +269,4 @@ it('renders the registered channel state', async () => {
 
 ---
 
-_Testing analysis: 2026-07-19_
+*Testing analysis: 2026-07-19*

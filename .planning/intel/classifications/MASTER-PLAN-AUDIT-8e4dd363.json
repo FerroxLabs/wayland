@@ -5,7 +5,14 @@
   "manifest_override": true,
   "title": "Wayland Desktop Master Plan Adversarial Audit",
   "summary": "Adversarially audits the Desktop master build plan, its rollback and recovery scope, evidence gates, and unresolved release dependencies.",
-  "scope": ["Wayland Desktop", "master build plan", "Wave 0", "rollback", "recovery", "release gates"],
+  "scope": [
+    "Wayland Desktop",
+    "master build plan",
+    "Wave 0",
+    "rollback",
+    "recovery",
+    "release gates"
+  ],
   "cross_refs": [
     "MASTER-BUILD-PLAN.md",
     ".ijfw/memory/brief.md",

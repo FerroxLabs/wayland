@@ -69,9 +69,7 @@ describe('WCore project config crash transaction', () => {
     writeFileSync(secret, 'do-not-copy\n');
     symlinkSync(secret, target);
 
-    expect(() => ProjectConfigTransaction.begin(target, 'temporary-authority\n')).toThrow(
-      /non-regular|symbolic|ELOOP/i
-    );
+    expect(() => ProjectConfigTransaction.begin(target, 'temporary-authority\n')).toThrow(/non-regular|symbolic|ELOOP/i);
     expect(readFileSync(secret, 'utf-8')).toBe('do-not-copy\n');
     expect(existsSync(`${target}.wayland-desktop.backup`)).toBe(false);
   });

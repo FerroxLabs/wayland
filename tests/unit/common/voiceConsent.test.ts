@@ -41,9 +41,9 @@ describe('hostedVoiceConsentGranted (fail-closed gate)', () => {
 
   it('denies when acceptedProviders is malformed', () => {
     // @ts-expect-error deliberately malformed persisted input
-    expect(
-      hostedVoiceConsentGranted('openai', { version: HOSTED_VOICE_CONSENT_VERSION, acceptedProviders: 'openai' })
-    ).toBe(false);
+    expect(hostedVoiceConsentGranted('openai', { version: HOSTED_VOICE_CONSENT_VERSION, acceptedProviders: 'openai' })).toBe(
+      false
+    );
   });
 
   it('ignores unknown provider names in the accepted set', () => {
