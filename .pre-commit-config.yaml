@@ -47,11 +47,11 @@ repos:
       #    produced "State drift: size mismatch" in the corpus verifier.
       - id: end-of-file-fixer
         # Only fix text files, exclude binary files and special OS files
-        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|src/process/resources/skills/.*|tests/fixtures/.*|strike/.*|contracts/.*|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin))$'
+        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|src/process/resources/skills/.*|tests/fixtures/.*|strike/.*|contracts/.*|src/process/channels/whatsapp-bridge/.*|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin))$'
       - id: trailing-whitespace
         # Auto-fix trailing whitespace in text files
         # Excludes binary files (matching end-of-file-fixer pattern)
-        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|src/process/resources/skills/.*|tests/fixtures/.*|strike/.*|contracts/.*|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin|patch))$'
+        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|src/process/resources/skills/.*|tests/fixtures/.*|strike/.*|contracts/.*|src/process/channels/whatsapp-bridge/.*|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin|patch))$'
 
   # TypeScript type checking (full project check required)
   - repo: local
@@ -102,10 +102,16 @@ repos:
         #    byte size, including a .ts generator whose own hash is asserted.
         #    Reformatting them produced "State drift: size mismatch" in the
         #    historical transaction corpus verifier.
+        #  - src/process/channels/whatsapp-bridge/**: every file is pinned by size
+        #    and SHA-256 in scripts/whatsapp-bridge-source.json and checked by
+        #    verify-packaged-resources.js. Reformatting backends/baileys.js
+        #    (15582 -> 15420 bytes) broke that authority and therefore every
+        #    packaged build. Nothing in the unit suite catches it, because the
+        #    verifier needs --target-platform/--target-arch and a built app.
         # Every entry below was added because a formatter run actually broke it.
         # Adding a path here is cheaper than the build or suite failure it prevents.
         exclude: >-
-          ^(src/process/resources/(skills-library|bundled-workflows)/index\.json|src/process/resources/skills/.*|resources/modelsdev-snapshot\.json|contracts/.*|tests/fixtures/.*|strike/.*)$
+          ^(src/process/resources/(skills-library|bundled-workflows)/index\.json|src/process/resources/skills/.*|resources/modelsdev-snapshot\.json|contracts/.*|tests/fixtures/.*|strike/.*|src/process/channels/whatsapp-bridge/.*)$
         pass_filenames: true
 
   # i18n translation files validation
