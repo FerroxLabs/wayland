@@ -736,6 +736,35 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
               <span>{t('onboarding.flow.outcome.cliNote')}</span>
             </div>
             <div style={{ marginTop: 14 }}>{fluxBanner(FLUX_TITLE, FLUX_BODY)}</div>
+            {/* Detected CLI agents used to make Flux the ONLY door here, so anyone
+                who already had their own provider key had nowhere to put it during
+                onboarding - the cold and wired branches both offer this field. The
+                point of onboarding is connecting your stuff up, so offer it here
+                too. Flux stays first and recommended. */}
+            <div style={{ marginTop: 14 }}>
+              {keyField(
+                async (v) => {
+                  if (await connectKey(v)) setColdKey('');
+                },
+                coldKey,
+                setColdKey
+              )}
+              {keyStatus()}
+              <p className={styles.keyhint}>
+                {t('onboarding.flow.outcome.geminiKeyHint')}{' '}
+                <a
+                  href='https://aistudio.google.com/apikey'
+                  rel='noreferrer'
+                  onClick={(e) => {
+                    // Bare target=_blank opens nothing in the Electron renderer (#202).
+                    e.preventDefault();
+                    void openExternalUrl('https://aistudio.google.com/apikey');
+                  }}
+                >
+                  {t('onboarding.flow.outcome.geminiKeyLink')}
+                </a>
+              </p>
+            </div>
           </>
         ) : (
           // no provider connected yet → pick a model
