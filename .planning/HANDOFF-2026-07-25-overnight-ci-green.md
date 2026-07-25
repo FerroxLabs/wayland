@@ -135,6 +135,12 @@ Would reverse the deliberate per-machine UPD-04 decision.
 - **`Build Pipeline (Reusable)` is red on every push** and still unexplained: `on: workflow_call` only, zero
   jobs, no log. **Not a required check** — required are exactly `Code Quality` + the three
   `Unit Tests (<os>)`. My earlier claim that this was pending Sean was wrong.
+  Ruled out so nobody retraces it: repo rulesets (none configured) and org rulesets (404), so it is not a
+  required-workflow rule; both callers cannot fire on a feature-branch push (`build-and-release.yml` is
+  `push: branches: [dev]` + `tags: ['*']`, `build-manual.yml` is `workflow_dispatch` only); and **`main`'s own
+  copy of `_build-reusable.yml` is also `workflow_call`-only**, so it is not the default-branch definition
+  carrying a stray `push:` trigger. Next thing to try is the Actions UI for one of those run IDs, since the
+  API returns no jobs and no log for them.
 - **All three per-OS required checks share ONE matrix job**, so any shard on any OS turns all three red.
   macOS reported `SHARDS_RESULT: failure` with its own 4/4 green.
 - **~35 `verifyPackagedResources` assertions pass for the wrong reason on Windows**: 41
