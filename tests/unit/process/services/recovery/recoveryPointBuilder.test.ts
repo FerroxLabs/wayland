@@ -34,8 +34,18 @@ vi.mock('node:fs/promises', async (importOriginal) => {
     rm: async (...args: Parameters<typeof actual.rm>) => {
       if (cleanupRace.armed && !cleanupRace.swapped) {
         const target = String(args[0]);
+        const lastSegment = (value: string): string =>
+          value.slice(Math.max(value.lastIndexOf('/'), value.lastIndexOf('\\')) + 1);
         const recursive = Boolean((args[1] as { recursive?: boolean } | undefined)?.recursive);
-        const rootHit = cleanupRace.mode === 'root' && target === cleanupRace.finalRoot;
+        // The reserved-root removal is the builder's only non-recursive `rm`, and
+        // it is the exact instant the swap has to beat. Match that shape plus the
+        // reserved name rather than the whole pathname: the builder operates on
+        // '/proc/self/fd/<fd>/<name>' in descriptor-relative mode (Linux), and on
+        // Windows its canonical root comes from the promises realpath (native,
+        // expands 8.3 short names) while fs.realpathSync here does not, so
+        // full-path equality only ever held on macOS.
+        const rootHit =
+          cleanupRace.mode === 'root' && !recursive && lastSegment(target) === lastSegment(cleanupRace.finalRoot);
         // A child removal is any recursive delete that is neither the reserved
         // root itself nor the private staging tree ('.incomplete-'). In
         // descriptor-relative mode the target is '/proc/self/fd/<fd>/<child>',
@@ -877,44 +887,51 @@ describe('recovery point builder', () => {
     }
   );
 
-  it('removes its reserved publication root when publication-handle cleanup fails', async () => {
-    const data = await fixture();
-    let failedPublicationClose = false;
-    const deps = dependencies({
-      closeFileHandle: async (handle, role) => {
-        await handle.close();
-        if (role === 'publication-root' && !failedPublicationClose) {
-          failedPublicationClose = true;
-          throw new Error('publication handle close failed');
-        }
-      },
-    });
-
-    await expect(
-      buildRecoveryPoint(
-        {
-          inventory: data.inventory,
-          destinationRoot: data.destinationRoot,
-          reason: 'manual',
-          sourceAppVersion: '0.11.18',
-          desktopSchemaVersion: 53,
+  // Missing Windows primitive: a directory FileHandle. libuv cannot open a
+  // directory on Windows, so admitRecoveryStaging returns an admission with no
+  // handle and there is no 'publication-root' descriptor whose close can fail -
+  // the injected failure could never fire and the build would simply succeed.
+  it.skipIf(process.platform === 'win32')(
+    'removes its reserved publication root when publication-handle cleanup fails',
+    async () => {
+      const data = await fixture();
+      let failedPublicationClose = false;
+      const deps = dependencies({
+        closeFileHandle: async (handle, role) => {
+          await handle.close();
+          if (role === 'publication-root' && !failedPublicationClose) {
+            failedPublicationClose = true;
+            throw new Error('publication handle close failed');
+          }
         },
-        deps.dependencies
-      )
-    ).rejects.toThrow('Recovery publication cleanup failed');
+      });
 
-    expect(failedPublicationClose).toBe(true);
-    if (recoveryFilesystemSafetyModeForPlatform(process.platform) === 'descriptor-relative') {
-      // Descriptor-relative platform: the retired publication handle leaves no
-      // inode-binding descriptor for cleanup. Rather than delete through the
-      // re-resolvable reserved name, cleanup fails closed and leaves the orphan.
-      expect(fs.readdirSync(data.destinationRoot)).toEqual(['snapshot-test']);
-    } else {
-      // Test-only pathname fallback platform: no descriptor primitive exists, so
-      // the reserved root is removed by name.
-      expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+      await expect(
+        buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot: data.destinationRoot,
+            reason: 'manual',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        )
+      ).rejects.toThrow('Recovery publication cleanup failed');
+
+      expect(failedPublicationClose).toBe(true);
+      if (recoveryFilesystemSafetyModeForPlatform(process.platform) === 'descriptor-relative') {
+        // Descriptor-relative platform: the retired publication handle leaves no
+        // inode-binding descriptor for cleanup. Rather than delete through the
+        // re-resolvable reserved name, cleanup fails closed and leaves the orphan.
+        expect(fs.readdirSync(data.destinationRoot)).toEqual(['snapshot-test']);
+      } else {
+        // Test-only pathname fallback platform: no descriptor primitive exists, so
+        // the reserved root is removed by name.
+        expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+      }
     }
-  });
+  );
 
   // The strong descriptor-relative proof of the above: when the fd-close-failure
   // precondition strips the binding handle AND a publisher swaps the reserved
@@ -1061,51 +1078,58 @@ describe('recovery point builder', () => {
     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
   });
 
-  it('preserves an artifact failure when nested handle cleanup also fails', async () => {
-    const data = await fixture();
-    let injectedCloseFailure = false;
-    const deps = dependencies({
-      beforeFirstArtifactWrite: async () => Promise.reject(new Error('artifact operation failed')),
-      closeFileHandle: async (handle, role) => {
-        await handle.close();
-        if (role === 'artifact-parent' && !injectedCloseFailure) {
-          injectedCloseFailure = true;
-          throw new Error('nested artifact parent close failed');
-        }
-      },
-    });
-
-    let observed: unknown;
-    try {
-      await buildRecoveryPoint(
-        {
-          inventory: data.inventory,
-          destinationRoot: data.destinationRoot,
-          reason: 'manual',
-          sourceAppVersion: '0.11.18',
-          desktopSchemaVersion: 53,
+  // Missing Windows primitive: a directory FileHandle. writeRecoveryArtifact
+  // holds no artifact-parent descriptors on Windows (libuv cannot open a
+  // directory), so no 'artifact-parent' close runs, the injected failure never
+  // fires, and the primary error is thrown alone instead of in an AggregateError.
+  it.skipIf(process.platform === 'win32')(
+    'preserves an artifact failure when nested handle cleanup also fails',
+    async () => {
+      const data = await fixture();
+      let injectedCloseFailure = false;
+      const deps = dependencies({
+        beforeFirstArtifactWrite: async () => Promise.reject(new Error('artifact operation failed')),
+        closeFileHandle: async (handle, role) => {
+          await handle.close();
+          if (role === 'artifact-parent' && !injectedCloseFailure) {
+            injectedCloseFailure = true;
+            throw new Error('nested artifact parent close failed');
+          }
         },
-        deps.dependencies
+      });
+
+      let observed: unknown;
+      try {
+        await buildRecoveryPoint(
+          {
+            inventory: data.inventory,
+            destinationRoot: data.destinationRoot,
+            reason: 'manual',
+            sourceAppVersion: '0.11.18',
+            desktopSchemaVersion: 53,
+          },
+          deps.dependencies
+        );
+      } catch (error) {
+        observed = error;
+      }
+
+      const messages: string[] = [];
+      const collectMessages = (error: unknown): void => {
+        if (!(error instanceof Error)) return;
+        messages.push(error.message);
+        if (error instanceof AggregateError) error.errors.forEach(collectMessages);
+      };
+      collectMessages(observed);
+
+      expect(observed).toBeInstanceOf(AggregateError);
+      expect(messages).toEqual(
+        expect.arrayContaining(['artifact operation failed', 'Recovery cleanup failed for artifact-parent.'])
       );
-    } catch (error) {
-      observed = error;
+      expect(injectedCloseFailure).toBe(true);
+      expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
     }
-
-    const messages: string[] = [];
-    const collectMessages = (error: unknown): void => {
-      if (!(error instanceof Error)) return;
-      messages.push(error.message);
-      if (error instanceof AggregateError) error.errors.forEach(collectMessages);
-    };
-    collectMessages(observed);
-
-    expect(observed).toBeInstanceOf(AggregateError);
-    expect(messages).toEqual(
-      expect.arrayContaining(['artifact operation failed', 'Recovery cleanup failed for artifact-parent.'])
-    );
-    expect(injectedCloseFailure).toBe(true);
-    expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
-  });
+  );
 
   it('passes sensitive source bytes directly to the sealer inside private staging', async () => {
     const data = await fixture();
@@ -1173,48 +1197,56 @@ describe('recovery point builder', () => {
     );
   });
 
-  it('seals bytes from the admitted source handle when an authority directory is swapped during sealing', async () => {
-    const data = await fixture();
-    const configRoot = path.join(data.userDataRoot, 'config');
-    const admittedConfigRoot = path.join(data.userDataRoot, 'config-admitted');
-    const attackerRoot = path.join(data.root, 'attacker-config');
-    fs.mkdirSync(attackerRoot);
-    fs.writeFileSync(path.join(attackerRoot, 'preferences.json'), 'attacker-controlled');
-    let swapped = false;
-    const deps = dependencies({
-      sealBytes: async (bytes) => {
-        if (!swapped && bytes.toString('utf8') === '{"theme":"dark"}') {
-          swapped = true;
-          fs.renameSync(configRoot, admittedConfigRoot);
-          fs.symlinkSync(attackerRoot, configRoot, 'dir');
-        }
-        if (swapped && fs.lstatSync(configRoot).isSymbolicLink()) {
-          fs.unlinkSync(configRoot);
-          fs.renameSync(admittedConfigRoot, configRoot);
-        }
-        return Buffer.concat([Buffer.from('sealed:'), bytes]);
-      },
-    });
+  // Missing Windows primitive: POSIX rename semantics. The hostile swap renames
+  // an authority directory while the builder holds an open handle to a file
+  // inside it, which Windows refuses with EPERM (sharing violation); creating a
+  // directory symlink over the vacated name additionally needs a privilege the
+  // runner does not have.
+  it.skipIf(process.platform === 'win32')(
+    'seals bytes from the admitted source handle when an authority directory is swapped during sealing',
+    async () => {
+      const data = await fixture();
+      const configRoot = path.join(data.userDataRoot, 'config');
+      const admittedConfigRoot = path.join(data.userDataRoot, 'config-admitted');
+      const attackerRoot = path.join(data.root, 'attacker-config');
+      fs.mkdirSync(attackerRoot);
+      fs.writeFileSync(path.join(attackerRoot, 'preferences.json'), 'attacker-controlled');
+      let swapped = false;
+      const deps = dependencies({
+        sealBytes: async (bytes) => {
+          if (!swapped && bytes.toString('utf8') === '{"theme":"dark"}') {
+            swapped = true;
+            fs.renameSync(configRoot, admittedConfigRoot);
+            fs.symlinkSync(attackerRoot, configRoot, 'dir');
+          }
+          if (swapped && fs.lstatSync(configRoot).isSymbolicLink()) {
+            fs.unlinkSync(configRoot);
+            fs.renameSync(admittedConfigRoot, configRoot);
+          }
+          return Buffer.concat([Buffer.from('sealed:'), bytes]);
+        },
+      });
 
-    const result = await buildRecoveryPoint(
-      {
-        inventory: data.inventory,
-        destinationRoot: data.destinationRoot,
-        reason: 'recovery-test',
-        sourceAppVersion: '0.11.18',
-        desktopSchemaVersion: 53,
-      },
-      deps.dependencies
-    );
-    const config = result.manifest.files.find(
-      ({ authority, restorePath }) => authority === 'desktop.config' && restorePath.endsWith('/preferences.json')
-    )!;
+      const result = await buildRecoveryPoint(
+        {
+          inventory: data.inventory,
+          destinationRoot: data.destinationRoot,
+          reason: 'recovery-test',
+          sourceAppVersion: '0.11.18',
+          desktopSchemaVersion: 53,
+        },
+        deps.dependencies
+      );
+      const config = result.manifest.files.find(
+        ({ authority, restorePath }) => authority === 'desktop.config' && restorePath.endsWith('/preferences.json')
+      )!;
 
-    expect(swapped).toBe(true);
-    expect(fs.readFileSync(path.join(result.snapshotPath, config.snapshotPath), 'utf8')).toBe(
-      'sealed:{"theme":"dark"}'
-    );
-  });
+      expect(swapped).toBe(true);
+      expect(fs.readFileSync(path.join(result.snapshotPath, config.snapshotPath), 'utf8')).toBe(
+        'sealed:{"theme":"dark"}'
+      );
+    }
+  );
 
   it.runIf(process.platform === 'linux')(
     'fails closed when a nested source component is replaced before descriptor-relative open',
@@ -1226,8 +1258,10 @@ describe('recovery point builder', () => {
       let replaced = false;
       const deps = dependencies({
         allowUnsafePathFallbackForTests: false,
+        // `specialists` is its own admitted evidence root, so traversal reports
+        // entries relative to that root - not relative to constitutionRoot.
         beforeSourceEntryOpen: async (relativePath) => {
-          if (!replaced && relativePath === path.join('specialists', 'research.md')) {
+          if (!replaced && relativePath === 'research.md') {
             replaced = true;
             fs.renameSync(researchPath, admittedResearchPath);
             fs.writeFileSync(researchPath, '# Replacement overlay');
@@ -1350,7 +1384,11 @@ describe('recovery point builder', () => {
             inventory: data.inventory,
             destinationRoot,
             protectedRoots: [protectedRoot],
-            reason: 'hostile-publication-race',
+            // Must be a manifest-valid trigger: this is the only ancestor-swap
+            // test that reaches manifest validation (its seam fires after the
+            // manifest is built), so an invented reason failed it as
+            // REASON_INVALID before the publication boundary was ever exercised.
+            reason: 'manual',
             sourceAppVersion: '0.11.18',
             desktopSchemaVersion: 53,
           },
