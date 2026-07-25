@@ -71,6 +71,44 @@ WhatsApp bridge). Two of the four were caught only by the FULL unit suite, and o
 build. Also: oxfmt 0.41.0 formats those files DIFFERENTLY on linux-x64 vs darwin-arm64, so a green local
 prek can be a false negative - reproduce with docker + `oxfmt@0.41.0`.
 
+**G12 — Confirm formatting under LINUX before pushing; darwin PASSES bad bytes.** Not a variant of G11,
+a sharper claim: `oxfmt --check` on darwin **accepted** a file that linux **rejected**, so running prek
+locally on macOS could never have caught it and Code Quality went red on a push that had passed every
+local gate. The CI gate runs on ubuntu, so linux is authoritative. Mandatory before push:
+`docker run --rm -v "$PWD":/repo -w /repo node:22-slim sh -c 'npm i -g oxfmt@0.41.0 && oxfmt --check <files>'`
+Corollary: `oxlint` clean is NOT `oxfmt` clean, and an agent reporting the former proves nothing about the
+latter. Two commits' worth of agent-authored test files reached HEAD unformatted this way.
+
+**G13 — NEVER run `prek run --all-files`.** It rewrote **3,368 files**, including digest-pinned skill
+artifacts. `_build-reusable.yml`'s own comment already documents why: a repo-wide `oxfmt --check` "trips on
+generated data / fixtures / injected docs" and "was the reason no release ever built". CI runs it
+diff-scoped (`prek run --from-ref origin/$BASE --to-ref HEAD`). Use `prek run --files <paths>` only.
+
+**G14 — Do not run repo-wide gates while subagents are editing the same worktree.** A hook reported
+"TypeScript Check Failed / files were modified by this hook" purely because an agent wrote mid-run, while
+`bunx tsc --noEmit` was exit 0. When agents are live, stage explicit paths and never `git add -A`.
+
+**G15 — Audit a returned agent's DIFF, not just its report.** One agent reported a file finished while
+leaving `PROBE_INVERT` debug env hooks in it; its diagnosis was excellent and its code was not
+committable. Two of five agents also died mid-run (API error, 600s stall), one of them mid-revert. Always
+re-check `git status` and grep the diff for probe/debug/TODO scaffolding after every agent returns.
+
+**G16 — `git diff` piped to a file is NOT a valid patch in this environment.** The rtk wrapper filters git
+output, so `git diff > p.patch && git checkout -- f && git apply p.patch` silently loses the work
+("No valid patches in input") — it destroyed a verified fix once. Re-apply edits by hand, or copy the file.
+
+**G17 — Say WHICH `realpath`.** `fs.realpathSync` (Node's JS walker) does **not** expand Windows 8.3 short
+names; `fsPromises.realpath` (native libuv) **does**. Tests typically use the sync walker while production
+awaits the promises one, and `%TEMP%` on GH Windows runners is the short form — so any
+`realpath(candidate) !== candidate` check fails on Windows only. Stating the fact without naming the API is
+how a correct fix (`13695e0fe`) got reported as unproven and two agents got briefed with a wrong lead.
+
+**G18 — `tsconfig.json` does not include `tests/**`, so unit tests are NEVER typechecked.** That is how
+`reason: 'hostile-publication-race'` — a flat violation of a strict union on an exported type — compiled
+clean and silently neutered a security race test. Three sibling tests still carry invented reasons; they
+survive only because they fail before manifest validation. Treat any type-level assumption inside a test
+as unverified. **Not fixed — adding `tests/**` to the typecheck surface is its own packet.**
+
 ---
 
 ## 2. Done and verified
@@ -213,12 +251,49 @@ Full per-packet status in `F-04-F-05-RECONCILIATION.md`. Headlines:
 - **P0-4 is partly superseded** — provenance attestation already runs; only the SHA256SUMS asset is missing.
 - The plan's own acceptance bar ("968 unit tests") and one cited path (`wcoreUpdater.ts`) are stale.
 
-### F-06 · Sealed build — GATED ON SEAN
+### F-06 · Sealed build — BLOCKED ON THE MERGE, NOT ON SEAN'S REVIEW
 
 Needs a protected `release-trust-v1` branch and repo variable `WAYLAND_RELEASE_TRUST_ROOT_SHA`.
-Neither exists. Deliberately not created by the agent: the agent that builds releases must not mint the
-authority that validates them. Notarization is already fully wired (`afterSign.js` + `notarizeDmg.js`,
-all six secrets present) — do not re-raise it as a gap.
+Verified live: the branch 404s and the repo has **zero** Actions variables of any name.
+
+**Correction — an earlier recommendation in this file's lineage was WRONG.** It said to create
+`release-trust-v1` from `ferrox/main` tip `1b1c1e911`. All four trust-root files are **ABSENT on main**:
+`release-acceptance-trust-root.yml`, `protected-platform-package-observer.yml`,
+`protected-updater-journey-observer.yml`, `scripts/release-acceptance/verifyFinalAcceptance.js`. They were
+authored **on this branch** on 2026-07-19 (`719d8fb33`, `fa32e7a3e`) and never merged. Creating the branch
+at `1b1c1e911` yields a trust root with **no workflow to run** — every dispatch 404s.
+
+Verified twice, each with a positive control, because the first two attempts at this were wrong:
+local `git cat-file` (after confirming the repo actually has `1b1c1e911`, else a missing object fakes
+"ABSENT") **and** the contents API (with `pr-checks.yml` / `build-and-release.yml` / `readme.md` resolving
+to prove the call shape). Same for the reference count: `main`'s `build-and-release.yml` fetched via API
+is 17,913B and contains **0** `release-trust-v1` references, with `jobs:` matching once to prove the grep.
+
+**Nothing is broken on `main` today** — releases work as they did for v0.11.18. The requirement ARRIVES
+WITH THE MERGE: this branch's `build-and-release.yml` has **9** references to that branch.
+
+**Correct order — do not reorder:**
+1. Merge #925 once required checks are green.
+2. Create `release-trust-v1` from the **post-merge** `main` tip (the merge commit is the first commit that
+   contains the trust-root workflows).
+3. Set `WAYLAND_RELEASE_TRUST_ROOT_SHA` to that exact SHA. The gate is
+   `[[ "$GITHUB_SHA" == "$TRUST_ROOT_SHA" ]]`, so the variable must equal the branch head — the branch
+   moving alone can never change what is trusted. Two keys by design.
+4. Protect against force-push and deletion.
+5. Only then tag.
+
+⚠️ **LIVE HAZARD between 1 and 4:** merging introduces 9 references to a branch that does not exist, and
+`build-and-release.yml` fires on `tags: ['*']` — **any tag** (verified on both main and this branch). A tag
+landing in that window breaks the release build. Do steps 2-4 immediately after merge, before any tag.
+
+Do NOT create it early from this branch: mechanically it would work, but it would pin 552 commits of
+unreviewed work as the trust root, inverting "the trust root lags the work it blesses".
+
+The human review is ~1,600 lines (`verifyFinalAcceptance.js` 875, trust-root workflow 429, package
+observer 303) and is Sean's because the `final-acceptance` job is the one holding `attestations: write` +
+`id-token: write`; every other part of the design exists to keep candidate code away from those two
+permissions, so an agent approving it hollows out the control. Notarization is already fully wired
+(`afterSign.js` + `notarizeDmg.js`, all six secrets present) — do not re-raise it as a gap.
 
 ## 4. Carried findings — fix in place, do not re-litigate
 
