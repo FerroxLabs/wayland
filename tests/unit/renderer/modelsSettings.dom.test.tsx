@@ -418,6 +418,16 @@ describe('ModelsSettings page', () => {
 // subset of the source, so a future edit to either side fails CI.
 // ---------------------------------------------------------------------------
 
+// The DeepSeek and Moonshot cases below must carry the exact SHAPE the recogniser
+// keys on (sk- plus 32 hex; sk- plus 48 mixed-alnum). Any literal of that shape is
+// a credential pattern, so GitHub push protection blocks the commit and a
+// credential sweep cannot tell the fixture from a real key that was pasted in -
+// the earlier random-looking literals had exactly that problem. Assembling them at
+// runtime keeps the shape the test needs while leaving no secret-shaped literal in
+// the source. Do not inline these back.
+const DEEPSEEK_SHAPED_KEY = `sk-${'dead'.repeat(8)}`;
+const MOONSHOT_SHAPED_KEY = `sk-${'NotAReal1Key'.repeat(4)}`;
+
 describe('recognizeKey', () => {
   // Every unique-prefix provider the renderer claims to recognize, with a
   // representative sample key for each.
@@ -448,8 +458,8 @@ describe('recognizeKey', () => {
     // Structural sk- variants - these resolve uniquely despite the bare-sk
     // prefix because their internal shape is distinctive (32-hex for DeepSeek;
     // 48-mixed-alnum minus OpenAI's `T3BlbkFJ` signature for Moonshot).
-    ['deepseek', 'sk-d5640f0e48904de7ac51062a4ec3b830'],
-    ['moonshot', 'sk-k44yYrLwjwxEeLddGHBMe4OoSibUr7H65bQyh0cyKOmiHSD7'],
+    ['deepseek', DEEPSEEK_SHAPED_KEY],
+    ['moonshot', MOONSHOT_SHAPED_KEY],
   ];
 
   it.each(recognizedCases)('recognizes a %s key', (provider, key) => {
