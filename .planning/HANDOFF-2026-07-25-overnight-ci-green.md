@@ -316,3 +316,74 @@ diagnostics. It would have caught the recovery bug on the first run because that
 have caught that one bug but gives permanent zero protection to the 419 already-dirty files. Then fix the
 57 as its own packet — each is a judgment call (is `status: 'open'` a wrong test value or a union missing a
 member?), roughly half a day to a day.
+
+---
+
+## 8. ALL FOUR REQUIRED CHECKS GREEN — run `30163970764` on `92d10cab8`
+
+| Required check             | Result                   |
+| -------------------------- | ------------------------ |
+| Code Quality               | **success**              |
+| Unit Tests (ubuntu-latest) | **success** — 4/4 shards |
+| Unit Tests (macos-14)      | **success** — 4/4 shards |
+| Unit Tests (windows-2022)  | **success** — 4/4 shards |
+
+**12/12 shards green.** That run's only failing job was `Coverage Test`, which is **not** a required check
+(see below). PR #925 is now mergeable on the gate — **still nobody's call but Sean's.**
+
+⚠️ Two commits landed _after_ that run: `cb9287f5d` (handoff) and `704427910` (§9). The green above is on
+`92d10cab8`. **Re-confirm on the newest run before merging** — run `30164380290` on `704427910` is that run.
+
+---
+
+## 9. The `Build Pipeline (Reusable)` mystery is SOLVED and fixed (`704427910`)
+
+Open item from §5, red on every push, "unexplained". It was never a failing job.
+
+**GitHub validates every workflow file on push, including `workflow_call`-only ones, and creates a failed
+run with zero jobs and no logs when the file is invalid.** That is the exact signature we kept seeing
+(`event=push`, 0 jobs, no log, no annotations).
+
+The invalid line was introduced on this branch — the build job carried
+
+```yaml
+env:
+  WAYLAND_CAPABILITY_RECEIPTS_DIR: ${{ runner.temp }}/capability-acceptance
+```
+
+at **job level**, where the `runner` context does not exist (only `github`, `inputs`, `needs`, `matrix`,
+`strategy`, `secrets`, `vars` do). `actionlint` reports it as the single error in the file; **`main`'s copy
+is clean** because every `runner.temp` use there is at step level.
+
+**This was not cosmetic.** `build-and-release.yml` calls this workflow on tag, so the release build could
+not have run at all. F-06's plan ends in "only then tag" — precisely when this would have surfaced.
+
+Fixed by exporting the value from a step (where `runner` IS available) into `$GITHUB_ENV`, preserving the
+job-wide value for the three `electron-builder` steps that consume it, using the same expression as the
+download step so the two cannot drift. The existing test pinned the _broken_ shape, so it now asserts the
+opposite plus the export step's env, its `$GITHUB_ENV` write, and its ordering.
+
+**Verified three ways:** `actionlint` clean on this file **and on every workflow in `.github`**; the test
+goes 1/3 red → 3/3 green (reverting only the workflow yields
+`expected '${{ runner.temp }}/capability-acceptance' to be undefined`); and **live** — the push of
+`704427910` produced **no `Build Pipeline (Reusable)` run at all**, where every prior push produced a failed
+one.
+
+---
+
+## 10. `Coverage Test` — diagnosed, NOT fixed, needs Sean (one secret)
+
+Not a required check, so it blocks nothing. But the cause is now exact rather than a watch item:
+
+- `COVERAGE_OUTCOME: success` — **the coverage tests pass.** The job dies on the Codecov upload with
+  `Unhandled error: Unable to get ACTIONS_ID_TOKEN_REQUEST_URL env variable`.
+- `pr-checks.yml:548` sets `use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}`. So OIDC is used **only when the
+  token is empty** — which means **`CODECOV_TOKEN` is unset on the repo**.
+- The `coverage-tests` job grants no `id-token: write`, so the OIDC path cannot work either. Both routes are
+  closed simultaneously.
+- `fail_ci_if_error: false` does not save it: the action _throws_ rather than reporting an upload error.
+
+**Recommendation: set the `CODECOV_TOKEN` repo secret.** That is the one-step fix and it needs Sean.
+I deliberately did **not** add `id-token: write` instead — the repo keeps `id-token` undefined on purpose,
+and `capabilityAcceptanceWorkflow.test.ts` asserts exactly that for both caller workflows. Widening that
+permission to satisfy a non-required coverage upload would trade a real security posture for a badge.
