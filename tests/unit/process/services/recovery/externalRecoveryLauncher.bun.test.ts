@@ -363,6 +363,10 @@ describe('Classic external recovery launcher', () => {
   });
 
   it('builds deterministic extraction plans for every release delivery type', () => {
+    // A plan is keyed to the TARGET platform, not the host: the launcher joins
+    // with `path.win32` for win32 and `path.posix` for every other target. So
+    // the non-win32 expectations must be POSIX-joined even when the test host is
+    // Windows - host-native `path.join` would assert backslashes there.
     expect(
       classicRecoveryExtractionPlanFor({
         artifactPath: '/asset/Wayland.zip',
@@ -372,7 +376,7 @@ describe('Classic external recovery launcher', () => {
       })
     ).toEqual({
       kind: 'ditto-zip',
-      binaryPath: path.join('/runtime', 'Wayland.app', 'Contents', 'MacOS', 'Wayland'),
+      binaryPath: path.posix.join('/runtime', 'Wayland.app', 'Contents', 'MacOS', 'Wayland'),
       command: '/usr/bin/ditto',
       args: ['-x', '-k', '/asset/Wayland.zip', '/runtime'],
     });
@@ -400,7 +404,7 @@ describe('Classic external recovery launcher', () => {
     ).toMatchObject({
       kind: 'direct-appimage',
       command: null,
-      binaryPath: path.join('/runtime', 'Wayland-0.11.8-linux-x86_64.AppImage'),
+      binaryPath: path.posix.join('/runtime', 'Wayland-0.11.8-linux-x86_64.AppImage'),
     });
   });
 
