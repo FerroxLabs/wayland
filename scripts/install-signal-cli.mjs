@@ -165,6 +165,17 @@ export async function installSignalCli(options = {}) {
   const fetchImpl = options.fetchImpl || fetch;
   const downloadFileImpl = options.downloadFileImpl || downloadFile;
   const extractArchiveImpl = options.extractArchiveImpl || extractArchive;
+  // Seam for the liveness probe below, alongside the fetch/download/extract
+  // seams. The probe only fires when the target equals the host, so a fixture
+  // that stubs extraction with a synthetic binary could never satisfy it on a
+  // matching host: on ubuntu the exec of a 64-byte fake ELF fails, while on
+  // macOS and Windows the probe is skipped and the assertion is never made.
+  // The digest pin above remains the gate; this probe is defence in depth.
+  const execFileImpl = options.execFileImpl || execFileAsync;
+  // The probe can only run where the host can execute the target, so the host
+  // identity is injectable purely so tests can reach that branch on any runner.
+  const hostPlatform = options.hostPlatform || process.platform;
+  const hostArch = options.hostArch || process.arch;
   const authority = options.authority || pinnedRelease;
   let published = false;
 
@@ -215,8 +226,8 @@ export async function installSignalCli(options = {}) {
     await fs.chmod(binaryPath, 0o755);
     let versionOutput = null;
     let versionVerified = false;
-    if (platform === process.platform && arch === process.arch) {
-      const result = await execFileAsync(binaryPath, ['--version'], { timeout: 15000 });
+    if (platform === hostPlatform && arch === hostArch) {
+      const result = await execFileImpl(binaryPath, ['--version'], { timeout: 15000 });
       versionOutput = `${result.stdout || ''}${result.stderr || ''}`.trim();
       const version = releaseTag.replace(/^v/, '');
       if (!versionOutput.includes(version)) throw new Error('Signal executable version does not match release tag');

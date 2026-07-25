@@ -635,4 +635,44 @@ describe('recovery manifest validation', () => {
     expect(result.errors.map((error) => error.code)).toContain('SNAPSHOT_FILE_TYPE');
     expect(result.errors.some((error) => error.message.includes('symbolic link'))).toBe(true);
   });
+
+  it('accepts a snapshot root that is itself a link, as descriptor-relative capture always passes', async () => {
+    // Production capture on Linux is descriptor-relative: the builder hands this
+    // verifier `/proc/self/fd/<fd>`, an alias for a held O_DIRECTORY handle, and
+    // that alias is a symlink by construction. lstat()ing the root therefore
+    // rejected every artifact beneath a legitimately pinned root, so capture
+    // could not verify on the only platform where it is supported. A symlinked
+    // root stands in for the fd alias on every filesystem.
+    const databaseBytes = Buffer.from('database-copy');
+    const manifest = makeManifest(databaseBytes);
+    const real = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-real-'));
+    const aliasHome = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-alias-'));
+    tempDirectories.push(real, aliasHome);
+    fs.mkdirSync(path.join(real, 'state/desktop'), { recursive: true });
+    fs.writeFileSync(path.join(real, 'state/desktop/wayland.db'), databaseBytes);
+    fs.writeFileSync(path.join(real, 'state/desktop/config.json'), '{}');
+    const alias = path.join(aliasHome, 'fd-alias');
+    fs.symlinkSync(real, alias);
+
+    await expect(verifyRecoverySnapshot(manifest, alias)).resolves.toMatchObject({ valid: true, errors: [] });
+
+    // The relaxation is confined to the root: a link *inside* it is still fatal.
+    fs.rmSync(path.join(real, 'state/desktop/config.json'));
+    fs.symlinkSync(path.join(real, 'state/desktop/wayland.db'), path.join(real, 'state/desktop/config.json'));
+    const withInnerLink = await verifyRecoverySnapshot(manifest, alias);
+    expect(withInnerLink.valid).toBe(false);
+    expect(withInnerLink.errors.some((error) => error.message.includes('symbolic link'))).toBe(true);
+  });
+
+  it('rejects a snapshot root that resolves to a regular file', async () => {
+    const manifest = makeManifest();
+    const home = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-recovery-notdir-'));
+    tempDirectories.push(home);
+    const notADirectory = path.join(home, 'root-is-a-file');
+    fs.writeFileSync(notADirectory, 'not a directory');
+
+    const result = await verifyRecoverySnapshot(manifest, notADirectory);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some((error) => error.message.includes('Snapshot root is not a directory'))).toBe(true);
+  });
 });

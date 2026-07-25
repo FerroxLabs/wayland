@@ -6,7 +6,7 @@
 
 import { createHash } from 'node:crypto';
 import { constants, createReadStream, type Stats } from 'node:fs';
-import { lstat, open, readdir, realpath } from 'node:fs/promises';
+import { lstat, open, readdir, realpath, stat as statFollowingLinks } from 'node:fs/promises';
 import path from 'node:path';
 
 export const RECOVERY_MANIFEST_FORMAT_VERSION = 3 as const;
@@ -1068,9 +1068,20 @@ async function inspectContainedArtifactType(
   snapshotPath: string
 ): Promise<{ valid: true; stat: Stats } | { valid: false; message: string }> {
   const segments = snapshotPath.split('/');
+  // The root is resolved with follow semantics; every segment *below* it keeps
+  // no-follow. In descriptor-relative mode the caller's root is
+  // `/proc/self/fd/<fd>`, which is a symlink by construction, so lstat()ing it
+  // rejected every artifact under a legitimately handle-pinned root and made
+  // capture impossible on Linux, the only platform that supports it. The root's
+  // identity is not established here anyway - it is an admitted directory whose
+  // dev/ino the caller re-verifies against the held handle.
+  const rootStat = await statFollowingLinks(root);
+  if (!rootStat.isDirectory()) {
+    return { valid: false, message: `Snapshot root is not a directory: ${root}` };
+  }
   let candidate = root;
-  for (let index = -1; index < segments.length; index += 1) {
-    if (index >= 0) candidate = path.join(candidate, segments[index]);
+  for (let index = 0; index < segments.length; index += 1) {
+    candidate = path.join(candidate, segments[index]);
     // Ancestors must be inspected in path order so a link is rejected before its child is touched.
     // oxlint-disable-next-line no-await-in-loop
     const stat = await lstat(candidate);

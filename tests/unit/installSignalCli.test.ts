@@ -59,6 +59,14 @@ function installOptions(runtimeRoot: string, overrides: Record<string, unknown> 
       await fs.mkdir(destination, { recursive: true });
       await fs.writeFile(path.join(destination, 'signal-cli'), binaryBytes, { mode: 0o755 });
     },
+    // The fixture binary is a 64-byte synthetic ELF header, so it cannot be
+    // executed. The installer probes '--version' only when the target equals
+    // the host, which meant this suite asserted the probe on no runner at all:
+    // ubuntu tried to exec the stub and failed, macOS and Windows skipped it.
+    // Stubbing the exec makes the probe assert its contract everywhere.
+    execFileImpl: async () => ({ stdout: 'signal-cli 9.9.9\n', stderr: '' }),
+    hostPlatform: 'linux',
+    hostArch: 'x64',
     ...overrides,
   };
 }
@@ -195,6 +203,10 @@ describe('pinned Signal CLI installation', () => {
       },
     ],
     ['binary digest mismatch', { authority: { ...authority, binarySha256: '0'.repeat(64) } }],
+    [
+      'version probe disagreeing with the release tag',
+      { execFileImpl: async () => ({ stdout: 'signal-cli 0.0.1\n', stderr: '' }) },
+    ],
     [
       'unexpected archive layout',
       {
