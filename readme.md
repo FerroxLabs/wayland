@@ -326,3 +326,5 @@ A hosted **Wayland Pro** with expanded capabilities is on the way. The core you 
 The **code** is AGPL; the **name and logo** are trademarks. Fork freely, just give your fork its own name. You can always say it's "built on Wayland" or "compatible with Wayland." Full policy: [TRADEMARK.md](./TRADEMARK.md).
 
 <sub>Wayland is named after Wayland the Smith, the master craftsman of Norse and Germanic legend, the one who could forge anything. A tip of the hat to the Wayland display server protocol; different project, no affiliation.</sub>
+
+<!-- F-01 gate verification: docs-only diff. -->
