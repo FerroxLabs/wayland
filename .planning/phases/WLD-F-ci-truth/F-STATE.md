@@ -65,10 +65,49 @@ F-01 is why CI can now be trusted at all. Before it, a green required check on t
 
 ## 3. Open packets, in execution order
 
-### F-02 · CI-only unit failures (IN PROGRESS)
+### F-02 · CI-only unit failures (IN PROGRESS — thesis was wrong, corrected below)
 
-~38 failures that pass locally and fail only on CI runners. All evidence so far says ONE defect class:
-tests inheriting ambient machine state. Three were already fixed earlier this session (OfficeCLI
+**The "one ambient-state class" thesis did not survive contact with the shard logs.** Splitting the
+failures by runner showed the real shape: **Windows 40 failing files, ubuntu 6, macOS 2.** It was
+overwhelmingly a Windows problem, and the single largest cause was a real product bug this branch
+introduced, not a test defect.
+
+- **Windows durability — `0e980e4be` + `3b3918132`.** `f7dd56c86` ("fix(mcp): prevent split-brain
+  mutations") added fsync-based durability that Windows cannot perform. `main` has no `fsyncSync` in
+  `atomicWrite.ts` at all, so this branch introduced it. Proven empirically on the Windows box rather
+  than reasoned about — `file O_RDONLY fsync → EPERM`, `file O_RDWR fsync → OK`,
+  `dir fsync → EPERM`, `dir + '.' fsync → EPERM`. Consequence in the CI log:
+  `[Storage] Failed to persist C:\Users\...\wayland-config.txt`, i.e. **config never persisted on
+  Windows**. 286 of the log's error lines were this one bug.
+  The first fix pass was incomplete and said so: it grepped the literal string `fsync` and missed every
+  `await handle.sync()`, closing 9 sites but leaving 7 (EPERM fell 286 → 46). `3b3918132` enumerated
+  both forms, found nine hand-rolled `syncDirectory` helpers, and routed all seven broken ones through
+  `src/process/utils/durabilitySync.ts`. Five of them used the `path.join(dir, '.')` workaround that the
+  probe proved never worked; two picked the right Windows fallback path and then opened it `'r'`.
+- **`VerificationGate` was my own regression — `23f47688b`.** `f6c831883` swapped the gate's bare
+  `process.env.CI` check for `shouldDisableIjfw()`, which also reads `GITHUB_ACTIONS`. The suite cleared
+  `CI` and `WAYLAND_DISABLE_IJFW` by hand, so on GitHub Actions every gate call short-circuited to
+  advisory. `ijfwGuard` now exports `IJFW_GUARD_ENV_VARS` + `clearIjfwGuardEnv()` so a test clears
+  exactly what the guard reads and cannot drift again.
+- **`constitutionFsTransaction` timed out, not failed — `23f47688b`.** Its real-helper case shells out
+  to `cargo build` under the 10s default. Measured at 6s locally with a warm crates registry; a runner
+  also downloads every crate, in a shard that already spends ~90s importing. Raised to 300s.
+  Deliberately not skipped when the binary is absent.
+- **`managedWorkspaceProvenance` depended on inode allocation — `5d801d1cb`.** Two cases asserted that
+  recreating a directory changes its identity. Only true on APFS: measured `rm + mkdir` on ubuntu
+  returning the SAME inode 3/3, APFS fresh 3/3. Now creates the successor while the original still
+  exists and renames it in, which is distinct on every filesystem, and asserts the inode changed.
+- **`wcoreStderrSurfacing` never waited — `2879f62c6`.** It flushed the microtask queue 100 times, which
+  completes in microseconds, while `start()` awaits real fs/keystore work before `spawn()`. Each attempt
+  now yields real wall-clock time via a timer captured before fake timers install.
+- **`recoveryPointBuilder` errors were undiagnosable — `2879f62c6`.** It threw only verification CODES,
+  discarding the path and reason each issue carries, reducing a real ubuntu failure to
+  "SNAPSHOT_FILE_TYPE, SNAPSHOT_FILE_TYPE". Now includes code, path and reason so the next CI run names
+  the offending entry. The ubuntu `SNAPSHOT_FILE_TYPE` cause itself is **still open**.
+- **Still open on ubuntu:** `SNAPSHOT_FILE_TYPE` in `recoveryCapture`/`recoveryPointBuilder`, the
+  `chmod ':memory:'` noise, "Services not registered", and the OfficeCLI runtime message.
+
+Earlier notes below are kept for context; three fixes landed before this session (OfficeCLI
 fail-closed, constitution git-history depth, key fixtures).
 
 - **DONE, awaiting CI proof:** `wcore-profileStore` (27 of the ~38). `0859c11a5` — the suite mocked
@@ -90,7 +129,37 @@ file to 0o600: ENOENT chmod ':memory:'` (9×) — a chmod against an in-memory D
 
 **Acceptance:** all unit shards green on ubuntu, macos AND windows in CI. Not "green locally".
 
-### F-03 · Redo the formatting pass safely
+### F-03 · Redo the formatting pass safely — DONE (`e62a6401a`, `fc28a49b8`, `15569cd72`)
+
+Landed, and it cost two extra rounds because the G3 trap has **more doors than oxfmt**. Running
+`prek run --from-ref ferrox/main --to-ref HEAD` locally — which is exactly what Code Quality runs — is
+the only honest check, and it showed FOUR failing hooks, not one:
+
+1. **oxfmt** on the delta: 288 of 1,337 eligible files.
+2. **end-of-file-fixer** wanted to append a newline to `resources/modelsdev-snapshot.json` (the same
+   pinned artifact `aea1b4820` broke, reached through a different hook), to two encrypted
+   `.constitution-keys.enc` fixtures, and to 24 captured evidence `.log` files.
+3. **trailing-whitespace** wanted 23 docs (legitimate) plus a `.log`.
+4. **UI Tokens Check** found one REAL defect: `StorageSettings/index.tsx:39` used
+   `var(--text-tertiary)`, defined nowhere, so that line fell back to the browser default and was close
+   to invisible in dark mode. Fixed to `var(--color-text-3)`, which the validator itself prescribes.
+
+Then the full unit suite — not any hook — caught that the formatter had also corrupted **digest-pinned**
+trees: `src/process/resources/skills/**` (SHA-256 pinned by `prepareOfficeCli.js`) and
+`tests/fixtures/**` + `strike/**` (pinned by digest AND byte size, including a `.ts` generator whose own
+hash is asserted). 8 tests in 4 suites failed. Restored 16 files to pre-format bytes and widened the
+excludes.
+
+**The lesson worth keeping: a formatter exclusion list is only as good as the last thing that broke.**
+Every entry in `.pre-commit-config.yaml` now records WHY. Oxfmt's final holdout was the committed
+`AGENTS.md`, which needed five blank lines — the IJFW hook's live rewrite of that file is oxfmt-clean,
+which masked it.
+
+**Acceptance met locally:** prek exits 0 with all 13 hooks Passed, `verify:modelsdev-snapshot` passes,
+pinned trees byte-identical, full suite 15,760 passed / 0 failed. Code Quality on CI is the remaining
+proof.
+
+### F-03 (original plan text)
 
 Reverted once in `aea1b4820` because it broke the build (see G3). Order matters:
 
@@ -106,17 +175,24 @@ of them makes Oxfmt fail. That is why Code Quality is red on this PR.
 **Acceptance:** `bun run verify:modelsdev-snapshot` passes, packaged build completes, packaged smoke
 PASSES, Code Quality green.
 
-### F-04 · Issue + decision hygiene
+### F-04 · Issue + decision hygiene — DONE
 
-#910b "Chats" ratified (keep `8f713ea04`), record only. Confirm nothing is marked fixed while
-unreleased — the correct label is **`state:fixed-pending-release`** (with the `state:` prefix).
+Recorded in `F-04-F-05-RECONCILIATION.md`. Nothing is closed while unreleased: of the 22 issues
+referenced by branch-only commits, the three CLOSED ones (#484, #706, #746) each have a real fix commit
+on `main`. #910b "Chats" is RATIFIED — keep `8f713ea04`; #910 itself stays open because the report is a
+broader pin/star/Recents vocabulary problem than the label rename.
 
-### F-05 · Reconcile `~/Downloads/wayland-desktop-cleanup-plan.md`
+### F-05 · Reconcile `~/Downloads/wayland-desktop-cleanup-plan.md` — DONE
 
-Audited at `1b1c1e9`, which is exactly this branch's merge-base, so some findings may already be
-fixed. Produce a per-packet already-fixed / still-open / superseded status BEFORE anyone starts work.
-Its P0-1 (ACP bridges via `bunx @latest` at spawn = RCE) is the same supply-chain class as the pins
-fixed this session.
+Full per-packet status in `F-04-F-05-RECONCILIATION.md`. Headlines:
+
+- **P1-4 must NOT be done as written** — it proposes per-user NSIS, reversing the deliberate per-machine
+  UPD-04 decision that stops an unprivileged process swapping the bundled engine.
+- **P0-3 is a confirmed real error** — readme claims AGPL for "app and engine both"; Core's own LICENSE
+  is Apache-2.0 (read from the file). Misleads embedders.
+- **P0-2 is still false in the readme** while signing and notarization are in fact wired. Land quietly.
+- **P0-4 is partly superseded** — provenance attestation already runs; only the SHA256SUMS asset is missing.
+- The plan's own acceptance bar ("968 unit tests") and one cited path (`wcoreUpdater.ts`) are stale.
 
 ### F-06 · Sealed build — GATED ON SEAN
 
