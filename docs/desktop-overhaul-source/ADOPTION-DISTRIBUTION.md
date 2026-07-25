@@ -76,4 +76,3 @@ Provider neutrality, receipts, portable data, signed releases, transparent routi
 - self-host deploy success and upgrade/restore success;
 - community contribution time-to-first-merged-change;
 - Pro conversion after users consume managed value.
-

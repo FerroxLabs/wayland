@@ -8,10 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { parse } from 'smol-toml';
 import type { IMcpServer } from '@/common/config/storage';
 import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
-import {
-  appendDesktopMcpProfile,
-  WCORE_DESKTOP_MCP_PROFILE,
-} from '@process/agent/wcore/envBuilder';
+import { appendDesktopMcpProfile, WCORE_DESKTOP_MCP_PROFILE } from '@process/agent/wcore/envBuilder';
 
 const server = (id: string, name: string, overrides: Partial<IMcpServer> = {}): IMcpServer => ({
   id,
@@ -43,10 +40,11 @@ describe('Desktop-managed Core MCP profile', () => {
   });
 
   it('appends a valid Core profile while preserving provider overrides', () => {
-    const text = appendDesktopMcpProfile(
-      '[providers.openai.compat]\nmax_tokens_field = "max_completion_tokens"\n',
-      ['tavily', 'firecrawl', 'tavily']
-    );
+    const text = appendDesktopMcpProfile('[providers.openai.compat]\nmax_tokens_field = "max_completion_tokens"\n', [
+      'tavily',
+      'firecrawl',
+      'tavily',
+    ]);
     const config = parse(text) as {
       providers: { openai: { compat: { max_tokens_field: string } } };
       profiles: Record<string, { mcp_servers: string[] }>;

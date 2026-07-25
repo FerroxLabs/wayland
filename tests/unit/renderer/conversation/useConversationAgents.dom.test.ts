@@ -112,10 +112,7 @@ function makePresetConfig(overrides: Partial<AcpBackendConfig> = {}): AcpBackend
 // Helpers
 // ---------------------------------------------------------------------------
 
-function setupMocks(
-  presetConfigs: AcpBackendConfig[] = [],
-  extensionAssistants: Array<Record<string, unknown>> = []
-) {
+function setupMocks(presetConfigs: AcpBackendConfig[] = [], extensionAssistants: Array<Record<string, unknown>> = []) {
   ipcMock.getAvailableAgents.mockResolvedValue({ success: true, data: CLI_AGENTS });
   ipcMock.getExtensionAssistants.mockResolvedValue(extensionAssistants);
   configStorageMock.get.mockImplementation(async (key: string) => {

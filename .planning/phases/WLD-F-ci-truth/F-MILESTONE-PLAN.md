@@ -64,6 +64,7 @@ complete. It also reformatted 20+ `contracts/` wire schemas and compat fixtures.
 tsc, and CI's own formatter all approved that change; only running the build caught it.
 
 **Do:**
+
 1. Fix the hook first: `.pre-commit-config.yaml` oxfmt `exclude:` currently covers only
    `src/process/resources/(skills-library|bundled-workflows)/index.json`. It must also exclude
    `resources/modelsdev-snapshot.json`, `contracts/**`, and any other pinned/generated artifact. Its
@@ -117,6 +118,7 @@ never enabled. Only a full app restart could recover it, and nothing on the page
 customer that is indistinguishable from a dead feature.
 
 **Fixed in `b80ad8beb`** (no new i18n keys):
+
 - switching Skip OFF now invokes `ijfw.triggerInstall` — the same bootstrap the Memory page's install
   button already used — and surfaces its error if it refuses to start
 - the panel stays subscribed to `ijfw.onStatusChanged`, so `installing` → `installed_current` lands
@@ -147,12 +149,14 @@ Codex 5.6 Sol: FIX-FIRST (5 findings) · Gemini: FIX-FIRST (2) · Kimi K3: found
 internal reviewer: ran.
 
 **Fixed as a result:**
+
 - **All three legs independently found the same lead defect**: the switch was derived from lifecycle
   status, which conflates a user SETTING with on-disk STATE. First cut (`fa6e104ce`) only guarded late
   emits within one mount; Codex and Gemini both showed that was too narrow — a remount re-derived it.
   Properly fixed in `8ee6b2218` with a new `ijfw.getSkipSetup` IPC reading the flag directly.
 
 **DEFERRED — needs Sean's sign-off (real findings, not nits):**
+
 1. **Lock contention reports success (Codex #3, Gemini #2) — HIGHEST.** `bootstrapImpl` returns
    normally when the install lock is held by another process, and `ijfwBridge.triggerInstall` converts
    that to `{ok:true}`. So turning Skip OFF can show a success toast, emit no status, and leave the

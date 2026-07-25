@@ -35,7 +35,8 @@ export type MemoryBlockPatch = {
 export type MutationError = 'not_found' | 'ambiguous' | 'summary_collision';
 
 export type MutationResult =
-  { ok: true; content: string; remainingBlocks: number; removedBlock?: string } | { ok: false; error: MutationError };
+  | { ok: true; content: string; remainingBlocks: number; removedBlock?: string }
+  | { ok: false; error: MutationError };
 
 /**
  * Serialize a frontmatter scalar so it round-trips through the reader's

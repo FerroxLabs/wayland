@@ -90,11 +90,7 @@ import { ConversationTurnCompletionService } from './ConversationTurnCompletionS
 import { resolveFluxRouting, type FluxRoutingResult, type RoutingDecision } from '@process/task/fluxRouting';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 import type { McpConfigProjection } from '@process/acp/session/McpConfig';
-import {
-  createMcpSessionState,
-  type McpSessionBackend,
-  type McpSessionState,
-} from '@/common/mcp/sessionReceipt';
+import { createMcpSessionState, type McpSessionBackend, type McpSessionState } from '@/common/mcp/sessionReceipt';
 import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 interface AcpAgentManagerData {

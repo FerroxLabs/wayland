@@ -19,12 +19,12 @@ This is the part that turns a benign remount into a visible "onboarding reloaded
 
 ## Triggers ruled out (each verified by reading the code)
 
-| Candidate | Verdict |
-| --- | --- |
-| `index.html` blank-root recovery `location.reload()` | **No.** Gated on an existing service-worker registration; Electron never registers one (`index.html:58-72`). |
-| Auth `status` flipping back to `'checking'` (would unmount `ProtectedLayout`'s subtree) | **No.** On desktop `refresh()` short-circuits straight to `authenticated` (`AuthContext.tsx:106-112`). |
-| Detection identity churn re-firing the open effect | **No.** `useOnboardingDetection` runs once, deps `[]`. |
-| Shell-switch `Suspense` boundary unmounting the overlay | **No.** The boundary is inside `ShellExperienceLayout`, i.e. *below* `OnboardingOverlay`, which is its sibling (`Router.tsx:83-88`). |
+| Candidate                                                                               | Verdict                                                                                                                              |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `index.html` blank-root recovery `location.reload()`                                    | **No.** Gated on an existing service-worker registration; Electron never registers one (`index.html:58-72`).                         |
+| Auth `status` flipping back to `'checking'` (would unmount `ProtectedLayout`'s subtree) | **No.** On desktop `refresh()` short-circuits straight to `authenticated` (`AuthContext.tsx:106-112`).                               |
+| Detection identity churn re-firing the open effect                                      | **No.** `useOnboardingDetection` runs once, deps `[]`.                                                                               |
+| Shell-switch `Suspense` boundary unmounting the overlay                                 | **No.** The boundary is inside `ShellExperienceLayout`, i.e. _below_ `OnboardingOverlay`, which is its sibling (`Router.tsx:83-88`). |
 
 ## Empirical check on the PACKAGED build
 
@@ -61,7 +61,7 @@ real in-UI switch into multi-agent/Cockpit mode.
 Persist onboarding progress so a remount resumes instead of restarting. Cheapest version:
 write the current `screen` (and the already-captured fields) to `ConfigStorage` on each
 step transition, and rehydrate on mount. A blunter alternative — mark onboarding completed
-as soon as it *starts* — stops the loop but silently drops anyone who quits halfway.
+as soon as it _starts_ — stops the loop but silently drops anyone who quits halfway.
 
 Independent of the trigger, this fix removes the user-visible symptom.
 

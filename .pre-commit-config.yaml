@@ -66,11 +66,23 @@ repos:
         name: Oxfmt
         entry: bun run format
         language: system
-        files: \.(ts|tsx|js|jsx|json|css|md|yaml|yml|toml)$
-        # Generated, pretty-printed resource catalogs (copied verbatim at build by
-        # scripts/build-with-builder.js). They are data, not source, and are not
-        # oxfmt-canonical on main either; formatting them would churn 60k+ lines.
-        exclude: ^src/process/resources/(skills-library|bundled-workflows)/index\.json$
+        # `.mjs`/`.cjs` were missing, so repo scripts written in them were never
+        # routed to the formatter at all.
+        files: \.(ts|tsx|js|jsx|mjs|cjs|json|css|md|yaml|yml|toml)$
+        # NEVER let the formatter touch a pinned or generated artifact:
+        #  - skills-library / bundled-workflows index.json: generated,
+        #    pretty-printed catalogs copied verbatim at build by
+        #    scripts/build-with-builder.js. Data, not source, and not
+        #    oxfmt-canonical on main either; formatting churns 60k+ lines.
+        #  - resources/modelsdev-snapshot.json: a minified offline floor pinned by
+        #    SHA-256 AND byte size. oxfmt pretty-printed it from 1 line to 103,798,
+        #    which failed verify:modelsdev-snapshot and broke every packaged build.
+        #    tsc, the full unit suite and CI's own formatter all approved that
+        #    change; only running the build caught it.
+        #  - contracts/**: wire schemas and compatibility fixtures. Their bytes are
+        #    the contract, so reformatting them is a silent contract change.
+        exclude: >-
+          ^(src/process/resources/(skills-library|bundled-workflows)/index\.json|resources/modelsdev-snapshot\.json|contracts/.*)$
         pass_filenames: true
 
   # i18n translation files validation

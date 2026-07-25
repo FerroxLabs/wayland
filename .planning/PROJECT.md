@@ -93,32 +93,32 @@ Active work is **Milestone A — Cockpit Preview Ship** (Wave A package + matche
 
 The 24 synthesized constraints are execution contracts, not optional context and not substitutes for the 33 source requirement families plus the user-reported image/vision parity gap normalized into 55 atomic v1 requirements. Each has a primary phase owner; later phases must replay its accepted evidence when they consume the seam.
 
-| # | Synthesized constraint | Primary owner | Preservation rule |
-|---|------------------------|---------------|-------------------|
-| 1 | Incremental strangler migration | Phase 2 | Classic/Cockpit share canonical state; no rewrite or permanent second product |
-| 2 | Shared domain and service layer | Phase 2 | No Cockpit-specific copies of repositories, services, managers, schedules, Teams, workflows, memory, or trust |
-| 3 | Presentation shell boundary | Phase 2 | `ui.shell` selects presentation only and never owns product state |
-| 4 | Unified execution view model | Phase 2 | Normalize once in shared/main-owned contracts; renderer does not reinterpret raw producer events |
-| 5 | Classic migration policy | Phase 2 | Switching is immediate, reversible, state-preserving, and independently fault-isolated |
-| 6 | Cockpit implementation go/no-go gate | Phase 1 | Broad work cannot promote before ownership, baseline, shared-state, parity, and privacy gates pass |
-| 7 | Core and Desktop ownership boundary | Phase 1 | Core owns runtime reasoning/policy/evidence; Desktop owns organization/orchestration/host product concerns |
-| 8 | Core normative schema authority | Phase 1 | Producer Rust schema/fixtures are pinned; Desktop validators/types and drift gates derive from them |
-| 9 | Critical event compatibility behavior | Phase 1 | Unknown criticality, malformed frames, gaps, conflicts, and critical variants fail closed |
-| 10 | Core and Desktop semantic collision rules | Phase 1 | Correlation never implicitly mints durable Desktop objects or widens authority |
-| 11 | Core release compatibility matrix | Phase 1 | Bundled, oldest override, and candidate identities/fixtures are recorded and replayed |
-| 12 | Core receipt and capability evidence gate | Phase 1 | Capability claims require correlated activation/runtime evidence; trusted receipt origin is mandatory |
-| 13 | Wave 0 authorization boundary | Phase 1 | Only named recovery/contract/truth work may promote; MCP-0/SBX-0/C0-A remain non-promoting exceptions |
-| 14 | Wave 0 global stop conditions | Phase 1 | Corruption, authority widening, leakage, forged verification, or failed recovery stops promotion |
-| 15 | Receipt evidence rule | Phase 1 | Exact commands/artifacts only; absent or skipped proof remains absent |
-| 16 | Real-user enrollment gate | Phase 1 | Enrollment waits for M0A, M0B, Core/Flux/MCP/policy, and release evidence |
-| 17 | Universal work kernel | Phase 2 | Chat, Cowork, development, automation, Voice, and external effects remain projections over one kernel |
-| 18 | Non-negotiable product invariants | Phase 1 | All 21 master-plan invariants remain release blockers and are replayed by Phase 5 |
-| 19 | Requested and effective authority separation | Phase 2 | Requested ceiling is conservative; only correlated producer evidence may be effective/enforced |
-| 20 | Backend-neutral execution schema | Phase 2 | One versioned schema covers identity, scope, lifecycle, activity, governance, economics, outcomes, and staleness |
-| 21 | Application-consistent rollback and recovery | Phase 1 | Global quiescence/mutation epoch, copied-state restore, signed target, and six-target recovery are mandatory |
-| 22 | Packet dependency and ownership gates | Phase 1 | No packet begins or promotes before named dependencies and entry receipts pass |
-| 23 | Verification and evidence receipt contract | Phase 5 | Unit, component, fixture replay, real IPC, deterministic E2E, canary, package, recovery, security, usability, and state-machine layers remain distinct |
-| 24 | Definition of done and pre-execution audit gate | Phase 1 | Requirement traceability, authority, proportional proof, Classic regression, limitations, exact identity, and converged adversarial review are mandatory |
+| #   | Synthesized constraint                          | Primary owner | Preservation rule                                                                                                                                        |
+| --- | ----------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Incremental strangler migration                 | Phase 2       | Classic/Cockpit share canonical state; no rewrite or permanent second product                                                                            |
+| 2   | Shared domain and service layer                 | Phase 2       | No Cockpit-specific copies of repositories, services, managers, schedules, Teams, workflows, memory, or trust                                            |
+| 3   | Presentation shell boundary                     | Phase 2       | `ui.shell` selects presentation only and never owns product state                                                                                        |
+| 4   | Unified execution view model                    | Phase 2       | Normalize once in shared/main-owned contracts; renderer does not reinterpret raw producer events                                                         |
+| 5   | Classic migration policy                        | Phase 2       | Switching is immediate, reversible, state-preserving, and independently fault-isolated                                                                   |
+| 6   | Cockpit implementation go/no-go gate            | Phase 1       | Broad work cannot promote before ownership, baseline, shared-state, parity, and privacy gates pass                                                       |
+| 7   | Core and Desktop ownership boundary             | Phase 1       | Core owns runtime reasoning/policy/evidence; Desktop owns organization/orchestration/host product concerns                                               |
+| 8   | Core normative schema authority                 | Phase 1       | Producer Rust schema/fixtures are pinned; Desktop validators/types and drift gates derive from them                                                      |
+| 9   | Critical event compatibility behavior           | Phase 1       | Unknown criticality, malformed frames, gaps, conflicts, and critical variants fail closed                                                                |
+| 10  | Core and Desktop semantic collision rules       | Phase 1       | Correlation never implicitly mints durable Desktop objects or widens authority                                                                           |
+| 11  | Core release compatibility matrix               | Phase 1       | Bundled, oldest override, and candidate identities/fixtures are recorded and replayed                                                                    |
+| 12  | Core receipt and capability evidence gate       | Phase 1       | Capability claims require correlated activation/runtime evidence; trusted receipt origin is mandatory                                                    |
+| 13  | Wave 0 authorization boundary                   | Phase 1       | Only named recovery/contract/truth work may promote; MCP-0/SBX-0/C0-A remain non-promoting exceptions                                                    |
+| 14  | Wave 0 global stop conditions                   | Phase 1       | Corruption, authority widening, leakage, forged verification, or failed recovery stops promotion                                                         |
+| 15  | Receipt evidence rule                           | Phase 1       | Exact commands/artifacts only; absent or skipped proof remains absent                                                                                    |
+| 16  | Real-user enrollment gate                       | Phase 1       | Enrollment waits for M0A, M0B, Core/Flux/MCP/policy, and release evidence                                                                                |
+| 17  | Universal work kernel                           | Phase 2       | Chat, Cowork, development, automation, Voice, and external effects remain projections over one kernel                                                    |
+| 18  | Non-negotiable product invariants               | Phase 1       | All 21 master-plan invariants remain release blockers and are replayed by Phase 5                                                                        |
+| 19  | Requested and effective authority separation    | Phase 2       | Requested ceiling is conservative; only correlated producer evidence may be effective/enforced                                                           |
+| 20  | Backend-neutral execution schema                | Phase 2       | One versioned schema covers identity, scope, lifecycle, activity, governance, economics, outcomes, and staleness                                         |
+| 21  | Application-consistent rollback and recovery    | Phase 1       | Global quiescence/mutation epoch, copied-state restore, signed target, and six-target recovery are mandatory                                             |
+| 22  | Packet dependency and ownership gates           | Phase 1       | No packet begins or promotes before named dependencies and entry receipts pass                                                                           |
+| 23  | Verification and evidence receipt contract      | Phase 5       | Unit, component, fixture replay, real IPC, deterministic E2E, canary, package, recovery, security, usability, and state-machine layers remain distinct   |
+| 24  | Definition of done and pre-execution audit gate | Phase 1       | Requirement traceability, authority, proportional proof, Classic regression, limitations, exact identity, and converged adversarial review are mandatory |
 
 ### Safety Evidence State Separation
 
@@ -132,18 +132,18 @@ The 24 synthesized constraints are execution contracts, not optional context and
 
 ## Locked Decisions
 
-| Decision | Rationale | Status |
-|----------|-----------|--------|
-| Chat remains the single center and starting point | Users state outcomes before internal implementation choices | Locked |
-| Projects group chats, context, and artifacts | Workspace remains optional execution scope | Locked |
-| Progressive disclosure never deletes power | Novice simplicity and expert inspectability must coexist | Locked |
-| Classic rollback remains live | Cockpit is reversible presentation over shared state | Locked |
-| Desktop remains provider-neutral | Core and Flux have explicit ownership without becoming mandatory for all journeys | Locked |
-| Main/process owns authority; renderer is untrusted | Privileged state and effects remain behind typed, bounded IPC | Locked |
-| Desktop and paid Cloud are separate gates | A Desktop release cannot silently claim Cloud/Pro readiness | Locked |
-| Core/Flux evidence is pinned and replayed through real reducers | Source presence or locally plausible UI state is not operational proof | Locked |
-| Phase 1 has no managed-workspace cleanup authority | Preservation and review classification remain separate from mutation; future quarantine/restore/keep/delete requires a complete trusted output/receipt ledger and separately accepted v2 planning | Locked |
-| No main merge, release, deploy, or issue close without Sean | Final integration and external-state changes remain user-owned | Locked |
+| Decision                                                        | Rationale                                                                                                                                                                                         | Status |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| Chat remains the single center and starting point               | Users state outcomes before internal implementation choices                                                                                                                                       | Locked |
+| Projects group chats, context, and artifacts                    | Workspace remains optional execution scope                                                                                                                                                        | Locked |
+| Progressive disclosure never deletes power                      | Novice simplicity and expert inspectability must coexist                                                                                                                                          | Locked |
+| Classic rollback remains live                                   | Cockpit is reversible presentation over shared state                                                                                                                                              | Locked |
+| Desktop remains provider-neutral                                | Core and Flux have explicit ownership without becoming mandatory for all journeys                                                                                                                 | Locked |
+| Main/process owns authority; renderer is untrusted              | Privileged state and effects remain behind typed, bounded IPC                                                                                                                                     | Locked |
+| Desktop and paid Cloud are separate gates                       | A Desktop release cannot silently claim Cloud/Pro readiness                                                                                                                                       | Locked |
+| Core/Flux evidence is pinned and replayed through real reducers | Source presence or locally plausible UI state is not operational proof                                                                                                                            | Locked |
+| Phase 1 has no managed-workspace cleanup authority              | Preservation and review classification remain separate from mutation; future quarantine/restore/keep/delete requires a complete trusted output/receipt ledger and separately accepted v2 planning | Locked |
+| No main merge, release, deploy, or issue close without Sean     | Final integration and external-state changes remain user-owned                                                                                                                                    | Locked |
 
 ## Deferred Phase-Specific Imports
 

@@ -26,15 +26,15 @@ filesystem identities.
 
 ## Proof
 
-| Gate | Result | Log SHA-256 |
-| --- | --- | --- |
-| Focused | 7 files; 171 tests passed | `b350602f7be84dcf261f81b2865915a412a0f9994f8dc2af4dde9136c52734be` |
-| Typecheck | PASS | `c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5` |
-| Changed-file lint | 0 warnings; 0 errors | `083f31159401475555e0bd8de6a47822c76df01ce67b3528d3cb5eb5c55c3104` |
-| Format | PASS | `1bfcda25b85536bd26c57e773a140953d7fac86cf47e99d58900fdd9b1295667` |
-| Diff check | PASS | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
-| Producer reproducibility | clean/cache manifests byte-identical | `b8e5e2fe3f85cf4f4dbc713c7360f743b0c44c14dcfcb3ad8e21aafa550b07c7` |
-| Aggregate | 1,430 Vitest files; 15,148 tests; 226 Bun-native tests; zero failures | `21e514988707a2bd855e551cb9176d8dacd108fb1d84c783eefd3c7bbd5208ad` |
+| Gate                     | Result                                                                | Log SHA-256                                                        |
+| ------------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Focused                  | 7 files; 171 tests passed                                             | `b350602f7be84dcf261f81b2865915a412a0f9994f8dc2af4dde9136c52734be` |
+| Typecheck                | PASS                                                                  | `c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5` |
+| Changed-file lint        | 0 warnings; 0 errors                                                  | `083f31159401475555e0bd8de6a47822c76df01ce67b3528d3cb5eb5c55c3104` |
+| Format                   | PASS                                                                  | `1bfcda25b85536bd26c57e773a140953d7fac86cf47e99d58900fdd9b1295667` |
+| Diff check               | PASS                                                                  | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| Producer reproducibility | clean/cache manifests byte-identical                                  | `b8e5e2fe3f85cf4f4dbc713c7360f743b0c44c14dcfcb3ad8e21aafa550b07c7` |
+| Aggregate                | 1,430 Vitest files; 15,148 tests; 226 Bun-native tests; zero failures | `21e514988707a2bd855e551cb9176d8dacd108fb1d84c783eefd3c7bbd5208ad` |
 
 The earlier contention-affected aggregate observation is retained but explicitly
 rejected as authority. Its sole timed-out test passed in isolation, and the one

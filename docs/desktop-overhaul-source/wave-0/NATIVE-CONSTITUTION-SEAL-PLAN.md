@@ -157,16 +157,16 @@ discovery, transport registration and the new visible recovery surfaces:
 These files cannot be assigned wholesale. The split must be symbol- and
 behavior-based:
 
-| File | Stage A hunks | Stage B hunks |
-|---|---|---|
-| `src/process/utils/initBridge.ts` | create and install `ConstitutionFsService` with explicit user-data revision authority; no implicit fallback | archive restore operation authority, archive service, Classic recovery readiness, recovery sender validation and bridge injection |
-| `src/process/utils/initBridgeStandalone.ts` | explicit standalone Constitution filesystem authority and fail-closed startup | archive recovery composition and explicit `Promise.resolve(null)` Classic capability |
-| `src/process/bridge/constitutionBridge.ts` | authority envelopes, required mutation request IDs, existing read/write/reset/specialist methods, quiescence around existing mutations | archive inventory/restore and Classic metadata/decision/resume handlers plus sender/auth/rate-limit failures |
-| `src/process/webserver/routes/constitutionRoutes.ts` | strict authority reads, required request IDs, existing mutation receipt correlation, default Constitution reset and quiescence | archive and Classic routes, recovery DTO parsing, hosted principal binding and recovery-specific errors |
-| `src/common/types/electron.ts` | authority-envelope and request-ID corrections for existing Constitution calls | archive and Classic recovery method declarations |
-| `src/preload/main.ts` | existing Constitution authority-envelope/request-ID forwarding | archive and Classic recovery IPC forwarding |
-| `src/renderer/services/ConstitutionService.ts` | strict authority/read/specialist parsing, request-ID and fingerprint receipt validation for existing operations | archive and Classic DTO clients for Electron and HTTP |
-| `src/renderer/pages/settings/ConstitutionSettings/index.tsx` | durable overwrite/reset single-shot operations and exact receipt completion | recovery principal scope and `ConstitutionRecovery`/`ConstitutionClassicRecovery` composition |
+| File                                                         | Stage A hunks                                                                                                                          | Stage B hunks                                                                                                                     |
+| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `src/process/utils/initBridge.ts`                            | create and install `ConstitutionFsService` with explicit user-data revision authority; no implicit fallback                            | archive restore operation authority, archive service, Classic recovery readiness, recovery sender validation and bridge injection |
+| `src/process/utils/initBridgeStandalone.ts`                  | explicit standalone Constitution filesystem authority and fail-closed startup                                                          | archive recovery composition and explicit `Promise.resolve(null)` Classic capability                                              |
+| `src/process/bridge/constitutionBridge.ts`                   | authority envelopes, required mutation request IDs, existing read/write/reset/specialist methods, quiescence around existing mutations | archive inventory/restore and Classic metadata/decision/resume handlers plus sender/auth/rate-limit failures                      |
+| `src/process/webserver/routes/constitutionRoutes.ts`         | strict authority reads, required request IDs, existing mutation receipt correlation, default Constitution reset and quiescence         | archive and Classic routes, recovery DTO parsing, hosted principal binding and recovery-specific errors                           |
+| `src/common/types/electron.ts`                               | authority-envelope and request-ID corrections for existing Constitution calls                                                          | archive and Classic recovery method declarations                                                                                  |
+| `src/preload/main.ts`                                        | existing Constitution authority-envelope/request-ID forwarding                                                                         | archive and Classic recovery IPC forwarding                                                                                       |
+| `src/renderer/services/ConstitutionService.ts`               | strict authority/read/specialist parsing, request-ID and fingerprint receipt validation for existing operations                        | archive and Classic DTO clients for Electron and HTTP                                                                             |
+| `src/renderer/pages/settings/ConstitutionSettings/index.tsx` | durable overwrite/reset single-shot operations and exact receipt completion                                                            | recovery principal scope and `ConstitutionRecovery`/`ConstitutionClassicRecovery` composition                                     |
 
 Every mixed-file test follows the production symbol it proves. Stage A tests
 must not import the Stage B DTO or register recovery routes/channels. Stage B
@@ -206,13 +206,13 @@ middleware only; neither owns an archive/Classic recovery transport case.
 
 The remaining mixed tests split exactly as follows:
 
-| Test file | Stage A cases | Stage B cases |
-|---|---|---|
-| `tests/unit/process/bridge/constitutionBridge.test.ts` | existing read/mutation authority, request IDs, failure envelopes, unavailable authority and rate limit | recovery sender validation, archive DTO/service mapping and Classic metadata/decision/resume |
-| `tests/unit/process/utils/initBridgeStandalone.test.ts` | explicit native authority creation, path and installation | archive service construction and explicit unavailable Classic capability |
-| `tests/unit/renderer/ConstitutionService.test.ts` | existing read/specialist/grant/mutation receipt and transport validation | archive inventory/restore and Classic metadata/decision/resume clients |
-| `tests/unit/renderer/ConstitutionSettings.dom.test.tsx` | durable autosave/reset/overwrite, conflict and absent/empty/error state | mounting the authenticated Classic recovery surface |
-| `tests/unit/webserver/constitutionRoutes.test.ts` | existing reads, grants, mutations, request IDs, unavailable authority and error mapping | archive metadata/restore and Classic principal/step-up/decision routes |
+| Test file                                               | Stage A cases                                                                                          | Stage B cases                                                                                |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `tests/unit/process/bridge/constitutionBridge.test.ts`  | existing read/mutation authority, request IDs, failure envelopes, unavailable authority and rate limit | recovery sender validation, archive DTO/service mapping and Classic metadata/decision/resume |
+| `tests/unit/process/utils/initBridgeStandalone.test.ts` | explicit native authority creation, path and installation                                              | archive service construction and explicit unavailable Classic capability                     |
+| `tests/unit/renderer/ConstitutionService.test.ts`       | existing read/specialist/grant/mutation receipt and transport validation                               | archive inventory/restore and Classic metadata/decision/resume clients                       |
+| `tests/unit/renderer/ConstitutionSettings.dom.test.tsx` | durable autosave/reset/overwrite, conflict and absent/empty/error state                                | mounting the authenticated Classic recovery surface                                          |
+| `tests/unit/webserver/constitutionRoutes.test.ts`       | existing reads, grants, mutations, request IDs, unavailable authority and error mapping                | archive metadata/restore and Classic principal/step-up/decision routes                       |
 
 No other test is mixed. `constitutionFsService.test.ts` uses the dedicated
 split above; every other test in the inventory is copied wholly to its assigned

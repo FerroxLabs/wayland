@@ -426,7 +426,8 @@ export const useGuidAgentSelection = ({
         const config = await ConfigStorage.get('acp.config');
         if (cancelled) return;
         const preferred = (config?.[backend as AcpBackendAll] as Record<string, unknown>)?.preferredModelId as
-          string | undefined;
+          | string
+          | undefined;
         if (preferred) {
           _setSelectedAcpModel(preferred);
           return;

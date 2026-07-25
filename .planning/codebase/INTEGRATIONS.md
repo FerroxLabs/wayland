@@ -5,6 +5,7 @@
 ## APIs & External Services
 
 **Model and Inference Providers:**
+
 - OpenAI APIs support keyed chat/model access, embeddings, speech-to-text, and text-to-speech through SDK and HTTP clients under `src/process/providers/`, `src/process/providers/oneShot.ts`, and `src/process/voice/`.
   - SDK/Client: `openai` from `package.json`, plus OpenAI-compatible HTTP handling in `src/process/providers/`.
   - Auth: API keys are configured through the provider registry and encrypted by `src/process/providers/ProviderRepository.ts`; selected child runtimes can also consume standard process environment variables.
@@ -28,6 +29,7 @@
   - Auth: local endpoint configuration; no remote credential is required by the auto-registration path in `src/process/onboarding/autoRegisterOllama.ts`.
 
 **Agent Runtimes:**
+
 - Wayland Core is the primary bundled execution engine, launched from the user override, packaged resource, development resource, or system path resolved by `src/process/agent/wcore/binaryResolver.ts`.
   - SDK/Client: process protocol and adapters under `src/process/agent/wcore/`.
   - Auth: local process boundary; model/provider credentials are passed through the engine configuration path rather than a hosted Core account.
@@ -45,6 +47,7 @@
   - Auth: bearer token, password, and device-identity mechanisms supported by `src/process/agent/remote/RemoteAgentCore.ts`.
 
 **Model Context Protocol:**
+
 - MCP server discovery, connection, health probing, tool listing, and invocation are implemented by `src/process/services/mcpServices/McpProtocol.ts`.
   - SDK/Client: `@modelcontextprotocol/sdk` from `package.json`.
   - Auth: server-specific environment, headers, or OAuth configuration managed by services under `src/process/services/mcpServices/`.
@@ -60,6 +63,7 @@
 - The production declaration/probe path does not by itself prove active-session tool readiness; that distinction is specified in `docs/desktop-overhaul-source/MCP-DEEP-DIVE.md`.
 
 **Messaging and Collaboration Services:**
+
 - Built-in channel types include Telegram, Slack, Discord, WhatsApp, Twilio SMS, Lark, DingTalk, Weixin/WeCom, Matrix, AgentMail, and IMAP email in `src/process/channels/types.ts`.
   - SDK/Client: platform SDKs and HTTP clients declared in `package.json`, with adapters under `src/process/channels/`.
   - Auth: bot tokens, signing secrets, account credentials, and OAuth material are encrypted through channel and safe-storage services under `src/process/channels/` and `src/process/secrets/`.
@@ -77,6 +81,7 @@
   - Auth: provider-native tunnel login state or tokens; tunnel exposure is not automatic.
 
 **Voice Services:**
+
 - Speech-to-text supports OpenAI Whisper, Deepgram Nova, Flux Voice, and a local Whisper endpoint in `src/process/voice/SpeechToTextService.ts`.
   - SDK/Client: provider HTTP APIs and local endpoint calls from `src/process/voice/SpeechToTextService.ts`.
   - Auth: encrypted provider keys for hosted services; local endpoint configuration for local Whisper.
@@ -86,6 +91,7 @@
 - Kokoro is represented as unavailable without its runtime in `src/process/voice/TextToSpeechService.ts`, and the overall interaction model is turn-based rather than full duplex according to `docs/desktop-overhaul-source/VOICE-CONVERSATION-MODE.md`.
 
 **Distribution Services:**
+
 - GitHub Releases hosts auto-update metadata and packaged artifacts configured by `electron-builder.yml` and consumed by `src/process/services/autoUpdaterService.ts`.
   - SDK/Client: Electron Updater and Electron Builder from `package.json`.
   - Auth: publication uses GitHub workflow/release credentials; update checks consume public release metadata for normal distribution.
@@ -96,6 +102,7 @@
 ## Data Storage
 
 **Databases:**
+
 - SQLite is the authoritative local application database, opened by `src/process/services/database/index.ts` at the application data path as `wayland.db`.
   - Connection: local filesystem database through the driver factory in `src/process/services/database/drivers/createDriver.ts`.
   - Client: `better-sqlite3` in Electron and `bun:sqlite` in standalone Bun runtime.
@@ -104,23 +111,27 @@
   - Client: repository and migration layers under `src/process/services/database/`.
 
 **File Storage:**
+
 - Application-managed files, project/workspace data, extensions, skills, downloaded models, and engine state use local user-data and profile paths through utilities and services under `src/process/`.
 - Packaged immutable assets are delivered from `resources/` and the `extraResources` map in `electron-builder.yml`.
 - Sync is a beta encrypted local-file backend in `src/process/sync/SyncManager.ts`, writing `wayland-sync.enc` and sync metadata; `src/process/sync/CloudRelayBackend.ts` does not implement a cloud relay.
 - Standalone container persistence is mounted at `/data` through `DATA_DIR` and `VOLUME /data` in `Dockerfile`.
 
 **Caching:**
+
 - Runtime caches are local filesystem or database caches implemented under `src/process/`; no external Redis or managed cache dependency is part of the application runtime configuration.
 - Build and automation caches are provided by Bun, Playwright, and GitHub Actions through `package.json`, `playwright.config.ts`, and `.github/workflows/`.
 
 ## Authentication & Identity
 
 **Desktop Secrets:**
+
 - Electron safe storage delegates encryption to macOS Keychain, Windows DPAPI, or Linux libsecret in `src/process/secrets/safeStorage.ts`.
 - Standalone/headless mode uses a local file-key fallback with AES-256-GCM and restricted key-file permissions in `src/process/secrets/fileKeyStore.ts`.
 - Provider repositories encrypt credentials before persistence and do not return plaintext to renderer callers in `src/process/providers/ProviderRepository.ts`.
 
 **OAuth Providers:**
+
 - Flux Router uses browser-based OAuth2 PKCE with loopback callback and token exchange in `src/process/onboarding/connectFlux.ts`.
 - xAI uses discovery-backed OAuth2 PKCE and optional Grok CLI credential reuse in `src/process/onboarding/xaiOAuth.ts`.
 - ChatGPT/OpenAI subscription onboarding uses OAuth2 PKCE and optional Codex CLI credential reuse in `src/process/onboarding/chatgptOAuth.ts`.
@@ -128,6 +139,7 @@
 - MCP-host OAuth is coordinated by `src/process/services/mcpServices/McpOAuthService.ts`.
 
 **WebUI Authentication:**
+
 - The remote WebUI uses application-managed administrator credentials, bcrypt password hashing, JWT session cookies, CSRF protection, rate limiting, and durable token invalidation under `src/process/webserver/`.
 - JWT signing uses an encrypted persisted secret or a deployment override consumed under `src/process/webserver/`; remote bind, allowed origins, trusted proxy, and operator CIDR controls are configured in the same subsystem.
 - Incoming webhook endpoints are mounted before the general JSON parser so platform-specific handlers can verify raw signed bodies in `src/process/webserver/index.ts` and `src/process/channels/webhook/verifiers/`.
@@ -135,10 +147,12 @@
 ## Monitoring & Observability
 
 **Error Tracking:**
+
 - Sentry is disabled unless `SENTRY_DSN` is present and is initialized with PII scrubbing and conservative tracing in `src/index.ts`.
 - Build-time Sentry source-map upload is conditionally enabled by `SENTRY_AUTH_TOKEN`, `SENTRY_ORG`, and `SENTRY_PROJECT` in `electron.vite.config.ts`.
 
 **Logs:**
+
 - Electron Log writes daily local files with a 10 MB size cap and info-level default in `src/process/services/configureConsoleLog.ts`.
 - Platform log roots are selected by `src/process/services/configureConsoleLog.ts`: macOS uses `~/Library/Logs/Wayland`, Windows uses the Wayland roaming profile logs directory, and Linux uses the Wayland configuration logs directory.
 - Process and connector diagnostics stay local unless an explicitly configured integration, such as Sentry, transmits them.
@@ -146,11 +160,13 @@
 ## CI/CD & Deployment
 
 **Hosting:**
+
 - Desktop release artifacts are published to the `FerroxLabs/wayland` GitHub release target configured in `electron-builder.yml`.
 - The standalone WebUI/server is containerized by `Dockerfile`; the current image and install strategy are classified as not release-ready for the cloud/pro bar in `docs/desktop-overhaul-source/CLOUD-PRO.md`.
 - The installer package and Homebrew update path are maintained under `installer/` and `.github/workflows/bump-homebrew.yml`.
 
 **CI Pipeline:**
+
 - GitHub Actions runs reusable cross-platform builds through `.github/workflows/_build-reusable.yml` and orchestrates releases through `.github/workflows/build-and-release.yml`.
 - Pull-request checks and Electron evidence run through `.github/workflows/pr-checks.yml` and `.github/workflows/pr-e2e-artifacts.yml`.
 - Release trust, gates, and acceptance are defined by `.github/workflows/release-gates.yml`, `.github/workflows/release-acceptance.yml`, and `.github/workflows/release-acceptance-trust-root.yml`.
@@ -160,6 +176,7 @@
 ## Environment Configuration
 
 **Required Environment Variables:**
+
 - Default desktop startup has no mandatory hosted-provider environment variable; provider and channel credentials are configured through encrypted application repositories under `src/process/providers/` and `src/process/channels/`.
 - Standalone container deployment supplies `PORT=3000`, `NODE_ENV=production`, and `DATA_DIR=/data` as image defaults in `Dockerfile`.
 - Remote WebUI deployments can set bind, port, origin, HTTPS, proxy, CIDR, base-URL, and JWT overrides consumed under `src/process/webserver/`; local-only desktop operation does not require them.
@@ -167,6 +184,7 @@
 - Optional Flux daemon/provider overrides are consumed by `src/process/flux/FluxDesktopService.ts`; standard provider credentials can be passed to specific provider and child-runtime paths under `src/process/providers/` and `src/process/agent/`.
 
 **Secrets Location:**
+
 - Provider and channel secrets persist encrypted in the local SQLite-backed repositories under `src/process/providers/`, `src/process/channels/`, and `src/process/services/database/`.
 - Encryption roots use OS-backed Electron safe storage or the restricted standalone file-key store under `src/process/secrets/`.
 - CLI-native OAuth profiles remain owned by their respective CLIs and are read only by supported reuse paths in `src/process/onboarding/`.
@@ -175,12 +193,14 @@
 ## Webhooks & Callbacks
 
 **Incoming:**
+
 - Channel webhook routes enter through `src/process/webserver/index.ts` and channel-specific handlers under `src/process/channels/`.
 - Raw-body signature verification implementations live under `src/process/channels/webhook/verifiers/` for supported platforms.
 - OAuth loopback callbacks for Flux, xAI, ChatGPT, Gemini, and MCP are handled by the onboarding and MCP OAuth modules under `src/process/onboarding/` and `src/process/services/mcpServices/`.
 - Remote WebUI WebSocket sessions are accepted by the manager under `src/process/webserver/`.
 
 **Outgoing:**
+
 - Channel adapters send messages, status changes, media, and platform API callbacks through clients under `src/process/channels/`.
 - Provider requests and streaming responses leave through adapters under `src/process/providers/`, with routed Flux requests handled under `src/process/flux/`.
 - MCP clients launch stdio servers or connect to remote SSE/HTTP endpoints through `src/process/services/mcpServices/McpProtocol.ts`.
@@ -189,4 +209,4 @@
 
 ---
 
-*Integration audit: 2026-07-19*
+_Integration audit: 2026-07-19_

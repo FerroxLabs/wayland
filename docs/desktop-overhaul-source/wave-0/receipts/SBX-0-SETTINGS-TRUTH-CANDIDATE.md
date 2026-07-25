@@ -34,12 +34,12 @@ stops Desktop MCP publication.
 
 ## Current proof
 
-| Command | Result |
-|---|---|
-| `bun run test -- tests/unit/workspaceRetention.test.ts tests/unit/renderer/settings/WCoreConfig.dom.test.tsx` | PASS — 2 files, 36 tests |
-| targeted ESLint over the retention and settings correction files | PASS — 0 warnings, 0 errors |
-| `bun run typecheck` | PASS |
-| `git diff --check` over the correction and planning files | PASS |
+| Command                                                                                                       | Result                      |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| `bun run test -- tests/unit/workspaceRetention.test.ts tests/unit/renderer/settings/WCoreConfig.dom.test.tsx` | PASS — 2 files, 36 tests    |
+| targeted ESLint over the retention and settings correction files                                              | PASS — 0 warnings, 0 errors |
+| `bun run typecheck`                                                                                           | PASS                        |
+| `git diff --check` over the correction and planning files                                                     | PASS                        |
 
 ## Explicitly not proved or fixed
 

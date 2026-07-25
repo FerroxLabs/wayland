@@ -18,6 +18,7 @@
 ## This session's commits (20 total, `9aa836c86..fc1e75d0c`, all LOCAL)
 
 **Wave 1 — packaged smoke harness + A-02**
+
 - `scripts/packaged-cockpit-smoke.mjs` — drives the PACKAGED hardened app over CDP (no fuse
   weakened; Playwright's Electron driver can't attach because `afterPack` disables the node
   inspector — the app self-enables Chromium remote debugging via `WAYLAND_CDP_PORT`). Walks 12
@@ -33,6 +34,7 @@ Baseline tightened; gate green 6/6. `bun run test:e2e:a11y`.
 **Wave 4 — i18n hygiene:** 22 orphaned cohort keys removed ×12 locales; 814 i18n tests pass.
 
 **Milestone B — all 7 (see `.planning/phases/WLD-B-scope/B-DECISIONS.md` capture table):**
+
 - **IMG-01** `a0b8c82d2` — enforced fail-closed image/vision send gate
   (`src/renderer/utils/model/imageVisionGate.ts` + `useGuidSend.ts`). Retires the reported
   silent-image-drop bug. 7 tests.

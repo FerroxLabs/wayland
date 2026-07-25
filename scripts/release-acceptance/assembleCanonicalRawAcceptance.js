@@ -125,11 +125,7 @@ function assembleCanonicalRawAcceptance(artifactsDirectory, candidateValue, outp
     if (!files.includes(protectedInstaller)) {
       fail('M8I_PLATFORM_SMOKE_INVALID', `${target}:protected-installer-missing`);
     }
-    copyAbsolute(
-      protectedInstaller,
-      output,
-      `package-observations/${target}/${protectedManifest.installer.fileName}`
-    );
+    copyAbsolute(protectedInstaller, output, `package-observations/${target}/${protectedManifest.installer.fileName}`);
 
     const observation = exactlyOne(
       files,

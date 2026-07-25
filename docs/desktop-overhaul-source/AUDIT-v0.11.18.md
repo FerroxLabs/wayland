@@ -18,22 +18,22 @@ Wayland Desktop should be the trusted universal cockpit: the simplification and 
 
 Scores are evidence-based readiness scores, not a judgement on ambition.
 
-| Area | Score / 5 | Assessment |
-|---|---:|---|
-| Capability breadth | 4.5 | Genuinely exceptional breadth already exists. |
-| Provider and agent neutrality | 5.0 | The clearest defensible differentiation. |
-| Native desktop distribution | 4.0 | macOS, Windows, and Linux across x64/arm64; signing and notarization are now strong. |
-| Outcome-first user experience | 2.5 | Coherent styling, but the user must understand the system's taxonomy before getting value. |
-| Core integration | 2.5 | Real and substantial, but protocol ownership is manual and already drifting. |
-| Flux integration | 3.5 | Flux is visible and useful; the product contract and value telemetry need to become first-class. |
-| Knowledge-work parity | 2.5 | Strong raw ingredients; finished artifact and connected-work journeys are less coherent than the leaders. |
-| Developer/power-user parity | 3.5 | Strong agents, projects, terminal-adjacent capabilities, MCPs, and local control; reliability proof and workspace semantics lag. |
-| Cloud deployment | 1.5 | Standalone server boots, but the official image fails to build and starts incomplete when built manually. |
-| Security architecture | 4.0 | Electron and Web UI hardening are thoughtful; dependency exposure and workspace trust still require work. |
-| Release evidence | 2.5 | Large unit suite and signed packages, but representative E2E is manual and several flagship journeys fail. |
-| Accessibility | 2.5 | Deliberate ARIA/keyboard work is visible, but there is no automated WCAG gate and some screens expose many unlabeled controls. |
-| Maintainability | 2.0 | Giant bridge/manager files, weak boundaries, warnings, dead candidates, manual registration, and low coverage in critical seams. |
-| Community/distribution | 3.0 | Strong early GitHub momentum; metadata, documentation truth, share loops, and repeatable deployment are underdeveloped. |
+| Area                          | Score / 5 | Assessment                                                                                                                       |
+| ----------------------------- | --------: | -------------------------------------------------------------------------------------------------------------------------------- |
+| Capability breadth            |       4.5 | Genuinely exceptional breadth already exists.                                                                                    |
+| Provider and agent neutrality |       5.0 | The clearest defensible differentiation.                                                                                         |
+| Native desktop distribution   |       4.0 | macOS, Windows, and Linux across x64/arm64; signing and notarization are now strong.                                             |
+| Outcome-first user experience |       2.5 | Coherent styling, but the user must understand the system's taxonomy before getting value.                                       |
+| Core integration              |       2.5 | Real and substantial, but protocol ownership is manual and already drifting.                                                     |
+| Flux integration              |       3.5 | Flux is visible and useful; the product contract and value telemetry need to become first-class.                                 |
+| Knowledge-work parity         |       2.5 | Strong raw ingredients; finished artifact and connected-work journeys are less coherent than the leaders.                        |
+| Developer/power-user parity   |       3.5 | Strong agents, projects, terminal-adjacent capabilities, MCPs, and local control; reliability proof and workspace semantics lag. |
+| Cloud deployment              |       1.5 | Standalone server boots, but the official image fails to build and starts incomplete when built manually.                        |
+| Security architecture         |       4.0 | Electron and Web UI hardening are thoughtful; dependency exposure and workspace trust still require work.                        |
+| Release evidence              |       2.5 | Large unit suite and signed packages, but representative E2E is manual and several flagship journeys fail.                       |
+| Accessibility                 |       2.5 | Deliberate ARIA/keyboard work is visible, but there is no automated WCAG gate and some screens expose many unlabeled controls.   |
+| Maintainability               |       2.0 | Giant bridge/manager files, weak boundaries, warnings, dead candidates, manual registration, and low coverage in critical seams. |
+| Community/distribution        |       3.0 | Strong early GitHub momentum; metadata, documentation truth, share loops, and repeatable deployment are underdeveloped.          |
 
 ## What is strong
 

@@ -15,6 +15,7 @@ frontmatter so it auto-closes on merge. These `D-*` packets are the human work-t
 SUMMARY is written when a packet is live-test-accepted.
 
 ## Phases (build order D1 → D2 → D3 → D5 → D4)
+
 - **D1 — Bridge reliability** (ACTIVE): #890 WhatsApp bridge (FIX) + #537 host-send (VERIFY-only).
 - **D2 — Skills trust:** #885 Skill Guard builtin exemption (FIX).
 - **D3 — Honest diagnostics:** #891 Memory false "Degraded" (FIX+BUILD) + #853 surface exec errors (BUILD).
@@ -46,11 +47,12 @@ server") land on the stdout the bridge uses for JSON-RPC, host logs "bridge emit
 bridge exits code=0, 12 reconnects, status `error`, never reaches QR. `last_connected` stays null.
 
 Verified in-tree (do not re-derive; the researcher confirms/extends):
+
 - `whatsapp-bridge/bridge.js:96` frames protocol as `process.stdout.write(JSON.stringify(obj)+"\n")` on fd1.
 - `whatsapp-bridge/backends/baileys.js:121` `const logger = pino({ level: 'warn' })` — pino defaults to
   fd1 (stdout), the SAME channel. baileys.js:196-200 already routes the QR render to stderr when there is
   an IPC parent, so the codebase already treats stdout as protocol-only — pino is the remaining fd1 leak
-  *from inside the child*.
+  _from inside the child_.
 - `WhatsAppPlugin.ts:687-690` forks the bridge with `stdio: ['pipe','pipe','inherit','ipc']` →
   **child stdout is a PRIVATE pipe** (only the child writes it; host reads it in `consumeStdout`),
   **child stderr is INHERITED** (parent's fd2). So main-process `console.log` of `[Wayland:init]`/"MCP
@@ -62,6 +64,7 @@ Verified in-tree (do not re-derive; the researcher confirms/extends):
   "throws → bridge exits code=0" is NOT explained by the current handleFrame.
 
 **Unresolved (the research pass must nail before we write code):**
+
 1. **How do those exact `[Wayland:init]`/"MCP scripts present"/"Adopting … Playwright MCP" strings reach
    the frame parser?** Leading hypothesis: the forked bridge entry transitively imports app/bootstrap
    code (or runs MCP/Playwright adoption inside the child) that `console.log`s to the child's OWN fd1 →
@@ -81,6 +84,7 @@ repro is the acceptance surface for the reported symptom; a unit/integration tes
 a stdout-purity assertion is the automated floor.
 
 ### #537 — engine send_message "unknown channel: email" (VERIFY-only)
+
 Desktop host-send hook already merged (`hostSendMessage.ts` present, 6713 bytes; `protocol.ts`
 host_send_message_request/result; `envBuilder.ts` WAYLAND_SEND_MESSAGE_HOST_DELEGATE). Dormant until
 Core emits `host_send_message_request`. Channel code byte-identical 0.12.17..0.12.19 — do NOT tell users
@@ -89,6 +93,7 @@ email send end-to-end, then close (or, if Core hook absent in the bundled engine
 #537 blocked-on-Core, do NOT ship a desktop change). This is verification, not construction.
 
 ## Guardrails
+
 LOCAL only — no push/merge/release/deploy without Sean. Never touch `/Users/seandonahoe/dev/wayland/app`.
 Every FIX runs the full Factory loop: research → plan → build → independent cross-audit → full unit suite
 (`bun run test:vitest`) + a11y gate (`bun run test:e2e:a11y`) → live-verify → ship. **Always `bun run

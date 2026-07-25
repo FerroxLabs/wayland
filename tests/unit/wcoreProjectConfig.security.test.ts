@@ -214,12 +214,9 @@ describe('RT-B6-07: .wayland-core.toml provider-section ownership', () => {
       ].join('\n'),
       'utf-8'
     );
-    const appWithProfile = [
-      APP_SECTION,
-      '[profiles.__wayland_desktop_session]',
-      'mcp_servers = ["tavily"]',
-      '',
-    ].join('\n');
+    const appWithProfile = [APP_SECTION, '[profiles.__wayland_desktop_session]', 'mcp_servers = ["tavily"]', ''].join(
+      '\n'
+    );
 
     makeAgent(workspace).writeProjectConfig(appWithProfile);
 

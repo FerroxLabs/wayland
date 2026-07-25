@@ -96,9 +96,7 @@ describe('Flux routing evidence: trusted live delivery is physically absent', ()
     (rootPath) => {
       const source = read(rootPath);
       const initSymbol =
-        rootPath === DESKTOP_ROOT
-          ? 'initDesktopFluxRoutingEvidenceAdapter'
-          : 'initWebCloudFluxRoutingEvidenceAdapter';
+        rootPath === DESKTOP_ROOT ? 'initDesktopFluxRoutingEvidenceAdapter' : 'initWebCloudFluxRoutingEvidenceAdapter';
       expect(source).toContain(`${initSymbol}()`);
       for (const symbol of LIVE_DELIVERY_SYMBOLS) {
         expect(source, `${rootPath} must not reference ${symbol}`).not.toContain(symbol);

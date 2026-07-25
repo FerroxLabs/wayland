@@ -5,15 +5,7 @@
   "manifest_override": true,
   "title": "Wave 0 execution control",
   "summary": "Defines Wave 0 authorization boundaries, parallel streams, stop conditions, receipt controls, integration status, evidence, and remaining safety gates.",
-  "scope": [
-    "Wave 0",
-    "M0A",
-    "M0B",
-    "M1 and M1F",
-    "Constitution",
-    "MCP",
-    "workspace retention"
-  ],
+  "scope": ["Wave 0", "M0A", "M0B", "M1 and M1F", "Constitution", "MCP", "workspace retention"],
   "cross_refs": [
     "../COWORK-DEEP-DIVE.md",
     "CONSTITUTION-RECOVERY-ACCEPTANCE.md",

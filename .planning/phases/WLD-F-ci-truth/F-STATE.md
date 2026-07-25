@@ -56,10 +56,10 @@ not have.
 
 ## 2. Done and verified
 
-| packet | state | evidence |
-|---|---|---|
+| packet                          | state    | evidence                                                                                                                                                                                          |
+| ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **F-01** required-checks bypass | **DONE** | `3844b2e1e`. Proven live on throwaway PRs #926/#927: docs-only → 4/4 required green; mixed + failing test → all 3 required RED; draft → RED not green-by-skip. Both PRs closed, branches deleted. |
-| **F-07** IJFW Memory dead end | **DONE** | 9 commits `b80ad8beb..d79558053`. Packaged smoke `bun run smoke:ijfw` OVERALL: PASS — one click recovers Memory with no restart, runtime row reaches **Live**, Test passes. |
+| **F-07** IJFW Memory dead end   | **DONE** | 9 commits `b80ad8beb..d79558053`. Packaged smoke `bun run smoke:ijfw` OVERALL: PASS — one click recovers Memory with no restart, runtime row reaches **Live**, Test passes.                       |
 
 F-01 is why CI can now be trusted at all. Before it, a green required check on this repo meant nothing.
 
@@ -86,13 +86,14 @@ fail-closed, constitution git-history depth, key fixtures).
   symlink assertion — it is a real integrity rule.**
 - **THEN:** `constitutionFsTransaction`, `wcoreStderrSurfacing`, `installSignalCli`.
 - Also seen in the logs, unexplained and possibly benign: `[BetterSqlite3Driver] Failed to chmod DB
-  file to 0o600: ENOENT chmod ':memory:'` (9×) — a chmod against an in-memory DB path.
+file to 0o600: ENOENT chmod ':memory:'` (9×) — a chmod against an in-memory DB path.
 
 **Acceptance:** all unit shards green on ubuntu, macos AND windows in CI. Not "green locally".
 
 ### F-03 · Redo the formatting pass safely
 
 Reverted once in `aea1b4820` because it broke the build (see G3). Order matters:
+
 1. Fix `.pre-commit-config.yaml` oxfmt `exclude:` first — it currently covers only
    `src/process/resources/(skills-library|bundled-workflows)/index.json`. It must also exclude
    `resources/modelsdev-snapshot.json` and `contracts/**`. Its `files:` regex also omits `.mjs`.
@@ -106,16 +107,19 @@ of them makes Oxfmt fail. That is why Code Quality is red on this PR.
 PASSES, Code Quality green.
 
 ### F-04 · Issue + decision hygiene
+
 #910b "Chats" ratified (keep `8f713ea04`), record only. Confirm nothing is marked fixed while
 unreleased — the correct label is **`state:fixed-pending-release`** (with the `state:` prefix).
 
 ### F-05 · Reconcile `~/Downloads/wayland-desktop-cleanup-plan.md`
+
 Audited at `1b1c1e9`, which is exactly this branch's merge-base, so some findings may already be
 fixed. Produce a per-packet already-fixed / still-open / superseded status BEFORE anyone starts work.
 Its P0-1 (ACP bridges via `bunx @latest` at spawn = RCE) is the same supply-chain class as the pins
 fixed this session.
 
 ### F-06 · Sealed build — GATED ON SEAN
+
 Needs a protected `release-trust-v1` branch and repo variable `WAYLAND_RELEASE_TRUST_ROOT_SHA`.
 Neither exists. Deliberately not created by the agent: the agent that builds releases must not mint the
 authority that validates them. Notarization is already fully wired (`afterSign.js` + `notarizeDmg.js`,
@@ -146,7 +150,7 @@ From the F-07 cross-audit panel (Codex 5.6 Sol, Gemini, Kimi K3, internal review
 ## 5. Environment drift to resolve with Sean
 
 - **GSD legacy — REMOVED 2026-07-25.** `~/gsd-workspaces/` was 111 dirs / 6.9 GB (not the 5 the first
-  audit reported — that only counted worktree *registrations*), including an unrecorded second full
+  audit reported — that only counted worktree _registrations_), including an unrecorded second full
   clone with 92 branches, 26 of whose tips existed nowhere else. Plus 864 MB of GSD npx caches and 59
   GSD-only files under `~/.claude/`. Archived to `~/dev/_archive/gsd-legacy-2026-07-25/` (28 MB,
   restore tested end-to-end) then deleted. **14 files GSD installed are now owned by Ferrox at the

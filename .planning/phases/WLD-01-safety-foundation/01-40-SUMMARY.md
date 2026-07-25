@@ -20,46 +20,46 @@ key-files:
     - .planning/execution/DESKTOP-GSD-OPERATOR.md
   modified: []
 key-decisions:
-  - "Construction selection never mints packet, phase, package, release, or cohort acceptance."
-  - "Phase 1 is locally selectable; Phase 2-4 require exact mapped entry receipts; Phase 5-6 remain hard denied."
-  - "Malformed plans, ambiguous ownership, stale Git/worktree identity, and unavailable launch targets fail closed."
+  - 'Construction selection never mints packet, phase, package, release, or cohort acceptance.'
+  - 'Phase 1 is locally selectable; Phase 2-4 require exact mapped entry receipts; Phase 5-6 remain hard denied.'
+  - 'Malformed plans, ambiguous ownership, stale Git/worktree identity, and unavailable launch targets fail closed.'
 patterns-established:
-  - "Bounded orchestration: select at most three genuinely disjoint autonomous plans."
-  - "Evidence separation: entry receipts carry accepted_targets: [] and cannot promote later states."
+  - 'Bounded orchestration: select at most three genuinely disjoint autonomous plans.'
+  - 'Evidence separation: entry receipts carry accepted_targets: [] and cannot promote later states.'
 requirements-completed: []
 requirements-addressed: [SAF-05]
 coverage:
   - id: D1
-    description: "Read-only selector emits only dependency-unlocked, disjoint, exact-HEAD construction candidates."
+    description: 'Read-only selector emits only dependency-unlocked, disjoint, exact-HEAD construction candidates.'
     requirement: SAF-05
     verification:
       - kind: unit
-        ref: "node --test .planning/execution/desktop-gsd-next.test.mjs (41/41 pass)"
+        ref: 'node --test .planning/execution/desktop-gsd-next.test.mjs (41/41 pass)'
         status: pass
       - kind: integration
-        ref: "exact operational CLI at beec695df236bc7475484b6212e09c3a0b0ff47f selects 01-40"
+        ref: 'exact operational CLI at beec695df236bc7475484b6212e09c3a0b0ff47f selects 01-40'
         status: pass
     human_judgment: false
   - id: D2
-    description: "Operator contract preserves manual isolated worktrees, serial integration, and Sean-only promotion gates."
+    description: 'Operator contract preserves manual isolated worktrees, serial integration, and Sean-only promotion gates.'
     requirement: SAF-05
     verification:
       - kind: unit
-        ref: "desktop-gsd-next.test.mjs#operator contract prohibits stock routing and preserves authority"
+        ref: 'desktop-gsd-next.test.mjs#operator contract prohibits stock routing and preserves authority'
         status: pass
     human_judgment: false
   - id: D3
-    description: "Selector and surrounding Desktop baseline pass focused, lint, aggregate, and independent adversarial gates."
+    description: 'Selector and surrounding Desktop baseline pass focused, lint, aggregate, and independent adversarial gates.'
     requirement: SAF-05
     verification:
       - kind: unit
-        ref: "oxlint selector files (0 warnings, 0 errors)"
+        ref: 'oxlint selector files (0 warnings, 0 errors)'
         status: pass
       - kind: integration
-        ref: "bun run test at beec695df236bc7475484b6212e09c3a0b0ff47f (15238 Vitest + 226 Bun-native pass)"
+        ref: 'bun run test at beec695df236bc7475484b6212e09c3a0b0ff47f (15238 Vitest + 226 Bun-native pass)'
         status: pass
       - kind: other
-        ref: "cross-audit-20260719-plan0140-final (zero HIGH, MEDIUM, LOW)"
+        ref: 'cross-audit-20260719-plan0140-final (zero HIGH, MEDIUM, LOW)'
         status: pass
     human_judgment: false
 duration: 1h 40m
@@ -126,6 +126,7 @@ None.
 The selector can now evaluate the integrated Wave 2 planning set. Wave 2 construction remains blocked until its separately amended plans pass independent audit and are integrated onto this exact successor.
 
 ---
-*Phase: WLD-01-safety-foundation*  
-*Plan: 40*  
-*Completed: 2026-07-19*
+
+_Phase: WLD-01-safety-foundation_  
+_Plan: 40_  
+_Completed: 2026-07-19_

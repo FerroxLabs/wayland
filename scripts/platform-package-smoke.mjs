@@ -596,9 +596,7 @@ export function installArtifactSnapshot(snapshotPath, targetPlatform, targetArch
       ].filter((candidate) => fs.existsSync(candidate));
       const deviceEntries = [
         ...new Set(
-          [...plist.matchAll(/<key>dev-entry<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) =>
-            decodeXml(match[1])
-          )
+          [...plist.matchAll(/<key>dev-entry<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) => decodeXml(match[1]))
         ),
       ];
       // A device node is the idempotent hdiutil detach authority. Falling
@@ -1269,14 +1267,10 @@ export async function runSmoke(options, dependencies = {}) {
           }
         });
       }
-      processMonitor = (dependencies.createProcessMonitor || createProcessMonitor)(
-        child.pid,
-        options.targetPlatform,
-        {
-          ...dependencies,
-          processScopeTokens: [candidate.appDir, installed.installRoot, userDataDir, smokeMarker, processTreeId],
-        }
-      );
+      processMonitor = (dependencies.createProcessMonitor || createProcessMonitor)(child.pid, options.targetPlatform, {
+        ...dependencies,
+        processScopeTokens: [candidate.appDir, installed.installRoot, userDataDir, smokeMarker, processTreeId],
+      });
       const renderer = await Promise.race([
         (dependencies.waitForRendererReady || waitForRendererReady)(port, options.timeoutMs, child, expectedRenderer),
         spawnFailure,
@@ -1327,9 +1321,7 @@ export async function runSmoke(options, dependencies = {}) {
         releaseIdentity,
         sandboxMode: launch.sandboxMode,
         productionSandboxProof:
-          launch.sandboxMode === 'production-default'
-            ? 'exercised'
-            : 'not-proven-by-unprivileged-package-extraction',
+          launch.sandboxMode === 'production-default' ? 'exercised' : 'not-proven-by-unprivileged-package-extraction',
         verifiedCandidateDigest: postShutdownDigest,
         criticalResources: 'verified',
         optionalCapabilities,

@@ -37,10 +37,7 @@ import path from 'node:path';
 import { WebSocket as NodeWebSocket } from 'ws';
 
 const APP_ROOT = path.resolve(__dirname, '../../..');
-const ELECTRON_BIN = path.join(
-  APP_ROOT,
-  'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron'
-);
+const ELECTRON_BIN = path.join(APP_ROOT, 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron');
 
 export interface CdpAppOptions {
   userDataDir: string;
@@ -141,7 +138,11 @@ export async function launchAppViaCdp(opts: CdpAppOptions): Promise<CdpApp> {
   const ws = new WebSocketImpl(page.webSocketDebuggerUrl);
   await new Promise<void>((resolve, reject) => {
     ws.addEventListener('open', () => resolve(), { once: true });
-    ws.addEventListener('error', (e) => reject(new Error('CDP WS error: ' + ((e as ErrorEvent).message ?? 'unknown'))), { once: true });
+    ws.addEventListener(
+      'error',
+      (e) => reject(new Error('CDP WS error: ' + ((e as ErrorEvent).message ?? 'unknown'))),
+      { once: true }
+    );
   });
 
   let msgId = 0;
@@ -151,7 +152,7 @@ export async function launchAppViaCdp(opts: CdpAppOptions): Promise<CdpApp> {
       const onMessage = (ev: MessageEvent) => {
         // Global WebSocket delivers text frames as a string; the `ws` fallback
         // delivers them as a Buffer - normalise both to a string before parsing.
-        const raw = typeof ev.data === 'string' ? ev.data : (ev.data as { toString(): string })?.toString?.() ?? '';
+        const raw = typeof ev.data === 'string' ? ev.data : ((ev.data as { toString(): string })?.toString?.() ?? '');
         const msg = JSON.parse(raw);
         if (msg.id !== id) return;
         ws.removeEventListener('message', onMessage);

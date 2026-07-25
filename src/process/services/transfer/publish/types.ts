@@ -30,7 +30,9 @@ export type TransferSourceAuthorizationRecord = Readonly<{
 }>;
 
 export type TransferPublicationContainerRecord =
-  TransferPublicationHeaderRecord | TransferPublicationChunkRecord | TransferPublicationTerminalRecord;
+  | TransferPublicationHeaderRecord
+  | TransferPublicationChunkRecord
+  | TransferPublicationTerminalRecord;
 
 export type TransferPublicationRecord = TransferPublicationContainerRecord | TransferSourceAuthorizationRecord;
 

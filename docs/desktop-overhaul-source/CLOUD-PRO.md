@@ -76,9 +76,9 @@ Pro value is safe managed authentication, reliability, audit, support, and scale
 
 Validate willingness to pay before fixing exact quotas.
 
-| Tier | User | Value proposition |
-|---|---|---|
-| Desktop / Community | Individual builders and self-hosters | Complete local and self-hosted sovereignty. |
-| Pro | Individual professionals | Always-on Wayland, cross-device continuity, managed connections, backups, premium support. |
-| Team | Small organizations | Shared workspaces, roles, budgets, policies, audit, higher concurrency. |
-| Enterprise | Regulated/larger organizations | SSO/SCIM, retention, regional deployment, private networking, compliance and SLA. |
+| Tier                | User                                 | Value proposition                                                                          |
+| ------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Desktop / Community | Individual builders and self-hosters | Complete local and self-hosted sovereignty.                                                |
+| Pro                 | Individual professionals             | Always-on Wayland, cross-device continuity, managed connections, backups, premium support. |
+| Team                | Small organizations                  | Shared workspaces, roles, budgets, policies, audit, higher concurrency.                    |
+| Enterprise          | Regulated/larger organizations       | SSO/SCIM, retention, regional deployment, private networking, compliance and SLA.          |

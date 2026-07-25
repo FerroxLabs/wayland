@@ -3,10 +3,12 @@
 **Status:** DRAFT for Sean's review. Do NOT post/close without Sean's nod. Post as FerroxLabs.
 
 ## ⚠️ Release-status gate to confirm BEFORE posting/closing
+
 The host-delegated send path (`hostSendMessage.ts`, `envBuilder.ts` delegate flag, `protocol.ts`
 `host_send_message_request`/`_result`, `index.ts` wiring) is confirmed present **on this branch**, and
 the bundled Core v0.12.25 carries the symbols. But this branch is LOCAL / unreleased. Per the repo rule
 (never close as fixed if it is not in a released version — mark `fixed-pending-release` instead):
+
 - **If the host-send hook is already in a shipped desktop release** (verify the release tag) → post the
   comment below and CLOSE.
 - **If it is only on this unreleased branch** → post the comment (with "on your next desktop update"

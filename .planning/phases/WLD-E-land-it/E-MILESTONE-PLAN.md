@@ -9,29 +9,29 @@
 
 ## Where we are (measured 2026-07-25, not estimated)
 
-| fact | value |
-|---|---|
-| Branch | `worktree-agent-desktop-integration` |
-| Commits ahead of `ferrox/main` | **552** |
-| Commits behind | **0** (main has not moved) |
-| Files changed | 1,664 |
-| Net diff | +207,923 / −10,196 |
-| CI runs on any of it | **zero** |
-| Full unit suite | **15,718 passed / 0 failed / 147 pending** (4,636 suites) |
-| Packaged smoke | **PASS** (`passed: true`, 12/12 surfaces, chat round-trip) |
+| fact                           | value                                                      |
+| ------------------------------ | ---------------------------------------------------------- |
+| Branch                         | `worktree-agent-desktop-integration`                       |
+| Commits ahead of `ferrox/main` | **552**                                                    |
+| Commits behind                 | **0** (main has not moved)                                 |
+| Files changed                  | 1,664                                                      |
+| Net diff                       | +207,923 / −10,196                                         |
+| CI runs on any of it           | **zero**                                                   |
+| Full unit suite                | **15,718 passed / 0 failed / 147 pending** (4,636 suites)  |
+| Packaged smoke                 | **PASS** (`passed: true`, 12/12 surfaces, chat round-trip) |
 
 Delta by area:
 
-| area | added | note |
-|---|---|---|
-| `tests/unit` | 62,236 | healthy test:source ratio |
-| `src/process` | 45,089 | |
-| `.planning/*` | ~30,000 | docs, not code |
-| `src/renderer` | 14,953 | |
-| `src/common` | 9,846 | |
-| `native/constitution-fs` | 7,637 | |
-| `scripts/release-acceptance` | 5,103 | |
-| `.github/workflows` | 1,398 | **the CI config itself is unvalidated** |
+| area                         | added   | note                                    |
+| ---------------------------- | ------- | --------------------------------------- |
+| `tests/unit`                 | 62,236  | healthy test:source ratio               |
+| `src/process`                | 45,089  |                                         |
+| `.planning/*`                | ~30,000 | docs, not code                          |
+| `src/renderer`               | 14,953  |                                         |
+| `src/common`                 | 9,846   |                                         |
+| `native/constitution-fs`     | 7,637   |                                         |
+| `scripts/release-acceptance` | 5,103   |                                         |
+| `.github/workflows`          | 1,398   | **the CI config itself is unvalidated** |
 
 ## The dominating risk
 
@@ -79,7 +79,7 @@ that does not exist in the final state.
 
 - Merge as a single PR whose reviewable artifact is the net diff (~70k lines of real source; the rest is
   tests and planning docs).
-- Split the *review*, not the branch: by area (`src/process`, `src/renderer`, `src/common`, `native`,
+- Split the _review_, not the branch: by area (`src/process`, `src/renderer`, `src/common`, `native`,
   `scripts`), each with its own cross-audit pass.
 - No conflict pressure exists (main is 0 behind), so there is no mechanical reason to split the branch.
 
@@ -88,7 +88,7 @@ that does not exist in the final state.
 ## E-04 · Sealed build — GATED ON SEAN'S CI TRUST ROOT
 
 D-08 deliberately did NOT forge the capability seal, so a sealed distributable cannot be produced
-locally by design. **Verify:** packaged smoke `passed: true` against a *sealed* artifact, not the
+locally by design. **Verify:** packaged smoke `passed: true` against a _sealed_ artifact, not the
 verification build.
 
 ## E-05 · Release notes + publish
@@ -105,13 +105,13 @@ Candidates are the 17 referenced issues, each confirmed against the released tag
 
 ## Gates summary
 
-| packet | blocked on |
-|---|---|
-| E-01 | nothing — DONE |
-| E-02 | **Sean: authorization to push** |
-| E-03 | E-02 green |
-| E-04 | **Sean: CI trust root** |
-| E-05 | E-04 |
-| E-06 | E-05 shipped |
+| packet | blocked on                      |
+| ------ | ------------------------------- |
+| E-01   | nothing — DONE                  |
+| E-02   | **Sean: authorization to push** |
+| E-03   | E-02 green                      |
+| E-04   | **Sean: CI trust root**         |
+| E-05   | E-04                            |
+| E-06   | E-05 shipped                    |
 
 Still open from earlier, unrelated to gating: #910b "Chats" ratify (recommend RATIFY), #537 close comment.

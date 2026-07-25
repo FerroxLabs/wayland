@@ -566,12 +566,7 @@ describe('TeamSessionService', () => {
         installRituals: vi.fn(),
         uninstallRituals: vi.fn(),
       };
-      const service = newService(
-        repo,
-        workerTaskManager as never,
-        conversationService,
-        ritualScheduler
-      );
+      const service = newService(repo, workerTaskManager as never, conversationService, ritualScheduler);
 
       await expect(service.deleteTeam(team.id)).rejects.toThrow(/user-created scheduled task/);
 
@@ -600,12 +595,7 @@ describe('TeamSessionService', () => {
         installRituals: vi.fn(),
         uninstallRituals: vi.fn().mockResolvedValue(undefined),
       };
-      const service = newService(
-        repo,
-        workerTaskManager as never,
-        conversationService,
-        ritualScheduler
-      );
+      const service = newService(repo, workerTaskManager as never, conversationService, ritualScheduler);
 
       await service.deleteTeam(team.id);
 
@@ -649,12 +639,7 @@ describe('TeamSessionService', () => {
         installRituals: vi.fn(),
         uninstallRituals: vi.fn().mockResolvedValue(undefined),
       };
-      const service = newService(
-        repo,
-        workerTaskManager as never,
-        conversationService,
-        ritualScheduler
-      );
+      const service = newService(repo, workerTaskManager as never, conversationService, ritualScheduler);
 
       await expect(service.deleteTeam(team.id)).rejects.toThrow(/still use its chats/);
 

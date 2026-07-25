@@ -159,9 +159,7 @@ describe('sendWorkflowAdvanceDirective (#723 per-step reset)', () => {
     const throwing = makeDeps(() => {
       throw new Error('conversation lookup exploded');
     });
-    await expect(
-      sendWorkflowAdvanceDirective('conv-1', 'Proceed to step 2', throwing.deps)
-    ).resolves.toBeUndefined();
+    await expect(sendWorkflowAdvanceDirective('conv-1', 'Proceed to step 2', throwing.deps)).resolves.toBeUndefined();
     // On a lookup failure we take the safe (non-reset) path, not the respawn.
     expect(throwing.getOrBuildTask).toHaveBeenCalledWith('conv-1', { yoloMode: true });
     expect(throwing.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ hidden: true }));

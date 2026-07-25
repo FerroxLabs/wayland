@@ -73,10 +73,34 @@ const sha = (char: string): string => `sha256:${char.repeat(64)}`;
 
 /** One rich, fully-valid event log, parameterised only by the host it runs on. */
 function buildContractEvents(host: ExecutionHost): ExecutionEvent[] {
-  const usageReceipt = { id: 'r-usage', kind: 'usage' as const, authority: 'provider' as const, identity: IDENTITY, observedAt: AT };
-  const costReceipt = { id: 'r-cost', kind: 'cost' as const, authority: 'flux' as const, identity: IDENTITY, observedAt: AT };
-  const latencyReceipt = { id: 'r-latency', kind: 'latency' as const, authority: 'flux' as const, identity: IDENTITY, observedAt: AT };
-  const validationReceipt = { id: 'r-validation', kind: 'validation' as const, authority: 'core' as const, identity: IDENTITY, observedAt: AT };
+  const usageReceipt = {
+    id: 'r-usage',
+    kind: 'usage' as const,
+    authority: 'provider' as const,
+    identity: IDENTITY,
+    observedAt: AT,
+  };
+  const costReceipt = {
+    id: 'r-cost',
+    kind: 'cost' as const,
+    authority: 'flux' as const,
+    identity: IDENTITY,
+    observedAt: AT,
+  };
+  const latencyReceipt = {
+    id: 'r-latency',
+    kind: 'latency' as const,
+    authority: 'flux' as const,
+    identity: IDENTITY,
+    observedAt: AT,
+  };
+  const validationReceipt = {
+    id: 'r-validation',
+    kind: 'validation' as const,
+    authority: 'core' as const,
+    identity: IDENTITY,
+    observedAt: AT,
+  };
   const constraint = (source: 'workspace' | 'backend' | 'host') => ({
     source,
     mode: 'autopilot' as const,
@@ -140,7 +164,13 @@ function buildContractEvents(host: ExecutionHost): ExecutionEvent[] {
       identity: IDENTITY,
       observedAt: AT,
       type: 'usage',
-      usage: { status: 'authoritative', inputTokens: 100, outputTokens: 40, cachedTokens: 10, receiptId: usageReceipt.id },
+      usage: {
+        status: 'authoritative',
+        inputTokens: 100,
+        outputTokens: 40,
+        cachedTokens: 10,
+        receiptId: usageReceipt.id,
+      },
       receipt: usageReceipt,
     },
     {
@@ -246,7 +276,11 @@ describe('CMP-01 shared model + capability manifest replay through the standalon
     expect(snapshot.integrity).toEqual({ status: 'valid', reasons: [], lastSequence: 11 });
     expect(snapshot.lifecycle).toBe('completed');
     // Substance is real, not just a shape: authority actually resolved.
-    expect(snapshot.governance.effective).toMatchObject({ status: 'effective', mode: 'autopilot', enforceability: 'enforced' });
+    expect(snapshot.governance.effective).toMatchObject({
+      status: 'effective',
+      mode: 'autopilot',
+      enforceability: 'enforced',
+    });
     expect(snapshot.trustedPolicy.status).toBe('trusted');
     expect(snapshot.costLedger).toMatchObject({ status: 'authoritative', total: 0.25, currency: 'USD' });
     expect(snapshot.usage.status).toBe('authoritative');

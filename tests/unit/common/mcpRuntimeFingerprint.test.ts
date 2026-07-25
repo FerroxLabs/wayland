@@ -66,9 +66,7 @@ describe('mcpRuntimeFingerprint', () => {
       ])
     ).not.toBe(baseline);
     expect(mcpRuntimeFingerprint([server({ allowedTools: ['search'] })])).not.toBe(baseline);
-    expect(mcpRuntimeFingerprint([server({ transport: { type: 'stdio', command: 'n8n-mcp' } })])).not.toBe(
-      baseline
-    );
+    expect(mcpRuntimeFingerprint([server({ transport: { type: 'stdio', command: 'n8n-mcp' } })])).not.toBe(baseline);
   });
 
   it('never exposes raw credential material', () => {

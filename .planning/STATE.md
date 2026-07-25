@@ -43,6 +43,7 @@ See: `.planning/PROJECT.md`
 Wave A (package + matched-engine smoke) **landed** (A-02: packaged app proven working over CDP); Wave B (trust/a11y floor) largely landed; Wave C (hygiene) partially landed.
 
 Last activity: 2026-07-23 overnight — 9 local commits (nothing pushed):
+
 - **A-02 packaged smoke harness** `scripts/packaged-cockpit-smoke.mjs` — drives the PACKAGED hardened app over CDP (no fuse weakened); 12/12 surfaces + bridge + Flux connect + chat all pass. Hardened against 5 false-green paths found by an independent adversarial audit.
 - **B-02 a11y burn-down** — 87% of gated violation nodes cleared (374 → 49); a11y gate green 6/6, baseline tightened.
 - **Wave C i18n hygiene** — 22 orphaned cohort keys removed across 12 locales; 814 i18n tests pass.
@@ -53,16 +54,17 @@ Last activity: 2026-07-23 overnight — 9 local commits (nothing pushed):
 Progress: [████████░░] ~78% (packaged smoke proven; a11y floor largely done; scope decisions armed)
 
 ### Reconciled Phase-1 truth (the old 40-packet safety foundation)
+
 - **Accepted-by-live-test (construction complete):** the 20 non-cohort safety packets — all ship in Desktop v0.11.18, code present + wired + tested, exercised by the live sweep + full green suite. (01-06/07/08/09/10/11/12/13/15/16/19/20/21/22/24/35/36/37/38/40.)
 - **SUPERSEDED — pivot 2026-07-20 (do not build):** the 20 cohort/M0B packets. 14 acceptance/ceremony (01-03/04/05/14/17/18/25/26/27/28/29/30/31/39) + 6 construction whose code was deleted (01-01/02/23/32/33/34).
 
 ## Milestones
 
-| Milestone | Scope | Status |
-| --------- | ----- | ------ |
-| **A — Cockpit Preview Ship** | Wave A package + matched-engine smoke · Wave B trust/a11y floor · Wave C hygiene | **ACTIVE** |
-| **B — Scope Decisions** | COW-04/05/06, SBX-02, IMG-01, VOC-04, CMP-01 — **Sean's call 2026-07-23: BUILD ALL, no deferments. All 7 landed locally** (see B-DECISIONS.md capture table). SBX-02/COW-04/VOC-04 carry documented Core-hook / UI follow-ons. | **Built** |
-| **C — Secure Portability** | Encrypted full-instance Wayland Transfer engine (old Phase 7) | Deferred |
+| Milestone                     | Scope                                                                                                                                                                                                                                                                                                                                                                                              | Status                                                                                              |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **A — Cockpit Preview Ship**  | Wave A package + matched-engine smoke · Wave B trust/a11y floor · Wave C hygiene                                                                                                                                                                                                                                                                                                                   | **ACTIVE**                                                                                          |
+| **B — Scope Decisions**       | COW-04/05/06, SBX-02, IMG-01, VOC-04, CMP-01 — **Sean's call 2026-07-23: BUILD ALL, no deferments. All 7 landed locally** (see B-DECISIONS.md capture table). SBX-02/COW-04/VOC-04 carry documented Core-hook / UI follow-ons.                                                                                                                                                                     | **Built**                                                                                           |
+| **C — Secure Portability**    | Encrypted full-instance Wayland Transfer engine (old Phase 7)                                                                                                                                                                                                                                                                                                                                      | Deferred                                                                                            |
 | **D — Desktop Inbox Repairs** | GitHub-issue repairs confirmed desktop-side + Core-independent by a 3-agent research council. Phases D1 Bridge reliability (#890, #537) · D2 Skills trust (#885) · D3 Honest diagnostics (#891, #853) · D5 UI clarity (#909, #910, #508, #882) · D4 Token efficiency (#723, gated). Build order D1→D2→D3→D5→D4. Each via full Factory loop. See `HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`. | **D1 (#890) DONE + live-verified; #537 draft-close pending Sean. D2 (#885) NEXT** (D3–D5 unplanned) |
 
 ## Accumulated Context
@@ -77,7 +79,7 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 
 ### Pending Todos
 
-- **Milestone A / Wave A (SEALED build — owner/CI only):** stage the matched signed Core (`scripts/stage-wcore-bump.mjs vX.Y.Z --write`), build the sealed preview, run packaged smoke on the ARTIFACT, declare Voice/MCP/sandbox each IN or physically-absent. NOTE: the *functional* risk is already retired — `node scripts/packaged-cockpit-smoke.mjs` proves the unsealed packaged app + matched engine works (A-02-SUMMARY). Only the sealed/attested distributable remains, which needs Sean's CI trust root.
+- **Milestone A / Wave A (SEALED build — owner/CI only):** stage the matched signed Core (`scripts/stage-wcore-bump.mjs vX.Y.Z --write`), build the sealed preview, run packaged smoke on the ARTIFACT, declare Voice/MCP/sandbox each IN or physically-absent. NOTE: the _functional_ risk is already retired — `node scripts/packaged-cockpit-smoke.mjs` proves the unsealed packaged app + matched engine works (A-02-SUMMARY). Only the sealed/attested distributable remains, which needs Sean's CI trust root.
 - **Milestone A / Wave B (mostly done):** a11y burn-down landed; `902afd147` cleared 8 more gated rule-IDs (`aria-prohibited-attr` ×5 settings surfaces + `aria-allowed-attr` on chat home via Sider toggle role=button fixes; `label` on general via PreferenceRow aria-labelledby). Gate green 6/6, baseline tightened. Remaining a11y debt (documented, non-blocking): per-switch `button-name` on Arco Switches OUTSIDE the local PreferenceRow (voice/models/general — proven aria-label / aria-labelledby pattern); Arco-internal nodes (`aria-required-parent` Tabs, `nested-interactive` Collapse, `aria-valid-attr-value` InputNumber's aria-valuemin=-Infinity, Slider `aria-input-field-name`); one `color-contrast` `.arco-empty-description` on chat home (`--text-muted` insufficient there); expand a11y spec to Cockpit Home/nav (needs shell activation). Brand primary-button contrast already fixed earlier (dark-on-orange 6.14:1).
 - **Milestone A / Wave C (i18n done):** cohort i18n keys removed + types regenerated (814 tests pass). Remaining: drop dead `stateAuthorityInventory` cohort registry entries (verify not load-bearing first — `cohortEligible` in authorityAdapters.ts IS a load-bearing invariant, do NOT remove).
 - **Wave 2 (B-01 consent E2E): DONE** (`3c11691b4`) — `tests/e2e/specs/voice-consent.e2e.ts`, 2 tests pass: switch to hosted provider → disclosure → cancel fails closed (provider unchanged) / accept persists across remount. Added `tts/stt-provider-select` hooks.
@@ -91,19 +93,20 @@ Progress: [████████░░] ~78% (packaged smoke proven; a11y flo
 
 ## Deferred Items
 
-| Category       | Item                                                         | Status                                                 |
-| -------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| Milestone C    | Encrypted full-instance Wayland Transfer (old Phase 7)       | Deferred. Real build gaps: live Desktop+Core cross-store quiescence (hardcoded off); transactional import apply (+recovery-point +quarantine); un-deny the export/import/publish surface (owner go/no-go); full-instance round-trip acceptance under fault/replay/restart. |
-| Milestone B    | Broad Cowork/native-format + outcome expansion               | Queued, non-blocking                                    |
-| Milestone B    | Managed workspace quarantine/restore/keep/delete (`WSLX-01`) | Queued after trusted output/receipt ledger              |
-| Milestone B    | Community Cloud, Hosted Pro, cross-surface distribution      | Queued, separately gated                                |
-| SUPERSEDED     | cohort/M0B 14-day observation + signed `M0B.json` ceremony   | Killed by 2026-07-20 pivot — do not build               |
+| Category    | Item                                                         | Status                                                                                                                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Milestone C | Encrypted full-instance Wayland Transfer (old Phase 7)       | Deferred. Real build gaps: live Desktop+Core cross-store quiescence (hardcoded off); transactional import apply (+recovery-point +quarantine); un-deny the export/import/publish surface (owner go/no-go); full-instance round-trip acceptance under fault/replay/restart. |
+| Milestone B | Broad Cowork/native-format + outcome expansion               | Queued, non-blocking                                                                                                                                                                                                                                                       |
+| Milestone B | Managed workspace quarantine/restore/keep/delete (`WSLX-01`) | Queued after trusted output/receipt ledger                                                                                                                                                                                                                                 |
+| Milestone B | Community Cloud, Hosted Pro, cross-surface distribution      | Queued, separately gated                                                                                                                                                                                                                                                   |
+| SUPERSEDED  | cohort/M0B 14-day observation + signed `M0B.json` ceremony   | Killed by 2026-07-20 pivot — do not build                                                                                                                                                                                                                                  |
 
 ## Session Continuity
 
 Last session: 2026-07-23 (post-build-all continuation — a11y burn-down + B-01 E2E)
 Stopped at: two more verified local commits on top of the Milestone-B handoff
 (`80072f7f5`), nothing pushed:
+
 - `902afd147` **a11y trust-floor increment** — 3 structural fixes clearing 8 gated axe
   rule-IDs (Sider theme/memory toggles → role=button+keyboard clears `aria-prohibited-attr`
   ×5 surfaces + `aria-allowed-attr` on chat home; local `PreferenceRow` `aria-labelledby`
@@ -123,13 +126,15 @@ Stopped at: two more verified local commits on top of the Milestone-B handoff
   Inbox: 63 Core/Flux-gated SKIP (incl. #911 = the SBX-02 Core hook), ~10 vague stubs, rest desktop
   Tier 2/3 in INBOX-TRIAGE.md (#838, #882, #891, #890, #885). Recurring constitution flake
   (`ConstitutionClassicRecovery`/`constitutionFsService`) under full-suite parallelism — pass isolated.
-Process lesson locked: **always `bun run package`, never raw `npx electron-vite build`** —
-the latter skips the prepackage hook that generates launch-required artifacts, so the
-packaged app crashes on launch (cost a debug loop this session).
-SBX-02 wiring reviewed + deliberately NOT built: it is **Core-gated** (bundled Core ships
-no localhost exception), so an inert grant UI would be the security theater the SecurityPane
-exists to prevent — a hard external dependency, not a descope.
+  Process lesson locked: **always `bun run package`, never raw `npx electron-vite build`** —
+  the latter skips the prepackage hook that generates launch-required artifacts, so the
+  packaged app crashes on launch (cost a debug loop this session).
+  SBX-02 wiring reviewed + deliberately NOT built: it is **Core-gated** (bundled Core ships
+  no localhost exception), so an inert grant UI would be the security theater the SecurityPane
+  exists to prevent — a hard external dependency, not a descope.
+
 ### ACTIVE RESUME (2026-07-23, latest) — Milestone D
+
 After the inbox triage + council, **Milestone D (Desktop Inbox Repairs) is APPROVED**. The GitHub
 inbox comms are DONE (11 closed, 7 need-info, 2 relabeled — live on FerroxLabs/wayland). Next work
 = BUILD the confirmed desktop repairs through Ferrox Factory, order **D1→D2→D3→D5→D4**.
@@ -176,10 +181,11 @@ Sean's menu pick (movable).
 - **Cross-audit follow-ups (pre-existing, NOT D1 regressions):** WR-01 bridge child inherits full
   `process.env` vs `safeSpawn`'s allowlist; WR-02 dead `--session` per-instance isolation.
 - **Cleanup (2026-07-24):** reclaimed ~60 GB — removed 135 stale worktrees (gsd-workspaces 231G→6.9G)
-  + Docker unused images; all 92 gsd-clone branches + active app-worktrees preserved.
+  - Docker unused images; all 92 gsd-clone branches + active app-worktrees preserved.
 
 **D2 (#885 Skill Guard builtin exemption): DONE — full Ferrox loop, local only.** Commits on
 `0188de8f6`: `109ebadc7` (tests) · `e8edc12c2` (fix) · `ff5fa4795` (Ferrox artifacts).
+
 - **Root cause (research CORRECTED the handoff):** builtin `wayland-library` skills hit the same
   `SkillGuard` sweep as imported; real first-party bodies trip critical rules (`| bash`, `Bearer`,
   `~/.ssh/`) → `computeVerdict` `blocked` (`SkillGuard.ts:72`) → `loadBody:432` refuses load. The
@@ -202,6 +208,7 @@ Sean's menu pick (movable).
   fuse-independent and proven on real data. `D-03-SUMMARY.md` authored at that acceptance.
 
 **D3 (Honest diagnostics): DONE — two packets, full Ferrox loop each, local only.**
+
 - **D-04 (#891 memory false "Degraded"):** commits `7cf75d746` (tests) · `da25c88e5` (fix) · `2a1fec79f`
   (cross-audit fold). Root cause = renderer discard: `ijfwMcpClient` already returns
   `{ok:false, error, errorReason}` + logs main-side; `IjfwSetupStatus.tsx` read only `r?.ok` and rendered
@@ -217,10 +224,10 @@ Sean's menu pick (movable).
   unhandled → main crash risk); `signal` dropped on exit (SIGKILL → "code null"); no log link. Fix = new
   pure leaf `execFailureReason.ts` (`describeSpawnError`/`describeExitReason`, both surfaces route through
   it), `on('error')` errno capture (also kills the crash path), signal capture threaded through init-reject
-  + `handleProcessExit`, redacted `getLogsDir()` log link. Double-redacted (`redactSecrets` +
-  `redactCommandSecrets`). Provider API errors untouched (already verbatim). Loop: plan-checker PASS (W1
-  regression trap flagged — `describeExitReason(N,null)` must stay byte-exact `exited with code N`; held) →
-  cross-audit GO → verify GOAL MET 6/6. 67/67 exec tests, tsc clean.
+  - `handleProcessExit`, redacted `getLogsDir()` log link. Double-redacted (`redactSecrets` +
+    `redactCommandSecrets`). Provider API errors untouched (already verbatim). Loop: plan-checker PASS (W1
+    regression trap flagged — `describeExitReason(N,null)` must stay byte-exact `exited with code N`; held) →
+    cross-audit GO → verify GOAL MET 6/6. 67/67 exec tests, tsc clean.
 - **LIVE verify (by hand, harness, real events):** fired the D-05 describers at REAL Node child_process
   events — real missing binary → genuine `ENOENT` → "engine binary is missing or was blocked by antivirus…
   (ENOENT)"; real `SIGKILL` → genuine `exit(null,'SIGKILL')` → "killed by SIGKILL…", NOT "code null".
@@ -236,6 +243,7 @@ Sean's menu pick (movable).
 
 **D5 (UI clarity batch): DONE — one packet (D-06), five task groups, full Ferrox loop + 4-model cross-audit panel.**
 Commits `1cb523bb0`..`9523ac534` (10 build + 3 panel-fix + 1 comment + docs). All renderer-side, Core-independent.
+
 - **#909** runtime pill: `resolveRuntimeName()` shows the runtime (Wayland Core) alongside the assistant when they
   differ, one label when same, NEVER a raw backend id (panel caught it leaking "· gemini"; fixed to friendly-or-hide).
 - **#910a** pin/star aligned to "Pin" reusing existing translated keys; **#910b** aggregation → "Chats" (English-only
@@ -256,6 +264,7 @@ respawns the backend session via `getOrBuildTask({skipCache:true, workflowResetS
 1..N-1 session → O(N²)→O(N)) and re-seeds only the immediately-prior assistant TURN (text + its tool calls/results,
 boundary-stopped, head-clipped) via `resumeSeed.ts` `priorTurnOnly`. Directive sent `hidden:true` → visible SQLite
 transcript untouched. wcore-only gate; ACP unchanged; #457 default seed byte-identical.
+
 - **Audit story (the LESSON):** rounds 1-2 of the 4-model panel + my own harness caught a REAL production blocker —
   the seed was INERT on the live message shape (the current advance directive is persisted before the seed read, so the
   prior-turn walk collapsed to a 1000-char fallback; unit tests were false-green because they omitted the trailing

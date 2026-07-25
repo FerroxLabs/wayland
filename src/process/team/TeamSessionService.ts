@@ -952,9 +952,7 @@ export class TeamSessionService {
       // session, chat, task board, or mailbox, prove that every team chat is
       // clear of user-created schedules. Unknown authority fails closed.
       const initialInspections = await Promise.all(
-        conversationIds.map((conversationId) =>
-          inspectConversationDeletionSchedules(conversationId)
-        )
+        conversationIds.map((conversationId) => inspectConversationDeletionSchedules(conversationId))
       );
       const blockingJobs = initialInspections.flatMap((inspection) => inspection.blockingJobs);
       if (blockingJobs.length > 0) {
@@ -966,9 +964,7 @@ export class TeamSessionService {
       const ritualJobs = initialInspections.flatMap((inspection) => inspection.ritualJobs);
       if (ritualJobs.length > 0) {
         if (!this.ritualScheduler) {
-          throw new Error(
-            'Cannot delete team because its ritual schedules cannot be safely removed right now.'
-          );
+          throw new Error('Cannot delete team because its ritual schedules cannot be safely removed right now.');
         }
         await this.ritualScheduler.uninstallRituals(team);
       }
@@ -977,15 +973,11 @@ export class TeamSessionService {
       // schedule authority so a swallowed error or concurrent schedule creation
       // cannot leave a dangling job behind a deleted conversation.
       const remainingInspections = await Promise.all(
-        conversationIds.map((conversationId) =>
-          inspectConversationDeletionSchedules(conversationId)
-        )
+        conversationIds.map((conversationId) => inspectConversationDeletionSchedules(conversationId))
       );
       const remainingJobs = remainingInspections.flatMap((inspection) => inspection.jobs);
       if (remainingJobs.length > 0) {
-        throw new Error(
-          `Cannot delete team because ${remainingJobs.length} scheduled task(s) still use its chats.`
-        );
+        throw new Error(`Cannot delete team because ${remainingJobs.length} scheduled task(s) still use its chats.`);
       }
 
       // Kill all agent processes only after schedule authority proves deletion

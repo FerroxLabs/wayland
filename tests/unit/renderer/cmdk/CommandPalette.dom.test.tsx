@@ -197,9 +197,7 @@ describe('CommandPalette', () => {
 
   it('omits empty categories when no rows match the bucket', () => {
     setSources({
-      assistants: [
-        { id: 'a', name: 'Solo Assistant', presetAgentType: 'gemini', category: 'builtin' as const },
-      ],
+      assistants: [{ id: 'a', name: 'Solo Assistant', presetAgentType: 'gemini', category: 'builtin' as const }],
       recents: [],
       prompts: [],
     });
@@ -329,9 +327,9 @@ describe('CommandPalette', () => {
 
 describe('buildCapabilityActionIndex', () => {
   it('covers every required M7 capability with unique ids and exact deep links', async () => {
-    const actual = await vi.importActual<
-      typeof import('@/renderer/components/cmdk/useCommandPaletteSources')
-    >('@/renderer/components/cmdk/useCommandPaletteSources');
+    const actual = await vi.importActual<typeof import('@/renderer/components/cmdk/useCommandPaletteSources')>(
+      '@/renderer/components/cmdk/useCommandPaletteSources'
+    );
     const actions = actual.buildCapabilityActionIndex();
 
     expect(new Set(actions.map((action) => action.id))).toHaveProperty('size', actions.length);
@@ -361,9 +359,9 @@ describe('buildCapabilityActionIndex', () => {
   });
 
   it('creates immutable copies and overlays availability without mutating the canonical index', async () => {
-    const actual = await vi.importActual<
-      typeof import('@/renderer/components/cmdk/useCommandPaletteSources')
-    >('@/renderer/components/cmdk/useCommandPaletteSources');
+    const actual = await vi.importActual<typeof import('@/renderer/components/cmdk/useCommandPaletteSources')>(
+      '@/renderer/components/cmdk/useCommandPaletteSources'
+    );
     const degraded = actual.buildCapabilityActionIndex({
       'connections.manage': { availability: 'degraded', reason: 'Registration receipt is stale' },
     });

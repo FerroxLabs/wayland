@@ -42,11 +42,11 @@ skip-is-a-pass reason and fails fast on drafts.
 
 **Verified live on throwaway PRs #926 / #927** (both closed, all three branches deleted):
 
-| case | result |
-|---|---|
-| docs-only PR | all 4 required checks green, shards correctly skipped |
+| case                        | result                                                           |
+| --------------------------- | ---------------------------------------------------------------- |
+| docs-only PR                | all 4 required checks green, shards correctly skipped            |
 | mixed PR + one failing test | all 3 required `Unit Tests` **RED** — the exact old bypass shape |
-| draft PR | required checks **RED**, not green-by-skip |
+| draft PR                    | required checks **RED**, not green-by-skip                       |
 
 Side benefit: main's own suite is healthy. On #927 only the deliberately-failing test failed, which is
 how we know #925's ~38 failures belong to this branch.
@@ -132,14 +132,14 @@ CI.
 worktrees" because it only ran `git worktree list` from the desktop repo, which sees registrations
 and nothing else. The actual footprint on disk:
 
-| what | reality |
-|---|---|
-| `~/gsd-workspaces/` | **111 directories, 6.9 GB** — not 5 |
+| what                                        | reality                                                                                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `~/gsd-workspaces/`                         | **111 directories, 6.9 GB** — not 5                                                                                                               |
 | a **second full clone** nobody had recorded | `wayland-desktop-gsd/app`, 838 MB, its own 689 MB `.git`, **92 local branches**, `origin` pointing at the LOCAL canonical repo rather than GitHub |
-| worktrees hanging off that clone | 23 |
-| worktrees registered to canonical | 5 (the ones the first audit saw) |
-| empty leftover dirs | 83 (80 zero-byte) |
-| GSD npx package caches | 3 trees, **864 MB** |
+| worktrees hanging off that clone            | 23                                                                                                                                                |
+| worktrees registered to canonical           | 5 (the ones the first audit saw)                                                                                                                  |
+| empty leftover dirs                         | 83 (80 zero-byte)                                                                                                                                 |
+| GSD npx package caches                      | 3 trees, **864 MB**                                                                                                                               |
 
 **26 branch tips existed only in that clone** and would have been destroyed by a plain `rm` —
 including `lane-voc`, `lane-cow` and `lane-cmp` (voice adapter registry, cowork journey, capability
@@ -181,12 +181,12 @@ untouched. `~/.claude` GSD residue: **0**.
 
 ### Worktrees still open — 27 trees against a canonical layout of 2
 
-| group | trees | dirty |
-|---|---|---|
-| canonical `~/dev/wayland/app` | 1 | **16 uncommitted files** |
-| canonical in-flight `~/dev/wayland-worktrees/` | 1 | 0 (this branch) |
-| `~/dev/app-worktrees/` | 25 | 1 — `codex/desktop-cockpit-wave0`, only ` M readme.md` |
-| `~/gsd-workspaces/` | **0 — removed** | — |
+| group                                          | trees           | dirty                                                  |
+| ---------------------------------------------- | --------------- | ------------------------------------------------------ |
+| canonical `~/dev/wayland/app`                  | 1               | **16 uncommitted files**                               |
+| canonical in-flight `~/dev/wayland-worktrees/` | 1               | 0 (this branch)                                        |
+| `~/dev/app-worktrees/`                         | 25              | 1 — `codex/desktop-cockpit-wave0`, only ` M readme.md` |
+| `~/gsd-workspaces/`                            | **0 — removed** | —                                                      |
 
 The 24 clean `app-worktrees` are safe to prune whenever Sean wants: a clean tree means no
 uncommitted loss and `git worktree remove` does not delete branch refs.

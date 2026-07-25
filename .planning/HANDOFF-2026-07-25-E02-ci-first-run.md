@@ -30,18 +30,18 @@ required `Unit Tests (...)` checks reported PASS.** Fix is F-01. Memory:
 
 ## Fixed and pushed this session
 
-| commit | what |
-|---|---|
+| commit      | what                                                                                    |
+| ----------- | --------------------------------------------------------------------------------------- |
 | `e29ccb85a` | D-01 WhatsApp bridge source re-pin (was breaking EVERY packaged build incl. CI release) |
-| `39f2d1198` | smoke harness: read the answer inside its shadow root (was failing a healthy app) |
-| `a65b143f5` | onboarding: CLI-only users can paste their own provider key (Sean's live-test find) |
-| `acf45d55c` | smoke: budget for first-launch Gatekeeper cost (120s) |
-| `76ad0fb40` | OfficeCLI fail-closed test owns its precondition instead of inheriting machine state |
-| `1cea6fbf9` | Milestone E plan + E-01 truth pass |
-| `e9dc53661` | key fixtures built at runtime (GitHub push protection blocked the literal) |
-| `847227d40` | regenerate stale `i18n-keys.d.ts` (CI I18n Check) |
-| `ad2ac3482` | `fetch-depth: 0` on unit shards + Coverage (constitution tests need real git history) |
-| `aea1b4820` | **REVERT** of the formatting pass — it broke the build |
+| `39f2d1198` | smoke harness: read the answer inside its shadow root (was failing a healthy app)       |
+| `a65b143f5` | onboarding: CLI-only users can paste their own provider key (Sean's live-test find)     |
+| `acf45d55c` | smoke: budget for first-launch Gatekeeper cost (120s)                                   |
+| `76ad0fb40` | OfficeCLI fail-closed test owns its precondition instead of inheriting machine state    |
+| `1cea6fbf9` | Milestone E plan + E-01 truth pass                                                      |
+| `e9dc53661` | key fixtures built at runtime (GitHub push protection blocked the literal)              |
+| `847227d40` | regenerate stale `i18n-keys.d.ts` (CI I18n Check)                                       |
+| `ad2ac3482` | `fetch-depth: 0` on unit shards + Coverage (constitution tests need real git history)   |
+| `aea1b4820` | **REVERT** of the formatting pass — it broke the build                                  |
 
 ## The lesson that cost the most, and matters most
 

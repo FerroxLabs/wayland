@@ -144,10 +144,17 @@ try {
     .readdirSync(evidenceDir)
     .filter((name) => /^J(?:17|23-).+\.json$/.test(name))
     .toSorted()
-    .map((name) => ({ name, digest: `sha256:${sha256File(path.join(evidenceDir, name))}`, value: readJson(path.join(evidenceDir, name)) }));
-  const status = result.status === 0 && journeyReceipts.length === 3 && journeyReceipts.every((item) => item.value.status === 'passed')
-    ? 'passed'
-    : 'failed';
+    .map((name) => ({
+      name,
+      digest: `sha256:${sha256File(path.join(evidenceDir, name))}`,
+      value: readJson(path.join(evidenceDir, name)),
+    }));
+  const status =
+    result.status === 0 &&
+    journeyReceipts.length === 3 &&
+    journeyReceipts.every((item) => item.value.status === 'passed')
+      ? 'passed'
+      : 'failed';
   const receipt = {
     contract: CONTRACT,
     status,
@@ -157,7 +164,12 @@ try {
     startedAt,
     completedAt: new Date().toISOString(),
     log: { path: logPath, digest: `sha256:${sha256File(logPath)}` },
-    journeys: journeyReceipts.map(({ name, digest, value }) => ({ name, digest, status: value.status, blocker: value.blocker })),
+    journeys: journeyReceipts.map(({ name, digest, value }) => ({
+      name,
+      digest,
+      status: value.status,
+      blocker: value.blocker,
+    })),
   };
   writeJson(path.join(evidenceDir, 'receipt.json'), receipt);
   if (status !== 'passed') {

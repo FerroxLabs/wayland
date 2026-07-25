@@ -60,13 +60,12 @@ describe('Cowork assistant and workspace authority remain separate', () => {
 });
 
 describe('Cowork office bridges invoke only the exact verified OfficeCLI capability', () => {
-  const bridgeSources = [
-    'src/process/bridge/pptPreviewBridge.ts',
-    'src/process/bridge/officeWatchBridge.ts',
-  ].map((relative) => ({
-    relative,
-    source: fs.readFileSync(path.join(process.cwd(), relative), 'utf8'),
-  }));
+  const bridgeSources = ['src/process/bridge/pptPreviewBridge.ts', 'src/process/bridge/officeWatchBridge.ts'].map(
+    (relative) => ({
+      relative,
+      source: fs.readFileSync(path.join(process.cwd(), relative), 'utf8'),
+    })
+  );
 
   it('binds spawn to the resolved verified executable, never a bare-PATH officecli', () => {
     for (const { relative, source } of bridgeSources) {
@@ -109,9 +108,7 @@ describe('Cowork office bridges invoke only the exact verified OfficeCLI capabil
     mockedBundledDir.mockReturnValue('/verified/bundled-officecli/darwin-arm64');
     const binary = process.platform === 'win32' ? 'officecli.exe' : 'officecli';
 
-    expect(resolveVerifiedOfficecliCommand()).toBe(
-      path.join('/verified/bundled-officecli/darwin-arm64', binary)
-    );
+    expect(resolveVerifiedOfficecliCommand()).toBe(path.join('/verified/bundled-officecli/darwin-arm64', binary));
   });
 
   it('represents any future alternative only as an unavailable, non-executing fallback', () => {

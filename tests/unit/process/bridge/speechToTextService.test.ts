@@ -412,7 +412,10 @@ describe('SpeechToTextService', () => {
         provider: 'openai',
         openai: { apiKey: 'openai-key', model: 'whisper-1' },
       });
-      vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: 'hi' }))));
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: 'hi' })))
+      );
 
       const result = await SpeechToTextService.transcribe({
         audioBuffer: new Uint8Array([1, 2, 3]),

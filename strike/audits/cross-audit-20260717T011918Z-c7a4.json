@@ -51,10 +51,7 @@
       "severity": "HIGH",
       "id": "classic-dto-malformed-critical-null-coercion",
       "summary": "Wrong-type promotion and journal identifiers are coerced to null instead of rejected fail closed.",
-      "paths": [
-        "src/common/types/constitutionRecovery.ts",
-        "tests/unit/common/constitutionRecovery.test.ts"
-      ]
+      "paths": ["src/common/types/constitutionRecovery.ts", "tests/unit/common/constitutionRecovery.test.ts"]
     },
     {
       "severity": "HIGH",
@@ -69,17 +66,13 @@
       "severity": "HIGH",
       "id": "classic-reconciliation-swallows-authority-errors",
       "summary": "Classic reconciliation treats locator, integrity, or authentication failures as missing journal state and may continue against stale authority.",
-      "paths": [
-        "src/process/services/constitution/constitutionClassicRecoveryService.ts"
-      ]
+      "paths": ["src/process/services/constitution/constitutionClassicRecoveryService.ts"]
     },
     {
       "severity": "HIGH",
       "id": "recovery-real-consumer-journey-absent",
       "summary": "Archive and Classic recovery lack real route or IPC through client and reducer proof; layers are separately mocked.",
-      "paths": [
-        "tests/unit/webserver/constitutionRouteClient.native.contract.test.ts"
-      ]
+      "paths": ["tests/unit/webserver/constitutionRouteClient.native.contract.test.ts"]
     },
     {
       "severity": "MEDIUM",
@@ -94,9 +87,7 @@
       "severity": "MEDIUM",
       "id": "classic-rolled-back-state-disconnected",
       "summary": "Classic authority exposes rolled-back state handling but no implementation transitions to it and no test proves it.",
-      "paths": [
-        "src/process/services/constitution/constitutionClassicRecoveryAuthority.ts"
-      ]
+      "paths": ["src/process/services/constitution/constitutionClassicRecoveryAuthority.ts"]
     }
   ],
   "known_external_blockers": [

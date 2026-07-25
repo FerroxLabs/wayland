@@ -45,7 +45,10 @@ test.describe('Channels', () => {
 
     // Lark / DingTalk are Tier-2 entries and only render once the Tier 2 tab
     // is active. Click the tab by its title, then assert the cards mount.
-    const tier2Tab = page.locator('.arco-tabs-header-title').filter({ hasText: /Tier 2/i }).first();
+    const tier2Tab = page
+      .locator('.arco-tabs-header-title')
+      .filter({ hasText: /Tier 2/i })
+      .first();
     await tier2Tab.waitFor({ state: 'visible', timeout: 8_000 });
     await tier2Tab.click();
 
@@ -59,7 +62,11 @@ test.describe('Channels', () => {
     // The channels page persists its Arco tab selection across SPA navigations,
     // so a prior test may have left a non-Tier-1 tab active. Telegram is a
     // Tier-1 entry - make sure Tier 1 is active before selecting its card.
-    await page.locator('.arco-tabs-header-title').filter({ hasText: /Tier 1/i }).first().click();
+    await page
+      .locator('.arco-tabs-header-title')
+      .filter({ hasText: /Tier 1/i })
+      .first()
+      .click();
 
     await channelCard(page, /Telegram/i).click();
 

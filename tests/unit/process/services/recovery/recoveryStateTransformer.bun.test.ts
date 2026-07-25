@@ -58,14 +58,10 @@ async function makeSourceDatabase(root: string, schemaVersion = 53, includeCusto
       )`);
       driver.prepare('INSERT INTO model_registry_providers (provider_id) VALUES (?)').run('openrouter');
       driver
-        .prepare(
-          'INSERT INTO model_registry_custom_models (provider_id, model_id, created_at) VALUES (?, ?, ?)'
-        )
+        .prepare('INSERT INTO model_registry_custom_models (provider_id, model_id, created_at) VALUES (?, ?, ?)')
         .run('openrouter', '@preset/alpha', 10);
       driver
-        .prepare(
-          'INSERT INTO model_registry_custom_models (provider_id, model_id, created_at) VALUES (?, ?, ?)'
-        )
+        .prepare('INSERT INTO model_registry_custom_models (provider_id, model_id, created_at) VALUES (?, ?, ?)')
         .run('openrouter', 'vendor/private-model', 20);
     }
     driver.pragma(`user_version = ${schemaVersion}`);
@@ -103,9 +99,9 @@ describe('transformDesktopState53To52', () => {
     const sourceDriver = await createDriver(source, { fileMustExist: true });
     try {
       expect(readDatabaseSchemaVersionStrict(sourceDriver)).toBe(53);
-      expect(
-        sourceDriver.prepare('SELECT COUNT(*) AS count FROM model_registry_custom_models').get()
-      ).toEqual({ count: 2 });
+      expect(sourceDriver.prepare('SELECT COUNT(*) AS count FROM model_registry_custom_models').get()).toEqual({
+        count: 2,
+      });
     } finally {
       sourceDriver.close();
     }
@@ -161,9 +157,7 @@ describe('transformDesktopState53To52', () => {
     const source = await makeSourceDatabase(root, 52);
     const destination = path.join(root, 'transformed');
 
-    await expect(transformDesktopState53To52(source, destination)).rejects.toThrow(
-      'requires schema 53, received 52'
-    );
+    await expect(transformDesktopState53To52(source, destination)).rejects.toThrow('requires schema 53, received 52');
     expect(await exists(destination)).toBe(false);
   });
 
@@ -206,7 +200,9 @@ describe('transformDesktopState53To52', () => {
       createTransformId: () => '///',
     });
 
-    expect(result.destinationRoot).toBe(path.join(await realpath(path.dirname(destination)), path.basename(destination)));
+    expect(result.destinationRoot).toBe(
+      path.join(await realpath(path.dirname(destination)), path.basename(destination))
+    );
     expect(await exists(result.databasePath)).toBe(true);
   });
 });

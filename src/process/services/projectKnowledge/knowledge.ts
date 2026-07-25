@@ -222,7 +222,8 @@ export async function loadGlobalMemoryBlock(): Promise<string> {
 
   if (sections.length === 0) return '';
   const label = i18n.t('memory.injectedLabel', {
-    defaultValue: 'User memory (from Wayland Memory) - the user dropped or saved this; use it to answer questions about it',
+    defaultValue:
+      'User memory (from Wayland Memory) - the user dropped or saved this; use it to answer questions about it',
   });
   return `[${label}]\n\n${sections.join('\n\n')}`;
 }
@@ -434,8 +435,7 @@ export async function addProjectReference(workspace: string, sourcePaths: string
       // ~/.ssh/id_rsa is still rejected). Dialog-picked files still resolve via
       // resolveWithinApprovedDirectory. Both gates return the resolved,
       // realpath-collapsed path so the path validated is the path copied.
-      const trusted =
-        (await confinePath(src, { allowOutsideRoots: true })) ?? resolveWithinApprovedDirectory(src);
+      const trusted = (await confinePath(src, { allowOutsideRoots: true })) ?? resolveWithinApprovedDirectory(src);
       if (trusted === null) {
         console.warn('[projectKnowledge] refusing out-of-root reference source:', src);
         continue;
@@ -491,7 +491,10 @@ export async function saveProjectReferenceUploads(
   for (const file of accepted) {
     try {
       if (file.data.byteLength > MAX_REFERENCE_FILE_BYTES) {
-        console.warn(`[projectKnowledge] refusing oversized reference upload (${file.data.byteLength} bytes):`, file.name);
+        console.warn(
+          `[projectKnowledge] refusing oversized reference upload (${file.data.byteLength} bytes):`,
+          file.name
+        );
         continue;
       }
       // basename only - an uploaded name like `../../etc/x` can never escape the
@@ -564,9 +567,10 @@ export async function listArchivedProjectReferences(workspace: string): Promise<
       if (!entry.isDirectory() || entry.isSymbolicLink()) return null;
       const entryDir = path.join(archiveRoot, entry.name);
       try {
-        const metadata = JSON.parse(
-          await fs.readFile(path.join(entryDir, REFERENCE_ARCHIVE_METADATA), 'utf-8')
-        ) as { name?: unknown; archivedAt?: unknown };
+        const metadata = JSON.parse(await fs.readFile(path.join(entryDir, REFERENCE_ARCHIVE_METADATA), 'utf-8')) as {
+          name?: unknown;
+          archivedAt?: unknown;
+        };
         const contentStat = await fs.lstat(path.join(entryDir, REFERENCE_ARCHIVE_CONTENT));
         if (
           typeof metadata.name !== 'string' ||
@@ -605,9 +609,9 @@ export async function restoreProjectReference(workspace: string, archiveId: stri
 
   const dir = path.join(knowledgeRoot(workspace), REFERENCE_DIR);
   const entryDir = path.join(dir, REFERENCE_ARCHIVE_DIR, archiveId);
-  const metadata = JSON.parse(
-    await fs.readFile(path.join(entryDir, REFERENCE_ARCHIVE_METADATA), 'utf-8')
-  ) as { name?: unknown };
+  const metadata = JSON.parse(await fs.readFile(path.join(entryDir, REFERENCE_ARCHIVE_METADATA), 'utf-8')) as {
+    name?: unknown;
+  };
   if (typeof metadata.name !== 'string' || path.basename(metadata.name) !== metadata.name) {
     throw new Error('Archived reference metadata is invalid');
   }

@@ -13,9 +13,7 @@
     "Workbench",
     "command center"
   ],
-  "cross_refs": [
-    "MASTER-BUILD-PLAN.md"
-  ],
+  "cross_refs": ["MASTER-BUILD-PLAN.md"],
   "locked": false,
   "precedence": 1,
   "notes": ""

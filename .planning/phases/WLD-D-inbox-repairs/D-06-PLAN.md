@@ -80,9 +80,9 @@ test-first (RED) → implement (GREEN) atomic-commit pair, proven green on the f
 a11y gate + `tsc --noEmit`, and confirmed by a batched packaged live-verify with Sean.
 
 **Scope discipline (explicit):** every fix is display-only and minimal-surgical. Do NOT rebuild the
-cost UI (#508), do NOT add a runtime *selector* (#909 asks for visibility, not a new control), do NOT
+cost UI (#508), do NOT add a runtime _selector_ (#909 asks for visibility, not a new control), do NOT
 chase every "Conversation" string app-wide (#910 touches only the two aggregation labels), do NOT
-persist project *names* on tabs (#882 stores the id, resolves at render). No push/merge without Sean.
+persist project _names_ on tabs (#882 stores the id, resolves at render). No push/merge without Sean.
 LOCAL only.
 </objective>
 
@@ -102,10 +102,10 @@ LOCAL only.
      twice).
   3. **Accessible name conveys both.** When they differ, the badge's `aria-label` names both the
      assistant and the runtime; when equal/absent, it names just the assistant.
-  RED on today's single-line badge. Commit `test(D-06): #909 ...`.
+     RED on today's single-line badge. Commit `test(D-06): #909 ...`.
 - **Implement (GREEN).** In `ChatLayout/index.tsx`, compute a `runtimeName` from `backend` by reusing
   the SAME friendly resolver already at `:149-155` (`NON_ACP_BACKEND_DISPLAY_NAMES[backend] ||
-  ACP_BACKENDS_ALL[backend]?.name || backend`) — do NOT introduce a new map (`Don't Hand-Roll`). Pass
+ACP_BACKENDS_ALL[backend]?.name || backend`) — do NOT introduce a new map (`Don't Hand-Roll`). Pass
   it into the `AgentBadge` mount (`:274-282`) as a new optional `runtimeName` prop; leave
   `agentName={displayName}` unchanged so assistant precedence is preserved. In `AgentBadge.tsx`, add
   optional `runtimeName?: string` to the props and replace the single-line render at `:76`: when
@@ -128,7 +128,7 @@ LOCAL only.
   2. `ConversationsListPage`'s pinned-group header renders "Pinned" (via
      `conversation.history.pinnedSection`).
   3. `ConversationRow`'s pin control exposes an accessible name of "Pin" / "Unpin".
-  RED on today's "Star" defaults. Commit `test(D-06): #910a ...`.
+     RED on today's "Star" defaults. Commit `test(D-06): #910a ...`.
 - **Implement (GREEN).** Swap the four English-only `conversations.*` label lookups to the EXISTING
   translated `conversation.history.*` keys (already present in every locale — no new strings):
   `ConversationMenu.tsx:46-47` `conversations.menu.unstar` / `.star` → `conversation.history.unpin` /
@@ -174,12 +174,12 @@ fix). Commits: `test(D-06): #910b ...` then `fix(D-06): #910b ...`.**
 - **Write the test FIRST (RED). New file `tests/unit/renderer/spendPill.dom.test.tsx`** — mock
   `ipcBridge.cost.listBudgets`. Assert:
   1. **Renders spend for a configured global month budget.** Given `[{scope:'global', period:'month',
-     spentUsd:3.1, limitUsd:10}]`, the pill renders `$3.10 / $10` (via `formatUsd`) with a
+spentUsd:3.1, limitUsd:10}]`, the pill renders `$3.10 / $10` (via `formatUsd`) with a
      severity-tier class/marker from `budgetSeverity(3.1, 10)`.
   2. **Renders nothing when no budget is configured.** Given `[]`, the component renders null.
   3. **Is a labeled button.** The rendered element is a real `<button>` carrying an `aria-label` that
      conveys the spend and limit (the `button-name` axe rule).
-  RED (component does not exist yet). Commit `test(D-06): #508 ...`.
+     RED (component does not exist yet). Commit `test(D-06): #508 ...`.
 - **Implement (GREEN).** Create `src/renderer/components/layout/Titlebar/SpendPill.tsx`. Read
   `ipcBridge.cost.listBudgets` ONCE (SWR or effect, mirroring `BudgetsPanel`'s SWR usage; optionally
   subscribe to `ipcBridge.cost.budgetAlert` for freshness). Do NOT use `useCostAnalytics` (6 IPCs, wrong
@@ -214,7 +214,7 @@ fix). Commits: `test(D-06): #910b ...` then `fix(D-06): #910b ...`.**
      (it is `shrink-0`; the title span keeps `flex-1 min-w-0` + ellipsis).
   3. **Tab without a project shows just the name.** A tab with no `projectId` renders the name and no
      project label.
-  RED (tabs render `tab.name` only today). Commit `test(D-06): #882 ...`.
+     RED (tabs render `tab.name` only today). Commit `test(D-06): #882 ...`.
 - **Implement (GREEN).** Add `projectId?: string` to the `ConversationTab` interface
   (`ConversationTabsContext.tsx:15-26`). Populate it in `openTabImpl` (`:131-136`) from
   `(conversation.extra as { projectId?: string })?.projectId`, alongside the existing `extra?.workspace`
@@ -265,23 +265,25 @@ fix). Commits: `test(D-06): #910b ...` then `fix(D-06): #910b ...`.**
 </tasks>
 
 <threat_model>
+
 ## Trust Boundaries
 
-| Boundary | Description |
-|----------|-------------|
-| main/process → renderer (#508) | The `SpendPill` reads the existing, read-only, remote-denied, allowlisted `cost.listBudgets` provider; no writes, no new IPC crosses this boundary. |
-| stored conversation data → renderer (#882) | The project name is already-stored trusted data resolved via `useProjects()`; the tab carries only a `projectId`, never a name. |
+| Boundary                                   | Description                                                                                                                                         |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| main/process → renderer (#508)             | The `SpendPill` reads the existing, read-only, remote-denied, allowlisted `cost.listBudgets` provider; no writes, no new IPC crosses this boundary. |
+| stored conversation data → renderer (#882) | The project name is already-stored trusted data resolved via `useProjects()`; the tab carries only a `projectId`, never a name.                     |
 
 ## STRIDE Threat Register
 
 All four fixes are display-only and add no new attack surface (research §Security Domain: no
 auth/session/crypto/input-parsing changes; no new package — Package Legitimacy Audit N/A).
 
-| Threat ID | Category | Component | Severity | Disposition | Mitigation Plan |
-|-----------|----------|-----------|----------|-------------|-----------------|
-| T-D06-01 | Information Disclosure | #508 SpendPill surfaces the user's own spend in the top bar | low | accept | Spend/limit is the user's own data, already shown throughout Mission Control; the pill only reads the existing allowlisted `cost.listBudgets`. Hides entirely when no budget is configured. |
-| T-D06-02 | Information Disclosure | #882 project name / #909 runtime rendered as labels | low | accept | Both are already-stored, already-displayed trusted data (project chips exist on rows; the backend is already threaded to the badge). No new source, no untrusted input. |
-| T-D06-SC | Tampering | supply-chain (new packages) | n/a | accept | No new packages — Node builtins + in-repo modules only (research: Package Legitimacy Audit N/A). |
+| Threat ID | Category               | Component                                                   | Severity | Disposition | Mitigation Plan                                                                                                                                                                             |
+| --------- | ---------------------- | ----------------------------------------------------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T-D06-01  | Information Disclosure | #508 SpendPill surfaces the user's own spend in the top bar | low      | accept      | Spend/limit is the user's own data, already shown throughout Mission Control; the pill only reads the existing allowlisted `cost.listBudgets`. Hides entirely when no budget is configured. |
+| T-D06-02  | Information Disclosure | #882 project name / #909 runtime rendered as labels         | low      | accept      | Both are already-stored, already-displayed trusted data (project chips exist on rows; the backend is already threaded to the badge). No new source, no untrusted input.                     |
+| T-D06-SC  | Tampering              | supply-chain (new packages)                                 | n/a      | accept      | No new packages — Node builtins + in-repo modules only (research: Package Legitimacy Audit N/A).                                                                                            |
+
 </threat_model>
 
 <verification>
@@ -302,14 +304,15 @@ auth/session/crypto/input-parsing changes; no new package — Package Legitimacy
 
 **Goal-backward check — each acceptance test maps to its issue's clarity goal:**
 
-| Must be TRUE (clarity goal) | Surface behavior that makes it true | Proven by |
-|-----------------------------|-------------------------------------|-----------|
-| #909 The user can see which runtime a chat runs on, not just the assistant | ChatLayout computes `runtimeName`; AgentBadge renders it as a muted secondary label when it differs from the assistant | `AgentBadge.dom.test` (both shown when differ; one when equal; aria conveys both) + packaged #909 |
-| #910(a) One pin action wears one name everywhere | Conversations page reuses translated `conversation.history.pin/unpin/pinnedSection` + swaps `Star`→`Pin` icons | `conversationPinVocabulary.dom.test` (Pin/Unpin/Pinned) + packaged #910(a) |
-| #910(b) The aggregation is named the plural of the unit it aggregates | nav `defaultLabel` + `conversations.list.title` "Conversations" → "Chats" | `conversationsAggregationLabel.dom.test` ("Chats") + Sean live ratify #910(b) |
-| #508 The user can see spend runway without leaving their work | `SpendPill` in Titlebar reads `cost.listBudgets`, renders `$spent / $limit`, is a labeled button | `spendPill.dom.test` (renders + empty + button/aria) + a11y `button-name` + packaged #508 |
+| Must be TRUE (clarity goal)                                                        | Surface behavior that makes it true                                                                                          | Proven by                                                                                         |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| #909 The user can see which runtime a chat runs on, not just the assistant         | ChatLayout computes `runtimeName`; AgentBadge renders it as a muted secondary label when it differs from the assistant       | `AgentBadge.dom.test` (both shown when differ; one when equal; aria conveys both) + packaged #909 |
+| #910(a) One pin action wears one name everywhere                                   | Conversations page reuses translated `conversation.history.pin/unpin/pinnedSection` + swaps `Star`→`Pin` icons               | `conversationPinVocabulary.dom.test` (Pin/Unpin/Pinned) + packaged #910(a)                        |
+| #910(b) The aggregation is named the plural of the unit it aggregates              | nav `defaultLabel` + `conversations.list.title` "Conversations" → "Chats"                                                    | `conversationsAggregationLabel.dom.test` ("Chats") + Sean live ratify #910(b)                     |
+| #508 The user can see spend runway without leaving their work                      | `SpendPill` in Titlebar reads `cost.listBudgets`, renders `$spent / $limit`, is a labeled button                             | `spendPill.dom.test` (renders + empty + button/aria) + a11y `button-name` + packaged #508         |
 | #882 The user can tell which project a tab belongs to, even when the title is long | `ConversationTab` carries `projectId`; `ConversationTabView` renders a `shrink-0` project label resolved via `useProjects()` | `conversationTabsProjectLabel.dom.test` (label with/without; survives truncation) + packaged #882 |
-| No a11y regression across the batch | new #508 button has an accessible name; #909 badge name conveys both labels | `bun run test:e2e:a11y` green (button-name + accessible name) |
+| No a11y regression across the batch                                                | new #508 button has an accessible name; #909 badge name conveys both labels                                                  | `bun run test:e2e:a11y` green (button-name + accessible name)                                     |
+
 </verification>
 
 <success_criteria>
