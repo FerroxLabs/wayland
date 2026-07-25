@@ -74,15 +74,35 @@ function makeChild(): FakeChild {
   return child;
 }
 
-/** Spin the microtask queue until start() has actually spawned the child (so its
- *  stderr/exit listeners are attached), without guessing the await count. */
+/**
+ * Wait until start() has actually spawned the child (so its stderr/exit
+ * listeners are attached), without guessing the await count.
+ *
+ * `start()` awaits real filesystem and keystore work before it reaches spawn():
+ * readCodexAuthFile, loadForwardedToolKeys, resolveActiveConfigDir,
+ * resolveSpawnVaultPassphrase. Flushing the microtask queue does not wait for
+ * any of that - 100 flushes complete in microseconds - so the previous loop was
+ * really just betting that the I/O finished first. It did on a developer
+ * machine and did not on the ubuntu runner, where every case in this suite that
+ * calls this helper failed with "did not finish attaching its production
+ * listeners".
+ *
+ * So each attempt now yields real wall-clock time as well as flushing pending
+ * microtasks. The real timer is captured at module load because these cases
+ * install fake timers, which would otherwise make the sleep instantaneous
+ * again.
+ */
+const realSetTimeout = globalThis.setTimeout;
+const SPAWN_POLL_ATTEMPTS = 1_000;
+
 async function flushUntilSpawned(child: FakeChild, expectedSpawnCount = 1): Promise<void> {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < SPAWN_POLL_ATTEMPTS; i++) {
     if (spawnMock.mock.calls.length >= expectedSpawnCount && child.listenerCount('exit') >= 2) return;
     // oxlint-disable-next-line no-await-in-loop -- each bounded probe must observe listener attachment
     if (vi.isFakeTimers()) await vi.advanceTimersByTimeAsync(0);
+    // Real 1ms tick: lets the pending fs/keystore work actually make progress.
     // oxlint-disable-next-line no-await-in-loop -- each bounded probe must observe listener attachment
-    else await new Promise((resolve) => setImmediate(resolve));
+    await new Promise((resolve) => realSetTimeout(resolve, 1));
   }
   throw new Error(`WCore child ${expectedSpawnCount} did not finish attaching its production listeners`);
 }

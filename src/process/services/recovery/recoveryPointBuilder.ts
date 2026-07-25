@@ -1734,8 +1734,14 @@ export async function buildRecoveryPoint(
     await assertRecoveryDestinationStable(destinationAdmission);
     const verification = await verifyRecoverySnapshot(await readManifest(manifestPath), stagingAdmission.operationRoot);
     if (!verification.valid) {
+      // Include the offending path and reason, not just the code. Each issue
+      // already carries both, and dropping them made a real ubuntu-only failure
+      // ("SNAPSHOT_FILE_TYPE, SNAPSHOT_FILE_TYPE") impossible to diagnose from
+      // a CI log.
       throw new Error(
-        `Built recovery point failed verification: ${verification.errors.map(({ code }) => code).join(', ')}`
+        `Built recovery point failed verification: ${verification.errors
+          .map(({ code, path: issuePath, message }) => `${code} at ${issuePath}: ${message}`)
+          .join('; ')}`
       );
     }
 
