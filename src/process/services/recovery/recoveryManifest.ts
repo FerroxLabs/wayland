@@ -1072,9 +1072,25 @@ async function inspectContainedArtifactType(
   // no-follow. In descriptor-relative mode the caller's root is
   // `/proc/self/fd/<fd>`, which is a symlink by construction, so lstat()ing it
   // rejected every artifact under a legitimately handle-pinned root and made
-  // capture impossible on Linux, the only platform that supports it. The root's
-  // identity is not established here anyway - it is an admitted directory whose
-  // dev/ino the caller re-verifies against the held handle.
+  // capture impossible on Linux, the only platform that supports it.
+  //
+  // Root identity is each caller's responsibility, and they do NOT all establish
+  // it the same way - do not read this as "the caller always holds a handle":
+  //   - recoveryPointBuilder (staging + post-publication): handle-pinned, and
+  //     assertRecoveryStagingStable re-lstats the admitted path against the
+  //     dev/ino recorded at admission. That is a real path-vs-record check.
+  //   - isolatedRecovery: no handle. It deliberately realpath()s the root and
+  //     runs assertPathSegmentsNotSymlinks before calling in.
+  //   - verifyRecoverySnapshotRoot (the CLI --verify-recovery-snapshot path):
+  //     no handle on the root; it lstats and rejects a symlink or non-directory
+  //     itself, then realpath()s, before delegating here.
+  // Note what changed for the two pathname callers: the old `index === -1`
+  // iteration re-lstat'ed the root once per manifest entry, which was a late
+  // backstop against a swap landing after their pre-check. It is defence in depth
+  // rather than a boundary - the manifest was read pre-swap so substituted
+  // artifacts must still match its sha256s, inventoryDirectory rejects unlisted
+  // entries, and the manifest carries no external signature, so whoever controls
+  // a directory can already build a self-consistent snapshot without a symlink.
   const rootStat = await statFollowingLinks(root);
   if (!rootStat.isDirectory()) {
     return { valid: false, message: `Snapshot root is not a directory: ${root}` };

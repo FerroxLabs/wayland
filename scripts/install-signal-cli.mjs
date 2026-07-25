@@ -230,7 +230,13 @@ export async function installSignalCli(options = {}) {
       const result = await execFileImpl(binaryPath, ['--version'], { timeout: 15000 });
       versionOutput = `${result.stdout || ''}${result.stderr || ''}`.trim();
       const version = releaseTag.replace(/^v/, '');
-      if (!versionOutput.includes(version)) throw new Error('Signal executable version does not match release tag');
+      // Anchored on word boundaries, not `includes`. A substring test accepts
+      // '0.14.60' and '10.14.6' for a pinned '0.14.6', so it would have passed a
+      // neighbouring release - the opposite of what a version assertion is for.
+      const escaped = version.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      if (!new RegExp(`(^|\\s)${escaped}(\\s|$)`).test(versionOutput)) {
+        throw new Error('Signal executable version does not match release tag');
+      }
       versionVerified = true;
     }
     const stagedBin = path.join(tmpDir, 'bundle-bin');

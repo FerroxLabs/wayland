@@ -59,7 +59,15 @@ async function fixture(): Promise<{
   projectionPath: string;
   vault: ZeroizationVault;
 }> {
-  const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-external-record-codec-')));
+  // `.native`, not the default. fs.realpathSync is Node's JS component walk and
+  // preserves the caller's spelling of every non-symlink component, while the
+  // production check under test uses fsPromises.realpath, which is libuv's
+  // GetFinalPathNameByHandleW / realpath(3) and returns the filesystem's own
+  // spelling. On a Windows runner os.tmpdir() is the 8.3 short form
+  // (C:\Users\RUNNER~1\...), so the JS walk kept the short name while production
+  // resolved the long one and every entry was reported non-canonical - 7 failures
+  // that were a fixture artifact, not a product defect.
+  const root = fs.realpathSync.native(fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-external-record-codec-')));
   roots.push(root);
   const userDataRoot = path.join(root, 'user-data');
   const recordRoot = path.join(root, 'classic-authority', PREPARATION_ID);
