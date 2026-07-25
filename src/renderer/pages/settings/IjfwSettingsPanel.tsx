@@ -16,7 +16,7 @@
  */
 
 import { Button, Message, Switch, Typography } from '@arco-design/web-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { IjfwLifecycleStatus, IjfwStatusPayload } from '@/common/adapter/ipcBridge';
@@ -32,15 +32,39 @@ const IjfwSettingsPanel: React.FC = () => {
   const [status, setStatus] = useState<IjfwLifecycleStatus | null>(null);
   const [cliCount, setCliCount] = useState(0);
 
-  // A non-`opt_out` status is authoritative that the Skip flag is OFF: bootstrap
-  // only short-circuits to `opt_out` when the flag is on, so any other status
-  // means it ran for real.
-  const applyPayload = useCallback((payload: IjfwStatusPayload | null | undefined): void => {
+  // Once the user has touched the switch, THEIR choice owns it. Null until then.
+  const userChoice = useRef<boolean | null>(null);
+
+  const applyChecklist = useCallback((payload: IjfwStatusPayload | null | undefined): void => {
     if (!payload) return;
-    setSkipEnabled(payload.status === 'not_installed' && payload.reason === 'opt_out');
     setStatus(payload.status);
     setCliCount(payload.cliCount ?? 0);
   }, []);
+
+  /**
+   * Derive the switch from a status payload.
+   *
+   * Only safe when the user has NOT set the switch themselves. A bootstrap
+   * started before the user re-enabled Skip keeps emitting (`installing` ->
+   * `installed_current`), and those late emits are not evidence about the flag:
+   * deriving from them flipped the switch back OFF under the user moments after
+   * they turned it ON. So an explicit user choice wins, and emits only ever
+   * escalate to ON when they positively confirm `opt_out`.
+   */
+  const applyPayload = useCallback(
+    (payload: IjfwStatusPayload | null | undefined, source: 'initial' | 'emit'): void => {
+      if (!payload) return;
+      applyChecklist(payload);
+      const optedOut = payload.status === 'not_installed' && payload.reason === 'opt_out';
+      if (source === 'initial') {
+        setSkipEnabled(optedOut);
+        return;
+      }
+      if (optedOut) setSkipEnabled(true);
+      else if (userChoice.current === null) setSkipEnabled(false);
+    },
+    [applyChecklist]
+  );
 
   // Read initial opt-out state from the lifecycle snapshot. Wave 2 sets
   // `status: 'not_installed', reason: 'opt_out'` whenever the Skip flag is on.
@@ -51,7 +75,7 @@ const IjfwSettingsPanel: React.FC = () => {
       .invoke()
       .then((payload) => {
         if (disposed) return;
-        applyPayload(payload);
+        applyPayload(payload, 'initial');
       })
       .catch((err) => {
         console.error('[IjfwSettingsPanel] getStatus failed:', err);
@@ -63,7 +87,7 @@ const IjfwSettingsPanel: React.FC = () => {
     // which is what made the page look permanently broken.
     const unsubscribe = ipcBridge.ijfw.onStatusChanged.on((payload) => {
       if (disposed) return;
-      applyPayload(payload);
+      applyPayload(payload, 'emit');
     });
 
     return () => {
@@ -82,6 +106,7 @@ const IjfwSettingsPanel: React.FC = () => {
     async (next: boolean) => {
       if (loading) return;
       const previous = skipEnabled;
+      userChoice.current = next;
       setSkipEnabled(next);
       setLoading(true);
       try {
@@ -109,10 +134,12 @@ const IjfwSettingsPanel: React.FC = () => {
             }
           }
         } else {
+          userChoice.current = previous;
           setSkipEnabled(previous);
           Message.error(t('memory.error.unknown', { defaultValue: 'Something went wrong. Try again.' }));
         }
       } catch (err) {
+        userChoice.current = previous;
         setSkipEnabled(previous);
         Message.error(
           err instanceof Error

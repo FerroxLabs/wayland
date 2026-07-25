@@ -268,6 +268,47 @@ describe('IjfwSettingsPanel', () => {
       expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * Cross-audit finding (Kimi K3, 2026-07-25) on the first cut of this fix:
+     * deriving the switch from EVERY emitted payload let a bootstrap that
+     * started before the user re-enabled Skip flip the switch back OFF under
+     * them. A late `installed_current` is not evidence about the flag.
+     */
+    it("never lets a late emit override the user's own choice", async () => {
+      render(<IjfwSettingsPanel />);
+      await flushAsync();
+
+      // User turns Skip ON. The flag is now true.
+      await act(async () => {
+        fireEvent.click(getSwitchButton());
+      });
+      await flushAsync();
+      expect(skipSetupInvoke).toHaveBeenCalledWith({ enabled: true });
+      expect(isSwitchOn()).toBe(true);
+
+      // A bootstrap already in flight now reports success.
+      await act(async () => {
+        for (const emit of statusListeners) emit({ status: 'installed_current', cliCount: 17 });
+      });
+      await flushAsync();
+
+      // Checklist follows reality; the switch keeps the user's choice.
+      expect(screen.getByText('Installed and up to date')).toBeTruthy();
+      expect(isSwitchOn()).toBe(true);
+    });
+
+    it('still lets a positive opt_out emit switch it back ON', async () => {
+      render(<IjfwSettingsPanel />);
+      await flushAsync();
+      expect(isSwitchOn()).toBe(false);
+
+      await act(async () => {
+        for (const emit of statusListeners) emit({ status: 'not_installed', reason: 'opt_out', cliCount: 3 });
+      });
+      await flushAsync();
+      expect(isSwitchOn()).toBe(true);
+    });
+
     it('updates the checklist from an emitted status without a remount', async () => {
       getStatusInvoke.mockResolvedValueOnce({ status: 'not_installed', reason: 'opt_out' });
       render(<IjfwSettingsPanel />);
