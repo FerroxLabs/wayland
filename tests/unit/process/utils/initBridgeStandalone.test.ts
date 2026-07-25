@@ -1,4 +1,11 @@
+import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+// The data dir the platform mock hands to production. Production joins it with
+// path.join, so the expectation below must be built the same way: hard-coding
+// the POSIX spelling asserted '/tmp/.../revision-authority.enc' against the
+// '\tmp\...' that path.join produces on Windows.
+const STANDALONE_DATA_DIR = '/tmp/wayland-standalone';
 
 const mocks = vi.hoisted(() => ({
   initApplicationBridgeCore: vi.fn(),
@@ -193,7 +200,7 @@ vi.mock('@process/flux/FluxRoutingEvidenceAdapter', () => ({
 vi.mock('@/common/platform', () => ({
   getPlatformServices: () => ({
     paths: {
-      getDataDir: () => '/tmp/wayland-standalone',
+      getDataDir: () => STANDALONE_DATA_DIR,
       isPackaged: () => false,
       getAppPath: () => '/tmp/wayland-app',
     },
@@ -251,7 +258,7 @@ describe('initBridgeStandalone', () => {
     expect(mocks.initHubBridge).toHaveBeenCalledTimes(1);
     expect(mocks.initWebCloudFluxRoutingEvidenceAdapter).toHaveBeenCalledTimes(1);
     expect(mocks.createConstitutionFsProduction).toHaveBeenCalledWith(expect.stringMatching(/resources$/), {
-      revisionAuthorityPath: '/tmp/wayland-standalone/constitution/revision-authority.enc',
+      revisionAuthorityPath: path.join(STANDALONE_DATA_DIR, 'constitution', 'revision-authority.enc'),
     });
     expect(mocks.setConstitutionFsService).toHaveBeenCalledWith(mocks.constitutionFsService);
     expect(mocks.setConstitutionArchiveRecoveryService).toHaveBeenCalledWith(mocks.constitutionArchiveRecoveryService);

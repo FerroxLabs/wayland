@@ -15,19 +15,26 @@ function installedPackageManifests(root: string): string[] {
   if (!existsSync(root)) return [];
 
   const manifests: string[] = [];
-  const pending = [root];
+  // `aliased` marks a directory reached through a symlink. Only those need a
+  // realpath to break symlink cycles - real directories cannot form one - and
+  // realpathSync opens a handle per directory on Windows, so canonicalizing all
+  // ~21k node_modules directories was why this test blew the 10s timeout there
+  // while finishing in under a second on macOS.
+  const pending: { directory: string; aliased: boolean }[] = [{ directory: root, aliased: true }];
   const visited = new Set<string>();
 
   while (pending.length > 0) {
-    const directory = pending.pop()!;
-    let canonicalDirectory: string;
-    try {
-      canonicalDirectory = realpathSync(directory);
-    } catch {
-      continue;
+    const { directory, aliased } = pending.pop()!;
+    if (aliased) {
+      let canonicalDirectory: string;
+      try {
+        canonicalDirectory = realpathSync(directory);
+      } catch {
+        continue;
+      }
+      if (visited.has(canonicalDirectory)) continue;
+      visited.add(canonicalDirectory);
     }
-    if (visited.has(canonicalDirectory)) continue;
-    visited.add(canonicalDirectory);
 
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const path = resolve(directory, entry.name);
@@ -36,12 +43,12 @@ function installedPackageManifests(root: string): string[] {
         continue;
       }
       if (entry.isDirectory()) {
-        pending.push(path);
+        pending.push({ directory: path, aliased: false });
         continue;
       }
       if (entry.isSymbolicLink()) {
         try {
-          if (statSync(path).isDirectory()) pending.push(path);
+          if (statSync(path).isDirectory()) pending.push({ directory: path, aliased: true });
         } catch {
           // Broken optional-dependency links do not represent installed packages.
         }
@@ -125,7 +132,11 @@ describe('Monaco-free dependency and build-input boundary', () => {
       ) as { name: string; version: string };
       expect(installedManifest).toMatchObject({ name, version });
     }
-  });
+    // Walking every installed package is inherently filesystem-bound: ~21k
+    // directories and ~3.1k manifests. That is under a second on macOS and CI
+    // Linux, but a Windows shard pays per-syscall antivirus cost on all of it
+    // and exceeded the 10s default.
+  }, 60_000);
 
   it('keeps Monaco out of the owned renderer build inputs', () => {
     const buildInputs = [

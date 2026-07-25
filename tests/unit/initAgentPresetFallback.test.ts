@@ -13,6 +13,15 @@ const { mkdir, recordManagedWorkspaceProvenance } = vi.hoisted(() => ({
   recordManagedWorkspaceProvenance: vi.fn(async () => undefined),
 }));
 
+// Fixture roots must be spelled the way the host platform spells an absolute
+// path. Production builds the candidate with path.join, which normalizes to
+// backslashes on Windows, while the realpath mock echoes its input verbatim -
+// so a POSIX literal made createExclusiveManagedWorkspace compare
+// path.dirname('\\mock\\work\\x') against '/mock/work' and throw 'Managed
+// workspace creation identity is unsafe' on every Windows run.
+const WORK_ROOT = path.resolve('/mock/work');
+const DATA_ROOT = path.resolve('/mock/data');
+
 // createAcpAgent only touches the filesystem via fs mkdir + the skill-symlink
 // helpers; stub them so the test exercises pure extra-field mapping.
 vi.mock('fs/promises', () => ({
@@ -23,11 +32,7 @@ vi.mock('fs/promises', () => ({
       throw new Error('ENOENT');
     }),
     lstat: vi.fn(async (value: string) => {
-      // Separator-agnostic: the code under test resolves this path, and on
-      // Windows path.resolve('/mock/work/x') is 'C:\\mock\\work\\x', so a
-      // startsWith('/mock/work/') check missed every time and this mock threw
-      // ENOENT on the runner while matching fine on POSIX.
-      if (value.split(path.sep).join('/').includes('/mock/work/')) {
+      if (value.startsWith(`${WORK_ROOT}${path.sep}`)) {
         return { isSymbolicLink: () => false, isDirectory: () => true, dev: 7, ino: 11 };
       }
       throw new Error('ENOENT');
@@ -41,10 +46,10 @@ vi.mock('@process/utils/initStorage', () => ({
   getSkillsDir: vi.fn(() => '/mock/skills'),
   getBuiltinSkillsCopyDir: vi.fn(() => '/mock/builtin-skills'),
   getAutoSkillsDir: vi.fn(() => '/mock/auto-skills'),
-  getSystemDir: vi.fn(() => ({ workDir: '/mock/work' })),
+  getSystemDir: vi.fn(() => ({ workDir: WORK_ROOT })),
   ProcessConfig: { get: vi.fn(async () => undefined), set: vi.fn(async () => undefined) },
 }));
-vi.mock('@process/utils/utils', () => ({ getDataPath: vi.fn(() => '/mock/data') }));
+vi.mock('@process/utils/utils', () => ({ getDataPath: vi.fn(() => DATA_ROOT) }));
 vi.mock('@process/services/kickoff/installUuid', () => ({
   getInstallUuid: vi.fn(async () => 'desktop-test-installation'),
 }));
@@ -107,12 +112,12 @@ describe('createAcpAgent - preset customAgentId fallback (#66)', () => {
     } as ICreateConversationParams);
 
     expect(recordManagedWorkspaceProvenance).toHaveBeenCalledWith({
-      authorityRoot: '/mock/data',
-      workRoot: '/mock/work',
+      authorityRoot: DATA_ROOT,
+      workRoot: WORK_ROOT,
       workspace: conv.extra.workspace,
       installationId: 'desktop-test-installation',
       creationIdentity: {
-        canonicalRoot: '/mock/work',
+        canonicalRoot: WORK_ROOT,
         canonicalPath: conv.extra.workspace,
         device: 7,
         inode: 11,
@@ -134,10 +139,15 @@ describe('createAcpAgent - preset customAgentId fallback (#66)', () => {
       extra: { backend: 'hermes', customWorkspace: false },
     } as ICreateConversationParams);
 
-    const predictable = `/mock/work/hermes-temp-${now}`;
+    const predictable = path.join(WORK_ROOT, `hermes-temp-${now}`);
     expect(mkdir).toHaveBeenNthCalledWith(2, predictable, { recursive: false, mode: 0o700 });
     expect(conv.extra.workspace).not.toBe(predictable);
-    expect(String(conv.extra.workspace)).toMatch(new RegExp(`^${predictable}\\d{39}$`));
+    // Compared with string operations, not a RegExp built from the path: on
+    // Windows the path separators would be read as escape sequences ('\\w' is
+    // the word-character class), so the pattern would match the wrong thing.
+    const created = String(conv.extra.workspace);
+    expect(created.startsWith(predictable)).toBe(true);
+    expect(created.slice(predictable.length)).toMatch(/^\d{39}$/);
     expect(recordManagedWorkspaceProvenance).toHaveBeenCalledWith(
       expect.objectContaining({ workspace: conv.extra.workspace })
     );

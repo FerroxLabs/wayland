@@ -1,7 +1,7 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
 const { DEFAULT_VERIFIERS } = require('../../../scripts/release-acceptance/verifyFinalAcceptance') as {
@@ -18,8 +18,17 @@ function git(root: string, ...args: string[]): string {
 function repository(): string {
   const allocated = mkdtempSync(join(tmpdir(), 'wayland-acceptance-candidate-'));
   roots.push(allocated);
-  const root = realpathSync(allocated);
-  git(root, 'init', '--quiet');
+  git(allocated, 'init', '--quiet');
+  // The candidate root has to be spelled the way Git spells it, because the
+  // verifier compares the configured root against `rev-parse --show-toplevel`.
+  // os.tmpdir() reads %TEMP%, which on a Windows runner is an 8.3 short path
+  // ('C:\Users\RUNNER~1\AppData\Local\Temp'), and realpathSync does not expand
+  // short names - so seeding the root from os.tmpdir() compared two different
+  // spellings of the same directory and always failed with
+  // candidate-root-is-not-worktree-top-level there. Asking Git makes both
+  // sides come from one source. On POSIX this is realpathSync(allocated): Git
+  // resolves /var -> /private/var identically.
+  const root = resolve(git(allocated, 'rev-parse', '--show-toplevel'));
   git(root, 'config', 'user.email', 'acceptance-root@example.test');
   git(root, 'config', 'user.name', 'Acceptance Root Test');
   writeFileSync(join(root, 'candidate.txt'), 'exact candidate\n');
