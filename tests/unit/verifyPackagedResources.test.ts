@@ -339,6 +339,19 @@ function addPackagedApp(
   return resources;
 }
 
+// A self-contained stand-in for "some other real executable that happens to sit on the build
+// host". This used to copy /bin/echo, which does not exist on Windows (path.resolve turns it
+// into <drive>:\bin\echo there), so the fixture writes its own stub instead: a runnable script
+// with the host's spawnable extension, which - exactly like /bin/echo - carries neither the
+// pinned OfficeCLI digest nor a Mach-O identity.
+function writeEchoStub(root: string): string {
+  const windows = process.platform === 'win32';
+  const stub = path.join(root, windows ? 'echo-stub.cmd' : 'echo-stub');
+  fs.mkdirSync(root, { recursive: true });
+  fs.writeFileSync(stub, windows ? '@echo off\r\necho %*\r\n' : '#!/bin/sh\nprintf \'%s\\n\' "$@"\n', { mode: 0o755 });
+  return stub;
+}
+
 function createPackagedResources(includeOfficeCli: boolean, officeCliRuntime = 'darwin-arm64'): string {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-packaged-resources-'));
   roots.push(root);
@@ -383,6 +396,16 @@ afterEach(() => {
   for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true });
 });
 
+// The release gate pins `managed-cli-shims/officecli` with `posixExecutable: true` because
+// that shim is tracked at git mode 100755 and must stay executable inside a darwin/linux
+// package. NTFS cannot represent the POSIX executable bit — Node reports mode 0o666 for
+// every writable file on Windows — so on a Windows host the darwin fixture below can never
+// satisfy that one pin and the sweep always reports it as the single CRITICAL failure.
+// Production never verifies a darwin package from a Windows host (the darwin path shells out
+// to /usr/bin/codesign), so only the assertions that require the whole sweep to PASS are
+// host-limited. Every failure-path assertion in this file stays active on all hosts.
+const itAcceptedSweep = it.skipIf(process.platform === 'win32');
+
 describe('packaged resource release gate', () => {
   const verify = (
     out: string,
@@ -406,7 +429,7 @@ describe('packaged resource release gate', () => {
       ...extra,
     });
 
-  it('accepts a non-empty native OfficeCLI binary plus manifest', () => {
+  itAcceptedSweep('accepts a non-empty native OfficeCLI binary plus manifest', () => {
     const out = createPackagedResources(true);
     expect(verify(out)).toMatchObject({ warnings: 3 });
   });
@@ -442,7 +465,7 @@ describe('packaged resource release gate', () => {
     expect(() => verify(missing)).toThrow(/CRITICAL resource/);
   });
 
-  it('accepts an intentionally-omitted seal on a local verification build (--allow-missing-seal)', () => {
+  itAcceptedSweep('accepts an intentionally-omitted seal on a local verification build (--allow-missing-seal)', () => {
     const out = createPackagedResources(true);
     fs.rmSync(path.join(packagedResourcesPath(out), 'capability-seal.json'));
     expect(() =>
@@ -496,7 +519,7 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out)).toThrow(/CRITICAL resource/);
   });
 
-  it('uses the package-sealed Constitution authority instead of mutable tracked authority', () => {
+  itAcceptedSweep('uses the package-sealed Constitution authority instead of mutable tracked authority', () => {
     const out = createPackagedResources(true);
     expect(verify(out)).toMatchObject({ warnings: 3 });
     expect(() =>
@@ -576,12 +599,12 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out)).toThrow();
   });
 
-  it('rejects /bin/echo even when the OfficeCLI manifest rewrites its own checksum and signature claim', () => {
+  it('rejects a substituted echo stub even when the OfficeCLI manifest rewrites its own checksum and signature claim', () => {
     const out = createPackagedResources(true);
     const runtime = path.join(packagedResourcesPath(out), 'bundled-officecli', 'darwin-arm64');
     const binary = path.join(runtime, 'officecli');
     const manifest = path.join(runtime, 'manifest.json');
-    fs.copyFileSync('/bin/echo', binary);
+    fs.copyFileSync(writeEchoStub(out), binary);
     const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
     metadata.sha256 = `sha256:${crypto.createHash('sha256').update(fs.readFileSync(binary)).digest('hex')}`;
     metadata.publisherSignatureProof = TEST_OFFICE_SIGNATURE;
@@ -789,7 +812,7 @@ describe('packaged resource release gate', () => {
     ).toThrow(/--wcore-runtime/);
   });
 
-  it('selects exactly the requested current app when arm64 and x64 packages coexist', () => {
+  itAcceptedSweep('selects exactly the requested current app when arm64 and x64 packages coexist', () => {
     const out = createPackagedResources(true);
     addPackagedApp(out, 'x64', true);
 
@@ -885,7 +908,7 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out)).toThrow(/CRITICAL/);
   });
 
-  it.each(['addition', 'omission', 'drift', 'symlink', 'nested-escaping-symlink'])(
+  itAcceptedSweep.each(['addition', 'omission', 'drift', 'symlink', 'nested-escaping-symlink'])(
     'fails closed when the packaged WhatsApp bridge has source-fidelity %s',
     (failure) => {
       const out = createPackagedResources(true);

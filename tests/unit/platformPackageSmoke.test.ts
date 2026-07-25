@@ -486,13 +486,20 @@ describe('platform package smoke contract', () => {
     expect(() => currentSourceIdentity(sourceRoot)).toThrow('source worktree is not clean');
   });
 
-  it('binds candidate identity to executable permission modes as well as bytes', () => {
-    const out = temporaryRoot();
-    const candidate = writeUnpackedTarget(out, 'linux', 'x64');
-    const executableDigest = candidateContentDigest(candidate);
-    fs.chmodSync(candidate.executablePath, 0o644);
-    expect(candidateContentDigest(candidate)).not.toBe(executableDigest);
-  });
+  // NTFS has no POSIX permission bits: Node reports mode 0o666 for every writable file on
+  // Windows and chmodSync only toggles the read-only flag, so there is no mode change for the
+  // digest to bind to on a Windows host. The behaviour under test only exists for the
+  // darwin/linux candidates this assertion builds.
+  it.skipIf(process.platform === 'win32')(
+    'binds candidate identity to executable permission modes as well as bytes',
+    () => {
+      const out = temporaryRoot();
+      const candidate = writeUnpackedTarget(out, 'linux', 'x64');
+      const executableDigest = candidateContentDigest(candidate);
+      fs.chmodSync(candidate.executablePath, 0o644);
+      expect(candidateContentDigest(candidate)).not.toBe(executableDigest);
+    }
+  );
 
   it('binds freshness to the real installer artifact and rejects metadata-only installer touches', () => {
     const root = temporaryRoot();
@@ -605,8 +612,14 @@ describe('platform package smoke contract', () => {
       appDir: fs.realpathSync(candidate.appDir),
     });
 
+    // The escaping target has to be a file that really exists outside the install root on
+    // every host: a POSIX-only path like /etc/passwd is merely dangling on Windows, so
+    // realpathSync fails with ENOENT before the confinement check can report the escape.
+    const foreignRoot = temporaryRoot();
+    const foreignPayload = path.join(foreignRoot, 'foreign-helper');
+    fs.writeFileSync(foreignPayload, 'foreign');
     fs.unlinkSync(path.join(candidate.appDir, 'linked-helper'));
-    fs.symlinkSync('/etc/passwd', path.join(candidate.appDir, 'linked-helper'));
+    fs.symlinkSync(foreignPayload, path.join(candidate.appDir, 'linked-helper'), 'file');
     expect(() => candidateContentDigest(candidate)).toThrow('escapes its private installation root');
     expect(() => resolveInstalledCandidate(root, 'linux', 'x64', 'stable')).toThrow(
       'escapes its private installation root'
