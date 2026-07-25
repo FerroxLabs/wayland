@@ -19,7 +19,7 @@ import { Button, Message, Switch, Typography } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
-import type { IjfwLifecycleStatus } from '@/common/adapter/ipcBridge';
+import type { IjfwLifecycleStatus, IjfwStatusPayload } from '@/common/adapter/ipcBridge';
 import IjfwSetupStatus from './components/IjfwSetupStatus';
 import SettingsPageWrapper from './components/SettingsPageWrapper';
 
@@ -32,6 +32,16 @@ const IjfwSettingsPanel: React.FC = () => {
   const [status, setStatus] = useState<IjfwLifecycleStatus | null>(null);
   const [cliCount, setCliCount] = useState(0);
 
+  // A non-`opt_out` status is authoritative that the Skip flag is OFF: bootstrap
+  // only short-circuits to `opt_out` when the flag is on, so any other status
+  // means it ran for real.
+  const applyPayload = useCallback((payload: IjfwStatusPayload | null | undefined): void => {
+    if (!payload) return;
+    setSkipEnabled(payload.status === 'not_installed' && payload.reason === 'opt_out');
+    setStatus(payload.status);
+    setCliCount(payload.cliCount ?? 0);
+  }, []);
+
   // Read initial opt-out state from the lifecycle snapshot. Wave 2 sets
   // `status: 'not_installed', reason: 'opt_out'` whenever the Skip flag is on.
   // Also seeds the setup-status checklist (install status + detected-CLI count).
@@ -40,18 +50,27 @@ const IjfwSettingsPanel: React.FC = () => {
     void ipcBridge.ijfw.getStatus
       .invoke()
       .then((payload) => {
-        if (disposed || !payload) return;
-        setSkipEnabled(payload.status === 'not_installed' && payload.reason === 'opt_out');
-        setStatus(payload.status);
-        setCliCount(payload.cliCount ?? 0);
+        if (disposed) return;
+        applyPayload(payload);
       })
       .catch((err) => {
         console.error('[IjfwSettingsPanel] getStatus failed:', err);
       });
+
+    // Stay subscribed. Re-enabling now kicks a real bootstrap, which emits
+    // `installing` then `installed_current`; without this the panel kept
+    // rendering the pre-toggle snapshot until the whole app was restarted,
+    // which is what made the page look permanently broken.
+    const unsubscribe = ipcBridge.ijfw.onStatusChanged.on((payload) => {
+      if (disposed) return;
+      applyPayload(payload);
+    });
+
     return () => {
       disposed = true;
+      unsubscribe();
     };
-  }, []);
+  }, [applyPayload]);
 
   const handleOpenGithub = useCallback(() => {
     void ipcBridge.shell.openExternal.invoke(IJFW_GITHUB_URL).catch((err: unknown) => {
@@ -73,6 +92,22 @@ const IjfwSettingsPanel: React.FC = () => {
               ? t('memory.settings.skip_label', { defaultValue: 'Skip IJFW automatic setup' })
               : t('memory.pitch.install_cta', { defaultValue: 'Install Memory' })
           );
+          // Persisting the flag was ALL this toggle used to do. Bootstrap had
+          // already run at boot and short-circuited on `opt_out`, so turning
+          // Skip back off changed nothing observable: the checklist kept saying
+          // "Not installed yet", the runtime row kept saying "Waiting for
+          // install", and Test kept failing because `runtimeMode` was never
+          // enabled. Flipping the switch any number of times could not recover
+          // it - only restarting the app could. So re-enabling now runs the
+          // same bootstrap the Memory page's install button runs.
+          if (!next) {
+            const install = await ipcBridge.ijfw.triggerInstall.invoke();
+            if (install && install.ok === false) {
+              Message.error(
+                install.error ?? t('memory.error.unknown', { defaultValue: 'Something went wrong. Try again.' })
+              );
+            }
+          }
         } else {
           setSkipEnabled(previous);
           Message.error(t('memory.error.unknown', { defaultValue: 'Something went wrong. Try again.' }));
