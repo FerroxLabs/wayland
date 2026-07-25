@@ -157,6 +157,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # constitutionFsService authenticates the immutable 991c502 producer
+          # corpus by re-deriving it from git history (git archive/show/read-tree).
+          # That commit is 538 back, so a default depth-1 checkout made those tests
+          # fail in CI while passing locally on a full clone. The test is right to
+          # demand real history - it is a supply-chain authenticity check - so
+          # deepen the checkout rather than weaken the assertion.
+          fetch-depth: 0
 
       - name: Resolve PR context
         uses: ./.github/actions/checkout-pr
@@ -339,6 +347,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # Same git-history requirement as the unit-test shards.
+          fetch-depth: 0
 
       - name: Resolve PR context
         uses: ./.github/actions/checkout-pr
