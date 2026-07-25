@@ -4,10 +4,45 @@
 Supersedes `HANDOFF-2026-07-25-F-windows-and-truth.md` for status.
 
 Work location `~/dev/wayland-worktrees/desktop-integration`, branch
-`worktree-agent-desktop-integration`, HEAD `59dc5504e`, pushed, tree clean.
-PR #925 → `main`. **Nothing merged. Nothing tagged. No trust root created.**
+`worktree-agent-desktop-integration`. Latest pushed head is `f6dbebb1a`; this doc and the recommendations
+below land on top of it. PR #925 → `main`.
+**Nothing merged. Nothing tagged. No trust root created.**
+
+⚠️ Every push cancels the previous run's in-flight shards (`cancel-in-progress`), and a cancelled shard turns
+all three `Unit Tests (<os>)` aggregates red. Do not read that as failure, and avoid pushing while a run you
+care about is mid-flight.
 
 ---
+
+## 0. Recommendations, each verified before being written here
+
+Ranked. Every factual claim below was checked in this session, not carried from an agent report.
+
+1. **Do NOT merge #925 until the three required `Unit Tests (<os>)` checks are green.** Verified on run
+   `30162197594`: ubuntu **4/4 success**, Code Quality **success**, Windows 4 shards in progress, macOS
+   queued. Local + Windows-box evidence exists for every fix, but that is not the gate passing. I was
+   confidently wrong three times in this arc, so wait for the green rather than the inference.
+2. **Land P1-3 first — strongest recommendation.** `packet/p1-3-linux-notify-only` @ `c7be9abb6`. Verified by
+   me: gate binds (13 fail without / 24 pass with), **9 updater suites, 105 tests pass**, `tsc` clean. It
+   closes a root-level install of unverified content (`dpkg -i` / `rpm -Uvh --nodeps` via `pkexec`, package
+   manager signature checks explicitly disabled, only a sha512-vs-feed-metadata check) plus a `postinst` hook
+   that outlives the app. Small, fails closed, touches nothing else.
+3. **P0-1: land P0-1a on its own now; pin at LATEST in P0-1b.** Verified live from the registry: pins are
+   claude `0.44.0` / codex `1.1.2` / codebuddy `2.73.0`; latest is claude **0.62.0** / codebuddy **2.127.0**
+   — 18 and 54 minors. `bridgeVersionResolver.ts`'s header records that a stale pin version-gates newer
+   models out entirely, so a fallback pin gets reverted the first time a user loses a model. **P0-1a is
+   independently worth landing**: verified by reading the code that `acpConnectors.ts:248` gates only
+   `startsWith('npx ')`, there is **no `bunx` gate anywhere in that file**, and `AcpDetector.ts:316`
+   documents `"bunx @augmentcode/auggie"` as a declarable path — one character bypasses the gate, with zero
+   version movement needed to fix it.
+4. **Bring the test tree into the typecheck surface, as its own packet.** Not cosmetic: it is precisely how an
+   invalid strict-union literal compiled clean and silently neutered a security race test, and three siblings
+   still carry invented values. Measure the error count before gating. (Avoid writing the glob inline here —
+   `tests/` plus a double-star next to bold markers is what oxfmt mangled on the previous pass.)
+
+**Explicitly NOT verified:** whether the ~1,600 lines of trust-root code are correct. F-06's preconditions
+and ordering are verified twice with positive controls; the code holding `attestations: write` +
+`id-token: write` is not. Different claims — do not blur them.
 
 ## 1. Headline
 
