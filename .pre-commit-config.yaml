@@ -41,13 +41,17 @@ repos:
       #    the ciphertext bytes.
       #  - .planning/**/evidence/**/*.log and *.log generally are captured
       #    command output kept as proof. Editing them falsifies the evidence.
+      #  - tests/fixtures/**, strike/**, contracts/** and the pinned skill bodies
+      #    are byte- and size-pinned corpora. A trailing newline is a size
+      #    change: appending one to two constitution-history transaction records
+      #    produced "State drift: size mismatch" in the corpus verifier.
       - id: end-of-file-fixer
         # Only fix text files, exclude binary files and special OS files
-        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin))$'
+        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|src/process/resources/skills/.*|tests/fixtures/.*|strike/.*|contracts/.*|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin))$'
       - id: trailing-whitespace
         # Auto-fix trailing whitespace in text files
         # Excludes binary files (matching end-of-file-fixer pattern)
-        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin|patch))$'
+        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|src/process/resources/skills/.*|tests/fixtures/.*|strike/.*|contracts/.*|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin|patch))$'
 
   # TypeScript type checking (full project check required)
   - repo: local
@@ -91,8 +95,17 @@ repos:
         #    change; only running the build caught it.
         #  - contracts/**: wire schemas and compatibility fixtures. Their bytes are
         #    the contract, so reformatting them is a silent contract change.
+        #  - src/process/resources/skills/**: skill bodies are SHA-256 pinned by
+        #    scripts/prepareOfficeCli.js. Reformatting officecli-data-dashboard's
+        #    SKILL.md produced "OfficeCLI skill digest mismatch".
+        #  - tests/fixtures/** and strike/**: captured corpora pinned by digest AND
+        #    byte size, including a .ts generator whose own hash is asserted.
+        #    Reformatting them produced "State drift: size mismatch" in the
+        #    historical transaction corpus verifier.
+        # Every entry below was added because a formatter run actually broke it.
+        # Adding a path here is cheaper than the build or suite failure it prevents.
         exclude: >-
-          ^(src/process/resources/(skills-library|bundled-workflows)/index\.json|resources/modelsdev-snapshot\.json|contracts/.*)$
+          ^(src/process/resources/(skills-library|bundled-workflows)/index\.json|src/process/resources/skills/.*|resources/modelsdev-snapshot\.json|contracts/.*|tests/fixtures/.*|strike/.*)$
         pass_filenames: true
 
   # i18n translation files validation

@@ -1,9 +1,1 @@
-{
-  "kind": "wayland-constitution-history",
-  "version": 3,
-  "archiveId": "7703759f-0fda-4ed2-9d99-d2e0681d677a",
-  "archivedAt": 1784224523981,
-  "target": { "kind": "constitution", "sourceName": "CONSTITUTION.md" },
-  "contentDigest": "hmac-sha256:2a4079c2-194c-44f0-a7c0-a22e6f771050:7ad7a78461f54787d3750961fe5bca64156b162cc7d21a66f61c8dfe3038dab6",
-  "content": "# Historical Constitution\n"
-}
+{"kind":"wayland-constitution-history","version":3,"archiveId":"7703759f-0fda-4ed2-9d99-d2e0681d677a","archivedAt":1784224523981,"target":{"kind":"constitution","sourceName":"CONSTITUTION.md"},"contentDigest":"hmac-sha256:2a4079c2-194c-44f0-a7c0-a22e6f771050:7ad7a78461f54787d3750961fe5bca64156b162cc7d21a66f61c8dfe3038dab6","content":"# Historical Constitution\n"}

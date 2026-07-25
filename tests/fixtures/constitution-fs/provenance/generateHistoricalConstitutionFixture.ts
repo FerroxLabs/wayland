@@ -76,7 +76,11 @@ service.writeSpecialist(
 );
 const current = service.readConstitution();
 if (current.status !== 'present') throw new Error('expected committed Constitution');
-service.writeConstitution('# Historical Constitution v2\n', current.revision, '33333333-3333-4333-8333-333333333333');
+service.writeConstitution(
+  '# Historical Constitution v2\n',
+  current.revision,
+  '33333333-3333-4333-8333-333333333333'
+);
 if (mode === 'pending-ledger-only') {
   const beforePending = service.readConstitution();
   if (beforePending.status !== 'present') throw new Error('expected pending fixture source');
@@ -128,20 +132,10 @@ writeFileSync(
             : null,
         operations: [
           { operation: 'replace', target: 'CONSTITUTION.md', requestId: '11111111-1111-4111-8111-111111111111' },
-          {
-            operation: 'replace',
-            target: 'specialists/research.md',
-            requestId: '22222222-2222-4222-8222-222222222222',
-          },
+          { operation: 'replace', target: 'specialists/research.md', requestId: '22222222-2222-4222-8222-222222222222' },
           { operation: 'replace', target: 'CONSTITUTION.md', requestId: '33333333-3333-4333-8333-333333333333' },
           ...(mode === 'pending-ledger-only'
-            ? [
-                {
-                  operation: 'replace-crash-after-ledger-before-journal',
-                  target: 'CONSTITUTION.md',
-                  requestId: '55555555-5555-4555-8555-555555555555',
-                },
-              ]
+            ? [{ operation: 'replace-crash-after-ledger-before-journal', target: 'CONSTITUTION.md', requestId: '55555555-5555-4555-8555-555555555555' }]
             : []),
         ],
       },
