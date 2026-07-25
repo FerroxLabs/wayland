@@ -100,8 +100,48 @@ releases must not mint the authority that validates them — the same boundary D
 artifact (notarization itself is already fully wired: `afterSign.js` for the .app, `notarizeDmg.js` for
 the dmg, all six Apple/Azure secrets present).
 
+## F-07 · IJFW Memory looks permanently broken once Skip is on (Sean's live find)
+
+**Symptom Sean hit on released 0.11.18:** Settings > IJFW Memory reported "IJFW installed: Not
+installed yet" and "Memory runtime: Waiting for install" while IJFW 1.6.5 was present in
+`~/.ijfw/mcp-server`, and Test said "Memory did not respond". Turning Skip off did not fix it.
+Turning it off and on again did not fix it. Reinstalling IJFW did not fix it.
+
+**Root cause:** the toggle only persisted `ijfw.skipSetup`. Bootstrap had already run at app boot and
+short-circuited on the `opt_out` branch, so turning Skip back off re-ran nothing: the lifecycle
+status stayed `opt_out`, the checklist kept rendering the pre-toggle snapshot, and `runtimeMode` was
+never enabled. Only a full app restart could recover it, and nothing on the page said so. For a
+customer that is indistinguishable from a dead feature.
+
+**Fixed in `b80ad8beb`** (no new i18n keys):
+- switching Skip OFF now invokes `ijfw.triggerInstall` — the same bootstrap the Memory page's install
+  button already used — and surfaces its error if it refuses to start
+- the panel stays subscribed to `ijfw.onStatusChanged`, so `installing` → `installed_current` lands
+  on the checklist live instead of waiting for a restart
+- the panel's DOM suite mocked `ipcBridge.ijfw` without `onStatusChanged` or `triggerInstall`, so
+  neither path had any coverage; 6 tests added, 43 green across the three IJFW suites
+
+**Ruled out on the way (do not re-chase):** the #706 fused-runtime bug (0.11.18 does ship
+`resolveJsRuntime` + bundled Bun); a broken install (the server starts and answers `initialize`
+correctly from the CLI even with no `node_modules`); a phantom opt-out (the flag really is persisted
+— the config store is base64, so plaintext greps for it return nothing).
+
+**STILL OPEN — the testability hole that let this ship.** Profile isolation is gated on
+`WAYLAND_E2E_TEST=1` (`configureAppIdentity.ts:16`) and that SAME variable disables IJFW
+(`src/index.ts:726`). So no packaged E2E or smoke run can ever exercise Memory — which is exactly why
+the packaged cockpit smoke reported PASS while Memory was dead on the same build. Fix direction: give
+the IJFW guard its own variable (`WAYLAND_DISABLE_IJFW`) and have the E2E harness set it explicitly,
+so isolation and IJFW-enablement stop being the same switch. Until then, IJFW must be live-tested via
+a redirected `HOME` (see the F-07 harness) rather than the standard smoke.
+
+**Also worth a follow-up:** while opted out the status is not merely stale, it is untrue — the
+`opt_out` branch returns before detection runs, so the page asserts "Not installed yet" about an
+install it never looked for. Making that copy honest needs new i18n keys across 10 locales, so it was
+deliberately left out of `b80ad8beb`.
+
 ---
 
 ## Order
 
-F-01 → F-02 → F-03 → F-05 → F-04, with F-06 whenever Sean sets the trust root.
+F-01 → F-07 → F-02 → F-03 → F-05 → F-04, with F-06 whenever Sean sets the trust root.
+F-07 jumped the queue because it is a shipped, customer-visible dead end.

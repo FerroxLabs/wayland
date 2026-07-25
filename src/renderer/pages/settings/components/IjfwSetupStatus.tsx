@@ -104,7 +104,9 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
     }
     let disposed = false;
     void ipcBridge.ijfw.brainInvoke
-      .invoke({ verb: 'state' })
+      // `metrics`, NOT `state`. See handleTest below for why `state` could
+      // never succeed.
+      .invoke({ verb: 'metrics' })
       .then((r) => {
         if (disposed) return;
         if (r.ok) {
@@ -190,7 +192,20 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
     setTestState('running');
     setTestFailReason(undefined);
     try {
-      const result = await ipcBridge.ijfw.brainInvoke.invoke({ verb: 'state' });
+      // The probe verb used to be `state`, which could NEVER pass and so made
+      // Test report "Memory did not respond" on every install, healthy ones
+      // included (Sean's live find, 2026-07-25).
+      //
+      // `resolveToolCall` direct-maps `state` -> tool `ijfw_state` and forwards
+      // our args verbatim. But `ijfw_state` is itself a FACADE: server.js
+      // requires its own inner `verb` in the arguments and answers
+      // `{"ok":false,"error":"verb (string) is required"}` without one. The
+      // probe has no inner verb to supply, so the call was guaranteed to fail.
+      //
+      // Verified against a real IJFW 1.6.5 server over stdio: `ijfw_state` with
+      // `{}` errors, `ijfw_metrics` with `{}` returns cleanly. `metrics` is
+      // read-only and cheap, which is what a health probe wants.
+      const result = await ipcBridge.ijfw.brainInvoke.invoke({ verb: 'metrics' });
       if (result.ok) {
         setTestState('pass');
         setTestFailReason(undefined);

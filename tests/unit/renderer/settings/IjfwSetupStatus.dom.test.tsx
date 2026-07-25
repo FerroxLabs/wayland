@@ -11,7 +11,12 @@
  *
  * The checklist renders three signals (install / CLIs / runtime) with a
  * data-status of "ok" or "pending", and a Test button that probes the local
- * IJFW MCP server via `ipcBridge.ijfw.brainInvoke({ verb: 'state' })`.
+ * IJFW MCP server via `ipcBridge.ijfw.brainInvoke({ verb: 'metrics' })`.
+
+ * The probe verb is deliberately `metrics`, not `state`: `state` direct-maps to
+ * the `ijfw_state` facade, which demands its own inner verb and so answered
+ * "verb (string) is required" for every probe, making Test fail on healthy
+ * installs.
  */
 
 import React from 'react';
@@ -55,7 +60,7 @@ describe('IjfwSetupStatus (#414)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('ok');
     });
-    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
+    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'metrics' });
   });
 
   it('does NOT probe the runtime (no MCP spawn) when IJFW is not installed', async () => {
@@ -83,7 +88,7 @@ describe('IjfwSetupStatus (#414)', () => {
     expect(runtime.getAttribute('data-status')).toBe('checking');
     expect(screen.queryByText('Degraded (not reachable)')).toBeNull();
     expect(screen.getByText('Checking…')).toBeTruthy();
-    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
+    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'metrics' });
   });
 
   it('marks the runtime row pending when the mount probe rejects', async () => {
@@ -107,7 +112,7 @@ describe('IjfwSetupStatus (#414)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('pass');
     });
-    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
+    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'metrics' });
   });
 
   it('Test button shows fail when the brain probe errors', async () => {
