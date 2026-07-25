@@ -134,6 +134,38 @@ the IJFW guard its own variable (`WAYLAND_DISABLE_IJFW`) and have the E2E harnes
 so isolation and IJFW-enablement stop being the same switch. Until then, IJFW must be live-tested via
 a redirected `HOME` (see the F-07 harness) rather than the standard smoke.
 
+### F-07 cross-audit (Ferrox Factory panel, 2026-07-25)
+
+Four legs on the diff `b80ad8beb~1..d624555b0`. **Gemini's recorded model ID `gemini-3.1-pro` is dead
+(404 ModelNotFoundError)** — rerun on the CLI default. Update
+[[cross-audit-panel-invocations]].
+
+Codex 5.6 Sol: FIX-FIRST (5 findings) · Gemini: FIX-FIRST (2) · Kimi K3: found the same lead finding ·
+internal reviewer: ran.
+
+**Fixed as a result:**
+- **All three legs independently found the same lead defect**: the switch was derived from lifecycle
+  status, which conflates a user SETTING with on-disk STATE. First cut (`fa6e104ce`) only guarded late
+  emits within one mount; Codex and Gemini both showed that was too narrow — a remount re-derived it.
+  Properly fixed in `8ee6b2218` with a new `ijfw.getSkipSetup` IPC reading the flag directly.
+
+**DEFERRED — needs Sean's sign-off (real findings, not nits):**
+1. **Lock contention reports success (Codex #3, Gemini #2) — HIGHEST.** `bootstrapImpl` returns
+   normally when the install lock is held by another process, and `ijfwBridge.triggerInstall` converts
+   that to `{ok:true}`. So turning Skip OFF can show a success toast, emit no status, and leave the
+   original restart-only dead end fully intact. This re-creates the exact bug F-07 set out to fix, in a
+   narrower window. Fix: return a typed lock-contention outcome and surface it.
+2. **Double-install race (Codex #2).** Detection happens BEFORE the lock is acquired, so the toggle and
+   the +5s boot bootstrap can both observe "not installed"; a delayed second call can take the released
+   lock on stale detection and run a second installer. Fix: coalesce on one in-flight promise and
+   re-detect after acquiring the lock.
+3. **`metrics` is policy-sensitive (Codex #5).** It maps to `metrics:read`, so an active extension
+   granting `memory:*` but not `metrics:read` denies the probe (and logs the denial) while Memory recall
+   is healthy. A health probe should be policy-neutral — a transport-level `tools/list` ping is the
+   right shape. NOTE: `metrics` is still strictly better than the shipped `state`, which could never
+   succeed for anyone; this is a narrowing, not a regression.
+4. **Separate preference-write failure from install-trigger failure (Codex #4)** — overlaps 1.
+
 **Also worth a follow-up:** while opted out the status is not merely stale, it is untrue — the
 `opt_out` branch returns before detection runs, so the page asserts "Not installed yet" about an
 install it never looked for. Making that copy honest needs new i18n keys across 10 locales, so it was
