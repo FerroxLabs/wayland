@@ -137,14 +137,14 @@ Library groups reusable capabilities: Assistants, Desktop Workflows, Standing Te
 
 The estimate assumes one primary implementation lane with heavy AI assistance, continuous review by the product owner, and no long pause waiting for Core. It is effort, not a promise of elapsed time.
 
-| Workstream | Share | Primary output |
-|---|---:|---|
-| Shell, navigation, tokens, reusable layout | 18% | Cockpit shell and responsive navigation |
-| Conversation frame, composer, execution spine | 24% | The core daily-use experience |
-| Core contract adapter and execution view model | 18% | Typed capability/policy/activity/receipt bridge |
-| Contextual workbench and artifact surfaces | 16% | Files, changes, terminal, preview, artifact, activity |
-| Projects, Library, Automations, Activity consolidation | 14% | Coherent non-chat IA using existing services |
-| Migration, accessibility, performance, E2E, release | 10% | Safe preview, telemetry, parity evidence, packaging |
+| Workstream                                             | Share | Primary output                                        |
+| ------------------------------------------------------ | ----: | ----------------------------------------------------- |
+| Shell, navigation, tokens, reusable layout             |   18% | Cockpit shell and responsive navigation               |
+| Conversation frame, composer, execution spine          |   24% | The core daily-use experience                         |
+| Core contract adapter and execution view model         |   18% | Typed capability/policy/activity/receipt bridge       |
+| Contextual workbench and artifact surfaces             |   16% | Files, changes, terminal, preview, artifact, activity |
+| Projects, Library, Automations, Activity consolidation |   14% | Coherent non-chat IA using existing services          |
+| Migration, accessibility, performance, E2E, release    |   10% | Safe preview, telemetry, parity evidence, packaging   |
 
 Desktop/Core effort boundary:
 

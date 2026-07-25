@@ -12,6 +12,7 @@ status: complete-pending-full-packaged-smoke
 clean JSON-RPC stdout. Local only, nothing pushed.
 
 ## Root cause (research overturned the council's theory)
+
 The council/handoff blamed `baileys.js` pino→stdout. Research + independent re-verification proved
 that wrong: the real cause is the **RunAsNode fuse**. Packaged builds disable it (`afterPack.js`,
 SEC-ELEC-05/#706), so `WhatsAppPlugin.forkBridge`'s `child_process.fork` booted a SECOND Electron
@@ -21,6 +22,7 @@ baileys/QR never ran. `forkBridge` was the one spawn site never migrated to the 
 nothing, because baileys never even runs.
 
 ## What shipped (chosen approach)
+
 - **Primary:** `forkBridge` `fork`→`spawn` via `resolveJsRuntime()` (bundled Bun when packaged),
   through a new pure `bridgeSpawnConfig.ts` (`buildBridgeSpawnConfig`) — unit-testable like
   `resolveJsRuntimeWith`. A1 (spawn), not A2 (utilityProcess): the fallback was never needed.
@@ -33,9 +35,10 @@ nothing, because baileys never even runs.
 - **Hardening:** `handleFrame` object-guard so a JSON primitive pollution line can't `TypeError` out
   of the stdout `data` handler.
 - Files: `WhatsAppPlugin.ts`, `bridgeSpawnConfig.ts` (new), `baileys.js`, `bridgeLogger.js` (new)
-  + 11 test files (9 migrated fork→spawn mocks, 2 new Wave-0).
+  - 11 test files (9 migrated fork→spawn mocks, 2 new Wave-0).
 
 ## Verification (Ferrox loop + live harness)
+
 - **Plan:** `ferrox-plan-phase` (researcher → planner → plan-checker; checker caught a blocking
   false-green — acceptance must be a FUSED build, not `bun run package`).
 - **Cross-audit:** `ferrox-code-reviewer` → GO, 0 Critical/High. `D-01-REVIEW.md`.
@@ -50,6 +53,7 @@ nothing, because baileys never even runs.
 - **baileys-under-Bun verdict: works** (QR pairing proven). The plan's A2 fallback is unneeded.
 
 ## Honest residual (what's NOT proven)
+
 - The live smoke ran the bridge standalone under system Bun, not via the packaged `WhatsAppPlugin`
   inside a FUSED `.app` end-to-end. The spawn wiring is unit-locked and the runtime-critical path
   (Bun + baileys + stdout purity) is proven, so residual risk is low. A full fused packaged smoke
@@ -60,6 +64,7 @@ nothing, because baileys never even runs.
   shim (QR pairing is proven; the 2 unimplemented ws events could matter for some WS edge cases).
 
 ## Follow-ups (cross-audit, both PRE-EXISTING — not D1 regressions, tracked separately)
+
 - **WR-01:** the bridge child inherits full `process.env` (`bridgeSpawnConfig.ts`) rather than
   `safeSpawn`'s `buildChildEnv` allowlist. `fork` did the same, so not a regression — but a real
   hardening gap given the child runs third-party npm (baileys). Worth a ticket.

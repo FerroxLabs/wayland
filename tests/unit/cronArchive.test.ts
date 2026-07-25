@@ -61,7 +61,10 @@ describe('cronArchive', () => {
     await preserveRemovedCronSkill(archived.archiveId, job.id, root);
     await expect(fs.lstat(skillDir)).rejects.toMatchObject({ code: 'ENOENT' });
     expect(
-      await fs.readFile(path.join(root, '.archive', 'jobs', archived.archiveId, 'original-skill', 'references', 'notes.txt'), 'utf8')
+      await fs.readFile(
+        path.join(root, '.archive', 'jobs', archived.archiveId, 'original-skill', 'references', 'notes.txt'),
+        'utf8'
+      )
     ).toBe('customer-authored notes\n');
 
     const restored = await restoreCronSkillFromArchive(archived.archiveId, root);

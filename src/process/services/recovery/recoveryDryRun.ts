@@ -141,7 +141,9 @@ function validateExternalReferenceBinding(
   const evidence = authority?.evidence ?? [];
 
   if (uniqueIds.size !== references.length) {
-    blockers.push(block('EXTERNAL_REFERENCE_DUPLICATE', `${authorityId} contains duplicate identifiers.`, { authorityId }));
+    blockers.push(
+      block('EXTERNAL_REFERENCE_DUPLICATE', `${authorityId} contains duplicate identifiers.`, { authorityId })
+    );
   }
   if (references.some((entry, index) => entry !== expected[index])) {
     blockers.push(
@@ -162,9 +164,13 @@ function validateExternalReferenceBinding(
     const observed = evidence[index];
     if (observed.path !== reference.path || observed.state !== reference.state) {
       blockers.push(
-        block('EXTERNAL_REFERENCE_EVIDENCE_MISMATCH', `${authorityId} reference ${reference.id} contradicts evidence.`, {
-          authorityId,
-        })
+        block(
+          'EXTERNAL_REFERENCE_EVIDENCE_MISMATCH',
+          `${authorityId} reference ${reference.id} contradicts evidence.`,
+          {
+            authorityId,
+          }
+        )
       );
     }
   }
@@ -256,7 +262,10 @@ export function evaluateRecoveryDryRun(
       }
       if (root.disposition === 'excluded' && root.restoreConsequence.trim().length === 0) {
         blockers.push(
-          block('CONSTITUTION_EXCLUSION_UNJUSTIFIED', `Excluded Constitution path ${root.relativePath} has no consequence.`)
+          block(
+            'CONSTITUTION_EXCLUSION_UNJUSTIFIED',
+            `Excluded Constitution path ${root.relativePath} has no consequence.`
+          )
         );
       }
     }

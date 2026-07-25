@@ -18,10 +18,7 @@ export type RestoredDatabaseValidation = {
 export type IsolatedRecoveryDependencies = {
   /** Authenticated decryption. It must fail when the envelope or key is invalid. */
   unsealFile: (sourcePath: string, destinationPath: string) => Promise<void>;
-  validateDesktopDatabase: (
-    databasePath: string,
-    expectedSchemaVersion: number
-  ) => Promise<RestoredDatabaseValidation>;
+  validateDesktopDatabase: (databasePath: string, expectedSchemaVersion: number) => Promise<RestoredDatabaseValidation>;
   now?: () => Date;
 };
 

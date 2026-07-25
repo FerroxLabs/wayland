@@ -13,9 +13,7 @@
     "support state",
     "capability row schema"
   ],
-  "cross_refs": [
-    "VOICE-CONVERSATION-MODE.md"
-  ],
+  "cross_refs": ["VOICE-CONVERSATION-MODE.md"],
   "locked": false,
   "precedence": 4,
   "notes": ""

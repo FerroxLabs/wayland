@@ -158,7 +158,9 @@ describe('Classic v0.11.18 baseline fails closed on hostile mismatch', () => {
   it('rejects a provider fixture bound to a different release', () => {
     const mutatedFixture = clone(providerFixtureJson);
     mutatedFixture.boundRelease.version = '0.11.8';
-    expect(() => parseClassicProviderFixture(mutatedFixture, CLASSIC_JOURNEY_BASELINE)).toThrow(/bound to the v0.11.18/);
+    expect(() => parseClassicProviderFixture(mutatedFixture, CLASSIC_JOURNEY_BASELINE)).toThrow(
+      /bound to the v0.11.18/
+    );
   });
 
   it('rejects a non-deterministic provider fixture request', () => {
@@ -179,9 +181,7 @@ describe('a baseline mismatch cannot be normalized into success', () => {
   });
 
   it('rejects a downgraded outcome instead of coercing it', () => {
-    const downgraded = greenInventory.map((outcome, index) =>
-      index === 0 ? { ...outcome, status: 'red' } : outcome
-    );
+    const downgraded = greenInventory.map((outcome, index) => (index === 0 ? { ...outcome, status: 'red' } : outcome));
     expect(() => assertOutcomesMatchBaseline(downgraded)).toThrow(/not the required green/);
   });
 

@@ -64,7 +64,7 @@ that the packaged fix depends on. The packaged repro is Task 6.
   - argv is `[entry, '--backend', backend]`;
   - stdio matches the chosen transport from Task 2 (recommended: `['pipe','pipe','inherit']`, no
     `'ipc'` slot — see Task 3), and the `WAYLAND_BRIDGE_UNDER_PARENT` env flag is set.
-  Verify: `bun run test:vitest bridgeSpawnConfig` — RED before Task 2 (helper does not exist).
+    Verify: `bun run test:vitest bridgeSpawnConfig` — RED before Task 2 (helper does not exist).
 - `WhatsAppPlugin.consumeStdout.test.ts` — **parse tolerance.** Drive `consumeStdout`/`handleFrame`
   (`WhatsAppPlugin.ts:769-795`) with interleaved pollution — `[Wayland:init] …`, a pino NDJSON
   line `{"level":30,"msg":"x"}`, plain text, and a valid line split across two chunks — plus one
@@ -75,7 +75,7 @@ that the packaged fix depends on. The packaged repro is Task 6.
   observable effects (a pending RPC resolves for the valid frame; the child never `exit`s). Do NOT
   widen method visibility in production code and do NOT cast to `any` to reach privates — if a seam is
   needed, inject the fake child, don't refactor the class surface. Verify: `bun run test:vitest
-  consumeStdout` — GREEN already on today's tolerant `handleFrame`; this test PINS that invariant so
+consumeStdout` — GREEN already on today's tolerant `handleFrame`; this test PINS that invariant so
   the fix cannot regress it.
 - `bridgeLogger.test.ts` — **pino destination.** Assert the extracted `createBridgeLogger()`
   (Task 3) builds its logger against **fd2**, i.e. nothing baileys logs can reach fd1 (the RPC
@@ -85,7 +85,7 @@ that the packaged fix depends on. The packaged repro is Task 6.
   `bridgeLogger.js` extraction and make the change one line in place at `baileys.js:121`
   (`pino({level:'warn'}, pino.destination(2))`) — the new file/test only earns its keep as an
   automated fd2 lock; without a clean assertion it is over-build. Verify: `bun run test:vitest
-  bridgeLogger` — RED until Task 3 extracts the helper and points it at `pino.destination(2)`.
+bridgeLogger` — RED until Task 3 extracts the helper and points it at `pino.destination(2)`.
 - `tests/integration/whatsappBridgeStdoutPurity.test.ts` — **stdout-purity (integration).** Spawn
   the REAL `bridge.js` with `--backend baileys` through the new spawn path, capture stdout, assert
   every non-empty stdout line `JSON.parse`s to a `{jsonrpc:'2.0', …}` frame. Verify:
@@ -97,6 +97,7 @@ tolerance/purity tests are GREEN or RED-then-GREEN as noted.
 Done: tests committed as `test(D-01): ...` before any production edit.
 
 **Task 2 — Primary fix (NECESSARY): migrate `forkBridge` fork → spawn via `resolveJsRuntime()`.**
+
 - Extract a pure helper `bridgeSpawnConfig.ts` exporting
   `buildBridgeSpawnConfig({ isPackaged, runtime, entry, backend })` returning
   `{ command, argv, stdio, env }` — mirror the pure/injectable shape of `resolveJsRuntimeWith`
@@ -117,10 +118,10 @@ Done: tests committed as `test(D-01): ...` before any production edit.
 - Do NOT touch `afterPack.js` / the fuses. `RunAsNode:false` is a security control (SEC-ELEC-05);
   the correct fix is to stop depending on run-as-Node, exactly as #706 did. Do NOT re-introduce
   `ELECTRON_RUN_AS_NODE` in the packaged env.
-Verify: `bun run test:vitest bridgeSpawnConfig` goes GREEN; `bun run test:vitest` full suite green;
-`bun run test:e2e:a11y` green.
-Done: forkBridge no longer references `child_process.fork`; packaged spawn command is the bundled
-runtime, never `process.execPath`.
+  Verify: `bun run test:vitest bridgeSpawnConfig` goes GREEN; `bun run test:vitest` full suite green;
+  `bun run test:e2e:a11y` green.
+  Done: forkBridge no longer references `child_process.fork`; packaged spawn command is the bundled
+  runtime, never `process.execPath`.
 
 **Task 3 — Companion fixes (NECESSARY): IPC/`process.send` resolution + pino→stderr + QR gate.**
 This is the highest-risk detail. Raw `spawn` does not wire an IPC channel the way `fork` does, so

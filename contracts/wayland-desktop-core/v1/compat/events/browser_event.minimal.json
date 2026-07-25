@@ -1,1 +1,7 @@
-{"call_id":"call-browser-minimal","msg_id":"msg-minimal","op":"snapshot","summary":"captured","type":"browser_event"}
+{
+  "call_id": "call-browser-minimal",
+  "msg_id": "msg-minimal",
+  "op": "snapshot",
+  "summary": "captured",
+  "type": "browser_event"
+}

@@ -85,9 +85,7 @@ describe('ProjectReferencePanel recoverable reference archive', () => {
     mockListArchivedReference
       .mockResolvedValueOnce([{ id: 'archive-2', name: 'research.docx', size: 4096, archivedAt: 2 }])
       .mockResolvedValueOnce([]);
-    mockRestoreReference.mockResolvedValue([
-      { name: 'research.docx', path: '/workspace/research.docx', size: 4096 },
-    ]);
+    mockRestoreReference.mockResolvedValue([{ name: 'research.docx', path: '/workspace/research.docx', size: 4096 }]);
 
     render(<ProjectReferencePanel projectId='project-2' hasWorkspace onSetWorkspace={vi.fn()} />);
 

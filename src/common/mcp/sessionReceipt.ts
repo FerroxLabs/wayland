@@ -130,10 +130,7 @@ function bindReceipt(
   };
 }
 
-function findExactExpectedServer(
-  state: McpSessionState,
-  runtimeName: string
-): McpSessionExpectedServer | undefined {
+function findExactExpectedServer(state: McpSessionState, runtimeName: string): McpSessionExpectedServer | undefined {
   const matches = state.expectedServers.filter((server) => server.runtimeName === runtimeName);
   return matches.length === 1 ? matches[0] : undefined;
 }
@@ -398,17 +395,13 @@ export function getMcpSessionReceiptForServer(
   const receipt = state.receipts[expected.definitionDigest];
   if (!receipt) return undefined;
   const validSourceForStatus =
-    ((receipt.status === 'configured' || receipt.status === 'published_unverified') &&
-      receipt.source === 'desktop') ||
+    ((receipt.status === 'configured' || receipt.status === 'published_unverified') && receipt.source === 'desktop') ||
     ((receipt.status === 'registered' || receipt.status === 'degraded') && receipt.source === state.backend) ||
-    (receipt.status === 'failed' &&
-      (receipt.source === 'desktop' || receipt.source === state.backend));
+    (receipt.status === 'failed' && (receipt.source === 'desktop' || receipt.source === state.backend));
   const receiptTools = receipt.tools as unknown[];
   const toolsAreCanonical =
     Array.isArray(receiptTools) &&
-    receiptTools.every(
-      (tool): tool is string => typeof tool === 'string' && tool.length > 0 && tool === tool.trim()
-    ) &&
+    receiptTools.every((tool): tool is string => typeof tool === 'string' && tool.length > 0 && tool === tool.trim()) &&
     new Set(receiptTools).size === receiptTools.length;
   const validToolsForStatus =
     toolsAreCanonical && (receipt.status === 'registered' ? receiptTools.length > 0 : receiptTools.length === 0);

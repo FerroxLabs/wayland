@@ -3,11 +3,7 @@
  * Contains name/avatar fields, agent selector, rules editor, and skills section.
  */
 import { Bot, Plus, Trash2, X } from 'lucide-react';
-import type {
-  AvailableBackend,
-  UseAssistantEditorReturn,
-  UseAssistantListReturn,
-} from '@/renderer/hooks/assistant';
+import type { AvailableBackend, UseAssistantEditorReturn, UseAssistantListReturn } from '@/renderer/hooks/assistant';
 import { hasBuiltinSkills } from './assistantUtils';
 import EmojiPicker from '@/renderer/components/chat/EmojiPicker';
 import { renderLucideAvatar } from '@/renderer/utils/lucideAvatar';
@@ -204,11 +200,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
             </Button>
           </div>
           {!isCreating && !activeAssistant?.isBuiltin && !isExtensionAssistant(activeAssistant) && (
-            <Button
-              onClick={handleDeleteClick}
-              data-testid='btn-delete-assistant'
-              className='rounded-[100px]'
-            >
+            <Button onClick={handleDeleteClick} data-testid='btn-delete-assistant' className='rounded-[100px]'>
               {t('settings.archiveAssistant', { defaultValue: 'Archive' })}
             </Button>
           )}
@@ -228,15 +220,15 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
                 <Avatar shape='square' size={40} className='bg-bg-1 rounded-4px'>
                   {editAvatarImage ? (
                     <img
-                        src={editAvatarImage}
-                        alt=''
-                        width={24}
-                        height={24}
-                        style={{ objectFit: 'contain', filter: 'var(--avatar-img-filter, none)' }}
-                      />
+                      src={editAvatarImage}
+                      alt=''
+                      width={24}
+                      height={24}
+                      style={{ objectFit: 'contain', filter: 'var(--avatar-img-filter, none)' }}
+                    />
                   ) : (
                     (renderLucideAvatar(editAvatar, 22, 'text-current') ??
-                      (editAvatar ? <span className='text-24px'>{editAvatar}</span> : <Bot size={20} />))
+                    (editAvatar ? <span className='text-24px'>{editAvatar}</span> : <Bot size={20} />))
                   )}
                 </Avatar>
               ) : (
@@ -245,15 +237,15 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
                     <Avatar shape='square' size={40} className='bg-bg-1 rounded-4px hover:bg-fill-2 transition-colors'>
                       {editAvatarImage ? (
                         <img
-                        src={editAvatarImage}
-                        alt=''
-                        width={24}
-                        height={24}
-                        style={{ objectFit: 'contain', filter: 'var(--avatar-img-filter, none)' }}
-                      />
+                          src={editAvatarImage}
+                          alt=''
+                          width={24}
+                          height={24}
+                          style={{ objectFit: 'contain', filter: 'var(--avatar-img-filter, none)' }}
+                        />
                       ) : (
                         (renderLucideAvatar(editAvatar, 22, 'text-current') ??
-                          (editAvatar ? <span className='text-24px'>{editAvatar}</span> : <Bot size={20} />))
+                        (editAvatar ? <span className='text-24px'>{editAvatar}</span> : <Bot size={20} />))
                       )}
                     </Avatar>
                   </div>

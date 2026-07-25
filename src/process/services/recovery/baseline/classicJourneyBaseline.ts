@@ -166,7 +166,9 @@ function canonicalize(value: unknown): unknown {
 
 /** Hash of the stable canonical serialization. */
 export function classicBaselineDigest(value: unknown): string {
-  return createHash('sha256').update(JSON.stringify(canonicalize(value))).digest('hex');
+  return createHash('sha256')
+    .update(JSON.stringify(canonicalize(value)))
+    .digest('hex');
 }
 
 function asRecord(value: unknown, label: string): Record<string, unknown> {
@@ -388,7 +390,8 @@ function parseJourneys(value: unknown): readonly ClassicJourney[] {
     const id = record.id;
     if (!JOURNEY_IDS.includes(id as ClassicJourneyId)) throw new Error(`${itemLabel}.id is not a declared journey.`);
     if (record.expectedOutcome !== 'green') throw new Error(`${itemLabel}.expectedOutcome must be green.`);
-    if (typeof record.usesProviderFixture !== 'boolean') throw new Error(`${itemLabel}.usesProviderFixture is invalid.`);
+    if (typeof record.usesProviderFixture !== 'boolean')
+      throw new Error(`${itemLabel}.usesProviderFixture is invalid.`);
     return {
       id: id as ClassicJourneyId,
       title: requireText(record.title, `${itemLabel}.title`),
@@ -594,7 +597,11 @@ export function parseClassicProviderFixture(value: unknown, baseline: ClassicJou
   if (response.role !== 'assistant') throw new Error('Classic provider fixture response is not an assistant turn.');
   requireText(response.finishReason, 'fixture.response.finishReason');
   requireText(response.content, 'fixture.response.content');
-  const usage = exactRecord(response.usage, ['promptTokens', 'completionTokens', 'totalTokens'], 'fixture.response.usage');
+  const usage = exactRecord(
+    response.usage,
+    ['promptTokens', 'completionTokens', 'totalTokens'],
+    'fixture.response.usage'
+  );
   for (const field of ['promptTokens', 'completionTokens', 'totalTokens'] as const) {
     if (!Number.isSafeInteger(usage[field]) || (usage[field] as number) < 0) {
       throw new Error(`fixture.response.usage.${field} is invalid.`);

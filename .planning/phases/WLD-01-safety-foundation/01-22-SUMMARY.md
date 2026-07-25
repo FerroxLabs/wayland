@@ -19,11 +19,11 @@ backends are mechanically excluded from cohort eligibility.
 
 ## Authorities (owner / session handle / epoch / disposition)
 
-| Adapter | Producer owner | Session/handle identity | Mutation epoch source | Resumability | Failure behavior | Cohort |
-| --- | --- | --- | --- | --- | --- | --- |
-| `acp.session` | acp-backend | `conversations.extra.acpSessionId` + pinned `acpWrapperVersion` (`<backend>@<version>`) | `backend-session-updated-at` (bound) | backend-session-replay (proven) | fail-closed | ELIGIBLE |
-| `core.session` | wayland-core | `--resume <conversationId>`, producer-owned transcript | `producer-quiescence-lease` (unbound) | producer-quiesced (unproven) | fail-closed | EXCLUDED — deferred |
-| `gemini.session` | gemini-cli | none (only `sessionMode`/model persisted; process liveness is not resumability) | none | non-resumable | degraded-read-only | EXCLUDED |
+| Adapter          | Producer owner | Session/handle identity                                                                 | Mutation epoch source                 | Resumability                    | Failure behavior   | Cohort              |
+| ---------------- | -------------- | --------------------------------------------------------------------------------------- | ------------------------------------- | ------------------------------- | ------------------ | ------------------- |
+| `acp.session`    | acp-backend    | `conversations.extra.acpSessionId` + pinned `acpWrapperVersion` (`<backend>@<version>`) | `backend-session-updated-at` (bound)  | backend-session-replay (proven) | fail-closed        | ELIGIBLE            |
+| `core.session`   | wayland-core   | `--resume <conversationId>`, producer-owned transcript                                  | `producer-quiescence-lease` (unbound) | producer-quiesced (unproven)    | fail-closed        | EXCLUDED — deferred |
+| `gemini.session` | gemini-cli     | none (only `sessionMode`/model persisted; process liveness is not resumability)         | none                                  | non-resumable                   | degraded-read-only | EXCLUDED            |
 
 Separately inventoried Desktop storage authorities (never backend adapters,
 `substitutesBackendAdapter: false`): `desktop.sqlite` (wayland.db) and

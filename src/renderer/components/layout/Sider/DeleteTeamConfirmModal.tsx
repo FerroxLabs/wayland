@@ -23,13 +23,7 @@ type Props = {
   loading?: boolean;
 };
 
-const DeleteTeamConfirmModal: React.FC<Props> = ({
-  visible,
-  teamName,
-  onConfirm,
-  onCancel,
-  loading = false,
-}) => {
+const DeleteTeamConfirmModal: React.FC<Props> = ({ visible, teamName, onConfirm, onCancel, loading = false }) => {
   const { t } = useTranslation();
   const [typed, setTyped] = useState('');
 
@@ -70,10 +64,7 @@ const DeleteTeamConfirmModal: React.FC<Props> = ({
         </div>
       }
     >
-      <div
-        className='flex flex-col gap-12px p-24px'
-        data-testid='delete-team-confirm-modal'
-      >
+      <div className='flex flex-col gap-12px p-24px' data-testid='delete-team-confirm-modal'>
         <p className='text-12px text-t-secondary m-0'>
           {t('team.sider.deleteConfirmBody', {
             teamName,

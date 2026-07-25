@@ -189,8 +189,7 @@ const ConnectorsFlyout: React.FC<Props> = ({
                 expectedInSession={
                   sessionState?.expectedServers.some(
                     (expected) =>
-                      expected.serverId === server.id &&
-                      expected.canonicalName === mcpServerCollisionKey(server.name)
+                      expected.serverId === server.id && expected.canonicalName === mcpServerCollisionKey(server.name)
                   ) === true
                 }
                 globalToggleLocked={!scoping && (server as { _source?: string })._source === 'extension'}

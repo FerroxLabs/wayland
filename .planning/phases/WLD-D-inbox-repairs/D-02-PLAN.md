@@ -37,6 +37,7 @@ Output: a live send receipt + the #537 close (or a captured error and a STOP for
 <tasks>
 
 **Task 1 — Static re-confirm (both halves present in THIS tree).**
+
 - Core emit path: `resources/bundled-wayland-core/darwin-arm64/wayland-core --version` → expect
   `wayland-core 0.12.25`; `strings` on the binary contains `host_send_message_request`,
   `WAYLAND_SEND_MESSAGE_HOST_DELEGATE`, `ProtocolCommand::HostSendMessageResult`, and the
@@ -44,11 +45,12 @@ Output: a live send receipt + the #537 close (or a captured error and a STOP for
 - Desktop hook armed: `envBuilder.ts:1040` sets `WAYLAND_SEND_MESSAGE_HOST_DELEGATE='1'`;
   `hostSendMessage.ts` exports `handleHostSendMessageRequest`; `index.ts` handles the
   `host_send_message_request` event.
-Verify: both greps + `--version` succeed. If EITHER half is absent → skip to Task 3's Core-side
-branch (route to Core, mark blocked-on-Core, do NOT close, do NOT ship a desktop change).
-Done: static evidence confirms the delegated send path exists on both sides.
+  Verify: both greps + `--version` succeed. If EITHER half is absent → skip to Task 3's Core-side
+  branch (route to Core, mark blocked-on-Core, do NOT close, do NOT ship a desktop change).
+  Done: static evidence confirms the delegated send path exists on both sides.
 
 **Task 2 — Live host-delegated agent email send (the authoritative step).**
+
 - Use the burner Flux key at `~/.config/wayland-smoke/flux-test-key`. **Never commit it, never log
   its contents, never paste it into a comment or SUMMARY.** Reference it by path only.
 - Spawn an agent host-delegated (desktop already sets `WAYLAND_SEND_MESSAGE_HOST_DELEGATE=1` via
@@ -63,12 +65,13 @@ Done: static evidence confirms the delegated send path exists on both sides.
   channel send can also "succeed" — so a bare "email sent" is NOT sufficient. Verify the DELEGATED
   path specifically (signal a and/or b present); if the email sends but neither delegated signal
   appears, treat it as NOT verified (→ Task 3 STOP-for-Sean), not a pass.
-Verify: the agent email send completes host-delegated end-to-end; capture the log line + a one-line
-receipt (no secret material).
-Done: one real delegated email send observed succeeding, or a captured exact error (→ Task 3
-Core-side branch).
+  Verify: the agent email send completes host-delegated end-to-end; capture the log line + a one-line
+  receipt (no secret material).
+  Done: one real delegated email send observed succeeding, or a captured exact error (→ Task 3
+  Core-side branch).
 
 **Task 3 — Decision tree + close (or STOP).**
+
 - **If the live send SUCCEEDED (expected):** draft a closing comment via the `sean-writer` skill —
   FerroxLabs voice, zero em dashes, no backticks in the body, signed "All the best, The Wayland
   Team". The comment states the host-delegated send path is present and verified working end-to-end;
@@ -79,9 +82,9 @@ Core-side branch).
   is absent):** capture the exact error text and **STOP for Sean.** Do NOT close, do NOT ship any
   desktop change. Route to `wayland-core`, mark #537 blocked-on-Core. This would be Core-side, and
   shipping a desktop change would be wrong.
-Verify: #537 closed with the FerroxLabs closing comment AND a live receipt — OR an open STOP with
-the captured error surfaced to Sean.
-Done: #537 resolved correctly per which branch fired.
+  Verify: #537 closed with the FerroxLabs closing comment AND a live receipt — OR an open STOP with
+  the captured error surfaced to Sean.
+  Done: #537 resolved correctly per which branch fired.
 
 </tasks>
 

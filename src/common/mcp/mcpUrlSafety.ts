@@ -73,7 +73,11 @@ export function classifyMcpHttpUrl(raw: string): McpUrlSafetyResult {
 
   const hostname = url.hostname.toLowerCase();
   if (BLOCKED_METADATA_HOSTNAMES.has(hostname)) {
-    return { safe: false, reason: 'metadata-hostname', detail: `host "${url.hostname}" is a blocked metadata endpoint` };
+    return {
+      safe: false,
+      reason: 'metadata-hostname',
+      detail: `host "${url.hostname}" is a blocked metadata endpoint`,
+    };
   }
   if (isBlockedIpv4(hostname)) {
     return {
@@ -113,4 +117,3 @@ export function classifyMcpHttpUrl(raw: string): McpUrlSafetyResult {
 
   return { safe: true, url };
 }
-

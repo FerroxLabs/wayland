@@ -114,78 +114,78 @@ These requirements are preserved but deferred to a later milestone. They are not
 
 ## Out of Scope
 
-| Feature | Reason |
-|---------|--------|
-| Separate Cowork, coding, workflow, Voice, or Cloud mode before a user states an outcome | These are contextual projections over one chat-centered work kernel, not competing products or stores. |
-| Second canonical store for conversations, Projects, tasks, workflows, Teams, schedules, memory, capabilities, connectors, or settings | Classic and Cockpit must share canonical state and authority. |
-| Forced migration of all agents through Core | Desktop remains provider-neutral; Core is first-party, not mandatory for every journey. |
-| Classic retirement in this milestone | Defaulting Cockpit and retiring Classic require separate post-preview evidence decisions. |
-| Hosted Pro tenancy or broad Community Cloud parity | These remain v2 requirements with separate commercial and release gates. |
-| Public marketplace, creator monetization, and broad distribution loops | These remain v2 distribution/advocacy scope. |
-| Managed-workspace quarantine or deletion | Phase 1 is preservation/inventory only; mutation waits for a complete trusted output/receipt ledger and a separately accepted v2 lifecycle. |
-| Main merge, release, deploy, cohort expansion, or issue closure without Sean | External promotion authority is explicitly retained by Sean. |
+| Feature                                                                                                                               | Reason                                                                                                                                      |
+| ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Separate Cowork, coding, workflow, Voice, or Cloud mode before a user states an outcome                                               | These are contextual projections over one chat-centered work kernel, not competing products or stores.                                      |
+| Second canonical store for conversations, Projects, tasks, workflows, Teams, schedules, memory, capabilities, connectors, or settings | Classic and Cockpit must share canonical state and authority.                                                                               |
+| Forced migration of all agents through Core                                                                                           | Desktop remains provider-neutral; Core is first-party, not mandatory for every journey.                                                     |
+| Classic retirement in this milestone                                                                                                  | Defaulting Cockpit and retiring Classic require separate post-preview evidence decisions.                                                   |
+| Hosted Pro tenancy or broad Community Cloud parity                                                                                    | These remain v2 requirements with separate commercial and release gates.                                                                    |
+| Public marketplace, creator monetization, and broad distribution loops                                                                | These remain v2 distribution/advocacy scope.                                                                                                |
+| Managed-workspace quarantine or deletion                                                                                              | Phase 1 is preservation/inventory only; mutation waits for a complete trusted output/receipt ledger and a separately accepted v2 lifecycle. |
+| Main merge, release, deploy, cohort expansion, or issue closure without Sean                                                          | External promotion authority is explicitly retained by Sean.                                                                                |
 
 ## Traceability
 
 Every v1 requirement maps to exactly one implementation phase. A later proof-closure phase may replay or aggregate the implementation evidence without changing ownership.
 
-| Requirement | Phase | Packet | Implementation phase | Proof closure | Status | Provenance |
-|-------------|-------|--------|---------------------:|--------------:|--------|------------|
-| SAF-01 | Phase 1 — Safety Foundation | M0A | 1 | 5 | In Progress | Master plan sections 6 and 7 |
-| SAF-02 | Phase 1 — Safety Foundation | M0B | 1 | 1; consumed by 6 | In Progress | Master plan M0B |
-| SAF-03 | Phase 1 — Safety Foundation | M0A/M1S | 1 | 5 | In Progress | REQ-trust-authority-vocabulary |
-| SAF-04 | Phase 1 — Safety Foundation | M0A | 1 | 5 | In Progress | REQ-managed-workspace-retention |
-| SAF-05 | Phase 1 — Safety Foundation | M0A | 1 | 5 | In Progress | Master plan sections 9 and 13 |
-| CORE-01 | Phase 1 — Safety Foundation | M1 | 1 | 5 | In Progress | Master plan M1 |
-| CORE-02 | Phase 1 — Safety Foundation | M1 | 1 | 5 | In Progress | Master plan M1; Core matrix |
-| FLUX-01 | Phase 1 — Safety Foundation | M1F | 1 | 5 | In Progress | Master plan M1F |
-| MCP-01 | Phase 1 — Safety Foundation | M1M | 1 | 5 | In Progress | Master plan M1M/MCP-0 |
-| SBX-01 | Phase 1 — Safety Foundation | M1S/SBX-0 | 1 | 5 | In Progress | REQ-truthful-core-settings |
-| COW-01 | Phase 1 — Safety Foundation | C0-A | 1 | 5 | In Progress | REQ-cowork-capability-readiness; C0-A |
-| KRN-01 | Phase 2 — Migration Skeleton | M2 | 2 | 5 | Pending | REQ-derived-execution-view |
-| AUTH-01 | Phase 2 — Migration Skeleton | M2 | 2 | 5 | Pending | REQ-trust-authority-vocabulary; master section 5 |
-| HND-01 | Phase 2 — Migration Skeleton | M2 | 2 | 5 | Pending | REQ-derived-execution-view |
-| CMP-01 | Phase 2 — Migration Skeleton | M2 | 2 | 5 | Pending | INV-15 and J13 |
-| SHL-01 | Phase 2 — Migration Skeleton | M3 | 2 | 5 | Pending | Master plan M3 |
-| COW-02 | Phase 2 — Migration Skeleton | C0-B | 2 | 5 | Pending | REQ-cowork-capability-readiness; C0-B |
-| NAV-01 | Phase 3 — Daily Cockpit | M4 | 3 | 5 | Pending | REQ-canonical-information-architecture |
-| HOME-01 | Phase 3 — Daily Cockpit | M4 | 3 | 5 | Pending | REQ-outcome-first-home; REQ-activation-under-ten-minutes |
-| PRJ-01 | Phase 3 — Daily Cockpit | M4 | 3 | 5 | Pending | INV-03 |
-| RUN-01 | Phase 3 — Daily Cockpit | M5 | 3 | 5 | Pending | REQ-derived-execution-view |
-| MCP-02 | Phase 3 — Daily Cockpit | M1M/MCP-1-2 | 3 | 5 | Pending | Open connector slice; MCP deep dive |
-| SBX-02 | Phase 3 — Daily Cockpit | M1S/SBX-1 | 3 | 5 | Pending | REQ-bounded-developer-grants |
-| EXT-01 | Phase 3 — Daily Cockpit | M5 | 3 | 5 | Pending | INV-02 and SC-05 |
-| IMG-01 | Phase 3 — Daily Cockpit | M2/M5/IMG | 3 | 5 | Pending | User-reported image failure; COWORK-DEEP-DIVE capability honesty |
-| WBK-01 | Phase 4 — Power and Outcomes | M6 | 4 | 5 | Pending | REQ-provider-neutral-cowork; M6 |
-| OUT-01 | Phase 4 — Power and Outcomes | M6 | 4 | 5 | Pending | First slice of REQ-portable-artifact-lifecycle |
-| POW-01 | Phase 4 — Power and Outcomes | M7 | 4 | 5 | Pending | Master plan M7 |
-| COW-03 | Phase 4 — Power and Outcomes | C1 | 4 | 5 | Pending | REQ-provider-neutral-cowork |
-| COW-04 | Phase 4 — Power and Outcomes | C1 | 4 | 5 | Pending | First slice of REQ-cowork-source-ledger |
-| COW-05 | Phase 4 — Power and Outcomes | C1 | 4 | 5 | Pending | First slice of REQ-cowork-artifact-acceptance |
-| COW-06 | Phase 4 — Power and Outcomes | C1 | 4 | 5 | Pending | First slice of REQ-cowork-end-to-end-journey |
-| MCP-03 | Phase 4 — Power and Outcomes | M1M/MCP-3 | 4 | 5 | Pending | MCP deep dive |
-| VOC-01 | Phase 4 — Power and Outcomes | M5V-A | 4 | 5 | Pending | REQ-canonical-voice-presentation |
-| VOC-02 | Phase 4 — Power and Outcomes | M5V-A | 4 | 5 | Pending | REQ-honest-voice-state |
-| VOC-03 | Phase 4 — Power and Outcomes | M5V-A | 4 | 5 | Pending | REQ-voice-authority-privacy-cost |
-| VOC-04 | Phase 4 — Power and Outcomes | M5V-A | 4 | 5 | Pending | REQ-provider-neutral-voice |
-| PKG-01 | Phase 5 — Release Hardening | M8 | 5 | 5 | Pending | Master plan M8 |
-| REC-01 | Phase 5 — Release Hardening | M8 | 5 | 5 | Pending | SC-20 |
-| UPD-01 | Phase 5 — Release Hardening | M8 | 5 | 5 | Pending | REQ-support-and-updater-proof |
-| MCP-04 | Phase 5 — Release Hardening | M1M/MCP-4 | 5 | 5 | Pending | MCP deep dive |
-| SBX-03 | Phase 5 — Release Hardening | M1S/SBX-2 | 5 | 5 | Pending | REQ-bounded-developer-grants |
-| VOC-05 | Phase 5 — Release Hardening | M5V-B/M8 | 5 | 5 | Pending | REQ-voice-release-gates |
-| QA-01 | Phase 5 — Release Hardening | M8 | 5 | 5 | Pending | SC-16 |
-| QA-02 | Phase 5 — Release Hardening | M8 | 5 | 5 | Pending | SC-17 |
-| SEC-01 | Phase 5 — Release Hardening | M8 | 5 | 5 | Pending | SC-21 |
-| ROL-01 | Phase 6 — Preview | M9 | 6 | 6 | Pending | Preview slice of REQ-adoption-evidence |
-| ROL-02 | Phase 6 — Preview | M9 | 6 | 6 | Pending | Master plan M9 |
-| ROL-03 | Phase 6 — Preview | M9 | 6 | 6 | Pending | Master plan M9 |
-| XFER-01 | Phase 7 — Secure Portability | P1 | 7 | 7 | Pending | REQ-transfer-cryptographic-boundary |
-| XFER-02 | Phase 7 — Secure Portability | P1 | 7 | 7 | Pending | REQ-transfer-export-authority |
-| XFER-03 | Phase 7 — Secure Portability | P1 | 7 | 7 | Pending | REQ-transfer-import-authority |
-| XFER-04 | Phase 7 — Secure Portability | P1 | 7 | 7 | Pending | REQ-application-consistent-export |
-| XFER-05 | Phase 7 — Secure Portability | P1 | 7 | 7 | Pending | REQ-transactional-import |
-| XFER-06 | Phase 7 — Secure Portability | P1 | 7 | 7 | Pending | REQ-transfer-proof-matrix |
+| Requirement | Phase                        | Packet      | Implementation phase |    Proof closure | Status      | Provenance                                                       |
+| ----------- | ---------------------------- | ----------- | -------------------: | ---------------: | ----------- | ---------------------------------------------------------------- |
+| SAF-01      | Phase 1 — Safety Foundation  | M0A         |                    1 |                5 | In Progress | Master plan sections 6 and 7                                     |
+| SAF-02      | Phase 1 — Safety Foundation  | M0B         |                    1 | 1; consumed by 6 | In Progress | Master plan M0B                                                  |
+| SAF-03      | Phase 1 — Safety Foundation  | M0A/M1S     |                    1 |                5 | In Progress | REQ-trust-authority-vocabulary                                   |
+| SAF-04      | Phase 1 — Safety Foundation  | M0A         |                    1 |                5 | In Progress | REQ-managed-workspace-retention                                  |
+| SAF-05      | Phase 1 — Safety Foundation  | M0A         |                    1 |                5 | In Progress | Master plan sections 9 and 13                                    |
+| CORE-01     | Phase 1 — Safety Foundation  | M1          |                    1 |                5 | In Progress | Master plan M1                                                   |
+| CORE-02     | Phase 1 — Safety Foundation  | M1          |                    1 |                5 | In Progress | Master plan M1; Core matrix                                      |
+| FLUX-01     | Phase 1 — Safety Foundation  | M1F         |                    1 |                5 | In Progress | Master plan M1F                                                  |
+| MCP-01      | Phase 1 — Safety Foundation  | M1M         |                    1 |                5 | In Progress | Master plan M1M/MCP-0                                            |
+| SBX-01      | Phase 1 — Safety Foundation  | M1S/SBX-0   |                    1 |                5 | In Progress | REQ-truthful-core-settings                                       |
+| COW-01      | Phase 1 — Safety Foundation  | C0-A        |                    1 |                5 | In Progress | REQ-cowork-capability-readiness; C0-A                            |
+| KRN-01      | Phase 2 — Migration Skeleton | M2          |                    2 |                5 | Pending     | REQ-derived-execution-view                                       |
+| AUTH-01     | Phase 2 — Migration Skeleton | M2          |                    2 |                5 | Pending     | REQ-trust-authority-vocabulary; master section 5                 |
+| HND-01      | Phase 2 — Migration Skeleton | M2          |                    2 |                5 | Pending     | REQ-derived-execution-view                                       |
+| CMP-01      | Phase 2 — Migration Skeleton | M2          |                    2 |                5 | Pending     | INV-15 and J13                                                   |
+| SHL-01      | Phase 2 — Migration Skeleton | M3          |                    2 |                5 | Pending     | Master plan M3                                                   |
+| COW-02      | Phase 2 — Migration Skeleton | C0-B        |                    2 |                5 | Pending     | REQ-cowork-capability-readiness; C0-B                            |
+| NAV-01      | Phase 3 — Daily Cockpit      | M4          |                    3 |                5 | Pending     | REQ-canonical-information-architecture                           |
+| HOME-01     | Phase 3 — Daily Cockpit      | M4          |                    3 |                5 | Pending     | REQ-outcome-first-home; REQ-activation-under-ten-minutes         |
+| PRJ-01      | Phase 3 — Daily Cockpit      | M4          |                    3 |                5 | Pending     | INV-03                                                           |
+| RUN-01      | Phase 3 — Daily Cockpit      | M5          |                    3 |                5 | Pending     | REQ-derived-execution-view                                       |
+| MCP-02      | Phase 3 — Daily Cockpit      | M1M/MCP-1-2 |                    3 |                5 | Pending     | Open connector slice; MCP deep dive                              |
+| SBX-02      | Phase 3 — Daily Cockpit      | M1S/SBX-1   |                    3 |                5 | Pending     | REQ-bounded-developer-grants                                     |
+| EXT-01      | Phase 3 — Daily Cockpit      | M5          |                    3 |                5 | Pending     | INV-02 and SC-05                                                 |
+| IMG-01      | Phase 3 — Daily Cockpit      | M2/M5/IMG   |                    3 |                5 | Pending     | User-reported image failure; COWORK-DEEP-DIVE capability honesty |
+| WBK-01      | Phase 4 — Power and Outcomes | M6          |                    4 |                5 | Pending     | REQ-provider-neutral-cowork; M6                                  |
+| OUT-01      | Phase 4 — Power and Outcomes | M6          |                    4 |                5 | Pending     | First slice of REQ-portable-artifact-lifecycle                   |
+| POW-01      | Phase 4 — Power and Outcomes | M7          |                    4 |                5 | Pending     | Master plan M7                                                   |
+| COW-03      | Phase 4 — Power and Outcomes | C1          |                    4 |                5 | Pending     | REQ-provider-neutral-cowork                                      |
+| COW-04      | Phase 4 — Power and Outcomes | C1          |                    4 |                5 | Pending     | First slice of REQ-cowork-source-ledger                          |
+| COW-05      | Phase 4 — Power and Outcomes | C1          |                    4 |                5 | Pending     | First slice of REQ-cowork-artifact-acceptance                    |
+| COW-06      | Phase 4 — Power and Outcomes | C1          |                    4 |                5 | Pending     | First slice of REQ-cowork-end-to-end-journey                     |
+| MCP-03      | Phase 4 — Power and Outcomes | M1M/MCP-3   |                    4 |                5 | Pending     | MCP deep dive                                                    |
+| VOC-01      | Phase 4 — Power and Outcomes | M5V-A       |                    4 |                5 | Pending     | REQ-canonical-voice-presentation                                 |
+| VOC-02      | Phase 4 — Power and Outcomes | M5V-A       |                    4 |                5 | Pending     | REQ-honest-voice-state                                           |
+| VOC-03      | Phase 4 — Power and Outcomes | M5V-A       |                    4 |                5 | Pending     | REQ-voice-authority-privacy-cost                                 |
+| VOC-04      | Phase 4 — Power and Outcomes | M5V-A       |                    4 |                5 | Pending     | REQ-provider-neutral-voice                                       |
+| PKG-01      | Phase 5 — Release Hardening  | M8          |                    5 |                5 | Pending     | Master plan M8                                                   |
+| REC-01      | Phase 5 — Release Hardening  | M8          |                    5 |                5 | Pending     | SC-20                                                            |
+| UPD-01      | Phase 5 — Release Hardening  | M8          |                    5 |                5 | Pending     | REQ-support-and-updater-proof                                    |
+| MCP-04      | Phase 5 — Release Hardening  | M1M/MCP-4   |                    5 |                5 | Pending     | MCP deep dive                                                    |
+| SBX-03      | Phase 5 — Release Hardening  | M1S/SBX-2   |                    5 |                5 | Pending     | REQ-bounded-developer-grants                                     |
+| VOC-05      | Phase 5 — Release Hardening  | M5V-B/M8    |                    5 |                5 | Pending     | REQ-voice-release-gates                                          |
+| QA-01       | Phase 5 — Release Hardening  | M8          |                    5 |                5 | Pending     | SC-16                                                            |
+| QA-02       | Phase 5 — Release Hardening  | M8          |                    5 |                5 | Pending     | SC-17                                                            |
+| SEC-01      | Phase 5 — Release Hardening  | M8          |                    5 |                5 | Pending     | SC-21                                                            |
+| ROL-01      | Phase 6 — Preview            | M9          |                    6 |                6 | Pending     | Preview slice of REQ-adoption-evidence                           |
+| ROL-02      | Phase 6 — Preview            | M9          |                    6 |                6 | Pending     | Master plan M9                                                   |
+| ROL-03      | Phase 6 — Preview            | M9          |                    6 |                6 | Pending     | Master plan M9                                                   |
+| XFER-01     | Phase 7 — Secure Portability | P1          |                    7 |                7 | Pending     | REQ-transfer-cryptographic-boundary                              |
+| XFER-02     | Phase 7 — Secure Portability | P1          |                    7 |                7 | Pending     | REQ-transfer-export-authority                                    |
+| XFER-03     | Phase 7 — Secure Portability | P1          |                    7 |                7 | Pending     | REQ-transfer-import-authority                                    |
+| XFER-04     | Phase 7 — Secure Portability | P1          |                    7 |                7 | Pending     | REQ-application-consistent-export                                |
+| XFER-05     | Phase 7 — Secure Portability | P1          |                    7 |                7 | Pending     | REQ-transactional-import                                         |
+| XFER-06     | Phase 7 — Secure Portability | P1          |                    7 |                7 | Pending     | REQ-transfer-proof-matrix                                        |
 
 **Coverage:**
 
@@ -203,5 +203,6 @@ Every v1 requirement maps to exactly one implementation phase. A later proof-clo
 - A requirement becomes Complete only after implementation, the named proof closure, verification, and an exact committed candidate all exist.
 
 ---
-*Requirements defined: 2026-07-19*
-*Last updated: 2026-07-19 after independent normalization audit; 55 current-milestone requirements include the previously omitted user-reported image/vision chat parity journey and preserve the no-cleanup workspace contract as queued WSLX-01.*
+
+_Requirements defined: 2026-07-19_
+_Last updated: 2026-07-19 after independent normalization audit; 55 current-milestone requirements include the previously omitted user-reported image/vision chat parity journey and preserve the no-cleanup workspace contract as queued WSLX-01._

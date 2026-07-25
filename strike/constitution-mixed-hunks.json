@@ -17,23 +17,15 @@
       "path": "src/common/types/electron.ts",
       "current_file_sha256": "5b34060d8261184d0b0750fd9ac1c43506ac0a309d04943af405a62cfaa2a94e",
       "current_patch_sha256": "92380f15381624ea084f9aeed77091b95a8030754beb73ddc895dd6afa462a3d",
-      "stage_a": [
-        "authority envelopes and required request IDs for existing Constitution methods"
-      ],
-      "stage_b": [
-        "archive inventory/restore and Classic metadata/decision/resume method declarations"
-      ]
+      "stage_a": ["authority envelopes and required request IDs for existing Constitution methods"],
+      "stage_b": ["archive inventory/restore and Classic metadata/decision/resume method declarations"]
     },
     {
       "path": "src/preload/main.ts",
       "current_file_sha256": "ddddef39bc1b3967ca5c4dc6744910b132fb2782d3fa3981b06b6512050f00b3",
       "current_patch_sha256": "7f6db5a9ef69a9e93706b19ec6511fa39b3093f64f3e94a86a1baebb19e8fef7",
-      "stage_a": [
-        "existing Constitution IPC forwarding with required request IDs"
-      ],
-      "stage_b": [
-        "archive and Classic recovery IPC forwarding plus DTO imports"
-      ]
+      "stage_a": ["existing Constitution IPC forwarding with required request IDs"],
+      "stage_b": ["archive and Classic recovery IPC forwarding plus DTO imports"]
     },
     {
       "path": "src/process/bridge/constitutionBridge.ts",
@@ -50,12 +42,8 @@
       "path": "src/process/utils/initBridge.ts",
       "current_file_sha256": "15dfb5f5f0267ea95e0358c6b920981b0be056254f892a79488a2547a0e29f6f",
       "current_patch_sha256": "076c3ca7882f87ccd65e0b7d9fdfe611c9c29023776b9263ef518fd249e29e5a",
-      "stage_a": [
-        "native Constitution service creation, explicit revision authority and existing bridge installation"
-      ],
-      "stage_b": [
-        "archive operation authority/service, Classic runtime readiness and recovery bridge dependencies"
-      ]
+      "stage_a": ["native Constitution service creation, explicit revision authority and existing bridge installation"],
+      "stage_b": ["archive operation authority/service, Classic runtime readiness and recovery bridge dependencies"]
     },
     {
       "path": "src/process/utils/initBridgeStandalone.ts",
@@ -64,9 +52,7 @@
       "stage_a": [
         "standalone native Constitution service creation, explicit revision authority and service registration"
       ],
-      "stage_b": [
-        "archive authority/service composition and explicit unavailable Classic capability"
-      ]
+      "stage_b": ["archive authority/service composition and explicit unavailable Classic capability"]
     },
     {
       "path": "src/process/webserver/routes/constitutionRoutes.ts",
@@ -83,89 +69,57 @@
       "path": "src/renderer/pages/settings/ConstitutionSettings/index.tsx",
       "current_file_sha256": "b601407f2f6333a7b2377378da9c4075e8bf263b64c33ccc2e230b3e706fb12b",
       "current_patch_sha256": "fea0d59b260252622463dc99c17d4a288163f7b3e951e18344450e9e26edabcf",
-      "stage_a": [
-        "durable autosave, overwrite/reset single-shot identities, fingerprints and receipt completion"
-      ],
-      "stage_b": [
-        "recovery principal scope, recovery refresh callback and archive/Classic recovery components"
-      ]
+      "stage_a": ["durable autosave, overwrite/reset single-shot identities, fingerprints and receipt completion"],
+      "stage_b": ["recovery principal scope, recovery refresh callback and archive/Classic recovery components"]
     },
     {
       "path": "src/renderer/services/ConstitutionService.ts",
       "current_file_sha256": "f5869b973134133619b605186a92c3113cc1d9843c2be181e96d37abeea4e028",
       "current_patch_sha256": "4bd9cfd9df007d8c8b1687d6d831583cc48763f7608663d5ee3167a72f953cab",
-      "stage_a": [
-        "strict existing read/specialist/mutation parsing, request-ID and fingerprint validation"
-      ],
-      "stage_b": [
-        "archive and Classic DTO clients, client errors and HTTP/Electron recovery parsing"
-      ]
+      "stage_a": ["strict existing read/specialist/mutation parsing, request-ID and fingerprint validation"],
+      "stage_b": ["archive and Classic DTO clients, client errors and HTTP/Electron recovery parsing"]
     },
     {
       "path": "tests/unit/process/bridge/constitutionBridge.test.ts",
       "current_file_sha256": "028991636a9144c9a8a35dddd7ea693565c4197f1ecf9c3e6e36bef5d61435e4",
       "current_patch_sha256": "80085a0e6556e8333021cb4954bf219b246c730f32d84e65e037e6cca22f683b",
-      "stage_a": [
-        "existing authority, request-ID, failure, unavailable and rate-limit cases"
-      ],
-      "stage_b": [
-        "recovery sender, archive DTO/service and Classic metadata/decision/resume cases"
-      ]
+      "stage_a": ["existing authority, request-ID, failure, unavailable and rate-limit cases"],
+      "stage_b": ["recovery sender, archive DTO/service and Classic metadata/decision/resume cases"]
     },
     {
       "path": "tests/unit/process/services/constitution/constitutionFsService.test.ts",
       "current_file_sha256": "bdc15567506cf490476bd338c4c1f1cbcff5c2102eacc5ee84a6370dea0f48e6",
       "current_patch_sha256": "3e8db6e89eaf7c16674ff344ce699f83cf0225048ae6843ca1d1c7fc84cf3610",
-      "stage_a": [
-        "native helper/service, corpus, key/revision, transaction and archive-primitive cases"
-      ],
-      "stage_b": [
-        "archive orchestration response-loss case using ConstitutionArchiveRecoveryService"
-      ]
+      "stage_a": ["native helper/service, corpus, key/revision, transaction and archive-primitive cases"],
+      "stage_b": ["archive orchestration response-loss case using ConstitutionArchiveRecoveryService"]
     },
     {
       "path": "tests/unit/process/utils/initBridgeStandalone.test.ts",
       "current_file_sha256": "840dabcabe8cee7fbd54eada9ab12373cb9d34163f22aebdb647b141b18f0161",
       "current_patch_sha256": "599a848816fe2388128d426f7a747e3dc3b374970787546bae19f59d47c311fd",
-      "stage_a": [
-        "native service creation, path authority and service registration assertions"
-      ],
-      "stage_b": [
-        "archive service construction and explicit unavailable Classic registration assertions"
-      ]
+      "stage_a": ["native service creation, path authority and service registration assertions"],
+      "stage_b": ["archive service construction and explicit unavailable Classic registration assertions"]
     },
     {
       "path": "tests/unit/renderer/ConstitutionService.test.ts",
       "current_file_sha256": "4d01b9890cd9dbb26b15709d4d02304c35a53e350f9c7f4685e5feb0f5669d46",
       "current_patch_sha256": "a8f96fdb37ef843bc600708dfb91474b2baa75b0df5c885a6ea6a453b3d95e34",
-      "stage_a": [
-        "existing read/specialist/grant/mutation receipt and transport cases"
-      ],
-      "stage_b": [
-        "archive inventory/restore and Classic metadata/decision/resume client cases"
-      ]
+      "stage_a": ["existing read/specialist/grant/mutation receipt and transport cases"],
+      "stage_b": ["archive inventory/restore and Classic metadata/decision/resume client cases"]
     },
     {
       "path": "tests/unit/renderer/ConstitutionSettings.dom.test.tsx",
       "current_file_sha256": "55e58fc287854bcae842ff01ad45f0471cc3310ef069f386b5598d68066d7737",
       "current_patch_sha256": "101e481b51c03a72f730b09baf4ed4d42307f324457b50085007e93d41441d34",
-      "stage_a": [
-        "durable autosave/reset/overwrite, conflict, absent/empty and read-error cases"
-      ],
-      "stage_b": [
-        "authenticated Classic recovery surface mount case"
-      ]
+      "stage_a": ["durable autosave/reset/overwrite, conflict, absent/empty and read-error cases"],
+      "stage_b": ["authenticated Classic recovery surface mount case"]
     },
     {
       "path": "tests/unit/webserver/constitutionRoutes.test.ts",
       "current_file_sha256": "d62fd18ad298b3fbddf091904d3c537f4d134ae17c08244100d6e7884bc450b1",
       "current_patch_sha256": "3f0013e28eec7963ca508c5438d2ccf03b68522532d24752594a35dfa0d6b5fe",
-      "stage_a": [
-        "existing reads, grants, mutations, request IDs, unavailable authority and error mapping"
-      ],
-      "stage_b": [
-        "archive metadata/restore and Classic principal/step-up/decision routes"
-      ]
+      "stage_a": ["existing reads, grants, mutations, request IDs, unavailable authority and error mapping"],
+      "stage_b": ["archive metadata/restore and Classic principal/step-up/decision routes"]
     }
   ]
 }

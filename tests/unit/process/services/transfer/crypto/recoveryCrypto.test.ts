@@ -38,9 +38,7 @@ beforeAll(async () => {
   envelope = parseRecoveryChunkEnvelope(serialized);
 });
 
-function mutate(
-  transform: (candidate: MutableEnvelope) => void,
-): string {
+function mutate(transform: (candidate: MutableEnvelope) => void): string {
   const candidate = JSON.parse(new TextDecoder().decode(serialized)) as MutableEnvelope;
   transform(candidate);
   return JSON.stringify(candidate);
@@ -49,11 +47,9 @@ function mutate(
 describe('WT-R1 strict recovery envelope', () => {
   it('uses fresh 16-byte salts and 24-byte nonces', async () => {
     const session = new RecoveryCryptoSession();
-    const first = parseRecoveryChunkEnvelope(
-      await session.encryptChunk(input, 'test recovery credential'),
-    );
+    const first = parseRecoveryChunkEnvelope(await session.encryptChunk(input, 'test recovery credential'));
     const second = parseRecoveryChunkEnvelope(
-      await session.encryptChunk({ ...input, ordinal: 3 }, 'test recovery credential'),
+      await session.encryptChunk({ ...input, ordinal: 3 }, 'test recovery credential')
     );
     expect(Buffer.from(first.kdf.salt, 'base64url')).toHaveLength(16);
     expect(Buffer.from(first.nonce, 'base64url')).toHaveLength(24);
@@ -73,9 +69,9 @@ describe('WT-R1 strict recovery envelope', () => {
     ['low memory', RECOVERY_ARGON2_MEMORY_KIB - 1],
     ['high memory', RECOVERY_ARGON2_MEMORY_KIB + 1],
   ])('rejects %s parameter drift before derivation', (_label, memoryKiB) => {
-    expect(() =>
-      parseRecoveryChunkEnvelope(mutate((candidate) => (candidate.kdf.memoryKiB = memoryKiB))),
-    ).toThrow('Argon2 memory drift');
+    expect(() => parseRecoveryChunkEnvelope(mutate((candidate) => (candidate.kdf.memoryKiB = memoryKiB)))).toThrow(
+      'Argon2 memory drift'
+    );
   });
 
   it.each([
@@ -88,29 +84,27 @@ describe('WT-R1 strict recovery envelope', () => {
     ['keyLength low', 'keyLength', 16],
     ['keyLength high', 'keyLength', 64],
   ])('rejects %s drift', (_label, field, value) => {
-    expect(() =>
-      parseRecoveryChunkEnvelope(mutate((candidate) => (candidate.kdf[field] = value))),
-    ).toThrow(/drift/);
+    expect(() => parseRecoveryChunkEnvelope(mutate((candidate) => (candidate.kdf[field] = value)))).toThrow(/drift/);
   });
 
   it('rejects unknown and missing critical fields', () => {
-    expect(() =>
-      parseRecoveryChunkEnvelope(mutate((candidate) => (candidate.criticalFuture = true))),
-    ).toThrow('Unknown critical envelope field');
-    expect(() =>
-      parseRecoveryChunkEnvelope(mutate((candidate) => delete candidate.contentDigest)),
-    ).toThrow('Missing critical envelope field');
+    expect(() => parseRecoveryChunkEnvelope(mutate((candidate) => (candidate.criticalFuture = true)))).toThrow(
+      'Unknown critical envelope field'
+    );
+    expect(() => parseRecoveryChunkEnvelope(mutate((candidate) => delete candidate.contentDigest))).toThrow(
+      'Missing critical envelope field'
+    );
   });
 
   it('rejects duplicate root and nested critical fields', () => {
     const text = new TextDecoder().decode(serialized);
     expect(() =>
-      parseRecoveryChunkEnvelope(text.replace('"suite":"WT-R1"', '"suite":"WT-R1","suite":"WT-R1"')),
+      parseRecoveryChunkEnvelope(text.replace('"suite":"WT-R1"', '"suite":"WT-R1","suite":"WT-R1"'))
     ).toThrow('duplicate object key');
     expect(() =>
       parseRecoveryChunkEnvelope(
-        text.replace('"algorithm":"Argon2id"', '"algorithm":"Argon2id","algorithm":"Argon2id"'),
-      ),
+        text.replace('"algorithm":"Argon2id"', '"algorithm":"Argon2id","algorithm":"Argon2id"')
+      )
     ).toThrow('duplicate object key');
   });
 
@@ -119,34 +113,25 @@ describe('WT-R1 strict recovery envelope', () => {
     ['trailing content', () => `${new TextDecoder().decode(serialized)} null`],
     ['noncanonical salt', () => mutate((candidate) => (candidate.kdf.salt += '='))],
     ['short nonce', () => mutate((candidate) => (candidate.nonce = 'AA'))],
-    [
-      'short salt',
-      () => mutate((candidate) => (candidate.kdf.salt = Buffer.alloc(15).toString('base64url'))),
-    ],
-    [
-      'long salt',
-      () => mutate((candidate) => (candidate.kdf.salt = Buffer.alloc(17).toString('base64url'))),
-    ],
+    ['short salt', () => mutate((candidate) => (candidate.kdf.salt = Buffer.alloc(15).toString('base64url')))],
+    ['long salt', () => mutate((candidate) => (candidate.kdf.salt = Buffer.alloc(17).toString('base64url')))],
   ])('rejects %s', (_label, makeValue) => {
     expect(() => parseRecoveryChunkEnvelope(makeValue())).toThrow();
   });
 
   it('rejects ciphertext and declared-length mismatch before derivation', () => {
-    expect(() =>
-      parseRecoveryChunkEnvelope(mutate((candidate) => (candidate.declaredLength += 1))),
-    ).toThrow('Malformed recovery ciphertext');
+    expect(() => parseRecoveryChunkEnvelope(mutate((candidate) => (candidate.declaredLength += 1)))).toThrow(
+      'Malformed recovery ciphertext'
+    );
   });
 
   it('rejects plaintext length and digest mismatch before derivation', async () => {
     const session = new RecoveryCryptoSession();
     await expect(
-      session.encryptChunk({ ...input, declaredLength: input.declaredLength + 1 }, 'credential'),
+      session.encryptChunk({ ...input, declaredLength: input.declaredLength + 1 }, 'credential')
     ).rejects.toThrow('declared length mismatch');
     await expect(
-      session.encryptChunk(
-        { ...input, contentDigest: `sha256:${'00'.repeat(32)}` },
-        'credential',
-      ),
+      session.encryptChunk({ ...input, contentDigest: `sha256:${'00'.repeat(32)}` }, 'credential')
     ).rejects.toThrow('content digest mismatch');
   });
 
@@ -155,9 +140,7 @@ describe('WT-R1 strict recovery envelope', () => {
     await expect(session.decryptChunk(serialized, 'test recovery credential')).resolves.toMatchObject({
       ordinal: input.ordinal,
     });
-    await expect(session.decryptChunk(serialized, 'test recovery credential')).rejects.toThrow(
-      'nonce reuse',
-    );
+    await expect(session.decryptChunk(serialized, 'test recovery credential')).rejects.toThrow('nonce reuse');
   });
 
   it('rejects ciphertext tampering', async () => {
@@ -166,7 +149,7 @@ describe('WT-R1 strict recovery envelope', () => {
     bytes[0] ^= 0x80;
     candidate.ciphertext = bytes.toString('base64url');
     await expect(
-      new RecoveryCryptoSession().decryptChunk(JSON.stringify(candidate), 'test recovery credential'),
+      new RecoveryCryptoSession().decryptChunk(JSON.stringify(candidate), 'test recovery credential')
     ).rejects.toThrow('authentication failed');
   });
 
@@ -177,16 +160,14 @@ describe('WT-R1 strict recovery envelope', () => {
     };
     const nonce = Uint8Array.from(Buffer.from(falseDigestEnvelope.nonce, 'base64url'));
     falseDigestEnvelope.ciphertext = Buffer.from(
-      xchacha20poly1305(
-        new Uint8Array(32).fill(0x42),
-        nonce,
-        buildRecoveryAssociatedData(falseDigestEnvelope),
-      ).encrypt(plaintext),
+      xchacha20poly1305(new Uint8Array(32).fill(0x42), nonce, buildRecoveryAssociatedData(falseDigestEnvelope)).encrypt(
+        plaintext
+      )
     ).toString('base64url');
     const malicious = serializeRecoveryChunkEnvelope(falseDigestEnvelope);
-    await expect(
-      new RecoveryCryptoSession().decryptChunk(malicious, 'test recovery credential'),
-    ).rejects.toThrow('content digest mismatch');
+    await expect(new RecoveryCryptoSession().decryptChunk(malicious, 'test recovery credential')).rejects.toThrow(
+      'content digest mismatch'
+    );
   });
 
   it('binds every required metadata field into associated data', () => {

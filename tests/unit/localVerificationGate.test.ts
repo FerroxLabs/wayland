@@ -118,7 +118,9 @@ describe('findDistributableArtifacts', () => {
       'Wayland.pkg',
       'Wayland-1.0.0-mac.zip',
     ]);
-    expect(findDistributableArtifacts(['Setup.exe', 'app.msi', 'x.AppImage', 'p.deb', 'q.rpm', 'r.snap']).length).toBe(6);
+    expect(findDistributableArtifacts(['Setup.exe', 'app.msi', 'x.AppImage', 'p.deb', 'q.rpm', 'r.snap']).length).toBe(
+      6
+    );
   });
 
   it('returns empty for a clean directory-only build (only the .app + support files)', () => {

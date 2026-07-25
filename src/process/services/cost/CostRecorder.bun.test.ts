@@ -26,7 +26,10 @@ type StoredRow = {
   cost_source: string;
 };
 
-function makeRecorder(driver: BunSqliteDriver, pricing: ModelPricing): {
+function makeRecorder(
+  driver: BunSqliteDriver,
+  pricing: ModelPricing
+): {
   recorder: CostRecorder;
   repo: SqliteCostRepository;
 } {

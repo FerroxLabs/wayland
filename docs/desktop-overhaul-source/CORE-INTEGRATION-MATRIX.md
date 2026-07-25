@@ -11,46 +11,46 @@ Desktop should make Core's intelligence, execution, and evidence legible. It sho
 
 ## Product concepts
 
-| Concept | Product meaning | Authority | UI treatment |
-|---|---|---|---|
-| Chat | Durable conversation and control surface | Desktop | Primary daily surface; can be backed by Core or another agent |
-| Project | Named group of related chats with shared instructions, knowledge, files, and memory controls | Desktop | Familiar Claude-like organizational object |
-| Workspace | Optional filesystem execution scope attached to a chat/Project | Desktop chooses and governs; agent consumes | Visible scope/trust chip and workbench, never a competing project type |
-| Agent | Runtime that performs a turn | Registry/adapter in Desktop; behavior inside selected agent | Always visible and switchable when supported |
-| Model route | Provider/model selection, including Flux Auto | Desktop selection + Flux/Core routing semantics | Auto by default; pin/inspect for experts |
-| Assistant | Reusable persona/instructions/resource preset | Desktop | Library object invokable into a chat |
-| Desktop Workflow | Durable authored step experience with cadence, asks, pause/resume, and cross-agent use | Desktop | Library/Automation capability; may invoke any backend |
-| Core Workflow | Runtime execution graph inside one Core task/run | Core | Execution lanes in the conversation/workbench, not a second top-level workflow library by default |
-| Standing Team | Durable heterogeneous roster that may combine Core, Codex, Claude, Gemini, or ACP agents | Desktop | Library object and reusable execution capability |
-| Core sub-agent/swarm | Ephemeral or run-scoped delegation inside Core | Core | Nested execution lane/activity under the parent Core turn |
-| Automation | Run a chat/workflow later or repeatedly | Desktop scheduler invokes selected backend | Automations destination; Core is an executor, not the scheduling authority |
-| Memory | Agent long-term recall and learned user model | Core for Core cognition; Desktop for user-facing governance and Project/chat metadata | One user-facing memory control surface with source/provenance, not duplicated stores presented as peers |
-| Artifact | Durable human-usable output | Desktop indexes/presents; producing agent writes | Opens in contextual workbench and remains linked to chat/Project |
-| Receipt | Honest verification verdict bound to an artifact/run | Core emits typed receipt; Desktop validates/renders/persists reference | Trusted badge only from the top-level `anvil_receipt` event |
-| Channels | Product distribution and inbound/outbound gateways | Desktop for hosted app surfaces | Settings/connections/automation; host-delegated Core sends use Desktop transport |
+| Concept              | Product meaning                                                                              | Authority                                                                             | UI treatment                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Chat                 | Durable conversation and control surface                                                     | Desktop                                                                               | Primary daily surface; can be backed by Core or another agent                                           |
+| Project              | Named group of related chats with shared instructions, knowledge, files, and memory controls | Desktop                                                                               | Familiar Claude-like organizational object                                                              |
+| Workspace            | Optional filesystem execution scope attached to a chat/Project                               | Desktop chooses and governs; agent consumes                                           | Visible scope/trust chip and workbench, never a competing project type                                  |
+| Agent                | Runtime that performs a turn                                                                 | Registry/adapter in Desktop; behavior inside selected agent                           | Always visible and switchable when supported                                                            |
+| Model route          | Provider/model selection, including Flux Auto                                                | Desktop selection + Flux/Core routing semantics                                       | Auto by default; pin/inspect for experts                                                                |
+| Assistant            | Reusable persona/instructions/resource preset                                                | Desktop                                                                               | Library object invokable into a chat                                                                    |
+| Desktop Workflow     | Durable authored step experience with cadence, asks, pause/resume, and cross-agent use       | Desktop                                                                               | Library/Automation capability; may invoke any backend                                                   |
+| Core Workflow        | Runtime execution graph inside one Core task/run                                             | Core                                                                                  | Execution lanes in the conversation/workbench, not a second top-level workflow library by default       |
+| Standing Team        | Durable heterogeneous roster that may combine Core, Codex, Claude, Gemini, or ACP agents     | Desktop                                                                               | Library object and reusable execution capability                                                        |
+| Core sub-agent/swarm | Ephemeral or run-scoped delegation inside Core                                               | Core                                                                                  | Nested execution lane/activity under the parent Core turn                                               |
+| Automation           | Run a chat/workflow later or repeatedly                                                      | Desktop scheduler invokes selected backend                                            | Automations destination; Core is an executor, not the scheduling authority                              |
+| Memory               | Agent long-term recall and learned user model                                                | Core for Core cognition; Desktop for user-facing governance and Project/chat metadata | One user-facing memory control surface with source/provenance, not duplicated stores presented as peers |
+| Artifact             | Durable human-usable output                                                                  | Desktop indexes/presents; producing agent writes                                      | Opens in contextual workbench and remains linked to chat/Project                                        |
+| Receipt              | Honest verification verdict bound to an artifact/run                                         | Core emits typed receipt; Desktop validates/renders/persists reference                | Trusted badge only from the top-level `anvil_receipt` event                                             |
+| Channels             | Product distribution and inbound/outbound gateways                                           | Desktop for hosted app surfaces                                                       | Settings/connections/automation; host-delegated Core sends use Desktop transport                        |
 
 ## Core protocol adoption map
 
 The live Core frontier contract is ahead of the Desktop `0.11.18` TypeScript mirror. Adoption must be capability-aware and fixture-tested.
 
-| Core signal | Desktop meaning | Required host behavior | Cockpit surface |
-|---|---|---|---|
-| `ready.capabilities` | What this Core session may emit/support | Store per session; tolerate new fields | Agent detail and feature availability |
-| `execution_policy` | Effective sandbox, approval, and budget posture | Treat as canonical; do not infer from mode text | Identity/policy bar and permission inspector |
-| `capability_activation` | Evidence that selected capabilities are actually constructed/reached | Normalize for diagnostics and activity; unavailable reason is user-actionable | Activity/Doctor; concise warnings only when relevant |
-| stream/tool lifecycle | Current turn and tool state | Preserve ordering/correlation; bound output | Conversation plus execution spine/workbench |
-| `trace_event` | Structured execution trace | Validate/bound opaque payload; derive stable view model | Activity inspector and diagnostics |
-| `session_cost` + usage | Settled cost/tokens | Distinguish session vs run delta and priced vs unpriced | Compact cost status and receipt detail |
-| `sub_agent_event` | Nested Core actor activity | Recursively normalize but preserve parent/correlation | Runtime team lanes under the parent turn |
-| `workflow_started` / `workflow_finished` | Core runtime graph lifecycle | Correlate by `workflow_id`; do not create Desktop workflow records implicitly | Execution spine/workbench workflow lane |
-| `tool_chunk` | Live long-running tool output | Stream with memory/render bounds; final result remains authoritative | Terminal/tool inspector |
-| provider attempt/retry/failure/circuit | Resilience and fallback state | Normalize without alarming on successful recovery | Execution spine; detailed activity on expand |
-| approval/suspend/resume | Human gate and suspended run state | Correlate idempotently; never lose a waiting action | Needs-you activity plus inline decision card |
-| `budget_exceeded` | Bounded autonomy stopped honestly | Explain observed limit and recovery choices | Execution spine/error recovery |
-| browser/CUA policy denied | Safety boundary prevented action | Never collapse into generic failure only | Inline policy explanation and Activity |
-| compact/offload | Context management action | Preserve active-window information when present | Context inspector, not chat noise |
-| `anvil_receipt` | Trusted verification outcome | Accept trust badge only from this top-level event; verify ordering/staleness/digests | Outcome/receipt chip and artifact inspector |
-| plugin/evolution events | Optional engine/plugin diagnostics | Capability gate, bound payload, avoid default noise | Activity/Doctor or specialized extension surface |
+| Core signal                              | Desktop meaning                                                      | Required host behavior                                                               | Cockpit surface                                      |
+| ---------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| `ready.capabilities`                     | What this Core session may emit/support                              | Store per session; tolerate new fields                                               | Agent detail and feature availability                |
+| `execution_policy`                       | Effective sandbox, approval, and budget posture                      | Treat as canonical; do not infer from mode text                                      | Identity/policy bar and permission inspector         |
+| `capability_activation`                  | Evidence that selected capabilities are actually constructed/reached | Normalize for diagnostics and activity; unavailable reason is user-actionable        | Activity/Doctor; concise warnings only when relevant |
+| stream/tool lifecycle                    | Current turn and tool state                                          | Preserve ordering/correlation; bound output                                          | Conversation plus execution spine/workbench          |
+| `trace_event`                            | Structured execution trace                                           | Validate/bound opaque payload; derive stable view model                              | Activity inspector and diagnostics                   |
+| `session_cost` + usage                   | Settled cost/tokens                                                  | Distinguish session vs run delta and priced vs unpriced                              | Compact cost status and receipt detail               |
+| `sub_agent_event`                        | Nested Core actor activity                                           | Recursively normalize but preserve parent/correlation                                | Runtime team lanes under the parent turn             |
+| `workflow_started` / `workflow_finished` | Core runtime graph lifecycle                                         | Correlate by `workflow_id`; do not create Desktop workflow records implicitly        | Execution spine/workbench workflow lane              |
+| `tool_chunk`                             | Live long-running tool output                                        | Stream with memory/render bounds; final result remains authoritative                 | Terminal/tool inspector                              |
+| provider attempt/retry/failure/circuit   | Resilience and fallback state                                        | Normalize without alarming on successful recovery                                    | Execution spine; detailed activity on expand         |
+| approval/suspend/resume                  | Human gate and suspended run state                                   | Correlate idempotently; never lose a waiting action                                  | Needs-you activity plus inline decision card         |
+| `budget_exceeded`                        | Bounded autonomy stopped honestly                                    | Explain observed limit and recovery choices                                          | Execution spine/error recovery                       |
+| browser/CUA policy denied                | Safety boundary prevented action                                     | Never collapse into generic failure only                                             | Inline policy explanation and Activity               |
+| compact/offload                          | Context management action                                            | Preserve active-window information when present                                      | Context inspector, not chat noise                    |
+| `anvil_receipt`                          | Trusted verification outcome                                         | Accept trust badge only from this top-level event; verify ordering/staleness/digests | Outcome/receipt chip and artifact inspector          |
+| plugin/evolution events                  | Optional engine/plugin diagnostics                                   | Capability gate, bound payload, avoid default noise                                  | Activity/Doctor or specialized extension surface     |
 
 ## Exact Desktop v1 validation candidate
 
@@ -167,9 +167,9 @@ These are requests, not Desktop-side edits to the active Core checkout:
 
 For each Desktop release, record:
 
-| Desktop | Bundled Core | Oldest supported override | Candidate Core | Contract suite | E2E journeys |
-|---|---|---|---|---|---|
-| `0.11.18` baseline | `0.12.25` | To be established | published `d0aa0ab` producer contract | 110/110 fixtures replayed; source contract accepted, packaged binary unchanged | Existing WCore live-chat/sub-agent coverage plus v1 raw-wire boundary |
-| Cockpit alpha | Pin in Phase 0 | Pin in Phase 0 | Pin in Phase 0 | Required full fixture corpus | Shell switch + WCore send/stop/approve/workbench |
+| Desktop            | Bundled Core   | Oldest supported override | Candidate Core                        | Contract suite                                                                 | E2E journeys                                                          |
+| ------------------ | -------------- | ------------------------- | ------------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `0.11.18` baseline | `0.12.25`      | To be established         | published `d0aa0ab` producer contract | 110/110 fixtures replayed; source contract accepted, packaged binary unchanged | Existing WCore live-chat/sub-agent coverage plus v1 raw-wire boundary |
+| Cockpit alpha      | Pin in Phase 0 | Pin in Phase 0            | Pin in Phase 0                        | Required full fixture corpus                                                   | Shell switch + WCore send/stop/approve/workbench                      |
 
 No Cockpit release is green solely because an unknown event was dropped without crashing. Known policy, safety, workflow, cost, and receipt signals require semantic proof.

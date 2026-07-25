@@ -96,11 +96,13 @@ env (it does not today in the Electron main process, so no live exposure).
 
 **Fix:** Route the bridge env through the same allowlist, adding the one bridge-specific key. `HOME` is
 already allowlisted, so the baileys `sessionDir` fallback (`baileys.js:118`) keeps working:
+
 ```ts
 import { buildChildEnv } from '@process/services/ijfw/envAllowlist';
 // ...
 env: buildChildEnv({ ...runtime.env, [BRIDGE_UNDER_PARENT_ENV]: '1' }),
 ```
+
 (`buildChildEnv`'s `EXTRA_KEY_PATTERN` accepts `WAYLAND_BRIDGE_UNDER_PARENT` and `ELECTRON_RUN_AS_NODE`.)
 If a broader set of vars is genuinely required by baileys, extend the allowlist explicitly rather than
 inheriting everything.
@@ -119,9 +121,11 @@ instances would collide on one credential store. Low live impact today (channels
 practice), but the comment actively misleads a future maintainer into believing isolation is wired.
 
 **Fix:** Either pass the flag so the plumbing becomes live —
+
 ```ts
 argv: [entry, '--backend', backend, '--session', sessionDirForThisInstance],
 ```
+
 — or, if single-shared-session is intended, delete the dead `getArg('session')` path in `bridge.js` and
 correct the comment at `WhatsAppPlugin.ts:338` to state that the session dir is resolved child-side from
 `HOME`. Track as its own item; out of scope for the #890 land.

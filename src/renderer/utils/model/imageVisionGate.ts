@@ -66,7 +66,9 @@ export function resolveImageVisionBlock(
   // because TProviderWithModel is an IProvider minus its `model[]` list.
   const userVision = currentModel.capabilities?.find((cap) => cap.type === 'vision')?.isUserSelected;
   const vision =
-    userVision !== undefined ? userVision : hasSpecificModelCapability(currentModel as unknown as IProvider, useModel, 'vision');
+    userVision !== undefined
+      ? userVision
+      : hasSpecificModelCapability(currentModel as unknown as IProvider, useModel, 'vision');
 
   // Fail closed: only a PROVEN vision model may receive the image.
   if (vision === true) return null;

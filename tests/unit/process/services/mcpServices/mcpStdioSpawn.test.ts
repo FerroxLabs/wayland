@@ -20,10 +20,7 @@
  * the platform-specific binary name (`bun` vs `bun.exe`).
  */
 import { describe, it, expect, afterEach } from 'vitest';
-import {
-  resolveMcpStdioSpawn,
-  resolvePersistedMcpStdioSpawn,
-} from '@process/services/mcpServices/mcpStdioSpawn';
+import { resolveMcpStdioSpawn, resolvePersistedMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 import { buildAcpSessionMcpServers, buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import { McpConfig } from '@process/acp/session/McpConfig';
 import { toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';

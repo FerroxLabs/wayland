@@ -14,9 +14,7 @@
     "VoicePresentation",
     "VoiceReceipt"
   ],
-  "cross_refs": [
-    ".planning/desktop-overhaul/mockups/voice-mode/index.html"
-  ],
+  "cross_refs": [".planning/desktop-overhaul/mockups/voice-mode/index.html"],
   "locked": false,
   "precedence": 3,
   "notes": ""

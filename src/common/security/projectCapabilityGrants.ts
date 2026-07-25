@@ -139,10 +139,7 @@ export function classifyHost(rawHost: string | undefined): HostClass {
  * narrow the engine's own block — this never widens beyond loopback for a
  * matching Project.
  */
-export function resolveGrant(
-  grants: readonly ProjectCapabilityGrant[],
-  request: GrantCheckRequest
-): GrantDecision {
+export function resolveGrant(grants: readonly ProjectCapabilityGrant[], request: GrantCheckRequest): GrantDecision {
   // Sibling vectors that a grant NEVER covers — checked before the grant lookup
   // so they deny even for a legitimately-granted Project.
   if (request.origin === 'remote') return DENY('remote');

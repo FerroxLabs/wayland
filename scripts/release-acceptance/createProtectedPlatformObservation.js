@@ -177,9 +177,7 @@ if (require.main === module) {
         outputPath: path.resolve(values.out),
         workflow: {
           repository: process.env.GITHUB_REPOSITORY,
-          workflow: process.env.GITHUB_WORKFLOW_REF
-            ?.split('@')[0]
-            ?.replace(`${process.env.GITHUB_REPOSITORY}/`, ''),
+          workflow: process.env.GITHUB_WORKFLOW_REF?.split('@')[0]?.replace(`${process.env.GITHUB_REPOSITORY}/`, ''),
           ref: process.env.GITHUB_REF,
           runId: process.env.GITHUB_RUN_ID,
           runAttempt: process.env.GITHUB_RUN_ATTEMPT,

@@ -1,1 +1,9 @@
-{"call_id":"call-minimal","msg_id":"msg-minimal","output":"ok","output_type":"text","status":"success","tool_name":"Read","type":"tool_result"}
+{
+  "call_id": "call-minimal",
+  "msg_id": "msg-minimal",
+  "output": "ok",
+  "output_type": "text",
+  "status": "success",
+  "tool_name": "Read",
+  "type": "tool_result"
+}

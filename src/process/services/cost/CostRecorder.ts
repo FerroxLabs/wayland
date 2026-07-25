@@ -15,7 +15,10 @@ export interface ModelPricing {
    * USD for a per-turn token split. Returns undefined for an unknown/undefined
    * model id so the recorder can fall back to cost_source='unknown'.
    */
-  priceTokens(modelId: string | undefined, t: { input: number; output: number; cacheRead?: number }): number | undefined;
+  priceTokens(
+    modelId: string | undefined,
+    t: { input: number; output: number; cacheRead?: number }
+  ): number | undefined;
 }
 
 export type CostSource = 'engine' | 'computed' | 'unknown';

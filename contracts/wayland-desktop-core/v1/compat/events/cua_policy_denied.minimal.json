@@ -1,1 +1,1 @@
-{"msg_id":"msg-minimal","op":"type","reason":"blocked","type":"cua_policy_denied"}
+{ "msg_id": "msg-minimal", "op": "type", "reason": "blocked", "type": "cua_policy_denied" }

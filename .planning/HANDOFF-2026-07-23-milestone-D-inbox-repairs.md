@@ -19,11 +19,13 @@ a clean push). Nothing pushed to the `ferrox` GitHub remote without Sean.
 > run myself through the controller/harness. The D2–D5 root-cause map is below unchanged.
 
 ## What just happened (this session)
+
 Two things: (1) shipped a set of desktop fixes locally; (2) triaged the whole GitHub
 inbox with a 3-agent research council and executed the comms, and now Milestone D is
 approved to build the confirmed repairs through Ferrox Factory.
 
 ### Local commits this session (on top of Milestone-B handoff `80072f7f5`)
+
 - `902afd147` a11y trust-floor (8 gated rule-IDs cleared)
 - `3c11691b4` B-01 hosted-voice consent E2E (2 tests)
 - `fd1ad049e` onboarding resume-across-remount fix (3 DOM tests)
@@ -34,7 +36,9 @@ approved to build the confirmed repairs through Ferrox Factory.
   passes isolated — NOT ours).
 
 ### GitHub inbox — EXECUTED (live on FerroxLabs/wayland, done, not pending)
+
 Via `gh` as FerroxLabs, Sean Writer voice, zero em dashes, signed "The Wayland Team":
+
 - **Closed 11:** #645, #490, #180, #663, #780 (already-fixed, cited commit); #871/#898/#917
   (empty stubs); #915 (dup of #916); #409 (stale); #446 (support answered). (#275 was already closed.)
 - **Need-info posted (kept open, labeled state:needs-info):** #902, #449, #487, #507, #916, #396, #873.
@@ -42,6 +46,7 @@ Via `gh` as FerroxLabs, Sean Writer voice, zero em dashes, signed "The Wayland T
 - Open count ~141 → ~133.
 
 ## Council findings that reshaped the plan (verified against code)
+
 - **Owner was right — already shipped, closed:** #645 terminal mode (`41a4b768f`), #275 AV
   false-positive (skill-pack #309, zero loose SKILL.md + release gate), #490 Windows registry
   residue (`3afb6b93c`), #663 approval/trust HITL (`602db7db0`+`b3ed2e7b5`+`e9ce0d4f7`), #180
@@ -56,6 +61,7 @@ Via `gh` as FerroxLabs, Sean Writer voice, zero em dashes, signed "The Wayland T
 Full triage record: `.planning/INBOX-TRIAGE.md`.
 
 ## MILESTONE D — Desktop Inbox Repairs (APPROVED — build in this order)
+
 Each phase runs the full Factory loop: `ferrox-plan-phase` → build → independent cross-audit →
 full unit suite + a11y gate → live-verify → ship. Stamp each issue `github_issue: NN` in the
 plan frontmatter so it auto-closes on merge. **NO push/merge/release without Sean.**
@@ -63,6 +69,7 @@ plan frontmatter so it auto-closes on merge. **NO push/merge/release without Sea
 Execution order: **D1 → D2 → D3 → D5, then D4 last.**
 
 ### D1 — Bridge reliability
+
 - **#890 WhatsApp bridge (FIX, S-M).** Root cause: `src/process/channels/whatsapp-bridge/backends/baileys.js:121`
   `pino({level:'warn'})` logs to fd 1 (stdout) — the SAME channel as the bridge's JSON-RPC framing —
   so any warn corrupts a frame → bridge exits code=0 → 12 reconnects → error. Fix: route pino to
@@ -78,6 +85,7 @@ Execution order: **D1 → D2 → D3 → D5, then D4 last.**
   do NOT tell users "upgrade Core".
 
 ### D2 — Skills trust
+
 - **#885 Skill Guard (FIX, M).** `SkillSource` (`src/common/types/skillTypes.ts:11`) =
   `'wayland-library'|'team'|'user'|'imported'|'cli-discovered'` — NO builtin/vendored provenance and
   NO source-based quarantine exemption. `SkillLibrary.rescanStale` (`SkillLibrary.ts:549-608`) filters
@@ -88,6 +96,7 @@ Execution order: **D1 → D2 → D3 → D5, then D4 last.**
   in user-data keyed by skill id+contentHash (packaged skill dirs aren't writable).
 
 ### D3 — Honest diagnostics (rolls up to Sean's #656 principle)
+
 - **#891 Memory false "Degraded" (FIX+BUILD, S+M).** The desktop probe/Test button does a stdio MCP
   round-trip: `IjfwSetupStatus.tsx:82` invokes `{verb:'state'}` via `ijfwMcpClient` which SPAWNS
   `~/.ijfw/mcp-server` over stdio (`ijfwMcpClient.ts`). It never touches the daemon HTTP
@@ -101,6 +110,7 @@ Execution order: **D1 → D2 → D3 → D5, then D4 last.**
   NOT a full error-taxonomy rebuild.
 
 ### D5 — UI clarity batch
+
 - **#909 (BUILD, S).** Runtime pill shows the assistant (Concierge) and hides the runtime (Wayland Core);
   surface the runtime alongside the assistant.
 - **#910 (BUILD, S).** Align labels: pin action vs "Starred", "Chats" vs "Conversations".
@@ -111,6 +121,7 @@ Execution order: **D1 → D2 → D3 → D5, then D4 last.**
   add a secondary project label per tab.
 
 ### D4 — Token efficiency (money, GATED, build LAST)
+
 - **#723 (FIX, L). Sean's arch call = IN-PLACE per-step context reset** (confirm once more before building,
   since it's money + UX). The autonomous path is already scoped (`dispatchAutonomousStep.ts` spawns a
   fresh child per step, `composeDirective:79-90`). The IN-CONVERSATION auto-advance is not: `parentTurnDriver.ts`
@@ -120,12 +131,14 @@ Execution order: **D1 → D2 → D3 → D5, then D4 last.**
   in the in-conversation advance path. Pairs with a Core tail-cap for defense-in-depth.
 
 ## Not desktop code — Sean's routing/product calls (pending, not blocking D)
+
 - **#914** — Authenticode-sign the Windows `wayland-core.exe` (Core). Rec: route to Core.
 - **#685** — Sub + "Anthropic API off" still calls Anthropic (money). Rec: Core, hard block-when-off guard.
 - **#247** — app exit reaps user-launched agent CLIs. Rec: keep reaping default + add "leave running" opt-out.
 - **#551** — Intel-mac 30s wcore timeout. Rec: confirm Intel-mac support; yes → Core perf, sunsetting → close won't-fix.
 
 ## Guardrails (in effect)
+
 - LOCAL ONLY for code — no push/merge/release/PR without Sean. GH issue triage comments are authorized (done).
 - Every FIX goes through the Ferrox Factory disciplined workflow, not ad-hoc.
 - gh writes: FerroxLabs account (re-assert — drifts to TradeCanyon), no backticks in comment bodies,
@@ -137,12 +150,14 @@ Execution order: **D1 → D2 → D3 → D5, then D4 last.**
 - SBX-02 wiring / COW-04 live citations = Core-gated; don't build against the moving Core.
 
 ## Verify commands
+
 - Unit suite: `npm test` (~2 min; expect the constitution flake, re-run isolated to confirm).
 - a11y gate: `bun run test:e2e:a11y` (green 6/6; `UPDATE_A11Y_BASELINE=1 ...` to re-record).
 - Typecheck: `npx tsc --noEmit -p tsconfig.json`.
 - Packaged smoke: `node scripts/packaged-cockpit-smoke.mjs` (rebuild `bun run package` after source edits).
 
 ## RESUME
+
 Proceed with **Milestone D in order D1 → D2 → D3 → D5 → D4**. Start by running
 `ferrox-plan-phase` on **D1** (#890 fix + #537 verify) using the root-cause map above, build it,
 independent cross-audit, full-suite + a11y verify, live-verify, ship. Then D2, D3, D5. D4 last —

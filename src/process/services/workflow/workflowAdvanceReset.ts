@@ -66,12 +66,7 @@ export const WORKFLOW_RESET_SEED_BOUND: ResumeSeedOptions = {
 
 /** The minimal task surface the reset HAND drives (a hidden directive send). */
 interface AdvanceTask {
-  sendMessage(message: {
-    content: string;
-    input: string;
-    msg_id: string;
-    hidden: boolean;
-  }): Promise<unknown>;
+  sendMessage(message: { content: string; input: string; msg_id: string; hidden: boolean }): Promise<unknown>;
 }
 
 /**
@@ -127,11 +122,7 @@ export function sendWorkflowAdvanceDirective(
   return next;
 }
 
-async function runAdvance(
-  conversationId: string,
-  directive: string,
-  deps: WorkflowAdvanceResetDeps
-): Promise<void> {
+async function runAdvance(conversationId: string, directive: string, deps: WorkflowAdvanceResetDeps): Promise<void> {
   let conversationType: string | null = null;
   try {
     conversationType = await deps.getConversationType(conversationId);

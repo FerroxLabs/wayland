@@ -87,9 +87,10 @@ The report is anonymized. User identifiers and credentials are not part of this 
    - Result: the repair action reproduced the same false-green state it was meant to fix.
 
 10. **Desktop and engine update state is hidden as two products**
-   - The in-app Core updater exists, but its check and action are buried in the Core overview and occur only after that settings pane mounts.
-   - Direct customer evidence shows a user on the then-current Desktop release did not know Core had a separate update lifecycle.
-   - Result: support can recommend an engine update that the normal Desktop update journey never made visible. A newer Core may improve behavior, but version drift cannot explain or excuse Desktop's false publication/readiness claims.
+
+- The in-app Core updater exists, but its check and action are buried in the Core overview and occur only after that settings pane mounts.
+- Direct customer evidence shows a user on the then-current Desktop release did not know Core had a separate update lifecycle.
+- Result: support can recommend an engine update that the normal Desktop update journey never made visible. A newer Core may improve behavior, but version drift cannot explain or excuse Desktop's false publication/readiness claims.
 
 ## 3. Ranked hypotheses
 
@@ -269,13 +270,13 @@ Codex is materially stronger today at three things the field report exposes: one
 
 Wayland's differentiator is not “we also have MCP.” It is: **connect once, choose any agent or model, and Wayland proves what that exact session can use.** The parity bar is therefore higher than any single-runtime competitor:
 
-| Operational property | Claude | Codex | Hermes | OpenClaw | Wayland target |
-| --- | --- | --- | --- | --- | --- |
-| saved config distinct from live use | surface-dependent | restart + `/mcp` | runtime-owned | explicit status vs probe | explicit lifecycle states |
-| current-session tool inventory | runtime-owned | `/mcp` tools | runtime-owned | live probe/runtime registry | per-backend session receipt |
-| one local config across surfaces | Claude-owned surfaces | desktop/CLI/IDE on one host | Hermes only | OpenClaw only | Core + every selected agent |
-| fail closed when required server is absent | runtime-specific | `required = true` | runtime-owned | doctor/probe policy | pre-send selected-server barrier |
-| repair guidance | surface-specific | authenticate/restart | CLI lifecycle | doctor/reload | one-click auth/republish/new-chat |
+| Operational property                       | Claude                | Codex                       | Hermes        | OpenClaw                    | Wayland target                    |
+| ------------------------------------------ | --------------------- | --------------------------- | ------------- | --------------------------- | --------------------------------- |
+| saved config distinct from live use        | surface-dependent     | restart + `/mcp`            | runtime-owned | explicit status vs probe    | explicit lifecycle states         |
+| current-session tool inventory             | runtime-owned         | `/mcp` tools                | runtime-owned | live probe/runtime registry | per-backend session receipt       |
+| one local config across surfaces           | Claude-owned surfaces | desktop/CLI/IDE on one host | Hermes only   | OpenClaw only               | Core + every selected agent       |
+| fail closed when required server is absent | runtime-specific      | `required = true`           | runtime-owned | doctor/probe policy         | pre-send selected-server barrier  |
+| repair guidance                            | surface-specific      | authenticate/restart        | CLI lifecycle | doctor/reload               | one-click auth/republish/new-chat |
 
 Until the last column is proven, Wayland's breadth creates more failure combinations than user value and no parity claim is permitted.
 

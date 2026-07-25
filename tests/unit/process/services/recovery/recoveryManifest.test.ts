@@ -302,9 +302,7 @@ describe('recovery manifest validation', () => {
       const manifest = makeManifest();
       mutate(manifest);
       const result = validateRecoveryManifest(manifest);
-      expect(result.errors).toContainEqual(
-        expect.objectContaining({ code: 'FIELD_UNKNOWN', path: expectedPath })
-      );
+      expect(result.errors).toContainEqual(expect.objectContaining({ code: 'FIELD_UNKNOWN', path: expectedPath }));
     }
   });
 

@@ -49,13 +49,9 @@ export const isHostedVoiceProvider = (value: unknown): value is HostedVoiceProvi
  * whose version does not match the current disclosure is treated as no consent
  * (empty accepted set) so a disclosure change re-gates every provider.
  */
-export const normalizeHostedVoiceConsent = (
-  input?: Partial<HostedVoiceConsent> | null
-): HostedVoiceConsent => {
-  const version =
-    typeof input?.version === 'number' && Number.isFinite(input.version) ? input.version : 0;
-  const updatedAt =
-    typeof input?.updatedAt === 'number' && Number.isFinite(input.updatedAt) ? input.updatedAt : 0;
+export const normalizeHostedVoiceConsent = (input?: Partial<HostedVoiceConsent> | null): HostedVoiceConsent => {
+  const version = typeof input?.version === 'number' && Number.isFinite(input.version) ? input.version : 0;
+  const updatedAt = typeof input?.updatedAt === 'number' && Number.isFinite(input.updatedAt) ? input.updatedAt : 0;
 
   if (version !== HOSTED_VOICE_CONSENT_VERSION) {
     return { version: HOSTED_VOICE_CONSENT_VERSION, acceptedProviders: [], updatedAt };

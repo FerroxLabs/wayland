@@ -59,8 +59,6 @@ describe('conversation deletion schedule safety', () => {
   it('surfaces schedule authority failures instead of treating them as an empty result', async () => {
     mockListJobsByConversation.mockRejectedValue(new Error('authority unavailable'));
 
-    await expect(inspectConversationDeletionSchedules('conv-1')).rejects.toThrow(
-      'authority unavailable'
-    );
+    await expect(inspectConversationDeletionSchedules('conv-1')).rejects.toThrow('authority unavailable');
   });
 });

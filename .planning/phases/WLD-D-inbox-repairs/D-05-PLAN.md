@@ -48,6 +48,7 @@ and re-confirmed live:
    (~:1175) references the log file that holds the captured stderr/errno.
 
 **Deliver (LOCKED scope — exec/process failures ONLY; Sean's call):**
+
 - A `spawnedChild.on('error', …)` handler that captures the errno (`ENOENT`/`EACCES`/`EPERM`/…)
   and surfaces it as the real launch reason (reject `readyReject` when not yet ready; emit a
   stream `type:'error'` if already ready), routed through the existing local `redactSecrets`.
@@ -63,6 +64,7 @@ and re-confirmed live:
   spawning a process.
 
 **Explicitly OUT of scope (do NOT touch):**
+
 - Provider / model API errors. They arrive as engine stream `type:'error'` events via
   `onStreamEvent → handleEvent → ipcBridge.conversation.responseStream.emit` and **already render
   verbatim**. The Desktop-contract fail-closed path (`index.ts:622-637`) already surfaces a real
@@ -112,8 +114,8 @@ code; the pre-existing assertions stay GREEN (all new surfacing is append-only /
   4. `describeExitReason(null, 'SIGKILL')` contains `SIGKILL` and a "killed by … (likely antivirus,
      firewall, or OS code-signature block)" lead, and does NOT contain the substring `code null`.
   5. `describeExitReason(1, null)` contains `code 1`; `describeExitReason(0, null)` contains `code 0`.
-  RED: the module does not exist yet (import fails). This is the composition-layer proof that
-  `err.code` → errno text and `code=null + signal` → signal text (not "code null").
+     RED: the module does not exist yet (import fails). This is the composition-layer proof that
+     `err.code` → errno text and `code=null + signal` → signal text (not "code null").
 - **Extend `tests/unit/WCoreManagerStartFailure.test.ts`** — the `vi.mock('@/common/platform', …)`
   block currently exposes `paths: { isPackaged, getAppPath }`; add `getLogsDir: () => '/test/logs'`
   to that `paths` object (WCoreManager will call it). Add tests (mirror the existing `it(...)` +
@@ -127,8 +129,8 @@ code; the pre-existing assertions stay GREEN (all new surfacing is append-only /
   - Keep the three existing tests unchanged and passing (they assert the `Agent failed to start:`
     prefix and the swallow-fix behavior; the appended logs path and redaction are additive and do
     not break `toContain('wcore binary not found')` / `startsWith('Agent failed to start')`).
-  RED: the errno + `/test/logs` assertion and the redaction assertion fail today (no log link, no
-  redaction at the manager surface). GREEN after Task 2.
+    RED: the errno + `/test/logs` assertion and the redaction assertion fail today (no log link, no
+    redaction at the manager surface). GREEN after Task 2.
 - **Extend `tests/unit/WCoreManagerProcessExit.test.ts`** — add `getLogsDir: () => '/test/logs'` to
   the same `@/common/platform` `paths` mock. Add a test that calls the private
   `handleProcessExit(null, 'msg-active-1', 'SIGKILL')` (third `signal` arg) → the emitted
@@ -159,9 +161,9 @@ Task-1 assertion GREEN while keeping all pre-existing tests green. Touch ONLY th
   - `describeExitReason(code: number | null, signal: NodeJS.Signals | null): string` — when `signal`
     is set, return "killed by <signal> (likely antivirus, firewall, or OS code-signature block)";
     otherwise return "exited with code <code>". Never emit "code null" when a signal is present.
-  Add a head comment stating this is exec/process-failure surfacing only (not a taxonomy) and that
-  provider/API errors are handled elsewhere. Do NOT reference secrets or redaction here — errno
-  codes and signal names carry no secrets; redaction happens at the string sinks below.
+    Add a head comment stating this is exec/process-failure surfacing only (not a taxonomy) and that
+    provider/API errors are handled elsewhere. Do NOT reference secrets or redaction here — errno
+    codes and signal names carry no secrets; redaction happens at the string sinks below.
 - **`src/process/agent/wcore/index.ts`:**
   - Import `describeSpawnError`, `describeExitReason` from `./execFailureReason`.
   - **Add the missing child `on('error')` handler**, installed synchronously right beside the
@@ -209,16 +211,17 @@ Task-1 assertion GREEN while keeping all pre-existing tests green. Touch ONLY th
     `onProcessExit: (code, activeMsgId, signal) => { this.handleProcessExit(code, activeMsgId, signal); }`.
   - Do NOT touch the provider-key auth-invalidation path, the stream `type:'error'` handling, or any
     surface that renders provider/model API errors — those are out of scope and already correct.
-  Verify: `bun run test:vitest wcoreExecFailureReason` GREEN; `bun run test:vitest WCoreManagerStartFailure`
-  GREEN (errno + `/test/logs` + redaction pass, existing tests still pass);
-  `bun run test:vitest WCoreManagerProcessExit` GREEN (SIGKILL + `/test/logs`, no "code null"; existing
-  `code 1` / heartbeat / shutdown tests still pass); `bun run test:vitest` full suite green;
-  `tsc --noEmit` clean.
-  Done: a spawn errno is captured on `on('error')` and surfaced (no unhandled-'error' crash); an AV
-  `SIGKILL` surfaces the signal, not "code null"; both failure surfaces carry a discoverable,
-  redacted logs path; provider/API-error paths and the #484 enrichment are untouched.
+    Verify: `bun run test:vitest wcoreExecFailureReason` GREEN; `bun run test:vitest WCoreManagerStartFailure`
+    GREEN (errno + `/test/logs` + redaction pass, existing tests still pass);
+    `bun run test:vitest WCoreManagerProcessExit` GREEN (SIGKILL + `/test/logs`, no "code null"; existing
+    `code 1` / heartbeat / shutdown tests still pass); `bun run test:vitest` full suite green;
+    `tsc --noEmit` clean.
+    Done: a spawn errno is captured on `on('error')` and surfaced (no unhandled-'error' crash); an AV
+    `SIGKILL` surfaces the signal, not "code null"; both failure surfaces carry a discoverable,
+    redacted logs path; provider/API-error paths and the #484 enrichment are untouched.
 
 **Task 3 — Exit bar + live-verify handoff (human checkpoint, no code commit).**
+
 - Full automated floor: `bun run test:vitest` (full unit suite) green, and `tsc --noEmit` clean.
   Constitution tests may flake under full-suite parallelism (pass isolated) — not a regression, per
   `D-CONTEXT.md`. Build the packaged app with `bun run package` (NEVER raw `electron-vite build`),
@@ -245,17 +248,18 @@ Task-1 assertion GREEN while keeping all pre-existing tests green. Touch ONLY th
 
 </tasks>
 
-<threat_model>
-Low surface: both edits only *display* strings the app already produces (Node errno, kill signal,
+<threat*model>
+Low surface: both edits only \_display* strings the app already produces (Node errno, kill signal,
 already-captured wcore stderr, the OS logs path). No new external input is parsed and no new
 crypto is introduced. Trust boundary: text crossing from the main process to the chat/log surface.
 
-| Threat ID | STRIDE | Component | Severity | Disposition | Mitigation |
-|-----------|--------|-----------|----------|-------------|------------|
-| T-D05-01 | Information disclosure | newly-surfaced errno / stderr-tail / spawn context could carry a provider key | medium | mitigate | The agent-side reason is composed through the LOCAL `redactSecrets` (as the #484 stderr path already is); the manager-side `data` (reason + logs path) is wrapped in the shared `redactCommandSecrets`. The redaction proof in `WCoreManagerStartFailure.test.ts` (an `sk-ant-` token is masked) locks it. |
-| T-D05-02 | Tampering / Elevation | new untrusted input path | low | accept | None added — errno/signal/stderr/logs-path are app-produced, not renderer- or network-controlled (ASVS V5). No auth/session/access-control change (V2/V3/V4 not applicable). |
-| T-D05-03 | Denial of service | unhandled child `'error'` event crashes the main process | high | mitigate | The `on('error')` handler is itself the fix: with no listener a spawn `ENOENT`/`EACCES` is an unhandled error event that can crash main (Pitfall 3). Installing it synchronously beside the exit listener closes that path. |
-| T-D05-SC | Tampering | supply-chain (new packages) | n/a | accept | No new packages — Node builtins + existing in-repo modules (`redactCommandSecrets`, `getPlatformServices`) only. Package Legitimacy Gate N/A. |
+| Threat ID | STRIDE                 | Component                                                                     | Severity | Disposition | Mitigation                                                                                                                                                                                                                                                                                                 |
+| --------- | ---------------------- | ----------------------------------------------------------------------------- | -------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T-D05-01  | Information disclosure | newly-surfaced errno / stderr-tail / spawn context could carry a provider key | medium   | mitigate    | The agent-side reason is composed through the LOCAL `redactSecrets` (as the #484 stderr path already is); the manager-side `data` (reason + logs path) is wrapped in the shared `redactCommandSecrets`. The redaction proof in `WCoreManagerStartFailure.test.ts` (an `sk-ant-` token is masked) locks it. |
+| T-D05-02  | Tampering / Elevation  | new untrusted input path                                                      | low      | accept      | None added — errno/signal/stderr/logs-path are app-produced, not renderer- or network-controlled (ASVS V5). No auth/session/access-control change (V2/V3/V4 not applicable).                                                                                                                               |
+| T-D05-03  | Denial of service      | unhandled child `'error'` event crashes the main process                      | high     | mitigate    | The `on('error')` handler is itself the fix: with no listener a spawn `ENOENT`/`EACCES` is an unhandled error event that can crash main (Pitfall 3). Installing it synchronously beside the exit listener closes that path.                                                                                |
+| T-D05-SC  | Tampering              | supply-chain (new packages)                                                   | n/a      | accept      | No new packages — Node builtins + existing in-repo modules (`redactCommandSecrets`, `getPlatformServices`) only. Package Legitimacy Gate N/A.                                                                                                                                                              |
+
 </threat_model>
 
 <verification>
@@ -278,14 +282,15 @@ crypto is introduced. Trust boundary: text crossing from the main process to the
 **Goal-backward check — each acceptance test maps to "the real exec failure reason is surfaced +
 reachable log link":**
 
-| Must be TRUE (goal) | Producer behavior that makes it true | Proven by |
-|---------------------|--------------------------------------|-----------|
-| A spawn `ENOENT`/`EACCES`/`EPERM` names its real errno (not generic text, not a crash) | new `spawnedChild.on('error')` composes `redactSecrets(describeSpawnError(err))` and rejects/surfaces it | `wcoreExecFailureReason` tests 1-3 (composition) + `WCoreManagerStartFailure` errno test (surfaced end-to-end) |
-| An AV `SIGKILL` names the signal, not "code null" | `signal` captured in `on('exit')` and composed via `describeExitReason(code, signal)` in the init reject and `handleProcessExit` | `wcoreExecFailureReason` test 4 + `WCoreManagerProcessExit` SIGKILL test (no "code null") |
-| The user can reach the log that holds the detail | `emitStartFailure` + `handleProcessExit` append the redacted `getLogsDir()` path | `WCoreManagerStartFailure` (`/test/logs` present) + `WCoreManagerProcessExit` (`/test/logs` present) + packaged live-verify (path resolves to the log) |
-| Newly-surfaced text never leaks a secret | agent reason via `redactSecrets`; manager `data` via `redactCommandSecrets` | `WCoreManagerStartFailure` redaction test (`sk-ant-` token masked) |
-| Provider/API errors and #484 enrichment are unchanged | edits confined to the three exec-specific sites; stream `type:'error'` / Desktop-contract paths untouched | grep gate + full-suite green + live-verify (provider error still verbatim) |
-| A launch failure cannot crash the main process | the `on('error')` listener exists (was absent) | `on('error')` handler present (grep gate) + packaged live-verify (blocked binary yields an error, not a crash) |
+| Must be TRUE (goal)                                                                    | Producer behavior that makes it true                                                                                             | Proven by                                                                                                                                              |
+| -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A spawn `ENOENT`/`EACCES`/`EPERM` names its real errno (not generic text, not a crash) | new `spawnedChild.on('error')` composes `redactSecrets(describeSpawnError(err))` and rejects/surfaces it                         | `wcoreExecFailureReason` tests 1-3 (composition) + `WCoreManagerStartFailure` errno test (surfaced end-to-end)                                         |
+| An AV `SIGKILL` names the signal, not "code null"                                      | `signal` captured in `on('exit')` and composed via `describeExitReason(code, signal)` in the init reject and `handleProcessExit` | `wcoreExecFailureReason` test 4 + `WCoreManagerProcessExit` SIGKILL test (no "code null")                                                              |
+| The user can reach the log that holds the detail                                       | `emitStartFailure` + `handleProcessExit` append the redacted `getLogsDir()` path                                                 | `WCoreManagerStartFailure` (`/test/logs` present) + `WCoreManagerProcessExit` (`/test/logs` present) + packaged live-verify (path resolves to the log) |
+| Newly-surfaced text never leaks a secret                                               | agent reason via `redactSecrets`; manager `data` via `redactCommandSecrets`                                                      | `WCoreManagerStartFailure` redaction test (`sk-ant-` token masked)                                                                                     |
+| Provider/API errors and #484 enrichment are unchanged                                  | edits confined to the three exec-specific sites; stream `type:'error'` / Desktop-contract paths untouched                        | grep gate + full-suite green + live-verify (provider error still verbatim)                                                                             |
+| A launch failure cannot crash the main process                                         | the `on('error')` listener exists (was absent)                                                                                   | `on('error')` handler present (grep gate) + packaged live-verify (blocked binary yields an error, not a crash)                                         |
+
 </verification>
 
 <success_criteria>
@@ -303,6 +308,7 @@ plus one shared pure composition module; provider/model API errors, the Desktop-
 the path-as-text log link; a one-click affordance is a separable renderer enhancement.
 
 Design (ready to lift when scheduled, per `D-04-RESEARCH.md` A3 / Open-Q2):
+
 - Expose a logs-dir target to the renderer (no such IPC exists today) or attach structured metadata to
   the `type:'error'` message that the chat error-message renderer turns into an "Open logs" control.
 - Reuse the existing `shell.open-folder` / `show-item-in-folder` IPCs (`ipcBridge.ts:111`) +

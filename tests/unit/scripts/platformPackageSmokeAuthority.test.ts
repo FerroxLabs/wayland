@@ -56,7 +56,12 @@ function report(target = 'linux-x64') {
       executableName: platform === 'win32' ? 'Wayland.exe' : platform === 'linux' ? 'wayland' : 'Wayland',
       bundleName: 'Wayland.app',
       protocolScheme: 'wayland',
-      updateChannel: platform === 'darwin' && arch === 'arm64' ? 'latest-arm64' : platform === 'win32' && arch === 'arm64' ? 'latest-win-arm64' : 'latest',
+      updateChannel:
+        platform === 'darwin' && arch === 'arm64'
+          ? 'latest-arm64'
+          : platform === 'win32' && arch === 'arm64'
+            ? 'latest-win-arm64'
+            : 'latest',
       shellExperience: 'classic',
     },
     sandboxMode: platform === 'linux' ? 'smoke-only-disabled' : 'production-default',

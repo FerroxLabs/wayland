@@ -420,7 +420,8 @@ function copyRecord(record: TransferPublicationRecord): TransferPublicationRecor
     });
   }
   return Object.freeze({ recordType: record.recordType, serialized: Uint8Array.from(record.serialized) }) as
-    TransferPublicationContainerRecord | TransferSourceAuthorizationRecord;
+    | TransferPublicationContainerRecord
+    | TransferSourceAuthorizationRecord;
 }
 
 function copyBytes(bytes: Uint8Array, label: string): Uint8Array {

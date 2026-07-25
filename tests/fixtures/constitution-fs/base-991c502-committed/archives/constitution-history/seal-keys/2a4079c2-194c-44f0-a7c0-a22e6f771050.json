@@ -1,1 +1,5 @@
-{"formatVersion":1,"cipher":"wayland-file-key-store","ciphertext":"fenc:v1:VkV3Y1ptUnN4dzlabU1QQjl5Y0ZpYmlEelNQRlRtbDgrcXFZMDlZdFlkQT0="}
+{
+  "formatVersion": 1,
+  "cipher": "wayland-file-key-store",
+  "ciphertext": "fenc:v1:VkV3Y1ptUnN4dzlabU1QQjl5Y0ZpYmlEelNQRlRtbDgrcXFZMDlZdFlkQT0="
+}

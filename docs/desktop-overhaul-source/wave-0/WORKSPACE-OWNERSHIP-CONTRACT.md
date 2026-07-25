@@ -16,15 +16,15 @@ preserve or eligible for a later human review. It does not delete anything.
 
 ## Current authoritative sources
 
-| Source | Current producer | Preservation strength | Current completeness |
-|---|---|---|---|
-| Conversations | Desktop SQLite `conversation.extra.workspace` | Positive reference preserves | Complete only when repository read and path canonicalization succeed |
-| Projects | Desktop SQLite `projects.workspace` | Positive reference preserves permanently | Complete only when repository read and path canonicalization succeed |
-| Schedules | Desktop SQLite cron jobs plus conversation fallback | Any enabled or disabled schedule preserves | Complete only when every job resolves a workspace |
-| Active work | `IWorkerTaskManager` process workspace | Any live process preserves | Complete only when every task resolves a workspace |
-| Files and reports | Canonical workspace directory contents | Any entry preserves | Preservation-only; no app-scaffolding exclusion exists |
-| Output registry | None | Cannot prove zero | Unavailable |
-| Workspace-bound receipt registry | None | Cannot prove zero | Unavailable |
+| Source                           | Current producer                                    | Preservation strength                      | Current completeness                                                 |
+| -------------------------------- | --------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------- |
+| Conversations                    | Desktop SQLite `conversation.extra.workspace`       | Positive reference preserves               | Complete only when repository read and path canonicalization succeed |
+| Projects                         | Desktop SQLite `projects.workspace`                 | Positive reference preserves permanently   | Complete only when repository read and path canonicalization succeed |
+| Schedules                        | Desktop SQLite cron jobs plus conversation fallback | Any enabled or disabled schedule preserves | Complete only when every job resolves a workspace                    |
+| Active work                      | `IWorkerTaskManager` process workspace              | Any live process preserves                 | Complete only when every task resolves a workspace                   |
+| Files and reports                | Canonical workspace directory contents              | Any entry preserves                        | Preservation-only; no app-scaffolding exclusion exists               |
+| Output registry                  | None                                                | Cannot prove zero                          | Unavailable                                                          |
+| Workspace-bound receipt registry | None                                                | Cannot prove zero                          | Unavailable                                                          |
 
 Recovery inventory already records the existing split: conversation evidence is
 in SQLite, connector receipts are runtime/conversation state, and user-created

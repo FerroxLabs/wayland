@@ -30,7 +30,7 @@ vi.mock('@/common', () => ({
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
     t: (key: string, opts?: { defaultValue?: string }) =>
-      key === 'missionControl.cost.totalSpend' ? 'Total spend' : opts?.defaultValue ?? key,
+      key === 'missionControl.cost.totalSpend' ? 'Total spend' : (opts?.defaultValue ?? key),
     i18n: { language: 'en' },
   }),
 }));

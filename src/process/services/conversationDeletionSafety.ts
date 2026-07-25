@@ -18,10 +18,7 @@ export type ConversationDeletionScheduleInspection = {
  * explicitly before its conversation can be deleted.
  */
 export function isTeamRitualSchedule(job: CronJob): boolean {
-  return (
-    job.metadata.createdBy === 'agent' &&
-    job.metadata.agentConfig?.configOptions?.kind === 'ritual'
-  );
+  return job.metadata.createdBy === 'agent' && job.metadata.agentConfig?.configOptions?.kind === 'ritual';
 }
 
 /**

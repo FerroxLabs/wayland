@@ -5,14 +5,9 @@
  */
 
 import { ipcBridge } from '@/common';
-import type {
-  WaylandTransferPreflight,
-  WaylandTransferPreflightRequest,
-} from '@/common/types/transfer';
+import type { WaylandTransferPreflight, WaylandTransferPreflightRequest } from '@/common/types/transfer';
 
-export type WaylandTransferPreview = (
-  request: WaylandTransferPreflightRequest
-) => Promise<WaylandTransferPreflight>;
+export type WaylandTransferPreview = (request: WaylandTransferPreflightRequest) => Promise<WaylandTransferPreflight>;
 
 /**
  * Register only the read-only preflight. Export/import publication gets a

@@ -201,8 +201,8 @@ discovers the projection authority without searching arbitrary user paths.
   plaintext is contract
   `wayland-constitution-classic-recovery-locator-event/1.0` and contains only
   `{contract,sequence,previousEventSha256,eventId,kind,
-  installationBindingSha256,preparationId,projectionAuthoritySha256,
-  terminalState,operationReceiptId,createdAt}`. Unknown fields, noncanonical
+installationBindingSha256,preparationId,projectionAuthoritySha256,
+terminalState,operationReceiptId,createdAt}`. Unknown fields, noncanonical
   timestamps/UUIDs/digests, gaps, duplicate sequences, forks, changed
   installation binding, unsafe preparation IDs, and field/state mismatches fail
   closed.
@@ -409,8 +409,8 @@ receipt IDs, and bounded NFC object IDs from the native acceptance contract.
 - `GET /api/constitution/classic-recovery` and IPC
   `constitution:classic-recovery:get` return metadata only in the exact shared
   envelope `{success:true,data:{contract,recoveryRevision,
-  projectionReceiptSha256,promotionId,journalHeadSha256,state,items,rescue,
-  allowedActions,discardChallenge}}`.
+projectionReceiptSha256,promotionId,journalHeadSha256,state,items,rescue,
+allowedActions,discardChallenge}}`.
 - Contract is `wayland-constitution-classic-recovery-dto/1.0`. State is exactly
   `no-change`, `awaiting-decision`, `applying`, `partial`, `committed`,
   `conflicted`, `rescued`, or `discarded`. Items are sorted exact
@@ -447,7 +447,7 @@ receipt IDs, and bounded NFC object IDs from the native acceptance contract.
 - `POST /api/constitution/classic-recovery/resume` and IPC
   `constitution:classic-recovery:resume` accept exactly
   `{operationId,promotionId,projectionReceiptSha256,expectedRecoveryRevision,
-  expectedJournalHeadSha256,password}`. They perform committed lookup before
+expectedJournalHeadSha256,password}`. They perform committed lookup before
   current-state reads, advance only the authenticated head, and never replay a
   committed or conflicted item.
 - Every Classic mutation requires the authenticated Desktop principal plus a
@@ -457,7 +457,7 @@ receipt IDs, and bounded NFC object IDs from the native acceptance contract.
   same-origin session and CSRF; IPC requires a registered preload channel and
   validated main-window sender. Rate limits and lockout match archive restore.
 - Success is exactly `{success:true,data:{status,operationId,recoveryRevision,
-  promotionId,journalHeadSha256,receiptId,items,rescue}}`; status is one of the
+promotionId,journalHeadSha256,receiptId,items,rescue}}`; status is one of the
   states above, nullable fields follow the matrix, and exact replay is
   byte-equivalent. Failure is exactly
   `{success:false,error:{code,message,retryable,operationId}}` using

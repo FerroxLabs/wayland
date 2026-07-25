@@ -4,17 +4,15 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { parse } from 'yaml';
 
-const {
-  UNTRUSTED_GATES,
-  promoteCandidateGateEvidence,
-} = require('../../../scripts/release-acceptance/promoteCandidateGateEvidence') as {
-  UNTRUSTED_GATES: Record<string, string>;
-  promoteCandidateGateEvidence: (
-    source: string,
-    output: string,
-    context: Record<string, unknown>
-  ) => Record<string, unknown>;
-};
+const { UNTRUSTED_GATES, promoteCandidateGateEvidence } =
+  require('../../../scripts/release-acceptance/promoteCandidateGateEvidence') as {
+    UNTRUSTED_GATES: Record<string, string>;
+    promoteCandidateGateEvidence: (
+      source: string,
+      output: string,
+      context: Record<string, unknown>
+    ) => Record<string, unknown>;
+  };
 const { sha256 } = require('../../../scripts/release-acceptance/acceptanceBundle') as {
   sha256: (bytes: Buffer) => string;
 };
@@ -25,8 +23,7 @@ const context = {
   candidate,
   trustRootCommit: 'c'.repeat(40),
   repository: 'FerroxLabs/wayland',
-  workflowRef:
-    'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml@refs/heads/release-trust-v1',
+  workflowRef: 'FerroxLabs/wayland/.github/workflows/release-acceptance-trust-root.yml@refs/heads/release-trust-v1',
   runId: '12345',
   runAttempt: '1',
   job: 'candidate-gates',
@@ -107,9 +104,7 @@ describe('protected release trust-root job separation', () => {
     expect(finalRuns).not.toMatch(/\b(?:bun|npm|pnpm|yarn)\s+(?:install|run|x|exec)\b/);
     expect(finalRuns).not.toContain('candidate/package.json');
     expect(
-      finalJob.steps
-        .filter((step: any) => step['working-directory'] === 'candidate')
-        .map((step: any) => step.name)
+      finalJob.steps.filter((step: any) => step['working-directory'] === 'candidate').map((step: any) => step.name)
     ).toEqual(['Verify candidate data identity and immutability']);
 
     const candidateActions = candidateJob.steps.map((step: any) => step.uses || '').join('\n');
@@ -122,8 +117,8 @@ describe('protected release trust-root job separation', () => {
     const workflow = readFileSync('.github/workflows/release-acceptance-trust-root.yml', 'utf8');
     expect(workflow).toContain('artifact-ids: ${{ needs.candidate-gates.outputs.artifact-id }}');
     expect(workflow).toContain('.workflow_run.id | tostring');
-    expect(workflow).toContain(".workflow_run.head_sha");
-    expect(workflow).toContain(".digest");
+    expect(workflow).toContain('.workflow_run.head_sha');
+    expect(workflow).toContain('.digest');
     expect(workflow).toContain('promoteCandidateGateEvidence.js');
     expect(workflow).toContain('--runId "$GITHUB_RUN_ID"');
     expect(workflow).toContain('--candidateCommit "$CANDIDATE_REF"');
@@ -160,14 +155,14 @@ describe('protected release trust-root job separation', () => {
 
     const tampered = fixture();
     writeFileSync(join(tampered.root, 'tests.log'), 'forged\n');
-    expect(() =>
-      promoteCandidateGateEvidence(tampered.root, join(tampered.root, 'tampered-out'), context)
-    ).toThrow(/M8J_GATE_HANDOFF_INVALID:log-digest-mismatch:tests/);
+    expect(() => promoteCandidateGateEvidence(tampered.root, join(tampered.root, 'tampered-out'), context)).toThrow(
+      /M8J_GATE_HANDOFF_INVALID:log-digest-mismatch:tests/
+    );
 
     const severe = fixture({ vulnerable: [{ id: 7, severity: 'high' }] });
-    expect(() =>
-      promoteCandidateGateEvidence(severe.root, join(severe.root, 'severe-out'), context)
-    ).toThrow(/M8I_SEVERE_DEPENDENCY_FINDINGS/);
+    expect(() => promoteCandidateGateEvidence(severe.root, join(severe.root, 'severe-out'), context)).toThrow(
+      /M8I_SEVERE_DEPENDENCY_FINDINGS/
+    );
   });
 
   it('rejects unknown fields and symlinked evidence from the untrusted job', () => {

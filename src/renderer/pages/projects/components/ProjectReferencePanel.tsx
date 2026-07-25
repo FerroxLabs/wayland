@@ -208,10 +208,7 @@ const ProjectReferencePanel: React.FC<{
       {refs.length > 0 && (
         <div className='grid gap-12px' style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
           {refs.map((f) => (
-            <div
-              key={f.name}
-              className={`group flex flex-col gap-8px px-14px py-13px ${styles.card}`}
-            >
+            <div key={f.name} className={`group flex flex-col gap-8px px-14px py-13px ${styles.card}`}>
               <div className='flex items-start justify-between'>
                 <div className='flex items-center justify-center w-32px h-32px rd-8px bg-fill-2 text-t-secondary'>
                   <FileText size={16} />
@@ -245,12 +242,7 @@ const ProjectReferencePanel: React.FC<{
                 <div className='text-12px text-t-primary truncate'>{file.name}</div>
                 <div className='text-11px text-t-tertiary'>{fmtSize(file.size)}</div>
               </div>
-              <Button
-                size='mini'
-                type='text'
-                icon={<RotateCcw size={12} />}
-                onClick={() => void restoreRef(file.id)}
-              >
+              <Button size='mini' type='text' icon={<RotateCcw size={12} />} onClick={() => void restoreRef(file.id)}>
                 {t('projects.knowledge.reference.restore')}
               </Button>
             </div>
