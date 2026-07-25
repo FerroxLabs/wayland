@@ -71,6 +71,24 @@ export function isCiRuntime(env: NodeJS.ProcessEnv): boolean {
   return env.CI === 'true' || env.CI === '1' || env.GITHUB_ACTIONS === 'true';
 }
 
+/**
+ * Every environment variable {@link shouldDisableIjfw} consults.
+ *
+ * Exported so a test can neutralise the guard by clearing exactly what it reads
+ * instead of hand-listing variables. Hand-listing is what broke
+ * VerificationGate on CI: the suite cleared `CI` (enough for the bare
+ * `process.env.CI` check it was written against) but not `GITHUB_ACTIONS`, so
+ * once this guard started reading the latter, every gate call short-circuited to
+ * advisory on GitHub Actions while passing on every developer machine. Keep this
+ * list in step with the reads above and tests cannot drift out of step again.
+ */
+export const IJFW_GUARD_ENV_VARS = ['WAYLAND_DISABLE_IJFW', 'CI', 'GITHUB_ACTIONS', 'WAYLAND_E2E_TEST'] as const;
+
+/** Delete every variable the guard reads from `env`, in place. */
+export function clearIjfwGuardEnv(env: NodeJS.ProcessEnv): void {
+  for (const name of IJFW_GUARD_ENV_VARS) delete env[name];
+}
+
 export function shouldDisableIjfw(env: NodeJS.ProcessEnv, homes: HomePair = resolveHomes()): boolean {
   const explicit = env.WAYLAND_DISABLE_IJFW;
   if (explicit === '1') return true;

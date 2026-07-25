@@ -352,6 +352,19 @@ describe('Constitution filesystem transaction wrapper', () => {
     expect(JSON.stringify(receipt)).not.toContain(archiveKey.toString('base64'));
   });
 
+  /**
+   * Needs a bigger budget than the 10s default because it shells out to a real
+   * `cargo build`. Measured locally at 6s for a clean target directory with a
+   * warm crates registry, so the compile alone is not the problem; a CI runner
+   * additionally downloads every crate for the first time on a slower machine,
+   * and the shard this lives in already spends ~90s just importing. 10s is not
+   * a budget that work fits into, which is why it timed out on all three
+   * runners while passing locally.
+   *
+   * Deliberately NOT skipped when the helper is absent - a skip would be a
+   * green check that exercised nothing, the exact failure mode this milestone
+   * exists to remove.
+   */
   it('executes a real compiled helper through the verified TypeScript boundary', () => {
     if (process.platform !== 'darwin' && process.platform !== 'linux') return;
     const helperPath = buildRealConstitutionFsHelper();
@@ -363,7 +376,7 @@ describe('Constitution filesystem transaction wrapper', () => {
     });
     expect(receipt.reconcileDisposition).toBeNull();
     expect(readFileSync(path.join(root, 'CONSTITUTION.md'), 'utf8')).toBe('new');
-  });
+  }, 300_000);
 
   it('fails closed before execution when an archive-bearing operation lacks trusted keys', () => {
     const { verified } = binaryFixture();
