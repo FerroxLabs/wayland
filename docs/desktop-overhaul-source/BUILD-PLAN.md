@@ -1,9 +1,9 @@
 # Wayland Desktop Adaptive Cockpit Build Plan
 
-Status: superseded by `MASTER-BUILD-PLAN.md`; retained for design-history context only  
-Prepared: 2026-07-15  
-Desktop baseline: Wayland Desktop `0.11.18`  
-Core planning baseline: `frontier/m0` at committed `2b662fe`, workspace version `0.12.25`, with an active uncommitted refactor  
+Status: superseded by `MASTER-BUILD-PLAN.md`; retained for design-history context only
+Prepared: 2026-07-15
+Desktop baseline: Wayland Desktop `0.11.18`
+Core planning baseline: `frontier/m0` at committed `2b662fe`, workspace version `0.12.25`, with an active uncommitted refactor
 Related design: `../sketches/003-complete-copilot/`
 
 ## Executive decision

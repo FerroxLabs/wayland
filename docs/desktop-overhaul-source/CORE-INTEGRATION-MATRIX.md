@@ -1,6 +1,6 @@
 # Wayland Desktop / Wayland Core Ownership and Integration Matrix
 
-Status: active source of truth; Core v1 exact producer commit published and accepted  
+Status: active source of truth; Core v1 exact producer commit published and accepted
 Prepared: 2026-07-15
 
 ## Boundary rule

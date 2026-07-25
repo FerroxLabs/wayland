@@ -1,6 +1,6 @@
 # Third-party executable ledger — Wave 0
 
-Status: **OPEN RELEASE GATE**  
+Status: **OPEN RELEASE GATE**
 Last verified: 2026-07-16
 
 This ledger records native executables redistributed by the Desktop candidate.

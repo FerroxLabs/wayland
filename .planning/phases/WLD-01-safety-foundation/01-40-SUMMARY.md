@@ -93,7 +93,7 @@ The plan was developed and hardened through these exact commits:
 2. **Authority and identity hardening:** `60614cbc8`, `91a258964`, `0cb7e5338`, `2a4b2f364`, `0c9d46df3`
 3. **Adversarial launch and parser closure:** `834c71d09`, `4cc1db51c`, `beec695df`
 
-**Accepted implementation commit:** `beec695df236bc7475484b6212e09c3a0b0ff47f`  
+**Accepted implementation commit:** `beec695df236bc7475484b6212e09c3a0b0ff47f`
 **Accepted source tree:** `3e4274e80da5a7dec13c4ee43687e13e5b75f279`
 
 ## Files Created
@@ -127,6 +127,6 @@ The selector can now evaluate the integrated Wave 2 planning set. Wave 2 constru
 
 ---
 
-_Phase: WLD-01-safety-foundation_  
-_Plan: 40_  
+_Phase: WLD-01-safety-foundation_
+_Plan: 40_
 _Completed: 2026-07-19_

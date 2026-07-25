@@ -36,7 +36,7 @@ const StorageSettings: React.FC = () => {
               {t('settings.storagePage.resetTitle')}
             </span>
             <span className='text-12px text-[var(--text-secondary)]'>{t('settings.storagePage.resetDescription')}</span>
-            <span className='text-11px text-[var(--text-tertiary)]'>
+            <span className='text-11px text-[var(--color-text-3)]'>
               {t('settings.storagePage.resetRecoveryRequired')}
             </span>
           </div>

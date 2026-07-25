@@ -1,6 +1,6 @@
 # Requirements: Wayland Desktop Adaptive Cockpit and Cowork
 
-**Defined:** 2026-07-19  
+**Defined:** 2026-07-19
 **Core Value:** A provider-agnostic get-shit-done copilot that keeps chat immediately usable, progressively reveals all existing power, and makes AI work for novices, knowledge workers, developers, and operators.
 
 ## v1 Requirements

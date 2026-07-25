@@ -1,11 +1,11 @@
 # Wayland Desktop Master Build Plan
 
-Plan state: **CYCLE 40 INDEPENDENT BLOCKER/HIGH GATE PASSED — ALL 136 PATHS HAVE STRICT FIELD SHAPES AND A PINNED OWNERSHIP/CONTENT IDENTITY; IMPLEMENTATION ACCEPTANCE, ROOT INTEGRATION, PRODUCTION STATE, PORTABILITY IMPLEMENTATION, RELEASE, AND COHORTS REMAIN SEPARATELY GATED**  
-Plan owner: Desktop lane (`area:desktop-ui`)  
-Prepared: 2026-07-15  
-Desktop source baseline: `v0.11.18` at `1b1c1e91119e3352bec3958188254ee91f150492`  
-Bundled Core baseline: `v0.12.25`  
-Requested emergency rollback baseline: Desktop `v0.11.8`, schema 52, bundled Core `v0.12.17`  
+Plan state: **CYCLE 40 INDEPENDENT BLOCKER/HIGH GATE PASSED — ALL 136 PATHS HAVE STRICT FIELD SHAPES AND A PINNED OWNERSHIP/CONTENT IDENTITY; IMPLEMENTATION ACCEPTANCE, ROOT INTEGRATION, PRODUCTION STATE, PORTABILITY IMPLEMENTATION, RELEASE, AND COHORTS REMAIN SEPARATELY GATED**
+Plan owner: Desktop lane (`area:desktop-ui`)
+Prepared: 2026-07-15
+Desktop source baseline: `v0.11.18` at `1b1c1e91119e3352bec3958188254ee91f150492`
+Bundled Core baseline: `v0.12.25`
+Requested emergency rollback baseline: Desktop `v0.11.8`, schema 52, bundled Core `v0.12.17`
 Core frontier observed read-only: `frontier/m0` at committed `2b662fe`, workspace `0.12.25`, with extensive uncommitted refactor work
 
 Audit precedence: the pre-execution gate in §14 overrides schedule language, prior implementation momentum, and any statement that a vertical “continues.” Until the current adversarial cycle has no unresolved HIGH finding—or Sean accepts named findings in writing—work is limited to plan-only corrections, read-only audits, and the exact named non-promoting MCP-0, SBX-0, C0-A, and Constitution v2/recovery remediation boundaries. Those lanes may alter copied/disposable test state and worktree code, but may not accept M0A, mutate a real profile or user state, use real credentials, enroll users, enter packaging or release artifacts, promote a capability, or expand M2/M5/M7 runtime state.
@@ -368,8 +368,8 @@ Packet receipts must cite this table and the exact test/evidence satisfying each
 
 ### Packet M0 — Freeze baseline and build rollback harness
 
-Dependencies: none.  
-Likely Desktop paths: `src/process/services/database/`, `src/process/utils/initStorage.ts`, `src/process/agent/wcore/profilePaths.ts`, new `src/process/services/backup/`, `tests/integration/`, `tests/e2e/`.  
+Dependencies: none.
+Likely Desktop paths: `src/process/services/database/`, `src/process/utils/initStorage.ts`, `src/process/agent/wcore/profilePaths.ts`, new `src/process/services/backup/`, `tests/integration/`, `tests/e2e/`.
 M0 emits two independent receipts: **M0A engineering safety** targets Days 1–3 and **M0B cohort authority** observes the rolling Classic baseline through calendar Day 14. M0A unlocks downstream flagged development; M0A plus M0B unlock invited alpha.
 
 Outputs:
@@ -444,8 +444,8 @@ If a lossless, supportable v0.11.8 transform is infeasible, M0 stops and present
 
 ### Packet M1 — Pin Core contract and generate fixtures/types
 
-Dependencies: M0A baseline inventory. A clean Core integration baseline is preferred, but Desktop may proceed against the exact released Core `v0.12.25` commit plus fixtures/schema digest. Unreleased Core behavior remains capability-gated and cannot block shell/navigation work.  
-Desktop paths: `src/process/agent/wcore/protocol.ts`, `src/process/agent/wcore/index.ts`, `src/process/task/WCoreManager.ts`, new `scripts/generate-wcore-protocol.*`, `tests/contract/wcore/`.  
+Dependencies: M0A baseline inventory. A clean Core integration baseline is preferred, but Desktop may proceed against the exact released Core `v0.12.25` commit plus fixtures/schema digest. Unreleased Core behavior remains capability-gated and cannot block shell/navigation work.
+Desktop paths: `src/process/agent/wcore/protocol.ts`, `src/process/agent/wcore/index.ts`, `src/process/task/WCoreManager.ts`, new `scripts/generate-wcore-protocol.*`, `tests/contract/wcore/`.
 Core-owned request: `crates/wcore-protocol`, `docs/json-stream-protocol.md`, golden fixture export.
 
 Outputs:
@@ -483,8 +483,8 @@ Every packet from M2 onward must add and pass at least one real-IPC vertical jou
 
 ### Packet M1F — Pin Flux route and evidence contract
 
-Dependencies: M0A baseline inventory; Flux lane publishes or identifies a clean producer baseline.  
-Desktop paths: `src/process/task/fluxRouting.ts`, `src/process/flux/`, backend spawn adapters, normalized execution selectors, `tests/contract/flux/`.  
+Dependencies: M0A baseline inventory; Flux lane publishes or identifies a clean producer baseline.
+Desktop paths: `src/process/task/fluxRouting.ts`, `src/process/flux/`, backend spawn adapters, normalized execution selectors, `tests/contract/flux/`.
 Flux-owned request: canonical route/attempt/fallback/circuit/cost/latency/override schema and golden fixtures.
 
 Outputs:
@@ -589,7 +589,7 @@ Acceptance: INV-19 and SC-14A pass; no deterministic path renders a chat-ready g
 
 ### Packet M2 — Backend-neutral execution model
 
-Dependencies: M1 plus either M1F passing or an explicit no-Flux/degraded capability profile. The degraded profile preserves existing route controls while disabling route explanations, route-cost claims, and every SC-14-dependent surface until M1F passes. A versioned M1M lifecycle schema and fixtures are a hard dependency for every MCP-capable M2 field, reducer, selector, or readiness projection. Before M1M passes, M2 may proceed only with MCP represented as absent/unsupported; it may not introduce provisional connector/readiness state or a second connector model.  
+Dependencies: M1 plus either M1F passing or an explicit no-Flux/degraded capability profile. The degraded profile preserves existing route controls while disabling route explanations, route-cost claims, and every SC-14-dependent surface until M1F passes. A versioned M1M lifecycle schema and fixtures are a hard dependency for every MCP-capable M2 field, reducer, selector, or readiness projection. Before M1M passes, M2 may proceed only with MCP represented as absent/unsupported; it may not introduce provisional connector/readiness state or a second connector model.
 Paths: new `src/common/execution/`, `src/common/chat/activityTree.ts`, `src/common/chat/innerEvent.ts`, backend managers/adapters, new renderer hooks/store, focused unit/contract tests.
 
 Outputs:
@@ -616,7 +616,7 @@ Acceptance: INV-04/06/08/09/15/17 and SC-07/10/10A/11/12/13 pass; one authoritat
 
 ### Packet M3 — Shell selector and migration skeleton
 
-Dependencies: M0A and stable shared-service boundaries; may run alongside late M2.  
+Dependencies: M0A and stable shared-service boundaries; may run alongside late M2.
 Paths: `src/common/config/storage.ts`, `src/renderer/main.tsx`, `src/renderer/components/layout/`, `src/renderer/components/layout/Router.tsx`, Settings Navigation/General, E2E shell fixtures.
 
 Current-boundary note: the existing Cockpit shell/navigation code is an isolated prototype only. Before M0A passes it may run solely against copied/disposable state on the non-promoting preview path; it is not M3 acceptance, cohort eligibility, or permission for further shared-model expansion.
@@ -642,7 +642,7 @@ Acceptance: INV-04/05/12/13, SC-02/08, and the SC-20 Cockpit-to-Classic shell-sw
 
 ### Packet M4 — Cockpit navigation, new chat, and Projects
 
-Dependencies: M3.  
+Dependencies: M3.
 Paths: existing Guid hooks/components, Sider/nav registry, Projects pages/services, new Cockpit shell components, localization files.
 
 Outputs:
@@ -664,7 +664,7 @@ Acceptance: SC-01, SC-04, INV-01/03 pass.
 
 ### Packet M5 — Conversation cockpit and execution spine
 
-Dependencies: M2, M3, M4.  
+Dependencies: M2, M3, M4.
 Paths: WCore/ACP/Gemini/Codex conversation platforms, `ChatLayout`, send boxes, confirmation UI, model/mode selectors, activity selectors, conversation tests.
 
 Outputs:
@@ -700,7 +700,7 @@ Acceptance: SC-05 through SC-07, the M5 live-adapter portion of SC-10A, and INV-
 
 ### Packet M6 — Contextual workbench and trusted outcomes
 
-Dependencies: M1, M2, M5, plus a signed-off receipt contract covering trusted top-level sourcing, producer/host staleness ownership, digest binding, ordering, replay, and artifact mutation.  
+Dependencies: M1, M2, M5, plus a signed-off receipt contract covering trusted top-level sourcing, producer/host staleness ownership, digest binding, ordering, replay, and artifact mutation.
 Paths: current Workspace, Preview, ObservabilityPanel, terminal, files/changes, artifact surfaces; new workbench host; receipt components/tests.
 
 Outputs:
@@ -724,7 +724,7 @@ Acceptance: INV-09/10/14 and workbench journeys pass. A verified badge is disabl
 
 ### Packet M7 — Library, Automations, and Activity consolidation
 
-Dependencies: M4, M5, M6.  
+Dependencies: M4, M5, M6.
 Paths: Assistants, Workflows, Teams, Skills, MCP/Connections, Scheduled Tasks, Mission Control, Memory navigation, command/search indexes.
 
 Outputs:
@@ -746,7 +746,7 @@ Acceptance: no capability cul-de-sac; INV-07 passes.
 
 ### Packet M8 — Hardening and release evidence
 
-Dependencies: M4 through M7 feature-complete; M0/M1 continuously green; M1F for every Flux route/cost claim; M1M/MCP-4 for every connector path; M1S/SBX-2 for every sandbox/developer claim; C0-B for every Cowork/native-Office surface; an immutable C1 receipt for the mandatory first Cowork vertical and J17/J23; and the M5V-A functional receipt for every Voice surface included in the candidate. M8 itself produces final C0 release closure and the M5V-B packaged receipt, so neither is an M8 entry dependency. If C0-B/C1 or M5V-A is not green, the corresponding Cowork or Voice capability is absent from the candidate and its release/marketing claims. A capability whose dependency is not green must be absent from the candidate and its release/marketing claims, not merely visually disabled.  
+Dependencies: M4 through M7 feature-complete; M0/M1 continuously green; M1F for every Flux route/cost claim; M1M/MCP-4 for every connector path; M1S/SBX-2 for every sandbox/developer claim; C0-B for every Cowork/native-Office surface; an immutable C1 receipt for the mandatory first Cowork vertical and J17/J23; and the M5V-A functional receipt for every Voice surface included in the candidate. M8 itself produces final C0 release closure and the M5V-B packaged receipt, so neither is an M8 entry dependency. If C0-B/C1 or M5V-A is not green, the corresponding Cowork or Voice capability is absent from the candidate and its release/marketing claims. A capability whose dependency is not green must be absent from the candidate and its release/marketing claims, not merely visually disabled.
 Paths: CI workflows, package scripts, E2E suites, accessibility/visual/performance harnesses, Doctor/support bundle, docs.
 
 Outputs:
@@ -782,7 +782,7 @@ Acceptance: all 21 invariants and all 31 distinct success criteria pass, with im
 ### Packet M9 — Preview rollout and Classic decision
 
 Dependencies: all previous M packets, including the M5V-B packaged receipt when Voice is present, plus immutable final C0 release-closure and C1 receipts; M8's
-packaged replay of J17/J23 must remain green.  
+packaged replay of J17/J23 must remain green.
 Paths: onboarding/update messaging, shell settings, privacy-respecting feedback, release docs, support process.
 
 Outputs:

@@ -1,9 +1,9 @@
 # Sandbox and developer-journey contract
 
-Status: **SOURCE-TRACED — CROSS-LAYER REMEDIATION REQUIRED; NO BLANKET BYPASS AUTHORIZED**  
-Prepared: 2026-07-16  
-Community journey: Mike Caffrey — localhost browser access, temporary-chat configuration, and macOS/Xcode execution  
-Desktop baseline: Wayland Desktop `v0.11.18`; bundled Core `v0.12.25`  
+Status: **SOURCE-TRACED — CROSS-LAYER REMEDIATION REQUIRED; NO BLANKET BYPASS AUTHORIZED**
+Prepared: 2026-07-16
+Community journey: Mike Caffrey — localhost browser access, temporary-chat configuration, and macOS/Xcode execution
+Desktop baseline: Wayland Desktop `v0.11.18`; bundled Core `v0.12.25`
 Released Core baseline: `v0.12.25` at `61b79c4f90f71fe2cf243affa7620b3c9b607f14`
 
 ## 1. Executive finding

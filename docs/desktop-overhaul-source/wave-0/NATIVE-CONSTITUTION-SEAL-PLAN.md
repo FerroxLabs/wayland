@@ -1,8 +1,8 @@
 # Native Constitution Stage A/B seal plan
 
-Status: **PREPARED, NOT SEALED**  
-Candidate worktree: `codex/desktop-constitution-production`  
-Candidate baseline: `991c502e74506ec3702f92e429a8b31b655412ba`  
+Status: **PREPARED, NOT SEALED**
+Candidate worktree: `codex/desktop-constitution-production`
+Candidate baseline: `991c502e74506ec3702f92e429a8b31b655412ba`
 Coordination issue: `FerroxLabs/wayland#886`
 
 This plan turns the normative Stage A then Stage B order into an executable

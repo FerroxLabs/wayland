@@ -31,13 +31,23 @@ repos:
       - id: check-case-conflict
       - id: check-added-large-files
         args: [--maxkb=1000]
+      # Captured artifacts and pinned files are NOT source. Rewriting them is
+      # either corruption or evidence tampering:
+      #  - resources/modelsdev-snapshot.json is pinned by SHA-256 AND byte size,
+      #    and is deliberately a single minified line with no trailing newline.
+      #    Appending one breaks verify:modelsdev-snapshot and every packaged
+      #    build. oxfmt is already excluded from it; so must these.
+      #  - *.enc are encrypted constitution fixtures. A trailing newline changes
+      #    the ciphertext bytes.
+      #  - .planning/**/evidence/**/*.log and *.log generally are captured
+      #    command output kept as proof. Editing them falsifies the evidence.
       - id: end-of-file-fixer
         # Only fix text files, exclude binary files and special OS files
-        exclude: '^(\.DS_Store|Thumbs\.db|.*\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin))$'
+        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin))$'
       - id: trailing-whitespace
         # Auto-fix trailing whitespace in text files
         # Excludes binary files (matching end-of-file-fixer pattern)
-        exclude: '^(\.DS_Store|Thumbs\.db|.*\.(png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin|patch))$'
+        exclude: '^(\.DS_Store|Thumbs\.db|resources/modelsdev-snapshot\.json|.*\.(log|enc|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|otf|pdf|zip|tar|gz|bz2|7z|exe|dll|so|dylib|node|bin|patch))$'
 
   # TypeScript type checking (full project check required)
   - repo: local

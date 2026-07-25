@@ -2,8 +2,8 @@
 
 Status: **HOLD — Stage A/Stage B source implementation and local aggregate
 tests are green; Stage C immutable, signed-Classic, and target-package evidence
-is not complete.**  
-Rejected predecessor: `991c502e74506ec3702f92e429a8b31b655412ba`  
+is not complete.**
+Rejected predecessor: `991c502e74506ec3702f92e429a8b31b655412ba`
 Rollback-safe root: `12ea88caf3cd6e490a054060ea96b0f60966bfd8`
 
 Integration owner: Desktop lane `area:desktop-ui`, coordination issue

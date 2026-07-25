@@ -246,6 +246,6 @@ The in-progress SHA-bound receipts are under `.planning/phases/WLD-01-safety-fou
 
 ---
 
-_Phase: WLD-01-safety-foundation_  
-_Plan: 08_  
+_Phase: WLD-01-safety-foundation_
+_Plan: 08_
 _Completed: 2026-07-20_

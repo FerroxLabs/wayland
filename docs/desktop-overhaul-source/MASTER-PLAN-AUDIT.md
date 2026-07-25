@@ -1,8 +1,8 @@
 # Wayland Desktop Master Plan Adversarial Audit
 
-Audit date: 2026-07-15; reopened 2026-07-16; Wave 0 scope rebaseline 2026-07-17  
-Plan audited: `MASTER-BUILD-PLAN.md`  
-Release baseline: Desktop `v0.11.18` at `1b1c1e91119e3352bec3958188254ee91f150492`  
+Audit date: 2026-07-15; reopened 2026-07-16; Wave 0 scope rebaseline 2026-07-17
+Plan audited: `MASTER-BUILD-PLAN.md`
+Release baseline: Desktop `v0.11.18` at `1b1c1e91119e3352bec3958188254ee91f150492`
 Requested emergency rollback target: Desktop `v0.11.8`
 
 ## Verdict
@@ -1303,10 +1303,10 @@ HIGH sequencing-truth defect while reconciling those claims:
 | Standalone startup installed strict Constitution authority, but the Docker runtime copied no Linux helper resources; a Linux-target authority could therefore fail at boot or degrade for the wrong reason | Docker now builds the exact helper in a pinned Rust stage, `prepareConstitutionFs` digest-binds an exact-target non-symlink prebuilt helper before server bundling, and the runtime copies only the bound resource directory                                                       | Source/contract tests, strict lint, typecheck and `build:server` pass; an actual built-container journey remains package evidence and is not claimed |
 | Stage B source was implemented before Stage A had an immutable local seal, while the normative order forbids Stage B from consuming an unsealed Stage A                                                    | Both acceptance packets now call the Stage B source provisional and require an exact Stage A commit followed by an exact Stage B commit based on it, with Stage B proof rerun against that identity; a combined commit is explicitly rejected                                      | This closes the source-of-truth contradiction only. Commit splitting, rerun and receipts remain mandatory before Stage C                             |
 
-Plan audit: 16 packets reviewed  
-Goal alignment: 16 trace to brief criteria / 0 need attention  
-Scope: clean  
-Risk surface: 0 unresolved plan defects; 3 named implementation/evidence gates remain active  
+Plan audit: 16 packets reviewed
+Goal alignment: 16 trace to brief criteria / 0 need attention
+Scope: clean
+Risk surface: 0 unresolved plan defects; 3 named implementation/evidence gates remain active
 Dependency order: correct after the explicit Stage A then Stage B seal rule
 
 Verdict: **PASS for dependency-eligible non-promoting implementation only.**
@@ -1386,10 +1386,10 @@ all Stage C evidence remain required.
 
 ## Cycle 36 — Current-byte Stage A/B seal plan-check
 
-Plan audit: 13 tasks reviewed  
-Goal alignment: 13 trace to brief criteria / 0 need attention  
-Scope: clean  
-Risk surface: 0 need sharpening after the Cycle 35 dependency/hunk corrections  
+Plan audit: 13 tasks reviewed
+Goal alignment: 13 trace to brief criteria / 0 need attention
+Scope: clean
+Risk surface: 0 need sharpening after the Cycle 35 dependency/hunk corrections
 Dependency order: correct
 
 The current seal plan preserves the brief's Wave 0 boundary, v0.11.8 rollback
@@ -1429,10 +1429,10 @@ because it exports only crypto, authority, record, capture and promotion
 primitives and contains no locator export. This reduces the mixed surface from
 19 to 14 files without moving any behavior across the product boundary.
 
-Plan audit: 13 tasks reviewed  
-Goal alignment: 13 trace to brief criteria / 0 need attention  
-Scope: clean  
-Risk surface: 0 need sharpening after hunk-level convergence  
+Plan audit: 13 tasks reviewed
+Goal alignment: 13 trace to brief criteria / 0 need attention
+Scope: clean
+Risk surface: 0 need sharpening after hunk-level convergence
 Dependency order: correct
 
 The live fail-closed checker now passes at 97 Stage A, 24 Stage B, 14 mixed and

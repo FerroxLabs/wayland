@@ -1,7 +1,7 @@
 # SBX-0 settings-truth candidate receipt
 
-Date: 2026-07-16  
-Scope: bounded, non-promoting Desktop truth correction only  
+Date: 2026-07-16
+Scope: bounded, non-promoting Desktop truth correction only
 Status: focused implementation proof; not M1S, packaged, or release proof
 
 ## Customer-correlated defect

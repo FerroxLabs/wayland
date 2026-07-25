@@ -1,7 +1,7 @@
 # Phase 1 Implementation Recon
 
-**Baseline:** `6d41c34087b5f40a368c83ca18d2d8e5a7fdb894`  
-**Reconciled:** 2026-07-19  
+**Baseline:** `6d41c34087b5f40a368c83ca18d2d8e5a7fdb894`
+**Reconciled:** 2026-07-19
 **Authority rule:** current code and exact proof outrank historical execution prose.
 
 ## M0B Current State Correction

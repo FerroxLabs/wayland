@@ -6,10 +6,10 @@ Native Constitution production authority is additionally governed by
 new immutable candidate satisfies that paired v2 gate and independently returns
 zero unresolved HIGH/BLOCKER findings.
 
-Baseline: Desktop `v0.11.18` (`1b1c1e91119e3352bec3958188254ee91f150492`)  
-Branch: `codex/desktop-cockpit-wave0`  
-Desktop issue: `FerroxLabs/wayland#886`  
-Core handoff: `FerroxLabs/wayland#887`  
+Baseline: Desktop `v0.11.18` (`1b1c1e91119e3352bec3958188254ee91f150492`)
+Branch: `codex/desktop-cockpit-wave0`
+Desktop issue: `FerroxLabs/wayland#886`
+Core handoff: `FerroxLabs/wayland#887`
 Flux handoff: `FerroxLabs/wayland#888`
 
 ## Authorization boundary

@@ -1,7 +1,7 @@
 # MCP deep dive: one connection truth across every Wayland agent
 
-Status: **AUDIT CONFIRMED — RELEASE BLOCKING FALSE-READINESS; REMEDIATION IN PROGRESS**  
-Owner: Desktop (`area:desktop-ui`) with explicit Core/agent contract handoffs  
+Status: **AUDIT CONFIRMED — RELEASE BLOCKING FALSE-READINESS; REMEDIATION IN PROGRESS**
+Owner: Desktop (`area:desktop-ui`) with explicit Core/agent contract handoffs
 Primary coordination: Wayland #476 and Wave 0 #886; do not close coordination issues from an agent session.
 
 ## 1. Executive verdict
@@ -26,7 +26,7 @@ The repair is not “add four integrations.” It is one brokered lifecycle cont
 
 ### User-observed failure
 
-Expected: an enabled connector shown as connected in the MCP Library is visible to ToolSearch and callable in a new chat.  
+Expected: an enabled connector shown as connected in the MCP Library is visible to ToolSearch and callable in a new chat.
 Observed: Tavily and Firecrawl appear connected, but chat reports that no Tavily/Firecrawl tools exist; n8n and Beeper show the same behavior.
 
 The exact chat evidence is stronger than a generic connection complaint: the assistant reports that ToolSearch returns nothing for vendor names or representative operations such as `scrape` and `extract`, even though the same declarations render as connected and enabled in the Library. That establishes a user-visible contradiction between saved/probed state and active-session tool authority. It does not expose or prove any vendor credential failure.

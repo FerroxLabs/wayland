@@ -1,7 +1,7 @@
 # M0A managed-workspace retention candidate receipt
 
-Date: 2026-07-16  
-Scope: fail-closed retention classification, production authority inventory, and local dry-run UI  
+Date: 2026-07-16
+Scope: fail-closed retention classification, production authority inventory, and local dry-run UI
 Status: read-only inventory foundation; artifact/receipt ledgers, quarantine, recovery, and deletion authority remain open
 
 ## Contract implemented

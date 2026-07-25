@@ -1,8 +1,8 @@
 # M0B Baseline Machinery — Engineering Candidate
 
-Status: **PARTIAL / NOT AN M0B PASS RECEIPT**  
-Date: 2026-07-16  
-Observation state: **NOT STARTED**  
+Status: **PARTIAL / NOT AN M0B PASS RECEIPT**
+Date: 2026-07-16
+Observation state: **NOT STARTED**
 Invited alpha: **DISABLED**
 
 ## Implemented

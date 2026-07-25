@@ -1,9 +1,9 @@
 # M1F Flux routing-evidence producer acceptance receipt
 
-Status: merged producer corpus and both composition roots accepted; live-transport and canary gates open  
-Date: 2026-07-15  
-Desktop baseline: `v0.11.18`  
-Desktop branch: `codex/desktop-cockpit-wave0`  
+Status: merged producer corpus and both composition roots accepted; live-transport and canary gates open
+Date: 2026-07-15
+Desktop baseline: `v0.11.18`
+Desktop branch: `codex/desktop-cockpit-wave0`
 Coordination issue: `FerroxLabs/wayland#888`
 
 ## Producer pin

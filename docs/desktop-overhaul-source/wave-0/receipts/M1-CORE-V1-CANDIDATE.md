@@ -1,9 +1,9 @@
 # M1 Core v1 delivered producer validation receipt
 
-Status: Desktop consumer validation passed; exact producer commit published and accepted  
-Date: 2026-07-15  
-Desktop baseline: `v0.11.18`  
-Desktop branch: `codex/desktop-cockpit-wave0`  
+Status: Desktop consumer validation passed; exact producer commit published and accepted
+Date: 2026-07-15
+Desktop baseline: `v0.11.18`
+Desktop branch: `codex/desktop-cockpit-wave0`
 Coordination issue: `FerroxLabs/wayland#887`
 
 ## Producer pin

@@ -1,7 +1,7 @@
 # C0 native OfficeCLI distribution receipt
 
-Date: 2026-07-15  
-Baseline: Wayland Desktop `v0.11.18`  
+Date: 2026-07-15
+Baseline: Wayland Desktop `v0.11.18`
 Lane: Desktop (`area:desktop-ui`)
 
 ## Contract proved
