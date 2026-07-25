@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import os from 'node:os';
+
 /**
  * Decides whether the IJFW system service boots.
  *
@@ -19,8 +21,7 @@
  * could ever exercise IJFW. That is exactly how a dead Memory surface shipped
  * while the packaged cockpit smoke reported PASS on the same build.
  *
- * Splitting them is the durable fix. `WAYLAND_DISABLE_IJFW` is now tri-state and
- * outranks the implicit rules:
+ * `WAYLAND_DISABLE_IJFW` is now tri-state and outranks the implicit rules:
  *
  *   '1'        force OFF  (what E2E/CI runs that must not spawn installs set)
  *   '0'        force ON   (lets an isolated harness cover Memory for real)
@@ -28,18 +29,52 @@
  *
  * The default is deliberately unchanged, so existing E2E and CI runs keep their
  * fail-safe "no npx install spawned" behaviour without touching a single
- * harness. Only a run that explicitly asks for `WAYLAND_DISABLE_IJFW=0` opts in.
+ * harness.
  *
- * Pair `WAYLAND_DISABLE_IJFW=0` with BOTH `WAYLAND_E2E_USER_DATA_DIR` (isolates
- * the profile) and a redirected `HOME` (isolates `~/.ijfw`, which the MCP client
- * resolves via `os.homedir()`). Redirecting HOME alone does NOT isolate the
- * profile: Electron resolves the userData root independently of `$HOME` on
- * macOS, so a HOME-only sandbox still attaches to the real profile.
+ * FORCE-ON IS FAIL-CLOSED
+ * -----------------------
+ * An earlier version of this file only DOCUMENTED that `'0'` must be paired with
+ * an isolated HOME, and a comment is not a guard. Booting IJFW against the real
+ * HOME runs `npx -y --package @ijfw/install@latest ijfw-install --yes` against
+ * the developer's own `~/.ijfw`, takes its install lock, can swap the live
+ * `mcp-server` tree via `applyPendingUpgrade`, and rewrites IJFW-PRELUDE blocks
+ * in their repos. The obvious one-line follow-through (adding `'0'` to the
+ * packaged smoke, which allowlists the real `HOME`) would have done exactly
+ * that.
+ *
+ * So `'0'` is honoured ONLY when HOME has actually been redirected. `os.homedir()`
+ * respects `$HOME`; `os.userInfo().homedir` reads the passwd entry and ignores
+ * it. When they differ, HOME is sandboxed. When they match, `'0'` is refused and
+ * we fall back to the implicit rule, so a mis-wired harness degrades to the safe
+ * behaviour instead of touching a real home.
  */
-export function shouldDisableIjfw(env: NodeJS.ProcessEnv): boolean {
+export type HomePair = { effective: string; login: string };
+
+function resolveHomes(): HomePair {
+  let login = '';
+  try {
+    login = os.userInfo().homedir ?? '';
+  } catch {
+    // userInfo() throws when there is no passwd entry (some containers). Leave
+    // it empty, which reads as "cannot prove isolation" below.
+  }
+  return { effective: os.homedir(), login };
+}
+
+/** True when `$HOME` has been pointed somewhere other than the real account home. */
+export function isHomeRedirected(homes: HomePair): boolean {
+  if (!homes.effective || !homes.login) return false;
+  return homes.effective !== homes.login;
+}
+
+export function isCiRuntime(env: NodeJS.ProcessEnv): boolean {
+  return env.CI === 'true' || env.CI === '1' || env.GITHUB_ACTIONS === 'true';
+}
+
+export function shouldDisableIjfw(env: NodeJS.ProcessEnv, homes: HomePair = resolveHomes()): boolean {
   const explicit = env.WAYLAND_DISABLE_IJFW;
   if (explicit === '1') return true;
-  if (explicit === '0') return false;
-  const isCiRuntime = env.CI === 'true' || env.CI === '1' || env.GITHUB_ACTIONS === 'true';
-  return isCiRuntime || env.WAYLAND_E2E_TEST === '1';
+  // Force-ON only from a provably sandboxed HOME. See FORCE-ON IS FAIL-CLOSED.
+  if (explicit === '0' && isHomeRedirected(homes)) return false;
+  return isCiRuntime(env) || env.WAYLAND_E2E_TEST === '1';
 }

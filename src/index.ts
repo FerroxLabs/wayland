@@ -62,7 +62,7 @@ import { pathToFileURL } from 'url';
 import { initMainAdapterWithWindow } from './common/adapter/main';
 import { ipcBridge } from './common';
 import { closeAllPopouts, isPopoutWebContents } from '@process/utils/popoutWindowManager';
-import { shouldDisableIjfw } from '@process/utils/ijfwGuard';
+import { isCiRuntime as resolveCiRuntime, shouldDisableIjfw } from '@process/utils/ijfwGuard';
 import { initPopoutBridge } from '@process/bridge/popoutBridge';
 import { AION_ASSET_PROTOCOL } from '@process/extensions';
 import { resolveAllowedAssetPath } from '@process/extensions/protocol/assetAllowlist';
@@ -690,7 +690,8 @@ const createWindow = ({ showOnReady = true }: { showOnReady?: boolean } = {}): v
   // Initialize auto-updater service (skip when disabled via env, e.g. E2E / CI,
   // and in unpackaged dev where there is no installed app to update - the updater
   // would otherwise hit the GitHub feed on every dev launch and log spurious errors)
-  const isCiRuntime = process.env.CI === 'true' || process.env.CI === '1' || process.env.GITHUB_ACTIONS === 'true';
+  // Single owner: ijfwGuard.ts. A second copy here drifted from it once already.
+  const isCiRuntime = resolveCiRuntime(process.env);
   const disableAutoUpdater =
     !app.isPackaged ||
     process.env.WAYLAND_DISABLE_AUTO_UPDATE === '1' ||
@@ -1508,108 +1509,116 @@ async function performBeforeQuitCleanup(): Promise<void> {
     // parallel, but no later phase starts until the prior phase settles.
 
     // Persistent state closes only after producers and workers are stopped.
-    const databaseStep = () => withTimeout(
-      'closeDatabase',
-      (async () => {
-        if (!mods.database) return;
-        mods.database.closeDatabase();
-      })(),
-      PER_STEP_TIMEOUT_MS
-    );
+    const databaseStep = () =>
+      withTimeout(
+        'closeDatabase',
+        (async () => {
+          if (!mods.database) return;
+          mods.database.closeDatabase();
+        })(),
+        PER_STEP_TIMEOUT_MS
+      );
 
     // L16 (AUDIT-05 F18): silence cron timers before workers so no fresh jobs fire.
-    const cronStep = () => withTimeout(
-      'cronService.shutdown',
-      (async () => {
-        if (!mods.cron) return;
-        mods.cron.cronService.shutdown();
-      })(),
-      PER_STEP_TIMEOUT_MS
-    );
+    const cronStep = () =>
+      withTimeout(
+        'cronService.shutdown',
+        (async () => {
+          if (!mods.cron) return;
+          mods.cron.cronService.shutdown();
+        })(),
+        PER_STEP_TIMEOUT_MS
+      );
 
     // Worker processes after cron (M18 made workerTaskManager.clear() properly
     // await per-agent kill() with its own 3.5s bound).
-    const workerStep = () =>
-      withTimeout('workerTaskManager.clear', workerTaskManager.clear(), PER_STEP_TIMEOUT_MS);
+    const workerStep = () => withTimeout('workerTaskManager.clear', workerTaskManager.clear(), PER_STEP_TIMEOUT_MS);
 
-    const ambientStep = () => withTimeout(
-      'destroyAmbientWindow',
-      (async () => {
-        if (!mods.ambient) return;
-        mods.ambient.destroyAmbientWindow();
-      })(),
-      PER_STEP_TIMEOUT_MS
-    );
+    const ambientStep = () =>
+      withTimeout(
+        'destroyAmbientWindow',
+        (async () => {
+          if (!mods.ambient) return;
+          mods.ambient.destroyAmbientWindow();
+        })(),
+        PER_STEP_TIMEOUT_MS
+      );
 
     const teamStep = () => withTimeout('disposeAllTeamSessions', disposeAllTeamSessions(), PER_STEP_TIMEOUT_MS);
 
-    const channelsStep = () => withTimeout(
-      'channelManager.shutdown',
-      (async () => {
-        if (!mods.channels) return;
-        await mods.channels.getChannelManager().shutdown();
-      })(),
-      PER_STEP_TIMEOUT_MS
-    );
+    const channelsStep = () =>
+      withTimeout(
+        'channelManager.shutdown',
+        (async () => {
+          if (!mods.channels) return;
+          await mods.channels.getChannelManager().shutdown();
+        })(),
+        PER_STEP_TIMEOUT_MS
+      );
 
     // #139: reap webhook tunnel CLIs. ChannelManager.shutdown() does not own
     // the tunnels (the WebhookExposureService singleton does), so they must be
     // torn down explicitly here or the cloudflared/ngrok/tailscale process
     // orphans past the app.
-    const tunnelStep = () => withTimeout(
-      'stopAllTunnels',
-      (async () => {
-        if (!mods.tunnel) return;
-        await mods.tunnel.stopAllTunnels();
-      })(),
-      PER_STEP_TIMEOUT_MS
-    );
+    const tunnelStep = () =>
+      withTimeout(
+        'stopAllTunnels',
+        (async () => {
+          if (!mods.tunnel) return;
+          await mods.tunnel.stopAllTunnels();
+        })(),
+        PER_STEP_TIMEOUT_MS
+      );
 
-    const webServerStep = () => withTimeout(
-      'webServer.close',
-      (async () => {
-        if (!mods.webuiBridge) return;
-        const { getWebServerInstance, setWebServerInstance } = mods.webuiBridge;
-        const instance = getWebServerInstance();
-        if (!instance) return;
-        instance.wss.clients.forEach((client) => client.close(1000, 'App shutting down'));
-        await new Promise<void>((resolve) => instance.server.close(() => resolve()));
-        if (mods.webserverAdapter) {
-          mods.webserverAdapter.cleanupWebAdapter();
-        }
-        setWebServerInstance(null);
-      })(),
-      PER_STEP_TIMEOUT_MS
-    );
+    const webServerStep = () =>
+      withTimeout(
+        'webServer.close',
+        (async () => {
+          if (!mods.webuiBridge) return;
+          const { getWebServerInstance, setWebServerInstance } = mods.webuiBridge;
+          const instance = getWebServerInstance();
+          if (!instance) return;
+          instance.wss.clients.forEach((client) => client.close(1000, 'App shutting down'));
+          await new Promise<void>((resolve) => instance.server.close(() => resolve()));
+          if (mods.webserverAdapter) {
+            mods.webserverAdapter.cleanupWebAdapter();
+          }
+          setWebServerInstance(null);
+        })(),
+        PER_STEP_TIMEOUT_MS
+      );
 
-    const officeWatchStep = () => withTimeout(
-      'stopAllOfficeWatchSessions',
-      (async () => {
-        if (!mods.officeWatch) return;
-        mods.officeWatch.stopAllOfficeWatchSessions();
-      })(),
-      PER_STEP_TIMEOUT_MS
-    );
+    const officeWatchStep = () =>
+      withTimeout(
+        'stopAllOfficeWatchSessions',
+        (async () => {
+          if (!mods.officeWatch) return;
+          mods.officeWatch.stopAllOfficeWatchSessions();
+        })(),
+        PER_STEP_TIMEOUT_MS
+      );
 
-    const pptPreviewStep = () => withTimeout(
-      'stopAllWatchSessions',
-      (async () => {
-        if (!mods.pptPreview) return;
-        mods.pptPreview.stopAllWatchSessions();
-      })(),
-      PER_STEP_TIMEOUT_MS
-    );
+    const pptPreviewStep = () =>
+      withTimeout(
+        'stopAllWatchSessions',
+        (async () => {
+          if (!mods.pptPreview) return;
+          mods.pptPreview.stopAllWatchSessions();
+        })(),
+        PER_STEP_TIMEOUT_MS
+      );
 
     // REL-WATCH-01: drain renderer-initiated fs.watch handles so they are
     // released deterministically on quit rather than abandoned on Cmd+Q/crash.
-    const fileWatchStep = () => withTimeout(
-      'stopAllFileWatchers',
-      (async () => {
-        if (!mods.fileWatch) return;
-        mods.fileWatch.stopAllFileWatchers();
-      })(),
-      PER_STEP_TIMEOUT_MS
-    );
+    const fileWatchStep = () =>
+      withTimeout(
+        'stopAllFileWatchers',
+        (async () => {
+          if (!mods.fileWatch) return;
+          mods.fileWatch.stopAllFileWatchers();
+        })(),
+        PER_STEP_TIMEOUT_MS
+      );
 
     await cronStep();
     await Promise.allSettled([workerStep(), teamStep()]);

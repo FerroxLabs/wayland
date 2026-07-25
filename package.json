@@ -94,7 +94,8 @@
     "server:resetpass": "NODE_ENV=development bun dist-server/server.mjs --resetpass",
     "server:resetpass:prod": "NODE_ENV=production bun dist-server/server.mjs --resetpass",
     "build:renderer:web": "bunx vite build --config vite.renderer.config.ts",
-    "build:server": "node scripts/build-server.mjs"
+    "build:server": "node scripts/build-server.mjs",
+    "smoke:ijfw": "node scripts/ijfw-memory-smoke.mjs"
   },
   "dependencies": {
     "7zip-bin": "5.2.0",
