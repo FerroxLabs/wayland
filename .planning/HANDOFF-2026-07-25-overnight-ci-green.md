@@ -186,3 +186,133 @@ Would reverse the deliberate per-machine UPD-04 decision.
   neutered a security race test. Three siblings still carry invented reasons. G18; not fixed.
 - Windows box `C:\wl-verify` is at `d30782b8` with **342** pre-existing dirty files; I removed my three probe
   scripts. Two agents used throwaway worktrees there and tore them down.
+
+---
+
+## 6. Continuation — the last red check, root-caused and fixed (`92d10cab8`)
+
+Run `30162197594` completed and gave the first complete verdict of this arc:
+
+| Runner        | Shards  | Verdict                    |
+| ------------- | ------- | -------------------------- |
+| ubuntu-latest | 4/4     | **success**                |
+| macos-14      | 4/4     | **success**                |
+| windows-2022  | 2, 3, 4 | success                    |
+| windows-2022  | **1/4** | **failure** — the only red |
+
+`Code Quality` success. So exactly one shard on one OS was red, and its Vitest half passed **367 files /
+5 skipped / 0 failed**. The failure was the _separate_ `bun run test:bun` step: one test,
+`constitutionClassicRecoveryLocatorService.bun.test.ts`, hit Bun's default **5000ms** per-test timeout.
+
+### The reported error was the aftermath, not the cause
+
+CI surfaced `Expected promise that resolves / Received promise that rejected` at line 228 alongside
+`this test timed out after 5000ms`. The mechanism: on timeout Bun tears the test down, the suite's
+`afterEach` (line 113) does `rm(root, { recursive: true, force: true })` on the temp roots, and the still
+in-flight `decide()` then fails its file reads. Chasing the rejection would have chased a symptom.
+
+### Root cause: two runners, two different timeout budgets
+
+`vitest.config.ts:20` sets `testTimeout: 10000`. Bun defaults to 5000 and
+`scripts/run-bun-native-tests.mjs` passed no `--timeout`, so the entire Bun-native corpus silently ran on
+half the budget. The Constitution durability suites do not fit in it on Windows, where every `fsync` is a
+real `FlushFileBuffers` rather than a cheap one.
+
+### Measured, not inferred (Windows box, Bun 1.3.11 — the version CI resolves)
+
+- Full corpus with the budget raised: **254 pass / 0 fail**. No production defect.
+- Heaviest test in a full-corpus run: **4640ms = 93% of the default.** Everything else ≤ 1375ms.
+- Its cost swings with I/O scheduling: **2406ms alone, 4031ms paired, 4640ms full-corpus.**
+- A _different_ test measured **5016ms (fail) on the box** while passing at 2416ms on the CI runner.
+
+That last line is the important one: the cliff is suite-wide and which test trips it is luck. A per-test
+`}, 30_000)` patch on the one CI failure would have knowingly left a live flake in the runner-up.
+
+### The fix
+
+One line in `scripts/run-bun-native-tests.mjs`: pass `--timeout 30000`. Chose 30s over matching Vitest's
+10s because 10s leaves only ~2x over the measured Windows ceiling and the CI runner is slower than the box;
+the whole corpus finishes in ~26s, so a genuine hang is still reported promptly.
+
+**Verification.** Through the real `bun run test:bun` script on the Windows box: **254 pass / 0 fail**.
+macOS: **254 pass / 0 fail**. Linux oxfmt 0.41.0 clean; `prek --files` all pass. The flag is proven to
+_bind_ rather than be silently ignored by re-running with the budget set to `1` → **62 failures**.
+
+### Two Bun-version traps found while doing this (worth keeping)
+
+1. **The box's global Bun is 1.3.7; CI resolves `latest` = 1.3.11.** Under 1.3.7 on Windows,
+   `fs.promises.open(path, O_WRONLY|O_CREAT|O_EXCL, mode)` fails **ENOENT** — the numeric-flag form is
+   broken, the string form `'wx'` works, and Node is fine. Fixed in 1.3.11. My first "reproduction" was
+   entirely this bug and had nothing to do with the CI failure.
+2. **`bun run test:bun` re-resolves `bun` from PATH** for the nested script, so running it with a
+   side-installed Bun still executed the _global_ one and produced 14 phantom EBUSY/ENOENT failures.
+   Put the intended Bun first on PATH, do not just invoke its absolute path.
+
+---
+
+## 7. Two packets built while CI ran — both LOCAL, both need Sean
+
+I audited the diffs, not the reports (G15). Findings below are mine.
+
+### P0-1a — bridge escape hatches — `packet/p0-1a-bridge-escape-hatches` @ `9828662022208d`
+
+Off `ferrox/main`. 7 files, +552/−28. **Not pushed.**
+
+New `src/process/agent/acp/packageRunner.ts` owns the npx/bunx gate for **both** launch paths
+(`createGenericSpawnConfig` and `AcpAgent.ensureBackendAuth`), which had already drifted from each other.
+It normalizes the leading token (unquote, strip `.cmd/.exe/.bat/.ps1`, lowercase, any-whitespace split), so
+closing `bunx ` does not just relocate the one-character bypass. The gate **re-routes, never refuses** —
+`goose acp`, `/usr/local/bin/qwen` and quoted Windows paths still take the generic path.
+`bridgeVersionResolver` now requires exact semver and no longer emits `version || 'latest'`.
+Red-before-green: **22 fail → 0 fail of 64**; `acp|bridge` suites 1543 pass; full suite 13270 / 0.
+
+**I independently checked the one risky behavior change.** `resolveBridgePackage` now _throws_ instead of
+falling back to `@latest`. All three call sites pass exact-pinned constants
+(`acpTypes.ts:16-23` → codex `1.1.2`, claude `0.44.0`, codebuddy `2.73.0`), so the throw is unreachable for
+shipped bridges — no availability regression. `qwen`'s unpinned `npx @qwen-code/qwen-code` is a
+`defaultCliPath` and never goes through this resolver, so it is unaffected.
+
+Two things Sean should know:
+
+- **An absolute path to a package runner still bypasses the gate** (`/usr/local/bin/bunx @pkg`): matching is
+  on the leading token, not its basename. This is not a regression — the old `startsWith('npx ')` gate had
+  the same hole — and an explicit absolute path is a deliberate user choice rather than the accidental
+  PATH case the gate exists for. It belongs in the **P0-1c** custom-agent policy decision, not here.
+- **No live or packaged verification.** All of it is unit-level; `resolveNpxPath` is mocked, the registry is
+  stubbed, and Windows is simulated via a `process.platform` override. Per the standing rule this needs a
+  packaged sweep before it ships.
+- `envOverride` was **kept** (Sean's own documented break-glass from `f9ae6dee8`), only tightened to exact
+  semver, and a bad value warns and falls through rather than throwing — a typo cannot brick agent launch.
+
+### Test typecheck gap — measured — `packet/f-tests-typecheck` @ `f821b0ab5`
+
+Off `ferrox/main`. Config only: new `tsconfig.tests.json` + one additive `package.json` script.
+**Nothing is wired into CI, so it is inert.** **Not pushed.**
+
+- Baseline `bun run typecheck`: **0 errors.** The test tree is the entire gap.
+- `tsc -p tsconfig.tests.json`: **1,750 diagnostics across 421 files**, 54s. But **976 of 1,395 spec files
+  (70%) are already typeclean.**
+- Split: **848 mechanical** (implicit-any on untyped mocks; 215 of them are missing `vitest` imports in just
+  **16 files**, against 1,265 files that already import explicitly) vs **902 semantic**.
+- **The class that matters is 57 errors in 41 files**: 27 tests asserting a string literal its union forbids,
+  30 dead-by-construction (6 unresolvable imports, 5 dead `@ts-expect-error`, 4 `currentMode` →
+  `currentModeId` misspellings the code never reads, 2 comparisons that can never be true, 7 e2e files
+  importing a non-exported type). Six of those files were run: **5 passed, 1 skipped, 0 failed** — green
+  while asserting impossible values.
+- **The original bug is provably catchable.** Setting `reason: 'hostile-publication-race'` back on the
+  integration branch's copy produces exactly
+  `TS2322: Type '"hostile-publication-race"' is not assignable to type '"manual" | "pre-migration" | "pre-update" | "recovery-test"'`.
+  In 54 seconds, from a config file.
+- Note the config does carry a 22-entry exclude list — Bun-native files importing `bun:sqlite`, which has no
+  node types. That is not the same thing as excluding the 419 dirty spec files.
+- Spin-off found: 3 latent `src` `TS2612` errors (`AcpAgentManager.ts:142`, `GeminiAgentManager.ts:98`,
+  `WCoreManager.ts:215`) that appear the moment `target` moves past ES6. Invisible today only because the
+  base config is pinned at ES6.
+
+**Recommendation, and it is a decision for Sean:** gate on a **checked-in diagnostic baseline** keyed on
+`file + code + normalized message` (dropping line/column so it does not churn), failing CI only on _new_
+diagnostics. It would have caught the recovery bug on the first run because that file was new, it costs
+~40s of CI, it requires **zero** test edits, and it shrinks monotonically. A file-exclude list would also
+have caught that one bug but gives permanent zero protection to the 419 already-dirty files. Then fix the
+57 as its own packet — each is a judgment call (is `status: 'open'` a wrong test value or a union missing a
+member?), roughly half a day to a day.
