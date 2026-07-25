@@ -753,7 +753,12 @@ async function main() {
     return 1;
   }
 
-  const { browser, page } = await attachRenderer(port, 20_000);
+  // A freshly signed .app pays a one-time macOS Gatekeeper verification on FIRST
+  // launch that can exceed 20s on a large bundle, so the very first smoke after a
+  // build failed with "no renderer page appeared" against a perfectly healthy app
+  // (the identical run passed once the OS had cached that verification). Budget
+  // for the cold case; a healthy warm launch still attaches in ~1s.
+  const { browser, page } = await attachRenderer(port, 120_000);
   const consoleErrors = [];
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text().slice(0, 300));
