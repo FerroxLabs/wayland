@@ -617,6 +617,8 @@ export type I18nKey =
   | 'conversation.notification.agentFinished.body'
   | 'conversation.notification.agentFinished.title'
   | 'conversation.notification.untitled'
+  | 'conversation.notification.workflowInput.body'
+  | 'conversation.notification.workflowInput.title'
   | 'conversation.observability.close'
   | 'conversation.observability.empty'
   | 'conversation.observability.expandRow'
