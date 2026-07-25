@@ -70,14 +70,14 @@ You are not prompting a chatbot. You are coworking with a system that remembers 
 
 Grab the latest build for your platform. No account, no sign-up. Every link opens the latest Releases page, where you pick the file for your platform.
 
-| Platform | Architecture | File |
-|----------|--------------|------|
-| **macOS** | Apple Silicon (M1 and up) | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **macOS** | Intel | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | x64 | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Windows** | ARM64 | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux** | x64 (Debian / Ubuntu) | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
-| **Linux** | ARM64 (Debian / Ubuntu) | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
+| Platform    | Architecture              | File                                                          |
+| ----------- | ------------------------- | ------------------------------------------------------------- |
+| **macOS**   | Apple Silicon (M1 and up) | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **macOS**   | Intel                     | [.dmg](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Windows** | x64                       | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Windows** | ARM64                     | [.exe](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Linux**   | x64 (Debian / Ubuntu)     | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
+| **Linux**   | ARM64 (Debian / Ubuntu)   | [.deb](https://github.com/ferroxlabs/wayland/releases/latest) |
 
 The installer bundles the Wayland-Core engine for your platform, so a clean install runs agents the moment you add a provider key.
 
@@ -86,14 +86,14 @@ The installer bundles the Wayland-Core engine for your platform, so a clean inst
 <details>
 <summary><b>macOS says Wayland cannot be opened?</b></summary>
 
-These builds are not notarized by Apple yet, so macOS blocks them on first launch. To open it, go to **System Settings, then Privacy and Security**, scroll down, and click **Open Anyway** next to the Wayland entry, then confirm with **Open**. On older macOS, right-click the app in Applications and choose **Open, then Open**. Notarization lands once the Apple Developer setup is in place.
+Current releases are signed and notarized, so they should open normally. If you still see this, you are almost certainly on an older download, or the file lost its quarantine attributes in transit. To open it, go to **System Settings, then Privacy and Security**, scroll down, and click **Open Anyway** next to the Wayland entry, then confirm with **Open**. On older macOS, right-click the app in Applications and choose **Open, then Open**.
 
 </details>
 
 <details>
 <summary><b>Windows SmartScreen warning?</b></summary>
 
-The Windows installer is not code-signed yet, so SmartScreen warns on new publishers. Click **More info, then Run anyway**. The build is the unmodified release artifact. Code signing and Windows auto-update land once the certificate is in place.
+SmartScreen warns on any publisher it has not seen enough downloads from yet, signed or not. Click **More info, then Run anyway**. The build is the unmodified release artifact.
 
 </details>
 
@@ -211,19 +211,19 @@ Set your rules once and every agent follows them, no matter which CLI runs the t
 
 Wayland spawns each CLI in [ACP](https://agentclientprotocol.com) mode and you bring the CLI's own auth. The bundled Wayland-Core engine and Gemini run natively.
 
-| Agent | Command | Connect with |
-|:--|:--|:--|
-| <img src=".github/assets/logos/openclaw.svg" width="20" valign="middle"/> &nbsp;**OpenClaw** | gateway | OpenClaw account |
-| <img src=".github/assets/logos/hermes.svg" width="20" valign="middle"/> &nbsp;**Hermes** (Nous Research) | `hermes acp` | Hermes login |
-| <img src=".github/assets/logos/claude.svg" width="20" valign="middle"/> &nbsp;**Claude Code** | `claude` | Claude login or `ANTHROPIC_API_KEY` |
-| <img src=".github/assets/logos/cursor.png" width="20" valign="middle"/> &nbsp;**Cursor Agent** | `agent` | Cursor subscription |
-| <img src=".github/assets/logos/copilot.png" width="20" valign="middle"/> &nbsp;**GitHub Copilot** | `copilot` | Copilot subscription |
-| <img src=".github/assets/logos/codex.svg" width="20" valign="middle"/> &nbsp;**Codex** (OpenAI) | `codex` | ChatGPT auth or `OPENAI_API_KEY` |
-| <img src=".github/assets/logos/gemini.svg" width="20" valign="middle"/> &nbsp;**Gemini** (Google) | native | Google auth |
-| <img src=".github/assets/logos/goose.png" width="20" valign="middle"/> &nbsp;**Goose** (Block) | `goose acp` | provider key |
-| <img src=".github/assets/logos/qwen.svg" width="20" valign="middle"/> &nbsp;**Qwen Code** | `qwen` | Qwen auth |
-| <img src=".github/assets/logos/opencode.svg" width="20" valign="middle"/> &nbsp;**OpenCode** | `opencode` | provider key |
-| <img src=".github/assets/logos/kimi.svg" width="20" valign="middle"/> &nbsp;**Kimi** (Moonshot) | `kimi` | Kimi login |
+| Agent                                                                                                    | Command      | Connect with                        |
+| :------------------------------------------------------------------------------------------------------- | :----------- | :---------------------------------- |
+| <img src=".github/assets/logos/openclaw.svg" width="20" valign="middle"/> &nbsp;**OpenClaw**             | gateway      | OpenClaw account                    |
+| <img src=".github/assets/logos/hermes.svg" width="20" valign="middle"/> &nbsp;**Hermes** (Nous Research) | `hermes acp` | Hermes login                        |
+| <img src=".github/assets/logos/claude.svg" width="20" valign="middle"/> &nbsp;**Claude Code**            | `claude`     | Claude login or `ANTHROPIC_API_KEY` |
+| <img src=".github/assets/logos/cursor.png" width="20" valign="middle"/> &nbsp;**Cursor Agent**           | `agent`      | Cursor subscription                 |
+| <img src=".github/assets/logos/copilot.png" width="20" valign="middle"/> &nbsp;**GitHub Copilot**        | `copilot`    | Copilot subscription                |
+| <img src=".github/assets/logos/codex.svg" width="20" valign="middle"/> &nbsp;**Codex** (OpenAI)          | `codex`      | ChatGPT auth or `OPENAI_API_KEY`    |
+| <img src=".github/assets/logos/gemini.svg" width="20" valign="middle"/> &nbsp;**Gemini** (Google)        | native       | Google auth                         |
+| <img src=".github/assets/logos/goose.png" width="20" valign="middle"/> &nbsp;**Goose** (Block)           | `goose acp`  | provider key                        |
+| <img src=".github/assets/logos/qwen.svg" width="20" valign="middle"/> &nbsp;**Qwen Code**                | `qwen`       | Qwen auth                           |
+| <img src=".github/assets/logos/opencode.svg" width="20" valign="middle"/> &nbsp;**OpenCode**             | `opencode`   | provider key                        |
+| <img src=".github/assets/logos/kimi.svg" width="20" valign="middle"/> &nbsp;**Kimi** (Moonshot)          | `kimi`       | Kimi login                          |
 
 Plus **Factory Droid**, **Augment**, **CodeBuddy**, **Qoder**, **Kiro**, **Mistral Vibe**, **Snow**, and any custom ACP agent. 16 ACP CLI agents in all, plus native Gemini and the bundled Wayland-Core engine.
 
@@ -285,14 +285,14 @@ The CLI self-updates with `npm update -g @ferroxlabs/wayland-core`, independent 
 
 Wayland runs on your provider credentials. There is no required Wayland-hosted backend to chat.
 
-| What | Where | Notes |
-|---|---|---|
-| Anthropic key | `ANTHROPIC_API_KEY` or in-app | For a Claude subscription with no key, use the Claude Code backend and sign in with the `claude` CLI |
-| OpenAI key | `OPENAI_API_KEY` or in-app | Covers OpenAI-compatible endpoints (DeepSeek, Ollama, and more) |
-| Other providers | in-app | AWS Bedrock, Google Vertex, per-CLI auth for each ACP backend |
-| Flux Router | `FLUX_API_KEY` (`sk-flux-...`) | Optional. Only needed if you route through Flux |
-| Constitution | `~/.wayland/CONSTITUTION.md` | An editable rulebook prepended to every turn, with per-specialist overrides |
-| Data and memory | SQLite under your OS config dir | Your files, chats, and memory stay on disk |
+| What            | Where                           | Notes                                                                                                |
+| --------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Anthropic key   | `ANTHROPIC_API_KEY` or in-app   | For a Claude subscription with no key, use the Claude Code backend and sign in with the `claude` CLI |
+| OpenAI key      | `OPENAI_API_KEY` or in-app      | Covers OpenAI-compatible endpoints (DeepSeek, Ollama, and more)                                      |
+| Other providers | in-app                          | AWS Bedrock, Google Vertex, per-CLI auth for each ACP backend                                        |
+| Flux Router     | `FLUX_API_KEY` (`sk-flux-...`)  | Optional. Only needed if you route through Flux                                                      |
+| Constitution    | `~/.wayland/CONSTITUTION.md`    | An editable rulebook prepended to every turn, with per-specialist overrides                          |
+| Data and memory | SQLite under your OS config dir | Your files, chats, and memory stay on disk                                                           |
 
 Engine key resolution order: `--api-key`, then config, then `API_KEY` env, then provider-specific env.
 
@@ -311,7 +311,7 @@ No. Bring your own provider keys, or use the Claude Code backend with your Claud
 Make sure Ollama is running and reachable on its default port, then refresh the model list in Settings.
 
 **Is it really open source?**
-Yes. The desktop app and the Wayland-Core engine are both open, under the GNU AGPL-3.0.
+Yes, both parts. The desktop app is GNU AGPL-3.0 and the Wayland-Core engine is Apache-2.0, so you can embed the engine anywhere.
 
 ## Contributing
 
@@ -319,7 +319,7 @@ Contributions are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) before open
 
 ## License & the Wayland name
 
-Wayland is **real open source** under the [GNU AGPL-3.0](./LICENSE), app and engine both. Run it, self-host it, modify it, fork it, and build commercial services around it. The only catch AGPL adds: a networked service built on it must publish its source under the same terms. Contributions are under a light [CLA](./CONTRIBUTING.md); third-party attributions live in [notices/](./notices/).
+Wayland is **real open source**. This desktop app is [GNU AGPL-3.0](./LICENSE); the engine, [wayland-core](https://github.com/FerroxLabs/wayland-core), is Apache-2.0. The split is deliberate: a permissive engine so anyone can embed it, copyleft on the app so the GUI stays open. Run it, self-host it, modify it, fork it, and build commercial services around it. The only catch AGPL adds: a networked service built on the app must publish its source under the same terms. Contributions are under a light [CLA](./CONTRIBUTING.md); third-party attributions live in [notices/](./notices/).
 
 A hosted **Wayland Pro** with expanded capabilities is on the way. The core you self-host stays complete and free, never crippled to sell you the hosted one.
 
