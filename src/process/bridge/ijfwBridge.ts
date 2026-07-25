@@ -12,10 +12,7 @@
 import log from 'electron-log';
 import { ipcBridge } from '@/common';
 import type { IjfwInvokeResult } from '@/common/types/ijfw';
-import {
-  brainInvokeArgsSchema,
-  validateInvocation,
-} from '@process/services/ijfw/ipcSchemas';
+import { brainInvokeArgsSchema, validateInvocation } from '@process/services/ijfw/ipcSchemas';
 import { ijfwMcpClient } from '@process/services/ijfw/ijfwMcpClient';
 import { ijfwSystemService, getLastStatus } from '@process/services/ijfwSystemService';
 import { ProcessConfig } from '@process/utils/initStorage';
@@ -86,6 +83,18 @@ export function initIjfwBridge(): void {
   ipcBridge.ijfw.skipSetup.provider(async ({ enabled }) => {
     await ProcessConfig.set('ijfw.skipSetup', enabled);
     return { ok: true };
+  });
+
+  // Same coercion as ijfwSystemService.readSkipSetupSetting, so the switch and
+  // bootstrap can never disagree about what the stored value means.
+  ipcBridge.ijfw.getSkipSetup.provider(async () => {
+    try {
+      const v = (await ProcessConfig.get('ijfw.skipSetup')) as unknown;
+      return { enabled: v === true || v === 'true' || v === 1 || v === '1' };
+    } catch (err) {
+      log.warn('[ijfw-bridge] getSkipSetup failed; assuming not opted out', { err });
+      return { enabled: false };
+    }
   });
 
   ipcBridge.ijfw.getRuntimeMode.provider(async () => ijfwMcpClient.getMode());

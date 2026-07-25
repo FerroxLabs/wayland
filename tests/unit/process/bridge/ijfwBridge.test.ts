@@ -47,6 +47,11 @@ vi.mock('@/common', () => ({
           providers.set('skipSetup', handler as (args: unknown) => Promise<unknown>);
         }) as Provider<unknown, unknown>,
       },
+      getSkipSetup: {
+        provider: ((handler) => {
+          providers.set('getSkipSetup', handler as (args: unknown) => Promise<unknown>);
+        }) as Provider<unknown, unknown>,
+      },
       getRuntimeMode: {
         provider: ((handler) => {
           providers.set('getRuntimeMode', handler as (args: unknown) => Promise<unknown>);
@@ -84,10 +89,11 @@ vi.mock('@process/services/ijfwSystemService', () => ({
 }));
 
 const setSpy = vi.fn(async () => undefined);
+const getSpy = vi.fn(async (_key: string): Promise<unknown> => undefined);
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: {
     set: (key: string, value: unknown) => setSpy(key, value),
-    get: async () => undefined,
+    get: (key: string) => getSpy(key),
   },
 }));
 
@@ -101,6 +107,8 @@ beforeEach(() => {
   bootstrapSpy.mockClear();
   getLatestSpy.mockClear();
   setSpy.mockClear();
+  getSpy.mockClear();
+  getSpy.mockResolvedValue(undefined);
   initIjfwBridge();
 });
 
@@ -243,6 +251,34 @@ describe('ijfwBridge', () => {
       const result = (await handler({ enabled: true })) as { ok: boolean };
       expect(result.ok).toBe(true);
       expect(setSpy).toHaveBeenCalledWith('ijfw.skipSetup', true);
+    });
+  });
+
+  describe('getSkipSetup', () => {
+    // The Settings switch reads THIS, not the lifecycle status. Coercion must
+    // match ijfwSystemService.readSkipSetupSetting or the switch and bootstrap
+    // would disagree about the same stored value.
+    it.each([
+      [true, true],
+      ['true', true],
+      [1, true],
+      ['1', true],
+      [false, false],
+      ['0', false],
+      [undefined, false],
+      ['yes', false],
+    ])('coerces stored %p to enabled=%p', async (stored, expected) => {
+      getSpy.mockResolvedValue(stored);
+      const handler = providers.get('getSkipSetup')!;
+      const result = (await handler(undefined)) as { enabled: boolean };
+      expect(result.enabled).toBe(expected);
+    });
+
+    it('assumes not opted out when the config read throws', async () => {
+      getSpy.mockRejectedValue(new Error('store corrupt'));
+      const handler = providers.get('getSkipSetup')!;
+      const result = (await handler(undefined)) as { enabled: boolean };
+      expect(result.enabled).toBe(false);
     });
   });
 

@@ -2162,6 +2162,17 @@ export const ijfw = {
   triggerInstall: buildProvider<{ ok: true } | { ok: false; error: string }, void>('ijfw.trigger-install'),
   /** Persist the Settings opt-out flag. */
   skipSetup: buildProvider<{ ok: true }, { enabled: boolean }>('ijfw.skip-setup'),
+  /**
+   * Read the persisted opt-out flag DIRECTLY.
+   *
+   * The Settings switch used to infer this from the lifecycle status
+   * (`not_installed` + `opt_out`), which conflates a user SETTING with on-disk
+   * STATE. With an install present the status is `installed_current` no matter
+   * what the flag says, so the switch could not stay ON: any fresh `getStatus`
+   * (a remount, navigating away and back) re-derived it to OFF and masked the
+   * user's persisted choice. The flag is the only honest source for the switch.
+   */
+  getSkipSetup: buildProvider<{ enabled: boolean }, void>('ijfw.get-skip-setup'),
   /** Returns whether the MCP client is reachable (`full`) or short-circuiting (`degraded`). */
   getRuntimeMode: buildProvider<IjfwRuntimeModePublic, void>('ijfw.get-runtime-mode'),
 
