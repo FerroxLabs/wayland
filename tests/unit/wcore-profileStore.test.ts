@@ -83,6 +83,14 @@ beforeEach(async () => {
   openControl.seen = [];
   delete process.env.WAYLAND_HOME;
   delete process.env.XDG_DATA_HOME;
+  // MUST also be cleared. profilePaths.platformConfigBase() prefers
+  // XDG_CONFIG_HOME over homedir() on Linux, and the GitHub ubuntu runner sets
+  // it. So the mocked homedir was bypassed and every profile was written to the
+  // runner's REAL ~/.config/wayland-core-profiles - tests then collided with
+  // each other ("profile \"work\" already exists", EEXIST mkdir). macOS never
+  // showed it because the darwin branch ignores XDG entirely, which is why this
+  // passed locally and failed only on CI.
+  delete process.env.XDG_CONFIG_HOME;
 });
 
 afterEach(async () => {
