@@ -26,7 +26,9 @@ export type IjfwErrorReason =
   | 'timeout'
   | 'validation_failed'
   | 'unavailable'
-  | 'opt_out';
+  | 'opt_out'
+  /** Another process holds the install lock, so bootstrap did nothing. */
+  | 'install_lock_held';
 
 export const IJFW_ERROR_REASONS = [
   'spawn_error',
@@ -44,6 +46,7 @@ export const IJFW_ERROR_REASONS = [
   'validation_failed',
   'unavailable',
   'opt_out',
+  'install_lock_held',
 ] as const satisfies readonly IjfwErrorReason[];
 
 /** Runtime mode reported by the MCP client. */

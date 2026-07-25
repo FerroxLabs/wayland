@@ -251,9 +251,19 @@ describe('IjfwSettingsPanel', () => {
       expect(triggerInstallInvoke).not.toHaveBeenCalled();
     });
 
-    it('surfaces an error when bootstrap refuses to start', async () => {
+    /**
+     * NOTE on scope: this covers triggerInstall returning a STRUCTURED failure,
+     * which happens when bootstrap throws. It does NOT cover install-lock
+     * contention - the bridge resolves ok:true there because bootstrap returns
+     * normally. Lock contention is now reported by an emitted
+     * `install_failed` / `install_lock_held` status instead (see
+     * ijfwSystemService). An earlier version of this test asserted a
+     * `{ok:false, error:'lock held by pid 42'}` shape the bridge can never
+     * produce, so it looked like coverage and was not.
+     */
+    it('surfaces an error when triggerInstall returns a structured failure', async () => {
       getSkipSetupInvoke.mockResolvedValue({ enabled: true });
-      triggerInstallInvoke.mockResolvedValueOnce({ ok: false, error: 'lock held by pid 42' });
+      triggerInstallInvoke.mockResolvedValueOnce({ ok: false, error: 'bootstrap threw' });
       render(<IjfwSettingsPanel />);
       await flushAsync();
       await act(async () => {
@@ -261,7 +271,7 @@ describe('IjfwSettingsPanel', () => {
       });
       await flushAsync();
 
-      expect(messageError).toHaveBeenCalledWith('lock held by pid 42');
+      expect(messageError).toHaveBeenCalledWith('bootstrap threw');
     });
   });
 

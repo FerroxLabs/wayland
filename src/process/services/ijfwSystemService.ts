@@ -421,6 +421,12 @@ async function bootstrapImpl(): Promise<void> {
   const lock = await acquireLock();
   if (!lock.acquired) {
     log.info('[ijfw] install already running by pid', lock.holderPid);
+    // Returning silently here made the Settings toggle a no-op that still
+    // reported success: the bridge saw a normal resolve, turned it into
+    // {ok:true}, and nothing ever emitted, so the checklist kept showing the
+    // pre-toggle state. That recreated the exact restart-only dead end the
+    // toggle fix was for. A held lock is a real outcome; say so.
+    emitStatus({ status: 'install_failed', errorReason: 'install_lock_held' });
     return;
   }
   const lockHandle: LockMetadata = lock.handle!;

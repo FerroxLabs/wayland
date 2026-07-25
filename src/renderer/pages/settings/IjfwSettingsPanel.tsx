@@ -17,7 +17,7 @@
  */
 
 import { Button, Message, Switch, Typography } from '@arco-design/web-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { IjfwLifecycleStatus, IjfwStatusPayload } from '@/common/adapter/ipcBridge';
@@ -32,6 +32,10 @@ const IjfwSettingsPanel: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<IjfwLifecycleStatus | null>(null);
   const [cliCount, setCliCount] = useState(0);
+
+  // Set while the user's own click is in flight, so a late flag read cannot
+  // overwrite their choice mid-toggle.
+  const togglingRef = useRef(false);
 
   const applyChecklist = useCallback((payload: IjfwStatusPayload | null | undefined): void => {
     if (!payload) return;
@@ -49,10 +53,11 @@ const IjfwSettingsPanel: React.FC = () => {
    * that started before the user re-enabled Skip, or simply navigating away and
    * back - re-derived it to OFF and masked the user's own choice.
    */
-  const refreshSkipFlag = useCallback(async (): Promise<void> => {
+  const refreshSkipFlag = useCallback(async (isLive: () => boolean = () => true): Promise<void> => {
     try {
       const flag = await ipcBridge.ijfw.getSkipSetup.invoke();
-      if (flag) setSkipEnabled(flag.enabled === true);
+      // Must not land after unmount, nor after the user's own click.
+      if (flag && isLive()) setSkipEnabled(flag.enabled === true);
     } catch (err) {
       console.error('[IjfwSettingsPanel] getSkipSetup failed:', err);
     }
@@ -82,7 +87,7 @@ const IjfwSettingsPanel: React.FC = () => {
       applyChecklist(payload);
     });
 
-    void refreshSkipFlag();
+    void refreshSkipFlag(() => !disposed && !togglingRef.current);
 
     return () => {
       disposed = true;
@@ -99,53 +104,70 @@ const IjfwSettingsPanel: React.FC = () => {
   const handleToggle = useCallback(
     async (next: boolean) => {
       if (loading) return;
-      const previous = skipEnabled;
+      togglingRef.current = true;
       setSkipEnabled(next);
       setLoading(true);
       try {
         const result = await ipcBridge.ijfw.skipSetup.invoke({ enabled: next });
-        if (result?.ok) {
-          Message.success(
-            next
-              ? t('memory.settings.skip_label', { defaultValue: 'Skip IJFW automatic setup' })
-              : t('memory.pitch.install_cta', { defaultValue: 'Install Memory' })
-          );
-          // Persisting the flag was ALL this toggle used to do. Bootstrap had
-          // already run at boot and short-circuited on `opt_out`, so turning
-          // Skip back off changed nothing observable: the checklist kept saying
-          // "Not installed yet", the runtime row kept saying "Waiting for
-          // install", and Test kept failing because `runtimeMode` was never
-          // enabled. Flipping the switch any number of times could not recover
-          // it - only restarting the app could. So re-enabling now runs the
-          // same bootstrap the Memory page's install button runs.
-          //
-          // NOTE: triggerInstall resolves ok:true even when bootstrap aborts on
-          // a held lock, so the toast above is not proof the install ran. The
-          // checklist below reports what actually happened.
-          if (!next) {
-            const install = await ipcBridge.ijfw.triggerInstall.invoke();
-            if (install && install.ok === false) {
-              Message.error(
-                install.error ?? t('memory.error.unknown', { defaultValue: 'Something went wrong. Try again.' })
-              );
-            }
-          }
-        } else {
-          setSkipEnabled(previous);
+        if (!result?.ok) {
+          // The write never landed, so reverting the switch is still honest.
+          setSkipEnabled(!next);
           Message.error(t('memory.error.unknown', { defaultValue: 'Something went wrong. Try again.' }));
+          return;
         }
+        Message.success(
+          next
+            ? t('memory.settings.skip_label', { defaultValue: 'Skip IJFW automatic setup' })
+            : t('memory.pitch.install_cta', { defaultValue: 'Install Memory' })
+        );
       } catch (err) {
-        setSkipEnabled(previous);
+        // Only the config write is awaited here, so this is still a pre-write
+        // failure and the revert cannot contradict stored state.
+        setSkipEnabled(!next);
         Message.error(
           err instanceof Error
             ? err.message
             : t('memory.error.unknown', { defaultValue: 'Something went wrong. Try again.' })
         );
+        return;
       } finally {
         setLoading(false);
+        togglingRef.current = false;
+      }
+
+      // Persisting the flag was ALL this toggle used to do. Bootstrap had
+      // already run at boot and short-circuited on `opt_out`, so turning Skip
+      // back off changed nothing observable and only an app restart could
+      // recover it. Re-enabling now runs the same bootstrap the Memory page's
+      // install button runs.
+      //
+      // Deliberately NOT awaited while the switch is disabled: bootstrap can
+      // spawn `npm view` with no timeout, so awaiting it held `loading` across
+      // an unbounded network call and a blackholed registry wedged the switch
+      // with every further click swallowed. The status subscription renders
+      // progress instead. The switch is never rolled back from here - the flag
+      // is already committed, and showing the opposite of stored state would be
+      // a lie.
+      if (!next) {
+        void ipcBridge.ijfw.triggerInstall
+          .invoke()
+          .then((install) => {
+            if (install && install.ok === false) {
+              Message.error(
+                install.error ?? t('memory.error.unknown', { defaultValue: 'Something went wrong. Try again.' })
+              );
+            }
+          })
+          .catch((err: unknown) => {
+            Message.error(
+              err instanceof Error
+                ? err.message
+                : t('memory.error.unknown', { defaultValue: 'Something went wrong. Try again.' })
+            );
+          });
       }
     },
-    [loading, skipEnabled, t]
+    [loading, t]
   );
 
   return (

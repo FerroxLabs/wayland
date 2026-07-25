@@ -11,8 +11,9 @@
  * Presentational: it receives the three lifecycle signals as props (install
  * status, detected-CLI count, MCP runtime mode) and renders a green/amber
  * checklist. The Test button probes the local IJFW MCP server with the
- * read-only `state` verb via `ipcBridge.ijfw.brainInvoke` and reports
- * pass/fail. All signals are already wired main-side; this is renderer-only.
+ * read-only `metrics` verb via `ipcBridge.ijfw.brainInvoke` and reports
+ * pass/fail. It used to probe `state`, which could never succeed - see
+ * handleTest. All signals are already wired main-side; this is renderer-only.
  */
 
 import { Button, Typography } from '@arco-design/web-react';
