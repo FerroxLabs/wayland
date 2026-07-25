@@ -146,6 +146,9 @@ const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 type LatestCache = { version: string; fetchedAt: number };
 let inMemoryCache: LatestCache | null = null;
 
+/** Shared handle for the single in-flight bootstrap. See `bootstrap()`. */
+let inFlightBootstrap: Promise<void> | null = null;
+
 function cachePath(): string {
   return path.join(app.getPath('userData'), `ijfw-latest-cache-${ijfwCacheKey()}.json`);
 }
@@ -427,6 +430,25 @@ async function bootstrapImpl(): Promise<void> {
     // pre-toggle state. That recreated the exact restart-only dead end the
     // toggle fix was for. A held lock is a real outcome; say so.
     emitStatus({ status: 'install_failed', errorReason: 'install_lock_held' });
+    return;
+  }
+
+  // Re-detect now that we hold the lock. `local` above was read BEFORE it, so a
+  // run that queued behind another installer would otherwise install on top of
+  // a tree that just became current.
+  const afterLock = await detectLocalInstallImpl();
+  const latestAfterLock = latest ?? (await getLatestPublishedImpl());
+  if (
+    afterLock.installed &&
+    latestAfterLock &&
+    afterLock.version &&
+    semver.valid(afterLock.version) &&
+    semver.gte(afterLock.version, latestAfterLock)
+  ) {
+    emitStatus({ status: 'installed_current', version: afterLock.version });
+    await syncPrelude('installed_current');
+    runtimeMode = 'enabled';
+    await releaseLock(lock.handle!);
     return;
   }
   const lockHandle: LockMetadata = lock.handle!;
@@ -843,7 +865,17 @@ export const ijfwSystemService = {
   },
 
   async bootstrap(): Promise<void> {
-    return bootstrapImpl();
+    // Coalesced on purpose. The Settings toggle can fire triggerInstall while the
+    // deferred boot bootstrap (index.ts, +5s) is still running. Detection happens
+    // BEFORE the install lock is taken, so both calls could observe "not
+    // installed" and a delayed second call could acquire the just-released lock
+    // on stale detection and run a SECOND installer over the first one's tree.
+    // One in-flight run, shared by every caller.
+    if (inFlightBootstrap) return inFlightBootstrap;
+    inFlightBootstrap = bootstrapImpl().finally(() => {
+      inFlightBootstrap = null;
+    });
+    return inFlightBootstrap;
   },
 
   async applyPendingUpgrade(): Promise<void> {
