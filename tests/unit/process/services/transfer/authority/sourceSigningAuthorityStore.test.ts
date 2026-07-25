@@ -261,7 +261,13 @@ describe('transfer source signing authority persistence', () => {
     const vault = new MemoryVault();
 
     const created = await loadOrCreateSourceSigningAuthority({ state: backend, vault });
-    expect(fs.statSync(statePath).mode & 0o777).toBe(0o600);
+    // Windows does not implement POSIX permission bits: a file created with
+    // mode 0o600 reports 0o666 there (measured), so this asserted 438 !== 384 on
+    // every Windows run. The chmod case below already guards for the same
+    // reason; this assertion was simply missed.
+    if (process.platform !== 'win32') {
+      expect(fs.statSync(statePath).mode & 0o777).toBe(0o600);
+    }
     const before = fs.readFileSync(statePath);
     expect(await backend.createOnce(new TextEncoder().encode('{}'))).toBe('existing');
     expect(fs.readFileSync(statePath)).toEqual(before);

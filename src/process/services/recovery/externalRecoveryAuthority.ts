@@ -23,6 +23,28 @@ export const EXTERNAL_RECOVERY_AUTHORITY_DIRECTORY = 'external-recovery-authorit
 
 const EVENTS_DIRECTORY = 'events';
 const VAULT_DIRECTORY = 'vault';
+
+/**
+ * Filesystem-safe vault filename for a recovery key id.
+ *
+ * A key id is `rk1:<43 base64url chars>` and used to become the filename
+ * verbatim. A colon cannot appear in a Windows filename: NTFS reads
+ * `name:stream` as an alternate data stream, so `open()` quietly created a
+ * stream instead of a file and the `link()` that publishes it failed with
+ * EINVAL. External recovery was therefore entirely broken on Windows, which is
+ * how the CI shard found it. base64url never contains '.', so substituting the
+ * single colon is unambiguous and reversible.
+ *
+ * No migration is needed: this authority has never shipped - it is absent from
+ * main and from v0.11.16 through v0.11.18 - so no vault exists in the old shape.
+ */
+function vaultFileNameForKeyId(keyId: string): string {
+  return `${keyId.replace(':', '.')}.json`;
+}
+
+export function vaultRelativePathForKeyId(keyId: string): string {
+  return `${VAULT_DIRECTORY}/${vaultFileNameForKeyId(keyId)}`;
+}
 const STATE_FILE = 'key-state.json';
 const WRITER_LOCK_FILE = 'writer.lock';
 const MAX_AUTHORITY_FILE_BYTES = 16 * 1024 * 1024;
@@ -271,7 +293,7 @@ function locateEvent(bytes: Buffer, expectedSequence: number): LocatedEvent {
   ) {
     throw new Error('External recovery event identity is invalid.');
   }
-  const expectedVaultPath = `${VAULT_DIRECTORY}/${value.newKeyId}.json`;
+  const expectedVaultPath = vaultRelativePathForKeyId(value.newKeyId);
   if (value.newVaultRef !== expectedVaultPath)
     throw new Error('External recovery event vault reference is unsafe or noncanonical.');
   return { bytes, keyId: value.newKeyId, vaultRelativePath: expectedVaultPath };
@@ -326,7 +348,7 @@ async function assertAuthorityRootLayout(authorityRoot: string): Promise<void> {
 }
 
 async function assertVaultInventory(authorityRoot: string, events: readonly LocatedEvent[]): Promise<void> {
-  const expected = new Set(events.map((event) => `${event.keyId}.json`));
+  const expected = new Set(events.map((event) => vaultFileNameForKeyId(event.keyId)));
   const entries = await readdir(path.join(authorityRoot, VAULT_DIRECTORY), { withFileTypes: true });
   if (entries.length !== expected.size)
     throw new Error('External recovery vault inventory is incomplete or contradictory.');
@@ -447,7 +469,7 @@ async function createUnderLock(
       vaultSecret.fill(0);
     }
     const vaultRef = requireCanonicalIdentity(wrapped.vaultRef, 'External recovery OS vault reference');
-    const vaultRelativePath = `${VAULT_DIRECTORY}/${keyId}.json`;
+    const vaultRelativePath = vaultRelativePathForKeyId(keyId);
     const wrapBytes = createSameDeviceRecoveryWrap({
       secret,
       createdAt,

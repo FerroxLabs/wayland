@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // In-memory ProcessConfig stand-in: the store reads/writes exactly one key
@@ -105,11 +106,17 @@ describe('WorkspaceTrustStore (#671)', () => {
 
   it('migrates the complete legacy map on the next access write', async () => {
     const s = await freshStore();
-    store['workspace.trustLevel'] = { '/legacy/a': 'cowork', '/legacy/b': 'chat' };
+    // Legacy keys must be seeded in the form the store itself would have
+    // written, i.e. path.resolve()d. Seeding raw POSIX paths made this pass
+    // everywhere except Windows, where path.resolve('/legacy/a') is
+    // 'C:\\legacy\\a', so the update added a THIRD key instead of replacing
+    // the legacy one.
+    const legacyA = path.resolve('/legacy/a');
+    store['workspace.trustLevel'] = { [legacyA]: 'cowork', [path.resolve('/legacy/b')]: 'chat' };
 
     // The chosen value is semantically unchanged. The write must still replace
     // every legacy label with the canonical vocabulary.
-    await s.setWorkspaceAccess('/legacy/a', 'trusted-edits');
+    await s.setWorkspaceAccess(legacyA, 'trusted-edits');
 
     expect(Object.values(store['workspace.trustLevel'] as Record<string, string>).toSorted()).toEqual([
       'ask',

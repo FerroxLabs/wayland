@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import path from 'node:path';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ICreateConversationParams } from '@/common/adapter/ipcBridge';
 
@@ -22,7 +23,11 @@ vi.mock('fs/promises', () => ({
       throw new Error('ENOENT');
     }),
     lstat: vi.fn(async (value: string) => {
-      if (value.startsWith('/mock/work/')) {
+      // Separator-agnostic: the code under test resolves this path, and on
+      // Windows path.resolve('/mock/work/x') is 'C:\\mock\\work\\x', so a
+      // startsWith('/mock/work/') check missed every time and this mock threw
+      // ENOENT on the runner while matching fine on POSIX.
+      if (value.split(path.sep).join('/').includes('/mock/work/')) {
         return { isSymbolicLink: () => false, isDirectory: () => true, dev: 7, ino: 11 };
       }
       throw new Error('ENOENT');

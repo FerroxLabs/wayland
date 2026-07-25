@@ -23,6 +23,7 @@ import {
   parseCanonicalRecoveryJson,
 } from '@process/services/recovery/externalRecoveryCrypto';
 import { createExternalRecoveryRecordCodec } from '@process/services/recovery/externalRecoveryRecordCodec';
+import { vaultRelativePathForKeyId } from '@process/services/recovery/externalRecoveryAuthority';
 
 const CREATED_AT = new Date('2026-07-17T12:00:00.000Z');
 const FIXED_SECRET = Buffer.from(Array.from({ length: 32 }, (_, index) => index + 11));
@@ -97,7 +98,10 @@ async function publishValidRotationFixture(
   const firstEvent = await readFile(path.join(authorityRoot, 'events', '000000.json'));
   const previousEventSha256 = `sha256:${createHash('sha256').update(firstEvent).digest('hex')}`;
   const newKeyId = deriveRecoveryKeyId(ROTATED_SECRET);
-  const vaultRelativePath = `vault/${newKeyId}.json`;
+  // Use the production mapping rather than restating it: this line previously
+  // duplicated `vault/<keyId>.json` and broke the moment the real scheme changed
+  // to keep the colon out of Windows filenames.
+  const vaultRelativePath = vaultRelativePathForKeyId(newKeyId);
   const wrapped = await vault.wrap({ secret: Buffer.from(ROTATED_SECRET), keyId: newKeyId });
   const wrapBytes = createSameDeviceRecoveryWrap({
     secret: ROTATED_SECRET,

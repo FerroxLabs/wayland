@@ -54,8 +54,16 @@ function walkSource(dir: string): string[] {
 
 const allProductionSources = walkSource(srcRoot);
 
+/**
+ * Repo-relative path in POSIX form.
+ *
+ * The expectations in this file are written with forward slashes, so returning
+ * `path.relative` verbatim compared 'src\\process\\bridge\\index.ts' against
+ * 'src/process/bridge/index.ts' and failed on every Windows runner while passing
+ * everywhere else.
+ */
 function rel(absolute: string): string {
-  return path.relative(process.cwd(), absolute);
+  return path.relative(process.cwd(), absolute).split(path.sep).join('/');
 }
 
 function read(relative: string): string {

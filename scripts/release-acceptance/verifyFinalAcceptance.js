@@ -67,13 +67,17 @@ function productionCandidateRoot() {
   } catch {
     fail('M8A_LIVE_CANDIDATE_INVALID', 'candidate-root-missing');
   }
-  if (!stat.isDirectory() || stat.isSymbolicLink() || fs.realpathSync(root) !== root) {
+  if (!stat.isDirectory() || stat.isSymbolicLink() || path.resolve(fs.realpathSync(root)) !== root) {
     fail('M8A_LIVE_CANDIDATE_INVALID', 'candidate-root-must-be-real-directory');
   }
   const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim();
   let topLevel;
   try {
-    topLevel = fs.realpathSync(git('rev-parse', '--show-toplevel'));
+    // path.resolve on both sides, because git reports Windows paths with
+    // FORWARD slashes ('C:/Users/...') while path.resolve produces backslashes.
+    // Comparing them raw meant this check could never pass on Windows and always
+    // failed with candidate-root-is-not-worktree-top-level.
+    topLevel = path.resolve(fs.realpathSync(git('rev-parse', '--show-toplevel')));
   } catch {
     fail('M8A_LIVE_CANDIDATE_INVALID', 'candidate-root-is-not-git-worktree');
   }
