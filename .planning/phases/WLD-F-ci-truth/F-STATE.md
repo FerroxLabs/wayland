@@ -116,6 +116,22 @@ clean and silently neutered a security race test. Three sibling tests still carr
 survive only because they fail before manifest validation. Treat any type-level assumption inside a test
 as unverified. **Not fixed — adding`tests/**` to the typecheck surface is its own packet.**
 
+**G19 — a workflow run with `event=push`, zero jobs, no logs and no annotations is GitHub REJECTING the
+file, not a job failing.** GitHub validates every workflow on push, including `workflow_call`-only ones, and
+manufactures a failed run when the file is invalid. That signature went unexplained for an entire session
+while the actual cause — `${{ runner.temp }}` in a **job-level** `env:`, where the `runner` context does not
+exist — sat one `actionlint` invocation away. **Run `actionlint` over `.github/workflows` before blaming
+rulesets, triggers, or the default branch.** The API cannot help here: it returns no jobs and no log.
+
+**G20 — this repo runs TWO test runners with DIFFERENT timeout budgets.** `vitest.config.ts` sets
+`testTimeout: 10000`; Bun defaults to 5000, and `*.bun.test.ts` files are a separate CI step
+(`bun run test:bun`, shard 1 only) that Vitest cannot collect. When a timeout fails, measure the whole
+corpus's distribution before scoping the fix — the Constitution durability suites all sit near the cliff on
+Windows, so which test tripped was luck, and patching the one CI named would have left a live flake.
+A timeout also **disguises itself as a logic failure**: teardown deletes the temp roots while the call is
+still in flight, so the rejection you see is the aftermath. Read the timeout line first. And prove a runner
+flag actually binds by setting it absurdly low and confirming mass failure.
+
 ---
 
 ## 2. Done and verified

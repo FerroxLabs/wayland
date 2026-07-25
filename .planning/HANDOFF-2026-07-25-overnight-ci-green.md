@@ -1,6 +1,6 @@
 # HANDOFF — 2026-07-25 overnight — CI driven to green, two packets need Sean
 
-**Read this, then `.planning/phases/WLD-F-ci-truth/F-STATE.md`** (gates now G1–G18).
+**Read this, then `.planning/phases/WLD-F-ci-truth/F-STATE.md`** (gates now G1–G20).
 Supersedes `HANDOFF-2026-07-25-F-windows-and-truth.md` for status.
 
 Work location `~/dev/wayland-worktrees/desktop-integration`, branch
