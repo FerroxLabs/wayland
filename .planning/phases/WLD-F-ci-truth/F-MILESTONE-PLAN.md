@@ -1,5 +1,8 @@
 # Milestone F — CI Truth (make the gate mean something)
 
+> **STATUS LIVES IN `F-STATE.md`.** That file is authoritative and carries the build-discipline gates.
+> This document is the original intent; where they disagree, F-STATE wins.
+
 **Why this milestone exists:** Milestone E got the branch onto CI for the first time (PR #925) and CI
 immediately proved that a green check on this repo does not mean the code works. Everything below is
 open work carried out of E, ordered by blast radius.
