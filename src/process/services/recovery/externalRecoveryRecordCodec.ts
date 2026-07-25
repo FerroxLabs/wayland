@@ -224,6 +224,16 @@ async function retainedRecordRoots(inventoryRoot: string): Promise<string[]> {
   }
   const entries = await readdir(inventoryRoot, { withFileTypes: true });
   entries.sort((left, right) => codeUnitCompare(left.name, right.name));
+  // Canonicalize the parent once and compare each child against the canonical
+  // parent, rather than comparing a child against its own uncanonicalized path.
+  // The intent of the check is to detect indirection introduced by the *entry*,
+  // and comparing raw-to-canonical also failed whenever an ancestor merely spelt
+  // itself differently: on Windows a path component can be an 8.3 short name
+  // (C:\Users\RUNNER~1\...) while realpath returns the long form
+  // (C:\Users\runneradmin\...), so this refused every inventory under such a
+  // root. Canonical-to-canonical cancels an ancestor's spelling and still
+  // rejects an entry that resolves somewhere else.
+  const canonicalInventoryRoot = await realpath(inventoryRoot);
   for (const entry of entries) {
     if (entry.isSymbolicLink() || !entry.isDirectory() || !/^[A-Za-z0-9._-]+$/.test(entry.name)) {
       throw new Error(`Classic external recovery inventory contains an unsafe entry: ${entry.name}`);
@@ -231,8 +241,15 @@ async function retainedRecordRoots(inventoryRoot: string): Promise<string[]> {
     const candidate = path.join(inventoryRoot, entry.name);
     // Canonical validation is intentionally ordered before a later record is trusted.
     // oxlint-disable-next-line no-await-in-loop
-    if ((await realpath(candidate)) !== candidate) {
-      throw new Error('Classic external recovery preparation root is not canonical.');
+    const resolved = await realpath(candidate);
+    const expected = path.join(canonicalInventoryRoot, entry.name);
+    if (resolved !== expected) {
+      // Name both sides. The bare sentence appeared 7 times on a Windows shard
+      // and said nothing about which spelling differed, which is the same
+      // diagnosability gap that made SNAPSHOT_FILE_TYPE unreadable in a CI log.
+      throw new Error(
+        `Classic external recovery preparation root is not canonical: ${resolved} does not match ${expected}.`
+      );
     }
     roots.push(candidate);
   }
