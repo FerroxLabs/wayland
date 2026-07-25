@@ -126,30 +126,78 @@ CI.
 2. Then F-03 (formatting, with the pinned-artifact excludes fixed FIRST), F-05, F-04.
 3. F-06 whenever Sean sets the trust root.
 
-## 4. GSD is legacy and should be gone — here is why it is not
+## 4. GSD is gone — DONE 2026-07-25
 
-Sean is right that we migrated to Ferrox. GSD survives in two places:
+**My first audit of this undercounted badly and the correction matters.** It reported "5 dirty GSD
+worktrees" because it only ran `git worktree list` from the desktop repo, which sees registrations
+and nothing else. The actual footprint on disk:
 
-**Five stale worktrees under `~/gsd-workspaces/`, and ALL FIVE ARE DIRTY** — 101, 101, 5, 3 and 2
-uncommitted files, last touched 7–9 days ago, all on `codex/*` strike branches. That is why they were
-never removed: deleting them would destroy uncommitted work. They need triage, not a `rm`.
+| what | reality |
+|---|---|
+| `~/gsd-workspaces/` | **111 directories, 6.9 GB** — not 5 |
+| a **second full clone** nobody had recorded | `wayland-desktop-gsd/app`, 838 MB, its own 689 MB `.git`, **92 local branches**, `origin` pointing at the LOCAL canonical repo rather than GitHub |
+| worktrees hanging off that clone | 23 |
+| worktrees registered to canonical | 5 (the ones the first audit saw) |
+| empty leftover dirs | 83 (80 zero-byte) |
+| GSD npx package caches | 3 trees, **864 MB** |
 
-**Legacy `gsd-*` agent definitions still exist alongside every `ferrox-*` equivalent** (`gsd-executor`,
-`gsd-planner`, `gsd-verifier`, …). Harmless but confusing, and a live invitation to dispatch the wrong
-one. Worth deleting from the agent registry once Sean confirms nothing references them.
+**26 branch tips existed only in that clone** and would have been destroyed by a plain `rm` —
+including `lane-voc`, `lane-cow` and `lane-cmp` (voice adapter registry, cowork journey, capability
+manifest). Everything else was already in canonical.
 
-**Full worktree picture (31 trees against a canonical layout of 2):**
+Most of the "all five are dirty" alarm was noise: 19 of the 28 checkouts were dirty only because of
+an untracked `.ijfw/` directory the session hook creates. Eleven held real uncommitted work.
+
+**Archived first, then deleted.** `~/dev/_archive/gsd-legacy-2026-07-25/` — **28 MB standing in for
+7.7 GB**:
+
+- `gsd-clone-unique-refs.bundle` (14 MB) — all 138 refs, carrying only objects canonical lacked
+- `uncommitted/` — 11 checkouts, each with `META.json` + `git diff HEAD` patch + untracked files
+- `claude-state/` — the GSD install state, migration journal, the pre-strip `settings.json` backup,
+  and the GSD→Ferrox migration backup (which still held `gsd-core`)
+- `MANIFEST.md` — full inventory and restore instructions
+
+**Restore was tested, not assumed.** A throwaway `git clone --no-checkout --shared` of canonical
+fetched four clone-only branches back out of the bundle; all four tips matched exactly and trees read
+back cleanly. Canonical was never written to.
+
+**`~/.claude/` was cleaned by manifest, not by pattern** — and that caught a real trap. GSD's
+installer manifest declared 591 files; 73 remained. **14 of those are also claimed by the Ferrox
+manifest at identical paths** — Ferrox overwrote and now owns them (`managed-hooks-registry.cjs`,
+the whole `scripts/changeset/` set, `hooks/lib/git-cmd.js`, …). Deleting them would have broken
+Ferrox, and 7 showed as "modified since install", which a naive hash check reads as interesting
+rather than load-bearing. Only the 59 GSD-only files went: 34 agents, 24 hooks, 1 hook lib.
+
+Those 34 agents were **already broken, not merely redundant**: 31 loaded
+`$HOME/.claude/gsd-core/...`, removed long ago, so dispatching one would have failed on a missing
+execution context. Verified nothing live referenced them first — no `gsd` in `settings.json`, none in
+`ferrox-core/`, no gsd skills or slash commands, zero `gsd` in the managed-hooks registry, and the
+configured statusline is `ferrox-statusline.js`, not the `gsd-statusline.js` sitting there looking
+active.
+
+**Ferrox verified intact after:** 686/686 manifest files present, all 13 hook/statusline paths in
+`settings.json` resolve, 42 agents, 74 skills, 530 `ferrox-core` files, 3 `@ferroxlabs` npx caches
+untouched. `~/.claude` GSD residue: **0**.
+
+### Worktrees still open — 27 trees against a canonical layout of 2
 
 | group | trees | dirty |
 |---|---|---|
-| canonical (`~/dev/wayland/app`, `~/dev/wayland-worktrees/`) | 2 | 1 — **`~/dev/wayland/app` on main has 16 uncommitted files** |
-| `~/dev/app-worktrees/` | 25 | 1 (`codex/desktop-cockpit-wave0`) |
-| `~/gsd-workspaces/` (LEGACY) | 5 | 5 |
+| canonical `~/dev/wayland/app` | 1 | **16 uncommitted files** |
+| canonical in-flight `~/dev/wayland-worktrees/` | 1 | 0 (this branch) |
+| `~/dev/app-worktrees/` | 25 | 1 — `codex/desktop-cockpit-wave0`, only ` M readme.md` |
+| `~/gsd-workspaces/` | **0 — removed** | — |
 
-**Recommendation:** the 24 clean `app-worktrees` trees are safe to prune now — a clean tree means no
-uncommitted loss, and `git worktree remove` does not delete branch refs. The 5 GSD trees, the 1 dirty
-app-worktree, and the 16 dirty files in the canonical `main` tree each need a look before anything is
-removed. Audit command in F-STATE §5.
+The 24 clean `app-worktrees` are safe to prune whenever Sean wants: a clean tree means no
+uncommitted loss and `git worktree remove` does not delete branch refs.
+
+**Flag on the canonical tree:** its 16 dirty files are a coherent unfinished feature (model ordering
+and cowork — `imageModels.ts`, `Curator.ts`, `CoworkToggle.tsx`, `useModelSelectorViewModel.ts`, plus
+untracked `modelOrder.ts` and its test), **and one of them is `resources/modelsdev-snapshot.json`** —
+the pinned supply-chain artifact from gate G3. A modified snapshot in the canonical tree fails
+`verify:modelsdev-snapshot` and blocks packaged builds from that tree. Not touched, per the standing
+rule. Worth a look before anyone builds from canonical. There is also a stray
+`src/process/channels/signal-cli-runtime/tmp-IMVXmD/`.
 
 ## 5. Open decisions that are Sean's
 

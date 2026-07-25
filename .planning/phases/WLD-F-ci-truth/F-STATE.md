@@ -145,10 +145,22 @@ From the F-07 cross-audit panel (Codex 5.6 Sol, Gemini, Kimi K3, internal review
 
 ## 5. Environment drift to resolve with Sean
 
-- **30 stale worktrees.** 25 under `~/dev/app-worktrees/`, 5 under `~/gsd-workspaces/`. Canonical
-  layout is `~/dev/wayland/app` on main plus in-flight trees under `~/dev/wayland-worktrees/`. Audit
-  before removing anything — they may hold uncommitted work:
-  `git worktree list | awk '{print $1}' | while read d; do echo "$d: $(git -C "$d" status --porcelain | wc -l) dirty"; done`
+- **GSD legacy — REMOVED 2026-07-25.** `~/gsd-workspaces/` was 111 dirs / 6.9 GB (not the 5 the first
+  audit reported — that only counted worktree *registrations*), including an unrecorded second full
+  clone with 92 branches, 26 of whose tips existed nowhere else. Plus 864 MB of GSD npx caches and 59
+  GSD-only files under `~/.claude/`. Archived to `~/dev/_archive/gsd-legacy-2026-07-25/` (28 MB,
+  restore tested end-to-end) then deleted. **14 files GSD installed are now owned by Ferrox at the
+  same paths and were deliberately kept** — deleting them would have broken Ferrox. Ferrox verified
+  intact after: 686/686 manifest files, 13/13 wired hook paths resolve. Full account in
+  `.planning/HANDOFF-2026-07-25-F-discipline.md` §4.
+- **24 clean worktrees still prunable.** 27 trees remain against a canonical layout of 2: 25 under
+  `~/dev/app-worktrees/` (1 dirty, only ` M readme.md`), plus canonical and this in-flight tree.
+  Clean trees are safe to remove — `git worktree remove` does not delete branch refs. Audit:
+  `git worktree list --porcelain | grep '^worktree ' | sed 's/^worktree //' | while read -r d; do echo "$d: $(git -C "$d" status --porcelain | wc -l) dirty"; done`
+- **Canonical tree `~/dev/wayland/app` has 16 uncommitted files** — an unfinished model-ordering /
+  cowork feature, **including a modified `resources/modelsdev-snapshot.json`**. That is the G3 pinned
+  artifact; while it is dirty, `verify:modelsdev-snapshot` fails and no packaged build from that tree
+  can complete. Not touched (standing rule). Sean's call.
 - **Gemini's recorded model ID is dead.** `gemini-3.1-pro` → 404 ModelNotFoundError, and the run
   still exits 0, so a failed audit leg looks like a clean pass. Use the CLI default until the memory
   entry is corrected.
