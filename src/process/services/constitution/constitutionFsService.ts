@@ -1,7 +1,6 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import {
   closeSync,
-  constants,
   existsSync,
   fsyncSync,
   linkSync,
@@ -54,6 +53,7 @@ import {
   sameConstitutionFingerprintTarget,
 } from './constitutionRequestFingerprint';
 import { compareUnicodeCodeUnits } from '../../utils/restrictedCanonicalJson';
+import { syncPublicationTargetSync } from '@process/utils/durabilitySync';
 
 const MAX_WRITE_BYTES = 256 * 1024;
 const SPECIALIST_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
@@ -68,12 +68,7 @@ type LegacyRevisionMigrationMarker = {
 };
 
 function durableSyncPublished(filePath: string): void {
-  const fd = openSync(constitutionRevisionDurabilitySyncPath(filePath), constants.O_RDONLY);
-  try {
-    fsyncSync(fd);
-  } finally {
-    closeSync(fd);
-  }
+  syncPublicationTargetSync(constitutionRevisionDurabilitySyncPath(filePath));
 }
 
 function writeDurableMigrationMarker(filePath: string, marker: LegacyRevisionMigrationMarker, replace: boolean): void {

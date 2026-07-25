@@ -16,6 +16,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import type { ConstitutionArchiveSecretBackend } from './constitutionFsTransaction';
+import { syncPublicationTargetSync } from '@process/utils/durabilitySync';
 
 type RevisionKey = {
   keyId: string;
@@ -215,12 +216,7 @@ export function constitutionRevisionDurabilitySyncPath(
 }
 
 function fsyncParent(authorityPath: string): void {
-  const fd = openSync(constitutionRevisionDurabilitySyncPath(authorityPath), constants.O_RDONLY);
-  try {
-    fsyncSync(fd);
-  } finally {
-    closeSync(fd);
-  }
+  syncPublicationTargetSync(constitutionRevisionDurabilitySyncPath(authorityPath));
 }
 
 type RotationLockRecord = Readonly<{

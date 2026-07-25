@@ -7,7 +7,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import {
   closeSync,
-  constants,
   existsSync,
   fsyncSync,
   lstatSync,
@@ -34,6 +33,7 @@ import {
   constitutionRestorePrincipalBindingSha256,
   type ConstitutionRestorePrincipalBinding,
 } from './constitutionArchiveRestoreAuthority';
+import { syncDirectorySync } from '@process/utils/durabilitySync';
 
 export const CONSTITUTION_CLASSIC_RECOVERY_OPERATION_CONTRACT =
   'wayland-constitution-classic-recovery-operation/1.0' as const;
@@ -290,13 +290,13 @@ function validateState(value: unknown): AuthorityState {
   return { contract: AUTHORITY_CONTRACT, records };
 }
 
+/**
+ * Commit the directory entry created by the rename. A no-op on Windows, which
+ * cannot fsync a directory handle at all; the temp file was already flushed
+ * before the rename, and NTFS journals the rename itself.
+ */
 function fsyncDirectory(directory: string): void {
-  const fd = openSync(directory, constants.O_RDONLY);
-  try {
-    fsyncSync(fd);
-  } finally {
-    closeSync(fd);
-  }
+  syncDirectorySync(directory);
 }
 
 export class ConstitutionClassicRecoveryOperationAuthority {

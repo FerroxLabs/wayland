@@ -22,6 +22,7 @@ import {
 import os from 'node:os';
 import path from 'node:path';
 import { PACKAGED_CONSTITUTION_FS_AUTHORITY } from './constitutionFsAuthority.generated';
+import { fileSyncFlags } from '@process/utils/durabilitySync';
 
 const SHA256_PATTERN = /^sha256:[0-9a-f]{64}$/;
 const SUPPORTED_PLATFORMS = new Set<NodeJS.Platform>(['darwin', 'linux']);
@@ -349,7 +350,10 @@ export function withHeldVerifiedConstitutionFsBinary<T>(
     try {
       writeFileSync(snapshotPath, bytes, { flag: 'wx', mode: 0o500 });
       chmodSync(snapshotPath, 0o500);
-      snapshotFd = openSync(snapshotPath, constants.O_RDONLY | constants.O_NOFOLLOW);
+      // The handle is flushed as well as read, so it needs write access on
+      // Windows, where fsync is FlushFileBuffers. Note O_NOFOLLOW is undefined
+      // there and ORs to 0, so this reduces to the platform's file-sync flags.
+      snapshotFd = openSync(snapshotPath, fileSyncFlags() | (constants.O_NOFOLLOW ?? 0));
       fsyncSync(snapshotFd);
       const snapshotStat = fstatSync(snapshotFd);
       const snapshot = readFileSync(snapshotFd);

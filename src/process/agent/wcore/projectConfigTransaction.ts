@@ -19,6 +19,7 @@ import {
 } from 'node:fs';
 import { createHash, randomUUID } from 'node:crypto';
 import { dirname } from 'node:path';
+import { syncPublicationTargetSync } from '@process/utils/durabilitySync';
 
 const TRANSACTION_VERSION = 1;
 
@@ -45,13 +46,8 @@ function syncRenameMetadata(path: string): void {
   // for the directory entry ordering to survive power loss. Windows cannot
   // open directories through Node without backup-semantics flags, so flush the
   // renamed file handle there; NTFS journals the directory mutation itself.
-  const syncPath = process.platform === 'win32' ? path : dirname(path);
-  const fd = openSync(syncPath, constants.O_RDONLY);
-  try {
-    fsyncSync(fd);
-  } finally {
-    closeSync(fd);
-  }
+  // The flags matter as much as the path: a Windows fsync needs a write handle.
+  syncPublicationTargetSync(process.platform === 'win32' ? path : dirname(path));
 }
 
 function removeIfPresent(path: string): void {

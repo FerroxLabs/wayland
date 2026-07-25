@@ -90,8 +90,37 @@ function restrictWindowsDaclAsync(filePath: string): Promise<void> {
   });
 }
 
+/**
+ * Flags for opening a file purely to flush it.
+ *
+ * Windows implements fsync as FlushFileBuffers, which requires the handle to
+ * carry GENERIC_WRITE. An O_RDONLY handle therefore fails with EPERM
+ * (errno -4048) on every single write, which is what broke config persistence
+ * on Windows. POSIX keeps O_RDONLY so a file the process may read but not write
+ * can still be flushed.
+ */
+function fileSyncFlags(): number {
+  return process.platform === 'win32' ? fsConstants.O_RDWR : fsConstants.O_RDONLY;
+}
+
+/**
+ * Whether this platform can flush a directory handle at all.
+ *
+ * It cannot on Windows: a directory handle never carries GENERIC_WRITE, so
+ * FlushFileBuffers rejects it with EPERM however the path is spelled -
+ * `path.join(directory, '.')` does not help. There is no per-directory flush
+ * primitive short of FlushFileBuffers on the whole volume, which needs
+ * administrator rights. NTFS journals the directory entry that the rename
+ * creates, so on Windows the rename itself is the ordering barrier and the
+ * file-level flushes above are the durability guarantee. SQLite makes the same
+ * trade for the same reason.
+ */
+function canSyncDirectory(): boolean {
+  return process.platform !== 'win32';
+}
+
 async function syncFile(filePath: string): Promise<void> {
-  const handle = await fs.open(filePath, fsConstants.O_RDONLY);
+  const handle = await fs.open(filePath, fileSyncFlags());
   try {
     await handle.sync();
   } finally {
@@ -100,10 +129,8 @@ async function syncFile(filePath: string): Promise<void> {
 }
 
 async function syncDirectory(directory: string): Promise<void> {
-  const handle = await fs.open(
-    process.platform === 'win32' ? path.join(directory, '.') : directory,
-    fsConstants.O_RDONLY
-  );
+  if (!canSyncDirectory()) return;
+  const handle = await fs.open(directory, fsConstants.O_RDONLY);
   try {
     await handle.sync();
   } finally {
@@ -112,7 +139,7 @@ async function syncDirectory(directory: string): Promise<void> {
 }
 
 function syncFileSync(filePath: string): void {
-  const fd = fsSync.openSync(filePath, fsConstants.O_RDONLY);
+  const fd = fsSync.openSync(filePath, fileSyncFlags());
   try {
     fsSync.fsyncSync(fd);
   } finally {
@@ -121,10 +148,8 @@ function syncFileSync(filePath: string): void {
 }
 
 function syncDirectorySync(directory: string): void {
-  const fd = fsSync.openSync(
-    process.platform === 'win32' ? path.join(directory, '.') : directory,
-    fsConstants.O_RDONLY
-  );
+  if (!canSyncDirectory()) return;
+  const fd = fsSync.openSync(directory, fsConstants.O_RDONLY);
   try {
     fsSync.fsyncSync(fd);
   } finally {

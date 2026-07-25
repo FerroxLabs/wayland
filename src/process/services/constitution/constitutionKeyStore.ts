@@ -15,6 +15,7 @@ import {
 import path from 'node:path';
 import type { ConstitutionArchiveSecretBackend } from './constitutionFsTransaction';
 import { constitutionRevisionDurabilitySyncPath } from './constitutionRevisionAuthority';
+import { syncPublicationTargetSync } from '@process/utils/durabilitySync';
 
 type KeyState = {
   schemaVersion: 1;
@@ -31,12 +32,9 @@ export type ConstitutionKeyStoreDependencies = Readonly<{
 }>;
 
 function syncPublication(statePath: string): void {
-  const fd = openSync(constitutionRevisionDurabilitySyncPath(statePath), 'r');
-  try {
-    fsyncSync(fd);
-  } finally {
-    closeSync(fd);
-  }
+  // 'r' is O_RDONLY, which Windows refuses to fsync; route through the shared
+  // platform rule instead.
+  syncPublicationTargetSync(constitutionRevisionDurabilitySyncPath(statePath));
 }
 
 function hasTransactionHistory(root: string): boolean {
