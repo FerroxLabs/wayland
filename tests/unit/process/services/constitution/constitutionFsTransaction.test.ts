@@ -318,65 +318,68 @@ describe('Constitution filesystem transaction wrapper', () => {
     ).toThrowError(expect.objectContaining({ code: 'CONSTITUTION_FS_BINARY_UNVERIFIED' }));
   });
 
-  itOnHeldExecution('injects the exact trusted archive-key inventory only for archive-bearing operations without exposing raw keys in receipts', () => {
-    const { verified } = binaryFixture();
-    const { root, rootAuthority } = requestFixture();
-    const inventory = archiveInventory();
-    const target = { kind: 'constitution', sourceName: 'CONSTITUTION.md' } as const;
-    const previous = Buffer.from('old');
-    const previousSha256 = `sha256:${createHash('sha256').update(previous).digest('hex')}` as const;
-    const archiveId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
-    const archive = createAuthenticatedConstitutionArchive(
-      {
+  itOnHeldExecution(
+    'injects the exact trusted archive-key inventory only for archive-bearing operations without exposing raw keys in receipts',
+    () => {
+      const { verified } = binaryFixture();
+      const { root, rootAuthority } = requestFixture();
+      const inventory = archiveInventory();
+      const target = { kind: 'constitution', sourceName: 'CONSTITUTION.md' } as const;
+      const previous = Buffer.from('old');
+      const previousSha256 = `sha256:${createHash('sha256').update(previous).digest('hex')}` as const;
+      const archiveId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+      const archive = createAuthenticatedConstitutionArchive(
+        {
+          archiveId,
+          archivedAt: 1_784_073_600_000,
+          target,
+          content: previous.toString('utf8'),
+          keyId: archiveKeyId,
+        },
+        inventory
+      );
+      const request: ConstitutionFsTransactionRequest = {
+        version: 2,
+        transactionId: tx,
+        requestFingerprint,
+        root,
+        operation: 'replace',
+        target,
+        expected: { present: true, sha256: previousSha256 },
+        replacement: {
+          contentBase64: 'bmV3',
+          sha256: 'sha256:11507a0e2f5e69d5dfa40a62a1bd7b6ee57e6bcd85c67c9b8431b36fff21c437',
+        },
         archiveId,
         archivedAt: 1_784_073_600_000,
-        target,
-        content: previous.toString('utf8'),
-        keyId: archiveKeyId,
-      },
-      inventory
-    );
-    const request: ConstitutionFsTransactionRequest = {
-      version: 2,
-      transactionId: tx,
-      requestFingerprint,
-      root,
-      operation: 'replace',
-      target,
-      expected: { present: true, sha256: previousSha256 },
-      replacement: {
-        contentBase64: 'bmV3',
-        sha256: 'sha256:11507a0e2f5e69d5dfa40a62a1bd7b6ee57e6bcd85c67c9b8431b36fff21c437',
-      },
-      archiveId,
-      archivedAt: 1_784_073_600_000,
-      archive,
-    };
-    const executor: ConstitutionFsExecutor = ({ stdin }) => {
-      const wire = JSON.parse(stdin.toString('utf8')) as Record<string, unknown>;
-      expect(wire.archiveAuthenticationKeys).toEqual([
-        { keyId: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', keyBase64: Buffer.alloc(32, 17).toString('base64') },
-        { keyId: archiveKeyId, keyBase64: archiveKey.toString('base64') },
-      ]);
-      return {
-        stdout: success(request, {
-          previousSha256,
-          archiveName: `${archiveId}.json`,
-          archivedAt: 1_784_073_600_000,
-          recoveryName: `${tx}.displaced`,
-          expectedSha256: previousSha256,
-          archiveSha256: archive.sha256,
-        }),
-        status: 0,
+        archive,
       };
-    };
-    const receipt = runConstitutionFsTransaction(request, verified, {
-      ...options(rootAuthority, executor),
-      archiveAuthenticationKeys: inventory,
-    });
-    expect(JSON.stringify(inventory)).not.toContain(archiveKey.toString('base64'));
-    expect(JSON.stringify(receipt)).not.toContain(archiveKey.toString('base64'));
-  });
+      const executor: ConstitutionFsExecutor = ({ stdin }) => {
+        const wire = JSON.parse(stdin.toString('utf8')) as Record<string, unknown>;
+        expect(wire.archiveAuthenticationKeys).toEqual([
+          { keyId: 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee', keyBase64: Buffer.alloc(32, 17).toString('base64') },
+          { keyId: archiveKeyId, keyBase64: archiveKey.toString('base64') },
+        ]);
+        return {
+          stdout: success(request, {
+            previousSha256,
+            archiveName: `${archiveId}.json`,
+            archivedAt: 1_784_073_600_000,
+            recoveryName: `${tx}.displaced`,
+            expectedSha256: previousSha256,
+            archiveSha256: archive.sha256,
+          }),
+          status: 0,
+        };
+      };
+      const receipt = runConstitutionFsTransaction(request, verified, {
+        ...options(rootAuthority, executor),
+        archiveAuthenticationKeys: inventory,
+      });
+      expect(JSON.stringify(inventory)).not.toContain(archiveKey.toString('base64'));
+      expect(JSON.stringify(receipt)).not.toContain(archiveKey.toString('base64'));
+    }
+  );
 
   /**
    * Needs a bigger budget than the 10s default because it shells out to a real
