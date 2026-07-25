@@ -31,6 +31,42 @@ vi.mock('@/common/platform', () => ({
   }),
 }));
 
+// The real host OS, captured before any test spoofs process.platform.
+const HOST_PLATFORM = process.platform;
+
+/**
+ * Several tests below pin `process.platform` to 'darwin'/'linux' so the POSIX
+ * branches of shellEnv run on every CI host. That pin also makes production
+ * `resolveManagedOfficeCliShimDir()` take its POSIX branch, which asserts the
+ * managed guard carries an execute bit:
+ *
+ *     (platform !== 'win32' && (shimStat.mode & 0o111) === 0) -> reject
+ *
+ * NTFS has no POSIX permission bits - Node reports 0o666 for any writable file
+ * on Windows, so `mode & 0o111` is always 0 and the guard can never resolve.
+ * The spoofed platform therefore produces a combination that cannot exist in
+ * reality (a darwin runtime on an NTFS volume) and `getEnhancedEnv()` throws
+ * 'Wayland managed OfficeCLI fallback guard is unavailable' on Windows only.
+ *
+ * This returns an `fs` override that supplies ONLY that missing bit, and ONLY
+ * on a Windows host. Every other guard assertion - real path containment, the
+ * symlink rejection, and the SHA-256 byte digest - keeps running against the
+ * real file, so a genuinely tampered or non-executable guard still fails on
+ * POSIX hosts where the bit is meaningful.
+ */
+const posixExecBitCompat = (actual: typeof import('fs')) =>
+  HOST_PLATFORM !== 'win32'
+    ? {}
+    : {
+        lstatSync: ((target: Parameters<typeof actual.lstatSync>[0], options?: unknown) => {
+          const stat = (actual.lstatSync as (...args: unknown[]) => unknown)(target, options) as {
+            mode: number;
+          };
+          if (stat && typeof stat.mode === 'number') stat.mode |= 0o111;
+          return stat;
+        }) as unknown as typeof actual.lstatSync,
+      };
+
 // -------------------------------------------------------------------
 // 1. Pure-logic tests for mergePaths (no Electron, no mocking needed)
 // -------------------------------------------------------------------
@@ -233,6 +269,12 @@ describe('getEnhancedEnv', () => {
       execFileSync: vi.fn().mockReturnValue(`PATH=${SHELL_EXTRA}:/usr/bin\nHOME=/home/user\n`),
       execFile: vi.fn(),
     }));
+    // Pinning darwin above also pins the POSIX managed-guard branch, which
+    // needs an execute bit NTFS cannot store. No-op on POSIX hosts.
+    vi.doMock('fs', async () => {
+      const actual = await vi.importActual<typeof import('fs')>('fs');
+      return { ...actual, ...posixExecBitCompat(actual) };
+    });
 
     const originalPath = process.env.PATH;
     const originalShell = process.env.SHELL;
@@ -350,6 +392,9 @@ describe('getEnhancedEnv version-manager node (#628)', () => {
       const actual = await vi.importActual<typeof import('fs')>('fs');
       return {
         ...actual,
+        // This describe pins darwin, so the POSIX managed-guard branch runs and
+        // needs an execute bit NTFS cannot store. No-op on POSIX hosts.
+        ...posixExecBitCompat(actual),
         existsSync: vi.fn((p: string) => present.has(p)),
         readdirSync: vi.fn((p: string) => (p === NVM_NODE_BASE ? ['v20.11.0'] : [])),
         accessSync: vi.fn((p: string) => {
