@@ -4,20 +4,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { join, sep } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { resolveEffectiveWcoreRuntime } from '@process/agent/wcore/effectiveRuntime';
+
+// resolveEffectiveWcoreRuntime derives engineConfigPath with path.join, which
+// emits the NATIVE separator - '\' on win32. Hard-coded POSIX fixture strings
+// therefore cannot match on Windows however correct the implementation is, so
+// the fixtures are built from `join`/`sep` and the derived expectations spell the
+// appended segment explicitly rather than re-running the function under test.
+const PROFILE_DIR = join(sep, 'Users', 'mike', '.wayland', 'profiles', 'client-work');
+const STANDALONE_DIR = join(sep, 'Users', 'mike', 'Library', 'Application Support', 'wayland-core');
+const DESKTOP_CONFIG_DIR = join(sep, 'Users', 'mike', 'Library', 'Application Support', 'Wayland', 'config');
+const DESKTOP_CONFIG_PATH = join(DESKTOP_CONFIG_DIR, 'wayland-config.txt');
 
 describe('effective Core runtime config truth', () => {
   it('reports the exact Desktop-managed profile config separately from the Desktop settings store', async () => {
     const result = await resolveEffectiveWcoreRuntime({
       rawEngineMode: false,
-      desktopConfigPath: '/Users/mike/Library/Application Support/Wayland/config/wayland-config.txt',
+      desktopConfigPath: DESKTOP_CONFIG_PATH,
       desktopPromptOverlayApplied: false,
       resolveActiveConfigIdentity: async () => ({
         profile: 'client-work',
-        dir: '/Users/mike/.wayland/profiles/client-work',
+        dir: PROFILE_DIR,
       }),
-      standaloneConfigDir: () => '/Users/mike/Library/Application Support/wayland-core',
+      standaloneConfigDir: () => STANDALONE_DIR,
     });
 
     expect(result).toEqual({
@@ -31,10 +42,10 @@ describe('effective Core runtime config truth', () => {
       teamBridgePolicy: 'host-preserved',
       toolCredentialPolicy: 'allowlisted-host-forwarding',
       hostProtocolAuthority: 'desktop',
-      engineConfigDir: '/Users/mike/.wayland/profiles/client-work',
-      engineConfigPath: '/Users/mike/.wayland/profiles/client-work/config.toml',
-      desktopConfigDir: '/Users/mike/Library/Application Support/Wayland/config',
-      desktopConfigPath: '/Users/mike/Library/Application Support/Wayland/config/wayland-config.txt',
+      engineConfigDir: PROFILE_DIR,
+      engineConfigPath: `${PROFILE_DIR}${sep}config.toml`,
+      desktopConfigDir: DESKTOP_CONFIG_DIR,
+      desktopConfigPath: DESKTOP_CONFIG_PATH,
     });
     expect(result.engineConfigPath).not.toBe(result.desktopConfigPath);
   });
@@ -42,15 +53,15 @@ describe('effective Core runtime config truth', () => {
   it('raw mode bypasses a conflicting active profile and reports standalone Core truth', async () => {
     const resolveActiveConfigIdentity = vi.fn(async () => ({
       profile: 'client-work',
-      dir: '/Users/mike/.wayland/profiles/client-work',
+      dir: PROFILE_DIR,
     }));
 
     const result = await resolveEffectiveWcoreRuntime({
       rawEngineMode: true,
-      desktopConfigPath: '/Users/mike/Library/Application Support/Wayland/config/wayland-config.txt',
+      desktopConfigPath: DESKTOP_CONFIG_PATH,
       desktopPromptOverlayApplied: true,
       resolveActiveConfigIdentity,
-      standaloneConfigDir: () => '/Users/mike/Library/Application Support/wayland-core',
+      standaloneConfigDir: () => STANDALONE_DIR,
     });
 
     expect(result.mode).toBe('raw-engine');
@@ -63,7 +74,7 @@ describe('effective Core runtime config truth', () => {
     expect(result.toolCredentialPolicy).toBe('allowlisted-host-forwarding');
     expect(result.hostProtocolAuthority).toBe('desktop');
     expect(result.waylandHomeInjected).toBe(false);
-    expect(result.engineConfigPath).toBe('/Users/mike/Library/Application Support/wayland-core/config.toml');
+    expect(result.engineConfigPath).toBe(`${STANDALONE_DIR}${sep}config.toml`);
     expect(resolveActiveConfigIdentity).not.toHaveBeenCalled();
   });
 

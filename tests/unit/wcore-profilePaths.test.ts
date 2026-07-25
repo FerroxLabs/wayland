@@ -39,6 +39,16 @@ beforeEach(async () => {
   delete process.env.XDG_DATA_HOME;
   delete process.env.XDG_CONFIG_HOME;
   delete process.env.WAYLAND_PROFILES_ROOT;
+  // MUST also be re-rooted. profilePaths.platformConfigBase() reads %APPDATA%
+  // on win32 and never consults homedir(), so the mocked homedir above did not
+  // isolate anything on the Windows runner: every profile, and the `active`
+  // marker, were created in the runner's REAL %APPDATA%\wayland-core-profiles.
+  // That root is shared by every test and every parallel test file, which is
+  // where the Windows-only EEXIST mkdir/symlink, EISDIR, and "resolved a named
+  // profile when no marker was set" failures came from. Same class of bug as the
+  // XDG_CONFIG_HOME leak on ubuntu; darwin ignores this var, which is why macOS
+  // never showed it.
+  process.env.APPDATA = join(home, 'AppData', 'Roaming');
 });
 
 afterEach(async () => {

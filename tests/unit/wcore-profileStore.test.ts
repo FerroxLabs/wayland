@@ -75,6 +75,17 @@ import {
 
 const ORIGINAL_ENV = { ...process.env };
 
+/**
+ * Windows implements fsync as FlushFileBuffers, which requires a GENERIC_WRITE
+ * handle, so a DIRECTORY handle can never be flushed however the path is spelled
+ * (see src/process/utils/durabilitySync.ts). profileStore.syncDirectory() is
+ * therefore a deliberate no-op on win32 and the NTFS journal orders the rename
+ * instead. Assertions about directory flushes are platform-shaped, not
+ * universal. Keyed off the platform - not off the production predicate - so a
+ * regression that stops flushing on POSIX still fails the macOS/ubuntu shards.
+ */
+const CAN_FLUSH_DIRECTORIES = process.platform !== 'win32';
+
 beforeEach(async () => {
   home = await mkdtemp(join(tmpdir(), 'wcore-store-'));
   renameControl.before = null;
@@ -91,6 +102,14 @@ beforeEach(async () => {
   // showed it because the darwin branch ignores XDG entirely, which is why this
   // passed locally and failed only on CI.
   delete process.env.XDG_CONFIG_HOME;
+  // Windows is the same bug with a different variable: platformConfigBase()
+  // reads %APPDATA% on win32 and never consults homedir(), so the mock above
+  // isolated nothing there and every profile plus the `active` marker landed in
+  // the runner's REAL %APPDATA%\wayland-core-profiles - shared by every test in
+  // this file AND by the other profile test files running in parallel workers.
+  // That is the source of the Windows-only 'profile "work" already exists',
+  // EEXIST mkdir, and leaked-marker assertion failures.
+  process.env.APPDATA = join(home, 'AppData', 'Roaming');
 });
 
 afterEach(async () => {
@@ -417,13 +436,24 @@ describe('profile mutation authority and rollback', () => {
 
     await removeProfile('work');
 
-    expect(openControl.seen).toContain(root);
-    expect(openControl.seen).toContain(trash);
+    if (CAN_FLUSH_DIRECTORIES) {
+      expect(openControl.seen).toContain(root);
+      expect(openControl.seen).toContain(trash);
+    } else {
+      // win32: the flush is impossible, so assert it is not even attempted -
+      // attempting it is what threw EPERM and broke the whole archive path.
+      expect(openControl.seen).not.toContain(root);
+      expect(openControl.seen).not.toContain(trash);
+    }
+    // The archive OUTCOME is required on every platform regardless of flushing.
     await expect(lstat(join(root, 'work'))).rejects.toMatchObject({ code: 'ENOENT' });
     expect((await readdir(trash)).some((entry) => entry.startsWith('work-'))).toBe(true);
   });
 
-  it('surfaces archive durability failure and rolls the profile move back', async () => {
+  // POSIX-only by construction: the fault injected below is a failing fsync of
+  // the archive DIRECTORY, and on win32 no such call exists to fail, so the
+  // "already renamed, then durability failed" branch is unreachable there.
+  it.skipIf(!CAN_FLUSH_DIRECTORIES)('surfaces archive durability failure and rolls the profile move back', async () => {
     await createProfile('work');
     const root = profilesRoot();
     const trash = join(root, '.trash');
