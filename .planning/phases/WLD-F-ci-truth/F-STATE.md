@@ -97,17 +97,24 @@ re-check `git status` and grep the diff for probe/debug/TODO scaffolding after e
 output, so `git diff > p.patch && git checkout -- f && git apply p.patch` silently loses the work
 ("No valid patches in input") — it destroyed a verified fix once. Re-apply edits by hand, or copy the file.
 
-**G17 — Say WHICH `realpath`.** `fs.realpathSync` (Node's JS walker) does **not** expand Windows 8.3 short
-names; `fsPromises.realpath` (native libuv) **does**. Tests typically use the sync walker while production
-awaits the promises one, and `%TEMP%` on GH Windows runners is the short form — so any
-`realpath(candidate) !== candidate` check fails on Windows only. Stating the fact without naming the API is
-how a correct fix (`13695e0fe`) got reported as unproven and two agents got briefed with a wrong lead.
+**G17 — Say WHICH `realpath`, and fix the TEST not the invariant.** `fs.realpathSync` (Node's JS walker)
+does **not** expand Windows 8.3 short names; `fs.realpathSync.native` and `fsPromises.realpath` (libuv)
+**do**. The JS walker preserves the caller's spelling of every non-symlink component; the native one returns
+the filesystem's own. Tests typically use the sync walker while production awaits the promises one, and
+`%TEMP%` on GH Windows runners is the short form — so any `realpath(candidate) !== candidate` check fails on
+Windows only, from the FIXTURE side. The fix is `fs.realpathSync.native(...)` in the test, one line.
+The class reproduces on macOS with **case** (`.../Foo/entry` vs `.../foo/entry`) — no Windows box needed.
+I got this wrong twice: first stating it without naming the API (which made a correct fix look unproven and
+briefed two agents with a wrong lead), then **relaxing the production check** in `13695e0fe` to satisfy the
+fixture. That relaxation killed the only thing the check uniquely enforced — **ancestor** symlink-freeness,
+since the dirent guard above it already rejects symlinked entries — leaving dead code that read like a
+boundary. Reverted in `59dc5504e`; a cross-audit caught it, not me.
 
 **G18 — `tsconfig.json` does not include `tests/**`, so unit tests are NEVER typechecked.** That is how
-`reason: 'hostile-publication-race'` — a flat violation of a strict union on an exported type — compiled
+`reason: 'hostile-publication-race'`— a flat violation of a strict union on an exported type — compiled
 clean and silently neutered a security race test. Three sibling tests still carry invented reasons; they
 survive only because they fail before manifest validation. Treat any type-level assumption inside a test
-as unverified. **Not fixed — adding `tests/**` to the typecheck surface is its own packet.**
+as unverified. **Not fixed — adding`tests/**` to the typecheck surface is its own packet.**
 
 ---
 
@@ -273,6 +280,7 @@ is 17,913B and contains **0** `release-trust-v1` references, with `jobs:` matchi
 WITH THE MERGE: this branch's `build-and-release.yml` has **9** references to that branch.
 
 **Correct order — do not reorder:**
+
 1. Merge #925 once required checks are green.
 2. Create `release-trust-v1` from the **post-merge** `main` tip (the merge commit is the first commit that
    contains the trust-root workflows).
