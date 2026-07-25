@@ -102,6 +102,26 @@ export class FileSourceSigningAuthorityStateBackend implements SourceSigningAuth
   async read(): Promise<Uint8Array | null> {
     const resolved = path.resolve(this.statePath);
     await requireRealParent(resolved);
+    // Inspect the entry itself before opening it. O_NOFOLLOW is the POSIX guard,
+    // but `fs.constants.O_NOFOLLOW` is undefined on Windows and collapses to 0,
+    // so open() follows a link there and every check made through the handle
+    // inspects the *target*: fstat structurally cannot report a symlink, so a
+    // state file swapped for a link to attacker-chosen content read clean and
+    // signing authority was silently redirected.
+    //
+    // assertSafeStateStat, not isSymbolicLink: it also rejects a non-regular
+    // file, and open(O_RDONLY) on a FIFO blocks until a writer appears. That
+    // check already existed but only ran *after* the open, which a FIFO prevents
+    // from ever being reached - it hangs read() indefinitely and pins a libuv
+    // threadpool thread, so the process cannot be torn down.
+    let entry;
+    try {
+      entry = await lstat(resolved);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+      throw error;
+    }
+    assertSafeStateStat(entry);
     const noFollow = typeof constants.O_NOFOLLOW === 'number' ? constants.O_NOFOLLOW : 0;
     let handle;
     try {
@@ -113,14 +133,27 @@ export class FileSourceSigningAuthorityStateBackend implements SourceSigningAuth
     try {
       const before = await handle.stat();
       assertSafeStateStat(before);
+      // Bind the opened descriptor to the entry lstat admitted, and re-lstat the
+      // path afterwards. Two handle.stat() calls cannot do this: a descriptor's
+      // dev/ino are invariant by construction, so before/after always agree even
+      // when open() resolved something else entirely. Without these comparisons
+      // the pre-open check is defeated by winning a race rather than by a static
+      // swap. Mirrors readProjectConfigNoFollow in projectConfigTransaction.ts,
+      // which is the same routine for the same reason.
+      if (before.dev !== entry.dev || before.ino !== entry.ino) {
+        throw new Error('state file is unsafe');
+      }
       const bytes = await handle.readFile();
       const after = await handle.stat();
       assertSafeStateStat(after);
+      const post = await lstat(resolved);
       if (
         bytes.byteLength !== before.size ||
         before.dev !== after.dev ||
         before.ino !== after.ino ||
-        before.size !== after.size
+        before.size !== after.size ||
+        post.dev !== before.dev ||
+        post.ino !== before.ino
       ) {
         throw new Error('state changed during read');
       }
