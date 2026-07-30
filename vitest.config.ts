@@ -31,6 +31,10 @@ export default defineConfig({
             'tests/unit/**/test_*.ts',
             'tests/integration/**/*.test.ts',
             'tests/regression/**/*.test.ts',
+            // Core↔Desktop protocol conformance. The `test:contract` script
+            // already pointed here; without this include it matched nothing
+            // and passed via `--passWithNoTests`.
+            'tests/contract/**/*.test.ts',
           ],
           exclude: ['tests/unit/**/*.dom.test.ts', 'tests/unit/**/*.dom.test.tsx'],
           setupFiles: ['./tests/vitest.setup.ts'],

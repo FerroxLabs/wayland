@@ -97,13 +97,61 @@ export type TurnCost = {
   cost_usd: number;
 };
 
+/**
+ * The effective execution policy Core publishes — the session's security
+ * posture. It rides in on `ready` (`revision: 0`) and again on every
+ * `execution_policy` frame as the posture changes.
+ *
+ * Source of truth is `events/execution_policy.json` in the vendored contract
+ * corpus, NOT this declaration; the runtime shape is enforced by
+ * `contract/decoder.ts` against Core's own schema.
+ */
+export type WCoreExecutionPolicy = {
+  contract_version: string;
+  critical: true;
+  effective_at_unix_ms: number;
+  revision: number;
+  reason: string;
+  policy: {
+    approvals: 'prompt' | 'auto_edit' | 'bypass';
+    posture: 'smart' | 'managed' | 'dangerous';
+    sandbox: string;
+    managed_floor_active: boolean;
+    source: string;
+    dangerous_activation_id?: string;
+    dangerous_expires_at_unix_ms?: number;
+  };
+};
+
+/**
+ * The contract descriptor Core stamps on every `ready`, and which
+ * `contract/decoder.ts` negotiates against this build's pinned corpus.
+ */
+export type WCoreContractDescriptor = {
+  name: string;
+  major: number;
+  minor: number;
+  generator: string;
+  fixture_digest: string;
+  schema_digest: string;
+  source_inputs_digest: string;
+  capabilities: Record<string, string>;
+};
+
 export type WCoreEvent =
   | {
       type: 'ready';
       version: string;
       session_id?: string;
       capabilities: WCoreCapabilities;
+      /** Absent only on engines that predate contract negotiation. */
+      contract?: WCoreContractDescriptor;
+      /** Absent only on engines that predate contract negotiation. */
+      execution_policy?: WCoreExecutionPolicy;
     }
+  // The session's security posture changed. Previously unenumerated here, so
+  // every posture change after launch was dropped by the `default:` arm.
+  | ({ type: 'execution_policy' } & WCoreExecutionPolicy)
   | { type: 'stream_start'; msg_id: string }
   | { type: 'text_delta'; text: string; msg_id: string }
   | { type: 'thinking'; text: string; msg_id: string; subject?: string }

@@ -1,0 +1,1 @@
+{"call_id":"call-tool-001","msg_id":"msg-001","tool":{"args":{"command":"cargo test"},"category":"exec","description":"Run the test suite","name":"Bash"},"type":"tool_request"}

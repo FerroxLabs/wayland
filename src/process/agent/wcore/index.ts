@@ -33,7 +33,9 @@ import { hydrateModelForSpawn, resolveModelSecretsForSpawn } from '@process/prov
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
 import { killChild } from '@process/agent/acp/utils';
 import { trackAgentChild } from '@process/agent/agentChildRegistry';
-import type { WCoreEvent, WCoreCommand, WCoreCapabilities } from './protocol';
+import type { WCoreEvent, WCoreCommand, WCoreCapabilities, WCoreExecutionPolicy } from './protocol';
+import { WCoreFrameDecoder } from './contract/decoder';
+import type { DecodeOutcome, Negotiation } from './contract/types';
 import { parseQuestionTool } from './questionTool';
 import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { handleHostSendMessageRequest, defaultHostSendDeps } from './hostSendMessage';
@@ -234,6 +236,22 @@ export class WCoreAgent {
   private mcpReadyResolve!: () => void;
   public sessionId?: string;
   public capabilities?: WCoreCapabilities;
+  /**
+   * The engine's effective execution policy — the session's security posture.
+   * Set from `ready` at launch and updated by every `execution_policy` frame.
+   * Both used to be discarded: `ready` was typed without the field, and
+   * `execution_policy` fell through to the `default:` warn-and-drop arm.
+   */
+  public executionPolicy?: WCoreExecutionPolicy;
+  /** Result of contract negotiation with this engine child. */
+  public contractNegotiation?: Negotiation;
+  /**
+   * Per-session frame decoder. Validates every line against Core's vendored
+   * contract corpus before it reaches {@link handleEvent}, so a malformed or
+   * unnegotiated frame can never be dispatched. Recreated on each `start()`
+   * because `ready` may be negotiated exactly once per engine child.
+   */
+  private decoder = new WCoreFrameDecoder();
   /**
    * The `--max-tokens` value actually passed to wcore. As of #456 this is
    * explicit-only: it is set when the caller passed an explicit `maxTokens`,
@@ -464,14 +482,17 @@ export class WCoreAgent {
     // on exit / graceful kill).
     trackAgentChild(this.childProcess);
 
-    // Parse stdout JSON Lines
+    // Parse and VALIDATE stdout JSON Lines. Every frame goes through the
+    // contract decoder first; nothing reaches handleEvent unvalidated.
+    this.decoder = new WCoreFrameDecoder();
     const rl = createInterface({ input: this.childProcess.stdout! });
     rl.on('line', (line) => {
       try {
-        const event = JSON.parse(line) as WCoreEvent;
-        this.handleEvent(event);
-      } catch {
-        console.error('[WCoreAgent] Failed to parse event:', line);
+        this.routeFrame(this.decoder.decode(line), line);
+      } catch (err) {
+        // The decoder is documented not to throw; if it ever does, that is a
+        // host bug and must not take the stream reader down with it.
+        console.error('[WCoreAgent] frame decode threw:', err, line);
       }
     });
 
@@ -662,6 +683,105 @@ export class WCoreAgent {
     });
   }
 
+  /**
+   * Act on one decoder outcome.
+   *
+   * The rule this method exists to enforce: **a frame is never dropped
+   * quietly.** Before contract validation existed, 18 contract event types and
+   * every malformed line fell through a `default:` arm that logged at `warn`
+   * and moved on, which is how `execution_policy` — the session's security
+   * posture — went missing for an entire engine release.
+   *
+   * Severity ladder, loudest first:
+   *  - fatal refusal (negotiation failed) → reject `bootstrap`, kill the child.
+   *    A session with no agreed contract has no safe state to continue from.
+   *  - non-fatal refusal → `console.error` + a user-visible `error` stream
+   *    event. The frame is NOT dispatched: acting on a frame that violated its
+   *    own contract is how you corrupt UI state.
+   *  - valid but unhandled `safety` event → `console.error`. A real product
+   *    gap, tracked in `contract/coverage.ts` and gated in `tests/contract`.
+   *  - valid but unhandled `observational` event → `console.warn`.
+   *  - unknown non-critical event → `console.debug`. Core told us it is safe
+   *    to ignore; this is the forward-compatibility escape hatch.
+   */
+  private routeFrame(outcome: DecodeOutcome, line: string): void {
+    switch (outcome.kind) {
+      case 'negotiated': {
+        this.contractNegotiation = outcome.negotiation;
+        for (const warning of outcome.negotiation.warnings) {
+          console.warn('[WCoreAgent] contract:', warning);
+        }
+        this.handleEvent(outcome.frame as unknown as WCoreEvent);
+        return;
+      }
+
+      case 'event': {
+        if (outcome.degraded) {
+          console.warn(
+            `[WCoreAgent] "${outcome.type}" does not match the pinned contract but the producer ` +
+              `is a different minor — dispatching degraded: ${outcome.degraded}`
+          );
+        }
+        if (!outcome.handled) {
+          const report = outcome.criticality === 'safety' ? console.error : console.warn;
+          report(
+            `[WCoreAgent] contract event "${outcome.type}" (${outcome.criticality}) is valid but ` +
+              `this host has no handler for it — see contract/coverage.ts`
+          );
+          return;
+        }
+        this.handleEvent(outcome.frame as unknown as WCoreEvent);
+        return;
+      }
+
+      case 'dropped':
+        console.debug(
+          `[WCoreAgent] dropping unknown non-critical event "${outcome.type}" (engine is ahead of this host)`
+        );
+        return;
+
+      case 'refused': {
+        console.error(`[WCoreAgent] refused frame [${outcome.code}]: ${outcome.message}`, line);
+        if (outcome.fatal) {
+          const error = new Error(`wcore contract negotiation failed: ${outcome.message}`);
+          if (!this.ready) this.readyReject(error);
+          else this.onStreamEvent({ type: 'error', data: error.message, msg_id: this.activeMsgId ?? '' });
+          this.stop();
+          return;
+        }
+        this.onStreamEvent({
+          type: 'error',
+          data: `The engine sent a frame this build cannot accept (${outcome.code}): ${outcome.message}`,
+          msg_id: this.activeMsgId ?? '',
+        });
+        return;
+      }
+    }
+  }
+
+  /**
+   * Record an effective execution policy.
+   *
+   * Core publishes a monotonically increasing `revision`; an out-of-order or
+   * replayed frame must not be able to walk the posture backwards, so a stale
+   * revision is logged and discarded rather than applied.
+   */
+  private applyExecutionPolicy(policy: WCoreExecutionPolicy): void {
+    const current = this.executionPolicy;
+    if (current && policy.revision <= current.revision) {
+      console.warn(
+        `[WCoreAgent] ignoring stale execution_policy revision ${policy.revision} ` + `(current ${current.revision})`
+      );
+      return;
+    }
+    this.executionPolicy = policy;
+    console.info(
+      `[WCoreAgent] execution policy r${policy.revision} (${policy.reason}): ` +
+        `posture=${policy.policy.posture} approvals=${policy.policy.approvals} ` +
+        `sandbox=${policy.policy.sandbox} managed_floor=${policy.policy.managed_floor_active}`
+    );
+  }
+
   private handleEvent(event: WCoreEvent): void {
     // #746: any turn-scoped frame is progress — push the stall deadline out. Keyed on
     // msg_id so engine-level frames that are NOT turn progress (pong / ready /
@@ -675,7 +795,17 @@ export class WCoreAgent {
         this.ready = true;
         this.sessionId = event.session_id;
         this.capabilities = event.capabilities;
+        // The launch posture rides in on `ready` (revision 0). It was being
+        // discarded because `WCoreEvent['ready']` never declared the field.
+        if (event.execution_policy) this.applyExecutionPolicy(event.execution_policy);
         this.readyResolve();
+        break;
+
+      // The session's security posture changed mid-session (mode change,
+      // managed floor, dangerous activation). Core marks it `safety`
+      // criticality; it used to hit the `default:` drop arm.
+      case 'execution_policy':
+        this.applyExecutionPolicy(event);
         break;
 
       case 'stream_start':

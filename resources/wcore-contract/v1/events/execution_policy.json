@@ -1,0 +1,1 @@
+{"contract_version":"1.0","critical":true,"effective_at_unix_ms":1721000000100,"policy":{"approvals":"auto_edit","managed_floor_active":false,"posture":"smart","sandbox":"required","source":"protocol"},"reason":"mode_change","revision":1,"type":"execution_policy"}

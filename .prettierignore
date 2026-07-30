@@ -1,1 +1,8 @@
 mobile/
+
+# Verbatim byte copy of wayland-core's generated Desktop contract, plus the
+# artifact derived from it. Core's `fixture_digest` / `schema_digest` are taken
+# over these exact bytes, so reformatting them breaks contract negotiation
+# against every real engine. See resources/wcore-contract/VENDORED.md.
+resources/wcore-contract/
+src/process/agent/wcore/contract/generated/
