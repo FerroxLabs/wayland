@@ -11,6 +11,33 @@
 | On upstream mainline? | **No.** `git merge-base --is-ancestor v1.9.25 v2.1.44` → **NO** |
 | Commits on our side of the split | **50** |
 
+## CORRECTION: "upstream abandoned this branch" was wrong
+
+The fork point and the ancestry facts above are correct. The **interpretation** first drawn from
+them was not, and it mattered.
+
+`v1.9.25` is not an ancestor of `v2.1.44` — but **not because upstream abandoned the line.** On
+2026-05-11 upstream landed `5849b6899305c88b3364d850e554dcb7e291d49c`, titled
+*"chore: merge origin/main into feat/backend-migration (#2833)"*, which is a **single-parent squash**
+(115 files, +21,847). **A squash carries content but not ancestry.** That is precisely why
+`merge-base --is-ancestor` answers NO while six of this line's changes are demonstrably present at
+v2.1.44. The squash's own message is an itemised manifest naming our shas (`419199789`,
+`13858579d`, `5ad1ecaee`, `2909f7669`, `1fe378c46`, `98947ba10`) and stating what was dropped.
+
+Note the naming: upstream's own commit calls our line **`origin/main`**. The *experimental* branch
+was `feat/backend-migration`. We forked from their mainline; they moved the product onto the
+experiment and squashed main into it.
+
+**The real reason our tree leads is stronger than luck.** Two days earlier, `4a89db942`
+(*"refactor(agent)!: migrate ACP/agent implementation to backend"*, PR #2804) **deleted 142 files /
+33,415 lines** — the entire `src/process/{acp,agent,channels,task}` layer — out to a separate
+`aionui-backend` repo. At v2.1.44 `packages/desktop/src/process/` is 70 files with no `acp`,
+`agent`, `channels` or `task` directories at all. **We never did that migration, so we maintain a
+fork of a layer upstream removed.**
+
+Detail, including 8 OURS-ONLY fixes still live in our tree with citations:
+`.planning/research/WLD-J/05-divergent-50.md`.
+
 ## Why the earlier baselines were wrong
 
 `v1.9.5` was supplied verbally and taken as authoritative. It is contradicted by the tree: we ship
