@@ -1,7 +1,7 @@
 import re, os, json, sys, csv
 
 W = '/Users/seandonahoe/dev/wayland-worktrees/packet-attribution'
-UP = '/private/tmp/claude-501/-Users-seandonahoe-dev-wayland/775e9698-5b3c-4417-8b28-a518f6f49b0a/scratchpad/xaudit-attribution/aionui'
+UP = '/private/tmp/claude-501/-Users-seandonahoe-dev-wayland/775e9698-5b3c-4417-8b28-a518f6f49b0a/scratchpad/xaudit-attribution/aionui-195'
 
 STOP = set('''
 string boolean number undefined null return export import function async await const let var
@@ -111,7 +111,7 @@ for r in rows:
 
 rows.sort(key=lambda r: (-r['line_overlap'], -r['id_overlap']))
 
-with open(os.path.dirname(os.path.abspath(__file__)) + '/AIONUI-INVENTORY.csv', 'w', newline='') as fh:
+with open(os.path.dirname(os.path.abspath(__file__)) + '/AIONUI-INVENTORY-195.csv', 'w', newline='') as fh:
     w = csv.DictWriter(fh, fieldnames=['tier', 'file', 'upstream', 'our_lines', 'line_overlap', 'id_overlap', 'aionui_notice'])
     w.writeheader()
     for r in rows:
@@ -121,7 +121,7 @@ from collections import Counter
 c = Counter(r['tier'] for r in rows)
 in_src = sum(1 for r in rows if r['file'].startswith('src/'))
 print(f'same-path files compared: {len(rows)}   (src/ {in_src}, outside src/ {len(rows) - in_src})')
-print(f'  upstream HEAD: AionUi f37a6187f (v2.1.44, 2026-07-30)')
+print(f'  upstream baseline: AionUi v1.9.5 = 5b2c741f92 (2026-04-01), the fork point Sean confirmed')
 print()
 for t in ('DERIVED-HIGH', 'DERIVED-LIKELY', 'REVIEW', 'DIVERGED'):
     print(f'  {t:15s} {c.get(t,0):4d}')
