@@ -213,23 +213,31 @@ authoritative notice is `notices/THIRD-PARTY-NOTICES.md` plus the now-shipping `
 | `485b212ff` | Folded 10 OpenClaw notices into their `@license` blocks so the bundler keeps them.                                                                                          |
 | `3f1c5ba10` | Dropped competitor names from 10 design-inspiration comments (Cherry Studio, Figma, NocoBase, acpx, Zed, Codex CLI, Claude Code).                                           |
 
-## 9. Needs Sean — four questions, none of them blocking the above
+## 9. Needs Sean
 
-1. **What is "Foundry"?** Cited across `StatusFooter.tsx`, `MessageActivity.tsx`, `project.ts`,
-   `activityLabels.ts` and two `.module.css` files "Ported from"/"Adapted from" wholesale, plus
-   "Foundry teal" in commit `8f006208e`. It is referenced as if internally known, is defined in no
-   doc, and matches no repo in FerroxLabs or TradeCanyon. If it is a third party we owe it a notices
-   entry; if it is ours the comments are internal history and can be reworded freely. **Left
-   untouched pending the answer.**
-2. **`MicrophoneCheck.tsx` line 249** says the status strings match "Flow's MicCheckSettings copy
-   1:1", and those strings ship to users. That is copied expression, not a copied idea. Either
-   reword the strings so they are ours, or add Flow to the notices. Also: what is Flow?
-3. **`LICENSES/hermes.txt` names `Eric (outsourc-e)`**, the in-code headers name
+**RESOLVED 2026-07-30 — Foundry and Flow are first-party.** Sean: Foundry was the original version
+of Wayland; Flow was his voice dictation app. Consequences:
+
+- **No attribution is owed for either, and neither belongs in `notices/THIRD-PARTY-NOTICES.md`.**
+  That file exists to discharge third-party obligations. Listing our own prior work there would
+  assert, in the one legal document that ships, that we incorporated someone else's code — the exact
+  impression this audit was asked to remove. You cannot owe yourself attribution.
+- The `MicrophoneCheck.tsx:249` "copy 1:1" risk is void. It is our copy.
+- All 17 Foundry/Flow references were therefore removed from the source in `7866d1076`, keeping the
+  technical content and the deliberate-divergence rationale.
+- `FoundrySkills` / `foundry-skills` is a **different thing** and was left alone: it is the skills
+  library's own product name, present as `author: foundry-skills` in 2112 shipped SKILL.md files and
+  baked into the library schemas and taxonomy. Openly ours, and renaming it would rewrite shipped
+  content.
+
+### Still open
+
+1. **`LICENSES/hermes.txt` names `Eric (outsourc-e)`**, the in-code headers name
    `Peter Steinberger / Hermes Agent contributors`, and `readme.md:217` credits **Nous Research**.
    Three holders for one name, the upstream repo 404s, and `outsourc-e` appears nowhere else in the
    tree. The shipped `bridge.js`/`allowlist.js` carry their own notice verbatim so MIT is satisfied
    for them; this is about getting the notices entry right.
-4. **`notices/` has never actually shipped.** The `extraResources` rule landed in `f6f7a8195`
+2. **`notices/` has never actually shipped.** The `extraResources` rule landed in `f6f7a8195`
    (2026-07-16); `v0.11.18` is `1b1c1e911` (2026-07-15) and is not a descendant. No released build
    has ever carried `THIRD-PARTY-NOTICES.md`. The config reads correctly but has never been
    exercised — confirm with `ls <app>/Contents/Resources/notices` on the next packaged build.
