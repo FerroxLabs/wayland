@@ -15,7 +15,7 @@
 
 import { describe, expect, it } from 'vitest';
 import type { TMessage } from '@/common/chat/chatLib';
-import { upgradeLegacyMarkerAttachments } from '@process/bridge/legacyMarkerAttachments';
+import { UNKNOWN_CONVERSATION_SOURCE, upgradeLegacyMarkerAttachments } from '@process/bridge/legacyMarkerAttachments';
 
 const MARKER = '[[AION_FILES]]';
 
@@ -44,6 +44,52 @@ describe('upgradeLegacyMarkerAttachments', () => {
 
     expect((result.content as any).files).toBeUndefined();
     expect(result).toBe(messages[0]);
+  });
+
+  /**
+   * The first cut gated on a hand-maintained denylist of channel names, but
+   * ChannelManager starts 24 built-in channels and plugins can add more, so the
+   * 11 channels missing from that list - Matrix among them, despite being named
+   * as an attack vector - were still fully exploitable. The gate is now an
+   * allowlist of the single local source, which cannot drift out of sync.
+   */
+  it.each([
+    'matrix',
+    'ms-teams',
+    'mattermost',
+    'irc',
+    'nostr',
+    'twitch',
+    'bluebubbles',
+    'nextcloud-talk',
+    'synology-chat',
+    'webhook',
+    'email-agentmail',
+    'some-future-plugin-channel',
+  ])('does NOT upgrade rows from the %s channel', (source) => {
+    const messages = [textMessage({ content: { content: `hi\n\n${MARKER}\n/Users/victim/Documents/passport.png` } })];
+
+    const [result] = upgradeLegacyMarkerAttachments(messages, source);
+
+    expect((result.content as any).files).toBeUndefined();
+    expect(result).toBe(messages[0]);
+  });
+
+  it('does NOT upgrade when the source could not be determined', () => {
+    const messages = [textMessage({ content: { content: `hi\n\n${MARKER}\n/Users/victim/Documents/passport.png` } })];
+
+    const [result] = upgradeLegacyMarkerAttachments(messages, UNKNOWN_CONVERSATION_SOURCE);
+
+    expect((result.content as any).files).toBeUndefined();
+  });
+
+  it('DOES upgrade a legacy row written before the source column existed', () => {
+    const original = `mine\n\n${MARKER}\n/ws/a.png`;
+
+    for (const source of [undefined, null]) {
+      const [result] = upgradeLegacyMarkerAttachments([textMessage({ content: { content: original } })], source);
+      expect((result.content as any).files).toEqual(['/ws/a.png']);
+    }
   });
 
   it('does NOT upgrade an assistant message', () => {

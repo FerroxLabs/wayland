@@ -118,10 +118,19 @@ export function registerAuthorizedRoot(dir: string): void {
   addRoot(dir);
 }
 
-/** Seed the static app roots once. Idempotent. */
+/**
+ * Seed the static app roots once. Idempotent.
+ *
+ * The "seeded" flag is only latched once the platform-services block below
+ * succeeds. Latching it up-front would mean that if platform services are not
+ * yet registered on the very first `confinePath` call, the log and downloads
+ * roots are never registered for the rest of the process lifetime - producing
+ * exactly the silent "open log directory does nothing" breakage those roots
+ * were added to prevent. Re-running the cheap `addRoot` calls on a later miss
+ * is idempotent and costs nothing.
+ */
 function ensureStaticRoots(): void {
   if (staticRootsSeeded) return;
-  staticRootsSeeded = true;
 
   // Config dir (getSystemDir().cacheDir) and agent work dir
   // (getSystemDir().workDir) are the symlink-safe equivalents of these getters.
@@ -156,9 +165,11 @@ function ensureStaticRoots(): void {
     const paths = getPlatformServices().paths;
     addRoot(paths.getLogsDir());
     addRoot(paths.getSystemPath('downloads'));
+    // Only now is the root set complete enough to stop re-seeding.
+    staticRootsSeeded = true;
   } catch {
     // Platform services may not be registered yet in some standalone init
-    // orders; the roots above still apply.
+    // orders; the roots above still apply and we retry on the next call.
   }
 }
 

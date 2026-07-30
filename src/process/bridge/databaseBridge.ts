@@ -6,10 +6,10 @@
 
 import { ipcBridge } from '@/common';
 import { ProcessChat } from '@process/utils/initStorage';
-import type { TChatConversation } from '@/common/config/storage';
+import type { ConversationSource, TChatConversation } from '@/common/config/storage';
 import type { TMessage } from '@/common/chat/chatLib';
 import { migrateConversationToDatabase } from './migrationUtils';
-import { upgradeLegacyMarkerAttachments } from './legacyMarkerAttachments';
+import { UNKNOWN_CONVERSATION_SOURCE, upgradeLegacyMarkerAttachments } from './legacyMarkerAttachments';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 
 export function initDatabaseBridge(repo: IConversationRepository): void {
@@ -22,8 +22,19 @@ export function initDatabaseBridge(repo: IConversationRepository): void {
       // existed are recovered from the legacy marker here, gated on the
       // conversation source so an inbound channel message cannot be laundered
       // into a trusted file list.
-      const conversation = await repo.getConversation(conversation_id).catch((): undefined => undefined);
-      return upgradeLegacyMarkerAttachments(result.data, conversation?.source);
+      //
+      // A failed read or a missing conversation row is NOT the same as a row
+      // with no source: the former means we cannot tell whether this is a
+      // channel, so it must fail closed. Only a row that exists and is local
+      // (or predates the `source` column) may be upgraded.
+      let source: ConversationSource | null | undefined = UNKNOWN_CONVERSATION_SOURCE;
+      try {
+        const conversation = await repo.getConversation(conversation_id);
+        if (conversation) source = conversation.source;
+      } catch {
+        source = UNKNOWN_CONVERSATION_SOURCE;
+      }
+      return upgradeLegacyMarkerAttachments(result.data, source);
     } catch (error) {
       console.error('[DatabaseBridge] Error getting conversation messages:', error);
       return [];
