@@ -166,11 +166,94 @@ resource file on disk only. Defensible, but weak for both AGPL §5 and MIT.
 
 ---
 
-## 6. Still open
+## 6. Inventory result
 
-- The `ported from` / `adapted from` / `inspired by` inventory (~89 files, naming Cherry Studio,
-  Foundry, Flow, opencode) and the their-code vs our-code verdict per file.
-- Whether the production bundler strips comments, i.e. whether the 41 per-file MIT headers survive
-  into the shipped artifact at all.
-- Repo-wide SPDX-License-Identifier count and split (§4).
-- Hermes: derived code or leftover.
+Full sweep done. Of the phrase hits, **50 files are THEIR-CODE** (upstream code present, comment is
+the required attribution) and **26 are OUR-CODE** (idea reference only, no legal weight). Named
+upstreams: OpenClaw 53 sites, Foundry 5, Hermes Agent 3, Gemini CLI 13 (via header not prose),
+pptx2json 2, Figma 3, NocoBase 2, acpx/Zed/Codex CLI/Cherry Studio/Flow 1 each.
+
+Two corrections to the raw sweep: `~89 files` was an over-count driven by `ported from` also
+matching `imported from`/`exported from`; and several apparent upstreams are **ours** —
+`flux-desktop`, `wayland-hermes` (predecessor app), `FoundrySkills` (a shipped content bundle,
+distinct from the `Foundry` UI upstream), and `.planning` doc references.
+
+### Upstream identities verified against the GitHub API
+
+| upstream                    | verdict                                                                                                                                                                                                                       |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `openclaw/openclaw`         | **MIT, © 2026 OpenClaw Foundation.** 384k stars, canonical. GitHub reports NOASSERTION only because the LICENSE has a trailing third-party-notices paragraph that defeats exact-match detection — the terms are standard MIT. |
+| `steipete/openclaw`         | a 15-star personal fork of `vercel-labs/openclaw`. 31 of our headers cite this rather than the canonical repo. Not worth churning 31 files over; the notices file cites the canonical one.                                    |
+| `google-gemini/gemini-cli`  | Apache-2.0. Confirmed.                                                                                                                                                                                                        |
+| `iOfficeAI/AionUi`          | Apache-2.0. Confirmed.                                                                                                                                                                                                        |
+| `iOfficeAI/aionrs`          | Apache-2.0. Confirmed.                                                                                                                                                                                                        |
+| `hermes-agent/hermes-agent` | **404 — does not exist or is private.** Cannot verify the copyright holder.                                                                                                                                                   |
+
+## 7. Bundler behaviour, measured
+
+Rollup retains a module's leading comment only when it is a legal comment (`@license`, `@preserve`,
+or opening `/*!`). Ten OpenClaw notices sat in a bare `/* */` block above the Ferrox `@license`
+block and were therefore **stripped from every build**, while the 31 that happen to have the same
+text pasted inside their `@license` block survived. Accident, not design.
+
+`src/process/utils/backoff.ts` was the clean proof: `computeBackoff` shipped, its MIT notice did not.
+Fixed in `485b212ff` and verified by building and grepping `out/main` — the Variant A form went
+0 → 2 and `Peter Steinberger` 30 → 32. The remaining eight do not appear because their code does not
+either (type-only or tree-shaken). **The notice now survives wherever the code survives.**
+
+Comment survival is undocumented bundler behaviour, so it is defence in depth only. The
+authoritative notice is `notices/THIRD-PARTY-NOTICES.md` plus the now-shipping `LICENSES/`.
+
+## 8. What was changed
+
+| commit      | change                                                                                                                                                                      |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `deacf2937` | Finished the 2026-05-15 wcore rename: 12 residual `aionrs` internal names/comments. `migrations.ts` untouched (persisted).                                                  |
+| `12ab4f861` | Deleted both orphan notices files; corrected the false Apache-2.0 §4(b) claim in the shipped one; added OpenClaw, Hermes Agent and Gemini CLI entries; shipped `LICENSES/`. |
+| `485b212ff` | Folded 10 OpenClaw notices into their `@license` blocks so the bundler keeps them.                                                                                          |
+| `3f1c5ba10` | Dropped competitor names from 10 design-inspiration comments (Cherry Studio, Figma, NocoBase, acpx, Zed, Codex CLI, Claude Code).                                           |
+
+## 9. Needs Sean — four questions, none of them blocking the above
+
+1. **What is "Foundry"?** Cited across `StatusFooter.tsx`, `MessageActivity.tsx`, `project.ts`,
+   `activityLabels.ts` and two `.module.css` files "Ported from"/"Adapted from" wholesale, plus
+   "Foundry teal" in commit `8f006208e`. It is referenced as if internally known, is defined in no
+   doc, and matches no repo in FerroxLabs or TradeCanyon. If it is a third party we owe it a notices
+   entry; if it is ours the comments are internal history and can be reworded freely. **Left
+   untouched pending the answer.**
+2. **`MicrophoneCheck.tsx` line 249** says the status strings match "Flow's MicCheckSettings copy
+   1:1", and those strings ship to users. That is copied expression, not a copied idea. Either
+   reword the strings so they are ours, or add Flow to the notices. Also: what is Flow?
+3. **`LICENSES/hermes.txt` names `Eric (outsourc-e)`**, the in-code headers name
+   `Peter Steinberger / Hermes Agent contributors`, and `readme.md:217` credits **Nous Research**.
+   Three holders for one name, the upstream repo 404s, and `outsourc-e` appears nowhere else in the
+   tree. The shipped `bridge.js`/`allowlist.js` carry their own notice verbatim so MIT is satisfied
+   for them; this is about getting the notices entry right.
+4. **`notices/` has never actually shipped.** The `extraResources` rule landed in `f6f7a8195`
+   (2026-07-16); `v0.11.18` is `1b1c1e911` (2026-07-15) and is not a descendant. No released build
+   has ever carried `THIRD-PARTY-NOTICES.md`. The config reads correctly but has never been
+   exercised — confirm with `ls <app>/Contents/Resources/notices` on the next packaged build.
+
+Two lower-priority observations, recorded rather than acted on:
+
+- **2616 files under `src/` declare `SPDX-License-Identifier: Apache-2.0` while the project ships
+  AGPL-3.0**, and not one file declares AGPL. Defensible (Ferrox may license its own contributions
+  permissively into an AGPL work) but nothing in the tree reconciles it except `notices/README.md`.
+- `src/process/resources/skills/moltbook/package.json:18` declares `"license": "MIT"` and has no
+  notices entry; `src/process/channels/whatsapp-bridge/package.json` has no `license` field at all
+  and ships as a loose file tree.
+
+## 10. The honest summary
+
+The brief asked whether attribution could be removed. Measured across the tree, the answer is that
+the removable surface was **10 comments naming competitors as design inspiration** — real, but small,
+and none of it read like "we stole this".
+
+Everything that _does_ read like a fork confession is either legally required (OpenClaw MIT, AionUi
+and Gemini CLI Apache-2.0) or was already gone from anything a user sees. The two files carrying the
+harshest wording — "Wayland is a derivative work of AionUi", "forms the foundation" — never shipped,
+were unreferenced, and each misstated our own licence; deleting them removed the confession _and_
+fixed a defect.
+
+The audit's actual output is the reverse of its premise: this codebase was **under**-attributing in
+the artifact, not over-attributing in the source.
