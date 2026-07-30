@@ -303,6 +303,7 @@ by Wayland carry no removal of the original copyright notices") — the claim wa
 underlying gap is real.
 
 **Why it cannot simply be fixed mechanically.** The AionUi-derived file set is not identifiable:
+
 - Our root commit `2b3b60e11` is a squashed import of **6245 files** with no pre-fork history.
 - AionUi is a live 31k-star project (`packages/` monorepo, pushed 2026-07-30) that has moved on
   substantially, and our fork point is not recorded anywhere.
@@ -328,6 +329,22 @@ have** — that sentence is now removed rather than left to ship as a false clai
 
 For contrast, where lineage IS known the pattern already works correctly: the 13 Gemini CLI files
 retain their `Copyright 2025 Google LLC` headers untouched.
+
+## 9c. Sized but NOT built: bundled npm dependency notices
+
+The app ships **144 production dependencies** inside the asar, and there is no licence-report
+tooling in the repo (no `license-checker`, no `oss-attribution`, nothing in `scripts/`). Those
+packages are overwhelmingly MIT/Apache/BSD, and MIT asks for its notice to travel with the copies.
+
+Most commercial Electron apps close this with a generated third-party licence file plus an in-app
+or on-disk copy. We ship neither, and there is also no in-app licences surface at all
+(`AboutModalContent.tsx` has no licence section).
+
+**Recommendation: do it, as its own packet.** It is cheap and mechanical — a build step that walks
+the production dependency tree, concatenates each package's licence, and drops the result into
+`notices/`, plus one `extraResources` line. It is not, however, something to bolt onto an
+attribution-trimming pass, and it runs opposite to the "credit less" direction, so it is Sean's
+call. Deliberately not built here.
 
 ## 10. The honest summary
 
