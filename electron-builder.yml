@@ -114,6 +114,11 @@ extraResources:
   # pinned native OfficeCLI runtime.
   - from: notices
     to: notices
+  # Full MIT license texts for the upstreams whose code is adapted into the app.
+  # 31 source headers cite `LICENSES/openclaw.txt` by that exact path, so it has
+  # to ship for those pointers to resolve in the packaged app.
+  - from: LICENSES
+    to: LICENSES
   - from: resources/app.png
     to: app.png
   - from: resources/bundled-bun
