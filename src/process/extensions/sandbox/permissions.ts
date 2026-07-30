@@ -7,7 +7,7 @@
 import { z } from 'zod';
 
 /**
- * Extension permission declarations - inspired by Figma's manifest permissions model.
+ * Extension permission declarations - a manifest-declared permissions model.
  *
  * Extensions declare what capabilities they need. The system validates these
  * declarations and can enforce them at runtime (P2: enforcement layer).

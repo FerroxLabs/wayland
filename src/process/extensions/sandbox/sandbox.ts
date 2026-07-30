@@ -12,7 +12,7 @@ import { resolveMainBundlePath } from '@process/utils/mainBundlePath';
 /**
  * Extension Sandbox - Worker Thread isolation for extension code execution.
  *
- * Inspired by Figma's iframe sandbox model, adapted for Node.js:
+ * Message-passing isolation, adapted for Node.js:
  * - Each sandboxed extension runs in a separate Worker Thread
  * - Communication happens via structured message passing (like postMessage)
  * - The worker has a restricted API proxy instead of full Node.js access

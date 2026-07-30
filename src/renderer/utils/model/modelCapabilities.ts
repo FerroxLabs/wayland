@@ -63,7 +63,7 @@ const getProviderCapabilityRule = (provider: string, type: ModelType): boolean |
 };
 
 /**
- * Determine whether a model has a given capability - three-layer resolution inspired by Cherry Studio
+ * Determine whether a model has a given capability - three-layer resolution
  * @param model - Model object
  * @param type - Capability type
  * @returns true=supported, false=unsupported, undefined=unknown
