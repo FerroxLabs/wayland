@@ -277,6 +277,58 @@ Two lower-priority observations, recorded rather than acted on:
   notices entry; `src/process/channels/whatsapp-bridge/package.json` has no `license` field at all
   and ships as a loose file tree.
 
+## 9b. NEW, and the one item that points toward MORE attribution: AionUi §4(c)
+
+**AionUi headers every source file. We replaced those headers with ours on derived files.**
+
+Upstream `packages/desktop/src/common/electronSafe.ts` opens:
+
+```
+/**
+ * @license
+ * Copyright 2025 AionUi (aionui.com)
+ * SPDX-License-Identifier: Apache-2.0
+ */
+```
+
+Our `src/common/electronSafe.ts` — same filename, same subpath, same purpose — opens with
+`Copyright 2026 Ferrox Labs` in that exact slot. Repo-wide: **2693 Ferrox Labs headers, zero AionUi
+headers.**
+
+Apache-2.0 **§4(c)**: "You must retain, in the Source form of any Derivative Works that You
+distribute, all copyright, patent, trademark, and attribution notices from the Source form of the
+Work." Replacing an upstream copyright line on a modified version of their file does not satisfy
+that. This is the substance behind the false claim the old root notices file made ("files modified
+by Wayland carry no removal of the original copyright notices") — the claim was wrong, and the
+underlying gap is real.
+
+**Why it cannot simply be fixed mechanically.** The AionUi-derived file set is not identifiable:
+- Our root commit `2b3b60e11` is a squashed import of **6245 files** with no pre-fork history.
+- AionUi is a live 31k-star project (`packages/` monorepo, pushed 2026-07-30) that has moved on
+  substantially, and our fork point is not recorded anywhere.
+
+So there is no reliable way to know which of our files derive from theirs. Applying a dual copyright
+too broadly would credit AionUi for our own work — the exact over-crediting this pass is removing.
+Too narrowly and it fails the obligation anyway.
+
+**Options, for Sean:**
+
+1. **Keep the prominent notice and stop there (my recommendation).** `notices/THIRD-PARTY-NOTICES.md`
+   now names AionUi, its licence, its copyright and the fact of derivation, and it ships. This is
+   what the large majority of real forks do, it is honest, and it is proportionate. Residual risk is
+   a strict §4(c) reading.
+2. **Dual-copyright the plausibly-derived files.** Needs a diff against an AionUi tag near the fork
+   point to identify them. Large, approximate, and prone to over-crediting.
+3. Take advice, or approach AionUi directly.
+
+I did **not** act on this unilaterally. It is the only finding in the audit that pushes toward more
+attribution rather than less, it touches thousands of files, and it is a judgment call with legal
+weight either way. **What I did do is stop the notices file from asserting §4(c) compliance we do not
+have** — that sentence is now removed rather than left to ship as a false claim.
+
+For contrast, where lineage IS known the pattern already works correctly: the 13 Gemini CLI files
+retain their `Copyright 2025 Google LLC` headers untouched.
+
 ## 10. The honest summary
 
 The brief asked whether attribution could be removed. Measured across the tree, the answer is that

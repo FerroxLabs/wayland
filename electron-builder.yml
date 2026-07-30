@@ -119,6 +119,11 @@ extraResources:
   # to ship for those pointers to resolve in the packaged app.
   - from: LICENSES
     to: LICENSES
+  # pptx2json is vendored verbatim under src/vendor and inlined into the main
+  # bundle, where the bundler drops its `//` comment header. Ship the upstream
+  # LICENSE itself rather than a second copy in the repo.
+  - from: src/vendor/pptx2json/LICENSE
+    to: LICENSES/pptx2json.txt
   - from: resources/app.png
     to: app.png
   - from: resources/bundled-bun
