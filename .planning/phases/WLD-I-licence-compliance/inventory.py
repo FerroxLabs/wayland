@@ -1,0 +1,125 @@
+import re, os, json, sys, csv
+
+W = '/Users/seandonahoe/dev/wayland-worktrees/packet-attribution'
+UP = '/private/tmp/claude-501/-Users-seandonahoe-dev-wayland/775e9698-5b3c-4417-8b28-a518f6f49b0a/scratchpad/xaudit-attribution/aionui'
+
+STOP = set('''
+string boolean number undefined null return export import function async await const let var
+class interface extends implements typeof instanceof Promise Array Object Record Partial
+default private public protected readonly static void never unknown Error catch throw finally
+require module exports console process Buffer JSON Math Date RegExp Symbol Map Set WeakMap
+params options config result response request handler callback resolve reject timeout signal
+message content channel channels account accounts client plugin adapter service manager
+enabled disabled fallback missing length value values keys entries index chunk chunks
+React useState useEffect useMemo useCallback useRef children className onClick styles
+'''.split())
+
+def strip_comments(src):
+    src = re.sub(r'/\*.*?\*/', ' ', src, flags=re.S)
+    src = re.sub(r'//[^\n]*', ' ', src)
+    return src
+
+def read(p):
+    try:
+        return open(p, encoding='utf-8', errors='replace').read()
+    except Exception:
+        return None
+
+def lines_of(src):
+    out = []
+    for raw in src.splitlines():
+        s = raw.strip()
+        if not s or s.startswith(('//', '*', '/*', '*/', '#')):
+            continue
+        s = re.sub(r'\s+', ' ', s)
+        if len(s) < 25:
+            continue
+        out.append(s)
+    return out
+
+def ids_of(src):
+    out = set()
+    for t in re.findall(r'[A-Za-z_][A-Za-z0-9_]*', strip_comments(src)):
+        if len(t) < 6 or t in STOP:
+            continue
+        out.add(t)
+    return out
+
+# build upstream normalised path map
+norm = {}
+for root, dirs, files in os.walk(UP):
+    dirs[:] = [d for d in dirs if d not in ('node_modules', '.git', 'dist', 'out')]
+    for f in files:
+        if not f.endswith(('.ts', '.tsx')):
+            continue
+        full = os.path.join(root, f)
+        rel = os.path.relpath(full, UP)
+        q = re.sub(r'^packages/[^/]+/', '', rel)
+        norm.setdefault(q, full)
+
+rows = []
+for root, dirs, files in os.walk(os.path.join(W, 'src')):
+    dirs[:] = [d for d in dirs if d != 'node_modules']
+    for f in files:
+        if not f.endswith(('.ts', '.tsx')):
+            continue
+        full = os.path.join(root, f)
+        rel = os.path.relpath(full, W)
+        key = rel[len('src/'):] if rel.startswith('src/') else rel
+        cand = norm.get('src/' + key) or norm.get(key)
+        if not cand:
+            continue
+        a, b = read(full), read(cand)
+        if a is None or b is None:
+            continue
+        la, lb = lines_of(a), lines_of(b)
+        ia, ib = ids_of(a), ids_of(b)
+        if not la or not ia:
+            continue
+        lov = 100.0 * len(set(la) & set(lb)) / len(la)
+        iov = 100.0 * len(ia & ib) / len(ia)
+        has_aionui = bool(re.search(r'[Aa]ion[Uu]i', a[:600]))
+        rows.append({
+            'file': rel,
+            'upstream': os.path.relpath(cand, UP),
+            'our_lines': len(la),
+            'line_overlap': round(lov, 1),
+            'id_overlap': round(iov, 1),
+            'aionui_notice': has_aionui,
+        })
+
+def tier(r):
+    if r['line_overlap'] >= 50 or (r['line_overlap'] >= 30 and r['id_overlap'] >= 60):
+        return 'DERIVED-HIGH'
+    if r['line_overlap'] >= 20 or r['id_overlap'] >= 55:
+        return 'DERIVED-LIKELY'
+    if r['line_overlap'] >= 8 or r['id_overlap'] >= 35:
+        return 'REVIEW'
+    return 'DIVERGED'
+
+for r in rows:
+    r['tier'] = tier(r)
+
+rows.sort(key=lambda r: (-r['line_overlap'], -r['id_overlap']))
+
+with open(os.path.dirname(os.path.abspath(__file__)) + '/AIONUI-INVENTORY.csv', 'w', newline='') as fh:
+    w = csv.DictWriter(fh, fieldnames=['tier', 'file', 'upstream', 'our_lines', 'line_overlap', 'id_overlap', 'aionui_notice'])
+    w.writeheader()
+    for r in rows:
+        w.writerow(r)
+
+from collections import Counter
+c = Counter(r['tier'] for r in rows)
+print(f'same-path files compared: {len(rows)}')
+print(f'  upstream HEAD: AionUi f37a6187f (v2.1.44, 2026-07-30)')
+print()
+for t in ('DERIVED-HIGH', 'DERIVED-LIKELY', 'REVIEW', 'DIVERGED'):
+    print(f'  {t:15s} {c.get(t,0):4d}')
+print()
+print(f'  carrying an AionUi notice already: {sum(1 for r in rows if r["aionui_notice"])}')
+print(f'  at 100% line overlap:              {sum(1 for r in rows if r["line_overlap"]>=99.9)}')
+print(f'  at >=90% line overlap:             {sum(1 for r in rows if r["line_overlap"]>=90)}')
+print()
+print('top 20 by line overlap:')
+for r in rows[:20]:
+    print(f'  {r["line_overlap"]:5.1f}% line {r["id_overlap"]:5.1f}% id  {r["our_lines"]:4d}L  {r["file"]}')
