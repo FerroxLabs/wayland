@@ -3,7 +3,7 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/steipete/openclaw)
+ * Portions adapted from OpenClaw (https://github.com/openclaw/openclaw)
  * Copyright (c) 2025 Peter Steinberger
  * Licensed under the MIT License - see LICENSES/openclaw.txt
  *
@@ -108,7 +108,7 @@ export function normalizeSignalRecipient(raw: string): string {
  */
 export function signalInboundToUnified(
   raw: SignalInboundMessage,
-  selfPhoneNumber: string,
+  selfPhoneNumber: string
 ): IUnifiedIncomingMessage | null {
   const env = raw.envelope;
   if (!env) return null;
@@ -167,7 +167,7 @@ export type SignalSendParams = {
 export function unifiedToSignalSend(
   chatId: string,
   msg: IUnifiedOutgoingMessage,
-  accountPhone: string,
+  accountPhone: string
 ): SignalSendParams {
   const text = msg.text?.trim() ?? '';
   const lower = chatId.toLowerCase();

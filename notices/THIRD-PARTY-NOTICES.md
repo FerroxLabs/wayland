@@ -74,14 +74,15 @@ headers cite.
 
 ## Hermes Agent
 
-- **Project:** Hermes Agent
+- **Project:** Hermes Agent, by Nous Research
+- **Source:** https://github.com/NousResearch/hermes-agent
 - **License:** MIT
-- **Copyright:** Copyright (c) 2025 Peter Steinberger / Hermes Agent contributors
-- **Use in Wayland:** `src/process/channels/whatsapp-bridge/bridge.js` and `allowlist.js`
-  adapt the upstream `scripts/whatsapp-bridge/` sources. Both ship as loose files under
-  `Resources/whatsapp-bridge/` with their attribution headers intact.
+- **Copyright:** Copyright (c) 2025 Nous Research
+- **Use in Wayland:** `src/process/channels/whatsapp-bridge/bridge.js` and `allowlist.js` adapt
+  the upstream `scripts/whatsapp-bridge/` sources of the same names. Both ship as loose files
+  under `Resources/whatsapp-bridge/` with their attribution headers intact.
 
-The full MIT license text is included as `LICENSES/hermes.txt`.
+The full MIT license text is included as `LICENSES/hermes-agent.txt`.
 
 ## OfficeCLI
 
