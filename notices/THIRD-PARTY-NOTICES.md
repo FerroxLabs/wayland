@@ -19,8 +19,9 @@ imposes no further attribution obligation. Section 4(a) is met by the included l
 - **Use in Wayland:** The Wayland desktop application originated as a derivative of AionUi and
   has since diverged substantially into an independent product.
 - **Modifications:** Per Apache-2.0 Section 4(b): the codebase has been substantively modified
-  throughout. Source files carrying a Ferrox Labs copyright header are modified or newly
-  authored by Ferrox Labs.
+  throughout. A per-file record of which files derive from AionUi is being established; until
+  it is complete, the presence of a Ferrox Labs copyright header in a source file should not be
+  read as a claim that Ferrox Labs authored that file.
 
 ## Gemini CLI
 
