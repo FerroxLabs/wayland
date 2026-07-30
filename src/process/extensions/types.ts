@@ -100,7 +100,7 @@ export const ExtensionMetaSchema = z
       })
       .optional(),
     /**
-     * Lifecycle hook scripts.
+     * Lifecycle hook scripts (inspired by NocoBase plugin lifecycle).
      * Scripts are JS files relative to the extension directory.
      * Each script should export a function: (context: LifecycleContext) => void | Promise<void>
      */
@@ -117,7 +117,7 @@ export const ExtensionMetaSchema = z
       })
       .optional(),
     /**
-     * Permission declarations.
+     * Permission declarations (inspired by Figma's manifest permissions).
      * Declares what capabilities the extension requires.
      * Users are shown these permissions when installing/enabling the extension.
      */

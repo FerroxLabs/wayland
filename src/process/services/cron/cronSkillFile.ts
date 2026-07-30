@@ -59,6 +59,7 @@ export function buildCronSkillContent(
 
 /**
  * Parse SKILL.md content, extracting frontmatter and prompt body.
+ * Mirrors Claude Code's parseTaskFileContent().
  */
 export function parseCronSkillContent(content: string): { name: string; description: string; prompt: string } | null {
   const match = content.match(/^---\n([\s\S]*?)\n---\n+([\s\S]*)$/);

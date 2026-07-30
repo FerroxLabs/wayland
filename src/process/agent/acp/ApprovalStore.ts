@@ -7,6 +7,7 @@
 /**
  * ApprovalStore - Session-level approval cache for ACP permissions
  *
+ * This implementation is inspired by Codex CLI's ApprovalStore.
  * It caches "always allow" decisions so that identical or similar operations
  * can be auto-approved without prompting the user again.
  *

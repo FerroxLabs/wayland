@@ -39,7 +39,7 @@ export interface ExtensionLifecyclePayload {
 /**
  * ExtensionEventBus - Global event bus for extension inter-communication.
  *
- * Provides:
+ * Inspired by NocoBase's event system, this provides:
  * - System lifecycle events (activation, deactivation, reload)
  * - Namespaced custom events for extension-to-extension communication
  *
