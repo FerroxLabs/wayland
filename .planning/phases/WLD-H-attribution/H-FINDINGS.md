@@ -346,6 +346,34 @@ the production dependency tree, concatenates each package's licence, and drops t
 attribution-trimming pass, and it runs opposite to the "credit less" direction, so it is Sean's
 call. Deliberately not built here.
 
+## 9d. OpenClaw over-crediting, adjudicated against the pinned upstream
+
+31 files carried a blanket "Portions adapted from OpenClaw" header naming no upstream file. All 31
+were compared against the pinned tree — `aee2681ab1eff720f3ca8a2cb9ecbab5faff84f2`, 2026-04-13,
+confirmed reachable and **checked out**, not queried.
+
+**Result: 20 earned, 11 unearned. The 11 lost the header** (`9add51a0c`).
+
+⚠️ **Method trap worth keeping.** GitHub's `search/code` API only indexes the **default branch**.
+Searching it for `attributedBody` / `chat_message_join` returns hits and would have made
+`ImessagePlugin` look derived — those strings did not exist at the pin. Any verdict from `search/code`
+alone would have been wrong. Only a pinned checkout is authoritative.
+
+Two of the agent's supporting facts were wrong and I corrected them by direct check: upstream
+`msteams/src/sdk.ts:640` **does** contain `jwksUri: "https://login.botframework.com/v1/.well-known/keys"`
+(claimed 0 hits) and `webhooks/src/http.ts:320` **does** define `timingSafeEquals` (claimed absent).
+Both verdicts still hold, on corrected reasoning: our ms-teams verifier discovers via
+`.well-known/openidconfiguration` with `jose` against a different endpoint, and our WebhookAdapter
+has no timing-safe compare at all — `signOutboundBody` is an HMAC _signer_, upstream's is an inbound
+_comparator_.
+
+Independently spot-checked an EARNED verdict: upstream `synology-chat/src/client.ts:243-250` really
+does contain `parseNumericUserId` and the identical
+``return `payload=${encodeURIComponent(JSON.stringify(payload))}`;``.
+
+**Final tally: 31 attributed files** — 10 naming an exact upstream `Source:` path, 20 blanket, plus
+`baileys.js` — down from 42 claimed. `LICENSES/openclaw.txt` stays; 30 files still cite it.
+
 ## 10. The honest summary
 
 The brief asked whether attribution could be removed. Measured across the tree, the answer is that
