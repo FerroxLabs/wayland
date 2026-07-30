@@ -16,6 +16,7 @@ import {
   isTempWorkspacePath,
 } from '@process/doctor/checks/workspaceChecks';
 import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from '@process/doctor/checks/configChecks';
+import { checkAppArchitecture } from '@process/doctor/checks/platformChecks';
 import type { RegistryProvider, RegistryCredsResult } from '@process/providers/storage/ProviderRepository';
 import type { ProviderId } from '@process/providers/types';
 import type { IMcpServer } from '@/common/config/storage';
@@ -490,5 +491,41 @@ describe('checkEngineConfigIntegrity', () => {
     const result = await checkEngineConfigIntegrity(async () => ({ status: 'corrupt', message: 'bad toml at line 3' }));
     expect(result.status).toBe('fail');
     expect(result.detail).toContain('bad toml');
+  });
+});
+
+describe('checkAppArchitecture', () => {
+  it('passes when the build matches the machine', async () => {
+    const result = await checkAppArchitecture({
+      platform: 'darwin',
+      arch: 'arm64',
+      runningUnderARM64Translation: false,
+    });
+    expect(result.status).toBe('pass');
+    expect(result.detail).toContain('arm64');
+    expect(result.remediation).toBeUndefined();
+  });
+
+  it('warns and names Rosetta when an x64 build runs translated on macOS', async () => {
+    const result = await checkAppArchitecture({
+      platform: 'darwin',
+      arch: 'x64',
+      runningUnderARM64Translation: true,
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('Rosetta');
+    expect(result.detail).toContain('x64');
+    expect(result.remediation).toContain('Apple Silicon');
+  });
+
+  it('warns without naming Rosetta when Windows runs the x64 build translated', async () => {
+    const result = await checkAppArchitecture({
+      platform: 'win32',
+      arch: 'x64',
+      runningUnderARM64Translation: true,
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).not.toContain('Rosetta');
+    expect(result.remediation).toContain('Arm64');
   });
 });

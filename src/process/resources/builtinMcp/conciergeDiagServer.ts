@@ -68,6 +68,16 @@ export type ConciergeDiagDeps = {
   appConfigDir?: string;
   /** Resolved engine config directory (`nativeConfigDir()`), for the paths report. */
   engineConfigDir?: string;
+  /**
+   * `process.arch` of the APP (not of this subprocess — the subprocess node
+   * binary can differ), for the platform report.
+   */
+  appArch?: string;
+  /**
+   * The app's `app.runningUnderARM64Translation`. Electron-only, so it is
+   * injected: this module never touches Electron.
+   */
+  runningUnderARM64Translation?: boolean;
 };
 
 export type ScheduledTaskHealth = {
@@ -138,12 +148,33 @@ export type ConfigPathsSection = {
   info: ConfigPathsInfo;
 };
 
+export type PlatformInfo = {
+  /** The OS this install runs on (`darwin` / `win32` / `linux`). */
+  os: string;
+  /** CPU architecture the installed build was compiled for, or null when unknown. */
+  appArch: string | null;
+  /**
+   * True when an x64 build is running on an ARM64 machine through macOS Rosetta
+   * or Windows ARM64 emulation instead of natively.
+   */
+  runningUnderARM64Translation: boolean;
+  /** Plain-English problem when the wrong build is installed, else null. */
+  whyProblem: string | null;
+};
+
+export type PlatformSection = {
+  available: boolean;
+  source: string;
+  info: PlatformInfo;
+};
+
 export type ConciergeDiagOverview = {
   scheduledTasks: DiagSection<ScheduledTaskHealth>;
   mcp: DiagSection<McpServerHealth>;
   providers: DiagSection<ProviderHealth>;
   workspace: DiagSection<WorkspaceHealth>;
   configPaths: ConfigPathsSection;
+  platform: PlatformSection;
   recentErrors: RecentErrorsSection;
 };
 
@@ -416,6 +447,8 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
   const logDir = deps.logDir ?? process.env.WAYLAND_LOG_DIR;
   const appConfigDir = deps.appConfigDir ?? process.env.WAYLAND_APP_CONFIG_DIR;
   const engineConfigDir = deps.engineConfigDir ?? process.env.WAYLAND_ENGINE_CONFIG_DIR;
+  const appArch = deps.appArch ?? process.env.WAYLAND_APP_ARCH;
+  const arm64Translated = deps.runningUnderARM64Translation ?? process.env.WAYLAND_ARM64_TRANSLATED === '1';
 
   /** Scheduled-task health from the cron store (`cron_jobs`). */
   const readScheduledTasks = (): DiagSection<ScheduledTaskHealth> => {
@@ -695,6 +728,25 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
     return { available: appDir != null || engineConfigDir != null, source: 'resolved paths', info };
   };
 
+  /**
+   * Platform report: is the INSTALLED build the right one for this machine?
+   * We publish separate macOS x64 and arm64 builds, and macOS silently runs the
+   * Intel one under Rosetta on Apple Silicon — it works, it is just slower and
+   * burns more battery, with nothing on screen to say so. This is the section
+   * that answers "why is Wayland slow on my new Mac?".
+   */
+  const readPlatform = (): PlatformSection => {
+    const info: PlatformInfo = {
+      os: os.platform(),
+      appArch: appArch ?? null,
+      runningUnderARM64Translation: arm64Translated,
+      whyProblem: arm64Translated
+        ? 'This install is the Intel/x64 build of Wayland running on an ARM64 machine through a translation layer (macOS Rosetta / Windows ARM64 emulation) rather than natively. Everything works, but it is slower and uses more battery. Installing the ARM64 build over this copy fixes it and keeps all settings and chats.'
+        : null,
+    };
+    return { available: appArch != null || arm64Translated, source: 'app runtime', info };
+  };
+
   return {
     name: 'wayland_concierge_diag',
 
@@ -706,6 +758,7 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
         providers: readProviders(),
         workspace: readWorkspaceHealth(),
         configPaths: readConfigPaths(),
+        platform: readPlatform(),
         recentErrors: readRecentErrors(),
       });
     },

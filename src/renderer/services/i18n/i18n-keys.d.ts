@@ -3301,6 +3301,7 @@ export type I18nKey =
   | 'settings.displayPage.sidebarWidth'
   | 'settings.displayPage.yourName'
   | 'settings.displayPage.yourNamePlaceholder'
+  | 'settings.doctor.checks.appArchitecture'
   | 'settings.doctor.checks.backends'
   | 'settings.doctor.checks.bootstrap'
   | 'settings.doctor.checks.configPaths'

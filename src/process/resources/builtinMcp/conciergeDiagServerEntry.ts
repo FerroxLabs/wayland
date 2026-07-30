@@ -32,7 +32,7 @@ const CONCIERGE_DIAG_SERVER_NAME = BUILTIN_CONCIERGE_DIAG_NAME;
 const DIAG_TOOL_DESCRIPTION = `Read-only diagnostics for this Wayland install. Use it to honestly answer "why isn't X working?" — it inspects on-disk state and NEVER mutates anything. All secrets/keys are masked to their last 4 characters.
 
 Sections (pass \`section\`, default "overview"):
-- "overview": one snapshot of all sections below.
+- "overview": one snapshot of all sections below, PLUS \`platform\`: the OS, the architecture this build was compiled for, and whether it is running through ARM64 translation (macOS Rosetta / Windows ARM64 emulation) instead of natively, with a plain-English \`whyProblem\` when it is. Answers "why is Wayland slow / why is my fan on / why does it drain the battery on my new Mac?".
 - "scheduledTasks": each scheduled task's name, enabled flag, next/last run, last error, and a plain-English \`whyNotRunning\` when an enabled task is stuck. Answers "why didn't my scheduled task run?".
 - "mcp": each MCP server's name, enabled flag, status, tool count, last error, and a flag when it is enabled but exposes 0 tools. Answers "my MCP is on but has no tools".
 - "providers": each connected provider's id, connection state, and error (credentials are never read or returned). Answers "why is my model provider failing?".

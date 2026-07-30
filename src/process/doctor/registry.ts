@@ -19,6 +19,7 @@
 
 import { access } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { app } from 'electron';
 import { agentRegistry } from '@process/agent/AgentRegistry';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
@@ -48,6 +49,7 @@ import {
   type WorkspaceConfigEntry,
 } from './checks/workspaceChecks';
 import { checkSecretStorage, checkEngineConfigIntegrity, checkConfigPaths } from './checks/configChecks';
+import { checkAppArchitecture } from './checks/platformChecks';
 
 /** Build a `ProviderRepository` bound to the live UI database. */
 async function providerRepo(): Promise<ProviderRepository> {
@@ -259,6 +261,21 @@ export function buildDoctorChecks(): DoctorCheck[] {
       titleKey: 'settings.doctor.checks.configPaths',
       category: 'config',
       run: () => checkConfigPaths({ appConfigDir: getConfigPath, engineConfigDir: nativeConfigDir }),
+    },
+    {
+      // Grouped under `config` deliberately: it belongs with the other
+      // "is this install set up correctly" checks, and `category` exists only
+      // to group checks — no new union member is warranted for one check.
+      id: 'config.appArchitecture',
+      titleKey: 'settings.doctor.checks.appArchitecture',
+      category: 'config',
+      run: () =>
+        checkAppArchitecture({
+          platform: process.platform,
+          arch: process.arch,
+          // Undefined on Linux (the property is darwin/win32 only).
+          runningUnderARM64Translation: app.runningUnderARM64Translation === true,
+        }),
     },
     {
       id: 'config.secretStorage',

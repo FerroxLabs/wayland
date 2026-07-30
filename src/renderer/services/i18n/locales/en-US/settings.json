@@ -2790,7 +2790,8 @@
       "workspaceConfigured": "Workspace configured",
       "secretStorage": "Secret storage",
       "engineConfig": "Engine config integrity",
-      "configPaths": "Config locations"
+      "configPaths": "Config locations",
+      "appArchitecture": "App architecture"
     }
   },
   "checkForUpdatesDesc": "Check that you are running the latest version of Wayland.",
