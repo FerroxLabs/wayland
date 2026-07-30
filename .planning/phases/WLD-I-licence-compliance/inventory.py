@@ -57,9 +57,18 @@ for root, dirs, files in os.walk(UP):
         q = re.sub(r'^packages/[^/]+/', '', rel)
         norm.setdefault(q, full)
 
+# Depth-aware: 'resources' and '.planning' are only skipped at the repo root.
+# Skipping them at any depth would wrongly drop src/process/resources/**.
+SKIP_ANY = {'node_modules', '.git', 'dist', 'out', 'release'}
+SKIP_ROOT_ONLY = {'.planning', 'resources'}
+
 rows = []
-for root, dirs, files in os.walk(os.path.join(W, 'src')):
-    dirs[:] = [d for d in dirs if d != 'node_modules']
+for root, dirs, files in os.walk(W):
+    at_root = os.path.abspath(root) == os.path.abspath(W)
+    dirs[:] = [
+        d for d in dirs
+        if d not in SKIP_ANY and not (at_root and d in SKIP_ROOT_ONLY)
+    ]
     for f in files:
         if not f.endswith(('.ts', '.tsx')):
             continue
@@ -110,7 +119,8 @@ with open(os.path.dirname(os.path.abspath(__file__)) + '/AIONUI-INVENTORY.csv', 
 
 from collections import Counter
 c = Counter(r['tier'] for r in rows)
-print(f'same-path files compared: {len(rows)}')
+in_src = sum(1 for r in rows if r['file'].startswith('src/'))
+print(f'same-path files compared: {len(rows)}   (src/ {in_src}, outside src/ {len(rows) - in_src})')
 print(f'  upstream HEAD: AionUi f37a6187f (v2.1.44, 2026-07-30)')
 print()
 for t in ('DERIVED-HIGH', 'DERIVED-LIKELY', 'REVIEW', 'DIVERGED'):
