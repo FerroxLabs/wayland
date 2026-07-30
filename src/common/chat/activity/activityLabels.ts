@@ -12,8 +12,8 @@
  * "Searching the web...") and a semantic glyph kind for the timeline icon.
  *
  * This is the perceived-value layer: a legible "Reading config.ts" reads as
- * real work; a raw "tool: fs_read {path:...}" reads as machine noise. Ported
- * from Foundry's deriveActivityLabel. Pure - no React, no IO, unit-tested.
+ * real work; a raw "tool: fs_read {path:...}" reads as machine noise. Pure - no
+ * React, no IO, unit-tested.
  */
 
 import type { ActivityNode } from '../chatLib';

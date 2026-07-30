@@ -3,7 +3,7 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Ported from Flow's MicCheckSettings.svelte pattern:
+ * Mic-check behaviour:
  * - 4-second timed test → auto-stop → single grade
  * - 5 grade states: no-signal / listening / too-quiet / good / too-hot
  * - Bar width driven via direct DOM mutation in RAF, not React state
@@ -166,9 +166,7 @@ const MicrophoneCheck: React.FC = () => {
           )
         );
       } else if (name === 'NotFoundError' || name === 'OverconstrainedError') {
-        setErrorMsg(
-          t('settings.voiceMicNotFound', 'Selected microphone is not available. Pick another input device.')
-        );
+        setErrorMsg(t('settings.voiceMicNotFound', 'Selected microphone is not available. Pick another input device.'));
       } else {
         setErrorMsg(err instanceof Error ? err.message : String(err));
       }
@@ -246,7 +244,7 @@ const MicrophoneCheck: React.FC = () => {
     return t('settings.voiceMicDeviceFallback', { defaultValue: 'Microphone {{n}}', n: index + 1 });
   };
 
-  // Status sentence per state - matches Flow's MicCheckSettings copy 1:1.
+  // Status sentence per state.
   const statusText: string =
     state === 'listening'
       ? t('settings.voiceMicListening', 'Listening - say something to check levels…')
@@ -326,9 +324,7 @@ const MicrophoneCheck: React.FC = () => {
           loading={state === 'requesting'}
           onClick={isTesting ? handleStop : () => void handleStart()}
         >
-          {isTesting
-            ? t('settings.voiceMicStop', 'Stop Test')
-            : t('settings.voiceMicTest', 'Test Microphone')}
+          {isTesting ? t('settings.voiceMicStop', 'Stop Test') : t('settings.voiceMicTest', 'Test Microphone')}
         </Button>
       </div>
 

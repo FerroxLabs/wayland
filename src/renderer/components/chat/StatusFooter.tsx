@@ -9,8 +9,7 @@ import { useTranslation } from 'react-i18next';
 import styles from './StatusFooter.module.css';
 
 /**
- * #252 - live "what's happening" footer. Port of Foundry's ThinkingFooter,
- * re-voiced for Wayland. Replaces ThoughtDisplay's running-only spinner branch:
+ * #252 - live "what's happening" footer. Replaces ThoughtDisplay's running-only spinner branch:
  * the old spinner is driven by a single boolean and vanishes the instant any
  * message arrives, leaving the user staring at a frozen screen mid-turn. This
  * footer persists through the whole turn - elapsed timer, dot-pulse, rotating
@@ -19,7 +18,7 @@ import styles from './StatusFooter.module.css';
  * does not jump.
  *
  * The rotating phrases are brand/personality copy and intentionally
- * English-only (matches the Foundry precedent); the elapsed unit + the
+ * English-only; the elapsed unit + the
  * "context loaded" label go through i18n with inline defaults.
  */
 

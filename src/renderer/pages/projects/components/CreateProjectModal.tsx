@@ -25,8 +25,8 @@ type CreateProjectModalProps = {
 /**
  * Create / edit a project. Deliberately low-friction: only the name is
  * required. Workspace, description and color are all optional so a user can
- * spin up a project in one keystroke and flesh it out later (the opposite of
- * Foundry, which forced a workspace up front).
+ * spin up a project in one keystroke and flesh it out later (the opposite of the
+ * earlier design, which forced a workspace up front).
  */
 const CreateProjectModal = ModalHOC<CreateProjectModalProps>(({ modalProps, modalCtrl, project, onSubmit }) => {
   const { t } = useTranslation();

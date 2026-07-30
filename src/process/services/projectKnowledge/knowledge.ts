@@ -18,7 +18,7 @@ import i18n from '@process/services/i18n';
  * Read, write, inject and manage a project's `.wayland/` knowledge.
  *
  * Knowledge lives at `{workspace}/.wayland/` and is scoped to ONE project (the
- * deliberate fix for Foundry's "notebooks leaked into every chat" bug). It is
+ * deliberate fix for the old "notebooks leaked into every chat" bug). It is
  * surfaced two ways:
  *   1. The project workspace UI (editable instructions / rules / decisions +
  *      dropped reference files).

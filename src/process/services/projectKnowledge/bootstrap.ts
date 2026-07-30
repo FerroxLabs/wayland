@@ -15,7 +15,7 @@ export const WAYLAND_KNOWLEDGE_DIR = '.wayland';
  *
  * Scoped per project (lives inside the project's own workspace dir) and only
  * read by conversations that carry that project's `projectId` - this is the
- * deliberate fix for the old Foundry "notebooks leaked into every chat" bug:
+ * deliberate fix for the old "notebooks leaked into every chat" bug:
  * knowledge is never global, it is anchored to one workspace and surfaced only
  * through a project-scoped MCP server (see ./mcpConfig).
  *

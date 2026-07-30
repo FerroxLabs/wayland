@@ -1,5 +1,4 @@
-/* #252 - live status footer. Ported from Foundry ThinkingFooter.module.css,
-   re-themed to Wayland orange/dark tokens. */
+/* #252 - live status footer, themed to Wayland orange/dark tokens. */
 
 .spacer {
   min-height: 20px;

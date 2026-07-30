@@ -15,10 +15,9 @@ import styles from './MessageActivity.module.css';
 /**
  * #252 - composite, collapsible "activity tree" card for one turn.
  *
- * Port of Foundry's MessageForgeActivity, adapted to Wayland's ActivityNode
- * model and orange/dark tokens. One self-contained Virtuoso row (the list is
+ * Built on Wayland's ActivityNode model and orange/dark tokens. One self-contained Virtuoso row (the list is
  * virtualized): the card auto-expands while the turn is running, auto-collapses
- * when every node is terminal (Foundry's prevHadWorking ref pattern), and each
+ * when every node is terminal (prevHadWorking ref pattern), and each
  * node can be clicked to drill into its accumulated detail (streamed tool
  * stdout, thinking text, op-trail summary).
  */
@@ -50,7 +49,7 @@ const MessageActivity: React.FC<{ message: IMessageActivity; showCost?: boolean 
 
   const [expanded, setExpanded] = useState(status === 'running');
 
-  // Auto-collapse when all nodes finish (Foundry prevHadWorking ref pattern).
+  // Auto-collapse when all nodes finish (prevHadWorking ref pattern).
   const prevHadRunning = useRef(false);
   useEffect(() => {
     const hasRunning = status === 'running';
