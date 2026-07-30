@@ -46,6 +46,11 @@ const emptyOverview = (): ConciergeDiagOverview => ({
     source: 'resolved paths',
     info: { appConfigDir: '~/cfg', engineConfigDir: '~/eng', note: 'n' },
   },
+  platform: {
+    available: true,
+    source: 'app runtime',
+    info: { os: 'darwin', appArch: 'arm64', runningUnderARM64Translation: false, whyProblem: null },
+  },
   recentErrors: { available: true, source: 'logs', lines: [] },
 });
 
