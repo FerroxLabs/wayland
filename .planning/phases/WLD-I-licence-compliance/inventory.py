@@ -1,7 +1,16 @@
 import re, os, json, sys, csv
 
 W = '/Users/seandonahoe/dev/wayland-worktrees/packet-attribution'
-UP = '/private/tmp/claude-501/-Users-seandonahoe-dev-wayland/775e9698-5b3c-4417-8b28-a518f6f49b0a/scratchpad/xaudit-attribution/aionui-195'
+
+# usage: inventory.py <baseline-tree> <label> [csv-suffix]
+# Baseline trees come from ~/dev/resources/AionUi; check one out with
+#   git -C ~/dev/resources/AionUi worktree add -f --detach /tmp/aionui-<tag> <tag>
+# The real fork point is v1.9.25 (see FORK-POINT.md), NOT v1.9.5.
+UP = sys.argv[1] if len(sys.argv) > 1 else '/tmp/aionui-v1925'
+LABEL = sys.argv[2] if len(sys.argv) > 2 else 'AionUi v1.9.25 (fork point, see FORK-POINT.md)'
+SUFFIX = sys.argv[3] if len(sys.argv) > 3 else '1925'
+if not os.path.isdir(UP):
+    sys.exit(f'baseline tree not found: {UP}')
 
 STOP = set('''
 string boolean number undefined null return export import function async await const let var
@@ -111,7 +120,7 @@ for r in rows:
 
 rows.sort(key=lambda r: (-r['line_overlap'], -r['id_overlap']))
 
-with open(os.path.dirname(os.path.abspath(__file__)) + '/AIONUI-INVENTORY-195.csv', 'w', newline='') as fh:
+with open(os.path.dirname(os.path.abspath(__file__)) + f'/AIONUI-INVENTORY-{SUFFIX}.csv', 'w', newline='') as fh:
     w = csv.DictWriter(fh, fieldnames=['tier', 'file', 'upstream', 'our_lines', 'line_overlap', 'id_overlap', 'aionui_notice'])
     w.writeheader()
     for r in rows:
@@ -121,7 +130,8 @@ from collections import Counter
 c = Counter(r['tier'] for r in rows)
 in_src = sum(1 for r in rows if r['file'].startswith('src/'))
 print(f'same-path files compared: {len(rows)}   (src/ {in_src}, outside src/ {len(rows) - in_src})')
-print(f'  upstream baseline: AionUi v1.9.5 = 5b2c741f92 (2026-04-01), the fork point Sean confirmed')
+print(f'  upstream baseline: {LABEL}')
+print(f'  baseline tree:     {UP}')
 print()
 for t in ('DERIVED-HIGH', 'DERIVED-LIKELY', 'REVIEW', 'DIVERGED'):
     print(f'  {t:15s} {c.get(t,0):4d}')
