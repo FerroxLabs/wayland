@@ -166,7 +166,7 @@ describe('TeamSessionService.resolveOwningProviderModelById (#87)', () => {
   });
 });
 
-// The choke point that covers the WCORE default path (resolveDefaultAionrsModel
+// The choke point that covers the WCORE default path (resolveDefaultWCoreModel
 // providers[0]) which stamps a subscription model id onto the metered v2:openai
 // provider; it re-binds to the subscription so envBuilder bills --provider
 // openai-chatgpt. NB: buildConversationParams only INVOKES this for

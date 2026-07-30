@@ -185,7 +185,7 @@ export class TeamSessionService {
     return this.createGoogleAuthGeminiModel('gemini-2.0-flash');
   }
 
-  private async resolveDefaultAionrsModel(): Promise<TProviderWithModel> {
+  private async resolveDefaultWCoreModel(): Promise<TProviderWithModel> {
     const configuredProviders = await ProcessConfig.get('model.config');
     const providers = Array.isArray(configuredProviders) ? configuredProviders.filter((p) => p.enabled !== false) : [];
 
@@ -298,7 +298,7 @@ export class TeamSessionService {
    * Default model for an ACP-backed team agent (codex, claude, qwen, grok, …) so
    * a new teammate of ANY backend is created already pointing at a real model
    * instead of an empty "Select Model" the agent can't start from. Mirrors
-   * `resolveDefaultAionrsModel`'s scan of the legacy `model.config` blob, but
+   * `resolveDefaultWCoreModel`'s scan of the legacy `model.config` blob, but
    * scoped to the provider(s) the backend actually runs
    * (`resolveBackendCandidateProviders`, the same canonical map the home picker's
    * `curatedForAgent` uses - codex -> chatgpt-subscription|openai, claude ->
@@ -387,7 +387,7 @@ export class TeamSessionService {
     }
 
     if (type === 'wcore') {
-      return this.resolveDefaultAionrsModel();
+      return this.resolveDefaultWCoreModel();
     }
 
     if (type === 'acp') {

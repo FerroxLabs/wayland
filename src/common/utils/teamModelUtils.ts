@@ -47,12 +47,12 @@ function passesCapabilityFilter(provider: IProvider, modelName: string): boolean
  * Resolution order:
  * 1. ACP backends (claude, codex, qwen, etc.) -> read from acp.cachedModels[backend].availableModels
  * 2. Gemini -> Google Auth models (if authenticated) + ALL enabled providers' models
- * 3. Aionrs -> all enabled providers (except gemini-with-google-auth) with capability filtering
+ * 3. WCore -> all enabled providers (except gemini-with-google-auth) with capability filtering
  * 4. Others -> empty list (no model switching)
  *
  * The Gemini list mirrors what useModelProviderList() returns:
  * Google Auth provider (auto/auto-gemini-2.5/manual-subModels) + ALL configured providers.
- * The Aionrs list mirrors useWCoreModelSelection: same as above minus Google Auth.
+ * The WCore list mirrors useWCoreModelSelection: same as above minus Google Auth.
  */
 export function getTeamAvailableModels(
   backend: string,

@@ -47,7 +47,7 @@ function getWCoreInfo(): { version?: string; cliPath?: string } {
  *   - ACP builtin  - CLI agents on PATH (claude, qwen, codex, …)
  *   - ACP extension - contributed by hub extensions
  *   - Remote       - user-configured WebSocket agents (from DB)
- *   - Aionrs       - always present (Rust binary, availability resolved at runtime)
+ *   - WCore        - always present (Rust binary, availability resolved at runtime)
  *   - OpenClaw GW  - detected via `openclaw` CLI on PATH
  *   - Nanobot      - detected via `nanobot` CLI on PATH
  *   - Custom ACP   - user-defined ACP CLIs from ConfigStorage 'assistants'
@@ -161,7 +161,7 @@ class AgentRegistry {
 
   /**
    * Deduplicate agents by backend ID. First occurrence wins - merge order
-   * determines priority: Aionrs > Gemini > Builtin > Other > Remote > Extension > Custom.
+   * determines priority: WCore > Gemini > Builtin > Other > Remote > Extension > Custom.
    * When an extension contributes the same backend as a builtin, the builtin wins.
    *
    * Remote and custom agents share their `backend` string but are individually

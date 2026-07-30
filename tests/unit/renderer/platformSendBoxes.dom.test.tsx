@@ -27,7 +27,7 @@ const mockUseCommandQueueEnabled = vi.fn(() => true);
 let mockConversationStatus: 'idle' | 'running' = 'idle';
 let mockAcpRunning = false;
 let mockGeminiRunning = false;
-let mockAionrsRunning = false;
+let mockWCoreRunning = false;
 const mockUseConversationCommandQueue = vi.fn(() => ({
   items: [] as QueueItem[],
   isPaused: false,
@@ -309,7 +309,7 @@ vi.mock('@/renderer/pages/conversation/platforms/gemini/useGeminiMessage', () =>
 vi.mock('@/renderer/pages/conversation/platforms/wcore/useWCoreMessage', () => ({
   useWCoreMessage: vi.fn(() => ({
     thought: { subject: '', description: '' },
-    running: mockAionrsRunning,
+    running: mockWCoreRunning,
     hasHydratedRunningState: true,
     tokenUsage: 0,
     setActiveMsgId: vi.fn(),
@@ -420,7 +420,7 @@ describe('platform send box queue integration', () => {
     mockConversationStatus = 'idle';
     mockAcpRunning = false;
     mockGeminiRunning = false;
-    mockAionrsRunning = false;
+    mockWCoreRunning = false;
 
     mockShouldEnqueueConversationCommand.mockReturnValue(false);
     mockUseCommandQueueEnabled.mockReturnValue(true);
