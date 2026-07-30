@@ -30,8 +30,6 @@ describe('hasSpecificModelCapability — reranker classification', () => {
     'gte-multilingual-reranker-base',
     'xlm-roberta-base-reranker',
     'cohere.rerank-v3-5:0',
-    'retriever-base',
-    'llm-retriever-v1',
   ];
 
   for (const id of rerankIds) {

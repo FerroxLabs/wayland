@@ -24,7 +24,6 @@ describe('hasSpecificModelCapability - embedding/retrieval exclusion (#740)', ()
     'e5-mistral-7b-instruct',
     'voyage-3',
     'jina-embeddings-v3',
-    'jina-clip-v2', // CLIP-family embedding - no "embed" token, matched via `clip`
     'nomic-embed-text', // already matched via "embed" - kept as a guard
   ];
 

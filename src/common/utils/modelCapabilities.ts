@@ -28,9 +28,8 @@ const FLUX_IMAGE_MODEL = /flux(?:[.-]?\d|-(?:dev|schnell|pro|kontext|realism|lor
  * The stem list is the process-side house rule
  * (`providers/catalog/modelCapabilityRules.ts`: `embeddings?|embed|bge`)
  * widened by the three family names #740 actually reported — `gte`, `e5`,
- * `voyage` — plus `clip` for the CLIP-style embedders (`jina-clip-v2`) that
- * carry no `embed` token. Nothing here is speculative: every stem is backed by
- * a model id in the regression corpus below.
+ * `voyage`. Nothing here is speculative: every stem is backed by a model id we
+ * actually ship in `resources/modelsdev-snapshot.json`.
  *
  * Each family stem is anchored to a token boundary (start-of-id or a
  * `/ . : _ -`/whitespace separator on both sides) so a short stem can't match
@@ -39,9 +38,12 @@ const FLUX_IMAGE_MODEL = /flux(?:[.-]?\d|-(?:dev|schnell|pro|kontext|realism|lor
  * selectable. `embed`/`embeddings` still catch `text-embedding-*`,
  * `nomic-embed-*`, `gemini-embedding-*`, etc. via the same boundaries.
  *
- * Retrieval / retriever ids are RERANK_MODEL's job, not this one.
+ * No `retrieval` / `retriever` / `clip` stem: no id we ship needs one. The only
+ * catalogue id containing either (`nvidia/llama-3_2-nemoretriever-300m-embed-v1`)
+ * is already caught by `embed`, and the only `clip` id is `google/lyria-3-clip-preview`,
+ * a music model that must NOT be classified as an embedding.
  */
-export const EMBEDDING_MODEL = /(?:^|[\s./:_-])(?:embeddings?|embed|bge|gte|e5|voyage|clip)(?=$|[\s./:_-])/i;
+export const EMBEDDING_MODEL = /(?:^|[\s./:_-])(?:embeddings?|embed|bge|gte|e5|voyage)(?=$|[\s./:_-])/i;
 
 /**
  * Reranker / cross-encoder models — retrieval-stage models, never chat models.
@@ -50,8 +52,12 @@ export const EMBEDDING_MODEL = /(?:^|[\s./:_-])(?:embeddings?|embed|bge|gte|e5|v
  * inside unrelated ids, so `prerank-*` or `xrerank` would be silently hidden
  * from the model picker. Suffixes are explicit because real reranker ids append
  * them to the stem (`bge-reranker-v2-m3`, `Qwen3-Reranker-8B`).
+ *
+ * One stem only. Every reranker id in `resources/modelsdev-snapshot.json` spells
+ * it `rerank`; no shipped id uses a hyphen or a `retriev*` spelling, so carrying
+ * those branches would add matches we cannot point at a real model for.
  */
-const RERANK_MODEL = /(?:^|[\s./:_-])(?:re-?rank(?:er|ing)?|retriev(?:al|er))(?=$|[\s./:_-])/i;
+const RERANK_MODEL = /(?:^|[\s./:_-])rerank(?:er|ing)?(?=$|[\s./:_-])/i;
 
 /**
  * Capability matching regex patterns
@@ -61,13 +67,19 @@ export const CAPABILITY_PATTERNS: Record<ModelType, RegExp> = {
   vision: /4o|claude-3|gemini-.*-pro|gemini-.*-flash|gemini-2\.0|qwen-vl|llava|vision/i,
   function_calling: /gpt-4|claude-3|gemini|qwen|deepseek/i,
   // Same families the image picker offers (`isImageModelName`, config/imageModels.ts)
-  // plus FLUX.1 and the `stable-diffusion` / `midjourney` / `dall-e` ids already
-  // named in CAPABILITY_EXCLUSIONS below. `image` subsumes `imagen`,
-  // `gpt-image-*` and `gemini-*-image*`; `banana`/`imagine` cover the aliases
-  // that carry no `image` token. Keeping the two detectors on one token set is
-  // what stops a model the picker offers from being classified as non-image here.
+  // plus FLUX.1. `image` subsumes `imagen`, `gpt-image-*` and `gemini-*-image*`;
+  // `banana`/`imagine` cover the aliases that carry no `image` token. Keeping the
+  // two detectors on one token set is what stops a model the picker offers from
+  // being classified as non-image here.
+  //
+  // `dall-e` is additionally listed in CAPABILITY_EXCLUSIONS below. `stable-diffusion`
+  // and `midjourney` are NOT — they are here because we ship first-class prompting
+  // skills for both services (`stable-diffusion-prompting`, `midjourney-consistency`),
+  // so a custom provider exposing such an id must not land in the chat picker.
+  // `stable-?diffusion` matches both spellings; `stabilityai/stablediffusionxl` is
+  // unhyphenated in our snapshot.
   image_generation: new RegExp(
-    `${FLUX_IMAGE_MODEL.source}|image|imagine|banana|dall-e|stable-diffusion|midjourney`,
+    `${FLUX_IMAGE_MODEL.source}|image|imagine|banana|dall-e|stable-?diffusion|midjourney`,
     'i'
   ),
   web_search: /search|perplexity/i,
@@ -80,7 +92,7 @@ export const CAPABILITY_PATTERNS: Record<ModelType, RegExp> = {
   // ("does not support chat"). The bare `embed`/`rerank` literals alone missed
   // family-named embeddings like bge-/gte-/e5-/voyage-, which is #740's bug.
   excludeFromPrimary: new RegExp(
-    `dall-e|${FLUX_IMAGE_MODEL.source}|stable-diffusion|midjourney|flash-image|image|${EMBEDDING_MODEL.source}|${RERANK_MODEL.source}`,
+    `dall-e|${FLUX_IMAGE_MODEL.source}|stable-?diffusion|midjourney|flash-image|image|${EMBEDDING_MODEL.source}|${RERANK_MODEL.source}`,
     'i'
   ),
 };
