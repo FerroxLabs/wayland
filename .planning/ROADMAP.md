@@ -31,6 +31,10 @@
 > The `execution/` packet adapter + `wayland-gsd-gate` verifier are **DORMANT** (part of the killed
 > ceremony). STATE.md + this reconciliation section are the source of truth for `/ferrox-progress`.
 > Wave A + B are tracked as new `NN-NN-PLAN.md` packets under `phases/WLD-A-preview-ship/`.
+>
+> **▶ 2026-07-30 — Milestone WLD-I (Licence Compliance) is ACTIVE.** Its ten phases (`I-01` …
+> `I-10`) are appended at the **end of this file** under `# Milestone WLD-I — Licence Compliance`.
+> Nothing in Milestones A/B/C or the Phase 1-7 wave model is renumbered by it.
 
 ## Overview
 
@@ -400,3 +404,506 @@ The old 7-phase progress table is superseded. Truth by milestone:
 | 7. Secure Portability | deferred       | → Milestone C                                                      | -          |
 
 </details>
+
+---
+
+# Milestone WLD-I — Licence Compliance (ACTIVE)
+
+> **Appended 2026-07-30. Additive only.** Nothing above this line is rewritten, renumbered, or
+> restated. Milestones A/B/C and the preserved Phase 1-7 wave model keep their own IDs; WLD-I is a
+> separate lettered milestone with its own phase namespace `I-01` … `I-10`. Phase artifacts live in
+> `.planning/phases/WLD-I-licence-compliance/` as `I-NN-PLAN.md`, matching the `D-NN-PLAN.md`
+> convention already in `phases/WLD-D-inbox-repairs/`. Do **not** create numbered `01-*` / `02-*`
+> phase directories for this milestone.
+
+**Goal:** Bring Wayland's third-party attribution into a defensible state under Apache-2.0
+§4(b)/§4(c) and MIT, and make every attribution claim the app ships actually true — verified against
+the tree, the pinned upstream, or a real packaged artifact, never against a commit message or a
+prior finding.
+
+**Spine:** `.planning/research/SUMMARY.md` → "Implications for Roadmap". Its ten phases are the
+plan; their order and their blocked/not-blocked markers are preserved verbatim here.
+
+## Authoritative scope numbers
+
+Measured against **AionUi v1.9.5, tag `5b2c741f92`, dated 2026-04-01**, committed as
+`.planning/phases/WLD-I-licence-compliance/AIONUI-INVENTORY.csv` (re-derivable by re-running
+`inventory.py`):
+
+| Measure | Value |
+| --- | --- |
+| Same-path files | **1005** (730 in `src/`, 275 outside it) |
+| DERIVED-HIGH | **891** (645 in `src/`, 246 outside) |
+| DERIVED-LIKELY | **90** (66 in `src/`, 24 outside) |
+| REVIEW | **18** (14 in `src/`, 4 outside) |
+| DIVERGED | **6** (5 in `src/`, 1 outside) |
+| Files at 100% literal line overlap | **186** |
+| Files carrying an AionUi copyright notice | **0** |
+
+**Every other figure circulating in the four dimension research files is superseded.** Anyone
+quoting **445, 503, 550, ~310, 455, 1424, 1390, 2615, 3966, or 2316** — or the pins `b97f34b28e` /
+`f37a6187`, or root-commit date 2026-07-06 (it is **2026-06-07**) — is quoting a superseded number.
+The `445` figure still present in `PROJECT.md`'s "Current Milestone: WLD-I" target-features list is
+one of them; this table wins.
+
+## Already shipped — completed, not future work
+
+The WLD-H branch is folded into this milestone (locked decision), and a material part of the remedy
+has already landed. These are recorded as **completed requirements inside Phase I-02** with
+verification-shaped criteria so they are re-checkable as regressions, not re-planned as work.
+
+| Commit | Landed |
+| --- | --- |
+| `78329477f` | Verbatim Apache-2.0 licence text restored (the appendix placeholder had been overwritten with our name); `notices/OfficeCLI-NOTICE.txt` shipped verbatim; four false claims removed from the shipped notices file (blanket §4(d) claim; enumerated §4(b) list containing the false `.wcore.toml` / `~/.wcore` claims; gemini-cli blanket header claim; "every file carries a header"); three smaller claim corrections (pptx2json not "verbatim", 7zip-bin not "solely Windows", OfficeCLI digests read locally); `notices/README.md` rewritten; whatsapp-bridge added to `.prettierignore` |
+| `d99c70b07` | A false authorship claim I shipped in the notices retracted |
+| `fc7939423`, `b11f6ad87`, `0aac367bc` | The AionUi inventory built and rebaselined onto the supplied fork point |
+| `4a516002e` | The four-leg WLD-H cross-audit recorded, two wrong verdicts corrected |
+
+**There is no baseline-reconstruction phase.** The fork point was supplied by the owner and the
+inventory is committed. Every recommendation to reconstruct, bracket, or argmax-search a baseline is
+obsolete, and fork-point location by git blob-set intersection maximisation is **refuted** — record
+it as a dead end so nobody retries it.
+
+## The one question that sizes the milestone
+
+> **Does a central provenance manifest in the source tree satisfy Apache-2.0 §4(c), or must the
+> retained notice sit in the file it was removed from?**
+
+It decides whether the §4(c) restoration touches **1 file or ~981**. It does **not** gate the
+existence of the header sweep: §4(b) — "state THAT you changed the files" — is per-file by its own
+words with no central-document reading. **Phase I-05 happens either way; the §4(c) answer changes
+what each header says, not whether the sweep exists.**
+
+## Phases
+
+Phase IDs are `I-NN` within milestone WLD-I. Blocked/not-blocked markers are carried from
+`SUMMARY.md` unchanged.
+
+- [ ] **Phase I-01: Counsel — the §4(c) placement question** - NOT BLOCKED (it is the unblocking action). One question, shipped first and alone, against the remedy and not the fact-finding.
+- [ ] **Phase I-02: Small, settled, independent notices work** - NOT BLOCKED. Partly landed already (`78329477f`, `d99c70b07`); remaining: OpenClaw MIT notices owed, six header dialects collapsed to one, baileys.js header isolated with the bridge pin re-pinned in the same commit.
+- [ ] **Phase I-03: Per-file chain of custody for non-AionUi upstreams** - NOT BLOCKED. The `web-fetch.ts` finding generalises: the gemini-cli notices entry is wrong wholesale. Stops the cure creating a new false claim.
+- [ ] **Phase I-04: Manifest, generator, drift test, upstream tree index** - NOT BLOCKED. Makes the sweep reviewable from a small reviewed input and produces the pin-impact list before a byte moves.
+- [ ] **Phase I-05: The header sweep — tier-shaped, generated, human-signed** - §4(b) half NOT BLOCKED; §4(c) *content* BLOCKED on I-01. The sweep happens either way.
+- [ ] **Phase I-06: Re-adjudicate `3f1c5ba10`** - NOT BLOCKED for fact-finding; the acpx/Zed GPL-family restore-or-leave call is a counsel item.
+- [ ] **Phase I-07: npm dependency licence report** - NOT BLOCKED, fully parallel. Reconciled against the asar over the real artifact.
+- [ ] **Phase I-08: Bundle-retention hardening and packaged-artifact verification** - NOT BLOCKED; consumes I-05's output so it lands after. A notice that Rollup strips is a notice that does not exist.
+- [ ] **Phase I-09: Required CI gate** - NOT BLOCKED; must land after I-05 or it fails on its own remediation target. Fails closed.
+- [ ] **Phase I-10: Remedy sign-off and disclosure** - BLOCKED on I-01 and on counsel sign-off. Gates the release, not the code.
+
+## Phase Details
+
+### Phase I-01: Counsel — the §4(c) placement question
+
+**Status**: NOT BLOCKED — it *is* the unblocking action.
+**Goal**: The one question that sizes the milestone is in counsel's hands on day one, scoped to the
+remedy, so Phase I-05's §4(c) payload stops being a guess.
+**Depends on**: Nothing. Runs first and alone.
+**Requirements**: LEG-01, LEG-02
+**Success Criteria** (verification-shaped — checkable against the tree or the pinned upstream):
+
+1. A committed counsel packet states the §4(c) placement question verbatim plus the five subsidiary
+   decisions (literal §4(b) wording; whether the upstream copyright must precede ours; the overlap
+   threshold below which "independent" is defensible; sufficiency of the remedy form; the
+   `3f1c5ba10` GPL-family standard of investigation), and **every factual figure in it resolves
+   against `AIONUI-INVENTORY.csv`** — re-derivable by re-running `inventory.py`, not by citing this
+   roadmap.
+2. The packet's enclosures are enumerable as a file list — the inventory CSV, the proposed header
+   template, the notices diff — and the packet contains **no** request to adjudicate whether files
+   are derived (measured), whether AionUi ships a NOTICE (404), or whether Apache-2.0 is
+   AGPL-compatible (settled). Grepping the packet for those three questions returns zero hits.
+3. The record states explicitly that I-05's sweep happens regardless of the answer, and marks I-05's
+   §4(c) payload **UNRESOLVED** — not assumed in either direction — until the answer returns.
+4. When the answer returns it is recorded verbatim with its date as a locked decision, and every
+   phase whose content it changes is named in that record.
+
+**Plans**: TBD (`I-01-PLAN.md`)
+**Constraint**: counsel reviews the **remedy**, not the fact-finding. Five decisions, not 981 files.
+
+### Phase I-02: Small, settled, independent notices work
+
+**Status**: NOT BLOCKED. Partly landed.
+**Goal**: The settled, small, independent notices obligations are discharged and the already-shipped
+half is provably still true.
+**Depends on**: Nothing.
+**Requirements**: NTC-01 (done), NTC-02 (done), NTC-03 (done), NTC-04 (done), NTC-05 (done),
+NTC-06, NTC-07, NTC-08
+**Success Criteria** (verification-shaped):
+
+1. `notices/Apache-2.0.txt` is byte-identical to the canonical Apache-2.0 text and its appendix
+   placeholder is **not** our name; `notices/OfficeCLI-NOTICE.txt` is byte-identical to the upstream
+   `NOTICE` at the pinned OfficeCLI release. Both proven by `diff` against a freshly obtained copy.
+2. None of the four retracted claims can be found in `notices/THIRD-PARTY-NOTICES.md` — grep for
+   their exact strings returns zero hits — and no claim in that file asserts completeness about our
+   own files (`all` / `every` / `none` / `complete` / `fully` → zero hits in a self-referential
+   claim).
+3. The tunnel trio (`src/process/channels/tunnel/…`) and `src/process/channels/types.ts` each carry
+   a **single** `@license` block naming OpenClaw and MIT, and that block is **present in a real
+   packaged artifact** after `bun run dist:verify:mac` — verified in `out/`, not by `git grep`.
+4. Exactly one OpenClaw header dialect remains across the OpenClaw-attributed set (the `backoff.ts`
+   form, 32 measured surviving instances); the inline per-function `// Adapted from openclaw/… (MIT).`
+   comments are preserved, count unchanged before and after.
+5. The `backends/baileys.js` header edit lands in **its own commit** with
+   `scripts/whatsapp-bridge-source.json` re-pinned in that **same** commit;
+   `tests/unit/scripts/whatsappBridgeSourcePin.test.ts` passes and `bun run dist:verify:mac`
+   produces a launchable artifact afterwards. A green `tsc` is not accepted as evidence.
+
+**Plans**: TBD (`I-02-PLAN.md`)
+**Entry precondition (verified 2026-07-30 at `2c0d1d203`)**: the bridge pin is currently **clean** —
+9 pinned files, 9 on disk, zero digest drift, zero unpinned files. The D-01 stale-pin regression
+noted elsewhere is not present on this branch. Re-verify before the baileys.js commit; if it has
+drifted, **fix the pin, never the check**, and route the regeneration to the owner first.
+**Avoids**: Pitfalls 3 (bundler-stripped notice), 4 (pin invalidation), 5 (asserting completeness).
+Do **not** run `bun run format` — bare `oxfmt` reformats the pinned bridge directory.
+
+### Phase I-03: Per-file chain of custody for non-AionUi upstreams
+
+**Status**: NOT BLOCKED. Flagged for deeper research during planning.
+**Goal**: No notice this milestone writes asserts a lineage the pinned upstream contradicts.
+**Depends on**: Nothing. Must complete before I-05 writes any non-AionUi notice.
+**Requirements**: CUS-01, CUS-02, CUS-03
+**Success Criteria** (verification-shaped):
+
+1. For every file currently attributed to a non-AionUi upstream, a committed row records: the path;
+   whether that path exists in AionUi v1.9.5; **the copyright line the v1.9.5 file itself carries,
+   quoted verbatim**; and the verdict. Each row is re-checkable by
+   `git -C <pinned checkout> show 5b2c741f92:<path>`.
+2. The gemini-cli entry in `notices/THIRD-PARTY-NOTICES.md` asserts only lineages that survive
+   step 1. Any claim the upstream file contradicts is removed, and its removal is recorded together
+   with the upstream bytes that disprove it.
+3. `src/process/agent/gemini/cli/tools/web-fetch.ts` and
+   `src/process/agent/gemini/cli/utils/geminiSchemaFilter.ts` each name the holder the pinned
+   upstream actually names, `grep -F`-able verbatim in the pinned checkout.
+4. A known-adapted **positive control** and an unrelated **negative control** are recorded and
+   reproduced through the identical method in the same run. A run whose controls are not reproduced
+   is void.
+
+**Plans**: TBD (`I-03-PLAN.md`)
+**Method constraints**: shared third-party API vocabulary is not evidence; shared hand-authored
+helper names are. A shared name appearing only as an *import* of a helper defined in an attributed
+sibling needs no notice of its own — the notice belongs on the definition. `rtk` silently truncated
+`git log` to 50 of 18,151 commits during research: any enumeration uses `rtk proxy git …` or
+`child_process.execFile`.
+
+### Phase I-04: Manifest, generator, drift test, upstream tree index
+
+**Status**: NOT BLOCKED.
+**Goal**: A 900-file diff becomes reviewable from a small reviewed input, and no header edit can
+silently invalidate a pin.
+**Depends on**: Nothing. Must complete before I-05 touches a byte.
+**Requirements**: MFT-01, MFT-02, MFT-03, MFT-04, MFT-05
+**Success Criteria** (verification-shaped):
+
+1. Re-running the seeder reproduces `scripts/provenance/aionui.json` **byte-for-byte** from
+   `AIONUI-INVENTORY.csv`, and its per-tier counts equal 891 / 90 / 18 / 6 with pin `5b2c741f92` on
+   every row.
+2. `node scripts/provenance/apply.mjs --check` runs **offline** against
+   `scripts/provenance/aionui.tree.json`, exits non-zero on the pre-sweep tree, and names the files
+   it faults. `--check` is the default; `--write` is opt-in.
+3. With the pinned checkout absent or at the wrong revision, `apply.mjs` **exits non-zero and emits
+   nothing** — it fails rather than templating. Grepping the generator for a literal copyright
+   holder or year constant returns zero hits.
+4. `tests/unit/scripts/provenanceManifest.test.ts` passes in seconds with no build and no network,
+   and **fails** when a manifest row's pin, path, or classification is mutated — proven by mutating
+   one and recording the failure.
+5. A committed pin-impact list enumerates every digest, shasum, and patch-context file a header edit
+   can invalidate (`scripts/whatsapp-bridge-source.json` bridge digests, OfficeCLI shasums,
+   bundled-wayland-core shasums, `patches/*.patch` context lines), each entry verified by locating
+   the digest in the file that carries it.
+
+**Plans**: TBD (`I-04-PLAN.md`)
+**Placement constraint**: the manifest lives in `scripts/`, **not** `notices/`. Anything in
+`notices/` ships, and a shipped classification error is a shipped false claim.
+**Rejects**: blob-set-intersection fork-point search — recorded as a dead end.
+
+### Phase I-05: The header sweep — tier-shaped, generated, human-signed
+
+**Status**: §4(b) half **NOT BLOCKED**. §4(c) *content* **BLOCKED on I-01**. The sweep happens
+either way; the answer changes what each header says, not whether the sweep exists.
+**Goal**: Every derived file states that it was changed, and carries the upstream copyright
+*alongside* the Ferrox line rather than in place of it.
+**Depends on**: I-03 (so no Google LLC notice lands on a file whose custody runs through AionUi),
+I-04 (manifest, generator, pin-impact list). §4(c) payload consumes I-01's answer.
+**Requirements**: HDR-01, HDR-02, HDR-03, HDR-04, HDR-05, HDR-06, HDR-07
+**Success Criteria** (verification-shaped):
+
+1. **Every** copyright line the sweep emits is `grep -F`-able verbatim in the pinned upstream
+   checkout at `5b2c741f92` — asserted over the whole diff, zero misses, zero modernised years, zero
+   normalised holders.
+2. `node scripts/provenance/apply.mjs --check` exits zero on the post-sweep tree, and the exact
+   command plus its output appears in **every** PR body, so each large diff is reproducible from the
+   small reviewed manifest rather than reviewed line by line.
+3. Each of the 18 REVIEW and 6 DIVERGED files carries a committed **five-field** verdict — upstream
+   candidate set enumerated by `find -type f`; best-match upstream file across the whole tree, not
+   the plausibly-named sibling; the three-way split of shared identifiers; whose copyright the
+   upstream file itself carries; verdict plus asymmetry note. No verdict exists with a missing field.
+   DIVERGED defaults to *independent*; a derived verdict needs a written reason.
+4. No file classified verbatim-copy carries a Ferrox copyright or a §4(b) statement (grep the
+   verbatim set → zero hits), and no previously unheadered file with no upstream notice to retain
+   gained an Apache header.
+5. Every entry in the I-04 pin-impact list still validates after the sweep: `bun run dist:verify:mac`
+   produces a launchable artifact and the full suite is green. A passing `tsc` is **not** accepted.
+
+**Plans**: TBD (`I-05-PLAN.md`) — split by classification tier × edit-kind (modify-existing-header vs
+add-where-none-exists) × upstream. The 275 files outside `src/` are a **separate packet**: they never
+reach the object form, so only §4(c) applies to them.
+**Claim-type split**: a **copyright retention** is conservative — over-applying costs credit we did
+not owe and creates no liability, so bias inclusion. A **derivation assertion** (a `Source:` path, a
+notices claim) is a factual claim and needs its measurement attached. Record the **negative**
+determinations with the same fields as the positives — that omission is precisely what `3f1c5ba10`
+was faulted for.
+**Constraint**: conventional-commit `type(scope): subject`, `--strict --force-scope`. One packet per
+PR. No history rewriting, ever.
+
+### Phase I-06: Re-adjudicate `3f1c5ba10`
+
+**Status**: NOT BLOCKED for fact-finding; the acpx/Zed **GPL-family** restore-or-leave call is a
+counsel item. Flagged for deeper research during planning.
+**Goal**: Every provenance comment that commit deleted is held to the same per-file evidentiary
+standard the OpenClaw removals got, with restoration as the default.
+**Depends on**: Nothing for fact-finding. Reuses I-03's verdict-row schema rather than inventing a
+second one.
+**Requirements**: ADJ-01, ADJ-02, ADJ-03
+**Success Criteria** (verification-shaped):
+
+1. The removal set is enumerated **from the commit itself** (`rtk proxy git show 3f1c5ba10`), and
+   every removal has a committed row naming the upstream, the clone revision compared against, the
+   measurement, and the verdict — row count equal to removal count.
+2. acpx, Zed, and Codex CLI are cloned locally at **recorded revisions** and each disputed file is
+   diffed against them. A verdict of "independent" cites the measurement that supports it; removal
+   requires strictly **more** evidence than retention.
+3. The Claude Code pointer is present in the tree, marked **UNVERIFIED** with its reason (closed
+   source, undiffable), and no verdict claims it was disproven. A comment that cannot be disproven
+   stays.
+4. Any restoration that must reach users is confirmed present in a real packaged artifact, not
+   inferred from source.
+
+**Plans**: TBD (`I-06-PLAN.md`)
+
+### Phase I-07: npm dependency licence report
+
+**Status**: NOT BLOCKED — fully parallel. Flagged for deeper research during planning (the residue of
+packages shipping no licence text of their own is manual).
+**Goal**: The dependency licences we actually ship are documented, and the document cannot drift from
+the artifact.
+**Depends on**: Nothing.
+**Requirements**: DEP-01, DEP-02, DEP-03
+**Success Criteria** (verification-shaped):
+
+1. The report is regenerable: deleting it and re-running the generator reproduces it byte-for-byte
+   from resolved lockfile data, with **no** manual edit step anywhere in the path.
+2. Every package listed by `@electron/asar list` over the **real** built artifact appears in the
+   report or in its explicit "could not determine" section. The reconciliation exits non-zero on
+   *ships-but-undocumented* and exits zero with a warning on *documented-but-not-shipped* — both
+   directions proven by a deliberate injection.
+3. The report is **present inside a real packaged artifact**, confirmed by listing the artifact —
+   not by reading `electron-builder.yml`. The shipped set is ~1,332 packages, not the 144 declared
+   `dependencies`; the count in the report matches the artifact, not `package.json`.
+4. The "could not determine" section names each package and the resolution attempted. There is no
+   silent omission and no invented licence text.
+
+**Plans**: TBD (`I-07-PLAN.md`)
+**Note**: `generate-license-file` is not currently a devDependency — adding it is in scope for this
+phase. `rollup-plugin-license`'s `thirdParty` half is rejected: it lists only bundled deps, and
+`externalizeDepsPlugin()` means main-process deps are not bundled.
+
+### Phase I-08: Bundle-retention hardening and packaged-artifact verification
+
+**Status**: NOT BLOCKED; its input is I-05's output, so it lands after.
+**Goal**: A notice that ships is a notice that exists in the shipped bytes.
+**Depends on**: I-05 (the notices it verifies), I-04 (the manifest it generates from).
+**Requirements**: BND-01, BND-02, BND-03, BND-04
+**Success Criteria** (verification-shaped):
+
+1. Every `requiredNotice` in the manifest is found in `out/main/**`, `out/preload/**` **and**
+   `out/renderer/**` after `bun run dist:verify:mac`, and the checker exits non-zero if any is
+   missing. Never raw `electron-vite build`.
+2. The check is proven **not vacuous**: deliberately deleting one notice from the generated banner
+   makes it fail, and the failing run is recorded.
+3. Each **retracted** notice is asserted **absent** from the bundle, and the check fails if one is
+   reintroduced — the inverse assertion, not only the positive one.
+4. `notices/BUNDLE-NOTICE.txt` cannot drift from the manifest: it is generated in `prebuild`,
+   regenerating and diffing yields no change, and a manifest edit without regeneration fails the
+   build. The banner opens `/*!` or contains `@license`, since esbuild keeps only those.
+
+**Plans**: TBD (`I-08-PLAN.md`)
+**Structural basis**: §4(c) binds the **source form** (the git repo / AGPL §6 Corresponding Source) —
+Rollup is irrelevant to it. §4(a)/§4(d) bind the **object form**, already served by
+`electron-builder.yml`'s `extraResources` copy of `notices/` and `LICENSES/`. This phase closes the
+object-form gap for notices that live only as comments. `notices/THIRD-PARTY-NOTICES.md` stays
+primary — a copied text file is durable; a comment is not.
+
+### Phase I-09: Required CI gate
+
+**Status**: NOT BLOCKED; must land **after** I-05 or it fails on its own remediation target.
+**Goal**: The fix cannot regress on the next import, and the gate cannot pass by not running.
+**Depends on**: I-05 (or it red-flags its own target), I-04 (manifest + tree index).
+**Requirements**: CIG-01, CIG-02, CIG-03
+**Success Criteria** (verification-shaped):
+
+1. The gate is a required check with **no `paths:` filter** that can make it skip. A PR touching only
+   docs still runs it, verified on a real PR — because in this repo a **skipped required check counts
+   as a PASS**, and `paths:` filters fire on **any** match.
+2. Deliberately stripping one restored header makes the check **fail** and **name the file**; the
+   failing run is linked.
+3. A new file at a path present in `aionui.tree.json` and absent from `aionui.json` fails the check
+   and names the file — proven by adding one.
+4. With the pinned-upstream cache missing, the job **fails closed** rather than passing or skipping.
+5. `reuse lint-file` and the header-shape check run as **explicit steps with scoped file arguments**.
+   `prek run --all-files` appears nowhere in the workflow — grep returns zero hits. `reuse` is scoped
+   to declaration conformance only; it has no vocabulary for "derived from upstream X at pin Y" and
+   cannot replace the manifest gate.
+
+**Plans**: TBD (`I-09-PLAN.md`)
+
+### Phase I-10: Remedy sign-off and disclosure
+
+**Status**: **BLOCKED** on I-01's answer and on counsel sign-off. Gates the release, not the code.
+**Goal**: The factual record is published, counsel has signed the remedy, and no known-false claim
+is outstanding on the candidate that would ship.
+**Depends on**: I-01 through I-09.
+**Requirements**: DIS-01, DIS-02, DIS-03, DIS-04
+**Success Criteria** (verification-shaped):
+
+1. The compliance note states **method, the pin `5b2c741f92`, the measured counts, what was restored,
+   and what remains open** — and contains no completeness word about our own coverage (`all`,
+   `every`, `none`, `complete`, `fully` → zero hits as a self-referential claim). Three completeness
+   assertions already existed in this tree and the first serious audit found all three.
+2. The compliance note and the release-note line are **separate files**, and neither carries the
+   other's framing: the release note contains no confession, the note contains no spin. Merging them
+   produces either the "credits but no apology" headline or a note nobody believes.
+3. Every claim in both documents resolves against the tree or the pinned upstream **at the moment of
+   sign-off** — re-verified by re-running the I-04 checker and the I-08 packaged verification on the
+   exact candidate, not by citing this roadmap or a prior finding.
+4. No known-false claim is outstanding: the notices file, the restored headers, and the dependency
+   report each pass their own checks on the exact candidate. **No release ships while any known-false
+   claim is outstanding.**
+5. Counsel sign-off is recorded with date and scope, and **no communication with AionUi exists** —
+   locked decision: no contact now, the cure comes first regardless.
+
+**Plans**: TBD (`I-10-PLAN.md`)
+**Consequence framing**: the sanction that bites is distributional, not judicial. Across every
+attribution-specific case in the prior art, **zero** produced litigation; the observed consequences
+were a removed launch post, a C&D that went nowhere, an emergency licence change, and a permanent
+public record.
+
+## Phase Ordering Rationale (carried from SUMMARY.md)
+
+- **Counsel first** — one question sizes I-05 and is the only true long-pole.
+- **Everything cheap and settled runs in parallel immediately** (I-02, I-03, I-04, I-06, I-07).
+  Sequencing a false-statement correction behind a legal decision is a mistake.
+- **No baseline phase exists.** Fork point supplied, inventory committed, blob-intersection refuted.
+- **I-03 before I-05** so the sweep does not write a Google LLC notice onto a file whose custody runs
+  through AionUi.
+- **I-04 before I-05** because the manifest makes the sweep reviewable and the generator stops the
+  bundler-stripped-notice pitfall.
+- **I-08 after I-05** (it verifies I-05's output in the packaged artifact). **I-09 after I-05** or it
+  blocks its own remediation. **I-10 last**, gating the release.
+
+## Milestone-wide execution constraints
+
+These bind every phase in WLD-I. A phase plan may add constraints; none may weaken these.
+
+| Constraint | Rule |
+| --- | --- |
+| Packet discipline | **One packet per PR.** No bulk cleanup bombs. A large generated diff is acceptable only when reproducible from a small reviewed input, with the exact `--check` command and output in the PR body. |
+| History | **No history rewriting, ever.** |
+| Commit hygiene | Conventional commits, `type(scope): subject`, `--strict --force-scope`. **No AI attribution trailers** in commits or PRs. |
+| Hooks | **`prek run --all-files` is forbidden.** Scoped CI steps with explicit file arguments only. |
+| `migrations.ts` | The `aionrs` SQL literals must **never** change. They are on-disk schema identity, not a branding artifact. |
+| Foundry naming | `FoundrySkills` / `foundry-skills` must **never** be renamed. |
+| whatsapp-bridge | Editing anything under `src/process/channels/whatsapp-bridge/` requires re-pinning `scripts/whatsapp-bridge-source.json` in the **same commit**. Fix the pin, never the check. Do not run `bun run format` (bare `oxfmt` reformats the pinned directory). |
+| Promotion | **Nothing merges, tags, or releases without the owner.** |
+| Evidence | Verify against the tree, the pinned upstream, or a real packaged artifact. Never against a commit message, a prior finding, or `electron-builder.yml`. A green `tsc` is not packaged evidence. |
+| Enumeration | `rtk` intercepts `git log` and silently truncated 18,151 commits to 50 during research. Any enumeration uses `rtk proxy git …` or `child_process.execFile`. A short commit list is a method artifact, not evidence. |
+| Counting | `ls` is never acceptable; use `find -type f`. Every zero and every tidy count needs a recorded positive control through the identical method. |
+| Claims | Assert **method, scope, date**. Never `all` / `every` / `none` / `complete` / `fully` about our own coverage. §4(b) requires only a statement **that** files changed — the default action on an enumerated modification claim is **delete**, not correct. |
+
+## Locked Decisions — constraints, never open questions
+
+| Decision | Owner call |
+| --- | --- |
+| Inventory before remedy | Done. `AIONUI-INVENTORY.csv` committed against pin `5b2c741f92`. |
+| The WLD-H branch | Fold into this milestone; do **not** merge as a standalone compliance packet. |
+| Outside legal review | On the **remedy** decision only, not on fact-finding. |
+| Contacting AionUi | **No contact now.** The post-cure notification recommendation is overruled; the cure comes first regardless. |
+| Discord attribution | **Stays.** Provenance UNVERIFIED; asymmetric risk favours keeping it. |
+| Per-file `SPDX-License-Identifier: Apache-2.0` | **Leave it alone.** Not a compliance defect and cannot become one — an identifier more permissive than the outbound licence over-grants Ferrox's own rights, and no third party has a claim. Panel disagreement recorded. |
+| SBOM | Deferred unless a customer demands it. |
+
+## Requirement Coverage — WLD-I
+
+| Phase | Requirement IDs | Count |
+| --- | --- | --- |
+| I-01 Counsel — §4(c) question | LEG-01, LEG-02 | 2 |
+| I-02 Settled notices work | NTC-01…NTC-08 | 8 (5 already complete) |
+| I-03 Non-AionUi chain of custody | CUS-01, CUS-02, CUS-03 | 3 |
+| I-04 Manifest, generator, drift test | MFT-01…MFT-05 | 5 |
+| I-05 Header sweep | HDR-01…HDR-07 | 7 |
+| I-06 Re-adjudicate `3f1c5ba10` | ADJ-01, ADJ-02, ADJ-03 | 3 |
+| I-07 npm dependency licence report | DEP-01, DEP-02, DEP-03 | 3 |
+| I-08 Bundle retention + packaged proof | BND-01…BND-04 | 4 |
+| I-09 Required CI gate | CIG-01, CIG-02, CIG-03 | 3 |
+| I-10 Sign-off and disclosure | DIS-01…DIS-04 | 4 |
+| **Total** | | **42 mapped exactly once; 0 unmapped** |
+
+Full definitions and traceability: `.planning/REQUIREMENTS.md`, section
+"WLD-I — Licence Compliance Requirements". The 55 current + 13 deferred requirements of the
+Phase 1-7 milestone are untouched.
+
+## Progress — WLD-I
+
+| Phase | Plans Complete | Status | Completed |
+| --- | --- | --- | --- |
+| I-01 Counsel — §4(c) question | 0/? | Not started | - |
+| I-02 Settled notices work | 0/? | Partly landed (`78329477f`, `d99c70b07`) | - |
+| I-03 Non-AionUi chain of custody | 0/? | Not started | - |
+| I-04 Manifest, generator, drift test | 0/? | Not started | - |
+| I-05 Header sweep | 0/? | Not started (§4(c) payload UNRESOLVED) | - |
+| I-06 Re-adjudicate `3f1c5ba10` | 0/? | Not started | - |
+| I-07 npm dependency licence report | 0/? | Not started | - |
+| I-08 Bundle retention + packaged proof | 0/? | Not started | - |
+| I-09 Required CI gate | 0/? | Not started | - |
+| I-10 Sign-off and disclosure | 0/? | Blocked (I-01 + counsel sign-off) | - |
+
+## Research Flags — WLD-I
+
+Needs deeper research during phase planning:
+
+- **I-03** — the `web-fetch.ts` generalisation is identified but not executed; per-file verdicts
+  against v1.9.5 do not exist, and the answer rewrites a shipped notices entry.
+- **I-06** — acpx / Zed / Codex CLI are cloneable and have not been cloned; Claude Code stays
+  UNVERIFIED by construction.
+- **I-07** — the ~59 shipped packages carrying no licence text of their own need it resolved from the
+  registry / SPDX corpus; that residue is manual.
+
+Standard patterns, skip research:
+
+- **I-05** — mechanical once pin, inventory and generator exist; the OpenSearch / Linux-kernel
+  SPDX-sweep pattern is well documented. Note OpenSearch's own header convention arrived as a
+  *correction* issue — plan for two passes.
+- **I-04, I-09** — drift-test pattern already proven in-repo
+  (`tests/unit/scripts/whatsappBridgeSourcePin.test.ts`); OpenTofu's `copyright` job is the
+  reference CI shape.
+- **I-02** — settled findings, small diffs.
+
+## Explicitly rejected — record so nobody retries
+
+- Fork-point location by **git blob-set intersection maximisation**. Blob identity requires
+  byte-identical files; the import was a rebranded snapshot that rewrote headers throughout.
+  Reproduced locally against 173 upstream commits it returned a flat 223-256 shared blobs (~4% of
+  our root) with **no peak**, and its claimed pin `b97f34b28e` does not resolve as an object here.
+- **Baseline reconstruction / bracketing / argmax search** — moot, the fork point is supplied.
+- **Comparing against upstream's current `main`** — it has restructured into `packages/desktop/**`;
+  valid only as a lower bound for inclusion, never as a basis for exclusion.
+- **MOSS, simian, PMD CPD, NiCad, SourcererCC, scancode, FOSSology, ORT, licensee, ninka** as the
+  derivation classifier — they answer "what licence does this tree declare?", not "is this file
+  derived from that file at that revision".
+- **`rollup-plugin-license`'s `thirdParty` half** and **`hashicorp/copywrite`** (one uniform header;
+  this tree needs per-file variable upstream attribution driven by a manifest).
+- **`prek run --all-files`** — forbidden by this repo.
+
+## UI hint
+
+**No.** WLD-I touches licence headers, notices files, generators, CI, and packaged-artifact
+verification. It ships no user-facing interface change, so `/ferrox-ui-phase` does not apply to any
+phase in this milestone.

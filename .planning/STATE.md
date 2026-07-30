@@ -6,7 +6,7 @@ status: planning
 last_updated: "2026-07-30T12:32:06.330Z"
 last_activity: 2026-07-30
 progress:
-  total_phases: 0
+  total_phases: 10
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -38,14 +38,17 @@ progress:
 See: `.planning/PROJECT.md`
 
 **Core value:** A provider-agnostic get-shit-done copilot that keeps chat immediately usable and progressively reveals all existing power.
-**Current focus:** Milestone A — Cockpit Preview Ship (Wave A: package + matched-engine smoke).
+**Current focus:** Milestone WLD-I — Licence Compliance (10 phases `I-01` … `I-10`, roadmapped
+2026-07-30). Milestone A — Cockpit Preview Ship (Wave A: package + matched-engine smoke) remains the
+next product milestone behind it.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: WLD-I roadmapped, no phase started
 Plan: —
-Status: Defining requirements
-Last activity: 2026-07-30 — Milestone WLD-I started
+Status: Ready to plan Phase I-01 (ship the §4(c) question to counsel — the only long-pole)
+Last activity: 2026-07-30 — WLD-I roadmap + 42 requirements written (ROADMAP.md, REQUIREMENTS.md)
+Progress: 0/10 phases; Phase I-02 partly landed already (`78329477f`, `d99c70b07`)
 
 ### Reconciled Phase-1 truth (the old 40-packet safety foundation)
 
@@ -60,6 +63,7 @@ Last activity: 2026-07-30 — Milestone WLD-I started
 | **B — Scope Decisions**       | COW-04/05/06, SBX-02, IMG-01, VOC-04, CMP-01 — **Sean's call 2026-07-23: BUILD ALL, no deferments. All 7 landed locally** (see B-DECISIONS.md capture table). SBX-02/COW-04/VOC-04 carry documented Core-hook / UI follow-ons.                                                                                                                                                                     | **Built**                                                                                           |
 | **C — Secure Portability**    | Encrypted full-instance Wayland Transfer engine (old Phase 7)                                                                                                                                                                                                                                                                                                                                      | Deferred                                                                                            |
 | **D — Desktop Inbox Repairs** | GitHub-issue repairs confirmed desktop-side + Core-independent by a 3-agent research council. Phases D1 Bridge reliability (#890, #537) · D2 Skills trust (#885) · D3 Honest diagnostics (#891, #853) · D5 UI clarity (#909, #910, #508, #882) · D4 Token efficiency (#723, gated). Build order D1→D2→D3→D5→D4. Each via full Factory loop. See `HANDOFF-2026-07-23-milestone-D-inbox-repairs.md`. | **D1 (#890) DONE + live-verified; #537 draft-close pending Sean. D2 (#885) NEXT** (D3–D5 unplanned) |
+| **I — Licence Compliance** | Apache-2.0 §4(b)/§4(c) + MIT attribution restoration, measured against AionUi v1.9.5 (`5b2c741f92`): 1005 same-path files, 891 DERIVED-HIGH / 90 DERIVED-LIKELY / 18 REVIEW / 6 DIVERGED, 0 carrying an AionUi notice. Ten phases `I-01`…`I-10` at the end of `ROADMAP.md`; 42 requirements in `REQUIREMENTS.md`. WLD-H folded in. | **ACTIVE — roadmapped 2026-07-30.** I-02 partly landed (`78329477f`, `d99c70b07`). Long-pole = I-01 counsel §4(c) question. Nothing merges/tags/releases without Sean. |
 
 ## Accumulated Context
 
