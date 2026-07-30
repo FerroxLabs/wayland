@@ -1,13 +1,13 @@
-/*
- * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
- * Source: src/infra/retry-policy.test.ts
- * MIT License - Copyright (c) 2025 Peter Steinberger
- * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
- */
 /**
  * @license
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
+ * Source: src/infra/retry-policy.test.ts
+ * Copyright (c) 2025 Peter Steinberger
+ * Licensed under the MIT License - see LICENSES/openclaw.txt
+ * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -26,8 +26,7 @@ async function runRetryCase(params: {
   vi.useFakeTimers();
   const runner = createChannelApiRetryRunner(params.runnerOptions);
   const fn = vi.fn();
-  const allRejects =
-    params.fnSteps.length > 0 && params.fnSteps.every((step) => step.type === 'reject');
+  const allRejects = params.fnSteps.length > 0 && params.fnSteps.every((step) => step.type === 'reject');
   if (allRejects) {
     fn.mockRejectedValue(params.fnSteps[0]?.value);
   }
@@ -99,8 +98,7 @@ describe('createChannelApiRetryRunner', () => {
         name: 'still retries when the strict predicate returns true',
         runnerOptions: {
           retry: { ...ZERO_DELAY_RETRY, attempts: 2 },
-          shouldRetry: (err: unknown): boolean =>
-            (err as { code?: string }).code === 'ECONNREFUSED',
+          shouldRetry: (err: unknown): boolean => (err as { code?: string }).code === 'ECONNREFUSED',
           strictShouldRetry: true,
         },
         fnSteps: [

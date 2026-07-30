@@ -1,13 +1,13 @@
-/*
- * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
- * Source: src/channels/ack-reactions.ts
- * MIT License - Copyright (c) 2025 Peter Steinberger
- * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
- */
 /**
  * @license
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ *
+ * Portions adapted from OpenClaw <https://github.com/openclaw/openclaw>@aee2681a
+ * Source: src/channels/ack-reactions.ts
+ * Copyright (c) 2025 Peter Steinberger
+ * Licensed under the MIT License - see LICENSES/openclaw.txt
+ * Used per MIT permission grant; Wayland additions remain under Apache-2.0.
  */
 
 /**
