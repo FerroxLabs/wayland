@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/openclaw/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * Nextcloud Talk channel plugin - self-hosted chat via app-password Basic auth + REST.
  *
  * Inbound: long-poll on /ocs/v2.php/apps/spreed/api/v1/chat/{token}?lookIntoFuture=1

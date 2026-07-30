@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/openclaw/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * Bot Framework JWT verifier for Microsoft Teams inbound activities.
  *
  * Bot Framework POSTs a Bearer JWT signed by the Azure AD keys published at

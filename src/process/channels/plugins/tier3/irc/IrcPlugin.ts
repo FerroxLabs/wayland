@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/openclaw/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * IRC channel plugin via irc-framework. Connects to an IRC server with optional
  * SASL PLAIN auth, joins configured channels, listens for PRIVMSG, and emits
  * unified messages. Outbound sends via PRIVMSG with 400-char chunking.

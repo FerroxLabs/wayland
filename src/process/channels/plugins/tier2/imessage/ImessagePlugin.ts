@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/openclaw/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * ImessagePlugin - macOS-only iMessage channel plugin.
  *
  * Inbound: polls ~/Library/Messages/chat.db (read-only, better-sqlite3) on a

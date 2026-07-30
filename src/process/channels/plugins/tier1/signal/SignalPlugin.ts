@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/openclaw/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * SignalPlugin - Wayland's tier-2 Signal Messenger surface.
  *
  * Transport: spawns signal-cli as a long-lived subprocess daemon and speaks

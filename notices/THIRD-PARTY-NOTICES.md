@@ -58,12 +58,14 @@ imposes no further attribution obligation. Section 4(a) is met by the included l
 - **License:** MIT
 - **Copyright:** Copyright (c) 2026 OpenClaw Foundation; portions Copyright (c) 2025 Peter
   Steinberger, the copyright holder recorded in the revision Wayland adapted.
-- **Use in Wayland:** The channels subsystem incorporates and adapts OpenClaw source.
-  Affected code lives under `src/process/channels/` (the Signal, Slack, Discord, webhook,
-  iMessage, LINE, MS Teams, IRC, Mattermost, Nostr, Twitch, Bluebubbles, Nextcloud Talk,
-  Synology Chat, and Google Chat integrations, plus the WhatsApp Baileys backend) and in
-  `src/process/utils/backoff.ts`, `channel-errors.ts`, and `retry-policy.ts`. Where a file
-  was adapted from a specific upstream file, its header names that file.
+- **Use in Wayland:** Parts of the channels subsystem adapt OpenClaw source. Every file
+  containing adapted code carries its own attribution header; the affected set is the Signal,
+  Slack, Discord, iMessage, LINE, MS Teams, IRC, Mattermost, Nostr, Twitch, Bluebubbles,
+  Synology Chat and Google Chat integrations, the WhatsApp Baileys backend, the shared
+  reaction and typing helpers under `src/process/channels/core/`, and
+  `src/process/utils/backoff.ts`, `channel-errors.ts` and `retry-policy.ts`. Where a file was
+  adapted from a specific upstream file, its header names that file. Files with no adapted
+  code carry no such header.
 
 The full MIT license text is included as `LICENSES/openclaw.txt`, the path the per-file
 headers cite.

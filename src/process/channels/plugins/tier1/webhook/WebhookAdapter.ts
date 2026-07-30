@@ -3,10 +3,6 @@
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
  *
- * Portions adapted from OpenClaw (https://github.com/openclaw/openclaw)
- * Copyright (c) 2025 Peter Steinberger
- * Licensed under the MIT License - see LICENSES/openclaw.txt
- *
  * Pure parse/format helpers for the generic Webhook channel plugin.
  * Inbound: JSON body -> IUnifiedIncomingMessage.
  * Outbound: IUnifiedOutgoingMessage -> POST body POSTed to operator URL.
@@ -45,8 +41,8 @@ export type WebhookInboundPayload = {
 
 /**
  * Body POSTed to the operator's outbound URL by sendMessage.
- * Harvested concept from OpenClaw http.ts - keep the shape simple and
- * predictable so operators can parse without a schema.
+ * Kept deliberately simple and predictable so operators can parse it without a
+ * schema.
  */
 export type WebhookOutboundBody = {
   readonly chatId: string;
@@ -110,7 +106,6 @@ export function toUnifiedIncoming(payload: WebhookInboundPayload, pluginId: stri
 /**
  * Build the JSON body POSTed to the operator's outbound URL.
  * Shape: { chatId, message, ts } - kept minimal and predictable.
- * Harvested concept from OpenClaw http.ts webhook action body builder.
  */
 export function toOutboundBody(chatId: string, message: IUnifiedOutgoingMessage): WebhookOutboundBody {
   const text = (message.text ?? '').trim();
@@ -133,8 +128,6 @@ export function toOutboundBody(chatId: string, message: IUnifiedOutgoingMessage)
  * in the `X-Webhook-Timestamp` header alongside `X-Webhook-Signature`.
  * Format mirrors GitHub / Meta: "sha256=<hex>". Returns null when secret is
  * empty (signing disabled).
- *
- * Harvested concept from OpenClaw http.ts timingSafeEquals + secret extraction.
  */
 export function signOutboundBody(bodyJson: string, secret: string, timestampMs: number): string | null {
   const trimmed = secret.trim();
