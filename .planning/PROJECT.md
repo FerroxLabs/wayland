@@ -163,6 +163,65 @@ Phase dependencies in `ROADMAP.md` describe product/evidence order, not permissi
 - **Queued Managed Workspace Lifecycle:** `WSLX-01` alone may later plan explicit human-reviewed quarantine, restore, keep-forever, and separately authorized permanent deletion, only after a complete trusted output/receipt ledger exists. Phase 1 remains preservation and review classification only.
 - **Queued Cloud/Pro and Distribution:** Community Cloud release readiness, Hosted Pro tenancy/isolation, commercial tier closure, and cross-surface release-derived distribution. Shared composition tests do not imply this surface is ready.
 
+## Current Milestone: WLD-I Licence Compliance
+
+**Goal:** Bring Wayland's third-party attribution into a defensible state under Apache-2.0
+Section 4(b)/4(c) and MIT, and make every attribution claim the app ships actually true.
+
+**Target features:**
+- AionUi Section 4(c) restoration — complete the inventory across all 445 same-path files, classify
+  derived vs Ferrox-original by measurement, restore the upstream copyright alongside the Ferrox
+  modification copyright on the derived set.
+- gemini-cli Section 4(c) — restore the Google LLC notice on the one derived-but-unattributed file
+  (`tools/web-fetch.ts`) and give `utils/geminiSchemaFilter.ts` an SPDX header.
+- OpenClaw completion — add the owed MIT notices to the tunnel trio and `channels/types.ts`, in the
+  `@license` form that survives bundling.
+- Shipped-claim truth pass — remove or correct the four false statements in
+  `notices/THIRD-PARTY-NOTICES.md`, plus the smaller claim errors.
+- Notices hygiene — reproduce the OfficeCLI NOTICE verbatim; rewrite the stale, shipped
+  `notices/README.md`.
+- Header-dialect normalization — collapse six OpenClaw header dialects to one.
+- Re-adjudicate `3f1c5ba10` — the acpx / Zed / Codex CLI / Claude Code provenance deletions, held to
+  the same per-file evidentiary standard the OpenClaw removals got.
+- npm dependency licence report — 144 bundled production dependencies currently ship with none.
+
+**Key context:**
+- The AionUi exposure is **pre-existing**, dating to root commit `2b3b60e11` (2026-07-06 squashed
+  6,245-file import). It was **not** introduced by the WLD-H branch, which all four cross-audit legs
+  confirmed makes no functional change.
+- **Decided (Sean, 2026-07-30):** inventory all 445 files before choosing a remedy; fold the WLD-H
+  branch into this milestone rather than merging it as a standalone compliance packet; obtain outside
+  legal review on the remedy decision, not on the fact-finding.
+- Provenance verdicts in this milestone are **measured, not read**. Literal-line overlap alone is
+  insufficient — it detects copy-paste but not a port. See `H-CROSSAUDIT.md` for the method, its
+  calibration controls, and the eight traps that each cost a wrong verdict.
+- Authoritative inputs: `.planning/phases/WLD-H-attribution/H-CROSSAUDIT.md` and `H-FINDINGS.md`.
+  The latter's "accept residual §4(c) risk" recommendation is **withdrawn as wrong**.
+
 ## Success Standard
 
 Completion means each requirement is proven by current source wiring, deterministic tests, real IPC/reducer replay where applicable, packaged platform evidence where required, and user-observable acceptance. A requirement is not complete because code exists, a test was skipped, or a source document describes the intended behavior.
+
+For WLD-I specifically, "proven" additionally means: every attribution claim in a shipped file is
+verified against the actual tree or the pinned upstream, not against a commit message or a prior
+finding; and every notice asserted to ship is confirmed present in a real packaged artifact, not
+inferred from `electron-builder.yml`.
+
+## Evolution
+
+This document evolves at phase transitions and milestone boundaries.
+
+**After each phase transition** (the internal transition workflow, run automatically after phase verification):
+1. Requirements invalidated? → Move to Out of Scope with reason
+2. Requirements validated? → Move to Validated with phase reference
+3. New requirements emerged? → Add to Active
+4. Decisions to log? → Add to Key Decisions
+5. "What This Is" still accurate? → Update if drifted
+
+**After each milestone** (via `/ferrox-complete-milestone`):
+1. Full review of all sections
+2. Core Value check — still the right priority?
+3. Audit Out of Scope — reasons still valid?
+4. Update Context with current state
+
+**Last updated:** 2026-07-30 — Milestone WLD-I (Licence Compliance) started.

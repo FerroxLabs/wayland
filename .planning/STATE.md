@@ -1,13 +1,16 @@
 ---
-gsd_state_version: '1.0'
-status: in_progress
+ferrox_state_version: 1.0
+milestone: WLD-I
+milestone_name: Licence Compliance
+status: planning
+last_updated: "2026-07-30T12:32:06.330Z"
+last_activity: 2026-07-30
 progress:
-  model: milestones
-  total_milestones: 3
-  completed_milestones: 0
-  active_milestone: 'A — Cockpit Preview Ship'
-  phase1_construction: accepted-by-live-test
-  percent: 78
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -39,19 +42,10 @@ See: `.planning/PROJECT.md`
 
 ## Current Position
 
-**Milestone A — Cockpit Preview Ship** (ACTIVE) — the only live build work.
-Wave A (package + matched-engine smoke) **landed** (A-02: packaged app proven working over CDP); Wave B (trust/a11y floor) largely landed; Wave C (hygiene) partially landed.
-
-Last activity: 2026-07-23 overnight — 9 local commits (nothing pushed):
-
-- **A-02 packaged smoke harness** `scripts/packaged-cockpit-smoke.mjs` — drives the PACKAGED hardened app over CDP (no fuse weakened); 12/12 surfaces + bridge + Flux connect + chat all pass. Hardened against 5 false-green paths found by an independent adversarial audit.
-- **B-02 a11y burn-down** — 87% of gated violation nodes cleared (374 → 49); a11y gate green 6/6, baseline tightened.
-- **Wave C i18n hygiene** — 22 orphaned cohort keys removed across 12 locales; 814 i18n tests pass.
-- **Milestone B decision dossier** — all 7 scope items researched + recommended (`.planning/phases/WLD-B-scope/B-DECISIONS.md`), awaiting Sean's calls.
-- **B-01 consent test hooks** added (unblocks the packaged consent E2E).
-- Findings filed: onboarding-restarts-from-step-1 root cause; a stale-bundled-artifact test fragility (3 unit tests fail locally, pass clean — cleared).
-
-Progress: [████████░░] ~78% (packaged smoke proven; a11y floor largely done; scope decisions armed)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-07-30 — Milestone WLD-I started
 
 ### Reconciled Phase-1 truth (the old 40-packet safety foundation)
 
@@ -111,13 +105,16 @@ Stopped at: two more verified local commits on top of the Milestone-B handoff
   rule-IDs (Sider theme/memory toggles → role=button+keyboard clears `aria-prohibited-attr`
   ×5 surfaces + `aria-allowed-attr` on chat home; local `PreferenceRow` `aria-labelledby`
   clears general-settings `label`). Gate green 6/6, baseline re-recorded, full suite 15,612/0.
+
 - `3c11691b4` **B-01 hosted-voice consent E2E** (Sean's pick) — `tests/e2e/specs/voice-consent.e2e.ts`,
   2 tests pass: disclosure fail-closed on cancel + accept-persists-across-remount. Added
   `tts/stt-provider-select` test hooks.
+
 - `fd1ad049e` **onboarding resume fix** (Sean-reported "reloads on multi-agent mode") — persist
   `onboarding.progress` to localStorage → any remount resumes instead of restarting at step 1;
   3 DOM tests. Chosen as the recommended action: real, desktop-only (Core-independent), improves
   the live-test loop — vs Core-gated/ship-adjacent work Sean flagged as premature with Core in motion.
+
 - **GH-issue knock-out batch** (via `ferrox-inbox` triage → `.planning/INBOX-TRIAGE.md`; Sean's call
   = Tier-1 desktop-side Core-independent): `25a69fd3d` **#836** darken light-mode `--success`
   emerald-400→700 (1.9→5.48:1 as text; a11y gate green); `730230eaf` **#842** notify when a workflow
@@ -160,26 +157,33 @@ Sean's menu pick (movable).
   2nd Electron instance that `app.quit()`d (code=0) → 12× reconnect → `error`; baileys/QR never ran.
   `forkBridge` was the one spawn site never migrated to the shipped #706 `resolveJsRuntime()` pattern
   (`safeSpawn.ts:151-156`). Pino→stderr alone would have done nothing (baileys never runs).
+
 - **Fix (shipped, local):** `forkBridge` fork→spawn via `resolveJsRuntime()` + new pure
   `bridgeSpawnConfig.ts` (drops ipc slot, `WAYLAND_BRIDGE_UNDER_PARENT` env flag); baileys pino→fd2
   via new `bridgeLogger.js`; `handleFrame` object-guard. 4 src + 11 test files.
+
 - **Ferrox loop:** plan (`ferrox-plan-phase`; checker caught a false-green — acceptance must be FUSED,
   not `bun run package`) → build → cross-audit (`ferrox-code-reviewer`: GO, 0 Crit/High) → verify
   (`ferrox-verifier`: GOAL MET static). Full suite **15,625/0**, tsc clean.
+
 - **LIVE verify (by hand through the harness):** ran the real `bridge.js` under system Bun 1.3.11
   (= bundled) with a `connect` RPC → baileys reached **qr.update** (the exact #890 symptom "never
   reaches QR"), stdout 6 frames / **0 pollution** (pino→fd2 works live), clean lifecycle, no code=0
   death. baileys-under-Bun risk RETIRED. 2 benign Bun `ws`-shim warnings on stderr (QR reached).
   Docs: `D-01-SUMMARY.md`, `D-01-REVIEW.md`, `D-01-VERIFICATION.md`.
+
 - **Residual (parked, low-risk):** the full FUSED packaged smoke needs the capability-seal receipts
   ceremony (`WAYLAND_CAPABILITY_RECEIPTS_DIR`, owner/CI-adjacent). The fix spawns bundled Bun directly
   (sidesteps the fuse by construction) and the runtime path is proven live, so residual is low.
   Watch-item: message send/receive under Bun's `ws` shim (QR proven).
+
 - **#537 (D-02): static-confirmed closeable** (desktop hook armed in-tree; Core v0.12.25 carries the
   host-send symbols). Sean's call (2026-07-24): **draft-and-close on his nod, skip the live-email
   setup.** Draft comment prepared this session (in `D-02-CLOSE-COMMENT.md`) — post as FerroxLabs on approval.
+
 - **Cross-audit follow-ups (pre-existing, NOT D1 regressions):** WR-01 bridge child inherits full
   `process.env` vs `safeSpawn`'s allowlist; WR-02 dead `--session` per-instance isolation.
+
 - **Cleanup (2026-07-24):** reclaimed ~60 GB — removed 135 stale worktrees (gsd-workspaces 231G→6.9G)
   - Docker unused images; all 92 gsd-clone branches + active app-worktrees preserved.
 
@@ -191,18 +195,22 @@ Sean's menu pick (movable).
   `~/.ssh/`) → `computeVerdict` `blocked` (`SkillGuard.ts:72`) → `loadBody:432` refuses load. The
   handoff said "exempt wayland-library/team" — WRONG: `team` bodies live in writable user-data and are
   spoofable, so only `wayland-library` is exempted.
+
 - **Fix (shipped, local):** producer-only exemption in `SkillLibrary.rescanStale`/`rescanIfStale` —
   `isTrustedBundleSkill = source === 'wayland-library' && !path.isAbsolute(entry.path)` (BOTH facts;
   source-only = security hole) → synthesized `clean` without scanning/body-read. Zero enforcement-gate
   edits. New `skillGuardExemption.test.ts` (6 incl. absolute-path spoof-regression) + sweep-fixture
   re-sourcing. Task 2 (user unblock-override store) DEFERRED — #885 fully closed without it.
+
 - **Ferrox loop:** plan-checker PASS → build (suite **15,631/0**, tsc clean) → cross-audit
   (`ferrox-code-reviewer`: GO, 0 Crit/High/Med; traced all 5 `registerSource` callers) → verify
   (`ferrox-verifier`: GOAL MET 6/6). Docs: `D-03-{RESEARCH,PLAN,VERIFICATION}.md`.
+
 - **LIVE verify (by hand, harness, real data):** real guard fired at real shipped bodies —
   `forensics-analyst` → verdict **blocked** (the #885 symptom on production content); index.json
   **2106/2106** `wayland-library` relative, **0** absolute, **0** external-relative → every builtin
   exempted, zero spoof surface. Throwaway harness not committed.
+
 - **Residual (parked, Sean's call 2026-07-24):** packaged-GUI live-verify (`bun run package` + launch,
   confirm a builtin loads while an imported still blocks) batched into the pre-publish pass — fix is
   fuse-independent and proven on real data. `D-03-SUMMARY.md` authored at that acceptance.
@@ -219,23 +227,28 @@ Sean's menu pick (movable).
   under strictNullChecks:false) → verify GOAL MET 6/6. DOM 15/15, tsc clean. Deferred (Sean's discretion):
   `state → memory_*` probe-verb alignment — surfacing the reason resolves the reporter's literal complaint;
   a working memory on an OLDER MCP server would still show amber, now WITH the reason.
+
 - **D-05 (#853 surface exec/process errors, scope LOCKED to exec/process only):** commits `d0236f079`
   (tests) · `50b16a91c` (fix). Gaps fixed: NO `child.on('error')` handler existed (spawn ENOENT/EACCES →
   unhandled → main crash risk); `signal` dropped on exit (SIGKILL → "code null"); no log link. Fix = new
   pure leaf `execFailureReason.ts` (`describeSpawnError`/`describeExitReason`, both surfaces route through
   it), `on('error')` errno capture (also kills the crash path), signal capture threaded through init-reject
+
   - `handleProcessExit`, redacted `getLogsDir()` log link. Double-redacted (`redactSecrets` +
     `redactCommandSecrets`). Provider API errors untouched (already verbatim). Loop: plan-checker PASS (W1
     regression trap flagged — `describeExitReason(N,null)` must stay byte-exact `exited with code N`; held) →
     cross-audit GO → verify GOAL MET 6/6. 67/67 exec tests, tsc clean.
+
 - **LIVE verify (by hand, harness, real events):** fired the D-05 describers at REAL Node child_process
   events — real missing binary → genuine `ENOENT` → "engine binary is missing or was blocked by antivirus…
   (ENOENT)"; real `SIGKILL` → genuine `exit(null,'SIGKILL')` → "killed by SIGKILL…", NOT "code null".
   Proves the describers handle production event shapes, not fixtures. Throwaway not committed.
+
 - **Residual (parked, Sean's call):** packaged-GUI live-verify for BOTH — D-04 (degraded MCP install shows
   the real reason on both surfaces + in electron-log; healthy stays Live) + D-05 (rename/`chmod 000` the
   wcore binary → real errno/signal + reachable log; provider API errors still verbatim) — batched into the
   pre-publish pass. `D-04-SUMMARY.md`/`D-05-SUMMARY.md` authored at that acceptance.
+
 - **Cross-audit follow-ups (tracked, pre-existing / non-blocking):** D-05 compound-failure path
   (`WCoreManager.ts:350`) — when lease-release ALSO fails, the errno is wrapped in an `AggregateError`
   whose `.message` drops the errno (pre-existing, out of D-05 scope). #422 TODO at `WCoreManager.ts:1052`
@@ -246,15 +259,19 @@ Commits `1cb523bb0`..`9523ac534` (10 build + 3 panel-fix + 1 comment + docs). Al
 
 - **#909** runtime pill: `resolveRuntimeName()` shows the runtime (Wayland Core) alongside the assistant when they
   differ, one label when same, NEVER a raw backend id (panel caught it leaking "· gemini"; fixed to friendly-or-hide).
+
 - **#910a** pin/star aligned to "Pin" reusing existing translated keys; **#910b** aggregation → "Chats" (English-only
   default, standalone commit `8f713ea04`, independently revertible — **Sean ratifies "Chats" at live-verify**).
+
 - **#508** compact SpendPill in the Titlebar reading existing `cost.listBudgets`; real <button> + localized aria-label;
   hides on no/malformed budget; deep-link switches the cost tab; mutate rejection caught.
+
 - **#882** secondary project label per tab; no-project shows just the name; truncation-safe; restored tabs backfill projectId.
 - **CROSS-AUDIT (corrected method):** 4-model panel returned FIX-FIRST (Gemini High on the deep-link; Codex caught a
   void-mutate unhandled rejection + restored-tabs-lose-labels that the single internal audit missed). All 6 findings
   fixed (3 commits) → clean RE-AUDIT GO across all 4 legs. Full suite 15,671 pass / 1 known flake, tsc clean. Verify
   GOAL MET 5/5. Records: `D-06-XAUDIT.md`, `D-06-VERIFICATION.md`.
+
 - **Residual (batched, Sean's call):** packaged-GUI live-verify (all four surfaces + axe button-name gate) + #910b "Chats"
   ratify. `D-06-SUMMARY.md` at acceptance.
 
@@ -273,6 +290,7 @@ transcript untouched. wcore-only gate; ACP unchanged; #457 default seed byte-ide
   serialization guard) and burned 2 rounds hardening my own addition. **RESOLVED by verifying the race was unreachable**
   (`acceptStep` fires only from a settled `awaiting_input` checkpoint — no in-flight step to kill) and DELETING FIX 5
   (commit `c8e48905c`), keeping the simple release-on-dispatch chain. See [[feedback-audit-intensity-and-self-invented-scope]].
+
 - Full suite **15,688/0**, tsc clean. Records: `D-07-{RESEARCH,PLAN,XAUDIT}.md`.
 - **Live-verify PENDING (money, by hand — Sean + me):** run a ≥4-step wcore workflow where a later step is tool-heavy/long
   and depends on an earlier one; confirm per-step `session_cost` input stays FLAT (O(1), not climbing), the dependent step
