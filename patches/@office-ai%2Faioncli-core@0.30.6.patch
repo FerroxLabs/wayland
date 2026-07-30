@@ -1,3 +1,36 @@
+diff --git a/dist/src/core/anthropicContentGenerator.js b/dist/src/core/anthropicContentGenerator.js
+index ded0849b5cb06422fb4a8a47e588acb5246fd3c9..2a2a61c8b2fae735d5362d472775c2d681c3ef9b 100644
+--- a/dist/src/core/anthropicContentGenerator.js
++++ b/dist/src/core/anthropicContentGenerator.js
+@@ -47,8 +47,26 @@ export class AnthropicContentGenerator {
+                 max_tokens: samplingParams.max_tokens || 4096,
+                 messages,
+                 ...(systemMessage ? { system: systemMessage } : {}),
+-                ...(samplingParams.temperature !== undefined ? { temperature: samplingParams.temperature } : {}),
+-                ...(samplingParams.top_p !== undefined ? { top_p: samplingParams.top_p } : {}),
++                // `temperature` and `top_p` are deliberately NOT forwarded to Anthropic.
++                //
++                // buildSamplingParameters() falls back to `request.config`, which carries
++                // gemini-cli's Gemini-oriented defaults from defaultModelConfigs.js
++                // (`chat-base` sets temperature:1/topP:0.95, `base` sets temperature:0/topP:1).
++                // Those are inherited defaults, not user intent - nothing in Wayland's own
++                // src/ sets topP at all.
++                //
++                // Claude Opus 4.7 and newer (incl. the Claude 5 family) reject a NON-DEFAULT
++                // temperature, top_p or top_k with `400 ... is deprecated for this model`, so
++                // topP:0.95 broke every request. Dropping only top_p is not enough: a non-chat
++                // request inherits temperature:0, which is also rejected.
++                //
++                // Model-name gating was rejected on purpose - a hardcoded model assumption is
++                // what caused this bug, and an allowlist rots the same way. Omitting both is
++                // safe for older Claude models too, where these are optional and the values
++                // being suppressed were never chosen by the user.
++                //
++                // top_k needs no handling: buildSamplingParameters() does not return it, so
++                // Gemini's topK:64 never reaches the request. Asserted by the regression test.
+             };
+             // Convert tools if present
+             if (request.config?.tools) {
 diff --git a/dist/src/core/openaiContentGenerator.js b/dist/src/core/openaiContentGenerator.js
 index 2bdb1c5b9306902dabe47a5aedcf0e49bb954db6..80918bee2859cf26fc1b89e64794396b6e8a0d4d 100644
 --- a/dist/src/core/openaiContentGenerator.js
