@@ -255,6 +255,7 @@ const GeminiSendBox: React.FC<{
             conversation_id,
             content: {
               content: displayMessage,
+              ...(files?.length && { files }),
             },
             createdAt: Date.now(),
           },

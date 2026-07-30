@@ -45,7 +45,7 @@ import type { TMessage } from '../../src/common/chat/chatLib';
 
 function makeRepo(overrides?: Partial<IConversationRepository>): IConversationRepository {
   return {
-    getConversation: vi.fn(),
+    getConversation: vi.fn(async () => undefined),
     createConversation: vi.fn(),
     updateConversation: vi.fn(),
     deleteConversation: vi.fn(),

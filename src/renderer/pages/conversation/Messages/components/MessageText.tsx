@@ -96,20 +96,22 @@ import TeammateMessageAvatar from './TeammateMessageAvatar';
 
 const CODE_STYLE = { marginTop: 4, marginBlock: 4 };
 
-const parseFileMarker = (content: string) => {
+/** Shared empty list so the no-attachment case keeps a stable memo dependency. */
+const NO_FILES: string[] = [];
+
+/**
+ * Drop the `[[AION_FILES]]` marker and everything after it from displayed text.
+ *
+ * The marker is display scaffolding appended by `buildDisplayMessage`; the tail
+ * is NOT a source of truth for attachments. Any text that reaches this component
+ * can carry it - a model reply, or an inbound third-party channel message, which
+ * `AcpAgentManager` persists as position 'right' and is therefore
+ * indistinguishable from the user's own message by position. Attachments render
+ * from `message.content.files`, which only the locally-composed send path sets.
+ */
+const stripFileMarker = (content: string): string => {
   const markerIndex = content.indexOf(WAYLAND_FILES_MARKER);
-  if (markerIndex === -1) {
-    return { text: content, files: [] as string[] };
-  }
-  const text = content.slice(0, markerIndex).trimEnd();
-  const afterMarker = content.slice(markerIndex + WAYLAND_FILES_MARKER.length).trim();
-  const files = afterMarker
-    ? afterMarker
-        .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean)
-    : [];
-  return { text, files };
+  return markerIndex === -1 ? content : content.slice(0, markerIndex).trimEnd();
 };
 
 const isAbsoluteMessageFilePath = (filePath: string): boolean =>
@@ -163,7 +165,9 @@ const MessageText: React.FC<{ message: IMessageText; toolbarMode?: ActionsDispla
     return content;
   }, [message.content.content]);
 
-  const { text, files } = parseFileMarker(contentToRender);
+  const text = stripFileMarker(contentToRender);
+  // Stable identity when absent - `resolvedFiles` memoizes on this reference.
+  const files = message.content.files ?? NO_FILES;
   const { data, json } = useFormatContent(text);
   const { t } = useTranslation();
   const [showCopyAlert, setShowCopyAlert] = useState(false);

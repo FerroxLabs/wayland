@@ -245,7 +245,7 @@ const NanobotSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id
         conversation_id,
         type: 'text',
         position: 'right',
-        content: { content: displayMessage },
+        content: { content: displayMessage, ...(files?.length && { files }) },
         createdAt: Date.now(),
       };
       addOrUpdateMessage(userMessage, true);
@@ -362,7 +362,7 @@ const NanobotSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id
           conversation_id,
           type: 'text',
           position: 'right',
-          content: { content: initialDisplayMessage },
+          content: { content: initialDisplayMessage, ...(files?.length && { files }) },
           createdAt: Date.now(),
         };
         // Reset AI reply for new turn

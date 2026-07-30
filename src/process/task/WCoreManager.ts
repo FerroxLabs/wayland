@@ -697,6 +697,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     content: string;
     msg_id: string;
     files?: string[];
+    /** Absolute paths the local user attached. See IMessageText.content.files. */
+    attachedFiles?: string[];
     cronMeta?: CronMessageMeta;
     hidden?: boolean;
   }) {
@@ -731,6 +733,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       createdAt: data.cronMeta ? Math.max(Date.now(), data.cronMeta.triggeredAt + 1) : Date.now(),
       content: {
         content: data.content,
+        ...(data.attachedFiles?.length && { files: data.attachedFiles }),
         ...(data.cronMeta && { cronMeta: data.cronMeta }),
       },
       ...(data.hidden && { hidden: true }),

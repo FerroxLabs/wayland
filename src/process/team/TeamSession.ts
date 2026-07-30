@@ -172,7 +172,7 @@ export class TeamSession extends EventEmitter {
         type: 'text',
         position: 'right',
         conversation_id: leadAgent.conversationId,
-        content: { content },
+        content: { content, ...(files?.length && { files }) },
         createdAt: Date.now(),
       };
       addMessage(leadAgent.conversationId, userMessage);
@@ -218,7 +218,7 @@ export class TeamSession extends EventEmitter {
         type: 'text',
         position: 'right',
         conversation_id: agent.conversationId,
-        content: { content },
+        content: { content, ...(options?.files?.length && { files: options.files }) },
         createdAt: Date.now(),
       };
       addMessage(agent.conversationId, userMessage);

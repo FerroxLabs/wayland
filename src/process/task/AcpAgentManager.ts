@@ -1714,6 +1714,8 @@ ${collectedResponses.join('\n')}`;
   async sendMessage(data: {
     content: string;
     files?: string[];
+    /** Absolute paths the local user attached. See IMessageText.content.files. */
+    attachedFiles?: string[];
     msg_id?: string;
     cronMeta?: CronMessageMeta;
     hidden?: boolean;
@@ -1751,6 +1753,7 @@ ${collectedResponses.join('\n')}`;
           conversation_id: this.conversation_id,
           content: {
             content: data.content,
+            ...(data.attachedFiles?.length && { files: data.attachedFiles }),
             ...(data.cronMeta && { cronMeta: data.cronMeta }),
           },
           createdAt: Date.now(),

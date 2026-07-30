@@ -16,7 +16,9 @@ import type { ShellOpenResult } from '@/common/adapter/ipcBridge';
 import { isAllowedExternalUrl } from '@/common/utils/urlValidation';
 import { execFile } from 'node:child_process';
 import * as fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { confinePath } from './pathConfinement';
 
 const isWindows = process.platform === 'win32';
 
@@ -73,10 +75,43 @@ async function openReporting(target: string): Promise<ShellOpenResult> {
   }
 }
 
-export function initShellBridgeStandalone(): void {
-  ipcBridge.shell.openFile.provider((filePath) => openReporting(filePath));
+/**
+ * Expand a leading `~` and confine the result to the app's authorized roots.
+ *
+ * Same guard the Electron bridge applies (RT-R4-02): the allowlist validates the
+ * IPC event name only, never the arguments, so an authenticated remote WebUI
+ * client sharing this dispatch could otherwise hand these providers any path the
+ * server user can reach.
+ *
+ * @returns The confined absolute path, or a failure result to return verbatim.
+ */
+async function confineShellPath(inputPath: unknown): Promise<{ ok: false; error: string } | { path: string }> {
+  if (typeof inputPath !== 'string' || inputPath.length === 0) {
+    return { ok: false, error: 'empty path' };
+  }
+  let expanded = inputPath;
+  if (expanded === '~' || expanded.startsWith('~/') || expanded.startsWith('~' + path.sep)) {
+    expanded = os.homedir() + expanded.slice(1);
+  }
+  const resolved = await confinePath(expanded);
+  if (resolved === null) {
+    return { ok: false, error: 'path not allowed' };
+  }
+  return { path: resolved };
+}
 
-  ipcBridge.shell.showItemInFolder.provider((filePath) => openReporting(path.dirname(filePath)));
+export function initShellBridgeStandalone(): void {
+  ipcBridge.shell.openFile.provider(async (filePath) => {
+    const confined = await confineShellPath(filePath);
+    if ('ok' in confined) return confined;
+    return openReporting(confined.path);
+  });
+
+  ipcBridge.shell.showItemInFolder.provider(async (filePath) => {
+    const confined = await confineShellPath(filePath);
+    if ('ok' in confined) return confined;
+    return openReporting(path.dirname(confined.path));
+  });
 
   ipcBridge.shell.openExternal.provider((url) => {
     // Allowlist schemes (https:/http:/mailto: and the app's own wayland: deep-link

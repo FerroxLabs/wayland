@@ -74,7 +74,10 @@ describe('MessageText attachment paths', () => {
       position: 'right',
       createdAt: Date.now(),
       content: {
+        // Attachments render from the structured list, never from the marker
+        // text (which a model reply or an inbound channel message can forge).
         content: 'look at this\n\n[[AION_FILES]]\nuploads/photo.png',
+        files: ['uploads/photo.png'],
       },
     };
 
@@ -97,6 +100,7 @@ describe('MessageText attachment paths', () => {
       createdAt: Date.now(),
       content: {
         content: 'look at this\n\n[[AION_FILES]]\n/Users/demo/Desktop/photo.png',
+        files: ['/Users/demo/Desktop/photo.png'],
       },
     };
 

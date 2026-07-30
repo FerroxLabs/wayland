@@ -28,6 +28,14 @@ vi.mock('child_process', () => ({
 }));
 
 // Mock fs
+// openFile/showItemInFolder now route the path through confinePath (RT-R4-02).
+// Identity mock keeps these opener-behaviour tests focused on the opener; the
+// confinement contract itself is covered by
+// tests/unit/shellBridge.openFile.confinement.test.ts.
+vi.mock('../../src/process/bridge/pathConfinement', () => ({
+  confinePath: async (p: string) => p,
+}));
+
 vi.mock('fs', () => ({
   existsSync: vi.fn(),
   // L5 hardening: shellBridge.openFolderWith now stats folderPath before spawning

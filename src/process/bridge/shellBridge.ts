@@ -309,20 +309,53 @@ async function openPathReporting(target: string): Promise<ShellOpenResult> {
   }
 }
 
+/**
+ * Expand a leading `~` and confine the result to the app's authorized roots.
+ *
+ * The bridge allowlist validates the IPC *event name* only, never the arguments,
+ * so a renderer-context XSS can hand these providers any path the OS user can
+ * reach. `confinePath` realpath-collapses the existing prefix and fails closed
+ * on anything that escapes every authorized root (also rejecting `..`,
+ * UNC/device/ADS forms). Same treatment `shell.openPath` already applies
+ * (RT-R4-02).
+ *
+ * @returns The confined absolute path, or a failure result to return verbatim.
+ */
+async function confineShellPath(inputPath: unknown): Promise<{ ok: false; error: string } | { path: string }> {
+  if (typeof inputPath !== 'string' || inputPath.length === 0) {
+    return { ok: false, error: 'empty path' };
+  }
+  let expanded = inputPath;
+  if (expanded === '~' || expanded.startsWith('~/') || expanded.startsWith('~' + path.sep)) {
+    expanded = os.homedir() + expanded.slice(1);
+  }
+  const resolved = await confinePath(expanded);
+  if (resolved === null) {
+    return { ok: false, error: 'path not allowed' };
+  }
+  return { path: resolved };
+}
+
 export function initShellBridge(): void {
-  ipcBridge.shell.openFile.provider((filePath) => openPathReporting(filePath));
+  ipcBridge.shell.openFile.provider(async (filePath) => {
+    const confined = await confineShellPath(filePath);
+    if ('ok' in confined) return confined;
+    return openPathReporting(confined.path);
+  });
 
   ipcBridge.shell.showItemInFolder.provider(async (filePath) => {
+    const confined = await confineShellPath(filePath);
+    if ('ok' in confined) return confined;
     // macOS (`open -R`) and Windows (`explorer /select`) reveal reliably through
     // Electron. On Linux, `shell.showItemInFolder` depends on a freedesktop file
     // manager over D-Bus and silently no-ops when none is available (#616), so
     // fall back to opening the containing directory via `xdg-open` and report
     // failure instead of a silent no-op.
     if (process.platform === 'linux') {
-      return openPathReporting(path.dirname(filePath));
+      return openPathReporting(path.dirname(confined.path));
     }
     try {
-      shell.showItemInFolder(filePath);
+      shell.showItemInFolder(confined.path);
       return { ok: true };
     } catch (error) {
       return { ok: false, error: (error as Error).message };

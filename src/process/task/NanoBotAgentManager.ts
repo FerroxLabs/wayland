@@ -106,7 +106,15 @@ class NanoBotAgentManager extends BaseAgentManager<NanoBotAgentManagerData> {
     channelEventBus.emitAgentMessage(this.conversation_id, msg);
   }
 
-  async sendMessage(data: { content: string; files?: string[]; msg_id?: string; hidden?: boolean; silent?: boolean }) {
+  async sendMessage(data: {
+    content: string;
+    files?: string[];
+    /** Absolute paths the local user attached. See IMessageText.content.files. */
+    attachedFiles?: string[];
+    msg_id?: string;
+    hidden?: boolean;
+    silent?: boolean;
+  }) {
     cronBusyGuard.setProcessing(this.conversation_id, true);
     try {
       await this.bootstrap;
@@ -119,7 +127,10 @@ class NanoBotAgentManager extends BaseAgentManager<NanoBotAgentManagerData> {
           type: 'text',
           position: 'right',
           conversation_id: this.conversation_id,
-          content: { content: data.content },
+          content: {
+            content: data.content,
+            ...(data.attachedFiles?.length && { files: data.attachedFiles }),
+          },
           createdAt: Date.now(),
           ...(data.hidden && { hidden: true }),
         };

@@ -675,6 +675,8 @@ export class GeminiAgentManager extends BaseAgentManager<
     input: string;
     msg_id: string;
     files?: string[];
+    /** Absolute paths the local user attached. See IMessageText.content.files. */
+    attachedFiles?: string[];
     cronMeta?: CronMessageMeta;
     hidden?: boolean;
     silent?: boolean;
@@ -712,6 +714,7 @@ export class GeminiAgentManager extends BaseAgentManager<
       conversation_id: this.conversation_id,
       content: {
         content: data.input,
+        ...(data.attachedFiles?.length && { files: data.attachedFiles }),
         ...(data.cronMeta && { cronMeta: data.cronMeta }),
       },
       ...(data.hidden && { hidden: true }),

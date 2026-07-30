@@ -7,16 +7,23 @@
 import { ipcBridge } from '@/common';
 import { ProcessChat } from '@process/utils/initStorage';
 import type { TChatConversation } from '@/common/config/storage';
+import type { TMessage } from '@/common/chat/chatLib';
 import { migrateConversationToDatabase } from './migrationUtils';
+import { upgradeLegacyMarkerAttachments } from './legacyMarkerAttachments';
 import type { IConversationRepository } from '@process/services/database/IConversationRepository';
 
 export function initDatabaseBridge(repo: IConversationRepository): void {
   // Get conversation messages from database
-  ipcBridge.database.getConversationMessages.provider(async (_params) => {
+  ipcBridge.database.getConversationMessages.provider(async (_params): Promise<TMessage[]> => {
     const { conversation_id, page = 0, pageSize = 10000 } = _params ?? {};
     try {
       const result = await repo.getMessages(conversation_id, page, pageSize);
-      return result.data;
+      // Renderer-facing read only: attachments stored before `content.files`
+      // existed are recovered from the legacy marker here, gated on the
+      // conversation source so an inbound channel message cannot be laundered
+      // into a trusted file list.
+      const conversation = await repo.getConversation(conversation_id).catch((): undefined => undefined);
+      return upgradeLegacyMarkerAttachments(result.data, conversation?.source);
     } catch (error) {
       console.error('[DatabaseBridge] Error getting conversation messages:', error);
       return [];

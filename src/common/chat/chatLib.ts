@@ -145,6 +145,15 @@ export type IMessageText = IMessage<
   'text',
   {
     content: string;
+    /**
+     * Attachments the LOCAL user composed with this message, as absolute paths.
+     * Set only on the locally-composed send path, so it is the one trustworthy
+     * signal for rendering attachment previews. The `[[AION_FILES]]` marker in
+     * `content` is display text and is attacker-reachable (a model reply, or an
+     * inbound third-party channel message, which persists as position 'right'),
+     * so it must never be parsed back into a file list.
+     */
+    files?: string[];
     cronMeta?: CronMessageMeta;
     teammateMessage?: boolean;
     senderName?: string;
