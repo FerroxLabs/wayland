@@ -230,9 +230,35 @@ of Wayland; Flow was his voice dictation app. Consequences:
   baked into the library schemas and taxonomy. Openly ours, and renaming it would rewrite shipped
   content.
 
+**RESOLVED 2026-07-30 — the attributions named the wrong parties.** Sean: Steinberger is OpenClaw,
+Hermes Agent is Nous Research. Established against the GitHub API:
+
+| our file                       | actual upstream                                                                                                                  | holder                          |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
+| `whatsapp-bridge/bridge.js`    | `NousResearch/hermes-agent` → `scripts/whatsapp-bridge/bridge.js` (42428 bytes, exists)                                          | MIT, **© 2025 Nous Research**   |
+| `whatsapp-bridge/allowlist.js` | same repo → `allowlist.js` (2326 bytes, exists)                                                                                  | MIT, **© 2025 Nous Research**   |
+| `backends/baileys.js`          | `openclaw/openclaw` → `extensions/whatsapp/src/{session,auth-store,identity,connection-controller,creds-files}.ts` (all 5 exist) | MIT, © 2026 OpenClaw Foundation |
+
+Upstream Hermes `bridge.js` credits no third party of its own, so **there was never a Steinberger
+interest in the Hermes files** — the credit was a copy-paste of the OpenClaw block.
+
+**The `Eric (outsourc-e)` mystery is solved.** `outsourc-e` is a real GitHub user (Eric) with
+Hermes/OpenClaw-ecosystem repos, and `outsourc-e/hermes-workspace`'s LICENSE reads byte-for-byte
+`Copyright (c) 2026 Eric (outsourc-e)` — identical to the old `LICENSES/hermes.txt`. That repo has
+**no whatsapp bridge**. Someone took an MIT licence from the wrong "Hermes". Replaced by
+`LICENSES/hermes-agent.txt`, fetched verbatim from the real upstream.
+
+Also normalised: 31 headers cited `github.com/steipete/openclaw` (a 15-star fork of
+`vercel-labs/openclaw`) instead of the canonical `openclaw/openclaw`. All 50 references now agree.
+
+`LICENSES/openclaw.txt` left byte-identical on purpose — `© 2025 Peter Steinberger` is the notice
+carried by the revision we pinned (`aee2681a`); restating a third party's copyright line is not ours
+to do. The Foundation's current holding is recorded in the notices entry.
+
 ### Still open
 
-1. **`LICENSES/hermes.txt` names `Eric (outsourc-e)`**, the in-code headers name
+1. ~~`LICENSES/hermes.txt` naming `Eric (outsourc-e)`~~ — resolved above. Previously: the in-code
+   headers named
    `Peter Steinberger / Hermes Agent contributors`, and `readme.md:217` credits **Nous Research**.
    Three holders for one name, the upstream repo 404s, and `outsourc-e` appears nowhere else in the
    tree. The shipped `bridge.js`/`allowlist.js` carry their own notice verbatim so MIT is satisfied
