@@ -1,7 +1,9 @@
 /**
  * @license
+ * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
+ * Modified by Ferrox Labs. Changes are documented in the project history.
  *
  * AgentSetupCard - A card component displayed above the SendBox when the current
  * agent is not configured (no auth/API key). It guides new users to set up their
