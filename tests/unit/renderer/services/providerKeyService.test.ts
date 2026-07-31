@@ -12,7 +12,7 @@ vi.mock('@process/webserver/middleware/csrfClient', () => ({
 }));
 
 import { classifyConnectFailure, connectProviderHttp } from '@renderer/services/ProviderKeyService';
-import { reloadWithinTimeout } from '@renderer/pages/settings/ModelsSettings/reloadWithinTimeout';
+import { reloadWithinTimeout } from '@renderer/utils/reloadWithinTimeout';
 
 describe('classifyConnectFailure (#524 error mapping)', () => {
   it('maps a tiny-csrf rejection to csrf-invalid via its machine code', () => {

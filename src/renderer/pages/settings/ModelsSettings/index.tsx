@@ -15,7 +15,7 @@ import { ModelRegistryProvider, useModelRegistry, useRefreshState } from '@rende
 import { consumePendingDeepLink } from '@renderer/hooks/system/useDeepLink';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import { connectProviderHttp } from '@renderer/services/ProviderKeyService';
-import { reloadWithinTimeout } from './reloadWithinTimeout';
+import { reloadWithinTimeout } from '@renderer/utils/reloadWithinTimeout';
 import BrowseModal from './BrowseModal';
 import ConnectPanel from './components/ConnectPanel';
 import ConnectedRow from './components/ConnectedRow';
