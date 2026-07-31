@@ -158,7 +158,18 @@ export function selectMirrorModelIds(catalog: CatalogModel[], overrides: Registr
   // models.dev hasn't enriched yet defaults to `kind: 'text'` and would slip
   // through the Curator into the chat pickers. It belongs only in the image
   // picker (see selectImageModelIds), never the chat dropdown.
-  return selected.filter((m) => !isImageModelName(m.id) && !isNonChatClassifier(m)).map((m) => m.id);
+  const usable = selected.filter((m) => !isImageModelName(m.id) && !isNonChatClassifier(m));
+  // Lead with what the Curator actually recommends. This list is ordered, and
+  // the cold-start default resolver takes a provider's FIRST model whenever no
+  // marquee rule matches it - so whatever leads here becomes a new user's
+  // default. On a live first run that was Groq's `openai/gpt-oss-safeguard-20b`:
+  // a SAFETY CLASSIFIER, which the Curator already marks `recommended: false`
+  // (and keeps `enabled` so it stays selectable), while the one model it does
+  // recommend, `openai/gpt-oss-120b`, sat behind it.
+  //
+  // A stable partition, not a sort: within each group the Curator's own ranking
+  // is the authority and must survive untouched.
+  return [...usable.filter((m) => m.recommended), ...usable.filter((m) => !m.recommended)].map((m) => m.id);
 }
 
 /**
