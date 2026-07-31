@@ -113,3 +113,30 @@ rather than a 400.
 **Revised recommendation:** apply the `context <= 1024 && tool_call !== true` rule inside
 `CatalogAssembler`'s tag computation so such models never receive the `chat` tag, and have the
 primary picker require the `chat` tag. Keep the fail-open default everywhere else.
+
+---
+
+## Live verification after the fix (`49a814224`)
+
+Rebuilt `out/`, fresh profile `livetest-verify2`, onboarding walked again.
+
+**The breakage is fixed.** `llama-prompt-guard-2-22m` no longer appears anywhere in the picker or
+the composer, and the first message now succeeds: "Hello, what is 2+2?" → **"4"**,
+`finish_reason: 'stop'` in 1240ms, where the same prompt previously returned
+`finish_reason: 'error'` with 0 tokens and a provider 400.
+
+**But the default is still a safety-tuned model — and this is the documented limitation, live.**
+The new auto-selection is `openai/gpt-oss-safeguard-20b`. My filter correctly does NOT catch it
+(131K context, declares tool calling), and it genuinely works as a chat model. So this is no longer
+a *defect* — it is a **poor default**: a model tuned for safety-policy reasoning is a strange first
+impression for a user who wants writing, code or analysis.
+
+That is a product/ranking question, not a bug, and it sits in the Curator's "recommended" ordering
+rather than in the eligibility gate. Worth a separate decision on whether `*guard*` /
+`*safeguard*` families should be de-prioritised as *defaults* while remaining *selectable*.
+
+Also observed on this run (minor, unfiled):
+- `wcore-pricing catalog miss ... unknown model openai/gpt-oss-safeguard-20b for provider groq` —
+  the pricing catalogue lacks this id and falls back to a cost heuristic.
+- The "Wake your agents / Connect a model provider" panel still renders after a **successful**
+  turn with four providers already connected.
