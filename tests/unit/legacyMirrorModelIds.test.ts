@@ -138,3 +138,39 @@ describe('selectMirrorModelIds — classifiers never reach the chat picker', () 
     expect(selectMirrorModelIds(catalog, [])).not.toContain('vendor/tiny-encoder');
   });
 });
+
+/**
+ * Safety-classification models must stay selectable but must never be the
+ * DEFAULT. On a clean profile `openai/gpt-oss-safeguard-20b` won the flagship
+ * slot and became the new-chat default - it answers, but a model tuned to emit
+ * policy verdicts is the wrong first impression for writing, code or analysis.
+ *
+ * Distinct from the classifier filter above: those cannot converse at all
+ * (sub-1K context, no tools) and are removed. These can, so they are kept and
+ * merely un-recommended.
+ */
+describe('Curator - safety classifiers are selectable but never recommended', () => {
+  const guardCatalog: CatalogModel[] = [
+    model('openai/gpt-oss-safeguard-20b', 'gpt-oss-safeguard', '2026-05-01'),
+    model('meta-llama/llama-guard-4-12b', 'llama-guard', '2026-04-01'),
+    model('ovhcloud/qwen3guard-gen-8b', 'qwen3guard', '2026-04-15'),
+    model('vendor/chat-pro', 'vendor-chat', '2026-05-02'),
+  ];
+
+  const curated = new Curator().curate(guardCatalog);
+  const byId = new Map(curated.map((m) => [m.id, m]));
+
+  it.each([
+    'openai/gpt-oss-safeguard-20b',
+    'meta-llama/llama-guard-4-12b',
+    'ovhcloud/qwen3guard-gen-8b',
+  ])('%s is enabled but not recommended', (id) => {
+    const m = byId.get(id);
+    expect(m?.enabled, `${id} must stay selectable`).toBe(true);
+    expect(m?.recommended, `${id} must not be a default candidate`).toBe(false);
+  });
+
+  it('an ordinary chat model in the same catalog is still recommended', () => {
+    expect(byId.get('vendor/chat-pro')?.recommended).toBe(true);
+  });
+})

@@ -564,8 +564,19 @@ export class AcpSkillManager {
  *
  * @param skills - always-on skill entries to list
  * @param hasLibrary - when true, append the wayland_search_skills discovery note
+ * @param supportsLoadSkillMarker - whether THIS backend actually intercepts
+ *   `[LOAD_SKILL: name]`. Only `GeminiAgentManager` calls
+ *   {@link detectSkillLoadRequest}, so on every other backend the marker is
+ *   emitted into the void: the model asks for a body and is answered with
+ *   silence. Advertising a retrieval mechanism that no handler implements is
+ *   worse than advertising none, because the model stops looking for another
+ *   route. Off by default so a new backend has to opt in by wiring the handler.
  */
-export function buildSkillsIndexText(skills: SkillIndex[], hasLibrary = false): string {
+export function buildSkillsIndexText(
+  skills: SkillIndex[],
+  hasLibrary = false,
+  supportsLoadSkillMarker = false
+): string {
   if (skills.length === 0 && !hasLibrary) return '';
 
   const lines = skills.map((s) => `- ${s.name}: ${s.description}`);
@@ -573,10 +584,12 @@ export function buildSkillsIndexText(skills: SkillIndex[], hasLibrary = false): 
   const searchNote = hasLibrary
     ? '\n\nFor skills not listed above, call `wayland_search_skills` to search the full library.'
     : '';
+  const loadNote = supportsLoadSkillMarker
+    ? '\nWhen you need detailed instructions for a specific skill,\nyou can request it by outputting: [LOAD_SKILL: skill-name]'
+    : '';
 
   return `[Available Skills]
-The following skills are available. When you need detailed instructions for a specific skill,
-you can request it by outputting: [LOAD_SKILL: skill-name]${listBlock}${searchNote}`;
+The following skills are available.${loadNote}${listBlock}${searchNote}`;
 }
 
 /**
