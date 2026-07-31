@@ -2172,7 +2172,7 @@
     "totalUsed": "{{used}} used of {{total}}",
     "usageStale": "Updated {{ago}}",
     "refresh": "Refresh",
-    "conversations": "Conversations",
+    "conversations": "Chats",
     "cache": "Cache",
     "logs": "Logs",
     "directoriesTitle": "Directories",
