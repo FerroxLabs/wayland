@@ -1,7 +1,7 @@
 # Handoff — 2026-07-31, WLD-I substantially complete
 
 Branch `packet/attribution-audit`, worktree `~/dev/wayland-worktrees/packet-attribution`, base
-`15d6740aa` (stacked on PR #925). **53 commits. NOTHING PUSHED. Nothing tagged.**
+`15d6740aa` (stacked on PR #925). **56 commits. NOTHING PUSHED. Nothing tagged.**
 Tree clean except `AGENTS.md`, which IJFW rewrites automatically and which has been left
 uncommitted deliberately across this whole arc.
 
@@ -97,6 +97,59 @@ The app **ignores `--remote-debugging-port`** and picks its own (`[CDP] Remote d
 Driver: scratchpad `cdp.mjs` (`ws` must be imported by absolute path — NODE_PATH doesn't work for
 ESM). Menus need real `Input.dispatchMouseEvent`, not synthetic `.click()`.
 
+## Addendum — first-run live sweep on a clean profile
+
+Two clean profiles were driven through onboarding end to end over CDP. Everything below was
+observed in the running app, not inferred.
+
+### Closed by this sweep
+
+**Item 5, "set this up by chat", is DONE and needs no further build.** On a Wayland Core
+conversation, "remind me to check the build every day at 9am" produced a `[CRON_PROPOSE]` card,
+"Yes, schedule" committed it, and it appears in Scheduled Tasks as *Check build · Active · Every
+day at 09:00 · `0 9 * * *` · next run 8/1/2026 · Ongoing conversation*. Natural language to a
+persisted active cron task, on the backend where this was previously dead.
+
+**Item 6 was NOT fixed by the Curator change, and now is** (`ff202c275`). The default really was
+still `openai/gpt-oss-safeguard-20b`. The earlier `isNonChatClassifier` filter keys on a sub-1K
+context with no tools, and this model declares 131072 and tools — it was never going to catch it.
+The Curator change did land (`recommended: false`, still `enabled`), but nothing downstream read
+that flag: `selectMirrorModelIds` returned Curator order, which put the de-recommended classifier
+ahead of `gpt-oss-120b`, the one model it does recommend. The cold-start resolver takes a
+provider's first model when no marquee rule matches, and Groq matches none (legacy platform
+`openai-compatible`, ids `openai/gpt-oss-*`). Now verified live on a fresh profile: **GPT OSS
+120B**.
+
+### Found by this sweep — pre-existing, neither from this branch
+
+**`1f06b48fb` — a fully configured install was told its agents were asleep.** Every WCore
+conversation rendered the "Wake your agents / connect a model provider" card, and it pushed the
+transcript out of view, on a profile with four connected providers and 170 enabled models. The
+turn itself succeeded underneath. `projectModelRegistryReadiness` sequenced evidence by
+providerId while stamping real `observedAt`; those agree only when providers connect
+alphabetically. Auto-discovery connected `groq` (T) before `google-gemini` (T+413ms), so the
+reducer saw time move backwards, raised `conflicting_claims`, and invalidated the whole
+projection — `providers: []`, which reads as `registry-error`. Fixed by ordering on `observedAt`
+with identity as tiebreak. The mapping digest correctly caught the behaviour change, so the
+ordering constant, contract version and pinned digest moved with it.
+
+**Still open, cosmetic:** the raw `[CRON_PROPOSE] … [/CRON_PROPOSE]` block is displayed verbatim
+in the transcript as well as being parsed into the card. Stored as a single `text` message holding
+the user's prompt immediately followed by the marker; only three message rows exist for the turn
+and all are `position: left`. Worth a follow-up to hide the directive once the card renders. Not
+investigated further — no data is lost and the feature works.
+
+**Also noticed:** the sidebar shows "RECENT CHATS 1" above "No chat history" while the Chats page
+lists the conversation correctly. Consistent across several minutes. Minor.
+
+### Suite
+
+14,884 passing. The full run showed 3 failures in `constitutionFsService` (×2) and
+`constitutionRouteClient.native.contract`, plus 2 worker-pool start timeouts — all of it while an
+Electron instance and a package build were running. Each of the three passes in isolation;
+`constitutionFsService` alone is 132s of CPU-bound test time, which is the contention profile
+already documented above. Treat as contention, not regression.
+
 ## Open — nothing here is blocking except the first
 
 1. **PR #925 must land before any of this merges.** Hard gate.
@@ -105,13 +158,13 @@ ESM). Menus need real `Input.dispatchMouseEvent`, not synthetic `.click()`.
 3. **`conversationBridge.tray` timeout** — 20ms inside a 10s budget. Not ours, but perpetual CI flake.
 4. **GPU-crash self-heal** — recommend DROP. Justified on "we have no crash data" when Sentry is
    live, and ~380 of upstream's 473 lines were UI for a toggle nobody opens.
-5. **"Set this up by chat"** — the blocking precondition is now RESOLVED (`d19f14c09` puts the
-   directive on the WCore path), so this could be built if wanted. Verify live first: send
-   "remind me to check the build every day at 9am" on a WCore conversation and confirm a
-   `[CRON_PROPOSE]` card renders, with an ACP conversation as the positive control.
-6. **Default model is still a *safeguard* model** (`gpt-oss-safeguard-20b`) unless the Curator
-   change moved it. It answers correctly, so this is a poor default rather than a defect. Re-verify
-   on a clean profile after the Curator fix.
+5. ~~"Set this up by chat"~~ — **done, verified live.** See the addendum above.
+6. ~~Default model is a safeguard model~~ — **fixed in `ff202c275`, verified live.**
+7. **The raw `[CRON_PROPOSE]` echo** in the transcript. Cosmetic, see the addendum.
+8. **Groq still wins the cold-start default** over Gemini and OpenAI, because it connects first and
+   the marquee rules do not match `openai-compatible` + `openai/gpt-oss-*`. The severity is gone
+   now that the pick is a real chat model, so this is a taste question rather than a defect —
+   raise it with Sean before touching `MARQUEE_DEFAULT_RULES`.
 
 ## Constraints that never relax
 
