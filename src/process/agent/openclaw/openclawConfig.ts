@@ -24,8 +24,12 @@ const LEGACY_CONFIG_FILENAMES = ['clawdbot.json', 'moltbot.json', 'moldbot.json'
 
 interface OpenClawGatewayAuth {
   mode?: 'none' | 'token' | 'password';
-  token?: string;
-  password?: string;
+  // Upstream types these `SecretInput = string | SecretRef`: a config may hold a
+  // reference ({ source: 'env', ... }) instead of a plaintext secret. Typing them
+  // `string` here was a lie the compiler then enforced nowhere, so the readers
+  // below must narrow before returning. `unknown` makes that narrowing mandatory.
+  token?: unknown;
+  password?: unknown;
 }
 
 interface OpenClawGatewayConfig {
@@ -144,9 +148,17 @@ export function getGatewayAuthFromConfig(): OpenClawGatewayAuth | null {
  */
 export function getGatewayAuthToken(): string | null {
   const auth = getGatewayAuthFromConfig();
-  if (auth?.mode === 'token' && auth.token) {
-    return auth.token;
-  }
+  // A SecretRef is a legitimate config value we cannot resolve here; treat it as
+  // absent rather than shipping an object into a field the gateway validates as
+  // a string (that produces "invalid connect params" and an immediate close).
+  const token = typeof auth?.token === 'string' && auth.token ? auth.token : null;
+  if (!token) return null;
+  if (auth?.mode === 'token') return token;
+  // `mode` is optional upstream. With it unset, the one configured secret is the
+  // active one — requiring the discriminator meant a valid config that omitted it
+  // had its token silently ignored (#907). Stay silent when both are set: that
+  // config is ambiguous here, and it is what today already does.
+  if (!auth?.mode && !auth?.password) return token;
   return null;
 }
 
@@ -155,9 +167,12 @@ export function getGatewayAuthToken(): string | null {
  */
 export function getGatewayAuthPassword(): string | null {
   const auth = getGatewayAuthFromConfig();
-  if (auth?.mode === 'password' && auth.password) {
-    return auth.password;
-  }
+  const password = typeof auth?.password === 'string' && auth.password ? auth.password : null;
+  if (!password) return null;
+  if (auth?.mode === 'password') return password;
+  // Symmetric with the token reader, so the two cannot both claim the same
+  // mode-unset config.
+  if (!auth?.mode && !auth?.token) return password;
   return null;
 }
 

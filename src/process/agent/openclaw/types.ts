@@ -9,13 +9,25 @@
 /**
  * OpenClaw Gateway Protocol Types
  *
- * Based on OpenClaw Gateway WebSocket protocol v3.
+ * Based on OpenClaw Gateway WebSocket protocol v4 (v3 still accepted by older gateways).
  * Reference: https://github.com/openclaw/openclaw/tree/main/src/gateway/protocol
  */
 
 // ========== Protocol Version ==========
 
-export const OPENCLAW_PROTOCOL_VERSION = 3 as const;
+/**
+ * Highest gateway protocol we advertise. OpenClaw >= 2026.7 admits general
+ * backend clients only at 4, so pinning this at 3 made the handshake
+ * unwinnable against a current gateway (#907).
+ */
+export const OPENCLAW_PROTOCOL_VERSION = 4 as const;
+
+/**
+ * Lowest protocol we still accept. The gateway range-tests the advertised
+ * [min, max] rather than matching a single number, so keeping 3 here means
+ * older gateways keep working instead of being traded for newer ones.
+ */
+export const OPENCLAW_MIN_PROTOCOL_VERSION = 3 as const;
 
 // ========== Base Frame Types ==========
 
