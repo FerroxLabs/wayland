@@ -1770,12 +1770,24 @@ ${collectedResponses.join('\n')}`;
           // silently with zero diagnostics.
           mainWarn('[AcpAgentManager]', 'updateConversation (touch for list sort) failed', error);
         }
+        // The live bubble must carry the same attachment list as the row we just
+        // persisted. ACP is the one backend with no optimistic bubble - the
+        // renderer builds it purely from this event - so sending bare text here
+        // leaves the user's own attachments unrendered until the conversation is
+        // reopened. Sourced from `userMessage.content`, not re-derived, so the
+        // stream and the stored row cannot disagree.
+        const attachedFiles = userMessage.content.files;
+        const hasRichData = Boolean(data.cronMeta || attachedFiles?.length);
         const userResponseMessage: IResponseMessage = {
           type: 'user_content',
           conversation_id: this.conversation_id,
           msg_id: data.msg_id,
-          data: data.cronMeta
-            ? { content: userMessage.content.content, cronMeta: data.cronMeta }
+          data: hasRichData
+            ? {
+                content: userMessage.content.content,
+                ...(data.cronMeta && { cronMeta: data.cronMeta }),
+                ...(attachedFiles?.length && { files: attachedFiles }),
+              }
             : userMessage.content.content,
           ...(data.hidden && { hidden: true }),
         };

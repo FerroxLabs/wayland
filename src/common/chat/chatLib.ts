@@ -672,6 +672,9 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
     case 'user_content': {
       const data = message.data;
       const isRichData = typeof data === 'object' && data !== null && 'content' in data;
+      // Only main populates this, and only on the user's own turn - see the
+      // guard note below.
+      const userFiles = isRichData ? (data as { files?: string[] }).files : undefined;
       return {
         id: uuid(),
         type: 'text',
@@ -682,6 +685,16 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
           ? {
               content: (data as { content: string; cronMeta?: CronMessageMeta }).content,
               cronMeta: (data as { cronMeta?: CronMessageMeta }).cronMeta,
+              // Attachments the user actually picked, forwarded by main on the
+              // `user_content` event.
+              //
+              // Gated on the event type on purpose: this branch also builds
+              // assistant messages ('content' -> position 'left'), and the
+              // renderer draws `files` without checking position. Without this
+              // guard a model reply that emitted a `files` field would render
+              // previews of arbitrary paths - the exact spoof this packet
+              // closed. Only main populates this, and only for the user's turn.
+              ...(message.type === 'user_content' && userFiles?.length ? { files: userFiles } : {}),
               ...((data as { truncatedDueToBudget?: boolean }).truncatedDueToBudget && {
                 truncatedDueToBudget: true,
               }),
