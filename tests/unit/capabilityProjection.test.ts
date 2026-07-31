@@ -116,7 +116,7 @@ describe('projectCapabilities', () => {
       providers: [{ providerId: 'openai', status: 'configured', callableModelCount: 3, models: [] }],
     });
     expect(MODEL_REGISTRY_CAPABILITY_CONTRACT.digest).toBe(
-      'sha256:2e9cb3632543a7c8f7aedb6c79eca3a0a485a80ddcab1c9f54738128cf6d1195'
+      'sha256:bd47930c9b1dc28f6cd5c3739a065b7106b3029842bbae43cb189c78c4e7763b'
     );
     expect(MODEL_REGISTRY_CAPABILITY_CONTRACT.digest).toBe(modelRegistryCapabilityMappingDigest());
     expect(Object.hasOwn(result, 'selected')).toBe(false);
@@ -1258,5 +1258,64 @@ describe('projectCapabilities', () => {
     expect(left).toEqual(right);
     expect(Object.isFrozen(openai)).toBe(false);
     expect(left.providers.map((item) => item.providerId)).toEqual(['ollama', 'openai']);
+  });
+
+  it('stays valid when providers were connected out of providerId order', () => {
+    // Captured live from a clean first-run profile: onboarding auto-discovery
+    // wired `groq` first, so its observedAt precedes `google-gemini`'s while
+    // sorting later by identity. Sequencing on identity alone made the reducer
+    // see time move backwards, invalidate the whole projection, and leave
+    // `providers: []` - which `useProviderReadiness` reports as
+    // `registry-error`, showing "connect a model provider" to a user with four
+    // healthy providers and 170 enabled models.
+    const connectedOutOfOrder = [
+      {
+        providerId: 'groq',
+        connectedVia: 'auto-discovered',
+        state: 'connected',
+        modelCount: 15,
+        callableModelCount: 4,
+        dispatchEligible: true,
+        observedAt: NOW,
+      },
+      {
+        providerId: 'google-gemini',
+        connectedVia: 'auto-discovered',
+        state: 'connected',
+        modelCount: 58,
+        callableModelCount: 12,
+        dispatchEligible: true,
+        observedAt: NOW + 413,
+      },
+      {
+        providerId: 'openrouter',
+        connectedVia: 'auto-discovered',
+        state: 'connected',
+        modelCount: 364,
+        callableModelCount: 135,
+        dispatchEligible: true,
+        observedAt: NOW + 706,
+      },
+      {
+        providerId: 'openai',
+        connectedVia: 'auto-discovered',
+        state: 'connected',
+        modelCount: 133,
+        callableModelCount: 19,
+        dispatchEligible: true,
+        observedAt: NOW + 2726,
+      },
+    ] as unknown as Parameters<typeof projectModelRegistryReadiness>[0];
+
+    const result = projectModelRegistryReadiness(connectedOutOfOrder, {
+      generation: modelRegistryCapabilitySnapshotGeneration(connectedOutOfOrder),
+      now: NOW + 5_000,
+    });
+
+    expect(result.state).not.toBe('invalid');
+    expect(result.issues).toEqual([]);
+    // The claim the activation card actually turns on: at least one provider
+    // survives the projection as configured with callable inventory.
+    expect(result.providers.some((p) => p.status === 'configured' && p.callableModelCount > 0)).toBe(true);
   });
 });
