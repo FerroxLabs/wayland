@@ -544,8 +544,14 @@ jobs:
         if: always() && hashFiles('coverage/lcov.info') != '' && github.repository == 'FerroxLabs/wayland'
         uses: codecov/codecov-action@v5
         with:
+          # No `use_oidc`. It defaults to false, and it must stay false here: this job
+          # runs PR-authored code (bun install, postinstall, test:coverage), so an OIDC
+          # token minted in it would let any PR author assert this repo's identity to
+          # every relying party that trusts it. trustRootJobSeparation.test.ts pins that
+          # invariant for the test jobs; this step is the same class.
+          # `token` stays because it is the supported path once a CODECOV_TOKEN secret
+          # exists; until then it resolves to '' and the upload goes tokenless.
           token: ${{ secrets.CODECOV_TOKEN }}
-          use_oidc: ${{ secrets.CODECOV_TOKEN == '' }}
           files: coverage/lcov.info
           fail_ci_if_error: false
           verbose: true
