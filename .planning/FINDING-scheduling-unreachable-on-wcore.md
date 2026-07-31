@@ -42,10 +42,18 @@ correct block it would work. It has no way to learn the format:
    model to output `[LOAD_SKILL: skill-name]`. `detectSkillLoadRequest` is imported and called
    **only** in `GeminiAgentManager.ts:1301`. On WCore nothing consumes it, so the model emits the
    marker and gets silence.
-3. **The per-turn retriever deliberately skips it.** `buildTurnSkillContext`
-   (`agentUtils.ts:318`) auto-loads a clear winner only `if (!alwaysOn.has(top.name))`. `cron` is
-   a builtin and therefore always-on, so its body is never auto-injected — "already in context"
-   is true of its *name*, not its *body*.
+3. **The per-turn retriever cannot reach it — but NOT for the reason first written here.**
+   ~~`buildTurnSkillContext` skips it because `cron` is always-on.~~ **That was wrong, and a
+   cross-audit caught it.** `WCoreManager.ts:777` calls `buildTurnSkillContext` with only
+   `assistantId` and `agentKey` and **never passes `alwaysOnNames`** (only `AcpAgentManager:1891`
+   and `GeminiAgentManager:759` do), so on this backend `alwaysOn` is empty and skips nothing.
+   The real reason is **store separation**: the retriever ranks `SkillLibrary` entries, and
+   builtin `cron` lives in `resources/skills/_builtin/`, a different store — so it is not in the
+   searchable set at all.
+   A cross-auditor ran the actual BM25 query for "schedule this every day at 9am": it ranked
+   `travel-day-optimizer`, `daily-planning` and `time-blocking` top, with `cron-scheduler` not even
+   in the top six. So the library is not merely the *wrong* router for this intent — it is not a
+   reliable router for it either.
 4. **The search tool surfaces the WRONG cron skill.** `wayland_search_skills` /
    `wayland_read_skill` read `SkillLibrary` (`searchSkillsServer.ts:120,210`), which is the
    2112-skill library — a different store from `resources/skills/_builtin/`. The library's only
@@ -77,6 +85,47 @@ filesystem paths that mean nothing to a backend with no `[Skills Location]` bloc
 
 Recommend the narrow fix first — it is the one that restores the user-facing feature, and it can
 be verified by the live test directly. The structural gap should be filed separately.
+
+## Cross-audit corrections (Codex + Gemini, 2026-07-31)
+
+Both legs agreed the conclusion holds. Three claims in the first draft were wrong and are
+corrected above or here:
+
+- **The `alwaysOn` skip is not the WCore mechanism** — see hop 3. It *is* a real latent trap on
+  **Gemini**, which does pass `alwaysOnNames` and also receives only the index, never the bodies:
+  there, an always-on skill's body is excluded from auto-load while never having been injected, so
+  the model holds the name and none of the instructions. Worth filing separately.
+- **ACP does not universally use `prepareFirstMessageWithSkillsIndex`** — native-skill ACP sessions
+  bypass that builder (`AcpAgentManager.ts:1800`) and rely on native skill discovery.
+- **The Gemini path was understated** — Gemini also receives builtin skill names through its worker
+  `SkillManager`, in addition to the marker interception. The missing scheduling directive still
+  applies to it.
+
+Both legs also flagged, unprompted:
+
+- **Advertising a retrieval mechanism you do not implement is itself the bug.** Only emit the
+  `[LOAD_SKILL:]` contract where a handler exists, and only advertise `wayland_search_skills` when
+  that MCP tool is actually attached.
+- **The `cron` (builtin) vs `cron-scheduler` (library) namespace collision is dangerous** — the
+  library entry explicitly recommends crontab, systemd timers and `flock`
+  (`skills-library/index.json:47849`), i.e. precisely the behaviour the missing directive forbids.
+
+## Verdict on the two candidate fixes
+
+**Ship the narrow fix (inline the directive).** Both legs independently reached this, and Gemini's
+reasoning is the decisive one: a structural contract — "emit this exact marker to drive the host
+UI" — must never sit behind a retrieval mechanism, because retrieval failure then silently
+disables the feature. That is a single point of failure, and it is exactly the failure we are
+looking at. Production agents inline formatting/tool-invocation/security rules and keep only
+domain knowledge on demand.
+
+The cost objection does not survive contact: the directive is assembled at agent bootstrap (it
+enters WCore's `init_history` on the first turn, `WCoreManager.ts:545`), not re-prepended per turn,
+and stable system text is exactly what prompt caching is for. Keep it to a ~100–250 token
+invariant rather than inlining the whole cron skill.
+
+The structural `LOAD_SKILL` wiring remains worth doing, but as a follow-up: it is the general fix
+for a contract we advertise everywhere and honour in one place.
 
 ## How to confirm (live, before any fix ships)
 

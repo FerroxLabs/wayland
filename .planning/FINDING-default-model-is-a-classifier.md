@@ -83,3 +83,33 @@ rather than a 400.
 - The failure surfaces a "Wake your agents / Connect a model provider" recovery panel, which is
   decent UX, but it advises connecting a provider when four working providers are already
   connected. The problem is the selection, not the credentials.
+
+---
+
+## Cross-audit (Codex + Gemini, 2026-07-31)
+
+**The predicate holds, but the fix belongs somewhere better than I proposed.**
+
+- **Gemini:** "no single metadata attribute is better than your combined predicate." Endorses
+  `context <= 1024 AND tool_call !== true`, and suggests augmenting with `modalities.output`
+  excluding `text`, and the absence of `reasoning` / `attachment` flags (which guards and encoders
+  never carry).
+- **Do NOT invert the `undefined` -> admitted default.** I had floated failing closed; both legs
+  say keep it fail-open. Inverting breaks day-one support for newly released models and hides
+  local/custom models from Ollama and LM Studio, whose ids match no pattern we ship. Apply the
+  predicate as a *safety gate* on top of a fail-open default.
+- **Codex found the real root, which I missed.** `CatalogAssembler.ts` already computes usage tags
+  (`chat`, `image`, `audio`, `embeddings`, `vision`, `reasoning`, `tools`, `research`), and its
+  default rule is `if (tags.size === 0 && kind === 'text') tags.add('chat')` (`:244`). That is why
+  a classifier is tagged a chat model. Fixing it there means the picker filters on a computed tag
+  instead of yet another name regex in `modelCapabilities.ts` - one authority, not two.
+  Note `GuidModelSelector.tsx:91` (`firstSafeCuratedModel`) is prior art for this exact class of
+  bug: its comment says it is "the guard that stops the picker booting to Antigravity Preview".
+- **Industry practice** confirms metadata over names: Ollama derives an embedding capability from
+  GGUF `bert.pooling_type` and refuses `/api/chat`; LM Studio makes the user load a model in chat
+  or embedding mode explicitly; OpenWebUI and LibreChat keep chat and embedding model lists
+  separate by configuration and never guess from id strings.
+
+**Revised recommendation:** apply the `context <= 1024 && tool_call !== true` rule inside
+`CatalogAssembler`'s tag computation so such models never receive the `chat` tag, and have the
+primary picker require the `chat` tag. Keep the fail-open default everywhere else.
