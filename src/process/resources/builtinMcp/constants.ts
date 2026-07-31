@@ -3,7 +3,7 @@
  * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
- * Modified by Ferrox Labs. Changes are documented in the project history.
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
 // Keep these constants local to avoid pulling in common/config/storage side effects

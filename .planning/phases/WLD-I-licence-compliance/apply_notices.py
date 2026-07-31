@@ -37,7 +37,10 @@ ROOT = os.path.abspath(os.path.join(HERE, '..', '..', '..'))
 EVIDENCE = os.path.join(HERE, 'ATTRIBUTION-EVIDENCE.csv')
 UPSTREAM_TREE = os.environ.get('AIONUI_BASELINE', '/tmp/aionui-v1925')
 
-MODIFIED_LINE = ' * Modified by Ferrox Labs. Changes are documented in the project history.'
+# AGPL-3.0 §5(a) requires the modification notice to give "a relevant date", not
+# just the fact of modification. Apache-2.0 §4(b) alone does not, but the
+# outbound licence here is AGPL, and its terms govern the work we convey.
+MODIFIED_LINE = ' * Modified by Ferrox Labs in 2026. Changes are documented in the project history.'
 FERROX_RE = re.compile(r'^\s*\*\s*Copyright\s+\d{4}\s+Ferrox Labs\s*$')
 COPYRIGHT_RE = re.compile(r'^\s*\*?\s*(Copyright\s+.+?)\s*$')
 HAS_UPSTREAM_CREDIT = re.compile(r'[Aa]ion[Uu]i|Google LLC')

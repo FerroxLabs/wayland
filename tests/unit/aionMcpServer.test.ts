@@ -3,7 +3,7 @@
  * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
- * Modified by Ferrox Labs. Changes are documented in the project history.
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  *
  * Tests for TeamGuideMcpServer tool handler logic (TCP architecture):
  *   - aion_create_team: input validation, TeamSessionService wiring, return shape

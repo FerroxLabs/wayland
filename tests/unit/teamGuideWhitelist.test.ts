@@ -3,7 +3,7 @@
  * Copyright 2025 AionUi (aionui.com)
  * Copyright 2026 Ferrox Labs
  * SPDX-License-Identifier: Apache-2.0
- * Modified by Ferrox Labs. Changes are documented in the project history.
+ * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  *
  * Tests for the team guide MCP injection capability check and prompt wording.
  * Covers: which agent backends get the Aion team guide MCP injected based on
