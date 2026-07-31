@@ -89,3 +89,52 @@ describe('selectMirrorModelIds (issue #13)', () => {
     expect(selectMirrorModelIds([], [])).toEqual([]);
   });
 });
+
+/**
+ * A text-in/text-out CLASSIFIER is not a chat model.
+ *
+ * Meta's Llama Prompt Guard 2 emits a two-token jailbreak verdict. It is
+ * `kind: 'text'`, so it passed the Curator and reached the chat picker, and on a
+ * clean profile it was auto-selected as the DEFAULT — the first message a new
+ * user sent came back as a provider 400 ("max_tokens must be <= 512").
+ */
+describe('selectMirrorModelIds — classifiers never reach the chat picker', () => {
+  const withMeta = (
+    id: string,
+    contextWindow: number | undefined,
+    tags: CatalogModel['tags'] = []
+  ): CatalogModel => ({
+    ...model(id, id.split('/')[0], '2026-05-01'),
+    ...(contextWindow === undefined ? {} : { contextWindow }),
+    tags,
+  });
+
+  it('drops a prompt-guard classifier (tiny context, no tool calling)', () => {
+    const catalog = [...CATALOG, withMeta('meta-llama/llama-prompt-guard-2-22m', 512)];
+    expect(selectMirrorModelIds(catalog, [])).not.toContain('meta-llama/llama-prompt-guard-2-22m');
+  });
+
+  it('keeps a real chat model that merely has a small context', () => {
+    // phi-3-mini-4k-instruct: 4096 context but declares tool calling.
+    const catalog = [...CATALOG, withMeta('microsoft/phi-3-mini-4k-instruct', 4096, ['chat', 'tools'])];
+    expect(selectMirrorModelIds(catalog, [])).toContain('microsoft/phi-3-mini-4k-instruct');
+  });
+
+  it('keeps a small-context chat model with no tool calling', () => {
+    // MythoMax: 4000 context, no tools - still a genuine chat model.
+    const catalog = [...CATALOG, withMeta('gryphe/mythomax-l2-13b', 4000, ['chat'])];
+    expect(selectMirrorModelIds(catalog, [])).toContain('gryphe/mythomax-l2-13b');
+  });
+
+  it('FAILS OPEN when the context window is unknown', () => {
+    // An unenriched day-one release, or a user's local Ollama model: no
+    // metadata at all. It must stay selectable.
+    const catalog = [...CATALOG, withMeta('vendor/brand-new-model', undefined)];
+    expect(selectMirrorModelIds(catalog, [])).toContain('vendor/brand-new-model');
+  });
+
+  it('drops a tiny-context model that declares no tools even when named like chat', () => {
+    const catalog = [...CATALOG, withMeta('vendor/tiny-encoder', 448)];
+    expect(selectMirrorModelIds(catalog, [])).not.toContain('vendor/tiny-encoder');
+  });
+});
