@@ -11,7 +11,7 @@
     "deleteConfirm": "Delete this team?",
     "deleteConfirmContent": "This action cannot be undone.",
     "deleteConfirmTitle": "Delete team?",
-    "deleteConfirmBody": "This will permanently delete {{teamName}} and its conversation history. Type \"delete\" below to confirm.",
+    "deleteConfirmBody": "This permanently deletes {{teamName}}, its agent chats, task board, mailbox, and team ritual schedules. Workspace files, reports, and user-created schedules are kept; user schedules must be moved or removed first. Type \"delete\" below to confirm.",
     "deleteConfirmCta": "Delete team",
     "deleteConfirmCancelCta": "Cancel",
     "deleteConfirmInputPlaceholder": "delete",

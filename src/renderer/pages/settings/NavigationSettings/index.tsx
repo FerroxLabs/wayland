@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Button, Switch } from '@arco-design/web-react';
+import { Button, Radio, Switch } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -13,6 +13,8 @@ import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageS
 import { SIDER_NAV_ITEMS } from '@renderer/components/layout/Sider/navItems';
 import { useHiddenSiderNavIds, useTitlebarBrandHidden } from '@renderer/hooks/ui/useNavPreferences';
 import { resetNavPreferences, setSiderNavHidden, writeTitlebarBrandHidden } from '@renderer/utils/ui/navPreferences';
+import { useShellExperience } from '@renderer/hooks/ui/useShellExperience';
+import type { ShellExperience } from '@/common/shellExperience';
 
 /**
  * Settings > Navigation (#118). Controls the left-navigation appearance:
@@ -20,11 +22,17 @@ import { resetNavPreferences, setSiderNavHidden, writeTitlebarBrandHidden } from
  * visible. Reads live via the nav-preference hooks (which react to the same
  * localStorage-backed store the sider/titlebar consume), so toggles reflect
  * everywhere instantly.
+ *
+ * The Cockpit preview is a plain opt-in toggle. Switching back to Classic is
+ * immediate and reversible (the shell hook activates Classic before it even
+ * persists); no evidence-consent panel or return-reason survey — that cohort
+ * ceremony was retired.
  */
 const NavigationSettings: React.FC = () => {
   const { t } = useTranslation();
   const hiddenNavIds = useHiddenSiderNavIds();
   const brandHidden = useTitlebarBrandHidden();
+  const { shell, loading: shellLoading, cockpitRollout, setShell } = useShellExperience();
 
   return (
     <SettingsPageShell
@@ -33,6 +41,29 @@ const NavigationSettings: React.FC = () => {
         defaultValue: 'Choose which entries appear in the sidebar and titlebar.',
       })}
     >
+      <Card title={t('settings.navigationPage.experienceTitle', { defaultValue: 'Interface experience' })}>
+        <PreferenceRow
+          label={t('settings.navigationPage.experienceLabel', { defaultValue: 'Wayland interface' })}
+          help={t('settings.navigationPage.experienceHelp', {
+            defaultValue:
+              'Classic keeps the interface you already know. Cockpit is the new progressively disclosed layout over the same chats, Projects, agents, and settings.',
+          })}
+        >
+          <Radio.Group
+            type='button'
+            value={shell}
+            disabled={shellLoading}
+            onChange={(value) => void setShell(value as ShellExperience)}
+            data-testid='shell-experience-selector'
+          >
+            <Radio value='classic'>{t('settings.navigationPage.classicShell', { defaultValue: 'Classic' })}</Radio>
+            <Radio value='cockpit' disabled={!cockpitRollout.eligible}>
+              {t('settings.navigationPage.cockpitShell', { defaultValue: 'Cockpit preview' })}
+            </Radio>
+          </Radio.Group>
+        </PreferenceRow>
+      </Card>
+
       <Card title={t('settings.navigationPage.sidebarEntriesTitle', { defaultValue: 'Sidebar entries' })}>
         {SIDER_NAV_ITEMS.map((item) => (
           <PreferenceRow

@@ -10,7 +10,6 @@ import { Button, Switch } from '@arco-design/web-react';
 import { Close } from '@icon-park/react';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useMessageList } from '../hooks';
 import MessageActivity from './MessageActivity';
 import SubAgentActivityCard from './SubAgentActivityCard';
 import styles from './ObservabilityPanel.module.css';
@@ -31,12 +30,14 @@ import styles from './ObservabilityPanel.module.css';
 const isObservable = (m: TMessage): m is IMessageActivity | IMessageSubAgent =>
   m.type === 'activity' || m.type === 'sub_agent';
 
-const ObservabilityPanel: React.FC<{ onClose: () => void }> = ({ onClose }) => {
+const ObservabilityPanel: React.FC<{ onClose: () => void; messages: readonly TMessage[] }> = ({
+  onClose,
+  messages,
+}) => {
   const { t } = useTranslation();
   const { settings, update } = useObservabilitySettings();
-  const list = useMessageList();
 
-  const observableMessages = useMemo(() => list.filter(isObservable), [list]);
+  const observableMessages = useMemo(() => messages.filter(isObservable), [messages]);
 
   return (
     <div className={styles.container} data-testid='observability-panel'>

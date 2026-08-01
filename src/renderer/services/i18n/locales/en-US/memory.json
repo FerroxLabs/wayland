@@ -270,7 +270,8 @@
       "streak_pill": "{{sessions}} sessions · {{longestDays}}d longest streak",
       "streak_empty": "No sessions yet",
       "import_btn": "Import…",
-      "settings_btn": "Settings"
+      "settings_btn": "Settings",
+      "archived": "Archived"
     },
     "stats": {
       "memories": "Memories",
@@ -378,6 +379,23 @@
       "success": "Saved",
       "error": "Couldn't save. Try again."
     },
+    "delete": {
+      "confirmTitle": "Archive this memory?",
+      "confirmContent": "This removes the memory from active use but keeps a recovery copy you can restore anytime.",
+      "confirmOk": "Archive",
+      "confirmCancel": "Cancel",
+      "toastDeleted": "Memory archived. Restore it anytime from Archived.",
+      "toastError": "Could not archive memory"
+    },
+    "recovery": {
+      "title": "Archived memories",
+      "description": "Archived memories stay on disk and can be restored to their original file.",
+      "empty": "No archived memories",
+      "restore": "Restore",
+      "restored": "Memory restored",
+      "loadError": "Could not load archived memories",
+      "restoreError": "Could not restore this memory"
+    },
     "statusbar": {
       "brain_live": "Brain live",
       "brain_offline": "Brain offline",
@@ -453,8 +471,8 @@
       },
       "dropFolder": {
         "title": "Drop folder",
-        "hint": "Drop .md / .txt / .json files into ~/Documents/Wayland-Memory/",
-        "count": "{{count}} files processed",
+        "hint": "Drop .md / .txt / .json files here. Imported originals move to .processed/ for recovery.",
+        "count": "{{count}} files processed · originals kept in .processed/",
         "openBtn": "Open folder",
         "processBtn": "Process now",
         "success": "Processed {{count}} files · {{errors}} errors",

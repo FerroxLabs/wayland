@@ -1,0 +1,13 @@
+{
+  "_comment": "Pinned SHA-256 values for the exact native iOfficeAI/OfficeCLI release binaries bundled by Desktop. These hashes are verified before a binary is copied, executed, or packaged.",
+  "v1.0.136": {
+    "officecli-linux-alpine-arm64": "sha256:6f882ba9ebb9fec4bbae5e60e96a1caa8cf0d4bbf59bd03c0c6302343d38067a",
+    "officecli-linux-alpine-x64": "sha256:566cb70628a9535d2b89bb5708e5957511095bcc4359f835a3377a8cde9e3f21",
+    "officecli-linux-arm64": "sha256:25bda0d225932159b14ea6ade532c8dbecd2136f1b5c672c003b45bd75afbbb2",
+    "officecli-linux-x64": "sha256:2ca3d81be529fd103a7af95a2039b051a08af9d1b5c2c96e85e88731008c402c",
+    "officecli-mac-arm64": "sha256:b8582853cc464fa0bdb2fabc2803821472c9449c38b365a7be79fcb53d6356e7",
+    "officecli-mac-x64": "sha256:f0073b16a5181837d0b0df3e264a338066b02f4ac16f4758538873fbc32bf9b2",
+    "officecli-win-arm64.exe": "sha256:94e5ebb1900974681430197035476e2e6c6e905e2e45c2c71ed7de0a3ba87131",
+    "officecli-win-x64.exe": "sha256:0ba8550bb236a2a23982311a747b22f318d7bd18c1c06a402d96f7642c85fb6a"
+  }
+}

@@ -7,9 +7,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const processConfigGetMock = vi.fn();
+// VOC-03: the consent key is served from a dedicated mock so per-test
+// `processConfigGetMock.mockResolvedValue(sttConfig)` still controls the STT
+// config while consent is granted by default (see beforeEach).
+const hostedConsentMock = vi.fn();
 
 vi.mock('@process/utils/initStorage', () => ({
-  ProcessConfig: { get: (...args: unknown[]) => processConfigGetMock(...args) },
+  ProcessConfig: {
+    get: (key: string, ...rest: unknown[]) =>
+      key === 'tools.voiceHostedConsent' ? hostedConsentMock() : processConfigGetMock(key, ...rest),
+  },
 }));
 
 vi.mock('@process/utils/mainLogger', () => ({
@@ -46,10 +53,35 @@ const errorResponse = (status: number) => ({
 describe('SpeechToTextService', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Hosted-voice consent granted by default so the transcription-logic tests
+    // exercise the request path; the fail-closed case overrides this.
+    hostedConsentMock.mockResolvedValue({
+      version: 1,
+      acceptedProviders: ['openai', 'deepgram', 'flux-voice'],
+      updatedAt: 1,
+    });
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+  });
+
+  describe('VOC-03 hosted-voice consent gate', () => {
+    it('refuses hosted transcription and never sends audio when consent is absent', async () => {
+      processConfigGetMock.mockResolvedValue(baseConfig); // provider 'openai' (hosted)
+      hostedConsentMock.mockResolvedValue(null);
+
+      await expect(SpeechToTextService.transcribe(baseRequest)).rejects.toThrow('STT_HOSTED_CONSENT_REQUIRED');
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it('refuses when consent exists for a different provider', async () => {
+      processConfigGetMock.mockResolvedValue(baseConfig); // provider 'openai'
+      hostedConsentMock.mockResolvedValue({ version: 1, acceptedProviders: ['deepgram'], updatedAt: 1 });
+
+      await expect(SpeechToTextService.transcribe(baseRequest)).rejects.toThrow('STT_HOSTED_CONSENT_REQUIRED');
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
   });
 
   describe('OpenAI language normalization (ELECTRON-G3)', () => {

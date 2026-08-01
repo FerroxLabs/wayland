@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-CONFLICT-ID-packet-focused",
+  "commit": "0bfb3a6a1a12adc86c98dde4a078e5b8bcff4ae8",
+  "command": "rtk proxy sh -o pipefail -c 'bunx vitest run tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx 2>&1 | tee /tmp/wayland-con-b-conflict-packet-focused.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:548d962be47e9eccb6ac540b2c4a90639a48e8ddfa2a3d35871506b811271b5a",
+  "timestamp": "2026-07-17T05:41:50Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

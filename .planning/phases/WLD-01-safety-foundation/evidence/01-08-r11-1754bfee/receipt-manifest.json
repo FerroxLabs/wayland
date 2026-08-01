@@ -1,0 +1,63 @@
+{
+  "schema": "wayland-desktop-builder-receipts/v1",
+  "captured_at_utc": "2026-07-19T22:12:57Z",
+  "implementation_commit": "1754bfee3165fff2744bb60e41e7ae605947a9c5",
+  "implementation_tree": "79bc6846fb355cc42633be3d16589d5f85dd1d6a",
+  "parent_audit_commit": "55a6e845a528b64a28579464c238df702d343e33",
+  "sanitization": "redactCommandSecrets fixed-point",
+  "acceptance_state": "construction-proof-only; aggregate and independent audit pending",
+  "receipts": [
+    {
+      "id": "environment",
+      "command": "uname -a; node --version; bun --version; shasum -a 256 bun.lock package.json tsconfig.json",
+      "exit_code": 0,
+      "file": "00-environment.log",
+      "sha256": "29c085eb9771f06b78c8de0456a19a3f6802bdcc659b3818f2ebb6c89fae10af"
+    },
+    {
+      "id": "focused-vitest",
+      "command": "GSD_RUNTIME=codex bunx vitest run tests/unit/workspaceRetention.test.ts tests/unit/managedWorkspaceInventory.test.ts tests/unit/managedWorkspaceProvenance.test.ts tests/unit/desktopManagedWorkspaceInventory.test.ts tests/unit/WorkerTaskManager.workspaceRetention.test.ts tests/unit/WCoreManagerProcessExit.test.ts tests/unit/wcoreStderrSurfacing.test.ts tests/unit/acpAgentManagerCronGuard.test.ts tests/unit/acpKillChild.test.ts tests/unit/conversationBridge.tray.test.ts tests/unit/initAgentPresetFallback.test.ts tests/unit/conversationBridge.workspaceRetention.test.ts tests/unit/conversationBridge.test.ts tests/unit/ConversationServiceImpl.test.ts tests/unit/ConversationChannelCleanup.test.ts tests/unit/SqliteConversationRepository.test.ts tests/unit/process/services/memory/promotionSweep.test.ts tests/unit/process/services/wiki/wikiAutoSync.test.ts tests/unit/process/bridge/workspaceRetentionBridge.test.ts tests/unit/bridgeAllowlistWorkspaceRetention.redteam.test.ts tests/unit/renderer/missionControlActivity.dom.test.tsx tests/unit/renderer/pages/settings/storage/ManagedWorkspacesCard.dom.test.tsx tests/unit/renderer/ConstitutionRecovery.dom.test.tsx",
+      "exit_code": 0,
+      "result": "23 files, 294 tests passed",
+      "file": "01-focused-vitest.log",
+      "sha256": "c1cc97cf9e1e1fbd09a4cefca199113e80355a6933a34e5063b9e0316384396a"
+    },
+    {
+      "id": "bun-native-intent",
+      "command": "bun test src/process/services/database/conversationChannelCleanupIntent.bun.test.ts",
+      "exit_code": 0,
+      "result": "2 tests passed",
+      "file": "02-bun-native-intent.log",
+      "sha256": "8c1d987f887d5670c02062dfea37655e435f49e8c011915bcf9dabc918fec410"
+    },
+    {
+      "id": "typecheck",
+      "command": "bun run typecheck",
+      "exit_code": 0,
+      "file": "03-typecheck.log",
+      "sha256": "53737b49a91e6c0faffd863f27436c38899421a6eb9007e922a5f8aad9f89d49"
+    },
+    {
+      "id": "scoped-lint",
+      "command": "bun run lint -- src/process/agent/wcore/index.ts tests/unit/wcoreStderrSurfacing.test.ts",
+      "exit_code": 0,
+      "result": "0 warnings, 0 errors",
+      "file": "04-scoped-lint.log",
+      "sha256": "d7fd090d9405265a5ddec0c690e190f36da65b1dc30d3528434a91e7315813cb"
+    },
+    {
+      "id": "scoped-format",
+      "command": "bun run format -- --check src/process/agent/wcore/index.ts tests/unit/wcoreStderrSurfacing.test.ts",
+      "exit_code": 0,
+      "file": "05-scoped-format.log",
+      "sha256": "d2434d845b9d90f49d73b47b620850d7a22ff61eee656e235201ddccefc6852f"
+    },
+    {
+      "id": "invariants",
+      "command": "test ! -e .ijfw/wiki-state/index.json && ! rg -n 'quarantine-eligible|quarantineEligible' src tests && git diff --check 55a6e845..1754bfee && exact HEAD/tree assertions",
+      "exit_code": 0,
+      "file": "06-invariants.log",
+      "sha256": "1e64818ef4c8256dfb7155789b9920aaccbc1b93d5bc00952079bd4698060fd5"
+    }
+  ]
+}

@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import ConversationChatConfirm from '../../components/ConversationChatConfirm';
 import AcpSendBox from './AcpSendBox';
+import ExecutionSpine from '../../components/ExecutionSpine';
 
 const AcpChat: React.FC<{
   conversation_id: string;
@@ -43,6 +44,7 @@ const AcpChat: React.FC<{
   workflowApplyStepMarker?:
     | ((stepN: number, status: StepStatus, source?: StepTransitionSource) => Promise<void>)
     | null;
+  projectId?: string;
 }> = ({
   conversation_id,
   workspace,
@@ -58,6 +60,7 @@ const AcpChat: React.FC<{
   workflowSessionId,
   workflowTotalSteps,
   workflowApplyStepMarker,
+  projectId,
 }) => {
   useMessageLstCache(conversation_id);
 
@@ -134,37 +137,45 @@ const AcpChat: React.FC<{
         workflowApplyStepMarker,
       }}
     >
-      <div className='flex-1 flex flex-col px-20px min-h-0'>
-        <FlexFullContainer>
-          <MessageList className='flex-1' emptySlot={emptySlot} isProcessing={isProcessing} />
-        </FlexFullContainer>
-        {!hideSendBox && authRemedy && (
-          <div className='max-w-800px w-full mx-auto mb-12px'>
-            <AcpAuthFailureCard
-              remedy={authRemedy}
-              onAddKey={onAddKey}
-              onRouteThroughFlux={onRouteThroughFlux}
-              onCliLogin={onCliLogin}
-              onDismiss={() => setAuthRemedy(null)}
-            />
-          </div>
-        )}
-        {!hideSendBox && (
-          <ConversationChatConfirm conversation_id={conversation_id}>
-            <AcpSendBox
-              conversation_id={conversation_id}
-              backend={backend}
-              sessionMode={sessionMode}
-              cachedConfigOptions={cachedConfigOptions}
-              agentName={agentName}
-              workspacePath={workspace}
-              teamId={teamId}
-              agentSlotId={agentSlotId}
-              onRunningChange={setIsProcessing}
-            ></AcpSendBox>
-          </ConversationChatConfirm>
-        )}
-      </div>
+      <ExecutionSpine
+        backend='acp'
+        conversationId={conversation_id}
+        workspaceId={workspace || conversation_id}
+        projectId={projectId}
+        agentId={backend}
+      >
+        <div className='flex-1 flex flex-col px-20px min-h-0'>
+          <FlexFullContainer>
+            <MessageList className='flex-1' emptySlot={emptySlot} isProcessing={isProcessing} />
+          </FlexFullContainer>
+          {!hideSendBox && authRemedy && (
+            <div className='max-w-800px w-full mx-auto mb-12px'>
+              <AcpAuthFailureCard
+                remedy={authRemedy}
+                onAddKey={onAddKey}
+                onRouteThroughFlux={onRouteThroughFlux}
+                onCliLogin={onCliLogin}
+                onDismiss={() => setAuthRemedy(null)}
+              />
+            </div>
+          )}
+          {!hideSendBox && (
+            <ConversationChatConfirm conversation_id={conversation_id}>
+              <AcpSendBox
+                conversation_id={conversation_id}
+                backend={backend}
+                sessionMode={sessionMode}
+                cachedConfigOptions={cachedConfigOptions}
+                agentName={agentName}
+                workspacePath={workspace}
+                teamId={teamId}
+                agentSlotId={agentSlotId}
+                onRunningChange={setIsProcessing}
+              ></AcpSendBox>
+            </ConversationChatConfirm>
+          )}
+        </div>
+      </ExecutionSpine>
     </ConversationProvider>
   );
 };

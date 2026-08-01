@@ -1,0 +1,61 @@
+{
+  "bundle_sha256": "128b817984ff2bb76b8fd8c10d1f35b4ce3ac24498fe1f693068fc4e6d1ce9fd",
+  "contract_version": "1.0.0",
+  "files": [
+    {
+      "path": "fixtures/auto_routing.json",
+      "sha256": "3fe8f3b1edd8e076531c5750f8536c1bda7c2b218c9c3ab7759aab08e770adc9"
+    },
+    {
+      "path": "fixtures/capability_available.json",
+      "sha256": "f4615fc418e302b3c9e0120967e2ed0b19eb453e1a8283a78fa0ea2855aa6448"
+    },
+    {
+      "path": "fixtures/capability_no_flux.json",
+      "sha256": "93a36697aa309ce8c8df6d541d4cdf24725a8c7d1748705135703f717fa86edf"
+    },
+    {
+      "path": "fixtures/circuit_open_degraded.json",
+      "sha256": "45f3977a97e2e5ebad351fdfda2f9b5fc1ab9faa0b592fa26b2cd977c9d0d26c"
+    },
+    {
+      "path": "fixtures/disconnected.json",
+      "sha256": "f6b705354cbec65421ba88fee3993e909a1e8ac5bdc9b99ebb4d4c34562c8fa3"
+    },
+    {
+      "path": "fixtures/explicit_native.json",
+      "sha256": "fb8d4e9134f2e20fecc4fca11e8eab07db9b996556a1d697608a048a73de399e"
+    },
+    {
+      "path": "fixtures/fallback.json",
+      "sha256": "eaebb0a2703057ef626611d2f675be071df3938ee9607f423e3ca0534f175a64"
+    },
+    {
+      "path": "fixtures/invalid_credential.json",
+      "sha256": "a4b60260633b8f097a9aaafa2a9ae11085a0ff7e0f0827007068f96f1a586b1f"
+    },
+    {
+      "path": "fixtures/retry.json",
+      "sha256": "cbd2b4e151747f72427574bfff2ac560f479ac45358c61875f6e93279559ebb0"
+    },
+    {
+      "path": "fixtures/terminal_failure.json",
+      "sha256": "b8d3a8b8628df062ac7bb6fb19a99a1e7d6db29f73c72528ec5d3542444ce9e1"
+    },
+    {
+      "path": "fixtures/unpriced_cost.json",
+      "sha256": "98f13d4fd0788ab1350b7aa680479d252d410aa4cebbee4bd71f7cf1a0e846c1"
+    },
+    {
+      "path": "fixtures/user_override.json",
+      "sha256": "7ebdc9eaccd489f5f27b828f45779da78eb04a426c86e8e4567a0837d896f657"
+    },
+    {
+      "path": "schema.json",
+      "sha256": "356fb1f472c9909bc5a11003edf8e4e30e93ad3d06c8607316973acfb490e85a"
+    }
+  ],
+  "generator_version": "1.0.1",
+  "producer_baseline_commit": "6eda360c8497b4dab0e26003ad7bad03d0aa9c6f",
+  "schema_sha256": "356fb1f472c9909bc5a11003edf8e4e30e93ad3d06c8607316973acfb490e85a"
+}

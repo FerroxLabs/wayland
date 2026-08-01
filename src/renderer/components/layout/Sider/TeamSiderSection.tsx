@@ -101,7 +101,7 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
       setDeleteTarget(null);
     } catch (err) {
       console.error('Failed to delete team:', err);
-      Message.error(t('team.sider.delete'));
+      Message.error(err instanceof Error ? err.message : t('team.sider.delete'));
     } finally {
       setDeleteLoading(false);
     }
@@ -179,7 +179,9 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
                   >
                     <Users
                       data-testid={`collapsed-team-icon-${team.id}`}
-                      data-icon-fill={iconColors.primary} size={16} color={iconColors.primary}
+                      data-icon-fill={iconColors.primary}
+                      size={16}
+                      color={iconColors.primary}
                       style={{ lineHeight: 0 }}
                     />
                     {(teamBadgeCounts.get(team.id) ?? 0) > 0 && (

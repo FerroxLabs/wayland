@@ -16,6 +16,7 @@ import LocalImageView from '@renderer/components/media/LocalImageView';
 import ConversationChatConfirm from '../../components/ConversationChatConfirm';
 import GeminiSendBox from './GeminiSendBox';
 import type { GeminiModelSelection } from './useGeminiModelSelection';
+import ExecutionSpine from '../../components/ExecutionSpine';
 
 // GeminiChat consumes shared model selection state to avoid duplicate logic
 const GeminiChat: React.FC<{
@@ -33,6 +34,7 @@ const GeminiChat: React.FC<{
   workflowApplyStepMarker?:
     | ((stepN: number, status: StepStatus, source?: StepTransitionSource) => Promise<void>)
     | null;
+  projectId?: string;
 }> = ({
   conversation_id,
   workspace,
@@ -46,6 +48,7 @@ const GeminiChat: React.FC<{
   workflowSessionId,
   workflowTotalSteps,
   workflowApplyStepMarker,
+  projectId,
 }) => {
   useMessageLstCache(conversation_id);
   const updateLocalImage = LocalImageView.useUpdateLocalImage();
@@ -75,22 +78,30 @@ const GeminiChat: React.FC<{
 
   return (
     <ConversationProvider value={conversationValue}>
-      <div className='flex-1 flex flex-col px-20px min-h-0'>
-        <FlexFullContainer>
-          <MessageList className='flex-1' emptySlot={emptySlot}></MessageList>
-        </FlexFullContainer>
-        {!hideSendBox && (
-          <ConversationChatConfirm conversation_id={conversation_id}>
-            <GeminiSendBox
-              conversation_id={conversation_id}
-              modelSelection={modelSelection}
-              teamId={teamId}
-              agentSlotId={agentSlotId}
-              sessionMode={sessionMode}
-            ></GeminiSendBox>
-          </ConversationChatConfirm>
-        )}
-      </div>
+      <ExecutionSpine
+        backend='gemini'
+        conversationId={conversation_id}
+        workspaceId={workspace || conversation_id}
+        projectId={projectId}
+        agentId='gemini'
+      >
+        <div className='flex-1 flex flex-col px-20px min-h-0'>
+          <FlexFullContainer>
+            <MessageList className='flex-1' emptySlot={emptySlot}></MessageList>
+          </FlexFullContainer>
+          {!hideSendBox && (
+            <ConversationChatConfirm conversation_id={conversation_id}>
+              <GeminiSendBox
+                conversation_id={conversation_id}
+                modelSelection={modelSelection}
+                teamId={teamId}
+                agentSlotId={agentSlotId}
+                sessionMode={sessionMode}
+              ></GeminiSendBox>
+            </ConversationChatConfirm>
+          )}
+        </div>
+      </ExecutionSpine>
     </ConversationProvider>
   );
 };

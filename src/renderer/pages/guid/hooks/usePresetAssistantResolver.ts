@@ -6,6 +6,10 @@
 
 import { ipcBridge } from '@/common';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
+import {
+  DEFAULT_PRESET_AGENT_TYPE,
+  resolvePresetAgentType as resolveConfiguredPresetAgentType,
+} from '@/common/config/presets/assistantDefaults';
 import type { AcpBackend, AcpBackendConfig } from '../types';
 import { useCallback } from 'react';
 
@@ -63,7 +67,7 @@ export const usePresetAssistantResolver = ({
           assistantId: customAgentId,
           locale: localeKey,
         });
-      } catch (_error) {
+      } catch {
         // skills may not exist, this is normal
       }
 
@@ -88,7 +92,7 @@ export const usePresetAssistantResolver = ({
               if (skillFile) {
                 skills = await ipcBridge.fs.readBuiltinSkill.invoke({ fileName: skillFile });
               }
-            } catch (_e) {
+            } catch {
               // skills fallback failure is ok
             }
           }
@@ -115,10 +119,10 @@ export const usePresetAssistantResolver = ({
       // Default to the always-present bundled Wayland Core engine, NOT Gemini CLI
       // (#380): an assistant with no resolvable backend / preset type should run
       // on WCore (the friction-free default), not silently fall onto Google's CLI.
-      if (!agentInfo) return 'wcore';
+      if (!agentInfo) return DEFAULT_PRESET_AGENT_TYPE;
       if (!agentInfo.customAgentId) return agentInfo.backend as string;
       const customAgent = customAgents.find((agent) => agent.id === agentInfo.customAgentId);
-      return customAgent?.presetAgentType || 'wcore';
+      return resolveConfiguredPresetAgentType(customAgent?.presetAgentType);
     },
     [customAgents]
   );

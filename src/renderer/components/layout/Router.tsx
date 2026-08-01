@@ -10,7 +10,6 @@ const Conversation = React.lazy(() => import('@renderer/pages/conversation'));
 const Guid = React.lazy(() => import('@renderer/pages/guid'));
 const AssistantsLibraryPage = React.lazy(() => import('@renderer/pages/assistants/AssistantsLibraryPage'));
 const WorkflowsLibraryPage = React.lazy(() => import('@renderer/pages/workflows/WorkflowsLibraryPage'));
-const AgentSettings = React.lazy(() => import('@renderer/pages/settings/AgentSettings'));
 const AgentsSettings = React.lazy(() => import('@renderer/pages/settings/AgentsSettings'));
 const AssistantSettings = React.lazy(() => import('@renderer/pages/settings/AssistantSettings'));
 const ConstitutionSettings = React.lazy(() => import('@renderer/pages/settings/ConstitutionSettings'));
@@ -38,9 +37,7 @@ const SkillsSettings = React.lazy(() => import('@renderer/pages/settings/SkillsS
 const SlashCommandsSettings = React.lazy(() => import('@renderer/pages/settings/SlashCommandsSettings'));
 const StorageSettings = React.lazy(() => import('@renderer/pages/settings/StorageSettings'));
 const DoctorSettings = React.lazy(() => import('@renderer/pages/settings/DoctorSettings'));
-const WCoreSettings = React.lazy(() => import('@renderer/pages/settings/WCoreSettings'));
 const WCoreConfig = React.lazy(() => import('@renderer/pages/settings/WCoreConfig'));
-const GeminiSettings = React.lazy(() => import('@renderer/pages/settings/GeminiSettings'));
 const SystemSettings = React.lazy(() => import('@renderer/pages/settings/SystemSettings'));
 const VoiceSettings = React.lazy(() => import('@renderer/pages/settings/VoiceSettings'));
 const WebuiSettings = React.lazy(() => import('@renderer/pages/settings/WebuiSettings'));
@@ -214,14 +211,5 @@ const PanelRoute: React.FC<{ layout: React.ReactElement }> = ({ layout }) => {
     </ToastProvider>
   );
 };
-
-// Reference unused legacy components so dynamic imports stay valid for tooling.
-// WCoreSettings + ConstitutionSettings are now subsumed into the Wayland Core
-// surface (their routes redirect there); the underlying pages are still imported
-// here to keep their chunks discoverable, and reused as panes inside WCoreConfig.
-void GeminiSettings;
-void AgentSettings;
-void WCoreSettings;
-void ConstitutionSettings;
 
 export default PanelRoute;

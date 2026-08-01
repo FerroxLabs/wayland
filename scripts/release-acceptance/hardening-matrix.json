@@ -1,0 +1,310 @@
+{
+  "contract": "wayland-release-hardening-matrix/1.0",
+  "requiredInvariants": [
+    "INV-01",
+    "INV-02",
+    "INV-03",
+    "INV-04",
+    "INV-05",
+    "INV-06",
+    "INV-07",
+    "INV-08",
+    "INV-09",
+    "INV-10",
+    "INV-11",
+    "INV-12",
+    "INV-13",
+    "INV-14",
+    "INV-15",
+    "INV-16",
+    "INV-17",
+    "INV-18",
+    "INV-19",
+    "INV-20",
+    "INV-21"
+  ],
+  "requiredCriteria": [
+    "SC-01",
+    "SC-02",
+    "SC-03",
+    "SC-04",
+    "SC-05",
+    "SC-06",
+    "SC-06A",
+    "SC-06B",
+    "SC-06C",
+    "SC-06D",
+    "SC-06E",
+    "SC-06F",
+    "SC-07",
+    "SC-08",
+    "SC-09",
+    "SC-10",
+    "SC-10A",
+    "SC-11",
+    "SC-12",
+    "SC-13",
+    "SC-14",
+    "SC-14A",
+    "SC-14B",
+    "SC-14C",
+    "SC-15",
+    "SC-16",
+    "SC-17",
+    "SC-18",
+    "SC-19",
+    "SC-20",
+    "SC-21"
+  ],
+  "requiredJourneys": [
+    "J1",
+    "J2",
+    "J3",
+    "J4",
+    "J5",
+    "J6",
+    "J7",
+    "J8",
+    "J9",
+    "J10",
+    "J11",
+    "J12",
+    "J13",
+    "J14",
+    "J15",
+    "J16",
+    "J17",
+    "J18",
+    "J19",
+    "J20",
+    "J21",
+    "J23",
+    "J24",
+    "J25"
+  ],
+  "supportedTargets": ["darwin-arm64", "darwin-x64", "win32-arm64", "win32-x64", "linux-arm64", "linux-x64"],
+  "requiredHardeningGates": [
+    "accessibility",
+    "bundle",
+    "crash-recovery",
+    "dependency-security",
+    "extension-isolation",
+    "localization",
+    "memory",
+    "offline-partial-service",
+    "packaging",
+    "performance",
+    "process-cleanup",
+    "rollback",
+    "security",
+    "support-doctor",
+    "updater"
+  ],
+  "targetGateReceiptSchema": {
+    "contract": "wayland-target-hardening-gate-receipt/1.0",
+    "requiredFields": [
+      "contract",
+      "receiptId",
+      "candidate",
+      "target",
+      "gate",
+      "authority",
+      "evidencePath",
+      "evidenceSha256"
+    ],
+    "authority": "canonical-target-hardening-validator"
+  },
+  "targetGateRequirements": [
+    {
+      "receiptId": "M8-F:darwin-arm64:package-identity-signature",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-arm64",
+      "gate": "package-identity-signature"
+    },
+    {
+      "receiptId": "M8-F:darwin-arm64:install",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-arm64",
+      "gate": "install"
+    },
+    {
+      "receiptId": "M8-F:darwin-arm64:updater",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-arm64",
+      "gate": "updater"
+    },
+    {
+      "receiptId": "M8-F:darwin-arm64:rollback",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-arm64",
+      "gate": "rollback"
+    },
+    {
+      "receiptId": "M8-F:darwin-arm64:re-upgrade",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-arm64",
+      "gate": "re-upgrade"
+    },
+    {
+      "receiptId": "M8-F:darwin-x64:package-identity-signature",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-x64",
+      "gate": "package-identity-signature"
+    },
+    {
+      "receiptId": "M8-F:darwin-x64:install",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-x64",
+      "gate": "install"
+    },
+    {
+      "receiptId": "M8-F:darwin-x64:updater",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-x64",
+      "gate": "updater"
+    },
+    {
+      "receiptId": "M8-F:darwin-x64:rollback",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-x64",
+      "gate": "rollback"
+    },
+    {
+      "receiptId": "M8-F:darwin-x64:re-upgrade",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "darwin-x64",
+      "gate": "re-upgrade"
+    },
+    {
+      "receiptId": "M8-F:win32-arm64:package-identity-signature",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-arm64",
+      "gate": "package-identity-signature"
+    },
+    {
+      "receiptId": "M8-F:win32-arm64:install",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-arm64",
+      "gate": "install"
+    },
+    {
+      "receiptId": "M8-F:win32-arm64:updater",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-arm64",
+      "gate": "updater"
+    },
+    {
+      "receiptId": "M8-F:win32-arm64:rollback",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-arm64",
+      "gate": "rollback"
+    },
+    {
+      "receiptId": "M8-F:win32-arm64:re-upgrade",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-arm64",
+      "gate": "re-upgrade"
+    },
+    {
+      "receiptId": "M8-F:win32-x64:package-identity-signature",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-x64",
+      "gate": "package-identity-signature"
+    },
+    {
+      "receiptId": "M8-F:win32-x64:install",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-x64",
+      "gate": "install"
+    },
+    {
+      "receiptId": "M8-F:win32-x64:updater",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-x64",
+      "gate": "updater"
+    },
+    {
+      "receiptId": "M8-F:win32-x64:rollback",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-x64",
+      "gate": "rollback"
+    },
+    {
+      "receiptId": "M8-F:win32-x64:re-upgrade",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "win32-x64",
+      "gate": "re-upgrade"
+    },
+    {
+      "receiptId": "M8-F:linux-arm64:package-identity-signature",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-arm64",
+      "gate": "package-identity-signature"
+    },
+    {
+      "receiptId": "M8-F:linux-arm64:install",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-arm64",
+      "gate": "install"
+    },
+    {
+      "receiptId": "M8-F:linux-arm64:updater",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-arm64",
+      "gate": "updater"
+    },
+    {
+      "receiptId": "M8-F:linux-arm64:rollback",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-arm64",
+      "gate": "rollback"
+    },
+    {
+      "receiptId": "M8-F:linux-arm64:re-upgrade",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-arm64",
+      "gate": "re-upgrade"
+    },
+    {
+      "receiptId": "M8-F:linux-x64:package-identity-signature",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-x64",
+      "gate": "package-identity-signature"
+    },
+    {
+      "receiptId": "M8-F:linux-x64:install",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-x64",
+      "gate": "install"
+    },
+    {
+      "receiptId": "M8-F:linux-x64:updater",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-x64",
+      "gate": "updater"
+    },
+    {
+      "receiptId": "M8-F:linux-x64:rollback",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-x64",
+      "gate": "rollback"
+    },
+    {
+      "receiptId": "M8-F:linux-x64:re-upgrade",
+      "contract": "wayland-target-hardening-gate-receipt/1.0",
+      "target": "linux-x64",
+      "gate": "re-upgrade"
+    }
+  ],
+  "capabilityConditional": {
+    "cowork-office": {
+      "criteria": [],
+      "journeys": ["J17", "J23"],
+      "receipts": ["C0-B", "C1", "C0-RELEASE-CLOSURE"]
+    },
+    "voice": { "criteria": ["SC-06E"], "journeys": [], "receipts": ["M5V-A", "M5V-B"] },
+    "mcp": { "criteria": ["SC-14A"], "journeys": ["J9"], "receipts": ["M1M", "MCP-4"] },
+    "sandbox": { "criteria": ["SC-06F"], "journeys": ["J10", "J25"], "receipts": ["M1S", "SBX-2"] },
+    "flux": { "criteria": ["SC-14", "SC-14B", "SC-14C"], "journeys": ["J24"], "receipts": ["M1F"] }
+  }
+}

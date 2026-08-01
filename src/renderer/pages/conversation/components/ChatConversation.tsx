@@ -111,7 +111,7 @@ const _AddNewConversation: React.FC<{ conversation: TChatConversation }> = ({ co
             // Fetch latest conversation from DB to ensure sessionMode is current
             const latest = await ipcBridge.conversation.get.invoke({ id: conversation.id }).catch((): null => null);
             const source = latest || conversation;
-            await ipcBridge.conversation.createWithConversation.invoke({
+            const created = await ipcBridge.conversation.createWithConversation.invoke({
               conversation: {
                 ...source,
                 id,
@@ -124,6 +124,7 @@ const _AddNewConversation: React.FC<{ conversation: TChatConversation }> = ({ co
                     : source.extra,
               } as TChatConversation,
             });
+            if (!created) throw new Error('Conversation was not created');
             void navigate(`/conversation/${id}`);
             emitter.emit('chat.history.refresh');
           } catch (error) {
@@ -185,7 +186,12 @@ const GeminiConversationPanel: React.FC<{
   };
 
   return (
-    <ChatLayout {...chatLayoutProps} conversationId={conversation.id} workspacePath={conversation.extra.workspace}>
+    <ChatLayout
+      {...chatLayoutProps}
+      conversationId={conversation.id}
+      projectId={conversation.extra?.projectId}
+      workspacePath={conversation.extra.workspace}
+    >
       <GeminiChat
         conversation_id={conversation.id}
         workspace={conversation.extra.workspace}
@@ -193,6 +199,7 @@ const GeminiConversationPanel: React.FC<{
         cronJobId={conversation.extra?.cronJobId as string | undefined}
         hideSendBox={hideSendBox}
         sessionMode={conversation.extra?.sessionMode}
+        projectId={conversation.extra?.projectId}
       />
     </ChatLayout>
   );
@@ -257,12 +264,13 @@ const WCoreConversationPanel: React.FC<{ conversation: WCoreConversation; slider
   };
 
   return (
-    <ChatLayout {...chatLayoutProps} conversationId={conversation.id}>
+    <ChatLayout {...chatLayoutProps} conversationId={conversation.id} projectId={conversation.extra?.projectId}>
       <WCoreChat
         conversation_id={conversation.id}
         workspace={conversation.extra.workspace}
         modelSelection={modelSelection}
         sessionMode={conversation.extra?.sessionMode}
+        projectId={conversation.extra?.projectId}
       />
     </ChatLayout>
   );
@@ -306,6 +314,7 @@ const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & Workflo
         workspaceEnabled={true}
         workspacePath={conversation.extra.workspace}
         conversationId={conversation.id}
+        projectId={conversation.extra?.projectId}
         hideHeader={true}
         stepsRailSider={true}
       >
@@ -321,6 +330,7 @@ const WCoreWorkflowPanel: React.FC<{ conversation: WCoreConversation } & Workflo
             workspace={conversation.extra.workspace}
             modelSelection={modelSelection}
             sessionMode={conversation.extra?.sessionMode}
+            projectId={conversation.extra?.projectId}
             workflowSessionId={workflowSessionId}
             workflowTotalSteps={workflowTotalSteps}
             workflowApplyStepMarker={workflowApplyStepMarker}
@@ -363,6 +373,7 @@ const GeminiWorkflowPanel: React.FC<
         workspaceEnabled={true}
         workspacePath={conversation.extra.workspace}
         conversationId={conversation.id}
+        projectId={conversation.extra?.projectId}
         hideHeader={true}
         stepsRailSider={true}
       >
@@ -383,6 +394,7 @@ const GeminiWorkflowPanel: React.FC<
             workflowSessionId={workflowSessionId}
             workflowTotalSteps={workflowTotalSteps}
             workflowApplyStepMarker={workflowApplyStepMarker}
+            projectId={conversation.extra?.projectId}
           />
         </WorkflowSurface>
       </ChatLayout>
@@ -464,6 +476,7 @@ const ChatConversation: React.FC<{
             workflowSessionId={workflowSessionId}
             workflowTotalSteps={workflowTotalSteps}
             workflowApplyStepMarker={workflowApplyStepMarker}
+            projectId={conversation.extra?.projectId}
           ></AcpChat>
         );
       case 'codex': // Legacy: codex now uses ACP protocol
@@ -485,6 +498,7 @@ const ChatConversation: React.FC<{
             workflowSessionId={workflowSessionId}
             workflowTotalSteps={workflowTotalSteps}
             workflowApplyStepMarker={workflowApplyStepMarker}
+            projectId={conversation.extra?.projectId}
           />
         );
       case 'openclaw-gateway':
@@ -629,6 +643,7 @@ const ChatConversation: React.FC<{
           workspaceEnabled={true}
           workspacePath={conversation?.extra?.workspace}
           conversationId={conversation?.id}
+          projectId={conversation?.extra?.projectId}
           hideHeader={true}
           stepsRailSider={true}
         >
@@ -707,6 +722,7 @@ const ChatConversation: React.FC<{
       workspaceEnabled={workspaceEnabled}
       workspacePath={conversation?.extra?.workspace}
       conversationId={conversation?.id}
+      projectId={conversation?.extra?.projectId}
     >
       {conversationNode}
     </ChatLayout>

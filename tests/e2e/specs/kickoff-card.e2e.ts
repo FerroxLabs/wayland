@@ -6,8 +6,8 @@
  * Entry-path: we pre-seed `guid.lastSelectedAgent` in ConfigStorage to a
  * preset assistant id BEFORE navigating to /guid. The GuidPage's
  * `useGuidAgentSelection` restores this on mount, sets `isPresetAgent: true`,
- * and the kickoff hook fires its IPC for ext-helm - which the engine resolves
- * via `stripIdPrefix` (ENGINE-1 fix). This sidesteps the UI choreography
+ * and the kickoff hook fires its IPC for builtin-helm - which the engine
+ * resolves via `stripIdPrefix` (ENGINE-1 fix). This sidesteps the UI choreography
  * (which assistant-picker affordance is canonical post-Phase-6 redesign)
  * and isolates the test to the kickoff card mechanics, which IS what the
  * cross-audit was about.
@@ -41,8 +41,11 @@ const KICKOFF_REDIRECT = '[data-testid="new-chat-kickoff-redirect"]';
 const KICKOFF_DISMISS = '[data-testid="new-chat-kickoff-dismiss"]';
 const GUID_TEXTAREA = 'textarea.arco-textarea';
 
-const HELM_KEY = 'custom:ext-helm';
-const SLATE_KEY = 'custom:ext-slate';
+// helm / slate are native built-in catalog specialists (builtin-catalog/
+// assistants.json), so their runtime selection key is `custom:builtin-<slug>`.
+// Both ship kickoff libraries, so a preset selection surfaces a kickoff card.
+const HELM_KEY = 'custom:builtin-helm';
+const SLATE_KEY = 'custom:builtin-slate';
 
 /**
  * Pre-seed `guid.lastSelectedAgent` then navigate to /guid and force a
@@ -62,6 +65,19 @@ async function seedPresetAndOpenGuid(page: Page, agentKey: string) {
   const verified = await invokeBridge<string | null>(page, 'agent.config.storage.get', 'guid.lastSelectedAgent');
   expect(verified).toBe(agentKey);
   await navigateTo(page, ROUTES.guid);
+  // GuidPage only enters preset-hero mode - which mounts the kickoff card -
+  // when `hasInteractedWithAgentSelection` is set. Restoring a saved preset on
+  // a cold reload is NOT enough on its own; the blessed signal is React
+  // Router's `location.state.launchAssistant`, which the GuidPage mount effect
+  // reads to flip that flag. Seed it into history state (survives the reload,
+  // which React Router re-hydrates on init) so the restored preset lands in
+  // preset-hero mode. We deliberately do NOT enter via a launchpad card click:
+  // those prefill the input, and the card's dismiss-on-type would instantly
+  // hide it before the assertions run.
+  await page.evaluate(() => {
+    const prev = (window.history.state as Record<string, unknown>) || {};
+    window.history.replaceState({ ...prev, usr: { launchAssistant: true } }, '');
+  });
   await page.reload();
   await page.locator(GUID_TEXTAREA).first().waitFor({ state: 'visible', timeout: 10_000 });
 }

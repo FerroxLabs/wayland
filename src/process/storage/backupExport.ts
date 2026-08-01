@@ -11,6 +11,16 @@ export type ExportOptions = {
   passphrase?: string;
 };
 
+export type LegacyFileExportManifest = {
+  format: 'wayland-legacy-file-export';
+  version: 2;
+  authoritative: false;
+  exportedAt: string;
+  includesKeys: boolean;
+  includedPaths: ['conversations', 'attachments', 'config'];
+  excludedAuthorities: string[];
+};
+
 /**
  * Per-install secret-key filename (mirror of SECRET_KEY_FILE in
  * secrets/fileKeyStore.ts). This file is the AES key that decrypts stored
@@ -53,6 +63,9 @@ function encryptBuffer(buf: Buffer, passphrase: string): string {
 }
 
 export async function backupExport(opts: ExportOptions): Promise<void> {
+  if (opts.includeKeys && !opts.passphrase) {
+    throw new Error('A passphrase is required when API keys are included.');
+  }
   const zip = new JSZip();
 
   // Conversations
@@ -66,12 +79,14 @@ export async function backupExport(opts: ExportOptions): Promise<void> {
   await addDir(zip, configDir, 'config');
 
   // API keys (optional, encrypted)
+  let includesKeys = false;
   if (opts.includeKeys && opts.passphrase) {
     const keysFile = path.join(opts.userData, 'keys.json');
     if (fs.existsSync(keysFile)) {
       const raw = fs.readFileSync(keysFile);
       const encrypted = encryptBuffer(raw, opts.passphrase);
       zip.file('keys.json.enc', encrypted);
+      includesKeys = true;
     }
   }
 
@@ -80,10 +95,23 @@ export async function backupExport(opts: ExportOptions): Promise<void> {
     'manifest.json',
     JSON.stringify(
       {
-        version: 1,
+        format: 'wayland-legacy-file-export',
+        version: 2,
+        authoritative: false,
         exportedAt: new Date().toISOString(),
-        includesKeys: opts.includeKeys,
-      },
+        includesKeys,
+        includedPaths: ['conversations', 'attachments', 'config'],
+        excludedAuthorities: [
+          'desktop.database',
+          'projects',
+          'schedules',
+          'teams',
+          'providers',
+          'core.default-profile',
+          'core.named-profiles',
+          'external.workspaces',
+        ],
+      } satisfies LegacyFileExportManifest,
       null,
       2
     )

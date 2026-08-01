@@ -11,7 +11,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ── Hoisted mocks ──────────────────────────────────────────────────
 
-const { mockDb, agentCtorArgs, mockProcessConfigGet, outputBudgetRef } = vi.hoisted(() => ({
+const { mockDb, agentCtorArgs, mockProcessConfigGet, mockProcessConfigRemove, outputBudgetRef } = vi.hoisted(() => ({
   mockDb: {
     getConversationMessages: vi.fn(() => ({ data: [] })),
     getConversation: vi.fn(() => ({ success: false })),
@@ -23,6 +23,7 @@ const { mockDb, agentCtorArgs, mockProcessConfigGet, outputBudgetRef } = vi.hois
   agentCtorArgs: [] as Array<Record<string, unknown>>,
   // Holds the current test's `wcore.outputBudget` value.
   outputBudgetRef: { current: undefined as unknown },
+  mockProcessConfigRemove: vi.fn().mockResolvedValue(undefined),
   mockProcessConfigGet: vi.fn((key: string) => {
     if (key === 'wcore.outputBudget') return Promise.resolve(outputBudgetRef.current);
     return Promise.resolve(false); // rawEngineMode etc.
@@ -50,12 +51,32 @@ vi.mock('@/common/platform', () => ({
 }));
 
 vi.mock('@process/utils/shellEnv', () => ({ getEnhancedEnv: vi.fn(() => ({})) }));
+vi.mock('@process/agent/wcore/profilePaths', async (orig) => {
+  const actual = await orig<typeof import('@process/agent/wcore/profilePaths')>();
+  return {
+    ...actual,
+    acquireRuntimeLaunchAuthority: vi.fn(async (readRawMode: () => Promise<boolean>) => {
+      const raw = await readRawMode();
+      return raw
+        ? { raw: true as const, identity: null, release: async () => {} }
+        : {
+            raw: false as const,
+            identity: { profile: '@native', dir: '/test/wayland-core' },
+            release: async () => {},
+          };
+    }),
+  };
+});
 vi.mock('@process/services/database', () => ({ getDatabase: vi.fn(() => Promise.resolve(mockDb)) }));
 vi.mock('@process/services/database/export', () => ({ getDatabase: vi.fn(() => Promise.resolve(mockDb)) }));
 
 vi.mock('@process/utils/initStorage', () => ({
   ProcessChat: { get: vi.fn(() => Promise.resolve([])) },
-  ProcessConfig: { get: mockProcessConfigGet },
+  ProcessConfig: {
+    get: mockProcessConfigGet,
+    set: vi.fn().mockResolvedValue(undefined),
+    remove: mockProcessConfigRemove,
+  },
 }));
 
 vi.mock('@process/utils/message', () => ({ addMessage: vi.fn(), addOrUpdateMessage: vi.fn() }));
@@ -131,7 +152,13 @@ describe('WCoreManager output-budget spawn wiring (#468)', () => {
   beforeEach(() => {
     agentCtorArgs.length = 0;
     outputBudgetRef.current = undefined;
-    mockProcessConfigGet.mockClear();
+    mockProcessConfigRemove.mockReset();
+    mockProcessConfigRemove.mockResolvedValue(undefined);
+    mockProcessConfigGet.mockReset();
+    mockProcessConfigGet.mockImplementation((key: string) => {
+      if (key === 'wcore.outputBudget') return Promise.resolve(outputBudgetRef.current);
+      return Promise.resolve(false);
+    });
   });
 
   it('Auto (unset preference) → no maxTokens (engine sizes per-model)', async () => {
@@ -149,16 +176,63 @@ describe('WCoreManager output-budget spawn wiring (#468)', () => {
     expect(await spawnAndGetMaxTokens()).toBe(16000);
   });
 
-  it('Fixed without a usable value → treated as Auto (no maxTokens)', async () => {
+  it('repairs Fixed without a usable value to Auto instead of launching an invalid cap', async () => {
     outputBudgetRef.current = { mode: 'fixed' };
-    expect(await spawnAndGetMaxTokens()).toBeUndefined();
+    await expect(spawnAndGetMaxTokens()).resolves.toBeUndefined();
     outputBudgetRef.current = { mode: 'fixed', value: 0 };
-    expect(await spawnAndGetMaxTokens()).toBeUndefined();
+    await expect(spawnAndGetMaxTokens()).resolves.toBeUndefined();
+    expect(mockProcessConfigRemove).toHaveBeenCalledWith('wcore.outputBudget');
   });
 
-  it('Fixed below the floor is clamped up to MIN_FIXED_BUDGET (256)', async () => {
-    outputBudgetRef.current = { mode: 'fixed', value: 100 };
-    expect(await spawnAndGetMaxTokens()).toBe(256);
+  it.each([
+    { mode: 'fixed', value: 100 },
+    { mode: 'fixed', value: 1000.5 },
+    { mode: 'fixed', value: 200001 },
+    { mode: 'auto', value: 16000 },
+    { mode: 'unknown', value: 16000 },
+    { mode: 'auto', unexpected: true },
+    { mode: 'fixed', value: 16000, unexpected: true },
+  ])('malformed persisted budget %j is removed and recovers locally to Auto', async (value) => {
+    outputBudgetRef.current = value;
+    await expect(spawnAndGetMaxTokens()).resolves.toBeUndefined();
+    expect(mockProcessConfigRemove).toHaveBeenCalledWith('wcore.outputBudget');
+  });
+
+  it('removes malformed raw-mode authority and launches managed mode', async () => {
+    mockProcessConfigGet.mockImplementation((key: string) => {
+      if (key === 'wcore.rawEngineMode') return Promise.resolve('true');
+      return Promise.resolve(outputBudgetRef.current);
+    });
+    await expect(spawnAndGetMaxTokens()).resolves.toBeUndefined();
+    expect(mockProcessConfigRemove).toHaveBeenCalledWith('wcore.rawEngineMode');
+    expect(agentCtorArgs.at(-1)).toMatchObject({ rawEngineMode: false, waylandHome: '/test/wayland-core' });
+  });
+
+  it('fails closed when malformed local preference repair cannot persist', async () => {
+    mockProcessConfigGet.mockImplementation((key: string) =>
+      Promise.resolve(key === 'wcore.rawEngineMode' ? 'corrupt' : undefined)
+    );
+    mockProcessConfigRemove.mockRejectedValue(new Error('repair denied'));
+    await expect(spawnAndGetMaxTokens()).rejects.toThrow('repair denied');
+    expect(agentCtorArgs).toHaveLength(0);
+  });
+
+  it('aborts launch when raw-mode authority cannot be read', async () => {
+    mockProcessConfigGet.mockImplementation((key: string) => {
+      if (key === 'wcore.rawEngineMode') return Promise.reject(new Error('storage unavailable'));
+      return Promise.resolve(outputBudgetRef.current);
+    });
+    await expect(spawnAndGetMaxTokens()).rejects.toThrow('storage unavailable');
+    expect(agentCtorArgs).toHaveLength(0);
+  });
+
+  it('aborts launch when output-budget authority cannot be read', async () => {
+    mockProcessConfigGet.mockImplementation((key: string) => {
+      if (key === 'wcore.outputBudget') return Promise.reject(new Error('storage unavailable'));
+      return Promise.resolve(false);
+    });
+    await expect(spawnAndGetMaxTokens()).rejects.toThrow('storage unavailable');
+    expect(agentCtorArgs).toHaveLength(0);
   });
 
   it('explicit per-conversation maxTokens wins over the Fixed global setting', async () => {

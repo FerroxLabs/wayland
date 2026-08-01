@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-SHARED-RECOVERY-integration-static",
+  "commit": "8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495",
+  "command": "rtk proxy bash -o pipefail -c 'set -e; { bunx oxfmt --check package.json src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx src/renderer/services/ConstitutionRecoveryOperationLock.ts tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx tests/unit/renderer/ConstitutionRecovery.dom.test.tsx tests/unit/renderer/ConstitutionRecoveryOperationLock.dom.test.ts tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx; bunx oxlint --deny-warnings src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx src/renderer/services/ConstitutionRecoveryOperationLock.ts tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx tests/unit/renderer/ConstitutionRecovery.dom.test.tsx tests/unit/renderer/ConstitutionRecoveryOperationLock.dom.test.ts tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx; bun run typecheck; git diff --check HEAD^..HEAD; } 2>&1 | tee /tmp/wayland-con-b-shared-recovery-integration-static.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:c2802d99d5555e31e55b9c3cf1a22592c91f4d46a716bf9349b4ac7a6e409de5",
+  "timestamp": "2026-07-17T10:21:14Z",
+  "env_digest": "sha256:37df5fa6efd3a3b19345e65fd4688a4af01401de0d5ac2348f9596435190b9b4"
+}

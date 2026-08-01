@@ -39,8 +39,11 @@ import type {
 import { ProcessConfig } from '@process/utils/initStorage';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
 import { spawn } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
 import { McpConfig } from '../session/McpConfig';
-import type { IMcpServer } from '@/common/config/storage';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import type { McpSessionBackend, McpSessionPublicationInput } from '@/common/mcp/sessionReceipt';
+import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 /**
  * Temporary: backend-specific CLI login arguments.
@@ -96,6 +99,9 @@ type PendingOp<T> = {
   timer: ReturnType<typeof setTimeout>;
 };
 
+/** Correlated publication identity plus this conversation's active-server selection. */
+type McpSessionPublicationBinding = McpSessionPublicationInput & { activeServerIds?: readonly string[] };
+
 /**
  * AcpAgentV2 - Compatibility adapter that presents the OLD AcpAgent interface
  * while internally delegating to the NEW AcpSession.
@@ -114,6 +120,12 @@ export class AcpAgentV2 {
   private onSignalEvent?: (data: IResponseMessage) => void;
   private onSessionIdUpdate?: (sessionId: string) => void;
   private onAvailableCommandsUpdate?: (commands: Array<{ name: string; description?: string; hint?: string }>) => void;
+  private onMcpProjection?: OldAcpAgentConfig['onMcpProjection'];
+  // Receipt-bound publication identity supplied by the owning runtime (manager).
+  // Read directly off the raw config (like onMcpProjection) so no receipt-optional
+  // legacy path exists: the live projection is always minted against a current
+  // correlated launch. Falls back to a self-minted identity only when unset.
+  private readonly mcpPublicationBinding?: McpSessionPublicationBinding;
 
   // Cached state from callbacks
   private cachedModelInfo: AcpModelInfo | null = null;
@@ -170,7 +182,27 @@ export class AcpAgentV2 {
     this.onSignalEvent = config.onSignalEvent as ((data: IResponseMessage) => void) | undefined;
     this.onSessionIdUpdate = config.onSessionIdUpdate;
     this.onAvailableCommandsUpdate = config.onAvailableCommandsUpdate;
+    this.onMcpProjection = config.onMcpProjection;
+    this.mcpPublicationBinding = (config as { mcpPublication?: McpSessionPublicationBinding }).mcpPublication;
     this.agentConfig = toAgentConfig(config);
+  }
+
+  /**
+   * Resolve the receipt-bound publication identity for the live ACP projection.
+   * Prefers the runtime-supplied correlated binding; when absent (e.g. a direct
+   * construction with no owning manager) a fresh single-launch identity is minted
+   * so publication is still bound to this exact launch rather than stored state.
+   */
+  private resolveMcpPublication(): McpSessionPublicationBinding {
+    if (this.mcpPublicationBinding) return this.mcpPublicationBinding;
+    const backend: McpSessionBackend = this.agentConfig.agentBackend === 'codex' ? 'codex-native' : 'acp';
+    return {
+      generation: randomUUID(),
+      conversationId: this.conversationId,
+      backend,
+      sessionKey: createMcpSessionDigestKey(),
+      activeServerIds: this.agentConfig.activeMcpServers,
+    };
   }
 
   /**
@@ -213,29 +245,40 @@ export class AcpAgentV2 {
     // Load user-configured (builtin) MCP servers from settings, filtered by
     // cached agent MCP capabilities. Mirrors AcpAgent.loadBuiltinSessionMcpServers().
 
-    const rawMcpServers = await ProcessConfig.get('mcp.config');
-    if (Array.isArray(rawMcpServers) && rawMcpServers.length > 0) {
+    const rawMcpServers = await loadRuntimeMcpServers();
+    if (rawMcpServers.length > 0) {
       const cachedInit = await ProcessConfig.get('acp.cachedInitializeResult');
       const rawCaps = cachedInit?.[this.agentConfig.agentBackend]?.capabilities?.mcpCapabilities;
-      // Enable http/sse so hosted OAuth connectors (e.g. Notion) reach the
-      // session - agents advertise http:false by default, which dropped every
-      // hosted MCP and left it uncallable in chat. An agent that can't use an
-      // http session server simply ignores it.
-      const caps = { stdio: rawCaps?.stdio ?? true, http: true, sse: true };
+      // Honor the initialized agent's transport contract. ACP HTTP/SSE are
+      // opt-in; forcing them true creates configured-but-undiscoverable tools
+      // on agents that support only mandatory stdio.
+      const caps = McpConfig.resolveCapabilities(rawCaps);
       // Attach the CURRENT (refreshed) OAuth bearer so the session connects with
       // a live token rather than the stale one baked into the CLI/engine config
       // at sync time (the "401 invalid token" / silently-dropped-connector cause).
       // Dynamic import: pulling McpService at module-init would create an OAuth
       // init cycle (HybridTokenStorage TDZ); deferring it to call-time avoids that.
       // On failure fall back to the stored headers (no worse than before).
-      let freshened = rawMcpServers as IMcpServer[];
+      let freshened = rawMcpServers;
       try {
         const { mcpService } = await import('@process/services/mcpServices/McpService');
         freshened = await mcpService.attachOAuthTokens(freshened);
       } catch (err) {
         console.warn('[AcpAgentV2] attachOAuthTokens failed; using stored MCP headers:', err);
       }
-      const userServers = McpConfig.fromStorageConfig(freshened, caps);
+      const binding = this.resolveMcpPublication();
+      const projection = McpConfig.projectStorageConfig(freshened, {
+        publication: {
+          generation: binding.generation,
+          conversationId: binding.conversationId,
+          backend: binding.backend,
+          sessionKey: binding.sessionKey,
+        },
+        capabilities: caps,
+        activeServerIds: binding.activeServerIds,
+      });
+      this.onMcpProjection?.(projection);
+      const userServers = projection.servers;
       if (userServers.length > 0) {
         (this.agentConfig as { mcpServers?: McpServer[] }).mcpServers = [
           ...(this.agentConfig.mcpServers || []),

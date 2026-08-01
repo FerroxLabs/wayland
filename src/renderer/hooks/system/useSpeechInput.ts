@@ -186,6 +186,7 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const discardRecordingRef = useRef(false);
   const recordingStartedAtRef = useRef<number | null>(null);
   const visualizerIntervalRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -380,6 +381,7 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
       streamRef.current = stream;
       recorderRef.current = recorder;
       chunksRef.current = [];
+      discardRecordingRef.current = false;
       await startSpeechVisualizer(stream);
 
       recorder.ondataavailable = (event) => {
@@ -398,7 +400,14 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
         const audioBlob = new Blob(chunksRef.current, {
           type: recorder.mimeType || mimeType || 'audio/webm',
         });
+        const shouldDiscard = discardRecordingRef.current;
+        discardRecordingRef.current = false;
         cleanupRecorder();
+        if (shouldDiscard) {
+          setStatus('idle');
+          resetSpeechVisualizer();
+          return;
+        }
         void transcribeBlob(audioBlob);
       };
 
@@ -424,6 +433,20 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
     setStatus('transcribing');
     recorder.stop();
   }, [status]);
+
+  const cancelRecording = useCallback(() => {
+    const recorder = recorderRef.current;
+    if (!recorder || recorder.state === 'inactive') {
+      cleanupRecorder();
+      setStatus('idle');
+      resetSpeechVisualizer();
+      return;
+    }
+
+    discardRecordingRef.current = true;
+    setStatus('idle');
+    recorder.stop();
+  }, [cleanupRecorder, resetSpeechVisualizer]);
 
   const transcribeFile = useCallback(
     async (file: Blob) => {
@@ -453,6 +476,7 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
 
   return {
     availability,
+    cancelRecording,
     clearError,
     errorCode,
     errorMessage,

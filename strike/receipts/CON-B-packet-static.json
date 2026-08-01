@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-packet-static",
+  "commit": "af41442374b24bcc8645d6fd11d3eec6aff8c2c6",
+  "command": "set -euo pipefail\nchanged_files=(${(f)\"$(rtk proxy git diff --name-only 951593f7a2ea11db7e14b9154afd46cbbf96f870..HEAD)\"})\nsource_files=(${(f)\"$(print -rl -- $changed_files | rtk rg '\\\\.(ts|tsx|js|jsx)$')\"})\nformat_files=(${(f)\"$(print -rl -- $changed_files | rtk rg '\\\\.(ts|tsx|js|jsx|json|css|md|ya?ml)$')\"})\n{\n  rtk bunx oxlint $source_files\n  rtk bunx oxfmt --check $format_files\n  rtk bun run typecheck\n  rtk proxy git diff --check 951593f7a2ea11db7e14b9154afd46cbbf96f870..HEAD\n} > /tmp/wayland-con-b-exact-static.log 2>&1",
+  "exit_code": 0,
+  "log_digest": "sha256:bc1760d238abc2486ac76b1cc2b7ec5c8f24aaf3c577be60df9f55b782222707",
+  "timestamp": "2026-07-17T02:14:17Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

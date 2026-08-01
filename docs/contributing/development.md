@@ -101,6 +101,7 @@ bun start
 | `bun run debug:mcp`          | Debug MCP server connections                    |
 | `bun run debug:mcp:list`     | List configured MCP servers                     |
 | `bun run debug:mcp:validate` | Validate MCP server configurations              |
+| `bun run debug:mcp:probe`    | Run tools/list against enabled MCP servers      |
 | `bun run debug:custom-agent` | Debug custom agent connections                  |
 
 ## Multi-Instance Development

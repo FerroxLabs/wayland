@@ -26,6 +26,16 @@
   "copyFailed": "Copy failed",
   "download": "下载",
   "close": "关闭",
+  "shellRecovery": {
+    "preview": "Cockpit 预览",
+    "title": "无法安全打开 Cockpit。",
+    "sessionBody": "本次会话已启用 Classic。您的聊天、项目、设置、智能体状态和当前路由均未移动。",
+    "useClassicDefault": "默认使用 Classic",
+    "savingDefault": "正在将 Classic 保存为默认值…",
+    "savedDefault": "以后将默认使用 Classic。",
+    "saveFailed": "本次会话仍在使用 Classic，但无法保存默认设置。",
+    "retrySave": "重试保存"
+  },
   "retry": "重试",
   "reload": "重新加载",
   "technical_details": "技术详情",

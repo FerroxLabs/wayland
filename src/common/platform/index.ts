@@ -25,6 +25,20 @@ export function getDevProfileDir(): string {
   return custom || getDevAppName();
 }
 
+/**
+ * The early platform fallback must not overwrite an explicit E2E identity.
+ * configureAppIdentity runs first, but Rollup can initialize this module before
+ * the normal ElectronPlatformServices registration. Re-applying the dev profile
+ * here would otherwise turn `<temp>/main` into `<temp>/Wayland-Dev` and make the
+ * two startup identity paths disagree.
+ */
+export function shouldApplyDevProfileFallback(
+  isPackaged: boolean,
+  env: { WAYLAND_E2E_TEST?: string } = process.env
+): boolean {
+  return !isPackaged && env.WAYLAND_E2E_TEST !== '1';
+}
+
 export function registerPlatformServices(services: IPlatformServices): void {
   _services = services;
 }
@@ -51,7 +65,7 @@ export function getPlatformServices(): IPlatformServices {
         // Dev isolation: set app name before any getPath('userData') call.
         // Rollup may load this chunk before configureChromium.ts runs, so we
         // must apply the dev name here as a safety net.
-        if (!app.isPackaged) {
+        if (shouldApplyDevProfileFallback(app.isPackaged)) {
           const devAppName = getDevAppName();
           app.setName(devAppName);
           app.setPath('userData', path.join(path.dirname(app.getPath('userData')), getDevProfileDir()));

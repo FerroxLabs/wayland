@@ -8,6 +8,8 @@ const mockNavigate = vi.hoisted(() => vi.fn());
 const mockListJobs = vi.hoisted(() => vi.fn());
 const mockUpdateJob = vi.hoisted(() => vi.fn());
 const mockRemoveJob = vi.hoisted(() => vi.fn());
+const mockListArchivedJobs = vi.hoisted(() => vi.fn());
+const mockRestoreArchivedJob = vi.hoisted(() => vi.fn());
 const mockGetKeepAwake = vi.hoisted(() => vi.fn());
 const mockSetKeepAwake = vi.hoisted(() => vi.fn());
 const mockOnJobCreated = vi.hoisted(() => vi.fn(() => vi.fn())); // returns unsubscribe
@@ -84,6 +86,8 @@ vi.mock('@/common', () => ({
       listJobs: { invoke: (...args: unknown[]) => mockListJobs(...args) },
       updateJob: { invoke: (...args: unknown[]) => mockUpdateJob(...args) },
       removeJob: { invoke: (...args: unknown[]) => mockRemoveJob(...args) },
+      listArchivedJobs: { invoke: (...args: unknown[]) => mockListArchivedJobs(...args) },
+      restoreArchivedJob: { invoke: (...args: unknown[]) => mockRestoreArchivedJob(...args) },
       onJobCreated: { on: (...args: unknown[]) => mockOnJobCreated(...args) },
       onJobUpdated: { on: (...args: unknown[]) => mockOnJobUpdated(...args) },
       onJobRemoved: { on: (...args: unknown[]) => mockOnJobRemoved(...args) },
@@ -178,6 +182,12 @@ vi.mock('@arco-design/web-react', () => ({
       {children}
     </div>
   ),
+  Modal: ({ children, visible, title }: { children: React.ReactNode; visible?: boolean; title?: React.ReactNode }) =>
+    visible ? (
+      <div role='dialog' aria-label={String(title)}>
+        {children}
+      </div>
+    ) : null,
 }));
 
 // Mock CreateTaskDialog
@@ -232,6 +242,8 @@ describe('ScheduledTasksPage', () => {
     vi.clearAllMocks();
     mockGetKeepAwake.mockResolvedValue(false);
     mockListJobs.mockResolvedValue([]);
+    mockListArchivedJobs.mockResolvedValue([]);
+    mockRestoreArchivedJob.mockResolvedValue(undefined);
   });
 
   it('should render loading state initially', async () => {
@@ -252,6 +264,31 @@ describe('ScheduledTasksPage', () => {
     await waitFor(() => {
       expect(screen.getByTestId('empty')).toBeInTheDocument();
       expect(screen.getByText('No scheduled tasks')).toBeInTheDocument();
+    });
+  });
+
+  it('shows archived schedules and restores one paused', async () => {
+    const archivedJob = createMockJob({ enabled: true });
+    mockListArchivedJobs.mockResolvedValue([
+      {
+        archiveId: 'archive-1',
+        archivedAt: Date.now(),
+        job: archivedJob,
+        skillPresent: true,
+      },
+    ]);
+    mockRestoreArchivedJob.mockResolvedValue({ ...archivedJob, enabled: false });
+
+    const { default: ScheduledTasksPage } = await import('@renderer/pages/cron/ScheduledTasksPage');
+    render(<ScheduledTasksPage />);
+    fireEvent.click(screen.getByText('cron.archive.open'));
+
+    await waitFor(() => expect(screen.getByText('Daily Summary')).toBeInTheDocument());
+    fireEvent.click(screen.getByText('cron.archive.restore'));
+
+    await waitFor(() => {
+      expect(mockRestoreArchivedJob).toHaveBeenCalledWith({ archiveId: 'archive-1' });
+      expect(mockListJobs).toHaveBeenCalledTimes(2);
     });
   });
 

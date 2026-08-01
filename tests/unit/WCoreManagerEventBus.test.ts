@@ -658,6 +658,100 @@ describe('GAP-8: WCoreManager Multi EventBus Emission', () => {
   // ── ipcBridge still receives all events (no regression) ─────────
 
   describe('Regression: ipcBridge still receives all events', () => {
+    it('publishes exact-session MCP registration truth without the preview gate', () => {
+      (manager as any).beginMcpSession([
+        {
+          serverId: 'tavily-id',
+          serverName: 'tavily',
+          runtimeName: 'tavily',
+          canonicalName: 'tavily',
+          definitionDigest: 'hmac-sha256:tavily',
+          backend: 'wcore',
+          transport: 'http',
+          scope: 'conversation',
+        },
+      ]);
+      (manager as any).publishMcpSessionServer('tavily');
+      emitEvent(manager, {
+        type: 'mcp_ready',
+        data: { name: 'tavily', tools: ['tavily_search'] },
+        msg_id: '',
+      });
+
+      const snapshots = findIpcEmissions('mcp_session_state');
+      const latest = snapshots.at(-1)?.data;
+      expect(latest).toMatchObject({
+        conversationId: CONV_ID,
+        backend: 'wcore',
+        expectedServerNames: ['tavily'],
+      });
+      expect(latest.receipts['hmac-sha256:tavily']).toMatchObject({
+        status: 'registered',
+        serverId: 'tavily-id',
+        generation: latest.generation,
+        conversationId: CONV_ID,
+        backend: 'wcore',
+        transport: 'http',
+        tools: ['tavily_search'],
+      });
+    });
+
+    it('forwards every accepted Desktop v1 session-level authority event before the empty-msg-id guard', () => {
+      for (const type of [
+        'execution_policy',
+        'workflow_started',
+        'workflow_node_event',
+        'workflow_finished',
+        'anvil_receipt',
+        'anvil_receipt_invalidated',
+        'anvil_trust_changed',
+        'mcp_ready',
+        'mcp_failed',
+      ]) {
+        emitEvent(manager, { type, data: { evidence: type }, msg_id: '' });
+        expect(findIpcEmissions(type)).toContainEqual({
+          type,
+          conversation_id: CONV_ID,
+          msg_id: '',
+          data: { evidence: type },
+        });
+      }
+    });
+
+    it('persists and re-emits a hidden main-process acceptance envelope for canonical replay', () => {
+      emitEvent(manager, {
+        type: 'anvil_receipt',
+        msg_id: '',
+        data: {
+          type: 'anvil_receipt',
+          receipt_id: 'receipt-1',
+          event_id: 'receipt-event-1',
+          origin: 'core/anvil',
+          contract_version: '1.0',
+          session_id: 'session-1',
+          run_id: 'run-1',
+          task_id: 'task-1',
+          sequence: 0,
+          artifact_digest: `sha256:${'a'.repeat(64)}`,
+          gate_closure_digest: `sha256:${'b'.repeat(64)}`,
+          receipt_body_digest: `sha256:${'c'.repeat(64)}`,
+          desktop_trust_status: 'active',
+        },
+      });
+
+      const accepted = findIpcEmissions('execution_evidence');
+      expect(accepted).toHaveLength(1);
+      expect(accepted[0].data).toMatchObject({
+        acceptedBy: 'desktop-core-v1-consumer',
+        event: { type: 'anvil_receipt', receipt_id: 'receipt-1' },
+      });
+      expect(mockAddOrUpdateMessage).toHaveBeenCalledWith(
+        CONV_ID,
+        expect.objectContaining({ type: 'execution_evidence', hidden: true }),
+        'wcore'
+      );
+    });
+
     it('content events still go to ipcBridge', () => {
       emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
       emitEvent(manager, { type: 'content', data: 'hello', msg_id: 'msg-1' });

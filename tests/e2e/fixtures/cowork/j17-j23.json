@@ -1,0 +1,36 @@
+{
+  "contract": "wayland-desktop-cowork-replay/1.0",
+  "sourceIds": ["LOCAL-001", "WEB-001"],
+  "requiredFacts": ["71 percent to 84 percent", "19 hours to 7 hours"],
+  "journeys": [
+    {
+      "id": "J17",
+      "entry": "ordinary-composer",
+      "workspace": "j17",
+      "docx": "northstar-evidence-brief.docx",
+      "pdf": "northstar-evidence-brief.pdf",
+      "title": "Northstar Evidence Brief",
+      "revisedTitle": "Northstar Evidence Brief - Revised",
+      "prompt": "Use the local source file local-source.md and the web source at {{WEB_SOURCE_URL}}. Create northstar-evidence-brief.docx and northstar-evidence-brief.pdf in this workspace. Title both Northstar Evidence Brief. Cite LOCAL-001 and WEB-001 next to the claims they support, include a Sources section, and include an honest Limitations section. Validate the native DOCX and PDF before reporting completion. Do not call an output verified unless Wayland shows a trusted Core receipt for its exact digest.",
+      "revisionPrompt": "Make one scoped revision to both outputs: change only the title to Northstar Evidence Brief - Revised. Preserve both facts, both source IDs, the Sources section, and the Limitations section. Revalidate both native files and require fresh trusted Core receipts for their new exact digests."
+    },
+    {
+      "id": "J23-plain",
+      "entry": "ordinary-composer",
+      "workspace": "j23-plain",
+      "docx": "northstar-plain.docx",
+      "pdf": "northstar-plain.pdf",
+      "title": "Northstar Outcome Brief",
+      "prompt": "I need a decision-ready Northstar outcome brief using local-source.md and {{WEB_SOURCE_URL}}. Produce northstar-plain.docx and northstar-plain.pdf here. Cite LOCAL-001 and WEB-001 beside their supported claims, include Sources and Limitations, validate both native files, and do not claim verification without trusted Core receipts matching the exact outputs."
+    },
+    {
+      "id": "J23-cowork",
+      "entry": "cowork-starter",
+      "workspace": "j23-cowork",
+      "docx": "northstar-cowork.docx",
+      "pdf": "northstar-cowork.pdf",
+      "title": "Northstar Outcome Brief",
+      "prompt": "I need a decision-ready Northstar outcome brief using local-source.md and {{WEB_SOURCE_URL}}. Produce northstar-cowork.docx and northstar-cowork.pdf here. Cite LOCAL-001 and WEB-001 beside their supported claims, include Sources and Limitations, validate both native files, and do not claim verification without trusted Core receipts matching the exact outputs."
+    }
+  ]
+}

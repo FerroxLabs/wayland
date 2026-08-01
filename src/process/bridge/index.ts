@@ -10,10 +10,16 @@ import type { IConversationRepository } from '@process/services/database/IConver
 import type { IConversationService } from '@process/services/IConversationService';
 import type { IWorkerTaskManager } from '@process/task/IWorkerTaskManager';
 import { initAcpConversationBridge } from './acpConversationBridge';
-import { initApplicationBridge, isApplicationWindowFocused, getForegroundConversationId } from './applicationBridge';
+import {
+  initApplicationBridge,
+  isApplicationMainWindowSender,
+  isApplicationWindowFocused,
+  getForegroundConversationId,
+} from './applicationBridge';
 import { initAuthBridge } from './authBridge';
 import { initBedrockBridge } from './bedrockBridge';
 import { initChannelBridge } from './channelBridge';
+import { initCockpitPreviewBridge } from './cockpitPreviewBridge';
 import { initConversationBridge } from './conversationBridge';
 import { initCronBridge } from './cronBridge';
 import { initConciergeConfigBridge } from './conciergeConfigBridge';
@@ -71,12 +77,28 @@ import { initStorageBridge } from '@process/storage/storageIpc';
 import { initNicknamesBridge } from '@process/storage/nicknamesIpc';
 import { initSyncIpc } from '@process/sync/syncIpc';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
+import type { ConstitutionFsService } from '@process/services/constitution/constitutionFsService';
+import type { ConstitutionArchiveRecoveryService } from '@process/services/constitution/constitutionArchiveRecoveryService';
 import { initModelRegistryIpc } from '@process/providers/ipc/modelRegistryIpc';
 import { initWcoreToolKeyIpc } from '@process/agent/wcore/toolKeyIpc';
 import { initWcoreConfigBridge } from './wcoreConfigBridge';
 import { initWcoreUpdateBridge } from './wcoreUpdateBridge';
 import { initPendingSendBridge } from './pendingSendBridge';
 import { initDoctorBridge } from './doctorBridge';
+import { initDesktopFluxRoutingEvidenceAdapter } from '@process/flux/FluxRoutingEvidenceAdapter';
+import { initWorkspaceRetentionBridge } from './workspaceRetentionBridge';
+import { loadManagedWorkspaceProvenance } from '@process/services/managedWorkspaceProvenance';
+import { getInstallUuid } from '@process/services/kickoff/installUuid';
+import { initWaylandTransferBridge } from './waylandTransferBridge';
+import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
+import { cronService } from '@process/services/cron/cronServiceSingleton';
+import { getSystemDir } from '@process/utils/initStorage';
+import { getDataPath } from '@process/utils';
+import { buildWaylandTransferInventoryPreflight } from '@process/services/transfer/inventory/transferPreflight';
+import { nativeConfigDir, profilesRoot } from '@process/agent/wcore/profilePaths';
+import { getReleaseTrack } from '@/common/releaseTrack';
+import { app } from 'electron';
+import path from 'node:path';
 
 export interface BridgeDependencies {
   conversationService: IConversationService;
@@ -84,12 +106,18 @@ export interface BridgeDependencies {
   workerTaskManager: IWorkerTaskManager;
   channelRepo: IChannelRepository;
   teamSessionService: TeamSessionService;
+  constitutionFsService: ConstitutionFsService;
+  constitutionArchiveRecoveryService: ConstitutionArchiveRecoveryService;
 }
 
 /**
  * Initialize all IPC bridge modules
  */
 export function initAllBridges(deps: BridgeDependencies): void {
+  // Flux #888 publishes replay semantics but no live transport. Register the
+  // Desktop boundary in explicit no_flux state; a future trusted producer feed
+  // must negotiate capability + complete correlation before enabling claims.
+  initDesktopFluxRoutingEvidenceAdapter();
   initDialogBridge();
   initShellBridge();
   initCuaPermissionBridge();
@@ -114,6 +142,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initUpdateBridge();
   initWebuiBridge();
   initChannelBridge(deps.channelRepo);
+  initCockpitPreviewBridge((event) => isApplicationMainWindowSender(event.sender.id));
   initDatabaseBridge(deps.conversationRepo);
   initExtensionsBridge(deps.conversationRepo, deps.workerTaskManager);
   initCronBridge();
@@ -153,7 +182,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initRemoteAgentBridge();
   initHubBridge();
   initTeamBridge(deps.teamSessionService);
-  initMissionControlBridge(deps.teamSessionService);
+  initMissionControlBridge(deps.teamSessionService, deps.workerTaskManager, deps.conversationService);
   // A DB / migration failure during registration would otherwise become an
   // unhandled rejection and the `modelRegistry` namespace would silently never
   // register - log it so the failure is at least visible.
@@ -165,9 +194,51 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initWcoreUpdateBridge();
   initPendingSendBridge();
   initStorageBridge();
+  initWorkspaceRetentionBridge({
+    getWorkDir: () => getSystemDir().workDir,
+    getInstallationId: () => getInstallUuid(),
+    loadProvenance: async () => loadManagedWorkspaceProvenance(getDataPath(), await getInstallUuid()),
+    sources: {
+      listConversations: () => deps.conversationRepo.listAllConversations(),
+      listProjects: () => projectServiceSingleton.listProjects(),
+      listSchedules: () => cronService.listJobs(),
+      listActiveProcesses: () =>
+        deps.workerTaskManager.listWorkspaceAuthorities().map(({ id, workspace }) => ({ id, workspace })),
+    },
+  });
+  initWaylandTransferBridge(async (request) => {
+    const namedProfilesRoot = profilesRoot();
+    const projects = await projectServiceSingleton.listProjects();
+    return buildWaylandTransferInventoryPreflight({
+      request,
+      inventory: {
+        userDataRoot: app.getPath('userData'),
+        constitutionRoot: path.dirname(namedProfilesRoot),
+        coreDefaultProfileRoot: nativeConfigDir(),
+        coreNamedProfilesRoot: namedProfilesRoot,
+        externalWorkspaces: projects
+          .filter((project) => Boolean(project.workspace))
+          .map((project) => ({ projectId: project.id, path: project.workspace! })),
+        sourceReleaseTrack: getReleaseTrack(),
+      },
+      // These are capability facts, not aspirations. Preview remains blocked
+      // until live Desktop/Core quiescence and portable sealing are wired.
+      recoveryCapabilities: {
+        sqliteOnlineBackup: true,
+        desktopQuiescence: false,
+        coreQuiescence: false,
+        mutationEpoch: true,
+        sealedSensitiveCopies: false,
+      },
+    });
+  });
   initNicknamesBridge();
   initSyncIpc();
-  initConstitutionBridge();
+  initConstitutionBridge(
+    deps.constitutionFsService,
+    deps.constitutionArchiveRecoveryService,
+    (event) => event.senderFrame === event.sender.mainFrame && isApplicationMainWindowSender(event.sender.id)
+  );
   initOnboardingBridge();
   initDoctorBridge();
 }
@@ -193,6 +264,7 @@ export {
   initAuthBridge,
   initBedrockBridge,
   initChannelBridge,
+  initCockpitPreviewBridge,
   initConversationBridge,
   initCronBridge,
   initConciergeConfigBridge,

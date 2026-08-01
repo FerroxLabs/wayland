@@ -21,6 +21,7 @@
 //   - Never pass `autoFix: true` - it mutates code with git commits.
 import type { TeamTask } from './types';
 import type { IjfwInvokeResult } from '@/common/types/ijfw';
+import { shouldDisableIjfw } from '@process/utils/ijfwGuard';
 
 /** Per-task / per-team gate policy. */
 export type VerificationPolicy = 'off' | 'advisory' | 'blocking';
@@ -131,7 +132,12 @@ export class VerificationGate {
 
     // Short-circuit before paying the spawn cost when IJFW is intentionally
     // unavailable (explicit opt-out or CI). Fail SOFT to advisory-complete.
-    if (process.env.WAYLAND_DISABLE_IJFW === '1' || process.env.CI) {
+    // Was `WAYLAND_DISABLE_IJFW === '1' || process.env.CI`, which diverged from
+    // the real guard two ways: bare `process.env.CI` is truthy for ANY non-empty
+    // value (including 'false'), and it had no way to honour a sandboxed
+    // force-ON, so `WAYLAND_DISABLE_IJFW=0 CI=true` booted IJFW in index.ts
+    // while this gate still fail-softed with "IJFW disabled".
+    if (shouldDisableIjfw(process.env)) {
       return this.failSoft(now, task, 'IJFW disabled (WAYLAND_DISABLE_IJFW / CI)');
     }
 
@@ -220,9 +226,7 @@ export class VerificationGate {
         failCount,
         checkedAt: now,
         ...(needsHuman ? { needsHuman: true } : {}),
-        note: needsHuman
-          ? 'cross-audit FAIL twice - needs human review'
-          : 'cross-audit FAIL - returned to in_progress',
+        note: needsHuman ? 'cross-audit FAIL twice - needs human review' : 'cross-audit FAIL - returned to in_progress',
       },
     };
   }
@@ -239,6 +243,10 @@ export class VerificationGate {
    * into a clean completion, nor defeat the needs_human escalation.
    */
   private failSoft(now: number, task: TeamTask, note: string): GateDecision {
-    return this.complete(now, { outcome: 'advisory', failCount: priorFailCount(task), note: `verification skipped: ${note}` });
+    return this.complete(now, {
+      outcome: 'advisory',
+      failCount: priorFailCount(task),
+      note: `verification skipped: ${note}`,
+    });
   }
 }

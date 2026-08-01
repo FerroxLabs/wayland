@@ -14,13 +14,12 @@ export type OutputBudget = { mode: 'auto' | 'fixed'; value?: number };
 /** Default Fixed value offered when a user first switches Auto → Fixed. */
 export const DEFAULT_FIXED_BUDGET = 16000;
 /**
- * Floor for a Fixed budget. Enforced in BOTH the UI input and the spawn seam:
- * a too-small `--max-tokens` starves reasoning/visible output, so a positive
- * Fixed value below this is clamped up to it (defense in depth — the value can
- * arrive from imported config, not just the input).
+ * Floor for a Fixed budget. The UI will clamp interactive input to this value;
+ * the spawn seam treats an imported or hand-edited value below it as malformed
+ * and falls back to Auto rather than silently changing persisted intent.
  */
 export const MIN_FIXED_BUDGET = 256;
-/** Upper bound for the Fixed input (the engine clamps the real ceiling anyway). */
+/** Upper bound for Fixed input and persisted launch validation. */
 export const MAX_FIXED_BUDGET = 200000;
 
 /**

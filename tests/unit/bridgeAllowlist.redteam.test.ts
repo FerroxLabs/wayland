@@ -127,19 +127,27 @@ describe('isAllowedForRemote - onboarding credential writes denied', () => {
  * is unaffected.
  */
 describe('isAllowedForRemote - cron write/exec surface denied (#495)', () => {
-  it.each(['cron.add-job', 'cron.update-job', 'cron.run-now', 'cron.save-skill', 'cron.confirm-proposal'])(
-    'denies subscribe-%s for remote callers (blocks remote mode escalation / skill planting)',
-    (key) => {
-      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
-    }
-  );
+  it.each([
+    'cron.add-job',
+    'cron.update-job',
+    'cron.run-now',
+    'cron.save-skill',
+    'cron.confirm-proposal',
+    'cron.restore-archived-job',
+  ])('denies subscribe-%s for remote callers (blocks remote mode escalation / skill planting)', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+  });
 
-  it.each(['cron.list-jobs', 'cron.list-jobs-by-conversation', 'cron.get-job', 'cron.has-skill', 'cron.remove-job'])(
-    'still allows the read/remove provider subscribe-%s for remote callers',
-    (key) => {
-      expect(isAllowedForRemote(`subscribe-${key}`)).toBe(true);
-    }
-  );
+  it.each([
+    'cron.list-jobs',
+    'cron.list-archived-jobs',
+    'cron.list-jobs-by-conversation',
+    'cron.get-job',
+    'cron.has-skill',
+    'cron.remove-job',
+  ])('still allows the read/remove provider subscribe-%s for remote callers', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(true);
+  });
 });
 
 /**
@@ -156,15 +164,14 @@ describe('isAllowedForRemote - doctor surface denied (#458)', () => {
 
 /**
  * Memory mutation surface (#414). The memory.* namespace is intentionally open
- * to the paired WebUI for READS, but the two edit/delete providers perform a
- * real, hard, unrecoverable rewrite/delete of the user's local memory files.
- * A remote (paired-device WebSocket) caller must never reach them, else a paired
- * peer could destroy or silently rewrite the user's memories. The read-only
- * views stay allowed so the remote Archive panel still functions.
+ * to the paired WebUI for READS, but edit/archive/restore mutate the user's
+ * local memory files. A remote (paired-device WebSocket) caller must never
+ * reach them. Read-only views stay allowed so the remote Archive panel still
+ * functions without granting host-filesystem mutation authority.
  */
-describe('isAllowedForRemote - memory edit/delete denied (#414)', () => {
-  it.each(['memory.update-entry', 'memory.delete-entry'])(
-    'denies subscribe-%s for remote callers (blocks remote memory destruction/rewrite)',
+describe('isAllowedForRemote - memory mutation denied (#414)', () => {
+  it.each(['memory.update-entry', 'memory.delete-entry', 'memory.restore-archived-entry'])(
+    'denies subscribe-%s for remote callers (blocks remote memory mutation)',
     (key) => {
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
     }
@@ -176,6 +183,21 @@ describe('isAllowedForRemote - memory edit/delete denied (#414)', () => {
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(true);
     }
   );
+});
+
+describe('isAllowedForRemote - MCP archive mutation denied', () => {
+  it.each([
+    'mcp.sync-to-agents',
+    'mcp.remove-from-agents',
+    'mcp.archive-configured-server',
+    'mcp.restore-archived-server',
+  ])('denies subscribe-%s for remote callers', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+  });
+
+  it('allows secret-free archived connector inventory', () => {
+    expect(isAllowedForRemote('subscribe-mcp.list-archived-servers')).toBe(true);
+  });
 });
 
 /**
@@ -197,4 +219,24 @@ describe('isAllowedForRemote - foreground-conversation write denied (#579)', () 
       expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
     }
   );
+});
+
+describe('isAllowedForRemote - effective Core runtime identity stays local', () => {
+  it('denies identity disclosure, raw-mode mutation, and authoritative host-folder actions', () => {
+    expect(isAllowedForRemote('subscribe-wcoreConfig.getEffectiveRuntime')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.setRawEngineMode')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.openEffectiveRuntimeFolder')).toBe(false);
+  });
+
+  it('keeps output-budget reads remote but denies the mutation', () => {
+    expect(isAllowedForRemote('subscribe-wcoreConfig.getOutputBudget')).toBe(true);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.setOutputBudget')).toBe(false);
+  });
+
+  it('denies atomic Core config patches and unredacted local profile inventory', () => {
+    expect(isAllowedForRemote('subscribe-wcoreConfig.patchField')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.getBrowserPolicy')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreConfig.setBrowserPolicy')).toBe(false);
+    expect(isAllowedForRemote('subscribe-wcoreProfiles.list')).toBe(false);
+  });
 });

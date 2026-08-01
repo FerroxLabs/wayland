@@ -9,6 +9,7 @@ import { ipcBridge } from '@/common';
 import { resolveLocaleKey } from '@/common/utils';
 
 import { useInputFocusRing } from '@/renderer/hooks/chat/useInputFocusRing';
+import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { isElectronDesktop, resolveExtensionAssetUrl } from '@/renderer/utils/platform';
 import { isImageAvatar } from '@/renderer/utils/avatar';
 import { getLucideIcon } from '@/renderer/utils/lucideAvatar';
@@ -67,6 +68,7 @@ const GuidPage: React.FC = () => {
   const openAssistantDetailsRef = useRef<(() => void) | null>(null);
   const descriptionTextRef = useRef<HTMLDivElement>(null);
   const { closeAllTabs, openTab } = useConversationTabs();
+  const shellExperience = useLayoutContext()?.shellExperience ?? 'classic';
   const { activeBorderColor, inactiveBorderColor, activeShadow } = useInputFocusRing();
 
   const localeKey = resolveLocaleKey(i18n.language);
@@ -1105,6 +1107,7 @@ const GuidPage: React.FC = () => {
               selectedAgentKey={agentSelection.selectedAgentKey}
               getAgentKey={agentSelection.getAgentKey}
               onSelectAgent={handleSelectAgent}
+              compact={shellExperience === 'cockpit'}
               suppressSelectionAnimation={resetAssistantRequested}
             />
           ) : null}
@@ -1185,20 +1188,44 @@ const GuidPage: React.FC = () => {
           ) : null}
 
           {!showPresetHero ? (
-            <div className={styles.newChatStarter} data-testid='new-chat-starter'>
-              <LaunchpadBar
-                onAnchorClick={handleQuickLaunchAnchor}
-                onViewAll={handleQuickLaunchViewAll}
-                mode='compact'
-              />
-              <IntentPillBar activeIntent={activeIntent} onSelect={handleSelectIntent} />
-              {activeIntent ? (
-                <IntentSuggestionPanel
-                  intent={activeIntent}
-                  onSelect={handleSelectIntentPrompt}
-                  onClose={handleCloseIntentPanel}
-                />
-              ) : null}
+            <div
+              className={styles.newChatStarter}
+              data-testid='new-chat-starter'
+              data-starter-order={shellExperience === 'cockpit' ? 'outcome-first' : 'assistant-first'}
+            >
+              {shellExperience === 'cockpit' ? (
+                <>
+                  <IntentPillBar activeIntent={activeIntent} onSelect={handleSelectIntent} />
+                  {activeIntent ? (
+                    <IntentSuggestionPanel
+                      intent={activeIntent}
+                      onSelect={handleSelectIntentPrompt}
+                      onClose={handleCloseIntentPanel}
+                    />
+                  ) : null}
+                  <LaunchpadBar
+                    onAnchorClick={handleQuickLaunchAnchor}
+                    onViewAll={handleQuickLaunchViewAll}
+                    mode='compact'
+                  />
+                </>
+              ) : (
+                <>
+                  <LaunchpadBar
+                    onAnchorClick={handleQuickLaunchAnchor}
+                    onViewAll={handleQuickLaunchViewAll}
+                    mode='compact'
+                  />
+                  <IntentPillBar activeIntent={activeIntent} onSelect={handleSelectIntent} />
+                  {activeIntent ? (
+                    <IntentSuggestionPanel
+                      intent={activeIntent}
+                      onSelect={handleSelectIntentPrompt}
+                      onClose={handleCloseIntentPanel}
+                    />
+                  ) : null}
+                </>
+              )}
             </div>
           ) : null}
 

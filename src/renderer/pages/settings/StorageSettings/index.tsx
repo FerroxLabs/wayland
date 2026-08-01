@@ -1,34 +1,17 @@
-import { Button, Input, Message, Modal } from '@arco-design/web-react';
+import { Button } from '@arco-design/web-react';
 import { AlertTriangle } from 'lucide-react';
-import React, { useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
-import { storage } from '@/common/adapter/ipcBridge';
 import UsageCard from './UsageCard';
 import DirectoriesCard from './DirectoriesCard';
 import BackupCard from './BackupCard';
 import SyncCard from './SyncCard';
+import ManagedWorkspacesCard from './ManagedWorkspacesCard';
+import TransferCard from './TransferCard';
 
 const StorageSettings: React.FC = () => {
   const { t } = useTranslation();
-  const [resetOpen, setResetOpen] = useState(false);
-  const [resetText, setResetText] = useState('');
-  const [resetting, setResetting] = useState(false);
-
-  const handleReset = async () => {
-    if (resetText !== 'reset') return;
-    setResetting(true);
-    try {
-      await storage.resetAll.invoke();
-      setResetOpen(false);
-    } catch (error) {
-      console.error('Storage reset failed:', error);
-      Message.error(t('settings.storagePage.resetFailed'));
-    } finally {
-      setResetting(false);
-    }
-  };
-
   return (
     <SettingsPageShell
       title={t('settings.sider.storage')}
@@ -38,7 +21,9 @@ const StorageSettings: React.FC = () => {
       )}
     >
       <UsageCard />
+      <ManagedWorkspacesCard />
       <DirectoriesCard />
+      <TransferCard />
       <BackupCard />
       <SyncCard />
 
@@ -51,55 +36,15 @@ const StorageSettings: React.FC = () => {
               {t('settings.storagePage.resetTitle')}
             </span>
             <span className='text-12px text-[var(--text-secondary)]'>{t('settings.storagePage.resetDescription')}</span>
+            <span className='text-11px text-[var(--color-text-3)]'>
+              {t('settings.storagePage.resetRecoveryRequired')}
+            </span>
           </div>
         </div>
-        <Button size='small' status='danger' onClick={() => setResetOpen(true)}>
-          {t('settings.storagePage.resetAction')}
+        <Button size='small' status='danger' disabled>
+          {t('settings.storagePage.resetUnavailable')}
         </Button>
       </div>
-
-      <Modal
-        visible={resetOpen}
-        onCancel={() => {
-          setResetOpen(false);
-          setResetText('');
-        }}
-        title={
-          <div className='flex items-center gap-8px'>
-            <AlertTriangle size={18} className='text-[var(--danger)]' />
-            <span>{t('settings.storagePage.resetConfirmTitle')}</span>
-          </div>
-        }
-        footer={
-          <div className='flex justify-end gap-8px'>
-            <Button
-              onClick={() => {
-                setResetOpen(false);
-                setResetText('');
-              }}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              type='primary'
-              status='danger'
-              disabled={resetText !== 'reset'}
-              loading={resetting}
-              onClick={handleReset}
-            >
-              {t('settings.storagePage.resetAction')}
-            </Button>
-          </div>
-        }
-      >
-        <p className='text-13px text-[var(--text-secondary)] mb-12px'>{t('settings.storagePage.resetConfirmBody')}</p>
-        <Input
-          value={resetText}
-          onChange={setResetText}
-          placeholder={t('settings.storagePage.resetTypePlaceholder')}
-          size='small'
-        />
-      </Modal>
     </SettingsPageShell>
   );
 };

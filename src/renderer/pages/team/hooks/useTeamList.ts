@@ -9,11 +9,9 @@ export function useTeamList() {
   const { user } = useAuth();
   const userId = user?.id ?? 'system_default_user';
 
-  const { data, mutate } = useSWR<TTeam[]>(
-    `teams/${userId}`,
-    () => ipcBridge.team.list.invoke({ userId }),
-    { revalidateOnFocus: false }
-  );
+  const { data, mutate } = useSWR<TTeam[]>(`teams/${userId}`, () => ipcBridge.team.list.invoke({ userId }), {
+    revalidateOnFocus: false,
+  });
   // ALWAYS an array. The `= []` default only covers `undefined`; if the backend
   // ever returns a malformed non-array (a broken/empty teams catalog has done
   // this), every array consumer (sidebar .reduce, .length, .map) would throw and
@@ -29,7 +27,13 @@ export function useTeamList() {
 
   const removeTeam = useCallback(
     async (id: string) => {
-      await ipcBridge.team.remove.invoke({ id });
+      const result = (await ipcBridge.team.remove.invoke({ id })) as void | {
+        __bridgeError?: boolean;
+        message?: string;
+      };
+      if (result && typeof result === 'object' && result.__bridgeError) {
+        throw new Error(result.message || 'Team deletion was refused');
+      }
       localStorage.removeItem(`team-active-slot-${id}`);
       await mutate();
     },

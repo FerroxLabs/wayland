@@ -11,7 +11,12 @@
  *
  * The checklist renders three signals (install / CLIs / runtime) with a
  * data-status of "ok" or "pending", and a Test button that probes the local
- * IJFW MCP server via `ipcBridge.ijfw.brainInvoke({ verb: 'state' })`.
+ * IJFW MCP server via `ipcBridge.ijfw.brainInvoke({ verb: 'metrics' })`.
+
+ * The probe verb is deliberately `metrics`, not `state`: `state` direct-maps to
+ * the `ijfw_state` facade, which demands its own inner verb and so answered
+ * "verb (string) is required" for every probe, making Test fail on healthy
+ * installs.
  */
 
 import React from 'react';
@@ -55,7 +60,7 @@ describe('IjfwSetupStatus (#414)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('ijfw-status-item-runtime').getAttribute('data-status')).toBe('ok');
     });
-    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
+    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'metrics' });
   });
 
   it('does NOT probe the runtime (no MCP spawn) when IJFW is not installed', async () => {
@@ -83,7 +88,7 @@ describe('IjfwSetupStatus (#414)', () => {
     expect(runtime.getAttribute('data-status')).toBe('checking');
     expect(screen.queryByText('Degraded (not reachable)')).toBeNull();
     expect(screen.getByText('Checking…')).toBeTruthy();
-    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
+    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'metrics' });
   });
 
   it('marks the runtime row pending when the mount probe rejects', async () => {
@@ -107,7 +112,7 @@ describe('IjfwSetupStatus (#414)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('pass');
     });
-    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'state' });
+    expect(brainInvoke).toHaveBeenCalledWith({ verb: 'metrics' });
   });
 
   it('Test button shows fail when the brain probe errors', async () => {
@@ -126,5 +131,87 @@ describe('IjfwSetupStatus (#414)', () => {
     await waitFor(() => {
       expect(screen.getByTestId('ijfw-settings-test-result').getAttribute('data-result')).toBe('fail');
     });
+  });
+
+  // #891 — a degraded runtime must surface WHY, not a bare "Degraded (not
+  // reachable)". The reason is already on the wire (`IjfwInvokeResult.error` /
+  // `errorReason`); these pin that the renderer stops discarding it. The i18n
+  // mock returns `defaultValue` verbatim and does NOT interpolate `{{...}}`, so
+  // the raw reason must be concatenated outside `t()` and asserted by substring.
+  it('mount probe surfaces the real reason on the runtime row (#891)', async () => {
+    brainInvoke.mockResolvedValue({ ok: false, error: 'method not found: ijfw_state', errorReason: 'mcp_error' });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    await waitFor(() => {
+      const runtime = screen.getByTestId('ijfw-status-item-runtime');
+      expect(runtime.getAttribute('data-status')).toBe('pending');
+      expect(runtime.textContent).toContain('method not found: ijfw_state');
+    });
+  });
+
+  it('mount probe falls back to the errorReason code when error is absent (#891)', async () => {
+    brainInvoke.mockResolvedValue({ ok: false, errorReason: 'timeout' });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    await waitFor(() => {
+      const runtime = screen.getByTestId('ijfw-status-item-runtime');
+      expect(runtime.getAttribute('data-status')).toBe('pending');
+      expect(runtime.textContent).toContain('timeout');
+    });
+  });
+
+  it('mount probe with an empty-string error falls through to the errorReason code (#891)', async () => {
+    brainInvoke.mockResolvedValue({ ok: false, error: '', errorReason: 'timeout' });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    await waitFor(() => {
+      const runtime = screen.getByTestId('ijfw-status-item-runtime');
+      expect(runtime.getAttribute('data-status')).toBe('pending');
+      expect(runtime.textContent).toContain('timeout');
+    });
+  });
+
+  it('mount probe with no reason preserves the bare degraded label without crashing (#891 regression guard)', async () => {
+    brainInvoke.mockResolvedValue({ ok: false });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    await waitFor(() => {
+      const runtime = screen.getByTestId('ijfw-status-item-runtime');
+      expect(runtime.getAttribute('data-status')).toBe('pending');
+    });
+    const runtime = screen.getByTestId('ijfw-status-item-runtime');
+    expect(runtime.textContent).toContain('Degraded (not reachable)');
+    expect(runtime.textContent).not.toContain('undefined');
+  });
+
+  it('mount probe reject path stays pending with no reason and no crash (#891 regression guard)', async () => {
+    brainInvoke.mockRejectedValue(new Error('boom'));
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    await waitFor(() => {
+      const runtime = screen.getByTestId('ijfw-status-item-runtime');
+      expect(runtime.getAttribute('data-status')).toBe('pending');
+    });
+    const runtime = screen.getByTestId('ijfw-status-item-runtime');
+    expect(runtime.textContent).not.toContain('undefined');
+  });
+
+  it('Test button surfaces the real reason on fail (#891)', async () => {
+    brainInvoke.mockResolvedValue({ ok: false, error: 'method not found: ijfw_state', errorReason: 'mcp_error' });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
+    await waitFor(() => {
+      const result = screen.getByTestId('ijfw-settings-test-result');
+      expect(result.getAttribute('data-result')).toBe('fail');
+      expect(result.textContent).toContain('method not found: ijfw_state');
+    });
+  });
+
+  it('Test button with no reason preserves the fixed fail string (#891 regression guard)', async () => {
+    brainInvoke.mockResolvedValue({ ok: false });
+    render(<IjfwSetupStatus status='installed_current' cliCount={1} />);
+    fireEvent.click(screen.getByTestId('ijfw-settings-test-button'));
+    await waitFor(() => {
+      const result = screen.getByTestId('ijfw-settings-test-result');
+      expect(result.getAttribute('data-result')).toBe('fail');
+    });
+    const result = screen.getByTestId('ijfw-settings-test-result');
+    expect(result.textContent).toContain('Memory did not respond. Check the install status above.');
+    expect(result.textContent).not.toContain('undefined');
   });
 });

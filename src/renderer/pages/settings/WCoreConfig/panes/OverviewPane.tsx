@@ -25,15 +25,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
+import type { IWcoreProfile } from '@/common/adapter/ipcBridge';
 import type { WCoreUpdateCheck, WCoreUpdateProgress } from '@/common/update/wcoreUpdateTypes';
 import { useModelRegistry } from '@/renderer/hooks/useModelRegistry';
 import styles from './Panes.module.css';
 
 /** Total provider catalog size: the headline "104 catalog" figure. */
 const CATALOG_SIZE = 104;
-/** The engine's default profile, as written to disk by wayland-core. */
-const DEFAULT_PROFILE_PATH = '~/.wayland/profiles/default';
-
 type OverviewPaneProps = {
   /** Engine version for the VERSION stat card (live, else the pinned build). */
   version: string;
@@ -65,6 +63,7 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [engineAvailable, setEngineAvailable] = useState<boolean | null>(null);
+  const [activeProfile, setActiveProfile] = useState<IWcoreProfile | null>(null);
   const { providers } = useModelRegistry();
 
   // In-app engine update state: a newer wayland-core release, the live install
@@ -81,6 +80,15 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
         setEngineAvailable(result.data.some((a) => a.backend === 'wcore'));
       }
     });
+  }, []);
+
+  useEffect(() => {
+    void ipcBridge.wcoreProfiles.list
+      .invoke()
+      .then((result) =>
+        setActiveProfile(result.ok ? (result.profiles.find((profile) => profile.active) ?? null) : null)
+      )
+      .catch(() => setActiveProfile(null));
   }, []);
 
   // Check for a newer engine release on mount (best-effort; a network failure
@@ -122,7 +130,9 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
         setInstallError(
           'error' in res && res.error
             ? res.error
-            : t('settings.wcoreConfig.overview.update.errorGeneric', { defaultValue: 'Update failed. Please try again.' })
+            : t('settings.wcoreConfig.overview.update.errorGeneric', {
+                defaultValue: 'Update failed. Please try again.',
+              })
         );
     } catch (err) {
       setInstallError(err instanceof Error ? err.message : String(err));
@@ -271,9 +281,14 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
             {t('settings.wcoreConfig.overview.scProfile', { defaultValue: 'Active Profile' })}
           </div>
           <div className={styles.scValue}>
-            {t('settings.wcoreConfig.overview.scProfileDefault', { defaultValue: 'Default' })}
+            {activeProfile?.name ??
+              t('settings.wcoreConfig.overview.scProfileUnavailable', { defaultValue: 'Unavailable' })}
           </div>
-          <div className={`${styles.scMeta} ${styles.scMetaMono}`}>{DEFAULT_PROFILE_PATH}</div>
+          <div className={`${styles.scMeta} ${styles.scMetaMono}`}>
+            {activeProfile?.dir
+              ? activeProfile.dir
+              : t('settings.wcoreConfig.overview.scProfilePathUnavailable', { defaultValue: 'Path unavailable' })}
+          </div>
         </div>
       </div>
 
@@ -420,7 +435,7 @@ const OverviewPane: React.FC<OverviewPaneProps> = ({ version }) => {
           <div className={styles.engineOwnedLine}>
             {t('settings.wcoreConfig.overview.engineOwnedLine', {
               defaultValue:
-                'Tools, Memory, Security and Profiles are the engine’s own: written to ~/.wayland-core/config.toml and shared with the Wayland Core CLI.',
+                'Tools, Memory, Security and Profiles belong to the active Core profile shown above and are shared with the Wayland Core CLI. Raw Engine Mode uses Core’s standalone configuration instead.',
             })}
           </div>
         </div>

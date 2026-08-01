@@ -34,6 +34,9 @@ import path from 'path';
 import { migrateConversationToDatabase } from './migrationUtils';
 import { ConversationSideQuestionService } from './services/ConversationSideQuestionService';
 import { getDatabase } from '@process/services/database';
+import { mcpRuntimeFingerprint, mcpSessionFingerprint } from '@/common/mcp';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import { McpSessionRebindCoordinator } from './services/McpSessionRebindCoordinator';
 
 const refreshTrayMenuSafely = async (): Promise<void> => {
   try {
@@ -53,12 +56,25 @@ const VALID_CONVERSATION_TYPES = new Set<TChatConversation['type']>([
   'wcore',
 ]);
 
+const MCP_SESSION_TASK_TYPES = new Set(['gemini', 'acp', 'codex', 'wcore']);
+
+export function shouldRebuildForMcpFingerprint(
+  taskType: string | undefined,
+  appliedFingerprint: string | undefined,
+  currentFingerprint: string | undefined
+): boolean {
+  return Boolean(
+    taskType && MCP_SESSION_TASK_TYPES.has(taskType) && currentFingerprint && appliedFingerprint !== currentFingerprint
+  );
+}
+
 export function initConversationBridge(
   conversationService: IConversationService,
   workerTaskManager: IWorkerTaskManager,
   teamSessionService?: TeamSessionService
 ): void {
   const sideQuestionService = new ConversationSideQuestionService(conversationService);
+  const mcpRebindCoordinator = new McpSessionRebindCoordinator<IAgentManager>();
 
   const emitConversationListChanged = (
     conversation: Pick<TChatConversation, 'id' | 'source'>,
@@ -266,22 +282,59 @@ export function initConversationBridge(
         return result;
       } catch (error) {
         console.error('[conversationBridge] Failed to create conversation with conversation:', error);
-        return Promise.resolve(conversation);
+        return null;
       }
     }
   );
 
   ipcBridge.conversation.remove.provider(async ({ id }) => {
     try {
-      // Get conversation source before deletion (for channel cleanup)
+      // Retain the pre-delete projection for the list-changed event only.
+      // Cleanup eligibility is decided atomically by the database commit.
       const conversation = await conversationService.getConversation(id);
-      const source = conversation?.source;
 
-      // Kill the running task if exists
-      workerTaskManager.kill(id);
+      // A chat and its schedules are separate durable user objects. Never
+      // cascade-delete schedules as a side effect of removing chat history.
+      // Fail closed if schedule authority cannot prove that the chat is clear;
+      // the user can manage the schedules explicitly in Automations and retry.
+      try {
+        const { inspectConversationDeletionSchedules } = await import('@process/services/conversationDeletionSafety');
+        const inspection = await inspectConversationDeletionSchedules(id);
+        if (inspection.jobs.length > 0) {
+          console.warn(
+            `[conversationBridge] Refusing to remove conversation ${id}: ${inspection.jobs.length} scheduled task(s) remain`
+          );
+          return false;
+        }
+      } catch (scheduleAuthorityError) {
+        console.warn(
+          `[conversationBridge] Refusing to remove conversation ${id}: schedule authority is unavailable`,
+          scheduleAuthorityError
+        );
+        return false;
+      }
 
-      // If source is not 'wayland' (e.g., telegram), cleanup channel resources
-      if (source && source !== 'wayland') {
+      const removed = await workerTaskManager.withConversationShutdown(
+        id,
+        async () => {
+          // Resolve the database authority while the terminal gate is held, but
+          // do not sever persisted chat state until every successor raced into
+          // this asynchronous preparation has also stopped.
+          return conversationService.prepareDeleteConversation(id);
+        },
+        (commitDelete) => {
+          // Conversation deletion severs persisted chat state only. The workspace
+          // path is intentionally never handed to a filesystem mutation service:
+          // managed files remain byte-for-byte available for later human review.
+          commitDelete();
+          return true;
+        }
+      );
+      // Channel cleanup is an irreversible external side effect. It must run
+      // only after the durable conversation deletion commits; otherwise a
+      // later fail-closed process/database error leaves a retained chat with
+      // its channel resources already destroyed.
+      if (removed) {
         try {
           // Dynamic import to avoid circular dependency
           const { getChannelManager } = await import('@process/channels/core/ChannelManager');
@@ -291,39 +344,25 @@ export function initConversationBridge(
           }
         } catch (cleanupError) {
           console.warn('[conversationBridge] Failed to cleanup channel resources:', cleanupError);
-          // Continue with deletion even if cleanup fails
+          // Durable deletion already committed. Its transaction retained an
+          // idempotent cleanup intent that ChannelManager retries in-process
+          // and replays after restart.
         }
       }
-
-      // v0.6.2.6.1 (Gemini G-R-03 fix) - cascade-clean cron jobs bound to
-      // this conversation BEFORE deleting it. Without this, cron_jobs rows
-      // referencing a deleted conversation continue firing, fail to load
-      // the conversation, and burn retries forever. Best-effort: log but
-      // don't block the delete if cron cleanup throws.
       try {
-        const { cronService } = await import('@process/services/cron/cronServiceSingleton');
-        const orphanedJobs = await cronService.listJobsByConversation(id);
-        for (const job of orphanedJobs) {
-          try {
-            await cronService.removeJob(job.id);
-          } catch (jobErr) {
-            console.warn(
-              `[conversationBridge] Failed to remove cron job ${job.id} during conversation delete:`,
-              jobErr
-            );
-          }
-        }
-      } catch (cronCleanupErr) {
-        console.warn('[conversationBridge] Failed to enumerate cron jobs for conversation delete:', cronCleanupErr);
+        removeFromMessageCache(id);
+      } catch (cacheError) {
+        console.warn('[conversationBridge] Failed to remove deleted conversation from message cache:', cacheError);
       }
-
-      await conversationService.deleteConversation(id);
-      removeFromMessageCache(id);
       if (conversation) {
-        emitConversationListChanged(conversation, 'deleted');
+        try {
+          emitConversationListChanged(conversation, 'deleted');
+        } catch (eventError) {
+          console.warn('[conversationBridge] Failed to emit deleted conversation state:', eventError);
+        }
       }
       await refreshTrayMenuSafely();
-      return true;
+      return removed;
     } catch (error) {
       console.error('[conversationBridge] Failed to remove conversation:', error);
       return false;
@@ -456,10 +495,10 @@ export function initConversationBridge(
     };
   })();
 
-  ipcBridge.conversation.getWorkspace.provider(async ({ workspace, search, path }) => {
+  ipcBridge.conversation.getWorkspace.provider(async ({ workspace, search, path: requestedPath }) => {
     try {
       const fileService = GeminiAgent.buildFileServer(workspace);
-      return await readDirectoryRecursive(path, {
+      return await readDirectoryRecursive(requestedPath, {
         root: workspace,
         fileService,
         abortController: buildLastAbortController(),
@@ -561,8 +600,56 @@ export function initConversationBridge(
     }
     const { conversation_id, files, ...other } = params;
     let task: IAgentManager | undefined;
+    const preSendConversation = await conversationService
+      .getConversation(conversation_id)
+      .catch((): undefined => undefined);
     try {
-      task = await workerTaskManager.getOrBuildTask(conversation_id);
+      const existingTask = workerTaskManager.getTask(conversation_id);
+      const taskType = existingTask?.type ?? preSendConversation?.type;
+      if (taskType && MCP_SESSION_TASK_TYPES.has(taskType)) {
+        const runtimeMcpConfig = await loadRuntimeMcpServers();
+        const { mcpService } = await import('@process/services/mcpServices/McpService');
+        const runtimeMcpAuthority = await mcpService.attachOAuthTokens(runtimeMcpConfig);
+        const currentMcpFingerprint = mcpSessionFingerprint(
+          mcpRuntimeFingerprint(runtimeMcpAuthority),
+          (preSendConversation?.extra as { activeMcpServers?: string[] } | undefined)?.activeMcpServers
+        );
+        const appliedMcpFingerprint = (preSendConversation?.extra as { mcpRuntimeFingerprint?: string } | undefined)
+          ?.mcpRuntimeFingerprint;
+        const result = await mcpRebindCoordinator.getOrRebind({
+          conversationId: conversation_id,
+          taskType,
+          appliedFingerprint: appliedMcpFingerprint,
+          currentFingerprint: currentMcpFingerprint,
+          build: async () => workerTaskManager.getOrBuildTask(conversation_id),
+          kill: async () => workerTaskManager.kill(conversation_id),
+          clearAuthority: async (generation) => {
+            await conversationService.updateConversation(
+              conversation_id,
+              {
+                extra: {
+                  mcpRuntimeFingerprint: undefined,
+                  mcpRuntimeGeneration: generation,
+                  mcpSessionState: undefined,
+                },
+              } as Partial<TChatConversation>,
+              true
+            );
+          },
+          persistAuthority: async (fingerprint, generation) => {
+            await conversationService.updateConversation(
+              conversation_id,
+              {
+                extra: { mcpRuntimeFingerprint: fingerprint, mcpRuntimeGeneration: generation },
+              } as Partial<TChatConversation>,
+              true
+            );
+          },
+        });
+        task = result.task;
+      } else {
+        task = await workerTaskManager.getOrBuildTask(conversation_id);
+      }
     } catch (err) {
       console.error(`[conversationBridge] sendMessage: failed to get/build task: ${conversation_id}`, err);
       return {
@@ -622,9 +709,7 @@ export function initConversationBridge(
     // can both (a) prepend the per-turn WORKFLOW_STEP_CONTEXT block to the user
     // channel (SPEC §7.2) and (b) wire it through to prepareFirstMessage so the
     // static WORKFLOW_PROTOCOL system block (SPEC §7.1 / W4.3) is injected too.
-    const sendMessageConversation = await conversationService
-      .getConversation(conversation_id)
-      .catch((): undefined => undefined);
+    const sendMessageConversation = preSendConversation;
     const sendMessageExtra = sendMessageConversation?.extra as unknown as { workflowSessionId?: string } | undefined;
     const workflowSessionId = sendMessageExtra?.workflowSessionId;
     if (workflowSessionId) {

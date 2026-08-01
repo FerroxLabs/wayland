@@ -1,104 +1,81 @@
 /**
- * Channels – enable / disable toggle tests.
+ * Channels settings index (route `/settings/channels`).
+ *
+ * Channels was lifted out of the WebUI settings tab into its own top-level
+ * route (`Router.tsx` -> `/settings/channels`, `ChannelsIndex/index.tsx`).
+ * The page is a card grid grouped into three "Tier" tabs; each card is an
+ * `<article role="button">` whose accessible name carries the channel's
+ * display name. Clicking a card routes to `/settings/channels/:id` where the
+ * per-channel setup + disconnect UI lives - there are no inline toggle
+ * switches on the index anymore, so the old `data-channel-switch-for`
+ * assertions no longer apply.
  *
  * Covers:
- *  - Navigating to the channels settings (webui tab → channels sub-tab)
- *  - Channel list renders with known channels
- *  - Toggle switches are visible for active channels
- *  - "Coming soon" channels have disabled toggles
+ *  - The channels index renders on its own route with known cards.
+ *  - Tier-1 mass-market channels (Telegram / Slack / Discord) are listed.
+ *  - The Tier-2 tab reveals the regional channels (Lark / DingTalk).
+ *  - Clicking a channel card navigates to that channel's detail route.
  */
 import { test, expect } from '../fixtures';
-import { goToChannelsTab, channelItemById, channelSwitchById, takeScreenshot, waitForClassChange } from '../helpers';
+import { goToChannelsTab, takeScreenshot } from '../helpers';
+import type { Page } from '@playwright/test';
 
-const ACTIVE_CHANNEL_IDS = ['telegram', 'lark', 'dingtalk'] as const;
-const COMING_SOON_CHANNEL_IDS = ['slack', 'discord'] as const;
+/** Match a channel card on the index by its visible display name. */
+function channelCard(page: Page, name: string | RegExp) {
+  return page.getByRole('button', { name }).first();
+}
 
 test.describe('Channels', () => {
   test('channels settings page renders', async ({ page }) => {
     await goToChannelsTab(page);
-    await expect(page.locator(channelItemById('telegram'))).toBeVisible({ timeout: 8_000 });
+    await expect(channelCard(page, /Telegram/i)).toBeVisible({ timeout: 8_000 });
   });
 
-  test('known channels are listed', async ({ page }) => {
+  test('known tier-1 channels are listed', async ({ page }) => {
     await goToChannelsTab(page);
 
-    const visibleCount = (
-      await Promise.all(
-        ACTIVE_CHANNEL_IDS.map(async (id) => {
-          return (await page.locator(channelItemById(id)).count()) > 0 ? 1 : 0;
-        })
-      )
-    ).reduce((sum, n) => sum + n, 0);
-
-    expect(visibleCount).toBeGreaterThanOrEqual(2);
-  });
-
-  test('toggle switches are visible for channels', async ({ page }) => {
-    await goToChannelsTab(page);
-
-    const visibleSwitches = (
-      await Promise.all(
-        ACTIVE_CHANNEL_IDS.map(async (id) => {
-          const sw = page.locator(channelSwitchById(id)).first();
-          return (await sw.count()) > 0 ? 1 : 0;
-        })
-      )
-    ).reduce((sum, n) => sum + n, 0);
-
-    expect(visibleSwitches).toBeGreaterThanOrEqual(1);
-  });
-
-  test('can toggle a channel switch', async ({ page }) => {
-    await goToChannelsTab(page);
-
-    let toggled = false;
-    for (const id of ACTIVE_CHANNEL_IDS) {
-      const sw = page.locator(channelSwitchById(id)).first();
-      if ((await sw.count()) === 0) continue;
-
-      await expect(sw).toBeVisible({ timeout: 5_000 });
-      const classBefore = await sw.getAttribute('class');
-      if (classBefore?.includes('arco-switch-disabled')) continue;
-
-      const checkedBefore = classBefore?.includes('arco-switch-checked');
-      await sw.click();
-      await waitForClassChange(sw, 1200);
-
-      const classAfter = await sw.getAttribute('class');
-      const checkedAfter = classAfter?.includes('arco-switch-checked');
-      toggled = true;
-
-      if (checkedBefore !== checkedAfter) {
-        await sw.click();
-        await waitForClassChange(sw, 1000);
-      }
-      break;
+    // Telegram / Slack / Discord all live in Tier 1, which is the default tab.
+    for (const name of [/Telegram/i, /Slack/i, /Discord/i]) {
+      await expect(channelCard(page, name)).toBeVisible({ timeout: 8_000 });
     }
-
-    expect(toggled).toBeTruthy();
   });
 
-  test('coming-soon channels have disabled switches', async ({ page }) => {
+  test('tier-2 tab reveals regional channels', async ({ page }) => {
     await goToChannelsTab(page);
 
-    for (const id of COMING_SOON_CHANNEL_IDS) {
-      const item = page.locator(`${channelItemById(id)}[data-channel-status="coming_soon"]`).first();
-      await expect(item).toBeVisible({ timeout: 8_000 });
+    // Lark / DingTalk are Tier-2 entries and only render once the Tier 2 tab
+    // is active. Click the tab by its title, then assert the cards mount.
+    const tier2Tab = page
+      .locator('.arco-tabs-header-title')
+      .filter({ hasText: /Tier 2/i })
+      .first();
+    await tier2Tab.waitFor({ state: 'visible', timeout: 8_000 });
+    await tier2Tab.click();
 
-      const sw = item.locator(channelSwitchById(id)).first();
-      await expect(sw).toBeVisible({ timeout: 5_000 });
+    await expect(channelCard(page, /Lark/i)).toBeVisible({ timeout: 8_000 });
+    await expect(channelCard(page, /DingTalk/i)).toBeVisible({ timeout: 8_000 });
+  });
 
-      const cls = (await sw.getAttribute('class')) || '';
-      const ariaDisabled = await sw.getAttribute('aria-disabled');
-      const dataDisabled = await sw.getAttribute('data-channel-switch-disabled');
-      const disabledAttr = await sw.getAttribute('disabled');
-      expect(
-        cls.includes('arco-switch-disabled') ||
-          ariaDisabled === 'true' ||
-          dataDisabled === 'true' ||
-          disabledAttr !== null
-      ).toBeTruthy();
-    }
+  test('clicking a channel card opens its detail route', async ({ page }) => {
+    await goToChannelsTab(page);
+
+    // The channels page persists its Arco tab selection across SPA navigations,
+    // so a prior test may have left a non-Tier-1 tab active. Telegram is a
+    // Tier-1 entry - make sure Tier 1 is active before selecting its card.
+    await page
+      .locator('.arco-tabs-header-title')
+      .filter({ hasText: /Tier 1/i })
+      .first()
+      .click();
+
+    await channelCard(page, /Telegram/i).click();
+
+    // The card navigates to `/settings/channels/telegram`; assert the hash
+    // route settled and the detail shell rendered its Telegram title.
+    await page.waitForFunction(() => window.location.hash.includes('/settings/channels/telegram'), undefined, {
+      timeout: 8_000,
+    });
+    await expect(page.getByText(/Telegram/i).first()).toBeVisible({ timeout: 8_000 });
   });
 
   test('screenshot: channels settings', async ({ page }) => {

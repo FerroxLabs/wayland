@@ -1,0 +1,21 @@
+{
+  "source_path": "/Users/seandonahoe/gsd-workspaces/wayland-desktop-gsd/app/docs/desktop-overhaul-source/PRODUCT-STRATEGY.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Product strategy: the outcome operating system",
+  "summary": "Defines Wayland's outcome-oriented product promise, interaction model, information architecture, artifact lifecycle, trust UX, and success metrics.",
+  "scope": [
+    "Wayland",
+    "product promise",
+    "information architecture",
+    "Home",
+    "artifact lifecycle",
+    "trust UX",
+    "success metrics"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 3,
+  "notes": ""
+}

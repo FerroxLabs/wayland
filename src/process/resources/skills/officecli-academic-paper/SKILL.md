@@ -9,14 +9,9 @@ description: "Use this skill to build academic-style .docx output: journal / con
 
 When the docx base rules cover it, the text here says `→ see docx v2 §X`. Read docx v2 first if you have not.
 
-## Setup
+## Runtime contract
 
-If `officecli` is missing:
-
-- **macOS / Linux**: `curl -fsSL https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.sh | bash`
-- **Windows (PowerShell)**: `irm https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.ps1 | iex`
-
-Verify with `officecli --version` (open a new terminal if PATH hasn't picked up). If install fails, download a binary from https://github.com/iOfficeAI/OfficeCLI/releases.
+Wayland Desktop supplies a checksum-pinned native `officecli` runtime. Do not install, update, download, or replace it from this skill. Native authoring requires the exact verified `1.0.136` version. If `officecli --version` or the required `officecli --help` surface fails, stop and use Wayland's reinstall/update recovery path; never bootstrap mutable code or silently switch to hosted-credit generation.
 
 ## ⚠️ Help-First Rule
 

@@ -13,6 +13,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
  */
 
 type IpcListener = (event: unknown, ...args: unknown[]) => void;
+type ExposedApi = {
+  weixinLoginOnQR: (callback: (data: { qrcodeUrl: string }) => void) => () => void;
+  weixinLoginOnScanned: (callback: () => void) => () => void;
+  weixinLoginOnDone: (callback: (data: { accountId: string }) => void) => () => void;
+  getConstitutionClassicRecovery: () => Promise<unknown>;
+  decideConstitutionClassicRecovery: (request: unknown) => Promise<unknown>;
+  resumeConstitutionClassicRecovery: (request: unknown) => Promise<unknown>;
+};
 
 // Minimal in-memory ipcRenderer that mirrors Electron's add/remove semantics.
 const listeners: Record<string, IpcListener[]> = {};
@@ -30,12 +38,12 @@ const ipcRenderer = {
 };
 
 // Capture the object passed to contextBridge.exposeInMainWorld('electronAPI', ...)
-let exposedApi: Record<string, any> = {};
+let exposedApi = {} as ExposedApi;
 
 vi.mock('electron', () => ({
   contextBridge: {
-    exposeInMainWorld: vi.fn((_key: string, api: Record<string, any>) => {
-      exposedApi = api;
+    exposeInMainWorld: vi.fn((_key: string, api: unknown) => {
+      exposedApi = api as ExposedApi;
     }),
   },
   ipcRenderer,
@@ -47,7 +55,10 @@ vi.mock('../../src/common/adapter/constant', () => ({
 }));
 
 // `window` is referenced at module top-level for tray events.
-(globalThis as any).window = { dispatchEvent: vi.fn() };
+Object.defineProperty(globalThis, 'window', {
+  configurable: true,
+  value: { dispatchEvent: vi.fn() },
+});
 
 function emit(channel: string, payload?: unknown) {
   for (const l of (listeners[channel] ?? []).slice()) {
@@ -157,5 +168,33 @@ describe('weixin login preload listeners (RT-F4-03)', () => {
     emit('weixin:login:done', { accountId: 'acct' });
 
     expect(order).toEqual(['qr', 'scanned', 'done']);
+  });
+});
+
+describe('Constitution Classic recovery preload boundary', () => {
+  it('exposes only the exact metadata, decision, and resume IPC channels', async () => {
+    const decision = {
+      operationId: '11111111-1111-4111-8111-111111111111',
+      projectionReceiptSha256: `sha256:${'a'.repeat(64)}`,
+      expectedRecoveryRevision: 'recovery:v1',
+      password: 'correct',
+      decision: { kind: 'promote' },
+    };
+    const resume = {
+      operationId: '22222222-2222-4222-8222-222222222222',
+      promotionId: '33333333-3333-4333-8333-333333333333',
+      projectionReceiptSha256: `sha256:${'a'.repeat(64)}`,
+      expectedRecoveryRevision: 'recovery:v2',
+      expectedJournalHeadSha256: `sha256:${'b'.repeat(64)}`,
+      password: 'correct',
+    };
+
+    await exposedApi.getConstitutionClassicRecovery();
+    await exposedApi.decideConstitutionClassicRecovery(decision);
+    await exposedApi.resumeConstitutionClassicRecovery(resume);
+
+    expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(1, 'constitution:classic-recovery:get');
+    expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(2, 'constitution:classic-recovery:decision', decision);
+    expect(ipcRenderer.invoke).toHaveBeenNthCalledWith(3, 'constitution:classic-recovery:resume', resume);
   });
 });

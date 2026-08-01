@@ -26,6 +26,7 @@ on:
 
 env:
   BUN_INSTALL_REGISTRY: 'https://registry.npmjs.org/'
+  WAYLAND_RELEASE_TRACK: 'stable'
   WAYLAND_HUB_TAG: 'dist-ebc6a2b'
   # The FerroxLabs/waylandHub repo/tag does not exist yet, so
   # prepareHubResources.js fails ("Failed to download index.json from all
@@ -37,8 +38,8 @@ env:
   # six platform archives + verified shasums, so prepareWaylandCore.js downloads
   # and bundles the matching binary at build time (auth via the GH_TOKEN passed
   # to the build step). There is NO runtime download fallback, so the release
-  # MUST bundle the engine here. PR/test builds (build-matrix.yml, pr-checks.yml)
-  # keep WCORE_SKIP=1 to stay fast; only this release path ships the engine.
+  # MUST bundle the engine here. Native package smoke in build-matrix.yml also
+  # bundles it; lightweight pr-checks.yml keeps WCORE_SKIP=1.
   WCORE_SKIP: '0'
   # aionrs binary version to bundle (used by scripts/prepareAionrs.js)
   AIONRS_VERSION: 'latest'
@@ -51,6 +52,8 @@ jobs:
   code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     if: ${{ !inputs.skip_code_quality }}
     env:
       # tsc OOMs at Node's ~2GB default old-space on this codebase; pr-checks.yml
@@ -96,17 +99,82 @@ jobs:
       - name: TypeScript type check
         run: bunx tsc --noEmit
 
+  capability-acceptance:
+    name: Candidate capability acceptance
+    runs-on: ubuntu-latest
+    needs: code-quality
+    if: ${{ always() && (inputs.skip_code_quality || needs.code-quality.result == 'success') }}
+    permissions:
+      actions: read
+      contents: read
+
+    outputs:
+      artifact-name: ${{ steps.candidate.outputs.artifact-name }}
+
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Capture exact candidate
+        id: candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          commit="$(git rev-parse HEAD)"
+          tree="$(git rev-parse HEAD^{tree})"
+          test -z "$(git status --porcelain=v1 --untracked-files=all)"
+          if [ "${commit}" != "${GITHUB_SHA}" ]; then
+            echo "Refusing to attest a checkout that differs from the workflow's immutable source commit." >&2
+            exit 1
+          fi
+          echo "commit=${commit}" >> "$GITHUB_OUTPUT"
+          echo "tree=${tree}" >> "$GITHUB_OUTPUT"
+          echo "artifact-name=capability-acceptance-${commit}" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate structured exact capability acceptance receipts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/capability-seal/generateCapabilityAcceptanceReceipts.js \
+            --out "${RUNNER_TEMP}/capability-acceptance"
+
+      - name: Upload untrusted capability evidence for protected verification
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ steps.candidate.outputs.artifact-name }}
+          path: ${{ runner.temp }}/capability-acceptance
+          if-no-files-found: error
+          retention-days: 7
+
   build:
     name: Build ${{ matrix.platform }}
     runs-on: ${{ matrix.os }}
+    permissions:
+      actions: read
+      contents: read
     # Defense in depth: without this, a hung step (e.g. codesign blocking on
     # Apple's timestamp server) rides GitHub's 6h default — three v0.9.7 runs
     # wedged 90-160 min before manual cancel. 120 sits clear of a slow-but-healthy
     # build (~50-60 min build + two ~20 min notary waits can stack) yet still cuts
     # a true wedge well before 6h so auto-retry kicks in.
     timeout-minutes: 120
-    needs: code-quality
-    if: ${{ always() && (inputs.skip_code_quality || needs.code-quality.result == 'success') }}
+    needs: [code-quality, capability-acceptance]
+    if: ${{ always() && (inputs.skip_code_quality || needs.code-quality.result == 'success') && needs.capability-acceptance.result == 'success' }}
 
     outputs:
       commit-short: ${{ steps.commit.outputs.short }}
@@ -173,6 +241,25 @@ jobs:
 
       - name: Run postinstall
         run: bun run postinstall || true
+
+      - name: Download exact capability acceptance authority
+        uses: actions/download-artifact@v7
+        with:
+          name: ${{ needs.capability-acceptance.outputs.artifact-name }}
+          path: ${{ runner.temp }}/capability-acceptance
+
+      # This used to be a job-level `env:` entry, but the `runner` context does
+      # not exist there (only github/inputs/needs/matrix/strategy/secrets/vars do),
+      # so the whole workflow file failed validation and every push produced a
+      # zero-job failed run. Exporting it from a step, where `runner` IS
+      # available, keeps the same job-wide value for the three electron-builder
+      # steps that consume it. The expression is identical to the download path
+      # above so the two cannot drift apart.
+      - name: Export capability acceptance authority path
+        shell: bash
+        env:
+          RECEIPTS_DIR: ${{ runner.temp }}/capability-acceptance
+        run: echo "WAYLAND_CAPABILITY_RECEIPTS_DIR=${RECEIPTS_DIR}" >> "$GITHUB_ENV"
 
       - name: Setup Windows native dependencies (for Windows only)
         if: startsWith(matrix.platform, 'windows')
@@ -270,7 +357,31 @@ jobs:
         if: startsWith(matrix.platform, 'linux')
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential python3 python3-pip pkg-config libsqlite3-dev fakeroot dpkg-dev rpm libnss3-dev libatk-bridge2.0-dev libdrm2 libxkbcommon-dev libxss1 libatspi2.0-dev libgtk-3-dev libxrandr2 libasound2-dev
+          sudo apt-get install -y build-essential python3 python3-pip pkg-config libsqlite3-dev fakeroot dpkg-dev rpm libnss3-dev libatk-bridge2.0-dev libdrm2 libxkbcommon-dev libxss1 libatspi2.0-dev libgtk-3-dev libxrandr2 libasound2-dev xvfb
+
+      - name: Assert native runner identity
+        shell: bash
+        env:
+          TARGET_PLATFORM: ${{ matrix.target_platform }}
+          TARGET_ARCH: ${{ matrix.arch }}
+        run: |
+          node -e 'if (process.platform !== process.env.TARGET_PLATFORM || process.arch !== process.env.TARGET_ARCH) { throw new Error(`runner ${process.platform}-${process.arch} cannot prove ${process.env.TARGET_PLATFORM}-${process.env.TARGET_ARCH}`) }'
+
+      - name: Capture pre-build packaged content state
+        id: package-candidate-state
+        shell: bash
+        env:
+          TARGET_PLATFORM: ${{ matrix.target_platform }}
+          TARGET_ARCH: ${{ matrix.arch }}
+        run: |
+          node scripts/platform-package-smoke.mjs \
+            --out out \
+            --target-platform "$TARGET_PLATFORM" \
+            --target-arch "$TARGET_ARCH" \
+            --release-track "$WAYLAND_RELEASE_TRACK" \
+            --capture-state "${{ runner.temp }}/wayland-package-candidate-state.json" \
+            --github-output "$GITHUB_OUTPUT"
+          rm -rf out
 
       - name: Rebuild native modules for Electron (Windows)
         if: startsWith(matrix.platform, 'windows')
@@ -414,8 +525,9 @@ jobs:
             Write-Host "Windows build completed successfully"
           } catch {
             $BuildFailed = $true
-            Write-Warning "${{ matrix.platform }} build failed but will not block the workflow"
-            Write-Host "::notice title=Windows build skipped::${{ matrix.platform }} build failed (see logs above) but workflow is allowed to continue."
+            "result=failure" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+            Write-Error "${{ matrix.platform }} build failed; packaged smoke cannot be skipped. $_"
+            throw
           }
 
           if ($BuildFailed) {
@@ -465,7 +577,7 @@ jobs:
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           # CI flag & GitHub token / CI 标识与 GitHub Token
           CI: true
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
 
       # Clean up any stale disk images before DMG creation (macOS only)
       # 清理可能残留的磁盘镜像，避免 hdiutil "Device not configured" 错误
@@ -489,7 +601,13 @@ jobs:
         id: macos-build
         shell: bash
         run: |
-          set +e  # Handle errors manually
+          set +e  # Preserve the real build exit code through tee.
+
+          # A previous attempt's artifact is never evidence for this attempt.
+          # The build script's notarization hooks already degrade Apple service
+          # stalls to warnings, so any non-zero command exit is a real build or
+          # post-package verification failure and must remain fatal.
+          rm -f out/*.dmg
 
           # Run build command
           ${{ matrix.command }} 2>&1 | tee "${RUNNER_TEMP}/build.log"
@@ -509,28 +627,12 @@ jobs:
             exit 0
           fi
 
-          # Build failed - check if it's just notarization failure
-          if [ "$DMG_EXISTS" = true ]; then
-            # DMG exists but build failed - likely notarization issue
-            if grep -qiE "notariz|staple" "${RUNNER_TEMP}/build.log"; then
-              echo "⚠️ DMG created but notarization failed"
-              echo "notarization_status=failed" >> $GITHUB_OUTPUT
-              echo "::warning title=Notarization Failed::DMG was built and signed successfully, but **notarization failed**."
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "## ⚠️ Notarization Warning" >> $GITHUB_STEP_SUMMARY
-              echo "DMG was built and signed successfully, but **notarization failed**." >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "Users may see Gatekeeper warnings when opening the app for the first time." >> $GITHUB_STEP_SUMMARY
-              echo "" >> $GITHUB_STEP_SUMMARY
-              echo "To fix: Right-click the app → Open → Open" >> $GITHUB_STEP_SUMMARY
-              exit 0  # Allow CI to continue
-            fi
-          fi
-
-          # DMG doesn't exist or other fatal error - fail CI
-          echo "❌ Build failed - DMG was not created"
+          # Notarization hooks are non-fatal by contract. Therefore a non-zero
+          # command here cannot be reclassified from log text or artifact
+          # presence: provenance/resource verifier failures must fail closed.
+          echo "❌ Build or post-package verification failed (exit ${BUILD_EXIT_CODE})"
           echo "notarization_status=build_failed" >> $GITHUB_OUTPUT
-          exit 1
+          exit $BUILD_EXIT_CODE
         env:
           NODE_OPTIONS: '--max-old-space-size=8192'
           npm_config_arch: ${{ matrix.arch }}
@@ -555,7 +657,7 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           CI: true
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
 
       # Post-build: repair the macOS update feed. electron-builder computes the
       # dmg's sha512/size at artifact-created time — BEFORE notarizeDmg staples
@@ -598,12 +700,23 @@ jobs:
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
           CI: true
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
+
+      - name: Install and smoke real package payload
+        shell: bash
+        env:
+          TARGET_PLATFORM: ${{ matrix.target_platform }}
+          TARGET_ARCH: ${{ matrix.arch }}
+        run: |
+          node scripts/platform-package-smoke.mjs \
+            --out out \
+            --target-platform "$TARGET_PLATFORM" \
+            --target-arch "$TARGET_ARCH" \
+            --release-track "$WAYLAND_RELEASE_TRACK" \
+            --candidate-state-file "${{ runner.temp }}/wayland-package-candidate-state.json" \
+            --candidate-state-digest "${{ steps.package-candidate-state.outputs.candidate_state_digest }}"
 
       - name: Verify packaged bundled bun assets
-        if: >-
-          !startsWith(matrix.platform, 'windows') ||
-          steps.windows-build.outputs.result == 'success'
         run: bun run test:packaged:bun
 
       # macOS 钥匙串清理
@@ -688,12 +801,15 @@ jobs:
             out/Wayland-*-mac-*.zip
             out/*.yml
             out/*.blockmap
-          if-no-files-found: warn
+            out/platform-package-smoke-*.json
+          if-no-files-found: error
           retention-days: 7
 
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: [code-quality, build]
     if: always()
 

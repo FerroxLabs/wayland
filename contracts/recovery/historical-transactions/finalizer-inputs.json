@@ -1,0 +1,32 @@
+{
+  "contract": "wayland-historical-transaction-corpus-finalizer-inputs/1.0",
+  "schemaVersion": 1,
+  "finalizer": {
+    "artifact": "tests/fixtures/constitution-fs/provenance/finalizeHistoricalConstitutionFixture.ts",
+    "sha256": "sha256:ea861ef5f2891b6f6e494468b166177e2cf064b67560328adfd9388a31e368ef",
+    "version": 1,
+    "claim": "Deterministically enriches the producer-emitted raw manifest with the bound source, harness, toolchain, helper, generator, finalizer, and reproduction evidence; it never changes fixture state bytes."
+  },
+  "boundInputs": {
+    "reproduction": {
+      "artifact": "tests/fixtures/constitution-fs/provenance/reproduction.json",
+      "sha256": "sha256:da5a0c6e6f7e55d486f4eca71b32284c3e570c1833faa5113909eeb0223710fa"
+    },
+    "harnessPatch": {
+      "artifact": "tests/fixtures/constitution-fs/provenance/991c502-fixture-failpoint.patch",
+      "sha256": "sha256:6045787b16bbd549b3e9599c0d449c0e8ad31df56fda5a825424c870c953efa5"
+    },
+    "generator": {
+      "artifact": "tests/fixtures/constitution-fs/provenance/generateHistoricalConstitutionFixture.ts",
+      "sha256": "sha256:f810a5e61c0785e84ee99a11ec2415a99ea0d0316c171045501535190ffb1c3f"
+    },
+    "helperBuildReceipt": {
+      "artifact": "tests/fixtures/constitution-fs/provenance/helper-build-receipt.json",
+      "sha256": "sha256:270d6192e53401ac0a6cabf1fdbcebeca3971ec0ce2dda735c59fd5683475fae"
+    }
+  },
+  "commands": [
+    "cd $CANDIDATE && OUT=$CANDIDATE/tests/fixtures/constitution-fs/base-991c502-committed bun run tests/fixtures/constitution-fs/provenance/finalizeHistoricalConstitutionFixture.ts",
+    "cd $CANDIDATE && OUT=$CANDIDATE/tests/fixtures/constitution-fs/base-991c502-pending-ledger-only bun run tests/fixtures/constitution-fs/provenance/finalizeHistoricalConstitutionFixture.ts"
+  ]
+}

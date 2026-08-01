@@ -384,6 +384,15 @@ packaged-ext:
 packaged-ext-build: build-package
     node scripts/packaged-launch.mjs
 
+# Local packaged-verification build: launchable out/mac-arm64/*.app via --dir.
+# WAYLAND_LOCAL_VERIFICATION=1 omits the release capability seal (NOT a release).
+verify-package: preflight
+    bun run dist:verify:mac
+
+# One-command local smoke: build the verification .app, then drive it over CDP.
+smoke-cockpit: verify-package
+    WAYLAND_CDP_PORT=9340 node scripts/packaged-cockpit-smoke.mjs
+
 # Validate extension system types compile correctly
 ext-typecheck:
     bunx tsc --noEmit --project tsconfig.json

@@ -23,6 +23,15 @@ const mockIpcBridge = vi.hoisted(() => ({
 
 vi.mock('@/common', () => ({ ipcBridge: mockIpcBridge }));
 vi.mock('electron', () => ({ app: { getPath: vi.fn(() => '/tmp') } }));
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  getConstitutionFsService: () => ({
+    capability: () => ({ supported: true as const }),
+    readWithOverlay: () => ({
+      constitution: { status: 'absent' as const, revision: 'rev:test:constitution-absent' },
+      overlay: null,
+    }),
+  }),
+}));
 vi.mock('@process/utils/message', () => ({ addMessage: vi.fn() }));
 vi.mock('@process/agent/acp/AcpDetector', () => ({
   acpDetector: { getDetectedAgents: vi.fn(() => []) },

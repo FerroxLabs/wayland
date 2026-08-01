@@ -9,6 +9,7 @@ import { BookOpen, Bot, Clock, Search, Sparkles, Users } from 'lucide-react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { openExternalUrl } from '@/renderer/utils/platform';
 import PaletteRow from './PaletteRow';
 import {
@@ -65,6 +66,16 @@ const parseValue = (value: string): { kind: keyof typeof VALUE_PREFIX | null; id
   return { kind: null, id: '' };
 };
 
+const actionSubtitle = (action: PaletteAction): string => {
+  if (action.availability === 'unavailable') {
+    return action.unavailableReason ? `Unavailable · ${action.unavailableReason}` : 'Unavailable';
+  }
+  if (action.availability === 'degraded') {
+    return action.unavailableReason ? `Degraded · ${action.unavailableReason}` : `Degraded · ${action.description}`;
+  }
+  return action.description;
+};
+
 /**
  * Global ⌘K command palette.
  *
@@ -86,6 +97,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
   onFillPrompt,
 }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { assistants, recents, prompts, actions = [] } = useCommandPaletteSources();
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -161,10 +173,10 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
     }
     if (kind === 'action') {
       const action = actionById.get(id);
-      if (action?.url) {
-        void openExternalUrl(action.url);
-        onClose();
-      }
+      if (!action || action.availability === 'unavailable') return;
+      if (action.target.kind === 'external') void openExternalUrl(action.target.url);
+      else void navigate(action.target.path, action.target.state ? { state: action.target.state } : undefined);
+      onClose();
     }
   };
 
@@ -214,9 +226,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
               placeholder={t('common.cmdk.placeholder')}
               className='flex-1 bg-transparent border-none outline-none text-14px text-[var(--text-primary)] placeholder-[var(--text-muted)]'
             />
-            <kbd className='text-11px text-[var(--text-muted)] bg-[var(--bg-3)] rounded-4px px-6px py-2px'>
-              Esc
-            </kbd>
+            <kbd className='text-11px text-[var(--text-muted)] bg-[var(--bg-3)] rounded-4px px-6px py-2px'>Esc</kbd>
           </div>
 
           <Command.List className='max-h-400px overflow-y-auto py-8px'>
@@ -237,11 +247,7 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
                         onSelect={() => handleSelect(makeValue('assistant', a.id))}
                         className='px-16px py-10px cursor-pointer data-[selected=true]:bg-[var(--brand-soft-bg)]'
                       >
-                        <PaletteRow
-                          icon={<Bot size={16} />}
-                          title={a.name}
-                          subtitle={a.presetAgentType}
-                        />
+                        <PaletteRow icon={<Bot size={16} />} title={a.name} subtitle={a.presetAgentType} />
                       </Command.Item>
                     );
                   }
@@ -278,11 +284,26 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
                     <Command.Item
                       key={`best-${makeValue('action', action.id)}`}
                       value={`best-${makeValue('action', action.id)}`}
-                      keywords={[t(action.label)]}
+                      keywords={[
+                        action.label,
+                        action.description,
+                        action.capability,
+                        action.intent,
+                        ...action.keywords,
+                      ]}
                       onSelect={() => handleSelect(makeValue('action', action.id))}
+                      disabled={action.availability === 'unavailable'}
+                      aria-disabled={action.availability === 'unavailable'}
+                      data-action-id={action.id}
+                      data-action-availability={action.availability}
                       className='px-16px py-10px cursor-pointer data-[selected=true]:bg-[var(--brand-soft-bg)]'
                     >
-                      <PaletteRow icon={<BookOpen size={16} />} title={t(action.label)} />
+                      <PaletteRow
+                        icon={<BookOpen size={16} />}
+                        title={action.label}
+                        subtitle={actionSubtitle(action)}
+                        hint={action.intent}
+                      />
                     </Command.Item>
                   );
                 })}
@@ -375,11 +396,20 @@ const CommandPalette: React.FC<CommandPaletteProps> = ({
                   <Command.Item
                     key={makeValue('action', a.id)}
                     value={makeValue('action', a.id)}
-                    keywords={[t(a.label)]}
+                    keywords={[a.label, a.description, a.capability, a.intent, ...a.keywords]}
                     onSelect={handleSelect}
+                    disabled={a.availability === 'unavailable'}
+                    aria-disabled={a.availability === 'unavailable'}
+                    data-action-id={a.id}
+                    data-action-availability={a.availability}
                     className='px-16px py-10px cursor-pointer data-[selected=true]:bg-[var(--brand-soft-bg)]'
                   >
-                    <PaletteRow icon={<BookOpen size={16} />} title={t(a.label)} />
+                    <PaletteRow
+                      icon={<BookOpen size={16} />}
+                      title={a.label}
+                      subtitle={actionSubtitle(a)}
+                      hint={a.intent}
+                    />
                   </Command.Item>
                 ))}
               </Command.Group>

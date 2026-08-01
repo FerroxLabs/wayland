@@ -97,13 +97,47 @@ export type TurnCost = {
   cost_usd: number;
 };
 
+export type WCoreContractCapabilityStatus = 'available' | 'publication_bound' | 'shape_only' | 'unavailable';
+
+export type WCoreContractDescriptor = {
+  name: string;
+  major: number;
+  minor: number;
+  generator: string;
+  fixture_digest: string;
+  schema_digest: string;
+  source_inputs_digest: string;
+  capabilities: Record<string, WCoreContractCapabilityStatus>;
+};
+
+export type WCoreExecutionPolicy = {
+  critical: true;
+  contract_version: string;
+  revision: number;
+  reason: 'launch' | 'mode_change' | 'resume' | 'expiry';
+  effective_at_unix_ms: number;
+  policy: {
+    posture: 'smart' | 'managed' | 'dangerous';
+    approvals: 'prompt' | 'auto_edit' | 'bypass';
+    sandbox: 'required' | 'bypass';
+    source: string;
+    managed_floor_active: boolean;
+    dangerous_activation_id?: string;
+    dangerous_expires_at_unix_ms?: number;
+  };
+};
+
 export type WCoreEvent =
   | {
       type: 'ready';
       version: string;
       session_id?: string;
       capabilities: WCoreCapabilities;
+      /** Present only on a negotiated Desktop producer contract. */
+      contract?: WCoreContractDescriptor;
+      execution_policy?: WCoreExecutionPolicy;
     }
+  | ({ type: 'execution_policy' } & WCoreExecutionPolicy)
   | { type: 'stream_start'; msg_id: string }
   | { type: 'text_delta'; text: string; msg_id: string }
   | { type: 'thinking'; text: string; msg_id: string; subject?: string }
@@ -177,6 +211,42 @@ export type WCoreEvent =
       agent_name: string;
       /** Serialized inner `WCoreEvent` from the sub-agent; opaque to the host. */
       inner: unknown;
+      run_id?: string;
+      child_run_id?: string;
+      parent_child_run_id?: string;
+      child_sequence?: number;
+      event_id?: string;
+      terminal_state?: 'succeeded' | 'failed';
+    }
+  | {
+      type: 'workflow_started';
+      workflow_id: string;
+      name: string;
+      node_count: number;
+      run_id: string;
+      event_id: string;
+      sequence: number;
+      parent_run_id?: string;
+    }
+  | {
+      type: 'workflow_node_event';
+      run_id: string;
+      node_id: string;
+      event_id: string;
+      sequence: number;
+      state: 'queued' | 'running' | 'succeeded' | 'failed' | 'blocked';
+      child_run_id?: string;
+      failure?: { code: string; message: string; retryable: boolean };
+    }
+  | {
+      type: 'workflow_finished';
+      workflow_id: string;
+      run_id: string;
+      event_id: string;
+      sequence: number;
+      succeeded: boolean;
+      terminal_state: 'succeeded' | 'failed';
+      failure?: { code: string; message: string; retryable: boolean };
     }
   // ── W7: F4 streaming tool-result chunk ────────────────────────────
   | {
@@ -303,6 +373,36 @@ export type WCoreEvent =
       body: string;
       subject?: string;
       conversation_id?: string;
+    }
+  | {
+      type: 'anvil_receipt';
+      receipt_id: string;
+      event_id: string;
+      origin: 'core/anvil';
+      contract_version: string;
+      session_id: string;
+      run_id: string;
+      task_id: string;
+      sequence: number;
+      artifact_digest: string;
+      gate_closure_digest: string;
+      receipt_body_digest: string;
+      [key: string]: unknown;
+    }
+  | {
+      type: 'anvil_receipt_invalidated';
+      receipt_id: string;
+      event_id: string;
+      origin: 'core/anvil';
+      contract_version: string;
+      session_id: string;
+      run_id: string;
+      task_id: string;
+      sequence: number;
+      reason: 'artifact_mutated' | 'gate_revoked' | 'superseded';
+      prior_artifact_digest: string;
+      invalidation_body_digest: string;
+      [key: string]: unknown;
     };
 
 // ============================================

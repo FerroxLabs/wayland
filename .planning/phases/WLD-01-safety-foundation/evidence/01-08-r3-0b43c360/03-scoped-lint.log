@@ -1,0 +1,103 @@
+$ oxlint src/process/services/workspaceRetention.ts src/process/services/managedWorkspaceInventory.ts src/process/services/managedWorkspaceProvenance.ts src/process/services/desktopManagedWorkspaceInventory.ts src/process/bridge/conversationBridge.ts src/process/bridge/workspaceRetentionBridge.ts src/process/task/WorkerTaskManager.ts src/process/task/AcpAgentManager.ts src/process/agent/acp/utils.ts src/process/utils/initAgent.ts src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx tests/unit/workspaceRetention.test.ts tests/unit/managedWorkspaceInventory.test.ts tests/unit/managedWorkspaceProvenance.test.ts tests/unit/desktopManagedWorkspaceInventory.test.ts tests/unit/conversationBridge.workspaceRetention.test.ts tests/unit/process/bridge/workspaceRetentionBridge.test.ts tests/unit/bridgeAllowlistWorkspaceRetention.redteam.test.ts tests/unit/renderer/pages/settings/storage/ManagedWorkspacesCard.dom.test.tsx
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:136:5]
+ 135 |     const targetSkillsDir = path.join(workspace, skillsRelDir);
+ 136 |     await fs.mkdir(targetSkillsDir, { recursive: true });
+     :     ^^^^^
+ 137 | 
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:141:24]
+ 140 |     try {
+ 141 |       autoSkillNames = await fs.readdir(autoSkillsDir);
+     :                        ^^^^^
+ 142 |     } catch {
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:153:9]
+ 152 |       try {
+ 153 |         await fs.stat(sourceSkillDir);
+     :         ^^^^^
+ 154 |         try {
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:155:11]
+ 154 |         try {
+ 155 |           await fs.lstat(targetSkillDir);
+     :           ^^^^^
+ 156 |           // Already exists, skip
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:158:11]
+ 157 |         } catch {
+ 158 |           await fs.symlink(sourceSkillDir, targetSkillDir, 'junction');
+     :           ^^^^^
+ 159 |           console.log(`[setupAssistantWorkspace] Symlinked builtin skill: ${skillName} -> ${targetSkillDir}`);
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:184:9]
+ 183 |       try {
+ 184 |         await fs.stat(sourceSkillDir);
+     :         ^^^^^
+ 185 |         try {
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:186:11]
+ 185 |         try {
+ 186 |           await fs.lstat(targetSkillDir);
+     :           ^^^^^
+ 187 |           // Already exists, skip
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:189:11]
+ 188 |         } catch {
+ 189 |           await fs.symlink(sourceSkillDir, targetSkillDir, 'junction');
+     :           ^^^^^
+ 190 |           console.log(`[setupAssistantWorkspace] Symlinked skill: ${skillName} -> ${targetSkillDir}`);
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:202:9]
+ 201 |       try {
+ 202 |         await fs.stat(extraPath);
+     :         ^^^^^
+ 203 |         try {
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:204:11]
+ 203 |         try {
+ 204 |           await fs.lstat(targetSkillDir);
+     :           ^^^^^
+ 205 |         } catch {
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[src/process/utils/initAgent.ts:206:11]
+ 205 |         } catch {
+ 206 |           await fs.symlink(extraPath, targetSkillDir, 'junction');
+     :           ^^^^^
+ 207 |           console.log(`[setupAssistantWorkspace] Symlinked extra skill: ${extraPath} -> ${targetSkillDir}`);
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+Found 11 warnings and 0 errors.
+Finished in 20ms on 19 files with 128 rules using 10 threads.

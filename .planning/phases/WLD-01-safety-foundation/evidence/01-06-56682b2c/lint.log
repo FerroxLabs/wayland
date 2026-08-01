@@ -1,0 +1,6 @@
+started_at=2026-07-19T19:29:30Z
+$ oxlint src/process/services/recovery/recoveryCapture.ts src/process/services/recovery/recoveryDryRun.ts src/process/services/recovery/recoveryManifest.ts src/process/services/recovery/recoveryPointBuilder.ts src/process/services/recovery/stateAuthorityInventory.ts tests/unit/process/services/recovery/recoveryCapture.test.ts tests/unit/process/services/recovery/recoveryManifest.test.ts tests/unit/process/services/recovery/recoveryPointBuilder.test.ts tests/unit/process/services/recovery/stateAuthorityInventory.test.ts
+Found 0 warnings and 0 errors.
+Finished in 20ms on 9 files with 128 rules using 10 threads.
+exit_code=0
+finished_at=2026-07-19T19:29:30Z

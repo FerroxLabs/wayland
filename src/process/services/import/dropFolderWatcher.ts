@@ -5,11 +5,12 @@
  *
  * Drop-folder watcher - monitors ~/Documents/Wayland-Memory/ (non-recursive,
  * depth 0) for incoming .md / .txt / .json files, ingests them into the current
- * IJFW memory directory, and deletes the originals.
+ * IJFW memory directory, then archives the originals under `.processed/`.
  *
  * Safety: chokidar is constrained to depth 0 per HANDOFF §10 chokidar safety.
  */
 
+import * as crypto from 'node:crypto';
 import * as fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -21,6 +22,7 @@ import { deriveSummary, deriveTitle, stripBom } from './memoryFrontmatter';
 const DEFAULT_DROP_FOLDER = path.join(os.homedir(), 'Documents', 'Wayland-Memory');
 
 const INGEST_EXTENSIONS = new Set(['.md', '.txt', '.json']);
+const PROCESSED_FOLDER = '.processed';
 
 // Dedup window: basenames ingested within the last 30s are skipped to prevent
 // double-ingest if the unlink fails and chokidar fires the 'add' event again.
@@ -115,6 +117,25 @@ function destFilename(timestamp: number, basename: string): string {
   return `dropped-${timestamp}-${safe}`;
 }
 
+async function archiveIngestedSource(filePath: string, timestamp: number): Promise<void> {
+  const processedDir = path.join(path.dirname(filePath), PROCESSED_FOLDER);
+  await fs.promises.mkdir(processedDir, { recursive: true });
+  const safeName = path.basename(filePath).replace(/[^a-zA-Z0-9._-]/g, '_');
+  const archivePath = path.join(processedDir, `${timestamp}-${crypto.randomUUID()}-${safeName}`);
+
+  // A hard link is an exclusive, same-filesystem publication of the exact
+  // source bytes. Only after it succeeds do we remove the inbox name. If that
+  // final unlink fails, roll back the archive link so the source remains a
+  // single unambiguous pending item.
+  await fs.promises.link(filePath, archivePath);
+  try {
+    await fs.promises.unlink(filePath);
+  } catch (error) {
+    await fs.promises.unlink(archivePath).catch((): undefined => undefined);
+    throw error;
+  }
+}
+
 async function ingestFile(filePath: string, ijfwMemoryDir: string): Promise<void> {
   const ext = path.extname(filePath).toLowerCase();
   const basename = path.basename(filePath);
@@ -174,13 +195,7 @@ async function ingestFile(filePath: string, ijfwMemoryDir: string): Promise<void
   // see it in the Memory UI (#256). Fire-and-forget - never blocks the ingest.
   void indexDroppedMemory({ content: rawContent, summary, sourceFile: basename });
 
-  // Only unlink after a successful write. If unlink fails, log and continue -
-  // the file will be seen again on next event but the dedup window will skip it.
-  try {
-    await fs.promises.unlink(filePath);
-  } catch (unlinkErr) {
-    log.warn('[dropFolderWatcher] unlink failed after write - will dedup on next event', { filePath, unlinkErr });
-  }
+  await archiveIngestedSource(filePath, timestamp);
   markIngested(basename);
 }
 
@@ -303,20 +318,23 @@ export async function runDropFolderProcess(opts?: {
     return result;
   }
 
-  for (const entry of entries) {
-    if (!entry.isFile()) continue;
-    const ext = path.extname(entry.name).toLowerCase();
-    if (!INGEST_EXTENSIONS.has(ext)) continue;
-
-    const filePath = path.join(dropFolder, entry.name);
-    try {
-      await ingestFile(filePath, ijfwMemoryDir);
-      result.count++;
-    } catch (err) {
-      log.warn('[dropFolderWatcher] one-shot ingest failed', { filePath, err });
-      result.errors.push(`${entry.name}: ${String(err)}`);
-    }
-  }
+  const candidates = entries.filter(
+    (entry) => entry.isFile() && INGEST_EXTENSIONS.has(path.extname(entry.name).toLowerCase())
+  );
+  const outcomes = await Promise.all(
+    candidates.map(async (entry): Promise<string | null> => {
+      const filePath = path.join(dropFolder, entry.name);
+      try {
+        await ingestFile(filePath, ijfwMemoryDir);
+        return null;
+      } catch (err) {
+        log.warn('[dropFolderWatcher] one-shot ingest failed', { filePath, err });
+        return `${entry.name}: ${String(err)}`;
+      }
+    })
+  );
+  result.count = outcomes.filter((error) => error === null).length;
+  result.errors.push(...outcomes.filter((error): error is string => error !== null));
 
   return result;
 }

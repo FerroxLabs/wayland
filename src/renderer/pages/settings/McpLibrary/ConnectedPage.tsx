@@ -4,20 +4,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Button, Message, Modal } from '@arco-design/web-react';
-import { Activity, ArrowLeft, RefreshCw, Trash2, AlertTriangle } from 'lucide-react';
+import { Activity, Archive, ArrowLeft, RefreshCw, Trash2, AlertTriangle } from 'lucide-react';
 import PageShell from '@renderer/components/layout/PageShell/PageShell';
 import LibrarySectionHeader from '@renderer/components/layout/library/LibrarySectionHeader';
 import { useConnectedMcps } from './hooks/useConnectedMcps';
 import ConnectedMcpRow from './components/ConnectedMcpRow';
+import ArchivedMcpConnectorsModal from './components/ArchivedMcpConnectorsModal';
 import styles from './ConnectedPage.module.css';
 
 /**
- * Lane 1 — the global "Connected MCPs" overview. Lists every configured + live
- * server with status and per-server tool count, with disconnect/reconnect/remove
+ * Lane 1 — the global MCP connections overview. Lists every configured server
+ * with standalone-probe status and per-server tool count, with disconnect/reconnect/remove
  * per server, and surfaces + clears stale leftover servers carried over from a
  * prior session.
  */
@@ -25,7 +26,9 @@ export function ConnectedPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [message, contextHolder] = Message.useMessage();
-  const { rows, stale, refreshing, refresh, disconnect, reconnect, remove, removeStale } = useConnectedMcps(message);
+  const [showArchived, setShowArchived] = useState(false);
+  const { rows, stale, refreshing, refresh, refreshMcpServers, disconnect, reconnect, remove, removeStale } =
+    useConnectedMcps(message);
 
   const confirmRemove = useCallback(
     (id: string, name: string) => {
@@ -33,11 +36,11 @@ export function ConnectedPage() {
         title: t('mcpLibrary.connected.removeTitle', 'Remove connector?'),
         content: t(
           'mcpLibrary.connected.removeBody',
-          'This removes {{name}} and its config from your agents. You can re-add it any time.',
+          'This archives {{name}} and removes its config from your agents. You can restore the complete definition later.',
           { name }
         ),
         okButtonProps: { status: 'danger' },
-        okText: t('mcpLibrary.connected.remove', 'Remove'),
+        okText: t('mcpLibrary.connected.remove', 'Archive'),
         onOk: () => remove(id),
       });
     },
@@ -69,19 +72,27 @@ export function ConnectedPage() {
       <Button type='primary' loading={refreshing} icon={<RefreshCw size={14} />} onClick={() => void refresh()}>
         {t('mcpLibrary.connected.refresh', 'Refresh')}
       </Button>
+      <Button icon={<Archive size={14} />} onClick={() => setShowArchived(true)}>
+        {t('mcpLibrary.archive.action', 'Archived')}
+      </Button>
     </>
   );
 
   return (
     <>
       {contextHolder}
+      <ArchivedMcpConnectorsModal
+        visible={showArchived}
+        onClose={() => setShowArchived(false)}
+        onRestored={refreshMcpServers}
+      />
       <PageShell
-        title={t('mcpLibrary.connected.title', 'Connected MCPs')}
+        title={t('mcpLibrary.connected.title', 'MCP connections')}
         icon={<Activity size={20} />}
         countLabel={t('mcpLibrary.connected.count', '{{n}} servers', { n: rows.length })}
         subtitle={t(
           'mcpLibrary.connected.subtitle',
-          'Every MCP server Wayland knows about — live status, tool count, and one place to disconnect, reconnect, or remove any of them.'
+          'Saved definitions, standalone probe results, and agent-config publication. Chat availability is verified inside each session.'
         )}
         actions={actions}
         width='standard'

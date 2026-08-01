@@ -5,9 +5,9 @@
  */
 
 import { Message } from '@arco-design/web-react';
-import MonacoEditor from '@monaco-editor/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import HTMLEditor from '../editors/HTMLEditor';
 
 interface HTMLPreviewProps {
   content: string;
@@ -164,26 +164,6 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
   const [selectedElement, setSelectedElement] = useState<SelectedElement | null>(null);
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; element: SelectedElement } | null>(null);
   const [messageApi, messageContextHolder] = Message.useMessage();
-  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
-    return (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
-  });
-
-  // Monitor theme changes
-  useEffect(() => {
-    const updateTheme = () => {
-      const theme = (document.documentElement.getAttribute('data-theme') as 'light' | 'dark') || 'light';
-      setCurrentTheme(theme);
-    };
-
-    const observer = new MutationObserver(updateTheme);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
-
   // Build the iframe document (HTML + optional inspector script) and serve it
   // via a Blob URL so the iframe has an opaque origin. This lets us drop
   // `allow-same-origin` from the sandbox, closing H2 (untrusted preview HTML
@@ -382,23 +362,7 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
         {/* Left: code editor (shown in edit mode) */}
         {editMode && (
           <div className='flex-1 overflow-hidden border-r border-border-base'>
-            <MonacoEditor
-              height='100%'
-              language='html'
-              theme={currentTheme === 'dark' ? 'vs-dark' : 'vs'}
-              value={htmlCode}
-              onChange={(value) => setHtmlCode(value || '')}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 13,
-                lineNumbers: 'on',
-                wordWrap: 'on',
-                automaticLayout: true,
-                scrollBeyondLastLine: false,
-                formatOnPaste: true,
-                formatOnType: true,
-              }}
-            />
+            <HTMLEditor value={htmlCode} onChange={setHtmlCode} filePath={filePath} />
           </div>
         )}
 
@@ -406,7 +370,7 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
         <div className={`${editMode ? 'flex-1' : 'w-full'} overflow-auto bg-white`}>
           <iframe
             ref={iframeRef}
-            src={iframeBlobUrl}
+            src={iframeBlobUrl || undefined}
             className='w-full h-full border-0'
             // Blob URL gives the iframe an opaque origin, so `allow-same-origin`
             // is intentionally dropped (H2). The element inspector talks back

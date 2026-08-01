@@ -37,16 +37,27 @@ import {
 } from '@process/services/workflow/autonomousWatchdog';
 import { handleParentWorkflowTurn } from '@process/services/workflow/parentTurnDriver';
 import { resumeInterruptedParentRuns } from '@process/services/workflow/resumeRuns';
-import {
-  sweepStalledParentRuns,
-  PARENT_WATCHDOG_INTERVAL_MS,
-} from '@process/services/workflow/parentWatchdog';
+import { sweepStalledParentRuns, PARENT_WATCHDOG_INTERVAL_MS } from '@process/services/workflow/parentWatchdog';
 import { setWorkflowSessionService } from '@process/services/workflow/workflowSessionServiceSingleton';
+import { sendWorkflowAdvanceDirective } from '@process/services/workflow/workflowAdvanceReset';
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { agentRegistry } from '@process/agent/AgentRegistry';
 import { resolveDefaultLaunchTarget } from '@process/utils/workflowLaunchTargetResolver';
 import type { TProviderWithModel } from '@/common/config/storage';
+import { app } from 'electron';
+import path from 'node:path';
+import { ConstitutionFsService, setConstitutionFsService } from '@process/services/constitution/constitutionFsService';
+import { ConstitutionArchiveRestoreOperationAuthority } from '@process/services/constitution/constitutionArchiveRestoreAuthority';
+import {
+  ConstitutionArchiveRecoveryService,
+  ConstitutionArchiveRecoveryServiceError,
+  setConstitutionArchiveRecoveryService,
+} from '@process/services/constitution/constitutionArchiveRecoveryService';
+import { decryptString, encryptString } from '@process/secrets/safeStorage';
+import { verifyCurrentPassword } from '@process/bridge/webuiDirectAuth';
+import { createProductionConstitutionClassicRecoveryService } from '@process/services/constitution/constitutionClassicRecoveryRuntime';
+import { setConstitutionClassicRecoveryServiceReady } from '@process/services/constitution/constitutionClassicRecoveryService';
 
 logger.config({ print: true });
 
@@ -64,6 +75,40 @@ const teamSessionService = new TeamSessionService(
   conversationServiceImpl,
   ritualScheduler
 );
+const constitutionFsService = ConstitutionFsService.createProduction(
+  app.isPackaged ? process.resourcesPath : path.resolve('resources'),
+  { revisionAuthorityPath: path.join(app.getPath('userData'), 'constitution', 'revision-authority.enc') }
+);
+setConstitutionFsService(constitutionFsService);
+const constitutionRestoreAuthority = new ConstitutionArchiveRestoreOperationAuthority(
+  path.join(app.getPath('userData'), 'constitution', 'restore-operations.enc'),
+  { encryptString, decryptString }
+);
+const constitutionArchiveRecoveryService = new ConstitutionArchiveRecoveryService(
+  constitutionFsService,
+  constitutionRestoreAuthority,
+  async (principal, password) => {
+    if (principal.kind !== 'desktop-installation' || !(await verifyCurrentPassword(password))) {
+      throw new ConstitutionArchiveRecoveryServiceError('AUTH_FAILED', 'Fresh destructive authentication failed.');
+    }
+  }
+);
+setConstitutionArchiveRecoveryService(constitutionArchiveRecoveryService);
+const constitutionClassicRecoveryServiceReady = createProductionConstitutionClassicRecoveryService({
+  userDataRoot: app.getPath('userData'),
+  constitutionFsService,
+  secretBackend: { encryptString, decryptString },
+  verifyDesktopPassword: verifyCurrentPassword,
+});
+void constitutionClassicRecoveryServiceReady.catch((error) => {
+  // Retained recovery evidence is fail-closed. Keep the rejection available to
+  // authenticated adapters while surfacing one path-free startup diagnostic.
+  console.error(
+    '[initBridge] Classic Constitution recovery readiness failed:',
+    error instanceof Error ? error.name : 'Unknown recovery readiness failure'
+  );
+});
+setConstitutionClassicRecoveryServiceReady(constitutionClassicRecoveryServiceReady);
 
 // Initialize all IPC bridges
 initAllBridges({
@@ -72,6 +117,8 @@ initAllBridges({
   workerTaskManager,
   channelRepo,
   teamSessionService,
+  constitutionFsService,
+  constitutionArchiveRecoveryService,
 });
 
 // Initialize cron service (load jobs from database and start timers).
@@ -153,8 +200,8 @@ const USAGE_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
 // lookback window on startup to keep it bounded (R5). 180 days is the floor.
 const COST_RETENTION_MS = 180 * 24 * 60 * 60 * 1000;
 void getDatabase()
-  .then((db) => {
-    const usageRepo = new SqliteUsageEventRepository(db.getDriver());
+  .then((appDatabase) => {
+    const usageRepo = new SqliteUsageEventRepository(appDatabase.getDriver());
     const usageLogger = new UsageEventLogger(usageRepo);
     const frequentlyUsedAggregator = new FrequentlyUsedAggregator(usageRepo);
     initUsageBridge(usageLogger, frequentlyUsedAggregator);
@@ -174,7 +221,7 @@ void getDatabase()
     // driver: the BudgetController reads spend through CostAnalyticsService and
     // enforces warn-default caps via a post-turn hook on the recorder.
     try {
-      const costRepo = new SqliteCostRepository(db.getDriver());
+      const costRepo = new SqliteCostRepository(appDatabase.getDriver());
       const costPruned = costRepo.prune(Date.now() - COST_RETENTION_MS);
       if (costPruned > 0) console.log(`[cost] pruned ${costPruned} events older than 180d`);
       const costRecorder = new CostRecorder(costRepo, getModelPricing());
@@ -183,7 +230,7 @@ void getDatabase()
       // Cost observability reads (WS-D). Wire the analytics service over the
       // shared driver into the cost.* IPC providers so the renderer cost panel
       // can query summary/byModel/byBackend/byConversation/byTeam/series.
-      const costAnalytics = new CostAnalyticsService(db.getDriver());
+      const costAnalytics = new CostAnalyticsService(appDatabase.getDriver());
       initCostBridge(costAnalytics);
 
       // Budgets / caps (Stage 1). The controller emits a one-time non-blocking
@@ -193,7 +240,7 @@ void getDatabase()
       // budgetController.canStartTurn({modelId,backend,teamId}) at its cleanest
       // pre-turn checkpoint and surfaces a RESUMABLE card on allowed:false (no
       // hard lock). Default behaviour never blocks a turn.
-      const budgetRepo = new SqliteBudgetRepository(db.getDriver());
+      const budgetRepo = new SqliteBudgetRepository(appDatabase.getDriver());
       const budgetController = new BudgetController(budgetRepo, costAnalytics, (alert) => {
         ipcBridge.cost.budgetAlert.emit(alert);
       });
@@ -226,7 +273,7 @@ void getDatabase()
       },
     };
 
-    const workflowRepo = new WorkflowSessionRepository(db.getDriver());
+    const workflowRepo = new WorkflowSessionRepository(appDatabase.getDriver());
     const workflowService = new WorkflowSessionService(
       workflowRepo,
       SkillLibrary.getInstance(),
@@ -238,15 +285,21 @@ void getDatabase()
     // worker-task send path cron uses). Defined here so the `acceptStep` IPC
     // handler can reuse it; the parent driver loop below shares it too. Sent
     // `hidden` so the control prompt never appears in the chat tape.
-    const sendWorkflowDirective = async (conversationId: string, directive: string): Promise<void> => {
-      const task = await workerTaskManager.getOrBuildTask(conversationId, { yoloMode: true });
-      await task.sendMessage({
-        content: directive,
-        input: directive,
-        msg_id: `workflow-advance-${conversationId}-${Date.now()}`,
-        hidden: true,
+    //
+    // #723: delegates to the reset-aware send module. On a wcore advance it
+    // respawns the backend session (skipCache) and re-seeds only the
+    // immediately-prior deliverable (per-step hard reset), dropping the
+    // accumulated 1..N-1 context; non-wcore (ACP) keeps today's exact behavior.
+    // The visible SQLite transcript is untouched (directive sent hidden; the
+    // reset only reads the message store).
+    const sendWorkflowDirective = (conversationId: string, directive: string): Promise<void> =>
+      sendWorkflowAdvanceDirective(conversationId, directive, {
+        getOrBuildTask: (id, opts) => workerTaskManager.getOrBuildTask(id, opts),
+        getConversationType: async (id) => {
+          const conv = await conversationServiceImpl.getConversation(id);
+          return conv?.type ?? null;
+        },
       });
-    };
     initWorkflowBridge(workflowService, {
       conversationService: conversationServiceImpl,
       workerTaskManager,
@@ -394,13 +447,15 @@ void getDatabase()
       void (async () => {
         try {
           const swept = await sweepStalledAutonomousSteps(workflowService);
-          for (const s of swept) {
-            console.warn(`[initBridge] watchdog force-errored stalled workflow step ${s.sessionId}/${s.stepN}`);
-            await usageLogger.record({
-              eventType: 'workflow.autonomous_step_timeout',
-              metadata: { session_id: s.sessionId, step_n: s.stepN, dispatch_id: s.dispatchId },
-            });
-          }
+          await Promise.all(
+            swept.map(async (s) => {
+              console.warn(`[initBridge] watchdog force-errored stalled workflow step ${s.sessionId}/${s.stepN}`);
+              await usageLogger.record({
+                eventType: 'workflow.autonomous_step_timeout',
+                metadata: { session_id: s.sessionId, step_n: s.stepN, dispatch_id: s.dispatchId },
+              });
+            })
+          );
         } catch (err) {
           console.warn('[initBridge] autonomous watchdog sweep failed:', err);
         }
@@ -417,13 +472,15 @@ void getDatabase()
       void (async () => {
         try {
           const swept = await sweepStalledParentRuns(workflowService);
-          for (const s of swept) {
-            console.warn(`[initBridge] parent watchdog parked stalled workflow run ${s.sessionId}/${s.stepN}`);
-            await usageLogger.record({
-              eventType: 'workflow.parent_run_stalled',
-              metadata: { session_id: s.sessionId, step_n: s.stepN },
-            });
-          }
+          await Promise.all(
+            swept.map(async (s) => {
+              console.warn(`[initBridge] parent watchdog parked stalled workflow run ${s.sessionId}/${s.stepN}`);
+              await usageLogger.record({
+                eventType: 'workflow.parent_run_stalled',
+                metadata: { session_id: s.sessionId, step_n: s.stepN },
+              });
+            })
+          );
         } catch (err) {
           console.warn('[initBridge] parent watchdog sweep failed:', err);
         }

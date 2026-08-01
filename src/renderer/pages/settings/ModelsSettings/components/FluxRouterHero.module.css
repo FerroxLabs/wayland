@@ -103,7 +103,9 @@
 .recommendedTag {
   display: inline-block;
   background: var(--brand);
-  color: var(--text-white);
+  /* Dark text on the brand orange: white was 2.83:1 (fails WCAG AA); #1a1a1a is
+     6.14:1 and keeps the brand color (QA-01/B-02). */
+  color: #1a1a1a;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;

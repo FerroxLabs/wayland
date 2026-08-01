@@ -1,8 +1,64 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ConfigStorage } from '@/common/config/storage';
 import type { IMcpServer } from '@/common/config/storage';
 import { ipcBridge } from '@/common';
+import { mcpService } from '@/common/adapter/ipcBridge';
 import { migrateExistingServers } from './migrateExistingServers';
+
+type McpConfigListener = (servers: IMcpServer[]) => void;
+
+// MCP settings are rendered from several independent screens. Keep one
+// renderer-wide durable mutation queue so those hook instances cannot race and
+// overwrite each other's config snapshots.
+let mcpConfigWriteQueue: Promise<void> = Promise.resolve();
+const mcpConfigListeners = new Set<McpConfigListener>();
+const MAX_MCP_CONFIG_CAS_ATTEMPTS = 16;
+
+function publishMcpConfig(servers: IMcpServer[]): void {
+  for (const listener of mcpConfigListeners) listener(servers);
+}
+
+async function readMcpConfig(): Promise<{ revision: string; servers: IMcpServer[] }> {
+  const response = await mcpService.getMcpConfigSnapshot.invoke();
+  if (!response.success || !response.data) throw new Error(response.msg || 'Failed to read MCP config');
+  return response.data;
+}
+
+function enqueueMcpConfigRead(): Promise<IMcpServer[]> {
+  const operation = mcpConfigWriteQueue.then(async () => (await readMcpConfig()).servers);
+  mcpConfigWriteQueue = operation.then(
+    (): void => undefined,
+    (): void => undefined
+  );
+  return operation;
+}
+
+function enqueueMcpConfigWrite(serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])): Promise<void> {
+  const operation = mcpConfigWriteQueue.then(async () => {
+    for (let attempt = 0; attempt < MAX_MCP_CONFIG_CAS_ATTEMPTS; attempt += 1) {
+      // oxlint-disable-next-line no-await-in-loop -- every retry must observe the previous CAS result
+      const persisted = await readMcpConfig();
+      const next =
+        typeof serversOrUpdater === 'function'
+          ? serversOrUpdater(persisted.servers)
+          : structuredClone(serversOrUpdater);
+      // oxlint-disable-next-line no-await-in-loop -- CAS retries are intentionally serialized
+      const response = await mcpService.compareAndSetMcpConfig.invoke({
+        expectedRevision: persisted.revision,
+        nextServers: next,
+      });
+      if (!response.success || !response.data) throw new Error(response.msg || 'Failed to write MCP config');
+      if (!response.data.applied) continue;
+
+      // Publish only the main-process-confirmed snapshot after persistence.
+      // A rejected or conflicted write cannot manufacture renderer state.
+      publishMcpConfig(response.data.snapshot.servers);
+      return;
+    }
+    throw new Error('MCP config changed too frequently to commit safely');
+  });
+  mcpConfigWriteQueue = operation.catch((): void => undefined);
+  return operation;
+}
 
 /**
  * MCP server state management hook.
@@ -14,30 +70,35 @@ export const useMcpServers = () => {
   /** Extension-contributed MCP servers (read-only, from extensions) */
   const [extensionMcpServers, setExtensionMcpServers] = useState<IMcpServer[]>([]);
 
+  useEffect(() => {
+    const listener: McpConfigListener = (servers) => setMcpServers(servers);
+    mcpConfigListeners.add(listener);
+    return () => {
+      mcpConfigListeners.delete(listener);
+    };
+  }, []);
+
+  const refreshMcpServers = useCallback(async (): Promise<void> => {
+    const data = await enqueueMcpConfigRead();
+    // One-time, idempotent migration: tag any server without an explicit
+    // `source` as `source: 'custom'` so the new MCP Library Installed page
+    // groups pre-library installs under "Custom".
+    const migrated = migrateExistingServers(data);
+    const changed = migrated.some((server, idx) => server !== data[idx]);
+    if (changed) {
+      await enqueueMcpConfigWrite((persisted) => migrateExistingServers(persisted));
+    } else {
+      setMcpServers(migrated);
+    }
+  }, []);
+
+  const readMcpServers = useCallback(async (): Promise<IMcpServer[]> => enqueueMcpConfigRead(), []);
+
   // Load MCP server configuration
   useEffect(() => {
-    // Load user-configured MCP servers
-    void ConfigStorage.get('mcp.config')
-      .then((data) => {
-        if (data) {
-          // One-time, idempotent migration: tag any server without an explicit
-          // `source` as `source: 'custom'` so the new MCP Library Installed
-          // page groups pre-library installs under "Custom". Persist only when
-          // the migration actually changed something, so subsequent launches
-          // are a no-op write.
-          const migrated = migrateExistingServers(data);
-          const changed = migrated.some((server, idx) => server !== data[idx]);
-          if (changed) {
-            void ConfigStorage.set('mcp.config', migrated).catch((error) => {
-              console.error('[useMcpServers] Failed to persist source migration:', error);
-            });
-          }
-          setMcpServers(migrated);
-        }
-      })
-      .catch((error) => {
-        console.error('[useMcpServers] Failed to load MCP config:', error);
-      });
+    void refreshMcpServers().catch((error) => {
+      console.error('[useMcpServers] Failed to load MCP config:', error);
+    });
 
     // Load extension-contributed MCP servers
     void ipcBridge.extensions.getMcpServers
@@ -50,7 +111,8 @@ export const useMcpServers = () => {
             description: s.description as string | undefined,
             enabled: s.enabled !== false,
             transport: s.transport as IMcpServer['transport'],
-            status: 'connected' as const,
+            // No status: an extension manifest declares a connector; it does
+            // not prove that this server registered tools in the current chat.
             createdAt: (s.createdAt as number) || Date.now(),
             updatedAt: (s.updatedAt as number) || Date.now(),
             originalJson: String(s.originalJson || '{}'),
@@ -63,29 +125,14 @@ export const useMcpServers = () => {
       .catch((error) => {
         console.error('[useMcpServers] Failed to load extension MCP servers:', error);
       });
-  }, []);
+  }, [refreshMcpServers]);
 
   // Save MCP server configuration (user-configured only; extension servers are not persisted)
-  const saveMcpServers = useCallback((serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])) => {
-    return new Promise<void>((resolve, reject) => {
-      setMcpServers((prev) => {
-        // Compute new value
-        const newServers = typeof serversOrUpdater === 'function' ? serversOrUpdater(prev) : serversOrUpdater;
-
-        // Persist to storage asynchronously (in a microtask)
-        queueMicrotask(() => {
-          ConfigStorage.set('mcp.config', newServers)
-            .then(() => resolve())
-            .catch((error) => {
-              console.error('Failed to save MCP servers:', error);
-              reject(error);
-            });
-        });
-
-        return newServers;
-      });
-    });
-  }, []);
+  const saveMcpServers = useCallback(
+    (serversOrUpdater: IMcpServer[] | ((prev: IMcpServer[]) => IMcpServer[])) =>
+      enqueueMcpConfigWrite(serversOrUpdater),
+    []
+  );
 
   // Combined complete list (user-configured + extension-contributed)
   const allMcpServers = [...mcpServers, ...extensionMcpServers];
@@ -96,5 +143,7 @@ export const useMcpServers = () => {
     extensionMcpServers,
     setMcpServers,
     saveMcpServers,
+    readMcpServers,
+    refreshMcpServers,
   };
 };

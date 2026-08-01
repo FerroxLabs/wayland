@@ -138,6 +138,7 @@ export async function handleParentWorkflowTurn(
       pendingConfirmations,
       endedWithUserQuestion,
     });
+
     if (decision === 'advance' && directive) {
       try {
         await deps.sendDirective(conversationId, directive);

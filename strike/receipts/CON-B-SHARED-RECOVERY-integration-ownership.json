@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-SHARED-RECOVERY-integration-ownership",
+  "commit": "8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495",
+  "command": "rtk proxy bash -o pipefail -c 'git diff --name-only 85ca3aa93d278db2855acc7a55cd60088e57e342..HEAD 2>&1 | tee /tmp/wayland-con-b-shared-recovery-integration-ownership.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:c83a7b4f930fd4400fb9022f63429755c9d2d0d6b84e6defc6c50a40ed46dbea",
+  "timestamp": "2026-07-17T10:21:14Z",
+  "env_digest": "sha256:37df5fa6efd3a3b19345e65fd4688a4af01401de0d5ac2348f9596435190b9b4"
+}

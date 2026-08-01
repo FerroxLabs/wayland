@@ -8,11 +8,35 @@ import { Button } from '@arco-design/web-react';
 import { ChevronDown } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/renderer/hooks/context/AuthContext';
 import { isElectronDesktop } from '@renderer/utils/platform';
-import { writeConstitutionSpecialistHttp } from '@renderer/services/ConstitutionService';
-import type { SaveState } from '@renderer/components/settings/shared/feedback/SavedIndicator';
+import {
+  readConstitutionSpecialistHttp,
+  runDesktopConstitutionMutation,
+  runDesktopConstitutionRead,
+  writeConstitutionSpecialistHttp,
+} from '@renderer/services/ConstitutionService';
+import type {
+  ConstitutionEditGrant,
+  ConstitutionMutationResult,
+  ConstitutionReadResult,
+} from '@renderer/services/ConstitutionService';
 import SavedIndicator from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
+import HostedEditAuthorization from './HostedEditAuthorization';
+import {
+  abandonConstitutionSingleShotMutation,
+  beginConstitutionSingleShotMutation,
+  completeConstitutionSingleShotMutation,
+  constitutionAutosaveDraftKey,
+  constitutionMutationContentDigest,
+  constitutionMutationRequestFingerprint,
+  constitutionSingleShotMutationKey,
+  readConstitutionSingleShotMutation,
+  readSerializedAutosaveDraft,
+  resolveConstitutionSingleShotContent,
+  useSerializedAutosave,
+} from './useSerializedAutosave';
 
 const SAVE_DEBOUNCE_MS = 500;
 const SAVED_FLASH_MS = 1500;
@@ -22,6 +46,18 @@ type SpecialistOverlayEditorProps = {
   id: string;
   /** Collapse / close the editor. */
   onClose: () => void;
+  /** Lets the parent prevent alternate controls from unmounting a dirty editor. */
+  onDirtyChange?: (dirty: boolean) => void;
+  /** Publishes the authoritative revision before parent delete controls re-enable. */
+  onCommitted?: (result: { revision: string; bytes: number }) => void;
+  /** Freezes every editor action while the parent owns an in-flight delete. */
+  locked?: boolean;
+};
+
+type ConflictSnapshot = {
+  baseContent: string | null;
+  localDraft: string;
+  remote: ConstitutionReadResult;
 };
 
 /**
@@ -29,61 +65,240 @@ type SpecialistOverlayEditorProps = {
  * content on mount, then debounce-autosaves edits - the same pattern as the
  * core Constitution editor in `index.tsx`.
  */
-const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({ id, onClose }) => {
+const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({
+  id,
+  onClose,
+  onDirtyChange,
+  onCommitted,
+  locked = false,
+}) => {
   const { t } = useTranslation();
+  const isDesktop = isElectronDesktop();
+  const { user } = useAuth();
 
   const [value, setValue] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [loadState, setLoadState] = useState<'loading' | 'present' | 'absent' | 'error'>('loading');
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+  const revision = useRef<string | null>(null);
+  const baseContent = useRef<string | null>(null);
+  const [conflict, setConflict] = useState(false);
+  const [conflictSnapshot, setConflictSnapshot] = useState<ConflictSnapshot | null>(null);
+  const [conflictBusy, setConflictBusy] = useState(false);
+  const [conflictError, setConflictError] = useState<string | null>(null);
+  const [editGrant, setEditGrant] = useState<ConstitutionEditGrant | null>(null);
 
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const savedFlashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** While true, onChange events from the editor are ignored (initial hydrate). */
   const hydrating = useRef(true);
+  const draftKey = constitutionAutosaveDraftKey(`specialist:${id}`, isDesktop, user?.id);
+
+  const readCurrentOverlay = useCallback(async (): Promise<ConstitutionReadResult> => {
+    if (!isDesktop) return readConstitutionSpecialistHttp(id);
+    const api = window.electronAPI;
+    if (!api?.readConstitutionSpecialist) throw new Error('Specialist reading is unavailable.');
+    return runDesktopConstitutionRead(() => api.readConstitutionSpecialist!(id));
+  }, [id, isDesktop]);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const api = window.electronAPI;
-      if (!api?.readConstitutionSpecialist) {
-        if (!cancelled) setLoading(false);
-        return;
+      setLoadState('loading');
+      setLoadError(null);
+      hydrating.current = true;
+      try {
+        const read = await readCurrentOverlay();
+        if (read.state === 'absent') {
+          if (!cancelled) {
+            revision.current = read.revision;
+            baseContent.current = null;
+            setLoadState('absent');
+          }
+          return;
+        }
+        if (cancelled) return;
+        revision.current = read.revision;
+        baseContent.current = read.content;
+        setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? read.content);
+        setLoadState('present');
+        setConflict(false);
+        setConflictSnapshot(null);
+        // Allow one tick for TipTap to settle before treating onChange as edits.
+        window.setTimeout(() => {
+          hydrating.current = false;
+        }, 50);
+      } catch (error) {
+        if (cancelled) return;
+        setLoadError(error instanceof Error ? error.message : 'The specialist overlay could not be loaded.');
+        setLoadState('error');
       }
-      const text = await api.readConstitutionSpecialist(id);
-      if (cancelled) return;
-      setValue(text);
-      setLoading(false);
-      // Allow one tick for TipTap to settle before treating onChange as edits.
-      window.setTimeout(() => {
-        hydrating.current = false;
-      }, 50);
     })();
     return () => {
       cancelled = true;
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);
     };
-  }, [id]);
+  }, [draftKey, readCurrentOverlay, reloadToken]);
+
+  const saveOverlay = useCallback(
+    async (md: string, expectedRevision: string, requestId: string): Promise<ConstitutionMutationResult> => {
+      if (isDesktop) {
+        const api = window.electronAPI;
+        if (!api?.writeConstitutionSpecialist) return { ok: false, reason: 'request_failed', status: 0 };
+        return runDesktopConstitutionMutation(() =>
+          api.writeConstitutionSpecialist!(id, md, expectedRevision, requestId)
+        );
+      }
+      if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
+      return writeConstitutionSpecialistHttp(id, md, expectedRevision, editGrant.token, requestId);
+    },
+    [editGrant, id, isDesktop]
+  );
+
+  const { saveState, isDirty, queueSave, retry, clear, runExclusiveDestructive } = useSerializedAutosave({
+    enabled: !locked && (isDesktop || editGrant !== null),
+    debounceMs: SAVE_DEBOUNCE_MS,
+    savedFlashMs: SAVED_FLASH_MS,
+    target: { kind: 'specialist', specialistId: id },
+    getExpectedRevision: () => revision.current,
+    save: saveOverlay,
+    onAuthorizationRequired: () => setEditGrant(null),
+    onConflict: () => setConflict(true),
+    onCommitted: (result, savedValue) => {
+      revision.current = result.revision;
+      baseContent.current = savedValue;
+      onCommitted?.({ revision: result.revision, bytes: new TextEncoder().encode(savedValue).byteLength });
+      setConflict(false);
+      setConflictSnapshot(null);
+    },
+    draftKey: draftKey ?? undefined,
+  });
+
+  useEffect(() => onDirtyChange?.(isDirty), [isDirty, onDirtyChange]);
 
   const handleChange = useCallback(
     (md: string): void => {
+      if (locked) return;
       setValue(md);
       if (hydrating.current) return;
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      setSaveState('saving');
-      saveTimer.current = setTimeout(async () => {
-        const ok = isElectronDesktop()
-          ? ((await window.electronAPI?.writeConstitutionSpecialist?.(id, md)) ?? false)
-          : await writeConstitutionSpecialistHttp(id, md);
-        setSaveState(ok ? 'saved' : 'error');
-        if (ok) {
-          if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);
-          savedFlashTimer.current = setTimeout(() => setSaveState('idle'), SAVED_FLASH_MS);
-        }
-      }, SAVE_DEBOUNCE_MS);
+      queueSave(md);
     },
-    [id]
+    [locked, queueSave]
   );
+
+  const loadConflictComparison = useCallback(async (): Promise<void> => {
+    setConflictBusy(true);
+    setConflictError(null);
+    try {
+      const remote = await readCurrentOverlay();
+      setConflictSnapshot({ baseContent: baseContent.current, localDraft: value, remote });
+    } catch (error) {
+      setConflictError(error instanceof Error ? error.message : 'The server copy could not be loaded.');
+    } finally {
+      setConflictBusy(false);
+    }
+  }, [readCurrentOverlay, value]);
+
+  const useServerCopy = useCallback((): void => {
+    if (!conflictSnapshot) return;
+    hydrating.current = true;
+    clear();
+    revision.current = conflictSnapshot.remote.revision;
+    if (conflictSnapshot.remote.state === 'present') {
+      baseContent.current = conflictSnapshot.remote.content;
+      setValue(conflictSnapshot.remote.content);
+      setLoadState('present');
+      onCommitted?.({
+        revision: conflictSnapshot.remote.revision,
+        bytes: new TextEncoder().encode(conflictSnapshot.remote.content).byteLength,
+      });
+    } else {
+      baseContent.current = null;
+      setValue('');
+      setLoadState('absent');
+    }
+    setConflict(false);
+    setConflictSnapshot(null);
+    setConflictError(null);
+    window.setTimeout(() => {
+      hydrating.current = false;
+    }, 50);
+  }, [clear, conflictSnapshot, onCommitted]);
+
+  const overwriteServerCopy = useCallback(async (): Promise<void> => {
+    if (!conflictSnapshot || (!isDesktop && !editGrant)) return;
+    setConflictBusy(true);
+    setConflictError(null);
+    try {
+      const result = await runExclusiveDestructive(async () => {
+        const operationKey = constitutionSingleShotMutationKey('overwrite', `specialist:${id}`, isDesktop, user?.id);
+        if (!operationKey) throw new Error('A signed-in user is required to persist this operation safely.');
+        if (!draftKey) throw new Error('The specialist draft does not have a durable principal-scoped location.');
+        const operation =
+          readConstitutionSingleShotMutation(operationKey) ??
+          beginConstitutionSingleShotMutation(operationKey, {
+            action: 'overwrite',
+            target: `specialist:${id}`,
+            expectedRevision: conflictSnapshot.remote.revision,
+            contentDigest: constitutionMutationContentDigest(conflictSnapshot.localDraft),
+            requestFingerprint: constitutionMutationRequestFingerprint(
+              { kind: 'specialist', specialistId: id },
+              conflictSnapshot.localDraft,
+              conflictSnapshot.remote.revision
+            ),
+            draftKey,
+          });
+        if (operation.action !== 'overwrite') {
+          throw new Error('The pending Constitution operation has the wrong action.');
+        }
+        const operationContent = resolveConstitutionSingleShotContent(operation);
+        const mutation = isDesktop
+          ? window.electronAPI?.writeConstitutionSpecialist
+            ? await runDesktopConstitutionMutation(() =>
+                window.electronAPI!.writeConstitutionSpecialist!(
+                  id,
+                  operationContent,
+                  operation.expectedRevision,
+                  operation.requestId
+                )
+              )
+            : ({ ok: false, reason: 'request_failed', status: 0 } as const)
+          : await writeConstitutionSpecialistHttp(
+              id,
+              operationContent,
+              operation.expectedRevision,
+              editGrant!.token,
+              operation.requestId
+            );
+        if (mutation.ok) completeConstitutionSingleShotMutation(operationKey, mutation);
+        else if ('reason' in mutation && mutation.reason === 'conflict') {
+          abandonConstitutionSingleShotMutation(operationKey, operation.requestId, operation.requestFingerprint);
+        }
+        return { committed: mutation.ok, value: mutation };
+      });
+      if (result.value.ok === false) {
+        if (result.value.reason === 'authorization_required') setEditGrant(null);
+        if (result.value.reason === 'conflict') setConflictSnapshot(null);
+        setConflictError(
+          result.value.reason === 'conflict'
+            ? 'The server changed again. Load a fresh comparison before choosing an overwrite.'
+            : 'The overwrite was not committed. Your draft is still preserved.'
+        );
+        return;
+      }
+      revision.current = result.value.revision;
+      baseContent.current = conflictSnapshot.localDraft;
+      setValue(conflictSnapshot.localDraft);
+      onCommitted?.({
+        revision: result.value.revision,
+        bytes: new TextEncoder().encode(conflictSnapshot.localDraft).byteLength,
+      });
+      setConflict(false);
+      setConflictSnapshot(null);
+      setConflictError(null);
+    } catch (error) {
+      setConflictError(error instanceof Error ? error.message : 'The overwrite could not be completed.');
+    } finally {
+      setConflictBusy(false);
+    }
+  }, [conflictSnapshot, draftKey, editGrant, id, isDesktop, onCommitted, runExclusiveDestructive, user?.id]);
 
   const approxTokens = Math.ceil(value.length / 4);
 
@@ -100,22 +315,109 @@ const SpecialistOverlayEditor: React.FC<SpecialistOverlayEditorProps> = ({ id, o
         </div>
         <div className='flex items-center gap-8px'>
           <SavedIndicator state={saveState} />
+          {saveState === 'error' && (
+            <Button type='secondary' size='small' disabled={locked} onClick={retry}>
+              {t('settings.constitutionPage.retrySave', 'Retry save')}
+            </Button>
+          )}
+          {!locked && !isDesktop && !editGrant && (
+            <HostedEditAuthorization scopes={[`specialist.write:${id}`]} onGranted={setEditGrant} compact />
+          )}
           <Button
             type='secondary'
             size='small'
             icon={<ChevronDown size={14} />}
+            disabled={locked || isDirty}
+            title={
+              isDirty
+                ? t('settings.constitutionSpecialists.closeDirty', 'Save or discard changes before closing')
+                : undefined
+            }
             onClick={onClose}
           >
             {t('settings.constitutionSpecialists.close', 'Close')}
           </Button>
         </div>
       </div>
-      {loading ? (
+      {loadState === 'loading' ? (
+        <div className='text-12px text-t-secondary py-8px'>{t('settings.constitutionPage.loading', 'Loading…')}</div>
+      ) : loadState === 'error' ? (
+        <div className='rd-8px bg-[var(--color-danger-light-1)] p-10px flex items-center justify-between gap-12px'>
+          <span className='text-12px text-t-secondary'>{loadError}</span>
+          <Button type='secondary' size='small' onClick={() => setReloadToken((value) => value + 1)}>
+            {t('settings.constitutionPage.retryRead', 'Retry load')}
+          </Button>
+        </div>
+      ) : loadState === 'absent' ? (
         <div className='text-12px text-t-secondary py-8px'>
-          {t('settings.constitutionPage.loading', 'Loading…')}
+          {t('settings.constitutionSpecialists.absent', 'This overlay no longer exists. Refresh the inventory.')}
         </div>
       ) : (
-        <TipTapMarkdownEditor value={value} onChange={handleChange} />
+        <>
+          {conflict && (
+            <div className='rd-8px bg-[var(--color-warning-light-1)] p-10px flex flex-col gap-10px'>
+              <div className='flex items-center justify-between gap-12px'>
+                <span className='text-12px text-t-secondary'>
+                  {t(
+                    'settings.constitutionSpecialists.conflict',
+                    'The server copy changed. Your draft is preserved until you explicitly choose which copy wins.'
+                  )}
+                </span>
+                {!conflictSnapshot && (
+                  <Button
+                    type='secondary'
+                    size='small'
+                    loading={conflictBusy}
+                    onClick={() => void loadConflictComparison()}
+                  >
+                    {t('settings.constitutionPage.reloadForConflict', 'Load comparison')}
+                  </Button>
+                )}
+              </div>
+              {conflictError && <div className='text-11px text-danger'>{conflictError}</div>}
+              {conflictSnapshot && (
+                <>
+                  <div className='grid grid-cols-3 gap-8px'>
+                    {[
+                      ['Previous base', conflictSnapshot.baseContent ?? '(no file)'],
+                      ['Your draft', conflictSnapshot.localDraft],
+                      [
+                        'Current server',
+                        conflictSnapshot.remote.state === 'present' ? conflictSnapshot.remote.content : '(no file)',
+                      ],
+                    ].map(([label, content]) => (
+                      <div key={label} className='rd-8px bg-[var(--color-bg-2)] p-8px min-w-0'>
+                        <div className='text-11px font-medium text-t-primary mb-4px'>{label}</div>
+                        <pre className='m-0 max-h-120px overflow-auto whitespace-pre-wrap break-words text-11px text-t-secondary font-mono'>
+                          {content}
+                        </pre>
+                      </div>
+                    ))}
+                  </div>
+                  <div className='flex justify-end gap-8px'>
+                    <Button type='secondary' size='small' disabled={conflictBusy} onClick={useServerCopy}>
+                      {t('settings.constitutionPage.useServerCopy', 'Use server copy')}
+                    </Button>
+                    <Button
+                      type='primary'
+                      size='small'
+                      disabled={conflictBusy || (!isDesktop && !editGrant)}
+                      loading={conflictBusy}
+                      onClick={() => void overwriteServerCopy()}
+                    >
+                      {t('settings.constitutionPage.overwriteServerCopy', 'Overwrite with my draft')}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+          <TipTapMarkdownEditor
+            value={value}
+            onChange={handleChange}
+            readOnly={locked || conflict || (!isDesktop && !editGrant)}
+          />
+        </>
       )}
     </div>
   );

@@ -47,6 +47,16 @@ export interface IQueryResult<T> {
   error?: string;
 }
 
+/** Durable replay descriptor written atomically with conversation deletion. */
+export interface IConversationChannelCleanupIntent {
+  conversationId: string;
+  source: ConversationSource | null;
+  sessionIds: string[];
+  createdAt: number;
+  attemptCount: number;
+  lastAttemptAt: number | null;
+}
+
 /**
  * Paginated query result
  */

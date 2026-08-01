@@ -1,5 +1,6 @@
 import { ipcBridge } from '@/common';
 import { ConfigStorage } from '@/common/config/storage';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import type { Message } from '@arco-design/web-react';
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
 import {
@@ -102,7 +103,7 @@ export const useAssistantEditor = ({
     setEditName(assistant.name || '');
     setEditDescription(assistant.description || '');
     setEditAvatar(assistant.avatar || '');
-    setEditAgent(assistant.presetAgentType || 'gemini');
+    setEditAgent(resolvePresetAgentType(assistant.presetAgentType));
     setPendingSkills([]);
     setDeletePendingSkillName(null);
     setDeleteCustomSkillName(null);
@@ -202,7 +203,7 @@ export const useAssistantEditor = ({
     setEditName(`${assistant.nameI18n?.[localeKey] || assistant.name} (Copy)`);
     setEditDescription(assistant.descriptionI18n?.[localeKey] || assistant.description || '');
     setEditAvatar(assistant.avatar || 'lucide:Bot');
-    setEditAgent(assistant.presetAgentType || 'gemini');
+    setEditAgent(resolvePresetAgentType(assistant.presetAgentType));
     setPromptViewMode('edit');
     setEditVisible(true);
 
@@ -396,30 +397,38 @@ export const useAssistantEditor = ({
   const handleDeleteConfirm = async () => {
     if (!activeAssistant) return;
     try {
-      // Delete rule and skill files
-      await Promise.all([
-        ipcBridge.fs.deleteAssistantRule.invoke({ assistantId: activeAssistant.id }),
-        ipcBridge.fs.deleteAssistantSkill.invoke({ assistantId: activeAssistant.id }),
-      ]);
-
-      // Remove assistant from config
       const agents = (await ConfigStorage.get('assistants')) || [];
-      const updatedAgents = agents.filter((agent) => agent.id !== activeAssistant.id);
-      await ConfigStorage.set('assistants', updatedAgents);
+      const assistantIndex = agents.findIndex((agent) => agent.id === activeAssistant.id);
+      if (assistantIndex >= 0) {
+        const updatedAgents = [...agents];
+        updatedAgents[assistantIndex] = { ...updatedAgents[assistantIndex], enabled: false };
+        await ConfigStorage.set('assistants', updatedAgents);
+      } else {
+        const customAgents = (await ConfigStorage.get('acp.customAgents')) || [];
+        const customIndex = customAgents.findIndex((agent) => agent.id === activeAssistant.id);
+        if (customIndex < 0) throw new Error('Assistant configuration was not found');
+        const updatedCustomAgents = [...customAgents];
+        updatedCustomAgents[customIndex] = { ...updatedCustomAgents[customIndex], enabled: false };
+        await ConfigStorage.set('acp.customAgents', updatedCustomAgents);
+      }
 
-      // Reload merged assistant list (local + extensions)
+      setActiveAssistantId(null);
       await loadAssistants();
       setDeleteConfirmVisible(false);
       setEditVisible(false);
-      message.success(t('common.success', { defaultValue: 'Success' }));
+      message.success(
+        t('settings.assistantArchived', {
+          defaultValue: 'Assistant archived. Re-enable it anytime from the Disabled section.',
+        })
+      );
       await refreshAgentDetection();
     } catch (error) {
-      console.error('Failed to delete assistant:', error);
+      console.error('Failed to archive assistant:', error);
       message.error(t('common.failed', { defaultValue: 'Failed' }));
     }
   };
 
-  // Toggle assistant enabled state
+  // Toggle assistant enabled state; this is also the restore path for archives.
   const handleToggleEnabled = async (assistant: AssistantListItem, enabled: boolean) => {
     if (isExtensionAssistant(assistant)) {
       message.warning(

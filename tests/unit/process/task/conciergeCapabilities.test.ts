@@ -17,7 +17,12 @@ import type { SkillIndexEntry } from '@/common/types/skillTypes';
 
 const { libState, manifestState, configState } = vi.hoisted(() => ({
   libState: { entries: [] as SkillIndexEntry[], bodies: {} as Record<string, string> },
-  manifestState: { value: 'MANIFEST_BODY', calls: 0, throws: false },
+  manifestState: {
+    value: 'MANIFEST_BODY',
+    calls: 0,
+    throws: false,
+    options: [] as Array<Record<string, unknown> | undefined>,
+  },
   // `concierge.capabilityInjection` kill-switch: undefined => default ON.
   configState: { capabilityInjection: undefined as boolean | undefined },
 }));
@@ -50,8 +55,9 @@ vi.mock('@process/team/prompts/teamGuideAssistant.ts', () => ({
 
 // The live capabilities manifest builder - mocked so we control output + count.
 vi.mock('@process/services/capabilities/CapabilitiesManifest', () => ({
-  buildCapabilitiesManifest: vi.fn(async () => {
+  buildCapabilitiesManifest: vi.fn(async (options?: Record<string, unknown>) => {
     manifestState.calls += 1;
+    manifestState.options.push(options);
     if (manifestState.throws) throw new Error('boom');
     return manifestState.value;
   }),
@@ -62,6 +68,7 @@ import {
   resolveCapabilitiesManifest,
   buildTurnSkillContext,
   BUILTIN_CONCIERGE_ASSISTANT_ID,
+  BUILTIN_COWORK_ASSISTANT_ID,
 } from '@process/task/agentUtils';
 
 beforeEach(() => {
@@ -70,6 +77,7 @@ beforeEach(() => {
   manifestState.value = 'MANIFEST_BODY';
   manifestState.calls = 0;
   manifestState.throws = false;
+  manifestState.options = [];
   configState.capabilityInjection = undefined;
 });
 
@@ -141,6 +149,17 @@ describe('resolveCapabilitiesManifest', () => {
     expect(out).toBe('MANIFEST_BODY');
   });
 
+  it('always builds for Cowork and requests Office authoring readiness', async () => {
+    const out = await resolveCapabilitiesManifest({
+      presetAssistantId: BUILTIN_COWORK_ASSISTANT_ID,
+      userText: 'write me a poem',
+      agentKey: 'wcore',
+    });
+
+    expect(out).toBe('MANIFEST_BODY');
+    expect(manifestState.options).toEqual([{ agentKey: 'wcore', includeOfficeAuthoring: true }]);
+  });
+
   it('returns undefined for a non-Concierge assistant on a non-capability turn', async () => {
     const out = await resolveCapabilitiesManifest({
       presetAssistantId: 'builtin-word-creator',
@@ -183,6 +202,15 @@ describe('buildTurnSkillContext capability manifest', () => {
   it('skips the manifest for the Concierge assistant (it rides the system prompt)', async () => {
     const ctx = await buildTurnSkillContext('what can you do?', {
       assistantId: BUILTIN_CONCIERGE_ASSISTANT_ID,
+      agentKey: 'wcore',
+    });
+    expect(ctx.advert).not.toContain('MANIFEST_BODY');
+    expect(manifestState.calls).toBe(0);
+  });
+
+  it('skips the turn advert for Cowork because the manifest rides its system prompt', async () => {
+    const ctx = await buildTurnSkillContext('what can you do?', {
+      assistantId: BUILTIN_COWORK_ASSISTANT_ID,
       agentKey: 'wcore',
     });
     expect(ctx.advert).not.toContain('MANIFEST_BODY');

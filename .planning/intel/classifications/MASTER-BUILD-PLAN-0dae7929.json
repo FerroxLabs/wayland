@@ -1,0 +1,31 @@
+{
+  "source_path": "docs/desktop-overhaul-source/MASTER-BUILD-PLAN.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Wayland Desktop Master Build Plan",
+  "summary": "Specifies the gated, reversible Adaptive Cockpit refactor, including architecture, work packets, rollback, verification, rollout, and Core and Flux integration.",
+  "scope": [
+    "Adaptive Cockpit",
+    "universal work kernel",
+    "Core wire contract",
+    "Flux route contract",
+    "rollback and recovery",
+    "release evidence"
+  ],
+  "cross_refs": [
+    ".ijfw/memory/brief.md",
+    ".planning/desktop-overhaul/SANDBOX-DEVELOPER-JOURNEY.md",
+    "CORE-INTEGRATION-MATRIX.md",
+    "COWORK-DEEP-DIVE.md",
+    "INSTANCE-MIGRATION.md",
+    "MCP-DEEP-DIVE.md",
+    "SANDBOX-DEVELOPER-JOURNEY.md",
+    "VOICE-CONVERSATION-MODE.md",
+    "docs/json-stream-protocol.md",
+    "wave-0/NATIVE-CONSTITUTION-V2-ACCEPTANCE.md"
+  ],
+  "locked": false,
+  "precedence": 1,
+  "notes": ""
+}

@@ -4,7 +4,9 @@ import * as os from 'os';
 import * as path from 'path';
 import { backupExport } from '../../src/process/storage/backupExport';
 import { backupImport } from '../../src/process/storage/backupImport';
+import { createLegacySafetyExport } from '../../src/process/storage/legacySafetyExport';
 import { computeUsage, invalidateUsageCache } from '../../src/process/storage/computeUsage';
+import JSZip from 'jszip';
 
 // -------------------------------------------------------------------
 // Helpers
@@ -130,6 +132,30 @@ describe('backupExport / backupImport round-trip', () => {
     expect(fs.existsSync(path.join(restore, 'conversations/sub/conv2.json'))).toBe(true);
   });
 
+  it('labels the archive as non-authoritative and lists omitted state authorities', async () => {
+    await backupExport({ userData: src, destPath: zipPath, includeKeys: false });
+    const zip = await JSZip.loadAsync(fs.readFileSync(zipPath));
+    const manifest = JSON.parse(await zip.file('manifest.json')!.async('string')) as {
+      format: string;
+      authoritative: boolean;
+      excludedAuthorities: string[];
+    };
+
+    expect(manifest.format).toBe('wayland-legacy-file-export');
+    expect(manifest.authoritative).toBe(false);
+    expect(manifest.excludedAuthorities).toEqual(
+      expect.arrayContaining(['desktop.database', 'core.default-profile', 'external.workspaces'])
+    );
+  });
+
+  it('refuses to claim key coverage when no encryption passphrase is supplied', async () => {
+    writeFixture(src, 'keys.json', '{"k":"v"}');
+    await expect(
+      backupExport({ userData: src, destPath: zipPath, includeKeys: true, passphrase: undefined })
+    ).rejects.toThrow('passphrase');
+    expect(fs.existsSync(zipPath)).toBe(false);
+  });
+
   it('exports config directory', async () => {
     writeFixture(src, 'config/settings.json', '{"theme":"dark"}');
     await backupExport({ userData: src, destPath: zipPath, includeKeys: false });
@@ -165,6 +191,26 @@ describe('backupExport / backupImport round-trip', () => {
     expect(fs.existsSync(path.join(restore, 'keys.json'))).toBe(false);
   });
 
+  it('rejects an archive without a manifest before changing live files', async () => {
+    writeFixture(restore, 'config/settings.json', '{"theme":"keep"}');
+    const zip = new JSZip();
+    zip.file('config/settings.json', '{"theme":"replace"}');
+    fs.writeFileSync(zipPath, await zip.generateAsync({ type: 'nodebuffer' }));
+
+    await expect(backupImport({ userData: restore, srcPath: zipPath })).rejects.toThrow('manifest');
+    expect(fs.readFileSync(path.join(restore, 'config/settings.json'), 'utf8')).toBe('{"theme":"keep"}');
+  });
+
+  it('stages the entire import before changing live files', async () => {
+    writeFixture(src, 'config/settings.json', '{"theme":"replace"}');
+    writeFixture(src, 'keys.json', '{"key":"encrypted"}');
+    writeFixture(restore, 'config/settings.json', '{"theme":"keep"}');
+    await backupExport({ userData: src, destPath: zipPath, includeKeys: true, passphrase: 'correct' });
+
+    await expect(backupImport({ userData: restore, srcPath: zipPath, passphrase: 'wrong' })).rejects.toThrow();
+    expect(fs.readFileSync(path.join(restore, 'config/settings.json'), 'utf8')).toBe('{"theme":"keep"}');
+  });
+
   // Cross-audit 2026-06-15: the per-install .secret-key decrypts stored
   // credentials. It must never be bundled into an export, or a backup becomes
   // plaintext secret exfiltration. Guard it even when it sits inside a walked dir.
@@ -176,5 +222,54 @@ describe('backupExport / backupImport round-trip', () => {
     // The benign config file round-trips; the secret key never lands in the restore.
     expect(fs.existsSync(path.join(restore, 'config/settings.json'))).toBe(true);
     expect(fs.existsSync(path.join(restore, 'config/.secret-key'))).toBe(false);
+  });
+});
+
+describe('legacy import safety export', () => {
+  let userData: string;
+
+  beforeEach(() => {
+    userData = mkTmpDir();
+  });
+
+  afterEach(() => {
+    fs.rmSync(userData, { recursive: true, force: true });
+  });
+
+  it('atomically publishes a persistent rollback archive under recovery', async () => {
+    writeFixture(userData, 'config/settings.json', '{"theme":"before"}');
+
+    const safetyPath = await createLegacySafetyExport({
+      userData,
+      now: new Date('2026-07-16T00:00:00.000Z'),
+    });
+
+    expect(path.relative(userData, safetyPath)).toMatch(/^recovery[/\\]legacy-file-imports[/\\]pre-restore-/);
+    expect(fs.existsSync(safetyPath)).toBe(true);
+    expect(fs.existsSync(`${safetyPath}.incomplete`)).toBe(false);
+    const zip = await JSZip.loadAsync(fs.readFileSync(safetyPath));
+    expect(await zip.file('config/settings.json')!.async('string')).toBe('{"theme":"before"}');
+    const manifest = JSON.parse(await zip.file('manifest.json')!.async('string')) as { authoritative: boolean };
+    expect(manifest.authoritative).toBe(false);
+  });
+
+  it('survives the subsequent legacy import that overwrites live config', async () => {
+    const incoming = mkTmpDir();
+    const incomingZip = path.join(incoming, 'incoming.zip');
+    try {
+      writeFixture(userData, 'config/settings.json', '{"theme":"before"}');
+      writeFixture(incoming, 'config/settings.json', '{"theme":"after"}');
+      await backupExport({ userData: incoming, destPath: incomingZip, includeKeys: false });
+
+      const safetyPath = await createLegacySafetyExport({ userData });
+      await backupImport({ userData, srcPath: incomingZip });
+
+      expect(fs.readFileSync(path.join(userData, 'config/settings.json'), 'utf8')).toBe('{"theme":"after"}');
+      expect(fs.existsSync(safetyPath)).toBe(true);
+      const safetyZip = await JSZip.loadAsync(fs.readFileSync(safetyPath));
+      expect(await safetyZip.file('config/settings.json')!.async('string')).toBe('{"theme":"before"}');
+    } finally {
+      fs.rmSync(incoming, { recursive: true, force: true });
+    }
   });
 });

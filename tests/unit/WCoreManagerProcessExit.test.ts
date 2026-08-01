@@ -18,6 +18,9 @@ const {
   emitConfirmationRemove,
   mockDb,
   mockMainError,
+  mockWcoreAgentStart,
+  wcoreAgents,
+  wcoreAgentOptions,
 } = vi.hoisted(() => ({
   emitResponseStream: vi.fn(),
   emitConfirmationAdd: vi.fn(),
@@ -32,6 +35,12 @@ const {
     updateMessage: vi.fn(),
   },
   mockMainError: vi.fn(),
+  mockWcoreAgentStart: vi.fn<() => Promise<void>>(),
+  wcoreAgents: [] as Array<{
+    start: ReturnType<typeof vi.fn>;
+    kill: ReturnType<typeof vi.fn>;
+  }>,
+  wcoreAgentOptions: [] as Array<{ onProcessTerminated?: (code: number | null) => void }>,
 }));
 
 // ── Module mocks ───────────────────────────────────────────────────
@@ -55,7 +64,7 @@ vi.mock('@/common', () => ({
 
 vi.mock('@/common/platform', () => ({
   getPlatformServices: () => ({
-    paths: { isPackaged: () => false, getAppPath: () => null },
+    paths: { isPackaged: () => false, getAppPath: () => null, getLogsDir: () => '/test/logs' },
     worker: {
       fork: vi.fn(() => ({
         on: vi.fn().mockReturnThis(),
@@ -80,6 +89,19 @@ vi.mock('@process/services/database/export', () => ({
 
 vi.mock('@process/utils/initStorage', () => ({
   ProcessChat: { get: vi.fn(() => Promise.resolve([])) },
+  ProcessConfig: {
+    get: vi.fn(async () => undefined),
+    set: vi.fn(async () => undefined),
+    remove: vi.fn(async () => undefined),
+  },
+}));
+
+vi.mock('@process/agent/wcore/profilePaths', () => ({
+  acquireRuntimeLaunchAuthority: vi.fn(async () => ({
+    raw: true,
+    identity: { dir: '/test/profile' },
+    release: vi.fn().mockResolvedValue(undefined),
+  })),
 }));
 
 vi.mock('@process/utils/message', () => ({
@@ -112,25 +134,30 @@ vi.mock('@process/services/cron/cronServiceSingleton', () => ({
 }));
 
 vi.mock('@process/agent/wcore', () => ({
-  WCoreAgent: vi.fn().mockImplementation(() => ({
-    start: vi.fn().mockResolvedValue(undefined),
-    stop: vi.fn(),
-    kill: vi.fn(),
-    send: vi.fn().mockResolvedValue(undefined),
-    approveTool: vi.fn(),
-    denyTool: vi.fn(),
-    setConfig: vi.fn(),
-    setMode: vi.fn(),
-    sendCommand: vi.fn(),
-    ping: vi.fn(),
-    get isAlive() {
-      return true;
-    },
-    injectConversationHistory: vi.fn().mockResolvedValue(undefined),
-    get bootstrap() {
-      return Promise.resolve();
-    },
-  })),
+  WCoreAgent: vi.fn().mockImplementation(function (options) {
+    wcoreAgentOptions.push(options);
+    const agent = {
+      start: vi.fn(() => mockWcoreAgentStart()),
+      stop: vi.fn(),
+      kill: vi.fn(),
+      send: vi.fn().mockResolvedValue(undefined),
+      approveTool: vi.fn(),
+      denyTool: vi.fn(),
+      setConfig: vi.fn(),
+      setMode: vi.fn(),
+      sendCommand: vi.fn(),
+      ping: vi.fn(),
+      get isAlive() {
+        return true;
+      },
+      injectConversationHistory: vi.fn().mockResolvedValue(undefined),
+      get bootstrap() {
+        return Promise.resolve();
+      },
+    };
+    wcoreAgents.push(agent);
+    return agent;
+  }),
 }));
 
 // ── Import under test ──────────────────────────────────────────────
@@ -144,6 +171,7 @@ function createManager(conversationId = 'conv-pe-1'): WCoreManager {
     workspace: '/test/workspace',
     model: { name: 'test-provider', useModel: 'test-model', baseUrl: '', platform: 'test' },
     conversation_id: conversationId,
+    teamMcpStdioConfig: { name: 'test-team', command: 'node', args: [], env: [] },
   };
   return new WCoreManager(data as Record<string, unknown>, data.model as Record<string, unknown>);
 }
@@ -166,6 +194,9 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
+    mockWcoreAgentStart.mockResolvedValue(undefined);
+    wcoreAgents.length = 0;
+    wcoreAgentOptions.length = 0;
     manager = createManager();
     vi.spyOn(manager as Record<string, unknown>, 'postMessagePromise' as never).mockResolvedValue(undefined as never);
   });
@@ -220,9 +251,272 @@ describe('WCoreManager Process Exit + Heartbeat', () => {
 
       expect(handleTurnEndSpy).toHaveBeenCalled();
     });
+
+    // ── #853: a kill signal names the signal, not "code null" ──────
+    it('surfaces the kill signal (not "code null") and the logs path on a SIGKILL exit', () => {
+      (manager as Record<string, (...args: unknown[]) => void>)['handleProcessExit'](null, 'msg-active-1', 'SIGKILL');
+
+      const errors = findEmissions('error');
+      expect(errors).toHaveLength(1);
+      const data = String(errors[0].data);
+      expect(data).toContain('SIGKILL');
+      expect(data).toContain('/test/logs');
+      expect(data).not.toContain('code null');
+    });
   });
 
   // ── Heartbeat activation/deactivation ────────────────────────────
+
+  describe('shutdown proof', () => {
+    // Lifecycle matrix exercised below:
+    //
+    // start outcome | tree state while cleanup runs | cleanup result | authority result
+    // reject        | alive/pending                  | success        | release + forget
+    // reject        | alive/pending                  | failure        | retain + retry same identity
+    // success       | alive/pending                  | success        | release + forget
+    // success       | alive/pending                  | failure        | retain + retry same identity
+    // either        | already stopped                | success        | release + forget
+    //
+    // WCoreAgent.kill() is the tree-state authority: a root exit alone cannot
+    // resolve it while descendants remain alive.
+    it('proves a spawned engine tree stopped before releasing the profile when bootstrap fails', async () => {
+      let rejectBootstrap!: (error: Error) => void;
+      let resolveTreeShutdown!: () => void;
+      const bootstrap = new Promise<void>((_resolve, reject) => {
+        rejectBootstrap = reject;
+      });
+      const treeShutdown = new Promise<void>((resolve) => {
+        resolveTreeShutdown = resolve;
+      });
+
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-shutdown');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockReturnValue(treeShutdown);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      rejectBootstrap(new Error('wcore ready timeout (30s)'));
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+      expect((lateManager as unknown as { agent: typeof engine }).agent).toBe(engine);
+
+      resolveTreeShutdown();
+      await vi.waitFor(() => expect(releaseProfileLease).toHaveBeenCalledOnce());
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+    });
+
+    it('retains failed-bootstrap identity and lease when tree cleanup fails, then retries that identity', async () => {
+      let rejectBootstrap!: (error: Error) => void;
+      const bootstrap = new Promise<void>((_resolve, reject) => {
+        rejectBootstrap = reject;
+      });
+
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-shutdown-retry');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockRejectedValueOnce(new Error('engine descendant still alive')).mockResolvedValueOnce(undefined);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      rejectBootstrap(new Error('wcore ready timeout (30s)'));
+      await (lateManager as unknown as { agentReady: Promise<void> }).agentReady;
+
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine }).agent).toBe(engine);
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      await expect(lateManager.kill()).resolves.toBeUndefined();
+      expect(engine.kill).toHaveBeenCalledTimes(2);
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
+    });
+
+    it('shares one tree-proof attempt when a successful bootstrap is disposed while cleanup is pending', async () => {
+      let resolveBootstrap!: () => void;
+      let resolveTreeShutdown!: () => void;
+      const bootstrap = new Promise<void>((resolve) => {
+        resolveBootstrap = resolve;
+      });
+      const treeShutdown = new Promise<void>((resolve) => {
+        resolveTreeShutdown = resolve;
+      });
+
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-success-shutdown');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockReturnValue(treeShutdown);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      const shutdown = lateManager.kill();
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      resolveBootstrap();
+      await Promise.resolve();
+
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine }).agent).toBe(engine);
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      resolveTreeShutdown();
+      await expect(shutdown).resolves.toBeUndefined();
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
+    });
+
+    it('retains a successfully-started bootstrap identity when concurrent tree cleanup fails', async () => {
+      let resolveBootstrap!: () => void;
+      let rejectTreeShutdown!: (error: Error) => void;
+      const bootstrap = new Promise<void>((resolve) => {
+        resolveBootstrap = resolve;
+      });
+      const treeShutdown = new Promise<void>((_resolve, reject) => {
+        rejectTreeShutdown = reject;
+      });
+
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-success-shutdown-retry');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockReturnValueOnce(treeShutdown).mockResolvedValueOnce(undefined);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      const shutdown = lateManager.kill();
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      resolveBootstrap();
+      await Promise.resolve();
+      rejectTreeShutdown(new Error('engine descendant still alive'));
+
+      await expect(shutdown).rejects.toThrow('engine descendant still alive');
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine }).agent).toBe(engine);
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      await expect(lateManager.kill()).resolves.toBeUndefined();
+      expect(engine.kill).toHaveBeenCalledTimes(2);
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
+    });
+
+    it('releases an already-stopped bootstrap identity without retaining stale authority', async () => {
+      let rejectBootstrap!: (error: Error) => void;
+      const bootstrap = new Promise<void>((_resolve, reject) => {
+        rejectBootstrap = reject;
+      });
+      const agentCount = wcoreAgents.length;
+      mockWcoreAgentStart.mockImplementationOnce(() => bootstrap);
+      const lateManager = createManager('conv-bootstrap-already-stopped');
+      await vi.waitFor(() => expect(wcoreAgents).toHaveLength(agentCount + 1));
+      const engine = wcoreAgents.at(-1)!;
+      engine.kill.mockResolvedValue(undefined);
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (lateManager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      rejectBootstrap(new Error('wcore exited before ready'));
+      await (lateManager as unknown as { agentReady: Promise<void> }).agentReady;
+
+      expect(engine.kill).toHaveBeenCalledOnce();
+      expect((lateManager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
+    });
+
+    it('retains the profile lease until engine-tree shutdown is proved', async () => {
+      await vi.waitFor(() => expect(wcoreAgentOptions).toHaveLength(1));
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (manager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      let rejectTreeShutdown!: (error: Error) => void;
+      const engine = {
+        kill: vi.fn(
+          () =>
+            new Promise<void>((_resolve, reject) => {
+              rejectTreeShutdown = reject;
+            })
+        ),
+      };
+      (manager as unknown as { agent: typeof engine }).agent = engine;
+      (manager as unknown as { agentReady: Promise<void> }).agentReady = Promise.resolve();
+
+      const shutdown = manager.kill();
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      wcoreAgentOptions[0].onProcessTerminated?.(0);
+      await Promise.resolve();
+
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      rejectTreeShutdown(new Error('engine descendant still alive'));
+      await expect(shutdown).rejects.toThrow('engine descendant still alive');
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+      expect((manager as unknown as { agent: typeof engine }).agent).toBe(engine);
+      expect(
+        (manager as unknown as { releaseProfileLease: typeof releaseProfileLease | null }).releaseProfileLease
+      ).toBe(releaseProfileLease);
+    });
+
+    it('releases the profile lease only after deferred engine-tree shutdown succeeds', async () => {
+      await vi.waitFor(() => expect(wcoreAgentOptions).toHaveLength(1));
+      const releaseProfileLease = vi.fn().mockResolvedValue(undefined);
+      (manager as unknown as { releaseProfileLease: typeof releaseProfileLease }).releaseProfileLease =
+        releaseProfileLease;
+
+      let resolveTreeShutdown!: () => void;
+      const engine = {
+        kill: vi.fn(
+          () =>
+            new Promise<void>((resolve) => {
+              resolveTreeShutdown = resolve;
+            })
+        ),
+      };
+      (manager as unknown as { agent: typeof engine }).agent = engine;
+      (manager as unknown as { agentReady: Promise<void> }).agentReady = Promise.resolve();
+
+      const shutdown = manager.kill();
+      await vi.waitFor(() => expect(engine.kill).toHaveBeenCalledOnce());
+      wcoreAgentOptions[0].onProcessTerminated?.(0);
+      await Promise.resolve();
+
+      expect(releaseProfileLease).not.toHaveBeenCalled();
+
+      resolveTreeShutdown();
+      await expect(shutdown).resolves.toBeUndefined();
+      expect(releaseProfileLease).toHaveBeenCalledOnce();
+      expect((manager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+      expect(
+        (manager as unknown as { releaseProfileLease: typeof releaseProfileLease | null }).releaseProfileLease
+      ).toBeNull();
+    });
+
+    it('rejects shutdown when the Wayland Core engine tree exit is unproved', async () => {
+      const engine = {
+        kill: vi.fn().mockRejectedValueOnce(new Error('engine tree still alive')).mockResolvedValueOnce(undefined),
+      };
+      (manager as unknown as { agent: typeof engine }).agent = engine;
+      (manager as unknown as { agentReady: Promise<void> }).agentReady = Promise.resolve();
+
+      await expect(manager.kill()).rejects.toThrow('engine tree still alive');
+      expect((manager as unknown as { agent: typeof engine }).agent).toBe(engine);
+
+      await expect(manager.kill()).resolves.toBeUndefined();
+      expect(engine.kill).toHaveBeenCalledTimes(2);
+      expect((manager as unknown as { agent: typeof engine | null }).agent).toBeNull();
+    });
+  });
 
   describe('heartbeat activation on stream lifecycle', () => {
     it('activates heartbeat on stream_start', () => {

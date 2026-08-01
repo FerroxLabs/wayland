@@ -12,8 +12,9 @@ import {
   BUILTIN_IMAGE_GEN_ID,
 } from '@/common/config/storage';
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
-import type { TextToSpeechConfig, TextToSpeechProvider } from '@/common/types/ttsTypes';
-import { modelRegistry, voiceAsset } from '@/common/adapter/ipcBridge';
+import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
+import { isTextToSpeechProvider } from '@/common/types/ttsTypes';
+import { modelRegistry, voiceAsset, voiceSynth } from '@/common/adapter/ipcBridge';
 import {
   isImageModelName,
   imageModelDisplayLabel,
@@ -33,6 +34,7 @@ import classNames from 'classnames';
 import { useNavigate } from 'react-router-dom';
 import { useSettingsViewMode } from '../settingsViewContext';
 import MicrophoneCheck from '@/renderer/pages/settings/VoiceSettings/MicrophoneCheck';
+import { useHostedVoiceConsent, hostedVoiceConsentErrorGuidance } from '@/renderer/hooks/voice/useHostedVoiceConsent';
 
 const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
 export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
@@ -235,53 +237,95 @@ const WhisperLocalDownloadControl: React.FC<{
 
 export const TTS_CONFIG_CHANGED_EVENT = 'wayland:tts-config-changed';
 
-// Hoisted out of the component body so React doesn't see a new object
-// identity every render - the previous in-body literal forced every
-// useCallback dependent on KOKORO_ASSET to re-create, which in turn
-// thrashed the install probe's effect.
-const KOKORO_ASSET: VoiceAsset = {
-  id: 'kokoro-onnx-model',
-  url: 'https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx',
-  destPath: '',
-  sha256: '',
-};
+const OPENAI_TTS_VOICES = [
+  'marin',
+  'cedar',
+  'alloy',
+  'ash',
+  'ballad',
+  'coral',
+  'echo',
+  'fable',
+  'nova',
+  'onyx',
+  'sage',
+  'shimmer',
+  'verse',
+] as const;
 
 export const TextToSpeechSettingsSection: React.FC<{
   config: TextToSpeechConfig;
   onChange: (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => void;
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
-  const {
-    downloadState,
-    errorMsg,
-    installed,
-    percent,
-    handleDownload: handleDownloadKokoro,
-    handleCancel: handleCancelDownload,
-  } = useVoiceAssetDownload(KOKORO_ASSET);
+  const testAudioRef = useRef<HTMLAudioElement | null>(null);
+  const testAudioUrlRef = useRef<string | null>(null);
+  const { ensureConsent, needsConsent, consentModal } = useHostedVoiceConsent();
 
   const handleProviderChange = useCallback(
     (value: string) => {
-      onChange((current) => ({ ...current, provider: value as TextToSpeechProvider }));
+      if (!isTextToSpeechProvider(value)) return;
+      // Hosted providers require the VOC-03 disclosure before selection sticks.
+      void ensureConsent(value).then((accepted) => {
+        if (!accepted) return;
+        onChange((current) => ({
+          ...current,
+          provider: value,
+          voice: value === 'openai' ? 'marin' : 'default',
+          model: value === 'openai' ? 'gpt-4o-mini-tts' : undefined,
+        }));
+      });
     },
-    [onChange]
+    [onChange, ensureConsent]
   );
 
-  const handleTestVoice = useCallback(() => {
-    // Test playback uses window.speechSynthesis regardless of stored provider -
-    // gives users a "does my output device work" sanity check before they commit
-    // to downloading a local model or wiring a hosted provider key.
-    if (typeof window === 'undefined' || !window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(t('settings.textToSpeechTestPhrase', 'Voice check.'));
-    if (typeof config.speed === 'number' && config.speed > 0) {
-      utterance.rate = config.speed;
+  const clearTestAudio = useCallback(() => {
+    testAudioRef.current?.pause();
+    testAudioRef.current = null;
+    if (testAudioUrlRef.current) {
+      URL.revokeObjectURL(testAudioUrlRef.current);
+      testAudioUrlRef.current = null;
     }
-    window.speechSynthesis.speak(utterance);
-  }, [config.speed, t]);
+  }, []);
+
+  useEffect(() => clearTestAudio, [clearTestAudio]);
+
+  const handleTestVoice = useCallback(async () => {
+    clearTestAudio();
+    try {
+      await ConfigStorage.set('tools.textToSpeech', config);
+      const result = await voiceSynth.speak.invoke({
+        text: t('settings.textToSpeechTestPhrase', 'Voice check.'),
+      });
+      if (result.ok === false) throw new Error(result.errorCode);
+      if (result.data.length === 0) throw new Error('TTS_EMPTY_AUDIO');
+      const bytes = Uint8Array.from(result.data);
+      const url = URL.createObjectURL(new Blob([bytes.buffer as ArrayBuffer], { type: result.mimeType }));
+      const audio = new Audio(url);
+      testAudioRef.current = audio;
+      testAudioUrlRef.current = url;
+      audio.addEventListener('ended', clearTestAudio, { once: true });
+      await audio.play();
+    } catch (error) {
+      clearTestAudio();
+      const code = error instanceof Error ? error.message : 'unavailable';
+      const guidance = hostedVoiceConsentErrorGuidance(code);
+      if (guidance) {
+        Message.error(t('settings.voiceHostedConsentRequired', { defaultValue: guidance }));
+      } else {
+        Message.error(
+          t('settings.textToSpeechTestFailed', {
+            defaultValue: 'Voice test failed: {{reason}}',
+            reason: code,
+          })
+        );
+      }
+    }
+  }, [clearTestAudio, config, t]);
 
   return (
     <div className='px-[12px] md:px-[32px] py-[24px] bg-[var(--color-bg-2)] rd-12px border-2 border-solid border-[var(--color-border-2)]'>
+      {consentModal}
       <div className='flex items-center justify-between gap-12px mb-8px'>
         <div className='flex flex-col gap-4px'>
           <span className='text-14px text-t-primary'>{t('settings.textToSpeech')}</span>
@@ -300,23 +344,69 @@ export const TextToSpeechSettingsSection: React.FC<{
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.textToSpeechProvider')}>
           <div className='flex items-center gap-8px'>
-            <WaylandSelect value={config.provider} onChange={handleProviderChange} className='flex-1'>
-              <WaylandSelect.Option value='kokoro-local'>
-                {t('settings.textToSpeechProviderKokoroLocal')}
-              </WaylandSelect.Option>
+            <WaylandSelect
+              value={config.provider}
+              onChange={handleProviderChange}
+              className='flex-1'
+              data-testid='tts-provider-select'
+            >
               <WaylandSelect.Option value='system-native'>
                 {t('settings.textToSpeechProviderSystemNative')}
               </WaylandSelect.Option>
+              <WaylandSelect.Option value='openai'>OpenAI Speech</WaylandSelect.Option>
+              <WaylandSelect.Option value='kokoro-local' disabled>
+                {t('settings.textToSpeechProviderKokoroLocal')} · Runtime unavailable
+              </WaylandSelect.Option>
             </WaylandSelect>
-            <Button size='small' onClick={handleTestVoice}>
+            <Button size='small' onClick={handleTestVoice} disabled={config.provider === 'kokoro-local'}>
               {t('settings.textToSpeechTestVoice', 'Test voice')}
             </Button>
           </div>
+          {needsConsent(config.provider) && (
+            <div
+              data-testid='tts-consent-pending'
+              className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'
+            >
+              <span>
+                {t('settings.voiceHostedConsentPending', 'This provider processes audio and text off your device.')}
+              </span>
+              <Button
+                type='text'
+                size='mini'
+                className='!px-0 !h-auto'
+                data-testid='tts-consent-review'
+                onClick={() => void ensureConsent(config.provider)}
+              >
+                {t('settings.voiceReviewHostedConsent', 'Review consent')}
+              </Button>
+            </div>
+          )}
         </Form.Item>
 
         <Form.Item label={t('settings.textToSpeechVoice')}>
-          <Input value={config.voice} onChange={(value) => onChange((current) => ({ ...current, voice: value }))} />
+          {config.provider === 'openai' ? (
+            <WaylandSelect
+              value={config.voice === 'default' ? 'marin' : config.voice}
+              onChange={(value) => onChange((current) => ({ ...current, voice: value }))}
+            >
+              {OPENAI_TTS_VOICES.map((voice) => (
+                <WaylandSelect.Option key={voice} value={voice}>
+                  {voice.charAt(0).toUpperCase() + voice.slice(1)}
+                </WaylandSelect.Option>
+              ))}
+            </WaylandSelect>
+          ) : (
+            <Input value={config.voice} onChange={(value) => onChange((current) => ({ ...current, voice: value }))} />
+          )}
         </Form.Item>
+
+        {config.provider === 'openai' && (
+          <Form.Item label='Connection'>
+            <span className='text-12px text-t-secondary'>
+              Uses the OpenAI credential connected in Models and Providers.
+            </span>
+          </Form.Item>
+        )}
 
         <Form.Item label={t('settings.textToSpeechSpeed')}>
           {/* Reserve the same horizontal gutter on both sides as the
@@ -345,42 +435,11 @@ export const TextToSpeechSettingsSection: React.FC<{
         </Form.Item>
 
         {config.provider === 'kokoro-local' && (
-          <Form.Item label={t('settings.textToSpeechDownloadModel')}>
-            <div className='flex flex-col gap-8px'>
-              {downloadState === 'downloading' ? (
-                <div className='flex items-center gap-8px'>
-                  <Progress percent={percent} animation className='flex-1' />
-                  <Button size='mini' onClick={handleCancelDownload}>
-                    {t('settings.textToSpeechCancelDownload')}
-                  </Button>
-                </div>
-              ) : installed ? (
-                <div className='flex items-center justify-between gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
-                  <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
-                    <CheckCircle2 size={14} />
-                    {t('settings.textToSpeechModelInstalled', { defaultValue: 'Installed' })}
-                  </span>
-                  <Button
-                    type='text'
-                    size='mini'
-                    icon={<RotateCcw size={12} />}
-                    onClick={handleDownloadKokoro}
-                    className='text-12px text-t-tertiary'
-                  >
-                    {t('settings.textToSpeechRedownload', { defaultValue: 'Re-download' })}
-                  </Button>
-                </div>
-              ) : (
-                <Button type='outline' onClick={handleDownloadKokoro} size='small'>
-                  {t('settings.textToSpeechDownloadModel')}
-                </Button>
-              )}
-              {downloadState === 'error' && (
-                <span className='text-12px text-[var(--danger)]'>
-                  {t('settings.textToSpeechDownloadError')}: {errorMsg}
-                </span>
-              )}
-            </div>
+          <Form.Item label='Availability'>
+            <span className='text-12px text-[var(--warning)]'>
+              Kokoro is preserved as an experimental migration value, but Wayland will not claim it is ready until the
+              model, voice data, phonemizer, and executable runtime all pass a real synthesis check.
+            </span>
           </Form.Item>
         )}
       </Form>
@@ -394,6 +453,7 @@ export const SpeechToTextSettingsSection: React.FC<{
 }> = ({ config, onChange }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { ensureConsent, needsConsent, consentModal } = useHostedVoiceConsent();
   // Whether OpenAI is connected in the shared provider registry (the same store
   // Models/Providers shows as "Connected"). When it is, OpenAI Whisper uses that
   // key automatically, so the panel confirms the key is present instead of
@@ -438,12 +498,16 @@ export const SpeechToTextSettingsSection: React.FC<{
 
   const handleProviderChange = useCallback(
     (value: string) => {
-      onChange((current) => ({
-        ...current,
-        provider: value as SpeechToTextProvider,
-      }));
+      // Hosted STT providers require the VOC-03 disclosure before selection sticks.
+      void ensureConsent(value).then((accepted) => {
+        if (!accepted) return;
+        onChange((current) => ({
+          ...current,
+          provider: value as SpeechToTextProvider,
+        }));
+      });
     },
-    [onChange]
+    [onChange, ensureConsent]
   );
 
   const handleOpenAIChange = useCallback(
@@ -474,6 +538,7 @@ export const SpeechToTextSettingsSection: React.FC<{
 
   return (
     <div className='px-[12px] md:px-[32px] py-[24px] bg-[var(--color-bg-2)] rd-12px border-2 border-solid border-[var(--color-border-2)]'>
+      {consentModal}
       <div className='flex items-center justify-between gap-12px mb-8px'>
         <div className='flex flex-col gap-4px'>
           <span className='text-14px text-t-primary'>{t('settings.speechToText')}</span>
@@ -494,13 +559,32 @@ export const SpeechToTextSettingsSection: React.FC<{
 
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.speechToTextProvider')}>
-          <WaylandSelect value={config.provider} onChange={handleProviderChange}>
+          <WaylandSelect value={config.provider} onChange={handleProviderChange} data-testid='stt-provider-select'>
             <WaylandSelect.Option value='openai'>{t('settings.speechToTextProviderOpenAI')}</WaylandSelect.Option>
             <WaylandSelect.Option value='deepgram'>{t('settings.speechToTextProviderDeepgram')}</WaylandSelect.Option>
             <WaylandSelect.Option value='whisper-local'>
               {t('settings.speechToTextProviderWhisperLocal')}
             </WaylandSelect.Option>
           </WaylandSelect>
+          {needsConsent(config.provider) && (
+            <div
+              data-testid='stt-consent-pending'
+              className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'
+            >
+              <span>
+                {t('settings.voiceHostedConsentPending', 'This provider processes audio and text off your device.')}
+              </span>
+              <Button
+                type='text'
+                size='mini'
+                className='!px-0 !h-auto'
+                data-testid='stt-consent-review'
+                onClick={() => void ensureConsent(config.provider)}
+              >
+                {t('settings.voiceReviewHostedConsent', 'Review consent')}
+              </Button>
+            </div>
+          )}
         </Form.Item>
 
         <Form.Item label={t('settings.voiceMicCheckLabel', 'Microphone')}>
@@ -769,15 +853,20 @@ const ToolsModalContent: React.FC = () => {
         delete env.WAYLAND_IMG_MODEL;
       }
 
-      const updatedServer: IMcpServer = {
-        ...builtinServer,
-        transport: { ...builtinServer.transport, env },
-        updatedAt: Date.now(),
-      };
-
-      const updatedServers = mcpServers.map((s) => (s.id === BUILTIN_IMAGE_GEN_ID ? updatedServer : s));
-      await saveMcpServers(updatedServers);
-      if (updatedServer.enabled) {
+      let updatedServer: IMcpServer | undefined;
+      await saveMcpServers((current) => {
+        updatedServer = undefined;
+        return current.map((candidate) => {
+          if (candidate.id !== BUILTIN_IMAGE_GEN_ID || candidate.transport.type !== 'stdio') return candidate;
+          updatedServer = {
+            ...candidate,
+            transport: { ...candidate.transport, env },
+            updatedAt: Math.max(Date.now(), candidate.updatedAt + 1),
+          };
+          return updatedServer;
+        });
+      });
+      if (updatedServer?.enabled) {
         await syncMcpToAgents(updatedServer, true);
       }
     },
@@ -829,18 +918,23 @@ const ToolsModalContent: React.FC = () => {
     async (checked: boolean) => {
       if (!builtinImageGenServer) return;
 
-      const updatedServer: IMcpServer = {
-        ...builtinImageGenServer,
-        enabled: checked,
-        updatedAt: Date.now(),
-      };
-
       setIsUpdatingImageGeneration(true);
       skipNextImageGenerationAutoCheckRef.current = checked;
       try {
-        await saveMcpServers((prevServers) =>
-          prevServers.map((server) => (isBuiltinImageGenServer(server) ? updatedServer : server))
-        );
+        let updatedServer: IMcpServer | undefined;
+        await saveMcpServers((current) => {
+          updatedServer = undefined;
+          return current.map((candidate) => {
+            if (!isBuiltinImageGenServer(candidate)) return candidate;
+            updatedServer = {
+              ...candidate,
+              enabled: checked,
+              updatedAt: Math.max(Date.now(), candidate.updatedAt + 1),
+            };
+            return updatedServer;
+          });
+        });
+        if (!updatedServer) return;
 
         setImageGenerationModel((prev) => {
           if (!prev) return prev;

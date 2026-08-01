@@ -1,0 +1,14 @@
+receipt=invariants
+captured_at_utc=2026-07-19T20:56:31Z
+implementation_commit=19e376ad65abefb5cc63fe7a00fbe15bd38a96be
+implementation_tree=6b2041680fca24a063ccf1d3a63276573b665238
+parent_audit_commit=f2e20764a6980f8a9341ad0ec86d2b010d3016ae
+command=test ! -e .ijfw/wiki-state/index.json && ! rg -n 'quarantine-eligible|quarantineEligible' src tests && git diff --check f2e20764..19e376ad && test "$(git rev-parse HEAD)" = 19e376ad65abefb5cc63fe7a00fbe15bd38a96be && test "$(git rev-parse HEAD^{tree})" = 6b2041680fca24a063ccf1d3a63276573b665238
+exit_code=0
+sanitization=redactCommandSecrets fixed-point
+wiki_state=absent
+banned_vocabulary=absent
+diff_check=pass
+head_identity=pass
+tree_identity=pass
+source_tree=clean-before-evidence

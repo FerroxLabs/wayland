@@ -1,0 +1,1 @@
+{"args":["--stdio"],"command":"desktop-mcp","env":{"WAYLAND_PROFILE":"desktop"},"headers":{"X-Wayland-Contract":"v1"},"name":"desktop-tools","transport":"stdio","type":"add_mcp_server","url":"https://mcp.invalid/v1"}

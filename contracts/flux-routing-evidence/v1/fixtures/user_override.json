@@ -1,0 +1,115 @@
+{
+  "correlation": {
+    "backend_spawn_id": "spawn-user-override",
+    "correlation_id": "corr-user-override",
+    "desktop_task_id": "dt_user-override",
+    "desktop_turn_id": "turn-user-override",
+    "request_id": "req-user-override"
+  },
+  "events": [
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-user-override",
+        "correlation_id": "corr-user-override",
+        "desktop_task_id": "dt_user-override",
+        "desktop_turn_id": "turn-user-override",
+        "request_id": "req-user-override"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-user-override-0",
+      "event_type": "route.user_override",
+      "evidence": {
+        "replaced_mode": "flux_auto",
+        "requested_model": "native-model-b",
+        "route_mode": "explicit_native"
+      },
+      "sequence": 0
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-user-override",
+        "correlation_id": "corr-user-override",
+        "desktop_task_id": "dt_user-override",
+        "desktop_turn_id": "turn-user-override",
+        "request_id": "req-user-override"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-user-override-1",
+      "event_type": "route.selected",
+      "evidence": {
+        "flux_involved": false,
+        "precedence": "explicit_native_over_flux_auto",
+        "provider": "native-provider",
+        "requested_model": "native-model-b",
+        "reroute_allowed": false,
+        "route_mode": "explicit_native",
+        "selected_model": "native-model-b"
+      },
+      "sequence": 1
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-user-override",
+        "correlation_id": "corr-user-override",
+        "desktop_task_id": "dt_user-override",
+        "desktop_turn_id": "turn-user-override",
+        "request_id": "req-user-override"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-user-override-2",
+      "event_type": "provider.attempt_started",
+      "evidence": {
+        "attempt_id": "attempt-override-1",
+        "model": "native-model-b",
+        "provider": "native-provider"
+      },
+      "sequence": 2
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-user-override",
+        "correlation_id": "corr-user-override",
+        "desktop_task_id": "dt_user-override",
+        "desktop_turn_id": "turn-user-override",
+        "request_id": "req-user-override"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-user-override-3",
+      "event_type": "request.cost_observed",
+      "evidence": {
+        "attempt_id": "attempt-override-1",
+        "cost_microusd": 1200,
+        "currency": "USD",
+        "latency_ms": 510,
+        "price_status": "priced"
+      },
+      "sequence": 3
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-user-override",
+        "correlation_id": "corr-user-override",
+        "desktop_task_id": "dt_user-override",
+        "desktop_turn_id": "turn-user-override",
+        "request_id": "req-user-override"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-user-override-4",
+      "event_type": "request.terminal",
+      "evidence": {
+        "attempt_id": "attempt-override-1",
+        "outcome": "success",
+        "reason_code": "completed"
+      },
+      "sequence": 4
+    }
+  ],
+  "expected_profile": "flux",
+  "fixture_version": 1,
+  "scenario": "user-override"
+}

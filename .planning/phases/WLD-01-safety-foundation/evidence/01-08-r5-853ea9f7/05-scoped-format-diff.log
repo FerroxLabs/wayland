@@ -1,0 +1,18 @@
+receipt=scoped-format-diff
+captured_at_utc=2026-07-19T20:11:45Z
+implementation_commit=853ea9f76023e6d1406ae5887b92fc00c9b0529d
+implementation_tree=907b217be36cefdcf02bec430656ef00face34d6
+environment_receipt=00-environment.log
+command=bun run format -- --check <six owned changed files>; git diff --check d726723ddad93a5d00141971d1f005ef45f7e67a..853ea9f76023e6d1406ae5887b92fc00c9b0529d
+exit_code=0
+sanitization=redactCommandSecrets+conciergeDiagServer.redact fixed-point
+output_begin
+[format command output]
+$ oxfmt --check ".planning/phases/••••tion/01-08-PLAN.md" ".planning/phases/••••tion/01-08-REVIEW-SUCCESSOR.md" src/process/agent/wcore/index.ts src/process/task/WCoreManager.ts tests/unit/WCoreManagerProcessExit.test.ts tests/unit/wcoreStderrSurfacing.test.ts
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 246ms on 6 files using 10 threads.
+[git diff --check command output; empty means clean]
+
+output_end

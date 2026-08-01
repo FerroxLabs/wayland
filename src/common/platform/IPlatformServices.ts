@@ -54,10 +54,10 @@ export interface IWorkerProcess {
   postMessage(message: unknown): void;
   on(event: string, handler: (...args: unknown[]) => void): this;
   /**
-   * Terminate the child process. Resolves when the child has actually exited,
-   * or after a 2s timeout falls back to SIGKILL and resolves anyway.
+   * Terminate the child process. Resolves only when exit is confirmed; rejects
+   * when the platform cannot prove termination within its bounded timeout.
    * AUDIT-05 F20 / M18: callers (ForkTask.kill → WorkerTaskManager.clear) await
-   * this so Cmd+Q before-quit cleanup doesn't return before children die.
+   * this so replacement cannot overlap an unconfirmed old worker.
    */
   kill(): Promise<void>;
 }

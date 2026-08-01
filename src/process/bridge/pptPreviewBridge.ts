@@ -17,7 +17,11 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import net from 'node:net';
 import path from 'node:path';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
-import { installOfficecli } from './officecliInstaller';
+import {
+  OFFICECLI_MISSING_RUNTIME_MESSAGE,
+  installOfficecli,
+  resolveVerifiedOfficecliCommand,
+} from './officecliInstaller';
 import { confinePath } from './pathConfinement';
 
 interface WatchSession {
@@ -157,11 +161,22 @@ async function startWatch(filePath: string, retry = false): Promise<string> {
   // Kill any existing/pending session for this file first
   killSession(sessionKey);
 
+  // Bind to the exact verified OfficeCLI executable from the accepted lockstep
+  // capability (01-13). We never spawn a bare-PATH `officecli`: if the verified
+  // capability is unavailable or its identity changed, fail closed instead of
+  // executing an unverified binary, an npm/global bootstrap, or a hosted
+  // fallback. Cowork stays an intent over the ordinary canonical run.
+  const command = resolveVerifiedOfficecliCommand();
+  if (!command) {
+    ipcBridge.pptPreview.status.emit({ state: 'error', message: OFFICECLI_MISSING_RUNTIME_MESSAGE });
+    throw new Error(OFFICECLI_MISSING_RUNTIME_MESSAGE);
+  }
+
   const port = await findFreePort();
 
   ipcBridge.pptPreview.status.emit({ state: 'starting' });
 
-  const child = spawn('officecli', ['watch', filePath, '--port', String(port)], {
+  const child = spawn(command, ['watch', filePath, '--port', String(port)], {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: getEnhancedEnv(),
   });
@@ -223,10 +238,8 @@ async function startWatch(filePath: string, retry = false): Promise<string> {
       console.error('[pptPreview] spawn error:', err.message);
       sessions.delete(sessionKey);
       if ((err as NodeJS.ErrnoException).code === 'ENOENT' && !retry) {
-        // officecli not found (bundled binary unresolvable) - offer a
-        // consent-gated, pinned, checksum-verified install, then retry once.
-        // Clear the timeout before the potentially long install + retry; the
-        // install path drives its own resolve/reject on the outer promise.
+        // A missing verified bundle is a release defect. The recovery boundary
+        // fails closed (no moving runtime download) and reports a repair path.
         clearTimeout(timeout);
         settled = true;
         installOfficecli((payload) => ipcBridge.pptPreview.status.emit(payload))
@@ -234,7 +247,7 @@ async function startWatch(filePath: string, retry = false): Promise<string> {
             if (installed) {
               startWatch(filePath, true).then(resolve, reject);
             } else {
-              reject(new Error('officecli is not installed and auto-install was declined or failed'));
+              reject(new Error(OFFICECLI_MISSING_RUNTIME_MESSAGE));
             }
           })
           .catch(reject);

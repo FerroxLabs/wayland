@@ -23,6 +23,7 @@
  */
 
 import type { AcpBackendConfig } from '@/common/types/acpTypes';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import builtinCatalogJson from '../resources/builtin-catalog/assistants.json';
 
 /** Shape of a record in builtin-catalog/assistants.json (built by scripts/build-builtin-catalog.mjs). */
@@ -62,7 +63,7 @@ export function getBuiltinCatalogAssistants(): AcpBackendConfig[] {
     name: r.name,
     description: r.description,
     avatar: r.avatar,
-    presetAgentType: r.presetAgentType || 'gemini',
+    presetAgentType: resolvePresetAgentType(r.presetAgentType),
     category: r.category,
     kind: r.kind,
     // Parity with the dev (extension) load: every catalog record is enabled.

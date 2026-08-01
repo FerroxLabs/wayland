@@ -1,0 +1,17 @@
+{
+  "contract": "wayland-publisher-attestations/1.0",
+  "policies": [
+    {
+      "id": "wayland-core-v0.12.25-release",
+      "status": "active",
+      "releaseTag": "v0.12.25",
+      "repository": "FerroxLabs/wayland-core",
+      "signerWorkflow": "FerroxLabs/wayland-core/.github/workflows/release.yml",
+      "sourceRef": "refs/heads/main",
+      "sourceDigest": "61b79c4f90f71fe2cf243affa7620b3c9b607f14",
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "oidcIssuer": "https://token.actions.githubusercontent.com",
+      "runner": "github-hosted"
+    }
+  ]
+}

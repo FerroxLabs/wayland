@@ -5,11 +5,11 @@
  */
 
 /**
- * WorkspaceTrustStore — the single source of truth for the per-workspace trust
- * axis (#671, desktop half of #657).
+ * Workspace access store — the single source of truth for the per-workspace
+ * trusted-edits axis (#671, desktop half of #657).
  *
- * A workspace (identified by its session cwd) is either 'chat' (gated) or
- * 'cowork' (trusted: auto-approve read/edit, still prompt exec/network). The
+ * A workspace (identified by its session cwd) is either `ask` (gated) or
+ * `trusted-edits` (auto-approve read/edit, still prompt exec/network). The
  * value is:
  *   - persisted in ProcessConfig (`workspace.trustLevel`), so it survives an app
  *     restart, mirroring the #672 `ApprovalPersistence` pattern; and
@@ -20,13 +20,13 @@
  *
  * Coherence: the managers and this store all run in the MAIN process (the task
  * managers are constructed by the main-process `workerTaskManagerSingleton`), so
- * a `setWorkspaceTrust` write is immediately visible to every live gate — a
- * mid-session Chat<->Cowork flip takes effect on the next tool call. Fail-safe:
- * an un-hydrated / absent key reads as 'chat' (prompt), never as trusted.
+ * a `setWorkspaceAccess` write is immediately visible to every live gate. An
+ * un-hydrated or absent key reads as `ask`, never as trusted.
  *
- * Main-process only. The renderer drives it exclusively through the
- * `workspaceTrust` IPC (never renderer ConfigStorage), so this cache never goes
- * stale behind a direct config write.
+ * Main-process only. Any future explicit local access control must drive it
+ * exclusively through the `workspaceTrust` IPC (never renderer ConfigStorage),
+ * so this cache cannot go stale behind a direct config write. Assistant/preset
+ * selection must never call this store.
  */
 
 import path from 'node:path';
@@ -34,18 +34,19 @@ import path from 'node:path';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { mainError } from '@process/utils/mainLogger';
 import {
-  coerceWorkspaceTrustLevel,
-  DEFAULT_WORKSPACE_TRUST_LEVEL,
-  type WorkspaceTrustLevel,
+  coerceWorkspaceAccessLevel,
+  DEFAULT_WORKSPACE_ACCESS_LEVEL,
+  type WorkspaceAccessInput,
+  type WorkspaceAccessLevel,
 } from '@/common/security/workspaceTrust';
 
 const CONFIG_KEY = 'workspace.trustLevel' as const;
 
-/** workspace cwd (normalized) → trust level. */
-type WorkspaceTrustMap = Record<string, WorkspaceTrustLevel>;
+/** workspace cwd (normalized) → canonical access level. */
+type WorkspaceAccessMap = Record<string, WorkspaceAccessLevel>;
 
 /** Process-global in-memory mirror; seeded once by `hydrateWorkspaceTrust`. */
-const cache = new Map<string, WorkspaceTrustLevel>();
+const cache = new Map<string, WorkspaceAccessLevel>();
 /** Memoized one-shot hydration; every caller awaits the SAME real load. */
 let hydration: Promise<void> | undefined;
 /** Serializes persist writes so concurrent sets can't lose a sibling's update. */
@@ -68,19 +69,25 @@ function normalizeWorkspaceKey(workspace: string): string {
   return path.resolve(workspace);
 }
 
-async function readAll(): Promise<WorkspaceTrustMap> {
+async function readAll(): Promise<WorkspaceAccessMap> {
   const stored = await ProcessConfig.get(CONFIG_KEY).catch((): undefined => undefined);
-  return stored && typeof stored === 'object' ? (stored as WorkspaceTrustMap) : {};
+  if (!stored || typeof stored !== 'object' || Array.isArray(stored)) return {};
+
+  const normalized: WorkspaceAccessMap = {};
+  for (const [workspace, value] of Object.entries(stored)) {
+    normalized[workspace] = coerceWorkspaceAccessLevel(value);
+  }
+  return normalized;
 }
 
 /**
  * Seed the in-memory cache from ProcessConfig exactly once at startup. Idempotent
  * and error-swallowing: a failed load leaves the cache empty, so every workspace
- * reads as 'chat' (prompt) until a value is set — the fail-safe direction.
+ * reads as `ask` until a value is set — the fail-safe direction.
  *
  * The in-flight promise is memoized so every caller awaits the SAME real load,
  * never a boolean flipped before the async read completes — otherwise a `get`
- * that raced startup could resolve to 'chat' while the gate later reads 'cowork'
+ * that raced startup could resolve to `ask` while the gate later reads trusted
  * (a security-posture display lie). Mirrors PermissionResolver.ensureHydrated.
  */
 export function hydrateWorkspaceTrust(): Promise<void> {
@@ -88,7 +95,7 @@ export function hydrateWorkspaceTrust(): Promise<void> {
     hydration = readAll()
       .then((all) => {
         for (const [workspace, level] of Object.entries(all)) {
-          cache.set(normalizeWorkspaceKey(workspace), coerceWorkspaceTrustLevel(level));
+          cache.set(normalizeWorkspaceKey(workspace), coerceWorkspaceAccessLevel(level));
         }
       })
       .catch((err) => {
@@ -99,32 +106,33 @@ export function hydrateWorkspaceTrust(): Promise<void> {
 }
 
 /**
- * Synchronous trust lookup for the approval gates. Returns 'chat' for an unknown
+ * Synchronous access lookup for the approval gates. Returns `ask` for an unknown
  * or empty workspace, or before hydration completes — the failure direction is
  * always "prompt", never "auto-approve".
  */
-export function getWorkspaceTrustSync(workspace: string | undefined | null): WorkspaceTrustLevel {
-  if (!workspace) return DEFAULT_WORKSPACE_TRUST_LEVEL;
-  return cache.get(normalizeWorkspaceKey(workspace)) ?? DEFAULT_WORKSPACE_TRUST_LEVEL;
+export function getWorkspaceAccessSync(workspace: string | undefined | null): WorkspaceAccessLevel {
+  if (!workspace) return DEFAULT_WORKSPACE_ACCESS_LEVEL;
+  return cache.get(normalizeWorkspaceKey(workspace)) ?? DEFAULT_WORKSPACE_ACCESS_LEVEL;
 }
 
-/** Convenience predicate: is this workspace trusted (cowork)? */
+/** Convenience predicate used by every local approval gate. */
 export function isWorkspaceTrusted(workspace: string | undefined | null): boolean {
-  return getWorkspaceTrustSync(workspace) === 'cowork';
+  return getWorkspaceAccessSync(workspace) === 'trusted-edits';
 }
 
 /**
- * Set (and persist) the trust level for a workspace. Updates the in-memory cache
+ * Set (and persist) the access level for a workspace. Updates the in-memory cache
  * FIRST (so live gates see it immediately even if the disk write lags), then
  * write-through to ProcessConfig under the normalized key. A persist failure is
  * logged, not thrown: the cache still reflects the user's choice for this
  * session; only cross-restart durability is lost.
  */
-export async function setWorkspaceTrust(
+export async function setWorkspaceAccess(
   workspace: string | undefined | null,
-  level: WorkspaceTrustLevel
+  input: WorkspaceAccessInput
 ): Promise<void> {
   if (!workspace) return;
+  const level = coerceWorkspaceAccessLevel(input);
   const key = normalizeWorkspaceKey(workspace);
   cache.set(key, level);
   // Serialize the read-modify-write: two concurrent sets for DIFFERENT workspaces
@@ -133,11 +141,16 @@ export async function setWorkspaceTrust(
   // The in-memory cache above is already correct for this session regardless.
   const run = writeChain.then(async () => {
     try {
+      // readAll canonicalizes every legacy value, so the next user-initiated
+      // access write migrates the full map without a startup rewrite racing a
+      // live action.
       const all = await readAll();
-      if (all[key] === level) return; // already persisted - avoid a redundant write
+      // Always write the canonical map. Even an equivalent user choice may be
+      // the first post-upgrade access write, and must replace legacy serialized
+      // `chat` / `cowork` values across the map.
       await ProcessConfig.set(CONFIG_KEY, { ...all, [key]: level });
     } catch (err) {
-      mainError('[WorkspaceTrust]', 'setWorkspaceTrust failed', err instanceof Error ? err.message : String(err));
+      mainError('[WorkspaceTrust]', 'setWorkspaceAccess failed', err instanceof Error ? err.message : String(err));
     }
   });
   // Keep the chain alive even if this link rejected (it can't — caught above).
@@ -146,7 +159,7 @@ export async function setWorkspaceTrust(
 }
 
 /** Read the persisted level for a workspace (async; for the IPC get handler). */
-export async function getWorkspaceTrust(workspace: string | undefined | null): Promise<WorkspaceTrustLevel> {
+export async function getWorkspaceAccess(workspace: string | undefined | null): Promise<WorkspaceAccessLevel> {
   await hydrateWorkspaceTrust();
-  return getWorkspaceTrustSync(workspace);
+  return getWorkspaceAccessSync(workspace);
 }

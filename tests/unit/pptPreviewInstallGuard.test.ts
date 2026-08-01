@@ -1,16 +1,15 @@
 /**
  * Tests for pptPreviewBridge install failure guard.
  *
- * When officecli is not installed, startWatch delegates to the consent-gated,
- * pinned, checksum-verified installer (officecliInstaller.installOfficecli). The
- * installer owns the per-session "already failed, do not retry" latch (so that
+ * When the verified OfficeCLI bundle is missing, startWatch delegates to the
+ * fail-closed recovery boundary (officecliInstaller.installOfficecli). The
+ * boundary owns the per-session "already failed, do not retry" latch (so that
  * multiple office files triggering preview simultaneously do not each kick off a
  * fresh install). These tests assert the bridge:
  *   - confines the renderer-supplied path to an authorized root before spawning
  *     (SEC-IPC-07);
- *   - attempts the install on the first ENOENT and surfaces an 'installing'
- *     status;
- *   - does not re-attempt the install once the installer has latched a failure.
+ *   - reports the first ENOENT through the recovery boundary;
+ *   - does not re-attempt recovery once the boundary has latched a failure.
  */
 import os from 'node:os';
 import path from 'node:path';
@@ -36,7 +35,6 @@ function setupMocks() {
   installSpy = vi.fn(async (emitStatus?: (p: { state: string }) => void) => {
     if (installerLatched) return false;
     installerLatched = true;
-    emitStatus?.({ state: 'installing' });
     emitStatus?.({ state: 'error' });
     return false; // install fails (e.g. no pinned checksum / consent declined)
   });
@@ -82,8 +80,13 @@ function setupMocks() {
 
   // The installer is unit-tested separately; mock it so the bridge's ENOENT
   // delegation + the installer's no-retry latch can be driven deterministically.
+  // The verified lockstep capability resolves to its exact executable here, so
+  // control reaches spawn — where the mocked child then emits ENOENT (the binary
+  // vanished between resolution and spawn), exercising the recovery boundary.
   vi.doMock('../../src/process/bridge/officecliInstaller', () => ({
     installOfficecli: (...args: unknown[]) => installSpy(...args),
+    resolveVerifiedOfficecliCommand: () => '/verified/bundled-officecli/officecli',
+    OFFICECLI_MISSING_RUNTIME_MESSAGE: 'The verified OfficeCLI runtime is missing; reinstall or update Wayland',
   }));
 
   // Mock node:net - findFreePort needs createServer().listen() to resolve a port
@@ -162,16 +165,15 @@ describe('pptPreviewBridge install guard', () => {
     expect(result.error).toBe('Refused to preview a file outside the allowed directories');
   });
 
-  it('should attempt install on first ENOENT spawn error', async () => {
+  it('should report recovery failure on the first ENOENT spawn error', async () => {
     await loadAndInit();
 
     // Trigger a startWatch call via the captured handler
     const result = await startHandler({ filePath: F('test.pptx') });
 
-    // Install was attempted (delegated to the installer)
+    // Recovery was attempted (delegated to the fail-closed boundary)
     expect(installSpy).toHaveBeenCalled();
-    // Should have emitted 'installing' status
-    expect(statusEmits.some((e) => e.state === 'installing')).toBe(true);
+    expect(statusEmits.some((e) => e.state === 'error')).toBe(true);
     // Result should indicate failure
     expect(result.error).toBeTruthy();
   });
@@ -187,11 +189,10 @@ describe('pptPreviewBridge install guard', () => {
     // Reset status tracking
     statusEmits.length = 0;
 
-    // Second call - install latch means no fresh 'installing' status
+    // Second call - recovery latch means no fresh status
     await startHandler({ filePath: F('file2.pptx') });
 
-    // Should NOT have emitted 'installing' status on second call
-    expect(statusEmits.some((e) => e.state === 'installing')).toBe(false);
+    expect(statusEmits.some((e) => e.state === 'error')).toBe(false);
   });
 
   it('should skip a fresh install for the third concurrent file as well', async () => {
@@ -201,10 +202,10 @@ describe('pptPreviewBridge install guard', () => {
     await startHandler({ filePath: F('a.pptx') });
     statusEmits.length = 0;
 
-    // Second and third calls - no new 'installing' status
+    // Second and third calls - no new recovery status
     await startHandler({ filePath: F('b.pptx') });
     await startHandler({ filePath: F('c.pptx') });
 
-    expect(statusEmits.some((e) => e.state === 'installing')).toBe(false);
+    expect(statusEmits.some((e) => e.state === 'error')).toBe(false);
   });
 });

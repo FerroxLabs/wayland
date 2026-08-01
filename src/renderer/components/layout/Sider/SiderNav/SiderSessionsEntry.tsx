@@ -31,7 +31,7 @@ const SiderSessionsEntry: React.FC<SiderSessionsEntryProps> = ({
   onClick,
 }) => {
   const { t } = useTranslation();
-  const label = t('conversations.siderEntry', { defaultValue: 'Conversations' });
+  const label = t('conversations.siderEntry', { defaultValue: 'Chats' });
 
   if (collapsed) {
     return (

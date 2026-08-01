@@ -70,7 +70,7 @@ export const SIDER_NAV_ITEMS: SiderNavItem[] = [
   {
     id: 'sessions',
     labelKey: 'conversations.siderEntry',
-    defaultLabel: 'Conversations',
+    defaultLabel: 'Chats',
     icon: <MessagesSquare size={16} />,
     render: (ctx) => (
       <SiderSessionsEntry

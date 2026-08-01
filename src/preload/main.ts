@@ -5,7 +5,25 @@
  */
 
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
+import type { IpcRendererEvent } from 'electron';
 import { ADAPTER_BRIDGE_EVENT_KEY } from '../common/adapter/constant';
+import type {
+  ConstitutionAuthorityEnvelope,
+  ConstitutionMutationResult,
+  ConstitutionOverlayReadResult,
+  ConstitutionReadResult,
+  ConstitutionSpecialistSummary,
+} from '../common/types/constitution';
+import type {
+  ConstitutionArchiveInventoryResult,
+  ConstitutionArchiveRestoreRequest,
+  ConstitutionArchiveRestoreResult,
+  ConstitutionClassicRecoveryDecisionRequest,
+  ConstitutionClassicRecoveryMetadataResult,
+  ConstitutionClassicRecoveryMutationResult,
+  ConstitutionClassicRecoveryResumeRequest,
+} from '../common/types/constitutionRecovery';
+import type { CockpitRolloutStatus } from '../common/types/cohortRollout';
 
 // SECURITY (RT-F4-03): the weixin login channels (qr/scanned/done) carry a
 // single, one-shot login flow. The previous implementation registered a fresh
@@ -91,7 +109,7 @@ const weixinLogin = {
  * @description Injected into the renderer process to enable communication with the main process
  * */
 contextBridge.exposeInMainWorld('electronAPI', {
-  emit: (name: string, data: any) => {
+  emit: (name: string, data: unknown) => {
     return ipcRenderer
       .invoke(
         ADAPTER_BRIDGE_EVENT_KEY,
@@ -105,8 +123,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
         throw error;
       });
   },
-  on: (callback: any) => {
-    const handler = (event: any, value: any) => {
+  on: (callback: (payload: { event: IpcRendererEvent; value: unknown }) => void) => {
+    const handler = (event: IpcRendererEvent, value: unknown) => {
       callback({ event, value });
     };
     ipcRenderer.on(ADAPTER_BRIDGE_EVENT_KEY, handler);
@@ -127,20 +145,57 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.invoke('webui-direct-change-username', { newUsername, currentPassword }),
   // Feedback: collect and compress recent log files
   collectFeedbackLogs: () => ipcRenderer.invoke('feedback:collect-logs'),
+  cockpitRolloutStatus: (): Promise<CockpitRolloutStatus> => ipcRenderer.invoke('cohort:cockpit-rollout-status'),
   // Wayland Constitution: agent behavioral spec stored at ~/.wayland/CONSTITUTION.md
-  readConstitution: (): Promise<string> => ipcRenderer.invoke('constitution:read'),
-  writeConstitution: (content: string): Promise<boolean> => ipcRenderer.invoke('constitution:write', content),
-  resetConstitution: (): Promise<string> => ipcRenderer.invoke('constitution:reset'),
-  readConstitutionWithOverlay: (assistantId?: string): Promise<{ constitution: string; overlay: string | null }> =>
+  readConstitution: (): Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>> =>
+    ipcRenderer.invoke('constitution:read'),
+  writeConstitution: (
+    content: string,
+    expectedRevision: string,
+    requestId: string
+  ): Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>> =>
+    ipcRenderer.invoke('constitution:write', content, expectedRevision, requestId),
+  resetConstitution: (
+    expectedRevision: string,
+    requestId: string
+  ): Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>> =>
+    ipcRenderer.invoke('constitution:reset', expectedRevision, requestId),
+  readConstitutionWithOverlay: (
+    assistantId?: string
+  ): Promise<ConstitutionAuthorityEnvelope<ConstitutionOverlayReadResult>> =>
     ipcRenderer.invoke('constitution:readWithOverlay', assistantId),
   // Per-specialist Constitution overlays at ~/.wayland/specialists/<id>.md
-  listConstitutionSpecialists: (): Promise<{ id: string; bytes: number }[]> =>
+  listConstitutionSpecialists: (): Promise<ConstitutionAuthorityEnvelope<ConstitutionSpecialistSummary[]>> =>
     ipcRenderer.invoke('constitution:listSpecialists'),
-  readConstitutionSpecialist: (id: string): Promise<string> => ipcRenderer.invoke('constitution:readSpecialist', id),
-  writeConstitutionSpecialist: (id: string, content: string): Promise<boolean> =>
-    ipcRenderer.invoke('constitution:writeSpecialist', id, content),
-  deleteConstitutionSpecialist: (id: string): Promise<boolean> =>
-    ipcRenderer.invoke('constitution:deleteSpecialist', id),
+  readConstitutionSpecialist: (id: string): Promise<ConstitutionAuthorityEnvelope<ConstitutionReadResult>> =>
+    ipcRenderer.invoke('constitution:readSpecialist', id),
+  writeConstitutionSpecialist: (
+    id: string,
+    content: string,
+    expectedRevision: string,
+    requestId: string
+  ): Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>> =>
+    ipcRenderer.invoke('constitution:writeSpecialist', id, content, expectedRevision, requestId),
+  deleteConstitutionSpecialist: (
+    id: string,
+    expectedRevision: string,
+    requestId: string
+  ): Promise<ConstitutionAuthorityEnvelope<ConstitutionMutationResult>> =>
+    ipcRenderer.invoke('constitution:deleteSpecialist', id, expectedRevision, requestId),
+  listConstitutionArchives: (): Promise<ConstitutionArchiveInventoryResult> =>
+    ipcRenderer.invoke('constitution:archives:list'),
+  restoreConstitutionArchive: (request: ConstitutionArchiveRestoreRequest): Promise<ConstitutionArchiveRestoreResult> =>
+    ipcRenderer.invoke('constitution:archives:restore', request),
+  getConstitutionClassicRecovery: (): Promise<ConstitutionClassicRecoveryMetadataResult> =>
+    ipcRenderer.invoke('constitution:classic-recovery:get'),
+  decideConstitutionClassicRecovery: (
+    request: ConstitutionClassicRecoveryDecisionRequest
+  ): Promise<ConstitutionClassicRecoveryMutationResult> =>
+    ipcRenderer.invoke('constitution:classic-recovery:decision', request),
+  resumeConstitutionClassicRecovery: (
+    request: ConstitutionClassicRecoveryResumeRequest
+  ): Promise<ConstitutionClassicRecoveryMutationResult> =>
+    ipcRenderer.invoke('constitution:classic-recovery:resume', request),
   // First-run onboarding: environment detection + Flux Desktop routing metrics
   onboardingDetect: () => ipcRenderer.invoke('onboarding:detect'),
   onboardingFluxMetrics: () => ipcRenderer.invoke('onboarding:fluxMetrics'),

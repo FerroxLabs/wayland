@@ -30,6 +30,14 @@ describe('fsBridge skills functionality', () => {
         }),
         getAppPath: vi.fn(() => '/mock/appPath'),
       },
+      shell: {
+        trashItem: vi.fn(async (entryPath: string) => {
+          const target = path.resolve(entryPath);
+          for (const key of Object.keys(mockFsStore)) {
+            if (key === target || key.startsWith(target + path.sep)) delete mockFsStore[key];
+          }
+        }),
+      },
     }));
 
     // Mock os. Path confinement (pathConfinement.ts) and NodePlatformServices
@@ -94,7 +102,7 @@ describe('fsBridge skills functionality', () => {
                 }
               }
             }
-            return entries;
+            return options?.withFileTypes ? entries : entries.map((entry) => entry.name);
           }),
           mkdir: vi.fn(async (dirPath: string) => {
             mockFsStore[resolvePath(dirPath)] = { isDirectory: true };
@@ -604,7 +612,7 @@ describe('fsBridge skills functionality', () => {
   });
 
   describe('deleteSkill', () => {
-    it('should delete existing skill from user directory', async () => {
+    it('moves an existing skill to recoverable Trash', async () => {
       const userBase = path.resolve('/mock/userData/config/skills');
       const skillPath = path.join(userBase, 'SkillToDelete');
 
@@ -616,6 +624,7 @@ describe('fsBridge skills functionality', () => {
       const result = await handler({ skillName: 'SkillToDelete' });
 
       expect(result.success).toBe(true);
+      expect(result.msg).toContain('moved to Trash');
       expect(mockFsStore[skillPath]).toBeUndefined();
       expect(mockFsStore[path.join(skillPath, 'SKILL.md')]).toBeUndefined();
     });
@@ -631,6 +640,41 @@ describe('fsBridge skills functionality', () => {
       // would otherwise produce "security check failed". Either message indicates
       // the traversal was blocked; assert on the new, clearer one.
       expect(result.msg).toContain('Invalid skill name');
+    });
+  });
+
+  describe('assistant resource removal', () => {
+    it('moves only the exact assistant resource family to Trash', async () => {
+      const assistants = path.resolve('/mock/userData/assistants');
+      const ownRule = path.join(assistants, 'writer.en-US.md');
+      const ownSkill = path.join(assistants, 'writer-skills.en-US.md');
+      const otherRule = path.join(assistants, 'writer2.en-US.md');
+      mockFsStore[assistants] = { isDirectory: true };
+      mockFsStore[ownRule] = { content: 'own', isDirectory: false };
+      mockFsStore[ownSkill] = { content: 'own skill', isDirectory: false };
+      mockFsStore[otherRule] = { content: 'other', isDirectory: false };
+
+      const removeRule = await getProvider('deleteAssistantRule');
+      expect(await removeRule({ assistantId: 'writer' })).toBe(true);
+
+      expect(mockFsStore[ownRule]).toBeUndefined();
+      expect(mockFsStore[ownSkill]).toBeDefined();
+      expect(mockFsStore[otherRule]).toBeDefined();
+    });
+
+    it('rejects regex/traversal-like assistant ids without touching any file', async () => {
+      const assistants = path.resolve('/mock/userData/assistants');
+      const first = path.join(assistants, 'one.en-US.md');
+      const second = path.join(assistants, 'two.en-US.md');
+      mockFsStore[assistants] = { isDirectory: true };
+      mockFsStore[first] = { content: 'one', isDirectory: false };
+      mockFsStore[second] = { content: 'two', isDirectory: false };
+
+      const removeRule = await getProvider('deleteAssistantRule');
+      expect(await removeRule({ assistantId: '.*' })).toBe(false);
+
+      expect(mockFsStore[first]).toBeDefined();
+      expect(mockFsStore[second]).toBeDefined();
     });
   });
 

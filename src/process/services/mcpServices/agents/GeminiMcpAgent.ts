@@ -184,8 +184,15 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
     const installOperation = async () => {
       try {
+        const failures: string[] = [];
         for (const server of mcpServers) {
           if (server.transport.type === 'stdio') {
+            if (Object.keys(server.transport.env ?? {}).length > 0) {
+              failures.push(
+                `${server.name}: Gemini CLI publication cannot preserve stdio environment variables in this adapter`
+              );
+              continue;
+            }
             // Use Gemini CLI to add an MCP server
             // Format: gemini mcp add <name> <command> [args...]
             // Pass name/command/args as separate argv elements (shell:false) so
@@ -203,13 +210,17 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
               console.log(`[GeminiMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
               console.warn(`Failed to add MCP ${server.name} to Gemini:`, error);
-              // Continue with other servers
+              failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
             }
           } else if (
             server.transport.type === 'sse' ||
             server.transport.type === 'http' ||
             server.transport.type === 'streamable_http'
           ) {
+            if (Object.keys(server.transport.headers ?? {}).length > 0) {
+              failures.push(`${server.name}: Gemini CLI publication cannot preserve HTTP headers in this adapter`);
+              continue;
+            }
             // Handle SSE/HTTP/Streamable HTTP transport types
             // Gemini CLI uses --transport http for both HTTP and Streamable HTTP
             const transportFlag = server.transport.type === 'streamable_http' ? 'http' : server.transport.type;
@@ -222,10 +233,15 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
               console.log(`[GeminiMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
               console.warn(`Failed to add MCP ${server.name} to Gemini:`, error);
+              failures.push(`${server.name}: ${error instanceof Error ? error.message : String(error)}`);
             }
+          } else {
+            failures.push(
+              `${server.name}: Gemini CLI does not support ${(server.transport as { type: string }).type} transport type`
+            );
           }
         }
-        return { success: true };
+        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) };
       }
@@ -274,11 +290,15 @@ export class GeminiMcpAgent extends AbstractMcpAgent {
               return { success: true };
             }
           } catch (projectError) {
-            // If the server does not exist, still treat as success
-            if (userError instanceof Error && userError.message.includes('not found')) {
+            const userMessage = userError instanceof Error ? userError.message : String(userError);
+            const projectMessage = projectError instanceof Error ? projectError.message : String(projectError);
+            // Idempotence requires explicit absence from both scopes. A
+            // permission, parse, spawn, or config error in either scope is not
+            // proof of removal and must keep Wayland's archived definition live.
+            if (userMessage.includes('not found') && projectMessage.includes('not found')) {
               return { success: true };
             }
-            return { success: false, error: userError instanceof Error ? userError.message : String(userError) };
+            return { success: false, error: `user: ${userMessage}; project: ${projectMessage}` };
           }
         }
       } catch (error) {

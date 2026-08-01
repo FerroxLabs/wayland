@@ -10,6 +10,7 @@ import type { TChatConversation } from '@/common/config/storage';
 import { buildAgentConversationParams } from '@/common/utils/buildAgentConversationParams';
 import { emitter } from '@/renderer/utils/emitter';
 import { buildDisplayMessage } from '@/renderer/utils/file/messageFiles';
+import { resolveImageVisionBlock } from '@/renderer/utils/model/imageVisionGate';
 import { updateWorkspaceTime } from '@/renderer/utils/workspace/workspaceHistory';
 import { Message } from '@arco-design/web-react';
 import { useCallback, useRef } from 'react';
@@ -191,6 +192,21 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     const excludeBuiltinSkills = guidDisabledBuiltinSkills ?? resolveDisabledBuiltinSkills(agentInfo);
 
     const finalEffectiveAgentType = effectiveAgentType;
+
+    // IMG-01: fail-closed image/vision gate. Only model-backed backends
+    // (gemini / wcore) route the image through `currentModel`; ACP agents spawn
+    // their own model and handle attachments themselves, so they are exempt.
+    // Blocks a concrete non-vision model from silently swallowing an image;
+    // Flux routers are trusted to route to a vision-capable target.
+    const imageBackend = isPreset ? finalEffectiveAgentType : selectedAgent;
+    const imageModelGated = !imageBackend || imageBackend === 'gemini' || imageBackend === 'wcore';
+    if (imageModelGated) {
+      const imageBlock = resolveImageVisionBlock(currentModel, files);
+      if (imageBlock) {
+        Message.warning(t(imageBlock.reasonKey, imageBlock.reasonParams));
+        return false;
+      }
+    }
 
     // Gemini path
     if (!selectedAgent || selectedAgent === 'gemini' || (isPreset && finalEffectiveAgentType === 'gemini')) {
@@ -565,42 +581,45 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     projectWorkspace,
   ]);
 
-  const sendMessageHandler = useCallback((opts?: { onSent?: () => void }) => {
-    if (loading || sendingRef.current) return;
-    sendingRef.current = true;
-    setLoading(true);
-    handleSend()
-      .then((ok) => {
-        setInput('');
-        setMentionOpen(false);
-        setMentionQuery(null);
-        setMentionSelectorOpen(false);
-        setMentionActiveIndex(0);
-        setFiles([]);
-        setDir('');
-        // Cross-audit MED-3: only fire onSent (telemetry) when the send
-        // actually succeeded - validation early-returns resolve to false.
-        if (ok) opts?.onSent?.();
-      })
-      .catch((error) => {
-        console.error('Failed to send message:', error);
-      })
-      .finally(() => {
-        sendingRef.current = false;
-        setLoading(false);
-      });
-  }, [
-    loading,
-    handleSend,
-    setLoading,
-    setInput,
-    setMentionOpen,
-    setMentionQuery,
-    setMentionSelectorOpen,
-    setMentionActiveIndex,
-    setFiles,
-    setDir,
-  ]);
+  const sendMessageHandler = useCallback(
+    (opts?: { onSent?: () => void }) => {
+      if (loading || sendingRef.current) return;
+      sendingRef.current = true;
+      setLoading(true);
+      handleSend()
+        .then((ok) => {
+          setInput('');
+          setMentionOpen(false);
+          setMentionQuery(null);
+          setMentionSelectorOpen(false);
+          setMentionActiveIndex(0);
+          setFiles([]);
+          setDir('');
+          // Cross-audit MED-3: only fire onSent (telemetry) when the send
+          // actually succeeded - validation early-returns resolve to false.
+          if (ok) opts?.onSent?.();
+        })
+        .catch((error) => {
+          console.error('Failed to send message:', error);
+        })
+        .finally(() => {
+          sendingRef.current = false;
+          setLoading(false);
+        });
+    },
+    [
+      loading,
+      handleSend,
+      setLoading,
+      setInput,
+      setMentionOpen,
+      setMentionQuery,
+      setMentionSelectorOpen,
+      setMentionActiveIndex,
+      setFiles,
+      setDir,
+    ]
+  );
 
   // No usable model configured. Mirrors the send-time validation: only the
   // model-backed backends actually reject on a missing model - the Gemini path

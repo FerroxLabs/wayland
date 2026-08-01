@@ -7,16 +7,12 @@
 /**
  * #827 — a catalog MCP server stores a bare `npx` runtime hint. The connection
  * test resolved it to bundled Bun (green badge), but the SESSION-injection paths
- * forwarded raw `npx`, which fails to spawn on WINDOWS (`npx.cmd` isn't found via
- * CreateProcess/PATHEXT for a shell:false spawn, and the wcore Rust engine's
- * std::process::Command won't shim it either) → "green, but no tools".
+ * forwarded raw `npx`, which either fails to spawn on Windows or depends on a
+ * different GUI PATH on macOS/Linux → "green, but no tools".
  *
- * Resolution is WINDOWS-ONLY on purpose: a bare `npx` resolves fine via execvp on
- * macOS/Linux, and rewriting there would persist an absolute bundled-Bun path into
- * the wcore config.toml — which goes stale on Linux AppImage, where `resources`
- * remounts at a new temp path every launch (config.toml is rewritten only on
- * settings-change). So the injection paths must resolve on win32 and stay raw
- * elsewhere.
+ * Every live-session path must use the same bundled-Bun runtime as the Library
+ * connection probe. Persisted Core config uses a portable `bun x --bun` command
+ * on POSIX so Linux AppImage remounts cannot leave a stale absolute path.
  *
  * These tests are platform-explicit (helper) / platform-mocked (consumers) so they
  * are deterministic on EVERY CI shard (windows-2022 and macos/ubuntu alike), and
@@ -24,12 +20,20 @@
  * the platform-specific binary name (`bun` vs `bun.exe`).
  */
 import { describe, it, expect, afterEach } from 'vitest';
-import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
+import { resolveMcpStdioSpawn, resolvePersistedMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 import { buildAcpSessionMcpServers, buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
 import { McpConfig } from '@process/acp/session/McpConfig';
 import { toWCoreConfig } from '@process/services/mcpServices/agents/WCoreMcpAgent';
 import { buildGeminiStdioMcpConfig } from '@process/task/GeminiAgentManager';
+import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 import type { IMcpServer } from '@/common/config/storage';
+
+const publication = () => ({
+  generation: 'launch-stdio',
+  conversationId: 'chat-stdio',
+  backend: 'acp' as const,
+  sessionKey: createMcpSessionDigestKey(),
+});
 
 const npxStdioTransport = { type: 'stdio', command: 'npx', args: ['-y', '@playwright/mcp@0.0.75'] } as Extract<
   IMcpServer['transport'],
@@ -60,7 +64,7 @@ const setPlatform = (p: NodeJS.Platform) =>
   Object.defineProperty(process, 'platform', { value: p, configurable: true });
 const restorePlatform = () => Object.defineProperty(process, 'platform', { value: realPlatform, configurable: true });
 
-describe('#827 resolveMcpStdioSpawn (win32-only)', () => {
+describe('#827 resolveMcpStdioSpawn', () => {
   it('win32: rewrites npx to the resolver command with `x --bun`, dropping npx-only flags', () => {
     const r = resolveMcpStdioSpawn(
       'npx',
@@ -85,13 +89,22 @@ describe('#827 resolveMcpStdioSpawn (win32-only)', () => {
     });
   });
 
-  it('macOS/Linux: leaves npx raw (execvp resolves it; no stale abs path in config.toml)', () => {
+  it('macOS/Linux: resolves npx to the same bundled runtime as the connection probe', () => {
     for (const p of ['darwin', 'linux'] as NodeJS.Platform[]) {
       expect(resolveMcpStdioSpawn('npx', ['-y', '@playwright/mcp@0.0.75'], () => '/bundled/bun', p)).toEqual({
-        command: 'npx',
-        args: ['-y', '@playwright/mcp@0.0.75'],
+        command: '/bundled/bun',
+        args: ['x', '--bun', '@playwright/mcp@0.0.75'],
       });
     }
+  });
+
+  it('POSIX persisted config uses portable bun while Windows keeps the stable absolute path', () => {
+    expect(
+      resolvePersistedMcpStdioSpawn('npx', ['-y', '@playwright/mcp@0.0.75'], () => '/bundled/bun', 'linux')
+    ).toEqual({ command: 'bun', args: ['x', '--bun', '@playwright/mcp@0.0.75'] });
+    expect(
+      resolvePersistedMcpStdioSpawn('npx', ['-y', '@playwright/mcp@0.0.75'], () => '/bundled/bun', 'win32')
+    ).toEqual({ command: '/bundled/bun', args: ['x', '--bun', '@playwright/mcp@0.0.75'] });
   });
 });
 
@@ -102,14 +115,6 @@ const assertResolved = (command: string, args: readonly string[]) => {
   expect(args.slice(0, 2)).toEqual(['x', '--bun']);
   expect(args).toContain('@playwright/mcp@0.0.75');
   expect(args).not.toContain('-y');
-};
-
-// A raw (unresolved) server still runs `npx` with its original args intact — the
-// surviving `-y` proves it was NOT routed through `bun x` normalization.
-const assertRawNpx = (command: string, args: readonly string[]) => {
-  expect(command).toBe('npx');
-  expect(args).toContain('@playwright/mcp@0.0.75');
-  expect(args).toContain('-y');
 };
 
 describe('#827 session-injection parity — win32 resolves npx at every path', () => {
@@ -130,7 +135,7 @@ describe('#827 session-injection parity — win32 resolves npx at every path', (
 
   it('McpConfig.fromStorageConfig (live ACP path)', () => {
     setPlatform('win32');
-    const [srv] = McpConfig.fromStorageConfig([npxServer()], caps);
+    const [srv] = McpConfig.fromStorageConfig([npxServer()], { publication: publication(), capabilities: caps });
     assertResolved((srv as { command: string }).command, (srv as { args: string[] }).args);
   });
 
@@ -147,24 +152,27 @@ describe('#827 session-injection parity — win32 resolves npx at every path', (
   });
 });
 
-describe('#827 session-injection parity — macOS/Linux keep npx raw (AppImage-safe)', () => {
+describe('#827 session-injection parity — macOS/Linux match the probe', () => {
   afterEach(restorePlatform);
 
-  it('buildAcpSessionMcpServers leaves npx raw on darwin', () => {
+  it('buildAcpSessionMcpServers resolves npx on darwin', () => {
     setPlatform('darwin');
     const [srv] = buildAcpSessionMcpServers([npxServer()], caps);
-    assertRawNpx((srv as { command: string }).command, (srv as { args: string[] }).args);
+    assertResolved((srv as { command: string }).command, (srv as { args: string[] }).args);
   });
 
-  it('toWCoreConfig leaves npx raw on linux (never persists an abs bundled-Bun path)', () => {
+  it('toWCoreConfig persists portable bun on linux (never an AppImage mount path)', () => {
     setPlatform('linux');
     const cfg = toWCoreConfig(npxServer());
-    assertRawNpx(cfg.command ?? '', cfg.args ?? []);
+    expect(cfg.command).toBe('bun');
+    expect(cfg.args?.slice(0, 2)).toEqual(['x', '--bun']);
+    expect(cfg.args).toContain('@playwright/mcp@0.0.75');
+    expect(cfg.args).not.toContain('-y');
   });
 
-  it('buildGeminiStdioMcpConfig leaves npx raw on darwin', () => {
+  it('buildGeminiStdioMcpConfig resolves npx on darwin', () => {
     setPlatform('darwin');
     const cfg = buildGeminiStdioMcpConfig(npxStdioTransport);
-    assertRawNpx(cfg.command ?? '', cfg.args ?? []);
+    assertResolved(cfg.command ?? '', cfg.args ?? []);
   });
 });

@@ -1,0 +1,137 @@
+{
+  "correlation": {
+    "backend_spawn_id": "spawn-circuit-open-degraded",
+    "correlation_id": "corr-circuit-open-degraded",
+    "desktop_task_id": "dt_circuit-open-degraded",
+    "desktop_turn_id": "turn-circuit-open-degraded",
+    "request_id": "req-circuit-open-degraded"
+  },
+  "events": [
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-circuit-open-degraded",
+        "correlation_id": "corr-circuit-open-degraded",
+        "desktop_task_id": "dt_circuit-open-degraded",
+        "desktop_turn_id": "turn-circuit-open-degraded",
+        "request_id": "req-circuit-open-degraded"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-circuit-open-degraded-0",
+      "event_type": "route.selected",
+      "evidence": {
+        "flux_involved": true,
+        "precedence": "flux_auto",
+        "provider": "provider-a",
+        "requested_model": "flux-auto",
+        "reroute_allowed": true,
+        "route_mode": "flux_auto",
+        "selected_model": "routed-model-a"
+      },
+      "sequence": 0
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-circuit-open-degraded",
+        "correlation_id": "corr-circuit-open-degraded",
+        "desktop_task_id": "dt_circuit-open-degraded",
+        "desktop_turn_id": "turn-circuit-open-degraded",
+        "request_id": "req-circuit-open-degraded"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-circuit-open-degraded-1",
+      "event_type": "provider.circuit_open",
+      "evidence": {
+        "circuit_id": "circuit-provider-a",
+        "degraded": true,
+        "model": "routed-model-a",
+        "provider": "provider-a",
+        "reason_code": "failure_threshold"
+      },
+      "sequence": 1
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-circuit-open-degraded",
+        "correlation_id": "corr-circuit-open-degraded",
+        "desktop_task_id": "dt_circuit-open-degraded",
+        "desktop_turn_id": "turn-circuit-open-degraded",
+        "request_id": "req-circuit-open-degraded"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-circuit-open-degraded-2",
+      "event_type": "provider.fallback_selected",
+      "evidence": {
+        "from_circuit_id": "circuit-provider-a",
+        "model": "routed-model-b",
+        "provider": "provider-b",
+        "reason_code": "circuit_open"
+      },
+      "sequence": 2
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-circuit-open-degraded",
+        "correlation_id": "corr-circuit-open-degraded",
+        "desktop_task_id": "dt_circuit-open-degraded",
+        "desktop_turn_id": "turn-circuit-open-degraded",
+        "request_id": "req-circuit-open-degraded"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-circuit-open-degraded-3",
+      "event_type": "provider.attempt_started",
+      "evidence": {
+        "attempt_id": "attempt-circuit-1",
+        "model": "routed-model-b",
+        "provider": "provider-b"
+      },
+      "sequence": 3
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-circuit-open-degraded",
+        "correlation_id": "corr-circuit-open-degraded",
+        "desktop_task_id": "dt_circuit-open-degraded",
+        "desktop_turn_id": "turn-circuit-open-degraded",
+        "request_id": "req-circuit-open-degraded"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-circuit-open-degraded-4",
+      "event_type": "request.cost_observed",
+      "evidence": {
+        "attempt_id": "attempt-circuit-1",
+        "cost_microusd": 801,
+        "currency": "USD",
+        "latency_ms": 388,
+        "price_status": "priced"
+      },
+      "sequence": 4
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-circuit-open-degraded",
+        "correlation_id": "corr-circuit-open-degraded",
+        "desktop_task_id": "dt_circuit-open-degraded",
+        "desktop_turn_id": "turn-circuit-open-degraded",
+        "request_id": "req-circuit-open-degraded"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-circuit-open-degraded-5",
+      "event_type": "request.terminal",
+      "evidence": {
+        "attempt_id": "attempt-circuit-1",
+        "outcome": "success",
+        "reason_code": "completed_degraded"
+      },
+      "sequence": 5
+    }
+  ],
+  "expected_profile": "flux",
+  "fixture_version": 1,
+  "scenario": "circuit-open-degraded"
+}

@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { AlertTriangle, ChevronLeft, PenSquare, Play, Trash2 } from 'lucide-react';
+import { AlertTriangle, Archive, ChevronLeft, PenSquare, Play } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -121,11 +121,11 @@ const TaskDetailPage: React.FC = () => {
     }
   }, [job, t, navigate]);
 
-  const handleDelete = useCallback(async () => {
+  const handleArchive = useCallback(async () => {
     if (!job) return;
     try {
       await ipcBridge.cron.removeJob.invoke({ jobId: job.id });
-      Message.success(t('cron.deleteSuccess'));
+      Message.success(t('cron.archiveSuccess'));
       navigate('/scheduled');
     } catch (err) {
       Message.error(String(err));
@@ -196,12 +196,13 @@ const TaskDetailPage: React.FC = () => {
                   icon={<PenSquare size={16} />}
                   onClick={() => setEditDialogVisible(true)}
                 />
-                <Popconfirm title={t('cron.confirmDeleteWithConversations')} onOk={handleDelete}>
+                <Popconfirm title={t('cron.confirmArchiveWithConversations')} onOk={handleArchive}>
                   <Button
                     size='mini'
                     type='text'
                     className='!h-20px !min-w-20px !w-20px !rounded-0 !border-none !bg-transparent !p-0 !text-t-secondary hover:!bg-transparent hover:!text-t-primary translate-y-1px'
-                    icon={<Trash2 size={16} />}
+                    icon={<Archive size={16} />}
+                    aria-label={t('cron.actions.archive')}
                   />
                 </Popconfirm>
                 <Button

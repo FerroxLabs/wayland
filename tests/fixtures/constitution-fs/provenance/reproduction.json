@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "producerCommit": "991c502e74506ec3702f92e429a8b31b655412ba",
+  "producerTree": "1af0b2f9f6e3a12eb3234d1c7ad7a22145e32e5e",
+  "producerArchiveSha256": "sha256:2e7e4a40f0517c0dadd6b4652b5075c5a02799d1d14c896fb8e5dfa6ae82890a",
+  "producerArchiveCommand": "git archive --format=tar 991c502e74506ec3702f92e429a8b31b655412ba | shasum -a 256",
+  "harnessPatch": {
+    "artifact": "991c502-fixture-failpoint.patch",
+    "sha256": "sha256:6045787b16bbd549b3e9599c0d449c0e8ad31df56fda5a825424c870c953efa5",
+    "applyCommand": "git -C /tmp/wayland-constitution-base-991c apply /Users/seandonahoe/gsd-workspaces/wayland-strike-constitution-prod/tests/fixtures/constitution-fs/provenance/991c502-fixture-failpoint.patch",
+    "transactionRegionLines": "4306-4331",
+    "transactionRegionBeforeSha256": "sha256:52b7a371cfd2668df1013711dc8f5b7ec3e226d26b6ffca59cb96d4182cf1e27",
+    "transactionRegionAfterSha256": "sha256:52b7a371cfd2668df1013711dc8f5b7ec3e226d26b6ffca59cb96d4182cf1e27",
+    "proofCommand": "git show 991c502e74506ec3702f92e429a8b31b655412ba:native/constitution-fs/src/main.rs | sed -n '4306,4331p' | shasum -a 256; sed -n '4306,4331p' native/constitution-fs/src/main.rs | shasum -a 256"
+  },
+  "generator": {
+    "artifact": "generateHistoricalConstitutionFixture.ts",
+    "sha256": "sha256:f810a5e61c0785e84ee99a11ec2415a99ea0d0316c171045501535190ffb1c3f",
+    "installedPath": "/tmp/wayland-constitution-base-991c/scripts/generateHistoricalConstitutionFixture.ts",
+    "viteConfigArtifact": "vite.fixture.config.ts",
+    "viteConfigSha256": "sha256:f72bbbac40d79c586a0310449e54945f2c253322eea5b9fbdd4bb7b94ff8f5e5",
+    "candidateBunLockSha256": "sha256:8e6b0da598732ac3363280365ad51e4d58d53e2875c6462db76b249caa67bb43",
+    "dependencyRoot": "/Users/seandonahoe/gsd-workspaces/wayland-strike-constitution-prod/node_modules"
+  },
+  "manifestFinalizer": {
+    "artifact": "finalizeHistoricalConstitutionFixture.ts",
+    "sha256": "sha256:ea861ef5f2891b6f6e494468b166177e2cf064b67560328adfd9388a31e368ef",
+    "version": 1,
+    "claim": "Deterministically enriches the producer-emitted raw manifest with the bound source, harness, toolchain, helper, generator, finalizer, and reproduction evidence; it never changes fixture state bytes."
+  },
+  "toolchain": {
+    "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02) aarch64-apple-darwin",
+    "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15) aarch64-apple-darwin",
+    "bun": "1.3.11",
+    "node": "v25.8.1"
+  },
+  "helperBinary": {
+    "path": "/tmp/wayland-constitution-base-991c/native/constitution-fs/target/debug/wayland-constitution-fs",
+    "sha256": "sha256:3844ad1e75571750b784e66edcab986e6c86e953074564b959188ec927612cfd"
+  },
+  "commands": [
+    "CANDIDATE=/Users/seandonahoe/gsd-workspaces/wayland-strike-constitution-prod",
+    "git -C $CANDIDATE worktree add --detach /tmp/wayland-constitution-base-991c 991c502e74506ec3702f92e429a8b31b655412ba",
+    "git -C /tmp/wayland-constitution-base-991c apply $CANDIDATE/tests/fixtures/constitution-fs/provenance/991c502-fixture-failpoint.patch",
+    "cp $CANDIDATE/tests/fixtures/constitution-fs/provenance/generateHistoricalConstitutionFixture.ts /tmp/wayland-constitution-base-991c/scripts/generateHistoricalConstitutionFixture.ts",
+    "cp $CANDIDATE/tests/fixtures/constitution-fs/provenance/vite.fixture.config.ts /tmp/wayland-constitution-base-991c/vite.config.ts",
+    "ln -s $CANDIDATE/node_modules /tmp/wayland-constitution-base-991c/node_modules",
+    "cd /tmp/wayland-constitution-base-991c && OUT=$CANDIDATE/tests/fixtures/constitution-fs/base-991c502-committed MODE=committed bun run scripts/generateHistoricalConstitutionFixture.ts",
+    "cd /tmp/wayland-constitution-base-991c && OUT=$CANDIDATE/tests/fixtures/constitution-fs/base-991c502-pending-ledger-only MODE=pending-ledger-only bun run scripts/generateHistoricalConstitutionFixture.ts",
+    "cd $CANDIDATE && OUT=$CANDIDATE/tests/fixtures/constitution-fs/base-991c502-committed bun run tests/fixtures/constitution-fs/provenance/finalizeHistoricalConstitutionFixture.ts",
+    "cd $CANDIDATE && OUT=$CANDIDATE/tests/fixtures/constitution-fs/base-991c502-pending-ledger-only bun run tests/fixtures/constitution-fs/provenance/finalizeHistoricalConstitutionFixture.ts"
+  ],
+  "claim": "The helper was compiled from the exact producer tree plus the bound main-only harness patch. The transaction implementation region is byte-identical before and after the patch; this is not a claim that the executable bytes equal the unpatched release binary."
+}

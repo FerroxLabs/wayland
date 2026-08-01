@@ -60,6 +60,7 @@ import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { classifyAcpAuthFailure } from '@/renderer/pages/conversation/platforms/acp/acpAuthFailure';
 import { isContextCeilingErrorMessage } from '@/renderer/utils/model/errorDetection';
 import { isFluxModelId } from '@/common/config/flux';
+import { useVoiceTurnSubmission } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 const useWCoreSendBoxDraft = getSendBoxDraftHook('wcore', {
   _type: 'wcore',
@@ -394,6 +395,8 @@ const WCoreSendBox: React.FC<{
 
     await executeCommand({ input: message, files: filesToSend });
   };
+
+  useVoiceTurnSubmission(conversation_id, onSendHandler);
 
   // #252 rework: Retry on a message's action row re-sends that turn's prompt.
   // The active sendbox owns send, so it listens for the window event (scoped to

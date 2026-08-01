@@ -1,0 +1,20 @@
+{
+  "source_path": "/Users/seandonahoe/gsd-workspaces/wayland-desktop-gsd/app/docs/desktop-overhaul-source/ADOPTION-DISTRIBUTION.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Adoption, advocacy, and distribution",
+  "summary": "Defines Wayland distribution foundations, advocacy loops, activation journey, ecosystem incentives, and outcome-focused adoption metrics.",
+  "scope": [
+    "distribution channels",
+    "shareable outcomes",
+    "remixable systems",
+    "collaborative invitations",
+    "activation journey",
+    "adoption metrics"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 3,
+  "notes": ""
+}

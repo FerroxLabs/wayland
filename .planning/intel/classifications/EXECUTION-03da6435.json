@@ -1,0 +1,28 @@
+{
+  "source_path": "docs/desktop-overhaul-source/wave-0/EXECUTION.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Wave 0 execution control",
+  "summary": "Defines Wave 0 authorization boundaries, parallel streams, stop conditions, receipt controls, integration status, evidence, and remaining safety gates.",
+  "scope": ["Wave 0", "M0A", "M0B", "M1 and M1F", "Constitution", "MCP", "workspace retention"],
+  "cross_refs": [
+    "../COWORK-DEEP-DIVE.md",
+    "CONSTITUTION-RECOVERY-ACCEPTANCE.md",
+    "HOSTED-CONSTITUTION-ACCEPTANCE.md",
+    "HOSTED-CONSTITUTION-REMEDIATION.md",
+    "MASTER-BUILD-PLAN.md",
+    "NATIVE-CONSTITUTION-V2-ACCEPTANCE.md",
+    "WORKSPACE-OWNERSHIP-CONTRACT.md",
+    "contracts/wayland-desktop-core/v1/PRODUCER-PIN.md",
+    "receipts/M0A-ENGINEERING-SAFETY-CANDIDATE.md",
+    "receipts/M0A-WORKSPACE-RETENTION-CANDIDATE.md",
+    "receipts/M0B-BASELINE-MACHINERY-CANDIDATE.md",
+    "receipts/M1F-FLUX-ROUTING-EVIDENCE.md",
+    "receipts/SBX-0-SETTINGS-TRUTH-CANDIDATE.md",
+    "receipts/WAVE-0-STRIKE-CHECKPOINT.md"
+  ],
+  "locked": false,
+  "precedence": 1,
+  "notes": ""
+}

@@ -1,0 +1,19 @@
+{
+  "contract": "wayland-constitution-historical-helper-build/1.0",
+  "producerCommit": "991c502e74506ec3702f92e429a8b31b655412ba",
+  "producerTree": "1af0b2f9f6e3a12eb3234d1c7ad7a22145e32e5e",
+  "producerArchiveSha256": "sha256:2e7e4a40f0517c0dadd6b4652b5075c5a02799d1d14c896fb8e5dfa6ae82890a",
+  "harnessPatchSha256": "sha256:6045787b16bbd549b3e9599c0d449c0e8ad31df56fda5a825424c870c953efa5",
+  "cargoManifestSha256": "sha256:860813070338cee6af67c7cbca54338d877c54d24a0d9c768dea3519c4c4e123",
+  "cargoLockSha256": "sha256:0d02c6934cd4b61835a84e2a32fae715a1d1b42c73bf818095f0af055aee1913",
+  "command": "cargo build --locked --manifest-path /tmp/wayland-constitution-base-991c/native/constitution-fs/Cargo.toml",
+  "toolchain": {
+    "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02) aarch64-apple-darwin",
+    "cargo": "cargo 1.94.0 (85eff7c80 2026-01-15) aarch64-apple-darwin"
+  },
+  "output": {
+    "path": "/tmp/wayland-constitution-base-991c/native/constitution-fs/target/debug/wayland-constitution-fs",
+    "sha256": "sha256:3844ad1e75571750b784e66edcab986e6c86e953074564b959188ec927612cfd"
+  },
+  "routineVerification": "The helper executable is not retained and routine candidate verification must not rebuild it or run Cargo. The immutable fixtures, this content-addressed build receipt, exact source tree, patch, toolchain, generator and every produced state byte are retained and independently hashed. Rebuilding the helper is an explicit provenance regeneration action, not a normal test claim."
+}

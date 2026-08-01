@@ -1,0 +1,96 @@
+{
+  "correlation": {
+    "backend_spawn_id": "spawn-auto-routing",
+    "correlation_id": "corr-auto-routing",
+    "desktop_task_id": "dt_auto-routing",
+    "desktop_turn_id": "turn-auto-routing",
+    "request_id": "req-auto-routing"
+  },
+  "events": [
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-auto-routing",
+        "correlation_id": "corr-auto-routing",
+        "desktop_task_id": "dt_auto-routing",
+        "desktop_turn_id": "turn-auto-routing",
+        "request_id": "req-auto-routing"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-auto-routing-0",
+      "event_type": "route.selected",
+      "evidence": {
+        "flux_involved": true,
+        "precedence": "flux_auto",
+        "provider": "provider-a",
+        "requested_model": "flux-auto",
+        "reroute_allowed": true,
+        "route_mode": "flux_auto",
+        "selected_model": "routed-model-a"
+      },
+      "sequence": 0
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-auto-routing",
+        "correlation_id": "corr-auto-routing",
+        "desktop_task_id": "dt_auto-routing",
+        "desktop_turn_id": "turn-auto-routing",
+        "request_id": "req-auto-routing"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-auto-routing-1",
+      "event_type": "provider.attempt_started",
+      "evidence": {
+        "attempt_id": "attempt-auto-1",
+        "model": "routed-model-a",
+        "provider": "provider-a"
+      },
+      "sequence": 1
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-auto-routing",
+        "correlation_id": "corr-auto-routing",
+        "desktop_task_id": "dt_auto-routing",
+        "desktop_turn_id": "turn-auto-routing",
+        "request_id": "req-auto-routing"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-auto-routing-2",
+      "event_type": "request.cost_observed",
+      "evidence": {
+        "attempt_id": "attempt-auto-1",
+        "cost_microusd": 725,
+        "currency": "USD",
+        "latency_ms": 417,
+        "price_status": "priced"
+      },
+      "sequence": 2
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-auto-routing",
+        "correlation_id": "corr-auto-routing",
+        "desktop_task_id": "dt_auto-routing",
+        "desktop_turn_id": "turn-auto-routing",
+        "request_id": "req-auto-routing"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-auto-routing-3",
+      "event_type": "request.terminal",
+      "evidence": {
+        "attempt_id": "attempt-auto-1",
+        "outcome": "success",
+        "reason_code": "completed"
+      },
+      "sequence": 3
+    }
+  ],
+  "expected_profile": "flux",
+  "fixture_version": 1,
+  "scenario": "auto-routing"
+}

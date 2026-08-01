@@ -11,7 +11,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { BunSqliteDriver } from '@process/services/database/drivers/BunSqliteDriver';
 import { ALL_MIGRATIONS, type IMigration } from '@process/services/database/migrations';
 import { SqliteCostRepository } from './SqliteCostRepository';
-import { CostRecorder, type ModelPricing } from './CostRecorder';
+import { CostRecorder, extractAcpCumulativeUsd, type ModelPricing } from './CostRecorder';
 
 const migration_v48 = ALL_MIGRATIONS.find((m) => m.version === 48) as IMigration;
 
@@ -26,7 +26,10 @@ type StoredRow = {
   cost_source: string;
 };
 
-function makeRecorder(driver: BunSqliteDriver, pricing: ModelPricing): {
+function makeRecorder(
+  driver: BunSqliteDriver,
+  pricing: ModelPricing
+): {
   recorder: CostRecorder;
   repo: SqliteCostRepository;
 } {
@@ -39,6 +42,22 @@ function allRows(driver: BunSqliteDriver): StoredRow[] {
 }
 
 const noPricing: ModelPricing = { priceTokens: () => undefined };
+
+describe('extractAcpCumulativeUsd', () => {
+  it('accepts finite non-negative USD amounts case-insensitively', () => {
+    expect(extractAcpCumulativeUsd({ amount: 0, currency: 'USD' })).toBe(0);
+    expect(extractAcpCumulativeUsd({ amount: 1.25, currency: ' usd ' })).toBe(1.25);
+  });
+
+  it('fails closed for missing, foreign, negative, or non-finite values', () => {
+    expect(extractAcpCumulativeUsd(undefined)).toBeUndefined();
+    expect(extractAcpCumulativeUsd({ amount: 1.25 })).toBeUndefined();
+    expect(extractAcpCumulativeUsd({ amount: 1.25, currency: 'EUR' })).toBeUndefined();
+    expect(extractAcpCumulativeUsd({ amount: -1, currency: 'USD' })).toBeUndefined();
+    expect(extractAcpCumulativeUsd({ amount: Number.NaN, currency: 'USD' })).toBeUndefined();
+    expect(extractAcpCumulativeUsd({ amount: Number.POSITIVE_INFINITY, currency: 'USD' })).toBeUndefined();
+  });
+});
 
 describe('CostRecorder (bun:sqlite)', () => {
   let driver: BunSqliteDriver;
@@ -135,14 +154,92 @@ describe('CostRecorder (bun:sqlite)', () => {
     expect(rows[2].cost_usd).toBeCloseTo(0.5, 6);
   });
 
-  it('resetBaseline restarts the conversation delta at zero', () => {
+  it('keeps independent baselines for new meter sessions in one conversation', () => {
     const { recorder } = makeRecorder(driver, noPricing);
-    recorder.recordTurnFinish({ conversationId: 'c', backend: 'x', costSource: 'engine', cumulativeUsd: 0.4, ts: 1 });
-    recorder.resetBaseline('c');
-    recorder.recordTurnFinish({ conversationId: 'c', backend: 'x', costSource: 'engine', cumulativeUsd: 0.1, ts: 2 });
+    recorder.recordTurnFinish({
+      conversationId: 'c',
+      backend: 'claude',
+      costSource: 'engine',
+      cumulativeUsd: 0.5,
+      meterId: 'session-a',
+      ts: 1,
+    });
+    recorder.recordTurnFinish({
+      conversationId: 'c',
+      backend: 'claude',
+      costSource: 'engine',
+      cumulativeUsd: 0.2,
+      meterId: 'session-b',
+      ts: 2,
+    });
+    recorder.recordTurnFinish({
+      conversationId: 'c',
+      backend: 'claude',
+      costSource: 'engine',
+      cumulativeUsd: 0.7,
+      meterId: 'session-a',
+      ts: 3,
+    });
 
     const rows = allRows(driver);
-    expect(rows[1].cost_usd).toBeCloseTo(0.1, 6); // full new cumulative, baseline was cleared
+    expect(rows[0].cost_usd).toBeCloseTo(0.5, 6);
+    expect(rows[1].cost_usd).toBeCloseTo(0.2, 6);
+    expect(rows[2].cost_usd).toBeCloseTo(0.2, 6);
+  });
+
+  it('resetBaseline clears every meter for the conversation', () => {
+    const { recorder } = makeRecorder(driver, noPricing);
+    recorder.recordTurnFinish({
+      conversationId: 'c',
+      backend: 'x',
+      costSource: 'engine',
+      cumulativeUsd: 0.4,
+      meterId: 'session-a',
+      ts: 1,
+    });
+    recorder.recordTurnFinish({
+      conversationId: 'c',
+      backend: 'x',
+      costSource: 'engine',
+      cumulativeUsd: 0.8,
+      meterId: 'session-b',
+      ts: 2,
+    });
+    recorder.resetBaseline('c');
+    recorder.recordTurnFinish({
+      conversationId: 'c',
+      backend: 'x',
+      costSource: 'engine',
+      cumulativeUsd: 0.1,
+      meterId: 'session-a',
+      ts: 3,
+    });
+    recorder.recordTurnFinish({
+      conversationId: 'c',
+      backend: 'x',
+      costSource: 'engine',
+      cumulativeUsd: 0.3,
+      meterId: 'session-b',
+      ts: 4,
+    });
+
+    const rows = allRows(driver);
+    expect(rows[2].cost_usd).toBeCloseTo(0.1, 6);
+    expect(rows[3].cost_usd).toBeCloseTo(0.3, 6);
+  });
+
+  it('records no billable token total when engine supplies cost without cumulative tokens', () => {
+    const { recorder } = makeRecorder(driver, noPricing);
+    recorder.recordTurnFinish({
+      conversationId: 'c',
+      backend: 'claude',
+      costSource: 'engine',
+      cumulativeUsd: 0.25,
+      meterId: 'session-a',
+      ts: 1,
+    });
+
+    expect(allRows(driver)[0].tokens_total).toBe(0);
   });
 
   it('computed path prices a per-turn split via ModelPricing (no baseline)', () => {

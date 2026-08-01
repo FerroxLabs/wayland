@@ -306,6 +306,39 @@ describe('useSpeechInput', () => {
     expect(stopTrack).toHaveBeenCalled();
   });
 
+  it('cancels a recording without transcribing or emitting a turn', async () => {
+    const transcriptionCallCount = mockTranscribeAudioBlob.mock.calls.length;
+    const stopTrack = vi.fn();
+    const onTranscript = vi.fn();
+    installRecordingEnvironment({
+      getUserMedia: vi.fn(async () => ({
+        getTracks: () => [{ stop: stopTrack }],
+      })) as unknown as () => Promise<MediaStream>,
+    });
+
+    const { result } = renderHook(() =>
+      useSpeechInput({
+        locale: 'en-US',
+        onTranscript,
+      })
+    );
+
+    await act(async () => {
+      await result.current.startRecording();
+    });
+    act(() => {
+      result.current.cancelRecording();
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.status).toBe('idle');
+    expect(mockTranscribeAudioBlob).toHaveBeenCalledTimes(transcriptionCallCount);
+    expect(onTranscript).not.toHaveBeenCalled();
+    expect(stopTrack).toHaveBeenCalled();
+  });
+
   it('maps recording permission failures without exposing a stale detail message', async () => {
     installRecordingEnvironment({
       getUserMedia: vi.fn(async () => {

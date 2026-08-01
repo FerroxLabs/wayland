@@ -14,10 +14,15 @@
  */
 
 import { getPlatformServices } from '@/common/platform';
+import type { CapabilityPlatform } from '@/common/capabilities';
 import { execFile, execFileSync, spawn } from 'child_process';
-import { accessSync, existsSync, readFileSync, readdirSync } from 'fs';
+import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'fs';
 import os from 'os';
 import path from 'path';
+import {
+  classifyBundledOfficeCli,
+  digestOfficeCliEvidence,
+} from '@process/services/capabilities/OfficeCliContractValidator';
 
 /** Enable ACP performance diagnostics via ACP_PERF=1 */
 const PERF_LOG = process.env.ACP_PERF === '1';
@@ -101,25 +106,100 @@ function getBundledNodeModulesRoot(): string | null {
   }
 }
 
+/** Resolve a checksum-pinned native OfficeCLI runtime without executing it. */
+export function resolveBundledOfficeCliDir(
+  resourcesRoot: string,
+  platform: CapabilityPlatform['platform'],
+  arch: CapabilityPlatform['arch']
+): string | null {
+  const runtimeDir = path.join(resourcesRoot, 'bundled-officecli', `${platform}-${arch}`);
+  const binaryName = platform === 'win32' ? 'officecli.exe' : 'officecli';
+  const manifestPath = path.join(runtimeDir, 'manifest.json');
+  const binaryPath = path.join(runtimeDir, binaryName);
+  try {
+    if (!existsSync(binaryPath) || !existsSync(manifestPath)) return null;
+    if (
+      lstatSync(runtimeDir).isSymbolicLink() ||
+      lstatSync(binaryPath).isSymbolicLink() ||
+      lstatSync(manifestPath).isSymbolicLink()
+    )
+      return null;
+    const rootReal = realpathSync(resourcesRoot);
+    const runtimeReal = realpathSync(runtimeDir);
+    if (!runtimeReal.startsWith(`${rootReal}${path.sep}`)) return null;
+    if (platform !== 'win32') accessSync(binaryPath, constants.X_OK);
+    const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as unknown;
+    const binarySha256 = digestOfficeCliEvidence(readFileSync(binaryPath));
+    if (!classifyBundledOfficeCli(manifest, binarySha256, platform, arch).available) return null;
+    return runtimeDir;
+  } catch {
+    return null;
+  }
+}
+
+/** Return the native OfficeCLI directory for this dev or packaged runtime. */
+export function getBundledOfficeCliDir(): string | null {
+  const resourcesRoot = getPlatformServices().paths.isPackaged()
+    ? process.resourcesPath
+    : path.join(process.cwd(), 'resources');
+  return resolveBundledOfficeCliDir(
+    resourcesRoot,
+    process.platform as CapabilityPlatform['platform'],
+    process.arch as CapabilityPlatform['arch']
+  );
+}
+
+/** Resolve the packaged fail-closed command that shadows every fallback. */
+export function resolveManagedOfficeCliShimDir(resourcesRoot: string, platform: NodeJS.Platform): string | null {
+  const shimDir = path.join(resourcesRoot, 'managed-cli-shims');
+  const shimName = platform === 'win32' ? 'officecli.cmd' : 'officecli';
+  const shimPath = path.join(shimDir, shimName);
+  const expectedSha256 =
+    platform === 'win32'
+      ? 'sha256:268a4892123162e5264b7f31d6d0ac659b64960e588c808445f39898e7e81055'
+      : 'sha256:b77af087b9ce061bd26957e387b6dc56491ef894409e52317d11692a63ac327f';
+  try {
+    const rootReal = realpathSync(resourcesRoot);
+    const shimDirReal = realpathSync(shimDir);
+    const shimStat = lstatSync(shimPath);
+    if (
+      !shimDirReal.startsWith(`${rootReal}${path.sep}`) ||
+      shimStat.isSymbolicLink() ||
+      !shimStat.isFile() ||
+      (platform !== 'win32' && (shimStat.mode & 0o111) === 0) ||
+      digestOfficeCliEvidence(readFileSync(shimPath)) !== expectedSha256
+    ) {
+      return null;
+    }
+    return shimDir;
+  } catch {
+    return null;
+  }
+}
+
+export function getManagedOfficeCliShimDir(): string {
+  const resourcesRoot = getPlatformServices().paths.isPackaged()
+    ? process.resourcesPath
+    : path.join(process.cwd(), 'resources');
+  const shimDir = resolveManagedOfficeCliShimDir(resourcesRoot, process.platform);
+  if (!shimDir) throw new Error('Wayland managed OfficeCLI fallback guard is unavailable');
+  return shimDir;
+}
+
 /**
- * Return PATH entries that expose bundled npm-installed CLI binaries to
- * spawned child processes. Prepended to PATH so they shadow the user's
- * system-wide installs, giving Claude/Codex/etc a consistent toolchain.
- *
- * Today's contents:
- *   - `node_modules/.bin` - npm-style shim symlinks (works in dev; may be
- *     absent in packaged builds because electron-builder drops symlinks).
- *   - `node_modules/officecli/runtime` - real platform binary (works in both
- *     dev AND packaged builds; the file is named exactly `officecli`).
- *
- * This is the stopgap landing point for #232. The proper cross-platform
- * story (download the right officecli binary per host on first run) is
- * tracked as #234.
+ * Return PATH entries that expose bundled CLI binaries to spawned child
+ * processes. The verified native OfficeCLI v1 directory is first. The hosted
+ * npm 0.x package is intentionally not a production dependency or PATH entry.
  */
 function getBundledNpmBinDirs(): string[] {
+  const candidates: string[] = [];
+  const nativeOfficeCliDir = getBundledOfficeCliDir();
+  if (nativeOfficeCliDir) candidates.push(nativeOfficeCliDir);
+  candidates.push(getManagedOfficeCliShimDir());
+
   const root = getBundledNodeModulesRoot();
-  if (!root) return [];
-  const candidates = [path.join(root, 'node_modules', '.bin'), path.join(root, 'node_modules', 'officecli', 'runtime')];
+  if (!root) return candidates;
+  candidates.push(path.join(root, 'node_modules', '.bin'));
   return candidates.filter((p) => existsSync(p));
 }
 
@@ -594,11 +674,11 @@ export function getEnhancedEnv(customEnv?: Record<string, string>): Record<strin
     mergedPath = `${bundledBunDir}${separator}${mergedPath}`;
   }
 
-  // Prepend bundled npm-binary directories (officecli, future bundled CLI deps)
+  // Prepend bundled CLI directories (checksum-pinned native OfficeCLI first)
   // so Claude/Codex spawned subprocesses can resolve them via `which` /
   // `where`, even on customer machines that have never run `npm i -g officecli`.
-  // Fix for #232 - without this, Office assistants on fresh installs fall back
-  // to the python-docx code path or block on a manual `npm i -g officecli`.
+  // Fix for #232 - without this, Office assistants on fresh installs block on a
+  // manual global install. The hosted-credit npm OfficeCLI is not an allowed fallback.
   const bundledNpmBinDirs = getBundledNpmBinDirs();
   if (bundledNpmBinDirs.length > 0) {
     mergedPath = `${bundledNpmBinDirs.join(separator)}${separator}${mergedPath}`;
@@ -615,6 +695,10 @@ export function getEnhancedEnv(customEnv?: Record<string, string>): Record<strin
     ...process.env,
     ...shellEnv,
     ...customEnv,
+    // The bundled OfficeCLI is checksum-pinned. Upstream enables background
+    // auto-update by default, which would invalidate that verified identity.
+    // Wayland-managed processes must never mutate it behind the release gate.
+    OFFICECLI_SKIP_UPDATE: '1',
     // PATH must be set after spreading to ensure merged value is used
     // When customEnv.PATH exists, merge it with the already merged path (fix: don't override)
     PATH: customEnv?.PATH ? mergePaths(mergedPath, customEnv.PATH) : mergedPath,

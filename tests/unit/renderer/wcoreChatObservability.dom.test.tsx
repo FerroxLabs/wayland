@@ -63,14 +63,6 @@ const seedPanelOpen = (open: boolean) => {
   panelOpen = open;
 };
 
-// Resize machinery: deterministic stub (no DOM measurement in jsdom).
-vi.mock('@renderer/hooks/ui/useResizableSplit', () => ({
-  useResizableSplit: () => ({
-    splitRatio: 62,
-    createDragHandle: () => <div data-testid='drag-handle' />,
-  }),
-}));
-
 // The relocated panel: stub that surfaces the close control so we can verify the
 // onClose wiring without mounting the real tree.
 vi.mock('@renderer/pages/conversation/Messages/components/ObservabilityPanel', () => ({
@@ -84,12 +76,17 @@ vi.mock('@renderer/pages/conversation/Messages/components/ObservabilityPanel', (
 }));
 
 // Heavy, irrelevant chat deps stubbed to no-ops.
-vi.mock('@renderer/pages/conversation/Messages/MessageList', () => ({ default: () => <div data-testid='message-list' /> }));
+vi.mock('@renderer/pages/conversation/Messages/MessageList', () => ({
+  default: () => <div data-testid='message-list' />,
+}));
 vi.mock('@renderer/pages/conversation/Messages/hooks', () => ({
   MessageListProvider: ({ children }: React.PropsWithChildren) => <>{children}</>,
+  useMessageList: () => [],
   useMessageLstCache: () => {},
 }));
-vi.mock('@renderer/components/layout/FlexFullContainer', () => ({ default: ({ children }: React.PropsWithChildren) => <>{children}</> }));
+vi.mock('@renderer/components/layout/FlexFullContainer', () => ({
+  default: ({ children }: React.PropsWithChildren) => <>{children}</>,
+}));
 vi.mock('@renderer/components/activation/ActivationCard', () => ({ default: () => null }));
 vi.mock('@renderer/components/activation/AcpAuthFailureCard', () => ({ default: () => null }));
 vi.mock('@renderer/components/media/LocalImageView', () => ({
@@ -98,7 +95,9 @@ vi.mock('@renderer/components/media/LocalImageView', () => ({
     useUpdateLocalImage: () => () => {},
   }),
 }));
-vi.mock('@renderer/hooks/useProviderReadiness', () => ({ useProviderReadiness: () => ({ ready: true, loading: false }) }));
+vi.mock('@renderer/hooks/useProviderReadiness', () => ({
+  useProviderReadiness: () => ({ ready: true, loading: false }),
+}));
 vi.mock('@renderer/hooks/useFluxConnected', () => ({ useFluxConnected: () => false }));
 vi.mock('@renderer/hooks/context/ConversationContext', () => ({
   ConversationProvider: ({ children }: React.PropsWithChildren) => <>{children}</>,
@@ -108,7 +107,9 @@ vi.mock('@renderer/pages/conversation/platforms/acp/acpFluxFailover', () => ({ r
 vi.mock('@renderer/pages/conversation/components/ConversationChatConfirm', () => ({
   default: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }));
-vi.mock('@renderer/pages/conversation/platforms/wcore/WCoreSendBox', () => ({ default: () => <div data-testid='send-box' /> }));
+vi.mock('@renderer/pages/conversation/platforms/wcore/WCoreSendBox', () => ({
+  default: () => <div data-testid='send-box' />,
+}));
 vi.mock('@renderer/utils/emitter', () => ({
   emitter: { emit: vi.fn() },
   useAddEventListener: () => {},
@@ -117,14 +118,13 @@ vi.mock('react-router-dom', () => ({ useNavigate: () => () => {} }));
 vi.mock('@/common', () => ({ ipcBridge: {} }));
 
 import WCoreChat from '@/renderer/pages/conversation/platforms/wcore/WCoreChat';
+import WorkbenchHost from '@/renderer/pages/conversation/components/WorkbenchHost';
 
 const renderChat = () =>
   render(
-    <WCoreChat
-      conversation_id='c1'
-      workspace='/ws'
-      modelSelection={{} as never}
-    />
+    <WorkbenchHost conversationId='c1'>
+      <WCoreChat conversation_id='c1' workspace='/ws' modelSelection={{} as never} />
+    </WorkbenchHost>
   );
 
 describe('WCoreChat #252 observability wiring', () => {
@@ -143,7 +143,7 @@ describe('WCoreChat #252 observability wiring', () => {
     seedPanelOpen(true);
     renderChat();
     expect(screen.getByTestId('observability-panel')).toBeTruthy();
-    expect(screen.getByTestId('drag-handle')).toBeTruthy();
+    expect(screen.getByRole('separator', { name: 'Resize workbench' })).toBeTruthy();
   });
 
   it('closing the panel clears panelOpen and unmounts it', () => {

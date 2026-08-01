@@ -1,0 +1,21 @@
+{
+  "source_path": "/Users/seandonahoe/gsd-workspaces/wayland-desktop-gsd/app/docs/desktop-overhaul-source/VOICE-CONVERSATION-MODE.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Voice Conversation Mode",
+  "summary": "Defines turn-based Voice mode over canonical conversations, including continuity, state, authority, privacy, adapters, delivery stages, journeys, and release gates.",
+  "scope": [
+    "Voice mode",
+    "canonical conversation",
+    "speech input adapters",
+    "speech output adapters",
+    "VoiceTurnCoordinator",
+    "VoicePresentation",
+    "VoiceReceipt"
+  ],
+  "cross_refs": [".planning/desktop-overhaul/mockups/voice-mode/index.html"],
+  "locked": false,
+  "precedence": 3,
+  "notes": ""
+}

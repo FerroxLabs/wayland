@@ -162,6 +162,7 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
     const installOperation = async () => {
       try {
+        const failures: string[] = [];
         for (const server of mcpServers) {
           // Claude CLI rejects dots in names; use the CLI-safe form everywhere
           // (add + remove) so the keys match and removal stays clean.
@@ -178,8 +179,9 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
               );
               console.log(`[ClaudeMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
-              console.warn(`Failed to add MCP ${server.name} to Claude Code: ${execErrorDetail(error)}`);
-              // Keep processing other servers; don't stop because one failed
+              const detail = execErrorDetail(error);
+              console.warn(`Failed to add MCP ${server.name} to Claude Code: ${detail}`);
+              failures.push(`${server.name}: ${detail}`);
             }
           } else if (
             server.transport.type === 'sse' ||
@@ -208,11 +210,17 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
               });
               console.log(`[ClaudeMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
-              console.warn(`Failed to add MCP ${server.name} to Claude Code: ${execErrorDetail(error)}`);
+              const detail = execErrorDetail(error);
+              console.warn(`Failed to add MCP ${server.name} to Claude Code: ${detail}`);
+              failures.push(`${server.name}: ${detail}`);
             }
+          } else {
+            failures.push(
+              `${server.name}: Claude Code does not support ${(server.transport as { type: string }).type} transport type`
+            );
           }
         }
-        return { success: true };
+        return failures.length === 0 ? { success: true } : { success: false, error: failures.join('; ') };
       } catch (error) {
         return { success: false, error: error instanceof Error ? error.message : String(error) };
       }
@@ -239,14 +247,19 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
               : [mcpServerName]
           )
         );
+        const failures: string[] = [];
 
         for (const scope of scopes) {
           for (const candidateName of candidateNames) {
             try {
-              const result = await safeExecFile('claude', ['mcp', 'remove', '-s', scope, cliSafeMcpServerName(candidateName)], {
-                timeout: 5000,
-                ...getExecEnv(),
-              });
+              const result = await safeExecFile(
+                'claude',
+                ['mcp', 'remove', '-s', scope, cliSafeMcpServerName(candidateName)],
+                {
+                  timeout: 5000,
+                  ...getExecEnv(),
+                }
+              );
 
               if (result.stdout && result.stdout.includes('removed')) {
                 console.log(`[ClaudeMcpAgent] Removed MCP server from ${scope} scope: ${candidateName}`);
@@ -260,11 +273,13 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
               }
 
               console.warn(`[ClaudeMcpAgent] Failed to remove from ${scope} scope: ${execErrorDetail(error)}`);
+              failures.push(`${scope}/${candidateName}: ${errorMessage}`);
             }
           }
         }
 
-        // If every scope has been tried, treat removal as successful (server may not have existed)
+        if (failures.length > 0) return { success: false, error: failures.join('; ') };
+        // Every scope explicitly reported absence.
         console.log(`[ClaudeMcpAgent] MCP server ${mcpServerName} not found in any scope (may already be removed)`);
         return { success: true };
       } catch (error) {

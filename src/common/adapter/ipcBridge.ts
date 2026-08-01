@@ -16,8 +16,9 @@ import type { MicPermissionStatus } from '../../process/services/macPermissions/
 import type { DoctorReport } from '../../process/doctor/types';
 import type { AgentBackend, AcpModelInfo } from '../types/acpTypes';
 import type { SlashCommandItem } from '../chat/slash/types';
-import type { WorkspaceTrustLevel } from '../security/workspaceTrust';
+import type { WorkspaceAccessInput, WorkspaceAccessLevel } from '../security/workspaceTrust';
 import type { IMcpServer, IProvider, TChatConversation, TProviderWithModel, ICssTheme } from '../config/storage';
+import type { OutputBudget } from '../config/outputBudget';
 import type { PreviewHistoryTarget, PreviewSnapshotInfo } from '../types/preview';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '../types/migration';
 import type { IjfwErrorReason, IjfwInvokeResult, IjfwRuntimeModePublic } from '../types/ijfw';
@@ -78,6 +79,7 @@ import type {
   ConnectError,
 } from '../../process/providers/types';
 import type { CatalogProviderEntry } from '../../process/providers/catalog/catalogProvider';
+import type { TextToSpeechBridgeResult } from '../types/ttsTypes';
 
 export type SkillStats = {
   total: number;
@@ -137,7 +139,7 @@ export const mic = {
 export const conversation = {
   create: buildProvider<TChatConversation, ICreateConversationParams>('create-conversation'), // Create conversation
   createWithConversation: buildProvider<
-    TChatConversation,
+    TChatConversation | null,
     { conversation: TChatConversation; sourceConversationId?: string; migrateCron?: boolean }
   >('create-conversation-with-conversation'), // Create new conversation from history (supports migration)
   get: buildProvider<TChatConversation, { id: string }>('get-conversation'), // Get conversation info
@@ -202,14 +204,14 @@ export const conversation = {
     { conversation_id: string; afterTimestamp: number }
   >('conversation.delete-messages-after'),
   confirmation: {
-    add: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.add'),
-    update: buildEmitter<IConfirmation<any> & { conversation_id: string }>('confirmation.update'),
+    add: buildEmitter<IConfirmation & { conversation_id: string }>('confirmation.add'),
+    update: buildEmitter<IConfirmation & { conversation_id: string }>('confirmation.update'),
     confirm: buildProvider<
       IBridgeResponse,
       // #504: `answer` carries an AskUserQuestion choice back to the engine.
-      { conversation_id: string; msg_id: string; data: any; callId: string; answer?: string }
+      { conversation_id: string; msg_id: string; data: unknown; callId: string; answer?: string }
     >('confirmation.confirm'),
-    list: buildProvider<IConfirmation<any>[], { conversation_id: string }>('confirmation.list'),
+    list: buildProvider<IConfirmation[], { conversation_id: string }>('confirmation.list'),
     remove: buildEmitter<{ conversation_id: string; id: string }>('confirmation.remove'),
   },
   // Session-level approval memory for "always allow" decisions
@@ -422,7 +424,7 @@ export const fs = {
     // file outside the static roots (still guarded against secrets/traversal).
     { filePaths: string[]; workspace: string; sourceRoot?: string; allowExternalSource?: boolean }
   >('copy-files-to-workspace'), // Copy files into workspace
-  removeEntry: buildProvider<IBridgeResponse, { path: string }>('remove-entry'), // Delete file or folder
+  removeEntry: buildProvider<IBridgeResponse, { path: string }>('remove-entry'), // Move workspace entry to recoverable Trash
   renameEntry: buildProvider<IBridgeResponse<{ newPath: string }>, { path: string; newName: string }>('rename-entry'), // Rename file or folder
   moveEntry: buildProvider<IBridgeResponse<{ newPath: string }>, { sourcePath: string; targetDir: string }>(
     'move-entry'
@@ -504,7 +506,7 @@ export const speechToText = {
 };
 
 export const voiceSynth = {
-  speak: buildProvider<{ data: number[]; mimeType: string }, { text: string }>('voice-synth.speak'),
+  speak: buildProvider<TextToSpeechBridgeResult, { text: string }>('voice-synth.speak'),
   stop: buildProvider<Record<string, never>, void>('voice-synth.stop'),
 };
 
@@ -970,6 +972,13 @@ export const acpConversation = {
 
 // MCP service related interface
 export const mcpService = {
+  getMcpConfigSnapshot: buildProvider<IBridgeResponse<{ revision: string; servers: IMcpServer[] }>, void>(
+    'mcp.get-config-snapshot'
+  ),
+  compareAndSetMcpConfig: buildProvider<
+    IBridgeResponse<{ applied: boolean; snapshot: { revision: string; servers: IMcpServer[] } }>,
+    { expectedRevision: string; nextServers: IMcpServer[] }
+  >('mcp.compare-and-set-config'),
   getAgentMcpConfigs: buildProvider<
     IBridgeResponse<Array<{ source: McpSource; servers: IMcpServer[] }>>,
     Array<{ backend: string; name: string; cliPath?: string }>
@@ -993,6 +1002,44 @@ export const mcpService = {
     IBridgeResponse<{ success: boolean; results: Array<{ agent: string; success: boolean; error?: string }> }>,
     { mcpServerName: string; agents: Array<{ backend: string; name: string; cliPath?: string }> }
   >('mcp.remove-from-agents'),
+  archiveConfiguredServer: buildProvider<
+    IBridgeResponse<{
+      archiveId: string;
+      archivedAt: number;
+      serverId: string;
+      name: string;
+      description?: string;
+      transportType: IMcpServer['transport']['type'];
+      source?: IMcpServer['source'];
+    }>,
+    { serverId: string; agents: Array<{ backend: string; name: string; cliPath?: string }> }
+  >('mcp.archive-configured-server'),
+  listArchivedServers: buildProvider<
+    IBridgeResponse<
+      Array<{
+        archiveId: string;
+        archivedAt: number;
+        serverId: string;
+        name: string;
+        description?: string;
+        transportType: IMcpServer['transport']['type'];
+        source?: IMcpServer['source'];
+      }>
+    >,
+    void
+  >('mcp.list-archived-servers'),
+  restoreArchivedServer: buildProvider<
+    IBridgeResponse<{
+      archiveId: string;
+      archivedAt: number;
+      serverId: string;
+      name: string;
+      description?: string;
+      transportType: IMcpServer['transport']['type'];
+      source?: IMcpServer['source'];
+    }>,
+    { archiveId: string }
+  >('mcp.restore-archived-server'),
   // OAuth-related interfaces
   checkOAuthStatus: buildProvider<
     IBridgeResponse<{ isAuthenticated: boolean; needsLogin: boolean; error?: string }>,
@@ -1009,7 +1056,7 @@ export const mcpService = {
           authorizationUrl?: string;
         }
     >,
-    { server: IMcpServer; config?: any }
+    { server: IMcpServer; config?: unknown }
   >('mcp.login-oauth'),
   /**
    * Abort an in-flight loginMcpOAuth. Optional serverName targets a single
@@ -1354,6 +1401,7 @@ export const webui = {
 export const cron = {
   // Query
   listJobs: buildProvider<ICronJob[], void>('cron.list-jobs'),
+  listArchivedJobs: buildProvider<IArchivedCronJob[], void>('cron.list-archived-jobs'),
   listJobsByConversation: buildProvider<ICronJob[], { conversationId: string }>('cron.list-jobs-by-conversation'),
   getJob: buildProvider<ICronJob | null, { jobId: string }>('cron.get-job'),
   // CRUD
@@ -1361,7 +1409,8 @@ export const cron = {
   updateJob: buildProvider<ICronJob, { jobId: string; updates: Partial<ICronJob>; allowHighFrequency?: boolean }>(
     'cron.update-job'
   ),
-  removeJob: buildProvider<void, { jobId: string }>('cron.remove-job'),
+  removeJob: buildProvider<IArchivedCronJob, { jobId: string }>('cron.remove-job'),
+  restoreArchivedJob: buildProvider<ICronJob, { archiveId: string }>('cron.restore-archived-job'),
   runNow: buildProvider<{ conversationId: string }, { jobId: string }>('cron.run-now'),
   saveSkill: buildProvider<void, { jobId: string; content: string }>('cron.save-skill'),
   hasSkill: buildProvider<boolean, { jobId: string }>('cron.has-skill'),
@@ -1452,6 +1501,13 @@ export interface ICronJob {
     retryCount: number;
     maxRetries: number;
   };
+}
+
+export interface IArchivedCronJob {
+  archiveId: string;
+  archivedAt: number;
+  job: ICronJob;
+  skillPresent: boolean;
 }
 
 export interface ICronAgentConfig {
@@ -2106,6 +2162,17 @@ export const ijfw = {
   triggerInstall: buildProvider<{ ok: true } | { ok: false; error: string }, void>('ijfw.trigger-install'),
   /** Persist the Settings opt-out flag. */
   skipSetup: buildProvider<{ ok: true }, { enabled: boolean }>('ijfw.skip-setup'),
+  /**
+   * Read the persisted opt-out flag DIRECTLY.
+   *
+   * The Settings switch used to infer this from the lifecycle status
+   * (`not_installed` + `opt_out`), which conflates a user SETTING with on-disk
+   * STATE. With an install present the status is `installed_current` no matter
+   * what the flag says, so the switch could not stay ON: any fresh `getStatus`
+   * (a remount, navigating away and back) re-derived it to OFF and masked the
+   * user's persisted choice. The flag is the only honest source for the switch.
+   */
+  getSkipSetup: buildProvider<{ enabled: boolean }, void>('ijfw.get-skip-setup'),
   /** Returns whether the MCP client is reachable (`full`) or short-circuiting (`degraded`). */
   getRuntimeMode: buildProvider<IjfwRuntimeModePublic, void>('ijfw.get-runtime-mode'),
 
@@ -2169,7 +2236,14 @@ export type IModelRegistryProviderView = {
   providerId: ProviderId;
   connectedVia: string;
   state: ProviderConnState;
+  /** Total persisted catalog rows. This is display inventory, not callable truth. */
   modelCount: number;
+  /** Enabled models the picker may actually dispatch to. Required for readiness decisions. */
+  callableModelCount?: number;
+  /** True only when the main-process chat-start resolver can build a dispatch handle. */
+  dispatchEligible?: boolean;
+  /** Producer-owned time when connection or callable inventory last changed. */
+  observedAt?: number;
   error?: ConnectError;
 };
 
@@ -2398,30 +2472,122 @@ export const wcoreToolKeys = {
 
 /**
  * Wayland Core engine `config.toml` sections (tools / security / memory /
- * profiles, ...). HUMAN/RENDERER ONLY - `setSection` mutates the engine's
- * security-load-bearing runtime config (tool allow-lists, sandbox policy, env
- * passthrough). It is remote-denied in `bridgeAllowlist.ts` and must NEVER be
+ * profiles, ...). HUMAN/RENDERER ONLY - `patchField` mutates a closed subset of
+ * the engine's security-load-bearing runtime config. It is remote-denied in
+ * `bridgeAllowlist.ts` and must NEVER be
  * exposed to the agent/engine tool surface: an agent that could call it could
  * rewrite its own allow-list and escape the sandbox (SEC-6).
  *
- * The setter always targets the real user `config.toml` (no caller-supplied
- * path) and honours the engine's config invariants (atomic, lossless,
- * single-flight) via `configBridge.setSection`.
+ * The patcher always targets the active profile's real `config.toml` (no
+ * caller-supplied path) and honours the engine's config invariants (atomic,
+ * lossless, single-flight) via `configBridge.mutateConfig`.
  */
 export const wcoreConfig = {
   // Read one top-level `config.toml` section (e.g. `tools`, `security`),
   // or undefined when the section is absent.
-  getSection: buildProvider<Record<string, unknown> | undefined, { section: string }>('wcoreConfig.getSection'),
-  // Replace one top-level section wholesale, preserving every other section.
-  // HUMAN-ONLY; remote-denied; never reachable from the agent tool surface.
-  setSection: buildProvider<{ ok: boolean }, { section: string; value: Record<string, unknown> }>(
-    'wcoreConfig.setSection'
+  getSection: buildProvider<IWcoreConfigSectionResult, { section: IWcoreReadableConfigSection }>(
+    'wcoreConfig.getSection'
   ),
+  patchField: buildProvider<IWcoreConfigMutationResult, { patch: IWcoreConfigFieldPatch }>('wcoreConfig.patchField'),
+  /** Requested Browser policy plus explicit absence of producer-enforced evidence. */
+  getBrowserPolicy: buildProvider<IWcoreBrowserPolicyResult, void>('wcoreConfig.getBrowserPolicy'),
+  setBrowserPolicy: buildProvider<IWcoreConfigMutationResult, { policy: IWcoreBrowserPolicy }>(
+    'wcoreConfig.setBrowserPolicy'
+  ),
+  /** Exact config/profile identity currently selected for Desktop-launched Core sessions. */
+  getEffectiveRuntime: buildProvider<IWcoreEffectiveRuntimeResult, void>('wcoreConfig.getEffectiveRuntime'),
+  /** Local-only transactional raw-mode preference update. */
+  setRawEngineMode: buildProvider<{ ok: boolean; error?: string }, { enabled: boolean }>(
+    'wcoreConfig.setRawEngineMode'
+  ),
+  /** Read/write the main-process output-budget preference with explicit failure truth. */
+  getOutputBudget: buildProvider<IWcoreOutputBudgetResult, void>('wcoreConfig.getOutputBudget'),
+  setOutputBudget: buildProvider<{ ok: boolean; error?: string }, { value: OutputBudget }>(
+    'wcoreConfig.setOutputBudget'
+  ),
+  /** Local-only authoritative folder action; accepts no renderer path. */
+  openEffectiveRuntimeFolder: buildProvider<{ ok: boolean; error?: string }, { target: IWcoreRuntimeFolderTarget }>(
+    'wcoreConfig.openEffectiveRuntimeFolder'
+  ),
+};
+
+export type IWcoreRuntimeFolderTarget = 'core-config' | 'desktop-config';
+
+export type IWcoreConfigSectionResult =
+  | { ok: true; value: Record<string, unknown> | undefined }
+  | { ok: false; error: string };
+
+export type IWcoreReadableConfigSection = 'tools' | 'builtin_tools' | 'default' | 'memory';
+
+export type IWcoreConfigMutationResult = { ok: true } | { ok: false; error: string };
+
+export type IWcoreBrowserPolicy = {
+  defaultAction: 'deny' | 'allow' | 'ask';
+  allowedOrigins: string[];
+  deniedOrigins: string[];
+};
+
+export type IWcoreBrowserPolicyProjection = {
+  schemaVersion: 1;
+  coreVersion: '0.12.25';
+  /** Exact config authority inspected for this projection, even when policy is absent. */
+  source: {
+    mode: 'desktop-managed' | 'raw-engine';
+    profile: string | null;
+    engineConfigPath: string;
+    desktopConfigPath: string;
+  };
+  requested: null | {
+    policy: IWcoreBrowserPolicy;
+  };
+  /** No v0.12.25 producer receipt exists for current-session enforcement. */
+  effective: null;
+  effectiveState: 'producer-evidence-unavailable';
+  restartState: 'unknown';
+};
+
+export type IWcoreBrowserPolicyResult =
+  | { ok: true; projection: IWcoreBrowserPolicyProjection }
+  | { ok: false; error: string };
+
+/** Closed set of renderer-editable Core fields, merged atomically by main. */
+export type IWcoreConfigFieldPatch =
+  | { section: 'tools'; field: 'allow_list'; value: string[] }
+  | { section: 'builtin_tools'; field: 'script.enabled' | 'repomap.enabled'; value: boolean }
+  | { section: 'default'; field: 'approval_mode'; value: 'default' | 'auto-edit' | 'force' }
+  | { section: 'memory'; field: 'enabled'; value: boolean };
+
+export type IWcoreOutputBudgetResult = { ok: true; value: OutputBudget | undefined } | { ok: false; error: string };
+
+export type IWcoreEffectiveRuntimeResult = { ok: true; runtime: IWcoreEffectiveRuntime } | { ok: false; error: string };
+
+export type IWcoreEffectiveRuntime = {
+  mode: 'desktop-managed' | 'raw-engine';
+  /** Active Desktop profile, or null when raw mode intentionally bypasses it. */
+  profile: string | null;
+  profileApplied: boolean;
+  waylandHomeInjected: boolean;
+  desktopModelOverrideApplied: boolean;
+  desktopPromptOverlayApplied: boolean;
+  /** Policy authority for selected user connectors; observed launch is tested separately. */
+  selectedConnectorsAuthority: 'desktop' | 'core';
+  /** Launch policy: host-owned team coordination stdio is preserved in either mode. */
+  teamBridgePolicy: 'host-preserved';
+  /** Launch policy: only allowlisted Desktop tool credentials may be forwarded. */
+  toolCredentialPolicy: 'allowlisted-host-forwarding';
+  /** Protocol authority remains Desktop-owned; this is not a session health claim. */
+  hostProtocolAuthority: 'desktop';
+  engineConfigDir: string;
+  engineConfigPath: string;
+  desktopConfigDir: string;
+  desktopConfigPath: string;
 };
 
 /** A single Wayland Core profile, as listed by `wcoreProfiles.list`. */
 export type IWcoreProfile = {
-  /** Sanitized profile name (also the directory name under the profiles root). */
+  /** Native legacy home or a producer-owned named Core profile. */
+  kind: 'native' | 'named';
+  /** Human-facing label for native, canonical lowercase directory name for named. */
   name: string;
   /** Whether this profile is the active one. */
   active: boolean;
@@ -2439,31 +2605,38 @@ export type IWcoreProfile = {
   /** `config.toml` last-modified time (epoch ms), for an "updated …" chip. */
   updatedAt?: number;
   /**
-   * Absolute config dir the engine actually reads for this profile. `default`
-   * maps to the native dir (`dirs::config_dir()/wayland-core`); named profiles
-   * to `~/.wayland/profiles/<name>/`. Surfaced so the UI shows the REAL path
-   * (Design B) instead of a fabricated `profiles/default`.
+   * Absolute config dir the engine actually reads for this profile. The tagged
+   * native entry maps to `dirs::config_dir()/wayland-core`; named profiles map
+   * to Core's `<os-config>/wayland-core-profiles/<name>/` control plane.
    */
   dir?: string;
 };
 
+export type IWcoreProfileSelector = { kind: 'native' } | { kind: 'named'; name: string };
+
+export type IWcoreProfileListResult = { ok: true; profiles: IWcoreProfile[] } | { ok: false; error: string };
+
 /**
- * Wayland Core profile directories (`~/.wayland/profiles/<name>/`). HUMAN-ONLY -
+ * Wayland Core profile directories (`<os-config>/wayland-core-profiles/<name>/`). HUMAN-ONLY -
  * create/clone/delete do filesystem mutation under the profiles root with a
  * strict name sanitizer + realpath containment (SEC-4); they are remote-denied.
  */
 export const wcoreProfiles = {
   // List all profiles (name + active flag).
-  list: buildProvider<IWcoreProfile[], void>('wcoreProfiles.list'),
+  list: buildProvider<IWcoreProfileListResult, void>('wcoreProfiles.list'),
   // Create an empty profile directory (sanitized name).
   create: buildProvider<{ ok: boolean; error?: string }, { name: string }>('wcoreProfiles.create'),
   // Clone an existing profile's config into a new one.
-  clone: buildProvider<{ ok: boolean; error?: string }, { from: string; to: string }>('wcoreProfiles.clone'),
+  clone: buildProvider<{ ok: boolean; error?: string }, { from: IWcoreProfileSelector; to: string }>(
+    'wcoreProfiles.clone'
+  ),
   // Activate a profile (persists the active marker). NOTE: the engine must be
   // respawned for an active-profile switch to take effect (SEC-3).
-  activate: buildProvider<{ ok: boolean; error?: string }, { name: string }>('wcoreProfiles.activate'),
+  activate: buildProvider<{ ok: boolean; error?: string }, { selector: IWcoreProfileSelector }>(
+    'wcoreProfiles.activate'
+  ),
   // Soft-delete a profile (moves it to a `.trash` sibling under the root).
-  remove: buildProvider<{ ok: boolean; error?: string }, { name: string }>('wcoreProfiles.remove'),
+  remove: buildProvider<{ ok: boolean; error?: string }, { kind: 'named'; name: string }>('wcoreProfiles.remove'),
 };
 
 // Team Mode API
@@ -2622,8 +2795,33 @@ export const storage = {
   exportAll: buildProvider<{ ok: boolean; path?: string }, { includeKeys: boolean; passphrase?: string }>(
     'storage:exportAll'
   ),
-  importBackup: buildProvider<{ ok: boolean }, { passphrase?: string }>('storage:importBackup'),
+  importBackup: buildProvider<{ ok: boolean; safetyBackupPath?: string }, { passphrase?: string }>(
+    'storage:importBackup'
+  ),
   resetAll: buildProvider<void, void>('storage:resetAll'),
+};
+
+/**
+ * Human-only, read-only projection of app-managed temporary workspaces.
+ * Local paths and authority identifiers make this unsuitable for paired WebUI
+ * callers, so the provider is remote-denied in bridgeAllowlist.ts.
+ */
+export const workspaceRetention = {
+  preview: buildProvider<import('@/common/types/managedWorkspaceRetention').ManagedWorkspaceInventoryReport, void>(
+    'workspaceRetention.preview'
+  ),
+};
+
+/**
+ * Local-human Wayland instance transfer surface. The first shipped operation
+ * is deliberately read-only: it inventories what a future encrypted transfer
+ * can include and reports every blocker before an export is offered.
+ */
+export const waylandTransfer = {
+  preview: buildProvider<
+    import('@/common/types/transfer').WaylandTransferPreflight,
+    import('@/common/types/transfer').WaylandTransferPreflightRequest
+  >('waylandTransfer.preview'),
 };
 
 // v0.4.7 - Kickoff suggestion engine. Yes-bias card surfaced on new-chat
@@ -2882,7 +3080,6 @@ export const cost = {
 
 import type {
   MemoryEntry,
-  MemoryStats,
   ListFilter,
   ProjectSummary,
   TagCount,
@@ -2893,6 +3090,7 @@ import type {
   WikiState,
   WikiTopicTag,
   WikiFreshness,
+  ArchivedMemoryEntry,
 } from '@/common/types/memory';
 
 export const memory = {
@@ -2928,8 +3126,16 @@ export const memory = {
     { ok: boolean; error?: string; newId?: string },
     { id: string; summary?: string; type?: string; tags?: string[]; body?: string }
   >('memory.update-entry'),
-  /** Hard-delete a single memory entry from its source file (#414). */
-  deleteEntry: buildProvider<{ ok: boolean; error?: string }, { id: string }>('memory.delete-entry'),
+  /** Archive a memory entry and return the durable archive id (#414). */
+  deleteEntry: buildProvider<{ ok: boolean; error?: string; archiveId?: string }, { id: string }>(
+    'memory.delete-entry'
+  ),
+  /** List memory entries retained in the durable recovery archive. */
+  listArchivedEntries: buildProvider<ArchivedMemoryEntry[], void>('memory.list-archived-entries'),
+  /** Restore a retained memory entry to its original source file. */
+  restoreArchivedEntry: buildProvider<{ ok: boolean; error?: string }, { archiveId: string }>(
+    'memory.restore-archived-entry'
+  ),
   /** Trigger an immediate promotion sweep (added W3). */
   forceSweep: buildProvider<void, void>('memory.force-sweep'),
   /** Read a windowed slice of a source file centred on `line` for inline display. */
@@ -3047,10 +3253,20 @@ export const project = {
   addReference: buildProvider<Array<{ name: string; path: string; size: number }>, { id: string; filePaths: string[] }>(
     'project.add-reference'
   ),
-  /** Remove one reference file by name; returns the updated list. */
+  /** Archive one reference file by name; returns the updated live list. */
   removeReference: buildProvider<Array<{ name: string; path: string; size: number }>, { id: string; name: string }>(
     'project.remove-reference'
   ),
+  /** List recoverable references archived inside the project workspace. */
+  listArchivedReference: buildProvider<
+    Array<{ id: string; name: string; size: number; archivedAt: number }>,
+    { id: string }
+  >('project.list-archived-reference'),
+  /** Restore one archived reference with collision-safe naming. */
+  restoreReference: buildProvider<
+    Array<{ name: string; path: string; size: number }>,
+    { id: string; archiveId: string }
+  >('project.restore-reference'),
   /** Read the editable one-line summaries for each knowledge doc. */
   readSummaries: buildProvider<{ context?: string; rules?: string; decisions?: string }, { id: string }>(
     'project.read-summaries'
@@ -3140,11 +3356,12 @@ export const terminal = {
 };
 
 /**
- * #671 Per-workspace trust axis — the composer Chat<->Cowork toggle.
+ * #671 Per-workspace access axis. The wire namespace stays `workspaceTrust.*`
+ * for backward compatibility and remote-denial protection.
  *
- * A 'cowork' workspace auto-approves read/edit tools across every local backend
- * while STILL prompting on exec/network; 'chat' prompts on everything. Persisted
- * per workspace (keyed by cwd) in the main process.
+ * `trusted-edits` auto-approves read/edit tools across local backends while
+ * STILL prompting on exec/network; `ask` prompts on every gated tool. Legacy
+ * `chat` / `cowork` set payloads remain accepted during migration.
  *
  * SECURITY: both keys are namespaced `workspaceTrust.*` so bridgeAllowlist's
  * `workspaceTrust.` REMOTE_DENIED_PREFIXES entry blocks a paired WebSocket peer
@@ -3153,8 +3370,8 @@ export const terminal = {
  * security posture. This is a LOCAL desktop control only.
  */
 export const workspaceTrust = {
-  /** Read the persisted trust level for a workspace cwd. */
-  get: buildProvider<WorkspaceTrustLevel, { workspace: string }>('workspaceTrust.get'),
-  /** Set + persist the trust level for a workspace cwd. */
-  set: buildProvider<void, { workspace: string; level: WorkspaceTrustLevel }>('workspaceTrust.set'),
+  /** Read the canonical access level for a workspace cwd. */
+  get: buildProvider<WorkspaceAccessLevel, { workspace: string }>('workspaceTrust.get'),
+  /** Set + persist access; legacy values are normalized by the main process. */
+  set: buildProvider<void, { workspace: string; level: WorkspaceAccessInput }>('workspaceTrust.set'),
 };

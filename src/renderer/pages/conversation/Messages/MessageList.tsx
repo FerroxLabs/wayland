@@ -178,6 +178,10 @@ const MessageItem: React.FC<{
           // #252 rework: the live activity tree (tool lifecycle, chunks, cost,
           // circuit/browser/cua) renders inline as the unified timeline.
           return <ActivityTimeline steps={activityToSteps(message.content)} />;
+        case 'execution_evidence':
+          // Durable authority evidence is consumed by the contextual workbench,
+          // never rendered as a chat bubble.
+          return null;
         case 'available_commands':
           return null;
         default:

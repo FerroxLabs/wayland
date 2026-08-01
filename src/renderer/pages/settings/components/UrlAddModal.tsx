@@ -11,10 +11,11 @@ import { Check, CloseOne, Key, Components } from '@icon-park/react';
 import WaylandModal from '@/renderer/components/base/WaylandModal';
 import { mcpService } from '@/common/adapter/ipcBridge';
 import type { IMcpServer } from '@/common/config/storage';
+import { classifyMcpHttpUrl } from '@/common/mcp/mcpUrlSafety';
 
 type ServerData = Omit<IMcpServer, 'id' | 'createdAt' | 'updatedAt'>;
 
-type Phase = 'input' | 'probing' | 'needsAuth' | 'connected' | 'error';
+type Phase = 'input' | 'probing' | 'needsAuth' | 'connected' | 'publishing' | 'error';
 
 /** A couple of known-good public servers to remove blank-page paralysis. */
 const EXAMPLES: { label: string; url: string }[] = [
@@ -25,34 +26,28 @@ const EXAMPLES: { label: string; url: string }[] = [
 /**
  * Renderer-side SSRF guard mirroring validateMcpServer's intent so the PROBE
  * (which runs before persist, where the authoritative main-process check lives)
- * cannot be pointed at loopback / private / cloud-metadata hosts. http(s) only.
+ * applies the same policy: intentional localhost/LAN endpoints are allowed,
+ * while cloud-metadata/link-local targets and non-http(s) URLs are denied.
  */
-function isSafeRemoteUrl(raw: string): boolean {
-  let u: URL;
-  try {
-    u = new URL(raw.trim());
-  } catch {
-    return false;
-  }
-  if (u.protocol !== 'https:' && u.protocol !== 'http:') return false;
-  const h = u.hostname.toLowerCase();
-  if (h === 'localhost' || h.endsWith('.localhost') || h === '0.0.0.0' || h === '::1') return false;
-  if (
-    h.startsWith('127.') ||
-    h.startsWith('10.') ||
-    h.startsWith('192.168.') ||
-    h.startsWith('169.254.') ||
-    /^172\.(1[6-9]|2\d|3[01])\./.test(h)
-  ) {
-    return false;
-  }
-  return true;
+export function isSafeMcpProbeUrl(raw: string): boolean {
+  return classifyMcpHttpUrl(raw).safe;
 }
 
-/** Friendly server name from the URL host, e.g. https://mcp.readwise.io/mcp -> "Readwise". */
-function deriveName(raw: string): string {
+/**
+ * Friendly, collision-resistant server name from a remote URL. Local MCPs
+ * cannot all be called "Localhost": adding Beeper after a local n8n server
+ * would otherwise update/replace the same stored record by name.
+ */
+export function deriveMcpServerName(raw: string): string {
   try {
-    const host = new URL(raw.trim()).hostname.replace(/^(mcp|api|www)\./, '');
+    const parsed = new URL(raw.trim());
+    const host = parsed.hostname.replace(/^(mcp|api|www)\./, '');
+    const local = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+    if (local) {
+      if (parsed.port === '23373' && parsed.pathname.startsWith('/v0/mcp')) return 'Beeper';
+      if (parsed.pathname.includes('/mcp-server/')) return 'n8n';
+      return parsed.port ? `Local MCP ${parsed.port}` : 'Local MCP';
+    }
     const base = host.split('.')[0] || host;
     return base.charAt(0).toUpperCase() + base.slice(1);
   } catch {
@@ -83,11 +78,13 @@ function looksLikeAuthError(msg: string | undefined): boolean {
 const UrlAddModal: React.FC<{
   visible: boolean;
   onCancel: () => void;
-  onSubmit: (server: ServerData) => void;
+  onSubmit: (server: ServerData) => void | Promise<unknown>;
   onUseJson: () => void;
 }> = ({ visible, onCancel, onSubmit, onUseJson }) => {
   const { t } = useTranslation();
   const [url, setUrl] = useState('');
+  const [name, setName] = useState('');
+  const [nameEdited, setNameEdited] = useState(false);
   const [token, setToken] = useState('');
   const [headerName, setHeaderName] = useState(DEFAULT_HEADER);
   const [showHeaderField, setShowHeaderField] = useState(false);
@@ -97,6 +94,8 @@ const UrlAddModal: React.FC<{
 
   const reset = useCallback(() => {
     setUrl('');
+    setName('');
+    setNameEdited(false);
     setToken('');
     setHeaderName(DEFAULT_HEADER);
     setShowHeaderField(false);
@@ -112,26 +111,26 @@ const UrlAddModal: React.FC<{
   const headers = useMemo(() => {
     const tok = token.trim();
     if (!tok) return undefined;
-    const name = headerName.trim() || DEFAULT_HEADER;
-    return { [name]: name === DEFAULT_HEADER ? `Bearer ${tok}` : tok };
+    const resolvedHeaderName = headerName.trim() || DEFAULT_HEADER;
+    return { [resolvedHeaderName]: resolvedHeaderName === DEFAULT_HEADER ? `Bearer ${tok}` : tok };
   }, [token, headerName]);
 
   const buildServer = useCallback(
     (enabled: boolean): ServerData =>
       ({
-        name: deriveName(url),
+        name: name.trim() || deriveMcpServerName(url),
         description: t('mcpLibrary.urlAdd.addedDescription', 'Added by URL'),
         enabled,
         source: 'custom',
         status: enabled ? 'connected' : 'disconnected',
         transport: { type: 'streamable_http', url: url.trim(), ...(headers ? { headers } : {}) },
       }) as ServerData,
-    [url, headers, t]
+    [url, name, headers, t]
   );
 
   const probe = useCallback(async () => {
-    if (!isSafeRemoteUrl(url)) {
-      setError(t('mcpLibrary.urlAdd.invalidUrl', 'Enter a valid https:// server URL.'));
+    if (!isSafeMcpProbeUrl(url)) {
+      setError(t('mcpLibrary.urlAdd.invalidUrl', 'Enter a valid http(s) MCP server URL.'));
       setPhase('error');
       return;
     }
@@ -169,20 +168,39 @@ const UrlAddModal: React.FC<{
     }
   }, [url, token, buildServer, t]);
 
-  const add = useCallback(() => {
-    onSubmit(buildServer(true));
-    onCancel();
-  }, [onSubmit, buildServer, onCancel]);
+  const submit = useCallback(
+    async (enabled: boolean) => {
+      setError('');
+      setPhase('publishing');
+      try {
+        await onSubmit(buildServer(enabled));
+        onCancel();
+      } catch (submitError) {
+        setError(
+          submitError instanceof Error
+            ? submitError.message
+            : t('mcpLibrary.urlAdd.publishFailed', 'Could not publish this connector to an available agent.')
+        );
+        setPhase('error');
+      }
+    },
+    [onSubmit, buildServer, onCancel, t]
+  );
+
+  const add = useCallback((): void => {
+    void submit(true);
+  }, [submit]);
 
   // OAuth servers: persist disabled so the row appears in Installed, where the
   // existing re-auth (browser sign-in) action lives.
-  const addForSignIn = useCallback(() => {
-    onSubmit(buildServer(false));
-    onCancel();
-  }, [onSubmit, buildServer, onCancel]);
+  const addForSignIn = useCallback((): void => {
+    void submit(false);
+  }, [submit]);
 
   const fillExample = useCallback((exampleUrl: string) => {
     setUrl(exampleUrl);
+    setName(deriveMcpServerName(exampleUrl));
+    setNameEdited(false);
     setError('');
     setPhase('input');
   }, []);
@@ -192,9 +210,11 @@ const UrlAddModal: React.FC<{
       <Button type='primary' size='large' onClick={add}>
         {t('mcpLibrary.urlAdd.addServer', 'Add server')}
       </Button>
-    ) : phase === 'probing' ? (
+    ) : phase === 'probing' || phase === 'publishing' ? (
       <Button type='primary' size='large' loading>
-        {t('mcpLibrary.urlAdd.connecting', 'Connecting…')}
+        {phase === 'publishing'
+          ? t('mcpLibrary.urlAdd.publishing', 'Adding to Wayland…')
+          : t('mcpLibrary.urlAdd.connecting', 'Connecting…')}
       </Button>
     ) : (
       <Button type='primary' size='large' onClick={() => void probe()} disabled={!url.trim()}>
@@ -223,13 +243,17 @@ const UrlAddModal: React.FC<{
     >
       <div className='flex flex-col gap-14px'>
         <div className='text-13px text-t-secondary'>
-          {t('mcpLibrary.urlAdd.subtitle', 'Paste a link from the vendor. Wayland detects how to connect and signs you in.')}
+          {t(
+            'mcpLibrary.urlAdd.subtitle',
+            'Paste a link from the vendor. Wayland detects how to connect and signs you in.'
+          )}
         </div>
 
         <Input
           value={url}
           onChange={(v) => {
             setUrl(v);
+            if (!nameEdited) setName(deriveMcpServerName(v));
             if (phase === 'error') setPhase('input');
           }}
           allowClear
@@ -239,16 +263,23 @@ const UrlAddModal: React.FC<{
           size='large'
         />
 
+        <Input
+          value={name}
+          onChange={(v) => {
+            setName(v);
+            setNameEdited(true);
+          }}
+          allowClear
+          placeholder={t('mcpLibrary.urlAdd.namePlaceholder', 'Connector name (for example, Beeper or n8n)')}
+          disabled={phase === 'probing'}
+          size='large'
+        />
+
         {(phase === 'input' || phase === 'error') && (
           <div className='flex items-center gap-8px flex-wrap'>
             <span className='text-12px text-t-tertiary'>{t('mcpLibrary.urlAdd.tryLabel', 'Try:')}</span>
             {EXAMPLES.map((ex) => (
-              <button
-                key={ex.url}
-                type='button'
-                className='mcp-url-example'
-                onClick={() => fillExample(ex.url)}
-              >
+              <button key={ex.url} type='button' className='mcp-url-example' onClick={() => fillExample(ex.url)}>
                 {ex.label}
               </button>
             ))}
@@ -295,7 +326,7 @@ const UrlAddModal: React.FC<{
             style={{ background: 'var(--success-soft-bg)', color: 'var(--color-text-1)' }}
           >
             <Check theme='filled' size={16} fill='var(--success)' />
-            {t('mcpLibrary.urlAdd.connected', 'Connected. {{count}} tools available.', { count: tools })}
+            {t('mcpLibrary.urlAdd.reachable', 'Server reachable. Probe reported {{count}} tools.', { count: tools })}
           </div>
         )}
 

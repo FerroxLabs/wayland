@@ -1,0 +1,697 @@
+{
+  "schema_version": "1.0",
+  "status": "prepared_not_sealed",
+  "observed_at": "2026-07-17",
+  "candidate_worktree": "codex/desktop-constitution-production",
+  "baseline_commit": "991c502e74506ec3702f92e429a8b31b655412ba",
+  "rules": {
+    "one_owner_required": true,
+    "untracked_expanded": true,
+    "digests_required_at_seal": true,
+    "mixed_hunks_require_separate_patches": true,
+    "reconstruction_must_be_byte_identical": true
+  },
+  "counts": {
+    "stage_a": 98,
+    "stage_b": 23,
+    "mixed": 14,
+    "unknown": 0
+  },
+  "entries": [
+    {
+      "status": " M",
+      "path": "Dockerfile",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "native/constitution-fs/src/main.rs",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "scripts/prepareConstitutionFs.js",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "scripts/verify-packaged-resources.js",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/common/constitutionDefault.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/common/types/constitution.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/common/types/constitutionRecovery.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "src/common/types/electron.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": " M",
+      "path": "src/preload/main.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": " M",
+      "path": "src/process/bridge/applicationBridge.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "src/process/bridge/constitutionBridge.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": " M",
+      "path": "src/process/bridge/index.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/constitution/composePrompt.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/constitution/constitutionArchiveRecoveryService.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/constitution/constitutionArchiveRestoreAuthority.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/constitution/constitutionClassicRecoveryAuthority.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/constitution/constitutionClassicRecoveryRuntime.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/constitution/constitutionClassicRecoveryService.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/constitution/constitutionFsAuthority.generated.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/constitution/constitutionFsBinary.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/constitution/constitutionFsService.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/constitution/constitutionFsTransaction.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/constitution/constitutionKeyStore.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/constitution/constitutionMutationQuiescence.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/constitution/constitutionRequestFingerprint.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/constitution/constitutionRevisionAuthority.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/recovery/classicConstitutionPromotion.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/recovery/classicRecoveryLocator.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/recovery/externalRecoveryAuthority.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/recovery/externalRecoveryCrypto.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/recovery/externalRecoveryLauncher.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "src/process/services/recovery/externalRecoveryRecordCodec.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/recovery/index.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/recovery/recoveryCapture.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/recovery/recoveryManifest.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/recovery/recoveryPointBuilder.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/services/recovery/stateAuthorityInventory.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/utils/initBridge.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": " M",
+      "path": "src/process/utils/initBridgeStandalone.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": "??",
+      "path": "src/process/utils/restrictedCanonicalJson.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/process/webserver/routes/constitutionRoutes.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": "??",
+      "path": "src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "src/renderer/pages/settings/ConstitutionSettings/index.tsx",
+      "owner": "mixed"
+    },
+    {
+      "status": " M",
+      "path": "src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor.tsx",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/renderer/pages/settings/ConstitutionSettings/useSerializedAutosave.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "src/renderer/services/ConstitutionService.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/.constitution-keys.enc",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/active/7703759f-0fda-4ed2-9d99-d2e0681d677a.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/receipts/11111111-1111-4111-8111-111111111111.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/receipts/22222222-2222-4222-8222-222222222222.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/receipts/33333333-3333-4333-8333-333333333333.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/recovery/33333333-3333-4333-8333-333333333333.displaced",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/seal-keys/2a4079c2-194c-44f0-a7c0-a22e6f771050.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/transaction-ledger.jsonl",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/transaction.lock",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/transactions/11111111-1111-4111-8111-111111111111.jsonl",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/transactions/22222222-2222-4222-8222-222222222222.jsonl",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/archives/constitution-history/transactions/33333333-3333-4333-8333-333333333333.jsonl",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/CONSTITUTION.md",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/fixture-manifest.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-committed/specialists/research.md",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/.constitution-keys.enc",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/active/ccaea749-72d3-4c76-b73d-03fed5414796.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/receipts/11111111-1111-4111-8111-111111111111.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/receipts/22222222-2222-4222-8222-222222222222.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/receipts/33333333-3333-4333-8333-333333333333.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/recovery/33333333-3333-4333-8333-333333333333.displaced",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/seal-keys/3be5cd48-7319-41ba-b8e9-ab94becad1de.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/transaction-ledger.jsonl",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/transaction.lock",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/transactions/11111111-1111-4111-8111-111111111111.jsonl",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/transactions/22222222-2222-4222-8222-222222222222.jsonl",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/archives/constitution-history/transactions/33333333-3333-4333-8333-333333333333.jsonl",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/CONSTITUTION.md",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/fixture-manifest.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/base-991c502-pending-ledger-only/specialists/research.md",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/provenance/991c502-fixture-failpoint.patch",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/provenance/finalizeHistoricalConstitutionFixture.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/provenance/generateHistoricalConstitutionFixture.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/provenance/helper-build-receipt.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/provenance/reproduction.json",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/fixtures/constitution-fs/provenance/vite.fixture.config.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/integration/team-real-components.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/AcpAgentManagerSkillInjection.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/apiRoutes-helpers.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/common/constitutionRecovery.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/preloadWeixinLogin.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/prepareConstitutionFs.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/bridge/constitutionBridge.test.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/constitution/composePrompt.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/constitution/constitutionArchiveRestoreAuthority.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/constitution/constitutionClassicRecoveryAuthority.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/constitution/constitutionClassicRecoveryLocatorService.bun.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/constitution/constitutionClassicRecoveryRuntime.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/constitution/constitutionClassicRecoveryService.bun.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/constitution/constitutionFsBinary.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/constitution/constitutionFsService.test.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/constitution/constitutionFsTransaction.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/constitution/constitutionKeyStore.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/constitution/constitutionMutationQuiescence.bun.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/constitution/constitutionRequestFingerprint.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/constitution/constitutionRevisionAuthority.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/recovery/classicConstitutionPromotion.bun.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/recovery/classicRecoveryLocator.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/recovery/constitutionRecoveryNegativeSurface.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/recovery/externalRecoveryAuthority.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/recovery/externalRecoveryCrypto.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/recovery/externalRecoveryLauncher.bun.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/process/services/recovery/externalRecoveryRecordCodec.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/recovery/recoveryCapture.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/recovery/recoveryDryRun.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/recovery/recoveryManifest.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/recovery/recoveryPointBuilder.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/services/recovery/stateAuthorityInventory.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/task/agentUtils.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/task/agentUtilsWorkflow.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/task/conciergeInjection.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/team/prompts/buildRolePrompt.sandbox.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/process/utils/initBridgeStandalone.test.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx",
+      "owner": "stage_b"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/renderer/ConstitutionRecovery.dom.test.tsx",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/renderer/ConstitutionService.test.ts",
+      "owner": "mixed"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/renderer/ConstitutionSettings.dom.test.tsx",
+      "owner": "mixed"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/renderer/SpecialistOverlayEditor.dom.test.tsx",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/renderer/SpecialistOverlays.dom.test.tsx",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/renderer/useSerializedAutosave.dom.test.tsx",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/team-TeammateManager.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/team-workspace-sync.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/verifyPackagedResources.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/webserver/constitutionRouteClient.contract.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": "??",
+      "path": "tests/unit/webserver/constitutionRouteClient.native.contract.test.ts",
+      "owner": "stage_b"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/webserver/constitutionRoutes.integration.test.ts",
+      "owner": "stage_a"
+    },
+    {
+      "status": " M",
+      "path": "tests/unit/webserver/constitutionRoutes.test.ts",
+      "owner": "mixed"
+    }
+  ]
+}

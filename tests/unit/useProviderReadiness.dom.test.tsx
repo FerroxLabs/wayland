@@ -23,6 +23,9 @@ function provider(over: Partial<IModelRegistryProviderView>): IModelRegistryProv
     connectedVia: 'key',
     state: 'connected',
     modelCount: 3,
+    callableModelCount: 3,
+    dispatchEligible: true,
+    observedAt: Date.now(),
     ...over,
   } as IModelRegistryProviderView;
 }
@@ -52,10 +55,30 @@ describe('useProviderReadiness', () => {
     expect(result.current.reason).toBeUndefined();
   });
 
-  it('treats a "testing" provider as ready (transient, not a blocking error)', () => {
-    setRegistry({ providers: [provider({ state: 'testing', modelCount: 0 })] });
+  it('does not invent readiness while a provider is testing without callable models', () => {
+    setRegistry({ providers: [provider({ state: 'testing', modelCount: 0, callableModelCount: 0 })] });
     const { result } = renderHook(() => useProviderReadiness());
-    expect(result.current.ready).toBe(true);
+    expect(result.current.ready).toBe(false);
+    expect(result.current.reason).toBe('checking');
+  });
+
+  it('does not invent readiness for a connected provider with no callable models', () => {
+    setRegistry({ providers: [provider({ state: 'connected', modelCount: 0, callableModelCount: 0 })] });
+    const { result } = renderHook(() => useProviderReadiness());
+    expect(result.current.ready).toBe(false);
+    expect(result.current.reason).toBe('no-models');
+  });
+
+  it('does not wake agents for inventory the real dispatcher cannot use', () => {
+    setRegistry({ providers: [provider({ callableModelCount: 3, dispatchEligible: false })] });
+    const { result } = renderHook(() => useProviderReadiness());
+    expect(result.current).toEqual({ ready: false, loading: false, reason: 'all-errored' });
+  });
+
+  it('fails closed when the producer observation identity is missing', () => {
+    setRegistry({ providers: [provider({ observedAt: undefined })] });
+    const { result } = renderHook(() => useProviderReadiness());
+    expect(result.current).toEqual({ ready: false, loading: false, reason: 'registry-error' });
   });
 
   it('reports not-ready with reason "all-errored" when every provider is errored', () => {
@@ -95,5 +118,29 @@ describe('useProviderReadiness', () => {
     expect(result.current.loading).toBe(true);
     expect(result.current.ready).toBe(false);
     expect(result.current.reason).toBeUndefined();
+  });
+
+  it('fails closed on a registry error even when a cached provider row looks healthy', () => {
+    setRegistry({ providers: [provider({})], error: new Error('registry unavailable') });
+    const { result } = renderHook(() => useProviderReadiness());
+    expect(result.current).toEqual({ ready: false, loading: false, reason: 'registry-error' });
+  });
+
+  it('does not count disabled raw catalog rows as callable models', () => {
+    setRegistry({ providers: [provider({ modelCount: 7, callableModelCount: 0 })] });
+    const { result } = renderHook(() => useProviderReadiness());
+    expect(result.current).toEqual({ ready: false, loading: false, reason: 'no-models' });
+  });
+
+  it('does not falsely put a configured provider to sleep when its persisted row is old', () => {
+    const now = 1_000_000;
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+    try {
+      setRegistry({ providers: [provider({ observedAt: 1 })] });
+      const { result } = renderHook(() => useProviderReadiness());
+      expect(result.current).toEqual({ ready: true, loading: false });
+    } finally {
+      clock.mockRestore();
+    }
   });
 });

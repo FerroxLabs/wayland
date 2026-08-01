@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-A-packet-source-format",
+  "commit": "8974aa9b2cf57cc305cef6a58665fad46cdc0616",
+  "command": "files=(${(f)\"$(rtk git diff --name-only 991c502e74506ec3702f92e429a8b31b655412ba..HEAD | rtk rg '\\\\.(ts|tsx|js|jsx|json|css|md|ya?ml)$' | rtk rg -v '^tests/fixtures/constitution-fs/')\"})\nrtk bunx oxfmt --check $files > /tmp/wayland-con-a-source-format-receipt.log 2>&1",
+  "exit_code": 0,
+  "log_digest": "sha256:150c7dbc7bca62dc0142d505e58a9ecf448711fc1be9c0c866d406d43d33bfa9",
+  "timestamp": "2026-07-17T02:04:01Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

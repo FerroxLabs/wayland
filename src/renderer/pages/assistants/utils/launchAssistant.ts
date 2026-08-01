@@ -5,6 +5,7 @@
  */
 
 import { ConfigStorage } from '@/common/config/storage';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import type { AcpBackend } from '@/renderer/pages/guid/types';
 import { getAgentKey } from '@/renderer/pages/guid/hooks/agentSelectionUtils';
 
@@ -30,7 +31,7 @@ export const launchAssistant = async (
   preset: LaunchAssistantPreset,
   navigate: (path: string, options?: { state?: unknown }) => void | Promise<unknown>
 ): Promise<string> => {
-  const backend = (preset.presetAgentType ?? 'gemini') as AcpBackend;
+  const backend = resolvePresetAgentType(preset.presetAgentType) as AcpBackend;
   const key = getAgentKey({ backend, customAgentId: preset.id });
   try {
     await ConfigStorage.set('guid.lastSelectedAgent', key);

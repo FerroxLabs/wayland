@@ -23,13 +23,7 @@ type Props = {
   loading?: boolean;
 };
 
-const DeleteTeamConfirmModal: React.FC<Props> = ({
-  visible,
-  teamName,
-  onConfirm,
-  onCancel,
-  loading = false,
-}) => {
+const DeleteTeamConfirmModal: React.FC<Props> = ({ visible, teamName, onConfirm, onCancel, loading = false }) => {
   const { t } = useTranslation();
   const [typed, setTyped] = useState('');
 
@@ -70,15 +64,12 @@ const DeleteTeamConfirmModal: React.FC<Props> = ({
         </div>
       }
     >
-      <div
-        className='flex flex-col gap-12px p-24px'
-        data-testid='delete-team-confirm-modal'
-      >
+      <div className='flex flex-col gap-12px p-24px' data-testid='delete-team-confirm-modal'>
         <p className='text-12px text-t-secondary m-0'>
           {t('team.sider.deleteConfirmBody', {
             teamName,
             defaultValue:
-              'This will permanently delete {{teamName}} and its conversation history. Type "delete" below to confirm.',
+              'This permanently deletes {{teamName}}, its agent chats, task board, mailbox, and team ritual schedules. Workspace files, reports, and user-created schedules are kept; user schedules must be moved or removed first. Type "delete" below to confirm.',
           })}
         </p>
         <Input

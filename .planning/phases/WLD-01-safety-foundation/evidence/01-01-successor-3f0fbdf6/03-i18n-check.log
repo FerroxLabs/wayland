@@ -1,0 +1,1064 @@
+candidate_head=3f0fbdf6840bf0e52a5e960ac6dddcda85d2a083
+implementation_commit=59013f371612f7db62e8db08cb481ae862281188
+started_utc=2026-07-19T18:49:48Z
+command=node scripts/check-i18n.js
+
+
+🔍 i18n validation started
+
+========================================
+
+📁 Checking directory structure...
+
+✅ Locale directory exists: en-US
+✅ Locale directory exists: es-ES
+✅ Locale directory exists: fr-FR
+✅ Locale directory exists: de-DE
+✅ Locale directory exists: pt-BR
+✅ Locale directory exists: zh-CN
+✅ Locale directory exists: zh-TW
+✅ Locale directory exists: ja-JP
+✅ Locale directory exists: ko-KR
+✅ Locale directory exists: ru-RU
+✅ Locale directory exists: uk-UA
+✅ Locale directory exists: tr-TR
+
+🔑 Checking translation key consistency...
+
+ℹ️  Checking es-ES...
+⚠️  es-ES/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  es-ES/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  es-ES/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  es-ES/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  es-ES/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  es-ES/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  es-ES/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  es-ES/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  es-ES/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  es-ES/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  es-ES/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  es-ES/missionControl.json is missing 1 keys: popout
+⚠️  es-ES/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  es-ES/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  es-ES is missing 388 keys (7.4%)
+ℹ️  Checking fr-FR...
+⚠️  fr-FR/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  fr-FR/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  fr-FR/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  fr-FR/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  fr-FR/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  fr-FR/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  fr-FR/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  fr-FR/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  fr-FR/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  fr-FR/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  fr-FR/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  fr-FR/missionControl.json is missing 1 keys: popout
+⚠️  fr-FR/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  fr-FR/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  fr-FR is missing 388 keys (7.4%)
+ℹ️  Checking de-DE...
+⚠️  de-DE/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  de-DE/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  de-DE/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  de-DE/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  de-DE/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  de-DE/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  de-DE/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  de-DE/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  de-DE/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  de-DE/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  de-DE/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  de-DE/missionControl.json is missing 1 keys: popout
+⚠️  de-DE/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  de-DE/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  de-DE is missing 388 keys (7.4%)
+ℹ️  Checking pt-BR...
+⚠️  pt-BR/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  pt-BR/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  pt-BR/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  pt-BR/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  pt-BR/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  pt-BR/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  pt-BR/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  pt-BR/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  pt-BR/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  pt-BR/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  pt-BR/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  pt-BR/missionControl.json is missing 1 keys: popout
+⚠️  pt-BR/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  pt-BR/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  pt-BR is missing 388 keys (7.4%)
+ℹ️  Checking zh-CN...
+⚠️  zh-CN/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  zh-CN/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  zh-CN/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  zh-CN/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  zh-CN/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  zh-CN/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  zh-CN/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  zh-CN/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  zh-CN/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  zh-CN/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  zh-CN/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  zh-CN/missionControl.json is missing 1 keys: popout
+⚠️  zh-CN/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  zh-CN/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  zh-CN is missing 388 keys (7.4%)
+ℹ️  Checking zh-TW...
+⚠️  zh-TW/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  zh-TW/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  zh-TW/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  zh-TW/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  zh-TW/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  zh-TW/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  zh-TW/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  zh-TW/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  zh-TW/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  zh-TW/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  zh-TW/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  zh-TW/missionControl.json is missing 1 keys: popout
+⚠️  zh-TW/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  zh-TW/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  zh-TW is missing 388 keys (7.4%)
+ℹ️  Checking ja-JP...
+⚠️  ja-JP/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  ja-JP/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  ja-JP/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  ja-JP/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  ja-JP/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  ja-JP/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  ja-JP/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  ja-JP/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  ja-JP/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  ja-JP/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  ja-JP/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  ja-JP/missionControl.json is missing 1 keys: popout
+⚠️  ja-JP/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  ja-JP/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  ja-JP is missing 388 keys (7.4%)
+ℹ️  Checking ko-KR...
+⚠️  ko-KR/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  ko-KR/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  ko-KR/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  ko-KR/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  ko-KR/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  ko-KR/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  ko-KR/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  ko-KR/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  ko-KR/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  ko-KR/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  ko-KR/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  ko-KR/missionControl.json is missing 1 keys: popout
+⚠️  ko-KR/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  ko-KR/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  ko-KR is missing 388 keys (7.4%)
+ℹ️  Checking ru-RU...
+⚠️  ru-RU/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  ru-RU/update.json is missing 1 keys: errors.githubRateLimited
+⚠️  ru-RU/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  ru-RU/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  ru-RU/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  ru-RU/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  ru-RU/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  ru-RU/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  ru-RU/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  ru-RU/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  ru-RU/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  ru-RU/missionControl.json is missing 1 keys: popout
+⚠️  ru-RU/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  ru-RU/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  ru-RU is missing 376 keys (7.1%)
+ℹ️  Checking uk-UA...
+⚠️  uk-UA/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  uk-UA/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  uk-UA/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  uk-UA/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  uk-UA/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  uk-UA/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  uk-UA/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  uk-UA/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  uk-UA/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  uk-UA/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  uk-UA/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  uk-UA/missionControl.json is missing 1 keys: popout
+⚠️  uk-UA/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  uk-UA/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  uk-UA is missing 388 keys (7.4%)
+ℹ️  Checking tr-TR...
+⚠️  tr-TR/common.json is missing 15 keys: importFlow.sourceFolder, importFlow.sourceFile, importFlow.sourceGit...
+⚠️  tr-TR/update.json is missing 13 keys: errors.githubApiFailed, errors.githubApiNotArray, errors.githubApiTimeout...
+⚠️  tr-TR/conversation.json is missing 84 keys: welcome.bugReportScreenshotCopied, welcome.bugReportNoScreenshot, welcome.bugReportChooser...
+⚠️  tr-TR/settings.json is missing 144 keys: skillsHub.moveToTrash, archiveAssistant, assistantArchived...
+⚠️  tr-TR/messages.json is missing 7 keys: timeMarker.gapMinutes, timeMarker.gapHours, timeMarker.gapHoursMinutes...
+⚠️  tr-TR/cron.json is missing 17 keys: actions.archive, confirmArchiveWithConversations, archiveSuccess...
+⚠️  tr-TR/guid.json is missing 1 keys: assistantDetail.kickoffGrid.heading
+⚠️  tr-TR/assistants.json is missing 4 keys: import.cta, import.title, import.sourcePrompt...
+⚠️  tr-TR/workflows.json is missing 7 keys: actions.export, exportOk, exportFailed...
+⚠️  tr-TR/workflow.json is missing 9 keys: sider.stepsTab, sider.workspaceTab, delete.title...
+⚠️  tr-TR/memory.json is missing 22 keys: injectedLabel, settings.status_runtime_checking, settings.status_runtime_idle...
+⚠️  tr-TR/missionControl.json is missing 1 keys: popout
+⚠️  tr-TR/mcpLibrary.json is missing 22 keys: connected.probeToolCount, connected.extensionUnverified, connected.disable...
+⚠️  tr-TR/projects.json is missing 42 keys: workspace.tabHistory, timeline.title, timeline.subtitle...
+⚠️  tr-TR is missing 388 keys (7.4%)
+
+📭 Checking for empty translations...
+
+⚠️  en-US/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  es-ES/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  fr-FR/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  de-DE/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  pt-BR/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  zh-CN/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  zh-TW/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  ja-JP/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  ko-KR/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  ru-RU/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  uk-UA/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+⚠️  tr-TR/settings.json has 2 empty values: channels.whatsapp.credentials.businessAccountId.required, channels.whatsapp.credentials.verifyToken.required
+
+🧪 Checking literal t() key usages...
+
+⚠️  Unknown i18n key: conversations.siderEntry (src/renderer/components/layout/Sider/SiderNav/SiderSessionsEntry.tsx)
+⚠️  Unknown i18n key: common.fileAttach.docIngestHint (src/renderer/components/media/FilePreview.tsx)
+⚠️  Unknown i18n key: onboarding.doors.flux.title (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.recommended (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.flux.body (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.flux.connecting (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.flux.foot (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.google.title (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.google.body (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.google.foot (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.detected.title (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.detected.body (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.detected.foot (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.doors.pasteInstead (src/renderer/components/onboarding/ConnectDoors.tsx)
+⚠️  Unknown i18n key: onboarding.focus.hint (src/renderer/components/onboarding/FocusPicker.tsx)
+⚠️  Unknown i18n key: onboarding.focus.empty (src/renderer/components/onboarding/FocusPicker.tsx)
+⚠️  Unknown i18n key: onboarding.scan.ollama (src/renderer/components/onboarding/ScanReveal.tsx)
+⚠️  Unknown i18n key: onboarding.scan.empty (src/renderer/components/onboarding/ScanReveal.tsx)
+⚠️  Unknown i18n key: settings.displayPage.launchpadBar (src/renderer/components/settings/SettingsModal/contents/DisplayModalContent.tsx)
+⚠️  Unknown i18n key: settings.displayPage.launchpadHint (src/renderer/components/settings/SettingsModal/contents/DisplayModalContent.tsx)
+⚠️  Unknown i18n key: settings.speechToTextModelInstalled (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.speechToTextRedownload (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.textToSpeechTestPhrase (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.textToSpeechTestFailed (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.textToSpeechTestVoice (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.voiceMicCheckLabel (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.voiceProviderKeyConnectedTitle (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.voiceProviderKeyConnectedBody (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.voiceProviderKeyManageCTA (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.voiceProviderKeyDeferTitle (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.voiceProviderKeyDeferBody (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.voiceProviderKeyDeferCTA (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.mcpModalDeprecatedBody (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.mcpModalOpenLibraryCTA (src/renderer/components/settings/SettingsModal/contents/ToolsModalContent.tsx)
+⚠️  Unknown i18n key: settings.webui.resetUnavailable (src/renderer/components/settings/SettingsModal/contents/WebuiModalContent.tsx)
+⚠️  Unknown i18n key: settings.webui.passwordReset (src/renderer/components/settings/SettingsModal/contents/WebuiModalContent.tsx)
+⚠️  Unknown i18n key: settings.dingtalk.webhookSecret (src/renderer/components/settings/SettingsModal/contents/channels/chat/DingTalkConfigForm.tsx)
+⚠️  Unknown i18n key: settings.dingtalk.webhookSecretDesc (src/renderer/components/settings/SettingsModal/contents/channels/chat/DingTalkConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.discord.privilegedIntentsHint (src/renderer/components/settings/SettingsModal/contents/channels/chat/DiscordConfigForm.tsx)
+⚠️  Unknown i18n key: settings.lark.domain (src/renderer/components/settings/SettingsModal/contents/channels/chat/LarkConfigForm.tsx)
+⚠️  Unknown i18n key: settings.lark.domainDesc (src/renderer/components/settings/SettingsModal/contents/channels/chat/LarkConfigForm.tsx)
+⚠️  Unknown i18n key: settings.lark.domainFeishu (src/renderer/components/settings/SettingsModal/contents/channels/chat/LarkConfigForm.tsx)
+⚠️  Unknown i18n key: settings.lark.domainLark (src/renderer/components/settings/SettingsModal/contents/channels/chat/LarkConfigForm.tsx)
+⚠️  Unknown i18n key: settings.lark.domainLark (src/renderer/components/settings/SettingsModal/contents/channels/chat/LarkConfigForm.tsx)
+⚠️  Unknown i18n key: settings.lark.domainFeishu (src/renderer/components/settings/SettingsModal/contents/channels/chat/LarkConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.webhookCredentialsRequired (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.aesKeyLengthError (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.mode (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.modeDesc (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.modeWebsocket (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.modeWebhook (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.wsTitle (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.wsHint (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.webhookTitle (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.webhookHint (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.callbackUrl (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.webhookDocLink (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.botId (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.botIdDesc (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.secret (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.secretDesc (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.corpId (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.wecom.corpIdDesc (src/renderer/components/settings/SettingsModal/contents/channels/chat/WecomConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.googleChat.credentials.serviceAccountRequired (src/renderer/components/settings/SettingsModal/contents/channels/collab/GoogleChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.googleChat.credentials.audienceRequired (src/renderer/components/settings/SettingsModal/contents/channels/collab/GoogleChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.googleChat.credentials.subscriptionRequired (src/renderer/components/settings/SettingsModal/contents/channels/collab/GoogleChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.googleChat.transport.label (src/renderer/components/settings/SettingsModal/contents/channels/collab/GoogleChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.googleChat.transport.help (src/renderer/components/settings/SettingsModal/contents/channels/collab/GoogleChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.googleChat.transport.webhook (src/renderer/components/settings/SettingsModal/contents/channels/collab/GoogleChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.googleChat.transport.pubsub (src/renderer/components/settings/SettingsModal/contents/channels/collab/GoogleChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.googleChat.credentials.subscriptionName.label (src/renderer/components/settings/SettingsModal/contents/channels/collab/GoogleChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.googleChat.credentials.subscriptionName.help (src/renderer/components/settings/SettingsModal/contents/channels/collab/GoogleChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.serverUrl.required (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.accessToken.required (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.connectionFailed (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.connectionSuccess (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.pluginEnabled (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.enableFailed (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.replaceWarning (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.serverUrl.label (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.serverUrl.help (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.accessToken.label (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.accessToken.help (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.accessToken.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.teamId.label (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.teamId.help (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.teamId.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.blockPrivateNetwork.label (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.credentials.blockPrivateNetwork.help (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.testAndEnable (src/renderer/components/settings/SettingsModal/contents/channels/collab/MattermostConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.synologyChat.credentials.allowInsecureSsl.label (src/renderer/components/settings/SettingsModal/contents/channels/collab/SynologyChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.synologyChat.credentials.allowInsecureSsl.help (src/renderer/components/settings/SettingsModal/contents/channels/collab/SynologyChatConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.emailImap.detected (src/renderer/components/settings/SettingsModal/contents/channels/email/EmailImapConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.server.required (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.nick.required (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.connectionFailed (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.connectionSuccess (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.pluginEnabled (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.enableFailed (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.replaceWarning (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.server.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.server.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.port.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.port.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.nick.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.nick.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.username.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.username.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.realname.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.realname.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.tls.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.tls.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.sasl.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.sasl.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.password.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.password.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.password.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.channels.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.credentials.channels.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.testAndEnable (src/renderer/components/settings/SettingsModal/contents/channels/integration/IrcConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.webhookUrl.tunnelPlaceholder (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.webhookUrl.notMinted (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.webhookUrl.rotateSuccess (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.webhookUrl.rotateFailed (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.credentials.outboundUrl.required (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.connectionFailed (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.pluginEnabled (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.enableFailed (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.info (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.credentials.outboundUrl.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.credentials.outboundUrl.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.credentials.outboundUrl.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.credentials.outboundSecret.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.credentials.outboundSecret.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.credentials.outboundSecret.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.webhookUrl.label (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.webhookUrl.help (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.webhookUrl.copyButton (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.webhookUrl.rotateButton (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.webhookUrl.tunnelNotConfigured (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.webhook.testAndEnable (src/renderer/components/settings/SettingsModal/contents/channels/integration/WebhookConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.credentials.bothRequired (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.connectionFailed (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.connectionSuccess (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.pluginEnabled (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.enableFailed (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.accountLockWarning (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.credentials.serverUrl.label (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.credentials.serverUrl.help (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.credentials.serverUrl.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.credentials.password.label (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.credentials.password.help (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.credentials.password.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.testAndEnable (src/renderer/components/settings/SettingsModal/contents/channels/messaging/BluebubblesConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.connectionFailed (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.connectionSuccess (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.pluginEnabled (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.enableFailed (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.replaceWarning (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.permissionNote (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.fdaRelaunchHelp (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.automationNote (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.attachmentsNote (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.pollInterval.label (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.pollInterval.help (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.allowedHandles.label (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.allowedHandles.help (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.allowedHandles.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.testAndEnable (src/renderer/components/settings/SettingsModal/contents/channels/messaging/IMessageConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.signal.captchaHint (src/renderer/components/settings/SettingsModal/contents/channels/messaging/SignalConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.whatsapp.credentials.appSecret.label (src/renderer/components/settings/SettingsModal/contents/channels/messaging/WhatsAppConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.whatsapp.credentials.appSecret.help (src/renderer/components/settings/SettingsModal/contents/channels/messaging/WhatsAppConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.whatsapp.credentials.appSecret.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/messaging/WhatsAppConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.credentials.privateKey.required (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.credentials.relays.required (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.connectionFailed (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.connectionSuccess (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.pluginEnabled (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.enableFailed (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.replaceWarning (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.credentials.privateKey.label (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.credentials.privateKey.help (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.credentials.privateKey.placeholder (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.credentials.relays.label (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.credentials.relays.help (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.credentials.allowedSenders.label (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.credentials.allowedSenders.help (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.keyHowTo (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.testAndEnable (src/renderer/components/settings/SettingsModal/contents/channels/social/NostrConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.twitch.advanced.hide (src/renderer/components/settings/SettingsModal/contents/channels/social/TwitchConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.twitch.advanced.show (src/renderer/components/settings/SettingsModal/contents/channels/social/TwitchConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.twitch.advanced.help (src/renderer/components/settings/SettingsModal/contents/channels/social/TwitchConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.twitch.credentials.clientId.label (src/renderer/components/settings/SettingsModal/contents/channels/social/TwitchConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.twitch.credentials.clientId.help (src/renderer/components/settings/SettingsModal/contents/channels/social/TwitchConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.twitch.credentials.clientSecret.label (src/renderer/components/settings/SettingsModal/contents/channels/social/TwitchConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.twitch.credentials.clientSecret.help (src/renderer/components/settings/SettingsModal/contents/channels/social/TwitchConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.twitch.credentials.refreshToken.label (src/renderer/components/settings/SettingsModal/contents/channels/social/TwitchConfigForm.tsx)
+⚠️  Unknown i18n key: settings.channels.twitch.credentials.refreshToken.help (src/renderer/components/settings/SettingsModal/contents/channels/social/TwitchConfigForm.tsx)
+⚠️  Unknown i18n key: settings.systemMode (src/renderer/components/settings/ThemeSwitcher.tsx)
+⚠️  Unknown i18n key: settings.mcpArchivedWithCleanup (src/renderer/hooks/mcp/useMcpServerCRUD.ts)
+⚠️  Unknown i18n key: assistants.launchpad.title (src/renderer/pages/assistants/AssistantsLibraryPage.tsx)
+⚠️  Unknown i18n key: assistants.launchpad.hint (src/renderer/pages/assistants/AssistantsLibraryPage.tsx)
+⚠️  Unknown i18n key: preview.viewerError.title (src/renderer/pages/conversation/Preview/components/PreviewPanel/PreviewPanel.tsx)
+⚠️  Unknown i18n key: preview.viewerError.detail (src/renderer/pages/conversation/Preview/components/PreviewPanel/PreviewPanel.tsx)
+⚠️  Unknown i18n key: preview.viewerError.retry (src/renderer/pages/conversation/Preview/components/PreviewPanel/PreviewPanel.tsx)
+⚠️  Unknown i18n key: conversation.workflow.surface (src/renderer/pages/conversation/components/ChatLayout/index.tsx)
+⚠️  Unknown i18n key: conversation.preview.title (src/renderer/pages/conversation/components/ChatLayout/index.tsx)
+⚠️  Unknown i18n key: conversation.composerMenu.chatNotVerified (src/renderer/pages/conversation/components/composerMenu/ConnectorsFlyout.tsx)
+⚠️  Unknown i18n key: skills.addToChat.add (src/renderer/pages/conversation/components/composerMenu/SkillsFlyout.tsx)
+⚠️  Unknown i18n key: conversations.menu.open (src/renderer/pages/conversations/ConversationMenu.tsx)
+⚠️  Unknown i18n key: conversations.menu.rename (src/renderer/pages/conversations/ConversationMenu.tsx)
+⚠️  Unknown i18n key: conversations.menu.unstar (src/renderer/pages/conversations/ConversationMenu.tsx)
+⚠️  Unknown i18n key: conversations.menu.star (src/renderer/pages/conversations/ConversationMenu.tsx)
+⚠️  Unknown i18n key: conversations.menu.move (src/renderer/pages/conversations/ConversationMenu.tsx)
+⚠️  Unknown i18n key: conversations.menu.delete (src/renderer/pages/conversations/ConversationMenu.tsx)
+⚠️  Unknown i18n key: conversations.time.now (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.time.minutes (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.time.hours (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.time.days (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.group.today (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.group.yesterday (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.group.week (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.group.month (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.group.older (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.list.newButton (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.list.title (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.list.subtitle (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.list.searchPlaceholder (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.empty.noResults (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.empty.title (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.group.resume (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.group.starred (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.menu.rename (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: conversations.list.searchPlaceholder (src/renderer/pages/conversations/ConversationsListPage.tsx)
+⚠️  Unknown i18n key: cron.page.form.source (src/renderer/pages/cron/ScheduledTasksPage/CreateTaskDialog.tsx)
+⚠️  Unknown i18n key: cron.page.form.sourceDescribe (src/renderer/pages/cron/ScheduledTasksPage/CreateTaskDialog.tsx)
+⚠️  Unknown i18n key: cron.page.form.sourceFromWorkflow (src/renderer/pages/cron/ScheduledTasksPage/CreateTaskDialog.tsx)
+⚠️  Unknown i18n key: cron.page.form.workflow (src/renderer/pages/cron/ScheduledTasksPage/CreateTaskDialog.tsx)
+⚠️  Unknown i18n key: cron.page.form.workflowPlaceholder (src/renderer/pages/cron/ScheduledTasksPage/CreateTaskDialog.tsx)
+⚠️  Unknown i18n key: cron.page.form.workflowHint (src/renderer/pages/cron/ScheduledTasksPage/CreateTaskDialog.tsx)
+⚠️  Unknown i18n key: cron.page.scheduleDesc.everyNHoursAtMinute (src/renderer/pages/cron/cronUtils.ts)
+⚠️  Unknown i18n key: cron.page.scheduleDesc.everyNHours (src/renderer/pages/cron/cronUtils.ts)
+⚠️  Unknown i18n key: cron.page.scheduleDesc.everyNMinutes (src/renderer/pages/cron/cronUtils.ts)
+⚠️  Unknown i18n key: guid.agentPicker.search (src/renderer/pages/guid/components/AgentPillBar.tsx)
+⚠️  Unknown i18n key: guid.agentPicker.search (src/renderer/pages/guid/components/AgentPillBar.tsx)
+⚠️  Unknown i18n key: guid.agentPicker.empty (src/renderer/pages/guid/components/AgentPillBar.tsx)
+⚠️  Unknown i18n key: guid.agentPicker.open (src/renderer/pages/guid/components/AgentPillBar.tsx)
+⚠️  Unknown i18n key: guid.agentPicker.availableCount (src/renderer/pages/guid/components/AgentPillBar.tsx)
+⚠️  Unknown i18n key: guid.launchpad.empty (src/renderer/pages/guid/components/newChatStarter/LaunchpadBar.tsx)
+⚠️  Unknown i18n key: guid.launchpad.remove (src/renderer/pages/guid/components/newChatStarter/LaunchpadBar.tsx)
+⚠️  Unknown i18n key: guid.launchpad.dragHandle (src/renderer/pages/guid/components/newChatStarter/LaunchpadBar.tsx)
+⚠️  Unknown i18n key: guid.launchpad.addAria (src/renderer/pages/guid/components/newChatStarter/LaunchpadBar.tsx)
+⚠️  Unknown i18n key: guid.launchpad.add (src/renderer/pages/guid/components/newChatStarter/LaunchpadBar.tsx)
+⚠️  Unknown i18n key: guid.launchpad.reset (src/renderer/pages/guid/components/newChatStarter/LaunchpadBar.tsx)
+⚠️  Unknown i18n key: guid.launchpad.viewAll (src/renderer/pages/guid/components/newChatStarter/LaunchpadBar.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.title (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.title (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.count (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.close (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.capBanner (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.searchPlaceholder (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.empty (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.pinnedAria (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.capLockedAria (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.addAria (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.picker.pinnedTag (src/renderer/pages/guid/components/newChatStarter/LaunchpadPicker.tsx)
+⚠️  Unknown i18n key: guid.launchpad.viewAll (src/renderer/pages/guid/components/newChatStarter/QuickLaunchRow.tsx)
+⚠️  Unknown i18n key: workflow.header.end (src/renderer/pages/guid/components/workflow/WorkflowHeader.tsx)
+⚠️  Unknown i18n key: workflow.header.end (src/renderer/pages/guid/components/workflow/WorkflowHeader.tsx)
+⚠️  Unknown i18n key: workflow.header.delete (src/renderer/pages/guid/components/workflow/WorkflowHeader.tsx)
+⚠️  Unknown i18n key: workflow.header.delete (src/renderer/pages/guid/components/workflow/WorkflowHeader.tsx)
+⚠️  Unknown i18n key: archive.recovery.loadError (src/renderer/pages/memory/components/ArchivedMemoryModal.tsx)
+⚠️  Unknown i18n key: archive.recovery.restoreError (src/renderer/pages/memory/components/ArchivedMemoryModal.tsx)
+⚠️  Unknown i18n key: archive.recovery.restored (src/renderer/pages/memory/components/ArchivedMemoryModal.tsx)
+⚠️  Unknown i18n key: archive.recovery.restoreError (src/renderer/pages/memory/components/ArchivedMemoryModal.tsx)
+⚠️  Unknown i18n key: archive.recovery.title (src/renderer/pages/memory/components/ArchivedMemoryModal.tsx)
+⚠️  Unknown i18n key: archive.recovery.description (src/renderer/pages/memory/components/ArchivedMemoryModal.tsx)
+⚠️  Unknown i18n key: archive.recovery.empty (src/renderer/pages/memory/components/ArchivedMemoryModal.tsx)
+⚠️  Unknown i18n key: archive.recovery.restore (src/renderer/pages/memory/components/ArchivedMemoryModal.tsx)
+⚠️  Unknown i18n key: archive.composer.errorEmpty (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.errorTooLong (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.toastSaved (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.errorUnknown (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.title (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.placeholder (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.scopeProject (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.scopeGlobal (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.addTag (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.dropZoneLabel (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.dropZone (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.hint (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.composer.submit (src/renderer/pages/memory/components/ComposerModal.tsx)
+⚠️  Unknown i18n key: archive.import.claudeMem.success (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.success (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.import.dropFolder.success (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.import.devScan.success (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.import.failed (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.empty.search (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.empty.headline (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.empty.subline (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.import.detectedEntries (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.import.importing (src/renderer/pages/memory/components/EmptyStateHero.tsx)
+⚠️  Unknown i18n key: archive.editor.toastSaved (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.toastCollision (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.toastError (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.toastError (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.title (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.save (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.cancel (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.summaryLabel (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.typeLabel (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.tagsLabel (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.editor.bodyLabel (src/renderer/pages/memory/components/EntryEditorModal.tsx)
+⚠️  Unknown i18n key: archive.import.claudeMem.success (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.claudeMem.error (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.noVaults (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.scanError (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.success (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.error (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.devScan.success (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.devScan.error (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.dropFolder.success (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.dropFolder.error (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.status.ready (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.status.checking (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.status.importing (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.status.unavailable (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.status.idle (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.title (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.close (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.claudeMem.title (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.claudeMem.count (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.claudeMem.hint (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.importing (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.claudeMem.btn (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.title (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.count (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.hint (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.importing (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.btn (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.scanBtn (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.obsidian.chooseFolderBtn (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.devScan.title (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.devScan.count (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.devScan.hint (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.importing (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.devScan.btn (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.dropFolder.title (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.dropFolder.count (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.dropFolder.hint (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.dropFolder.openBtn (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.importing (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.import.dropFolder.processBtn (src/renderer/pages/memory/components/ImportDrawer.tsx)
+⚠️  Unknown i18n key: archive.status.brainLive (src/renderer/pages/memory/components/MemoryStatusBar.tsx)
+⚠️  Unknown i18n key: archive.status.brainOffline (src/renderer/pages/memory/components/MemoryStatusBar.tsx)
+⚠️  Unknown i18n key: archive.status.clis (src/renderer/pages/memory/components/MemoryStatusBar.tsx)
+⚠️  Unknown i18n key: archive.status.lastDream (src/renderer/pages/memory/components/MemoryStatusBar.tsx)
+⚠️  Unknown i18n key: archive.statusbar.dropFolder.open (src/renderer/pages/memory/components/MemoryStatusBar.tsx)
+⚠️  Unknown i18n key: archive.statusbar.dropFolder.today (src/renderer/pages/memory/components/MemoryStatusBar.tsx)
+⚠️  Unknown i18n key: archive.status.kbd.search (src/renderer/pages/memory/components/MemoryStatusBar.tsx)
+⚠️  Unknown i18n key: archive.status.kbd.navigate (src/renderer/pages/memory/components/MemoryStatusBar.tsx)
+⚠️  Unknown i18n key: archive.status.kbd.close (src/renderer/pages/memory/components/MemoryStatusBar.tsx)
+⚠️  Unknown i18n key: archive.filter.allProjects (src/renderer/pages/memory/components/ProjectDropdown.tsx)
+⚠️  Unknown i18n key: archive.filter.searchProjects (src/renderer/pages/memory/components/ProjectDropdown.tsx)
+⚠️  Unknown i18n key: archive.filter.allProjects (src/renderer/pages/memory/components/ProjectDropdown.tsx)
+⚠️  Unknown i18n key: archive.filter.noProjects (src/renderer/pages/memory/components/ProjectDropdown.tsx)
+⚠️  Unknown i18n key: archive.drawer.close (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.usedNTimes (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.alreadyPromoted (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.promote (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.openFile (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.copy (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.edit (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.delete (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.promotionScore (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.autoPromotesAt (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.scoreFormula (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.why (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.noWhy (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.summary (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.howToApply (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.noHowTo (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.usedInWild (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.usedNTimesWeek (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.line (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.drawer.tags (src/renderer/pages/memory/components/RightDrawer.tsx)
+⚠️  Unknown i18n key: archive.streak.tooltip (src/renderer/pages/memory/components/StreakPill.tsx)
+⚠️  Unknown i18n key: archive.streak.sessions (src/renderer/pages/memory/components/StreakPill.tsx)
+⚠️  Unknown i18n key: archive.streak.dayStreak (src/renderer/pages/memory/components/StreakPill.tsx)
+⚠️  Unknown i18n key: archive.filter.time.custom (src/renderer/pages/memory/components/TimeDropdown.tsx)
+⚠️  Unknown i18n key: archive.filter.time.from (src/renderer/pages/memory/components/TimeDropdown.tsx)
+⚠️  Unknown i18n key: archive.filter.time.to (src/renderer/pages/memory/components/TimeDropdown.tsx)
+⚠️  Unknown i18n key: archive.filter.time.apply (src/renderer/pages/memory/components/TimeDropdown.tsx)
+⚠️  Unknown i18n key: archive.chip.memories (src/renderer/pages/memory/components/TopbarChips.tsx)
+⚠️  Unknown i18n key: archive.chip.decisions (src/renderer/pages/memory/components/TopbarChips.tsx)
+⚠️  Unknown i18n key: archive.chip.wiki (src/renderer/pages/memory/components/TopbarChips.tsx)
+⚠️  Unknown i18n key: archive.chip.thisWeek (src/renderer/pages/memory/components/TopbarChips.tsx)
+⚠️  Unknown i18n key: archive.chip.viewAsFilter (src/renderer/pages/memory/components/TopbarChips.tsx)
+⚠️  Unknown i18n key: archive.filter.allTypes (src/renderer/pages/memory/components/TypeDropdown.tsx)
+⚠️  Unknown i18n key: archive.filter.typesSelected (src/renderer/pages/memory/components/TypeDropdown.tsx)
+⚠️  Unknown i18n key: archive.filter.clearAll (src/renderer/pages/memory/components/TypeDropdown.tsx)
+⚠️  Unknown i18n key: archive.toast.promoted (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.delete.confirmTitle (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.delete.confirmContent (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.delete.confirmOk (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.delete.confirmCancel (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.delete.toastDeleted (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.delete.toastError (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.toast.pathCopied (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.toast.copied (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.filter.results (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.dragDrop.toastIngested (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.dragDrop.toastNoFiles (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.dragDrop.toastError (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.topbar.archive (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.topbar.allProjects (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.topbar.archived (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.topbar.add (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: archive.filter.searchPlaceholder (src/renderer/pages/memory/state-branches/FullPanelShell.tsx)
+⚠️  Unknown i18n key: degraded.banner (src/renderer/pages/memory/state-branches/InstallingCard.tsx)
+⚠️  Unknown i18n key: upgrading.title (src/renderer/pages/memory/state-branches/InstallingCard.tsx)
+⚠️  Unknown i18n key: installing.title (src/renderer/pages/memory/state-branches/InstallingCard.tsx)
+⚠️  Unknown i18n key: installing.subtitle (src/renderer/pages/memory/state-branches/InstallingCard.tsx)
+⚠️  Unknown i18n key: installing.version_label (src/renderer/pages/memory/state-branches/InstallingCard.tsx)
+⚠️  Unknown i18n key: upgrading.pending_message (src/renderer/pages/memory/state-branches/InstallingCard.tsx)
+⚠️  Unknown i18n key: upgrading.restart_now (src/renderer/pages/memory/state-branches/InstallingCard.tsx)
+⚠️  Unknown i18n key: settings.agentManagement.loadErrorsTitle (src/renderer/pages/settings/AgentSettings/LocalAgents.tsx)
+⚠️  Unknown i18n key: settings.extensionSkills (src/renderer/pages/settings/AssistantSettings/AssistantEditDrawer.tsx)
+⚠️  Unknown i18n key: settings.extensionSkillsBadge (src/renderer/pages/settings/AssistantSettings/AssistantEditDrawer.tsx)
+⚠️  Unknown i18n key: settings.assistantSourceExtension (src/renderer/pages/settings/AssistantSettings/AssistantListPanel.tsx)
+⚠️  Unknown i18n key: settings.assistants.libraryHint.prefix (src/renderer/pages/settings/AssistantSettings/index.tsx)
+⚠️  Unknown i18n key: settings.assistants.libraryHint.link (src/renderer/pages/settings/AssistantSettings/index.tsx)
+⚠️  Unknown i18n key: settings.channelDetail.disconnected (src/renderer/pages/settings/ChannelsIndex/ChannelDetailLayout.tsx)
+⚠️  Unknown i18n key: settings.channelDetail.disconnectFailed (src/renderer/pages/settings/ChannelsIndex/ChannelDetailLayout.tsx)
+⚠️  Unknown i18n key: settings.channelDetail.disconnectTitle (src/renderer/pages/settings/ChannelsIndex/ChannelDetailLayout.tsx)
+⚠️  Unknown i18n key: settings.channelDetail.disconnectDesc (src/renderer/pages/settings/ChannelsIndex/ChannelDetailLayout.tsx)
+⚠️  Unknown i18n key: settings.channelDetail.disconnectAction (src/renderer/pages/settings/ChannelsIndex/ChannelDetailLayout.tsx)
+⚠️  Unknown i18n key: settings.channelDetail.disconnectConfirmTitle (src/renderer/pages/settings/ChannelsIndex/ChannelDetailLayout.tsx)
+⚠️  Unknown i18n key: settings.channelDetail.disconnectConfirmBody (src/renderer/pages/settings/ChannelsIndex/ChannelDetailLayout.tsx)
+⚠️  Unknown i18n key: settings.channels.mattermost.help (src/renderer/pages/settings/ChannelsIndex/details/collab/MattermostSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.synologyChat.help (src/renderer/pages/settings/ChannelsIndex/details/collab/SynologyChatSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.irc.help (src/renderer/pages/settings/ChannelsIndex/details/integration/IrcSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.bluebubbles.help (src/renderer/pages/settings/ChannelsIndex/details/messaging/BluebubblesSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.help (src/renderer/pages/settings/ChannelsIndex/details/messaging/IMessageSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.fdaRelaunchHelp (src/renderer/pages/settings/ChannelsIndex/details/messaging/IMessageSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.attachmentsHelp (src/renderer/pages/settings/ChannelsIndex/details/messaging/IMessageSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.openFdaPane (src/renderer/pages/settings/ChannelsIndex/details/messaging/IMessageSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.imessage.relaunchApp (src/renderer/pages/settings/ChannelsIndex/details/messaging/IMessageSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.line.help (src/renderer/pages/settings/ChannelsIndex/details/messaging/LineSetup.tsx)
+⚠️  Unknown i18n key: settings.channels.nostr.help (src/renderer/pages/settings/ChannelsIndex/details/social/NostrSetup.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.committed (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.title (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.subtitle (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.refresh (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.empty (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.resume (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.warning (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.password (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.cancel (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionRecovery.restore (src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.unlockFailed (src/renderer/pages/settings/ConstitutionSettings/HostedEditAuthorization.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.unlockNetworkFailed (src/renderer/pages/settings/ConstitutionSettings/HostedEditAuthorization.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.unlockEditing (src/renderer/pages/settings/ConstitutionSettings/HostedEditAuthorization.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.unlockTitle (src/renderer/pages/settings/ConstitutionSettings/HostedEditAuthorization.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.unlockEditing (src/renderer/pages/settings/ConstitutionSettings/HostedEditAuthorization.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.unlockBody (src/renderer/pages/settings/ConstitutionSettings/HostedEditAuthorization.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.passwordPlaceholder (src/renderer/pages/settings/ConstitutionSettings/HostedEditAuthorization.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.retrySave (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.closeDirty (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.retryRead (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.absent (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.conflict (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.reloadForConflict (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.useServerCopy (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.overwriteServerCopy (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlayEditor.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.createConflict (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.createConflict (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.createFailed (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.deleteConflict (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.deleteFailed (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.deleteFailed (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.retryRead (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx)
+⚠️  Unknown i18n key: settings.constitutionSpecialists.switchDirty (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.passwordPlaceholder (src/renderer/pages/settings/ConstitutionSettings/SpecialistOverlays.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.retrySave (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.passwordPlaceholder (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.readErrorTitle (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.readErrorBody (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.retryRead (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.absentTitle (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.absentBody (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.initializeDefault (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.authorizationRequired (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.conflict (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.reloadForConflict (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.useServerCopy (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.constitutionPage.overwriteServerCopy (src/renderer/pages/settings/ConstitutionSettings/index.tsx)
+⚠️  Unknown i18n key: settings.editorPage.subtitle (src/renderer/pages/settings/EditorSettings/index.tsx)
+⚠️  Unknown i18n key: mcpLibrary.category. (src/renderer/pages/settings/McpLibrary/BrowsePage.tsx)
+⚠️  Unknown i18n key: mcpLibrary.detail.publishedTo (src/renderer/pages/settings/McpLibrary/DetailPage.tsx)
+⚠️  Unknown i18n key: mcpLibrary.category. (src/renderer/pages/settings/McpLibrary/components/McpLibraryRail.tsx)
+⚠️  Unknown i18n key: models.toast.newModels (src/renderer/pages/settings/ModelsSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.returnToClassicSaveFailed (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.experienceTitle (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.experienceLabel (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.experienceHelp (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.classicShell (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.cockpitShell (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.cockpitInvitationRequired (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.returnToClassicTitle (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.returnToClassicConfirm (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.navigationPage.returnToClassicHelp (src/renderer/pages/settings/NavigationSettings/index.tsx)
+⚠️  Unknown i18n key: settings.extensionSkills (src/renderer/pages/settings/SkillsHubSettings.tsx)
+⚠️  Unknown i18n key: settings.extensionSkillsBadge (src/renderer/pages/settings/SkillsHubSettings.tsx)
+⚠️  Unknown i18n key: builder.error.generateFailed (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.error.saveFailed (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.title (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.tab.write (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.name.label (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.name.placeholder (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.description.label (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.description.placeholder (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.description.hint (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.category.label (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.category.placeholder (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.tags.label (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.tags.placeholder (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.form.body.label (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.tab.describe (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.describe.label (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.describe.placeholder (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.describe.generating (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.describe.generate (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.actions.cancel (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.actions.done (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.actions.saving (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: builder.actions.save (src/renderer/pages/settings/SkillsSettings/BuildSkillModal.tsx)
+⚠️  Unknown i18n key: sections.sources (src/renderer/pages/settings/SkillsSettings/FilterRail.tsx)
+⚠️  Unknown i18n key: sections.status (src/renderer/pages/settings/SkillsSettings/FilterRail.tsx)
+⚠️  Unknown i18n key: sections.categories (src/renderer/pages/settings/SkillsSettings/FilterRail.tsx)
+⚠️  Unknown i18n key: stats.total (src/renderer/pages/settings/SkillsSettings/LibraryHealth.tsx)
+⚠️  Unknown i18n key: stats.totalSubtitle (src/renderer/pages/settings/SkillsSettings/LibraryHealth.tsx)
+⚠️  Unknown i18n key: stats.pinned (src/renderer/pages/settings/SkillsSettings/LibraryHealth.tsx)
+⚠️  Unknown i18n key: stats.pinnedSubtitle (src/renderer/pages/settings/SkillsSettings/LibraryHealth.tsx)
+⚠️  Unknown i18n key: stats.sources (src/renderer/pages/settings/SkillsSettings/LibraryHealth.tsx)
+⚠️  Unknown i18n key: stats.guard (src/renderer/pages/settings/SkillsSettings/LibraryHealth.tsx)
+⚠️  Unknown i18n key: stats.guardSubtitle (src/renderer/pages/settings/SkillsSettings/LibraryHealth.tsx)
+⚠️  Unknown i18n key: stats.guardFlagged (src/renderer/pages/settings/SkillsSettings/LibraryHealth.tsx)
+⚠️  Unknown i18n key: detail.saved (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.saveBlocked (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.saveReadOnly (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.metadata (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.content (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.edit (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.cancel (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.save (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.noContent (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.installation (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.installExplain (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: detail.quarantined (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: actions.installedForAll (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: actions.installForAll (src/renderer/pages/settings/SkillsSettings/SkillDetailDrawer.tsx)
+⚠️  Unknown i18n key: filters.verdict.blocked (src/renderer/pages/settings/SkillsSettings/SkillRow.tsx)
+⚠️  Unknown i18n key: filters.verdict.review (src/renderer/pages/settings/SkillsSettings/SkillRow.tsx)
+⚠️  Unknown i18n key: actions.unpin (src/renderer/pages/settings/SkillsSettings/SkillRow.tsx)
+⚠️  Unknown i18n key: actions.pin (src/renderer/pages/settings/SkillsSettings/SkillRow.tsx)
+⚠️  Unknown i18n key: scanLibrary.done (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: scanLibrary.failed (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: banner.howItWorks (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: search.placeholder (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: scanLibrary.progress (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: actions.scanLibrary (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: actions.import (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: actions.build (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: cliDiscovery.title (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: cliDiscovery.subtitle (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: cliDiscovery.restartNeeded (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: search.empty (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: search.emptyLibrary (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: search.empty (src/renderer/pages/settings/SkillsSettings/index.tsx)
+⚠️  Unknown i18n key: settings.storagePage.revealWorkspaceFailed (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.managedWorkspacesTitle (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.protected (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.managedWorkspacesDesktopOnly (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.managedWorkspacesUnavailable (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.tryAgain (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.noAutomaticDeletion (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.managedWorkspacesSafety (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.inventorySummary (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.found (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.preserved (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.reviewable (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.cleanupLocked (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.cleanupLockedReason (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.showWorkspace (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.keep (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.moreWorkspaces (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.noManagedWorkspaces (src/renderer/pages/settings/StorageSettings/ManagedWorkspacesCard.tsx)
+⚠️  Unknown i18n key: settings.storagePage.subtitleLine (src/renderer/pages/settings/StorageSettings/index.tsx)
+⚠️  Unknown i18n key: settings.voiceMicPermissionBlocked (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicPermissionBlocked (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicNotFound (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicDeviceFallback (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicListening (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicRequesting (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicGradeNoSignal (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicGradeQuiet (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicGradeGood (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicGradeHot (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicIdleHint (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicDeviceDefault (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicStop (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.voiceMicTest (src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.scopeProfileConfig (src/renderer/pages/settings/WCoreConfig/components/ScopeLabel.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.memory.loading (src/renderer/pages/settings/WCoreConfig/panes/MemoryPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.memory.readError (src/renderer/pages/settings/WCoreConfig/panes/MemoryPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.errorGeneric (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.errorGeneric (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.phaseVerifying (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.phaseExtracting (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.phaseInstalling (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.phaseError (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.phaseDownloading (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.scProfileUnavailable (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.scProfilePathUnavailable (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.installedTitle (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.restartHint (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.installingTitle (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.errorTitle (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.availableTitle (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.availableBody (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.retry (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.overview.update.cta (src/renderer/pages/settings/WCoreConfig/panes/OverviewPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.loadFailed (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.archiveFailed (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.archiveFailed (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.archiveTitle (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.archiveBody (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.archive (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.activeMarkerNeedsRepair (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.pathUnavailable (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.archive (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.profiles.cloneSecurityNote (src/renderer/pages/settings/WCoreConfig/panes/ProfilesPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.runtimeTopology (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.runtimeTopologyDesc (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.embeddedLocal (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.runtimeStatus (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.runtimeStatusDesc (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.notObserved (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.coreControlled (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.outputBudgetLoading (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.outputBudgetSaving (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.outputBudgetUnknown (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.effectiveConfig (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.refreshConfig (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.refresh (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.effectiveConfigLoading (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.effectiveConfigError (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.rawConfigTitle (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.managedConfigTitle (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.rawConfigDescription (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.managedConfigDescriptionWithOverlay (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.managedConfigDescriptionWithoutOverlay (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.rawBadge (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.managedBadge (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.coreReads (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.openCoreFolder (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.openFolder (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.desktopStores (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.openDesktopFolder (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.openFolder (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.twoConfigExplanation (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.actionError (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.settingsReadError (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.runtime.unknown (src/renderer/pages/settings/WCoreConfig/panes/RuntimePane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.truthSubtitle (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.browserPolicy (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.browserPolicyDesc (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.defaultAction (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.defaultAction (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.allowedOrigins (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.allowedOrigins (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.deniedOrigins (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.deniedOrigins (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.savingPolicy (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.savePolicy (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.approvalsManagedInTools (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.approvalsManagedInToolsDesc (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.environment (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.envUnavailable (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.envUnavailableDesc (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.networkPolicy (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.egressEnforced (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.egressEnforcedDesc (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.localTargetsBlocked (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.localTargetsBlockedDesc (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.security.noLocalBypass (src/renderer/pages/settings/WCoreConfig/panes/SecurityPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.tools.loading (src/renderer/pages/settings/WCoreConfig/panes/ToolsPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.tools.readError (src/renderer/pages/settings/WCoreConfig/panes/ToolsPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.tools.saving (src/renderer/pages/settings/WCoreConfig/panes/ToolsPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.tools.configureCredentialAria (src/renderer/pages/settings/WCoreConfig/panes/ToolsPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.tools.chipExternalSetup (src/renderer/pages/settings/WCoreConfig/panes/ToolsPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.tools.stateAutoRunsForce (src/renderer/pages/settings/WCoreConfig/panes/ToolsPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.tools.stateAutoRunsAutoEdit (src/renderer/pages/settings/WCoreConfig/panes/ToolsPane.tsx)
+⚠️  Unknown i18n key: settings.wcoreConfig.tools.catalogTruthNote (src/renderer/pages/settings/WCoreConfig/panes/ToolsPane.tsx)
+⚠️  Unknown i18n key: settings.sider.mcpLibrary (src/renderer/pages/settings/components/SettingsPageWrapper.tsx)
+⚠️  Unknown i18n key: settings.sider.mcpLibrary (src/renderer/pages/settings/components/SettingsSider.tsx)
+⚠️  Unknown i18n key: mcpLibrary.urlAdd.publishFailed (src/renderer/pages/settings/components/UrlAddModal.tsx)
+⚠️  Unknown i18n key: mcpLibrary.urlAdd.publishing (src/renderer/pages/settings/components/UrlAddModal.tsx)
+⚠️  Unknown i18n key: mcpLibrary.urlAdd.namePlaceholder (src/renderer/pages/settings/components/UrlAddModal.tsx)
+⚠️  Unknown i18n key: mcpLibrary.urlAdd.reachable (src/renderer/pages/settings/components/UrlAddModal.tsx)
+⚠️  Unknown i18n key: team.emptyState.specialistStandby (src/renderer/pages/team/components/TeamChatEmptyState.tsx)
+⚠️  Unknown i18n key: teams.rightRail.expand (src/renderer/pages/team/components/TeamRightRail.tsx)
+⚠️  Unknown i18n key: teams.rightRail.teammateCount (src/renderer/pages/team/components/TeamRightRail.tsx)
+⚠️  Unknown i18n key: teams.rightRail.collapse (src/renderer/pages/team/components/TeamRightRail.tsx)
+⚠️  Unknown i18n key: wiki.detail.freshness.fresh (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.freshness.stale (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.freshness.neverReviewed (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.loading (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.back (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.notFound (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.notFoundBack (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.back (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.edit (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.updateFromSources (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.settings (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.settings (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.updatedAgo (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.synthesizedFromMem (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.tldr (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.sources (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.linkedFrom (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.relatedConcepts (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.autoSynthesized (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.lastReviewedNever (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.lastSynthesized (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.markAsReviewed (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.editThisPage (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.reSynthesizeFromSources (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.statusTotalConcepts (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.statusNotReviewedYet (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.detail.statusLastSync (src/renderer/pages/wiki/WikiDetailPage.tsx)
+⚠️  Unknown i18n key: wiki.home.synthesizeNow.success (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.synthesizeNow.error (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.synthesizeNow.error (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.title (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.conceptCount (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.viewList (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.viewGraph (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.synthesizing (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.synthesizeNow (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.newConcept (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.settings (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.settings (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.search.placeholder (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.search.placeholder (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.columns.byTopic (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.empty (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.columns.updatedThisWeek (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.columns.emerging (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.mostReferenced (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.references (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.status.concepts (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.status.memoriesSynthesized (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.status.autoSync (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.status.lastSync (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.home.status.lastSyncNever (src/renderer/pages/wiki/WikiHomePage.tsx)
+⚠️  Unknown i18n key: wiki.orphan.noPageYet (src/renderer/pages/wiki/components/BacklinkChip.tsx)
+⚠️  Unknown i18n key: wiki.concept.synthesizedFrom (src/renderer/pages/wiki/components/ConceptCard.tsx)
+⚠️  Unknown i18n key: wiki.home.emergingLabel (src/renderer/pages/wiki/components/KnowledgeGraph.tsx)
+⚠️  Unknown i18n key: wiki.orphan.references (src/renderer/pages/wiki/components/OrphanCard.tsx)
+⚠️  Unknown i18n key: wiki.orphan.projectsSingular (src/renderer/pages/wiki/components/OrphanCard.tsx)
+⚠️  Unknown i18n key: wiki.orphan.projects (src/renderer/pages/wiki/components/OrphanCard.tsx)
+⚠️  Unknown i18n key: wiki.orphan.synthesize (src/renderer/pages/wiki/components/OrphanCard.tsx)
+⚠️  Unknown i18n key: wiki.detail.openMemory (src/renderer/pages/wiki/components/SourcesBlock.tsx)
+⚠️  Unknown i18n key: wiki.detail.hiddenSourcesOne (src/renderer/pages/wiki/components/SourcesBlock.tsx)
+⚠️  Unknown i18n key: wiki.detail.hiddenSourcesOther (src/renderer/pages/wiki/components/SourcesBlock.tsx)
+⚠️  Unknown i18n key: wiki.detail.showAll (src/renderer/pages/wiki/components/SourcesBlock.tsx)
+⚠️  Unknown i18n key: builder.error.generateFailed (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.error.saveFailed (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.title (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.tab.write (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.name.label (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.name.placeholder (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.description.label (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.description.placeholder (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.description.hint (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.category.label (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.category.placeholder (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.tags.label (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.tags.placeholder (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.form.body.label (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.tab.describe (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.describe.label (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.describe.placeholder (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.describe.generating (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.describe.generate (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.actions.cancel (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.actions.done (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.actions.saving (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: builder.actions.save (src/renderer/pages/workflows/BuildWorkflowModal.tsx)
+⚠️  Unknown i18n key: picker.noAgent (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: picker.noModel (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: picker.noModel (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: picker.noModel (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: picker.notReady (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: picker.notReady (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: depends.title (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: depends.openSkill (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: actions.runOn (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: picker.loading (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: picker.loadingModels (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: picker.noModelsForBackend (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: actions.export (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: actions.schedule (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: actions.launch (src/renderer/pages/workflows/WorkflowDetailModal.tsx)
+⚠️  Unknown i18n key: actions.import (src/renderer/pages/workflows/WorkflowsLibraryPage.tsx)
+⚠️  Unknown i18n key: actions.build (src/renderer/pages/workflows/WorkflowsLibraryPage.tsx)
+⚠️  Unknown i18n key: search.placeholder (src/renderer/pages/workflows/WorkflowsLibraryPage.tsx)
+⚠️  Unknown i18n key: filterRail.aria (src/renderer/pages/workflows/WorkflowsLibraryPage.tsx)
+⚠️  Unknown i18n key: search.empty (src/renderer/pages/workflows/WorkflowsLibraryPage.tsx)
+⚠️  Unknown i18n key: section.featured (src/renderer/pages/workflows/WorkflowsLibraryPage.tsx)
+⚠️  Unknown i18n key: section.all (src/renderer/pages/workflows/WorkflowsLibraryPage.tsx)
+ℹ️  Found 823 unknown literal i18n keys (warning only)
+
+🧩 Checking i18n key type definition sync...
+
+✅ i18n key type definition is in sync
+
+⚙️  Checking i18n configuration...
+
+✅ i18n configuration check passed
+
+========================================
+
+📊 Validation summary:
+
+⚠️  Warnings found.
+✅ i18n validation passed
+
+
+exit=0
+finished_utc=2026-07-19T18:49:48Z

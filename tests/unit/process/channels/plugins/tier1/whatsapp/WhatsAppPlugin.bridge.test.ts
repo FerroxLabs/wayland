@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  *
  * Exercises the JSON-RPC bridge plumbing without spawning a real subprocess.
- * `child_process.fork` is hoist-mocked to return a fake ChildProcess whose
+ * `child_process.spawn` is hoist-mocked to return a fake ChildProcess whose
  * stdin captures the frames the plugin writes, and whose stdout is a
- * controllable EventEmitter the test feeds with response frames.
+ * controllable EventEmitter the test feeds with response frames. (#890 migrated
+ * the bridge off `child_process.fork` onto `spawn` via `resolveJsRuntime()`.)
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -17,7 +18,7 @@ import type { IChannelPluginConfig, IUnifiedIncomingMessage } from '@process/cha
 // imports - referencing the `events` module here triggers a TDZ hoist error
 // for the auto-generated `__vi_import_*` binding. Use a minimal hand-rolled
 // emitter stub instead.
-const { forkSpy, fakeChild, stdinWrites } = vi.hoisted(() => {
+const { spawnSpy, fakeChild, stdinWrites } = vi.hoisted(() => {
   type Listener = (...args: unknown[]) => void;
   function makeEmitter(): {
     on: (event: string, cb: Listener) => unknown;
@@ -72,15 +73,22 @@ const { forkSpy, fakeChild, stdinWrites } = vi.hoisted(() => {
     kill: (_sig?: string) => undefined,
   });
   return {
-    forkSpy: vi.fn(() => child),
+    spawnSpy: vi.fn(() => child),
     fakeChild: child,
     stdinWrites,
   };
 });
 
 vi.mock('child_process', () => ({
-  fork: forkSpy,
+  spawn: spawnSpy,
   ChildProcess: class {},
+}));
+
+// #890: forkBridge now resolves a real JS runtime before spawning. Pin it so
+// the test never touches platform-service internals and the spawn command is
+// deterministic.
+vi.mock('@process/utils/jsRuntime', () => ({
+  resolveJsRuntime: () => ({ command: 'node', env: {}, kind: 'bundled-bun' }),
 }));
 
 // WhatsAppPlugin imports `electron` to detect packaged vs dev for bridge path
@@ -118,26 +126,28 @@ function lastRpc(): { id: number; method: string; params: Record<string, unknown
 
 describe('WhatsAppPlugin - bridge JSON-RPC plumbing', () => {
   beforeEach(() => {
-    forkSpy.mockClear();
+    spawnSpy.mockClear();
     stdinWrites.length = 0;
   });
 
-  it('forks bridge.js with the --backend flag chosen at initialize', async () => {
+  it('spawns bridge.js with the --backend flag chosen at initialize', async () => {
     const plugin = new WhatsAppPlugin();
     await plugin.initialize(configFor('baileys'));
-    expect(forkSpy).toHaveBeenCalledTimes(1);
-    const [entry, args] = forkSpy.mock.calls[0]!;
-    // Normalize separators: prod builds the entry with path.join, which emits
-    // backslashes on win32, so match on the posix-normalized tail.
-    expect(String(entry).replace(/\\/g, '/')).toMatch(/whatsapp-bridge\/bridge\.js$/);
-    expect(args).toEqual(['--backend', 'baileys']);
+    expect(spawnSpy).toHaveBeenCalledTimes(1);
+    // #890: spawn(command, [entry, ...flags], opts). command is the resolved
+    // runtime; argv[0] is the bridge entry. Normalize separators: prod builds
+    // the entry with path.join, which emits backslashes on win32.
+    const [command, argv] = spawnSpy.mock.calls[0]!;
+    expect(command).toBe('node');
+    expect(String(argv[0]).replace(/\\/g, '/')).toMatch(/whatsapp-bridge\/bridge\.js$/);
+    expect(argv.slice(1)).toEqual(['--backend', 'baileys']);
   });
 
-  it('forks with --backend whatsapp-web when configured', async () => {
+  it('spawns with --backend whatsapp-web when configured', async () => {
     const plugin = new WhatsAppPlugin();
     await plugin.initialize(configFor('whatsapp-web'));
-    const [, args] = forkSpy.mock.calls[0]!;
-    expect(args).toEqual(['--backend', 'whatsapp-web']);
+    const [, argv] = spawnSpy.mock.calls[0]!;
+    expect(argv.slice(1)).toEqual(['--backend', 'whatsapp-web']);
   });
 
   it('serializes sendText as a JSON-RPC request and resolves on the matching response', async () => {
@@ -252,5 +262,46 @@ describe('WhatsAppPlugin - bridge JSON-RPC plumbing', () => {
     await expect(plugin.editMessage('chat@x', 'WA_001', { type: 'text', text: 'edited' })).rejects.toThrow(
       /does not support editing/
     );
+  });
+});
+
+describe('WhatsAppPlugin - stdout pollution tolerance (#890)', () => {
+  beforeEach(() => {
+    spawnSpy.mockClear();
+    stdinWrites.length = 0;
+  });
+
+  it('drops non-frame pollution without throwing, and still dispatches a valid frame', async () => {
+    const plugin = new WhatsAppPlugin();
+    await plugin.initialize(configFor('baileys'));
+    const pending = plugin.sendMessage('chat@x', { type: 'text', text: 'hi' });
+    const req = lastRpc();
+
+    // Interleave the kinds of pollution a leak could put on the stdout pipe:
+    // app log lines, a stray pino NDJSON object, and JSON primitives (a bare
+    // number/bool must not throw on `'id' in parsed`). None may throw.
+    expect(() => {
+      fakeChild.stdout.emit('data', '[Wayland:init] booting\n');
+      fakeChild.stdout.emit('data', '{"level":30,"time":1,"msg":"baileys warn"}\n');
+      fakeChild.stdout.emit('data', '5\n');
+      fakeChild.stdout.emit('data', 'true\n');
+      fakeChild.stdout.emit('data', 'not json at all\n');
+      fakeChild.stdout.emit('data', '[]\n');
+    }).not.toThrow();
+
+    emitFromBridge({ jsonrpc: '2.0', id: req.id, result: { messageId: 'WA_OK' } });
+    await expect(pending).resolves.toBe('WA_OK');
+  });
+
+  it('reassembles a valid frame split across two stdout chunks', async () => {
+    const plugin = new WhatsAppPlugin();
+    await plugin.initialize(configFor('baileys'));
+    const pending = plugin.sendMessage('chat@y', { type: 'text', text: 'split' });
+    const req = lastRpc();
+    const frame = JSON.stringify({ jsonrpc: '2.0', id: req.id, result: { messageId: 'WA_SPLIT' } });
+    const mid = Math.floor(frame.length / 2);
+    fakeChild.stdout.emit('data', frame.slice(0, mid));
+    fakeChild.stdout.emit('data', `${frame.slice(mid)}\n`);
+    await expect(pending).resolves.toBe('WA_SPLIT');
   });
 });

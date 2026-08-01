@@ -8,6 +8,7 @@ import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { updateMcpConfig } from '../mcpConfigAuthority';
 
 /**
  * Wayland local MCP agent implementation
@@ -65,34 +66,25 @@ export class WaylandMcpAgent extends AbstractMcpAgent {
    */
   async installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
     try {
-      // Read current configuration
-      const currentConfig = (await ProcessConfig.get('mcp.config')) || [];
-      const existingServers = Array.isArray(currentConfig) ? currentConfig : [];
+      await updateMcpConfig((existingServers) => {
+        const serverMap = new Map<string, IMcpServer>();
+        existingServers.forEach((server) => serverMap.set(server.name, server));
 
-      // Merge new servers (deduped by name)
-      const serverMap = new Map<string, IMcpServer>();
-
-      // Seed with existing servers first
-      existingServers.forEach((server: IMcpServer) => {
-        serverMap.set(server.name, server);
+        mcpServers.forEach((server) => {
+          if (this.getSupportedTransports().includes(server.transport.type)) {
+            const previous = serverMap.get(server.name);
+            serverMap.set(server.name, {
+              ...server,
+              updatedAt: Math.max(Date.now(), (previous?.updatedAt ?? 0) + 1),
+            });
+          } else {
+            console.warn(
+              `[WaylandMcpAgent] Skipping ${server.name}: unsupported transport type ${server.transport.type}`
+            );
+          }
+        });
+        return Array.from(serverMap.values());
       });
-
-      // Add or update incoming servers
-      mcpServers.forEach((server) => {
-        // Only install supported transport types
-        if (this.getSupportedTransports().includes(server.transport.type)) {
-          serverMap.set(server.name, {
-            ...server,
-            updatedAt: Date.now(),
-          });
-        } else {
-          console.warn(`[WaylandMcpAgent] Skipping ${server.name}: unsupported transport type ${server.transport.type}`);
-        }
-      });
-
-      // Convert back to an array and save
-      const mergedServers = Array.from(serverMap.values());
-      await ProcessConfig.set('mcp.config', mergedServers);
 
       console.log('[WaylandMcpAgent] Installed MCP servers:', mcpServers.map((s) => s.name).join(', '));
       return { success: true };

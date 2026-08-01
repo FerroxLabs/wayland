@@ -27,6 +27,16 @@ const getElectronPathOrFallback = (name: 'temp' | 'home' | 'userData'): string =
   }
 };
 
+/**
+ * E2E profiles are disposable and already use paths without spaces. More
+ * importantly, they must never repoint the stable ~/.wayland[-config]-dev
+ * symlinks used by a concurrently running developer app.
+ */
+export const shouldCreateCliSafeSymlink = (
+  needsCliSafeSymlinks: boolean,
+  env: { WAYLAND_E2E_TEST?: string } = process.env
+): boolean => needsCliSafeSymlinks && env.WAYLAND_E2E_TEST !== '1';
+
 export const getTempPath = () => {
   const rootPath = getElectronPathOrFallback('temp');
   return path.join(rootPath, 'wayland');
@@ -40,7 +50,7 @@ export const getTempPath = () => {
 const ensureCliSafeSymlink = (targetPath: string, symlinkName: string): string => {
   // Only needed when the platform explicitly requires CLI-safe symlinks
   // (Electron on macOS, where userData lives under "Application Support" which contains spaces)
-  if (!getPlatformServices().paths.needsCliSafeSymlinks()) {
+  if (!shouldCreateCliSafeSymlink(getPlatformServices().paths.needsCliSafeSymlinks())) {
     return targetPath;
   }
 
@@ -377,9 +387,18 @@ export async function verifyDirectoryFiles(dir1: string, dir2: string): Promise<
       const entry1 = entries1[i];
       const entry2 = entries2[i];
 
-      if (entry1.name !== entry2.name || entry1.isDirectory() !== entry2.isDirectory()) {
+      if (
+        entry1.name !== entry2.name ||
+        entry1.isDirectory() !== entry2.isDirectory() ||
+        entry1.isFile() !== entry2.isFile() ||
+        entry1.isSymbolicLink() !== entry2.isSymbolicLink()
+      ) {
         return false;
       }
+
+      // A migration/recovery verifier must not follow a source symlink and
+      // bless the copied target bytes as equivalent owned state.
+      if (entry1.isSymbolicLink() || entry2.isSymbolicLink()) return false;
 
       if (entry1.isDirectory()) {
         const path1 = path.join(dir1, entry1.name);
@@ -387,6 +406,12 @@ export async function verifyDirectoryFiles(dir1: string, dir2: string): Promise<
         if (!(await verifyDirectoryFiles(path1, path2))) {
           return false;
         }
+      } else if (entry1.isFile()) {
+        const [left, right] = await Promise.all([
+          fs.readFile(path.join(dir1, entry1.name)),
+          fs.readFile(path.join(dir2, entry2.name)),
+        ]);
+        if (!left.equals(right)) return false;
       }
     }
 
@@ -394,6 +419,63 @@ export async function verifyDirectoryFiles(dir1: string, dir2: string): Promise<
   } catch (error) {
     console.warn('[Wayland] Error verifying directory files:', error);
     return false;
+  }
+}
+
+export type DirectoryMigrationResult = {
+  migrated: boolean;
+  sourceRetained: boolean;
+  recoveryPath?: string;
+};
+
+/**
+ * Copy a legacy directory into its active destination, publish a second
+ * byte-verified recovery copy, and only then remove the legacy source name.
+ * Any copy, verification, or receipt failure leaves the source untouched.
+ */
+export async function migrateDirectoryWithRecovery(
+  source: string,
+  destination: string,
+  recoveryRoot: string
+): Promise<DirectoryMigrationResult> {
+  await copyDirectoryRecursively(source, destination);
+  if (!(await verifyDirectoryFiles(source, destination))) {
+    return { migrated: false, sourceRetained: true };
+  }
+
+  let recoveryPath: string | undefined;
+  try {
+    await fs.mkdir(recoveryRoot, { recursive: true });
+    recoveryPath = await fs.mkdtemp(path.join(recoveryRoot, 'legacy-temp-'));
+    await copyDirectoryRecursively(source, recoveryPath);
+    if (!(await verifyDirectoryFiles(source, recoveryPath))) {
+      return { migrated: true, sourceRetained: true, recoveryPath };
+    }
+
+    const receiptPath = `${recoveryPath}.json`;
+    const receiptTmp = `${receiptPath}.tmp-${process.pid}-${Date.now()}`;
+    await fs.writeFile(
+      receiptTmp,
+      `${JSON.stringify(
+        {
+          kind: 'wayland-legacy-config-recovery',
+          version: 1,
+          sourcePath: path.resolve(source),
+          destinationPath: path.resolve(destination),
+          recoveryPath: path.resolve(recoveryPath),
+          recoveredAt: new Date().toISOString(),
+        },
+        null,
+        2
+      )}\n`,
+      { encoding: 'utf8', flag: 'wx' }
+    );
+    await fs.rename(receiptTmp, receiptPath);
+    await fs.rm(source, { recursive: true });
+    return { migrated: true, sourceRetained: false, recoveryPath };
+  } catch (error) {
+    console.warn('[Wayland] Legacy migration recovery publication failed; source retained:', source, error);
+    return { migrated: true, sourceRetained: true, recoveryPath };
   }
 }
 

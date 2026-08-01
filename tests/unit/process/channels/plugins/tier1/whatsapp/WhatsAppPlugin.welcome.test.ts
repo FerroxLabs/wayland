@@ -77,8 +77,13 @@ const { forkSpy, fakeChild, stdinWrites, rearmSpy } = vi.hoisted(() => {
 });
 
 vi.mock('child_process', () => ({
-  fork: forkSpy,
+  spawn: forkSpy,
   ChildProcess: class {},
+}));
+
+// #890: forkBridge resolves a real JS runtime before spawning; pin it.
+vi.mock('@process/utils/jsRuntime', () => ({
+  resolveJsRuntime: () => ({ command: 'node', env: {}, kind: 'bundled-bun' }),
 }));
 
 vi.mock('electron', () => ({
@@ -137,7 +142,7 @@ describe('WhatsAppPlugin - generalized welcome handshake hooks', () => {
   it('meta-business backend has no self target (no self thread)', async () => {
     const plugin = new WhatsAppPlugin();
     await plugin.initialize(
-      configFor('meta-business', { accessToken: 'EAAG-token', phoneNumberId: '123456789012345' }),
+      configFor('meta-business', { accessToken: 'EAAG-token', phoneNumberId: '123456789012345' })
     );
     expect(plugin.getSelfTarget()).toBeNull();
     // Account identity falls back to the phone number id for marker keying.

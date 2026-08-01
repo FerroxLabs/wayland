@@ -37,8 +37,18 @@ export class SqliteConversationRepository implements IConversationRepository {
   }
 
   async deleteConversation(id: string): Promise<void> {
+    const commit = await this.prepareDeleteConversation(id);
+    commit();
+  }
+
+  async prepareDeleteConversation(id: string): Promise<() => void> {
     const db = await this.getDb();
-    db.deleteConversation(id);
+    return () => {
+      const result = db.deleteConversation(id);
+      if (!result.success) {
+        throw new Error(`Conversation deletion failed: ${result.error ?? 'unknown database error'}`);
+      }
+    };
   }
 
   async getMessages(

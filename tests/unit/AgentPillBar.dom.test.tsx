@@ -25,7 +25,11 @@ Object.defineProperty(window, 'matchMedia', {
 const mockNavigate = vi.hoisted(() => vi.fn());
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key, i18n: { language: 'en-US' } }),
+  useTranslation: () => ({
+    t: (key: string, options?: { defaultValue?: string; count?: number }) =>
+      options?.defaultValue?.replace('{{count}}', String(options.count ?? '')) ?? key,
+    i18n: { language: 'en-US' },
+  }),
 }));
 
 vi.mock('react-router-dom', () => ({
@@ -113,6 +117,29 @@ describe('AgentPillBar', () => {
     expect(pill).toBeTruthy();
     fireEvent.click(pill);
     expect(onSelectAgent).toHaveBeenCalledWith('gemini');
+  });
+
+  it('keeps Cockpit selected-first and makes the full roster searchable in one click', async () => {
+    const agents: AvailableAgent[] = [
+      makeAgent({ backend: 'claude', name: 'Claude' }),
+      makeAgent({ backend: 'gemini', name: 'Gemini' }),
+      makeAgent({ backend: 'codex', name: 'Codex' }),
+    ];
+
+    render(<AgentPillBar {...defaultProps} availableAgents={agents} compact />);
+
+    const picker = screen.getByRole('button', { name: 'Choose agent' });
+    expect(picker.getAttribute('data-agent-picker-mode')).toBe('compact');
+    expect(screen.getByText('Claude')).toBeTruthy();
+    expect(screen.getByText('3 agents')).toBeTruthy();
+    expect(screen.queryByText('Gemini')).toBeNull();
+    expect(screen.queryByText('Codex')).toBeNull();
+
+    fireEvent.click(picker);
+    const search = await screen.findByRole('searchbox', { name: 'Find an agent' });
+    fireEvent.change(search, { target: { value: 'gem' } });
+    expect(await screen.findByText('Gemini')).toBeTruthy();
+    expect(screen.queryByText('Codex')).toBeNull();
   });
 
   it('marks selected agent with data attribute', () => {

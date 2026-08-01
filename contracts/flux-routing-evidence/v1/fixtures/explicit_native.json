@@ -1,0 +1,96 @@
+{
+  "correlation": {
+    "backend_spawn_id": "spawn-explicit-native",
+    "correlation_id": "corr-explicit-native",
+    "desktop_task_id": "dt_explicit-native",
+    "desktop_turn_id": "turn-explicit-native",
+    "request_id": "req-explicit-native"
+  },
+  "events": [
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-explicit-native",
+        "correlation_id": "corr-explicit-native",
+        "desktop_task_id": "dt_explicit-native",
+        "desktop_turn_id": "turn-explicit-native",
+        "request_id": "req-explicit-native"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-explicit-native-0",
+      "event_type": "route.selected",
+      "evidence": {
+        "flux_involved": false,
+        "precedence": "explicit_native_over_flux_auto",
+        "provider": "native-provider",
+        "requested_model": "native-model-a",
+        "reroute_allowed": false,
+        "route_mode": "explicit_native",
+        "selected_model": "native-model-a"
+      },
+      "sequence": 0
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-explicit-native",
+        "correlation_id": "corr-explicit-native",
+        "desktop_task_id": "dt_explicit-native",
+        "desktop_turn_id": "turn-explicit-native",
+        "request_id": "req-explicit-native"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-explicit-native-1",
+      "event_type": "provider.attempt_started",
+      "evidence": {
+        "attempt_id": "attempt-native-1",
+        "model": "native-model-a",
+        "provider": "native-provider"
+      },
+      "sequence": 1
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-explicit-native",
+        "correlation_id": "corr-explicit-native",
+        "desktop_task_id": "dt_explicit-native",
+        "desktop_turn_id": "turn-explicit-native",
+        "request_id": "req-explicit-native"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-explicit-native-2",
+      "event_type": "request.cost_observed",
+      "evidence": {
+        "attempt_id": "attempt-native-1",
+        "cost_microusd": 820,
+        "currency": "USD",
+        "latency_ms": 341,
+        "price_status": "priced"
+      },
+      "sequence": 2
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-explicit-native",
+        "correlation_id": "corr-explicit-native",
+        "desktop_task_id": "dt_explicit-native",
+        "desktop_turn_id": "turn-explicit-native",
+        "request_id": "req-explicit-native"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-explicit-native-3",
+      "event_type": "request.terminal",
+      "evidence": {
+        "attempt_id": "attempt-native-1",
+        "outcome": "success",
+        "reason_code": "completed"
+      },
+      "sequence": 3
+    }
+  ],
+  "expected_profile": "flux",
+  "fixture_version": 1,
+  "scenario": "explicit-native"
+}

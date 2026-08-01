@@ -11,10 +11,15 @@ const exec = promisify(execFile);
 describe('WorkspaceSnapshotService', () => {
   let service: WorkspaceSnapshotService;
   let tmpDir: string;
+  let trashed: Array<{ path: string; content: string }>;
 
   beforeEach(async () => {
-    service = new WorkspaceSnapshotService();
-    tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'snapshot-test-'));
+    tmpDir = await fs.realpath(await fs.mkdtemp(path.join(os.tmpdir(), 'snapshot-test-')));
+    trashed = [];
+    service = new WorkspaceSnapshotService(async (entryPath) => {
+      trashed.push({ path: entryPath, content: await fs.readFile(entryPath, 'utf-8') });
+      await fs.rm(entryPath, { recursive: true, force: true });
+    });
   });
 
   afterEach(async () => {
@@ -139,7 +144,7 @@ describe('WorkspaceSnapshotService', () => {
       expect(content).toBe('original');
     });
 
-    it('resetFile deletes created file', async () => {
+    it('resetFile moves a created file to recoverable Trash', async () => {
       await fs.writeFile(path.join(tmpDir, 'a.txt'), 'original');
       await service.init(tmpDir);
 
@@ -147,6 +152,31 @@ describe('WorkspaceSnapshotService', () => {
       await service.resetFile(tmpDir, 'new.txt', 'create');
 
       await expect(fs.access(path.join(tmpDir, 'new.txt'))).rejects.toThrow();
+      expect(trashed).toContainEqual({ path: path.join(tmpDir, 'new.txt'), content: 'new file' });
+    });
+
+    it('resetFile preserves modified bytes in Trash before restoring the baseline', async () => {
+      await fs.writeFile(path.join(tmpDir, 'a.txt'), 'original');
+      await service.init(tmpDir);
+
+      await fs.writeFile(path.join(tmpDir, 'a.txt'), 'important draft');
+      await service.resetFile(tmpDir, 'a.txt', 'modify');
+
+      expect(await fs.readFile(path.join(tmpDir, 'a.txt'), 'utf-8')).toBe('original');
+      expect(trashed).toContainEqual({ path: path.join(tmpDir, 'a.txt'), content: 'important draft' });
+    });
+
+    it('fails closed and preserves a created file when recoverable Trash is unavailable', async () => {
+      service = new WorkspaceSnapshotService(async () => {
+        throw new Error('RECOVERABLE_TRASH_UNAVAILABLE');
+      });
+      await fs.writeFile(path.join(tmpDir, 'a.txt'), 'original');
+      await service.init(tmpDir);
+      const created = path.join(tmpDir, 'new.txt');
+      await fs.writeFile(created, 'keep this');
+
+      await expect(service.resetFile(tmpDir, 'new.txt', 'create')).rejects.toThrow('RECOVERABLE_TRASH_UNAVAILABLE');
+      expect(await fs.readFile(created, 'utf-8')).toBe('keep this');
     });
 
     it('dispose cleans up temp gitdir', async () => {
@@ -306,13 +336,39 @@ describe('WorkspaceSnapshotService', () => {
       expect(content).toBe('initial');
     });
 
-    it('discardFile deletes untracked file', async () => {
+    it('discardFile moves an untracked file to recoverable Trash', async () => {
       await service.init(tmpDir);
       await fs.writeFile(path.join(tmpDir, 'newfile.txt'), 'new');
 
       await service.discardFile(tmpDir, 'newfile.txt', 'create');
 
       await expect(fs.access(path.join(tmpDir, 'newfile.txt'))).rejects.toThrow();
+      expect(trashed).toContainEqual({ path: path.join(tmpDir, 'newfile.txt'), content: 'new' });
+    });
+
+    it('discardFile preserves modified bytes in Trash before checking out HEAD', async () => {
+      await service.init(tmpDir);
+      await fs.writeFile(path.join(tmpDir, 'initial.txt'), 'important draft');
+
+      await service.discardFile(tmpDir, 'initial.txt', 'modify');
+
+      expect(await fs.readFile(path.join(tmpDir, 'initial.txt'), 'utf-8')).toBe('initial');
+      expect(trashed).toContainEqual({ path: path.join(tmpDir, 'initial.txt'), content: 'important draft' });
+    });
+
+    it('rejects traversal before touching a file outside the workspace', async () => {
+      await service.init(tmpDir);
+      const outside = path.join(path.dirname(tmpDir), `${path.basename(tmpDir)}-outside-important.txt`);
+      await fs.writeFile(outside, 'keep me');
+      try {
+        await expect(service.discardFile(tmpDir, '../outside-important.txt', 'create')).rejects.toThrow(
+          'WORKSPACE_ENTRY_OUTSIDE_ROOT'
+        );
+        expect(await fs.readFile(outside, 'utf-8')).toBe('keep me');
+        expect(trashed).toEqual([]);
+      } finally {
+        await fs.rm(outside, { force: true });
+      }
     });
 
     it('getBaselineContent returns HEAD version', async () => {
@@ -388,6 +444,26 @@ describe('WorkspaceSnapshotService', () => {
       // Even if workspace is available during init, the result should not throw
       const info = await initPromise;
       expect(info.mode).toBeDefined();
+    });
+  });
+
+  describe('stale snapshot ownership cleanup', () => {
+    it('removes only exact marker-owned snapshot directories', async () => {
+      const owned = path.join(tmpDir, 'wayland-snapshot-owned');
+      const unmarked = path.join(tmpDir, 'wayland-snapshot-user-data');
+      const malformed = path.join(tmpDir, 'wayland-snapshot-malformed');
+      await Promise.all([owned, unmarked, malformed].map((entry) => fs.mkdir(entry, { recursive: true })));
+      await fs.writeFile(
+        path.join(owned, '.wayland-snapshot-owner.json'),
+        JSON.stringify({ kind: 'wayland-workspace-snapshot', version: 1 })
+      );
+      await fs.writeFile(path.join(malformed, '.wayland-snapshot-owner.json'), JSON.stringify({ kind: 'other' }));
+
+      await WorkspaceSnapshotService.cleanupStaleSnapshots([tmpDir]);
+
+      await expect(fs.access(owned)).rejects.toThrow();
+      await expect(fs.access(unmarked)).resolves.toBeUndefined();
+      await expect(fs.access(malformed)).resolves.toBeUndefined();
     });
   });
 

@@ -7,20 +7,16 @@
 //
 // === Upstream row shapes to know about (DESK-1) ===
 //
-// The source `acp_context_usage` event is a CUMULATIVE session gauge -
-// `used` is "total tokens currently in context", re-sent on every update,
-// and `cost` is the cumulative session cost. Summing those snapshots
-// grossly inflates the meter, so:
+// The source `acp_context_usage.used` value is current context occupancy, not
+// cumulative processed/billable tokens. Its `cost` is a cumulative session
+// gauge. Therefore ACP rows can contribute cost but never inferred token spend.
 //
-// 1. New rows (delta-aware writer in TeammateManager) carry per-event
-//    spend deltas as `tokens_delta` / `cost_delta` alongside the raw
-//    snapshot fields. Deltas are safe to SUM - that is all we sum.
+// 1. New rows carry `tokens_delta: 0`, a truthful `cost_delta`, and the raw
+//    occupancy in `context_tokens_used`. Only explicit deltas are summed.
 //
-// 2. Legacy rows without the delta fields hold a cumulative snapshot in
-//    `prompt_tokens`/`completion_tokens`/`cost_estimate_usd`. A snapshot
-//    IS that actor's session total, so we keep only the NEWEST such row
-//    per actor (actor_slot_id) as an approximation of that actor's total.
-//    Snapshots are never summed across events.
+// 2. Legacy ACP rows are identifiable by `context_window`; their historical
+//    prompt/total fields were occupancy mislabeled as spend. Ignore those token
+//    fields, while retaining the newest cumulative cost snapshot per actor.
 //
 // 3. `WHERE created_at > ?` strict inequality. The W1e listEvents reader
 //    excludes rows tied to the cursor timestamp. At a 30s polling cadence
@@ -116,8 +112,10 @@ export function useTeamCostMeter(teamId: string, opts: Options = {}): TeamCostMe
             // Legacy row: fields are a CUMULATIVE session snapshot. The
             // newest snapshot per actor approximates that actor's session
             // total - never sum snapshots across events.
-            const prompt = typeof p.prompt_tokens === 'number' ? p.prompt_tokens : 0;
-            const completion = typeof p.completion_tokens === 'number' ? p.completion_tokens : 0;
+            const isLegacyAcpContextRow = typeof p.context_window === 'number';
+            const prompt = !isLegacyAcpContextRow && typeof p.prompt_tokens === 'number' ? p.prompt_tokens : 0;
+            const completion =
+              !isLegacyAcpContextRow && typeof p.completion_tokens === 'number' ? p.completion_tokens : 0;
             const usd = typeof p.cost_estimate_usd === 'number' ? p.cost_estimate_usd : 0;
             const actor = typeof p.slot_id === 'string' && p.slot_id ? p.slot_id : (e.actorSlotId ?? 'unknown');
             const existing = legacySnapshotsRef.current.get(actor);

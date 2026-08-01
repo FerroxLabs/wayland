@@ -14,10 +14,11 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // ── Hoisted mocks ────────────────────────────────────────────────────────────
-const { mockSetProcessing, mockIsProcessing, mockNotifyCompletion } = vi.hoisted(() => ({
+const { mockSetProcessing, mockIsProcessing, mockNotifyCompletion, mockWorkerKill } = vi.hoisted(() => ({
   mockSetProcessing: vi.fn(),
   mockIsProcessing: vi.fn(() => false),
   mockNotifyCompletion: vi.fn(() => Promise.resolve()),
+  mockWorkerKill: vi.fn(() => Promise.resolve()),
 }));
 
 vi.mock('@process/services/cron/CronBusyGuard', () => ({
@@ -84,6 +85,9 @@ vi.mock('@process/task/BaseAgentManager', () => ({
     getConfirmations() {
       return [];
     }
+    kill() {
+      return mockWorkerKill();
+    }
   },
 }));
 
@@ -113,7 +117,7 @@ import type { AcpBackend } from '../../src/common/types/acpTypes';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-type MockAgent = { sendMessage: ReturnType<typeof vi.fn> };
+type MockAgent = { sendMessage: ReturnType<typeof vi.fn>; kill: ReturnType<typeof vi.fn> };
 
 function makeManager(conversationId = 'conv-test') {
   const manager = new AcpAgentManager({
@@ -124,6 +128,7 @@ function makeManager(conversationId = 'conv-test') {
   // Inject a mock agent and pre-resolve bootstrap so initAgent() returns immediately
   const mockAgent: MockAgent = {
     sendMessage: vi.fn(),
+    kill: vi.fn(() => Promise.resolve()),
   };
   (manager as unknown as { agent: MockAgent }).agent = mockAgent;
   (manager as unknown as { bootstrap: Promise<MockAgent> }).bootstrap = Promise.resolve(mockAgent);
@@ -314,5 +319,49 @@ describe('AcpAgentManager.sendMessage - real class cronBusyGuard cleanup', () =>
 
     expect(mockSetProcessing).toHaveBeenCalledWith('conv-9', true);
     expect(mockSetProcessing).toHaveBeenCalledWith('conv-9', false);
+  });
+});
+
+describe('AcpAgentManager.kill - backend exit authority', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('does not report shutdown success while the ACP backend kill is still pending', async () => {
+    vi.useFakeTimers();
+    try {
+      const { manager, mockAgent } = makeManager('conv-kill-pending');
+      mockAgent.kill.mockImplementation(() => new Promise<void>(() => undefined));
+
+      const shutdown = manager.kill();
+      const rejected = expect(shutdown).rejects.toThrow('ACP backend shutdown timed out after 12000ms');
+      let settled = false;
+      void shutdown.then(
+        () => {
+          settled = true;
+        },
+        () => {
+          settled = true;
+        }
+      );
+
+      await vi.advanceTimersByTimeAsync(11_999);
+      expect(settled).toBe(false);
+      expect(mockWorkerKill).not.toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(1);
+      await rejected;
+      expect(mockWorkerKill).toHaveBeenCalledOnce();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('propagates backend shutdown failure after tearing down the worker', async () => {
+    const { manager, mockAgent } = makeManager('conv-kill-error');
+    mockAgent.kill.mockRejectedValue(new Error('backend process still alive'));
+
+    await expect(manager.kill()).rejects.toThrow('backend process still alive');
+    expect(mockWorkerKill).toHaveBeenCalledOnce();
   });
 });

@@ -161,6 +161,11 @@
   gap: 8px;
 }
 .row {
+  width: 100%;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
   position: relative;
   overflow: hidden;
   display: flex;
@@ -176,6 +181,30 @@
     border-color 0.2s ease,
     background 0.2s ease;
   animation: rowIn 0.44s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.healthWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 184, 0, 0.38);
+  border-radius: 12px;
+  color: #ffcf5c;
+  background: rgba(255, 184, 0, 0.08);
+}
+.healthWarning div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.healthWarning span {
+  color: var(--text-secondary, #b6bcc6);
+  font-size: 12px;
 }
 .row::before {
   content: '';

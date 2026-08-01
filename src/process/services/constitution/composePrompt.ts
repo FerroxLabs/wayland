@@ -1,4 +1,4 @@
-import { readConstitutionWithOverlay } from '@process/bridge/constitutionBridge';
+import { getConstitutionFsService } from './constitutionFsService';
 
 export interface ComposePromptOptions {
   /** Active assistant/specialist ID. Matches ~/.wayland/specialists/<id>.md. */
@@ -20,6 +20,8 @@ export interface ComposedPrompt {
   anthropicCacheControl: { type: 'ephemeral' };
   /** True if a per-specialist overlay file was found and included. */
   hadOverlay: boolean;
+  /** False only when this packaged platform has no Constitution authority. */
+  constitutionSupported: boolean;
 }
 
 /**
@@ -43,12 +45,17 @@ export function composePrompt(opts?: ComposePromptOptions): ComposedPrompt {
   const basePrompt = opts?.basePrompt ?? '';
   let constitution = '';
   let overlay: string | null = null;
-  try {
-    const result = readConstitutionWithOverlay(opts?.assistantId);
-    constitution = result.constitution ?? '';
-    overlay = result.overlay;
-  } catch (err) {
-    console.error('[composePrompt] readConstitutionWithOverlay failed', err);
+  const service = getConstitutionFsService();
+  const capability = service.capability();
+  if (capability.supported) {
+    // Authority failures on supported platforms are terminal. Continuing with
+    // the Constitution silently omitted would change agent behavior precisely
+    // when integrity, key, or reconciliation state is untrusted.
+    const result = service.readWithOverlay(opts?.assistantId);
+    constitution = result.constitution.status === 'present' ? result.constitution.content : '';
+    overlay = result.overlay?.status === 'present' ? result.overlay.content : null;
+  } else if (capability.supported === false) {
+    console.warn(`[composePrompt] Constitution unavailable: ${capability.reason}`);
   }
   const parts = [constitution, overlay ?? '', basePrompt].filter((p) => p && p.length > 0);
   const text = parts.join('\n\n---\n\n');
@@ -58,5 +65,6 @@ export function composePrompt(opts?: ComposePromptOptions): ComposedPrompt {
     approxTokens,
     anthropicCacheControl: cacheControl,
     hadOverlay: overlay !== null,
+    constitutionSupported: capability.supported,
   };
 }

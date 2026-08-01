@@ -27,7 +27,10 @@ vi.mock('@process/services/i18n', () => ({
 vi.mock('@process/utils/message', () => ({ addMessage: vi.fn() }));
 vi.mock('@/common', () => ({
   ipcBridge: {
-    conversation: { responseStream: { emit: vi.fn() } },
+    conversation: {
+      responseStream: { emit: vi.fn() },
+      listChanged: { emit: vi.fn() },
+    },
   },
 }));
 vi.mock('@process/utils/initStorage', () => ({
@@ -37,6 +40,20 @@ vi.mock('@process/utils/initStorage', () => ({
 vi.mock('@/process/services/cron/cronSkillFile', () => ({
   writeCronSkillFile: vi.fn(async () => '/mock/cronSkills/job-id/SKILL.md'),
   deleteCronSkillFile: vi.fn(async () => {}),
+}));
+vi.mock('@/process/services/cron/cronArchive', () => ({
+  archiveCronJob: vi.fn(async (job: CronJob) => ({
+    archiveId: `archive-${job.id}`,
+    archivedAt: 2000,
+    job,
+    skillPresent: true,
+  })),
+  listArchivedCronJobs: vi.fn(async () => []),
+  markCronArchiveAborted: vi.fn(async () => {}),
+  markCronArchiveRestored: vi.fn(async () => {}),
+  preserveRemovedCronSkill: vi.fn(async () => {}),
+  restoreCronSkillFromArchive: vi.fn(),
+  rollbackRestoredCronSkill: vi.fn(async () => {}),
 }));
 
 import { CronService } from '../../src/process/services/cron/CronService';
@@ -158,6 +175,8 @@ describe('CronService', () => {
 
     await service.init();
 
+    const { archiveCronJob } = await import('@/process/services/cron/cronArchive');
+    expect(archiveCronJob).toHaveBeenCalledWith(job);
     expect(repo.delete).toHaveBeenCalledWith('orphan');
     expect(emitter.emitJobRemoved).toHaveBeenCalledWith('orphan');
   });
@@ -298,17 +317,153 @@ describe('CronService', () => {
   // --- removeJob ---
 
   it('removeJob stops timer and emits jobRemoved', async () => {
+    vi.mocked(repo.getById).mockReturnValue(makeJob());
     await service.removeJob('job-1');
 
     expect(repo.delete).toHaveBeenCalledWith('job-1');
     expect(emitter.emitJobRemoved).toHaveBeenCalledWith('job-1');
   });
 
-  it('removeJob cleans up SKILL.md file', async () => {
-    const { deleteCronSkillFile } = await import('@/process/services/cron/cronSkillFile');
+  it('removeJob publishes an archive and preserves the original skill directory', async () => {
+    const { archiveCronJob, preserveRemovedCronSkill } = await import('@/process/services/cron/cronArchive');
+    const job = makeJob();
+    vi.mocked(repo.getById).mockReturnValue(job);
     await service.removeJob('job-1');
 
-    expect(deleteCronSkillFile).toHaveBeenCalledWith('job-1');
+    expect(archiveCronJob).toHaveBeenCalledWith(job);
+    expect(preserveRemovedCronSkill).toHaveBeenCalledWith('archive-job-1', 'job-1');
+  });
+
+  it('removeJob preserves completed new-conversation runs and detaches schedule grouping', async () => {
+    const scheduledJob = makeJob({
+      id: 'job-reports',
+      name: 'Daily report',
+      target: {
+        payload: { kind: 'message', text: 'Create the report' },
+        executionMode: 'new_conversation',
+      },
+    });
+    const completedRun = {
+      id: 'conv-report-1',
+      source: 'wayland',
+      extra: {
+        cronJobId: 'job-reports',
+        workspace: '/workspace/reports/daily',
+        customField: 'kept',
+      },
+    } as never;
+    vi.mocked(repo.getById).mockReturnValue(scheduledJob);
+    vi.mocked(conversationRepo.getConversationsByCronJob).mockResolvedValue([completedRun]);
+
+    await service.removeJob('job-reports');
+
+    expect(conversationRepo.deleteConversation).not.toHaveBeenCalled();
+    expect(conversationRepo.updateConversation).toHaveBeenCalledWith(
+      'conv-report-1',
+      expect.objectContaining({
+        extra: expect.objectContaining({
+          workspace: '/workspace/reports/daily',
+          customField: 'kept',
+          archivedCronOrigin: expect.objectContaining({
+            id: 'job-reports',
+            name: 'Daily report',
+            detachedAt: expect.any(Number),
+          }),
+        }),
+      })
+    );
+    expect(conversationRepo.updateConversation).toHaveBeenCalledWith(
+      'conv-report-1',
+      expect.not.objectContaining({
+        extra: expect.objectContaining({ cronJobId: expect.anything() }),
+      })
+    );
+  });
+
+  it('removeJob retains the live schedule and restarts its timer when archive publication fails', async () => {
+    const { archiveCronJob } = await import('@/process/services/cron/cronArchive');
+    const job = makeJob();
+    vi.mocked(repo.getById).mockReturnValue(job);
+    vi.mocked(archiveCronJob).mockRejectedValueOnce(new Error('archive unavailable'));
+
+    await expect(service.removeJob(job.id)).rejects.toThrow('archive unavailable');
+
+    expect(repo.delete).not.toHaveBeenCalled();
+    expect(repo.update).toHaveBeenCalledWith(job.id, expect.objectContaining({ state: expect.any(Object) }));
+    expect(emitter.emitJobRemoved).not.toHaveBeenCalled();
+  });
+
+  it('removeJob retains the live schedule and marks the archive aborted when database deletion fails', async () => {
+    const { markCronArchiveAborted } = await import('@/process/services/cron/cronArchive');
+    const job = makeJob();
+    vi.mocked(repo.getById).mockReturnValue(job);
+    vi.mocked(repo.delete).mockRejectedValueOnce(new Error('database busy'));
+
+    await expect(service.removeJob(job.id)).rejects.toThrow('database busy');
+
+    expect(markCronArchiveAborted).toHaveBeenCalledWith('archive-job-1');
+    expect(repo.update).toHaveBeenCalledWith(job.id, expect.objectContaining({ state: expect.any(Object) }));
+    expect(emitter.emitJobRemoved).not.toHaveBeenCalled();
+  });
+
+  it('restoreArchivedJob restores the definition paused and retires the archive', async () => {
+    const { listArchivedCronJobs, restoreCronSkillFromArchive, markCronArchiveRestored } =
+      await import('@/process/services/cron/cronArchive');
+    const archivedJob = makeJob({ id: 'cron_restore', enabled: true });
+    const summary = {
+      archiveId: 'archive-restore',
+      archivedAt: 2000,
+      job: archivedJob,
+      skillPresent: true,
+    };
+    vi.mocked(listArchivedCronJobs).mockResolvedValueOnce([summary]);
+    vi.mocked(repo.getById).mockReturnValue(null);
+    vi.mocked(restoreCronSkillFromArchive).mockResolvedValueOnce({
+      archive: {
+        ...summary,
+        archiveDir: '/archive/archive-restore',
+        archivedSkillDir: '/archive/archive-restore/skill',
+        skillTreeSha256: 'hash',
+      },
+      skillRestored: true,
+    });
+
+    const restored = await service.restoreArchivedJob('archive-restore');
+
+    expect(restored.enabled).toBe(false);
+    expect(restored.state.nextRunAtMs).toBeUndefined();
+    expect(repo.insert).toHaveBeenCalledWith(expect.objectContaining({ id: archivedJob.id, enabled: false }));
+    expect(markCronArchiveRestored).toHaveBeenCalledWith('archive-restore');
+    expect(emitter.emitJobCreated).toHaveBeenCalledWith(restored);
+  });
+
+  it('restoreArchivedJob preserves restored skill bytes when database insertion fails', async () => {
+    const { listArchivedCronJobs, restoreCronSkillFromArchive, rollbackRestoredCronSkill } =
+      await import('@/process/services/cron/cronArchive');
+    const archivedJob = makeJob({ id: 'cron_restore_failed' });
+    const summary = {
+      archiveId: 'archive-failed',
+      archivedAt: 2000,
+      job: archivedJob,
+      skillPresent: true,
+    };
+    vi.mocked(listArchivedCronJobs).mockResolvedValueOnce([summary]);
+    vi.mocked(repo.getById).mockReturnValue(null);
+    vi.mocked(restoreCronSkillFromArchive).mockResolvedValueOnce({
+      archive: {
+        ...summary,
+        archiveDir: '/archive/archive-failed',
+        archivedSkillDir: '/archive/archive-failed/skill',
+        skillTreeSha256: 'hash',
+      },
+      skillRestored: true,
+    });
+    vi.mocked(repo.insert).mockRejectedValueOnce(new Error('insert failed'));
+
+    await expect(service.restoreArchivedJob('archive-failed')).rejects.toThrow('insert failed');
+
+    expect(rollbackRestoredCronSkill).toHaveBeenCalledWith('archive-failed', archivedJob.id);
+    expect(emitter.emitJobCreated).not.toHaveBeenCalled();
   });
 
   // --- executeJob (via startTimer interval) ---
@@ -328,11 +483,12 @@ describe('CronService', () => {
     // Advance exactly one interval period to fire the timer once.
     await vi.advanceTimersByTimeAsync(60000);
 
-    expect(executor.executeJob).toHaveBeenCalledWith(job, expect.any(Function), undefined);
+    expect(executor.executeJob).toHaveBeenCalledWith(job, expect.any(Function), undefined, expect.any(Number));
+    const triggeredAt = vi.mocked(executor.executeJob).mock.calls[0][3];
     expect(repo.update).toHaveBeenCalledWith(
       'j1',
       expect.objectContaining({
-        state: expect.objectContaining({ lastStatus: 'ok' }),
+        state: expect.objectContaining({ lastStatus: 'ok', lastRunAtMs: triggeredAt }),
       })
     );
     expect(emitter.emitJobUpdated).toHaveBeenCalledWith(updatedJob);

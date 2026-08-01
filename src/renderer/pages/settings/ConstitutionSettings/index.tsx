@@ -4,23 +4,55 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Button } from '@arco-design/web-react';
+import { Button, Input } from '@arco-design/web-react';
 import { RotateCcw } from 'lucide-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
+import { useAuth } from '@/renderer/hooks/context/AuthContext';
+import { DEFAULT_CONSTITUTION } from '@/common/constitutionDefault';
 import { isElectronDesktop } from '@renderer/utils/platform';
 import {
   readConstitutionHttp,
   resetConstitutionHttp,
+  runDesktopConstitutionMutation,
+  runDesktopConstitutionRead,
   writeConstitutionHttp,
+  type ConstitutionEditGrant,
+  type ConstitutionMutationResult,
+  type ConstitutionReadResult,
 } from '@renderer/services/ConstitutionService';
-import type { SaveState } from '@renderer/components/settings/shared/feedback/SavedIndicator';
 import SettingsPageShell from '@renderer/pages/settings/components/SettingsPageShell';
 import TipTapMarkdownEditor from '@renderer/pages/conversation/Preview/components/editors/TipTapMarkdownEditor';
+import HostedEditAuthorization from './HostedEditAuthorization';
+import ConstitutionClassicRecovery from './ConstitutionClassicRecovery';
+import ConstitutionRecovery from './ConstitutionRecovery';
 import SpecialistOverlays from './SpecialistOverlays';
+import {
+  abandonConstitutionSingleShotMutation,
+  beginConstitutionSingleShotMutation,
+  completeConstitutionSingleShotMutation,
+  constitutionAutosaveDraftKey,
+  constitutionMutationContentDigest,
+  constitutionMutationRequestFingerprint,
+  constitutionSingleShotMutationKey,
+  readConstitutionSingleShotMutation,
+  readSerializedAutosaveDraft,
+  resolveConstitutionSingleShotContent,
+  useSerializedAutosave,
+} from './useSerializedAutosave';
 
 type TocEntry = { id: string; text: string; level: number };
+type ConflictSnapshot = {
+  baseContent: string | null;
+  localDraft: string;
+  remote: ConstitutionReadResult;
+};
+type ResetOutcome = {
+  content?: string;
+  revision: string;
+  reloadError?: string;
+};
 
 const SAVE_DEBOUNCE_MS = 500;
 const SAVED_FLASH_MS = 1500;
@@ -63,97 +95,330 @@ const parseToc = (markdown: string): TocEntry[] => {
 const ConstitutionSettings: React.FC = () => {
   const { t } = useTranslation();
   const isMobile = useLayoutContext()?.isMobile ?? false;
+  const isDesktop = isElectronDesktop();
+  const { user } = useAuth();
+  const draftKey = constitutionAutosaveDraftKey('main', isDesktop, user?.id);
 
   const [value, setValue] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [saveState, setSaveState] = useState<SaveState>('idle');
+  const [loadState, setLoadState] = useState<'loading' | 'present' | 'absent' | 'error'>('loading');
+  const [readError, setReadError] = useState<string | null>(null);
+  const revision = useRef<string | null>(null);
+  const baseContent = useRef<string | null>(null);
+  const [reloadToken, setReloadToken] = useState(0);
+  const [conflict, setConflict] = useState(false);
+  const [conflictSnapshot, setConflictSnapshot] = useState<ConflictSnapshot | null>(null);
+  const [conflictBusy, setConflictBusy] = useState(false);
+  const [conflictError, setConflictError] = useState<string | null>(null);
+  const [editGrant, setEditGrant] = useState<ConstitutionEditGrant | null>(null);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetting, setResetting] = useState(false);
   /** Bumped on Reset to force the TipTap editor to remount with new content. */
   const [editorKey, setEditorKey] = useState(0);
 
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const savedFlashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** While true, onChange events from the editor are ignored (initial hydrate / reset). */
   const hydrating = useRef(true);
   const editorRoot = useRef<HTMLDivElement>(null);
 
+  const readCurrentConstitution = useCallback(async (): Promise<ConstitutionReadResult> => {
+    if (!isDesktop) return readConstitutionHttp();
+    const api = window.electronAPI;
+    if (!api?.readConstitution) throw new Error('Constitution reading is unavailable.');
+    return runDesktopConstitutionRead(() => api.readConstitution!());
+  }, [isDesktop]);
+
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const api = window.electronAPI;
-      let text: string;
-      if (isElectronDesktop() && api?.readConstitution && api?.resetConstitution) {
-        text = await api.readConstitution();
-        if (!text) {
-          // First-install seed: materialize the default Constitution to disk
-          // so the editor isn't blank on a brand-new install.
-          text = await api.resetConstitution();
+      setLoadState('loading');
+      setReadError(null);
+      hydrating.current = true;
+      try {
+        const read = await readCurrentConstitution();
+        if (cancelled) return;
+        if (read.state === 'absent') {
+          setValue('');
+          revision.current = read.revision;
+          baseContent.current = null;
+          setConflict(false);
+          setConflictSnapshot(null);
+          setLoadState('absent');
+          return;
         }
-      } else {
-        // Headless WebUI: the constitution is not a secret, so read it over the
-        // token-authed GET. Seed the default on first install via reset, then
-        // re-read since reset returns status only (never the body).
-        text = await readConstitutionHttp();
-        if (!text && (await resetConstitutionHttp())) {
-          text = await readConstitutionHttp();
-        }
+        revision.current = read.revision;
+        baseContent.current = read.content;
+        setConflict(false);
+        setConflictSnapshot(null);
+        setValue((draftKey ? readSerializedAutosaveDraft(draftKey) : null) ?? read.content);
+        setLoadState('present');
+        // Allow one tick for TipTap to settle its mount before we start
+        // treating onChange events as user edits.
+        window.setTimeout(() => {
+          hydrating.current = false;
+        }, 50);
+      } catch (error) {
+        if (cancelled) return;
+        setReadError(error instanceof Error ? error.message : 'The Constitution could not be loaded.');
+        setLoadState('error');
       }
-      if (cancelled) return;
-      setValue(text);
-      setLoading(false);
-      // Allow one tick for TipTap to settle its mount before we start
-      // treating onChange events as user edits.
-      window.setTimeout(() => {
-        hydrating.current = false;
-      }, 50);
     })();
     return () => {
       cancelled = true;
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);
     };
-  }, []);
+  }, [draftKey, readCurrentConstitution, reloadToken]);
 
-  const handleChange = useCallback((md: string): void => {
-    setValue(md);
-    if (hydrating.current) return;
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    setSaveState('saving');
-    saveTimer.current = setTimeout(async () => {
-      const ok = isElectronDesktop()
-        ? ((await window.electronAPI?.writeConstitution?.(md)) ?? false)
-        : await writeConstitutionHttp(md);
-      setSaveState(ok ? 'saved' : 'error');
-      if (ok) {
-        if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);
-        savedFlashTimer.current = setTimeout(() => setSaveState('idle'), SAVED_FLASH_MS);
+  const saveConstitution = useCallback(
+    async (md: string, expectedRevision: string, requestId: string): Promise<ConstitutionMutationResult> => {
+      if (isDesktop) {
+        const api = window.electronAPI;
+        if (!api?.writeConstitution) return { ok: false, reason: 'request_failed', status: 0 };
+        return runDesktopConstitutionMutation(() => api.writeConstitution!(md, expectedRevision, requestId));
       }
-    }, SAVE_DEBOUNCE_MS);
-  }, []);
+      if (!editGrant) return { ok: false, reason: 'authorization_required', status: 401 };
+      return writeConstitutionHttp(md, expectedRevision, editGrant.token, requestId);
+    },
+    [editGrant, isDesktop]
+  );
+
+  const { saveState, isDirty, queueSave, retry, clear, runExclusiveDestructive } = useSerializedAutosave({
+    enabled: isDesktop || editGrant !== null,
+    debounceMs: SAVE_DEBOUNCE_MS,
+    savedFlashMs: SAVED_FLASH_MS,
+    target: { kind: 'constitution' },
+    getExpectedRevision: () => revision.current,
+    save: saveConstitution,
+    onAuthorizationRequired: () => setEditGrant(null),
+    onConflict: () => setConflict(true),
+    onCommitted: (result, savedValue) => {
+      revision.current = result.revision;
+      baseContent.current = savedValue;
+      setConflict(false);
+      setConflictSnapshot(null);
+    },
+    draftKey: draftKey ?? undefined,
+  });
+
+  const handleChange = useCallback(
+    (md: string): void => {
+      setValue(md);
+      if (hydrating.current) return;
+      queueSave(md);
+    },
+    [queueSave]
+  );
+
+  const loadConflictComparison = useCallback(async (): Promise<void> => {
+    setConflictBusy(true);
+    setConflictError(null);
+    try {
+      const remote = await readCurrentConstitution();
+      setConflictSnapshot({ baseContent: baseContent.current, localDraft: value, remote });
+    } catch (error) {
+      setConflictError(error instanceof Error ? error.message : 'The server copy could not be loaded.');
+    } finally {
+      setConflictBusy(false);
+    }
+  }, [readCurrentConstitution, value]);
+
+  const useServerCopy = useCallback((): void => {
+    if (!conflictSnapshot) return;
+    hydrating.current = true;
+    clear();
+    revision.current = conflictSnapshot.remote.revision;
+    if (conflictSnapshot.remote.state === 'present') {
+      baseContent.current = conflictSnapshot.remote.content;
+      setValue(conflictSnapshot.remote.content);
+      setLoadState('present');
+    } else {
+      baseContent.current = null;
+      setValue('');
+      setLoadState('absent');
+    }
+    setConflict(false);
+    setConflictSnapshot(null);
+    setConflictError(null);
+    setEditorKey((key) => key + 1);
+    window.setTimeout(() => {
+      hydrating.current = false;
+    }, 50);
+  }, [clear, conflictSnapshot]);
+
+  const overwriteServerCopy = useCallback(async (): Promise<void> => {
+    if (!conflictSnapshot || (!isDesktop && !editGrant)) return;
+    setConflictBusy(true);
+    setConflictError(null);
+    try {
+      const result = await runExclusiveDestructive(async () => {
+        const operationKey = constitutionSingleShotMutationKey('overwrite', 'constitution', isDesktop, user?.id);
+        if (!operationKey) throw new Error('A signed-in user is required to persist this operation safely.');
+        if (!draftKey) throw new Error('The Constitution draft does not have a durable principal-scoped location.');
+        const operation =
+          readConstitutionSingleShotMutation(operationKey) ??
+          beginConstitutionSingleShotMutation(operationKey, {
+            action: 'overwrite',
+            target: 'constitution',
+            expectedRevision: conflictSnapshot.remote.revision,
+            contentDigest: constitutionMutationContentDigest(conflictSnapshot.localDraft),
+            requestFingerprint: constitutionMutationRequestFingerprint(
+              { kind: 'constitution' },
+              conflictSnapshot.localDraft,
+              conflictSnapshot.remote.revision
+            ),
+            draftKey,
+          });
+        if (operation.action !== 'overwrite') {
+          throw new Error('The pending Constitution operation has the wrong action.');
+        }
+        const operationContent = resolveConstitutionSingleShotContent(operation);
+        const mutation = isDesktop
+          ? window.electronAPI?.writeConstitution
+            ? await runDesktopConstitutionMutation(() =>
+                window.electronAPI!.writeConstitution!(
+                  operationContent,
+                  operation.expectedRevision,
+                  operation.requestId
+                )
+              )
+            : ({ ok: false, reason: 'request_failed', status: 0 } as const)
+          : await writeConstitutionHttp(
+              operationContent,
+              operation.expectedRevision,
+              editGrant!.token,
+              operation.requestId
+            );
+        if (mutation.ok) completeConstitutionSingleShotMutation(operationKey, mutation);
+        else if ('reason' in mutation && mutation.reason === 'conflict') {
+          abandonConstitutionSingleShotMutation(operationKey, operation.requestId, operation.requestFingerprint);
+        }
+        return { committed: mutation.ok, value: mutation };
+      });
+      if (result.value.ok === false) {
+        if (result.value.reason === 'authorization_required') setEditGrant(null);
+        if (result.value.reason === 'conflict') setConflictSnapshot(null);
+        setConflictError(
+          result.value.reason === 'conflict'
+            ? 'The server changed again. Load a fresh comparison before choosing an overwrite.'
+            : 'The overwrite was not committed. Your draft is still preserved.'
+        );
+        return;
+      }
+      revision.current = result.value.revision;
+      baseContent.current = conflictSnapshot.localDraft;
+      setValue(conflictSnapshot.localDraft);
+      setConflict(false);
+      setConflictSnapshot(null);
+      setConflictError(null);
+      setLoadState('present');
+    } catch (error) {
+      setConflictError(error instanceof Error ? error.message : 'The overwrite could not be completed.');
+    } finally {
+      setConflictBusy(false);
+    }
+  }, [conflictSnapshot, draftKey, editGrant, isDesktop, runExclusiveDestructive, user?.id]);
 
   const handleReset = useCallback(async (): Promise<void> => {
-    let next: string | undefined;
-    if (isElectronDesktop()) {
-      next = await window.electronAPI?.resetConstitution?.();
-    } else if (await resetConstitutionHttp()) {
-      // Reset returns status only; re-read the restored prose over the GET.
-      next = await readConstitutionHttp();
-    }
-    if (typeof next !== 'string') return;
     hydrating.current = true;
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    setValue(next);
-    setEditorKey((k) => k + 1);
-    setShowResetConfirm(false);
-    setSaveState('saved');
-    if (savedFlashTimer.current) clearTimeout(savedFlashTimer.current);
-    savedFlashTimer.current = setTimeout(() => {
+    setResetting(true);
+    let reset: { committed: boolean; value: ResetOutcome | undefined };
+    try {
+      reset = await runExclusiveDestructive<ResetOutcome | undefined>(async () => {
+        if (!revision.current) return { committed: false, value: undefined };
+        const operationKey = constitutionSingleShotMutationKey('reset', 'constitution', isDesktop, user?.id);
+        if (!operationKey) throw new Error('A signed-in user is required to persist this operation safely.');
+        const operation =
+          readConstitutionSingleShotMutation(operationKey) ??
+          beginConstitutionSingleShotMutation(operationKey, {
+            action: 'reset',
+            target: 'constitution',
+            expectedRevision: revision.current,
+            requestFingerprint: constitutionMutationRequestFingerprint(
+              { kind: 'constitution' },
+              DEFAULT_CONSTITUTION,
+              revision.current
+            ),
+          });
+        if (operation.action !== 'reset') throw new Error('The pending Constitution operation has the wrong action.');
+        let result: ConstitutionMutationResult;
+        if (isDesktop) {
+          const api = window.electronAPI;
+          result = api?.resetConstitution
+            ? await runDesktopConstitutionMutation(() =>
+                api.resetConstitution!(operation.expectedRevision, operation.requestId)
+              )
+            : { ok: false, reason: 'request_failed', status: 0 };
+        } else {
+          result = await resetConstitutionHttp(resetPassword, operation.expectedRevision, operation.requestId);
+        }
+        if (result.ok === false) {
+          if (result.reason === 'conflict') {
+            abandonConstitutionSingleShotMutation(operationKey, operation.requestId, operation.requestFingerprint);
+          }
+          if (result.reason === 'conflict') setConflict(true);
+          return { committed: false, value: undefined };
+        }
+        completeConstitutionSingleShotMutation(operationKey, result);
+        // The receipt proves the reset committed. A failed follow-up read must
+        // never resurrect the pre-reset dirty draft and overwrite that commit.
+        try {
+          const reread = await readCurrentConstitution();
+          if (reread.state === 'present') {
+            return { committed: true, value: { content: reread.content, revision: reread.revision } };
+          }
+          return {
+            committed: true,
+            value: {
+              revision: reread.revision,
+              reloadError: 'Reset committed, but the restored content is not available yet. Retry load.',
+            },
+          };
+        } catch (error) {
+          return {
+            committed: true,
+            value: {
+              revision: result.revision,
+              reloadError:
+                error instanceof Error
+                  ? `Reset committed, but content reload failed: ${error.message}`
+                  : 'Reset committed, but content reload failed. Retry load.',
+            },
+          };
+        }
+      });
+    } catch (error) {
+      setReadError(error instanceof Error ? error.message : 'The restored Constitution could not be read.');
+      setLoadState('error');
+      reset = { committed: false, value: undefined };
+    } finally {
+      setResetting(false);
+    }
+    const outcome = reset.value;
+    if (!reset.committed || !outcome) {
       hydrating.current = false;
-      setSaveState('idle');
+      return;
+    }
+    revision.current = outcome.revision;
+    baseContent.current = outcome.content ?? null;
+    setValue(outcome.content ?? '');
+    setLoadState(outcome.reloadError ? 'error' : 'present');
+    setReadError(outcome.reloadError ?? null);
+    if (!outcome.reloadError) setEditorKey((k) => k + 1);
+    setShowResetConfirm(false);
+    setResetPassword('');
+    window.setTimeout(() => {
+      hydrating.current = false;
     }, SAVED_FLASH_MS);
-  }, []);
+  }, [isDesktop, readCurrentConstitution, resetPassword, runExclusiveDestructive, user?.id]);
 
   const toc = useMemo(() => parseToc(value), [value]);
+  const recoveryPrincipalScope = isDesktop ? 'desktop-installation' : user?.id ? `hosted:${user.id}` : null;
+
+  const handleArchiveRestored = useCallback((): void => {
+    hydrating.current = true;
+    setConflict(false);
+    setConflictSnapshot(null);
+    setReadError(null);
+    setReloadToken((token) => token + 1);
+  }, []);
 
   // Token estimate uses the same heuristic as composePrompt so the
   // user-visible number matches what the backend composer estimates.
@@ -161,11 +426,7 @@ const ConstitutionSettings: React.FC = () => {
   const tokenLevel: 'ok' | 'warning' | 'error' =
     approxTokens >= 3000 ? 'error' : approxTokens >= 2000 ? 'warning' : 'ok';
   const tokenCountClass =
-    tokenLevel === 'error'
-      ? 'text-danger'
-      : tokenLevel === 'warning'
-        ? 'text-warning'
-        : 'text-t-tertiary';
+    tokenLevel === 'error' ? 'text-danger' : tokenLevel === 'warning' ? 'text-warning' : 'text-t-tertiary';
 
   const scrollToHeading = useCallback((id: string, text: string): void => {
     const root = editorRoot.current;
@@ -189,25 +450,35 @@ const ConstitutionSettings: React.FC = () => {
   }, []);
 
   const resetAction = (
-    <Button
-      type='secondary'
-      size='small'
-      icon={<RotateCcw size={14} />}
-      onClick={() => setShowResetConfirm(true)}
-      title={t('settings.constitutionPage.resetTooltip', 'Reset to the default Constitution')}
-    >
-      {t('settings.constitutionPage.reset', 'Reset')}
-    </Button>
+    <div className='flex items-center gap-8px'>
+      {!isDesktop && !editGrant && (
+        <HostedEditAuthorization scopes={['constitution.write']} onGranted={setEditGrant} compact />
+      )}
+      {saveState === 'error' && (
+        <Button type='secondary' size='small' onClick={retry}>
+          {t('settings.constitutionPage.retrySave', 'Retry save')}
+        </Button>
+      )}
+      <Button
+        type='secondary'
+        size='small'
+        icon={<RotateCcw size={14} />}
+        onClick={() => setShowResetConfirm(true)}
+        title={t('settings.constitutionPage.resetTooltip', 'Reset to the default Constitution')}
+      >
+        {t('settings.constitutionPage.reset', 'Reset')}
+      </Button>
+    </div>
   );
 
   return (
     <SettingsPageShell
       title={t('settings.sider.constitution', 'Constitution')}
       subtitle={t('settings.constitutionPage.subtitle', FALLBACK_SUBTITLE)}
-      actions={resetAction}
+      actions={loadState === 'present' ? resetAction : null}
       savedIndicator={saveState}
     >
-      {showResetConfirm && (
+      {showResetConfirm && loadState !== 'loading' && loadState !== 'error' && (
         <div className='border border-solid border-[var(--color-border-2)] rd-12px p-12px flex flex-col gap-8px bg-[var(--color-bg-2)]'>
           <div className='text-14px text-t-primary font-medium'>
             {t('settings.constitutionPage.resetConfirmTitle', 'Reset Constitution?')}
@@ -218,24 +489,133 @@ const ConstitutionSettings: React.FC = () => {
               'Your current edits will be lost. The default Constitution will be restored.'
             )}
           </div>
+          {!isDesktop && (
+            <Input.Password
+              value={resetPassword}
+              onChange={setResetPassword}
+              placeholder={t('settings.constitutionPage.passwordPlaceholder', 'WebUI password')}
+              autoComplete='current-password'
+            />
+          )}
           <div className='flex gap-8px justify-end'>
             <Button size='small' onClick={() => setShowResetConfirm(false)}>
               {t('settings.constitutionPage.resetCancel', 'Cancel')}
             </Button>
-            <Button size='small' type='primary' status='danger' onClick={handleReset}>
+            <Button
+              size='small'
+              type='primary'
+              status='danger'
+              disabled={resetting || (!isDesktop && !resetPassword)}
+              loading={resetting}
+              onClick={handleReset}
+            >
               {t('settings.constitutionPage.reset', 'Reset')}
             </Button>
           </div>
         </div>
       )}
 
-      {loading ? (
-        <div className='text-t-secondary p-16px'>
-          {t('settings.constitutionPage.loading', 'Loading…')}
+      {loadState === 'loading' ? (
+        <div className='text-t-secondary p-16px'>{t('settings.constitutionPage.loading', 'Loading…')}</div>
+      ) : loadState === 'error' ? (
+        <div className='rd-10px border border-solid border-[var(--color-danger-light-4)] bg-[var(--color-danger-light-1)] p-16px flex flex-col items-start gap-10px'>
+          <div className='text-14px font-medium text-t-primary'>
+            {t('settings.constitutionPage.readErrorTitle', 'Constitution unavailable')}
+          </div>
+          <div className='text-12px text-t-secondary'>
+            {readError ?? t('settings.constitutionPage.readErrorBody', 'The existing file was not changed.')}
+          </div>
+          <Button type='secondary' size='small' onClick={() => setReloadToken((token) => token + 1)}>
+            {t('settings.constitutionPage.retryRead', 'Retry load')}
+          </Button>
+        </div>
+      ) : loadState === 'absent' ? (
+        <div className='rd-10px border border-solid border-[var(--color-border-2)] bg-fill-1 p-16px flex flex-col items-start gap-10px'>
+          <div className='text-14px font-medium text-t-primary'>
+            {t('settings.constitutionPage.absentTitle', 'No Constitution exists yet')}
+          </div>
+          <div className='text-12px text-t-secondary'>
+            {t(
+              'settings.constitutionPage.absentBody',
+              'Nothing was created automatically. Initialize the default only when you are ready.'
+            )}
+          </div>
+          <Button type='primary' size='small' onClick={() => setShowResetConfirm(true)}>
+            {t('settings.constitutionPage.initializeDefault', 'Initialize default')}
+          </Button>
         </div>
       ) : (
         <div className={isMobile ? 'flex flex-col gap-16px items-stretch' : 'flex gap-16px items-start'}>
           <div className='flex-1 min-w-0 flex flex-col gap-8px'>
+            {!isDesktop && !editGrant && (
+              <div className='flex items-center justify-between gap-12px rd-8px bg-fill-2 px-12px py-10px'>
+                <span className='text-12px text-t-secondary'>
+                  {t(
+                    'settings.constitutionPage.authorizationRequired',
+                    'Editing is locked. Unlock once to enable short-lived, scoped autosave.'
+                  )}
+                </span>
+                <HostedEditAuthorization scopes={['constitution.write']} onGranted={setEditGrant} compact />
+              </div>
+            )}
+            {conflict && (
+              <div className='flex flex-col gap-10px rd-8px bg-[var(--color-warning-light-1)] px-12px py-10px'>
+                <div className='flex items-center justify-between gap-12px'>
+                  <span className='text-12px text-t-secondary'>
+                    {t(
+                      'settings.constitutionPage.conflict',
+                      'The server copy changed. Your draft is preserved until you explicitly choose which copy wins.'
+                    )}
+                  </span>
+                  {!conflictSnapshot && (
+                    <Button
+                      type='secondary'
+                      size='small'
+                      loading={conflictBusy}
+                      onClick={() => void loadConflictComparison()}
+                    >
+                      {t('settings.constitutionPage.reloadForConflict', 'Load comparison')}
+                    </Button>
+                  )}
+                </div>
+                {conflictError && <div className='text-11px text-danger'>{conflictError}</div>}
+                {conflictSnapshot && (
+                  <div className='flex flex-col gap-10px'>
+                    <div className={isMobile ? 'grid grid-cols-1 gap-8px' : 'grid grid-cols-3 gap-8px'}>
+                      {[
+                        ['Previous base', conflictSnapshot.baseContent ?? '(no file)'],
+                        ['Your draft', conflictSnapshot.localDraft],
+                        [
+                          'Current server',
+                          conflictSnapshot.remote.state === 'present' ? conflictSnapshot.remote.content : '(no file)',
+                        ],
+                      ].map(([label, content]) => (
+                        <div key={label} className='rd-8px bg-[var(--color-bg-2)] p-8px min-w-0'>
+                          <div className='text-11px font-medium text-t-primary mb-4px'>{label}</div>
+                          <pre className='m-0 max-h-160px overflow-auto whitespace-pre-wrap break-words text-11px text-t-secondary font-mono'>
+                            {content}
+                          </pre>
+                        </div>
+                      ))}
+                    </div>
+                    <div className='flex justify-end gap-8px'>
+                      <Button type='secondary' size='small' disabled={conflictBusy} onClick={useServerCopy}>
+                        {t('settings.constitutionPage.useServerCopy', 'Use server copy')}
+                      </Button>
+                      <Button
+                        type='primary'
+                        size='small'
+                        disabled={conflictBusy || (!isDesktop && !editGrant)}
+                        loading={conflictBusy}
+                        onClick={() => void overwriteServerCopy()}
+                      >
+                        {t('settings.constitutionPage.overwriteServerCopy', 'Overwrite with my draft')}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             <div className='flex flex-col gap-2px'>
               <span className={`text-12px font-medium ${tokenCountClass}`}>
                 {t('settings.constitutionPage.tokenCount', '{{value}} tokens', {
@@ -260,7 +640,12 @@ const ConstitutionSettings: React.FC = () => {
               )}
             </div>
             <div ref={editorRoot}>
-              <TipTapMarkdownEditor key={editorKey} value={value} onChange={handleChange} />
+              <TipTapMarkdownEditor
+                key={editorKey}
+                value={value}
+                onChange={handleChange}
+                readOnly={conflict || resetting || (!isDesktop && !editGrant) || (showResetConfirm && isDirty)}
+              />
             </div>
           </div>
           <aside
@@ -304,7 +689,23 @@ const ConstitutionSettings: React.FC = () => {
         </div>
       )}
 
-      {!loading && <SpecialistOverlays />}
+      {loadState !== 'loading' && loadState !== 'error' && revision.current && recoveryPrincipalScope && (
+        <>
+          <ConstitutionClassicRecovery
+            principalScope={recoveryPrincipalScope}
+            executeExclusive={runExclusiveDestructive}
+            onRestored={handleArchiveRestored}
+          />
+          <ConstitutionRecovery
+            expectedRevision={revision.current}
+            principalScope={recoveryPrincipalScope}
+            executeExclusive={runExclusiveDestructive}
+            onRestored={handleArchiveRestored}
+          />
+        </>
+      )}
+
+      {loadState !== 'loading' && <SpecialistOverlays />}
     </SettingsPageShell>
   );
 };

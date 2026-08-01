@@ -12,6 +12,7 @@ const CACHE_META_FILE = 'runtime-meta.json';
 // SHASUMS256.txt for this tag). Bump both in lockstep.
 const PINNED_BUN_VERSION = '1.3.14';
 const SHASUMS_FILE = path.resolve(__dirname, 'bundled-bun-shasums.json');
+const BINARY_AUTHORITY_FILE = path.resolve(__dirname, 'bundled-bun-binaries.json');
 
 function ensureDirectory(dirPath) {
   if (!fs.existsSync(dirPath)) {
@@ -93,10 +94,46 @@ function loadExpectedShaForAsset(version, assetName) {
   return hex;
 }
 
+function loadExpectedBinaryForAsset(version, assetName) {
+  const authority = readJsonSafe(BINARY_AUTHORITY_FILE);
+  const versionKey = normalizeVersionKey(version);
+  const expected = authority?.[versionKey]?.[assetName];
+  if (
+    authority?.contract !== 'wayland-bundled-bun-binaries/1.0' ||
+    !expected ||
+    !Number.isSafeInteger(expected.size) ||
+    expected.size <= 0 ||
+    !/^[0-9a-f]{64}$/.test(expected.sha256 || '')
+  ) {
+    throw new Error(
+      `No trusted extracted-binary authority for Bun asset "${assetName}" ` +
+        `(version "${versionKey}") in ${BINARY_AUTHORITY_FILE}.`
+    );
+  }
+  return { name: assetName.startsWith('bun-windows-') ? 'bun.exe' : 'bun', ...expected };
+}
+
 function computeFileSha256(filePath) {
   const hash = crypto.createHash('sha256');
-  hash.update(fs.readFileSync(filePath));
-  return hash.digest('hex');
+  const descriptor = fs.openSync(filePath, 'r');
+  const buffer = Buffer.allocUnsafe(1024 * 1024);
+  try {
+    let bytesRead;
+    do {
+      bytesRead = fs.readSync(descriptor, buffer, 0, buffer.length, null);
+      if (bytesRead > 0) hash.update(buffer.subarray(0, bytesRead));
+    } while (bytesRead > 0);
+    return hash.digest('hex');
+  } finally {
+    fs.closeSync(descriptor);
+  }
+}
+
+function verifyRuntimeBinary(runtimeDir, expected) {
+  const binaryPath = path.join(runtimeDir, expected.name);
+  if (!fs.existsSync(binaryPath)) return false;
+  const stat = fs.statSync(binaryPath);
+  return stat.isFile() && stat.size === expected.size && computeFileSha256(binaryPath) === expected.sha256;
 }
 
 function verifyArchiveChecksum(archivePath, expectedHex, assetName, version) {
@@ -264,7 +301,7 @@ function writeCacheMeta(cacheRuntimeDir, meta) {
   writeJson(getCacheMetaPath(cacheRuntimeDir), meta);
 }
 
-function isCachedRuntimeValid(cacheRuntimeDir, platform, arch, version, variant = 'default') {
+function isCachedRuntimeValid(cacheRuntimeDir, platform, arch, version, variant = 'default', authorityOverride) {
   const requiredFiles = getRequiredRuntimeFiles(platform);
   const filesOk = requiredFiles.every((fileName) => fs.existsSync(path.join(cacheRuntimeDir, fileName)));
   if (!filesOk) return false;
@@ -273,12 +310,30 @@ function isCachedRuntimeValid(cacheRuntimeDir, platform, arch, version, variant 
   if (!meta) return false;
 
   const metaVariant = meta.variant || 'default';
+  const assetName = getPlatformAsset(platform, arch, variant);
+  if (!assetName) return false;
+  let authority;
+  try {
+    authority = authorityOverride || {
+      asset: assetName,
+      url: getDownloadUrl(assetName, version),
+      archiveSha256: loadExpectedShaForAsset(version, assetName),
+      binary: loadExpectedBinaryForAsset(version, assetName),
+    };
+  } catch {
+    return false;
+  }
   return (
     meta.platform === platform &&
     meta.arch === arch &&
     meta.version === version &&
     metaVariant === variant &&
-    meta.sourceType === 'download'
+    meta.sourceType === 'download' &&
+    meta.source?.asset === authority.asset &&
+    meta.source?.url === authority.url &&
+    meta.source?.sha256 === authority.archiveSha256 &&
+    JSON.stringify(meta.binary) === JSON.stringify(authority.binary) &&
+    verifyRuntimeBinary(cacheRuntimeDir, authority.binary)
   );
 }
 
@@ -309,6 +364,7 @@ function downloadRuntimeIntoCache(cacheRuntimeDir, platform, arch, version, vari
 
   const downloadUrl = getDownloadUrl(assetName, version);
   const expectedSha256 = loadExpectedShaForAsset(version, assetName);
+  const expectedBinary = loadExpectedBinaryForAsset(version, assetName);
   const tempRoot = path.join(os.tmpdir(), 'wayland-bundled-bun', version, `${platform}-${arch}-${variant}`);
   const tempZipPath = path.join(tempRoot, assetName);
   const extractedDir = path.join(tempRoot, 'extracted');
@@ -325,10 +381,16 @@ function downloadRuntimeIntoCache(cacheRuntimeDir, platform, arch, version, vari
   if (!runtimeDir) {
     throw new Error(`Downloaded bun archive does not contain expected files: ${runtimeFiles.join(', ')}`);
   }
+  if (!verifyRuntimeBinary(runtimeDir, expectedBinary)) {
+    throw new Error(`Extracted Bun binary does not match trusted size/SHA-256 authority for ${assetName}.`);
+  }
 
   removeDirectorySafe(cacheRuntimeDir);
   ensureDirectory(cacheRuntimeDir);
   const copied = copyRuntimeFromDirectory(runtimeDir, cacheRuntimeDir, platform);
+  if (!verifyRuntimeBinary(cacheRuntimeDir, expectedBinary)) {
+    throw new Error(`Cached Bun binary does not match trusted size/SHA-256 authority for ${assetName}.`);
+  }
 
   const cacheMeta = {
     platform,
@@ -341,6 +403,7 @@ function downloadRuntimeIntoCache(cacheRuntimeDir, platform, arch, version, vari
       asset: assetName,
       sha256: expectedSha256,
     },
+    binary: expectedBinary,
     updatedAt: new Date().toISOString(),
   };
   writeCacheMeta(cacheRuntimeDir, cacheMeta);
@@ -351,6 +414,7 @@ function downloadRuntimeIntoCache(cacheRuntimeDir, platform, arch, version, vari
     sourceType: 'download',
     source: cacheMeta.source,
     files: copied,
+    binary: expectedBinary,
     cacheMeta,
   };
 }
@@ -368,6 +432,8 @@ function prepareVariant(projectRoot, platform, arch, runtimeVersion, variant) {
 
   let prepareResult = null;
   let cacheMeta = null;
+  const assetName = getPlatformAsset(platform, arch, variant);
+  const expectedBinary = loadExpectedBinaryForAsset(runtimeVersion, assetName);
 
   if (isCachedRuntimeValid(cacheRuntimeDir, platform, arch, runtimeVersion, variant)) {
     cacheMeta = readCacheMeta(cacheRuntimeDir);
@@ -378,6 +444,7 @@ function prepareVariant(projectRoot, platform, arch, runtimeVersion, variant) {
         origin: cacheMeta?.source || {},
       },
       files: copyRuntimeFromDirectory(cacheRuntimeDir, targetDir, platform),
+      binary: expectedBinary,
     };
   } else {
     const downloadResult = downloadRuntimeIntoCache(cacheRuntimeDir, platform, arch, runtimeVersion, variant);
@@ -386,7 +453,12 @@ function prepareVariant(projectRoot, platform, arch, runtimeVersion, variant) {
       sourceType: downloadResult.sourceType,
       source: downloadResult.source,
       files: copyRuntimeFromDirectory(cacheRuntimeDir, targetDir, platform),
+      binary: downloadResult.binary,
     };
+  }
+  if (!verifyRuntimeBinary(targetDir, expectedBinary)) {
+    removeDirectorySafe(targetDir);
+    throw new Error(`Published Bun binary does not match trusted size/SHA-256 authority for ${assetName}.`);
   }
 
   const manifest = {
@@ -400,6 +472,7 @@ function prepareVariant(projectRoot, platform, arch, runtimeVersion, variant) {
     cacheMeta,
     source: prepareResult.source,
     files: prepareResult.files,
+    binary: prepareResult.binary,
     skipped: false,
   };
 
@@ -411,10 +484,16 @@ function prepareVariant(projectRoot, platform, arch, runtimeVersion, variant) {
   return { prepared: true, dir: targetDir, files: prepareResult.files, sourceType: prepareResult.sourceType };
 }
 
-function prepareBundledBun() {
+function resolveBundledBunTarget(options = {}) {
+  return {
+    platform: options.platform || process.platform,
+    arch: options.arch || process.env.npm_config_target_arch || process.arch,
+  };
+}
+
+function prepareBundledBun(options = {}) {
   const projectRoot = path.resolve(__dirname, '..');
-  const platform = process.platform;
-  const arch = process.env.npm_config_target_arch || process.arch;
+  const { platform, arch } = resolveBundledBunTarget(options);
   const runtimeKey = `${platform}-${arch}`;
   const runtimeVersion = getRuntimeVersion();
 
@@ -458,3 +537,6 @@ module.exports = prepareBundledBun;
 // Named helpers exposed for unit tests (the default export stays the function).
 module.exports.needsBaselineVariant = needsBaselineVariant;
 module.exports.getPlatformAsset = getPlatformAsset;
+module.exports.isCachedRuntimeValid = isCachedRuntimeValid;
+module.exports.resolveBundledBunTarget = resolveBundledBunTarget;
+module.exports.verifyRuntimeBinary = verifyRuntimeBinary;

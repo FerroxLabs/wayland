@@ -26,6 +26,16 @@
   "copyFailed": "Échec de la copie",
   "download": "Télécharger",
   "close": "Fermer",
+  "shellRecovery": {
+    "preview": "Aperçu de Cockpit",
+    "title": "Cockpit n’a pas pu s’ouvrir en toute sécurité.",
+    "sessionBody": "Classic est actif pour cette session. Vos chats, projets, réglages, état de l’agent et route actuelle n’ont pas été déplacés.",
+    "useClassicDefault": "Utiliser Classic par défaut",
+    "savingDefault": "Enregistrement de Classic par défaut…",
+    "savedDefault": "Classic sera utilisé par défaut.",
+    "saveFailed": "Classic reste actif pour cette session, mais le choix par défaut n’a pas pu être enregistré.",
+    "retrySave": "Réessayer l’enregistrement"
+  },
   "retry": "Réessayer",
   "reload": "Recharger",
   "technical_details": "Détails techniques",

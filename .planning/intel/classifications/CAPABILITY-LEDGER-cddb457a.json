@@ -1,0 +1,20 @@
+{
+  "source_path": "/Users/seandonahoe/gsd-workspaces/wayland-desktop-gsd/app/docs/desktop-overhaul-source/CAPABILITY-LEDGER.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Capability ledger",
+  "summary": "Catalogs capability presence, wiring, journey evidence, release gating, support status, and the required machine-readable ledger schema.",
+  "scope": [
+    "capability ledger",
+    "product surfaces",
+    "journey evidence",
+    "release gates",
+    "support state",
+    "capability row schema"
+  ],
+  "cross_refs": ["VOICE-CONVERSATION-MODE.md"],
+  "locked": false,
+  "precedence": 4,
+  "notes": ""
+}

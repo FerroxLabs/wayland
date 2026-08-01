@@ -19,8 +19,13 @@ const makeAgent = (): { agent: WCoreAgent; stdin: StdinSpy } => {
     onStreamEvent: () => {},
   });
   const stdin: StdinSpy = { write: vi.fn(), writable: true };
-  // Inject a fake child process so sendCommand has a writable stdin to serialize to.
-  (agent as unknown as { childProcess: { stdin: StdinSpy } }).childProcess = { stdin };
+  // Inject the live, writable command transport that `start()` establishes: a
+  // child with a writable stdin AND `transportAlive` flipped true. writeCommand
+  // fails closed on `!transportAlive` (a dead transport must never silently accept
+  // a command), so a child alone is not enough — the transport must be marked live.
+  const internals = agent as unknown as { childProcess: { stdin: StdinSpy }; transportAlive: boolean };
+  internals.childProcess = { stdin };
+  internals.transportAlive = true;
   return { agent, stdin };
 };
 

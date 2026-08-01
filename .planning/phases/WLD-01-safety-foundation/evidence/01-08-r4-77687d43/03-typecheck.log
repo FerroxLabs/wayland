@@ -1,0 +1,6 @@
+implementation_commit=77687d43d996fbffc934fdba348639afea519e4a
+implementation_tree=0d5bec955c0fda8a923c296c186fdbd8311dc75f
+command=bun run typecheck
+exit=0
+result=tsc --noEmit passed
+

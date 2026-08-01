@@ -11,8 +11,9 @@
  * Presentational: it receives the three lifecycle signals as props (install
  * status, detected-CLI count, MCP runtime mode) and renders a green/amber
  * checklist. The Test button probes the local IJFW MCP server with the
- * read-only `state` verb via `ipcBridge.ijfw.brainInvoke` and reports
- * pass/fail. All signals are already wired main-side; this is renderer-only.
+ * read-only `metrics` verb via `ipcBridge.ijfw.brainInvoke` and reports
+ * pass/fail. It used to probe `state`, which could never succeed - see
+ * handleTest. All signals are already wired main-side; this is renderer-only.
  */
 
 import { Button, Typography } from '@arco-design/web-react';
@@ -21,6 +22,23 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { IjfwLifecycleStatus } from '@/common/adapter/ipcBridge';
+import type { IjfwInvokeResult } from '@/common/types/ijfw';
+
+/**
+ * Pull the real failure reason off a failed probe result (#891): the human
+ * `error` message, else the `errorReason` code, else undefined.
+ *
+ * `strictNullChecks` is off project-wide, so the `IjfwInvokeResult`
+ * discriminated union does NOT narrow its arm-specific optional props after an
+ * `if (r.ok)` check — reading `r.error` on the union is a type error. Cast to
+ * the failure arm to read the fields the caller has already established are
+ * present (this runs only on the `ok:false` path).
+ */
+const probeFailureReason = (r: IjfwInvokeResult): string | undefined => {
+  const fail = r as { ok: false; error?: string; errorReason?: string };
+  // `||` (not `??`) so an empty-string `error` falls through to the code.
+  return fail.error || fail.errorReason;
+};
 
 export type IjfwSetupStatusProps = {
   /** Latest lifecycle status from `ipcBridge.ijfw.getStatus`. */
@@ -57,6 +75,13 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
   const { t } = useTranslation();
   const [testState, setTestState] = useState<TestState>('idle');
   const [runtimeReachable, setRuntimeReachable] = useState<boolean | null>(null);
+  // #891: the real reason a failing probe reported (`error`, else `errorReason`
+  // code, else undefined). Threaded into the degraded detail so the runtime row
+  // says WHY it is degraded instead of a bare label. Undefined on every
+  // success/reset/reject path so the fallback label shows and we never render
+  // "undefined".
+  const [runtimeReason, setRuntimeReason] = useState<string | undefined>(undefined);
+  const [testFailReason, setTestFailReason] = useState<string | undefined>(undefined);
 
   const installOk = status === 'installed_current' || status === 'installed_pending_activation';
   const clisOk = cliCount > 0;
@@ -75,16 +100,32 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
   useEffect(() => {
     if (!installOk) {
       setRuntimeReachable(null);
+      setRuntimeReason(undefined);
       return;
     }
     let disposed = false;
     void ipcBridge.ijfw.brainInvoke
-      .invoke({ verb: 'state' })
+      // `metrics`, NOT `state`. See handleTest below for why `state` could
+      // never succeed.
+      .invoke({ verb: 'metrics' })
       .then((r) => {
-        if (!disposed) setRuntimeReachable(!!r?.ok);
+        if (disposed) return;
+        if (r.ok) {
+          setRuntimeReachable(true);
+          setRuntimeReason(undefined);
+        } else {
+          // #891: keep the real reason the probe returned. `error` is the human
+          // message; fall back to the `errorReason` code; undefined if neither.
+          setRuntimeReachable(false);
+          setRuntimeReason(probeFailureReason(r));
+        }
       })
       .catch(() => {
-        if (!disposed) setRuntimeReachable(false);
+        // A rejected probe carries no structured reason; leave it undefined so
+        // the bare degraded label shows.
+        if (disposed) return;
+        setRuntimeReachable(false);
+        setRuntimeReason(undefined);
       });
     return () => {
       disposed = true;
@@ -130,9 +171,17 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
         runtimeState === 'ok'
           ? t('memory.settings.status_runtime_full', { defaultValue: 'Live' })
           : runtimeState === 'warn'
-            ? t('memory.settings.status_runtime_degraded', {
-                defaultValue: 'Degraded (not reachable)',
-              })
+            ? runtimeReason
+              ? // #891: surface the real reason. Reuse the EXISTING localized
+                // degraded label as the lead (so every locale keeps its own
+                // translation) and append the raw machine reason OUTSIDE t()
+                // (a received string — never translated).
+                `${t('memory.settings.status_runtime_degraded', {
+                  defaultValue: 'Degraded (not reachable)',
+                })}: ${runtimeReason}`
+              : t('memory.settings.status_runtime_degraded', {
+                  defaultValue: 'Degraded (not reachable)',
+                })
             : runtimeState === 'checking'
               ? t('memory.settings.status_runtime_checking', { defaultValue: 'Checking…' })
               : t('memory.settings.status_runtime_idle', { defaultValue: 'Waiting for install' }),
@@ -142,11 +191,34 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
   const handleTest = useCallback(async () => {
     if (testState === 'running') return;
     setTestState('running');
+    setTestFailReason(undefined);
     try {
-      const result = await ipcBridge.ijfw.brainInvoke.invoke({ verb: 'state' });
-      setTestState(result?.ok ? 'pass' : 'fail');
+      // The probe verb used to be `state`, which could NEVER pass and so made
+      // Test report "Memory did not respond" on every install, healthy ones
+      // included (Sean's live find, 2026-07-25).
+      //
+      // `resolveToolCall` direct-maps `state` -> tool `ijfw_state` and forwards
+      // our args verbatim. But `ijfw_state` is itself a FACADE: server.js
+      // requires its own inner `verb` in the arguments and answers
+      // `{"ok":false,"error":"verb (string) is required"}` without one. The
+      // probe has no inner verb to supply, so the call was guaranteed to fail.
+      //
+      // Verified against a real IJFW 1.6.5 server over stdio: `ijfw_state` with
+      // `{}` errors, `ijfw_metrics` with `{}` returns cleanly. `metrics` is
+      // read-only and cheap, which is what a health probe wants.
+      const result = await ipcBridge.ijfw.brainInvoke.invoke({ verb: 'metrics' });
+      if (result.ok) {
+        setTestState('pass');
+        setTestFailReason(undefined);
+      } else {
+        // #891: keep the real reason so the fail text says WHY.
+        setTestState('fail');
+        setTestFailReason(probeFailureReason(result));
+      }
     } catch {
+      // A thrown probe carries no structured reason; fall back to the fixed text.
       setTestState('fail');
+      setTestFailReason(undefined);
     }
   }, [testState]);
 
@@ -218,9 +290,15 @@ const IjfwSetupStatus: React.FC<IjfwSetupStatusProps> = ({ status, cliCount, hid
           >
             <CloseOne theme='filled' size={14} fill='rgb(var(--danger-6))' />
             <Typography.Text style={{ color: 'rgb(var(--danger-6))' }} className='text-12px'>
-              {t('memory.settings.test_fail', {
-                defaultValue: 'Memory did not respond. Check the install status above.',
-              })}
+              {testFailReason
+                ? // #891: reuse the EXISTING localized fail label as the lead +
+                  // the raw reason as data (outside t()).
+                  `${t('memory.settings.test_fail', {
+                    defaultValue: 'Memory did not respond. Check the install status above.',
+                  })}: ${testFailReason}`
+                : t('memory.settings.test_fail', {
+                    defaultValue: 'Memory did not respond. Check the install status above.',
+                  })}
             </Typography.Text>
           </span>
         )}

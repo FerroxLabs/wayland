@@ -522,7 +522,7 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
       expect(result.current.selectedAgentKey).toBe('remote:remote-team-x');
     });
 
-    it('falls back to gemini backend when preset has no presetAgentType', async () => {
+    it('defaults to the bundled Core backend when a preset has no presetAgentType', async () => {
       setupMocks({});
       const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
       await waitFor(() => expect(result.current.availableAgents).toBeDefined());
@@ -531,7 +531,7 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
         result.current.selectPresetAssistant({ id: 'word-creator' });
       });
 
-      // gemini is not 'remote', and customAgentId is present → custom:<id>.
+      // wcore is not 'remote', and customAgentId is present → custom:<id>.
       expect(result.current.selectedAgentKey).toBe('custom:word-creator');
     });
   });

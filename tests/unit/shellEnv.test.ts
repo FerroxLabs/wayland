@@ -15,6 +15,8 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'path';
 
 const mocks = vi.hoisted(() => ({
@@ -28,6 +30,42 @@ vi.mock('@/common/platform', () => ({
     },
   }),
 }));
+
+// The real host OS, captured before any test spoofs process.platform.
+const HOST_PLATFORM = process.platform;
+
+/**
+ * Several tests below pin `process.platform` to 'darwin'/'linux' so the POSIX
+ * branches of shellEnv run on every CI host. That pin also makes production
+ * `resolveManagedOfficeCliShimDir()` take its POSIX branch, which asserts the
+ * managed guard carries an execute bit:
+ *
+ *     (platform !== 'win32' && (shimStat.mode & 0o111) === 0) -> reject
+ *
+ * NTFS has no POSIX permission bits - Node reports 0o666 for any writable file
+ * on Windows, so `mode & 0o111` is always 0 and the guard can never resolve.
+ * The spoofed platform therefore produces a combination that cannot exist in
+ * reality (a darwin runtime on an NTFS volume) and `getEnhancedEnv()` throws
+ * 'Wayland managed OfficeCLI fallback guard is unavailable' on Windows only.
+ *
+ * This returns an `fs` override that supplies ONLY that missing bit, and ONLY
+ * on a Windows host. Every other guard assertion - real path containment, the
+ * symlink rejection, and the SHA-256 byte digest - keeps running against the
+ * real file, so a genuinely tampered or non-executable guard still fails on
+ * POSIX hosts where the bit is meaningful.
+ */
+const posixExecBitCompat = (actual: typeof import('fs')) =>
+  HOST_PLATFORM !== 'win32'
+    ? {}
+    : {
+        lstatSync: ((target: Parameters<typeof actual.lstatSync>[0], options?: unknown) => {
+          const stat = (actual.lstatSync as (...args: unknown[]) => unknown)(target, options) as {
+            mode: number;
+          };
+          if (stat && typeof stat.mode === 'number') stat.mode |= 0o111;
+          return stat;
+        }) as unknown as typeof actual.lstatSync,
+      };
 
 // -------------------------------------------------------------------
 // 1. Pure-logic tests for mergePaths (no Electron, no mocking needed)
@@ -78,6 +116,77 @@ describe('mergePaths', () => {
   });
 });
 
+describe('resolveBundledOfficeCliDir', () => {
+  it('rejects existence-only and malformed native runtime claims', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-path-'));
+    const runtime = path.join(root, 'bundled-officecli', 'darwin-arm64');
+    fs.mkdirSync(runtime, { recursive: true });
+
+    const { resolveBundledOfficeCliDir } = await import('@process/utils/shellEnv');
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+
+    fs.writeFileSync(path.join(runtime, 'officecli'), 'binary');
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+
+    fs.writeFileSync(path.join(runtime, 'manifest.json'), '{}');
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  it('requires the exe suffix for Windows', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-win-path-'));
+    const runtime = path.join(root, 'bundled-officecli', 'win32-x64');
+    fs.mkdirSync(runtime, { recursive: true });
+    fs.writeFileSync(path.join(runtime, 'manifest.json'), '{}');
+    fs.writeFileSync(path.join(runtime, 'officecli'), 'wrong-name');
+
+    const { resolveBundledOfficeCliDir } = await import('@process/utils/shellEnv');
+    expect(resolveBundledOfficeCliDir(root, 'win32', 'x64')).toBeNull();
+    fs.writeFileSync(path.join(runtime, 'officecli.exe'), 'binary');
+    expect(resolveBundledOfficeCliDir(root, 'win32', 'x64')).toBeNull();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+
+  it('uses the complete shared manifest decision and requires an executable binary', async () => {
+    if (process.platform !== 'darwin' || process.arch !== 'arm64') return;
+    const source = path.resolve('resources/bundled-officecli/darwin-arm64');
+    if (!fs.existsSync(path.join(source, 'officecli'))) return;
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-shared-validator-'));
+    const runtime = path.join(root, 'bundled-officecli', 'darwin-arm64');
+    fs.cpSync(source, runtime, { recursive: true });
+    const { resolveBundledOfficeCliDir } = await import('@process/utils/shellEnv');
+
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBe(runtime);
+    const manifestPath = path.join(runtime, 'manifest.json');
+    const original = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as Record<string, unknown>;
+    fs.writeFileSync(manifestPath, JSON.stringify({ ...original, reportedVersion: '1.0.999' }));
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+    fs.writeFileSync(
+      manifestPath,
+      JSON.stringify({ ...original, smokeProof: { ...(original.smokeProof as object), formats: [] } })
+    );
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+    fs.writeFileSync(manifestPath, JSON.stringify(original));
+    fs.chmodSync(path.join(runtime, 'officecli'), 0o644);
+    expect(resolveBundledOfficeCliDir(root, 'darwin', 'arm64')).toBeNull();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+});
+
+describe('resolveManagedOfficeCliShimDir', () => {
+  it('rejects a tampered fallback guard', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-officecli-shim-'));
+    const target = path.join(root, 'managed-cli-shims');
+    fs.cpSync(path.resolve('resources/managed-cli-shims'), target, { recursive: true });
+    const { resolveManagedOfficeCliShimDir } = await import('@process/utils/shellEnv');
+    expect(resolveManagedOfficeCliShimDir(root, process.platform)).toBe(target);
+    const shim = path.join(target, process.platform === 'win32' ? 'officecli.cmd' : 'officecli');
+    fs.appendFileSync(shim, '\nuntrusted fallback\n');
+    expect(resolveManagedOfficeCliShimDir(root, process.platform)).toBeNull();
+    fs.rmSync(root, { recursive: true, force: true });
+  });
+});
+
 // -------------------------------------------------------------------
 // 2. getEnhancedEnv – verify it always includes process.env.PATH
 //    (This is the core requirement for the worker fix)
@@ -116,6 +225,38 @@ describe('getEnhancedEnv', () => {
     process.env.PATH = originalPath;
   });
 
+  it('disables OfficeCLI background updates even when a caller tries to override the release pin', async () => {
+    vi.doMock('child_process', () => ({
+      execFileSync: vi.fn().mockImplementation(() => {
+        throw new Error('shell not available');
+      }),
+      execFile: vi.fn(),
+    }));
+
+    const { getEnhancedEnv } = await import('@process/utils/shellEnv');
+    expect(getEnhancedEnv({ OFFICECLI_SKIP_UPDATE: '0' }).OFFICECLI_SKIP_UPDATE).toBe('1');
+  });
+
+  it('shadows every user or global OfficeCLI fallback with the managed guard', async () => {
+    vi.doMock('child_process', () => ({
+      execFileSync: vi.fn().mockImplementation(() => {
+        throw new Error('shell not available');
+      }),
+      execFile: vi.fn(),
+    }));
+    const untrusted = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-untrusted-officecli-'));
+    fs.writeFileSync(path.join(untrusted, process.platform === 'win32' ? 'officecli.exe' : 'officecli'), 'untrusted');
+    const originalPath = process.env.PATH;
+    process.env.PATH = untrusted;
+    const { getEnhancedEnv, getManagedOfficeCliShimDir } = await import('@process/utils/shellEnv');
+    const env = getEnhancedEnv();
+    const entries = env.PATH.split(process.platform === 'win32' ? ';' : ':');
+    expect(entries.indexOf(getManagedOfficeCliShimDir())).toBeGreaterThanOrEqual(0);
+    expect(entries.indexOf(getManagedOfficeCliShimDir())).toBeLessThan(entries.indexOf(untrusted));
+    process.env.PATH = originalPath;
+    fs.rmSync(untrusted, { recursive: true, force: true });
+  });
+
   it('merges shell PATH with process.env.PATH (macOS/Linux, shell returns extra path)', async () => {
     // Pin darwin so this POSIX shell-merge assertion runs on EVERY host,
     // including Windows CI - rather than silently returning early there.
@@ -128,6 +269,12 @@ describe('getEnhancedEnv', () => {
       execFileSync: vi.fn().mockReturnValue(`PATH=${SHELL_EXTRA}:/usr/bin\nHOME=/home/user\n`),
       execFile: vi.fn(),
     }));
+    // Pinning darwin above also pins the POSIX managed-guard branch, which
+    // needs an execute bit NTFS cannot store. No-op on POSIX hosts.
+    vi.doMock('fs', async () => {
+      const actual = await vi.importActual<typeof import('fs')>('fs');
+      return { ...actual, ...posixExecBitCompat(actual) };
+    });
 
     const originalPath = process.env.PATH;
     const originalShell = process.env.SHELL;
@@ -180,7 +327,7 @@ describe('getEnhancedEnv', () => {
     const result = getEnhancedEnv();
     expect(typeof result.PATH).toBe('string');
     // Spot-check: no undefined string values were injected
-    for (const [k, v] of Object.entries(result)) {
+    for (const [_k, v] of Object.entries(result)) {
       expect(typeof v).toBe('string');
     }
   });
@@ -245,6 +392,9 @@ describe('getEnhancedEnv version-manager node (#628)', () => {
       const actual = await vi.importActual<typeof import('fs')>('fs');
       return {
         ...actual,
+        // This describe pins darwin, so the POSIX managed-guard branch runs and
+        // needs an execute bit NTFS cannot store. No-op on POSIX hosts.
+        ...posixExecBitCompat(actual),
         existsSync: vi.fn((p: string) => present.has(p)),
         readdirSync: vi.fn((p: string) => (p === NVM_NODE_BASE ? ['v20.11.0'] : [])),
         accessSync: vi.fn((p: string) => {

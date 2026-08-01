@@ -1,0 +1,10 @@
+implementation_commit=1754bfee3165fff2744bb60e41e7ae605947a9c5
+implementation_tree=79bc6846fb355cc42633be3d16589d5f85dd1d6a
+parent_audit_commit=55a6e845a528b64a28579464c238df702d343e33
+git_diff_check=pass
+legacy_quarantine_aliases=absent
+generated_wiki_state=absent
+post_exit_transport_write=blocked
+retained_tree_proof_identity=preserved
+aggregate_proof=not_run
+exit_code=0

@@ -15,11 +15,19 @@ import { buildResourceDirCandidates } from './SkillLibrary';
 // extraResources dir purely from the bundle's __dirname.
 
 describe('buildResourceDirCandidates', () => {
-  // POSIX-style packaged layout used by the assertions below. The bundle lives
-  // at Resources/app.asar.unpacked/out/main; the resource dir is at
+  // Packaged layout used by the assertions below. The bundle lives at
+  // Resources/app.asar.unpacked/out/main; the resource dir is at
   // Resources/skills-library (three levels up from out/main).
-  const packagedBundleDir = '/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main';
-  const realResourceDir = '/Applications/Wayland.app/Contents/Resources/skills-library';
+  //
+  // Both the fixtures and the expectations are built with `path` - the same
+  // host-native API production resolves with - so they carry the host's
+  // separator and root spelling. A POSIX string literal cannot be used here:
+  // production returns `path.resolve(...)` output, and on win32 that both
+  // normalizes to backslashes and prefixes the cwd drive
+  // (`path.resolve('/Applications')` is `C:\Applications`).
+  const packagedResourcesDir = path.resolve(path.join('/Applications', 'Wayland.app', 'Contents', 'Resources'));
+  const packagedBundleDir = path.join(packagedResourcesDir, 'app.asar.unpacked', 'out', 'main');
+  const realResourceDir = path.join(packagedResourcesDir, 'skills-library');
 
   it('never produces a doubled app.asar.unpacked.unpacked path', () => {
     const candidates = buildResourceDirCandidates(packagedBundleDir, undefined, 'skills-library');
@@ -34,13 +42,12 @@ describe('buildResourceDirCandidates', () => {
   });
 
   it('prefers resourcesPath when present (main process)', () => {
-    const resourcesPath = '/Applications/Wayland.app/Contents/Resources';
-    const candidates = buildResourceDirCandidates(packagedBundleDir, resourcesPath, 'skills-library');
-    expect(candidates[0]).toBe(path.join(resourcesPath, 'skills-library'));
+    const candidates = buildResourceDirCandidates(packagedBundleDir, packagedResourcesDir, 'skills-library');
+    expect(candidates[0]).toBe(path.join(packagedResourcesDir, 'skills-library'));
   });
 
   it('collapses the electron-vite chunks subdir before resolving', () => {
-    const chunksBundleDir = '/Applications/Wayland.app/Contents/Resources/app.asar.unpacked/out/main/chunks';
+    const chunksBundleDir = path.join(packagedBundleDir, 'chunks');
     const candidates = buildResourceDirCandidates(chunksBundleDir, undefined, 'skills-library');
     expect(candidates).toContain(realResourceDir);
     for (const c of candidates) {
@@ -49,14 +56,15 @@ describe('buildResourceDirCandidates', () => {
   });
 
   it('resolves the dev source-tree dir from out/main', () => {
-    const devBundleDir = '/repo/app/out/main';
+    const devRoot = path.resolve(path.join('/repo', 'app'));
+    const devBundleDir = path.join(devRoot, 'out', 'main');
     const candidates = buildResourceDirCandidates(devBundleDir, undefined, 'skills-library');
-    expect(candidates).toContain('/repo/app/src/process/resources/skills-library');
+    expect(candidates).toContain(path.join(devRoot, 'src', 'process', 'resources', 'skills-library'));
   });
 
   it('works the same for the bundled-workflows resource', () => {
     const candidates = buildResourceDirCandidates(packagedBundleDir, undefined, 'bundled-workflows');
-    expect(candidates).toContain('/Applications/Wayland.app/Contents/Resources/bundled-workflows');
+    expect(candidates).toContain(path.join(packagedResourcesDir, 'bundled-workflows'));
     for (const c of candidates) {
       expect(c).not.toContain('app.asar.unpacked.unpacked');
     }

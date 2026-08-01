@@ -1,0 +1,787 @@
+{
+  "$defs": {
+    "capability": {
+      "additionalProperties": false,
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "contract_version": {
+          "const": "1.0.0"
+        },
+        "degraded_profile": {
+          "additionalProperties": false,
+          "properties": {
+            "activation": {
+              "const": "on_capability_failure"
+            },
+            "cost_claims": {
+              "const": false
+            },
+            "profile": {
+              "const": "no_flux"
+            },
+            "provider_attempts": {
+              "const": false
+            },
+            "reason": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "route_explanations": {
+              "const": false
+            }
+          },
+          "required": [
+            "profile",
+            "reason",
+            "activation",
+            "route_explanations",
+            "cost_claims",
+            "provider_attempts"
+          ],
+          "type": "object"
+        },
+        "features": {
+          "additionalProperties": false,
+          "properties": {
+            "cost": {
+              "enum": [
+                "authoritative_when_priced",
+                "unavailable"
+              ]
+            },
+            "explicit_native_passthrough": {
+              "const": true
+            },
+            "fallbacks": {
+              "type": "boolean"
+            },
+            "latency": {
+              "enum": [
+                "producer_observed_ms",
+                "unavailable"
+              ]
+            },
+            "provider_attempts": {
+              "type": "boolean"
+            },
+            "routing_evidence": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "routing_evidence",
+            "provider_attempts",
+            "fallbacks",
+            "cost",
+            "latency",
+            "explicit_native_passthrough"
+          ],
+          "type": "object"
+        },
+        "generated_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "generator_version": {
+          "const": "1.0.1"
+        },
+        "producer": {
+          "additionalProperties": false,
+          "properties": {
+            "baseline_commit": {
+              "const": "6eda360c8497b4dab0e26003ad7bad03d0aa9c6f"
+            },
+            "name": {
+              "const": "flux-router"
+            }
+          },
+          "required": [
+            "name",
+            "baseline_commit"
+          ],
+          "type": "object"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ttl_seconds": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "type": {
+          "const": "routing.capabilities"
+        }
+      },
+      "required": [
+        "type",
+        "contract_version",
+        "generator_version",
+        "generated_at",
+        "ttl_seconds",
+        "available",
+        "features",
+        "degraded_profile"
+      ],
+      "type": "object"
+    },
+    "correlation": {
+      "additionalProperties": false,
+      "properties": {
+        "backend_spawn_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+          "type": "string"
+        },
+        "correlation_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+          "type": "string"
+        },
+        "desktop_task_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+          "type": "string"
+        },
+        "desktop_turn_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+          "type": "string"
+        },
+        "request_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "correlation_id",
+        "desktop_task_id",
+        "desktop_turn_id",
+        "backend_spawn_id",
+        "request_id"
+      ],
+      "type": "object"
+    },
+    "event": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "route.selected"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "flux_involved": {
+                        "const": false
+                      },
+                      "precedence": {
+                        "const": "explicit_native_over_flux_auto"
+                      },
+                      "provider": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "requested_model": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "reroute_allowed": {
+                        "const": false
+                      },
+                      "route_mode": {
+                        "const": "explicit_native"
+                      },
+                      "selected_model": {
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "route_mode",
+                      "requested_model",
+                      "selected_model",
+                      "provider",
+                      "flux_involved",
+                      "reroute_allowed",
+                      "precedence"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "flux_involved": {
+                        "const": true
+                      },
+                      "precedence": {
+                        "const": "flux_auto"
+                      },
+                      "provider": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "requested_model": {
+                        "const": "flux-auto"
+                      },
+                      "reroute_allowed": {
+                        "const": true
+                      },
+                      "route_mode": {
+                        "const": "flux_auto"
+                      },
+                      "selected_model": {
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "route_mode",
+                      "requested_model",
+                      "selected_model",
+                      "provider",
+                      "flux_involved",
+                      "reroute_allowed",
+                      "precedence"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "route.user_override"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "additionalProperties": false,
+                "properties": {
+                  "replaced_mode": {
+                    "enum": [
+                      "explicit_native",
+                      "flux_auto"
+                    ]
+                  },
+                  "requested_model": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "route_mode": {
+                    "enum": [
+                      "explicit_native",
+                      "flux_auto"
+                    ]
+                  }
+                },
+                "required": [
+                  "route_mode",
+                  "requested_model",
+                  "replaced_mode"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "provider.attempt_started"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "additionalProperties": false,
+                "properties": {
+                  "attempt_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "model": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "provider": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "attempt_id",
+                  "provider",
+                  "model"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "provider.attempt_failed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "additionalProperties": false,
+                "properties": {
+                  "attempt_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "reason_code": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "retryable": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "attempt_id",
+                  "reason_code",
+                  "retryable"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "provider.retry_scheduled"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "additionalProperties": false,
+                "properties": {
+                  "after_attempt_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "backoff_ms": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "retry_number": {
+                    "minimum": 1,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "after_attempt_id",
+                  "retry_number",
+                  "backoff_ms"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "provider.fallback_selected"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "additionalProperties": false,
+                "oneOf": [
+                  {
+                    "required": [
+                      "from_attempt_id"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "from_circuit_id"
+                    ]
+                  }
+                ],
+                "properties": {
+                  "from_attempt_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "from_circuit_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "model": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "provider": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "reason_code": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "provider",
+                  "model",
+                  "reason_code"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "provider.circuit_open"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "additionalProperties": false,
+                "properties": {
+                  "circuit_id": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "degraded": {
+                    "const": true
+                  },
+                  "model": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "provider": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "reason_code": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "circuit_id",
+                  "provider",
+                  "model",
+                  "degraded",
+                  "reason_code"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "connection.unavailable"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "additionalProperties": false,
+                "properties": {
+                  "credential_state": {
+                    "enum": [
+                      "unknown",
+                      "invalid"
+                    ]
+                  },
+                  "reason_code": {
+                    "enum": [
+                      "disconnected",
+                      "invalid_credential"
+                    ]
+                  }
+                },
+                "required": [
+                  "reason_code",
+                  "credential_state"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "request.cost_observed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "attempt_id": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "cost_microusd": {
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "currency": {
+                        "const": "USD"
+                      },
+                      "latency_ms": {
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "price_status": {
+                        "const": "priced"
+                      }
+                    },
+                    "required": [
+                      "attempt_id",
+                      "price_status",
+                      "cost_microusd",
+                      "currency",
+                      "latency_ms"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "attempt_id": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "cost_microusd": {
+                        "type": "null"
+                      },
+                      "currency": {
+                        "type": "null"
+                      },
+                      "latency_ms": {
+                        "minimum": 0,
+                        "type": "integer"
+                      },
+                      "price_status": {
+                        "const": "unpriced"
+                      },
+                      "reason_code": {
+                        "const": "price_unknown"
+                      }
+                    },
+                    "required": [
+                      "attempt_id",
+                      "price_status",
+                      "cost_microusd",
+                      "currency",
+                      "latency_ms",
+                      "reason_code"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "event_type": {
+                "const": "request.terminal"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence": {
+                "additionalProperties": false,
+                "properties": {
+                  "attempt_id": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "outcome": {
+                    "enum": [
+                      "success",
+                      "failure"
+                    ]
+                  },
+                  "reason_code": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "outcome",
+                  "reason_code",
+                  "attempt_id"
+                ],
+                "type": "object"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "contract_version": {
+          "const": "1.0.0"
+        },
+        "correlation": {
+          "$ref": "#/$defs/correlation"
+        },
+        "emitted_at": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "event_id": {
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+          "type": "string"
+        },
+        "event_type": {
+          "enum": [
+            "route.selected",
+            "route.user_override",
+            "provider.attempt_started",
+            "provider.attempt_failed",
+            "provider.retry_scheduled",
+            "provider.fallback_selected",
+            "provider.circuit_open",
+            "connection.unavailable",
+            "request.cost_observed",
+            "request.terminal"
+          ]
+        },
+        "evidence": {
+          "type": "object"
+        },
+        "sequence": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "contract_version",
+        "event_id",
+        "event_type",
+        "sequence",
+        "emitted_at",
+        "correlation",
+        "evidence"
+      ],
+      "type": "object"
+    },
+    "fixture": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "scenario": {
+                "enum": [
+                  "disconnected",
+                  "invalid-credential"
+                ]
+              }
+            },
+            "required": [
+              "scenario"
+            ]
+          },
+          "then": {
+            "properties": {
+              "expected_profile": {
+                "const": "no_flux"
+              }
+            }
+          }
+        }
+      ],
+      "properties": {
+        "correlation": {
+          "$ref": "#/$defs/correlation"
+        },
+        "events": {
+          "items": {
+            "$ref": "#/$defs/event"
+          },
+          "type": "array"
+        },
+        "expected_profile": {
+          "enum": [
+            "flux",
+            "no_flux"
+          ]
+        },
+        "fixture_version": {
+          "const": 1
+        },
+        "scenario": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "fixture_version",
+        "scenario",
+        "expected_profile",
+        "correlation",
+        "events"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://fluxrouter.ai/contracts/routing-evidence/v1/schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/capability"
+    },
+    {
+      "$ref": "#/$defs/fixture"
+    }
+  ],
+  "title": "Flux routing evidence v1"
+}

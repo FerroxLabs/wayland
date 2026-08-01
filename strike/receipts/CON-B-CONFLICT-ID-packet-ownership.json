@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-CONFLICT-ID-packet-ownership",
+  "commit": "0bfb3a6a1a12adc86c98dde4a078e5b8bcff4ae8",
+  "command": "rtk proxy bash -o pipefail -c 'actual=$(git diff --name-only HEAD^ HEAD); expected=$'\"'\"'src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx\\ntests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx'\"'\"'; test \"$actual\" = \"$expected\"; printf \"%s\\n\" \"$actual\" | tee /tmp/wayland-con-b-conflict-packet-ownership.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:2e3a205a3651a5af59f4bee9038aff50c214c290948bf5c622a6f312a16dfd15",
+  "timestamp": "2026-07-17T05:48:22Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

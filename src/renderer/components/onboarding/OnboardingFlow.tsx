@@ -53,6 +53,47 @@ type OnboardingFlowProps = {
 
 type Screen = 'quickstart' | 'scan' | 'outcome' | 'interests' | 'allset';
 
+const ALL_SCREENS: readonly Screen[] = ['quickstart', 'scan', 'outcome', 'interests', 'allset'];
+
+/**
+ * Resumable onboarding progress, mirrored to localStorage — synchronous and
+ * always-local, exactly like the `onboardingCompleted` marker in
+ * OnboardingOverlay. The flow's screen and captured answers are otherwise
+ * component-local state, so any remount before the final screen (e.g. the shell
+ * root swapping when the user enters multi-agent mode) restarts onboarding at
+ * step 1. Persisting here makes a remount RESUME instead. The cold-start API key
+ * (a secret the user is mid-typing) and transient UI state (busy/errors/scan
+ * progress) are intentionally excluded.
+ */
+const ONBOARDING_PROGRESS_KEY = 'onboarding.progress';
+
+type OnboardingProgress = { screen: Screen; name: string; picks: FocusPersonaId[]; work: string };
+
+const readOnboardingProgress = (): OnboardingProgress | null => {
+  try {
+    const raw = localStorage.getItem(ONBOARDING_PROGRESS_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Partial<OnboardingProgress>;
+    if (!parsed || !ALL_SCREENS.includes(parsed.screen as Screen)) return null;
+    return {
+      screen: parsed.screen as Screen,
+      name: typeof parsed.name === 'string' ? parsed.name : '',
+      picks: Array.isArray(parsed.picks) ? (parsed.picks as FocusPersonaId[]) : [],
+      work: typeof parsed.work === 'string' ? parsed.work : '',
+    };
+  } catch {
+    return null;
+  }
+};
+
+const clearOnboardingProgress = (): void => {
+  try {
+    localStorage.removeItem(ONBOARDING_PROGRESS_KEY);
+  } catch {
+    // best-effort; a stale entry is harmless once onboardingCompleted is set.
+  }
+};
+
 /** Provider id → real brand logo (rendered on a white tile). */
 const PROVIDER_LOGO: Record<string, string> = {
   openai: openaiLogo,
@@ -128,8 +169,11 @@ const accentStyle = (accent: string): React.CSSProperties =>
  */
 const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) => {
   const { t } = useTranslation();
-  const [screen, setScreen] = useState<Screen>('quickstart');
-  const [name, setName] = useState('');
+  // Read persisted progress exactly once (lazy init) so a remount resumes where
+  // the user was instead of restarting at step 1.
+  const [restored] = useState(() => readOnboardingProgress());
+  const [screen, setScreen] = useState<Screen>(restored?.screen ?? 'quickstart');
+  const [name, setName] = useState(restored?.name ?? '');
   const [busy, setBusy] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
@@ -138,8 +182,8 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
   const [fluxFallback, setFluxFallback] = useState(false);
   const [scanDone, setScanDone] = useState(false);
   const [scanLog, setScanLog] = useState(0);
-  const [picks, setPicks] = useState<FocusPersonaId[]>([]);
-  const [work, setWork] = useState('');
+  const [picks, setPicks] = useState<FocusPersonaId[]>(restored?.picks ?? []);
+  const [work, setWork] = useState(restored?.work ?? '');
   const [coldKey, setColdKey] = useState('');
   // Providers connected via the paste field this session - appended to the
   // reveal so a freshly-added key visibly lands "in the pool".
@@ -149,6 +193,17 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
   // "wired and tested" outcome is driven by these, never by the detected list.
   const [wiredProviders, setWiredProviders] = useState<string[]>([]);
   const [wireFailed, setWireFailed] = useState<string[]>([]);
+
+  // Mirror resumable progress to localStorage on every step/answer change, so a
+  // remount before finishAll resumes instead of restarting (see
+  // ONBOARDING_PROGRESS_KEY). Synchronous, best-effort; cleared in finishAll.
+  useEffect(() => {
+    try {
+      localStorage.setItem(ONBOARDING_PROGRESS_KEY, JSON.stringify({ screen, name, picks, work }));
+    } catch {
+      // A failed write only means this step won't resume — never block the flow.
+    }
+  }, [screen, name, picks, work]);
 
   // Detection-derived shape (the warm/cold fork is decided by the real machine).
   const hasKeys = detection.envKeys.length > 0;
@@ -335,6 +390,9 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
   const finishAll = useCallback(() => {
     const n = name.trim();
     if (n) void ConfigStorage.set('user.displayName', n);
+    // Onboarding is done — drop the resumable progress so a later remount can't
+    // reopen a stale mid-flow state.
+    clearOnboardingProgress();
     onFinish();
   }, [name, onFinish]);
 
@@ -580,34 +638,33 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
               : t('onboarding.flow.scan.subScanning')}
           </p>
 
-        {!scanDone && (
-          <div className={styles.scanwrap}>
-            <div className={styles.radar}>
-              <span className={styles.radarCore}>
-                <Search size={26} />
-              </span>
+          {!scanDone && (
+            <div className={styles.scanwrap}>
+              <div className={styles.radar}>
+                <span className={styles.radarCore}>
+                  <Search size={26} />
+                </span>
+              </div>
+              <div className={styles.scanlog}>{t(SCAN_LINE_KEYS[scanLog])}</div>
             </div>
-            <div className={styles.scanlog}>{t(SCAN_LINE_KEYS[scanLog])}</div>
-          </div>
-        )}
+          )}
 
-        {scanDone && !noFindings && (
-          <div className={`${styles.block} ${styles.twocol}`}>
-            {agentChips.length > 0 && (
-              <div className={styles.col}>
-                <p className={styles.groupLabel}>{t('onboarding.flow.scan.groupAgents')}</p>
-                <div className={styles.chips}>{agentChips.map(renderChip)}</div>
-              </div>
-            )}
-            {modelChips.length > 0 && (
-              <div className={styles.col}>
-                <p className={styles.groupLabel}>{t('onboarding.flow.scan.groupModels')}</p>
-                <div className={styles.chips}>{modelChips.map(renderChip)}</div>
-              </div>
-            )}
-          </div>
-        )}
-
+          {scanDone && !noFindings && (
+            <div className={`${styles.block} ${styles.twocol}`}>
+              {agentChips.length > 0 && (
+                <div className={styles.col}>
+                  <p className={styles.groupLabel}>{t('onboarding.flow.scan.groupAgents')}</p>
+                  <div className={styles.chips}>{agentChips.map(renderChip)}</div>
+                </div>
+              )}
+              {modelChips.length > 0 && (
+                <div className={styles.col}>
+                  <p className={styles.groupLabel}>{t('onboarding.flow.scan.groupModels')}</p>
+                  <div className={styles.chips}>{modelChips.map(renderChip)}</div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {scanDone && (
@@ -678,6 +735,35 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
               <span>{t('onboarding.flow.outcome.cliNote')}</span>
             </div>
             <div style={{ marginTop: 14 }}>{fluxBanner(FLUX_TITLE, FLUX_BODY)}</div>
+            {/* Detected CLI agents used to make Flux the ONLY door here, so anyone
+                who already had their own provider key had nowhere to put it during
+                onboarding - the cold and wired branches both offer this field. The
+                point of onboarding is connecting your stuff up, so offer it here
+                too. Flux stays first and recommended. */}
+            <div style={{ marginTop: 14 }}>
+              {keyField(
+                async (v) => {
+                  if (await connectKey(v)) setColdKey('');
+                },
+                coldKey,
+                setColdKey
+              )}
+              {keyStatus()}
+              <p className={styles.keyhint}>
+                {t('onboarding.flow.outcome.geminiKeyHint')}{' '}
+                <a
+                  href='https://aistudio.google.com/apikey'
+                  rel='noreferrer'
+                  onClick={(e) => {
+                    // Bare target=_blank opens nothing in the Electron renderer (#202).
+                    e.preventDefault();
+                    void openExternalUrl('https://aistudio.google.com/apikey');
+                  }}
+                >
+                  {t('onboarding.flow.outcome.geminiKeyLink')}
+                </a>
+              </p>
+            </div>
           </>
         ) : (
           // no provider connected yet → pick a model

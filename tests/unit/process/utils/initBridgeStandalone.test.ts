@@ -1,4 +1,11 @@
+import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+// The data dir the platform mock hands to production. Production joins it with
+// path.join, so the expectation below must be built the same way: hard-coding
+// the POSIX spelling asserted '/tmp/.../revision-authority.enc' against the
+// '\tmp\...' that path.join produces on Windows.
+const STANDALONE_DATA_DIR = '/tmp/wayland-standalone';
 
 const mocks = vi.hoisted(() => ({
   initApplicationBridgeCore: vi.fn(),
@@ -27,8 +34,20 @@ const mocks = vi.hoisted(() => ({
   initStarOfficeBridge: vi.fn(),
   initSpeechToTextBridge: vi.fn(),
   initHubBridge: vi.fn(),
+  initProjectBridge: vi.fn(),
+  initTeamBridge: vi.fn(),
+  initSkillsBridge: vi.fn(),
+  initWebCloudFluxRoutingEvidenceAdapter: vi.fn(),
+  initModelRegistryIpc: vi.fn(async () => {}),
   initializeRegistry: vi.fn(async () => {}),
   loggerConfig: vi.fn(),
+  createConstitutionFsProduction: vi.fn(),
+  setConstitutionFsService: vi.fn(),
+  setConstitutionArchiveRecoveryService: vi.fn(),
+  setConstitutionClassicRecoveryServiceReady: vi.fn(),
+  constitutionFsService: { kind: 'constitution-fs-service' },
+  constitutionRestoreAuthority: { kind: 'constitution-restore-authority' },
+  constitutionArchiveRecoveryService: { kind: 'constitution-archive-recovery-service' },
 }));
 
 vi.mock('@office-ai/platform', () => ({
@@ -157,6 +176,74 @@ vi.mock('@process/bridge/speechToTextBridge', () => ({
 vi.mock('@process/bridge/hubBridge', () => ({
   initHubBridge: (...args: unknown[]) => mocks.initHubBridge(...args),
 }));
+vi.mock('@process/bridge/projectBridge', () => ({
+  initProjectBridge: (...args: unknown[]) => mocks.initProjectBridge(...args),
+}));
+vi.mock('@process/bridge/teamBridge', () => ({
+  initTeamBridge: (...args: unknown[]) => mocks.initTeamBridge(...args),
+}));
+vi.mock('@process/bridge/skillsBridge', () => ({
+  initSkillsBridge: (...args: unknown[]) => mocks.initSkillsBridge(...args),
+}));
+vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
+  initModelRegistryIpc: (...args: unknown[]) => mocks.initModelRegistryIpc(...args),
+}));
+vi.mock('@process/team/repository/SqliteTeamRepository', () => ({
+  SqliteTeamRepository: vi.fn(),
+}));
+vi.mock('@process/team/TeamSessionService', () => ({
+  TeamSessionService: vi.fn(),
+}));
+vi.mock('@process/flux/FluxRoutingEvidenceAdapter', () => ({
+  initWebCloudFluxRoutingEvidenceAdapter: (...args: unknown[]) => mocks.initWebCloudFluxRoutingEvidenceAdapter(...args),
+}));
+vi.mock('@/common/platform', () => ({
+  getPlatformServices: () => ({
+    paths: {
+      getDataDir: () => STANDALONE_DATA_DIR,
+      isPackaged: () => false,
+      getAppPath: () => '/tmp/wayland-app',
+    },
+  }),
+}));
+vi.mock('@process/services/constitution/constitutionFsService', () => ({
+  ConstitutionFsService: {
+    createProduction: (...args: unknown[]) => {
+      mocks.createConstitutionFsProduction(...args);
+      return mocks.constitutionFsService;
+    },
+  },
+  setConstitutionFsService: (...args: unknown[]) => mocks.setConstitutionFsService(...args),
+}));
+vi.mock('@process/services/constitution/constitutionArchiveRestoreAuthority', () => ({
+  // oxlint-disable-next-line typescript-eslint/no-extraneous-class -- constructor semantics are the production contract under test.
+  ConstitutionArchiveRestoreOperationAuthority: class ConstitutionArchiveRestoreOperationAuthority {
+    constructor() {
+      return mocks.constitutionRestoreAuthority;
+    }
+  },
+}));
+vi.mock('@process/services/constitution/constitutionArchiveRecoveryService', () => ({
+  // oxlint-disable-next-line typescript-eslint/no-extraneous-class -- constructor semantics are the production contract under test.
+  ConstitutionArchiveRecoveryService: class ConstitutionArchiveRecoveryService {
+    constructor() {
+      return mocks.constitutionArchiveRecoveryService;
+    }
+  },
+  ConstitutionArchiveRecoveryServiceError: class ConstitutionArchiveRecoveryServiceError extends Error {},
+  setConstitutionArchiveRecoveryService: (...args: unknown[]) => mocks.setConstitutionArchiveRecoveryService(...args),
+}));
+vi.mock('@process/services/constitution/constitutionClassicRecoveryService', () => ({
+  setConstitutionClassicRecoveryServiceReady: (...args: unknown[]) =>
+    mocks.setConstitutionClassicRecoveryServiceReady(...args),
+}));
+vi.mock('@process/secrets/safeStorage', () => ({
+  encryptString: vi.fn(),
+  decryptString: vi.fn(),
+}));
+vi.mock('@process/bridge/webuiDirectAuth', () => ({
+  verifyCurrentPassword: vi.fn(async () => true),
+}));
 
 describe('initBridgeStandalone', () => {
   beforeEach(() => {
@@ -169,6 +256,14 @@ describe('initBridgeStandalone', () => {
     await mod.initBridgeStandalone();
 
     expect(mocks.initHubBridge).toHaveBeenCalledTimes(1);
+    expect(mocks.initWebCloudFluxRoutingEvidenceAdapter).toHaveBeenCalledTimes(1);
+    expect(mocks.createConstitutionFsProduction).toHaveBeenCalledWith(expect.stringMatching(/resources$/), {
+      revisionAuthorityPath: path.join(STANDALONE_DATA_DIR, 'constitution', 'revision-authority.enc'),
+    });
+    expect(mocks.setConstitutionFsService).toHaveBeenCalledWith(mocks.constitutionFsService);
+    expect(mocks.setConstitutionArchiveRecoveryService).toHaveBeenCalledWith(mocks.constitutionArchiveRecoveryService);
+    expect(mocks.setConstitutionClassicRecoveryServiceReady).toHaveBeenCalledTimes(1);
+    expect(mocks.initModelRegistryIpc).toHaveBeenCalledTimes(1);
     expect(mocks.initializeRegistry).toHaveBeenCalledTimes(1);
   });
 });

@@ -67,8 +67,16 @@ FunctionEnd
   ; defaults or the user's Settings toggle - so gate every removal on a real
   ; uninstall via ${isUpdated}, matching the template's own file-removal gating.
   ${IfNot} ${isUpdated}
-    DeleteRegKey HKCU "Software\Classes\wayland"
-    DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "electron.app.Wayland"
-    DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" "electron.app.Wayland"
+    ; Stable and Preview install side by side. Select the identity compiled into
+    ; this installer so uninstalling one track never unregisters the other.
+    ${If} "${PRODUCT_NAME}" == "Wayland Preview"
+      DeleteRegKey HKCU "Software\Classes\wayland-preview"
+      DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "electron.app.Wayland Preview"
+      DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" "electron.app.Wayland Preview"
+    ${Else}
+      DeleteRegKey HKCU "Software\Classes\wayland"
+      DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "electron.app.Wayland"
+      DeleteRegValue HKCU "Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run" "electron.app.Wayland"
+    ${EndIf}
   ${EndIf}
 !macroend

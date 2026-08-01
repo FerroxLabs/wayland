@@ -29,13 +29,22 @@
 
 import { SkillLibrary } from '@process/services/skills/SkillLibrary';
 import { getProviderCatalog } from '@process/providers/ipc/modelRegistryIpc';
-import { ProcessConfig } from '@process/utils/initStorage';
+import { getBuiltinSkillsCopyDir, ProcessConfig } from '@process/utils/initStorage';
+import { probeOfficeCliAuthoringEvidence } from '@process/services/capabilities/OfficeCliAuthoringCapability';
+import {
+  OFFICECLI_CAPABILITY_ID,
+  WAYLAND_CAPABILITY_MANIFEST,
+  selectCapabilityReadiness,
+  type CapabilityPlatform,
+  type CapabilityReadiness,
+} from '@/common/capabilities';
 import type { IProvider } from '@/common/config/storage';
 
 export type CapabilitiesManifestOptions = {
   includeSkills?: boolean;
   includeWorkflows?: boolean;
   includeModels?: boolean;
+  includeOfficeAuthoring?: boolean;
   agentKey?: string;
 };
 
@@ -194,6 +203,23 @@ async function buildModelsLine(providers: IProvider[]): Promise<string | null> {
   }
 }
 
+function buildOfficeAuthoringLine(readiness: CapabilityReadiness): string {
+  if (readiness.state === 'ready' && readiness.canInvoke) {
+    return `- Native Office authoring: ready with officecli ${sanitizeToken(readiness.capabilityVersion)}; target-exact enforced contract verified.`;
+  }
+  if (readiness.state === 'brokered') {
+    return '- Native Office authoring: available only through an explicit broker decision; do not invoke it automatically.';
+  }
+  if (readiness.state === 'advisory') {
+    return '- Native Office authoring: advisory evidence only; it is not callable.';
+  }
+  return `- Native Office authoring: unavailable; ${sanitizeToken(readiness.reason)} Do not guess commands or use a hosted fallback.`;
+}
+
+function normalizeCapabilityBackend(agentKey?: string): 'wcore' | 'gemini' | 'acp' {
+  return agentKey === 'wcore' || agentKey === 'gemini' ? agentKey : 'acp';
+}
+
 /**
  * Build the compact capabilities manifest from live install state.
  *
@@ -204,6 +230,7 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
   const includeSkills = opts?.includeSkills ?? true;
   const includeWorkflows = opts?.includeWorkflows ?? true;
   const includeModels = opts?.includeModels ?? true;
+  const includeOfficeAuthoring = opts?.includeOfficeAuthoring ?? false;
   // `agentKey` is reserved for future per-agent model curation; it does NOT
   // currently affect output, so it is deliberately EXCLUDED from the cache key
   // (otherwise distinct backends would thrash the single-slot cache).
@@ -216,6 +243,27 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
     // degrades (omits the signal) instead of propagating.
     const workflowCount = includeWorkflows ? await readWorkflowCount() : null;
     const providers = includeModels ? await readConnectedProviders() : [];
+    const capabilityBackend = normalizeCapabilityBackend(opts?.agentKey);
+    const capabilityNow = Date.now();
+    const capabilityCorrelation = `capabilities:${capabilityBackend}:${capabilityNow}`;
+    const officeEvidence = includeOfficeAuthoring
+      ? await probeOfficeCliAuthoringEvidence({
+          correlationId: capabilityCorrelation,
+          backend: capabilityBackend,
+          now: capabilityNow,
+          skillsRoot: getBuiltinSkillsCopyDir(),
+        })
+      : null;
+    const officeAuthoring = officeEvidence
+      ? selectCapabilityReadiness(WAYLAND_CAPABILITY_MANIFEST, [officeEvidence], {
+          capabilityId: OFFICECLI_CAPABILITY_ID,
+          correlationId: capabilityCorrelation,
+          platform: process.platform as CapabilityPlatform['platform'],
+          arch: process.arch as CapabilityPlatform['arch'],
+          backend: capabilityBackend,
+          now: capabilityNow,
+        })
+      : null;
 
     // Provider IDENTITY (name + model set), not just count, so swapping provider
     // A for B at equal count - or adding/removing a model inside a provider -
@@ -229,7 +277,8 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
       s: skillTotal ?? -1,
       w: workflowCount ?? -1,
       p: providerSig,
-      o: { includeSkills, includeWorkflows, includeModels },
+      o: { includeSkills, includeWorkflows, includeModels, includeOfficeAuthoring },
+      office: officeAuthoring,
     });
     if (cache && cache.key === key) return cache.value;
 
@@ -247,6 +296,7 @@ export async function buildCapabilitiesManifest(opts?: CapabilitiesManifestOptio
       const modelsLine = await buildModelsLine(providers);
       if (modelsLine) lines.push(modelsLine);
     }
+    if (officeAuthoring) lines.push(buildOfficeAuthoringLine(officeAuthoring));
     lines.push(`- Features: ${HEADLINE_FEATURES}.`);
 
     const rendered = lines.join('\n');

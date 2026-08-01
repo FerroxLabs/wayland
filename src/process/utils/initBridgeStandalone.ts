@@ -49,10 +49,58 @@ import { initTeamBridge } from '@process/bridge/teamBridge';
 import { initSkillsBridge } from '@process/bridge/skillsBridge';
 import { SqliteTeamRepository } from '@process/team/repository/SqliteTeamRepository';
 import { TeamSessionService } from '@process/team/TeamSessionService';
+import { initWebCloudFluxRoutingEvidenceAdapter } from '@process/flux/FluxRoutingEvidenceAdapter';
+import { getPlatformServices } from '@/common/platform';
+import path from 'node:path';
+import { ConstitutionFsService, setConstitutionFsService } from '@process/services/constitution/constitutionFsService';
+import { ConstitutionArchiveRestoreOperationAuthority } from '@process/services/constitution/constitutionArchiveRestoreAuthority';
+import {
+  ConstitutionArchiveRecoveryService,
+  ConstitutionArchiveRecoveryServiceError,
+  setConstitutionArchiveRecoveryService,
+} from '@process/services/constitution/constitutionArchiveRecoveryService';
+import { setConstitutionClassicRecoveryServiceReady } from '@process/services/constitution/constitutionClassicRecoveryService';
+import { decryptString, encryptString } from '@process/secrets/safeStorage';
+import { verifyCurrentPassword } from '@process/bridge/webuiDirectAuth';
 
 logger.config({ print: true });
 
 export async function initBridgeStandalone(): Promise<void> {
+  // Mirror Electron's fail-closed Flux evidence boundary in Web/Cloud mode.
+  initWebCloudFluxRoutingEvidenceAdapter();
+
+  // Web/Cloud composes prompts and registers Constitution HTTP routes too. It
+  // therefore needs the same explicit, durable authority as Electron before
+  // either surface is reachable; falling back to a missing singleton would
+  // silently omit the Constitution or crash route registration. Standalone
+  // has no signed Classic application to launch, so that recovery surface is
+  // registered honestly as unavailable while native archive recovery remains
+  // available under the hosted-user principal binding.
+  const platform = getPlatformServices();
+  const dataRoot = platform.paths.getDataDir();
+  const resourcesRoot = platform.paths.isPackaged()
+    ? path.resolve(platform.paths.getAppPath() ?? process.cwd(), 'resources')
+    : path.resolve('resources');
+  const constitutionFsService = ConstitutionFsService.createProduction(resourcesRoot, {
+    revisionAuthorityPath: path.join(dataRoot, 'constitution', 'revision-authority.enc'),
+  });
+  setConstitutionFsService(constitutionFsService);
+  const constitutionRestoreAuthority = new ConstitutionArchiveRestoreOperationAuthority(
+    path.join(dataRoot, 'constitution', 'restore-operations.enc'),
+    { encryptString, decryptString }
+  );
+  const constitutionArchiveRecoveryService = new ConstitutionArchiveRecoveryService(
+    constitutionFsService,
+    constitutionRestoreAuthority,
+    async (principal, password) => {
+      if (principal.kind !== 'desktop-installation' || !(await verifyCurrentPassword(password))) {
+        throw new ConstitutionArchiveRecoveryServiceError('AUTH_FAILED', 'Fresh destructive authentication failed.');
+      }
+    }
+  );
+  setConstitutionArchiveRecoveryService(constitutionArchiveRecoveryService);
+  setConstitutionClassicRecoveryServiceReady(Promise.resolve(null));
+
   const repo = new SqliteConversationRepository();
   const conversationService = new ConversationServiceImpl(repo);
   const channelRepo = new SqliteChannelRepository();

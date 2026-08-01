@@ -1,0 +1,20 @@
+{
+  "source_path": "docs/desktop-overhaul-source/BUILD-PLAN.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Wayland Desktop Adaptive Cockpit Build Plan",
+  "summary": "Specifies the superseded incremental Adaptive Cockpit refactor, shared architecture, delivery phases, migration policy, and implementation gates.",
+  "scope": [
+    "Adaptive Cockpit",
+    "Classic shell",
+    "Cockpit shell",
+    "execution view model",
+    "Workbench",
+    "command center"
+  ],
+  "cross_refs": ["MASTER-BUILD-PLAN.md"],
+  "locked": false,
+  "precedence": 1,
+  "notes": ""
+}

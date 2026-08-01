@@ -26,8 +26,10 @@ const {
   excelStatusEmitMock,
   spawnMock,
   installOfficecliMock,
+  resolveVerifiedOfficecliCommandMock,
   fakePort,
   portConnectSucceeds,
+  MISSING_MSG,
 } = vi.hoisted(() => ({
   wordStartHandler: { fn: undefined as ((...args: any[]) => any) | undefined },
   wordStopHandler: { fn: undefined as ((...args: any[]) => any) | undefined },
@@ -37,11 +39,18 @@ const {
   excelStatusEmitMock: vi.fn(),
   spawnMock: vi.fn(),
   installOfficecliMock: vi.fn(),
+  resolveVerifiedOfficecliCommandMock: vi.fn(),
   fakePort: { value: 55555 },
   // Controls whether net.connect resolves (port ready) or rejects (port not ready).
   // Set to false in tests that expect the process to fail before the port opens.
   portConnectSucceeds: { value: true },
+  MISSING_MSG: 'The verified OfficeCLI runtime is missing; reinstall or update Wayland',
 }));
+
+// The exact verified OfficeCLI executable path the lockstep capability (01-13)
+// resolves. Both bridges must spawn THIS absolute path, never a bare-PATH
+// `officecli`, so a hijacked PATH entry can never be executed.
+const VERIFIED_CMD = '/verified/bundled-officecli/officecli';
 
 vi.mock('electron', () => ({
   app: { isPackaged: false, getPath: vi.fn(() => '/tmp') },
@@ -140,6 +149,8 @@ vi.mock('@process/services/database', () => ({
 // ENOENT-retry/decline behaviour can be driven deterministically.
 vi.mock('../../src/process/bridge/officecliInstaller', () => ({
   installOfficecli: (...args: any[]) => installOfficecliMock(...args),
+  resolveVerifiedOfficecliCommand: (...args: any[]) => resolveVerifiedOfficecliCommandMock(...args),
+  OFFICECLI_MISSING_RUNTIME_MESSAGE: MISSING_MSG,
 }));
 
 // --- Helpers ---
@@ -210,6 +221,9 @@ beforeEach(async () => {
   fakePort.value = 55555;
   portConnectSucceeds.value = true;
   installOfficecliMock.mockReset();
+  resolveVerifiedOfficecliCommandMock.mockReset();
+  // Default: the verified lockstep capability resolves to its exact executable.
+  resolveVerifiedOfficecliCommandMock.mockReturnValue(VERIFIED_CMD);
 
   const mod = await import('../../src/process/bridge/officeWatchBridge');
   initOfficeWatchBridge = mod.initOfficeWatchBridge;
@@ -262,7 +276,7 @@ describe('officeWatchBridge', () => {
       });
     });
 
-    it('spawns officecli with the confined path for word', async () => {
+    it('spawns the exact verified OfficeCLI executable with the confined path for word', async () => {
       initOfficeWatchBridge();
       const child = createMockChildProcess();
       spawnMock.mockReturnValue(child);
@@ -270,15 +284,29 @@ describe('officeWatchBridge', () => {
       const promise = wordStartHandler.fn!({ filePath: F('file.docx') });
       await waitForSpawn(1);
 
+      // Bound to the exact lockstep executable path, never bare-PATH `officecli`.
       expect(spawnMock).toHaveBeenCalledWith(
-        'officecli',
+        VERIFIED_CMD,
         ['watch', expect.stringContaining('file.docx'), '--port', '55555'],
         expect.objectContaining({ stdio: ['ignore', 'pipe', 'pipe'] })
       );
+      expect(spawnMock.mock.calls[0][0]).not.toBe('officecli');
 
       child.stdout.emit('data', Buffer.from('Watch: http://localhost:55555\n'));
       await flush();
       await promise;
+    });
+
+    it('fails closed for word when the verified OfficeCLI capability is unavailable (no bare-PATH spawn)', async () => {
+      resolveVerifiedOfficecliCommandMock.mockReturnValue(null);
+      initOfficeWatchBridge();
+      spawnMock.mockReturnValue(createMockChildProcess());
+
+      const result = await wordStartHandler.fn!({ filePath: F('file.docx') });
+
+      expect(spawnMock).not.toHaveBeenCalled();
+      expect(wordStatusEmitMock).toHaveBeenCalledWith({ state: 'error', message: MISSING_MSG });
+      expect(result).toEqual({ url: '', error: MISSING_MSG });
     });
 
     it('reuses existing alive session for word', async () => {
@@ -325,7 +353,7 @@ describe('officeWatchBridge', () => {
       expect(result).toEqual({ url: 'http://localhost:55555' });
     });
 
-    it('spawns officecli with the confined path for excel', async () => {
+    it('spawns the exact verified OfficeCLI executable with the confined path for excel', async () => {
       initOfficeWatchBridge();
       const child = createMockChildProcess();
       spawnMock.mockReturnValue(child);
@@ -333,15 +361,29 @@ describe('officeWatchBridge', () => {
       const promise = excelStartHandler.fn!({ filePath: F('file.xlsx') });
       await waitForSpawn(1);
 
+      // Bound to the exact lockstep executable path, never bare-PATH `officecli`.
       expect(spawnMock).toHaveBeenCalledWith(
-        'officecli',
+        VERIFIED_CMD,
         ['watch', expect.stringContaining('file.xlsx'), '--port', '55555'],
         expect.objectContaining({ stdio: ['ignore', 'pipe', 'pipe'] })
       );
+      expect(spawnMock.mock.calls[0][0]).not.toBe('officecli');
 
       child.stdout.emit('data', Buffer.from('Watch: http://localhost:55555\n'));
       await flush();
       await promise;
+    });
+
+    it('fails closed for excel when the verified OfficeCLI capability is unavailable (no bare-PATH spawn)', async () => {
+      resolveVerifiedOfficecliCommandMock.mockReturnValue(null);
+      initOfficeWatchBridge();
+      spawnMock.mockReturnValue(createMockChildProcess());
+
+      const result = await excelStartHandler.fn!({ filePath: F('file.xlsx') });
+
+      expect(spawnMock).not.toHaveBeenCalled();
+      expect(excelStatusEmitMock).toHaveBeenCalledWith({ state: 'error', message: MISSING_MSG });
+      expect(result).toEqual({ url: '', error: MISSING_MSG });
     });
 
     it('reuses existing alive session for excel', async () => {
@@ -604,7 +646,7 @@ describe('officeWatchBridge', () => {
   });
 
   describe('auto-install on ENOENT', () => {
-    it('attempts consent-gated auto-install on ENOENT for word and retries once', async () => {
+    it('delegates ENOENT to the recovery boundary and retries only when recovery succeeds', async () => {
       initOfficeWatchBridge();
 
       const child1 = createMockChildProcess();
@@ -613,7 +655,7 @@ describe('officeWatchBridge', () => {
       const child2 = createMockChildProcess();
       spawnMock.mockReturnValueOnce(child2);
 
-      // Install succeeds (consent granted, checksum verified).
+      // Model a future verified repair path succeeding.
       installOfficecliMock.mockResolvedValue(true);
 
       const promise = wordStartHandler.fn!({ filePath: F('file.docx') });
@@ -648,7 +690,7 @@ describe('officeWatchBridge', () => {
       const result = await promise;
       expect(result).toEqual({
         url: '',
-        error: 'officecli is not installed and auto-install was declined or failed',
+        error: 'The verified OfficeCLI runtime is missing; reinstall or update Wayland',
       });
     });
   });

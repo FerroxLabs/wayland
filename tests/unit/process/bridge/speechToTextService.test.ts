@@ -1,8 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+// VOC-03: `sttConfigMock` serves the STT config; the consent key is served from
+// a dedicated `hostedConsentMock` (granted by default in beforeEach) so the
+// transcription tests keep controlling only the STT config.
+const { sttConfigMock, hostedConsentMock } = vi.hoisted(() => ({
+  sttConfigMock: vi.fn(),
+  hostedConsentMock: vi.fn(),
+}));
+
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: {
-    get: vi.fn(),
+    get: (key: string, ...rest: unknown[]) =>
+      key === 'tools.voiceHostedConsent' ? hostedConsentMock() : sttConfigMock(key, ...rest),
   },
 }));
 
@@ -20,8 +29,7 @@ vi.mock('@process/connectors/fluxKey', () => ({
   readConnectedFluxKey: vi.fn(async () => undefined),
 }));
 
-import { ProcessConfig } from '@process/utils/initStorage';
-import { SpeechToTextService } from '@process/bridge/services/SpeechToTextService';
+import { SpeechToTextService, speechToTextRegistry } from '@process/bridge/services/SpeechToTextService';
 import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
 import { readConnectedProviderKey } from '@process/connectors/providerKey';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
@@ -34,6 +42,13 @@ describe('SpeechToTextService', () => {
     // per-test override never leaks into the next test.
     vi.mocked(readConnectedProviderKey).mockResolvedValue(undefined);
     vi.mocked(readConnectedFluxKey).mockResolvedValue(undefined);
+    // VOC-03: consent granted for every hosted provider by default; the
+    // fail-closed test overrides it.
+    hostedConsentMock.mockResolvedValue({
+      version: 1,
+      acceptedProviders: ['openai', 'deepgram', 'flux-voice'],
+      updatedAt: 1,
+    });
   });
 
   afterEach(() => {
@@ -41,7 +56,7 @@ describe('SpeechToTextService', () => {
   });
 
   it('rejects requests when speech-to-text is disabled', async () => {
-    vi.mocked(ProcessConfig.get).mockResolvedValue(undefined);
+    sttConfigMock.mockResolvedValue(undefined);
 
     await expect(
       SpeechToTextService.transcribe({
@@ -64,8 +79,28 @@ describe('SpeechToTextService', () => {
     );
   });
 
+  it('fails closed without sending audio when hosted-voice consent is absent', async () => {
+    sttConfigMock.mockResolvedValue({
+      enabled: true,
+      provider: 'openai',
+      openai: { apiKey: 'openai-key', model: 'whisper-1' },
+    });
+    hostedConsentMock.mockResolvedValue(null);
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      SpeechToTextService.transcribe({
+        audioBuffer: new Uint8Array([1, 2, 3]),
+        fileName: 'sample.webm',
+        mimeType: 'audio/webm',
+      })
+    ).rejects.toThrow('STT_HOSTED_CONSENT_REQUIRED');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it('sends OpenAI transcription requests with multipart form data', async () => {
-    vi.mocked(ProcessConfig.get).mockResolvedValue({
+    sttConfigMock.mockResolvedValue({
       enabled: true,
       provider: 'openai',
       openai: {
@@ -117,7 +152,7 @@ describe('SpeechToTextService', () => {
   });
 
   it('accepts desktop IPC audio payloads serialized as plain objects', async () => {
-    vi.mocked(ProcessConfig.get).mockResolvedValue({
+    sttConfigMock.mockResolvedValue({
       enabled: true,
       provider: 'openai',
       openai: {
@@ -154,7 +189,7 @@ describe('SpeechToTextService', () => {
   });
 
   it('sends Deepgram transcription requests with query options', async () => {
-    vi.mocked(ProcessConfig.get).mockResolvedValue({
+    sttConfigMock.mockResolvedValue({
       enabled: true,
       provider: 'deepgram',
       deepgram: {
@@ -213,7 +248,7 @@ describe('SpeechToTextService', () => {
   it('falls back to the connected OpenAI provider key when no STT-specific key is set', async () => {
     // OpenAI Whisper selected, but no key entered in the Voice panel (it defers
     // to the shared Providers store). The connected OpenAI provider supplies it.
-    vi.mocked(ProcessConfig.get).mockResolvedValue({
+    sttConfigMock.mockResolvedValue({
       enabled: true,
       provider: 'openai',
     });
@@ -249,7 +284,7 @@ describe('SpeechToTextService', () => {
     // first, so the request must hit the OpenAI endpoint with the OpenAI key -
     // NOT be rerouted to Flux Voice. If the Flux seed ran first this fetch
     // assertion fails (it would call the Flux endpoint with the Flux key).
-    vi.mocked(ProcessConfig.get).mockResolvedValue({
+    sttConfigMock.mockResolvedValue({
       enabled: true,
       provider: 'openai',
     });
@@ -273,7 +308,7 @@ describe('SpeechToTextService', () => {
   });
 
   it('prefers an explicit STT OpenAI key over the shared provider key', async () => {
-    vi.mocked(ProcessConfig.get).mockResolvedValue({
+    sttConfigMock.mockResolvedValue({
       enabled: true,
       provider: 'openai',
       openai: { apiKey: 'explicit-key', model: 'whisper-1' },
@@ -300,7 +335,7 @@ describe('SpeechToTextService', () => {
   });
 
   it('rejects when OpenAI is selected with neither an STT key nor a connected provider', async () => {
-    vi.mocked(ProcessConfig.get).mockResolvedValue({
+    sttConfigMock.mockResolvedValue({
       enabled: true,
       provider: 'openai',
     });
@@ -313,5 +348,82 @@ describe('SpeechToTextService', () => {
         mimeType: 'audio/webm',
       })
     ).rejects.toThrow('STT_OPENAI_NOT_CONFIGURED');
+  });
+
+  // VOC-04: adapter registry replaces the nested provider ternary.
+  describe('speechToTextRegistry (VOC-04)', () => {
+    it('registers every supported provider as an adapter', () => {
+      expect(new Set(speechToTextRegistry.providers())).toEqual(
+        new Set(['flux-voice', 'openai', 'deepgram', 'whisper-local'])
+      );
+    });
+
+    it('marks whisper-local on-device and hosted providers off-device', () => {
+      expect(speechToTextRegistry.resolve('whisper-local').onDevice).toBe(true);
+      expect(speechToTextRegistry.resolve('openai').onDevice).toBe(false);
+      expect(speechToTextRegistry.resolve('deepgram').onDevice).toBe(false);
+      expect(speechToTextRegistry.resolve('flux-voice').onDevice).toBe(false);
+    });
+
+    it('fails closed for an unregistered provider', () => {
+      expect(() =>
+        speechToTextRegistry.resolve('made-up' as Parameters<typeof speechToTextRegistry.resolve>[0])
+      ).toThrow('no voice adapter registered');
+    });
+  });
+
+  // VOC-04: every completed turn returns one authoritative VoiceReceipt derived
+  // from the observed audio-in / transcript-out boundary.
+  describe('transcribeTurn (VOC-04 VoiceReceipt)', () => {
+    it('emits a receipt derived from the observed boundary for a hosted turn', async () => {
+      sttConfigMock.mockResolvedValue({
+        enabled: true,
+        provider: 'openai',
+        openai: { apiKey: 'openai-key', model: 'whisper-1' },
+      });
+      const fetchMock = vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: ' hello world ' })));
+      vi.stubGlobal('fetch', fetchMock);
+
+      const { result, receipt } = await SpeechToTextService.transcribeTurn({
+        audioBuffer: new Uint8Array([1, 2, 3]),
+        fileName: 'sample.webm',
+        mimeType: 'audio/webm',
+      });
+
+      expect(result.text).toBe('hello world');
+      expect(receipt.modality).toBe('stt');
+      expect(receipt.provider).toBe('openai');
+      expect(receipt.model).toBe('whisper-1');
+      expect(receipt.terminalState).toBe('completed');
+      expect(receipt.authority).toBe('desktop');
+      // Observed usage: 3 audio bytes in, 'hello world' characters out.
+      expect(receipt.usage.audioInputBytes).toBe(3);
+      expect(receipt.usage.transcriptCharacterCount).toBe('hello world'.length);
+      // Hosted provider → no fabricated cost.
+      expect(receipt.cost.status).toBe('unavailable');
+      expect(receipt.content.requestBytes).toBe(3);
+      expect(receipt.content.requestDigest).toMatch(/^[0-9a-f]{64}$/);
+      expect(receipt.timing.durationMs).toBeGreaterThanOrEqual(0);
+    });
+
+    it('projects transcribe() to the receipt result so the IPC contract is unchanged', async () => {
+      sttConfigMock.mockResolvedValue({
+        enabled: true,
+        provider: 'openai',
+        openai: { apiKey: 'openai-key', model: 'whisper-1' },
+      });
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => new Response(JSON.stringify({ language: 'en', text: 'hi' })))
+      );
+
+      const result = await SpeechToTextService.transcribe({
+        audioBuffer: new Uint8Array([1, 2, 3]),
+        fileName: 'sample.webm',
+        mimeType: 'audio/webm',
+      });
+
+      expect(result).toEqual({ language: 'en', model: 'whisper-1', provider: 'openai', text: 'hi' });
+    });
   });
 });

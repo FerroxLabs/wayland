@@ -27,18 +27,35 @@ const {
   getRuntimeModeInvoke,
   brainInvoke,
   skipSetupInvoke,
+  getSkipSetupInvoke,
+  triggerInstallInvoke,
+  onStatusChangedOn,
+  statusListeners,
+  unsubscribeSpy,
   openExternalInvoke,
   messageSuccess,
   messageError,
-} = vi.hoisted(() => ({
-  getStatusInvoke: vi.fn<() => Promise<IjfwStatusPayload | undefined>>(),
-  getRuntimeModeInvoke: vi.fn<() => Promise<'full' | 'degraded'>>(),
-  brainInvoke: vi.fn<(args: { verb: string }) => Promise<{ ok: boolean }>>(),
-  skipSetupInvoke: vi.fn<(args: { enabled: boolean }) => Promise<{ ok: true }>>(),
-  openExternalInvoke: vi.fn<(url: string) => Promise<void>>(),
-  messageSuccess: vi.fn<(msg: string) => void>(),
-  messageError: vi.fn<(msg: string) => void>(),
-}));
+} = vi.hoisted(() => {
+  const listeners: Array<(p: IjfwStatusPayload) => void> = [];
+  const unsub = vi.fn<() => void>();
+  return {
+    getStatusInvoke: vi.fn<() => Promise<IjfwStatusPayload | undefined>>(),
+    getRuntimeModeInvoke: vi.fn<() => Promise<'full' | 'degraded'>>(),
+    brainInvoke: vi.fn<(args: { verb: string }) => Promise<{ ok: boolean }>>(),
+    skipSetupInvoke: vi.fn<(args: { enabled: boolean }) => Promise<{ ok: true }>>(),
+    getSkipSetupInvoke: vi.fn<() => Promise<{ enabled: boolean }>>(),
+    triggerInstallInvoke: vi.fn<() => Promise<{ ok: boolean; error?: string }>>(),
+    onStatusChangedOn: vi.fn((cb: (p: IjfwStatusPayload) => void) => {
+      listeners.push(cb);
+      return unsub;
+    }),
+    statusListeners: listeners,
+    unsubscribeSpy: unsub,
+    openExternalInvoke: vi.fn<(url: string) => Promise<void>>(),
+    messageSuccess: vi.fn<(msg: string) => void>(),
+    messageError: vi.fn<(msg: string) => void>(),
+  };
+});
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -53,6 +70,9 @@ vi.mock('@/common', () => ({
       getRuntimeMode: { invoke: getRuntimeModeInvoke },
       brainInvoke: { invoke: brainInvoke },
       skipSetup: { invoke: skipSetupInvoke },
+      getSkipSetup: { invoke: getSkipSetupInvoke },
+      triggerInstall: { invoke: triggerInstallInvoke },
+      onStatusChanged: { on: onStatusChangedOn },
     },
     shell: {
       openExternal: { invoke: openExternalInvoke },
@@ -85,10 +105,17 @@ beforeEach(() => {
   openExternalInvoke.mockReset();
   messageSuccess.mockReset();
   messageError.mockReset();
+  getSkipSetupInvoke.mockReset();
+  getSkipSetupInvoke.mockResolvedValue({ enabled: false });
+  triggerInstallInvoke.mockReset();
+  onStatusChangedOn.mockClear();
+  unsubscribeSpy.mockClear();
+  statusListeners.length = 0;
   getStatusInvoke.mockResolvedValue({ status: 'installed_current' });
   getRuntimeModeInvoke.mockResolvedValue('full');
   brainInvoke.mockResolvedValue({ ok: true });
   skipSetupInvoke.mockResolvedValue({ ok: true });
+  triggerInstallInvoke.mockResolvedValue({ ok: true });
   openExternalInvoke.mockResolvedValue(undefined);
 });
 
@@ -135,14 +162,15 @@ describe('IjfwSettingsPanel', () => {
     expect(codeEl.textContent).not.toBe('npx -y @ijfw/install@latest');
   });
 
-  it('reads initial switch state from getStatus (opt_out → ON)', async () => {
+  it('reads the switch from the persisted flag, not the status', async () => {
     getStatusInvoke.mockResolvedValueOnce({ status: 'not_installed', reason: 'opt_out' });
+    getSkipSetupInvoke.mockResolvedValue({ enabled: true });
     render(<IjfwSettingsPanel />);
     await flushAsync();
     expect(isSwitchOn()).toBe(true);
   });
 
-  it('defaults the switch to OFF when status is not opt_out', async () => {
+  it('defaults the switch to OFF when the flag is unset', async () => {
     getStatusInvoke.mockResolvedValueOnce({ status: 'installed_current' });
     render(<IjfwSettingsPanel />);
     await flushAsync();
@@ -162,7 +190,7 @@ describe('IjfwSettingsPanel', () => {
   });
 
   it('calls skipSetup.invoke({ enabled: false }) when toggled off', async () => {
-    getStatusInvoke.mockResolvedValueOnce({ status: 'not_installed', reason: 'opt_out' });
+    getSkipSetupInvoke.mockResolvedValue({ enabled: true });
     render(<IjfwSettingsPanel />);
     await flushAsync();
     expect(isSwitchOn()).toBe(true);
@@ -185,6 +213,146 @@ describe('IjfwSettingsPanel', () => {
     await flushAsync();
     expect(messageError).toHaveBeenCalledTimes(1);
     expect(isSwitchOn()).toBe(false);
+  });
+
+  /**
+   * Sean's live find, 2026-07-25: with the Skip flag on, the panel reported
+   * "Not installed yet" / "Waiting for install" and Test kept failing, and
+   * flipping the switch off changed NOTHING because the toggle only persisted
+   * the flag. Bootstrap had already run at boot and short-circuited on
+   * `opt_out`, so nothing re-ran and `runtimeMode` was never enabled. Only an
+   * app restart could recover it, which read as a permanently broken feature.
+   */
+  describe('re-enabling actually runs the install path', () => {
+    it('triggers bootstrap when Skip is switched OFF', async () => {
+      getSkipSetupInvoke.mockResolvedValue({ enabled: true });
+      render(<IjfwSettingsPanel />);
+      await flushAsync();
+      expect(isSwitchOn()).toBe(true);
+
+      await act(async () => {
+        fireEvent.click(getSwitchButton());
+      });
+      await flushAsync();
+
+      expect(skipSetupInvoke).toHaveBeenCalledWith({ enabled: false });
+      expect(triggerInstallInvoke).toHaveBeenCalledTimes(1);
+    });
+
+    it('does NOT trigger bootstrap when Skip is switched ON', async () => {
+      render(<IjfwSettingsPanel />);
+      await flushAsync();
+      await act(async () => {
+        fireEvent.click(getSwitchButton());
+      });
+      await flushAsync();
+
+      expect(skipSetupInvoke).toHaveBeenCalledWith({ enabled: true });
+      expect(triggerInstallInvoke).not.toHaveBeenCalled();
+    });
+
+    /**
+     * NOTE on scope: this covers triggerInstall returning a STRUCTURED failure,
+     * which happens when bootstrap throws. It does NOT cover install-lock
+     * contention - the bridge resolves ok:true there because bootstrap returns
+     * normally. Lock contention is now reported by an emitted
+     * `install_failed` / `install_lock_held` status instead (see
+     * ijfwSystemService). An earlier version of this test asserted a
+     * `{ok:false, error:'lock held by pid 42'}` shape the bridge can never
+     * produce, so it looked like coverage and was not.
+     */
+    it('surfaces an error when triggerInstall returns a structured failure', async () => {
+      getSkipSetupInvoke.mockResolvedValue({ enabled: true });
+      triggerInstallInvoke.mockResolvedValueOnce({ ok: false, error: 'bootstrap threw' });
+      render(<IjfwSettingsPanel />);
+      await flushAsync();
+      await act(async () => {
+        fireEvent.click(getSwitchButton());
+      });
+      await flushAsync();
+
+      expect(messageError).toHaveBeenCalledWith('bootstrap threw');
+    });
+  });
+
+  describe('live status updates (no app restart required)', () => {
+    it('subscribes on mount and unsubscribes on unmount', async () => {
+      const view = render(<IjfwSettingsPanel />);
+      await flushAsync();
+      expect(onStatusChangedOn).toHaveBeenCalledTimes(1);
+      view.unmount();
+      expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    /**
+     * Cross-audit finding (Kimi K3, 2026-07-25) on the first cut of this fix:
+     * deriving the switch from EVERY emitted payload let a bootstrap that
+     * started before the user re-enabled Skip flip the switch back OFF under
+     * them. A late `installed_current` is not evidence about the flag.
+     */
+    it("never lets a late emit override the user's own choice", async () => {
+      render(<IjfwSettingsPanel />);
+      await flushAsync();
+
+      // User turns Skip ON. The flag is now true.
+      await act(async () => {
+        fireEvent.click(getSwitchButton());
+      });
+      await flushAsync();
+      expect(skipSetupInvoke).toHaveBeenCalledWith({ enabled: true });
+      expect(isSwitchOn()).toBe(true);
+
+      // A bootstrap already in flight now reports success.
+      await act(async () => {
+        for (const emit of statusListeners) emit({ status: 'installed_current', cliCount: 17 });
+      });
+      await flushAsync();
+
+      // Checklist follows reality; the switch keeps the user's choice.
+      expect(screen.getByText('Installed and up to date')).toBeTruthy();
+      expect(isSwitchOn()).toBe(true);
+    });
+
+    /**
+     * Cross-audit finding (Gemini, 2026-07-25): with an install present the
+     * status is `installed_current` no matter what the flag says, so inferring
+     * the switch from status meant a user could never KEEP Skip on. Navigating
+     * away and back re-derived it to OFF and masked their persisted choice.
+     */
+    it('keeps Skip ON across a remount while an install is present', async () => {
+      getSkipSetupInvoke.mockResolvedValue({ enabled: true });
+      getStatusInvoke.mockResolvedValue({ status: 'installed_current', cliCount: 17 });
+
+      const first = render(<IjfwSettingsPanel />);
+      await flushAsync();
+      expect(isSwitchOn()).toBe(true);
+      first.unmount();
+
+      render(<IjfwSettingsPanel />);
+      await flushAsync();
+      expect(screen.getByText('Installed and up to date')).toBeTruthy();
+      expect(isSwitchOn()).toBe(true);
+    });
+
+    it('updates the checklist from an emitted status without a remount', async () => {
+      getStatusInvoke.mockResolvedValueOnce({ status: 'not_installed', reason: 'opt_out' });
+      getSkipSetupInvoke.mockResolvedValue({ enabled: true });
+      render(<IjfwSettingsPanel />);
+      await flushAsync();
+      expect(screen.getByText('Not installed yet')).toBeTruthy();
+      expect(isSwitchOn()).toBe(true);
+
+      // What bootstrap emits once it detects the existing install.
+      await act(async () => {
+        for (const emit of statusListeners) emit({ status: 'installed_current', cliCount: 17 });
+      });
+      await flushAsync();
+
+      expect(screen.getByText('Installed and up to date')).toBeTruthy();
+      // The i18n mock returns defaultValue verbatim without interpolating
+      // {{count}}, so assert the row's resolved state rather than its text.
+      expect(screen.getByTestId('ijfw-status-item-clis').getAttribute('data-status')).toBe('ok');
+    });
   });
 
   it('renders the IJFW + Ferrox Labs About section with GitHub link (v0.6.3 disclosure)', async () => {

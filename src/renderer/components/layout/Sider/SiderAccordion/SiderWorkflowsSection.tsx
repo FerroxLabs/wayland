@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ExternalLink, MoreVertical, Trash2, Workflow } from 'lucide-react';
+import { ExternalLink, MoreVertical, Square, Workflow } from 'lucide-react';
 import { Dropdown, Menu, Message, Modal } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -118,24 +118,28 @@ export const SiderWorkflowsSection: React.FC<SiderWorkflowsSectionProps> = ({ co
   const handleDelete = useCallback(
     (row: InFlightRow) => {
       Modal.confirm({
-        title: t('workflow.delete.title', { defaultValue: 'Delete workflow?' }),
+        title: t('workflow.delete.title', { defaultValue: 'Stop workflow?' }),
         content: t('workflow.delete.confirm', {
-          defaultValue: 'This permanently removes the workflow session. This cannot be undone.',
+          defaultValue:
+            'This stops the workflow and removes it from the active list. Its plan, chat, outputs, and files are kept.',
         }),
-        okText: t('conversation.history.deleteTitle', { defaultValue: 'Delete' }),
+        okText: t('workflow.delete.stop', { defaultValue: 'Stop workflow' }),
         cancelText: t('common.cancel', { defaultValue: 'Cancel' }),
         okButtonProps: { status: 'danger' },
         style: { borderRadius: '12px' },
         getPopupContainer: () => document.body,
         onOk: async () => {
           try {
-            await ipcBridge.workflow.deleteSession.invoke({ sessionId: row.sessionId });
+            await ipcBridge.workflow.updateSessionState.invoke({
+              sessionId: row.sessionId,
+              patch: { setSessionStatus: 'ended' },
+            });
             // sessionChanged fires → list refetches; optimistically drop it now too.
             setActiveSessions((prev) => prev.filter((s) => s.sessionId !== row.sessionId));
-            Message.success(t('workflow.delete.success', { defaultValue: 'Workflow deleted.' }));
+            Message.success(t('workflow.delete.success', { defaultValue: 'Workflow stopped. History was kept.' }));
           } catch (err) {
             console.error('Failed to delete workflow session:', err);
-            Message.error(t('workflow.delete.failed', { defaultValue: 'Failed to delete workflow.' }));
+            Message.error(t('workflow.delete.failed', { defaultValue: 'Failed to stop workflow.' }));
           }
         },
       });
@@ -226,8 +230,8 @@ export const SiderWorkflowsSection: React.FC<SiderWorkflowsSectionProps> = ({ co
                     </Menu.Item>
                     <Menu.Item key='delete'>
                       <div className='flex items-center gap-8px text-[rgb(var(--warning-6))]'>
-                        <Trash2 size={14} />
-                        <span>{t('workflow.menu.delete', { defaultValue: 'Delete' })}</span>
+                        <Square size={14} />
+                        <span>{t('workflow.menu.stop', { defaultValue: 'Stop' })}</span>
                       </div>
                     </Menu.Item>
                   </Menu>

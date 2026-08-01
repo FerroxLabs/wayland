@@ -105,13 +105,14 @@ export default defineConfig(({ mode }) => {
         reportCompressedSize: false,
         rollupOptions: {
           input: {
-            index: resolve('src/index.ts'),
+            index: resolve('src/bootstrap.ts'),
             // Worker entry files are output alongside index.js in out/main/.
             // BaseAgentManager.resolveWorkerDir() handles the case where code
             // splitting places it in a chunks/ subdirectory.
             gemini: resolve('src/process/worker/gemini.ts'),
             emailImap: resolve('src/process/worker/emailImap.ts'),
             lifecycleRunner: resolve('src/process/extensions/lifecycle/lifecycleRunner.ts'),
+            sandboxWorker: resolve('src/process/extensions/sandbox/sandboxWorker.ts'),
             // Built-in MCP server entry points (compiled by scripts/build-mcp-servers.js via esbuild,
             // not vite - esbuild bundles all deps for self-contained execution by external node processes)
           },
@@ -124,12 +125,16 @@ export default defineConfig(({ mode }) => {
       define: {
         'process.env.NODE_ENV': JSON.stringify(mode),
         'process.env.env': JSON.stringify(process.env.env),
+        'process.env.WAYLAND_RELEASE_TRACK': JSON.stringify(process.env.WAYLAND_RELEASE_TRACK ?? 'stable'),
         'process.env.SENTRY_DSN': JSON.stringify(process.env.SENTRY_DSN ?? ''),
       },
     },
 
     preload: {
       plugins: [externalizeDepsPlugin()],
+      define: {
+        'process.env.WAYLAND_RELEASE_TRACK': JSON.stringify(process.env.WAYLAND_RELEASE_TRACK ?? 'stable'),
+      },
       resolve: {
         alias: { '@': resolve('src'), '@common': resolve('src/common') },
         extensions: ['.ts', '.tsx', '.js', '.json'],
@@ -211,8 +216,8 @@ export default defineConfig(({ mode }) => {
             manualChunks(id: string) {
               if (!id.includes('node_modules')) return undefined;
               // CRITICAL: predicates use STRICT package-name boundaries
-              // (`/node_modules/<pkg>/`) so a package like `@monaco-editor/react`
-              // does NOT greedy-match the bare `/react/` substring and get
+              // (`/node_modules/<pkg>/`) so a React-named wrapper does NOT
+              // greedy-match the bare `/react/` substring and get
               // misclassified into vendor-react. Earlier substring-based
               // predicates created a circular vendor-react → vendor-i18n →
               // vendor-react dependency at module-init time, leaving
@@ -256,17 +261,8 @@ export default defineConfig(({ mode }) => {
 
               if (pkg('react-syntax-highlighter') || pkg('refractor') || pkg('highlight.js')) return 'vendor-highlight';
 
-              // Editor family. NOTE: @monaco-editor/react is bundled HERE (not in
-              // vendor-react) - it's a Monaco wrapper, not React core. Same for
-              // @uiw/react-codemirror.
-              if (
-                pkg('monaco-editor') ||
-                scoped('@monaco-editor') ||
-                pkg('codemirror') ||
-                scoped('@codemirror') ||
-                scoped('@uiw')
-              )
-                return 'vendor-editor';
+              // CodeMirror editor family, kept separate from React core.
+              if (pkg('codemirror') || scoped('@codemirror') || scoped('@uiw')) return 'vendor-editor';
 
               if (pkg('katex')) return 'vendor-katex';
               if (scoped('@icon-park')) return 'vendor-icons';
@@ -280,6 +276,7 @@ export default defineConfig(({ mode }) => {
         'process.env.NODE_ENV': JSON.stringify(mode),
         'process.env.env': JSON.stringify(process.env.env),
         'process.env.WAYLAND_MULTI_INSTANCE': JSON.stringify(process.env.WAYLAND_MULTI_INSTANCE ?? ''),
+        'process.env.WAYLAND_RELEASE_TRACK': JSON.stringify(process.env.WAYLAND_RELEASE_TRACK ?? 'stable'),
         'process.env.SENTRY_DSN': JSON.stringify(process.env.SENTRY_DSN ?? ''),
         global: 'globalThis',
       },

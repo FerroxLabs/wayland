@@ -28,10 +28,11 @@ import { join, basename } from 'node:path';
 import { execFileSync } from 'node:child_process';
 
 function parseArgs(argv) {
-  const out = { tag: '', dir: '' };
+  const out = { tag: '', dir: '', channel: 'latest' };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === '--tag') out.tag = argv[++i];
     else if (argv[i] === '--dir') out.dir = argv[++i];
+    else if (argv[i] === '--channel') out.channel = argv[++i];
   }
   return out;
 }
@@ -68,7 +69,11 @@ function sha512Base64(filePath) {
 }
 
 function main() {
-  const { tag, dir: dirArg } = parseArgs(process.argv.slice(2));
+  const { tag, dir: dirArg, channel } = parseArgs(process.argv.slice(2));
+  if (!/^[a-z0-9-]+$/.test(channel)) {
+    console.error(`FAIL: invalid update channel: ${channel}`);
+    process.exit(1);
+  }
   let dir = dirArg;
   let cleanup = null;
 
@@ -80,9 +85,28 @@ function main() {
     // gate runs once and correctness beats bandwidth.
     execFileSync(
       'gh',
-      ['release', 'download', tag, '--pattern', 'latest*.yml', '--pattern', '*.zip',
-        '--pattern', '*.dmg', '--pattern', '*.exe', '--pattern', '*.AppImage', '--pattern', '*.deb',
-        '--pattern', '*.rpm', '--dir', dir, '--clobber'],
+      [
+        'release',
+        'download',
+        tag,
+        '--pattern',
+        `${channel}*.yml`,
+        '--pattern',
+        '*.zip',
+        '--pattern',
+        '*.dmg',
+        '--pattern',
+        '*.exe',
+        '--pattern',
+        '*.AppImage',
+        '--pattern',
+        '*.deb',
+        '--pattern',
+        '*.rpm',
+        '--dir',
+        dir,
+        '--clobber',
+      ],
       { stdio: 'inherit' }
     );
   }
@@ -92,9 +116,9 @@ function main() {
     process.exit(1);
   }
 
-  const manifests = readdirSync(dir).filter((f) => /^latest.*\.yml$/.test(f));
+  const manifests = readdirSync(dir).filter((f) => f.startsWith(channel) && f.endsWith('.yml'));
   if (manifests.length === 0) {
-    console.error(`FAIL: no latest*.yml manifests found in ${dir}.`);
+    console.error(`FAIL: no ${channel}*.yml manifests found in ${dir}.`);
     process.exit(1);
   }
 

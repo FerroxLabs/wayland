@@ -41,6 +41,7 @@ import type { ChannelPlatform, IChannelPluginConfig, PluginType } from '../types
 import { getTokenStore, registerWebhookDispatcher } from '../webhook';
 import { ProcessConfig } from '@process/utils/initStorage';
 import { SessionManager } from './SessionManager';
+import { ConversationChannelCleanupCoordinator } from './ConversationChannelCleanup';
 
 /**
  * ChannelManager - Main orchestrator for the Channel subsystem
@@ -67,6 +68,7 @@ export class ChannelManager {
   private sessionManager: SessionManager | null = null;
   private pairingService: PairingService | null = null;
   private actionExecutor: ActionExecutor | null = null;
+  private conversationCleanup: ConversationChannelCleanupCoordinator | null = null;
 
   private constructor() {
     // Private constructor for singleton pattern
@@ -141,6 +143,10 @@ export class ChannelManager {
       this.pairingService = new PairingService();
       this.sessionManager = new SessionManager();
       await this.sessionManager.ready;
+      this.conversationCleanup = new ConversationChannelCleanupCoordinator({
+        clearSessionById: (sessionId) => this.sessionManager!.clearSessionById(sessionId),
+        clearContext: (sessionId) => getChannelMessageService().clearContext(sessionId),
+      });
       this.pluginManager = new PluginManager(this.sessionManager);
 
       // Create action executor and wire up message handling
@@ -182,6 +188,13 @@ export class ChannelManager {
       await this.loadEnabledPlugins();
 
       this.initialized = true;
+      try {
+        await this.conversationCleanup.start();
+      } catch (error) {
+        // The coordinator retains and retries durable intents. Channel startup
+        // remains available while cleanup recovery proceeds in the background.
+        console.warn('[ChannelManager] Pending conversation cleanup replay deferred:', error);
+      }
       console.log('[ChannelManager] Initialized successfully');
     } catch (error) {
       console.error('[ChannelManager] Initialization failed:', error);
@@ -208,6 +221,7 @@ export class ChannelManager {
       this.pairingService?.stop();
 
       // Shutdown Gemini service
+      this.conversationCleanup?.stop();
       await getChannelMessageService().shutdown();
 
       // Cleanup
@@ -215,6 +229,7 @@ export class ChannelManager {
       this.sessionManager = null;
       this.pairingService = null;
       this.actionExecutor = null;
+      this.conversationCleanup = null;
 
       this.initialized = false;
       console.log('[ChannelManager] Shutdown complete');
@@ -963,28 +978,11 @@ export class ChannelManager {
    * @returns true if cleanup was performed, false if no resources to clean
    */
   async cleanupConversation(conversationId: string): Promise<boolean> {
-    if (!this.initialized) {
+    if (!this.initialized || !this.conversationCleanup) {
       console.warn('[ChannelManager] Not initialized, skipping cleanup');
       return false;
     }
-
-    let cleanedUp = false;
-
-    // 1. Clear session associated with this conversation
-    const clearedSession = await this.sessionManager?.clearSessionByConversationId(conversationId);
-    if (clearedSession) {
-      cleanedUp = true;
-
-      // 2. Clear AssistantGeminiService agent cache for this session
-      try {
-        const geminiService = getChannelMessageService();
-        await geminiService.clearContext(clearedSession.id);
-      } catch (error) {
-        console.warn(`[ChannelManager] Failed to clear Gemini context:`, error);
-      }
-    }
-
-    return cleanedUp;
+    return this.conversationCleanup.cleanupConversation(conversationId);
   }
 
   // ==================== Accessors ====================

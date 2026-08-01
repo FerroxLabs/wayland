@@ -30,8 +30,8 @@
  * messageHandler path the Baileys/web backends use.
  */
 
-import type { ChildProcess} from 'child_process';
-import { fork } from 'child_process';
+import type { ChildProcess } from 'child_process';
+import { spawn } from 'child_process';
 import { randomUUID } from 'crypto';
 import dns from 'node:dns/promises';
 import net from 'node:net';
@@ -49,7 +49,9 @@ import type {
   IUnifiedOutgoingMessage,
   PluginType,
 } from '../../../types';
+import { resolveJsRuntime } from '@process/utils/jsRuntime';
 import { BasePlugin } from '../../BasePlugin';
+import { buildBridgeSpawnConfig } from './bridgeSpawnConfig';
 import { getChannelWelcomeService } from '../../../gateway/ChannelWelcomeService';
 
 /** Backend selector for the whatsapp-bridge subprocess. */
@@ -142,10 +144,7 @@ export function resolveBridgeEntryPath(): string {
     //    returns the unpacked app root, which contains src/ in dev runs.
     (() => {
       try {
-        return path.resolve(
-          app.getAppPath(),
-          'src/process/channels/whatsapp-bridge/bridge.js'
-        );
+        return path.resolve(app.getAppPath(), 'src/process/channels/whatsapp-bridge/bridge.js');
       } catch {
         return '';
       }
@@ -232,10 +231,7 @@ export class WhatsAppPlugin extends BasePlugin {
   private ownerNumbers: readonly string[] = [];
   private child: ChildProcess | null = null;
   private rpcId = 0;
-  private readonly pending = new Map<
-    number,
-    { resolve: (value: unknown) => void; reject: (err: Error) => void }
-  >();
+  private readonly pending = new Map<number, { resolve: (value: unknown) => void; reject: (err: Error) => void }>();
   private stdoutBuf = '';
   private connectionState: string = 'starting';
   private lastQr: string | null = null;
@@ -352,10 +348,7 @@ export class WhatsAppPlugin extends BasePlugin {
     try {
       // Best-effort graceful disconnect. If the bridge is wedged, the SIGTERM
       // below kicks in either way.
-      await Promise.race([
-        this.rpc('disconnect', {}),
-        new Promise((resolve) => setTimeout(resolve, 2_000)),
-      ]);
+      await Promise.race([this.rpc('disconnect', {}), new Promise((resolve) => setTimeout(resolve, 2_000))]);
     } catch (err) {
       console.warn('[whatsappPlugin] disconnect rpc failed (ignored):', err);
     } finally {
@@ -377,8 +370,7 @@ export class WhatsAppPlugin extends BasePlugin {
 
   async sendMessage(chatId: string, message: IUnifiedOutgoingMessage): Promise<string> {
     if (!this.child) throw new Error('WhatsApp bridge not running');
-    const hasMedia =
-      message.type === 'image' || message.type === 'file' || !!message.imageUrl || !!message.fileUrl;
+    const hasMedia = message.type === 'image' || message.type === 'file' || !!message.imageUrl || !!message.fileUrl;
     if (hasMedia) {
       const mediaType = message.type === 'image' || message.imageUrl ? 'image' : 'document';
       const mediaUrl = message.imageUrl ?? message.fileUrl ?? '';
@@ -414,9 +406,7 @@ export class WhatsAppPlugin extends BasePlugin {
     }
     const text = (message.text ?? '').trim();
     if (!text) throw new Error('WhatsApp message body cannot be empty');
-    const result = (await this.rpc('sendText', { chatId, text })) as
-      | { messageId: string | null }
-      | null;
+    const result = (await this.rpc('sendText', { chatId, text })) as { messageId: string | null } | null;
     const id = result?.messageId ?? '';
     if (id) this.rememberSentId(id);
     return id;
@@ -497,11 +487,7 @@ export class WhatsAppPlugin extends BasePlugin {
    * the Baileys / whatsapp-web bridge. Returns the absolute path. Caller is
    * responsible for unlinking after the RPC completes.
    */
-  private async downloadMediaToTemp(
-    mediaUrl: string,
-    mediaType: string,
-    fileName?: string,
-  ): Promise<string> {
+  private async downloadMediaToTemp(mediaUrl: string, mediaType: string, fileName?: string): Promise<string> {
     if (!mediaUrl) throw new Error('WhatsApp media send: mediaUrl required');
     const ext = (() => {
       if (fileName && /\.[A-Za-z0-9]+$/.test(fileName)) {
@@ -529,18 +515,14 @@ export class WhatsAppPlugin extends BasePlugin {
     // URL parser keeps IPv6 literal hostnames wrapped in [brackets]; strip
     // them before passing to net.isIP / dns.lookup.
     const rawHost = parsed.hostname.toLowerCase();
-    const host = rawHost.startsWith('[') && rawHost.endsWith(']')
-      ? rawHost.slice(1, -1)
-      : rawHost;
+    const host = rawHost.startsWith('[') && rawHost.endsWith(']') ? rawHost.slice(1, -1) : rawHost;
     // R6 (v0.4.3): Resolve hostname via DNS and reject if ANY returned address
     // is in a private range. Closes DNS-rebinding bypass where an attacker
     // points "internal.example.com" at 127.0.0.1. For IP literals, isIP()
     // short-circuits the DNS lookup. IPv6 link-local (fe80::/10) and ULA
     // (fc00::/7) covered. 0.0.0.0/8 + CGNAT (100.64/10) also blocked.
     if (host === 'localhost') {
-      throw new Error(
-        `SSRF: ${parsed.hostname} resolves to private address`,
-      );
+      throw new Error(`SSRF: ${parsed.hostname} resolves to private address`);
     }
     const ipVer = net.isIP(host);
     let addresses: { address: string; family: number }[];
@@ -573,7 +555,7 @@ export class WhatsAppPlugin extends BasePlugin {
     const pinnedLookup = (
       _hostname: string,
       _options: unknown,
-      callback: (err: Error | null, address: string, family: number) => void,
+      callback: (err: Error | null, address: string, family: number) => void
     ): void => {
       callback(null, pinned.address, pinned.family);
     };
@@ -596,11 +578,7 @@ export class WhatsAppPlugin extends BasePlugin {
    * would silently swallow updates - we throw to make the limitation visible
    * to anyone who calls past `capabilities.canEdit` (which is false).
    */
-  override async editMessage(
-    _chatId: string,
-    _messageId: string,
-    _message: IUnifiedOutgoingMessage,
-  ): Promise<void> {
+  override async editMessage(_chatId: string, _messageId: string, _message: IUnifiedOutgoingMessage): Promise<void> {
     throw new Error('WhatsApp does not support editing messages');
   }
 
@@ -615,11 +593,11 @@ export class WhatsAppPlugin extends BasePlugin {
   override async handleWebhookPayload(
     payload: object,
     headers: Record<string, string | string[] | undefined>,
-    _pluginInstanceId: string,
+    _pluginInstanceId: string
   ): Promise<void> {
     if (this.backend !== 'meta-business') {
       throw new Error(
-        `[whatsappPlugin] handleWebhookPayload only valid for meta-business backend (active: ${this.backend})`,
+        `[whatsappPlugin] handleWebhookPayload only valid for meta-business backend (active: ${this.backend})`
       );
     }
     if (!this.child) {
@@ -632,7 +610,7 @@ export class WhatsAppPlugin extends BasePlugin {
     const timeout = new Promise<never>((_, reject) => {
       timer = setTimeout(
         () => reject(new Error('whatsapp bridge webhookDelivery timeout')),
-        WEBHOOK_DELIVERY_TIMEOUT_MS,
+        WEBHOOK_DELIVERY_TIMEOUT_MS
       );
     });
     try {
@@ -684,11 +662,22 @@ export class WhatsAppPlugin extends BasePlugin {
 
   private forkBridge(): void {
     const entry = resolveBridgeEntryPath();
-    this.child = fork(entry, ['--backend', this.backend], {
-      // silent: pipe stdin/stdout for JSON-RPC; inherit stderr for parent logs.
-      silent: true,
-      stdio: ['pipe', 'pipe', 'inherit', 'ipc'],
+    // #890/#706: spawn a REAL JS runtime, never `child_process.fork`. Packaged
+    // builds blow the RunAsNode fuse (`afterPack.js`, SEC-ELEC-05), so a `fork`
+    // boots a SECOND Electron app instead of Node running bridge.js — that
+    // instance loses the single-instance lock and `app.quit()`s (code=0), the
+    // reconnect ladder exhausts, and the channel parks `error`; baileys/QR never
+    // run. `resolveJsRuntime()` returns bundled Bun when packaged (the app binary
+    // as Node only in dev). stdin+stdout stay the JSON-RPC pipes; stderr is
+    // inherited; there is no `'ipc'` slot (the child carries no data over IPC).
+    // Mirrors the shipped #706 fix in `safeSpawn.ts`.
+    const { command, argv, stdio, env } = buildBridgeSpawnConfig({
+      runtime: resolveJsRuntime(),
+      entry,
+      backend: this.backend,
+      parentEnv: process.env,
     });
+    this.child = spawn(command, argv, { stdio, env });
 
     const { stdout } = this.child;
     if (stdout) {
@@ -735,17 +724,15 @@ export class WhatsAppPlugin extends BasePlugin {
     if (this.reconnectAttempts >= WhatsAppPlugin.RECONNECT_MAX_ATTEMPTS) {
       this.setStatus(
         'error',
-        `bridge exited and reconnect ladder exhausted after ${this.reconnectAttempts} attempts (${reason})`,
+        `bridge exited and reconnect ladder exhausted after ${this.reconnectAttempts} attempts (${reason})`
       );
       return;
     }
     this.reconnectAttempts += 1;
-    const raw =
-      WhatsAppPlugin.RECONNECT_INITIAL_MS *
-      WhatsAppPlugin.RECONNECT_FACTOR ** (this.reconnectAttempts - 1);
+    const raw = WhatsAppPlugin.RECONNECT_INITIAL_MS * WhatsAppPlugin.RECONNECT_FACTOR ** (this.reconnectAttempts - 1);
     const delayMs = Math.min(WhatsAppPlugin.RECONNECT_MAX_MS, Math.round(raw));
     console.warn(
-      `[whatsappPlugin] respawning bridge in ${delayMs}ms (attempt ${this.reconnectAttempts}/${WhatsAppPlugin.RECONNECT_MAX_ATTEMPTS}, reason=${reason})`,
+      `[whatsappPlugin] respawning bridge in ${delayMs}ms (attempt ${this.reconnectAttempts}/${WhatsAppPlugin.RECONNECT_MAX_ATTEMPTS}, reason=${reason})`
     );
     this.setStatus('starting', `reconnecting (attempt ${this.reconnectAttempts})`);
     if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
@@ -778,13 +765,19 @@ export class WhatsAppPlugin extends BasePlugin {
   }
 
   private handleFrame(line: string): void {
-    let frame: JsonRpcFrame;
+    let parsed: unknown;
     try {
-      frame = JSON.parse(line) as JsonRpcFrame;
+      parsed = JSON.parse(line);
     } catch (err) {
       console.warn('[whatsappPlugin] bridge emitted invalid JSON:', line.slice(0, 200), err);
       return;
     }
+    // #890 hardening: a protocol frame is a non-null object. Primitives, null,
+    // and arrays are stdout pollution (a bare pino NDJSON value, a stray log
+    // number) — drop them quietly, and never let `'id' in frame` throw a
+    // TypeError on a non-object (which would escape the stdout `data` handler).
+    if (typeof parsed !== 'object' || parsed === null) return;
+    const frame = parsed as JsonRpcFrame;
     if ('id' in frame && typeof frame.id === 'number') {
       this.resolvePending(frame);
       return;
@@ -910,11 +903,7 @@ export class WhatsAppPlugin extends BasePlugin {
     // Heuristic: any value above 1e12 is already milliseconds (year > 33658).
     const tsRaw = msg.timestamp;
     const timestamp =
-      typeof tsRaw === 'number' && Number.isFinite(tsRaw)
-        ? tsRaw > 1e12
-          ? tsRaw
-          : tsRaw * 1000
-        : Date.now();
+      typeof tsRaw === 'number' && Number.isFinite(tsRaw) ? (tsRaw > 1e12 ? tsRaw : tsRaw * 1000) : Date.now();
 
     // W-3 (v0.4.3): surface mediaPath via unified attachments so agents can
     // read the bytes without grovelling through `raw`. Only the QR backends
@@ -967,9 +956,7 @@ export class WhatsAppPlugin extends BasePlugin {
       timestamp,
       raw: msg as unknown,
     };
-    void this.emitMessage(unified).catch((err) =>
-      console.error('[whatsappPlugin] inbound handler failed:', err),
-    );
+    void this.emitMessage(unified).catch((err) => console.error('[whatsappPlugin] inbound handler failed:', err));
   }
 
   private rpc(method: string, params: Record<string, JsonValue>): Promise<unknown> {
@@ -1014,9 +1001,7 @@ export class WhatsAppPlugin extends BasePlugin {
     });
   }
 
-  private normalizeHeaders(
-    headers: Record<string, string | string[] | undefined>,
-  ): Record<string, string> {
+  private normalizeHeaders(headers: Record<string, string | string[] | undefined>): Record<string, string> {
     const out: Record<string, string> = {};
     for (const [k, v] of Object.entries(headers)) {
       if (v === undefined) continue;
@@ -1042,7 +1027,7 @@ export class WhatsAppPlugin extends BasePlugin {
    *   the operator to proceed to the live QR step.
    */
   static override async testConnection(
-    token: string,
+    token: string
   ): Promise<{ success: boolean; botUsername?: string; error?: string; warning?: string }> {
     let parsed: { backend?: string; accessToken?: string; phoneNumberId?: string };
     try {

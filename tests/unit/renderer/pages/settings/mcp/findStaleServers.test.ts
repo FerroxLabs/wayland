@@ -26,6 +26,12 @@ describe('findStaleServers', () => {
     expect(findStaleServers(configured, agentConfigs, canon)).toEqual([]);
   });
 
+  it('does NOT flag a case-only agent rewrite as a stale duplicate', () => {
+    const configured = new Set([canon('Tavily')]);
+    const agentConfigs = [{ source: 'claude', servers: [{ name: 'tavily' }] }];
+    expect(findStaleServers(configured, agentConfigs, canon)).toEqual([]);
+  });
+
   it('groups the agents that still carry the same leftover', () => {
     const configured = new Set<string>();
     const agentConfigs = [

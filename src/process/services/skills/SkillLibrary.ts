@@ -135,6 +135,43 @@ function resolveBundledWorkflowsDir(): string {
   return candidates[0];
 }
 
+/**
+ * True when an entry is a first-party skill that ships INSIDE the code-signed,
+ * read-only app bundle, and may therefore be trusted without a guard scan.
+ *
+ * Two facts must BOTH hold, and both originate inside the signed bundle:
+ *  1. `source === 'wayland-library'` — this source string is minted ONLY by the
+ *     bundled index.json load; no IPC / import / CLI / team vector accepts a
+ *     caller-supplied source, so user content cannot spoof it.
+ *  2. `!path.isAbsolute(entry.path)` — vendored bodies resolve by a RELATIVE
+ *     path against the read-only resourceDir / packed blob. Every externally
+ *     rooted source uses an ABSOLUTE path into writable user-data, so a relative
+ *     path proves the body is served from the signed bundle, not a writable one.
+ *
+ * `team` is deliberately NOT trusted: team bodies live in writable user-data and
+ * would be spoofable by a local writer, so they stay fully scanned. Trust is by
+ * provenance (bundle-anchored location), not by content.
+ */
+function isTrustedBundleSkill(entry: SkillIndexEntry): boolean {
+  return entry.source === 'wayland-library' && !path.isAbsolute(entry.path);
+}
+
+/**
+ * The synthesized `clean` report stamped on a trusted bundle skill WITHOUT
+ * running SkillGuard.scan. `contentHash` is intentionally omitted (optional per
+ * SkillSecurityReport): trust is by provenance, not content, so the body is
+ * never read — which also avoids ~2,000 body reads on every boot.
+ */
+function trustedBundleReport(): SkillSecurityReport {
+  return {
+    verdict: 'clean',
+    findings: [],
+    scannedAt: Date.now(),
+    scannerVersion: SKILL_SCANNER_VERSION,
+    llmScanned: false,
+  };
+}
+
 type ReadFileFn = (p: string) => Promise<string>;
 
 type SkillLibraryOptions = {
@@ -499,6 +536,12 @@ export class SkillLibrary {
     if (!entry) return null;
     const stored = entry.security?.scannerVersion ?? 0;
     if (stored >= SKILL_SCANNER_VERSION) return entry.security ?? null;
+    // #885: trusted first-party bundle skills are exempt — stamp clean without
+    // reading the body or invoking SkillGuard.scan. See isTrustedBundleSkill.
+    if (isTrustedBundleSkill(entry)) {
+      entry.security = trustedBundleReport();
+      return entry.security;
+    }
     const body = await this.readScanBody(entry);
     if (body === null) return entry.security ?? null;
     const [report] = await SkillGuard.scan(
@@ -556,9 +599,24 @@ export class SkillLibrary {
     const total = stale.length;
     let done = 0;
 
+    // #885: trusted first-party bundle skills are exempt from the guard scan.
+    // Stamp them clean in place (no body read, no SkillGuard.scan) while still
+    // counting them toward `total` and the monotonic `done` progress sequence.
+    // Only untrusted entries feed the scan pipeline. See isTrustedBundleSkill.
+    const untrusted: SkillIndexEntry[] = [];
+    for (const entry of stale) {
+      if (isTrustedBundleSkill(entry)) {
+        entry.security = trustedBundleReport();
+        done += 1;
+        opts?.onProgress?.({ done, total, currentName: entry.name });
+      } else {
+        untrusted.push(entry);
+      }
+    }
+
     const chunks: SkillIndexEntry[][] = [];
-    for (let i = 0; i < stale.length; i += RESCAN_CHUNK_SIZE) {
-      chunks.push(stale.slice(i, i + RESCAN_CHUNK_SIZE));
+    for (let i = 0; i < untrusted.length; i += RESCAN_CHUNK_SIZE) {
+      chunks.push(untrusted.slice(i, i + RESCAN_CHUNK_SIZE));
     }
 
     const scanChunk = async (chunk: SkillIndexEntry[]): Promise<void> => {

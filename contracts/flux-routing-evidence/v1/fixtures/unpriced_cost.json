@@ -1,0 +1,97 @@
+{
+  "correlation": {
+    "backend_spawn_id": "spawn-unpriced-cost",
+    "correlation_id": "corr-unpriced-cost",
+    "desktop_task_id": "dt_unpriced-cost",
+    "desktop_turn_id": "turn-unpriced-cost",
+    "request_id": "req-unpriced-cost"
+  },
+  "events": [
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-unpriced-cost",
+        "correlation_id": "corr-unpriced-cost",
+        "desktop_task_id": "dt_unpriced-cost",
+        "desktop_turn_id": "turn-unpriced-cost",
+        "request_id": "req-unpriced-cost"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-unpriced-cost-0",
+      "event_type": "route.selected",
+      "evidence": {
+        "flux_involved": true,
+        "precedence": "flux_auto",
+        "provider": "provider-new",
+        "requested_model": "flux-auto",
+        "reroute_allowed": true,
+        "route_mode": "flux_auto",
+        "selected_model": "new-model"
+      },
+      "sequence": 0
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-unpriced-cost",
+        "correlation_id": "corr-unpriced-cost",
+        "desktop_task_id": "dt_unpriced-cost",
+        "desktop_turn_id": "turn-unpriced-cost",
+        "request_id": "req-unpriced-cost"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-unpriced-cost-1",
+      "event_type": "provider.attempt_started",
+      "evidence": {
+        "attempt_id": "attempt-unpriced-1",
+        "model": "new-model",
+        "provider": "provider-new"
+      },
+      "sequence": 1
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-unpriced-cost",
+        "correlation_id": "corr-unpriced-cost",
+        "desktop_task_id": "dt_unpriced-cost",
+        "desktop_turn_id": "turn-unpriced-cost",
+        "request_id": "req-unpriced-cost"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-unpriced-cost-2",
+      "event_type": "request.cost_observed",
+      "evidence": {
+        "attempt_id": "attempt-unpriced-1",
+        "cost_microusd": null,
+        "currency": null,
+        "latency_ms": 299,
+        "price_status": "unpriced",
+        "reason_code": "price_unknown"
+      },
+      "sequence": 2
+    },
+    {
+      "contract_version": "1.0.0",
+      "correlation": {
+        "backend_spawn_id": "spawn-unpriced-cost",
+        "correlation_id": "corr-unpriced-cost",
+        "desktop_task_id": "dt_unpriced-cost",
+        "desktop_turn_id": "turn-unpriced-cost",
+        "request_id": "req-unpriced-cost"
+      },
+      "emitted_at": "2026-07-15T00:00:00Z",
+      "event_id": "evt-unpriced-cost-3",
+      "event_type": "request.terminal",
+      "evidence": {
+        "attempt_id": "attempt-unpriced-1",
+        "outcome": "success",
+        "reason_code": "completed_unpriced"
+      },
+      "sequence": 3
+    }
+  ],
+  "expected_profile": "flux",
+  "fixture_version": 1,
+  "scenario": "unpriced-cost"
+}

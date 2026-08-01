@@ -11,10 +11,12 @@ import path from 'path';
 import { bootstrapProjectKnowledge } from '@process/services/projectKnowledge/bootstrap';
 import {
   addProjectReference,
+  listArchivedProjectReferences,
   listProjectReference,
   loadProjectKnowledgeBlock,
   readProjectKnowledge,
   removeProjectReference,
+  restoreProjectReference,
   saveProjectReferenceUploads,
   writeProjectKnowledge,
 } from '@process/services/projectKnowledge/knowledge';
@@ -72,7 +74,7 @@ describe('project knowledge', () => {
     expect(await readProjectKnowledge('')).toEqual({ context: '', rules: '', decisions: '' });
   });
 
-  it('adds, lists and removes reference files (collision-safe)', async () => {
+  it('adds, lists, archives, and restores reference files (collision-safe)', async () => {
     const a = path.join(ws, 'a.txt');
     await fs.writeFile(a, 'alpha');
     const after1 = await addProjectReference(ws, [a]);
@@ -88,6 +90,22 @@ describe('project knowledge', () => {
 
     const afterRemove = await removeProjectReference(ws, 'a.txt');
     expect(afterRemove.map((f) => f.name)).toEqual(['a-1.txt']);
+
+    const archived = await listArchivedProjectReferences(ws);
+    expect(archived).toEqual([
+      expect.objectContaining({
+        id: expect.any(String),
+        name: 'a.txt',
+        size: 5,
+        archivedAt: expect.any(Number),
+      }),
+    ]);
+
+    // Restore returns the archived original without disturbing the surviving
+    // collision-safe copy.
+    const afterRestore = await restoreProjectReference(ws, archived[0].id);
+    expect(afterRestore.map((f) => f.name).toSorted()).toEqual(['a-1.txt', 'a.txt']);
+    expect(await listArchivedProjectReferences(ws)).toEqual([]);
   });
 
   it('guards reference removal against path traversal (cannot escape the dir)', async () => {
@@ -96,8 +114,16 @@ describe('project knowledge', () => {
     // resolves inside .wayland/reference/, so the real sentinel is untouched.
     const sentinel = path.join(ws, 'sentinel.txt');
     await fs.writeFile(sentinel, 'do-not-delete');
-    await removeProjectReference(ws, '../sentinel.txt');
+    await expect(removeProjectReference(ws, '../sentinel.txt')).rejects.toThrow();
     await expect(fs.access(sentinel)).resolves.toBeUndefined();
+  });
+
+  it('rejects archived-reference traversal and keeps the archived bytes recoverable', async () => {
+    await saveProjectReferenceUploads(ws, [{ name: 'source.txt', data: Buffer.from('recover me') }]);
+    await removeProjectReference(ws, 'source.txt');
+
+    await expect(restoreProjectReference(ws, '../outside')).rejects.toThrow('Invalid archived reference identifier');
+    expect((await listArchivedProjectReferences(ws)).map((entry) => entry.name)).toEqual(['source.txt']);
   });
 
   // #55 - browser/WebUI upload path: bytes arrive over HTTP, not a host path.

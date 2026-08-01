@@ -8,10 +8,11 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { hasPluginCredentials } from '@process/channels/types';
 
-// Stub child_process.fork at the module level so importing WhatsAppPlugin
+// Stub child_process.spawn at the module level so importing WhatsAppPlugin
 // doesn't accidentally spawn a real subprocess during construction tests.
+// (#890 migrated the bridge off child_process.fork onto spawn.)
 vi.mock('child_process', () => ({
-  fork: vi.fn(() => ({
+  spawn: vi.fn(() => ({
     stdout: { setEncoding: () => undefined, on: () => undefined },
     stdin: { write: (_: string, cb?: (err?: Error) => void) => cb?.() },
     once: () => undefined,
@@ -50,7 +51,7 @@ describe('hasPluginCredentials("whatsapp", ...) - per-backend rules', () => {
         backend: 'meta-business',
         accessToken: 'EAAGxxx',
         phoneNumberId: '123456789012345',
-      }),
+      })
     ).toBe(true);
   });
 
@@ -59,7 +60,7 @@ describe('hasPluginCredentials("whatsapp", ...) - per-backend rules', () => {
       hasPluginCredentials('whatsapp', {
         backend: 'meta-business',
         phoneNumberId: '123456789012345',
-      }),
+      })
     ).toBe(false);
   });
 
@@ -68,7 +69,7 @@ describe('hasPluginCredentials("whatsapp", ...) - per-backend rules', () => {
       hasPluginCredentials('whatsapp', {
         backend: 'meta-business',
         accessToken: 'EAAGxxx',
-      }),
+      })
     ).toBe(false);
   });
 

@@ -1,4 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+const processConfigGet = vi.hoisted(() => vi.fn(async () => [] as unknown));
+const attachOAuthTokens = vi.hoisted(() => vi.fn(async (servers: unknown[]) => servers));
 
 vi.mock('electron', () => ({ app: { isPackaged: false, getPath: vi.fn(() => '/tmp') } }));
 
@@ -57,7 +60,15 @@ vi.mock('../../src/process/utils/initStorage', () => ({
   ProcessChat: { get: vi.fn(async () => []) },
   getSkillsDir: vi.fn(() => '/skills'),
   getSystemDir: vi.fn(() => ({ cacheDir: '/tmp/cache' })),
-  ProcessConfig: { get: vi.fn(async () => []) },
+  ProcessConfig: { get: processConfigGet },
+}));
+
+vi.mock('../../src/process/services/mcpServices/McpService', () => ({
+  mcpService: { attachOAuthTokens },
+}));
+
+vi.mock('../../src/process/services/cron/cronServiceSingleton', () => ({
+  cronService: { listJobsByConversation: vi.fn(async () => []) },
 }));
 
 vi.mock('../../src/process/bridge/migrationUtils', () => ({
@@ -86,12 +97,16 @@ import { initConversationBridge } from '../../src/process/bridge/conversationBri
 import type { IConversationService } from '../../src/process/services/IConversationService';
 import type { IWorkerTaskManager } from '../../src/process/task/IWorkerTaskManager';
 import type { TChatConversation } from '../../src/common/config/storage';
+import type { IMcpServer } from '../../src/common/config/storage';
+import { mcpRuntimeFingerprint, mcpSessionFingerprint } from '../../src/common/mcp';
+import { MCP_SESSION_TRUTH_PREVIEW_ENV } from '../../src/process/services/mcpServices/mcpSessionTruthGate';
 
 function makeService(overrides?: Partial<IConversationService>): IConversationService {
   return {
     createConversation: vi.fn(),
+    prepareDeleteConversation: vi.fn(async () => () => {}),
     deleteConversation: vi.fn(),
-    updateConversation: vi.fn(),
+    updateConversation: vi.fn(async () => {}),
     getConversation: vi.fn(async () => undefined),
     createWithMigration: vi.fn(),
     listAllConversations: vi.fn(async () => []),
@@ -107,8 +122,10 @@ function makeTaskManager(overrides?: Partial<IWorkerTaskManager>): IWorkerTaskMa
     }),
     addTask: vi.fn(),
     kill: vi.fn(),
+    withConversationShutdown: vi.fn(async (_id, prepare, commit) => commit(await prepare())),
     clear: vi.fn(),
     listTasks: vi.fn(() => []),
+    listWorkspaceAuthorities: vi.fn(() => []),
     ...overrides,
   };
 }
@@ -122,11 +139,18 @@ describe('conversationBridge', () => {
   let taskManager: IWorkerTaskManager;
 
   beforeEach(() => {
+    delete process.env[MCP_SESSION_TRUTH_PREVIEW_ENV];
+    processConfigGet.mockReset().mockResolvedValue([]);
+    attachOAuthTokens.mockReset().mockImplementation(async (servers: unknown[]) => servers);
     vi.clearAllMocks();
     // Re-register providers by re-initializing the bridge
     service = makeService();
     taskManager = makeTaskManager();
     initConversationBridge(service, taskManager);
+  });
+
+  afterEach(() => {
+    delete process.env[MCP_SESSION_TRUTH_PREVIEW_ENV];
   });
 
   describe('create', () => {
@@ -230,6 +254,22 @@ describe('conversationBridge', () => {
       expect(result).toEqual(conversation);
       expect(rejectingTaskManager.getOrBuildTask).toHaveBeenCalledWith('new-id');
     });
+
+    it('returns null and emits no false success when migration fails', async () => {
+      const conversation = makeConversation('new-id');
+      vi.mocked(service.createWithMigration).mockRejectedValue(new Error('schedule authority unavailable'));
+      const tm = makeTaskManager();
+      initConversationBridge(service, tm);
+
+      const result = await handlers['createWithConversation']({
+        conversation,
+        sourceConversationId: 'source-id',
+        migrateCron: true,
+      });
+
+      expect(result).toBeNull();
+      expect(tm.getOrBuildTask).not.toHaveBeenCalled();
+    });
   });
 
   describe('getWorkspace - ENOENT handling', () => {
@@ -281,6 +321,137 @@ describe('conversationBridge', () => {
       expect(result).toEqual({ success: true });
       // sendMessage should still be called with empty files array
       expect(mockTask.sendMessage).toHaveBeenCalled();
+    });
+
+    it('rebuilds stale MCP session authority in production without a preview gate', async () => {
+      const task = {
+        type: 'wcore',
+        workspace: '/ws',
+        sendMessage: vi.fn(async () => {}),
+      };
+      const tm = makeTaskManager({
+        getTask: vi.fn(() => task as never),
+        getOrBuildTask: vi.fn(async () => task),
+      });
+      const svc = makeService({
+        getConversation: vi.fn(async () => ({
+          ...makeConversation('c-quarantined', '/ws'),
+          type: 'wcore',
+          extra: { workspace: '/ws', mcpRuntimeFingerprint: 'stale' },
+        })),
+      });
+      initConversationBridge(svc, tm);
+
+      await expect(
+        handlers['sendMessage']({ conversation_id: 'c-quarantined', input: 'use tavily', files: [] })
+      ).resolves.toEqual({ success: true });
+
+      expect(tm.kill).toHaveBeenCalledWith('c-quarantined');
+      expect(attachOAuthTokens).toHaveBeenCalled();
+      expect(
+        vi
+          .mocked(svc.updateConversation)
+          .mock.calls.some(([, updates]) =>
+            Boolean((updates as { extra?: { mcpRuntimeFingerprint?: string } }).extra?.mcpRuntimeFingerprint)
+          )
+      ).toBe(true);
+    });
+
+    it('waits for a stale MCP session to exit before building and sending through its replacement', async () => {
+      process.env[MCP_SESSION_TRUTH_PREVIEW_ENV] = '1';
+      let releaseKill: (() => void) | undefined;
+      const killComplete = new Promise<void>((resolve) => {
+        releaseKill = resolve;
+      });
+      const replacement = {
+        type: 'wcore',
+        workspace: '/ws',
+        sendMessage: vi.fn(async () => {}),
+      };
+      const oldTask = { type: 'wcore' };
+      const getOrBuildTask = vi.fn(async () => replacement);
+      const tm = makeTaskManager({
+        getTask: vi.fn(() => oldTask as never),
+        kill: vi.fn(() => killComplete),
+        getOrBuildTask,
+      });
+      const svc = makeService({
+        getConversation: vi.fn(async () => ({
+          ...makeConversation('c-mcp', '/ws'),
+          type: 'wcore',
+          extra: { workspace: '/ws', mcpRuntimeFingerprint: 'mcp-v1-stale-all' },
+        })),
+      });
+      initConversationBridge(svc, tm);
+
+      const send = handlers['sendMessage']({ conversation_id: 'c-mcp', input: 'use tavily', files: [] });
+      await vi.waitFor(() => expect(tm.kill).toHaveBeenCalledWith('c-mcp'));
+      expect(getOrBuildTask).not.toHaveBeenCalled();
+
+      releaseKill?.();
+      await expect(send).resolves.toEqual({ success: true });
+      expect(getOrBuildTask).toHaveBeenCalledWith('c-mcp');
+      expect(replacement.sendMessage).toHaveBeenCalled();
+    });
+
+    it('rebuilds a live chat when the encrypted OAuth store rotates a bearer', async () => {
+      process.env[MCP_SESSION_TRUTH_PREVIEW_ENV] = '1';
+      const rawServer: IMcpServer = {
+        id: 'tavily',
+        name: 'Tavily',
+        enabled: true,
+        status: 'connected',
+        transport: { type: 'http', url: 'https://mcp.tavily.com/mcp/' },
+        createdAt: 1,
+        updatedAt: 1,
+      };
+      const withBearer = (token: string): IMcpServer => ({
+        ...rawServer,
+        transport: {
+          type: 'http',
+          url: 'https://mcp.tavily.com/mcp/',
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      });
+      const oldFingerprint = mcpSessionFingerprint(mcpRuntimeFingerprint([withBearer('old-token')]), undefined);
+      processConfigGet.mockResolvedValue([rawServer]);
+      attachOAuthTokens.mockResolvedValue([withBearer('fresh-token')]);
+
+      const replacement = {
+        type: 'acp',
+        workspace: '/ws',
+        sendMessage: vi.fn(async () => {}),
+      };
+      const tm = makeTaskManager({
+        getTask: vi.fn(() => ({ type: 'acp' }) as never),
+        kill: vi.fn(async () => {}),
+        getOrBuildTask: vi.fn(async () => replacement),
+      });
+      const svc = makeService({
+        getConversation: vi.fn(async () => ({
+          ...makeConversation('c-oauth', '/ws'),
+          type: 'acp',
+          extra: { workspace: '/ws', mcpRuntimeFingerprint: oldFingerprint },
+        })),
+      });
+      initConversationBridge(svc, tm);
+
+      await expect(
+        handlers['sendMessage']({ conversation_id: 'c-oauth', input: 'search with Tavily', files: [] })
+      ).resolves.toEqual({ success: true });
+
+      expect(attachOAuthTokens).toHaveBeenCalledWith([rawServer]);
+      expect(tm.kill).toHaveBeenCalledWith('c-oauth');
+      expect(replacement.sendMessage).toHaveBeenCalled();
+      expect(svc.updateConversation).toHaveBeenCalledWith(
+        'c-oauth',
+        expect.objectContaining({
+          extra: expect.objectContaining({
+            mcpRuntimeFingerprint: mcpSessionFingerprint(mcpRuntimeFingerprint([withBearer('fresh-token')]), undefined),
+          }),
+        }),
+        true
+      );
     });
   });
 

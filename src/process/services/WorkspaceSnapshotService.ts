@@ -16,6 +16,16 @@ const execFileAsync = promisify(execFile);
 
 const SNAPSHOT_DIRNAME = '.wayland-snapshots';
 const SNAPSHOT_PREFIX = 'wayland-snapshot-';
+const SNAPSHOT_OWNER_FILE = '.wayland-snapshot-owner.json';
+const SNAPSHOT_OWNER = Object.freeze({ kind: 'wayland-workspace-snapshot', version: 1 });
+
+type MoveToTrash = (entryPath: string) => Promise<void>;
+
+async function moveToSystemTrash(entryPath: string): Promise<void> {
+  const electron = await import('electron');
+  if (!electron.shell?.trashItem) throw new Error('RECOVERABLE_TRASH_UNAVAILABLE');
+  await electron.shell.trashItem(entryPath);
+}
 
 /**
  * Resolve the root directory under which transient snapshot gitdirs live.
@@ -68,6 +78,8 @@ venv/
 export class WorkspaceSnapshotService {
   private snapshots = new Map<string, SnapshotState>();
 
+  constructor(private readonly moveToTrash: MoveToTrash = moveToSystemTrash) {}
+
   async init(workspacePath: string): Promise<SnapshotInfo> {
     if (this.snapshots.has(workspacePath)) {
       await this.dispose(workspacePath);
@@ -93,6 +105,10 @@ export class WorkspaceSnapshotService {
   }
 
   async compare(workspacePath: string): Promise<CompareResult> {
+    return this.computeCompare(workspacePath);
+  }
+
+  private async computeCompare(workspacePath: string): Promise<CompareResult> {
     const state = this.snapshots.get(workspacePath);
     if (!state) {
       return { staged: [], unstaged: [] };
@@ -169,13 +185,14 @@ export class WorkspaceSnapshotService {
 
   async discardFile(workspacePath: string, filePath: string, operation: FileChangeInfo['operation']): Promise<void> {
     this.ensureGitRepo(workspacePath);
+    const fullPath = await this.resolveWorkspaceEntry(workspacePath, filePath);
 
     if (operation === 'create') {
-      // Untracked file - delete it
-      const fullPath = path.join(workspacePath, filePath);
-      await fs.unlink(fullPath).catch(() => {});
+      // Untracked work remains recoverable through operating-system Trash.
+      await this.moveExistingEntryToTrash(fullPath);
     } else {
-      // Modified or deleted - restore from HEAD
+      // Preserve the current modified bytes before restoring the baseline.
+      if (operation === 'modify') await this.moveExistingEntryToTrash(fullPath);
       await execFileAsync('git', ['checkout', 'HEAD', '--', filePath], { cwd: workspacePath });
     }
   }
@@ -186,13 +203,14 @@ export class WorkspaceSnapshotService {
     const state = this.snapshots.get(workspacePath);
     if (!state || state.mode !== 'snapshot') return;
 
-    const fullPath = path.join(workspacePath, filePath);
+    const fullPath = await this.resolveWorkspaceEntry(workspacePath, filePath);
 
     if (operation === 'create') {
-      await fs.unlink(fullPath).catch(() => {});
+      await this.moveExistingEntryToTrash(fullPath);
     } else {
       const content = await this.getBaselineContent(workspacePath, filePath);
       if (content !== null) {
+        if (operation === 'modify') await this.moveExistingEntryToTrash(fullPath);
         await fs.mkdir(path.dirname(fullPath), { recursive: true }).catch(() => {});
         await fs.writeFile(fullPath, content, 'utf-8');
       }
@@ -229,11 +247,13 @@ export class WorkspaceSnapshotService {
    * to clean up legacy entries left behind before snapshots respected
    * `workDir` (upstream #2679 fix).
    */
-  static async cleanupStaleSnapshots(): Promise<void> {
-    const roots = new Set<string>();
-    roots.add(getSnapshotRoot());
-    // Always scan tmpdir too - covers legacy snapshots from pre-fix builds.
-    roots.add(os.tmpdir());
+  static async cleanupStaleSnapshots(rootOverride?: readonly string[]): Promise<void> {
+    const roots = new Set<string>(rootOverride);
+    if (!rootOverride) {
+      roots.add(getSnapshotRoot());
+      // Always scan tmpdir too - covers legacy snapshots from pre-fix builds.
+      roots.add(os.tmpdir());
+    }
 
     await Promise.all(
       Array.from(roots).map(async (root) => {
@@ -243,8 +263,35 @@ export class WorkspaceSnapshotService {
         } catch {
           return;
         }
-        const stale = entries.filter((name) => name.startsWith(SNAPSHOT_PREFIX));
-        await Promise.allSettled(stale.map((name) => fs.rm(path.join(root, name), { recursive: true, force: true })));
+        const candidates = entries.filter((name) => name.startsWith(SNAPSHOT_PREFIX));
+        const owned = await Promise.all(
+          candidates.map(async (name): Promise<string | null> => {
+            const candidate = path.join(root, name);
+            try {
+              const stat = await fs.lstat(candidate);
+              if (!stat.isDirectory() || stat.isSymbolicLink()) return null;
+              const marker = JSON.parse(await fs.readFile(path.join(candidate, SNAPSHOT_OWNER_FILE), 'utf-8')) as {
+                kind?: unknown;
+                version?: unknown;
+              };
+              return marker.kind === SNAPSHOT_OWNER.kind && marker.version === SNAPSHOT_OWNER.version
+                ? candidate
+                : null;
+            } catch {
+              return null;
+            }
+          })
+        );
+        await Promise.allSettled(
+          owned
+            .filter((candidate): candidate is string => candidate !== null)
+            .map((candidate) =>
+              fs.rm(candidate, {
+                recursive: true,
+                force: true,
+              })
+            )
+        );
       })
     );
   }
@@ -260,6 +307,49 @@ export class WorkspaceSnapshotService {
     if (!state || state.mode !== 'git-repo') {
       throw new Error('Git operations are only available in git-repo mode');
     }
+  }
+
+  /**
+   * Resolve a renderer-supplied relative path inside the real workspace. Both
+   * lexical traversal and symlinked ancestors that escape the workspace fail
+   * closed before any mutation occurs.
+   */
+  private async resolveWorkspaceEntry(workspacePath: string, filePath: string): Promise<string> {
+    const workspaceRoot = await fs.realpath(workspacePath);
+    const candidate = path.resolve(workspaceRoot, filePath);
+    const relative = path.relative(workspaceRoot, candidate);
+    if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) {
+      throw new Error('WORKSPACE_ENTRY_OUTSIDE_ROOT');
+    }
+
+    await this.assertExistingAncestorWithinWorkspace(workspaceRoot, candidate);
+
+    return candidate;
+  }
+
+  private async assertExistingAncestorWithinWorkspace(workspaceRoot: string, entryPath: string): Promise<void> {
+    try {
+      const realExisting = await fs.realpath(entryPath);
+      const realRelative = path.relative(workspaceRoot, realExisting);
+      if (realRelative.startsWith('..') || path.isAbsolute(realRelative)) {
+        throw new Error('WORKSPACE_ENTRY_OUTSIDE_ROOT');
+      }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+      const parent = path.dirname(entryPath);
+      if (parent === entryPath) throw error;
+      await this.assertExistingAncestorWithinWorkspace(workspaceRoot, parent);
+    }
+  }
+
+  private async moveExistingEntryToTrash(entryPath: string): Promise<void> {
+    try {
+      await fs.lstat(entryPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return;
+      throw error;
+    }
+    await this.moveToTrash(entryPath);
   }
 
   private async detectMode(workspacePath: string): Promise<'git-repo' | 'snapshot'> {
@@ -488,6 +578,7 @@ export class WorkspaceSnapshotService {
     const gitArgs = [`--git-dir=${gitdir}`, `--work-tree=${workspacePath}`];
 
     await execFileAsync('git', ['init', '--bare', gitdir]);
+    await fs.writeFile(path.join(gitdir, SNAPSHOT_OWNER_FILE), JSON.stringify(SNAPSHOT_OWNER), 'utf-8');
     await fs.writeFile(path.join(gitdir, 'info', 'exclude'), DEFAULT_GITIGNORE, 'utf-8');
     // Use --ignore-errors so locked/permission-denied files don't abort the entire snapshot.
     // The command still exits non-zero when some files fail, so catch and verify the commit succeeds.

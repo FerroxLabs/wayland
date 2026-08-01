@@ -17,7 +17,11 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import net from 'node:net';
 import path from 'node:path';
 import { getEnhancedEnv } from '@process/utils/shellEnv';
-import { installOfficecli } from './officecliInstaller';
+import {
+  OFFICECLI_MISSING_RUNTIME_MESSAGE,
+  installOfficecli,
+  resolveVerifiedOfficecliCommand,
+} from './officecliInstaller';
 import { confinePath } from './pathConfinement';
 
 type OfficeDocType = 'word' | 'excel';
@@ -180,11 +184,22 @@ async function startWatch(
   // Kill any existing/pending session for this file first
   killSession(sessionKey, sessions);
 
+  // Bind to the exact verified OfficeCLI executable from the accepted lockstep
+  // capability (01-13). We never spawn a bare-PATH `officecli`: if the verified
+  // capability is unavailable or its identity changed, fail closed instead of
+  // executing an unverified binary, an npm/global bootstrap, or a hosted
+  // fallback. Cowork stays an intent over the ordinary canonical run.
+  const command = resolveVerifiedOfficecliCommand();
+  if (!command) {
+    emitStatus({ state: 'error', message: OFFICECLI_MISSING_RUNTIME_MESSAGE });
+    throw new Error(OFFICECLI_MISSING_RUNTIME_MESSAGE);
+  }
+
   const port = await findFreePort();
 
   emitStatus({ state: 'starting' });
 
-  const child = spawn('officecli', ['watch', filePath, '--port', String(port)], {
+  const child = spawn(command, ['watch', filePath, '--port', String(port)], {
     stdio: ['ignore', 'pipe', 'pipe'],
     env: getEnhancedEnv(),
   });
@@ -258,18 +273,15 @@ async function startWatch(
       console.error(`[officeWatch] spawn error (${docType}):`, err.message);
       sessions.delete(sessionKey);
       if ((err as NodeJS.ErrnoException).code === 'ENOENT' && !retry) {
-        // officecli not found (bundled binary unresolvable) - offer a
-        // consent-gated, pinned, checksum-verified install, then retry once.
-        // settle() without error: defuses the current promise machinery
-        // (clears timeout, prevents double-settle) while the install + recursive
-        // retry below chains its own resolve/reject to the outer promise.
+        // A missing verified bundle is a release defect. The recovery boundary
+        // fails closed (no moving runtime download) and reports a repair path.
         settle();
         installOfficecli(emitStatus)
           .then((installed) => {
             if (installed) {
               startWatch(filePath, docType, emitStatus, true).then(resolve, reject);
             } else {
-              reject(new Error('officecli is not installed and auto-install was declined or failed'));
+              reject(new Error(OFFICECLI_MISSING_RUNTIME_MESSAGE));
             }
           })
           .catch(reject);

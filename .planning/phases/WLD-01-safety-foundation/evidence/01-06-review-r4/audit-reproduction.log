@@ -1,0 +1,38 @@
+$ vitest run tests/unit/process/services/recovery/recoveryPointBuilder.test.ts
+
+ RUN  v4.1.0 /Users/seandonahoe/gsd-workspaces/wayland-desktop-audit-01-06-r4/app
+
+ ❯ |node| tests/unit/process/services/recovery/recoveryPointBuilder.test.ts (25 tests | 1 failed | 3 skipped) 1230ms
+     × rejects replacement of an admitted source parent even when every descendant inode is moved back 89ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  |node| tests/unit/process/services/recovery/recoveryPointBuilder.test.ts > recovery point builder > rejects replacement of an admitted source parent even when every descendant inode is moved back
+AssertionError: expected { published: true, …(1) } to deeply equal { published: false, …(1) }
+
+- Expected
++ Received
+
+  {
+    "parentIdentityChanged": true,
+-   "published": false,
++   "published": true,
+  }
+
+ ❯ tests/unit/process/services/recovery/recoveryPointBuilder.test.ts:456:8
+    454|       parentIdentityChanged:
+    455|         currentRootIdentity.dev !== originalRootIdentity.dev || curren…
+    456|     }).toEqual({ published: false, parentIdentityChanged: true });
+       |        ^
+    457|     expect(fs.readdirSync(data.destinationRoot)).toEqual([]);
+    458|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 21 passed | 3 skipped (25)
+   Start at  03:18:46
+   Duration  1.42s (transform 86ms, setup 19ms, import 89ms, tests 1.23s, environment 0ms)
+
+error: script "test:vitest" exited with code 1

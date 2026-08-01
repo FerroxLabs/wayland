@@ -80,10 +80,10 @@ import { registerPwa } from './services/registerPwa';
 
 // Components and utilities
 import { ErrorBoundary } from './components/ErrorBoundary';
-import Layout from './components/layout/Layout';
 import Router from './components/layout/Router';
-import Sider from './components/layout/Sider';
+import ShellExperienceLayout from './components/layout/ShellExperience';
 import { useAuth } from './hooks/context/AuthContext';
+import { useShellExperience } from './hooks/ui/useShellExperience';
 import { ConversationHistoryProvider } from './hooks/context/ConversationHistoryContext';
 import HOC from './utils/ui/HOC';
 import { canonicalizeWebUiRoute } from './utils/canonicalizeRoute';
@@ -139,8 +139,9 @@ const Config: React.FC<PropsWithChildren> = ({ children }) => {
 
 const Main = () => {
   const { ready } = useAuth();
+  const { shell, loading: shellLoading } = useShellExperience();
 
-  if (!ready) {
+  if (!ready || shellLoading) {
     return null;
   }
 
@@ -148,7 +149,7 @@ const Main = () => {
     <Router
       layout={
         <ConversationHistoryProvider>
-          <Layout sider={<Sider />} />
+          <ShellExperienceLayout shell={shell} />
         </ConversationHistoryProvider>
       }
     />

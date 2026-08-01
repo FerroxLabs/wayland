@@ -20,11 +20,16 @@
  * this test fails.
  */
 
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { useAssistantEditor } from '../../../../src/renderer/hooks/assistant';
+
+const configMocks = vi.hoisted(() => ({
+  get: vi.fn(),
+  set: vi.fn(),
+}));
 
 // ---------------------------------------------------------------------------
 // Module mocks
@@ -51,8 +56,8 @@ vi.mock('../../../../src/common', () => ({
 
 vi.mock('../../../../src/common/config/storage', () => ({
   ConfigStorage: {
-    get: vi.fn().mockResolvedValue([]),
-    set: vi.fn().mockResolvedValue(undefined),
+    get: configMocks.get,
+    set: configMocks.set,
   },
 }));
 
@@ -73,6 +78,12 @@ describe('useAssistantEditor - lift contract', () => {
       typeof useAssistantEditor
     >[0]['message'],
   };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    configMocks.get.mockResolvedValue([]);
+    configMocks.set.mockResolvedValue(undefined);
+  });
 
   it('mounts in isolation (no Settings parent) and returns a populated state object', () => {
     const { result } = renderHook(() => useAssistantEditor(baseParams));
@@ -142,6 +153,43 @@ describe('useAssistantEditor - lift contract', () => {
     for (const key of required) {
       expect(result.current).toHaveProperty(key);
     }
+  });
+
+  it('archives a custom assistant without deleting its config or resource files', async () => {
+    const assistant = {
+      id: 'custom-writer',
+      name: 'Custom Writer',
+      enabled: true,
+      isBuiltin: false,
+    };
+    configMocks.get.mockImplementation(async (key: string) => (key === 'assistants' ? [assistant] : []));
+    const setActiveAssistantId = vi.fn();
+    const loadAssistants = vi.fn().mockResolvedValue(undefined);
+    const refreshAgentDetection = vi.fn().mockResolvedValue(undefined);
+    const message = {
+      error: vi.fn(),
+      success: vi.fn(),
+      info: vi.fn(),
+      warning: vi.fn(),
+    } as unknown as Parameters<typeof useAssistantEditor>[0]['message'];
+    const { result } = renderHook(() =>
+      useAssistantEditor({
+        ...baseParams,
+        activeAssistant: assistant,
+        setActiveAssistantId,
+        loadAssistants,
+        refreshAgentDetection,
+        message,
+      })
+    );
+
+    await act(async () => result.current.handleDeleteConfirm());
+
+    expect(configMocks.set).toHaveBeenCalledWith('assistants', [{ ...assistant, enabled: false }]);
+    expect(setActiveAssistantId).toHaveBeenCalledWith(null);
+    expect(loadAssistants).toHaveBeenCalledOnce();
+    expect(refreshAgentDetection).toHaveBeenCalledOnce();
+    expect(message.success).toHaveBeenCalledWith(expect.stringContaining('archived'));
   });
 
   // Suppress unused-import warning on React; renderHook needs it in scope

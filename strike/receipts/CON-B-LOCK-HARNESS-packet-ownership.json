@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-LOCK-HARNESS-packet-ownership",
+  "commit": "bccda81c79ea9bf497c26f2672790a9bc7497d9b",
+  "command": "rtk proxy bash -o pipefail -c 'git diff --name-only 4950d6410fb0d37d0a2007ec4e48670dc4409dd2..HEAD 2>&1 | tee /tmp/wayland-con-b-lock-harness-packet-ownership.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:a4c606f8949f81a61fc41f0d5382dc8ddd1ea16b8332fedc60fdc8985a19b712",
+  "timestamp": "2026-07-17T09:33:19Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

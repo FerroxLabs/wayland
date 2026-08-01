@@ -4,68 +4,87 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Slider } from '@arco-design/web-react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWcoreConfig } from '@renderer/hooks/useWcoreConfig';
 import WcSwitch from '../components/WcSwitch';
-import WcSegmented from '../components/WcSegmented';
 import ScopeLabel from '../components/ScopeLabel';
 import styles from './Panes.module.css';
 
-const PROVIDER_VALUES = ['local', 'honcho', 'mem0'] as const;
-type MemoryProvider = (typeof PROVIDER_VALUES)[number];
-
 type MemorySection = {
-  enabled?: boolean;
-  provider?: string;
-  recall_budget?: number;
-  auto_consolidate?: boolean;
-  [key: string]: unknown;
+  enabled: boolean;
 };
 
 const MemoryPane: React.FC = () => {
   const { t } = useTranslation();
-  const { getSection, setSection } = useWcoreConfig();
-  const [section, setLocal] = useState<MemorySection | null>(null);
+  const { getSection, patchField } = useWcoreConfig();
+  const [section, setSection] = useState<MemorySection | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const mounted = useRef(false);
+  const readVersion = useRef(0);
+  const writeVersion = useRef(0);
+
+  const refresh = useCallback(
+    async (showLoading = true): Promise<void> => {
+      const version = ++readVersion.current;
+      if (showLoading) setLoading(true);
+      try {
+        const raw = await getSection<Record<string, unknown>>('memory');
+        const enabled = raw?.enabled;
+        if (enabled !== undefined && typeof enabled !== 'boolean')
+          throw new Error('Core returned invalid memory.enabled.');
+        if (mounted.current && readVersion.current === version) {
+          setSection({ enabled: enabled !== false });
+          setError(null);
+        }
+      } catch (readError) {
+        if (mounted.current && readVersion.current === version) {
+          setSection(null);
+          setError(readError instanceof Error ? readError.message : String(readError));
+        }
+      } finally {
+        if (mounted.current && readVersion.current === version) setLoading(false);
+      }
+    },
+    [getSection]
+  );
 
   useEffect(() => {
-    let cancelled = false;
-    void getSection<MemorySection>('memory').then((s) => {
-      if (!cancelled) setLocal(s ?? {});
-    });
+    mounted.current = true;
+    void refresh();
     return () => {
-      cancelled = true;
+      mounted.current = false;
+      readVersion.current += 1;
+      writeVersion.current += 1;
     };
-  }, [getSection]);
+  }, [refresh]);
 
   const persist = useCallback(
-    (next: MemorySection): void => {
-      setLocal(next);
-      void setSection('memory', next);
+    async (patch: Parameters<typeof patchField>[0]): Promise<void> => {
+      if (!section || saving) return;
+      const version = ++writeVersion.current;
+      setSaving(true);
+      setError(null);
+      let failure: string | null = null;
+      try {
+        const result = await patchField(patch);
+        if (!mounted.current || writeVersion.current !== version) return;
+        if (!result.ok) failure = 'error' in result ? result.error : 'Memory setting could not be saved.';
+      } catch (writeError) {
+        failure = writeError instanceof Error ? writeError.message : String(writeError);
+      }
+      if (mounted.current && writeVersion.current === version) {
+        await refresh(false);
+        if (failure && mounted.current && writeVersion.current === version) setError(failure);
+        if (mounted.current && writeVersion.current === version) setSaving(false);
+      }
     },
-    [setSection]
+    [patchField, refresh, saving, section]
   );
 
-  const enabled = section?.enabled !== false;
-  const provider: MemoryProvider = useMemo(() => {
-    const p = section?.provider;
-    return (PROVIDER_VALUES as readonly string[]).includes(p ?? '') ? (p as MemoryProvider) : 'local';
-  }, [section]);
-  const budget = typeof section?.recall_budget === 'number' ? section.recall_budget : 5000;
-  const autoConsolidate = section?.auto_consolidate !== false;
-
-  const providerOptions = useMemo(
-    () => [
-      {
-        value: 'local',
-        label: t('settings.wcoreConfig.memory.providerLocal', { defaultValue: 'Local (SQLite + BM25)' }),
-      },
-      { value: 'honcho', label: t('settings.wcoreConfig.memory.providerHoncho', { defaultValue: 'Honcho' }) },
-      { value: 'mem0', label: t('settings.wcoreConfig.memory.providerMem0', { defaultValue: 'Mem0' }) },
-    ],
-    [t]
-  );
+  const enabled = section?.enabled;
 
   return (
     <div className={styles.pane}>
@@ -75,105 +94,49 @@ const MemoryPane: React.FC = () => {
         <p className={styles.sub}>
           {t('settings.wcoreConfig.memory.subtitle', {
             defaultValue:
-              'The engine remembers across sessions: facts, preferences, and project context that persist and compound. On by default, stored locally.',
+              'The engine remembers across sessions: facts, preferences, and project context that persist and compound. This control maps directly to the bundled Core memory schema.',
           })}
         </p>
         <ScopeLabel />
       </div>
 
-      <div className={styles.section}>
-        <div className={styles.group}>
-          <div className={styles.listRow}>
-            <div>
-              <div className={styles.lrLabel}>
-                {t('settings.wcoreConfig.memory.longTerm', { defaultValue: 'Long-term memory' })}
-              </div>
-              <div className={styles.lrDesc}>
-                {t('settings.wcoreConfig.memory.longTermDesc', { defaultValue: 'Persist learnings between sessions' })}
-              </div>
-            </div>
-            <div className={styles.lrControl}>
-              <WcSwitch
-                checked={enabled}
-                onChange={(next) => persist({ ...section, enabled: next })}
-                label={t('settings.wcoreConfig.memory.longTerm', { defaultValue: 'Long-term memory' })}
-              />
-            </div>
-          </div>
-
-          <div className={styles.listRow}>
-            <div>
-              <div className={styles.lrLabel}>
-                {t('settings.wcoreConfig.memory.provider', { defaultValue: 'Provider' })}
-              </div>
-              <div className={styles.lrDesc}>
-                {t('settings.wcoreConfig.memory.providerDesc', {
-                  defaultValue: 'Where memories are stored & recalled · local by default',
-                })}
-              </div>
-            </div>
-            <div className={styles.lrControl}>
-              <WcSegmented
-                options={providerOptions}
-                value={provider}
-                onChange={(v) => persist({ ...section, provider: v })}
-                label={t('settings.wcoreConfig.memory.provider', { defaultValue: 'Provider' })}
-              />
-            </div>
-          </div>
-
-          <div className={styles.listRow}>
-            <div>
-              <div className={styles.lrLabel}>
-                {t('settings.wcoreConfig.memory.recallBudget', { defaultValue: 'Recall budget' })}
-              </div>
-              <div className={styles.lrDesc}>
-                {t('settings.wcoreConfig.memory.recallBudgetDesc', {
-                  defaultValue: 'Max tokens of memory injected per turn',
-                })}
-              </div>
-            </div>
-            <div className={styles.lrControl}>
-              <div className={styles.sliderWrap}>
-                <Slider
-                  min={500}
-                  max={8000}
-                  step={500}
-                  value={budget}
-                  style={{ flex: 1, minWidth: 180 }}
-                  onChange={(v) => persist({ ...section, recall_budget: Number(v) })}
-                />
-                <span className={styles.sliderVal}>
-                  {t('settings.wcoreConfig.memory.tokensVal', {
-                    defaultValue: '{{count}} tokens',
-                    count: budget,
+      {loading ? (
+        <div className={styles.runtimeTruthLoading} role='status'>
+          {t('settings.wcoreConfig.memory.loading', { defaultValue: 'Reading authoritative memory settings…' })}
+        </div>
+      ) : error || !section || enabled === undefined ? (
+        <div className={styles.runtimeTruthError} role='alert'>
+          {t('settings.wcoreConfig.memory.readError', {
+            defaultValue: 'Memory settings are unknown. Writes are disabled until Core can be read:',
+          })}{' '}
+          {error}
+        </div>
+      ) : (
+        <div className={styles.section} aria-busy={saving}>
+          <div className={styles.group}>
+            <div className={styles.listRow}>
+              <div>
+                <div className={styles.lrLabel}>
+                  {t('settings.wcoreConfig.memory.longTerm', { defaultValue: 'Long-term memory' })}
+                </div>
+                <div className={styles.lrDesc}>
+                  {t('settings.wcoreConfig.memory.longTermDesc', {
+                    defaultValue: 'Persist learnings between sessions',
                   })}
-                </span>
+                </div>
               </div>
-            </div>
-          </div>
-
-          <div className={styles.listRow}>
-            <div>
-              <div className={styles.lrLabel}>
-                {t('settings.wcoreConfig.memory.autoConsolidate', { defaultValue: 'Auto-consolidate' })}
+              <div className={styles.lrControl}>
+                <WcSwitch
+                  checked={enabled}
+                  disabled={saving}
+                  onChange={(next) => void persist({ section: 'memory', field: 'enabled', value: next })}
+                  label={t('settings.wcoreConfig.memory.longTerm', { defaultValue: 'Long-term memory' })}
+                />
               </div>
-              <div className={styles.lrDesc}>
-                {t('settings.wcoreConfig.memory.autoConsolidateDesc', {
-                  defaultValue: 'Nightly dream-cycle: promote patterns, prune stale',
-                })}
-              </div>
-            </div>
-            <div className={styles.lrControl}>
-              <WcSwitch
-                checked={autoConsolidate}
-                onChange={(next) => persist({ ...section, auto_consolidate: next })}
-                label={t('settings.wcoreConfig.memory.autoConsolidate', { defaultValue: 'Auto-consolidate' })}
-              />
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

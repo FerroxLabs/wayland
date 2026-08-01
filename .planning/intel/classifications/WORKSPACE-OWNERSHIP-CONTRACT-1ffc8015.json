@@ -1,0 +1,13 @@
+{
+  "source_path": "docs/desktop-overhaul-source/wave-0/WORKSPACE-OWNERSHIP-CONTRACT.md",
+  "type": "ADR",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Managed workspace ownership contract",
+  "summary": "Defines ownership, preservation, snapshot completeness, quarantine, deletion, migration, and archive boundaries for managed workspaces and their outputs and receipts.",
+  "scope": ["managed workspaces", "output and receipt ledger", "retention", "quarantine", "schedule archives"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 0,
+  "notes": ""
+}

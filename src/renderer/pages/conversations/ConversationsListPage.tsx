@@ -283,7 +283,7 @@ const ConversationsListPage: React.FC = () => {
 
   return (
     <PageShell
-      title={t('conversations.list.title', { defaultValue: 'Conversations' })}
+      title={t('conversations.list.title', { defaultValue: 'Chats' })}
       icon={<MessagesSquare size={20} />}
       subtitle={t('conversations.list.subtitle', { defaultValue: 'Every chat and session' })}
       actions={newChatButton}
@@ -336,11 +336,11 @@ const ConversationsListPage: React.FC = () => {
                 </section>
               )}
 
-              {/* Starred */}
+              {/* Pinned */}
               {pinnedList.length > 0 && (
                 <section className='flex flex-col gap-6px'>
                   <span className={`${styles.sectionLabel} px-12px`}>
-                    {t('conversations.group.starred', { defaultValue: 'Starred' })}
+                    {t('conversation.history.pinnedSection', { defaultValue: 'Pinned' })}
                   </span>
                   <div className='flex flex-col'>{pinnedList.map(renderRow)}</div>
                 </section>

@@ -5,22 +5,43 @@
  */
 
 import { ipcBridge } from '@/common';
-import type { IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
+import { getPlatformServices } from '@/common/platform';
+import * as os from 'node:os';
+import { join } from 'node:path';
+import type { CronMessageMeta, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
-import { buildResumeSeedTranscript } from '@process/task/resumeSeed';
+import { composeResetSeed, type ResumeSeedOptions } from '@process/task/resumeSeed';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
-import type { IMcpServer, TProviderWithModel } from '@/common/config/storage';
-import { buildWCoreUserStdioMcpServers } from '@process/agent/acp/mcpSessionConfig';
-import { readWCoreConfigMcpServerNames } from '@process/agent/wcore/configMcpServers';
-import { type OutputBudget, resolveFixedBudget } from '@/common/config/outputBudget';
+import type { TProviderWithModel } from '@/common/config/storage';
+import { buildWCoreSessionMcpServers } from '@process/agent/acp/mcpSessionConfig';
+import { WCoreMcpAgent } from '@process/services/mcpServices/agents/WCoreMcpAgent';
+import { mcpService } from '@process/services/mcpServices/McpService';
+import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
+import { validateMcpServer } from '@process/services/mcpServices/validateMcpServer';
+import { getCandidateTools } from '@process/services/mcpServices/getCandidateTools';
+import type { CandidateTool } from '@process/services/tools/toolContract';
+import type { IMcpServer } from '@/common/config/storage';
+import {
+  createMcpSessionState,
+  recordDesktopMcpSessionFailure,
+  recordDesktopMcpSessionPublication,
+  reduceMcpSessionTerminal,
+  type McpSessionExpectedServer,
+  type McpSessionState,
+  type McpSessionTerminalEvent,
+} from '@/common/mcp/sessionReceipt';
+import { resolveFixedBudget } from '@/common/config/outputBudget';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { readOutputBudgetPreference, readRawEngineModePreference } from '@process/agent/wcore/effectiveRuntimeActions';
 import { BaseApprovalStore, type IApprovalKey } from '@/common/chat/approval';
 import { trustedWorkspaceAutoApprovesConfirmationType } from '@/common/security/workspaceTrust';
 import { isWorkspaceTrusted } from '@process/permissions/workspaceTrust';
 import { ToolConfirmationOutcome } from '../agent/gemini/cli/tools/tools';
 import { WCoreAgent, type StdioMcpOption } from '@process/agent/wcore';
+import { describeExitReason } from '@process/agent/wcore/execFailureReason';
+import { acquireRuntimeLaunchAuthority } from '@process/agent/wcore/profilePaths';
 import type { WCoreCapabilities } from '@process/agent/wcore/protocol';
 import {
   buildSystemInstructionsWithSkillsIndex,
@@ -31,7 +52,9 @@ import {
 } from './agentUtils';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
+import { emitModelRegistryChanged } from '@process/providers/modelRegistryEvents';
 import { isProviderKeyAuthFailure } from '@process/providers/detection/authFailure';
+import { registryProviderIdForModel } from '@process/providers/ipc/modelRegistryIpc';
 import { addMessage, addOrUpdateMessage } from '@process/utils/message';
 import { uuid } from '@/common/utils';
 import BaseAgentManager from './BaseAgentManager';
@@ -48,6 +71,11 @@ import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher'
 import { getCostRecorder } from '@process/services/cost/CostRecorder';
 import { getBudgetController } from '@process/services/cost/BudgetController';
 import { RunawayMonitor } from '@process/services/runaway/RunawayMonitor';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import {
+  createMcpSessionDigestKey,
+  createMcpSessionExpectedServer,
+} from '@process/services/mcpServices/mcpSessionTruthGate';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -74,6 +102,12 @@ const NEAR_BUDGET_RATIO = 0.95;
  * before any visible output renders).
  */
 const EMPTY_CONTENT_THRESHOLD_CHARS = 20;
+
+const WCORE_PREFERENCE_AUTHORITY = {
+  get: (key: string) => ProcessConfig.get(key as never) as Promise<unknown>,
+  set: (key: string, value: unknown) => ProcessConfig.set(key as never, value as never),
+  remove: (key: string) => ProcessConfig.remove(key as never),
+};
 
 // WCore-specific approval key - reuses same pattern as GeminiApprovalStore
 type WCoreApprovalKey = IApprovalKey & {
@@ -123,6 +157,14 @@ type WCoreManagerData = {
   resume?: string;
   /** Per-conversation reasoning effort (sent to the engine via set_config). Absent => engine default. */
   effort?: 'low' | 'medium' | 'high';
+  /**
+   * #723 per-step context reset: when set, start()'s resume branch seeds the
+   * fresh engine with ONLY this bounded carry-forward (the immediately-prior
+   * deliverable) instead of the default #457 resume seed. Threaded verbatim from
+   * `BuildConversationOptions.workflowResetSeed`. Absent => default seed (today).
+   * The field name `workflowResetSeed` is identical across every hop (INVARIANT).
+   */
+  workflowResetSeed?: ResumeSeedOptions;
   /**
    * Per-conversation MCP scoping (#348): the user-server ids active for this
    * chat. `undefined` => all enabled servers; `[]` => no user servers. Forwarded
@@ -270,10 +312,28 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     { message: Extract<TMessage, { type: 'text' }>; timer: ReturnType<typeof setTimeout> }
   >();
 
+  /** Session-scoped MCP truth. Serialized so simultaneous Core receipts cannot clobber each other in DB. */
+  private readonly mcpSessionGeneration = uuid();
+  private readonly mcpSessionDigestKey = createMcpSessionDigestKey();
+  private mcpSessionState: McpSessionState;
+  /** Exact servers that produced this launch's receipts; the candidate gate's allowedTools/description source. */
+  private sessionMcpServers: IMcpServer[] = [];
+  private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
+  private releaseProfileLease: (() => Promise<void>) | null = null;
+  /** One exact engine identity may have only one tree-shutdown proof attempt in
+   * flight. A rejected attempt is forgotten only as an attempt; `agent` stays
+   * published so a later manager kill retries that same identity. */
+  private engineShutdownAttempt: { agent: WCoreAgent; promise: Promise<void> } | null = null;
+  private disposed = false;
+
   constructor(data: WCoreManagerData, model: TProviderWithModel) {
     super('wcore', { ...data, model }, new IpcAgentEventEmitter(), false);
     this.workspace = data.workspace;
     this.conversation_id = data.conversation_id;
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, [], {
+      conversationId: this.conversation_id,
+      backend: 'wcore',
+    });
     this.model = model;
     this.currentMode = data.sessionMode || 'default';
 
@@ -284,10 +344,65 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // Capture (don't swallow) a failed start: agentReady still resolves so the
     // sendMessage path is reached, where startError is surfaced as a real
     // error+finish instead of hanging the turn with no reply (S2).
-    this.agentReady = this.start().catch((error) => {
-      this.startError = error;
-      mainError('[WCoreManager]', 'agent bootstrap (start) failed', error);
+    this.agentReady = this.start().catch(async (error) => {
+      let surfacedError = error;
+
+      // A bootstrap path that never published an engine identity owns no
+      // process tree, so its profile can be returned. If an identity remains,
+      // shutdown failed and both it and the lease are deliberately retained for
+      // an identity-bound retry through kill().
+      if (!this.agent) {
+        try {
+          await this.releaseProfileLaunchLease();
+        } catch (releaseError) {
+          surfacedError = new AggregateError(
+            [error, releaseError],
+            'Wayland Core bootstrap failed and its runtime profile lease could not be released'
+          );
+        }
+      }
+
+      this.startError = surfacedError;
+      mainError('[WCoreManager]', 'agent bootstrap (start) failed', surfacedError);
     });
+  }
+
+  private async releaseProfileLaunchLease(): Promise<void> {
+    const release = this.releaseProfileLease;
+    if (!release) return;
+    await release();
+    if (this.releaseProfileLease === release) this.releaseProfileLease = null;
+  }
+
+  private stopEngineWithTreeProof(agent: WCoreAgent): Promise<void> {
+    const inFlight = this.engineShutdownAttempt;
+    if (inFlight?.agent === agent) return inFlight.promise;
+
+    const attempt = { agent, promise: Promise.resolve() };
+    attempt.promise = Promise.resolve()
+      .then(() => agent.kill())
+      .then(() => {
+        if (this.agent === agent) this.agent = null;
+      })
+      .finally(() => {
+        if (this.engineShutdownAttempt === attempt) this.engineShutdownAttempt = null;
+      });
+    this.engineShutdownAttempt = attempt;
+    return attempt.promise;
+  }
+
+  private async stopBootstrapEngine(agent: WCoreAgent, bootstrapError: unknown): Promise<void> {
+    if (this.agent !== agent) return;
+    try {
+      await this.stopEngineWithTreeProof(agent);
+    } catch (shutdownError) {
+      const failure = new AggregateError(
+        [bootstrapError, shutdownError],
+        'Wayland Core bootstrap failed and engine-tree shutdown is unproved'
+      );
+      failure.cause = shutdownError;
+      throw failure;
+    }
   }
 
   /**
@@ -296,6 +411,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * otherwise pass --session-id for a new session.
    */
   override async start() {
+    if (this.disposed) throw new Error('Wayland Core manager was stopped before bootstrap');
     let sessionArgs: { resume?: string; sessionId?: string };
     try {
       const db = await getDatabase();
@@ -326,43 +442,92 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // standalone CLI - so we SKIP (a) the Desktop model override (applied in
     // buildSpawnConfig via the `rawEngineMode` flag passed below), (b) the
     // Constitution/skills/specialist prompt overlay built below, and (c) the
-    // Desktop MCP-connector injection below (raw mode uses only the engine's own
-    // [mcp.servers] table, like the CLI). The renderer (RuntimePane) only
-    // persists the preference; this seam enacts it. A storage read failure falls
-    // back to the normal (overridden) path - never raw.
+    // selected user MCP-connector injection below (raw mode uses the engine's
+    // own [mcp.servers] table, like the CLI). Host-owned team/team-guide stdio
+    // declared above is deliberately preserved, as are WCoreAgent's allowlisted
+    // tool credentials and Desktop ACP/permission/host-message protocol. The
+    // renderer (RuntimePane) requests the preference; this seam enacts it. A
+    // storage read failure is an authority failure: silently selecting either
+    // mode would launch behavior the user did not authorize.
     // Use ProcessConfig (main-process store) NOT ConfigStorage (renderer-bridged):
     // ConfigStorage.get round-trips to the renderer and HANGS when WCore is
     // spawned from a channel (a pure main-process path with no renderer in the
     // loop), wedging every channel-triggered turn. `.catch` cannot save a hang.
-    const rawEngineMode = (await ProcessConfig.get('wcore.rawEngineMode').catch(() => false)) === true;
+    // Capture raw-mode authority, the exact managed profile identity, and its
+    // launch lease in one profile-authority transaction. Malformed local raw
+    // preference data is removed and safely defaults to managed mode; storage
+    // failures remain fatal because authority could not be proved.
+    const launchAuthority = await acquireRuntimeLaunchAuthority(() =>
+      readRawEngineModePreference(WCORE_PREFERENCE_AUTHORITY)
+    );
+    const rawEngineMode = launchAuthority.raw;
+    const launchWaylandHome = launchAuthority.identity?.dir;
+    this.releaseProfileLease = launchAuthority.release;
+    if (this.disposed) {
+      await this.releaseProfileLaunchLease();
+      throw new Error('Wayland Core manager was stopped during bootstrap');
+    }
 
-    // Inject the user's enabled stdio MCP connectors (mcp.config) so an
-    // app-enabled connector reaches the engine WITHOUT a separate settings
-    // toggle - mirroring the ACP session-injection path. wcore otherwise depends
-    // entirely on the [mcp.servers] table written by WCoreMcpAgent (settings-time
-    // only), which left every connector invisible in a fresh wcore chat. Uses the
-    // shared predicate + per-conversation scoping (#348); builtins and hosted
-    // (http/sse) connectors are handled elsewhere (see buildWCoreUserStdioMcpServers).
-    // #478 dedup: skip any connector already in the active config.toml
-    // [mcp.servers] table (WCoreMcpAgent settings-time write) - the engine loads
-    // those at startup, so re-adding at runtime would register the server twice.
-    // Skipped entirely in raw-engine mode (above). Best-effort: a config read
-    // failure must never block the spawn.
+    // Publish selected connectors into Core's trusted startup config BEFORE
+    // spawning it. Current Core deliberately rejects untrusted wire-added stdio
+    // processes, so the former add_mcp_server path produced a green Library row
+    // but no chat tools. The launch-local Core profile below then narrows the
+    // global config to exactly this conversation's selection (all transports).
+    let sessionMcpServerNames: string[] | undefined;
+    let expectedSessionMcpNames: string[] = [];
+    let expectedSessionMcpServers: McpSessionExpectedServer[] = [];
     if (!rawEngineMode) {
       try {
-        const mcpConfig = await ProcessConfig.get('mcp.config');
-        const alreadyInConfig = await readWCoreConfigMcpServerNames();
-        const userServers = buildWCoreUserStdioMcpServers(
-          mcpConfig as IMcpServer[] | undefined,
-          mergedData.activeMcpServers,
-          alreadyInConfig
-        );
-        for (const server of userServers) {
-          stdioMcpServers.push({ name: server.name, command: server.command, args: server.args, env: server.env });
+        const mcpConfig = await loadRuntimeMcpServers();
+        const selectedServers = buildWCoreSessionMcpServers(mcpConfig, mergedData.activeMcpServers);
+        expectedSessionMcpNames = selectedServers.map((server) => server.name);
+
+        if (selectedServers.length === 0) {
+          this.beginMcpSession([]);
+          sessionMcpServerNames = [];
+        } else {
+          const normalizedServers = selectedServers.map((server) => normalizeMcpServerForSpawn(server, os.homedir()));
+          expectedSessionMcpServers = normalizedServers.map((server) =>
+            createMcpSessionExpectedServer(server, 'wcore', this.mcpSessionDigestKey)
+          );
+          this.beginMcpSession(expectedSessionMcpServers);
+          for (const server of normalizedServers) validateMcpServer(server);
+          const authedServers = await mcpService.attachOAuthTokens(normalizedServers);
+          // OAuth refresh can change the exact launch definition. Rebind before
+          // publication so a receipt can only correlate to what Core received.
+          expectedSessionMcpServers = authedServers.map((server) =>
+            createMcpSessionExpectedServer(server, 'wcore', this.mcpSessionDigestKey)
+          );
+          // Retain the exact servers that minted the expected receipts so the
+          // receipt-bound ToolSearch candidate gate scopes over this launch.
+          this.sessionMcpServers = authedServers;
+          this.beginMcpSession(expectedSessionMcpServers);
+          const publication = await new WCoreMcpAgent(join(launchWaylandHome!, 'config.toml')).installMcpServers(
+            authedServers
+          );
+          if (publication.success) {
+            sessionMcpServerNames = expectedSessionMcpNames;
+            for (const name of expectedSessionMcpNames) this.publishMcpSessionServer(name);
+          } else {
+            sessionMcpServerNames = [];
+            const reason = publication.error || 'Desktop could not publish connector into trusted Core startup config';
+            for (const name of expectedSessionMcpNames) this.failMcpSessionServer(name, reason);
+          }
         }
       } catch (err) {
-        mainWarn('[WCoreManager]', 'failed to load user MCP connectors for injection', err);
+        sessionMcpServerNames = [];
+        // Keep the exact requested connector set visible and terminal. Erasing
+        // it here made OAuth/validation/config-write failures look like a chat
+        // that requested no connectors at all.
+        if (this.mcpSessionState.expectedServers.length === 0 && expectedSessionMcpServers.length > 0) {
+          this.beginMcpSession(expectedSessionMcpServers);
+        }
+        const reason = err instanceof Error ? err.message : String(err);
+        for (const name of expectedSessionMcpNames) this.failMcpSessionServer(name, reason);
+        mainWarn('[WCoreManager]', 'failed to publish trusted Core MCP startup config', err);
       }
+    } else {
+      this.beginMcpSession([]);
     }
 
     // #468: Output-budget override. When the user picked a Fixed budget, pass it
@@ -371,8 +536,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // no positive value falls back to Auto. An explicit per-conversation
     // `maxTokens` still wins. Same main-process store rationale as rawEngineMode
     // (ProcessConfig, not the renderer-bridged ConfigStorage which hangs here).
-    const outputBudget = await ProcessConfig.get('wcore.outputBudget').catch((): OutputBudget | undefined => undefined);
-    // Resolve a Fixed budget (clamped to MIN_FIXED_BUDGET); Auto / no value -> undefined.
+    // Imported/hand-edited malformed data is locally removed and recovers to
+    // Auto. A storage read or repair failure still aborts the launch.
+    const outputBudget = await readOutputBudgetPreference(WCORE_PREFERENCE_AUTHORITY);
+    // Resolve a validated Fixed budget; Auto / absent -> undefined.
     const fixedMaxTokens = resolveFixedBudget(outputBudget);
 
     // Prepend Wayland Constitution + specialist overlay AND inject the
@@ -411,13 +578,33 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       sessionId: mergedData.sessionId,
       resume: mergedData.resume,
       stdioMcpServers,
+      mcpServerNames: sessionMcpServerNames,
+      waylandHome: launchWaylandHome,
       onStreamEvent: (event) => this.emit('wcore.message', event),
-      onProcessExit: (code, activeMsgId) => this.handleProcessExit(code, activeMsgId),
+      onProcessExit: (code, activeMsgId, signal) => {
+        this.handleProcessExit(code, activeMsgId, signal);
+      },
       onPong: () => this.handlePong(),
     });
 
-    await agent.start();
+    if (this.disposed) {
+      await this.releaseProfileLaunchLease();
+      throw new Error('Wayland Core manager was stopped during bootstrap');
+    }
     this.agent = agent;
+    try {
+      await agent.start();
+    } catch (error) {
+      await this.stopBootstrapEngine(agent, error);
+      if (!this.agent) await this.releaseProfileLaunchLease();
+      throw error;
+    }
+    if (this.disposed) {
+      const stoppedDuringBootstrap = new Error('Wayland Core manager was stopped during bootstrap');
+      await this.stopBootstrapEngine(agent, stoppedDuringBootstrap);
+      if (!this.agent) await this.releaseProfileLaunchLease();
+      throw stoppedDuringBootstrap;
+    }
     this._capabilities = agent.capabilities ?? null;
 
     // Per-conversation reasoning effort: forward to the engine via set_config on
@@ -439,7 +626,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         const history = historyDb.getConversationMessages(this.conversation_id, 0, 10000);
         // #457: retain tool/file-edit history (not just text) so a rebuilt
         // session keeps the in-progress work instead of restarting from scratch.
-        const text = buildResumeSeedTranscript((history.data ?? []) as TMessage[]);
+        // #723: on a workflow-advance reset spawn (mergedData.workflowResetSeed
+        // set), composeResetSeed seeds ONLY the immediately-prior turn so
+        // per-step model input stays O(1); absent the flag it is byte-identical
+        // to the #457 default seed. The field name is identical at every hop.
+        const text = composeResetSeed((history.data ?? []) as TMessage[], mergedData.workflowResetSeed);
         if (text) await agent.injectConversationHistory(text);
       } catch {
         // Best-effort: resume still proceeds without seeded history.
@@ -502,7 +693,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  async sendMessage(data: { content: string; msg_id: string; files?: string[] }) {
+  async sendMessage(data: {
+    content: string;
+    msg_id: string;
+    files?: string[];
+    cronMeta?: CronMessageMeta;
+    hidden?: boolean;
+  }) {
     // Runaway circuit-breaker Phase 1: pre-turn budget pause gate. If a 'pause'
     // budget for this model/backend is already over its limit, hold the turn
     // before anything is persisted or dispatched (no tokens spent) and surface a
@@ -527,10 +724,16 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
 
     const message: TMessage = {
       id: data.msg_id,
+      msg_id: data.msg_id,
       type: 'text',
       position: 'right',
       conversation_id: this.conversation_id,
-      content: { content: data.content },
+      createdAt: data.cronMeta ? Math.max(Date.now(), data.cronMeta.triggeredAt + 1) : Date.now(),
+      content: {
+        content: data.content,
+        ...(data.cronMeta && { cronMeta: data.cronMeta }),
+      },
+      ...(data.hidden && { hidden: true }),
     };
     addMessage(this.conversation_id, message);
     try {
@@ -615,7 +818,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         return true;
       }
     }
-    // #671: trusted ("cowork") workspace auto-approves edits, still prompts on
+    // #671: a trusted-edits workspace auto-approves edits, still prompts on
     // exec/network. Only 'edit' - NOT the 'info' catch-all (which the engine also
     // uses for unclassified/network confirmations) - so a persisted always-on
     // posture stays stricter than the user-chosen auto_edit mode. Persisted
@@ -983,17 +1186,37 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     }
   }
 
-  private handleProcessExit(code: number | null, activeMsgId: string): void {
-    mainError('[WCoreManager]', `wcore process exited unexpectedly (code=${code}) during active turn ${activeMsgId}`);
+  /**
+   * #853: a discoverable, redacted logs-path suffix appended to an exec/process
+   * failure so the user can reach the log that holds the detail. Path-as-text
+   * (the clickable "Open logs" affordance is deferred). Degrades to an empty
+   * string if no logs dir is available; never throws.
+   */
+  private logLinkSuffix(): string {
+    try {
+      const dir = getPlatformServices().paths.getLogsDir?.();
+      return dir ? `\n\nLogs: ${dir}` : '';
+    } catch {
+      return '';
+    }
+  }
+
+  private handleProcessExit(code: number | null, activeMsgId: string, signal?: NodeJS.Signals | null): void {
+    mainError(
+      '[WCoreManager]',
+      `wcore process exited unexpectedly (code=${code}, signal=${signal ?? 'none'}) during active turn ${activeMsgId}`
+    );
 
     this.status = 'finished';
     void this.handleTurnEnd();
 
+    // #853: name the real exit reason (a kill signal, not "code null") and point
+    // the user at the log holding the detail, redacted before it is surfaced.
     const errorMessage: IResponseMessage = {
       type: 'error',
       conversation_id: this.conversation_id,
       msg_id: activeMsgId,
-      data: `Agent process exited unexpectedly (code ${code})`,
+      data: redactCommandSecrets(`Agent process ${describeExitReason(code, signal ?? null)}${this.logLinkSuffix()}`),
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);
     this.emitToEventBuses(errorMessage);
@@ -1020,11 +1243,14 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     cronBusyGuard.setProcessing(this.conversation_id, false);
 
     const detail = error instanceof Error ? error.message : String(error ?? 'unknown error');
+    // #853: `detail` already carries the errno/signal launch reason from the
+    // agent-side reject. Append the discoverable logs path and redact the whole
+    // user-facing string before surfacing.
     const errorMessage: IResponseMessage = {
       type: 'error',
       conversation_id: this.conversation_id,
       msg_id: activeMsgId,
-      data: `Agent failed to start: ${detail}`,
+      data: redactCommandSecrets(`Agent failed to start: ${detail}${this.logLinkSuffix()}`),
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);
     this.emitToEventBuses(errorMessage);
@@ -1055,7 +1281,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private maybeInvalidateProviderKeyOnAuthError(text: string): void {
     if (this.authKeyInvalidated) return;
     if (!isProviderKeyAuthFailure(text)) return;
-    const providerId = this.model?.id;
+    const providerId = this.model ? (registryProviderIdForModel(this.model) ?? this.model.id) : undefined;
     // No provider id, or the turn was routed through Flux (whose key is not this
     // provider's): leave provider state untouched.
     if (!providerId || providerId === 'flux-router') return;
@@ -1066,6 +1292,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         const db = await getDatabase();
         const repo = new ProviderRepository(db.getDriver());
         repo.updateRegistryProviderState(providerId, 'error', 'unauthorized');
+        emitModelRegistryChanged();
         mainWarn(
           '[WCoreManager]',
           `Provider '${providerId}' key rejected by Wayland Core (401/invalid x-api-key); ` +
@@ -1111,6 +1338,67 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     this.agent?.ping();
   }
 
+  private beginMcpSession(expectedServers: readonly McpSessionExpectedServer[]): void {
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, expectedServers, {
+      conversationId: this.conversation_id,
+      backend: 'wcore',
+    });
+    this.publishMcpSessionState();
+  }
+
+  private publishMcpSessionServer(serverName: string): void {
+    this.mcpSessionState = recordDesktopMcpSessionPublication(this.mcpSessionState, serverName);
+    this.publishMcpSessionState();
+  }
+
+  private failMcpSessionServer(serverName: string, reason: string): void {
+    this.mcpSessionState = recordDesktopMcpSessionFailure(this.mcpSessionState, serverName, reason);
+    this.publishMcpSessionState();
+  }
+
+  private acceptMcpSessionTerminal(event: McpSessionTerminalEvent): void {
+    this.mcpSessionState = reduceMcpSessionTerminal(this.mcpSessionState, event);
+    this.publishMcpSessionState();
+    // Project the receipt-bound candidate gate immediately after Core registers,
+    // proving callable tools track the current publication, not saved status.
+    const candidates = this.getMcpCandidateTools();
+    mainLog(
+      '[WCoreManager]',
+      `MCP ToolSearch candidate pool: ${candidates.length} tools from current-session receipts`
+    );
+  }
+
+  /** Persist and broadcast the whole immutable snapshot; queued DB writes prevent lost concurrent receipts. */
+  private publishMcpSessionState(): void {
+    const snapshot: McpSessionState = {
+      ...this.mcpSessionState,
+      expectedServers: this.mcpSessionState.expectedServers.map((server) => ({ ...server })),
+      expectedServerNames: [...this.mcpSessionState.expectedServerNames],
+      receipts: { ...this.mcpSessionState.receipts },
+    };
+
+    ipcBridge.conversation.responseStream.emit({
+      type: 'mcp_session_state',
+      conversation_id: this.conversation_id,
+      msg_id: '',
+      data: snapshot,
+    });
+
+    this.mcpSessionPersistQueue = this.mcpSessionPersistQueue
+      .then(async () => {
+        const db = await getDatabase();
+        const result = db.getConversation(this.conversation_id);
+        if (!result.success || !result.data || result.data.type !== 'wcore') return;
+        const conversation = result.data;
+        db.updateConversation(this.conversation_id, {
+          extra: { ...conversation.extra, mcpSessionState: snapshot },
+        } as Partial<typeof conversation>);
+      })
+      .catch((err) => {
+        mainWarn('[WCoreManager]', 'failed to persist MCP session receipt state', err);
+      });
+  }
+
   init() {
     this.on('wcore.message', (data) => {
       // Store capabilities from config_changed events
@@ -1148,6 +1436,61 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
           msg_id: '',
           data: data.data,
         });
+        return;
+      }
+
+      // Core Desktop contract v1 authority/evidence is session-level and
+      // intentionally carries no turn msg_id. It has already passed the pinned
+      // schema and semantic reducer in WCoreAgent; forward it before the generic
+      // empty-msg_id guard so Cockpit consumers see only accepted evidence.
+      if (
+        [
+          'execution_policy',
+          'workflow_started',
+          'workflow_node_event',
+          'workflow_finished',
+          'anvil_receipt',
+          'anvil_receipt_invalidated',
+          'anvil_trust_changed',
+          'mcp_ready',
+          'mcp_failed',
+        ].includes(data.type)
+      ) {
+        if (data.type === 'mcp_ready' || data.type === 'mcp_failed') {
+          this.acceptMcpSessionTerminal(data as McpSessionTerminalEvent);
+        }
+        ipcBridge.conversation.responseStream.emit({
+          type: data.type,
+          conversation_id: this.conversation_id,
+          msg_id: '',
+          data: data.data,
+        });
+
+        // Persist a separate main-process acceptance envelope for authority
+        // events. The raw stream frame above remains backwards compatible but
+        // is intentionally inert in the renderer. Only this envelope is
+        // eligible for canonical receipt/policy projection, which prevents a
+        // raw renderer-side IPC injection from manufacturing verified state.
+        if (
+          ['execution_policy', 'anvil_receipt', 'anvil_receipt_invalidated', 'anvil_trust_changed'].includes(data.type)
+        ) {
+          const acceptedAt = Date.now();
+          const evidenceResponse: IResponseMessage = {
+            type: 'execution_evidence',
+            conversation_id: this.conversation_id,
+            msg_id: '',
+            data: {
+              acceptedBy: 'desktop-core-v1-consumer',
+              acceptedAt,
+              event: { type: data.type, ...(data.data as Record<string, unknown>) },
+            },
+          };
+          const evidenceMessage = transformMessage(evidenceResponse);
+          if (evidenceMessage) {
+            addOrUpdateMessage(this.conversation_id, evidenceMessage, 'wcore');
+            ipcBridge.conversation.responseStream.emit(evidenceResponse);
+          }
+        }
         return;
       }
 
@@ -1503,6 +1846,15 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     return this._capabilities;
   }
 
+  /**
+   * Receipt-bound ToolSearch candidate pool for THIS launch. Callable tools come
+   * only from the current correlated publication receipts; saved/probed/stale
+   * connectors are withheld.
+   */
+  getMcpCandidateTools(): CandidateTool[] {
+    return getCandidateTools(this.mcpSessionState, this.sessionMcpServers);
+  }
+
   setConfig(config: { model?: string; thinking?: string; thinking_budget?: number; effort?: string }): void {
     if (this.agent) {
       this.agent.setConfig(config);
@@ -1577,17 +1929,44 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   }
 
   override async kill(): Promise<void> {
-    if (this.agent) {
+    this.disposed = true;
+    let engineFailure: unknown;
+    let workerFailure: unknown;
+
+    const stopCurrentEngine = async (): Promise<void> => {
+      const engine = this.agent;
+      if (!engine) return;
       try {
-        // Await the engine tree-kill (taskkill /T on Windows) before tearing
-        // down the worker, so WorkerTaskManager.clear() on quit doesn't return
-        // before wayland-core's child tree is actually gone (#139).
-        await this.agent.kill();
-      } catch {
-        // best-effort
+        // This is process-tree proof, not best effort. WorkerTaskManager may
+        // retire its active-process lease only when this promise resolves.
+        await this.stopEngineWithTreeProof(engine);
+      } catch (error) {
+        engineFailure = error;
       }
+    };
+
+    // Stop an engine already published by bootstrap, then await bootstrap and
+    // stop a successor that may have appeared during that wait. A failed exact
+    // identity is retained for a later verified attempt.
+    await stopCurrentEngine();
+    await this.agentReady;
+    if (!engineFailure) await stopCurrentEngine();
+
+    try {
+      await super.kill();
+    } catch (error) {
+      workerFailure = error;
     }
-    // super.kill() is async (ForkTask M18); await child exit.
-    await super.kill();
+
+    if (engineFailure) {
+      if (workerFailure)
+        mainWarn('[WCoreManager]', 'worker teardown also failed during engine shutdown', workerFailure);
+      throw engineFailure;
+    }
+    if (workerFailure) throw workerFailure;
+
+    // Do not let another launch reuse the profile until both engine and worker
+    // exit have been proved. A failed release itself remains retryable.
+    await this.releaseProfileLaunchLease();
   }
 }

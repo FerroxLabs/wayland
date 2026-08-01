@@ -1,0 +1,3 @@
+{"event_id":"workflow-event-000","name":"Desktop audit","node_count":1,"run_id":"workflow-run-001","sequence":0,"type":"workflow_started","workflow_id":"desktop-audit"}
+{"agent_name":"scan","child_run_id":"child-run-001","child_sequence":0,"event_id":"child-event-000","inner":{"msg_id":"child-msg-001","text":"scan complete","type":"text_delta"},"parent_call_id":"workflow:scan","run_id":"workflow-run-001","type":"sub_agent_event"}
+{"agent_name":"scan","child_run_id":"child-run-001","child_sequence":0,"event_id":"child-event-000","inner":{"msg_id":"child-msg-001","text":"conflicting child output","type":"text_delta"},"parent_call_id":"workflow:scan","run_id":"workflow-run-001","type":"sub_agent_event"}

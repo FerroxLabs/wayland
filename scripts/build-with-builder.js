@@ -10,12 +10,24 @@
  * - Packaging only: use --pack-only to skip electron-builder distributable creation
  */
 
-const { execSync, spawnSync } = require('child_process');
+const { execFileSync, execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
+const prepareOfficeCli = require('./prepareOfficeCli');
+const prepareConstitutionFs = require('./prepareConstitutionFs');
+const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
+const { writeCapabilitySeal } = require('./capability-seal/verifyCandidateCapabilitySeal');
+const { isLocalVerificationDirBuild, findDistributableArtifacts } = require('./localVerificationGate');
+const {
+  VOICE_MODEL_FILES,
+  resolvePackagedTarget,
+  snapshotPackagedTargets,
+  verifyModelsSnapshot,
+  verifySourceMirror,
+} = require('./verify-packaged-resources');
 
 // Raise the V8 old-space ceiling for the bundling step. electron-vite transforms
 // ~13k modules in a single process; on machines with the default ~2 GB heap the
@@ -35,6 +47,16 @@ if (!/--max[-_]old[-_]space[-_]size/.test(process.env.NODE_OPTIONS || '')) {
 // "Device not configured" hdiutil errors (electron-builder#8415, actions/runner-images#12323).
 const DMG_RETRY_MAX = 3;
 const DMG_RETRY_DELAY_SEC = 30;
+
+const RELEASE_TRACK = process.env.WAYLAND_RELEASE_TRACK || 'stable';
+if (!['stable', 'preview'].includes(RELEASE_TRACK)) {
+  throw new Error(`Unsupported WAYLAND_RELEASE_TRACK: ${RELEASE_TRACK}`);
+}
+const IS_PREVIEW_BUILD = RELEASE_TRACK === 'preview';
+const BUILDER_CONFIG_FILE = IS_PREVIEW_BUILD ? 'electron-builder.preview.cjs' : 'electron-builder.yml';
+const BUILDER_CONFIG_ARG = IS_PREVIEW_BUILD ? `--config ${BUILDER_CONFIG_FILE}` : '';
+const BUILDER_OUTPUT_DIR = path.resolve(__dirname, IS_PREVIEW_BUILD ? '../out-preview' : '../out');
+const BUILDER_EXECUTABLE_NAME = IS_PREVIEW_BUILD ? 'Wayland Preview.exe' : 'Wayland.exe';
 
 // Incremental build: hash of source files to detect changes
 const INCREMENTAL_CACHE_FILE = 'out/.build-hash';
@@ -63,8 +85,10 @@ function computeSourceHash() {
     'tsconfig.json',
     'electron.vite.config.ts',
     'electron-builder.yml',
+    'electron-builder.preview.cjs',
     'justfile',
   ];
+  hash.update(`release-track:${RELEASE_TRACK}`);
 
   for (const file of filesToHash) {
     const filePath = path.resolve(rootDir, file);
@@ -163,26 +187,29 @@ function cleanupDiskImages() {
   }
 }
 
-// Find the .app directory from electron-builder output
-function findAppDir(outDir) {
-  const candidates = ['mac', 'mac-arm64', 'mac-x64', 'mac-universal'];
-  for (const dir of candidates) {
-    const fullPath = path.join(outDir, dir);
-    if (fs.existsSync(fullPath)) {
-      const hasApp = fs.readdirSync(fullPath).some((f) => f.endsWith('.app'));
-      if (hasApp) return fullPath;
-    }
+function snapshotDmgArtifacts(outDir) {
+  const snapshot = new Map();
+  if (!fs.existsSync(outDir)) return snapshot;
+  for (const file of fs.readdirSync(outDir)) {
+    if (!file.endsWith('.dmg')) continue;
+    const stat = fs.statSync(path.join(outDir, file));
+    snapshot.set(file, `${stat.size}:${stat.mtimeMs}`);
   }
-  return null;
+  return snapshot;
 }
 
-// Check if DMG exists in output directory
-function dmgExists(outDir) {
-  try {
-    return fs.readdirSync(outDir).some((f) => f.endsWith('.dmg'));
-  } catch {
-    return false;
-  }
+function hasFreshTargetDmg(outDir, targetArch, previousSnapshot) {
+  if (!fs.existsSync(outDir)) return false;
+  return fs.readdirSync(outDir).some((file) => {
+    if (!file.endsWith('.dmg')) return false;
+    const lower = file.toLowerCase();
+    const explicitArm = /(?:^|[-_])(?:arm64|aarch64)(?:[-_.]|$)/.test(lower);
+    const explicitX64 = /(?:^|[-_])(?:x64|x86_64|amd64)(?:[-_.]|$)/.test(lower);
+    if (targetArch === 'arm64' ? !explicitArm : explicitArm || (!explicitX64 && lower.includes('universal')))
+      return false;
+    const stat = fs.statSync(path.join(outDir, file));
+    return previousSnapshot.get(file) !== `${stat.size}:${stat.mtimeMs}`;
+  });
 }
 
 function tryRemoveDir(targetDir) {
@@ -233,23 +260,43 @@ function createDmgWithPrepackaged(appDir, targetArch) {
   if (!appName) throw new Error(`No .app found in ${appDir}`);
   const appPath = path.join(appDir, appName);
 
-  execSync(`bunx electron-builder --mac dmg --${targetArch} --prepackaged "${appPath}" --publish=never`, {
-    stdio: 'inherit',
-    shell: process.platform === 'win32',
+  execSync(
+    `bunx electron-builder ${BUILDER_CONFIG_ARG} --mac dmg --${targetArch} --prepackaged "${appPath}" --publish=never`,
+    {
+      stdio: 'inherit',
+      shell: process.platform === 'win32',
+    }
+  );
+}
+
+function resolveDmgRetryTarget(outDir, targetPlatform, targetArch, previousPackages) {
+  return resolvePackagedTarget(outDir, targetPlatform, targetArch, {
+    previousSnapshot: previousPackages,
   });
 }
 
-function buildWithDmgRetry(cmd, targetArch) {
+function buildWithDmgRetry(cmd, targetPlatform, targetArch, previousPackages, previousDmgs, allowDmgRetry = true) {
   const isMac = process.platform === 'darwin';
-  const outDir = path.resolve(__dirname, '../out');
+  const outDir = BUILDER_OUTPUT_DIR;
 
   try {
     execSync(cmd, { stdio: 'inherit', shell: process.platform === 'win32' });
     return;
   } catch (error) {
+    // A local verification build is directory-only and MUST NOT synthesize a
+    // distributable. Never recover a failed build into a DMG here — the retried
+    // DMG would be built from the intentionally-unsealed `.app` (an unsealed
+    // shippable artifact). Rethrow so the verification build simply fails.
+    if (!allowDmgRetry) throw error;
     // On non-macOS or if .app doesn't exist, just throw
-    const appDir = isMac ? findAppDir(outDir) : null;
-    if (!appDir || dmgExists(outDir)) throw error;
+    let packagedTarget = null;
+    if (isMac) {
+      try {
+        packagedTarget = resolveDmgRetryTarget(outDir, targetPlatform, targetArch, previousPackages);
+      } catch {}
+    }
+    if (!packagedTarget || hasFreshTargetDmg(outDir, targetArch, previousDmgs)) throw error;
+    const appDir = path.dirname(packagedTarget.appDir);
 
     // .app exists but no .dmg → DMG creation failed
     console.log('\n🔄 Build failed during DMG creation (.app exists, .dmg missing)');
@@ -276,9 +323,87 @@ function buildWithDmgRetry(cmd, targetArch) {
   }
 }
 
+function prepareOptionalHubResources(options = {}) {
+  const hubDir = options.hubDir || path.resolve(__dirname, '..', 'resources', 'hub');
+  fs.rmSync(hubDir, { recursive: true, force: true });
+  // There is currently no published FerroxLabs/waylandHub repository from
+  // which an immutable tag, index digest, and archive digests can be compiled.
+  // Never activate the legacy mutable dist-latest/WAYLAND_HUB_TAG downloader.
+  // Honest omission is safer than shipping self-attested extension archives.
+  return { available: false, reason: 'trusted-hub-authority-unavailable' };
+}
+
+function prepareWhatsAppBridgeResources(options = {}) {
+  const bridgeDir = options.bridgeDir || path.resolve(__dirname, '..', 'src', 'process', 'channels', 'whatsapp-bridge');
+  const nodeModules = path.join(bridgeDir, 'node_modules');
+  const platform = options.platform || process.platform;
+  const arch = options.arch || process.arch;
+  const run = options.run || execFileSync;
+  const validate = options.validate || (() => verifySourceMirror(bridgeDir, bridgeDir, undefined, platform, arch));
+  fs.rmSync(nodeModules, { recursive: true, force: true });
+  try {
+    run('bun', ['install', '--frozen-lockfile', '--os', platform, '--cpu', arch], {
+      cwd: bridgeDir,
+      stdio: 'inherit',
+      env: process.env,
+    });
+    if (!validate()) throw new Error('WhatsApp bridge clean frozen-lock input failed source/dependency validation');
+  } catch (error) {
+    fs.rmSync(nodeModules, { recursive: true, force: true });
+    throw error;
+  }
+  return { available: true, bridgeDir };
+}
+
+function cleanGeneratedResourceRoots(options = {}) {
+  const voiceDir = options.voiceDir || path.resolve(__dirname, '..', 'resources', 'voice-models', 'whisper-tiny');
+  const skillPackDir = options.skillPackDir || path.resolve(__dirname, '..', '.skill-pack');
+  const expectedVoiceFiles = new Set(VOICE_MODEL_FILES);
+  const cleanVoiceDir = (current) => {
+    if (!fs.existsSync(current)) return;
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const target = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        cleanVoiceDir(target);
+        if (fs.readdirSync(target).length === 0) fs.rmSync(target, { recursive: true, force: true });
+        continue;
+      }
+      const relative = path.relative(voiceDir, target).replace(/\\/g, '/');
+      if (!entry.isFile() || !expectedVoiceFiles.has(relative)) fs.rmSync(target, { recursive: true, force: true });
+    }
+  };
+  cleanVoiceDir(voiceDir);
+  fs.rmSync(skillPackDir, { recursive: true, force: true });
+}
+
+function preserveGeneratedSource(filePath, fsImpl = fs) {
+  const existed = fsImpl.existsSync(filePath);
+  const bytes = existed ? fsImpl.readFileSync(filePath) : null;
+  let restored = false;
+  return () => {
+    if (restored) return;
+    restored = true;
+    if (existed) {
+      fsImpl.mkdirSync(path.dirname(filePath), { recursive: true });
+      fsImpl.writeFileSync(filePath, bytes);
+    } else {
+      fsImpl.rmSync(filePath, { force: true });
+    }
+  };
+}
+
+function writeConstitutionPackageAuthority(authority, root = path.resolve(__dirname, '..', 'resources')) {
+  if (!authority?.supported) return null;
+  const runtime = `${authority.platform}-${authority.arch}`;
+  const target = path.join(root, 'bundled-constitution-fs', runtime, 'package-authority.json');
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, `${JSON.stringify(authority, null, 2)}\n`);
+  return target;
+}
+
 // Clean stale Windows packaging outputs from previous runs
 function cleanupWindowsPackOutput() {
-  const outDir = path.resolve(__dirname, '../out');
+  const outDir = BUILDER_OUTPUT_DIR;
   if (!fs.existsSync(outDir)) return;
 
   const removed = [];
@@ -305,15 +430,90 @@ function cleanupWindowsPackOutput() {
   }
 }
 
+if (require.main !== module) {
+  module.exports = {
+    buildWithDmgRetry,
+    cleanGeneratedResourceRoots,
+    hasFreshTargetDmg,
+    prepareOptionalHubResources,
+    prepareWhatsAppBridgeResources,
+    preserveGeneratedSource,
+    resolveDmgRetryTarget,
+    snapshotDmgArtifacts,
+    writeConstitutionPackageAuthority,
+  };
+  return;
+}
+
 // Parse command line arguments
 const args = process.argv.slice(2);
-const archList = ['x64', 'arm64', 'ia32', 'armv7l'];
+const archList = ['x64', 'arm64'];
+const electronBuilderArchNames = [...archList, 'ia32', 'armv7l', 'universal'];
+const platformAliases = new Map([
+  ['--mac', ['--mac', 'darwin']],
+  ['--macos', ['--mac', 'darwin']],
+  ['-m', ['--mac', 'darwin']],
+  ['-o', ['--mac', 'darwin']],
+  ['--win', ['--win', 'win32']],
+  ['--windows', ['--win', 'win32']],
+  ['-w', ['--win', 'win32']],
+  ['--linux', ['--linux', 'linux']],
+  ['-l', ['--linux', 'linux']],
+]);
+
+function optionName(arg) {
+  return arg.split('=', 1)[0];
+}
+
+// electron-builder accepts aliases, `--flag=value`, architecture-qualified
+// targets (`dmg:x64`), and `--universal`. If this wrapper ignored one of those
+// spellings it could prepare one native runtime while electron-builder emitted
+// a different or additional target. Keep the package grammar deliberately
+// narrow: one canonical platform plus one canonical arm64/x64 declaration.
+const nonCanonicalPlatformArg = args.find((arg) => {
+  const alias = platformAliases.get(optionName(arg));
+  return alias && arg !== alias[0];
+});
+if (nonCanonicalPlatformArg) {
+  console.error(
+    `❌ Non-canonical platform argument ${nonCanonicalPlatformArg} is not allowed. Use exactly one of --mac, --win, or --linux.`
+  );
+  process.exit(1);
+}
+
+const encodedArchArg = args.find(
+  (arg) =>
+    (/^--/.test(arg) && electronBuilderArchNames.includes(optionName(arg).slice(2)) && arg.includes('=')) ||
+    new RegExp(`:(${electronBuilderArchNames.join('|')})$`).test(arg)
+);
+if (encodedArchArg) {
+  console.error(
+    `❌ Non-canonical architecture argument ${encodedArchArg} is not allowed. Declare exactly one isolated arm64 or x64 target.`
+  );
+  process.exit(1);
+}
+
+const unsupportedArchArg = args.find((arg) => {
+  const name = optionName(arg);
+  const arch = name.startsWith('--') ? name.slice(2) : name;
+  return electronBuilderArchNames.includes(arch) && !archList.includes(arch);
+});
+if (unsupportedArchArg) {
+  console.error(
+    `❌ Unsupported package architecture ${unsupportedArchArg}. Bundled native runtimes support arm64 and x64.`
+  );
+  process.exit(1);
+}
 
 // Check for special flags
 const skipVite = args.includes('--skip-vite');
 const skipNative = args.includes('--skip-native');
 const packOnly = args.includes('--pack-only');
 const forceBuild = args.includes('--force');
+// A local verification build (WAYLAND_LOCAL_VERIFICATION=1 AND `--dir`) OMITS the
+// release capability seal so packaged-cockpit-smoke.mjs has a launchable `.app`.
+// Bound to `--dir` so a leaked env var can never deseal a distributable build.
+const localVerificationBuild = isLocalVerificationDirBuild(process.env, args);
 
 const builderArgs = args
   .filter((arg) => {
@@ -367,12 +567,28 @@ const rawArchArgs = args
 // Remove duplicates to avoid treating "x64 --x64" as multiple architectures
 const archArgs = [...new Set(rawArchArgs)];
 
+const requestedPlatformTargets = [
+  ...new Map(
+    args
+      .map((arg) => platformAliases.get(optionName(arg)))
+      .filter(Boolean)
+      .map(([flag, platform]) => [flag, platform])
+  ).entries(),
+];
+if (args.some((arg) => optionName(arg) === '--all') || requestedPlatformTargets.length > 1) {
+  console.error(
+    '❌ One exact platform is required per package invocation. Run macOS, Windows, and Linux as isolated jobs so bundled native runtimes cannot cross-contaminate artifacts.'
+  );
+  process.exit(1);
+}
 if (archArgs.length > 1) {
-  // Multiple unique architectures specified - let electron-builder handle it
-  multiArch = true;
-  targetArch = archArgs[0]; // Use first arch for webpack build
-  console.log(`🔨 Multi-architecture build detected: ${archArgs.join(', ')}`);
-} else if (args[0] === 'auto') {
+  console.error(
+    '❌ One exact architecture is required per package invocation. Run arm64 and x64 as isolated jobs so bundled native runtimes cannot cross-contaminate artifacts.'
+  );
+  process.exit(1);
+}
+
+if (args[0] === 'auto') {
   // Auto mode: detect from electron-builder.yml
   let detectedPlatform = null;
   if (builderArgs.includes('--linux')) detectedPlatform = 'linux';
@@ -387,6 +603,7 @@ if (archArgs.length > 1) {
 }
 
 console.log(`🔨 Building for architecture: ${targetArch}`);
+console.log(`🧭 Release track: ${RELEASE_TRACK}`);
 console.log(`📋 Builder arguments: ${builderArgs || '(none)'}`);
 if (skipVite) console.log('⚡ --skip-vite: Will skip Vite compilation if output exists');
 if (skipNative) console.log('⚡ --skip-native: Will skip native module rebuilding');
@@ -394,8 +611,48 @@ if (packOnly) console.log('⚡ --pack-only: Will skip electron-builder distribut
 if (forceBuild) console.log('⚡ --force: Force full rebuild');
 
 const packageJsonPath = path.resolve(__dirname, '../package.json');
+const packagePlatforms = [requestedPlatformTargets[0]?.[1] || process.platform];
+const packageArchitectures = [targetArch];
+const constitutionAuthorityPath = path.resolve(
+  __dirname,
+  '..',
+  'src',
+  'process',
+  'services',
+  'constitution',
+  'constitutionFsAuthority.generated.ts'
+);
+const restoreConstitutionAuthority = preserveGeneratedSource(constitutionAuthorityPath);
+const capabilitySealPath = path.resolve(__dirname, '..', 'public', 'capability-seal.json');
+const restoreCapabilitySeal = preserveGeneratedSource(capabilitySealPath);
 
 try {
+  // Release packaging is capability-evidence driven. Every capability that is
+  // still compiled into the candidate must carry an exact, candidate-bound
+  // acceptance receipt; an excluded capability must be physically absent.
+  // The generated seal is copied by electron-builder's existing public/ rule.
+  verifyThirdPartyExecutableLedger();
+  // The capability seal is release-gated. A local verification build
+  // (WAYLAND_LOCAL_VERIFICATION=1 AND `--dir`) OMITS it — it does not forge one —
+  // so a local build can produce a launchable `.app` for packaged-cockpit-smoke.mjs.
+  // Neither the app runtime nor the smoke ever read the seal (Q-C/Q-D), so its
+  // absence is inert. Default-OFF: any other value writes the seal (release path).
+  if (localVerificationBuild) {
+    console.warn(
+      '⚠️  LOCAL VERIFICATION BUILD — NOT A RELEASE (WAYLAND_LOCAL_VERIFICATION=1): capability seal omitted; this artifact must never ship as a release.'
+    );
+    // Genuine omission, not a stale forge: a real seal left in public/ from an
+    // earlier build (or manually placed) would otherwise be copied into the `.app`
+    // by electron-builder's public/ rule. Delete it so the artifact carries NO
+    // seal. preserveGeneratedSource() restores any pre-existing file in `finally`.
+    fs.rmSync(capabilitySealPath, { force: true });
+  } else {
+    writeCapabilitySeal({
+      root: path.resolve(__dirname, '..'),
+      outputFile: capabilitySealPath,
+    });
+  }
+
   // 1. Ensure package.json main entry is correct for electron-vite
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
   if (packageJson.main !== './out/main/index.js') {
@@ -403,7 +660,16 @@ try {
     fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
   }
 
-  // 2. Check if we can skip Vite build (incremental build)
+  // 2. Generate the target-exact Constitution authority before Vite compiles
+  // the main process. Generating this after electron-vite would package a
+  // binary whose digest is not the authority embedded in app.asar.
+  const constitutionAuthority = prepareConstitutionFs({
+    platform: packagePlatforms[0],
+    arch: packageArchitectures[0],
+  });
+  writeConstitutionPackageAuthority(constitutionAuthority);
+
+  // 3. Check if we can skip Vite build (incremental build)
   const skipViteBuild = shouldSkipViteBuild(skipVite, forceBuild);
 
   if (!skipViteBuild) {
@@ -436,15 +702,15 @@ try {
     shell: process.platform === 'win32',
   });
 
-  // 3. Verify electron-vite output
-  const outDir = path.resolve(__dirname, '../out');
-  if (!fs.existsSync(outDir)) {
+  // 4. Verify electron-vite output
+  const viteOutDir = path.resolve(__dirname, '../out');
+  if (!fs.existsSync(viteOutDir)) {
     throw new Error('electron-vite did not generate out/ directory');
   }
 
-  // 4. Validate output structure
-  const mainIndex = path.join(outDir, 'main', 'index.js');
-  const rendererIndex = path.join(outDir, 'renderer', 'index.html');
+  // 5. Validate output structure
+  const mainIndex = path.join(viteOutDir, 'main', 'index.js');
+  const rendererIndex = path.join(viteOutDir, 'renderer', 'index.html');
 
   if (!fs.existsSync(mainIndex)) {
     throw new Error('Missing main entry: out/main/index.js');
@@ -460,32 +726,81 @@ try {
     return;
   }
 
-  // 5. Prepare bundled bun/bunx binaries (for packaged runtime usage)
+  // 6. Prepare bundled bun/bunx binaries (for packaged runtime usage).
+  // prepareBundledBun consumes npm_config_target_arch, so assert the package
+  // target here instead of inheriting the build host architecture.
+  process.env.npm_config_target_arch = targetArch;
   // This only affects packaging assets; runtime integration will be added in a future PR.
-  prepareBundledBun();
+  prepareBundledBun({ platform: packagePlatforms[0], arch: packageArchitectures[0] });
 
-  // 5b. Prepare hub resources (index.json + extension zips for offline fallback).
-  // Degradable: this downloads from the waylandHub repo and can 404/timeout if
-  // that source is unavailable. A hub-cache outage must NOT block a release -
-  // the app still fetches the hub online at runtime. Warn loudly; the post-pack
-  // gate reports hub as an (optional) warning so its absence is never silent.
-  try {
-    execSync('node scripts/prepareHubResources.js', { stdio: 'inherit', env: process.env });
-  } catch (e) {
-    console.warn(`⚠️  hub resource prep failed (offline hub fallback will be absent): ${e.message}`);
+  // 5b. The optional offline Hub is unavailable until a real immutable source
+  // authority exists. Remove stale bytes and report the honest degraded state;
+  // never invoke the legacy mutable downloader during production packaging.
+  prepareOptionalHubResources();
+  console.warn('⚠️  trusted Hub authority unavailable; offline Hub bundle omitted');
+
+  // 5c. Establish the exact self-contained WhatsApp bridge input from its
+  // committed Bun lock. Packaging must never bless postinstall's mutable or
+  // non-fatal fallback dependency tree.
+  prepareWhatsAppBridgeResources({ platform: packagePlatforms[0], arch: packageArchitectures[0] });
+
+  // electron-builder copies the complete native-resource roots into every
+  // artifact. Keep both roots target-exact so stale preparation from a prior
+  // job cannot contaminate this package with foreign executables.
+  const exactRuntimeKey = `${packagePlatforms[0]}-${packageArchitectures[0]}`;
+  for (const bundleName of ['bundled-wayland-core', 'bundled-officecli', 'bundled-constitution-fs']) {
+    const bundleRoot = path.resolve(__dirname, '..', 'resources', bundleName);
+    if (!fs.existsSync(bundleRoot)) continue;
+    for (const entry of fs.readdirSync(bundleRoot, { withFileTypes: true })) {
+      if (entry.name === exactRuntimeKey) continue;
+      fs.rmSync(path.join(bundleRoot, entry.name), { recursive: true, force: true });
+    }
   }
-  // 5b. Prepare wayland-core binary (Rust CLI for agent integration)
-  prepareWaylandCore();
-  // 5c. Prepare the bundled voice STT model (Whisper-tiny ONNX, ~43 MB) so
+
+  // 5b. Prepare wayland-core for every requested package target. The package
+  // command asserts strict mode directly and pins the release in source; it
+  // must never depend on npm lifecycle variables or accept a local-prebuilt,
+  // skipped, latest, or self-asserted engine manifest.
+  for (const platform of packagePlatforms) {
+    for (const arch of packageArchitectures) {
+      prepareWaylandCore({
+        platform,
+        arch,
+        version: prepareWaylandCore.DEFAULT_WCORE_VERSION,
+        requireVerified: true,
+      });
+    }
+  }
+
+  // 5c. Prepare the exact native OfficeCLI authoring runtime for every package
+  // target. This is a mandatory, checksum-pinned release asset: the hosted npm
+  // `officecli` package exposes a different contract and cannot satisfy Cowork's
+  // native docx/xlsx/pptx skills.
+  const officeCliPlatforms = packagePlatforms;
+  const officeCliArchitectures = packageArchitectures;
+  for (const platform of officeCliPlatforms) {
+    for (const arch of officeCliArchitectures) {
+      prepareOfficeCli({ platform, arch });
+    }
+  }
+
+  // 5e. Prepare the bundled voice STT model (Whisper-tiny ONNX, ~43 MB) so
   // offline dictation works on a fresh install with zero download.
+  // Remove skill-pack output and undeclared voice debris first so stale
+  // generated content cannot survive into a new artifact. Valid voice files
+  // remain cached; the exact post-package gate rejects any malformed set.
+  cleanGeneratedResourceRoots();
   // spawnSync with arg array - no shell, safe.
-  spawnSync('node', [path.join(__dirname, 'prepareVoiceModel.js')], {
+  const voicePrep = spawnSync('node', [path.join(__dirname, 'prepareVoiceModel.js')], {
     stdio: 'inherit',
     env: process.env,
   });
+  if (voicePrep.status !== 0) {
+    throw new Error(`Bundled voice model preparation failed with exit code ${voicePrep.status}`);
+  }
 
-  // 5d. Stage build-time bundled resources that are NOT committed to the repo:
-  //  - resources/modelsdev-snapshot.json : models.dev catalog snapshot.
+  // 5e. Stage build-time bundled resources that are NOT committed to the repo:
+  //  - resources/modelsdev-snapshot.json : immutable offline models.dev floor.
   //  - .skill-pack/{skills-library,bundled-workflows} : the AV-safe packed blob
   //    of every built-in skill + workflow (#316).
   // These previously ran ONLY via npm `predist*` lifecycle hooks, which never
@@ -493,14 +808,27 @@ try {
   // That gap shipped 0.11.4/0.11.5 with the entire skills-library +
   // bundled-workflows missing -> every skill and workflow gone for all users.
   // Run them here unconditionally so they ALWAYS run, however the build starts.
-  console.log('📦 Staging models.dev snapshot...');
-  execSync('bunx tsx scripts/bundle-modelsdev.ts', { stdio: 'inherit', env: process.env });
+  console.log('📦 Verifying immutable models.dev offline snapshot...');
+  const modelsSnapshot = path.resolve(__dirname, '..', 'resources', 'modelsdev-snapshot.json');
+  if (!verifyModelsSnapshot(modelsSnapshot)) {
+    throw new Error('Committed models.dev offline snapshot failed pinned size, SHA-256, or schema validation');
+  }
   console.log('📦 Building skill/workflow pack (.skill-pack)...');
   execSync('bunx tsx scripts/build-skill-pack.ts --out .skill-pack', { stdio: 'inherit', env: process.env });
 
   // Optional Signal CLI runtime (degradable channel) - never fail the build on it.
   try {
-    execSync('node scripts/install-signal-cli.mjs', { stdio: 'inherit', env: process.env });
+    execFileSync(
+      'node',
+      [
+        path.join(__dirname, 'install-signal-cli.mjs'),
+        '--platform',
+        packagePlatforms[0],
+        '--arch',
+        packageArchitectures[0],
+      ],
+      { stdio: 'inherit', env: process.env }
+    );
   } catch (e) {
     console.warn(`⚠️  signal-cli install failed (Signal channel will be unavailable): ${e.message}`);
   }
@@ -571,7 +899,7 @@ try {
   }
 
   if (process.platform === 'win32' && builderArgs.includes('--win')) {
-    const winUnpackedDir = path.join(outDir, 'win-unpacked');
+    const winUnpackedDir = path.join(BUILDER_OUTPUT_DIR, 'win-unpacked');
     let cleaned = tryRemoveDir(winUnpackedDir);
     if (!cleaned) {
       const aionRunning = isProcessRunningWindows('Wayland.exe');
@@ -592,11 +920,20 @@ try {
     cleanupWindowsPackOutput();
   }
 
-  const builderCommand = `bunx electron-builder ${builderArgs} ${archFlag} ${nsisInclude} ${publishArg}`;
+  const builderCommand = `bunx electron-builder ${BUILDER_CONFIG_ARG} ${builderArgs} ${archFlag} ${nsisInclude} ${publishArg}`;
+  const previousPackages = snapshotPackagedTargets(BUILDER_OUTPUT_DIR);
+  const previousDmgs = snapshotDmgArtifacts(BUILDER_OUTPUT_DIR);
   try {
-    buildWithDmgRetry(builderCommand, targetArch);
+    buildWithDmgRetry(
+      builderCommand,
+      packagePlatforms[0],
+      targetArch,
+      previousPackages,
+      previousDmgs,
+      !localVerificationBuild
+    );
   } catch (error) {
-    const winExePath = path.join(outDir, 'win-unpacked', 'Wayland.exe');
+    const winExePath = path.join(BUILDER_OUTPUT_DIR, 'win-unpacked', BUILDER_EXECUTABLE_NAME);
     const firstError = formatExecError(error);
     const canRetryWithoutExecutableEdit =
       process.platform === 'win32' && isWindowsBuild && process.env.CI !== 'true' && fs.existsSync(winExePath);
@@ -622,7 +959,14 @@ try {
     cleanupWindowsPackOutput();
 
     try {
-      buildWithDmgRetry(`${builderCommand} --config.win.signAndEditExecutable=false`, targetArch);
+      buildWithDmgRetry(
+        `${builderCommand} --config.win.signAndEditExecutable=false`,
+        packagePlatforms[0],
+        targetArch,
+        previousPackages,
+        previousDmgs,
+        !localVerificationBuild
+      );
     } catch (retryError) {
       const retryFailure = formatExecError(retryError);
       throw new Error(
@@ -637,16 +981,80 @@ try {
     }
   }
 
+  // 6.5. Class-closing invariant for local verification builds: the seal was
+  // omitted, so the artifact must be an unpacked `.app`/dir ONLY. Fail hard if any
+  // distributable/installer (dmg/pkg/zip/...) was produced by any path (a stray
+  // target arg, a DMG-retry, a future regression) — an unsealed distributable
+  // must never exist. Scans the output dir top level + one level of subdirs
+  // (where electron-builder writes artifacts); does not descend into the `.app`.
+  if (localVerificationBuild) {
+    const artifactNames = [];
+    if (fs.existsSync(BUILDER_OUTPUT_DIR)) {
+      for (const entry of fs.readdirSync(BUILDER_OUTPUT_DIR, { withFileTypes: true })) {
+        if (entry.isFile()) {
+          artifactNames.push(entry.name);
+        } else if (entry.isDirectory()) {
+          for (const child of fs.readdirSync(path.join(BUILDER_OUTPUT_DIR, entry.name), { withFileTypes: true })) {
+            if (child.isFile()) artifactNames.push(child.name);
+          }
+        }
+      }
+    }
+    const distributables = findDistributableArtifacts(artifactNames);
+    if (distributables.length) {
+      throw new Error(
+        `Local verification build (WAYLAND_LOCAL_VERIFICATION) must be directory-only, but produced ` +
+          `distributable artifact(s): ${distributables.join(', ')}. Refusing — a verification build must ` +
+          `never yield a shippable artifact.`
+      );
+    }
+    console.log('🔒 Local verification build: confirmed directory-only (no distributable artifact).');
+  }
+
   // 7. Fail-hard gate: assert the packaged app actually contains every critical
   // bundled resource. electron-builder silently DROPS any extraResources whose
   // source is absent (exit 0, no warning) - the exact failure that shipped
   // 0.11.4/0.11.5 with no skills-library/bundled-workflows. This is the last
   // line of defense: a structurally-incomplete app fails the build, never ships.
   console.log('🔎 Verifying packaged resources are present in the built app...');
-  execSync('node scripts/verify-packaged-resources.js --out out', { stdio: 'inherit', env: process.env });
+  const packagedTarget = resolvePackagedTarget(BUILDER_OUTPUT_DIR, packagePlatforms[0], targetArch, {
+    previousSnapshot: previousPackages,
+  });
+  const officeCliRuntimeArgs = officeCliPlatforms
+    .flatMap((platform) => officeCliArchitectures.map((arch) => `--officecli-runtime ${platform}-${arch}`))
+    .join(' ');
+  const wcoreRuntimeArgs = packagePlatforms
+    .flatMap((platform) => packageArchitectures.map((arch) => `--wcore-runtime ${platform}-${arch}`))
+    .join(' ');
+  execFileSync(
+    'node',
+    [
+      path.join(__dirname, 'verify-packaged-resources.js'),
+      '--out',
+      BUILDER_OUTPUT_DIR,
+      '--target-platform',
+      packagePlatforms[0],
+      '--target-arch',
+      targetArch,
+      '--resources-dir',
+      packagedTarget.resourceDir,
+      '--app-executable',
+      packagedTarget.executablePath,
+      ...wcoreRuntimeArgs.split(' '),
+      ...officeCliRuntimeArgs.split(' '),
+      // On a local verification build the seal is intentionally absent; tell the
+      // verifier to require its ABSENCE (not its presence) while still enforcing
+      // every other critical resource + signature check.
+      ...(localVerificationBuild ? ['--allow-missing-seal'] : []),
+    ],
+    { stdio: 'inherit', env: process.env }
+  );
 
   console.log('✅ Build completed!');
 } catch (error) {
   console.error('❌ Build failed:', error.message);
-  process.exit(1);
+  process.exitCode = 1;
+} finally {
+  restoreConstitutionAuthority();
+  restoreCapabilitySeal();
 }

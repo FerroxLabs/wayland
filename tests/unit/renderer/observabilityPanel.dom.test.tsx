@@ -16,12 +16,7 @@ vi.mock('react-i18next', () => ({
 
 import type { IMessageActivity, IMessageSubAgent, TMessage } from '@/common/chat/chatLib';
 
-// useMessageList is the only data dependency: the panel filters the live message
-// stream for `activity` turns. Mock it so each test controls the list directly.
 let messageList: TMessage[] = [];
-vi.mock('@/renderer/pages/conversation/Messages/hooks', () => ({
-  useMessageList: () => messageList,
-}));
 
 import ObservabilityPanel from '@/renderer/pages/conversation/Messages/components/ObservabilityPanel';
 
@@ -74,7 +69,7 @@ describe('ObservabilityPanel', () => {
 
   it('renders the empty hint when there are no activity turns', () => {
     messageList = [text('t1')];
-    render(<ObservabilityPanel onClose={() => {}} />);
+    render(<ObservabilityPanel messages={messageList} onClose={() => {}} />);
     expect(screen.getByText('Activity from this conversation will appear here.')).toBeTruthy();
     expect(screen.queryByTestId('activity-card')).toBeNull();
   });
@@ -90,7 +85,7 @@ describe('ObservabilityPanel', () => {
         nodes: [{ id: 'n2', kind: 'tool', callId: 'n2', name: 'Bash', status: 'running', startTime: 1 }],
       }),
     ];
-    render(<ObservabilityPanel onClose={() => {}} />);
+    render(<ObservabilityPanel messages={messageList} onClose={() => {}} />);
     expect(screen.getAllByTestId('activity-card')).toHaveLength(2);
     expect(screen.getByText('ReadFile')).toBeTruthy();
     expect(screen.getByText('Bash')).toBeTruthy();
@@ -104,7 +99,7 @@ describe('ObservabilityPanel', () => {
       }),
       subAgent('s1', 'compute-2plus2'),
     ];
-    render(<ObservabilityPanel onClose={() => {}} />);
+    render(<ObservabilityPanel messages={messageList} onClose={() => {}} />);
     // The activity card still renders.
     expect(screen.getByText('ReadFile')).toBeTruthy();
     // The sub-agent card is now surfaced in the panel (was previously inline-only).
@@ -113,7 +108,7 @@ describe('ObservabilityPanel', () => {
 
   it('fires onClose when the close control is clicked', () => {
     const onClose = vi.fn();
-    render(<ObservabilityPanel onClose={onClose} />);
+    render(<ObservabilityPanel messages={messageList} onClose={onClose} />);
     fireEvent.click(screen.getByLabelText('Close panel'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -125,7 +120,7 @@ describe('ObservabilityPanel', () => {
         perTurnCost: [{ turn: 1, model: 'gpt-x', provider: 'openai', costUsd: 0.0123 }],
       }),
     ];
-    render(<ObservabilityPanel onClose={() => {}} />);
+    render(<ObservabilityPanel messages={messageList} onClose={() => {}} />);
     // Off by default: cost rows hidden.
     expect(screen.queryByText('gpt-x')).toBeNull();
 

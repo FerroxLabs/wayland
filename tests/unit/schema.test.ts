@@ -14,6 +14,7 @@ function createMockDriver(): ISqliteDriver & { pragma: ReturnType<typeof vi.fn>;
     exec: vi.fn(),
     prepare: vi.fn(),
     transaction: vi.fn(),
+    backup: vi.fn(),
     close: vi.fn(),
   };
 }

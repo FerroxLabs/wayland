@@ -7,14 +7,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SkillIndexEntry } from '@/common/types/skillTypes';
 import type { IProvider } from '@/common/config/storage';
+import { CAPABILITY_EVIDENCE_CONTRACT, OFFICECLI_CAPABILITY, WAYLAND_CAPABILITY_MANIFEST } from '@/common/capabilities';
 
-const { mockStats, mockList, getInstance, mockGetProviderCatalog, mockProcessConfigGet } = vi.hoisted(() => ({
-  mockStats: vi.fn(),
-  mockList: vi.fn(),
-  getInstance: vi.fn(),
-  mockGetProviderCatalog: vi.fn(),
-  mockProcessConfigGet: vi.fn(),
-}));
+const { mockStats, mockList, getInstance, mockGetProviderCatalog, mockProcessConfigGet, mockOfficeAuthoringProbe } =
+  vi.hoisted(() => ({
+    mockStats: vi.fn(),
+    mockList: vi.fn(),
+    getInstance: vi.fn(),
+    mockGetProviderCatalog: vi.fn(),
+    mockProcessConfigGet: vi.fn(),
+    mockOfficeAuthoringProbe: vi.fn(),
+  }));
 
 vi.mock('@process/services/skills/SkillLibrary', () => ({
   SkillLibrary: { getInstance },
@@ -26,6 +29,11 @@ vi.mock('@process/providers/ipc/modelRegistryIpc', () => ({
 
 vi.mock('@process/utils/initStorage', () => ({
   ProcessConfig: { get: mockProcessConfigGet },
+  getBuiltinSkillsCopyDir: vi.fn(() => '/missing-builtin-skills'),
+}));
+
+vi.mock('@process/services/capabilities/OfficeCliAuthoringCapability', () => ({
+  probeOfficeCliAuthoringEvidence: mockOfficeAuthoringProbe,
 }));
 
 import {
@@ -86,6 +94,40 @@ function primeHappyPath(): void {
 beforeEach(() => {
   vi.clearAllMocks();
   invalidateCapabilitiesManifestCache();
+  mockOfficeAuthoringProbe.mockImplementation(
+    async (context: { correlationId: string; backend: string; now: number }) => ({
+      contract: CAPABILITY_EVIDENCE_CONTRACT,
+      evidenceId: 'officecli:test',
+      capabilityId: OFFICECLI_CAPABILITY.id,
+      capabilityVersion: OFFICECLI_CAPABILITY.version,
+      manifestId: WAYLAND_CAPABILITY_MANIFEST.id,
+      manifestVersion: WAYLAND_CAPABILITY_MANIFEST.version,
+      fixtureDigest: OFFICECLI_CAPABILITY.fixtureDigest,
+      source: 'officecli-bundle',
+      sourceInstance: 'officecli:test',
+      correlationId: context.correlationId,
+      observedAt: context.now,
+      expiresAt: context.now + 60_000,
+      platform: process.platform,
+      arch: process.arch,
+      backend: context.backend,
+      executionMode: 'local-binary',
+      status: 'available',
+      operations: OFFICECLI_CAPABILITY.operations,
+      formats: OFFICECLI_CAPABILITY.formats,
+      dependencies: [],
+      requirements: OFFICECLI_CAPABILITY.requirements,
+      artifact: {
+        binarySha256: OFFICECLI_CAPABILITY.platforms.find(
+          (entry) => entry.platform === process.platform && entry.arch === process.arch
+        )?.binarySha256,
+        publisherProof: OFFICECLI_CAPABILITY.platforms.find(
+          (entry) => entry.platform === process.platform && entry.arch === process.arch
+        )?.publisherProofSha256,
+      },
+      reason: 'ready',
+    })
+  );
 });
 
 describe('buildCapabilitiesManifest', () => {
@@ -211,6 +253,45 @@ describe('buildCapabilitiesManifest', () => {
     expect(out).toContain('Features:');
     // model.config must not be read when models are excluded.
     expect(mockProcessConfigGet).not.toHaveBeenCalled();
+    expect(mockOfficeAuthoringProbe).not.toHaveBeenCalled();
+  });
+
+  it('omits Office authoring by default and does not run its probe', async () => {
+    primeHappyPath();
+    const out = await buildCapabilitiesManifest();
+
+    expect(out).not.toContain('Native Office authoring:');
+    expect(mockOfficeAuthoringProbe).not.toHaveBeenCalled();
+  });
+
+  it('reports unavailable evidence honestly when requested', async () => {
+    primeHappyPath();
+    const readyEvidence = await mockOfficeAuthoringProbe({ correlationId: 'seed', backend: 'acp', now: Date.now() });
+    mockOfficeAuthoringProbe.mockClear();
+    mockOfficeAuthoringProbe.mockImplementation(
+      async (context: { correlationId: string; backend: string; now: number }) => ({
+        ...readyEvidence,
+        correlationId: context.correlationId,
+        backend: context.backend,
+        observedAt: context.now,
+        expiresAt: context.now + 60_000,
+        evidenceId: 'officecli:unavailable',
+        sourceInstance: 'officecli:unavailable',
+        status: 'unavailable',
+        operations: [],
+        formats: [],
+        artifact: undefined,
+        reason: 'The target-exact bundle is unavailable.',
+      })
+    );
+
+    const out = await buildCapabilitiesManifest({ includeOfficeAuthoring: true });
+
+    expect(out).toContain('Native Office authoring: unavailable');
+    expect(out).toContain('target-exact bundle is unavailable');
+    expect(out).toContain('Do not guess commands');
+    expect(out).toContain('hosted fallback');
+    expect(mockOfficeAuthoringProbe).toHaveBeenCalledOnce();
   });
 
   it('counts ONLY skills in the headline and matches the skill-only categories (B3)', async () => {

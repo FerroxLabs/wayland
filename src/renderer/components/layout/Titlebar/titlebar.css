@@ -149,7 +149,10 @@
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-dim);
+  /* --text-dim (#6b6b6b dark) is only 2.7:1 on the #2a2a2a titlebar (fails WCAG AA).
+     Scope the readable muted token to this decorative tagline so the global dim
+     hierarchy is untouched (QA-01/B-02). */
+  color: var(--text-muted);
   padding-left: 10px;
   border-left: 1px solid var(--border-bright);
   white-space: nowrap;

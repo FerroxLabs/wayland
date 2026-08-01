@@ -20,6 +20,7 @@ import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
 import { connectModelRegistryProvider } from '@process/providers/ipc/modelRegistryIpc';
 import { ProcessConfig } from '@process/utils/initStorage';
+import { updateMcpConfig } from '@process/services/mcpServices/mcpConfigAuthority';
 import type { IMcpServer, IMcpServerTransport } from '@/common/config/storage';
 import type { MigrationPlan, MigrationResult, MigrationToolId } from '@/common/types/migration';
 import type { ExistingState, RawMcpServer, RawProviderKey } from './migrationShared';
@@ -123,38 +124,38 @@ async function applyKeys(keys: RawProviderKey[], selected: Set<string>, result: 
 
 /** Apply selected MCP servers (skip-existing), then sync to agents once. */
 async function applyMcp(servers: RawMcpServer[], selected: Set<string>, result: MigrationResult): Promise<void> {
-  const existing = ((await ProcessConfig.get('mcp.config')) as IMcpServer[] | undefined) ?? [];
-  const existingNames = new Set(existing.map((s) => s.name.toLowerCase()));
   const now = Date.now();
-  const additions: IMcpServer[] = [];
+  await updateMcpConfig((existing) => {
+    const existingNames = new Set(existing.map((server) => server.name.toLowerCase()));
+    const additions: IMcpServer[] = [];
 
-  for (const server of servers) {
-    if (!selected.has(`mcp-server:${server.name}`)) continue;
-    if (existingNames.has(server.name.toLowerCase())) {
-      result.skipped += 1;
-      continue;
+    for (const server of servers) {
+      if (!selected.has(`mcp-server:${server.name}`)) continue;
+      if (existingNames.has(server.name.toLowerCase())) {
+        result.skipped += 1;
+        continue;
+      }
+      const transport = toTransport(server.config);
+      if (!transport) {
+        result.errors.push({ label: server.name, reason: 'unsupported MCP transport' });
+        continue;
+      }
+      additions.push({
+        id: `mcp-${now}-${additions.length}`,
+        name: server.name,
+        enabled: false,
+        transport,
+        createdAt: now,
+        updatedAt: now,
+        originalJson: JSON.stringify({ [server.name]: server.config }, null, 2),
+        source: 'custom',
+      });
+      existingNames.add(server.name.toLowerCase());
     }
-    const transport = toTransport(server.config);
-    if (!transport) {
-      result.errors.push({ label: server.name, reason: 'unsupported MCP transport' });
-      continue;
-    }
-    additions.push({
-      id: `mcp-${now}-${additions.length}`,
-      name: server.name,
-      enabled: false,
-      transport,
-      createdAt: now,
-      updatedAt: now,
-      originalJson: JSON.stringify({ [server.name]: server.config }, null, 2),
-      source: 'custom',
-    });
-  }
 
-  if (additions.length === 0) return;
-  const merged = [...existing, ...additions];
-  await ProcessConfig.set('mcp.config', merged);
-  result.applied += additions.length;
+    result.applied += additions.length;
+    return additions.length > 0 ? [...existing, ...additions] : existing;
+  });
   // Imported servers land DISABLED (enabled: false), so no agent sync is needed
   // here - the user toggles one on in the MCP Library and the normal enable flow
   // syncs it. (Calling the renderer-facing syncMcpToAgents.invoke() from the main

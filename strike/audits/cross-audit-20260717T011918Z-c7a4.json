@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "gate": "cross-audit",
+  "gate_id": "cross-audit-20260717T011918Z-c7a4",
+  "status": "FAIL",
+  "promotion": "HOLD",
+  "emitted_at": "2026-07-17T01:19:18Z",
+  "auditor_independent": true,
+  "target": {
+    "baseline_commit": "991c502e74506ec3702f92e429a8b31b655412ba",
+    "reconstructed_tree": "751170dbd39b629e7580e4708d0785354eb8f48d",
+    "dirty_detached": true
+  },
+  "counts": {
+    "blocker": 2,
+    "high": 5,
+    "medium": 2,
+    "low": 0
+  },
+  "findings": [
+    {
+      "severity": "BLOCKER",
+      "id": "classic-fresh-auth-retry-bypass",
+      "summary": "Existing noncommitted Classic decide/resume operations dispatch before fresh destructive authentication.",
+      "paths": [
+        "src/process/services/constitution/constitutionClassicRecoveryService.ts",
+        "tests/unit/process/services/constitution/constitutionClassicRecoveryService.bun.test.ts"
+      ]
+    },
+    {
+      "severity": "BLOCKER",
+      "id": "ambiguous-outcome-operation-id-loss",
+      "summary": "Recovery renderers clear durable operation identity after structured NATIVE_FAILURE or INTEGRITY_FAILURE despite unknown commit outcome.",
+      "paths": [
+        "src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx",
+        "src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx",
+        "src/common/types/constitutionRecovery.ts"
+      ]
+    },
+    {
+      "severity": "HIGH",
+      "id": "specialist-restore-wrong-live-revision",
+      "summary": "Specialist archive restore receives the main Constitution revision rather than the specialist target revision.",
+      "paths": [
+        "src/renderer/pages/settings/ConstitutionSettings/index.tsx",
+        "src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx",
+        "src/process/services/constitution/constitutionFsService.ts"
+      ]
+    },
+    {
+      "severity": "HIGH",
+      "id": "classic-dto-malformed-critical-null-coercion",
+      "summary": "Wrong-type promotion and journal identifiers are coerced to null instead of rejected fail closed.",
+      "paths": [
+        "src/common/types/constitutionRecovery.ts",
+        "tests/unit/common/constitutionRecovery.test.ts"
+      ]
+    },
+    {
+      "severity": "HIGH",
+      "id": "archive-abandonment-contract-incomplete",
+      "summary": "Prepared archive operations can be tombstoned without explicit cancellation or 30-day expiry and native not_found corroboration.",
+      "paths": [
+        "src/process/services/constitution/constitutionArchiveRestoreAuthority.ts",
+        "tests/unit/process/services/constitution/constitutionArchiveRestoreAuthority.test.ts"
+      ]
+    },
+    {
+      "severity": "HIGH",
+      "id": "classic-reconciliation-swallows-authority-errors",
+      "summary": "Classic reconciliation treats locator, integrity, or authentication failures as missing journal state and may continue against stale authority.",
+      "paths": [
+        "src/process/services/constitution/constitutionClassicRecoveryService.ts"
+      ]
+    },
+    {
+      "severity": "HIGH",
+      "id": "recovery-real-consumer-journey-absent",
+      "summary": "Archive and Classic recovery lack real route or IPC through client and reducer proof; layers are separately mocked.",
+      "paths": [
+        "tests/unit/webserver/constitutionRouteClient.native.contract.test.ts"
+      ]
+    },
+    {
+      "severity": "MEDIUM",
+      "id": "terminal-locator-projection-digest-not-rechecked",
+      "summary": "Terminal locator consumption does not re-check the projection envelope digest bound by the terminal event.",
+      "paths": [
+        "src/process/services/recovery/classicRecoveryLocator.ts",
+        "src/process/services/constitution/constitutionClassicRecoveryService.ts"
+      ]
+    },
+    {
+      "severity": "MEDIUM",
+      "id": "classic-rolled-back-state-disconnected",
+      "summary": "Classic authority exposes rolled-back state handling but no implementation transitions to it and no test proves it.",
+      "paths": [
+        "src/process/services/constitution/constitutionClassicRecoveryAuthority.ts"
+      ]
+    }
+  ],
+  "known_external_blockers": [
+    "dependency audit: 101 advisories including 1 critical and 24 high",
+    "Stage C signed package and live journeys absent",
+    "deployment canary and exercised rollback receipts absent"
+  ]
+}

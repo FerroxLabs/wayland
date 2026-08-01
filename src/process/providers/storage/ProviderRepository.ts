@@ -119,6 +119,26 @@ export class ProviderRepository {
   }
 
   /**
+   * Producer-owned observation time for a provider row. Renderer consumers must
+   * never replace this with their own wall clock and thereby renew stale state.
+   */
+  getRegistryProviderObservedAt(providerId: ProviderId): number | null {
+    const row = this.db
+      .prepare(`SELECT updated_at FROM model_registry_providers WHERE provider_id = ?`)
+      .get(providerId) as { updated_at?: unknown } | undefined;
+    return typeof row?.updated_at === 'number' && Number.isSafeInteger(row.updated_at) && row.updated_at >= 0
+      ? row.updated_at
+      : null;
+  }
+
+  /** Advance the provider snapshot identity after a catalog/inventory mutation. */
+  private touchRegistryProvider(providerId: ProviderId, observedAt = Date.now()): void {
+    this.db
+      .prepare(`UPDATE model_registry_providers SET updated_at = ? WHERE provider_id = ?`)
+      .run(observedAt, providerId);
+  }
+
+  /**
    * Insert or replace a connected provider. `creds` is a plain object - it is
    * serialized and encrypted here so callers never handle ciphertext.
    */
@@ -217,6 +237,7 @@ export class ProviderRepository {
       for (const model of models) {
         stmt.run(providerId, model.id, JSON.stringify(model), now);
       }
+      this.touchRegistryProvider(providerId, now);
     });
     tx();
   }
@@ -259,13 +280,18 @@ export class ProviderRepository {
 
   /** Persist (insert or update) a single per-model enable/disable override. */
   setRegistryOverride(providerId: ProviderId, modelId: string, enabled: boolean): void {
-    this.db
-      .prepare(
-        `INSERT INTO model_registry_overrides (provider_id, model_id, enabled, updated_at)
-         VALUES (?, ?, ?, ?)
-         ON CONFLICT(provider_id, model_id) DO UPDATE SET enabled = excluded.enabled, updated_at = excluded.updated_at`
-      )
-      .run(providerId, modelId, enabled ? 1 : 0, Date.now());
+    const now = Date.now();
+    const tx = this.db.transaction(() => {
+      this.db
+        .prepare(
+          `INSERT INTO model_registry_overrides (provider_id, model_id, enabled, updated_at)
+           VALUES (?, ?, ?, ?)
+           ON CONFLICT(provider_id, model_id) DO UPDATE SET enabled = excluded.enabled, updated_at = excluded.updated_at`
+        )
+        .run(providerId, modelId, enabled ? 1 : 0, now);
+      this.touchRegistryProvider(providerId, now);
+    });
+    tx();
   }
 
   /** Every explicit override for a provider. */
@@ -284,20 +310,30 @@ export class ProviderRepository {
 
   /** Persist a custom model id for a provider (no-op if already present). */
   addCustomModel(providerId: ProviderId, modelId: string): void {
-    this.db
-      .prepare(
-        `INSERT INTO model_registry_custom_models (provider_id, model_id, created_at)
-         VALUES (?, ?, ?)
-         ON CONFLICT(provider_id, model_id) DO NOTHING`
-      )
-      .run(providerId, modelId, Date.now());
+    const now = Date.now();
+    const tx = this.db.transaction(() => {
+      const result = this.db
+        .prepare(
+          `INSERT INTO model_registry_custom_models (provider_id, model_id, created_at)
+           VALUES (?, ?, ?)
+           ON CONFLICT(provider_id, model_id) DO NOTHING`
+        )
+        .run(providerId, modelId, now);
+      if (result.changes > 0) this.touchRegistryProvider(providerId, now);
+    });
+    tx();
   }
 
   /** Remove a custom model id from a provider. */
   removeCustomModel(providerId: ProviderId, modelId: string): void {
-    this.db
-      .prepare(`DELETE FROM model_registry_custom_models WHERE provider_id = ? AND model_id = ?`)
-      .run(providerId, modelId);
+    const now = Date.now();
+    const tx = this.db.transaction(() => {
+      const result = this.db
+        .prepare(`DELETE FROM model_registry_custom_models WHERE provider_id = ? AND model_id = ?`)
+        .run(providerId, modelId);
+      if (result.changes > 0) this.touchRegistryProvider(providerId, now);
+    });
+    tx();
   }
 
   /** Every custom model id for a provider, oldest first. */

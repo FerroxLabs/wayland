@@ -26,11 +26,11 @@ const ICON_SIZE = 11;
  */
 const StatusChip: React.FC<StatusChipProps> = ({ status, className }) => {
   const { t } = useTranslation();
-  if (status === 'running') {
+  if (status === 'reachable') {
     return (
       <span className={classNames(styles.statusChip, styles.statusChipOk, className)}>
         <Check size={ICON_SIZE} />
-        {t('mcpLibrary.status.connected', 'Connected')}
+        {t('mcpLibrary.status.reachable', 'Server reachable')}
       </span>
     );
   }

@@ -6,7 +6,7 @@
 
 import { ipcBridge } from '@/common';
 import { Button, Message } from '@arco-design/web-react';
-import { FileText, FolderOpen, Paperclip, X } from 'lucide-react';
+import { FileText, FolderOpen, Paperclip, RotateCcw, X } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkspaceDragImport } from '@/renderer/pages/conversation/Workspace/hooks/useWorkspaceDragImport';
@@ -15,6 +15,7 @@ import { uploadProjectReferencesViaHttp } from '@/renderer/services/FileService'
 import styles from './projectCards.module.css';
 
 type ReferenceFile = { name: string; path: string; size: number };
+type ArchivedReferenceFile = { id: string; name: string; size: number; archivedAt: number };
 
 const fmtSize = (bytes: number): string => {
   if (bytes < 1024) return `${bytes} B`;
@@ -34,18 +35,25 @@ const ProjectReferencePanel: React.FC<{
 }> = ({ projectId, hasWorkspace, onSetWorkspace }) => {
   const { t } = useTranslation();
   const [refs, setRefs] = useState<ReferenceFile[]>([]);
+  const [archivedRefs, setArchivedRefs] = useState<ArchivedReferenceFile[]>([]);
   const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isDesktop = isElectronDesktop();
 
   const load = useCallback(async () => {
     if (!hasWorkspace) {
+      setRefs([]);
+      setArchivedRefs([]);
       setLoading(false);
       return;
     }
     try {
-      const r = await ipcBridge.project.listReference.invoke({ id: projectId });
-      setRefs(Array.isArray(r) ? r : []);
+      const [live, archived] = await Promise.all([
+        ipcBridge.project.listReference.invoke({ id: projectId }),
+        ipcBridge.project.listArchivedReference.invoke({ id: projectId }),
+      ]);
+      setRefs(Array.isArray(live) ? live : []);
+      setArchivedRefs(Array.isArray(archived) ? archived : []);
     } catch (err) {
       console.error('[ProjectReferencePanel] load failed:', err);
     } finally {
@@ -132,8 +140,26 @@ const ProjectReferencePanel: React.FC<{
       try {
         const updated = await ipcBridge.project.removeReference.invoke({ id: projectId, name });
         setRefs(Array.isArray(updated) ? updated : []);
+        const archived = await ipcBridge.project.listArchivedReference.invoke({ id: projectId });
+        setArchivedRefs(Array.isArray(archived) ? archived : []);
+        Message.success(t('projects.knowledge.fileArchived'));
       } catch {
         Message.error(t('projects.knowledge.fileRemoveFailed'));
+      }
+    },
+    [projectId, t]
+  );
+
+  const restoreRef = useCallback(
+    async (archiveId: string) => {
+      try {
+        const updated = await ipcBridge.project.restoreReference.invoke({ id: projectId, archiveId });
+        setRefs(Array.isArray(updated) ? updated : []);
+        const archived = await ipcBridge.project.listArchivedReference.invoke({ id: projectId });
+        setArchivedRefs(Array.isArray(archived) ? archived : []);
+        Message.success(t('projects.knowledge.fileRestored'));
+      } catch {
+        Message.error(t('projects.knowledge.fileRestoreFailed'));
       }
     },
     [projectId, t]
@@ -182,10 +208,7 @@ const ProjectReferencePanel: React.FC<{
       {refs.length > 0 && (
         <div className='grid gap-12px' style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))' }}>
           {refs.map((f) => (
-            <div
-              key={f.name}
-              className={`group flex flex-col gap-8px px-14px py-13px ${styles.card}`}
-            >
+            <div key={f.name} className={`group flex flex-col gap-8px px-14px py-13px ${styles.card}`}>
               <div className='flex items-start justify-between'>
                 <div className='flex items-center justify-center w-32px h-32px rd-8px bg-fill-2 text-t-secondary'>
                   <FileText size={16} />
@@ -203,6 +226,25 @@ const ProjectReferencePanel: React.FC<{
                 {f.name}
               </div>
               <div className='text-11px text-t-tertiary'>{fmtSize(f.size)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {archivedRefs.length > 0 && (
+        <div className='flex flex-col gap-8px rd-10px border border-solid border-[var(--color-border-1)] px-12px py-10px'>
+          <div className='text-12px font-600 text-t-secondary'>
+            {t('projects.knowledge.reference.archived', { count: archivedRefs.length })}
+          </div>
+          {archivedRefs.map((file) => (
+            <div key={file.id} className='flex items-center justify-between gap-10px'>
+              <div className='min-w-0'>
+                <div className='text-12px text-t-primary truncate'>{file.name}</div>
+                <div className='text-11px text-t-tertiary'>{fmtSize(file.size)}</div>
+              </div>
+              <Button size='mini' type='text' icon={<RotateCcw size={12} />} onClick={() => void restoreRef(file.id)}>
+                {t('projects.knowledge.reference.restore')}
+              </Button>
             </div>
           ))}
         </div>

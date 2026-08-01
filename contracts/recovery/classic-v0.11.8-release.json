@@ -1,0 +1,149 @@
+{
+  "contract": "wayland-classic-recovery-release/1.0",
+  "repository": "FerroxLabs/wayland",
+  "releaseId": 346809341,
+  "tag": "v0.11.8",
+  "tagCommit": "74b37efb1a1f624ec86b66fb3465025cb1a9fd22",
+  "version": "0.11.8",
+  "publishedAt": "2026-06-30T12:24:04Z",
+  "artifacts": [
+    {
+      "assetId": 462135783,
+      "platform": "darwin",
+      "arch": "arm64",
+      "name": "Wayland-0.11.8-mac-arm64.zip",
+      "size": 453304677,
+      "sha256": "0df4e95a6dc3e3c36fb35e2c4a580e7c2de22f101aa4ad258149b5306881b9c8",
+      "delivery": "zip",
+      "publisherGate": "macos-developer-id-and-notarization",
+      "launchableArtifact": false,
+      "executable": {
+        "source": "archive-entry",
+        "path": "Wayland.app/Contents/MacOS/Wayland",
+        "size": 53312,
+        "sha256": "43b0d619c8e0e8ff9739a00d4203fe91316ab7fabdd80d496043d0f05f8e75ab"
+      },
+      "publisher": {
+        "kind": "macos-developer-id",
+        "identity": "Developer ID Application: Ferrox Labs, LLC (PX6SP9GPWJ)",
+        "teamId": "PX6SP9GPWJ",
+        "bundleId": "com.ferroxlabs.wayland"
+      }
+    },
+    {
+      "assetId": 462135782,
+      "platform": "darwin",
+      "arch": "x64",
+      "name": "Wayland-0.11.8-mac-x64.zip",
+      "size": 479772547,
+      "sha256": "ada6828e4ac815d0fa756d9e958fdb2ae040b13b529542cadb293b027835fe87",
+      "delivery": "zip",
+      "publisherGate": "macos-developer-id-and-notarization",
+      "launchableArtifact": false,
+      "executable": {
+        "source": "archive-entry",
+        "path": "Wayland.app/Contents/MacOS/Wayland",
+        "size": 32688,
+        "sha256": "09753f4d29ba4fbccf7721b771efe7638fd5700554ab62b98641dc93e9e532ee"
+      },
+      "publisher": {
+        "kind": "macos-developer-id",
+        "identity": "Developer ID Application: Ferrox Labs, LLC (PX6SP9GPWJ)",
+        "teamId": "PX6SP9GPWJ",
+        "bundleId": "com.ferroxlabs.wayland"
+      }
+    },
+    {
+      "assetId": 462135772,
+      "platform": "win32",
+      "arch": "arm64",
+      "name": "Wayland-0.11.8-win-arm64.exe",
+      "size": 296695840,
+      "sha256": "34ab40805a744ebb8a4d22d0d0ad9b5bef4e5f676238a8daf875c55baf2b6b2c",
+      "delivery": "nsis-installer",
+      "publisherGate": "windows-authenticode-ferrox-labs",
+      "launchableArtifact": false,
+      "executable": {
+        "source": "archive-entry",
+        "path": "Wayland.exe",
+        "size": 205797256,
+        "sha256": "8b8121b85f59509a7ee587cba98d2c5f974aae2f3a397104c40a9ff6f2979fc4"
+      },
+      "publisher": {
+        "kind": "windows-authenticode",
+        "identity": "Ferrox Labs",
+        "teamId": null,
+        "bundleId": null
+      }
+    },
+    {
+      "assetId": 462135769,
+      "platform": "win32",
+      "arch": "x64",
+      "name": "Wayland-0.11.8-win-x64.exe",
+      "size": 330085280,
+      "sha256": "06d2ae1d61356f4f9a12d61b8ba2dbbf7814fb230b07dc4d120f2fb94f958b5b",
+      "delivery": "nsis-installer",
+      "publisherGate": "windows-authenticode-ferrox-labs",
+      "launchableArtifact": false,
+      "executable": {
+        "source": "archive-entry",
+        "path": "Wayland.exe",
+        "size": 223213456,
+        "sha256": "7c718b88fdcb78eba726af5b4f007c93360c55e5957dc2950513c0b5e14a1f9e"
+      },
+      "publisher": {
+        "kind": "windows-authenticode",
+        "identity": "Ferrox Labs",
+        "teamId": null,
+        "bundleId": null
+      }
+    },
+    {
+      "assetId": 462135786,
+      "platform": "linux",
+      "arch": "arm64",
+      "name": "Wayland-0.11.8-linux-arm64.AppImage",
+      "size": 566328571,
+      "sha256": "b675869bfe9ad6901a668eede4a9c2a16441f729f200e6eaff24c4c387226b8c",
+      "delivery": "appimage",
+      "publisherGate": "github-release-digest-only",
+      "launchableArtifact": true,
+      "executable": {
+        "source": "artifact",
+        "path": null,
+        "size": 566328571,
+        "sha256": "b675869bfe9ad6901a668eede4a9c2a16441f729f200e6eaff24c4c387226b8c"
+      },
+      "publisher": {
+        "kind": "none",
+        "identity": null,
+        "teamId": null,
+        "bundleId": null
+      }
+    },
+    {
+      "assetId": 462135787,
+      "platform": "linux",
+      "arch": "x64",
+      "name": "Wayland-0.11.8-linux-x86_64.AppImage",
+      "size": 633253821,
+      "sha256": "1c4289969fdefdb37ae5df564e9861c1e61ed8425b5b1c3a009c92fd37082159",
+      "delivery": "appimage",
+      "publisherGate": "github-release-digest-only",
+      "launchableArtifact": true,
+      "executable": {
+        "source": "artifact",
+        "path": null,
+        "size": 633253821,
+        "sha256": "1c4289969fdefdb37ae5df564e9861c1e61ed8425b5b1c3a009c92fd37082159"
+      },
+      "publisher": {
+        "kind": "none",
+        "identity": null,
+        "teamId": null,
+        "bundleId": null
+      }
+    }
+  ]
+}

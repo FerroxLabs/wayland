@@ -76,6 +76,154 @@
   background: var(--wc-hairline);
 }
 
+.policyEditor {
+  padding: 16px;
+  border-bottom: 1px solid var(--wc-hairline);
+}
+.policyField {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  color: var(--wc-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.policyField select,
+.policyField textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--wc-hairline);
+  border-radius: var(--wc-r-sm);
+  background: var(--wc-surface-2);
+  color: var(--wc-text-primary);
+  font: 0.75rem/1.45 var(--wc-mono);
+  padding: 9px 10px;
+}
+.policyField textarea {
+  resize: vertical;
+}
+.policySave {
+  margin-top: 14px;
+  border: 1px solid rgba(255, 107, 53, 0.45);
+  border-radius: var(--wc-r-sm);
+  background: rgba(255, 107, 53, 0.12);
+  color: var(--wc-text-primary);
+  cursor: pointer;
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 8px 12px;
+}
+.policySave:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* ---- Runtime config truth ---- */
+.runtimeTruthCard {
+  border: 1px solid var(--wc-hairline);
+  border-radius: var(--wc-r-md);
+  background: var(--wc-surface-1);
+  overflow: hidden;
+}
+.runtimeTruthHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 16px;
+  border-bottom: 1px solid var(--wc-hairline);
+}
+.runtimeTruthTitle {
+  color: var(--wc-text-primary);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.runtimeTruthDescription,
+.runtimeTruthNote,
+.runtimeTruthError,
+.runtimeTruthLoading {
+  color: var(--wc-text-secondary);
+  font-size: 0.75rem;
+  line-height: 1.48;
+}
+.runtimeTruthDescription {
+  margin-top: 4px;
+  max-width: 610px;
+}
+.runtimePathRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--wc-hairline);
+}
+.runtimePathLabel {
+  color: var(--wc-text-muted);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.runtimePathValue {
+  color: var(--wc-text-primary);
+  font-family: var(--wc-mono);
+  font-size: 0.72rem;
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+}
+.runtimePathAction {
+  appearance: none;
+  border: 1px solid var(--wc-hairline);
+  border-radius: var(--wc-r-sm);
+  background: var(--wc-surface-2);
+  color: var(--wc-text-secondary);
+  cursor: pointer;
+  font-family: var(--wc-mono);
+  font-size: 0.66rem;
+  padding: 7px 9px;
+}
+.runtimePathAction:hover,
+.runtimePathAction:focus-visible {
+  border-color: rgba(255, 107, 53, 0.5);
+  color: var(--wc-text-primary);
+  outline: none;
+}
+.runtimeTruthNote,
+.runtimeTruthError,
+.runtimeTruthLoading {
+  padding: 12px 16px;
+}
+.runtimeTruthLoading {
+  border: 1px solid var(--wc-hairline);
+  border-radius: var(--wc-r-md);
+  background: var(--wc-surface-1);
+}
+.runtimeTruthError {
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  border-radius: var(--wc-r-md);
+  background: rgba(248, 113, 113, 0.08);
+  color: #fca5a5;
+  margin-top: 8px;
+}
+.runtimeErrorDetail {
+  font-family: var(--wc-mono);
+}
+.runtimeRefreshAction {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--wc-text-secondary);
+  cursor: pointer;
+  font-family: var(--wc-mono);
+  font-size: 0.66rem;
+}
+.runtimeRefreshAction:hover,
+.runtimeRefreshAction:focus-visible {
+  color: var(--wc-text-primary);
+  outline: none;
+}
+
 /* ============================================================
    OVERVIEW: status strip
    ============================================================ */

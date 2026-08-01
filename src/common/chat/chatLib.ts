@@ -29,7 +29,7 @@ import type { IResponseMessage } from '../adapter/ipcBridge';
 import { uuid } from '../utils';
 import { addOrUpdateNode, emptyActivityContent, mergeActivityContent, mergeNodeList } from './activityTree';
 import { parseInnerEvent } from './innerEvent';
-import type { TurnCost } from '@/process/agent/wcore/protocol';
+import type { TurnCost, WCoreEvent, WCoreExecutionPolicy } from '@/process/agent/wcore/protocol';
 
 /**
  * Safe path join function, compatible with Windows and Mac.
@@ -93,7 +93,8 @@ type TMessageType =
   | 'cron_propose'
   | 'concierge_propose'
   | 'sub_agent'
-  | 'activity';
+  | 'activity'
+  | 'execution_evidence';
 
 interface IMessage<T extends TMessageType, Content extends Record<string, any>> {
   /**
@@ -527,6 +528,33 @@ export type IMessageActivity = IMessage<
   }
 >;
 
+export type WCoreAnvilTrustChangedEvent = Readonly<{
+  type: 'anvil_trust_changed';
+  receipt_ids: string[];
+  status: 'historical';
+  reason: string;
+  requires_fresh_core_validation: true;
+}>;
+
+export type WCoreExecutionEvidenceEvent =
+  | ({ type: 'execution_policy' } & WCoreExecutionPolicy)
+  | Extract<WCoreEvent, { type: 'anvil_receipt' | 'anvil_receipt_invalidated' }>
+  | WCoreAnvilTrustChangedEvent;
+
+/**
+ * Hidden, durable evidence emitted only after the main-process Core v1
+ * consumer accepted the producer event. Raw renderer IPC frames deliberately
+ * do not carry this envelope and therefore cannot mint Desktop trust.
+ */
+export type IMessageExecutionEvidence = IMessage<
+  'execution_evidence',
+  {
+    acceptedBy: 'desktop-core-v1-consumer';
+    acceptedAt: number;
+    event: WCoreExecutionEvidenceEvent;
+  }
+>;
+
 /**
  * #252 - the activity card's merge key. Namespaced off the turn's stream
  * msg_id so it never collides with the assistant text message that shares that
@@ -553,7 +581,8 @@ export type TMessage =
   | IMessageCronPropose
   | IMessageConciergeConfig
   | IMessageSubAgent
-  | IMessageActivity;
+  | IMessageActivity
+  | IMessageExecutionEvidence;
 
 // Unified type for all user-interaction confirmation prompts
 export interface IConfirmation<Option extends any = any> {
@@ -587,6 +616,36 @@ export interface IConfirmation<Option extends any = any> {
  */
 export const transformMessage = (message: IResponseMessage): TMessage => {
   switch (message.type) {
+    case 'execution_evidence': {
+      const data = message.data as Partial<IMessageExecutionEvidence['content']> | null;
+      const event = data?.event as Partial<WCoreExecutionEvidenceEvent> | undefined;
+      if (
+        data?.acceptedBy !== 'desktop-core-v1-consumer' ||
+        !Number.isFinite(data.acceptedAt) ||
+        !event ||
+        !['execution_policy', 'anvil_receipt', 'anvil_receipt_invalidated', 'anvil_trust_changed'].includes(
+          String(event.type)
+        )
+      ) {
+        return undefined;
+      }
+      const eventKey =
+        'event_id' in event && typeof event.event_id === 'string'
+          ? event.event_id
+          : event.type === 'execution_policy' && typeof event.revision === 'number'
+            ? `policy:${event.revision}`
+            : `trust:${data.acceptedAt}`;
+      return {
+        id: `execution-evidence:${eventKey}`,
+        type: 'execution_evidence',
+        msg_id: `execution-evidence:${eventKey}`,
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content: data as IMessageExecutionEvidence['content'],
+        createdAt: data.acceptedAt,
+        hidden: true,
+      };
+    }
     case 'error': {
       return {
         id: uuid(),
@@ -922,6 +981,10 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
     case 'codex_model_info': // Codex model info updates, handled by AcpModelSelector
     case 'acp_context_usage': // Context usage updates, handled by AcpSendBox
     case 'request_trace': // Request trace events, logged to F12 console (not persisted)
+    case 'execution_policy': // Raw authority frames are inert; only main-process accepted evidence is durable.
+    case 'anvil_receipt':
+    case 'anvil_receipt_invalidated':
+    case 'anvil_trust_changed':
       break;
     default: {
       console.warn(
@@ -1047,7 +1110,12 @@ export const composeMessage = (
   if (message.type === 'plan') {
     for (let i = 0, len = list.length; i < len; i++) {
       const msg = list[i];
-      if (msg.type === 'plan' && msg.content.sessionId === message.content.sessionId) {
+      // ACP reuses sessionId across turns. Plan updates share a stable msg_id
+      // only within one turn, so sessionId-based merging rewrites a historical
+      // plan in place and makes the current turn impossible to select.
+      const samePlanMessage =
+        msg.type === 'plan' && (msg.msg_id && message.msg_id ? msg.msg_id === message.msg_id : msg.id === message.id);
+      if (samePlanMessage) {
         // Create new object instead of mutating original
         const merged = { ...msg.content, ...message.content };
         return updateMessage(i, { ...msg, content: merged });

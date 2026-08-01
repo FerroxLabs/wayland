@@ -26,6 +26,16 @@
   "copyFailed": "Kopyalama başarısız",
   "download": "İndir",
   "close": "Kapat",
+  "shellRecovery": {
+    "preview": "Cockpit önizlemesi",
+    "title": "Cockpit güvenli bir şekilde açılamadı.",
+    "sessionBody": "Bu oturumda Classic etkin. Sohbetleriniz, projeleriniz, ayarlarınız, aracı durumu ve mevcut rotanız taşınmadı.",
+    "useClassicDefault": "Classic’i varsayılan olarak kullan",
+    "savingDefault": "Classic varsayılan olarak kaydediliyor…",
+    "savedDefault": "Classic varsayılan olarak kullanılacak.",
+    "saveFailed": "Classic bu oturumda etkin kalıyor ancak varsayılan seçim kaydedilemedi.",
+    "retrySave": "Kaydetmeyi yeniden dene"
+  },
   "retry": "Tekrar Dene",
   "reload": "Yenile",
   "technical_details": "Teknik Detaylar",

@@ -9,6 +9,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 const mockNavigate = vi.hoisted(() => vi.fn());
+const mockResponseStreamOn = vi.hoisted(() => vi.fn(() => vi.fn()));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -33,6 +34,9 @@ vi.mock('@/common', () => ({
     skills: {
       list: { invoke: vi.fn().mockResolvedValue([]) },
       addToConversation: { invoke: vi.fn().mockResolvedValue({ ok: true }) },
+    },
+    conversation: {
+      responseStream: { on: mockResponseStreamOn },
     },
   },
 }));
@@ -102,5 +106,13 @@ describe('ComposerAddMenu', () => {
     // SkillsFlyout unmounted -> builtin rows gone; ConnectorsFlyout empty-state shows.
     await waitFor(() => expect(screen.queryByText('cron')).not.toBeInTheDocument());
     expect(screen.getByText('No connectors installed yet.')).toBeInTheDocument();
+  });
+
+  it('listens for active-session MCP evidence before the lazy menu opens', () => {
+    mockResponseStreamOn.mockClear();
+    render(<ComposerAddMenu {...baseProps} mode='live' conversationId='chat-1' />);
+
+    expect(screen.queryByTestId('dd-pop')).not.toBeInTheDocument();
+    expect(mockResponseStreamOn).toHaveBeenCalledOnce();
   });
 });

@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-CROSS-WINDOW-packet-static",
+  "commit": "fa92b45a41140903c4c180c2d1ae0aff6e2b272c",
+  "command": "rtk proxy bash -o pipefail -c '{ bunx oxfmt --check src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx; bunx oxlint src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx --deny-warnings; bun run typecheck; git diff --check b385c61c513607f9ab863493a067a0795c292820..HEAD; } 2>&1 | tee /tmp/wayland-con-b-cross-window-packet-static.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:d42cf50cae3c0ae2631cef2f03adca410e379e73f42101bf41541f8faaa980fe",
+  "timestamp": "2026-07-17T09:06:42Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

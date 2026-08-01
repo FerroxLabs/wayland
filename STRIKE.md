@@ -1,0 +1,971 @@
+# Wayland Desktop Strike v2 state
+
+Status: ACTIVE — evidence state only; no main merge, issue closure, deployment,
+release, canary promotion, or production claim is authorized by this file.
+
+Last heartbeat: 2026-07-17T10:35:56Z
+Lane: Desktop (`area:desktop-ui`)
+Coordination issue: FerroxLabs/wayland#886 (OPEN, `state:in-progress`)
+Concurrency cap: 3 packets; current effective cap: 1 at the Constitution seam
+Packet timebox: 90 minutes active work; split or escalate on overrun
+Serial merge queue: ARM-001 -> FIXTURE-ATTR -> CON-A -> CON-B -> SEC-001 -> CON-C
+
+## Arm and frozen baseline
+
+- Accepted packet baseline: `991c502e74506ec3702f92e429a8b31b655412ba`
+- Immutable local tag: `strike/baseline-2026-07-17`
+- Baseline subject: `fix(constitution): enforce revisioned mutations`
+- Baseline timestamp: `2026-07-16T21:59:23+07:00`
+- Baseline relationship: descendant of published `ferrox/main`
+  `1b1c1e91119e3352bec3958188254ee91f150492`
+- Integration branch: `codex/desktop-strike-integration-v2`
+- Production candidate remains isolated at branch
+  `codex/desktop-constitution-production`; it is not an accepted commit.
+- Rollback-safe root from the normative acceptance contract:
+  `12ea88caf3cd6e490a054060ea96b0f60966bfd8`
+
+### Environment authority
+
+Canonical environment string:
+
+`container=none-native-macos;os=macOS-26.3-25D125;kernel=Darwin-25.3.0-arm64;node=v25.8.1;bun=1.3.11;python=3.14.5;rustc=1.94.0-4a4ef493e-2026-03-02;cargo=1.94.0-85eff7c80-2026-01-15;git=2.50.1-Apple-Git-155;xcode=26.6-17F113;package_json=ce243fb8a4ab7736d8e6205f70fc920aa7ea4d2220468c64f1c4dabec7bd5989;bun_lock=30b19d307ba3a2abcd5f90e86134a7715443ff661c6db6a3069e0f79e5509e4a`
+
+Environment digest:
+`sha256:37df5fa6efd3a3b19345e65fd4688a4af01401de0d5ac2348f9596435190b9b4`
+
+The prior environment digest
+`sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7`
+remains authoritative only for historical receipts before the declared
+CON-B-SHARED-RECOVERY-TRANSACTION lockfile seam landed.
+
+This is a native macOS proof environment, not a container. Packaging and
+target-platform receipts require separate environment digests.
+
+## Current recon
+
+Observed at `2026-07-17T01:04:29Z` after `git fetch ferrox --prune`:
+
+- Published main: `1b1c1e91119e3352bec3958188254ee91f150492`
+- Latest reachable release tag: `v0.11.18`
+- Open repository PRs: none
+- Issue #886: OPEN, Desktop-owned, high priority, in progress
+- Constitution candidate baseline: `991c502e74506ec3702f92e429a8b31b655412ba`
+- Candidate inventory: 135 paths — 98 Stage A, 23 Stage B, 14 mixed,
+  zero unknown
+- Candidate status digest:
+  `sha256:480489043fe38a195ce8cc63fbc18ce5cffda235cfca043721ff14c6cd276300`
+- Candidate content-inventory digest after the Stage B lint correction:
+  `sha256:732f92ea996a10d4217c13bd283c6412d6e33c90b0fd265664e0818e4de81bd2`
+- Candidate reconstructed tree:
+  `751170dbd39b629e7580e4708d0785354eb8f48d`
+- Stage A reconstructed tree:
+  `1956a8801a3956e4032d64b20841f6ad637dd230`
+- Stage A complete patch digest:
+  `sha256:3f647d9039171c2d450a692cf4c3c11707d45f4c2eddd74889aa666f27b71a93`
+- Stage B complete patch digest:
+  `sha256:7861b562cfe6cf1396c1c491a1c61a10bb5d779d8ffa2de0c33db9f495381484`
+- Seal manifest digest:
+  `sha256:c88b3dd01d68ba71309934704eab4ddc60bc31aa498ab8536f2aa3c38166e656`
+- The repository dependency scan is red: 101 advisories, including 1
+  critical and 24 high. Global promotion is blocked until SEC-001 resolves or
+  an independently reviewed, scope-exact disposition proves non-reachability.
+- Existing settings browser audit could not start because no application CDP
+  endpoint was listening at `localhost:9230`; that is missing deployment/UI
+  evidence, not a passing gate.
+
+The exact path and mixed-hunk contracts are committed alongside this file as
+`strike/constitution-seal-inventory.json` and
+`strike/constitution-mixed-hunks.json`. Their bytes, not prose globs, control
+ownership.
+
+## Packet queue
+
+| Packet       | Dependency      | Status   | Exact commit                                                                                                                    | Focused proof                                                                                                                                           | Aggregate proof                                       | Remaining blocker                                                   |
+| ------------ | --------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
+| ARM-001      | frozen baseline | ACCEPTED | `e1c61a997a9d18a54d1824db19057a836429588a`                                                                                      | `ARM-001-inventory`, `ARM-001-mixed`, `ARM-001-tree-diff`, `ARM-001-clean`                                                                              | n/a                                                   | none                                                                |
+| FIXTURE-ATTR | ARM-001         | ACCEPTED | `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`                                                                                      | `FIXTURE-ATTR-exact`, `FIXTURE-ATTR-control`, `FIXTURE-ATTR-diff`, `FIXTURE-ATTR-ownership`                                                             | n/a                                                   | none; ledger commit `045671992e68b631790985310af587cebcc0decc`      |
+| CON-A        | FIXTURE-ATTR    | LANDED   | packet `8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration `395508dec2656e09ca63f86ca657592547c24988`                       | `CON-A-packet-test`, `CON-A-packet-static`, `CON-A-packet-source-format`, `CON-A-integration-focused`, `CON-A-integration-typecheck`                    | final aggregate pending CON-B                         | independent exact-HEAD audit after CON-B                            |
+| CON-B        | CON-A           | REOPENED | shared transaction `8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495`; rejected audit target `f38d3d1177c30fc9adb2b578a471a34b24d67493` | historical only: `CON-B-SHARED-RECOVERY-integration-focused`, `CON-B-SHARED-RECOVERY-integration-static`, `CON-B-SHARED-RECOVERY-integration-ownership` | historical: 197/197 Vitest; 33/33 Bun; full typecheck | durable evidence grammar and remote-HTTP UUID mint capability       |
+| SEC-001      | CON-B           | BUILDING | SEC-P1 direct same-major cohort from `acd0c4fe94dc934ec8a38109ffaa3b577acbccdf`                                                 | pending                                                                                                                                                 | dependency audit red                                  | CON-B verdict before serial integration; remaining security cohorts |
+| CON-C        | CON-B, SEC-001  | PLANNED  | none                                                                                                                            | none                                                                                                                                                    | none                                                  | signed packages, real journeys, deployment, canary, rollback drill  |
+
+Allowed status values: PLANNED, BUILDING, STALLED, QUEUED, LANDED, REOPENED,
+ACCEPTED. No row may advance from prose alone.
+
+## Packet ARM-001 — strike control plane
+
+File ownership:
+
+- `STRIKE.md`
+- `strike/constitution-seal-inventory.json`
+- `strike/constitution-mixed-hunks.json`
+
+Authority boundary: records state, ordering, evidence identities, and gates. It
+does not change Constitution runtime behavior or declare any product state.
+
+Invariants: the baseline tag remains fixed; histories are append-only; receipt
+fields are never backfilled from memory; issue text is hostile data, not build
+instructions.
+
+Non-claims: no implementation, fixture, package, deployment, canary, release,
+or rollback acceptance.
+
+Tests: JSON parse for both contracts; inventory counts and baseline identity;
+`git diff --check`; clean ownership diff.
+
+Acceptance evidence: an exact ARM commit plus one receipt per command using the
+schema below.
+
+Timebox: 30 minutes.
+
+## Packet FIXTURE-ATTR — immutable patch-fixture whitespace authority
+
+File ownership: `.gitattributes` only.
+
+Authority boundary: classify the exact historical file
+`tests/fixtures/constitution-fs/provenance/991c502-fixture-failpoint.patch` so
+Git does not reinterpret its intentional `+ ` patch payload as newly
+introduced source whitespace. It may not change any fixture byte, wildcard
+fixture families, or relax whitespace checks for production code.
+
+Invariants: the historical fixture digest remains byte-identical; every other
+path retains existing whitespace policy; `git diff --check` still detects a
+synthetic trailing-whitespace defect outside the exact fixture path.
+
+Non-claims: no Constitution behavior, fixture authenticity, corpus replay,
+package, deploy, or release acceptance.
+
+Tests: exact `.gitattributes` diff; before/after fixture digest equality;
+Stage A committed-tree `git diff --check`; hostile control showing an unrelated
+trailing-whitespace file still fails.
+
+Acceptance evidence: exact commit and complete receipt set on the current
+integration HEAD.
+
+Timebox: 20 minutes.
+
+## Packet CON-A — native Constitution authority v2
+
+File ownership: every entry with owner `stage_a` plus only the Stage A selectors
+of every `mixed` entry in `strike/constitution-seal-inventory.json` and
+`strike/constitution-mixed-hunks.json`. No Stage B selector or path is owned.
+
+Authority boundary: owns native helper protocol, revision/key/transaction
+authority, durable operation identity, existing Constitution mutation/read
+paths, recovery primitives, historical producer corpus, package resource
+authority, and their direct tests. It cannot expose archive/Classic recovery
+or declare packaging/deployment acceptance.
+
+Invariants: one filesystem authority; no process-random or implicit-path
+fallback; read-side materialization is limited to the explicit external
+revision authority; candidate claims never mint receipts; authenticated lookup
+precedes mutable reads on replay; malformed/version-drifted/gapped/duplicated/
+out-of-order/post-terminal/unknown-critical evidence fails closed; all source
+fixtures replay through the real service/helper.
+
+Non-claims: no Stage B recovery UI/transports, no signed Classic journey, no
+portable rescue transfer, no target package, deploy, canary, release, or
+production-ready claim.
+
+Tests: native helper/protocol and generated digest; both historical corpus
+families; transaction/key/revision/crypto/replay/conflict/rescue-before-CAS;
+existing Electron/HTTP/renderer authority paths; hostile drift and malformed
+evidence; full Vitest/Bun suite; lint; scoped format; typecheck; i18n; server and
+Electron builds; diff integrity.
+
+Acceptance evidence: exact CON-A commit; schema/fixture/helper/toolchain
+digests; real-consumer replay; full v2 receipts; independent audit at zero
+BLOCKER/HIGH.
+
+Timebox: 90 minutes per independently landable subpacket. Existing combined
+work must be split if receipt conversion exceeds the timebox.
+
+## Packet CON-B — archive and Classic recovery
+
+File ownership: every entry with owner `stage_b` plus only the Stage B selectors
+of every `mixed` entry in the two committed ownership contracts. Stage A
+authority may be consumed but never replaced, mocked away, or silently
+weakened.
+
+Authority boundary: owns recovery DTOs, archive/Classic orchestration,
+restart-safe discovery, transport registration, renderer recovery surfaces,
+and negative-surface proof. It cannot create a second native/filesystem/key
+authority or declare package/deployment acceptance.
+
+Invariants: exact CON-A parent; fresh destructive authorization; operation IDs
+and fingerprints persist before dispatch; lookup precedes mutable reads;
+response-loss replay is byte-equivalent; locator/journal chains reject gaps,
+forks, conflicting duplicates, out-of-order and post-terminal events; local
+encrypted rescue is retained indefinitely; no export/import/delete/prune/purge
+surface exists in Wave 0; partial commits are never hidden or rolled back.
+
+Non-claims: no portable rescue, no automatic cleanup, no signed/notarized
+Classic journey, no packaged Windows/macOS/Linux proof, no deploy/canary/
+release claim.
+
+Tests: DTO strictness; archive inventory/restore/replay/conflict; Classic
+discovery/decision/partial/resume/response-loss; HTTP/IPC/preload/renderer;
+negative-surface; real helper+service+Express+renderer-fetch restart journeys;
+full aggregate and hostile audit against the exact rebased head.
+
+Acceptance evidence: exact CON-B commit with exact CON-A parent; all schema and
+artifact digests; reproducible command receipts; independent audit at zero
+BLOCKER/HIGH.
+
+Timebox: 90 minutes per subpacket. Shared DTO, generated code, DI wiring, and
+fixtures are serial seams.
+
+### Subpacket CON-B-JOURNEY — actual recovery consumer paths
+
+File ownership: one new test only,
+`tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx`.
+
+Authority boundary: proves the production archive and Classic route/IPC
+registrations, renderer clients, strict DTO parsers, and live renderer state
+transitions as one composed path. It may inject deterministic service-boundary
+fixtures, but may not replace any route, IPC handler, client, parser, renderer
+component, operation-ID persistence logic, or error reducer.
+
+Invariants: HTTP and IPC preserve the exact client operation UUID; destructive
+requests reach the injected authority once; committed results clear durable
+pending state; malformed or ambiguous evidence still follows the production
+fail-closed reducers; no portable transfer or cleanup surface is introduced.
+
+Non-claims: deterministic service-boundary fixtures do not prove the Native
+helper, packaging, signed builds, deployment, canary, or release state. Those
+remain owned by CON-A/CON-C.
+
+Tests: hosted archive restore and Classic decision through actual Express route
+to actual fetch client to mounted renderer; Desktop archive restore and Classic
+decision through actual registered IPC handler to actual Desktop client parser
+to mounted renderer; hostile operation-ID and durable-state assertions.
+
+Acceptance evidence: an exact CON-B commit whose focused receipt includes this
+test after rebasing onto the accepted CON-A integration HEAD.
+
+Timebox: 60 minutes.
+
+### Subpacket CON-B-CONFLICT-ID — ambiguous Classic conflict identity
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+
+Authority boundary: classify renderer outcomes only. This packet may retain the
+existing durable client operation identity when a Classic `CONFLICT` does not
+prove non-commit. It may not alter process authority, routing, DTO schemas,
+Classic mutation semantics, or mint a receipt.
+
+Invariants: a post-dispatch conflict never destroys correlation identity; only
+an authoritative success clears the identity after an ambiguous outcome;
+secrets are still cleared; operation-ID conflicts remain distinct; no new
+retry, cancellation, transfer, or destructive control is introduced.
+
+Non-claims: retention does not prove that the mutation committed and does not
+convert a conflict into success. The process authority remains the only source
+of a terminal result.
+
+Tests: renderer receives nonretryable `CONFLICT` with the exact operation ID,
+retains that identity, clears the password, and reuses the identity on the next
+authorized reconciliation attempt.
+
+Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
+lint, format, typecheck, ownership receipt; serial integration and exact-HEAD
+re-proof; independent auditor confirmation.
+
+Timebox: 30 minutes.
+
+### Subpacket CON-B-TERMINALITY — producer-proven identity invalidation
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+
+Authority boundary: classify renderer outcomes only. This packet may clear a
+durable client operation identity only when the producer contract proves a
+terminal outcome. It may not infer dispatch phase from an overloaded error
+code, change process authority, add a second receipt authority, or alter DTO
+schemas.
+
+Invariants: `CONFLICT`, `OPERATION_ID_CONFLICT`, and every other response that
+can follow dispatch retain the exact client operation identity; passwords and
+confirmation secrets are always cleared; exact replay remains user-authorized;
+only success or producer-proven terminal `ROLLED_BACK` invalidates the identity.
+
+Non-claims: retaining identity does not prove commit, turn a conflict into
+success, or make the renderer authoritative over reconciliation. The current
+contract has no general dispatch-phase field, so the renderer must fail closed
+instead of guessing from error-code prose.
+
+Tests: renderer receives nonretryable post-dispatch
+`OPERATION_ID_CONFLICT`, retains the exact identity, clears the password, and
+reuses the identity on the next authorized reconciliation; terminal
+`ROLLED_BACK` clears the identity distinctly.
+
+Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
+lint, format, typecheck, ownership receipt; serial integration and exact-HEAD
+re-proof; independent auditor confirmation of zero HIGH/BLOCKER.
+
+Timebox: 30 minutes.
+
+### Subpacket CON-B-DURABLE-REQUEST — terminal reconciliation and exact request facts
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+
+Authority boundary: preserve and replay renderer-owned durable correlation for
+an already-authorized Classic recovery operation. This packet may preserve the
+complete non-secret request binding and keep reconciliation controls available
+when refreshed producer metadata is terminal or drifts. It may not mint a
+producer receipt, change process authority, weaken destructive authentication,
+or alter producer/DTO contracts.
+
+Invariants: a durable pending operation stores the exact non-secret request
+facts needed for replay, including the discard object IDs; refreshed metadata
+cannot replace those facts or hide the pending action; competing actions remain
+disabled while an operation is pending; malformed, unsupported, or
+shape-invalid durable evidence fails closed with an explicit repair state and
+cannot mint or dispatch a replacement identity; passwords and typed
+confirmation values are never persisted and are cleared after each attempt;
+only success or a producer-proven terminal outcome clears pending identity.
+
+Non-claims: local persistence does not prove dispatch, commit, rollback, or
+receipt authority. A pending renderer record cannot make an operation succeed,
+and this packet does not broaden the producer's allowed action set.
+
+Tests: a native failure followed by committed metadata with zero allowed actions
+still exposes reconciliation and replays the same operation ID and request
+facts; discard item/challenge drift replays the originally bound object IDs;
+allowed-action drift cannot deadlock the pending action; malformed or
+unsupported durable JSON renders an explicit fail-closed state, never calls
+`randomUUID`, never overwrites storage, and never dispatches a decision.
+
+Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
+lint, format, typecheck, and exact ownership receipts; serial integration and
+current-head aggregate proof; independent author-excluded audit at zero
+HIGH/BLOCKER.
+
+Timebox: 45 minutes.
+
+### Subpacket CON-B-CROSS-WINDOW — destructive intent and conditional clear
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+
+Authority boundary: serialize the renderer's displayed destructive intent with
+the exact durable operation it authorizes, and clear only the operation whose
+terminal result was received. This packet may reject a stale cached view,
+resynchronize renderer state, and compare the complete durable binding before
+removal. It may not change producer authority, weaken fresh authentication, or
+infer terminality.
+
+Invariants: the operation and action displayed to the user are the exact
+operation and action submitted; any durable change between render and submit
+fails closed, clears entered secrets, updates the visible pending state, and
+requires a new explicit authorization; a success or producer-proven terminal
+result can remove only the byte-equivalent operation binding that produced the
+result; a concurrently replaced, malformed, or unsupported record survives
+untouched and remains visible/fail-closed; cross-window storage updates clear
+entered secrets and refresh pending state.
+
+Non-claims: renderer synchronization does not make localStorage transactional
+producer authority, prove rollback, or resolve the safe pre-dispatch discard
+liveness case when the producer never received the operation.
+
+Tests: mutate durable action from displayed promote to discard immediately
+before submit and prove no dispatch until the discard action and confirmation
+are visibly re-authorized; replace durable identity while the first request is
+in flight and prove success and `ROLLED_BACK` cannot remove or overwrite the
+new operation; deliver a storage event and prove credentials clear and the UI
+resynchronizes.
+
+Acceptance evidence: exact packet commit; focused hostile DOM proof; scoped
+lint, format, typecheck, and exact ownership receipts; serial integration and
+current-head aggregate proof; independent author-excluded audit at zero
+HIGH/BLOCKER.
+
+Timebox: 45 minutes.
+
+### Subpacket CON-B-LOCK-HARNESS — actual journey lock capability
+
+Dependency: CON-B storage-transaction implementation
+
+File ownership:
+
+- `tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx`
+
+Authority boundary: provide the real hosted HTTP and Desktop IPC consumer
+journey harness with an exclusive Web Locks capability so those actual clients
+exercise the production storage-transaction boundary. This packet may adapt
+the jsdom environment only. It may not add a production fallback, weaken
+fail-closed behavior when Web Locks are absent, or change recovery authority.
+
+Invariants: both actual consumer journeys request a principal-scoped exclusive
+lock before mint/write and terminal compare/remove; the harness returns a lock
+identity to the production callback; hosted and Desktop operation IDs still
+reach their real transport once; absence of Web Locks remains fail-closed in
+the hostile component proof.
+
+Non-claims: a jsdom lock capability does not prove Chromium availability,
+cross-process lock implementation, deployment, packaging, or canary state.
+
+Tests: both previously failing actual hosted HTTP and Desktop IPC Classic
+journeys pass and assert the expected principal-scoped lock requests; the full
+CON-B aggregate and hostile component proof are rerun against exact integration
+HEAD.
+
+Acceptance evidence: exact test-harness commit, scoped format/lint/diff and
+one-file ownership proof, serial integration, exact-head aggregate proof, and
+independent author-excluded audit at zero HIGH/BLOCKER.
+
+Timebox: 20 minutes.
+
+### Subpacket CON-B-SHARED-RECOVERY-TRANSACTION — hosted and archive durability
+
+Dependency: rejected CON-B exact-HEAD audit at
+`203a7809d9efd064c5d7905309a0eb6398605d7b`.
+
+File ownership:
+
+- `src/renderer/services/ConstitutionRecoveryOperationLock.ts`
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx`
+- `tests/unit/renderer/ConstitutionRecoveryOperationLock.dom.test.ts`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+- `tests/unit/renderer/ConstitutionRecovery.dom.test.tsx`
+- `tests/unit/webserver/constitutionRecoveryConsumerJourney.dom.test.tsx`
+- `package.json`
+- `bun.lock`
+
+`package.json` and `bun.lock` are radioactive sequential seams. This packet
+owns only the test-only IndexedDB implementation dependency needed to prove the
+real browser transaction primitive. SEC-001 rebases after this packet and may
+not land concurrently.
+
+Authority boundary: provide one browser-origin transaction primitive for
+principal-scoped recovery evidence in Electron, secure hosted origins, and
+documented remote HTTP origins; apply it to every Classic and archive
+read/mint/write and compare/remove transition; preserve and surface an archive
+operation whose source inventory row disappeared after a committed response
+was lost. It does not change Native recovery, receipt minting, authentication,
+server routing, packaging, or deployment authority.
+
+Invariants: browser transactions serialize across real browsing contexts;
+absence-to-mint-to-write is atomic; terminal clear is full-binding conditional;
+malformed or multiply-ambiguous durable evidence fails closed; one archive
+pending identity is discoverable and replayable without an active source row;
+response loss preserves byte-equivalent request facts; a stale response cannot
+delete a replacement; the primitive is available on remote HTTP without
+weakening authority to an in-memory mutex; all password and typed confirmation
+state is cleared on evidence replacement; no new operation ID is minted when
+transaction authority is unavailable.
+
+Non-claims: a jsdom IndexedDB implementation proves transaction semantics, not
+packaged BrowserWindow availability, live multi-tab behavior, TLS, deployment,
+or release acceptance. A real hosted/Electron capability journey remains a
+CON-C gate.
+
+Tests: hostile utility tests with two independent database connections;
+Classic and archive two-root absence races; malformed evidence; queued
+replacement during conditional clear; response loss followed by inventory-row
+retirement and exact replay; hosted HTTP and Desktop IPC actual consumer paths;
+scoped format/lint/typecheck; complete Constitution aggregate; author-excluded
+exact-HEAD audit.
+
+Acceptance evidence: exact packet and rebased integration commits; complete
+commands, exit codes, logs, digests, timestamps, and environment digest;
+independent audit at zero HIGH/BLOCKER.
+
+Timebox: 90 minutes; split only at the utility/component boundary if the
+radioactive dependency seam or the real consumer harness cannot land together.
+
+### Subpacket CON-B-DURABLE-EVIDENCE-GRAMMAR — one request grammar and portable identity mint
+
+Dependency: two author-excluded HIGH findings against exact integrated head
+`f38d3d1177c30fc9adb2b578a471a34b24d67493`. The renderer accepted shaped
+durable evidence using a weaker local grammar than the shared transport parser,
+so hosted and Desktop lanes could disagree on the same persisted bytes. Both
+recovery screens also minted through unguarded secure-context-only
+`crypto.randomUUID()`, contradicting the documented remote insecure HTTP lane
+even though its IndexedDB transaction authority was available.
+
+File ownership:
+
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionRecovery.tsx`
+- `src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx`
+- `src/renderer/services/ConstitutionRecoveryOperationId.ts`
+- `tests/unit/renderer/ConstitutionRecovery.dom.test.tsx`
+- `tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx`
+- `tests/unit/renderer/ConstitutionRecoveryOperationId.dom.test.ts`
+
+Authority boundary: validate persisted archive and Classic recovery request
+facts with the same shared parsers that own transport acceptance; require exact
+ISO timestamp grammar for renderer-owned evidence metadata; preserve invalid
+evidence bytes for diagnosis and do not dispatch or delete them; provide one renderer-owned
+UUID v4 mint that uses native `randomUUID` when available, falls back only to
+cryptographic `getRandomValues`, and otherwise fails closed before persistence
+or dispatch. This packet does not change service authority, transport schemas,
+transaction ownership, authentication, Native recovery, packaging, deployment,
+or release authority.
+
+Invariants: operation and archive IDs remain UUID v4; archive and Constitution
+revisions are non-empty, scalar-bounded NFC strings without control characters;
+the archive ID in the request binds the storage key; invalid durable evidence is
+visible as a failure and is never normalized, dispatched, deleted, or replaced;
+hosted HTTP and Desktop IPC consume the same accepted request facts; every newly
+minted ID is UUID v4; absence of cryptographic randomness fails closed and never
+falls back to `Math.random` or another candidate-controlled source.
+
+Non-claims: renderer validation does not prove a live provider, packaged app,
+deployment, canary, or release. It does not authorize recovery from malformed
+legacy state; that state remains preserved and fail-closed.
+
+Tests: hostile shaped records with a non-v4 archive ID, decomposed Unicode,
+control characters, an over-limit revision, and an inexact timestamp; every
+case must preserve byte-identical storage and prove zero transport dispatch.
+Operation-ID tests cover native UUID, insecure-context cryptographic byte
+fallback with RFC 4122 version/variant bits, and unavailable crypto fail-closed;
+both Classic and archive consumers prove fallback mint before transport.
+Then rerun the complete focused recovery set, scoped format/lint/typecheck,
+aggregate Constitution suites, and author-excluded exact-HEAD audit.
+
+Acceptance evidence: exact packet and serial integration commits with complete
+receipts and a continued independent audit reporting zero HIGH/BLOCKER against
+the new exact integration HEAD.
+
+Timebox: 45 minutes.
+
+## Packet SEC-001 — aggregate dependency security
+
+Current audit at the CON-B remediation head reports a nonzero dependency set,
+including one critical and multiple high advisories. The lockfile lane is split
+into serial compatibility cohorts so a broad upgrade cannot conceal which
+dependency changed runtime behavior.
+
+Authority boundary: remediate or prove non-reachability of every critical/high
+advisory in the production package graph without changing receipt, routing,
+filesystem, or recovery authority.
+
+Invariants: no audit suppression, no lockfile-only laundering, no broad major
+upgrade without focused compatibility proof, no rerun-until-green.
+
+Non-claims: a zero advisory count alone does not prove runtime security,
+packaging, deployment, canary, or release acceptance.
+
+Tests/evidence: exact before/after dependency graphs, advisory IDs, reachable
+surface analysis, focused tests per upgraded package, full aggregate/security
+scan, build, independent audit.
+
+Timebox: partition into <=90-minute dependency cohorts before BUILDING.
+
+### Subpacket SEC-P1-DIRECT-SAME-MAJOR — directly consumed compatible upgrades
+
+Dependency: CON-B runtime bytes at
+`acd0c4fe94dc934ec8a38109ffaa3b577acbccdf`; it may build while the independent
+CON-B attacker runs because it shares no CON-B implementation or test files,
+but it cannot enter the serial integration queue before the CON-B verdict.
+
+File ownership and sequential seams:
+
+- `package.json`
+- `bun.lock`
+
+Authority boundary: upgrade directly declared DOMPurify, Mermaid, Multer,
+React Router, `ws`, and Vite within their existing major versions to versions
+that close their currently reported advisories; keep matching `ws` resolution
+and override pins consistent. It does not change email transport, Aion,
+OpenTelemetry, Undici major selection, application schemas, recovery authority,
+packaging, deployment, or release state.
+
+Invariants: exact lockfile regeneration; no install-script source mutation;
+every new selected version remains inside the declared major; production and
+development dependency identities are reported separately; a reduced audit is
+not represented as a clean audit while any critical/high remains; application
+build and current test surfaces must remain green.
+
+Non-claims: this packet does not close transitive critical/high findings in
+`shell-quote`, gRPC, OpenTelemetry, `form-data`, `linkify-it`, `lodash-es`,
+`tmp`, either Undici major, or the Nodemailer major-upgrade lane.
+
+Tests: exact before/after dependency graph and audit JSON; install with the
+frozen resulting lockfile; focused upload, router/navigation, WebSocket,
+sanitization, Mermaid, and Vite configuration tests discovered from the actual
+tree; full typecheck, lint/format, application build, and independent audit.
+
+Acceptance evidence: exact package and lockfile commit, selected-version graph,
+before/after advisory IDs, commands, log and environment digests, post-rebase
+re-proof, and serial integration receipt.
+
+Timebox: 60 minutes.
+
+## Packet CON-C — package, live journey, canary and rollback
+
+File ownership must be declared before construction. All packaging manifests,
+generated resources, release config, fixtures, and environment definitions are
+sequential seams.
+
+Authority boundary: earns packaging, deployment, live canary, rollback drill,
+and release-request evidence only after CON-A/CON-B/SEC-001 are exact and
+accepted on the integration branch.
+
+Invariants: signed/notarized artifacts are content-addressed; canary thresholds
+and soak window are fixed before entry; rollback is executed; no early
+promotion; all cost/usage evidence, if exercised, comes from observed provider
+or Flux receipts with end-to-end correlation.
+
+Non-claims: package presence is not deployment; deployment is not canary;
+canary is not release acceptance.
+
+Tests/evidence: target-exact package/resource verification, real signed Classic
+no-change/promotion/partial/conflict/rescue/discard/retention journeys,
+standalone Docker boot journey, Windows smoke, deployment proof, >=60 minute
+representative canary at predeclared numeric thresholds, automatic rollback
+trigger proof, and one real staging/canary rollback drill.
+
+Timebox: split by target and journey, <=90 minutes each.
+
+## Sequential seams
+
+Always serialize: lockfiles, migrations, schema registries, shared schemas,
+generated files, codegen, DI wiring, shared configuration, environment
+definitions, shared fixtures and fixture registries. The Constitution mixed
+hunks are also explicitly sequential.
+
+## Discovered work and flakes
+
+Outside-ownership defects are appended here as packet proposals with severity
+and exact evidence. They are not fixed opportunistically. Any fail-then-pass
+test is a defect and cannot contribute to a green receipt.
+
+Current discovered work:
+
+- `FIXTURE-ATTR` — HIGH process blocker for CON-A: committed-tree
+  `git diff --check` correctly flags the intentional `+ ` byte in the immutable
+  historical patch fixture. Changing the fixture would invalidate provenance;
+  the exception must be exact-path and hostile-tested.
+- `SEC-001` — BLOCKER to global promotion: dependency audit reports 101
+  advisories (1 critical, 24 high, 63 moderate, 13 low).
+- `UI-PROOF-001` — MEDIUM evidence gap: settings browser audit requires a live
+  app CDP endpoint and currently has no receipt.
+- `I18N-001` — MEDIUM clustered debt: validator exits zero but reports 754
+  unknown literal keys and substantial locale incompleteness.
+
+## Independent audit ledger
+
+### `cross-audit-20260717T011918Z-c7a4` — FAIL / HOLD
+
+Auditor: independent read-only strike agent, not the implementation author.
+Target: reconstructed Stage B tree
+`751170dbd39b629e7580e4708d0785354eb8f48d` at baseline
+`991c502e74506ec3702f92e429a8b31b655412ba`.
+Artifact: `strike/audits/cross-audit-20260717T011918Z-c7a4.json`.
+
+Auditor-assigned severity is preserved: 2 BLOCKER, 5 HIGH, 2 MEDIUM, 0 LOW.
+
+Required sequential remediation inside the reopened authority packets:
+
+1. CON-B service authority: require fresh destructive authentication on every
+   noncommitted decide/resume retry and narrowly classify reconciliation
+   errors; never swallow locator/integrity/authentication authority failures.
+2. CON-B renderer identity/revision: retain operation IDs for all ambiguous
+   outcomes and derive the exact live-target revision for specialist restores.
+3. CON-B DTO: reject wrong-type critical IDs/head fields rather than coercing
+   them to null.
+4. CON-A abandonment authority: require explicit cancellation or 30-day
+   expiry plus native `not_found` corroboration and race/quota hostile proof.
+5. CON-B journey proof: add real route and IPC through the actual client and
+   reducer; agreeing mocks are insufficient.
+6. Follow-up MEDIUM work: re-check terminal projection digest and either wire
+   or remove the disconnected Classic `rolled-back` contract state.
+
+The audit's process finding that its detached target lacked `STRIKE.md` is
+resolved only on the integration control branch (`3e17a142d...` onward). It is
+not used to downgrade any code finding, and the detached candidate remains
+unpromotable.
+
+## Receipt schema and ledger
+
+Every receipt is committed under `strike/receipts/` and contains:
+
+```
+commit:       <exact hash>
+command:      <exact command executed, verbatim>
+exit_code:    <integer>
+log_digest:   <sha256 of full output log>
+timestamp:    <ISO 8601 UTC>
+env_digest:   sha256:37df5fa6efd3a3b19345e65fd4688a4af01401de0d5ac2348f9596435190b9b4
+```
+
+Receipts against mutable trees or a commit that is no longer the relevant HEAD
+are historical evidence only. After every serial landing, the next packet
+rebases and re-runs focused proof before landing.
+
+Valid v2 receipts are listed below. Legacy green runs are preserved as recon
+evidence but cannot be promoted into this ledger retroactively.
+
+ARM-001 correction history: initial state commit `3e17a142dcdc2cdaa0e4db4bbd52ceccc7b7bf2b`
+was reopened because committed-tree diff checking exposed one extra blank line
+at EOF in each JSON contract. Fix commit
+`e1c61a997a9d18a54d1824db19057a836429588a` removed both. The invalid earlier
+diff command and defective commit are not counted as passing evidence.
+
+Valid v2 receipts now present:
+
+- `strike/receipts/ARM-001-inventory.json`
+- `strike/receipts/ARM-001-mixed.json`
+- `strike/receipts/ARM-001-tree-diff.json`
+- `strike/receipts/ARM-001-clean.json`
+
+FIXTURE-ATTR serial landing: integration before
+`ccbad896951845fc54c659542d5709b0651b7d4e`; rebased packet and integration
+after `e8ba5fdcb00a3e6463f15f44165fa074fc61a911`. Focused proof was rerun after
+the rebase and before the fast-forward landing.
+
+- `strike/receipts/FIXTURE-ATTR-exact.json`
+- `strike/receipts/FIXTURE-ATTR-control.json`
+- `strike/receipts/FIXTURE-ATTR-diff.json`
+- `strike/receipts/FIXTURE-ATTR-ownership.json`
+
+CON-A serial landing: packet commit
+`8974aa9b2cf57cc305cef6a58665fad46cdc0616`; integration before
+`83102fd7158c8808fce5dc1aa43ee86af9204326`; integration after
+`395508dec2656e09ca63f86ca657592547c24988`. The first post-merge Vitest
+invocation was invalid because the isolated integration worktree lacked its
+dependency link; it is not counted as passing evidence. After restoring the
+frozen dependency environment, the fail-fast rerun passed 66/66 Vitest and
+19/19 Bun authority tests, followed by an exact-HEAD typecheck.
+
+- `strike/receipts/CON-A-packet-test.json`
+- `strike/receipts/CON-A-packet-static.json`
+- `strike/receipts/CON-A-packet-source-format.json`
+- `strike/receipts/CON-A-integration-focused.json`
+- `strike/receipts/CON-A-integration-typecheck.json`
+
+CON-B packet commit `af41442374b24bcc8645d6fd11d3eec6aff8c2c6` is
+byte-equivalent to the remediated Stage-B candidate across every declared
+Stage-B and mixed-seam file, plus the declared real consumer journey. Its
+exact-commit focused proof passes 171/171 Vitest and 33/33 Bun tests; scoped
+lint has zero errors, formatter check and typecheck pass, and ownership has no
+undeclared path.
+
+- `strike/receipts/CON-B-packet-focused.json`
+- `strike/receipts/CON-B-packet-static.json`
+- `strike/receipts/CON-B-packet-ownership.json`
+
+CON-B serial landing: integration before
+`e209a32e1648985c97f6244c309cf929943b4eac`; integration after
+`7a8ecff24e57f89762e83da753ddd447d143d782`. The exact integrated HEAD
+re-passed 171/171 Vitest and 33/33 Bun tests plus full typecheck. The independent
+author-excluded exact-HEAD audit closed all seven original BLOCKER/HIGH findings
+but found one new BLOCKER: a post-dispatch `CONFLICT` cleared the durable client
+operation identity. CON-B was reopened; its earlier receipts remain historical.
+
+- `strike/receipts/CON-B-integration-focused.json`
+- `strike/receipts/CON-B-integration-typecheck.json`
+
+CON-B-CONFLICT-ID remediation commit
+`0bfb3a6a1a12adc86c98dde4a078e5b8bcff4ae8` retains durable identity across
+every nonterminal failure and invalidates it only for explicit
+`OPERATION_ID_CONFLICT` or `ROLLED_BACK`. Its hostile DOM proof passes 8/8,
+including exact identity reuse after nonretryable `CONFLICT`; scoped format,
+lint, typecheck, diff, and exact two-file ownership gates pass.
+
+- `strike/receipts/CON-B-CONFLICT-ID-packet-focused.json`
+- `strike/receipts/CON-B-CONFLICT-ID-packet-static.json`
+- `strike/receipts/CON-B-CONFLICT-ID-packet-ownership.json`
+
+After the queue-control commit, the packet rebased onto integration
+`6672fda77f4989d39ed70a8cda8f3b276db609c9` and became exact commit
+`de10630790e21a621c976e93b9fe2e78f8a5c77d`. Post-rebase proof passed before
+the serial fast-forward landing. The exact integrated implementation then
+passed 173/173 Vitest and 33/33 Bun recovery-consumer tests plus full
+typecheck. The independent author-excluded re-audit rejected this first
+remediation: `OPERATION_ID_CONFLICT` is also emitted from `completeDecision`
+after the operation authority is marked dispatched, so treating the code as
+identity-invalidating can still destroy receipt correlation. CON-B is reopened
+and the receipts below remain historical.
+
+- `strike/receipts/CON-B-CONFLICT-ID-rebased-focused.json`
+- `strike/receipts/CON-B-CONFLICT-ID-rebased-static.json`
+- `strike/receipts/CON-B-CONFLICT-ID-rebased-ownership.json`
+- `strike/receipts/CON-B-CONFLICT-ID-integration-focused.json`
+- `strike/receipts/CON-B-CONFLICT-ID-integration-typecheck.json`
+
+CON-B-TERMINALITY packet commit
+`67773a35e1029f7aa223ab032f240df0e9d3be9b` removes overloaded error-code
+inference from identity invalidation. It retains the original operation ID,
+action, recovery revision, and projection receipt across post-dispatch
+`OPERATION_ID_CONFLICT` and refreshed-metadata drift; competing actions stay
+disabled until a producer-proven terminal result. The exact packet passes 9/9
+hostile DOM tests, scoped format/lint, full typecheck, diff, and exact two-file
+ownership gates.
+
+- `strike/receipts/CON-B-TERMINALITY-packet-focused.json`
+- `strike/receipts/CON-B-TERMINALITY-packet-static.json`
+- `strike/receipts/CON-B-TERMINALITY-packet-ownership.json`
+
+CON-B-TERMINALITY serial landing: integration before
+`9167ac73fcc212ea66c2a90549174ba06ebfbdbf`; exact rebased packet and
+integration after `4d228e856fb0b3068cc94abf02cb27fceb1140b5`. Post-rebase proof passed
+9/9 hostile DOM tests, scoped format/lint, full typecheck, diff, and exact
+two-file ownership before the fast-forward. The exact integrated head then
+passed 174/174 Vitest and 33/33 Bun recovery-consumer tests plus full typecheck.
+Independent author-excluded exact-HEAD audit remains the acceptance gate.
+
+- `strike/receipts/CON-B-TERMINALITY-rebased-focused.json`
+- `strike/receipts/CON-B-TERMINALITY-rebased-static.json`
+- `strike/receipts/CON-B-TERMINALITY-rebased-ownership.json`
+- `strike/receipts/CON-B-TERMINALITY-integration-focused.json`
+- `strike/receipts/CON-B-TERMINALITY-integration-typecheck.json`
+
+Independent author-excluded audit of exact integration head
+`acb812cfa5d15183700603c8a439ee589f2096ed` failed the acceptance gate with
+four BLOCKER findings. Producer terminal metadata can hide the only replay
+control after an ambiguous native failure; discard replay reconstructs
+`confirmedObjectIds` from refreshed items instead of the originally bound
+request; refreshed `allowedActions` can hide a still-pending action; and
+malformed or unsupported durable JSON is silently treated as absent, allowing
+a replacement operation identity to be minted. The audit confirmed that the
+overloaded `OPERATION_ID_CONFLICT` clearing defect is fixed and that password
+and typed confirmation state are cleared. CON-B is reopened as
+CON-B-DURABLE-REQUEST; no aggregate or acceptance claim survives this audit.
+
+CON-B-DURABLE-REQUEST packet and serial integration commit
+`231b2fc9eec1bcc101714618f3224b5070de6d21` preserve the complete
+non-secret request binding, including canonical discard object IDs; keep the
+single pending action and its reconciliation form available across terminal,
+absent, item-drift, and allowed-action-drift metadata; and fail closed on
+malformed or unsupported durable evidence without minting, overwriting, or
+dispatching a replacement identity. Pending discard reconciliation requires a
+fresh password and an explicit fixed reconciliation confirmation that cannot
+authorize a fresh discard if producer operation authority is absent. The
+packet passed 12/12 hostile DOM tests, scoped format/lint/typecheck, and exact
+two-file ownership. Exact integrated head passed 177/177 Constitution Vitest
+tests, 33/33 native Bun tests, and full typecheck. Independent author-excluded
+exact-HEAD re-audit remains the acceptance gate.
+
+- `strike/receipts/CON-B-DURABLE-REQUEST-packet-focused.json`
+- `strike/receipts/CON-B-DURABLE-REQUEST-packet-static.json`
+- `strike/receipts/CON-B-DURABLE-REQUEST-packet-ownership.json`
+- `strike/receipts/CON-B-DURABLE-REQUEST-integration-focused.json`
+- `strike/receipts/CON-B-DURABLE-REQUEST-integration-typecheck.json`
+
+Independent author-excluded audit of exact integration head
+`2fc5183be9b2d5ee5a96742e3774c128118c257d` confirmed that all four prior
+steady-state blockers are closed, then failed the acceptance gate on two
+cross-window races. A cached promote UI can re-read and dispatch a concurrently
+stored discard without displaying or requiring discard confirmation; and an
+old request's success or `ROLLED_BACK` path unconditionally removes whatever
+operation now occupies the principal key. Both violate destructive intent and
+durable correlation. CON-B is reopened as CON-B-CROSS-WINDOW; prior receipts
+remain historical and no aggregate or acceptance claim survives this audit.
+
+CON-B-CROSS-WINDOW packet and serial integration commit
+`fa92b45a41140903c4c180c2d1ae0aff6e2b272c` bind the displayed recovery
+operation to the exact durable operation submitted, reject and visibly
+resynchronize any changed action or identity before dispatch, clear entered
+secrets on cross-window storage changes, and conditionally remove only the
+byte-equivalent operation whose success or producer-proven rollback was
+received. A concurrently replaced, malformed, or unsupported durable record
+is preserved for review. The exact packet passed 16/16 hostile DOM tests,
+scoped format/lint/typecheck, diff hygiene, and exact two-file ownership. The
+exact integrated head passed 181/181 Constitution Vitest tests, 33/33 native
+Bun tests, and full typecheck. Independent author-excluded exact-HEAD audit
+remains the acceptance gate.
+
+- `strike/receipts/CON-B-CROSS-WINDOW-packet-focused.json`
+- `strike/receipts/CON-B-CROSS-WINDOW-packet-static.json`
+- `strike/receipts/CON-B-CROSS-WINDOW-packet-ownership.json`
+- `strike/receipts/CON-B-CROSS-WINDOW-integration-focused.json`
+- `strike/receipts/CON-B-CROSS-WINDOW-integration-typecheck.json`
+
+Independent author-excluded audit of exact integration head
+`f0ef1907283d55b24c9c792433b071f6ff75481e` confirmed that stale cached
+action/identity rejection, in-flight replacement preservation, storage-event
+secret clearing, exact discard facts, and malformed-state preservation work as
+implemented. It then failed the acceptance gate on two true Web Storage TOCTOU
+windows: a second window can publish after `beginPending` reads absence but
+before it writes, and can replace a matching record after
+`clearPendingIfMatching` compares but before it removes. Individual Web Storage
+operations are atomic, but the sequences are not. The existing component-local
+exclusive callback does not serialize another renderer window, and the tests
+did not force these precise interleavings. CON-B remains reopened; the prior
+receipts are historical and no aggregate or acceptance claim survives this
+audit. Remediation must fail closed without cross-window lock authority and
+prove both interleavings under one principal-scoped lock.
+
+CON-B-STORAGE-TRANSACTION implementation commit
+`b2d6ad48bf77faa5614f4274874207009d5b342f` moved absence/read/write and
+terminal compare/remove under a principal-scoped exclusive Web Lock, fails
+closed before mint or dispatch when that authority is unavailable, and added
+hostile two-window and queued-replacement tests. Its packet proof passed 19/19
+hostile DOM tests plus scoped format, lint, typecheck, diff, and two-file
+ownership. The first exact integration aggregate passed 182/184 Vitest tests,
+33/33 Bun tests, and typecheck, but the two actual consumer journey tests had
+no jsdom Web Locks capability and correctly failed closed before transport.
+This is a red aggregate, not a product regression claim. CON-B remains
+reopened while CON-B-LOCK-HARNESS supplies that declared test capability and
+the aggregate is rerun.
+
+CON-B-LOCK-HARNESS commit and serial integration head
+`bccda81c79ea9bf497c26f2672790a9bc7497d9b` give the actual hosted HTTP and
+Desktop IPC consumer journeys a principal-scoped exclusive Web Locks
+capability without adding any production fallback. The one-file packet passed
+23/23 combined hostile and actual-consumer tests, scoped format/lint/typecheck,
+diff hygiene, and exact ownership. The exact integrated head passed 184/184
+Constitution Vitest tests, 33/33 native Bun tests, and full typecheck. The
+production component still fails closed before UUID mint or dispatch when Web
+Locks are absent. Independent author-excluded exact-HEAD audit remains the
+acceptance gate.
+
+- `strike/receipts/CON-B-STORAGE-TRANSACTION-packet-focused.json`
+- `strike/receipts/CON-B-STORAGE-TRANSACTION-packet-static.json`
+- `strike/receipts/CON-B-STORAGE-TRANSACTION-packet-ownership.json`
+- `strike/receipts/CON-B-LOCK-HARNESS-packet-focused.json`
+- `strike/receipts/CON-B-LOCK-HARNESS-packet-static.json`
+- `strike/receipts/CON-B-LOCK-HARNESS-packet-ownership.json`
+- `strike/receipts/CON-B-LOCK-HARNESS-integration-focused.json`
+- `strike/receipts/CON-B-LOCK-HARNESS-integration-typecheck.json`
+
+CON-B-SHARED-RECOVERY-TRANSACTION commit and serial integration head
+`8ad0695fb8bd08b7ae7dc0dcb2da404984cbe495` replace the two independent
+localStorage critical sections with one principal-scoped transaction authority.
+Web Locks remain the primary secure-context path; IndexedDB read/write
+transactions provide the cross-context fallback for documented remote HTTP
+origins. Classic and archive recovery now share the authority. Archive evidence
+is validated before mutation, multiple pending identities fail closed, different
+archives cannot mint competing operations, conditional terminal clear preserves
+a replacement, and a response-lost operation remains replayable after its source
+inventory row retires.
+
+The packet and exact integration head passed 41/41 focused hostile and actual
+consumer tests, 197/197 aggregate Constitution Vitest tests, 33/33 Bun authority
+tests, full typecheck, scoped format/lint, diff hygiene, and exact nine-file
+ownership. The first aggregate invocation at this head exited 1 because the
+integration worktree had not hydrated the newly committed test-only
+`fake-indexeddb` dependency; 175 tests passed and three suites failed import
+resolution. The red log digest is
+`sha256:befeac0d3f1a718510d00a6af601b74796988cef40b250d6a643aa3a84b8ef8f`.
+After `bun install --frozen-lockfile`, the same aggregate command passed without
+source or lockfile changes. This was an environment hydration failure, not a
+flaky rerun, and remains recorded rather than discarded. Independent
+author-excluded exact-HEAD audit is still required before CON-B can be ACCEPTED.
+
+- `strike/receipts/CON-B-SHARED-RECOVERY-integration-focused.json`
+- `strike/receipts/CON-B-SHARED-RECOVERY-integration-static.json`
+- `strike/receipts/CON-B-SHARED-RECOVERY-integration-ownership.json`
+
+## Authorization gates
+
+Tier 1 pre-authorization covers packet commits and serial merges into
+`codex/desktop-strike-integration-v2` only when current-head focused proof,
+ownership, and receipt gates are complete.
+
+Sean-only hard stops: merge to main, close coordination issues, release,
+deploy, start/promote production canary, or full-traffic promotion.

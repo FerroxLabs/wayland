@@ -1,0 +1,10 @@
+bun test v1.3.11 (af24e281)
+
+src/process/services/database/conversationChannelCleanupIntent.bun.test.ts:
+(pass) conversation channel cleanup intent native SQLite proof > retains the atomic intent and captured session identity across process restart
+(pass) conversation channel cleanup intent native SQLite proof > binds eligibility to commit-time source and rolls intent back with a rejected delete
+
+2 pass
+0 fail
+9 expect() calls
+Ran 2 tests across 1 file.

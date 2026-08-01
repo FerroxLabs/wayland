@@ -5,14 +5,11 @@ description: "Use this skill any time a .xlsx file is involved -- as input, outp
 
 # OfficeCLI XLSX Skill
 
-## Setup
+## Runtime contract
 
-If `officecli` is missing:
+Wayland Desktop supplies a checksum-pinned native `officecli` runtime. Do **not** install, update, download, or replace it from this skill.
 
-- **macOS / Linux**: `curl -fsSL https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.sh | bash`
-- **Windows (PowerShell)**: `irm https://raw.githubusercontent.com/iOfficeAI/OfficeCLI/main/install.ps1 | iex`
-
-Verify with `officecli --version` (open a new terminal if PATH hasn't picked up). If install fails, download a binary from https://github.com/iOfficeAI/OfficeCLI/releases.
+Run `officecli --version` before authoring. The native low-level contract requires the exact verified `1.0.136` version; use `officecli --help` to verify the top-level commands. If the runtime is missing, incompatible, or unverified, stop native authoring and use Wayland's reinstall/update recovery path. Never curl an installer, invoke PowerShell bootstrap code, or fall back to the separately hosted-credit generator without explicit network and cost approval.
 
 ## ⚠️ Help-First Rule
 
@@ -298,7 +295,7 @@ officecli adds extended chart types the classic Excel object model lacks: `boxWh
 
 ### Conditional formatting
 
-Three common flavors, each with its own prop shape (consult `officecli help xlsx cf`):
+Three common flavors, each with its own prop shape (consult `officecli help xlsx conditionalformatting`):
 
 - **Color scales**: cells shaded on a gradient by value - `type=colorscale` with `minColor` / `midColor` / `maxColor`.
 - **Data bars**: in-cell bars showing magnitude - `type=databar`. ALWAYS set explicit `min` and `max`; defaults emit invalid XML (see Known Issues).

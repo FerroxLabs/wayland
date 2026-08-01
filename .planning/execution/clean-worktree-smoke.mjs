@@ -1,0 +1,62 @@
+import assert from 'node:assert/strict';
+import { access, mkdtemp, rm, symlink } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { spawnSync } from 'node:child_process';
+
+const projectRoot = new URL('../..', import.meta.url).pathname;
+const parent = await mkdtemp(join(tmpdir(), 'wayland-gsd-clean-'));
+const worktree = join(parent, 'app');
+const required = [
+  '.planning/PROJECT.md',
+  '.planning/REQUIREMENTS.md',
+  '.planning/ROADMAP.md',
+  '.planning/STATE.md',
+  '.planning/config.json',
+  '.planning/execution/PACKET-GATES.json',
+  '.planning/execution/PACKET-CONTRACTS.json',
+  '.planning/execution/check-packet-gate.mjs',
+  '.planning/execution/packet-gate-lib.mjs',
+  '.planning/execution/check-packet-gate.test.mjs',
+  '.planning/execution/packet-gate-manifest.test.mjs',
+  '.planning/execution/cross-worktree-receipt.test.mjs',
+  '.planning/execution/wayland-gsd-gate.mjs',
+];
+
+function git(args) {
+  return spawnSync('git', ['-C', projectRoot, ...args], { encoding: 'utf8' });
+}
+
+try {
+  const add = git(['worktree', 'add', '--detach', worktree, 'HEAD']);
+  assert.equal(add.status, 0, add.stderr || add.stdout);
+  await Promise.all(required.map((path) => access(join(worktree, path))));
+  await access(join(projectRoot, 'node_modules'));
+  await symlink(
+    join(projectRoot, 'node_modules'),
+    join(worktree, 'node_modules'),
+    process.platform === 'win32' ? 'junction' : 'dir'
+  );
+  const proof = spawnSync(process.execPath, ['.planning/execution/check-packet-gate.test.mjs'], {
+    cwd: worktree,
+    encoding: 'utf8',
+  });
+  assert.equal(proof.status, 0, proof.stderr || proof.stdout);
+  assert.match(proof.stdout, /authenticated packet gate tests: PASS/);
+  const manifestProof = spawnSync(process.execPath, ['.planning/execution/packet-gate-manifest.test.mjs'], {
+    cwd: worktree,
+    encoding: 'utf8',
+  });
+  assert.equal(manifestProof.status, 0, manifestProof.stderr || manifestProof.stdout);
+  assert.match(manifestProof.stdout, /packet gate manifest tests: PASS/);
+  const sharedReceiptProof = spawnSync(process.execPath, ['.planning/execution/cross-worktree-receipt.test.mjs'], {
+    cwd: worktree,
+    encoding: 'utf8',
+  });
+  assert.equal(sharedReceiptProof.status, 0, sharedReceiptProof.stderr || sharedReceiptProof.stdout);
+  assert.match(sharedReceiptProof.stdout, /cross-worktree shared receipt tests: PASS/);
+  console.log('clean worktree GSD smoke: PASS');
+} finally {
+  git(['worktree', 'remove', '--force', worktree]);
+  await rm(parent, { recursive: true, force: true });
+}

@@ -12,6 +12,14 @@ import { startPromotionSweep } from '@process/services/memory/promotionSweep';
 import { clearWikiWriterState } from '@process/services/memory/wikiWriter';
 import type { MemoryEntry, ListFilter } from '@/common/types/memory';
 
+const { mockScheduleSynthesisSweep } = vi.hoisted(() => ({
+  mockScheduleSynthesisSweep: vi.fn(),
+}));
+
+vi.mock('@process/services/wiki/wikiAutoSync', () => ({
+  scheduleSynthesisSweep: mockScheduleSynthesisSweep,
+}));
+
 // ===== Helpers =====
 
 function makeTmpDir(): string {
@@ -60,6 +68,7 @@ describe('startPromotionSweep', () => {
   let tmpDir: string;
 
   beforeEach(() => {
+    mockScheduleSynthesisSweep.mockReset();
     tmpDir = makeTmpDir();
     clearWikiWriterState();
     vi.useFakeTimers();
@@ -247,6 +256,7 @@ describe('startPromotionSweep', () => {
     // Second sweep: getStats returns 15, delta = 5
     await sweep.forceRun();
     expect(sweep.getCandidates().lastDream?.factsExtracted).toBe(5);
+    expect(mockScheduleSynthesisSweep).toHaveBeenCalledOnce();
     sweep.stop();
   });
 

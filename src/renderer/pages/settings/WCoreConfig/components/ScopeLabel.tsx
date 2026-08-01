@@ -10,9 +10,10 @@ import { useTranslation } from 'react-i18next';
 import styles from '../panes/Panes.module.css';
 
 /**
- * The quiet "where this writes" line shown on every editable Wayland Core pane
- * (refinement B). Makes it truthful that these settings are the engine's own
- * `config.toml`, shared with the Wayland Core CLI, not Desktop-only state.
+ * The quiet config-scope line shown on every editable Wayland Core pane. Never
+ * hard-code a home-relative path here: active named profiles, platform-native
+ * defaults, and raw-engine launches intentionally resolve to different files.
+ * The Runtime pane owns the actionable exact-path projection.
  */
 const ScopeLabel: React.FC = () => {
   const { t } = useTranslation();
@@ -20,9 +21,9 @@ const ScopeLabel: React.FC = () => {
     <div className={styles.scopeLabel}>
       <HardDrive size={13} />
       <span>
-        {t('settings.wcoreConfig.scopeWritesTo', { defaultValue: 'Writes to' })}{' '}
-        <code>~/.wayland-core/config.toml</code>{' '}
-        {t('settings.wcoreConfig.scopeSharedCli', { defaultValue: 'Used by the Wayland Core CLI too.' })}
+        {t('settings.wcoreConfig.scopeProfileConfig', {
+          defaultValue: 'Core settings used by new sessions. Runtime shows the exact config path for the current mode.',
+        })}
       </span>
     </div>
   );

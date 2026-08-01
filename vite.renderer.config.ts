@@ -81,13 +81,7 @@ export default defineConfig({
             return 'vendor-markdown';
           if (id.includes('/react-syntax-highlighter/') || id.includes('/refractor/') || id.includes('/highlight.js/'))
             return 'vendor-highlight';
-          if (
-            id.includes('/monaco-editor/') ||
-            id.includes('/@monaco-editor/') ||
-            id.includes('/codemirror/') ||
-            id.includes('/@codemirror/')
-          )
-            return 'vendor-editor';
+          if (id.includes('/codemirror/') || id.includes('/@codemirror/')) return 'vendor-editor';
           if (id.includes('/katex/')) return 'vendor-katex';
           if (id.includes('/@icon-park/')) return 'vendor-icons';
           if (id.includes('/diff2html/')) return 'vendor-diff';

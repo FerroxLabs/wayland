@@ -39,6 +39,8 @@ export type AgentConfig = {
   // Session configuration
   cwd: string;
   mcpServers?: McpServer[];
+  /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
+  activeMcpServers?: string[];
   additionalDirectories?: string[];
 
   // Optional presets (from relate_type = 'assistant')

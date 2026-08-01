@@ -75,7 +75,9 @@ agentFactory.register('wcore', (conv, opts) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const c = conv as any;
   return new WCoreManager(
-    { ...c.extra, conversation_id: c.id, yoloMode: opts?.yoloMode },
+    // #723: thread the per-step reset seed bound so WCoreManager.start() seeds
+    // only the immediately-prior deliverable. Field name identical at every hop.
+    { ...c.extra, conversation_id: c.id, yoloMode: opts?.yoloMode, workflowResetSeed: opts?.workflowResetSeed },
     c.model
   ) as unknown as ReturnType<typeof agentFactory.create>;
 });

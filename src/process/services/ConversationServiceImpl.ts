@@ -44,6 +44,10 @@ export class ConversationServiceImpl implements IConversationService {
     await this.repo.deleteConversation(id);
   }
 
+  async prepareDeleteConversation(id: string): Promise<() => void> {
+    return this.repo.prepareDeleteConversation(id);
+  }
+
   async updateConversation(id: string, updates: Partial<TChatConversation>, mergeExtra?: boolean): Promise<void> {
     let finalUpdates = updates;
     if (mergeExtra && updates.extra) {
@@ -65,6 +69,14 @@ export class ConversationServiceImpl implements IConversationService {
       createTime: conversation.createTime ?? Date.now(),
       modifyTime: conversation.modifyTime ?? Date.now(),
     };
+    // Schedule authority must be known before creating the destination. A
+    // workspace migration is not permission to delete schedules, and a false
+    // or omitted migrateCron flag is only valid when no schedules exist.
+    const sourceJobs = sourceConversationId ? await cronService.listJobsByConversation(sourceConversationId) : [];
+    if (sourceJobs.length > 0 && migrateCron !== true) {
+      throw new Error('Scheduled tasks must move with the conversation');
+    }
+
     await this.repo.createConversation(conv);
 
     if (sourceConversationId) {
@@ -86,26 +98,40 @@ export class ConversationServiceImpl implements IConversationService {
         page++;
       }
 
-      // Migrate or delete cron jobs associated with source conversation
+      // Move schedules only after the destination history exists. Compensate
+      // already-moved schedules if a later update or the history integrity
+      // check fails. Even if compensation itself is degraded, both chat
+      // records remain present and no schedule is deleted.
+      const movedJobs: typeof sourceJobs = [];
+      const restoreMovedJobs = async (): Promise<void> => {
+        const restoreResults = await Promise.allSettled(
+          movedJobs.map((job) => cronService.updateJob(job.id, { metadata: job.metadata }))
+        );
+        restoreResults.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.error(
+              `[ConversationServiceImpl] Failed to restore schedule ${movedJobs[index]?.id} after migration failure:`,
+              result.reason
+            );
+          }
+        });
+      };
+
       try {
-        const jobs = await cronService.listJobsByConversation(sourceConversationId);
-        if (migrateCron) {
-          for (const job of jobs) {
-            await cronService.updateJob(job.id, {
-              metadata: {
-                ...job.metadata,
-                conversationId: conv.id,
-                conversationTitle: conv.name,
-              },
-            });
-          }
-        } else {
-          for (const job of jobs) {
-            await cronService.removeJob(job.id);
-          }
-        }
-      } catch (err) {
-        console.error('[ConversationServiceImpl] Failed to handle cron jobs during migration:', err);
+        await sourceJobs.reduce(async (previous, job) => {
+          await previous;
+          await cronService.updateJob(job.id, {
+            metadata: {
+              ...job.metadata,
+              conversationId: conv.id,
+              conversationTitle: conv.name,
+            },
+          });
+          movedJobs.push(job);
+        }, Promise.resolve());
+      } catch (error) {
+        await restoreMovedJobs();
+        throw error;
       }
 
       // Integrity check: only delete source if message counts match
@@ -118,6 +144,8 @@ export class ConversationServiceImpl implements IConversationService {
           source: sourceMsgs.total,
           new: newMsgs.total,
         });
+        await restoreMovedJobs();
+        throw new Error('Migration integrity check failed');
       }
     }
 

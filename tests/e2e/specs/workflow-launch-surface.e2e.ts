@@ -117,7 +117,18 @@ async function openWorkflowDetail(page: Page, slug: string): Promise<void> {
  * keeps the network of locator races out of the test bodies.
  */
 async function attemptLaunch(page: Page): Promise<'mounted' | 'unavailable' | 'unknown'> {
-  await page.getByRole('button', { name: LAUNCH_BUTTON_TEXT }).click();
+  const launchButton = page.getByRole('button', { name: LAUNCH_BUTTON_TEXT });
+
+  // "Launch now" is gated on a configured model provider. In an env without
+  // one the button renders disabled; clicking it would just hang on
+  // Playwright's actionability wait (the button never becomes enabled), so the
+  // old soft-skip guard never fired. Detect the disabled/no-model state up
+  // front and report it as unavailable so the caller can soft-skip cleanly.
+  const isDisabled = await launchButton.isDisabled().catch(() => false);
+  const cls = (await launchButton.getAttribute('class').catch(() => '')) || '';
+  if (isDisabled || cls.includes('arco-btn-disabled')) return 'unavailable';
+
+  await launchButton.click();
 
   const surface = page.locator(WORKFLOW_SURFACE);
   const errorToast = page.locator('.arco-message-error, .arco-message-warning');

@@ -1,0 +1,10 @@
+candidate_head=3f0fbdf6840bf0e52a5e960ac6dddcda85d2a083
+implementation_commit=59013f371612f7db62e8db08cb481ae862281188
+started_utc=2026-07-19T18:49:47Z
+command=bun run i18n:types
+
+$ node scripts/generate-i18n-types.js
+✅ i18n key types are up to date: src/renderer/services/i18n/i18n-keys.d.ts
+
+exit=0
+finished_utc=2026-07-19T18:49:48Z

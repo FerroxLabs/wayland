@@ -8,10 +8,12 @@
  * MCP server Doctor check.
  *
  * Each enabled MCP server is reached with the SAME `testMcpConnection` probe the
- * MCP Library "Test" button uses. A server that errors on startup is a real
- * break (its tools never reach the agent), so it FAILs; a server flagged as
- * needing auth WARNs (it is configured but not yet logged in). Disabled servers
- * are skipped — they are not installed to any agent.
+ * MCP Library "Test" button uses. This proves standalone reachability only; it
+ * cannot prove that an active agent session registered or exposed the tools. A
+ * server that errors on startup is a real break, so it FAILs; a server flagged
+ * as needing auth WARNs. A successful probe also WARNs until session-level
+ * receipts exist, preventing Doctor from repeating the Library's false-ready
+ * claim. Disabled servers are skipped — they are not installed to any agent.
  */
 
 import type { IMcpServer } from '@/common/config/storage';
@@ -68,8 +70,9 @@ async function probeWithTimeout(
  * a server that errors or times out; WARN on a server that needs auth
  * (configured but not logged in). Each server is probed under its own timeout so
  * a single hung server is named rather than collapsing the whole check into one
- * generic timeout (#273). PASS when all enabled servers connect (or none are
- * enabled).
+ * generic timeout (#273). WARN when all standalone probes succeed because this
+ * check has no active-session publication or ToolSearch receipt. PASS only when
+ * none are enabled.
  */
 export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOutcome> {
   const all = await deps.listServers();
@@ -130,5 +133,9 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
       remediation: 'Log in to the server(s) from Settings → MCP Library → Installed.',
     };
   }
-  return { status: 'pass', detail: `${okCount} enabled MCP server(s) connected.` };
+  return {
+    status: 'warn',
+    detail: `${okCount} enabled MCP server(s) reachable in a standalone probe; active-chat tools are not verified.`,
+    remediation: 'Start a fresh chat with the connector selected, then verify its tools in that chat.',
+  };
 }

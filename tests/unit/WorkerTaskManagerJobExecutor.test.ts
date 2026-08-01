@@ -132,13 +132,13 @@ describe('WorkerTaskManagerJobExecutor', () => {
     });
     const executor = new WorkerTaskManagerJobExecutor(taskManager, busyGuard);
 
-    await executor.executeJob(makeJob('conv-1'));
+    await executor.executeJob(makeJob('conv-1'), undefined, undefined, 123_456);
 
     expect(task.sendMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         content: expect.stringContaining('hello'),
         hidden: true,
-        cronMeta: expect.objectContaining({ cronJobId: 'job-1' }),
+        cronMeta: expect.objectContaining({ cronJobId: 'job-1', triggeredAt: 123_456 }),
       })
     );
   });

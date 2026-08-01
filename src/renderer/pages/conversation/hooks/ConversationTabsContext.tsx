@@ -21,6 +21,10 @@ export interface ConversationTab {
   workspace: string;
   /** Conversation type */
   type: 'gemini' | 'acp' | 'codex' | 'openclaw-gateway' | 'nanobot' | 'remote' | 'wcore';
+  /** Owning project id, resolved to a name at render (#882). Absent on tabs
+   *  restored from localStorage before this field existed - acceptable
+   *  graceful degradation; no migration. */
+  projectId?: string;
   /** Whether there are unsaved changes */
   isDirty?: boolean;
 }
@@ -121,9 +125,21 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
     // Browser-like tabs: EVERY chat opened (new or existing) becomes a tab, not
     // just custom-workspace ones. Opening a chat that already has a tab just
     // re-activates it; a new one is appended (with a soft cap, see below).
+    const incomingProjectId = (conversation.extra as { projectId?: string } | undefined)?.projectId;
     setOpenTabs((prev) => {
-      const exists = prev.find((tab) => tab.id === conversation.id);
-      if (exists) {
+      const existsIdx = prev.findIndex((tab) => tab.id === conversation.id);
+      if (existsIdx !== -1) {
+        const existing = prev[existsIdx];
+        // Backfill projectId for tabs restored from persistence before this field
+        // existed (#882 xaudit finding 5). Tabs restored from localStorage carry
+        // no projectId; resolve it the moment the conversation is (re)opened or
+        // viewed - conversation/index.tsx calls openTab(data) on load - so restored
+        // tabs are not permanently label-less.
+        if (incomingProjectId && existing.projectId !== incomingProjectId) {
+          const next = [...prev];
+          next[existsIdx] = { ...existing, projectId: incomingProjectId };
+          return next;
+        }
         return prev;
       }
       const appended: ConversationTab[] = [
@@ -133,6 +149,7 @@ export const ConversationTabsProvider: React.FC<{ children: React.ReactNode }> =
           name: conversation.name,
           workspace: conversation.extra?.workspace || '',
           type: conversation.type,
+          projectId: incomingProjectId,
         },
       ];
       if (appended.length > MAX_OPEN_TABS) {

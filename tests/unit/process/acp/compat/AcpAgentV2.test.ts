@@ -5,6 +5,12 @@ import { AcpAgentV2, SESSION_START_TIMEOUT_MS } from '@process/acp/compat/AcpAge
 import { getFullAutoMode } from '@/common/types/agentModes';
 import type { SessionCallbacks } from '@process/acp/types';
 import type { OldAcpAgentConfig } from '@process/acp/compat/typeBridge';
+import type { McpConfigProjection } from '@process/acp/session/McpConfig';
+import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
+import { getMcpSessionReceiptForServer } from '@/common/mcp/sessionReceipt';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
+import { ProcessConfig } from '@process/utils/initStorage';
+import type { IMcpServer } from '@/common/config/storage';
 
 // Mock dependencies
 let capturedCallbacks: SessionCallbacks;
@@ -59,6 +65,19 @@ vi.mock('@process/acp/compat/typeBridge', async (importOriginal) => {
     loadAuthCredentials: vi.fn().mockResolvedValue(undefined),
   };
 });
+
+// Default: no user MCP servers reach the session (matches real env for the
+// lifecycle/messaging suites, which never enter the projection block). The
+// live-path suite overrides this to drive the receipt-bound projection.
+vi.mock('@process/services/mcpServices/runtimeMcpServers', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@process/services/mcpServices/runtimeMcpServers')>();
+  return { ...actual, loadRuntimeMcpServers: vi.fn(async () => []) };
+});
+
+// The OAuth refresh dynamic import is a pass-through in tests.
+vi.mock('@process/services/mcpServices/McpService', () => ({
+  mcpService: { attachOAuthTokens: vi.fn(async (servers: unknown) => servers) },
+}));
 
 describe('AcpAgentV2 - Lifecycle Methods', () => {
   beforeEach(() => {
@@ -1213,5 +1232,192 @@ describe('AcpAgentV2 - Config/Model/Mode Methods', () => {
 
       await expect(promise).resolves.toBeUndefined();
     });
+  });
+});
+
+// Live ACP publication seam: the runtime supplies the receipt-bound publication
+// input and McpConfig mints correlated current-session receipts as the single
+// source of truth. These drive ensureSession() with the four reported vendors
+// (Tavily, Firecrawl, n8n, Beeper) and assert that only connectors that actually
+// reach this launch's backend become publications — every hostile near miss
+// (unpublishable transport, unselected-but-connected, disabled) is unavailable.
+const findById = (servers: IMcpServer[], id: string): IMcpServer => servers.find((s) => s.id === id)!;
+
+describe('AcpAgentV2 - live receipt-bound MCP publication (Tavily/Firecrawl/n8n/Beeper)', () => {
+  type Caps = { stdio: boolean; http: boolean; sse: boolean };
+  let getSpy: ReturnType<typeof vi.spyOn>;
+
+  const vendors = (over: Partial<Record<'tavily' | 'firecrawl' | 'n8n' | 'beeper', Partial<IMcpServer>>> = {}) =>
+    [
+      {
+        id: 'tavily',
+        name: 'tavily',
+        source: 'library',
+        enabled: true,
+        status: 'connected',
+        transport: { type: 'streamable_http', url: 'https://mcp.tavily.com/mcp/' },
+        createdAt: 1,
+        updatedAt: 1,
+        ...over.tavily,
+      },
+      {
+        id: 'firecrawl',
+        name: 'firecrawl',
+        source: 'library',
+        enabled: true,
+        status: 'connected',
+        transport: { type: 'stdio', command: 'firecrawl-mcp', args: [], env: { FIRECRAWL_API_KEY: 'fc-test' } },
+        createdAt: 1,
+        updatedAt: 1,
+        ...over.firecrawl,
+      },
+      {
+        id: 'n8n',
+        name: 'n8n',
+        source: 'custom',
+        enabled: true,
+        status: 'connected',
+        transport: { type: 'http', url: 'https://automation.example/mcp', headers: { Authorization: 'Bearer n8n' } },
+        createdAt: 1,
+        updatedAt: 1,
+        ...over.n8n,
+      },
+      {
+        id: 'beeper',
+        name: 'beeper',
+        source: 'custom',
+        enabled: true,
+        status: 'connected',
+        transport: { type: 'streamable_http', url: 'http://localhost:23373/v0/mcp' },
+        createdAt: 1,
+        updatedAt: 1,
+        ...over.beeper,
+      },
+    ] as IMcpServer[];
+
+  beforeEach(() => {
+    mockSessionMethods = {
+      start: vi.fn(),
+      stop: vi.fn().mockResolvedValue(undefined),
+      cancelPrompt: vi.fn(),
+      sendMessage: vi.fn(),
+      confirmPermission: vi.fn(),
+      setModel: vi.fn(),
+      setMode: vi.fn(),
+      setConfigOption: vi.fn(),
+      getConfigOptions: vi.fn().mockReturnValue([]),
+    };
+    getSpy = vi.spyOn(ProcessConfig, 'get').mockResolvedValue(undefined as never);
+  });
+
+  afterEach(() => {
+    getSpy.mockRestore();
+    vi.mocked(loadRuntimeMcpServers).mockReset();
+    vi.useRealTimers();
+    vi.clearAllTimers();
+  });
+
+  async function runLiveProjection(opts: {
+    servers: IMcpServer[];
+    activeServerIds?: string[];
+    capabilities?: Caps;
+  }): Promise<McpConfigProjection> {
+    const caps: Caps = opts.capabilities ?? { stdio: true, http: true, sse: true };
+    vi.mocked(loadRuntimeMcpServers).mockResolvedValue(opts.servers);
+    getSpy.mockImplementation(async (key: string) =>
+      key === 'acp.cachedInitializeResult' ? { claude: { capabilities: { mcpCapabilities: caps } } } : undefined
+    );
+
+    let captured: McpConfigProjection | undefined;
+    const config: OldAcpAgentConfig = {
+      id: 'live-conv',
+      backend: 'claude',
+      workingDir: '/workspace/live',
+      onStreamEvent: vi.fn(),
+      onMcpProjection: (projection) => {
+        captured = projection;
+      },
+    };
+    (config as { mcpPublication?: unknown }).mcpPublication = {
+      generation: 'gen-live',
+      conversationId: 'live-conv',
+      backend: 'acp',
+      sessionKey: createMcpSessionDigestKey(),
+      activeServerIds: opts.activeServerIds,
+    };
+
+    const agent = new AcpAgentV2(config);
+    mockSessionMethods.start.mockImplementation(() => {
+      setTimeout(() => capturedCallbacks.onStatusChange('active'), 0);
+    });
+    await agent.start();
+    if (!captured) throw new Error('onMcpProjection was not invoked');
+    return captured;
+  }
+
+  it('publishes every selected vendor and mints a current-session publication receipt for each', async () => {
+    const servers = vendors();
+    const projection = await runLiveProjection({
+      servers,
+      activeServerIds: ['tavily', 'firecrawl', 'n8n', 'beeper'],
+    });
+
+    expect(projection.servers.map((s) => s.name).toSorted()).toEqual(['beeper', 'firecrawl', 'n8n', 'tavily']);
+    for (const id of ['tavily', 'firecrawl', 'n8n', 'beeper']) {
+      expect(getMcpSessionReceiptForServer(projection.sessionState, findById(servers, id))).toMatchObject({
+        status: 'published_unverified',
+        generation: 'gen-live',
+        conversationId: 'live-conv',
+        backend: 'acp',
+        source: 'desktop',
+      });
+    }
+  });
+
+  it('records a selected-but-unpublishable transport as a fail-closed failure, never a publication', async () => {
+    const servers = vendors();
+    // stdio-only runtime: only Firecrawl reaches the backend; the remote vendors
+    // are omitted and recorded as desktop failures.
+    const projection = await runLiveProjection({
+      servers,
+      activeServerIds: ['tavily', 'firecrawl', 'n8n', 'beeper'],
+      capabilities: { stdio: true, http: false, sse: false },
+    });
+
+    expect(projection.servers.map((s) => s.name)).toEqual(['firecrawl']);
+    expect(getMcpSessionReceiptForServer(projection.sessionState, findById(servers, 'firecrawl'))?.status).toBe(
+      'published_unverified'
+    );
+    for (const id of ['tavily', 'n8n', 'beeper']) {
+      expect(getMcpSessionReceiptForServer(projection.sessionState, findById(servers, id))?.status).toBe('failed');
+    }
+  });
+
+  it('does not publish or even track a connected connector left out of this session selection', async () => {
+    const servers = vendors();
+    const projection = await runLiveProjection({ servers, activeServerIds: ['tavily'] });
+
+    expect(projection.servers.map((s) => s.name)).toEqual(['tavily']);
+    expect(getMcpSessionReceiptForServer(projection.sessionState, findById(servers, 'tavily'))?.status).toBe(
+      'published_unverified'
+    );
+    for (const id of ['firecrawl', 'n8n', 'beeper']) {
+      expect(getMcpSessionReceiptForServer(projection.sessionState, findById(servers, id))).toBeUndefined();
+    }
+  });
+
+  it('excludes a disabled or errored vendor from publication entirely', async () => {
+    const servers = vendors({
+      beeper: { enabled: false },
+      n8n: { status: 'error' },
+    });
+    const projection = await runLiveProjection({
+      servers,
+      activeServerIds: ['tavily', 'firecrawl', 'n8n', 'beeper'],
+    });
+
+    expect(projection.servers.map((s) => s.name).toSorted()).toEqual(['firecrawl', 'tavily']);
+    expect(getMcpSessionReceiptForServer(projection.sessionState, findById(servers, 'beeper'))).toBeUndefined();
+    expect(getMcpSessionReceiptForServer(projection.sessionState, findById(servers, 'n8n'))).toBeUndefined();
   });
 });

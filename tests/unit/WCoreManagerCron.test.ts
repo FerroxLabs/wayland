@@ -175,6 +175,34 @@ describe('GAP-4: WCoreManager Cron Command Feedback Loop', () => {
   // ── AC-2: Cron command detection ──────────────────────────────────
 
   describe('AC-2: detects cron commands on turn end', () => {
+    it('persists hidden scheduled prompts with exact correlation metadata', async () => {
+      const { addMessage } = await import('@process/utils/message');
+      const cronMeta = {
+        source: 'cron' as const,
+        cronJobId: 'job-1',
+        cronJobName: 'Daily report',
+        triggeredAt: 100,
+      };
+
+      await manager.sendMessage({
+        content: 'Run report',
+        msg_id: 'cron-prompt-1',
+        cronMeta,
+        hidden: true,
+      });
+
+      expect(addMessage).toHaveBeenCalledWith(
+        'conv-test-1',
+        expect.objectContaining({
+          id: 'cron-prompt-1',
+          msg_id: 'cron-prompt-1',
+          hidden: true,
+          createdAt: expect.any(Number),
+          content: { content: 'Run report', cronMeta },
+        })
+      );
+    });
+
     it('detects [CRON_LIST] in accumulated text and triggers cron processing', async () => {
       simulateTurn(manager, ['Here are the tasks: ', '[CRON_LIST]']);
       await vi.waitFor(() => {

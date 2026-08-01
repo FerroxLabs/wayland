@@ -21,11 +21,12 @@ import { isAllowedForRemote, isRemoteDeniedConfigWrite } from '@/common/adapter/
  *   storage.set(key, value) → invoke({ key, data: value })
  *   → wire `{ name: 'subscribe-agent.config.storage.set', data: { id, data: { key, data } } }`
  */
+const setConfigRequest = (key: string, value: unknown) => ({
+  id: `${key}deadbeef`,
+  data: { key, data: value },
+});
+
 describe('isRemoteDeniedConfigWrite — webui.desktop.* writes denied to remote callers (#819)', () => {
-  const set = (key: string, value: unknown) => ({
-    id: `${key}deadbeef`,
-    data: { key, data: value },
-  });
   const NAME = 'subscribe-agent.config.storage.set';
 
   // The re-arm surface: every key restoreDesktopWebUIFromPreferences reads.
@@ -37,17 +38,25 @@ describe('isRemoteDeniedConfigWrite — webui.desktop.* writes denied to remote 
   ];
 
   it.each(deniedKeys)('denies a remote write to %s', (key) => {
-    expect(isRemoteDeniedConfigWrite(NAME, set(key, true))).toBe(true);
+    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest(key, true))).toBe(true);
   });
 
   it('does not over-deny: a legitimate config write the paired WebUI needs stays allowed', () => {
-    expect(isRemoteDeniedConfigWrite(NAME, set('theme', 'dark'))).toBe(false);
-    expect(isRemoteDeniedConfigWrite(NAME, set('webui.someOtherKey', true))).toBe(false);
+    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('theme', 'dark'))).toBe(false);
+    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('webui.someOtherKey', true))).toBe(false);
+  });
+
+  it('denies generic remote writes that bypass dedicated Core preference authorities', () => {
+    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('wcore.rawEngineMode', true))).toBe(true);
+    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('wcore.outputBudget', { mode: 'auto' }))).toBe(true);
+    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('wcore.unrelatedPreference', true))).toBe(false);
   });
 
   it('only gates the agent.config setter, not reads or other wire keys', () => {
     expect(isRemoteDeniedConfigWrite('subscribe-agent.config.storage.get', 'webui.desktop.allowRemote')).toBe(false);
-    expect(isRemoteDeniedConfigWrite('subscribe-cron.list-jobs', set('webui.desktop.allowRemote', true))).toBe(false);
+    expect(
+      isRemoteDeniedConfigWrite('subscribe-cron.list-jobs', setConfigRequest('webui.desktop.allowRemote', true))
+    ).toBe(false);
   });
 
   it('is robust to malformed / missing payloads (defaults to not-denied, dispatch is unaffected)', () => {
@@ -67,6 +76,6 @@ describe('isRemoteDeniedConfigWrite — webui.desktop.* writes denied to remote 
    */
   it('documents the two-layer design: setter stays wire-allowed, value-gate does the denial', () => {
     expect(isAllowedForRemote(NAME)).toBe(true);
-    expect(isRemoteDeniedConfigWrite(NAME, set('webui.desktop.allowRemote', true))).toBe(true);
+    expect(isRemoteDeniedConfigWrite(NAME, setConfigRequest('webui.desktop.allowRemote', true))).toBe(true);
   });
 });

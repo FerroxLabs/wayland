@@ -40,7 +40,9 @@
 
 import { promises as fs } from 'fs';
 import * as fsSync from 'fs';
+import { constants as fsConstants } from 'fs';
 import { execFileSync, spawn } from 'child_process';
+import path from 'path';
 
 /**
  * True when the caller requested owner-only POSIX permissions, i.e. the data
@@ -88,6 +90,73 @@ function restrictWindowsDaclAsync(filePath: string): Promise<void> {
   });
 }
 
+/**
+ * Flags for opening a file purely to flush it.
+ *
+ * Windows implements fsync as FlushFileBuffers, which requires the handle to
+ * carry GENERIC_WRITE. An O_RDONLY handle therefore fails with EPERM
+ * (errno -4048) on every single write, which is what broke config persistence
+ * on Windows. POSIX keeps O_RDONLY so a file the process may read but not write
+ * can still be flushed.
+ */
+function fileSyncFlags(): number {
+  return process.platform === 'win32' ? fsConstants.O_RDWR : fsConstants.O_RDONLY;
+}
+
+/**
+ * Whether this platform can flush a directory handle at all.
+ *
+ * It cannot on Windows: a directory handle never carries GENERIC_WRITE, so
+ * FlushFileBuffers rejects it with EPERM however the path is spelled -
+ * `path.join(directory, '.')` does not help. There is no per-directory flush
+ * primitive short of FlushFileBuffers on the whole volume, which needs
+ * administrator rights. NTFS journals the directory entry that the rename
+ * creates, so on Windows the rename itself is the ordering barrier and the
+ * file-level flushes above are the durability guarantee. SQLite makes the same
+ * trade for the same reason.
+ */
+function canSyncDirectory(): boolean {
+  return process.platform !== 'win32';
+}
+
+async function syncFile(filePath: string): Promise<void> {
+  const handle = await fs.open(filePath, fileSyncFlags());
+  try {
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+}
+
+async function syncDirectory(directory: string): Promise<void> {
+  if (!canSyncDirectory()) return;
+  const handle = await fs.open(directory, fsConstants.O_RDONLY);
+  try {
+    await handle.sync();
+  } finally {
+    await handle.close();
+  }
+}
+
+function syncFileSync(filePath: string): void {
+  const fd = fsSync.openSync(filePath, fileSyncFlags());
+  try {
+    fsSync.fsyncSync(fd);
+  } finally {
+    fsSync.closeSync(fd);
+  }
+}
+
+function syncDirectorySync(directory: string): void {
+  if (!canSyncDirectory()) return;
+  const fd = fsSync.openSync(directory, fsConstants.O_RDONLY);
+  try {
+    fsSync.fsyncSync(fd);
+  } finally {
+    fsSync.closeSync(fd);
+  }
+}
+
 export async function writeFileAtomic(
   targetPath: string,
   data: string | Buffer,
@@ -96,38 +165,44 @@ export async function writeFileAtomic(
   const tmp = `${targetPath}.tmp-${process.pid}-${Date.now()}`;
   const ownerOnly = wantsOwnerOnly(opts);
   await fs.writeFile(tmp, data, opts);
-  // Harden the temp file's DACL on Windows immediately after creation so the
-  // secret bytes are not world-readable during the rename window.
-  if (ownerOnly) await restrictWindowsDaclAsync(tmp);
+  let renamed = false;
   try {
+    // Harden before the first flush so secret-bearing bytes never rely on a
+    // wider inherited ACL during the rename window.
+    if (ownerOnly) await restrictWindowsDaclAsync(tmp);
+    await syncFile(tmp);
     await fs.rename(tmp, targetPath);
+    renamed = true;
+    if (ownerOnly) await restrictWindowsDaclAsync(targetPath);
+    await syncFile(targetPath);
+    await syncDirectory(path.dirname(targetPath));
   } catch (err) {
-    // Best-effort cleanup so EXDEV / ENOSPC / EACCES don't orphan the tmp.
-    // Under ENOSPC the orphan would consume the very bytes that caused the
-    // failure; swallow unlink errors so the original rename error propagates.
-    await fs.unlink(tmp).catch(() => {});
+    if (!renamed) await fs.unlink(tmp).catch(() => {});
     throw err;
   }
-  // Re-apply after rename: the destination may pre-exist with a wider ACL, and
-  // rename does not reset it on Windows.
-  if (ownerOnly) await restrictWindowsDaclAsync(targetPath);
 }
 
 export function writeFileSyncAtomic(targetPath: string, data: string | Buffer, opts?: fsSync.WriteFileOptions): void {
   const tmp = `${targetPath}.tmp-${process.pid}-${Date.now()}`;
   const ownerOnly = wantsOwnerOnly(opts);
   fsSync.writeFileSync(tmp, data, opts);
-  if (ownerOnly) restrictWindowsDacl(tmp);
+  let renamed = false;
   try {
+    if (ownerOnly) restrictWindowsDacl(tmp);
+    syncFileSync(tmp);
     fsSync.renameSync(tmp, targetPath);
+    renamed = true;
+    if (ownerOnly) restrictWindowsDacl(targetPath);
+    syncFileSync(targetPath);
+    syncDirectorySync(path.dirname(targetPath));
   } catch (err) {
-    // Best-effort cleanup so EXDEV / ENOSPC / EACCES don't orphan the tmp.
-    try {
-      fsSync.unlinkSync(tmp);
-    } catch {
-      // Ignore - surface the original rename error below.
+    if (!renamed) {
+      try {
+        fsSync.unlinkSync(tmp);
+      } catch {
+        // Ignore - surface the original persistence error below.
+      }
     }
     throw err;
   }
-  if (ownerOnly) restrictWindowsDacl(targetPath);
 }

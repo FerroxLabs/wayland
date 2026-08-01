@@ -14,6 +14,7 @@ import { useMcpServers, useMcpAgentStatus, useMcpOperations, useMcpServerCRUD } 
 import { Message } from '@arco-design/web-react';
 import { ipcBridge } from '@/common';
 import { resolveModelToolCap } from '@/common/mcp';
+import type { McpSessionState } from '@/common/mcp/sessionReceipt';
 import { useComposerSkills, type UseComposerSkills } from './useComposerSkills';
 import SkillsFlyout from './SkillsFlyout';
 import ConnectorsFlyout from './ConnectorsFlyout';
@@ -59,9 +60,10 @@ const ComposerAddMenuPanel: React.FC<{
   conversationId?: string;
   draftText?: string;
   uploadItems: ComposerUploadItem[];
+  mcpSessionState?: McpSessionState;
   triggerRef: React.RefObject<HTMLElement>;
   onClose: () => void;
-}> = ({ composer, conversationId, draftText, uploadItems, triggerRef, onClose }) => {
+}> = ({ composer, conversationId, draftText, uploadItems, mcpSessionState, triggerRef, onClose }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [pane, setPane] = useState<Pane>('skills');
@@ -84,7 +86,8 @@ const ComposerAddMenuPanel: React.FC<{
         // (nudge hidden) for those rather than guessing.
         const model = 'model' in conv ? conv.model : undefined;
         setTargetModel({ cap: resolveModelToolCap(model?.id, model?.useModel), label: model?.useModel });
-        setActiveServerIds((conv.extra as { activeMcpServers?: string[] } | undefined)?.activeMcpServers);
+        const extra = conv.extra as { activeMcpServers?: string[] } | undefined;
+        setActiveServerIds(extra?.activeMcpServers);
       })
       .catch(() => {});
     return () => {
@@ -133,7 +136,10 @@ const ComposerAddMenuPanel: React.FC<{
 
   // MCP stack - instantiated only while the panel is mounted (menu open).
   const [message, contextHolder] = Message.useMessage();
-  const { mcpServers, saveMcpServers } = useMcpServers();
+  const { mcpServers, allMcpServers, saveMcpServers, refreshMcpServers } = useMcpServers();
+  // Older/test adapters may expose only the persisted set. The runtime merge
+  // is additive; falling back keeps the menu usable without inventing entries.
+  const connectorServers = allMcpServers ?? mcpServers ?? [];
   const { setAgentInstallStatus, checkSingleServerInstallStatus } = useMcpAgentStatus();
   const { syncMcpToAgents, removeMcpFromAgents } = useMcpOperations(mcpServers, message);
   const crud = useMcpServerCRUD(
@@ -142,11 +148,12 @@ const ComposerAddMenuPanel: React.FC<{
     syncMcpToAgents,
     removeMcpFromAgents,
     checkSingleServerInstallStatus,
-    setAgentInstallStatus
+    setAgentInstallStatus,
+    refreshMcpServers
   );
 
   const skillsOnCount = composer.onChatList.filter((s) => s.enabled).length;
-  const connectorsOnCount = mcpServers.filter((s) => s.enabled !== false).length;
+  const connectorsOnCount = connectorServers.filter((s) => s.enabled !== false).length;
 
   const goSkills = () => navigate('/settings/skills');
   const goConnectors = () => navigate('/settings/mcp-library/browse');
@@ -226,7 +233,7 @@ const ComposerAddMenuPanel: React.FC<{
       {pane === 'skills' && <SkillsFlyout composer={composer} draftText={draftText} onManageAll={goSkills} />}
       {pane === 'connectors' && (
         <ConnectorsFlyout
-          servers={mcpServers}
+          servers={connectorServers}
           onToggle={(id, enabled) => void crud.handleToggleMcpServer(id, enabled)}
           onAddConnector={goConnectors}
           onManageConnectors={goConnectors}
@@ -234,6 +241,7 @@ const ComposerAddMenuPanel: React.FC<{
           modelLabel={targetModel.label}
           onScopeChange={conversationId ? setActiveServers : undefined}
           activeServerIds={activeServerIds}
+          sessionState={mcpSessionState}
         />
       )}
     </div>
@@ -258,7 +266,33 @@ const ComposerAddMenu: React.FC<ComposerAddMenuProps> = ({
   onStagedSkillsChange,
 }) => {
   const [open, setOpen] = useState(false);
+  const [mcpSessionState, setMcpSessionState] = useState<McpSessionState | undefined>();
   const triggerRef = useRef<HTMLSpanElement>(null);
+
+  // Listen for launch-bound receipts for the whole lifetime of the composer,
+  // not only while its lazily-mounted menu is open. Otherwise Core can finish
+  // registration before the user opens Connectors and the truthful state is
+  // lost. Never rebuild readiness from a persisted snapshot here: after a
+  // process restart its generation may no longer identify a live session.
+  useEffect(() => {
+    setMcpSessionState(undefined);
+    if (!conversationId) return;
+    return ipcBridge.conversation.responseStream.on((message) => {
+      if (message.conversation_id !== conversationId || message.type !== 'mcp_session_state') return;
+      const state = message.data as McpSessionState;
+      if (
+        state &&
+        typeof state.generation === 'string' &&
+        state.conversationId === conversationId &&
+        typeof state.backend === 'string' &&
+        state.receipts &&
+        Array.isArray(state.expectedServers) &&
+        Array.isArray(state.expectedServerNames)
+      ) {
+        setMcpSessionState(state);
+      }
+    });
+  }, [conversationId]);
 
   // Skills state lives here (not in the panel) so staged picks survive the menu
   // closing before the user sends.
@@ -284,6 +318,7 @@ const ComposerAddMenu: React.FC<ComposerAddMenuProps> = ({
           conversationId={conversationId}
           draftText={draftText}
           uploadItems={uploadItems}
+          mcpSessionState={mcpSessionState}
           triggerRef={triggerRef}
           onClose={() => setOpen(false)}
         />

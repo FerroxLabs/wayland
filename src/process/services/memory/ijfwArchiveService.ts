@@ -27,6 +27,7 @@ import type {
   TagCount,
   PromotionCandidates,
   IndexStats,
+  ArchivedMemoryEntry,
 } from '@/common/types/memory';
 
 // Depth of subdirectory recursion when scanning a project's .ijfw/memory dir.
@@ -36,6 +37,20 @@ import type {
 // those nested files are not silently dropped. We do NOT recurse deeper to
 // avoid walking unrelated trees (e.g. gate-receipts/).
 const MEMORY_SCAN_MAX_DEPTH = 1;
+const MEMORY_ARCHIVE_KIND = 'wayland-memory-entry-archive';
+const MEMORY_ARCHIVE_VERSION = 1;
+const MEMORY_ARCHIVE_DIR = path.join('.archive', 'deleted-entries');
+
+type MemoryArchiveRecord = {
+  kind: typeof MEMORY_ARCHIVE_KIND;
+  version: typeof MEMORY_ARCHIVE_VERSION;
+  archiveId: string;
+  archivedAt: string;
+  summary: string;
+  sourceRelativePath: string;
+  rawBlock: string;
+  rawBlockSha256: string;
+};
 
 /**
  * Recursively collect `*.md` files under a project's `.ijfw/memory` dir,
@@ -347,6 +362,10 @@ class IjfwArchiveService {
   /** Tracks the currently-running rebuild so IPC callers can await it. */
   private activeRebuild: Promise<void> | null = null;
   private watcherFactory: WatcherFactory;
+  /** Memory roots discovered during the latest index build, including empty roots. */
+  private memoryRoots = new Set<string>();
+  /** Serialize all source mutations so read/transform/write and reindex cannot race. */
+  private mutationTail: Promise<void> = Promise.resolve();
 
   constructor(watcherFactory?: WatcherFactory) {
     this.watcherFactory = watcherFactory ?? defaultWatcherFactory;
@@ -400,6 +419,7 @@ class IjfwArchiveService {
     const allEntries: MemoryEntry[] = [];
     const projectSummaries: ProjectSummary[] = [];
     const wikiCounts = new Map<string, number>();
+    this.memoryRoots = new Set(projectPaths.map(({ path: pPath }) => path.join(pPath, '.ijfw', 'memory')));
 
     // Scan every project's memory dir up front, in parallel, so the per-project
     // index loop below stays synchronous (no await-in-loop). Each project's
@@ -792,55 +812,163 @@ class IjfwArchiveService {
   }
 
   /**
-   * Delete a single memory entry (#414). Hard delete: the entry's `---`-block is
-   * removed from its source file (atomic write); the file is unlinked only when
-   * nothing meaningful remains after removal. Every other entry AND any non-entry
-   * content (file header, prose between blocks) is preserved verbatim. The store
-   * is git-tracked, so this is recoverable outside the app.
+   * Archive a single memory entry (#414). The complete original block is
+   * durably written to `.archive/deleted-entries` before the active source is
+   * changed. The source file is retained even when the archived entry was its
+   * final block, and `restoreArchivedEntry` provides in-app recovery.
    */
-  async deleteEntry(id: string): Promise<{ ok: boolean; error?: string }> {
+  async deleteEntry(id: string): Promise<{ ok: boolean; error?: string; archiveId?: string }> {
     await this.init();
-    const entry = this.index.byId.get(id);
-    if (!entry) return { ok: false, error: 'not_found' };
-    if (!isManagedMemoryPath(entry.sourcePath)) return { ok: false, error: 'unmanaged_path' };
+    return this.withMutationLock(async () => {
+      const entry = this.index.byId.get(id);
+      if (!entry) return { ok: false, error: 'not_found' };
+      if (!isManagedMemoryPath(entry.sourcePath)) return { ok: false, error: 'unmanaged_path' };
 
-    let content: string;
-    try {
-      content = await fs.promises.readFile(entry.sourcePath, 'utf8');
-    } catch {
-      return { ok: false, error: 'read_failed' };
-    }
-
-    const result = applyDelete(content, entry.summary);
-    if (result.ok === false) return { ok: false, error: result.error };
-
-    try {
-      // Unlink only when nothing but the machine schema marker (and whitespace)
-      // is left after the removal. `remainingBlocks` counts entry blocks only,
-      // so a file that also holds real user content — an H1/H2 heading, a title,
-      // prose between blocks — still carries it in result.content; unlinking on
-      // remainingBlocks === 0 alone discards it (the #647 data-loss). The
-      // `<!-- ijfw-schema: vN -->` header is machine-written, not user content,
-      // so a file whose only non-entry line is that marker is still removed —
-      // preserving the prior "delete the last entry unlinks the file" contract.
-      const hasUserContent =
-        result.remainingBlocks > 0 ||
-        result.content.split('\n').some((line) => {
-          const t = line.trim();
-          return t !== '' && !/^<!--\s*ijfw-schema:/.test(t);
-        });
-      if (!hasUserContent) {
-        await fs.promises.unlink(entry.sourcePath);
-      } else {
-        await atomicWriteFile(entry.sourcePath, result.content);
+      let content: string;
+      try {
+        content = await fs.promises.readFile(entry.sourcePath, 'utf8');
+      } catch {
+        return { ok: false, error: 'read_failed' };
       }
-    } catch (err) {
-      log.error('[memory-archive] deleteEntry write failed', { id, err });
-      return { ok: false, error: 'write_failed' };
-    }
 
-    await this.rebuildNow();
-    return { ok: true };
+      const result = applyDelete(content, entry.summary);
+      if (result.ok === false) return { ok: false, error: result.error };
+      if (result.removedBlock === undefined) return { ok: false, error: 'archive_failed' };
+
+      const memoryRoot = managedMemoryRoot(entry.sourcePath);
+      if (!memoryRoot) return { ok: false, error: 'unmanaged_path' };
+      const sourceRelativePath = path.relative(memoryRoot, entry.sourcePath);
+      if (!isSafeRelativePath(sourceRelativePath)) return { ok: false, error: 'unmanaged_path' };
+
+      const archiveId = crypto.randomUUID();
+      const archiveDir = path.join(memoryRoot, MEMORY_ARCHIVE_DIR);
+      const archivePath = path.join(archiveDir, `${archiveId}.json`);
+      const record: MemoryArchiveRecord = {
+        kind: MEMORY_ARCHIVE_KIND,
+        version: MEMORY_ARCHIVE_VERSION,
+        archiveId,
+        archivedAt: new Date().toISOString(),
+        summary: entry.summary,
+        sourceRelativePath,
+        rawBlock: result.removedBlock,
+        rawBlockSha256: sha256(result.removedBlock),
+      };
+
+      try {
+        await fs.promises.mkdir(archiveDir, { recursive: true });
+        if (
+          !(await hasContainedRealParent(memoryRoot, archivePath)) ||
+          !(await hasContainedRealParent(memoryRoot, entry.sourcePath))
+        ) {
+          throw new Error('archive or source path escapes the managed memory root');
+        }
+        await atomicWriteFile(archivePath, `${JSON.stringify(record, null, 2)}\n`);
+        await atomicWriteFile(entry.sourcePath, result.content);
+      } catch (err) {
+        // The active source is written only after the archive record. If source
+        // mutation fails, remove the now-redundant record best-effort; failure to
+        // clean it up is retention-safe and never loses the original entry.
+        await fs.promises.unlink(archivePath).catch((): void => undefined);
+        log.error('[memory-archive] archiveEntry write failed', { id, err });
+        return { ok: false, error: 'write_failed' };
+      }
+
+      await this.rebuildNow();
+      return { ok: true, archiveId };
+    });
+  }
+
+  /** List all durable entry archives across currently discovered memory roots. */
+  async listArchivedEntries(): Promise<ArchivedMemoryEntry[]> {
+    await this.init();
+    const records = (await Promise.all([...this.memoryRoots].map((root) => readArchiveRecords(root)))).flat();
+    const inactive = await Promise.all(
+      records.map(async (item) => {
+        const sourcePath = path.join(item.memoryRoot, item.record.sourceRelativePath);
+        try {
+          const activeSource = await fs.promises.readFile(sourcePath, 'utf8');
+          return activeSource.includes(item.record.rawBlock) ? null : item;
+        } catch {
+          return item;
+        }
+      })
+    );
+    return inactive
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .map(({ record, memoryRoot }) => ({
+        archiveId: record.archiveId,
+        summary: record.summary,
+        archivedAt: Date.parse(record.archivedAt),
+        sourcePath: path.join(memoryRoot, record.sourceRelativePath),
+      }))
+      .filter((entry) => Number.isFinite(entry.archivedAt))
+      .toSorted((a, b) => b.archivedAt - a.archivedAt);
+  }
+
+  /** Restore one archived entry without overwriting later source-file edits. */
+  async restoreArchivedEntry(archiveId: string): Promise<{ ok: boolean; error?: string }> {
+    await this.init();
+    return this.withMutationLock(async () => {
+      if (!/^[0-9a-f-]{36}$/i.test(archiveId)) return { ok: false, error: 'invalid_id' };
+
+      const matches = (await Promise.all([...this.memoryRoots].map((root) => readArchiveRecords(root))))
+        .flat()
+        .filter(({ record }) => record.archiveId === archiveId);
+      if (matches.length === 0) return { ok: false, error: 'not_found' };
+      if (matches.length > 1) return { ok: false, error: 'ambiguous' };
+
+      const { record, archivePath, memoryRoot } = matches[0];
+      if (!validateArchiveRecord(record) || sha256(record.rawBlock) !== record.rawBlockSha256) {
+        return { ok: false, error: 'invalid_archive' };
+      }
+      if (!isSafeRelativePath(record.sourceRelativePath)) return { ok: false, error: 'invalid_archive' };
+      const sourcePath = path.resolve(memoryRoot, record.sourceRelativePath);
+      if (!isPathInside(memoryRoot, sourcePath)) return { ok: false, error: 'invalid_archive' };
+
+      let current = '';
+      try {
+        current = await fs.promises.readFile(sourcePath, 'utf8');
+      } catch (err) {
+        if ((err as NodeJS.ErrnoException).code !== 'ENOENT') return { ok: false, error: 'read_failed' };
+      }
+
+      // A previous restore may have committed the source write but failed to
+      // remove its redundant archive record. Treat an exact active block as an
+      // idempotent success, then clean the machine-owned record best-effort.
+      if (current.includes(record.rawBlock)) {
+        await fs.promises.unlink(archivePath).catch((): void => undefined);
+        await this.rebuildNow();
+        return { ok: true };
+      }
+
+      const duplicate = parseMarkdownBlocks(current).some((block) => {
+        const summary = typeof block.frontmatter['summary'] === 'string' ? block.frontmatter['summary'] : '';
+        return summary.slice(0, 80) === record.summary.slice(0, 80);
+      });
+      if (duplicate) return { ok: false, error: 'summary_collision' };
+
+      const separator = current.length === 0 || current.endsWith('\n') || current.endsWith('\r') ? '' : '\n';
+      const restored = `${current}${separator}${record.rawBlock}`;
+      try {
+        await fs.promises.mkdir(path.dirname(sourcePath), { recursive: true });
+        if (!(await hasContainedRealParent(memoryRoot, sourcePath))) {
+          return { ok: false, error: 'invalid_archive' };
+        }
+        await atomicWriteFile(sourcePath, restored);
+      } catch (err) {
+        log.error('[memory-archive] restoreArchivedEntry failed', { archiveId, err });
+        return { ok: false, error: 'write_failed' };
+      }
+      // Source restoration is the authoritative success boundary. Failure to
+      // remove the now-redundant machine record must not turn a successful
+      // restore into a false failure; list/restore recognize it idempotently.
+      await fs.promises.unlink(archivePath).catch((err: unknown): void => {
+        log.warn('[memory-archive] restored entry but could not remove recovery record', { archiveId, err });
+      });
+
+      await this.rebuildNow();
+      return { ok: true };
+    });
   }
 
   /**
@@ -852,38 +980,57 @@ class IjfwArchiveService {
    */
   async editEntry(id: string, patch: MemoryBlockPatch): Promise<{ ok: boolean; error?: string; newId?: string }> {
     await this.init();
-    const entry = this.index.byId.get(id);
-    if (!entry) return { ok: false, error: 'not_found' };
-    if (!isManagedMemoryPath(entry.sourcePath)) return { ok: false, error: 'unmanaged_path' };
+    return this.withMutationLock(async () => {
+      const entry = this.index.byId.get(id);
+      if (!entry) return { ok: false, error: 'not_found' };
+      if (!isManagedMemoryPath(entry.sourcePath)) return { ok: false, error: 'unmanaged_path' };
 
-    let content: string;
+      let content: string;
+      try {
+        content = await fs.promises.readFile(entry.sourcePath, 'utf8');
+      } catch {
+        return { ok: false, error: 'read_failed' };
+      }
+
+      const result = applyEdit(content, entry.summary, patch);
+      if (result.ok === false) return { ok: false, error: result.error };
+
+      try {
+        await atomicWriteFile(entry.sourcePath, result.content);
+      } catch (err) {
+        log.error('[memory-archive] editEntry write failed', { id, err });
+        return { ok: false, error: 'write_failed' };
+      }
+
+      await this.rebuildNow();
+
+      // Resolve the (possibly new) id after the summary change. `stored` is never
+      // patchable, so storedAt is stable across the edit — match on it too, so a
+      // renamed summary that now collides (first 80 chars) with a SIBLING entry in
+      // the same file cannot re-resolve to the wrong block's id.
+      const newSummary = (patch.summary ?? entry.summary).slice(0, 80);
+      const updated = this.index.all.find(
+        (e) =>
+          e.sourcePath === entry.sourcePath && e.storedAt === entry.storedAt && e.summary.slice(0, 80) === newSummary
+      );
+      return { ok: true, newId: updated?.id ?? id };
+    });
+  }
+
+  /** Queue one complete memory mutation, including its awaited index rebuild. */
+  private async withMutationLock<T>(operation: () => Promise<T>): Promise<T> {
+    const previous = this.mutationTail;
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    this.mutationTail = previous.then(() => gate);
+    await previous;
     try {
-      content = await fs.promises.readFile(entry.sourcePath, 'utf8');
-    } catch {
-      return { ok: false, error: 'read_failed' };
+      return await operation();
+    } finally {
+      release();
     }
-
-    const result = applyEdit(content, entry.summary, patch);
-    if (result.ok === false) return { ok: false, error: result.error };
-
-    try {
-      await atomicWriteFile(entry.sourcePath, result.content);
-    } catch (err) {
-      log.error('[memory-archive] editEntry write failed', { id, err });
-      return { ok: false, error: 'write_failed' };
-    }
-
-    await this.rebuildNow();
-
-    // Resolve the (possibly new) id after the summary change. `stored` is never
-    // patchable, so storedAt is stable across the edit — match on it too, so a
-    // renamed summary that now collides (first 80 chars) with a SIBLING entry in
-    // the same file cannot re-resolve to the wrong block's id.
-    const newSummary = (patch.summary ?? entry.summary).slice(0, 80);
-    const updated = this.index.all.find(
-      (e) => e.sourcePath === entry.sourcePath && e.storedAt === entry.storedAt && e.summary.slice(0, 80) === newSummary
-    );
-    return { ok: true, newId: updated?.id ?? id };
   }
 
   /**
@@ -935,8 +1082,103 @@ function sanitizeYamlScalar(s: string): string {
  */
 async function atomicWriteFile(filePath: string, contents: string): Promise<void> {
   const tmp = `${filePath}.tmp-${process.pid}-${Date.now()}`;
-  await fs.promises.writeFile(tmp, contents, 'utf8');
-  await fs.promises.rename(tmp, filePath);
+  try {
+    await fs.promises.writeFile(tmp, contents, 'utf8');
+    await fs.promises.rename(tmp, filePath);
+  } catch (err) {
+    await fs.promises.unlink(tmp).catch((): void => undefined);
+    throw err;
+  }
+}
+
+function sha256(value: string): string {
+  return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function managedMemoryRoot(filePath: string): string | null {
+  const resolved = path.resolve(filePath);
+  const parts = resolved.split(path.sep);
+  const marker = parts.lastIndexOf('.ijfw');
+  if (marker === -1 || parts[marker + 1] !== 'memory' || marker + 2 >= parts.length) return null;
+  const root = parts.slice(0, marker + 2).join(path.sep);
+  return root || path.sep;
+}
+
+function isSafeRelativePath(value: string): boolean {
+  if (!value || path.isAbsolute(value)) return false;
+  const normalized = path.normalize(value);
+  return normalized !== '..' && !normalized.startsWith(`..${path.sep}`);
+}
+
+function isPathInside(root: string, candidate: string): boolean {
+  const relative = path.relative(path.resolve(root), path.resolve(candidate));
+  return relative !== '' && isSafeRelativePath(relative);
+}
+
+async function hasContainedRealParent(root: string, candidate: string): Promise<boolean> {
+  try {
+    const [realRoot, realParent] = await Promise.all([
+      fs.promises.realpath(root),
+      fs.promises.realpath(path.dirname(candidate)),
+    ]);
+    const relative = path.relative(realRoot, realParent);
+    return relative === '' || isSafeRelativePath(relative);
+  } catch {
+    return false;
+  }
+}
+
+function validateArchiveRecord(value: unknown): value is MemoryArchiveRecord {
+  if (!value || typeof value !== 'object') return false;
+  const record = value as Partial<MemoryArchiveRecord>;
+  return (
+    record.kind === MEMORY_ARCHIVE_KIND &&
+    record.version === MEMORY_ARCHIVE_VERSION &&
+    typeof record.archiveId === 'string' &&
+    /^[0-9a-f-]{36}$/i.test(record.archiveId) &&
+    typeof record.archivedAt === 'string' &&
+    Number.isFinite(Date.parse(record.archivedAt)) &&
+    typeof record.summary === 'string' &&
+    typeof record.sourceRelativePath === 'string' &&
+    isSafeRelativePath(record.sourceRelativePath) &&
+    typeof record.rawBlock === 'string' &&
+    record.rawBlock.length > 0 &&
+    typeof record.rawBlockSha256 === 'string' &&
+    /^[0-9a-f]{64}$/i.test(record.rawBlockSha256)
+  );
+}
+
+async function readArchiveRecords(
+  memoryRoot: string
+): Promise<Array<{ record: MemoryArchiveRecord; archivePath: string; memoryRoot: string }>> {
+  const archiveDir = path.join(memoryRoot, MEMORY_ARCHIVE_DIR);
+  let dirents: fs.Dirent[];
+  try {
+    dirents = await fs.promises.readdir(archiveDir, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+
+  const candidates = dirents.filter((entry) => entry.isFile() && /^[0-9a-f-]{36}\.json$/i.test(entry.name));
+  const records = await Promise.all(
+    candidates.map(async (entry) => {
+      const archivePath = path.join(archiveDir, entry.name);
+      try {
+        if (!(await hasContainedRealParent(memoryRoot, archivePath))) return null;
+        const stat = await fs.promises.stat(archivePath);
+        if (stat.size > 2 * 1024 * 1024) return null;
+        const parsed: unknown = JSON.parse(await fs.promises.readFile(archivePath, 'utf8'));
+        if (!validateArchiveRecord(parsed)) return null;
+        if (`${parsed.archiveId}.json`.toLowerCase() !== entry.name.toLowerCase()) return null;
+        return { record: parsed, archivePath, memoryRoot };
+      } catch {
+        return null;
+      }
+    })
+  );
+  return records.filter(
+    (item): item is { record: MemoryArchiveRecord; archivePath: string; memoryRoot: string } => item !== null
+  );
 }
 
 /**
@@ -945,8 +1187,7 @@ async function atomicWriteFile(filePath: string, contents: string): Promise<void
  * explicit so an edit/delete can never escape the store.
  */
 function isManagedMemoryPath(filePath: string): boolean {
-  const norm = filePath.replace(/\\/g, '/');
-  return norm.includes('/.ijfw/memory/');
+  return managedMemoryRoot(filePath) !== null;
 }
 
 function groupBy<T>(items: T[], key: (item: T) => string): Map<string, T[]> {

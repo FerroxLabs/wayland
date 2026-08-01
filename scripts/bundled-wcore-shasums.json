@@ -1,12 +1,30 @@
 {
   "_comment": "Authoritative SHA-256 checksums for bundled wayland-core release archives (the downloaded .tar.gz / .zip assets), keyed by release tag then asset filename. Mirrors scripts/bundled-bun-shasums.json. Source of truth: the SHASUMS published alongside each signed FerroxLabs/wayland-core release. The downloaded archive is verified against this file BEFORE it is extracted, copied, or executed. Update this file in lockstep with DEFAULT_WCORE_VERSION in scripts/prepareWaylandCore.js and regenerate on every engine version bump.",
   "v0.12.25": {
-    "wayland-core-v0.12.25-aarch64-apple-darwin.tar.gz": "sha256:59798eb4aed6ffcdabdc019a56db590e9db4b0a19fcece1eebc46e5e292d6959",
-    "wayland-core-v0.12.25-x86_64-apple-darwin.tar.gz": "sha256:d283f8a9441e449f40281a2f555ebf9d22c04228f0b3cd918e6e173cdc66a062",
-    "wayland-core-v0.12.25-aarch64-unknown-linux-gnu.tar.gz": "sha256:214bc7f87052b3bfb2e00cf1637223217e4c15e0ec84435b54918fdc23518380",
-    "wayland-core-v0.12.25-x86_64-unknown-linux-gnu.tar.gz": "sha256:c4fe22f4c5bb713181f38e6e308a56de0d033380bb1134d3834dd89d561c6751",
-    "wayland-core-v0.12.25-aarch64-pc-windows-msvc.zip": "sha256:282cd3f309e17a62e712a97caab7b95050bc2fca9158b6b4a2b28a3f7d546c85",
-    "wayland-core-v0.12.25-x86_64-pc-windows-msvc.zip": "sha256:e9cf6650a47a8f3340a25d720ab6ed032e1fa41da0d1171ccb87337fd542947a"
+    "wayland-core-v0.12.25-aarch64-apple-darwin.tar.gz": {
+      "archiveSha256": "sha256:59798eb4aed6ffcdabdc019a56db590e9db4b0a19fcece1eebc46e5e292d6959",
+      "binarySha256": "sha256:aa818a9492b59fd4402b2d4d451104d88dee5e5c20f05b722a487cdc39a6a382"
+    },
+    "wayland-core-v0.12.25-x86_64-apple-darwin.tar.gz": {
+      "archiveSha256": "sha256:d283f8a9441e449f40281a2f555ebf9d22c04228f0b3cd918e6e173cdc66a062",
+      "binarySha256": "sha256:beeeee6005e4b3cfe5b3581a4d167750b48d971cd094a4118ae2d657e591a764"
+    },
+    "wayland-core-v0.12.25-aarch64-unknown-linux-gnu.tar.gz": {
+      "archiveSha256": "sha256:214bc7f87052b3bfb2e00cf1637223217e4c15e0ec84435b54918fdc23518380",
+      "binarySha256": "sha256:125c7cbdb6b0b3a5d679342cdd3659999abd5e008abbe61b3c0922f17001fef7"
+    },
+    "wayland-core-v0.12.25-x86_64-unknown-linux-gnu.tar.gz": {
+      "archiveSha256": "sha256:c4fe22f4c5bb713181f38e6e308a56de0d033380bb1134d3834dd89d561c6751",
+      "binarySha256": "sha256:0661aa4fc73cc68fa44a55e3d089c5bb6c1d0ceabcbc8a96bbe2f970712f2488"
+    },
+    "wayland-core-v0.12.25-aarch64-pc-windows-msvc.zip": {
+      "archiveSha256": "sha256:282cd3f309e17a62e712a97caab7b95050bc2fca9158b6b4a2b28a3f7d546c85",
+      "binarySha256": "sha256:18c266185287980ab4e713f1ed2c40a491ee472f3d46a9c26dc2e055e5674ac2"
+    },
+    "wayland-core-v0.12.25-x86_64-pc-windows-msvc.zip": {
+      "archiveSha256": "sha256:e9cf6650a47a8f3340a25d720ab6ed032e1fa41da0d1171ccb87337fd542947a",
+      "binarySha256": "sha256:48efeccf9abdb8a754019a438524ccf6d4ee34d3714d0b683cb6d63b1fbf50ab"
+    }
   },
   "v0.12.24": {
     "wayland-core-v0.12.24-aarch64-apple-darwin.tar.gz": "sha256:7b13153f16b403fea2743462a0fa7f3071715eb23be9ffd6972d545cb281f98b",

@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-A-integration-typecheck",
+  "commit": "395508dec2656e09ca63f86ca657592547c24988",
+  "command": "set -o pipefail\nrtk bun run typecheck > /tmp/wayland-con-a-integration-typecheck.log 2>&1",
+  "exit_code": 0,
+  "log_digest": "sha256:c67398a876270961ec43a24a93502c20fd8778371cede4bd977ddd4f2d2680b5",
+  "timestamp": "2026-07-17T02:04:26Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

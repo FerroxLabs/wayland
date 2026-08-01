@@ -194,10 +194,10 @@ const MigrationModal: React.FC<MigrationModalProps> = ({
                 backgroundColor: 'var(--color-fill-2)',
                 color: 'var(--color-text-1)',
               }}
-              onClick={() => executeMigration(false)}
+              onClick={handleCloseMigrationModal}
               disabled={migrationLoading}
             >
-              {t('conversation.workspace.migration.cronMigrationSkip')}
+              {t('common.cancel')}
             </button>
             <button
               className='px-20px py-8px rounded-20px text-14px font-medium transition-all'

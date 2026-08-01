@@ -248,18 +248,24 @@ async function writeAssistantResource(
   }
 }
 
-/**
- * Delete assistant resource files (all locale versions)
- */
-async function deleteAssistantResource(resourceType: ResourceType, filePattern: RegExp): Promise<boolean> {
+/** Move assistant resource files (all locale versions) to recoverable OS Trash. */
+async function deleteAssistantResource(resourceType: 'rules' | 'skills', assistantId: string): Promise<boolean> {
   try {
+    const safeId = sanitizeSkillName(assistantId);
+    if (!safeId) {
+      console.error(`[fsBridge] Refused assistant ${resourceType} removal: unsafe id`);
+      return false;
+    }
     const assistantsDir = getAssistantsDir();
     const files = await fs.readdir(assistantsDir);
-    for (const file of files) {
-      if (filePattern.test(file)) {
-        await fs.unlink(path.join(assistantsDir, file));
-        console.log(`[fsBridge] Deleted assistant ${resourceType}: ${file}`);
-      }
+    const prefix = resourceType === 'rules' ? `${safeId}.` : `${safeId}-skills.`;
+    const targets = files.filter((file) => file.startsWith(prefix) && file.endsWith('.md'));
+    if (targets.length === 0) return true;
+    const electron = await import('electron');
+    if (!electron.shell?.trashItem) return false;
+    for (const file of targets) {
+      await electron.shell.trashItem(path.join(assistantsDir, file));
+      console.log(`[fsBridge] Moved assistant ${resourceType} to Trash: ${file}`);
     }
     return true;
   } catch (error) {
@@ -1186,7 +1192,10 @@ export function initFsBridge(): void {
     }
   });
 
-  // Delete file or directory on disk
+  // Remove a workspace entry through the operating system's recoverable Trash.
+  // There is deliberately no permanent-unlink fallback: standalone/cloud hosts
+  // need a separately designed quarantine + restore authority before they may
+  // expose this mutation.
   ipcBridge.fs.removeEntry.provider(async ({ path: targetPath }) => {
     try {
       // Confine to authorized roots (SEC-IPC-01): block deleting arbitrary
@@ -1196,12 +1205,17 @@ export function initFsBridge(): void {
         return { success: false, msg: 'Path is outside the allowed workspace roots' };
       }
       const stats = await fs.lstat(safePath);
-      if (stats.isDirectory()) {
-        await fs.rm(safePath, { recursive: true, force: true });
-        invalidateWorkspaceFileListCacheByPath(safePath);
-      } else {
-        await fs.unlink(safePath);
+      const electron = await import('electron');
+      if (!electron.shell || typeof electron.shell.trashItem !== 'function') {
+        return {
+          success: false,
+          msg: 'Recoverable Trash is unavailable in this runtime; nothing was removed',
+        };
+      }
+      await electron.shell.trashItem(safePath);
+      invalidateWorkspaceFileListCacheByPath(safePath);
 
+      if (!stats.isDirectory()) {
         // Send streaming delete event to preview panel (to close preview)
         try {
           const pathSegments = safePath.split(path.sep);
@@ -1218,8 +1232,6 @@ export function initFsBridge(): void {
         } catch (emitError) {
           console.error('[fsBridge] Failed to emit file stream delete:', emitError);
         }
-
-        invalidateWorkspaceFileListCacheByPath(safePath);
       }
       return { success: true };
     } catch (error) {
@@ -1378,7 +1390,7 @@ export function initFsBridge(): void {
 
   // Delete assistant rule files
   ipcBridge.fs.deleteAssistantRule.provider(({ assistantId }) => {
-    return deleteAssistantResource('rules', new RegExp(`^${assistantId}\\..*\\.md$`));
+    return deleteAssistantResource('rules', assistantId);
   });
 
   // Read assistant skill file from user directory or builtin skills
@@ -1398,7 +1410,7 @@ export function initFsBridge(): void {
 
   // Delete assistant skill files
   ipcBridge.fs.deleteAssistantSkill.provider(({ assistantId }) => {
-    return deleteAssistantResource('skills', new RegExp(`^${assistantId}-skills\\..*\\.md$`));
+    return deleteAssistantResource('skills', assistantId);
   });
 
   // List available skills from builtin, user, and extension directories
@@ -2155,14 +2167,17 @@ export function initFsBridge(): void {
       }
 
       const stat = await fs.lstat(resolvedSkillDir);
-      if (stat.isSymbolicLink()) {
-        await fs.unlink(resolvedSkillDir);
-      } else {
-        await fs.rm(resolvedSkillDir, { recursive: true, force: true });
+      if (!stat.isDirectory() && !stat.isSymbolicLink()) {
+        return { success: false, msg: 'Skill path is not a directory or link' };
       }
+      const electron = await import('electron');
+      if (!electron.shell?.trashItem) {
+        return { success: false, msg: 'Recoverable Trash is unavailable; nothing was removed' };
+      }
+      await electron.shell.trashItem(resolvedSkillDir);
 
-      console.log(`[fsBridge] Deleted skill "${skillName}" from ${resolvedSkillDir}`);
-      return { success: true, msg: `Skill "${skillName}" deleted` };
+      console.log(`[fsBridge] Moved skill "${skillName}" to Trash from ${resolvedSkillDir}`);
+      return { success: true, msg: `Skill "${skillName}" moved to Trash` };
     } catch (error) {
       console.error('[fsBridge] Failed to delete skill:', error);
       return {

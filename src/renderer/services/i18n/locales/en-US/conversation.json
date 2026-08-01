@@ -29,7 +29,7 @@
     "recentChats": "Recent Chats",
     "noHistory": "No chat history",
     "deleteTitle": "Delete",
-    "deleteConfirm": "Are you sure you want to delete this chat?",
+    "deleteConfirm": "Delete this chat history? Workspace files are kept. Chats with scheduled tasks must be unscheduled first.",
     "confirmDelete": "Delete",
     "cancelDelete": "Cancel",
     "editName": "Edit Name",
@@ -47,7 +47,7 @@
     "batchExport": "Batch Export",
     "batchExportConfirm": "Export {{count}} selected topics?",
     "batchDelete": "Batch Delete",
-    "batchDeleteConfirm": "Delete {{count}} selected topics?",
+    "batchDeleteConfirm": "Delete {{count}} selected chats? Workspace files are kept. Any chat with scheduled tasks will remain protected.",
     "batchDeleteSuccess": "{{count}} topics deleted",
     "batchNoSelection": "Please select topics first",
     "export": "Export",
@@ -67,7 +67,7 @@
     "pinFailed": "Pin operation failed",
     "pinnedSection": "Pinned",
     "deleteSuccess": "Deleted successfully",
-    "deleteFailed": "Delete failed",
+    "deleteFailed": "Chat not deleted. If it has scheduled tasks, manage them in Automations first.",
     "today": "Today",
     "yesterday": "Yesterday",
     "recent7Days": "Last 7 Days",
@@ -144,9 +144,9 @@
       "error": "Failed to migrate workspace",
       "migrating": "Migrating...",
       "cronMigrationTitle": "Scheduled Tasks Found",
-      "cronMigrationHint": "This conversation has scheduled tasks. Do you want to migrate them to the new workspace?",
-      "cronMigrationConfirm": "Migrate Tasks",
-      "cronMigrationSkip": "Do Not Migrate (Will be deleted)"
+      "cronMigrationHint": "This chat has scheduled tasks. They will move with the chat so they keep working.",
+      "cronMigrationConfirm": "Move Chat & Tasks",
+      "cronMigrationSkip": "Cancel"
     },
     "dragOverlayTitle": "Drop to import",
     "dragOverlayDesc": "Drag files or folders here to copy them into this workspace.",
@@ -158,10 +158,10 @@
       "openLocation": "Show in folder",
       "preview": "Preview",
       "previewFailed": "Failed to preview",
-      "deleteTitle": "Delete file",
-      "deleteConfirm": "This will delete the file from your system. Continue?",
-      "deleteSuccess": "Deleted successfully",
-      "deleteFailed": "Delete failed",
+      "deleteTitle": "Move to Trash",
+      "deleteConfirm": "Move this item to your system Trash? You can restore it from there.",
+      "deleteSuccess": "Moved to Trash",
+      "deleteFailed": "Could not move the item to Trash; nothing was removed",
       "rename": "Rename",
       "renameTitle": "Rename",
       "renamePlaceholder": "Enter new name",
@@ -202,6 +202,9 @@
       "unstageAll": "Unstage All Changes",
       "discard": "Discard Changes",
       "reset": "Revert Changes",
+      "recoverCreate": "Move new file to Trash",
+      "recoverModify": "Restore the baseline; keep the current version in Trash",
+      "recoverDelete": "Restore the deleted file",
       "noUnstaged": "No unstaged changes",
       "noStaged": "No staged changes"
     },
@@ -483,7 +486,8 @@
     "connectorsTitle": "Connectors",
     "connectorsSub": "Turn a connected MCP server on or off.",
     "connectorsConnected": "Connected",
-    "connectorsForChat": "Active in this chat",
+    "connectorsConfigured": "Configured",
+    "connectorsForChat": "Selected for this chat",
     "toolCount": "{{count}} tools",
     "noConnectors": "No connectors installed yet.",
     "addConnector": "Add a connector",
@@ -533,6 +537,25 @@
     "agentError": {
       "title": "Task failed",
       "body": "{{title}} stopped with an error. {{detail}}"
+    },
+    "workflowInput": {
+      "title": "Workflow needs your input",
+      "body": "“{{title}}” is waiting on you to continue."
     }
-  }
+  },
+  "execution": {
+    "progressCount": "{{completed}} of {{total}} complete",
+    "currentActivity": "Working through the current task",
+    "missionRail": "Mission progress",
+    "progress": "Progress",
+    "replans": "Plan changes",
+    "replanCount": "{{count}} recorded revisions",
+    "producerPlan": "Agent plan",
+    "localPlan": "Desktop plan",
+    "outputs": "Outputs",
+    "handoffs": "Handoffs",
+    "cost": "Receipt-backed cost",
+    "costMismatch": "Cost evidence does not reconcile. Total hidden."
+  },
+  "imageVisionBlocked": "{{model}} can’t read images. Pick a vision-capable model (e.g. GPT-4o, Claude, or Gemini) or remove the image."
 }

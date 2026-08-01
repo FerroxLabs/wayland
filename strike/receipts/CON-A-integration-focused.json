@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-A-integration-focused",
+  "commit": "395508dec2656e09ca63f86ca657592547c24988",
+  "command": "set -euo pipefail\n{\n  rtk bunx vitest run tests/unit/process/services/constitution/constitutionArchiveRestoreAuthority.test.ts tests/unit/process/services/constitution/constitutionFsService.test.ts tests/unit/process/services/constitution/constitutionFsTransaction.test.ts tests/unit/process/services/constitution/constitutionRevisionAuthority.test.ts tests/unit/process/services/recovery/externalRecoveryAuthority.test.ts\n  rtk bun test tests/unit/process/services/constitution/constitutionMutationQuiescence.bun.test.ts tests/unit/process/services/recovery/classicConstitutionPromotion.bun.test.ts\n} > /tmp/wayland-con-a-integration-focused-rerun.log 2>&1",
+  "exit_code": 0,
+  "log_digest": "sha256:4471be556501b5e8ddfa3360f52fdfd1558a9177a63af7dfabbada320d25cb89",
+  "timestamp": "2026-07-17T02:04:01Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

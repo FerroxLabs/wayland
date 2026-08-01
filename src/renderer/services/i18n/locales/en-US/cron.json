@@ -21,16 +21,29 @@
     "goTo": "View Chat",
     "pause": "Pause",
     "resume": "Resume",
-    "delete": "Delete"
+    "delete": "Delete",
+    "archive": "Archive"
   },
-  "confirmDeleteWithConversations": "Are you sure you want to delete this scheduled task? All conversations from this task will also be deleted.",
-  "deleteSuccess": "Task deleted",
+  "confirmDeleteWithConversations": "Archive this scheduled task? Future runs stop, but its definition, skill, completed chats, reports, and workspace files are kept and can be restored.",
+  "confirmArchiveWithConversations": "Archive this scheduled task? Future runs stop, but its definition, skill, completed chats, reports, and workspace files are kept and can be restored.",
+  "deleteSuccess": "Task archived",
+  "archiveSuccess": "Task archived",
   "pauseSuccess": "Task paused",
   "resumeSuccess": "Task resumed",
   "message.badge": "Scheduled",
   "allScheduledTasks": "All Scheduled Tasks",
   "noTasks": "No scheduled tasks",
   "runNowSuccess": "Task execution triggered",
+  "archive": {
+    "open": "Archived",
+    "title": "Archived schedules",
+    "description": "Archived schedules keep their full definition and skill. Restored schedules return paused so you choose when they run again.",
+    "empty": "No archived schedules",
+    "restore": "Restore",
+    "restoreSuccess": "Schedule restored and paused",
+    "restoreError": "Could not restore this schedule",
+    "loadError": "Could not load archived schedules"
+  },
   "detail": {
     "backToAll": "All scheduled tasks",
     "runNow": "Run now",

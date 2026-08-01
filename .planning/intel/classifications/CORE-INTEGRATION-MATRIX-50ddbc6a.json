@@ -1,0 +1,20 @@
+{
+  "source_path": "/Users/seandonahoe/gsd-workspaces/wayland-desktop-gsd/app/docs/desktop-overhaul-source/CORE-INTEGRATION-MATRIX.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Wayland Desktop / Wayland Core Ownership and Integration Matrix",
+  "summary": "Defines ownership boundaries, protocol adoption, and integration rules between Wayland Desktop and Wayland Core.",
+  "scope": [
+    "Wayland Desktop",
+    "Wayland Core",
+    "ownership boundaries",
+    "Core protocol",
+    "integration matrix",
+    "Anvil receipts"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 1,
+  "notes": ""
+}

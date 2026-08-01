@@ -158,12 +158,17 @@
       "label": "Reference files",
       "add": "Add",
       "dropHint": "Drop files here, or click to browse",
-      "remove": "Remove file"
+      "remove": "Archive file",
+      "archived": "Archived references ({{count}})",
+      "restore": "Restore"
     },
     "fileAdded": "Added {{count}} file",
     "fileAdded_other": "Added {{count}} files",
     "fileAddFailed": "Could not add the files.",
-    "fileRemoveFailed": "Could not remove the file.",
+    "fileArchived": "Reference archived. You can restore it below.",
+    "fileRemoveFailed": "Could not archive the file; nothing was removed.",
+    "fileRestored": "Reference restored.",
+    "fileRestoreFailed": "Could not restore the reference.",
     "noWorkspaceTitle": "No workspace folder yet",
     "noWorkspaceBody": "Set a workspace folder for this project to add shared instructions, rules and reference files.",
     "setWorkspace": "Set workspace folder",
@@ -284,5 +289,9 @@
     "orSkipBelow": "or skip below - you can add them anytime",
     "skip": "Skip for now, just get going",
     "create": "Create project"
+  },
+  "contextBadge": {
+    "project": "Project",
+    "unavailable": "Project unavailable"
   }
 }

@@ -42,10 +42,11 @@ vi.mock('@arco-design/web-react', async (importOriginal) => {
 });
 
 const mockExportAll = vi.fn();
+const mockImportBackup = vi.fn();
 vi.mock('@/common/adapter/ipcBridge', () => ({
   storage: {
     exportAll: { invoke: (...a: unknown[]) => mockExportAll(...a) },
-    importBackup: { invoke: vi.fn().mockResolvedValue(undefined) },
+    importBackup: { invoke: (...a: unknown[]) => mockImportBackup(...a) },
   },
 }));
 
@@ -83,5 +84,30 @@ describe('BackupCard export feedback (F5)', () => {
       expect(Message.error).toHaveBeenCalledWith('settings.storagePage.exportFailed');
     });
     expect(Message.success).not.toHaveBeenCalled();
+  });
+
+  it('reports the durable safety path after a desktop restore', async () => {
+    mockImportBackup.mockResolvedValue({
+      ok: true,
+      safetyBackupPath: '/data/recovery/legacy-file-imports/pre-restore.zip',
+    });
+    render(<BackupCard />);
+
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+
+    await waitFor(() => {
+      expect(Message.success).toHaveBeenCalledWith('settings.storagePage.restoreSuccessWithSafety');
+    });
+  });
+
+  it('surfaces a desktop restore failure instead of silently swallowing it', async () => {
+    mockImportBackup.mockRejectedValue(new Error('disk full'));
+    render(<BackupCard />);
+
+    fireEvent.click(screen.getByText('settings.storagePage.restore'));
+
+    await waitFor(() => {
+      expect(Message.error).toHaveBeenCalledWith('settings.storagePage.restoreFailed');
+    });
   });
 });

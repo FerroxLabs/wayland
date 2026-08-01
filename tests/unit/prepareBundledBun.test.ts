@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -9,156 +10,72 @@ function getRequiredRuntimeFileName(): string {
   return process.platform === 'win32' ? 'bun.exe' : 'bun';
 }
 
-describe('prepareBundledBun', () => {
-  const projectRoot = path.resolve(__dirname, '../..');
-  const runtimeKey = `${process.platform}-${process.arch}`;
-  const targetDir = path.join(projectRoot, 'resources', 'bundled-bun', runtimeKey);
-  const baselineTargetDir = path.join(projectRoot, 'resources', 'bundled-bun', `${runtimeKey}-baseline`);
-
-  const originalCacheDir = process.env.WAYLAND_BUN_CACHE_DIR;
-  const originalVersion = process.env.WAYLAND_BUN_VERSION;
-
-  let tempRoot: string | null = null;
-  let targetBackupDir: string | null = null;
-  let baselineBackupDir: string | null = null;
-  let targetExisted = false;
-  let baselineExisted = false;
+describe('prepareBundledBun cache authority', () => {
+  const roots: string[] = [];
+  const helpers = prepareBundledBun as unknown as {
+    isCachedRuntimeValid: (
+      root: string,
+      platform: string,
+      arch: string,
+      version: string,
+      variant: string,
+      authority: Record<string, unknown>
+    ) => boolean;
+    resolveBundledBunTarget: (options?: { platform?: string; arch?: string }) => { platform: string; arch: string };
+  };
 
   afterEach(() => {
-    process.env.WAYLAND_BUN_CACHE_DIR = originalCacheDir;
-    process.env.WAYLAND_BUN_VERSION = originalVersion;
-
-    if (fs.existsSync(targetDir)) {
-      fs.rmSync(targetDir, { recursive: true, force: true });
-    }
-    if (fs.existsSync(baselineTargetDir)) {
-      fs.rmSync(baselineTargetDir, { recursive: true, force: true });
-    }
-
-    if (targetExisted && targetBackupDir && fs.existsSync(targetBackupDir)) {
-      fs.mkdirSync(path.dirname(targetDir), { recursive: true });
-      fs.cpSync(targetBackupDir, targetDir, { recursive: true });
-    }
-    if (baselineExisted && baselineBackupDir && fs.existsSync(baselineBackupDir)) {
-      fs.mkdirSync(path.dirname(baselineTargetDir), { recursive: true });
-      fs.cpSync(baselineBackupDir, baselineTargetDir, { recursive: true });
-    }
-
-    if (targetBackupDir && fs.existsSync(targetBackupDir)) {
-      fs.rmSync(targetBackupDir, { recursive: true, force: true });
-    }
-    if (baselineBackupDir && fs.existsSync(baselineBackupDir)) {
-      fs.rmSync(baselineBackupDir, { recursive: true, force: true });
-    }
-
-    if (tempRoot && fs.existsSync(tempRoot)) {
-      fs.rmSync(tempRoot, { recursive: true, force: true });
-    }
-
-    tempRoot = null;
-    targetBackupDir = null;
-    baselineBackupDir = null;
-    targetExisted = false;
-    baselineExisted = false;
+    for (const root of roots.splice(0)) fs.rmSync(root, { recursive: true, force: true });
   });
 
-  function setupCacheAndBackup(version: string) {
-    tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-bun-test-'));
-
-    targetExisted = fs.existsSync(targetDir);
-    if (targetExisted) {
-      targetBackupDir = path.join(tempRoot, 'target-backup');
-      fs.cpSync(targetDir, targetBackupDir, { recursive: true });
-    }
-    baselineExisted = fs.existsSync(baselineTargetDir);
-    if (baselineExisted) {
-      baselineBackupDir = path.join(tempRoot, 'baseline-backup');
-      fs.cpSync(baselineTargetDir, baselineBackupDir, { recursive: true });
-    }
-
-    const cacheRoot = path.join(tempRoot, 'cache-root');
-    const runtimeFileName = getRequiredRuntimeFileName();
-
-    function seedCache(dirKey: string, variant: string) {
-      const cacheDir = path.join(cacheRoot, version, dirKey);
-      fs.mkdirSync(cacheDir, { recursive: true });
-      fs.writeFileSync(path.join(cacheDir, runtimeFileName), 'fake-bun-binary', 'utf8');
-      fs.writeFileSync(
-        path.join(cacheDir, 'runtime-meta.json'),
-        JSON.stringify({
-          platform: process.platform,
-          arch: process.arch,
-          version,
-          variant,
-          sourceType: 'download',
-          source: { url: `https://example.com/bun-${variant}.zip`, asset: `bun-test-${variant}.zip` },
-          updatedAt: new Date().toISOString(),
-        }),
-        'utf8'
-      );
-    }
-
-    seedCache(runtimeKey, 'default');
-    if (process.platform === 'linux' && process.arch === 'x64') {
-      seedCache(`${runtimeKey}-baseline`, 'baseline');
-    }
-
-    process.env.WAYLAND_BUN_CACHE_DIR = cacheRoot;
-    process.env.WAYLAND_BUN_VERSION = version;
-    return { cacheRoot, runtimeFileName };
-  }
-
-  it('copies bundled bun from cache when cache metadata is valid', () => {
-    const version = 'test-cache-version';
-    const { runtimeFileName } = setupCacheAndBackup(version);
-
-    const result = prepareBundledBun();
-
-    expect(result.prepared).toBe(true);
-    expect(result.sourceType).toBe('cache');
-
-    const targetRuntimePath = path.join(targetDir, runtimeFileName);
-    const manifestPath = path.join(targetDir, 'manifest.json');
-
-    expect(fs.existsSync(targetRuntimePath)).toBe(true);
-    expect(fs.existsSync(manifestPath)).toBe(true);
-
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
-      sourceType: string;
-      variant?: string;
-      skipped?: boolean;
-      files: string[];
-      cacheDir: string;
-      cacheMeta?: { sourceType: string };
+  it('accepts an exactly pinned cache and rejects same-size binary tampering', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-bun-cache-'));
+    roots.push(root);
+    const binaryName = getRequiredRuntimeFileName();
+    const bytes = Buffer.from('authoritative-bun');
+    const binary = {
+      name: binaryName,
+      size: bytes.length,
+      sha256: createHash('sha256').update(bytes).digest('hex'),
     };
+    const authority = {
+      asset: 'bun-test.zip',
+      url: 'https://example.test/bun-test.zip',
+      archiveSha256: 'a'.repeat(64),
+      binary,
+    };
+    fs.writeFileSync(path.join(root, binaryName), bytes);
+    fs.writeFileSync(
+      path.join(root, 'runtime-meta.json'),
+      JSON.stringify({
+        platform: process.platform,
+        arch: process.arch,
+        version: 'test',
+        variant: 'default',
+        sourceType: 'download',
+        source: { asset: authority.asset, url: authority.url, sha256: authority.archiveSha256 },
+        binary,
+      })
+    );
 
-    expect(manifest.sourceType).toBe('cache');
-    expect(manifest.skipped).not.toBe(true);
-    expect(manifest.files).toContain(runtimeFileName);
-    expect(manifest.cacheMeta?.sourceType).toBe('download');
+    expect(helpers.isCachedRuntimeValid(root, process.platform, process.arch, 'test', 'default', authority)).toBe(true);
+    const tampered = Buffer.from(bytes);
+    tampered[0] ^= 1;
+    fs.writeFileSync(path.join(root, binaryName), tampered);
+    expect(helpers.isCachedRuntimeValid(root, process.platform, process.arch, 'test', 'default', authority)).toBe(
+      false
+    );
   });
 
-  it('prepares baseline variant for x64 platforms', () => {
-    if (process.platform !== 'linux' || process.arch !== 'x64') return;
-
-    const version = 'test-baseline-version';
-    const { runtimeFileName } = setupCacheAndBackup(version);
-
-    prepareBundledBun();
-
-    const baselineManifestPath = path.join(baselineTargetDir, 'manifest.json');
-    expect(fs.existsSync(baselineManifestPath)).toBe(true);
-    expect(fs.existsSync(path.join(baselineTargetDir, runtimeFileName))).toBe(true);
-
-    const manifest = JSON.parse(fs.readFileSync(baselineManifestPath, 'utf8')) as {
-      variant: string;
-      skipped?: boolean;
-      files: string[];
-    };
-
-    expect(manifest.variant).toBe('baseline');
-    expect(manifest.skipped).not.toBe(true);
-    expect(manifest.files).toContain(runtimeFileName);
+  it('uses an explicit cross-package platform and architecture instead of the build host', () => {
+    expect(helpers.resolveBundledBunTarget({ platform: 'win32', arch: 'x64' })).toEqual({
+      platform: 'win32',
+      arch: 'x64',
+    });
+    expect(helpers.resolveBundledBunTarget({ platform: 'linux', arch: 'arm64' })).toEqual({
+      platform: 'linux',
+      arch: 'arm64',
+    });
   });
 });
 

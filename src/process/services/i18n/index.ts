@@ -23,6 +23,11 @@ import zhTW from '@renderer/services/i18n/locales/zh-TW/index';
 import koKR from '@renderer/services/i18n/locales/ko-KR/index';
 import trTR from '@renderer/services/i18n/locales/tr-TR/index';
 import ruRU from '@renderer/services/i18n/locales/ru-RU/index';
+import deDE from '@renderer/services/i18n/locales/de-DE/index';
+import esES from '@renderer/services/i18n/locales/es-ES/index';
+import frFR from '@renderer/services/i18n/locales/fr-FR/index';
+import ptBR from '@renderer/services/i18n/locales/pt-BR/index';
+import ukUA from '@renderer/services/i18n/locales/uk-UA/index';
 
 // All locale data keyed by language code.
 // NOTE: When adding a new language, add a static import above and an entry here.
@@ -36,6 +41,11 @@ const localeData: LocaleData = {
   'ko-KR': koKR,
   'tr-TR': trTR,
   'ru-RU': ruRU,
+  'de-DE': deDE,
+  'es-ES': esES,
+  'fr-FR': frFR,
+  'pt-BR': ptBR,
+  'uk-UA': ukUA,
 };
 
 const fallbackData = localeData[DEFAULT_LANGUAGE] ?? {};

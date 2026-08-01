@@ -7,8 +7,42 @@ const { execSync } = require('child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
+const OBSOLETE_RUNTIME_PACKAGES = ['@monaco-editor/react', '@monaco-editor/loader', 'monaco-editor'];
+
 // Note: web-tree-sitter is now a direct dependency in package.json
 // No need for symlinks or copying - npm will install it directly to node_modules
+
+/**
+ * Bun does not remove every extraneous package from an existing node_modules
+ * tree when a dependency disappears from package.json and bun.lock. That can
+ * leave a removed runtime available to packaging after an in-place upgrade.
+ *
+ * Remove only this fixed, reviewed denylist. Never derive deletion targets
+ * from package metadata or user input: each target remains a direct child of
+ * the supplied node_modules root, and rmSync removes a symlink itself rather
+ * than following it.
+ */
+function pruneObsoleteRuntimePackages(nodeModulesRoot = path.join(__dirname, '..', 'node_modules')) {
+  if (!fs.existsSync(nodeModulesRoot)) return [];
+
+  const removed = [];
+  for (const packageName of OBSOLETE_RUNTIME_PACKAGES) {
+    const packagePath = path.join(nodeModulesRoot, ...packageName.split('/'));
+    try {
+      fs.lstatSync(packagePath);
+    } catch (error) {
+      if (error && error.code === 'ENOENT') continue;
+      throw error;
+    }
+    fs.rmSync(packagePath, { recursive: true, force: false });
+    removed.push(packageName);
+  }
+
+  if (removed.length > 0) {
+    console.log(`[postinstall] Removed obsolete runtime package(s): ${removed.join(', ')}`);
+  }
+  return removed;
+}
 
 /**
  * Widen declared dep ranges for any package whose version we've pinned
@@ -151,6 +185,9 @@ function installBridgeDeps() {
 }
 
 function runPostInstall() {
+  // Bun can retain removed packages during an in-place upgrade. Prune the
+  // fixed obsolete-runtime denylist before inspecting or packaging node_modules.
+  pruneObsoleteRuntimePackages();
   // Apply nested-dep range widenings before electron-builder install-app-deps.
   patchOverriddenDepRanges();
   // Install the WhatsApp bridge subprocess's own node_modules/. The bridge ships
@@ -192,3 +229,5 @@ if (require.main === module) {
 }
 
 module.exports = runPostInstall;
+module.exports.OBSOLETE_RUNTIME_PACKAGES = OBSOLETE_RUNTIME_PACKAGES;
+module.exports.pruneObsoleteRuntimePackages = pruneObsoleteRuntimePackages;

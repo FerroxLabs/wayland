@@ -1,0 +1,17 @@
+{
+  "contract": "wayland-classic-recovery-tools/1.0",
+  "package": "7zip-bin",
+  "version": "5.2.0",
+  "executables": {
+    "win/arm64/7za.exe": {
+      "name": "7za.exe",
+      "size": 1089024,
+      "sha256": "81f67048b7366870e5d49f00a8c570570c6a0dd11c05df7a09a8c52870cc83bd"
+    },
+    "win/x64/7za.exe": {
+      "name": "7za.exe",
+      "size": 1231360,
+      "sha256": "b0cfdeaf429f5cc53f85123dd8f5a5feb92c19d31aa34df257edf9a26be05f95"
+    }
+  }
+}

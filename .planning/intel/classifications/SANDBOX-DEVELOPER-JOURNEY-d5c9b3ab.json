@@ -1,0 +1,21 @@
+{
+  "source_path": "/Users/seandonahoe/gsd-workspaces/wayland-desktop-gsd/app/docs/desktop-overhaul-source/SANDBOX-DEVELOPER-JOURNEY.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Sandbox and developer-journey contract",
+  "summary": "Defines product requirements for truthful Desktop/Core sandbox configuration, localhost browser grants, macOS development tooling, temporary workspaces, diagnostics, and packaged updater proof.",
+  "scope": [
+    "Desktop security controls",
+    "Core browser policy",
+    "temporary chat workspaces",
+    "macOS developer tooling",
+    "Raw Engine Mode",
+    "Doctor diagnostics",
+    "automatic updater"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 3,
+  "notes": ""
+}

@@ -32,7 +32,14 @@ export default defineConfig({
             'tests/integration/**/*.test.ts',
             'tests/regression/**/*.test.ts',
           ],
-          exclude: ['tests/unit/**/*.dom.test.ts', 'tests/unit/**/*.dom.test.tsx'],
+          exclude: [
+            'tests/unit/**/*.dom.test.ts',
+            'tests/unit/**/*.dom.test.tsx',
+            // Bun-native suites import bun:test and run through `bun test`.
+            // Collecting them in Vitest produces a loader failure before any
+            // test can execute.
+            'tests/**/*.bun.test.ts',
+          ],
           setupFiles: ['./tests/vitest.setup.ts'],
         },
       },
@@ -45,6 +52,10 @@ export default defineConfig({
           include: [
             'tests/unit/**/*.dom.test.ts',
             'tests/unit/**/*.dom.test.tsx',
+            // TSX hook/component suites need a DOM even when an older file name
+            // omitted the explicit `.dom` marker. Without this pattern those
+            // files silently disappeared from every project and CI shard.
+            'tests/unit/**/*.test.tsx',
             'src/renderer/components/layout/PageShell/PageShell.test.tsx',
           ],
           setupFiles: ['./tests/vitest.dom.setup.ts'],

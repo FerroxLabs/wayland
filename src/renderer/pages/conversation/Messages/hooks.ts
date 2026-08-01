@@ -10,8 +10,7 @@ import { composeMessage } from '@/common/chat/chatLib';
 import { mergeActivityContent, mergeNodeList } from '@/common/chat/activityTree';
 import { useCallback, useEffect, useRef } from 'react';
 import { createContext } from '@renderer/utils/ui/createContext';
-
-const [useMessageList, MessageListProvider, useUpdateMessageList] = createContext([] as TMessage[]);
+import { MessageListProvider, useMessageList, useUpdateMessageList } from './messageListContext';
 
 const [useChatKey, ChatKeyProvider] = createContext('');
 

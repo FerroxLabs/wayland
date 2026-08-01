@@ -19,6 +19,7 @@ const {
   mockConversationService,
   mockWorkerTaskManager,
   mockRemoveFromMessageCache,
+  mockListJobsByConversation,
 } = vi.hoisted(() => {
   const handlers: Record<string, Provider> = {};
 
@@ -36,29 +37,52 @@ const {
     emit: vi.fn(),
   });
 
+  const workerTaskManager = {
+    getTask: vi.fn(),
+    getOrBuildTask: vi.fn(async () => ({})),
+    addTask: vi.fn(),
+    kill: vi.fn(),
+    clear: vi.fn(),
+    listTasks: vi.fn(() => []),
+    withConversationShutdown: vi.fn(),
+  };
+  workerTaskManager.withConversationShutdown.mockImplementation(
+    async (id: string, prepare: () => Promise<unknown>, commit: (prepared: unknown) => unknown) => {
+      await workerTaskManager.kill(id);
+      const prepared = await prepare();
+      await workerTaskManager.kill(id);
+      return commit(prepared);
+    }
+  );
+
+  const deleteConversation = vi.fn(async () => {});
+
   return {
     getHandlers: () => handlers,
     resetHandlers: reset,
     createCommand: commandFactory,
     mockRefreshTrayMenu: vi.fn(async () => {}),
     mockRemoveFromMessageCache: vi.fn(),
+    mockListJobsByConversation: vi.fn(async () => []),
     mockConversationService: {
       createConversation: vi.fn(async () => ({ id: 'conv-created', name: 'Created Conversation', source: 'wayland' })),
-      deleteConversation: vi.fn(async () => {}),
+      prepareDeleteConversation: vi.fn(async (id: string) => () => {
+        void deleteConversation(id);
+      }),
+      deleteConversation,
       updateConversation: vi.fn(async () => {}),
       getConversation: vi.fn(async () => ({ id: 'conv-1', source: 'wayland', name: 'Original Name', type: 'gemini' })),
       createWithMigration: vi.fn(async () => ({ id: 'conv-migrated', source: 'wayland' })),
     },
-    mockWorkerTaskManager: {
-      getTask: vi.fn(),
-      getOrBuildTask: vi.fn(async () => ({})),
-      addTask: vi.fn(),
-      kill: vi.fn(),
-      clear: vi.fn(),
-      listTasks: vi.fn(() => []),
-    },
+    mockWorkerTaskManager: workerTaskManager,
   };
 });
+
+vi.mock('@process/services/cron/cronServiceSingleton', () => ({
+  cronService: {
+    listJobsByConversation: mockListJobsByConversation,
+  },
+}));
 
 vi.mock('@/agent/gemini', () => ({
   GeminiAgent: vi.fn(),
@@ -154,6 +178,15 @@ const getProvider = (key: string): Provider => {
 describe('conversationBridge tray sync', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockWorkerTaskManager.withConversationShutdown.mockImplementation(
+      async (id: string, prepare: () => Promise<unknown>, commit: (prepared: unknown) => unknown) => {
+        await mockWorkerTaskManager.kill(id);
+        const prepared = await prepare();
+        await mockWorkerTaskManager.kill(id);
+        return commit(prepared);
+      }
+    );
+    mockListJobsByConversation.mockResolvedValue([]);
     resetHandlers();
     initConversationBridge(
       mockConversationService as unknown as IConversationService,
@@ -171,6 +204,30 @@ describe('conversationBridge tray sync', () => {
     expect(mockConversationService.deleteConversation).toHaveBeenCalledWith('conv-1');
     expect(mockRemoveFromMessageCache).toHaveBeenCalledWith('conv-1');
     expect(mockRefreshTrayMenu).toHaveBeenCalledOnce();
+  });
+
+  it('preserves a chat when scheduled tasks still reference it', async () => {
+    mockListJobsByConversation.mockResolvedValue([{ id: 'schedule-1' }]);
+    const removeProvider = getProvider('conversation.remove');
+
+    await expect(removeProvider({ id: 'conv-1' })).resolves.toBe(false);
+
+    expect(mockWorkerTaskManager.kill).not.toHaveBeenCalled();
+    expect(mockConversationService.deleteConversation).not.toHaveBeenCalled();
+    expect(mockRemoveFromMessageCache).not.toHaveBeenCalled();
+    expect(mockRefreshTrayMenu).not.toHaveBeenCalled();
+  });
+
+  it('fails closed when schedule authority cannot prove deletion is safe', async () => {
+    mockListJobsByConversation.mockRejectedValue(new Error('schedule database unavailable'));
+    const removeProvider = getProvider('conversation.remove');
+
+    await expect(removeProvider({ id: 'conv-1' })).resolves.toBe(false);
+
+    expect(mockWorkerTaskManager.kill).not.toHaveBeenCalled();
+    expect(mockConversationService.deleteConversation).not.toHaveBeenCalled();
+    expect(mockRemoveFromMessageCache).not.toHaveBeenCalled();
+    expect(mockRefreshTrayMenu).not.toHaveBeenCalled();
   });
 
   it('refreshes tray menu after creating a conversation', async () => {

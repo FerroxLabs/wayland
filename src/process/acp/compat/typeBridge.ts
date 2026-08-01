@@ -10,6 +10,7 @@ import {
   type AgentBackend,
 } from '@/common/types/acpTypes';
 import type { McpServer } from '@agentclientprotocol/sdk';
+import type { McpConfigProjection } from '@process/acp/session/McpConfig';
 import type { AgentConfig, AgentSource, ConfigOption, InitialDesiredConfig, ModelSnapshot } from '@process/acp/types';
 import { getEnhancedEnv, loadFullShellEnvironment } from '@process/utils/shellEnv';
 /**
@@ -46,11 +47,15 @@ export type OldAcpAgentConfig = {
       env: Array<{ name: string; value: string }>;
     };
     pendingConfigOptions?: Record<string, string>;
+    /** User MCP server ids selected for this exact conversation. Undefined = all; [] = none. */
+    activeMcpServers?: string[];
   };
   onStreamEvent: (data: unknown) => void;
   onSignalEvent?: (data: unknown) => void;
   onSessionIdUpdate?: (sessionId: string) => void;
   onAvailableCommandsUpdate?: (commands: Array<{ name: string; description?: string; hint?: string }>) => void;
+  /** Exact post-auth transport projection supplied to this ACP launch. */
+  onMcpProjection?: (projection: McpConfigProjection) => void;
 };
 
 /**
@@ -102,6 +107,7 @@ export function toAgentConfig(old: OldAcpAgentConfig): AgentConfig {
     args: old.extra?.customArgs ?? old.customArgs,
     env: old.extra?.customEnv ?? old.customEnv,
     cwd: old.workingDir,
+    activeMcpServers: old.extra?.activeMcpServers,
 
     teamMcpConfig: teamMcpConfig,
 

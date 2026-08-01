@@ -43,6 +43,7 @@ import UploadProgressBar from '@renderer/components/media/UploadProgressBar';
 import { allSupportedExts } from '@renderer/services/FileService';
 import SpeechInputButton from '@/renderer/components/chat/SpeechInputButton';
 import { appendSpeechTranscript } from '@/renderer/hooks/system/useSpeechInput';
+import VoiceModeEntryButton from '@/renderer/pages/conversation/voice/VoiceModeEntryButton';
 import { getConversationInputHistory, isCaretOnFirstLine } from '@/renderer/utils/chat/messageHistory';
 import './sendbox.css';
 
@@ -1654,6 +1655,12 @@ const SendBox: React.FC<{
                 locale={speechLocale}
                 onTranscript={handleSpeechTranscript}
               />
+              {conversationContext?.conversationId && (
+                <VoiceModeEntryButton
+                  conversationId={conversationContext.conversationId}
+                  disabled={disabled || isLoading || loading || isUploading}
+                />
+              )}
               {sendButtonPrefix}
               {renderActionButtons()}
             </div>
@@ -1669,6 +1676,12 @@ const SendBox: React.FC<{
                 locale={speechLocale}
                 onTranscript={handleSpeechTranscript}
               />
+              {conversationContext?.conversationId && (
+                <VoiceModeEntryButton
+                  conversationId={conversationContext.conversationId}
+                  disabled={disabled || isLoading || loading || isUploading}
+                />
+              )}
               {sendButtonPrefix}
               {renderActionButtons()}
             </div>

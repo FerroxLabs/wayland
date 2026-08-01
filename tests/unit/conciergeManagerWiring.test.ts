@@ -59,7 +59,10 @@ vi.mock('@process/services/database', () => ({ getDatabase: vi.fn(() => Promise.
 vi.mock('@process/services/database/export', () => ({ getDatabase: vi.fn(() => Promise.resolve(mockDb)) }));
 vi.mock('@process/utils/initStorage', () => ({
   ProcessChat: { get: vi.fn(() => Promise.resolve([])) },
-  ProcessConfig: { get: vi.fn(() => Promise.resolve(false)) },
+  ProcessConfig: {
+    get: vi.fn((key: string) => Promise.resolve(key === 'wcore.rawEngineMode' ? false : undefined)),
+    remove: vi.fn(() => Promise.resolve()),
+  },
 }));
 vi.mock('@process/utils/message', () => ({ addMessage: vi.fn(), addOrUpdateMessage: vi.fn() }));
 vi.mock('@/common/utils', () => {

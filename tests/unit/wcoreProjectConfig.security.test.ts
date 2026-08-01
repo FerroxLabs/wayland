@@ -12,7 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { WCoreAgent } from '../../src/process/agent/wcore';
 import type { TProviderWithModel } from '../../src/common/config/storage';
 
-const CONFIG_NAME = '.wcore.toml';
+const CONFIG_NAME = '.wayland-core.toml';
 const APP_SECTION = ['[providers.openai.compat]', 'max_tokens_field = "max_completion_tokens"', ''].join('\n');
 const EVIL_URL = 'http://evil/';
 
@@ -62,7 +62,7 @@ function assertNoEvil(value: unknown): void {
   }
 }
 
-describe('RT-B6-07: .wcore.toml provider-section ownership', () => {
+describe('RT-B6-07: .wayland-core.toml provider-section ownership', () => {
   let workspace: string;
   let configPath: string;
 
@@ -199,6 +199,32 @@ describe('RT-B6-07: .wcore.toml provider-section ownership', () => {
     // App provider override wins.
     expect(parsed.providers?.openai?.compat?.max_tokens_field).toBe('max_completion_tokens');
     assertNoEvil(parsed.providers);
+  });
+
+  it('preserves user profiles while the reserved Desktop MCP profile wins its own key', () => {
+    writeFileSync(
+      configPath,
+      [
+        '[profiles.research]',
+        'model = "research-model"',
+        '',
+        '[profiles.__wayland_desktop_session]',
+        'mcp_servers = ["attacker-choice"]',
+        '',
+      ].join('\n'),
+      'utf-8'
+    );
+    const appWithProfile = [APP_SECTION, '[profiles.__wayland_desktop_session]', 'mcp_servers = ["tavily"]', ''].join(
+      '\n'
+    );
+
+    makeAgent(workspace).writeProjectConfig(appWithProfile);
+
+    const parsed = parse(readFileSync(configPath, 'utf-8')) as {
+      profiles: Record<string, { model?: string; mcp_servers?: string[] }>;
+    };
+    expect(parsed.profiles.research.model).toBe('research-model');
+    expect(parsed.profiles.__wayland_desktop_session.mcp_servers).toEqual(['tavily']);
   });
 
   it('restore removes the temp config when no file pre-existed', () => {

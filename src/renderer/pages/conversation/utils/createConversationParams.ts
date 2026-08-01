@@ -5,6 +5,7 @@
  */
 
 import { ConfigStorage } from '@/common/config/storage';
+import { resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import type { ICreateConversationParams } from '@/common/adapter/ipcBridge';
 import { modelRegistry, systemSettings } from '@/common/adapter/ipcBridge';
 import type { TProviderWithModel } from '@/common/config/storage';
@@ -208,7 +209,7 @@ export async function getDefaultGeminiModel(): Promise<TProviderWithModel> {
 async function resolveGeminiModel(): Promise<TProviderWithModel> {
   try {
     return await getDefaultGeminiModel();
-  } catch (e) {
+  } catch {
     // Fallback to placeholder if no model configured (supports Google Auth users)
     return {
       id: 'gemini-placeholder',
@@ -268,7 +269,8 @@ export async function buildPresetAssistantParams(
   workspace: string,
   language: string
 ): Promise<ICreateConversationParams> {
-  const { customAgentId, presetAgentType = 'gemini' } = agent;
+  const { customAgentId } = agent;
+  const presetAgentType = resolvePresetAgentType(agent.presetAgentType);
 
   // [BUG-2] Map raw i18n.language to standard locale key
   const localeKey = resolveLocaleKey(language);

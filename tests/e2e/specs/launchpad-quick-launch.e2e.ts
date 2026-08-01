@@ -1,8 +1,8 @@
 /**
  * E2E: Launchpad quick-launch cards (cold-start /guid).
  *
- * Validates the 6-card LaunchpadBar surface end-to-end:
- *   1. Cold-start /guid renders exactly 6 cards with Cowork as the place-anchor.
+ * Validates the 7-card LaunchpadBar surface end-to-end:
+ *   1. Cold-start /guid renders exactly 7 cards with Cowork as the place-anchor.
  *   2. Clicking "Write copy" enters preset mode (hero header mounts + prefill).
  *   3. Clicking "Cowork" enters preset mode with the Cowork name in the hero.
  *
@@ -19,7 +19,7 @@
  * Selectors:
  *   - [data-quicklaunch-id="<assistantId>"] - card buttons (rendered by
  *     LaunchpadBar; data-quicklaunch-id now carries the runtime assistantId,
- *     e.g. 'builtin-cowork' or 'ext-copy' - same value the bar uses for its
+ *     e.g. 'builtin-cowork' or 'builtin-copy' - same value the bar uses for its
  *     sortable key and persists in app_config under `launchpad.barOrder`).
  *   - [class*="heroHeader"]             - preset-mode hero block (CSS module
  *     hash-suffixed; `*=` match survives renames of the source class)
@@ -59,11 +59,11 @@ async function ensureColdStartGuid(page: import('@playwright/test').Page) {
 }
 
 test.describe('Launchpad quick-launch row - cold-start /guid', () => {
-  test('renders 6 quick-launch cards on cold-start, Cowork is first', async ({ page }) => {
+  test('renders 7 quick-launch cards on cold-start, Cowork is first', async ({ page }) => {
     await ensureColdStartGuid(page);
     await page.locator(QL_CARD).first().waitFor({ state: 'visible', timeout: 10_000 });
 
-    await expect(page.locator(QL_CARD)).toHaveCount(6);
+    await expect(page.locator(QL_CARD)).toHaveCount(7);
 
     const first = page.locator(QL_CARD).first();
     await expect(first).toHaveAttribute('data-quicklaunch-id', 'builtin-cowork');
@@ -71,7 +71,7 @@ test.describe('Launchpad quick-launch row - cold-start /guid', () => {
 
   test('clicking "Write copy" card enters preset mode and prefills input', async ({ page }) => {
     await ensureColdStartGuid(page);
-    const card = page.locator('[data-quicklaunch-id="ext-copy"]');
+    const card = page.locator('[data-quicklaunch-id="builtin-copy"]');
     await card.waitFor({ state: 'visible', timeout: 10_000 });
     await card.click();
 

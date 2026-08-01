@@ -188,6 +188,10 @@ class FakeRepo {
     return (this.catalogs.get(id) ?? []).length;
   }
 
+  getRegistryProviderObservedAt(id: ProviderId): number | null {
+    return this.providers.has(id) ? 1_234 : null;
+  }
+
   setRegistryOverride(id: ProviderId, modelId: string, enabled: boolean): void {
     const list = this.overrides.get(id) ?? [];
     const existing = list.find((o) => o.modelId === modelId);
@@ -464,6 +468,25 @@ describe('modelRegistry IPC - connect', () => {
     expect(repo.getRegistryProvider('aws-bedrock')).toBeNull();
   });
 
+  it('rejects malformed Vertex service-account JSON before marking it connected', async () => {
+    const { deps, repo } = makeFakes();
+    const h = createModelRegistryHandlers(deps);
+
+    const result = await h.connect({
+      providerId: 'vertex',
+      creds: {
+        fields: {
+          projectId: 'project-1',
+          region: 'us-central1',
+          serviceAccountJson: '{not-json',
+        },
+      },
+    });
+
+    expect(result).toEqual({ ok: false, error: 'unrecognized' });
+    expect(repo.getRegistryProvider('vertex')).toBeNull();
+  });
+
   it('rejects a non-cloud connect that supplies fields instead of a key', async () => {
     // Fix 5: a non-cloud provider connected with `{ fields }` carries no usable
     // key for the catalog build - reject it up front rather than building empty.
@@ -599,8 +622,88 @@ describe('modelRegistry IPC - list', () => {
     const h = createModelRegistryHandlers(deps);
 
     expect(await h.list()).toEqual([
-      { providerId: 'openai', connectedVia: 'api-key', state: 'connected', modelCount: 2 },
+      {
+        providerId: 'openai',
+        connectedVia: 'api-key',
+        state: 'connected',
+        modelCount: 2,
+        callableModelCount: 0,
+        dispatchEligible: false,
+        observedAt: 1_234,
+      },
     ]);
+  });
+
+  it('reports enabled curated inventory separately from raw catalog rows', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.replaceRegistryCatalog('openai', [
+      catalogModel({ id: 'gpt-disabled', providerId: 'openai' }),
+      catalogModel({ id: 'gpt-enabled', providerId: 'openai' }),
+    ]);
+    repo.setRegistryOverride('openai', 'gpt-disabled', false);
+    repo.setRegistryOverride('openai', 'gpt-enabled', true);
+
+    await expect(createModelRegistryHandlers(deps).list()).resolves.toMatchObject([
+      { modelCount: 2, callableModelCount: 1, dispatchEligible: true },
+    ]);
+  });
+
+  it('does not advertise Azure readiness when the actual dispatcher rejects Azure', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'azure-openai',
+      connectedVia: 'cloud-credentials',
+      state: 'connected',
+      creds: { fields: { apiKey: 'k', endpoint: 'https://example.invalid', deploymentName: 'gpt' } },
+    });
+    repo.replaceRegistryCatalog('azure-openai', [catalogModel({ id: 'deployment/gpt', providerId: 'azure-openai' })]);
+    repo.setRegistryOverride('azure-openai', 'deployment/gpt', true);
+
+    await expect(createModelRegistryHandlers(deps).list()).resolves.toMatchObject([
+      { callableModelCount: 1, dispatchEligible: false },
+    ]);
+  });
+
+  it('preserves a missing producer observation instead of minting epoch identity', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.getRegistryProviderObservedAt = () => null;
+
+    const [row] = await createModelRegistryHandlers(deps).list();
+    expect(row).not.toHaveProperty('observedAt');
+  });
+
+  it('rejects a negative producer timestamp instead of publishing malformed evidence', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'k' },
+    });
+    repo.getRegistryProviderObservedAt = () => -1;
+
+    const [row] = await createModelRegistryHandlers(deps).list();
+    expect(row).not.toHaveProperty('observedAt');
+  });
+
+  it('propagates registry read failures instead of converting them into an empty healthy list', async () => {
+    const { deps, repo } = makeFakes();
+    repo.listRegistryProviders = () => {
+      throw new Error('database unavailable');
+    };
+    await expect(createModelRegistryHandlers(deps).list()).rejects.toThrow('database unavailable');
   });
 
   it('returns an empty list when nothing is connected', async () => {
@@ -1325,8 +1428,8 @@ describe('modelRegistry IPC - resolveForChatStart', () => {
     expect(result).toEqual({ ok: false, error: 'undecryptable' });
   });
 
-  // Wave 3 Fix 8 - Vertex `resolveForChatStart` returns its cloudFields.
-  it('returns cloudFields for a vertex provider', async () => {
+  // Vertex credentials remain main-only while the renderer gets a dispatchable handle.
+  it('returns a non-secret dispatch handle for a valid Vertex provider', async () => {
     const { deps, repo } = makeFakes();
     repo.upsertRegistryProvider({
       providerId: 'vertex',
@@ -1830,6 +1933,53 @@ describeNativeSqlite('ProviderRepository - registry credential encryption round-
 
   it('returns status "not-found" for a provider that was never connected', () => {
     expect(repo.getRegistryProviderCreds('openai')).toEqual({ status: 'not-found' });
+    expect(repo.getRegistryProviderObservedAt('openai')).toBeNull();
+  });
+
+  it('returns the persisted producer observation time instead of the consumer clock', () => {
+    const clock = vi.spyOn(Date, 'now').mockReturnValue(42_000);
+    try {
+      repo.upsertRegistryProvider({
+        providerId: 'openai',
+        connectedVia: 'api-key',
+        state: 'connected',
+        creds: { key: 'sk-observed' },
+      });
+      expect(repo.getRegistryProviderObservedAt('openai')).toBe(42_000);
+    } finally {
+      clock.mockRestore();
+    }
+  });
+
+  it('advances observation identity for every callable-inventory mutation', () => {
+    const clock = vi.spyOn(Date, 'now');
+    try {
+      clock.mockReturnValue(1);
+      repo.upsertRegistryProvider({
+        providerId: 'openrouter',
+        connectedVia: 'api-key',
+        state: 'connected',
+        creds: { key: 'sk-observed' },
+      });
+
+      clock.mockReturnValue(2);
+      repo.replaceRegistryCatalog('openrouter', [catalogModel({ id: 'model-a', providerId: 'openrouter' })]);
+      expect(repo.getRegistryProviderObservedAt('openrouter')).toBe(2);
+
+      clock.mockReturnValue(3);
+      repo.setRegistryOverride('openrouter', 'model-a', false);
+      expect(repo.getRegistryProviderObservedAt('openrouter')).toBe(3);
+
+      clock.mockReturnValue(4);
+      repo.addCustomModel('openrouter', '@preset/custom');
+      expect(repo.getRegistryProviderObservedAt('openrouter')).toBe(4);
+
+      clock.mockReturnValue(5);
+      repo.removeCustomModel('openrouter', '@preset/custom');
+      expect(repo.getRegistryProviderObservedAt('openrouter')).toBe(5);
+    } finally {
+      clock.mockRestore();
+    }
   });
 
   it('returns status "undecryptable" when the stored ciphertext is corrupt', () => {

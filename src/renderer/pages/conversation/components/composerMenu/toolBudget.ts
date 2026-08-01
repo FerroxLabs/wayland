@@ -7,11 +7,10 @@
 import type { IMcpServer } from '@/common/config/storage';
 
 /**
- * Total MCP tools currently active for a chat: every ENABLED + connected
- * server's tools, scoped by its per-server `allowedTools` (#348). A server that
- * hasn't connected yet (no `tools`) contributes 0. This is the count the user
- * weighs against the target model's tool cap — the non-lossy lever Wayland
- * leans on (Core does the automatic BM25 curation when it's exceeded).
+ * Estimated MCP tool payload for the next chat session: every enabled,
+ * probe-reachable server's latest inventory, scoped by `allowedTools` (#348).
+ * This is a planning estimate, not proof that the active chat published or can
+ * invoke those tools. Core performs automatic BM25 curation when needed.
  */
 export function countEnabledMcpTools(servers: IMcpServer[]): number {
   let total = 0;
@@ -44,7 +43,7 @@ export function nextActiveSelection(
 export type ToolBudgetStatus = 'ok' | 'near' | 'over';
 
 /**
- * Classify a live tool count against a provider/model cap for the nudge:
+ * Classify a probe-estimated tool count against a provider/model cap:
  * `over` once the count exceeds the cap (the request would 400), `near` within
  * the top 15% of headroom, else `ok`. Display only — never truncates.
  */

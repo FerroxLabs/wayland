@@ -32,6 +32,7 @@ import { mergeFileSelectionItems } from '@/renderer/utils/file/fileSelection';
 import { buildDisplayMessage } from '@/renderer/utils/file/messageFiles';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useVoiceTurnSubmission } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 interface RemoteDraftData {
   _type: 'remote';
@@ -392,6 +393,8 @@ const RemoteSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id 
     },
     [aiProcessing, atPath, enqueue, executeCommand, hasPendingCommands, setAtPath, setUploadFile, uploadFile]
   );
+
+  useVoiceTurnSubmission(conversation_id, onSendHandler);
 
   const handleEditQueuedCommand = useCallback(
     (item: ConversationCommandQueueItem) => {

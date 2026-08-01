@@ -30,6 +30,7 @@ import { isFluxModelId } from '@/common/config/flux';
 import { ExtensionRegistry } from '@process/extensions';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
+import { emitModelRegistryChanged } from '@process/providers/modelRegistryEvents';
 import { PROVIDER_ENV_VARS } from '@process/providers/detection/KeyDiscovery';
 import type { ProviderId } from '@process/providers/types';
 import { BACKEND_AUTH_KEYS } from '@process/acp/compat/typeBridge';
@@ -39,12 +40,19 @@ import {
   readClaudeModelInfoFromCcSwitch,
   readClaudeModelInfoFromSettings,
 } from '@process/services/ccSwitchModelSource';
-import { codexBearerEnvVar } from '@process/services/mcpServices/agents/CodexMcpAgent';
+import { codexMcpBearerEnvVar, codexMcpHeaderEnvVar } from '@/common/mcp';
 import type { IMcpServer } from '@/common/config/storage';
+import * as os from 'node:os';
+import { randomUUID } from 'node:crypto';
+import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
+import { isServerActiveForSession, shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
+import { validateMcpServer } from '@process/services/mcpServices/validateMcpServer';
 import { addMessage, addOrUpdateMessage, nextTickToLocalFinish } from '@process/utils/message';
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
-import { mainWarn, mainError } from '@process/utils/mainLogger';
+import { mainLog, mainWarn, mainError } from '@process/utils/mainLogger';
+import { getCandidateTools } from '@process/services/mcpServices/getCandidateTools';
+import type { CandidateTool } from '@process/services/tools/toolContract';
 import {
   getCodexSandboxModeForSessionMode,
   materializeFluxCodexHome,
@@ -60,7 +68,7 @@ import { IpcAgentEventEmitter } from './IpcAgentEventEmitter';
 import { hasCronCommands } from './CronCommandDetector';
 import { hasConciergeProposals } from './ConciergeProposeDetector';
 import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher';
-import { getCostRecorder } from '@process/services/cost/CostRecorder';
+import { extractAcpCumulativeUsd, getCostRecorder } from '@process/services/cost/CostRecorder';
 import { extractAndStripThinkTags } from './ThinkTagDetector';
 import type { AgentKillReason } from './IAgentManager';
 import { hasNativeSkillSupport } from '@/common/types/acpTypes';
@@ -74,12 +82,16 @@ import {
   isConciergeAssistant,
 } from '@process/task/agentUtils';
 import { resolveMcpConnectorGuidance } from '@process/task/mcpConnectorGuidance';
+import { loadRuntimeMcpServers } from '@process/services/mcpServices/runtimeMcpServers';
 import { composePrompt } from '@process/services/constitution/composePrompt';
 import { shouldInjectTeamGuideMcp } from '@process/team/prompts/teamGuideCapability.ts';
 import { extractTextFromMessage, processCronInMessage } from './MessageMiddleware';
 import { ConversationTurnCompletionService } from './ConversationTurnCompletionService';
 import { resolveFluxRouting, type FluxRoutingResult, type RoutingDecision } from '@process/task/fluxRouting';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
+import type { McpConfigProjection } from '@process/acp/session/McpConfig';
+import { createMcpSessionState, type McpSessionBackend, type McpSessionState } from '@/common/mcp/sessionReceipt';
+import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
 
 interface AcpAgentManagerData {
   workspace?: string;
@@ -138,6 +150,22 @@ type BufferedStreamTextMessage = {
 
 type CustomAgentLaunchConfig = Pick<AcpBackendConfig, 'id' | 'name' | 'defaultCliPath' | 'acpArgs' | 'env'>;
 
+/**
+ * Authoritative backend-session facts consumed by the recovery state-authority
+ * ledger (plan 01-22). An ACP backend persists `acpSessionId` plus a pinned
+ * `acpWrapperVersion` (`<backend>@<version>`) in `conversations.extra` via
+ * {@link AcpAgentManager.saveAcpSessionId}; a fresh spawn resumes the same
+ * session through `session/load` replay, or self-heals through a wrapper-mismatch
+ * history replay. Resumability is proven by that persisted, wrapper-pinned handle
+ * — not by process liveness.
+ */
+export const ACP_SESSION_AUTHORITY = {
+  producer: 'acp-backend',
+  handleSource: 'acp.conversation-extra.acpSessionId',
+  resumability: 'backend-session-replay',
+  proven: true,
+} as const;
+
 class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissionOption> {
   workspace: string;
   agent: AcpAgentV2;
@@ -148,14 +176,12 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
   private currentMode: string = 'default';
   private persistedModelId: string | null = null;
   /**
-   * Latest cumulative usage gauge from `acp_context_usage` this turn. ACP emits
-   * `used`/`cost` as a per-conversation CUMULATIVE high-water mark on every
-   * update, so we stash the most recent values and let the CostRecorder compute
-   * the per-turn delta at finish. `undefined` until the first usage event of a
-   * turn; reset to undefined after each finish records (or skips) it so a turn
-   * with no usage event records nothing.
+   * Latest cumulative USD cost gauge from acp_context_usage this turn.
+   * ACP's used field is current context occupancy, not cumulative processed or
+   * billable tokens, and therefore must never feed the cumulative ledger.
+   * Undefined until a USD cost event arrives; reset after each finish.
    */
-  private lastAcpCumulative: { used?: number; cost?: number } | undefined;
+  private lastAcpCumulative: { costUsd?: number; meterId?: string } | undefined;
   // Track current message for cron detection (accumulated from streaming chunks)
   private currentMsgId: string | null = null;
   private currentMsgContent: string = '';
@@ -182,17 +208,83 @@ class AcpAgentManager extends BaseAgentManager<AcpAgentManagerData, AcpPermissio
    *  long tool-call gaps (>15 s) between stream events are normal and do not
    *  indicate a missing finish signal. */
   private promptInFlight: boolean = false;
+  private readonly mcpSessionGeneration = randomUUID();
+  private readonly mcpSessionDigestKey = createMcpSessionDigestKey();
+  private readonly mcpSessionBackend: McpSessionBackend;
+  private mcpSessionState: McpSessionState;
+  /** Exact servers that produced this launch's receipts; the candidate gate's allowedTools/description source. */
+  private sessionMcpServers: IMcpServer[] = [];
+  private mcpSessionPersistQueue: Promise<void> = Promise.resolve();
 
   constructor(data: AcpAgentManagerData) {
     super('acp', data, new IpcAgentEventEmitter(), false);
     this.conversation_id = data.conversation_id;
     this.workspace = data.workspace;
     this.options = data;
+    this.mcpSessionBackend = data.backend === 'codex' ? 'codex-native' : 'acp';
+    this.mcpSessionState = createMcpSessionState(this.mcpSessionGeneration, [], {
+      conversationId: this.conversation_id,
+      backend: this.mcpSessionBackend,
+    });
     this.currentMode = data.sessionMode || 'default';
     this.persistedModelId = data.currentModelId || null;
     this.status = 'pending';
     // Sync yoloMode from sessionMode so addConfirmation auto-approves when Full Auto is selected
     this.yoloMode = this.yoloMode || this.isYoloMode(this.currentMode);
+  }
+
+  private acceptMcpProjection(projection: McpConfigProjection): void {
+    // The receipt-bound projection minted the correlated current-session truth
+    // (built with this manager's generation + digest key), so adopt it directly
+    // rather than reconstructing publication state from the returned server list.
+    this.mcpSessionState = projection.sessionState;
+    // Retain the exact eligible servers that minted the receipts so the
+    // receipt-bound ToolSearch candidate gate scopes over this launch.
+    this.sessionMcpServers = projection.selectedServers;
+    this.publishMcpSessionState();
+    // Project the receipt-bound candidate gate immediately after publication,
+    // proving callable tools track the current publication, not saved status.
+    const candidates = this.getMcpCandidateTools();
+    mainLog(
+      '[AcpAgentManager]',
+      `MCP ToolSearch candidate pool: ${candidates.length} tools from current-session receipts`
+    );
+  }
+
+  /**
+   * Receipt-bound ToolSearch candidate pool for THIS launch. Callable tools come
+   * only from the current correlated publication receipts; saved/probed/stale
+   * connectors are withheld. ACP proves callability at invocation, so the pool
+   * stays empty until the producer registers a non-empty inventory.
+   */
+  getMcpCandidateTools(): CandidateTool[] {
+    return getCandidateTools(this.mcpSessionState, this.sessionMcpServers);
+  }
+
+  private publishMcpSessionState(): void {
+    const snapshot: McpSessionState = {
+      ...this.mcpSessionState,
+      expectedServers: this.mcpSessionState.expectedServers.map((server) => ({ ...server })),
+      expectedServerNames: [...this.mcpSessionState.expectedServerNames],
+      receipts: { ...this.mcpSessionState.receipts },
+    };
+    ipcBridge.conversation.responseStream.emit({
+      type: 'mcp_session_state',
+      conversation_id: this.conversation_id,
+      msg_id: '',
+      data: snapshot,
+    });
+    this.mcpSessionPersistQueue = this.mcpSessionPersistQueue
+      .then(async () => {
+        const db = await getDatabase();
+        const result = db.getConversation(this.conversation_id);
+        if (!result.success || !result.data) return;
+        const conversation = result.data;
+        db.updateConversation(this.conversation_id, {
+          extra: { ...conversation.extra, mcpSessionState: snapshot },
+        } as Partial<typeof conversation>);
+      })
+      .catch((error) => mainWarn('[AcpAgentManager]', 'failed to persist MCP session state', error));
   }
 
   private makeStreamBufferKey(message: Extract<TMessage, { type: 'text' }>): string {
@@ -446,21 +538,19 @@ ${collectedResponses.join('\n')}`;
       modelId: this.persistedModelId ?? this.agent?.getModelInfo?.()?.currentModelId ?? undefined,
     });
 
-    // Cost ledger: ACP backends report `used`/`cost` as a per-conversation
-    // CUMULATIVE gauge, so we pass the latest high-water mark and the recorder
-    // computes the per-turn delta from its baseline (cost_source='engine'). Skip
-    // entirely when no acp_context_usage arrived this turn so a no-usage turn
-    // records nothing. Reset the stash so the next turn starts clean.
+    // ACP cost is a cumulative session gauge. Context used is not cumulative
+    // billable usage, so only a USD cost gauge is forwarded. The session id
+    // scopes the recorder baseline across reconnects.
     const cumulative = this.lastAcpCumulative;
     this.lastAcpCumulative = undefined;
-    if (cumulative && (cumulative.used !== undefined || cumulative.cost !== undefined)) {
+    if (cumulative?.costUsd !== undefined) {
       getCostRecorder()?.recordTurnFinish({
         conversationId: this.conversation_id,
         backend: this.options.backend,
         modelId: this.persistedModelId ?? this.agent?.getModelInfo?.()?.currentModelId ?? undefined,
         costSource: 'engine',
-        cumulativeUsd: cumulative.cost,
-        cumulativeTokens: cumulative.used,
+        cumulativeUsd: cumulative.costUsd,
+        meterId: cumulative.meterId,
         ts: Date.now(),
       });
     }
@@ -599,28 +689,41 @@ ${collectedResponses.join('\n')}`;
    * refreshes when expired) and map it to the deterministic env-var name. Never
    * throws and never blocks a spawn on a single failure.
    */
-  private async buildCodexMcpBearerEnv(): Promise<Record<string, string>> {
+  private buildCodexMcpEnvironment(servers: readonly IMcpServer[]): Record<string, string> {
     const env: Record<string, string> = {};
-    try {
-      const raw = await ProcessConfig.get('mcp.config');
-      if (!Array.isArray(raw)) return env;
-      const hosted = (raw as IMcpServer[]).filter(
-        (s) => s?.enabled && (s.transport?.type === 'http' || s.transport?.type === 'streamable_http')
-      );
-      if (hosted.length === 0) return env;
-      // Dynamic import avoids an OAuth module-init cycle (HybridTokenStorage TDZ).
-      const { mcpOAuthService } = await import('@process/services/mcpServices/McpOAuthService');
-      const tokens = await Promise.all(
-        hosted.map((s) => mcpOAuthService.getValidToken(s).catch((): string | null => null))
-      );
-      hosted.forEach((server, i) => {
-        const token = tokens[i];
-        if (token) env[codexBearerEnvVar(server.name)] = token;
-      });
-    } catch (err) {
-      mainWarn('[AcpAgentManager]', 'buildCodexMcpBearerEnv failed', err);
+    for (const server of servers) {
+      if (server.transport.type !== 'http' && server.transport.type !== 'streamable_http') continue;
+      const headers = server.transport.headers ?? {};
+      const authorization = Object.entries(headers).find(([header]) => header.toLowerCase() === 'authorization')?.[1];
+      const bearer = authorization ? /^Bearer\s+(.+)$/i.exec(authorization.trim())?.[1] : undefined;
+      if (bearer) env[codexMcpBearerEnvVar(server.name)] = bearer;
+      for (const [header, value] of Object.entries(headers)) {
+        if (header.toLowerCase() === 'authorization' && bearer) continue;
+        env[codexMcpHeaderEnvVar(server.name, header)] = value;
+      }
     }
     return env;
+  }
+
+  private async loadCodexSessionMcpServers(data: AcpAgentManagerData): Promise<{
+    selectedServers: IMcpServer[];
+    managedServerNames: string[];
+  }> {
+    const allServers = await loadRuntimeMcpServers();
+    const selected = allServers
+      .filter(shouldInjectSessionMcpServer)
+      .filter((server) => isServerActiveForSession(server, data.activeMcpServers))
+      .map((server) => normalizeMcpServerForSpawn(server, os.homedir()));
+    selected.forEach(validateMcpServer);
+
+    // Dynamic import avoids the OAuth module-init cycle documented in
+    // McpService. The returned declarations carry current bearer tokens only
+    // in memory; the scoped config references an env var, never the secret.
+    const { mcpService } = await import('@process/services/mcpServices/McpService');
+    return {
+      selectedServers: await mcpService.attachOAuthTokens(selected),
+      managedServerNames: allServers.map((server) => server.name),
+    };
   }
 
   private async resolveAgentCliConfig(data: AcpAgentManagerData): Promise<{
@@ -638,14 +741,15 @@ ${collectedResponses.join('\n')}`;
     // auto-injected keys, which in turn win over the inherited shell env.
     const providerEnv = await this.buildConnectedProviderEnv();
     const mergedEnv: Record<string, string> = { ...providerEnv, ...resolved.customEnv };
+    const codexMcp = data.backend === 'codex' ? await this.loadCodexSessionMcpServers(data) : undefined;
 
     // Codex ignores manual Authorization headers and reads each HTTP MCP server's
     // bearer from an env var (see CodexMcpAgent.codexBearerEnvVar). Inject the
     // CURRENT (refreshed) token for every enabled hosted MCP so a Codex chat
     // connects without launching its OWN interactive OAuth flow. Best-effort and
     // scoped to this spawn; an explicit custom-agent env var still wins.
-    if (data.backend === 'codex') {
-      const bearerEnv = await this.buildCodexMcpBearerEnv();
+    if (codexMcp) {
+      const bearerEnv = this.buildCodexMcpEnvironment(codexMcp.selectedServers);
       for (const [key, value] of Object.entries(bearerEnv)) {
         if (!(key in mergedEnv)) mergedEnv[key] = value;
       }
@@ -671,7 +775,13 @@ ${collectedResponses.join('\n')}`;
             sandboxMode,
             undefined,
             undefined,
-            data.effort
+            data.effort,
+            {
+              sessionId: data.conversation_id,
+              selectedServers: codexMcp?.selectedServers,
+              managedServerNames: codexMcp?.managedServerNames,
+              preserveUnmanagedUserServers: data.activeMcpServers === undefined,
+            }
           );
           mergedEnv.CODEX_HOME = codexHome;
         } catch (err) {
@@ -732,7 +842,18 @@ ${collectedResponses.join('\n')}`;
     if (data.backend === 'codex' && decision.routing !== 'flux') {
       try {
         const sandboxMode = normalizeCodexSandboxMode(data.sandboxMode);
-        mergedEnv.CODEX_HOME = await materializeNativeCodexHome(app.getPath('userData'), sandboxMode);
+        mergedEnv.CODEX_HOME = await materializeNativeCodexHome(
+          app.getPath('userData'),
+          sandboxMode,
+          undefined,
+          undefined,
+          {
+            sessionId: data.conversation_id,
+            selectedServers: codexMcp?.selectedServers,
+            managedServerNames: codexMcp?.managedServerNames,
+            preserveUnmanagedUserServers: data.activeMcpServers === undefined,
+          }
+        );
       } catch (err) {
         mainWarn('[AcpAgentManager]', 'materializeNativeCodexHome failed', err);
       }
@@ -834,6 +955,7 @@ ${collectedResponses.join('\n')}`;
               '(falling back to native auth). Re-key the provider to restore it.'
           );
         }
+        emitModelRegistryChanged();
         // Drop them from this spawn's record so we don't re-invalidate on repeats.
         const culpritSet = new Set<ProviderId>(culpritIds);
         this.injectedProviderKeys = this.injectedProviderKeys.filter((inj) => !culpritSet.has(inj.providerId));
@@ -1141,16 +1263,22 @@ ${collectedResponses.join('\n')}`;
       }
     }
 
-    // Persist context usage to conversation extra for restore on page switch.
-    // Also stash the cumulative {used, cost} gauge so handleFinishSignal can
-    // record the per-turn delta to the cost ledger (cost_source='engine').
+    // Persist current context occupancy for restore on page switch. Only a USD
+    // cost amount is a compatible cumulative gauge for the local USD ledger;
+    // used is current context size and may decrease after compaction.
     if (message.type === 'acp_context_usage') {
       const usage = message.data as { used: number; size: number; cost?: { amount?: number; currency?: string } };
       this.saveContextUsage(usage);
-      this.lastAcpCumulative = {
-        used: typeof usage.used === 'number' ? usage.used : this.lastAcpCumulative?.used,
-        cost: typeof usage.cost?.amount === 'number' ? usage.cost.amount : this.lastAcpCumulative?.cost,
-      };
+      if (usage.cost !== undefined) {
+        const costUsd = extractAcpCumulativeUsd(usage.cost);
+        this.lastAcpCumulative =
+          costUsd !== undefined
+            ? {
+                costUsd,
+                meterId: this.agent?.currentSessionId ?? this.options.acpSessionId,
+              }
+            : undefined;
+      }
     }
 
     // Convert thought events to thinking messages in conversation flow
@@ -1346,7 +1474,7 @@ ${collectedResponses.join('\n')}`;
         return;
       }
 
-      // #671: trusted ("cowork") workspace auto-approves read/edit tools while
+      // #671: a trusted-edits workspace auto-approves read/edit tools while
       // STILL prompting on exec/network. Independent of the per-agent mode above
       // and persisted per-workspace. Only the non-destructive, non-network raw
       // kinds read/search/edit are auto-approved (see workspaceTrust.ts); execute,
@@ -1489,66 +1617,11 @@ ${collectedResponses.join('\n')}`;
 
   // ── initAgent ────────────────────────────────────────────────────────
 
-  /**
-   * Per-process de-dupe so we don't re-run `codex mcp add` on every codex chat.
-   * Keyed by a signature of the enabled connectors (name + status + updatedAt),
-   * so a newly enabled/connected/edited connector forces a re-sync.
-   */
-  private static lastCodexMcpSignature: string | null = null;
-
-  /**
-   * Ensure the user's enabled MCP connectors are present in codex's native
-   * config (~/.codex/config.toml) before a codex agent spawns. Reuses the same
-   * tested machinery the UI toggle uses (mcpService.syncMcpToAgents → name
-   * sanitisation, OAuth bearer attach, `codex mcp add`), scoped to the codex
-   * backend. Best-effort: any failure is logged and never blocks the spawn.
-   *
-   * Dynamic import of McpService (not a top-level import): its OAuth chain's
-   * static initializer references HybridTokenStorage and a top-level import
-   * triggers a module-init TDZ in any module that imports it.
-   */
-  private async ensureCodexNativeMcpServers(data: AcpAgentManagerData): Promise<void> {
-    try {
-      const mcpConfig = await ProcessConfig.get('mcp.config');
-      if (!Array.isArray(mcpConfig) || mcpConfig.length === 0) return;
-      const enabled = (mcpConfig as IMcpServer[]).filter((server) => server.enabled);
-      if (enabled.length === 0) return;
-
-      const signature = enabled
-        .map((server) => `${server.name}:${server.status ?? ''}:${server.updatedAt ?? ''}`)
-        .toSorted()
-        .join('|');
-      if (signature === AcpAgentManager.lastCodexMcpSignature) return;
-
-      const { mcpService } = await import('@process/services/mcpServices/McpService');
-      await mcpService.syncMcpToAgents(mcpConfig as IMcpServer[], [
-        { backend: 'codex', name: data.agentName ?? 'Codex CLI' },
-      ]);
-      AcpAgentManager.lastCodexMcpSignature = signature;
-    } catch (err) {
-      mainWarn('[AcpAgentManager]', 'ensureCodexNativeMcpServers failed', err);
-    }
-  }
-
   initAgent(data: AcpAgentManagerData = this.options) {
     if (this.bootstrap) return this.bootstrap;
 
     this.bootstrapping = true;
     const bootstrapPromise = (async () => {
-      // Codex reads MCP servers only from its native ~/.codex/config.toml at
-      // startup; unlike the wcore engine (add_mcp_server) it does not pick up
-      // session-injected stdio servers, and the settings-time sync
-      // (syncMcpToAgents) fires ONLY on a UI toggle - so a connector enabled
-      // while no codex chat was open never landed in codex's config and stayed
-      // invisible there while Claude (which keeps it in ~/.claude.json) worked.
-      // Re-sync the enabled connectors to codex's native config at bootstrap so
-      // an app-enabled connector is reliably available. Runs BEFORE
-      // resolveAgentCliConfig so a flux-routed spawn's materializeFluxCodexHome
-      // (which copies ~/.codex/config.toml's [mcp_servers]) sees them too.
-      if (data.backend === 'codex') {
-        await this.ensureCodexNativeMcpServers(data);
-      }
-
       const { cliPath, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
 
       const agentConfig = {
@@ -1585,12 +1658,27 @@ ${collectedResponses.join('\n')}`;
             | { name: string; command: string; args: string[]; env: Array<{ name: string; value: string }> }
             | undefined,
         },
+        // Receipt-bound publication identity for the live ACP projection. The
+        // runtime supplies this correlated input (this manager's generation +
+        // per-launch digest key) so McpConfig mints current-session receipts
+        // instead of trusting a stored connected/selected declaration.
+        mcpPublication: {
+          generation: this.mcpSessionGeneration,
+          conversationId: this.conversation_id,
+          backend: this.mcpSessionBackend,
+          sessionKey: this.mcpSessionDigestKey,
+          activeServerIds: data.activeMcpServers,
+        },
         onSessionIdUpdate: (sessionId: string) => {
           // Save ACP session ID to database for resume support
-          this.saveAcpSessionId(sessionId);
+          this.options.acpSessionId = sessionId;
+          void this.saveAcpSessionId(sessionId);
         },
         onAvailableCommandsUpdate: (commands: Array<{ name: string; description?: string; hint?: string }>) => {
           this.handleAvailableCommandsUpdate(commands);
+        },
+        onMcpProjection: (projection: McpConfigProjection) => {
+          this.acceptMcpProjection(projection);
         },
         onStreamEvent: (message: IResponseMessage) => {
           this.handleStreamEvent(message as IResponseMessage, data.backend);
@@ -2534,20 +2622,18 @@ ${collectedResponses.join('\n')}`;
    * kills the immediate worker, leaving the CLI process running as an orphan.
    *
    * Solution: Call agent.kill() first, which triggers AcpConnection.disconnect()
-   * → ChildProcess.kill(). We add a grace period for the process to exit
-   * cleanly before calling super.kill() to tear down the worker.
+   * → killChild(). Only after that promise proves the backend exited do we tear
+   * down the worker.
    *
-   * A hard timeout ensures we don't hang forever if agent.kill() gets stuck.
-   * An idempotent doKill() guard prevents double super.kill() when the hard
-   * timeout and graceful path race against each other.
+   * A hard timeout still tears down the worker, but rejects the shutdown. That
+   * rejection is intentional: lifecycle callers must retain their active lease
+   * and durable conversation reference when backend exit was not proved.
    */
-  kill(_reason?: AgentKillReason): Promise<void> {
+  async kill(_reason?: AgentKillReason): Promise<void> {
     this.flushBufferedStreamTextMessages();
     this.flushThinkingToDb(undefined, 'done');
 
-    let killed = false;
-    const GRACE_PERIOD_MS = 500; // Allow child process time to exit cleanly
-    const HARD_TIMEOUT_MS = 1500; // Force kill if agent.kill() hangs
+    const BACKEND_SHUTDOWN_TIMEOUT_MS = 12_000;
 
     // Clear pending slash command waiters to prevent memory leaks
     const waiters = this.acpAvailableSlashWaiters.splice(0, this.acpAvailableSlashWaiters.length);
@@ -2556,29 +2642,31 @@ ${collectedResponses.join('\n')}`;
     }
     this.acpAvailableSlashCommands = [];
 
-    // Resolved when super.kill() (the underlying worker teardown) has actually
-    // completed, regardless of whether we got there via grace path or hard
-    // timeout. AUDIT-05 F20 / M18: callers (WorkerTaskManager.clear) await this.
-    return new Promise<void>((resolveOuter) => {
-      const doKill = () => {
-        if (killed) return;
-        killed = true;
-        clearTimeout(hardTimer);
-        // super.kill() is now async (ForkTask M18); await it before resolving.
-        void Promise.resolve(super.kill()).finally(resolveOuter);
-      };
-
-      // Hard fallback: force kill after timeout regardless
-      const hardTimer = setTimeout(doKill, HARD_TIMEOUT_MS);
-
-      // Graceful path: agent.kill → grace period → super.kill
-      void (this.agent?.kill?.() || Promise.resolve())
-        .catch((err) => {
-          mainWarn('[AcpAgentManager]', 'agent.kill() failed during kill', err);
-        })
-        .then(() => new Promise<void>((r) => setTimeout(r, GRACE_PERIOD_MS)))
-        .finally(doKill);
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const backendShutdown = this.agent?.kill?.() ?? Promise.resolve();
+    const timeoutFailure = new Promise<never>((_, reject) => {
+      timeout = setTimeout(
+        () => reject(new Error(`ACP backend shutdown timed out after ${BACKEND_SHUTDOWN_TIMEOUT_MS}ms`)),
+        BACKEND_SHUTDOWN_TIMEOUT_MS
+      );
     });
+
+    try {
+      await Promise.race([backendShutdown, timeoutFailure]);
+    } catch (error) {
+      // Stop the immediate worker even when backend proof fails, but propagate
+      // the failure so conversation removal cannot sever durable state.
+      try {
+        await super.kill();
+      } catch (workerError) {
+        mainWarn('[AcpAgentManager]', 'worker teardown also failed during backend shutdown', workerError);
+      }
+      throw error;
+    } finally {
+      if (timeout) clearTimeout(timeout);
+    }
+
+    await super.kill();
   }
 
   /**

@@ -1,0 +1,20 @@
+{
+  "source_path": "docs/desktop-overhaul-source/SYSTEM-CONTRACTS.md",
+  "type": "ADR",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Desktop, Core, Flux, and Cloud system contracts",
+  "summary": "Defines responsibility, shared primitives, protocol evidence, capability parity, and trust boundaries across Wayland Core, Flux Router, Desktop, Cloud, and the ecosystem.",
+  "scope": [
+    "Wayland Core",
+    "Flux Router",
+    "Wayland Desktop",
+    "Wayland Cloud",
+    "shared product primitives",
+    "trust policy"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 0,
+  "notes": ""
+}

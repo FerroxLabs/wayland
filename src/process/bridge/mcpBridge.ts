@@ -8,6 +8,26 @@ import { ipcBridge } from '@/common';
 import type { IMcpServer } from '@/common/config/storage';
 import { mcpService } from '@process/services/mcpServices/McpService';
 import { mcpOAuthService } from '@process/services/mcpServices/McpOAuthService';
+import {
+  McpConnectorArchiveStore,
+  McpConnectorLifecycleService,
+} from '@process/services/mcpServices/mcpConnectorArchive';
+import { getConfigPath } from '@process/utils/utils';
+import { ProcessConfig } from '@process/utils/initStorage';
+import {
+  compareAndSetMcpConfig,
+  mcpConfigRevision,
+  readMcpConfigSnapshot,
+  updateMcpConfig,
+} from '@process/services/mcpServices/mcpConfigAuthority';
+
+export const mcpConnectorLifecycle = new McpConnectorLifecycleService(new McpConnectorArchiveStore(getConfigPath()), {
+  getActiveServers: async () => (await readMcpConfigSnapshot()).servers,
+  compareAndSetActiveServers: async (expected, servers) =>
+    (await compareAndSetMcpConfig(mcpConfigRevision(expected), servers)).applied,
+  removeFromAgents: (serverName, agents) => mcpService.removeMcpFromAgents(serverName, agents),
+  syncToAgents: (servers, agents) => mcpService.syncMcpToAgents(servers, agents),
+});
 
 /**
  * Persist user-supplied BYO OAuth client credentials onto an MCP server record.
@@ -38,20 +58,49 @@ export async function persistMcpByoOAuthCredentials(input: {
   // whose get/set route over the IPC wire; calling them from the main process
   // has no responder and hangs forever, which left "Save & sign in" spinning
   // for every BYO-OAuth MCP (GitHub, Slack, ...).
-  const { ProcessConfig } = await import('@process/utils/initStorage');
-  const servers: IMcpServer[] = (await ProcessConfig.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
-  const idx = servers.findIndex((s) => s.id === serverId);
-  if (idx < 0) {
+  class ServerNotFound extends Error {}
+  try {
+    await updateMcpConfig((servers) => {
+      const idx = servers.findIndex((server) => server.id === serverId);
+      if (idx < 0) throw new ServerNotFound();
+      const updated = mcpOAuthService.setByoCredentials(servers[idx], clientId, clientSecret);
+      const nextServers = [...servers];
+      nextServers[idx] = {
+        ...updated,
+        updatedAt: Math.max(Date.now(), (servers[idx].updatedAt ?? 0) + 1),
+      };
+      return nextServers;
+    });
+  } catch (error) {
+    if (!(error instanceof ServerNotFound)) throw error;
     return { ok: false, msg: `MCP server not found: ${serverId}` };
   }
-  const updated = mcpOAuthService.setByoCredentials(servers[idx], clientId, clientSecret);
-  const nextServers = [...servers];
-  nextServers[idx] = { ...updated, updatedAt: Date.now() };
-  await ProcessConfig.set('mcp.config', nextServers);
   return { ok: true };
 }
 
 export function initMcpBridge(): void {
+  ipcBridge.mcpService.getMcpConfigSnapshot.provider(async () => {
+    try {
+      return { success: true, data: await readMcpConfigSnapshot() };
+    } catch (error) {
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error reading MCP config',
+      };
+    }
+  });
+
+  ipcBridge.mcpService.compareAndSetMcpConfig.provider(async ({ expectedRevision, nextServers }) => {
+    try {
+      return { success: true, data: await compareAndSetMcpConfig(expectedRevision, nextServers) };
+    } catch (error) {
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error writing MCP config',
+      };
+    }
+  });
+
   // MCP service IPC handlers
   ipcBridge.mcpService.getAgentMcpConfigs.provider(async (agents) => {
     try {
@@ -97,6 +146,39 @@ export function initMcpBridge(): void {
       return {
         success: false,
         msg: error instanceof Error ? error.message : 'Unknown error removing MCP from agents',
+      };
+    }
+  });
+
+  ipcBridge.mcpService.archiveConfiguredServer.provider(async ({ serverId, agents }) => {
+    try {
+      return { success: true, data: await mcpConnectorLifecycle.archiveConfiguredServer(serverId, agents) };
+    } catch (error) {
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error archiving MCP connector',
+      };
+    }
+  });
+
+  ipcBridge.mcpService.listArchivedServers.provider(async () => {
+    try {
+      return { success: true, data: await mcpConnectorLifecycle.listArchivedServers() };
+    } catch (error) {
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error listing archived MCP connectors',
+      };
+    }
+  });
+
+  ipcBridge.mcpService.restoreArchivedServer.provider(async ({ archiveId }) => {
+    try {
+      return { success: true, data: await mcpConnectorLifecycle.restoreArchivedServer(archiveId) };
+    } catch (error) {
+      return {
+        success: false,
+        msg: error instanceof Error ? error.message : 'Unknown error restoring MCP connector',
       };
     }
   });
@@ -172,7 +254,6 @@ export function initMcpBridge(): void {
       // useMcpServers cache; re-read it from storage (the helper persisted it).
       // #283: main-process read MUST use ProcessConfig, not the renderer-bridge
       // ConfigStorage (which hangs when called from main).
-      const { ProcessConfig } = await import('@process/utils/initStorage');
       const servers: IMcpServer[] = (await ProcessConfig.get('mcp.config').catch(() => [] as IMcpServer[])) ?? [];
       const server = servers.find((s) => s.id === serverId);
       return { success: true, data: { server } };

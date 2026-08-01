@@ -4,16 +4,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { promises as fs } from 'fs';
-import { dirname } from 'path';
-import { parse, stringify } from 'smol-toml';
-import { resolveActiveConfigPath } from '@process/agent/wcore/profilePaths';
+import { mutateConfig, readConfig } from '@process/agent/wcore/configBridge';
 import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer, IMcpServerTransport } from '@/common/config/storage';
 import { ensurePlaywrightChromium } from '../playwrightBrowsers';
 import { BUILTIN_PLAYWRIGHT_ID } from '@process/resources/builtinMcp/constants';
-import { resolveMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
+import { resolvePersistedMcpStdioSpawn } from '@process/services/mcpServices/mcpStdioSpawn';
 
 /**
  * wayland-core config.toml transport type (kebab-case)
@@ -36,33 +33,6 @@ type WCoreConfigFile = {
   };
   [key: string]: unknown;
 };
-
-/**
- * Resolve the config.toml path that the ENGINE actually reads for the active
- * profile (Design B: `WAYLAND_HOME` = the active profile's config dir, set on
- * every spawn in envBuilder.ts). The settings-time sync MUST write to this same
- * file or the engine reads a config.toml that never got the connector.
- *
- * Previously this used `<binary> --config-path`, which always resolves the
- * NATIVE (default-profile) dir because the main process never has `WAYLAND_HOME`
- * set - so on a NAMED profile the sync wrote one file while the spawn read
- * another, and the connector was invisible in wcore. `resolveActiveConfigPath`
- * is the single source of truth both the spawn (`resolveActiveConfigDir`) and
- * the config bridge resolve through, so they can never disagree.
- *
- * #278: this FAILS CLOSED. The previous `--config-path` fallback was justified as
- * "backward-compatible for the default profile", but it was UNREACHABLE for the
- * default profile: resolveActiveConfigPath() -> resolveActiveConfigDir() can only
- * throw on its named-profile branch (see the invariant on resolveActiveConfigDir).
- * So the fallback could only ever fire while a NAMED profile was live - and it
- * resolved to the NATIVE (default-profile) dir, writing that profile's connector
- * into the DEFAULT profile's config.toml. That is the exact divergence the comment
- * above says this function was introduced to fix, reintroduced in its own catch.
- * Surface the failure instead of corrupting another profile's config.
- */
-async function getActiveWCoreConfigPath(): Promise<string> {
-  return resolveActiveConfigPath();
-}
 
 /**
  * Map wayland-core transport type (kebab-case) to wayland transport type
@@ -123,9 +93,9 @@ export function toWCoreConfig(server: IMcpServer): WCoreServerConfig {
   const wcoreType = toWCoreTransportType(server.transport.type);
 
   if (server.transport.type === 'stdio') {
-    // #827: resolve a bare `npx` runtime hint to the bundled Bun runtime so the
-    // wcore Rust engine spawns something it can actually launch on Windows.
-    const spawn = resolveMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
+    // Match the Library probe's bundled-Bun runtime without persisting an
+    // AppImage mount path that becomes stale after a Linux restart.
+    const spawn = resolvePersistedMcpStdioSpawn(server.transport.command, server.transport.args ?? []);
     const config: WCoreServerConfig = {
       transport: wcoreType,
       command: spawn.command,
@@ -151,45 +121,29 @@ export function toWCoreConfig(server: IMcpServer): WCoreServerConfig {
  * Wayland Core MCP agent implementation
  *
  * Manages MCP server configuration in the ACTIVE PROFILE's config directory
- * (see getActiveWCoreConfigPath()) — not the platform-native dir, which would be
- * the wrong file whenever a named profile is live (#278).
+ * through the shared config bridge — not the platform-native dir, which would
+ * be the wrong file whenever a named profile is live (#278). The shared bridge
+ * also serializes this MCP mutation with tools/security/profile settings writes.
  * wayland-core uses TOML format with [mcp.servers.*] sections
  */
 export class WCoreMcpAgent extends AbstractMcpAgent {
-  constructor() {
+  constructor(private readonly configPath?: string) {
     super('wcore');
   }
 
   getSupportedTransports(): string[] {
-    // wayland-core supports stdio, sse, streamable-http (mapped to streamable_http in wayland)
-    return ['stdio', 'sse', 'streamable_http'];
+    // Core's `streamable-http` config transport is represented by both `http`
+    // and `streamable_http` in Desktop storage. `toWCoreTransportType` already
+    // maps both forms; advertising only the latter made imported/plain URL MCPs
+    // get skipped while the adapter still returned success.
+    return ['stdio', 'sse', 'http', 'streamable_http'];
   }
 
   /**
    * Read and parse the wayland-core config file
    */
   private async readConfig(): Promise<WCoreConfigFile> {
-    try {
-      const content = await fs.readFile(await getActiveWCoreConfigPath(), 'utf-8');
-      return parse(content) as WCoreConfigFile;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-        return {};
-      }
-      throw error;
-    }
-  }
-
-  /**
-   * Write the wayland-core config file (preserving non-MCP sections)
-   */
-  private async writeConfig(config: WCoreConfigFile): Promise<void> {
-    // Ensure directory exists. Write to the ACTIVE-PROFILE config.toml so the
-    // engine spawn (which reads via WAYLAND_HOME = active profile dir) sees what
-    // we wrote - not the native default-profile path the binary reports.
-    const configPath = await getActiveWCoreConfigPath();
-    await fs.mkdir(dirname(configPath), { recursive: true });
-    await fs.writeFile(configPath, stringify(config), 'utf-8');
+    return (await readConfig(this.configPath)) as WCoreConfigFile;
   }
 
   /**
@@ -218,7 +172,7 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
     };
 
     Object.defineProperty(detectOperation, 'name', { value: 'detectMcpServers' });
-    return this.withLock(detectOperation);
+    return detectOperation();
   }
 
   /**
@@ -227,27 +181,25 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
     const installOperation = async () => {
       try {
-        const config = await this.readConfig();
-
-        // Ensure mcp.servers section exists
-        if (!config.mcp) {
-          config.mcp = { servers: {} };
-        }
-        if (!config.mcp.servers) {
-          config.mcp.servers = {};
-        }
-
         for (const server of mcpServers) {
           const supportedTypes = this.getSupportedTransports();
           if (!supportedTypes.includes(server.transport.type)) {
-            console.warn(`[WCoreMcpAgent] Skipping ${server.name}: unsupported transport ${server.transport.type}`);
-            continue;
+            return {
+              success: false,
+              error: `${server.name}: Wayland Core does not support ${server.transport.type} transport type`,
+            };
           }
-          config.mcp.servers[server.name] = toWCoreConfig(server);
-          console.log(`[WCoreMcpAgent] Added MCP server: ${server.name}`);
         }
-
-        await this.writeConfig(config);
+        await mutateConfig((rawConfig) => {
+          const config = rawConfig as WCoreConfigFile;
+          config.mcp ??= { servers: {} };
+          config.mcp.servers ??= {};
+          for (const server of mcpServers) {
+            config.mcp.servers[server.name] = toWCoreConfig(server);
+            console.log(`[WCoreMcpAgent] Added MCP server: ${server.name}`);
+          }
+          return { value: undefined, changed: mcpServers.length > 0 };
+        }, this.configPath);
 
         // #465 first-run browser provisioning: once the bundled Playwright MCP
         // is written to the engine config, make sure chromium is installed into
@@ -264,7 +216,7 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
     };
 
     Object.defineProperty(installOperation, 'name', { value: 'installMcpServers' });
-    return this.withLock(installOperation);
+    return installOperation();
   }
 
   /**
@@ -273,16 +225,17 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
   removeMcpServer(mcpServerName: string): Promise<McpOperationResult> {
     const removeOperation = async () => {
       try {
-        const config = await this.readConfig();
-        const servers = config.mcp?.servers;
-
-        if (!servers || !(mcpServerName in servers)) {
+        const removed = await mutateConfig((rawConfig) => {
+          const config = rawConfig as WCoreConfigFile;
+          const servers = config.mcp?.servers;
+          if (!servers || !(mcpServerName in servers)) return { value: false, changed: false };
+          delete servers[mcpServerName];
+          return { value: true, changed: true };
+        }, this.configPath);
+        if (!removed) {
           console.log(`[WCoreMcpAgent] MCP server ${mcpServerName} not found (may already be removed)`);
           return { success: true };
         }
-
-        delete servers[mcpServerName];
-        await this.writeConfig(config);
         console.log(`[WCoreMcpAgent] Removed MCP server: ${mcpServerName}`);
         return { success: true };
       } catch (error) {
@@ -291,6 +244,6 @@ export class WCoreMcpAgent extends AbstractMcpAgent {
     };
 
     Object.defineProperty(removeOperation, 'name', { value: 'removeMcpServer' });
-    return this.withLock(removeOperation);
+    return removeOperation();
   }
 }

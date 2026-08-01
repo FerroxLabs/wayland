@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-STORAGE-TRANSACTION-packet-static",
+  "commit": "b2d6ad48bf77faa5614f4274874207009d5b342f",
+  "command": "rtk proxy bash -o pipefail -c '{ bunx oxfmt --check src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx; bunx oxlint src/renderer/pages/settings/ConstitutionSettings/ConstitutionClassicRecovery.tsx tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx --deny-warnings; bun run typecheck; git diff --check c6b04c242952cfdff2cfdce47e9f5f3ae89973b1..HEAD; } 2>&1 | tee /tmp/wayland-con-b-storage-transaction-packet-static.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:9c55ae84066b6ffcaded3e0356f90c71d388b26019ca52c9c6474d67a5a0a8cc",
+  "timestamp": "2026-07-17T09:33:19Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

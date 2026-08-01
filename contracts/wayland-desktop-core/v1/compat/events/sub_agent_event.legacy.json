@@ -1,0 +1,1 @@
+{"agent_name":"legacy-child","inner":{"msg_id":"child-msg-legacy","text":"legacy child output","type":"text_delta"},"parent_call_id":"call-spawn-legacy","type":"sub_agent_event"}

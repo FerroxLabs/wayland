@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-DURABLE-REQUEST-packet-focused",
+  "commit": "231b2fc9eec1bcc101714618f3224b5070de6d21",
+  "command": "rtk proxy bash -o pipefail -c 'bunx vitest run tests/unit/renderer/ConstitutionClassicRecovery.dom.test.tsx 2>&1 | tee /tmp/wayland-con-b-durable-request-packet-focused.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:7b6092631f986251361a76c5246c5f40499c052a979a55279aadb3d42eadd2d0",
+  "timestamp": "2026-07-17T08:38:26Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

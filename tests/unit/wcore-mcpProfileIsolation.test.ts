@@ -25,23 +25,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IMcpServer } from '@/common/config/storage';
 import { ProfileIsolationError } from '@process/agent/wcore/profilePaths';
-
-const writeFileMock = vi.fn(async () => undefined);
-const mkdirMock = vi.fn(async () => undefined);
-const readFileMock = vi.fn(async () => '');
-
-vi.mock('fs', async (orig) => {
-  const actual = await orig<typeof import('fs')>();
-  return {
-    ...actual,
-    promises: {
-      ...actual.promises,
-      readFile: (...a: unknown[]) => readFileMock(...(a as [])),
-      writeFile: (...a: unknown[]) => writeFileMock(...(a as [])),
-      mkdir: (...a: unknown[]) => mkdirMock(...(a as [])),
-    },
-  };
-});
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const resolveActiveConfigPathMock = vi.fn();
 vi.mock('@process/agent/wcore/profilePaths', async (orig) => {
@@ -55,6 +41,7 @@ vi.mock('@process/services/mcpServices/playwrightBrowsers', () => ({
 }));
 
 import { WCoreMcpAgent } from '@process/services/mcpServices/agents/WCoreMcpAgent';
+import { setSection } from '@process/agent/wcore/configBridge';
 
 const SERVER = {
   id: 'srv-1',
@@ -62,25 +49,89 @@ const SERVER = {
   transport: { type: 'stdio', command: 'node', args: ['x.js'] },
 } as unknown as IMcpServer;
 
+const SECOND_SERVER = {
+  ...SERVER,
+  id: 'srv-2',
+  name: 'second-server',
+} as unknown as IMcpServer;
+
 describe('#278: the MCP sync must not write a named profile into the default config.toml', () => {
-  beforeEach(() => {
-    writeFileMock.mockClear();
-    mkdirMock.mockClear();
-    readFileMock.mockClear();
-    readFileMock.mockResolvedValue('');
+  let root = '';
+  let configPath = '';
+
+  beforeEach(async () => {
+    root = await mkdtemp(join(tmpdir(), 'wcore-mcp-profile-'));
+    configPath = join(root, 'work', 'config.toml');
     resolveActiveConfigPathMock.mockReset();
+    resolveActiveConfigPathMock.mockResolvedValue(configPath);
   });
 
-  afterEach(() => vi.clearAllMocks());
+  afterEach(async () => {
+    vi.clearAllMocks();
+    await rm(root, { recursive: true, force: true });
+  });
 
   it('CONTROL: when the active profile resolves, the connector is written to THAT profile', async () => {
-    resolveActiveConfigPathMock.mockResolvedValue('/home/u/.wayland/profiles/work/config.toml');
-
     const result = await new WCoreMcpAgent().installMcpServers([SERVER]);
 
     expect(result.success).toBe(true);
-    expect(writeFileMock).toHaveBeenCalledTimes(1);
-    expect(writeFileMock.mock.calls[0][0]).toBe('/home/u/.wayland/profiles/work/config.toml');
+    expect(await readFile(configPath, 'utf-8')).toContain('[mcp.servers.my-server]');
+  });
+
+  it('publishes Desktop plain-http declarations as Core streamable-http instead of skipping them', async () => {
+    const hosted = {
+      ...SERVER,
+      id: 'n8n',
+      name: 'n8n',
+      transport: {
+        type: 'http',
+        url: 'http://localhost:5678/mcp-server/http',
+        headers: { Authorization: 'Bearer token' },
+      },
+    } as unknown as IMcpServer;
+
+    const agent = new WCoreMcpAgent();
+    expect(agent.getSupportedTransports()).toContain('http');
+    await expect(agent.installMcpServers([hosted])).resolves.toEqual({ success: true });
+    const written = await readFile(configPath, 'utf-8');
+    expect(written).toContain('transport = "streamable-http"');
+    expect(written).toContain('http://localhost:5678/mcp-server/http');
+  });
+
+  it('serializes config publication across distinct agent instances', async () => {
+    const [first, second] = await Promise.all([
+      new WCoreMcpAgent().installMcpServers([SERVER]),
+      new WCoreMcpAgent().installMcpServers([SECOND_SERVER]),
+    ]);
+
+    expect(first.success).toBe(true);
+    expect(second.success).toBe(true);
+    const persisted = await readFile(configPath, 'utf-8');
+    expect(persisted).toContain('[mcp.servers.my-server]');
+    expect(persisted).toContain('[mcp.servers.second-server]');
+  });
+
+  it('shares one atomic mutation lock with non-MCP Core config writers', async () => {
+    const [mcpResult] = await Promise.all([
+      new WCoreMcpAgent().installMcpServers([SERVER]),
+      setSection('tools', { allow_list: ['ToolSearch'] }),
+    ]);
+
+    expect(mcpResult.success).toBe(true);
+    const persisted = await readFile(configPath, 'utf-8');
+    expect(persisted).toContain('[mcp.servers.my-server]');
+    expect(persisted).toContain('[tools]');
+    expect(persisted).toContain('"ToolSearch"');
+  });
+
+  it('publishes to an explicitly captured profile path even if the active marker changes', async () => {
+    resolveActiveConfigPathMock.mockRejectedValue(new ProfileIsolationError('switched-after-capture', 'EACCES'));
+
+    const result = await new WCoreMcpAgent(configPath).installMcpServers([SERVER]);
+
+    expect(result.success).toBe(true);
+    expect(resolveActiveConfigPathMock).not.toHaveBeenCalled();
+    expect(await readFile(configPath, 'utf-8')).toContain('[mcp.servers.my-server]');
   });
 
   it('an unresolvable active profile ABORTS the write instead of falling back to the default config.toml', async () => {
@@ -91,8 +142,8 @@ describe('#278: the MCP sync must not write a named profile into the default con
     // The whole point: nothing was written ANYWHERE. Re-adding the
     // `catch -> getWCoreConfigPath()` fallback writes to the native
     // (default-profile) config.toml and turns this red.
-    expect(writeFileMock).not.toHaveBeenCalled();
     expect(result.success).toBe(false);
     expect(result.error).toMatch(/profile/i);
+    await expect(readFile(configPath, 'utf-8')).rejects.toMatchObject({ code: 'ENOENT' });
   });
 });

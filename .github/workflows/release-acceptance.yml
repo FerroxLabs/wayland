@@ -1,0 +1,45 @@
+name: Release Acceptance Dispatcher (compatibility)
+
+# Compatibility entrypoint only. It has no signing identity and never checks
+# out or executes candidate code. All acceptance authority lives in the
+# protected release-trust-v1 workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_ref:
+        description: Exact candidate commit SHA to verify
+        required: true
+        type: string
+      artifact_run_id:
+        description: Canonical build run containing raw acceptance evidence
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch-protected-trust-root:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate immutable dispatch inputs
+        env:
+          CANDIDATE_REF: ${{ inputs.candidate_ref }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+        run: |
+          [[ "$CANDIDATE_REF" =~ ^[0-9a-f]{40}$ ]] || exit 1
+          [[ "$ARTIFACT_RUN_ID" =~ ^[0-9]+$ ]] || exit 1
+
+      - name: Dispatch protected release trust root
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_REF: ${{ inputs.candidate_ref }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+        run: |
+          gh workflow run release-acceptance-trust-root.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref release-trust-v1 \
+            -f candidate_ref="$CANDIDATE_REF" \
+            -f artifact_run_id="$ARTIFACT_RUN_ID"

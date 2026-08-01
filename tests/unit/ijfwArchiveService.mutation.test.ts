@@ -159,12 +159,13 @@ afterEach(() => {
   if (tempHome) fs.rmSync(tempHome, { recursive: true, force: true });
 });
 
-describe('IjfwArchiveService.deleteEntry (#414)', () => {
+describe('IjfwArchiveService.deleteEntry archive recovery (#414)', () => {
   it('removes only the target block, preserves the other entries verbatim', async () => {
     const betaId = await idBySummary('Beta pattern for retries');
 
     const result = await svc.deleteEntry(betaId);
-    expect(result).toEqual({ ok: true });
+    expect(result).toMatchObject({ ok: true });
+    expect(result.archiveId).toMatch(/^[0-9a-f-]{36}$/i);
 
     const after = fs.readFileSync(knowledgePath, 'utf8');
     // Other entries survive byte-for-byte.
@@ -182,14 +183,23 @@ describe('IjfwArchiveService.deleteEntry (#414)', () => {
     await expect(svc.getEntry(betaId)).resolves.toBeNull();
   });
 
-  it('unlinks the source file when deleting its last entry', async () => {
+  it('retains the source file and recovery record when archiving its last entry', async () => {
     const soloId = await idBySummary('Solo entry stands alone');
     expect(fs.existsSync(soloPath)).toBe(true);
 
     const result = await svc.deleteEntry(soloId);
-    expect(result).toEqual({ ok: true });
+    expect(result).toMatchObject({ ok: true });
 
-    expect(fs.existsSync(soloPath)).toBe(false);
+    expect(fs.existsSync(soloPath)).toBe(true);
+    expect(fs.readFileSync(soloPath, 'utf8')).not.toContain('Solo entry stands alone');
+    const archived = await svc.listArchivedEntries();
+    expect(archived).toEqual([
+      expect.objectContaining({
+        archiveId: result.archiveId,
+        summary: 'Solo entry stands alone',
+        sourcePath: soloPath,
+      }),
+    ]);
     // The multi-entry file is untouched.
     expect(fs.existsSync(knowledgePath)).toBe(true);
     const remaining = await summaries();
@@ -199,6 +209,76 @@ describe('IjfwArchiveService.deleteEntry (#414)', () => {
   it('returns not_found for a bogus id', async () => {
     const result = await svc.deleteEntry('deadbeefcafe');
     expect(result).toEqual({ ok: false, error: 'not_found' });
+  });
+
+  it('restores the exact archived block and removes the recovery record', async () => {
+    const betaId = await idBySummary('Beta pattern for retries');
+    const before = fs.readFileSync(knowledgePath, 'utf8');
+    const archived = await svc.deleteEntry(betaId);
+    expect(archived.ok).toBe(true);
+    expect(archived.archiveId).toBeDefined();
+
+    const restore = await svc.restoreArchivedEntry(archived.archiveId as string);
+    expect(restore).toEqual({ ok: true });
+    const after = fs.readFileSync(knowledgePath, 'utf8');
+    expect(after).toContain('Beta pattern for retries');
+    expect(after).toContain('Body of beta pattern.');
+    expect(await svc.listArchivedEntries()).toEqual([]);
+    expect((after.match(/Beta pattern for retries/g) ?? []).length).toBe(1);
+    // Restoration appends the preserved block rather than overwriting sibling
+    // edits or reformatting the whole source.
+    expect(after).toContain(ALPHA_BLOCK);
+    expect(after).toContain(GAMMA_BLOCK);
+    expect(before).toContain('Beta pattern for retries');
+  });
+
+  it('fails closed when an archive payload is tampered with', async () => {
+    const soloId = await idBySummary('Solo entry stands alone');
+    const archived = await svc.deleteEntry(soloId);
+    const archivePath = path.join(memoryDir, '.archive', 'deleted-entries', `${archived.archiveId as string}.json`);
+    const record = JSON.parse(fs.readFileSync(archivePath, 'utf8')) as { rawBlock: string };
+    record.rawBlock += '\nTAMPERED';
+    fs.writeFileSync(archivePath, JSON.stringify(record), 'utf8');
+
+    await expect(svc.restoreArchivedEntry(archived.archiveId as string)).resolves.toEqual({
+      ok: false,
+      error: 'invalid_archive',
+    });
+    expect(fs.readFileSync(soloPath, 'utf8')).not.toContain('Solo entry stands alone');
+    expect(fs.existsSync(archivePath)).toBe(true);
+  });
+
+  it('refuses a restore that would collide with a later entry and keeps the archive', async () => {
+    const soloId = await idBySummary('Solo entry stands alone');
+    const archived = await svc.deleteEntry(soloId);
+    fs.appendFileSync(soloPath, SOLO_MD.replace('Body of the only entry.', 'A later replacement body.'), 'utf8');
+
+    await expect(svc.restoreArchivedEntry(archived.archiveId as string)).resolves.toEqual({
+      ok: false,
+      error: 'summary_collision',
+    });
+    expect(await svc.listArchivedEntries()).toHaveLength(1);
+    expect(fs.readFileSync(soloPath, 'utf8')).toContain('A later replacement body.');
+  });
+
+  it('serializes concurrent archives so neither source mutation overwrites the other', async () => {
+    const [betaId, gammaId] = await Promise.all([
+      idBySummary('Beta pattern for retries'),
+      idBySummary('Gamma observation on latency'),
+    ]);
+
+    const results = await Promise.all([svc.deleteEntry(betaId), svc.deleteEntry(gammaId)]);
+    expect(results.every((result) => result.ok)).toBe(true);
+    const active = fs.readFileSync(knowledgePath, 'utf8');
+    expect(active).toContain('Alpha decision about caching');
+    expect(active).not.toContain('Beta pattern for retries');
+    expect(active).not.toContain('Gamma observation on latency');
+    expect(await svc.listArchivedEntries()).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ summary: 'Beta pattern for retries' }),
+        expect.objectContaining({ summary: 'Gamma observation on latency' }),
+      ])
+    );
   });
 });
 

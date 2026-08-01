@@ -26,6 +26,16 @@
   "copyFailed": "Copy failed",
   "download": "Download",
   "close": "Close",
+  "shellRecovery": {
+    "preview": "Cockpit preview",
+    "title": "Cockpit could not open safely.",
+    "sessionBody": "Classic is active for this session. Your chats, projects, settings, agent state, and current route have not moved.",
+    "useClassicDefault": "Use Classic by default",
+    "savingDefault": "Saving Classic as default…",
+    "savedDefault": "Classic will be used by default.",
+    "saveFailed": "Classic is still active for this session, but the default could not be saved.",
+    "retrySave": "Retry saving"
+  },
   "retry": "Retry",
   "reload": "Reload",
   "technical_details": "Technical Details",

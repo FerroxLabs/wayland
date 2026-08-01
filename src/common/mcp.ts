@@ -29,9 +29,111 @@ export function canonicalMcpServerName(name: string): string {
   return name.replace(/[^A-Za-z0-9_-]/g, '-');
 }
 
+/** Case-insensitive product identity used to prevent ambiguous duplicate declarations. */
+export function mcpServerCollisionKey(name: string): string {
+  return canonicalMcpServerName(name).toLocaleLowerCase('en-US');
+}
+
+/**
+ * Environment variable used by Codex for one hosted MCP server's bearer.
+ * Kept in the shared layer so both the config materializer and the spawned
+ * process derive the identical name without importing process-only services.
+ */
+export function codexMcpBearerEnvVar(serverName: string): string {
+  return `WAYLAND_MCP_BEARER_${canonicalMcpServerName(serverName)
+    .replace(/[^A-Za-z0-9]/g, '_')
+    .toUpperCase()}`;
+}
+
+/** Environment variable used for a non-bearer Codex MCP HTTP header value. */
+export function codexMcpHeaderEnvVar(serverName: string, headerName: string): string {
+  const server = canonicalMcpServerName(serverName)
+    .replace(/[^A-Za-z0-9]/g, '_')
+    .toUpperCase();
+  const header = headerName.replace(/[^A-Za-z0-9]/g, '_').toUpperCase();
+  return `WAYLAND_MCP_HEADER_${server}_${header}`;
+}
+
+/** Config-safe identity used by Gemini/Qwen/OpenCode/Wayland/Core (dots retained). */
+export function configSafeMcpServerName(name: string): string {
+  return name.replace(/[^A-Za-z0-9_.-]/g, '-');
+}
+
 /** True when two MCP server names refer to the same logical server, ignoring per-agent name rewrites. */
 export function mcpNamesEquivalent(a: string, b: string): boolean {
-  return canonicalMcpServerName(a) === canonicalMcpServerName(b);
+  return mcpServerCollisionKey(a) === mcpServerCollisionKey(b);
+}
+
+function sortedStringRecord(source?: Record<string, string>): Array<[string, string]> {
+  return Object.entries(source ?? {}).toSorted(([a], [b]) => a.localeCompare(b));
+}
+
+function fnv1a(value: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+/**
+ * Secret-safe, deterministic identity for the MCP authority an agent session
+ * receives. Raw probe details/tool discovery timestamps are intentionally
+ * excluded; only the probe state transition that changes session eligibility
+ * participates.
+ * Header/env VALUES participate in the hash so credential rotation does cause
+ * a rebuild, but the returned fingerprint never contains the credentials.
+ */
+export function mcpRuntimeFingerprint(servers: readonly import('@/common/config/storage').IMcpServer[]): string {
+  const authority = servers
+    .toSorted((a, b) => `${a.id}\u0000${a.name}`.localeCompare(`${b.id}\u0000${b.name}`))
+    .map((server) => {
+      const transport = server.transport;
+      const transportAuthority =
+        transport.type === 'stdio'
+          ? {
+              type: transport.type,
+              command: transport.command,
+              args: transport.args ?? [],
+              env: sortedStringRecord(transport.env),
+            }
+          : {
+              type: transport.type,
+              url: transport.url,
+              headers: sortedStringRecord(transport.headers),
+            };
+      return {
+        id: server.id,
+        name: server.name,
+        enabled: server.enabled === true,
+        // Session builders currently admit enabled servers only when they are
+        // unprobed or connected. Persist the resulting authority bit rather
+        // than raw health text, so harmless connected <-> unprobed churn stays
+        // stable while an explicit disconnected/error transition rebuilds the
+        // session instead of leaving old and new chats with different tools.
+        sessionEligible: server.enabled === true && (server.status === undefined || server.status === 'connected'),
+        builtin: server.builtin === true,
+        source: server.source ?? null,
+        allowedTools: server.allowedTools?.toSorted() ?? null,
+        transport: transportAuthority,
+      };
+    });
+  const serialized = JSON.stringify(authority);
+  // FNV-1a 32-bit is an invalidation token, not a cryptographic claim. It keeps
+  // secrets out of persisted conversation metadata while reliably detecting
+  // ordinary configuration changes.
+  return `mcp-v1-${fnv1a(serialized)}`;
+}
+
+/** Runtime fingerprint plus the exact user-connector authority for one chat. */
+export function mcpSessionFingerprint(
+  runtimeFingerprint: string | undefined,
+  activeServerIds: readonly string[] | undefined
+): string | undefined {
+  if (!runtimeFingerprint) return undefined;
+  if (activeServerIds === undefined) return `${runtimeFingerprint}-all`;
+  return `${runtimeFingerprint}-scope-${fnv1a(JSON.stringify(activeServerIds.toSorted()))}`;
 }
 
 /**

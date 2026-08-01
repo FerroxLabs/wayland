@@ -1,0 +1,3 @@
+$ oxlint src/process/task/WCoreManager.ts tests/unit/WCoreManagerProcessExit.test.ts
+Found 0 warnings and 0 errors.
+Finished in 36ms on 2 files with 128 rules using 10 threads.

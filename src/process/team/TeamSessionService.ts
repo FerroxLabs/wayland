@@ -40,6 +40,7 @@ import {
 } from './importExport/importTeam';
 import { TeamExportSchema, type TeamExport } from './importExport/TeamExportSchema';
 import { TeamImportError } from './importExport/errors';
+import { inspectConversationDeletionSchedules } from '@process/services/conversationDeletionSafety';
 
 export class TeamSessionService {
   private readonly sessions: Map<string, TeamSession> = new Map();
@@ -936,23 +937,52 @@ export class TeamSessionService {
   }
 
   async deleteTeam(id: string): Promise<void> {
-    // Kill all agent processes before disposing session and deleting data.
-    // This prevents orphan processes that keep running after the team is deleted.
     const team = await this.repo.findById(id);
-    if (team && this.ritualScheduler) {
-      // Tear down rituals first so cron timers stop firing before we delete
-      // the underlying conversation. Otherwise CronService.cleanupOrphanJobs
-      // only catches the dangling row on the next app start.
-      try {
-        await this.ritualScheduler.uninstallRituals(team);
-      } catch (err) {
-        console.warn(
-          `[TeamSessionService] failed to uninstall rituals during team delete ${id}:`,
-          err instanceof Error ? err.message : err
+
+    if (team) {
+      const conversationIds = [
+        ...new Set(
+          team.agents
+            .map((agent) => agent.conversationId)
+            .filter((conversationId): conversationId is string => Boolean(conversationId))
+        ),
+      ];
+
+      // Schedules are separate durable user objects. Before touching a process,
+      // session, chat, task board, or mailbox, prove that every team chat is
+      // clear of user-created schedules. Unknown authority fails closed.
+      const initialInspections = await Promise.all(
+        conversationIds.map((conversationId) => inspectConversationDeletionSchedules(conversationId))
+      );
+      const blockingJobs = initialInspections.flatMap((inspection) => inspection.blockingJobs);
+      if (blockingJobs.length > 0) {
+        throw new Error(
+          `Cannot delete team while ${blockingJobs.length} user-created scheduled task(s) still use its chats. Move or remove them in Automations first.`
         );
       }
-    }
-    if (team) {
+
+      const ritualJobs = initialInspections.flatMap((inspection) => inspection.ritualJobs);
+      if (ritualJobs.length > 0) {
+        if (!this.ritualScheduler) {
+          throw new Error('Cannot delete team because its ritual schedules cannot be safely removed right now.');
+        }
+        await this.ritualScheduler.uninstallRituals(team);
+      }
+
+      // uninstallRituals deliberately logs individual removal failures. Re-read
+      // schedule authority so a swallowed error or concurrent schedule creation
+      // cannot leave a dangling job behind a deleted conversation.
+      const remainingInspections = await Promise.all(
+        conversationIds.map((conversationId) => inspectConversationDeletionSchedules(conversationId))
+      );
+      const remainingJobs = remainingInspections.flatMap((inspection) => inspection.jobs);
+      if (remainingJobs.length > 0) {
+        throw new Error(`Cannot delete team because ${remainingJobs.length} scheduled task(s) still use its chats.`);
+      }
+
+      // Kill all agent processes only after schedule authority proves deletion
+      // safe. This prevents orphan processes without mutating anything during
+      // a refused deletion.
       const killResults = await Promise.allSettled(
         team.agents
           .filter((agent) => agent.conversationId)
@@ -983,6 +1013,12 @@ export class TeamSessionService {
           console.warn(`[TeamSessionService] Failed to delete conversation:`, r.reason);
         }
       });
+      const failedConversationDeletes = results.filter((result) => result.status === 'rejected');
+      if (failedConversationDeletes.length > 0) {
+        throw new Error(
+          `Team deletion stopped because ${failedConversationDeletes.length} conversation(s) could not be deleted. The team record was preserved.`
+        );
+      }
     }
 
     await this.repo.deleteMailboxByTeam(id);

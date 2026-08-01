@@ -1,0 +1,9 @@
+{
+  "receipt_id": "CON-B-CROSS-WINDOW-packet-ownership",
+  "commit": "fa92b45a41140903c4c180c2d1ae0aff6e2b272c",
+  "command": "rtk proxy bash -o pipefail -c 'git diff --name-only b385c61c513607f9ab863493a067a0795c292820..HEAD 2>&1 | tee /tmp/wayland-con-b-cross-window-packet-ownership.log'",
+  "exit_code": 0,
+  "log_digest": "sha256:2e3a205a3651a5af59f4bee9038aff50c214c290948bf5c622a6f312a16dfd15",
+  "timestamp": "2026-07-17T09:06:42Z",
+  "env_digest": "sha256:2a5db9742f6891cb583f488d7aa7e478be8c0e9e9281546855aa6e154be3f8f7"
+}

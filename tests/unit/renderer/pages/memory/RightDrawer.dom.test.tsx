@@ -56,6 +56,7 @@ vi.mock('@icon-park/react', () => ({
   Delete: (p: Record<string, unknown>) => <span data-testid='icon-delete' {...p} />,
   FileCode: (p: Record<string, unknown>) => <span data-testid='icon-file-code' {...p} />,
   Help: (p: Record<string, unknown>) => <span data-testid='icon-help' {...p} />,
+  Inbox: (p: Record<string, unknown>) => <span data-testid='icon-inbox' {...p} />,
 }));
 
 import RightDrawer from '@renderer/pages/memory/components/RightDrawer';
@@ -87,7 +88,7 @@ afterEach(() => {
 describe('RightDrawer', () => {
   it('renders nothing visible when entry is null', () => {
     render(<RightDrawer entry={null} onClose={vi.fn()} />);
-    const drawer = screen.getByTestId('right-drawer');
+    expect(screen.getByTestId('right-drawer')).toBeTruthy();
     // Drawer exists in DOM but has no .inner content
     expect(screen.queryByTestId('right-drawer-inner')).toBeNull();
   });
@@ -277,11 +278,11 @@ describe('RightDrawer', () => {
     expect(screen.getByTestId('source-panel-anchor').textContent).toContain('auto anchor');
   });
 
-  // #414 - Edit / Delete row actions
-  it('renders Edit and Delete actions', () => {
+  // #414 - Edit / recoverable Archive row actions
+  it('renders Edit and Archive actions', () => {
     render(<RightDrawer entry={MOCK_ENTRY} onClose={vi.fn()} />);
     expect(screen.getByTestId('drawer-edit-btn')).toBeTruthy();
-    expect(screen.getByTestId('drawer-delete-btn')).toBeTruthy();
+    expect(screen.getByTestId('drawer-archive-btn')).toBeTruthy();
   });
 
   it('clicking Edit calls onEdit with the full entry', () => {
@@ -291,10 +292,10 @@ describe('RightDrawer', () => {
     expect(onEdit).toHaveBeenCalledWith(MOCK_ENTRY);
   });
 
-  it('clicking Delete calls onDelete with the entry (confirm is owned by the host)', () => {
-    const onDelete = vi.fn();
-    render(<RightDrawer entry={MOCK_ENTRY} onClose={vi.fn()} onDelete={onDelete} />);
-    fireEvent.click(screen.getByTestId('drawer-delete-btn'));
-    expect(onDelete).toHaveBeenCalledWith(MOCK_ENTRY);
+  it('clicking Archive calls onArchive with the entry (confirm is owned by the host)', () => {
+    const onArchive = vi.fn();
+    render(<RightDrawer entry={MOCK_ENTRY} onClose={vi.fn()} onArchive={onArchive} />);
+    fireEvent.click(screen.getByTestId('drawer-archive-btn'));
+    expect(onArchive).toHaveBeenCalledWith(MOCK_ENTRY);
   });
 });

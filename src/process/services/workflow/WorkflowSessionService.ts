@@ -239,10 +239,7 @@ export class WorkflowSessionService {
     const depends: string[] = Array.isArray(rawDepends)
       ? (rawDepends as string[])
       : typeof rawDepends === 'string'
-        ? rawDepends
-            .trim()
-            .split(/\s+/)
-            .filter(Boolean)
+        ? rawDepends.trim().split(/\s+/).filter(Boolean)
         : [];
     const resolved = await this.resolveSkillEntries(depends);
     const skills = resolved.skills;
@@ -291,9 +288,7 @@ export class WorkflowSessionService {
     // account"). Carry the selected model id through so the workflow runs on
     // the model the user actually chose. (GitHub #111.)
     const selectedAcpModelId =
-      conversationType === 'acp' && typeof resolvedModel.useModel === 'string'
-        ? resolvedModel.useModel.trim()
-        : '';
+      conversationType === 'acp' && typeof resolvedModel.useModel === 'string' ? resolvedModel.useModel.trim() : '';
 
     const conversationParams: CreateConversationParams = {
       type: conversationType,
@@ -1011,13 +1006,14 @@ export class WorkflowSessionService {
   }
 
   /**
-   * Permanently remove a session and its row - distinct from `endSession`,
-   * which only flips status to `ended`. Lets the user clear a stuck or unwanted
-   * in-flight workflow. Idempotent: deleting an already-gone session is a no-op.
+   * Compatibility endpoint for older renderers that called this action
+   * "delete". Clearing a stuck workflow from the active strip is a lifecycle
+   * transition, not authority to erase its plan/progress audit row. Preserve
+   * the row by ending it; an already-gone session remains an idempotent no-op.
    */
   async deleteSession(sessionId: string): Promise<void> {
-    this.repo.delete(sessionId);
-    ipcBridge.workflow.sessionChanged.emit({ session_id: sessionId, action: 'delete' });
+    if (this.repo.findById(sessionId) === null) return;
+    await this.endSession(sessionId);
   }
 
   /**
