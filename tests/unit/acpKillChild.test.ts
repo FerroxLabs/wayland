@@ -126,6 +126,18 @@ describe('killChild on Windows (taskkill tree-kill)', () => {
     const kill = vi.fn();
     const fakeChild = { pid: 4242, kill } as unknown as import('child_process').ChildProcess;
 
+    // After taskkill, killChild proves the tree is gone via isProcessAlive,
+    // which probes the REAL OS with `process.kill(pid, 0)`. PID 4242 is made up,
+    // so on a host that happens to own that PID the probe reports it alive and
+    // this test fails on an unrelated assertion - which is exactly how it failed
+    // on a macOS runner. Pin the probe to "not alive" so the taskkill argument
+    // vector below is what decides the result.
+    vi.spyOn(process, 'kill').mockImplementation(((pid: number) => {
+      const err = new Error(`kill ESRCH ${pid}`) as NodeJS.ErrnoException;
+      err.code = 'ESRCH';
+      throw err;
+    }) as typeof process.kill);
+
     await winKillChild(fakeChild, true);
 
     // Exactly one execFile call - the taskkill tree-kill. The POSIX path would
