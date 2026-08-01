@@ -1249,3 +1249,14 @@ export type AcpIncomingMessage =
   | AcpPermissionRequestMessage
   | AcpFileReadMessage
   | AcpFileWriteMessage;
+
+/**
+ * How a turn ended. #838.
+ *
+ * Every backend signals the end of a turn with the same bare
+ * `{ type: 'finish', data: null }` message, whether the turn succeeded, errored,
+ * was aborted by the user, or never ran at all because the transport dropped.
+ * That makes the four indistinguishable to a manager reading the stream, so an
+ * agent that wants to report a *successful* turn has to say so out of band.
+ */
+export type TurnEndOutcome = 'ok' | 'aborted' | 'error';

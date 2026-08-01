@@ -36,6 +36,7 @@ import { addMessage, addOrUpdateMessage, nextTickToLocalFinish } from '@process/
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
 import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher';
 import { getCostRecorder } from '@process/services/cost/CostRecorder';
+import { ConversationTurnCompletionService } from '@process/task/ConversationTurnCompletionService';
 import { handlePreviewOpenEvent } from '@process/utils/previewUtils';
 import { getTeamGuideStdioConfig } from '@process/team/mcp/guide/teamGuideSingleton';
 import { isServerActiveForSession, shouldInjectSessionMcpServer } from '@process/agent/acp/mcpSessionConfig';
@@ -229,6 +230,9 @@ export class GeminiAgentManager extends BaseAgentManager<
    * state from persisted history so the next turn keeps prior context.
    */
   async stop() {
+    // #838: a user-pressed Stop ends the turn but does not complete it, so the
+    // `finish` that follows must not raise a completion notification.
+    this.turnFailed = true;
     await super.stop();
     await this.injectHistoryFromDatabase();
   }
@@ -248,6 +252,15 @@ export class GeminiAgentManager extends BaseAgentManager<
    * Reset to undefined after each record so a turn with no usage records nothing.
    */
   private lastGeminiUsage: { input: number; output: number; cacheRead: number } | undefined;
+
+  /**
+   * #838: gates the turn-completion notification. Unlike the gateway backends,
+   * gemini runs in a fork worker that emits its own `start`, so the turn state
+   * can be tracked here without threading an outcome through a transport.
+   * `turnFailed` is set by an `error` message or by the user pressing Stop.
+   */
+  private turnActive = false;
+  private turnFailed = false;
 
   /** Current turn's thinking message msg_id for accumulating content */
   private thinkingMsgId: string | null = null;
@@ -1130,8 +1143,14 @@ export class GeminiAgentManager extends BaseAgentManager<
           this.thinkingContent = '';
         }
         this.recordCost();
+        this.notifyTurnCompletionIfClean();
+      }
+      if (data.type === 'error') {
+        this.turnFailed = true;
       }
       if (data.type === 'start') {
+        this.turnActive = true;
+        this.turnFailed = false;
         this.status = 'running';
         const traceData = {
           agentType: 'gemini' as const,
@@ -1222,6 +1241,33 @@ export class GeminiAgentManager extends BaseAgentManager<
    * no `'finished'` usage event arrived this turn so a no-usage turn records
    * nothing; resets the stash so the next turn starts clean.
    */
+  /**
+   * #838: raise the OS completion notification and let autonomous workflows
+   * self-advance, which this backend never did.
+   *
+   * Only a clean end of turn qualifies. On error or a user-pressed Stop we emit
+   * nothing and leave the run to the existing 30-minute autonomous watchdog,
+   * which parks it. Notifying there would carry the default
+   * `state: 'ai_waiting_input'`, and WorkflowSessionService would read that as
+   * a step that finished - marking a FAILED step done and advancing the run.
+   *
+   * A worker crash cannot reach here: the `exit` handler emits its synthetic
+   * `finish` straight to the ipcBridge, not through `gemini.message`.
+   */
+  private notifyTurnCompletionIfClean(): void {
+    const clean = this.turnActive && !this.turnFailed;
+    this.turnActive = false;
+    this.turnFailed = false;
+    if (!clean) return;
+    void ConversationTurnCompletionService.getInstance().notifyPotentialCompletion(this.conversation_id, {
+      status: this.status ?? 'finished',
+      workspace: this.workspace,
+      backend: 'gemini',
+      pendingConfirmations: this.getConfirmations().length,
+      modelId: this.model.useModel,
+    });
+  }
+
   private recordCost(): void {
     const usage = this.lastGeminiUsage;
     this.lastGeminiUsage = undefined;

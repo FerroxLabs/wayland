@@ -11,7 +11,9 @@ import { ipcBridge } from '@/common';
 import type { TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
+import type { TurnEndOutcome } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
+import { ConversationTurnCompletionService } from '@process/task/ConversationTurnCompletionService';
 import { addMessage, addOrUpdateMessage } from '@process/utils/message';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
 import { skillSuggestWatcher } from '@process/services/cron/SkillSuggestWatcher';
@@ -50,6 +52,7 @@ class NanoBotAgentManager extends BaseAgentManager<NanoBotAgentManagerData> {
       workingDir: data.workspace || process.cwd(),
       onStreamEvent: (message) => this.handleStreamEvent(message),
       onSignalEvent: (message) => this.handleSignalEvent(message),
+      onTurnEnd: (outcome) => this.handleTurnEnd(outcome),
     };
 
     this.agent = new NanobotAgent(config);
@@ -106,6 +109,26 @@ class NanoBotAgentManager extends BaseAgentManager<NanoBotAgentManagerData> {
     // Forward signals (finish/error) to the Channel event bus so the channel
     // turn completes and the per-conversation send queue is released.
     channelEventBus.emitAgentMessage(this.conversation_id, msg);
+  }
+
+  /**
+   * #838: raise the OS completion notification and let autonomous workflows
+   * self-advance, which this backend never did.
+   *
+   * Only a clean end of turn qualifies. On error we emit nothing and leave the
+   * run to the existing 30-minute autonomous watchdog, which parks it.
+   * Notifying there would carry the default `state: 'ai_waiting_input'`, and
+   * WorkflowSessionService would read that as a step that finished - marking a
+   * FAILED step done and advancing the run.
+   */
+  private handleTurnEnd(outcome: TurnEndOutcome): void {
+    if (outcome !== 'ok') return;
+    void ConversationTurnCompletionService.getInstance().notifyPotentialCompletion(this.conversation_id, {
+      status: this.status ?? 'finished',
+      workspace: this.workspace,
+      backend: 'nanobot',
+      pendingConfirmations: this.getConfirmations().length,
+    });
   }
 
   async sendMessage(data: {

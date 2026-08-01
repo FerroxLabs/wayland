@@ -12,7 +12,7 @@ import type { TMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { NavigationInterceptor } from '@/common/chat/navigation';
 import { uuid } from '@/common/utils';
-import type { AcpResult, ToolCallUpdate } from '@/common/types/acpTypes';
+import type { AcpResult, ToolCallUpdate, TurnEndOutcome } from '@/common/types/acpTypes';
 import { AcpErrorType, createAcpError } from '@/common/types/acpTypes';
 import net from 'node:net';
 import { OpenClawGatewayConnection } from './OpenClawGatewayConnection';
@@ -58,6 +58,13 @@ export interface OpenClawAgentConfig {
   onSessionKeyUpdate?: (sessionKey: string) => void;
   /** Per-turn token usage callback (fired only when chat:final carries usage). */
   onUsage?: (usage: unknown) => void;
+  /**
+   * Fires once per turn that actually ran, saying how it ended (#838). The
+   * `finish` signal cannot carry this - `handleEndTurn` emits an identical one
+   * for success, abort and error, and `handleDisconnect` emits the same again
+   * with no turn in flight at all.
+   */
+  onTurnEnd?: (outcome: TurnEndOutcome) => void;
 }
 
 /**
@@ -106,6 +113,7 @@ export class OpenClawAgent {
   private readonly onSignalEvent?: (data: IResponseMessage) => void;
   private readonly onSessionKeyUpdate?: (sessionKey: string) => void;
   private readonly onUsage?: (usage: unknown) => void;
+  private readonly onTurnEnd?: (outcome: TurnEndOutcome) => void;
 
   constructor(config: OpenClawAgentConfig) {
     this.id = config.id;
@@ -114,6 +122,7 @@ export class OpenClawAgent {
     this.onSignalEvent = config.onSignalEvent;
     this.onSessionKeyUpdate = config.onSessionKeyUpdate;
     this.onUsage = config.onUsage;
+    this.onTurnEnd = config.onTurnEnd;
 
     // Initialize adapter with 'openclaw-gateway' backend
     this.adapter = new AcpAdapter(this.id, 'openclaw-gateway');
@@ -256,6 +265,10 @@ export class OpenClawAgent {
 
       return { success: true, data: null };
     } catch (error) {
+      // The send never reached the gateway, so no end-of-turn will arrive to
+      // clear this. Left set, a later unrelated end-of-turn would report a
+      // success for a turn that never ran.
+      this.turnActive = false;
       const errorMsg = error instanceof Error ? error.message : String(error);
       this.emitErrorMessage(errorMsg);
       return {
@@ -481,17 +494,17 @@ export class OpenClawAgent {
           break; // handleEndTurn is called inside fetchAndEmitHistoryFallback
         }
 
-        this.handleEndTurn();
+        this.handleEndTurn('ok');
         break;
       }
 
       case 'aborted':
-        this.handleEndTurn();
+        this.handleEndTurn('aborted');
         break;
 
       case 'error':
         this.emitErrorMessage(event.errorMessage || 'Unknown error');
-        this.handleEndTurn();
+        this.handleEndTurn('error');
         break;
 
       default:
@@ -709,7 +722,7 @@ export class OpenClawAgent {
   private fetchAndEmitHistoryFallback(runId: string): void {
     const sessionKey = this.connection?.sessionKey;
     if (!sessionKey) {
-      this.handleEndTurn();
+      this.handleEndTurn('ok');
       return;
     }
 
@@ -741,11 +754,18 @@ export class OpenClawAgent {
         console.warn('[OpenClawAgent] chat.history fallback failed:', err);
       })
       .finally(() => {
-        this.handleEndTurn();
+        // This fallback only runs on the chat:final success path; a failed
+        // history fetch still means the turn itself completed.
+        this.handleEndTurn('ok');
       });
   }
 
-  private handleEndTurn(): void {
+  private handleEndTurn(outcome: TurnEndOutcome): void {
+    // #838: read the turn flag before the reset below clears it, so a late or
+    // duplicate end-of-turn reports nothing. `handleDisconnect` deliberately
+    // does not route through here - a dropped socket is not a finished turn.
+    const wasActive = this.turnActive;
+
     // Reset streaming state for next turn
     this.turnActive = false;
     this.currentStreamMsgId = null;
@@ -758,6 +778,10 @@ export class OpenClawAgent {
       msg_id: uuid(),
       data: null,
     });
+
+    // After the finish signal, so the manager has already released the busy
+    // guard by the time it reads state to build the completion event.
+    if (wasActive) this.onTurnEnd?.(outcome);
   }
 
   private inferToolKind(name: string): 'read' | 'edit' | 'execute' | null {

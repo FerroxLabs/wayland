@@ -9,7 +9,7 @@
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { uuid } from '@/common/utils';
 import { NanobotConnection } from './NanobotConnection';
-import type { AcpResult } from '@/common/types/acpTypes';
+import type { AcpResult, TurnEndOutcome } from '@/common/types/acpTypes';
 import { createAcpError, AcpErrorType } from '@/common/types/acpTypes';
 
 export interface NanobotAgentConfig {
@@ -21,6 +21,12 @@ export interface NanobotAgentConfig {
   onStreamEvent: (data: IResponseMessage) => void;
   /** Signal event callback (for lifecycle events like finish) */
   onSignalEvent: (data: IResponseMessage) => void;
+  /**
+   * Fires once per turn that actually ran, saying how it ended (#838). The
+   * `finish` signal above cannot carry this: it is identical on the success and
+   * error paths below.
+   */
+  onTurnEnd?: (outcome: TurnEndOutcome) => void;
 }
 
 /**
@@ -70,6 +76,7 @@ export class NanobotAgent {
         msg_id: uuid(),
         data: null,
       });
+      this.config.onTurnEnd?.('ok');
       return { success: true, data: null };
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
@@ -89,6 +96,7 @@ export class NanobotAgent {
         msg_id: uuid(),
         data: null,
       });
+      this.config.onTurnEnd?.('error');
       return {
         success: false,
         error: createAcpError(AcpErrorType.UNKNOWN, errorMsg, false),

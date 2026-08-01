@@ -12,7 +12,9 @@ import { ipcBridge } from '@/common';
 import type { IConfirmation, TMessage } from '@/common/chat/chatLib';
 import { transformMessage } from '@/common/chat/chatLib';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
+import type { TurnEndOutcome } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
+import { ConversationTurnCompletionService } from '@process/task/ConversationTurnCompletionService';
 import { getDatabase } from '@process/services/database';
 import { addMessage, addOrUpdateMessage } from '@process/utils/message';
 import { cronBusyGuard } from '@process/services/cron/CronBusyGuard';
@@ -64,6 +66,7 @@ class RemoteAgentManager extends BaseAgentManager<RemoteAgentManagerData> {
       onSignalEvent: (msg) => this.handleSignalEvent(msg),
       onSessionKeyUpdate: (key) => this.handleSessionKeyUpdate(key),
       onUsage: (usage) => this.handleUsage(usage),
+      onTurnEnd: (outcome) => this.handleTurnEnd(outcome),
     });
 
     try {
@@ -148,6 +151,26 @@ class RemoteAgentManager extends BaseAgentManager<RemoteAgentManagerData> {
 
   private handleSessionKeyUpdate(sessionKey: string): void {
     this.saveSessionKey(sessionKey);
+  }
+
+  /**
+   * #838: raise the OS completion notification and let autonomous workflows
+   * self-advance, which this backend never did.
+   *
+   * Only a clean end of turn qualifies. On error, abort or disconnect we emit
+   * nothing and leave the run to the existing 30-minute autonomous watchdog,
+   * which parks it. Notifying there would carry the default
+   * `state: 'ai_waiting_input'`, and WorkflowSessionService would read that as
+   * a step that finished - marking a FAILED step done and advancing the run.
+   */
+  private handleTurnEnd(outcome: TurnEndOutcome): void {
+    if (outcome !== 'ok') return;
+    void ConversationTurnCompletionService.getInstance().notifyPotentialCompletion(this.conversation_id, {
+      status: this.status ?? 'finished',
+      workspace: this.workspace,
+      backend: 'remote',
+      pendingConfirmations: this.getConfirmations().length,
+    });
   }
 
   /**
