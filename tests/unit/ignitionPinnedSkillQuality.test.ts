@@ -27,13 +27,43 @@ import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
 
 const SKILLS_ROOT = join(__dirname, '../../src/process/resources/skills');
 
-/** The generator's fingerprints. Each appeared verbatim in the thin bodies. */
+/**
+ * The generator's fingerprints. Each appeared verbatim in the thin bodies.
+ *
+ * The last three were added after the first rewrite missed them: that pass
+ * replaced the TOP of each file (When to Use, Persona, Critical Rules, Process)
+ * and left the tail untouched, so all three skills still shipped an Example
+ * reading "Help me with <name> for a mid-size project." -> "A complete <name>
+ * framework tailored to the specific context." The suite passed anyway, because
+ * it was only looking for the patterns the top of the file happened to contain.
+ */
 const FILLER_PATTERNS: readonly RegExp[] = [
   /Analyze the situation\./,
   /User needs guidance on /,
   /User asks about .* best practices or techniques/,
   /User wants a structured approach to /,
   /opportunities relevant to /,
+  /for a mid-size project/,
+  /framework tailored to the specific context/,
+  /^- \*\*Incomplete information:\*\* Ask clarifying questions before proceeding/m,
+];
+
+/**
+ * The spine every strong sibling follows. A skill missing these is not
+ * necessarily bad prose, but it is measurably not finished to house standard --
+ * and all three thin bodies were missing exactly this set.
+ */
+const REQUIRED_SECTIONS: readonly string[] = [
+  'When to Use',
+  'Persona & Identity',
+  'Core Responsibilities',
+  'Critical Rules',
+  'Process',
+  'Communication Style',
+  'Success Metrics',
+  'Tool Restrictions',
+  'Edge Cases',
+  'Example',
 ];
 
 const ignition = ASSISTANT_PRESETS.find((preset) => preset.id === 'ignition');
@@ -68,6 +98,28 @@ describe('Ignition pinned skills carry real expertise', () => {
 
   it.each(pinned)('%s says when NOT to use it, so the six can route between them', (id) => {
     expect(/Do NOT use/i.test(body(id)), `${id} never says when not to use it`).toBe(true);
+  });
+
+  it.each(pinned)('%s carries every section the house spine requires', (id) => {
+    const headings = new Set(
+      Array.from(body(id).matchAll(/^## (.+?)\s*$/gm), (m) => m[1].split(' -- ')[0].trim())
+    );
+    const missing = REQUIRED_SECTIONS.filter((s) => !headings.has(s));
+    expect(missing, `${id} is missing house sections`).toEqual([]);
+  });
+
+  it.each(pinned)('%s shows a worked example, not a description of one', (id) => {
+    // The generator's Example was two lines restating the skill's own name. A
+    // real one carries a concrete scenario, so it is substantially longer.
+    //
+    // Read to end of file rather than to the next `## `: `## Example` is the
+    // last top-level section in all six, and a worked example legitimately
+    // contains `##` sub-headings (the siblings render a full artifact inside it),
+    // so stopping at the first one measures the preamble instead of the example.
+    const text = body(id);
+    const start = /^## Example\s*$/m.exec(text);
+    const example = start ? text.slice(start.index + start[0].length).trim() : '';
+    expect(example.length, `${id} has a stub Example`).toBeGreaterThan(400);
   });
 
   it.each(pinned)('%s does not describe itself circularly', (id) => {
