@@ -127,60 +127,39 @@ Before providing brand identity guidance:
 9. Where will the brand identity be applied? (digital only, retail, packaging, signage, print, uniforms, vehicles)
 10. What is the timeline and budget?
 
-## Brand Discovery Workshop
+## Discovery
 
-### Purpose
+Before any visual decision, establish what the identity is trying to do. Skipping this is what produces
+subjective feedback and endless revisions -- without an agreed brief, every opinion is equally valid.
 
-The discovery workshop aligns all stakeholders on the brand's strategic foundation before any visual design begins. Designing without this alignment leads to subjective feedback, endless revisions, and identities that do not resonate.
+**Solo founder (the common case here).** You do not need a workshop, you need forty minutes and honest
+answers to six questions. Run it as a conversation and write the results down:
 
-### Workshop Exercises
+1. Who is the customer, specifically enough to picture one?
+2. What should they feel in the first second, before reading anything?
+3. What do they use today, and what is wrong with it?
+4. Name 3-5 brands you admire, from any industry -- and say what specifically you admire about each.
+5. Complete three of these: "We are ___, not ___." (approachable not casual; premium not pretentious)
+6. What must this survive? Van, phone, embroidery, one-colour print, a 32px avatar?
 
-**Brand Attributes Exercise**:
-Provide a list of 40-50 attribute words (innovative, traditional, playful, serious, luxury, accessible, bold, subtle, etc.). Stakeholders each select 5 that best describe the brand and 5 that do NOT describe it. Compare selections. Discuss disagreements. Arrive at a shared set of 5-7 defining attributes.
+Question 6 is the one people skip and the one that constrains every decision afterwards.
 
-**Audience Persona Exercise**:
-Build 2-3 detailed audience personas:
+**When there are multiple stakeholders**, the disagreements are the point, so surface them
+deliberately:
 
-- Name, age, occupation, location
-- Goals, challenges, frustrations
-- How they discover and interact with brands in this category
-- What visual language appeals to them (what brands do they already love?)
-- What would make them choose this brand over alternatives?
+- **Attributes:** each person picks 5 words that describe the brand and 5 that do not, from a list of
+  40-50. Compare. The words people *reject* differ more than the ones they choose, and that is where
+  the real disagreement lives.
+- **Positioning map:** plot competitors on two axes that matter (traditional/modern,
+  mass-market/premium) and find the white space.
+- **"This, not that":** contrasting pairs prevent the brand being misread later.
 
-**Competitive Positioning Map**:
-Plot competitors on two axes that matter to the brand (e.g., traditional vs modern, mass-market vs premium). Identify the white space -- where can this brand position itself distinctly?
+**Output, either way -- the brief every visual decision traces back to:** purpose in one line, 3-5
+values, 5-7 attributes, one or two audience descriptions, positioning, voice and tone, the "this not
+that" statements, and the reproduction constraints from question 6.
 
-**Brand Voice and Tone**:
-Define how the brand communicates:
-
-- **Voice** (consistent personality): Professional, conversational, authoritative, playful, warm, edgy
-- **Tone** (adjusts by context): The voice stays the same, but the tone shifts. A playful brand is still playful in a customer complaint response, but with more empathy.
-
-**"This, Not That" Exercise**:
-Create pairs of contrasting descriptors:
-
-- "We are approachable, not casual"
-- "We are innovative, not gimmicky"
-- "We are premium, not pretentious"
-  This creates nuance that prevents the brand from being misinterpreted.
-
-**Aspirational Brands**:
-Ask stakeholders to name 3-5 brands (from any industry) that they admire. Discuss what specifically they admire (visual identity, customer experience, messaging, reputation). This reveals aesthetic and strategic preferences.
-
-### Workshop Output
-
-Document the workshop results in a Brand Strategy Brief:
-
-- Brand purpose/mission statement
-- Core values (3-5)
-- Brand attributes (5-7 adjective descriptors)
-- Audience personas (2-3)
-- Competitive positioning
-- Brand voice and tone
-- "This, not that" statements
-- Aspirational references
-
-This document is the design brief. All visual decisions should trace back to it.
+If a later design argument cannot be settled by pointing at this brief, the brief is incomplete --
+go back and finish it rather than arguing about taste.
 
 ## Moodboard Creation
 
@@ -344,67 +323,32 @@ If the brand uses illustration:
 
 ## Brand Guidelines Document
 
-### Structure
+The guidelines exist so someone who is not you can reproduce the identity correctly. Judge every
+section by that test: if a sign-writer, a printer and a web developer could each work from it without
+asking a question, it is finished.
 
-A comprehensive brand guidelines document includes:
+**Scale the document to the business.** A solo founder needs two pages; an organisation with several
+teams touching the brand needs the full set. Delivering forty pages to a one-van operation guarantees
+nobody reads any of it.
 
-**Section 1: Brand Foundation**
+| Section | Contents |
+|---|---|
+| **Foundation** | Purpose in one line, values, attributes, voice and tone |
+| **Logo** | Primary mark, variations, clear space, minimum size, colour and one-colour versions, **misuse examples** |
+| **Colour** | Full palette with hex/RGB/CMYK, roles and proportions, contrast ratios, pairings to avoid |
+| **Typography** | Typefaces with **licence terms** and fallbacks, hierarchy with size / weight / line-height for each level |
+| **Imagery** | Photography and illustration style, iconography, treatments |
+| **Applications** | Only the surfaces this business actually uses -- cards, email signature, social, signage, packaging |
+| **Do's and don'ts** | Visual right-and-wrong for every element above |
 
-- Brand story and mission
-- Core values
-- Brand personality attributes
-- Voice and tone guidelines
+Two sections carry more weight than their length suggests. **Misuse examples** prevent more damage than
+correct-usage examples, because people improvise when the guide is silent. **Licence terms** on
+typefaces prevent a commercial identity built on a font nobody is entitled to use.
 
-**Section 2: Logo**
-
-- Primary logo with clear space and minimum size
-- All logo variations (secondary, submark, wordmark, symbol)
-- Color versions (full color, one-color, black, white, grayscale)
-- Placement guidelines for common applications
-- Misuse examples (what not to do)
-
-**Section 3: Color**
-
-- Full color palette with all specifications
-- Color proportions and usage guidelines
-- Accessibility compliance notes
-- Color combinations to use and avoid
-
-**Section 4: Typography**
-
-- Typeface selections with license information
-- Type hierarchy (H1 through body text, captions, labels)
-- Specific size, weight, line-height, and spacing for each level
-- Type layout examples
-
-**Section 5: Imagery**
-
-- Photography style guide with examples
-- Illustration style (if applicable)
-- Iconography specifications
-- Image treatment and overlay guidelines
-
-**Section 6: Applications**
-
-- Business cards
-- Letterhead and envelopes
-- Email signatures
-- Social media templates (profile, cover, post)
-- Presentation template
-- Website/app screenshots
-- Signage and environmental
-- Merchandise (if applicable)
-- Packaging (if applicable)
-
-**Section 7: Do's and Don'ts**
-
-- Visual examples of correct and incorrect usage for every element
-
-### Guidelines Format
-
-- PDF: The most common delivery format. Interactive PDFs with linked navigation.
-- Web-based: Hosted on a platform like Frontify, Zeroheight, or a custom website. Easier to update and access.
-- Figma: Increasingly common for digital brands. Designers can access components directly.
+**Format:** PDF is the common delivery and travels anywhere. A hosted version (Frontify, Zeroheight, or
+a simple page) is easier to keep current when the brand is still moving. Figma suits digital-first
+brands whose developers want the components directly. Pick one and keep it authoritative -- two
+half-current versions is worse than either alone.
 
 ## Deliverables Checklist
 

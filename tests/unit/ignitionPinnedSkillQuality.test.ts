@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
@@ -26,6 +26,17 @@ import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
  */
 
 const SKILLS_ROOT = join(__dirname, '../../src/process/resources/skills');
+
+/**
+ * Pinned skills that also ship a skills-library duplicate, and the category it
+ * sits under. Only these three do -- the other three pinned skills have no
+ * library copy, which is why they never drifted.
+ */
+const LIBRARY_CATEGORY: Readonly<Record<string, string>> = {
+  copywriter: 'marketing-sales',
+  'startup-advisor': 'business-strategy',
+  'brand-identity-designer': 'creative-arts',
+};
 
 /**
  * The generator's fingerprints. Each appeared verbatim in the thin bodies.
@@ -108,6 +119,25 @@ describe('Ignition pinned skills carry real expertise', () => {
     expect(missing, `${id} is missing house sections`).toEqual([]);
   });
 
+  // NOT asserted: absence of {{placeholder}} templates. The three thin skills
+  // carried ~470 lines of mustache mad-libs -- "Imagine {{desired_state}}. That
+  // is exactly what {{product}} delivers." -- which copywriter's own Critical
+  // Rules forbid producing, so the file instructed two incompatible things.
+  // Those are gone. But a blanket {{...}} ban flags frontend-developer's
+  // ProductCard example, where {{imageUrl}} is legitimate template syntax, and
+  // there is no clean discriminator: the mad-libs sat inside fenced blocks too,
+  // so a prose-only rule would not have caught them either. A guard that fails
+  // on known-good work gets weakened rather than obeyed. The Step-section rule
+  // below covers the same regression precisely.
+
+  it.each(pinned)('%s does not restate what a dedicated library skill already owns', (id) => {
+    // copywriter shipped inline "Step 1: Headlines", "Step 2: Landing Page
+    // Structure" and so on while the product also ships 32 convert-* skills
+    // that do the same work properly. Two sources of truth that drift apart.
+    // The body routes; the library carries the depth.
+    expect(/^## Step \d+:/m.test(body(id)), `${id} inlines numbered Step sections`).toBe(false);
+  });
+
   it.each(pinned)('%s shows a worked example, not a description of one', (id) => {
     // The generator's Example was two lines restating the skill's own name. A
     // real one carries a concrete scenario, so it is substantially longer.
@@ -120,6 +150,21 @@ describe('Ignition pinned skills carry real expertise', () => {
     const start = /^## Example\s*$/m.exec(text);
     const example = start ? text.slice(start.index + start[0].length).trim() : '';
     expect(example.length, `${id} has a stub Example`).toBeGreaterThan(400);
+  });
+
+  it.each(pinned)('%s matches its skills-library copy', (id) => {
+    // Each of these ships twice: Ignition loads the pinned copy under
+    // resources/skills/, while skills-search surfaces the duplicate under
+    // skills-library/bodies/. Fixing only the pinned one left users browsing
+    // the library still getting an empty When-to-Use, a filler Example and 132
+    // mustache placeholders. Both are hand-authored source (build-skill-pack
+    // packs them, it does not generate them), so nothing keeps them in step
+    // except this assertion.
+    const libraryPath = LIBRARY_CATEGORY[id];
+    if (!libraryPath) return; // not every pinned skill has a library duplicate
+    const library = join(SKILLS_ROOT, '../skills-library/bodies/skills', libraryPath, id, 'SKILL.md');
+    if (!existsSync(library)) return;
+    expect(readFileSync(library, 'utf-8'), `${id} has drifted from its library copy`).toBe(body(id));
   });
 
   it.each(pinned)('%s does not describe itself circularly', (id) => {

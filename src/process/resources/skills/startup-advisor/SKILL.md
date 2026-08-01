@@ -22,7 +22,8 @@ metadata:
 
 - The user is building a startup and needs guidance on lean methodology, MVP definition, or product-market fit measurement
 - The user wants help with funding strategy, key metrics, or deciding whether to pivot
-- The user needs stage-appropriate advice from ideation through scale for a venture-backed business
+- The user needs stage-appropriate advice, from ideation through scale, on either path -- an income
+  asset funded from their own pocket or a venture-backed business
 - The user wants to understand startup economics, fundraising rounds, or growth metrics
 
 **Do NOT use this skill when:**
@@ -118,8 +119,6 @@ go-to-market-strategy.
 
 A comprehensive startup advisory skill that provides stage-appropriate guidance from ideation through scale. Built on Lean Startup methodology, product-market fit frameworks, and real-world startup operating practices. Covers strategy, metrics, fundraising, team building, and decision-making frameworks.
 
----
-
 ## Questions to Ask the User First
 
 1. **What is your startup idea?** (One sentence)
@@ -139,326 +138,129 @@ A comprehensive startup advisory skill that provides stage-appropriate guidance 
 9. **What is your target customer?**
 10. **What is your timeline / runway?**
 
----
-
-## Startup Stage Framework
-
-### Stage 1: Ideation
-
-**Goal:** Validate that a real problem exists worth solving.
-
-```
-IDEATION CHECKLIST:
-
-PROBLEM VALIDATION:
-- [ ] Can you describe the problem in one sentence?
-- [ ] Have you experienced this problem yourself?
-- [ ] Have you talked to 10+ people who have this problem?
-- [ ] Can you quantify the cost of this problem? (time, money, frustration)
-- [ ] Are people actively seeking solutions today?
-
-SOLUTION BRAINSTORMING:
-- [ ] List 5+ possible solutions
-- [ ] Identify which solution is simplest to test
-- [ ] Define what "better" means vs. existing alternatives
-- [ ] Identify your unfair advantage for building this
-
-FOUNDER-MARKET FIT:
-- [ ] Why are YOU the right person to solve this?
-- [ ] What unique insight do you have?
-- [ ] What resources/connections do you bring?
-- [ ] Are you passionate enough to work on this for 7-10 years?
-
-QUICK TESTS:
-- Create a landing page describing the solution
-- Run a "fake door" test (CTA that measures interest)
-- Post in relevant communities and measure response
-- Talk to 20 potential customers (do NOT pitch -- just listen)
-```
-
-### Stage 2: Validation
-
-**Goal:** Prove that customers will pay for your solution.
-
-```
-VALIDATION EXPERIMENTS:
-
-EXPERIMENT 1: Problem Interviews (Week 1-2)
-  Target: 20 customer interviews
-  Script: "Tell me about the last time you experienced {{problem}}..."
-  Success metric: 80%+ confirm the problem is significant
-  Result: [ ] Validated [ ] Invalidated
-
-EXPERIMENT 2: Solution Interviews (Week 2-3)
-  Target: 15 solution interviews with mockup/prototype
-  Script: "Here is how we would solve {{problem}}. Would you use this?"
-  Success metric: 60%+ express strong interest
-  Result: [ ] Validated [ ] Invalidated
-
-EXPERIMENT 3: Willingness to Pay (Week 3-4)
-  Target: 10 pricing conversations
-  Method: Van Westendorp or direct pricing question
-  Script: "If this existed today, what would you expect to pay?"
-  Success metric: Price supports viable business model
-  Result: [ ] Validated [ ] Invalidated
-
-EXPERIMENT 4: Pre-Sales (Week 4-6)
-  Target: 5 pre-orders, LOIs, or deposits
-  Method: Offer early access at discount for commitment
-  Success metric: Real money or binding commitment changes hands
-  Result: [ ] Validated [ ] Invalidated
-```
-
-### Stage 3: MVP (Minimum Viable Product)
-
-**Goal:** Build the smallest thing that delivers the core value.
-
-```
-MVP DEFINITION WORKSHEET
-
-CORE JOB TO BE DONE:
-{{What is the #1 thing your product must do?}}
-
-MVP FEATURE SET (be ruthless):
-MUST HAVE (launch blockers):
-  1. {{feature}} -- Why: {{it directly delivers core value}}
-  2. {{feature}} -- Why: {{without it, product cannot function}}
-  3. {{feature}} -- Why: {{required for payment/onboarding}}
-
-SHOULD HAVE (Week 2-4 post-launch):
-  1. {{feature}}
-  2. {{feature}}
-
-COULD HAVE (Month 2-3):
-  1. {{feature}}
-  2. {{feature}}
-
-WILL NOT HAVE (explicitly excluded):
-  1. {{feature}} -- Why: {{distraction from core value}}
-  2. {{feature}} -- Why: {{premature optimization}}
-
-MVP TYPE:
-  [ ] Concierge MVP (manually deliver the value)
-  [ ] Wizard of Oz (looks automated, human-powered behind scenes)
-  [ ] Single-feature product (one thing done well)
-  [ ] Landing page + manual process
-  [ ] Piecemeal MVP (stitch together existing tools)
-
-TIMELINE: {{weeks}} weeks
-BUDGET: ${{budget}}
-SUCCESS CRITERIA: {{measurable_outcome}}
-```
-
-### Stage 4: Early Traction
-
-**Goal:** Find repeatable customer acquisition and prove product-market fit.
-
-```
-PRODUCT-MARKET FIT ASSESSMENT
-
-THE SEAN ELLIS TEST:
-Ask existing users: "How would you feel if you could no longer use {{product}}?"
-  Very disappointed: {{pct}}% (target: 40%+)
-  Somewhat disappointed: {{pct}}%
-  Not disappointed: {{pct}}%
-
-RETENTION ANALYSIS:
-  Day 1 retention: {{pct}}%
-  Day 7 retention: {{pct}}%
-  Day 30 retention: {{pct}}%
-  Is retention flattening? {{yes/no}} (good = yes, curve flattens)
-
-ORGANIC GROWTH SIGNALS:
-  - [ ] Users referring other users without being asked
-  - [ ] Inbound leads increasing
-  - [ ] Usage frequency increasing over time
-  - [ ] Users complaining when product is down
-  - [ ] Users finding creative uses you did not anticipate
-
-NET PROMOTER SCORE:
-  NPS: {{score}} (-100 to +100, target: 50+)
-
-VERDICT:
-  [ ] Strong PMF -- Accelerate growth
-  [ ] Emerging PMF -- Double down on what is working
-  [ ] Weak PMF -- Iterate on product/positioning
-  [ ] No PMF -- Consider pivot
-```
-
-### Stage 5: Growth
-
-**Goal:** Scale acquisition channels and optimize unit economics.
-
-```
-GROWTH FRAMEWORK
-
-IDENTIFY YOUR GROWTH ENGINE:
-  [ ] Viral: Users naturally invite others
-      Key metric: Viral coefficient (target: >1.0)
-  [ ] Sticky: High retention drives growth
-      Key metric: Churn rate (target: <5% monthly)
-  [ ] Paid: Profitable customer acquisition
-      Key metric: LTV:CAC ratio (target: >3:1)
-
-CHANNEL TESTING MATRIX:
-| Channel           | Cost to Test | Timeline | Expected CAC | Status    |
-|-------------------|-------------|----------|-------------|-----------|
-| Content/SEO       | ${{}}       | 3-6 mo   | ${{}}       | {{}}      |
-| Paid Search       | ${{}}       | 2-4 wk   | ${{}}       | {{}}      |
-| Paid Social       | ${{}}       | 2-4 wk   | ${{}}       | {{}}      |
-| Cold Outreach     | ${{}}       | 2-4 wk   | ${{}}       | {{}}      |
-| Partnerships      | ${{}}       | 1-3 mo   | ${{}}       | {{}}      |
-| Referral Program  | ${{}}       | 1-2 mo   | ${{}}       | {{}}      |
-| Community/Events  | ${{}}       | 2-3 mo   | ${{}}       | {{}}      |
-| PR/Media          | ${{}}       | 1-3 mo   | ${{}}       | {{}}      |
-
-GROWTH PRIORITIES (ICE Framework):
-  Impact (1-10) x Confidence (1-10) x Ease (1-10) = ICE Score
-
-| Experiment               | Impact | Confidence | Ease | Score |
-|--------------------------|--------|------------|------|-------|
-| {{experiment_1}}         | {{}}   | {{}}       | {{}} | {{}}  |
-| {{experiment_2}}         | {{}}   | {{}}       | {{}} | {{}}  |
-| {{experiment_3}}         | {{}}   | {{}}       | {{}} | {{}}  |
-```
-
-### Stage 6: Scale
-
-**Goal:** Build organizational capacity and expand markets.
-
-```
-SCALING READINESS CHECKLIST:
-
-PRODUCT:
-- [ ] Core product is stable and reliable
-- [ ] Infrastructure can handle 10x current load
-- [ ] Customer onboarding is self-serve or semi-automated
-- [ ] Support is scalable (help docs, chatbot, tiered support)
-
-TEAM:
-- [ ] Key leadership roles are filled
-- [ ] Hiring pipeline is established
-- [ ] Culture and values are documented
-- [ ] Management structure exists for 3x current headcount
-
-OPERATIONS:
-- [ ] Key processes are documented
-- [ ] Financial controls and reporting are in place
-- [ ] Legal and compliance requirements are met
-- [ ] Vendor/partner relationships are formalized
-
-GROWTH:
-- [ ] At least 2 acquisition channels are working
-- [ ] Unit economics are positive and improving
-- [ ] Expansion revenue (upsell/cross-sell) strategy exists
-- [ ] International/geographic expansion plan (if applicable)
-```
-
----
-
-## Key Startup Metrics
-
-### Metric Definitions and Benchmarks
-
-```
-CORE METRICS DASHBOARD
-
-ACQUISITION:
-  Customer Acquisition Cost (CAC):
-    Formula: Total sales & marketing spend / New customers acquired
-    Benchmark: Varies by industry, but LTV:CAC should be >3:1
-    Your CAC: ${{cac}}
-
-  Monthly Recurring Revenue (MRR):
-    Formula: Sum of all monthly subscription revenue
-    Growth rate: {{mrr_growth}}% MoM (healthy: 10-20% early stage)
-    Your MRR: ${{mrr}}
-
-  Annual Recurring Revenue (ARR):
-    Formula: MRR x 12
-    Your ARR: ${{arr}}
-
-RETENTION:
-  Churn Rate (Monthly):
-    Formula: Customers lost in month / Customers at start of month
-    Benchmark: <5% monthly for SMB, <1% for enterprise
-    Your churn: {{churn}}%
-
-  Net Revenue Retention (NRR):
-    Formula: (Starting MRR + Expansion - Contraction - Churn) / Starting MRR
-    Benchmark: >100% (best-in-class: >120%)
-    Your NRR: {{nrr}}%
-
-ECONOMICS:
-  Lifetime Value (LTV):
-    Formula: ARPU / Monthly churn rate
-    Your LTV: ${{ltv}}
-
-  LTV:CAC Ratio:
-    Formula: LTV / CAC
-    Benchmark: 3:1 minimum, 5:1+ for healthy businesses
-    Your ratio: {{ratio}}:1
-
-  Payback Period:
-    Formula: CAC / Monthly gross profit per customer
-    Benchmark: <12 months
-    Your payback: {{months}} months
-
-ENGAGEMENT:
-  Daily Active Users (DAU): {{dau}}
-  Monthly Active Users (MAU): {{mau}}
-  DAU/MAU Ratio: {{ratio}}% (benchmark: 20%+ is good, 50%+ is excellent)
-
-BURN:
-  Monthly Burn Rate: ${{burn}}
-  Runway: {{months}} months (cash / monthly burn)
-  Months to default (if declining runway): {{months}}
-```
-
----
-
-## Pivot vs. Persevere Decision Framework
-
-```
-PIVOT ASSESSMENT
-
-Answer each question honestly:
-
-TRACTION SIGNALS:
-1. Are users/customers actively using the product? {{yes/no}}
-2. Is there organic growth (word-of-mouth)? {{yes/no}}
-3. Are users willing to pay the target price? {{yes/no}}
-4. Is usage increasing over time? {{yes/no}}
-5. Do users get upset when the product is unavailable? {{yes/no}}
-
-Score: {{count}}/5 -- If < 2, strongly consider a pivot.
-
-PIVOT OPTIONS:
-  Zoom-in pivot: One feature becomes the whole product
-  Zoom-out pivot: Whole product becomes one feature of larger product
-  Customer segment pivot: Same product, different customer
-  Customer need pivot: Same customer, different problem
-  Platform pivot: Change from app to platform (or vice versa)
-  Business model pivot: Change how you monetize
-  Channel pivot: Change how you reach customers
-  Technology pivot: Same solution, different technology
-  Value capture pivot: Change your pricing/revenue model
-
-DECISION MATRIX:
-| Factor                      | Persevere | Pivot |
-|-----------------------------|-----------|-------|
-| Customer feedback           | {{}}      | {{}}  |
-| Metrics trend               | {{}}      | {{}}  |
-| Team energy/conviction      | {{}}      | {{}}  |
-| Market timing               | {{}}      | {{}}  |
-| Competitive landscape       | {{}}      | {{}}  |
-| Runway remaining            | {{}}      | {{}}  |
-
-DECISION: [ ] Persevere  [ ] Pivot to: {{pivot_type}}
-RATIONALE: {{why}}
-```
-
----
+## Stage Framework
+
+Six stages. Most people you advise are somewhere in the first three and will stay there, because an
+income asset that works does not need the last three. Do not push anyone up this ladder; identify
+where they actually are and give them the next stage's test.
+
+Each stage has one job and one bar. Until the bar is met, work on that stage -- effort spent on a
+later stage is wasted, and it is the most common way founders burn a year.
+
+| Stage | The one job | The bar to clear | Typical failure |
+|---|---|---|---|
+| **1. Ideation** | Prove the problem is real and costly | 10+ people describe the problem unprompted and can name what it costs them | Falling for a problem nobody pays to fix |
+| **2. Validation** | Prove someone pays | Real money or a binding commitment from 5 people, before the thing exists | Interviews that confirm interest but never test payment |
+| **3. MVP** | Deliver the core value to first customers | 10 customers use it and at least half come back unprompted | Building the roadmap instead of the one thing |
+| **4. Early traction** | Find one repeatable way to get customers | The same channel produces customers three months running at a cost you can afford | Chasing five channels badly |
+| **5. Growth** | Make the economics work at volume | A customer costs less to acquire than they are worth, with the maths written down | Scaling a channel that loses money faster |
+| **6. Scale** | Build capacity beyond the founder | The business runs a week without you and nothing breaks | Hiring before the process exists |
+
+### Stage 1 -- Ideation
+
+Talk to twenty people who have the problem and **do not pitch**. The goal is to hear the problem
+described in their words, and to find out what they do about it today. "Nothing" is a warning sign,
+not an opportunity: a problem nobody currently spends money or effort on is usually one they tolerate.
+
+Answer honestly: why you? Not passion -- access. Do you already know these people, understand the
+work, or have a way to reach them that a stranger does not? That is the only durable advantage a
+one-person business starts with.
+
+### Stage 2 -- Validation
+
+Interest is not validation. The only validating events are money changing hands, a signed commitment,
+or someone rearranging their week to use a manual version. Run it in this order, and stop at the first
+one that fails:
+
+1. **Problem interviews** -- 20 conversations. Bar: most describe it as significant, unprompted.
+2. **Solution check** -- 15 conversations with a mockup. Bar: they ask when it is available.
+3. **Price conversation** -- 10 people. Ask what they expect to pay, not what they would pay.
+4. **Pre-sale** -- 5 commitments with money or signature attached, before you build.
+
+A failure at step 4 after passes at 1-3 is the most informative result in this whole framework: the
+problem is real and your solution is not the one they want.
+
+### Stage 3 -- MVP
+
+The smallest thing that delivers the core value, which is almost always smaller than the founder
+thinks and is frequently not software at all. Do it manually for the first ten customers. Manual
+delivery teaches you the specification; building first means guessing at it.
+
+Ship when it delivers the value once, not when it is comfortable to show people.
+
+### Stage 4 -- Early traction
+
+One channel, done properly, for three months. Repeatability is the whole point -- a good month from
+an unrepeatable source (a viral post, one friendly buyer) is not traction and should not be planned
+around. Write down what a customer costs you in money and hours, because the hours are what will run
+out first.
+
+### Stage 5 -- Growth
+
+Only meaningful once acquisition is repeatable. The question is arithmetic: what a customer costs to
+acquire against what they are worth over their life. If that comparison is not written down, growth
+means losing money faster.
+
+### Stage 6 -- Scale
+
+Relevant only if the founder wants a business larger than themselves. Many should not, and saying so
+is legitimate advice rather than a failure of ambition. The bar is that the business survives a week
+without them.
+
+## Key Metrics
+
+Two warnings before the table. First, most of these are subscription metrics and do not apply to a
+service business, a one-off product, or a local trade -- for those, the only numbers that matter early
+are what a customer costs to get, what they pay, and how many come back. Do not make someone compute
+NRR for a mobile dog-grooming round.
+
+Second, a metric with no decision attached to it is a distraction. Before asking for a number, know
+what you would do differently at a high value versus a low one.
+
+| Metric | Formula | Healthy | Applies to |
+|---|---|---|---|
+| **CAC** -- cost to acquire a customer | Sales + marketing spend / new customers | Must be recoverable inside 12 months of gross profit | Everyone |
+| **LTV** -- what a customer is worth | Average revenue per customer / churn rate | At least 3x CAC | Everyone, roughly |
+| **LTV:CAC** | LTV / CAC | 3:1 minimum, 5:1 healthy | Everyone |
+| **Payback period** | CAC / monthly gross profit per customer | Under 12 months | Everyone |
+| **MRR / ARR** | Sum of monthly subscription revenue (x12 for ARR) | 10-20% month-on-month early | Subscription only |
+| **Churn** | Customers lost in month / customers at start | Under 5% monthly SMB, under 1% enterprise | Subscription only |
+| **NRR** | (Start MRR + expansion - contraction - churn) / start MRR | Above 100% | Subscription only |
+| **DAU/MAU** | Daily actives / monthly actives | 20% good, 50% excellent | Habitual products only |
+| **Burn and runway** | Monthly net cash out; cash / burn | Runway in months, honestly counted | Anyone spending savings |
+
+For a founder using their own money, translate burn into the number that actually governs behaviour:
+**how many weeks can this continue before it hurts.** That is the constraint they will feel, and it is
+the one that should shape the plan.
+
+## Pivot or Persevere
+
+Ask the five traction questions. They are deliberately about behaviour, not opinion -- what people do,
+never what they say they would do.
+
+1. Are customers actively using it, unprompted?
+2. Is anyone telling someone else about it without being asked?
+3. Are they paying the price you need, rather than a discount you invented to close them?
+4. Is usage rising over time rather than decaying after the first week?
+5. Would they be annoyed if it disappeared tomorrow?
+
+**Fewer than two yes: pivot.** Four or five: persevere and stop second-guessing. Two or three is the
+genuinely hard case -- and there the deciding question is not the score, it is whether you have the
+weeks and the money to find out, which is why kill criteria get written before the build.
+
+**What to change, from smallest to largest.** Try them in this order; founders routinely reach for the
+last one when the first would have done.
+
+- **Zoom in** -- the one feature people actually use becomes the whole product
+- **Zoom out** -- what you built becomes one feature of something larger
+- **Segment** -- same product, different customer
+- **Need** -- same customer, different problem
+- **Channel** -- same everything, different way of reaching them
+- **Pricing or model** -- same value, different capture
+- **Technology or platform** -- the most expensive change and almost never the actual problem
+
+A pivot that keeps the customer is cheaper than one that keeps the product. If you have found people
+who trust you and have a problem, that is the asset -- not the thing you built for them.
 
 ## Funding Options by Stage
 
@@ -503,8 +305,6 @@ ALTERNATIVE FUNDING:
   - Strategic partnerships: Advance payments or joint ventures
 ```
 
----
-
 ## Common Startup Pitfalls
 
 ### Top 20 Reasons Startups Fail (and How to Avoid Them)
@@ -531,8 +331,6 @@ ALTERNATIVE FUNDING:
 | 18   | No network          | Join communities, attend events, help others first.       |
 | 19   | Burnout             | Pace yourself. This is a marathon, not a sprint.          |
 | 20   | Fail to pivot       | Set kill criteria before experiments. Be honest.          |
-
----
 
 ## Founder Operating System
 
@@ -569,8 +367,6 @@ QUARTERLY:
   - Team retrospective
   - Fundraising status assessment
 ```
-
----
 
 ## Output Checklist
 
