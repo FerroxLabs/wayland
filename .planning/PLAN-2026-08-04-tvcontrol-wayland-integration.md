@@ -17,61 +17,93 @@ tooling — keep out of every commit. 76 commits local, nothing pushed.
 
 ---
 
-## W-0 — The agent cannot find TVControl's tools  🔴🔴 MASTER-CLASS BLOCKER
+## W-0 — The agent cannot reach TVControl's tools  🔴🔴 MASTER-CLASS BLOCKER
 
-**Found by end-to-end test, 2026-08-04 13:12. This is the defect that actually kills the
-Master Class, and it is not the one W-1 fixes.** Everything in W-1/W-2/W-3 is about making
-*setup* work. This is about the product not working once setup is correct.
+**The fix is in `wayland-core`, not Desktop.** That matters for scoping: Core is already
+being rebuilt, and this belongs in that work.
 
-### What happened
+### Observed, twice, with a real model and a live chart
 
-A real conversation, real Flux model (`flux-pinned-claude-sonnet`), Wayland Core backend,
-TVControl enabled and connected, TradingView live. Prompt: read the chart, then switch the
-symbol to NASDAQ:TSLA.
+Two full end-to-end runs (`/tmp/wl-demo.log`, `/tmp/wl-demo2.log`): real conversation,
+`flux-pinned-claude-sonnet`, Wayland Core backend, TVControl enabled, TradingView live,
+prompt = read the chart then switch to NASDAQ:TSLA.
 
-The agent **found TVControl, asked permission, was granted it — and then could not see a
-single tool.** From `/tmp/wl-demo.log`:
+**The chart never moved, in either run.** Run 1, after permission was granted:
 
 ```
-13:12:43.409  [WCoreManager] MCP ToolSearch candidate pool: 0 tools from current-session receipts
-13:12:43.625  [wcore] [mcp] Connected to 'tvcontrol': 101 tools          <- 216ms too late
-13:12:49.990  Tool call: ToolSearch
+13:12:43.625  [wcore] [mcp] Connected to 'tvcontrol': 101 tools
 13:14:08.627  [ToolSearch success] No deferred tools matching "tvcontrol TradingView chart" found.
 13:14:12.593  [ToolSearch success] No deferred tools matching "TradingView" found.
 13:14:12.593  [ToolSearch success] No deferred tools matching "chart symbol MCP" found.
-13:14:16.674  [WCoreManager] MCP ToolSearch candidate pool: 101 tools    <- 93s after the turn began
 ```
 
-The chart never moved. A second prompt could not run — the first turn was still wedged
-**1145 seconds** later, having produced nothing after its three failed searches.
+The tools were connected 85 seconds before the search executed. **22 of TVControl's 101 tool
+descriptions contain the literal word "TradingView"** (verified by dumping `tools/list`), so
+the second query should have matched 22 tools. It matched none.
 
-### Cause
+### PROVEN — `ToolSearch` matches the entire query as one substring
 
-`WCoreManager.acceptMcpSessionTerminal` (`src/process/task/WCoreManager.ts:1362-1372`)
-recomputes the candidate pool on each MCP registration receipt. The turn starts before
-TVControl's receipt arrives, so `getMcpCandidateTools()` returns an empty pool, and
-`ToolSearch` answers **"No deferred tools matching X found"** — indistinguishable, to the
-model, from "this tool does not exist." The model stops looking. The pool is correct 93
-seconds later; by then the turn is unrecoverable.
+`crates/wcore-tools/src/tool_search.rs:88-91`:
 
-This is a cold-start ordering defect, not a TVControl defect: `getCandidateTools`
-(`getCandidateTools.ts:37-46`) correctly gates on live per-launch receipts, and the receipt
-for TVControl simply had not arrived.
+```rust
+let name_l = def.name.to_lowercase();
+let desc_l = def.description.to_lowercase();
+if name_l.contains(&query_lower) || desc_l.contains(&query_lower) {
+```
 
-### Fix direction
+`query_lower` is the whole query. `"tvcontrol TradingView chart"` must appear **verbatim** in
+a single tool's name or description. No tool in any MCP server will ever contain a
+natural-language phrase, so a model that searches the way models actually search gets nothing.
+This is arithmetic, not a hypothesis. Fix: tokenize the query and match on any/all terms, and
+rank.
 
-`ToolSearch` must never report absence while MCP registration is still in flight. Either
-hold the first tool search until session receipts settle (with a bounded timeout), or return
-a distinct "still connecting, retry" result so the model retries instead of concluding the
-tool does not exist. A turn that searched an empty pool must also not wedge — 19 minutes with
-no output is a second, independent bug.
+### INFERRED, NOT PROVEN — the snapshot is frozen before MCP servers connect
+
+`ToolSearchTool` holds a construction-time snapshot, by its own doc comment
+(`tool_search.rs:18-21`): *"Snapshot of all tool definitions (taken at construction time)."*
+It is constructed once, during bootstrap (`bootstrap.rs:2240`). MCP servers connect after
+session start. If bootstrap precedes MCP connection, MCP tools are invisible to ToolSearch for
+the entire session — which would explain why the single-word `"TradingView"` query matched
+nothing despite 22 candidates.
+
+**This ordering has not been proven and must not be treated as established.** It is the same
+shape of claim that rev 1 got wrong.
+
+**Decisive experiment — cheap, Core-side, do this first:** a unit test that builds a registry,
+constructs `ToolSearchTool`, registers an MCP-style deferred tool *afterwards*, and searches
+for it by exact name. If it is not found, the snapshot is the cause and the fix is to consult
+the live registry instead of a frozen copy.
+
+### Why this is total, not partial
+
+MCP proxies stay deferred (`registry.rs:268-269`) and `fold_deferred_into_catalog`
+(`registry.rs:302-318`) removes every deferred def from the outbound tools array. So ToolSearch
+is the **only** route from the model to an MCP tool. If ToolSearch cannot see MCP tools, no MCP
+server is callable in a Wayland Core session — TVControl is just the one we noticed.
+
+### Not the cause — corrected
+
+An earlier revision blamed Desktop's `MCP ToolSearch candidate pool: 0 tools` log line.
+`getMcpCandidateTools()` (`WCoreManager.ts:1857`) is consumed **only** by a `mainLog` call at
+`:1367` and is never sent anywhere. It is a diagnostic projection with no functional effect.
+The 93-second gap in run 1 was also not a stall — it was the permission prompt waiting for a
+human.
+
+### Secondary defects surfaced by the same runs
+
+- **A turn that finds no tools never completes.** Core logged `stream_end ... finish_reason:
+  'stop'` at 93s; the UI still showed "running" 1145 seconds later.
+- **Wayland shows "Wake your agents / connect a model provider"** in a profile with a working
+  configured provider that is actively answering.
 
 ### Acceptance
 
-- A first-message-in-a-fresh-conversation prompt that needs an MCP tool finds it.
-- Falsifiable end-to-end gate: fresh profile, TradingView live, one prompt, **the chart
-  symbol actually changes**. Nothing weaker counts — the Library tool count does not.
-- No turn stays "running" with no output after a failed tool search.
+- Core unit test: a deferred tool registered after `ToolSearchTool` construction is findable.
+- Core unit test: a multi-word natural-language query matches a tool whose description
+  contains those words.
+- End-to-end gate, falsifiable: fresh profile, TradingView live, one prompt, **the chart symbol
+  actually changes**. The Library tool count does not count — it read 101 while the agent saw
+  zero.
 
 ---
 
