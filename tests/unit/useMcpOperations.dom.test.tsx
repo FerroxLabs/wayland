@@ -98,6 +98,105 @@ describe('useMcpOperations publication evidence', () => {
     });
   });
 
+  /**
+   * A detected backend with no MCP implementation reports `unsupported: true`
+   * alongside `success: false`. Before that flag existed the two were
+   * indistinguishable, and since a typical install detects a dozen such
+   * backends (grok, goose, kimi, cursor, kiro, hermes, ...), EVERY publication
+   * and every rollback threw - even when all five agents that can actually
+   * carry an MCP server succeeded.
+   *
+   * That is what made a connector unrecoverable: publication "failed", the
+   * rollback "failed" for the same reason, and the divergence marker was
+   * persisted. These two tests are the guard. Both fail without the filter.
+   */
+  const server = {
+    id: 'mcp_1',
+    name: 'tvcontrol',
+    enabled: true,
+    createdAt: 1,
+    updatedAt: 1,
+    transport: { type: 'stdio' as const, command: 'node', args: ['/abs/server.js'] },
+  };
+
+  it('publishes successfully when the only unsuccessful agents are unsupported backends', async () => {
+    mocks.syncMcpToAgents.mockResolvedValue({
+      success: true,
+      data: {
+        results: [
+          { agent: 'Claude', success: true },
+          { agent: 'Wayland Core', success: true },
+          { agent: 'Grok Build', success: false, unsupported: true, error: 'not supported for backend "grok"' },
+          { agent: 'Goose', success: false, unsupported: true, error: 'not supported for backend "goose"' },
+          { agent: 'Cursor Agent', success: false, unsupported: true, error: 'not supported for backend "cursor"' },
+        ],
+      },
+    });
+
+    const { result } = renderHook(() => useMcpOperations([server], message as never));
+    await act(async () => {
+      await expect(result.current.syncMcpToAgents(server, true)).resolves.toBeDefined();
+    });
+  });
+
+  it('removes successfully when the only unsuccessful agents are unsupported backends', async () => {
+    // The rollback half. An "incomplete rollback" is what persisted the
+    // unrecoverable state, so this path matters as much as publication.
+    mocks.removeMcpFromAgents.mockResolvedValue({
+      success: true,
+      data: {
+        results: [
+          { agent: 'claude:Claude', success: true },
+          { agent: 'wcore:Wayland Core', success: true },
+          { agent: 'kimi:Kimi CLI', success: false, unsupported: true, error: 'not supported for backend "kimi"' },
+        ],
+      },
+    });
+
+    const { result } = renderHook(() => useMcpOperations([server], message as never));
+    await act(async () => {
+      await expect(result.current.removeMcpFromAgents('tvcontrol', undefined, 'stdio')).resolves.toBeDefined();
+    });
+  });
+
+  it('still rejects when a supported agent fails alongside unsupported backends', async () => {
+    // Negative control. Without this, filtering could be widened until nothing
+    // ever fails and a genuinely broken publication would report success.
+    mocks.syncMcpToAgents.mockResolvedValue({
+      success: true,
+      data: {
+        results: [
+          { agent: 'Claude', success: false, error: 'config locked' },
+          { agent: 'Grok Build', success: false, unsupported: true, error: 'not supported for backend "grok"' },
+        ],
+      },
+    });
+
+    const { result } = renderHook(() => useMcpOperations([server], message as never));
+    await act(async () => {
+      await expect(result.current.syncMcpToAgents(server, true)).rejects.toThrow('settings.mcpSyncFailedNoAgents');
+    });
+  });
+
+  it('still rejects when every agent is an unsupported backend', async () => {
+    // Nothing could carry the server, so publication genuinely did not happen.
+    // Filtering must not turn "no target at all" into success.
+    mocks.syncMcpToAgents.mockResolvedValue({
+      success: true,
+      data: {
+        results: [
+          { agent: 'Grok Build', success: false, unsupported: true, error: 'not supported for backend "grok"' },
+          { agent: 'Goose', success: false, unsupported: true, error: 'not supported for backend "goose"' },
+        ],
+      },
+    });
+
+    const { result } = renderHook(() => useMcpOperations([server], message as never));
+    await act(async () => {
+      await expect(result.current.syncMcpToAgents(server, true)).rejects.toThrow('settings.mcpSyncFailedNoAgents');
+    });
+  });
+
   it('rejects partial sync so one adapter cannot mint publication truth for all adapters', async () => {
     mocks.syncMcpToAgents.mockResolvedValue({
       success: true,

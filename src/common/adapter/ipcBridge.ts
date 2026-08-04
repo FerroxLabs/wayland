@@ -973,6 +973,17 @@ export const acpConversation = {
 };
 
 // MCP service related interface
+/**
+ * One agent's outcome from an MCP publish/remove.
+ *
+ * `unsupported` marks a backend that was detected on the machine but has no MCP
+ * implementation - nothing to publish to, nothing to remove from. It is NOT a
+ * failure and must be excluded before deciding an operation failed. See the
+ * field doc on `McpSyncResult` in McpProtocol.ts for why this distinction
+ * exists.
+ */
+export type McpAgentSyncResult = { agent: string; success: boolean; error?: string; unsupported?: boolean };
+
 export const mcpService = {
   getMcpConfigSnapshot: buildProvider<IBridgeResponse<{ revision: string; servers: IMcpServer[] }>, void>(
     'mcp.get-config-snapshot'
@@ -997,11 +1008,11 @@ export const mcpService = {
     IMcpServer
   >('mcp.test-connection'),
   syncMcpToAgents: buildProvider<
-    IBridgeResponse<{ success: boolean; results: Array<{ agent: string; success: boolean; error?: string }> }>,
+    IBridgeResponse<{ success: boolean; results: Array<McpAgentSyncResult> }>,
     { mcpServers: IMcpServer[]; agents: Array<{ backend: string; name: string; cliPath?: string }> }
   >('mcp.sync-to-agents'),
   removeMcpFromAgents: buildProvider<
-    IBridgeResponse<{ success: boolean; results: Array<{ agent: string; success: boolean; error?: string }> }>,
+    IBridgeResponse<{ success: boolean; results: Array<McpAgentSyncResult> }>,
     { mcpServerName: string; agents: Array<{ backend: string; name: string; cliPath?: string }> }
   >('mcp.remove-from-agents'),
   archiveConfiguredServer: buildProvider<

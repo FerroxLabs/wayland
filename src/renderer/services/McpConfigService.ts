@@ -18,7 +18,13 @@ import { getCsrfToken } from '@process/webserver/middleware/csrfClient';
  * results / { ok }), never a credential.
  */
 
-type McpAgentResult = { agent: string; success: boolean; error?: string };
+/**
+ * `unsupported` marks a detected backend with no MCP implementation: nothing to
+ * publish to, nothing to remove from. It is not a failure and must be excluded
+ * before judging an operation. See the field doc on `McpSyncResult` in
+ * McpProtocol.ts.
+ */
+type McpAgentResult = { agent: string; success: boolean; error?: string; unsupported?: boolean };
 type McpSyncResponse = { success: boolean; data?: { results: McpAgentResult[] }; msg?: string };
 export type ArchivedMcpConnector = {
   archiveId: string;

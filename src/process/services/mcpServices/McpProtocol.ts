@@ -106,6 +106,19 @@ export interface McpSyncResult {
     agent: string;
     success: boolean;
     error?: string;
+    /**
+     * The agent was detected on this machine but has no MCP implementation, so
+     * there was nothing to publish to or remove from.
+     *
+     * This is NOT a failure. It was previously reported as `success: false`
+     * with no way to tell it apart from a real one, and callers that throw on
+     * any unsuccessful result therefore threw on every operation: a typical
+     * install detects a dozen such backends (grok, goose, kimi, cursor, ...),
+     * so publication reported failure even when every agent that CAN carry an
+     * MCP server succeeded. Callers must exclude these before deciding an
+     * operation failed.
+     */
+    unsupported?: boolean;
   }>;
 }
 

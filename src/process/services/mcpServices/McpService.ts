@@ -343,6 +343,7 @@ export class McpService {
             return {
               agent: agent.name,
               success: false,
+              unsupported: true,
               error: `MCP publication is not supported for backend "${agent.backend}"`,
             };
           }
@@ -364,7 +365,11 @@ export class McpService {
 
       const results = await Promise.all(promises);
 
-      const allSuccess = results.length > 0 && results.every((r) => r.success);
+      // A backend with no MCP implementation is not a publication target, so it
+      // can neither succeed nor fail. Judge only the agents that could act;
+      // counting the rest made `success` false on every machine that has one.
+      const actionable = results.filter((r) => !r.unsupported);
+      const allSuccess = actionable.length > 0 && actionable.every((r) => r.success);
 
       return { success: allSuccess, results };
     });
@@ -457,6 +462,7 @@ export class McpService {
             return {
               agent: `${agent.backend}:${agent.name}`,
               success: false,
+              unsupported: true,
               error: `MCP removal is not supported for backend "${agent.backend}"`,
             };
           }

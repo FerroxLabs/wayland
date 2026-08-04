@@ -8,7 +8,6 @@ import type { McpOperationResult } from '../McpProtocol';
 import { AbstractMcpAgent } from '../McpProtocol';
 import type { IMcpServer } from '@/common/config/storage';
 import { ProcessConfig } from '@process/utils/initStorage';
-import { updateMcpConfig } from '../mcpConfigAuthority';
 
 /**
  * Wayland local MCP agent implementation
@@ -61,37 +60,40 @@ export class WaylandMcpAgent extends AbstractMcpAgent {
   }
 
   /**
-   * Install MCP servers into the Wayland configuration
-   * In practice, merges the entries into the unified ProcessConfig
+   * "Install" MCP servers for Wayland's local runtime.
+   *
+   * Intentionally a no-op, for the same reason {@link removeMcpServer} is: the
+   * renderer owns `mcp.config`, and this agent must not mutate it underneath
+   * the caller. Both publication paths already persist the declaration
+   * themselves - the toggle commits it immediately after publishing, and the
+   * WebUI route publishes a server it looked up out of `mcp.config` in the
+   * first place - so there is nothing here left to write.
+   *
+   * Writing it anyway was actively harmful. `updateMcpConfig` is a
+   * main-process authority that bypasses the renderer's write queue, and this
+   * method bumped `updatedAt` on the very row the caller was about to
+   * compare-and-set. `handleToggleMcpServer` publishes first and commits
+   * second, guarding on the `updatedAt` it read before publishing - so this
+   * write invalidated that guard from inside the publication it was part of,
+   * and the commit failed and rolled back every agent. It also left the row
+   * `enabled: true` even though the toggle never committed, which is how a
+   * failed publication ended up retaining an ENABLED divergence row.
+   *
+   * The transport check is retained as validation so an unsupported transport
+   * is still reported rather than silently accepted.
    */
-  async installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
-    try {
-      await updateMcpConfig((existingServers) => {
-        const serverMap = new Map<string, IMcpServer>();
-        existingServers.forEach((server) => serverMap.set(server.name, server));
-
-        mcpServers.forEach((server) => {
-          if (this.getSupportedTransports().includes(server.transport.type)) {
-            const previous = serverMap.get(server.name);
-            serverMap.set(server.name, {
-              ...server,
-              updatedAt: Math.max(Date.now(), (previous?.updatedAt ?? 0) + 1),
-            });
-          } else {
-            console.warn(
-              `[WaylandMcpAgent] Skipping ${server.name}: unsupported transport type ${server.transport.type}`
-            );
-          }
-        });
-        return Array.from(serverMap.values());
-      });
-
-      console.log('[WaylandMcpAgent] Installed MCP servers:', mcpServers.map((s) => s.name).join(', '));
-      return { success: true };
-    } catch (error) {
-      console.error('[WaylandMcpAgent] Failed to install MCP servers:', error);
-      return { success: false, error: error instanceof Error ? error.message : String(error) };
+  installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
+    const supported = this.getSupportedTransports();
+    const unsupported = mcpServers.filter((server) => !supported.includes(server.transport.type));
+    for (const server of unsupported) {
+      console.warn(`[WaylandMcpAgent] Skipping ${server.name}: unsupported transport type ${server.transport.type}`);
     }
+
+    console.log(
+      '[WaylandMcpAgent] Skip writing config - managed by renderer:',
+      mcpServers.map((s) => s.name).join(', ')
+    );
+    return Promise.resolve({ success: true });
   }
 
   /**
@@ -102,9 +104,9 @@ export class WaylandMcpAgent extends AbstractMcpAgent {
    * 1. When toggled off: the frontend already sets enabled: false; no backend mutation needed
    * 2. When deleted: the frontend already removed it from config; no backend mutation needed
    *
-   * WaylandMcpAgent is only responsible for reading config (detectMcpServers) and adding
-   * config (installMcpServers). It should not mutate config during remove to avoid
-   * conflicting with the frontend's configuration management.
+   * WaylandMcpAgent is only responsible for READING config (detectMcpServers). It must not
+   * mutate config on remove OR on install, to avoid conflicting with the frontend's
+   * configuration management - see {@link installMcpServers} for what that conflict cost.
    */
   removeMcpServer(mcpServerName: string): Promise<McpOperationResult> {
     console.log(`[WaylandMcpAgent] Skip removing '${mcpServerName}' - config managed by renderer`);

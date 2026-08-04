@@ -132,7 +132,11 @@ export const useMcpOperations = (
             })
           : await removeMcpFromAgentsHttp(serverName);
         await handleMcpOperationResult(removeResponse, 'remove', successMessage, true); // Skip re-detection
-        const removalResults = removeResponse.data?.results ?? [];
+        // Same non-target exclusion as the publication path above. This one is
+        // the rollback half: treating unsupported backends as failed removals
+        // turned every rolled-back publication into an "incomplete rollback",
+        // which is what persisted the unrecoverable divergence marker.
+        const removalResults = (removeResponse.data?.results ?? []).filter((result) => !result.unsupported);
         const failedRemovals = removalResults.filter((result) => !result.success);
         if (!removeResponse.success || removalResults.length === 0 || failedRemovals.length > 0) {
           throw new Error(
@@ -174,7 +178,11 @@ export const useMcpOperations = (
           : await syncMcpToAgentsHttp(server.id);
 
         await handleMcpOperationResult(syncResponse, 'sync', undefined, skipRecheck);
-        const publicationResults = syncResponse.data?.results ?? [];
+        // A detected backend with no MCP implementation is a non-target, not a
+        // failed publication. Counting those made this throw on every toggle:
+        // a typical install detects a dozen of them, so publication "failed"
+        // even when all five agents that can carry an MCP server succeeded.
+        const publicationResults = (syncResponse.data?.results ?? []).filter((result) => !result.unsupported);
         const failedPublications = publicationResults.filter((result) => !result.success);
         if (!syncResponse.success || publicationResults.length === 0 || failedPublications.length > 0) {
           throw new Error(syncResponse.msg || t('settings.mcpSyncFailedNoAgents'));
