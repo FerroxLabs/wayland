@@ -100,6 +100,25 @@ export interface DetectedMcpServer {
 /**
  * MCP sync result interface
  */
+/**
+ * Did a publish/remove across a set of agents actually succeed?
+ *
+ * ONE definition, used by both the sync and the remove paths. They previously
+ * carried separate copies of this rule, and a fix applied to only one of them
+ * left the rollback half still failing on every machine with an unsupported
+ * backend - so the two must never be written out separately again.
+ *
+ * A backend with no MCP implementation is a non-target: it can neither succeed
+ * nor fail, and is excluded. Having NO actionable target is still a failure -
+ * nothing was published, so nothing may claim it was.
+ */
+export function mcpAgentOperationSucceeded(
+  results: ReadonlyArray<{ success: boolean; unsupported?: boolean }>
+): boolean {
+  const actionable = results.filter((result) => !result.unsupported);
+  return actionable.length > 0 && actionable.every((result) => result.success);
+}
+
 export interface McpSyncResult {
   success: boolean;
   results: Array<{

@@ -18,6 +18,7 @@ import { CodexMcpAgent } from './agents/CodexMcpAgent';
 import { OpencodeMcpAgent } from './agents/OpencodeMcpAgent';
 import { WCoreMcpAgent } from './agents/WCoreMcpAgent';
 import type { IMcpProtocol, DetectedMcpServer, McpConnectionTestResult, McpSyncResult, McpSource } from './McpProtocol';
+import { mcpAgentOperationSucceeded } from './McpProtocol';
 import { validateMcpServer, sanitizeMcpServerName } from './validateMcpServer';
 import { normalizeMcpServerForSpawn } from '@/common/mcp/normalizeMcpServer';
 import { mcpServerCollisionKey } from '@/common/mcp';
@@ -365,13 +366,7 @@ export class McpService {
 
       const results = await Promise.all(promises);
 
-      // A backend with no MCP implementation is not a publication target, so it
-      // can neither succeed nor fail. Judge only the agents that could act;
-      // counting the rest made `success` false on every machine that has one.
-      const actionable = results.filter((r) => !r.unsupported);
-      const allSuccess = actionable.length > 0 && actionable.every((r) => r.success);
-
-      return { success: allSuccess, results };
+      return { success: mcpAgentOperationSucceeded(results), results };
     });
   }
 
@@ -489,7 +484,12 @@ export class McpService {
       // hardcoded `success: true` hid it, so the renderer reported "deleted"
       // while the server stayed in that agent's CLI config (Claude/Codex/wcore
       // drift). Reflect overall success from the per-agent results.
-      return { success: results.every((r) => r.success), results };
+      //
+      // Shares mcpAgentOperationSucceeded with the sync path. This path was
+      // missed when the non-target exclusion was first applied, and because the
+      // renderer throws on `!removeResponse.success` BEFORE it looks at the
+      // per-result list, filtering only the list left rollback still failing.
+      return { success: mcpAgentOperationSucceeded(results), results };
     });
   }
 }

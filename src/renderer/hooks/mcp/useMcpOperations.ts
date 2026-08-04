@@ -31,6 +31,12 @@ interface McpOperationResult {
   agent: string;
   success: boolean;
   error?: string;
+  /**
+   * Detected backend with no MCP implementation - nothing to publish to or
+   * remove from. Not a failure; must be excluded before judging an operation.
+   * See the field doc on `McpSyncResult` in McpProtocol.ts.
+   */
+  unsupported?: boolean;
 }
 
 interface McpOperationResponse {
@@ -61,7 +67,10 @@ export const useMcpOperations = (
     ) => {
       if (response.success && response.data) {
         const { results } = response.data;
-        const failedAgents = results.filter((r: McpOperationResult) => !r.success);
+        // Non-targets are not partial failures. Without this exclusion a normal
+        // operation toasts "partially failed: Grok Build: not supported, Goose:
+        // not supported, ..." on every machine that has such a backend.
+        const failedAgents = results.filter((r: McpOperationResult) => !r.success && !r.unsupported);
 
         // Show operation-start message immediately, then trigger state update
         if (failedAgents.length > 0) {
