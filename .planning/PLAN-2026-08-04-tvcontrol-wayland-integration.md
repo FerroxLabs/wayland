@@ -17,6 +17,64 @@ tooling — keep out of every commit. 76 commits local, nothing pushed.
 
 ---
 
+## W-0 — The agent cannot find TVControl's tools  🔴🔴 MASTER-CLASS BLOCKER
+
+**Found by end-to-end test, 2026-08-04 13:12. This is the defect that actually kills the
+Master Class, and it is not the one W-1 fixes.** Everything in W-1/W-2/W-3 is about making
+*setup* work. This is about the product not working once setup is correct.
+
+### What happened
+
+A real conversation, real Flux model (`flux-pinned-claude-sonnet`), Wayland Core backend,
+TVControl enabled and connected, TradingView live. Prompt: read the chart, then switch the
+symbol to NASDAQ:TSLA.
+
+The agent **found TVControl, asked permission, was granted it — and then could not see a
+single tool.** From `/tmp/wl-demo.log`:
+
+```
+13:12:43.409  [WCoreManager] MCP ToolSearch candidate pool: 0 tools from current-session receipts
+13:12:43.625  [wcore] [mcp] Connected to 'tvcontrol': 101 tools          <- 216ms too late
+13:12:49.990  Tool call: ToolSearch
+13:14:08.627  [ToolSearch success] No deferred tools matching "tvcontrol TradingView chart" found.
+13:14:12.593  [ToolSearch success] No deferred tools matching "TradingView" found.
+13:14:12.593  [ToolSearch success] No deferred tools matching "chart symbol MCP" found.
+13:14:16.674  [WCoreManager] MCP ToolSearch candidate pool: 101 tools    <- 93s after the turn began
+```
+
+The chart never moved. A second prompt could not run — the first turn was still wedged
+**1145 seconds** later, having produced nothing after its three failed searches.
+
+### Cause
+
+`WCoreManager.acceptMcpSessionTerminal` (`src/process/task/WCoreManager.ts:1362-1372`)
+recomputes the candidate pool on each MCP registration receipt. The turn starts before
+TVControl's receipt arrives, so `getMcpCandidateTools()` returns an empty pool, and
+`ToolSearch` answers **"No deferred tools matching X found"** — indistinguishable, to the
+model, from "this tool does not exist." The model stops looking. The pool is correct 93
+seconds later; by then the turn is unrecoverable.
+
+This is a cold-start ordering defect, not a TVControl defect: `getCandidateTools`
+(`getCandidateTools.ts:37-46`) correctly gates on live per-launch receipts, and the receipt
+for TVControl simply had not arrived.
+
+### Fix direction
+
+`ToolSearch` must never report absence while MCP registration is still in flight. Either
+hold the first tool search until session receipts settle (with a bounded timeout), or return
+a distinct "still connecting, retry" result so the model retries instead of concluding the
+tool does not exist. A turn that searched an empty pool must also not wedge — 19 minutes with
+no output is a second, independent bug.
+
+### Acceptance
+
+- A first-message-in-a-fresh-conversation prompt that needs an MCP tool finds it.
+- Falsifiable end-to-end gate: fresh profile, TradingView live, one prompt, **the chart
+  symbol actually changes**. Nothing weaker counts — the Library tool count does not.
+- No turn stays "running" with no output after a failed tool search.
+
+---
+
 ## W-1 — Publication fails on every toggle  🔴 BLOCKER
 
 Two stacked defects. Fixing only the first produces a new failure that looks identical.
@@ -188,10 +246,17 @@ disabled connector; and `DetailPage.tsx:314` is dead code (`handleAddMcpServer` 
 ## Sequencing
 
 ```
+W-0 (tool pool must not report absence while MCP registration is in flight)  <- FIRST
+      |
+      v
 W-1A (unsupported-backend filter)  ──┐
 W-1B (stop the WaylandMcpAgent self-write) ──┼─> integrated acceptance ──> W-3
 W-2 (Claude agent fixes + answer log:580)  ──┘
 ```
+
+W-0 goes first because it is the only defect that breaks the product for a user whose setup
+is already correct. W-1/W-2 make setup survivable; W-3 makes it discoverable. Without W-0 all
+three are polish on something that does not work.
 
 There is no Phase A. The diagnosis is done — rev 1's instrumentation would have logged nothing,
 because the failing path issues no config write at all.
