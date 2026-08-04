@@ -66,9 +66,12 @@ describe('WaylandMcpAgent does not mutate the config it is publishing', () => {
     expect(updateMcpConfig).not.toHaveBeenCalled();
   });
 
-  it('still reports success for a transport it cannot serve, without writing', async () => {
-    // Negative control on the shape of the no-op: it must stay a publication
-    // that reports honestly, not a blanket `return true` that hides a write.
+  it('reports success for a transport it cannot serve, without writing', async () => {
+    // NOT a negative control -- a blanket `return true` would also pass this,
+    // as the audit pointed out. It pins current behaviour only: an unsupported
+    // transport is logged and skipped, and the overall result stays success,
+    // matching what the pre-no-op code did. The real guard against a hidden
+    // write is the assertion on updateMcpConfig.
     updateMcpConfig.mockClear();
     const websocketServer = {
       ...stdioServer,

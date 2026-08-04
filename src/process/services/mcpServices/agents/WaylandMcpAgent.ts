@@ -79,8 +79,10 @@ export class WaylandMcpAgent extends AbstractMcpAgent {
    * `enabled: true` even though the toggle never committed, which is how a
    * failed publication ended up retaining an ENABLED divergence row.
    *
-   * The transport check is retained as validation so an unsupported transport
-   * is still reported rather than silently accepted.
+   * The transport check is retained only as a LOG. It does not change the
+   * result: an unsupported transport still returns success, exactly as before,
+   * because the old code also skipped such a server and reported overall
+   * success. Do not read this as validation.
    */
   installMcpServers(mcpServers: IMcpServer[]): Promise<McpOperationResult> {
     const supported = this.getSupportedTransports();
