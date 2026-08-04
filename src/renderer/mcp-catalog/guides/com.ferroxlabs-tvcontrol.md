@@ -27,6 +27,12 @@ steps:
       & "$env:LOCALAPPDATA\Programs\TradingView\TradingView.exe" --remote-debugging-port=9222
       ```
 
+      **Linux** - in a terminal:
+
+      ```
+      /opt/TradingView/tradingview --remote-debugging-port=9222
+      ```
+
       If TradingView came from the Microsoft Store, the command above will not find it. Use the `launch_tv_debug.bat` script shipped in the package, which locates the Store install for you.
 
       Leave TradingView running. If you quit it, or restart it normally, the tools go quiet until you launch it this way again.
