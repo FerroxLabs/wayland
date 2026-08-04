@@ -162,3 +162,55 @@ everyone else.
   `json.loads(urllib.parse.unquote(base64.b64decode(raw)))`, MCP servers under key `mcp.config`.
 - Profiles used: `tvtest` (poisoned by the stuck-rollback state), `tvclean` (good).
 - Windows: TradingView must be stopped after testing — `Stop-Process -Name TradingView -Force`.
+
+---
+
+## UPDATE — 2026-08-04, second session: RESOLVED IN WAYLAND
+
+**TVControl now works inside Wayland.** MCP Library: `Server reachable - Probe reported
+101 tools`; durable `enabled:true / status:connected / tools:101 / lastError:None`.
+
+### What was actually wrong with each claim above
+
+**"Wayland never stdio-probes custom servers" - WRONG, retract it.** The probe is real
+(`McpProtocol.testStdioConnection`, spawn + `listTools()`). It was reporting tvcontrol's
+own `-32603` accurately. Once tvcontrol was fixed the same probe returned 101.
+
+**The 2026-07-16 timeline is now PROVEN, not inferred.** SDK 1.12.1 declared `zod: ^3.23.8`
+and nested its own 3.25.76; 1.29.0 widened to `^3.25 || ^4.0`. Rebuilt the pre-bump tree with
+`npm ci` from that commit's lockfile and drove `tools/list` against the UNFIXED source:
+**82 tools, no error** (the catalog was 88 then). It worked in Claude Code until the bump.
+
+**The unrecoverable-rollback defect had two concrete causes, both now fixed** (`e3303e5cc`),
+both reproduced against the real CLI:
+
+- `claude mcp add-json` is not an upsert - exits 1 with `MCP server X already exists in user
+  config`. Only the STDIO path uses add-json; HTTP/SSE uses `claude mcp add`, which overwrites.
+  So every re-publication of an stdio connector to Claude Code failed while the same operation
+  on a remote connector always succeeded.
+- `claude mcp remove` on an absent server exits 1 with `No MCP server named "X" in <scope>
+  scope`. The absence check looked for `not found`/`does not exist` **and read
+  `error.message`, which safeExecFile fixes to `Command failed with exit code 1`** - so no
+  wording could ever have matched. CodexMcpAgent already classified on the joined output.
+
+### Still open
+
+**A background status refresh invalidates the publication compare-and-set mid-flight.**
+Log evidence from the clean run: all five agents publish successfully (09:49:15 to 09:49:36),
+then `!committed` throws and the rollback strips every agent at 09:50:22. Publication takes
+20-45s across five serialized CLIs; the refresher cycles faster than that. This is the real
+root of the divergence state, it is a serialization design change, and it was deliberately
+not attempted here.
+
+Also still open: the Library row does not re-render after durable state recovers, and an
+enabled-at-rest connector is never published to the CLIs at startup (only on user action).
+
+### tvcontrol side
+
+Branch `fix/mcp-tools-list-zod-record`, **PR ferroxLabs/tvcontrol#2 open, not merged**.
+Two-arg `z.record`, `zod` declared at `4.3.6` (it was imported in 17 files and declared in
+none), version 2.2.1 + changelog, and `tests/mcp_stdio.test.js` - the first test in the repo
+that speaks MCP. 517/517 offline, lint clean, 5/5 of the new tests fail on the unfixed source.
+
+Claude Code `claude mcp list` reports Connected; Codex lists it enabled; 101 tools from a
+bare environment and a foreign working directory.
