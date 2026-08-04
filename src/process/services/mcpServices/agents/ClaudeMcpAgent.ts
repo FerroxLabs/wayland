@@ -37,6 +37,50 @@ export function buildClaudeStdioJsonConfig(server: IMcpServer): string {
 }
 
 /**
+ * True when a failed `claude mcp add-json` failed only because the name is
+ * already taken.
+ *
+ * `claude mcp add-json` is not an upsert: it exits 1 with
+ * `MCP server <name> already exists in <scope> config` rather than replacing
+ * the entry. Only the stdio publication path uses `add-json` - the HTTP/SSE
+ * path uses `claude mcp add`, which overwrites and exits 0 - so without this,
+ * re-publishing an stdio connector always fails while the same operation on a
+ * remote connector always succeeds. Re-publication is the ordinary case
+ * (reconnect, enable, edit-and-save, or a name already present in the user's
+ * own Claude config), and a failed publication is rolled back and recorded as
+ * a publication divergence the connector cannot leave.
+ *
+ * Matched against {@link execErrorDetail}, not `error.message`: `safeExecFile`
+ * rejects with the fixed string `Command failed with exit code 1` and carries
+ * the CLI's own words on the `stderr` property.
+ */
+export function isClaudeMcpNameTakenDetail(detail: string): boolean {
+  return detail.includes('already exists');
+}
+
+/**
+ * True when a failed `claude mcp remove` failed only because there was nothing
+ * to remove.
+ *
+ * `claude mcp remove -s <scope> <absent>` exits 1 and writes
+ * `No MCP server named "<name>" in <scope> scope` (or `... in .mcp.json` for
+ * project scope) to stderr. Removal is the rollback half of publication, so
+ * treating absence as a failure turns any partially-published connector into a
+ * permanently stuck one: the rollback "fails", divergence is recorded, and
+ * every later reconnect rolls back through the same absent-remove.
+ *
+ * Neither `not found` nor `does not exist` appears in any of those messages,
+ * and the check previously read `error.message` - which `safeExecFile` fixes
+ * to `Command failed with exit code 1` - so absence could never be detected.
+ * CodexMcpAgent already classifies on the joined output for this reason.
+ */
+export function isClaudeMcpAbsentDetail(detail: string): boolean {
+  return (
+    detail.includes('No MCP server named') || detail.includes('not found') || detail.includes('does not exist')
+  );
+}
+
+/**
  * Claude Code MCP agent implementation
  * Claude CLI supports stdio, sse, http transport types
  */
@@ -170,18 +214,36 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
           // (add + remove) so the keys match and removal stays clean.
           const cliName = cliSafeMcpServerName(server.name);
           if (server.transport.type === 'stdio') {
+            const addJson = () =>
+              safeExecFile('claude', ['mcp', 'add-json', '-s', 'user', cliName, buildClaudeStdioJsonConfig(server)], {
+                timeout: 5000,
+                ...getExecEnv(),
+              });
             try {
-              await safeExecFile(
-                'claude',
-                ['mcp', 'add-json', '-s', 'user', cliName, buildClaudeStdioJsonConfig(server)],
-                {
-                  timeout: 5000,
-                  ...getExecEnv(),
-                }
-              );
+              await addJson();
               console.log(`[ClaudeMcpAgent] Added MCP server: ${server.name}`);
             } catch (error) {
               const detail = execErrorDetail(error);
+              // `add-json` refuses a name that is already present, so publish as
+              // an upsert: drop the existing entry and add the current
+              // declaration. Removal is scoped to `user`, the only scope this
+              // agent writes, so a user's own project/local entry is untouched.
+              if (isClaudeMcpNameTakenDetail(detail)) {
+                try {
+                  await safeExecFile('claude', ['mcp', 'remove', '-s', 'user', cliName], {
+                    timeout: 5000,
+                    ...getExecEnv(),
+                  });
+                  await addJson();
+                  console.log(`[ClaudeMcpAgent] Replaced existing MCP server: ${server.name}`);
+                  continue;
+                } catch (replaceError) {
+                  const replaceDetail = execErrorDetail(replaceError);
+                  console.warn(`Failed to replace MCP ${server.name} in Claude Code: ${replaceDetail}`);
+                  failures.push(`${server.name}: ${replaceDetail}`);
+                  continue;
+                }
+              }
               console.warn(`Failed to add MCP ${server.name} to Claude Code: ${detail}`);
               failures.push(`${server.name}: ${detail}`);
             }
@@ -268,14 +330,14 @@ export class ClaudeMcpAgent extends AbstractMcpAgent {
                 return { success: true };
               }
             } catch (error) {
-              const errorMessage = error instanceof Error ? error.message : String(error);
+              const detail = execErrorDetail(error);
 
-              if (errorMessage.includes('not found') || errorMessage.includes('does not exist')) {
+              if (isClaudeMcpAbsentDetail(detail)) {
                 continue;
               }
 
-              console.warn(`[ClaudeMcpAgent] Failed to remove from ${scope} scope: ${execErrorDetail(error)}`);
-              failures.push(`${scope}/${candidateName}: ${errorMessage}`);
+              console.warn(`[ClaudeMcpAgent] Failed to remove from ${scope} scope: ${detail}`);
+              failures.push(`${scope}/${candidateName}: ${detail}`);
             }
           }
         }
