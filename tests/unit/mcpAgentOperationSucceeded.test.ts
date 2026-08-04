@@ -63,8 +63,31 @@ describe('mcpAgentOperationSucceeded', () => {
     ).toBe(false);
   });
 
-  it('fails on an empty result set', () => {
+  it('fails on an empty result set by default, because publishing to nothing published nothing', () => {
     expect(mcpAgentOperationSucceeded([])).toBe(false);
+  });
+
+  it('succeeds on an empty result set when the caller declares removal semantics', () => {
+    // Removing from no agents removed everything there was to remove. Without
+    // this, a delete with zero detected agents aborts -- a regression this
+    // function briefly introduced, because the removal path previously used a
+    // bare `[].every()` and inherited `true` for free.
+    expect(mcpAgentOperationSucceeded([], { emptyIsSuccess: true })).toBe(true);
+  });
+
+  it('emptyIsSuccess covers only the empty list, never an all-non-target set', () => {
+    // The distinction that matters. "No agent was attempted" is success for a
+    // removal. "Agents were detected and not one of them could act" is NOT --
+    // it stays fail-closed in both directions, which is what
+    // McpService.removeResult / syncResult assert. Collapsing the two would
+    // have relaxed a deliberate invariant to make this option tidy.
+    expect(mcpAgentOperationSucceeded([{ success: false, unsupported: true }], { emptyIsSuccess: true })).toBe(false);
+    expect(mcpAgentOperationSucceeded([{ success: false, unsupported: true }])).toBe(false);
+  });
+
+  it('emptyIsSuccess does not excuse a real failure', () => {
+    // Negative control on the new option: it governs the EMPTY case only.
+    expect(mcpAgentOperationSucceeded([{ success: false }], { emptyIsSuccess: true })).toBe(false);
   });
 
   it('does not treat a successful non-target as carrying the operation', () => {

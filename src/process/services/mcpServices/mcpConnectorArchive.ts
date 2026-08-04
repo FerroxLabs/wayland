@@ -317,7 +317,7 @@ export class McpConnectorLifecycleService {
       const archive = await this.archives.publish(server);
       try {
         const removal = await this.deps.removeFromAgents(server.name, agents);
-        if (!mcpAgentOperationSucceeded(removal.results)) {
+        if (!mcpAgentOperationSucceeded(removal.results, { emptyIsSuccess: true })) {
           const removalError = new Error(
             removal.results
               .filter((entry) => !entry.success && !entry.unsupported)

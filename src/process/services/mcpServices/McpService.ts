@@ -489,7 +489,11 @@ export class McpService {
       // missed when the non-target exclusion was first applied, and because the
       // renderer throws on `!removeResponse.success` BEFORE it looks at the
       // per-result list, filtering only the list left rollback still failing.
-      return { success: mcpAgentOperationSucceeded(results), results };
+      //
+      // `emptyIsSuccess` because removing from no agents at all removed
+      // everything there was to remove. The sync path deliberately does NOT
+      // pass it: publishing to nothing published nothing.
+      return { success: mcpAgentOperationSucceeded(results, { emptyIsSuccess: true }), results };
     });
   }
 }
