@@ -1,7 +1,7 @@
 {
   "$schema": "./schema/catalog.schema.json",
   "version": "1.0.0",
-  "publishedAt": "2026-05-28T06:23:16.505Z",
+  "publishedAt": "2026-08-04T10:18:32.022Z",
   "entries": [
     {
       "id": "io.github.taylorwilsdon/google-workspace-mcp",
@@ -420,7 +420,7 @@
     {
       "id": "com.raindrop/raindrop-mcp",
       "name": "Raindrop",
-      "shortDescription": "Bookmarks, collections, and tags - Raindrop.io's official hosted MCP. Connect with a test token.",
+      "shortDescription": "Bookmarks, collections, and tags - Raindrop.io's official hosted MCP. Connect with a Raindrop test token.",
       "iconUrl": "icons/raindrop.svg",
       "tier": "worker",
       "categories": [
@@ -1588,6 +1588,24 @@
       "installRate": 0,
       "entryUrl": "entries/co.axiom-axiom-mcp.json",
       "guideUrl": "guides/co.axiom-axiom-mcp.md"
+    },
+    {
+      "id": "com.ferroxlabs/tvcontrol",
+      "name": "TVControl",
+      "shortDescription": "Drive TradingView Desktop from chat: read the live chart, change symbol and timeframe, add indicators, pull OHLCV and Pine output, and take screenshots. Requires TradingView Desktop running with control enabled.",
+      "iconUrl": "icons/com.ferroxlabs-tvcontrol.svg",
+      "tier": "worker",
+      "categories": [
+        "data",
+        "research",
+        "automation"
+      ],
+      "maintainerType": "wayland",
+      "verifiedByWayland": "2026-08-04",
+      "popularityRank": 140,
+      "installRate": 0,
+      "entryUrl": "entries/com.ferroxlabs-tvcontrol.json",
+      "guideUrl": "guides/com.ferroxlabs-tvcontrol.md"
     },
     {
       "id": "dev.jam/jam-mcp",
