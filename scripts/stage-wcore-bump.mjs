@@ -78,12 +78,31 @@ function findBinary(dir) {
 
 const rawTag = process.argv[2];
 const write = process.argv.includes('--write');
+// Pre-release engines are for INTEGRATION ONLY and must never reach a shipped
+// build by accident, so the opt-in is explicit and defaults off. A bare
+// `vMAJOR.MINOR.PATCH` stays the only tag shape a release can bundle; staging an
+// RC takes a deliberate extra flag that a release script will never pass.
+const allowPrerelease = process.argv.includes('--allow-prerelease');
 if (!rawTag || rawTag.startsWith('--')) {
   fail('missing release tag, e.g. `node scripts/stage-wcore-bump.mjs v0.12.5`');
 }
 const tag = rawTag.startsWith('v') ? rawTag : `v${rawTag}`;
-if (!/^v\d+\.\d+\.\d+$/.test(tag)) {
-  fail(`invalid release tag "${rawTag}"; expected an exact vMAJOR.MINOR.PATCH tag`);
+const isRelease = /^v\d+\.\d+\.\d+$/.test(tag);
+// SemVer pre-release suffix: -rc.2, -beta.1, -alpha, ... Deliberately narrower
+// than the spec (dot-separated alphanumerics only) so a typo'd tag still fails.
+const isPrerelease = /^v\d+\.\d+\.\d+-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*$/.test(tag);
+if (!isRelease && !(isPrerelease && allowPrerelease)) {
+  fail(
+    isPrerelease
+      ? `"${rawTag}" is a pre-release tag; pass --allow-prerelease to stage it for INTEGRATION ONLY (never ship it)`
+      : `invalid release tag "${rawTag}"; expected an exact vMAJOR.MINOR.PATCH tag`
+  );
+}
+if (isPrerelease) {
+  console.warn(
+    `WARNING: staging PRE-RELEASE engine ${tag}. For integration testing only - ` +
+      'do not tag a Desktop release against it.'
+  );
 }
 
 // Pull the published checksums file via the gh CLI (honours GH_TOKEN). `-` sends

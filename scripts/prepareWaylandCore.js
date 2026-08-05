@@ -210,18 +210,34 @@ function verifyArchiveChecksum(archivePath, expectedHex, assetName, tag) {
 // FerroxLabs/wayland-core; Desktop integrates against a specific tag rather
 // than tracking `latest` so version drift can't sneak in via a release made
 // while a CI build is mid-flight. Override with WCORE_VERSION=... when bumping.
-const DEFAULT_WCORE_VERSION = 'v0.12.25';
+const DEFAULT_WCORE_VERSION = 'v0.12.26-rc.2';
 
 function getVersion() {
   return (process.env.WCORE_VERSION || DEFAULT_WCORE_VERSION).trim();
 }
 
+// A pre-release engine is for INTEGRATION ONLY. The opt-in is an explicit env
+// var that defaults off, so an ordinary `bun run package` can never bundle an RC
+// into a shipped build - it fails closed on the tag shape exactly as before.
+// Mirrors the --allow-prerelease flag in scripts/stage-wcore-bump.mjs; the two
+// validators must stay in step or staging succeeds and packaging then refuses.
 function normalizeExactReleaseTag(version) {
   const tag = version.startsWith('v') ? version : `v${version}`;
-  if (!/^v\d+\.\d+\.\d+$/.test(tag)) {
-    throw new Error(`Invalid wayland-core release tag "${version}"; expected an exact vMAJOR.MINOR.PATCH tag.`);
+  if (/^v\d+\.\d+\.\d+$/.test(tag)) return tag;
+
+  const isPrerelease = /^v\d+\.\d+\.\d+-[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)*$/.test(tag);
+  if (isPrerelease && process.env.WCORE_ALLOW_PRERELEASE === '1') {
+    console.warn(
+      `WARNING: bundling PRE-RELEASE wayland-core ${tag} (WCORE_ALLOW_PRERELEASE=1). ` +
+        'Integration testing only - do not ship this build.'
+    );
+    return tag;
   }
-  return tag;
+  throw new Error(
+    isPrerelease
+      ? `wayland-core tag "${version}" is a pre-release; set WCORE_ALLOW_PRERELEASE=1 to bundle it for INTEGRATION ONLY (never ship it).`
+      : `Invalid wayland-core release tag "${version}"; expected an exact vMAJOR.MINOR.PATCH tag.`
+  );
 }
 
 // ---------------------------------------------------------------------------
