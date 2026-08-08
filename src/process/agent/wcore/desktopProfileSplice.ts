@@ -46,6 +46,126 @@ export class DesktopProfileSpliceError extends Error {
 const TABLE_HEADER_LINE_RE = /^\[{1,2}\s*([^\]]+?)\s*\]{1,2}/;
 
 /**
+ * A `smol-toml` parse error message echoes the OFFENDING SOURCE LINE verbatim
+ * after a blank line, e.g.:
+ *
+ *   Invalid TOML document: each key-value declaration must be followed by ...
+ *
+ *   1:  api_key = "sk-ant-REDACTED-EXAMPLE" oops
+ *                                           ^
+ *
+ * This file operates on the user's REAL global `config.toml`, which holds
+ * `api_key` values. Embedding the raw message would carry a live credential
+ * into an Error that is surfaced, logged, and (via K-02) shown in the UI. Keep
+ * only the first line - the human-readable reason - and drop the echoed source
+ * block entirely. Found by the K-01 4-leg cross-audit (Gemini 3.1 Pro leg) and
+ * confirmed by executing the parser against a key-bearing malformed line.
+ */
+function summarizeTomlError(error: unknown): string {
+  const raw = error instanceof Error ? error.message : String(error);
+  return raw.split('\n', 1)[0].trim();
+}
+
+/**
+ * Line indices that begin INSIDE a TOML multi-line string (`"""` or `'''`).
+ *
+ * Without this, the line scanner below matches a table header that is merely
+ * QUOTED inside a user's multi-line string and deletes real user content that
+ * happens to sit between it and the next header-looking line - and because the
+ * surviving text can still parse, the fail-closed guard never fires and the
+ * loss is SILENT. Found by the K-01 4-leg cross-audit (Gemini 3.1 Pro leg) and
+ * reproduced by execution before this guard was written.
+ */
+function multilineStringLineStates(source: string): boolean[] {
+  const states: boolean[] = [];
+  let inBasic = false; // inside """ ... """
+  let inLiteral = false; // inside ''' ... '''
+  let inQuoted = false; // inside a single-line "..." (basic) string
+  let inApostrophe = false; // inside a single-line '...' (literal) string
+  let inComment = false;
+
+  states.push(false);
+  for (let i = 0; i < source.length; i += 1) {
+    const ch = source[i];
+
+    if (ch === '\n') {
+      // A comment and any single-line string both end at the newline; only the
+      // multi-line forms survive into the next line.
+      inComment = false;
+      inQuoted = false;
+      inApostrophe = false;
+      states.push(inBasic || inLiteral);
+      continue;
+    }
+
+    if (inComment) continue;
+
+    if (inBasic) {
+      if (ch === '\\') {
+        i += 1; // escape consumes the next char, incl. an escaped quote
+      } else if (source.startsWith('"""', i)) {
+        inBasic = false;
+        i += 2;
+      }
+      continue;
+    }
+    if (inLiteral) {
+      // Literal strings have NO escape processing.
+      if (source.startsWith("'''", i)) {
+        inLiteral = false;
+        i += 2;
+      }
+      continue;
+    }
+    if (inQuoted) {
+      if (ch === '\\') i += 1;
+      else if (ch === '"') inQuoted = false;
+      continue;
+    }
+    if (inApostrophe) {
+      if (ch === "'") inApostrophe = false;
+      continue;
+    }
+
+    if (source.startsWith('"""', i)) {
+      inBasic = true;
+      i += 2;
+    } else if (source.startsWith("'''", i)) {
+      inLiteral = true;
+      i += 2;
+    } else if (ch === '"') {
+      inQuoted = true;
+    } else if (ch === "'") {
+      inApostrophe = true;
+    } else if (ch === '#') {
+      inComment = true;
+    }
+  }
+
+  return states;
+}
+
+/**
+ * True when the document declares `profiles` as a VALUE (an inline table or
+ * any other non-table form) at the top level, e.g. `profiles = { work = ... }`.
+ *
+ * TOML forbids extending an inline table with a bracketed sub-table, so
+ * appending `[profiles.__wayland_desktop_session]` to such a document can never
+ * parse. Detected explicitly so the user gets an actionable message instead of
+ * a bare "resulting content is not valid TOML", which would read as a Wayland
+ * bug rather than a one-line fix in their own config. Found by the K-01 4-leg
+ * cross-audit (Gemini 3.1 Pro leg) and confirmed by execution.
+ */
+function declaresProfilesAsValue(source: string, multilineStates: readonly boolean[]): boolean {
+  const lines = source.split('\n');
+  for (let i = 0; i < lines.length; i += 1) {
+    if (multilineStates[i]) continue;
+    if (/^\s*(profiles|"profiles"|'profiles')\s*=/.test(lines[i])) return true;
+  }
+  return false;
+}
+
+/**
  * True when a trimmed line opens the reserved Desktop MCP profile table -
  * exactly `profiles.__wayland_desktop_session`, or a dotted continuation
  * table under it (`profiles.__wayland_desktop_session.foo`). Whitespace
@@ -71,12 +191,21 @@ function isTableHeaderLine(trimmedLine: string): boolean {
  * `fragment` using the same base/blank-line joining convention
  * `appendDesktopMcpProfile` already uses.
  */
-function removeReservedProfileTables(source: string): string {
+function removeReservedProfileTables(source: string, multilineStates: readonly boolean[]): string {
   const lines = source.split('\n');
   const kept: string[] = [];
   let removing = false;
 
-  for (const rawLine of lines) {
+  for (let i = 0; i < lines.length; i += 1) {
+    const rawLine = lines[i];
+    // A line that begins inside a multi-line string is DATA, never structure.
+    // Treat it as opaque: it can neither open nor close a removal block.
+    // Without this, quoted text that merely looks like a table header silently
+    // deletes real user content (see `multilineStringLineStates`).
+    if (multilineStates[i]) {
+      if (!removing) kept.push(rawLine);
+      continue;
+    }
     const trimmed = rawLine.trim();
     if (removing) {
       if (isTableHeaderLine(trimmed)) {
@@ -121,21 +250,31 @@ export function spliceDesktopMcpProfile(existing: string | null, fragment: strin
   try {
     parse(source);
   } catch (error) {
+    throw new DesktopProfileSpliceError(`existing content is not valid TOML: ${summarizeTomlError(error)}`);
+  }
+
+  const multilineStates = multilineStringLineStates(source);
+
+  // TOML forbids extending an inline table with a bracketed sub-table, so this
+  // document can never accept `[profiles.__wayland_desktop_session]`. Say that
+  // plainly instead of letting the generic output-parse failure below report it
+  // as an opaque "resulting content is not valid TOML".
+  if (declaresProfilesAsValue(source, multilineStates)) {
     throw new DesktopProfileSpliceError(
-      `existing content is not valid TOML: ${error instanceof Error ? error.message : String(error)}`
+      'the global config declares "profiles" as an inline value (for example `profiles = { ... }`), and TOML ' +
+        'does not allow adding a [profiles.<name>] section to it. Rewrite that entry as [profiles.<name>] ' +
+        'sections and Desktop can manage its own profile alongside yours'
     );
   }
 
-  const withoutReserved = removeReservedProfileTables(source);
+  const withoutReserved = removeReservedProfileTables(source, multilineStates);
   const trimmedExisting = withoutReserved.trim();
   const spliced = trimmedExisting ? `${trimmedExisting}\n\n${fragment}` : fragment;
 
   try {
     parse(spliced);
   } catch (error) {
-    throw new DesktopProfileSpliceError(
-      `resulting content is not valid TOML: ${error instanceof Error ? error.message : String(error)}`
-    );
+    throw new DesktopProfileSpliceError(`resulting content is not valid TOML: ${summarizeTomlError(error)}`);
   }
 
   return spliced;

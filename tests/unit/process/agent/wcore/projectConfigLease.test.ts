@@ -199,10 +199,27 @@ describe('WCore GLOBAL profile config lease', () => {
     });
 
     await second;
-    expect(order).toEqual(['a-enter', 'b-enter', 'b-leave']);
+    // The INVARIANT is independence: B runs to completion while A is still
+    // held. B must never queue behind A.
+    expect(order).toContain('b-enter');
+    expect(order).toContain('b-leave');
+    // ...and A must genuinely still be holding, not merely have finished early.
+    expect(order).not.toContain('a-leave');
+
+    // The exact interleaving of `a-enter` vs `b-enter` is deliberately NOT
+    // asserted. Acquisition now realpath's the config dir before it takes the
+    // lease (so two symlink aliases to one physical config.toml share a single
+    // lease - see `withGlobalWCoreProfileLease`), which makes acquisition
+    // asynchronous. Relative start order between two INDEPENDENT keys is
+    // therefore scheduler-dependent and was never a guarantee this lease makes;
+    // pinning it would lock in an accident. Mutual exclusion for the SAME key
+    // is unaffected and is asserted by cases (a), (b) and (d) - the reads and
+    // writes of the tail map remain synchronous with respect to each other.
     releaseA();
     await first;
-    expect(order).toEqual(['a-enter', 'b-enter', 'b-leave', 'a-leave']);
+    expect(order).toContain('a-enter');
+    expect(order[order.length - 1]).toBe('a-leave');
+    expect(order).toHaveLength(4);
   });
 
   it('(d) keys on the config PATH (dir + config.toml), not the bare dir string - a trailing separator resolves to the same key', async () => {
@@ -235,5 +252,73 @@ describe('WCore GLOBAL profile config lease', () => {
     releaseFirst();
     await Promise.all([first, second]);
     expect(secondEntered).toBe(true);
+  });
+
+  it('(e) serializes two SYMLINK ALIASES to the same physical config dir - K-01 cross-audit regression', async () => {
+    // Found by the K-01 4-leg cross-audit (internal ferrox-code-reviewer leg).
+    // The sibling workspace lease has realpath'd since it was written; this one
+    // did not, so `~/.wayland-core -> ~/dotfiles/wayland-core` (an ordinary
+    // dotfiles pattern) produced TWO lease keys for ONE physical config.toml.
+    // Two launches then interleaved ProjectConfigTransaction on the same file:
+    // B read A's spliced content as if it were the original, backed THAT up,
+    // and its restore baked A's temporary profile permanently into the user's
+    // real hand-edited global config.
+    const physical = join(root, 'profile-physical');
+    await mkdir(physical);
+    const alias = join(root, 'profile-alias');
+    await symlink(physical, alias, 'dir');
+
+    const order: string[] = [];
+    let releaseFirst!: () => void;
+    const hold = new Promise<void>((resolve) => {
+      releaseFirst = resolve;
+    });
+
+    const first = withGlobalWCoreProfileLease(physical, async () => {
+      order.push('physical-enter');
+      await hold;
+      order.push('physical-leave');
+    });
+    const second = withGlobalWCoreProfileLease(alias, async () => {
+      order.push('alias-enter');
+    });
+
+    // The alias MUST queue behind the physical path, not run beside it.
+    await Promise.resolve();
+    expect(order).not.toContain('alias-enter');
+
+    releaseFirst();
+    await Promise.all([first, second]);
+    expect(order).toEqual(['physical-enter', 'physical-leave', 'alias-enter']);
+  });
+
+  it('(f) hands the task the CANONICAL config dir so lock identity and write target cannot diverge', async () => {
+    const physical = join(root, 'profile-canonical');
+    await mkdir(physical);
+    const alias = join(root, 'profile-canonical-alias');
+    await symlink(physical, alias, 'dir');
+
+    let seen: string | undefined;
+    await withGlobalWCoreProfileLease(alias, async (canonicalConfigDir) => {
+      seen = canonicalConfigDir;
+    });
+
+    // Writing under the lexical alias while the lease keyed on the physical
+    // path is exactly the divergence the lease exists to prevent.
+    expect(seen).toBe(await realpath(physical));
+    expect(seen).not.toBe(alias);
+  });
+
+  it('(g) falls back to lexical resolution when the config dir does not exist yet', async () => {
+    // First launch on a clean machine: the config dir has not been created, so
+    // realpath cannot resolve it. The lease must still work rather than throw.
+    const missing = join(root, 'not-created-yet');
+    let seen: string | undefined;
+    const result = await withGlobalWCoreProfileLease(missing, async (canonicalConfigDir) => {
+      seen = canonicalConfigDir;
+      return 'ok';
+    });
+    expect(result).toBe('ok');
+    expect(seen).toBe(missing);
   });
 });

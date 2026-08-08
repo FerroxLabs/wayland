@@ -1,5 +1,5 @@
 import { realpath } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 // Must match the engine's project-config filename (see index.ts). The engine
 // loads `.wayland-core.toml` from its cwd, so the lease that serializes the
@@ -73,8 +73,36 @@ const globalProfileLeaseTails = new Map<string, Promise<void>>();
  * retained profile). This lease is never called, wrapped, or nested inside
  * that lock.
  */
-export async function withGlobalWCoreProfileLease<T>(configDir: string, task: () => Promise<T>): Promise<T> {
-  const key = join(configDir, 'config.toml');
+export async function withGlobalWCoreProfileLease<T>(
+  configDir: string,
+  task: (canonicalConfigDir: string) => Promise<T>
+): Promise<T> {
+  // Canonicalize before deriving the key, exactly as `withWCoreProjectConfigLease`
+  // does for the workspace. Two symlink aliases to ONE physical config dir
+  // (`~/.wayland-core -> ~/dotfiles/wayland-core` is an ordinary dotfiles
+  // pattern) must share one lease, or two launches interleave
+  // `ProjectConfigTransaction` on the same file: B reads A's spliced content as
+  // if it were the original, backs THAT up, and its restore bakes A's temporary
+  // profile permanently into the user's real hand-edited config. A's own
+  // restore then no-ops, because the on-disk bytes no longer hash to what it
+  // wrote - the "user edit wins" rule misfiring on a write Desktop itself made.
+  //
+  // The canonical directory is passed into the task so the lease key and the
+  // actual write target can never diverge - the same discipline the workspace
+  // lease applies by handing back `canonicalWorkspace`.
+  //
+  // A config dir that does not exist yet (first launch on a clean machine)
+  // cannot be realpath'd; fall back to lexical resolution, which is still
+  // strictly better than the raw string because it normalizes `.`, `..` and
+  // trailing separators.
+  let canonicalConfigDir: string;
+  try {
+    canonicalConfigDir = await realpath(configDir);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+    canonicalConfigDir = resolve(configDir);
+  }
+  const key = join(canonicalConfigDir, 'config.toml');
   const predecessor = globalProfileLeaseTails.get(key) ?? Promise.resolve();
   let release!: () => void;
   const held = new Promise<void>((resolveHeld) => {
@@ -85,7 +113,7 @@ export async function withGlobalWCoreProfileLease<T>(configDir: string, task: ()
 
   await predecessor.catch((): void => {});
   try {
-    return await task();
+    return await task(canonicalConfigDir);
   } finally {
     release();
     if (globalProfileLeaseTails.get(key) === tail) {

@@ -412,9 +412,17 @@ export class WCoreAgent {
     }
 
     return withWCoreProjectConfigLease(this.options.workspace, (canonicalWorkspace) =>
-      withGlobalWCoreProfileLease(waylandHome ?? nativeConfigDir(), async () => {
+      withGlobalWCoreProfileLease(waylandHome ?? nativeConfigDir(), async (canonicalConfigDir) => {
         try {
-          await this.startWithProjectConfigLease(canonicalWorkspace, waylandHome);
+          // Pass the canonical dir as the SPLICE TARGET only, leaving
+          // `waylandHome` (which may legitimately be undefined on the default
+          // profile) to drive the spawn env exactly as before. Writing under the
+          // lexical spelling while the lease keyed on the physical path is the
+          // very interleaving the lease exists to prevent - but promoting an
+          // undefined `waylandHome` to a concrete path here would also switch on
+          // vault-passphrase resolution for default-profile launches, which is
+          // outside this packet's scope.
+          await this.startWithProjectConfigLease(canonicalWorkspace, waylandHome, canonicalConfigDir);
         } finally {
           // Core's ready event proves startup config has been consumed. Restore
           // before releasing either lease so a sibling launch can never
@@ -437,7 +445,15 @@ export class WCoreAgent {
 
   private async startWithProjectConfigLease(
     workspace = this.options.workspace,
-    resolvedWaylandHome?: string
+    resolvedWaylandHome?: string,
+    /**
+     * The canonical (realpath'd) config dir `withGlobalWCoreProfileLease` keyed
+     * on. Used ONLY as the splice write target so lock identity and write target
+     * cannot diverge under a symlinked config dir. Deliberately separate from
+     * `resolvedWaylandHome`, which stays possibly-undefined so the default
+     * profile's spawn env is unchanged.
+     */
+    canonicalConfigDir?: string
   ): Promise<void> {
     const binaryPath = resolveWCoreBinary();
     if (!binaryPath) {
@@ -554,7 +570,7 @@ export class WCoreAgent {
     const mcpServerNames = this.options.mcpServerNames;
     if (!this.options.rawEngineMode && mcpServerNames !== undefined) {
       args.push('--profile', WCORE_DESKTOP_MCP_PROFILE);
-      this.writeGlobalMcpProfile(resolvedWaylandHome ?? nativeConfigDir(), mcpServerNames);
+      this.writeGlobalMcpProfile(canonicalConfigDir ?? resolvedWaylandHome ?? nativeConfigDir(), mcpServerNames);
     }
     if (projectConfig) {
       this.writeProjectConfig(projectConfig, workspace);
@@ -843,7 +859,7 @@ export class WCoreAgent {
           this.readyResolve = resolve;
           this.readyReject = reject;
         });
-        return this.startWithProjectConfigLease(workspace, resolvedWaylandHome);
+        return this.startWithProjectConfigLease(workspace, resolvedWaylandHome, canonicalConfigDir);
       }
       throw err;
     }
