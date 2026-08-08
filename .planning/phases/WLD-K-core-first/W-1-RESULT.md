@@ -134,11 +134,27 @@ Same profile, same connector, same ask, before and after:
 | "No deferred tools matching" | 19 of 28 | **0 — both matched** |
 | turn duration | 136s, then died | **16s** |
 
-The matching failure is gone. **The MCP tool still did not execute in the app**, because the model
-then called `Bash` and hit W-1a, the Autopilot approval wedge — a different, host-side defect.
-So the honest status is: C-5's symptom is mitigated and the remaining blocker in the packaged app
-is ours, tracked as W-1a. End-to-end MCP execution remains proven on the engine (runs A–C) but
-**not yet in the packaged app**.
+The matching failure is gone. **The MCP tool still does not execute in the packaged app**, and the
+remaining cause is Core's, not ours — the second half of C-5.
+
+Final live run, all fixes in place, Autopilot, team-guide connected: **five consecutive ToolSearch
+calls, all MATCHED, zero no-match** — and still no invocation. The model then reached for the shell
+and printed its own diagnosis:
+
+```
+Execute: printf 'Tool schema did not load into the callable tool registry.\n'
+```
+
+A matched search did not admit the tool to the callable set, and the model said so unprompted. That
+is Core's hydration-blind snapshot (`registry.rs:206-216` never rebuilt; hydration state lives in
+`engine.rs` `hydrated_tool_names`), and no host-side prompt can fix it: you cannot instruct a model
+into calling a tool that is not callable.
+
+**The discriminator:** the same flow WORKS driving the engine directly with one MCP tool (runs A–C,
+and the committed E2E test). It fails only at the app's realistic tool count. Filed as C-5b.
+
+Honest status: **MCP end-to-end execution is PROVEN on the engine and NOT yet achieved in the
+packaged app**, and the remaining blocker is Core's.
 
 ## Asks
 

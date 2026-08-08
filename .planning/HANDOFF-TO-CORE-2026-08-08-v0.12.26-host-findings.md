@@ -237,7 +237,41 @@ issue (`registry.rs:206-216` vs `engine.rs:15356-15367`) is real but **secondary
 `all()`. An exact tool-name match must never be defeated by adjacent descriptive words. Then make
 the catalog snapshot hydration-aware so a repeat search is distinguishable from the first.
 
-**To be clear about what is NOT broken:** once a search matches, everything works. We proved the
+### C-5b — the second half, and it is the one that still blocks us
+
+**Update after mitigating the matcher host-side.** We injected an instruction telling the model to
+search with a single distinctive keyword. Measured, same profile and connector, before/after:
+**ToolSearch calls 28 → 2..5, "No deferred tools matching" 19 → 0, turn 136s → 16s.** The matching
+failure is gone.
+
+**The tool still never becomes callable in a real host configuration.** In the packaged app, with
+the team-guide server connected (`Connected to 'wayland-team-guide': 2 tools`), five consecutive
+`ToolSearch` calls all MATCHED — and the model never issued the call. It then reached for the shell
+and printed its own diagnosis:
+
+```
+Execute: printf 'Tool schema did not load into the callable tool registry.\n'
+```
+
+That is the model telling you, unprompted, that a matched ToolSearch did not admit the tool to its
+callable set. It matches your comment at `tool_search.rs:126-141` exactly — the construction-time
+snapshot in `registry.rs:206-216` is never rebuilt on hydration, while hydration state lives in
+`AgentEngine::hydrated_tool_names` (`engine.rs:15356-15367`), with no write path between them.
+
+**The discriminator, and it is the useful part:** driving the released binary DIRECTLY with a single
+one-tool MCP server, the same flow works — search matches, tool is called, body executes. It fails
+only in the app's fuller configuration (many builtins plus MCP, cold deferral, catalog folding). So
+this is not "deferred tools never work"; it is something about admission at realistic tool counts.
+`engine.rs:12266` (the `ToolSearch` arm) has no branch coverage, and the eval scenarios route around
+it — `wcore-eval-scenarios/src/mcp_scenarios.rs:44-49` sets `deferred = false`, so the suite never
+exercises the path that fails here.
+
+**Ask, in priority order:** (1) make the catalog snapshot hydration-aware so a matched tool is
+genuinely callable and a repeat search is distinguishable from the first; (2) add an eval scenario
+with `deferred = true` at a realistic tool count that asserts INVOCATION, not just discovery.
+
+**To be clear about what is NOT broken:** in a minimal configuration, once a search matches,
+everything works. We proved the
 full chain on the released binary — discovery, invocation, tool body execution (verified by an
 independent witness file the tool itself writes), and the result reaching the reply — on both a
 config-declared server and a runtime `add_mcp_server`, with `deferred` at its default, on Flux and
