@@ -199,4 +199,30 @@ describe('spliceDesktopMcpProfile', () => {
     expect((thrown as Error).message).toContain('inline value');
     expect((thrown as Error).message).toContain('[profiles.<name>]');
   });
+  it('recognises the QUOTED spelling of the reserved table as the same table', () => {
+    const fragment = appendDesktopMcpProfile(null, ['tvcontrol']);
+    // `[profiles."__wayland_desktop_session"]` is valid TOML denoting exactly
+    // the table Desktop owns. Raw-string matching missed it, so the stale table
+    // survived, a second one was appended, and the output parse failed - every
+    // managed launch bricked until the user hand-rewrote valid syntax.
+    const existing = [`[profiles."${WCORE_DESKTOP_MCP_PROFILE}"]`, 'mcp_servers = ["stale"]', ''].join('\n');
+
+    const spliced = spliceDesktopMcpProfile(existing, fragment);
+
+    expect(spliced).not.toContain('"stale"');
+    const parsed = parse(spliced) as ParsedGlobalConfig;
+    expect(parsed.profiles?.[WCORE_DESKTOP_MCP_PROFILE]?.mcp_servers).toEqual(['tvcontrol']);
+  });
+
+  it('leaves an ordinary [profiles] table holding OTHER profiles untouched', () => {
+    const fragment = appendDesktopMcpProfile(null, ['tvcontrol']);
+    const existing = ['[profiles.work]', 'mcp_servers = ["keep-me"]', ''].join('\n');
+
+    const spliced = spliceDesktopMcpProfile(existing, fragment);
+
+    expect(spliced).toContain('"keep-me"');
+    const parsed = parse(spliced) as ParsedGlobalConfig;
+    expect(parsed.profiles?.work?.mcp_servers).toEqual(['keep-me']);
+    expect(parsed.profiles?.[WCORE_DESKTOP_MCP_PROFILE]?.mcp_servers).toEqual(['tvcontrol']);
+  });
 });

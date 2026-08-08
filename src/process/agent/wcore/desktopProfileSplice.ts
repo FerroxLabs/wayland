@@ -176,7 +176,16 @@ function declaresProfilesAsValue(source: string, multilineStates: readonly boole
 function isReservedProfileHeader(trimmedLine: string): boolean {
   const match = TABLE_HEADER_LINE_RE.exec(trimmedLine);
   if (!match) return false;
-  const dotted = match[1].replace(/\s*\.\s*/g, '.');
+  // Normalize whitespace around dots AND strip per-segment quoting, so the
+  // quoted spelling `["profiles" . '__wayland_desktop_session']` is recognized
+  // as the same table as the bare form Desktop itself writes. Without this the
+  // splice leaves a stale reserved table behind, then appends a second one and
+  // fails the output parse - a fail-closed brick rather than data loss, but an
+  // avoidable one. Raised by the K-01 cross-audit (Kimi K3 and internal legs).
+  const dotted = match[1]
+    .split('.')
+    .map((segment) => segment.trim().replace(/^"([\s\S]*)"$/, '$1').replace(/^'([\s\S]*)'$/, '$1'))
+    .join('.');
   const reserved = `profiles.${WCORE_DESKTOP_MCP_PROFILE}`;
   return dotted === reserved || dotted.startsWith(`${reserved}.`);
 }

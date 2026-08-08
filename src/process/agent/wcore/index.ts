@@ -5,7 +5,7 @@
  */
 
 import { spawn, type ChildProcess } from 'node:child_process';
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -1870,6 +1870,14 @@ export class WCoreAgent {
    */
   private writeGlobalMcpProfile(targetDir: string, serverNames: readonly string[]): void {
     const configPath = join(targetDir, 'config.toml');
+    // K-01 cross-audit (Codex 5.6 Sol leg): on a clean machine the native config
+    // dir may not exist yet. Connector publication creates it, but a chat with
+    // ZERO selected connectors skips that path entirely and still reaches here,
+    // so `ProjectConfigTransaction.begin` would write its sibling backup/marker
+    // into a missing directory and abort the very first launch with ENOENT.
+    // 0o700 matches the engine's own credential-file posture: this directory
+    // holds config.toml and credentials.
+    mkdirSync(targetDir, { recursive: true, mode: 0o700 });
     recoverProjectConfigTransaction(configPath);
     const existingBytes = readProjectConfigNoFollow(configPath);
     const existing = existingBytes?.toString('utf-8') ?? null;
