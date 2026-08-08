@@ -274,4 +274,68 @@ describe('WCoreManager bootstrap failure surfaces error + finish (S2)', () => {
     expect(data).not.toContain('sk-ant-SUPERSECRETVALUE1234567890');
     expect(data).toContain('Fix the file by hand');
   });
+
+  // ── W-1b: a failed bootstrap must not be cached forever ──────────
+  //
+  // startError had one writer and no reset, so the FIRST failure was replayed
+  // by every later turn with no fresh spawn. Observed live: identical message,
+  // identical PID, 95 seconds apart, no second "(start) failed" line between
+  // them, and the crash sentinel it named already gone from disk. The only
+  // recovery was restarting the app.
+
+  it('retries the bootstrap on the next turn instead of replaying the cached error', async () => {
+    // Fail once, then succeed - exactly the transient case (stale sentinel,
+    // contended lease, a config the user has since fixed).
+    agentStart.mockRejectedValueOnce(new Error('crash sentinel found at .dirty-death.89279'));
+    agentStart.mockResolvedValue(undefined);
+
+    const manager = createManager('conv-sf-w1b-retry');
+
+    await manager.sendMessage({ content: 'first', msg_id: 'msg-w1b-1' });
+    const firstErrors = findEmissions('error');
+    expect(firstErrors).toHaveLength(1);
+    expect(String(firstErrors[0].data)).toContain('.dirty-death.89279');
+    expect((manager as unknown as { agent: unknown }).agent).toBeNull();
+
+    emitResponseStream.mockClear();
+
+    // The second turn must SPAWN AGAIN rather than replay the stale failure.
+    await manager.sendMessage({ content: 'second', msg_id: 'msg-w1b-2' });
+
+    expect(agentStart).toHaveBeenCalledTimes(2);
+    expect((manager as unknown as { agent: unknown }).agent).not.toBeNull();
+    const replayed = findEmissions('error').filter((e) =>
+      String(e.data).includes('.dirty-death.89279')
+    );
+    expect(replayed).toHaveLength(0);
+  });
+
+  it('surfaces the NEW reason when the retry also fails, not the stale one', async () => {
+    agentStart.mockRejectedValueOnce(new Error('crash sentinel found at .dirty-death.111'));
+    agentStart.mockRejectedValueOnce(new Error('auth failed for provider'));
+
+    const manager = createManager('conv-sf-w1b-second-fail');
+
+    await manager.sendMessage({ content: 'first', msg_id: 'msg-w1b-3' });
+    emitResponseStream.mockClear();
+    await manager.sendMessage({ content: 'second', msg_id: 'msg-w1b-4' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    // A permanently-failing engine must keep telling the truth each turn.
+    expect(String(errors[0].data)).toContain('auth failed for provider');
+    expect(String(errors[0].data)).not.toContain('.dirty-death.111');
+    expect(agentStart).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not respawn on a turn whose bootstrap already succeeded', async () => {
+    agentStart.mockResolvedValue(undefined);
+    const manager = createManager('conv-sf-w1b-happy');
+
+    await manager.sendMessage({ content: 'one', msg_id: 'msg-w1b-5' });
+    await manager.sendMessage({ content: 'two', msg_id: 'msg-w1b-6' });
+
+    // Retry is gated on startError; a healthy conversation must spawn once.
+    expect(agentStart).toHaveBeenCalledTimes(1);
+  });
 });

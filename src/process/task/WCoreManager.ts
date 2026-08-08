@@ -344,27 +344,71 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // Capture (don't swallow) a failed start: agentReady still resolves so the
     // sendMessage path is reached, where startError is surfaced as a real
     // error+finish instead of hanging the turn with no reply (S2).
-    this.agentReady = this.start().catch(async (error) => {
-      let surfacedError = error;
+    this.agentReady = this.start().catch((error) => this.captureBootstrapFailure(error));
+  }
 
-      // A bootstrap path that never published an engine identity owns no
-      // process tree, so its profile can be returned. If an identity remains,
-      // shutdown failed and both it and the lease are deliberately retained for
-      // an identity-bound retry through kill().
-      if (!this.agent) {
-        try {
-          await this.releaseProfileLaunchLease();
-        } catch (releaseError) {
-          surfacedError = new AggregateError(
-            [error, releaseError],
-            'Wayland Core bootstrap failed and its runtime profile lease could not be released'
-          );
-        }
+  private async captureBootstrapFailure(error: unknown): Promise<void> {
+    let surfacedError = error;
+
+    // A bootstrap path that never published an engine identity owns no
+    // process tree, so its profile can be returned. If an identity remains,
+    // shutdown failed and both it and the lease are deliberately retained for
+    // an identity-bound retry through kill().
+    if (!this.agent) {
+      try {
+        await this.releaseProfileLaunchLease();
+      } catch (releaseError) {
+        surfacedError = new AggregateError(
+          [error, releaseError],
+          'Wayland Core bootstrap failed and its runtime profile lease could not be released'
+        );
       }
+    }
 
-      this.startError = surfacedError;
-      mainError('[WCoreManager]', 'agent bootstrap (start) failed', surfacedError);
-    });
+    this.startError = surfacedError;
+    mainError('[WCoreManager]', 'agent bootstrap (start) failed', surfacedError);
+  }
+
+  /**
+   * W-1b: let a later turn retry a failed bootstrap.
+   *
+   * `startError` had exactly one writer and no reset, so the FIRST failure was
+   * cached for the life of the conversation: every later turn replayed the
+   * identical error without spawning anything. Observed live - the same message
+   * and the same PID reported 95 seconds apart, with no second
+   * `(start) failed` line between them, and the crash sentinel it named already
+   * gone from disk. The cache outlived the condition, and the only recovery was
+   * restarting the whole app.
+   *
+   * Deliberately synchronous check-and-assign. Writing this as
+   * `await this.agentReady; if (this.startError) {...}` would race: a second
+   * turn could observe `startError` already cleared by the first while `agent`
+   * is still null, and fall through to `emitStartFailure` with no reason.
+   *
+   * One lazy attempt per user-initiated turn, serialized by the shared promise.
+   * No timer, no backoff, no background retry: `start()` takes the project-config
+   * and profile leases, so unattended retries would contend with live sibling
+   * chats for exactly the resources whose contention causes this failure class.
+   */
+  private ensureBootstrap(): Promise<void> {
+    const canRetry =
+      this.startError !== null &&
+      // An engine identity survived, so a process tree may still own this
+      // profile; respawning would put a second engine on it. kill() owns that
+      // path.
+      !this.agent &&
+      // A retained lease means the same thing. releaseProfileLaunchLease()
+      // nulls it on success, so null is exactly "safe to re-acquire".
+      !this.releaseProfileLease &&
+      // kill() sets disposed synchronously before awaiting agentReady, so no
+      // retry can begin after teardown has started.
+      !this.disposed;
+
+    if (canRetry) {
+      this.startError = null;
+      this.agentReady = this.start().catch((error) => this.captureBootstrapFailure(error));
+    }
+    return this.agentReady;
   }
 
   private async releaseProfileLaunchLease(): Promise<void> {
@@ -747,8 +791,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     cronBusyGuard.setProcessing(this.conversation_id, true);
     this.status = 'pending';
     this._lastActivityAt = Date.now();
-    // Wait for agent bootstrap to complete before sending
-    await this.agentReady;
+    // Wait for agent bootstrap to complete before sending. W-1b: if a PREVIOUS
+    // turn's bootstrap failed, retry it once here rather than replaying that
+    // turn's cached error forever - the condition that caused it is usually
+    // gone by now (a stale crash sentinel, a transient lease, a config the user
+    // has since fixed).
+    await this.ensureBootstrap();
 
     // S2: if bootstrap failed, the turn would otherwise hang forever (this.agent
     // is null -> the send below is skipped, no reply/error/finish ever emitted).
