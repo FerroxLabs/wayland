@@ -9,6 +9,7 @@ import { dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { parse, stringify } from 'smol-toml';
 import { nativeConfigDir, resolveActiveConfigPath, withProfileAuthorityLock } from './profilePaths';
+import { WCORE_DESKTOP_MCP_PROFILE } from './envBuilder';
 import { syncPublicationTarget } from '@process/utils/durabilitySync';
 
 /**
@@ -119,7 +120,41 @@ function withWriteLock<T>(task: () => Promise<T>): Promise<T> {
  * directory is atomic on POSIX and Windows, so a reader (the live engine) sees
  * either the old file or the fully-written new one - never a partial write.
  */
+/**
+ * Drop the Desktop-owned ephemeral launch profile from a config object about to
+ * be persisted.
+ *
+ * K-01 cross-audit (Codex 5.6 Sol leg): `WCoreAgent` splices
+ * `[profiles.__wayland_desktop_session]` into this same `config.toml` for the
+ * duration of a chat launch, under its OWN lease. This bridge writes the file
+ * under the unrelated `writeLock` here. If a settings write lands while a launch
+ * is mid-flight, this bridge would read the spliced file, re-serialize the whole
+ * object INCLUDING that table, and persist it - and the agent's hash-gated
+ * restore would then see divergent bytes, correctly preserve them, and leave
+ * Desktop's ephemeral internal table permanently in the user's config.
+ *
+ * That table is never user data and never belongs on disk beyond a launch, so
+ * this bridge simply refuses to persist it. Cheap, order-free, and it removes
+ * the only branch of that race that damages the user's file. The remaining
+ * branch (a settings write landing between the splice and the engine's read,
+ * so the engine misses the profile and reports "Profile not found") is a
+ * transient failed launch with no persistent damage - tracked in
+ * K-01-CROSSAUDIT.md as O-1, whose real fix is putting both writers behind one
+ * lock.
+ */
+function stripDesktopLaunchProfile(config: Record<string, unknown>): void {
+  const profiles = config.profiles;
+  if (!profiles || typeof profiles !== 'object' || Array.isArray(profiles)) return;
+  const table = profiles as Record<string, unknown>;
+  if (!(WCORE_DESKTOP_MCP_PROFILE in table)) return;
+  delete table[WCORE_DESKTOP_MCP_PROFILE];
+  // An empty `[profiles]` table is valid TOML but noise in a user-owned file;
+  // remove it only if WE emptied it.
+  if (Object.keys(table).length === 0) delete config.profiles;
+}
+
 async function atomicWriteToml(target: string, config: Record<string, unknown>): Promise<void> {
+  stripDesktopLaunchProfile(config);
   const dir = dirname(target);
   await mkdir(dir, { recursive: true });
 

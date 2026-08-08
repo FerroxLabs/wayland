@@ -69,6 +69,53 @@ describe('getSection', () => {
   });
 });
 
+describe('K-01 cross-audit: the ephemeral Desktop launch profile is never persisted', () => {
+  it('drops [profiles.__wayland_desktop_session] when a settings write lands mid-launch', async () => {
+    const path = join(dir, 'config.toml');
+    // Exactly what is on disk while WCoreAgent holds its launch transaction.
+    await writeFile(
+      path,
+      '[custom]\nkeep = "me"\n\n[profiles.work]\nmcp_servers = ["mine"]\n\n' +
+        '[profiles.__wayland_desktop_session]\nmcp_servers = ["tvcontrol"]\n',
+      'utf-8'
+    );
+
+    await setSection('tools', { allow_list: ['ls'] }, path);
+
+    const after = await readConfig(path);
+    const profiles = after.profiles as Record<string, unknown> | undefined;
+    // Desktop's ephemeral table must NOT survive the settings write - otherwise
+    // the agent's hash-gated restore preserves these divergent bytes and bakes
+    // an internal table permanently into the user's own config.
+    expect(profiles?.__wayland_desktop_session).toBeUndefined();
+    // Everything the user owns survives untouched.
+    expect((profiles?.work as Record<string, unknown>)?.mcp_servers).toEqual(['mine']);
+    expect(after.custom).toEqual({ keep: 'me' });
+    expect(after.tools).toEqual({ allow_list: ['ls'] });
+  });
+
+  it('removes an empty [profiles] table only when it emptied it itself', async () => {
+    const path = join(dir, 'config.toml');
+    await writeFile(path, '[profiles.__wayland_desktop_session]\nmcp_servers = ["tvcontrol"]\n', 'utf-8');
+
+    await setSection('tools', { allow_list: ['ls'] }, path);
+
+    const after = await readConfig(path);
+    expect(after.profiles).toBeUndefined();
+  });
+
+  it('leaves a user-authored [profiles] table alone when Desktop has no entry in it', async () => {
+    const path = join(dir, 'config.toml');
+    await writeFile(path, '[profiles.work]\nmcp_servers = ["mine"]\n', 'utf-8');
+
+    await setSection('tools', { allow_list: ['ls'] }, path);
+
+    const after = await readConfig(path);
+    const profiles = after.profiles as Record<string, unknown> | undefined;
+    expect((profiles?.work as Record<string, unknown>)?.mcp_servers).toEqual(['mine']);
+  });
+});
+
 describe('setSection', () => {
   it('updates the targeted section and preserves unknown sections', async () => {
     const path = join(dir, 'config.toml');

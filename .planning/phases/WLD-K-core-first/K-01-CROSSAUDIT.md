@@ -43,9 +43,28 @@ strengthened, not loosened.
 
 ---
 
-## 🔴 OPEN — BLOCKING. K-01 is NOT signed off.
+## 🟡 OPEN — the damaging branch is closed; one transient race remains tracked
 
-### O-1. The lease does not cover every writer to the file it protects
+### O-1. The lease does not cover every writer to the file it protects — **partially fixed**
+
+> **Update 2026-08-08.** The branch that damaged the user's file is now closed:
+> `configBridge` refuses to persist `[profiles.__wayland_desktop_session]`
+> (`stripDesktopLaunchProfile`, called from `atomicWriteToml`, so every writer through that
+> bridge is covered), with three regression tests. Desktop's ephemeral table can therefore no
+> longer be baked permanently into a user-owned config by a mid-launch settings write.
+>
+> **Deliberately not attempted:** unifying the two locks. `configBridge` takes
+> `withProfileAuthorityLock` → its own `writeLock`; the K-01 lease is taken outside any authority
+> lock. Making them one lock means reordering acquisition in a load-bearing settings path, which is
+> exactly where a naive nesting reintroduces the ABBA risk three legs just cleared this diff of.
+> That is a packet with its own audit, not an end-of-session edit.
+>
+> **What remains:** the transient branch. A settings write landing between the splice and the
+> engine's read can still leave that one launch without its profile, surfacing as
+> "Profile not found". No persistent damage, no data loss, and the next launch is unaffected.
+> Requires the user to change settings in the exact second a chat is starting.
+
+Original finding, retained for the record:
 
 **Raised by:** Codex 5.6 Sol (finding 1). **Confirmed by inspection of the real code.**
 
