@@ -7,11 +7,13 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
 import type { Writable } from 'node:stream';
 import { parse, stringify } from 'smol-toml';
 import type { TProviderWithModel } from '@/common/config/storage';
+import { isManagedWorkspaceName } from '@/common/types/managedWorkspaceRetention';
+import { getSystemDir } from '@process/utils/initStorage';
 import { VAULT_PASSPHRASE_CHILD_FD, resolveSpawnVaultPassphrase } from '@process/secrets';
 // #746: reuse the ACP turn timer rather than clone it — it is a dependency-free
 // start/reset/pause/resume/stop timer and is already the proven watchdog behind
@@ -168,6 +170,41 @@ export type StdioMcpOption = {
   env: Array<{ name: string; value: string }>;
   awaitReady?: boolean;
 };
+
+/**
+ * Whether `workspace` is a workspace THIS APP created and owns, as opposed to a
+ * directory the user pointed us at.
+ *
+ * Core 0.12.26 added workspace trust fingerprinting: project config that expands
+ * authority (`[profiles.*]`, `[mcp.servers.*]`, `[providers.*]`) is discarded
+ * unless the workspace is trusted. Desktop writes a launch-local
+ * `[profiles.__wayland_desktop_session]` into a per-chat directory Core has
+ * never seen, so on 0.12.26 that block is stripped and the `--profile` lookup
+ * that follows fails with "Profile ... not found in config" — every Core turn
+ * dies before it starts.
+ *
+ * `--trust-workspace` fixes it, but it is a general-purpose flag: pointed at a
+ * directory the USER chose, it would grant that directory's `.wayland-core.toml`
+ * — hooks, MCP servers, providers — the authority the trust control exists to
+ * withhold. Cloning a hostile repo and opening it as a workspace is exactly the
+ * attack. So the flag is gated on Desktop's OWN provenance, using the two
+ * existing authorities rather than a fresh path heuristic:
+ *
+ *   1. the directory sits DIRECTLY in the managed work root Desktop creates
+ *      (`getSystemDir().workDir`, where `buildWorkspaceWidthFiles` mints them), and
+ *   2. its name matches the closed managed-workspace grammar
+ *      (`isManagedWorkspaceName`, `<slug>-temp-<10+ digits>`).
+ *
+ * Fails closed: anything else — a user folder, a nested path, a lookalike
+ * elsewhere on disk — returns false and the flag is not passed. A user-chosen
+ * directory cannot satisfy (1), because Desktop is the only writer of that root.
+ */
+export function isDesktopManagedWorkspace(workspace: string, managedWorkRoot: string): boolean {
+  if (!workspace || !managedWorkRoot) return false;
+  const parent = resolve(dirname(workspace));
+  if (parent !== resolve(managedWorkRoot)) return false;
+  return isManagedWorkspaceName(basename(workspace));
+}
 
 export type WCoreAgentOptions = {
   workspace: string;
@@ -500,6 +537,18 @@ export class WCoreAgent {
         : projectConfig;
     if (!this.options.rawEngineMode && this.options.mcpServerNames !== undefined) {
       args.push('--profile', WCORE_DESKTOP_MCP_PROFILE);
+      // Core >=0.12.26 strips the profile we just wrote unless the workspace is
+      // trusted, then reports it as missing. Assert trust ONLY for a workspace
+      // this app minted (see isDesktopManagedWorkspace) — never a user folder.
+      // Harmless on 0.12.25, which ignores the unknown flag's effect entirely.
+      if (isDesktopManagedWorkspace(workspace, getSystemDir().workDir)) {
+        args.push('--trust-workspace');
+      } else {
+        console.warn(
+          '[WCoreAgent] Workspace is not Desktop-managed; not asserting workspace trust. ' +
+            'On Core >=0.12.26 the launch-local MCP profile will be stripped and the session may fail to start.'
+        );
+      }
     }
     if (effectiveProjectConfig) {
       this.writeProjectConfig(effectiveProjectConfig, workspace);
