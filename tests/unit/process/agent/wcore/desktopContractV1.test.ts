@@ -502,6 +502,43 @@ describe('deferred consumer reducers', () => {
 // as K-01's PRF-03 did for its own already-correct behavior, so "already
 // green" is not mistaken for "test written wrong."
 describe('K-03: unterminated final line recovery', () => {
+  it('does NOT let a stale orphan-delimiter flag absorb a later malformed empty line', () => {
+    // K-02/K-03 cross-audit (Kimi K3). `awaitingOrphanDelimiter` was cleared
+    // only by consuming a leading delimiter, so it survived a normal
+    // newline-terminated frame. Once ANY eager recovery had happened, the next
+    // bare newline anywhere in the stream was silently absorbed - a zero-length
+    // line this consumer is supposed to reject. That is protocol leniency in a
+    // security-load-bearing validator; it must stay fail-closed.
+    const consumer = negotiated();
+    const turnOne =
+      `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n` +
+      JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' });
+
+    // Eager recovery of the unterminated stream_end sets the flag.
+    expect(consumer.consumeChunk(Buffer.from(turnOne))).toHaveLength(2);
+
+    // The orphan delimiter never arrives; the engine moves straight on to the
+    // next turn, followed by a spurious empty line that must be rejected.
+    const nextFrame = `${JSON.stringify({ type: 'stream_start', msg_id: 'm2' })}\n\n`;
+
+    expectContractError(() => consumer.consumeChunk(Buffer.from(nextFrame)), 'malformed_json');
+  });
+
+  it('still absorbs a genuinely delayed delimiter that arrives in a later chunk', () => {
+    // The reconciliation this flag exists for must keep working: a merely LATE
+    // newline is not a new zero-length line and must not become malformed_json.
+    const consumer = negotiated();
+    const turnOne =
+      `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n` +
+      JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' });
+
+    expect(consumer.consumeChunk(Buffer.from(turnOne))).toHaveLength(2);
+    // The delimiter arrives alone, in its own chunk, exactly as the engine
+    // would have sent it had the write not been split.
+    expect(consumer.consumeChunk(Buffer.from('\n'))).toEqual([]);
+    expect(() => consumer.finishInput()).not.toThrow();
+  });
+
   it('recovers a content-free stream_end the instant its bytes are complete, without its trailing newline', () => {
     const consumer = negotiated();
     const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n`;

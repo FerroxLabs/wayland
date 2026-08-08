@@ -818,10 +818,22 @@ export class DesktopCoreV1Consumer {
           } else if (cursor.length >= 1 && cursor[0] === 0x0a) {
             cursor = cursor.subarray(1);
             this.awaitingOrphanDelimiter = false;
+          } else {
+            // Non-delimiter bytes are next, so the orphan delimiter is not
+            // merely late - it is never coming, and the engine has moved on to
+            // the following frame. Retire the flag NOW.
+            //
+            // Cross-audit (Kimi K3): leaving it set let it survive an
+            // intervening newline-terminated frame and then silently absorb the
+            // NEXT bare newline anywhere in the stream - a zero-length line this
+            // consumer is required to reject. That turned a fail-closed protocol
+            // validator lenient for the rest of the session after any single
+            // eager recovery. The flag may only ever consume the delimiter that
+            // immediately follows the frame it belongs to; an empty cursor still
+            // carries it into the next chunk, which is the genuine
+            // delayed-delimiter case it exists for.
+            this.awaitingOrphanDelimiter = false;
           }
-          // If the delimiter is not (yet) here, leave the flag set and fall
-          // through to normal scanning on the unmodified cursor - it may
-          // still arrive in a later chunk.
           if (cursor.length === 0) break;
         }
         const newline = cursor.indexOf(0x0a);
