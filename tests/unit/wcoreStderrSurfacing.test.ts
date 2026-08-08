@@ -394,6 +394,52 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(spawnMock).toHaveBeenCalledTimes(1);
   });
 
+  it('redacts JWTs, labelled assignments and raw Authorization tokens (K-02/K-03 cross-audit)', async () => {
+    // Codex 5.6 Sol found the redactor missed these shapes entirely, so an
+    // engine echoing any of them before failing put a live credential into the
+    // conversation error bubble and the event buses.
+    const jwt = 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dBjftJeZ4CVPmB92K27uhbUJU1p1r';
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write(`token ${jwt} rejected\n`);
+    child.stderr.write('config line: api_key = "TOTALLY-OPAQUE-VALUE-1234"\n');
+    child.stderr.write('Authorization: aGVsbG93b3JsZHRoaXNpc2Fsb25ndG9rZW4=\n');
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    expect(err.message).not.toContain(jwt);
+    expect(err.message).not.toContain('TOTALLY-OPAQUE-VALUE-1234');
+    expect(err.message).not.toContain('aGVsbG93b3JsZHRoaXNpc2Fsb25ndG9rZW4');
+    // The label stays so the diagnostic still reads sensibly.
+    expect(err.message).toContain('api_key');
+    expect(err.message).toContain('[redacted]');
+  });
+
+  it('does not redact ordinary diagnostic text that merely looks tokenish', async () => {
+    // The redactor must stay conservative: over-redaction destroys the very
+    // diagnostics K-02 exists to surface.
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write('failed loading /Users/someone/Library/Application Support/wayland-core/config.toml\n');
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('config.toml');
+    expect(err.message).not.toContain('[redacted]');
+  });
+
   it('redacts high-confidence secret tokens from the surfaced stderr (#484 audit)', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);

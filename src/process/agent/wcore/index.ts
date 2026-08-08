@@ -72,24 +72,50 @@ const WCORE_STDERR_TAIL_MAX = 2048;
 
 // High-confidence secret shapes to mask before engine stderr is surfaced into the
 // user-facing error UI (#484 audit). Init failures shouldn't echo credentials,
-// but stderr is untrusted engine output, so scrub known token formats defensively
-// (the full text still goes to the local console log for debugging). Conservative
-// on purpose: only well-known prefixes + bearer tokens, so real error text is
-// preserved.
+// but stderr is untrusted engine output, so scrub known token formats defensively.
+// Conservative on purpose: well-known prefixes and explicitly-labelled
+// assignments, so real error text is preserved.
+//
+// K-02/K-03 cross-audit: an earlier version of this comment said the full text
+// still reached the local console log for debugging. That is no longer true and
+// was the defect - the raw stderr line WAS logged verbatim, putting a live
+// credential on disk and into the renderer DevTools stream regardless of the
+// redaction applied to the user-facing error. Every emission is now redacted.
 const SECRET_PATTERNS: RegExp[] = [
-  /\b(?:sk|pk|rk)-[A-Za-z0-9_-]{16,}\b/g, // OpenAI / Stripe style
+  /\b(?:sk|pk|rk)-[A-Za-z0-9_-]{16,}\b/g, // OpenAI / Anthropic / Stripe style
   /\bBearer\s+[A-Za-z0-9._-]{16,}\b/gi, // Authorization: Bearer <token>
   /\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}\b/g, // GitHub tokens
   /\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g, // Slack tokens
   /\bAKIA[0-9A-Z]{16}\b/g, // AWS access key id
+  /\bAIza[A-Za-z0-9_-]{35}\b/g, // Google API key
+  // JWT: three base64url segments. The `eyJ` prefix (a `{"` header) makes this
+  // specific enough not to swallow ordinary dotted identifiers.
+  /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,
+  // `Authorization:` carrying a raw token with no `Bearer` scheme.
+  /\bAuthorization\s*:\s*(?!Bearer\b)[A-Za-z0-9._~+/-]{16,}=*/gi,
 ];
+
+/**
+ * A LABELLED assignment - the label is what makes it high-confidence, so an
+ * engine echoing `api_key = "<value>"` from a config line is caught even when
+ * the value carries no recognizable prefix. Kept separate from
+ * {@link SECRET_PATTERNS} rather than indexed inside it: an index-based special
+ * case silently mis-applies itself the moment somebody inserts a pattern above
+ * it, which it did on the first attempt here.
+ */
+const LABELLED_SECRET_ASSIGNMENT =
+  /\b(api[_-]?key|auth[_-]?token|access[_-]?token|refresh[_-]?token|client[_-]?secret|password|passwd)(\s*[:=]\s*)["']?[^\s"',}]{8,}["']?/gi;
 
 function redactSecrets(text: string): string {
   let out = text;
   for (const pattern of SECRET_PATTERNS) {
     out = out.replace(pattern, '[redacted]');
   }
-  return out;
+  // Label preserved, value masked, so the diagnostic still reads sensibly.
+  return out.replace(
+    LABELLED_SECRET_ASSIGNMENT,
+    (_match, label: string, separator: string) => `${label}${separator}[redacted]`
+  );
 }
 
 type StreamEventHandler = (event: { type: string; data: unknown; msg_id: string; subject?: string }) => void;
