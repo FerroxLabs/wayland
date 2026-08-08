@@ -103,6 +103,14 @@ const NEAR_BUDGET_RATIO = 0.95;
  */
 const EMPTY_CONTENT_THRESHOLD_CHARS = 20;
 
+/**
+ * W-1b: minimum gap between bootstrap RETRIES (the first one is immediate).
+ * A failed `start()` is bounded by its own 30s ready timeout, so 60s keeps a
+ * pathological automatic caller - a scheduled task firing against a broken
+ * config - to well under one spawn per minute.
+ */
+const BOOTSTRAP_RETRY_COOLDOWN_MS = 60_000;
+
 const WCORE_PREFERENCE_AUTHORITY = {
   get: (key: string) => ProcessConfig.get(key as never) as Promise<unknown>,
   set: (key: string, value: unknown) => ProcessConfig.set(key as never, value as never),
@@ -262,6 +270,9 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   /** Captured failure from `start()`, so a failed bootstrap surfaces an honest
    * error+finish on the next `sendMessage` instead of silently hanging the turn. */
   private startError: unknown = null;
+  /** W-1b: bounds automatic callers; see `ensureBootstrap`. */
+  private bootstrapRetries = 0;
+  private lastBootstrapAttemptAt = 0;
   private currentMode: string = 'default';
   private _capabilities: WCoreCapabilities | null = null;
   private _configSentAt: number | null = null;
@@ -391,7 +402,23 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
    * chats for exactly the resources whose contention causes this failure class.
    */
   private ensureBootstrap(): Promise<void> {
+    // Automatic callers are not bounded by "once per turn". A scheduled task
+    // drives sendMessage on every firing, and `emitStartFailure` returns
+    // normally rather than throwing, so cron records the run as SUCCESSFUL and
+    // clears its own retry state - nothing upstream backs off. Without this,
+    // a broken config turns every cron firing into a fresh engine spawn.
+    //
+    // The first retry is immediate, because that is the case a human hits: a
+    // stale crash sentinel, a contended lease, or a config they just fixed.
+    // Every retry after that is rate-limited, which bounds any automatic
+    // caller regardless of origin - more robust than sniffing for `cronMeta`,
+    // which would miss other automatic paths.
+    const now = Date.now();
+    const withinCooldown =
+      this.bootstrapRetries > 0 && now - this.lastBootstrapAttemptAt < BOOTSTRAP_RETRY_COOLDOWN_MS;
+
     const canRetry =
+      !withinCooldown &&
       this.startError !== null &&
       // An engine identity survived, so a process tree may still own this
       // profile; respawning would put a second engine on it. kill() owns that
@@ -405,6 +432,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       !this.disposed;
 
     if (canRetry) {
+      this.bootstrapRetries += 1;
+      this.lastBootstrapAttemptAt = now;
       this.startError = null;
       this.agentReady = this.start().catch((error) => this.captureBootstrapFailure(error));
     }

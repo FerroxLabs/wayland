@@ -338,4 +338,30 @@ describe('WCoreManager bootstrap failure surfaces error + finish (S2)', () => {
     // Retry is gated on startError; a healthy conversation must spawn once.
     expect(agentStart).toHaveBeenCalledTimes(1);
   });
+
+  it('rate-limits retries after the first, so an automatic caller cannot spawn-storm', async () => {
+    // Cron drives sendMessage on every firing, and emitStartFailure returns
+    // normally rather than throwing - so cron records the run as SUCCESSFUL and
+    // never backs off. Without a cooldown, a broken config would turn every
+    // firing into a fresh engine spawn.
+    agentStart.mockRejectedValue(new Error('config is broken'));
+    const manager = createManager('conv-sf-w1b-storm');
+
+    await manager.sendMessage({ content: 'one', msg_id: 'msg-w1b-7' });
+    expect(agentStart).toHaveBeenCalledTimes(1);
+
+    // First retry is immediate: this is the case a human hits.
+    await manager.sendMessage({ content: 'two', msg_id: 'msg-w1b-8' });
+    expect(agentStart).toHaveBeenCalledTimes(2);
+
+    // Everything after that is bounded, however many turns arrive.
+    for (const [i, id] of ['msg-w1b-9', 'msg-w1b-10', 'msg-w1b-11'].entries()) {
+      await manager.sendMessage({ content: `burst-${i}`, msg_id: id });
+    }
+    expect(agentStart).toHaveBeenCalledTimes(2);
+
+    // The user still gets an honest failure on every one of those turns.
+    const errors = findEmissions('error').filter((e) => String(e.data).includes('config is broken'));
+    expect(errors.length).toBeGreaterThanOrEqual(4);
+  });
 });
