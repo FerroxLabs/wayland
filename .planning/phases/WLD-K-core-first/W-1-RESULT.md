@@ -113,6 +113,27 @@ This rules out: the deferred-tool design (all runs used `deferred` default true)
 Also confirmed live: **K-02 works.** An engine that refused to start put its reason in the chat
 as a durable error tip instead of a silent spinner.
 
+## The mitigation, measured live
+
+Shipped in `3227332a2`: when a session publishes an MCP server, Desktop injects one instruction
+telling the model to search with a single distinctive keyword, retry *shorter* never longer, and
+call the tool by name once matched. Placed before the user's own preset rules; skipped when no
+server is published and on resume.
+
+Same profile, same connector, same ask, before and after:
+
+| | before | after |
+|---|---|---|
+| ToolSearch calls | 28 in one session (captured log) | **2** |
+| "No deferred tools matching" | 19 of 28 | **0 — both matched** |
+| turn duration | 136s, then died | **16s** |
+
+The matching failure is gone. **The MCP tool still did not execute in the app**, because the model
+then called `Bash` and hit W-1a, the Autopilot approval wedge — a different, host-side defect.
+So the honest status is: C-5's symptom is mitigated and the remaining blocker in the packaged app
+is ours, tracked as W-1a. End-to-end MCP execution remains proven on the engine (runs A–C) but
+**not yet in the packaged app**.
+
 ## Asks
 
 **Core (new, high severity — this blocks every MCP tool for every model):** make ToolSearch
