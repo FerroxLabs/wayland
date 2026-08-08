@@ -28,6 +28,10 @@ vi.mock('@process/agent/wcore/envBuilder', () => ({
   // pass for the wrong reason (proven RED live before this line was added -
   // both cases threw "No WCORE_DESKTOP_MCP_PROFILE export is defined").
   WCORE_DESKTOP_MCP_PROFILE: '__wayland_desktop_session',
+  // Same trap: the spawn pushes `--assistant <this>`, so an unstubbed export
+  // puts `undefined` in argv and spawn throws before a single production
+  // listener is attached - which surfaces as 33 unrelated-looking failures.
+  WCORE_DESKTOP_HOST_ASSISTANT: 'wayland-desktop',
 }));
 // #710: vault provisioning is out of scope here - resolve "no unlock material"
 // so the spawn takes the legacy three-slot stdio path (and never touches the
@@ -137,6 +141,39 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     vi.useRealTimers();
     vi.clearAllMocks();
     rmSync(testWorkspace, { recursive: true, force: true });
+  });
+
+  it('declares an assistant identity so Core 0.12.26 accepts runtime MCP declarations', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+    await flushUntilSpawned(child);
+    child.emit('exit', 0);
+    await result;
+
+    // Core 0.12.26 `scope_host_runtime_mcp` rejects every wire-added MCP server
+    // with "active assistant identity is required for a runtime MCP
+    // declaration" when this is absent. Live-verified: without it the session's
+    // tool pool is empty and no MCP tool can ever run.
+    const args = spawnMock.mock.calls[0][1] as string[];
+    const index = args.indexOf('--assistant');
+    expect(index).toBeGreaterThanOrEqual(0);
+    expect(args[index + 1]).toBe('wayland-desktop');
+  });
+
+  it('omits the assistant identity in raw engine mode', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent({ ...baseOptions(), rawEngineMode: true });
+    const result = agent.start().catch((e: unknown) => e);
+    await flushUntilSpawned(child);
+    child.emit('exit', 0);
+    await result;
+
+    expect(spawnMock.mock.calls[0][1] as string[]).not.toContain('--assistant');
   });
 
   it('includes the engine stderr tail in the exit rejection', async () => {

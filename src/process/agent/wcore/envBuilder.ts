@@ -407,6 +407,16 @@ export class MissingApiKeyError extends Error {
 export const WCORE_DESKTOP_MCP_PROFILE = '__wayland_desktop_session';
 
 /**
+ * The host identity Desktop declares to Core via `--assistant`.
+ *
+ * Core 0.12.26 requires a non-empty active assistant before it will accept any
+ * wire-added (`add_mcp_server`) MCP declaration. This is that identity: one
+ * stable value for the Desktop host, not a per-chat one - see the call site in
+ * `wcore/index.ts` for why.
+ */
+export const WCORE_DESKTOP_HOST_ASSISTANT = 'wayland-desktop';
+
+/**
  * Add a launch-local Core profile that narrows the globally published MCP
  * table to the exact connector names selected for this Desktop chat.
  */

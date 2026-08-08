@@ -24,6 +24,7 @@ import {
   buildEngineSpawnEnv,
   buildSpawnConfig,
   appendDesktopMcpProfile,
+  WCORE_DESKTOP_HOST_ASSISTANT,
   WCORE_DESKTOP_MCP_PROFILE,
   engineInheritsShellKey,
   isOpenAIFamilyModelId,
@@ -594,6 +595,22 @@ export class WCoreAgent {
     // project config in an untrusted workspace, silently dropping the
     // profile. The workspace file keeps carrying only genuinely
     // project-scoped content (provider compat overrides).
+    // Core 0.12.26 `scope_host_runtime_mcp` scopes EVERY wire-added MCP server
+    // to the host's active assistant and hard-fails without one:
+    // "active assistant identity is required for a runtime MCP declaration".
+    // Live-verified on the released binary - without this flag every runtime
+    // `add_mcp_server` fails and the session's tool pool is empty, which is why
+    // no MCP tool could execute on 0.12.26.
+    //
+    // A constant host identity, not a per-chat one, deliberately: config
+    // servers carrying `only_for_assistant` are already excluded when no
+    // assistant is active, so naming a stable identity changes nothing for
+    // them, while a per-chat identity would silently break any server a user
+    // scoped to a real assistant. Per-chat MCP narrowing stays the launch
+    // profile's job (K-01).
+    if (!this.options.rawEngineMode) {
+      args.push('--assistant', WCORE_DESKTOP_HOST_ASSISTANT);
+    }
     const mcpServerNames = this.options.mcpServerNames;
     if (!this.options.rawEngineMode && mcpServerNames !== undefined) {
       args.push('--profile', WCORE_DESKTOP_MCP_PROFILE);
