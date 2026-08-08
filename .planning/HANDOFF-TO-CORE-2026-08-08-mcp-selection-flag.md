@@ -130,3 +130,61 @@ released tag — never by reading the working tree and assuming it ships. The on
 observation (§3) is explicitly labelled as such. When we first flagged §3 we had it wrong: our search
 method returned a zero we could not trust, and re-running it against a **known positive** showed the
 change was uncommitted, not released. That correction is why §3 is phrased as a question.
+
+---
+
+# Addendum — 2026-08-08, found by live-verifying released v0.12.26
+
+Three findings from running Wayland Desktop against the released `v0.12.26` binary
+(`--build-info` source `98ad1c28…`). All three were observed by execution, not read from source;
+source is cited only to name the cause.
+
+## ENG-04 — the generated Desktop corpus under-declares the producer wire
+
+`crates/wcore-protocol/src/contract/spec.rs` `PRODUCER_EVENT_TYPES` declares **59** producer events.
+`contracts/desktop/v1/manifest.json`, generated from the same tree, declares **52**. Missing:
+
+`capability_activation`, `compact_offload`, `mid_flight_monitor_decision`, `provider_attempt`,
+`provider_failure`, `provider_retry`, `workspace_policy`
+
+Core's own reference host observer accepts them off `PRODUCER_EVENT_TYPES`, so the corpus self-check
+stays green. A host that validates against the manifest — which is what the corpus is shipped for —
+fails closed on the first one it sees.
+
+This is not theoretical. `workspace_policy` is emitted immediately after `ready` on every session and
+carries no `critical` flag, so a strict host is killed before its first turn. It is the reason
+Wayland Desktop could not talk to v0.12.26 even after re-pinning to the correct descriptor.
+
+**Ask:** add the seven to `EVENT_SPECS` with fixtures and re-cut the corpus. Desktop is currently
+carrying a hard-coded allowlist for exactly these seven, sourced from `PRODUCER_EVENT_TYPES` at
+commit `98ad1c28…`; it comes out when the corpus declares them.
+
+## ENG-05 — runtime `add_mcp_server` now hard-fails without an assistant identity
+
+`scope_host_runtime_mcp` (`crates/wcore-cli/src/main.rs`) scopes every wire-added MCP server to the
+active assistant and returns `"active assistant identity is required for a runtime MCP declaration"`
+when the host did not supply one. Desktop launches ordinary chats without `--assistant`, so every
+runtime MCP publication fails and the session's tool pool is empty.
+
+We can pass `--assistant`, and probably will. Two questions before we build on it:
+
+1. **Is mandatory assistant scoping the intended long-term contract for host-provided runtime MCP?**
+   If so it materially changes the D ask above: a host-supplied per-chat assistant identity already
+   gives exact per-chat MCP narrowing, which is what `--mcp-server` / `--no-mcp-servers` was asked
+   for. We would rather adopt the mechanism you intend than keep a parallel one.
+2. **Was this an intentional breaking change for hosts on the 0.12.25 → 0.12.26 line?** It is not
+   called out in the release notes, and it silently produces zero tools rather than a startup error.
+
+## ENG-06 — the plaintext-credentials refusal advertises a remedy that does not work
+
+With `[storage.credentials] backend = "plaintext"` and `[session] enabled = true`, 0.12.26 refuses to
+start (correctly, and the message is otherwise good). The message says to unlock an encrypted vault
+by setting `WAYLAND_VAULT_PASSPHRASE_FD` or `WAYLAND_VAULT_PASSPHRASE`.
+
+Verified against the released binary: **setting `WAYLAND_VAULT_PASSPHRASE` does not help.** The
+explicit `backend = "plaintext"` still wins and the refusal is identical. What does work is removing
+the `backend` line, setting `backend = "keyring"`, or `[session] enabled = false`.
+
+**Ask:** either make the passphrase override an explicit plaintext backend, or drop that branch from
+the remediation text. As it stands it sends users down a dead end on the one path they cannot
+diagnose themselves.
