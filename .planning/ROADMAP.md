@@ -907,3 +907,370 @@ Standard patterns, skip research:
 **No.** WLD-I touches licence headers, notices files, generators, CI, and packaged-artifact
 verification. It ships no user-facing interface change, so `/ferrox-ui-phase` does not apply to any
 phase in this milestone.
+
+---
+
+## WLD-K — Core First
+
+> **Appended 2026-08-08. Additive only.** Nothing above this line is rewritten, renumbered, or
+> restated. Milestones A/B/C, the preserved Phase 1-7 wave model, and WLD-I keep their own IDs;
+> WLD-K is a separate lettered milestone with its own phase namespace `K-01` … `K-08`. Phase
+> artifacts live in `.planning/phases/WLD-K-core-first/` as `K-0N-PLAN.md`, matching the
+> `I-NN-PLAN.md` convention already in `phases/WLD-I-licence-compliance/`. Do **not** create
+> numbered `01-*` / `02-*` phase directories for this milestone.
+
+**Goal:** Make Wayland Core the backend a non-technical user actually succeeds on, so the Master
+Class demonstrates Wayland architecture — Wayland Desktop driving Wayland Core — rather than
+Desktop driving Claude Code.
+
+**Spine:** `.planning/MILESTONE-WLD-K-core-first.md` (verified state table) and a two-round
+cross-research convergence between Codex 5.6 Sol and Kimi K3. Its phase order and the demo-safety
+boundary are preserved verbatim here.
+
+## Where WLD-K starts (verified, 2026-08-08)
+
+- **Engine targeting.** Core 0.12.26 is in final CI ahead of publish. The committed Desktop pin
+  stays `v0.12.25` (`scripts/prepareWaylandCore.js:213`), so a 0.12.26 release does not break
+  already-shipped Desktop — but **the pin bump is blocked until PRF-01 lands**, because current
+  Desktop code dies at bootstrap on 0.12.26.
+- **Scope decision (Sean, 2026-08-08).** All seven packets stay in this milestone. Splitting the
+  L-sized installer/Flux work into a follow-on milestone was recommended and overridden, so the
+  roadmap carries an explicit **"Master Class is safe at this line"** boundary after K-04. Phases
+  K-01…K-04 must be able to ship without any of K-05…K-08.
+- **K-01 mechanism is decided (option A).** Move the profile into the global config root
+  (`resolveActiveConfigDir()` → `WAYLAND_HOME`). It is execution-proven on 0.12.26-rc.2 — 101 MCP
+  tools connected, turn completed, no trust flag, symlinks present. K-04's ENG-01 pursues the
+  architecturally correct Core flag in parallel so option A can be retired later. Two independent
+  cross-research legs (Codex 5.6 Sol, Kimi K3, two rounds each) converged on exactly this split.
+- **Reuse, do not reinvent.** `projectConfigTransaction.ts` (journalled backup + marker + atomic
+  rename + fsync + crash recovery), `projectConfigLease.ts` (realpath-keyed lease), `profilePaths.ts`
+  (`resolveActiveConfigDir`/`resolveActiveConfigIdentity`, `DEFAULT_PROFILE='@native'`,
+  `ProfileIsolationError`), `configMcpServers.ts`, `mcpSessionConfig.ts`.
+- **The user-owned-file risk applies only to the `@native` profile.** For named profiles the
+  config root is already a Desktop-owned, symlink-asserted tree.
+- **Proof standard, milestone-wide.** Every mechanism claim is established by **executing** it
+  against a real engine, never by reading source; any search returning zero is disbelieved until
+  the same method is shown to find a **known positive**. Full suite baseline to beat: **16,231
+  tests, 0 failures**.
+- **Dual-version acceptance.** Every PRF requirement is proven on **both** 0.12.25 and 0.12.26
+  (rc.2 until stable publishes, stable thereafter).
+
+## Phases
+
+Phase IDs are `K-NN` within milestone WLD-K.
+
+- [ ] **Phase K-01: Move the launch profile out of project config (the spine)** - Ship blocker, not demo polish: Core 0.12.26 dies at bootstrap on current Desktop code until this lands. Runs first.
+- [ ] **Phase K-02: Honest failure surfacing** - Small; sequenced after K-03. Stops the next Core-refuses-to-start failure from costing another lost afternoon.
+- [ ] **Phase K-03: The turn that never finishes** - Small, high user-visible value; affects users on the already-shipped 0.12.25 engine today. Runs second.
+- [ ] **Phase K-04: Engine asks and release-candidate policy** - Doc-only. ENG-01's handoff to Core goes out early, in parallel with K-01.
+
+  > ─────────── Master Class is safe at this line ───────────
+  > Phases `K-01` … `K-04` must ship independently of everything below.
+
+- [ ] **Phase K-05: Agent installer: npm subset** - L, new capability; installs from the Settings panel with pinned-version, checksum-verified, manifest-uninstallable packages.
+- [ ] **Phase K-06: Agent installer: non-npm channels** - L; extends K-05's manifest/consent/checksum/uninstall contract to the remaining channels.
+- [ ] **Phase K-07: Flux fan-out** - L, high risk; the actual moat — an installed agent immediately drives the user's own Flux key on the pinned catalog.
+- [ ] **Phase K-08: Milestone verification** - Full suite green plus a live packaged-artifact sweep of the Master Class path.
+
+## Phase Details
+
+### Phase K-01: Move the launch profile out of project config (the spine)
+
+**Status**: SHIP BLOCKER — runs first.
+**Size**: M. **Risk**: medium — it writes to a file the user also owns.
+**Audit**: required, 4-leg — Codex 5.6 Sol, Gemini 3.1 Pro, Kimi K3, internal `ferrox-code-reviewer`.
+This is the packet that must not be wrong.
+**Goal**: A fresh Wayland Core launch with Desktop's MCP narrowing profile succeeds on both engine
+versions, because the profile lives in a location Core's untrusted-workspace policy cannot strip.
+**Depends on**: Nothing. First phase; the spine.
+**Requirements**: PRF-01, PRF-02, PRF-03, PRF-04, PRF-05, PRF-06, PRF-07, PRF-08
+**Success Criteria** (verification-shaped — checkable by execution, not by reading source):
+
+1. A fresh profile with Wayland Core selected runs one prompt and executes an MCP tool on **both**
+   0.12.25 and 0.12.26.
+2. The global-config mutation is transactional on the existing `ProjectConfigTransaction` posture
+   (journalled backup, marker, atomic rename, fsync, crash recovery) and never leaves a partial
+   write; a launch killed mid-flight leaves the user's global config byte-identical to its
+   pre-launch state, proven by a real kill test, not a simulated one.
+3. The hash-ownership check governs **every** restore, not only crash recovery. The normal restore
+   path never blind-writes a whole-file snapshot back; on mismatch the user's bytes win, the
+   failure is visible, and a precise repair action is offered.
+4. Only the Desktop-owned `[profiles.__wayland_desktop_session*]` table is spliced textually; the
+   result is validated as parsing TOML before the atomic rename. Structured round-trip
+   serialization never runs — it destroys comments and formatting in a file the user hand-edits.
+5. Concurrent launches are serialised by a lease spanning write → **Core config ingestion
+   confirmed** → restore, not a lease that ends at spawn — a sibling launch cannot replace the
+   bytes before the first engine reads them.
+6. A user edit made to the global config *during* the launch window survives, proven by a test
+   that performs the edit inside the lease window.
+7. Genuinely project-scoped project-config writes are retained; only the profile block moves, with
+   no unrelated behaviour change.
+
+**Plans**: TBD (`K-01-PLAN.md`)
+**Reuse, do not reinvent**: `projectConfigTransaction.ts`, `projectConfigLease.ts`,
+`profilePaths.ts` (`resolveActiveConfigDir`/`resolveActiveConfigIdentity`,
+`DEFAULT_PROFILE='@native'`, `ProfileIsolationError`), `configMcpServers.ts`,
+`mcpSessionConfig.ts`.
+**Scope note**: the user-owned-file risk applies only to the `@native` profile; named profiles'
+config root is already a Desktop-owned, symlink-asserted tree.
+
+### Phase K-02: Honest failure surfacing
+
+**Status**: NOT BLOCKED. Sequenced after K-03 in execution order — small and independent, but
+lower priority than the higher user-visible-value fix.
+**Size**: S. **Risk**: low.
+**Goal**: When Wayland Core refuses to start, the reason is readable in the app itself and
+distinguishable by class, so the next 0.12.26-style bootstrap failure costs minutes, not an
+afternoon.
+**Depends on**: Nothing technically.
+**Requirements**: DIA-01, DIA-02
+**Success Criteria**:
+
+1. An engine that refuses to start surfaces the engine's own stderr reason in the UI,
+   secret-scrubbed through the existing `SECRET_PATTERNS`, in place of the contract-layer
+   abstraction "wcore Desktop contract rejected ready".
+2. Stripped-config failures and profile-resolution failures produce visibly distinct surfaced
+   reasons, so the 0.12.26 failure class this milestone hit is diagnosable from the UI alone,
+   without reading logs.
+
+**Plans**: TBD (`K-02-PLAN.md`)
+**UI hint**: yes
+
+### Phase K-03: The turn that never finishes
+
+**Status**: NOT BLOCKED. Runs second, immediately after K-01.
+**Size**: S/M. **Risk**: low. **Priority**: high — it makes a working product look broken.
+**Goal**: A turn that Core has already finished is shown as finished, on the engine already
+shipped to users today.
+**Depends on**: Nothing. Independent of K-01/K-02; the bug reproduces on the already-released
+0.12.25 engine.
+**Requirements**: TRN-01, TRN-02, TRN-03
+**Success Criteria**:
+
+1. A turn where Core emits `stream_end` with `finish_reason: 'stop'` leaves the UI's running
+   state — reproduced live, not asserted from a plausible diff.
+2. The no-tools-found and error paths also terminate the running state instead of hanging.
+3. A regression test drives a `stream_end` carrying no assistant text and asserts the UI leaves
+   the running state, so this exact class of bug cannot silently return.
+
+**Plans**: TBD (`K-03-PLAN.md`)
+**UI hint**: yes
+
+### Phase K-04: Engine asks and release-candidate policy
+
+**Status**: NOT BLOCKED; doc-only. ENG-01's handoff should go out early, in parallel with K-01, so
+Core can build the correct long-term mechanism while K-01 ships the interim one.
+**Size**: S. **Risk**: low (doc-only).
+**Goal**: Core has a precise written record of what Desktop needs — a session-local
+MCP-selection flag, the misleading-error report, and the stdio-policy question — and Desktop's
+release-candidate handling stays fail-closed with no undocumented default turned on.
+**Depends on**: Nothing.
+**Requirements**: ENG-01, ENG-02, ENG-03, RCI-01
+**Success Criteria**:
+
+1. Core has received the written ask for a session-local `--mcp-server <ID>` (repeatable) plus
+   `--no-mcp-servers` flag: applied after all config/profile merging, retaining exactly those IDs;
+   an unknown ID is a fatal startup error naming the missing IDs; host-provided and session-local
+   (never persisted); applied independently of workspace trust and assistant identity.
+2. Core has received the misleading-error report: "Profile not found" is raised for a profile that
+   was present in a file Core parsed and then discarded.
+3. Core has been asked to confirm intent on the wire-added-stdio question, framed as a
+   forward-compatibility question and never asserted as shipped behaviour — the current state
+   (`v0.12.26-rc.2` still accepts stdio) is recorded alongside the observed uncommitted local edit
+   that would refuse it.
+4. The release-candidate integration decision is written down: `build-with-builder.js` keeps
+   `prepareWaylandCore.DEFAULT_WCORE_VERSION` with `requireVerified: true` so a packaged build can
+   never carry an RC — that stays correct — and any new flag introduced to relax it defaults OFF.
+
+**Plans**: TBD (`K-04-PLAN.md`)
+
+> ─────────── Master Class is safe at this line ───────────
+> Phases `K-01` … `K-04` must ship independently of everything below.
+
+### Phase K-05: Agent installer: npm subset
+
+**Status**: NOT BLOCKED; begins after the K-01…K-04 boundary. New capability — detection of 18
+agents already works via `AgentRegistry`; installation is the gap.
+**Size**: L. **Risk**: medium.
+**Goal**: A user installs a supported agent from Wayland's own Settings interface — never a shell
+script — and immediately runs a chat on it, with a real uninstall path back to their prior state.
+**Depends on**: Nothing technically; sequenced after the Master Class boundary per Sean's scope
+decision to keep K-01…K-04 shippable independently of this L-sized product work.
+**Requirements**: INS-01, INS-02, INS-03, INS-04, INS-05
+**Success Criteria**:
+
+1. An agent from the npm-installable subset installs from the Settings panel interface, is then
+   detected by the existing `AgentRegistry`, and a chat runs on it — proven on a clean VM per OS.
+2. Installation never uses `curl | sh`. It goes through the package manager the tool actually
+   publishes to, with a pinned version and a verified checksum, matching the bundled engine's
+   posture. A tool offering only a shell installer does not ship in this phase.
+3. Every install requires explicit per-install consent in the interface; there is no silent
+   background install.
+4. Windows is first-class: PATH, `.cmd` shims, and the `shell:false` spawn trap already hit with
+   `npx` (`mcpStdioSpawn.ts`) are all handled, proven on the Windows box.
+5. Uninstall exists and removes exactly what was installed, **by manifest, not by name**,
+   returning the machine to its prior state.
+
+**Plans**: TBD (`K-05-PLAN.md`)
+**UI hint**: yes
+
+### Phase K-06: Agent installer: non-npm channels
+
+**Status**: NOT BLOCKED. Sequential after K-05 — same install contract, extended.
+**Size**: L. **Risk**: medium.
+**Goal**: The agents that don't publish to npm get the same install guarantees as the ones that
+do — no channel is allowed to be the weak one.
+**Depends on**: K-05 (extends its manifest, consent, checksum, and uninstall contract).
+**Requirements**: INS-06
+**Success Criteria**:
+
+1. Every non-npm channel extends the same manifest, consent, checksum, and uninstall contract
+   proven in K-05; no channel weakens it — verified per channel, not asserted from the npm result.
+
+**Plans**: TBD (`K-06-PLAN.md`)
+**UI hint**: yes — same Settings interface as K-05.
+
+### Phase K-07: Flux fan-out
+
+**Status**: NOT BLOCKED. Depends on K-05.
+**Size**: L. **Risk**: high.
+**Goal**: An agent installed through Wayland immediately drives the user's own Flux key against
+the pinned model catalog — the actual moat, not the installer.
+**Depends on**: K-05 (an agent must be installable before it can be configured for Flux).
+**Requirements**: FAN-01, FAN-02, FAN-03, FAN-04, FAN-05
+**Success Criteria**:
+
+1. After install, Wayland writes the agent's own config so its provider base URL points at Flux
+   and its model list is the Flux pinned catalog; on a fresh machine — connect Flux, install the
+   agent, open it, select a non-Anthropic pinned model, get a correct answer — per supported
+   agent, on all three OSes.
+2. Configuration uses API key and base URL only; **never Claude subscription OAuth** — standing
+   hard NO on ToS grounds. This feature touches subscription auth on no agent.
+3. The user can see, in the interface, every config file Wayland modified and can undo it; no key
+   is written into a file Wayland does not own without saying so.
+4. An agent whose config was rewritten keeps working if the user later removes Flux — the config
+   is restored, not stranded.
+5. Pinned models are filtered per agent capability; a model offered in an agent actually works
+   there — a pinned model that 500s in Claude Code is worse than not offering it.
+
+**Plans**: TBD (`K-07-PLAN.md`)
+**UI hint**: yes
+
+### Phase K-08: Milestone verification
+
+**Status**: BLOCKED on K-01 through K-07 — verifies the merged state of the whole milestone.
+**Size**: S/M. **Risk**: low.
+**Goal**: The milestone's claims are true on the actual packaged artifact, not on a plausible
+diff.
+**Depends on**: K-01 through K-07.
+**Requirements**: PRF-09, DIA-03
+**Success Criteria**:
+
+1. The full suite is green on the final merged state before any pass claim, beating the baseline
+   of **16,231 tests, 0 failures**.
+2. A live end-to-end sweep on the **packaged** artifact — not dev mode — walks the Master Class
+   path start to finish: install TVControl from the Library, select Wayland Core, run a prompt,
+   execute a chart tool, see the turn finish.
+
+**Plans**: TBD (`K-08-PLAN.md`)
+
+## Phase Ordering Rationale — WLD-K
+
+- **K-01 is the spine and runs first — it is a ship blocker, not demo polish.** Core 0.12.26 is in
+  final CI ahead of publish, and the committed Desktop pin (`v0.12.25`,
+  `scripts/prepareWaylandCore.js:213`) cannot be bumped until K-01 lands, because current Desktop
+  code dies at bootstrap on 0.12.26.
+- **K-03 runs next** — high user-visible value, small, and it affects users on the *already
+  shipped* engine today, independent of K-01.
+- **K-02 runs after K-03** — small, and it prevents the next lost afternoon of misdiagnosis; not a
+  hard dependency, just lower priority than the visible turn-never-finishes fix.
+- **K-04 can run at any time and is doc-only.** Its ENG-01 handoff should be sent **early, in
+  parallel with K-01**, so Core can build the architecturally correct session-local flag while
+  K-01 ships the interim global-config mechanism.
+- **Explicit boundary after K-04: "Master Class is safe at this line."** Phases K-01…K-04 must be
+  shippable with none of K-05…K-08 — this is what let Sean keep all seven packets in one milestone
+  without risking the demo.
+- **K-05 → K-06 run sequentially** — same install contract (manifest, consent, checksum,
+  uninstall), extended from npm to non-npm channels.
+- **K-07 depends on K-05** — an agent must be installable before it can be configured for Flux.
+- **K-08 runs last** — full-suite green plus a live packaged-artifact sweep, over the merged state
+  of everything above.
+
+## Milestone-wide execution constraints — WLD-K
+
+These bind every phase in WLD-K. A phase plan may add constraints; none may weaken these.
+
+| Constraint | Rule |
+| --- | --- |
+| Promotion | No merge, tag, or release without the owner. `build-and-release.yml` fires on **any** tag. |
+| Generated file | Never commit `src/process/services/constitution/constitutionFsAuthority.generated.ts`. |
+| Security shell | Never weaken `sandbox: true`, `contextIsolation: true`, `nodeIntegration: false`, CSP, `bridgeAllowlist.ts`, `urlValidation.ts`, DOMPurify, `safeStorage`. Never touch the signing pipeline. No forged attestations; any new flag defaults OFF. |
+| Schema identity | `migrations.ts` `aionrs` SQL literals never change. `FoundrySkills` / `foundry-skills` is never renamed. |
+| Hooks / history | `prek run --all-files` is forbidden. No history rewriting. No AI attribution trailers. |
+| TVControl | `ui_evaluate` stays disabled behind `TV_MCP_ADVANCED=1`; no WLD-K packet flips it. |
+| Proof standard | Every mechanism claim is established by **executing** it against a real engine, never by reading source. Any search returning zero is disbelieved until the same method is shown to find a **known positive**. |
+| Dual-version acceptance | Every PRF requirement is proven on **both** 0.12.25 and 0.12.26 (rc.2 until stable publishes, stable thereafter). |
+| Full suite | `npx vitest run` before any pass claim. Baseline to beat: **16,231 tests, 0 failures**. |
+
+## Requirement Coverage — WLD-K
+
+| Phase | Requirement IDs | Count |
+| --- | --- | --- |
+| K-01 Move the launch profile out of project config (the spine) | PRF-01…PRF-08 | 8 |
+| K-02 Honest failure surfacing | DIA-01, DIA-02 | 2 |
+| K-03 The turn that never finishes | TRN-01, TRN-02, TRN-03 | 3 |
+| K-04 Engine asks and release-candidate policy | ENG-01, ENG-02, ENG-03, RCI-01 | 4 |
+| K-05 Agent installer: npm subset | INS-01…INS-05 | 5 |
+| K-06 Agent installer: non-npm channels | INS-06 | 1 |
+| K-07 Flux fan-out | FAN-01…FAN-05 | 5 |
+| K-08 Milestone verification | PRF-09, DIA-03 | 2 |
+| **Total** | | **30 mapped exactly once; 0 unmapped** |
+
+Full definitions and traceability: `.planning/REQUIREMENTS.md`, section "WLD-K — Core First
+Requirements". The **30** distinct REQ-IDs are `PRF-01…PRF-09`, `DIA-01…DIA-03`, `TRN-01…TRN-03`,
+`ENG-01…ENG-03`, `RCI-01`, `INS-01…INS-06`, `FAN-01…FAN-05`, each mapped exactly once below.
+
+> **Resolved 2026-08-08.** The requirements section originally closed by claiming "31 requirements".
+> Direct enumeration found 30; the roadmapper flagged the mismatch rather than inventing a 31st to
+> make the arithmetic work. The miscount was in the closing line, not in the requirement set — the
+> line now reads 30. No requirement was added, removed, or renumbered.
+
+Nothing above this milestone (WLD-I's 42 requirements, or the Phase 1-7 milestone's 55 current + 13
+deferred requirements) is touched by this count.
+
+## Progress — WLD-K
+
+| Phase | Plans Complete | Status | Completed |
+| --- | --- | --- | --- |
+| K-01 Move the launch profile out of project config (the spine) | 0/? | Not started — ship blocker, runs first | - |
+| K-02 Honest failure surfacing | 0/? | Not started | - |
+| K-03 The turn that never finishes | 0/? | Not started | - |
+| K-04 Engine asks and release-candidate policy | 0/? | Not started (ENG-01 handoff to send early, parallel with K-01) | - |
+| K-05 Agent installer: npm subset | 0/? | Not started | - |
+| K-06 Agent installer: non-npm channels | 0/? | Not started | - |
+| K-07 Flux fan-out | 0/? | Not started | - |
+| K-08 Milestone verification | 0/? | Blocked (K-01…K-07) | - |
+
+## Explicitly rejected — record so nobody retries (WLD-K)
+
+- `--trust-workspace` — trips Core's `executable_surface_symlinks_fail_closed` rule because
+  builtin skills are symlinked, and wrongly auto-trusts user-cloned repos. Reverted in
+  `3ebacf41c`.
+- Option C, ephemeral `WAYLAND_HOME` root — the config root also holds `memory.db` and skills, so
+  it destroys memory continuity, and Core refuses symlinks that would restore it.
+- Option F, `only_for_assistant` scoping as the primary mechanism — it can only *restrict*; an
+  unmarked server is *always* injected, so it cannot enforce an exact per-chat allow-list, and one
+  missed marking is a cross-chat tool leak. Retained only as possible later defence-in-depth.
+- Migrating existing `@native` users onto a Desktop-owned named profile inside this milestone — it
+  carries `memory.db`, credentials, skills and hand-edited config; a real rollback-capable
+  migration project, not a selector change.
+
+## UI hint — WLD-K
+
+Partial. K-02 (failure reason surfaced in the UI), K-03 (turn/running state in the UI), K-05/K-06
+(Settings-panel installer interface), and K-07 (modified-config visibility and undo in the
+interface) touch user-facing surface and carry a per-phase `**UI hint**: yes` annotation above.
+K-01 is backend config-plumbing and K-04 is doc-only; neither carries an annotation. K-08 verifies
+existing surfaces rather than building new UI, so it carries none either. Where `/ferrox-ui-phase`
+is warranted, run it against K-02, K-03, K-05, K-06, and K-07 specifically, not the whole
+milestone.

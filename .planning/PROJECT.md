@@ -163,7 +163,55 @@ Phase dependencies in `ROADMAP.md` describe product/evidence order, not permissi
 - **Queued Managed Workspace Lifecycle:** `WSLX-01` alone may later plan explicit human-reviewed quarantine, restore, keep-forever, and separately authorized permanent deletion, only after a complete trusted output/receipt ledger exists. Phase 1 remains preservation and review classification only.
 - **Queued Cloud/Pro and Distribution:** Community Cloud release readiness, Hosted Pro tenancy/isolation, commercial tier closure, and cross-surface release-derived distribution. Shared composition tests do not imply this surface is ready.
 
-## Current Milestone: WLD-I Licence Compliance
+## Current Milestone: WLD-K Core First
+
+**Goal:** Make Wayland Core the backend a non-technical user actually succeeds on, so the
+Master Class demonstrates Wayland architecture — Wayland Desktop driving Wayland Core —
+rather than Desktop driving Claude Code.
+
+**Target features:**
+- **K-1 (spine)** — move Desktop's launch-local MCP profile out of the per-chat *project*
+  config and into the global config root the engine is already pointed at. Core 0.12.26
+  strips authority-expanding sections from untrusted project config, so today every turn
+  dies at bootstrap on 0.12.26.
+- **K-1b** — send Core the written ask for a session-local `--mcp-server` / `--no-mcp-servers`
+  flag, the mechanism that retires K-1's config mutation entirely.
+- **K-2** — surface the engine's own stderr reason in the UI, secret-scrubbed, instead of
+  "wcore Desktop contract rejected ready".
+- **K-3** — fix the turn that never finishes: Core emits `stream_end` at 40s and the UI still
+  shows "running" six minutes later. Ships today, affects users today.
+- **K-4** — document the release-candidate integration decision (packaged builds can never
+  carry an RC, and that stays true).
+- **K-5a / K-5b** — agent installer. Detection of 18 agents already works; installation is
+  the gap. npm-installable subset first, then non-npm channels.
+- **K-6** — Flux fan-out: an installed agent immediately drives the Flux pinned catalog on
+  the one key the user already connected. This is the moat, not the installer.
+
+**Key context:**
+- **Scope decision (Sean, 2026-08-08):** all seven packets stay in WLD-K. I recommended
+  splitting K-5/K-6 into a follow-on milestone to protect the demo; overridden. The roadmap
+  therefore marks an explicit "Master Class is safe at this line" boundary after K-2 so the
+  demo-critical set can ship independently of the L-sized product work.
+- **K-1 is a ship blocker, not just demo safety.** Core 0.12.26 is in final CI ahead of
+  publish (Sean, 2026-08-08). The committed Desktop pin is `v0.12.25`, so a 0.12.26 release
+  does not break already-shipped Desktop — but the pin bump cannot happen until K-1 lands.
+- **K-1 mechanism decided:** ship option A (profile into global config, execution-proven on
+  rc.2 — 101 tools connected, turn completes) while K-1b pursues the architecturally correct
+  Core flag in parallel. Codex 5.6 Sol and Kimi K3 each ran two rounds and converged: ship-now
+  and correct-long-term genuinely differ here, and both named A for shipping.
+- **Rejected, with reasons, do not reopen:** `--trust-workspace` (trips Core's symlink
+  fail-closed rule and wrongly auto-trusts cloned repos); option C, an ephemeral config root
+  (the config root also holds `memory.db` and skills, so it kills memory continuity); option F,
+  Core's `only_for_assistant` scoping (it can only *restrict* — an unmarked server is always
+  injected, so it cannot enforce an exact per-chat allow-list, and one missed marking is a
+  cross-chat tool leak).
+- **The user-owned-file risk applies only to `@native`.** For named profiles the config root
+  is already a Desktop-owned tree asserted symlink-free. Migrating existing `@native` users
+  onto a Desktop-owned profile is a real, rollback-capable migration project — explicitly
+  *not* part of K-1.
+- Authoritative input: `.planning/MILESTONE-WLD-K-core-first.md` (verified state table).
+
+## Previous Milestone: WLD-I Licence Compliance
 
 **Goal:** Bring Wayland's third-party attribution into a defensible state under Apache-2.0
 Section 4(b)/4(c) and MIT, and make every attribution claim the app ships actually true.
@@ -206,6 +254,13 @@ For WLD-I specifically, "proven" additionally means: every attribution claim in 
 verified against the actual tree or the pinned upstream, not against a commit message or a prior
 finding; and every notice asserted to ship is confirmed present in a real packaged artifact, not
 inferred from `electron-builder.yml`.
+
+For WLD-K specifically, "proven" additionally means: every mechanism claim is established by
+**executing** it against a real engine, never by reading source; and any search returning zero is
+disbelieved until the same method is shown to find a **known positive**. Both wrong turns in the
+week before this milestone came from asserting behaviour that was never run, and one false finding
+during WLD-K planning itself was caught only by the positive-control rule. A packet's
+"verified facts" section may contain only what was actually executed.
 
 ## Evolution
 

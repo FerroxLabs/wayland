@@ -1,12 +1,12 @@
 ---
 ferrox_state_version: 1.0
-milestone: WLD-I
-milestone_name: Licence Compliance
+milestone: WLD-K
+milestone_name: Core First
 status: planning
-last_updated: "2026-07-30T12:32:06.330Z"
-last_activity: 2026-07-30
+last_updated: "2026-08-08T02:02:08.507Z"
+last_activity: 2026-08-08
 progress:
-  total_phases: 10
+  total_phases: 0
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -44,11 +44,10 @@ next product milestone behind it.
 
 ## Current Position
 
-Phase: WLD-I roadmapped, no phase started
+Phase: Not started (defining requirements)
 Plan: —
-Status: Ready to plan Phase I-01 (ship the §4(c) question to counsel — the only long-pole)
-Last activity: 2026-07-30 — WLD-I roadmap + 42 requirements written (ROADMAP.md, REQUIREMENTS.md)
-Progress: 0/10 phases; Phase I-02 partly landed already (`78329477f`, `d99c70b07`)
+Status: Defining requirements
+Last activity: 2026-08-08 — Milestone WLD-K started
 
 ### Reconciled Phase-1 truth (the old 40-packet safety foundation)
 
