@@ -76,15 +76,20 @@ and Gemini models, verified by a witness file the tool itself writes.
 Filed to Core as **C-5** (top of the summary table). Remaining on our side: a cheap usage-guidance
 prompt so the model searches by one distinctive keyword — raises the match rate without waiting.
 
-### W-1a — Autopilot can wedge a turn  **[NEW · S/M]**
-Live: `approval_required reason='exec' in auto mode has no resume token and no HITL UI; turn may
-wedge`, then `wcore process exited unexpectedly (code=0) during active turn`. Our own log line
-predicted the failure and the turn died anyway.
+### W-1a — Autopilot wedge  **✅ WITHDRAWN — not a defect, I was wrong**
+I reported this as blocking MCP invocation. It is a **false alarm in the log line**, nothing more.
+The `turn may wedge` line fires 5 times in the live log and **4 of the 5 are followed within ~70ms
+by `[Bash success] Exit code: 0`** — the tool ran every time (verified with `grep -A2`). The turn
+that skipped the MCP tool called `Bash` instead: a model choice, not a block.
+Residual nit: silence or correct the alarm, since a warning that never comes true trains people to
+ignore it. Not a blocker, no packet needed.
 
-### W-1b — A failed bootstrap is never retried  **[NEW · S]**
+### W-1b — A failed bootstrap is never retried  **✅ FIXED `c967368e3`**
 After one `refused to start`, later turns replayed the identical cached error — same sentinel path,
-same PID — with no fresh spawn. The user cannot recover without restarting the app. K-02 made the
-failure visible; recovery is still missing.
+same PID, 95s apart, with **no second `(start) failed` line between them**, so nothing respawned.
+`startError` had one writer and no reset. `sendMessage` now retries once per turn via
+`ensureBootstrap()`; guards cover a surviving agent identity, a retained profile lease, and
+teardown. Negative control run both directions.
 
 ### W-2 — Per-chat connector selection on 0.12.26  **[S · untested]**
 Only the auto-published `wayland-team-guide` was ever exercised. A user-selected connector

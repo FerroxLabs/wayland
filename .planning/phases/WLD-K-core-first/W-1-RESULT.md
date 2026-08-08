@@ -99,16 +99,22 @@ are trustworthy and an absent one would have meant something.
 This rules out: the deferred-tool design (all runs used `deferred` default true), Desktop's
 `add_mcp_server` path, the contract and the seven dropped events, and Gemini as a family.
 
-## Two further defects found while proving this
+## Two further findings — one real and fixed, one a false alarm I got wrong
 
-- **Autopilot can wedge a turn.** Live: `approval_required reason='exec' in auto mode has no
-  resume token and no HITL UI; turn may wedge`, followed by the engine exiting mid-turn
-  (`wcore process exited unexpectedly (code=0) during active turn`). Our log line predicted its
-  own failure and the turn died anyway. Needs its own packet.
-- **A failed bootstrap is never retried.** After one `refused to start`, later turns replayed
-  the identical cached error — same sentinel path, same PID — with no fresh spawn attempt. The
-  user cannot recover without restarting the app. K-02 made the failure *visible*; recovery is
-  still missing.
+- **W-1b — REAL, and now FIXED (`c967368e3`).** After one `refused to start`, later turns replayed
+  the identical cached error — same sentinel path, same PID, 95s apart, and crucially **no second
+  `(start) failed` line between them**, so no fresh spawn was ever attempted. `startError` had
+  exactly one writer and no reset. The user could not recover without restarting the app.
+  `sendMessage` now retries once per turn through `ensureBootstrap()`.
+
+- **W-1a — NOT A DEFECT. My earlier claim was wrong.** I reported that the Autopilot approval
+  wedge blocked MCP invocation. It does not. The line `approval_required reason='exec' in auto
+  mode has no resume token and no HITL UI; turn may wedge` appears 5 times in the live log, and
+  **4 of the 5 are followed within ~70ms by `[Bash success] Exit code: 0`** — the tool ran every
+  time. Verified independently with `grep -A2`, not taken from the analysis that raised it.
+  The turn that skipped `aion_list_models` called `Bash` instead: a model choice, not a block.
+  What is left is genuine but far smaller — **the alarm is a false positive**, and a log line that
+  predicts a failure which never occurs trains everyone to ignore it. A nit, not a blocker.
 
 Also confirmed live: **K-02 works.** An engine that refused to start put its reason in the chat
 as a durable error tip instead of a silent spinner.
