@@ -99,6 +99,43 @@ implementing exactly that now, guarded so it is only ever applied to our own gen
 `wcore-temp-*` directory and never to a folder the user opened (`initAgent.ts:506`
 already distinguishes them via `customWorkspace`).
 
+## Ask 2b: `--trust-workspace` cannot help us — symlinks fail the fingerprint
+
+We implemented Ask 2's fallback (pass `--trust-workspace`, gated to workspaces Desktop
+mints). **The profile error goes away, and then Core refuses for a second reason:**
+
+```
+[wcore] Error: executable repository content contains a symlink:
+  .../wcore-temp-1786152057216/.wayland-core/skills/office-cli
+```
+
+`fingerprint_workspace` fails closed on any symlink in the executable surface
+(`workspace_trust.rs:188,260,272`; your own test `executable_surface_symlinks_fail_closed`).
+That is a correct property — a symlink can point anywhere, so fingerprinting it proves
+nothing.
+
+But Desktop **symlinks builtin skills into `.wayland-core/skills/` by design**, because
+that is where Core discovers them natively. So:
+
+- without `--trust-workspace`: the profile is stripped -> no session
+- with `--trust-workspace`: the symlinked skills fail the fingerprint -> no session
+
+**There is currently no way for Desktop to run Wayland Core on 0.12.26.** Both behaviours
+are individually correct; the two designs are incompatible.
+
+Options as we see them, in our order of preference:
+
+1. **Fingerprint the symlink TARGET when it resolves inside the app's own installation.**
+   Keeps the security property (the content is still hashed) and un-breaks every app that
+   composes a workspace from its own read-only assets.
+2. **An explicit ephemeral-app-workspace trust mode** — the directory is created, written,
+   used and destroyed by the app; there is no third party in the loop.
+3. We copy skills instead of symlinking. We can do this without you, but it costs a copy
+   per chat, loses live skill edits, and changes behaviour for every backend to work
+   around one engine's fingerprint. We would rather not ship it unilaterally.
+
+If you pick 3 anyway, tell us and we will.
+
 ## Ask 3 (small): semver
 
 This is a breaking change for any consumer writing project config, shipped 0.12.25 →
