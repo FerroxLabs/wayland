@@ -12,6 +12,18 @@
       "predicateType": "https://slsa.dev/provenance/v1",
       "oidcIssuer": "https://token.actions.githubusercontent.com",
       "runner": "github-hosted"
+    },
+    {
+      "id": "wayland-core-v0.12.26-release",
+      "status": "active",
+      "releaseTag": "v0.12.26",
+      "repository": "FerroxLabs/wayland-core",
+      "signerWorkflow": "FerroxLabs/wayland-core/.github/workflows/release.yml",
+      "sourceRef": "refs/heads/main",
+      "sourceDigest": "98ad1c2836a543385a7a4298f4b3e54a55867ac5",
+      "predicateType": "https://slsa.dev/provenance/v1",
+      "oidcIssuer": "https://token.actions.githubusercontent.com",
+      "runner": "github-hosted"
     }
   ]
 }

@@ -85,7 +85,10 @@ describe('Core publisher attestation authority', () => {
     const stale = structuredClone(base);
     stale.policies[0].status = 'superseded';
     expect(() => selectPolicy('v0.12.25', stale)).toThrow(/stale/);
-    expect(() => selectPolicy('v0.12.26', base)).toThrow(/No unique/);
+    // A tag with no policy at all. Deliberately not a plausible next release:
+    // this assertion previously named v0.12.26 and silently stopped testing
+    // "unknown tag" the day that release shipped a real policy.
+    expect(() => selectPolicy('v0.0.0-no-such-release', base)).toThrow(/No unique/);
   });
 
   it('rejects the wrong release artifact name', () => {

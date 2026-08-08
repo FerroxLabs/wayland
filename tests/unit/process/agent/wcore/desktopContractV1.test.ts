@@ -144,8 +144,11 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
     expect(manifest.source_inputs_digest).toBe(DESKTOP_CORE_V1_PIN.sourceInputsDigest);
+    // The bundled engine and this pin must move together: Core's own host
+    // observer rejects a descriptor mismatch in either direction, so a pin that
+    // does not name the bundled release is a broken install, not a stale note.
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.12.25'"
+      "const DEFAULT_WCORE_VERSION = 'v0.12.26'"
     );
   });
 
