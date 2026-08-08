@@ -386,4 +386,121 @@ describe('#278: the engine spawn must never bind a named profile to the default 
     expect(globalConfig).toContain('"tavily"');
     expect(existsSync(join(workspace, '.wayland-core.toml'))).toBe(false);
   });
+
+/**
+ * W-1 / Core C-5: the ToolSearch guidance injected alongside runtime MCP.
+ *
+ * Core's `ToolSearch` keeps a tool only when EVERY whitespace token of the
+ * query is a literal substring of its name or description
+ * (`tool_search.rs:120-123`), so a longer, more natural query matches LESS.
+ * Measured on released 0.12.26, one session, one tool:
+ *   ToolSearch("probe")                                  -> match
+ *   ToolSearch("wld_probe_secret tool schema parameters") -> no match
+ * A model that gets nothing and rephrases more fully diverges, which is the
+ * discover-but-never-invoke loop. These pin the mitigation until Core fixes it.
+ */
+describe('W-1: ToolSearch guidance for runtime MCP (Core C-5 mitigation)', () => {
+  const readStdin = async (agent: WCoreAgent, sessionId: string): Promise<string> => {
+    const started = agent.start();
+    await vi.waitFor(() => expect(spawnMock).toHaveBeenCalled());
+    const child = spawnMock.mock.results[0]?.value as ReturnType<typeof makeFakeChild>;
+    let stdin = '';
+    (child.stdin as PassThrough).on('data', (chunk) => {
+      stdin += chunk.toString();
+    });
+    (
+      agent as unknown as {
+        handleEvent: (e: { type: 'ready'; session_id: string; capabilities: Record<string, never> }) => void;
+      }
+    ).handleEvent({ type: 'ready', session_id: sessionId, capabilities: {} });
+    await started;
+    return stdin;
+  };
+
+  const mcpServer = {
+    name: 'wayland-team-guide',
+    command: '/fake/guide',
+    args: ['--stdio'],
+    env: [],
+  };
+
+  it('tells the model to search with ONE keyword when a server is published', async () => {
+    resolveActiveConfigDirMock.mockResolvedValue(PROFILE_DIR);
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-c5-on-'));
+    testWorkspaces.push(workspace);
+    const agent = new WCoreAgent({
+      workspace,
+      model: MODEL,
+      rawEngineMode: true,
+      stdioMcpServers: [mcpServer],
+      onStreamEvent: () => {},
+    });
+
+    const stdin = await readStdin(agent, 'c5-on');
+
+    expect(stdin).toContain('"type":"init_history"');
+    expect(stdin).toContain('[Tool Search]');
+    // The two instructions that actually counteract the matcher.
+    expect(stdin).toContain('SINGLE distinctive keyword');
+    expect(stdin).toContain('SHORTER query');
+  });
+
+  it('stays silent when the session published no MCP server', async () => {
+    resolveActiveConfigDirMock.mockResolvedValue(PROFILE_DIR);
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-c5-off-'));
+    testWorkspaces.push(workspace);
+    const agent = new WCoreAgent({
+      workspace,
+      model: MODEL,
+      rawEngineMode: true,
+      onStreamEvent: () => {},
+    });
+
+    const stdin = await readStdin(agent, 'c5-off');
+
+    // No MCP tools in play means the guidance is pure prompt noise.
+    expect(stdin).not.toContain('[Tool Search]');
+  });
+
+  it('does not re-inject on resume, where the history already carries it', async () => {
+    resolveActiveConfigDirMock.mockResolvedValue(PROFILE_DIR);
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-c5-resume-'));
+    testWorkspaces.push(workspace);
+    const agent = new WCoreAgent({
+      workspace,
+      model: MODEL,
+      rawEngineMode: true,
+      resume: 'prior-session',
+      stdioMcpServers: [mcpServer],
+      onStreamEvent: () => {},
+    });
+
+    const stdin = await readStdin(agent, 'c5-resume');
+
+    expect(stdin).toContain('"type":"add_mcp_server"');
+    expect(stdin).not.toContain('[Tool Search]');
+  });
+
+  it('puts the user own rules AFTER the guidance so they win', async () => {
+    resolveActiveConfigDirMock.mockResolvedValue(PROFILE_DIR);
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-c5-order-'));
+    testWorkspaces.push(workspace);
+    const agent = new WCoreAgent({
+      workspace,
+      model: MODEL,
+      rawEngineMode: true,
+      stdioMcpServers: [mcpServer],
+      presetRules: 'Always answer in British English.',
+      onStreamEvent: () => {},
+    });
+
+    const stdin = await readStdin(agent, 'c5-order');
+
+    const guidanceAt = stdin.indexOf('[Tool Search]');
+    const rulesAt = stdin.indexOf('[Assistant System Rules]');
+    expect(guidanceAt).toBeGreaterThanOrEqual(0);
+    expect(rulesAt).toBeGreaterThanOrEqual(0);
+    expect(guidanceAt).toBeLessThan(rulesAt);
+  });
+});
 });
