@@ -61,13 +61,30 @@ deliberate opt-in.
 
 Each item states what "done" means so it can be handed to an agent without re-deriving scope.
 
-### W-1 — Why does the model never invoke a discovered MCP tool?  **[S/M · highest value]**
-`ToolSearch` returns `aion_list_models`; the model calls `ToolSearch` again, gets it again, and
-loops. Never issues the call. This is the last gap between "MCP works" and "MCP works for a user",
-and the Master Class claim depends on it.
-Unknown whether it is the model, our prompt, or the deferred-tool flow. **Do not assume Core.**
-*Done when:* an MCP tool's body executes end to end in the packaged app and its output reaches the
-chat — or the cause is identified with evidence and attributed.
+### W-1 — Why does the model never invoke a discovered MCP tool?  **✅ ANSWERED — see `phases/WLD-K-core-first/W-1-RESULT.md`**
+**Root cause is Core's, and it is `ToolSearch` matching, not the deferred-tool design.**
+`tool_search.rs:120-123` requires **every whitespace token** of the query to be a literal substring
+of the tool name or description. A query containing the tool's EXACT name still misses if any other
+word does not appear — proven back to back in one session:
+`ToolSearch("probe")` matches, `ToolSearch("wld_probe_secret tool schema parameters")` does not.
+Punctuation is part of the token, so `aion_list_models,` never matches. The model rephrases with
+more words, matches less, and loops. Not model-specific: 28/28 tool calls were `ToolSearch` on
+`claude-sonnet-5`, 19 returning "no match"; re-repro'd on `gpt-5.6-sol`.
+**Proven working:** once a search matches, an MCP tool's body executes end to end and its output
+reaches the reply — on config-declared AND runtime `add_mcp_server`, `deferred` at default, on Flux
+and Gemini models, verified by a witness file the tool itself writes.
+Filed to Core as **C-5** (top of the summary table). Remaining on our side: a cheap usage-guidance
+prompt so the model searches by one distinctive keyword — raises the match rate without waiting.
+
+### W-1a — Autopilot can wedge a turn  **[NEW · S/M]**
+Live: `approval_required reason='exec' in auto mode has no resume token and no HITL UI; turn may
+wedge`, then `wcore process exited unexpectedly (code=0) during active turn`. Our own log line
+predicted the failure and the turn died anyway.
+
+### W-1b — A failed bootstrap is never retried  **[NEW · S]**
+After one `refused to start`, later turns replayed the identical cached error — same sentinel path,
+same PID — with no fresh spawn. The user cannot recover without restarting the app. K-02 made the
+failure visible; recovery is still missing.
 
 ### W-2 — Per-chat connector selection on 0.12.26  **[S · untested]**
 Only the auto-published `wayland-team-guide` was ever exercised. A user-selected connector

@@ -191,18 +191,58 @@ round-trip. We can supply a fuller repro if useful.
 
 ---
 
-## One open question we cannot attribute yet — not filed as a defect
+## C-5 — `ToolSearch` matching makes MCP tools unreachable for every model  ⚠️ **highest impact**
 
-After the fixes above, Desktop reaches the point where MCP tools are published, connected, and
-**discoverable by name**: `ToolSearch("aion")` returns `aion_create_team` and `aion_list_models` from
-our `wayland-team-guide` server. The model then repeatedly calls `ToolSearch` for `aion_list_models`,
-gets it back each time, and **never issues the actual call** — it loops on discovery instead of
-invoking.
+**This supersedes the "open question" we flagged in the previous draft.** We said we could not yet
+attribute the discover-but-never-invoke loop and would not claim a Core defect. We can now, and it
+is reproducible in one command.
 
-We do not yet know whether that is the model, our prompt, or something about how deferred tools are
-surfaced for invocation on this engine. We are not claiming a Core defect. Flagging it because if
-there is a known intended "load then call" step in the deferred-tool flow that a host must
-participate in, we would rather be told than reverse-engineer it.
+`ToolSearch` matches with an **ALL-tokens literal substring** test —
+`crates/wcore-tools/src/tool_search.rs:98` and `:120-123`:
+
+```rust
+let tokens: Vec<&str> = query_lower.split_whitespace().collect();
+if tokens.iter().all(|t| name_l.contains(t) || desc_l.contains(t))
+```
+
+Back to back in ONE session, against the SAME tool, on the released binary:
+
+```
+ToolSearch("probe")                                   -> MATCH, full schema
+ToolSearch("wld_probe_secret tool schema parameters") -> "No deferred tools matching ... found."
+```
+
+The failing query **contains the tool's exact name**. It fails because `tool`, `schema` and
+`parameters` are not substrings of the name or description. Two consequences, both observed live:
+
+1. **A more descriptive query is strictly less likely to match** — every extra word is another
+   `all()` conjunct. So when the model gets no match and rephrases more fully, it diverges.
+2. **Punctuation is part of the token.** `split_whitespace()` does not strip it, so a real observed
+   query, `Tool named aion_list_models, load full input schema`, tokenises `aion_list_models,`
+   with the comma, and the exact tool name never matches.
+
+**Not model-specific.** `~/Library/Logs/Wayland/2026-08-05.log` contains a session with **28 tool
+calls, all of them `ToolSearch`, none to any other tool, 19 returning "No deferred tools matching"**,
+on **`claude-sonnet-5`**. We reproduced it again on `gpt-5.6-sol` against a connected server the
+engine had already logged as `Connected to 'wayland-team-guide': 2 tools`.
+
+**Why the 0.12.26 change did not help.** `tool_search.rs` differs from v0.12.25 by exactly two text
+edits: a longer description and a `"status": "LOADED — ..."` string on each match. In the dominant
+failure mode there is **no match to attach a status to**. Your own comment at `tool_search.rs:126-141`
+describes the measured loop ("ten identical searches, no call ever attempted ... Every MCP tool was
+unreachable this way") and says the real fix is making the snapshot hydration-aware — that snapshot
+issue (`registry.rs:206-216` vs `engine.rs:15356-15367`) is real but **secondary** to matching.
+
+**Ask:** strip punctuation when tokenising, and rank by matching-token count instead of requiring
+`all()`. An exact tool-name match must never be defeated by adjacent descriptive words. Then make
+the catalog snapshot hydration-aware so a repeat search is distinguishable from the first.
+
+**To be clear about what is NOT broken:** once a search matches, everything works. We proved the
+full chain on the released binary — discovery, invocation, tool body execution (verified by an
+independent witness file the tool itself writes), and the result reaching the reply — on both a
+config-declared server and a runtime `add_mcp_server`, with `deferred` at its default, on Flux and
+Gemini models. The deferred-tool design is sound. There is no host-side "load then call" step for us
+to adopt; we asked, and the answer is that there isn't one.
 
 ---
 
@@ -210,6 +250,7 @@ participate in, we would rather be told than reverse-engineer it.
 
 | id | ask | severity |
 |---|---|---|
+| **C-5** | Fix `ToolSearch` matching: strip punctuation, rank by token count instead of `all()`; then make the catalog snapshot hydration-aware | **blocks every MCP tool, every model** |
 | **C-1** | Add the 7 missing events to the corpus and re-cut; assert `PRODUCER_EVENT_TYPES` == manifest events in the generator | **blocks every strict host** |
 | **C-2** | Document the `--assistant` requirement as a breaking change; answer the two design questions | high |
 | **C-3** | Fix or remove the passphrase branch of the plaintext refusal message | medium, high user cost |
