@@ -15,24 +15,33 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = 'd0aa0abc75afe056cc5434fcd652efa6d474ab0c' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '98ad1c2836a543385a7a4298f4b3e54a55867ac5' as const;
 
 export const DESKTOP_CORE_V1_PIN = {
   name: 'wayland-desktop-core',
   major: 1,
-  minor: 0,
-  generator: 'wcore-desktop-contract-gen/1',
-  fixtureDigest: 'sha256:2c611ffad0096289fc6a68e93921233821b9d75028b21b9a85c67b293eadac2b',
-  schemaDigest: 'sha256:37c51099256e62226306fa02f7a8637cc6a9a102df8e7c41c6e73253f7638271',
-  sourceInputsDigest: 'sha256:c3fb582801bbf7ab75a9fefe45e79e5cafb28013bc900a6515cfd7462650863e',
+  minor: 12,
+  generator: 'wcore-desktop-contract-gen/13',
+  fixtureDigest: 'sha256:aa95fefa7a822b0b7adede96c9c72fe3f8fe8dde1da25d4af9135bafaf39be10',
+  schemaDigest: 'sha256:23fb30488d5a71521a13403dea1dc02cb8690ceec40f72aecd89b54bc5810edb',
+  sourceInputsDigest: 'sha256:e762ec2e2084b75bf384dcef24f5edfc5a815d79c2abc59766d0e225a61775f2',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
     contract_negotiation: 'available',
     cua_events: 'shape_only',
+    durable_child_model_v1: 'available',
+    durable_goals_v1: 'available',
     effective_execution_policy_revisions: 'available',
     host_delegated_delivery: 'available',
+    operator_tool_effect_resolution_v1: 'available',
     plugin_events: 'shape_only',
+    runtime_diagnostics_v1: 'available',
+    runtime_mcp_lifecycle_v1: 'available',
+    semantic_failover_receipts: 'available',
+    session_persistence_v1: 'available',
+    session_persistence_v2: 'available',
+    turn_recovery_v1: 'available',
     workflow_lifecycle_v1: 'available',
   },
 } as const;
@@ -119,6 +128,51 @@ function findCompleteObjectEnd(buf: Buffer): number | null {
     }
   }
   return null;
+}
+
+/**
+ * Rejects a raw command line carrying an integer literal outside JS's exact
+ * integer range, before `JSON.parse` silently rounds it.
+ *
+ * Core's schema bounds `additional_tokens` at `u64::MAX`
+ * (18446744073709551615), and the corpus ships
+ * `adversarial/commands/continue-with-budget-overflow-tokens.jsonl` at
+ * 18446744073709551616 - one over. Both parse to the SAME IEEE-754 double, so
+ * an Ajv `maximum` check on the parsed value cannot tell them apart and the
+ * over-bound vector passes. Any integer above `Number.MAX_SAFE_INTEGER` is a
+ * value Desktop cannot carry faithfully, so it is refused rather than
+ * forwarded under a validation result that did not really examine it.
+ *
+ * Scans outside string literals only, so an oversized integer appearing inside
+ * a string value (where it is just text, and lossless) is left alone.
+ */
+function assertIntegersAreRepresentable(line: string): void {
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const char = line[i];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (char === '\\') escaped = true;
+      else if (char === '"') inString = false;
+      continue;
+    }
+    if (char === '"') {
+      inString = true;
+      continue;
+    }
+    if (char !== '-' && (char < '0' || char > '9')) continue;
+    let end = i + 1;
+    while (end < line.length && line[end] >= '0' && line[end] <= '9') end += 1;
+    const fractional = end < line.length && (line[end] === '.' || line[end] === 'e' || line[end] === 'E');
+    const token = line.slice(i, end);
+    i = end - 1;
+    if (fractional) continue;
+    const value = Number(token);
+    if (Number.isFinite(value) && !Number.isSafeInteger(value)) {
+      fail('command_integer_unrepresentable', `Desktop command integer ${token} exceeds exact JSON integer range`);
+    }
+  }
 }
 
 function asObject(value: unknown, field = 'top_level'): JsonObject {
@@ -966,6 +1020,7 @@ export class DesktopCoreV1Consumer {
   }
 
   validateOutboundCommandLine(line: string): WCoreCommand {
+    assertIntegersAreRepresentable(line);
     let command: unknown;
     try {
       command = JSON.parse(line);

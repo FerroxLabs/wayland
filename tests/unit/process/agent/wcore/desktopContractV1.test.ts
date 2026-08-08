@@ -21,7 +21,7 @@ import { AnvilPersistentMutationWatcher } from '@/process/agent/wcore/anvilMutat
 const root = path.resolve(process.cwd(), 'contracts/wayland-desktop-core/v1');
 const manifest = JSON.parse(readFileSync(path.join(root, 'manifest.json'), 'utf8')) as {
   contract: { name: string; major: number; minor: number };
-  counts: { commands: number; events: number; fixtures: number };
+  counts: { child_types: number; commands: number; events: number; fixtures: number };
   generator: string;
   fixture_digest: string;
   schema_digest: string;
@@ -138,8 +138,8 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('d0aa0abc75afe056cc5434fcd652efa6d474ab0c');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 0 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('98ad1c2836a543385a7a4298f4b3e54a55867ac5');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 12 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
@@ -152,9 +152,16 @@ describe('Wayland Core Desktop v1 producer pin', () => {
   it('recomputes the producer fixture and schema digests from the vendored bytes', () => {
     const fixtureEntries = manifest.fixture_inventory.map((relative) => {
       let bytes = readFileSync(path.join(root, relative));
+      // Mirrors `fixtures_digest` in Core's `contract/generate.rs`: the six
+      // fixtures the generator stamps the descriptor onto are hashed with
+      // `contract.fixture_digest` zeroed, because the digest cannot contain
+      // itself. Keep this list identical to the producer's or the recompute
+      // silently stops proving anything.
       if (
-        relative === 'events/ready.json' ||
         [
+          'events/ready.json',
+          'compat/events/ready.journaled-without-replay.json',
+          'compat/events/ready.disabled-by-host.legacy.json',
           'adversarial/events/version-mismatch.jsonl',
           'adversarial/events/schema-mismatch.jsonl',
           'adversarial/events/fixture-mismatch.jsonl',
@@ -176,9 +183,9 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     expect(digestNamed(schemaEntries)).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
   });
 
-  it('contains exactly the advertised 11 commands, 39 events, and 110 fixtures', () => {
-    expect(manifest.counts).toEqual({ commands: 11, events: 39, fixtures: 110 });
-    expect(manifest.fixture_inventory).toHaveLength(110);
+  it('contains exactly the advertised 23 commands, 52 events, and 161 fixtures', () => {
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 23, events: 52, fixtures: 161 });
+    expect(manifest.fixture_inventory).toHaveLength(161);
     for (const relative of manifest.fixture_inventory)
       expect(() => readFileSync(path.join(root, relative))).not.toThrow();
   });
@@ -212,12 +219,42 @@ describe('actual Desktop consumer corpus replay', () => {
         });
         continue;
       }
+      // The two non-default `ready` postures carry the same descriptor stamp as
+      // `events/ready.json`, so each has to negotiate a session of its own.
+      // `journaled-without-replay` is the keyring-less production frame (named
+      // session, no crash replay) and `disabled-by-host.legacy` is the corpus's
+      // only `session_id: null`. Replaying either through an already-negotiated
+      // consumer would just re-prove the duplicate-ready guard.
+      if (name === 'ready.journaled-without-replay.json' || name === 'ready.disabled-by-host.legacy.json') {
+        expect(new DesktopCoreV1Consumer().consumeLine(text(relative))).toMatchObject({
+          kind: 'event',
+          contract: 'v1',
+        });
+        continue;
+      }
       const consumer = negotiated();
       const event = json(relative);
       seedOrdinary(consumer, event);
       if (name === 'anvil_receipt.legacy.json') expectContractError(() => consumer.consumeLine(JSON.stringify(event)));
       else expect(consumer.consumeLine(JSON.stringify(event))).toMatchObject({ kind: 'event' });
     }
+  });
+
+  it('rejects a budget integer past exact JSON integer range for that reason, not incidentally', () => {
+    const consumer = negotiated();
+    // 18446744073709551616 is one over u64::MAX, and parses to the same double
+    // as the in-bounds maximum - so a post-parse `maximum` check cannot see it.
+    expectContractError(
+      () => consumer.validateOutboundCommandLine(text('adversarial/commands/continue-with-budget-overflow-tokens.jsonl')),
+      'command_integer_unrepresentable'
+    );
+    // The guard must not reach past the vector it exists for.
+    expect(consumer.validateOutboundCommandLine(text('commands/continue_with_budget.json'))).toEqual(
+      json('commands/continue_with_budget.json')
+    );
+    expect(consumer.validateOutboundCommandLine('{"type":"ping","note":"18446744073709551616"}')).toMatchObject({
+      type: 'ping',
+    });
   });
 
   it('fails closed on malformed, version/digest mismatch, unknown-critical, and unknown-criticality vectors', () => {
