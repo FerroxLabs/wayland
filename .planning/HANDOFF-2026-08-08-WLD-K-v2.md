@@ -1,102 +1,162 @@
 # WLD-K handoff — Desktop runs on released Core v0.12.26
 
 **Worktree** `~/dev/wayland-worktrees/packet-attribution`, branch `packet/attribution-audit`,
-head **`974947758`**, 0 unpushed. Full suite **16,301 passed, 0 failed**, typecheck clean.
-Nothing merged, nothing tagged.
+head **`425b596d7`**, in sync with `ferrox`. Full suite **16,301 passed, 0 failed**, typecheck clean.
+**Nothing merged, nothing tagged, no PR.** Only `AGENTS.md` is dirty (permanent, never staged).
 
-Read in this order: this file → `phases/WLD-K-core-first/L-1-RESULT-2.md` (what live running
-proved) → `HANDOFF-TO-CORE-2026-08-08-mcp-selection-flag.md` (the four asks for Core).
+**Read in this order**
+1. this file — state and the work list
+2. `phases/WLD-K-core-first/L-1-RESULT-2.md` — what live running actually proved
+3. `HANDOFF-TO-CORE-2026-08-08-v0.12.26-host-findings.md` — C-1…C-4, Sean's to send
+4. `HANDOFF-TO-CORE-2026-08-08-mcp-selection-flag.md` — the earlier ENG-01…03 asks
 
 ---
 
-## 1. The headline
+## 1. Where we are
 
-`DEFAULT_WCORE_VERSION` is now **`v0.12.26`**, bundled and attestation-verified
-(`verified: true`; the rc.2 bundle it replaced was `verified: false`).
+`DEFAULT_WCORE_VERSION` is **`v0.12.26`**, bundled and attestation-verified (`verified: true`; the
+rc.2 bundle it replaced was `verified: false`).
 
-Desktop → Core 0.12.26 negotiates the contract, runs turns to completion, publishes MCP servers at
-runtime (`Connected to 'wayland-team-guide': 2 tools`), and the model can see those tools by name
-(`ToolSearch("aion")` → `aion_create_team`, `aion_list_models`). None of that worked this morning.
+**Proven by running the packaged app against the real engine:** contract negotiates · session
+survives past `ready` · turns run to completion with rendered replies · Desktop publishes an MCP
+server at runtime and Core connects it (`Connected to 'wayland-team-guide': 2 tools`) · the model
+sees those tools by name (`ToolSearch("aion")` → `aion_create_team`, `aion_list_models`) · builtin
+tools execute (`Bash` → Success) · provider errors render in the chat.
 
-**Not proven, do not claim it:** an MCP tool's own *body* executing. The model repeatedly searched
-for `aion_list_models`, got it back, and never issued the call. Also unproven: per-chat connector
-selection (only the auto-published team-guide server was ever exercised).
+**NOT proven — do not claim either:** an MCP tool's own *body* executing, and per-chat connector
+selection. Only the auto-published team-guide server was ever exercised.
 
-## 2. Three blockers, all found by RUNNING it
+### The eleven commits
 
-1. **The contract pin named a commit that never shipped.** `1.0`/`gen-1` from Core `d0aa0abc` on
-   branch `feat/887` — not an ancestor of any `v0.12.*` tag. Hidden because **0.12.25 ships no
-   corpus at all**, so the consumer silently ran in legacy mode and validated nothing. Re-pinned to
-   `1.12`/`gen-13`, corpus re-imported byte-for-byte from released 0.12.26.
-2. **Core emits 7 events its own manifest omits.** `PRODUCER_EVENT_TYPES` = 59, manifest = 52.
-   `workspace_policy` arrives right after `ready` on every session with no `critical` flag and
-   killed the session. Desktop drops exactly those 7; `critical: true` still fails closed; the two
-   safety-class ones are logged.
-3. **`add_mcp_server` hard-fails without `--assistant`** (`scope_host_runtime_mcp`). Every runtime
-   publication was refused. Desktop now always passes `--assistant wayland-desktop`, raw mode
-   included.
+```
+7165d443f  re-pin the Desktop contract to released Core v0.12.26
+b4d37e4de  bundle released Core v0.12.26 as the default engine
+a05a241b4  stop v0.12.26 killing every session on workspace_policy
+1bf0fe2fe  docs: L-1 result
+d2f8926b0  declare an assistant identity so 0.12.26 accepts runtime MCP
+2e32d11f7  remediate the 6 defects the cross-audit found
+f8494a840  docs: what the rerun proved, and what it did not
+9c4797e56  revert: restore the generated constitution FS authority
+974947758  make an engine bootstrap failure durable, not just streamed   ← K-02 closed
+8e908ba2e  docs: handoff
+425b596d7  docs: Core handoff (C-1..C-4)
+```
 
-## 3. 🔴 Sean's machine will not start 0.12.26 until one line changes
+## 2. 🔴 Sean's machine will not start 0.12.26 until one line changes — HIS CALL
 
 Verified with the SAME config file: **0.12.25 starts, 0.12.26 refuses.**
 
 `~/Library/Application Support/wayland-core/config.toml` has `[storage.credentials]
-backend = "plaintext"` with `[session] enabled = true`. Fixes that work: delete the `backend` line,
-set `backend = "keyring"`, or `[session] enabled = false`.
-**`WAYLAND_VAULT_PASSPHRASE` does NOT work** — Core's own remediation text is wrong (ENG-06).
+backend = "plaintext"` with `[session] enabled = true`. Any one of these fixes it: delete the
+`backend` line · `backend = "keyring"` · `[session] enabled = false`.
+**`WAYLAND_VAULT_PASSPHRASE` does NOT work** — Core's own advice is wrong (C-3).
 
-It is a deliberate opt-in, so fresh users will not hit it. **This is Sean's call to make; do not
-edit that file without asking.** Every temporary change during verification was restored
-byte-identical (`sha256:0bc1051d…`, verified each time).
+**Do not edit that file without asking.** Every temporary change during verification was restored
+byte-identical, `sha256:0bc1051d…`, verified each time. Fresh users will not hit this — it is a
+deliberate opt-in.
 
-## 4. Cross-audit — 6 defects, all fixed in `2e32d11f7`
+---
 
-Codex 5.6 Sol + Kimi K3, independently. Worst: **the integer guard was dead in production** — it
-hung off `validateOutboundCommandLine`, which the write path never calls; Codex proved it by
-execution. Also: drop-list ran before the criticality check; the guard skipped decimal/exponent
-spellings; raw mode wrongly exempted from `--assistant`; **two active attestation policies would
-have failed the release gate** (`verifyFinalAcceptance` needs exactly one — v0.12.25 now
-`superseded`).
+## 3. The work list — our side, ordered, workflow-ready
 
-## 5. K-02 closed (`974947758`)
+Each item states what "done" means so it can be handed to an agent without re-deriving scope.
 
-The renderer hook was never the problem — a new DOM test drives the exact `emitStartFailure`
-sequence through `useWCoreMessage` and it already surfaces the reason. The hole was that a
-response-stream emit is delivered once and never replayed, and a bootstrap failure is exactly when
-nobody is subscribed (turn sent from the new-chat surface while the conversation view is still
-mounting). `emitStartFailure` now **persists** a durable error tip before emitting. Negative control
-run both directions.
+### W-1 — Why does the model never invoke a discovered MCP tool?  **[S/M · highest value]**
+`ToolSearch` returns `aion_list_models`; the model calls `ToolSearch` again, gets it again, and
+loops. Never issues the call. This is the last gap between "MCP works" and "MCP works for a user",
+and the Master Class claim depends on it.
+Unknown whether it is the model, our prompt, or the deferred-tool flow. **Do not assume Core.**
+*Done when:* an MCP tool's body executes end to end in the packaged app and its output reaches the
+chat — or the cause is identified with evidence and attributed.
 
-## 6. Next, in order
+### W-2 — Per-chat connector selection on 0.12.26  **[S · untested]**
+Only the auto-published `wayland-team-guide` was ever exercised. A user-selected connector
+(`wayland-search-skills` is enabled in the test profile) has never reached the pool on this engine.
+*Done when:* a connector chosen in the composer produces its tools in that chat and not in another.
 
-1. **Send Core the handoff** (ENG-01…06). Sean's action, not the agent's.
-2. **Why does the model never invoke a discovered MCP tool?** It ToolSearches, gets the tool, and
-   loops. This is the last gap between "MCP works" and "MCP works for a user".
-3. **Per-chat connector selection on 0.12.26** — completely untested.
-4. **L-2…L-6** (crash safety, concurrent launches, settings-write-during-launch, K-03 negative
-   control, secret-leak check). All still outstanding.
-5. **Is K-01's profile splice still NECESSARY?** Core now scopes runtime MCP to the assistant
-   automatically. K-01 is correct and shipped either way; this is about whether it can retire.
-6. K-05/K-06: agent installer + Flux fan-out, across all three OSes.
+### W-3 — L-2…L-6, the rest of live verification  **[M · all outstanding]**
+From `phases/WLD-K-core-first/LIVE-VERIFY.md`, none run on 0.12.26:
+- **L-2** crash safety: SIGKILL mid-launch, global `config.toml` byte-identical after
+- **L-3** concurrent launches with different connector selections, no cross-chat tool leakage
+- **L-4** settings write during launch (the accepted O-1 residual)
+- **L-5** K-03's turn-that-finishes **including its negative control** — revert `a211ea6cb`, confirm
+  the repro still hangs, re-apply, confirm it does not
+- **L-6** honest failure surfacing **plus the secret-leak check**: put an API-key-shaped string where
+  the engine will echo it to stderr, force a failure, confirm no fragment reaches UI, logs or the
+  renderer console
+*Done when:* each has a recorded result, pass or fail, in `LIVE-VERIFY.md`.
 
-## 7. Guardrails that bit or nearly bit
+### W-4 — Is K-01's profile splice still NECESSARY?  **[S · decision, then possibly L]**
+Core 0.12.26 now scopes runtime MCP to the assistant automatically. If Desktop passed a *per-chat*
+assistant identity, that scoping may already deliver the per-chat narrowing the global-profile splice
+was invented for. K-01 is correct and shipped either way — this is only about whether it can retire.
+**Blocked on Core answering C-2 question 1.** Do not rework K-01 before that answer.
 
-- **NEVER `git add -A src`** — it sweeps in `constitutionFsAuthority.generated.ts`, which carries a
-  local trust-root sha and must never be committed. It happened in `2e32d11f7` and was corrected in
-  `9c4797e56` (restored to its exact prior bytes; history not rewritten, so that commit still
-  contains it). Stage by explicit path.
-- No merge, no tag, no release, no PR without Sean. `build-and-release.yml` fires on ANY tag.
-- Never touch `~/dev/wayland/app` (canonical tree).
-- gh writes must be FerroxLabs. No AI signatures in commits or PRs.
+### W-5 — O-1 / O-2 lock unification  **[M · deferred with sign-off]**
+`configBridge` writes the same global `config.toml` under an unrelated `writeLock`. The damaging
+branch is closed (it refuses to persist the ephemeral table); unifying the locks needs its own packet
+because of ABBA risk. Tracked in `K-01-CROSSAUDIT.md`.
 
-## 8. Method rules this milestone earned
+### W-6 — K-05a / K-05b / K-06  **[L each · not started]**
+Agent installer (npm subset first), non-npm channels, then Flux fan-out. Needs all three OSes:
+`seandesktop` 100.109.207.54 (Windows) · `wayland-soak` 100.81.158.63 (Linux, Ubuntu 24.04).
+`hetzner-dsm` 95.216.244.213 is a DIFFERENT project. Hard constraint on K-06: API key + base URL
+only, **never Claude subscription OAuth** (standing hard NO, ToS).
 
-- **`mcp_ready` never appears in the Desktop log** — Desktop handles it but does not log it.
-  Grepping for it returns a FALSE ZERO. Same for `MCP ToolSearch candidate pool: 0`, which is
-  logged synchronously at publication, before any receipt can land. Both nearly became false bug
-  reports; the claim was settled by asking the model what tools it could see.
-- `WAYLAND_DEV_PROFILE=X` → `Application Support/X`, **not** `Wayland-X`.
-- The bundled binary reports `0.12.26` whether it is rc.2 or stable; only `--build-info` tells them
+### W-7 — Send Core the handoff  **[Sean's action, not an agent's]**
+`HANDOFF-TO-CORE-2026-08-08-v0.12.26-host-findings.md` (C-1…C-4) plus the earlier ENG-01…03 file.
+No duplicates in Core's 15 open issues; their #183 is related to C-3.
+
+---
+
+## 4. Guardrails — the ones that bit, first
+
+- **NEVER `git add -A src`.** It sweeps in `src/process/services/constitution/constitutionFsAuthority.generated.ts`,
+  which carries this machine's local trust-root sha and must never be committed. **It happened this
+  session** in `2e32d11f7`, corrected in `9c4797e56` by restoring the exact prior bytes. History was
+  not rewritten, so that commit still contains it. **Stage by explicit path.**
+- No merge, no tag, no release, no PR without Sean. `build-and-release.yml` fires on **ANY** tag.
+- Never touch `~/dev/wayland/app` — the canonical tree. All work stays in the worktree.
+- gh writes must be **FerroxLabs** (drifts to TradeCanyon). No backticks in gh/wl comment bodies.
+- No AI signatures in commits or PRs. No history rewriting.
+- Never relax, skip or delete an existing test to make something pass. Fix the cause.
+- Never weaken the security shell (`sandbox`, `contextIsolation`, CSP, `bridgeAllowlist`,
+  `urlValidation`, DOMPurify, `safeStorage`). Never touch the signing pipeline.
+- `migrations.ts` `aionrs` SQL literals never change. `FoundrySkills` is never renamed.
+  `prek run --all-files` is forbidden.
+- Burner Flux keys live at `~/.config/wayland-smoke/` — never commit, print, echo or log them.
+  **Sean should rotate the burn key that was pasted in chat.**
+
+## 5. Method rules this milestone earned — these caught real errors
+
+- **False zeros.** `mcp_ready` never appears in the Desktop log — Desktop handles it but never logs
+  it, so grepping returns zero and means nothing. `MCP ToolSearch candidate pool: 0` is logged
+  synchronously at publication, before any receipt can land. **Both nearly became false bug
+  reports.** Confirm a method finds a known positive before believing a zero.
+- **A check on the wrong path is a dead check.** The integer guard hung off a method production never
+  calls. It passed its test and protected nothing. Codex found it by execution, not by reading.
+- **Run a negative control.** The K-02 fix was proven by removing the persistence (red) and restoring
+  it (green). Do this for every non-trivial fix.
+- `WAYLAND_DEV_PROFILE=X` → `Application Support/X`, **not** `Wayland-X`. A profile cloned to the
+  prefixed name is silently ignored.
+- The bundled binary reports `0.12.26` whether it is rc.2 or stable. Only `--build-info` tells them
   apart, and their contract digests differ.
-- Rebuild `out/` between code changes or you are testing stale code.
-- CDP recipe, engine-override trap and cleanup: `~/.claude/.../memory/cdp-live-verify-recipe-desktop.md`.
+- Rebuild `out/` between code changes or you are testing stale code. This cost a full cycle once.
+- rtk truncates: `wc -l`, `grep -c`, enumeration. Use `rtk proxy <cmd>` when counting or listing.
+
+## 6. Live-verify recipe
+
+`~/.claude/projects/-Users-seandonahoe-dev-wayland/memory/cdp-live-verify-recipe-desktop.md` —
+`WAYLAND_MULTI_INSTANCE=1 WAYLAND_DEV_PROFILE=L1-1226 WAYLAND_DISABLE_AUTO_UPDATE=1 bun run start`,
+CDP on 127.0.0.1:9230. Helper scripts (`cdp.js`, `click.js`, `type.js`, `key.js`, `shot.js`) were in
+the session scratchpad and are **gone after a compact** — rewrite from the recipe.
+Check for a stale `<profile>/wayland-core-overrides/` before any engine-dependent run; it silently
+supersedes the bundled binary.
+Clean up: `lsof -tiTCP:9230 | xargs kill -9`, then `pkill -f packet-attribution`.
+
+## 7. Cross-audit panel
+
+Codex 5.6 Sol `codex exec -m gpt-5.6-sol -s read-only --skip-git-repo-check "…" < /dev/null` ·
+Kimi K3 `/Users/seandonahoe/.kimi-code/bin/kimi -p "…" --output-format text` · internal
+`ferrox-code-reviewer`. **Gemini is degraded — Sean's call, skip it.** This session's panel found 6
+real defects on a diff that already had a full green suite. Green CI is not evidence.
