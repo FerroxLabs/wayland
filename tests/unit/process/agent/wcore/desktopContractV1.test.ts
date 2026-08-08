@@ -502,6 +502,47 @@ describe('deferred consumer reducers', () => {
 // as K-01's PRF-03 did for its own already-correct behavior, so "already
 // green" is not mistaken for "test written wrong."
 describe('K-03: unterminated final line recovery', () => {
+  it('does NOT accept two concatenated objects with no delimiter between them', () => {
+    // Cross-audit (Codex 5.6 Sol). Eager recovery returned at the first balanced
+    // closing brace and then kept scanning, so a stream violating JSONL framing
+    // yielded two accepted events. The pre-fix consumer kept one unterminated
+    // invalid frame and failed closed on finishInput(). Recovery must change
+    // WHEN a frame is parsed, never WHAT is accepted.
+    const consumer = negotiated();
+    const twoObjects =
+      `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}` +
+      `${JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' })}`;
+
+    // Nothing is delivered: this is one malformed, unterminated frame.
+    expect(consumer.consumeChunk(Buffer.from(twoObjects))).toEqual([]);
+    expectContractError(() => consumer.finishInput(), 'unterminated_jsonl');
+  });
+
+  it('does NOT eagerly deliver a valid object that has trailing garbage behind it', () => {
+    const consumer = negotiated();
+    const withGarbage = `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })} not-json`;
+
+    expect(consumer.consumeChunk(Buffer.from(withGarbage))).toEqual([]);
+  });
+
+  it('preserves a frame with trailing JSON whitespace before its delayed newline', () => {
+    // Cross-audit (Codex 5.6 Sol). Eager extraction stopped exactly after `}`,
+    // stranding the spaces; the later newline then parsed them as their own
+    // line and threw malformed_json. Before the fix, JSON.parse accepted the
+    // same newline-terminated frame with trailing whitespace normally.
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n`;
+    expect(consumer.consumeChunk(Buffer.from(streamStart))).toHaveLength(1);
+
+    const bodyWithSpaces = `${JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' })}   `;
+    // Held, not stranded.
+    expect(consumer.consumeChunk(Buffer.from(bodyWithSpaces))).toEqual([]);
+
+    const results = consumer.consumeChunk(Buffer.from('\n'));
+    expect(results).toHaveLength(1);
+    expect(results[0]).toMatchObject({ kind: 'event', event: { type: 'stream_end', msg_id: 'm1' } });
+  });
+
   it('does NOT let a stale orphan-delimiter flag absorb a later malformed empty line', () => {
     // K-02/K-03 cross-audit (Kimi K3). `awaitingOrphanDelimiter` was cleared
     // only by consuming a leading delimiter, so it survived a normal

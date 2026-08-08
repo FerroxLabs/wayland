@@ -725,7 +725,16 @@ export class WCoreAgent {
     stderrLines.on('line', (rawLine) => {
       const line = stripAnsi(rawLine);
       if (!line.trim()) return;
-      console[wcoreStderrLevel(line)]('[wcore]', line);
+      // K-02/K-03 cross-audit (Codex 5.6 Sol and Kimi K3, independently): this
+      // line was logged verbatim. Every OTHER stderr consumer redacts, but this
+      // one wrote raw engine output straight to the log file and, through
+      // `mainLogger`, to the renderer DevTools stream - so an engine that echoes
+      // `Authorization: Bearer <key>` or `api_key=<key>` before failing put a
+      // live credential on disk regardless of the redaction applied to the
+      // user-facing error. Severity classification runs on the unredacted line
+      // (the engine's own level tag is never a secret); only what is written out
+      // is redacted.
+      console[wcoreStderrLevel(line)]('[wcore]', redactSecrets(line));
     });
 
     // Capture the exact child whose listeners are being installed. Exit is a

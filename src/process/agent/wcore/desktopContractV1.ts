@@ -856,7 +856,26 @@ export class DesktopCoreV1Consumer {
           // - `finishInput()`'s unterminated_jsonl failure for a truncated
           // opening handshake is itself correct, load-bearing behavior, not
           // an instance of this defect.
-          const eagerEnd = this.mode === 'unnegotiated' ? null : findCompleteObjectEnd(cursor);
+          // Cross-audit (Codex 5.6 Sol): eager recovery is valid ONLY when the
+          // complete object is ALL the buffered bytes. Recovering a complete
+          // object that has more bytes behind it would accept a stream that
+          // violates JSONL framing - two concatenated objects with no delimiter
+          // between them both became accepted events, where the pre-fix consumer
+          // kept one unterminated invalid frame and failed closed on
+          // `finishInput()`. That is a change to WHAT is accepted, not merely
+          // WHEN it is parsed, which is exactly what this recovery promised not
+          // to do.
+          //
+          // Requiring `eagerEnd === cursor.length` also preserves a frame with
+          // trailing JSON whitespace (`{...}   \n`): those spaces stay buffered
+          // with the object instead of being stranded and later parsed as their
+          // own malformed line, so the newline terminates the whole line exactly
+          // as before.
+          //
+          // The real defect is unaffected: a final `stream_end`/`error` body
+          // whose delimiter has not arrived IS all the buffered bytes.
+          const eagerCandidate = this.mode === 'unnegotiated' ? null : findCompleteObjectEnd(cursor);
+          const eagerEnd = eagerCandidate === cursor.length ? eagerCandidate : null;
           if (eagerEnd !== null) {
             let eagerLine: string;
             try {
