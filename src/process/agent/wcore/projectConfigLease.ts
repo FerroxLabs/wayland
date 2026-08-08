@@ -44,3 +44,54 @@ export async function withWCoreProjectConfigLease<T>(
     }
   }
 }
+
+// K-01: a SEPARATE keyed promise-tail map from `leaseTails` above. Own `Map`
+// on purpose (never shared with the workspace lease) so the two keyspaces
+// stay structurally distinct even though a collision between a workspace
+// `.wayland-core.toml` path and a global `config.toml` path is not
+// realistically possible.
+const globalProfileLeaseTails = new Map<string, Promise<void>>();
+
+/**
+ * Serialize the global-config write window (write -> Core ready -> restore)
+ * for Core launches sharing a resolved config directory.
+ *
+ * Keyed on the resolved config PATH (`join(configDir, 'config.toml')`), not
+ * the bare directory - the SAME identity `resolveActiveConfigPath()` /
+ * `configMcpServers.ts` already treat as the file. Every `@native` launch
+ * shares this exact key (hotter than the per-workspace lease above); a named
+ * profile's launches key on that profile's own path and never contend with
+ * `@native` traffic - the key alone gives the correct scope, no
+ * profile-identity branching needed here.
+ *
+ * Deliberately independent of `withProfileAuthorityLock` (`profilePaths.ts`):
+ * that queue is a single, global, non-reentrant FIFO used for brief
+ * marker/ref-count mutations. Holding it across an entire splice-write ->
+ * Core-ready -> restore window would serialize every OTHER chat's unrelated
+ * profile-authority call behind this one, and could self-deadlock if any
+ * code on that path re-enters it (e.g. a process-exit handler releasing a
+ * retained profile). This lease is never called, wrapped, or nested inside
+ * that lock.
+ */
+export async function withGlobalWCoreProfileLease<T>(configDir: string, task: () => Promise<T>): Promise<T> {
+  const key = join(configDir, 'config.toml');
+  const predecessor = globalProfileLeaseTails.get(key) ?? Promise.resolve();
+  let release!: () => void;
+  const held = new Promise<void>((resolveHeld) => {
+    release = resolveHeld;
+  });
+  const tail = predecessor.catch((): void => {}).then(() => held);
+  globalProfileLeaseTails.set(key, tail);
+
+  await predecessor.catch((): void => {});
+  try {
+    return await task();
+  } finally {
+    release();
+    if (globalProfileLeaseTails.get(key) === tail) {
+      void tail.finally(() => {
+        if (globalProfileLeaseTails.get(key) === tail) globalProfileLeaseTails.delete(key);
+      });
+    }
+  }
+}

@@ -30,7 +30,7 @@ import {
   planVaultPassphraseDelivery,
   type VaultPassphraseDelivery,
 } from './envBuilder';
-import { ProfileIsolationError, resolveActiveConfigDir } from './profilePaths';
+import { ProfileIsolationError, nativeConfigDir, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
 import { hydrateModelForSpawn, resolveModelSecretsForSpawn } from '@process/providers/ipc/modelRegistryIpc';
@@ -44,7 +44,12 @@ import { stripAnsi, wcoreStderrLevel } from './stderrLog';
 import { handleHostSendMessageRequest, defaultHostSendDeps } from './hostSendMessage';
 import { DesktopCoreContractError, DesktopCoreV1Consumer } from './desktopContractV1';
 import { AnvilPersistentMutationWatcher } from './anvilMutationWatcher';
-import { withWCoreProjectConfigLease } from './projectConfigLease';
+import { withGlobalWCoreProfileLease, withWCoreProjectConfigLease } from './projectConfigLease';
+// Note: `DesktopProfileSpliceError` is deliberately NOT imported here - it is
+// thrown by `spliceDesktopMcpProfile` inside `writeGlobalMcpProfile` and
+// allowed to propagate unmodified through `start()`'s existing generic
+// reject path; this file never catches or narrows on it.
+import { spliceDesktopMcpProfile } from './desktopProfileSplice';
 import {
   ProjectConfigTransaction,
   readProjectConfigNoFollow,
@@ -291,6 +296,8 @@ export class WCoreAgent {
    */
   private stallPauseReasons = new Set<string>();
   private projectConfigTransaction: ProjectConfigTransaction | null = null;
+  /** K-01: the global `config.toml` transaction for the Desktop MCP-narrowing profile. */
+  private globalProfileConfigTransaction: ProjectConfigTransaction | null = null;
   private vertexCredentialRoot: string | null = null;
   private readonly mcpWaiters = new Map<
     string,
@@ -363,30 +370,75 @@ export class WCoreAgent {
     }
   }
 
-  async start(): Promise<void> {
-    if (this.disposed) throw new Error('Wayland Core agent was stopped before bootstrap');
-    if (this.options.rawEngineMode) {
-      return this.startWithProjectConfigLease();
-    }
-
-    return withWCoreProjectConfigLease(this.options.workspace, async (canonicalWorkspace) => {
+  /**
+   * K-01: resolve the config directory the engine spawn's `WAYLAND_HOME` will
+   * use, ONCE, before either the raw or managed launch branch. Extracted
+   * verbatim from the block that used to live inline in
+   * `startWithProjectConfigLease` (right before the spawn), so the global
+   * MCP-profile splice target and the engine's actual `WAYLAND_HOME` can
+   * never diverge (a TOCTOU the two previously-separate resolutions could
+   * otherwise open).
+   *
+   * FAILURE CONTRACT (#278) unchanged, just relocated: a NAMED profile that
+   * cannot be resolved is `ProfileIsolationError` and MUST fail the launch
+   * closed - falling back to native here would bind a named profile's
+   * session to the default profile's config/memory/credentials. Every other
+   * failure (e.g. `os.homedir()` faulting inside `nativeConfigDir()`) is
+   * warn-and-continue, so an unrelated fault never bricks default-profile
+   * users.
+   */
+  private async resolveWaylandHomeForLaunch(): Promise<string | undefined> {
+    let waylandHome = this.options.waylandHome;
+    // Raw-engine mode is a deliberate escape hatch to Core's standalone
+    // configuration. Do not re-resolve Desktop's active profile here: doing so
+    // silently turned the supposedly-raw launch back into a Desktop-managed
+    // launch and made the Runtime settings path lie to the user.
+    if (!waylandHome && !this.options.rawEngineMode) {
       try {
-        await this.startWithProjectConfigLease(canonicalWorkspace);
-      } finally {
-        // Core's ready event proves startup config has been consumed. Restore
-        // before releasing the workspace lease so a sibling launch can never
-        // observe or inherit this chat's provider/MCP profile.
-        // A failed tree proof does not prove consumption or exit. Keep the
-        // launch-specific config in place until an identity-bound retry proves
-        // the exact stale tree stopped.
-        if (this.ready || (!this.childProcess && !this.failedShutdownChild)) {
-          this.restoreProjectConfig();
-        }
+        waylandHome = await resolveActiveConfigDir();
+      } catch (err) {
+        if (err instanceof ProfileIsolationError) throw err;
+        console.warn('[WCoreAgent] Failed to resolve active profile config dir:', err);
       }
-    });
+    }
+    return waylandHome;
   }
 
-  private async startWithProjectConfigLease(workspace = this.options.workspace): Promise<void> {
+  async start(): Promise<void> {
+    if (this.disposed) throw new Error('Wayland Core agent was stopped before bootstrap');
+    const waylandHome = await this.resolveWaylandHomeForLaunch();
+    if (this.options.rawEngineMode) {
+      return this.startWithProjectConfigLease(this.options.workspace, waylandHome);
+    }
+
+    return withWCoreProjectConfigLease(this.options.workspace, (canonicalWorkspace) =>
+      withGlobalWCoreProfileLease(waylandHome ?? nativeConfigDir(), async () => {
+        try {
+          await this.startWithProjectConfigLease(canonicalWorkspace, waylandHome);
+        } finally {
+          // Core's ready event proves startup config has been consumed. Restore
+          // before releasing either lease so a sibling launch can never
+          // observe or inherit this chat's provider/MCP profile.
+          // A failed tree proof does not prove consumption or exit. Keep the
+          // launch-specific config in place until an identity-bound retry proves
+          // the exact stale tree stopped.
+          // Both restores share this exact gate: Core's ready event is the
+          // SAME "config ingestion confirmed" signal for both targets, since
+          // it is the same process reading both files.
+          const consumed = this.ready || (!this.childProcess && !this.failedShutdownChild);
+          if (consumed) {
+            this.restoreProjectConfig();
+            this.restoreGlobalMcpProfile();
+          }
+        }
+      })
+    );
+  }
+
+  private async startWithProjectConfigLease(
+    workspace = this.options.workspace,
+    resolvedWaylandHome?: string
+  ): Promise<void> {
     const binaryPath = resolveWCoreBinary();
     if (!binaryPath) {
       throw new Error('wcore binary not found');
@@ -493,16 +545,19 @@ export class WCoreAgent {
 
     this.resolvedMaxTokens = resolvedMaxTokens;
 
-    // Write temporary .wayland-core.toml for provider compat overrides
-    const effectiveProjectConfig =
-      !this.options.rawEngineMode && this.options.mcpServerNames !== undefined
-        ? appendDesktopMcpProfile(projectConfig, this.options.mcpServerNames)
-        : projectConfig;
-    if (!this.options.rawEngineMode && this.options.mcpServerNames !== undefined) {
+    // K-01: the launch-local MCP-narrowing profile now lives in the GLOBAL
+    // config root (resolveActiveConfigDir() / resolvedWaylandHome), not the
+    // workspace .wayland-core.toml - Core 0.12.26 strips [profiles.*] from
+    // project config in an untrusted workspace, silently dropping the
+    // profile. The workspace file keeps carrying only genuinely
+    // project-scoped content (provider compat overrides).
+    const mcpServerNames = this.options.mcpServerNames;
+    if (!this.options.rawEngineMode && mcpServerNames !== undefined) {
       args.push('--profile', WCORE_DESKTOP_MCP_PROFILE);
+      this.writeGlobalMcpProfile(resolvedWaylandHome ?? nativeConfigDir(), mcpServerNames);
     }
-    if (effectiveProjectConfig) {
-      this.writeProjectConfig(effectiveProjectConfig, workspace);
+    if (projectConfig) {
+      this.writeProjectConfig(projectConfig, workspace);
     }
 
     // SEC-1: spawn with an allowlisted env (provider auth creds + forwarded
@@ -514,37 +569,13 @@ export class WCoreAgent {
     // memory.db + skills. Resolves to the native dir for the `default` profile
     // (backward-compatible).
     //
-    // #278: FAIL CLOSED, but ONLY on the failure that actually means "a named
-    // profile is live and we cannot resolve its dir" - i.e. ProfileIsolationError.
-    //
-    // Spawning with WAYLAND_HOME unset tells the engine to use its DEFAULT home. Do
-    // that while a NAMED profile is active and you bind that profile's session to
-    // the default profile's config.toml / memory.db / credentials - the cross-account
-    // bleed this contract exists to prevent. So that case refuses the spawn (same
-    // posture as the #629 MissingApiKeyError guard above).
-    //
-    // Every OTHER failure is on the `default` branch - notably os.homedir(), which
-    // nativeConfigDir() calls unguarded and which throws ERR_SYSTEM_ERROR when
-    // uv_os_homedir fails. That fault has nothing to do with profiles, and refusing
-    // the spawn for it would brick ordinary default-profile users (today: everyone,
-    // since no profile UI ships yet) over a non-profile problem. Those keep the old
-    // warn-and-continue: the engine falls back to the same default home it would
-    // have used anyway, so behaviour is unchanged from before this fix.
-    //
-    // The narrowing is what makes fail-closed structurally unable to brick `default`.
-    let waylandHome = this.options.waylandHome;
-    // Raw-engine mode is a deliberate escape hatch to Core's standalone
-    // configuration. Do not re-resolve Desktop's active profile here: doing so
-    // silently turned the supposedly-raw launch back into a Desktop-managed
-    // launch and made the Runtime settings path lie to the user.
-    if (!waylandHome && !this.options.rawEngineMode) {
-      try {
-        waylandHome = await resolveActiveConfigDir();
-      } catch (err) {
-        if (err instanceof ProfileIsolationError) throw err;
-        console.warn('[WCoreAgent] Failed to resolve active profile config dir:', err);
-      }
-    }
+    // K-01: resolution itself has moved to `resolveWaylandHomeForLaunch()`,
+    // called ONCE in `start()` before either lease is acquired, so the global
+    // profile splice target and this spawn's WAYLAND_HOME can never diverge.
+    // The #278 fail-closed/fail-open contract (ProfileIsolationError fatal on
+    // the named-profile branch, every other fault warn-and-continue on
+    // `default`) is preserved byte-for-byte in that method - just relocated.
+    const waylandHome = resolvedWaylandHome;
     // #710: hand the engine the profile's vault passphrase so it encrypts its
     // credential store (WAYLAND_HOME spawns otherwise fall back to a warned
     // plaintext credentials.toml). Delivery is fd-based on Unix (an extra pipe
@@ -796,6 +827,11 @@ export class WCoreAgent {
         }
         this.cleanupVertexCredentials();
         this.restoreProjectConfig();
+        // K-01: mirror the workspace restore above for the global profile
+        // transaction - otherwise `this.globalProfileConfigTransaction` would
+        // keep pointing at this failed attempt's (now-stale) transaction
+        // object across the recursive retry below.
+        this.restoreGlobalMcpProfile();
         this.childProcess = null;
         this.stderrTail = '';
         if (this.disposed) {
@@ -807,7 +843,7 @@ export class WCoreAgent {
           this.readyResolve = resolve;
           this.readyReject = reject;
         });
-        return this.startWithProjectConfigLease(workspace);
+        return this.startWithProjectConfigLease(workspace, resolvedWaylandHome);
       }
       throw err;
     }
@@ -1724,6 +1760,11 @@ export class WCoreAgent {
     // Keep the launch-specific config in place until the child is gone; an
     // engine still booting must never fall through to a sibling/user config.
     this.restoreProjectConfig();
+    // K-01: mirror the workspace restore for the global profile transaction -
+    // an explicit stop() must not leave the Desktop MCP-narrowing profile
+    // published in the user's real global config.toml. Idempotent, exactly
+    // like restoreProjectConfig() above.
+    this.restoreGlobalMcpProfile();
   }
 
   /**
@@ -1791,6 +1832,53 @@ export class WCoreAgent {
       // Keep the durable journal for the next launch to heal. Never delete the
       // only recovery evidence after a failed restore.
       console.error('[WCoreAgent] Failed to restore project config transaction', error);
+    }
+  }
+
+  /**
+   * K-01: write the Desktop MCP-narrowing profile into the GLOBAL
+   * `config.toml` at `targetDir` (the resolved `WAYLAND_HOME` this launch
+   * will spawn with), instead of the workspace `.wayland-core.toml` - Core
+   * 0.12.26 strips `[profiles.*]` from project config in an untrusted
+   * workspace, silently dropping the profile there.
+   *
+   * Mirrors `writeProjectConfig`'s shape exactly: heal a stale journal from a
+   * prior crashed launch BEFORE trusting on-disk bytes as ground truth, read
+   * via the no-follow reader (never an unguarded read of the user's real
+   * config), splice via `spliceDesktopMcpProfile` (textual only - see that
+   * module's head comment for why a round trip is forbidden here), then
+   * journal the transaction the same way. A `DesktopProfileSpliceError` from
+   * the splice is NOT caught here - it propagates through `start()`'s
+   * existing generic reject path, and this method touches nothing on that
+   * failure (the throw happens before `ProjectConfigTransaction.begin` runs).
+   */
+  private writeGlobalMcpProfile(targetDir: string, serverNames: readonly string[]): void {
+    const configPath = join(targetDir, 'config.toml');
+    recoverProjectConfigTransaction(configPath);
+    const existingBytes = readProjectConfigNoFollow(configPath);
+    const existing = existingBytes?.toString('utf-8') ?? null;
+
+    const fragment = appendDesktopMcpProfile(null, serverNames);
+    const spliced = spliceDesktopMcpProfile(existing, fragment);
+
+    this.globalProfileConfigTransaction = ProjectConfigTransaction.begin(configPath, spliced);
+  }
+
+  /**
+   * Restore or remove the global `config.toml` profile table written by
+   * `writeGlobalMcpProfile`. Byte-for-byte mirror of `restoreProjectConfig`.
+   */
+  private restoreGlobalMcpProfile(): void {
+    const transaction = this.globalProfileConfigTransaction;
+    this.globalProfileConfigTransaction = null;
+    if (!transaction) return;
+
+    try {
+      transaction.restore();
+    } catch (error) {
+      // Keep the durable journal for the next launch to heal. Never delete the
+      // only recovery evidence after a failed restore.
+      console.error('[WCoreAgent] Failed to restore global profile config transaction', error);
     }
   }
 
