@@ -306,7 +306,10 @@ the sites named.
     that fixed order, at this one call site only (do not add a second acquisition site with the
     opposite nesting — that is what would create an ABBA risk; a single, always-same-order call site
     cannot deadlock against itself):
-    `withWCoreProjectConfigLease(workspace, canonicalWorkspace => withGlobalWCoreProfileLease(waylandHome ?? nativeConfigDir(), () => { try { await startWithProjectConfigLease(canonicalWorkspace, waylandHome); } finally { const consumed = this.ready || (!this.childProcess && !this.failedShutdownChild); if (consumed) { this.restoreProjectConfig(); this.restoreGlobalMcpProfile(); } } }))`
+    `withWCoreProjectConfigLease(workspace, canonicalWorkspace => withGlobalWCoreProfileLease(waylandHome ?? nativeConfigDir(), async () => { try { await this.startWithProjectConfigLease(canonicalWorkspace, waylandHome); } finally { const consumed = this.ready || (!this.childProcess && !this.failedShutdownChild); if (consumed) { this.restoreProjectConfig(); this.restoreGlobalMcpProfile(); } } }))`
+    — note `async () =>`, not `() =>`: the callback awaits, so a plain arrow will not compile. An
+    earlier draft of this line had that bug; the plan-checker caught it. Treat this snippet as
+    shape-only and let `tsc --noEmit` in the Task 2 verify step be the authority.
     — restore BOTH transactions under the exact same `consumed` gate that already governs the
     workspace restore (Core's ready event is the SAME "config ingestion confirmed" signal for both
     targets, since it is the SAME process reading both files).
@@ -368,6 +371,17 @@ runs forever after as part of the ordinary suite (`tests/integration/**/*.test.t
   Verify: `bun run test:integration` (or `bun run test:vitest tests/integration/wcore`) green,
   including the new SIGKILL test; confirm it also runs under the default `bun run test:vitest` full
   suite (the glob already covers `tests/integration/**`).
+
+  > **Disclosed coverage limit — do not overstate what this proves.** The harness reconstructs the
+  > write from the same underlying primitives (`ProjectConfigTransaction`, `spliceDesktopMcpProfile`,
+  > `appendDesktopMcpProfile`) rather than literally calling the private `writeGlobalMcpProfile`,
+  > which cannot be invoked without standing up a whole `WCoreAgent`. The kill is real and the
+  > recovery path is real, but a defect specific to `writeGlobalMcpProfile`'s **own sequencing** —
+  > notably its pre-write `recoverProjectConfigTransaction` call — is exercised only by the Task 1
+  > unit tests, not by this one. Raised by the plan-checker. Anyone citing this test as PRF-06
+  > evidence must cite the Task 1 sequencing tests alongside it; on its own it is necessary, not
+  > sufficient. If the 4-leg audit wants that gap closed, the fix is to expose a narrow internal
+  > seam the harness can call directly — not to weaken the assertion.
   Done: an actual OS-level `SIGKILL` of a real child process running real production code, followed
   by real recovery, is part of the permanent, always-green suite — this class of regression cannot
   silently return.
