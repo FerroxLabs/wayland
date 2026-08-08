@@ -22,6 +22,12 @@ vi.mock('@process/agent/wcore/envBuilder', () => ({
   buildEngineSpawnEnv: () => ({}),
   buildSpawnConfig: () => ({ args: [], env: {}, projectConfig: undefined, resolvedMaxTokens: undefined }),
   planVaultPassphraseDelivery: () => ({ mode: 'env', env: {}, stdio: ['pipe', 'pipe', 'pipe'] }),
+  // K-02: startFailureReason.ts imports this from the same (mocked) module
+  // specifier, so it must be stubbed here too - otherwise the stripped-config
+  // classification silently never matches and the DIA-02 hedge cases below
+  // pass for the wrong reason (proven RED live before this line was added -
+  // both cases threw "No WCORE_DESKTOP_MCP_PROFILE export is defined").
+  WCORE_DESKTOP_MCP_PROFILE: '__wayland_desktop_session',
 }));
 // #710: vault provisioning is out of scope here - resolve "no unlock material"
 // so the spawn takes the legacy three-slot stdio path (and never touches the
@@ -55,6 +61,9 @@ vi.mock('@process/onboarding/codexAuthFile', () => ({ readCodexAuthFile: vi.fn()
 
 import { WCoreAgent } from '@process/agent/wcore';
 import type { WCoreAgentOptions } from '@process/agent/wcore';
+// K-02: imported from the (mocked) real module specifier so this can never
+// silently drift from the real reserved-profile constant.
+import { WCORE_DESKTOP_MCP_PROFILE } from '@process/agent/wcore/envBuilder';
 
 type FakeChild = EventEmitter & {
   stdout: PassThrough;
@@ -855,5 +864,96 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(killChildMock).toHaveBeenNthCalledWith(1, child, false);
     expect(killChildMock).toHaveBeenNthCalledWith(2, child, false);
     expect(agent.isAlive).toBe(false);
+  });
+
+  // ── K-02: DIA-01/DIA-02 honest start-failure surfacing ─────────────
+
+  it('DIA-01: a contract-rejection with engine stderr present surfaces the engine reason, not the abstraction', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write('Error: something the engine explained\n');
+    await Promise.resolve();
+    // Not JSON-parseable -> triggers failDesktopContract via the Desktop v1
+    // consumer's malformed-JSON bail (desktopContractV1.ts fail('malformed_json', ...)).
+    child.stdout.write('not json at all\n');
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('something the engine explained');
+    expect(err.message).not.toContain('Desktop contract rejected ready');
+  });
+
+  it('DIA-01: a contract-rejection with no engine stderr keeps the original fallback wording (no regression)', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    // Nothing written to stderr this time.
+    child.stdout.write('not json at all\n');
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('wcore Desktop contract rejected ready');
+    expect(err.message).toContain('Core emitted malformed JSON');
+  });
+
+  it('DIA-02: an exit-path bail naming Desktop\'s own reserved profile is hedged as a stripped-config inference', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write(`Error: Profile '${WCORE_DESKTOP_MCP_PROFILE}' not found in config\n`);
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('not found in config');
+    expect(err.message).toMatch(/likely|inferred|not confirmed/i);
+  });
+
+  it('DIA-02: an exit-path bail naming an ordinary profile stays unhedged', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write("Error: Profile 'some-other-profile' not found in config\n");
+    await Promise.resolve();
+    child.emit('exit', 1);
+
+    const err = (await result) as Error;
+    expect(err.message).toContain('not found in config');
+    expect(err.message).not.toMatch(/likely|inferred|not confirmed/i);
+  });
+
+  it('DIA-01: secret redaction still holds through the new contract-rejection path', async () => {
+    const child = makeChild();
+    spawnMock.mockReturnValue(child);
+
+    const agent = new WCoreAgent(baseOptions());
+    const result = agent.start().catch((e: unknown) => e);
+
+    await flushUntilSpawned(child);
+    child.stderr.write('auth failed with key sk-abcdef0123456789ABCDEF for provider openai\n');
+    await Promise.resolve();
+    child.stdout.write('not json at all\n');
+
+    const err = (await result) as Error;
+    // The human-readable reason survives; the token does not (describeContractRejection
+    // receives an already-redacted stderrDetail - this is not a second redaction site).
+    expect(err.message).toContain('auth failed');
+    expect(err.message).toContain('[redacted]');
+    expect(err.message).not.toContain('sk-abcdef0123456789ABCDEF');
   });
 });

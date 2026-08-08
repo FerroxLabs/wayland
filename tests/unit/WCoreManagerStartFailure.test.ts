@@ -246,4 +246,32 @@ describe('WCoreManager bootstrap failure surfaces error + finish (S2)', () => {
     // redactCommandSecrets must have masked the recognized secret shape.
     expect(data).not.toContain(token);
   });
+
+  // ── K-02: DesktopProfileSpliceError (K-01) already-redacted regression lock ──
+  //
+  // This is a regression LOCK, not a RED case - it is expected to pass
+  // immediately with no production code changes, because the existing
+  // WCoreManager-level redactCommandSecrets already covers this shape
+  // (verified by execution against the REAL smol-toml error-context echo, see
+  // K-02-PLAN.md's "what I verified by execution" section). It pins that
+  // protection so it cannot silently regress later.
+  it('masks a leaked provider key embedded in a DesktopProfileSpliceError-shaped message (K-01 regression lock)', async () => {
+    const spliceMessage =
+      'Cannot safely update the reserved [profiles.__wayland_desktop_session] table in the global Wayland Core ' +
+      'config (Invalid TOML document: invalid literal string.\n' +
+      '3 | api_key = "sk-ant-SUPERSECRETVALUE1234567890"\n' +
+      '4 | broken = [1, 2,\n' +
+      '  |          ^\n' +
+      'expected value). Fix the file by hand before Desktop can launch against it.';
+    agentStart.mockRejectedValue(new Error(spliceMessage));
+    const manager = createManager('conv-sf-k02-splice-redact');
+
+    await manager.sendMessage({ content: 'hello', msg_id: 'msg-sf-k02-splice-redact' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    const data = String(errors[0].data);
+    expect(data).not.toContain('sk-ant-SUPERSECRETVALUE1234567890');
+    expect(data).toContain('Fix the file by hand');
+  });
 });

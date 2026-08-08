@@ -19,6 +19,7 @@ import { VAULT_PASSPHRASE_CHILD_FD, resolveSpawnVaultPassphrase } from '@process
 import { PromptTimer } from '@process/acp/session/PromptTimer';
 import { resolveWCoreBinary } from './binaryResolver';
 import { describeSpawnError, describeExitReason } from './execFailureReason';
+import { describeContractRejection, profileStripHedge } from './startFailureReason';
 import {
   buildEngineSpawnEnv,
   buildSpawnConfig,
@@ -672,8 +673,12 @@ export class WCoreAgent {
       const code = error instanceof DesktopCoreContractError ? error.code : 'unexpected_consumer_error';
       console.error('[WCoreAgent] Desktop contract failed closed', { code, detail });
       this.stopStallWatchdog();
-      if (!this.ready) this.readyReject(new Error(`wcore Desktop contract rejected ready: ${detail}`));
-      else {
+      if (!this.ready) {
+        // #DIA-01: surface the engine's own stderr reason instead of only this
+        // JS-side parser's complaint, when the engine left one behind.
+        const stderrDetail = redactSecrets(stripAnsi(this.stderrTail).trim());
+        this.readyReject(new Error(describeContractRejection(stderrDetail, detail)));
+      } else {
         this.onStreamEvent({
           type: 'error',
           data: `Wayland Core protocol safety check failed: ${detail}`,
@@ -799,7 +804,11 @@ export class WCoreAgent {
         // wording distinct from the separate 30s ready-timeout below.
         const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
         const reason = describeExitReason(code, signal);
-        this.readyReject(new Error(detail ? `wcore ${reason} during init: ${detail}` : `wcore ${reason} during init`));
+        this.readyReject(
+          new Error(
+            detail ? `wcore ${reason} during init: ${detail}${profileStripHedge(detail)}` : `wcore ${reason} during init`
+          )
+        );
       }
       if (this.activeMsgId && this._onProcessExit) {
         this._onProcessExit(code, this.activeMsgId, signal);
@@ -816,7 +825,11 @@ export class WCoreAgent {
     const timeout = new Promise<void>((_, reject) => {
       setTimeout(() => {
         const detail = redactSecrets(stripAnsi(this.stderrTail).trim());
-        reject(new Error(detail ? `wcore ready timeout (30s): ${detail}` : 'wcore ready timeout (30s)'));
+        reject(
+          new Error(
+            detail ? `wcore ready timeout (30s): ${detail}${profileStripHedge(detail)}` : 'wcore ready timeout (30s)'
+          )
+        );
       }, 30000);
     });
 
