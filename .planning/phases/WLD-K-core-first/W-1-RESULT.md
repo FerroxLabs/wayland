@@ -123,14 +123,15 @@ as a durable error tip instead of a silent spinner.
 
 Shipped in `3227332a2`: when a session publishes an MCP server, Desktop injects one instruction
 telling the model to search with a single distinctive keyword, retry *shorter* never longer, and
-call the tool by name once matched. Placed before the user's own preset rules; skipped when no
-server is published and on resume.
+call the tool by name once matched. Placed before the user's own preset rules; skipped only when the
+session has no MCP tools at all. Sent on resume too (`442b91e4e`): it travels over `init_history`
+and is never persisted to our DB, so a resumed chat gets a fresh engine with no guidance otherwise.
 
 Same profile, same connector, same ask, before and after:
 
 | | before | after |
 |---|---|---|
-| ToolSearch calls | 28 in one session (captured log) | **2** |
+| ToolSearch calls | 28 in one session (captured log) | **2–5** |
 | "No deferred tools matching" | 19 of 28 | **0 — both matched** |
 | turn duration | 136s, then died | **16s** |
 
