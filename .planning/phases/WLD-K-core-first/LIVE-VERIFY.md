@@ -1,6 +1,35 @@
 # WLD-K — live verification checklist (the real gate)
 
-**Status: OUTSTANDING. Nothing below has been run.**
+**Status: partially run on released 0.12.26. See the per-step results appended below.**
+
+## Results, 2026-08-08 (released v0.12.26, source `98ad1c28`)
+
+**L-1 — PASS, on the engine.** An MCP tool executes end to end and its output reaches the reply:
+config-declared AND runtime `add_mcp_server`, `deferred` at default, on Flux and Gemini models,
+with an independent witness file written by the tool body and a positive control run first.
+Detail in `W-1-RESULT.md`. **In the packaged app it is still blocked** — first by Core C-5
+(ToolSearch matching), now mitigated, and then by W-1a (the Autopilot approval wedge), which is
+ours and open.
+
+**L-2 — NOT VALIDLY RUN. Do not record this as a pass.** The config was byte-identical after a
+real SIGKILL mid-launch and no `[profiles.__wayland_desktop_session]` was left behind — but the
+**positive control failed**: polling the config every 250ms through a full launch never observed
+the splice being written at all, and no `--profile` appeared in the engine spawn args. With no
+connectors selected there is nothing for K-01's allowlist to filter, so nothing is written and
+"clean afterwards" is vacuous. **To run this properly, first select at least one connector in the
+chat** so the splice is actually written, confirm it appears mid-launch, and only then kill.
+This is the same false-zero trap that nearly produced two bogus bug reports on this milestone.
+
+**L-5 negative control, W-1b — a real defect found instead.** After one bootstrap failure, every
+later turn replayed the identical cached error (same sentinel path, same PID) with no fresh spawn,
+even after the sentinel file was gone from disk. Tracked as W-1b.
+
+**K-02 — CONFIRMED LIVE.** An engine that refused to start put its reason in the chat as a durable
+error tip rather than a silent spinner.
+
+---
+
+## Original checklist (unrun items below remain outstanding)
 
 Every packet in the demo-critical line (K-01…K-04) is built, unit-tested and audited. None of it is
 *proven* until the steps here execute against a real engine. This milestone's own success standard
