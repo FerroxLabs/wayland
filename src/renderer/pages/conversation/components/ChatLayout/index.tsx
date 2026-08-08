@@ -43,6 +43,14 @@ function parseWorkbenchRequest(state: unknown): WorkbenchNavigationRequest | und
 }
 
 /** Keeps ChatLayout usable in standalone/popout/test mounts without a Router. */
+/**
+ * Narrowest conversation column that still docks the workbench panel beside the
+ * messages instead of floating it over them. WorkbenchHost's default panel is
+ * 340px and its rail is 36px, so this leaves roughly 360px of conversation -
+ * about the point where message text stops being comfortable.
+ */
+const WORKBENCH_DOCK_MIN_WIDTH = 740;
+
 const RouterWorkbenchRequestBridge: React.FC<{
   onRequest: (request: WorkbenchNavigationRequest | undefined) => void;
 }> = ({ onRequest }) => {
@@ -154,7 +162,18 @@ const ChatLayout: React.FC<{
   const runtimeName = resolveRuntimeName(backend);
 
   const titleAreaMaxWidth = containerWidth ? Math.max(160, Math.min(640, containerWidth - 460)) : 480;
-  const workbenchOverlay = isMobile || isPopout || (containerWidth > 0 && containerWidth < 960);
+  // Overlay puts the workbench panel ON TOP of the conversation, so it must be a
+  // last resort for genuinely narrow layouts - not the common case. The old 960
+  // threshold made it the common case: a maximised window with the chat list open
+  // leaves a ~928px conversation column, which tripped the check and dropped the
+  // panel over the messages (the user's own report: a message bubble running
+  // underneath the Core panel).
+  //
+  // Dock whenever the conversation keeps a readable column beside the panel.
+  // WorkbenchHost defaults to a 340px panel plus a 36px rail, so anything above
+  // roughly 740px docks cleanly and only truly cramped layouts overlay.
+  const workbenchOverlay =
+    isMobile || isPopout || (containerWidth > 0 && containerWidth < WORKBENCH_DOCK_MIN_WIDTH);
 
   const workbenchSections = React.useMemo<WorkbenchSectionRegistration[]>(
     () => [

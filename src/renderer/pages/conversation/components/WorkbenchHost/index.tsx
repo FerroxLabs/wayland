@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ChevronLeft, ChevronRight, Pin, PinOff, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, PanelRight, Pin, PinOff, X } from 'lucide-react';
 import classNames from 'classnames';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -274,30 +274,27 @@ const WorkbenchHost: React.FC<{
       <div className='workbench-host flex flex-1 min-w-0 min-h-0 relative' data-testid='workbench-host'>
         <div className='workbench-host__primary flex flex-1 min-w-0 min-h-0'>{children}</div>
 
-        {allSections.length > 0 && (
+        {/* Collapsed rail. Labels used to render with `[writing-mode:vertical-rl]`,
+            which stacked "Workspace Core Observability" sideways down the window
+            edge - unreadable at a glance and easy to mistake for a scrollbar or
+            decoration. The rail is now a single toggle: one horizontal affordance
+            that opens the panel, where every section is listed as a readable row.
+            Sections carry no icons (label is the only identity they have), so a
+            narrow icon rail is not an option - and a 36px column cannot hold
+            horizontal text. */}
+        {allSections.length > 0 && !panelOpen && (
           <nav
-            className='workbench-host__tabs absolute right-0 top-0 bottom-0 z-30 w-36px flex flex-col border-l border-border-1 bg-bg-2 py-8px'
+            className='workbench-host__tabs absolute right-0 top-0 bottom-0 z-30 w-36px flex flex-col items-center border-l border-border-1 bg-bg-2 py-8px'
             aria-label='Workbench sections'
           >
-            {allSections.map((section) => {
-              const isActive = section.id === activeId;
-              const isClosed = closedIds.has(section.id) || section.requestedOpen === false;
-              return (
-                <button
-                  type='button'
-                  key={section.id}
-                  className={classNames(
-                    'workbench-host__tab min-h-36px px-8px text-12px border-0 bg-transparent cursor-pointer',
-                    isActive && panelOpen ? 'text-primary-6 font-600' : 'text-t-secondary'
-                  )}
-                  aria-current={isActive && panelOpen ? 'page' : undefined}
-                  aria-label={`${typeof section.label === 'string' ? section.label : section.id}${isClosed ? ' (open)' : ''}`}
-                  onClick={() => activate(section.id)}
-                >
-                  <span className='[writing-mode:vertical-rl] rotate-180'>{section.label}</span>
-                </button>
-              );
-            })}
+            <button
+              type='button'
+              className='workbench-host__tab h-32px w-32px flex items-center justify-center border-0 bg-transparent cursor-pointer text-t-secondary rounded-6px'
+              aria-label={`Open workbench (${allSections.length} section${allSections.length === 1 ? '' : 's'})`}
+              onClick={() => activate((activeSection ?? allSections[0]).id)}
+            >
+              <PanelRight size={16} />
+            </button>
           </nav>
         )}
 
@@ -324,7 +321,9 @@ const WorkbenchHost: React.FC<{
               onPointerDown={beginResize}
             />
             <header className='h-44px shrink-0 px-12px flex items-center gap-8px border-b border-border-1'>
-              <strong className='min-w-0 truncate'>{activeSection.label}</strong>
+              <strong className='min-w-0 truncate' data-testid='workbench-panel-title'>
+                {activeSection.label}
+              </strong>
               <span className='ml-auto' />
               <button
                 type='button'
@@ -344,6 +343,34 @@ const WorkbenchHost: React.FC<{
                 <X size={16} />
               </button>
             </header>
+            {/* Section switcher, horizontal and readable. Only rendered when
+                there is a real choice to make - a single-section workbench keeps
+                its title bar and nothing else. */}
+            {allSections.length > 1 && (
+              <nav
+                className='workbench-host__sections shrink-0 flex flex-col border-b border-border-1'
+                aria-label='Workbench sections'
+              >
+                {allSections.map((section) => {
+                  const isActive = section.id === activeId;
+                  return (
+                    <button
+                      type='button'
+                      key={section.id}
+                      className={classNames(
+                        'workbench-host__section-row h-36px px-12px flex items-center gap-8px text-13px text-left border-0 bg-transparent cursor-pointer',
+                        isActive ? 'text-primary-6 font-600' : 'text-t-secondary'
+                      )}
+                      aria-current={isActive ? 'page' : undefined}
+                      onClick={() => activate(section.id)}
+                    >
+                      <span className='min-w-0 truncate'>{section.label}</span>
+                      <ChevronRight size={14} className='ml-auto shrink-0 opacity-60' />
+                    </button>
+                  );
+                })}
+              </nav>
+            )}
             <div className='flex flex-1 min-h-0 overflow-hidden' data-testid={activeSection.testId}>
               {activeSection.content}
             </div>
