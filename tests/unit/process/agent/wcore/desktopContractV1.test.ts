@@ -243,6 +243,38 @@ describe('actual Desktop consumer corpus replay', () => {
     }
   });
 
+  it('drops the producer-declared events the corpus omits, and still fails closed on a truly unknown one', () => {
+    // Live-verified against released v0.12.26: Core emits workspace_policy
+    // immediately after ready, with no `critical` flag, and it is absent from
+    // the manifest. Before this, that one frame killed every session.
+    for (const type of [
+      'workspace_policy',
+      'capability_activation',
+      'compact_offload',
+      'mid_flight_monitor_decision',
+      'provider_attempt',
+      'provider_failure',
+      'provider_retry',
+    ]) {
+      const consumer = negotiated();
+      expect(consumer.consumeLine(JSON.stringify({ type }))).toEqual({
+        kind: 'drop',
+        reason: 'producer_declared_unmodelled',
+      });
+      // Dropping must not poison the session: an ordinary frame still replays.
+      expect(consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'm1' }))).toMatchObject({
+        kind: 'event',
+        contract: 'v1',
+      });
+    }
+    // The allowlist is exactly seven entries and must not become a catch-all:
+    // anything else with no `critical` flag still fails the session closed.
+    expectContractError(
+      () => negotiated().consumeLine(JSON.stringify({ type: 'some_future_core_event' })),
+      'unknown_criticality'
+    );
+  });
+
   it('rejects a budget integer past exact JSON integer range for that reason, not incidentally', () => {
     const consumer = negotiated();
     // 18446744073709551616 is one over u64::MAX, and parses to the same double

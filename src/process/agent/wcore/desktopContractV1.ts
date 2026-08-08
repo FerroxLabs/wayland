@@ -46,6 +46,38 @@ export const DESKTOP_CORE_V1_PIN = {
   },
 } as const;
 
+/**
+ * Event types the pinned producer really emits but its own generated corpus
+ * does not declare.
+ *
+ * Core's `PRODUCER_EVENT_TYPES` (`crates/wcore-protocol/src/contract/spec.rs`,
+ * commit {@link DESKTOP_CORE_V1_PRODUCER_COMMIT}) lists 59 producer events; the
+ * manifest generated from the same tree lists 52. These seven are the
+ * difference. Core's own reference host observer accepts them off that list, so
+ * the manifest - the artifact hosts are told to validate against -
+ * under-declares the wire.
+ *
+ * This is not academic: `workspace_policy` is emitted immediately after `ready`
+ * on every session and carries no `critical` flag, so the unknown-event rule
+ * (correctly) fails the session closed before a single turn can run. That is
+ * the entire reason Desktop could not talk to v0.12.26.
+ *
+ * These are DROPPED, never dispatched. Desktop has no handler for any of them,
+ * so dropping matches what a legacy (pre-corpus) engine already produced in
+ * practice, and it deliberately does not widen the unknown-event rule for
+ * anything outside this list. Delete entries as Core adds them to the corpus;
+ * the list must never grow without a matching producer declaration.
+ */
+const PRODUCER_DECLARED_UNMODELLED_EVENTS: ReadonlySet<string> = new Set([
+  'capability_activation',
+  'compact_offload',
+  'mid_flight_monitor_decision',
+  'provider_attempt',
+  'provider_failure',
+  'provider_retry',
+  'workspace_policy',
+]);
+
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 const validateEventSchema = ajv.compile(coreEventSchema as object);
 const validateCommandSchema = ajv.compile(hostCommandSchema as object);
@@ -67,7 +99,10 @@ export class DesktopCoreContractError extends Error {
 
 export type DesktopCoreConsumeResult =
   | { kind: 'event'; event: WCoreEvent; disposition: 'advanced'; contract: 'legacy' | 'v1' }
-  | { kind: 'drop'; reason: 'unknown_noncritical' | 'duplicate' | 'after_terminal' };
+  | {
+      kind: 'drop';
+      reason: 'unknown_noncritical' | 'duplicate' | 'after_terminal' | 'producer_declared_unmodelled';
+    };
 
 export type AnvilDesktopTrustStatus = 'active' | 'invalidated' | 'superseded' | 'historical';
 
@@ -829,6 +864,9 @@ export class DesktopCoreV1Consumer {
       }
       assertNoRequiredExtensions(object, type);
       if (!knownEventTypes.has(type)) {
+        if (PRODUCER_DECLARED_UNMODELLED_EVENTS.has(type)) {
+          return { kind: 'drop', reason: 'producer_declared_unmodelled' };
+        }
         if (object.critical === false) return { kind: 'drop', reason: 'unknown_noncritical' };
         fail(
           object.critical === true ? 'unknown_critical' : 'unknown_criticality',
