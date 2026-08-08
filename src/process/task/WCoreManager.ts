@@ -1249,11 +1249,34 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // #853: `detail` already carries the errno/signal launch reason from the
     // agent-side reject. Append the discoverable logs path and redact the whole
     // user-facing string before surfacing.
+    const surfaced = redactCommandSecrets(`Agent failed to start: ${detail}${this.logLinkSuffix()}`);
+    // K-02: PERSIST before emitting. The stream emit alone is transient - it is
+    // delivered once, to whoever happens to be subscribed at that instant, and
+    // is never replayed. A bootstrap failure is precisely the case where nobody
+    // reliably is: the turn is sent from the new-chat surface, the renderer is
+    // still mounting the conversation view it just navigated to, and the engine
+    // can refuse in well under that. Live-verified on Core v0.12.26 - the main
+    // process logged the reason and emitted error+finish, and the chat showed
+    // the user nothing at all, indefinitely.
+    //
+    // Persisting makes the reason a fact about the conversation rather than an
+    // event someone had to be present for: it renders whenever the view loads,
+    // it survives a reload, and it shows up in a bug report. This mirrors how
+    // every engine-side error the user actually sees already reaches them.
+    addMessage(this.conversation_id, {
+      id: uuid(),
+      conversation_id: this.conversation_id,
+      type: 'tips',
+      position: 'center',
+      createdAt: Date.now(),
+      content: { content: surfaced, type: 'error' },
+    } as TMessage);
+
     const errorMessage: IResponseMessage = {
       type: 'error',
       conversation_id: this.conversation_id,
       msg_id: activeMsgId,
-      data: redactCommandSecrets(`Agent failed to start: ${detail}${this.logLinkSuffix()}`),
+      data: surfaced,
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);
     this.emitToEventBuses(errorMessage);

@@ -340,3 +340,57 @@ describe('GAP-9: WCoreManager Turn Completion Service', () => {
     });
   });
 });
+
+/**
+ * K-02 / DIA-01: a bootstrap failure must leave a DURABLE record.
+ *
+ * Live-verified on released Core v0.12.26: the engine refused to start, the
+ * main process logged the reason and emitted error+finish on the response
+ * stream, and the chat showed the user nothing at all - not the error, not even
+ * their own message - indefinitely.
+ *
+ * The renderer hook handles that sequence correctly when it receives it (see
+ * wcoreBootstrapFailureSurfacing.dom.test.tsx). The hole is that a stream emit
+ * is delivered once, to whoever is subscribed at that instant, and never
+ * replayed - and a bootstrap failure is exactly when nobody reliably is: the
+ * turn is sent from the new-chat surface while the renderer is still mounting
+ * the conversation view it just navigated to.
+ */
+describe('K-02: engine bootstrap failure is persisted, not only streamed', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('writes a durable error tip carrying the engine reason', async () => {
+    const { addMessage } = (await import('@process/utils/message')) as unknown as {
+      addMessage: ReturnType<typeof vi.fn>;
+    };
+    const manager = createManager('conv-bootstrap-fail');
+
+    (manager as any).emitStartFailure(
+      'user-msg-1',
+      new Error('wcore refused to start: storage.credentials.backend is set to "plaintext"')
+    );
+
+    expect(addMessage).toHaveBeenCalledTimes(1);
+    const [conversationId, message] = addMessage.mock.calls[0];
+    expect(conversationId).toBe('conv-bootstrap-fail');
+    expect(message).toMatchObject({
+      conversation_id: 'conv-bootstrap-fail',
+      type: 'tips',
+      position: 'center',
+      content: { type: 'error' },
+    });
+    // The engine's own reason has to survive to the user, not just "failed".
+    expect((message.content as { content: string }).content).toContain('plaintext');
+  });
+
+  it('still streams error and finish so a mounted view updates immediately', () => {
+    const manager = createManager('conv-bootstrap-fail-2');
+
+    (manager as any).emitStartFailure('user-msg-2', new Error('wcore exited with code 1 during init'));
+
+    const types = emitResponseStream.mock.calls.map(([m]: [{ type: string }]) => m.type);
+    expect(types).toEqual(['error', 'finish']);
+  });
+});
