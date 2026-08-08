@@ -66,6 +66,61 @@ function fail(code: string, message: string): never {
   throw new DesktopCoreContractError(code, message);
 }
 
+/**
+ * K-03: closes the confirmed defect where a `stream_end`/`error` frame that
+ * Core has fully written to stdout, but whose trailing LF delimiter never
+ * arrives (the engine stays alive and simply goes idle right after writing
+ * it), was buffered in `inputRemainder` forever with zero observable trace -
+ * leaving the Desktop UI's running state stuck indefinitely. Recovery is
+ * triggered purely by having received enough bytes to form one complete,
+ * structurally valid JSON object - never by a timer, satisfying the "fix the
+ * cause, not a timeout" constraint.
+ *
+ * Every `WCoreEvent` variant is a JSON object, so this short-circuits unless
+ * `buf` starts with `{`. Otherwise it scans byte-by-byte tracking brace
+ * nesting depth and JSON string/escape state (an unescaped `"` toggles
+ * whether the scan is inside a string; a `\` while inside a string causes the
+ * next byte to be skipped from toggling/parsing, so an escaped quote or
+ * backslash inside a string value never mis-toggles nesting or string state).
+ * The moment depth returns to exactly zero after having gone positive, the
+ * byte offset immediately after that closing `}` is returned. This function
+ * does no JSON-grammar validation beyond brace/string balance -
+ * `consumeLine()`'s own `JSON.parse` plus schema/reducer checks remain the
+ * real validator; this only decides WHEN to attempt parsing, never WHAT is
+ * accepted.
+ */
+function findCompleteObjectEnd(buf: Buffer): number | null {
+  let start = 0;
+  while (start < buf.length && (buf[start] === 0x20 || buf[start] === 0x09 || buf[start] === 0x0d)) start += 1;
+  if (start >= buf.length || buf[start] !== 0x7b) return null;
+
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < buf.length; i += 1) {
+    const byte = buf[i];
+    if (inString) {
+      if (escaped) {
+        escaped = false;
+      } else if (byte === 0x5c) {
+        escaped = true;
+      } else if (byte === 0x22) {
+        inString = false;
+      }
+      continue;
+    }
+    if (byte === 0x22) {
+      inString = true;
+    } else if (byte === 0x7b) {
+      depth += 1;
+    } else if (byte === 0x7d) {
+      depth -= 1;
+      if (depth === 0) return i + 1;
+    }
+  }
+  return null;
+}
+
 function asObject(value: unknown, field = 'top_level'): JsonObject {
   if (!value || typeof value !== 'object' || Array.isArray(value)) fail('malformed', `${field} must be an object`);
   return value as JsonObject;
@@ -686,6 +741,12 @@ export class DesktopCoreV1Consumer {
   private readonly workflow = new WorkflowReducer();
   private readonly anvil = new AnvilReducer();
   private inputRemainder = Buffer.alloc(0);
+  // K-03: set the moment an eager recovery (see consumeChunk) consumes a
+  // complete frame without its own delimiter; cleared as soon as that
+  // delimiter is observed (possibly in a later chunk) so a merely-delayed,
+  // not-lost `\n`/`\r\n` is silently absorbed instead of being misread as a
+  // new, zero-length line.
+  private awaitingOrphanDelimiter = false;
 
   consumeLine(line: string): DesktopCoreConsumeResult {
     if (this.mode === 'failed') fail('session_failed', 'Core contract session already failed closed');
@@ -745,11 +806,56 @@ export class DesktopCoreV1Consumer {
 
     try {
       while (cursor.length > 0) {
+        // K-03: an earlier eager recovery consumed a complete frame without
+        // its own delimiter. If the delimiter is now here (possibly having
+        // arrived in a later chunk than the frame it terminates), absorb it
+        // silently before resuming normal scanning - it is not a new,
+        // zero-length line.
+        if (this.awaitingOrphanDelimiter) {
+          if (cursor.length >= 2 && cursor[0] === 0x0d && cursor[1] === 0x0a) {
+            cursor = cursor.subarray(2);
+            this.awaitingOrphanDelimiter = false;
+          } else if (cursor.length >= 1 && cursor[0] === 0x0a) {
+            cursor = cursor.subarray(1);
+            this.awaitingOrphanDelimiter = false;
+          }
+          // If the delimiter is not (yet) here, leave the flag set and fall
+          // through to normal scanning on the unmodified cursor - it may
+          // still arrive in a later chunk.
+          if (cursor.length === 0) break;
+        }
         const newline = cursor.indexOf(0x0a);
         if (newline < 0) {
           // A future LF would make a body at the cap exceed the cap.
           if (cursor.length >= DESKTOP_CORE_MAX_LINE_BYTES) {
             fail('oversized_line', `Core protocol line exceeds ${DESKTOP_CORE_MAX_LINE_BYTES} bytes`);
+          }
+          // K-03: the delimiter has not arrived, but the bytes already
+          // buffered may already form one complete, structurally valid JSON
+          // object (see findCompleteObjectEnd's contract). If so, recover it
+          // eagerly through the SAME consumeLine validation every normal
+          // line goes through - this changes WHEN parsing is attempted,
+          // never WHAT is accepted. Gated to sessions that have already
+          // negotiated (`legacy`/`v1`): the confirmed defect is a mid-
+          // conversation frame (stream_end/error) arriving long after
+          // negotiation, and restricting eager recovery to that window
+          // preserves the pre-existing, intentionally-pinned "requires a
+          // terminating newline" behavior for the FIRST (negotiation) frame
+          // - `finishInput()`'s unterminated_jsonl failure for a truncated
+          // opening handshake is itself correct, load-bearing behavior, not
+          // an instance of this defect.
+          const eagerEnd = this.mode === 'unnegotiated' ? null : findCompleteObjectEnd(cursor);
+          if (eagerEnd !== null) {
+            let eagerLine: string;
+            try {
+              eagerLine = UTF8_FATAL_DECODER.decode(cursor.subarray(0, eagerEnd));
+            } catch {
+              fail('invalid_utf8', 'Core emitted invalid UTF-8');
+            }
+            results.push(this.consumeLine(eagerLine));
+            this.awaitingOrphanDelimiter = true;
+            cursor = cursor.subarray(eagerEnd);
+            continue;
           }
           // Copy the tail so a tiny partial frame cannot retain a large chunk.
           this.inputRemainder = Buffer.from(cursor);
