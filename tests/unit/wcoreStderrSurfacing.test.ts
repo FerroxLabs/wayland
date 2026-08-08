@@ -163,7 +163,7 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     expect(args[index + 1]).toBe('wayland-desktop');
   });
 
-  it('omits the assistant identity in raw engine mode', async () => {
+  it('declares the assistant identity in raw engine mode too', async () => {
     const child = makeChild();
     spawnMock.mockReturnValue(child);
 
@@ -173,7 +173,13 @@ describe('WCoreAgent init-failure surfacing (#484)', () => {
     child.emit('exit', 0);
     await result;
 
-    expect(spawnMock.mock.calls[0][1] as string[]).not.toContain('--assistant');
+    // Raw mode skips the MCP-narrowing profile but still emits runtime
+    // add_mcp_server after ready (team bridges, host connectors). Core 0.12.26
+    // refuses every one of those without an identity, so exempting raw mode
+    // broke exactly those declarations (cross-audit, Codex 5.6 Sol).
+    const args = spawnMock.mock.calls[0][1] as string[];
+    expect(args[args.indexOf('--assistant') + 1]).toBe('wayland-desktop');
+    expect(args).not.toContain('--profile');
   });
 
   it('includes the engine stderr tail in the exit rejection', async () => {

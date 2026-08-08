@@ -3,7 +3,7 @@
   "policies": [
     {
       "id": "wayland-core-v0.12.25-release",
-      "status": "active",
+      "status": "superseded",
       "releaseTag": "v0.12.25",
       "repository": "FerroxLabs/wayland-core",
       "signerWorkflow": "FerroxLabs/wayland-core/.github/workflows/release.yml",

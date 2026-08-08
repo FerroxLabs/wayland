@@ -27,7 +27,18 @@ const {
   verifyWhatsAppDarwinSignIgnoreInventory: (root: string, arch: string) => boolean;
   verifyWhatsAppNativeTarget: (root: string, platform: string, arch: string) => boolean;
 };
-const TEST_WCORE_RELEASE = 'v0.12.25';
+// Derived from the live policy, never re-typed: verify-packaged-resources reads
+// the real DEFAULT_WCORE_VERSION and the real attestation policy, so a
+// hard-coded tag here fails the day the engine is bumped and proves nothing in
+// between.
+const TEST_WCORE_ACTIVE_POLICY = (
+  require('../../scripts/supply-chain/verifyPublisherAttestation') as {
+    readPolicy: () => { policies: Array<{ status: string; id: string; releaseTag: string; sourceDigest: string }> };
+  }
+)
+  .readPolicy()
+  .policies.find((entry) => entry.status === 'active')!;
+const TEST_WCORE_RELEASE = TEST_WCORE_ACTIVE_POLICY.releaseTag;
 const TEST_WCORE_ARCHIVE_SHA = 'a'.repeat(64);
 const TEST_WCORE_BYTES = Buffer.from('deterministic-test-wayland-core');
 const TEST_WCORE_BINARY_SHA = crypto.createHash('sha256').update(TEST_WCORE_BYTES).digest('hex');
@@ -269,11 +280,11 @@ function addPackagedApp(
       },
       publisherAttestation: {
         contract: 'wayland-publisher-attestations/1.0',
-        policyId: 'wayland-core-v0.12.25-release',
+        policyId: TEST_WCORE_ACTIVE_POLICY.id,
         repository: 'FerroxLabs/wayland-core',
         signerWorkflow: 'FerroxLabs/wayland-core/.github/workflows/release.yml',
         sourceRef: 'refs/heads/main',
-        sourceDigest: '61b79c4f90f71fe2cf243affa7620b3c9b607f14',
+        sourceDigest: TEST_WCORE_ACTIVE_POLICY.sourceDigest,
         predicateType: 'https://slsa.dev/provenance/v1',
         runner: 'github-hosted',
         asset: wcoreAsset,

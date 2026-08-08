@@ -273,18 +273,39 @@ describe('actual Desktop consumer corpus replay', () => {
       () => negotiated().consumeLine(JSON.stringify({ type: 'some_future_core_event' })),
       'unknown_criticality'
     );
+    // And the allowlist is by type, not a blanket pass: a producer that marks
+    // one of these critical is saying the host must not proceed without
+    // understanding it, and Desktop cannot.
+    expectContractError(
+      () => negotiated().consumeLine(JSON.stringify({ type: 'workspace_policy', critical: true })),
+      'unknown_critical'
+    );
+    // An explicit `critical: false` on an allowlisted type is still a drop.
+    expect(negotiated().consumeLine(JSON.stringify({ type: 'provider_retry', critical: false }))).toEqual({
+      kind: 'drop',
+      reason: 'producer_declared_unmodelled',
+    });
   });
 
-  it('rejects a budget integer past exact JSON integer range for that reason, not incidentally', () => {
+  it('rejects an unrepresentable number on the production object path, not just the line path', () => {
     const consumer = negotiated();
-    // 18446744073709551616 is one over u64::MAX, and parses to the same double
-    // as the in-bounds maximum - so a post-parse `maximum` check cannot see it.
+    // The guard must live where production actually serializes. index.ts writes
+    // JSON.stringify(validateOutboundCommand(cmd)) - it never calls the line
+    // variant, so a line-only check was dead code (cross-audit, Codex 5.6 Sol).
     expectContractError(
-      () => consumer.validateOutboundCommandLine(text('adversarial/commands/continue-with-budget-overflow-tokens.jsonl')),
+      () => consumer.validateOutboundCommand(json('adversarial/commands/continue-with-budget-overflow-tokens.jsonl')),
       'command_integer_unrepresentable'
     );
-    // The guard must not reach past the vector it exists for.
-    expect(consumer.validateOutboundCommandLine(text('commands/continue_with_budget.json'))).toEqual(
+    // Decimal and exponent spellings of the same overflow must not slip past.
+    for (const additional_tokens of [18446744073709551616e0, 1.8446744073709552e19]) {
+      expectContractError(
+        () =>
+          consumer.validateOutboundCommand({ type: 'continue_with_budget', request_id: 'r1', additional_tokens }),
+        'command_integer_unrepresentable'
+      );
+    }
+    // And it must not reach past the vector it exists for.
+    expect(consumer.validateOutboundCommand(json('commands/continue_with_budget.json'))).toEqual(
       json('commands/continue_with_budget.json')
     );
     expect(consumer.validateOutboundCommandLine('{"type":"ping","note":"18446744073709551616"}')).toMatchObject({

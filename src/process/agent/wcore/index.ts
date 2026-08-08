@@ -608,9 +608,12 @@ export class WCoreAgent {
     // them, while a per-chat identity would silently break any server a user
     // scoped to a real assistant. Per-chat MCP narrowing stays the launch
     // profile's job (K-01).
-    if (!this.options.rawEngineMode) {
-      args.push('--assistant', WCORE_DESKTOP_HOST_ASSISTANT);
-    }
+    // Unconditional, including raw engine mode: raw mode still emits runtime
+    // `add_mcp_server` after ready (team bridges and host connectors), and Core
+    // 0.12.26 refuses every one of them without an identity. Gating this on
+    // non-raw mode left exactly those declarations broken (cross-audit,
+    // Codex 5.6 Sol).
+    args.push('--assistant', WCORE_DESKTOP_HOST_ASSISTANT);
     const mcpServerNames = this.options.mcpServerNames;
     if (!this.options.rawEngineMode && mcpServerNames !== undefined) {
       args.push('--profile', WCORE_DESKTOP_MCP_PROFILE);

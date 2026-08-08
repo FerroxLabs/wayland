@@ -78,6 +78,14 @@ const PRODUCER_DECLARED_UNMODELLED_EVENTS: ReadonlySet<string> = new Set([
   'workspace_policy',
 ]);
 
+/**
+ * The subset of {@link PRODUCER_DECLARED_UNMODELLED_EVENTS} that carries session
+ * security posture rather than telemetry. Dropping these is a stopgap until
+ * Core ships fixtures for them (ENG-04) - they are logged so the gap is
+ * observable rather than invisible.
+ */
+const SAFETY_CLASS_UNMODELLED_EVENTS: ReadonlySet<string> = new Set(['workspace_policy', 'capability_activation']);
+
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 const validateEventSchema = ajv.compile(coreEventSchema as object);
 const validateCommandSchema = ajv.compile(hostCommandSchema as object);
@@ -166,46 +174,47 @@ function findCompleteObjectEnd(buf: Buffer): number | null {
 }
 
 /**
- * Rejects a raw command line carrying an integer literal outside JS's exact
- * integer range, before `JSON.parse` silently rounds it.
+ * Rejects a command carrying a number JS cannot represent exactly.
  *
  * Core's schema bounds `additional_tokens` at `u64::MAX`
- * (18446744073709551615), and the corpus ships
- * `adversarial/commands/continue-with-budget-overflow-tokens.jsonl` at
- * 18446744073709551616 - one over. Both parse to the SAME IEEE-754 double, so
- * an Ajv `maximum` check on the parsed value cannot tell them apart and the
- * over-bound vector passes. Any integer above `Number.MAX_SAFE_INTEGER` is a
- * value Desktop cannot carry faithfully, so it is refused rather than
- * forwarded under a validation result that did not really examine it.
+ * (18446744073709551615) and the corpus ships
+ * `adversarial/commands/continue-with-budget-overflow-tokens.jsonl` one over.
+ * Both land on the SAME IEEE-754 double, so an Ajv `maximum` check on the
+ * parsed value cannot tell them apart.
  *
- * Scans outside string literals only, so an oversized integer appearing inside
- * a string value (where it is just text, and lossless) is left alone.
+ * This runs inside `validateOutboundCommand`, which is the real production
+ * serialization boundary (`index.ts` writes
+ * `JSON.stringify(validateOutboundCommand(cmd))`). An earlier version scanned
+ * the raw line instead and was therefore dead in production, and skipped any
+ * literal containing `.` or an exponent - so `18446744073709551616e0` walked
+ * straight through. Cross-audit (Codex 5.6 Sol) caught both.
+ *
+ * The rule is magnitude, not lexical form: any finite number whose absolute
+ * value exceeds `Number.MAX_SAFE_INTEGER` has already lost precision by the
+ * time it is a JS value, so forwarding it would assert a validation that never
+ * really happened. Ordinary fractional values (`additional_cost_usd: 2.5`) are
+ * untouched.
  */
-function assertIntegersAreRepresentable(line: string): void {
-  let inString = false;
-  let escaped = false;
-  for (let i = 0; i < line.length; i += 1) {
-    const char = line[i];
-    if (inString) {
-      if (escaped) escaped = false;
-      else if (char === '\\') escaped = true;
-      else if (char === '"') inString = false;
-      continue;
+function assertNumbersAreRepresentable(value: unknown, path = 'command'): void {
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) {
+      fail('command_number_unrepresentable', `Desktop command ${path} is not a finite number`);
     }
-    if (char === '"') {
-      inString = true;
-      continue;
+    if (Math.abs(value) > Number.MAX_SAFE_INTEGER) {
+      fail(
+        'command_integer_unrepresentable',
+        `Desktop command ${path} exceeds the exact JSON integer range`
+      );
     }
-    if (char !== '-' && (char < '0' || char > '9')) continue;
-    let end = i + 1;
-    while (end < line.length && line[end] >= '0' && line[end] <= '9') end += 1;
-    const fractional = end < line.length && (line[end] === '.' || line[end] === 'e' || line[end] === 'E');
-    const token = line.slice(i, end);
-    i = end - 1;
-    if (fractional) continue;
-    const value = Number(token);
-    if (Number.isFinite(value) && !Number.isSafeInteger(value)) {
-      fail('command_integer_unrepresentable', `Desktop command integer ${token} exceeds exact JSON integer range`);
+    return;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((child, index) => assertNumbersAreRepresentable(child, `${path}[${index}]`));
+    return;
+  }
+  if (value && typeof value === 'object') {
+    for (const [key, child] of Object.entries(value as JsonObject)) {
+      assertNumbersAreRepresentable(child, `${path}.${key}`);
     }
   }
 }
@@ -864,7 +873,20 @@ export class DesktopCoreV1Consumer {
       }
       assertNoRequiredExtensions(object, type);
       if (!knownEventTypes.has(type)) {
-        if (PRODUCER_DECLARED_UNMODELLED_EVENTS.has(type)) {
+        // The allowlist is by TYPE; the frame still gets a say. A producer that
+        // marks one of these `critical: true` is telling the host it must not
+        // proceed without understanding it, and Desktop cannot - so it fails
+        // closed exactly as it would for any other critical unknown. Checking
+        // the allowlist first would have let a critical frame through silently
+        // (cross-audit, Codex 5.6 Sol).
+        if (object.critical !== true && PRODUCER_DECLARED_UNMODELLED_EVENTS.has(type)) {
+          // workspace_policy and capability_activation describe session security
+          // posture. Desktop has no model for them yet, so they are dropped -
+          // but never silently: a posture change that Desktop ignored has to be
+          // visible in the log and in any bug report built from it.
+          if (SAFETY_CLASS_UNMODELLED_EVENTS.has(type)) {
+            console.warn('[DesktopCoreV1Consumer] dropped an unmodelled safety-class Core event', { type });
+          }
           return { kind: 'drop', reason: 'producer_declared_unmodelled' };
         }
         if (object.critical === false) return { kind: 'drop', reason: 'unknown_noncritical' };
@@ -1053,12 +1075,15 @@ export class DesktopCoreV1Consumer {
 
   validateOutboundCommand(command: WCoreCommand | unknown): WCoreCommand {
     if (this.mode !== 'v1') return command as WCoreCommand;
+    // Before the schema: Ajv compares already-rounded doubles and cannot see a
+    // u64 overflow. This is the production boundary - `index.ts` serializes
+    // whatever this returns.
+    assertNumbersAreRepresentable(command);
     validateSchema(validateCommandSchema, command, 'Desktop command');
     return command as WCoreCommand;
   }
 
   validateOutboundCommandLine(line: string): WCoreCommand {
-    assertIntegersAreRepresentable(line);
     let command: unknown;
     try {
       command = JSON.parse(line);
