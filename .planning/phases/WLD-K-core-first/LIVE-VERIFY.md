@@ -14,8 +14,9 @@ discipline here.
 ## Preconditions
 
 - Engine 0.12.25 available (the committed pin, `scripts/prepareWaylandCore.js:213`).
-- Engine 0.12.26 available — rc.2, or stable once it publishes. Select it with the `WCORE_VERSION`
-  env var. **Do not bump `DEFAULT_WCORE_VERSION`.** That bump is a separate, deliberate act.
+- Engine **0.12.26 STABLE** — published 2026-08-08T03:46:19Z (GitHub release `isPrerelease: false`,
+  npm `latest: 0.12.26`). Select it with `WCORE_VERSION=v0.12.26`. **Do not bump
+  `DEFAULT_WCORE_VERSION`.** That bump is a separate, deliberate act and is Sean's call.
 - A chat workspace that is NOT trusted by Core (the default for an ordinary user's project dir) —
   this is the condition that triggered the whole milestone.
 - TVControl 2.2.2 installed from the Library.
@@ -30,7 +31,9 @@ The headline claim: Desktop drives Wayland Core on both engines.
 
 1. Fresh profile, Wayland Core selected, one prompt, execute a TVControl tool.
 2. Repeat on **0.12.25**.
-3. Repeat on **0.12.26**.
+3. Repeat on **0.12.26 stable** (`WCORE_VERSION=v0.12.26`). Note the bundled binary on disk also
+   reports `0.12.26` but is the rc.2 artifact from earlier testing — confirm which build each run
+   actually used rather than trusting the version string alone.
 
 **Pass:** the MCP tool executes on both. Before K-01, 0.12.26 died at bootstrap on every turn.
 

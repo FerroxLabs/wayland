@@ -485,11 +485,12 @@ L-sized installer/Flux work into a follow-on milestone was recommended and overr
 roadmap carries an explicit **"Master Class is safe at this line"** boundary after `K-04`. Phases
 `K-01` … `K-04` must be able to ship without any of `K-05` … `K-08`.
 
-**Engine targeting (Sean, 2026-08-08):** Core 0.12.26 is in final CI ahead of publish. The committed
-Desktop pin stays `v0.12.25` (`scripts/prepareWaylandCore.js:213`), so a 0.12.26 release does not
-break already-shipped Desktop — but **the pin bump is blocked until PRF-01 lands**, because current
-Desktop code dies at bootstrap on 0.12.26. Every PRF requirement is therefore proven on **both**
-0.12.25 and 0.12.26 (rc.2 until stable publishes, stable thereafter).
+**Engine targeting — UPDATED 2026-08-08.** Core **0.12.26 is PUBLISHED** (release
+`isPrerelease: false`, published 2026-08-08T03:46:19Z; npm `latest: 0.12.26`). The committed Desktop
+pin stays `v0.12.25` (`scripts/prepareWaylandCore.js:213`), so the release does not break
+already-shipped Desktop — but **the pin bump is blocked until PRF-01 is live-verified**, because
+pre-K-01 Desktop code dies at bootstrap on 0.12.26. Every PRF requirement is proven on **both**
+0.12.25 and 0.12.26 stable.
 
 **Proof standard for every requirement below:** established by **executing** the mechanism against a
 real engine, never by reading source. Any search returning zero is disbelieved until the same method
