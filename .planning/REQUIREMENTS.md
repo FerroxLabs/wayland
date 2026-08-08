@@ -505,9 +505,17 @@ planning. A requirement's evidence may cite only what was actually run.
 - [ ] **PRF-02**: The global-config mutation is transactional on the existing
       `ProjectConfigTransaction` posture — journalled backup, marker, atomic rename, fsync, and
       crash recovery — and never leaves a partial write.
-- [ ] **PRF-03**: The hash-ownership check governs **every** restore, not only crash recovery. The
-      normal restore path must not blind-write a whole-file snapshot back. On mismatch the user's
-      bytes win, the failure is visible, and a precise repair action is offered.
+- [ ] **PRF-03**: The hash-ownership check governs **every** restore, not only crash recovery — on
+      mismatch the user's bytes win, the failure is visible, and a precise repair action is offered.
+      **Status: already implemented — this is a preserve-and-prove requirement, not a build one.**
+      `ProjectConfigTransaction.restore()` delegates to `recoverProjectConfigTransaction()`, which
+      restores only when the on-disk bytes still hash to the replacement it wrote; the existing test
+      `'preserves a user edit made after the temporary file was published'`
+      (`tests/unit/process/agent/wcore/projectConfigTransaction.test.ts:53`) passes today —
+      re-verified by execution 2026-08-08, 6 passed / 0 failed. The work is to route the **new**
+      global-config target through this existing primitive without weakening it, and to keep that
+      test green. Both cross-research legs proposed this as a needed refinement; they were reasoning
+      from my brief, which described the normal restore path inaccurately. Do not rebuild it.
 - [ ] **PRF-04**: Only the Desktop-owned `[profiles.__wayland_desktop_session*]` table is spliced
       textually; the result is validated as parsing TOML before the atomic rename. Structured
       round-trip serialization is forbidden — it destroys comments and formatting in a file the user

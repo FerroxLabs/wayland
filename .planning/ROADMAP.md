@@ -992,9 +992,13 @@ versions, because the profile lives in a location Core's untrusted-workspace pol
    (journalled backup, marker, atomic rename, fsync, crash recovery) and never leaves a partial
    write; a launch killed mid-flight leaves the user's global config byte-identical to its
    pre-launch state, proven by a real kill test, not a simulated one.
-3. The hash-ownership check governs **every** restore, not only crash recovery. The normal restore
-   path never blind-writes a whole-file snapshot back; on mismatch the user's bytes win, the
-   failure is visible, and a precise repair action is offered.
+3. The hash-ownership check governs **every** restore, not only crash recovery; on mismatch the
+   user's bytes win, the failure is visible, and a precise repair action is offered.
+   **Already implemented — preserve and prove, do not rebuild.** `ProjectConfigTransaction.restore()`
+   delegates to `recoverProjectConfigTransaction()`, which restores only when the on-disk bytes still
+   hash to the replacement it wrote. Verified by execution 2026-08-08: the existing test
+   `'preserves a user edit made after the temporary file was published'` passes (6 passed / 0 failed).
+   The work is to route the new global-config target through this primitive without weakening it.
 4. Only the Desktop-owned `[profiles.__wayland_desktop_session*]` table is spliced textually; the
    result is validated as parsing TOML before the atomic rename. Structured round-trip
    serialization never runs — it destroys comments and formatting in a file the user hand-edits.
