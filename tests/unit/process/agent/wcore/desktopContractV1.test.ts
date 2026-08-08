@@ -267,6 +267,14 @@ describe('actual Desktop consumer corpus replay', () => {
     );
   });
 
+  // K-03: this title describes the general case, not the new eager-completion
+  // exception added below (`DesktopCoreV1Consumer.consumeChunk` recovers a
+  // complete-but-unterminated stream_end/error frame without waiting for its
+  // newline). The assertions here remain accurate post-fix: the split at byte
+  // 17 lands mid-object (the `ready` fixture's opening brace/properties are
+  // not yet a complete, balanced JSON object at that offset), so it is
+  // correctly still buffered either way. See the 'K-03: unterminated final
+  // line recovery' describe block below for the new exception's coverage.
   it('bounds raw JSONL frames, rejects invalid UTF-8, and requires a terminating newline', () => {
     const split = new DesktopCoreV1Consumer();
     const ready = Buffer.from(`${text('events/ready.json')}\n`);
@@ -477,5 +485,122 @@ describe('deferred consumer reducers', () => {
     reconnect.consumeLine(text('events/anvil_receipt.json'));
     reconnect.markDisconnected();
     expect(reconnect.anvilStatus('receipt-desktop-001')).toBe('historical');
+  });
+});
+
+// K-03: a complete `stream_end`/`error` frame whose bytes are fully received
+// but whose trailing `\n` delimiter has not yet arrived (or never arrives)
+// left the running UI state stuck indefinitely with zero observable trace -
+// the confirmed root cause of "turn shows running minutes after Core already
+// finished, with no further engine activity in the log." Cases 1-4 below are
+// RED against pre-fix code: cases 1-3 currently return `[]` for the
+// unterminated frame (nothing is recovered until a later delimiter or
+// `finishInput()` arrives), and case 4's second `consumeChunk` call (feeding
+// only the orphan `\n`) would currently throw `malformed_json`, since nothing
+// consumed the first object early and a lone `\n` is read as a zero-length
+// line. Cases 5-6 already pass unmodified today - call this out explicitly,
+// as K-01's PRF-03 did for its own already-correct behavior, so "already
+// green" is not mistaken for "test written wrong."
+describe('K-03: unterminated final line recovery', () => {
+  it('recovers a content-free stream_end the instant its bytes are complete, without its trailing newline', () => {
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n`;
+    const streamEndBody = JSON.stringify({ type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' });
+
+    // ONE consumeChunk call carries the complete stream_start line AND the
+    // complete-but-unterminated stream_end body.
+    const results = consumer.consumeChunk(Buffer.from(streamStart + streamEndBody));
+
+    expect(results).toHaveLength(2);
+    expect(results[1]).toMatchObject({
+      kind: 'event',
+      event: { type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' },
+    });
+  });
+
+  it('recovers an unterminated error frame identically, covering the TRN-02 error path', () => {
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm2' })}\n`;
+    const errorBody = JSON.stringify({
+      type: 'error',
+      msg_id: 'm2',
+      error: { code: 'provider_error', message: 'provider stream failed', retryable: true },
+    });
+
+    const results = consumer.consumeChunk(Buffer.from(streamStart + errorBody));
+
+    expect(results).toHaveLength(2);
+    expect(results[1]).toMatchObject({
+      kind: 'event',
+      event: { type: 'error', msg_id: 'm2', error: { code: 'provider_error', retryable: true } },
+    });
+  });
+
+  it('recovers the literal "no assistant text, no tools" repro - the closest unit-level analog to TRN-03', () => {
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm3' })}\n`;
+    // No text_delta, no tool_request between stream_start and stream_end.
+    const streamEndBody = JSON.stringify({ type: 'stream_end', msg_id: 'm3', finish_reason: 'stop' });
+
+    const results = consumer.consumeChunk(Buffer.from(streamStart + streamEndBody));
+
+    expect(results).toHaveLength(2);
+    expect(results[0]).toMatchObject({ kind: 'event', event: { type: 'stream_start', msg_id: 'm3' } });
+    expect(results[1]).toMatchObject({
+      kind: 'event',
+      event: { type: 'stream_end', msg_id: 'm3', finish_reason: 'stop' },
+    });
+  });
+
+  it('anti-regression: a merely-delayed (not lost) delimiter is silently absorbed, not misread as malformed_json', () => {
+    const consumer = negotiated();
+    const streamStart = `${JSON.stringify({ type: 'stream_start', msg_id: 'm4' })}\n`;
+    const streamEndBody = JSON.stringify({ type: 'stream_end', msg_id: 'm4', finish_reason: 'stop' });
+
+    const firstResults = consumer.consumeChunk(Buffer.from(streamStart + streamEndBody));
+    expect(firstResults).toHaveLength(2);
+    expect(firstResults[1]).toMatchObject({ kind: 'event', event: { type: 'stream_end', msg_id: 'm4' } });
+
+    // The delayed delimiter arrives alone in a later chunk - not a new,
+    // zero-length line; not a malformed_json error.
+    const orphanResults = consumer.consumeChunk(Buffer.from('\n'));
+    expect(orphanResults).toEqual([]);
+
+    // The consumer was not left in a poisoned state by the orphan `\n`: a
+    // fresh, complete, newline-terminated event for a NEW exchange still
+    // parses normally afterward.
+    const configChanged = `${JSON.stringify({ type: 'config_changed', capabilities: {} })}\n`;
+    const thirdResults = consumer.consumeChunk(Buffer.from(configChanged));
+    expect(thirdResults).toHaveLength(1);
+    expect(thirdResults[0]).toMatchObject({ kind: 'event', event: { type: 'config_changed' } });
+  });
+
+  it('anti-regression: genuinely incomplete data (mid-field, no closing brace) is buffered unaffected - already green today', () => {
+    const consumer = negotiated();
+    consumer.consumeChunk(Buffer.from(`${JSON.stringify({ type: 'stream_start', msg_id: 'm1' })}\n`));
+
+    // Cut mid-field (inside the "finish_reason" key name itself), no closing
+    // brace, no newline. The scanner's depth never returns to zero, so this
+    // must remain genuinely incomplete - zero behavior change from today.
+    const truncated = '{"type":"stream_end","msg_id":"m1","finish_rea';
+    expect(consumer.consumeChunk(Buffer.from(truncated))).toEqual([]);
+
+    // A second consumeChunk call supplies the rest of the body plus the
+    // newline - the SAME consumer parses it normally afterward, proving the
+    // truncated attempt neither threw nor flipped the consumer to 'failed'.
+    const completion = consumer.consumeChunk(Buffer.from('son":"stop"}\n'));
+    expect(completion).toHaveLength(1);
+    expect(completion[0]).toMatchObject({
+      kind: 'event',
+      event: { type: 'stream_end', msg_id: 'm1', finish_reason: 'stop' },
+    });
+  });
+
+  it('anti-regression: a non-object leftover falls back untouched by the {-prefix short-circuit - already green today', () => {
+    const consumer = new DesktopCoreV1Consumer();
+    // A lone partial UTF-8 continuation-lead byte, no newline: not `{`-prefixed,
+    // so findCompleteObjectEnd short-circuits to null immediately and this
+    // falls through to exactly today's buffering behavior.
+    expect(consumer.consumeChunk(Buffer.from([0xc3]))).toEqual([]);
   });
 });
