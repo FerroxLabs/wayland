@@ -139,3 +139,66 @@ side ruled out. The remaining work is in the renderer, not in `WCoreManager`.
   earlier in the milestone and was avoided here by rebuilding before each attempt.
 - `WAYLAND_DEV_PROFILE=L1-1226` resolves to `Application Support/L1-1226`, **not**
   `Application Support/Wayland-L1-1226`. A profile cloned to the prefixed name is silently ignored.
+
+---
+
+# Rerun after the assistant fix and the cross-audit — 2026-08-08, commit `2e32d11f7`
+
+Packaged build, released v0.12.26 bundled and attestation-verified, driven through the real UI over
+CDP as a user would.
+
+## What is now proven by execution
+
+| claim | evidence |
+|---|---|
+| descriptor handshake succeeds | session negotiates, no `contract_minor_mismatch` |
+| session survives the frames after `ready` | 5 × `dropped event { reason: 'producer_declared_unmodelled' }`, session lives |
+| turns run and complete | multiple, incl. a 3.6s turn with a real rendered reply |
+| **runtime MCP publication succeeds** | `[mcp] Connected to 'wayland-team-guide': 2 tools` — this was `mcp_failed` before |
+| **MCP tools are discoverable by the model** | `ToolSearch("aion")` → `` `aion_create_team` ``, `` `aion_list_models` `` |
+| builtin tools execute | `Tool call: Bash` → `Success`, exit 0 |
+| errors reach the user | the Gemini `thought_signature` failure rendered in the chat |
+
+Before the `--assistant` fix, every runtime MCP declaration was refused and that tool list was empty.
+The engine now connects the server and the model can see its tools by name.
+
+## What is NOT proven, stated plainly
+
+**An MCP tool's own body executing end to end.** The model repeatedly called `ToolSearch` for
+`aion_list_models`, got it back each time, and never issued the actual call — it kept re-searching
+instead of invoking. That is a model/tool-loading behaviour on this engine, not a contract or
+transport failure, and it wants its own investigation. Everything up to and including "the tool is
+present, named, and selectable" is established; "the tool ran" is not.
+
+Also unproven here: a user-selected connector (e.g. `wayland-search-skills`) reaching the pool. Only
+`wayland-team-guide`, which Desktop publishes automatically, was exercised — the per-chat connector
+picker was never used, so per-chat connector selection on 0.12.26 is still untested.
+
+## Direct-engine control, run separately
+
+Driving the released binary with `--assistant wayland-desktop` and a one-tool stdio MCP server:
+
+```
+ready, execution_policy, workspace_policy, capability_activation, mcp_ready
+{"type":"mcp_ready","name":"probe","tools":["probe_echo"]}
+```
+
+Two things this pins down. `mcp_ready` **is** emitted with its tool inventory once an assistant
+identity is supplied. And `workspace_policy` + `capability_activation` — the two safety-class events
+Desktop currently drops — arrive on **every** session, immediately after `ready`, which is why the
+drop path had to be got right rather than left as a convenience.
+
+## A trap worth recording
+
+Grepping the Desktop log for `mcp_ready` returns zero, and that zero means nothing: Desktop handles
+the event but never logs it. The pool line `MCP ToolSearch candidate pool: 0 tools` is emitted
+synchronously at publication time, before any receipt can have landed, so it is not evidence of an
+empty pool either. Both were nearly reported as failures. The claim was settled by asking the model
+what tools it could see.
+
+## Cross-audit
+
+Codex 5.6 Sol and Kimi K3, independently, on the full diff. Both flagged the same two most serious
+issues; Codex found four more. All six fixed in `2e32d11f7`, each with a test that fails without the
+fix. The one that mattered most: **the integer guard was dead in production** — it hung off a method
+the production write path never calls, and Codex proved it by execution rather than by reading.
