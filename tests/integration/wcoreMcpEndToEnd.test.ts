@@ -31,10 +31,11 @@
  * the developer's own Core config is never read or written.
  */
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
+import { TOOL_SEARCH_GUIDANCE } from '@process/agent/wcore/toolSearchGuidance';
 
 const ENABLED = process.env.WCORE_MCP_E2E === '1';
 
@@ -87,6 +88,14 @@ async function runTurn(prompt: string): Promise<TurnResult> {
   // An empty config keeps this run independent of any developer config.
   writeFileSync(join(root, 'config.toml'), '');
 
+  // The engine runs with --auto-approve, so the model can reach any builtin tool
+  // (shell, filesystem) without a prompt. Do NOT hand it the developer's
+  // environment or the repository checkout: give it a throwaway cwd and a
+  // minimal, explicitly-listed env. Inheriting process.env here would expose
+  // every credential in the shell to an auto-approved model.
+  const sandboxCwd = join(root, 'cwd');
+  mkdirSync(sandboxCwd, { recursive: true });
+
   const child: ChildProcessWithoutNullStreams = spawn(
     ENGINE,
     [
@@ -99,7 +108,18 @@ async function runTurn(prompt: string): Promise<TurnResult> {
       '--assistant', 'wayland-desktop',
       '--json-stream',
     ],
-    { env: { ...process.env, WAYLAND_HOME: root, API_KEY: apiKey }, stdio: 'pipe' }
+    {
+      cwd: sandboxCwd,
+      detached: true,
+      env: {
+        PATH: process.env.PATH ?? '',
+        HOME: root,
+        TMPDIR: root,
+        WAYLAND_HOME: root,
+        API_KEY: apiKey,
+      },
+      stdio: 'pipe',
+    }
   );
 
   const eventTypes: string[] = [];
@@ -108,10 +128,32 @@ async function runTurn(prompt: string): Promise<TurnResult> {
   let assistantText = '';
   let finishReason: string | null = null;
 
+  let messageTimer: NodeJS.Timeout | undefined;
+
   return await new Promise<TurnResult>((resolve, reject) => {
-    const settle = (): void => {
+    let done = false;
+
+    // Kill the whole process GROUP: the engine spawns the probe MCP server as
+    // its own child, and SIGTERM to the root alone orphans it.
+    const killTree = (signal: NodeJS.Signals): void => {
       clearTimeout(timer);
-      child.kill('SIGTERM');
+      if (messageTimer) clearTimeout(messageTimer);
+      try {
+        if (child.pid) process.kill(-child.pid, signal);
+      } catch {
+        // Group already gone, or never became a leader; fall back to the root.
+      }
+      try {
+        child.kill(signal);
+      } catch {
+        /* already exited */
+      }
+    };
+
+    const settle = (): void => {
+      if (done) return;
+      done = true;
+      killTree('SIGTERM');
       resolve({
         eventTypes,
         mcpReadyTools,
@@ -122,10 +164,32 @@ async function runTurn(prompt: string): Promise<TurnResult> {
       });
     };
 
-    const timer = setTimeout(() => {
-      child.kill('SIGKILL');
-      reject(new Error(`live MCP turn did not finish within ${TURN_TIMEOUT_MS}ms`));
-    }, TURN_TIMEOUT_MS);
+    const fail = (err: Error): void => {
+      if (done) return;
+      done = true;
+      killTree('SIGKILL');
+      reject(err);
+    };
+
+    const timer = setTimeout(
+      () => fail(new Error(`live MCP turn did not finish within ${TURN_TIMEOUT_MS}ms`)),
+      TURN_TIMEOUT_MS
+    );
+
+    // An engine that dies before stream_end must fail NOW with its stderr, not
+    // burn the full timeout and report a meaningless "did not finish".
+    let stderr = '';
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString();
+    });
+    child.on('exit', (code, signal) => {
+      if (done) return;
+      fail(
+        new Error(
+          `engine exited before stream_end (code=${code}, signal=${signal}). stderr tail: ${stderr.slice(-800)}`
+        )
+      );
+    });
 
     let buf = '';
     child.stdout.on('data', (chunk: Buffer) => {
@@ -155,9 +219,14 @@ async function runTurn(prompt: string): Promise<TurnResult> {
               env: { PROBE_WITNESS: witnessPath, PROBE_SENTINEL: SENTINEL },
             })}\n`
           );
+          // Exactly what production sends, imported rather than copied so the
+          // two cannot drift: this test must cover the real mitigation.
+          child.stdin.write(
+            `${JSON.stringify({ type: 'init_history', text: TOOL_SEARCH_GUIDANCE })}\n`
+          );
           // Let the server connect and report before the turn starts; the
           // engine only exposes tools it has a receipt for.
-          setTimeout(() => {
+          messageTimer = setTimeout(() => {
             child.stdin.write(
               `${JSON.stringify({ type: 'message', msg_id: 'e2e-1', content: prompt })}\n`
             );
@@ -180,10 +249,7 @@ async function runTurn(prompt: string): Promise<TurnResult> {
       }
     });
 
-    child.on('error', (err) => {
-      clearTimeout(timer);
-      reject(err);
-    });
+    child.on('error', (err) => fail(err));
   });
 }
 

@@ -35,6 +35,7 @@ import {
 import { ProfileIsolationError, nativeConfigDir, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
+import { TOOL_SEARCH_GUIDANCE } from './toolSearchGuidance';
 import { hydrateModelForSpawn, resolveModelSecretsForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { vertexSpawnCredentialsForModel } from '@process/providers/vertexSpawnCredentials';
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
@@ -963,39 +964,23 @@ export class WCoreAgent {
       });
     }
 
-    // W-1 mitigation for Core C-5. Injected BEFORE the user's own rules so those
-    // still win, and only when this session actually published an MCP server.
+    // W-1 mitigation for Core C-5 (see `toolSearchGuidance.ts` for the measured
+    // reason this exists). Injected BEFORE the user's own rules so those still win.
     //
-    // Core's `ToolSearch` is not a semantic search: `tool_search.rs:120-123`
-    // keeps a tool only when EVERY whitespace token of the query is a literal
-    // substring of the tool's name or description. So a query that contains the
-    // tool's exact name still misses if any adjacent word does not appear, and a
-    // more descriptive query is strictly LESS likely to match. Measured against
-    // released 0.12.26, back to back in one session on one tool:
+    // Fires whenever this session can reach MCP tools by EITHER route: a runtime
+    // stdio publication, or connectors already published in config and named in
+    // `mcpServerNames`. Gating on `stdioMcpServers` alone was wrong — a session
+    // whose connectors come only from config would silently miss the guidance and
+    // fall straight back into the loop.
     //
-    //   ToolSearch("probe")                                   -> match
-    //   ToolSearch("wld_probe_secret tool schema parameters")  -> no match
-    //
-    // A model that gets nothing and rephrases more fully therefore diverges,
-    // which is the discover-but-never-invoke loop (28/28 tool calls were
-    // ToolSearch in one captured claude-sonnet-5 session). Punctuation is part
-    // of the token too, so `aion_list_models,` never matches.
-    //
-    // DELETE THIS once Core fixes C-5 - it is a workaround for a matcher bug,
-    // not a behaviour we want to own.
-    if (stdioMcpServers.length > 0 && !this.options.resume) {
-      this.sendCommand({
-        type: 'init_history',
-        text:
-          '[Tool Search]\n' +
-          'When you need an MCP tool, call ToolSearch with a SINGLE distinctive keyword — ' +
-          'normally one word from the tool name, with no punctuation. Do not search with a ' +
-          'sentence, and do not add words like "tool", "schema", "parameters" or "input": every ' +
-          'extra word must also appear in the tool name or description or the search returns ' +
-          'nothing. If a search returns no match, retry with a SHORTER query, never a longer ' +
-          'one. As soon as a search matches, call the tool by name — searching again for a tool ' +
-          'you have already found returns the same result and makes no progress.',
-      });
+    // NOT skipped on resume. The guidance is engine-session state, not chat
+    // history: it is sent over `init_history` and never persisted to our DB, so a
+    // resumed conversation starts a fresh engine with no guidance at all. Sending
+    // it again is cheap; omitting it silently reintroduces the defect.
+    const sessionHasMcpTools =
+      stdioMcpServers.length > 0 || (this.options.mcpServerNames?.length ?? 0) > 0;
+    if (sessionHasMcpTools) {
+      this.sendCommand({ type: 'init_history', text: TOOL_SEARCH_GUIDANCE });
     }
 
     // Inject preset rules as history context (skip on resume - rules were already injected)

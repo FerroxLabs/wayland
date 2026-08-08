@@ -445,7 +445,7 @@ describe('W-1: ToolSearch guidance for runtime MCP (Core C-5 mitigation)', () =>
     expect(stdin).toContain('SHORTER query');
   });
 
-  it('stays silent when the session published no MCP server', async () => {
+  it('stays silent when the session has no MCP tools at all', async () => {
     resolveActiveConfigDirMock.mockResolvedValue(PROFILE_DIR);
     const workspace = mkdtempSync(join(tmpdir(), 'wcore-c5-off-'));
     testWorkspaces.push(workspace);
@@ -462,7 +462,27 @@ describe('W-1: ToolSearch guidance for runtime MCP (Core C-5 mitigation)', () =>
     expect(stdin).not.toContain('[Tool Search]');
   });
 
-  it('does not re-inject on resume, where the history already carries it', async () => {
+  it('fires for a config-published connector, with no stdio server at all', async () => {
+    resolveActiveConfigDirMock.mockResolvedValue(PROFILE_DIR);
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-c5-confonly-'));
+    testWorkspaces.push(workspace);
+    const agent = new WCoreAgent({
+      workspace,
+      model: MODEL,
+      rawEngineMode: true,
+      // Connectors already in config, named for the profile allowlist. Gating on
+      // stdioMcpServers alone would silently miss this session and drop it back
+      // into the loop.
+      mcpServerNames: ['tavily'],
+      onStreamEvent: () => {},
+    });
+
+    const stdin = await readStdin(agent, 'c5-config-only');
+
+    expect(stdin).toContain('[Tool Search]');
+  });
+
+  it('still injects on resume, because the guidance is never persisted', async () => {
     resolveActiveConfigDirMock.mockResolvedValue(PROFILE_DIR);
     const workspace = mkdtempSync(join(tmpdir(), 'wcore-c5-resume-'));
     testWorkspaces.push(workspace);
@@ -477,8 +497,28 @@ describe('W-1: ToolSearch guidance for runtime MCP (Core C-5 mitigation)', () =>
 
     const stdin = await readStdin(agent, 'c5-resume');
 
-    expect(stdin).toContain('"type":"add_mcp_server"');
-    expect(stdin).not.toContain('[Tool Search]');
+    // It travels over init_history and is never written to our DB, so a resumed
+    // conversation gets a FRESH engine with no guidance unless we resend it.
+    expect(stdin).toContain('[Tool Search]');
+  });
+
+  it('injects exactly once per launch', async () => {
+    resolveActiveConfigDirMock.mockResolvedValue(PROFILE_DIR);
+    const workspace = mkdtempSync(join(tmpdir(), 'wcore-c5-once-'));
+    testWorkspaces.push(workspace);
+    const agent = new WCoreAgent({
+      workspace,
+      model: MODEL,
+      rawEngineMode: true,
+      stdioMcpServers: [mcpServer],
+      mcpServerNames: ['tavily'],
+      onStreamEvent: () => {},
+    });
+
+    const stdin = await readStdin(agent, 'c5-once');
+
+    // Both signals are true here; the guidance must not be sent twice.
+    expect(stdin.split('[Tool Search]').length - 1).toBe(1);
   });
 
   it('puts the user own rules AFTER the guidance so they win', async () => {
