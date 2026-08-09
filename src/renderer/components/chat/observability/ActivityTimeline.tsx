@@ -157,7 +157,19 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
   // Some sources (grouped tool_group items) carry no timing, so a span duration
   // isn't always available - drop the "· {{duration}}" suffix when it's empty.
   const dur = running ? '' : spanDuration(steps);
-  const doneSummary = dur
+
+  // "What I did" at-a-glance: name the real actions under the collapsed summary
+  // (only for genuinely multi-step turns; a single action is self-evident).
+  const doneLabels = steps.filter((s) => s.status !== 'running' && s.label).map((s) => s.label.replace(/[.…]+$/, ''));
+
+  // A group of one is not a group. Each WCore `tool_group` message becomes its
+  // own timeline, so a turn of ten single-tool groups rendered ten identical
+  // "Did 1 things" headers, each hiding exactly one row that said more than the
+  // header did - and "1 things" is not a sentence in any case. When there is a
+  // single finished step, promote its own label into the summary; the chevron
+  // still opens the detail underneath.
+  const soleLabel = doneCount(steps) === 1 && doneLabels.length === 1 ? doneLabels[0] : '';
+  const countSummary = dur
     ? t('conversation.observability.summaryDid', {
         defaultValue: 'Did {{count}} things · {{duration}}',
         count: doneCount(steps),
@@ -167,10 +179,15 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
         defaultValue: 'Did {{count}} things',
         count: doneCount(steps),
       });
-
-  // "What I did" at-a-glance: name the real actions under the collapsed summary
-  // (only for genuinely multi-step turns; a single action is self-evident).
-  const doneLabels = steps.filter((s) => s.status !== 'running' && s.label).map((s) => s.label.replace(/[.…]+$/, ''));
+  const doneSummary = soleLabel
+    ? dur
+      ? t('conversation.observability.summaryDidOne', {
+          defaultValue: '{{label}} · {{duration}}',
+          label: soleLabel,
+          duration: dur,
+        })
+      : soleLabel
+    : countSummary;
   const stepDetail =
     doneLabels.length >= 2
       ? doneLabels.length > 3

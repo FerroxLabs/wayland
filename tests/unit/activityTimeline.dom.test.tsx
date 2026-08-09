@@ -129,7 +129,30 @@ describe('ActivityTimeline', () => {
       />
     );
     expect(screen.getByTestId('activity-timeline').getAttribute('data-timeline-status')).toBe('done');
-    expect(screen.queryByText('Working now')).toBeNull();
-    expect(screen.getByText(/Did 1 things/)).toBeTruthy();
+    // Collapsed is now asserted on the header's own state rather than on the
+    // absence of the label: a single step promotes its label INTO the summary,
+    // so the text stays on screen while the row below it is gone.
+    expect(
+      screen.getByTestId('activity-timeline').querySelector('[aria-expanded]')?.getAttribute('aria-expanded')
+    ).toBe('false');
+    expect(screen.getByText(/Working now/)).toBeTruthy();
+  });
+
+  it('promotes the sole step label instead of saying "Did 1 things"', () => {
+    render(<ActivityTimeline steps={[step({ id: 'a', label: 'Looking for a "load skill" tool' })]} />);
+    expect(screen.getByText(/Looking for a "load skill" tool/)).toBeTruthy();
+    // The ungrammatical group-of-one header must be gone entirely, not merely
+    // reworded - it hid exactly one row that said more than the header did.
+    expect(screen.queryByText(/Did 1 things/)).toBeNull();
+    expect(screen.queryByText(/Did \d+ things/)).toBeNull();
+  });
+
+  it('still counts when there is genuinely more than one step', () => {
+    render(
+      <ActivityTimeline
+        steps={[step({ id: 'a', label: 'Planning the work' }), step({ id: 'b', label: 'Searching the web' })]}
+      />
+    );
+    expect(screen.getByText(/Did 2 things/)).toBeTruthy();
   });
 });
