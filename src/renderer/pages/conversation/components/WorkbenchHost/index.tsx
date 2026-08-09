@@ -117,6 +117,12 @@ const WorkbenchHost: React.FC<{
   const [registered, setRegistered] = useState<Record<string, WorkbenchSectionRegistration>>({});
   const [activeId, setActiveId] = useState<string | undefined>(persisted.activeId);
   const [pinnedId, setPinnedId] = useState<string | undefined>(persisted.pinnedId);
+  /**
+   * The section the user opened by hand. Deliberately NOT persisted: it is
+   * intent for this visit, not a saved preference, and reviving it on reload
+   * would re-open a panel the provider considers dormant.
+   */
+  const [userOpenedId, setUserOpenedId] = useState<string | undefined>();
   const [closedIds, setClosedIds] = useState<Set<string>>(() => new Set(persisted.closedIds));
   const [width, setWidth] = useState(persisted.width ?? DEFAULT_WIDTH);
   const priorRequests = useRef<Record<string, string | number | boolean | undefined>>({});
@@ -175,6 +181,16 @@ const WorkbenchHost: React.FC<{
       return next;
     });
     setActiveId(id);
+    // A click on a section row is an explicit request to SEE it, and it has to
+    // outrank the provider's `requestedOpen`. Without this, activating a
+    // section whose store reports `requestedOpen: false` - Workspace does
+    // exactly that whenever the right sider is collapsed
+    // (ChatLayout/index.tsx: `workspaceEnabled && !rightSiderCollapsed`) -
+    // made `panelOpen` false and collapsed the ENTIRE panel to the 36px rail.
+    // The reopen button could not rescue it either, because the line above had
+    // just removed the id from `closedIds`, which that button requires. The
+    // user clicked a section and the whole workbench vanished.
+    setUserOpenedId(id);
     setPinnedId((current) => (current && current !== id ? undefined : current));
     section.onActivate?.();
   }, []);
@@ -239,11 +255,20 @@ const WorkbenchHost: React.FC<{
   }, [activeId, closedIds, conversationId, pinnedId, width]);
 
   const activeSection = activeId ? byId[activeId] : undefined;
-  const panelOpen = Boolean(activeSection && activeSection.requestedOpen !== false && !closedIds.has(activeSection.id));
+  // Open when the provider asks for it OR when the user explicitly asked for
+  // this section. Closing always wins over both.
+  const panelOpen = Boolean(
+    activeSection &&
+      !closedIds.has(activeSection.id) &&
+      (activeSection.requestedOpen !== false || userOpenedId === activeSection.id)
+  );
 
   const closeActive = useCallback(() => {
     if (!activeSection) return;
     setClosedIds((current) => new Set(current).add(activeSection.id));
+    // Closing retracts the user's open intent, otherwise a dormant section
+    // would re-open itself the next time anything re-rendered.
+    setUserOpenedId((current) => (current === activeSection.id ? undefined : current));
     if (pinnedId === activeSection.id) setPinnedId(undefined);
     activeSection.onDismiss?.();
   }, [activeSection, pinnedId]);

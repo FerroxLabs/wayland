@@ -225,4 +225,55 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     expect(screen.getByTestId('chat')).toBeInTheDocument();
     expect(screen.queryByTestId('workbench-panel')).not.toBeInTheDocument();
   });
+
+  // A section row is an explicit request to SEE that section, and it must
+  // outrank the provider's requestedOpen. Workspace reports
+  // `requestedOpen: false` whenever the right sider is collapsed
+  // (ChatLayout: workspaceEnabled && !rightSiderCollapsed), and activating it
+  // used to make panelOpen false - collapsing the ENTIRE workbench to the 36px
+  // rail. Live symptom: "I click workspaces and everything flashes and nothing
+  // appears." No exception was thrown, which is why it hid.
+  it('opens a dormant section when the user clicks its row, instead of collapsing the panel', async () => {
+    render(
+      <WorkbenchHost
+        conversationId='dormant-click'
+        sections={[section('core', true), section('workspace', false)]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    const panel = await screen.findByTestId('workbench-panel');
+    expect(panel).toHaveAttribute('data-section-id', 'core');
+
+    fireEvent.click(screen.getByRole('button', { name: /workspace/i }));
+
+    // The panel must SURVIVE and navigate, not vanish.
+    const after = await screen.findByTestId('workbench-panel');
+    expect(after).toHaveAttribute('data-section-id', 'workspace');
+    expect(screen.getByTestId('workspace-content')).toBeInTheDocument();
+  });
+
+  it('still lets the user close a section they opened by hand', async () => {
+    render(
+      <WorkbenchHost
+        conversationId='dormant-close'
+        sections={[section('core', true), section('workspace', false)]}
+      >
+        <main>chat</main>
+      </WorkbenchHost>
+    );
+
+    await screen.findByTestId('workbench-panel');
+    fireEvent.click(screen.getByRole('button', { name: /workspace/i }));
+    await waitFor(() =>
+      expect(screen.getByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'workspace')
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close workbench' }));
+
+    // Closing must retract the open intent - otherwise a dormant section would
+    // spring back open on the next render.
+    await waitFor(() => expect(screen.queryByTestId('workbench-panel')).not.toBeInTheDocument());
+  });
 });
