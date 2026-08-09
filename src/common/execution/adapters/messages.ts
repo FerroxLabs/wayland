@@ -52,15 +52,21 @@ export function selectCurrentExecutionMessages(
       return latestPolicy && !current.includes(latestPolicy) ? [latestPolicy, ...current] : current;
     }
 
-    // No user bubble to slice on. The generic tail below splits turns on
-    // `activity` messages, which WCore only sometimes emits - a turn made of
-    // `tool_group` messages alone leaves it nothing to split on, so it falls
-    // back to a single trailing message and renders eleven steps of real work
-    // as one. With no boundary and no activity card there is nothing to divide,
-    // so show the whole run; conversations that DO carry activity cards keep
-    // the generic split, which still excludes completed historical turns.
+    // No user bubble to slice on - the conversations corrupted by the merge bug
+    // this packet fixes have none. The generic tail below splits on `activity`
+    // messages, which a plain tool-running WCore turn never produces, so it
+    // returned a single trailing message and rendered eleven steps as one.
+    //
+    // WCore stamps every message of a turn with that turn's id in `msg_id`, so
+    // the turn is recoverable without the user bubble. Take the last execution
+    // message's turn and keep only its own - returning everything would replay
+    // completed historical turns, which is precisely what this function exists
+    // to prevent (both cross-audit legs reproduced that).
     const unbounded = messages.filter(isExecutionMessage);
-    if (!unbounded.some((message) => message.type === 'activity')) return unbounded;
+    if (!unbounded.some((message) => message.type === 'activity')) {
+      const latestTurn = unbounded[unbounded.length - 1]?.msg_id;
+      return latestTurn ? unbounded.filter((message) => message.msg_id === latestTurn) : unbounded;
+    }
   }
 
   const execution = messages.filter(isExecutionMessage);

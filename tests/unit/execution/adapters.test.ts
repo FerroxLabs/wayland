@@ -313,18 +313,26 @@ describe('execution backend adapters', () => {
     ]);
   });
 
-  it('keeps every WCore tool group when no user turn boundary survives', () => {
+  // Conversations corrupted by the user-bubble merge bug have no `text:right`
+  // at all. WCore stamps every message of a turn with the turn id in `msg_id`,
+  // so the turn is still recoverable - and MUST be used, or the panel replays
+  // completed historical turns. Both cross-audit legs reproduced that replay
+  // against an earlier "just return everything" fallback.
+  it('recovers the WCore turn from msg_id when no user boundary survives', () => {
     const messages = [
       { id: 'reply', conversation_id: 'c1', type: 'text', position: 'left', content: { content: 'Done' } },
-      { id: 'tg-1', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'a', name: 'ToolSearch' }] },
-      { id: 'tg-2', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'b', name: 'Bash' }] },
-      { id: 'tg-3', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'c', name: 'Bash' }] },
+      { id: 'old-1', msg_id: 'turn-A', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'a' }] },
+      { id: 'old-2', msg_id: 'turn-A', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'b' }] },
+      { id: 'cur-1', msg_id: 'turn-B', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'c' }] },
+      { id: 'cur-2', msg_id: 'turn-B', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'd' }] },
+      { id: 'cur-3', msg_id: 'turn-B', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'e' }] },
     ] as TMessage[];
 
+    // The whole current turn, and none of the completed one before it.
     expect(selectCurrentExecutionMessages('wcore', messages).map((message) => message.id)).toEqual([
-      'tg-1',
-      'tg-2',
-      'tg-3',
+      'cur-1',
+      'cur-2',
+      'cur-3',
     ]);
   });
 

@@ -1029,11 +1029,15 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
  * its `position` to 'left' - destroying the question in stored history and,
  * with it, the turn boundary every execution selector relies on.
  *
- * Deltas that carry no position are still merged: several backends set it only
- * on the first chunk, and refusing those would fragment ordinary streamed prose.
+ * Strict equality, not a permissive "undefined matches anything". Every live
+ * backend routes its deltas through `transformMessage`, which stamps every
+ * `content` chunk 'left' and every `user_content` 'right' - verified across
+ * wcore, gemini, acp/codex, openclaw, nanobot and team during cross-audit. A
+ * wildcard would therefore protect nothing real while reopening the exact hole
+ * this closes; two messages that both omit a position still compare equal.
  */
 const isSameSpeaker = (existing: TMessage, incoming: TMessage): boolean =>
-  existing.position === undefined || incoming.position === undefined || existing.position === incoming.position;
+  existing.position === incoming.position;
 
 export const composeMessage = (
   message: TMessage | undefined,

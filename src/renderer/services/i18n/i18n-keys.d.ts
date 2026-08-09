@@ -514,6 +514,7 @@ export type I18nKey =
   | 'conversation.execution.progressCount'
   | 'conversation.execution.replanCount'
   | 'conversation.execution.replans'
+  | 'conversation.execution.steps'
   | 'conversation.history.batchDelete'
   | 'conversation.history.batchDeleteConfirm'
   | 'conversation.history.batchDeleteSuccess'

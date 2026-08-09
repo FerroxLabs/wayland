@@ -631,10 +631,10 @@ describe('composeMessage - user/assistant bubbles never merge', () => {
     expect(replies[0].content.content).toBe('Hello World');
   });
 
-  it('merges when the delta omits a position (backends that only set it once)', () => {
-    const seeded = { ...turnText('left', 'Hello ') };
-    const delta = { id: 'turn-1', msg_id: 'turn-1', type: 'text', conversation_id: 'c1', content: { content: 'World' } };
-    const list = composeMessage(delta as unknown as TMessage, [seeded]);
+  it('merges two positionless deltas with each other', () => {
+    const bare = (content: string) =>
+      ({ id: 'turn-1', msg_id: 'turn-1', type: 'text', conversation_id: 'c1', content: { content } }) as TMessage;
+    const list = composeMessage(bare('World'), [bare('Hello ')]);
 
     expect(list).toHaveLength(1);
     expect((list[0] as IMessageText).content.content).toBe('Hello World');

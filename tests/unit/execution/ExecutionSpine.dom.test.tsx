@@ -140,6 +140,43 @@ describe('ExecutionSpine', () => {
     expect(steps.textContent).toContain('••••••');
   });
 
+  // A cross-audit reproduced this: `command` was masked but `detail` was not,
+  // and for a non-command tool the label is built from name + detail - so the
+  // credential rendered anyway, through the field nobody had masked.
+  it('masks a secret that reaches the label through detail, not command', () => {
+    const messages = [
+      { id: 'user', conversation_id: 'c1', type: 'text', position: 'right', content: { content: 'go' } },
+      {
+        id: 'tools',
+        conversation_id: 'c1',
+        type: 'tool_group',
+        content: [
+          {
+            callId: 'a',
+            name: 'web_search',
+            // Kept short on purpose: the label caps at 40 chars, so a long
+            // secret is truncated and an assertion on its tail passes even
+            // unmasked. This value survives the cap intact.
+            description: 'query: client_secret=hunter2val',
+            status: 'Success',
+          },
+        ],
+      },
+    ] as TMessage[];
+    render(
+      <WorkbenchHost conversationId='c1'>
+        <MessageListProvider value={messages}>
+          <ExecutionSpine backend='wcore' conversationId='c1' workspaceId='workspace-1' agentId='wcore'>
+            <div>conversation</div>
+          </ExecutionSpine>
+        </MessageListProvider>
+      </WorkbenchHost>
+    );
+    const steps = screen.getByTestId('execution-mission-steps');
+    expect(steps.textContent).not.toContain('hunter2val');
+    expect(steps.textContent).toContain('••••••');
+  });
+
   it('does not overwhelm an ordinary chat with an empty mission rail', () => {
     render(
       <WorkbenchHost conversationId='conversation-1'>

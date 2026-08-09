@@ -5,6 +5,7 @@
  */
 
 import { toolGroupCommand } from '@/common/chat/activity/projectMessages';
+import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
 import type { ActivityNode, IMessageExecutionEvidence, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import type { DeclaredArtifactType, ExecutionActivity, ExecutionEvent, ExecutionPlanStep } from '../types';
 import type { ExecutionAdapterContext } from './types';
@@ -256,11 +257,11 @@ export function adaptWCoreMessages(
             kind: tool.confirmationDetails?.type === 'mcp' ? 'system' : 'tool',
             name: tool.name,
             status: toolGroupStatus(tool.status),
-            detail: tool.description,
-            // A tool_group's description/exec command is the invocation, not
-            // output, so it is safe to render as the step label - but it must
-            // go through the same secret masking the chat timeline uses (#610),
-            // or an inline credential in a shell command lands in the rail.
+            // Both fields reach a rendered label, so both are masked (#610).
+            // A cross-audit reproduced the gap: a web_search whose detail read
+            // `query: client_secret=...` rendered the live secret in the label
+            // even though `command` beside it was correctly redacted.
+            detail: tool.description ? redactCommandSecrets(tool.description) : undefined,
             ...(toolGroupCommand(tool) ? { command: toolGroupCommand(tool) } : {}),
           },
         });

@@ -548,6 +548,7 @@
     "currentActivity": "Working through the current task",
     "missionRail": "Mission progress",
     "progress": "Progress",
+    "steps": "Steps taken",
     "replans": "Plan changes",
     "replanCount": "{{count}} recorded revisions",
     "producerPlan": "Agent plan",
