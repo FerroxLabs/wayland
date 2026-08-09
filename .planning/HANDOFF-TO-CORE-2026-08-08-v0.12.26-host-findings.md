@@ -239,6 +239,9 @@ the catalog snapshot hydration-aware so a repeat search is distinguishable from 
 
 ### C-5b — the second half, and it is the one that still blocks us
 
+**FILED 2026-08-09 as FerroxLabs/wayland-core#265** (as FerroxLabs). No duplicate among their 15 open
+issues; #183 is the plaintext-vault migration and relates to C-3, not this.
+
 **Update after mitigating the matcher host-side.** We injected an instruction telling the model to
 search with a single distinctive keyword. Measured, same profile and connector, before/after:
 **ToolSearch calls 28 → 2..5, "No deferred tools matching" 19 → 0, turn 136s → 16s.** The matching
