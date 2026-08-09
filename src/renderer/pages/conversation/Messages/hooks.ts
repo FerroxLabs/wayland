@@ -166,6 +166,16 @@ function composeMessageWithIndex(message: TMessage, list: TMessage[], index: Mes
         if ((message.content as { teammateMessage?: boolean })?.teammateMessage) {
           return list;
         }
+        // A turn id names the TURN, not the speaker: WCore streams the reply on
+        // the same msg_id the user's message was sent under. Appending into the
+        // user's bubble would swallow their question, which is exactly what the
+        // process-side merge did to stored history. Fall through to append a
+        // separate bubble instead. Mirrors composeMessage's isSameSpeaker guard.
+        if (existingMsg.position !== undefined && existingMsg.position !== message.position) {
+          const appendedIdx = list.length;
+          index.msgIdIndex.set(message.msg_id, appendedIdx);
+          return list.concat(message);
+        }
         // AI streaming messages (left position) - append chunks
         const newList = list.slice();
         newList[existingIdx] = {

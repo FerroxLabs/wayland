@@ -51,6 +51,16 @@ export function selectCurrentExecutionMessages(
       );
       return latestPolicy && !current.includes(latestPolicy) ? [latestPolicy, ...current] : current;
     }
+
+    // No user bubble to slice on. The generic tail below splits turns on
+    // `activity` messages, which WCore only sometimes emits - a turn made of
+    // `tool_group` messages alone leaves it nothing to split on, so it falls
+    // back to a single trailing message and renders eleven steps of real work
+    // as one. With no boundary and no activity card there is nothing to divide,
+    // so show the whole run; conversations that DO carry activity cards keep
+    // the generic split, which still excludes completed historical turns.
+    const unbounded = messages.filter(isExecutionMessage);
+    if (!unbounded.some((message) => message.type === 'activity')) return unbounded;
   }
 
   const execution = messages.filter(isExecutionMessage);

@@ -1022,6 +1022,19 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
 /**
  * @description Merge a message into the existing message list.
  */
+/**
+ * A turn id identifies the TURN, not the speaker. WCore persists the user's
+ * message under the same `msg_id` it then streams the assistant reply on, so a
+ * msg_id-only match let the reply be appended to the user's own bubble and flip
+ * its `position` to 'left' - destroying the question in stored history and,
+ * with it, the turn boundary every execution selector relies on.
+ *
+ * Deltas that carry no position are still merged: several backends set it only
+ * on the first chunk, and refusing those would fragment ordinary streamed prose.
+ */
+const isSameSpeaker = (existing: TMessage, incoming: TMessage): boolean =>
+  existing.position === undefined || incoming.position === undefined || existing.position === incoming.position;
+
 export const composeMessage = (
   message: TMessage | undefined,
   list: TMessage[] | undefined,
@@ -1224,7 +1237,7 @@ export const composeMessage = (
   if (message.type === 'text' && message.msg_id) {
     for (let i = list.length - 1; i >= 0; i--) {
       const msg = list[i];
-      if (msg.msg_id === message.msg_id && msg.type === 'text') {
+      if (msg.msg_id === message.msg_id && msg.type === 'text' && isSameSpeaker(msg, message)) {
         const merged = Object.assign({}, msg, message);
         merged.content = { ...message.content, content: msg.content.content + message.content.content };
         return updateMessage(i, merged);

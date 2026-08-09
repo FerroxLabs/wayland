@@ -293,6 +293,41 @@ describe('execution backend adapters', () => {
     expect(selectCurrentExecutionMessages('acp', composed).map((message) => message.id)).toEqual(['current-plan']);
   });
 
+  // Message order taken from a live profile DB: WCore turns persist as
+  // text:right -> tool_group... with no `activity` rows at all. Historically a
+  // merge bug destroyed the user's row, leaving conversations with no turn
+  // boundary; the generic tail fallback then returned a single tool_group, so
+  // Progress and Observability showed one step out of eleven.
+  it('keeps the whole WCore run when the user turn boundary is present', () => {
+    const messages = [
+      { id: 'user', conversation_id: 'c1', type: 'text', position: 'right', content: { content: 'Do the thing' } },
+      { id: 'tg-1', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'a', name: 'ToolSearch' }] },
+      { id: 'tg-2', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'b', name: 'Bash' }] },
+      { id: 'tg-3', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'c', name: 'Bash' }] },
+    ] as TMessage[];
+
+    expect(selectCurrentExecutionMessages('wcore', messages).map((message) => message.id)).toEqual([
+      'tg-1',
+      'tg-2',
+      'tg-3',
+    ]);
+  });
+
+  it('keeps every WCore tool group when no user turn boundary survives', () => {
+    const messages = [
+      { id: 'reply', conversation_id: 'c1', type: 'text', position: 'left', content: { content: 'Done' } },
+      { id: 'tg-1', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'a', name: 'ToolSearch' }] },
+      { id: 'tg-2', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'b', name: 'Bash' }] },
+      { id: 'tg-3', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'c', name: 'Bash' }] },
+    ] as TMessage[];
+
+    expect(selectCurrentExecutionMessages('wcore', messages).map((message) => message.id)).toEqual([
+      'tg-1',
+      'tg-2',
+      'tg-3',
+    ]);
+  });
+
   it('does not promote a WCore MCP display record into canonical MCP authority', () => {
     const message = {
       id: 'group-1',
