@@ -8,17 +8,17 @@
  */
 
 /* Section labels are arbitrary React nodes - the Workspace section supplies a
-   rich node that carries its own type styles, which rendered its tab as a bold
-   heading twice the size of its neighbours. A tab is a tab: force the whole
-   subtree onto one type step so the row reads as a set of peers. */
-.tab,
-.tab * {
+   rich node that carries its own type styles, which rendered its header as a
+   bold heading twice the size of its neighbours. Force the whole subtree onto
+   one type step so the stack reads as a set of peers. */
+.sectionLabel,
+.sectionLabel * {
   font-size: 12px !important;
   line-height: 1.35 !important;
   letter-spacing: 0;
 }
 
-.tab * {
+.sectionLabel * {
   font-weight: inherit !important;
   color: inherit !important;
   margin: 0 !important;
@@ -26,19 +26,47 @@
   display: inline !important;
 }
 
-.tab {
-  transition: color 120ms ease, border-color 120ms ease;
-  white-space: nowrap;
+/* Each section is a band with a hairline above it, so the stack reads as
+   discrete rows rather than one undifferentiated column. The first band needs
+   no rule - the card header already provides that edge. */
+.section + .section {
+  border-top: 1px solid var(--bg-3);
 }
 
-.tab:hover {
+.sectionHeader {
+  font-weight: 600;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.sectionHeader:hover {
+  background: rgba(255, 255, 255, 0.04);
   color: var(--t-primary, #ededed);
 }
 
-.tab:focus-visible {
+.sectionHeader:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: -2px;
   border-radius: 4px;
+}
+
+.chev {
+  transition: transform 140ms ease;
+}
+
+.chevOpen {
+  transform: rotate(180deg);
+}
+
+/* The stack scrolls as a whole. A visible scrollbar inside a 340px card reads
+   as a rendering artefact wedged against the border; keep the scrolling, drop
+   the bar. */
+.stack {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stack::-webkit-scrollbar {
+  display: none;
 }
 
 /* Icon buttons in the card header. */
@@ -57,20 +85,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tab,
+  .sectionHeader,
+  .chev,
   .iconBtn {
     transition: none;
   }
-}
-
-/* The tab row scrolls when labels overflow, but a visible scrollbar in a 44px
-   chrome strip reads as a rendering artefact wedged between the last tab and
-   the window controls. Keep the scrolling, drop the bar. */
-.tabRow {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.tabRow::-webkit-scrollbar {
-  display: none;
 }

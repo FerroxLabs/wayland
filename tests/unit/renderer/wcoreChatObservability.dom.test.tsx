@@ -171,11 +171,24 @@ const renderChat = (messages: TMessage[] = [toolGroup]) =>
     </MessageListProvider>
   );
 
-const openObservabilityTab = () => {
-  fireEvent.click(screen.getByRole('tab', { name: 'Observability' }));
-};
-
-describe('WCoreChat #252 observability wiring', () => {
+/**
+ * Retargeted from Observability to Progress.
+ *
+ * This file exists to prove that wcore reaches a workbench section END TO END
+ * THROUGH THE SPINE - not through a per-platform copy - and that the close
+ * handler is really wired, because "an inverted gate or a dropped close handler
+ * would pass CI" (see this file's header). The Observability section it used to
+ * assert on has been removed outright; `mission` / "Progress" is the surviving
+ * section registered at that same site (ExecutionSpine/index.tsx:95-106), and
+ * it carries the identical thesis. Every guarantee below is the one this file
+ * already made, re-pointed at the surface that still exists.
+ *
+ * The `panelOpen` settings double above is now inert for this suite: nothing
+ * writes that flag any more, so asserting on `updateSpy` would assert on a spy
+ * that can never fire. The close guarantee is asserted directly on the DOM
+ * instead, which is strictly harder to fake.
+ */
+describe('WCoreChat reaches a workbench section through the execution spine', () => {
   beforeEach(() => {
     localStorage.clear();
     seedPanelOpen(false);
@@ -183,43 +196,33 @@ describe('WCoreChat #252 observability wiring', () => {
     settingsListeners.clear();
   });
 
-  it('does not mount the panel when panelOpen is false (default)', () => {
+  it('discloses Progress for a wcore turn that did tool work', () => {
     renderChat();
-    expect(screen.queryByTestId('observability-panel')).toBeNull();
-  });
-
-  it('mounts the panel when panelOpen is true and the section is selected', () => {
-    seedPanelOpen(true);
-    renderChat();
-    openObservabilityTab();
-    expect(screen.getByTestId('observability-panel')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Progress' })).toBeTruthy();
+    expect(screen.getByTestId('workbench-mission')).toBeVisible();
     expect(screen.getByRole('separator', { name: 'Resize workbench' })).toBeTruthy();
   });
 
-  // The panel no longer draws its own close button - the workbench card owns
-  // the only one, so that a card could not show two closes doing different
-  // things. The BEHAVIOUR under test is unchanged: closing must still clear
-  // panelOpen through the section's onDismiss and unmount the panel.
-  it('closing the panel from the card clears panelOpen and unmounts it', () => {
-    seedPanelOpen(true);
+  // The card owns the only close button, so a card can never show two closes
+  // doing different things. Closing must genuinely retract the surface.
+  it('closing from the card dismisses the section and leaves no panel behind', () => {
     renderChat();
-    openObservabilityTab();
+    expect(screen.getByTestId('workbench-mission')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Close workbench' }));
-    expect(updateSpy).toHaveBeenCalledWith('panelOpen', false);
-    expect(screen.queryByTestId('observability-panel')).toBeNull();
+    expect(screen.queryByTestId('workbench-panel')).toBeNull();
+    expect(screen.queryByTestId('workbench-mission')).toBeNull();
   });
 
   /**
-   * DELIBERATE wcore behaviour change. The old registration passed
-   * `available: true` unconditionally, so a conversation with no tool work still
-   * offered an Observability tab whose entire content was the "Activity ... will
-   * appear here" hint. Availability is now gated on there being something to
-   * show, matching the Progress section beside it.
+   * The gate is on CONTENT, not on a stored preference: a section that can only
+   * say "nothing here yet" is worse than no section. `available: visible`
+   * (ExecutionSpine/index.tsx:98) is the structural analogue of the old
+   * `hasObservable` gate, so "no work ⇒ no section" keeps a real subject.
    */
-  it('offers no Observability tab at all when the conversation has no observable turn', () => {
-    seedPanelOpen(true);
+  it('offers no section at all when the conversation has no execution work', () => {
     renderChat([plainText]);
-    expect(screen.queryByRole('tab', { name: 'Observability' })).toBeNull();
-    expect(screen.queryByTestId('observability-panel')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Progress' })).toBeNull();
+    expect(screen.queryByTestId('workbench-mission')).toBeNull();
+    expect(screen.queryByTestId('workbench-panel')).toBeNull();
   });
 });

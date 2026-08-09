@@ -64,7 +64,9 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
 
     expect(panel).toHaveStyle({ width: '460px' });
     await waitFor(() => {
-      expect(JSON.parse(localStorage.getItem('wayland.workbench.resize.v1') || '{}').width).toBe(460);
+      // v2: the persisted shape changed from a single activeId to collapsed/
+      // expanded sets when the panel stopped having one active section.
+      expect(JSON.parse(localStorage.getItem('wayland.workbench.resize.v2') || '{}').width).toBe(460);
     });
   });
 
@@ -79,6 +81,15 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     await screen.findByTestId('workbench-panel');
     fireEvent.click(screen.getByRole('button', { name: 'Close workbench' }));
     expect(onDismiss).toHaveBeenCalledOnce();
+    // Pin the PERSISTED SHAPE, not just the round-trip. This test survives the
+    // v1 -> v2 change without noticing it, so without this the migration from
+    // {activeId, pinnedId, closedIds} to {collapsedIds, expandedIds} would be
+    // entirely untested.
+    await waitFor(() => {
+      const stored = JSON.parse(localStorage.getItem('wayland.workbench.persist.v2') || '{}');
+      expect(stored.collapsedIds).toEqual(['workspace']);
+      expect(stored.expandedIds).toEqual([]);
+    });
     expect(screen.queryByTestId('workbench-panel')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Reopen workbench' })).toBeInTheDocument();
 
@@ -93,7 +104,13 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     expect(await screen.findByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'workspace');
   });
 
-  it('a pinned section resists unrelated relevance activation', async () => {
+  // The pin affordance is gone, but the guarantee it bought is not - it is now
+  // structural. Pin existed because a tab row could only show ONE section, so a
+  // background relevance signal could yank away whatever the user was reading.
+  // A stack expands the newly relevant section and leaves every other open
+  // section exactly where it was, so there is nothing left to defend against.
+  // This asserts the stronger property directly: BOTH are visible afterwards.
+  it('background relevance never takes away a section the user is already reading', async () => {
     const { rerender } = render(
       <WorkbenchHost
         conversationId='pin'
@@ -105,8 +122,8 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
         <main>chat</main>
       </WorkbenchHost>
     );
-    expect(await screen.findByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'workspace');
-    fireEvent.click(screen.getByRole('button', { name: 'Pin workbench section' }));
+    const panel = await screen.findByTestId('workbench-panel');
+    expect(panel.querySelector('[data-section-id="workspace"]')).toHaveAttribute('data-expanded', 'true');
 
     rerender(
       <WorkbenchHost
@@ -119,8 +136,22 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
         <main>chat</main>
       </WorkbenchHost>
     );
-    expect(screen.getByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'workspace');
-    expect(screen.getByRole('button', { name: 'Unpin workbench section' })).toHaveAttribute('aria-pressed', 'true');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('workbench-panel').querySelector('[data-section-id="preview"]')).toHaveAttribute(
+        'data-expanded',
+        'true'
+      );
+    });
+    // The point of the test: workspace was NOT displaced to make room.
+    expect(screen.getByTestId('workbench-panel').querySelector('[data-section-id="workspace"]')).toHaveAttribute(
+      'data-expanded',
+      'true'
+    );
+    // Visible, not merely mounted: collapsed sections stay in the DOM under
+    // `hidden`, so presence would pass even if the user could see neither.
+    expect(screen.getByTestId('workspace-content')).toBeVisible();
+    expect(screen.getByTestId('preview-content')).toBeVisible();
   });
 
   it('uses an overlay on narrow/popout surfaces while leaving chat mounted', async () => {
@@ -188,7 +219,6 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
       </WorkbenchHost>
     );
     expect(await screen.findByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'workspace');
-    fireEvent.click(screen.getByRole('button', { name: 'Pin workbench section' }));
 
     rerender(
       <WorkbenchHost
@@ -204,10 +234,16 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
       </WorkbenchHost>
     );
 
+    // The deep link EXPANDS its lane. It no longer has to displace anything to
+    // be honored, so the assertion is on that lane's own disclosure state
+    // rather than on which single section won the panel.
     await waitFor(() => {
-      expect(screen.getByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'projection:core');
+      expect(screen.getByTestId('workbench-panel').querySelector('[data-section-id="projection:core"]')).toHaveAttribute(
+        'data-expanded',
+        'true'
+      );
     });
-    expect(screen.getByRole('button', { name: 'Pin workbench section' })).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByTestId('projection:core-content')).toBeInTheDocument();
   });
 
   it('does not open an unknown external section', async () => {
@@ -246,12 +282,17 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     const panel = await screen.findByTestId('workbench-panel');
     expect(panel).toHaveAttribute('data-section-id', 'core');
 
-    fireEvent.click(screen.getByRole('tab', { name: /workspace/i }));
+    fireEvent.click(screen.getByRole('button', { name: /workspace/i }));
 
-    // The panel must SURVIVE and navigate, not vanish.
+    // The panel must SURVIVE and disclose, not vanish - and in a stack it also
+    // must not trade one section for the other.
     const after = await screen.findByTestId('workbench-panel');
-    expect(after).toHaveAttribute('data-section-id', 'workspace');
-    expect(screen.getByTestId('workspace-content')).toBeInTheDocument();
+    // toBeVisible, NOT toBeInTheDocument: a collapsed section keeps its content
+    // mounted under `hidden` so re-expanding never remounts it, which means
+    // presence alone would pass while the user could see nothing.
+    expect(screen.getByTestId('workspace-content')).toBeVisible();
+    expect(after.querySelector('[data-section-id="workspace"]')).toHaveAttribute('data-expanded', 'true');
+    expect(after.querySelector('[data-section-id="core"]')).toHaveAttribute('data-expanded', 'true');
   });
 
   it('still lets the user close a section they opened by hand', async () => {
@@ -265,9 +306,11 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     );
 
     await screen.findByTestId('workbench-panel');
-    fireEvent.click(screen.getByRole('tab', { name: /workspace/i }));
+    fireEvent.click(screen.getByRole('button', { name: /workspace/i }));
     await waitFor(() =>
-      expect(screen.getByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'workspace')
+      expect(
+        screen.getByTestId('workbench-panel').querySelector('[data-section-id="workspace"]')
+      ).toHaveAttribute('data-expanded', 'true')
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Close workbench' }));
