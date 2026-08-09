@@ -5,7 +5,8 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { composeMessage, type TMessage } from '@/common/chat/chatLib';
+import type { IResponseMessage } from '@/common/adapter/ipcBridge';
+import { composeMessage, transformMessage, type TMessage } from '@/common/chat/chatLib';
 import {
   adaptAcpMessages,
   adaptGeminiMessages,
@@ -399,5 +400,138 @@ describe('execution backend adapters', () => {
     const result = projectExecution(seed, adaptWCoreMessages([message], { identity, observedAt: now }), { now });
     expect(result.activities[0].kind).toBe('system');
     expect(result.mcp).toEqual({ status: 'unsupported', reason: 'versioned M1M evidence unavailable' });
+  });
+});
+
+/**
+ * K-03 - a wcore turn never reached `lifecycle: 'completed'`. Observed live: the
+ * assistant had fully answered, the summary rail still read data-lifecycle
+ * ="running", and the elapsed timer climbed past 4632 seconds.
+ *
+ * The suite above already asserted `completed` from an activity card written
+ * `{ status: 'done', nodes: [{ status: 'done' }] }` by hand - a shape the wcore
+ * pipeline cannot produce. That fabricated fixture is exactly what let the bug
+ * ship green, so every card below is built by REPLAYING RAW ENGINE FRAMES
+ * through the real production pipeline (`transformMessage` -> `composeMessage`,
+ * the same two functions WCoreManager and the renderer use). Nothing here
+ * hand-writes a node or card status.
+ */
+describe('K-03: a finished WCore turn reaches a terminal lifecycle', () => {
+  type Frame = { type: string; data: unknown; msg_id: string };
+
+  /** Replay raw stream frames exactly as WCoreManager/the renderer fold them. */
+  const replay = (frames: readonly Frame[]): TMessage[] => {
+    let list: TMessage[] = [];
+    for (const frame of frames) {
+      const message = transformMessage({ ...frame, conversation_id: 'conversation-1' } as IResponseMessage);
+      if (message) list = composeMessage({ ...message, createdAt: now } as TMessage, list);
+    }
+    return list;
+  };
+
+  const toolFrame = (callId: string, status: string): Frame => ({
+    type: 'tool_group',
+    msg_id: 'turn-1',
+    data: [{ callId, name: 'run_shell_command', description: 'ls', status }],
+  });
+
+  /** The zero-node cost card wcore force-forwards at the end of EVERY turn. */
+  const costFrame: Frame = {
+    type: 'session_cost',
+    msg_id: 'turn-1',
+    data: { perTurn: [{ turn: 1, model: 'gpt-test', provider: 'openai', cost_usd: 0.02 }] },
+  };
+
+  /** The turn-end verdict synthesized from the engine's `stream_end`. */
+  const turnEndFrame = (outcome: 'done' | 'failed' = 'done'): Frame => ({
+    type: 'activity_turn_end',
+    msg_id: 'turn-1',
+    data: { outcome },
+  });
+
+  const project = (messages: readonly TMessage[]) => {
+    const seed: ExecutionSeed = { ...baseSeed, actor: { backend: 'wcore', agentId: 'core' } };
+    return projectExecution(seed, adaptWCoreMessages(messages, { identity, observedAt: now }), { now });
+  };
+
+  it('completes a turn whose only activity card is the zero-node session_cost card', () => {
+    // The live repro. The cost card has no nodes, `rollUpStatus` therefore calls
+    // it 'running' forever, and its mere existence used to disable the tool-only
+    // settlement fallback - so nothing could ever settle the turn.
+    const messages = replay([toolFrame('call-1', 'Success'), costFrame]);
+    const card = messages.find((message) => message.type === 'activity');
+    expect(card).toBeDefined();
+    expect((card as Extract<TMessage, { type: 'activity' }>).content.nodes).toHaveLength(0);
+
+    expect(project(messages).lifecycle).toBe('completed');
+  });
+
+  it('completes a turn whose steps exist only as tool_chunk-born activity nodes', () => {
+    // Defect 2: `tool_chunk` mints a node as 'running' and no production event
+    // ever completes it, so the card was pinned 'running' by its own nodes too.
+    const streaming = replay([
+      { type: 'tool_chunk', msg_id: 'turn-1', data: { callId: 'call-1', toolName: 'Bash', chunk: 'hello\n' } },
+      costFrame,
+    ]);
+    expect(project(streaming).lifecycle).toBe('running');
+
+    const finished = replay([
+      { type: 'tool_chunk', msg_id: 'turn-1', data: { callId: 'call-1', toolName: 'Bash', chunk: 'hello\n' } },
+      costFrame,
+      turnEndFrame(),
+    ]);
+    const result = project(finished);
+    expect(result.lifecycle).toBe('completed');
+    expect(result.activities).toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: 'call-1', status: 'completed' })])
+    );
+  });
+
+  it('marks the turn failed when the engine died mid-turn', () => {
+    const messages = replay([
+      { type: 'tool_chunk', msg_id: 'turn-1', data: { callId: 'call-1', toolName: 'Bash', chunk: 'partial' } },
+      turnEndFrame('failed'),
+    ]);
+    expect(project(messages).lifecycle).toBe('failed');
+  });
+
+  it('leaves a turn that is still in flight running (anti-overshoot)', () => {
+    // Settling a live turn is worse than the bug it fixes. Two independent
+    // in-flight signals, each of which must hold the rail on `running`.
+    const executingTool = replay([toolFrame('call-1', 'Executing'), costFrame]);
+    expect(project(executingTool).lifecycle).toBe('running');
+
+    const streamingStep = replay([
+      toolFrame('call-1', 'Success'),
+      { type: 'tool_chunk', msg_id: 'turn-1', data: { callId: 'call-2', toolName: 'Bash', chunk: 'still going' } },
+      costFrame,
+    ]);
+    expect(project(streamingStep).lifecycle).toBe('running');
+
+    // And a turn with no observable work at all cannot be settled either.
+    expect(project([]).lifecycle).toBe('queued');
+  });
+
+  it('keeps every tool of the turn when the card settles before them in the window', () => {
+    // The card is created at the FIRST observability frame, so it can be
+    // persisted ahead of tools that run later in the same turn. The reducer
+    // drops every non-lifecycle event after a terminal one, so settling inline
+    // with the card deleted those tools and marked the projection invalid.
+    const messages = replay([
+      { type: 'tool_chunk', msg_id: 'turn-1', data: { callId: 'call-1', toolName: 'Bash', chunk: 'a' } },
+      toolFrame('call-2', 'Success'),
+      turnEndFrame(),
+    ]);
+    const result = project(messages);
+    expect(result.lifecycle).toBe('completed');
+    expect(result.activities.map((activity) => activity.id).sort()).toEqual(['call-1', 'call-2']);
+    expect(result.integrity.status).toBe('valid');
+  });
+
+  it('stays settled when session_cost lands after the turn ended', () => {
+    // Real ordering: WCoreManager force-forwards `session_cost` AFTER the stream
+    // finishes, stamped with the last turn's msg_id.
+    const messages = replay([toolFrame('call-1', 'Success'), turnEndFrame(), costFrame]);
+    expect(project(messages).lifecycle).toBe('completed');
   });
 });

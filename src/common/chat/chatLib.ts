@@ -536,6 +536,14 @@ export type IMessageActivity = IMessage<
     nodes: ActivityNode[];
     perTurnCost?: ActivityTurnCost[];
     status: 'running' | 'done' | 'failed';
+    /**
+     * K-03 - the engine's own turn-end verdict, set once `stream_end` (or a
+     * process exit that killed the turn) is observed. Sticky and durable: it is
+     * what makes `status` mean "the turn is over" rather than "no node happens
+     * to be running right now", and it survives the reload because it is part of
+     * the persisted card.
+     */
+    ended?: 'done' | 'failed';
   }
 >;
 
@@ -946,6 +954,29 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
           provider: p.provider,
           costUsd: p.cost_usd,
         })),
+      });
+      return {
+        id: uuid(),
+        type: 'activity',
+        msg_id: activityMsgId(turnId),
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content,
+      };
+    }
+    // K-03 - synthesized by WCoreManager.handleTurnEnd (NOT an engine frame).
+    // The engine's `stream_end` becomes an IResponseMessage `finish`, which is
+    // in `skipTransformTypes` and so never produced a TMessage - leaving the
+    // turn's activity card pinned 'running' forever and the execution rail with
+    // no reachable terminal lifecycle. This delta carries the verdict to the
+    // card through the same merge path every other activity update uses.
+    case 'activity_turn_end': {
+      const d = message.data as { outcome?: 'done' | 'failed' } | null;
+      const turnId = message.msg_id ?? '';
+      const content = addOrUpdateNode(emptyActivityContent(turnId), {
+        kind: 'turn_end',
+        outcome: d?.outcome === 'failed' ? 'failed' : 'done',
+        ts: Date.now(),
       });
       return {
         id: uuid(),

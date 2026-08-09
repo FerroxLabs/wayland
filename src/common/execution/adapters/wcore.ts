@@ -6,7 +6,13 @@
 
 import { toolGroupCommand } from '@/common/chat/activity/projectMessages';
 import { redactCommandSecrets } from '@/common/utils/redactCommandSecrets';
-import type { ActivityNode, IMessageExecutionEvidence, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
+import type {
+  ActivityNode,
+  IMessageActivity,
+  IMessageExecutionEvidence,
+  IMessageToolGroup,
+  TMessage,
+} from '@/common/chat/chatLib';
 import type { DeclaredArtifactType, ExecutionActivity, ExecutionEvent, ExecutionPlanStep } from '../types';
 import type { ExecutionAdapterContext } from './types';
 
@@ -217,15 +223,6 @@ export function adaptWCoreMessages(
           },
         });
       }
-      if (message.content.status !== 'running') {
-        append({
-          eventId: `${message.id}:lifecycle:${message.content.status}`,
-          identity: context.identity,
-          observedAt,
-          type: 'lifecycle',
-          lifecycle: message.content.status === 'done' ? 'completed' : 'failed',
-        });
-      }
     } else if (message.type === 'plan') {
       append({
         eventId: `${message.id}:plan`,
@@ -293,26 +290,47 @@ export function adaptWCoreMessages(
     }
   }
 
-  // Settle a tool-only turn. WCore emits a terminal lifecycle only through
-  // `activity` messages, which such a turn never produces, so without this a
-  // run that finished hours ago still reloads from the DB wearing a blue
-  // "running" tag - the same class of lie as the "queued" it replaced.
+  // ── Turn settlement ────────────────────────────────────────────────
   //
-  // Safe because the projection is rebuilt from the whole window on every
-  // render rather than accumulated: mid-turn, the next tool re-enters the
-  // window and the run reads `running` again on its own.
+  // Emitted AFTER the message loop, never inline with the activity card that
+  // proves it. The reducer treats a terminal lifecycle as absorbing (every
+  // later non-lifecycle event is dropped as `post-terminal-event`), so settling
+  // from inside the loop silently deleted every tool that happened to be
+  // persisted after the card - and marked the whole projection integrity
+  // `invalid`. Emitting once at the tail keeps the turn's activities intact.
+  //
+  // Safe to settle at all because the projection is rebuilt from the whole
+  // window on every render rather than accumulated: mid-turn, the next tool
+  // re-enters the window and the run reads `running` again on its own.
+  const activityCards = messages.filter((message): message is IMessageActivity => message.type === 'activity');
   const toolStatuses = messages
     .filter((message): message is IMessageToolGroup => message.type === 'tool_group')
     .flatMap((message) => message.content.map((tool) => tool.status));
-  const settled =
-    toolStatuses.length > 0 && toolStatuses.every((status) => TERMINAL_TOOL_STATUSES.has(status as string));
-  if (settled && !messages.some((message) => message.type === 'activity')) {
+
+  // The only positive evidence a turn is still live. The old guard blocked on
+  // the mere EXISTENCE of an activity card, which was unfalsifiable: a zero-node
+  // `session_cost` card is force-forwarded on every wcore turn and `rollUpStatus`
+  // reports a zero-node card as 'running', so the card both blocked this arm and
+  // could never fire the terminal arm itself. Ask the real question instead.
+  const nodeStillRunning = activityCards.some((card) => card.content.nodes.some((node) => node.status === 'running'));
+  const toolsAllTerminal = toolStatuses.every((status) => TERMINAL_TOOL_STATUSES.has(status as string));
+  // Positive evidence the turn is over. Either a dispatched tool that reached a
+  // terminal state (the original tool-only fallback), or an activity card that
+  // is itself terminal - which now includes a turn that produced NO tool_group
+  // at all, because turn end settles its card. A card that is merely PRESENT
+  // proves nothing: the zero-node cost card is 'running' until the turn ends.
+  const terminalCard = activityCards.some((card) => card.content.status !== 'running');
+  const observedWork = toolStatuses.length > 0 || terminalCard;
+  const settled = observedWork && toolsAllTerminal && !nodeStillRunning;
+
+  if (settled) {
+    const failed = activityCards.some((card) => card.content.status === 'failed');
     append({
-      eventId: `${context.identity.runId}:lifecycle:completed`,
+      eventId: `${context.identity.runId}:lifecycle:${failed ? 'failed' : 'completed'}`,
       identity: context.identity,
       observedAt: context.observedAt,
       type: 'lifecycle',
-      lifecycle: 'completed',
+      lifecycle: failed ? 'failed' : 'completed',
     });
   }
   return events;

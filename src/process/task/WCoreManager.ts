@@ -1288,7 +1288,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     );
 
     this.status = 'finished';
-    void this.handleTurnEnd();
+    // K-03: the engine died mid-turn - the turn ended, and it ended badly.
+    void this.handleTurnEnd('failed');
 
     // #853: name the real exit reason (a kill signal, not "code null") and point
     // the user at the log holding the detail, redacted before it is surfaced.
@@ -1528,8 +1529,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       }
 
       // v0.9.4 - sub-agent activity events are system-level (empty msg_id) but
-      // MUST reach the renderer so SubAgentActivityCard can render one card per
-      // sub-agent. Forward before the msg_id guard drops them (mirrors the
+      // MUST reach the renderer so the inline activity timeline can render one
+      // step per sub-agent. Forward before the msg_id guard drops them (mirrors the
       // config_changed pass-through above). The renderer's transformMessage
       // reads `data.{parentCallId,agentName,inner}` + `conversation_id`.
       if (data.type === 'sub_agent_event') {
@@ -1880,9 +1881,50 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     });
   }
 
-  private async handleTurnEnd(): Promise<void> {
+  /**
+   * K-03 - settle the turn's activity card.
+   *
+   * The engine's `stream_end` arrives as an IResponseMessage `finish`, which
+   * sits in `skipTransformTypes` and therefore produces NO TMessage: nothing
+   * durable ever recorded that the turn ended. The only other completion signal
+   * the execution rail has is the activity card's own `status`, and that is
+   * pinned 'running' by construction (`rollUpStatus` reports 'running' for a
+   * zero-node card, and the per-turn `session_cost` card has zero nodes) - so a
+   * wcore turn could never reach `lifecycle: 'completed'` and the rail's elapsed
+   * timer climbed indefinitely after the assistant had already answered.
+   *
+   * This forwards a synthetic `activity_turn_end` frame down the SAME path every
+   * other activity update takes: transformMessage builds a card delta, the
+   * compose merge folds it into the accumulated card (settling any node the
+   * stream never terminalized), and addOrUpdateMessage persists it so the
+   * verdict survives a reload. Emitted on the response stream too so a mounted
+   * renderer settles immediately rather than at the next hydration.
+   */
+  private settleTurnActivityCard(outcome: 'done' | 'failed'): void {
+    const turnId = this.currentMsgId || this._lastTurnMsgId;
+    if (!turnId) return;
+
+    const frame: IResponseMessage = {
+      type: 'activity_turn_end',
+      conversation_id: this.conversation_id,
+      msg_id: turnId,
+      data: { outcome },
+    };
+
+    const tMessage = transformMessage(frame);
+    if (tMessage) {
+      addOrUpdateMessage(this.conversation_id, tMessage, 'wcore');
+    }
+    // Response stream only - deliberately NOT emitToEventBuses. This is a UI/rail
+    // settlement signal, and the channel bus relays agent output to Discord /
+    // WhatsApp surfaces that have nothing to do with the activity card.
+    ipcBridge.conversation.responseStream.emit(frame);
+  }
+
+  private async handleTurnEnd(outcome: 'done' | 'failed' = 'done'): Promise<void> {
     cronBusyGuard.setProcessing(this.conversation_id, false);
     this.flushAllBufferedStreamTexts();
+    this.settleTurnActivityCard(outcome);
 
     // Finalize thinking if still active
     if (this.thinkingMsgId) {
