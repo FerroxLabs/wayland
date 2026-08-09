@@ -76,7 +76,7 @@ const SkillSuggestCard: React.FC<SkillSuggestCardProps> = ({ suggestion, cronJob
         <span>{t('cron.skill.preview')}</span>
       </div>
       {expanded && (
-        <div className='mb-12px p-8px rd-4px bg-bg-3 max-h-240px overflow-y-auto text-12px'>
+        <div className='mb-12px p-8px rd-4px bg-3 max-h-240px overflow-y-auto text-12px'>
           <MarkdownView codeStyle={CODE_STYLE}>{`\`\`\`markdown\n${suggestion.content}\n\`\`\``}</MarkdownView>
         </div>
       )}

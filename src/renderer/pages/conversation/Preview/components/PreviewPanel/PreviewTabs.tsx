@@ -99,7 +99,7 @@ const PreviewTabs: React.FC<PreviewTabsProps> = ({
 
   return (
     <div
-      className='relative flex-shrink-0 bg-bg-2'
+      className='relative flex-shrink-0 bg-2'
       style={{ minHeight: '36px', borderBottom: '1px solid var(--border-base)' }}
     >
       <div className='flex items-center h-36px w-full'>
@@ -109,7 +109,7 @@ const PreviewTabs: React.FC<PreviewTabsProps> = ({
             tabs.map((tab) => (
               <div
                 key={tab.id}
-                className={`flex items-center gap-6px px-10px h-full cursor-pointer transition-colors flex-shrink-0 ${tab.id === activeTabId ? 'bg-bg-1 text-t-primary' : 'text-t-secondary hover:bg-bg-3'}`}
+                className={`flex items-center gap-6px px-10px h-full cursor-pointer transition-colors flex-shrink-0 ${tab.id === activeTabId ? 'bg-1 text-t-primary' : 'text-t-secondary hover:bg-3'}`}
                 onClick={() => onSwitchTab(tab.id)}
                 onContextMenu={(e) => onContextMenu(e, tab.id)}
               >
@@ -138,7 +138,7 @@ const PreviewTabs: React.FC<PreviewTabsProps> = ({
         {onClosePanel && (
           <div className='flex items-center h-full px-10px flex-shrink-0 rounded-tr-[16px]'>
             <div
-              className='flex items-center justify-center w-20px h-20px rd-4px cursor-pointer hover:bg-bg-3 transition-colors'
+              className='flex items-center justify-center w-20px h-20px rd-4px cursor-pointer hover:bg-3 transition-colors'
               onClick={onClosePanel}
               title={t('preview.collapsePanel')}
             >

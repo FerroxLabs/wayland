@@ -84,7 +84,7 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       )}
 
       {run.activities.length > 0 && (
-        <div className={run.progress.total > 0 ? 'mt-16px pt-12px border-t border-border-1' : ''}>
+        <div className={run.progress.total > 0 ? 'mt-16px pt-12px border-t border-1' : ''}>
           <div className='font-600 mb-8px'>{t('conversation.execution.steps', { defaultValue: 'Steps taken' })}</div>
           <ol className='m-0 p-0 list-none flex flex-col gap-6px' data-testid='execution-mission-steps'>
             {run.activities.map((activity) => (
@@ -100,7 +100,7 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       )}
 
       {run.planHistory.length > 1 && (
-        <div className='mt-16px pt-12px border-t border-border-1'>
+        <div className='mt-16px pt-12px border-t border-1'>
           <div className='font-600'>{t('conversation.execution.replans', { defaultValue: 'Plan changes' })}</div>
           <div className='text-12px text-t-secondary mt-4px'>
             {t('conversation.execution.replanCount', {
@@ -120,7 +120,7 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       )}
 
       {run.outcomes.length > 0 && (
-        <div className='mt-16px pt-12px border-t border-border-1'>
+        <div className='mt-16px pt-12px border-t border-1'>
           <div className='font-600'>{t('conversation.execution.outputs', { defaultValue: 'Outputs' })}</div>
           {run.outcomes.map((outcome) => (
             <div key={outcome.id} className='text-12px mt-6px'>
@@ -131,7 +131,7 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       )}
 
       {run.handoffs.length > 0 && (
-        <div className='mt-16px pt-12px border-t border-border-1'>
+        <div className='mt-16px pt-12px border-t border-1'>
           <div className='font-600'>{t('conversation.execution.handoffs', { defaultValue: 'Handoffs' })}</div>
           {run.handoffs.map((handoff) => {
             const continuity =
@@ -154,7 +154,7 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       )}
 
       {run.costLedger.status !== 'unavailable' && (
-        <div className='mt-16px pt-12px border-t border-border-1' data-testid='execution-cost-ledger'>
+        <div className='mt-16px pt-12px border-t border-1' data-testid='execution-cost-ledger'>
           <div className='flex items-center justify-between gap-8px'>
             <span className='font-600'>
               {t('conversation.execution.cost', { defaultValue: 'Receipt-backed cost' })}

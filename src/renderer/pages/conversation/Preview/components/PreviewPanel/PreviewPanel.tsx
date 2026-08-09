@@ -509,7 +509,7 @@ const PreviewPanel: React.FC = () => {
           <div className='flex flex-1 relative overflow-hidden'>
             {/* Left: Editor */}
             <div className='flex flex-col relative' style={{ width: `${splitRatio}%` }}>
-              <div className='h-40px flex items-center px-12px bg-bg-2'>
+              <div className='h-40px flex items-center px-12px bg-2'>
                 <span className='text-12px text-t-secondary'>{t('preview.editor')}</span>
               </div>
               <div className='flex-1 overflow-hidden'>
@@ -527,7 +527,7 @@ const PreviewPanel: React.FC = () => {
 
             {/* Right: Preview */}
             <div className='flex flex-col' style={{ width: `${100 - splitRatio}%`, minWidth: 0 }}>
-              <div className='h-40px flex items-center px-12px bg-bg-2'>
+              <div className='h-40px flex items-center px-12px bg-2'>
                 <span className='text-12px text-t-secondary'>{t('preview.preview')}</span>
               </div>
               <div className='flex flex-col flex-1 overflow-hidden'>
@@ -583,7 +583,7 @@ const PreviewPanel: React.FC = () => {
           <div className='flex flex-1 relative overflow-hidden'>
             {/* Left: Editor */}
             <div className='flex flex-col relative' style={{ width: `${splitRatio}%` }}>
-              <div className='h-40px flex items-center px-12px bg-bg-2'>
+              <div className='h-40px flex items-center px-12px bg-2'>
                 <span className='text-12px text-t-secondary'>{t('preview.editor')}</span>
               </div>
               <div className='flex-1 overflow-hidden'>
@@ -602,7 +602,7 @@ const PreviewPanel: React.FC = () => {
 
             {/* Right: Preview */}
             <div className='flex flex-col' style={{ width: `${100 - splitRatio}%`, minWidth: 0 }}>
-              <div className='h-40px flex items-center justify-between px-12px bg-bg-2'>
+              <div className='h-40px flex items-center justify-between px-12px bg-2'>
                 <span className='text-12px text-t-secondary'>{t('preview.preview')}</span>
               </div>
               <div className='flex flex-col flex-1 overflow-hidden'>
@@ -671,7 +671,7 @@ const PreviewPanel: React.FC = () => {
           <div className='flex flex-1 relative overflow-hidden'>
             {/* Left: Editor */}
             <div className='flex flex-col relative' style={{ width: `${splitRatio}%` }}>
-              <div className='h-40px flex items-center px-12px bg-bg-2'>
+              <div className='h-40px flex items-center px-12px bg-2'>
                 <span className='text-12px text-t-secondary'>{t('preview.editor')}</span>
               </div>
               <div className='flex-1 overflow-hidden'>
@@ -683,7 +683,7 @@ const PreviewPanel: React.FC = () => {
 
             {/* Right: Preview */}
             <div className='flex flex-col' style={{ width: `${100 - splitRatio}%`, minWidth: 0 }}>
-              <div className='h-40px flex items-center px-12px bg-bg-2'>
+              <div className='h-40px flex items-center px-12px bg-2'>
                 <span className='text-12px text-t-secondary'>{t('preview.preview')}</span>
               </div>
               <div className='flex flex-col flex-1 overflow-hidden'>
@@ -825,10 +825,10 @@ const PreviewPanel: React.FC = () => {
           key={metadata?.filePath ?? metadata?.title}
           fallback={(_error, reset) => (
             <div className='flex flex-col flex-1 items-center justify-center gap-12px p-24px text-center'>
-              <div className='text-text-2 font-medium'>
+              <div className='text-2 font-medium'>
                 {t('preview.viewerError.title', { defaultValue: "This file couldn't be opened" })}
               </div>
-              <div className='text-text-3 text-12px max-w-360px'>
+              <div className='text-3 text-12px max-w-360px'>
                 {t('preview.viewerError.detail', {
                   defaultValue: 'The viewer hit an unexpected error. Try again, or open the file in your system app.',
                 })}

@@ -301,17 +301,17 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
   };
 
   return (
-    <div className='h-full w-full flex flex-col bg-bg-1'>
+    <div className='h-full w-full flex flex-col bg-1'>
       {messageContextHolder}
 
       {/* Toolbar */}
       {!hideToolbar && (
-        <div className='flex items-center justify-between h-40px px-12px bg-bg-2 border-b border-border-base flex-shrink-0'>
+        <div className='flex items-center justify-between h-40px px-12px bg-2 border-b border-base flex-shrink-0'>
           <div className='flex items-center gap-8px'>
             {/* Edit button */}
             <button
               onClick={handleToggleEdit}
-              className={`px-12px py-4px rd-4px text-12px transition-colors ${editMode ? 'bg-primary text-white' : 'bg-bg-3 text-t-primary hover:bg-bg-4'}`}
+              className={`px-12px py-4px rd-4px text-12px transition-colors ${editMode ? 'bg-primary text-white' : 'bg-3 text-t-primary hover:bg-4'}`}
             >
               {editMode ? `💾 ${t('common.save')}` : `✏️ ${t('common.edit')}`}
             </button>
@@ -319,7 +319,7 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
             {/* Element inspector button */}
             <button
               onClick={handleToggleInspector}
-              className={`px-12px py-4px rd-4px text-12px transition-colors ${inspectorMode ? 'bg-primary text-white' : 'bg-bg-3 text-t-primary hover:bg-bg-4'}`}
+              className={`px-12px py-4px rd-4px text-12px transition-colors ${inspectorMode ? 'bg-primary text-white' : 'bg-3 text-t-primary hover:bg-4'}`}
               title={t('preview.html.inspectorTooltip')}
             >
               🔍 {inspectorMode ? t('preview.html.inspecting') : t('preview.html.inspectorButton')}
@@ -328,7 +328,7 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
             {/* Selected element path */}
             {selectedElement && (
               <div className='text-12px text-t-secondary ml-8px'>
-                {t('preview.html.selectedLabel')} <code className='bg-bg-3 px-4px rd-2px'>{selectedElement.path}</code>
+                {t('preview.html.selectedLabel')} <code className='bg-3 px-4px rd-2px'>{selectedElement.path}</code>
               </div>
             )}
           </div>
@@ -337,7 +337,7 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
             {/* Download button */}
             <button
               onClick={handleDownload}
-              className='flex items-center gap-4px px-8px py-4px rd-4px cursor-pointer hover:bg-bg-3 transition-colors'
+              className='flex items-center gap-4px px-8px py-4px rd-4px cursor-pointer hover:bg-3 transition-colors'
               title={t('preview.html.downloadHtml')}
             >
               <svg
@@ -363,7 +363,7 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
       <div className='flex-1 flex overflow-hidden'>
         {/* Left: code editor (shown in edit mode) */}
         {editMode && (
-          <div className='flex-1 overflow-hidden border-r border-border-base'>
+          <div className='flex-1 overflow-hidden border-r border-base'>
             <HTMLEditor value={htmlCode} onChange={setHtmlCode} filePath={filePath} />
           </div>
         )}
@@ -386,7 +386,7 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
       {/* Context menu */}
       {contextMenu && (
         <div
-          className='fixed bg-bg-1 border border-border-base rd-6px shadow-lg py-4px z-9999'
+          className='fixed bg-1 border border-base rd-6px shadow-lg py-4px z-9999'
           style={{
             left: contextMenu.x,
             top: contextMenu.y,
@@ -394,13 +394,13 @@ const HTMLPreview: React.FC<HTMLPreviewProps> = ({ content, filePath, hideToolba
           onClick={(e) => e.stopPropagation()}
         >
           <div
-            className='px-12px py-6px text-13px text-t-primary hover:bg-bg-2 cursor-pointer transition-colors'
+            className='px-12px py-6px text-13px text-t-primary hover:bg-2 cursor-pointer transition-colors'
             onClick={() => handleCopyHTML(contextMenu.element.html)}
           >
             📋 {t('preview.html.copyElementHtml')}
           </div>
           <div
-            className='px-12px py-6px text-13px text-t-primary hover:bg-bg-2 cursor-pointer transition-colors'
+            className='px-12px py-6px text-13px text-t-primary hover:bg-2 cursor-pointer transition-colors'
             onClick={() => {
               console.log('[HTMLPreview] Element info:', contextMenu.element);
               messageApi.info(t('preview.html.printedToConsole'));

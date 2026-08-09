@@ -214,7 +214,7 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
   return (
     <div className='mb-12px'>
       {/* Main Card */}
-      <div className='relative rounded-12px p-16px bg-bg-2 border-1 border-solid border-border-2'>
+      <div className='relative rounded-12px p-16px bg-2 border-1 border-solid border-2'>
         {/* Collapsed View - single-line hint + expand button */}
         {!expanded && !hasAvailableAndSwitching && (
           <div className='flex items-center justify-between cursor-pointer' onClick={() => setExpanded(true)}>
@@ -296,14 +296,14 @@ const AgentSetupCard: React.FC<AgentSetupCardProps> = ({
                       const isSelected = hasAvailableAndSwitching && isBest;
 
                       // Determine card style based on status
-                      let cardStyle = 'bg-fill-1 border-1 border-solid border-border-2';
+                      let cardStyle = 'bg-fill-1 border-1 border-solid border-2';
                       if (isSelected) {
                         cardStyle = 'bg-success-1 border-2 border-solid border-success-6';
                       } else if (result.checking) {
                         cardStyle = 'bg-warning-1 border-1 border-solid border-warning-3';
                       } else if (result.available && !hasAvailableAndSwitching) {
                         cardStyle =
-                          'bg-fill-1 border-1 border-solid border-border-2 cursor-pointer hover:border-primary-4 hover:bg-fill-2';
+                          'bg-fill-1 border-1 border-solid border-2 cursor-pointer hover:border-primary-4 hover:bg-fill-2';
                       }
 
                       // Determine status display

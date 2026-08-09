@@ -217,7 +217,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
             </Typography.Text>
             <div className='mt-10px flex items-center gap-12px'>
               {activeAssistant?.isBuiltin ? (
-                <Avatar shape='square' size={40} className='bg-bg-1 rounded-4px'>
+                <Avatar shape='square' size={40} className='bg-1 rounded-4px'>
                   {editAvatarImage ? (
                     <img
                       src={editAvatarImage}
@@ -234,7 +234,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
               ) : (
                 <EmojiPicker value={editAvatar} onChange={(emoji) => setEditAvatar(emoji)} placement='br'>
                   <div className='cursor-pointer'>
-                    <Avatar shape='square' size={40} className='bg-bg-1 rounded-4px hover:bg-fill-2 transition-colors'>
+                    <Avatar shape='square' size={40} className='bg-1 rounded-4px hover:bg-fill-2 transition-colors'>
                       {editAvatarImage ? (
                         <img
                           src={editAvatarImage}
@@ -257,7 +257,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
                 disabled={activeAssistant?.isBuiltin}
                 placeholder={t('settings.agentNamePlaceholder', { defaultValue: 'Enter a name for this agent' })}
                 data-testid='input-assistant-name'
-                className='flex-1 rounded-4px bg-bg-1'
+                className='flex-1 rounded-4px bg-1'
               />
             </div>
           </div>
@@ -268,7 +268,7 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
               {t('settings.assistantDescription', { defaultValue: 'Assistant Description' })}
             </Typography.Text>
             <Input
-              className='mt-10px rounded-4px bg-bg-1'
+              className='mt-10px rounded-4px bg-1'
               value={editDescription}
               onChange={(value) => setEditDescription(value)}
               disabled={activeAssistant?.isBuiltin}
@@ -332,19 +332,19 @@ const AssistantEditDrawer: React.FC<AssistantEditDrawerProps> = ({
               </Button>
             </div>
             <div
-              className='mt-10px border border-border-2 overflow-hidden rounded-4px'
+              className='mt-10px border border-2 overflow-hidden rounded-4px'
               style={{ height: rulesContainerHeight }}
             >
               {isRuleEditable && (
-                <div className='flex items-center h-36px bg-fill-2 border-b border-border-2 flex-shrink-0'>
+                <div className='flex items-center h-36px bg-fill-2 border-b border-2 flex-shrink-0'>
                   <div
-                    className={`flex items-center h-full px-16px cursor-pointer transition-all text-13px font-medium ${promptViewMode === 'edit' ? 'text-primary border-b-2 border-primary bg-bg-1' : 'text-t-secondary hover:text-t-primary'}`}
+                    className={`flex items-center h-full px-16px cursor-pointer transition-all text-13px font-medium ${promptViewMode === 'edit' ? 'text-primary border-b-2 border-primary bg-1' : 'text-t-secondary hover:text-t-primary'}`}
                     onClick={() => setPromptViewMode('edit')}
                   >
                     {t('settings.promptEdit', { defaultValue: 'Edit' })}
                   </div>
                   <div
-                    className={`flex items-center h-full px-16px cursor-pointer transition-all text-13px font-medium ${promptViewMode === 'preview' ? 'text-primary border-b-2 border-primary bg-bg-1' : 'text-t-secondary hover:text-t-primary'}`}
+                    className={`flex items-center h-full px-16px cursor-pointer transition-all text-13px font-medium ${promptViewMode === 'preview' ? 'text-primary border-b-2 border-primary bg-1' : 'text-t-secondary hover:text-t-primary'}`}
                     onClick={() => setPromptViewMode('preview')}
                   >
                     {t('settings.promptPreview', { defaultValue: 'Preview' })}

@@ -277,7 +277,7 @@ const TeamSiderSection: React.FC<TeamSiderSectionProps> = ({
             type='button'
             data-testid='sider-team-create-inline'
             onClick={() => setCreateTeamVisible(true)}
-            className='flex items-center gap-6px px-12px py-6px text-11px text-text-3 hover:text-text-1 border-0 bg-transparent cursor-pointer transition-colors'
+            className='flex items-center gap-6px px-12px py-6px text-11px text-3 hover:text-1 border-0 bg-transparent cursor-pointer transition-colors'
           >
             <Plus size={12} aria-hidden='true' style={{ lineHeight: 0 }} />
             <span>{t('team.sider.createTeam', { defaultValue: 'Create team' })}</span>

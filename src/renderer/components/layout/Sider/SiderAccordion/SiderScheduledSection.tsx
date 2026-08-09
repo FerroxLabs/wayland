@@ -60,7 +60,7 @@ export const SiderScheduledSection: React.FC<SiderScheduledSectionProps> = ({ co
     return (
       <button
         type='button'
-        className='w-full h-26px flex items-center justify-center rd-7px bg-transparent border-none cursor-pointer hover:bg-fill-2 text-text-2 hover:text-text-1 relative'
+        className='w-full h-26px flex items-center justify-center rd-7px bg-transparent border-none cursor-pointer hover:bg-fill-2 text-2 hover:text-1 relative'
         onClick={() => onNavigate('/scheduled')}
         aria-label={t('sider.accordion.scheduled')}
         title={t('sider.accordion.scheduled')}
@@ -86,7 +86,7 @@ export const SiderScheduledSection: React.FC<SiderScheduledSectionProps> = ({ co
       ))}
       {overflow > 0 ? (
         <div
-          className='px-10px py-6px text-10px text-text-3 italic cursor-pointer hover:text-orange'
+          className='px-10px py-6px text-10px text-3 italic cursor-pointer hover:text-orange'
           onClick={() => onNavigate('/scheduled')}
         >
           {t('sider.accordion.showMore', { count: overflow })}
@@ -94,7 +94,7 @@ export const SiderScheduledSection: React.FC<SiderScheduledSectionProps> = ({ co
       ) : (
         jobs.length > 0 && (
           <div
-            className='px-10px py-6px text-10px text-text-3 italic cursor-pointer hover:text-orange'
+            className='px-10px py-6px text-10px text-3 italic cursor-pointer hover:text-orange'
             onClick={() => onNavigate('/scheduled')}
           >
             {t('sider.accordion.seeAllScheduled')}

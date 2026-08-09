@@ -143,7 +143,7 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, filePath
 
   if (loading) {
     return (
-      <div className='h-full w-full flex items-center justify-center bg-bg-1'>
+      <div className='h-full w-full flex items-center justify-center bg-1'>
         <div className='flex flex-col items-center gap-12px'>
           <Spin size={32} />
           <span className='text-13px text-t-secondary'>
@@ -156,7 +156,7 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, filePath
 
   if (error) {
     return (
-      <div className='h-full w-full flex items-center justify-center bg-bg-1'>
+      <div className='h-full w-full flex items-center justify-center bg-1'>
         <div className='text-center max-w-400px'>
           <div className='text-16px text-danger mb-8px'>{error}</div>
           <div className='text-12px text-t-secondary'>{t(keys.installHint)}</div>
@@ -170,9 +170,9 @@ const OfficeWatchViewer: React.FC<OfficeWatchViewerProps> = ({ docType, filePath
   // Electron: use <webview> via WebviewHost for full Electron integration.
   // Web server mode: use <iframe> since <webview> is Electron-only.
   if (isElectronDesktop()) {
-    return <WebviewHost url={watchUrl} className='bg-bg-1' />;
+    return <WebviewHost url={watchUrl} className='bg-1' />;
   }
-  return <iframe src={watchUrl} className='w-full h-full border-0 bg-bg-1' title={IFRAME_TITLE[docType]} />;
+  return <iframe src={watchUrl} className='w-full h-full border-0 bg-1' title={IFRAME_TITLE[docType]} />;
 };
 
 export default OfficeWatchViewer;

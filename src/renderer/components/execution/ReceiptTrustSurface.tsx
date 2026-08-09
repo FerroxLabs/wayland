@@ -27,7 +27,7 @@ export const ReceiptTrustSurface: React.FC<{
 
   return (
     <section
-      className='rounded-8px border border-border-1 bg-bg-2 p-12px'
+      className='rounded-8px border border-1 bg-2 p-12px'
       aria-label='Outcome trust receipt'
       data-testid='receipt-trust-surface'
       data-trust-status={trust.status}

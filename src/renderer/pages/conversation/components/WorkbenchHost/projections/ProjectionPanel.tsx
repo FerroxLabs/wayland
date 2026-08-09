@@ -55,7 +55,7 @@ const ProjectionPanel: React.FC<{ projection: WorkbenchProjection; snapshot: Exe
   return (
     <section className='flex flex-col min-h-0 h-full' data-testid={`projection-${projection.id}`}>
       <nav
-        className='shrink-0 flex flex-wrap gap-4px p-8px border-b border-border-1'
+        className='shrink-0 flex flex-wrap gap-4px p-8px border-b border-1'
         aria-label={`${projection.label} views`}
       >
         {projection.facets.map((item) => (
@@ -95,7 +95,7 @@ const ProjectionPanel: React.FC<{ projection: WorkbenchProjection; snapshot: Exe
         {trusts.length === 0 && activeFacet && (
           <ul className='m-0 p-0 list-none flex flex-col gap-8px'>
             {activeFacet.evidence.map((item) => (
-              <li key={item.id} className='rounded-8px border border-border-1 bg-fill-1 p-10px'>
+              <li key={item.id} className='rounded-8px border border-1 bg-fill-1 p-10px'>
                 <div className='font-600 break-words'>{item.label}</div>
                 {item.detail && <div className='mt-4px text-12px text-t-secondary break-words'>{item.detail}</div>}
                 {item.uri && <div className='mt-4px text-12px text-t-secondary break-all'>{item.uri}</div>}
