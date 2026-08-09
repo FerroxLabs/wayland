@@ -6,7 +6,7 @@
 
 import { deriveStep as humanizeStep } from '@/common/chat/activity/activityLabels';
 import type { ExecutionActivity, selectCanonicalRunSnapshot } from '@/common/execution';
-import { Progress, Tag, Typography } from '@arco-design/web-react';
+import { Progress, Tag } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import WorkbenchEmptyState from '../WorkbenchHost/WorkbenchEmptyState';
@@ -59,10 +59,14 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       data-testid='execution-mission-rail'
       data-run-id={run.identity.runId}
     >
-      <div className='flex items-center justify-between gap-8px mb-12px'>
-        <Typography.Title heading={6} className='!m-0'>
-          {t('conversation.execution.progress', { defaultValue: 'Progress' })}
-        </Typography.Title>
+      {/*
+       * NO title here. The workbench section header directly above this panel
+       * already says "Progress", so rendering it again put the same word twice,
+       * stacked, a few pixels apart - caught by looking at the running app, not
+       * by any test. The status tag stays: it is the one thing the header does
+       * not say, and it is the whole answer to "is this run still going".
+       */}
+      <div className='flex items-center justify-end mb-12px'>
         <Tag size='small' color={statusColor(run.lifecycle)}>
           {t(`conversation.execution.lifecycle.${run.lifecycle}`, { defaultValue: run.lifecycle })}
         </Tag>
