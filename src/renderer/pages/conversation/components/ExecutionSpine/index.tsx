@@ -105,6 +105,21 @@ const ExecutionSpine: React.FC<{
   );
   useWorkbenchSection(missionSection);
 
+  // The bar is a LIVE status line. `currentStep` is the first in-progress or
+  // pending step, so a finished run has none and the label fell through to its
+  // present-tense default: the bar read "Working through the current task"
+  // beside a `completed` badge, on every completed run, by construction - with
+  // that same badge repeated in the Progress panel a few pixels to its right.
+  // A finished run is the panel's story, so the bar stands down. A FAILED run
+  // keeps it: a failure the user has to notice is what an inline bar is for.
+  const settled = run.lifecycle === 'completed';
+  const lifecycleLabel = t(`conversation.execution.lifecycle.${run.lifecycle}`, { defaultValue: run.lifecycle });
+  const activityLabel =
+    currentStep?.content ??
+    (run.lifecycle === 'failed'
+      ? t('conversation.execution.failedActivity', { defaultValue: 'The run stopped before it finished' })
+      : t('conversation.execution.currentActivity', { defaultValue: 'Working through the current task' }));
+
   const projections = <ExecutionWorkbenchProjections snapshot={snapshot} />;
 
   if (!visible) {
@@ -121,20 +136,22 @@ const ExecutionSpine: React.FC<{
       {projections}
       <div className='flex flex-1 min-h-0' data-testid='execution-spine' data-run-id={run.identity.runId}>
         <section className='flex flex-col flex-1 min-w-0'>
-          <div
-            className='mx-20px mt-8px px-12px py-8px rounded-8px bg-fill-1 border border-1 flex items-center gap-10px'
-            data-testid='execution-thread-summary'
-            data-run-id={run.identity.runId}
-          >
-            <Tag size='small' color={statusColor(run.lifecycle)}>
-              {run.lifecycle}
-            </Tag>
-            <Typography.Text ellipsis className='min-w-0 text-t-secondary'>
-              {currentStep?.content ??
-                t('conversation.execution.currentActivity', { defaultValue: 'Working through the current task' })}
-            </Typography.Text>
-            {run.progress.total > 0 && <span className='ml-auto text-12px text-t-secondary'>{progressLabel}</span>}
-          </div>
+          {!settled && (
+            <div
+              className='mx-20px mt-8px px-12px py-8px rounded-8px bg-fill-1 border border-1 flex items-center gap-10px'
+              data-testid='execution-thread-summary'
+              data-run-id={run.identity.runId}
+              data-lifecycle={run.lifecycle}
+            >
+              <Tag size='small' color={statusColor(run.lifecycle)}>
+                {lifecycleLabel}
+              </Tag>
+              <Typography.Text ellipsis className='min-w-0 text-t-secondary'>
+                {activityLabel}
+              </Typography.Text>
+              {run.progress.total > 0 && <span className='ml-auto text-12px text-t-secondary'>{progressLabel}</span>}
+            </div>
+          )}
           <div className='flex flex-1 min-h-0'>{children}</div>
         </section>
       </div>

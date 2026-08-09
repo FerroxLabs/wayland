@@ -547,6 +547,14 @@
   "execution": {
     "progressCount": "{{completed}} of {{total}} complete",
     "currentActivity": "Working through the current task",
+    "failedActivity": "The run stopped before it finished",
+    "lifecycle": {
+      "queued": "queued",
+      "running": "running",
+      "waiting": "waiting",
+      "completed": "completed",
+      "failed": "failed"
+    },
     "missionRail": "Mission progress",
     "progress": "Progress",
     "steps": "Steps taken",
