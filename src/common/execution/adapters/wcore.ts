@@ -230,6 +230,20 @@ export function adaptWCoreMessages(
         })),
       });
     } else if (message.type === 'tool_group') {
+      // A tool that has been dispatched proves the run left the queue. WCore
+      // emits lifecycle only via `activity` messages, which a plain tool-running
+      // turn never produces - so the rail sat on "queued" while the work was
+      // visibly finishing. Advance to `running` only; completion is a claim this
+      // message cannot support, and the reducer ignores a repeat.
+      if (message.content.length > 0) {
+        append({
+          eventId: `${message.id}:lifecycle:running`,
+          identity: context.identity,
+          observedAt,
+          type: 'lifecycle',
+          lifecycle: 'running',
+        });
+      }
       for (const tool of message.content) {
         append({
           eventId: `${message.id}:tool:${tool.callId}`,
@@ -242,6 +256,9 @@ export function adaptWCoreMessages(
             name: tool.name,
             status: toolGroupStatus(tool.status),
             detail: tool.description,
+            // A tool_group's `description` is the invocation ("Execute: printf
+            // 'ok'"), not output, so it is safe to render as the step label.
+            ...(tool.description ? { command: tool.description } : {}),
           },
         });
         const officeValidation = detectOfficeCliValidation(tool);

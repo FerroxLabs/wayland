@@ -4,12 +4,40 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { selectCanonicalRunSnapshot } from '@/common/execution';
+import { deriveStep as humanizeStep } from '@/common/chat/activity/activityLabels';
+import type { ExecutionActivity, selectCanonicalRunSnapshot } from '@/common/execution';
 import { Progress, Tag, Typography } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 type CanonicalRun = ReturnType<typeof selectCanonicalRunSnapshot>;
+
+/**
+ * Reuse the chat timeline's humanizer so a step reads the same in both places
+ * ("Running printf 'ok'", not "Bash"). The canonical activity kinds are named
+ * for the execution model; only two differ from the chat node's vocabulary, and
+ * an unmapped kind falls through to the rule list on name + detail, which is
+ * the same treatment an ordinary tool gets.
+ */
+const CHAT_KIND: Partial<Record<ExecutionActivity['kind'], 'sub_agent' | 'cua'>> = {
+  'sub-agent': 'sub_agent',
+  computer: 'cua',
+};
+
+const deriveStep = (activity: ExecutionActivity): { label: string } =>
+  humanizeStep({
+    kind: CHAT_KIND[activity.kind] ?? (activity.kind === 'thinking' ? 'thinking' : 'tool'),
+    name: activity.name,
+    detail: activity.detail,
+    ...(activity.command ? { command: activity.command } : {}),
+  });
+
+const dotColor = (status: ExecutionActivity['status']): string => {
+  if (status === 'completed') return 'bg-success';
+  if (status === 'failed') return 'bg-danger';
+  if (status === 'running') return 'bg-primary';
+  return 'bg-fill-3';
+};
 
 const statusColor = (status: string): 'green' | 'red' | 'orange' | 'blue' | 'gray' => {
   if (status === 'completed' || status === 'authoritative') return 'green';
@@ -51,6 +79,22 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
             ))}
           </ol>
         </>
+      )}
+
+      {run.activities.length > 0 && (
+        <div className={run.progress.total > 0 ? 'mt-16px pt-12px border-t border-border-1' : ''}>
+          <div className='font-600 mb-8px'>{t('conversation.execution.steps', { defaultValue: 'Steps taken' })}</div>
+          <ol className='m-0 p-0 list-none flex flex-col gap-6px' data-testid='execution-mission-steps'>
+            {run.activities.map((activity) => (
+              <li key={activity.id} className='flex items-start gap-8px text-12px'>
+                <span className={`mt-5px shrink-0 w-6px h-6px rounded-full ${dotColor(activity.status)}`} />
+                <span className={activity.status === 'failed' ? 'text-danger' : 'text-t-primary'}>
+                  {deriveStep(activity).label}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
       )}
 
       {run.planHistory.length > 1 && (

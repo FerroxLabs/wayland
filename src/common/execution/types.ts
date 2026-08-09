@@ -69,7 +69,14 @@ export type ExecutionActivity = Readonly<{
   kind: 'tool' | 'thinking' | 'sub-agent' | 'browser' | 'computer' | 'approval' | 'system';
   name: string;
   status: 'queued' | 'running' | 'waiting' | 'completed' | 'failed' | 'cancelled';
+  /** Streamed output or trailing text. NOT the invocation - it can be a large blob. */
   detail?: string;
+  /**
+   * What the step was ASKED to do (a shell command, a tool description). Kept
+   * apart from `detail` because a label built from output splices result text
+   * into the timeline; only this field is safe to render as "what it is doing".
+   */
+  command?: string;
   parentId?: string;
 }>;
 

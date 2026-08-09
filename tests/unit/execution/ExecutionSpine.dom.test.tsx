@@ -64,6 +64,49 @@ describe('ExecutionSpine', () => {
     expect(screen.getAllByText('Build the report')).toHaveLength(2);
   });
 
+  // A plain WCore turn emits no `plan` message at all - it just runs tools. The
+  // rail rendered plan steps, outcomes and cost but never the activity stream,
+  // so such a turn showed the word "running" over an empty panel while the chat
+  // beside it plainly listed the tools. Steps taken ARE the progress.
+  it('shows the steps taken when a WCore turn carries tools but no plan', () => {
+    const messages = [
+      {
+        id: 'user',
+        conversation_id: 'conversation-1',
+        type: 'text',
+        position: 'right',
+        content: { content: 'Run the probe' },
+        createdAt: 1_000,
+      },
+      {
+        id: 'tools',
+        conversation_id: 'conversation-1',
+        type: 'tool_group',
+        content: [
+          { callId: 'a', name: 'Bash', description: "Execute: printf 'ok'", status: 'Success' },
+          { callId: 'b', name: 'ReadFile', description: 'Read config.ts', status: 'Executing' },
+        ],
+        createdAt: 1_100,
+      },
+    ] as TMessage[];
+    render(
+      <WorkbenchHost conversationId='conversation-1'>
+        <MessageListProvider value={messages}>
+          <ExecutionSpine backend='wcore' conversationId='conversation-1' workspaceId='workspace-1' agentId='wcore'>
+            <div>conversation</div>
+          </ExecutionSpine>
+        </MessageListProvider>
+      </WorkbenchHost>
+    );
+    // Labels come from the same humanizer the chat timeline uses, so a step
+    // reads as the work done ("Running printf 'ok'"), not the tool's name.
+    const steps = screen.getByTestId('execution-mission-steps');
+    expect(steps.textContent).toContain("Running printf 'ok'");
+    expect(steps.textContent).toContain('Reading config.ts');
+    // A dispatched tool proves the run left the queue.
+    expect(screen.getByTestId('execution-mission-rail').textContent).toContain('running');
+  });
+
   it('does not overwhelm an ordinary chat with an empty mission rail', () => {
     render(
       <WorkbenchHost conversationId='conversation-1'>
