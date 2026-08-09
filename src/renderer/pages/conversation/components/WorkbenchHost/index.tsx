@@ -458,7 +458,10 @@ const WorkbenchHost: React.FC<{
         {panelOpen && primarySection && (
           <aside
             className={classNames(
-              'workbench-host__panel flex flex-col min-h-0 bg-2 rounded-12px overflow-hidden z-20',
+              // bg-1, one step DARKER than the section cards it holds. The card
+              // surface has to sit above its container or the "cards" read as
+              // arbitrary rules drawn on a flat panel.
+              'workbench-host__panel flex flex-col min-h-0 bg-1 rounded-12px overflow-hidden z-20',
               overlay && 'workbench-host__panel--overlay absolute right-36px top-0 bottom-0'
             )}
             style={{
@@ -506,15 +509,23 @@ const WorkbenchHost: React.FC<{
                 and as dynamic as the run makes it without anything being pushed
                 out of reach. Every section keeps a visible header even when
                 collapsed, which is the part the tab row could not do: you can
-                always see what exists. */}
-            <div className={classNames('flex-1 min-h-0 overflow-y-auto', styles.stack)} data-testid='workbench-stack'>
+                always see what exists.
+                Each section is its own rounded card separated by a gap, rather
+                than a band divided by a hairline: discrete cards are what make a
+                stack read as a set of independent things you can open, instead
+                of one long document that happens to have rules in it. */}
+            <div
+              className={classNames('flex-1 min-h-0 overflow-y-auto flex flex-col', styles.stack)}
+              style={{ gap: `${SP.sm}px`, padding: `${SP.sm}px` }}
+              data-testid='workbench-stack'
+            >
               {allSections.map((section) => {
                 const expanded = isExpanded(section);
                 const mounted = expanded || mountedIds.has(section.id);
                 return (
                   <section
                     key={section.id}
-                    className={classNames('workbench-host__section flex flex-col', styles.section)}
+                    className={classNames('workbench-host__section flex flex-col shrink-0', styles.section)}
                     data-section-id={section.id}
                     data-expanded={expanded ? 'true' : 'false'}
                   >
@@ -522,11 +533,11 @@ const WorkbenchHost: React.FC<{
                       <button
                         type='button'
                         className={classNames(
-                          'workbench-host__section-header w-full flex items-center gap-8px border-0 bg-transparent cursor-pointer text-left',
+                          'workbench-host__section-header w-full flex items-center gap-6px border-0 bg-transparent cursor-pointer text-left',
                           styles.sectionHeader,
                           expanded ? 'text-t-primary' : 'text-t-secondary'
                         )}
-                        style={{ padding: `${SP.sm}px ${SP.sm}px ${SP.sm}px ${SP.md}px` }}
+                        style={{ padding: `${SP.sm}px ${SP.md}px` }}
                         aria-expanded={expanded}
                         data-testid={
                           section.id === primarySection.id ? 'workbench-panel-title' : `workbench-section-${section.id}`
@@ -536,14 +547,17 @@ const WorkbenchHost: React.FC<{
                         <span className='shrink-0 flex items-center text-t-tertiary' aria-hidden='true'>
                           {iconFor(section)}
                         </span>
-                        <span className={classNames('min-w-0 flex-1 truncate', styles.sectionLabel)}>
-                          {section.label}
-                        </span>
+                        <span className={classNames('min-w-0 truncate', styles.sectionLabel)}>{section.label}</span>
+                        {/* Beside the title, not banished to the right edge. The
+                            chevron belongs to the words it discloses; a
+                            far-right chevron reads as an unrelated control and
+                            leaves a dead gap across every row. */}
                         <ChevronDown
                           size={14}
                           aria-hidden='true'
                           className={classNames('shrink-0', styles.chev, expanded && styles.chevOpen)}
                         />
+                        <span className='flex-1' />
                       </button>
                     </h3>
                     {mounted && (

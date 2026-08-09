@@ -74,8 +74,16 @@ describe('MissionProgressPanel', () => {
     render(<MissionProgressPanel run={run({ lifecycle: 'running' })} progressLabel='0 of 0 complete' />);
     const empty = screen.getByTestId('execution-mission-empty');
     expect(empty).toBeTruthy();
-    expect(screen.getByText('No steps yet')).toBeTruthy();
+    // The "No steps yet" TITLE is gone on purpose: the section header already
+    // says "Progress", and its own emptiness already says "nothing yet", so the
+    // title said the same thing a third time. What has to survive is the line
+    // that tells the user what WILL appear here - an empty lane must read as
+    // deliberate rather than broken.
     expect(screen.getByText(/will appear here as this task runs/)).toBeTruthy();
+    // The faded glyph is the part that makes it read as designed rather than
+    // as a failed load, so it is asserted rather than left to drift.
+    expect(empty.getAttribute('data-empty-glyph')).toBe('steps');
+    expect(empty.querySelector('svg')).toBeTruthy();
   });
 
   it('drops the empty state as soon as a single step is recorded', () => {

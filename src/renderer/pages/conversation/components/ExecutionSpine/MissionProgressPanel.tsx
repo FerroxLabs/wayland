@@ -6,9 +6,10 @@
 
 import { deriveStep as humanizeStep } from '@/common/chat/activity/activityLabels';
 import type { ExecutionActivity, selectCanonicalRunSnapshot } from '@/common/execution';
-import { Empty, Progress, Tag, Typography } from '@arco-design/web-react';
+import { Progress, Tag, Typography } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import WorkbenchEmptyState from '../WorkbenchHost/WorkbenchEmptyState';
 
 type CanonicalRun = ReturnType<typeof selectCanonicalRunSnapshot>;
 
@@ -100,28 +101,23 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
       )}
 
       {/*
-       * A panel that renders nothing reads as broken rather than as idle. The
-       * workspace file list already answers this with Arco's Empty - a faded
-       * illustration, a title and a line saying what will appear here - so this
-       * uses the same one rather than inventing a second empty language.
+       * A panel that renders nothing reads as broken rather than as idle.
+       *
+       * This used Arco's `Empty`, which draws a stock illustration with its own
+       * spacing, its own type scale and a title stacked above a description -
+       * far too much furniture for a 340px lane, and a second visual language
+       * beside the one the rest of the workbench speaks. WorkbenchEmptyState is
+       * the shared one: a faded inline glyph over a single line that says what
+       * WILL appear here, so every lane's empty state matches every other.
        */}
       {run.progress.total === 0 && run.activities.length === 0 && (
-        <div className='flex-1 flex items-center justify-center py-24px' data-testid='execution-mission-empty'>
-          <Empty
-            description={
-              <div>
-                <span className='text-t-secondary font-bold text-14px'>
-                  {t('conversation.execution.emptyTitle', { defaultValue: 'No steps yet' })}
-                </span>
-                <div className='text-t-secondary text-12px'>
-                  {t('conversation.execution.emptyDescription', {
-                    defaultValue: 'The plan and each step taken will appear here as this task runs.',
-                  })}
-                </div>
-              </div>
-            }
-          />
-        </div>
+        <WorkbenchEmptyState
+          glyph='steps'
+          testId='execution-mission-empty'
+          caption={t('conversation.execution.emptyDescription', {
+            defaultValue: 'The plan and each step taken will appear here as this task runs.',
+          })}
+        />
       )}
 
       {run.activities.length > 0 && (

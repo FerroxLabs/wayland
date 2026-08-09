@@ -10,11 +10,13 @@
 /* Section labels are arbitrary React nodes - the Workspace section supplies a
    rich node that carries its own type styles, which rendered its header as a
    bold heading twice the size of its neighbours. Force the whole subtree onto
-   one type step so the stack reads as a set of peers. */
+   one type step so the stack reads as a set of peers.
+   14px, not 12: these are section HEADINGS in a stack, and at 12px they read as
+   metadata labels rather than as the titles of the things below them. */
 .sectionLabel,
 .sectionLabel * {
-  font-size: 12px !important;
-  line-height: 1.35 !important;
+  font-size: 14px !important;
+  line-height: 1.3 !important;
   letter-spacing: 0;
 }
 
@@ -26,15 +28,19 @@
   display: inline !important;
 }
 
-/* Each section is a band with a hairline above it, so the stack reads as
-   discrete rows rather than one undifferentiated column. The first band needs
-   no rule - the card header already provides that edge. */
-.section + .section {
-  border-top: 1px solid var(--bg-3);
+/* Each section is its own card floating on the darker panel, with a gap between
+   siblings supplied by the stack's flex `gap`. Discrete cards are what make the
+   stack read as a set of independent things you can open. */
+.section {
+  background: var(--bg-2);
+  border-radius: 10px;
+  border: 1px solid var(--bg-3);
+  overflow: hidden;
 }
 
 .sectionHeader {
   font-weight: 600;
+  border-radius: 10px;
   transition: background-color 120ms ease, color 120ms ease;
 }
 
