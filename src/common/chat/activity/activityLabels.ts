@@ -75,6 +75,18 @@ export const formatCommandLabel = (command: string): string => {
 const SUBJECT_CAP = 56;
 
 /**
+ * Guards a label against serialized payloads. Tool `detail` often holds the
+ * tool's OUTPUT, so a careless extraction can splice a JSON blob into the
+ * timeline. A real subject is one short line of prose - no structure, no
+ * newlines, and not the logger's own "[... N similar lines]" collapse marker.
+ */
+const isQueryLike = (text: string): boolean =>
+  text.length > 0 &&
+  text.length <= 60 &&
+  !/[\n\r{}[\]]/.test(text) &&
+  !/similar lines/i.test(text);
+
+/**
  * True when the subject only restates the tool name, so appending it would give
  * "ToolSearch: ToolSearch". Compares on letters alone, since the two sides
  * differ in case, spacing and separators ("web_search" vs "Web search").
@@ -108,8 +120,16 @@ const RULES: LabelRule[] = [
     test: /^tool[_-]?search\b|\btoolsearch\b/,
     glyph: 'search',
     build: (h) => {
-      const q = hostOrText(h.replace(/.*?tool[_-]?search[\s"':,{]*/i, '').replace(/.*?(query)["':\s]+/i, '')).trim();
-      return q && !/^tool ?search$/i.test(q) ? `Looking for a "${q}" tool` : 'Looking for a tool';
+      // The node's detail carries the tool-search RESULT, not the query the
+      // model typed - the query never reaches the renderer. Measured live, a
+      // naive extraction produced `Looking for a "[ { [... 197 similar lines`,
+      // which is worse than no subject at all. So only two things count as a
+      // query: an explicit `query` argument if one is ever plumbed through, and
+      // the term Core echoes back in its own no-match message.
+      const explicit = /"?query"?\s*[:=]\s*"([^"\n]{1,60})"/i.exec(h)?.[1];
+      const echoed = /no deferred tools matching\s+"?([^"\n]{1,60})"?/i.exec(h)?.[1];
+      const q = (explicit ?? echoed ?? '').replace(/\s+/g, ' ').trim();
+      return q && isQueryLike(q) ? `Looking for a "${q}" tool` : 'Looking for a tool';
     },
   },
   {

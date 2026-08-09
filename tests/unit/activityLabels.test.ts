@@ -117,7 +117,7 @@ describe('activityLabels: the timeline must say what a tool acted ON', () => {
   // nothing about what the agent was hunting for. #520 gave shell tools their
   // real command; every other tool is owed the same.
 
-  it('names the thing ToolSearch is hunting for', () => {
+  it('names the thing ToolSearch is hunting for when a query is available', () => {
     const step = deriveStep({
       kind: 'tool',
       name: 'ToolSearch',
@@ -127,6 +127,28 @@ describe('activityLabels: the timeline must say what a tool acted ON', () => {
     expect(step.glyph).toBe('search');
     expect(step.label).toContain('trading strategies');
     expect(step.label).not.toBe('ToolSearch');
+  });
+
+  it('recovers the term from the no-match message Core echoes back', () => {
+    const step = deriveStep({
+      kind: 'tool',
+      name: 'ToolSearch',
+      detail: 'No deferred tools matching "wayland_search" found.',
+      command: undefined,
+    });
+    expect(step.label).toBe('Looking for a "wayland_search" tool');
+  });
+
+  it('never splices a serialized result blob into the label', () => {
+    // Measured live: the node's detail carries the tool-search RESULT, and a
+    // naive extraction rendered `Looking for a "[ { [... 197 similar lines`.
+    const step = deriveStep({
+      kind: 'tool',
+      name: 'ToolSearch',
+      detail: '[\n  {\n[... 197 similar lines]\n  }\n]',
+      command: undefined,
+    });
+    expect(step.label).toBe('Looking for a tool');
   });
 
   it('falls back to a plain phrase when no query can be recovered', () => {
