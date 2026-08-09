@@ -58,20 +58,37 @@ Gemini models. Committed as a gated test: `bun run test:mcp:e2e`.
 
 ---
 
-## 2. When the private Core build lands — do this, in this order
+## 2. The private Core build — DONE 2026-08-09 (`f94487a6b`, `3c9540145`, `5b2b8c627`)
 
-1. Drop the binary in and bump `DEFAULT_WCORE_VERSION` via
-   `node scripts/stage-wcore-bump.mjs vX.Y.Z --write`. A private build will **fail the publisher
-   attestation gate** (`verifyFinalAcceptance.js:196` needs exactly one active policy) — expect that
-   and do not weaken the gate to get past it; use a dev-only path.
-2. Re-run `bun run test:mcp:e2e`. It should still pass.
-3. **Delete the ToolSearch guidance** — `src/process/agent/wcore/toolSearchGuidance.ts` plus its
-   injection in `wcore/index.ts` and the four tests in `wcore-profileIsolation.test.ts`. It is
-   marked "DELETE THIS once Core fixes C-5" in the file. It is a workaround for a matcher bug and
-   should not outlive it.
-4. Re-run the live app turn and confirm an MCP tool's body executes **in the app**. That is the
-   moment the Master Class claim holds or does not.
-5. Re-measure the loop: tool-call mix and `finish_reason` should stop being `max_turns`.
+Binary `sha256:6d0ca72a…`, Core `fix/contract-corpus-host-parity` @ `d6f76c67`. **It self-reports
+`0.12.26`; identify it by sha, never by `--version`.** Steps 1–5 below are superseded by what
+actually happened; the full account is
+`.planning/REPLY-TO-CORE-2026-08-09-c1-c5-integration.md` and Core's answer to it.
+
+**Two things the old plan got wrong, so don't follow it verbatim next time:**
+
+- The blocker is **not** the publisher attestation gate — that only runs on
+  `verify:release-acceptance` and in release CI, never on a dev run. The real gate is
+  `stage-wcore-bump.mjs`, which needs a **published** release with all six platform checksums; a
+  hand-delivered binary cannot use it at all.
+- It is **not** a digit bump. The corpus moved 52 → 59 events (C-1), so all 173 corpus files were
+  ported from `d6f76c67`. And **there are three digest sets, not two** — the shipped engine's
+  (minor 12 / gen-13 / schema `23fb3048…`) is a third that Core's table did not list. Core has
+  since owned that and adopted absolute per-binary values as a standing rule.
+
+Done: corpus + pin moved to minor 13 / gen-14; the seven-event drift allowlist **deleted** (all
+seven now declared, checked name by name); `toolSearchGuidance.ts` **deleted** with its four tests
+and its use in the E2E — removed *before* measuring so it could not flatter the result.
+
+Measured, same prompt, matched control: **ToolSearch 23 → 10**, both runs produced an answer. The
+multi-KB echo never fired on the old binary either (largest body 117 chars), so Core's bounded-echo
+fix is **not** credited and stays unverified on their books. Core has taken the residual call count
+as their defect (`tool_search.rs:410` returns a bare dead-end miss string that tells the model
+nothing, so rephrasing is rational).
+
+The bundle manifest is deliberately left describing the **released** engine: this artifact has no
+publisher attestation, none was invented, and the resulting sha mismatch is a tripwire that makes
+`verify-packaged-resources` refuse to package it.
 
 ---
 
@@ -174,8 +191,22 @@ description and secret-masked. `deriveStep` now builds from the invocation first
 does not send the raw ToolSearch *argument* — the query shown comes from Core's own echo — so if that
 arg is ever plumbed through, `activityLabels.ts` already reads an explicit `query` field.
 
-### W-B — Integrate the private C-1…C-5 Core build **[S/M · blocked on Sean]**
-The five steps in §2.
+### W-B — Integrate the private C-1…C-5 Core build **[DONE 2026-08-09]**
+See §2. `f94487a6b` (integration) · `3c9540145` (reply to Core) · `5b2b8c627` (unlink-before-copy
+plus a correction to my own macOS claim). 16,328 tests, 0 failed.
+
+**Still open from the exchange, none blocking:**
+- **C-4 / the Gemini `position 2` 400 is untested by BOTH sides.** No request body has ever been
+  captured. Our runs were GPT-5.6 Sol. If anyone runs Gemini with reasoning and hits it, capture the
+  outbound body — specifically whether each `thought: true` part carries a `thoughtSignature` on
+  replay — because that is the only thing that closes it.
+- **Resumed sessions replay thoughts unsigned** (Core §6). We resume sessions AND run Gemini, so
+  this has a real victim. Core moved it up their list on the strength of that; it versions a journal
+  schema, so it is not quick. Nothing for us to build.
+- **Do not roll a journal back across binaries** — one written by the new engine cannot be read by
+  an older one (`deny_unknown_fields` on `ThinkingSignature`).
+- The macOS SIGKILL mechanism is **unproven** — see the correction in §6a of the reply. The guard
+  shipped anyway; do not repeat the cache story as fact.
 
 ### W-G — The renderer message index is not speaker-aware **[S/M · found by cross-audit]**
 `buildMessageIndex` maps a `msg_id` to the LAST message carrying it. WCore stamps the turn id on the
