@@ -309,7 +309,7 @@ const WorkbenchHost: React.FC<{
             horizontal text. */}
         {allSections.length > 0 && !panelOpen && (
           <nav
-            className='workbench-host__tabs absolute right-0 top-0 bottom-0 z-30 w-36px flex flex-col items-center border-l border-border-1 bg-bg-2 py-8px'
+            className='workbench-host__tabs absolute right-0 top-0 bottom-0 z-30 w-36px flex flex-col items-center border-l border-3 bg-2 py-8px'
             aria-label='Workbench sections'
           >
             <button
@@ -323,15 +323,30 @@ const WorkbenchHost: React.FC<{
           </nav>
         )}
 
+        {/* A detached card, not a flush column. This used to be the same surface
+            as the chat behind it with a single 1px left border, so the workbench
+            read as part of the background rather than as its own surface.
+            Rounding, a full border, inset margins and elevation give it an edge
+            on every side, which is what makes it legible as a distinct panel. */}
         {panelOpen && activeSection && (
           <aside
             className={classNames(
-              'workbench-host__panel flex flex-col min-h-0 bg-bg-2 border-l border-border-1 z-20',
-              overlay && 'workbench-host__panel--overlay absolute right-36px top-0 bottom-0 shadow-xl'
+              'workbench-host__panel flex flex-col min-h-0 bg-2 rounded-12px overflow-hidden z-20',
+              overlay && 'workbench-host__panel--overlay absolute right-36px top-0 bottom-0'
             )}
             style={{
               width: overlay ? `min(${width}px, calc(100% - 44px))` : `${width}px`,
-              marginRight: overlay ? undefined : '36px',
+              // The inset is what detaches the card from the window edge. In the
+              // docked case it composes with the 36px rail gutter.
+              margin: overlay ? '8px' : '8px 8px 8px 0',
+              marginRight: overlay ? '8px' : '44px',
+              // Border and elevation are set here rather than as utilities: the
+              // `border` and `shadow-*` classes both compiled to nothing in this
+              // build (measured 0px width, empty box-shadow), which is a large
+              // part of why the panel read as background. Theme vars keep it
+              // theme-aware.
+              border: '1px solid var(--bg-3)',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.32)',
             }}
             aria-label={`${typeof activeSection.label === 'string' ? activeSection.label : activeSection.id} workbench`}
             data-testid='workbench-panel'
@@ -345,7 +360,7 @@ const WorkbenchHost: React.FC<{
               className='workbench-host__resize absolute left-0 top-0 bottom-0 w-8px -translate-x-1/2 cursor-col-resize z-30'
               onPointerDown={beginResize}
             />
-            <header className='h-44px shrink-0 px-12px flex items-center gap-8px border-b border-border-1'>
+            <header className='h-44px shrink-0 px-12px flex items-center gap-8px border-b border-3'>
               <strong className='min-w-0 truncate' data-testid='workbench-panel-title'>
                 {activeSection.label}
               </strong>
@@ -373,7 +388,7 @@ const WorkbenchHost: React.FC<{
                 its title bar and nothing else. */}
             {allSections.length > 1 && (
               <nav
-                className='workbench-host__sections shrink-0 flex flex-col border-b border-border-1'
+                className='workbench-host__sections shrink-0 flex flex-col border-b border-3'
                 aria-label='Workbench sections'
               >
                 {allSections.map((section) => {
@@ -405,7 +420,7 @@ const WorkbenchHost: React.FC<{
         {!panelOpen && activeSection && activeSection.requestedOpen !== false && closedIds.has(activeSection.id) && (
           <button
             type='button'
-            className='absolute right-44px top-8px z-30 h-32px px-8px border border-border-1 rounded-6px bg-bg-2'
+            className='absolute right-44px top-8px z-30 h-32px px-8px border border-3 rounded-6px bg-2'
             aria-label='Reopen workbench'
             onClick={() => activate(activeSection.id)}
           >
