@@ -103,8 +103,39 @@ describe('ExecutionSpine', () => {
     const steps = screen.getByTestId('execution-mission-steps');
     expect(steps.textContent).toContain("Running printf 'ok'");
     expect(steps.textContent).toContain('Reading config.ts');
-    // A dispatched tool proves the run left the queue.
+    // A dispatched tool proves the run left the queue; one is still Executing,
+    // so the run has not settled.
     expect(screen.getByTestId('execution-mission-rail').textContent).toContain('running');
+  });
+
+  // A tool-only turn produces no `activity` message, which is the only thing
+  // that used to carry a terminal lifecycle - so a run that finished hours ago
+  // reloaded from the DB still wearing a blue "running" tag.
+  it('settles a tool-only turn once every tool is terminal', () => {
+    const messages = [
+      { id: 'user', conversation_id: 'c1', type: 'text', position: 'right', content: { content: 'go' } },
+      {
+        id: 'tools',
+        conversation_id: 'c1',
+        type: 'tool_group',
+        content: [
+          { callId: 'a', name: 'Bash', description: "Execute: printf 'ok'", status: 'Success' },
+          { callId: 'b', name: 'Bash', description: 'Execute: false', status: 'Error' },
+        ],
+      },
+    ] as TMessage[];
+    render(
+      <WorkbenchHost conversationId='c1'>
+        <MessageListProvider value={messages}>
+          <ExecutionSpine backend='wcore' conversationId='c1' workspaceId='workspace-1' agentId='wcore'>
+            <div>conversation</div>
+          </ExecutionSpine>
+        </MessageListProvider>
+      </WorkbenchHost>
+    );
+    const rail = screen.getByTestId('execution-mission-rail').textContent ?? '';
+    expect(rail).toContain('completed');
+    expect(rail).not.toContain('running');
   });
 
   // The rail renders the real invocation, so it inherits #610's obligation: an

@@ -54,6 +54,9 @@ function planStatus(status: 'pending' | 'in_progress' | 'completed'): ExecutionP
   return status === 'in_progress' ? 'in-progress' : status;
 }
 
+/** Tool states from which a tool cannot leave. Used to settle a tool-only turn. */
+const TERMINAL_TOOL_STATUSES = new Set<string>(['Success', 'Error', 'Canceled']);
+
 function toolGroupStatus(status: IMessageToolGroup['content'][number]['status']): ExecutionActivity['status'] {
   if (status === 'Success') return 'completed';
   if (status === 'Error') return 'failed';
@@ -205,7 +208,12 @@ export function adaptWCoreMessages(
             kind: activityKind(node.kind),
             name: node.name,
             status: activityStatus(node.status),
-            detail: node.detail,
+            // Same masking obligation as the tool_group branch below: `detail`
+            // reaches a rendered label. `command` was being dropped entirely,
+            // which also cost these steps their real labels ("Running a
+            // command" instead of the command).
+            detail: node.detail ? redactCommandSecrets(node.detail) : undefined,
+            ...(node.command ? { command: redactCommandSecrets(node.command) } : {}),
           },
         });
       }
@@ -247,6 +255,7 @@ export function adaptWCoreMessages(
         });
       }
       for (const tool of message.content) {
+        const command = toolGroupCommand(tool);
         append({
           eventId: `${message.id}:tool:${tool.callId}`,
           identity: context.identity,
@@ -262,7 +271,7 @@ export function adaptWCoreMessages(
             // `query: client_secret=...` rendered the live secret in the label
             // even though `command` beside it was correctly redacted.
             detail: tool.description ? redactCommandSecrets(tool.description) : undefined,
-            ...(toolGroupCommand(tool) ? { command: toolGroupCommand(tool) } : {}),
+            ...(command ? { command } : {}),
           },
         });
         const officeValidation = detectOfficeCliValidation(tool);
@@ -282,6 +291,29 @@ export function adaptWCoreMessages(
         }
       }
     }
+  }
+
+  // Settle a tool-only turn. WCore emits a terminal lifecycle only through
+  // `activity` messages, which such a turn never produces, so without this a
+  // run that finished hours ago still reloads from the DB wearing a blue
+  // "running" tag - the same class of lie as the "queued" it replaced.
+  //
+  // Safe because the projection is rebuilt from the whole window on every
+  // render rather than accumulated: mid-turn, the next tool re-enters the
+  // window and the run reads `running` again on its own.
+  const toolStatuses = messages
+    .filter((message): message is IMessageToolGroup => message.type === 'tool_group')
+    .flatMap((message) => message.content.map((tool) => tool.status));
+  const settled =
+    toolStatuses.length > 0 && toolStatuses.every((status) => TERMINAL_TOOL_STATUSES.has(status as string));
+  if (settled && !messages.some((message) => message.type === 'activity')) {
+    append({
+      eventId: `${context.identity.runId}:lifecycle:completed`,
+      identity: context.identity,
+      observedAt: context.observedAt,
+      type: 'lifecycle',
+      lifecycle: 'completed',
+    });
   }
   return events;
 }

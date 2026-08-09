@@ -300,17 +300,53 @@ describe('execution backend adapters', () => {
   // Progress and Observability showed one step out of eleven.
   it('keeps the whole WCore run when the user turn boundary is present', () => {
     const messages = [
+      { id: 'old-user', conversation_id: 'c1', type: 'text', position: 'right', content: { content: 'Earlier' } },
+      { id: 'old-tg', msg_id: 'turn-A', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'x' }] },
       { id: 'user', conversation_id: 'c1', type: 'text', position: 'right', content: { content: 'Do the thing' } },
-      { id: 'tg-1', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'a', name: 'ToolSearch' }] },
-      { id: 'tg-2', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'b', name: 'Bash' }] },
-      { id: 'tg-3', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'c', name: 'Bash' }] },
+      { id: 'tg-1', msg_id: 'turn-B', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'a' }] },
+      { id: 'tg-2', msg_id: 'turn-B', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'b' }] },
+      { id: 'tg-3', msg_id: 'turn-B', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'c' }] },
     ] as TMessage[];
 
+    // The current turn in full, and none of the completed turn before it.
     expect(selectCurrentExecutionMessages('wcore', messages).map((message) => message.id)).toEqual([
       'tg-1',
       'tg-2',
       'tg-3',
     ]);
+  });
+
+  // A receipt can land after the last tool group. It carries a synthetic
+  // `execution-evidence:<key>` msg_id, so picking the turn from the last
+  // message full stop would select the receipt's key and match nothing else -
+  // emptying the panel exactly where this fallback is meant to fill it.
+  it('does not let a trailing evidence message hijack the recovered turn', () => {
+    const messages = [
+      { id: 'reply', conversation_id: 'c1', type: 'text', position: 'left', content: { content: 'Done' } },
+      { id: 'tg-1', msg_id: 'turn-B', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'a' }] },
+      { id: 'tg-2', msg_id: 'turn-B', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'b' }] },
+      {
+        id: 'ev',
+        msg_id: 'execution-evidence:anvil:1',
+        conversation_id: 'c1',
+        type: 'execution_evidence',
+        content: { acceptedBy: 'desktop-core-v1-consumer', event: { type: 'anvil_receipt' } },
+      },
+    ] as TMessage[];
+
+    expect(selectCurrentExecutionMessages('wcore', messages).map((message) => message.id)).toEqual(['tg-1', 'tg-2']);
+  });
+
+  // With no turn id anywhere there is no boundary at all. Showing the tail is
+  // incomplete but bounded; showing everything would replay finished turns.
+  it('fails closed to the tail when nothing carries a turn id', () => {
+    const messages = [
+      { id: 'reply', conversation_id: 'c1', type: 'text', position: 'left', content: { content: 'Done' } },
+      { id: 'tg-1', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'a' }] },
+      { id: 'tg-2', conversation_id: 'c1', type: 'tool_group', content: [{ callId: 'b' }] },
+    ] as TMessage[];
+
+    expect(selectCurrentExecutionMessages('wcore', messages).map((message) => message.id)).toEqual(['tg-2']);
   });
 
   // Conversations corrupted by the user-bubble merge bug have no `text:right`

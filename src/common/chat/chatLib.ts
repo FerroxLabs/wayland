@@ -1250,7 +1250,11 @@ export const composeMessage = (
     return pushMessage(message);
   }
 
-  if (last.msg_id !== message.msg_id || last.type !== message.type) {
+  // The same speaker guard as the text branch above. This tail path still
+  // handles text whose msg_id is absent on both sides (GeminiAgentManager
+  // persists the user row with an `id` and no `msg_id`), so without it the
+  // reply could overwrite the prompt through this door instead.
+  if (last.msg_id !== message.msg_id || last.type !== message.type || !isSameSpeaker(last, message)) {
     return pushMessage(message);
   }
   return updateMessage(list.length - 1, Object.assign({}, last, message));

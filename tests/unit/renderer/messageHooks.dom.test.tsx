@@ -126,6 +126,66 @@ describe('message hooks cache merge', () => {
     expect(merged.map((message) => message.id)).toEqual(['db-1', 'stream-1']);
   });
 
+  // Two text rows now legitimately share one msg_id: WCore persists the user
+  // turn and streams the reply under the same turn id, and they are only kept
+  // apart by `position`. This merge keyed on msg_id alone, so it kept the LAST
+  // match (the assistant), then substituted it for the USER row on the
+  // content-length rule - an answer is longer than a prompt. The question
+  // disappeared from the rendered list and the reply appeared twice under one
+  // React key. Reachable on any remount with a turn in flight.
+  it('does not substitute the assistant reply for the user message that shares its turn id', async () => {
+    const dbMessages: TestMessage[] = [
+      {
+        id: 'turn-1',
+        msg_id: 'turn-1',
+        conversation_id: 'conv-1',
+        type: 'text',
+        position: 'right',
+        content: { content: 'Do X' },
+      },
+      {
+        id: 'reply-uuid',
+        msg_id: 'turn-1',
+        conversation_id: 'conv-1',
+        type: 'text',
+        position: 'left',
+        content: { content: 'Short' },
+      },
+    ];
+    mockGetConversationMessagesInvoke.mockResolvedValue(dbMessages);
+
+    // The live list holds the further-along assistant stream for the same turn.
+    const streaming: TestMessage[] = [
+      {
+        id: 'reply-uuid',
+        msg_id: 'turn-1',
+        conversation_id: 'conv-1',
+        type: 'text',
+        position: 'left',
+        content: { content: 'Short but considerably longer once streamed' },
+      },
+    ];
+
+    render(
+      <MessageListProvider value={streaming}>
+        <CacheProbe conversationId='conv-1' />
+      </MessageListProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('messages').textContent).toContain('turn-1');
+    });
+    const merged = JSON.parse(screen.getByTestId('messages').textContent ?? '[]') as TestMessage[];
+
+    const user = merged.filter((m) => m.position === 'right');
+    expect(user).toHaveLength(1);
+    expect(user[0].content.content).toBe('Do X');
+    // And the streamed reply still wins over the stale DB snapshot.
+    const reply = merged.filter((m) => m.position === 'left');
+    expect(reply).toHaveLength(1);
+    expect(reply[0].content.content).toBe('Short but considerably longer once streamed');
+  });
+
   it('adds optimistic messages and removes them by msg id', async () => {
     mockGetConversationMessagesInvoke.mockResolvedValue([]);
 

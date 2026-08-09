@@ -205,6 +205,14 @@ export const deriveStep = (
   const hay = `${node.name || ''} ${node.detail || ''}`;
   const lower = hay.toLowerCase();
   const command = node.command?.trim();
+  // Rules MATCH on name + detail; they BUILD from a haystack that puts the
+  // invocation FIRST, because extraction takes the earliest hit. `detail` is
+  // the tool's output, so a ReadFile whose command is "Read config.ts" but
+  // whose detail is the file's contents degraded to "Reading a file" - and the
+  // same tool then read differently in the chat and in the Progress rail.
+  // `command` is the invocation and arrives already secret-masked; `detail`
+  // stays as the fallback for nodes that carry no command.
+  const buildHay = command ? `${node.name || ''} ${command} ${node.detail || ''}` : hay;
   for (const rule of RULES) {
     if (rule.test.test(lower)) {
       // #520: for a shell/command tool, show the ACTUAL command instead of the
@@ -212,7 +220,7 @@ export const deriveStep = (
       // fix. Non-command glyphs (file/web/search) keep their richer humanized
       // labels, which already name the file/host/query.
       if (rule.glyph === 'command' && command) return { label: formatCommandLabel(command), glyph: 'command' };
-      return { label: rule.build(hay), glyph: rule.glyph };
+      return { label: rule.build(buildHay), glyph: rule.glyph };
     }
   }
   // Fallback. A bare tool name answers "which tool" but never "on what", which

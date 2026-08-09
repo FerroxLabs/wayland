@@ -14,7 +14,9 @@ type CanonicalRun = ReturnType<typeof selectCanonicalRunSnapshot>;
 
 /**
  * Reuse the chat timeline's humanizer so a step reads the same in both places
- * ("Running printf 'ok'", not "Bash"). The canonical activity kinds are named
+ * ("Running printf 'ok'", not "Bash") - which holds only because the humanizer
+ * builds from the invocation; a cross-audit caught the two diverging when it
+ * built from output instead. The canonical activity kinds are named
  * for the execution model; only two differ from the chat node's vocabulary, and
  * an unmapped kind falls through to the rule list on name + detail, which is
  * the same treatment an ordinary tool gets.

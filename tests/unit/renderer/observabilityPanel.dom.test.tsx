@@ -134,11 +134,9 @@ describe('ObservabilityPanel', () => {
     expect(screen.queryByText('Activity from this conversation will appear here.')).toBeNull();
     const panel = screen.getByTestId('observability-panel');
     expect(panel.textContent).toContain("Running printf 'ok'");
-    // "Reading a file", not "Reading config.ts": for a non-command tool the
-    // humanizer reads name + `detail`, and a tool_group node's detail is its
-    // RESULT, so the description never reaches the label. Pre-existing, tracked
-    // as W-C; asserted here as-is so a future fix has to update it deliberately.
-    expect(panel.textContent).toContain('Reading a file');
+    // The same label the Progress rail shows for the same tool - the humanizer
+    // builds from the invocation, not from the tool's output.
+    expect(panel.textContent).toContain('Reading config.ts');
   });
 
   it('hides per-turn cost by default and shows it after toggling Show cost on', () => {

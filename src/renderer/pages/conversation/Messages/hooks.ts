@@ -171,7 +171,7 @@ function composeMessageWithIndex(message: TMessage, list: TMessage[], index: Mes
         // user's bubble would swallow their question, which is exactly what the
         // process-side merge did to stored history. Fall through to append a
         // separate bubble instead. Mirrors composeMessage's isSameSpeaker guard.
-        if (existingMsg.position !== undefined && existingMsg.position !== message.position) {
+        if (existingMsg.position !== message.position) {
           const appendedIdx = list.length;
           index.msgIdIndex.set(message.msg_id, appendedIdx);
           return list.concat(message);
@@ -486,20 +486,28 @@ export const useMessageLstCache = (key: string) => {
             const dbIds = new Set(messages.map((m) => m.id));
             const dbMsgIds = new Set(messages.map((m) => m.msg_id).filter(Boolean));
 
-            // Build a map of streaming messages by msg_id for content-length comparison.
+            // Build a map of streaming messages for content-length comparison.
             // During streaming, the DB may have an older snapshot (due to 2000ms save debounce),
             // so we keep whichever version has more content to avoid losing streamed data.
+            //
+            // Keyed by msg_id AND position, never msg_id alone: a turn id names
+            // the TURN, so the user's message and the assistant's reply share
+            // one. Under a msg_id-only key the map kept the assistant, and the
+            // length rule below then substituted it for the USER row - a reply
+            // is longer than a prompt - erasing the question from the rendered
+            // list and duplicating the reply under one React key.
+            const speakerKey = (m: TMessage): string => `${m.msg_id} ${m.position ?? ''}`;
             const streamingByMsgId = new Map<string, TMessage>();
             for (const m of sameConversation) {
               if (m.msg_id && m.type === 'text' && dbMsgIds.has(m.msg_id)) {
-                streamingByMsgId.set(m.msg_id, m);
+                streamingByMsgId.set(speakerKey(m), m);
               }
             }
 
             // Replace DB messages with streaming versions when streaming has more content
             const mergedMessages = messages.map((dbMsg) => {
               if (!dbMsg.msg_id || dbMsg.type !== 'text') return dbMsg;
-              const streamMsg = streamingByMsgId.get(dbMsg.msg_id);
+              const streamMsg = streamingByMsgId.get(speakerKey(dbMsg));
               if (!streamMsg) return dbMsg;
               const dbContent =
                 typeof dbMsg.content === 'object' && 'content' in dbMsg.content
