@@ -149,6 +149,29 @@ const ActivityTimeline: React.FC<Props> = ({ steps, defaultExpanded }) => {
 
   if (steps.length === 0) return null;
 
+  /**
+   * A group of one is not a group, and promoting its label into a summary header
+   * was only half the fix: the header and the row it wrapped then rendered the
+   * SAME text twice, stacked. Live-testing caught that; the unit test did not,
+   * because it asserted the label was PRESENT rather than how many times.
+   *
+   * StepRow already carries the glyph, the label and its own expander for detail,
+   * children and sources - so a lone step renders as itself, one level down, with
+   * no wrapper above it to duplicate.
+   */
+  if (steps.length === 1) {
+    return (
+      <div
+        className={styles.container}
+        data-testid='activity-timeline'
+        data-timeline-status={status}
+        data-sole-step='true'
+      >
+        <StepRow step={steps[0]} />
+      </div>
+    );
+  }
+
   const runningCount = steps.filter((s) => s.status === 'running').length;
   const toggle = (): void => setExpanded((v) => !v);
 

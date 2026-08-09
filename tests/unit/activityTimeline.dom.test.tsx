@@ -116,7 +116,12 @@ describe('ActivityTimeline', () => {
   });
 
   it('auto-collapses on the running -> done edge', () => {
-    const running = [step({ id: 'a', label: 'Working now', status: 'running', startTime: 1000, endTime: undefined })];
+    // Two steps: collapse is a GROUP behaviour, and a lone step now renders as a
+    // bare row with no group header to collapse.
+    const running = [
+      step({ id: 'a', label: 'Working now', status: 'running', startTime: 1000, endTime: undefined }),
+      step({ id: 'b', label: 'Also working', status: 'running', startTime: 1000, endTime: undefined }),
+    ];
     const { rerender } = render(<ActivityTimeline steps={running} />);
     // While running: expanded, label visible.
     expect(screen.getByText('Working now')).toBeTruthy();
@@ -125,7 +130,10 @@ describe('ActivityTimeline', () => {
     // Same instance finishes -> edge fires -> collapses to the summary.
     rerender(
       <ActivityTimeline
-        steps={[step({ id: 'a', label: 'Working now', status: 'done', startTime: 1000, endTime: 2000 })]}
+        steps={[
+          step({ id: 'a', label: 'Working now', status: 'done', startTime: 1000, endTime: 2000 }),
+          step({ id: 'b', label: 'Also working', status: 'done', startTime: 1000, endTime: 2000 }),
+        ]}
       />
     );
     expect(screen.getByTestId('activity-timeline').getAttribute('data-timeline-status')).toBe('done');
@@ -138,13 +146,14 @@ describe('ActivityTimeline', () => {
     expect(screen.getByText(/Working now/)).toBeTruthy();
   });
 
-  it('promotes the sole step label instead of saying "Did 1 things"', () => {
+  it('renders a lone step as itself, exactly once', () => {
     render(<ActivityTimeline steps={[step({ id: 'a', label: 'Looking for a "load skill" tool' })]} />);
-    expect(screen.getByText(/Looking for a "load skill" tool/)).toBeTruthy();
-    // The ungrammatical group-of-one header must be gone entirely, not merely
-    // reworded - it hid exactly one row that said more than the header did.
-    expect(screen.queryByText(/Did 1 things/)).toBeNull();
+    // Assert the COUNT, not mere presence. The previous fix promoted the label
+    // into a summary header while still rendering the row beneath it, so the
+    // same line appeared twice - and a presence-only assertion passed anyway.
+    expect(screen.getAllByText(/Looking for a "load skill" tool/)).toHaveLength(1);
     expect(screen.queryByText(/Did \d+ things/)).toBeNull();
+    expect(screen.getByTestId('activity-timeline').getAttribute('data-sole-step')).toBe('true');
   });
 
   it('still counts when there is genuinely more than one step', () => {
