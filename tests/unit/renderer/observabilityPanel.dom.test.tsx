@@ -111,6 +111,36 @@ describe('ObservabilityPanel', () => {
   // panelOpen and unmounts the panel - is covered end to end by
   // wcoreChatObservability.dom.test.tsx, "closing the panel from the card".
 
+  // WCore reports tool work as `tool_group`, never as `activity`. The panel
+  // filtered for `activity` + `sub_agent` only, so a real WCore turn showed
+  // "Activity from this conversation will appear here." while the chat next to
+  // it listed the tools - measured live against the engine. The chat renders
+  // those same messages through toolSummaryToSteps; the panel must too.
+  it('renders WCore tool_group turns, which are the only activity WCore reports', () => {
+    messageList = [
+      text('t1'),
+      {
+        id: 'tg1',
+        msg_id: 'turn-1',
+        conversation_id: 'c1',
+        type: 'tool_group',
+        content: [
+          { callId: 'a', name: 'Bash', description: "Execute: printf 'ok'", status: 'Success' },
+          { callId: 'b', name: 'ReadFile', description: 'Read config.ts', status: 'Executing' },
+        ],
+      } as unknown as TMessage,
+    ];
+    render(<ObservabilityPanel messages={messageList} />);
+    expect(screen.queryByText('Activity from this conversation will appear here.')).toBeNull();
+    const panel = screen.getByTestId('observability-panel');
+    expect(panel.textContent).toContain("Running printf 'ok'");
+    // "Reading a file", not "Reading config.ts": for a non-command tool the
+    // humanizer reads name + `detail`, and a tool_group node's detail is its
+    // RESULT, so the description never reaches the label. Pre-existing, tracked
+    // as W-C; asserted here as-is so a future fix has to update it deliberately.
+    expect(panel.textContent).toContain('Reading a file');
+  });
+
   it('hides per-turn cost by default and shows it after toggling Show cost on', () => {
     messageList = [
       activity('a1', {

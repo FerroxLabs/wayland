@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { toolGroupCommand } from '@/common/chat/activity/projectMessages';
 import type { ActivityNode, IMessageExecutionEvidence, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
 import type { DeclaredArtifactType, ExecutionActivity, ExecutionEvent, ExecutionPlanStep } from '../types';
 import type { ExecutionAdapterContext } from './types';
@@ -256,9 +257,11 @@ export function adaptWCoreMessages(
             name: tool.name,
             status: toolGroupStatus(tool.status),
             detail: tool.description,
-            // A tool_group's `description` is the invocation ("Execute: printf
-            // 'ok'"), not output, so it is safe to render as the step label.
-            ...(tool.description ? { command: tool.description } : {}),
+            // A tool_group's description/exec command is the invocation, not
+            // output, so it is safe to render as the step label - but it must
+            // go through the same secret masking the chat timeline uses (#610),
+            // or an inline credential in a shell command lands in the rail.
+            ...(toolGroupCommand(tool) ? { command: toolGroupCommand(tool) } : {}),
           },
         });
         const officeValidation = detectOfficeCliValidation(tool);

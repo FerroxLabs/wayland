@@ -4,7 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { IMessageActivity, IMessageSubAgent, TMessage } from '@/common/chat/chatLib';
+import { toolSummaryToSteps } from '@/common/chat/activity/projectMessages';
+import type { IMessageActivity, IMessageSubAgent, IMessageToolGroup, TMessage } from '@/common/chat/chatLib';
+import ActivityTimeline from '@/renderer/components/chat/observability/ActivityTimeline';
 import { useObservabilitySettings } from '@/renderer/hooks/settings/useObservabilitySettings';
 import { Switch } from '@arco-design/web-react';
 import React, { useMemo } from 'react';
@@ -26,8 +28,15 @@ import styles from './ObservabilityPanel.module.css';
  * (off by default).
  */
 
-const isObservable = (m: TMessage): m is IMessageActivity | IMessageSubAgent =>
-  m.type === 'activity' || m.type === 'sub_agent';
+/**
+ * `activity` and `sub_agent` are the Gemini/ACP shapes. WCore reports its tool
+ * work as `tool_group` and never emits an `activity` message at all, so a real
+ * WCore turn left this panel on its empty hint while the chat beside it listed
+ * every tool. The chat projects those same messages through toolSummaryToSteps;
+ * doing it here keeps one projection, not two renderings of one truth.
+ */
+const isObservable = (m: TMessage): m is IMessageActivity | IMessageSubAgent | IMessageToolGroup =>
+  m.type === 'activity' || m.type === 'sub_agent' || m.type === 'tool_group';
 
 /**
  * Body only. The workbench card owns the title and the close control, so this
@@ -54,6 +63,10 @@ const ObservabilityPanel: React.FC<{ messages: readonly TMessage[] }> = ({ messa
           observableMessages.map((m) =>
             m.type === 'sub_agent' ? (
               <SubAgentActivityCard key={m.id} message={m} />
+            ) : m.type === 'tool_group' ? (
+              // Expanded by default: in the chat a collapsed "Did 3 things" keeps
+              // the conversation calm, but this panel exists to show the detail.
+              <ActivityTimeline key={m.id} steps={toolSummaryToSteps([m])} defaultExpanded />
             ) : (
               <MessageActivity key={m.id} message={m} showCost={settings.showCost} />
             )

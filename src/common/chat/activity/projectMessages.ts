@@ -70,7 +70,7 @@ const WEB_SEARCH_RE = /^web$|web[_-]?search|google[_-]?search|search[_-]?web|bra
  * merge. Fall back to the item `description` (which the wcore mapper carries as
  * "Execute: <cmd>") so a non-exec command-ish tool still surfaces something.
  */
-const toolGroupCommand = (t: IMessageToolGroup['content'][number]): string | undefined => {
+export const toolGroupCommand = (t: IMessageToolGroup['content'][number]): string | undefined => {
   // Mask inline secrets before the command drives the activity step label
   // ("Running <cmd>") and any downstream node display (#610). This is the choke
   // point for the timeline command; render components mask their own sites too.

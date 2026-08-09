@@ -107,6 +107,39 @@ describe('ExecutionSpine', () => {
     expect(screen.getByTestId('execution-mission-rail').textContent).toContain('running');
   });
 
+  // The rail renders the real invocation, so it inherits #610's obligation: an
+  // inline credential must be masked before it reaches the label.
+  it('masks an inline secret in a rendered step command', () => {
+    const messages = [
+      { id: 'user', conversation_id: 'c1', type: 'text', position: 'right', content: { content: 'go' } },
+      {
+        id: 'tools',
+        conversation_id: 'c1',
+        type: 'tool_group',
+        content: [
+          {
+            callId: 'a',
+            name: 'Bash',
+            description: 'Execute: curl -H "Authorization: Bearer sk-ant-secretvalue123456" https://x.test',
+            status: 'Success',
+          },
+        ],
+      },
+    ] as TMessage[];
+    render(
+      <WorkbenchHost conversationId='c1'>
+        <MessageListProvider value={messages}>
+          <ExecutionSpine backend='wcore' conversationId='c1' workspaceId='workspace-1' agentId='wcore'>
+            <div>conversation</div>
+          </ExecutionSpine>
+        </MessageListProvider>
+      </WorkbenchHost>
+    );
+    const steps = screen.getByTestId('execution-mission-steps');
+    expect(steps.textContent).not.toContain('sk-ant-secretvalue123456');
+    expect(steps.textContent).toContain('••••••');
+  });
+
   it('does not overwhelm an ordinary chat with an empty mission rail', () => {
     render(
       <WorkbenchHost conversationId='conversation-1'>
