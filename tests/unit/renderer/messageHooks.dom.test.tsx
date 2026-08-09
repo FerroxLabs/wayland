@@ -298,6 +298,39 @@ describe('composeMessageWithIndex - activity merge (#252)', () => {
       expect(list.filter((m) => m.type === 'activity')).toHaveLength(1);
     });
   });
+
+  // A `tool_group` carries the TURN id in msg_id - identical to the assistant
+  // text of that turn (confirmed against a live profile DB). Its branch rebuilds
+  // the whole index, and buildMessageIndex maps a msg_id to the LAST message
+  // carrying it, so msgIdIndex[turn] then points at the tool_group. The next
+  // assistant delta looks there, finds a non-text message, and opens a SECOND
+  // bubble - fragmenting the reply around every tool call.
+  it('keeps the reply in one bubble when a tool_group shares the turn id', async () => {
+    const text = (content: string) =>
+      ({
+        id: 'x',
+        msg_id: 'turn-1',
+        type: 'text',
+        position: 'left',
+        conversation_id: 'conv-1',
+        content: { content },
+      }) as TMessage;
+    const toolGroup = {
+      id: 'tg-1',
+      msg_id: 'turn-1',
+      type: 'tool_group',
+      conversation_id: 'conv-1',
+      content: [{ callId: 'c1', name: 'Bash', description: 'Execute: true', status: 'Success' }],
+    } as unknown as TMessage;
+
+    await waitFor(async () => {
+      const list = await runStream([text('Hello '), toolGroup, text('World')]);
+      const textCards = list.filter((m) => m.type === 'text');
+      expect(textCards).toHaveLength(1);
+      expect((textCards[0] as Extract<TMessage, { type: 'text' }>).content.content).toBe('Hello World');
+      expect(list.filter((m) => m.type === 'tool_group')).toHaveLength(1);
+    });
+  });
 });
 
 describe('composeMessageWithIndex - sub_agent subtree merge (#252 Phase 2)', () => {
