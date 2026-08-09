@@ -1,9 +1,13 @@
-# WLD-K handoff v3 — MCP root-caused and filed, workbench redesigned
+# WLD-K handoff v3 — MCP filed, workbench redesigned, Progress + Observability fixed
 
 **Worktree** `~/dev/wayland-worktrees/packet-attribution`, branch `packet/attribution-audit`,
-head **`d61f38300`**, in sync with `ferrox`. Full suite **16,321 passed, 0 failed**, typecheck clean.
+head **`346f2c479`**, in sync with `ferrox`. Full suite **16,334 passed, 0 failed**, typecheck clean.
 **Nothing merged, nothing tagged, no PR.** Only `AGENTS.md` and the never-commit
 `constitutionFsAuthority.generated.ts` are dirty (both permanent).
+
+**Newest first: §3 is now the Progress/Observability fix, and it corrects the v3 diagnosis that was
+in this slot.** The panels were not starved by a turn-boundary heuristic; the assistant reply was
+overwriting the user's own message in the database. W-A and W-C are closed.
 
 **Read in this order**
 1. this file
@@ -71,32 +75,64 @@ Gemini models. Committed as a gated test: `bun run test:mcp:e2e`.
 
 ---
 
-## 3. Progress panel is broken — root-caused, NOT fixed
+## 3. Progress and Observability — FIXED (W-A closed, 2026-08-09)
 
-Sean: *"the main thing with the sidebar is to show progress"*. It does not work, and it is not just
-conditional-and-quiet. Instrumented live:
+**The v3 diagnosis above was wrong, and the real cause is worse.** It read the symptom (`afterFilter:
+0`) as a turn-boundary heuristic problem. It was not. Corrected by execution:
 
-```
-visible: false · plan: 0 · activities: 0 · msgs: 7 · afterFilter: 0
-```
+**The assistant reply was overwriting the user's own message.** WCore persists the user turn with
+`msg_id === id ===` the turn id, then streams the reply under that same id. `composeMessage`'s text
+branch matched on `msg_id` alone, found the user's bubble, appended the reply to the prompt, and
+`Object.assign` flipped `position` from `right` to `left`. Proven on a live profile DB — one row
+holding *"Call the aion_list_models tool and paste its raw output verbatim."* glued to *"I couldn't
+call `aion_list_models`: ..."* as a single left bubble. **The user's question is gone from stored
+history and cannot be recovered** — the concatenation has no separator.
 
-Seven messages in the conversation, **zero reaching the execution snapshot**. The WCore message
-order is:
+Every corrupted conversation is therefore missing its `text:right`, which is the boundary
+`selectCurrentExecutionMessages` slices on. Without it the WCore branch fell through to a generic
+tail split keyed on `activity` messages that a tool-running WCore turn never emits, so it returned
+**one** trailing `tool_group`.
 
-```
-text:left · tool_group · tool_group · tool_group · text:right · text:right · tips:center
-```
+**Observability was a SEPARATE defect, not the same starvation.** It never called
+`selectCurrentExecutionMessages` at all. It filtered for `activity` + `sub_agent` — the Gemini/ACP
+shapes — while WCore reports tool work as `tool_group`. Empty by construction. Two panels, two
+causes; the v3 "one fix, two panels" claim was mine and it was wrong.
 
-`selectCurrentExecutionMessages` (`src/common/execution/adapters/messages.ts:43-52`) treats
-*everything after the last user message* as the current turn. The last `text:right` is at index 5,
-so it slices to `[tips:center]` and discards the three `tool_group` messages at indices 1–3. The
-turn-boundary heuristic does not hold on the WCore path.
+**A third gap:** `MissionProgressPanel` rendered plan steps, plan history, outcomes, handoffs and
+cost — but never `run.activities`. A turn with tools and no plan had nothing to show even with data
+flowing.
 
-**Same starvation breaks Observability**, which also shows an empty state while the chat plainly
-lists tool calls. **One fix, two panels.**
+**Live proof, real engine, real corrupted conversation** (25 tool calls, no user bubble): the rail
+went from **1 step to 25**, labelled with the real queries — and it now makes C-5b visible in the
+product ("Looking for a web tool", "Looking for a Skill tool", ... fifteen times).
 
-Not attempted because the same function serves the ACP and Gemini paths, so the boundary rule needs
-its own packet rather than a bolt-on. **This is the highest-value remaining host-side item.**
+Cross-audited by Codex 5.6 Sol + Kimi K3 + the internal reviewer. **All three found real defects in
+my work; the audit was worth more than the build.**
+
+- Both external legs reproduced the same one: the no-boundary fallback **replayed completed
+  historical turns**. Fixed by recovering the turn from `msg_id`, which WCore stamps on every message
+  of a turn (verified in the DB). Plus a secret reaching a label through `detail`, a needless
+  permissive wildcard, and a missing i18n key — `5d66c177a`.
+- The internal reviewer then found a **regression my own fix introduced**: `useMessageLstCache` keyed
+  its streaming map on `msg_id` alone, so once two text rows legitimately shared a turn id it kept
+  the assistant and substituted it for the **user** row on the content-length rule — deleting the
+  question a second time, by a different door. Also the adapter's `activity` branch still leaked raw
+  `detail`, the fallback had two more holes, and a completed turn wore a blue "running" badge
+  forever. All fixed — `346f2c479`.
+- **One of my own tests was vacuous** (it took the identical branch on old code) and one masking
+  assertion was too — the 40-char label cap truncated the secret I was matching on. Both replaced
+  with controls that fail without the fix.
+
+**Known-unfixed, deliberately (now W-G):** `buildMessageIndex` maps a `msg_id` to the LAST message
+carrying it, so after a `tool_group` rebuilds the renderer index a following assistant delta finds a
+non-text message and starts a new bubble. Pre-dates this packet, spans every backend.
+
+**Open judgement call for Sean:** a *boundary-only* migration is available for the corrupted rows —
+they are identifiable as `type='text' AND position='left' AND id = msg_id`, and flipping them back to
+`right` would restore the turn boundary and let the `msg_id` fallback be deleted. The content stays
+unrecoverable either way. It has one known false positive (`emitTruncationFlag` legitimately writes
+`id === msg_id` with `position:'left'`) that the predicate would need to exclude. **Not run** — it
+rewrites the user's stored history, which is Sean's call, not mine.
 
 ---
 
@@ -125,19 +161,27 @@ its own packet rather than a bolt-on. **This is the highest-value remaining host
 
 ## 5. Work list
 
-### W-A — Fix the execution-snapshot turn boundary **[M · highest value]**
-See §3. Unblocks **both** Progress and Observability. Touches ACP/Gemini too, so establish the
-correct boundary rule rather than special-casing WCore.
-*Done when:* a live WCore turn populates Progress with its plan steps and Observability with its
-activity, proven by running it, plus a regression test using the real message order above.
+### W-A — Progress + Observability **[DONE 2026-08-09]**
+See §3. Five commits: `7d7ae8418` (the merge bug), `4b8ce32d3` (Steps taken), `adfe1f98f`
+(Observability + a masking defect in my own rail), `5d66c177a` + `346f2c479` (cross-audit fixes).
+Live-verified on a real engine turn and on a real corrupted conversation: **1 step → 25**, badge
+`queued` → `running` → `completed` as the run actually settles. 16,334 tests, 0 failed.
+
+### W-C — Carry the tool's subject through to the label **[DONE 2026-08-09]**
+`ExecutionActivity` gained a `command` field distinct from `detail`, populated from a tool_group's
+description and secret-masked. `deriveStep` now builds from the invocation first and falls back to
+`detail`, so a ReadFile reads "Reading config.ts" in **both** the chat and the rail. The engine still
+does not send the raw ToolSearch *argument* — the query shown comes from Core's own echo — so if that
+arg is ever plumbed through, `activityLabels.ts` already reads an explicit `query` field.
 
 ### W-B — Integrate the private C-1…C-5 Core build **[S/M · blocked on Sean]**
 The five steps in §2.
 
-### W-C — Carry the ToolSearch query through to the renderer **[S]**
-A tool node's `detail` holds the tool's **output**, not its input — the query never reaches the UI,
-which is why labels fall back to "Looking for a tool". Plumb the arg from the engine event into the
-`tool_group` message so the real term shows. Small, and it makes the timeline genuinely readable.
+### W-G — The renderer message index is not speaker-aware **[S/M · found by cross-audit]**
+`buildMessageIndex` maps a `msg_id` to the LAST message carrying it. WCore stamps the turn id on the
+user text, the assistant text AND every `tool_group`, so once a tool_group rebuilds the index a
+following assistant delta finds a non-text message and opens a new bubble — fragmenting prose.
+Pre-dates this packet and spans every backend, so it was deliberately NOT bolted onto W-A.
 
 ### W-D — The `bg-bg-*` sweep **[S/M]**
 15 other files use `bg-bg-2` and are presumably invisible the same way the workbench was. Deliberately
