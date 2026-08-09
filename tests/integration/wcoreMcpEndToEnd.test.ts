@@ -35,7 +35,6 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { TOOL_SEARCH_GUIDANCE } from '@process/agent/wcore/toolSearchGuidance';
 
 const ENABLED = process.env.WCORE_MCP_E2E === '1';
 
@@ -219,11 +218,9 @@ async function runTurn(prompt: string): Promise<TurnResult> {
               env: { PROBE_WITNESS: witnessPath, PROBE_SENTINEL: SENTINEL },
             })}\n`
           );
-          // Exactly what production sends, imported rather than copied so the
-          // two cannot drift: this test must cover the real mitigation.
-          child.stdin.write(
-            `${JSON.stringify({ type: 'init_history', text: TOOL_SEARCH_GUIDANCE })}\n`
-          );
+          // No ToolSearch guidance is injected any more - C-5 is fixed in the
+          // engine, so production sends nothing here and neither does this test.
+          // That is the point: the engine has to find the tool unaided.
           // Let the server connect and report before the turn starts; the
           // engine only exposes tools it has a receipt for.
           messageTimer = setTimeout(() => {

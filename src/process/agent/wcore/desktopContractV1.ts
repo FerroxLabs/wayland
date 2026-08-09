@@ -15,16 +15,33 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '98ad1c2836a543385a7a4298f4b3e54a55867ac5' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = 'd6f76c67' as const;
 
+/**
+ * Pinned to Core branch `fix/contract-corpus-host-parity` @ `d6f76c67`, the tree
+ * the C-1..C-5 integration binary was built from
+ * (`sha256:6d0ca72a1ca5afa7d33a337a73a6a389a1075d583a97e14096aaebc583b08a08`;
+ * it still self-reports `0.12.26`, so identify it by sha, never by --version).
+ *
+ * The observer compares these for EQUALITY, so a stale pin dies on frame 1.
+ *
+ * ⚠️ Core's handoff describes TWO valid sets and says schema_digest is
+ * "unchanged". That is true between their two DEV commits and FALSE for us:
+ * shipped v0.12.26 advertises minor 12 / gen-13 / schema `23fb3048…`, which is
+ * a THIRD set their table does not list. Verified by grepping the embedded
+ * manifest out of both binaries. Anyone re-pinning by following "unchanged"
+ * literally would keep `23fb3048…` and die on frame 1 - so the digests below
+ * were taken from the manifest at `d6f76c67` and then confirmed present in the
+ * binary itself, not copied from the table.
+ */
 export const DESKTOP_CORE_V1_PIN = {
   name: 'wayland-desktop-core',
   major: 1,
-  minor: 12,
-  generator: 'wcore-desktop-contract-gen/13',
-  fixtureDigest: 'sha256:aa95fefa7a822b0b7adede96c9c72fe3f8fe8dde1da25d4af9135bafaf39be10',
-  schemaDigest: 'sha256:23fb30488d5a71521a13403dea1dc02cb8690ceec40f72aecd89b54bc5810edb',
-  sourceInputsDigest: 'sha256:e762ec2e2084b75bf384dcef24f5edfc5a815d79c2abc59766d0e225a61775f2',
+  minor: 13,
+  generator: 'wcore-desktop-contract-gen/14',
+  fixtureDigest: 'sha256:710a602f3341dc307a544d90d544c1b9ff7eb0b3e40e7b503894f06c912cac43',
+  schemaDigest: 'sha256:4971f456655a6ee7c063a3417ebf82a27a8550420d3e6ed744bdd4be696956e9',
+  sourceInputsDigest: 'sha256:6802f807b3a0c338ee6ed004a8463aad5121ff45b23c89e73dd5d4ea45ccc8fb',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
@@ -46,45 +63,27 @@ export const DESKTOP_CORE_V1_PIN = {
   },
 } as const;
 
-/**
- * Event types the pinned producer really emits but its own generated corpus
- * does not declare.
+/*
+ * The seven-event corpus-drift allowlist that used to live here is GONE, and
+ * deliberately so.
  *
- * Core's `PRODUCER_EVENT_TYPES` (`crates/wcore-protocol/src/contract/spec.rs`,
- * commit {@link DESKTOP_CORE_V1_PRODUCER_COMMIT}) lists 59 producer events; the
- * manifest generated from the same tree lists 52. These seven are the
- * difference. Core's own reference host observer accepts them off that list, so
- * the manifest - the artifact hosts are told to validate against -
- * under-declares the wire.
+ * It existed because Core's producer emitted 59 event types while the corpus
+ * generated from the same tree declared only 52 - and `workspace_policy` fires
+ * immediately after `ready` on every session, so that one frame failed every
+ * session closed. That was C-1, and it is fixed at
+ * {@link DESKTOP_CORE_V1_PRODUCER_COMMIT}: the manifest now declares all 59,
+ * verified by checking each of the seven names against `manifest.counts` and
+ * the events list rather than trusting the changelog.
  *
- * This is not academic: `workspace_policy` is emitted immediately after `ready`
- * on every session and carries no `critical` flag, so the unknown-event rule
- * (correctly) fails the session closed before a single turn can run. That is
- * the entire reason Desktop could not talk to v0.12.26.
+ * Those types are therefore no longer "unknown", so the allowlist branch was
+ * unreachable for them - dead code guarding a fixed bug. They now take the
+ * ordinary path: schema-validated, then dispatched, where `WCoreAgent`'s
+ * `default:` arm logs and drops the ones Desktop has no model for. Same
+ * outcome, one mechanism instead of two, and a real schema check on the way in.
  *
- * These are DROPPED, never dispatched. Desktop has no handler for any of them,
- * so dropping matches what a legacy (pre-corpus) engine already produced in
- * practice, and it deliberately does not widen the unknown-event rule for
- * anything outside this list. Delete entries as Core adds them to the corpus;
- * the list must never grow without a matching producer declaration.
+ * Its own instruction was "delete entries as Core adds them to the corpus".
+ * Core added all seven.
  */
-const PRODUCER_DECLARED_UNMODELLED_EVENTS: ReadonlySet<string> = new Set([
-  'capability_activation',
-  'compact_offload',
-  'mid_flight_monitor_decision',
-  'provider_attempt',
-  'provider_failure',
-  'provider_retry',
-  'workspace_policy',
-]);
-
-/**
- * The subset of {@link PRODUCER_DECLARED_UNMODELLED_EVENTS} that carries session
- * security posture rather than telemetry. Dropping these is a stopgap until
- * Core ships fixtures for them (ENG-04) - they are logged so the gap is
- * observable rather than invisible.
- */
-const SAFETY_CLASS_UNMODELLED_EVENTS: ReadonlySet<string> = new Set(['workspace_policy', 'capability_activation']);
 
 const ajv = new Ajv2020({ allErrors: true, strict: false });
 const validateEventSchema = ajv.compile(coreEventSchema as object);
@@ -873,22 +872,6 @@ export class DesktopCoreV1Consumer {
       }
       assertNoRequiredExtensions(object, type);
       if (!knownEventTypes.has(type)) {
-        // The allowlist is by TYPE; the frame still gets a say. A producer that
-        // marks one of these `critical: true` is telling the host it must not
-        // proceed without understanding it, and Desktop cannot - so it fails
-        // closed exactly as it would for any other critical unknown. Checking
-        // the allowlist first would have let a critical frame through silently
-        // (cross-audit, Codex 5.6 Sol).
-        if (object.critical !== true && PRODUCER_DECLARED_UNMODELLED_EVENTS.has(type)) {
-          // workspace_policy and capability_activation describe session security
-          // posture. Desktop has no model for them yet, so they are dropped -
-          // but never silently: a posture change that Desktop ignored has to be
-          // visible in the log and in any bug report built from it.
-          if (SAFETY_CLASS_UNMODELLED_EVENTS.has(type)) {
-            console.warn('[DesktopCoreV1Consumer] dropped an unmodelled safety-class Core event', { type });
-          }
-          return { kind: 'drop', reason: 'producer_declared_unmodelled' };
-        }
         if (object.critical === false) return { kind: 'drop', reason: 'unknown_noncritical' };
         fail(
           object.critical === true ? 'unknown_critical' : 'unknown_criticality',

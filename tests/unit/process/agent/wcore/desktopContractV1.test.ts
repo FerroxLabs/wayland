@@ -138,8 +138,8 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('98ad1c2836a543385a7a4298f4b3e54a55867ac5');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 12 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('d6f76c67');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 13 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
@@ -186,9 +186,14 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     expect(digestNamed(schemaEntries)).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
   });
 
-  it('contains exactly the advertised 23 commands, 52 events, and 161 fixtures', () => {
-    expect(manifest.counts).toEqual({ child_types: 3, commands: 23, events: 52, fixtures: 161 });
-    expect(manifest.fixture_inventory).toHaveLength(161);
+  // 52 -> 59 events is C-1: the seven producer events the old corpus omitted
+  // are now declared, so the corpus finally describes the whole wire.
+  it('contains exactly the advertised 23 commands, 59 events, and 168 fixtures', () => {
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 23, events: 59, fixtures: 168 });
+    // The inventory and the declared count must agree - a corpus that ships a
+    // fixture it does not list, or lists one it does not ship, is the exact
+    // class of drift C-1 was.
+    expect(manifest.fixture_inventory).toHaveLength(manifest.counts.fixtures);
     for (const relative of manifest.fixture_inventory)
       expect(() => readFileSync(path.join(root, relative))).not.toThrow();
   });
@@ -243,11 +248,13 @@ describe('actual Desktop consumer corpus replay', () => {
     }
   });
 
-  it('drops the producer-declared events the corpus omits, and still fails closed on a truly unknown one', () => {
-    // Live-verified against released v0.12.26: Core emits workspace_policy
-    // immediately after ready, with no `critical` flag, and it is absent from
-    // the manifest. Before this, that one frame killed every session.
-    for (const type of [
+  // C-1 replaced the seven-event drift allowlist. Those types are DECLARED now,
+  // so this asserts the mechanism that replaced it rather than deleting the
+  // coverage: each of the seven is a first-class corpus event, which is what
+  // makes the allowlist dead code, and the unknown-event rule that guarded the
+  // rest of the wire is unchanged.
+  it('declares the seven formerly-undeclared producer events, and still fails closed on a truly unknown one', () => {
+    const formerlyUndeclared = [
       'workspace_policy',
       'capability_activation',
       'compact_offload',
@@ -255,35 +262,38 @@ describe('actual Desktop consumer corpus replay', () => {
       'provider_attempt',
       'provider_failure',
       'provider_retry',
-    ]) {
+    ];
+    const declared = new Set(manifest.events.map((event) => event.type));
+    for (const type of formerlyUndeclared) expect(declared.has(type)).toBe(true);
+
+    // Each one now replays as a real event off its own fixture, schema-checked -
+    // it is no longer waved through on a name. workspace_policy is the one that
+    // matters: it fires immediately after ready on EVERY session, and it is the
+    // frame that used to fail every session closed.
+    for (const type of formerlyUndeclared) {
       const consumer = negotiated();
-      expect(consumer.consumeLine(JSON.stringify({ type }))).toEqual({
-        kind: 'drop',
-        reason: 'producer_declared_unmodelled',
-      });
-      // Dropping must not poison the session: an ordinary frame still replays.
+      const fixture = json(`events/${type}.json`);
+      expect(consumer.consumeLine(JSON.stringify(fixture))).toMatchObject({ kind: 'event', contract: 'v1' });
+      // And the session keeps running afterwards.
       expect(consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'm1' }))).toMatchObject({
         kind: 'event',
         contract: 'v1',
       });
     }
-    // The allowlist is exactly seven entries and must not become a catch-all:
-    // anything else with no `critical` flag still fails the session closed.
+
+    // The unknown-event rule is untouched: a type outside the corpus with no
+    // `critical` flag still fails the session closed rather than being guessed at.
     expectContractError(
       () => negotiated().consumeLine(JSON.stringify({ type: 'some_future_core_event' })),
       'unknown_criticality'
     );
-    // And the allowlist is by type, not a blanket pass: a producer that marks
-    // one of these critical is saying the host must not proceed without
-    // understanding it, and Desktop cannot.
     expectContractError(
-      () => negotiated().consumeLine(JSON.stringify({ type: 'workspace_policy', critical: true })),
+      () => negotiated().consumeLine(JSON.stringify({ type: 'some_future_core_event', critical: true })),
       'unknown_critical'
     );
-    // An explicit `critical: false` on an allowlisted type is still a drop.
-    expect(negotiated().consumeLine(JSON.stringify({ type: 'provider_retry', critical: false }))).toEqual({
+    expect(negotiated().consumeLine(JSON.stringify({ type: 'some_future_core_event', critical: false }))).toEqual({
       kind: 'drop',
-      reason: 'producer_declared_unmodelled',
+      reason: 'unknown_noncritical',
     });
   });
 

@@ -24,28 +24,29 @@ replay and a persistent later-mutation watcher remain deferred.
 
 ## Producer events with NO Desktop payload schema
 
-These seven `ProtocolEvent` variants are emitted on the JSON stream by the
-production sink (`wcore-agent/src/output/protocol_sink.rs` and, for
-`workspace_policy`, `wcore-cli/src/main.rs`), so a Desktop host DOES receive
-them. They are absent from `manifest.json` and from `core-event.schema.json`,
-and `producer-complete.schema.json` gives them only a bare discriminator in its
-"Non-Desktop producer inventory" branch — a `type` enum with
-`additionalProperties: true` and no payload properties at all. A host can
-therefore recognise the tag and can validate NOTHING about the body.
+None. This section previously listed seven `ProtocolEvent` variants —
+`workspace_policy`, `capability_activation`, `provider_attempt`,
+`provider_retry`, `provider_failure`, `mid_flight_monitor_decision` and
+`compact_offload` — that the production sink emits but that no shipped artifact
+declared. All seven now have a `WireSpec`, a fixture generated from the real
+serializer, and a payload branch in `core-event.schema.json`.
 
-This section exists because the gap was previously declared NOWHERE. Listing it
-is not a fix: it converts an undeclared hole into a declared one, so that
-`desktop_contract_selfconsistency.rs` can hold the line while each is modelled
-properly. `workspace_policy` is the one to model first — it carries a
-`WorkspacePolicyReceipt`, which is safety-class authority.
+The gap was not cosmetic. A Desktop host knows only what this corpus ships, and
+the documented rule for an event type it does not recognise, with no `critical`
+field, is to hard error — so `workspace_policy`, which arrives on every session
+immediately after `ready`, tore down a corpus-only host. That is now proved from
+the consumer side by `tests/desktop_contract_corpus_only_host.rs`, which builds
+a host whose known-event set comes only from `manifest.json` and therefore
+cannot be fooled by the producer-side `PRODUCER_EVENT_TYPES` constant.
 
-- `workspace_policy`
-- `capability_activation`
-- `provider_attempt`
-- `provider_retry`
-- `provider_failure`
-- `mid_flight_monitor_decision`
-- `compact_offload`
+`generated_artifacts()` now refuses to build a corpus whose `EVENT_SPECS` and
+`PRODUCER_EVENT_TYPES` disagree, so this hole cannot reopen silently.
+
+STILL OPEN, same class, command direction: `grant_workspace_capability` is in
+`PRODUCER_COMMAND_TYPES` and absent from `manifest.json`'s `commands`. The blast
+radius is different — commands travel host to Core, so an undeclared command
+does not hard error a host — and the generator parity check deliberately covers
+events only. It is not closed.
 
 Malformed command fixtures and the current unknown-type behavior are proved by
 `desktop_contract_adversarial.rs`. Browser, CUA, and plugin event fixtures are

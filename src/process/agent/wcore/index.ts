@@ -35,7 +35,6 @@ import {
 import { ProfileIsolationError, nativeConfigDir, resolveActiveConfigDir } from './profilePaths';
 import { readCodexAuthFile } from '@process/onboarding/codexAuthFile';
 import { getToolKeyStore } from './toolKeyStore';
-import { TOOL_SEARCH_GUIDANCE } from './toolSearchGuidance';
 import { hydrateModelForSpawn, resolveModelSecretsForSpawn } from '@process/providers/ipc/modelRegistryIpc';
 import { vertexSpawnCredentialsForModel } from '@process/providers/vertexSpawnCredentials';
 import { DEFAULT_ACCOUNT_ID } from '@/common/config/account';
@@ -964,24 +963,15 @@ export class WCoreAgent {
       });
     }
 
-    // W-1 mitigation for Core C-5 (see `toolSearchGuidance.ts` for the measured
-    // reason this exists). Injected BEFORE the user's own rules so those still win.
+    // The ToolSearch guidance that used to be injected here is DELETED. It was a
+    // prompt-level workaround for Core's ALL-tokens substring matcher (C-5),
+    // fixed at DESKTOP_CORE_V1_PRODUCER_COMMIT: the matcher now filters
+    // structural noise, has an exact-name tier, and bounds its echoed query.
     //
-    // Fires whenever this session can reach MCP tools by EITHER route: a runtime
-    // stdio publication, or connectors already published in config and named in
-    // `mcpServerNames`. Gating on `stdioMcpServers` alone was wrong — a session
-    // whose connectors come only from config would silently miss the guidance and
-    // fall straight back into the loop.
-    //
-    // NOT skipped on resume. The guidance is engine-session state, not chat
-    // history: it is sent over `init_history` and never persisted to our DB, so a
-    // resumed conversation starts a fresh engine with no guidance at all. Sending
-    // it again is cheap; omitting it silently reintroduces the defect.
-    const sessionHasMcpTools =
-      stdioMcpServers.length > 0 || (this.options.mcpServerNames?.length ?? 0) > 0;
-    if (sessionHasMcpTools) {
-      this.sendCommand({ type: 'init_history', text: TOOL_SEARCH_GUIDANCE });
-    }
+    // Deleted rather than kept "just in case" on purpose. It told the model how
+    // to phrase searches, so leaving it in would have silently biased the very
+    // measurement Core asked for - we could not have said whether the engine
+    // improved or our prompt did.
 
     // Inject preset rules as history context (skip on resume - rules were already injected)
     if (this.options.presetRules && !this.options.resume) {
