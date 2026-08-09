@@ -71,6 +71,21 @@ export const formatCommandLabel = (command: string): string => {
   return `Running ${capped}`;
 };
 
+/** Keeps a fallback subject to one legible line; full text stays in the detail. */
+const SUBJECT_CAP = 56;
+
+/**
+ * True when the subject only restates the tool name, so appending it would give
+ * "ToolSearch: ToolSearch". Compares on letters alone, since the two sides
+ * differ in case, spacing and separators ("web_search" vs "Web search").
+ */
+const isEchoOfName = (subject: string, cleanName: string): boolean => {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const a = norm(subject);
+  const b = norm(cleanName);
+  return a === b || (a.length > 0 && b.length > 0 && (a.startsWith(b) || b.startsWith(a)));
+};
+
 type LabelRule = {
   /** matches against the lowercased "name + ' ' + detail" haystack. */
   test: RegExp;
@@ -83,6 +98,20 @@ type LabelRule = {
 // Write, Bash, Grep...), Gemini (google_search, url_context), Codex
 // (exec_command, web_search) and ACP titles all funnel through here.
 const RULES: LabelRule[] = [
+  {
+    // ToolSearch looks up a DEFERRED tool by keyword. It ran 23 times in one
+    // observed turn and every row read only "ToolSearch", so the timeline said
+    // nothing about what the agent was actually hunting for. Name the subject:
+    // that is the same principle as #520's raw-command labels.
+    // Must precede the web-search rule, whose `search[_-]?web` alternative does
+    // not match but whose intent overlaps.
+    test: /^tool[_-]?search\b|\btoolsearch\b/,
+    glyph: 'search',
+    build: (h) => {
+      const q = hostOrText(h.replace(/.*?tool[_-]?search[\s"':,{]*/i, '').replace(/.*?(query)["':\s]+/i, '')).trim();
+      return q && !/^tool ?search$/i.test(q) ? `Looking for a "${q}" tool` : 'Looking for a tool';
+    },
+  },
   {
     test: /web[_-]?search|google[_-]?search|search[_-]?web|brave[_-]?search|^web\b/,
     glyph: 'web',
@@ -166,7 +195,18 @@ export const deriveStep = (
       return { label: rule.build(hay), glyph: rule.glyph };
     }
   }
-  // Fallback: cleaned tool name, title-ish, always non-empty.
+  // Fallback. A bare tool name answers "which tool" but never "on what", which
+  // is the question someone watching the timeline is actually asking - twenty
+  // identical rows tell you nothing. #520 solved this for shell tools only; the
+  // same visibility is owed to every other tool, so when the node carries a
+  // subject (the wcore mapper puts the tool's description in `command`) and it
+  // adds information beyond the name, show it.
   const clean = (node.name || 'tool').replace(/[_-]+/g, ' ').trim();
-  return { label: clean.charAt(0).toUpperCase() + clean.slice(1), glyph: 'tool' };
+  const titled = clean.charAt(0).toUpperCase() + clean.slice(1);
+  const subject = command?.replace(/\s+/g, ' ').trim();
+  if (subject && !isEchoOfName(subject, clean)) {
+    const capped = subject.length > SUBJECT_CAP ? `${subject.slice(0, SUBJECT_CAP - 1)}…` : subject;
+    return { label: `${titled}: ${capped}`, glyph: 'tool' };
+  }
+  return { label: titled, glyph: 'tool' };
 };

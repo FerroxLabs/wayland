@@ -111,3 +111,54 @@ describe('activityLabels.deriveStep - command surfacing (#520)', () => {
     expect(r).toEqual({ label: 'Reading config.ts', glyph: 'file' });
   });
 });
+
+describe('activityLabels: the timeline must say what a tool acted ON', () => {
+  // Twenty-three identical "ToolSearch" rows in one observed turn told the user
+  // nothing about what the agent was hunting for. #520 gave shell tools their
+  // real command; every other tool is owed the same.
+
+  it('names the thing ToolSearch is hunting for', () => {
+    const step = deriveStep({
+      kind: 'tool',
+      name: 'ToolSearch',
+      detail: '{"query":"trading strategies"}',
+      command: undefined,
+    });
+    expect(step.glyph).toBe('search');
+    expect(step.label).toContain('trading strategies');
+    expect(step.label).not.toBe('ToolSearch');
+  });
+
+  it('falls back to a plain phrase when no query can be recovered', () => {
+    const step = deriveStep({ kind: 'tool', name: 'ToolSearch', detail: '', command: undefined });
+    expect(step.label).toBe('Looking for a tool');
+  });
+
+  it('appends the subject for an otherwise unrecognised tool', () => {
+    const step = deriveStep({
+      kind: 'tool',
+      name: 'aion_list_models',
+      detail: '',
+      command: 'List models for the codex backend',
+    });
+    expect(step.label).toBe('Aion list models: List models for the codex backend');
+  });
+
+  it('does not echo the tool name back at itself', () => {
+    // The wcore mapper falls back to the description, which is frequently just
+    // the tool name - "Widget: Widget" would be worse than no subject at all.
+    const step = deriveStep({ kind: 'tool', name: 'widget_tool', detail: '', command: 'Widget Tool' });
+    expect(step.label).toBe('Widget tool');
+  });
+
+  it('caps a long subject to one legible line', () => {
+    const step = deriveStep({
+      kind: 'tool',
+      name: 'summarize',
+      detail: '',
+      command: 'x'.repeat(300),
+    });
+    expect(step.label.length).toBeLessThan(80);
+    expect(step.label.endsWith('…')).toBe(true);
+  });
+});
