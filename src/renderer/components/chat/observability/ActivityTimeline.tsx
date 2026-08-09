@@ -77,7 +77,7 @@ const StepRow: React.FC<{ step: ActivityStep }> = ({ step }) => {
   const duration = formatDuration(stepDurationSec(step));
 
   return (
-    <div className={styles.step} data-step-status={step.status}>
+    <div className={styles.step} data-step-status={step.status} data-step-kind={step.kind}>
       <div
         className={styles.stepHead}
         onClick={expandable ? toggle : undefined}

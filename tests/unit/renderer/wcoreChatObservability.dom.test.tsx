@@ -7,26 +7,25 @@
 // @vitest-environment jsdom
 
 /**
- * #252 reframe wiring guard for WCoreChat: the opt-in observability panel is
- * mounted only when the shared setting `panelOpen` is true, and closing it flips
- * that setting back to false. Both halves were previously uncovered - an
- * inverted gate or a dropped close handler would pass CI. The heavy chat deps
- * are stubbed; a reactive settings double drives the gate so we test the actual
- * wiring, not a re-mock of it.
+ * #252 reframe wiring guard for WCoreChat: a workbench section is disclosed
+ * only when the run has real work behind it, and closing it retracts the
+ * surface. Both halves were previously uncovered - an inverted gate or a
+ * dropped close handler would pass CI. The heavy chat deps are stubbed so what
+ * is measured is the wiring, not a re-mock of it.
  *
  * RETARGETED (DEFECT B). The section registration moved OUT of WCoreChat and
  * into ExecutionSpine, which all three platform chats render - previously only
- * wcore had an Observability tab at all. The subject stays WCoreChat on purpose:
- * these cases assert that wcore still reaches the panel end to end THROUGH the
+ * wcore had a section at all. The subject stays WCoreChat on purpose: these
+ * cases assert that wcore still reaches the section end to end THROUGH the
  * spine. Cross-backend coverage (ACP, Gemini) lives in
  * executionSpineObservability.dom.test.tsx.
  *
- * Two things had to change with it, both because the behaviour genuinely
- * changed, not to make a failure go away:
- *   1. The list must contain an observable turn. Availability is now gated on
- *      content, so an empty conversation offers NO tab (asserted below).
- *   2. Opening goes through the workbench tab, because the Progress section
- *      (priority 60) outranks Observability (50) for auto-disclosure.
+ * RETARGETED AGAIN (Observability removal). The Observability section, its
+ * panel and the `panelOpen` setting that gated it have all been deleted; the
+ * surviving section registered at that same site is `mission` / "Progress",
+ * which carries the identical thesis. The list must still contain a turn that
+ * did work: availability is gated on content, so an empty conversation offers
+ * no section at all (asserted below).
  */
 
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -39,56 +38,11 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-// Reactive settings double: WCoreChat reads `panelOpen` to gate the panel and
-// calls update('panelOpen', false) on close. The store lives in a module-level
-// React store so the close click re-renders WCoreChat (the real store is
-// localStorage-backed + seeded at import, which a static import can't reset
-// between cases). `seedPanelOpen` sets the initial value per test.
-let panelOpen = false;
-const updateSpy = vi.fn();
-const settingsListeners = new Set<() => void>();
-vi.mock('@renderer/hooks/settings/useObservabilitySettings', () => {
-  const React2 = require('react') as typeof import('react');
-  return {
-    useObservabilitySettings: () => {
-      const [, force] = React2.useReducer((n: number) => n + 1, 0);
-      React2.useEffect(() => {
-        const l = () => force();
-        settingsListeners.add(l);
-        return () => {
-          settingsListeners.delete(l);
-        };
-      }, []);
-      return {
-        settings: { panelOpen, showCost: false },
-        update: (key: string, value: boolean) => {
-          updateSpy(key, value);
-          if (key === 'panelOpen') {
-            panelOpen = value;
-            for (const l of settingsListeners) l();
-          }
-        },
-      };
-    },
-  };
-});
-
-const seedPanelOpen = (open: boolean) => {
-  panelOpen = open;
-};
-
-// The relocated panel: stub the BODY so this suite measures wiring, not
-// rendering. `isObservable` is the real predicate - ExecutionSpine gates tab
-// availability on it, and stubbing it would make the gate untestable here.
-vi.mock('@renderer/pages/conversation/Messages/components/ObservabilityPanel', async () => {
-  const actual = await vi.importActual<
-    typeof import('@renderer/pages/conversation/Messages/components/ObservabilityPanel')
-  >('@renderer/pages/conversation/Messages/components/ObservabilityPanel');
-  return {
-    ...actual,
-    default: () => <div data-testid='observability-panel' />,
-  };
-});
+// The `panelOpen` settings double and the ObservabilityPanel body stub that
+// used to sit here are gone with their subjects: the hook and the panel module
+// have both been deleted, so a mock of either would resolve to nothing. The
+// section gate the panel stub existed to leave measurable is now
+// ExecutionSpine's own `visible`, which needs no double.
 
 // The workbench projections lane is a separate concern (and a separate packet);
 // stub it so an unrelated projection change cannot move the active section here.
@@ -183,17 +137,14 @@ const renderChat = (messages: TMessage[] = [toolGroup]) =>
  * it carries the identical thesis. Every guarantee below is the one this file
  * already made, re-pointed at the surface that still exists.
  *
- * The `panelOpen` settings double above is now inert for this suite: nothing
- * writes that flag any more, so asserting on `updateSpy` would assert on a spy
- * that can never fire. The close guarantee is asserted directly on the DOM
- * instead, which is strictly harder to fake.
+ * The `panelOpen` settings double this file used to carry has been deleted with
+ * the hook it doubled: nothing writes that flag any more, so asserting on it
+ * would assert on a spy that can never fire. The close guarantee is asserted
+ * directly on the DOM instead, which is strictly harder to fake.
  */
 describe('WCoreChat reaches a workbench section through the execution spine', () => {
   beforeEach(() => {
     localStorage.clear();
-    seedPanelOpen(false);
-    updateSpy.mockClear();
-    settingsListeners.clear();
   });
 
   it('discloses Progress for a wcore turn that did tool work', () => {

@@ -185,10 +185,10 @@ const WCoreChat: React.FC<{
     updateLocalImage({ root: workspace });
   }, [workspace]);
 
-  // The observability section is registered by ExecutionSpine, which every
-  // platform chat renders inside this same MessageListProvider. Registering it
-  // here made the tab exclusive to wcore: Claude Code, Codex and Gemini had no
-  // Observability surface at all.
+  // Workbench sections are registered by ExecutionSpine, which every platform
+  // chat renders inside this same MessageListProvider. Registering one here
+  // would make it exclusive to wcore: Claude Code, Codex and Gemini would get
+  // no such surface at all.
   const conversationValue = useMemo<ConversationContextValue>(() => {
     return {
       conversationId: conversation_id,

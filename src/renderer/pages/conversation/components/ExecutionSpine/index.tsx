@@ -121,10 +121,12 @@ const ExecutionSpine: React.FC<{
    * messages (MessageList.tsx:178, :182, :545), so the steps still appear
    * under the turn that produced them.
    *
-   * Removing this registration does leave ObservabilityPanel with no consumer
-   * in src. It is deliberately left in place rather than deleted here: that is
-   * a separate call, and its tests still pin the per-backend projection
-   * behaviour that this packet has no business quietly dropping.
+   * The panel this registration used to mount, and the components it alone
+   * rendered, have since been deleted along with it - there is nothing left to
+   * re-register. The per-backend projection it exercised (tool_group and
+   * acp_tool_call humanized through one `toolSummaryToSteps`) was never the
+   * panel's: it lives in common/chat/activity/projectMessages.ts and is covered
+   * directly by tests/unit/projectMessages.test.ts.
    */
 
   // The bar is a LIVE status line. `currentStep` is the first in-progress or
