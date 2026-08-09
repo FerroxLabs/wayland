@@ -284,7 +284,7 @@ export function deriveWorkbenchProjections(snapshot: ExecutionSnapshot): readonl
   ) {
     projections.push({
       id: 'core',
-      label: 'Core',
+      label: 'Engine',
       priority: 40,
       facets: compact([
         facet('status', 'Status', [

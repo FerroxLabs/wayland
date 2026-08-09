@@ -69,7 +69,7 @@ describe('ObservabilityPanel', () => {
 
   it('renders the empty hint when there are no activity turns', () => {
     messageList = [text('t1')];
-    render(<ObservabilityPanel messages={messageList} onClose={() => {}} />);
+    render(<ObservabilityPanel messages={messageList} />);
     expect(screen.getByText('Activity from this conversation will appear here.')).toBeTruthy();
     expect(screen.queryByTestId('activity-card')).toBeNull();
   });
@@ -85,7 +85,7 @@ describe('ObservabilityPanel', () => {
         nodes: [{ id: 'n2', kind: 'tool', callId: 'n2', name: 'Bash', status: 'running', startTime: 1 }],
       }),
     ];
-    render(<ObservabilityPanel messages={messageList} onClose={() => {}} />);
+    render(<ObservabilityPanel messages={messageList} />);
     expect(screen.getAllByTestId('activity-card')).toHaveLength(2);
     expect(screen.getByText('ReadFile')).toBeTruthy();
     expect(screen.getByText('Bash')).toBeTruthy();
@@ -99,19 +99,17 @@ describe('ObservabilityPanel', () => {
       }),
       subAgent('s1', 'compute-2plus2'),
     ];
-    render(<ObservabilityPanel messages={messageList} onClose={() => {}} />);
+    render(<ObservabilityPanel messages={messageList} />);
     // The activity card still renders.
     expect(screen.getByText('ReadFile')).toBeTruthy();
     // The sub-agent card is now surfaced in the panel (was previously inline-only).
     expect(screen.getByText(/compute-2plus2/)).toBeTruthy();
   });
 
-  it('fires onClose when the close control is clicked', () => {
-    const onClose = vi.fn();
-    render(<ObservabilityPanel messages={messageList} onClose={onClose} />);
-    fireEvent.click(screen.getByLabelText('Close panel'));
-    expect(onClose).toHaveBeenCalledTimes(1);
-  });
+  // The close control moved to the workbench card, which now owns the only
+  // title and the only close in the panel. That behaviour - closing clears
+  // panelOpen and unmounts the panel - is covered end to end by
+  // wcoreChatObservability.dom.test.tsx, "closing the panel from the card".
 
   it('hides per-turn cost by default and shows it after toggling Show cost on', () => {
     messageList = [
@@ -120,7 +118,7 @@ describe('ObservabilityPanel', () => {
         perTurnCost: [{ turn: 1, model: 'gpt-x', provider: 'openai', costUsd: 0.0123 }],
       }),
     ];
-    render(<ObservabilityPanel messages={messageList} onClose={() => {}} />);
+    render(<ObservabilityPanel messages={messageList} />);
     // Off by default: cost rows hidden.
     expect(screen.queryByText('gpt-x')).toBeNull();
 

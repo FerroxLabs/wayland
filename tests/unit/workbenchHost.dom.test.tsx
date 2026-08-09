@@ -246,7 +246,7 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     const panel = await screen.findByTestId('workbench-panel');
     expect(panel).toHaveAttribute('data-section-id', 'core');
 
-    fireEvent.click(screen.getByRole('button', { name: /workspace/i }));
+    fireEvent.click(screen.getByRole('tab', { name: /workspace/i }));
 
     // The panel must SURVIVE and navigate, not vanish.
     const after = await screen.findByTestId('workbench-panel');
@@ -265,7 +265,7 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
     );
 
     await screen.findByTestId('workbench-panel');
-    fireEvent.click(screen.getByRole('button', { name: /workspace/i }));
+    fireEvent.click(screen.getByRole('tab', { name: /workspace/i }));
     await waitFor(() =>
       expect(screen.getByTestId('workbench-panel')).toHaveAttribute('data-section-id', 'workspace')
     );

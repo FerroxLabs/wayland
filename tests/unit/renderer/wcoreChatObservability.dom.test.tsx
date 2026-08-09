@@ -146,10 +146,14 @@ describe('WCoreChat #252 observability wiring', () => {
     expect(screen.getByRole('separator', { name: 'Resize workbench' })).toBeTruthy();
   });
 
-  it('closing the panel clears panelOpen and unmounts it', () => {
+  // The panel no longer draws its own close button - the workbench card owns
+  // the only one, so that a card could not show two closes doing different
+  // things. The BEHAVIOUR under test is unchanged: closing must still clear
+  // panelOpen through the section's onDismiss and unmount the panel.
+  it('closing the panel from the card clears panelOpen and unmounts it', () => {
     seedPanelOpen(true);
     renderChat();
-    fireEvent.click(screen.getByLabelText('close'));
+    fireEvent.click(screen.getByRole('button', { name: 'Close workbench' }));
     expect(updateSpy).toHaveBeenCalledWith('panelOpen', false);
     expect(screen.queryByTestId('observability-panel')).toBeNull();
   });

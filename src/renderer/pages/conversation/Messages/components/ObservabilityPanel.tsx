@@ -6,8 +6,7 @@
 
 import type { IMessageActivity, IMessageSubAgent, TMessage } from '@/common/chat/chatLib';
 import { useObservabilitySettings } from '@/renderer/hooks/settings/useObservabilitySettings';
-import { Button, Switch } from '@arco-design/web-react';
-import { Close } from '@icon-park/react';
+import { Switch } from '@arco-design/web-react';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import MessageActivity from './MessageActivity';
@@ -30,10 +29,13 @@ import styles from './ObservabilityPanel.module.css';
 const isObservable = (m: TMessage): m is IMessageActivity | IMessageSubAgent =>
   m.type === 'activity' || m.type === 'sub_agent';
 
-const ObservabilityPanel: React.FC<{ onClose: () => void; messages: readonly TMessage[] }> = ({
-  onClose,
-  messages,
-}) => {
+/**
+ * Body only. The workbench card owns the title and the close control, so this
+ * panel must not render either: when it did, "Observability" appeared three
+ * times in one card (card header, section row, and here) with two close buttons
+ * that did different things. One card, one chrome.
+ */
+const ObservabilityPanel: React.FC<{ messages: readonly TMessage[] }> = ({ messages }) => {
   const { t } = useTranslation();
   const { settings, update } = useObservabilitySettings();
 
@@ -41,19 +43,6 @@ const ObservabilityPanel: React.FC<{ onClose: () => void; messages: readonly TMe
 
   return (
     <div className={styles.container} data-testid='observability-panel'>
-      <header className={styles.header}>
-        <span className={styles.title}>{t('conversation.observability.title', { defaultValue: 'Observability' })}</span>
-        <span className={styles.spacer} />
-        <Button
-          type='text'
-          size='mini'
-          icon={<Close size='16' />}
-          aria-label={t('conversation.observability.close', { defaultValue: 'Close panel' })}
-          title={t('conversation.observability.close', { defaultValue: 'Close panel' })}
-          onClick={onClose}
-        />
-      </header>
-
       <div className={styles.body}>
         {observableMessages.length === 0 ? (
           <div className={styles.empty}>

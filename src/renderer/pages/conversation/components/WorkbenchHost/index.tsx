@@ -7,6 +7,7 @@
 import { ChevronLeft, ChevronRight, PanelRight, Pin, PinOff, X } from 'lucide-react';
 import classNames from 'classnames';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import styles from './WorkbenchHost.module.css';
 
 export type WorkbenchSectionId = 'workspace' | 'preview' | 'observability' | 'mission' | (string & {});
 
@@ -49,6 +50,17 @@ const WorkbenchRegistryContext = createContext<WorkbenchRegistryContextValue | n
 const DEFAULT_WIDTH = 340;
 const MIN_WIDTH = 260;
 const MAX_WIDTH = 620;
+
+/**
+ * Spacing scale for the workbench card. Kept as a tiny local scale rather than
+ * scattered magic numbers so the header, tab row and body stay on the same
+ * rhythm - uneven padding between those three was most of why the panel read as
+ * disjointed.
+ */
+const SP = { xs: 4, sm: 8, md: 12, lg: 16 } as const;
+
+/** Even inset on all four sides, so the card reads as embedded in the window. */
+const CARD_INSET = SP.md;
 
 const storageKeyFor = (conversationId?: string) => `wayland.workbench.${conversationId?.trim() || 'global'}.v1`;
 
@@ -273,6 +285,27 @@ const WorkbenchHost: React.FC<{
     activeSection.onDismiss?.();
   }, [activeSection, pinnedId]);
 
+  /**
+   * Arrow-key navigation, which a `role="tablist"` is expected to provide. The
+   * old stacked list was a plain set of buttons and got this from normal tab
+   * order; a tab row has one tab stop, so the arrows have to do the moving.
+   */
+  const onTabKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
+      const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+      if (delta === 0) return;
+      const index = allSections.findIndex((section) => section.id === activeId);
+      if (index < 0) return;
+      event.preventDefault();
+      const next = allSections[(index + delta + allSections.length) % allSections.length];
+      activate(next.id);
+      // Keep focus on the tab the user just moved to, not the one they left.
+      const tabs = event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+      tabs[(index + delta + allSections.length) % allSections.length]?.focus();
+    },
+    [activate, activeId, allSections]
+  );
+
   const beginResize = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
       if (event.pointerType !== 'touch' && event.button !== 0) return;
@@ -335,11 +368,12 @@ const WorkbenchHost: React.FC<{
               overlay && 'workbench-host__panel--overlay absolute right-36px top-0 bottom-0'
             )}
             style={{
-              width: overlay ? `min(${width}px, calc(100% - 44px))` : `${width}px`,
-              // The inset is what detaches the card from the window edge. In the
-              // docked case it composes with the 36px rail gutter.
-              margin: overlay ? '8px' : '8px 8px 8px 0',
-              marginRight: overlay ? '8px' : '44px',
+              width: overlay ? `min(${width}px, calc(100% - ${CARD_INSET * 2}px))` : `${width}px`,
+              // An even inset on all four sides is what makes the card read as
+              // embedded rather than bolted to the window edge. The collapsed
+              // rail is not rendered while the panel is open, so the right side
+              // needs no extra gutter for it.
+              margin: `${CARD_INSET}px`,
               // Border and elevation are set here rather than as utilities: the
               // `border` and `shadow-*` classes both compiled to nothing in this
               // build (measured 0px width, empty box-shadow), which is a large
@@ -360,58 +394,86 @@ const WorkbenchHost: React.FC<{
               className='workbench-host__resize absolute left-0 top-0 bottom-0 w-8px -translate-x-1/2 cursor-col-resize z-30'
               onPointerDown={beginResize}
             />
-            <header className='h-44px shrink-0 px-12px flex items-center gap-8px border-b border-3'>
-              <strong className='min-w-0 truncate' data-testid='workbench-panel-title'>
-                {activeSection.label}
-              </strong>
-              <span className='ml-auto' />
+            {/* ONE chrome row. Tabs and controls share it, because a separate
+                title bar above a tab row just names the active section twice -
+                which is the duplication this redesign exists to remove. With a
+                single section there is no tab row, so the title takes its place.
+                Section content is body-only; see ObservabilityPanel. */}
+            <header
+              className='h-44px shrink-0 flex items-end gap-8px border-b border-3'
+              style={{ padding: `0 ${SP.sm}px 0 ${SP.md}px` }}
+            >
+              {allSections.length > 1 ? (
+                <div
+                  className={classNames('workbench-host__sections min-w-0 flex-1 flex gap-2px overflow-x-auto', styles.tabRow)}
+                  role='tablist'
+                  aria-label='Workbench sections'
+                  onKeyDown={onTabKeyDown}
+                >
+                  {allSections.map((section) => {
+                    const isActive = section.id === activeId;
+                    return (
+                      <button
+                        type='button'
+                        key={section.id}
+                        role='tab'
+                        aria-selected={isActive}
+                        tabIndex={isActive ? 0 : -1}
+                        data-testid={isActive ? 'workbench-panel-title' : undefined}
+                        className={classNames(
+                          'workbench-host__section-tab shrink-0 border-0 bg-transparent cursor-pointer',
+                          styles.tab,
+                          isActive ? 'text-t-primary font-600' : 'text-t-secondary'
+                        )}
+                        style={{
+                          padding: '6px 10px 10px',
+                          marginBottom: '-1px',
+                          borderBottom: `2px solid ${isActive ? 'var(--primary)' : 'transparent'}`,
+                        }}
+                        onClick={() => activate(section.id)}
+                      >
+                        <span className='min-w-0 truncate'>{section.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <strong
+                  className='min-w-0 flex-1 truncate text-13px'
+                  style={{ paddingBottom: '11px' }}
+                  data-testid='workbench-panel-title'
+                >
+                  {activeSection.label}
+                </strong>
+              )}
+              <span className='shrink-0 flex items-center gap-2px' style={{ paddingBottom: '7px' }}>
               <button
                 type='button'
-                className='border-0 bg-transparent cursor-pointer text-t-secondary'
+                className={classNames('workbench-host__icon-btn w-26px h-26px rounded-6px border-0 bg-transparent cursor-pointer text-t-secondary flex items-center justify-center', styles.iconBtn)}
                 aria-label={pinnedId === activeSection.id ? 'Unpin workbench section' : 'Pin workbench section'}
                 aria-pressed={pinnedId === activeSection.id}
                 onClick={() => setPinnedId((current) => (current === activeSection.id ? undefined : activeSection.id))}
               >
-                {pinnedId === activeSection.id ? <PinOff size={16} /> : <Pin size={16} />}
+                {pinnedId === activeSection.id ? <PinOff size={15} /> : <Pin size={15} />}
               </button>
               <button
                 type='button'
-                className='border-0 bg-transparent cursor-pointer text-t-secondary'
+                className={classNames('workbench-host__icon-btn w-26px h-26px rounded-6px border-0 bg-transparent cursor-pointer text-t-secondary flex items-center justify-center', styles.iconBtn)}
                 aria-label='Close workbench'
                 onClick={closeActive}
               >
-                <X size={16} />
+                <X size={15} />
               </button>
+              </span>
             </header>
-            {/* Section switcher, horizontal and readable. Only rendered when
-                there is a real choice to make - a single-section workbench keeps
-                its title bar and nothing else. */}
-            {allSections.length > 1 && (
-              <nav
-                className='workbench-host__sections shrink-0 flex flex-col border-b border-3'
-                aria-label='Workbench sections'
-              >
-                {allSections.map((section) => {
-                  const isActive = section.id === activeId;
-                  return (
-                    <button
-                      type='button'
-                      key={section.id}
-                      className={classNames(
-                        'workbench-host__section-row h-36px px-12px flex items-center gap-8px text-13px text-left border-0 bg-transparent cursor-pointer',
-                        isActive ? 'text-primary-6 font-600' : 'text-t-secondary'
-                      )}
-                      aria-current={isActive ? 'page' : undefined}
-                      onClick={() => activate(section.id)}
-                    >
-                      <span className='min-w-0 truncate'>{section.label}</span>
-                      <ChevronRight size={14} className='ml-auto shrink-0 opacity-60' />
-                    </button>
-                  );
-                })}
-              </nav>
-            )}
-            <div className='flex flex-1 min-h-0 overflow-hidden' data-testid={activeSection.testId}>
+            {/* The gutter nothing crosses. Content used to sit 1px from the
+                border with no padding, so a nested surface collided with the
+                card's own corner radius. */}
+            <div
+              className='flex flex-1 min-h-0 overflow-auto'
+              style={{ padding: `${SP.md}px` }}
+              data-testid={activeSection.testId}
+            >
               {activeSection.content}
             </div>
           </aside>

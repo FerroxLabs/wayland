@@ -117,7 +117,7 @@ describe('M6 relevant-only workbench projections', () => {
     );
 
     expect(await screen.findByTestId('projection-development')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Knowledge' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Knowledge' }));
     expect(await screen.findByTestId('projection-knowledge')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Citations' }));
     expect(screen.getByText('Citation index')).toBeInTheDocument();
@@ -154,7 +154,7 @@ describe('M6 relevant-only workbench projections', () => {
         })
       );
 
-      fireEvent.click(await screen.findByRole('button', { name: 'Core' }));
+      fireEvent.click(await screen.findByRole('tab', { name: 'Engine' }));
       fireEvent.click(screen.getByRole('button', { name: 'Receipts' }));
       expect(await screen.findByTestId('receipt-trust-surface')).toHaveAttribute('data-trust-status', status);
     }
@@ -171,7 +171,7 @@ describe('M6 relevant-only workbench projections', () => {
       })
     );
 
-    fireEvent.click(await screen.findByRole('button', { name: 'Core' }));
+    fireEvent.click(await screen.findByRole('tab', { name: 'Engine' }));
     fireEvent.click(screen.getByRole('button', { name: 'Receipts' }));
     expect(await screen.findByTestId('receipt-trust-surface')).toHaveAttribute('data-trust-status', 'unvalidated');
     expect(screen.getByText('Trusted Core receipt unavailable.')).toBeInTheDocument();

@@ -203,7 +203,7 @@ const WCoreChat: React.FC<{
       onActivate: () => updateObs('panelOpen', true),
       onDismiss: () => updateObs('panelOpen', false),
       testId: 'workbench-observability',
-      content: <ObservabilityPanel messages={messages} onClose={() => updateObs('panelOpen', false)} />,
+      content: <ObservabilityPanel messages={messages} />,
     }),
     [messages, obs.panelOpen, updateObs]
   );

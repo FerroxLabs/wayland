@@ -1,0 +1,76 @@
+/**
+ * Workbench card chrome.
+ *
+ * These live in a stylesheet rather than as utility classes because the `border`
+ * and `shadow-*` utilities were measured producing no CSS at all in this build,
+ * which is how the panel ended up with no surface, no border and no elevation.
+ * Real rules cannot silently no-op.
+ */
+
+/* Section labels are arbitrary React nodes - the Workspace section supplies a
+   rich node that carries its own type styles, which rendered its tab as a bold
+   heading twice the size of its neighbours. A tab is a tab: force the whole
+   subtree onto one type step so the row reads as a set of peers. */
+.tab,
+.tab * {
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0;
+}
+
+.tab * {
+  font-weight: inherit !important;
+  color: inherit !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline !important;
+}
+
+.tab {
+  transition: color 120ms ease, border-color 120ms ease;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--t-primary, #ededed);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+/* Icon buttons in the card header. */
+.iconBtn {
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.iconBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--t-primary, #ededed);
+}
+
+.iconBtn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .iconBtn {
+    transition: none;
+  }
+}
+
+/* The tab row scrolls when labels overflow, but a visible scrollbar in a 44px
+   chrome strip reads as a rendering artefact wedged between the last tab and
+   the window controls. Keep the scrolling, drop the bar. */
+.tabRow {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.tabRow::-webkit-scrollbar {
+  display: none;
+}
