@@ -169,6 +169,15 @@ What is not:
   fine, both with and without a process holding the old binary resident. So the precondition is
   unknown and the cache story is unsupported.
 
+**One later observation, offered as a lead and nothing more:** cleaning up afterwards, we found two
+orphaned `wayland-core` processes still resident **from the exact path we had overwritten**,
+spawned by an earlier app run. So at overwrite time the old binary genuinely was executing from
+that inode, which our scratch reproduction never managed to arrange — our attempts to hold one
+resident all exited early. That is consistent with "overwriting a Mach-O while it is being
+executed", and it is *not* consistent with the code-signing-cache story we originally gave you.
+Still not demonstrated, so still not a mechanism — but if anyone does chase it, that is the
+condition worth reproducing first.
+
 We are still landing the unlink-before-copy in `copyFileSafe`, because it is the standard safe way
 to replace an executable and it makes an observed failure unreachable at the cost of one syscall.
 But it ships as a **guard against an observation, not a fix for a diagnosed cause**, and the code
