@@ -15,15 +15,13 @@ import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
 import { useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
 import { ModelRegistryProvider } from '@renderer/hooks/useModelRegistry';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
-import { MessageListProvider, useMessageList, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
+import { MessageListProvider, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
 import { getAcpAuthRemedy, type AcpAuthRemedy } from '@renderer/pages/conversation/platforms/acp/acpAuthFailure';
 import {
   routeThroughFluxAndReplay,
   type FluxFailoverTurn,
 } from '@renderer/pages/conversation/platforms/acp/acpFluxFailover';
 import { useFluxConnected } from '@renderer/hooks/useFluxConnected';
-import { useObservabilitySettings } from '@renderer/hooks/settings/useObservabilitySettings';
-import ObservabilityPanel from '@renderer/pages/conversation/Messages/components/ObservabilityPanel';
 import { FLUX_AUTO_MODEL, isFluxModelId } from '@/common/config/flux';
 import type { TProviderWithModel } from '@/common/config/storage';
 import { emitter, useAddEventListener } from '@renderer/utils/emitter';
@@ -36,7 +34,6 @@ import WCoreSendBox from './WCoreSendBox';
 import WCoreContextCeilingCard from './WCoreContextCeilingCard';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 import ExecutionSpine from '../../components/ExecutionSpine';
-import { useWorkbenchSection, type WorkbenchSectionRegistration } from '../../components/WorkbenchHost';
 
 const WCoreChat: React.FC<{
   conversation_id: string;
@@ -188,26 +185,10 @@ const WCoreChat: React.FC<{
     updateLocalImage({ root: workspace });
   }, [workspace]);
 
-  // The activity tree keeps the existing settings and message-list stores, but
-  // delegates its right-side presentation to the one contextual WorkbenchHost.
-  const { settings: obs, update: updateObs } = useObservabilitySettings();
-  const messages = useMessageList();
-  const observabilitySection = useMemo<WorkbenchSectionRegistration>(
-    () => ({
-      id: 'observability',
-      label: 'Observability',
-      priority: 50,
-      available: true,
-      requestedOpen: obs.panelOpen,
-      activationKey: obs.panelOpen ? 'open' : 'closed',
-      onActivate: () => updateObs('panelOpen', true),
-      onDismiss: () => updateObs('panelOpen', false),
-      testId: 'workbench-observability',
-      content: <ObservabilityPanel messages={messages} />,
-    }),
-    [messages, obs.panelOpen, updateObs]
-  );
-  useWorkbenchSection(observabilitySection);
+  // The observability section is registered by ExecutionSpine, which every
+  // platform chat renders inside this same MessageListProvider. Registering it
+  // here made the tab exclusive to wcore: Claude Code, Codex and Gemini had no
+  // Observability surface at all.
   const conversationValue = useMemo<ConversationContextValue>(() => {
     return {
       conversationId: conversation_id,

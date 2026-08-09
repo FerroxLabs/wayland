@@ -61,6 +61,30 @@ const subAgent = (id: string, agentName: string): IMessageSubAgent => ({
   },
 });
 
+/** An ACP session update as it reaches the renderer (fields nest under `.update`). */
+const acpToolCall = (id: string, title: string, kind: string, status: string): TMessage =>
+  ({
+    id,
+    msg_id: `m-${id}`,
+    conversation_id: 'c1',
+    type: 'acp_tool_call',
+    position: 'left',
+    content: {
+      sessionId: 's1',
+      update: { sessionUpdate: 'tool_call', toolCallId: id, title, kind, status },
+    },
+  }) as unknown as TMessage;
+
+const toolGroupMsg = (id: string, content: unknown[]): TMessage =>
+  ({
+    id,
+    msg_id: `turn-${id}`,
+    conversation_id: 'c1',
+    type: 'tool_group',
+    position: 'left',
+    content,
+  }) as unknown as TMessage;
+
 describe('ObservabilityPanel', () => {
   beforeEach(() => {
     localStorage.clear();
@@ -111,12 +135,18 @@ describe('ObservabilityPanel', () => {
   // panelOpen and unmounts the panel - is covered end to end by
   // wcoreChatObservability.dom.test.tsx, "closing the panel from the card".
 
-  // WCore reports tool work as `tool_group`, never as `activity`. The panel
-  // filtered for `activity` + `sub_agent` only, so a real WCore turn showed
-  // "Activity from this conversation will appear here." while the chat next to
-  // it listed the tools - measured live against the engine. The chat renders
-  // those same messages through toolSummaryToSteps; the panel must too.
-  it('renders WCore tool_group turns, which are the only activity WCore reports', () => {
+  // WCore (and Gemini) report tool work as `tool_group`, never as `activity`.
+  // The panel filtered for `activity` + `sub_agent` only, so a real WCore turn
+  // showed "Activity from this conversation will appear here." while the chat
+  // next to it listed the tools - measured live against the engine. The chat
+  // renders those same messages through toolSummaryToSteps; the panel must too.
+  //
+  // RETARGETED (DEFECT B): the old title claimed tool_group was "the only
+  // activity WCore reports". That was wrong on both halves - `activity` and
+  // `sub_agent` are WCore-EXCLUSIVE shapes (executed proof: the ACP
+  // MessageTranslator emits neither), and Gemini emits `tool_group` too. The
+  // assertions were and remain correct; only the claim in the title was false.
+  it('renders tool_group turns (WCore and Gemini) through the shared timeline', () => {
     messageList = [
       text('t1'),
       {
@@ -137,6 +167,42 @@ describe('ObservabilityPanel', () => {
     // The same label the Progress rail shows for the same tool - the humanizer
     // builds from the invocation, not from the tool's output.
     expect(panel.textContent).toContain('Reading config.ts');
+  });
+
+  // DEFECT B: ACP (Claude Code, Codex) reports tool work as `acp_tool_call` and
+  // emits neither `activity` nor `tool_group`, so `isObservable` dropped every
+  // ACP turn on the floor and the panel would have been permanently empty on
+  // those backends. `toolSummaryToSteps` already accepts a mixed
+  // tool_group/acp_tool_call list - the filter was the only thing excluding it.
+  it('renders ACP acp_tool_call turns (Claude Code / Codex) through the same timeline', () => {
+    messageList = [
+      text('t1'),
+      acpToolCall('tc1', 'Read config.ts', 'read', 'completed'),
+      acpToolCall('tc2', 'Search the web for kittens', 'execute', 'completed'),
+    ];
+    render(<ObservabilityPanel messages={messageList} />);
+    expect(screen.queryByText('Activity from this conversation will appear here.')).toBeNull();
+    const panel = screen.getByTestId('observability-panel');
+    // Identical humanization to the wcore tool_group case above, from the same
+    // projection - "Read config.ts" reads "Reading config.ts" on both backends.
+    expect(panel.textContent).toContain('Reading config.ts');
+    expect(panel.textContent).toContain('Search the web for kittens');
+  });
+
+  // Consecutive tool turns collapse into ONE timeline, exactly as the chat
+  // transcript groups them (MessageList's pushToolList). ACP emits one message
+  // per tool call, so without grouping an ACP turn rendered as N separate
+  // one-step cards where wcore rendered a single "Did N things" timeline.
+  it('groups consecutive tool turns into one timeline, mixing wcore and ACP', () => {
+    messageList = [
+      toolGroupMsg('tg1', [{ callId: 'a', name: 'ReadFile', description: 'Read config.ts', status: 'Success' }]),
+      acpToolCall('tc1', 'Search the web for kittens', 'execute', 'completed'),
+    ];
+    render(<ObservabilityPanel messages={messageList} />);
+    expect(screen.getAllByTestId('activity-timeline')).toHaveLength(1);
+    const panel = screen.getByTestId('observability-panel');
+    expect(panel.textContent).toContain('Reading config.ts');
+    expect(panel.textContent).toContain('Search the web for kittens');
   });
 
   it('hides per-turn cost by default and shows it after toggling Show cost on', () => {

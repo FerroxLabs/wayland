@@ -7,6 +7,10 @@
 import type { TMessage } from '@/common/chat/chatLib';
 import { selectCanonicalRunSnapshot, type ExecutionBackend, type ExecutionSeed } from '@/common/execution';
 import { useBackendExecutionSnapshot } from '@/renderer/hooks/execution';
+import { useObservabilitySettings } from '@renderer/hooks/settings/useObservabilitySettings';
+import ObservabilityPanel, {
+  isObservable,
+} from '@renderer/pages/conversation/Messages/components/ObservabilityPanel';
 import { useMessageList } from '@/renderer/pages/conversation/Messages/messageListContext';
 import { Tag, Typography } from '@arco-design/web-react';
 import React, { useMemo } from 'react';
@@ -104,6 +108,42 @@ const ExecutionSpine: React.FC<{
     [progressLabel, run, t, visible]
   );
   useWorkbenchSection(missionSection);
+
+  /**
+   * Observability lives here, not in a platform chat. It used to be registered
+   * at exactly ONE site - WCoreChat - so Claude Code and Codex (ACP) and Gemini
+   * had no Observability tab at all, while Progress (registered above) was
+   * already shared by all three. ExecutionSpine is rendered by AcpChat,
+   * GeminiChat and WCoreChat inside the same MessageListProvider, and already
+   * reads that stream via useMessageList, so one registration here gives every
+   * backend the same surface with no per-platform copy.
+   *
+   * Availability is gated on there being something to show. This is a
+   * DELIBERATE change for wcore, which previously passed `available: true`
+   * unconditionally: an empty conversation offered an Observability tab whose
+   * whole content was the "Activity ... will appear here." hint. A tab that
+   * can only disappoint is worse than no tab, and the mission section beside it
+   * already gates on content the same way.
+   */
+  const { settings: obs, update: updateObs } = useObservabilitySettings();
+  const observable = useMemo(() => messages.filter(isObservable), [messages]);
+  const hasObservable = observable.length > 0;
+  const observabilitySection = useMemo<WorkbenchSectionRegistration>(
+    () => ({
+      id: 'observability',
+      label: t('conversation.observability.title', { defaultValue: 'Observability' }),
+      priority: 50,
+      available: hasObservable,
+      requestedOpen: obs.panelOpen && hasObservable,
+      activationKey: obs.panelOpen ? 'open' : 'closed',
+      onActivate: () => updateObs('panelOpen', true),
+      onDismiss: () => updateObs('panelOpen', false),
+      testId: 'workbench-observability',
+      content: <ObservabilityPanel messages={messages} />,
+    }),
+    [hasObservable, messages, obs.panelOpen, t, updateObs]
+  );
+  useWorkbenchSection(observabilitySection);
 
   // The bar is a LIVE status line. `currentStep` is the first in-progress or
   // pending step, so a finished run has none and the label fell through to its

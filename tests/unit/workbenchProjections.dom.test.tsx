@@ -119,8 +119,15 @@ describe('M6 relevant-only workbench projections', () => {
     expect(await screen.findByTestId('projection-development')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('tab', { name: 'Knowledge' }));
     expect(await screen.findByTestId('projection-knowledge')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Citations' }));
+    // Retargeted: "Citation index" is a `report` OUTCOME, so its owner is the
+    // Output facet. It used to appear under Citations only because its label
+    // contains the substring "Citation" - the same free-text misfiling that put
+    // the model's own search queries under Sources. Citations is now fed solely
+    // by the typed citation ledger (covered in coworkJourney.test.ts and
+    // execution/workbenchAttribution.test.ts).
+    fireEvent.click(screen.getByRole('button', { name: 'Output' }));
     expect(screen.getByText('Citation index')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Citations' })).not.toBeInTheDocument();
     expect(document.querySelectorAll('[data-testid="workbench-host"]')).toHaveLength(1);
     expect(document.querySelectorAll('[data-testid="workbench-panel"]')).toHaveLength(1);
   });
