@@ -6,7 +6,7 @@
 
 import { deriveStep as humanizeStep } from '@/common/chat/activity/activityLabels';
 import type { ExecutionActivity, selectCanonicalRunSnapshot } from '@/common/execution';
-import { Progress, Tag, Typography } from '@arco-design/web-react';
+import { Empty, Progress, Tag, Typography } from '@arco-design/web-react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -63,24 +63,65 @@ const MissionProgressPanel: React.FC<{ run: CanonicalRun; progressLabel: string 
           {t('conversation.execution.progress', { defaultValue: 'Progress' })}
         </Typography.Title>
         <Tag size='small' color={statusColor(run.lifecycle)}>
-          {run.lifecycle}
+          {t(`conversation.execution.lifecycle.${run.lifecycle}`, { defaultValue: run.lifecycle })}
         </Tag>
       </div>
       {run.progress.total > 0 && (
         <>
           <Progress percent={run.progress.percent} size='small' showText={false} />
           <div className='text-12px text-t-secondary mt-6px mb-12px'>{progressLabel}</div>
-          <ol className='m-0 pl-18px flex flex-col gap-8px'>
-            {run.plan.map((step) => (
-              <li
-                key={step.id}
-                className={step.status === 'completed' ? 'text-t-secondary line-through' : 'text-t-primary'}
-              >
-                {step.content}
+          {/*
+           * Numbered markers, not a bare `list-style: decimal`. The step text
+           * wraps to two and three lines constantly, and a browser marker sits
+           * on the FIRST line with the continuation running back underneath it,
+           * so a wrapped list stops reading as a list at all. A fixed-width
+           * numeral in its own column keeps the left edge of the text straight
+           * however far it wraps, which is the whole reason the numbers are
+           * there.
+           */}
+          <ol className='m-0 p-0 list-none flex flex-col gap-8px'>
+            {run.plan.map((step, index) => (
+              <li key={step.id} className='flex items-start gap-8px'>
+                <span
+                  className={`mt-1px shrink-0 w-18px h-18px rounded-full flex items-center justify-center text-11px tabular-nums ${
+                    step.status === 'completed' ? 'bg-fill-2 text-t-tertiary' : 'bg-fill-3 text-t-secondary'
+                  }`}
+                  aria-hidden='true'
+                >
+                  {index + 1}
+                </span>
+                <span className={step.status === 'completed' ? 'text-t-secondary line-through' : 'text-t-primary'}>
+                  {step.content}
+                </span>
               </li>
             ))}
           </ol>
         </>
+      )}
+
+      {/*
+       * A panel that renders nothing reads as broken rather than as idle. The
+       * workspace file list already answers this with Arco's Empty - a faded
+       * illustration, a title and a line saying what will appear here - so this
+       * uses the same one rather than inventing a second empty language.
+       */}
+      {run.progress.total === 0 && run.activities.length === 0 && (
+        <div className='flex-1 flex items-center justify-center py-24px' data-testid='execution-mission-empty'>
+          <Empty
+            description={
+              <div>
+                <span className='text-t-secondary font-bold text-14px'>
+                  {t('conversation.execution.emptyTitle', { defaultValue: 'No steps yet' })}
+                </span>
+                <div className='text-t-secondary text-12px'>
+                  {t('conversation.execution.emptyDescription', {
+                    defaultValue: 'The plan and each step taken will appear here as this task runs.',
+                  })}
+                </div>
+              </div>
+            }
+          />
+        </div>
       )}
 
       {run.activities.length > 0 && (
