@@ -5,6 +5,7 @@ import type { TMessage } from '@/common/chat/chatLib';
 import {
   ACP_BACKENDS_ALL,
   AcpErrorType,
+  type AcpLaunchSpec,
   type AcpModelInfo,
   type AcpSessionConfigOption,
   type AgentBackend,
@@ -21,6 +22,8 @@ export type OldAcpAgentConfig = {
   id: string;
   backend: AgentBackend;
   cliPath?: string;
+  /** Structured launch spec from an installed agent; supersedes cliPath when set. */
+  launch?: AcpLaunchSpec;
   workingDir: string;
   customArgs?: string[];
   customEnv?: Record<string, string>;
@@ -28,6 +31,8 @@ export type OldAcpAgentConfig = {
     workspace?: string;
     backend: AgentBackend;
     cliPath?: string;
+    /** Structured launch spec from an installed agent; supersedes cliPath when set. */
+    launch?: AcpLaunchSpec;
     customWorkspace?: boolean;
     customArgs?: string[];
     customEnv?: Record<string, string>;
@@ -104,6 +109,9 @@ export function toAgentConfig(old: OldAcpAgentConfig): AgentConfig {
     agentId: old.id,
 
     command: old.extra?.cliPath ?? old.cliPath,
+    // NOTE: this return is a hand-listed literal with no spread - a field that is
+    // not named here is silently dropped, however well it is typed upstream.
+    launch: old.extra?.launch ?? old.launch,
     args: old.extra?.customArgs ?? old.customArgs,
     env: old.extra?.customEnv ?? old.customEnv,
     cwd: old.workingDir,

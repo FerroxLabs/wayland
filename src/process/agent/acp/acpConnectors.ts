@@ -23,6 +23,8 @@ import {
   CODEBUDDY_ACP_NPX_PACKAGE,
   CODEX_ACP_BRIDGE_VERSION,
   CODEX_ACP_NPX_PACKAGE,
+  isAcpLaunchSpec,
+  type AcpLaunchSpec,
 } from '@/common/types/acpTypes';
 import { resolveBridgePackage } from './bridgeVersionResolver';
 import {
@@ -59,8 +61,15 @@ function normalizeWindowsCommand(command: string): string {
  *
  * No shell is invoked, so embedded metacharacters in the path are inert: they
  * become literal characters in argv rather than being interpreted by cmd.exe.
+ *
+ * This parser cannot represent a QUOTED argument after the executable: the
+ * remainder is whitespace-split with its quotes still attached. An installed
+ * agent must therefore never be described by a command string - it carries an
+ * AcpLaunchSpec, which skips this function entirely.
+ *
+ * Exported for unit testing.
  */
-function parseWindowsCliPath(cliPath: string): { command: string; inlineArgs: string[] } {
+export function parseWindowsCliPath(cliPath: string): { command: string; inlineArgs: string[] } {
   const trimmed = cliPath.trim();
 
   // Leading quoted executable path (may contain spaces); remainder are args.
@@ -228,13 +237,18 @@ export function ensureMinNodeVersion(
  * @param acpArgs - Arguments to enable ACP mode (e.g., ['acp'] for goose, ['--acp'] for auggie, ['exec','--output-format','acp'] for droid)
  * @param customEnv - Custom environment variables
  * @param prebuiltEnv - Pre-built env to use directly (skips internal getEnhancedEnv)
+ * @param launch - Structured launch spec from an installed agent. When present it wins over
+ *   `cliPath` and is consumed verbatim: neither the npx-prefix branch, nor the Windows quote
+ *   parser, nor the POSIX whitespace split runs. This is the only shape that survives an
+ *   install path containing a space (see AcpLaunchSpec).
  */
 export function createGenericSpawnConfig(
   cliPath: string,
   workingDir: string,
   acpArgs?: string[],
   customEnv?: Record<string, string>,
-  prebuiltEnv?: Record<string, string>
+  prebuiltEnv?: Record<string, string>,
+  launch?: AcpLaunchSpec
 ) {
   const isWindows = process.platform === 'win32';
   // Use prebuilt env if provided (already cleaned by caller), otherwise build from shell env
@@ -247,7 +261,20 @@ export function createGenericSpawnConfig(
   let spawnCommand: string;
   let spawnArgs: string[];
 
-  if (cliPath.startsWith('npx ')) {
+  if (isAcpLaunchSpec(launch)) {
+    // Shape-checked, not merely truthy: `launch` originates in untyped persisted
+    // JSON, so a partial descriptor ({ command } with no args, or a string args)
+    // is reachable here and would spawn garbage. A malformed one falls through to
+    // the legacy cliPath parsing below instead.
+    //
+    // An installed agent carries its executable and its arguments already apart,
+    // so there is nothing to parse. Taking this branch FIRST is the whole point:
+    // it bypasses the npx-prefix test, the Windows quote parser, and the POSIX
+    // whitespace split, none of which can round-trip a path with a space in it.
+    // acpArgs are still appended, exactly as every other branch does.
+    spawnCommand = launch.command;
+    spawnArgs = [...launch.args, ...effectiveAcpArgs];
+  } else if (cliPath.startsWith('npx ')) {
     // Route legacy npx package launchers through the bundled bun runtime.
     const parts = cliPath.split(' ').filter(Boolean);
     spawnCommand = resolveNpxPath(env);
@@ -598,7 +625,8 @@ export async function spawnGenericBackend(
   cliPath: string,
   workingDir: string,
   acpArgs?: string[],
-  customEnv?: Record<string, string>
+  customEnv?: Record<string, string>,
+  launch?: AcpLaunchSpec
 ): Promise<SpawnResult> {
   try {
     await fs.mkdir(workingDir, { recursive: true });
@@ -616,7 +644,14 @@ export async function spawnGenericBackend(
 
   const spawnStart = Date.now();
   const detached = process.platform !== 'win32';
-  const config = createGenericSpawnConfig(cliPath, workingDir, acpArgs, undefined, cleanEnv as Record<string, string>);
+  const config = createGenericSpawnConfig(
+    cliPath,
+    workingDir,
+    acpArgs,
+    undefined,
+    cleanEnv as Record<string, string>,
+    launch
+  );
   const child = spawn(config.command, config.args, {
     ...config.options,
     detached,

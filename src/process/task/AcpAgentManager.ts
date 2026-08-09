@@ -23,6 +23,7 @@ import type {
   AcpPermissionRequest,
   AcpResult,
   AcpBackendConfig,
+  AcpLaunchSpec,
   AcpSessionConfigOption,
 } from '@/common/types/acpTypes';
 import { ACP_BACKENDS_ALL, getCurrentWrapperVersion, getFluxCompat } from '@/common/types/acpTypes';
@@ -97,6 +98,12 @@ interface AcpAgentManagerData {
   workspace?: string;
   backend: AcpBackend;
   cliPath?: string;
+  /**
+   * Structured launch spec written by the agent installer. Supersedes `cliPath`:
+   * an installed agent is spawned from { command, args } so no command string is
+   * ever built or re-parsed (see AcpLaunchSpec).
+   */
+  launch?: AcpLaunchSpec;
   customWorkspace?: boolean;
   conversation_id: string;
   customAgentId?: string; // UUID for identifying specific custom agent
@@ -728,6 +735,7 @@ ${collectedResponses.join('\n')}`;
 
   private async resolveAgentCliConfig(data: AcpAgentManagerData): Promise<{
     cliPath?: string;
+    launch?: AcpLaunchSpec;
     customArgs?: string[];
     customEnv?: Record<string, string>;
     yoloMode?: boolean;
@@ -1032,6 +1040,7 @@ ${collectedResponses.join('\n')}`;
    */
   private async resolveCustomAgentCliConfig(data: AcpAgentManagerData): Promise<{
     cliPath?: string;
+    launch?: AcpLaunchSpec;
     customArgs?: string[];
     customEnv?: Record<string, string>;
   }> {
@@ -1080,6 +1089,12 @@ ${collectedResponses.join('\n')}`;
 
     return {
       cliPath: customAgentConfig.defaultCliPath.trim(),
+      // This literal is hand-listed with no spread, so a field not named here is
+      // dropped. An installed agent reached through an assistants row that DOES
+      // carry a defaultCliPath must keep its launch descriptor - without it the
+      // spawn falls back to the cliPath string, which is exactly the Windows
+      // shredding this packet exists to prevent.
+      launch: data.launch,
       customArgs: customAgentConfig.acpArgs,
       customEnv: customAgentConfig.env,
     };
@@ -1091,6 +1106,7 @@ ${collectedResponses.join('\n')}`;
    */
   private async resolveBuiltinBackendConfig(data: AcpAgentManagerData): Promise<{
     cliPath?: string;
+    launch?: AcpLaunchSpec;
     customArgs?: string[];
     customEnv?: Record<string, string>;
     yoloMode?: boolean;
@@ -1152,7 +1168,10 @@ ${collectedResponses.join('\n')}`;
       );
     }
 
-    return { cliPath, customArgs, yoloMode };
+    // An installed agent carries `launch` on the persisted conversation extra. It is
+    // forwarded untouched and wins over `cliPath` downstream; `cliPath` is left as the
+    // legacy fallback for every agent that is not installer-provisioned.
+    return { cliPath, launch: data.launch, customArgs, yoloMode };
   }
 
   // ── initAgent callback handlers ──────────────────────────────────────
@@ -1622,12 +1641,13 @@ ${collectedResponses.join('\n')}`;
 
     this.bootstrapping = true;
     const bootstrapPromise = (async () => {
-      const { cliPath, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
+      const { cliPath, launch, customArgs, customEnv, yoloMode } = await this.resolveAgentCliConfig(data);
 
       const agentConfig = {
         id: data.conversation_id,
         backend: data.backend,
         cliPath: cliPath,
+        launch: launch,
         workingDir: data.workspace,
         customArgs: customArgs,
         customEnv: customEnv,
@@ -1635,6 +1655,7 @@ ${collectedResponses.join('\n')}`;
           workspace: data.workspace,
           backend: data.backend,
           cliPath: cliPath,
+          launch: launch,
           customWorkspace: data.customWorkspace,
           customArgs: customArgs,
           customEnv: customEnv,

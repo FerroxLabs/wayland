@@ -150,6 +150,55 @@ describe('LegacyConnectorFactory', () => {
       expect(mocks.connectCodebuddy).toHaveBeenCalledWith('/tmp/test', expect.any(Object), undefined);
     });
 
+    // B1: NPX_BACKENDS is keyed by backend name, so claude/codex/codebuddy used to
+    // short-circuit to the npx bridge BEFORE the launch/command guard was reached.
+    // An installed agent's descriptor was therefore discarded in silence - no throw,
+    // no warning, and the npx bridge ran a DIFFERENT binary than the one installed.
+    // These three are exactly the backends K-05 ships an installer for.
+    for (const [backend, connectMock] of [
+      ['claude', 'connectClaude'],
+      ['codex', 'connectCodex'],
+      ['codebuddy', 'connectCodebuddy'],
+    ] as const) {
+      it(`prefers an installed launch spec over the npx bridge for ${backend}`, async () => {
+        const child = makeFakeChild();
+        mocks.spawnGenericBackend.mockResolvedValue({ child, isDetached: true });
+        mocks[connectMock].mockImplementation(async (_cwd: string, hooks: { setup: (r: unknown) => Promise<void> }) => {
+          await hooks.setup({ child: makeFakeChild(), isDetached: true });
+        });
+
+        const launch = {
+          command: 'C:\\Program Files\\Wayland\\resources\\bundled-bun\\win32-x64\\bun.exe',
+          args: [`C:\\Users\\John Smith\\AppData\\Local\\Wayland\\agents\\${backend}\\cli-entry.js`],
+        };
+
+        const factory = new LegacyConnectorFactory();
+        factory.create(makeConfig({ agentBackend: backend, launch, args: ['--acp'] }), makeHandlers());
+
+        const { spawnFn } = mockProcessAcpClientInstances[0];
+        const result = await spawnFn();
+
+        expect(mocks[connectMock]).not.toHaveBeenCalled();
+        expect(mocks.spawnGenericBackend).toHaveBeenCalledWith(backend, '', '/tmp/test', ['--acp'], undefined, launch);
+        expect(result).toBe(child);
+      });
+    }
+
+    it('still uses the npx bridge for claude when there is no launch spec', async () => {
+      const child = makeFakeChild();
+      mocks.connectClaude.mockImplementation(async (_cwd: string, hooks: { setup: (r: unknown) => Promise<void> }) => {
+        await hooks.setup({ child, isDetached: true });
+      });
+
+      const factory = new LegacyConnectorFactory();
+      factory.create(makeConfig({ agentBackend: 'claude', launch: undefined }), makeHandlers());
+
+      const { spawnFn } = mockProcessAcpClientInstances[0];
+      await spawnFn();
+      expect(mocks.connectClaude).toHaveBeenCalledWith('/tmp/test', expect.any(Object), undefined);
+      expect(mocks.spawnGenericBackend).not.toHaveBeenCalled();
+    });
+
     it('rejects when connect function fails', async () => {
       mocks.connectCodex.mockRejectedValue(new Error('npx failed'));
 
@@ -180,11 +229,106 @@ describe('LegacyConnectorFactory', () => {
 
       const { spawnFn } = mockProcessAcpClientInstances[0];
       const result = await spawnFn();
-      expect(mocks.spawnGenericBackend).toHaveBeenCalledWith('goose', '/usr/local/bin/goose', '/tmp/test', ['acp'], {
-        GOOSE_KEY: 'xxx',
-      });
+      expect(mocks.spawnGenericBackend).toHaveBeenCalledWith(
+        'goose',
+        '/usr/local/bin/goose',
+        '/tmp/test',
+        ['acp'],
+        { GOOSE_KEY: 'xxx' },
+        // No launch spec for a non-installed agent: the legacy command string is
+        // still the only source, so the trailing arg is undefined.
+        undefined
+      );
       expect(result).toBe(child);
     });
+
+    it('forwards an installed agent launch spec instead of a command string', async () => {
+      const child = makeFakeChild();
+      mocks.spawnGenericBackend.mockResolvedValue({ child, isDetached: true });
+
+      const launch = {
+        command: 'C:\\Program Files\\Wayland\\resources\\bundled-bun\\win32-x64\\bun.exe',
+        args: ['C:\\Users\\John Smith\\AppData\\Local\\Wayland\\agents\\qwen\\cli-entry.js'],
+      };
+
+      const factory = new LegacyConnectorFactory();
+      factory.create(
+        makeConfig({
+          agentBackend: 'qwen',
+          agentSource: 'extension',
+          command: undefined,
+          launch,
+          args: ['--acp'],
+          env: undefined,
+        }),
+        makeHandlers()
+      );
+
+      const { spawnFn } = mockProcessAcpClientInstances[0];
+      const result = await spawnFn();
+      // An installed agent has no cliPath at all, so the old `if (config.command)`
+      // guard would have thrown "No CLI path" before ever reaching spawn.
+      expect(mocks.spawnGenericBackend).toHaveBeenCalledWith('qwen', '', '/tmp/test', ['--acp'], undefined, launch);
+      expect(result).toBe(child);
+    });
+
+    // B4: `launch` arrives from the persisted conversation `extra`, which is
+    // untyped JSON at runtime (workerTaskManagerSingleton spreads `...c.extra`
+    // through an `any`). A truthiness check therefore accepts shapes the type
+    // forbids. A malformed descriptor must never reach spawn.
+    const MALFORMED_LAUNCH: Array<[string, unknown]> = [
+      ['missing args', { command: 'x' }],
+      ['args not an array', { command: 'x', args: '--acp' }],
+      ['args holding non-strings', { command: 'x', args: [1, 2] }],
+      ['missing command', { args: ['--acp'] }],
+      ['empty command', { command: '   ', args: [] }],
+      ['not an object', 'C:\\bun.exe'],
+    ];
+
+    for (const [label, launch] of MALFORMED_LAUNCH) {
+      it(`fails loudly rather than spawning a malformed launch spec (${label})`, async () => {
+        const factory = new LegacyConnectorFactory();
+        factory.create(
+          makeConfig({
+            agentBackend: 'qwen',
+            command: undefined,
+            launch: launch as AgentConfig['launch'],
+          }),
+          makeHandlers()
+        );
+
+        const { spawnFn } = mockProcessAcpClientInstances[0];
+        await expect(spawnFn()).rejects.toThrow('No CLI path');
+        expect(mocks.spawnGenericBackend).not.toHaveBeenCalled();
+      });
+
+      it(`falls back to the legacy command string when the launch spec is malformed (${label})`, async () => {
+        const child = makeFakeChild();
+        mocks.spawnGenericBackend.mockResolvedValue({ child, isDetached: true });
+
+        const factory = new LegacyConnectorFactory();
+        factory.create(
+          makeConfig({
+            agentBackend: 'goose',
+            command: '/usr/local/bin/goose',
+            args: ['acp'],
+            launch: launch as AgentConfig['launch'],
+          }),
+          makeHandlers()
+        );
+
+        const { spawnFn } = mockProcessAcpClientInstances[0];
+        await spawnFn();
+        expect(mocks.spawnGenericBackend).toHaveBeenCalledWith(
+          'goose',
+          '/usr/local/bin/goose',
+          '/tmp/test',
+          ['acp'],
+          undefined,
+          undefined
+        );
+      });
+    }
 
     it('throws when no command and no npx backend', async () => {
       const factory = new LegacyConnectorFactory();

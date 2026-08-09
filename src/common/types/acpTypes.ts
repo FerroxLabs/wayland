@@ -73,6 +73,46 @@ export type AcpBackendAll =
 export type AgentBackend = AcpBackendAll | 'gemini' | 'remote' | 'wcore' | 'nanobot' | 'openclaw-gateway';
 
 /**
+ * Structured launch descriptor for an installed agent: the executable and its
+ * arguments stay separate, so no code path ever re-parses a command string.
+ *
+ * A single command STRING cannot survive a Windows install. electron-builder is
+ * `perMachine: true`, so the bundled runtime always sits under
+ * `C:\Program Files\Wayland`, and a user profile adds a second space
+ * (`C:\Users\John Smith\...`). Every string form we have is split on whitespace
+ * downstream - `createGenericSpawnConfig` unquotes only the FIRST quoted token
+ * and `.split(/\s+/)` shreds the rest with its quotes still attached, and
+ * `runBackendLogin` / `ensureBackendAuth` do not parse at all and hand the whole
+ * composite string to CreateProcess as the executable name. With `shell: false`
+ * those bytes are passed through verbatim, so the spawn fails (or worse, runs
+ * with a mangled argv). Carrying `{ command, args }` bypasses both parsers.
+ */
+export type AcpLaunchSpec = {
+  /** Absolute path to the executable. Never quoted, never concatenated. */
+  command: string;
+  /** Arguments passed to the executable verbatim, one argv slot each. */
+  args: string[];
+};
+
+/**
+ * Runtime shape check for a launch descriptor.
+ *
+ * The declared type guarantees nothing at the seams that consume this: a launch
+ * spec is rehydrated from the persisted conversation `extra`, which is untyped
+ * JSON (workerTaskManagerSingleton spreads `...c.extra` through an `any`). A
+ * bare truthiness test therefore accepts `{ command: 'x' }` with no args, or an
+ * `args` that is a string, and those reach spawn as `undefined`/garbage argv.
+ * Every consumer must gate on this instead of on truthiness, and fall back to
+ * the legacy cliPath string (or fail loudly) when it returns false.
+ */
+export function isAcpLaunchSpec(value: unknown): value is AcpLaunchSpec {
+  if (typeof value !== 'object' || value === null) return false;
+  const spec = value as { command?: unknown; args?: unknown };
+  if (typeof spec.command !== 'string' || spec.command.trim().length === 0) return false;
+  return Array.isArray(spec.args) && spec.args.every((arg) => typeof arg === 'string');
+}
+
+/**
  * Potential ACP CLI tools list.
  * Used for auto-detecting CLI tools installed on the user's local machine.
  * When new ACP CLI tools are released, simply add them to this list.

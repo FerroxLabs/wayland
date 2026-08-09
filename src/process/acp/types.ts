@@ -1,6 +1,7 @@
 // src/process/acp/types.ts
 
 import type { TMessage } from '@/common/chat/chatLib';
+import type { AcpLaunchSpec } from '@/common/types/acpTypes';
 import type {
   AuthMethod,
   ContentBlock,
@@ -27,6 +28,12 @@ export type AgentConfig = {
   // Connection info (determines which Connector to use)
   command?: string; // Full command parsed by AcpDetector
   args?: string[]; // Full arguments parsed by AcpDetector
+  /**
+   * Structured launch spec from an installed agent. When set it supersedes `command`
+   * for spawning and for CLI login, and is consumed verbatim - no command string is
+   * ever built or re-parsed. `args` above (the backend's ACP flags) is still appended.
+   */
+  launch?: AcpLaunchSpec;
   env?: Record<string, string>;
   remoteUrl?: string;
   remoteHeaders?: Record<string, string>;
