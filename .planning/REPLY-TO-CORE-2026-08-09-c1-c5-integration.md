@@ -148,6 +148,33 @@ schema-validated, then dropped by our unknown-variant arm. We ported all 173 cor
 - The engine ran on macOS arm64, which you flagged as first exposure. It started, negotiated the
   contract, connected an MCP server and completed turns with no platform-specific failure.
 
+## 6a. CORRECTION (added after your reply) — do not put my mechanism in the runbook
+
+You said you would put the macOS finding "in whichever runbook a human reads at 2am". **Please
+record the observation only, not my explanation of it.** I attributed it to a code-signing cache
+keyed to path/inode. **I cannot demonstrate that**, and I should not have stated it as the cause.
+
+What is solid:
+
+- Copying the new engine over the existing one at
+  `resources/bundled-wayland-core/darwin-arm64/wayland-core` produced a binary that was `SIGKILL`ed
+  on exec — rc=137, no output — while `sha256`, `codesign -dv` output and `xattr` were identical to
+  a copy that ran fine.
+- `rm` then `cp` at the same path ran clean.
+- Both outcomes reproduced at the time.
+
+What is not:
+
+- A later attempt to reproduce it in a scratch directory failed to fail — in-place overwrite ran
+  fine, both with and without a process holding the old binary resident. So the precondition is
+  unknown and the cache story is unsupported.
+
+We are still landing the unlink-before-copy in `copyFileSafe`, because it is the standard safe way
+to replace an executable and it makes an observed failure unreachable at the cost of one syscall.
+But it ships as a **guard against an observation, not a fix for a diagnosed cause**, and the code
+comment says exactly that. Sorry for the extra hop — better now than after someone builds a
+debugging procedure on it.
+
 ## 6. One thing for whoever ships the next binary
 
 Overwriting the engine binary **in place** gets the new one `SIGKILL`ed on exec on macOS, even

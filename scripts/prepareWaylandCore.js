@@ -65,6 +65,20 @@ function pruneRuntimeDirectory(dirPath, allowedNames) {
 
 function copyFileSafe(sourcePath, targetPath) {
   ensureDirectory(path.dirname(targetPath));
+  // Unlink first so the copy lands on a fresh inode, which is the standard safe
+  // way to replace an executable.
+  //
+  // Prompted by an OBSERVED failure while staging the C-1..C-5 engine: copying
+  // the new binary over the existing one here produced a binary that was
+  // SIGKILLed on exec (rc=137, no output) despite a matching sha256, identical
+  // `codesign` output and identical xattrs; `rm` then `cp` at the same path ran
+  // clean. Both results were reproducible at the time.
+  //
+  // The mechanism is NOT established - a later attempt to reproduce it in a
+  // scratch directory, with and without a resident process holding the old
+  // binary, did not fail. So this is a cheap guard against a real observation,
+  // not a fix for a diagnosed cause. Do not repeat any mechanism story for it.
+  fs.rmSync(targetPath, { force: true });
   fs.copyFileSync(sourcePath, targetPath);
 }
 
