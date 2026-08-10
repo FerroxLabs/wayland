@@ -1426,6 +1426,36 @@ const SendBox: React.FC<{
     return segments;
   }, [allAtFileQueries, input]);
 
+  /**
+   * The right-hand control cluster, rendered identically by both layout
+   * branches.
+   *
+   * These were two byte-identical copies. That looked harmless and was not:
+   * NanobotSendBox passes neither defaultMultiLine nor lockMultiLine, so
+   * isSingleLine initialises true there and the single-line branch is live for
+   * real users. Editing one copy is not "a change no user ever sees" - it is a
+   * silent per-platform divergence where one product quietly misses whatever
+   * the other one gained.
+   */
+  const renderVoiceControls = () => (
+    <>
+      {runningIndicator}
+      <SpeechInputButton
+        disabled={disabled || isLoading || loading || isUploading}
+        locale={speechLocale}
+        onTranscript={handleSpeechTranscript}
+      />
+      {conversationContext?.conversationId && (
+        <VoiceModeEntryButton
+          conversationId={conversationContext.conversationId}
+          disabled={disabled || isLoading || loading || isUploading}
+        />
+      )}
+      {sendButtonPrefix}
+      {renderActionButtons()}
+    </>
+  );
+
   return (
     <div className={className}>
       <div
@@ -1657,44 +1687,12 @@ const SendBox: React.FC<{
               })}
             ></Input.TextArea>
           </div>
-          {isSingleLine && (
-            <div className='flex items-center gap-2'>
-              {runningIndicator}
-              <SpeechInputButton
-                disabled={disabled || isLoading || loading || isUploading}
-                locale={speechLocale}
-                onTranscript={handleSpeechTranscript}
-              />
-              {conversationContext?.conversationId && (
-                <VoiceModeEntryButton
-                  conversationId={conversationContext.conversationId}
-                  disabled={disabled || isLoading || loading || isUploading}
-                />
-              )}
-              {sendButtonPrefix}
-              {renderActionButtons()}
-            </div>
-          )}
+          {isSingleLine && <div className='flex items-center gap-2'>{renderVoiceControls()}</div>}
         </div>
         {!isSingleLine && (
           <div className='flex items-center justify-between gap-2 w-full'>
             <div className={isMobile ? 'sendbox-tools sendbox-tools-scroll-mobile' : 'sendbox-tools'}>{tools}</div>
-            <div className='flex items-center gap-2'>
-              {runningIndicator}
-              <SpeechInputButton
-                disabled={disabled || isLoading || loading || isUploading}
-                locale={speechLocale}
-                onTranscript={handleSpeechTranscript}
-              />
-              {conversationContext?.conversationId && (
-                <VoiceModeEntryButton
-                  conversationId={conversationContext.conversationId}
-                  disabled={disabled || isLoading || loading || isUploading}
-                />
-              )}
-              {sendButtonPrefix}
-              {renderActionButtons()}
-            </div>
+            <div className='flex items-center gap-2'>{renderVoiceControls()}</div>
           </div>
         )}
       </div>

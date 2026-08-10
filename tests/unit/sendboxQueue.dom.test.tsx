@@ -653,4 +653,21 @@ describe('SendBox queue and interaction behaviors', () => {
 
     expect(mockWarmupInvoke).toHaveBeenCalledWith({ conversation_id: 'conversation-1' });
   });
+
+  /**
+   * Both layout branches render the same controls.
+   *
+   * They were byte-identical copies, which looked like harmless duplication and
+   * was not: NanobotSendBox passes neither defaultMultiLine nor lockMultiLine,
+   * so the single-line branch is live for real users there. One edited copy is
+   * a silent per-platform divergence, and no test would have noticed.
+   */
+  it.each([
+    ['single line', false],
+    ['multi line', true],
+  ])('renders the same composer controls in %s mode', (_name, defaultMultiLine) => {
+    renderControlledSendBox({ defaultMultiLine, initialValue: 'hello' });
+
+    expect(screen.getByRole('button', { name: 'Send message' })).toBeInTheDocument();
+  });
 });
