@@ -492,6 +492,110 @@
     0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
+/* ---------------------------------------------------------------------------
+   Voice session rings.
+
+   Declared AFTER :focus-within deliberately: that rule sets the same two
+   properties with !important, and the composer is focused for most of a voice
+   session, so anything declared earlier simply loses.
+
+   LISTENING and SPEAKING must not merely be two shades of the same glow. The
+   mic reopens by itself 350ms after every answer, stays open up to 8s, and
+   auto-sends what it hears - so "it is hearing me" has to be distinguishable
+   from "it is talking" at a glance, without reading the caption. They differ in
+   hue AND in animation period, so the distinction survives colour-blindness and
+   a greyscale display.
+
+   The animation lives here rather than in a React-driven inline style because
+   SendBox re-renders on every streamed token; animating box-shadow on an
+   element this large from that render loop is visible jank. Only the coarse
+   idle | listening | speaking class is lifted into state.
+   --------------------------------------------------------------------------- */
+
+.sendbox-panel--voice-listening {
+  border-color: rgba(244, 63, 94, 0.62) !important;
+  animation: sendbox-voice-listening 1.4s ease-in-out infinite;
+}
+
+.sendbox-panel--voice-speaking {
+  border-color: rgba(129, 140, 248, 0.62) !important;
+  animation: sendbox-voice-speaking 2.6s ease-in-out infinite;
+}
+
+@keyframes sendbox-voice-listening {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(244, 63, 94, 0.34),
+      0 0 18px rgba(244, 63, 94, 0.14);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(244, 63, 94, 0.52),
+      0 0 30px rgba(244, 63, 94, 0.26);
+  }
+}
+
+@keyframes sendbox-voice-speaking {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(129, 140, 248, 0.30),
+      0 0 20px rgba(129, 140, 248, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(129, 140, 248, 0.46),
+      0 0 34px rgba(129, 140, 248, 0.22);
+  }
+}
+
+/* A pulsing ring around the text you are typing into is exactly the kind of
+   motion that triggers vestibular symptoms. Hold the mid-point of each glow so
+   the state is still legible, and stop moving. */
+@media (prefers-reduced-motion: reduce) {
+  .sendbox-panel--voice-listening,
+  .sendbox-panel--voice-speaking {
+    animation: none;
+  }
+
+  .sendbox-panel--voice-listening {
+    box-shadow:
+      0 0 0 1px rgba(244, 63, 94, 0.52),
+      0 0 30px rgba(244, 63, 94, 0.26);
+  }
+
+  .sendbox-panel--voice-speaking {
+    box-shadow:
+      0 0 0 1px rgba(129, 140, 248, 0.46),
+      0 0 34px rgba(129, 140, 248, 0.22);
+  }
+}
+
+/* Composer-level microphone meter. Driven by the SESSION's level, never by
+   SpeechInputButton's own strip - useSpeechInput is per-instance, so the
+   button's meter sits at zero for the whole session. Width comes from a CSS
+   custom property so a level change repaints one element instead of
+   re-rendering the composer. */
+.sendbox-voice-level {
+  display: inline-block;
+  width: 34px;
+  height: 3px;
+  margin-left: 8px;
+  border-radius: 2px;
+  background: rgba(244, 63, 94, 0.18);
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.sendbox-voice-level__fill {
+  display: block;
+  height: 100%;
+  width: calc(var(--sendbox-voice-level, 0) * 100%);
+  background: rgba(244, 63, 94, 0.85);
+  transition: width 90ms linear;
+}
+
 /* Suppress native browser focus rings on the inner textarea - the
    panel's glow IS the focus state. */
 .sendbox-panel textarea,

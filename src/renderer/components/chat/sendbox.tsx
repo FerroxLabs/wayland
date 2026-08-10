@@ -1414,6 +1414,24 @@ const SendBox: React.FC<{
   const voiceStatus = voiceStatusText();
 
   /*
+   * Coarse ring state - the ONLY voice detail lifted into React for the glow.
+   * Everything else about the ring (colour, pulse, reduced-motion) lives in
+   * sendbox.css, because this component re-renders on every streamed token.
+   *
+   * Listening covers both halves of an open microphone: `listening` is armed
+   * and waiting, `user-speaking` is actively hearing someone. From the user's
+   * side both mean the same thing - the mic is live and what it hears will be
+   * sent - so they get one indicator.
+   */
+  const voiceRing: 'listening' | 'speaking' | null = !voiceSession?.isActive
+    ? null
+    : voiceSession.state === 'listening' || voiceSession.state === 'user-speaking'
+      ? 'listening'
+      : voiceSession.state === 'speaking'
+        ? 'speaking'
+        : null;
+
+  /*
    * Exactly one status element, ever. Two live regions in one row saying
    * different things ("Working..." beside "Wayland is speaking...") is worse
    * than either alone, and a screen reader would announce both.
@@ -1422,6 +1440,25 @@ const SendBox: React.FC<{
     <span className='sendbox-running' role='status' aria-live='polite' data-testid='composer-voice-status'>
       <span className='sendbox-running-dot' aria-hidden='true' />
       {voiceStatus}
+      {voiceRing === 'listening' ? (
+        /*
+         * Reads the SESSION's level. The draft said to reuse
+         * SpeechInputButton's waveform strip, which cannot work: useSpeechInput
+         * is per-instance, so that strip is driven by the button's own recorder
+         * and sits flat at zero for the entire session.
+         *
+         * aria-hidden because the caption beside it already says the mic is
+         * open; announcing a moving number would be noise, not information.
+         */
+        <span
+          className='sendbox-voice-level'
+          data-testid='composer-voice-level'
+          aria-hidden='true'
+          style={{ ['--sendbox-voice-level' as string]: String(Math.min(1, Math.max(0, voiceSession?.level ?? 0))) }}
+        >
+          <span className='sendbox-voice-level__fill' />
+        </span>
+      ) : null}
     </span>
   ) : isRunning ? (
     <span className='sendbox-running' role='status' aria-live='polite'>
@@ -1594,7 +1631,7 @@ const SendBox: React.FC<{
     <div className={className}>
       <div
         ref={containerRef}
-        className={`sendbox-panel relative p-16px border-3 b bg-dialog-fill-0 b-solid rd-20px flex flex-col ${isOverlayOpen ? 'overflow-visible' : 'overflow-hidden'} ${isFileDragging ? 'b-dashed sendbox-panel--dragging' : ''}`}
+        className={`sendbox-panel relative p-16px border-3 b bg-dialog-fill-0 b-solid rd-20px flex flex-col ${isOverlayOpen ? 'overflow-visible' : 'overflow-hidden'} ${isFileDragging ? 'b-dashed sendbox-panel--dragging' : ''} ${voiceRing ? `sendbox-panel--voice-${voiceRing}` : ''}`}
         style={{
           transition: 'box-shadow 0.25s ease, border-color 0.25s ease',
           ...(isFileDragging
@@ -1605,8 +1642,15 @@ const SendBox: React.FC<{
               }
             : {
                 borderWidth: '1px',
-                borderColor: isInputActive ? activeBorderColor : inactiveBorderColor,
-                boxShadow: isInputActive ? activeShadow : 'none',
+                // An inline box-shadow outranks a keyframe, so while a voice
+                // ring is up the class owns both properties outright. Setting
+                // these anyway would render the animation as a frozen frame.
+                ...(voiceRing
+                  ? {}
+                  : {
+                      borderColor: isInputActive ? activeBorderColor : inactiveBorderColor,
+                      boxShadow: isInputActive ? activeShadow : 'none',
+                    }),
               }),
         }}
         {...dragHandlers}
