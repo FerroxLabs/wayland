@@ -13,7 +13,9 @@ import {
   type IMcpServer,
   BUILTIN_IMAGE_GEN_ID,
 } from '@/common/config/storage';
+import { FLUX_PROVIDER_ID } from '@/common/config/flux';
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
+import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
 import { isTextToSpeechProvider } from '@/common/types/ttsTypes';
 import { modelRegistry, voiceAsset, voiceSynth } from '@/common/adapter/ipcBridge';
@@ -461,6 +463,11 @@ export const SpeechToTextSettingsSection: React.FC<{
   // key automatically, so the panel confirms the key is present instead of
   // telling the user to go configure it.
   const [openAIConnected, setOpenAIConnected] = useState<boolean | null>(null);
+  // Flux connectivity comes from the same registry read. Main seeds Flux Voice
+  // as the zero-config transcriber when Flux is connected and no STT engine was
+  // ever chosen, so without this the panel cannot know which company is actually
+  // receiving the audio.
+  const [fluxConnected, setFluxConnected] = useState(false);
   useEffect(() => {
     let cancelled = false;
     void modelRegistry.list
@@ -468,6 +475,7 @@ export const SpeechToTextSettingsSection: React.FC<{
       .then((providers) => {
         if (cancelled) return;
         setOpenAIConnected(providers.some((p) => p.providerId === 'openai' && p.state === 'connected'));
+        setFluxConnected(providers.some((p) => p.providerId === FLUX_PROVIDER_ID && p.state === 'connected'));
       })
       .catch(() => {
         if (!cancelled) setOpenAIConnected(false);
@@ -476,6 +484,25 @@ export const SpeechToTextSettingsSection: React.FC<{
       cancelled = true;
     };
   }, []);
+
+  /**
+   * The transcriber that will actually receive the audio, which is not always
+   * the one stored in settings. Consent is per-recipient, so every consent
+   * decision on this panel is made about THIS provider - asking about the stored
+   * one is how a user ends up accepting a disclosure that never unblocks
+   * anything.
+   *
+   * Main additionally requires the connected provider's stored key to be
+   * non-empty, which the renderer cannot see; a provider marked connected with
+   * an empty key would make this optimistic. That errs toward offering consent
+   * for a provider that then goes unused, which is harmless - the reverse, no
+   * consent for the provider actually used, is the failure being fixed.
+   */
+  const effectiveProvider = resolveEffectiveSttProvider({
+    stored: config,
+    hasConnectedOpenAIKey: openAIConnected === true,
+    hasConnectedFluxKey: fluxConnected,
+  });
   const handleOpenProvidersPage = useCallback(() => {
     try {
       navigate('/settings/models');
@@ -564,11 +591,24 @@ export const SpeechToTextSettingsSection: React.FC<{
           <WaylandSelect value={config.provider} onChange={handleProviderChange} data-testid='stt-provider-select'>
             <WaylandSelect.Option value='openai'>{t('settings.speechToTextProviderOpenAI')}</WaylandSelect.Option>
             <WaylandSelect.Option value='deepgram'>{t('settings.speechToTextProviderDeepgram')}</WaylandSelect.Option>
+            <WaylandSelect.Option value='flux-voice'>
+              {t('settings.speechToTextProviderFluxVoice')}
+            </WaylandSelect.Option>
             <WaylandSelect.Option value='whisper-local'>
               {t('settings.speechToTextProviderWhisperLocal')}
             </WaylandSelect.Option>
           </WaylandSelect>
-          {needsConsent(config.provider) && (
+          {effectiveProvider !== config.provider && (
+            <div data-testid='stt-effective-provider' className='mt-6px text-12px text-t-secondary'>
+              {t('settings.speechToTextSeededProvider', {
+                defaultValue: 'Currently using {{provider}}, because it is connected and no engine was chosen here.',
+                provider: t(
+                  `settings.speechToTextProvider${effectiveProvider === 'flux-voice' ? 'FluxVoice' : 'OpenAI'}`
+                ),
+              })}
+            </div>
+          )}
+          {needsConsent(effectiveProvider) && (
             <div
               data-testid='stt-consent-pending'
               className='mt-6px text-12px text-t-secondary flex items-center gap-6px flex-wrap'
@@ -581,7 +621,7 @@ export const SpeechToTextSettingsSection: React.FC<{
                 size='mini'
                 className='!px-0 !h-auto'
                 data-testid='stt-consent-review'
-                onClick={() => void ensureConsent(config.provider)}
+                onClick={() => void ensureConsent(effectiveProvider)}
               >
                 {t('settings.voiceReviewHostedConsent', 'Review consent')}
               </Button>

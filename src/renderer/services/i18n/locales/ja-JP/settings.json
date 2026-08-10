@@ -1106,6 +1106,7 @@
   "speechToTextDownloadError": "ダウンロードに失敗しました",
   "speechToTextCancelDownload": "キャンセル",
   "speechToTextProviderFluxVoice": "Flux Voice",
+  "speechToTextSeededProvider": "接続済みで、ここでエンジンが選択されていないため、現在 {{provider}} を使用しています。",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "テキスト読み上げ",

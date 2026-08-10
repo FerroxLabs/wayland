@@ -1146,6 +1146,7 @@
   "speechToTextDownloadError": "Download failed",
   "speechToTextCancelDownload": "Cancel",
   "speechToTextProviderFluxVoice": "Flux Voice",
+  "speechToTextSeededProvider": "Currently using {{provider}}, because it is connected and no engine was chosen here.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "Text to Speech",
