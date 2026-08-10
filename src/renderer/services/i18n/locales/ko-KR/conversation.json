@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "현재 세션에 선택된 모델이 없어 메시지를 보낼 수 없습니다",
     "sendMessageTo": "{{model}}에게 메시지 보내기",
+    "sendMessage": "메시지 보내기",
+    "stopGenerating": "생성 중지",
     "processing": "처리 중...",
     "quotaExceededTitle": "모델 할당량 도달",
     "quotaExceededBody": "현재 모델 할당량이 소진되었습니다. {{model}}(으)로 전환하여 계속하시겠습니까?",

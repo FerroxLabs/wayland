@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "當前會話未選擇模型，無法發送訊息",
     "sendMessageTo": "發送訊息到 {{model}}",
+    "sendMessage": "傳送訊息",
+    "stopGenerating": "停止產生",
     "processing": "正在處理中……",
     "quotaExceededTitle": "模型額度已用盡",
     "quotaExceededBody": "當前模型額度已用盡，是否切換到 {{model}}？",

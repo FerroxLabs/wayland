@@ -1324,13 +1324,20 @@ const SendBox: React.FC<{
   // Calculate button disabled state
   const isButtonDisabled = disabled || isUploading || (!input.trim() && domSnippets.length === 0);
 
-  // Reusable send button component
+  /*
+   * These two are icon-only, so without an explicit name their accessible name
+   * is nothing at all - a screen reader announces "button". The test suite
+   * appeared to cover this, but the names it asserted were synthesized by the
+   * Arco mock from the className; the real controls never had them. Adding a
+   * fourth control to a row of unnamed icon buttons would have made that worse.
+   */
   const sendButton = (
     <Button
       shape='circle'
       type='primary'
       disabled={isButtonDisabled}
       className='send-button-custom'
+      aria-label={t('conversation.chat.sendMessage', { defaultValue: 'Send message' })}
       icon={<ArrowUp size={14} color='white' strokeWidth={3} />}
       onClick={() => {
         sendMessageHandler();
@@ -1343,6 +1350,7 @@ const SendBox: React.FC<{
       shape='circle'
       type='secondary'
       className='bg-animate sendbox-stop-button'
+      aria-label={t('conversation.chat.stopGenerating', { defaultValue: 'Stop generating' })}
       icon={<div className='mx-auto size-12px bg-6'></div>}
       onClick={stopHandler}
     ></Button>

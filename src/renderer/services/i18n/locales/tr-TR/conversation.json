@@ -202,6 +202,8 @@
   "chat": {
     "noModelSelected": "Mevcut oturum için model seçilmedi, mesaj gönderilemiyor",
     "sendMessageTo": "{{model}} modeline mesaj gönder",
+    "sendMessage": "Mesaj gönder",
+    "stopGenerating": "Üretimi durdur",
     "processing": "İşleniyor...",
     "quotaExceededTitle": "Model kotasına ulaşıldı",
     "quotaExceededBody": "Mevcut model kotası tükendi. Devam etmek için {{model}} modeline geçilsin mi?",

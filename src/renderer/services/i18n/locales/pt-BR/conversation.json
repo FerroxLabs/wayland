@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "Nenhum modelo selecionado para a sessão atual, não é possível enviar a mensagem",
     "sendMessageTo": "Enviar mensagem para {{model}}",
+    "sendMessage": "Enviar mensagem",
+    "stopGenerating": "Parar a geração",
     "processing": "Processando...",
     "quotaExceededTitle": "Cota do modelo atingida",
     "quotaExceededBody": "A cota do modelo atual se esgotou. Mudar para {{model}} para continuar?",

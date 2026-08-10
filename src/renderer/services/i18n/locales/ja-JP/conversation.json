@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "現在のセッションでモデルが選択されていないため、メッセージを送信できません",
     "sendMessageTo": "{{model}}にメッセージを送信",
+    "sendMessage": "メッセージを送信",
+    "stopGenerating": "生成を停止",
     "processing": "処理中……",
     "quotaExceededTitle": "モデルの上限に達しました",
     "quotaExceededBody": "現在のモデルの上限に達しました。{{model}}に切り替えて続行しますか？",

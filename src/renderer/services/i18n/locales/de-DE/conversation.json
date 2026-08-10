@@ -207,6 +207,8 @@
   "chat": {
     "noModelSelected": "Für die aktuelle Sitzung ist kein Modell ausgewählt, Nachricht kann nicht gesendet werden",
     "sendMessageTo": "Nachricht an {{model}} senden",
+    "sendMessage": "Nachricht senden",
+    "stopGenerating": "Generierung stoppen",
     "processing": "Wird verarbeitet...",
     "quotaExceededTitle": "Modellkontingent erreicht",
     "quotaExceededBody": "Das Kontingent des aktuellen Modells ist aufgebraucht. Zu {{model}} wechseln, um fortzufahren?",

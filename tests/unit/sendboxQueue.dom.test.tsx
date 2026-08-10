@@ -214,13 +214,23 @@ vi.mock('@icon-park/react', () => ({
 }));
 
 vi.mock('@arco-design/web-react', () => ({
+  /*
+   * Forwards the accessible name the component actually passes, instead of
+   * inventing one from the className.
+   *
+   * The old mock synthesized 'send' and 'stop', which meant every
+   * accessible-name assertion in this file was testing the mock. The real
+   * buttons had no name at all, and a component like VoiceModeEntryButton -
+   * which DOES set aria-label - came back with null here. Any a11y work checked
+   * through this harness would have shipped green and unverified.
+   */
   Button: ({
     children,
     icon,
     className,
     disabled,
     onClick,
-    type,
+    ...rest
   }: {
     children?: React.ReactNode;
     icon?: React.ReactNode;
@@ -228,6 +238,8 @@ vi.mock('@arco-design/web-react', () => ({
     disabled?: boolean;
     onClick?: () => void;
     type?: string;
+    'aria-label'?: string;
+    title?: string;
   }) =>
     React.createElement(
       'button',
@@ -236,7 +248,8 @@ vi.mock('@arco-design/web-react', () => ({
         className,
         disabled,
         onClick,
-        'aria-label': className?.includes('send-button-custom') ? 'send' : type === 'secondary' ? 'stop' : undefined,
+        'aria-label': rest['aria-label'],
+        title: rest.title,
       },
       children ?? icon
     ),
@@ -388,7 +401,7 @@ describe('SendBox queue and interaction behaviors', () => {
     fireEvent.click(screen.getByRole('button', { name: 'remove-main' }));
     expect(mockRemoveDomSnippet).toHaveBeenCalledWith('dom-1');
 
-    fireEvent.click(screen.getByRole('button', { name: 'send' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
 
     await waitFor(() => {
       expect(onSend).toHaveBeenCalledTimes(1);
@@ -424,10 +437,10 @@ describe('SendBox queue and interaction behaviors', () => {
       onStop,
     });
 
-    expect(screen.getByRole('button', { name: 'stop' })).toHaveClass('sendbox-stop-button');
-    expect(screen.queryByRole('button', { name: 'send' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Stop generating' })).toHaveClass('sendbox-stop-button');
+    expect(screen.queryByRole('button', { name: 'Send message' })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'stop' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Stop generating' }));
     await waitFor(() => {
       expect(onStop).toHaveBeenCalledTimes(1);
     });
@@ -447,7 +460,7 @@ describe('SendBox queue and interaction behaviors', () => {
       target: { value: 'continue anyway' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'send' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
     await waitFor(() => {
       expect(onSend).toHaveBeenCalledWith('continue anyway');
     });
@@ -461,8 +474,8 @@ describe('SendBox queue and interaction behaviors', () => {
       initialValue: 'waiting for file upload',
     });
 
-    expect(screen.getByRole('button', { name: 'send' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'send' })).toHaveClass('send-button-custom');
+    expect(screen.getByRole('button', { name: 'Send message' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Send message' })).toHaveClass('send-button-custom');
   });
 
   it('renders slash commands, forwards selection, and exposes merged builtin commands', async () => {
