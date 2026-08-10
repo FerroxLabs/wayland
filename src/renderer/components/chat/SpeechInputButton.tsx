@@ -45,6 +45,15 @@ const SpeechLoaderIcon = () => <span className='speech-loader-spinner' aria-hidd
 
 const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
 
+/**
+ * Where an unconfigured mic sends the user.
+ *
+ * A hash assignment rather than `useNavigate`: this button is a leaf rendered
+ * from several composers, and a router hook throws outright anywhere it is
+ * mounted outside a `<Router>`. The orb learned that the expensive way.
+ */
+const OPEN_VOICE_SETTINGS_HASH = '#/settings/voice';
+
 const getAvailabilityMessageKey = (availability: SpeechInputAvailability) => {
   switch (availability) {
     case 'file':
@@ -200,6 +209,17 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
       return;
     }
 
+    if (!isSpeechToTextEnabled) {
+      // Route to settings; never flip `enabled` from here. The stored default is
+      // {enabled:false, provider:'openai'} while an UNSET provider transcribes
+      // on-device, so a click that quietly enabled dictation would move the user
+      // from local Whisper to a hosted service they never chose.
+      if (typeof window !== 'undefined') {
+        window.location.hash = OPEN_VOICE_SETTINGS_HASH;
+      }
+      return;
+    }
+
     if (availability === 'unsupported') {
       Message.warning(t(getAvailabilityMessageKey(availability)));
       return;
@@ -227,12 +247,23 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
     void transcribeFile(file);
   };
 
-  if (!isConfigLoaded || !isSpeechToTextEnabled) {
+  // Still resolving: render nothing rather than flash a button whose meaning we
+  // do not know yet. Disabled dictation, by contrast, now RENDERS - returning
+  // null there meant most users saw two composer affordances where the design
+  // assumed three, and the missing one was the only on-ramp to the feature.
+  if (!isConfigLoaded) {
     return null;
   }
 
-  const tooltipKey = getTooltipKey(availability, isRecording, isProcessing);
-  const ariaLabel = t(tooltipKey);
+  const needsSetup = !isSpeechToTextEnabled;
+  const ariaLabel = needsSetup
+    ? t('conversation.chat.speech.setupLabel', { defaultValue: 'Set up dictation' })
+    : t(getTooltipKey(availability, isRecording, isProcessing));
+  const tooltipContent = needsSetup
+    ? t('conversation.chat.speech.setupTooltip', {
+        defaultValue: 'Dictation is off - open Voice settings to turn it on',
+      })
+    : ariaLabel;
   const icon = isRecording ? <SpeechStopIcon /> : isProcessing ? <SpeechLoaderIcon /> : <SpeechMicIcon />;
 
   return (
@@ -273,12 +304,12 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
             </span>
           </div>
         )}
-        <Tooltip content={ariaLabel} mini>
+        <Tooltip content={tooltipContent} mini>
           <Button
             type='text'
             size='small'
             shape='circle'
-            className={`speech-input-button ${variant === 'prominent' ? 'speech-input-button--prominent' : ''} ${isRecording ? 'speech-input-button--listening' : ''} ${isProcessing ? 'speech-input-button--processing' : ''}`}
+            className={`speech-input-button ${variant === 'prominent' ? 'speech-input-button--prominent' : ''} ${isRecording ? 'speech-input-button--listening' : ''} ${isProcessing ? 'speech-input-button--processing' : ''} ${needsSetup ? 'speech-input-button--needs-setup' : ''}`}
             disabled={disabled || isProcessing}
             onClick={handleClick}
             aria-label={ariaLabel}

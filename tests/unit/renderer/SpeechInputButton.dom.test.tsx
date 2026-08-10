@@ -18,16 +18,23 @@ const mockMessageWarning = vi.fn();
 let speechInputErrorCode: string | null = null;
 let speechInputErrorMessage: string | null = null;
 
+const mockConfigSet = vi.fn(async () => undefined);
+// 'pending' never resolves, standing in for the window before stored config
+// arrives - the only case where the button is still allowed to render nothing.
+let configResolution: 'resolved' | 'pending' = 'resolved';
+
 vi.mock('@/common/config/storage', () => ({
   ConfigStorage: {
-    get: vi.fn(async (key: string) => {
-      if (key === 'tools.speechToText') {
-        return {
-          enabled: speechToTextEnabled,
-        };
+    get: vi.fn((key: string) => {
+      if (configResolution === 'pending') {
+        return new Promise(() => {});
       }
-      return undefined;
+      if (key === 'tools.speechToText') {
+        return Promise.resolve({ enabled: speechToTextEnabled });
+      }
+      return Promise.resolve(undefined);
     }),
+    set: (...args: unknown[]) => mockConfigSet(...(args as [])),
   },
 }));
 
@@ -86,6 +93,7 @@ describe('getErrorMessageKey', () => {
 describe('SpeechInputButton', () => {
   beforeEach(() => {
     speechToTextEnabled = false;
+    configResolution = 'resolved';
     speechInputAvailability = 'record';
     speechInputStatus = 'idle';
     speechInputRecordingDurationMs = 0;
@@ -99,12 +107,48 @@ describe('SpeechInputButton', () => {
     vi.unstubAllGlobals();
   });
 
-  it('stays hidden when speech-to-text is disabled', async () => {
+  /**
+   * Inverted deliberately. This used to assert the button stayed hidden while
+   * dictation was off, which is the shipped default - so most users saw two
+   * composer affordances where the design assumed three, and the one they could
+   * not see was the only route to turning dictation on. A feature reachable only
+   * by users who already enabled it is not discoverable.
+   */
+  it('renders and routes to settings when speech-to-text is disabled', async () => {
+    globalThis.location.hash = '';
+
     render(<SpeechInputButton onTranscript={vi.fn()} />);
 
-    await waitFor(() => {
-      expect(screen.queryByRole('button')).toBeNull();
+    const button = await screen.findByRole('button', {
+      name: 'conversation.chat.speech.setupLabel',
     });
+
+    fireEvent.click(button);
+    expect(globalThis.location.hash).toBe('#/settings/voice');
+  });
+
+  /**
+   * The click must never flip `enabled` itself. The stored default is
+   * {enabled:false, provider:'openai'} while an UNSET provider transcribes
+   * on-device, so a helpful auto-enable would silently move the user off local
+   * Whisper and onto a hosted service. Routing to settings keeps that a choice.
+   */
+  it('never enables speech-to-text as a side effect of the click', async () => {
+    render(<SpeechInputButton onTranscript={vi.fn()} />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'conversation.chat.speech.setupLabel' }));
+
+    expect(mockConfigSet).not.toHaveBeenCalled();
+    expect(mockStartRecording).not.toHaveBeenCalled();
+  });
+
+  it('does not render at all until the stored config resolves', () => {
+    // A button whose meaning is not yet known must not flash into the composer.
+    configResolution = 'pending';
+
+    render(<SpeechInputButton onTranscript={vi.fn()} />);
+
+    expect(screen.queryByRole('button')).toBeNull();
   });
 
   it('renders a microphone button when speech-to-text is enabled', async () => {
@@ -122,9 +166,12 @@ describe('SpeechInputButton', () => {
   it('refreshes visibility when the speech-to-text config changes', async () => {
     render(<SpeechInputButton onTranscript={vi.fn()} />);
 
-    await waitFor(() => {
-      expect(screen.queryByRole('button')).toBeNull();
-    });
+    // Was `queryByRole('button')` is null. That went vacuous the moment the
+    // disabled state started rendering a button: `waitFor` succeeds on its first
+    // synchronous check, which lands BEFORE the stored config resolves, so it
+    // was asserting the not-yet-loaded state and would have passed no matter
+    // what the disabled state did. Assert the disabled affordance instead.
+    expect(await screen.findByRole('button', { name: 'conversation.chat.speech.setupLabel' })).toBeInTheDocument();
 
     speechToTextEnabled = true;
 
