@@ -126,9 +126,13 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+  // The orb asks whether a Router exists before reaching for `useNavigate`,
+  // because it now mounts on surfaces that render outside one.
+  useInRouterContext: () => true,
 }));
 
 import VoiceConversationMode from '@/renderer/pages/conversation/voice/VoiceConversationMode';
+import { VoiceSessionProvider } from '@/renderer/pages/conversation/voice/VoiceSessionContext';
 
 let lastAudio: MockAudio | null = null;
 
@@ -153,6 +157,22 @@ class MockAudio {
 
   async play() {}
 }
+
+/**
+ * Mounts the orb the way ChatLayout does: a provider owning the session, with
+ * the orb as one view of it.
+ *
+ * Entry is driven by the real `wayland:voice-mode-open` event, which is exactly
+ * what the entry button dispatches. Deliberately NOT a test-only entry button -
+ * that would turn nine behavioural tests into presence-only ones and they would
+ * stay green through V11 deleting the control they were written to exercise.
+ */
+const renderVoice = (props: { conversationTitle?: string } = {}) =>
+  render(
+    <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland Core'>
+      <VoiceConversationMode conversationTitle={props.conversationTitle} />
+    </VoiceSessionProvider>
+  );
 
 describe('VoiceConversationMode', () => {
   beforeEach(() => {
@@ -182,15 +202,9 @@ describe('VoiceConversationMode', () => {
     window.addEventListener(VOICE_TURN_SUBMIT_EVENT, (event) => {
       submitted.push((event as CustomEvent<VoiceTurnSubmitDetail>).detail);
     });
-    render(
-      <VoiceConversationMode
-        conversationId='conversation-1'
-        conversationTitle='Book launch'
-        actorLabel='Wayland Core'
-      />
-    );
+    renderVoice({ conversationTitle: 'Book launch' });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Start Voice conversation' }));
+    act(() => openVoiceMode('conversation-1'));
     expect(await screen.findByRole('dialog', { name: 'Wayland voice conversation' })).toBeInTheDocument();
     expect(screen.getByText('Book launch')).toBeInTheDocument();
     expect(screen.getByText('Tap to speak')).toBeInTheDocument();
@@ -231,7 +245,7 @@ describe('VoiceConversationMode', () => {
   });
 
   it('opens from the scoped composer Voice control without affecting another conversation', async () => {
-    render(<VoiceConversationMode conversationId='conversation-1' actorLabel='Wayland Core' />);
+    renderVoice();
 
     act(() => openVoiceMode('conversation-2'));
     expect(screen.queryByRole('dialog', { name: 'Wayland voice conversation' })).not.toBeInTheDocument();
@@ -241,8 +255,8 @@ describe('VoiceConversationMode', () => {
   });
 
   it('stops at a visual approval boundary and never offers spoken approval', async () => {
-    render(<VoiceConversationMode conversationId='conversation-1' actorLabel='Wayland Core' />);
-    fireEvent.click(screen.getByRole('button', { name: 'Start Voice conversation' }));
+    renderVoice();
+    act(() => openVoiceMode('conversation-1'));
     await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
     fireEvent.click(screen.getByRole('button', { name: 'Start speaking' }));
     fireEvent.click(screen.getByRole('button', { name: 'Stop and send voice turn' }));
@@ -265,8 +279,8 @@ describe('VoiceConversationMode', () => {
    * element whose `ended` event returns the machine to `listening`.
    */
   const runOneTurn = async () => {
-    const view = render(<VoiceConversationMode conversationId='conversation-1' actorLabel='Wayland Core' />);
-    fireEvent.click(screen.getByRole('button', { name: 'Start Voice conversation' }));
+    const view = renderVoice();
+    act(() => openVoiceMode('conversation-1'));
     await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
     fireEvent.click(screen.getByRole('button', { name: 'Start speaking' }));
     fireEvent.click(screen.getByRole('button', { name: 'Stop and send voice turn' }));
@@ -315,8 +329,8 @@ describe('VoiceConversationMode', () => {
   });
 
   it('does not open the microphone when Voice mode is merely opened', async () => {
-    render(<VoiceConversationMode conversationId='conversation-1' actorLabel='Wayland Core' />);
-    fireEvent.click(screen.getByRole('button', { name: 'Start Voice conversation' }));
+    renderVoice();
+    act(() => openVoiceMode('conversation-1'));
     await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
 
     expect(screen.getByText('Tap to speak')).toBeInTheDocument();
@@ -388,8 +402,8 @@ describe('VoiceConversationMode', () => {
   });
 
   it('interrupts the running turn on Escape instead of destroying the session', async () => {
-    render(<VoiceConversationMode conversationId='conversation-1' actorLabel='Wayland Core' />);
-    fireEvent.click(screen.getByRole('button', { name: 'Start Voice conversation' }));
+    renderVoice();
+    act(() => openVoiceMode('conversation-1'));
     await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
     fireEvent.click(screen.getByRole('button', { name: 'Start speaking' }));
     fireEvent.click(screen.getByRole('button', { name: 'Stop and send voice turn' }));
@@ -407,8 +421,8 @@ describe('VoiceConversationMode', () => {
   });
 
   it('cancels captured audio when returning to Chat instead of sending it', async () => {
-    render(<VoiceConversationMode conversationId='conversation-1' actorLabel='Wayland Core' />);
-    fireEvent.click(screen.getByRole('button', { name: 'Start Voice conversation' }));
+    renderVoice();
+    act(() => openVoiceMode('conversation-1'));
     await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
     fireEvent.click(screen.getByRole('button', { name: 'Start speaking' }));
     fireEvent.click(screen.getByRole('button', { name: 'Return to Chat' }));
@@ -423,8 +437,8 @@ describe('VoiceConversationMode', () => {
    * green, which made the entire feature silently revertible.
    */
   it('opts the capture into endpointing and sends the turn when the endpointer fires', async () => {
-    render(<VoiceConversationMode conversationId='conversation-1' actorLabel='Wayland Core' />);
-    fireEvent.click(screen.getByRole('button', { name: 'Start Voice conversation' }));
+    renderVoice();
+    act(() => openVoiceMode('conversation-1'));
     await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
     fireEvent.click(screen.getByRole('button', { name: 'Start speaking' }));
 
@@ -500,8 +514,8 @@ describe('VoiceConversationMode', () => {
    * does not cover, so `closeMode` has to release the monitor itself.
    */
   it('stops microphone monitoring when the user returns to Chat mid-capture', async () => {
-    render(<VoiceConversationMode conversationId='conversation-1' actorLabel='Wayland Core' />);
-    fireEvent.click(screen.getByRole('button', { name: 'Start Voice conversation' }));
+    renderVoice();
+    act(() => openVoiceMode('conversation-1'));
     await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
     fireEvent.click(screen.getByRole('button', { name: 'Start speaking' }));
     expect(mockStopMonitoring).not.toHaveBeenCalled();
@@ -512,8 +526,8 @@ describe('VoiceConversationMode', () => {
   });
 
   it('stops promising a pause will send the turn once endpointing reports it cannot', async () => {
-    render(<VoiceConversationMode conversationId='conversation-1' actorLabel='Wayland Core' />);
-    fireEvent.click(screen.getByRole('button', { name: 'Start Voice conversation' }));
+    renderVoice();
+    act(() => openVoiceMode('conversation-1'));
     await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
     fireEvent.click(screen.getByRole('button', { name: 'Start speaking' }));
 

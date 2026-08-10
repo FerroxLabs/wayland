@@ -63,7 +63,12 @@ vi.mock('@/renderer/pages/conversation/Preview', () => ({
 // Peripheral deps we do not exercise here.
 vi.mock('swr', () => ({ default: () => ({ data: undefined }) }));
 vi.mock('@/common', () => ({ ipcBridge: { conversation: { dockBack: { invoke: vi.fn() } } } }));
-vi.mock('@/common/config/storage', () => ({ ConfigStorage: { get: vi.fn() } }));
+// `get` resolves rather than returning undefined: the real API is always async,
+// and ChatLayout now mounts the voice session (which reads stored consent on
+// mount) around the whole layout instead of inside its header.
+vi.mock('@/common/config/storage', () => ({
+  ConfigStorage: { get: vi.fn(async () => undefined), set: vi.fn(async () => undefined) },
+}));
 
 // Header-only children (not rendered under hideHeader) - stub to avoid deep import chains.
 vi.mock('@/renderer/components/agent/AgentBadge', () => ({ default: () => null }));

@@ -28,6 +28,8 @@ import React from 'react';
 import { useInRouterContext, useLocation } from 'react-router-dom';
 import useSWR from 'swr';
 import VoiceConversationMode from '@/renderer/pages/conversation/voice/VoiceConversationMode';
+import VoiceModeEntryButton from '@/renderer/pages/conversation/voice/VoiceModeEntryButton';
+import { VoiceSessionProvider } from '@/renderer/pages/conversation/voice/VoiceSessionContext';
 import ProjectContextBadge from '../ProjectContext';
 import './chat-layout.css';
 
@@ -172,8 +174,7 @@ const ChatLayout: React.FC<{
   // Dock whenever the conversation keeps a readable column beside the panel.
   // WorkbenchHost defaults to a 340px panel plus a 36px rail, so anything above
   // roughly 740px docks cleanly and only truly cramped layouts overlay.
-  const workbenchOverlay =
-    isMobile || isPopout || (containerWidth > 0 && containerWidth < WORKBENCH_DOCK_MIN_WIDTH);
+  const workbenchOverlay = isMobile || isPopout || (containerWidth > 0 && containerWidth < WORKBENCH_DOCK_MIN_WIDTH);
 
   const workbenchSections = React.useMemo<WorkbenchSectionRegistration[]>(
     () => [
@@ -270,13 +271,11 @@ const ChatLayout: React.FC<{
         </FlexFullContainer>
         <div className='flex items-center gap-12px shrink-0'>
           <ProjectContextBadge projectId={props.projectId} />
-          {conversationId && (
-            <VoiceConversationMode
-              conversationId={conversationId}
-              conversationTitle={props.title}
-              actorLabel={displayName || 'Wayland'}
-            />
-          )}
+          {/* The header entry button only. The session and the orb it opens now
+              live on the provider that wraps the whole layout, so this is a way
+              in rather than the thing being entered. V11 removes it once the
+              composer's soundwave is the single door. */}
+          {conversationId && <VoiceModeEntryButton conversationId={conversationId} placement='header' />}
           {isPopout && isElectronDesktop() && (
             <button
               type='button'
@@ -315,12 +314,14 @@ const ChatLayout: React.FC<{
     </>
   );
 
-  return (
+  const layoutTree = (
     <ArcoLayout
       className='size-full'
-      style={{
-        // fontFamily: `cursive,"anthropicSans","anthropicSans Fallback",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif`,
-      }}
+      style={
+        {
+          // fontFamily: `cursive,"anthropicSans","anthropicSans Fallback",system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif`,
+        }
+      }
     >
       {isInRouter ? <RouterWorkbenchRequestBridge onRequest={setWorkbenchRequest} /> : null}
       {/* Column: header + tabs sit ABOVE the workbench dock. The dock's
@@ -356,6 +357,27 @@ const ChatLayout: React.FC<{
         </div>
       </div>
     </ArcoLayout>
+  );
+
+  /*
+   * The voice session wraps the WHOLE layout, not the header.
+   *
+   * It used to live inside `headerBlock`, which three call sites skip via
+   * `hideHeader`. On those surfaces the component that listens for the composer's
+   * open event was never mounted, so the soundwave button dispatched into
+   * nothing - a dead control for real users. Wrapping the layout is what makes
+   * voice reachable from every conversation surface.
+   *
+   * The mount keeps the same `conversationId` gate the header block used: with
+   * no conversation there is nothing for a session to belong to.
+   */
+  if (!conversationId) return layoutTree;
+
+  return (
+    <VoiceSessionProvider conversationId={conversationId} actorLabel={displayName || 'Wayland'}>
+      <VoiceConversationMode conversationTitle={props.title} />
+      {layoutTree}
+    </VoiceSessionProvider>
   );
 };
 
