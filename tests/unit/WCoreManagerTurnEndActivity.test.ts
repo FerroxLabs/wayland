@@ -243,6 +243,36 @@ describe('K-03: turn end terminalizes the turn activity card', () => {
     expect(second?.content).toMatchObject({ ended: 'done', status: 'done' });
   });
 
+  /**
+   * The failure mode that has NO error frame at all. When the provider stream
+   * dies - the live case was a model emitting tool-call arguments that were not
+   * valid JSON - Core retries, gives up, and reports it only as stream_end with
+   * finish_reason 'error', which arrives as a `finish` frame. Watching only for
+   * `type: 'error'` misses this entirely.
+   */
+  it('settles as failed when the stream ends with finish_reason error', async () => {
+    emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+    emitEvent(manager, {
+      type: 'finish',
+      data: { input_tokens: 0, output_tokens: 0, finish_reason: 'error' },
+      msg_id: 'msg-1',
+    });
+    await vi.advanceTimersByTimeAsync(200);
+
+    const settled = persistedActivityCards().filter((card) => card.content.ended);
+    expect(settled).toHaveLength(1);
+    expect(settled[0].content).toMatchObject({ ended: 'failed', status: 'failed' });
+  });
+
+  it('still settles done when the stream ends with an ordinary stop reason', async () => {
+    emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+    emitEvent(manager, { type: 'finish', data: { finish_reason: 'stop' }, msg_id: 'msg-1' });
+    await vi.advanceTimersByTimeAsync(200);
+
+    const settled = persistedActivityCards().filter((card) => card.content.ended);
+    expect(settled[0].content).toMatchObject({ ended: 'done', status: 'done' });
+  });
+
   it('does not invent a card when no turn was ever started', async () => {
     await (manager as any).handleTurnEnd();
     await vi.advanceTimersByTimeAsync(200);

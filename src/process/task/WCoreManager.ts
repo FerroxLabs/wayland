@@ -1841,6 +1841,18 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         // the flag to the already-accumulated content rather than racing it.
         const truncMsgId = this.detectTruncation(processedData.data, this.currentMsgContent) ? this.currentMsgId : null;
 
+        // A turn can fail WITHOUT ever producing an `error` frame. When the
+        // provider stream dies - e.g. the model emits tool-call arguments that
+        // are not valid JSON - Core retries, gives up, and reports the outcome
+        // only as `stream_end` carrying `finish_reason: 'error'`, which reaches
+        // us as this `finish` frame. Observed live: a turn failed exactly this
+        // way and the rail would still have called it done.
+        const finishReason =
+          processedData.data && typeof processedData.data === 'object'
+            ? (processedData.data as Record<string, unknown>).finish_reason
+            : undefined;
+        if (finishReason === 'error') this._turnSawError = true;
+
         void this.handleTurnEnd();
 
         if (truncMsgId) {
