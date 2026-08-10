@@ -4,9 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { conversation, voiceSynth } from '@/common/adapter/ipcBridge';
+import { conversation, modelRegistry, voiceSynth } from '@/common/adapter/ipcBridge';
+import { FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { ConfigStorage } from '@/common/config/storage';
-import type { SpeechToTextConfig } from '@/common/types/speech';
+import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
+import type { HostedVoiceConsent } from '@/common/types/voiceConsent';
 import { normalizeTextToSpeechConfig, type TextToSpeechConfig } from '@/common/types/ttsTypes';
 import {
   createVoiceSession,
@@ -15,8 +17,11 @@ import {
   type VoiceSessionEvent,
   type VoiceSessionSnapshot,
 } from '@/common/voice/VoiceSessionMachine';
+import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
+import { resolveVoiceSessionReadiness, type VoiceSessionReadiness } from '@/common/voice/voiceReadiness';
 import { extractVoiceResponseText } from '@/common/voice/voiceResponseText';
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
+import { isMacOS } from '@/renderer/utils/platform';
 import {
   submitVoiceTurn,
   VOICE_MODE_OPEN_EVENT,
@@ -77,6 +82,13 @@ const isTerminalCompletion = (status: string, state: string): boolean =>
 export type VoiceConversationSessionOptions = {
   conversationId: string;
   actorLabel?: string;
+  /**
+   * Resolves the hosted-voice disclosure for a provider, or `true` immediately
+   * for a local one. Injected because the modal it opens can only be rendered by
+   * the provider - a hook cannot render, and an unrendered modal means the
+   * promise never settles.
+   */
+  ensureConsent?: (provider: string) => Promise<boolean>;
 };
 
 export type VoiceConversationSession = {
@@ -100,6 +112,8 @@ export type VoiceConversationSession = {
   level: number;
   ttsConfig: TextToSpeechConfig | null;
   sttConfig: SpeechToTextConfig | null;
+  /** Why voice cannot run, named, so a surface can offer the one tap that fixes it. */
+  readiness: VoiceSessionReadiness;
   configReady: boolean;
   begin: () => Promise<void>;
   beginCapture: () => Promise<void>;
@@ -114,6 +128,7 @@ export type VoiceConversationSession = {
 export const useVoiceConversationSession = ({
   conversationId,
   actorLabel = 'Wayland',
+  ensureConsent,
 }: VoiceConversationSessionOptions): VoiceConversationSession => {
   // `isActive` owns the microphone and every subscription; `isExpanded` owns
   // only whether the orb is drawn. They were one flag while the orb was the
@@ -129,6 +144,7 @@ export const useVoiceConversationSession = ({
   const [surfaceError, setSurfaceError] = useState<string | null>(null);
   const [ttsConfig, setTtsConfig] = useState<TextToSpeechConfig | null>(null);
   const [sttConfig, setSttConfig] = useState<SpeechToTextConfig | null>(null);
+  const [consent, setConsent] = useState<Partial<HostedVoiceConsent> | null>(null);
   const [snapshot, setSnapshot] = useState<VoiceSessionSnapshot | null>(null);
   const snapshotRef = useRef<VoiceSessionSnapshot | null>(null);
   const activeTurnRef = useRef<string | null>(null);
@@ -424,13 +440,77 @@ export const useVoiceConversationSession = ({
 
   const begin = useCallback(async () => {
     try {
-      const [storedStt, storedTts] = await Promise.all([
+      const [storedStt, storedTts, storedConsent] = await Promise.all([
         ConfigStorage.get('tools.speechToText'),
         ConfigStorage.get('tools.textToSpeech'),
+        ConfigStorage.get('tools.voiceHostedConsent'),
       ]);
       const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined);
+
+      /**
+       * Which transcriber will actually receive the audio, which is not always
+       * the one stored: main seeds Flux Voice when Flux is connected and no
+       * engine was ever chosen. Asking about the stored provider would prompt
+       * for a disclosure that unblocks nothing - the same defect the settings
+       * panel had. Registry failure degrades to the stored provider rather than
+       * blocking entry.
+       */
+      let sttProvider: SpeechToTextProvider = 'whisper-local';
+      if (storedStt?.provider) {
+        try {
+          const providers = await modelRegistry.list.invoke();
+          sttProvider = resolveEffectiveSttProvider({
+            stored: storedStt,
+            hasConnectedOpenAIKey: providers.some((p) => p.providerId === 'openai' && p.state === 'connected'),
+            hasConnectedFluxKey: providers.some((p) => p.providerId === FLUX_PROVIDER_ID && p.state === 'connected'),
+          });
+        } catch {
+          // Non-fatal: an unreadable registry must not stop someone talking.
+          sttProvider = storedStt.provider;
+        }
+      }
+      // An UNSET provider is the one case where the renderer and main disagree,
+      // and here the renderer wins because it is the one that runs: its
+      // transcribe path short-circuits an unset provider to the bundled local
+      // Whisper and never reaches main at all. Main's factory default says
+      // `openai`, so mirroring main would prompt for a disclosure covering a
+      // transmission that never happens - gating on-device audio behind consent
+      // to send it off-device. That divergence is a real defect and its own
+      // packet; what must not happen is this code quietly picking the wrong
+      // side of it.
+
+      /**
+       * Consent for BOTH legs, before the session exists.
+       *
+       * Entering a conversation is consent to make sound. It is not consent to
+       * transmit, and speaking and listening are two disclosures to two
+       * potentially different companies. Gating on the speaking leg alone means
+       * that on macOS - where the default speech output is local and silent - a
+       * user enters, sees no disclosure at all, and the session immediately
+       * begins continuously re-arming a microphone routed off-device.
+       *
+       * The main-side gates stay exactly as they are: per-provider,
+       * version-bound, fail-closed, and checked on every single call. This is
+       * the prompt, not the gate. Never cache a "granted" here and never add a
+       * skip parameter to the bridge to make chunking cheaper.
+       */
+      if (ensureConsent) {
+        for (const [leg, provider] of [
+          ['speech output', nextTts.provider],
+          ['the microphone', sttProvider],
+        ] as const) {
+          if (!(await ensureConsent(provider))) {
+            setSurfaceError(
+              `Voice conversation needs your agreement to send ${leg} to ${provider}. Nothing was sent, and Chat still works normally.`
+            );
+            return;
+          }
+        }
+      }
+
       setSttConfig(storedStt ?? null);
       setTtsConfig(nextTts);
+      setConsent(storedConsent ?? null);
       setSurfaceError(null);
       setLastTranscript('');
       setLastResponse('');
@@ -458,6 +538,7 @@ export const useVoiceConversationSession = ({
     } catch {
       setSttConfig(null);
       setTtsConfig(null);
+      setConsent(null);
       setSurfaceError('Voice settings could not be loaded. Open Voice settings or continue in Chat.');
       const next = createVoiceSession({
         sessionId: newCorrelationId('voice-session'),
@@ -473,7 +554,7 @@ export const useVoiceConversationSession = ({
       setIsActive(true);
       setIsExpanded(true);
     }
-  }, [actorLabel, cancelAutoCapture, conversationId]);
+  }, [actorLabel, cancelAutoCapture, conversationId, ensureConsent]);
 
   useEffect(() => {
     const handleOpen = (event: Event) => {
@@ -669,6 +750,17 @@ export const useVoiceConversationSession = ({
     return () => stopMonitoring();
   }, [isActive, startMonitoring, state, stopMonitoring]);
 
+  const readiness = useMemo(
+    () =>
+      resolveVoiceSessionReadiness({
+        ttsConfig,
+        sttConfig,
+        platform: isMacOS() ? 'darwin' : 'other',
+        consent,
+      }),
+    [consent, sttConfig, ttsConfig]
+  );
+
   const level = useMemo(() => {
     if (speechStatus !== 'recording' || recordingLevels.length === 0) return 0.18;
     return Math.max(0.18, recordingLevels.at(-1) ?? 0.18);
@@ -690,6 +782,7 @@ export const useVoiceConversationSession = ({
     level,
     ttsConfig,
     sttConfig,
+    readiness,
     configReady: Boolean(sttEnabled && ttsProviderReady),
     begin,
     beginCapture,

@@ -95,6 +95,7 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
   // Pulled in by the header path (conversation history -> projects). Present so
   // the hideHeader=false control exercises the real header rather than dying in
   // an unrelated dependency.
+  modelRegistry: { list: { invoke: vi.fn(async () => []) } },
   project: {
     list: { invoke: vi.fn(async () => []) },
     getConversations: { invoke: vi.fn(async () => []) },
@@ -239,6 +240,95 @@ describe('VoiceSessionProvider', () => {
    * disclosure. Asserting the element exists, not merely that a function was
    * called.
    */
+  describe('consent at entry, on both legs', () => {
+    const renderSession = () =>
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+    /**
+     * The microphone leg, which the draft of this plan did not gate.
+     *
+     * On macOS the default speech OUTPUT is local and silent, so gating entry
+     * on that leg alone lets a user enter having seen no disclosure at all -
+     * and the session then begins continuously re-arming a microphone routed to
+     * a hosted transcriber. The quieter leg was disclosed and the louder one
+     * was not.
+     */
+    it('asks before the microphone goes off-device', async () => {
+      storedStt = { enabled: true, provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
+      renderSession();
+
+      act(() => openVoiceMode('conversation-1'));
+      expect(await screen.findByTestId('voice-consent-accept')).toBeInTheDocument();
+      expect(screen.queryByRole('dialog', { name: 'Wayland voice conversation' })).not.toBeInTheDocument();
+    });
+
+    it('does not enter, speak, or record when the disclosure is declined', async () => {
+      storedStt = { enabled: true, provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
+      renderSession();
+
+      act(() => openVoiceMode('conversation-1'));
+      const decline = await screen.findByTestId('voice-consent-cancel');
+      act(() => decline.click());
+
+      // Give the declined promise a turn to settle, then assert nothing started.
+      // Arco keeps the dismissed modal mounted through its exit animation, so
+      // that element's presence says nothing either way.
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(screen.queryByRole('dialog', { name: 'Wayland voice conversation' })).not.toBeInTheDocument();
+      expect(mockSpeak).not.toHaveBeenCalled();
+    });
+
+    it('enters after the disclosure is accepted', async () => {
+      storedStt = { enabled: true, provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
+      renderSession();
+
+      act(() => openVoiceMode('conversation-1'));
+      const accept = await screen.findByTestId('voice-consent-accept');
+      act(() => accept.click());
+
+      expect(await screen.findByRole('dialog', { name: 'Wayland voice conversation' })).toBeInTheDocument();
+    });
+
+    /**
+     * The control, and it is the corrected one. Asserting silence for
+     * system-native ALONE would assert it on exactly the leg that stays on the
+     * machine, and would have passed while the microphone leg was unguarded.
+     * Both legs have to be local for this to mean anything.
+     */
+    it('never prompts when both legs are local', async () => {
+      storedStt = { enabled: true, provider: 'whisper-local' };
+      storedTts = { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false };
+      renderSession();
+
+      act(() => openVoiceMode('conversation-1'));
+      expect(await screen.findByRole('dialog', { name: 'Wayland voice conversation' })).toBeInTheDocument();
+      expect(screen.queryByTestId('voice-consent-accept')).not.toBeInTheDocument();
+    });
+
+    /**
+     * An unset provider is the one case where main and the renderer disagree.
+     * The renderer wins because it is the one that runs: it short-circuits to
+     * the bundled local Whisper and never reaches main. Prompting here would
+     * gate on-device audio behind consent to send it off-device.
+     */
+    it('does not prompt for a provider the renderer resolves to local', async () => {
+      storedStt = { enabled: true };
+      renderSession();
+
+      act(() => openVoiceMode('conversation-1'));
+      expect(await screen.findByRole('dialog', { name: 'Wayland voice conversation' })).toBeInTheDocument();
+      expect(screen.queryByTestId('voice-consent-accept')).not.toBeInTheDocument();
+    });
+  });
+
   /**
    * The dead-button defect, as a test.
    *

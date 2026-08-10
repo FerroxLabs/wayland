@@ -41,7 +41,6 @@ export const VoiceSessionProvider: React.FC<{
   actorLabel?: string;
   children: React.ReactNode;
 }> = ({ conversationId, actorLabel, children }) => {
-  const session = useVoiceConversationSession({ conversationId, actorLabel });
   /**
    * The consent modal is rendered HERE, by the provider, and it has to be.
    *
@@ -51,6 +50,7 @@ export const VoiceSessionProvider: React.FC<{
    * obvious repair - deleting the await - deletes the disclosure.
    */
   const { ensureConsent, consentModal } = useHostedVoiceConsent();
+  const session = useVoiceConversationSession({ conversationId, actorLabel, ensureConsent });
 
   const value = useMemo<VoiceSessionContextValue>(() => ({ ...session, ensureConsent }), [session, ensureConsent]);
 
