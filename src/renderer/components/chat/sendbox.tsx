@@ -17,6 +17,7 @@ import { useSlashCommandController } from '@/renderer/hooks/chat/useSlashCommand
 import { useUserSlashCommands } from '@/renderer/hooks/chat/useUserSlashCommands';
 import { useLayoutContext } from '@/renderer/hooks/context/LayoutContext';
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
+import { useVoiceSessionSafe } from '@/renderer/pages/conversation/voice/VoiceSessionContext';
 import { usePreviewContext } from '@/renderer/pages/conversation/Preview';
 import { buildAtFileInsertion, getActiveAtFileQuery, getAllAtFileQueries } from '@/renderer/utils/chat/atFileQuery';
 import { getLastAssistantText } from '@/renderer/utils/chat/getLastAssistantText';
@@ -206,6 +207,7 @@ const SendBox: React.FC<{
   const layout = useLayoutContext();
   const isMobile = layout?.isMobile ?? false;
   const conversationContext = useConversationContextSafe();
+  const voiceSession = useVoiceSessionSafe();
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const [isSingleLine, setIsSingleLine] = useState(!defaultMultiLine);
@@ -1360,7 +1362,68 @@ const SendBox: React.FC<{
   // running/processing flag that decides whether the Stop button shows, so it
   // stays in lockstep across every platform that renders this shared SendBox.
   const isRunning = isLoading || loading;
-  const runningIndicator = isRunning ? (
+
+  /**
+   * What the composer says while a voice conversation is running.
+   *
+   * This is a live region, deliberately NOT the placeholder. A placeholder does
+   * not render over a non-empty value, and typing during a session has to keep
+   * working, so a placeholder-based status deletes itself on the first
+   * keystroke - and screen readers never announce a placeholder at all. In
+   * `listening` it would also have been the ONLY indication the microphone was
+   * open.
+   *
+   * The states split where the machine already distinguishes. `listening`
+   * before the user has committed to a turn means the mic is CLOSED, which is
+   * why the orb says "Tap to speak" there; saying "Listening" would be a lie
+   * the everyman acts on by talking into a closed microphone.
+   */
+  const voiceStatusText = (): string | null => {
+    if (!voiceSession?.isActive) return null;
+    switch (voiceSession.state) {
+      case 'connecting':
+        return t('conversation.chat.voice.statusConnecting', { defaultValue: 'Connecting…' });
+      case 'listening':
+        return voiceSession.continuousArmed
+          ? t('conversation.chat.voice.statusListening', { defaultValue: 'Listening…' })
+          : t('conversation.chat.voice.statusTapToTalk', { defaultValue: 'Tap the wave to talk' });
+      case 'user-speaking':
+        return t('conversation.chat.voice.statusHearing', { defaultValue: 'I can hear you' });
+      case 'transcribing':
+        return t('conversation.chat.voice.statusTranscribing', { defaultValue: 'Transcribing…' });
+      case 'thinking':
+      case 'acting':
+        return t('conversation.chat.voice.statusThinking', { defaultValue: 'Wayland is thinking…' });
+      case 'approval-needed':
+        return t('conversation.chat.voice.statusApproval', { defaultValue: 'Needs your approval in chat' });
+      case 'speaking':
+        return t('conversation.chat.voice.statusSpeaking', { defaultValue: 'Wayland is speaking…' });
+      case 'interrupted':
+        return t('conversation.chat.voice.statusStopping', { defaultValue: 'Stopping…' });
+      case 'reconnecting':
+        return t('conversation.chat.voice.statusReconnecting', { defaultValue: 'Reconnecting…' });
+      case 'error':
+        return (
+          voiceSession.error ?? t('conversation.chat.voice.statusError', { defaultValue: 'Voice needs attention' })
+        );
+      default:
+        return null;
+    }
+  };
+
+  const voiceStatus = voiceStatusText();
+
+  /*
+   * Exactly one status element, ever. Two live regions in one row saying
+   * different things ("Working..." beside "Wayland is speaking...") is worse
+   * than either alone, and a screen reader would announce both.
+   */
+  const runningIndicator = voiceStatus ? (
+    <span className='sendbox-running' role='status' aria-live='polite' data-testid='composer-voice-status'>
+      <span className='sendbox-running-dot' aria-hidden='true' />
+      {voiceStatus}
+    </span>
+  ) : isRunning ? (
     <span className='sendbox-running' role='status' aria-live='polite'>
       <span className='sendbox-running-dot' aria-hidden='true' />
       {t('messages.working', { defaultValue: 'Working...' })}

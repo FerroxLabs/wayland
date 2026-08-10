@@ -242,6 +242,19 @@
       "premiumLocked": "Flux Voice 需要付費的 Flux 方案 — 請升級以使用語音聽寫",
       "rateLimited": "請求過於頻繁 — 請稍後再試",
       "genericError": "語音輸入失敗，請再試一次"
+    },
+    "voice": {
+      "statusConnecting": "正在連線…",
+      "statusListening": "正在聆聽…",
+      "statusTapToTalk": "點按聲波開始說話",
+      "statusHearing": "我聽得到你",
+      "statusTranscribing": "正在轉錄…",
+      "statusThinking": "Wayland 正在思考…",
+      "statusApproval": "需要你在聊天中核准",
+      "statusSpeaking": "Wayland 正在說話…",
+      "statusStopping": "正在停止…",
+      "statusReconnecting": "正在重新連線…",
+      "statusError": "語音需要處理"
     }
   },
   "sideQuestion": {

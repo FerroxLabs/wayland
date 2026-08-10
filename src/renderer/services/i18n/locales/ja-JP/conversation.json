@@ -242,6 +242,19 @@
       "premiumLocked": "Flux Voice には有料の Flux プランが必要です。音声入力を使うにはアップグレードしてください",
       "rateLimited": "リクエストが多すぎます。しばらくしてからもう一度お試しください",
       "genericError": "音声入力に失敗しました。もう一度お試しください"
+    },
+    "voice": {
+      "statusConnecting": "接続中…",
+      "statusListening": "聞いています…",
+      "statusTapToTalk": "波形をタップして話す",
+      "statusHearing": "聞こえています",
+      "statusTranscribing": "文字起こし中…",
+      "statusThinking": "Wayland が考えています…",
+      "statusApproval": "チャットでの承認が必要です",
+      "statusSpeaking": "Wayland が話しています…",
+      "statusStopping": "停止中…",
+      "statusReconnecting": "再接続中…",
+      "statusError": "音声に問題があります"
     }
   },
   "sideQuestion": {

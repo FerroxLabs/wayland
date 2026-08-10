@@ -242,6 +242,19 @@
       "premiumLocked": "Для Flux Voice нужен платный тариф Flux — оформите подписку, чтобы использовать диктовку",
       "rateLimited": "Слишком много запросов — повторите попытку чуть позже",
       "genericError": "Ошибка голосового ввода. Попробуйте снова"
+    },
+    "voice": {
+      "statusConnecting": "Подключение…",
+      "statusListening": "Слушаю…",
+      "statusTapToTalk": "Нажмите на волну, чтобы говорить",
+      "statusHearing": "Я вас слышу",
+      "statusTranscribing": "Расшифровка…",
+      "statusThinking": "Wayland думает…",
+      "statusApproval": "Требуется ваше подтверждение в чате",
+      "statusSpeaking": "Wayland говорит…",
+      "statusStopping": "Остановка…",
+      "statusReconnecting": "Переподключение…",
+      "statusError": "Голосовой режим требует внимания"
     }
   },
   "sideQuestion": {

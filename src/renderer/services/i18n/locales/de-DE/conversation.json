@@ -242,6 +242,19 @@
       "premiumLocked": "Flux Voice erfordert ein kostenpflichtiges Flux-Abo – führe ein Upgrade durch, um zu diktieren",
       "rateLimited": "Zu viele Anfragen – bitte versuche es in Kürze erneut",
       "genericError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen"
+    },
+    "voice": {
+      "statusConnecting": "Verbinden…",
+      "statusListening": "Höre zu…",
+      "statusTapToTalk": "Zum Sprechen auf die Welle tippen",
+      "statusHearing": "Ich kann dich hören",
+      "statusTranscribing": "Transkribiere…",
+      "statusThinking": "Wayland denkt nach…",
+      "statusApproval": "Benötigt deine Freigabe im Chat",
+      "statusSpeaking": "Wayland spricht…",
+      "statusStopping": "Wird gestoppt…",
+      "statusReconnecting": "Neu verbinden…",
+      "statusError": "Sprachfunktion benötigt Aufmerksamkeit"
     }
   },
   "sideQuestion": {

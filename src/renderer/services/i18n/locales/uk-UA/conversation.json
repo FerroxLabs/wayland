@@ -242,6 +242,19 @@
       "rateLimited": "Забагато запитів — спробуйте ще раз трохи згодом",
       "genericError": "Помилка голосового введення. Спробуйте ще раз",
       "emptyTranscript": "Мовлення не виявлено"
+    },
+    "voice": {
+      "statusConnecting": "Підключення…",
+      "statusListening": "Слухаю…",
+      "statusTapToTalk": "Торкніться хвилі, щоб говорити",
+      "statusHearing": "Я вас чую",
+      "statusTranscribing": "Розшифровка…",
+      "statusThinking": "Wayland думає…",
+      "statusApproval": "Потрібне ваше підтвердження в чаті",
+      "statusSpeaking": "Wayland говорить…",
+      "statusStopping": "Зупинка…",
+      "statusReconnecting": "Перепідключення…",
+      "statusError": "Голос потребує уваги"
     }
   },
   "sideQuestion": {

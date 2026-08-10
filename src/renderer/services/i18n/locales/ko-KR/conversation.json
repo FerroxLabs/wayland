@@ -242,6 +242,19 @@
       "premiumLocked": "Flux Voice는 유료 Flux 요금제가 필요합니다 — 받아쓰기를 사용하려면 업그레이드하세요",
       "rateLimited": "요청이 너무 많습니다 — 잠시 후 다시 시도하세요",
       "genericError": "음성 입력에 실패했습니다. 다시 시도해 주세요"
+    },
+    "voice": {
+      "statusConnecting": "연결 중…",
+      "statusListening": "듣는 중…",
+      "statusTapToTalk": "파형을 눌러 말하세요",
+      "statusHearing": "잘 들려요",
+      "statusTranscribing": "받아쓰는 중…",
+      "statusThinking": "Wayland가 생각 중…",
+      "statusApproval": "채팅에서 승인이 필요합니다",
+      "statusSpeaking": "Wayland가 말하는 중…",
+      "statusStopping": "중지 중…",
+      "statusReconnecting": "다시 연결 중…",
+      "statusError": "음성에 주의가 필요합니다"
     }
   },
   "sideQuestion": {

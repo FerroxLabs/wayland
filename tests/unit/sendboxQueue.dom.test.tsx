@@ -10,6 +10,7 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import SendBox from '@/renderer/components/chat/sendbox';
+import { useVoiceSessionSafe, VoiceSessionProvider } from '@/renderer/pages/conversation/voice/VoiceSessionContext';
 
 const mockWarmupInvoke = vi.fn().mockResolvedValue(undefined);
 const mockWarning = vi.fn();
@@ -198,8 +199,53 @@ vi.mock('@/renderer/utils/ui/focus', () => ({
   shouldBlockMobileInputFocus: () => mockShouldBlockMobileInputFocus(),
 }));
 
+/*
+ * The voice session the composer now reads. Local providers throughout, so no
+ * disclosure is ever reachable and nothing here talks to a real service.
+ */
+vi.mock('@/common/config/storage', () => ({
+  ConfigStorage: {
+    get: vi.fn(async (key: string) =>
+      key === 'tools.speechToText'
+        ? { enabled: true, provider: 'whisper-local' }
+        : key === 'tools.textToSpeech'
+          ? { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false }
+          : undefined
+    ),
+    set: vi.fn(async () => undefined),
+  },
+}));
+
+vi.mock('@/common/adapter/ipcBridge', () => ({
+  conversation: {
+    stop: { invoke: vi.fn(async () => ({ success: true })) },
+    responseStream: { on: () => () => {} },
+    turnCompleted: { on: () => () => {} },
+    confirmation: { add: { on: () => () => {} } },
+  },
+  voiceSynth: { speak: { invoke: vi.fn(async () => ({ ok: true, data: [1], mimeType: 'audio/wav' })) } },
+  modelRegistry: { list: { invoke: vi.fn(async () => []) } },
+}));
+
+vi.mock('@/renderer/hooks/system/useSpeechInput', () => ({
+  useSpeechInput: () => ({
+    availability: 'record',
+    cancelRecording: vi.fn(),
+    clearError: vi.fn(),
+    errorCode: null,
+    recordingLevels: [],
+    startMonitoring: vi.fn(async () => undefined),
+    startRecording: vi.fn(async () => undefined),
+    status: 'idle',
+    stopMonitoring: vi.fn(),
+    stopRecording: vi.fn(),
+  }),
+}));
+
 vi.mock('@/renderer/utils/platform', () => ({
   isElectronDesktop: () => isElectronDesktopValue,
+  // Read by the voice session: only macOS has a local speech synthesizer.
+  isMacOS: () => true,
 }));
 
 vi.mock('react-i18next', () => ({
@@ -272,6 +318,12 @@ vi.mock('@arco-design/web-react', () => ({
         children
       ),
   },
+  // Rendered by the hosted-voice consent hook the provider mounts. Inert here:
+  // every test below is on the local path, so nothing ever opens it.
+  Modal: ({ children, visible }: { children?: React.ReactNode; visible?: boolean }) =>
+    visible ? React.createElement('div', { role: 'dialog' }, children) : null,
+  // The speech buttons now render in this harness, and they wrap in a Tooltip.
+  Tooltip: ({ children }: { children?: React.ReactNode }) => children ?? null,
   Message: {
     useMessage: () => [{ warning: mockWarning }, React.createElement('div', { 'data-testid': 'message-context' })],
   },
@@ -669,5 +721,87 @@ describe('SendBox queue and interaction behaviors', () => {
     renderControlledSendBox({ defaultMultiLine, initialValue: 'hello' });
 
     expect(screen.getByRole('button', { name: 'Send message' })).toBeInTheDocument();
+  });
+
+  describe('voice status in the composer', () => {
+    // `useConversationContextSafe` is already mocked to conversation-1 in this
+    // file, so the provider's scoping check matches without a second provider.
+    const VoiceHarness: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+      <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+        {children}
+      </VoiceSessionProvider>
+    );
+
+    const Starter: React.FC = () => {
+      const session = useVoiceSessionSafe();
+      return (
+        <button type='button' onClick={() => void session?.begin()}>
+          start-voice
+        </button>
+      );
+    };
+
+    /**
+     * The assertion a placeholder-based status cannot pass.
+     *
+     * A placeholder does not render over a non-empty value, and typing during a
+     * session has to keep working - so the moment the user types one character,
+     * a placeholder-based design has silently deleted its own status channel.
+     * In `listening` that placeholder would also have been the only indication
+     * the microphone was open.
+     */
+    it('keeps the status visible once the user starts typing', async () => {
+      render(
+        <VoiceHarness>
+          <Starter />
+          <SendBox value='' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} />
+        </VoiceHarness>
+      );
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'start-voice' }).click();
+      });
+      expect(await screen.findByTestId('composer-voice-status')).toBeInTheDocument();
+
+      // Re-render with a non-empty draft, exactly as typing would.
+      render(
+        <VoiceHarness>
+          <Starter />
+          <SendBox value='a typed draft' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} />
+        </VoiceHarness>
+      );
+      await act(async () => {
+        screen.getAllByRole('button', { name: 'start-voice' })[1].click();
+      });
+
+      expect(screen.getAllByTestId('composer-voice-status').length).toBeGreaterThan(0);
+    });
+
+    it('never shows the working indicator and the voice status at once', async () => {
+      render(
+        <VoiceHarness>
+          <Starter />
+          <SendBox value='' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} loading />
+        </VoiceHarness>
+      );
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'start-voice' }).click();
+      });
+
+      // `loading` is set, so without the swap both would render.
+      expect(await screen.findByTestId('composer-voice-status')).toBeInTheDocument();
+      expect(screen.getAllByRole('status')).toHaveLength(1);
+      expect(screen.queryByText('Working...')).not.toBeInTheDocument();
+    });
+
+    it('leaves the working indicator exactly as it was with no voice session', () => {
+      // The control: outside a provider every voice read is null, so the
+      // composer must behave precisely as it does today.
+      render(<SendBox value='' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} loading />);
+
+      expect(screen.getByText('Working...')).toBeInTheDocument();
+      expect(screen.queryByTestId('composer-voice-status')).not.toBeInTheDocument();
+    });
   });
 });

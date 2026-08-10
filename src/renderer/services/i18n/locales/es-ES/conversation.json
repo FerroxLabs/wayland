@@ -242,6 +242,19 @@
       "premiumLocked": "Flux Voice necesita un plan de pago de Flux: actualiza para usar el dictado",
       "rateLimited": "Demasiadas solicitudes: inténtalo de nuevo en breve",
       "genericError": "La entrada de voz falló. Inténtalo de nuevo"
+    },
+    "voice": {
+      "statusConnecting": "Conectando…",
+      "statusListening": "Escuchando…",
+      "statusTapToTalk": "Toca la onda para hablar",
+      "statusHearing": "Te oigo",
+      "statusTranscribing": "Transcribiendo…",
+      "statusThinking": "Wayland está pensando…",
+      "statusApproval": "Necesita tu aprobación en el chat",
+      "statusSpeaking": "Wayland está hablando…",
+      "statusStopping": "Deteniendo…",
+      "statusReconnecting": "Reconectando…",
+      "statusError": "La voz necesita atención"
     }
   },
   "sideQuestion": {

@@ -242,6 +242,19 @@
       "premiumLocked": "Flux Voice nécessite un forfait Flux payant — passez à la version supérieure pour utiliser la dictée",
       "rateLimited": "Trop de requêtes — réessayez dans un instant",
       "genericError": "Échec de la saisie vocale. Veuillez réessayer"
+    },
+    "voice": {
+      "statusConnecting": "Connexion…",
+      "statusListening": "À l’écoute…",
+      "statusTapToTalk": "Touchez l’onde pour parler",
+      "statusHearing": "Je vous entends",
+      "statusTranscribing": "Transcription…",
+      "statusThinking": "Wayland réfléchit…",
+      "statusApproval": "Nécessite votre approbation dans le chat",
+      "statusSpeaking": "Wayland parle…",
+      "statusStopping": "Arrêt…",
+      "statusReconnecting": "Reconnexion…",
+      "statusError": "La voix nécessite votre attention"
     }
   },
   "sideQuestion": {

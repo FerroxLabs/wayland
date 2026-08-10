@@ -271,6 +271,19 @@
       "premiumLocked": "Flux Voice needs a paid Flux plan — upgrade to use dictation",
       "rateLimited": "Too many requests — try again shortly",
       "genericError": "Voice input failed. Please try again"
+    },
+    "voice": {
+      "statusConnecting": "Connecting…",
+      "statusListening": "Listening…",
+      "statusTapToTalk": "Tap the wave to talk",
+      "statusHearing": "I can hear you",
+      "statusTranscribing": "Transcribing…",
+      "statusThinking": "Wayland is thinking…",
+      "statusApproval": "Needs your approval in chat",
+      "statusSpeaking": "Wayland is speaking…",
+      "statusStopping": "Stopping…",
+      "statusReconnecting": "Reconnecting…",
+      "statusError": "Voice needs attention"
     }
   },
   "sideQuestion": {

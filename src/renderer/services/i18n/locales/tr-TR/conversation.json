@@ -237,6 +237,19 @@
       "premiumLocked": "Flux Voice ücretli bir Flux planı gerektirir — dikte kullanmak için yükseltin",
       "rateLimited": "Çok fazla istek — lütfen kısa süre sonra tekrar deneyin",
       "genericError": "Sesli giriş başarısız oldu. Lütfen tekrar deneyin"
+    },
+    "voice": {
+      "statusConnecting": "Bağlanıyor…",
+      "statusListening": "Dinliyor…",
+      "statusTapToTalk": "Konuşmak için dalgaya dokun",
+      "statusHearing": "Seni duyabiliyorum",
+      "statusTranscribing": "Yazıya dökülüyor…",
+      "statusThinking": "Wayland düşünüyor…",
+      "statusApproval": "Sohbette onayın gerekiyor",
+      "statusSpeaking": "Wayland konuşuyor…",
+      "statusStopping": "Durduruluyor…",
+      "statusReconnecting": "Yeniden bağlanıyor…",
+      "statusError": "Ses dikkat gerektiriyor"
     }
   },
   "sideQuestion": {
