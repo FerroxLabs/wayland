@@ -350,7 +350,7 @@ describe('VoiceConversationMode', () => {
     act(() => {
       vi.advanceTimersByTime(100);
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Return to Chat' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Close Voice mode' }));
     act(() => {
       vi.advanceTimersByTime(2000);
     });
@@ -425,7 +425,7 @@ describe('VoiceConversationMode', () => {
     act(() => openVoiceMode('conversation-1'));
     await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
     fireEvent.click(screen.getByRole('button', { name: 'Start speaking' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Return to Chat' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Close Voice mode' }));
 
     expect(mockCancelRecording).toHaveBeenCalledOnce();
     expect(screen.queryByRole('dialog', { name: 'Wayland voice conversation' })).not.toBeInTheDocument();
@@ -520,7 +520,7 @@ describe('VoiceConversationMode', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Start speaking' }));
     expect(mockStopMonitoring).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Return to Chat' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Close Voice mode' }));
 
     expect(mockStopMonitoring).toHaveBeenCalled();
   });

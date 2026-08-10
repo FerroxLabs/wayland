@@ -76,6 +76,7 @@ const VoiceConversationOrb: React.FC<{
     configReady,
     beginCapture,
     finishCapture,
+    collapse,
     end,
     interrupt,
     toggleMute,
@@ -95,7 +96,17 @@ const VoiceConversationOrb: React.FC<{
           <button type='button' onClick={openVoiceSettings} aria-label='Open Voice settings'>
             <Settings2 size={18} />
           </button>
-          <button type='button' onClick={end} aria-label='Return to Chat'>
+          {/*
+            These two did the same thing, because the orb was the whole surface
+            and there was nowhere for a session to live once it closed.
+
+            Now they differ, and the split matters: X is the universal "stop
+            this" glyph, so leaving two live getUserMedia streams behind it is
+            indefensible. X ends. Chat says "Return to Chat", which is exactly
+            what collapsing does - the session keeps running and the composer
+            carries it.
+          */}
+          <button type='button' onClick={collapse} aria-label='Return to Chat'>
             <MessageCircle size={18} />
             <span>Chat</span>
           </button>

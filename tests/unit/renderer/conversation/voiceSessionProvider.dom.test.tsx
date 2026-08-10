@@ -316,6 +316,91 @@ describe('VoiceSessionProvider', () => {
     });
   });
 
+  describe('leaving the orb', () => {
+    const StateProbe: React.FC = () => {
+      const session = useVoiceSessionSafe();
+      return <span data-testid='probe'>{`${session?.state ?? 'none'}|${session?.isActive ? 'live' : 'dead'}`}</span>;
+    };
+
+    const renderWithProbe = () =>
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+            <StateProbe />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+    /**
+     * X is the universal "stop this" glyph. Leaving two live getUserMedia
+     * streams behind it is indefensible, so it is the hard mic-off.
+     */
+    it('X ends the session', async () => {
+      renderWithProbe();
+      act(() => openVoiceMode('conversation-1'));
+      await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
+
+      act(() => screen.getByRole('button', { name: 'Close Voice mode' }).click());
+
+      expect(screen.getByTestId('probe').textContent).toBe('ended|dead');
+      expect(screen.queryByRole('dialog', { name: 'Wayland voice conversation' })).not.toBeInTheDocument();
+    });
+
+    /**
+     * The control. "Return to Chat" means exactly that - the orb goes away and
+     * the session keeps running, which is the whole point of splitting the view
+     * from the session.
+     */
+    it('Return to Chat hides the orb and keeps the session', async () => {
+      renderWithProbe();
+      act(() => openVoiceMode('conversation-1'));
+      await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
+
+      act(() => screen.getByRole('button', { name: 'Return to Chat' }).click());
+
+      expect(screen.queryByRole('dialog', { name: 'Wayland voice conversation' })).not.toBeInTheDocument();
+      expect(screen.getByTestId('probe').textContent).toBe('listening|live');
+    });
+
+    /**
+     * The assertion that a `state !== 'ended'` check would have passed while the
+     * feature was broken. Every subscription follows isActive, not the view, so
+     * collapsing mid-answer must not unsubscribe the response stream - if it
+     * did the reply would never be captured and the turn would hang in
+     * `thinking` forever.
+     */
+    it('a turn collapsed mid-answer still completes and still speaks', async () => {
+      renderWithProbe();
+      act(() => openVoiceMode('conversation-1'));
+      await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
+      act(() => {
+        screen.getByRole('button', { name: 'Start speaking' }).click();
+      });
+      act(() => {
+        screen.getByRole('button', { name: 'Stop and send voice turn' }).click();
+      });
+      act(() => onTranscript?.('Say something back.'));
+
+      act(() => screen.getByRole('button', { name: 'Return to Chat' }).click());
+      expect(screen.queryByRole('dialog', { name: 'Wayland voice conversation' })).not.toBeInTheDocument();
+
+      act(() => {
+        for (const listener of responseListeners) {
+          listener({
+            type: 'content',
+            data: 'Here is the answer.',
+            msg_id: 'assistant-1',
+            conversation_id: 'conversation-1',
+          });
+          listener({ type: 'finish', data: null, msg_id: 'assistant-1', conversation_id: 'conversation-1' });
+        }
+      });
+
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledWith({ text: 'Here is the answer.' }));
+    });
+  });
+
   describe('consent at entry, on both legs', () => {
     const renderSession = () =>
       render(
