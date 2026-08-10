@@ -22,12 +22,15 @@ import type {
   CodexSetupResult,
   CodexStatusResult,
   FluxConnectorReport,
+  KimiSetupResult,
+  KimiStatusResult,
   OpencodeSetupResult,
   OpencodeStatusResult,
 } from '@/common/types/fluxConnector';
 import { acpDetector } from '@process/agent/acp/AcpDetector';
 import { codexStatus, removeCodex, resolveCodexConfigPath, setupCodex } from '@process/connectors/codex';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
+import { kimiStatus, removeKimi, resolveKimiConfigPath, setupKimi } from '@process/connectors/kimi';
 import { opencodeStatus, removeOpencode, resolveOpencodeConfigPath, setupOpencode } from '@process/connectors/opencode';
 import type { ConnectorContext } from '@process/connectors/types';
 import { existsSync } from 'node:fs';
@@ -152,7 +155,57 @@ export async function handleRemoveCodex(): Promise<FluxConnectorReport> {
   return removeCodex(buildCodexContext(''));
 }
 
-/** Register the flux-connector IPC providers (opencode + codex). */
+/** True when a `kimi` binary is detectable on PATH. Never throws. */
+async function kimiOnPath(): Promise<boolean> {
+  try {
+    const found = await acpDetector.batchCheckCliAvailability(['kimi']);
+    return found.has('kimi');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Handler: report Kimi Code's routing status, resolved config path, and whether
+ * kimi is installed (binary on PATH OR a config file present). Does not need the
+ * flux key. Kimi Code takes a generic `type = "openai"` provider, so it uses the
+ * plain OpenAI surface - NOT codex's Responses surface.
+ */
+export async function handleKimiStatus(): Promise<KimiStatusResult> {
+  const ctx = buildContext('');
+  const status = await kimiStatus(ctx);
+  const configPath = resolveKimiConfigPath();
+  const installed = (await kimiOnPath()) || existsSync(configPath);
+  return { status, configPath, installed };
+}
+
+/**
+ * Handler: install (or refresh) the Flux provider in Kimi Code's config. Reads
+ * the connected flux key; if Flux is not connected, returns a typed refusal and
+ * never calls the connector.
+ */
+export async function handleSetupKimi(): Promise<KimiSetupResult> {
+  const fluxKey = await readConnectedFluxKey();
+  if (fluxKey === undefined) {
+    return { ok: false, reason: 'flux-not-connected' };
+  }
+  try {
+    const report = await setupKimi(buildContext(fluxKey));
+    return { ok: true, report };
+  } catch (err) {
+    return { ok: false, reason: 'error', message: String(err) };
+  }
+}
+
+/**
+ * Handler: surgically remove the Flux provider from Kimi Code's config. Does not
+ * need the flux key.
+ */
+export async function handleRemoveKimi(): Promise<FluxConnectorReport> {
+  return removeKimi(buildContext(''));
+}
+
+/** Register the flux-connector IPC providers (opencode + codex + kimi). */
 export function initFluxConnectorBridge(): void {
   ipcBridge.fluxConnector.opencodeStatus.provider(handleOpencodeStatus);
   ipcBridge.fluxConnector.setupOpencode.provider(handleSetupOpencode);
@@ -160,4 +213,7 @@ export function initFluxConnectorBridge(): void {
   ipcBridge.fluxConnector.codexStatus.provider(handleCodexStatus);
   ipcBridge.fluxConnector.setupCodex.provider(handleSetupCodex);
   ipcBridge.fluxConnector.removeCodex.provider(handleRemoveCodex);
+  ipcBridge.fluxConnector.kimiStatus.provider(handleKimiStatus);
+  ipcBridge.fluxConnector.setupKimi.provider(handleSetupKimi);
+  ipcBridge.fluxConnector.removeKimi.provider(handleRemoveKimi);
 }

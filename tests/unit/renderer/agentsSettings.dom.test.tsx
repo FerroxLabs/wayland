@@ -242,6 +242,29 @@ describe('AgentsSettings (Packet 2D)', () => {
     expect(screen.getByText('Flux setup')).toBeTruthy();
   });
 
+  it('renders the kimi Flux chip as a clickable setup button, not inert text', async () => {
+    // `kimi` is classified `setup` AND has a live connector, so its chip must be
+    // the button that opens FluxSetupModal. A `setup` backend WITHOUT a connector
+    // (`qoder`) stays an inert span - that contrast is what makes this test able
+    // to fail if the kimi case is dropped from the clickable branch.
+    mockGetAvailableAgents.mockResolvedValue(
+      agentsOk([
+        { backend: 'kimi', name: 'Kimi Code' },
+        { backend: 'qoder', name: 'Qoder CLI' },
+      ])
+    );
+    render(<AgentsSettings />);
+    await waitFor(() => expect(screen.getByText('Kimi Code')).toBeTruthy());
+
+    const kimiCard = screen.getByText('Kimi Code').closest('[data-testid="agent-tile"]');
+    expect(kimiCard).toBeTruthy();
+    expect(kimiCard!.querySelector('[data-testid="flux-setup-chip"]')).toBeTruthy();
+
+    const qoderCard = screen.getByText('Qoder CLI').closest('[data-testid="agent-tile"]');
+    expect(qoderCard!.textContent).toContain('Flux setup');
+    expect(qoderCard!.querySelector('[data-testid="flux-setup-chip"]')).toBeNull();
+  });
+
   it('renders no Flux chip for a backend with no fluxCompat classification', async () => {
     // `codebuddy` carries no fluxCompat, so its card must not show any chip.
     // (The always-present Wayland Core hero is `env`, so scope the assertion to

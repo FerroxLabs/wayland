@@ -52,3 +52,16 @@ export type CodexStatusResult = {
   /** codex binary detected on PATH OR a config file present. */
   installed: boolean;
 };
+
+/** Result of a setup-kimi request over the bridge. */
+export type KimiSetupResult =
+  | { ok: true; report: FluxConnectorReport }
+  | { ok: false; reason: 'flux-not-connected' | 'error'; message?: string };
+
+/** Result of a kimi-status request over the bridge. */
+export type KimiStatusResult = {
+  status: ConnectorStatus;
+  configPath: string;
+  /** kimi binary detected on PATH OR a config file present. */
+  installed: boolean;
+};

@@ -28,6 +28,8 @@ import type {
   CodexSetupResult,
   CodexStatusResult,
   FluxConnectorReport,
+  KimiSetupResult,
+  KimiStatusResult,
   OpencodeSetupResult,
   OpencodeStatusResult,
 } from '../types/fluxConnector';
@@ -1305,6 +1307,9 @@ export const fluxConnector = {
   codexStatus: buildProvider<CodexStatusResult, void>('flux-connector:codex-status'),
   setupCodex: buildProvider<CodexSetupResult, void>('flux-connector:setup-codex'),
   removeCodex: buildProvider<FluxConnectorReport, void>('flux-connector:remove-codex'),
+  kimiStatus: buildProvider<KimiStatusResult, void>('flux-connector:kimi-status'),
+  setupKimi: buildProvider<KimiSetupResult, void>('flux-connector:setup-kimi'),
+  removeKimi: buildProvider<FluxConnectorReport, void>('flux-connector:remove-kimi'),
 };
 
 // Ambient Mode - M1 bubble window (AC-M1-5 / AC-M1-10 / AC-M1-11 / AC-M1-13)

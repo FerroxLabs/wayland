@@ -91,11 +91,11 @@ const FluxCompatChip: React.FC<{ backend: string }> = ({ backend }) => {
   }
 
   if (compat === 'setup') {
-    // opencode and codex have live connectors (a one-time config write routes
-    // them through Flux). Render their chip as a clickable button that opens the
-    // setup modal for the matching backend; other `setup` backends stay
-    // informational.
-    if (backend === 'opencode' || backend === 'codex') {
+    // opencode, codex and kimi have live connectors (a one-time config write
+    // routes them through Flux). Render their chip as a clickable button that
+    // opens the setup modal for the matching backend; other `setup` backends
+    // stay informational.
+    if (backend === 'opencode' || backend === 'codex' || backend === 'kimi') {
       return (
         <>
           <Button

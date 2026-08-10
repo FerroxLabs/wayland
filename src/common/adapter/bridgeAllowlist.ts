@@ -352,6 +352,22 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     stays allowed. ---
   'onboarding.connect-pasted-key',
   'onboarding.connect-flux',
+  // --- Flux connector writes for Kimi Code. `setup-kimi` takes the stored Flux
+  //     key and writes it, in plaintext, into a CLI config file on the HOST.
+  //     That is the same class as connect-flux directly above, so a paired
+  //     remote caller must not be able to drive it. `remove-kimi` mutates the
+  //     same host file. `kimi-status` is a read and stays allowed so the
+  //     settings panel still renders remotely.
+  //
+  //     NOTE: the equivalent opencode and codex channels (`setup-opencode`,
+  //     `remove-opencode`, `setup-codex`, `remove-codex`) are NOT denied today
+  //     and remain reachable. That looks like an oversight rather than a
+  //     decision, but it is shipped behaviour and changing it could break a
+  //     paired-device flow, so it is left for an explicit call rather than
+  //     changed here. This entry stops the gap from widening by one more
+  //     channel in the meantime. ---
+  'flux-connector:setup-kimi',
+  'flux-connector:remove-kimi',
   // --- Native xAI "Sign in with X (Grok)" OAuth. Both mint/persist the `xai`
   //     provider credential via the model-registry connect path - same class as
   //     connect-flux above. A remote WS caller must never drive an OAuth mint or

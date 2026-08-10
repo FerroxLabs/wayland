@@ -41,6 +41,15 @@ vi.mock('@/common', () => ({
       removeCodex: {
         provider: (handler: () => Promise<unknown>) => providers.set('codexRemove', handler),
       },
+      kimiStatus: {
+        provider: (handler: () => Promise<unknown>) => providers.set('kimiStatus', handler),
+      },
+      setupKimi: {
+        provider: (handler: () => Promise<unknown>) => providers.set('kimiSetup', handler),
+      },
+      removeKimi: {
+        provider: (handler: () => Promise<unknown>) => providers.set('kimiRemove', handler),
+      },
     },
   },
 }));
@@ -175,7 +184,7 @@ describe('fluxConnectorBridge', () => {
     expect(readConnectedFluxKey).not.toHaveBeenCalled();
   });
 
-  it('initFluxConnectorBridge registers all opencode + codex providers', async () => {
+  it('initFluxConnectorBridge registers all opencode + codex + kimi providers', async () => {
     const { initFluxConnectorBridge } = await import('@process/bridge/fluxConnectorBridge');
 
     initFluxConnectorBridge();
@@ -186,5 +195,8 @@ describe('fluxConnectorBridge', () => {
     expect(providers.has('codexStatus')).toBe(true);
     expect(providers.has('codexSetup')).toBe(true);
     expect(providers.has('codexRemove')).toBe(true);
+    expect(providers.has('kimiStatus')).toBe(true);
+    expect(providers.has('kimiSetup')).toBe(true);
+    expect(providers.has('kimiRemove')).toBe(true);
   });
 });

@@ -473,6 +473,11 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     // is the LEGACY tree that kimi-code's `migrate` subcommand copies OUT of, so
     // symlinking there published every builtin skill where the agent never looks.
     skillsDirs: ['.kimi-code/skills'],
+    // Needs the config-writing setup connector: Kimi Code takes a generic
+    // `type = "openai"` provider in its config.toml (verified against the real
+    // binary). Env injection (KIMI_BASE_URL / KIMI_API_KEY) registers nothing,
+    // so 'env' is not an option.
+    fluxCompat: 'setup',
   },
   opencode: {
     id: 'opencode',
