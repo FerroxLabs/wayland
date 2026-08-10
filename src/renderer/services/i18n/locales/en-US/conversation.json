@@ -270,7 +270,9 @@
       "authError": "Flux key is invalid — reconnect Flux Router to use voice input",
       "premiumLocked": "Flux Voice needs a paid Flux plan — upgrade to use dictation",
       "rateLimited": "Too many requests — try again shortly",
-      "genericError": "Voice input failed. Please try again"
+      "genericError": "Voice input failed. Please try again",
+      "setupLabel": "Set up dictation",
+      "setupTooltip": "Dictation is off - open Voice settings to turn it on"
     },
     "voice": {
       "statusConnecting": "Connecting…",
@@ -283,7 +285,14 @@
       "statusSpeaking": "Wayland is speaking…",
       "statusStopping": "Stopping…",
       "statusReconnecting": "Reconnecting…",
-      "statusError": "Voice needs attention"
+      "statusError": "Voice needs attention",
+      "startLabel": "Talk with Wayland",
+      "startTitle": "Talk with Wayland — it answers out loud",
+      "endLabel": "End voice conversation",
+      "endTitle": "End the voice conversation",
+      "stopSpeaking": "Stop Wayland",
+      "mute": "Mute microphone",
+      "unmute": "Unmute microphone"
     }
   },
   "sideQuestion": {

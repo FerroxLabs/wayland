@@ -236,7 +236,9 @@
       "authError": "Flux anahtarı geçersiz — sesli girişi kullanmak için Flux Router’ı yeniden bağlayın",
       "premiumLocked": "Flux Voice ücretli bir Flux planı gerektirir — dikte kullanmak için yükseltin",
       "rateLimited": "Çok fazla istek — lütfen kısa süre sonra tekrar deneyin",
-      "genericError": "Sesli giriş başarısız oldu. Lütfen tekrar deneyin"
+      "genericError": "Sesli giriş başarısız oldu. Lütfen tekrar deneyin",
+      "setupLabel": "Dikteyi ayarla",
+      "setupTooltip": "Dikte kapalı — ses ayarlarından açın"
     },
     "voice": {
       "statusConnecting": "Bağlanıyor…",
@@ -249,7 +251,14 @@
       "statusSpeaking": "Wayland konuşuyor…",
       "statusStopping": "Durduruluyor…",
       "statusReconnecting": "Yeniden bağlanıyor…",
-      "statusError": "Ses dikkat gerektiriyor"
+      "statusError": "Ses dikkat gerektiriyor",
+      "startLabel": "Wayland ile konuş",
+      "startTitle": "Wayland ile konuş — sesli yanıt verir",
+      "endLabel": "Sesli görüşmeyi bitir",
+      "endTitle": "Sesli görüşmeyi bitir",
+      "stopSpeaking": "Wayland'ı durdur",
+      "mute": "Mikrofonu kapat",
+      "unmute": "Mikrofonu aç"
     }
   },
   "sideQuestion": {

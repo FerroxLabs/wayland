@@ -241,7 +241,9 @@
       "authError": "La clave de Flux no es válida: vuelve a conectar Flux Router para usar la entrada de voz",
       "premiumLocked": "Flux Voice necesita un plan de pago de Flux: actualiza para usar el dictado",
       "rateLimited": "Demasiadas solicitudes: inténtalo de nuevo en breve",
-      "genericError": "La entrada de voz falló. Inténtalo de nuevo"
+      "genericError": "La entrada de voz falló. Inténtalo de nuevo",
+      "setupLabel": "Configurar el dictado",
+      "setupTooltip": "El dictado está desactivado: actívalo en los ajustes de voz"
     },
     "voice": {
       "statusConnecting": "Conectando…",
@@ -254,7 +256,14 @@
       "statusSpeaking": "Wayland está hablando…",
       "statusStopping": "Deteniendo…",
       "statusReconnecting": "Reconectando…",
-      "statusError": "La voz necesita atención"
+      "statusError": "La voz necesita atención",
+      "startLabel": "Hablar con Wayland",
+      "startTitle": "Habla con Wayland: responde en voz alta",
+      "endLabel": "Finalizar conversación de voz",
+      "endTitle": "Finalizar la conversación de voz",
+      "stopSpeaking": "Detener a Wayland",
+      "mute": "Silenciar el micrófono",
+      "unmute": "Activar el micrófono"
     }
   },
   "sideQuestion": {

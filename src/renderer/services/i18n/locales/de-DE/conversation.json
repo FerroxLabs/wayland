@@ -241,7 +241,9 @@
       "authError": "Flux-Schlüssel ist ungültig – verbinde Flux Router erneut, um die Spracheingabe zu nutzen",
       "premiumLocked": "Flux Voice erfordert ein kostenpflichtiges Flux-Abo – führe ein Upgrade durch, um zu diktieren",
       "rateLimited": "Zu viele Anfragen – bitte versuche es in Kürze erneut",
-      "genericError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen"
+      "genericError": "Spracheingabe fehlgeschlagen. Bitte erneut versuchen",
+      "setupLabel": "Diktat einrichten",
+      "setupTooltip": "Diktat ist aus – in den Spracheinstellungen aktivieren"
     },
     "voice": {
       "statusConnecting": "Verbinden…",
@@ -254,7 +256,14 @@
       "statusSpeaking": "Wayland spricht…",
       "statusStopping": "Wird gestoppt…",
       "statusReconnecting": "Neu verbinden…",
-      "statusError": "Sprachfunktion benötigt Aufmerksamkeit"
+      "statusError": "Sprachfunktion benötigt Aufmerksamkeit",
+      "startLabel": "Mit Wayland sprechen",
+      "startTitle": "Mit Wayland sprechen – es antwortet laut",
+      "endLabel": "Sprachgespräch beenden",
+      "endTitle": "Das Sprachgespräch beenden",
+      "stopSpeaking": "Wayland stoppen",
+      "mute": "Mikrofon stummschalten",
+      "unmute": "Stummschaltung aufheben"
     }
   },
   "sideQuestion": {

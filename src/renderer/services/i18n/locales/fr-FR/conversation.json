@@ -241,7 +241,9 @@
       "authError": "La clé Flux est invalide — reconnectez Flux Router pour utiliser la saisie vocale",
       "premiumLocked": "Flux Voice nécessite un forfait Flux payant — passez à la version supérieure pour utiliser la dictée",
       "rateLimited": "Trop de requêtes — réessayez dans un instant",
-      "genericError": "Échec de la saisie vocale. Veuillez réessayer"
+      "genericError": "Échec de la saisie vocale. Veuillez réessayer",
+      "setupLabel": "Configurer la dictée",
+      "setupTooltip": "La dictée est désactivée – activez-la dans les paramètres vocaux"
     },
     "voice": {
       "statusConnecting": "Connexion…",
@@ -254,7 +256,14 @@
       "statusSpeaking": "Wayland parle…",
       "statusStopping": "Arrêt…",
       "statusReconnecting": "Reconnexion…",
-      "statusError": "La voix nécessite votre attention"
+      "statusError": "La voix nécessite votre attention",
+      "startLabel": "Parler avec Wayland",
+      "startTitle": "Parlez avec Wayland – il répond à voix haute",
+      "endLabel": "Terminer la conversation vocale",
+      "endTitle": "Terminer la conversation vocale",
+      "stopSpeaking": "Arrêter Wayland",
+      "mute": "Couper le microphone",
+      "unmute": "Réactiver le microphone"
     }
   },
   "sideQuestion": {

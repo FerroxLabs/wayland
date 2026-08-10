@@ -241,7 +241,9 @@
       "authError": "Flux 키가 유효하지 않습니다 — 음성 입력을 사용하려면 Flux Router를 다시 연결하세요",
       "premiumLocked": "Flux Voice는 유료 Flux 요금제가 필요합니다 — 받아쓰기를 사용하려면 업그레이드하세요",
       "rateLimited": "요청이 너무 많습니다 — 잠시 후 다시 시도하세요",
-      "genericError": "음성 입력에 실패했습니다. 다시 시도해 주세요"
+      "genericError": "음성 입력에 실패했습니다. 다시 시도해 주세요",
+      "setupLabel": "받아쓰기 설정",
+      "setupTooltip": "받아쓰기가 꺼져 있습니다. 음성 설정에서 켜세요"
     },
     "voice": {
       "statusConnecting": "연결 중…",
@@ -254,7 +256,14 @@
       "statusSpeaking": "Wayland가 말하는 중…",
       "statusStopping": "중지 중…",
       "statusReconnecting": "다시 연결 중…",
-      "statusError": "음성에 주의가 필요합니다"
+      "statusError": "음성에 주의가 필요합니다",
+      "startLabel": "Wayland와 대화하기",
+      "startTitle": "Wayland와 대화하기 — 음성으로 답합니다",
+      "endLabel": "음성 대화 종료",
+      "endTitle": "음성 대화를 종료합니다",
+      "stopSpeaking": "Wayland 중지",
+      "mute": "마이크 음소거",
+      "unmute": "마이크 음소거 해제"
     }
   },
   "sideQuestion": {
