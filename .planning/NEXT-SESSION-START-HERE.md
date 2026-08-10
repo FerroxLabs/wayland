@@ -1,7 +1,7 @@
 # START HERE — 2026-08-10 (late)
 
-Branch `packet/attribution-audit`, head **`117a05eb7`**, pushed to ferrox.
-**Full suite 16,521 tests / 0 failed / 0 failed suites. Typecheck clean.**
+Branch `packet/attribution-audit`, head **`7edce2ce7`**, pushed to ferrox.
+**Full suite 16,524 tests / 0 failed / 0 failed suites. Typecheck clean.**
 Nothing merged, tagged, or PR'd. `constitutionFsAuthority.generated.ts` and
 `AGENTS.md` are modified and MUST stay unstaged.
 
@@ -40,11 +40,11 @@ inter-sentence pause across the whole 33 s answer.
 Prior evidence it will pass: M2, where Sean graded one-shot / gapless / padded
 as indistinguishable on a five-sentence reply.
 
-### Known gap in what just landed
+### V12 gap CLOSED (`7edce2ce7`)
 
-**V12 has no test.** The plan's assertion — with `loading` set and no session,
-both voice buttons report `disabled === false`, which fails at HEAD — is NOT
-written. Suite is green but does not pin it. Write it first next session.
+Three tests, one per axis, each mutation-proven to kill exactly itself:
+streaming keeps both controls alive, a live session closes dictation but not
+the soundwave, and `disabled` still closes both. Suite **16,524 / 0 failed**.
 
 ### V13–V18 remain, carrying these decided points
 - **V13** glow: listening and speaking must look DIFFERENT. Animate via a CSS
