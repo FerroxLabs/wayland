@@ -19,8 +19,28 @@ export type TextToSpeechConfig = {
   model?: string;
 };
 
+/**
+ * `enabled` defaults ON.
+ *
+ * It reads like a privacy switch and is not one: no synthesis path consults it.
+ * `voiceSynthBridge` normalizes the stored config and then synthesizes without
+ * ever reading this field, and `autoReadResponses` - the field that would speak
+ * without being asked - has no runtime consumer at all and stays `false`. The
+ * only thing `enabled: false` ever gated was the renderer's own
+ * `ttsProviderReady` check, so its single observable effect was that a user who
+ * had never opened settings entered a voice conversation that could never make
+ * a sound: the UI advanced to "Speaking", `playback_completed` never fired, and
+ * the session never re-armed. That reads as a broken microphone.
+ *
+ * Reach, stated honestly: the normalizer preserves an explicitly stored
+ * `false`, and both writers persist the whole object - changing any TTS field,
+ * or merely pressing Test voice, writes `enabled` along with it. So this fixes
+ * users who never touched a TTS field and never pressed Test voice. Everyone
+ * else is fixed by a named readiness reason and a one-tap route to settings,
+ * deliberately not by rewriting a stored preference they may have set on purpose.
+ */
 export const DEFAULT_TTS_CONFIG: TextToSpeechConfig = {
-  enabled: false,
+  enabled: true,
   provider: 'system-native',
   voice: 'default',
   speed: 1.0,

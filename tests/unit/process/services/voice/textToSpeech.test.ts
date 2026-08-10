@@ -63,6 +63,25 @@ describe('normalizeTextToSpeechConfig', () => {
     expect(config).toEqual(DEFAULT_TTS_CONFIG);
   });
 
+  /**
+   * These three pin the default flip itself. The `toEqual(DEFAULT_TTS_CONFIG)`
+   * assertion above cannot: it compares the default to itself and stays green
+   * whichever way the flag points.
+   */
+  it('speaks for a user who has never opened voice settings', () => {
+    expect(normalizeTextToSpeechConfig().enabled).toBe(true);
+    expect(normalizeTextToSpeechConfig(undefined).enabled).toBe(true);
+    expect(normalizeTextToSpeechConfig({}).enabled).toBe(true);
+  });
+
+  it('never overrides a user who deliberately turned speech off', () => {
+    expect(normalizeTextToSpeechConfig({ enabled: false }).enabled).toBe(false);
+  });
+
+  it('leaves unprompted auto-reading off', () => {
+    expect(normalizeTextToSpeechConfig().autoReadResponses).toBe(false);
+  });
+
   it('fills missing fields with defaults', () => {
     const config = normalizeTextToSpeechConfig({ enabled: true });
     expect(config.enabled).toBe(true);
