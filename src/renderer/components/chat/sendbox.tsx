@@ -1562,16 +1562,28 @@ const SendBox: React.FC<{
       {voiceMuteButton}
       {/* When a draft exists the action slot keeps Send, so stop lives here. */}
       {voiceStopButton && hasDraftToSend ? voiceStopButton : null}
+      {/*
+       * Neither control dies while a reply streams.
+       *
+       * They were both gated on `isLoading || loading`, which meant the voice
+       * button went dead the instant an answer started - so barge-in and
+       * stop-speaking were unreachable at exactly the moment they are for. That
+       * symptom reads as an audio bug and gets diagnosed as one.
+       *
+       * Dictation additionally goes dead while a voice SESSION is live, for a
+       * different reason: SpeechInputButton owns its own useSpeechInput and
+       * therefore its own getUserMedia, and the session owns a second. Tapping
+       * dictation mid-session opens a second recorder over the same audio - two
+       * hosted transcriptions of one utterance, one auto-sent and one dropped
+       * in the composer.
+       */}
       <SpeechInputButton
-        disabled={disabled || isLoading || loading || isUploading}
+        disabled={disabled || isUploading || Boolean(voiceSession?.isActive)}
         locale={speechLocale}
         onTranscript={handleSpeechTranscript}
       />
       {conversationContext?.conversationId && (
-        <VoiceModeEntryButton
-          conversationId={conversationContext.conversationId}
-          disabled={disabled || isLoading || loading || isUploading}
-        />
+        <VoiceModeEntryButton conversationId={conversationContext.conversationId} disabled={disabled} />
       )}
       {sendButtonPrefix}
       {renderActionButtons()}
