@@ -854,5 +854,58 @@ describe('SendBox queue and interaction behaviors', () => {
       expect(screen.getByText('Working...')).toBeInTheDocument();
       expect(screen.queryByTestId('composer-voice-status')).not.toBeInTheDocument();
     });
+
+    /**
+     * Two gates on two different axes, and each has to be pinned separately -
+     * a single "voice controls are enabled" assertion would pass with either
+     * one deleted.
+     *
+     * The dictation mic's accessible name comes back as the raw i18n key here:
+     * SpeechInputButton calls `t(tooltipKey)` with no defaultValue, and this
+     * file's `t` mock returns the key when there is none.
+     */
+    const DICTATION_LABEL = 'conversation.chat.speech.recordTooltip';
+
+    it('keeps both voice controls alive while a reply is streaming', async () => {
+      // The axis the fix was for. Both buttons were gated on `isLoading ||
+      // loading`, so the soundwave went dead the instant an answer started -
+      // which is exactly when barge-in and stop-speaking are reached for.
+      render(<SendBox value='' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} loading />);
+
+      // The mic mounts only after its stored config resolves.
+      expect(await screen.findByRole('button', { name: DICTATION_LABEL })).not.toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Talk with Wayland' })).not.toBeDisabled();
+    });
+
+    it('closes dictation during a live session but leaves the way out open', async () => {
+      // The other axis, and it is not about loading at all: SpeechInputButton
+      // owns its own useSpeechInput and therefore its own getUserMedia, so
+      // tapping it mid-session opens a second recorder over the same audio.
+      // The soundwave must stay live regardless - it is the way out.
+      render(
+        <VoiceHarness>
+          <SendBox value='' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} />
+        </VoiceHarness>
+      );
+
+      expect(await screen.findByRole('button', { name: DICTATION_LABEL })).not.toBeDisabled();
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'Talk with Wayland' }).click();
+      });
+      expect(await screen.findByTestId('composer-voice-status')).toBeInTheDocument();
+
+      expect(screen.getByRole('button', { name: DICTATION_LABEL })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'End voice conversation' })).not.toBeDisabled();
+    });
+
+    it('still closes both controls when the whole composer is disabled', async () => {
+      // The relaxation has a floor: `disabled` is the caller saying this
+      // composer is not usable at all, and voice is not an exception to it.
+      render(<SendBox value='' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} disabled loading />);
+
+      expect(await screen.findByRole('button', { name: DICTATION_LABEL })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Talk with Wayland' })).toBeDisabled();
+    });
   });
 });
