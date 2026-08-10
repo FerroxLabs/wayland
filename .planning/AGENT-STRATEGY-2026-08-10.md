@@ -162,3 +162,127 @@ first-class.
 currently sits in K-06, after the npm subset he approved. Building K-05 as
 written ships an installer whose agents are qwen, gemini and auggie — none of
 which are on the list above.
+
+---
+
+# ADDENDUM — corrections and the next-session workflow
+
+Four things in §4 above were wrong. Corrected here by execution, not by review.
+
+## C1 — Codex IS installable, and easily. (was: "config only, no install")
+
+`@openai/codex@0.147.0`: **`scripts: []`** — no postinstall at all — zero
+dependencies, six platform optionalDeps in the clean pattern. It is one of the
+EASIEST installs on the list, not an exception to it.
+
+The confusion was mine: what `acpTypes.ts:395` npx-es is
+`@agentclientprotocol/codex-acp`, the **ACP bridge**, which is a different
+package from Codex itself. And `npx` is worse than installing by our own
+standards — no version pin, network required at launch, code executed without
+pre-verification. **Install Codex properly.**
+
+## C2 — OpenClaw is CHANNEL BREADTH, not skills. (Sean's correction, confirmed)
+
+npm `openclaw@2026.7.1-2`, described by its own authors as
+*"Multi-channel AI gateway with extensible messaging integrations."* Bin
+`openclaw`, scripts are dev/tui/lint/test — **no postinstall**, installs clean.
+
+The earlier "their moat is 5,400 skills" framing was wrong. Skills are an
+adjacent ecosystem; the product is channel reach. We already ship ~2,100 skills
+of our own, so skills were never the gap.
+
+## C3 — Hermes is NOT channel-blocked; it is CAPABILITIES.
+
+Official **PyPI `hermes-agent@0.19.0`** from `NousResearch/hermes-agent`
+(**228,272 stars**) — "self-improving agent, creates skills from experience,
+persistent memory, MCP client AND server, cron, webhooks, computer-use".
+
+The npm `hermes-agent` I flagged as blocking is an unofficial third-party bridge
+(`wyrtensi/hermes-agent-npm`). Ignore it; use PyPI. **We already have a
+`hermes-setup` assistant persona** at
+`src/process/resources/assistant/hermes-setup/hermes-setup.md`.
+
+## C4 — We ALREADY have ChatGPT and Grok OAuth. (Sean's correction)
+
+- `src/process/onboarding/chatgptOAuth.ts` — `chatgptOAuthLogin`,
+  `chatgptRefreshToken`, wired in `authBridge.ts` (both remote-denied)
+- `chatgpt-subscription` provider + `chatgptSubscriptionModels.ts` catalog
+- `ChatGptButton.tsx` and `XGrokButton.tsx` in Models settings
+
+**Keep the two layers distinct:**
+- **Provider-level OAuth** (exists): logs *Wayland* into ChatGPT/Grok so
+  Wayland's own chat uses those models on the user's subscription.
+- **Agent-level login** (the better shape for installed agents): the agent runs
+  its OWN `codex login` / `claude login` / `grok login` in our PTY.
+
+They are not redundant and neither replaces the other.
+
+## Revised install matrix — eight agents, four mechanics
+
+| Mechanic | Agents | Note |
+|---|---|---|
+| **A** npm + `--ignore-scripts` | **Codex, Kimi Code, OpenClaw** | all three verified postinstall-free |
+| **B** tarball + pinned checksum | Claude Code, OpenCode, Goose | postinstall required / non-npm |
+| **C** PyPI + uv | Hermes | official channel |
+| **D** sandboxed vendor script | Grok Build | `vendor`, earns no Flux — build LAST |
+
+## Auth design — host it, never implement it
+
+`node-pty` already exists (`src/process/terminal/terminalBridge.ts`,
+`terminalRegistry.ts`), so interactive vendor logins can run INSIDE Wayland. The
+user never drops to a shell, which is the friction the north star exists to kill.
+
+1. **Host, don't implement.** The agent runs its own login flow in our PTY.
+2. **Never intercept or store.** It writes its own config/keychain; we do not
+   read, proxy, or cache it.
+3. **Detect and display the mode** — Flux / own API key / vendor subscription —
+   so the user always knows where their money goes.
+
+**The ToS line that must never blur:** Wayland implementing Anthropic
+subscription OAuth is a hard no. Claude Code running its own `claude login`
+inside our terminal is fine. We are the window, not the broker.
+
+**Economics are not either/or.** A user can be on Claude Max for Claude Code AND
+Flux for the other seven. Every installed agent is a fresh chance for Flux to be
+the default on that one, and a subscription user who STAYS is worth far more than
+one who leaves.
+
+---
+
+# NEXT SESSION — run this as a workflow
+
+**Do not re-research any of the above.** Channels, package identity, postinstall
+status, OAuth surfaces and the Grok script hash are all established by execution
+and recorded here.
+
+**Phase 0 — gate (serial, alone).** K-05 **T1**: the structured launch command.
+`parseWindowsCliPath` keeps only the first quoted token, so
+`C:\Program Files\Wayland` breaks every spawn until this lands. Nothing
+parallelises before it.
+
+**Phase 1 — Mechanic A (parallel, 3 agents).** Codex, Kimi Code, OpenClaw. All
+npm, all verified postinstall-free, so one code path covers three agents. This is
+the cheapest real proof that install→detect→connect works end to end.
+
+**Phase 2 — Mechanic B (serial per agent).** Claude Code first (marquee), then
+OpenCode, then Goose. Direct tarball, pinned checksum, manual bin placement.
+
+**Phase 3 — Mechanic C.** Hermes via PyPI/uv. Reuse the existing `hermes-setup`
+assistant rather than writing new setup UX.
+
+**Phase 4 — Mechanic D.** Grok Build: pin the script
+(`0465d810453bbf18608ccae310fa79f4c59ae4a0538bd8a3a374ebce749be952`), sandbox
+`HOME`/`TMPDIR`/`PATH` into staging, hash the resulting binary into the manifest,
+and say plainly in the consent step that xAI ships no checksum.
+
+**Phase 5 — auth surfacing.** Per-agent login through the existing PTY, plus the
+mode indicator. No new OAuth is written.
+
+**Two one-line fixes to land whenever:** `acpTypes.ts:465` still says
+`name: 'Kimi CLI'` (product is now Kimi Code), and `kimi` has no `fluxCompat`
+despite likely being OpenAI-compatible — currently marked as earning nothing.
+
+**Still Sean's call:** Phase 1 as written departs from the approved K-05 order
+(qwen first, then gemini, auggie). Sean has since cut gemini (we supply our own)
+and qwen (low real usage), so the approved order now ships an installer for
+agents he does not want.
