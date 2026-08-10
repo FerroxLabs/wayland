@@ -1,0 +1,209 @@
+/**
+ * @license
+ * Copyright 2026 Ferrox Labs
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Turn an installed npm package into an {@link AcpLaunchSpec}.
+ *
+ * WHY A SPEC AND NOT A PATH
+ * -------------------------
+ * The generic ACP spawn runs with `shell: false` and has no `.cmd`/`.bat`
+ * branch (`acpConnectors.ts`). Node cannot execute a Windows shim that way, and
+ * the legacy `cliPath` string path also goes through `parseWindowsCliPath`,
+ * which shreds paths containing spaces. So this module never emits a path into
+ * `node_modules/.bin` and never emits a bare string: it emits `{command, args}`
+ * where `command` is a real executable.
+ *
+ * RESOLUTION ORDER
+ * ----------------
+ *  1. A native per-triple executable, preferred whenever one exists. It needs
+ *     no JS runtime at launch time, which matters because the bundled Bun is
+ *     ABSENT on win32-arm64 and on non-AVX2 win32-x64.
+ *  2. Otherwise the package's `bin` entry, when it is a plain `.js`/`.mjs`/
+ *     `.cjs` script, launched through the runtime `resolveJsRuntime()` picks.
+ *  3. Otherwise a named throw. Never a half-built spec.
+ *
+ * NATIVE LAYOUTS COVERED
+ * ----------------------
+ * Two shapes have been observed in the wild, so both are probed:
+ *  - the vendor tree inside the package itself
+ *    (`<pkg>/vendor/<triple>/…`), and
+ *  - the vendor tree in the platform-specific optional dependency
+ *    (`<pkg>-<platform>-<arch>/vendor/<triple>/…`), which is what
+ *    `@openai/codex@0.147.0` actually ships:
+ *    `@openai/codex-darwin-arm64/vendor/aarch64-apple-darwin/bin/codex`.
+ */
+
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import path from 'node:path';
+
+import type { AcpLaunchSpec } from '@/common/types/acpTypes';
+import { resolveJsRuntime } from '@process/utils/jsRuntime';
+
+/** Thrown when an installed package yields neither a native binary nor a JS entry. */
+export class LaunchSpecUnresolvedError extends Error {
+  readonly npmPackage: string;
+  readonly prefix: string;
+
+  constructor(npmPackage: string, prefix: string, detail: string) {
+    super(`Cannot resolve a launch spec for "${npmPackage}" under ${prefix}: ${detail}`);
+    this.name = 'LaunchSpecUnresolvedError';
+    this.npmPackage = npmPackage;
+    this.prefix = prefix;
+  }
+}
+
+/**
+ * Rust target triples keyed by `<platform>:<arch>`. Mirrors the table inside
+ * `@openai/codex`'s own `bin/codex.js`, which is the authority for the vendor
+ * directory names we probe.
+ */
+const TRIPLE_BY_PLATFORM_ARCH: Readonly<Record<string, string>> = Object.freeze({
+  'linux:x64': 'x86_64-unknown-linux-musl',
+  'linux:arm64': 'aarch64-unknown-linux-musl',
+  'darwin:x64': 'x86_64-apple-darwin',
+  'darwin:arm64': 'aarch64-apple-darwin',
+  'win32:x64': 'x86_64-pc-windows-msvc',
+  'win32:arm64': 'aarch64-pc-windows-msvc',
+});
+
+/** The target triple for a platform/arch pair, or null when there is no mapping. */
+export function resolveTargetTriple(platform: NodeJS.Platform, arch: string): string | null {
+  return TRIPLE_BY_PLATFORM_ARCH[`${platform}:${arch}`] ?? null;
+}
+
+/** Script extensions the JS runtime can execute directly. */
+const JS_ENTRY_EXTENSIONS = new Set(['.js', '.mjs', '.cjs']);
+
+export interface LaunchSpecInputs {
+  /** Install prefix; the package lives at `<prefix>/node_modules/<npmPackage>`. */
+  prefix: string;
+  npmPackage: string;
+  platform: NodeJS.Platform;
+  arch: string;
+  /** Executable used to run a plain `.js`/`.mjs`/`.cjs` entry. */
+  jsRuntimeCommand: string;
+}
+
+function isFile(candidate: string): boolean {
+  try {
+    return existsSync(candidate) && statSync(candidate).isFile();
+  } catch {
+    return false;
+  }
+}
+
+/** The directory an installed package occupies inside a prefix. */
+export function resolvePackageDir(prefix: string, npmPackage: string): string {
+  return path.join(prefix, 'node_modules', ...npmPackage.split('/'));
+}
+
+interface PackageBin {
+  /** Command name the package publishes (`codex`, `kimi`, `openclaw`). */
+  name: string;
+  /** Entry path relative to the package directory. */
+  entry: string;
+}
+
+/**
+ * Read the `bin` field. npm allows either a string (bin name = unscoped package
+ * name) or an object of name → entry; the first object entry is used, matching
+ * how a single-bin package is always written.
+ */
+function readPackageBin(pkgDir: string): PackageBin | null {
+  let parsed: { name?: unknown; bin?: unknown };
+  try {
+    parsed = JSON.parse(readFileSync(path.join(pkgDir, 'package.json'), 'utf-8')) as typeof parsed;
+  } catch {
+    return null;
+  }
+
+  if (typeof parsed.bin === 'string' && parsed.bin.length > 0) {
+    const declared = typeof parsed.name === 'string' ? parsed.name : '';
+    const unscoped = declared.startsWith('@') ? declared.split('/')[1] : declared;
+    if (!unscoped) return null;
+    return { name: unscoped, entry: parsed.bin };
+  }
+
+  if (parsed.bin !== null && typeof parsed.bin === 'object') {
+    for (const [name, entry] of Object.entries(parsed.bin as Record<string, unknown>)) {
+      if (typeof entry === 'string' && entry.length > 0) return { name, entry };
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Candidate native executable paths inside one vendor root, in preference
+ * order. `<vendorRoot>/vendor/<triple>/` is the shared prefix.
+ */
+function nativeCandidates(vendorRoot: string, triple: string, binName: string, platform: NodeJS.Platform): string[] {
+  const exe = platform === 'win32' ? '.exe' : '';
+  const base = path.join(vendorRoot, 'vendor', triple);
+  return [
+    path.join(base, 'bin', `${binName}${exe}`),
+    path.join(base, binName, `${binName}${exe}`),
+    path.join(base, `${binName}${exe}`),
+  ];
+}
+
+/** True when `child` is inside `parent` (or is `parent`). */
+function isContained(parent: string, child: string): boolean {
+  const rel = path.relative(path.resolve(parent), path.resolve(child));
+  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
+}
+
+/**
+ * Pure resolution core: takes platform/arch/runtime explicitly so the decision
+ * is unit testable against fixture trees on any host. Mirrors the
+ * `resolveJsRuntimeWith` / `resolveJsRuntime` split this repo already uses.
+ */
+export function resolveLaunchSpecWith(inputs: LaunchSpecInputs): AcpLaunchSpec {
+  const { prefix, npmPackage, platform, arch, jsRuntimeCommand } = inputs;
+  const pkgDir = resolvePackageDir(prefix, npmPackage);
+
+  const bin = readPackageBin(pkgDir);
+  if (!bin) {
+    throw new LaunchSpecUnresolvedError(npmPackage, prefix, 'package.json is missing or declares no usable "bin"');
+  }
+
+  // 1. Native per-triple executable, preferred.
+  const triple = resolveTargetTriple(platform, arch);
+  if (triple) {
+    const vendorRoots = [pkgDir, `${pkgDir}-${platform}-${arch}`];
+    for (const vendorRoot of vendorRoots) {
+      for (const candidate of nativeCandidates(vendorRoot, triple, bin.name, platform)) {
+        if (isFile(candidate)) return { command: candidate, args: [] };
+      }
+    }
+  }
+
+  // 2. JS entry through the resolved runtime.
+  const entryPath = path.join(pkgDir, bin.entry);
+  if (!isContained(pkgDir, entryPath)) {
+    // `bin` comes from a downloaded package.json; never follow it out of the package.
+    throw new LaunchSpecUnresolvedError(npmPackage, prefix, `"bin" entry escapes the package directory: ${bin.entry}`);
+  }
+  if (JS_ENTRY_EXTENSIONS.has(path.extname(entryPath).toLowerCase()) && isFile(entryPath)) {
+    return { command: jsRuntimeCommand, args: [entryPath] };
+  }
+
+  // 3. Nothing resolved.
+  throw new LaunchSpecUnresolvedError(
+    npmPackage,
+    prefix,
+    `no native binary for ${triple ?? `${platform}/${arch}`} and no runnable JS entry at ${entryPath}`
+  );
+}
+
+/** Resolve a launch spec for the current process's platform, arch and runtime. */
+export function resolveLaunchSpec(prefix: string, npmPackage: string): AcpLaunchSpec {
+  return resolveLaunchSpecWith({
+    prefix,
+    npmPackage,
+    platform: process.platform,
+    arch: process.arch,
+    jsRuntimeCommand: resolveJsRuntime().command,
+  });
+}
