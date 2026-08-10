@@ -231,4 +231,23 @@ describe('VoiceSessionMachine', () => {
       'invalid_identifier'
     );
   });
+
+  it('returns to listening and asks for capture again once the assistant finishes speaking', () => {
+    const speaking = apply(
+      reachThinking(),
+      { type: 'response_segment_ready', turnId: 'turn-1', segmentId: 'segment-1' },
+      { type: 'playback_started', turnId: 'turn-1', segmentId: 'segment-1' }
+    );
+
+    const completed = transitionVoiceSession(speaking, {
+      type: 'playback_completed',
+      turnId: 'turn-1',
+      segmentId: 'segment-1',
+    });
+
+    expect(completed.rejected).toBeUndefined();
+    expect(completed.snapshot.state).toBe('listening');
+    expect(completed.snapshot.activeTurnId).toBeNull();
+    expect(completed.effects).toContainEqual({ type: 'start_capture' });
+  });
 });

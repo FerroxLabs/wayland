@@ -7,6 +7,9 @@
 import type { TextToSpeechAudio, TextToSpeechConfig, TextToSpeechProvider } from '@/common/types/ttsTypes';
 import { getPlatformServices } from '@/common/platform';
 import { execFile } from 'node:child_process';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { readConnectedProviderKey } from '@process/connectors/providerKey';
 import { KokoroLocal, type KokoroLocalRuntime } from '@process/services/voice/KokoroLocal';
@@ -24,14 +27,29 @@ const DEFAULT_OPENAI_TTS_MODEL = 'gpt-4o-mini-tts';
 const DEFAULT_OPENAI_TTS_VOICE = 'marin';
 const OPENAI_TTS_URL = 'https://api.openai.com/v1/audio/speech';
 
-export const buildSystemNativeSayArgs = (text: string, config: TextToSpeechConfig): string[] => {
+/**
+ * `say` needs a *seekable* sink and a container/PCM pair it actually understands.
+ * `--data-format=aiff` was never a valid PCM specifier ("The format 'aiff' is
+ * unknown or an unparseable PCM format specifier") and `/dev/stdout` fails with
+ * CoreAudio `-54` for every container, so the previous invocation could never
+ * produce a byte. WAVE + LEI16@22050 writes a real RIFF/WAVE file that Chromium
+ * decodes natively, which is what the renderer's `<audio>` element needs to ever
+ * reach its `ended` event.
+ */
+export const buildSystemNativeSayArgs = (
+  text: string,
+  config: TextToSpeechConfig,
+  outputPath: string
+): string[] => {
   const rate = Math.round(config.speed * 175);
   return [
     '-r',
     String(rate),
     ...(config.voice && config.voice !== 'default' ? ['-v', config.voice] : []),
-    '--output-file=/dev/stdout',
-    '--data-format=aiff',
+    '-o',
+    outputPath,
+    '--file-format=WAVE',
+    '--data-format=LEI16@22050',
     text,
   ];
 };
@@ -102,20 +120,26 @@ export const synthesizeOpenAI = async (
  * Zero-download fallback - available on every macOS install.
  */
 const synthesizeSystemNative = async (text: string, config: TextToSpeechConfig): Promise<TextToSpeechAudio> => {
-  // `say` writes AIFF to stdout when given `-o /dev/stdout --data-format=aiff`.
-  if (process.platform === 'darwin') {
-    const args = buildSystemNativeSayArgs(text, config);
-    const { stdout } = await execFileAsync('say', args, {
-      encoding: 'buffer',
-      maxBuffer: 64 * 1024 * 1024,
-    });
-    return { data: new Uint8Array(stdout), mimeType: 'audio/aiff' };
+  if (process.platform !== 'darwin') {
+    throw new TextToSpeechUnavailableError(
+      'TTS_SYSTEM_NATIVE_UNAVAILABLE',
+      'system-native speech is available only on macOS'
+    );
   }
 
-  throw new TextToSpeechUnavailableError(
-    'TTS_SYSTEM_NATIVE_UNAVAILABLE',
-    'system-native speech is available only on macOS'
-  );
+  // `say` cannot stream to a pipe, so synthesis goes through a private temp file
+  // that is removed on every exit path (including the throw path).
+  const directory = await mkdtemp(join(tmpdir(), 'wayland-tts-'));
+  const outputPath = join(directory, 'speech.wav');
+  try {
+    await execFileAsync('say', buildSystemNativeSayArgs(text, config, outputPath), {
+      encoding: 'buffer',
+      maxBuffer: 1024 * 1024,
+    });
+    return { data: new Uint8Array(await readFile(outputPath)), mimeType: 'audio/wav' };
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
 };
 
 /** Injectable runtimes threaded to whichever adapter a turn resolves to. */

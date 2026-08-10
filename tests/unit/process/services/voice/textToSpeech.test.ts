@@ -229,19 +229,46 @@ describe('KokoroLocal.synthesize', () => {
 
 describe('synthesize (TextToSpeechService)', () => {
   it('passes a selected macOS voice and bounded speaking rate to say', () => {
-    expect(buildSystemNativeSayArgs('Hello', baseConfig({ voice: 'Samantha', speed: 1.25 }))).toEqual([
+    expect(buildSystemNativeSayArgs('Hello', baseConfig({ voice: 'Samantha', speed: 1.25 }), '/tmp/x/s.wav')).toEqual([
       '-r',
       '219',
       '-v',
       'Samantha',
-      '--output-file=/dev/stdout',
-      '--data-format=aiff',
+      '-o',
+      '/tmp/x/s.wav',
+      '--file-format=WAVE',
+      '--data-format=LEI16@22050',
       'Hello',
     ]);
   });
 
   it('lets macOS choose its default voice when no explicit voice is selected', () => {
-    expect(buildSystemNativeSayArgs('Hello', baseConfig({ voice: 'default' }))).not.toContain('-v');
+    expect(buildSystemNativeSayArgs('Hello', baseConfig({ voice: 'default' }), '/tmp/x/s.wav')).not.toContain('-v');
+  });
+
+  // The previous argv (`--output-file=/dev/stdout --data-format=aiff`) exited 1
+  // with zero bytes on every macOS install, so `playback_completed` could never
+  // fire for the default provider. A pure argv assertion cannot catch that -
+  // only running the real binary can.
+  it.runIf(process.platform === 'darwin')('produces a WAV that macOS say actually writes', async () => {
+    const { mkdtemp, readFile, rm } = await import('node:fs/promises');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const { execFile } = await import('node:child_process');
+    const { promisify } = await import('node:util');
+
+    const directory = await mkdtemp(join(tmpdir(), 'wayland-tts-test-'));
+    const outputPath = join(directory, 'speech.wav');
+    try {
+      const args = buildSystemNativeSayArgs('hello there', baseConfig({ provider: 'system-native' }), outputPath);
+      await promisify(execFile)('say', args);
+      const bytes = await readFile(outputPath);
+      expect(bytes.byteLength).toBeGreaterThan(1000);
+      expect(bytes.subarray(0, 4).toString('ascii')).toBe('RIFF');
+      expect(bytes.subarray(8, 12).toString('ascii')).toBe('WAVE');
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   it('routes kokoro-local to KokoroLocal and returns audio', async () => {

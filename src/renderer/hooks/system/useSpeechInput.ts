@@ -6,7 +6,7 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
 import { transcribeAudioBlob } from '@/renderer/services/SpeechToTextService';
 import { isElectronDesktop } from '@/renderer/utils/platform';
@@ -41,6 +41,16 @@ type SpeechInputEnvironment = {
 type UseSpeechInputOptions = {
   locale?: string;
   onTranscript: (transcript: string) => void;
+  /** Opt in to automatic end-of-utterance detection. Off keeps the tap-to-stop contract. */
+  endpointing?: boolean;
+  /** The speaker stopped talking and the utterance should be submitted. */
+  onSpeechEnd?: () => void;
+  /** Nobody spoke before the no-speech timeout; the capture was discarded, not submitted. */
+  onNoSpeech?: () => void;
+  /** There is no analysable audio signal at all, so the caller must fall back to a tap. */
+  onEndpointingUnavailable?: () => void;
+  /** Fired from `startMonitoring` when the user talks over assistant playback. */
+  onBargeIn?: () => void;
 };
 
 const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1']);
@@ -49,6 +59,58 @@ const SPEECH_WAVEFORM_SAMPLE_COUNT = 40;
 const SPEECH_WAVEFORM_MIN_LEVEL = 0.015;
 const SPEECH_WAVEFORM_MAX_LEVEL = 1;
 const SPEECH_VISUALIZER_INTERVAL_MS = 80;
+
+// Endpointing knobs, in the raw RMS units produced by `readAnalyserRms`.
+// Every value is deliberately biased against chopping a slow speaker: an
+// ambiguous room makes the detector hang open to the hard cap or refuse to arm,
+// it never shortens the hangover.
+const ENDPOINT_CALIBRATION_TICKS = 4; // 320 ms of room tone
+const ENDPOINT_NOISE_FLOOR_MIN = 0.004;
+const ENDPOINT_NOISE_FLOOR_MAX = 0.05;
+const ENDPOINT_SPEECH_THRESHOLD_MIN = 0.02;
+const ENDPOINT_SPEECH_THRESHOLD_MAX = 0.06;
+/** Hysteresis: the silence bar sits 40% under the speech bar so consonant gaps do not cross it. */
+const ENDPOINT_SILENCE_RATIO = 0.6;
+const ENDPOINT_MIN_SPEECH_MS = 400;
+const ENDPOINT_HANGOVER_MS = 1000;
+/** "Um, so…" openings get a longer tail before the turn is closed. */
+const ENDPOINT_SHORT_UTTERANCE_MS = 1500;
+const ENDPOINT_SHORT_HANGOVER_MS = 1400;
+const ENDPOINT_NO_SPEECH_TIMEOUT_MS = 8000;
+const ENDPOINT_MAX_UTTERANCE_MS = 30000;
+
+// Acoustic barge-in is far stricter than endpointing: the loudest thing the mic
+// hears during playback is the assistant itself.
+const BARGE_IN_CALIBRATION_TICKS = 6; // 480 ms of the assistant's own bleed
+const BARGE_IN_ABSOLUTE_MIN_LEVEL = 0.06;
+const BARGE_IN_ECHO_MULTIPLE = 3;
+const BARGE_IN_SUSTAIN_TICKS = 6; // 480 ms of continuous speech over the bar
+
+type EndpointDetector = {
+  ticks: number;
+  calibrationFloor: number;
+  speechThreshold: number;
+  silenceThreshold: number;
+  armed: boolean;
+  fired: boolean;
+  speechMs: number;
+  silenceMs: number;
+  elapsedMs: number;
+};
+
+const createEndpointDetector = (): EndpointDetector => ({
+  ticks: 0,
+  calibrationFloor: Number.POSITIVE_INFINITY,
+  speechThreshold: ENDPOINT_SPEECH_THRESHOLD_MIN,
+  silenceThreshold: ENDPOINT_SPEECH_THRESHOLD_MIN * ENDPOINT_SILENCE_RATIO,
+  armed: false,
+  fired: false,
+  speechMs: 0,
+  silenceMs: 0,
+  elapsedMs: 0,
+});
+
+const clampNumber = (value: number, min: number, max: number): number => Math.max(min, Math.min(max, value));
 
 const createInitialWaveformLevels = (): number[] =>
   Array.from({ length: SPEECH_WAVEFORM_SAMPLE_COUNT }, (_, index) => ((index + 1) % 6 === 0 ? 0.04 : 0.015));
@@ -179,7 +241,15 @@ export const mapSpeechInputError = (error: unknown): SpeechInputErrorCode => {
   return 'unknown';
 };
 
-export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) => {
+export const useSpeechInput = ({
+  locale,
+  onTranscript,
+  endpointing = false,
+  onSpeechEnd,
+  onNoSpeech,
+  onEndpointingUnavailable,
+  onBargeIn,
+}: UseSpeechInputOptions) => {
   const [status, setStatus] = useState<SpeechInputStatus>('idle');
   const [errorCode, setErrorCode] = useState<SpeechInputErrorCode | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -196,6 +266,21 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
   const mediaSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const analyserDataRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
   const onTranscriptRef = useLatestRef(onTranscript);
+  // Every detector callout crosses a `setInterval` closure created once at
+  // capture start, so it must be read through a latest-ref or it silently
+  // invokes the first render's identity.
+  const endpointingRef = useLatestRef(endpointing);
+  const onSpeechEndRef = useLatestRef(onSpeechEnd);
+  const onNoSpeechRef = useLatestRef(onNoSpeech);
+  const onEndpointingUnavailableRef = useLatestRef(onEndpointingUnavailable);
+  const onBargeInRef = useLatestRef(onBargeIn);
+  const detectorRef = useRef<EndpointDetector>(createEndpointDetector());
+  const monitorStreamRef = useRef<MediaStream | null>(null);
+  const monitorContextRef = useRef<AudioContext | null>(null);
+  const monitorAnalyserRef = useRef<AnalyserNode | null>(null);
+  const monitorDataRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
+  const monitorIntervalRef = useRef<number | null>(null);
+  const cancelRecordingRef = useRef<() => void>(() => {});
   const availability = useMemo(() => getSpeechInputAvailability(), []);
 
   const recognitionLocale = locale?.trim() || 'en-US';
@@ -245,10 +330,104 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
     }
   }, []);
 
+  const readAnalyserRms = useCallback((
+    analyser: AnalyserNode | null,
+    data: Uint8Array<ArrayBuffer> | null
+  ): number | null => {
+    if (!analyser || !data) return null;
+    analyser.getByteTimeDomainData(data);
+    let sum = 0;
+    for (const sample of data) {
+      const normalized = (sample - 128) / 128;
+      sum += normalized * normalized;
+    }
+    return Math.sqrt(sum / data.length);
+  }, []);
+
+  /**
+   * One tick of the endpointing detector, driven by the waveform interval that
+   * already runs during capture. Deliberately asymmetric: when the acoustics are
+   * ambiguous it hangs open to `ENDPOINT_MAX_UTTERANCE_MS` or refuses to arm,
+   * because chopping a slow speaker turns one utterance into several full turns.
+   */
+  const advanceEndpointDetector = useCallback((rms: number) => {
+    const detector = detectorRef.current;
+    // Only a fired detector short-circuits. Nothing else may skip the elapsed-ms
+    // accounting below, because that is what keeps the no-speech timeout and the
+    // `ENDPOINT_MAX_UTTERANCE_MS` hard cap alive when endpointing degrades. A
+    // detector that stops counting is a microphone that never closes.
+    if (detector.fired) return;
+
+    detector.ticks += 1;
+    detector.elapsedMs += SPEECH_VISUALIZER_INTERVAL_MS;
+
+    if (detector.ticks <= ENDPOINT_CALIBRATION_TICKS) {
+      // The MINIMUM, not the peak: a single 80 ms syllable inside the window
+      // must not be able to redefine the room. The quietest tick is the only
+      // honest estimate of the floor.
+      detector.calibrationFloor = Math.min(detector.calibrationFloor, rms);
+      if (detector.ticks < ENDPOINT_CALIBRATION_TICKS) return;
+      const noiseFloor = clampNumber(detector.calibrationFloor, ENDPOINT_NOISE_FLOOR_MIN, ENDPOINT_NOISE_FLOOR_MAX);
+      if (noiseFloor >= ENDPOINT_SPEECH_THRESHOLD_MIN) {
+        // The window never went quiet, so it was not room tone. In continuous
+        // mode the mic reopens 350 ms after the assistant stops and the median
+        // turn-taking gap is shorter than that, so the overwhelmingly likely
+        // cause is that the user is already answering. Treat it as speech in
+        // progress: keep the default bars and carry the calibration window in as
+        // speech. The old behaviour - call it a noisy room and switch the
+        // detector off - is the one outcome that guarantees the mic never closes
+        // again, and a floor of 0.025 also pushed the speech bar to 0.06, above
+        // any normal voice, so the whole turn was silently discarded.
+        detector.speechThreshold = ENDPOINT_SPEECH_THRESHOLD_MIN;
+        detector.silenceThreshold = ENDPOINT_SPEECH_THRESHOLD_MIN * ENDPOINT_SILENCE_RATIO;
+        detector.speechMs = ENDPOINT_CALIBRATION_TICKS * SPEECH_VISUALIZER_INTERVAL_MS;
+        return;
+      }
+      detector.speechThreshold = clampNumber(
+        noiseFloor * 3,
+        ENDPOINT_SPEECH_THRESHOLD_MIN,
+        ENDPOINT_SPEECH_THRESHOLD_MAX
+      );
+      detector.silenceThreshold = detector.speechThreshold * ENDPOINT_SILENCE_RATIO;
+      return;
+    }
+
+    if (rms >= detector.speechThreshold) {
+      detector.speechMs += SPEECH_VISUALIZER_INTERVAL_MS;
+      detector.silenceMs = 0;
+      if (detector.speechMs >= ENDPOINT_MIN_SPEECH_MS) detector.armed = true;
+    } else if (rms < detector.silenceThreshold) {
+      detector.silenceMs += SPEECH_VISUALIZER_INTERVAL_MS;
+    } else {
+      // Inside the hysteresis band: not speech, but not silence either. A run of
+      // consecutive sub-silence ticks is what closes a turn, so this breaks it.
+      detector.silenceMs = 0;
+    }
+
+    if (!detector.armed) {
+      if (detector.elapsedMs >= ENDPOINT_NO_SPEECH_TIMEOUT_MS) {
+        detector.fired = true;
+        // Discard rather than submit: an empty blob surfaces `empty-transcript`
+        // as a hard error and strands the caller with no exit transition.
+        cancelRecordingRef.current();
+        onNoSpeechRef.current?.();
+      }
+      return;
+    }
+
+    const hangoverMs =
+      detector.speechMs < ENDPOINT_SHORT_UTTERANCE_MS ? ENDPOINT_SHORT_HANGOVER_MS : ENDPOINT_HANGOVER_MS;
+    if (detector.silenceMs >= hangoverMs || detector.elapsedMs >= ENDPOINT_MAX_UTTERANCE_MS) {
+      detector.fired = true;
+      onSpeechEndRef.current?.();
+    }
+  }, []);
+
   const startSpeechVisualizer = useCallback(
     async (stream: MediaStream) => {
       resetSpeechVisualizer();
       recordingStartedAtRef.current = Date.now();
+      detectorRef.current = createEndpointDetector();
 
       const AudioContextCtor =
         typeof AudioContext !== 'undefined'
@@ -260,6 +439,10 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
       if (AudioContextCtor) {
         try {
           const audioContext = new AudioContextCtor();
+          // Electron hands back a suspended context. Without this the analyser
+          // returns a constant 0x80, RMS is exactly 0, and the detector reads
+          // permanent silence while the mic stays open.
+          if (audioContext.state === 'suspended') await audioContext.resume();
           const analyser = audioContext.createAnalyser();
           analyser.fftSize = 128;
           analyser.smoothingTimeConstant = 0.82;
@@ -274,32 +457,31 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
         }
       }
 
+      if (endpointingRef.current && !analyserRef.current) {
+        // No analyser means no signal to endpoint on. This is the only genuine
+        // "endpointing cannot work" case left: everything acoustic is handled by
+        // the detector itself. Say so instead of leaving the mic open forever
+        // waiting for a silence that can never be measured.
+        onEndpointingUnavailableRef.current?.();
+      }
+
       visualizerIntervalRef.current = window.setInterval(() => {
         const startedAt = recordingStartedAtRef.current;
         if (startedAt) {
           setRecordingDurationMs(Date.now() - startedAt);
         }
 
-        const analyser = analyserRef.current;
-        const analyserData = analyserDataRef.current;
-        if (!analyser || !analyserData) {
+        const rms = readAnalyserRms(analyserRef.current, analyserDataRef.current);
+        if (rms === null) {
           setRecordingLevels((previous) => createNextWaveformLevels(previous, SPEECH_WAVEFORM_MIN_LEVEL));
           return;
         }
 
-        analyser.getByteTimeDomainData(analyserData);
-        let sum = 0;
-        for (const sample of analyserData) {
-          const normalized = (sample - 128) / 128;
-          sum += normalized * normalized;
-        }
-
-        const rms = Math.sqrt(sum / analyserData.length);
-        const scaledLevel = clampWaveformLevel(rms * 5.6);
-        setRecordingLevels((previous) => createNextWaveformLevels(previous, scaledLevel));
+        setRecordingLevels((previous) => createNextWaveformLevels(previous, clampWaveformLevel(rms * 5.6)));
+        if (endpointingRef.current) advanceEndpointDetector(rms);
       }, SPEECH_VISUALIZER_INTERVAL_MS);
     },
-    [cleanupAudioAnalysis, resetSpeechVisualizer]
+    [advanceEndpointDetector, cleanupAudioAnalysis, readAnalyserRms, resetSpeechVisualizer]
   );
 
   const cleanupRecorder = useCallback(() => {
@@ -450,6 +632,116 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
     recorder.stop();
   }, [cleanupRecorder, resetSpeechVisualizer]);
 
+  useLayoutEffect(() => {
+    cancelRecordingRef.current = cancelRecording;
+  });
+
+  const stopMonitoring = useCallback(() => {
+    if (monitorIntervalRef.current !== null) {
+      window.clearInterval(monitorIntervalRef.current);
+      monitorIntervalRef.current = null;
+    }
+    monitorAnalyserRef.current?.disconnect();
+    monitorAnalyserRef.current = null;
+    monitorDataRef.current = null;
+    if (monitorContextRef.current) {
+      void monitorContextRef.current.close().catch((): void => {
+        // Ignore close failures during teardown.
+      });
+      monitorContextRef.current = null;
+    }
+    if (monitorStreamRef.current) {
+      monitorStreamRef.current.getTracks().forEach((track) => track.stop());
+      monitorStreamRef.current = null;
+    }
+  }, []);
+
+  /**
+   * Samples the mic *without* a MediaRecorder so the caller can detect the user
+   * talking over assistant playback. Two guards keep the assistant from
+   * interrupting itself: the stream is refused unless the browser confirms
+   * echo cancellation is actually active, and the bar is calibrated against the
+   * speaker bleed measured during the first 480 ms, so a loud room raises the
+   * bar instead of tripping it.
+   */
+  const startMonitoring = useCallback(async () => {
+    if (availability !== 'record' || monitorStreamRef.current) return;
+
+    let stream: MediaStream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true },
+      });
+    } catch {
+      return;
+    }
+
+    const track = stream.getAudioTracks()[0];
+    const settings = track?.getSettings?.();
+    if (!settings || settings.echoCancellation !== true) {
+      stream.getTracks().forEach((entry) => entry.stop());
+      return;
+    }
+
+    const AudioContextCtor =
+      typeof AudioContext !== 'undefined'
+        ? AudioContext
+        : typeof window !== 'undefined'
+          ? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+          : undefined;
+    if (!AudioContextCtor) {
+      stream.getTracks().forEach((entry) => entry.stop());
+      return;
+    }
+
+    try {
+      const audioContext = new AudioContextCtor();
+      if (audioContext.state === 'suspended') await audioContext.resume();
+      const analyser = audioContext.createAnalyser();
+      analyser.fftSize = 128;
+      analyser.smoothingTimeConstant = 0.82;
+      audioContext.createMediaStreamSource(stream).connect(analyser);
+      monitorStreamRef.current = stream;
+      monitorContextRef.current = audioContext;
+      monitorAnalyserRef.current = analyser;
+      monitorDataRef.current = new Uint8Array(analyser.fftSize);
+    } catch {
+      stream.getTracks().forEach((entry) => entry.stop());
+      stopMonitoring();
+      return;
+    }
+
+    let ticks = 0;
+    let echoPeak = 0;
+    let threshold = BARGE_IN_ABSOLUTE_MIN_LEVEL;
+    let sustained = 0;
+    let fired = false;
+
+    monitorIntervalRef.current = window.setInterval(() => {
+      const rms = readAnalyserRms(monitorAnalyserRef.current, monitorDataRef.current);
+      if (rms === null || fired) return;
+
+      ticks += 1;
+      if (ticks <= BARGE_IN_CALIBRATION_TICKS) {
+        echoPeak = Math.max(echoPeak, rms);
+        if (ticks === BARGE_IN_CALIBRATION_TICKS) {
+          threshold = Math.max(echoPeak * BARGE_IN_ECHO_MULTIPLE, BARGE_IN_ABSOLUTE_MIN_LEVEL);
+        }
+        return;
+      }
+
+      if (rms >= threshold) {
+        sustained += 1;
+        if (sustained >= BARGE_IN_SUSTAIN_TICKS) {
+          fired = true;
+          onBargeInRef.current?.();
+        }
+        return;
+      }
+      sustained = 0;
+    }, SPEECH_VISUALIZER_INTERVAL_MS);
+  }, [availability, readAnalyserRms, stopMonitoring]);
+
   const transcribeFile = useCallback(
     async (file: Blob) => {
       await transcribeBlob(file);
@@ -459,6 +751,7 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
 
   useEffect(() => {
     return () => {
+      stopMonitoring();
       const recorder = recorderRef.current;
       if (recorder) {
         recorder.ondataavailable = null;
@@ -474,7 +767,7 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
       }
       cleanupRecorder();
     };
-  }, [cleanupRecorder]);
+  }, [cleanupRecorder, stopMonitoring]);
 
   return {
     availability,
@@ -484,8 +777,10 @@ export const useSpeechInput = ({ locale, onTranscript }: UseSpeechInputOptions) 
     errorMessage,
     recordingDurationMs,
     recordingLevels,
+    startMonitoring,
     startRecording,
     status,
+    stopMonitoring,
     stopRecording,
     transcribeFile,
   };

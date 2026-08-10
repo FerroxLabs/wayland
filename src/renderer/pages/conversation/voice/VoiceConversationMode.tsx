@@ -9,6 +9,7 @@ import { ConfigStorage } from '@/common/config/storage';
 import {
   createVoiceSession,
   transitionVoiceSession,
+  type VoiceSessionEffect,
   type VoiceSessionEvent,
   type VoiceSessionSnapshot,
 } from '@/common/voice/VoiceSessionMachine';
@@ -16,7 +17,7 @@ import { extractVoiceResponseText } from '@/common/voice/voiceResponseText';
 import { normalizeTextToSpeechConfig, type TextToSpeechConfig } from '@/common/types/ttsTypes';
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
 import { MessageCircle, Mic, MicOff, Settings2, Square, Volume2, X } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import VoiceModeEntryButton from './VoiceModeEntryButton';
@@ -63,6 +64,21 @@ const STATE_COPY: Record<VoiceSessionSnapshot['state'], string> = {
   ended: 'Ended',
 };
 
+/**
+ * Grace between the assistant finishing a sentence and the mic reopening. Long
+ * enough that the tail of the assistant's own audio is not captured as a user
+ * turn, short enough that the conversation still feels continuous.
+ */
+const AUTO_CAPTURE_GRACE_MS = 350;
+
+/**
+ * Acoustic barge-in kill switch. The detector itself is gated on the browser
+ * confirming echo cancellation is active and calibrates against the measured
+ * speaker bleed, but neither guard has been validated against real hardware.
+ * Set to `false` to fall back to Escape/tap interruption only.
+ */
+const ACOUSTIC_BARGE_IN_ENABLED: boolean = true;
+
 const isTerminalCompletion = (status: string, state: string): boolean =>
   status === 'finished' || state === 'ai_waiting_input' || state === 'stopped' || state === 'error';
 
@@ -88,16 +104,108 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
   const responseMessageIdRef = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
+  // `continuousArmed` drives copy, so it is state; the ref is what the capture
+  // timer reads, because the timer closes over a stale render otherwise.
+  const [continuousArmed, setContinuousArmed] = useState(false);
+  const continuousArmedRef = useRef(false);
+  // Drives the copy under the orb. When this is false, "pause when you are done"
+  // is a lie: nothing is listening for the pause and only a tap sends the turn.
+  const [endpointingAvailable, setEndpointingAvailable] = useState(true);
+  const mountedRef = useRef(true);
+  const isOpenRef = useRef(false);
+  const isMutedRef = useRef(false);
+  const captureTimerRef = useRef<number | null>(null);
+  const captureInFlightRef = useRef(false);
+  const beginCaptureRef = useRef<() => Promise<void>>(async () => {});
+  const finishCaptureRef = useRef<() => void>(() => {});
+  const interruptRef = useRef<() => Promise<void>>(async () => {});
 
-  const applyEvent = useCallback((event: VoiceSessionEvent) => {
-    const current = snapshotRef.current;
-    if (!current) return null;
-    const transition = transitionVoiceSession(current, event);
-    if (transition.rejected) return transition;
-    snapshotRef.current = transition.snapshot;
-    setSnapshot(transition.snapshot);
-    return transition;
+  const cancelAutoCapture = useCallback(() => {
+    if (captureTimerRef.current !== null) {
+      window.clearTimeout(captureTimerRef.current);
+      captureTimerRef.current = null;
+    }
   }, []);
+
+  /**
+   * Reopens the mic after the assistant stops talking. Every precondition is
+   * re-checked when the timer *fires*, not when it is scheduled: the user can
+   * tap the orb, mute, or leave Voice mode inside the grace window.
+   */
+  const scheduleAutoCapture = useCallback(() => {
+    // The first turn is always a deliberate tap: opening the panel must not
+    // open the microphone.
+    if (!continuousArmedRef.current || !mountedRef.current) return;
+    cancelAutoCapture();
+    captureTimerRef.current = window.setTimeout(() => {
+      captureTimerRef.current = null;
+      if (!mountedRef.current || !isOpenRef.current || isMutedRef.current) return;
+      if (captureInFlightRef.current) return;
+      if (snapshotRef.current?.state !== 'listening') return;
+      captureInFlightRef.current = true;
+      void beginCaptureRef.current().finally(() => {
+        captureInFlightRef.current = false;
+      });
+    }, AUTO_CAPTURE_GRACE_MS);
+  }, [cancelAutoCapture]);
+
+  /**
+   * Applies the effects the session machine emits. Only `start_capture` is
+   * executed here — that is the hop that makes the conversation continuous.
+   *
+   * The rest are deliberately no-ops:
+   *  - `transcribe` / `submit_turn` / `synthesize_segment` are payload-incomplete.
+   *    `submit_turn{turnId}` carries no text; the transcript only exists in the
+   *    `handleTranscript` closure. Widening the effect types to "fix" this is not
+   *    an improvement, it is a second copy of the same state.
+   *  - `stop_capture` / `cancel_capture` / `cancel_synthesis` / `stop_playback`
+   *    already have imperative owners at sites that must run even when the
+   *    transition is *rejected* (the confirmation handler stops audio before
+   *    `approval_required`; a turnId mismatch there must not leave the assistant
+   *    talking over an approval prompt).
+   *  - `announce_state` is already rendered by the aria-live status block.
+   *
+   * The `never` default is the drift guard: a tenth effect fails typecheck here.
+   */
+  const runEffects = useCallback(
+    (effects: readonly VoiceSessionEffect[]) => {
+      for (const effect of effects) {
+        switch (effect.type) {
+          case 'start_capture':
+            scheduleAutoCapture();
+            break;
+          case 'transcribe':
+          case 'submit_turn':
+          case 'synthesize_segment':
+          case 'stop_capture':
+          case 'cancel_capture':
+          case 'cancel_synthesis':
+          case 'stop_playback':
+          case 'announce_state':
+            break;
+          default: {
+            const exhaustive: never = effect;
+            void exhaustive;
+          }
+        }
+      }
+    },
+    [scheduleAutoCapture]
+  );
+
+  const applyEvent = useCallback(
+    (event: VoiceSessionEvent) => {
+      const current = snapshotRef.current;
+      if (!current) return null;
+      const transition = transitionVoiceSession(current, event);
+      if (transition.rejected) return transition;
+      snapshotRef.current = transition.snapshot;
+      setSnapshot(transition.snapshot);
+      runEffects(transition.effects);
+      return transition;
+    },
+    [runEffects]
+  );
 
   const clearAudio = useCallback(() => {
     const audio = audioRef.current;
@@ -139,10 +247,29 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
     clearError: clearSpeechError,
     errorCode: speechErrorCode,
     recordingLevels,
+    startMonitoring,
     startRecording,
     status: speechStatus,
+    stopMonitoring,
     stopRecording,
-  } = useSpeechInput({ onTranscript: handleTranscript });
+  } = useSpeechInput({
+    onTranscript: handleTranscript,
+    endpointing: true,
+    // `finishCapture` is declared below this call, so it is reached through a
+    // ref that a layout effect keeps current.
+    onSpeechEnd: () => finishCaptureRef.current(),
+    onNoSpeech: () => {
+      applyEvent({ type: 'capture_cancelled' });
+      setSurfaceError("I did not hear anything. Tap the orb when you are ready to talk.");
+    },
+    onEndpointingUnavailable: () => {
+      setEndpointingAvailable(false);
+      setSurfaceError('This device gave no audio signal to listen to. Tap the orb when you are done speaking.');
+    },
+    onBargeIn: () => {
+      void interruptRef.current();
+    },
+  });
 
   const ttsProviderReady = Boolean(ttsConfig?.enabled && ttsConfig.provider !== 'kokoro-local');
 
@@ -176,6 +303,10 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
     activeTurnRef.current = turnId;
     const transition = applyEvent({ type: 'speech_ended', turnId });
     if (transition?.rejected) return;
+    // The user has committed to a turn, so every later `start_capture` the
+    // machine emits reopens the mic without another tap.
+    continuousArmedRef.current = true;
+    setContinuousArmed(true);
     stopRecording();
   }, [applyEvent, stopRecording]);
 
@@ -273,6 +404,10 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
       completionKeyRef.current = null;
       responseTextRef.current = '';
       responseMessageIdRef.current = null;
+      cancelAutoCapture();
+      continuousArmedRef.current = false;
+      setContinuousArmed(false);
+      setEndpointingAvailable(true);
       const next = createVoiceSession({
         sessionId: newCorrelationId('voice-session'),
         conversationId: sanitizeCorrelationId(conversationId, 'conversation'),
@@ -302,7 +437,7 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
       setSnapshot(failed.snapshot);
       setIsOpen(true);
     }
-  }, [actorLabel, conversationId]);
+  }, [actorLabel, cancelAutoCapture, conversationId]);
 
   useEffect(() => {
     const handleOpen = (event: Event) => {
@@ -315,13 +450,19 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
   }, [conversationId, openMode]);
 
   const closeMode = useCallback(() => {
+    // Disarm before the transition: `end` must not leave a timer that reopens
+    // the mic 350 ms after the user pressed "Return to Chat".
+    cancelAutoCapture();
+    continuousArmedRef.current = false;
+    setContinuousArmed(false);
+    stopMonitoring();
     if (speechStatus === 'recording' || snapshotRef.current?.state === 'user-speaking') cancelRecording();
     activeTurnRef.current = null;
     clearAudio();
     applyEvent({ type: 'end' });
     setIsOpen(false);
     clearSpeechError();
-  }, [applyEvent, cancelRecording, clearAudio, clearSpeechError, speechStatus]);
+  }, [applyEvent, cancelAutoCapture, cancelRecording, clearAudio, clearSpeechError, speechStatus, stopMonitoring]);
 
   const completeResponse = useCallback(
     (terminalId: string, terminalError = false) => {
@@ -417,6 +558,24 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
     });
   }, [applyEvent, clearAudio, conversationId, isOpen]);
 
+  // Kept current every render so the capture timer and the detector callbacks
+  // never invoke a stale closure.
+  useLayoutEffect(() => {
+    beginCaptureRef.current = beginCapture;
+    finishCaptureRef.current = finishCapture;
+    interruptRef.current = interrupt;
+    isOpenRef.current = isOpen;
+    isMutedRef.current = isMuted;
+  });
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      cancelAutoCapture();
+    };
+  }, [cancelAutoCapture]);
+
   useEffect(() => () => clearAudio(), [clearAudio]);
 
   useEffect(() => {
@@ -429,7 +588,10 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       event.preventDefault();
-      if (snapshotRef.current?.state === 'speaking') {
+      // Escape is the natural "stop!" key. Interrupt for the whole running turn,
+      // not only while audio happens to be playing; it used to destroy the
+      // session outright during thinking/acting.
+      if (['thinking', 'acting', 'speaking'].includes(snapshotRef.current?.state ?? '')) {
         void interrupt();
       } else {
         closeMode();
@@ -441,6 +603,12 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
 
   const title = typeof conversationTitle === 'string' ? conversationTitle : 'Current conversation';
   const state = snapshot?.state ?? 'connecting';
+
+  useEffect(() => {
+    if (!ACOUSTIC_BARGE_IN_ENABLED || !isOpen || state !== 'speaking') return;
+    void startMonitoring();
+    return () => stopMonitoring();
+  }, [isOpen, startMonitoring, state, stopMonitoring]);
   const orbLevel = useMemo(() => {
     if (speechStatus !== 'recording' || recordingLevels.length === 0) return 0.18;
     return Math.max(0.18, recordingLevels.at(-1) ?? 0.18);
@@ -495,10 +663,18 @@ const VoiceConversationMode: React.FC<VoiceConversationModeProps> = ({
           <span className='voice-mode__orb-ring' />
         </button>
         <div className='voice-mode__state' role='status' aria-live='polite'>
-          <strong>{STATE_COPY[state]}</strong>
+          <strong>{state === 'listening' && continuousArmed ? 'Listening for you' : STATE_COPY[state]}</strong>
           <span>
-            {state === 'listening' && 'One tap starts a private voice turn'}
-            {state === 'user-speaking' && 'Tap again when you are done'}
+            {state === 'listening' &&
+              (continuousArmed
+                ? endpointingAvailable
+                  ? 'Speak whenever you are ready — the mic reopens itself after every answer'
+                  : 'The mic reopens after every answer — tap the orb when you are done speaking'
+                : 'One tap starts the conversation; after that it stays open')}
+            {state === 'user-speaking' &&
+              (endpointingAvailable
+                ? 'Pause when you are done, or tap to send now'
+                : 'Tap the orb to send — nothing is listening for you to pause')}
             {state === 'thinking' && 'Your turn is running through the same chat and tools'}
             {state === 'acting' && 'Wayland is working; tap the orb to interrupt'}
             {state === 'speaking' && 'Tap the orb or press Escape to interrupt'}
