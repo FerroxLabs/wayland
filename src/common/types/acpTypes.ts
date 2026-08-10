@@ -58,7 +58,7 @@ export type AcpBackendAll =
   | 'droid' // Factory Droid CLI (ACP via `droid exec --output-format acp`)
   | 'goose' // Block's Goose CLI
   | 'auggie' // Augment Code CLI
-  | 'kimi' // Kimi CLI (Moonshot)
+  | 'kimi' // Kimi Code (Moonshot)
   | 'opencode' // OpenCode CLI
   | 'copilot' // GitHub Copilot CLI
   | 'qoder' // Qoder CLI
@@ -462,10 +462,10 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
   },
   kimi: {
     id: 'kimi',
-    name: 'Kimi CLI',
+    name: 'Kimi Code',
     cliCommand: 'kimi',
     authRequired: false,
-    enabled: true, // ✅ Kimi CLI (Moonshot), launched via `kimi acp`
+    enabled: true, // ✅ Kimi Code (Moonshot), launched via `kimi acp`
     supportsStreaming: false,
     acpArgs: ['acp'], // kimi uses the acp subcommand
     skillsDirs: ['.kimi/skills'],
