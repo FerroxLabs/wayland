@@ -196,6 +196,53 @@ describe('K-03: turn end terminalizes the turn activity card', () => {
     expect(settled[0].content).toMatchObject({ ended: 'failed', status: 'failed' });
   });
 
+  /**
+   * Observed in the running app: a turn died on a provider 400 and the rail
+   * showed a green "completed" tag directly above the error text. The engine
+   * emits the same `finish` frame whether the turn succeeded or failed, so
+   * turn end alone cannot tell them apart - an error seen during the turn has
+   * to outrank the default.
+   */
+  it('settles as failed when the turn hit a provider error before finishing', async () => {
+    emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+    emitEvent(manager, { type: 'error', data: 'Provider error: API error 400', msg_id: 'msg-1' });
+    emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
+    await vi.advanceTimersByTimeAsync(200);
+
+    const settled = persistedActivityCards().filter((card) => card.content.ended);
+    expect(settled).toHaveLength(1);
+    expect(settled[0].content).toMatchObject({ ended: 'failed', status: 'failed' });
+  });
+
+  it('settles as failed when the provider error carries no turn id', async () => {
+    // The real 400 arrived as a system-level frame with no msg_id, which is
+    // exactly the case that was reporting success. The flag is therefore
+    // recorded above the msg_id guard, and this pins that placement.
+    emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+    emitEvent(manager, { type: 'error', data: 'Provider error: API error 400' });
+    emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
+    await vi.advanceTimersByTimeAsync(200);
+
+    const settled = persistedActivityCards().filter((card) => card.content.ended);
+    expect(settled[0].content).toMatchObject({ ended: 'failed', status: 'failed' });
+  });
+
+  it('does not let a failed turn condemn the next one', async () => {
+    emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-1' });
+    emitEvent(manager, { type: 'error', data: 'boom', msg_id: 'msg-1' });
+    emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-1' });
+    await vi.advanceTimersByTimeAsync(200);
+
+    emitEvent(manager, { type: 'start', data: '', msg_id: 'msg-2' });
+    emitEvent(manager, { type: 'content', data: 'fine', msg_id: 'msg-2' });
+    emitEvent(manager, { type: 'finish', data: '', msg_id: 'msg-2' });
+    await vi.advanceTimersByTimeAsync(200);
+
+    const settled = persistedActivityCards().filter((card) => card.content.ended);
+    const second = settled.find((card) => card.content.turnId === 'msg-2');
+    expect(second?.content).toMatchObject({ ended: 'done', status: 'done' });
+  });
+
   it('does not invent a card when no turn was ever started', async () => {
     await (manager as any).handleTurnEnd();
     await vi.advanceTimersByTimeAsync(200);

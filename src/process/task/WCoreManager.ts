@@ -283,6 +283,18 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   // end-of-session `session_cost` event (which fires after currentMsgId is
   // cleared) can be stamped onto the correct turn's activity card.
   private _lastTurnMsgId: string | null = null;
+  /**
+   * Whether an `error` frame arrived during the current turn.
+   *
+   * Turn end alone cannot tell a successful turn from a failed one: the engine
+   * emits the same `finish` either way, so a turn that died on a provider 400
+   * settled with a green "completed" tag over a visible error message. Observed
+   * live - the run reported success while the transcript showed
+   * "Provider error: API error 400" - which is the same class of lie as the
+   * "running forever" bug the turn-end verdict was added to fix, only pointing
+   * the other way.
+   */
+  private _turnSawError = false;
 
   // #264 - an auto-mode `approval_required` the engine could not self-resolve is
   // escalated through the existing Confirming gate (see the approval_required
@@ -1716,6 +1728,10 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       // Wayland Core has no subscription/OAuth fallback, so a dead key is fatal
       // for the turn and the provider must be marked unhealthy.
       if (data.type === 'error') {
+        // Recorded here, ABOVE the msg_id guard below, on purpose: a provider
+        // failure frequently arrives as a system-level frame with no msg_id, and
+        // that is precisely the case that was settling as "completed".
+        this._turnSawError = true;
         this.maybeInvalidateProviderKeyOnAuthError(typeof data.data === 'string' ? data.data : String(data.data ?? ''));
       }
 
@@ -1741,6 +1757,8 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
         this.currentMsgId = data.msg_id ?? null;
         this._lastTurnMsgId = data.msg_id ?? this._lastTurnMsgId;
         this.currentMsgContent = '';
+        // A new turn starts clean: last turn's failure must not condemn this one.
+        this._turnSawError = false;
 
         // Reset thinking state on new turn
         if (this.thinkingMsgId) {
@@ -1924,7 +1942,13 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
   private async handleTurnEnd(outcome: 'done' | 'failed' = 'done'): Promise<void> {
     cronBusyGuard.setProcessing(this.conversation_id, false);
     this.flushAllBufferedStreamTexts();
-    this.settleTurnActivityCard(outcome);
+    // An error seen anywhere in this turn outranks the default 'done'. The
+    // engine emits the same `finish` frame whether the turn succeeded or died,
+    // so without this the rail reports success over a visible error. A caller
+    // that already knows the turn failed (process exit) still wins outright.
+    const settled = outcome === 'failed' || this._turnSawError ? 'failed' : 'done';
+    this.settleTurnActivityCard(settled);
+    this._turnSawError = false;
 
     // Finalize thinking if still active
     if (this.thinkingMsgId) {
