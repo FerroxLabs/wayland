@@ -28,7 +28,7 @@ import {
   type VoiceReadinessReason,
   type VoiceSessionReadiness,
 } from '@/common/voice/voiceReadiness';
-import { extractVoiceResponseText } from '@/common/voice/voiceResponseText';
+import { resolveVoiceTurnTerminal } from '@/common/voice/voiceTurnTerminal';
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
 import { isMacOS } from '@/renderer/utils/platform';
 import {
@@ -203,11 +203,26 @@ export const useVoiceConversationSession = ({
   const [snapshot, setSnapshot] = useState<VoiceSessionSnapshot | null>(null);
   const snapshotRef = useRef<VoiceSessionSnapshot | null>(null);
   const activeTurnRef = useRef<string | null>(null);
-  const completionKeyRef = useRef<string | null>(null);
+  /**
+   * The turn whose terminal event has already run.
+   *
+   * Two events end a turn - `finish` on the response stream and
+   * `turnCompleted` - and this is the only thing that stops the second one.
+   * It used to be keyed on `${turnId}:${terminalId}`, which worked by accident:
+   * the first terminal moved the machine to `speaking` and the state guard
+   * rejected the second. The terminal handler now accepts `speaking`, so that
+   * backstop is gone, and the key has to be the turn - the two paths do not
+   * agree on a message id.
+   */
+  const completedTurnRef = useRef<string | null>(null);
   const responseTextRef = useRef('');
+  /** How much of `responseTextRef` has already been handed to speech. */
+  const spokenLengthRef = useRef(0);
   const responseMessageIdRef = useRef<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const audioUrlRef = useRef<string | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const [audioContextState, setAudioContextState] = useState<AudioContextState | undefined>(undefined);
   // `continuousArmed` drives copy, so it is state; the ref is what the capture
   // timer reads, because the timer closes over a stale render otherwise.
   const [continuousArmed, setContinuousArmed] = useState(false);
@@ -311,6 +326,42 @@ export const useVoiceConversationSession = ({
     [runEffects]
   );
 
+  /**
+   * Create and resume the AudioContext inside the entry gesture.
+   *
+   * There is no `autoplay-policy` switch anywhere in main, so Chromium's
+   * gesture requirement applies. A blocked `HTMLAudioElement` at least rejects
+   * and surfaces `TTS_PLAYBACK_FAILED`; a suspended AudioContext gives no error
+   * at all - `start(when)` schedules against a clock that is not advancing,
+   * nothing sounds, `onended` never fires, and the session never re-arms. That
+   * is symptom-for-symptom the bug this work exists to fix, so the context is
+   * created and resumed in the one place a user gesture is guaranteed: the tap
+   * that enters the session.
+   *
+   * An environment with no Web Audio at all (jsdom, and the precedent at
+   * `useSpeechInput.ts:686-695`) leaves the ref null. There is no suspended
+   * clock to schedule against there, so it is not a blocker.
+   */
+  const ensureAudioContext = useCallback(async () => {
+    const AudioContextCtor =
+      typeof AudioContext !== 'undefined'
+        ? AudioContext
+        : typeof window !== 'undefined'
+          ? (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+          : undefined;
+    if (!AudioContextCtor) return;
+    try {
+      const context = audioContextRef.current ?? new AudioContextCtor();
+      audioContextRef.current = context;
+      if (context.state !== 'running') await context.resume();
+      setAudioContextState(context.state);
+    } catch {
+      // A context that cannot even be constructed is reported the same way a
+      // suspended one is: named, at the point of scheduling.
+      setAudioContextState(audioContextRef.current?.state);
+    }
+  }, []);
+
   const clearAudio = useCallback(() => {
     const audio = audioRef.current;
     if (audio) {
@@ -334,6 +385,7 @@ export const useVoiceConversationSession = ({
       setLastTranscript(text);
       setLastResponse('');
       responseTextRef.current = '';
+      spokenLengthRef.current = 0;
       responseMessageIdRef.current = null;
       const transition = applyEvent({ type: 'transcription_ready', turnId });
       if (!transition || transition.rejected) {
@@ -487,6 +539,45 @@ export const useVoiceConversationSession = ({
     [applyEvent, clearAudio]
   );
 
+  /**
+   * The single-clip path: one piece of text becomes one spoken segment.
+   *
+   * Nothing is scheduled against a context that is not running. A suspended
+   * context fails here, by name, BEFORE `response_segment_ready` moves the
+   * machine to `speaking` - otherwise the session sits in `speaking` waiting
+   * for a `playback_completed` that a stopped clock will never produce, which
+   * is silence with no error, the worst of the two failure modes.
+   */
+  const speakSegment = useCallback(
+    (turnId: string, terminalId: string, text: string): boolean => {
+      const context = audioContextRef.current;
+      if (context && context.state !== 'running') {
+        setAudioContextState(context.state);
+        const blocked = resolveVoiceSessionReadiness({
+          ttsConfig: ttsConfigRef.current,
+          sttConfig: sttConfigRef.current && {
+            ...sttConfigRef.current,
+            provider: sttProviderRef.current ?? undefined,
+          },
+          platform: isMacOS() ? 'darwin' : 'other',
+          consent: consentRef.current,
+          audioContextState: context.state,
+        });
+        applyEvent({ type: 'fail', errorCode: 'TTS_AUDIO_CONTEXT_BLOCKED' });
+        setSurfaceError(CAPTURE_BLOCKED_COPY[blocked.reason](blocked));
+        return false;
+      }
+
+      const segmentId = newCorrelationId(`voice-segment-${responseMessageIdRef.current ?? terminalId}`);
+      const transition = applyEvent({ type: 'response_segment_ready', turnId, segmentId });
+      if (!transition || transition.rejected) return false;
+      spokenLengthRef.current = responseTextRef.current.length;
+      void playResponse(turnId, segmentId, text);
+      return true;
+    },
+    [applyEvent, playResponse]
+  );
+
   const interrupt = useCallback(async () => {
     const current = snapshotRef.current;
     if (!current || !['thinking', 'acting', 'speaking'].includes(current.state)) return;
@@ -518,6 +609,12 @@ export const useVoiceConversationSession = ({
        * that guard and make the composer the single door.
        */
       if (isActiveRef.current) return;
+      /**
+       * The gesture. This runs in the entry button's own click handler, which
+       * is the only moment Chromium is guaranteed to let an AudioContext start,
+       * and it runs before the first `await` so the activation is still fresh.
+       */
+      await ensureAudioContext();
       try {
         const [storedStt, storedTts] = await Promise.all([
           ConfigStorage.get('tools.speechToText'),
@@ -619,8 +716,9 @@ export const useVoiceConversationSession = ({
         setLastTranscript('');
         setLastResponse('');
         activeTurnRef.current = null;
-        completionKeyRef.current = null;
+        completedTurnRef.current = null;
         responseTextRef.current = '';
+        spokenLengthRef.current = 0;
         responseMessageIdRef.current = null;
         cancelAutoCapture();
         continuousArmedRef.current = false;
@@ -674,7 +772,7 @@ export const useVoiceConversationSession = ({
         setIsExpanded(true);
       }
     },
-    [actorLabel, cancelAutoCapture, conversationId, ensureConsent]
+    [actorLabel, cancelAutoCapture, conversationId, ensureAudioContext, ensureConsent]
   );
 
   useEffect(() => {
@@ -728,34 +826,46 @@ export const useVoiceConversationSession = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [end, interrupt, isActive]);
 
-  const completeResponse = useCallback(
+  /**
+   * The turn-terminal handler: whatever ends the turn ends it here, once.
+   *
+   * It owns the tail, the captions, the no-speakable-response case, and the
+   * dedupe. `terminalId` is only a naming input for the segment id now - the
+   * dedupe is keyed on the turn, because the two terminal paths do not agree on
+   * a message id and the state guard that used to reject the second one no
+   * longer applies once `speaking` is terminable.
+   */
+  const completeTurn = useCallback(
     (terminalId: string, terminalError = false) => {
       const current = snapshotRef.current;
-      const turnId = current?.activeTurnId;
-      if (!current || !turnId || !['thinking', 'acting'].includes(current.state)) return;
+      const turnId = current?.activeTurnId ?? null;
+      const decision = resolveVoiceTurnTerminal({
+        state: current?.state ?? 'connecting',
+        turnId,
+        completedTurnId: completedTurnRef.current,
+        terminalError,
+        rawResponse: responseTextRef.current,
+        spokenLength: spokenLengthRef.current,
+      });
+      if (decision.kind === 'ignore' || !turnId) return;
+      completedTurnRef.current = turnId;
 
-      const completionKey = `${turnId}:${terminalId}`;
-      if (completionKeyRef.current === completionKey) return;
-      completionKeyRef.current = completionKey;
-      if (terminalError) {
-        applyEvent({ type: 'fail', errorCode: 'TURN_FAILED' });
-        setSurfaceError('The turn failed. Inspect Chat for the exact error and recovery options.');
+      if (decision.kind === 'fail') {
+        applyEvent({ type: 'fail', errorCode: decision.errorCode });
+        setSurfaceError(
+          decision.errorCode === 'TURN_FAILED'
+            ? 'The turn failed. Inspect Chat for the exact error and recovery options.'
+            : 'This turn produced a visual or tool-only result. Open Chat to inspect it.'
+        );
         return;
       }
 
-      const text = extractVoiceResponseText('content', responseTextRef.current);
-      if (!text) {
-        applyEvent({ type: 'fail', errorCode: 'NO_SPEAKABLE_RESPONSE' });
-        setSurfaceError('This turn produced a visual or tool-only result. Open Chat to inspect it.');
-        return;
-      }
-      setLastResponse(text);
-      const segmentId = newCorrelationId(`voice-segment-${responseMessageIdRef.current ?? terminalId}`);
-      const transition = applyEvent({ type: 'response_segment_ready', turnId, segmentId });
-      if (!transition || transition.rejected) return;
-      void playResponse(turnId, segmentId, text);
+      if (decision.transcript) setLastResponse(decision.transcript);
+      // `settle` means the chunks already said everything; there is nothing left
+      // to schedule and the playback in flight owns the rest of the turn.
+      if (decision.kind === 'speak') speakSegment(turnId, terminalId, decision.tail);
     },
-    [applyEvent, playResponse]
+    [applyEvent, speakSegment]
   );
 
   useEffect(() => {
@@ -776,22 +886,22 @@ export const useVoiceConversationSession = ({
         return;
       }
       if (message.type === 'error') {
-        completeResponse(message.msg_id || newCorrelationId('voice-error'), true);
+        completeTurn(message.msg_id || newCorrelationId('voice-error'), true);
         return;
       }
       if (message.type === 'finish') {
-        completeResponse(message.msg_id || responseMessageIdRef.current || newCorrelationId('voice-finish'));
+        completeTurn(message.msg_id || responseMessageIdRef.current || newCorrelationId('voice-finish'));
       }
     });
-  }, [completeResponse, conversationId, isActive]);
+  }, [completeTurn, conversationId, isActive]);
 
   useEffect(() => {
     if (!isActive) return;
     return conversation.turnCompleted.on((event) => {
       if (event.sessionId !== conversationId || !isTerminalCompletion(event.status, event.state)) return;
-      completeResponse(String(event.lastMessage.id ?? event.lastMessage.createdAt), event.state === 'error');
+      completeTurn(String(event.lastMessage.id ?? event.lastMessage.createdAt), event.state === 'error');
     });
-  }, [completeResponse, conversationId, isActive]);
+  }, [completeTurn, conversationId, isActive]);
 
   useEffect(() => {
     if (!isActive) return;
@@ -863,7 +973,16 @@ export const useVoiceConversationSession = ({
     };
   }, [cancelAutoCapture]);
 
-  useEffect(() => () => clearAudio(), [clearAudio]);
+  useEffect(
+    () => () => {
+      clearAudio();
+      // One context per mounted session, closed with it. Leaking one per
+      // conversation walks into Chromium's per-page context ceiling.
+      void audioContextRef.current?.close().catch(() => {});
+      audioContextRef.current = null;
+    },
+    [clearAudio]
+  );
 
   useEffect(() => {
     if (!speechErrorCode) return;
@@ -902,8 +1021,9 @@ export const useVoiceConversationSession = ({
         sttConfig: sttConfig && { ...sttConfig, provider: effectiveSttProvider ?? undefined },
         platform: isMacOS() ? 'darwin' : 'other',
         consent,
+        audioContextState,
       }),
-    [consent, effectiveSttProvider, sttConfig, ttsConfig]
+    [audioContextState, consent, effectiveSttProvider, sttConfig, ttsConfig]
   );
 
   const level = useMemo(() => {

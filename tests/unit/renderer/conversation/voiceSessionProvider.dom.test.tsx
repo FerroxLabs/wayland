@@ -23,6 +23,19 @@ type SpeechInputOptions = {
 let onTranscript: ((text: string) => void) | null = null;
 const mockStartRecording = vi.fn(async () => undefined);
 const responseListeners: Array<(message: IResponseMessage) => void> = [];
+
+/**
+ * The OTHER terminal path. `finish` arrives on the response stream and
+ * `turnCompleted` arrives here, and both end the same turn - which is why the
+ * dedupe between them matters enough to emit this in a test.
+ */
+type TurnCompletedEvent = {
+  sessionId: string;
+  status: string;
+  state: string;
+  lastMessage: { id?: string; createdAt?: string };
+};
+const turnCompletedListeners: Array<(event: TurnCompletedEvent) => void> = [];
 const mockSpeak = vi.fn(async (_params: unknown) => ({
   ok: true as const,
   data: [82, 73, 70, 70],
@@ -98,7 +111,15 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
         };
       },
     },
-    turnCompleted: { on: () => () => {} },
+    turnCompleted: {
+      on: (listener: (event: TurnCompletedEvent) => void) => {
+        turnCompletedListeners.push(listener);
+        return () => {
+          const index = turnCompletedListeners.indexOf(listener);
+          if (index >= 0) turnCompletedListeners.splice(index, 1);
+        };
+      },
+    },
     confirmation: { add: { on: () => () => {} } },
     popoutClosed: { on: () => () => {} },
   },
@@ -118,9 +139,14 @@ import ChatLayout from '@/renderer/pages/conversation/components/ChatLayout';
 import VoiceConversationMode from '@/renderer/pages/conversation/voice/VoiceConversationMode';
 import { useVoiceSessionSafe, VoiceSessionProvider } from '@/renderer/pages/conversation/voice/VoiceSessionContext';
 
+const audioInstances: MockAudio[] = [];
+
 class MockAudio {
   src = '';
   private listeners = new Map<string, () => void>();
+  constructor() {
+    audioInstances.push(this);
+  }
   addEventListener(type: string, listener: () => void) {
     this.listeners.set(type, listener);
   }
@@ -158,6 +184,8 @@ const runOneTurn = async () => {
 describe('VoiceSessionProvider', () => {
   beforeEach(() => {
     responseListeners.splice(0);
+    turnCompletedListeners.splice(0);
+    audioInstances.splice(0);
     mockSpeak.mockClear();
     mockStartRecording.mockClear();
     onTranscript = null;
@@ -165,6 +193,9 @@ describe('VoiceSessionProvider', () => {
     storedTts = undefined;
     onMacOS = true;
     vi.stubGlobal('Audio', MockAudio);
+    // jsdom has no Web Audio. Pinned per test so the AudioContext suite below
+    // cannot leak its fake into anything else.
+    vi.stubGlobal('AudioContext', undefined);
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:voice') });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
   });
@@ -621,6 +652,260 @@ describe('VoiceSessionProvider', () => {
 
     expect(screen.getByText('mine:has-session')).toBeInTheDocument();
     expect(screen.getByText('theirs:none')).toBeInTheDocument();
+  });
+
+  /**
+   * The turn-terminal handler.
+   *
+   * `finish` and `turnCompleted` both end the same turn. The old handler
+   * refused to run outside `thinking`/`acting`, and the first terminal event
+   * moves the machine to `speaking` - so the state guard was doing the dedupe
+   * by accident. The handler now accepts `speaking`, because under chunked
+   * synthesis that is the only state a turn ever ends in, and the dedupe is
+   * explicit and keyed on the TURN. Keyed on the terminal event's id it would
+   * not hold: `turnCompleted` reports the last message in the conversation,
+   * which is routinely an activity card rather than the assistant message
+   * `finish` names.
+   */
+  describe('ending a turn exactly once', () => {
+    const Probe: React.FC = () => {
+      const session = useVoiceSessionSafe();
+      return (
+        <>
+          <span data-testid='state'>{session?.state ?? 'none'}</span>
+          <span data-testid='last-response'>{session?.lastResponse ?? ''}</span>
+          <span data-testid='error'>{session?.error ?? ''}</span>
+        </>
+      );
+    };
+
+    const renderWithProbe = () =>
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+            <Probe />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+    const emitTurnCompleted = (lastMessageId: string, state = 'ai_waiting_input') =>
+      act(() => {
+        for (const listener of turnCompletedListeners) {
+          listener({
+            sessionId: 'conversation-1',
+            status: 'finished',
+            state,
+            lastMessage: { id: lastMessageId },
+          });
+        }
+      });
+
+    it('speaks the answer once and sets the captions', async () => {
+      renderWithProbe();
+      await runOneTurn();
+
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledTimes(1));
+      expect(mockSpeak).toHaveBeenCalledWith({ text: 'Here is the answer.' });
+      expect(screen.getByTestId('last-response').textContent).toBe('Here is the answer.');
+      expect(screen.getByTestId('state').textContent).toBe('speaking');
+    });
+
+    /**
+     * The regression this split could have introduced, as a test.
+     *
+     * `turnCompleted` names a DIFFERENT message from the one `finish` named, so
+     * a dedupe keyed on the terminal event's id would let the whole answer be
+     * spoken a second time on top of the first.
+     */
+    it('does not speak again when the other terminal path names a different message', async () => {
+      renderWithProbe();
+      await runOneTurn();
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledTimes(1));
+
+      emitTurnCompleted('session-cost-activity-9');
+
+      await waitFor(() => expect(screen.getByTestId('state').textContent).toBe('speaking'));
+      expect(mockSpeak).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('error').textContent).toBe('');
+    });
+
+    /**
+     * The dedupe on its own, isolated from the tail.
+     *
+     * `turnCompleted` reporting an error state after the stream already
+     * finished must not fail a turn that has been answered and is playing. This
+     * is the assertion the accidental state guard used to make, and the only
+     * thing making it now is that the dedupe is keyed on the turn - a key that
+     * included the terminal id would let this through and put the session into
+     * `error` on top of an answer the user is listening to.
+     */
+    it('cannot be failed by a second terminal event naming a different message', async () => {
+      renderWithProbe();
+      await runOneTurn();
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledTimes(1));
+
+      emitTurnCompleted('session-cost-activity-9', 'error');
+
+      await waitFor(() => expect(screen.getByTestId('state').textContent).toBe('speaking'));
+      expect(screen.getByTestId('error').textContent).toBe('');
+    });
+
+    it('does not speak again when the other terminal path names the same message', async () => {
+      // The control for the id above: the dedupe must hold whether or not the
+      // two paths happen to agree.
+      renderWithProbe();
+      await runOneTurn();
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledTimes(1));
+
+      emitTurnCompleted('assistant-1');
+
+      await waitFor(() => expect(screen.getByTestId('state').textContent).toBe('speaking'));
+      expect(mockSpeak).toHaveBeenCalledTimes(1);
+    });
+
+    /**
+     * The control for the dedupe: it is keyed on the turn, so it must not wedge
+     * the session shut. A second turn still speaks.
+     */
+    it('still speaks the next turn', async () => {
+      renderWithProbe();
+      await runOneTurn();
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledTimes(1));
+      emitTurnCompleted('session-cost-activity-9');
+
+      // Let the first clip finish, which returns the machine to `listening`.
+      act(() => audioInstances.at(-1)?.fire('ended'));
+      await waitFor(() => expect(screen.getByTestId('state').textContent).toBe('listening'));
+
+      act(() => {
+        screen.getByRole('button', { name: 'Start speaking' }).click();
+      });
+      act(() => {
+        screen.getByRole('button', { name: 'Stop and send voice turn' }).click();
+      });
+      act(() => onTranscript?.('And again.'));
+      act(() => {
+        for (const listener of responseListeners) {
+          listener({
+            type: 'content',
+            data: 'The second answer.',
+            msg_id: 'assistant-2',
+            conversation_id: 'conversation-1',
+          });
+          listener({ type: 'finish', data: null, msg_id: 'assistant-2', conversation_id: 'conversation-1' });
+        }
+      });
+
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledTimes(2));
+      expect(mockSpeak).toHaveBeenLastCalledWith({ text: 'The second answer.' });
+    });
+  });
+
+  /**
+   * The AudioContext.
+   *
+   * There is no `autoplay-policy` switch in main, so Chromium's gesture
+   * requirement applies. A blocked `HTMLAudioElement` rejects and surfaces an
+   * error; a suspended AudioContext does not - it accepts the schedule against
+   * a clock that never advances, nothing sounds, and no callback ever fires.
+   * Silence with no error is the exact bug this work exists to remove, so a
+   * context that is not running has to fail loudly and before anything is
+   * scheduled.
+   */
+  describe('the AudioContext lifecycle', () => {
+    let resumeCalls = 0;
+
+    class BlockedAudioContext {
+      state: AudioContextState = 'suspended';
+      async resume() {
+        // What a blocked context actually does: resolves, stays suspended.
+        resumeCalls += 1;
+      }
+      async close() {}
+    }
+
+    class RunningAudioContext {
+      state: AudioContextState = 'suspended';
+      async resume() {
+        resumeCalls += 1;
+        this.state = 'running';
+      }
+      async close() {}
+    }
+
+    const Probe: React.FC = () => {
+      const session = useVoiceSessionSafe();
+      return (
+        <>
+          <span data-testid='state'>{session?.state ?? 'none'}</span>
+          <span data-testid='error'>{session?.error ?? ''}</span>
+          <span data-testid='reason'>{session?.readiness.reason ?? ''}</span>
+        </>
+      );
+    };
+
+    const renderWithProbe = () =>
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+            <Probe />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+    beforeEach(() => {
+      resumeCalls = 0;
+    });
+
+    it('never schedules against a suspended context, and says so', async () => {
+      vi.stubGlobal('AudioContext', BlockedAudioContext);
+      renderWithProbe();
+
+      await runOneTurn();
+
+      await waitFor(() => expect(screen.getByTestId('state').textContent).toBe('error'));
+      // Never `speaking`: the machine only reaches it through
+      // `response_segment_ready`, which is exactly what the assertion refuses
+      // to emit. And nothing was synthesized, so nothing was scheduled.
+      expect(mockSpeak).not.toHaveBeenCalled();
+      expect(screen.getByTestId('error').textContent).toBe(
+        'This window is not allowed to play audio yet. Tap the voice button again to start it.'
+      );
+      expect(screen.getByTestId('reason').textContent).toBe('audio-blocked');
+    });
+
+    /**
+     * The control. Same fake, same code path, but `resume()` does what a
+     * gesture-resumed context does - so the refusal above is about the context
+     * state and nothing else.
+     */
+    it('speaks normally once the context resumes', async () => {
+      vi.stubGlobal('AudioContext', RunningAudioContext);
+      renderWithProbe();
+
+      await runOneTurn();
+
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledWith({ text: 'Here is the answer.' }));
+      expect(screen.getByTestId('state').textContent).toBe('speaking');
+      expect(screen.getByTestId('reason').textContent).toBe('ok');
+    });
+
+    /**
+     * The resume has to happen in the gesture, not at the point of playback -
+     * playback runs from a stream event, where Chromium will refuse.
+     */
+    it('resumes the context in the tap that enters, before anything is spoken', async () => {
+      vi.stubGlobal('AudioContext', RunningAudioContext);
+      renderWithProbe();
+
+      act(() => openVoiceMode('conversation-1'));
+      await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
+
+      expect(resumeCalls).toBe(1);
+      expect(mockSpeak).not.toHaveBeenCalled();
+    });
   });
 
   it('can actually settle a hosted-voice consent decision', async () => {
