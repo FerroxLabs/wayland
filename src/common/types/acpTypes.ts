@@ -468,7 +468,11 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     enabled: true, // ✅ Kimi Code (Moonshot), launched via `kimi acp`
     supportsStreaming: false,
     acpArgs: ['acp'], // kimi uses the acp subcommand
-    skillsDirs: ['.kimi/skills'],
+    // Kimi Code discovers project skills in `.kimi-code/skills` - its own binary
+    // carries `PROJECT_BRAND_DIRS = [".kimi-code/skills"]`. The old `.kimi/skills`
+    // is the LEGACY tree that kimi-code's `migrate` subcommand copies OUT of, so
+    // symlinking there published every builtin skill where the agent never looks.
+    skillsDirs: ['.kimi-code/skills'],
   },
   opencode: {
     id: 'opencode',
