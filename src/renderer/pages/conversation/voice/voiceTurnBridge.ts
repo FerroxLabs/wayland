@@ -24,7 +24,31 @@ export type VoiceTurnSettledDetail = {
   conversationId: string;
   turnId: string;
   accepted: boolean;
-  errorCode?: 'empty_transcript' | 'send_failed';
+  errorCode?: 'empty_transcript' | 'send_failed' | 'deferred_to_draft';
+  /** Files staged when a turn was deferred, so the prompt can name the count. */
+  deferredFileCount?: number;
+};
+
+/**
+ * How a composer defers a spoken turn instead of sending it.
+ *
+ * A spoken turn enters the SAME send handler as typed chat, and those handlers
+ * collect the staged files and clear them before dispatch. So a user who
+ * attaches a photo and then speaks has the photo sent with a sentence they
+ * never meant to attach it to, and cleared from the composer either way. While
+ * the orb was a full-screen overlay that hid the composer this was nearly
+ * unreachable; once the composer IS the voice surface it is an ordinary
+ * Tuesday.
+ *
+ * Deferring writes the transcript into the draft and lets the user press Send
+ * deliberately. It fails in the direction that costs a keystroke rather than
+ * the one that mis-sends a file.
+ */
+export type VoiceTurnDeferral = {
+  /** Files staged in this composer right now. */
+  stagedFileCount: () => number;
+  /** Put the transcript in the draft rather than sending it. */
+  writeDraft: (text: string) => void;
 };
 
 export const submitVoiceTurn = (detail: VoiceTurnSubmitDetail): void => {
@@ -45,9 +69,15 @@ const settleVoiceTurn = (detail: VoiceTurnSettledDetail): void => {
  * exact same send handler as typed chat, preserving queues, wake-up gates,
  * provider readiness, attachments, authority, receipts, and transcript order.
  */
-export const useVoiceTurnSubmission = (conversationId: string, onSend: (message: string) => Promise<void>): void => {
+export const useVoiceTurnSubmission = (
+  conversationId: string,
+  onSend: (message: string) => Promise<void>,
+  deferral?: VoiceTurnDeferral
+): void => {
   const onSendRef = useRef(onSend);
   onSendRef.current = onSend;
+  const deferralRef = useRef(deferral);
+  deferralRef.current = deferral;
 
   useEffect(() => {
     const handleVoiceTurn = (event: Event) => {
@@ -61,6 +91,21 @@ export const useVoiceTurnSubmission = (conversationId: string, onSend: (message:
           turnId: detail.turnId,
           accepted: false,
           errorCode: 'empty_transcript',
+        });
+        return;
+      }
+
+      // Staged files present: hand the words to the draft and stop. The user
+      // presses Send, so the attachment goes with the sentence they chose.
+      const stagedFileCount = deferralRef.current?.stagedFileCount() ?? 0;
+      if (stagedFileCount > 0) {
+        deferralRef.current?.writeDraft(text);
+        settleVoiceTurn({
+          conversationId,
+          turnId: detail.turnId,
+          accepted: false,
+          errorCode: 'deferred_to_draft',
+          deferredFileCount: stagedFileCount,
         });
         return;
       }

@@ -37,7 +37,7 @@ import { buildDisplayMessage } from '@/renderer/utils/file/messageFiles';
 import { Tag } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useVoiceTurnSubmission } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
+import { useVoiceTurnSubmission, type VoiceTurnDeferral } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 interface NanobotDraftData {
   _type: 'nanobot';
@@ -313,7 +313,27 @@ const NanobotSendBox: React.FC<{ conversation_id: string }> = ({ conversation_id
     await executeCommand({ input: message, files: filePaths });
   };
 
-  useVoiceTurnSubmission(conversation_id, onSendHandler);
+  /**
+   * V16: a spoken turn enters `onSendHandler` exactly like a typed one, and that
+   * handler collects the staged files and clears them. So attaching a photo and
+   * then speaking sends the photo with a sentence the user never meant to attach
+   * it to - and clears it from the composer either way. Hand the words to the
+   * draft instead and let them press Send.
+   */
+  const stagedFileCountRef = useLatestRef(uploadFile.length + atPath.length);
+  const draftContentRef = useLatestRef(content);
+  const voiceDeferral = useMemo<VoiceTurnDeferral>(
+    () => ({
+      stagedFileCount: () => stagedFileCountRef.current,
+      writeDraft: (text) => {
+        const existing = draftContentRef.current;
+        setContentRef.current(existing ? `${existing}\n${text}` : text);
+      },
+    }),
+    [draftContentRef, setContentRef, stagedFileCountRef]
+  );
+
+  useVoiceTurnSubmission(conversation_id, onSendHandler, voiceDeferral);
 
   const handleEditQueuedCommand = useCallback(
     (item: ConversationCommandQueueItem) => {

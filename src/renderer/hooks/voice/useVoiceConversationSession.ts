@@ -798,6 +798,29 @@ export const useVoiceConversationSession = ({
     const handleSettled = (event: Event) => {
       const detail = (event as CustomEvent<VoiceTurnSettledDetail>).detail;
       if (!detail || detail.conversationId !== conversationId || detail.turnId !== activeTurnRef.current) return;
+
+      /*
+       * A deferred turn is not a failure - the words were transcribed fine and
+       * are sitting in the draft, waiting for the user to press Send so their
+       * staged files go with the sentence they chose.
+       *
+       * It still has to stop the session. Leaving the mic armed would re-arm
+       * 350ms later, hear the next thing said, and defer that too - a loop that
+       * silently overwrites the draft it just asked the user to confirm.
+       *
+       * It rides the error state because that is the only channel the composer
+       * renders a sentence through; the copy is written to say plainly that
+       * nothing went wrong.
+       */
+      if (detail.errorCode === 'deferred_to_draft') {
+        const count = detail.deferredFileCount ?? 0;
+        applyEvent({ type: 'fail', errorCode: 'VOICE_TURN_DEFERRED' });
+        setSurfaceError(
+          `Draft ready — press send to include your ${count} attachment${count === 1 ? '' : 's'}.`
+        );
+        return;
+      }
+
       if (!detail.accepted) {
         applyEvent({ type: 'fail', errorCode: detail.errorCode ?? 'VOICE_SEND_FAILED' });
         setSurfaceError('The transcribed turn was not accepted by Chat. It was not retried automatically.');
