@@ -28,7 +28,6 @@ import React from 'react';
 import { useInRouterContext, useLocation } from 'react-router-dom';
 import useSWR from 'swr';
 import VoiceConversationMode from '@/renderer/pages/conversation/voice/VoiceConversationMode';
-import VoiceModeEntryButton from '@/renderer/pages/conversation/voice/VoiceModeEntryButton';
 import { VoiceSessionProvider } from '@/renderer/pages/conversation/voice/VoiceSessionContext';
 import ProjectContextBadge from '../ProjectContext';
 import './chat-layout.css';
@@ -271,11 +270,11 @@ const ChatLayout: React.FC<{
         </FlexFullContainer>
         <div className='flex items-center gap-12px shrink-0'>
           <ProjectContextBadge projectId={props.projectId} />
-          {/* The header entry button only. The session and the orb it opens now
-              live on the provider that wraps the whole layout, so this is a way
-              in rather than the thing being entered. V11 removes it once the
-              composer's soundwave is the single door. */}
-          {conversationId && <VoiceModeEntryButton conversationId={conversationId} placement='header' />}
+          {/* No voice entry here any more. There were two, 17px apart, with
+              accessible names a screen reader could not tell apart ("Start
+              Voice conversation" in the header, "Start voice input" for
+              dictation in the composer). The composer's soundwave is the single
+              door now, and it is also the way out. */}
           {isPopout && isElectronDesktop() && (
             <button
               type='button'

@@ -29,7 +29,7 @@ import { copyText } from '@/renderer/utils/ui/clipboard';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { blurActiveElement, shouldBlockMobileInputFocus } from '@/renderer/utils/ui/focus';
 import { Button, Input, Message, Tag } from '@arco-design/web-react';
-import { ArrowUp, Quote, X } from 'lucide-react';
+import { ArrowUp, Mic, MicOff, Quote, X } from 'lucide-react';
 import type { SlashCommandItem } from '@/common/chat/slash/types';
 import { theme } from '@office-ai/platform';
 import React, { useCallback, useDeferredValue, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -1430,7 +1430,63 @@ const SendBox: React.FC<{
     </span>
   ) : null;
 
+  /**
+   * Stopping a spoken answer is not stopping the model.
+   *
+   * `stopHandler` calls onStop() - the MODEL stop - then clears loading. During
+   * voice `speaking` the model has already finished; what is still running is
+   * playback, and `interrupt()` itself decides whether the backend needs
+   * stopping at all. Wiring this to stopHandler would ask the backend to cancel
+   * a turn it has already completed.
+   */
+  const voiceInterruptible =
+    voiceSession?.isActive && ['transcribing', 'thinking', 'acting', 'speaking'].includes(voiceSession.state);
+
+  const voiceStopButton = voiceInterruptible ? (
+    <Button
+      shape='circle'
+      type='secondary'
+      className='bg-animate sendbox-stop-button'
+      aria-label={t('conversation.chat.voice.stopSpeaking', { defaultValue: 'Stop Wayland' })}
+      icon={<div className='mx-auto size-12px bg-6'></div>}
+      onClick={() => void voiceSession?.interrupt()}
+    />
+  ) : null;
+
+  /**
+   * Mute, which the orb owned and which collapsing it would otherwise delete
+   * from reach entirely. The microphone reopens by itself after every answer
+   * and auto-sends what it hears, so "stop listening" has to be reachable
+   * without going back into the orb.
+   */
+  const voiceMuteButton =
+    voiceSession?.isActive && ['listening', 'user-speaking'].includes(voiceSession.state) ? (
+      <Button
+        type='text'
+        size='small'
+        shape='circle'
+        className='voice-mode-composer-mute'
+        aria-pressed={voiceSession.isMuted}
+        aria-label={
+          voiceSession.isMuted
+            ? t('conversation.chat.voice.unmute', { defaultValue: 'Unmute microphone' })
+            : t('conversation.chat.voice.mute', { defaultValue: 'Mute microphone' })
+        }
+        onClick={voiceSession.toggleMute}
+        icon={voiceSession.isMuted ? <MicOff size={18} aria-hidden='true' /> : <Mic size={18} aria-hidden='true' />}
+      />
+    ) : null;
+
   const renderActionButtons = () => {
+    /*
+     * Voice-stop takes the action slot ONLY when there is nothing to send.
+     * renderActionButtons deliberately keeps Send in that slot when the user
+     * has typed while a reply streams; a leading voice branch would override
+     * that and take away the visible send affordance mid-sentence. Enter would
+     * still work, which for a non-technical user reads as "it broke".
+     */
+    if (voiceStopButton && !hasDraftToSend) return voiceStopButton;
+
     if (allowSendWhileLoading && (isLoading || loading)) {
       // Keep a single action slot while processing: show stop when the draft is empty,
       // and only switch back to send once the user has prepared a queued message.
@@ -1503,6 +1559,9 @@ const SendBox: React.FC<{
   const renderVoiceControls = () => (
     <>
       {runningIndicator}
+      {voiceMuteButton}
+      {/* When a draft exists the action slot keeps Send, so stop lives here. */}
+      {voiceStopButton && hasDraftToSend ? voiceStopButton : null}
       <SpeechInputButton
         disabled={disabled || isLoading || loading || isUploading}
         locale={speechLocale}

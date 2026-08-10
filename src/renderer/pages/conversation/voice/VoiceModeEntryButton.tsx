@@ -7,6 +7,8 @@
 import { Button } from '@arco-design/web-react';
 import { AudioWaveform } from 'lucide-react';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { useVoiceSessionSafe } from './VoiceSessionContext';
 import { openVoiceMode } from './voiceTurnBridge';
 
 type VoiceModeEntryButtonProps = {
@@ -15,12 +17,27 @@ type VoiceModeEntryButtonProps = {
   placement?: 'composer' | 'header';
 };
 
+/**
+ * The composer's single door into a voice conversation, and back out of it.
+ *
+ * It is a toggle, not a start button. Once the orb stopped being a modal
+ * overlay the composer became the only place a session is visible, so it has to
+ * be the place a session can be STOPPED - otherwise the surface that starts a
+ * continuously re-arming microphone offers no way to end it. The destructive
+ * direction must never be the one with no exit.
+ *
+ * Entering also opens the microphone. Entry used to land in `listening` with the
+ * mic closed, which is honest under an orb captioned "Tap to speak" and a lie
+ * under a composer that says "Listening…". One tap, one meaning.
+ */
 const VoiceModeEntryButton: React.FC<VoiceModeEntryButtonProps> = ({
   conversationId,
   disabled = false,
   placement = 'composer',
 }) => {
-  const label = 'Start Voice conversation';
+  const { t } = useTranslation();
+  const session = useVoiceSessionSafe();
+  const isActive = Boolean(session?.isActive);
 
   if (placement === 'header') {
     return (
@@ -29,24 +46,43 @@ const VoiceModeEntryButton: React.FC<VoiceModeEntryButtonProps> = ({
         className='voice-mode-entry'
         disabled={disabled}
         onClick={() => openVoiceMode(conversationId)}
-        aria-label={label}
-        title='Voice conversation'
+        aria-label={t('conversation.chat.voice.startLabel', { defaultValue: 'Talk with Wayland' })}
+        title={t('conversation.chat.voice.startTitle', {
+          defaultValue: 'Talk with Wayland — it answers out loud',
+        })}
       >
         <AudioWaveform size={17} />
       </button>
     );
   }
 
+  const label = isActive
+    ? t('conversation.chat.voice.endLabel', { defaultValue: 'End voice conversation' })
+    : t('conversation.chat.voice.startLabel', { defaultValue: 'Talk with Wayland' });
+
   return (
     <Button
       type='text'
       size='small'
       shape='circle'
-      className='voice-mode-composer-entry'
+      className={`voice-mode-composer-entry${isActive ? ' voice-mode-composer-entry--active' : ''}`}
       disabled={disabled}
-      onClick={() => openVoiceMode(conversationId)}
+      onClick={() => {
+        if (!session) {
+          // No provider on this surface: fall back to the open event, which is
+          // exactly what this button did before it could see a session.
+          openVoiceMode(conversationId);
+          return;
+        }
+        if (session.isActive) session.end();
+        else void session.begin({ thenListen: true });
+      }}
       aria-label={label}
-      title='Voice conversation · same chat, spoken aloud'
+      title={
+        isActive
+          ? t('conversation.chat.voice.endTitle', { defaultValue: 'End the voice conversation' })
+          : t('conversation.chat.voice.startTitle', { defaultValue: 'Talk with Wayland — it answers out loud' })
+      }
       icon={<AudioWaveform size={18} aria-hidden='true' />}
     />
   );

@@ -795,6 +795,57 @@ describe('SendBox queue and interaction behaviors', () => {
       expect(screen.queryByText('Working...')).not.toBeInTheDocument();
     });
 
+    /**
+     * The composer is the only place a session is visible once the orb is
+     * collapsed, so it has to be the place a session can be STOPPED. A surface
+     * that starts a continuously re-arming microphone and offers no way out is
+     * the one shape this must never take.
+     */
+    it('the soundwave ends a live session instead of restarting it', async () => {
+      render(
+        <VoiceHarness>
+          <SendBox value='' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} />
+        </VoiceHarness>
+      );
+
+      const talk = screen.getByRole('button', { name: 'Talk with Wayland' });
+      await act(async () => {
+        talk.click();
+      });
+      expect(await screen.findByTestId('composer-voice-status')).toBeInTheDocument();
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'End voice conversation' }).click();
+      });
+      expect(screen.queryByTestId('composer-voice-status')).not.toBeInTheDocument();
+    });
+
+    it('offers exactly one way into a voice conversation', async () => {
+      render(
+        <VoiceHarness>
+          <SendBox value='' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} />
+        </VoiceHarness>
+      );
+      // Two entry points 17px apart, named "Start Voice conversation" and
+      // "Start voice input", were indistinguishable to a screen reader.
+      expect(screen.getAllByRole('button', { name: /Talk with Wayland/i })).toHaveLength(1);
+    });
+
+    it('offers a mute while the microphone is open', async () => {
+      render(
+        <VoiceHarness>
+          <SendBox value='' onChange={vi.fn()} onSend={vi.fn().mockResolvedValue(undefined)} />
+        </VoiceHarness>
+      );
+      await act(async () => {
+        screen.getByRole('button', { name: 'Talk with Wayland' }).click();
+      });
+
+      // The orb owned the only mute in the product; collapsing it would have
+      // deleted "stop listening" from reach entirely.
+      expect(await screen.findByRole('button', { name: /mute microphone/i })).toBeInTheDocument();
+    });
+
     it('leaves the working indicator exactly as it was with no voice session', () => {
       // The control: outside a provider every voice read is null, so the
       // composer must behave precisely as it does today.
