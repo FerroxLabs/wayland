@@ -713,3 +713,54 @@ Two rules that make this a design rather than a list:
 RISK: `localWhisper.ts` has NO test file (verified; control - the same search
 found textToSpeech.test.ts). The guaranteed floor is currently the least proven
 rung in the chain. Exercise it before leaning on it.
+
+## M7 — Calibrate the endpointer from the mic check, do not ship universal constants. (new; amends V21/V25)
+
+Sean pointed out the app ALREADY has a microphone test:
+`src/renderer/pages/settings/VoiceSettings/MicrophoneCheck.tsx` - device picker,
+4-second timed window, level bar, single grade.
+
+**It does not answer the endpointing question, and the reason is a trap.**
+
+| surface | measures | "no signal"/"speech" bar |
+|---|---|---|
+| MicrophoneCheck (`peakOverWindowRef`, :26-29) | PEAK amplitude | 0.02 |
+| endpointer (`Math.sqrt(sum/n)`, useSpeechInput.ts:344) | RMS | 0.02 (`ENDPOINT_SPEECH_THRESHOLD_MIN`) |
+
+Same number, same 0-1 range, DIFFERENT QUANTITY. Speech crest factor is ~3-5x, so
+a 0.12 peak is roughly 0.025-0.04 RMS. Anyone comparing the two 0.02s concludes
+the systems agree; they do not. Do not "reconcile" these constants - they are not
+comparable.
+
+### The change
+
+MicrophoneCheck already owns getUserMedia, a device list, an AnalyserNode and a
+timed window. Add an RMS track beside the existing peak track and make the check
+TWO-STAGE:
+  stage 1 "stay quiet"    -> record room-tone RMS
+  stage 2 "say something" -> record speech RMS
+Persist both PER DEVICE (deviceId), and have the endpointer PREFER stored
+calibration over ENDPOINT_SPEECH_THRESHOLD_MIN / ENDPOINT_NOISE_FLOOR_*.
+
+### Why this is better than tuning the constants
+
+- Today 0.02 is a guess applied to every room and every microphone on earth. The
+  defect the cross-audit found - a room reading above the bar means the detector
+  never stops listening - is not fixable by picking a different global number,
+  only by measuring the actual device.
+- It removes the "your room is unusual" failure class rather than re-tuning it.
+- It closes a real UX gap: the current grade cannot distinguish "quiet room, loud
+  voice" (ideal) from "loud room, loud voice" (endpointing will struggle), which
+  is exactly what a user needs to know BEFORE trying a conversation.
+- Calibration is a thing a non-technical user already understands ("test your
+  mic"), so it costs no new concept.
+
+### Rules
+
+- Falling back to the constants MUST still work uncalibrated - never block voice
+  on having run the check.
+- Store per deviceId; a changed default input invalidates the calibration.
+- If measured room tone >= measured speech, the calibration is nonsense: discard
+  it, say so in the check, and fall back to constants.
+- MUST land before V25 (wall-clock caps), which the audit said should come from
+  real validated numbers - this is where those numbers come from.
