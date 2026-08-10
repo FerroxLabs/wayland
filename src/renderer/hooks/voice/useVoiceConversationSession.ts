@@ -115,7 +115,8 @@ export type VoiceConversationSession = {
   /** Why voice cannot run, named, so a surface can offer the one tap that fixes it. */
   readiness: VoiceSessionReadiness;
   configReady: boolean;
-  begin: () => Promise<void>;
+  /** `thenListen` opens the microphone in the same gesture that enters. */
+  begin: (options?: { thenListen?: boolean }) => Promise<void>;
   beginCapture: () => Promise<void>;
   finishCapture: () => void;
   end: () => void;
@@ -145,6 +146,14 @@ export const useVoiceConversationSession = ({
   const [ttsConfig, setTtsConfig] = useState<TextToSpeechConfig | null>(null);
   const [sttConfig, setSttConfig] = useState<SpeechToTextConfig | null>(null);
   const [consent, setConsent] = useState<Partial<HostedVoiceConsent> | null>(null);
+  /**
+   * The same two configs as refs. `begin` can start listening in the tick it
+   * enters, and React state is a render behind at that point - reading it there
+   * reports "Speech input is off" on the very first tap, for a user whose
+   * speech input is on.
+   */
+  const sttConfigRef = useRef<SpeechToTextConfig | null>(null);
+  const ttsConfigRef = useRef<TextToSpeechConfig | null>(null);
   const [snapshot, setSnapshot] = useState<VoiceSessionSnapshot | null>(null);
   const snapshotRef = useRef<VoiceSessionSnapshot | null>(null);
   const activeTurnRef = useRef<string | null>(null);
@@ -325,15 +334,17 @@ export const useVoiceConversationSession = ({
 
   const beginCapture = useCallback(async () => {
     if (!snapshotRef.current || snapshotRef.current.state !== 'listening') return;
-    if (!sttEnabled) {
+    const liveStt = sttConfigRef.current;
+    const liveTts = ttsConfigRef.current;
+    if (!liveStt?.enabled) {
       setSurfaceError('Speech input is off. Enable it in Voice settings before starting a voice turn.');
       return;
     }
-    if (!ttsProviderReady) {
+    if (!(liveTts?.enabled && liveTts.provider !== 'kokoro-local')) {
       setSurfaceError('Speech output is off. Enable it in Voice settings before starting a complete voice turn.');
       return;
     }
-    if (isMuted) {
+    if (isMutedRef.current) {
       setSurfaceError('The microphone is muted. Unmute it before starting a voice turn.');
       return;
     }
@@ -345,7 +356,7 @@ export const useVoiceConversationSession = ({
     const transition = applyEvent({ type: 'speech_started' });
     if (transition?.rejected) return;
     await startRecording();
-  }, [applyEvent, availability, isMuted, startRecording, sttEnabled, ttsProviderReady]);
+  }, [applyEvent, availability, startRecording]);
 
   const finishCapture = useCallback(() => {
     if (snapshotRef.current?.state !== 'user-speaking') return;
@@ -438,123 +449,153 @@ export const useVoiceConversationSession = ({
     applyEvent({ type: 'interruption_settled' });
   }, [applyEvent, clearAudio, conversationId]);
 
-  const begin = useCallback(async () => {
-    try {
-      const [storedStt, storedTts, storedConsent] = await Promise.all([
-        ConfigStorage.get('tools.speechToText'),
-        ConfigStorage.get('tools.textToSpeech'),
-        ConfigStorage.get('tools.voiceHostedConsent'),
-      ]);
-      const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined);
-
+  const begin = useCallback(
+    async (options?: { thenListen?: boolean }) => {
       /**
-       * Which transcriber will actually receive the audio, which is not always
-       * the one stored: main seeds Flux Voice when Flux is connected and no
-       * engine was ever chosen. Asking about the stored provider would prompt
-       * for a disclosure that unblocks nothing - the same defect the settings
-       * panel had. Registry failure degrades to the stored provider rather than
-       * blocking entry.
+       * Entering an already-live session is a no-op.
+       *
+       * `begin` unconditionally built a NEW session and swapped it in without
+       * stopping anything the old one owned - no clearAudio, no stopMonitoring,
+       * no cancelRecording. One stray tap therefore orphaned a playing clip and
+       * a live recorder. That was masked only because the composer's control
+       * was disabled while a reply was streaming, and the next steps remove
+       * that guard and make the composer the single door.
        */
-      let sttProvider: SpeechToTextProvider = 'whisper-local';
-      if (storedStt?.provider) {
-        try {
-          const providers = await modelRegistry.list.invoke();
-          sttProvider = resolveEffectiveSttProvider({
-            stored: storedStt,
-            hasConnectedOpenAIKey: providers.some((p) => p.providerId === 'openai' && p.state === 'connected'),
-            hasConnectedFluxKey: providers.some((p) => p.providerId === FLUX_PROVIDER_ID && p.state === 'connected'),
-          });
-        } catch {
-          // Non-fatal: an unreadable registry must not stop someone talking.
-          sttProvider = storedStt.provider;
-        }
-      }
-      // An UNSET provider is the one case where the renderer and main disagree,
-      // and here the renderer wins because it is the one that runs: its
-      // transcribe path short-circuits an unset provider to the bundled local
-      // Whisper and never reaches main at all. Main's factory default says
-      // `openai`, so mirroring main would prompt for a disclosure covering a
-      // transmission that never happens - gating on-device audio behind consent
-      // to send it off-device. That divergence is a real defect and its own
-      // packet; what must not happen is this code quietly picking the wrong
-      // side of it.
+      if (isActiveRef.current) return;
+      try {
+        const [storedStt, storedTts, storedConsent] = await Promise.all([
+          ConfigStorage.get('tools.speechToText'),
+          ConfigStorage.get('tools.textToSpeech'),
+          ConfigStorage.get('tools.voiceHostedConsent'),
+        ]);
+        const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined);
 
-      /**
-       * Consent for BOTH legs, before the session exists.
-       *
-       * Entering a conversation is consent to make sound. It is not consent to
-       * transmit, and speaking and listening are two disclosures to two
-       * potentially different companies. Gating on the speaking leg alone means
-       * that on macOS - where the default speech output is local and silent - a
-       * user enters, sees no disclosure at all, and the session immediately
-       * begins continuously re-arming a microphone routed off-device.
-       *
-       * The main-side gates stay exactly as they are: per-provider,
-       * version-bound, fail-closed, and checked on every single call. This is
-       * the prompt, not the gate. Never cache a "granted" here and never add a
-       * skip parameter to the bridge to make chunking cheaper.
-       */
-      if (ensureConsent) {
-        for (const [leg, provider] of [
-          ['speech output', nextTts.provider],
-          ['the microphone', sttProvider],
-        ] as const) {
-          if (!(await ensureConsent(provider))) {
-            setSurfaceError(
-              `Voice conversation needs your agreement to send ${leg} to ${provider}. Nothing was sent, and Chat still works normally.`
-            );
-            return;
+        /**
+         * Which transcriber will actually receive the audio, which is not always
+         * the one stored: main seeds Flux Voice when Flux is connected and no
+         * engine was ever chosen. Asking about the stored provider would prompt
+         * for a disclosure that unblocks nothing - the same defect the settings
+         * panel had. Registry failure degrades to the stored provider rather than
+         * blocking entry.
+         */
+        let sttProvider: SpeechToTextProvider = 'whisper-local';
+        if (storedStt?.provider) {
+          try {
+            const providers = await modelRegistry.list.invoke();
+            sttProvider = resolveEffectiveSttProvider({
+              stored: storedStt,
+              hasConnectedOpenAIKey: providers.some((p) => p.providerId === 'openai' && p.state === 'connected'),
+              hasConnectedFluxKey: providers.some((p) => p.providerId === FLUX_PROVIDER_ID && p.state === 'connected'),
+            });
+          } catch {
+            // Non-fatal: an unreadable registry must not stop someone talking.
+            sttProvider = storedStt.provider;
           }
         }
-      }
+        // An UNSET provider is the one case where the renderer and main disagree,
+        // and here the renderer wins because it is the one that runs: its
+        // transcribe path short-circuits an unset provider to the bundled local
+        // Whisper and never reaches main at all. Main's factory default says
+        // `openai`, so mirroring main would prompt for a disclosure covering a
+        // transmission that never happens - gating on-device audio behind consent
+        // to send it off-device. That divergence is a real defect and its own
+        // packet; what must not happen is this code quietly picking the wrong
+        // side of it.
 
-      setSttConfig(storedStt ?? null);
-      setTtsConfig(nextTts);
-      setConsent(storedConsent ?? null);
-      setSurfaceError(null);
-      setLastTranscript('');
-      setLastResponse('');
-      activeTurnRef.current = null;
-      completionKeyRef.current = null;
-      responseTextRef.current = '';
-      responseMessageIdRef.current = null;
-      cancelAutoCapture();
-      continuousArmedRef.current = false;
-      setContinuousArmed(false);
-      setEndpointingAvailable(true);
-      const next = createVoiceSession({
-        sessionId: newCorrelationId('voice-session'),
-        conversationId: sanitizeCorrelationId(conversationId, 'conversation'),
-        actorId: sanitizeCorrelationId(actorLabel, 'wayland'),
-        modelId: sanitizeCorrelationId(actorLabel, 'current-model'),
-        authorityClass: 'ask',
-        voiceId: sanitizeCorrelationId(nextTts.voice, 'default'),
-      });
-      const connected = transitionVoiceSession(next, { type: 'connected' });
-      snapshotRef.current = connected.snapshot;
-      setSnapshot(connected.snapshot);
-      setIsActive(true);
-      setIsExpanded(true);
-    } catch {
-      setSttConfig(null);
-      setTtsConfig(null);
-      setConsent(null);
-      setSurfaceError('Voice settings could not be loaded. Open Voice settings or continue in Chat.');
-      const next = createVoiceSession({
-        sessionId: newCorrelationId('voice-session'),
-        conversationId: sanitizeCorrelationId(conversationId, 'conversation'),
-        actorId: sanitizeCorrelationId(actorLabel, 'wayland'),
-        modelId: sanitizeCorrelationId(actorLabel, 'current-model'),
-        authorityClass: 'ask',
-        voiceId: 'unavailable',
-      });
-      const failed = transitionVoiceSession(next, { type: 'fail', errorCode: 'VOICE_CONFIG_UNAVAILABLE' });
-      snapshotRef.current = failed.snapshot;
-      setSnapshot(failed.snapshot);
-      setIsActive(true);
-      setIsExpanded(true);
-    }
-  }, [actorLabel, cancelAutoCapture, conversationId, ensureConsent]);
+        /**
+         * Consent for BOTH legs, before the session exists.
+         *
+         * Entering a conversation is consent to make sound. It is not consent to
+         * transmit, and speaking and listening are two disclosures to two
+         * potentially different companies. Gating on the speaking leg alone means
+         * that on macOS - where the default speech output is local and silent - a
+         * user enters, sees no disclosure at all, and the session immediately
+         * begins continuously re-arming a microphone routed off-device.
+         *
+         * The main-side gates stay exactly as they are: per-provider,
+         * version-bound, fail-closed, and checked on every single call. This is
+         * the prompt, not the gate. Never cache a "granted" here and never add a
+         * skip parameter to the bridge to make chunking cheaper.
+         */
+        if (ensureConsent) {
+          for (const [leg, provider] of [
+            ['speech output', nextTts.provider],
+            ['the microphone', sttProvider],
+          ] as const) {
+            if (!(await ensureConsent(provider))) {
+              setSurfaceError(
+                `Voice conversation needs your agreement to send ${leg} to ${provider}. Nothing was sent, and Chat still works normally.`
+              );
+              return;
+            }
+          }
+        }
+
+        sttConfigRef.current = storedStt ?? null;
+        ttsConfigRef.current = nextTts;
+        setSttConfig(storedStt ?? null);
+        setTtsConfig(nextTts);
+        setConsent(storedConsent ?? null);
+        setSurfaceError(null);
+        setLastTranscript('');
+        setLastResponse('');
+        activeTurnRef.current = null;
+        completionKeyRef.current = null;
+        responseTextRef.current = '';
+        responseMessageIdRef.current = null;
+        cancelAutoCapture();
+        continuousArmedRef.current = false;
+        setContinuousArmed(false);
+        setEndpointingAvailable(true);
+        const next = createVoiceSession({
+          sessionId: newCorrelationId('voice-session'),
+          conversationId: sanitizeCorrelationId(conversationId, 'conversation'),
+          actorId: sanitizeCorrelationId(actorLabel, 'wayland'),
+          modelId: sanitizeCorrelationId(actorLabel, 'current-model'),
+          authorityClass: 'ask',
+          voiceId: sanitizeCorrelationId(nextTts.voice, 'default'),
+        });
+        const connected = transitionVoiceSession(next, { type: 'connected' });
+        snapshotRef.current = connected.snapshot;
+        setSnapshot(connected.snapshot);
+        isActiveRef.current = true;
+        setIsActive(true);
+        setIsExpanded(true);
+        /**
+         * One tap, one meaning.
+         *
+         * Entry used to land in `listening` with the microphone CLOSED, and the
+         * copy under the orb says "Tap to speak" precisely because of that. Once
+         * the composer is the surface, its status line reads "Listening..." while
+         * nothing is recording - so the everyman talks and nothing happens. The
+         * caller that owns the gesture asks for the mic to open with it.
+         */
+        if (options?.thenListen) await beginCaptureRef.current();
+      } catch {
+        sttConfigRef.current = null;
+        ttsConfigRef.current = null;
+        setSttConfig(null);
+        setTtsConfig(null);
+        setConsent(null);
+        setSurfaceError('Voice settings could not be loaded. Open Voice settings or continue in Chat.');
+        const next = createVoiceSession({
+          sessionId: newCorrelationId('voice-session'),
+          conversationId: sanitizeCorrelationId(conversationId, 'conversation'),
+          actorId: sanitizeCorrelationId(actorLabel, 'wayland'),
+          modelId: sanitizeCorrelationId(actorLabel, 'current-model'),
+          authorityClass: 'ask',
+          voiceId: 'unavailable',
+        });
+        const failed = transitionVoiceSession(next, { type: 'fail', errorCode: 'VOICE_CONFIG_UNAVAILABLE' });
+        snapshotRef.current = failed.snapshot;
+        setSnapshot(failed.snapshot);
+        isActiveRef.current = true;
+        setIsActive(true);
+        setIsExpanded(true);
+      }
+    },
+    [actorLabel, cancelAutoCapture, conversationId, ensureConsent]
+  );
 
   useEffect(() => {
     const handleOpen = (event: Event) => {
@@ -577,6 +618,7 @@ export const useVoiceConversationSession = ({
     activeTurnRef.current = null;
     clearAudio();
     applyEvent({ type: 'end' });
+    isActiveRef.current = false;
     setIsActive(false);
     setIsExpanded(false);
     clearSpeechError();

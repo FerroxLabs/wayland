@@ -21,6 +21,7 @@ type SpeechInputOptions = {
 };
 
 let onTranscript: ((text: string) => void) | null = null;
+const mockStartRecording = vi.fn(async () => undefined);
 const responseListeners: Array<(message: IResponseMessage) => void> = [];
 const mockSpeak = vi.fn(async (_params: unknown) => ({
   ok: true as const,
@@ -67,7 +68,7 @@ vi.mock('@/renderer/hooks/system/useSpeechInput', () => ({
       errorCode: null,
       recordingLevels: [0.12],
       startMonitoring: vi.fn(async () => undefined),
-      startRecording: vi.fn(async () => undefined),
+      startRecording: mockStartRecording,
       status: 'idle',
       stopMonitoring: vi.fn(),
       stopRecording: vi.fn(),
@@ -148,6 +149,7 @@ describe('VoiceSessionProvider', () => {
   beforeEach(() => {
     responseListeners.splice(0);
     mockSpeak.mockClear();
+    mockStartRecording.mockClear();
     onTranscript = null;
     storedStt = { enabled: true };
     storedTts = undefined;
@@ -240,6 +242,80 @@ describe('VoiceSessionProvider', () => {
    * disclosure. Asserting the element exists, not merely that a function was
    * called.
    */
+  describe('one tap means one thing', () => {
+    const Entry: React.FC = () => {
+      const session = useVoiceSessionSafe();
+      return (
+        <>
+          <button type='button' onClick={() => void session?.begin({ thenListen: true })}>
+            talk
+          </button>
+          <span data-testid='state'>{session?.state ?? 'none'}</span>
+        </>
+      );
+    };
+
+    const renderWithEntry = () =>
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+            <Entry />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+    /**
+     * Entry landed in `listening` with the microphone CLOSED - which is why the
+     * copy under the orb says "Tap to speak" rather than "Listening". Once the
+     * composer is the surface its status line says "Listening..." there, so the
+     * user talks into a closed microphone and nothing happens.
+     */
+    it('opens the microphone in the same tap that enters', async () => {
+      renderWithEntry();
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'talk' }).click();
+      });
+
+      await waitFor(() => expect(mockStartRecording).toHaveBeenCalledTimes(1));
+      expect(screen.getByTestId('state').textContent).toBe('user-speaking');
+    });
+
+    it('still enters without opening the microphone when not asked to', async () => {
+      // The control: `openVoiceMode` is the passive entry point and must stay
+      // passive, or merely opening the panel starts recording.
+      renderWithEntry();
+      act(() => openVoiceMode('conversation-1'));
+      await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
+      expect(mockStartRecording).not.toHaveBeenCalled();
+      expect(screen.getByTestId('state').textContent).toBe('listening');
+    });
+
+    /**
+     * `begin` used to build a NEW session and swap it in without stopping
+     * anything the old one owned. A stray second tap orphaned a playing clip
+     * and a live recorder.
+     */
+    it('does not rebuild a session that is already live', async () => {
+      renderWithEntry();
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'talk' }).click();
+      });
+      await waitFor(() => expect(screen.getByTestId('state').textContent).toBe('user-speaking'));
+
+      await act(async () => {
+        screen.getByRole('button', { name: 'talk' }).click();
+      });
+
+      // A rebuilt session would have reset the machine to `listening` and
+      // reopened the recorder.
+      expect(screen.getByTestId('state').textContent).toBe('user-speaking');
+      expect(mockStartRecording).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('consent at entry, on both legs', () => {
     const renderSession = () =>
       render(
