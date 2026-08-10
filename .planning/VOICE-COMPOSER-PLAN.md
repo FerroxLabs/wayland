@@ -643,3 +643,73 @@ Anything in the same row must run **strictly in the listed order, one at a time*
 **Safe to parallelize:** {V1} ∥ {V2} ∥ {V3} ∥ {V19}. Everything from V4 onward funnels through the two serialized columns above.
 
 **Commit discipline.** V4 is one commit that changes no behaviour. V8 is one commit whose only observable effect is a red-then-green rewrite of existing assertions. Every other step lands with its own test in the same commit, and every test listed as "write it failing first" must be shown red before it is shown green.
+
+---
+
+# ADDENDUM — measured on real hardware with Sean listening (2026-08-10)
+
+Everything here was produced by executing `say` and graded by ear, not inferred.
+These supersede the corresponding assumptions above.
+
+## M1 — Streaming is justified. Time to first audio 5056ms -> 953ms.
+
+Five-sentence reply, `system-native`:
+  one-shot     synth 5056 ms, audio 10.76 s
+  per-sentence first chunk 953 ms; chunks 899-1280 ms each; total synth 5007 ms
+Synthesis comfortably outpaces playback, so the pipeline will not starve.
+**4.1 seconds earlier to first sound** is the whole case for V19-V22.
+
+## M2 — Gapless is FINE. Drop the padding constant. (amends V22)
+
+Naive concatenation loses 1.75 s of inter-sentence pause across 4 boundaries
+(437 ms each) versus a one-shot render. I built a padded variant to restore it.
+**Sean graded one-shot / gapless / padded as indistinguishable.**
+=> V22 keeps simple gapless queueing. Do NOT implement the 437 ms pad. A
+measurable difference that no listener can hear is not a defect.
+
+## M3 — The "pronouncing the grammar" defect is INTONATION, not timing.
+
+  D raw commas              3.82 s   <- what ships today; Sean: sounds like it
+                                        is reading the punctuation
+  E comma -> [[slnc 150]]   3.87 s   <- Sean: "less rushed and more natural"  WINNER
+  F commas deleted          3.38 s   <- Sean: rushed
+
+D and E are the same length. The difference is that `say` performs a grammatical
+intonation contour at a comma. Deleting the comma removes the contour AND the
+breath (F, rushed). The fix is to remove the comma and reinsert the breath as
+explicit silence.
+
+**RULE: strip syntactic commas, substitute an explicit silence of ~150 ms.**
+
+## M4 — Prosody normalization is PER-PROVIDER. (new constraint)
+
+`[[slnc N]]` is a macOS `say` speech command. Sent to a hosted provider it would
+be spoken literally or ignored. So normalization CANNOT be one function for all
+providers: `normalizeVoiceResponseText` must stay provider-agnostic (markdown,
+safety, length) and a separate prosody adapter must run per provider.
+A single shared normalizer emitting `[[slnc]]` would make OpenAI TTS read
+"bracket bracket s l n c" aloud. This is a blocking design constraint on V19.
+
+## M5 — The normalizer also has the INVERSE bug: lists collide.
+
+src/common/voice/voiceResponseText.ts strips the bullet marker
+(`.replace(/^\s*[-*+]\s+/gm, '')`) and then joins lines (`.replace(/\s+/g,' ')`),
+so "- one\n- two" becomes "one two" with no boundary at all. Measured: bullets as
+today 3.23 s vs bullets as sentences 4.57 s.
+**RULE: list items become sentence boundaries.** Written structure must be
+converted INTO prosody, not deleted. Commas down, list boundaries up.
+
+## M6 — Provider ladder with a guaranteed local floor. (new, amends V3)
+
+Pieces already exist but are not chained.
+  speech in : OpenAI Whisper -> Flux Voice -> local Whisper (localWhisper.ts)
+  speech out: OpenAI TTS     -> Flux Voice -> system-native `say`
+Two rules that make this a design rather than a list:
+ 1. The bottom rung is ALWAYS local. Voice must never hard-fail on a missing key
+    or a dropped network. Robotic-and-working beats silent, and silent is exactly
+    the failure Sean hit on 2026-08-10.
+ 2. Fallback is ANNOUNCED once in the UI, never silent. Silent degradation is how
+    a user concludes their microphone is broken.
+RISK: `localWhisper.ts` has NO test file (verified; control - the same search
+found textToSpeech.test.ts). The guaranteed floor is currently the least proven
+rung in the chain. Exercise it before leaning on it.
