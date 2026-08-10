@@ -58,6 +58,16 @@ vi.mock('@/renderer/pages/conversation/hooks/ConversationTabsContext', () => ({
   useConversationTabs: () => ({ openTabs: [], updateTabName: vi.fn() }),
 }));
 
+/**
+ * The platform, switchable per test. Only macOS ships a local synthesizer, so
+ * the identical stored config means different things on different machines.
+ */
+let onMacOS = true;
+vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
+  isMacOS: () => onMacOS,
+}));
+
 vi.mock('@/renderer/hooks/system/useSpeechInput', () => ({
   useSpeechInput: (options: SpeechInputOptions) => {
     onTranscript = options.onTranscript;
@@ -153,6 +163,7 @@ describe('VoiceSessionProvider', () => {
     onTranscript = null;
     storedStt = { enabled: true };
     storedTts = undefined;
+    onMacOS = true;
     vi.stubGlobal('Audio', MockAudio);
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:voice') });
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
@@ -312,6 +323,75 @@ describe('VoiceSessionProvider', () => {
       // A rebuilt session would have reset the machine to `listening` and
       // reopened the recorder.
       expect(screen.getByTestId('state').textContent).toBe('user-speaking');
+      expect(mockStartRecording).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('across operating systems', () => {
+    const renderSession = () =>
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+    const tapToSpeak = async () => {
+      act(() => openVoiceMode('conversation-1'));
+      await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
+      act(() => {
+        screen.getByRole('button', { name: 'Start speaking' }).click();
+      });
+    };
+
+    /**
+     * `say` exists only on macOS. Off it, the DEFAULT config still reads as
+     * ready by the old check - enabled is true and the provider is not kokoro -
+     * so the microphone opened, the user spoke, and the failure only arrived
+     * afterwards as TTS_SYSTEM_NATIVE_UNAVAILABLE. Refusing up front, and
+     * naming the platform rather than blaming the settings, is the difference
+     * between a dead end and a route.
+     */
+    it('refuses before recording on a platform with no local voice', async () => {
+      onMacOS = false;
+      storedTts = { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false };
+      renderSession();
+
+      await tapToSpeak();
+
+      expect(screen.getByText(/no built-in voice on this operating system/)).toBeInTheDocument();
+      expect(mockStartRecording).not.toHaveBeenCalled();
+    });
+
+    it('records on macOS with exactly the same stored config', async () => {
+      // The control. Same config, same code path, different platform - so the
+      // refusal above is about the operating system and nothing else.
+      onMacOS = true;
+      storedTts = { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false };
+      renderSession();
+
+      await tapToSpeak();
+
+      expect(mockStartRecording).toHaveBeenCalledTimes(1);
+    });
+
+    it('records off macOS once a hosted voice is chosen and agreed', async () => {
+      // Windows and Linux are not blocked from voice, they are blocked from
+      // LOCAL voice. The hosted route has to stay open or the refusal above
+      // would be a dead end after all.
+      onMacOS = false;
+      storedTts = { enabled: true, provider: 'openai', voice: 'alloy', speed: 1, autoReadResponses: false };
+      renderSession();
+
+      act(() => openVoiceMode('conversation-1'));
+      const accept = await screen.findByTestId('voice-consent-accept');
+      act(() => accept.click());
+      await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
+      act(() => {
+        screen.getByRole('button', { name: 'Start speaking' }).click();
+      });
+
       expect(mockStartRecording).toHaveBeenCalledTimes(1);
     });
   });

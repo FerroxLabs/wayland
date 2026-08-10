@@ -124,6 +124,14 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
   },
 }));
 
+// These tests all describe the macOS local-voice path (system-native + `say`).
+// jsdom's navigator is not a Mac, and readiness is platform-aware, so without
+// this they would silently be asserting the Windows/Linux story instead.
+vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
+  isMacOS: () => true,
+}));
+
 vi.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
   // The orb asks whether a Router exists before reaching for `useNavigate`,

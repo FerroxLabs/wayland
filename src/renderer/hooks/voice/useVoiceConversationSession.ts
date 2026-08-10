@@ -8,7 +8,12 @@ import { conversation, modelRegistry, voiceSynth } from '@/common/adapter/ipcBri
 import { FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { ConfigStorage } from '@/common/config/storage';
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
-import type { HostedVoiceConsent } from '@/common/types/voiceConsent';
+import {
+  grantHostedVoiceConsent,
+  isHostedVoiceProvider,
+  type HostedVoiceConsent,
+  type HostedVoiceProvider,
+} from '@/common/types/voiceConsent';
 import { normalizeTextToSpeechConfig, type TextToSpeechConfig } from '@/common/types/ttsTypes';
 import {
   createVoiceSession,
@@ -18,7 +23,11 @@ import {
   type VoiceSessionSnapshot,
 } from '@/common/voice/VoiceSessionMachine';
 import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
-import { resolveVoiceSessionReadiness, type VoiceSessionReadiness } from '@/common/voice/voiceReadiness';
+import {
+  resolveVoiceSessionReadiness,
+  type VoiceReadinessReason,
+  type VoiceSessionReadiness,
+} from '@/common/voice/voiceReadiness';
 import { extractVoiceResponseText } from '@/common/voice/voiceResponseText';
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
 import { isMacOS } from '@/renderer/utils/platform';
@@ -75,6 +84,30 @@ const AUTO_CAPTURE_GRACE_MS = 350;
  * Set to `false` to fall back to Escape/tap interruption only.
  */
 const ACOUSTIC_BARGE_IN_ENABLED: boolean = true;
+
+/**
+ * What to tell someone whose voice conversation cannot start, per reason.
+ *
+ * Every line names the actual obstacle and the way out. "Voice setup is
+ * incomplete" is a dead end, and on Windows and Linux it would also be a lie -
+ * nothing is misconfigured there, the local synthesizer simply does not exist
+ * on that platform yet.
+ */
+const CAPTURE_BLOCKED_COPY: Record<VoiceReadinessReason, (readiness: VoiceSessionReadiness) => string> = {
+  ok: () => '',
+  'tts-disabled-by-user': () =>
+    'Speech output is off. Turn it back on in Voice settings to have a spoken conversation.',
+  'no-local-adapter': () =>
+    'Wayland has no built-in voice on this operating system yet. Choose OpenAI Speech in Voice settings to talk out loud, or keep typing in Chat.',
+  'kokoro-unavailable': () =>
+    'Kokoro has no working voice yet. Choose System Voice or OpenAI Speech in Voice settings.',
+  'tts-needs-consent': (r) => `Speaking would send the reply to ${r.ttsProvider}, which needs your agreement first.`,
+  'stt-disabled': () => 'Speech input is off. Turn it on in Voice settings so Wayland can hear you.',
+  'stt-unavailable': (r) =>
+    `${r.sttProvider} has no key yet, so nothing can be transcribed. Add one in Voice settings.`,
+  'stt-needs-consent': (r) => `Listening would send your audio to ${r.sttProvider}, which needs your agreement first.`,
+  'audio-blocked': () => 'This window is not allowed to play audio yet. Tap the voice button again to start it.',
+};
 
 const isTerminalCompletion = (status: string, state: string): boolean =>
   status === 'finished' || state === 'ai_waiting_input' || state === 'stopped' || state === 'error';
@@ -154,6 +187,19 @@ export const useVoiceConversationSession = ({
    */
   const sttConfigRef = useRef<SpeechToTextConfig | null>(null);
   const ttsConfigRef = useRef<TextToSpeechConfig | null>(null);
+  const consentRef = useRef<Partial<HostedVoiceConsent> | null>(null);
+  /**
+   * The transcriber that will actually receive the audio, resolved ONCE at
+   * entry and then reused for both the disclosure and the readiness check.
+   *
+   * It is not always what is stored: main seeds Flux Voice when Flux is
+   * connected, and an unset provider means local Whisper in the renderer while
+   * main's factory default calls it openai. Resolving it twice, in two places,
+   * with two different answers is how a session ends up asking for consent to
+   * one company and then refusing to start because a different one has no key.
+   */
+  const sttProviderRef = useRef<SpeechToTextProvider | null>(null);
+  const [effectiveSttProvider, setEffectiveSttProvider] = useState<SpeechToTextProvider | null>(null);
   const [snapshot, setSnapshot] = useState<VoiceSessionSnapshot | null>(null);
   const snapshotRef = useRef<VoiceSessionSnapshot | null>(null);
   const activeTurnRef = useRef<string | null>(null);
@@ -334,14 +380,24 @@ export const useVoiceConversationSession = ({
 
   const beginCapture = useCallback(async () => {
     if (!snapshotRef.current || snapshotRef.current.state !== 'listening') return;
-    const liveStt = sttConfigRef.current;
-    const liveTts = ttsConfigRef.current;
-    if (!liveStt?.enabled) {
-      setSurfaceError('Speech input is off. Enable it in Voice settings before starting a voice turn.');
-      return;
-    }
-    if (!(liveTts?.enabled && liveTts.provider !== 'kokoro-local')) {
-      setSurfaceError('Speech output is off. Enable it in Voice settings before starting a complete voice turn.');
+    /**
+     * Refuse before the microphone opens, and say which thing is wrong.
+     *
+     * The old pair of ad-hoc booleans could not describe the platform this runs
+     * on. `say` exists only on macOS, so on Windows and Linux a default config
+     * reads as ready - `enabled` is true and the provider is not kokoro - and
+     * the failure lands mid-turn as TTS_SYSTEM_NATIVE_UNAVAILABLE. The user
+     * talks, waits, and only then learns that speech output was never possible.
+     * The reason is what makes the refusal actionable.
+     */
+    const readinessNow = resolveVoiceSessionReadiness({
+      ttsConfig: ttsConfigRef.current,
+      sttConfig: sttConfigRef.current && { ...sttConfigRef.current, provider: sttProviderRef.current ?? undefined },
+      platform: isMacOS() ? 'darwin' : 'other',
+      consent: consentRef.current,
+    });
+    if (!readinessNow.ready) {
+      setSurfaceError(CAPTURE_BLOCKED_COPY[readinessNow.reason](readinessNow));
       return;
     }
     if (isMutedRef.current) {
@@ -463,10 +519,9 @@ export const useVoiceConversationSession = ({
        */
       if (isActiveRef.current) return;
       try {
-        const [storedStt, storedTts, storedConsent] = await Promise.all([
+        const [storedStt, storedTts] = await Promise.all([
           ConfigStorage.get('tools.speechToText'),
           ConfigStorage.get('tools.textToSpeech'),
-          ConfigStorage.get('tools.voiceHostedConsent'),
         ]);
         const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined);
 
@@ -517,6 +572,7 @@ export const useVoiceConversationSession = ({
          * the prompt, not the gate. Never cache a "granted" here and never add a
          * skip parameter to the bridge to make chunking cheaper.
          */
+        const grantedNow: HostedVoiceProvider[] = [];
         if (ensureConsent) {
           for (const [leg, provider] of [
             ['speech output', nextTts.provider],
@@ -528,14 +584,37 @@ export const useVoiceConversationSession = ({
               );
               return;
             }
+            if (isHostedVoiceProvider(provider)) grantedNow.push(provider);
           }
         }
 
+        /**
+         * Read AFTER the prompting above, then fold in what was just agreed.
+         *
+         * A consent record fetched before the prompt still says "not granted",
+         * so the readiness check would refuse to start the very session the
+         * user had just agreed to - a dead end with no way forward. Re-reading
+         * alone fixes that only if the write has landed AND is visible, which
+         * makes correctness depend on a read-after-write round trip through
+         * storage. It does not need to: `ensureConsent` returning true IS the
+         * answer, so the providers confirmed a moment ago are merged in
+         * directly. The stored record stays the durable one, and the main-side
+         * gates still read it on every single call.
+         */
+        const storedConsent = await ConfigStorage.get('tools.voiceHostedConsent');
+        const effectiveConsent = grantedNow.reduce<Partial<HostedVoiceConsent> | null | undefined>(
+          (record, provider) => grantHostedVoiceConsent(provider, 0, record),
+          storedConsent
+        );
+
+        sttProviderRef.current = sttProvider;
+        setEffectiveSttProvider(sttProvider);
         sttConfigRef.current = storedStt ?? null;
         ttsConfigRef.current = nextTts;
+        consentRef.current = effectiveConsent ?? null;
         setSttConfig(storedStt ?? null);
         setTtsConfig(nextTts);
-        setConsent(storedConsent ?? null);
+        setConsent(effectiveConsent ?? null);
         setSurfaceError(null);
         setLastTranscript('');
         setLastResponse('');
@@ -574,6 +653,7 @@ export const useVoiceConversationSession = ({
       } catch {
         sttConfigRef.current = null;
         ttsConfigRef.current = null;
+        consentRef.current = null;
         setSttConfig(null);
         setTtsConfig(null);
         setConsent(null);
@@ -796,11 +876,11 @@ export const useVoiceConversationSession = ({
     () =>
       resolveVoiceSessionReadiness({
         ttsConfig,
-        sttConfig,
+        sttConfig: sttConfig && { ...sttConfig, provider: effectiveSttProvider ?? undefined },
         platform: isMacOS() ? 'darwin' : 'other',
         consent,
       }),
-    [consent, sttConfig, ttsConfig]
+    [consent, effectiveSttProvider, sttConfig, ttsConfig]
   );
 
   const level = useMemo(() => {
