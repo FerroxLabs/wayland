@@ -159,8 +159,18 @@ const useVoiceAssetDownload = (asset: VoiceAsset | undefined) => {
     setDownloadState('downloading');
     setErrorMsg('');
     try {
-      await voiceAsset.download.invoke(asset);
-      if (!cancelledRef.current) setDownloadState('success');
+      // The bridge reports failure as data, not as a rejection - it cannot
+      // reject, because the transport has no error channel and a throw would
+      // leave this await pending forever with the bar stuck at "downloading".
+      // So a resolved promise is NOT proof of success and must be inspected.
+      const outcome = await voiceAsset.download.invoke(asset);
+      if (cancelledRef.current) return;
+      if (outcome?.ok === false) {
+        setDownloadState('error');
+        setErrorMsg(outcome.detail ? `${outcome.errorCode}: ${outcome.detail}` : outcome.errorCode);
+        return;
+      }
+      setDownloadState('success');
     } catch (err) {
       if (!cancelledRef.current) {
         setDownloadState('error');

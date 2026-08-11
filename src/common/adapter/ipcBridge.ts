@@ -53,7 +53,7 @@ import type {
 } from '../types/onboarding';
 import type { ProtocolDetectionRequest, ProtocolDetectionResponse } from '../utils/protocolDetector';
 import type { SpeechToTextBridgeResult, SpeechToTextRequest } from '../types/speech';
-import type { DownloadProgress, DownloadResult, VoiceAsset } from '../types/voiceAsset';
+import type { DownloadProgress, VoiceAssetDownloadOutcome, VoiceAsset } from '../types/voiceAsset';
 import type {
   TerminalOpenParams,
   TerminalOpenResult,
@@ -679,7 +679,7 @@ export const dataExport = {
 };
 
 export const voiceAsset = {
-  download: buildProvider<DownloadResult, VoiceAsset>('voice-asset.download'),
+  download: buildProvider<VoiceAssetDownloadOutcome, VoiceAsset>('voice-asset.download'),
   cancel: buildProvider<{ cancelled: boolean }, { assetId: string }>('voice-asset.cancel'),
   // Streamed per-chunk download progress. voiceAssetBridge feeds this from the
   // onProgress callback it hands to VoiceAssetManager.download; the renderer's
