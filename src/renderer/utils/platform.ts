@@ -39,10 +39,17 @@ export const formatModifierShortcut = (key: string): string => {
 };
 
 /**
- * Check if running on Windows
+ * Check if running on Windows.
+ *
+ * `win` alone is NOT a Windows signal: it is a substring of `darwin`, so the
+ * looser test reported Windows on any Darwin-spelled user agent - including
+ * jsdom's, which is how a Windows-only speech default reached a macOS test
+ * profile. On a real Electron renderer macOS spells itself `Macintosh` and the
+ * mistake stayed masked by the ordering in `rendererPlatform`; nothing about
+ * that ordering makes the test correct.
  */
 export const isWindows = (): boolean => {
-  return typeof navigator !== 'undefined' && /win/i.test(navigator.userAgent);
+  return typeof navigator !== 'undefined' && /windows|win32|win64|wow64/i.test(navigator.userAgent);
 };
 
 /**

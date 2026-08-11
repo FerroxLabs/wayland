@@ -5,7 +5,7 @@
  */
 
 import { LOCAL_TTS_PROVIDERS, isLocalTtsProvider, resolveLocalTtsProvider } from '@/common/types/ttsTypes';
-import { rendererPlatform } from '@/renderer/utils/platform';
+import { isWindows, rendererPlatform } from '@/renderer/utils/platform';
 import { afterEach, describe, expect, it } from 'vitest';
 
 /**
@@ -70,5 +70,25 @@ describe('rendererPlatform', () => {
     setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140 Safari/537.36');
     expect(rendererPlatform()).toBe('linux');
     expect(resolveLocalTtsProvider(rendererPlatform())).toBeNull();
+  });
+
+  /**
+   * `win` is a substring of `darwin`. A Darwin-spelled user agent therefore
+   * matched a bare /win/ test and this returned the Windows synthesizer for a
+   * Darwin machine - a provider that cannot run there. In the packaged app
+   * macOS spells itself `Macintosh` so the macOS branch hid it; nothing about
+   * that ordering made the Windows test correct, and the moment anything
+   * consulted it on a Darwin user agent it handed back the wrong synthesizer.
+   */
+  it('does not read a Darwin user agent as Windows', () => {
+    setUserAgent('Mozilla/5.0 (darwin) AppleWebKit/537.36 (KHTML, like Gecko) jsdom/28.1.0');
+    expect(isWindows()).toBe(false);
+    expect(rendererPlatform()).not.toBe('win32');
+    expect(resolveLocalTtsProvider(rendererPlatform())).not.toBe('windows-native');
+  });
+
+  it('KNOWN POSITIVE: a real Windows user agent is still read as Windows', () => {
+    setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140 Safari/537.36');
+    expect(isWindows()).toBe(true);
   });
 });
