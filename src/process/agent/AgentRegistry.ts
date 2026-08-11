@@ -212,6 +212,22 @@ class AgentRegistry {
    * only when the PATH probe found nothing. Moving it ahead of `builtinAgents`
    * would silently take a working user setup away from them.
    *
+   * D2 - AN ALWAYS-LISTED ACP STUB IS THE LAST RESORT FOR ITS BACKEND, NEVER THE
+   * FIRST. A first-party ACP agent that is listed whether or not its binary
+   * exists (the shape PR #950 introduces for Wayland Nano) contributes an entry
+   * with no `cliPath` and no `launch` - it exists so the agent is visible on a
+   * clean machine, not because anything is known about how to spawn it. Merged
+   * AHEAD of `builtinAgents`/`managedAgents` such a stub wins first-wins dedup
+   * and becomes the only entry for that backend, which makes
+   * `getManagedLaunchSpec()` answer null for an agent Wayland genuinely
+   * installed: the receipt is written, valid, and never read, and the install is
+   * unlaunchable with no error to show for it. So it belongs at the marked slot
+   * in `merge()` - behind both real sources, ahead of nothing that can collide.
+   *
+   * This is a PRIORITY list, not a display list. If such an agent needs a fixed
+   * position in the picker, pin it in the renderer; buying the position by
+   * moving the stub up the merge order costs launchability.
+   *
    * Remote and custom agents share their `backend` string but are individually
    * addressable via their unique `id`, so they skip backend dedup.
    */
@@ -236,6 +252,8 @@ class AgentRegistry {
       this.createGeminiAgent(),
       ...this.builtinAgents,
       ...this.managedAgents,
+      // D2 slot: always-listed ACP stubs (no cliPath, no launch) go HERE, behind
+      // the PATH probe and the install receipt. See deduplicate() for why.
       ...this.otherAgents,
       ...this.remoteAgents,
       ...this.extensionAgents,

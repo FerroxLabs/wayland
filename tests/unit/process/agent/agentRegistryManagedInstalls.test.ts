@@ -127,3 +127,69 @@ describe('AgentRegistry — managed installs', () => {
     expect(agentRegistry.getManagedLaunchSpec('goose')).toBeNull();
   });
 });
+
+/**
+ * D2 — an always-listed ACP stub must not shadow a real install of the same
+ * backend. See the ordering rules on `AgentRegistry.deduplicate()`.
+ *
+ * This is a cross-branch tripwire. PR #950 (`feature/wayland-nano`) adds
+ * `createWNanoAgent()`, an entry that is always listed and carries NEITHER
+ * `cliPath` NOR `launch`, and merges it at index 1 — ahead of `builtinAgents`
+ * and `managedAgents`. Under first-wins-by-backend dedup that stub becomes the
+ * only `wnano` entry, so `getManagedLaunchSpec('wnano')` answers null and a
+ * Wayland-installed Nano cannot be spawned: the receipt is written, valid, and
+ * never read. Merged at the D2 slot instead, the stub is the fallback it was
+ * meant to be and both changes compose.
+ *
+ * `wnano` is used by name deliberately: the backend does not exist on this
+ * branch yet, so these assertions hold trivially today and turn RED the moment
+ * #950 lands at the wrong position. `getManagedLaunchSpec` takes a plain string
+ * and `listManagedAcpAgents` is mocked, so naming it needs no type change.
+ */
+const MANAGED_WNANO = {
+  agentId: 'wnano',
+  backend: 'wnano' as const,
+  name: 'Wayland Nano',
+  launch: { command: '/data/agents/wnano/wayland-nano', args: [] },
+};
+
+const SYSTEM_WNANO = {
+  id: 'wnano',
+  name: 'Wayland Nano',
+  kind: 'acp' as const,
+  available: true,
+  backend: 'wnano',
+  cliPath: 'wayland-nano',
+  acpArgs: [],
+};
+
+describe('AgentRegistry — D2: an always-listed stub is the last resort for its backend', () => {
+  it('a Wayland-installed Nano still resolves its launch spec', async () => {
+    listManagedAcpAgents.mockReturnValue([MANAGED_KIMI, MANAGED_WNANO]);
+    await agentRegistry.refreshAll();
+
+    // Known positive on the same call: the pre-existing managed backend still
+    // resolves, so a null below is the stub shadowing it and not a dead fixture.
+    expect(agentRegistry.getManagedLaunchSpec('kimi')).toEqual(MANAGED_KIMI.launch);
+    expect(
+      agentRegistry.getManagedLaunchSpec('wnano'),
+      'an always-listed built-in merged ahead of managedAgents makes a real install unlaunchable'
+    ).toEqual(MANAGED_WNANO.launch);
+
+    // And the merged entry itself is the launchable one, not a bare stub.
+    const wnano = agentRegistry.getDetectedAgents().find((a) => a.backend === 'wnano');
+    expect(wnano).toMatchObject({ launch: MANAGED_WNANO.launch });
+    expect(agentRegistry.getDetectedAgents().filter((a) => a.backend === 'wnano')).toHaveLength(1);
+  });
+
+  it('D1 still wins over both: a system copy on PATH beats the install and the stub', async () => {
+    detectBuiltinAgents.mockResolvedValue([SYSTEM_WNANO]);
+    listManagedAcpAgents.mockReturnValue([MANAGED_WNANO]);
+    await agentRegistry.refreshAll();
+
+    const wnano = agentRegistry.getDetectedAgents().find((a) => a.backend === 'wnano');
+    expect(wnano).toMatchObject({ cliPath: 'wayland-nano' });
+    expect(agentRegistry.getManagedLaunchSpec('wnano')).toBeNull();
+    expect(agentRegistry.getDetectedAgents().filter((a) => a.backend === 'wnano')).toHaveLength(1);
+  });
+});
