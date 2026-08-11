@@ -272,6 +272,8 @@
   "installed": "Instalado",
   "builtin": "Integrado",
   "channels": {
+    "mediaSendFailed": "Falha ao enviar {{name}}",
+    "mediaPathNotAllowed": "Não foi possível enviar {{name}} porque o arquivo está fora dos diretórios de envio permitidos",
     "label": "Canais",
     "telegram": {
       "help": "Converse com seu assistente de IA Wayland pelo Telegram. Crie um bot com o @BotFather para começar.",
@@ -1101,8 +1103,6 @@
   "channels.wecom.comingSoonTitle": "Suporte ao WeCom em breve",
   "channels.wecom.comingSoonBody": "A integração de bot do WeCom (WeChat Corporativo) está em desenvolvimento. Os modos webhook e WebSocket com configuração de URL de callback estarão disponíveis após o lançamento.",
   "channels.wecom.learnMore": "Saiba mais",
-  "channels.mediaSendFailed": "Falha ao enviar {{name}}",
-  "channels.mediaPathNotAllowed": "Não foi possível enviar {{name}} porque o arquivo está fora dos diretórios de envio permitidos",
   "display": "Exibição",
   "imageGeneration": "Geração de Imagens",
   "imageGenerationToggle": "Ativar ferramenta de geração de imagens",

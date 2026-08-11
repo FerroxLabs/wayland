@@ -250,6 +250,8 @@
   "installed": "Yüklü",
   "builtin": "Yerleşik",
   "channels": {
+    "mediaSendFailed": "{{name}} gönderilemedi",
+    "mediaPathNotAllowed": "{{name}} dosyasi izin verilen gonderim dizinlerinin disinda oldugu icin gonderilemedi",
     "label": "Kanallar",
     "telegram": {
       "help": "Wayland AI asistanınızla Telegram üzerinden sohbet edin. Başlamak için @BotFather ile bir bot oluşturun.",
@@ -1078,8 +1080,6 @@
   "channels.extension.noConfig": "Ek yapılandırma gerekmiyor.",
   "channels.extension.selectPlaceholder": "Lütfen seçin",
   "channels.extension.defaultDesc": "Kanal uzantısı eklentisi",
-  "channels.mediaSendFailed": "{{name}} gönderilemedi",
-  "channels.mediaPathNotAllowed": "{{name}} dosyasi izin verilen gonderim dizinlerinin disinda oldugu icin gonderilemedi",
   "display": "Görünüm",
   "imageGeneration": "Görüntü Oluşturma",
   "imageGenerationToggle": "Görüntü oluşturma aracını etkinleştir",

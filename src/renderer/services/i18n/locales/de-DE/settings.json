@@ -272,6 +272,8 @@
   "installed": "Installiert",
   "builtin": "Integriert",
   "channels": {
+    "mediaSendFailed": "{{name}} konnte nicht gesendet werden",
+    "mediaPathNotAllowed": "{{name}} konnte nicht gesendet werden, da die Datei außerhalb der erlaubten Sendeverzeichnisse liegt",
     "label": "Kanäle",
     "telegram": {
       "help": "Chatte über Telegram mit deinem Wayland-KI-Assistenten. Erstelle einen Bot mit @BotFather, um loszulegen.",
@@ -1101,8 +1103,6 @@
   "channels.wecom.comingSoonTitle": "WeCom-Unterstützung kommt bald",
   "channels.wecom.comingSoonBody": "Die native WeCom-Bot-Integration (Enterprise WeChat) ist in Entwicklung. Webhook- und WebSocket-Modi mit Callback-URL-Konfiguration werden nach der Auslieferung verfügbar sein.",
   "channels.wecom.learnMore": "Mehr erfahren",
-  "channels.mediaSendFailed": "{{name}} konnte nicht gesendet werden",
-  "channels.mediaPathNotAllowed": "{{name}} konnte nicht gesendet werden, da die Datei außerhalb der erlaubten Sendeverzeichnisse liegt",
   "display": "Anzeige",
   "imageGeneration": "Bildgenerierung",
   "imageGenerationToggle": "Bildgenerierungstool aktivieren",

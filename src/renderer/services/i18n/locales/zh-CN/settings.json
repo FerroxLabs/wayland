@@ -250,6 +250,8 @@
   "installed": "已安装",
   "builtin": "内置",
   "channels": {
+    "mediaSendFailed": "发送 {{name}} 失败",
+    "mediaPathNotAllowed": "无法发送 {{name}}，因为该文件不在允许发送的目录中",
     "label": "渠道",
     "telegram": {
       "help": "通过 Telegram 与你的 Wayland AI 助手聊天。使用 @BotFather 创建一个机器人即可开始。",
@@ -1078,8 +1080,6 @@
   "channels.extension.noConfig": "无需额外配置。",
   "channels.extension.selectPlaceholder": "请选择",
   "channels.extension.defaultDesc": "扩展渠道插件",
-  "channels.mediaSendFailed": "发送 {{name}} 失败",
-  "channels.mediaPathNotAllowed": "无法发送 {{name}}，因为该文件不在允许发送的目录中",
   "display": "显示",
   "imageGeneration": "图像生成",
   "imageGenerationToggle": "启用图像生成工具",

@@ -248,6 +248,8 @@
   "installed": "Встановлено",
   "builtin": "Вбудовано",
   "channels": {
+    "mediaSendFailed": "Не вдалося надіслати {{name}}",
+    "mediaPathNotAllowed": "Не вдалося надіслати {{name}}, тому що файл знаходиться поза дозволеними каталогами надсилання",
     "label": "Канали",
     "telegram": {
       "help": "Спілкуйтеся зі своїм AI-асистентом Wayland через Telegram. Створіть бота за допомогою @BotFather, щоб почати.",
@@ -1076,8 +1078,6 @@
   "channels.extension.noConfig": "Додаткове налаштування не потрібне.",
   "channels.extension.selectPlaceholder": "Виберіть",
   "channels.extension.defaultDesc": "Плагін розширення каналу",
-  "channels.mediaSendFailed": "Не вдалося надіслати {{name}}",
-  "channels.mediaPathNotAllowed": "Не вдалося надіслати {{name}}, тому що файл знаходиться поза дозволеними каталогами надсилання",
   "display": "Відображення",
   "imageGeneration": "Генерація зображень",
   "imageGenerationToggle": "Увімкнути інструмент генерації зображень",

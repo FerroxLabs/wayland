@@ -242,6 +242,8 @@
   "installed": "Установлено",
   "builtin": "Встроено",
   "channels": {
+    "mediaSendFailed": "Не удалось отправить {{name}}",
+    "mediaPathNotAllowed": "Не удалось отправить {{name}}, потому что файл находится вне разрешённых каталогов отправки",
     "label": "Каналы",
     "telegram": {
       "help": "Общайтесь с ИИ-ассистентом Wayland через Telegram. Чтобы начать, создайте бота с помощью @BotFather.",
@@ -1070,8 +1072,6 @@
   "channels.extension.noConfig": "Дополнительная настройка не требуется.",
   "channels.extension.selectPlaceholder": "Выберите",
   "channels.extension.defaultDesc": "Плагин расширения канала",
-  "channels.mediaSendFailed": "Не удалось отправить {{name}}",
-  "channels.mediaPathNotAllowed": "Не удалось отправить {{name}}, потому что файл находится вне разрешённых каталогов отправки",
   "display": "Отображение",
   "imageGeneration": "Генерация изображений",
   "imageGenerationToggle": "Включить инструмент генерации изображений",

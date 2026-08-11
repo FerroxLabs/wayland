@@ -281,6 +281,8 @@
   "installed": "Installed",
   "builtin": "Built-in",
   "channels": {
+    "mediaSendFailed": "Failed to send {{name}}",
+    "mediaPathNotAllowed": "Couldn't send {{name}} because the file is outside the allowed send directories",
     "label": "Channels",
     "welcome": {
       "message": "Hey, it's Wayland. I'm connected. Reply to this message any time and I'll help you out."
@@ -1114,8 +1116,6 @@
   "channels.wecom.comingSoonTitle": "WeCom support coming soon",
   "channels.wecom.comingSoonBody": "WeCom (Enterprise WeChat) bot integration is under development. Webhook and WebSocket modes with callback URL configuration will be available once shipped.",
   "channels.wecom.learnMore": "Learn more",
-  "channels.mediaSendFailed": "Failed to send {{name}}",
-  "channels.mediaPathNotAllowed": "Couldn't send {{name}} because the file is outside the allowed send directories",
   "display": "Display",
   "imageGeneration": "Image Generation",
   "imageGenerationToggle": "Enable image generation tool",

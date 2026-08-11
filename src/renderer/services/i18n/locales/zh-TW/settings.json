@@ -250,6 +250,8 @@
   "installed": "已安裝",
   "builtin": "內建",
   "channels": {
+    "mediaSendFailed": "發送 {{name}} 失敗",
+    "mediaPathNotAllowed": "無法發送 {{name}}，因為該檔案不在允許發送的目錄中",
     "label": "頻道",
     "telegram": {
       "help": "透過 Telegram 與你的 Wayland AI 助理對話。使用 @BotFather 建立一個機器人即可開始。",
@@ -1078,8 +1080,6 @@
   "channels.extension.noConfig": "不需要額外設定。",
   "channels.extension.selectPlaceholder": "請選擇",
   "channels.extension.defaultDesc": "擴充頻道外掛",
-  "channels.mediaSendFailed": "發送 {{name}} 失敗",
-  "channels.mediaPathNotAllowed": "無法發送 {{name}}，因為該檔案不在允許發送的目錄中",
   "display": "顯示",
   "imageGeneration": "圖像生成",
   "imageGenerationToggle": "啟用圖像生成工具",
