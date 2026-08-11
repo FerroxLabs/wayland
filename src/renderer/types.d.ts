@@ -18,4 +18,11 @@ declare module '*?raw' {
   export default content;
 }
 
+// Vite `?url` imports: the file is emitted as a build asset and the import
+// resolves to its URL (used for the bundled ORT WASM runtime).
+declare module '*?url' {
+  const url: string;
+  export default url;
+}
+
 declare module 'unocss';
