@@ -16,6 +16,7 @@ const path = require('path');
 const crypto = require('crypto');
 const prepareBundledBun = require('./prepareBundledBun');
 const prepareWaylandCore = require('./prepareWaylandCore');
+const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
 const prepareConstitutionFs = require('./prepareConstitutionFs');
 const { verifyThirdPartyExecutableLedger } = require('./supply-chain/verifyThirdPartyExecutableLedger');
@@ -748,7 +749,7 @@ try {
   // artifact. Keep both roots target-exact so stale preparation from a prior
   // job cannot contaminate this package with foreign executables.
   const exactRuntimeKey = `${packagePlatforms[0]}-${packageArchitectures[0]}`;
-  for (const bundleName of ['bundled-wayland-core', 'bundled-officecli', 'bundled-constitution-fs']) {
+  for (const bundleName of ['bundled-wayland-core', 'bundled-wayland-nano', 'bundled-officecli', 'bundled-constitution-fs']) {
     const bundleRoot = path.resolve(__dirname, '..', 'resources', bundleName);
     if (!fs.existsSync(bundleRoot)) continue;
     for (const entry of fs.readdirSync(bundleRoot, { withFileTypes: true })) {
@@ -767,6 +768,22 @@ try {
         platform,
         arch,
         version: prepareWaylandCore.DEFAULT_WCORE_VERSION,
+        requireVerified: true,
+      });
+    }
+  }
+
+  // 5b-nano. Prepare wayland-nano for every requested package target under the
+  // same strict contract as wayland-core: exact pinned tag, independently
+  // verified archive + extracted-binary digests, no local-prebuilt, no skip,
+  // no "latest". Fails closed until DEFAULT_WNANO_VERSION is pinned and
+  // scripts/bundled-wnano-shasums.json carries the signed release checksums.
+  for (const platform of packagePlatforms) {
+    for (const arch of packageArchitectures) {
+      prepareWaylandNano({
+        platform,
+        arch,
+        version: prepareWaylandNano.DEFAULT_WNANO_VERSION,
         requireVerified: true,
       });
     }
@@ -1026,6 +1043,9 @@ try {
   const wcoreRuntimeArgs = packagePlatforms
     .flatMap((platform) => packageArchitectures.map((arch) => `--wcore-runtime ${platform}-${arch}`))
     .join(' ');
+  const wnanoRuntimeArgs = packagePlatforms
+    .flatMap((platform) => packageArchitectures.map((arch) => `--wnano-runtime ${platform}-${arch}`))
+    .join(' ');
   execFileSync(
     'node',
     [
@@ -1041,6 +1061,7 @@ try {
       '--app-executable',
       packagedTarget.executablePath,
       ...wcoreRuntimeArgs.split(' '),
+      ...wnanoRuntimeArgs.split(' '),
       ...officeCliRuntimeArgs.split(' '),
       // On a local verification build the seal is intentionally absent; tell the
       // verifier to require its ABSENCE (not its presence) while still enforcing

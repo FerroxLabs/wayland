@@ -104,8 +104,10 @@ class AgentRegistry {
   /**
    * Wayland Nano is a first-party built-in ACP agent: always listed (like
    * Wayland Core) even when its `wayland-nano` binary is not on PATH yet.
-   * No cliPath here - AcpAgentManager falls back to
-   * ACP_BACKENDS_ALL.wnano.cliCommand at spawn time.
+   * No cliPath here - AcpAgentManager first tries the verified bundled
+   * binary via resolveWNanoBinary (userData override → bundled resource →
+   * dev resources), then falls back to ACP_BACKENDS_ALL.wnano.cliCommand
+   * (PATH) at spawn time.
    */
   private createWNanoAgent(): AcpDetectedAgent {
     return {

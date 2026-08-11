@@ -1,0 +1,12 @@
+{
+  "_comment": "Authoritative SHA-256 checksums for bundled wayland-nano release archives (the downloaded .zip assets), keyed by release tag then asset filename. Mirrors scripts/bundled-wcore-shasums.json. Source of truth: the SHASUMS published alongside each signed FerroxLabs/wayland-nano release (the wayland-nano-<version>-shasums.json release asset, keyed by runtime pkg). The downloaded archive is verified against this file BEFORE it is extracted, copied, or executed. Update this file in lockstep with DEFAULT_WNANO_VERSION in scripts/prepareWaylandNano.js and regenerate on every agent version bump.",
+  "_ownerAction": "FILL ON FIRST RELEASE. No wayland-nano GitHub release assets exist yet, so this manifest intentionally has NO tag entries: every lookup fails closed (missing tag -> hard error, never a verification skip). When the first signed FerroxLabs/wayland-nano release lands, add one entry per tag shaped like the schema below, then pin DEFAULT_WNANO_VERSION to that exact tag in scripts/prepareWaylandNano.js and add the matching publisher-attestation policy to scripts/supply-chain/publisher-attestations.json in the SAME commit. Schema per tag: \"v0.1.0\": { \"wayland-nano-0.1.0-darwin-arm64.zip\": { \"archiveSha256\": \"sha256:<64 hex from the release shasums asset>\", \"binarySha256\": \"sha256:<64 hex of the extracted wayland-nano executable>\" }, ... }. Archive hashes come from the release's wayland-nano-<version>-shasums.json asset (keys darwin-arm64/darwin-x64/linux-arm64/linux-x64/win32-x64 map to assets wayland-nano-<version>-<key>.zip); binarySha256 is computed by extracting the verified zip and hashing the wayland-nano[.exe] inside - strict builds refuse a manifest that asserts only its own archive digest. Assets are named with the UNPREFIXED version (no 'v') while the manifest key and download URL use the 'v'-prefixed tag. There is NO win32-arm64 asset - the release workflow does not build one. Placeholder or malformed values are rejected as 'Malformed or placeholder SHA-256' and fail closed.",
+  "_fillOnReleaseExample": {
+    "v0.1.0": {
+      "wayland-nano-0.1.0-darwin-arm64.zip": {
+        "archiveSha256": "sha256:PENDING-fill-from-release-shasums-asset",
+        "binarySha256": "sha256:PENDING-hash-of-extracted-verified-binary"
+      }
+    }
+  }
+}

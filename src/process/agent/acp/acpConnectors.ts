@@ -263,11 +263,14 @@ export function createGenericSpawnConfig(
     spawnCommand = command;
     spawnArgs = [...inlineArgs, ...effectiveAcpArgs];
   } else {
-    // Unix: simple command or path. If cliPath contains spaces (e.g., "goose acp"),
-    // parse into command + inline args.
-    const parts = cliPath.split(/\s+/);
-    spawnCommand = parts[0];
-    spawnArgs = [...parts.slice(1), ...effectiveAcpArgs];
+    // Unix: simple command or path. Parse with the same helper as the Windows
+    // branch so a quoted executable path containing spaces (e.g. a bundled
+    // wayland-nano resolved under a userData dir like "Application Support")
+    // stays a single token; unquoted cliPaths still split into command +
+    // inline args ("goose acp"). No shell is invoked either way.
+    const { command, inlineArgs } = parseWindowsCliPath(cliPath);
+    spawnCommand = command;
+    spawnArgs = [...inlineArgs, ...effectiveAcpArgs];
   }
 
   const options: SpawnOptions = {
