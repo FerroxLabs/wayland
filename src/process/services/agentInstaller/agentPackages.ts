@@ -19,6 +19,7 @@
  */
 
 import type { AcpBackendAll } from '@/common/types/acpTypes';
+import { ACP_BACKENDS_ALL } from '@/common/types/acpTypes';
 
 export interface AgentPackage {
   /** npm package name, exactly as published. */
@@ -124,6 +125,42 @@ export const AGENT_PACKAGES: Readonly<Record<string, AgentPackage>> = Object.fre
     acpBackend: 'kimi',
   }),
 });
+
+/**
+ * Does the AGENT REGISTRY's PATH probe for `backend` look for the bin that can
+ * BE this backend's ACP server?
+ *
+ * Two different commands are in play and they are not always the same one:
+ *
+ *  - `ACP_BACKENDS_ALL[backend].cliCommand` is what `AcpDetector` runs `which`
+ *    on. It answers "is this agent present on this machine".
+ *  - `AgentPackage.cliCommand` above is the bin the pinned ACP SERVER package
+ *    publishes. It answers "does the user already have their own copy of the
+ *    thing that serves this backend".
+ *
+ * For `kimi` both are `kimi`: the detected binary IS the ACP server, so a PATH
+ * hit is a genuine system copy.
+ *
+ * For `codex` they are `codex` and `codex-acp`. The ordinary Codex CLI has no
+ * `acp` subcommand and cannot serve the backend; the ACP server is
+ * `@agentclientprotocol/codex-acp`. A PATH hit on `codex` is therefore a
+ * PREREQUISITE signal, not a system copy of the backend.
+ *
+ * This reports the fact only. What it is WORTH - decision D3, that a managed
+ * install supersedes a hit that cannot serve the backend - is ranked in
+ * `AgentRegistry.merge()`, the one place precedence is decided.
+ *
+ * A backend with no catalogued install, or none with a `cliCommand` to probe,
+ * reads as `true`: there is no managed entry for it to be ranked against, so
+ * the answer changes nothing and the pre-existing ordering stands.
+ */
+export function pathProbeFindsAcpServer(backend: string): boolean {
+  const pkg = Object.values(AGENT_PACKAGES).find((entry) => entry.acpBackend === backend);
+  if (!pkg) return true;
+  const probe = ACP_BACKENDS_ALL[backend as AcpBackendAll]?.cliCommand;
+  if (!probe) return true;
+  return probe === pkg.cliCommand;
+}
 
 /** Thrown when an agent id is well-formed but is not in the pinned catalogue. */
 export class UnknownAgentError extends Error {

@@ -20,6 +20,7 @@ import { isAgentKind } from '@/common/types/detectedAgent';
 import type { AcpLaunchSpec } from '@/common/types/acpTypes';
 import type { RemoteAgentConfig } from '@process/agent/remote/types';
 import { detectWCore } from '@process/agent/wcore/binaryResolver';
+import { pathProbeFindsAcpServer } from '@process/services/agentInstaller/agentPackages';
 import { listManagedAcpAgents } from '@process/services/agentInstaller/installedAgentLaunch';
 
 // Resolve the bundled wayland-core version once per app run (the binary doesn't
@@ -228,6 +229,28 @@ class AgentRegistry {
    * position in the picker, pin it in the renderer; buying the position by
    * moving the stub up the merge order costs launchability.
    *
+   * D3 - D1 APPLIES ONLY WHERE THE PATH PROBE ACTUALLY FOUND A SYSTEM COPY OF
+   * THE BACKEND'S ACP SERVER. `codex` is the case where it did not: the probe
+   * is the ordinary Codex CLI, which has no `acp` subcommand and cannot serve
+   * the backend, while the ACP server the installer pins is a different bin
+   * (`codex-acp`). Ranking that hit as a system copy let it win first-wins dedup
+   * over a receipted install of the bridge, so `getManagedLaunchSpec('codex')`
+   * answered null and the pinned, offline-capable copy the user had explicitly
+   * asked Wayland to install sat on disk unread while the npx bridge was
+   * re-resolved over the network on every spawn.
+   *
+   * So a managed install SUPERSEDES such a hit, IN PLACE, at the builtin's own
+   * index - see `merge()`. In place rather than by reordering the groups because
+   * the builtin order is also the picker's order (`ACP_BACKENDS_ALL` is
+   * commented for it: "Codex is listed before Qwen so it appears earlier in the
+   * agent icon row"), and demoting the whole class would reshuffle the row for
+   * every user, including the ones with no install at all.
+   *
+   * Nothing else moves. Where the probe IS the server's bin (`kimi`), D1 stands
+   * untouched and the user's own copy still wins. Where there is no receipt, the
+   * detected entry is still the only one and still carries no launch spec, which
+   * is exactly what keeps codex on the npx bridge it has always used.
+   *
    * Remote and custom agents share their `backend` string but are individually
    * addressable via their unique `id`, so they skip backend dedup.
    */
@@ -245,12 +268,25 @@ class AgentRegistry {
     return result;
   }
 
+  /**
+   * The managed install that supersedes a PATH-detected builtin, or undefined.
+   *
+   * Only ever answers for a backend whose probe cannot serve it (decision D3);
+   * for every other backend this returns undefined and D1 decides as before.
+   */
+  private supersedingManagedInstall(builtin: AcpDetectedAgent): AcpDetectedAgent | undefined {
+    if (pathProbeFindsAcpServer(builtin.backend)) return undefined;
+    return this.managedAgents.find((managed) => managed.backend === builtin.backend);
+  }
+
   // prettier-ignore
   private merge(): void {
     this.detectedAgents = this.deduplicate([
       this.createWCoreAgent(),
       this.createGeminiAgent(),
-      ...this.builtinAgents,
+      // D3 slot: a managed install takes the builtin's own index when the PATH
+      // probe cannot serve that backend. See deduplicate() for why.
+      ...this.builtinAgents.map((builtin) => this.supersedingManagedInstall(builtin) ?? builtin),
       ...this.managedAgents,
       // D2 slot: always-listed ACP stubs (no cliPath, no launch) go HERE, behind
       // the PATH probe and the install receipt. See deduplicate() for why.
