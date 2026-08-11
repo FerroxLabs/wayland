@@ -1091,12 +1091,8 @@
   "speechToTextRequired": "Обязательно",
   "speechToTextOptional": "Опционально",
   "speechToTextProviderWhisperLocal": "Whisper (локально)",
-  "speechToTextWhisperModel": "Модель Whisper",
-  "speechToTextDownloadModel": "Скачать модель",
   "speechToTextDownloading": "Загрузка...",
   "speechToTextDownloadSuccess": "Модель успешно загружена",
-  "speechToTextDownloadError": "Ошибка загрузки",
-  "speechToTextCancelDownload": "Отмена",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Сейчас используется {{provider}}, так как он подключён, а движок здесь не выбран.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
@@ -1104,7 +1100,6 @@
   "textToSpeech": "Синтез речи",
   "textToSpeechDescription": "Читать ответы ИИ вслух с помощью локального или системного движка синтеза речи.",
   "textToSpeechProvider": "Провайдер",
-  "textToSpeechProviderKokoroLocal": "Kokoro (локально)",
   "textToSpeechProviderSystemNative": "Системный",
   "textToSpeechVoice": "Голос",
   "textToSpeechSpeed": "Скорость",
@@ -2651,5 +2646,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "Откладывать обновления при активности",
-  "deferUpdateWhileBusyDesc": "Дождаться завершения активных чатов, запланированных задач и команд перед перезапуском для обновления. Обновление применяется в простое или при выходе."
+  "deferUpdateWhileBusyDesc": "Дождаться завершения активных чатов, запланированных задач и команд перед перезапуском для обновления. Обновление применяется в простое или при выходе.",
+  "textToSpeechProviderWindowsNative": "Голос Windows",
+  "textToSpeechLocalVoiceLabel": "Встроенный голос",
+  "textToSpeechNoLocalVoice": "В этой операционной системе нет встроенного голоса. Выберите OpenAI Speech, чтобы слышать ответы вслух.",
+  "speechToTextOnDeviceLabel": "На устройстве",
+  "speechToTextOnDeviceBody": "Работает на вашем устройстве с моделью, входящей в состав Wayland. Без ключа, без загрузки, звук не покидает эту машину."
 }

@@ -181,9 +181,6 @@ const VoiceConversationOrb: React.FC<{
             <span>
               {!sttConfig?.enabled ? 'Speech input is off. ' : ''}
               {!ttsConfig?.enabled ? 'Speech output is off. ' : ''}
-              {ttsConfig?.provider === 'kokoro-local'
-                ? 'Kokoro is not yet backed by a verified production runtime. Select System Voice or OpenAI Speech. '
-                : ''}
               Enable both to run a complete turn-based voice conversation.
             </span>
             <button type='button' onClick={openVoiceSettings}>

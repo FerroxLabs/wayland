@@ -6,7 +6,6 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
-import { CheckCircle2, RotateCcw } from 'lucide-react';
 import {
   ConfigStorage,
   type IConfigStorageRefer,
@@ -17,16 +16,16 @@ import { FLUX_PROVIDER_ID } from '@/common/config/flux';
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
 import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
-import { isTextToSpeechProvider } from '@/common/types/ttsTypes';
-import { modelRegistry, voiceAsset, voiceSynth } from '@/common/adapter/ipcBridge';
+import { isTextToSpeechProvider, resolveLocalTtsProvider } from '@/common/types/ttsTypes';
+import { rendererPlatform } from '@/renderer/utils/platform';
+import { modelRegistry, voiceSynth } from '@/common/adapter/ipcBridge';
 import {
   isImageModelName,
   imageModelDisplayLabel,
   isFluxProviderRow,
   FLUX_RECOMMENDED_IMAGE_ID,
 } from '@/common/config/imageModels';
-import type { VoiceAsset } from '@/common/types/voiceAsset';
-import { Divider, Form, Message, Button, Switch, Input, Slider, Progress } from '@arco-design/web-react';
+import { Divider, Form, Message, Button, Switch, Input, Slider } from '@arco-design/web-react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useConfigModelListWithImage from '@/renderer/hooks/agent/useConfigModelListWithImage';
@@ -84,170 +83,6 @@ export const normalizeSpeechToTextConfig = (config?: SpeechToTextConfig): Speech
     ...config?.deepgram,
   },
 });
-
-// Whisper model asset descriptor - model + binary are both required for local STT.
-// destPath + sha256 are resolved server-side by voiceAssetRegistry.ts before
-// the download starts; the renderer just supplies the id + url.
-const WHISPER_MODEL_ASSETS: Record<string, VoiceAsset> = {
-  base: {
-    id: 'whisper-ggml-base',
-    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-base.bin',
-    destPath: '',
-    sha256: '',
-  },
-  small: {
-    id: 'whisper-ggml-small',
-    url: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin',
-    destPath: '',
-    sha256: '',
-  },
-};
-
-type DownloadState = 'idle' | 'downloading' | 'success' | 'error';
-
-/**
- * Shared download-with-progress controller for the local voice models (Whisper
- * + Kokoro). Owns the download lifecycle, the on-disk install probe, and the
- * live progress subscription so both controls render a real <Progress/> bar
- * instead of the old hardcoded 0%. Pass `undefined` when no asset is selected
- * (the hook stays inert until one is).
- */
-const useVoiceAssetDownload = (asset: VoiceAsset | undefined) => {
-  const [downloadState, setDownloadState] = useState<DownloadState>('idle');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [installed, setInstalled] = useState<boolean | null>(null);
-  const [percent, setPercent] = useState(0);
-  const cancelledRef = useRef(false);
-  const assetId = asset?.id;
-
-  // Probe install state on mount + every asset switch and after each download
-  // so the UI flips to "Installed" when the file already exists on disk.
-  useEffect(() => {
-    if (!assetId) return;
-    let cancelled = false;
-    void voiceAsset.exists
-      .invoke({ id: assetId })
-      .then((r) => {
-        if (!cancelled) setInstalled(Boolean(r?.installed));
-      })
-      .catch(() => {
-        if (!cancelled) setInstalled(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [assetId, downloadState]);
-
-  // Subscribe to streamed progress and translate bytes into a percentage.
-  // When the server omits Content-Length totalBytes is null and we stay at 0
-  // (indeterminate) rather than dividing by nothing.
-  useEffect(() => {
-    if (!assetId) return;
-    const removeListener = voiceAsset.downloadProgress.on((evt) => {
-      if (!evt || evt.assetId !== assetId) return;
-      setPercent(evt.totalBytes ? Math.min(100, Math.round((evt.bytesDownloaded / evt.totalBytes) * 100)) : 0);
-    });
-    return () => {
-      removeListener();
-    };
-  }, [assetId]);
-
-  const handleDownload = useCallback(async () => {
-    if (!asset) return;
-    cancelledRef.current = false;
-    setPercent(0);
-    setDownloadState('downloading');
-    setErrorMsg('');
-    try {
-      // The bridge reports failure as data, not as a rejection - it cannot
-      // reject, because the transport has no error channel and a throw would
-      // leave this await pending forever with the bar stuck at "downloading".
-      // So a resolved promise is NOT proof of success and must be inspected.
-      const outcome = await voiceAsset.download.invoke(asset);
-      if (cancelledRef.current) return;
-      if (outcome?.ok === false) {
-        setDownloadState('error');
-        setErrorMsg(outcome.detail ? `${outcome.errorCode}: ${outcome.detail}` : outcome.errorCode);
-        return;
-      }
-      setDownloadState('success');
-    } catch (err) {
-      if (!cancelledRef.current) {
-        setDownloadState('error');
-        setErrorMsg(err instanceof Error ? err.message : String(err));
-      }
-    }
-  }, [asset]);
-
-  const handleCancel = useCallback(async () => {
-    cancelledRef.current = true;
-    if (assetId) {
-      await voiceAsset.cancel.invoke({ assetId }).catch(() => {});
-    }
-    setDownloadState('idle');
-    setPercent(0);
-  }, [assetId]);
-
-  return { downloadState, errorMsg, installed, percent, handleDownload, handleCancel };
-};
-
-const WhisperLocalDownloadControl: React.FC<{
-  model: string;
-  onModelChange: (model: string) => void;
-}> = ({ model, onModelChange }) => {
-  const { t } = useTranslation();
-  const { downloadState, errorMsg, installed, percent, handleDownload, handleCancel } = useVoiceAssetDownload(
-    WHISPER_MODEL_ASSETS[model]
-  );
-
-  return (
-    <>
-      <Form.Item label={t('settings.speechToTextWhisperModel')}>
-        <WaylandSelect value={model} onChange={onModelChange}>
-          <WaylandSelect.Option value='base'>base</WaylandSelect.Option>
-          <WaylandSelect.Option value='small'>small</WaylandSelect.Option>
-        </WaylandSelect>
-      </Form.Item>
-      <Form.Item label={t('settings.speechToTextDownloadModel')}>
-        <div className='flex flex-col gap-8px'>
-          {downloadState === 'downloading' ? (
-            <div className='flex items-center gap-8px'>
-              <Progress percent={percent} animation className='flex-1' />
-              <Button size='mini' onClick={handleCancel}>
-                {t('settings.speechToTextCancelDownload')}
-              </Button>
-            </div>
-          ) : installed ? (
-            <div className='flex items-center justify-between gap-8px h-32px px-12px rd-8px bg-[var(--color-fill-2)]'>
-              <span className='flex items-center gap-8px text-12px text-[var(--success)]'>
-                <CheckCircle2 size={14} />
-                {t('settings.speechToTextModelInstalled', { defaultValue: 'Installed' })}
-              </span>
-              <Button
-                type='text'
-                size='mini'
-                icon={<RotateCcw size={12} />}
-                onClick={handleDownload}
-                className='text-12px text-t-tertiary'
-              >
-                {t('settings.speechToTextRedownload', { defaultValue: 'Re-download' })}
-              </Button>
-            </div>
-          ) : (
-            <Button type='outline' onClick={handleDownload} size='small'>
-              {t('settings.speechToTextDownloadModel')}
-            </Button>
-          )}
-          {downloadState === 'error' && (
-            <span className='text-12px text-[var(--danger)]'>
-              {t('settings.speechToTextDownloadError')}: {errorMsg}
-            </span>
-          )}
-        </div>
-      </Form.Item>
-    </>
-  );
-};
 
 export { TTS_CONFIG_CHANGED_EVENT } from '@/renderer/services/voice/voiceSettingsEvents';
 
@@ -317,6 +152,8 @@ export const TextToSpeechSettingsSection: React.FC<{
   const testAudioRef = useRef<HTMLAudioElement | null>(null);
   const testAudioUrlRef = useRef<string | null>(null);
   const { ensureConsent, needsConsent, consentModal } = useHostedVoiceConsent();
+  // Which OS-bundled synthesizer this machine actually has, or null on Linux.
+  const localTtsProvider = useMemo(() => resolveLocalTtsProvider(rendererPlatform()), []);
 
   const handleProviderChange = useCallback(
     (value: string) => {
@@ -463,15 +300,23 @@ export const TextToSpeechSettingsSection: React.FC<{
               className='flex-1'
               data-testid='tts-provider-select'
             >
-              <WaylandSelect.Option value='system-native'>
-                {t('settings.textToSpeechProviderSystemNative')}
-              </WaylandSelect.Option>
+              {/* The OS-bundled synthesizer, offered only on the OS that has
+                  it. Listing the other one would be listing an option that
+                  throws on selection, and a disabled option nobody can ever
+                  enable is just an apology in a dropdown. */}
+              {localTtsProvider === 'system-native' && (
+                <WaylandSelect.Option value='system-native'>
+                  {t('settings.textToSpeechProviderSystemNative')}
+                </WaylandSelect.Option>
+              )}
+              {localTtsProvider === 'windows-native' && (
+                <WaylandSelect.Option value='windows-native'>
+                  {t('settings.textToSpeechProviderWindowsNative')}
+                </WaylandSelect.Option>
+              )}
               <WaylandSelect.Option value='openai'>OpenAI Speech</WaylandSelect.Option>
-              <WaylandSelect.Option value='kokoro-local' disabled>
-                {t('settings.textToSpeechProviderKokoroLocal')} · Runtime unavailable
-              </WaylandSelect.Option>
             </WaylandSelect>
-            <Button size='small' onClick={handleTestVoice} disabled={config.provider === 'kokoro-local'}>
+            <Button size='small' onClick={handleTestVoice}>
               {t('settings.textToSpeechTestVoice', 'Test voice')}
             </Button>
           </div>
@@ -548,12 +393,9 @@ export const TextToSpeechSettingsSection: React.FC<{
           />
         </Form.Item>
 
-        {config.provider === 'kokoro-local' && (
-          <Form.Item label='Availability'>
-            <span className='text-12px text-[var(--warning)]'>
-              Kokoro is preserved as an experimental migration value, but Wayland will not claim it is ready until the
-              model, voice data, phonemizer, and executable runtime all pass a real synthesis check.
-            </span>
+        {localTtsProvider === null && (
+          <Form.Item label={t('settings.textToSpeechLocalVoiceLabel')}>
+            <span className='text-12px text-[var(--warning)]'>{t('settings.textToSpeechNoLocalVoice')}</span>
           </Form.Item>
         )}
       </Form>
@@ -797,15 +639,9 @@ export const SpeechToTextSettingsSection: React.FC<{
             </Form.Item>
           </>
         ) : config.provider === 'whisper-local' ? (
-          <WhisperLocalDownloadControl
-            model={config.whisperLocal?.model ?? 'base'}
-            onModelChange={(model) =>
-              onChange((current) => ({
-                ...current,
-                whisperLocal: { ...current.whisperLocal, model },
-              }))
-            }
-          />
+          <Form.Item label={t('settings.speechToTextOnDeviceLabel')}>
+            <span className='text-12px text-t-secondary'>{t('settings.speechToTextOnDeviceBody')}</span>
+          </Form.Item>
         ) : (
           <>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextApiKey', 'required')}>

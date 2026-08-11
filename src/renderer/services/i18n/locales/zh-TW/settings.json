@@ -1099,12 +1099,8 @@
   "speechToTextRequired": "必填",
   "speechToTextOptional": "選填",
   "speechToTextProviderWhisperLocal": "Whisper（本地）",
-  "speechToTextWhisperModel": "Whisper 模型",
-  "speechToTextDownloadModel": "下載模型",
   "speechToTextDownloading": "下載中...",
   "speechToTextDownloadSuccess": "模型下載成功",
-  "speechToTextDownloadError": "下載失敗",
-  "speechToTextCancelDownload": "取消",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "目前使用 {{provider}}，因為它已連線且此處未選擇引擎。",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
@@ -1112,7 +1108,6 @@
   "textToSpeech": "文字轉語音",
   "textToSpeechDescription": "使用本地或系統語音引擎朗讀 AI 回覆。",
   "textToSpeechProvider": "供應商",
-  "textToSpeechProviderKokoroLocal": "Kokoro（本地）",
   "textToSpeechProviderSystemNative": "系統原生",
   "textToSpeechVoice": "音色",
   "textToSpeechSpeed": "語速",
@@ -2651,5 +2646,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "忙碌時延後更新",
-  "deferUpdateWhileBusyDesc": "在重新啟動以更新之前，等待進行中的對話、排程工作和團隊完成。更新將在閒置時或結束時套用。"
+  "deferUpdateWhileBusyDesc": "在重新啟動以更新之前，等待進行中的對話、排程工作和團隊完成。更新將在閒置時或結束時套用。",
+  "textToSpeechProviderWindowsNative": "Windows 語音",
+  "textToSpeechLocalVoiceLabel": "內建語音",
+  "textToSpeechNoLocalVoice": "此作業系統沒有內建語音。請選擇 OpenAI Speech 來朗讀回覆。",
+  "speechToTextOnDeviceLabel": "本機執行",
+  "speechToTextOnDeviceBody": "使用 Wayland 內附的模型在本機執行。不需金鑰、不需下載，音訊不會離開這台裝置。"
 }

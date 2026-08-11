@@ -54,7 +54,10 @@ export function initVoiceSynthBridge(): void {
     // never recovers. Every failure must leave through the `ok: false` return.
     try {
       const stored = await ConfigStorage.get('tools.textToSpeech');
-      const config = normalizeTextToSpeechConfig(stored);
+      // The platform decides the DEFAULT provider (see normalizeTextToSpeechConfig).
+      // Without it a Windows user who never opened Voice settings resolved to
+      // macOS `say` and got a coded failure instead of a voice.
+      const config = normalizeTextToSpeechConfig(stored, process.platform);
       // VOC-03: hosted TTS ('openai') POSTs the response text off-device.
       // Fail closed unless the user has acknowledged the disclosure for it.
       if (config.provider === 'openai') {

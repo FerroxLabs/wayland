@@ -1139,12 +1139,8 @@
   "speechToTextRequired": "Required",
   "speechToTextOptional": "Optional",
   "speechToTextProviderWhisperLocal": "Whisper (Local)",
-  "speechToTextWhisperModel": "Whisper Model",
-  "speechToTextDownloadModel": "Download Model",
   "speechToTextDownloading": "Downloading...",
   "speechToTextDownloadSuccess": "Model downloaded successfully",
-  "speechToTextDownloadError": "Download failed",
-  "speechToTextCancelDownload": "Cancel",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Currently using {{provider}}, because it is connected and no engine was chosen here.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
@@ -1152,7 +1148,6 @@
   "textToSpeech": "Text to Speech",
   "textToSpeechDescription": "Read AI responses aloud using a local or system voice engine.",
   "textToSpeechProvider": "Provider",
-  "textToSpeechProviderKokoroLocal": "Kokoro (Local)",
   "textToSpeechProviderSystemNative": "System Native",
   "textToSpeechVoice": "Voice",
   "textToSpeechSpeed": "Speed",
@@ -2819,5 +2814,10 @@
   "deferUpdateWhileBusy": "Defer updates while busy",
   "deferUpdateWhileBusyDesc": "Wait for active chats, scheduled tasks, and teams to finish before restarting to update. The update still applies on idle or on quit.",
   "toggleAssistantEnabled": "Enable {{name}}",
-  "editAssistantAction": "Edit {{name}}"
+  "editAssistantAction": "Edit {{name}}",
+  "textToSpeechProviderWindowsNative": "Windows Voice",
+  "textToSpeechLocalVoiceLabel": "Built-in voice",
+  "textToSpeechNoLocalVoice": "This operating system has no built-in voice. Choose OpenAI Speech to hear replies out loud.",
+  "speechToTextOnDeviceLabel": "On device",
+  "speechToTextOnDeviceBody": "Runs on your device with the model that ships with Wayland. No key, no download, no audio leaves this machine."
 }

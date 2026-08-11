@@ -6,6 +6,7 @@
 
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
 import type { TextToSpeechConfig, TextToSpeechProvider } from '@/common/types/ttsTypes';
+import { isLocalTtsProvider, resolveLocalTtsProvider } from '@/common/types/ttsTypes';
 import { hostedVoiceConsentGranted, isHostedVoiceProvider, type HostedVoiceConsent } from '@/common/types/voiceConsent';
 
 /**
@@ -35,10 +36,11 @@ export type VoiceReadinessReason =
   | 'ok'
   /** The user turned speech output off themselves. Their choice; offer the route back. */
   | 'tts-disabled-by-user'
-  /** No local synthesizer exists on this OS - `say` is macOS-only. */
+  /**
+   * No local synthesizer exists for this OS. macOS has `say`, Windows has
+   * System.Speech; Linux has neither in this build and is named, not silent.
+   */
   | 'no-local-adapter'
-  /** kokoro-local is selected but has never had a working binary. */
-  | 'kokoro-unavailable'
   /** Speaking would POST the reply off-device and the disclosure is unaccepted. */
   | 'tts-needs-consent'
   /** Speech-to-text is off, which is the factory default. */
@@ -120,10 +122,10 @@ const resolveTtsReason = (
   consent: VoiceReadinessInput['consent']
 ): VoiceReadinessReason => {
   if (ttsConfig?.enabled === false) return 'tts-disabled-by-user';
-  // `resolveBinary` returns null unconditionally and `synthesize` always throws.
-  if (provider === 'kokoro-local') return 'kokoro-unavailable';
-  // `synthesizeSystemNative` throws off darwin before it reaches `say`.
-  if (provider === 'system-native' && platform !== 'darwin') return 'no-local-adapter';
+  // A local synthesizer throws on the wrong OS before it reaches any engine:
+  // `say` off darwin, System.Speech off win32. Linux has neither, so every
+  // local provider lands here - which is the named Linux answer, not silence.
+  if (isLocalTtsProvider(provider) && provider !== resolveLocalTtsProvider(platform)) return 'no-local-adapter';
   if (isHostedVoiceProvider(provider) && !hostedVoiceConsentGranted(provider, consent)) return 'tts-needs-consent';
   return 'ok';
 };

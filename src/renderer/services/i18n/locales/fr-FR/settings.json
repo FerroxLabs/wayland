@@ -1122,12 +1122,8 @@
   "speechToTextRequired": "Requis",
   "speechToTextOptional": "Facultatif",
   "speechToTextProviderWhisperLocal": "Whisper (local)",
-  "speechToTextWhisperModel": "Modèle Whisper",
-  "speechToTextDownloadModel": "Télécharger le modèle",
   "speechToTextDownloading": "Téléchargement...",
   "speechToTextDownloadSuccess": "Modèle téléchargé avec succès",
-  "speechToTextDownloadError": "Échec du téléchargement",
-  "speechToTextCancelDownload": "Annuler",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Utilise actuellement {{provider}}, car il est connecté et aucun moteur n'a été choisi ici.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
@@ -1135,7 +1131,6 @@
   "textToSpeech": "Synthèse vocale",
   "textToSpeechDescription": "Lit les réponses de l'IA à voix haute à l'aide d'un moteur vocal local ou système.",
   "textToSpeechProvider": "Fournisseur",
-  "textToSpeechProviderKokoroLocal": "Kokoro (local)",
   "textToSpeechProviderSystemNative": "Natif du système",
   "textToSpeechVoice": "Voix",
   "textToSpeechSpeed": "Vitesse",
@@ -2650,5 +2645,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "Différer les mises à jour si occupé",
-  "deferUpdateWhileBusyDesc": "Attendre la fin des conversations actives, des tâches planifiées et des équipes avant de redémarrer pour mettre à jour. La mise à jour s’applique à l’inactivité ou à la fermeture."
+  "deferUpdateWhileBusyDesc": "Attendre la fin des conversations actives, des tâches planifiées et des équipes avant de redémarrer pour mettre à jour. La mise à jour s’applique à l’inactivité ou à la fermeture.",
+  "textToSpeechProviderWindowsNative": "Voix Windows",
+  "textToSpeechLocalVoiceLabel": "Voix intégrée",
+  "textToSpeechNoLocalVoice": "Ce système d'exploitation n'a pas de voix intégrée. Choisissez OpenAI Speech pour entendre les réponses à voix haute.",
+  "speechToTextOnDeviceLabel": "Sur l’appareil",
+  "speechToTextOnDeviceBody": "S'exécute sur votre appareil avec le modèle fourni avec Wayland. Aucune clé, aucun téléchargement, aucun audio ne quitte cette machine."
 }
