@@ -1820,6 +1820,7 @@
       "errorNoCredit": "kein nutzbares Guthaben",
       "errorOffline": "Anbieter nicht erreichbar",
       "errorUnrecognized": "Schlüssel nicht erkannt",
+      "errorUndecryptable": "gespeicherter Schlüssel unlesbar, bitte neu eingeben",
       "errorNoModels": "keine Modelle zurückgegeben",
       "errorUnknown": "Verbindungsproblem",
       "toggleFailed": "Could not change that provider. Please try again.",

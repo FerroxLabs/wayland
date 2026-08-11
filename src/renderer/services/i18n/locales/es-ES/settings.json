@@ -1820,6 +1820,7 @@
       "errorNoCredit": "sin crédito disponible",
       "errorOffline": "no se puede acceder al proveedor",
       "errorUnrecognized": "clave no reconocida",
+      "errorUndecryptable": "clave guardada ilegible, vuelve a introducirla",
       "errorNoModels": "no se devolvieron modelos",
       "errorUnknown": "problema de conexión",
       "toggleFailed": "Could not change that provider. Please try again.",

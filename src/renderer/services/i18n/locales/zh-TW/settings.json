@@ -1787,6 +1787,7 @@
       "errorNoCredit": "無可用額度",
       "errorOffline": "無法連接提供商",
       "errorUnrecognized": "金鑰無法辨識",
+      "errorUndecryptable": "已儲存的金鑰無法讀取，請重新輸入",
       "errorNoModels": "未回傳模型",
       "errorUnknown": "連接問題",
       "toggleFailed": "Could not change that provider. Please try again.",

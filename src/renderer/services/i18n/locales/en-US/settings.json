@@ -1885,6 +1885,7 @@
       "errorNoCredit": "no usable credit",
       "errorOffline": "can't reach provider",
       "errorUnrecognized": "key not recognized",
+      "errorUndecryptable": "saved key unreadable, re-enter it",
       "errorNoModels": "no models returned",
       "errorUnknown": "connection problem",
       "toggleFailed": "Could not change that provider. Please try again.",

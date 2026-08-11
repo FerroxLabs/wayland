@@ -148,6 +148,11 @@ class FakeRepo {
   updateRegistryProviderCreds(id: ProviderId, creds: Record<string, unknown>): void {
     const row = this.providers.get(id);
     if (row) row.creds = creds;
+    // Writing fresh ciphertext is what makes a row readable again - the real
+    // repository re-encrypts with the CURRENT safeStorage key, so a row cannot
+    // stay `undecryptable` after a successful rewrite. Without this the fake
+    // would report the recovery path as a no-op that never happened.
+    this.undecryptableProviders.delete(id);
   }
 
   updateRegistryProviderConnectedVia(id: ProviderId, connectedVia: string): void {
@@ -704,6 +709,43 @@ describe('modelRegistry IPC - list', () => {
       throw new Error('database unavailable');
     };
     await expect(createModelRegistryHandlers(deps).list()).rejects.toThrow('database unavailable');
+  });
+
+  it('flags a connected row whose stored credential cannot be decrypted', async () => {
+    // The row's `state` still says `connected` - nothing demoted it - so without
+    // this field the Settings row renders a green badge for a provider whose
+    // every call will fail. Structural, not a per-code-path patch.
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'groq',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'the-unreadable-original' },
+    });
+    repo.replaceRegistryCatalog('groq', [catalogModel({ id: 'llama-3.3-70b', providerId: 'groq' })]);
+    repo.undecryptableProviders.add('groq');
+
+    const [row] = await createModelRegistryHandlers(deps).list();
+
+    expect(row.credsUndecryptable).toBe(true);
+    // The misleading pair the old view published is still there - which is
+    // exactly why the new field has to be, too.
+    expect(row.state).toBe('connected');
+    expect(row.modelCount).toBe(1);
+  });
+
+  it('omits the undecryptable flag for a row whose credential reads fine', async () => {
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'groq',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'a-readable-key' },
+    });
+
+    const [row] = await createModelRegistryHandlers(deps).list();
+
+    expect(row).not.toHaveProperty('credsUndecryptable');
   });
 
   it('returns an empty list when nothing is connected', async () => {
@@ -1353,6 +1395,161 @@ describe('modelRegistry IPC - refresh clears a stale error state (only on proof)
     expect(summary.succeeded).toContain('sakana');
     expect(repo.getRegistryProvider('sakana')?.state).toBe('connected');
     expect(repo.getRegistryProvider('sakana')?.error).toBeUndefined();
+  });
+});
+
+describe('modelRegistry IPC - refreshAllOnce heals or reddens an undecryptable row', () => {
+  // Live defect: groq / google-gemini / openrouter / openai all sat on a green
+  // "Connected" badge in Settings > Models while `getRegistryProviderCreds`
+  // returned `undecryptable` for every one of them. `refreshAllOnce` counted
+  // them as `failed` but never touched `state`, so nothing ever healed them and
+  // nothing ever told the truth about them.
+
+  it('recovers from a discovered key when the LIVE listing proves it, and keeps the row green', async () => {
+    const { deps, repo, scan, readValue, apiListModels } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'groq',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'the-unreadable-original' },
+    });
+    repo.undecryptableProviders.add('groq');
+    scan.mockResolvedValue([{ providerId: 'groq', source: 'env:GROQ_API_KEY' }]);
+    readValue.mockReturnValue('gsk-recovered-from-env');
+    apiListModels.mockResolvedValue([{ id: 'llama-3.3-70b', providerId: 'groq' }]);
+
+    const summary = await createModelRegistryHandlers(deps).refreshAllOnce();
+
+    expect(summary.succeeded).toContain('groq');
+    expect(summary.failed).not.toContain('groq');
+    // Positive observables: the ciphertext really was rewritten from the
+    // discovered key, and the catalog really was rebuilt through it.
+    expect(repo.getRegistryProvider('groq')?.state).toBe('connected');
+    expect(repo.getRegistryProvider('groq')?.error).toBeUndefined();
+    expect(repo.providers.get('groq')?.creds).toEqual({ key: 'gsk-recovered-from-env' });
+    expect(repo.getRegistryCatalog('groq').map((m) => m.id)).toEqual(['llama-3.3-70b']);
+  });
+
+  it('demotes the row to error/unrecognized when NO discoverable key exists', async () => {
+    // Before this fix the row was pushed to `failed` and left `connected` - the
+    // false green the whole defect is about.
+    const { deps, repo, scan } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openrouter',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'the-unreadable-original' },
+    });
+    repo.undecryptableProviders.add('openrouter');
+    scan.mockResolvedValue([]);
+
+    const summary = await createModelRegistryHandlers(deps).refreshAllOnce();
+
+    expect(summary.failed).toContain('openrouter');
+    expect(repo.getRegistryProvider('openrouter')?.state).toBe('error');
+    expect(repo.getRegistryProvider('openrouter')?.error).toBe('unrecognized');
+    // The unreadable ciphertext is left alone - nothing was overwritten by a
+    // guess, so a real re-key still has a row to write into.
+    expect(repo.providers.get('openrouter')?.creds).toEqual({ key: 'the-unreadable-original' });
+  });
+
+  it('demotes the row when the recovered key never authenticates a live listing', async () => {
+    // `tryRecoverFromDiscoveredKey` flips state to `connected` optimistically -
+    // it only knows an env key of the right shape exists. A stale env value that
+    // lists nothing is NOT proof, and keeping the row green would swap one false
+    // green for another.
+    const { deps, repo, scan, readValue, apiListModels, getRegistry } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'google-gemini',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'the-unreadable-original' },
+    });
+    repo.undecryptableProviders.add('google-gemini');
+    scan.mockResolvedValue([{ providerId: 'google-gemini', source: 'env:GEMINI_API_KEY' }]);
+    readValue.mockReturnValue('a-stale-env-key');
+    // Live listing is empty -> the models.dev slice fills the catalog instead.
+    apiListModels.mockResolvedValue([]);
+    getRegistry.mockResolvedValue({ google: { models: { 'gemini-3-pro': {} } } });
+
+    const summary = await createModelRegistryHandlers(deps).refreshAllOnce();
+
+    expect(summary.failed).toContain('google-gemini');
+    expect(summary.succeeded).not.toContain('google-gemini');
+    // Not vacuous: the catalog really did fill from models.dev, so the only
+    // reason the row is red is that no credential was ever exercised.
+    expect(repo.getRegistryCatalog('google-gemini').map((m) => m.id)).toEqual(['gemini-3-pro']);
+    expect(repo.getRegistryProvider('google-gemini')?.state).toBe('error');
+    expect(repo.getRegistryProvider('google-gemini')?.error).toBe('unrecognized');
+  });
+
+  it('never touches a healthy row in the same sweep', async () => {
+    const { deps, repo, scan, apiListModels } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'openai',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'a-readable-key' },
+    });
+    repo.upsertRegistryProvider({
+      providerId: 'openrouter',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'the-unreadable-original' },
+    });
+    repo.undecryptableProviders.add('openrouter');
+    scan.mockResolvedValue([]);
+    apiListModels.mockResolvedValue([{ id: 'gpt-4o', providerId: 'openai' }]);
+
+    const summary = await createModelRegistryHandlers(deps).refreshAllOnce();
+
+    expect(summary.succeeded).toEqual(['openai']);
+    expect(repo.getRegistryProvider('openai')?.state).toBe('connected');
+    expect(repo.getRegistryProvider('openai')?.error).toBeUndefined();
+    expect(repo.getRegistryProvider('openrouter')?.state).toBe('error');
+  });
+
+  it('demotes an unproven recovery on the per-provider refresh path too', async () => {
+    // `_runPostUpgradeCatalogRefresh` heals these rows through `refresh`, so the
+    // same proof gate has to hold there or the boot sweep mints the false green.
+    const { deps, repo, scan, readValue, apiListModels, getRegistry } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'google-gemini',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'the-unreadable-original' },
+    });
+    repo.undecryptableProviders.add('google-gemini');
+    scan.mockResolvedValue([{ providerId: 'google-gemini', source: 'env:GEMINI_API_KEY' }]);
+    readValue.mockReturnValue('a-stale-env-key');
+    apiListModels.mockResolvedValue([]);
+    getRegistry.mockResolvedValue({ google: { models: { 'gemini-3-pro': {} } } });
+
+    expect(await createModelRegistryHandlers(deps).refresh({ providerId: 'google-gemini' })).toEqual({ ok: false });
+
+    expect(repo.getRegistryCatalog('google-gemini').map((m) => m.id)).toEqual(['gemini-3-pro']);
+    expect(repo.getRegistryProvider('google-gemini')?.state).toBe('error');
+    expect(repo.getRegistryProvider('google-gemini')?.error).toBe('unrecognized');
+  });
+
+  it('keeps the per-provider refresh green when the recovered key DOES prove itself', async () => {
+    const { deps, repo, scan, readValue, apiListModels } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'groq',
+      connectedVia: 'api-key',
+      state: 'connected',
+      creds: { key: 'the-unreadable-original' },
+    });
+    repo.undecryptableProviders.add('groq');
+    scan.mockResolvedValue([{ providerId: 'groq', source: 'env:GROQ_API_KEY' }]);
+    readValue.mockReturnValue('gsk-recovered-from-env');
+    apiListModels.mockResolvedValue([{ id: 'llama-3.3-70b', providerId: 'groq' }]);
+
+    expect(await createModelRegistryHandlers(deps).refresh({ providerId: 'groq' })).toEqual({ ok: true });
+
+    expect(repo.getRegistryProvider('groq')?.state).toBe('connected');
+    expect(repo.getRegistryProvider('groq')?.error).toBeUndefined();
+    expect(repo.getRegistryCatalog('groq').map((m) => m.id)).toEqual(['llama-3.3-70b']);
   });
 });
 

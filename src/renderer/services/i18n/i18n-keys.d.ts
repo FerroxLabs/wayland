@@ -3835,6 +3835,7 @@ export type I18nKey =
   | 'settings.modelsPage.row.errorNoModels'
   | 'settings.modelsPage.row.errorOffline'
   | 'settings.modelsPage.row.errorUnauthorized'
+  | 'settings.modelsPage.row.errorUndecryptable'
   | 'settings.modelsPage.row.errorUnknown'
   | 'settings.modelsPage.row.errorUnrecognized'
   | 'settings.modelsPage.row.fix'

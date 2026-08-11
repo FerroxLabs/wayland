@@ -1787,6 +1787,7 @@
       "errorNoCredit": "нет доступных средств",
       "errorOffline": "нет связи с провайдером",
       "errorUnrecognized": "ключ не распознан",
+      "errorUndecryptable": "сохранённый ключ нечитаем, введите его заново",
       "errorNoModels": "модели не возвращены",
       "errorUnknown": "проблема подключения",
       "toggleFailed": "Could not change that provider. Please try again.",

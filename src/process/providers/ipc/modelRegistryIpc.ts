@@ -612,6 +612,26 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
     }
   }
 
+  /**
+   * Settle a row whose unreadable ciphertext was just overwritten by
+   * `tryRecoverFromDiscoveredKey`.
+   *
+   * That helper flips `state` to `connected` OPTIMISTICALLY - it only knows a
+   * key with the right shape exists in the environment, never that the provider
+   * accepts it. Re-keying to a stale env value and leaving the row green would
+   * swap one false green for another, so the recovery is not final until a LIVE
+   * credential-authenticated listing proves it (`buildAndPersistCatalog`'s
+   * `proven`, the same gate `clearErrorOnProof` rides).
+   *
+   * Returns `true` when the recovery held; otherwise stamps the honest
+   * `error/unrecognized` so the row turns red with a Fix action that re-keys.
+   */
+  function settleDiscoveredKeyRecovery(providerId: ProviderId, proven: boolean): boolean {
+    if (proven) return true;
+    repo.updateRegistryProviderState(providerId, 'error', 'unrecognized');
+    return false;
+  }
+
   /** Apply the user's per-model overrides on top of the curated view. */
   function applyOverrides(providerId: ProviderId, curated: CuratedModel[]): CuratedModel[] {
     const overrides = repo.listRegistryOverrides(providerId);
@@ -918,6 +938,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         };
         if (observedAt !== null && Number.isSafeInteger(observedAt) && observedAt >= 0) view.observedAt = observedAt;
         if (p.error) view.error = p.error;
+        // Publish "connected row, unreadable credential" as its own fact. The
+        // row's `state` still says `connected` (nothing has demoted it yet), so
+        // without this the Settings row renders a green badge for a provider
+        // whose every call will fail. Structural, not a per-code-path patch.
+        if (stored.status === 'undecryptable') view.credsUndecryptable = true;
         return view;
       });
     },
@@ -986,10 +1011,12 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // try to silently re-import from an env key the OS still has so the
         // post-upgrade refresh sweep doesn't blast every connected provider
         // into `error/unrecognized` on a stale-keychain boot.
+        let recoveredThisRefresh = false;
         if (stored.status === 'undecryptable') {
           const recovered = await tryRecoverFromDiscoveredKey(providerId);
           if (recovered) {
             stored = repo.getRegistryProviderCreds(providerId);
+            recoveredThisRefresh = true;
           } else {
             repo.updateRegistryProviderState(providerId, 'error', 'unrecognized');
             return { ok: false };
@@ -1021,6 +1048,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
         const creds = toTestCreds(stored.creds);
         const built = await buildAndPersistCatalog(providerId, creds);
+        // A row re-keyed from discovery in this call must PROVE the new key
+        // before it keeps the green state that recovery handed it.
+        if (recoveredThisRefresh && !settleDiscoveredKeyRecovery(providerId, built.ok && built.proven)) {
+          return { ok: false };
+        }
         if (built.ok && built.proven) clearErrorOnProof(providerId);
         return { ok: built.ok };
       } catch {
@@ -1046,7 +1078,26 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         if (i > 0) await new Promise<void>((resolve) => setImmediate(resolve));
 
         try {
-          const stored = repo.getRegistryProviderCreds(providerId);
+          let stored = repo.getRegistryProviderCreds(providerId);
+          // `undecryptable` - the row LOOKS connected but its ciphertext cannot
+          // be read (a safeStorage key rotation is the classic cause; running
+          // under a second app identity is another). Left alone this is the
+          // worst possible outcome: the sweep counted the provider as `failed`
+          // but never touched `state`, so Settings kept rendering a green
+          // "Connected" row for a credential that cannot be used at all.
+          //
+          // Recovery first, red only if recovery fails - the same order
+          // `refresh` / `testConnection` already use.
+          let recoveredThisSweep = false;
+          if (stored.status === 'undecryptable') {
+            if (!(await tryRecoverFromDiscoveredKey(providerId))) {
+              repo.updateRegistryProviderState(providerId, 'error', 'unrecognized');
+              failed.push(providerId);
+              continue;
+            }
+            stored = repo.getRegistryProviderCreds(providerId);
+            recoveredThisSweep = true;
+          }
           if (stored.status !== 'ok') {
             failed.push(providerId);
             continue;
@@ -1099,6 +1150,12 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           const before = new Set(repo.getRegistryCatalog(providerId).map((m) => m.id));
           const creds = toTestCreds(stored.creds);
           const built = await buildAndPersistCatalog(providerId, creds, registry);
+          // A row re-keyed from discovery this sweep must PROVE the new key
+          // before it keeps the green state that recovery handed it.
+          if (recoveredThisSweep && !settleDiscoveredKeyRecovery(providerId, built.ok && built.proven)) {
+            failed.push(providerId);
+            continue;
+          }
           if (!built.ok) {
             failed.push(providerId);
             continue;

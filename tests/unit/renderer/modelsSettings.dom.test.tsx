@@ -136,6 +136,19 @@ const erroredProvider: IModelRegistryProviderView = {
   error: 'unauthorized',
 };
 
+/**
+ * A row the backend still stamps `connected` (nothing demoted it) whose stored
+ * ciphertext cannot be decrypted - the shape `list()` publishes for the live
+ * false-green defect.
+ */
+const undecryptableProvider: IModelRegistryProviderView = {
+  providerId: 'groq',
+  connectedVia: 'api-key',
+  state: 'connected',
+  modelCount: 31,
+  credsUndecryptable: true,
+};
+
 const detectedKey: IModelRegistryDetectedKey = {
   providerId: 'groq',
   source: 'env:GROQ_API_KEY',
@@ -235,6 +248,41 @@ describe('ModelsSettings page', () => {
     expect(screen.getByText('settings.modelsPage.row.fix')).toBeInTheDocument();
     // The green "Connected" status must NOT be present for an errored provider.
     expect(screen.queryByText('settings.modelsPage.row.connected')).not.toBeInTheDocument();
+  });
+
+  /**
+   * Live defect: groq / google-gemini / openrouter / openai all showed a green
+   * "Connected" badge while their stored credentials could not be decrypted at
+   * all. The row derived its badge from `state` + `modelCount`, and neither
+   * touches the credential - so an unusable provider read as healthy.
+   */
+  it('renders "Action needed" for a connected row whose stored credential cannot be decrypted', async () => {
+    mockList.mockResolvedValue([undecryptableProvider]);
+
+    renderPage();
+
+    expect(await screen.findByText('Groq')).toBeInTheDocument();
+    // Positive observable: the honest re-key reason, not a generic error.
+    expect(screen.getByRole('alert')).toHaveTextContent('row.actionNeeded');
+    expect(screen.getByRole('alert')).toHaveTextContent('row.errorUndecryptable');
+    // A Fix action that re-keys, not a Manage button for a dead provider.
+    expect(screen.getByText('settings.modelsPage.row.fix')).toBeInTheDocument();
+    expect(screen.queryByText('settings.modelsPage.row.manage')).not.toBeInTheDocument();
+    // The false green is gone - and the model count that dressed it up with it.
+    expect(screen.queryByText('settings.modelsPage.row.connected')).not.toBeInTheDocument();
+    expect(screen.queryByText(/row\.modelCount/)).not.toBeInTheDocument();
+  });
+
+  it('keeps the green badge for a connected row whose credential decrypts fine', async () => {
+    // Negative control for the case above: `credsUndecryptable` absent must not
+    // turn a healthy provider red.
+    mockList.mockResolvedValue([{ ...undecryptableProvider, credsUndecryptable: false }]);
+
+    renderPage();
+
+    expect(await screen.findByText('Groq')).toBeInTheDocument();
+    expect(screen.getByText('settings.modelsPage.row.connected')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('shows the inline connect error when a pasted key is rejected', async () => {

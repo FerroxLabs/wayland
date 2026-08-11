@@ -1787,6 +1787,7 @@
       "errorNoCredit": "利用可能なクレジットなし",
       "errorOffline": "プロバイダーに接続できません",
       "errorUnrecognized": "キーが認識されません",
+      "errorUndecryptable": "保存されたキーを読み取れません。再入力してください",
       "errorNoModels": "モデルが返されませんでした",
       "errorUnknown": "接続の問題",
       "toggleFailed": "Could not change that provider. Please try again.",

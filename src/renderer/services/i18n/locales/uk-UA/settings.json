@@ -1752,6 +1752,7 @@
       "errorNoCredit": "немає доступних коштів",
       "errorOffline": "немає зв'язку з провайдером",
       "errorUnrecognized": "ключ не розпізнано",
+      "errorUndecryptable": "збережений ключ нечитабельний, введіть його знову",
       "errorNoModels": "моделі не повернуто",
       "errorUnknown": "проблема підключення",
       "toggleFailed": "Could not change that provider. Please try again.",

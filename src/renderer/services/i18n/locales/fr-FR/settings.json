@@ -1820,6 +1820,7 @@
       "errorNoCredit": "aucun crédit utilisable",
       "errorOffline": "fournisseur injoignable",
       "errorUnrecognized": "clé non reconnue",
+      "errorUndecryptable": "clé enregistrée illisible, saisissez-la à nouveau",
       "errorNoModels": "aucun modèle renvoyé",
       "errorUnknown": "problème de connexion",
       "toggleFailed": "Could not change that provider. Please try again.",

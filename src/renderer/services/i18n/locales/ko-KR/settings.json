@@ -1787,6 +1787,7 @@
       "errorNoCredit": "사용 가능한 크레딧 없음",
       "errorOffline": "제공자에 연결할 수 없음",
       "errorUnrecognized": "키가 인식되지 않음",
+      "errorUndecryptable": "저장된 키를 읽을 수 없습니다. 다시 입력하세요",
       "errorNoModels": "모델이 반환되지 않음",
       "errorUnknown": "연결 문제",
       "toggleFailed": "Could not change that provider. Please try again.",

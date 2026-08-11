@@ -60,8 +60,12 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
   const { getCatalog, toggleModel, registryVersion } = useModelRegistry();
   const meta = providerMeta(provider.providerId);
 
-  const isError = provider.state === 'error';
-  const isTesting = provider.state === 'testing';
+  // A row whose stored credential cannot be decrypted is action-needed even
+  // though its `state` still reads `connected` - nothing has demoted it yet, and
+  // rendering the green badge would promise a provider that fails every call.
+  const credsUnreadable = provider.credsUndecryptable === true;
+  const isError = provider.state === 'error' || credsUnreadable;
+  const isTesting = provider.state === 'testing' && !credsUnreadable;
   const noModels = !isError && !isTesting && provider.modelCount === 0;
 
   // Provider-level on/off toggle (#54). The row keeps a lightweight copy of the
@@ -176,7 +180,11 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
         <div className={`${styles.status} ${styles.statusError}`} role='alert'>
           <span className={styles.statusDot} />
           {t('settings.modelsPage.row.actionNeeded', {
-            reason: t(`settings.modelsPage.row.${ERROR_KEY[provider.error ?? 'unknown']}`),
+            reason: t(
+              credsUnreadable
+                ? 'settings.modelsPage.row.errorUndecryptable'
+                : `settings.modelsPage.row.${ERROR_KEY[provider.error ?? 'unknown']}`
+            ),
           })}
         </div>
       )}

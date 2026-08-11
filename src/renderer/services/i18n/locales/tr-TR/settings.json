@@ -1785,6 +1785,7 @@
       "errorNoCredit": "kullanılabilir kredi yok",
       "errorOffline": "sağlayıcıya ulaşılamıyor",
       "errorUnrecognized": "anahtar tanınmadı",
+      "errorUndecryptable": "kayıtlı anahtar okunamıyor, yeniden girin",
       "errorNoModels": "model döndürülmedi",
       "errorUnknown": "bağlantı sorunu",
       "toggleFailed": "Could not change that provider. Please try again.",

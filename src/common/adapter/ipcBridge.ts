@@ -2263,6 +2263,16 @@ export type IModelRegistryProviderView = {
   callableModelCount?: number;
   /** True only when the main-process chat-start resolver can build a dispatch handle. */
   dispatchEligible?: boolean;
+  /**
+   * True when the row's stored credential exists but cannot be DECRYPTED
+   * (`ProviderRepository.getRegistryProviderCreds` -> `'undecryptable'`).
+   *
+   * `state` alone cannot express this: the row is still stamped `connected`,
+   * so a view built from `state` + `modelCount` renders a green "Connected"
+   * badge for a provider that will fail every single call. Consumers must
+   * treat this as action-needed (re-key) regardless of `state`.
+   */
+  credsUndecryptable?: boolean;
   /** Producer-owned time when connection or callable inventory last changed. */
   observedAt?: number;
   error?: ConnectError;
