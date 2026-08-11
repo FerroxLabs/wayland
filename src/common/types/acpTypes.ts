@@ -51,6 +51,7 @@ export type AcpBackendAll =
   // | 'gemini' // Google Gemini - not an ACP agent, handled by AgentRegistry directly
   | 'qwen' // Qwen Code ACP
   | 'codex' // OpenAI Codex ACP (via codex-acp bridge)
+  | 'wnano' // Wayland Nano - first-party sandboxed Rust agent (native ACP over stdio)
   | 'grok' // xAI Grok Build CLI (native ACP via `grok agent stdio`)
   | 'codebuddy' // Tencent CodeBuddy Code CLI
   | 'droid' // Factory Droid CLI (ACP via `droid exec --output-format acp`)
@@ -359,6 +360,18 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     // Needs the config-writing setup connector: codex routes through Flux's
     // Responses surface via a [model_providers.flux] table in its TOML config.
     fluxCompat: 'setup',
+  },
+  // Wayland Nano: first-party sandboxed Rust agent. Always listed in the agent
+  // registry (AgentRegistry.createWNanoAgent); spawns via cliCommand when the
+  // binary is on PATH. Speaks ACP natively over stdio - no bridge, no flag.
+  wnano: {
+    id: 'wnano',
+    name: 'Wayland Nano',
+    cliCommand: 'wayland-nano',
+    authRequired: false, // Draws on the providers connected in Wayland; no own login
+    enabled: true,
+    supportsStreaming: true, // Native ACP, streams session/update chunks
+    acpArgs: [], // ACP over stdio by default, no bridge or flag needed
   },
   grok: {
     id: 'grok',

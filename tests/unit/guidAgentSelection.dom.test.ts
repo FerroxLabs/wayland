@@ -317,6 +317,34 @@ describe('useGuidAgentSelection – preset agent config resolution', () => {
     expect(result.current.currentAcpCachedModelInfo?.currentModelId).toBe('claude-sonnet-4-5-20250514');
   });
 
+  it('built-in Wayland Nano uses its own backend key for model cache lookup', async () => {
+    setupMocks({ cachedModels: { wnano: CLAUDE_CACHED_MODEL } });
+    ipcMock.getAvailableAgents.mockResolvedValue({
+      success: true,
+      data: [...AVAILABLE_AGENTS, { backend: 'wnano', name: 'Wayland Nano' }],
+    });
+
+    const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
+
+    await waitFor(() => {
+      expect(result.current.availableAgents).toBeDefined();
+    });
+
+    // Select the built-in wnano backend directly from the pill bar (non-preset)
+    act(() => {
+      result.current.setSelectedAgentKey('wnano');
+    });
+
+    await waitFor(() => {
+      expect(result.current.isPresetAgent).toBe(false);
+      expect(result.current.selectedAgent).toBe('wnano');
+    });
+
+    // Should look up acpCachedModels['wnano']
+    expect(result.current.currentAcpCachedModelInfo).not.toBeNull();
+    expect(result.current.currentAcpCachedModelInfo?.currentModelId).toBe('claude-sonnet-4-5-20250514');
+  });
+
   it('setSelectedMode saves mode under effective backend for preset agent', async () => {
     const { result } = renderHook(() => useGuidAgentSelection(hookOptions));
 

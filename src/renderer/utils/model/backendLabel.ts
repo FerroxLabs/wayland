@@ -18,6 +18,7 @@ export const BACKEND_LABEL: Record<string, string> = {
   auggie: 'Augment',
   kimi: 'Kimi',
   wcore: 'Wayland Core',
+  wnano: 'Wayland Nano',
 };
 
 /**

@@ -2424,6 +2424,7 @@ export type I18nKey =
   | 'settings.agentsPage.about.claude'
   | 'settings.agentsPage.about.codex'
   | 'settings.agentsPage.about.wcore'
+  | 'settings.agentsPage.about.wnano'
   | 'settings.agentsPage.badge.active'
   | 'settings.agentsPage.badge.detected'
   | 'settings.agentsPage.empty'

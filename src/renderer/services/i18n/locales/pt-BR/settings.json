@@ -2233,6 +2233,7 @@
     },
     "about": {
       "wcore": "O motor próprio do Wayland. Usa todos os provedores na sua página de Modelos.",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "O agente de codificação da Anthropic. Faz login com a própria conta; não pode rodar GPT ou Gemini.",
       "codex": "O agente de codificação da OpenAI. Faz login com a própria conta; não pode rodar Claude ou Gemini."
     },

@@ -2207,6 +2207,7 @@
     },
     "about": {
       "wcore": "Wayland 自研引擎。调用你「模型」页面上的每个提供商。",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Anthropic 的编程智能体。使用自己的账号登录，无法运行 GPT 或 Gemini。",
       "codex": "OpenAI 的编程智能体。使用自己的账号登录，无法运行 Claude 或 Gemini。"
     },

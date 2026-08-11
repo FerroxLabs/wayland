@@ -2208,6 +2208,7 @@
     },
     "about": {
       "wcore": "Wayland 자체 엔진입니다. 「모델」 페이지의 모든 제공업체를 활용합니다.",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Anthropic의 코딩 에이전트입니다. 자체 계정으로 로그인합니다, GPT나 Gemini는 실행할 수 없습니다.",
       "codex": "OpenAI의 코딩 에이전트입니다. 자체 계정으로 로그인합니다, Claude나 Gemini는 실행할 수 없습니다."
     },

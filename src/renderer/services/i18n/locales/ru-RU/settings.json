@@ -2208,6 +2208,7 @@
     },
     "about": {
       "wcore": "Собственный движок Wayland. Использует каждого провайдера на странице «Модели».",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Кодинг-агент Anthropic. Входит через собственную учётную запись, не может запускать GPT или Gemini.",
       "codex": "Кодинг-агент OpenAI. Входит через собственную учётную запись, не может запускать Claude или Gemini."
     },

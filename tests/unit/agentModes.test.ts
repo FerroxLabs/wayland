@@ -40,6 +40,16 @@ describe('AGENT_MODES.claude', () => {
   });
 });
 
+describe('AGENT_MODES.wnano', () => {
+  it('advertises exactly the default mode (matches what the Rust agent sends over ACP)', () => {
+    expect(AGENT_MODES.wnano).toEqual([{ value: 'default', label: 'Default' }]);
+  });
+
+  it('supports mode switching', () => {
+    expect(supportsModeSwitch('wnano')).toBe(true);
+  });
+});
+
 describe('getAgentModes', () => {
   it('returns claude modes for "claude" backend', () => {
     const modes = getAgentModes('claude');
