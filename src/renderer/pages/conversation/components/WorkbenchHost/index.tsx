@@ -436,21 +436,13 @@ const WorkbenchHost: React.FC<{
             The rail stays a single toggle: one horizontal affordance that opens
             the panel, where every section is now listed as a readable row with
             its own glyph beside its label. */}
-        {allSections.length > 0 && !panelOpen && (
-          <nav
-            className='workbench-host__tabs absolute right-0 top-0 bottom-0 z-30 w-36px flex flex-col items-center border-l border-3 bg-2 py-8px'
-            aria-label='Workbench sections'
-          >
-            <button
-              type='button'
-              className='workbench-host__tab h-32px w-32px flex items-center justify-center border-0 bg-transparent cursor-pointer text-t-secondary rounded-6px'
-              aria-label={`Open workbench (${allSections.length} section${allSections.length === 1 ? '' : 's'})`}
-              onClick={() => expand((reopenTarget ?? allSections[0]).id)}
-            >
-              <PanelRight size={16} />
-            </button>
-          </nav>
-        )}
+        {/* No rail toggle here on purpose.
+            The app titlebar already carries a workspace toggle
+            (Titlebar/index.tsx handleWorkspaceToggle) that opens this very
+            panel, so a second 36px strip against the same edge was two controls
+            doing one job - and the one nearer the content read as the primary,
+            which it was not. One toggle, in the chrome, where every other
+            window-level control lives. */}
 
         {/* A detached card, not a flush column. Rounding, a full border, inset
             margins and elevation give it an edge on every side, which is what
