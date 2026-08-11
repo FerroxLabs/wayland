@@ -678,6 +678,22 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         },
       };
     }
+    case 'tips': {
+      // An out-of-band in-thread notice pushed by main (a Constitution key-ring
+      // reclaim, a missed scheduled run). Main persists the row AND emits this
+      // frame; without a case here the frame fell through to the "unsupported
+      // type" warning, so the notice was invisible until the next reload - which
+      // is exactly how it was found, rendering perfectly after a restart.
+      const data = message.data as { content: string; type: 'error' | 'success' | 'warning' };
+      return {
+        id: uuid(),
+        type: 'tips',
+        msg_id: message.msg_id,
+        position: 'center',
+        conversation_id: message.conversation_id,
+        content: { content: data.content, type: data.type },
+      };
+    }
     case 'content':
     case 'user_content': {
       const data = message.data;

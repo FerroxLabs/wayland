@@ -317,6 +317,13 @@ export const useWCoreMessage = (
           // merges updates into the same card via msg_id = parentCallId.
           addOrUpdateMessage(transformMessage(message));
           break;
+        case 'tips':
+          // An out-of-band in-thread notice (a Constitution key-ring reclaim, a
+          // missed scheduled run). It is not model output and says nothing about
+          // whether a turn is running, so it gets its own case rather than the
+          // catch-all below, which would have started the spinner for it.
+          addOrUpdateMessage(transformMessage(message));
+          break;
         default: {
           if (message.type === 'error') {
             // An error frame ends the turn. Clear ALL running contributors so the
@@ -341,17 +348,36 @@ export const useWCoreMessage = (
             }
             onError?.(message as IResponseMessage);
           } else {
+            // Not every frame that lands here is the turn TALKING.
+            //
+            // A frame with no msg_id names no turn: `mcp_session_state` and
+            // `mcp_ready` are session-level and are emitted while a conversation
+            // is merely being OPENED (engine warmup). Counting them as output
+            // restarted the spinner on a chat whose last turn had already died -
+            // seen live as "Working the problem... 128s" with a live stop button
+            // above a failed activity card, on a freshly restarted app.
+            //
+            // `activity_turn_end` does name the turn, but it reports the turn's
+            // END, not output. It is emitted from the manager's turn-end path
+            // BEFORE the `finish` frame, so treating it as "successful content
+            // after an error" cleared the fatal-error flag and `clearErrorTips`
+            // on the following `finish` then deleted the only explanation the
+            // user was ever going to get. Seen live: the error tip was in the
+            // database and never on screen until the app was restarted.
+            const isTurnOutput = Boolean(message.msg_id) && message.type !== 'activity_turn_end';
             // Mark that current turn has content output (exclude error type)
             hasContentInTurnRef.current = true;
             // Successful content after an error means that error was transient.
-            turnEndedInErrorRef.current = false;
+            if (isTurnOutput) {
+              turnEndedInErrorRef.current = false;
+            }
             // Reset waitingResponse when actual content arrives
             if (message.type === 'content') {
               setWaitingResponse(false);
               waitingResponseRef.current = false;
             }
             // Auto-recover streamRunning if content arrives after finish
-            if (!streamRunningRef.current) {
+            if (isTurnOutput && !streamRunningRef.current) {
               setStreamRunning(true);
               streamRunningRef.current = true;
             }

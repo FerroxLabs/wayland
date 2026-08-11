@@ -340,6 +340,13 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
             requestTraceRef.current = null;
           }
           break;
+        case 'tips':
+          // An out-of-band in-thread notice (a Constitution key-ring reclaim, a
+          // missed scheduled run). Main pushes it on the shared conversation
+          // stream from a seam every backend reaches, so it arrives here too. It
+          // is not model output and must not start this turn's running state.
+          addOrUpdateMessage(transformedMessage);
+          break;
         default:
           // Auto-recover running state only if turn hasn't finished
           if (!runningRef.current && !turnFinishedRef.current) {

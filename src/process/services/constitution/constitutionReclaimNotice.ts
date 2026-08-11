@@ -5,6 +5,7 @@
  */
 
 import path from 'node:path';
+import { ipcBridge } from '@/common';
 import type { TMessage } from '@/common/chat/chatLib';
 import { uuid } from '@/common/utils';
 import { addMessage } from '@process/utils/message';
@@ -39,17 +40,34 @@ export function emitConstitutionReclaimNotice(service: ConstitutionFsService, co
   if (!conversationId) return;
   const reclaim = service.consumeRevisionAuthorityReclaim();
   if (!reclaim) return;
+  const id = uuid();
+  const content = constitutionReclaimNoticeText(reclaim.archivedPath);
   addMessage(conversationId, {
-    id: uuid(),
+    id,
+    // Keyed so the reload-time merge in `useMessageLstCache` recognises the
+    // stored row and the streamed copy below as ONE message. Without a msg_id on
+    // the row the two dedup keys miss each other and the notice stacks twice.
+    msg_id: id,
     conversation_id: conversationId,
     type: 'tips',
     position: 'center',
     createdAt: Date.now(),
     content: {
       type: 'warning',
-      content: constitutionReclaimNoticeText(reclaim.archivedPath),
+      content,
     },
   } as TMessage);
+  // Persisting makes the notice survive; emitting is what makes it ARRIVE.
+  // Writing the row alone put the notice in the database and nowhere else: the
+  // chat that triggered the reclaim showed the user nothing, and the very same
+  // notice rendered correctly the moment the app was restarted and the thread
+  // was read back from disk. A notice nobody is shown is not a notice.
+  ipcBridge.conversation.responseStream.emit({
+    type: 'tips',
+    conversation_id: conversationId,
+    msg_id: id,
+    data: { type: 'warning', content },
+  });
 }
 
 /**
