@@ -34,19 +34,63 @@
  * code path (`AgentRegistry`) and is untouched: a user who already has it, and
  * therefore already has a Node that satisfies its engines, keeps it.
  *
- * The record of WHY lives in `BUN_INCOMPATIBLE_PACKAGES` rather than only in
- * this comment, so re-adding the entry turns this suite red instead of shipping
- * the same dead card again.
+ * The record of WHY lives in `BUN_INCOMPATIBLE_PACKAGES` below rather than only
+ * in this comment, so re-adding the entry turns this suite red instead of
+ * shipping the same dead card again.
+ *
+ * IT LIVES HERE, NOT IN src. It used to be exported from `agentPackages.ts`
+ * with zero production consumers: nothing in install or launch ever consulted
+ * it, so shipping it did not stop a Bun-incompatible agent reaching a user, it
+ * only made re-adding openclaw turn this suite red. Wiring it into
+ * `installAgent` instead would be a refusal that can never fire in a shipped
+ * build — `AGENT_PACKAGES` is a frozen compile-time constant and no runtime
+ * path can add to it, so only a developer editing that file can create the
+ * condition, and a developer editing that file is exactly who this suite is
+ * for. The catalogue-authoring guard is kept; the dead runtime code is not.
  */
 
 import { describe, expect, it } from 'vitest';
 
-import {
-  AGENT_PACKAGES,
-  BUN_INCOMPATIBLE_PACKAGES,
-  bunIncompatibleCatalogueEntries,
-} from '@process/services/agentInstaller/agentPackages';
+import { AGENT_PACKAGES, type AgentPackage } from '@process/services/agentInstaller/agentPackages';
 import { resolveJsRuntimeWith } from '@process/utils/jsRuntime';
+
+/**
+ * Packages whose launch target REFUSES to run on Bun, keyed by npm package name
+ * and valued with the `engines.node` the package declares.
+ *
+ * A pure-JS agent launches through `resolveJsRuntime()`, which in a PACKAGED
+ * build answers `bundled-bun` whenever a bundled bun exists — which is every
+ * build that has one, and the install band is disabled entirely on the builds
+ * that do not. Nothing between the catalogue and the spawn re-checks
+ * compatibility: `launchSpecResolver` emits `{ command: <runtime>, args:
+ * [<entry>] }` for any `.js`/`.mjs`/`.cjs` bin and asks no further questions. So
+ * an entry listed here, installed by Wayland on a machine with no Node, is
+ * guaranteed to fail at launch.
+ *
+ * `openclaw` is here because it was MEASURED, not inferred — see the header.
+ *
+ * Detection of a SYSTEM openclaw is a different code path and is deliberately
+ * untouched: a user who already has it also already has a Node that satisfies
+ * the range below.
+ */
+const BUN_INCOMPATIBLE_PACKAGES: Readonly<Record<string, string>> = Object.freeze({
+  openclaw: '>=22.22.3 <23 || >=24.15.0 <25 || >=25.9.0',
+});
+
+/**
+ * Catalogue ids whose package is recorded as refusing Bun. Must be empty: a
+ * non-empty answer means the band is offering an install that cannot launch on
+ * a packaged build.
+ *
+ * Takes the catalogue as a parameter, defaulting to the real one, so the suite
+ * can prove the matcher finds a known positive rather than trusting an empty
+ * list.
+ */
+function bunIncompatibleCatalogueEntries(catalogue: Readonly<Record<string, AgentPackage>> = AGENT_PACKAGES): string[] {
+  return Object.entries(catalogue)
+    .filter(([, pkg]) => Object.prototype.hasOwnProperty.call(BUN_INCOMPATIBLE_PACKAGES, pkg.npmPackage))
+    .map(([agentId]) => agentId);
+}
 
 describe('the install band', () => {
   it('offers exactly the agents a packaged build can run', () => {
