@@ -18,13 +18,6 @@ import styles from './FluxRouterHero.module.css';
 /** External link to grab a Flux Router API key (BYO key flow). */
 const FLUX_KEY_URL = 'https://fluxrouter.ai/home/api-keys';
 
-/**
- * Public model-count figure for Flux Router. Deliberately the conservative
- * "40+" (the live catalog is ~43) rather than a hardcoded exact - it stays true
- * as the catalog shifts and never contradicts the live per-provider count.
- */
-const FLUX_MODEL_COUNT = '40+';
-
 /** Minimum routed turns before the live metrics line is shown (per V4 mockup). */
 const MIN_TURNS_FOR_METRICS = 10;
 
@@ -59,6 +52,13 @@ function parseFluxMetrics(raw: unknown): FluxMetrics | null {
 type FluxRouterHeroProps = {
   /** Whether `flux-router` is a connected provider in the registry. */
   connected: boolean;
+  /**
+   * The registry's own catalog count for `flux-router` - the SAME number the
+   * connected row below the hero prints. Omitted / zero when the registry has
+   * not resolved a catalog yet, in which case the hero states no figure at all
+   * rather than inventing one.
+   */
+  modelCount?: number;
   /** Connect a pasted Flux Router key (delegates to the model registry). */
   onConnectKey: (key: string) => Promise<IModelRegistryConnectResult>;
 };
@@ -75,7 +75,7 @@ type FluxRouterHeroProps = {
  *  - Not connected → a recommendation card with a primary "Connect Flux Router"
  *    action (inline paste-key form) and a "Get a key at fluxrouter.ai" link.
  */
-const FluxRouterHero: React.FC<FluxRouterHeroProps> = ({ connected, onConnectKey }) => {
+const FluxRouterHero: React.FC<FluxRouterHeroProps> = ({ connected, modelCount, onConnectKey }) => {
   const { t } = useTranslation();
 
   const [metrics, setMetrics] = useState<FluxMetrics | null>(null);
@@ -140,6 +140,11 @@ const FluxRouterHero: React.FC<FluxRouterHeroProps> = ({ connected, onConnectKey
   // ----- Connected -----
   if (connected) {
     const hasLiveMetrics = metrics !== null && metrics.totalTurns >= MIN_TURNS_FOR_METRICS;
+    // One number, one source. The hero used to print a hardcoded "40+" while the
+    // connected row under it printed the registry's real count, so the same
+    // screen stated two different figures for the same provider. When the count
+    // is genuinely not resolved, say nothing rather than guess.
+    const resolvedCount = typeof modelCount === 'number' && modelCount > 0 ? modelCount : null;
     return (
       <div className={`${styles.hero} ${styles.heroConnected}`} data-testid='flux-router-hero' data-state='connected'>
         <div className={styles.glyph} aria-hidden>
@@ -170,7 +175,9 @@ const FluxRouterHero: React.FC<FluxRouterHeroProps> = ({ connected, onConnectKey
             <>
               <div className={styles.connectedTitle}>{t('settings.modelsPage.flux.routing')}</div>
               <div className={styles.connectedSub} data-testid='flux-router-confirmation'>
-                {t('settings.modelsPage.flux.activeConfirmation', { count: FLUX_MODEL_COUNT })}
+                {resolvedCount === null
+                  ? t('settings.modelsPage.flux.activeConfirmationNoCount')
+                  : t('settings.modelsPage.flux.activeConfirmation', { count: resolvedCount })}
               </div>
             </>
           )}

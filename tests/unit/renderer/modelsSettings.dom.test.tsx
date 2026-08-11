@@ -183,6 +183,26 @@ describe('ModelsSettings page', () => {
     expect(mockListChangedOn).toHaveBeenCalledTimes(2);
   });
 
+  /**
+   * The page used to state two different model counts for Flux Router at the
+   * same time: a hardcoded "40+" in the hero banner and the registry's real
+   * count in the connected row directly below it. One provider, one screen, two
+   * numbers. Both figures must now come from the same field.
+   */
+  it('states one Flux Router model count, not two', async () => {
+    mockList.mockResolvedValue([
+      { providerId: 'flux-router', connectedVia: 'api-key', state: 'connected', modelCount: 77 },
+    ] satisfies IModelRegistryProviderView[]);
+
+    const { container } = renderPage();
+
+    const hero = await screen.findByTestId('flux-router-confirmation');
+    expect(hero.textContent).toContain('flux.activeConfirmation:count=77');
+    // Positive control: the row that carries the other number really rendered.
+    expect(screen.getByText(/row\.modelCount:count=77/)).toBeInTheDocument();
+    expect(container.textContent).not.toContain('40+');
+  });
+
   it('shows the empty state when there are no providers and no detected keys', async () => {
     mockList.mockResolvedValue([]);
     mockDetectKeys.mockResolvedValue([]);

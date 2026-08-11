@@ -3706,6 +3706,7 @@ export type I18nKey =
   | 'settings.modelsPage.detected.use'
   | 'settings.modelsPage.empty.note'
   | 'settings.modelsPage.flux.activeConfirmation'
+  | 'settings.modelsPage.flux.activeConfirmationNoCount'
   | 'settings.modelsPage.flux.body'
   | 'settings.modelsPage.flux.connect'
   | 'settings.modelsPage.flux.connecting'

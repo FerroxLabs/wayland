@@ -11,7 +11,8 @@
  *
  *  - Connected + live metrics (>= 10 turns) → renders the routing metrics line.
  *  - Connected + null metrics (daemon down) → renders the calm confirmation,
- *    NO fabricated numbers.
+ *    carrying the registry's own model count (the same field the connected row
+ *    below prints) or NO figure at all - never an invented one.
  *  - Not connected → renders the "Connect Flux Router" recommendation CTA.
  *
  * `react-i18next` is mocked to echo keys + interpolation so assertions read
@@ -80,7 +81,36 @@ describe('FluxRouterHero', () => {
     expect(screen.getByTestId('flux-router-metrics').textContent).toContain('~$120 saved');
   });
 
-  it('renders the calm confirmation (no fabricated numbers) when metrics are null', async () => {
+  it('prints the registry model count, the same figure the connected row shows', async () => {
+    mockFluxMetrics.mockResolvedValue(null);
+
+    render(<FluxRouterHero connected modelCount={77} onConnectKey={noopConnect} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('flux-router-confirmation')).toBeTruthy();
+    });
+    expect(screen.queryByTestId('flux-router-metrics')).toBeNull();
+    const text = screen.getByTestId('flux-router-confirmation').textContent ?? '';
+    expect(text).toContain('settings.modelsPage.flux.activeConfirmation');
+    expect(text).toContain('count=77');
+    // The old hardcoded marketing figure contradicted the row below it.
+    expect(text).not.toContain('40+');
+  });
+
+  it('states no figure at all when the registry has not resolved a catalog', async () => {
+    mockFluxMetrics.mockResolvedValue(null);
+
+    render(<FluxRouterHero connected modelCount={0} onConnectKey={noopConnect} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('flux-router-confirmation')).toBeTruthy();
+    });
+    const text = screen.getByTestId('flux-router-confirmation').textContent ?? '';
+    expect(text).toContain('settings.modelsPage.flux.activeConfirmationNoCount');
+    expect(text).not.toContain('count=');
+  });
+
+  it('states no figure when the model count prop is absent entirely', async () => {
     mockFluxMetrics.mockResolvedValue(null);
 
     render(<FluxRouterHero connected onConnectKey={noopConnect} />);
@@ -88,10 +118,9 @@ describe('FluxRouterHero', () => {
     await waitFor(() => {
       expect(screen.getByTestId('flux-router-confirmation')).toBeTruthy();
     });
-    expect(screen.queryByTestId('flux-router-metrics')).toBeNull();
-    // The only figure is the deliberately conservative "40+" product count
-    // (FLUX_MODEL_COUNT) - never a fabricated precise number from a daemon stat.
-    expect(screen.getByTestId('flux-router-confirmation').textContent).toContain('count=40+');
+    const text = screen.getByTestId('flux-router-confirmation').textContent ?? '';
+    expect(text).toContain('settings.modelsPage.flux.activeConfirmationNoCount');
+    expect(text).not.toContain('count=');
   });
 
   it('renders the calm confirmation when metrics have fewer than 10 turns', async () => {

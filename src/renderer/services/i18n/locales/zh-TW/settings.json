@@ -1761,6 +1761,7 @@
       "metricsTurns": "最近 {{count}} 輪：",
       "histogram": "旗艦 {{flagship}} · 小型 {{small}} · 本機 {{local}}",
       "activeConfirmation": "Flux Router 已連接 · {{count}} 個模型 · 依請求路由",
+      "activeConfirmationNoCount": "Flux Router 已連接 · 依請求路由",
       "errorUnauthorized": "該 {{provider}} 金鑰被拒絕。請檢查金鑰後重試。",
       "errorNoCredit": "已連接，但該 {{provider}} 金鑰沒有可用額度。請新增帳單以路由模型。",
       "errorOffline": "無法連接 {{provider}}。你似乎處於離線狀態。請檢查網路後重試。",

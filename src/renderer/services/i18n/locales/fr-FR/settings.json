@@ -1794,6 +1794,7 @@
       "metricsTurns": "Derniers {{count}} tours :",
       "histogram": "Phares {{flagship}} · Petits {{small}} · Locaux {{local}}",
       "activeConfirmation": "Flux Router connecté · {{count}} modèles · routés à chaque requête",
+      "activeConfirmationNoCount": "Flux Router connecté · routé à chaque requête",
       "errorUnauthorized": "Cette clé {{provider}} a été rejetée. Vérifiez la clé et réessayez.",
       "errorNoCredit": "Connecté, mais cette clé {{provider}} n'a pas de crédit utilisable. Ajoutez une facturation pour router les modèles.",
       "errorOffline": "Impossible d'atteindre {{provider}}. Vous semblez hors ligne. Vérifiez votre connexion et réessayez.",

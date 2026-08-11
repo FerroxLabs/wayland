@@ -1761,6 +1761,7 @@
       "metricsTurns": "直近 {{count}} ターン：",
       "histogram": "フラッグシップ {{flagship}} · 小型 {{small}} · ローカル {{local}}",
       "activeConfirmation": "Flux Router 接続済み · {{count}} モデル · リクエストごとにルーティング",
+      "activeConfirmationNoCount": "Flux Router 接続済み · リクエストごとにルーティング",
       "errorUnauthorized": "その {{provider}} キーは拒否されました。キーを確認して再試行してください。",
       "errorNoCredit": "接続しましたが、その {{provider}} キーには利用可能なクレジットがありません。モデルをルーティングするには請求情報を追加してください。",
       "errorOffline": "{{provider}} に到達できません。オフラインのようです。接続を確認して再試行してください。",

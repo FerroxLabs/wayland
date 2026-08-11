@@ -1794,6 +1794,7 @@
       "metricsTurns": "Últimos {{count}} turnos:",
       "histogram": "Topo de linha {{flagship}} · Pequeno {{small}} · Local {{local}}",
       "activeConfirmation": "Flux Router conectado · {{count}} modelos · roteado por requisição",
+      "activeConfirmationNoCount": "Flux Router conectado · roteado por requisição",
       "errorUnauthorized": "Essa chave do {{provider}} foi rejeitada. Verifique a chave e tente novamente.",
       "errorNoCredit": "Conectado, mas essa chave do {{provider}} não tem crédito utilizável. Adicione faturamento para rotear modelos.",
       "errorOffline": "Não foi possível acessar o {{provider}}. Você parece estar offline. Verifique sua conexão e tente novamente.",

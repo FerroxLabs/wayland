@@ -1794,6 +1794,7 @@
       "metricsTurns": "Letzte {{count}} Runden:",
       "histogram": "Flaggschiff {{flagship}} · Klein {{small}} · Lokal {{local}}",
       "activeConfirmation": "Flux Router verbunden · {{count}} Modelle · pro Anfrage geroutet",
+      "activeConfirmationNoCount": "Flux Router verbunden · pro Anfrage geroutet",
       "errorUnauthorized": "Dieser {{provider}}-Schlüssel wurde abgelehnt. Prüfe den Schlüssel und versuche es erneut.",
       "errorNoCredit": "Verbunden, aber dieser {{provider}}-Schlüssel hat kein nutzbares Guthaben. Füge eine Abrechnung hinzu, um Modelle zu routen.",
       "errorOffline": "{{provider}} konnte nicht erreicht werden. Du scheinst offline zu sein. Prüfe deine Verbindung und versuche es erneut.",

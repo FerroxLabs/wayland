@@ -1761,6 +1761,7 @@
       "metricsTurns": "최근 {{count}}턴:",
       "histogram": "플래그십 {{flagship}} · 소형 {{small}} · 로컬 {{local}}",
       "activeConfirmation": "Flux Router 연결됨 · 모델 {{count}}개 · 요청별 라우팅",
+      "activeConfirmationNoCount": "Flux Router 연결됨 · 요청별 라우팅",
       "errorUnauthorized": "해당 {{provider}} 키가 거부되었습니다. 키를 확인하고 다시 시도하세요.",
       "errorNoCredit": "연결되었지만 해당 {{provider}} 키에 사용 가능한 크레딧이 없습니다. 모델을 라우팅하려면 결제를 추가하세요.",
       "errorOffline": "{{provider}}에 연결할 수 없습니다. 오프라인 상태인 것 같습니다. 연결을 확인하고 다시 시도하세요.",

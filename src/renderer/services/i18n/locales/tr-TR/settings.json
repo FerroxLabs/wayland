@@ -1759,6 +1759,7 @@
       "metricsTurns": "Son {{count}} tur:",
       "histogram": "Amiral gemisi {{flagship}} · Küçük {{small}} · Yerel {{local}}",
       "activeConfirmation": "Flux Router bağlı · {{count}} model · istek başına yönlendirme",
+      "activeConfirmationNoCount": "Flux Router bağlı · istek başına yönlendirme",
       "errorUnauthorized": "Bu {{provider}} anahtarı reddedildi. Anahtarı kontrol edip tekrar deneyin.",
       "errorNoCredit": "Bağlandı, ancak bu {{provider}} anahtarında kullanılabilir kredi yok. Modelleri yönlendirmek için fatura bilgisi ekleyin.",
       "errorOffline": "{{provider}} hizmetine ulaşılamadı. Çevrimdışı görünüyorsunuz. Bağlantınızı kontrol edip tekrar deneyin.",

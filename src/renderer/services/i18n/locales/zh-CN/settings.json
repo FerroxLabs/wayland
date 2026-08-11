@@ -1760,6 +1760,7 @@
       "metricsTurns": "最近 {{count}} 轮：",
       "histogram": "旗舰 {{flagship}} · 小型 {{small}} · 本地 {{local}}",
       "activeConfirmation": "Flux Router 已连接 · {{count}} 个模型 · 按请求路由",
+      "activeConfirmationNoCount": "Flux Router 已连接 · 按请求路由",
       "errorUnauthorized": "该 {{provider}} 密钥被拒绝。请检查密钥后重试。",
       "errorNoCredit": "已连接，但该 {{provider}} 密钥没有可用额度。请添加账单以路由模型。",
       "errorOffline": "无法连接 {{provider}}。你似乎处于离线状态。请检查网络后重试。",

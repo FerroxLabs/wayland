@@ -1794,6 +1794,7 @@
       "metricsTurns": "Últimos {{count}} turnos:",
       "histogram": "Premium {{flagship}} · Pequeño {{small}} · Local {{local}}",
       "activeConfirmation": "Flux Router conectado · {{count}} modelos · enrutados por solicitud",
+      "activeConfirmationNoCount": "Flux Router conectado · enrutado por solicitud",
       "errorUnauthorized": "Esa clave de {{provider}} fue rechazada. Comprueba la clave e inténtalo de nuevo.",
       "errorNoCredit": "Conectado, pero esa clave de {{provider}} no tiene crédito disponible. Añade facturación para enrutar modelos.",
       "errorOffline": "No se pudo acceder a {{provider}}. Parece que estás sin conexión. Comprueba tu conexión y reinténtalo.",

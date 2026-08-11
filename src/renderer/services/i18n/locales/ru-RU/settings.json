@@ -1761,6 +1761,7 @@
       "metricsTurns": "Последние {{count}} ходов:",
       "histogram": "Флагман {{flagship}} · Малая {{small}} · Локальная {{local}}",
       "activeConfirmation": "Flux Router подключён · моделей: {{count}} · маршрутизация по запросу",
+      "activeConfirmationNoCount": "Flux Router подключён · маршрутизация по запросу",
       "errorUnauthorized": "Ключ {{provider}} отклонён. Проверьте ключ и повторите попытку.",
       "errorNoCredit": "Подключено, но у ключа {{provider}} нет доступного баланса. Добавьте платёжные данные, чтобы маршрутизировать модели.",
       "errorOffline": "Не удалось связаться с {{provider}}. Похоже, вы офлайн. Проверьте подключение и повторите попытку.",
