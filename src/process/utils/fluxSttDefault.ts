@@ -49,12 +49,18 @@ export function resolveFluxSttDefault(deps: FluxSttDefaultDeps): SpeechToTextCon
 
   return {
     /**
-     * Never `false`. Seeding a provider and simultaneously writing
-     * `enabled:false` produced a config that names a working transcriber and
-     * then refuses to use it - main's own gate throws STT_DISABLED on the very
-     * config it just seeded. A seed that cannot be used is not a seed.
+     * Never `false`, and not "false unless something already said false".
+     *
+     * `current?.enabled ?? true` only covered the case where there is no config
+     * at all. Every profile that predates this shipped HAS a config and it says
+     * `enabled:false`, because that was the factory default - so the common
+     * legacy input re-emitted `{enabled:false, provider:'flux-voice'}`: a config
+     * that names a working transcriber and then refuses to use it, which main's
+     * own gate rejects with STT_DISABLED on the very config it just seeded. A
+     * seed that cannot be used is not a seed, and there is no stored `false`
+     * this function can tell apart from the old default.
      */
-    enabled: current?.enabled ?? true,
+    enabled: true,
     autoSend: current?.autoSend,
     provider: 'flux-voice',
     fluxVoice: {

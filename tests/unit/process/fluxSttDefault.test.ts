@@ -57,6 +57,32 @@ describe('resolveFluxSttDefault', () => {
     expect(result?.enabled).toBe(true);
   });
 
+  /**
+   * The case the guard above did NOT cover, and the common one.
+   *
+   * `current?.enabled ?? true` only reached `true` when there was no config at
+   * all. Every profile that upgraded from a version before this shipped HAS a
+   * config and it says `enabled:false`, because that was the factory default -
+   * so the seed re-emitted `enabled:false` alongside a working transcriber, and
+   * main's own gate throws STT_DISABLED on it.
+   *
+   * There is no live defect today only because the one caller checks `enabled`
+   * and throws before it gets here. That is a property of the caller, not of
+   * this function, and it is not what the function should depend on. Driven as
+   * raw JSON with no `origin`, exactly as it sits on disk.
+   */
+  it('never re-emits a legacy enabled:false alongside the provider it just seeded', () => {
+    for (const json of [
+      '{"enabled":false,"provider":"openai"}',
+      '{"enabled":false}',
+      '{"enabled":false,"provider":"openai","autoSend":true}',
+    ]) {
+      const result = resolveFluxSttDefault({ current: JSON.parse(json), fluxKey: 'sk-flux-test' });
+      expect(result?.provider).toBe('flux-voice');
+      expect(result?.enabled).toBe(true);
+    }
+  });
+
   it('does NOT seed when Flux is not connected (no key)', () => {
     expect(resolveFluxSttDefault({ current: undefined, fluxKey: undefined })).toBeNull();
     expect(resolveFluxSttDefault({ current: enabledConfig(), fluxKey: undefined })).toBeNull();

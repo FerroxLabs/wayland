@@ -79,7 +79,69 @@ vi.mock('@arco-design/web-react', () => ({
   Tooltip: ({ children }: { children: React.ReactNode }) => React.createElement(React.Fragment, {}, children),
 }));
 
-import SpeechInputButton, { getErrorMessageKey } from '@/renderer/components/chat/SpeechInputButton';
+import SpeechInputButton, { getErrorMessageKey, legTooltip } from '@/renderer/components/chat/SpeechInputButton';
+import type { VoiceFailureCause, VoiceLeg, VoiceLegStatus } from '@/common/voice/voiceReadiness';
+
+/**
+ * Hover copy is copy. Two branches of `legTooltip` used to interpolate the raw
+ * failure slug - "Dictation is not available on this system (no-local-adapter)."
+ * - which is a member of a TypeScript union printed at a user. This is the guard
+ * that keeps every branch a sentence.
+ */
+describe('legTooltip never puts a slug or a code on the screen', () => {
+  const statuses: ReadonlyArray<VoiceLegStatus> = [
+    'ready',
+    'warming',
+    'preparing',
+    'needsSetup',
+    'unsupported',
+    'failed',
+  ];
+  const causes: ReadonlyArray<VoiceFailureCause> = [
+    'ok',
+    'tts-disabled-by-user',
+    'no-local-adapter',
+    'kokoro-unavailable',
+    'tts-needs-consent',
+    'stt-disabled',
+    'stt-unavailable',
+    'stt-needs-consent',
+    'audio-blocked',
+    'local-engine-warming',
+    'no-model-connected',
+  ];
+
+  it('renders a sentence for every status and cause pairing', () => {
+    // Control: a non-empty product, so the loop is not vacuous.
+    expect(statuses.length * causes.length).toBeGreaterThan(50);
+
+    for (const status of statuses) {
+      for (const cause of causes) {
+        const leg: VoiceLeg = { direction: 'in', status, cause, provider: null, clickable: status === 'ready' };
+        const copy = legTooltip(leg);
+
+        // `ready` is the one branch that deliberately says nothing, because a
+        // working control needs no explanation.
+        if (status === 'ready') {
+          expect(copy).toBe('');
+          continue;
+        }
+
+        expect(copy.length).toBeGreaterThan(20);
+        expect(copy.toLowerCase()).not.toContain('unknown');
+        // Not the cause it was given, and not ANY cause: a tooltip that leaks a
+        // different leg's slug is the same defect.
+        for (const slug of causes) expect(copy).not.toContain(slug);
+        // The exact shape the two broken branches produced: a slug in
+        // parentheses at the end of an otherwise fine sentence. Hyphenated
+        // ENGLISH ("on-device") is not a slug, so this targets the bracket.
+        expect(copy).not.toMatch(/\([a-z]+(-[a-z]+)+\)/);
+        // No error code left over from a bridge failure.
+        expect(copy).not.toMatch(/\b[A-Z][A-Z0-9_]{4,}\b/);
+      }
+    }
+  });
+});
 
 describe('getErrorMessageKey', () => {
   it('maps premium-locked to the premiumLocked i18n key (not genericError)', () => {

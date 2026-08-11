@@ -78,11 +78,18 @@ vi.mock('@/renderer/pages/conversation/hooks/ConversationTabsContext', () => ({
 /**
  * The platform, switchable per test. Only macOS ships a local synthesizer, so
  * the identical stored config means different things on different machines.
+ *
+ * A NAMED PLATFORM, not a macOS boolean. The session used to be handed
+ * `isMacOS() ? 'darwin' : 'other'`, which cannot tell Windows from Linux - so
+ * "off macOS" was one undifferentiated case and the Windows story could never
+ * be asserted separately from the Linux one. It has to be, because
+ * `packet/wl-voice-wintts` is about to make them differ.
  */
-let onMacOS = true;
+let testPlatform: 'darwin' | 'win32' | 'linux' = 'darwin';
 vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
-  isMacOS: () => onMacOS,
+  isMacOS: () => testPlatform === 'darwin',
+  currentPlatform: () => testPlatform,
 }));
 
 vi.mock('@/renderer/hooks/system/useSpeechInput', () => ({
@@ -195,7 +202,7 @@ describe('VoiceSessionProvider', () => {
     onTranscript = null;
     storedStt = { enabled: true };
     storedTts = undefined;
-    onMacOS = true;
+    testPlatform = 'darwin';
     vi.stubGlobal('Audio', MockAudio);
     // jsdom has no Web Audio. Pinned per test so the AudioContext suite below
     // cannot leak its fake into anything else.
@@ -441,21 +448,24 @@ describe('VoiceSessionProvider', () => {
      * naming the platform rather than blaming the settings, is the difference
      * between a dead end and a route.
      */
-    it('refuses before recording on a platform with no local voice', async () => {
-      onMacOS = false;
-      storedTts = { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false };
-      renderSession();
+    it.each(['win32', 'linux'] as const)(
+      'refuses before recording on %s, which has no local voice',
+      async (platform) => {
+        testPlatform = platform;
+        storedTts = { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false };
+        renderSession();
 
-      await tapToSpeak();
+        await tapToSpeak();
 
-      expect(screen.getByText(/no built-in voice on this operating system/)).toBeInTheDocument();
-      expect(mockStartRecording).not.toHaveBeenCalled();
-    });
+        expect(screen.getByText(/no built-in voice on this operating system/)).toBeInTheDocument();
+        expect(mockStartRecording).not.toHaveBeenCalled();
+      }
+    );
 
     it('records on macOS with exactly the same stored config', async () => {
       // The control. Same config, same code path, different platform - so the
       // refusal above is about the operating system and nothing else.
-      onMacOS = true;
+      testPlatform = 'darwin';
       storedTts = { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false };
       renderSession();
 
@@ -464,11 +474,40 @@ describe('VoiceSessionProvider', () => {
       expect(mockStartRecording).toHaveBeenCalledTimes(1);
     });
 
+    /**
+     * THE UPGRADED PROFILE, end to end through the session, unnormalized.
+     *
+     * `{"enabled":false,"provider":"openai"}` with no `origin` is the shipped
+     * pre-origin factory default and is what an upgraded install actually holds
+     * on disk. The session read it RAW - `sttConfigRef.current = storedStt` -
+     * and passed it through `readinessInput()` untouched, so `enabled:false`
+     * refused the microphone and the panel told the user "Speech input is off"
+     * about a decision they never made.
+     *
+     * Two separate things are asserted because two separate reads were wrong:
+     * the mic opens, AND the setup banner stays away. The banner is the one the
+     * resolver cannot fix on its own - it is driven off the config the session
+     * holds in state, so it pins the normalization at the READ, not in the
+     * ladder.
+     */
+    it('records on a raw pre-origin profile and does not call it incomplete', async () => {
+      testPlatform = 'darwin';
+      storedStt = JSON.parse('{"enabled":false,"provider":"openai"}');
+      storedTts = { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false };
+      renderSession();
+
+      await tapToSpeak();
+
+      expect(mockStartRecording).toHaveBeenCalledTimes(1);
+      expect(screen.queryByText('Voice setup is incomplete')).toBeNull();
+      expect(screen.queryByText(/Speech input is off/)).toBeNull();
+    });
+
     it('records off macOS once a hosted voice is chosen and agreed', async () => {
       // Windows and Linux are not blocked from voice, they are blocked from
       // LOCAL voice. The hosted route has to stay open or the refusal above
       // would be a dead end after all.
-      onMacOS = false;
+      testPlatform = 'win32';
       storedTts = { enabled: true, provider: 'openai', voice: 'alloy', speed: 1, autoReadResponses: false };
       renderSession();
 

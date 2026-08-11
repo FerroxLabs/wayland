@@ -124,10 +124,20 @@ export const legTooltip = (leg: VoiceLeg): string => {
       return leg.cause === 'no-model-connected'
         ? 'No model is connected yet, so nothing can answer. Connect one in Models and Providers.'
         : 'Dictation needs a moment of setup. Check Voice settings.';
+    /**
+     * No slug, no error code, no "unknown".
+     *
+     * These two branches used to interpolate `leg.cause` straight into the
+     * sentence, so hover copy read "Dictation is not available on this system
+     * (no-local-adapter)." A cause name is a value in a union this file
+     * switches on; it is not English, it tells the user nothing they can act
+     * on, and it is the one string on the screen that admits the tooltip did
+     * not have an answer.
+     */
     case 'unsupported':
-      return `Dictation is not available on this system (${leg.cause}).`;
+      return 'Dictation is not available on this computer.';
     case 'failed':
-      return `Dictation is unavailable (${leg.cause}).`;
+      return 'Dictation could not start. Choose a different voice engine in Voice settings.';
     case 'ready':
     default:
       return '';

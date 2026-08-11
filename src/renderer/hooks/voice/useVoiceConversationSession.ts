@@ -22,6 +22,7 @@ import {
   type VoiceSessionEvent,
   type VoiceSessionSnapshot,
 } from '@/common/voice/VoiceSessionMachine';
+import { normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 import { selectVoiceGreeting } from '@/common/voice/voiceGreeting';
 import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
 import {
@@ -43,7 +44,7 @@ import { resolveVoiceTurnTerminal } from '@/common/voice/voiceTurnTerminal';
 import { createVoiceSpeechQueue, type VoiceSpeechQueue } from '@/renderer/services/voice/voiceSpeechQueue';
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
-import { isMacOS } from '@/renderer/utils/platform';
+import { currentPlatform } from '@/renderer/utils/platform';
 import {
   consumeArmedVoiceMode,
   submitVoiceTurn,
@@ -675,7 +676,7 @@ export const useVoiceConversationSession = ({
     (audioContextState?: AudioContextState): VoiceReadinessInput => ({
       ttsConfig: ttsConfigRef.current,
       sttConfig: sttConfigRef.current && { ...sttConfigRef.current, provider: sttProviderRef.current ?? undefined },
-      platform: isMacOS() ? 'darwin' : 'other',
+      platform: currentPlatform(),
       consent: consentRef.current,
       connectedCredentials: connectedCredentialsRef.current,
       localSttReady: localSttReadyRef.current,
@@ -1045,11 +1046,24 @@ export const useVoiceConversationSession = ({
        */
       await ensureAudioContext();
       try {
-        const [storedStt, storedTts] = await Promise.all([
+        const [rawStoredStt, storedTts] = await Promise.all([
           ConfigStorage.get('tools.speechToText'),
           ConfigStorage.get('tools.textToSpeech'),
         ]);
         const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined);
+        /**
+         * Normalize ONCE, here, and never touch the raw value again.
+         *
+         * `normalizeTextToSpeechConfig` was applied to the speaking side on the
+         * line above and its speech-in sibling was simply missing, so the bytes
+         * off disk went into `sttConfigRef` and out through `readinessInput()`
+         * unchanged. On a real upgraded profile those bytes are
+         * `{enabled:false, provider:'openai'}` with no `origin`, which is the
+         * pre-origin factory default rather than anything the user chose - and
+         * read raw it refuses the session with `stt-disabled`, on exactly the
+         * installs this lane exists to unblock.
+         */
+        const storedStt = normalizeSpeechToTextConfig(rawStoredStt);
 
         /**
          * Which transcriber will actually receive the audio, which is not always
@@ -1151,10 +1165,10 @@ export const useVoiceConversationSession = ({
 
         sttProviderRef.current = sttProvider;
         setEffectiveSttProvider(sttProvider);
-        sttConfigRef.current = storedStt ?? null;
+        sttConfigRef.current = storedStt;
         ttsConfigRef.current = nextTts;
         consentRef.current = effectiveConsent ?? null;
-        setSttConfig(storedStt ?? null);
+        setSttConfig(storedStt);
         setTtsConfig(nextTts);
         setConsent(effectiveConsent ?? null);
         setSurfaceError(null);
@@ -1535,7 +1549,7 @@ export const useVoiceConversationSession = ({
     (): VoiceReadinessInput => ({
       ttsConfig,
       sttConfig: sttConfig && { ...sttConfig, provider: effectiveSttProvider ?? undefined },
-      platform: isMacOS() ? 'darwin' : 'other',
+      platform: currentPlatform(),
       consent,
       audioContextState,
       connectedCredentials,

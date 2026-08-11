@@ -6,7 +6,9 @@
 
 import { HOSTED_VOICE_CONSENT_VERSION, type HostedVoiceConsent } from '@/common/types/voiceConsent';
 import {
+  platformNativeTtsProvider,
   resolveVoiceLeg,
+  resolveVoiceSessionReadiness,
   type ConnectedVoiceCredentials,
   type VoiceLeg,
   type VoiceReadinessInput,
@@ -80,11 +82,39 @@ describe('the speech-in ladder is on-device first', () => {
    * A pre-origin profile stored `enabled:false`, which is indistinguishable
    * from the old factory value. Honouring it would leave every existing install
    * exactly as broken as it is today.
+   *
+   * Driven RAW, through the resolver, with no normalization step in the test.
+   * This assertion used to normalize its own fixture first, which meant it
+   * passed against a resolver that trusts whatever it is handed - and both
+   * production read paths handed it the raw value.
    */
   it('re-seeds a legacy disabled default-origin profile onto the floor', () => {
-    const legacy = normalizeSpeechToTextConfig({ enabled: false, provider: 'openai' } as never);
-    expect(legacy.origin).toBe('default');
-    expect(resolveVoiceLeg('in', { sttConfig: legacy }).clickable).toBe(true);
+    const legacy = JSON.parse('{"enabled":false,"provider":"openai"}');
+    expect(legacy.origin).toBeUndefined();
+    const leg = resolveVoiceLeg('in', { sttConfig: legacy });
+    expect(leg.provider).toBe('whisper-local');
+    expect(leg.clickable).toBe(true);
+  });
+
+  /**
+   * The verifier's own probe, kept verbatim as a row.
+   *
+   * `{"enabled":false,"provider":"openai"}` with `{enabled:true,
+   * provider:'system-native'}` on darwin is a real upgraded macOS profile, and
+   * it must come back READY through the function the session calls.
+   */
+  it('is ready for a real upgraded macOS profile, unnormalized', () => {
+    const result = resolveVoiceSessionReadiness({
+      sttConfig: JSON.parse('{"enabled":false,"provider":"openai"}'),
+      ttsConfig: { enabled: true, provider: 'system-native' },
+      platform: 'darwin',
+    });
+    expect(result).toEqual({
+      ready: true,
+      reason: 'ok',
+      ttsProvider: 'system-native',
+      sttProvider: 'whisper-local',
+    });
   });
 
   it('honours an explicit user switch-off, because that one is distinguishable', () => {
@@ -153,16 +183,37 @@ describe('the speech-out ladder is platform-native first', () => {
 /**
  * THE ACCEPTANCE TRUTH TABLE.
  *
- * {Flux connected / OpenAI key / neither} x {consent granted / not granted}, on
- * a FACTORY profile with no manual setup. Every cell must resolve to a working
- * provider on BOTH legs.
+ * {stored profile} x {platform} x {credentials} x {consent}, driven through
+ * `resolveVoiceSessionReadiness` - the function production actually calls -
+ * with the stored profile as RAW JSON off disk.
+ *
+ * The raw JSON is the whole point. An earlier version of this table built its
+ * input by calling `normalizeSpeechToTextConfig` itself, while neither
+ * production read path did, so it proved the ladder only for a shape the app
+ * never produced. On a genuinely upgraded profile - `{enabled:false,
+ * provider:'openai'}`, no `origin` field, which is the pre-origin factory
+ * default and not a decision anyone made - the old resolver still said
+ * `stt-disabled`. Nothing below may pre-process its input; if the resolver
+ * needs a config normalized, the resolver normalizes it.
  *
  * A cell FAILS on any of: stt-disabled, stt-unavailable, stt-needs-consent,
- * tts-needs-consent, or a speech-out leg with no provider. `stt-needs-consent`
- * counting as a FAILURE is the whole point - an earlier draft omitted it, the
- * table went green, and the user still hit a disclosure wall on first tap.
+ * tts-needs-consent, or a leg with no provider. `stt-needs-consent` counting as
+ * a FAILURE is the whole point - an earlier draft omitted it, the table went
+ * green, and the user still hit a disclosure wall on first tap.
  */
 const FAILING_CAUSES = ['stt-disabled', 'stt-unavailable', 'stt-needs-consent', 'tts-needs-consent'] as const;
+
+/**
+ * Stored profiles as they exist ON DISK, parsed from JSON so nothing here can
+ * accidentally carry a field a real config would not have. None declares
+ * `origin`, because no version that has shipped ever wrote one.
+ */
+const storedProfileCells: Array<[string, unknown]> = [
+  ['nothing stored at all', undefined],
+  ['pre-origin profile, the shipped factory default', JSON.parse('{"enabled":false,"provider":"openai"}')],
+  ['pre-origin profile that named Deepgram', JSON.parse('{"enabled":false,"provider":"deepgram"}')],
+  ['pre-origin profile with a stale OpenAI key', JSON.parse('{"enabled":false,"provider":"openai","openai":{"apiKey":"sk-old","model":"whisper-1"}}')],
+];
 
 const credentialCells: Array<[string, ConnectedVoiceCredentials]> = [
   ['Flux connected', { flux: true }],
@@ -175,29 +226,78 @@ const consentCells: Array<[string, HostedVoiceConsent | null]> = [
   ['consent NOT granted', null],
 ];
 
-describe('factory-profile truth table, both legs, no manual setup', () => {
-  for (const [credentialLabel, connectedCredentials] of credentialCells) {
-    for (const [consentLabel, consent] of consentCells) {
-      it(`${credentialLabel} / ${consentLabel} works on both legs`, () => {
-        const input: VoiceReadinessInput = {
-          sttConfig: factorySttConfig(),
-          platform: 'darwin',
-          connectedCredentials,
-          consent,
-        };
+/**
+ * The PLATFORM axis, and the honest answer on each.
+ *
+ * Every cell of the previous table hardcoded `darwin`, so "voice works out of
+ * the box" was proved on one of the three platforms this ships to and quietly
+ * assumed on the other two. It does not hold there: `synthesizeSystemNative`
+ * shells out to `say`, `say` is macOS-only, and there is no other local
+ * synthesizer - so on Windows and Linux the SPEAKING leg of every configuration
+ * below is unsupported and not clickable.
+ *
+ * That is asserted here BY NAME rather than omitted. Speech IN is unaffected -
+ * the bundled Whisper is a WASM worker with no platform story at all - so the
+ * listening half of the table is a genuine cross-platform claim.
+ *
+ * `packet/wl-voice-wintts` is adding a Windows-native provider. When it lands,
+ * `win32` flips to `speechOutWorks: true` and the row below is the assertion
+ * that will go red until that lane updates it. That is deliberate: the seam has
+ * a name (`platformNativeTtsProvider`) and a test, not a silent gap.
+ */
+const platformCells: Array<[string, string, boolean]> = [
+  ['darwin', 'darwin', true],
+  ['win32', 'win32', false],
+  ['linux', 'linux', false],
+];
 
-        const inbound = resolveVoiceLeg('in', input);
-        const outbound = resolveVoiceLeg('out', input);
+describe('acceptance truth table: raw stored config, every platform, both legs', () => {
+  for (const [profileLabel, storedSttJson] of storedProfileCells) {
+    for (const [platformLabel, platform, speechOutWorks] of platformCells) {
+      for (const [credentialLabel, connectedCredentials] of credentialCells) {
+        for (const [consentLabel, consent] of consentCells) {
+          it(`${profileLabel} on ${platformLabel} / ${credentialLabel} / ${consentLabel}`, () => {
+            const input: VoiceReadinessInput = {
+              // RAW. Straight off disk, exactly as `ConfigStorage.get` returns
+              // it. Normalizing here is what made the old table vacuous.
+              sttConfig: storedSttJson as VoiceReadinessInput['sttConfig'],
+              platform,
+              connectedCredentials,
+              consent,
+            };
 
-        for (const leg of [inbound, outbound]) {
-          expect(FAILING_CAUSES).not.toContain(leg.cause);
-          expect(leg.status).toBe('ready');
-          expect(leg.clickable).toBe(true);
+            // The production entry point, not a helper assembled for the test.
+            const session = resolveVoiceSessionReadiness(input);
+            const inbound = resolveVoiceLeg('in', input);
+            const outbound = resolveVoiceLeg('out', input);
+
+            // LISTENING works on every platform, on every legacy profile, with
+            // no setup and no disclosure. This is the lane's core claim.
+            expect(FAILING_CAUSES).not.toContain(inbound.cause);
+            expect(inbound.status).toBe('ready');
+            expect(inbound.clickable).toBe(true);
+            expect(inbound.provider).toBe('whisper-local');
+            expect(session.sttProvider).toBe('whisper-local');
+
+            if (speechOutWorks) {
+              expect(FAILING_CAUSES).not.toContain(outbound.cause);
+              expect(outbound.status).toBe('ready');
+              expect(outbound.clickable).toBe(true);
+              expect(outbound.provider).toBe('system-native');
+              expect(session.ready).toBe(true);
+              expect(session.reason).toBe('ok');
+            } else {
+              // The CURRENT Windows/Linux outcome, stated out loud.
+              expect(outbound.status).toBe('unsupported');
+              expect(outbound.cause).toBe('no-local-adapter');
+              expect(outbound.clickable).toBe(false);
+              expect(outbound.provider).toBeNull();
+              expect(session.ready).toBe(false);
+              expect(session.reason).toBe('no-local-adapter');
+            }
+          });
         }
-        // A speech-out leg with no provider is a failing cell.
-        expect(outbound.provider).not.toBeNull();
-        expect(inbound.provider).not.toBeNull();
-      });
+      }
     }
   }
 
@@ -210,6 +310,36 @@ describe('factory-profile truth table, both legs, no manual setup', () => {
     expect(DEFAULT_SPEECH_TO_TEXT_CONFIG.enabled).toBe(true);
     expect(DEFAULT_SPEECH_TO_TEXT_CONFIG.provider).toBeUndefined();
     expect(DEFAULT_SPEECH_TO_TEXT_CONFIG.origin).toBe('default');
+  });
+
+  /**
+   * The NEGATIVE CONTROL for the raw-input claim above.
+   *
+   * Without this, "the table drives raw legacy JSON" is only a comment. This
+   * asserts that the exact bytes the table feeds in are the broken shape: no
+   * `origin`, and `enabled:false`. If a future edit quietly starts normalizing
+   * the fixtures, this row is what notices.
+   */
+  it('feeds the resolver the broken shape, not a pre-cleaned one', () => {
+    for (const [, stored] of storedProfileCells) {
+      if (stored === undefined) continue;
+      const raw = stored as Record<string, unknown>;
+      expect(raw.origin).toBeUndefined();
+      expect(raw.enabled).toBe(false);
+    }
+  });
+
+  /**
+   * THE SEAM `packet/wl-voice-wintts` HAS TO SATISFY.
+   *
+   * One function decides whether the OS provides a synthesizer, and it is the
+   * only place in `voiceReadiness` that compares a platform string. The Windows
+   * lane returns its provider for `win32` here and the whole table follows.
+   */
+  it('names the platform-native synthesizer seam', () => {
+    expect(platformNativeTtsProvider('darwin')).toBe('system-native');
+    expect(platformNativeTtsProvider('win32')).toBeNull();
+    expect(platformNativeTtsProvider('linux')).toBeNull();
   });
 });
 

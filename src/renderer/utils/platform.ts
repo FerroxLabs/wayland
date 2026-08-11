@@ -52,6 +52,26 @@ export const isLinux = (): boolean => {
   return typeof navigator !== 'undefined' && /linux/i.test(navigator.userAgent);
 };
 
+/**
+ * The current platform, in `process.platform` vocabulary.
+ *
+ * Renderer code kept reducing this to `isMacOS() ? 'darwin' : 'other'`, which
+ * cannot tell Windows from Linux - so anything that has to differ between the
+ * two, such as which synthesizer the OS provides, got the same answer on both.
+ * Returning the same strings main uses means a value read here and a value read
+ * from `process.platform` are comparable without a translation table.
+ *
+ * macOS is tested FIRST: the macOS user agent contains neither "win" nor
+ * "linux", but the Android and X11 strings that `isLinux` matches overlap with
+ * other checks, so the order is load-bearing.
+ */
+export const currentPlatform = (): 'darwin' | 'win32' | 'linux' | 'other' => {
+  if (isMacOS()) return 'darwin';
+  if (isWindows()) return 'win32';
+  if (isLinux()) return 'linux';
+  return 'other';
+};
+
 const ASSET_PROTOCOL_PREFIX = 'wayland-asset://asset/';
 
 const shouldKeepAssetProtocolInElectron = (): boolean => {

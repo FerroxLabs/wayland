@@ -76,7 +76,16 @@ export const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
  *    intent that can be honoured, and the floor is the only safe landing.
  */
 export const normalizeSpeechToTextConfig = (
-  config?: SpeechToTextConfig
+  /**
+   * Deliberately `Partial` and nullable. What is on disk is whatever some
+   * earlier version wrote, and the shape that actually broke voice out of the
+   * box - `{enabled:false, provider:'openai'}` with no `origin` at all - is not
+   * a `SpeechToTextConfig`. Typing the parameter as the finished config forced
+   * every caller into a cast, and a cast at a call site is exactly where a raw
+   * value slips past. Accepting the honest input type is what lets the resolver
+   * call this on its own arguments.
+   */
+  config?: Partial<SpeechToTextConfig> | null
 ): SpeechToTextConfig & { origin: SpeechToTextConfigOrigin } => {
   const storedProvider = config?.provider;
   const providerIsValid = storedProvider === undefined || isSpeechToTextProvider(storedProvider);

@@ -7,6 +7,7 @@
 import type { SpeechToTextConfig, SpeechToTextConfigOrigin, SpeechToTextProvider } from '@/common/types/speech';
 import type { TextToSpeechConfig, TextToSpeechProvider } from '@/common/types/ttsTypes';
 import { hostedVoiceConsentGranted, isHostedVoiceProvider, type HostedVoiceConsent } from '@/common/types/voiceConsent';
+import { normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 
 /**
  * Can a voice conversation actually happen right now, and if not, what is the
@@ -163,6 +164,23 @@ export const ON_DEVICE_STT_PROVIDER: SpeechToTextProvider = 'whisper-local';
 /** The platform-native synthesizer. `say`, and `say` is macOS-only. */
 export const ON_DEVICE_TTS_PROVIDER: TextToSpeechProvider = 'system-native';
 
+/**
+ * THE WINDOWS/LINUX SEAM. Which synthesizer the OS itself provides, by platform.
+ *
+ * Today: macOS only. `synthesizeSystemNative` shells out to `say`, which exists
+ * nowhere else, so on Windows and Linux the speaking leg of EVERY otherwise
+ * working configuration is `unsupported` / `no-local-adapter` / not clickable.
+ * That is a real, currently shipped hole and the acceptance table asserts it by
+ * name rather than testing macOS and calling it "voice works".
+ *
+ * `packet/wl-voice-wintts` is adding a Windows-native provider. When it lands,
+ * this function is the ONLY thing that has to change - return that provider for
+ * `win32` and every consumer, every leg and every table cell follows, because
+ * nothing else in this file compares a platform string.
+ */
+export const platformNativeTtsProvider = (platform: string): TextToSpeechProvider | null =>
+  platform === 'darwin' ? ON_DEVICE_TTS_PROVIDER : null;
+
 const leg = (
   direction: VoiceLegDirection,
   status: VoiceLegStatus,
@@ -187,8 +205,29 @@ const leg = (
  * the user climbs onto them deliberately, from the Voice panel, where the
  * disclosure belongs - never from the composer.
  */
-const resolveSttLeg = ({ sttConfig, consent, connectedCredentials, localSttReady }: VoiceReadinessInput): VoiceLeg => {
-  const origin: SpeechToTextConfigOrigin = sttConfig?.origin === 'user' ? 'user' : 'default';
+const resolveSttLeg = ({
+  sttConfig: storedSttConfig,
+  consent,
+  connectedCredentials,
+  localSttReady,
+}: VoiceReadinessInput): VoiceLeg => {
+  /**
+   * NORMALIZE HERE, not at the call sites.
+   *
+   * This used to trust its caller, and every caller that mattered handed it the
+   * raw bytes off disk. A real upgraded profile holds
+   * `{enabled:false, provider:'openai'}` with no `origin` field, which is the
+   * pre-origin factory default - not a decision anyone made - and read raw it
+   * says `stt-disabled` and every acceptance cell built on it is describing a
+   * config the app never produces.
+   *
+   * Doing it at the one place that decides means there is no call site left to
+   * forget: `normalizeSpeechToTextConfig` is idempotent, so the settings panels
+   * that already normalize are unaffected, and a caller that does not normalize
+   * physically cannot get an unnormalized answer.
+   */
+  const sttConfig = normalizeSpeechToTextConfig(storedSttConfig);
+  const origin: SpeechToTextConfigOrigin = sttConfig.origin;
 
   /**
    * `enabled` is honoured for BOTH origins, and it is `normalizeSpeechToTextConfig`
@@ -200,13 +239,13 @@ const resolveSttLeg = ({ sttConfig, consent, connectedCredentials, localSttReady
    * default-origin profile follows it, which is what makes the acceptance table
    * actually depend on the default instead of quietly routing around it.
    */
-  if (sttConfig?.enabled === false) return leg('in', 'needsSetup', 'stt-disabled', null);
+  if (sttConfig.enabled === false) return leg('in', 'needsSetup', 'stt-disabled', null);
 
   // For a default origin the floor is the ONLY rung. Hosted rungs are climbed
   // deliberately, from the Voice panel, where the disclosure belongs.
   // An unset provider on a user-origin config also means the floor - never a
   // hosted service with no key.
-  const provider = origin === 'default' ? ON_DEVICE_STT_PROVIDER : (sttConfig?.provider ?? ON_DEVICE_STT_PROVIDER);
+  const provider = origin === 'default' ? ON_DEVICE_STT_PROVIDER : (sttConfig.provider ?? ON_DEVICE_STT_PROVIDER);
 
   if (provider === ON_DEVICE_STT_PROVIDER) {
     return localSttReady === false
@@ -242,9 +281,8 @@ const resolveTtsLeg = ({ ttsConfig, platform = 'darwin', consent }: VoiceReadine
 
   if (provider === ON_DEVICE_TTS_PROVIDER) {
     // `synthesizeSystemNative` throws off darwin before it ever reaches `say`.
-    return platform === 'darwin'
-      ? leg('out', 'ready', 'ok', provider)
-      : leg('out', 'unsupported', 'no-local-adapter', null);
+    const native = platformNativeTtsProvider(platform);
+    return native ? leg('out', 'ready', 'ok', native) : leg('out', 'unsupported', 'no-local-adapter', null);
   }
 
   // `resolveBinary` returns null unconditionally and `synthesize` always throws.
