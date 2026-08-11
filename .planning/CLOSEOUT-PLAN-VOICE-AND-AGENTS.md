@@ -851,10 +851,42 @@ out: " The quick brown fox jumps over the lazy dog."
 model load 1872 ms, inference 2644 ms
 ```
 
-**What this does not prove.** The model half ran under the Node build of transformers.js, not the
-renderer Worker with the WASM backend, and not in a packaged app with a live microphone. The two
-halves have not yet been demonstrated together end to end. That is the one remaining V-0 gap, and
-it is now a narrow one: runtime proven offline, model proven accurate, wiring proven by unit test.
+**Half three, closed later the same session: the two halves together, offline.** An adversarial
+verifier drove the PRODUCTION-BUILT worker chunk (`out/renderer/assets/whisperWorker-*.js` from a
+real `electron-vite build`) from a `file://` document with production `webPreferences`
+(`sandbox:true, contextIsolation:true, nodeIntegration:false, nodeIntegrationInWorker:false`) and the
+app's real CSP re-applied, fed it the same 16 kHz real-speech WAV, **with DNS blackholed**:
+
+```
+audio:      {sampleRate:16000, channels:1, samples:46677, peak:0.8248, rms:0.1047}
+init:       {"type":"ready"} in 715 ms
+transcribe: "The quick brown fox jumps over the lazy dog."
+wasm load:  XHR file:///.../out/renderer/assets/ort-wasm-simd-threaded.asyncify-DMmc6YqF.wasm
+```
+
+A four-run matrix settles causation rather than asserting it:
+
+| run | code | network | production worker jsdelivr hits | transcript |
+|---|---|---|---|---|
+| A | HEAD | online | 0 | correct |
+| B | HEAD | DNS blackholed | 0 | correct |
+| C | base `153e51539` | DNS blackholed | 2 | **none - ORT init errored** |
+| D | base `153e51539` | online | 2 | correct |
+
+Run C is the proof the CDN was load-bearing, not merely present. The instrument was validated with a
+known-positive control in the same run: a dedicated worker fetching the real jsdelivr URL WAS logged
+by both probes, so the zeros come from an instrument demonstrably able to see worker traffic.
+
+**CORRECTION to an earlier claim in this document and in the lane's commit message.** It was stated
+that jsdelivr is "an origin the app's own CSP forbids". That is FALSE for the worker. With the app's
+real CSP applied and confirmed live via `onHeadersReceived`, a dedicated worker still fetched
+jsdelivr with **HTTP 200**. CSP was never the barrier here. The offline argument stands entirely on
+its own and is sufficient; the CSP framing was wrong and is withdrawn.
+
+**The one remaining gap is narrow and named:** everything above ran from an UNPACKED `file://` tree.
+Inside `app.asar`, ORT routes `file:` URLs to XMLHttpRequest rather than fetch, so Electron's asar
+shim has to serve it. Plausible, untested, and worth one live packaged check - especially since local
+STT has never once worked in a packaged build.
 
 ### CORRECTION: the "Gemini CLI" entry is NOT a false-positive detection
 
