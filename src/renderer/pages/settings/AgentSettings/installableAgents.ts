@@ -38,8 +38,20 @@ import type {
  */
 export type InstallableAgentState = 'system' | 'installed' | 'absent' | 'installing' | 'failed' | 'unavailable';
 
+/**
+ * Why the last operation this session performed on an agent did not succeed.
+ *
+ * The install reasons come off the wire. The two `remove` outcomes do not have
+ * wire reasons of their own that are safe to show: the uninstall channel answers
+ * `{ ok: false, reason: 'unknown-agent' | 'error' }` and `{ removed: false,
+ * reason: 'receipt-missing' }`, and rendering those through the INSTALL copy
+ * would tell a user whose remove failed that an install stopped. They are named
+ * here so the card can say what actually happened.
+ */
+export type InstallActivityFailureReason = AgentInstallFailureReason | 'remove-failed' | 'receipt-missing';
+
 /** What this session is doing to an agent. Absent when nothing is happening. */
-export type InstallActivity = { phase: 'installing' } | { phase: 'failed'; reason: AgentInstallFailureReason };
+export type InstallActivity = { phase: 'installing' } | { phase: 'failed'; reason: InstallActivityFailureReason };
 
 /** Session-local activity, keyed by agent id. */
 export type InstallActivityMap = Readonly<Record<string, InstallActivity | undefined>>;
@@ -62,7 +74,7 @@ export type InstallableAgent = {
    */
   installedVersion: string | null;
   /** Named cause behind a `failed` state; null in every other state. */
-  failureReason: AgentInstallFailureReason | null;
+  failureReason: InstallActivityFailureReason | null;
 };
 
 /**

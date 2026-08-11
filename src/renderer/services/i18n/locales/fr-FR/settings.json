@@ -2292,7 +2292,9 @@
         "already-installing": "Une installation est déjà en cours. Attendez qu'elle se termine.",
         "timed-out": "L'installation a pris trop de temps et a été arrêtée. Réessayez.",
         "cancelled": "Installation annulée.",
-        "error": "L'installation s'est arrêtée sur une erreur inattendue."
+        "error": "L'installation s'est arrêtée sur une erreur inattendue.",
+        "remove-failed": "Wayland n'a pas pu supprimer sa copie. Réessayez.",
+        "receipt-missing": "Rien n'a été supprimé. Wayland n'a aucune trace de cette installation."
       },
       "removeConfirm": {
         "title": "Supprimer {{agent}} ?",

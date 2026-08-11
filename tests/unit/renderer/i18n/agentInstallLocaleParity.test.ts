@@ -70,8 +70,18 @@ describe('agent install band — locale parity', () => {
 
   it('covers every failure reason the bridge can return', () => {
     // These key names are the wire values of `AgentInstallFailureReason`; a card
-    // whose reason has no key renders the raw i18n path at the user.
-    for (const reason of ['unknown-agent', 'bundled-bun-unavailable', 'install-failed', 'error']) {
+    // whose reason has no key renders the raw i18n path at the user. The last
+    // two are the REMOVE outcomes: the uninstall channel's own reasons cannot be
+    // rendered through the install copy without telling a user whose removal
+    // failed that an install stopped.
+    for (const reason of [
+      'unknown-agent',
+      'bundled-bun-unavailable',
+      'install-failed',
+      'error',
+      'remove-failed',
+      'receipt-missing',
+    ]) {
       expect(reference.has(`failed.${reason}`)).toBe(true);
     }
   });

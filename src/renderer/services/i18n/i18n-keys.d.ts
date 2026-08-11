@@ -2497,6 +2497,8 @@ export type I18nKey =
   | 'settings.agentsPage.install.failed.cancelled'
   | 'settings.agentsPage.install.failed.error'
   | 'settings.agentsPage.install.failed.install-failed'
+  | 'settings.agentsPage.install.failed.receipt-missing'
+  | 'settings.agentsPage.install.failed.remove-failed'
   | 'settings.agentsPage.install.failed.timed-out'
   | 'settings.agentsPage.install.failed.unknown-agent'
   | 'settings.agentsPage.install.installed'

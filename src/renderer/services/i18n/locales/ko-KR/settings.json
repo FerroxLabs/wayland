@@ -2267,7 +2267,9 @@
         "already-installing": "이미 설치가 진행 중입니다. 완료될 때까지 기다려 주세요.",
         "timed-out": "설치 시간이 너무 오래 걸려 중단되었습니다. 다시 시도해 주세요.",
         "cancelled": "설치를 취소했습니다.",
-        "error": "예기치 않은 오류로 설치가 중단되었습니다."
+        "error": "예기치 않은 오류로 설치가 중단되었습니다.",
+        "remove-failed": "Wayland가 자체 사본을 제거하지 못했습니다. 다시 시도하세요.",
+        "receipt-missing": "아무것도 제거되지 않았습니다. Wayland에 이 설치 기록이 없습니다."
       },
       "removeConfirm": {
         "title": "{{agent}}을(를) 제거할까요?",

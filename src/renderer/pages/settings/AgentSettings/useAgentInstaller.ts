@@ -124,12 +124,28 @@ export function useAgentInstaller(
    * Remove an install Wayland performed. The main process refuses without a
    * receipt, which is what keeps a detected SYSTEM copy safe (D1) even if a
    * caller reached past the UI; the UI declines to offer it as well.
+   *
+   * THE OUTCOME IS REPORTED, exactly as the install path reports its own. This
+   * used to discard the result and swallow the rejection, so a user who clicked
+   * Remove and confirmed a DESTRUCTIVE modal got no signal at all in either of
+   * the two ways it can not happen: a refusal (`ok: false`) and main's honest
+   * no-op (`removed: false`, nothing was there to remove). Both land in the same
+   * `failed` activity slot the install path already uses.
    */
   const uninstall = React.useCallback(
     async (agentId: string) => {
       try {
-        await ipcBridge.agentInstaller.uninstall.invoke({ agentId });
+        const result = await ipcBridge.agentInstaller.uninstall.invoke({ agentId });
+        let next: InstallActivity | undefined;
+        if (result.ok === false) next = { phase: 'failed', reason: 'remove-failed' };
+        else if (!result.removed) next = { phase: 'failed', reason: 'receipt-missing' };
+        // A real removal clears the slot rather than writing a success marker,
+        // so the re-read below is the only source of truth for what is left.
+        setActivity((prev) => ({ ...prev, [agentId]: next }));
       } catch (err) {
+        // A rejected invoke is a broken bridge, not a remove outcome — and it is
+        // the case that used to vanish silently.
+        setActivity((prev) => ({ ...prev, [agentId]: { phase: 'failed', reason: 'remove-failed' } }));
         void err;
       }
       await revalidate();

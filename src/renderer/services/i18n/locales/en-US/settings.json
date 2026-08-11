@@ -2450,7 +2450,9 @@
         "already-installing": "An install is already running. Wait for it to finish.",
         "timed-out": "The install took too long and was stopped. Try again.",
         "cancelled": "Install cancelled.",
-        "error": "The install stopped with an unexpected error."
+        "error": "The install stopped with an unexpected error.",
+        "remove-failed": "Wayland could not remove its copy. Try again.",
+        "receipt-missing": "Nothing was removed. Wayland has no record of installing this."
       },
       "removeConfirm": {
         "title": "Remove {{agent}}?",

@@ -2292,7 +2292,9 @@
         "already-installing": "Ya hay una instalación en curso. Espera a que termine.",
         "timed-out": "La instalación tardó demasiado y se detuvo. Inténtalo de nuevo.",
         "cancelled": "Instalación cancelada.",
-        "error": "La instalación se detuvo con un error inesperado."
+        "error": "La instalación se detuvo con un error inesperado.",
+        "remove-failed": "Wayland no pudo eliminar su copia. Inténtalo de nuevo.",
+        "receipt-missing": "No se eliminó nada. Wayland no tiene registro de esta instalación."
       },
       "removeConfirm": {
         "title": "¿Quitar {{agent}}?",

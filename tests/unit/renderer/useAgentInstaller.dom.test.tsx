@@ -266,6 +266,57 @@ describe('useAgentInstaller — cancel and uninstall', () => {
     expect(mockUninstall).toHaveBeenCalledWith({ agentId: 'kimi' });
     expect(revalidate).toHaveBeenCalledTimes(1);
   });
+
+  it('a successful removal writes NO activity, so the receipt stays the only truth', async () => {
+    // The control for the two failure cases below: this same call CAN write the
+    // slot, so an empty slot here is a real success rather than a dead code path.
+    const { result } = renderHook(() => useAgentInstaller([agent('installed')], revalidate));
+
+    await act(async () => {
+      await result.current.uninstall('kimi');
+    });
+
+    expect(result.current.activity.kimi).toBeUndefined();
+  });
+
+  it('a REJECTED uninstall becomes a visible failure, not silence', async () => {
+    // The user confirmed a destructive modal. Discarding the rejection left the
+    // tile reading `installed` with nothing on screen to say it had not worked.
+    mockUninstall.mockRejectedValue(new Error('no such channel'));
+    const { result } = renderHook(() => useAgentInstaller([agent('installed')], revalidate));
+
+    await act(async () => {
+      await result.current.uninstall('kimi');
+    });
+
+    expect(result.current.activity.kimi).toEqual({ phase: 'failed', reason: 'remove-failed' });
+    // The status re-read still happens, so a partial removal shows up too.
+    expect(revalidate).toHaveBeenCalledTimes(1);
+  });
+
+  it('a REFUSED uninstall becomes a visible failure', async () => {
+    mockUninstall.mockResolvedValue({ ok: false, reason: 'error', message: 'boom' });
+    const { result } = renderHook(() => useAgentInstaller([agent('installed')], revalidate));
+
+    await act(async () => {
+      await result.current.uninstall('kimi');
+    });
+
+    expect(result.current.activity.kimi).toEqual({ phase: 'failed', reason: 'remove-failed' });
+  });
+
+  it('an honest no-op - removed: false - is reported, not treated as a removal', async () => {
+    // Main answers this when there is no receipt: correct, and still the wrong
+    // thing to show as a silent success after the user asked for a removal.
+    mockUninstall.mockResolvedValue({ ok: true, removed: false, reason: 'receipt-missing', status: {} });
+    const { result } = renderHook(() => useAgentInstaller([agent('installed')], revalidate));
+
+    await act(async () => {
+      await result.current.uninstall('kimi');
+    });
+
+    expect(result.current.activity.kimi).toEqual({ phase: 'failed', reason: 'receipt-missing' });
+  });
 });
 
 describe('useAgentInstaller — activity reporting', () => {

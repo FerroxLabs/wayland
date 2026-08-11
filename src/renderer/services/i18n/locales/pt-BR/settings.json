@@ -2292,7 +2292,9 @@
         "already-installing": "Já há uma instalação em andamento. Aguarde até que termine.",
         "timed-out": "A instalação demorou demais e foi interrompida. Tente novamente.",
         "cancelled": "Instalação cancelada.",
-        "error": "A instalação parou com um erro inesperado."
+        "error": "A instalação parou com um erro inesperado.",
+        "remove-failed": "O Wayland não conseguiu remover a sua cópia. Tente novamente.",
+        "receipt-missing": "Nada foi removido. O Wayland não tem registro desta instalação."
       },
       "removeConfirm": {
         "title": "Remover {{agent}}?",

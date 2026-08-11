@@ -2267,7 +2267,9 @@
         "already-installing": "已有安裝正在進行。請等待其完成。",
         "timed-out": "安裝耗時過長已被停止。請重試。",
         "cancelled": "安裝已取消。",
-        "error": "安裝因非預期的錯誤而中止。"
+        "error": "安裝因非預期的錯誤而中止。",
+        "remove-failed": "Wayland 無法移除自己的副本。請重試。",
+        "receipt-missing": "未移除任何項目。Wayland 沒有這次安裝的紀錄。"
       },
       "removeConfirm": {
         "title": "移除 {{agent}}？",

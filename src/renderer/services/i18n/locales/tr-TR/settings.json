@@ -2265,7 +2265,9 @@
         "already-installing": "Zaten bir kurulum çalışıyor. Bitmesini bekleyin.",
         "timed-out": "Kurulum çok uzun sürdü ve durduruldu. Tekrar deneyin.",
         "cancelled": "Kurulum iptal edildi.",
-        "error": "Kurulum beklenmeyen bir hatayla durdu."
+        "error": "Kurulum beklenmeyen bir hatayla durdu.",
+        "remove-failed": "Wayland kendi kopyasını kaldıramadı. Yeniden deneyin.",
+        "receipt-missing": "Hiçbir şey kaldırılmadı. Wayland bu kuruluma dair bir kayıt tutmuyor."
       },
       "removeConfirm": {
         "title": "{{agent}} kaldırılsın mı?",

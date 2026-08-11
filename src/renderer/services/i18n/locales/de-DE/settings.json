@@ -2292,7 +2292,9 @@
         "already-installing": "Eine Installation läuft bereits. Warten Sie, bis sie abgeschlossen ist.",
         "timed-out": "Die Installation hat zu lange gedauert und wurde abgebrochen. Versuchen Sie es erneut.",
         "cancelled": "Installation abgebrochen.",
-        "error": "Die Installation wurde mit einem unerwarteten Fehler abgebrochen."
+        "error": "Die Installation wurde mit einem unerwarteten Fehler abgebrochen.",
+        "remove-failed": "Wayland konnte seine Kopie nicht entfernen. Versuchen Sie es erneut.",
+        "receipt-missing": "Es wurde nichts entfernt. Wayland hat keinen Eintrag über diese Installation."
       },
       "removeConfirm": {
         "title": "{{agent}} entfernen?",
