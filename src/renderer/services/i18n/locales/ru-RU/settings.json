@@ -1095,6 +1095,7 @@
   "speechToTextDownloadSuccess": "Модель успешно загружена",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Сейчас используется {{provider}}, так как он подключён, а движок здесь не выбран.",
+  "speechToTextEffectiveProvider": "Сейчас используется {{provider}}.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "Синтез речи",

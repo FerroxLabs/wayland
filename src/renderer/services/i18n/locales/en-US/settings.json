@@ -1143,6 +1143,7 @@
   "speechToTextDownloadSuccess": "Model downloaded successfully",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Currently using {{provider}}, because it is connected and no engine was chosen here.",
+  "speechToTextEffectiveProvider": "Currently using {{provider}}.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "Text to Speech",

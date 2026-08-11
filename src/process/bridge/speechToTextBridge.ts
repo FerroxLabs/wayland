@@ -8,20 +8,12 @@
 
 import { ipcBridge } from '@/common';
 import type { SpeechToTextErrorCode } from '@/common/types/speech';
+import { SPEECH_TO_TEXT_ERROR_CODES } from '@/common/types/speech';
 import { SpeechToTextService } from './services/SpeechToTextService';
 
-const PUBLIC_ERROR_CODES: readonly SpeechToTextErrorCode[] = [
-  'STT_DISABLED',
-  'STT_OPENAI_NOT_CONFIGURED',
-  'STT_DEEPGRAM_NOT_CONFIGURED',
-  'STT_FLUX_NOT_CONFIGURED',
-  'STT_FLUX_AUTH_ERROR',
-  'STT_FLUX_PREMIUM_LOCKED',
-  'STT_HOSTED_CONSENT_REQUIRED',
-  'STT_FILE_TOO_LARGE',
-  'STT_RATE_LIMITED',
-  'STT_REQUEST_FAILED',
-];
+// The declared vocabulary itself, not a second copy of it. A copy can silently
+// omit a code and narrow it away to the catch-all.
+const PUBLIC_ERROR_CODES: readonly SpeechToTextErrorCode[] = SPEECH_TO_TEXT_ERROR_CODES;
 
 /**
  * Narrows a thrown error to the declared vocabulary. Anything unrecognised

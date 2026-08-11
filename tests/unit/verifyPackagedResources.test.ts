@@ -784,6 +784,32 @@ describe('packaged resource release gate', () => {
     expect(() => verify(out)).toThrow();
   });
 
+  /**
+   * The shipped-without-a-voice-floor case, which is what a build that never
+   * ran `prepareVoiceModel.js` actually produces: `resources/voice-models` is
+   * gitignored, so on a fresh clone the directory does not exist at all and
+   * electron-builder drops the `extraResources` entry silently and exits 0.
+   *
+   * The existing coverage above only pinned "present but empty". An ABSENT
+   * directory takes a different path through `isNonEmpty` - `fs.statSync`
+   * throws ENOENT and the blanket catch turns it into `false` - so it was
+   * possible to keep the placeholder case green while the real one regressed.
+   * On-device voice is the floor the whole "works with no keys" story rests on;
+   * shipping without it must be a hard stop, not a warning.
+   */
+  it('refuses to ship when the bundled voice model directory is absent entirely', () => {
+    const out = createPackagedResources(true);
+    fs.rmSync(path.join(packagedResourcesPath(out), 'voice-models'), { recursive: true, force: true });
+    expect(fs.existsSync(path.join(packagedResourcesPath(out), 'voice-models'))).toBe(false);
+    expect(() => verify(out)).toThrow(/CRITICAL/);
+  });
+
+  /** KNOWN POSITIVE: the same fixture, untouched, must pass. */
+  it('KNOWN POSITIVE: the complete fixture with the voice model present verifies', () => {
+    const out = createPackagedResources(true);
+    expect(() => verify(out)).not.toThrow();
+  });
+
   it('blocks a package that contains a valid runtime for the wrong target only', () => {
     const out = createPackagedResources(true, 'win32-x64');
     expect(() => verify(out, 'darwin-arm64')).toThrow();

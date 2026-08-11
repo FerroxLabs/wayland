@@ -1101,6 +1101,7 @@
   "speechToTextDownloadSuccess": "Модель успішно завантажена",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Зараз використовується {{provider}}, оскільки він підключений, а рушій тут не вибрано.",
+  "speechToTextEffectiveProvider": "Зараз використовується {{provider}}.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "Синтез мовлення",

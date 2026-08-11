@@ -13,11 +13,9 @@ import {
   BUILTIN_IMAGE_GEN_ID,
 } from '@/common/config/storage';
 import { FLUX_PROVIDER_ID } from '@/common/config/flux';
-import {
-  type SpeechToTextConfig,
-  type SpeechToTextProvider,
-} from '@/common/types/speech';
-import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
+import { type SpeechToTextConfig, type SpeechToTextProvider } from '@/common/types/speech';
+import { ON_DEVICE_STT_PROVIDER, resolveVoiceLeg } from '@/common/voice/voiceReadiness';
+import { VOICE_FAILURE_CODES, isVoiceFailureCode, type VoiceFailureCode } from '@/common/voice/voiceFailureCodes';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
 import { isTextToSpeechProvider, resolveLocalTtsProvider, resolveRunnableTtsProvider } from '@/common/types/ttsTypes';
 import { rendererPlatform } from '@/renderer/utils/platform';
@@ -50,6 +48,19 @@ export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-confi
 import { DEFAULT_SPEECH_TO_TEXT_CONFIG, normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 
 export { DEFAULT_SPEECH_TO_TEXT_CONFIG, normalizeSpeechToTextConfig };
+
+/**
+ * One label per transcriber, keyed by the union so a new provider cannot ship
+ * unnamed. This replaced a two-way ternary that rendered everything which was
+ * not Flux Voice as "OpenAI Whisper", which silently mislabelled both Deepgram
+ * and the on-device engine.
+ */
+const STT_PROVIDER_LABEL_KEY: Record<SpeechToTextProvider, string> = {
+  openai: 'settings.speechToTextProviderOpenAI',
+  deepgram: 'settings.speechToTextProviderDeepgram',
+  'flux-voice': 'settings.speechToTextProviderFluxVoice',
+  'whisper-local': 'settings.speechToTextProviderWhisperLocal',
+};
 
 export { TTS_CONFIG_CHANGED_EVENT } from '@/renderer/services/voice/voiceSettingsEvents';
 
@@ -90,40 +101,19 @@ export const TEST_VOICE_TIMEOUT_MS = 20_000;
  * user what broke but never what to do about it.
  */
 /**
- * Every raw failure code the voice subsystems can emit, as a CLOSED type.
+ * The closed code union, DERIVED from the two bridge vocabularies.
  *
  * The "unknown" the owner saw is not a missing translation - a locale grep
  * comes back clean - it is an unmapped RAW CODE flowing through
- * `describeVoiceFailure` at runtime and out the other side untouched. Closing
- * the union and switching on it exhaustively is what turns "we forgot a code"
- * from a runtime string into a build failure.
+ * `describeVoiceFailure` at runtime and out the other side untouched.
+ *
+ * This list used to be re-typed here by hand, and the `never` check below
+ * therefore graded it against itself: seven codes `voiceSynth.speak` emits were
+ * not unhandled, they were not members at all, so they reached the user as raw
+ * enum text. The definition now lives in `common` beside the two sources it is
+ * composed from, and is re-exported here for the existing importers.
  */
-export const VOICE_FAILURE_CODES = [
-  'STT_DISABLED',
-  'STT_OPENAI_NOT_CONFIGURED',
-  'STT_DEEPGRAM_NOT_CONFIGURED',
-  'STT_FLUX_NOT_CONFIGURED',
-  'STT_FLUX_AUTH_ERROR',
-  'STT_FLUX_PREMIUM_LOCKED',
-  'STT_HOSTED_CONSENT_REQUIRED',
-  'STT_FILE_TOO_LARGE',
-  'STT_RATE_LIMITED',
-  'STT_REQUEST_FAILED',
-  'STT_LOCAL_ENGINE_FAILED',
-  'TTS_SYSTEM_NATIVE_UNAVAILABLE',
-  'TTS_KOKORO_UNAVAILABLE',
-  'TTS_HOSTED_CONSENT_REQUIRED',
-  'TTS_EMPTY_AUDIO',
-  'TTS_PLAYBACK_FAILED',
-  'TTS_AUDIO_CONTEXT_BLOCKED',
-  'TTS_NO_RESPONSE',
-  'TTS_REQUEST_FAILED',
-] as const;
-
-export type VoiceFailureCode = (typeof VOICE_FAILURE_CODES)[number];
-
-const isVoiceFailureCode = (value: string): value is VoiceFailureCode =>
-  (VOICE_FAILURE_CODES as readonly string[]).includes(value);
+export { VOICE_FAILURE_CODES, type VoiceFailureCode };
 
 /**
  * The sentence shown for a code with no detail attached.
@@ -157,8 +147,25 @@ const voiceFailureSentence = (code: VoiceFailureCode): string => {
       return 'The on-device transcription engine could not run.';
     case 'TTS_SYSTEM_NATIVE_UNAVAILABLE':
       return 'This operating system has no built-in voice. Choose a different speech provider.';
-    case 'TTS_KOKORO_UNAVAILABLE':
-      return 'Kokoro has no working voice yet. Choose System Voice or OpenAI Speech.';
+    // Surfaced by composing the union from the bridge that emits it. The
+    // renderer's hand-copied list never carried this code, so a Windows user
+    // whose System.Speech run failed was told the version did not recognize it.
+    case 'TTS_WINDOWS_NATIVE_UNAVAILABLE':
+      return 'The built-in Windows voice could not run. Choose a different speech provider.';
+    case 'TTS_OPENAI_NOT_CONFIGURED':
+      return 'OpenAI Speech has no API key yet. Add one in Models and Providers.';
+    case 'TTS_OPENAI_CREDENTIAL_UNREADABLE':
+      return 'The stored OpenAI key could not be read on this machine. Enter it again in Models and Providers.';
+    case 'TTS_CREDENTIAL_STORE_UNAVAILABLE':
+      return 'The saved credentials could not be opened on this machine. Restart Wayland and try again.';
+    case 'TTS_OPENAI_AUTH_ERROR':
+      return 'OpenAI rejected the API key. Check it in Models and Providers.';
+    case 'TTS_OPENAI_RATE_LIMITED':
+      return 'OpenAI is rate limiting this account. Wait a moment and try again.';
+    case 'TTS_OPENAI_REQUEST_FAILED':
+      return 'The OpenAI speech request failed. Check the connection and try again.';
+    case 'TTS_SYNTHESIS_FAILED':
+      return 'Speech output failed for a reason it could not name. The complete answer is still in Chat.';
     case 'TTS_HOSTED_CONSENT_REQUIRED':
       return 'This voice sends the reply off your device and needs your agreement first.';
     case 'TTS_EMPTY_AUDIO':
@@ -571,11 +578,23 @@ export const SpeechToTextSettingsSection: React.FC<{
   }, []);
 
   /**
-   * The transcriber that will actually receive the audio, which is not always
-   * the one stored in settings. Consent is per-recipient, so every consent
-   * decision on this panel is made about THIS provider - asking about the stored
-   * one is how a user ends up accepting a disclosure that never unblocks
-   * anything.
+   * The transcriber that will actually receive the audio, from the SAME ladder
+   * that routes it.
+   *
+   * This used to ask `resolveEffectiveSttProvider`, which predates the
+   * on-device-first ladder and still ends in `return 'openai'` for an unset
+   * provider. The composer mic asks `resolveVoiceLeg('in', ...)`, which sends a
+   * default-origin profile to the bundled on-device engine no matter what is
+   * connected. Two resolvers, two answers, both on screen at once: the dropdown
+   * said "Whisper (Local)" while the line beneath it said "Currently using
+   * OpenAI Whisper" and "This provider processes audio and text off your
+   * device" - for a transcription that was measured making zero network
+   * requests.
+   *
+   * A wrong privacy claim in that direction is the worst kind. Consent is also
+   * per-recipient, so the same value decides which disclosure is offered;
+   * offering OpenAI's disclosure for on-device audio gates a transmission that
+   * never happens.
    *
    * Main additionally requires the connected provider's stored key to be
    * non-empty, which the renderer cannot see; a provider marked connected with
@@ -583,11 +602,10 @@ export const SpeechToTextSettingsSection: React.FC<{
    * for a provider that then goes unused, which is harmless - the reverse, no
    * consent for the provider actually used, is the failure being fixed.
    */
-  const effectiveProvider = resolveEffectiveSttProvider({
-    stored: config,
-    hasConnectedOpenAIKey: openAIConnected === true,
-    hasConnectedFluxKey: fluxConnected,
-  });
+  const effectiveProvider = (resolveVoiceLeg('in', {
+    sttConfig: config,
+    connectedCredentials: { openai: openAIConnected === true, flux: fluxConnected },
+  }).provider ?? ON_DEVICE_STT_PROVIDER) as SpeechToTextProvider;
   const handleOpenProvidersPage = useCallback(() => {
     try {
       navigate('/settings/models');
@@ -691,16 +709,20 @@ export const SpeechToTextSettingsSection: React.FC<{
               {t('settings.speechToTextProviderWhisperLocal')}
             </WaylandSelect.Option>
           </WaylandSelect>
-          {effectiveProvider !== config.provider && (
-            <div data-testid='stt-effective-provider' className='mt-6px text-12px text-t-secondary'>
-              {t('settings.speechToTextSeededProvider', {
-                defaultValue: 'Currently using {{provider}}, because it is connected and no engine was chosen here.',
-                provider: t(
-                  `settings.speechToTextProvider${effectiveProvider === 'flux-voice' ? 'FluxVoice' : 'OpenAI'}`
-                ),
-              })}
-            </div>
-          )}
+          {/* Always shown. "Which engine is actually running" is the question
+              the privacy claim below turns on, and leaving it unanswered is
+              what let the dropdown and the disclosure disagree in silence. */}
+          <div data-testid='stt-effective-provider' className='mt-6px text-12px text-t-secondary'>
+            {effectiveProvider === displayProvider
+              ? t('settings.speechToTextEffectiveProvider', {
+                  defaultValue: 'Currently using {{provider}}.',
+                  provider: t(STT_PROVIDER_LABEL_KEY[effectiveProvider]),
+                })
+              : t('settings.speechToTextSeededProvider', {
+                  defaultValue: 'Currently using {{provider}}, because it is connected and no engine was chosen here.',
+                  provider: t(STT_PROVIDER_LABEL_KEY[effectiveProvider]),
+                })}
+          </div>
           {needsConsent(effectiveProvider) && (
             <div
               data-testid='stt-consent-pending'

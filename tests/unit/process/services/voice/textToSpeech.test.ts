@@ -445,6 +445,42 @@ describe('synthesize (TextToSpeechService)', () => {
     }
   });
 
+  /**
+   * The test above proves the ARGV produces a real WAV. It does not prove the
+   * service hands that WAV back, because it never calls the service - it shells
+   * out to `say` itself and reads the file. Everything between (the temp
+   * directory, the read-back, the Uint8Array conversion, the declared MIME
+   * type, the `finally` cleanup) is the part the renderer actually receives,
+   * and it had no execution coverage at all.
+   *
+   * That gap matters because of how this reaches the speaker. Test voice does
+   * `new Blob([bytes], {type: result.mimeType})` -> `createObjectURL` ->
+   * `new Audio(url).play()`. A service that returned zero bytes, or the right
+   * bytes under the wrong MIME type, would still satisfy every mocked test in
+   * the suite - each of them stubs `speak` with a four-byte fake - and would be
+   * silent on real hardware.
+   *
+   * Honest scope: this proves the bytes handed to the player are a well-formed,
+   * non-trivial RIFF/WAVE clip under the MIME type the Blob is built with. It
+   * cannot prove audibility. Nothing in jsdom can - there is no AudioContext
+   * and no output device. Whether sound actually leaves the speakers stays a
+   * human check.
+   */
+  it.runIf(process.platform === 'darwin')(
+    'system-native synthesis returns playable bytes, not just the right argv',
+    async () => {
+      const result = await synthesize('Hello there', baseConfig({ provider: 'system-native' }));
+
+      const bytes = Buffer.from(result.data);
+      expect(bytes.byteLength).toBeGreaterThan(1000);
+      expect(bytes.subarray(0, 4).toString('ascii')).toBe('RIFF');
+      expect(bytes.subarray(8, 12).toString('ascii')).toBe('WAVE');
+      // The exact string the renderer puts in the Blob type.
+      expect(result.mimeType).toBe('audio/wav');
+    },
+    60_000
+  );
+
   it('routes windows-native to the Windows synthesizer and returns audio', async () => {
     const runtime = fakeWindowsNativeRuntime();
     const result = await onWindows(() => synthesize('Hello', baseConfig({ provider: 'windows-native' }), runtime));

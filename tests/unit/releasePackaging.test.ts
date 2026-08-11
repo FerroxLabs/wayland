@@ -283,3 +283,36 @@ describe('release package fail-closed gates', () => {
     expect(fs.existsSync(skillPackDir)).toBe(false);
   });
 });
+
+/**
+ * `resources/voice-models` is gitignored, so on a fresh clone the bundled
+ * on-device transcriber does not exist until something fetches it. The release
+ * path is covered: `build-with-builder.js` runs `prepareVoiceModel.js` and the
+ * packaged-resource gate then re-hashes every file.
+ *
+ * The build paths that do NOT go through `build-with-builder.js` were not.
+ * `package`/`build` are `electron-vite build`, and their lifecycle hooks staged
+ * constitution-fs, the models snapshot and the skill pack while silently
+ * omitting the voice model - so a fresh clone plus a build produced an app that
+ * logged "File not found: .../whisper-tiny/config.json" and had no local
+ * speech-in at all. That is the exact floor the "works with no keys" story
+ * depends on, so the omission is pinned here rather than left to review.
+ */
+describe('build lifecycle hooks stage the on-device voice model', () => {
+  const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../package.json'), 'utf8')) as {
+    scripts: Record<string, string>;
+  };
+
+  it.each(['prebuild', 'prepackage'])('%s prepares the bundled voice model', (hook) => {
+    expect(manifest.scripts[hook]).toContain('scripts/prepareVoiceModel.js');
+  });
+
+  /**
+   * KNOWN POSITIVE: the same hooks still stage their existing siblings, so a
+   * green result above cannot come from the hook having been emptied.
+   */
+  it.each(['prebuild', 'prepackage'])('%s still prepares its existing siblings', (hook) => {
+    expect(manifest.scripts[hook]).toContain('scripts/prepareConstitutionFs.js');
+    expect(manifest.scripts[hook]).toContain('build:skill-pack');
+  });
+});

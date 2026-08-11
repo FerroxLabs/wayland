@@ -1103,6 +1103,7 @@
   "speechToTextDownloadSuccess": "모델 다운로드 완료",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "연결되어 있고 여기서 엔진을 선택하지 않았기 때문에 현재 {{provider}}을(를) 사용 중입니다.",
+  "speechToTextEffectiveProvider": "현재 {{provider}}을(를) 사용하고 있습니다.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "텍스트 음성 변환",
