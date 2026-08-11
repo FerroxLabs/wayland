@@ -160,6 +160,38 @@ describe('useGuidSend', () => {
       expect(sessionStorage.getItem('acp_initial_message_new-conv')).toBeNull();
     });
 
+    /**
+     * A create call with no name falls through to the agent factory's own
+     * default, which is the raw workspace path - so the chat shows up in Recents
+     * as `/Users/.../claude-temp-1786448694044`. The voice button creates with
+     * nothing typed, so the name has to come from somewhere: the localized
+     * default title, which auto-titling then replaces on the first turn.
+     */
+    it('names a chat created with nothing typed with the default title', async () => {
+      const deps = makeDeps({ input: '', files: [] });
+      const { result } = renderHook(() => useGuidSend(deps));
+
+      await act(async () => {
+        await result.current.handleSend();
+      });
+
+      expect(mockCreate).toHaveBeenCalledTimes(1);
+      expect(mockCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'conversation.welcome.newConversation' })
+      );
+    });
+
+    it('still names a chat with whatever was typed', async () => {
+      const deps = makeDeps({ input: 'draft a launch email' });
+      const { result } = renderHook(() => useGuidSend(deps));
+
+      await act(async () => {
+        await result.current.handleSend();
+      });
+
+      expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ name: 'draft a launch email' }));
+    });
+
     it('still seeds a turn made only of attachments', async () => {
       const deps = makeDeps({ input: '', files: ['/tmp/photo.png'] });
       const { result } = renderHook(() => useGuidSend(deps));

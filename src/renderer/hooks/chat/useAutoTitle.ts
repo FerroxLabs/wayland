@@ -30,6 +30,13 @@ export const useAutoTitle = () => {
 
         const source = deriveAutoTitleSourceFromMessages(messages, fallbackContent);
 
+        // A chat created without a name keeps the agent factory's own default,
+        // which is the raw workspace path. Compared exactly against THIS
+        // conversation's own workspace - not a "looks like a path" guess - so a
+        // user who deliberately renames a chat to something else keeps it.
+        const workspace = (conversation.extra as { workspace?: string } | undefined)?.workspace;
+        const isWorkspacePathNamed = !!workspace && conversation.name === workspace;
+
         // Only (re)name an AUTO-named chat - never clobber a title the user chose.
         // New chats are created with their name set to the raw first message, so
         // "name equals the first message" (or its plain truncation) counts as
@@ -37,6 +44,7 @@ export const useAutoTitle = () => {
         // matches none of these and is left untouched.
         const truncated = source ? buildAutoTitleFromContent(source) : null;
         const isAutoNamed =
+          isWorkspacePathNamed ||
           conversation.name === defaultTitle ||
           (!!source && conversation.name === source) ||
           (!!truncated && conversation.name === truncated);
@@ -56,6 +64,12 @@ export const useAutoTitle = () => {
         }
         if (!newTitle) {
           newTitle = deriveAutoTitleFromMessages(messages, fallbackContent);
+        }
+        // A path is never an acceptable title. A voice-launched chat has nothing
+        // said yet, so there is no first message to derive one from - show the
+        // same default a typed new chat gets until there is.
+        if (!newTitle && isWorkspacePathNamed) {
+          newTitle = defaultTitle;
         }
         if (!newTitle || newTitle === conversation.name) {
           return;

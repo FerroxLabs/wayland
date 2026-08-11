@@ -196,6 +196,18 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       sessionStorage.setItem(key, JSON.stringify(payload));
     };
 
+    /**
+     * The name every create path below carries.
+     *
+     * A create call with a falsy name falls through to the agent factory's own
+     * default, which is the raw workspace path - so the chat lands in Recents as
+     * `/Users/.../claude-temp-1786448694044`. The voice button creates with
+     * nothing typed, so the name has to come from here: the same localized
+     * default the in-chat "new tab" entry points use, which auto-titling then
+     * replaces once there is a first turn to summarize.
+     */
+    const conversationName = input.trim() ? input : t('conversation.welcome.newConversation');
+
     const agentInfo = selectedAgentInfo;
     const isPreset = isPresetAgent;
     const presetAssistantId = isPreset ? agentInfo?.customAgentId : undefined;
@@ -243,7 +255,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       try {
         const geminiConversationParams = buildAgentConversationParams({
           backend: 'gemini',
-          name: input,
+          name: conversationName,
           agentName: agentInfo?.name,
           presetAssistantId,
           workspace: finalWorkspace,
@@ -308,7 +320,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       const openclawAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
       const openclawConversationParams = buildAgentConversationParams({
         backend: openclawAgentInfo?.backend || 'openclaw-gateway',
-        name: input,
+        name: conversationName,
         agentName: openclawAgentInfo?.name,
         presetAssistantId,
         workspace: finalWorkspace,
@@ -369,7 +381,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       const nanobotAgentInfo = agentInfo || findAgentByKey(selectedAgentKey);
       const nanobotConversationParams = buildAgentConversationParams({
         backend: nanobotAgentInfo?.backend || 'nanobot',
-        name: input,
+        name: conversationName,
         agentName: nanobotAgentInfo?.name,
         presetAssistantId,
         workspace: finalWorkspace,
@@ -425,7 +437,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       try {
         const conversation = await ipcBridge.conversation.create.invoke({
           type: 'wcore',
-          name: input,
+          name: conversationName,
           model: currentModel,
           extra: {
             defaultFiles: files,
@@ -492,7 +504,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
       const agentBackend = acpBackend || selectedAgent;
       const agentConversationParams = buildAgentConversationParams({
         backend: agentBackend,
-        name: input,
+        name: conversationName,
         agentName: acpAgentInfo?.name,
         presetAssistantId,
         workspace: finalWorkspace,

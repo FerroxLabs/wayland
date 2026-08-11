@@ -101,6 +101,30 @@ describe('ChatConversationIndex', () => {
     expect(openTabMock).toHaveBeenCalledWith(expect.objectContaining({ id: 'conv-1', name: 'Discuss roadmap' }));
   });
 
+  /**
+   * Backfill: chats already stuck showing `/Users/.../claude-temp-1786448694044`
+   * in Recents are repaired the next time they are opened.
+   */
+  it('retitles a chat whose name is its own workspace path', async () => {
+    const workspace = '/Users/sean/.wayland-dev/claude-temp-1786448694044';
+    conversationGetMock.mockResolvedValue({ id: 'conv-1', name: workspace, extra: { workspace } });
+
+    renderPage();
+
+    expect(await screen.findByText(workspace)).toBeInTheDocument();
+    expect(syncTitleFromHistoryMock).toHaveBeenCalledWith('conv-1');
+  });
+
+  it('leaves a real title alone', async () => {
+    const workspace = '/Users/sean/.wayland-dev/claude-temp-1786448694044';
+    conversationGetMock.mockResolvedValue({ id: 'conv-1', name: 'Discuss roadmap', extra: { workspace } });
+
+    renderPage();
+
+    expect(await screen.findByText('Discuss roadmap')).toBeInTheDocument();
+    expect(syncTitleFromHistoryMock).not.toHaveBeenCalled();
+  });
+
   it('ignores update events for other conversations', async () => {
     conversationGetMock.mockResolvedValueOnce({ id: 'conv-1', name: 'New Chat' });
 
