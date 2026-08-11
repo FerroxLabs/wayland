@@ -892,3 +892,44 @@ freshly packaged artifact built from `packet/agent-installers @ 1cda570a8`, conf
   clean machine rather than only in a unit test.
 
 That artifact predates all five lanes, so it stands as the pre-fix control, not the deliverable.
+
+### CM-4 steps 1-5 PASS: install to ACP handshake, on a clean Windows machine, first time ever
+
+Run against a freshly packaged artifact from `packet/agent-installers @ 1cda570a8`, as `WaylandCleanTest`
+in its own session. This validates the installer chain that is already landed, independently of the
+five in-flight lanes.
+
+1. **First launch on a profile-less account completes** and the Agents page renders.
+2. **The band shows every offered agent as installable, not `unavailable`.** This was the condition
+   that would have invalidated the entire band, because `unavailable` means bundled bun did not
+   resolve in a packaged app.
+3. **The consent sheet shows exactly the four facts**: package `@moonshot-ai/kimi-code`, version
+   `0.34.0`, destination under the clean user's own profile, and **install scripts Blocked**.
+4. **Install completed** and the card flipped to "Installed by Wayland 0.34.0". On disk:
+   `agents/kimi/` with `node_modules/.bin/kimi.exe` and the receipt `.wayland-agent-install.json`.
+5. **The installed agent LAUNCHED and completed an ACP handshake** - the actual deliverable, since a
+   spawned process is not a launch. Driven with the receipt's own `launchSpec` plus the kimi
+   backend's `acpArgs: ['acp']`, as the clean user:
+
+```
+command: <app>\resources\bundled-bun\win32-x64\bun.exe
+args:    <profile>\agents\kimi\...\dist\main.mjs  acp
+-> {"jsonrpc":"2.0","id":0,"method":"initialize",...}
+<- {"jsonrpc":"2.0","id":0,"result":{"protocolVersion":1,
+     "agentCapabilities":{...},"authMethods":[...],
+     "agentInfo":{"name":"Kimi Code CLI","version":"0.34.0"}}}
+elapsed 1153 ms
+```
+
+Note what this proves that a unit test cannot: the launch used **bundled bun** on an account with no
+Node on its PATH, resolved an absolute path out of a receipt written minutes earlier, and got a real
+protocol response from a real agent process.
+
+**Still to run on the clean machine** (needs the post-merge artifact, since the one used here
+predates all five lanes): cancel mid-flight, uninstall, the inert Flux chip, codex, and every voice
+cell.
+
+Two PowerShell 5.1 traps cost time and are recorded so they do not again: `$args` is a reserved
+automatic variable and silently shadows a caller's array, and `ProcessStartInfo.ArgumentList` does
+not exist in 5.1 - use the `Arguments` string. Also, `>` redirection inside a `schtasks /tr` value is
+swallowed; use `Start-Transcript` inside the script instead.
