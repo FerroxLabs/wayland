@@ -12,7 +12,11 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { ConversationProvider } from '@/renderer/hooks/context/ConversationContext';
-import { openVoiceMode } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
+import {
+  armVoiceModeOnNextConversation,
+  consumeArmedVoiceMode,
+  openVoiceMode,
+} from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 
 type SpeechInputOptions = {
   onTranscript: (text: string) => void;
@@ -219,6 +223,59 @@ describe('VoiceSessionProvider', () => {
 
     await runOneTurn();
     await waitFor(() => expect(mockSpeak).toHaveBeenCalledWith({ text: 'Here is the answer.' }));
+  });
+
+  /**
+   * The new-chat page's handoff arrives here.
+   *
+   * `VOICE_MODE_OPEN_EVENT` cannot carry it: the event is dispatched on the
+   * welcome page, before the conversation - and therefore this provider -
+   * exists, so it lands in an empty room. The arming survives the navigation
+   * and is read on mount.
+   */
+  it('opens the session for a conversation the new-chat page armed', async () => {
+    armVoiceModeOnNextConversation();
+    render(
+      <MemoryRouter>
+        <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+          <VoiceConversationMode />
+        </VoiceSessionProvider>
+      </MemoryRouter>
+    );
+
+    await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
+    // `thenListen`: the user pressed a button captioned "Talk with Wayland", so
+    // the microphone is open, not merely the surface.
+    await waitFor(() => expect(mockStartRecording).toHaveBeenCalled());
+    // Consumed by the read, so a second conversation cannot inherit it.
+    expect(consumeArmedVoiceMode()).toBe(false);
+  });
+
+  it('stays closed when nothing armed it', async () => {
+    // The control. Without this the test above would pass on a provider that
+    // opened a session unconditionally. Asserted against a POSITIVE observable
+    // state - `dead` - rather than the absence of a dialog, which any render
+    // satisfies on its first synchronous check.
+    const ArmProbe: React.FC = () => {
+      const session = useVoiceSessionSafe();
+      return <span data-testid='arm-probe'>{session?.isActive ? 'live' : 'dead'}</span>;
+    };
+    render(
+      <MemoryRouter>
+        <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+          <VoiceConversationMode />
+          <ArmProbe />
+        </VoiceSessionProvider>
+      </MemoryRouter>
+    );
+
+    // Let the mount effects and the config reads the armed path awaits settle.
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(screen.getByTestId('arm-probe').textContent).toBe('dead');
+    expect(mockStartRecording).not.toHaveBeenCalled();
   });
 
   it('stays silent for a user who turned speech output off', async () => {

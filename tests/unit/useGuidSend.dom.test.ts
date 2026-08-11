@@ -141,6 +141,38 @@ describe('useGuidSend', () => {
       expect(parsed.input).toBe('test message');
     });
 
+    /**
+     * The new-chat voice button creates the conversation with nothing typed.
+     * Send is disabled on an empty composer so this used to be unreachable, and
+     * an empty seed makes the arriving composer dispatch a blank first turn.
+     */
+    it('seeds no first turn when there is nothing to send', async () => {
+      const deps = makeDeps({ input: '   ', files: [] });
+      const { result } = renderHook(() => useGuidSend(deps));
+
+      await act(async () => {
+        await result.current.handleSend();
+      });
+
+      // Positive check first: the conversation WAS created, so this is not
+      // passing because the send bailed out before it could seed anything.
+      expect(mockCreate).toHaveBeenCalledTimes(1);
+      expect(sessionStorage.getItem('acp_initial_message_new-conv')).toBeNull();
+    });
+
+    it('still seeds a turn made only of attachments', async () => {
+      const deps = makeDeps({ input: '', files: ['/tmp/photo.png'] });
+      const { result } = renderHook(() => useGuidSend(deps));
+
+      await act(async () => {
+        await result.current.handleSend();
+      });
+
+      const stored = sessionStorage.getItem('acp_initial_message_new-conv');
+      expect(stored).toBeTruthy();
+      expect(JSON.parse(stored!).files).toEqual(['/tmp/photo.png']);
+    });
+
     it('navigates to conversation after creation', async () => {
       const deps = makeDeps();
       const { result } = renderHook(() => useGuidSend(deps));

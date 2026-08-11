@@ -59,6 +59,53 @@ export const openVoiceMode = (conversationId: string): void => {
   window.dispatchEvent(new CustomEvent<VoiceModeOpenDetail>(VOICE_MODE_OPEN_EVENT, { detail: { conversationId } }));
 };
 
+const ARMED_VOICE_MODE_KEY = 'wayland:voice-mode-armed';
+
+/**
+ * How the new-chat page hands off into voice.
+ *
+ * A voice session needs a conversation to send turns into, and the welcome page
+ * has none - that is the whole difficulty. So the button there does not start a
+ * session; it arms one, creates the conversation through the ordinary send
+ * path, and the session provider that mounts on arrival picks the arming up.
+ *
+ * `VOICE_MODE_OPEN_EVENT` cannot do this job: it is dispatched synchronously
+ * and the provider for the new conversation has not mounted yet, so the event
+ * lands in an empty room. A one-shot flag survives the navigation and the
+ * remount; sessionStorage rather than a module variable so it also survives the
+ * full reload some backends perform on conversation entry.
+ *
+ * One-shot by construction: the flag is removed by the read, so a second
+ * conversation opened later never inherits it.
+ */
+export const armVoiceModeOnNextConversation = (): void => {
+  try {
+    sessionStorage.setItem(ARMED_VOICE_MODE_KEY, '1');
+  } catch {
+    // Storage unavailable (private mode / quota). Voice simply does not
+    // auto-start; the composer's own entry button still works.
+  }
+};
+
+/** Clears an arming whose conversation was never created. */
+export const disarmVoiceMode = (): void => {
+  try {
+    sessionStorage.removeItem(ARMED_VOICE_MODE_KEY);
+  } catch {
+    // Nothing to clear if storage is unavailable.
+  }
+};
+
+export const consumeArmedVoiceMode = (): boolean => {
+  try {
+    const armed = sessionStorage.getItem(ARMED_VOICE_MODE_KEY) === '1';
+    if (armed) sessionStorage.removeItem(ARMED_VOICE_MODE_KEY);
+    return armed;
+  } catch {
+    return false;
+  }
+};
+
 const settleVoiceTurn = (detail: VoiceTurnSettledDetail): void => {
   window.dispatchEvent(new CustomEvent<VoiceTurnSettledDetail>(VOICE_TURN_SETTLED_EVENT, { detail }));
 };

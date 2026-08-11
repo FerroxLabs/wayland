@@ -75,6 +75,8 @@ type GuidActionRowProps = {
    */
   noModelConfigured: boolean;
   speechInputNode?: React.ReactNode;
+  /** Voice-mode entry, rendered beside the mic on the Launch Pad. */
+  voiceModeNode?: React.ReactNode;
   onSend: () => void;
 };
 
@@ -108,6 +110,7 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
   isButtonDisabled,
   noModelConfigured,
   speechInputNode,
+  voiceModeNode,
   onSend,
 }) => {
   const { t } = useTranslation();
@@ -271,6 +274,7 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
       </div>
       <div className={styles.actionSubmit}>
         {speechInputNode}
+        {voiceModeNode}
         <Tooltip
           content={noModelConfigured ? t('conversation.noModelCta.sendTooltip') : undefined}
           disabled={!noModelConfigured}

@@ -182,6 +182,20 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
     const sessionSkillsExtra =
       stagedSessionSkills && stagedSessionSkills.length > 0 ? { sessionSkills: stagedSessionSkills } : {};
 
+    /**
+     * Seeds the first turn the conversation page auto-sends on arrival.
+     *
+     * Skipped when there is nothing to send. Send is disabled on an empty
+     * composer so that was unreachable, but the new-chat voice button creates a
+     * conversation with no typed draft - and an empty seed makes every backend
+     * dispatch a blank first turn.
+     */
+    const hasInitialMessage = Boolean(input.trim()) || files.length > 0;
+    const seedInitialMessage = (key: string, payload: { input: string; files?: string[] }) => {
+      if (!hasInitialMessage) return;
+      sessionStorage.setItem(key, JSON.stringify(payload));
+    };
+
     const agentInfo = selectedAgentInfo;
     const isPreset = isPresetAgent;
     const presetAssistantId = isPreset ? agentInfo?.customAgentId : undefined;
@@ -279,7 +293,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input: displayMessage,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`gemini_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`gemini_initial_message_${conversation.id}`, initialMessage);
 
         void navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {
@@ -339,7 +353,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`openclaw_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`openclaw_initial_message_${conversation.id}`, initialMessage);
 
         await navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {
@@ -391,7 +405,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`nanobot_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`nanobot_initial_message_${conversation.id}`, initialMessage);
 
         await navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {
@@ -444,7 +458,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`wcore_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`wcore_initial_message_${conversation.id}`, initialMessage);
 
         await navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {
@@ -546,7 +560,7 @@ export const useGuidSend = (deps: GuidSendDeps): GuidSendResult => {
           input,
           files: files.length > 0 ? files : undefined,
         };
-        sessionStorage.setItem(`acp_initial_message_${conversation.id}`, JSON.stringify(initialMessage));
+        seedInitialMessage(`acp_initial_message_${conversation.id}`, initialMessage);
 
         await navigate(`/conversation/${conversation.id}`);
       } catch (error: unknown) {

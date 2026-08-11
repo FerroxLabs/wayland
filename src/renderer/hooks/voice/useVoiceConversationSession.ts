@@ -38,6 +38,7 @@ import { createVoiceSpeechQueue, type VoiceSpeechQueue } from '@/renderer/servic
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
 import { isMacOS } from '@/renderer/utils/platform';
 import {
+  consumeArmedVoiceMode,
   submitVoiceTurn,
   VOICE_MODE_OPEN_EVENT,
   VOICE_TURN_SETTLED_EVENT,
@@ -955,6 +956,26 @@ export const useVoiceConversationSession = ({
     window.addEventListener(VOICE_MODE_OPEN_EVENT, handleOpen);
     return () => window.removeEventListener(VOICE_MODE_OPEN_EVENT, handleOpen);
   }, [begin, conversationId]);
+
+  /**
+   * The new-chat page's handoff: it armed voice before creating this
+   * conversation, because there was no conversation to start a session in yet.
+   *
+   * `thenListen` matches what the composer's own entry button does - the user
+   * pressed a button captioned "Talk with Wayland", so the microphone opens.
+   * Reading the flag consumes it, so this fires exactly once and only for the
+   * conversation the arming led to.
+   */
+  const armedBeginRef = useRef(false);
+  useEffect(() => {
+    if (armedBeginRef.current) return;
+    armedBeginRef.current = true;
+    if (!consumeArmedVoiceMode()) return;
+    void begin({ thenListen: true });
+    // `begin` is deliberately absent: this must run on mount only, and begin's
+    // identity changes whenever the session's config refs settle.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const end = useCallback(() => {
     // Disarm before the transition: `end` must not leave a timer that reopens
