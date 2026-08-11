@@ -975,3 +975,41 @@ Two PowerShell 5.1 traps cost time and are recorded so they do not again: `$args
 automatic variable and silently shadows a caller's array, and `ProcessStartInfo.ArgumentList` does
 not exist in 5.1 - use the `Arguments` string. Also, `>` redirection inside a `schtasks /tr` value is
 swallowed; use `Start-Transcript` inside the script instead.
+
+---
+
+## 9. MERGE LANDMINE - read before merging any voice branch
+
+`packet/wl-voice-wintts` is branched from **before** `packet/wl-voice-core` landed its ladder. Its
+copy of `voiceReadiness.ts` is therefore the **pre-ladder** file: it still carries the flat
+`VoiceReadinessReason`, still defines `DEFAULT_STT_PROVIDER = 'openai'`, and has no per-direction
+legs.
+
+**A naive merge in that direction reinstates the exact default the voice-core lane exists to
+remove** - the one that points a fresh profile at a hosted service with no key, which is the root
+cause of "voice does not work out of the box". Git will not warn anyone, because this is the same
+class of conflict-free-but-wrong merge as the Nano collision.
+
+**Required order and resolution:**
+1. `packet/wl-voice-core` merges FIRST. Its `voiceReadiness.ts` is authoritative and must survive
+   the merge intact - verify `DEFAULT_STT_PROVIDER` is **absent** from the merged file afterwards.
+2. `packet/wl-voice-wintts` merges SECOND, taking voice-core's `voiceReadiness.ts` wholesale and
+   contributing only its own files.
+3. The two-step wiring of `platformNativeTtsProvider` to the wintts lane's
+   `resolveLocalTtsProvider` (which lives in `ttsTypes.ts`, a file voice-core was forbidden to
+   touch) is completed as step 2.
+
+The voice-core lane left a deliberate tripwire for this: **the `win32` row of its platform table is
+written to FAIL until step 2 is done.** Do not "fix" that row by weakening it - it going green is
+the signal that the merge was completed correctly.
+
+Cross-lane convergence that reduces the risk: both lanes independently found and fixed the same
+`isWindows()` bug (`/win/i` matches the "win" in "darwin"), and voice-core deliberately adopted the
+wintts lane's `rendererPlatform` naming, body and signature **verbatim** specifically to remove the
+textual conflict. Two lanes reaching the same fix independently is corroboration; the naming
+adoption is what keeps the merge clean.
+
+One correction to an earlier coordination note: the `isMacOS() ? 'darwin' : 'other'` ternary was at
+**2** call sites in voice-core's tree, not 4 - that lane had already collapsed four hand-built
+readiness objects into a single `readinessInput()` helper. The count of 4 came from the pre-collapse
+file.
