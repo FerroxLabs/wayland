@@ -908,6 +908,261 @@ describe('VoiceSessionProvider', () => {
     });
   });
 
+  /**
+   * The wiring between the stream and the queue.
+   *
+   * The queue's own suite exercises the queue against a fake it owns; it cannot
+   * see whether this hook ever hands it anything. Nothing else can either -
+   * every other test in this file runs with `AudioContext` undefined, which is
+   * exactly the branch where chunking does not happen. So a fake with the four
+   * Web Audio members the queue actually uses is stubbed in here, and a
+   * two-sentence answer is driven through the real stream site.
+   *
+   * It is still a fake. It proves the wiring exists and the seams are computed;
+   * it cannot tell you whether two independently-synthesized clips sound like
+   * one speaker. That is the packaged-build check.
+   */
+  describe('sentence chunking', () => {
+    type FakeSource = {
+      buffer: unknown;
+      onended: (() => void) | null;
+      endsAt: number | null;
+      stopCalls: number;
+      connect: () => void;
+      start: (when?: number, offset?: number, duration?: number) => void;
+      stop: () => void;
+    };
+
+    /** Every context the session constructed; the live one is the last. */
+    const contexts: ChunkingAudioContext[] = [];
+    const chunking = () => contexts.at(-1);
+
+    /** 0.5 s of speech at 8 kHz, no silence to trim. */
+    const speechBuffer = () => {
+      const samples = new Float32Array(4000).fill(0.5);
+      return {
+        numberOfChannels: 1,
+        sampleRate: 8000,
+        length: samples.length,
+        duration: 0.5,
+        getChannelData: () => samples,
+      };
+    };
+
+    class ChunkingAudioContext {
+      state: AudioContextState = 'suspended';
+      currentTime = 0;
+      destination = {};
+      readonly sources: FakeSource[] = [];
+      constructor() {
+        contexts.push(this);
+      }
+      async resume() {
+        this.state = 'running';
+      }
+      async close() {}
+      async decodeAudioData() {
+        return speechBuffer();
+      }
+      createBufferSource(): FakeSource {
+        const source: FakeSource = {
+          buffer: null,
+          onended: null,
+          endsAt: null,
+          stopCalls: 0,
+          connect: () => {},
+          start: (when = 0, _offset = 0, duration = 0) => {
+            source.endsAt = when + duration;
+          },
+          stop: () => {
+            source.stopCalls += 1;
+            source.endsAt = null;
+          },
+        };
+        this.sources.push(source);
+        return source;
+      }
+      /** Move the audio clock, firing whatever `onended` falls due, in order. */
+      advance(seconds: number) {
+        const target = this.currentTime + seconds;
+        for (;;) {
+          const due = this.sources
+            .filter((source) => source.endsAt !== null && source.endsAt <= target)
+            .sort((a, b) => (a.endsAt ?? 0) - (b.endsAt ?? 0))[0];
+          if (!due) break;
+          this.currentTime = due.endsAt ?? target;
+          const handler = due.onended;
+          due.endsAt = null;
+          handler?.();
+        }
+        this.currentTime = target;
+      }
+    }
+
+    const Probe: React.FC = () => {
+      const session = useVoiceSessionSafe();
+      return (
+        <>
+          <span data-testid='state'>{session?.state ?? 'none'}</span>
+          <span data-testid='error'>{session?.error ?? ''}</span>
+        </>
+      );
+    };
+
+    /** One answer that arrives as two deltas, the second still unterminated. */
+    const streamTwoSentences = async () => {
+      act(() => openVoiceMode('conversation-1'));
+      await screen.findByRole('dialog', { name: 'Wayland voice conversation' });
+      act(() => {
+        screen.getByRole('button', { name: 'Start speaking' }).click();
+      });
+      act(() => {
+        screen.getByRole('button', { name: 'Stop and send voice turn' }).click();
+      });
+      act(() => onTranscript?.('Say something back.'));
+      act(() => {
+        for (const listener of responseListeners) {
+          listener({
+            type: 'content',
+            data: 'The first sentence is here. ',
+            msg_id: 'assistant-1',
+            conversation_id: 'conversation-1',
+          });
+        }
+      });
+    };
+
+    beforeEach(() => {
+      contexts.length = 0;
+      vi.stubGlobal('AudioContext', ChunkingAudioContext);
+    });
+
+    it('speaks the first sentence before the answer has finished streaming', async () => {
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+            <Probe />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+      await streamTwoSentences();
+
+      // No `finish` has arrived, and the first sentence is already synthesized.
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledWith({ text: 'The first sentence is here.' }));
+      // And it went through Web Audio, not a second `<audio>` element.
+      expect(audioInstances).toHaveLength(0);
+      await waitFor(() => expect(chunking()?.sources).toHaveLength(1));
+    });
+
+    it('gives the tail to the same queue and ends the turn exactly once', async () => {
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+            <Probe />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+      await streamTwoSentences();
+      await waitFor(() => expect(chunking()?.sources).toHaveLength(1));
+
+      act(() => {
+        for (const listener of responseListeners) {
+          listener({
+            type: 'content',
+            data: 'And the second one is here.',
+            msg_id: 'assistant-1',
+            conversation_id: 'conversation-1',
+          });
+          listener({ type: 'finish', data: null, msg_id: 'assistant-1', conversation_id: 'conversation-1' });
+        }
+      });
+
+      // The trailing fragment has no terminator, so the splitter never emits it
+      // and the turn-terminal handler owns it - into the SAME queue.
+      await waitFor(() => expect(mockSpeak).toHaveBeenCalledTimes(2));
+      expect(mockSpeak).toHaveBeenLastCalledWith({ text: 'And the second one is here.' });
+      expect(audioInstances).toHaveLength(0);
+      await waitFor(() => expect(chunking()?.sources).toHaveLength(2));
+
+      // Halfway through the answer the session is still speaking: a
+      // `playback_completed` per chunk would have reopened the microphone here.
+      await act(async () => chunking()?.advance(0.5));
+      expect(screen.getByTestId('state').textContent).toBe('speaking');
+
+      await act(async () => chunking()?.advance(0.5));
+      await waitFor(() => expect(screen.getByTestId('state').textContent).toBe('listening'));
+      expect(screen.getByTestId('error').textContent).toBe('');
+    });
+
+    /**
+     * The control for the tail: when the splitter has already consumed the
+     * whole answer there is nothing left to speak, and the terminal handler's
+     * only job is to seal. Without that, the queue waits forever for text that
+     * is never coming, `playback_completed` never fires, and the microphone
+     * never re-arms - a session that has stopped making sound and stopped
+     * listening, with no error anywhere.
+     */
+    it('ends a turn whose sentences were all chunked, with no tail left', async () => {
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+            <Probe />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+      await streamTwoSentences();
+      await waitFor(() => expect(chunking()?.sources).toHaveLength(1));
+
+      act(() => {
+        for (const listener of responseListeners) {
+          listener({
+            type: 'content',
+            data: 'And the second one is here. ',
+            msg_id: 'assistant-1',
+            conversation_id: 'conversation-1',
+          });
+          listener({ type: 'finish', data: null, msg_id: 'assistant-1', conversation_id: 'conversation-1' });
+        }
+      });
+
+      await waitFor(() => expect(chunking()?.sources).toHaveLength(2));
+      expect(mockSpeak).toHaveBeenCalledTimes(2);
+
+      await act(async () => chunking()?.advance(0.5));
+      expect(screen.getByTestId('state').textContent).toBe('speaking');
+
+      await act(async () => chunking()?.advance(0.5));
+      await waitFor(() => expect(screen.getByTestId('state').textContent).toBe('listening'));
+    });
+
+    it('stops every scheduled chunk when the session ends mid-answer', async () => {
+      render(
+        <MemoryRouter>
+          <VoiceSessionProvider conversationId='conversation-1' actorLabel='Wayland'>
+            <VoiceConversationMode />
+            <Probe />
+          </VoiceSessionProvider>
+        </MemoryRouter>
+      );
+
+      await streamTwoSentences();
+      await waitFor(() => expect(chunking()?.sources).toHaveLength(1));
+
+      act(() => {
+        screen.getByRole('button', { name: 'Close Voice mode' }).click();
+      });
+
+      expect(chunking()?.sources.map((source) => source.stopCalls)).toEqual([1]);
+      expect(screen.getByTestId('state').textContent).toBe('ended');
+    });
+  });
+
   it('can actually settle a hosted-voice consent decision', async () => {
     // Arco's Modal renders nothing while hidden, so asserting the element
     // exists up front would assert nothing. What matters is that the promise

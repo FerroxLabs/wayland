@@ -250,4 +250,61 @@ describe('VoiceSessionMachine', () => {
     expect(completed.snapshot.activeTurnId).toBeNull();
     expect(completed.effects).toContainEqual({ type: 'start_capture' });
   });
+
+  /**
+   * Sentence chunking makes one answer several segments, and each of them is
+   * ready-then-started before the next one is. The machine already allows that:
+   * `response_segment_ready` is accepted from `speaking`, and the second
+   * `ready` replaces the single-valued `activeSegmentId` so the second
+   * `playback_started` matches it.
+   *
+   * What the machine does NOT do is stop the queue emitting
+   * `playback_completed` per chunk - it would accept every one of them, return
+   * to `listening`, clear the turn, and reopen the microphone over the
+   * assistant's own voice. That constraint is the caller's, which is why this
+   * file needs no change and the queue owns the rule.
+   */
+  it('accepts a second segment on the same turn without a completion between them', () => {
+    const twoSegments = apply(
+      reachThinking(),
+      { type: 'response_segment_ready', turnId: 'turn-1', segmentId: 'segment-1' },
+      { type: 'playback_started', turnId: 'turn-1', segmentId: 'segment-1' },
+      { type: 'response_segment_ready', turnId: 'turn-1', segmentId: 'segment-2' },
+      { type: 'playback_started', turnId: 'turn-1', segmentId: 'segment-2' }
+    );
+
+    expect(twoSegments.state).toBe('speaking');
+    expect(twoSegments.activeSegmentId).toBe('segment-2');
+    expect(twoSegments.synthesizedSegmentIds).toEqual(['segment-1', 'segment-2']);
+
+    // And the turn still ends exactly once, on the last segment.
+    const completed = transitionVoiceSession(twoSegments, {
+      type: 'playback_completed',
+      turnId: 'turn-1',
+      segmentId: 'segment-2',
+    });
+    expect(completed.rejected).toBeUndefined();
+    expect(completed.snapshot.state).toBe('listening');
+  });
+
+  it('rejects a completion naming the segment the queue has already moved past', () => {
+    // The control for the assertion above: `activeSegmentId` is single-valued,
+    // so a per-chunk `playback_completed` for an earlier segment is refused by
+    // name. That is what makes emitting only the final one correct rather than
+    // merely tidy.
+    const twoSegments = apply(
+      reachThinking(),
+      { type: 'response_segment_ready', turnId: 'turn-1', segmentId: 'segment-1' },
+      { type: 'playback_started', turnId: 'turn-1', segmentId: 'segment-1' },
+      { type: 'response_segment_ready', turnId: 'turn-1', segmentId: 'segment-2' }
+    );
+
+    expect(
+      transitionVoiceSession(twoSegments, {
+        type: 'playback_completed',
+        turnId: 'turn-1',
+        segmentId: 'segment-1',
+      }).rejected
+    ).toBe('segment_mismatch');
+  });
 });
