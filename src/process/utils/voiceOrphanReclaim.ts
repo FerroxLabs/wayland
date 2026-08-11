@@ -61,24 +61,40 @@ const directoryBytes = async (dir: string): Promise<number> => {
 };
 
 /**
+ * The absolute path to delete for `name`, or a throw.
+ *
+ * This is the containment check, and it is the load-bearing line in this file,
+ * not a formality: a `rm(..., { recursive: true })` aimed one level too high
+ * takes the user's whole profile with it. It is a named export purely so it can
+ * be handed an escaping value directly. While it was inlined in the loop below
+ * its only inputs were the two clean constants, which meant the branch that
+ * throws could be deleted outright with the suite staying green - an untested
+ * containment guard on a delete path.
+ *
+ * `root` must already be resolved. Equality with `root` is refused alongside
+ * escape, because `rm`-ing the voice directory itself is not containment.
+ */
+export const resolveReclaimTarget = (root: string, name: string): string => {
+  const target = path.resolve(root, name);
+  if (target === root || !target.startsWith(root + path.sep)) {
+    throw new Error(`${LOG_TAG} refused to delete outside the voice directory: ${target}`);
+  }
+  return target;
+};
+
+/**
  * Deletes the orphaned voice trees under `voiceRoot` and returns the reclaimed
  * byte count.
  *
  * `voiceRoot` is injectable so tests run against a fabricated profile. Every
- * target is re-checked for containment inside `voiceRoot` before deletion: a
- * `rm(..., { recursive: true })` aimed one level too high takes the user's
- * whole profile with it, so the containment check is the load-bearing line in
- * this file, not a formality.
+ * target goes through `resolveReclaimTarget` before deletion.
  */
 export const reclaimVoiceOrphansAt = async (voiceRoot: string): Promise<number> => {
   const root = path.resolve(voiceRoot);
   let reclaimed = 0;
 
   for (const name of RECLAIMABLE_VOICE_SUBDIRS) {
-    const target = path.resolve(root, name);
-    if (target === root || !target.startsWith(root + path.sep)) {
-      throw new Error(`${LOG_TAG} refused to delete outside the voice directory: ${target}`);
-    }
+    const target = resolveReclaimTarget(root, name);
     reclaimed += await directoryBytes(target);
     await rm(target, { recursive: true, force: true });
   }

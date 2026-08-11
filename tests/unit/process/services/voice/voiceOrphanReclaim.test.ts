@@ -4,7 +4,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { RECLAIMABLE_VOICE_SUBDIRS, reclaimVoiceOrphansAt } from '@process/utils/voiceOrphanReclaim';
+import {
+  RECLAIMABLE_VOICE_SUBDIRS,
+  reclaimVoiceOrphansAt,
+  resolveReclaimTarget,
+} from '@process/utils/voiceOrphanReclaim';
 import { mkdtemp, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -85,6 +89,55 @@ describe('reclaimVoiceOrphansAt', () => {
       expect(path.isAbsolute(name)).toBe(false);
       expect(name).not.toContain('..');
       expect(name).not.toContain(path.sep);
+    }
+  });
+});
+
+/**
+ * The containment guard itself, exercised with values that escape.
+ *
+ * The suite above pins the reclaim list as clean, which is worth pinning and is
+ * NOT coverage of the guard: no test in it ever supplies a value the guard has
+ * to refuse, so the entire `throw` branch could be deleted with everything
+ * staying green. On a recursive-delete path that is the one thing that must not
+ * be true. These supply the escaping values directly.
+ */
+describe('resolveReclaimTarget: the containment guard', () => {
+  const root = path.resolve(path.join(tmpdir(), 'wayland-reclaim-guard', 'voice'));
+
+  const escapes = [
+    '..',
+    '../..',
+    '../../..',
+    'kokoro/../..',
+    './..',
+    path.join('..', 'Local Storage'),
+    path.parse(root).root,
+    path.resolve(root, '..'),
+    path.resolve(path.join(tmpdir(), 'somewhere-else')),
+  ];
+
+  it.each(escapes)('refuses %s, because it resolves outside the voice root', (name) => {
+    expect(() => resolveReclaimTarget(root, name)).toThrow(/refused to delete outside the voice directory/);
+  });
+
+  it('refuses the voice root itself, which is not containment either', () => {
+    expect(() => resolveReclaimTarget(root, '.')).toThrow(/refused to delete outside the voice directory/);
+    expect(() => resolveReclaimTarget(root, '')).toThrow(/refused to delete outside the voice directory/);
+    expect(() => resolveReclaimTarget(root, root)).toThrow(/refused to delete outside the voice directory/);
+  });
+
+  it('refuses a sibling whose name merely starts with the root string', () => {
+    // `voice-backup` is not inside `voice`, and a prefix test without the
+    // separator would have said it was.
+    expect(() => resolveReclaimTarget(root, path.resolve(root + '-backup'))).toThrow(
+      /refused to delete outside the voice directory/
+    );
+  });
+
+  it('KNOWN POSITIVE: a real reclaim name resolves to a child and does not throw', () => {
+    for (const name of RECLAIMABLE_VOICE_SUBDIRS) {
+      expect(resolveReclaimTarget(root, name)).toBe(path.join(root, name));
     }
   });
 });
