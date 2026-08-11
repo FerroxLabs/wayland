@@ -67,21 +67,33 @@ describe('voiceSynthBridge', () => {
     });
   });
 
+  /**
+   * The detail is asserted alongside the code, not waved through.
+   *
+   * A narrowed code on its own can only ever produce "Voice test failed:
+   * TTS_SYNTHESIS_FAILED", which is the same dead end for the user as saying
+   * nothing at all. The service writes a human sentence after the code and the
+   * bridge has to carry it, so both halves are pinned here - including for the
+   * catch-all, which is the case that needs it most.
+   */
   it.each([
-    ['TTS_KOKORO_LOCAL_UNAVAILABLE: missing model', 'TTS_KOKORO_LOCAL_UNAVAILABLE'],
-    ['TTS_SYSTEM_NATIVE_UNAVAILABLE: wrong platform', 'TTS_SYSTEM_NATIVE_UNAVAILABLE'],
-    ['TTS_OPENAI_NOT_CONFIGURED: connect OpenAI', 'TTS_OPENAI_NOT_CONFIGURED'],
-    ['TTS_OPENAI_AUTH_ERROR: invalid credential', 'TTS_OPENAI_AUTH_ERROR'],
-    ['TTS_OPENAI_RATE_LIMITED: try later', 'TTS_OPENAI_RATE_LIMITED'],
-    ['TTS_OPENAI_REQUEST_FAILED: upstream unavailable', 'TTS_OPENAI_REQUEST_FAILED'],
-    ['unexpected binary failure', 'TTS_SYNTHESIS_FAILED'],
-  ])('settles provider failure %s without leaving IPC pending', async (message, errorCode) => {
+    ['TTS_KOKORO_LOCAL_UNAVAILABLE: missing model', 'TTS_KOKORO_LOCAL_UNAVAILABLE', 'missing model'],
+    ['TTS_SYSTEM_NATIVE_UNAVAILABLE: wrong platform', 'TTS_SYSTEM_NATIVE_UNAVAILABLE', 'wrong platform'],
+    ['TTS_OPENAI_NOT_CONFIGURED: connect OpenAI', 'TTS_OPENAI_NOT_CONFIGURED', 'connect OpenAI'],
+    ['TTS_OPENAI_CREDENTIAL_UNREADABLE: cannot be decrypted', 'TTS_OPENAI_CREDENTIAL_UNREADABLE', 'cannot be decrypted'],
+    ['TTS_CREDENTIAL_STORE_UNAVAILABLE: db locked', 'TTS_CREDENTIAL_STORE_UNAVAILABLE', 'db locked'],
+    ['TTS_OPENAI_AUTH_ERROR: invalid credential', 'TTS_OPENAI_AUTH_ERROR', 'invalid credential'],
+    ['TTS_OPENAI_RATE_LIMITED: try later', 'TTS_OPENAI_RATE_LIMITED', 'try later'],
+    ['TTS_OPENAI_REQUEST_FAILED: upstream unavailable', 'TTS_OPENAI_REQUEST_FAILED', 'upstream unavailable'],
+    ['unexpected binary failure', 'TTS_SYNTHESIS_FAILED', 'unexpected binary failure'],
+  ])('settles provider failure %s without leaving IPC pending', async (message, errorCode, detail) => {
     synthesize.mockRejectedValue(new Error(message));
     initVoiceSynthBridge();
 
     await expect(speakCallback!({ text: 'Hello' })).resolves.toEqual({
       ok: false,
       errorCode,
+      detail,
     });
   });
 
