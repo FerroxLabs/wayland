@@ -2276,6 +2276,8 @@
       "bandTitle": "Disponibles à l'installation",
       "action": "Installer",
       "retry": "Réessayer",
+      "cancel": "Annuler",
+      "remove": "Supprimer",
       "installing": "Installation de {{version}}…",
       "installed": "Installé par Wayland",
       "pinned": "Installe {{version}}",
@@ -2291,6 +2293,12 @@
         "timed-out": "L'installation a pris trop de temps et a été arrêtée. Réessayez.",
         "cancelled": "Installation annulée.",
         "error": "L'installation s'est arrêtée sur une erreur inattendue."
+      },
+      "removeConfirm": {
+        "title": "Supprimer {{agent}} ?",
+        "body": "Cela supprime la copie que Wayland a installée dans son propre dossier. Toute copie que vous avez installée vous-même reste intacte.",
+        "confirm": "Supprimer",
+        "cancel": "Conserver"
       },
       "consent": {
         "title": "Installer {{agent}} ?",

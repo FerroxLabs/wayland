@@ -139,12 +139,30 @@ describe('install → receipt → launch spec → spawned process', () => {
   }, 600_000);
 
   it('uninstall removes the install and the launch spec goes with it', async () => {
-    const { uninstallAgent } = await import('@process/services/agentInstaller/installManifest');
+    const { uninstallAgent, readInstallReceipt } =
+      await import('@process/services/agentInstaller/installManifest');
     const { resolveManagedAgentLaunch, listManagedAcpAgents } =
       await import('@process/services/agentInstaller/installedAgentLaunch');
+    const { resolveAgentInstallPrefix } = await import('@process/services/agentInstaller/installPrefix');
 
+    // The two things that must actually leave the disk. Asserted BEFORE as well
+    // as after, so "gone" is a transition and not an accident of a path that was
+    // never there. The launch target is inside the package dir, so its removal
+    // is what makes `resolveManagedAgentLaunch` null below.
+    const prefix = resolveAgentInstallPrefix('kimi', userDataDir);
+    const packageDir = path.join(prefix, 'node_modules', '@moonshot-ai', 'kimi-code');
+    expect(existsSync(packageDir), 'the installed package should be on disk before uninstall').toBe(true);
+    expect(readInstallReceipt(prefix)).not.toBeNull();
     expect(resolveManagedAgentLaunch('kimi', userDataDir)).not.toBeNull();
+
     expect(uninstallAgent('kimi', userDataDir)).toMatchObject({ removed: true });
+
+    // Both, not either: a receipt with the payload still on disk leaves dead
+    // bytes in the user's profile, and a payload with no receipt leaves an
+    // install nothing can find, cancel or remove.
+    expect(existsSync(packageDir), 'the package directory must be gone').toBe(false);
+    expect(readInstallReceipt(prefix), 'the receipt must be gone').toBeNull();
+
     expect(resolveManagedAgentLaunch('kimi', userDataDir)).toBeNull();
     expect(listManagedAcpAgents(userDataDir)).toEqual([]);
   }, 120_000);

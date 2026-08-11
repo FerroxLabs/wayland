@@ -2251,6 +2251,8 @@
       "bandTitle": "설치 가능",
       "action": "설치",
       "retry": "다시 시도",
+      "cancel": "취소",
+      "remove": "제거",
       "installing": "{{version}} 설치 중…",
       "installed": "Wayland가 설치함",
       "pinned": "{{version}} 설치",
@@ -2266,6 +2268,12 @@
         "timed-out": "설치 시간이 너무 오래 걸려 중단되었습니다. 다시 시도해 주세요.",
         "cancelled": "설치를 취소했습니다.",
         "error": "예기치 않은 오류로 설치가 중단되었습니다."
+      },
+      "removeConfirm": {
+        "title": "{{agent}}을(를) 제거할까요?",
+        "body": "Wayland가 자체 폴더에 설치한 사본을 삭제합니다. 직접 설치한 사본은 그대로 유지됩니다.",
+        "confirm": "제거",
+        "cancel": "유지"
       },
       "consent": {
         "title": "{{agent}}을(를) 설치할까요?",

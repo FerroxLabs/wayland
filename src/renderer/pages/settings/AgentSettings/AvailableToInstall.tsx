@@ -112,23 +112,42 @@ const InstallConsentSheet: React.FC<{
  * an Install button next to "uses your system copy" would be an invitation to
  * break a working setup (D1).
  */
-const InstallControl: React.FC<{ agent: InstallableAgent; onInstall: () => void }> = ({ agent, onInstall }) => {
+const InstallControl: React.FC<{
+  agent: InstallableAgent;
+  onInstall: () => void;
+  onCancel: () => void;
+  onRemove: () => void;
+}> = ({ agent, onInstall, onCancel, onRemove }) => {
   const { t } = useTranslation();
+  const [confirmRemove, setConfirmRemove] = React.useState(false);
 
   if (agent.state === 'installing') {
     // The spinner is the progress; the pinned version is stated once, on the
-    // status line, rather than repeated in the button beside it.
+    // status line, rather than repeated in the button beside it. Beside it sits
+    // the only way out: without this the user's sole option was to wait for the
+    // deadline, on a channel that has had a cancel all along.
     return (
-      <Button
-        size='mini'
-        type='secondary'
-        loading
-        disabled
-        className={styles.installBtn}
-        data-testid={`install-progress-${agent.agentId}`}
-      >
-        {t('settings.agentsPage.install.action')}
-      </Button>
+      <>
+        <Button
+          size='mini'
+          type='secondary'
+          loading
+          disabled
+          className={styles.installBtn}
+          data-testid={`install-progress-${agent.agentId}`}
+        >
+          {t('settings.agentsPage.install.action')}
+        </Button>
+        <Button
+          size='mini'
+          type='text'
+          onClick={onCancel}
+          className={styles.whyBtn}
+          data-testid={`install-cancel-${agent.agentId}`}
+        >
+          {t('settings.agentsPage.install.cancel')}
+        </Button>
+      </>
     );
   }
 
@@ -156,8 +175,58 @@ const InstallControl: React.FC<{ agent: InstallableAgent; onInstall: () => void 
     );
   }
 
-  // `installed` and `system` both have their say in the status line below the
-  // name; neither offers an action here.
+  if (agent.state === 'installed') {
+    // Wayland put this in its own profile, so Wayland can take it out again.
+    // Behind a confirm because it deletes a directory, and worded so the user
+    // knows it is Wayland's copy going, not theirs.
+    return (
+      <>
+        <Button
+          size='mini'
+          type='text'
+          status='danger'
+          onClick={() => setConfirmRemove(true)}
+          className={styles.whyBtn}
+          data-testid={`install-remove-${agent.agentId}`}
+        >
+          {t('settings.agentsPage.install.remove')}
+        </Button>
+        <Modal
+          visible={confirmRemove}
+          title={t('settings.agentsPage.install.removeConfirm.title', { agent: agent.name })}
+          onCancel={() => setConfirmRemove(false)}
+          autoFocus={false}
+          focusLock
+          unmountOnExit
+          footer={
+            <>
+              <Button onClick={() => setConfirmRemove(false)} data-testid='install-remove-cancel'>
+                {t('settings.agentsPage.install.removeConfirm.cancel')}
+              </Button>
+              <Button
+                type='primary'
+                status='danger'
+                onClick={() => {
+                  setConfirmRemove(false);
+                  onRemove();
+                }}
+                data-testid='install-remove-confirm'
+              >
+                {t('settings.agentsPage.install.removeConfirm.confirm')}
+              </Button>
+            </>
+          }
+        >
+          <Typography.Paragraph className='text-13px'>
+            {t('settings.agentsPage.install.removeConfirm.body')}
+          </Typography.Paragraph>
+        </Modal>
+      </>
+    );
+  }
+
+  // `system` has its say in the status line below the name and offers no action
+  // here: Wayland did not install that copy and must not remove it (D1).
   return null;
 };
 
@@ -214,7 +283,12 @@ const InstallStatusLine: React.FC<{ agent: InstallableAgent }> = ({ agent }) => 
  * `absent` or `unavailable` card dims the mark and switches to a dashed border
  * so "you do not have this" reads at a glance without a second badge.
  */
-const InstallableAgentTile: React.FC<{ agent: InstallableAgent; onInstall: () => void }> = ({ agent, onInstall }) => {
+const InstallableAgentTile: React.FC<{
+  agent: InstallableAgent;
+  onInstall: () => void;
+  onCancel: () => void;
+  onRemove: () => void;
+}> = ({ agent, onInstall, onCancel, onRemove }) => {
   const dimmed = agent.state === 'absent' || agent.state === 'unavailable' || agent.state === 'failed';
   const logo = resolveAgentLogo({ backend: agent.agentId });
 
@@ -254,7 +328,7 @@ const InstallableAgentTile: React.FC<{ agent: InstallableAgent; onInstall: () =>
           />
         </div>
       </div>
-      <InstallControl agent={agent} onInstall={onInstall} />
+      <InstallControl agent={agent} onInstall={onInstall} onCancel={onCancel} onRemove={onRemove} />
     </div>
   );
 };
@@ -291,12 +365,18 @@ const AvailableToInstall: React.FC = () => {
       <div className={styles.sectionLabel}>{t('settings.agentsPage.install.bandTitle')}</div>
       <div className={styles.tileGrid} data-testid='available-to-install'>
         {merged.map((agent) => (
-          <InstallableAgentTile key={agent.agentId} agent={agent} onInstall={() => controller.requestInstall(agent)} />
+          <InstallableAgentTile
+            key={agent.agentId}
+            agent={agent}
+            onInstall={() => controller.requestInstall(agent)}
+            onCancel={() => void controller.cancelInstall(agent.agentId)}
+            onRemove={() => void controller.uninstall(agent.agentId)}
+          />
         ))}
       </div>
       <InstallConsentSheet
         consent={controller.pendingConsent}
-        onCancel={controller.cancelInstall}
+        onCancel={controller.dismissConsent}
         onConfirm={() => void controller.confirmInstall()}
       />
     </>

@@ -2276,6 +2276,8 @@
       "bandTitle": "Verfügbar zur Installation",
       "action": "Installieren",
       "retry": "Erneut versuchen",
+      "cancel": "Abbrechen",
+      "remove": "Entfernen",
       "installing": "{{version}} wird installiert …",
       "installed": "Von Wayland installiert",
       "pinned": "Installiert {{version}}",
@@ -2291,6 +2293,12 @@
         "timed-out": "Die Installation hat zu lange gedauert und wurde abgebrochen. Versuchen Sie es erneut.",
         "cancelled": "Installation abgebrochen.",
         "error": "Die Installation wurde mit einem unerwarteten Fehler abgebrochen."
+      },
+      "removeConfirm": {
+        "title": "{{agent}} entfernen?",
+        "body": "Dies löscht die Kopie, die Wayland in seinen eigenen Ordner installiert hat. Eine selbst installierte Kopie bleibt unberührt.",
+        "confirm": "Entfernen",
+        "cancel": "Behalten"
       },
       "consent": {
         "title": "{{agent}} installieren?",

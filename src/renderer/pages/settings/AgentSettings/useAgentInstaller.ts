@@ -49,10 +49,18 @@ export type AgentInstallerController = {
   pendingConsent: InstallConsent | null;
   /** Ask for consent. Never installs. */
   requestInstall: (agent: InstallableAgent) => void;
-  /** Withdraw the request. Never installs. */
-  cancelInstall: () => void;
+  /**
+   * Close the consent sheet without installing. Named for what it does: it
+   * withdraws a REQUEST. It used to be called `cancelInstall`, which read as
+   * "stop the running install" and is the one thing it cannot do.
+   */
+  dismissConsent: () => void;
   /** Execute the pending consent, if there is one. The ONLY path to install. */
   confirmInstall: () => Promise<void>;
+  /** Stop an install that is RUNNING, in the main process. */
+  cancelInstall: (agentId: string) => Promise<void>;
+  /** Remove an install Wayland performed. Never touches a system copy. */
+  uninstall: (agentId: string) => Promise<void>;
 };
 
 /**
@@ -88,7 +96,46 @@ export function useAgentInstaller(
     });
   }, []);
 
-  const cancelInstall = React.useCallback(() => setPendingConsent(null), []);
+  const dismissConsent = React.useCallback(() => setPendingConsent(null), []);
+
+  /**
+   * Kill a RUNNING install. Deliberately does not write the activity map: the
+   * `confirmInstall` call still awaiting `install.invoke` settles with the main
+   * process's own `{ ok: false, reason: 'cancelled' }`, and that is the outcome
+   * the card should show. Writing `cancelled` here as well would race it.
+   *
+   * A rejected invoke is swallowed for the same reason it is elsewhere: the
+   * install may simply have finished between the click and the call. The status
+   * re-read below reports whatever actually happened.
+   */
+  const cancelInstall = React.useCallback(
+    async (agentId: string) => {
+      try {
+        await ipcBridge.agentInstaller.cancel.invoke({ agentId });
+      } catch (err) {
+        void err;
+      }
+      await revalidate();
+    },
+    [revalidate]
+  );
+
+  /**
+   * Remove an install Wayland performed. The main process refuses without a
+   * receipt, which is what keeps a detected SYSTEM copy safe (D1) even if a
+   * caller reached past the UI; the UI declines to offer it as well.
+   */
+  const uninstall = React.useCallback(
+    async (agentId: string) => {
+      try {
+        await ipcBridge.agentInstaller.uninstall.invoke({ agentId });
+      } catch (err) {
+        void err;
+      }
+      await revalidate();
+    },
+    [revalidate]
+  );
 
   const confirmInstall = React.useCallback(async () => {
     const consent = pendingConsent;
@@ -123,5 +170,5 @@ export function useAgentInstaller(
     await revalidate();
   }, [pendingConsent, revalidate]);
 
-  return { activity, pendingConsent, requestInstall, cancelInstall, confirmInstall };
+  return { activity, pendingConsent, requestInstall, dismissConsent, confirmInstall, cancelInstall, uninstall };
 }

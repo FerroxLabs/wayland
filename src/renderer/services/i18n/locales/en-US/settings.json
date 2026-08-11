@@ -2434,6 +2434,8 @@
       "bandTitle": "Available to install",
       "action": "Install",
       "retry": "Retry",
+      "cancel": "Cancel",
+      "remove": "Remove",
       "installing": "Installing {{version}}…",
       "installed": "Installed by Wayland",
       "pinned": "Installs {{version}}",
@@ -2449,6 +2451,12 @@
         "timed-out": "The install took too long and was stopped. Try again.",
         "cancelled": "Install cancelled.",
         "error": "The install stopped with an unexpected error."
+      },
+      "removeConfirm": {
+        "title": "Remove {{agent}}?",
+        "body": "This deletes the copy Wayland installed into its own folder. Any copy you installed yourself is left alone.",
+        "confirm": "Remove",
+        "cancel": "Keep"
       },
       "consent": {
         "title": "Install {{agent}}?",

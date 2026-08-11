@@ -66,12 +66,16 @@ vi.mock('react-i18next', () => ({
 
 const mockStatus = vi.fn();
 const mockInstall = vi.fn();
+const mockCancel = vi.fn();
+const mockUninstall = vi.fn();
 
 vi.mock('../../../src/common', () => ({
   ipcBridge: {
     agentInstaller: {
       status: { invoke: (...a: unknown[]) => mockStatus(...a) },
       install: { invoke: (...a: unknown[]) => mockInstall(...a) },
+      cancel: { invoke: (...a: unknown[]) => mockCancel(...a) },
+      uninstall: { invoke: (...a: unknown[]) => mockUninstall(...a) },
     },
     // FluxCompatChip renders a setup modal for codex/kimi; it only reaches the
     // connector on click, but the module must exist for the factory mock.
@@ -124,6 +128,8 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockStatus.mockResolvedValue(report([status()]));
   mockInstall.mockResolvedValue({ ok: true, status: status({ state: 'installed' }) });
+  mockCancel.mockResolvedValue({ ok: true, cancelled: true, status: status() });
+  mockUninstall.mockResolvedValue({ ok: true, removed: true, status: status() });
 });
 
 afterEach(() => {
@@ -356,6 +362,113 @@ describe('AvailableToInstall — card states', () => {
 
     await waitFor(() => expect(screen.getByTestId('installable-tile-kimi').getAttribute('data-state')).toBe('failed'));
     expect(screen.getByTestId('install-state-kimi').textContent).toBe('The install stopped with an unexpected error.');
+  });
+});
+
+describe('AvailableToInstall — an install in flight can be stopped', () => {
+  it('installing: offers a Cancel that reaches agent-installer:cancel with the agent id', async () => {
+    // `agent-installer:cancel` shipped on the wire with ZERO renderer call
+    // sites: a running install had no stop, only a spinner and the deadline.
+    let settle: ((v: unknown) => void) | null = null;
+    mockInstall.mockImplementation(() => new Promise((resolve) => (settle = resolve)));
+
+    render(<AvailableToInstall />);
+    await screen.findByTestId('install-button-kimi');
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('install-button-kimi'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('install-consent-confirm'));
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId('installable-tile-kimi').getAttribute('data-state')).toBe('installing')
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('install-cancel-kimi'));
+    });
+
+    expect(mockCancel).toHaveBeenCalledTimes(1);
+    expect(mockCancel).toHaveBeenCalledWith({ agentId: 'kimi' });
+
+    await act(async () => {
+      settle?.({ ok: false, reason: 'cancelled' });
+    });
+  });
+
+  it('cancel is offered ONLY while an install is running', async () => {
+    // absent
+    render(<AvailableToInstall />);
+    await screen.findByTestId('install-button-kimi');
+    expect(screen.queryByTestId('install-cancel-kimi')).toBeNull();
+    expect(mockCancel).not.toHaveBeenCalled();
+  });
+});
+
+describe('AvailableToInstall — an install Wayland made can be removed', () => {
+  const installedReport = () =>
+    report([
+      status({
+        state: 'installed',
+        managedInstall: { prefix: PREFIX, version: '0.34.0', installedAt: '2026-08-11T00:00:00.000Z' },
+        reason: 'ok',
+      }),
+    ]);
+
+  it('installed: a Remove control, behind a confirm, reaches agent-installer:uninstall', async () => {
+    // `agent-installer:uninstall` was likewise unreachable from the UI: Wayland
+    // would install into its own profile and then refuse to let go of it.
+    mockStatus.mockResolvedValue(installedReport());
+    render(<AvailableToInstall />);
+
+    const tile = await screen.findByTestId('installable-tile-kimi');
+    expect(tile.getAttribute('data-state')).toBe('installed');
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('install-remove-kimi'));
+    });
+    // The click asks; it does not remove.
+    expect(mockUninstall).not.toHaveBeenCalled();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('install-remove-confirm'));
+    });
+
+    expect(mockUninstall).toHaveBeenCalledTimes(1);
+    expect(mockUninstall).toHaveBeenCalledWith({ agentId: 'kimi' });
+  });
+
+  it('installed: dismissing the confirm removes nothing', async () => {
+    mockStatus.mockResolvedValue(installedReport());
+    render(<AvailableToInstall />);
+    await screen.findByTestId('installable-tile-kimi');
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('install-remove-kimi'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('install-remove-cancel'));
+    });
+
+    expect(mockUninstall).not.toHaveBeenCalled();
+  });
+
+  it('system: NO Remove - Wayland did not install it and must not remove it (D1)', async () => {
+    mockStatus.mockResolvedValue(
+      report([
+        status({
+          state: 'system',
+          detectedOnPath: true,
+          managedInstall: null,
+          reason: 'ok',
+        }),
+      ])
+    );
+    render(<AvailableToInstall />);
+
+    const tile = await screen.findByTestId('installable-tile-kimi');
+    expect(tile.getAttribute('data-state')).toBe('system');
+    expect(screen.queryByTestId('install-remove-kimi')).toBeNull();
   });
 });
 

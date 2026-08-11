@@ -2251,6 +2251,8 @@
       "bandTitle": "可安裝",
       "action": "安裝",
       "retry": "重試",
+      "cancel": "取消",
+      "remove": "移除",
       "installing": "正在安裝 {{version}}…",
       "installed": "已由 Wayland 安裝",
       "pinned": "將安裝 {{version}}",
@@ -2266,6 +2268,12 @@
         "timed-out": "安裝耗時過長已被停止。請重試。",
         "cancelled": "安裝已取消。",
         "error": "安裝因非預期的錯誤而中止。"
+      },
+      "removeConfirm": {
+        "title": "移除 {{agent}}？",
+        "body": "這會刪除 Wayland 安裝到自身資料夾中的副本。你自己安裝的任何副本都不會受影響。",
+        "confirm": "移除",
+        "cancel": "保留"
       },
       "consent": {
         "title": "安裝 {{agent}}？",

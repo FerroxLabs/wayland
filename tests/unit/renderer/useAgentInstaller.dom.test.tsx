@@ -23,11 +23,15 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockInstall = vi.fn();
+const mockCancel = vi.fn();
+const mockUninstall = vi.fn();
 
 vi.mock('../../../src/common', () => ({
   ipcBridge: {
     agentInstaller: {
       install: { invoke: (...a: unknown[]) => mockInstall(...a) },
+      cancel: { invoke: (...a: unknown[]) => mockCancel(...a) },
+      uninstall: { invoke: (...a: unknown[]) => mockUninstall(...a) },
     },
   },
 }));
@@ -58,6 +62,8 @@ const revalidate = vi.fn(async () => undefined);
 beforeEach(() => {
   vi.clearAllMocks();
   mockInstall.mockResolvedValue({ ok: true, status: {} });
+  mockCancel.mockResolvedValue({ ok: true, cancelled: true, status: {} });
+  mockUninstall.mockResolvedValue({ ok: true, removed: true, status: {} });
 });
 
 afterEach(() => {
@@ -101,18 +107,30 @@ describe('useAgentInstaller — consent gates execution', () => {
     });
   });
 
-  it('cancelling drops the consent, so a later confirm installs nothing', async () => {
+  it('dismissing drops the consent, so a later confirm installs nothing', async () => {
     const { result } = renderHook(() => useAgentInstaller([agent('absent')], revalidate));
     act(() => result.current.requestInstall(agent('absent')));
     await waitFor(() => expect(result.current.pendingConsent).not.toBeNull());
 
-    act(() => result.current.cancelInstall());
+    act(() => result.current.dismissConsent());
     await waitFor(() => expect(result.current.pendingConsent).toBeNull());
 
     await act(async () => {
       await result.current.confirmInstall();
     });
     expect(mockInstall).not.toHaveBeenCalled();
+  });
+
+  it('dismissConsent is NOT a cancel: it never touches the cancel channel', async () => {
+    // The two used to share the name `cancelInstall`, which is how a control
+    // that only closes a sheet reads as one that stops a running install.
+    const { result } = renderHook(() => useAgentInstaller([agent('absent')], revalidate));
+    act(() => result.current.requestInstall(agent('absent')));
+    await waitFor(() => expect(result.current.pendingConsent).not.toBeNull());
+
+    act(() => result.current.dismissConsent());
+
+    expect(mockCancel).not.toHaveBeenCalled();
   });
 
   it('confirming a pending consent installs exactly that agent, once', async () => {
@@ -200,6 +218,53 @@ describe('useAgentInstaller — D1 refusals', () => {
       await result.current.confirmInstall();
     });
     expect(mockInstall).toHaveBeenCalledWith({ agentId: 'kimi' });
+  });
+});
+
+describe('useAgentInstaller — cancel and uninstall', () => {
+  it('cancelInstall reaches the cancel channel and re-reads status', async () => {
+    const { result } = renderHook(() => useAgentInstaller([agent('installing')], revalidate));
+
+    await act(async () => {
+      await result.current.cancelInstall('kimi');
+    });
+
+    expect(mockCancel).toHaveBeenCalledWith({ agentId: 'kimi' });
+    expect(revalidate).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancelInstall does not write the activity map - the install call reports the outcome', async () => {
+    // Writing `cancelled` here would race the `{ ok: false, reason: 'cancelled' }`
+    // the awaiting confirmInstall is about to receive from the main process.
+    const { result } = renderHook(() => useAgentInstaller([agent('installing')], revalidate));
+
+    await act(async () => {
+      await result.current.cancelInstall('kimi');
+    });
+
+    expect(result.current.activity.kimi).toBeUndefined();
+  });
+
+  it('a rejected cancel is survivable - the install may simply have finished', async () => {
+    mockCancel.mockRejectedValue(new Error('no such channel'));
+    const { result } = renderHook(() => useAgentInstaller([agent('installing')], revalidate));
+
+    await act(async () => {
+      await result.current.cancelInstall('kimi');
+    });
+
+    expect(revalidate).toHaveBeenCalledTimes(1);
+  });
+
+  it('uninstall reaches the uninstall channel and re-reads status', async () => {
+    const { result } = renderHook(() => useAgentInstaller([agent('installed')], revalidate));
+
+    await act(async () => {
+      await result.current.uninstall('kimi');
+    });
+
+    expect(mockUninstall).toHaveBeenCalledWith({ agentId: 'kimi' });
+    expect(revalidate).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -2251,6 +2251,8 @@
       "bandTitle": "インストール可能",
       "action": "インストール",
       "retry": "再試行",
+      "cancel": "キャンセル",
+      "remove": "削除",
       "installing": "{{version}} をインストール中…",
       "installed": "Wayland がインストール済み",
       "pinned": "{{version}} をインストールします",
@@ -2266,6 +2268,12 @@
         "timed-out": "インストールに時間がかかりすぎたため停止しました。もう一度お試しください。",
         "cancelled": "インストールをキャンセルしました。",
         "error": "予期しないエラーでインストールが停止しました。"
+      },
+      "removeConfirm": {
+        "title": "{{agent}} を削除しますか？",
+        "body": "Wayland が自身のフォルダーにインストールしたコピーを削除します。ご自身でインストールしたコピーはそのまま残ります。",
+        "confirm": "削除",
+        "cancel": "残す"
       },
       "consent": {
         "title": "{{agent}} をインストールしますか？",

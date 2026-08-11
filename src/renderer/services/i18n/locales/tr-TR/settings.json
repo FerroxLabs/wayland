@@ -2249,6 +2249,8 @@
       "bandTitle": "Kurulabilir olanlar",
       "action": "Kur",
       "retry": "Yeniden dene",
+      "cancel": "İptal",
+      "remove": "Kaldır",
       "installing": "{{version}} kuruluyor…",
       "installed": "Wayland tarafından kuruldu",
       "pinned": "{{version}} kurulur",
@@ -2264,6 +2266,12 @@
         "timed-out": "Kurulum çok uzun sürdü ve durduruldu. Tekrar deneyin.",
         "cancelled": "Kurulum iptal edildi.",
         "error": "Kurulum beklenmeyen bir hatayla durdu."
+      },
+      "removeConfirm": {
+        "title": "{{agent}} kaldırılsın mı?",
+        "body": "Bu, Wayland’in kendi klasörüne kurduğu kopyayı siler. Kendi kurduğunuz kopyaya dokunulmaz.",
+        "confirm": "Kaldır",
+        "cancel": "Tut"
       },
       "consent": {
         "title": "{{agent}} kurulsun mu?",
