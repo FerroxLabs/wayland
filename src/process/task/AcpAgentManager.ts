@@ -1868,6 +1868,7 @@ ${collectedResponses.join('\n')}`;
             const rulesBody = composePrompt({
               assistantId: this.options.presetAssistantId || this.options.customAgentId,
               basePrompt: parts.join('\n\n'),
+              conversationId: this.conversation_id,
             }).text;
             if (rulesBody.length > 0) {
               contentToSend = `[Assistant Rules - You MUST follow these instructions]\n${rulesBody}\n\n[User Request]\n${contentToSend}`;
@@ -1875,6 +1876,7 @@ ${collectedResponses.join('\n')}`;
           } else {
             // Custom workspace or no native support - inject rules + skills via prompt
             const { content: injectedContent } = await prepareFirstMessageWithSkillsIndex(contentToSend, {
+              conversationId: this.conversation_id,
               presetContext: this.options.presetContext,
               enabledSkills: this.options.enabledSkills,
               excludeBuiltinSkills: this.options.excludeBuiltinSkills,

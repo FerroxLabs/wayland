@@ -517,6 +517,7 @@ export class GeminiAgentManager extends BaseAgentManager<
         // prompt-cache stability. (H2: GeminiAgentManager advertise the
         // second channel of the two-channel skill architecture.)
         const systemInstructions = await buildSystemInstructionsWithSkillsIndex({
+          conversationId: this.conversation_id,
           presetContext: this.presetRules,
           enabledSkills: this.enabledSkills,
           excludeBuiltinSkills: this.excludeBuiltinSkills,

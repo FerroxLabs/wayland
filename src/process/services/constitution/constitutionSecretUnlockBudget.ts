@@ -50,10 +50,17 @@ export type ConstitutionSecretUnlockBudgetOptions = Readonly<{
  * What is bounded is every REPEAT of it. The Constitution reads the authority
  * on the start of every turn and re-reads it on every `assertPersisted()`, so
  * one expensive blob would otherwise be paid again on each of those, forever.
- * When a completed unlock of a given ciphertext is measured over budget, that
- * exact ciphertext is quarantined: any later attempt on it fails immediately
- * with {@link CONSTITUTION_SECRET_UNLOCK_TIMEOUT}, which the revision authority
- * classifies as unauthenticated and the service turns into the degrade path.
+ * When an unlock of a given ciphertext both FAILS and is measured over budget,
+ * that exact ciphertext is quarantined: any later attempt on it fails
+ * immediately with {@link CONSTITUTION_SECRET_UNLOCK_TIMEOUT}, which the
+ * revision authority classifies as its own timeout rather than as foreign
+ * ciphertext, so a store that has merely gone slow never causes a ring to be
+ * regenerated on no evidence.
+ *
+ * A slow SUCCESS is deliberately left alone. Arming the quarantine on it would
+ * mean a healthy ring that took too long once is refused from then on, and the
+ * degrade path would rename it aside and replace it while telling the user it
+ * came from another installation - all three of which are wrong.
  *
  * The quarantine is keyed on the ciphertext rather than tripping a global
  * breaker on purpose. The degrade path's whole job is to seal and then read a
@@ -77,16 +84,23 @@ export function withConstitutionSecretUnlockBudget(
     decryptString: (ciphertext: string) => {
       if (quarantined.has(ciphertext)) throw new Error(CONSTITUTION_SECRET_UNLOCK_TIMEOUT);
       const startedAt = now();
+      let plaintext: string;
       try {
-        return backend.decryptString(ciphertext);
-      } finally {
+        plaintext = backend.decryptString(ciphertext);
+      } catch (error) {
         const elapsed = now() - startedAt;
         if (elapsed >= budgetMs) {
           if (quarantined.size >= 8) quarantined.clear();
           quarantined.add(ciphertext);
           options.onBudgetExceeded?.(elapsed);
         }
+        throw error;
       }
+      // A slow SUCCESS is still a success, and the only thing quarantining it
+      // would achieve is failing every later read of a ring that opened
+      // perfectly well. The quarantine exists for blobs that cost the budget
+      // and gave nothing back.
+      return plaintext;
     },
   };
 }

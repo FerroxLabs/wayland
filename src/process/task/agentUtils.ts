@@ -466,6 +466,12 @@ export async function mergeLoadedSkillsExtra(conversationId: string, skills: Ski
  * First message processing configuration
  */
 export interface FirstMessageConfig {
+  /**
+   * Conversation this prompt is being built for. Passed down to the
+   * Constitution composer so a key ring regenerated during this turn is
+   * reported in THIS chat rather than in whichever chat sends next.
+   */
+  conversationId?: string;
   /** Preset context/rules */
   presetContext?: string;
   /** Enabled skills list */
@@ -579,7 +585,11 @@ export async function buildSystemInstructions(config: FirstMessageConfig): Promi
   // turns so Anthropic/OpenAI prompt caches hit). composePrompt returns ''
   // when no Constitution file exists, so this is a no-op for fresh installs
   // and we preserve the previous "return undefined" behaviour.
-  const composed = composePrompt({ assistantId: config.presetAssistantId, basePrompt }).text;
+  const composed = composePrompt({
+    assistantId: config.presetAssistantId,
+    basePrompt,
+    conversationId: config.conversationId,
+  }).text;
   return composed.length === 0 ? undefined : composed;
 }
 
@@ -710,7 +720,11 @@ If you find yourself about to escalate scheduling outside of Wayland or use a no
   // Prepend Wayland Constitution + optional specialist overlay above the
   // existing rules content. Composer returns '' when no Constitution exists,
   // preserving the previous "skip rules block entirely" behaviour.
-  const systemInstructions = composePrompt({ assistantId: config.presetAssistantId, basePrompt }).text;
+  const systemInstructions = composePrompt({
+    assistantId: config.presetAssistantId,
+    basePrompt,
+    conversationId: config.conversationId,
+  }).text;
   if (systemInstructions.length === 0) {
     return { content, loadedSkills };
   }
@@ -842,6 +856,10 @@ export async function buildSystemInstructionsWithSkillsIndex(config: FirstMessag
   // Prepend Wayland Constitution + optional specialist overlay (stable
   // turn-to-turn for prompt-cache reuse). Returns '' when no Constitution
   // is configured, preserving the previous "return undefined" behaviour.
-  const composed = composePrompt({ assistantId: config.presetAssistantId, basePrompt }).text;
+  const composed = composePrompt({
+    assistantId: config.presetAssistantId,
+    basePrompt,
+    conversationId: config.conversationId,
+  }).text;
   return composed.length === 0 ? undefined : composed;
 }

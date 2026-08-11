@@ -19,8 +19,8 @@
  *   (a) a profile whose ring is undecryptable still composes a turn's prompt
  *   (b) the old ciphertext survives beside the new ring, byte for byte
  *   (c) a pathologically slow secret store cannot be re-entered past the budget
- *   (d) covered in tests/unit/WCoreManagerConstitutionReclaim.test.ts (the
- *       user-visible notice lives in the turn surface, not in this service)
+ *   (d) covered in constitutionReclaimNotice.test.ts (the user-visible notice
+ *       lives on the composer seam every backend shares, not in this service)
  */
 import { createHash, createHmac } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
@@ -169,7 +169,46 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
       const reclaim = service.consumeRevisionAuthorityReclaim();
       expect(reclaim).not.toBeNull();
       expect(service.consumeRevisionAuthorityReclaim()).toBeNull();
-    });
+    }, 60_000);
+
+    // (a) again, on the profile a real user actually has. Writing a
+    // Constitution creates `.constitution-keys.enc`, which makes the first read
+    // publish a `complete` legacy-migration marker naming the ring's lineage.
+    // Renaming that ring aside makes it look REMOVED to the migration guard, so
+    // a reclaim that does not understand the binding is refused by it and the
+    // turn dies exactly as before. This is the case that matters.
+    it('composes a turn against a written Constitution whose key ring cannot be decrypted', () => {
+      const { root, authorityPath } = scratchProfile('written');
+      const backend = keychainBackend('installation-A');
+
+      const owner = new ConstitutionFsService(root, realBinary(), backend, undefined, authorityPath);
+      const absent = owner.readConstitution();
+      owner.writeConstitution('Be direct.', absent.revision, '3f1b2c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d');
+      expect(owner.readConstitution().status).toBe('present');
+      // The two facts that make the easy branch unreachable.
+      expect(existsSync(path.join(root, '.constitution-keys.enc'))).toBe(true);
+      expect(existsSync(`${authorityPath}.legacy-v1-migration.json`)).toBe(true);
+      corruptEnvelope(authorityPath);
+
+      const service = new ConstitutionFsService(root, realBinary(), backend, undefined, authorityPath);
+      const composed = service.readWithOverlay(undefined);
+      expect(composed.constitution.status).toBe('present');
+      expect(composed.constitution.content).toBe('Be direct.');
+      expect(composed.constitution.revision).toMatch(/^rev:v2:[0-9a-f-]{36}:[A-Za-z0-9_-]+$/);
+      expect(service.consumeRevisionAuthorityReclaim()).not.toBeNull();
+      expect(lockedSidecars(authorityPath)).toHaveLength(1);
+
+      // The profile is not merely readable, it is whole: the binding moved to
+      // the new lineage, so a write still commits against the same
+      // authenticated transaction state.
+      const written = service.writeConstitution(
+        'Be direct, and finish.',
+        composed.constitution.revision,
+        '4a5b6c7d-8e9f-4a1b-8c2d-3e4f5a6b7c8d'
+      );
+      expect(written.status).toBe('committed');
+      expect(service.readConstitution()).toMatchObject({ status: 'present', content: 'Be direct, and finish.' });
+    }, 60_000);
 
     // (b) The bytes are the user's. Regenerating the ring is allowed; destroying
     // what could not be read is not.
@@ -192,7 +231,7 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
       expect(readFileSync(authorityPath)).not.toEqual(unreadable);
       const reclaim = service.consumeRevisionAuthorityReclaim();
       expect(reclaim?.archivedPath).toBe(sidecars[0]);
-    });
+    }, 60_000);
 
     // (c) A secret store that blocks must not be re-entered on every turn and
     // every assertPersisted. The first synchronous native call cannot be
@@ -237,7 +276,85 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
       expect(attempts.filter((ciphertext) => ciphertext === unreadable)).toHaveLength(1);
       // Everything after that is the replacement ring, which is readable here.
       expect(attempts.length).toBeGreaterThan(1);
-    });
+    }, 60_000);
+
+    // A store that has gone slow is not evidence about who sealed the ring. The
+    // budget must not launder "the keychain would not answer" into "this ring
+    // is foreign", because that regenerates a possibly perfect ring and tells
+    // the user something untrue about why.
+    it('does not reclaim a ring the secret store merely refused to answer for', () => {
+      const { root, authorityPath } = scratchProfile('timeout');
+      const backend = keychainBackend('installation-A');
+      const owner = new ConstitutionFsService(root, realBinary(), backend, undefined, authorityPath);
+      owner.readConstitution();
+      const ring = readFileSync(authorityPath);
+
+      // A blob whose unlock both fails and costs the whole budget. The first
+      // attempt is what arms the quarantine; a later service in the same
+      // process then meets the quarantine rather than the store.
+      let clock = 0;
+      const budgeted = withConstitutionSecretUnlockBudget(
+        {
+          encryptString: backend.encryptString,
+          decryptString: (ciphertext) => {
+            if (ciphertext === ring.toString('utf8')) {
+              clock += 120;
+              throw new Error(SAFE_STORAGE_FAILURE);
+            }
+            clock += 1;
+            return backend.decryptString(ciphertext);
+          },
+        },
+        { budgetMs: 50, now: () => clock }
+      );
+      expect(() => budgeted.decryptString(ring.toString('utf8'))).toThrow(SAFE_STORAGE_FAILURE);
+
+      const service = new ConstitutionFsService(root, realBinary(), budgeted, undefined, authorityPath);
+      let thrown: unknown;
+      try {
+        service.readWithOverlay(undefined);
+      } catch (error) {
+        thrown = error;
+      }
+
+      expect(thrown).toBeInstanceOf(ConstitutionFsTransactionError);
+      expect((thrown as ConstitutionFsTransactionError).code).toBe(CONSTITUTION_SECRET_UNLOCK_TIMEOUT);
+      // The copy stays truthful: nothing here proves the ring came from
+      // somewhere else, so it must not say so.
+      expect((thrown as Error).message).not.toContain('different installation');
+      expect((thrown as Error).message).not.toContain('safeStorage');
+      // And the ring is exactly where it was, untouched.
+      expect(readFileSync(authorityPath)).toEqual(ring);
+      expect(lockedSidecars(authorityPath)).toHaveLength(0);
+      expect(service.consumeRevisionAuthorityReclaim()).toBeNull();
+    }, 60_000);
+
+    // The reclaim can land between the two halves of minting a revision. If the
+    // second half re-resolves the authority it looks the first half's key id up
+    // in a ring that never had it, and a raw authority error reaches the user.
+    it('mints a revision from one resolution of the authority, not two', () => {
+      const { root, authorityPath } = scratchProfile('toctou');
+      const backend = keychainBackend('installation-A');
+      const owner = new ConstitutionFsService(root, realBinary(), backend, undefined, authorityPath);
+      const absent = owner.readConstitution();
+      owner.writeConstitution('Be direct.', absent.revision, '7a8b9c0d-1e2f-4a3b-8c4d-5e6f7a8b9c0d');
+
+      let ringReads = 0;
+      const counting: ConstitutionArchiveSecretBackend = {
+        encryptString: backend.encryptString,
+        decryptString: (ciphertext) => {
+          if (ciphertext.startsWith('enc:v1:') && ciphertext === readFileSync(authorityPath, 'utf8')) ringReads += 1;
+          return backend.decryptString(ciphertext);
+        },
+      };
+      const service = new ConstitutionFsService(root, realBinary(), counting, undefined, authorityPath);
+      const read = service.readConstitution();
+      expect(read.status).toBe('present');
+
+      // One authority resolution per revision minted. Re-resolving inside the
+      // key lookup doubles this and opens the window the reclaim falls into.
+      expect(ringReads).toBe(1);
+    }, 60_000);
 
     // The distinction that keeps this from being a blanket "delete what you
     // cannot read": a ring that decrypts fine but is structurally corrupt is
@@ -253,7 +370,7 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
       expect(() => service.readWithOverlay(undefined)).toThrow('CONSTITUTION_FS_REVISION_AUTHORITY_INVALID');
       expect(lockedSidecars(authorityPath)).toHaveLength(0);
       expect(service.consumeRevisionAuthorityReclaim()).toBeNull();
-    });
+    }, 60_000);
 
     // If the replacement cannot be minted, the profile must be left exactly as
     // it was found and the user routed to recovery - not stranded between the
@@ -284,11 +401,39 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
       // Never a crypto stack trace, always a remedy.
       expect((thrown as Error).message).not.toContain('safeStorage');
       expect((thrown as Error).message).toContain('Settings');
-      // Nothing was reported as reclaimed, and the bytes still exist.
+      // Nothing was reported as reclaimed.
       expect(service.consumeRevisionAuthorityReclaim()).toBeNull();
-      const survivors = [authorityPath, ...lockedSidecars(authorityPath)].filter((candidate) => existsSync(candidate));
-      expect(survivors.some((candidate) => readFileSync(candidate).equals(sealed))).toBe(true);
-    });
+      // The invariant the doc comment claims, asserted where it is claimed: the
+      // ring is back at its canonical path with its original bytes. Checking
+      // only that SOME survivor matches is satisfied by the sidecar alone,
+      // which is the exact half-reclaimed state this is supposed to forbid.
+      expect(readFileSync(authorityPath)).toEqual(sealed);
+      expect(lockedSidecars(authorityPath)).toHaveLength(0);
+    }, 60_000);
+
+    // The sidecar naming is the only thing standing between a second reclaim
+    // and silently overwriting the first generation of preserved bytes.
+    it('keeps every generation of preserved ring side by side', () => {
+      const { root, authorityPath } = scratchProfile('repeat');
+      const backend = keychainBackend('installation-A');
+      const generations: Buffer[] = [];
+
+      for (let generation = 0; generation < 3; generation += 1) {
+        const owner = new ConstitutionFsService(root, realBinary(), backend, undefined, authorityPath);
+        owner.readConstitution();
+        corruptEnvelope(authorityPath);
+        generations.push(readFileSync(authorityPath));
+        // A fresh service each time: the reclaim is once per service by design.
+        new ConstitutionFsService(root, realBinary(), backend, undefined, authorityPath).readWithOverlay(undefined);
+      }
+
+      const sidecars = lockedSidecars(authorityPath);
+      expect(sidecars).toHaveLength(3);
+      const preserved = sidecars.map((sidecar) => readFileSync(sidecar));
+      for (const generation of generations) {
+        expect(preserved.some((bytes) => bytes.equals(generation))).toBe(true);
+      }
+    }, 60_000);
   }
 );
 
@@ -299,18 +444,18 @@ describe('constitution secret unlock budget', () => {
     const budgeted = withConstitutionSecretUnlockBudget(
       {
         encryptString: (plaintext) => plaintext,
-        decryptString: (ciphertext) => {
+        decryptString: () => {
           calls += 1;
           clock += 120_000;
-          return ciphertext;
+          throw new Error(SAFE_STORAGE_FAILURE);
         },
       },
       { budgetMs: 10_000, now: () => clock }
     );
 
     // The first synchronous native call cannot be interrupted from here. It is
-    // allowed to return, and its cost is what arms the quarantine.
-    expect(budgeted.decryptString('slow-blob')).toBe('slow-blob');
+    // allowed to run to its failure, and that cost is what arms the quarantine.
+    expect(() => budgeted.decryptString('slow-blob')).toThrow(SAFE_STORAGE_FAILURE);
     expect(calls).toBe(1);
 
     const before = clock;
@@ -333,18 +478,48 @@ describe('constitution secret unlock budget', () => {
       {
         encryptString: (plaintext) => plaintext,
         decryptString: (ciphertext) => {
-          clock += ciphertext === 'slow-blob' ? 120_000 : 1;
+          if (ciphertext === 'slow-blob') {
+            clock += 120_000;
+            throw new Error(SAFE_STORAGE_FAILURE);
+          }
+          clock += 1;
           return ciphertext;
         },
       },
       { budgetMs: 10_000, now: () => clock }
     );
 
-    budgeted.decryptString('slow-blob');
+    expect(() => budgeted.decryptString('slow-blob')).toThrow(SAFE_STORAGE_FAILURE);
     expect(() => budgeted.decryptString('slow-blob')).toThrow(CONSTITUTION_SECRET_UNLOCK_TIMEOUT);
     // The degrade path has to be able to read what it just sealed. A global
     // breaker here would turn one recoverable failure into a permanent one.
     expect(budgeted.decryptString('fresh-ring')).toBe('fresh-ring');
+  });
+
+  // The budget destroys rings if it treats "slow" as "broken". A ring that
+  // opened is a ring that works, however long the store took to say so, and
+  // quarantining it would send a healthy profile down the reclaim path and tell
+  // the user their ring came from another installation.
+  it('never quarantines a slow unlock that actually succeeded', () => {
+    let clock = 0;
+    let calls = 0;
+    const observed: number[] = [];
+    const budgeted = withConstitutionSecretUnlockBudget(
+      {
+        encryptString: (plaintext) => plaintext,
+        decryptString: (ciphertext) => {
+          calls += 1;
+          clock += 120_000;
+          return ciphertext;
+        },
+      },
+      { budgetMs: 10_000, now: () => clock, onBudgetExceeded: (elapsed) => observed.push(elapsed) }
+    );
+
+    expect(budgeted.decryptString('slow-but-fine')).toBe('slow-but-fine');
+    expect(budgeted.decryptString('slow-but-fine')).toBe('slow-but-fine');
+    expect(calls).toBe(2);
+    expect(observed).toEqual([]);
   });
 
   it('reports the measured overrun so the cost is discoverable in the log', () => {
@@ -353,15 +528,15 @@ describe('constitution secret unlock budget', () => {
     const budgeted = withConstitutionSecretUnlockBudget(
       {
         encryptString: (plaintext) => plaintext,
-        decryptString: (ciphertext) => {
+        decryptString: () => {
           clock += 31_000;
-          return ciphertext;
+          throw new Error(SAFE_STORAGE_FAILURE);
         },
       },
       { budgetMs: 10_000, now: () => clock, onBudgetExceeded: (elapsed) => observed.push(elapsed) }
     );
 
-    budgeted.decryptString('blob');
+    expect(() => budgeted.decryptString('blob')).toThrow(SAFE_STORAGE_FAILURE);
     expect(observed).toEqual([31_000]);
   });
 

@@ -14,6 +14,12 @@ type BuildRolePromptParams = {
   renamedAgents?: Map<string, string>;
   teamWorkspace?: string;
   /**
+   * Conversation this role prompt is being built for. Passed to the
+   * Constitution composer so a key ring regenerated while building a Team
+   * prompt is reported in that agent's chat instead of going unreported.
+   */
+  conversationId?: string;
+  /**
    * W4c - When true, wrap the generated prompt body in
    * `<!-- IMPORTED-UNTRUSTED-CONTENT -->` markers and append a non-overridable
    * SYSTEM SANDBOX NOTICE for leaders. Trusted teams pass false (or omit).
@@ -36,8 +42,16 @@ function wrapImportedPrompt(body: string, isLeader: boolean, isSandboxed: boolea
  * Agents pull dynamic state on demand via team_* MCP tools.
  */
 export function buildRolePrompt(params: BuildRolePromptParams): string {
-  const { agent, teammates, availableAgentTypes, availableAssistants, renamedAgents, teamWorkspace, isSandboxed } =
-    params;
+  const {
+    agent,
+    teammates,
+    availableAgentTypes,
+    availableAssistants,
+    renamedAgents,
+    teamWorkspace,
+    isSandboxed,
+    conversationId,
+  } = params;
 
   const isLeader = agent.role === 'leader';
   const body = isLeader
@@ -66,6 +80,7 @@ export function buildRolePrompt(params: BuildRolePromptParams): string {
   const composed = composePrompt({
     assistantId: agent.customAgentId,
     basePrompt: wrappedBody,
+    conversationId,
   }).text;
   return composed.length > 0 ? composed : wrappedBody;
 }

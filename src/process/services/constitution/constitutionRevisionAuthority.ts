@@ -16,6 +16,7 @@ import {
 } from 'node:fs';
 import path from 'node:path';
 import type { ConstitutionArchiveSecretBackend } from './constitutionFsTransaction';
+import { isConstitutionSecretUnlockTimeout } from './constitutionSecretUnlockBudget';
 import { syncPublicationTargetSync } from '@process/utils/durabilitySync';
 
 type RevisionKey = {
@@ -70,6 +71,24 @@ export const CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED = 'CONSTITUTION_FS_
 /** True when `error` is the decrypt-failure classification raised by this module. */
 export function isConstitutionRevisionAuthorityUnauthenticated(error: unknown): boolean {
   return error instanceof Error && error.message === CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED;
+}
+
+/**
+ * The OS secret store already spent the whole unlock budget on this exact
+ * ciphertext and gave nothing back, so it is not being attempted again.
+ *
+ * Kept separate from `_UNAUTHENTICATED` because the two mean opposite things
+ * about the bytes. `_UNAUTHENTICATED` is evidence the ring belongs to another
+ * installation, which is what justifies regenerating it. This one is evidence
+ * about the STORE, not the ring: the ring may be perfectly good and simply
+ * unreachable right now. Regenerating on it would destroy a healthy ring and
+ * tell the user something untrue about why.
+ */
+export const CONSTITUTION_REVISION_AUTHORITY_UNLOCK_TIMEOUT = 'CONSTITUTION_FS_REVISION_AUTHORITY_UNLOCK_TIMEOUT';
+
+/** True when `error` is the budget-exhausted classification raised by this module. */
+export function isConstitutionRevisionAuthorityUnlockTimeout(error: unknown): boolean {
+  return error instanceof Error && error.message === CONSTITUTION_REVISION_AUTHORITY_UNLOCK_TIMEOUT;
 }
 
 function exactKeys(value: object, expected: readonly string[]): boolean {
@@ -218,6 +237,12 @@ function readAuthorityFile(authorityPath: string, backend: ConstitutionArchiveSe
   try {
     plaintext = backend.decryptString(ciphertext);
   } catch (error) {
+    // The store refusing to answer inside its budget is not evidence about who
+    // sealed these bytes, so it must not be laundered into the classification
+    // that authorizes regenerating them.
+    if (isConstitutionSecretUnlockTimeout(error)) {
+      throw new Error(CONSTITUTION_REVISION_AUTHORITY_UNLOCK_TIMEOUT, { cause: error });
+    }
     // Never let the raw crypto failure escape. It is thrown on every read of a
     // foreign-identity authority, and unclassified it travels the whole
     // readAuthorityFile -> load -> readConstitution -> composePrompt ->

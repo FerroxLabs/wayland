@@ -25,6 +25,7 @@ import {
   ConstitutionRevisionAuthority,
   constitutionRevisionDurabilitySyncPath,
   isConstitutionRevisionAuthorityUnauthenticated,
+  isConstitutionRevisionAuthorityUnlockTimeout,
   type ConstitutionRevisionRotationReceipt,
 } from './constitutionRevisionAuthority';
 import {
@@ -53,7 +54,10 @@ import {
   createConstitutionRequestFingerprint,
   sameConstitutionFingerprintTarget,
 } from './constitutionRequestFingerprint';
-import { withConstitutionSecretUnlockBudget } from './constitutionSecretUnlockBudget';
+import {
+  CONSTITUTION_SECRET_UNLOCK_TIMEOUT,
+  withConstitutionSecretUnlockBudget,
+} from './constitutionSecretUnlockBudget';
 import { compareUnicodeCodeUnits } from '../../utils/restrictedCanonicalJson';
 import { syncPublicationTargetSync } from '@process/utils/durabilitySync';
 
@@ -376,7 +380,23 @@ export class ConstitutionFsService {
     );
   }
 
-  private persistRevisionAuthorityBindingMarker(authority: ConstitutionRevisionAuthority): void {
+  /**
+   * Bind (or re-bind) the legacy migration marker to a revision authority.
+   *
+   * The marker has two halves and they fail closed for different reasons. The
+   * journal-key digest proves the marker belongs to THIS profile's
+   * authenticated transaction state, and is never relaxed by any caller: a
+   * grafted or swapped profile still quarantines. The authority key id names
+   * the ring lineage, and a `reclaimed` caller is allowed to move it, because
+   * that caller has just preserved the ring it named and minted a verified
+   * replacement in its place. Without that distinction the reclaim is inert on
+   * exactly the profiles that have a Constitution, which is every profile that
+   * hits the defect.
+   */
+  private persistRevisionAuthorityBindingMarker(
+    authority: ConstitutionRevisionAuthority,
+    intent: 'bind' | 'reclaimed' = 'bind'
+  ): void {
     if (!this.revisionAuthorityPath || !this.keyStore) return;
     const markerPath = `${this.revisionAuthorityPath}.legacy-v1-migration.json`;
     const existing = readLegacyRevisionMigrationMarker(markerPath);
@@ -386,14 +406,16 @@ export class ConstitutionFsService {
     if (
       existing &&
       (existing.legacyJournalKeySha256 !== legacyJournalKeySha256 ||
-        (existing.state === 'complete' && existing.authorityKeyId !== authority.lineageKeyId()))
+        (existing.state === 'complete' &&
+          existing.authorityKeyId !== authority.lineageKeyId() &&
+          intent !== 'reclaimed'))
     ) {
       throw new ConstitutionFsTransactionError(
         'CONSTITUTION_FS_REVISION_AUTHORITY_MISSING_WITH_STATE',
         'Revision authority binding disagrees with authenticated transaction state or its authority key.'
       );
     }
-    if (existing?.state === 'complete') return;
+    if (existing?.state === 'complete' && existing.authorityKeyId === authority.lineageKeyId()) return;
     writeDurableMigrationMarker(
       markerPath,
       {
@@ -481,6 +503,17 @@ export class ConstitutionFsService {
     try {
       return this.loadRevisionAuthorityForRead();
     } catch (error) {
+      if (isConstitutionRevisionAuthorityUnlockTimeout(error)) {
+        // The store spent the whole budget on this blob and gave nothing back.
+        // That says nothing about who sealed it, so the ring is left exactly
+        // where it is and the user is told the truth instead of being told
+        // their ring came from another installation.
+        this.revisionAuthorityReclaim = null;
+        throw new ConstitutionFsTransactionError(
+          CONSTITUTION_SECRET_UNLOCK_TIMEOUT,
+          'The system keychain on this machine did not answer in time when Wayland tried to unlock the Constitution key ring, so Wayland stopped waiting rather than leaving this chat hanging. Nothing was changed. Try again, and restart Wayland if it keeps happening.'
+        );
+      }
       if (!isConstitutionRevisionAuthorityUnauthenticated(error)) throw error;
       // The authority is a key ring, not the Constitution: its keys only sign
       // and check the short-lived `rev:v2:` compare-and-swap tokens a read hands
@@ -506,15 +539,17 @@ export class ConstitutionFsService {
    *
    * The unreadable ciphertext is the user's data and is never deleted or
    * overwritten: it is renamed aside to a timestamped `.locked-` sidecar first,
-   * and only then is a fresh ring minted in its place. If minting the
-   * replacement fails for any reason - most importantly the fail-closed legacy
-   * migration binding, which refuses a new lineage while authenticated legacy
-   * transaction state exists - the sidecar is moved back to exactly where it
-   * was and the caller reports the original unlock failure, so recovery through
-   * Settings remains the outcome for the cases that genuinely need it.
+   * and only then is a fresh ring minted in its place. The replacement is not
+   * accepted until this installation has read it back off disk, and the legacy
+   * migration binding is not moved to the new lineage until after that proof.
    *
-   * Returns null when nothing was reclaimed; the profile is then byte-identical
-   * to how it was found.
+   * If any step fails, the sidecar is renamed back over whatever half-built
+   * replacement exists, so the ring is at its canonical path with its original
+   * bytes, no sidecar is left behind, the migration binding is untouched, and
+   * the caller reports the original unlock failure - recovery through Settings
+   * remains the outcome for the cases that genuinely need it.
+   *
+   * Returns null when nothing was reclaimed.
    */
   private reclaimUnreadableRevisionAuthority(): ConstitutionRevisionAuthority | null {
     // Once per service, never in a loop. A ring this installation just minted
@@ -534,8 +569,7 @@ export class ConstitutionFsService {
     }
     this.revisionAuthority = null;
     try {
-      const authority = this.loadRevisionAuthorityForRead();
-      if (!authority) throw new Error('CONSTITUTION_FS_REVISION_AUTHORITY_MISSING');
+      const authority = this.mintReclaimedRevisionAuthority(authorityPath);
       console.warn(
         `[constitution] The Constitution revision key ring on this machine could not be unlocked (it was sealed by a different installation of this app). A new ring was created so work can continue; the unreadable one was kept at ${archivedPath}.`
       );
@@ -550,6 +584,45 @@ export class ConstitutionFsService {
       }
       return null;
     }
+  }
+
+  /**
+   * Mint the replacement ring for a reclaim, with the same authentication
+   * discipline a first load applies to legacy state.
+   *
+   * Deliberately NOT routed through `loadRevisionAuthorityForRead`. That path
+   * cannot tell "the ring was preserved a moment ago by this reclaim" from "the
+   * ring is gone", so on any profile that has ever written a Constitution it
+   * sees a `complete` migration marker with the authority absent and refuses -
+   * which made the whole reclaim inert on precisely the profiles that have the
+   * defect. Here the intent is explicit: authenticate the legacy state, mint,
+   * prove the new ring opens, and only then move the binding to it.
+   */
+  private mintReclaimedRevisionAuthority(authorityPath: string): ConstitutionRevisionAuthority {
+    const marker = readLegacyRevisionMigrationMarker(`${authorityPath}.legacy-v1-migration.json`);
+    const authenticated = this.hasAuthenticatedTransactionState();
+    if (marker && !authenticated) {
+      throw new ConstitutionFsTransactionError(
+        'CONSTITUTION_FS_REVISION_AUTHORITY_MISSING_WITH_STATE',
+        'Revision authority binding exists without its authenticated Constitution state.'
+      );
+    }
+    if (authenticated) {
+      // Authenticate the key store, archive key inventory, ledger, journals and
+      // live targets BEFORE a new lineage exists to be bound to them.
+      this.ensureArchiveReadState();
+      this.reconcilePendingTransactions();
+      inventoryConstitutionFsLiveTargets(this.root, randomUUID(), this.binary, this.readOptions());
+    }
+    const authority = ConstitutionRevisionAuthority.loadOrCreate(authorityPath, this.secretBackend);
+    // Prove this installation can OPEN what it just sealed. A secret store that
+    // seals fine and reads nothing is not a foreign ring, and accepting the
+    // mint there would leave the user's ring displaced by a replacement nobody
+    // can read while the read fails anyway.
+    authority.assertPersisted();
+    if (authenticated) this.persistRevisionAuthorityBindingMarker(authority, 'reclaimed');
+    this.revisionAuthority = authority;
+    return authority;
   }
 
   /**
@@ -678,16 +751,21 @@ export class ConstitutionFsService {
 
   private revision(target: ConstitutionFsTarget, present: boolean, sha256?: string): ConstitutionRevision {
     const authority = this.revisionAuthorityForRead()!;
-    return this.revisionWithKey(target, present, sha256, authority.keyId());
+    // The authority this key id came from is handed straight on. Re-resolving
+    // it would re-read the file, and a reclaim landing between the two reads
+    // would look this key id up in a ring that never had it and throw a raw
+    // authority error at the user.
+    return this.revisionWithKey(target, present, sha256, authority.keyId(), authority);
   }
 
   private revisionWithKey(
     target: ConstitutionFsTarget,
     present: boolean,
     sha256: string | undefined,
-    keyId: string
+    keyId: string,
+    resolved?: ConstitutionRevisionAuthority
   ): ConstitutionRevision {
-    const authority = this.revisionAuthorityForRead()!;
+    const authority = resolved ?? this.revisionAuthorityForRead()!;
     const key = authority.key(keyId);
     try {
       return `rev:v2:${keyId}:${createHmac('sha256', key)
@@ -736,8 +814,10 @@ export class ConstitutionFsService {
     const candidate = Buffer.from(expected);
     if (actual.byteLength === candidate.byteLength && timingSafeEqual(actual, candidate)) return true;
     const priorKeyId = /^rev:v2:([0-9a-f-]{36}):[A-Za-z0-9_-]+$/i.exec(expected)?.[1];
-    if (priorKeyId && this.revisionAuthorityForRead()!.keyIds().includes(priorKeyId)) {
-      const remapped = Buffer.from(this.revisionWithKey(target, present, sha256, priorKeyId));
+    if (!priorKeyId) return false;
+    const authority = this.revisionAuthorityForRead()!;
+    if (authority.keyIds().includes(priorKeyId)) {
+      const remapped = Buffer.from(this.revisionWithKey(target, present, sha256, priorKeyId, authority));
       if (remapped.byteLength === candidate.byteLength && timingSafeEqual(remapped, candidate)) return true;
     }
     return false;

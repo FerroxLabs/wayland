@@ -421,13 +421,15 @@ describe.runIf(process.platform === 'darwin' || process.platform === 'linux')(
       expect((thrown as Error).message).not.toContain('safeStorage');
       expect((thrown as Error).message).toContain('Settings');
       // The authority is the user's encrypted data. Failing to read it must
-      // never be a licence to delete, reset, or rewrite it: the exact bytes are
-      // still on disk, in a `.locked-` sidecar next to where they were found.
+      // never be a licence to delete, reset, or rewrite it. This backend seals
+      // fine and opens nothing, so the reclaim cannot prove a replacement is
+      // readable and rolls the whole thing back: the exact bytes are at the
+      // canonical path, and no half-reclaimed sidecar is left behind.
+      expect(readFileSync(revisionAuthorityPath)).toEqual(sealed);
       const archived = readdirSync(path.dirname(revisionAuthorityPath)).filter((name) =>
         name.startsWith(`${path.basename(revisionAuthorityPath)}.locked-`)
       );
-      expect(archived).toHaveLength(1);
-      expect(readFileSync(path.join(path.dirname(revisionAuthorityPath), archived[0]!))).toEqual(sealed);
+      expect(archived).toHaveLength(0);
     });
 
     it('reconciles archive restore response loss before source reads or a second password challenge', async () => {

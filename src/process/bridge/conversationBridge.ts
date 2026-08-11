@@ -746,6 +746,7 @@ export function initConversationBridge(
         (sendMessageConversation?.extra as { presetAssistantId?: string; customAgentId?: string } | undefined)
           ?.customAgentId;
       agentContent = await prepareFirstMessage(other.input, {
+        conversationId: conversation_id,
         enabledSkills: other.injectSkills,
         presetAssistantId,
         workflowSessionId,
