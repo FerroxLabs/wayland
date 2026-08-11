@@ -57,6 +57,18 @@ export type VoiceSessionReadiness = {
   sttProvider: SpeechToTextProvider;
 };
 
+/**
+ * Credentials the app holds in the shared provider registry (what
+ * Models/Providers shows as "Connected"), which main will fall back to when the
+ * voice config carries no key of its own. Absent/undefined means "not known
+ * here" and is treated as not connected - the conservative direction, since it
+ * only ever withholds readiness it cannot vouch for.
+ */
+export type ConnectedVoiceCredentials = {
+  openai?: boolean;
+  flux?: boolean;
+};
+
 export type VoiceReadinessInput = {
   ttsConfig?: Partial<TextToSpeechConfig> | null;
   sttConfig?: Partial<SpeechToTextConfig> | null;
@@ -69,19 +81,31 @@ export type VoiceReadinessInput = {
    * exists and is not running blocks.
    */
   audioContextState?: AudioContextState;
+  /** @see ConnectedVoiceCredentials */
+  connectedCredentials?: ConnectedVoiceCredentials;
 };
 
 const DEFAULT_TTS_PROVIDER: TextToSpeechProvider = 'system-native';
 const DEFAULT_STT_PROVIDER: SpeechToTextProvider = 'openai';
 
-/** True when this provider has a usable credential in the config the renderer can see. */
+/**
+ * True when this provider has a usable credential.
+ *
+ * The STT config is not the only place a credential can live, and for the two
+ * providers the app connects on the user's behalf it is the least likely one.
+ * Main resolves both OpenAI and Flux Voice from the shared provider registry
+ * when the STT block is empty, so judging readiness on the STT block alone
+ * reports "unavailable" for a provider that would transcribe perfectly well -
+ * blocking a session main was ready to serve.
+ */
 const hostedSttHasCredential = (
   provider: SpeechToTextProvider,
-  config?: Partial<SpeechToTextConfig> | null
+  config?: Partial<SpeechToTextConfig> | null,
+  connected?: ConnectedVoiceCredentials
 ): boolean => {
-  if (provider === 'openai') return Boolean(config?.openai?.apiKey?.trim());
+  if (provider === 'openai') return Boolean(config?.openai?.apiKey?.trim() || connected?.openai);
   if (provider === 'deepgram') return Boolean(config?.deepgram?.apiKey?.trim());
-  if (provider === 'flux-voice') return Boolean(config?.fluxVoice?.apiKey?.trim());
+  if (provider === 'flux-voice') return Boolean(config?.fluxVoice?.apiKey?.trim() || connected?.flux);
   return true;
 };
 
@@ -108,13 +132,14 @@ const resolveTtsReason = (
 const resolveSttReason = (
   provider: SpeechToTextProvider,
   sttConfig: VoiceReadinessInput['sttConfig'],
-  consent: VoiceReadinessInput['consent']
+  consent: VoiceReadinessInput['consent'],
+  connected: ConnectedVoiceCredentials | undefined
 ): VoiceReadinessReason => {
   if (!sttConfig?.enabled) return 'stt-disabled';
   // A provider with no credential cannot transcribe even once consent is given,
   // so it is reported before the disclosure - fixing consent first would just
   // produce a second failure.
-  if (!hostedSttHasCredential(provider, sttConfig)) return 'stt-unavailable';
+  if (!hostedSttHasCredential(provider, sttConfig, connected)) return 'stt-unavailable';
   if (isHostedVoiceProvider(provider) && !hostedVoiceConsentGranted(provider, consent)) return 'stt-needs-consent';
   return 'ok';
 };
@@ -134,6 +159,7 @@ export const resolveVoiceSessionReadiness = ({
   platform = 'darwin',
   consent,
   audioContextState,
+  connectedCredentials,
 }: VoiceReadinessInput = {}): VoiceSessionReadiness => {
   const ttsProvider = (ttsConfig?.provider ?? DEFAULT_TTS_PROVIDER) as TextToSpeechProvider;
   const sttProvider = (sttConfig?.provider ?? DEFAULT_STT_PROVIDER) as SpeechToTextProvider;
@@ -144,7 +170,7 @@ export const resolveVoiceSessionReadiness = ({
       : ((): VoiceReadinessReason => {
           const tts = resolveTtsReason(ttsProvider, ttsConfig, platform, consent);
           if (tts !== 'ok') return tts;
-          return resolveSttReason(sttProvider, sttConfig, consent);
+          return resolveSttReason(sttProvider, sttConfig, consent, connectedCredentials);
         })();
 
   return { ready: reason === 'ok', reason, ttsProvider, sttProvider };

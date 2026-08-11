@@ -216,6 +216,32 @@ const resolveSpeechToTextConfig = async (): Promise<SpeechToTextConfig> => {
     }
   }
 
+  // Flux Voice: same rule as OpenAI above, and it was missing.
+  //
+  // The zero-config seed below only fires for a user who has NEVER chosen an
+  // engine. Choosing Flux Voice deliberately - the one action that signals the
+  // user wants it - skipped the seed and landed on `resolveProviderApiKey`,
+  // which reads `fluxVoice.apiKey` from the STT config and throws
+  // STT_FLUX_NOT_CONFIGURED when it is empty. It is always empty: the Flux
+  // credential lives in the shared provider registry, and nothing ever copied
+  // it here. So a user with Flux Router connected and working got the one
+  // provider that could not transcribe, precisely because they picked it.
+  if (stored.provider === 'flux-voice' && !resolveFluxVoiceConfig(stored)?.apiKey?.trim()) {
+    const fluxKey = await readConnectedFluxKey();
+    if (fluxKey) {
+      mainLog(STT_LOG_TAG, 'Flux Voice using the connected Flux Router credential');
+      return {
+        ...stored,
+        fluxVoice: {
+          ...stored.fluxVoice,
+          apiKey: fluxKey,
+          baseUrl: stored.fluxVoice?.baseUrl || FLUX_VOICE_BASE_URL,
+          model: stored.fluxVoice?.model || FLUX_VOICE_MODEL,
+        },
+      };
+    }
+  }
+
   // Zero-config default: if Flux is connected and the user hasn't configured
   // another STT engine, use Flux Voice transparently for this request.
   if (stored.provider !== 'flux-voice' && stored.provider !== 'deepgram' && stored.provider !== 'whisper-local') {

@@ -26,6 +26,7 @@ import { selectVoiceGreeting } from '@/common/voice/voiceGreeting';
 import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
 import {
   resolveVoiceSessionReadiness,
+  type ConnectedVoiceCredentials,
   type VoiceReadinessReason,
   type VoiceSessionReadiness,
 } from '@/common/voice/voiceReadiness';
@@ -268,6 +269,13 @@ export const useVoiceConversationSession = ({
    */
   const sttProviderRef = useRef<SpeechToTextProvider | null>(null);
   const [effectiveSttProvider, setEffectiveSttProvider] = useState<SpeechToTextProvider | null>(null);
+  /**
+   * What the shared provider registry says is connected. Readiness needs it:
+   * main resolves both OpenAI and Flux Voice credentials from the registry when
+   * the STT config carries none, so judging the listening leg on the STT config
+   * alone declares `stt-unavailable` for a provider that would have worked.
+   */
+  const [connectedCredentials, setConnectedCredentials] = useState<ConnectedVoiceCredentials>({});
   const [snapshot, setSnapshot] = useState<VoiceSessionSnapshot | null>(null);
   const snapshotRef = useRef<VoiceSessionSnapshot | null>(null);
   const activeTurnRef = useRef<string | null>(null);
@@ -969,10 +977,15 @@ export const useVoiceConversationSession = ({
         if (storedStt?.provider) {
           try {
             const providers = await modelRegistry.list.invoke();
+            const hasConnectedOpenAIKey = providers.some((p) => p.providerId === 'openai' && p.state === 'connected');
+            const hasConnectedFluxKey = providers.some(
+              (p) => p.providerId === FLUX_PROVIDER_ID && p.state === 'connected'
+            );
+            setConnectedCredentials({ openai: hasConnectedOpenAIKey, flux: hasConnectedFluxKey });
             sttProvider = resolveEffectiveSttProvider({
               stored: storedStt,
-              hasConnectedOpenAIKey: providers.some((p) => p.providerId === 'openai' && p.state === 'connected'),
-              hasConnectedFluxKey: providers.some((p) => p.providerId === FLUX_PROVIDER_ID && p.state === 'connected'),
+              hasConnectedOpenAIKey,
+              hasConnectedFluxKey,
             });
           } catch {
             // Non-fatal: an unreadable registry must not stop someone talking.
@@ -1421,8 +1434,9 @@ export const useVoiceConversationSession = ({
         platform: isMacOS() ? 'darwin' : 'other',
         consent,
         audioContextState,
+        connectedCredentials,
       }),
-    [audioContextState, consent, effectiveSttProvider, sttConfig, ttsConfig]
+    [audioContextState, connectedCredentials, consent, effectiveSttProvider, sttConfig, ttsConfig]
   );
 
   const level = useMemo(() => {
