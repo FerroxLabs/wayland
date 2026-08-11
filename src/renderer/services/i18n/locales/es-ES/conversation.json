@@ -263,7 +263,23 @@
       "endTitle": "Finalizar la conversación de voz",
       "stopSpeaking": "Detener a Wayland",
       "mute": "Silenciar el micrófono",
-      "unmute": "Activar el micrófono"
+      "unmute": "Activar el micrófono",
+      "greeting": {
+        "named": {
+          "howAreYou": "Hola {{name}}, ¿qué tal? ¿En qué te puedo ayudar hoy?",
+          "imListening": "Hola {{name}}, te escucho. ¿En qué estamos trabajando?",
+          "readyWhenYouAre": "Hola {{name}}, cuando quieras. ¿Qué tienes en mente?",
+          "goodToHear": "Me alegro de oírte, {{name}}. ¿Qué puedo hacer por ti?",
+          "whereToStart": "Hola {{name}}, ¿por dónde empezamos hoy?"
+        },
+        "anonymous": {
+          "howAreYou": "Hola, ¿qué tal? ¿En qué te puedo ayudar hoy?",
+          "imListening": "Hola, te escucho. ¿En qué estamos trabajando?",
+          "readyWhenYouAre": "Cuando quieras. ¿Qué tienes en mente?",
+          "goodToHear": "Me alegro de oírte. ¿Qué puedo hacer por ti?",
+          "whereToStart": "Hola, ¿por dónde empezamos hoy?"
+        }
+      }
     }
   },
   "sideQuestion": {

@@ -263,7 +263,23 @@
       "endTitle": "Terminer la conversation vocale",
       "stopSpeaking": "Arrêter Wayland",
       "mute": "Couper le microphone",
-      "unmute": "Réactiver le microphone"
+      "unmute": "Réactiver le microphone",
+      "greeting": {
+        "named": {
+          "howAreYou": "Bonjour {{name}}, comment allez-vous ? Que puis-je faire pour vous aujourd'hui ?",
+          "imListening": "Bonjour {{name}}, je vous écoute. Sur quoi travaillons-nous ?",
+          "readyWhenYouAre": "Bonjour {{name}}, je suis prêt quand vous voulez. À quoi pensez-vous ?",
+          "goodToHear": "Content de vous entendre, {{name}}. Que puis-je faire pour vous ?",
+          "whereToStart": "Bonjour {{name}}, par quoi commençons-nous aujourd'hui ?"
+        },
+        "anonymous": {
+          "howAreYou": "Bonjour, comment allez-vous ? Que puis-je faire pour vous aujourd'hui ?",
+          "imListening": "Bonjour, je vous écoute. Sur quoi travaillons-nous ?",
+          "readyWhenYouAre": "Je suis prêt quand vous voulez. À quoi pensez-vous ?",
+          "goodToHear": "Content de vous entendre. Que puis-je faire pour vous ?",
+          "whereToStart": "Bonjour, par quoi commençons-nous aujourd'hui ?"
+        }
+      }
     }
   },
   "sideQuestion": {

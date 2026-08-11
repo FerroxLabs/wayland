@@ -13,6 +13,8 @@ import ukUA from '@/renderer/services/i18n/locales/uk-UA/index';
 import zhCN from '@/renderer/services/i18n/locales/zh-CN/index';
 import zhTW from '@/renderer/services/i18n/locales/zh-TW/index';
 
+import { VOICE_GREETING_KEYS } from '@/common/voice/voiceGreeting';
+
 import knownGaps from './localeKeyParity.baseline.json';
 
 // The runtime i18next bundle is built from these default exports, so this test
@@ -171,6 +173,65 @@ describe('locale key parity', () => {
           ? ''
           : `${locale} still holds the en-US string for:\n${untranslated.map((key) => `  - ${locale} :: ${key}`).join('\n')}`
       ).toEqual([]);
+    });
+  });
+
+  /**
+   * The opening greeting, asserted separately from the baseline-tolerant sweep
+   * for the same reason the composer keys are - and one more.
+   *
+   * These are the only strings in the product that are SPOKEN OUT LOUD. A
+   * missing key is not a stray English label in a corner of a settings page, it
+   * is a machine reading a dotted key path aloud, or greeting a Japanese user
+   * in English as the very first thing it ever says. The key list comes from
+   * the module the session picks from, so adding a sixth variant without
+   * translating it fails here rather than at a microphone.
+   */
+  describe('voice greeting keys', () => {
+    it.each(Object.keys(LOCALE_BUNDLES))('%s defines every voice greeting key', (locale) => {
+      const bundle = LOCALE_BUNDLES[locale];
+      const missing = VOICE_GREETING_KEYS.filter((key) => typeof readKey(bundle, key) !== 'string');
+
+      expect(
+        missing,
+        missing.length === 0 ? '' : `${locale} is missing:\n${missing.map((key) => `  - ${locale} :: ${key}`).join('\n')}`
+      ).toEqual([]);
+    });
+
+    it.each(TRANSLATION_LOCALES)('%s translates the voice greeting keys rather than copying English', (locale) => {
+      const untranslated = VOICE_GREETING_KEYS.filter(
+        (key) => readKey(LOCALE_BUNDLES[locale], key) === readKey(LOCALE_BUNDLES[REFERENCE_LOCALE], key)
+      );
+
+      expect(
+        untranslated,
+        untranslated.length === 0
+          ? ''
+          : `${locale} still holds the en-US string for:\n${untranslated.map((key) => `  - ${locale} :: ${key}`).join('\n')}`
+      ).toEqual([]);
+    });
+
+    it.each(Object.keys(LOCALE_BUNDLES))('%s keeps the {{name}} placeholder in every named variant', (locale) => {
+      // A translation that dropped the placeholder would greet nobody, and
+      // would do it silently: the sentence still reads perfectly well.
+      const dropped = VOICE_GREETING_KEYS.filter(
+        (key) => key.includes('.named.') && !String(readKey(LOCALE_BUNDLES[locale], key)).includes('{{name}}')
+      );
+
+      expect(
+        dropped,
+        dropped.length === 0 ? '' : `${locale} lost {{name}} in:\n${dropped.map((key) => `  - ${key}`).join('\n')}`
+      ).toEqual([]);
+    });
+
+    it.each(Object.keys(LOCALE_BUNDLES))('%s keeps the anonymous variants free of {{name}}', (locale) => {
+      // The control. The anonymous family is chosen precisely when there is no
+      // name to interpolate, so a stray placeholder there is spoken verbatim.
+      const stray = VOICE_GREETING_KEYS.filter(
+        (key) => key.includes('.anonymous.') && String(readKey(LOCALE_BUNDLES[locale], key)).includes('{{name}}')
+      );
+
+      expect(stray, stray.length === 0 ? '' : `${locale} has a stray {{name}} in:\n${stray.join('\n')}`).toEqual([]);
     });
   });
 });

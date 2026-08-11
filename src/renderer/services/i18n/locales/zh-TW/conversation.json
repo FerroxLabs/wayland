@@ -263,7 +263,23 @@
       "endTitle": "結束目前的語音對話",
       "stopSpeaking": "讓 Wayland 停止",
       "mute": "靜音麥克風",
-      "unmute": "取消靜音"
+      "unmute": "取消靜音",
+      "greeting": {
+        "named": {
+          "howAreYou": "嗨 {{name}}，你好嗎？今天有什麼可以幫你的？",
+          "imListening": "嗨 {{name}}，我在聽。我們要做什麼？",
+          "readyWhenYouAre": "嗨 {{name}}，隨時可以開始。你在想什麼？",
+          "goodToHear": "很高興聽到你的聲音，{{name}}。有什麼我能做的嗎？",
+          "whereToStart": "嗨 {{name}}，今天我們從哪裡開始？"
+        },
+        "anonymous": {
+          "howAreYou": "你好，你好嗎？今天有什麼可以幫你的？",
+          "imListening": "你好，我在聽。我們要做什麼？",
+          "readyWhenYouAre": "隨時可以開始。你在想什麼？",
+          "goodToHear": "很高興聽到你的聲音。有什麼我能做的嗎？",
+          "whereToStart": "你好，今天我們從哪裡開始？"
+        }
+      }
     }
   },
   "sideQuestion": {

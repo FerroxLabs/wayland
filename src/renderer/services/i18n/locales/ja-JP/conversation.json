@@ -263,7 +263,23 @@
       "endTitle": "音声会話を終了します",
       "stopSpeaking": "Wayland を停止",
       "mute": "マイクをミュート",
-      "unmute": "マイクのミュートを解除"
+      "unmute": "マイクのミュートを解除",
+      "greeting": {
+        "named": {
+          "howAreYou": "こんにちは {{name}} さん、お元気ですか？今日は何をお手伝いしましょうか？",
+          "imListening": "こんにちは {{name}} さん、聞いています。何に取り組みましょうか？",
+          "readyWhenYouAre": "{{name}} さん、いつでもどうぞ。何をお考えですか？",
+          "goodToHear": "{{name}} さん、お声が聞けてうれしいです。何かお手伝いできることはありますか？",
+          "whereToStart": "こんにちは {{name}} さん、今日はどこから始めましょうか？"
+        },
+        "anonymous": {
+          "howAreYou": "こんにちは、お元気ですか？今日は何をお手伝いしましょうか？",
+          "imListening": "こんにちは、聞いています。何に取り組みましょうか？",
+          "readyWhenYouAre": "いつでもどうぞ。何をお考えですか？",
+          "goodToHear": "お声が聞けてうれしいです。何かお手伝いできることはありますか？",
+          "whereToStart": "こんにちは、今日はどこから始めましょうか？"
+        }
+      }
     }
   },
   "sideQuestion": {

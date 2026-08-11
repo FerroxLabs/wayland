@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { conversation, modelRegistry, voiceSynth } from '@/common/adapter/ipcBridge';
+import { application, conversation, modelRegistry, voiceSynth } from '@/common/adapter/ipcBridge';
 import { FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { ConfigStorage } from '@/common/config/storage';
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
@@ -22,6 +22,7 @@ import {
   type VoiceSessionEvent,
   type VoiceSessionSnapshot,
 } from '@/common/voice/VoiceSessionMachine';
+import { selectVoiceGreeting } from '@/common/voice/voiceGreeting';
 import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
 import {
   resolveVoiceSessionReadiness,
@@ -46,6 +47,7 @@ import {
   type VoiceTurnSettledDetail,
 } from '@/renderer/pages/conversation/voice/voiceTurnBridge';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * The voice session, lifted out of the full-screen orb.
@@ -83,6 +85,44 @@ const newCorrelationId = (prefix: string): string => {
  * turn, short enough that the conversation still feels continuous.
  */
 const AUTO_CAPTURE_GRACE_MS = 350;
+
+/**
+ * How the opening greeting ended.
+ *
+ * `skipped` and `blocked` are deliberately different. Skipped means there was
+ * never anything to speak through - no Web Audio in this environment at all -
+ * and entry proceeds byte-for-byte as it did before the greeting existed.
+ * Blocked means synthesis or the audio clock refused, which the user has to be
+ * TOLD about: a suspended AudioContext produces silence and no error, and
+ * silence that looks like working is the single failure mode this whole surface
+ * exists to remove.
+ */
+type VoiceGreetingOutcome =
+  | { kind: 'spoken' }
+  | { kind: 'stopped' }
+  | { kind: 'skipped' }
+  | { kind: 'blocked'; message: string };
+
+/**
+ * The name to greet, from the same two sources the new-chat greeting uses: the
+ * user's explicit override first, the OS account name second.
+ *
+ * Every failure degrades to '', which selects the name-less family rather than
+ * a greeting with a hole in it. The `try` wraps the property access as well as
+ * the call because a surface without the application bridge (WebUI, tests) has
+ * no `application` object to reach `systemInfo` on, and that is a TypeError
+ * rather than a rejected promise.
+ */
+const resolveGreetingName = async (): Promise<string> => {
+  const configured = await ConfigStorage.get('user.displayName').catch((): undefined => undefined);
+  if (configured?.trim()) return configured;
+  try {
+    const info = await application.systemInfo.invoke();
+    return info?.userName ?? '';
+  } catch {
+    return '';
+  }
+};
 
 /**
  * Acoustic barge-in kill switch. The detector itself is gated on the browser
@@ -160,6 +200,13 @@ export type VoiceConversationSession = {
   endpointingAvailable: boolean;
   lastTranscript: string;
   lastResponse: string;
+  /**
+   * The greeting Wayland is saying right now, or null. It is the on-screen
+   * state for that moment: the machine is in `listening` throughout, so without
+   * this every surface would caption an assistant that is talking with "Tap to
+   * speak".
+   */
+  greetingText: string | null;
   error: string | null;
   /** Microphone level, 0-1, for whatever wants to draw it. */
   level: number;
@@ -184,6 +231,7 @@ export const useVoiceConversationSession = ({
   actorLabel = 'Wayland',
   ensureConsent,
 }: VoiceConversationSessionOptions): VoiceConversationSession => {
+  const { t } = useTranslation();
   // `isActive` owns the microphone and every subscription; `isExpanded` owns
   // only whether the orb is drawn. They were one flag while the orb was the
   // entire surface. Splitting them is what lets the session outlive the view -
@@ -398,6 +446,47 @@ export const useVoiceConversationSession = ({
   }, []);
 
   /**
+   * The greeting's own queue, and the promise `begin` is waiting on.
+   *
+   * A SECOND queue rather than a branch inside the turn queue, because the two
+   * differ in the one thing that queue is built around: `onSegmentStart` and
+   * `onCompleted` exist to drive `response_segment_ready` /
+   * `playback_completed` for a TURN, and the greeting has no turn. Sharing the
+   * instance would mean either inventing a fake turn id for the machine to
+   * reject, or making the turn path tolerate a null one. The epoch, the
+   * `stopAll`, and the refusal to schedule against a stopped clock are the parts
+   * that matter here, and they are the queue's, not the turn's.
+   */
+  const greetingQueueRef = useRef<VoiceSpeechQueue | null>(null);
+  const greetingSettleRef = useRef<((outcome: VoiceGreetingOutcome) => void) | null>(null);
+  const [greetingText, setGreetingText] = useState<string | null>(null);
+
+  const settleGreeting = useCallback((outcome: VoiceGreetingOutcome) => {
+    greetingQueueRef.current = null;
+    setGreetingText(null);
+    const settle = greetingSettleRef.current;
+    greetingSettleRef.current = null;
+    settle?.(outcome);
+  }, []);
+
+  /**
+   * Stop the greeting mid-sentence. Returns whether there was one to stop, so
+   * callers can tell "I interrupted the greeting" from "there was nothing to
+   * interrupt" without reading a ref of their own.
+   *
+   * `stopAll` bumps the queue's epoch, which is what stops `onCompleted` from
+   * firing afterwards - otherwise a barge-in would still hand the microphone
+   * over a second time when the abandoned clip's own timer came due.
+   */
+  const stopGreeting = useCallback((): boolean => {
+    const queue = greetingQueueRef.current;
+    if (!queue) return false;
+    queue.stopAll();
+    settleGreeting({ kind: 'stopped' });
+    return true;
+  }, [settleGreeting]);
+
+  /**
    * Stop everything that is making, or about to make, sound.
    *
    * Both halves of the interrupt live here, because there is no cancel anywhere
@@ -413,6 +502,10 @@ export const useVoiceConversationSession = ({
    * point is what covers all eight of them.
    */
   const clearAudio = useCallback(() => {
+    // The greeting is sound too. Every teardown path routes through here, and
+    // one that left a greeting playing after `end()` would keep talking at
+    // somebody who just pressed the stop glyph.
+    stopGreeting();
     speechQueueRef.current?.stopAll();
     speechQueueRef.current = null;
     speechQueueTurnRef.current = null;
@@ -426,7 +519,7 @@ export const useVoiceConversationSession = ({
       URL.revokeObjectURL(audioUrlRef.current);
       audioUrlRef.current = null;
     }
-  }, []);
+  }, [stopGreeting]);
 
   const handleTranscript = useCallback(
     (text: string) => {
@@ -487,6 +580,15 @@ export const useVoiceConversationSession = ({
   const beginCapture = useCallback(async () => {
     if (!snapshotRef.current || snapshotRef.current.state !== 'listening') return;
     /**
+     * Opening the microphone means Wayland stops talking.
+     *
+     * The greeting plays while the machine is in `listening`, so the orb's tap
+     * target and Escape both land here rather than on `interrupt`. Without this
+     * the greeting would go on sounding into an open microphone, and echo
+     * cancellation is not a reason to let it.
+     */
+    stopGreeting();
+    /**
      * Refuse before the microphone opens, and say which thing is wrong.
      *
      * The old pair of ad-hoc booleans could not describe the platform this runs
@@ -518,7 +620,7 @@ export const useVoiceConversationSession = ({
     const transition = applyEvent({ type: 'speech_started' });
     if (transition?.rejected) return;
     await startRecording();
-  }, [applyEvent, availability, startRecording]);
+  }, [applyEvent, availability, startRecording, stopGreeting]);
 
   const finishCapture = useCallback(() => {
     if (snapshotRef.current?.state !== 'user-speaking') return;
@@ -749,7 +851,69 @@ export const useVoiceConversationSession = ({
     [applyEvent, blockedAudioMessage, playResponse]
   );
 
+  /**
+   * Say hello, once, at the top of a session.
+   *
+   * Only ever called on a path that has already established voice can actually
+   * work - a greeting into a session with no transcriber would be a machine
+   * talking to itself, and the honest refusal it replaced is the more useful
+   * thing to show. It resolves rather than throws, because `begin` has to hand
+   * the microphone over on EVERY outcome including the ones that made no sound.
+   */
+  const speakGreeting = useCallback(async (): Promise<VoiceGreetingOutcome> => {
+    const context = audioContextRef.current;
+    // No Web Audio here at all, so there is no scheduler to speak through and
+    // no suspended clock to be blocked by either. Entry proceeds exactly as it
+    // did before the greeting existed.
+    if (!context) return { kind: 'skipped' };
+
+    const selection = selectVoiceGreeting({ displayName: await resolveGreetingName() });
+    const text = t(selection.key, selection.name ? { name: selection.name } : {}).trim();
+    // i18next hands back the key itself when nothing resolves it. Synthesizing
+    // that would read a dotted key path out loud.
+    if (!text || text === selection.key) return { kind: 'skipped' };
+
+    setGreetingText(text);
+    return new Promise<VoiceGreetingOutcome>((resolve) => {
+      greetingSettleRef.current = resolve;
+      const queue = createVoiceSpeechQueue({
+        context,
+        speak: (segment) => voiceSynth.speak.invoke({ text: segment }),
+        // The greeting is not a turn. There is no `activeTurnId` to correlate
+        // and no segment for the machine to own, so nothing is announced and
+        // nothing can be rejected.
+        onSegmentStart: () => true,
+        onCompleted: () => settleGreeting({ kind: 'spoken' }),
+        onFailed: (errorCode) =>
+          settleGreeting({
+            kind: 'blocked',
+            message:
+              errorCode === 'TTS_AUDIO_CONTEXT_BLOCKED'
+                ? blockedAudioMessage(context.state)
+                : `Wayland could not say hello (${errorCode}). The microphone is open anyway.`,
+          }),
+      });
+      greetingQueueRef.current = queue;
+      queue.enqueue(text);
+      // One sentence, and no more is coming - so this clip owns `onCompleted`.
+      queue.seal();
+    });
+  }, [blockedAudioMessage, settleGreeting, t]);
+
   const interrupt = useCallback(async () => {
+    /**
+     * Barge-in over the greeting.
+     *
+     * The greeting plays while the machine is in `listening`, which `barge_in`
+     * refuses, and there is no backend run to cancel - so routing it through
+     * the turn path below would reject the transition and leave Wayland
+     * talking. Stopping the queue and opening the microphone is the whole of
+     * what "talk over it" means here.
+     */
+    if (stopGreeting()) {
+      await beginCaptureRef.current();
+      return;
+    }
     const current = snapshotRef.current;
     if (!current || !['thinking', 'acting', 'speaking'].includes(current.state)) return;
     const wasRunning = current.state === 'thinking' || current.state === 'acting';
@@ -765,7 +929,7 @@ export const useVoiceConversationSession = ({
       }
     }
     applyEvent({ type: 'interruption_settled' });
-  }, [applyEvent, clearAudio, conversationId]);
+  }, [applyEvent, clearAudio, conversationId, stopGreeting]);
 
   const begin = useCallback(
     async (options?: { thenListen?: boolean }) => {
@@ -911,15 +1075,48 @@ export const useVoiceConversationSession = ({
         setIsActive(true);
         setIsExpanded(true);
         /**
-         * One tap, one meaning.
+         * One tap, one meaning - and a voice assistant opens by SAYING
+         * something.
          *
          * Entry used to land in `listening` with the microphone CLOSED, and the
          * copy under the orb says "Tap to speak" precisely because of that. Once
          * the composer is the surface, its status line reads "Listening..." while
          * nothing is recording - so the everyman talks and nothing happens. The
-         * caller that owns the gesture asks for the mic to open with it.
+         * caller that owns the gesture asks for the mic to open with it, and the
+         * greeting goes in front of that: Wayland says hello, and then listens,
+         * with no second gesture in between.
+         *
+         * The greeting is gated on the SAME readiness the microphone is, read
+         * from the refs that were set a few lines above rather than from state a
+         * render behind. Every existing refusal is untouched - a session with no
+         * transcriber still lands on the honest reason instead of being greeted
+         * into a dead end, because there is nothing on the other side of the
+         * greeting for the user to talk to.
          */
-        if (options?.thenListen) await beginCaptureRef.current();
+        if (options?.thenListen) {
+          const greetable = resolveVoiceSessionReadiness({
+            ttsConfig: ttsConfigRef.current,
+            sttConfig: sttConfigRef.current && { ...sttConfigRef.current, provider: sttProviderRef.current ?? undefined },
+            platform: isMacOS() ? 'darwin' : 'other',
+            consent: consentRef.current,
+          }).ready;
+          const greeting = greetable ? await speakGreeting() : ({ kind: 'skipped' } as const);
+          // Unconditional, including after a barge-in that already opened the
+          // microphone on its own way through: `beginCapture` refuses anything
+          // that is not `listening`, so the second call is the no-op it should
+          // be rather than a second guard to keep in step with the first.
+          await beginCaptureRef.current();
+          /**
+           * A greeting nobody could hear has to say so, and it has to say so
+           * AFTER the microphone attempt, because `beginCapture` clears the
+           * surface error on its way in and would wipe this. `user-speaking` is
+           * the positive signal that the mic really opened and therefore has no
+           * more urgent refusal of its own to show.
+           */
+          if (greeting.kind === 'blocked' && snapshotRef.current?.state === 'user-speaking') {
+            setSurfaceError(greeting.message);
+          }
+        }
       } catch {
         sttConfigRef.current = null;
         ttsConfigRef.current = null;
@@ -944,7 +1141,7 @@ export const useVoiceConversationSession = ({
         setIsExpanded(true);
       }
     },
-    [actorLabel, cancelAutoCapture, conversationId, ensureAudioContext, ensureConsent]
+    [actorLabel, cancelAutoCapture, conversationId, ensureAudioContext, ensureConsent, speakGreeting]
   );
 
   useEffect(() => {
@@ -1206,11 +1403,15 @@ export const useVoiceConversationSession = ({
 
   const state = snapshot?.state ?? 'connecting';
 
+  // The greeting is Wayland talking, so the detector that lets the user talk
+  // over an ANSWER has to cover it too - the machine says `listening` there, and
+  // gating on that alone is what would make the opening sentence the one thing
+  // in the session you cannot interrupt by speaking.
   useEffect(() => {
-    if (!ACOUSTIC_BARGE_IN_ENABLED || !isActive || state !== 'speaking') return;
+    if (!ACOUSTIC_BARGE_IN_ENABLED || !isActive || (state !== 'speaking' && greetingText === null)) return;
     void startMonitoring();
     return () => stopMonitoring();
-  }, [isActive, startMonitoring, state, stopMonitoring]);
+  }, [greetingText, isActive, startMonitoring, state, stopMonitoring]);
 
   const readiness = useMemo(
     () =>
@@ -1241,6 +1442,7 @@ export const useVoiceConversationSession = ({
     endpointingAvailable,
     lastTranscript,
     lastResponse,
+    greetingText,
     error: surfaceError,
     level,
     ttsConfig,

@@ -1380,6 +1380,11 @@ const SendBox: React.FC<{
    */
   const voiceStatusText = (): string | null => {
     if (!voiceSession?.isActive) return null;
+    // The opening greeting. The machine is in `listening` while it plays, so
+    // without this the composer would say "Tap the wave to talk" over the top
+    // of Wayland saying hello. The sentence came out of an i18n key, so it is
+    // already in the user's language.
+    if (voiceSession.greetingText) return voiceSession.greetingText;
     switch (voiceSession.state) {
       case 'connecting':
         return t('conversation.chat.voice.statusConnecting', { defaultValue: 'Connecting…' });

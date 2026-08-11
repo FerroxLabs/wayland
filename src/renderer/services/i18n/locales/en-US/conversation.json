@@ -292,7 +292,23 @@
       "endTitle": "End the voice conversation",
       "stopSpeaking": "Stop Wayland",
       "mute": "Mute microphone",
-      "unmute": "Unmute microphone"
+      "unmute": "Unmute microphone",
+      "greeting": {
+        "named": {
+          "howAreYou": "Hey {{name}}, how are you? What can I help you with today?",
+          "imListening": "Hi {{name}}, I'm listening. What are we working on?",
+          "readyWhenYouAre": "Hey {{name}}, ready when you are. What's on your mind?",
+          "goodToHear": "Good to hear from you, {{name}}. What can I do for you?",
+          "whereToStart": "Hi {{name}}, where should we start today?"
+        },
+        "anonymous": {
+          "howAreYou": "Hey there, how are you? What can I help you with today?",
+          "imListening": "Hi, I'm listening. What are we working on?",
+          "readyWhenYouAre": "Ready when you are. What's on your mind?",
+          "goodToHear": "Good to hear from you. What can I do for you?",
+          "whereToStart": "Hi there, where should we start today?"
+        }
+      }
     }
   },
   "sideQuestion": {

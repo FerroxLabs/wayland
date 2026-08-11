@@ -263,7 +263,23 @@
       "endTitle": "结束当前语音对话",
       "stopSpeaking": "让 Wayland 停止",
       "mute": "静音麦克风",
-      "unmute": "取消静音"
+      "unmute": "取消静音",
+      "greeting": {
+        "named": {
+          "howAreYou": "嗨 {{name}}，你好吗？今天有什么可以帮你的？",
+          "imListening": "嗨 {{name}}，我在听。我们要做什么？",
+          "readyWhenYouAre": "嗨 {{name}}，随时可以开始。你在想什么？",
+          "goodToHear": "很高兴听到你的声音，{{name}}。有什么我能做的吗？",
+          "whereToStart": "嗨 {{name}}，今天我们从哪里开始？"
+        },
+        "anonymous": {
+          "howAreYou": "你好，你好吗？今天有什么可以帮你的？",
+          "imListening": "你好，我在听。我们要做什么？",
+          "readyWhenYouAre": "随时可以开始。你在想什么？",
+          "goodToHear": "很高兴听到你的声音。有什么我能做的吗？",
+          "whereToStart": "你好，今天我们从哪里开始？"
+        }
+      }
     }
   },
   "sideQuestion": {

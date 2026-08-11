@@ -258,7 +258,23 @@
       "endTitle": "Sesli görüşmeyi bitir",
       "stopSpeaking": "Wayland'ı durdur",
       "mute": "Mikrofonu kapat",
-      "unmute": "Mikrofonu aç"
+      "unmute": "Mikrofonu aç",
+      "greeting": {
+        "named": {
+          "howAreYou": "Merhaba {{name}}, nasılsın? Bugün sana nasıl yardımcı olabilirim?",
+          "imListening": "Merhaba {{name}}, seni dinliyorum. Ne üzerinde çalışıyoruz?",
+          "readyWhenYouAre": "Merhaba {{name}}, sen hazır olduğunda başlayalım. Aklında ne var?",
+          "goodToHear": "Sesini duymak güzel, {{name}}. Senin için ne yapabilirim?",
+          "whereToStart": "Merhaba {{name}}, bugün nereden başlayalım?"
+        },
+        "anonymous": {
+          "howAreYou": "Merhaba, nasılsın? Bugün sana nasıl yardımcı olabilirim?",
+          "imListening": "Merhaba, seni dinliyorum. Ne üzerinde çalışıyoruz?",
+          "readyWhenYouAre": "Sen hazır olduğunda başlayalım. Aklında ne var?",
+          "goodToHear": "Sesini duymak güzel. Senin için ne yapabilirim?",
+          "whereToStart": "Merhaba, bugün nereden başlayalım?"
+        }
+      }
     }
   },
   "sideQuestion": {

@@ -69,6 +69,7 @@ const VoiceConversationOrb: React.FC<{
     isMuted,
     lastTranscript,
     lastResponse,
+    greetingText,
     error,
     level,
     ttsConfig,
@@ -141,10 +142,23 @@ const VoiceConversationOrb: React.FC<{
           <span className='voice-mode__orb-core' />
           <span className='voice-mode__orb-ring' />
         </button>
+        {/*
+          The greeting is the state while it is sounding.
+
+          The machine stays in `listening` throughout - the greeting is not a
+          turn - so without this branch the orb would caption an assistant that
+          is mid-sentence with "Tap to speak", which is the exact lie this
+          replaces. The sentence itself is shown because it is the sentence
+          being said, and it is already localized: it came out of a key.
+        */}
         <div className='voice-mode__state' role='status' aria-live='polite'>
-          <strong>{state === 'listening' && continuousArmed ? 'Listening for you' : STATE_COPY[state]}</strong>
+          <strong>
+            {greetingText ?? (state === 'listening' && continuousArmed ? 'Listening for you' : STATE_COPY[state])}
+          </strong>
           <span>
-            {state === 'listening' &&
+            {greetingText && 'Start talking whenever you like — you can speak over this.'}
+            {!greetingText &&
+              state === 'listening' &&
               (continuousArmed
                 ? endpointingAvailable
                   ? 'Speak whenever you are ready — the mic reopens itself after every answer'

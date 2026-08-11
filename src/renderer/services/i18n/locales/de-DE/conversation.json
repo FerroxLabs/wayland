@@ -263,7 +263,23 @@
       "endTitle": "Das Sprachgespräch beenden",
       "stopSpeaking": "Wayland stoppen",
       "mute": "Mikrofon stummschalten",
-      "unmute": "Stummschaltung aufheben"
+      "unmute": "Stummschaltung aufheben",
+      "greeting": {
+        "named": {
+          "howAreYou": "Hallo {{name}}, wie geht es dir? Womit kann ich dir heute helfen?",
+          "imListening": "Hallo {{name}}, ich höre zu. Woran arbeiten wir?",
+          "readyWhenYouAre": "Hallo {{name}}, ich bin bereit, wenn du es bist. Was beschäftigt dich?",
+          "goodToHear": "Schön, von dir zu hören, {{name}}. Was kann ich für dich tun?",
+          "whereToStart": "Hallo {{name}}, womit fangen wir heute an?"
+        },
+        "anonymous": {
+          "howAreYou": "Hallo, wie geht es dir? Womit kann ich dir heute helfen?",
+          "imListening": "Hallo, ich höre zu. Woran arbeiten wir?",
+          "readyWhenYouAre": "Ich bin bereit, wenn du es bist. Was beschäftigt dich?",
+          "goodToHear": "Schön, von dir zu hören. Was kann ich für dich tun?",
+          "whereToStart": "Hallo, womit fangen wir heute an?"
+        }
+      }
     }
   },
   "sideQuestion": {
