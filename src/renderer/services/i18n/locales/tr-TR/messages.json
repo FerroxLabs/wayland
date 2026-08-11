@@ -1,5 +1,5 @@
 {
-  "truncation.budgetExhausted.body": "Bu yanıt tamamlanmadan erken sona erdi. Kaldığı yerden devam etmek için Devam edin — model daha önce yaptığı işi korur.",
+  "truncation.budgetExhausted.body": "Bu yanıt tamamlanmadan erken sona erdi. Kaldığı yerden devam etmek için Devam edin, model daha önce yaptığı işi korur.",
   "truncation.budgetExhausted.action": "Devam et",
   "fileChanges": "Dosya Değişiklikleri",
   "fileChangesCount": "{{count}} Dosya Değişikliği",

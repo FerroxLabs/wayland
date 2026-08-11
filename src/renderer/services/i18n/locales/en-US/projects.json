@@ -109,7 +109,7 @@
       },
       "projectUpdated": {
         "title": "Project updated",
-        "summary": "{{name}} changed after it was created — its settings, metadata, or workspace were updated."
+        "summary": "{{name}} changed after it was created. Its settings, metadata, or workspace were updated."
       },
       "chat": {
         "untitled": "Untitled chat",
@@ -261,7 +261,7 @@
       "failed": "The AI provider could not generate a draft.",
       "authFailed": "Your session was rejected (sign-in or security token). Refresh the page, sign in again, and retry.",
       "bridgeUnreachable": "Could not reach the Wayland app. Check that it is running and reachable, then retry.",
-      "timedOut": "Drafting took too long and was stopped. The model or connection may be slow — try again.",
+      "timedOut": "Drafting took too long and was stopped. The model or connection may be slow, so try again.",
       "failedReason": "Reason: {{detail}}",
       "retry": "Try again"
     },

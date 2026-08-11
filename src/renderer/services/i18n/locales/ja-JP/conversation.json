@@ -258,7 +258,7 @@
       "statusReconnecting": "再接続中…",
       "statusError": "音声に問題があります",
       "startLabel": "Wayland と話す",
-      "startTitle": "Wayland と話す — 音声で応答します",
+      "startTitle": "Wayland と話す、音声で応答します",
       "endLabel": "音声会話を終了",
       "endTitle": "音声会話を終了します",
       "stopSpeaking": "Wayland を停止",
@@ -368,7 +368,7 @@
     "unusableSubtitle": "プロバイダーは接続済みですが、このタスクを受けられるものがありませんでした。設定で確認するか、別の接続方法を追加してください。",
     "flux": {
       "label": "Flux Router を接続",
-      "sublabel": "無料キーと 1 ドルのスタータークレジット付き。カード不要——各タスクを最適な専門モデルへルーティングします。",
+      "sublabel": "無料キーと 1 ドルのスタータークレジット付き。カード不要、各タスクを最適な専門モデルへルーティングします。",
       "action": "接続"
     },
     "ownKey": {
@@ -378,7 +378,7 @@
     },
     "claudeCode": {
       "label": "Claude Code を使う",
-      "sublabel": "既存の Claude Code ログインで実行——追加のキー管理は不要です。",
+      "sublabel": "既存の Claude Code ログインで実行、追加のキー管理は不要です。",
       "action": "使う"
     }
   },
@@ -432,7 +432,7 @@
   },
   "constitutionLocked": {
     "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app — so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app、so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
     "recover": {
       "label": "Restore from a recovery archive",
       "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",

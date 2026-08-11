@@ -238,9 +238,9 @@
       "permissionDenied": "麥克風權限被拒絕",
       "recordingUnsupported": "目前環境不支援直接錄音，請改為上傳音訊檔案",
       "transcriptionFailed": "音訊轉寫失敗",
-      "authError": "Flux 金鑰無效 — 請重新連線 Flux Router 以使用語音輸入",
-      "premiumLocked": "Flux Voice 需要付費的 Flux 方案 — 請升級以使用語音聽寫",
-      "rateLimited": "請求過於頻繁 — 請稍後再試",
+      "authError": "Flux 金鑰無效，請重新連線 Flux Router 以使用語音輸入",
+      "premiumLocked": "Flux Voice 需要付費的 Flux 方案，請升級以使用語音聽寫",
+      "rateLimited": "請求過於頻繁，請稍後再試",
       "genericError": "語音輸入失敗，請再試一次",
       "setupLabel": "設定語音輸入",
       "setupTooltip": "語音輸入已關閉，請在語音設定中開啟"
@@ -258,7 +258,7 @@
       "statusReconnecting": "正在重新連線…",
       "statusError": "語音需要處理",
       "startLabel": "與 Wayland 對話",
-      "startTitle": "與 Wayland 對話 — 它會出聲回答",
+      "startTitle": "與 Wayland 對話，它會出聲回答",
       "endLabel": "結束語音對話",
       "endTitle": "結束目前的語音對話",
       "stopSpeaking": "讓 Wayland 停止",
@@ -368,7 +368,7 @@
     "unusableSubtitle": "提供者已連線，但沒有一個能接下這個任務。請在設定中檢查，或再新增一條接入方式。",
     "flux": {
       "label": "連接 Flux Router",
-      "sublabel": "免費金鑰並贈送 1 美元啟動額度。無需綁卡——將每個任務路由到最合適的專長模型。",
+      "sublabel": "免費金鑰並贈送 1 美元啟動額度。無需綁卡，將每個任務路由到最合適的專長模型。",
       "action": "連接"
     },
     "ownKey": {
@@ -378,7 +378,7 @@
     },
     "claudeCode": {
       "label": "使用 Claude Code",
-      "sublabel": "基於你現有的 Claude Code 登入執行——無需額外管理金鑰。",
+      "sublabel": "基於你現有的 Claude Code 登入執行，無需額外管理金鑰。",
       "action": "使用"
     }
   },
@@ -432,7 +432,7 @@
   },
   "constitutionLocked": {
     "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app — so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app，so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
     "recover": {
       "label": "Restore from a recovery archive",
       "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",

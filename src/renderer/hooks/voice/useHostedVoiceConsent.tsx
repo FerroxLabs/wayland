@@ -115,7 +115,7 @@ export function useHostedVoiceConsent(): {
     <Modal
       visible={pending !== null}
       title='Use hosted voice?'
-      okText='I understand — enable'
+      okText='I understand, enable it'
       cancelText='Cancel'
       onOk={() => void settle(true)}
       onCancel={() => void settle(false)}
@@ -132,7 +132,7 @@ export function useHostedVoiceConsent(): {
             that data to <strong>{disclosure.label}</strong> ({disclosure.endpoint}) over your connected credential.
           </p>
           <p className='text-13px text-t-secondary'>
-            Retention, usage, and any per-request cost are governed by {disclosure.label}&rsquo;s terms — not by
+            Retention, usage, and any per-request cost are governed by {disclosure.label}&rsquo;s terms, not by
             Wayland. Wayland does not store the audio or text it forwards. Prefer a local provider (system voice,
             Whisper, Kokoro) to keep everything on your machine.
           </p>

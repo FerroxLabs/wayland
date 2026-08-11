@@ -233,12 +233,12 @@
       "permissionDenied": "Mikrofon izni reddedildi",
       "recordingUnsupported": "Bu ortamda doğrudan kayıt desteklenmiyor. Lütfen bir ses dosyası yükleyin",
       "transcriptionFailed": "Ses yazıya dönüştürülemedi",
-      "authError": "Flux anahtarı geçersiz — sesli girişi kullanmak için Flux Router’ı yeniden bağlayın",
-      "premiumLocked": "Flux Voice ücretli bir Flux planı gerektirir — dikte kullanmak için yükseltin",
-      "rateLimited": "Çok fazla istek — lütfen kısa süre sonra tekrar deneyin",
+      "authError": "Flux anahtarı geçersiz, sesli girişi kullanmak için Flux Router’ı yeniden bağlayın",
+      "premiumLocked": "Flux Voice ücretli bir Flux planı gerektirir, dikte kullanmak için yükseltin",
+      "rateLimited": "Çok fazla istek, lütfen kısa süre sonra tekrar deneyin",
       "genericError": "Sesli giriş başarısız oldu. Lütfen tekrar deneyin",
       "setupLabel": "Dikteyi ayarla",
-      "setupTooltip": "Dikte kapalı — ses ayarlarından açın"
+      "setupTooltip": "Dikte kapalı, ses ayarlarından açın"
     },
     "voice": {
       "statusConnecting": "Bağlanıyor…",
@@ -253,7 +253,7 @@
       "statusReconnecting": "Yeniden bağlanıyor…",
       "statusError": "Ses dikkat gerektiriyor",
       "startLabel": "Wayland ile konuş",
-      "startTitle": "Wayland ile konuş — sesli yanıt verir",
+      "startTitle": "Wayland ile konuş, sesli yanıt verir",
       "endLabel": "Sesli görüşmeyi bitir",
       "endTitle": "Sesli görüşmeyi bitir",
       "stopSpeaking": "Wayland'ı durdur",
@@ -370,7 +370,7 @@
     "unusableSubtitle": "Sağlayıcıların bağlı, ama hiçbiri bu görevi alamadı. Ayarlar'dan kontrol et ya da başka bir giriş yolu ekle.",
     "flux": {
       "label": "Flux Router’ı bağla",
-      "sublabel": "Ücretsiz anahtar ve 1 $ başlangıç kredisi. Kart gerekmez — her görevi en uygun uzman modele yönlendirir.",
+      "sublabel": "Ücretsiz anahtar ve 1 $ başlangıç kredisi. Kart gerekmez, her görevi en uygun uzman modele yönlendirir.",
       "action": "Bağlan"
     },
     "ownKey": {
@@ -380,7 +380,7 @@
     },
     "claudeCode": {
       "label": "Claude Code’u kullan",
-      "sublabel": "Mevcut Claude Code oturumunla çalıştır — yönetilecek ek anahtar yok.",
+      "sublabel": "Mevcut Claude Code oturumunla çalıştır, yönetilecek ek anahtar yok.",
       "action": "Kullan"
     }
   },
@@ -434,7 +434,7 @@
   },
   "constitutionLocked": {
     "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app — so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
     "recover": {
       "label": "Restore from a recovery archive",
       "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",

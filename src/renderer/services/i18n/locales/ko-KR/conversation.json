@@ -238,9 +238,9 @@
       "permissionDenied": "마이크 권한이 거부되었습니다",
       "recordingUnsupported": "현재 환경에서는 직접 녹음할 수 없습니다. 오디오 파일을 업로드해 주세요",
       "transcriptionFailed": "오디오 전사에 실패했습니다",
-      "authError": "Flux 키가 유효하지 않습니다 — 음성 입력을 사용하려면 Flux Router를 다시 연결하세요",
-      "premiumLocked": "Flux Voice는 유료 Flux 요금제가 필요합니다 — 받아쓰기를 사용하려면 업그레이드하세요",
-      "rateLimited": "요청이 너무 많습니다 — 잠시 후 다시 시도하세요",
+      "authError": "Flux 키가 유효하지 않습니다, 음성 입력을 사용하려면 Flux Router를 다시 연결하세요",
+      "premiumLocked": "Flux Voice는 유료 Flux 요금제가 필요합니다, 받아쓰기를 사용하려면 업그레이드하세요",
+      "rateLimited": "요청이 너무 많습니다, 잠시 후 다시 시도하세요",
       "genericError": "음성 입력에 실패했습니다. 다시 시도해 주세요",
       "setupLabel": "받아쓰기 설정",
       "setupTooltip": "받아쓰기가 꺼져 있습니다. 음성 설정에서 켜세요"
@@ -258,7 +258,7 @@
       "statusReconnecting": "다시 연결 중…",
       "statusError": "음성에 주의가 필요합니다",
       "startLabel": "Wayland와 대화하기",
-      "startTitle": "Wayland와 대화하기 — 음성으로 답합니다",
+      "startTitle": "Wayland와 대화하기, 음성으로 답합니다",
       "endLabel": "음성 대화 종료",
       "endTitle": "음성 대화를 종료합니다",
       "stopSpeaking": "Wayland 중지",
@@ -368,7 +368,7 @@
     "unusableSubtitle": "제공자는 연결되어 있지만 이 작업을 받을 수 있는 곳이 없었습니다. 설정에서 확인하거나 다른 연결 방법을 추가하세요.",
     "flux": {
       "label": "Flux Router 연결",
-      "sublabel": "무료 키와 1달러 스타터 크레딧 제공. 카드 불필요 — 모든 작업을 가장 적합한 전문 모델로 라우팅합니다.",
+      "sublabel": "무료 키와 1달러 스타터 크레딧 제공. 카드 불필요, 모든 작업을 가장 적합한 전문 모델로 라우팅합니다.",
       "action": "연결"
     },
     "ownKey": {
@@ -378,7 +378,7 @@
     },
     "claudeCode": {
       "label": "Claude Code 사용",
-      "sublabel": "기존 Claude Code 로그인으로 실행 — 별도 키 관리가 필요 없습니다.",
+      "sublabel": "기존 Claude Code 로그인으로 실행, 별도 키 관리가 필요 없습니다.",
       "action": "사용"
     }
   },
@@ -432,7 +432,7 @@
   },
   "constitutionLocked": {
     "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app — so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
     "recover": {
       "label": "Restore from a recovery archive",
       "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",

@@ -1,5 +1,5 @@
 {
-  "truncation.budgetExhausted.body": "这条回复在完成前就提前结束了。点击\"继续\"从中断处接着进行——模型会保留它已经完成的工作。",
+  "truncation.budgetExhausted.body": "这条回复在完成前就提前结束了。点击\"继续\"从中断处接着进行，模型会保留它已经完成的工作。",
   "truncation.budgetExhausted.action": "继续",
   "fileChanges": "文件变更",
   "fileChangesCount": "{{count}} 个文件变更",

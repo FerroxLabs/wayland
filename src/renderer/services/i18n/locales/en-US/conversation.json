@@ -20,8 +20,8 @@
     "quickActionsTitle": "What can Wayland do?",
     "quickActionFeedback": "Got feedback or suggestions?",
     "quickActionStar": "Like us? Give us a star!",
-    "bugReportScreenshotCopied": "Screenshot copied — paste it into the issue with Cmd/Ctrl+V.",
-    "bugReportNoScreenshot": "Opening a pre-filled GitHub issue — attach a screenshot manually.",
+    "bugReportScreenshotCopied": "Screenshot copied. Paste it into the issue with Cmd/Ctrl+V.",
+    "bugReportNoScreenshot": "Opening a pre-filled GitHub issue. Attach a screenshot manually.",
     "bugReportChooser": "Opening the GitHub issue chooser (diagnostics unavailable)."
   },
   "history": {
@@ -222,7 +222,7 @@
       "missingCli": "The agent's command-line tool is not installed or not on PATH. Install it, then reopen this tab.",
       "atCapacity": "Too many terminals are open. Close one and try again.",
       "notFound": "This chat could not be found.",
-      "profileUnresolved": "The active profile's folder could not be opened, so the terminal was not started — it would have used the default profile's data instead."
+      "profileUnresolved": "The active profile's folder could not be opened, so the terminal was not started. It would have used the default profile's data instead."
     }
   },
   "minimap": {
@@ -267,9 +267,9 @@
       "permissionDenied": "Microphone permission was denied",
       "recordingUnsupported": "Live recording is not supported here. Please upload an audio file instead",
       "transcriptionFailed": "Audio transcription failed",
-      "authError": "Flux key is invalid — reconnect Flux Router to use voice input",
-      "premiumLocked": "Flux Voice needs a paid Flux plan — upgrade to use dictation",
-      "rateLimited": "Too many requests — try again shortly",
+      "authError": "Flux key is invalid. Reconnect Flux Router to use voice input",
+      "premiumLocked": "Flux Voice needs a paid Flux plan. Upgrade to use dictation",
+      "rateLimited": "Too many requests. Try again shortly",
       "genericError": "Voice input failed. Please try again",
       "setupLabel": "Set up dictation",
       "setupTooltip": "Dictation is off - open Voice settings to turn it on"
@@ -287,7 +287,7 @@
       "statusReconnecting": "Reconnecting…",
       "statusError": "Voice needs attention",
       "startLabel": "Talk with Wayland",
-      "startTitle": "Talk with Wayland — it answers out loud",
+      "startTitle": "Talk with Wayland, it answers out loud",
       "endLabel": "End voice conversation",
       "endTitle": "End the voice conversation",
       "stopSpeaking": "Stop Wayland",
@@ -512,7 +512,7 @@
   },
   "constitutionLocked": {
     "title": "Wayland couldn’t unlock your Constitution",
-    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app — so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
+    "explainer": "Your Constitution is encrypted, and the key belongs to a different installation of this app, so this copy can’t read it. Nothing has been deleted. Restore it from a recovery archive to start chatting again.",
     "recover": {
       "label": "Restore from a recovery archive",
       "sublabel": "Opens Settings › Constitution, where you can pick an archive to restore.",
@@ -547,7 +547,7 @@
     "addConnector": "Add a connector",
     "manageConnectors": "Manage connectors",
     "toolNudgeOver": "{{count}} tools enabled · {{model}} caps at {{cap}}. Scope servers for this chat or switch models.",
-    "toolNudgeNear": "{{count}} of {{cap}} tools · {{model}}. Near the limit — scope servers or switch models before adding more.",
+    "toolNudgeNear": "{{count}} of {{cap}} tools · {{model}}. Near the limit, so scope servers or switch models before adding more.",
     "toolNudgeModelFallback": "this model"
   },
   "modelSelector": {

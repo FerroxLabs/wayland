@@ -6,7 +6,7 @@
   },
   "pitch": {
     "headline": "Memory that follows you",
-    "lede": "Wayland remembers what you've worked on, decided, and shipped. Every assistant gets the context -- no re-explaining. Powered by IJFW, an open-source memory engine by Ferrox Labs.",
+    "lede": "Wayland remembers what you've worked on, decided, and shipped. Every assistant gets the context, with no re-explaining. Powered by IJFW, an open-source memory engine by Ferrox Labs.",
     "bullet1": "Persistent across chats, projects, and CLIs",
     "bullet2": "Searchable, exportable, yours",
     "bullet3": "Zero setup after install",
@@ -93,7 +93,7 @@
   },
   "degraded": {
     "toast": "Memory will activate after first-time setup",
-    "banner": "Memory is currently in degraded mode -- chat still works, but enrichment is off"
+    "banner": "Memory is currently in degraded mode. Chat still works, but enrichment is off"
   },
   "settings": {
     "panel_title": "IJFW Memory (Ferrox Labs)",
@@ -168,7 +168,7 @@
     "share_readme": "Share README",
     "promote_ok": "Promoted to wiki",
     "promote_err": "Couldn't promote the entry",
-    "export_queued": "Export queued -- Wave 6 wires download",
+    "export_queued": "Export queued. Wave 6 wires download",
     "export_err": "Couldn't export the entry",
     "share_ok": "README share queued",
     "share_err": "Couldn't share README",
