@@ -34,7 +34,7 @@ consume the install receipt; `8725b9442`/`a651f4578` added a concurrency guard, 
 `@agentclientprotocol/codex-acp`), openclaw is not an ACP backend at all and refuses to run under Bun
 (`node:sqlite`), so only kimi reaches the ACP seam today. **Never run:** the clean-machine test. The Windows
 artifact exists at `C:\wl-clean\...\Wayland.exe` but predates every fix in both lanes, and the clean account
-has a blank password so it is console-logon-only.
+had a blank password so it was console-logon-only; that has since been resolved zero-touch (see S-1).
 
 **Nano (#950).** Not shippable. `FerroxLabs/wayland-nano` is private with **0 releases, 0 tags and no
 release workflow** **[X]** — there is nothing to attest, so the integrity bar cannot be met. #950's
@@ -648,18 +648,39 @@ any control dead-ends, or if any failure surfaces without a named cause.
    showing the absolute `resources\bundled-wayland-nano\...` path. A bare `wayland-nano` in that command line
    is a **FAIL**.
 
-**Getting into the clean session — corrected (A13).** `WaylandCleanTest` has a **blank password and has never
-logged on**; blank-password accounts are console-logon-only by policy, `Remote Desktop Users` is empty, and
-PsExec is not installed **[X]**. So RDP-as-clean-user is a dead end and the console click is the mechanism.
-A console session is already sitting at the sign-in screen (session 2, `console`, `Conn`).
-**Before consuming the owner's logon, prove CDP answers:** launch the packaged build as `seand` over SSH with
-`--remote-debugging-port=9222` and curl `/json/version` from the Mac. If it does not answer, the real
-fallback is **screen capture from inside the clean session** (a scheduled task running a capture utility as
-`WaylandCleanTest`), **not** RDP — the old plan's RDP fallback is impossible for this account.
-After the logon: register a scheduled task with
-`New-ScheduledTaskPrincipal -UserId WaylandCleanTest -LogonType Interactive` (Interactive attaches to the
-existing session and needs no stored password — which is exactly why the logon must happen first) and
-`Start-ScheduledTask`. Everything after the one click is scripted over SSH as `seand`.
+**Getting into the clean session — A13 SUPERSEDED. THE OWNER LOGON IS NO LONGER REQUIRED [X].**
+
+A13 concluded RDP-as-clean-user was "a dead end" and that a physical console click was the only mechanism.
+That was true of the account *as it stood*, not of the account. It has been done zero-touch, and every step
+below was executed:
+
+1. `Set-LocalUser -Name WaylandCleanTest -Password <generated>` — the blank password was the entire cause of
+   the console-logon-only restriction, and it is a property of the account, not a policy we cannot move.
+   The password lives at `~/.config/wayland-smoke/wlclean-pw`, mode 600, never echoed. **It is not an admin**
+   (verified: not a member of `Administrators`), so the account stays a genuine limited clean profile.
+2. `Add-LocalGroupMember -Group "Remote Desktop Users" -Member WaylandCleanTest`.
+3. `brew install freerdp` on the Mac, giving a headless client.
+4. **The first attempt failed with `ERRINFO_LOGOFF_BY_USER` after 36 s and created no profile.** That is not
+   an auth failure — it is Windows' single-session "another user is signed in, disconnect them?" prompt
+   timing out with nobody present to answer it. `tsdiscon 1` freed the slot (disconnect, not logoff, so
+   `seand` loses nothing and simply reconnects).
+5. `sdl-freerdp /v:100.109.207.54 /u:WaylandCleanTest` then created **session 5**, and
+   `C:\Users\WaylandCleanTest` now exists. The session sits `Disc`, which is exactly what is wanted: a
+   disconnected RDP session **retains its window station**, so Electron runs in it and CDP works.
+
+Proven end to end on the existing (stale) artifact: a scheduled task with
+`New-ScheduledTaskPrincipal -UserId WaylandCleanTest -LogonType Interactive` launched
+`Wayland.exe --remote-debugging-port=9222`; four processes report owner `WaylandCleanTest` in session 5, and
+`http://127.0.0.1:9222/json/version` returns `Wayland/0.11.18 Electron/41.6.0`. CDP is therefore proven
+*without* spending an owner logon, which was A13's stated worry.
+
+The clean-machine PATH control is also proven, with the known-positive control the standing rule demands:
+run as `WaylandCleanTest`, `where.exe codex kimi openclaw wayland-nano claude` finds **nothing**, while the
+same probe in the same session finds `powershell` and `notepad`. A zero from a method that cannot find a
+known positive would have proven nothing.
+
+**What is left for S-1 is therefore only the artifact**, not the session: repackage post-merge, copy it to
+the box, and re-run the task. No owner action.
 
 ---
 
