@@ -76,6 +76,7 @@ import {
   createMcpSessionDigestKey,
   createMcpSessionExpectedServer,
 } from '@process/services/mcpServices/mcpSessionTruthGate';
+import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -1367,6 +1368,11 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       conversation_id: this.conversation_id,
       msg_id: activeMsgId,
       data: surfaced,
+      // Carry the bootstrap failure's own classification alongside the prose so
+      // the renderer can route it to a remedy card by code. Constitution
+      // authority failures are the case that needs it: the fix is a recovery
+      // flow the user cannot reach from an error bubble.
+      ...(error instanceof ConstitutionFsTransactionError ? { code: error.code } : {}),
     };
     ipcBridge.conversation.responseStream.emit(errorMessage);
     this.emitToEventBuses(errorMessage);

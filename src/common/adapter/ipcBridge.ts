@@ -1701,6 +1701,14 @@ export interface IResponseMessage {
    * back to conversation-only keying (unchanged behaviour).
    */
   turnId?: string | number;
+  /**
+   * Stable machine-readable classification for a terminal `error` event, when
+   * the producer had one. `data` stays the human-readable text; this is what a
+   * renderer branches on to route the failure to its remedy UI, so routing does
+   * not depend on substring-matching an English (or localized) message — the
+   * fragility that misrouted non-auth errors in #624.
+   */
+  code?: string;
 }
 
 export interface IConversationTurnCompletedEvent {

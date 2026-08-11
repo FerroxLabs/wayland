@@ -89,6 +89,15 @@ interface EventTypes {
   /** Fired by WCoreChat after a context-ceiling model switch; WCoreSendBox replays the failed turn. */
   'wcore.context.retry': [{ conversation_id: string; input: string; files: string[] }];
   /**
+   * Fired by WCoreSendBox when a Wayland Core turn could not start because the
+   * Constitution revision authority on this machine cannot be unlocked (it was
+   * encrypted by a different installation of the app). WCoreChat listens and
+   * shows the WCoreConstitutionLockedCard above the send box, whose action is
+   * the existing Constitution recovery flow in Settings. `rawError` preserves
+   * the main-process explanation so the user can inspect it.
+   */
+  'wcore.constitution.locked.card': [{ conversation_id: string; rawError?: string }];
+  /**
    * #466 Fired by WCoreSendBox when the engine advertises (or drops) the
    * Computer-Use capability for this conversation. WCoreChat listens and shows
    * the macOS permission onboarding card while CUA is available + grants are

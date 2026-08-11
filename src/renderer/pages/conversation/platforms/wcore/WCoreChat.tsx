@@ -32,6 +32,7 @@ import LocalImageView from '@renderer/components/media/LocalImageView';
 import ConversationChatConfirm from '../../components/ConversationChatConfirm';
 import WCoreSendBox from './WCoreSendBox';
 import WCoreContextCeilingCard from './WCoreContextCeilingCard';
+import WCoreConstitutionLockedCard from './WCoreConstitutionLockedCard';
 import type { WCoreModelSelection } from './useWCoreModelSelection';
 import ExecutionSpine from '../../components/ExecutionSpine';
 
@@ -117,6 +118,20 @@ const WCoreChat: React.FC<{
     pendingCeilingTurnRef.current = null;
     setCeilingRemedy(null);
   }, [conversation_id]);
+  // Locked-Constitution remedy card: shown when a turn could not start because
+  // the Constitution revision authority on this machine cannot be unlocked. Its
+  // one action opens the Constitution recovery flow that already lives in
+  // Settings; the encrypted authority itself is never touched from here.
+  const [constitutionLocked, setConstitutionLocked] = useState<{ rawError?: string } | null>(null);
+  useAddEventListener(
+    'wcore.constitution.locked.card',
+    (p) => {
+      if (p.conversation_id !== conversation_id) return;
+      setConstitutionLocked({ rawError: p.rawError });
+    },
+    [conversation_id]
+  );
+  const goToConstitutionRecovery = useCallback(() => navigate('/settings/constitution'), [navigate]);
   // #466: Computer-Use permission onboarding. WCoreSendBox emits the engine's
   // `computer_use` capability; we prime the macOS permission card only while CUA
   // is available (the card itself stays null unless a grant is actually missing).
@@ -136,6 +151,7 @@ const WCoreChat: React.FC<{
     pendingTurnRef.current = null;
     setCeilingRemedy(null);
     pendingCeilingTurnRef.current = null;
+    setConstitutionLocked(null);
     setHasCuaCapability(false);
     setCuaCardDismissed(false);
   }, [conversation_id]);
@@ -242,6 +258,15 @@ const WCoreChat: React.FC<{
                   rawError={ceilingRemedy.rawError}
                   onRetry={onCeilingRetry}
                   onDismiss={() => setCeilingRemedy(null)}
+                />
+              </div>
+            )}
+            {constitutionLocked && (
+              <div className='max-w-800px w-full mx-auto mb-12px'>
+                <WCoreConstitutionLockedCard
+                  rawError={constitutionLocked.rawError}
+                  onOpenRecovery={goToConstitutionRecovery}
+                  onDismiss={() => setConstitutionLocked(null)}
                 />
               </div>
             )}

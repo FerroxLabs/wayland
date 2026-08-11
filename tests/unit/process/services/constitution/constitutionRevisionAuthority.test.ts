@@ -3,10 +3,16 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
+  CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED,
   ConstitutionRevisionAuthority,
   constitutionRevisionDurabilitySyncPath,
+  isConstitutionRevisionAuthorityUnauthenticated,
 } from '@process/services/constitution/constitutionRevisionAuthority';
 import type { ConstitutionArchiveSecretBackend } from '@process/services/constitution/constitutionFsTransaction';
+import {
+  CONSTITUTION_LOCKED_ERROR_CODE,
+  isConstitutionLockedError,
+} from '@renderer/pages/conversation/platforms/wcore/constitutionLockedFailure';
 
 const secretBackend: ConstitutionArchiveSecretBackend = {
   encryptString: (plaintext) => `fenc:v1:${Buffer.from(plaintext).toString('base64')}`,
@@ -26,6 +32,74 @@ describe('ConstitutionRevisionAuthority', () => {
     expect(reloaded).not.toBeNull();
     expect(reloaded?.keyId()).toBe(created.keyId());
     expect(reloaded?.keyDigest()).toBe(created.keyDigest());
+  });
+
+  // An authority sealed by a different installation of the app decrypts to
+  // nothing here (Electron's safeStorage keys by app identity). Unclassified,
+  // that raw crypto error travelled readAuthorityFile -> load ->
+  // readConstitution -> composePrompt -> WCoreManager.start and landed in the
+  // user's chat as "Error while decrypting the ciphertext provided to
+  // safeStorage.decryptString", killing every turn with no remedy attached.
+  it('classifies a foreign-identity authority as unauthenticated instead of leaking the crypto error', () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-revision-foreign-identity-'));
+    const authorityPath = path.join(root, 'revision.enc');
+    ConstitutionRevisionAuthority.loadOrCreate(authorityPath, secretBackend);
+
+    const safeStorageFailure = 'Error while decrypting the ciphertext provided to safeStorage.decryptString.';
+    const foreignIdentityBackend: ConstitutionArchiveSecretBackend = {
+      encryptString: secretBackend.encryptString,
+      decryptString: () => {
+        throw new Error(safeStorageFailure);
+      },
+    };
+
+    let thrown: unknown;
+    try {
+      ConstitutionRevisionAuthority.load(authorityPath, foreignIdentityBackend);
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toBeInstanceOf(Error);
+    expect((thrown as Error).message).toBe(CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED);
+    expect(isConstitutionRevisionAuthorityUnauthenticated(thrown)).toBe(true);
+    // The remedy-free crypto text must not be what the caller (and so the user)
+    // sees, but it must still be recoverable for a bug report.
+    expect((thrown as Error).message).not.toContain('safeStorage');
+    expect(((thrown as Error).cause as Error | undefined)?.message).toBe(safeStorageFailure);
+    // Surfacing a failure must never cost the user their encrypted authority.
+    expect(existsSync(authorityPath)).toBe(true);
+  });
+
+  // The distinction is the point: only an unlock failure is user-recoverable
+  // (restore an archive). A decryptable-but-corrupt payload stays _INVALID, so
+  // this classification cannot become a blanket relabel of every read failure.
+  it('keeps a decryptable but structurally invalid authority classified as invalid, not unauthenticated', () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'constitution-revision-corrupt-payload-'));
+    const authorityPath = path.join(root, 'revision.enc');
+    mkdirSync(root, { recursive: true });
+    writeFileSync(authorityPath, secretBackend.encryptString('{"schemaVersion":3}'), { mode: 0o600 });
+
+    let thrown: unknown;
+    try {
+      ConstitutionRevisionAuthority.load(authorityPath, secretBackend);
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect((thrown as Error).message).toBe('CONSTITUTION_FS_REVISION_AUTHORITY_INVALID');
+    expect(isConstitutionRevisionAuthorityUnauthenticated(thrown)).toBe(false);
+  });
+
+  // The renderer must not import from the process layer, so it keeps its own
+  // copy of this code to route the failure to the recovery flow. Silent drift
+  // between the two would put the raw dead-end error back in front of the user
+  // with a fully green suite, so the copies are pinned to each other here.
+  it('publishes the exact classification code the renderer routes on', () => {
+    expect(CONSTITUTION_LOCKED_ERROR_CODE).toBe(CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED);
+    expect(isConstitutionLockedError(CONSTITUTION_REVISION_AUTHORITY_UNAUTHENTICATED)).toBe(true);
+    expect(isConstitutionLockedError(undefined)).toBe(false);
+    expect(isConstitutionLockedError('CONSTITUTION_FS_REVISION_AUTHORITY_INVALID')).toBe(false);
   });
 
   it('fails closed when authority publication succeeds but its durability sync fails', () => {

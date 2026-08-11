@@ -146,6 +146,8 @@ vi.mock('@/process/task/agentUtils', () => ({
 // ── Import under test ──────────────────────────────────────────────
 
 import { WCoreManager } from '@/process/task/WCoreManager';
+import { buildSystemInstructionsWithSkillsIndex } from '@/process/task/agentUtils';
+import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -212,6 +214,45 @@ describe('WCoreManager bootstrap failure surfaces error + finish (S2)', () => {
     const failureErrors = findEmissions('error').filter((e) => String(e.data).startsWith('Agent failed to start'));
     expect(failureErrors).toHaveLength(0);
     expect((manager as unknown as { agent: unknown }).agent).not.toBeNull();
+  });
+
+  // ── Constitution authority failures must stay routable ────────────
+  //
+  // A Constitution the app cannot unlock throws out of the system-prompt
+  // composition inside `start()` (composePrompt -> readConstitution), which is
+  // exactly where `buildSystemInstructionsWithSkillsIndex` sits. The prose is
+  // for the user; the code is what lets the renderer put the recovery flow in
+  // front of them instead of a dead-end bubble.
+
+  it('carries the Constitution authority code alongside the prose so the turn can be routed to recovery', async () => {
+    vi.mocked(buildSystemInstructionsWithSkillsIndex).mockRejectedValueOnce(
+      new ConstitutionFsTransactionError(
+        'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED',
+        'The Constitution revision authority on this machine could not be unlocked. Open Settings > Constitution to restore from a recovery archive.'
+      )
+    );
+    const manager = createManager('conv-sf-constitution');
+
+    await manager.sendMessage({ content: 'hello', msg_id: 'msg-sf-constitution' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    expect(errors[0].code).toBe('CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED');
+    expect(String(errors[0].data)).toContain('could not be unlocked');
+    // The raw crypto failure must never be what reaches the chat.
+    expect(String(errors[0].data)).not.toContain('safeStorage');
+  });
+
+  it('leaves the code off a bootstrap failure that carries no classification', async () => {
+    agentStart.mockRejectedValue(new Error('wcore binary not found'));
+    const manager = createManager('conv-sf-uncoded');
+
+    await manager.sendMessage({ content: 'hello', msg_id: 'msg-sf-uncoded' });
+
+    const errors = findEmissions('error');
+    expect(errors).toHaveLength(1);
+    // An unclassified failure must not masquerade as a routable one.
+    expect(errors[0].code).toBeUndefined();
   });
 
   // ── #853: real exec-failure reason + discoverable log link ─────────

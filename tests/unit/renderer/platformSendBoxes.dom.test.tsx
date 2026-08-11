@@ -396,6 +396,7 @@ vi.mock('react-i18next', () => ({
 
 import AcpSendBox from '@/renderer/pages/conversation/platforms/acp/AcpSendBox';
 import WCoreSendBox from '@/renderer/pages/conversation/platforms/wcore/WCoreSendBox';
+import { useWCoreMessage } from '@/renderer/pages/conversation/platforms/wcore/useWCoreMessage';
 import {
   CHAT_CONTINUE_EVENT,
   CHAT_RETRY_EVENT,
@@ -820,6 +821,81 @@ describe('platform send box queue integration', () => {
     });
     const payload = mockConversationSendInvoke.mock.calls[0]?.[0] as { input: string };
     expect(payload.input).toBe(ORIGINAL_PROMPT);
+  });
+
+  // A Constitution the app cannot unlock kills every turn during bootstrap. The
+  // main process now classifies it; this is the half that turns that
+  // classification into the recovery card instead of a raw dead-end bubble.
+  const renderWCoreAndTakeTurnErrorHandler = () => {
+    render(
+      <WCoreSendBox
+        conversation_id='conv-wcore'
+        modelSelection={{
+          currentModel: { useModel: 'wcore-1' },
+          getDisplayModelName: (modelId: string) => modelId,
+        }}
+      />
+    );
+    const options = vi.mocked(useWCoreMessage).mock.calls.at(-1)?.[1] as
+      | { onError?: (message: Record<string, unknown>) => void }
+      | undefined;
+    const onError = options?.onError;
+    if (!onError) throw new Error('WCoreSendBox no longer wires a turn-error handler');
+    return onError;
+  };
+
+  it('routes a locked-Constitution turn failure to the recovery card', () => {
+    const onError = renderWCoreAndTakeTurnErrorHandler();
+
+    onError({
+      type: 'error',
+      conversation_id: 'conv-wcore',
+      msg_id: 'msg-locked',
+      data: 'Agent failed to start: The Constitution revision authority on this machine could not be unlocked.',
+      code: 'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED',
+    });
+
+    expect(mockEmitterEmit).toHaveBeenCalledWith(
+      'wcore.constitution.locked.card',
+      expect.objectContaining({
+        conversation_id: 'conv-wcore',
+        rawError: expect.stringContaining('could not be unlocked'),
+      })
+    );
+  });
+
+  // The failure's prose is a crypto error the desktop does not author and can
+  // change under it. Classification must come from the structured code, and it
+  // must win over the message-substring classifiers that share this handler.
+  it('routes by code even when the failure prose looks like an auth failure', () => {
+    const onError = renderWCoreAndTakeTurnErrorHandler();
+
+    onError({
+      type: 'error',
+      conversation_id: 'conv-wcore',
+      msg_id: 'msg-locked-2',
+      data: 'Agent failed to start: unauthorized while decrypting the ciphertext provided to safeStorage',
+      code: 'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED',
+    });
+
+    const events = mockEmitterEmit.mock.calls.map(([name]) => name);
+    expect(events).toContain('wcore.constitution.locked.card');
+    expect(events).not.toContain('wcore.auth.failed.card');
+  });
+
+  it('leaves an uncoded auth failure on the auth card, not the Constitution card', () => {
+    const onError = renderWCoreAndTakeTurnErrorHandler();
+
+    onError({
+      type: 'error',
+      conversation_id: 'conv-wcore',
+      msg_id: 'msg-auth',
+      data: 'Agent failed to start: unauthorized',
+    });
+
+    const events = mockEmitterEmit.mock.calls.map(([name]) => name);
+    expect(events).toContain('wcore.auth.failed.card');
+    expect(events).not.toContain('wcore.constitution.locked.card');
   });
 
   it('blocks OpenClaw dispatch when runtime validation fails', async () => {

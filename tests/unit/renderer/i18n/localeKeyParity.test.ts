@@ -62,8 +62,23 @@ function collectKeys(value: unknown, prefix = ''): string[] {
   return keys;
 }
 
+/**
+ * Memoized because the stale-baseline sweep below asks for a locale's key set
+ * once per (baseline key, locale) pair - several thousand times - and each
+ * uncached call walked that locale's entire bundle again. That made the sweep
+ * cost O(baseline entries x locales x bundle size) and pushed it to ~3s
+ * unloaded against a 10s limit, so it timed out under a loaded full-suite run
+ * as soon as any new keys were added. The bundles are static module imports and
+ * are never mutated, so caching cannot change any result here.
+ */
+const KEY_SET_CACHE = new Map<string, Set<string>>();
+
 function keySet(locale: string): Set<string> {
-  return new Set(collectKeys(LOCALE_BUNDLES[locale]));
+  const cached = KEY_SET_CACHE.get(locale);
+  if (cached) return cached;
+  const computed = new Set(collectKeys(LOCALE_BUNDLES[locale]));
+  KEY_SET_CACHE.set(locale, computed);
+  return computed;
 }
 
 function isKnownGap(key: string, locale: string): boolean {

@@ -24,6 +24,7 @@ import { ConstitutionKeyStore } from './constitutionKeyStore';
 import {
   ConstitutionRevisionAuthority,
   constitutionRevisionDurabilitySyncPath,
+  isConstitutionRevisionAuthorityUnauthenticated,
   type ConstitutionRevisionRotationReceipt,
 } from './constitutionRevisionAuthority';
 import {
@@ -426,11 +427,34 @@ export class ConstitutionFsService {
     return authority;
   }
 
+  /**
+   * Single classification point for a revision authority this installation
+   * cannot unlock. Every load path below (cached re-verify, first load, legacy
+   * migration, create) reads the same encrypted file through the same backend,
+   * so the decrypt-failure classification is mapped once here into the typed
+   * code the rest of the process (and the chat surface) can branch on, instead
+   * of the raw crypto error escaping to the user.
+   */
   private revisionAuthorityForRead(): ConstitutionRevisionAuthority | null {
+    try {
+      return this.loadRevisionAuthorityForRead();
+    } catch (error) {
+      if (!isConstitutionRevisionAuthorityUnauthenticated(error)) throw error;
+      throw new ConstitutionFsTransactionError(
+        'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED',
+        'The Constitution revision authority on this machine could not be unlocked. It was encrypted by a different installation of this app, so its contents cannot be read here. Open Settings > Constitution to restore from a recovery archive.'
+      );
+    }
+  }
+
+  private loadRevisionAuthorityForRead(): ConstitutionRevisionAuthority | null {
     if (this.revisionAuthority) {
       try {
         this.revisionAuthority.assertPersisted();
       } catch (error) {
+        // An unlock failure is its own recoverable classification; do not
+        // relabel it as a removed/replaced authority.
+        if (isConstitutionRevisionAuthorityUnauthenticated(error)) throw error;
         throw new ConstitutionFsTransactionError(
           'CONSTITUTION_FS_REVISION_AUTHORITY_MISSING_WITH_STATE',
           `Revision authority was removed, replaced, or corrupted while Constitution state is active: ${
