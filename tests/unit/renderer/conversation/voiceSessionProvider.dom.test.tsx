@@ -89,7 +89,7 @@ let testPlatform: 'darwin' | 'win32' | 'linux' = 'darwin';
 vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
   isMacOS: () => testPlatform === 'darwin',
-  currentPlatform: () => testPlatform,
+  rendererPlatform: () => testPlatform,
 }));
 
 vi.mock('@/renderer/hooks/system/useSpeechInput', () => ({

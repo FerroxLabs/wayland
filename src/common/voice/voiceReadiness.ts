@@ -167,16 +167,28 @@ export const ON_DEVICE_TTS_PROVIDER: TextToSpeechProvider = 'system-native';
 /**
  * THE WINDOWS/LINUX SEAM. Which synthesizer the OS itself provides, by platform.
  *
- * Today: macOS only. `synthesizeSystemNative` shells out to `say`, which exists
- * nowhere else, so on Windows and Linux the speaking leg of EVERY otherwise
- * working configuration is `unsupported` / `no-local-adapter` / not clickable.
- * That is a real, currently shipped hole and the acceptance table asserts it by
- * name rather than testing macOS and calling it "voice works".
+ * Today, in THIS branch: macOS only. `synthesizeSystemNative` shells out to
+ * `say`, which exists nowhere else, so on Windows and Linux the speaking leg of
+ * EVERY otherwise working configuration is `unsupported` / `no-local-adapter` /
+ * not clickable. That is a real, currently shipped hole, and the acceptance
+ * table asserts it by name rather than testing macOS and calling it "voice
+ * works".
  *
- * `packet/wl-voice-wintts` is adding a Windows-native provider. When it lands,
- * this function is the ONLY thing that has to change - return that provider for
- * `win32` and every consumer, every leg and every table cell follows, because
- * nothing else in this file compares a platform string.
+ * MERGE INSTRUCTION for whoever integrates `packet/wl-voice-wintts`. That lane
+ * has landed `resolveLocalTtsProvider(platform)` in `@/common/types/ttsTypes`,
+ * which returns `windows-native` for `win32`. It is the same function with a
+ * different name, and its file is owned by that lane, so this one deliberately
+ * does not import it. Integration is two steps and no more:
+ *
+ *   1. Make this the one-line delegate:
+ *        `export const platformNativeTtsProvider = resolveLocalTtsProvider;`
+ *   2. Flip `win32` to `speechOutWorks: true` in the `platformCells` table in
+ *      `tests/unit/common/voiceLadder.test.ts`.
+ *
+ * The `win32` row in that table is written to FAIL once their provider is in
+ * the path, so the table itself is what tells the integrator step 2 is
+ * outstanding. Nothing else in this file compares a platform string, so those
+ * two edits are the whole change.
  */
 export const platformNativeTtsProvider = (platform: string): TextToSpeechProvider | null =>
   platform === 'darwin' ? ON_DEVICE_TTS_PROVIDER : null;

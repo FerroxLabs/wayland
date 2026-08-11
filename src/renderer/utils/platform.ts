@@ -39,10 +39,17 @@ export const formatModifierShortcut = (key: string): string => {
 };
 
 /**
- * Check if running on Windows
+ * Check if running on Windows.
+ *
+ * `win` alone is NOT a Windows signal: it is a substring of `darwin`, so the
+ * looser test reported Windows on any Darwin-spelled user agent - including
+ * jsdom's, which is how a Windows-only speech default reached a macOS test
+ * profile. On a real Electron renderer macOS spells itself `Macintosh` and the
+ * mistake stayed masked by the ordering in `rendererPlatform`; nothing about
+ * that ordering makes the test correct.
  */
 export const isWindows = (): boolean => {
-  return typeof navigator !== 'undefined' && /win/i.test(navigator.userAgent);
+  return typeof navigator !== 'undefined' && /windows|win32|win64|wow64/i.test(navigator.userAgent);
 };
 
 /**
@@ -53,24 +60,17 @@ export const isLinux = (): boolean => {
 };
 
 /**
- * The current platform, in `process.platform` vocabulary.
+ * The renderer's best read of `process.platform`, in `process.platform` spelling.
  *
- * Renderer code kept reducing this to `isMacOS() ? 'darwin' : 'other'`, which
- * cannot tell Windows from Linux - so anything that has to differ between the
- * two, such as which synthesizer the OS provides, got the same answer on both.
- * Returning the same strings main uses means a value read here and a value read
- * from `process.platform` are comparable without a translation table.
- *
- * macOS is tested FIRST: the macOS user agent contains neither "win" nor
- * "linux", but the Android and X11 strings that `isLinux` matches overlap with
- * other checks, so the order is load-bearing.
+ * The renderer has no `process`, so code over here that has to reason about the
+ * OS has been collapsing Windows and Linux into one "not macOS" bucket. That is
+ * fine for a keyboard glyph and wrong for speech: Windows has an OS synthesizer
+ * and Linux does not, so "no built-in voice on this operating system" is a lie
+ * on Windows that costs the user the only free voice they have. Returns
+ * `'darwin' | 'win32' | 'linux'` so it can be handed straight to the shared
+ * helpers that take a platform string.
  */
-export const currentPlatform = (): 'darwin' | 'win32' | 'linux' | 'other' => {
-  if (isMacOS()) return 'darwin';
-  if (isWindows()) return 'win32';
-  if (isLinux()) return 'linux';
-  return 'other';
-};
+export const rendererPlatform = (): string => (isMacOS() ? 'darwin' : isWindows() ? 'win32' : 'linux');
 
 const ASSET_PROTOCOL_PREFIX = 'wayland-asset://asset/';
 

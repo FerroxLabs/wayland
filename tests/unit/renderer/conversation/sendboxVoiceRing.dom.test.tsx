@@ -86,7 +86,7 @@ vi.mock('@/renderer/utils/ui/focus', () => ({
 vi.mock('@/renderer/utils/platform', () => ({
   isElectronDesktop: () => true,
   isMacOS: () => true,
-  currentPlatform: () => 'darwin',
+  rendererPlatform: () => 'darwin',
 }));
 vi.mock('@/common/config/storage', () => ({
   ConfigStorage: { get: vi.fn(async () => undefined), set: vi.fn(async () => undefined) },

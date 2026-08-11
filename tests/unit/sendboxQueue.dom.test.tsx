@@ -246,7 +246,7 @@ vi.mock('@/renderer/utils/platform', () => ({
   isElectronDesktop: () => isElectronDesktopValue,
   // Read by the voice session: only macOS has a local speech synthesizer.
   isMacOS: () => true,
-  currentPlatform: () => 'darwin',
+  rendererPlatform: () => 'darwin',
 }));
 
 vi.mock('react-i18next', () => ({

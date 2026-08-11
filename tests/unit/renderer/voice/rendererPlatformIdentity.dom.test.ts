@@ -7,7 +7,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, describe, expect, it } from 'vitest';
-import { currentPlatform } from '@/renderer/utils/platform';
+import { isWindows, rendererPlatform } from '@/renderer/utils/platform';
 import { resolveVoiceLeg } from '@/common/voice/voiceReadiness';
 
 /**
@@ -30,11 +30,10 @@ const setUserAgent = (value: string) => {
   Object.defineProperty(globalThis.navigator, 'userAgentData', { configurable: true, value: undefined });
 };
 
-const AGENTS: Array<[string, 'darwin' | 'win32' | 'linux' | 'other']> = [
+const AGENTS: Array<[string, 'darwin' | 'win32' | 'linux']> = [
   ['Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/131 Safari/537.36', 'darwin'],
   ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36', 'win32'],
   ['Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/131 Safari/537.36', 'linux'],
-  ['Mozilla/5.0 (Unknown; Plan9) AppleWebKit/537.36 Chrome/131 Safari/537.36', 'other'],
 ];
 
 afterEach(() => {
@@ -44,11 +43,11 @@ afterEach(() => {
 describe('the renderer reports a real platform, not a macOS boolean', () => {
   it('distinguishes all three shipped platforms', () => {
     // Control: the expectations are not all the same value.
-    expect(new Set(AGENTS.map(([, expected]) => expected)).size).toBe(4);
+    expect(new Set(AGENTS.map(([, expected]) => expected)).size).toBe(3);
 
     for (const [userAgent, expected] of AGENTS) {
       setUserAgent(userAgent);
-      expect(currentPlatform()).toBe(expected);
+      expect(rendererPlatform()).toBe(expected);
     }
   });
 
@@ -60,13 +59,29 @@ describe('the renderer reports a real platform, not a macOS boolean', () => {
    */
   it('produces strings the voice resolver actually understands', () => {
     setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/131 Safari/537.36');
-    expect(resolveVoiceLeg('out', { platform: currentPlatform() }).status).toBe('ready');
+    expect(resolveVoiceLeg('out', { platform: rendererPlatform() }).status).toBe('ready');
 
     for (const ua of AGENTS.filter(([, expected]) => expected !== 'darwin').map(([ua]) => ua)) {
       setUserAgent(ua);
-      const leg = resolveVoiceLeg('out', { platform: currentPlatform() });
+      const leg = resolveVoiceLeg('out', { platform: rendererPlatform() });
       expect(leg.status).toBe('unsupported');
       expect(leg.cause).toBe('no-local-adapter');
     }
+  });
+
+  /**
+   * `win` is a substring of `darwin`.
+   *
+   * `isWindows` tested `/win/i` against the user agent, so any Darwin-spelled
+   * agent - jsdom's included - reported Windows. `rendererPlatform` asks about
+   * macOS first, so the fault never showed through it; the predicate is still
+   * wrong and is exported on its own. Found and fixed by
+   * `packet/wl-voice-wintts`, kept here because this file is where the platform
+   * mapping is pinned.
+   */
+  it('does not read the "win" inside "darwin" as Windows', () => {
+    setUserAgent('Mozilla/5.0 (darwin) AppleWebKit/537.36 (KHTML, like Gecko) jsdom/26.0.0');
+    expect(isWindows()).toBe(false);
+    expect(rendererPlatform()).not.toBe('win32');
   });
 });

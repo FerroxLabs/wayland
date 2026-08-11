@@ -44,7 +44,7 @@ import { resolveVoiceTurnTerminal } from '@/common/voice/voiceTurnTerminal';
 import { createVoiceSpeechQueue, type VoiceSpeechQueue } from '@/renderer/services/voice/voiceSpeechQueue';
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
-import { currentPlatform } from '@/renderer/utils/platform';
+import { rendererPlatform } from '@/renderer/utils/platform';
 import {
   consumeArmedVoiceMode,
   submitVoiceTurn,
@@ -676,7 +676,7 @@ export const useVoiceConversationSession = ({
     (audioContextState?: AudioContextState): VoiceReadinessInput => ({
       ttsConfig: ttsConfigRef.current,
       sttConfig: sttConfigRef.current && { ...sttConfigRef.current, provider: sttProviderRef.current ?? undefined },
-      platform: currentPlatform(),
+      platform: rendererPlatform(),
       consent: consentRef.current,
       connectedCredentials: connectedCredentialsRef.current,
       localSttReady: localSttReadyRef.current,
@@ -1549,7 +1549,7 @@ export const useVoiceConversationSession = ({
     (): VoiceReadinessInput => ({
       ttsConfig,
       sttConfig: sttConfig && { ...sttConfig, provider: effectiveSttProvider ?? undefined },
-      platform: currentPlatform(),
+      platform: rendererPlatform(),
       consent,
       audioContextState,
       connectedCredentials,

@@ -53,7 +53,7 @@ vi.mock('react-i18next', () => ({
 vi.mock('@/renderer/utils/platform', () => ({
   isElectronDesktop: () => false,
   isMacOS: () => true,
-  currentPlatform: () => 'darwin',
+  rendererPlatform: () => 'darwin',
 }));
 vi.mock('@/renderer/hooks/system/useIsPopoutMode', () => ({ useIsPopoutMode: () => false }));
 

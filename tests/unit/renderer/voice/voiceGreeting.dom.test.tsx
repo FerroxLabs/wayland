@@ -65,10 +65,10 @@ vi.mock('@/common/config/storage', () => ({
 vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
   isMacOS: () => true,
-  // `currentPlatform` reads the module's OWN `isMacOS`, not this mocked
+  // `rendererPlatform` reads the module's OWN `isMacOS`, not this mocked
   // export, so overriding one without the other leaves readiness on the
   // Windows/Linux story while every other check says macOS.
-  currentPlatform: () => 'darwin',
+  rendererPlatform: () => 'darwin',
 }));
 
 vi.mock('@/renderer/hooks/system/useSpeechInput', () => ({
