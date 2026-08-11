@@ -31,49 +31,93 @@ a model was acquired, a runtime never was — and the acquisition UI treated
 
 ---
 
-## 1. The ladder
+## 1. Two ladders, not one
 
-Resolved automatically at first run and re-resolved on every credential
-change. The user is never asked.
+Flux Voice is **speech-to-text only** (owner-confirmed, and independently
+proven in §1.2). A provider does not necessarily serve both directions, so
+a single ladder cannot express the defaults. They resolve independently,
+at first run and again whenever a credential appears or disappears.
 
-| Rung | Condition | STT | TTS | Download |
-| --- | --- | --- | --- | --- |
-| 1 | Flux Router connected | `flux-voice` | *see §1.1* | none |
-| 2 | OpenAI credential present | `openai` | `openai` | none |
-| 3 | Neither | `whisper-local` | `kokoro-local` | background, first run |
-| 4 | Rung 3 assets not ready yet | *preparing* → progress message | `system-native` | in flight |
+### 1.1 Speech IN (listen)
 
-Rung 4 is the rule that makes the others safe: **while local assets are
-downloading the app still speaks**, using the macOS system voice, and still
-tells the user why the microphone is not ready yet. A not-ready state is a
-progress message, never an error, never "unknown".
+| Rung | Condition | Provider | Download |
+| --- | --- | --- | --- |
+| 1 | Flux Router connected | `flux-voice` | none |
+| 2 | OpenAI credential present | `openai` | none |
+| 3 | neither | `whisper-local` | background, machine-relative tier |
+| 4 | rung 3 still acquiring | *preparing* | in flight |
 
-### 1.1 Flux two-way: NO, and it must not be wired
+**There is no floor on this side.** With nothing connected and nothing
+downloaded, speech-in genuinely cannot work. That is why `preparing` and
+`needsSetup` are real and common here, and why the mic must be
+inactive-with-a-reason rather than clickable into silence.
 
-The coordinator asked whether Flux does TTS as well as STT. Answer: **no,
-not today.**
+### 1.2 Speech OUT (speak)
 
-- The route exists. `POST /v1/audio/speech` returns `auth_error`
-  ("No api key passed in") exactly like `/v1/chat/completions`, while
-  `/v1/audio/translations` and a deliberately fabricated path both return
-  `404 Not Found`. So the route is real, not a catch-all.
-- It exists because Flux is LiteLLM-based and LiteLLM ships that route
-  natively. Flux's own code mounts only `/v1/audio/transcriptions`
-  (`src/audio_route.py`, `src/audio_route_registrar.py`).
-- Flux registers no TTS model, and the customer key allowlist
-  (`FULL_FLUX_MODELS`) carries no TTS alias — only `flux-voice`,
-  `flux-voice-accurate`, `flux-voice-fast`. LiteLLM's `user_api_key_auth`
-  401s any model not on the key.
+| Rung | Condition | Provider | Download |
+| --- | --- | --- | --- |
+| 1 | OpenAI credential present | `openai` | none |
+| 2 | otherwise | `kokoro-local` | background, ~86 MB |
+| 3 | rung 2 acquiring or failed | `system-native` | none |
 
-So wiring Flux as a TTS provider today ships a guaranteed failure. Rung 1
-uses Flux for STT and falls to the next available TTS. **UNVERIFIED:** I
-could not authenticate against Flux (no key may be printed or used from
-this lane), so this rests on the deployed route probe plus the flux-router
-source, whose local checkout is from May 2026. Settling it needs one
-authenticated `POST /v1/audio/speech` with `model: flux-voice`. If Flux
-later registers a TTS model, rung 1 becomes two-way with no other change.
+**`system-native` is a guaranteed floor on macOS**, so speech-out should
+essentially never reach `needsSetup` there; it reaches `degraded` and says
+so. On Windows and Linux no `say` equivalent is wired, so the floor does
+not exist and `unsupported` is reachable.
 
----
+**Flux Voice must not appear in the TTS picker at all.** Proven: its
+`/v1/audio/speech` route answers `auth_error` rather than 404, so the route
+exists, but only because Flux runs on LiteLLM, which ships that route
+natively. Flux's own code mounts only `/v1/audio/transcriptions`, and the
+customer key allowlist (`FULL_FLUX_MODELS`) carries no TTS alias, only
+`flux-voice`, `flux-voice-accurate`, `flux-voice-fast`. LiteLLM 401s any
+model absent from the key, so offering it would ship a guaranteed failure.
+
+### 1.3 The common case this creates
+
+A Flux-only user gets instant speech-in with zero download and still needs
+an answer for speech-out. They land on `system-native` immediately, so they
+are never silent, while Kokoro acquires in the background, then upgrade
+without being asked. The upgrade is announced quietly rather than
+silently: a user who chose nothing should be told their voice improved,
+and a user who chose `system-native` deliberately must keep it.
+
+### 1.4 Unset vs user-chosen
+
+The ladder sets a default. It must never override a deliberate choice, and
+today it cannot tell the difference: `resolveFluxSttDefault` infers intent
+from whether an API key string happens to be empty, which is a guess.
+
+Config gains an explicit origin per direction:
+
+```
+tools.speechToText.origin : 'default' | 'user'
+tools.textToSpeech.origin : 'default' | 'user'
+```
+
+- `'default'` — the resolver owns this leg and may re-resolve it freely.
+- `'user'` — set the moment a human changes the provider in Settings. The
+  resolver never rewrites it. It may still report `degraded` if the chosen
+  provider stops working, but it substitutes loudly and never silently
+  re-points the setting.
+
+Migration: an existing config with no `origin` is treated as `'default'`
+UNLESS its provider differs from what the ladder would have picked, in
+which case it is `'user'`. That reads a deliberate past choice correctly
+without a prompt.
+
+### 1.5 Credential transitions
+
+| Event | Speech in | Speech out |
+| --- | --- | --- |
+| Flux connected | re-resolve to `flux-voice`; cancel a pending Whisper download | unchanged (Flux is STT-only) |
+| OpenAI connected | re-resolve to `openai` if origin is `default` | re-resolve to `openai` if origin is `default` |
+| Credential removed | fall back down the ladder; start acquisition if the next rung is local | fall back; `system-native` covers the gap immediately |
+| Credential becomes undecryptable | treated as removed, and reported as `failed` with the real reason, never as "not configured" |
+
+Cancelling a pending download when a credential arrives is the point of the
+transition table: a Flux user who connects mid-download should not keep
+pulling 488 MB they no longer need.
 
 ## 2. Which local engine, and which tier
 
@@ -136,79 +180,123 @@ That needs a human ear on real output and cannot be settled from tests.
 
 ---
 
-## 3. State machine
+## 3. The affordance state machine
 
-Per leg (speak, listen), replacing today's boolean readiness:
+**The invariant: a voice control is never clickable into a dead end.**
+Either it works, or it is inactive and says why on hover, without the user
+having to click to find out. Today's defect is exactly this violation: an
+enabled Test voice button, clicked, produced silence and logged nothing.
+That must become structurally impossible, not fixed in one handler.
 
-```
-        ┌─ user-chosen ──────────────► honour it, never re-resolve
-        │
-unset ──┼─ ready      ─► provider resolved, all components present
-        ├─ preparing  ─► resolved, components downloading (progress %)
-        └─ degraded   ─► resolved provider unusable, running on a fallback
-                          (always says which, and why)
-```
+One resolver produces one state per direction. Every surface reads it.
+No surface hand-rolls its own logic, so the button and the settings page
+can never disagree, a contradiction that has already bitten this repo twice
+(a provider row red while its detail view said connected; Settings showing
+"Connected, 77 models" while chat said no provider).
 
-Rules:
+### 3.1 States
 
-1. **`user-chosen` is sticky.** The ladder sets a default; it never
-   overrides a deliberate choice. Config must distinguish "never touched"
-   from "chosen" — today it cannot, which is why `resolveFluxSttDefault`
-   has to infer intent from whether an API key string is empty.
-2. **`preparing` is never an error.** No red text, no error code, no
-   "unknown". "Downloading the speech model in the background — 42%".
-3. **`degraded` always names the substitute and the reason.** Silently
-   falling back is the same class of bug as silently failing.
-4. **Readiness is computed from every required component**, not just the
-   model. A provider with a missing runtime can never present as usable.
-   Kokoro already refuses correctly; Whisper does not, which is exactly how
-   the owner reached "transcription failed (unknown)" after downloading a
-   model.
-
-### Surface copy per state
-
-| Surface | ready | preparing | degraded |
+| State | Meaning | Control | Clickable |
 | --- | --- | --- | --- |
-| Voice orb | normal | "Getting your voice ready — 42%" | speaks via fallback, banner names it |
-| Composer mic | normal | disabled + "Downloading the speech model" | error naming the missing component |
-| Settings > Voice | "Installed" per component | per-component progress bars | per-component reason + Retry |
+| `ready` | provider usable, all components present, credential resolvable | normal | yes |
+| `preparing` | assets acquiring in the background | inactive + progress | no |
+| `needsSetup` | nothing usable and nothing downloading | inactive | no; the hover action routes to Settings > Voice |
+| `unsupported` | cannot work on this platform or build | inactive | no |
+| `failed` | a real error occurred | inactive, cause named | no; offers Retry |
 
-All copy needs real i18n keys in all 12 locales.
+`preparing` is a progress state and is never styled or worded as an error.
+`failed` always names the cause; "unknown" is not a permitted rendering.
 
----
+### 3.2 Derivation
+
+State is a function of the same readiness resolver that drives the ladder:
+
+```
+resolveVoiceLeg(direction) -> {
+  provider,            // what the ladder picked, or the user's choice
+  origin,              // 'default' | 'user'
+  state,               // the five above
+  missing: Component[] // every component still absent, named
+  progress?: { component, bytesDownloaded, totalBytes }
+  reason?: string      // required when state is failed | unsupported
+}
+```
+
+Readiness is computed from **every** required component, never just the
+model. This is the defect already proven in §0: Whisper let the user select
+it, download a model, and then fail at speak time, because the runtime was
+never part of the readiness question. Kokoro already refuses correctly.
+Components per provider:
+
+- `whisper-local`: model weights **and** the transformers.js engine assets
+- `kokoro-local`: model weights, the selected voice `.bin`, phonemizer data
+- `openai` / `flux-voice`: a resolvable credential
+- `system-native`: macOS only
+
+### 3.3 Copy, per state, per direction
+
+Speech-out has a floor and speech-in does not, so the copy is not shared.
+
+| State | Speech IN (mic, voice-mode button) | Speech OUT (Test voice, auto-read) |
+| --- | --- | --- |
+| `preparing` | "Downloading the speech model in the background" + % | not reachable; `system-native` covers it |
+| `needsSetup` | "Check voice settings to enable" -> routes to Settings > Voice | macOS: not reachable. Others: "No speech voice is available on this platform" |
+| `unsupported` | "This build cannot record audio" | "Speech output is not available on this platform" |
+| `failed` | the named cause, plus Retry | the named cause, plus Retry |
+| `ready` | normal | normal |
+
+Every string needs a real i18n key in all 12 locales. The mic already has a
+"Set up dictation" route; `needsSetup` reuses it rather than inventing a
+second path.
+
+### 3.4 Surfaces covered
+
+The composer mic, the composer voice-mode (waveform) button, the front-page
+pair, and Settings' Test voice. All four read `resolveVoiceLeg`; none of
+them decide for themselves whether they are enabled.
 
 ## 4. Staging
 
-Larger than one packet. Ordered by benefit-to-risk.
+Larger than one packet. Ordered by benefit-to-risk. **Stages 2-5 are gated
+on owner sign-off of this document.**
 
-- **Stage 1 — safety net (LANDED).** Failures name their cause and nothing
+- **Stage 1 - safety net (LANDED).** Failures name their cause and nothing
   hangs. `10ceecc8e` Flux credential inheritance (the highest-value single
-  fix: it converts "download 450 MB and wait" into "already works" for
-  every Flux user), plus the Test-voice and download hang fixes, plus
-  "unknown" → real cause.
-- **Stage 2 — honesty.** Delete the fabricated `whisper-cpp` /
+  fix: it turns "download 488 MB and wait" into "already works" for every
+  Flux user), `5703b758c` failed downloads no longer hang forever,
+  `78429bfe4` "unknown" replaced by the real reason, plus the Test voice
+  silent no-op and the undecryptable-credential cause.
+- **Stage 2 - honesty.** Delete the fabricated `whisper-cpp` /
   `onnx-runtime` manifest entries and the orphaned ggml download control.
-  Component-aware readiness. Settings tells the exact truth per component.
-  No new runtime yet. *Low risk, no new dependency.*
-- **Stage 3 — Kokoro on transformers.js.** New worker mirroring
-  `whisperWorker.ts`, phonemizer dependency, background acquisition of
-  model + selected voice. This is what actually delivers "not the robotic
-  system voice by default".
-- **Stage 4 — first-run orchestration.** The ladder as a real resolver,
-  `user-chosen` in config, resumable/cancellable background acquisition,
-  re-resolution on credential change, and the progress surfaces.
+  Component-aware readiness (§3.2). Settings tells the exact truth per
+  component. Flux Voice's own form stops rendering Deepgram's fields and
+  stops asking for a key it does not need. No new runtime, no new
+  dependency. *Lowest risk.*
+- **Stage 3 - the affordance state machine.** `resolveVoiceLeg`, the five
+  states, and all four surfaces reading it (§3). Delivers "never clickable
+  into a dead end" even before any new provider exists.
+- **Stage 4 - Kokoro on transformers.js.** New worker mirroring
+  `whisperWorker.ts`, a phonemizer dependency, background acquisition of
+  model plus selected voice. This is what actually delivers "not the
+  robotic system voice by default".
+- **Stage 5 - first-run orchestration.** The two ladders as a real
+  resolver, `origin` in config (§1.4), resumable and cancellable background
+  acquisition that never blocks app start or the first turn, and the
+  credential-transition table (§1.5).
 
-Nothing here is bundled into the installer — the owner was explicit that
-assets are fetched in the background, not shipped in the package.
-
----
+Nothing is bundled into the installer; the owner was explicit that assets
+are fetched in the background rather than shipped in the package.
 
 ## 5. What cannot be proven from this lane
 
 - **That any of it sounds right.** jsdom has no `AudioContext`, and unit
   tests assert bytes, not audio. Every claim about a voice being audible or
   good needs a human listening to the packaged app.
-- **Flux TTS**, per §1.1 — needs one authenticated request.
+- **Flux TTS.** Owner-confirmed as speech-to-text only, and the route
+  evidence in §1.2 agrees. What I could not do is authenticate against Flux
+  from this lane (no key may be printed or used here), and the local
+  flux-router checkout is from May 2026, so the proof is a deployed-route
+  probe plus source rather than a live authenticated call.
 - **Which build the owner was running** when he saw "unknown". The
   `resources/voice-models/whisper-tiny` directory is gitignored and absent
   from this worktree but present in `~/dev/wayland/app` and inside
