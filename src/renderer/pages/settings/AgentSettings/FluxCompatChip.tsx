@@ -67,10 +67,11 @@ const FluxCompatChip: React.FC<{ backend: string; interactive?: boolean }> = ({ 
         </>
       );
     }
+    // Deliberately NOT `data-testid="flux-setup-chip"`: that id marks the
+    // CLICKABLE affordance, and the detected-agent suite uses its absence to
+    // tell an inert chip from a live one.
     return (
-      <span className={`${styles.fluxChip} ${styles.fluxChipSetup}`} data-testid='flux-setup-chip'>
-        {t('settings.agentsPage.fluxCompat.setup')}
-      </span>
+      <span className={`${styles.fluxChip} ${styles.fluxChipSetup}`}>{t('settings.agentsPage.fluxCompat.setup')}</span>
     );
   }
 

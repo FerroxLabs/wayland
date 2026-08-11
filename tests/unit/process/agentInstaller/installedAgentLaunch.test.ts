@@ -20,7 +20,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { AGENT_PACKAGES, getAgentPackage } from '@process/services/agentInstaller/agentPackages';
 import { writeInstallReceipt } from '@process/services/agentInstaller/installManifest';
 import { resolveAgentInstallPrefix } from '@process/services/agentInstaller/installPrefix';
-import { resolvePackageDir } from '@process/services/agentInstaller/launchSpecResolver';
+import { resolvePackageDir, resolveTargetTriple } from '@process/services/agentInstaller/launchSpecResolver';
 import {
   acpBackendForManagedAgent,
   listManagedAcpAgents,
@@ -53,6 +53,21 @@ function materialiseInstall(agentId: string): { prefix: string; command: string 
   return { prefix, command };
 }
 
+/**
+ * Materialise the native codex binary where the real install puts it: in the
+ * platform-specific optional dependency of `@openai/codex`, which arrives as a
+ * dependency of the pinned ACP bridge and therefore lands in the SAME prefix.
+ */
+function materialiseNativeCodex(prefix: string): string {
+  const triple = resolveTargetTriple(process.platform, process.arch);
+  if (!triple) throw new Error(`no target triple for ${process.platform}/${process.arch}`);
+  const vendorRoot = `${resolvePackageDir(prefix, '@openai/codex')}-${process.platform}-${process.arch}`;
+  const exe = process.platform === 'win32' ? '.exe' : '';
+  const binary = path.join(vendorRoot, 'vendor', triple, 'bin', `codex${exe}`);
+  writeFileTree(binary, '#!/bin/sh\n');
+  return binary;
+}
+
 beforeEach(() => {
   userDataDir = mkdtempSync(path.join(os.tmpdir(), 'wayland-managed-launch-'));
 });
@@ -62,9 +77,16 @@ afterEach(() => {
 });
 
 describe('resolveManagedAgentLaunch', () => {
-  it('returns the receipt launch spec for a complete install', () => {
+  it('returns the receipt launch spec for a complete install, stamped as Wayland-installed', () => {
     const { command } = materialiseInstall('kimi');
-    expect(resolveManagedAgentLaunch('kimi', userDataDir)).toEqual({ command, args: [] });
+    // `origin` is the provenance LegacyConnectorFactory gates on. It is stamped
+    // HERE, at the one place a spec is read back out of a receipt, rather than
+    // stored in the receipt, which is a file the user can edit.
+    expect(resolveManagedAgentLaunch('kimi', userDataDir)).toEqual({
+      command,
+      args: [],
+      origin: 'wayland-install',
+    });
   });
 
   it('returns null when nothing has been installed', () => {
@@ -81,6 +103,35 @@ describe('resolveManagedAgentLaunch', () => {
     expect(resolveManagedAgentLaunch('kimi', userDataDir)).toBeNull();
   });
 
+  it('names the native codex binary absolutely via CODEX_PATH', () => {
+    // The pinned codex package is the ACP BRIDGE, a JS entry that drives a
+    // native codex binary and reads CODEX_PATH in its own startAcpServer().
+    // Pointing it at the binary in Wayland's own prefix is what makes the
+    // install self-contained instead of depending on whatever codex resolution
+    // the bridge would perform for itself.
+    const { prefix } = materialiseInstall('codex');
+    const codexBinary = materialiseNativeCodex(prefix);
+
+    const spec = resolveManagedAgentLaunch('codex', userDataDir);
+    expect(spec?.env?.CODEX_PATH).toBe(codexBinary);
+    expect(path.isAbsolute(spec!.env!.CODEX_PATH)).toBe(true);
+  });
+
+  it('omits CODEX_PATH entirely rather than guessing when no native binary landed', () => {
+    // The control for the assertion above: the same read CAN produce the key,
+    // so its absence here is a real absence. An empty or guessed CODEX_PATH is
+    // strictly worse than letting the bridge fall back to its own resolution.
+    const { prefix } = materialiseInstall('codex');
+    expect(resolveManagedAgentLaunch('codex', userDataDir)?.env?.CODEX_PATH).toBeUndefined();
+    materialiseNativeCodex(prefix);
+    expect(resolveManagedAgentLaunch('codex', userDataDir)?.env?.CODEX_PATH).toBeDefined();
+  });
+
+  it('leaves a non-codex agent’s env untouched', () => {
+    materialiseInstall('kimi');
+    expect(resolveManagedAgentLaunch('kimi', userDataDir)?.env).toBeUndefined();
+  });
+
   it('refuses an id that is not in the catalogue, and one that could escape the root', () => {
     expect(resolveManagedAgentLaunch('not-a-real-agent', userDataDir)).toBeNull();
     expect(resolveManagedAgentLaunch('../../evil', userDataDir)).toBeNull();
@@ -92,11 +143,13 @@ describe('acpBackendForManagedAgent', () => {
     expect(acpBackendForManagedAgent('kimi')).toBe('kimi');
   });
 
-  it('does NOT map codex: the installed @openai/codex binary has no acp subcommand', () => {
-    // The ACP server for the codex backend is a separate npm package
-    // (@agentclientprotocol/codex-acp). Feeding this receipt into the ACP seam
-    // would spawn the interactive TUI with no arguments.
-    expect(acpBackendForManagedAgent('codex')).toBeNull();
+  it('maps codex, now that the pinned package is the ACP bridge and not the CLI', () => {
+    // The old pin was `@openai/codex`, whose binary has no `acp` subcommand, so
+    // this correctly returned null. The pin is now
+    // `@agentclientprotocol/codex-acp`, which answers a real ACP `initialize`
+    // over stdio (see agentPackages for the recorded handshake).
+    expect(acpBackendForManagedAgent('codex')).toBe('codex');
+    expect(getAgentPackage('codex').npmPackage).toBe('@agentclientprotocol/codex-acp');
   });
 
   it('returns null for an agent that is not catalogued at all', () => {
@@ -128,11 +181,23 @@ describe('listManagedAcpAgents', () => {
     });
   });
 
-  it('omits an installed agent that cannot serve an ACP backend', () => {
-    materialiseInstall('codex');
-    // The install is real — the receipt resolves — it just is not ACP-capable.
-    expect(resolveManagedAgentLaunch('codex', userDataDir)).not.toBeNull();
-    expect(listManagedAcpAgents(userDataDir)).toEqual([]);
+  // The former case here - "omits an installed agent that cannot serve an ACP
+  // backend" - used codex as its subject, because codex was the catalogued
+  // agent with no acpBackend. Correcting codex's package removed that subject:
+  // every catalogued agent now maps. The rule it guarded is still guarded, by
+  // the two cases below: the list is driven by `acpBackend` AND by the install
+  // being real, not by an id appearing in the catalogue.
+  it('lists codex once installed, as the codex backend', () => {
+    const { command } = materialiseInstall('codex');
+    const listed = listManagedAcpAgents(userDataDir);
+    expect(listed).toHaveLength(1);
+    expect(listed[0]).toMatchObject({ agentId: 'codex', backend: 'codex', launch: { command, args: [] } });
+  });
+
+  it('omits a catalogued, ACP-capable agent that is NOT installed', () => {
+    materialiseInstall('kimi');
+    // The same call finds kimi, so the absence of codex is a real absence.
+    expect(listManagedAcpAgents(userDataDir).map((a) => a.agentId)).toEqual(['kimi']);
   });
 
   it('is empty on a clean profile', () => {

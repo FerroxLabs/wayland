@@ -183,12 +183,15 @@ describe('AvailableToInstall — card states', () => {
     render(<AvailableToInstall />);
     const tile = await screen.findByTestId('installable-tile-kimi');
     expect(tile.getAttribute('data-state')).toBe('absent');
-    // Still VISIBLE - this half of the assertion is not relaxed.
+    // Still VISIBLE - this half of the assertion is not relaxed. Queried by
+    // class rather than by `flux-setup-chip`, because that testid marks the
+    // CLICKABLE affordance specifically and must not appear here at all.
     expect(tile.textContent).toContain('Flux setup');
-    const chip = tile.querySelector('[data-testid="flux-setup-chip"]');
+    const chip = tile.querySelector('[class*="fluxChipSetup"]');
     expect(chip).toBeTruthy();
     // ...but inert.
     expect(chip!.tagName).not.toBe('BUTTON');
+    expect(tile.querySelector('[data-testid="flux-setup-chip"]')).toBeNull();
     await act(async () => {
       fireEvent.click(chip!);
     });

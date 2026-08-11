@@ -51,12 +51,21 @@ export interface AgentPackage {
    *  - kimi   → `kimi acp` — "Run kimi-code as an Agent Client Protocol (ACP)
    *    server over stdio". Its backend's `acpArgs` are `['acp']`, so the spec
    *    plus acpArgs is exactly that command. MAPPED.
-   *  - codex  → the installed `@openai/codex` binary has NO `acp` subcommand
-   *    (it has `app-server` and `mcp-server`); the ACP server for this backend
-   *    is a SEPARATE npm package, `@agentclientprotocol/codex-acp`, which the
-   *    `codex` backend's `acpArgs: []` assumes is what gets spawned. Feeding
-   *    this receipt into the ACP seam would spawn the interactive TUI with no
-   *    arguments and hang the session. NOT MAPPED.
+   *  - codex  → MAPPED, but only after the PACKAGE was corrected. The
+   *    `@openai/codex` binary has NO `acp` subcommand (it has `app-server` and
+   *    `mcp-server`), so the earlier pin could never reach this seam. The ACP
+   *    server for this backend is `@agentclientprotocol/codex-acp`, which is
+   *    what the `codex` backend's `acpArgs: []` has always assumed gets spawned.
+   *    Driven for real over stdio before mapping it:
+   *
+   *      -> {"jsonrpc":"2.0","id":0,"method":"initialize","params":{...}}
+   *      <- {"jsonrpc":"2.0","id":0,"result":{"protocolVersion":1,
+   *         "agentInfo":{"name":"@agentclientprotocol/codex-acp",
+   *         "title":"Codex","version":"1.1.2"},"agentCapabilities":{...},
+   *         "authMethods":[{"id":"api-key",...},{"id":"chat-gpt",...}]}}
+   *
+   *    and then `session/new`, which returned a real sessionId and the model
+   *    list. Verified under BOTH the bundled Bun and node v22.
    *
    * An unmapped agent still installs, still writes a receipt, and is still
    * uninstallable — it just does not reach the ACP launch seam.
@@ -73,8 +82,24 @@ export interface AgentPackage {
  * and observed to exit 0 and produce a resolvable launch target.
  */
 export const AGENT_PACKAGES: Readonly<Record<string, AgentPackage>> = Object.freeze({
-  /** Native per-triple executable, shipped in a platform-specific optional dep. */
-  codex: Object.freeze({ npmPackage: '@openai/codex', version: '0.147.0', cliCommand: 'codex' }),
+  /**
+   * The ACP BRIDGE, not the CLI. `@openai/codex` on its own has no `acp`
+   * subcommand and could never reach the ACP seam, so pinning it produced an
+   * install that wrote a receipt and launched nothing.
+   *
+   * The bridge is a pure-JS entry (`dist/index.js`) and depends on
+   * `@openai/codex`, so the native codex binary still lands in the same prefix
+   * and `installedAgentLaunch` names it absolutely via `CODEX_PATH`. Only ONE
+   * version is pinned, and it is the one the receipt records: a second pin for
+   * the CLI would let the receipt claim a version the user did not get, since
+   * the bridge's own dependency range decides what actually lands.
+   */
+  codex: Object.freeze({
+    npmPackage: '@agentclientprotocol/codex-acp',
+    version: '1.1.2',
+    cliCommand: 'codex',
+    acpBackend: 'codex',
+  }),
   /** Pure-JS entry (`dist/main.mjs`); launches through the resolved JS runtime. */
   kimi: Object.freeze({
     npmPackage: '@moonshot-ai/kimi-code',

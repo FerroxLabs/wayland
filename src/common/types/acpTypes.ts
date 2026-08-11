@@ -110,6 +110,21 @@ export type AcpLaunchSpec = {
    * Consumers merge it LAST, over the inherited/enhanced env.
    */
   env?: Record<string, string>;
+  /**
+   * Where this spec came from. Present ONLY on a spec produced by reading a
+   * Wayland install receipt (`resolveManagedAgentLaunch`), and stamped there
+   * rather than stored in the receipt so installs written before it exists are
+   * covered too.
+   *
+   * It exists because a launch spec displacing the npx bridge is a decision
+   * about WHOSE binary runs. `LegacyConnectorFactory` prefers a spec over the
+   * npx bridge for claude/codex/codebuddy; that is correct for an agent Wayland
+   * installed into its own prefix, and wrong for anything else, including a
+   * spec rehydrated from a persisted conversation whose install has since been
+   * removed. Absence is the safe default, so a spec of unknown provenance
+   * leaves the npx bridge in charge.
+   */
+  origin?: 'wayland-install';
 };
 
 /**

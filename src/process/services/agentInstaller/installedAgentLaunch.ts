@@ -24,12 +24,12 @@
  * survives when nothing was found on PATH. This module reports what is
  * installed; it does not rank it.
  *
- * ONLY SOME CATALOGUED AGENTS CAN REACH THE ACP SEAM.
- * ---------------------------------------------------
+ * ONLY A CATALOGUED AGENT WITH A VERIFIED acpBackend REACHES THE ACP SEAM.
+ * -----------------------------------------------------------------------
  * "The agent id matches a backend id" is not evidence that the installed
  * executable speaks ACP. `AgentPackage.acpBackend` records the verified fact and
- * is the only thing consulted here; see the field's own comment for what was run
- * to establish it, and for why `codex` and `openclaw` are deliberately absent.
+ * is the only thing consulted here; see the field's own comment for the actual
+ * handshakes that were driven to establish it.
  */
 
 import type { AcpBackendAll, AcpLaunchSpec } from '@/common/types/acpTypes';
@@ -38,6 +38,41 @@ import { ACP_BACKENDS_ALL, isAcpLaunchSpec } from '@/common/types/acpTypes';
 import { AGENT_PACKAGES, getAgentPackage } from './agentPackages';
 import { getAgentInstallStatus } from './installAgent';
 import { AGENT_ID_PATTERN } from './installPrefix';
+import { resolveNativeExecutable } from './launchSpecResolver';
+
+/**
+ * The package that ships the native `codex` binary. It arrives as a dependency
+ * of the pinned ACP bridge, into the SAME prefix, which is why it can be named
+ * absolutely without a second catalogue entry.
+ */
+const CODEX_NATIVE_PACKAGE = '@openai/codex';
+
+/**
+ * Env a catalogued agent's launch spec needs beyond what the runtime itself
+ * requires. Computed at READ time rather than baked into the receipt, so an
+ * install performed before this existed gets it too.
+ *
+ * `codex` is the only entry: the pinned package is the ACP bridge
+ * (`@agentclientprotocol/codex-acp`), which drives a native codex binary. The
+ * bridge reads `CODEX_PATH` in its own `startAcpServer()`, and pointing it at
+ * the absolute binary in Wayland's prefix is what makes the install
+ * self-contained. Without it the bridge resolves codex for itself, which is a
+ * behaviour we do not control and cannot pin.
+ *
+ * An absent binary yields no key at all rather than an empty or guessed value:
+ * the bridge's own fallback is strictly better than `CODEX_PATH=""`.
+ */
+function managedLaunchEnv(agentId: string, prefix: string): Record<string, string> {
+  if (agentId !== 'codex') return {};
+  const codexBinary = resolveNativeExecutable({
+    prefix,
+    npmPackage: CODEX_NATIVE_PACKAGE,
+    binName: 'codex',
+    platform: process.platform,
+    arch: process.arch,
+  });
+  return codexBinary ? { CODEX_PATH: codexBinary } : {};
+}
 
 /** One installed agent that can serve an ACP backend. */
 export interface ManagedAcpAgent {
@@ -75,7 +110,19 @@ export function resolveManagedAgentLaunch(agentId: string, userDataDir?: string)
     return null;
   }
   if (!status.installed || !status.receipt) return null;
-  return isAcpLaunchSpec(status.receipt.launchSpec) ? status.receipt.launchSpec : null;
+  const spec = status.receipt.launchSpec;
+  if (!isAcpLaunchSpec(spec)) return null;
+
+  // Stamped HERE, at the one place a spec is read back out of a receipt, so
+  // "this came from a Wayland install" is a fact about how the spec was
+  // obtained rather than a claim carried in a file the user can edit.
+  const extraEnv = managedLaunchEnv(agentId, status.prefix);
+  const env = { ...spec.env, ...extraEnv };
+  return {
+    ...spec,
+    ...(Object.keys(env).length > 0 ? { env } : {}),
+    origin: 'wayland-install',
+  };
 }
 
 /** The ACP backend a catalogued agent can serve, or null when it cannot serve one. */

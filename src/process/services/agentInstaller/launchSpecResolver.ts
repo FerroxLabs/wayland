@@ -156,6 +156,36 @@ function nativeCandidates(vendorRoot: string, triple: string, binName: string, p
   ];
 }
 
+/**
+ * The native per-triple executable an installed package ships, or null.
+ *
+ * Extracted from {@link resolveLaunchSpecWith} step 1 because a SECOND caller
+ * needs the same answer for a different reason: `@agentclientprotocol/codex-acp`
+ * is a JS bridge that drives a native `codex` binary, and the binary it should
+ * drive is the one in the same prefix, named absolutely, rather than whatever
+ * `codex` resolution the bridge would perform for itself. Both probe layouts
+ * and both vendor roots are shared, so they cannot drift apart.
+ */
+export function resolveNativeExecutable(inputs: {
+  prefix: string;
+  npmPackage: string;
+  /** Command name inside the vendor tree (`codex`), not the package name. */
+  binName: string;
+  platform: NodeJS.Platform;
+  arch: string;
+}): string | null {
+  const triple = resolveTargetTriple(inputs.platform, inputs.arch);
+  if (!triple) return null;
+  const pkgDir = resolvePackageDir(inputs.prefix, inputs.npmPackage);
+  const vendorRoots = [pkgDir, `${pkgDir}-${inputs.platform}-${inputs.arch}`];
+  for (const vendorRoot of vendorRoots) {
+    for (const candidate of nativeCandidates(vendorRoot, triple, inputs.binName, inputs.platform)) {
+      if (isFile(candidate)) return candidate;
+    }
+  }
+  return null;
+}
+
 /** True when `child` is inside `parent` (or is `parent`). */
 function isContained(parent: string, child: string): boolean {
   const rel = path.relative(path.resolve(parent), path.resolve(child));
@@ -177,15 +207,8 @@ export function resolveLaunchSpecWith(inputs: LaunchSpecInputs): AcpLaunchSpec {
   }
 
   // 1. Native per-triple executable, preferred.
-  const triple = resolveTargetTriple(platform, arch);
-  if (triple) {
-    const vendorRoots = [pkgDir, `${pkgDir}-${platform}-${arch}`];
-    for (const vendorRoot of vendorRoots) {
-      for (const candidate of nativeCandidates(vendorRoot, triple, bin.name, platform)) {
-        if (isFile(candidate)) return { command: candidate, args: [] };
-      }
-    }
-  }
+  const native = resolveNativeExecutable({ prefix, npmPackage, binName: bin.name, platform, arch });
+  if (native) return { command: native, args: [] };
 
   // 2. JS entry through the resolved runtime.
   const entryPath = path.join(pkgDir, bin.entry);
@@ -207,7 +230,7 @@ export function resolveLaunchSpecWith(inputs: LaunchSpecInputs): AcpLaunchSpec {
   throw new LaunchSpecUnresolvedError(
     npmPackage,
     prefix,
-    `no native binary for ${triple ?? `${platform}/${arch}`} and no runnable JS entry at ${entryPath}`
+    `no native binary for ${resolveTargetTriple(platform, arch) ?? `${platform}/${arch}`} and no runnable JS entry at ${entryPath}`
   );
 }
 

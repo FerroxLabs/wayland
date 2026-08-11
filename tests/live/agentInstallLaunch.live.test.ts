@@ -68,6 +68,78 @@ function spawnSpec(spec: AcpLaunchSpec, extraArgs: string[], env: Record<string,
   });
 }
 
+type AcpInitializeResponse = {
+  id: number;
+  result: {
+    protocolVersion: number;
+    agentInfo: { name: string; version?: string };
+    agentCapabilities: unknown;
+  };
+};
+
+/**
+ * Drive a real ACP `initialize` into a spawned launch spec and read the reply.
+ *
+ * ACP is newline-delimited JSON-RPC 2.0 over stdio, so this speaks the wire
+ * directly rather than through the SDK: the point is to prove the INSTALLED
+ * process answers, not that our client library works.
+ */
+function acpInitialize(spec: AcpLaunchSpec, timeoutMs = 30_000): Promise<AcpInitializeResponse | null> {
+  return new Promise((resolve) => {
+    const child = spawn(spec.command, spec.args, {
+      shell: false,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env, ...spec.env },
+    });
+
+    let buffer = '';
+    let settled = false;
+    const finish = (value: AcpInitializeResponse | null) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      try {
+        child.kill('SIGKILL');
+      } catch {
+        /* already dead */
+      }
+      resolve(value);
+    };
+    const timer = setTimeout(() => finish(null), timeoutMs);
+
+    child.stdout.on('data', (chunk) => {
+      buffer += String(chunk);
+      let newline: number;
+      while ((newline = buffer.indexOf('\n')) !== -1) {
+        const line = buffer.slice(0, newline).trim();
+        buffer = buffer.slice(newline + 1);
+        if (!line) continue;
+        try {
+          const parsed = JSON.parse(line) as { id?: unknown; result?: unknown };
+          if (parsed.id === 0 && parsed.result) finish(parsed as AcpInitializeResponse);
+        } catch {
+          /* not a complete JSON line; keep reading */
+        }
+      }
+    });
+    child.on('error', () => finish(null));
+    child.on('close', () => finish(null));
+
+    child.stdin.write(
+      `${JSON.stringify({
+        jsonrpc: '2.0',
+        id: 0,
+        method: 'initialize',
+        params: {
+          clientInfo: { name: 'Wayland', version: '2.0.0' },
+          protocolVersion: 1,
+          clientCapabilities: { fs: { readTextFile: true, writeTextFile: true } },
+        },
+      })}\n`
+    );
+  });
+}
+
 beforeAll(() => {
   userDataDir = mkdtempSync(path.join(os.tmpdir(), 'wayland-agent-e2e-'));
   kimiHome = mkdtempSync(path.join(os.tmpdir(), 'wayland-kimi-home-'));
@@ -79,7 +151,7 @@ afterAll(() => {
 });
 
 describe('install → receipt → launch spec → spawned process', () => {
-  it('codex: a native per-triple binary is installed, recorded, resolved and spawned', async () => {
+  it('codex: the ACP BRIDGE is installed, recorded, resolved, spawned, and answers a real initialize', async () => {
     const bunPath = findBun();
     expect(bunPath, 'this suite needs a bun on PATH').not.toBeNull();
 
@@ -91,6 +163,7 @@ describe('install → receipt → launch spec → spawned process', () => {
     expect(resolveManagedAgentLaunch('codex', userDataDir)).toBeNull();
 
     const receipt = await installAgent('codex', { userDataDir, bunPath });
+    expect(receipt.npmPackage).toBe('@agentclientprotocol/codex-acp');
     expect(receipt.prefix.startsWith(userDataDir)).toBe(true);
     expect(isAcpLaunchSpec(receipt.launchSpec)).toBe(true);
     expect(existsSync(receipt.launchSpec.command)).toBe(true);
@@ -98,13 +171,28 @@ describe('install → receipt → launch spec → spawned process', () => {
     const status = getAgentInstallStatus('codex', userDataDir);
     expect(status).toMatchObject({ installed: true, reason: 'ok' });
 
-    // The launch path reads the receipt back and hands over the same spec.
+    // The launch path reads the receipt back, stamps its provenance, and names
+    // the native codex binary that landed in the SAME prefix.
     const resolved = resolveManagedAgentLaunch('codex', userDataDir);
-    expect(resolved).toEqual(receipt.launchSpec);
+    expect(resolved!.command).toBe(receipt.launchSpec.command);
+    expect(resolved!.args).toEqual(receipt.launchSpec.args);
+    expect(resolved!.origin).toBe('wayland-install');
+    const codexPath = resolved!.env?.CODEX_PATH;
+    expect(codexPath, 'CODEX_PATH must name the native codex binary').toBeDefined();
+    expect(path.isAbsolute(codexPath!)).toBe(true);
+    expect(existsSync(codexPath!)).toBe(true);
+    expect(codexPath!.startsWith(receipt.prefix)).toBe(true);
 
-    const result = await spawnSpec(resolved!, ['--version']);
-    expect(result.code, result.stderr).toBe(0);
-    expect(result.stdout.trim().length).toBeGreaterThan(0);
+    // THE THING THAT WAS UNPROVEN: does the installed bridge actually speak ACP?
+    // `--version` proves only that a process starts. This drives a real
+    // JSON-RPC `initialize` into it over stdio, on the argv the ACP seam would
+    // use (spec.args plus the backend's acpArgs, which are [] for codex).
+    const response = await acpInitialize(resolved!);
+    expect(response, 'no ACP response within the deadline').not.toBeNull();
+    expect(response!.id).toBe(0);
+    expect(response!.result.protocolVersion).toBeGreaterThanOrEqual(1);
+    expect(response!.result.agentInfo.name).toBe('@agentclientprotocol/codex-acp');
+    expect(response!.result.agentCapabilities).toBeDefined();
   }, 600_000);
 
   it('kimi: the install reaches the ACP spawn seam, shell:false, as `<entry> acp`', async () => {
@@ -164,6 +252,11 @@ describe('install → receipt → launch spec → spawned process', () => {
     expect(readInstallReceipt(prefix), 'the receipt must be gone').toBeNull();
 
     expect(resolveManagedAgentLaunch('kimi', userDataDir)).toBeNull();
-    expect(listManagedAcpAgents(userDataDir)).toEqual([]);
+    // codex was installed by the first case into the SAME scratch profile and is
+    // untouched, so this is "kimi is gone" rather than "the list is empty" - and
+    // codex still being listed is what proves the removal was targeted.
+    const stillListed = listManagedAcpAgents(userDataDir).map((a) => a.agentId);
+    expect(stillListed).not.toContain('kimi');
+    expect(stillListed).toContain('codex');
   }, 120_000);
 });
