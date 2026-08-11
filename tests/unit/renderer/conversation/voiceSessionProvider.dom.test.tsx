@@ -589,7 +589,7 @@ describe('VoiceSessionProvider', () => {
      * was not.
      */
     it('asks before the microphone goes off-device', async () => {
-      storedStt = { enabled: true, provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
+      storedStt = { enabled: true, origin: 'user', provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
       renderSession();
 
       act(() => openVoiceMode('conversation-1'));
@@ -598,7 +598,7 @@ describe('VoiceSessionProvider', () => {
     });
 
     it('does not enter, speak, or record when the disclosure is declined', async () => {
-      storedStt = { enabled: true, provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
+      storedStt = { enabled: true, origin: 'user', provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
       renderSession();
 
       act(() => openVoiceMode('conversation-1'));
@@ -616,7 +616,7 @@ describe('VoiceSessionProvider', () => {
     });
 
     it('enters after the disclosure is accepted', async () => {
-      storedStt = { enabled: true, provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
+      storedStt = { enabled: true, origin: 'user', provider: 'openai', openai: { apiKey: 'sk-test', model: 'whisper-1' } };
       renderSession();
 
       act(() => openVoiceMode('conversation-1'));
@@ -731,7 +731,7 @@ describe('VoiceSessionProvider', () => {
         <>
           <span data-testid='state'>{session?.state ?? 'none'}</span>
           <span data-testid='last-response'>{session?.lastResponse ?? ''}</span>
-          <span data-testid='error'>{session?.error ?? ''}</span>
+          <span data-testid='error'>{session?.error?.message ?? ''}</span>
         </>
       );
     };
@@ -896,7 +896,7 @@ describe('VoiceSessionProvider', () => {
       return (
         <>
           <span data-testid='state'>{session?.state ?? 'none'}</span>
-          <span data-testid='error'>{session?.error ?? ''}</span>
+          <span data-testid='error'>{session?.error?.message ?? ''}</span>
           <span data-testid='reason'>{session?.readiness.reason ?? ''}</span>
         </>
       );
@@ -1061,7 +1061,7 @@ describe('VoiceSessionProvider', () => {
       return (
         <>
           <span data-testid='state'>{session?.state ?? 'none'}</span>
-          <span data-testid='error'>{session?.error ?? ''}</span>
+          <span data-testid='error'>{session?.error?.message ?? ''}</span>
         </>
       );
     };

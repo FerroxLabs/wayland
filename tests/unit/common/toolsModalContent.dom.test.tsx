@@ -241,6 +241,19 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
       invoke: vi.fn(() => Promise.resolve([])),
     },
   },
+  // The STT panel's factory provider is now UNSET, which DISPLAYS as the
+  // on-device engine, so the whisper asset control mounts on first render and
+  // probes the local install. Previously the factory provider was 'openai' and
+  // that branch never mounted, which is why this stub was not needed before.
+  voiceAsset: {
+    exists: { invoke: vi.fn(() => Promise.resolve({ installed: true })) },
+    download: { invoke: vi.fn(() => Promise.resolve({ success: true })) },
+    cancel: { invoke: vi.fn(() => Promise.resolve({ success: true })) },
+    downloadProgress: { on: vi.fn(() => vi.fn()) },
+  },
+  voiceSynth: {
+    speak: { invoke: vi.fn(() => Promise.resolve({ ok: true, data: [], mimeType: 'audio/wav' })) },
+  },
 }));
 
 vi.mock('@/renderer/hooks/mcp', () => ({

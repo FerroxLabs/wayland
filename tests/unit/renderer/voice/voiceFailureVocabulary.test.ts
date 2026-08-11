@@ -61,11 +61,15 @@ describe('describeVoiceFailure is total over the closed code union', () => {
 
 describe('speechErrorCodeForLeg is exhaustive over VoiceFailureCause', () => {
   /**
-   * Every member of the closed cause union, listed by hand. If a member is
-   * added to `VoiceFailureCause` and not added here, this array no longer
-   * satisfies its own type annotation and the TYPECHECK fails - which is the
-   * same guard the `never` branch in the implementation gives, from the caller
-   * side.
+   * Every member of the closed cause union, listed by hand.
+   *
+   * Be clear about what this list does and does not do. A subset of a union
+   * still satisfies `ReadonlyArray<VoiceFailureCause>`, so omitting a member
+   * here does NOT fail the typecheck - this list cannot police itself. The real
+   * guard is the `never` branch inside `speechErrorCodeForLeg`, which was
+   * mutation-verified by adding an unhandled member to `VoiceFailureCause` and
+   * watching `tsc` reject it. This list only checks that every cause currently
+   * known produces a usable code at runtime.
    */
   const allCauses: ReadonlyArray<VoiceFailureCause> = [
     'ok',
