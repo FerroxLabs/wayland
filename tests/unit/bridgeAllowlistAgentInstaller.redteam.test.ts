@@ -36,6 +36,12 @@ describe('isAllowedForRemote — agent installs denied to remote callers (D7)', 
     expect(isAllowedForRemote('subscribe-agent-installer:uninstall')).toBe(false);
   });
 
+  it('denies cancelling an install remotely (a remote denial-of-install)', () => {
+    // `cancel` writes nothing, but it KILLS a running install. A remote caller
+    // that can cancel on repeat can stop the local user installing anything.
+    expect(isAllowedForRemote('subscribe-agent-installer:cancel')).toBe(false);
+  });
+
   it('does not over-deny: the status READ stays allowed so the page still renders', () => {
     expect(isAllowedForRemote('subscribe-agent-installer:status')).toBe(true);
   });

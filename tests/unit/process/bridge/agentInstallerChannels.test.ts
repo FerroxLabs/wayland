@@ -20,13 +20,19 @@ import { ipcBridge } from '@/common';
 import { _getRegisteredKeysForTests, isAllowedInboundName } from '@/common/adapter/bridgeAllowlist';
 import { describe, expect, it } from 'vitest';
 
-const CHANNELS = ['agent-installer:status', 'agent-installer:install', 'agent-installer:uninstall'];
+const CHANNELS = [
+  'agent-installer:status',
+  'agent-installer:install',
+  'agent-installer:uninstall',
+  'agent-installer:cancel',
+];
 
 describe('agent installer channels', () => {
-  it('declares status/install/uninstall on ipcBridge.agentInstaller', () => {
+  it('declares status/install/uninstall/cancel on ipcBridge.agentInstaller', () => {
     expect(typeof ipcBridge.agentInstaller.status?.invoke).toBe('function');
     expect(typeof ipcBridge.agentInstaller.install?.invoke).toBe('function');
     expect(typeof ipcBridge.agentInstaller.uninstall?.invoke).toBe('function');
+    expect(typeof ipcBridge.agentInstaller.cancel?.invoke).toBe('function');
   });
 
   it('registers every agent-installer channel in the bridge allowlist', () => {
@@ -42,7 +48,7 @@ describe('agent installer channels', () => {
     }
   });
 
-  it('exposes exactly three agent-installer channels', () => {
+  it('exposes exactly the four agent-installer channels', () => {
     const declared = [..._getRegisteredKeysForTests().providers].filter((key) => key.startsWith('agent-installer:'));
     expect(declared.toSorted()).toEqual(CHANNELS.toSorted());
   });
@@ -52,6 +58,7 @@ describe('agent installer channels', () => {
   it('pins the exact wire names the remote denylist keys off', () => {
     expect(new Set(_getRegisteredKeysForTests().providers).has('agent-installer:install')).toBe(true);
     expect(new Set(_getRegisteredKeysForTests().providers).has('agent-installer:uninstall')).toBe(true);
+    expect(new Set(_getRegisteredKeysForTests().providers).has('agent-installer:cancel')).toBe(true);
   });
 
   it('rejects a near-miss channel name (the allowlist is not a prefix match)', () => {

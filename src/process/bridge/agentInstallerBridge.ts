@@ -23,19 +23,26 @@
 
 import { ipcBridge } from '@/common';
 import type {
+  AgentInstallCancelResult,
   AgentInstallResult,
   AgentInstallerReport,
   AgentUninstallResult,
   ManagedAgentStatus,
 } from '@/common/types/agentInstaller';
 import { acpDetector } from '@process/agent/acp/AcpDetector';
+import { agentRegistry } from '@process/agent/AgentRegistry';
 import { AGENT_PACKAGES, UnknownAgentError, getAgentPackage } from '@process/services/agentInstaller/agentPackages';
 import {
+  AgentInstallCancelledError,
+  AgentInstallInProgressError,
+  AgentInstallTimeoutError,
   BundledBunUnavailableError,
   InstallCommandFailedError,
   PackageNotInstalledError,
+  cancelAgentInstall,
   getAgentInstallStatus,
   installAgent,
+  isAgentInstallInFlight,
   resolveBundledBunPath,
 } from '@process/services/agentInstaller/installAgent';
 import { LaunchSpecUnresolvedError } from '@process/services/agentInstaller/launchSpecResolver';
@@ -98,7 +105,25 @@ function buildAgentStatus(agentId: string, detected: ReadonlySet<string>): Manag
     detectedOnPath,
     managedInstall,
     reason: install.reason,
+    // Read from the main-process guard, not inferred: this is the fact a
+    // component re-mount destroys and the reason the second-install bug exists.
+    installing: isAgentInstallInFlight(agentId),
   };
+}
+
+/**
+ * Re-read managed installs into the agent registry.
+ *
+ * An install that nothing re-detects is still invisible until the next full
+ * detection pass, so the user installs an agent and it does not appear. Never
+ * throws: a refresh failure must not turn a successful install into an error.
+ */
+async function refreshDetection(): Promise<void> {
+  try {
+    await agentRegistry.refreshManagedAgents();
+  } catch (err) {
+    console.warn('[agentInstallerBridge] Failed to refresh managed agents:', err);
+  }
 }
 
 /** Handler: the full install/detection picture for every catalogued agent. */
@@ -141,6 +166,9 @@ export async function handleInstallAgent(params: unknown): Promise<AgentInstallR
     // The service validates too; this refuses at the seam, where the id arrives.
     getAgentPackage(agentId);
     await installAgent(agentId);
+    // The receipt exists now; make the picker see it before answering, so the
+    // renderer's post-install revalidate and the agent list agree.
+    await refreshDetection();
     return { ok: true, status: await statusFor(agentId) };
   } catch (err) {
     if (err instanceof UnknownAgentError || err instanceof InvalidAgentIdError) {
@@ -148,6 +176,18 @@ export async function handleInstallAgent(params: unknown): Promise<AgentInstallR
     }
     if (err instanceof BundledBunUnavailableError) {
       return { ok: false, reason: 'bundled-bun-unavailable', message: err.message };
+    }
+    // An install already running is not a failure of this request's inputs, and
+    // a cancel is not a failure at all. Both are their own reasons so the card
+    // can say what actually happened instead of offering a misleading Retry.
+    if (err instanceof AgentInstallInProgressError) {
+      return { ok: false, reason: 'already-installing', message: err.message };
+    }
+    if (err instanceof AgentInstallTimeoutError) {
+      return { ok: false, reason: 'timed-out', message: err.message };
+    }
+    if (err instanceof AgentInstallCancelledError) {
+      return { ok: false, reason: 'cancelled', message: err.message };
     }
     if (
       err instanceof InstallCommandFailedError ||
@@ -177,6 +217,9 @@ export async function handleUninstallAgent(params: unknown): Promise<AgentUninst
     // Reject ids that are not in the catalogue before touching the filesystem.
     getAgentPackage(agentId);
     const report = uninstallAgent(agentId);
+    // The receipt is gone; drop the managed entry from detection so the picker
+    // stops offering an agent whose files no longer exist.
+    await refreshDetection();
     return {
       ok: true,
       removed: report.removed,
@@ -191,9 +234,36 @@ export async function handleUninstallAgent(params: unknown): Promise<AgentUninst
   }
 }
 
-/** Register the agent-installer IPC providers (status + install + uninstall). */
+/**
+ * Handler: stop an install that is running.
+ *
+ * `cancelled: false` is the honest answer when nothing was running — the
+ * install may have completed in the gap between the click and this call, and
+ * reporting that as an error would make a correct outcome look broken. The
+ * in-flight `installAgent` promise rejects with AgentInstallCancelledError,
+ * which `handleInstallAgent` maps to `reason: 'cancelled'` for whoever is still
+ * awaiting it.
+ */
+export async function handleCancelAgentInstall(params: unknown): Promise<AgentInstallCancelResult> {
+  const agentId = readAgentId(params);
+  if (agentId === null) return { ok: false, reason: 'unknown-agent' };
+
+  try {
+    getAgentPackage(agentId);
+    const cancelled = cancelAgentInstall(agentId);
+    return { ok: true, cancelled, status: await statusFor(agentId) };
+  } catch (err) {
+    if (err instanceof UnknownAgentError || err instanceof InvalidAgentIdError) {
+      return { ok: false, reason: 'unknown-agent', message: err.message };
+    }
+    return { ok: false, reason: 'error', message: String(err) };
+  }
+}
+
+/** Register the agent-installer IPC providers (status + install + uninstall + cancel). */
 export function initAgentInstallerBridge(): void {
   ipcBridge.agentInstaller.status.provider(handleAgentInstallerStatus);
   ipcBridge.agentInstaller.install.provider(handleInstallAgent);
   ipcBridge.agentInstaller.uninstall.provider(handleUninstallAgent);
+  ipcBridge.agentInstaller.cancel.provider(handleCancelAgentInstall);
 }

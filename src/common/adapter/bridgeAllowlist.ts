@@ -386,6 +386,11 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     that exact mistake as a mutation. ---
   'agent-installer:install',
   'agent-installer:uninstall',
+  //     `cancel` KILLS a running install. It writes nothing, but a remote caller
+  //     that can cancel can deny the local user the install they asked for, on
+  //     repeat. Denied for the same reason as the other two, and spelled out in
+  //     full for the same reason: matching is exact.
+  'agent-installer:cancel',
   // --- Native xAI "Sign in with X (Grok)" OAuth. Both mint/persist the `xai`
   //     provider credential via the model-registry connect path - same class as
   //     connect-flux above. A remote WS caller must never drive an OAuth mint or

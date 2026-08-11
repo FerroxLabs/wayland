@@ -33,6 +33,7 @@ function status(overrides: Partial<ManagedAgentStatus> = {}): ManagedAgentStatus
     detectedOnPath: false,
     managedInstall: null,
     reason: 'prefix-missing',
+    installing: false,
     ...overrides,
   };
 }
@@ -61,6 +62,27 @@ describe('resolveInstallableState — precedence', () => {
     // Without this the card would read `absent` for the whole install and then
     // blink straight to `installed`.
     expect(resolveInstallableState(status(), true, { phase: 'installing' })).toBe('installing');
+  });
+
+  it('MAIN-process installing survives a re-mount that emptied the session activity map', () => {
+    // The bug this closes: the only guard was React state inside the mounted
+    // component. Navigate away mid-install and back and `activity` is empty, so
+    // the card read `absent`, the Install button re-enabled, and clicking it
+    // started a SECOND `bun install` into the same prefix.
+    const s = status({ installing: true });
+    expect(resolveInstallableState(s, true, undefined)).toBe('installing');
+    expect(isInstallable(resolveInstallableState(s, true, undefined))).toBe(false);
+  });
+
+  it('MAIN-process installing outranks a stale session failure', () => {
+    // A previous attempt having failed says nothing about the one running now.
+    const s = status({ installing: true });
+    expect(resolveInstallableState(s, true, { phase: 'failed', reason: 'install-failed' })).toBe('installing');
+  });
+
+  it('D1 still outranks the main-process installing flag', () => {
+    const s = status({ state: 'system', detectedOnPath: true, installing: true });
+    expect(resolveInstallableState(s, true, undefined)).toBe('system');
   });
 
   it('shows a failed install instead of falling back to absent', () => {

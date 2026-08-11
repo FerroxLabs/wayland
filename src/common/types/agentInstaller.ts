@@ -79,6 +79,17 @@ export type ManagedAgentStatus = {
   managedInstall: ManagedInstallDetail | null;
   /** Why the managed install is not usable; `ok` when it is. */
   reason: AgentInstallStatusReason;
+  /**
+   * An install of this agent is running in the MAIN process right now.
+   *
+   * Reported from main because that is the only place the fact survives a
+   * component re-mount. The renderer's own activity map is session-local: leave
+   * the Agents page mid-install and come back, and it is empty again, the button
+   * re-enables, and clicking it starts a second `bun install` into the same
+   * prefix. The main-process in-flight guard refuses that second install; this
+   * flag is what lets the UI show the truth instead of an enabled button.
+   */
+  installing: boolean;
 };
 
 /** Result of an `agent-installer:status` request. */
@@ -94,13 +105,38 @@ export type AgentInstallerReport = {
   agents: ManagedAgentStatus[];
 };
 
-/** Why an install could not be performed. */
-export type AgentInstallFailureReason = 'unknown-agent' | 'bundled-bun-unavailable' | 'install-failed' | 'error';
+/**
+ * Why an install could not be performed.
+ *
+ *  - `already-installing` — the main-process guard refused a second concurrent
+ *    install of the same agent. Distinct from `install-failed`: nothing went
+ *    wrong and an install IS running, so the UI must wait, not offer a retry.
+ *  - `timed-out`  — the install outlived its deadline and was terminated.
+ *  - `cancelled`  — the user cancelled it. Not an error to apologise for.
+ */
+export type AgentInstallFailureReason =
+  | 'unknown-agent'
+  | 'bundled-bun-unavailable'
+  | 'install-failed'
+  | 'already-installing'
+  | 'timed-out'
+  | 'cancelled'
+  | 'error';
 
 /** Result of an `agent-installer:install` request. */
 export type AgentInstallResult =
   | { ok: true; status: ManagedAgentStatus }
   | { ok: false; reason: AgentInstallFailureReason; message?: string };
+
+/**
+ * Result of an `agent-installer:cancel` request.
+ *
+ * `cancelled: false` means there was nothing running — a correct no-op, not a
+ * failure. The install may simply have finished between the click and the call.
+ */
+export type AgentInstallCancelResult =
+  | { ok: true; cancelled: boolean; status: ManagedAgentStatus }
+  | { ok: false; reason: 'unknown-agent' | 'error'; message?: string };
 
 /** Result of an `agent-installer:uninstall` request. */
 export type AgentUninstallResult =

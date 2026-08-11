@@ -91,15 +91,24 @@ export function resolveInstallableAgentName(agentId: string): string {
  *     everything, including a Wayland install and including whatever this
  *     session thinks it is doing. Installing over a working setup is how you
  *     break one, so this cannot sit below a session-local flag.
- *  2. `installing` / `failed` — session-local truth about an operation the
- *     main process has not finished reporting yet. Without these the card would
- *     read `absent` for the whole install and then blink to `installed`.
- *  3. `installed` — a receipt in Wayland's prefix whose payload is still on disk.
- *  4. `unavailable` — nothing is installable at all on a build with no bundled
+ *  2. `status.installing` — the MAIN process says an install is running. This
+ *     sits above the session-local flags because it is the only one that
+ *     survives a re-mount: leaving the Agents page and coming back empties the
+ *     activity map, and without this the card would read `absent`, re-enable
+ *     the button, and let the user start a second `bun install` into the same
+ *     prefix. It also outranks a stale session `failed` — a previous attempt
+ *     having failed says nothing about the one running now.
+ *  3. `installing` / `failed` — session-local truth about an operation the
+ *     main process has not finished reporting yet. Still needed: `installing`
+ *     covers the window before the next status poll observes the guard, and
+ *     `failed` is not reported by main at all (a finished install is no longer
+ *     in flight, so main has nothing to say about how it ended).
+ *  4. `installed` — a receipt in Wayland's prefix whose payload is still on disk.
+ *  5. `unavailable` — nothing is installable at all on a build with no bundled
  *     runtime, so an absent agent must say so rather than offer a button that
  *     is guaranteed to fail. Deliberately below `installed`: an agent that was
  *     already installed keeps working on such a build.
- *  5. `absent`.
+ *  6. `absent`.
  */
 export function resolveInstallableState(
   status: ManagedAgentStatus,
@@ -107,6 +116,7 @@ export function resolveInstallableState(
   activity: InstallActivity | undefined
 ): InstallableAgentState {
   if (status.state === 'system') return 'system';
+  if (status.installing) return 'installing';
   if (activity?.phase === 'installing') return 'installing';
   if (activity?.phase === 'failed') return 'failed';
   if (status.state === 'installed') return 'installed';
