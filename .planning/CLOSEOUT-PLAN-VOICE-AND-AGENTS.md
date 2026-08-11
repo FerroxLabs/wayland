@@ -814,3 +814,81 @@ implementation behind it goes.
 (147,951,465 B) silently on upgrade with a log line rather than a prompt; and the auto-tier ceiling — never
 auto above `base` on <16 GiB, never auto above `small` at any size, `medium`/`large` manual-only (measured:
 tiny 74.1 MiB, base 141.1 MiB, small 465.0 MiB, medium 1.43 GiB, large-v3 2.88 GiB).
+
+---
+
+## 8. Execution findings, 2026-08-11 evening
+
+Proven by execution during the build session. These change what the plan claims.
+
+### V-0 PASSES: the bundled on-device model produces an accurate transcript, offline
+
+All three external legs named this the highest-risk assumption. It is now settled in two halves,
+and it is worth being precise about which half proved what.
+
+**Half one, the runtime (lane 3).** Pre-fix, the running app really did fetch ~22.5 MiB of ORT WASM
+from `cdn.jsdelivr.net` on first dictation, and local dictation failed completely with the network
+off. Post-fix it makes zero requests to jsdelivr and still transcribes. The known-negative control
+(`grep -rn wasmPaths src` returning 0) was recorded before editing. Notably the lane's *first*
+instrument was silently blind to the worker, logging 173 document subresources and zero worker
+requests; it caught that itself and replaced the method. A zero from a blind instrument would have
+"proved" the fix while the CDN call continued.
+
+Two corrections to the plan came out of it: `wayland-asset:` was **not** needed, because the emitted
+URL resolves against the worker's own location and so behaves identically in dev and packaged; and
+setting `.mjs` alongside `.wasm` would have been an active regression, because ORT ships its WASM
+factory statically bundled into the worker chunk and abandons it the moment `.mjs` is set.
+
+**Half two, the model.** Lane 3's every successful run returned the single word `"you"`, which is
+whisper-tiny's well-known output for near-silence, so the pipeline was never fed real speech. Run
+separately against the bundled `resources/voice-models/whisper-tiny` with the production config
+copied exactly from `whisperWorker.ts` (`dtype: 'q8'`, `session_options.graphOptimizationLevel:
+'basic'`, `allowRemoteModels=false`), on a 16 kHz mono WAV of real speech at peak amplitude 0.8248:
+
+```
+in:  "the quick brown fox jumps over the lazy dog"
+out: " The quick brown fox jumps over the lazy dog."
+model load 1872 ms, inference 2644 ms
+```
+
+**What this does not prove.** The model half ran under the Node build of transformers.js, not the
+renderer Worker with the WASM backend, and not in a packaged app with a live microphone. The two
+halves have not yet been demonstrated together end to end. That is the one remaining V-0 gap, and
+it is now a narrow one: runtime proven offline, model proven accurate, wiring proven by unit test.
+
+### A false-positive agent detection, findable only on a clean machine
+
+On `WaylandCleanTest`, with `where.exe` finding `powershell` (method works) but finding no `gemini`,
+`%APPDATA%\npm` empty, and no gemini anywhere on that user's PATH, the packaged app still reports
+**"Gemini CLI" under "MORE DETECTED - 1"**.
+
+Root cause: `AgentRegistry.createGeminiAgent()` hardcodes `available: true` with no probe at all -
+no `cliPath`, no detection. It is the same shape as the `createWNanoAgent()` defect that commit
+`1cda570a8` exists to prevent, except this one is already on the shipped path. It puts a clickable
+dead end in front of a new user, which is the specific thing the affordance rule forbids.
+
+Not yet fixed - no lane owns `AgentRegistry` detection, and a sixth concurrent editor would have
+collided. It needs an owner.
+
+### The stated suite baseline was wrong, and all five lanes said so independently
+
+Every lane was briefed that 4 pre-existing failures were expected (1 in `shellEnv.test.ts`, 3 in
+`OfficeCliAuthoringCapability.test.ts`). **None of the five reproduced them**; all reported those
+files passing. The briefing was wrong and the branches are cleaner than claimed. Recorded because a
+wrong baseline is exactly the kind of thing that later gets used to wave away a real failure.
+
+Separately, three lanes running `vitest` concurrently drove load to 166-193 with 40-47 workers and
+produced spurious 10s/30s timeouts in files outside the lanes' diffs, which passed in isolation.
+Full suites must run one lane at a time.
+
+### The Windows clean-machine gate, and what the first-ever sweep showed
+
+Session created zero-touch (see S-1). The first clean-machine run of the install band, against a
+freshly packaged artifact built from `packet/agent-installers @ 1cda570a8`, confirmed:
+
+- the band renders every offered agent as installable, **not** `unavailable` - so bundled bun does
+  resolve in a packaged app, which was the condition that would have invalidated the whole band;
+- the Flux chip on an `absent` card really is inside a live `<button>`, reproducing the defect on a
+  clean machine rather than only in a unit test.
+
+That artifact predates all five lanes, so it stands as the pre-fix control, not the deliverable.
