@@ -379,18 +379,25 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
    * degraded empty catalog (`models:0` with `sourceErrors>0`) apart from a
    * provider that genuinely exposes zero models. Never throws: the whole body
    * is wrapped so callers can branch on the result instead of guessing.
+   *
+   * `proven` is the stricter signal `clearErrorOnProof` needs: `true` ONLY when
+   * a LIVE, credential-authenticated listing produced this catalog. `ok:true`
+   * alone is far weaker - it is also returned when the catalog was synthesized
+   * from models.dev (no credential exercised at all) or when a failed live fetch
+   * fell back to the previous catalog. Clearing a provider's error state off
+   * `ok` would mint false greens for exactly those cases.
    */
   async function buildAndPersistCatalog(
     providerId: ProviderId,
     creds: { key: string } | { fields: Record<string, string> } | { useGoogleAuth: true },
     prefetchedRegistry?: ModelsDevRegistry
-  ): Promise<{ ok: boolean; models: number; sourceErrors: number }> {
+  ): Promise<{ ok: boolean; models: number; sourceErrors: number; proven: boolean }> {
     try {
       // FK precondition: catalog rows reference the provider row. Guard it
       // explicitly so a missing row is a clear failure, not a swallowed
       // SQLITE_CONSTRAINT_FOREIGNKEY with no diagnostic.
       if (!repo.getRegistryProvider(providerId)) {
-        return { ok: false, models: 0, sourceErrors: 0 };
+        return { ok: false, models: 0, sourceErrors: 0, proven: false };
       }
 
       // The ChatGPT subscription can't be listed via `api.openai.com/v1/models`
@@ -419,19 +426,22 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
         // with the static fallback. Only replace when the live list is real.
         const live = await fetchLiveChatGptSubscriptionCatalog(accessToken);
         if (live && live.length > 0) {
+          // The Codex backend answered this account's model list for this
+          // bearer - that IS the subscription's liveness proof (it is the only
+          // one available; the token is rejected by `api.openai.com`).
           repo.replaceRegistryCatalog(providerId, live);
-          return { ok: true, models: live.length, sourceErrors: 0 };
+          return { ok: true, models: live.length, sourceErrors: 0, proven: true };
         }
         // Live fetch failed. Preserve an existing catalog instead of resetting it
         // to the 3-model snapshot; only seed the static list when there is nothing
         // yet (so the picker is never empty on a first, offline connect).
         const existing = repo.getRegistryCatalog(providerId);
         if (existing.length > 0) {
-          return { ok: true, models: existing.length, sourceErrors: 1 };
+          return { ok: true, models: existing.length, sourceErrors: 1, proven: false };
         }
         const fallback = buildChatGptSubscriptionCatalog();
         repo.replaceRegistryCatalog(providerId, fallback);
-        return { ok: true, models: fallback.length, sourceErrors: 1 };
+        return { ok: true, models: fallback.length, sourceErrors: 1, proven: false };
       }
 
       // `refreshAllOnce` fetches the models.dev registry once for the whole
@@ -486,9 +496,52 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
 
       const finalModels = providerId === FLUX_PROVIDER_ID ? injectFluxVirtualModels(models) : models;
       repo.replaceRegistryCatalog(providerId, finalModels);
-      return { ok: true, models: finalModels.length, sourceErrors };
+      // Proof is the LIVE listing (`liveModels`), never `finalModels`: the
+      // models.dev fallback above can fill an empty live result, and a
+      // registry-synthesized catalog exercises no credential at all.
+      return { ok: true, models: finalModels.length, sourceErrors, proven: usedLiveApiSource && liveModels.length > 0 };
     } catch {
-      return { ok: false, models: 0, sourceErrors: 0 };
+      return { ok: false, models: 0, sourceErrors: 0, proven: false };
+    }
+  }
+
+  /**
+   * Clear a STALE `error` state once a refresh has proven the provider works.
+   *
+   * Without this, `state='error'` is a one-way door: `refresh` / `refreshAllOnce`
+   * rebuild the catalog but never touch `state`, and the only paths that can
+   * clear it are a manual `connect` / `rekey` / `testConnection`. A provider
+   * stamped `error` by a transient condition (the classic one: a boot where
+   * `safeStorage` could not decrypt its creds) therefore stays red forever -
+   * even while every scheduled refresh is successfully listing its models with
+   * that same credential. `_runPostUpgradeCatalogRefresh` exists to auto-heal
+   * exactly those rows and routes them through `refresh`, so without this the
+   * recovery sweep is inert by construction.
+   *
+   * Only ever `error -> connected`, and only on proof. A `connected` row is
+   * never touched, so this can neither mint a false green nor turn a working
+   * provider red.
+   */
+  function clearErrorOnProof(providerId: ProviderId): void {
+    if (repo.getRegistryProvider(providerId)?.state === 'error') {
+      repo.updateRegistryProviderState(providerId, 'connected');
+    }
+  }
+
+  /**
+   * Correct an ALREADY-ERRORED keyless local provider's reason to `offline`.
+   *
+   * `ollama-local` is keyless (`creds.key` is `''`) and loopback-only, so every
+   * credential-shaped reason - `unrecognized` renders as "key not recognized" -
+   * is category-wrong for it: there is no key to recognize. When the daemon does
+   * not answer `/api/tags`, the honest reason is that we cannot reach it.
+   *
+   * Scoped to rows ALREADY in `error`: a transient daemon blip must never flip a
+   * `connected` row red on a background refresh tick.
+   */
+  function restampKeylessErrorAsOffline(providerId: ProviderId): void {
+    if (repo.getRegistryProvider(providerId)?.state === 'error') {
+      repo.updateRegistryProviderState(providerId, 'error', 'offline');
     }
   }
 
@@ -961,11 +1014,14 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
           isLoopbackBaseUrl(typeof storedBaseUrl === 'string' ? storedBaseUrl : '')
         ) {
           const outcome = await refreshOllamaLocal();
+          if (outcome === 'ok') clearErrorOnProof(providerId);
+          else if (outcome === 'unreachable') restampKeylessErrorAsOffline(providerId);
           return { ok: outcome === 'ok' };
         }
 
         const creds = toTestCreds(stored.creds);
         const built = await buildAndPersistCatalog(providerId, creds);
+        if (built.ok && built.proven) clearErrorOnProof(providerId);
         return { ok: built.ok };
       } catch {
         return { ok: false };
@@ -1014,9 +1070,11 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
             const ollamaBefore = new Set(repo.getRegistryCatalog(providerId).map((m) => m.id));
             const outcome = await refreshOllamaLocal();
             if (outcome !== 'ok') {
+              if (outcome === 'unreachable') restampKeylessErrorAsOffline(providerId);
               failed.push(providerId);
               continue;
             }
+            clearErrorOnProof(providerId);
             if (deps.mirror) await deps.mirror(providerId).catch(() => {});
             for (const model of repo.getRegistryCatalog(providerId)) {
               if (!ollamaBefore.has(model.id)) {
@@ -1045,6 +1103,7 @@ export function createModelRegistryHandlers(deps: ModelRegistryDeps): ModelRegis
             failed.push(providerId);
             continue;
           }
+          if (built.proven) clearErrorOnProof(providerId);
           // Await the legacy `model.config` mirror so the toast / picker
           // invalidation never precedes the mirror write.
           if (deps.mirror) await deps.mirror(providerId).catch(() => {});

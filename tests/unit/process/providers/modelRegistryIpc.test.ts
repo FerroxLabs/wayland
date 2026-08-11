@@ -1178,6 +1178,184 @@ describe('modelRegistry IPC - refresh', () => {
   });
 });
 
+describe('modelRegistry IPC - refresh clears a stale error state (only on proof)', () => {
+  // Live defect: four providers sat on "Action needed - key not recognized" in
+  // Settings > Models while their stored credentials were perfectly good. A
+  // provider stamped `error` (classically by a boot where safeStorage could not
+  // decrypt its creds) had no way back: refresh / refreshAllOnce rebuilt the
+  // catalog but never touched `state`, and `_runPostUpgradeCatalogRefresh` -
+  // which exists to auto-heal exactly those rows - routes them through `refresh`.
+  // The recovery sweep was therefore inert by construction.
+
+  it('clears the error when a LIVE credential-authenticated listing proves the key works', async () => {
+    const { deps, repo, apiListModels } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'sakana',
+      connectedVia: 'api-key',
+      state: 'error',
+      error: 'unrecognized',
+      creds: { key: 'a-key-that-actually-works' },
+    });
+    apiListModels.mockResolvedValue([{ id: 'fugu', providerId: 'sakana' }]);
+    const h = createModelRegistryHandlers(deps);
+
+    expect(await h.refresh({ providerId: 'sakana' })).toEqual({ ok: true });
+
+    expect(repo.getRegistryProvider('sakana')?.state).toBe('connected');
+    expect(repo.getRegistryProvider('sakana')?.error).toBeUndefined();
+    expect(repo.getRegistryCatalog('sakana').map((m) => m.id)).toEqual(['fugu']);
+  });
+
+  it('does NOT clear the error when the catalog came from models.dev instead of the credential', async () => {
+    // The `usedLiveApiSource && liveModels.length === 0` path synthesizes the
+    // catalog from the models.dev registry slice. No credential was exercised,
+    // so a full catalog here is NOT proof - clearing would be a false green.
+    const { deps, repo, apiListModels, getRegistry } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'xai',
+      connectedVia: 'api-key',
+      state: 'error',
+      error: 'unrecognized',
+      creds: { key: 'a-dead-key' },
+    });
+    apiListModels.mockResolvedValue([]);
+    getRegistry.mockResolvedValue({ xai: { models: { 'grok-4': {} } } });
+    const h = createModelRegistryHandlers(deps);
+
+    expect(await h.refresh({ providerId: 'xai' })).toEqual({ ok: true });
+
+    // Catalog really did fill - so this is not a vacuous "nothing happened" pass.
+    expect(repo.getRegistryCatalog('xai').map((m) => m.id)).toEqual(['grok-4']);
+    expect(repo.getRegistryProvider('xai')?.state).toBe('error');
+    expect(repo.getRegistryProvider('xai')?.error).toBe('unrecognized');
+  });
+
+  it('clears the chatgpt-subscription error when the live Codex model list answers for the token', async () => {
+    // The subscription token cannot be probed via /v1/models; the Codex backend
+    // answering this account's model list IS its only liveness proof.
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'chatgpt-subscription',
+      connectedVia: 'ChatGPT subscription',
+      state: 'error',
+      error: 'unrecognized',
+      creds: { key: 'stored-token', baseUrl: 'https://chatgpt.com/backend-api' },
+    });
+    vi.mocked(fetchWithRetry).mockImplementationOnce(
+      async () =>
+        ({
+          ok: true,
+          json: async () => ({ models: [{ slug: 'gpt-5.6-sol', display_name: 'GPT-5.6-Sol', visibility: 'list' }] }),
+        }) as unknown as Response
+    );
+    const h = createModelRegistryHandlers(deps);
+
+    expect(await h.refresh({ providerId: 'chatgpt-subscription' })).toEqual({ ok: true });
+
+    expect(repo.getRegistryCatalog('chatgpt-subscription').map((m) => m.id)).toEqual(['gpt-5.6-sol']);
+    expect(repo.getRegistryProvider('chatgpt-subscription')?.state).toBe('connected');
+    expect(repo.getRegistryProvider('chatgpt-subscription')?.error).toBeUndefined();
+  });
+
+  it('does NOT clear the chatgpt-subscription error when the live fetch fails and the old catalog is reused', async () => {
+    // Default mocked fetch is a non-200 -> the previous catalog is preserved and
+    // `ok:true` is returned. That is NOT proof the token still works.
+    const { deps, repo } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'chatgpt-subscription',
+      connectedVia: 'ChatGPT subscription',
+      state: 'error',
+      error: 'unrecognized',
+      creds: { key: 'an-expired-token', baseUrl: 'https://chatgpt.com/backend-api' },
+    });
+    repo.replaceRegistryCatalog('chatgpt-subscription', [
+      catalogModel({ id: 'gpt-5.5', providerId: 'chatgpt-subscription' }),
+    ]);
+    const h = createModelRegistryHandlers(deps);
+
+    expect(await h.refresh({ providerId: 'chatgpt-subscription' })).toEqual({ ok: true });
+
+    expect(repo.getRegistryCatalog('chatgpt-subscription').map((m) => m.id)).toEqual(['gpt-5.5']);
+    expect(repo.getRegistryProvider('chatgpt-subscription')?.state).toBe('error');
+    expect(repo.getRegistryProvider('chatgpt-subscription')?.error).toBe('unrecognized');
+  });
+
+  it('relabels an errored keyless ollama-local as offline - never a credential reason', async () => {
+    // `ollama-local` has no API key at all (`creds.key` is ''), so rendering
+    // "key not recognized" for it is category-wrong. A daemon that will not
+    // answer /api/tags is `offline`.
+    const { deps, repo } = makeFakes();
+    deps.probeOllama = vi.fn().mockResolvedValue({ running: false, models: [] });
+    repo.upsertRegistryProvider({
+      providerId: 'ollama-local',
+      connectedVia: 'auto-local',
+      state: 'error',
+      error: 'unrecognized',
+      creds: { key: '', baseUrl: 'http://127.0.0.1:11434/v1' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    expect(await h.refresh({ providerId: 'ollama-local' })).toEqual({ ok: false });
+
+    expect(repo.getRegistryProvider('ollama-local')?.state).toBe('error');
+    expect(repo.getRegistryProvider('ollama-local')?.error).toBe('offline');
+  });
+
+  it('clears the ollama-local error once the daemon answers again', async () => {
+    const { deps, repo } = makeFakes();
+    deps.probeOllama = vi.fn().mockResolvedValue({ running: true, models: ['llama3:latest'] });
+    repo.upsertRegistryProvider({
+      providerId: 'ollama-local',
+      connectedVia: 'auto-local',
+      state: 'error',
+      error: 'unrecognized',
+      creds: { key: '', baseUrl: 'http://127.0.0.1:11434/v1' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    expect(await h.refresh({ providerId: 'ollama-local' })).toEqual({ ok: true });
+
+    expect(repo.getRegistryProvider('ollama-local')?.state).toBe('connected');
+    expect(repo.getRegistryProvider('ollama-local')?.error).toBeUndefined();
+  });
+
+  it('never turns a CONNECTED ollama-local row red on a daemon blip', async () => {
+    const { deps, repo } = makeFakes();
+    deps.probeOllama = vi.fn().mockResolvedValue({ running: false, models: [] });
+    repo.upsertRegistryProvider({
+      providerId: 'ollama-local',
+      connectedVia: 'auto-local',
+      state: 'connected',
+      creds: { key: '', baseUrl: 'http://127.0.0.1:11434/v1' },
+    });
+    const h = createModelRegistryHandlers(deps);
+
+    expect(await h.refresh({ providerId: 'ollama-local' })).toEqual({ ok: false });
+
+    expect(repo.getRegistryProvider('ollama-local')?.state).toBe('connected');
+    expect(repo.getRegistryProvider('ollama-local')?.error).toBeUndefined();
+  });
+
+  it('refreshAllOnce heals a stale error the same way (scheduled sweep, not just boot)', async () => {
+    const { deps, repo, apiListModels } = makeFakes();
+    repo.upsertRegistryProvider({
+      providerId: 'sakana',
+      connectedVia: 'api-key',
+      state: 'error',
+      error: 'unrecognized',
+      creds: { key: 'a-key-that-actually-works' },
+    });
+    apiListModels.mockResolvedValue([{ id: 'fugu', providerId: 'sakana' }]);
+    const h = createModelRegistryHandlers(deps);
+
+    const summary = await h.refreshAllOnce();
+
+    expect(summary.succeeded).toContain('sakana');
+    expect(repo.getRegistryProvider('sakana')?.state).toBe('connected');
+    expect(repo.getRegistryProvider('sakana')?.error).toBeUndefined();
+  });
+});
+
 describe('modelRegistry IPC - disconnect', () => {
   it('removes the provider, its catalog, and its overrides', async () => {
     const { deps, repo } = makeFakes();
