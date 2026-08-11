@@ -99,8 +99,11 @@ describe('acpBackendForManagedAgent', () => {
     expect(acpBackendForManagedAgent('codex')).toBeNull();
   });
 
-  it('does NOT map openclaw: openclaw-gateway is not an ACP backend at all', () => {
+  it('returns null for an agent that is not catalogued at all', () => {
+    // openclaw used to be catalogued and unmapped; it is now not catalogued,
+    // and an uncatalogued id must not resolve to a backend by name collision.
     expect(acpBackendForManagedAgent('openclaw')).toBeNull();
+    expect(acpBackendForManagedAgent('claude')).toBeNull();
   });
 
   it('every catalogued agent is decided one way or the other', () => {

@@ -57,11 +57,9 @@ export interface AgentPackage {
    *    `codex` backend's `acpArgs: []` assumes is what gets spawned. Feeding
    *    this receipt into the ACP seam would spawn the interactive TUI with no
    *    arguments and hang the session. NOT MAPPED.
-   *  - openclaw → not an ACP backend at all; `openclaw-gateway` is its own
-   *    conversation kind with its own process manager. NOT MAPPED.
    *
-   * Both unmapped agents still install, still write receipts, and are still
-   * uninstallable — they just do not reach the ACP launch seam.
+   * An unmapped agent still installs, still writes a receipt, and is still
+   * uninstallable — it just does not reach the ACP launch seam.
    */
   acpBackend?: AcpBackendAll;
 }
@@ -84,9 +82,52 @@ export const AGENT_PACKAGES: Readonly<Record<string, AgentPackage>> = Object.fre
     cliCommand: 'kimi',
     acpBackend: 'kimi',
   }),
-  /** Pure-JS entry (`openclaw.mjs`); package name confirmed from the repo's own setup skill. */
-  openclaw: Object.freeze({ npmPackage: 'openclaw', version: '2026.7.1-2', cliCommand: 'openclaw' }),
 });
+
+/**
+ * Packages whose launch target REFUSES to run on Bun, keyed by npm package name
+ * and valued with the `engines.node` the package declares.
+ *
+ * This is not a preference and not a lint. A pure-JS agent launches through
+ * `resolveJsRuntime()`, which in a PACKAGED build answers `bundled-bun`
+ * whenever a bundled bun exists — which is every build that has one, and the
+ * install band is disabled entirely on the builds that do not. Nothing between
+ * the catalogue and the spawn re-checks compatibility: `launchSpecResolver`
+ * emits `{ command: <runtime>, args: [<entry>] }` for any `.js`/`.mjs`/`.cjs`
+ * bin and asks no further questions. So an entry listed here, installed by
+ * Wayland on a machine with no Node, is guaranteed to fail at launch.
+ *
+ * `openclaw` is here because it was MEASURED, not inferred:
+ *
+ *   $ bun openclaw.mjs --version
+ *   openclaw: the Bun runtime is unsupported because OpenClaw requires
+ *   node:sqlite.                                                    (exit 1)
+ *   $ node openclaw.mjs --version                                   (v22.23.1)
+ *   OpenClaw 2026.7.1-2 (0790d9f)                                   (exit 0)
+ *
+ * Detection of a SYSTEM openclaw is a different code path and is deliberately
+ * untouched: a user who already has it also already has a Node that satisfies
+ * the range below.
+ */
+export const BUN_INCOMPATIBLE_PACKAGES: Readonly<Record<string, string>> = Object.freeze({
+  openclaw: '>=22.22.3 <23 || >=24.15.0 <25 || >=25.9.0',
+});
+
+/**
+ * Catalogue ids whose package is recorded as refusing Bun. Must be empty: a
+ * non-empty answer means the band is offering an install that cannot launch on
+ * a packaged build.
+ *
+ * Takes the catalogue as a parameter, defaulting to the real one, so a test can
+ * prove the matcher finds a known positive rather than trusting an empty list.
+ */
+export function bunIncompatibleCatalogueEntries(
+  catalogue: Readonly<Record<string, AgentPackage>> = AGENT_PACKAGES
+): string[] {
+  return Object.entries(catalogue)
+    .filter(([, pkg]) => Object.prototype.hasOwnProperty.call(BUN_INCOMPATIBLE_PACKAGES, pkg.npmPackage))
+    .map(([agentId]) => agentId);
+}
 
 /** Thrown when an agent id is well-formed but is not in the pinned catalogue. */
 export class UnknownAgentError extends Error {
