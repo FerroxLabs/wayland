@@ -18,6 +18,8 @@
  * still resolves to a launch spec (see `launchSpecResolver`) before shipping.
  */
 
+import type { AcpBackendAll } from '@/common/types/acpTypes';
+
 export interface AgentPackage {
   /** npm package name, exactly as published. */
   npmPackage: string;
@@ -35,6 +37,33 @@ export interface AgentPackage {
    * Restricted to `[a-zA-Z0-9_.-]` because the detector drops anything else.
    */
   cliCommand: string;
+  /**
+   * The ACP backend this install can BE, or absent when it cannot be one.
+   *
+   * Present means: the executable the receipt resolves to is ITSELF an ACP
+   * stdio server, so handing its launch spec to the ACP spawn seam (which
+   * appends the backend's `acpArgs`) produces a working agent. That is the only
+   * condition under which an install may feed `AcpAgentManager`'s `launch`.
+   *
+   * It is deliberately NOT derived from "the ids happen to match". Verified by
+   * running each installed binary's own `--help`:
+   *
+   *  - kimi   → `kimi acp` — "Run kimi-code as an Agent Client Protocol (ACP)
+   *    server over stdio". Its backend's `acpArgs` are `['acp']`, so the spec
+   *    plus acpArgs is exactly that command. MAPPED.
+   *  - codex  → the installed `@openai/codex` binary has NO `acp` subcommand
+   *    (it has `app-server` and `mcp-server`); the ACP server for this backend
+   *    is a SEPARATE npm package, `@agentclientprotocol/codex-acp`, which the
+   *    `codex` backend's `acpArgs: []` assumes is what gets spawned. Feeding
+   *    this receipt into the ACP seam would spawn the interactive TUI with no
+   *    arguments and hang the session. NOT MAPPED.
+   *  - openclaw → not an ACP backend at all; `openclaw-gateway` is its own
+   *    conversation kind with its own process manager. NOT MAPPED.
+   *
+   * Both unmapped agents still install, still write receipts, and are still
+   * uninstallable — they just do not reach the ACP launch seam.
+   */
+  acpBackend?: AcpBackendAll;
 }
 
 /**
@@ -49,7 +78,12 @@ export const AGENT_PACKAGES: Readonly<Record<string, AgentPackage>> = Object.fre
   /** Native per-triple executable, shipped in a platform-specific optional dep. */
   codex: Object.freeze({ npmPackage: '@openai/codex', version: '0.147.0', cliCommand: 'codex' }),
   /** Pure-JS entry (`dist/main.mjs`); launches through the resolved JS runtime. */
-  kimi: Object.freeze({ npmPackage: '@moonshot-ai/kimi-code', version: '0.34.0', cliCommand: 'kimi' }),
+  kimi: Object.freeze({
+    npmPackage: '@moonshot-ai/kimi-code',
+    version: '0.34.0',
+    cliCommand: 'kimi',
+    acpBackend: 'kimi',
+  }),
   /** Pure-JS entry (`openclaw.mjs`); package name confirmed from the repo's own setup skill. */
   openclaw: Object.freeze({ npmPackage: 'openclaw', version: '2026.7.1-2', cliCommand: 'openclaw' }),
 });
