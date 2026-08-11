@@ -365,6 +365,82 @@ describe('AvailableToInstall — card states', () => {
   });
 });
 
+describe('AvailableToInstall — status stays fresh while an install runs', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('polls while a tile is installing, so a finished install stops spinning without a remount', async () => {
+    // The precedence rule puts the MAIN-PROCESS `installing` flag above this
+    // session's own activity, deliberately: it is the one that survives a
+    // re-mount. The cost is that once main says "installing", only main can say
+    // otherwise - and the query was bare (mount and focus only). An install
+    // that failed left a spinner turning until the user navigated away and back
+    // or re-focused the window.
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    let settle: ((v: unknown) => void) | null = null;
+    mockInstall.mockImplementation(() => new Promise((resolve) => (settle = resolve)));
+
+    render(<AvailableToInstall />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('install-button-kimi'));
+    });
+
+    // Main observes the install between the confirm and its outcome.
+    mockStatus.mockResolvedValue(report([status({ installing: true })]));
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('install-consent-confirm'));
+    });
+
+    await act(async () => {
+      settle?.({ ok: false, reason: 'install-failed' });
+      await Promise.resolve();
+    });
+
+    // Main still reports the install in flight, so the session's `failed` is
+    // outranked and the card spins.
+    expect(screen.getByTestId('installable-tile-kimi').getAttribute('data-state')).toBe('installing');
+
+    // Main finishes: the in-flight flag clears and nothing was installed.
+    mockStatus.mockResolvedValue(report([status({ installing: false })]));
+    const callsBefore = mockStatus.mock.calls.length;
+
+    // No remount, no focus, no click. Only time passing.
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(6000);
+    });
+
+    expect(mockStatus.mock.calls.length).toBeGreaterThan(callsBefore);
+    expect(screen.getByTestId('installable-tile-kimi').getAttribute('data-state')).toBe('failed');
+    expect(screen.getByTestId('install-state-kimi').textContent).toBe(
+      'The download failed. Check your connection and try again.'
+    );
+  });
+
+  it('does NOT poll when nothing is installing', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    render(<AvailableToInstall />);
+    await act(async () => {
+      await Promise.resolve();
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    const callsBefore = mockStatus.mock.calls.length;
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30000);
+    });
+
+    // An idle Agents page must not sit there re-probing PATH forever.
+    expect(mockStatus.mock.calls.length).toBe(callsBefore);
+  });
+});
+
 describe('AvailableToInstall — an install in flight can be stopped', () => {
   it('installing: offers a Cancel that reaches agent-installer:cancel with the agent id', async () => {
     // `agent-installer:cancel` shipped on the wire with ZERO renderer call

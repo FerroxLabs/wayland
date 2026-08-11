@@ -338,12 +338,29 @@ const InstallableAgentTile: React.FC<{
  * report (an older engine, or a status call that failed) rather than showing an
  * empty header that promises installs the build cannot perform.
  */
+/**
+ * How often to re-read status WHILE an install is running.
+ *
+ * Only while. The precedence rule puts the main-process `installing` flag above
+ * this session's own activity on purpose, because it is the one that survives a
+ * re-mount — but that means once main says "installing", only main can say
+ * otherwise. With a bare query (mount and focus) a finished or failed install
+ * left the card spinning until the user navigated away and back. An idle page
+ * polls at 0: there is nothing to watch, and status re-probes PATH on every call.
+ */
+const INSTALL_STATUS_POLL_MS = 2000;
+
 const AvailableToInstall: React.FC = () => {
   const { t } = useTranslation();
+  const [pollWhileInstalling, setPollWhileInstalling] = React.useState(false);
 
-  const { data: report, mutate } = useSWR<AgentInstallerReport | undefined>('agent-installer.status', async () => {
-    return await ipcBridge.agentInstaller.status.invoke();
-  });
+  const { data: report, mutate } = useSWR<AgentInstallerReport | undefined>(
+    'agent-installer.status',
+    async () => {
+      return await ipcBridge.agentInstaller.status.invoke();
+    },
+    { refreshInterval: pollWhileInstalling ? INSTALL_STATUS_POLL_MS : 0 }
+  );
 
   // Two derivations of the same catalogue, on purpose:
   //  - `catalogue` carries the MAIN-PROCESS verdict alone. It is what the
@@ -357,6 +374,12 @@ const AvailableToInstall: React.FC = () => {
     () => buildInstallableAgents(report, controller.activity),
     [report, controller.activity]
   );
+
+  // Derived from the RENDERED state rather than from the report alone, so the
+  // window between this session starting an install and main observing it is
+  // covered too.
+  const anyInstalling = merged.some((agent) => agent.state === 'installing');
+  React.useEffect(() => setPollWhileInstalling(anyInstalling), [anyInstalling]);
 
   if (merged.length === 0) return null;
 
