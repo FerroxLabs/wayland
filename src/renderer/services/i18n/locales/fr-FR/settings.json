@@ -2287,6 +2287,9 @@
         "unknown-agent": "Wayland n'a pas de paquet épinglé pour cet agent.",
         "bundled-bun-unavailable": "Cette version n'embarque pas d'environnement d'exécution pour installer.",
         "install-failed": "Le téléchargement a échoué. Vérifiez votre connexion et réessayez.",
+        "already-installing": "Une installation est déjà en cours. Attendez qu'elle se termine.",
+        "timed-out": "L'installation a pris trop de temps et a été arrêtée. Réessayez.",
+        "cancelled": "Installation annulée.",
         "error": "L'installation s'est arrêtée sur une erreur inattendue."
       },
       "consent": {

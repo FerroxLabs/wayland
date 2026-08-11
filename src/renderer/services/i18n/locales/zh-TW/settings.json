@@ -2262,6 +2262,9 @@
         "unknown-agent": "Wayland 沒有為該智能體固定的套件。",
         "bundled-bun-unavailable": "此版本未隨附用於安裝的執行環境。",
         "install-failed": "下載失敗。請檢查網路連線後重試。",
+        "already-installing": "已有安裝正在進行。請等待其完成。",
+        "timed-out": "安裝耗時過長已被停止。請重試。",
+        "cancelled": "安裝已取消。",
         "error": "安裝因非預期的錯誤而中止。"
       },
       "consent": {

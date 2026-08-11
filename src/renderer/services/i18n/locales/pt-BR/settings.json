@@ -2287,6 +2287,9 @@
         "unknown-agent": "O Wayland não tem um pacote fixado para este agente.",
         "bundled-bun-unavailable": "Esta compilação não traz um runtime para instalar.",
         "install-failed": "O download falhou. Verifique sua conexão e tente novamente.",
+        "already-installing": "Já há uma instalação em andamento. Aguarde até que termine.",
+        "timed-out": "A instalação demorou demais e foi interrompida. Tente novamente.",
+        "cancelled": "Instalação cancelada.",
         "error": "A instalação parou com um erro inesperado."
       },
       "consent": {

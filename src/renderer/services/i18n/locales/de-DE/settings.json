@@ -2287,6 +2287,9 @@
         "unknown-agent": "Wayland hat kein festgelegtes Paket für diesen Agenten.",
         "bundled-bun-unavailable": "Dieser Build enthält keine gebündelte Laufzeitumgebung zum Installieren.",
         "install-failed": "Der Download ist fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.",
+        "already-installing": "Eine Installation läuft bereits. Warten Sie, bis sie abgeschlossen ist.",
+        "timed-out": "Die Installation hat zu lange gedauert und wurde abgebrochen. Versuchen Sie es erneut.",
+        "cancelled": "Installation abgebrochen.",
         "error": "Die Installation wurde mit einem unerwarteten Fehler abgebrochen."
       },
       "consent": {

@@ -279,6 +279,35 @@ describe('AvailableToInstall — card states', () => {
     expect(screen.getByTestId('install-button-kimi').textContent).toContain('Retry');
   });
 
+  // Every reason the main process can return must have COPY. Three of them
+  // (`already-installing`, `timed-out`, `cancelled`) shipped as failure reasons
+  // with no string behind them, so the tile rendered the literal key path
+  // "settings.agentsPage.install.failed.timed-out" at the user. Windows install
+  // failures are unreadable without this, so it is asserted per reason rather
+  // than sampled.
+  it.each(['unknown-agent', 'bundled-bun-unavailable', 'install-failed', 'already-installing', 'timed-out', 'cancelled', 'error'] as const)(
+    'failed(%s): renders copy, never a raw i18n key path',
+    async (reason) => {
+      mockInstall.mockResolvedValue({ ok: false, reason });
+
+      render(<AvailableToInstall />);
+      await screen.findByTestId('install-button-kimi');
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('install-button-kimi'));
+      });
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('install-consent-confirm'));
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId('installable-tile-kimi').getAttribute('data-state')).toBe('failed')
+      );
+      const text = screen.getByTestId('install-state-kimi').textContent ?? '';
+      expect(text.startsWith('settings.')).toBe(false);
+      expect(text.length).toBeGreaterThan(0);
+    }
+  );
+
   it('failed: a rejected bridge call becomes a retryable failure, not a stuck spinner', async () => {
     mockInstall.mockRejectedValue(new Error('bridge died'));
 

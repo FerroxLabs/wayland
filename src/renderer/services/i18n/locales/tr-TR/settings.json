@@ -2260,6 +2260,9 @@
         "unknown-agent": "Wayland'in bu ajan için sabitlenmiş bir paketi yok.",
         "bundled-bun-unavailable": "Bu yapıda kurulum için paketlenmiş bir çalışma zamanı yok.",
         "install-failed": "İndirme başarısız oldu. Bağlantını kontrol edip yeniden dene.",
+        "already-installing": "Zaten bir kurulum çalışıyor. Bitmesini bekleyin.",
+        "timed-out": "Kurulum çok uzun sürdü ve durduruldu. Tekrar deneyin.",
+        "cancelled": "Kurulum iptal edildi.",
         "error": "Kurulum beklenmeyen bir hatayla durdu."
       },
       "consent": {

@@ -2287,6 +2287,9 @@
         "unknown-agent": "Wayland no tiene un paquete fijado para este agente.",
         "bundled-bun-unavailable": "Esta compilación no incluye un entorno de ejecución para instalar.",
         "install-failed": "La descarga falló. Comprueba tu conexión e inténtalo de nuevo.",
+        "already-installing": "Ya hay una instalación en curso. Espera a que termine.",
+        "timed-out": "La instalación tardó demasiado y se detuvo. Inténtalo de nuevo.",
+        "cancelled": "Instalación cancelada.",
         "error": "La instalación se detuvo con un error inesperado."
       },
       "consent": {

@@ -2445,6 +2445,9 @@
         "unknown-agent": "Wayland has no pinned package for this agent.",
         "bundled-bun-unavailable": "This build has no bundled runtime to install with.",
         "install-failed": "The download failed. Check your connection and try again.",
+        "already-installing": "An install is already running. Wait for it to finish.",
+        "timed-out": "The install took too long and was stopped. Try again.",
+        "cancelled": "Install cancelled.",
         "error": "The install stopped with an unexpected error."
       },
       "consent": {
