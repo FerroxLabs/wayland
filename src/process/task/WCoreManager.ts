@@ -77,6 +77,7 @@ import {
   createMcpSessionExpectedServer,
 } from '@process/services/mcpServices/mcpSessionTruthGate';
 import { ConstitutionFsTransactionError } from '@process/services/constitution/constitutionFsTransaction';
+import { getConstitutionFsService } from '@process/services/constitution/constitutionFsService';
 
 // ---------------------------------------------------------------------------
 // Truncation-heuristic constants (HC-4 - see audit at
@@ -850,6 +851,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
       return;
     }
 
+    // The turn is going ahead. If bootstrap had to reclaim an unreadable
+    // Constitution key ring to get here, say so once, in the thread, without
+    // blocking anything - silence would leave the user with a Constitution
+    // whose revision lineage quietly changed under them.
+    this.emitConstitutionReclaimNotice();
+
     this._messageSentAt = Date.now();
     mainLog('[WCoreManager]', `message sent: msg_id=${data.msg_id}`);
 
@@ -1323,6 +1330,43 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     };
     ipcBridge.conversation.responseStream.emit(finishMessage);
     this.emitToEventBuses(finishMessage);
+  }
+
+  /**
+   * Non-blocking in-thread notice for a reclaimed Constitution key ring.
+   *
+   * Persisted as a `tips` message for the same reason emitStartFailure persists
+   * its error: a stream-only emit is delivered once to whoever happens to be
+   * subscribed, and the turn that reclaims the ring is usually the first one
+   * after launch. This way the user reads the cause whenever the thread loads,
+   * it survives a reload, and it lands in a bug report.
+   *
+   * Deliberately not a modal, not a blocking card, and not a retry button: the
+   * ring is already regenerated and the turn is already proceeding. There is
+   * nothing for the user to do, only something they are owed knowing.
+   */
+  private emitConstitutionReclaimNotice(): void {
+    let reclaim: { archivedPath: string; reclaimedAt: number } | null = null;
+    try {
+      reclaim = getConstitutionFsService().consumeRevisionAuthorityReclaim();
+    } catch {
+      // No Constitution service on this platform; there is nothing to report.
+      return;
+    }
+    if (!reclaim) return;
+    addMessage(this.conversation_id, {
+      id: uuid(),
+      conversation_id: this.conversation_id,
+      type: 'tips',
+      position: 'center',
+      createdAt: Date.now(),
+      content: {
+        type: 'warning',
+        content:
+          'Wayland could not unlock the Constitution key ring saved on this machine, because it was encrypted by a different installation of this app. A new key ring was created so this chat could continue. Your Constitution text is unchanged, and the file that could not be read was kept at ' +
+          `${reclaim.archivedPath} in case you want it back.`,
+      },
+    } as TMessage);
   }
 
   /**

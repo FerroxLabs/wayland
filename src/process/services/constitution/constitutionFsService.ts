@@ -53,8 +53,36 @@ import {
   createConstitutionRequestFingerprint,
   sameConstitutionFingerprintTarget,
 } from './constitutionRequestFingerprint';
+import { withConstitutionSecretUnlockBudget } from './constitutionSecretUnlockBudget';
 import { compareUnicodeCodeUnits } from '../../utils/restrictedCanonicalJson';
 import { syncPublicationTargetSync } from '@process/utils/durabilitySync';
+
+/**
+ * The unreadable revision key ring is kept, never destroyed. `.locked-` names
+ * the reason and the timestamp keeps repeat reclaims from colliding, so a
+ * profile that was unlocked, re-sealed and unlocked again keeps every generation
+ * side by side for a support bundle or a manual restore.
+ */
+export function constitutionLockedAuthorityArchivePath(authorityPath: string, at: Date): string {
+  const stamp = at
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d+Z$/, 'Z');
+  const base = `${authorityPath}.locked-${stamp}`;
+  if (!existsSync(base)) return base;
+  for (let attempt = 2; attempt < 1000; attempt += 1) {
+    const candidate = `${base}-${attempt}`;
+    if (!existsSync(candidate)) return candidate;
+  }
+  return `${base}-${randomUUID()}`;
+}
+
+/** Recorded when an unreadable revision key ring was reclaimed on this run. */
+export type ConstitutionRevisionAuthorityReclaim = Readonly<{
+  /** Where the original, still-encrypted ring was preserved. */
+  archivedPath: string;
+  reclaimedAt: number;
+}>;
 
 const MAX_WRITE_BYTES = 256 * 1024;
 const SPECIALIST_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
@@ -180,6 +208,8 @@ export class ConstitutionFsService {
   private activeArchiveKeyId: string | null = null;
   private mutationStateReady = false;
   private revisionAuthority: ConstitutionRevisionAuthority | null = null;
+  private revisionAuthorityReclaim: ConstitutionRevisionAuthorityReclaim | null = null;
+  private revisionAuthorityReclaimAttempted = false;
 
   constructor(
     private readonly root: string,
@@ -213,7 +243,19 @@ export class ConstitutionFsService {
     // guarantee is preserved. A not-yet-created root is left as-is and created
     // lazily on first write.
     const root = existsSync(configuredRoot) ? realpathSync.native(configuredRoot) : configuredRoot;
-    const secretBackend = options.secretBackend ?? { encryptString, decryptString };
+    // Bound the OS secret store on the Constitution path. See
+    // constitutionSecretUnlockBudget for exactly what this can and cannot stop.
+    const secretBackend =
+      options.secretBackend ??
+      withConstitutionSecretUnlockBudget(
+        { encryptString, decryptString },
+        {
+          onBudgetExceeded: (elapsedMs) =>
+            console.warn(
+              `[constitution] OS secret store took ${elapsedMs}ms to answer an unlock; further Constitution unlocks fail fast instead of blocking each turn.`
+            ),
+        }
+      );
     try {
       const binary = (options.verifyPackagedBinary ?? verifyPackagedConstitutionFsBinary)(resourcesPath);
       if (!options.revisionAuthorityPath) {
@@ -440,11 +482,87 @@ export class ConstitutionFsService {
       return this.loadRevisionAuthorityForRead();
     } catch (error) {
       if (!isConstitutionRevisionAuthorityUnauthenticated(error)) throw error;
+      // The authority is a key ring, not the Constitution: its keys only sign
+      // and check the short-lived `rev:v2:` compare-and-swap tokens a read hands
+      // back on the next write. It holds no user content, and the Constitution
+      // itself ships bundled and is not sealed with it. Losing it therefore
+      // costs at most an in-flight token (which fails closed as a CONFLICT), so
+      // an unreadable ring must not be allowed to kill every turn forever.
+      const reclaimed = this.reclaimUnreadableRevisionAuthority();
+      if (reclaimed) return reclaimed;
+      // A reclaim earlier in this same read did not, in the end, rescue it.
+      // Reporting "we fixed it and carried on" for a turn that died would be
+      // worse than saying nothing.
+      this.revisionAuthorityReclaim = null;
       throw new ConstitutionFsTransactionError(
         'CONSTITUTION_FS_REVISION_AUTHORITY_UNAUTHENTICATED',
         'The Constitution revision authority on this machine could not be unlocked. It was encrypted by a different installation of this app, so its contents cannot be read here. Open Settings > Constitution to restore from a recovery archive.'
       );
     }
+  }
+
+  /**
+   * Reclaim a revision authority this installation cannot unlock.
+   *
+   * The unreadable ciphertext is the user's data and is never deleted or
+   * overwritten: it is renamed aside to a timestamped `.locked-` sidecar first,
+   * and only then is a fresh ring minted in its place. If minting the
+   * replacement fails for any reason - most importantly the fail-closed legacy
+   * migration binding, which refuses a new lineage while authenticated legacy
+   * transaction state exists - the sidecar is moved back to exactly where it
+   * was and the caller reports the original unlock failure, so recovery through
+   * Settings remains the outcome for the cases that genuinely need it.
+   *
+   * Returns null when nothing was reclaimed; the profile is then byte-identical
+   * to how it was found.
+   */
+  private reclaimUnreadableRevisionAuthority(): ConstitutionRevisionAuthority | null {
+    // Once per service, never in a loop. A ring this installation just minted
+    // and still cannot unlock means the OS secret store itself is unusable, not
+    // that the ring was foreign; minting another would churn the profile and
+    // hide a real fault. Stop and let the recovery flow answer instead.
+    if (this.revisionAuthorityReclaimAttempted) return null;
+    this.revisionAuthorityReclaimAttempted = true;
+    const authorityPath = this.revisionAuthorityPath;
+    if (!authorityPath || !existsSync(authorityPath)) return null;
+    const archivedPath = constitutionLockedAuthorityArchivePath(authorityPath, new Date());
+    try {
+      renameSync(authorityPath, archivedPath);
+    } catch {
+      // Could not even preserve it; leave the profile untouched and report.
+      return null;
+    }
+    this.revisionAuthority = null;
+    try {
+      const authority = this.loadRevisionAuthorityForRead();
+      if (!authority) throw new Error('CONSTITUTION_FS_REVISION_AUTHORITY_MISSING');
+      console.warn(
+        `[constitution] The Constitution revision key ring on this machine could not be unlocked (it was sealed by a different installation of this app). A new ring was created so work can continue; the unreadable one was kept at ${archivedPath}.`
+      );
+      this.revisionAuthorityReclaim = { archivedPath, reclaimedAt: Date.now() };
+      return authority;
+    } catch {
+      this.revisionAuthority = null;
+      try {
+        renameSync(archivedPath, authorityPath);
+      } catch {
+        // The sidecar still holds every original byte; never delete it.
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Take the pending "the key ring was reclaimed" fact, if there is one.
+   *
+   * One-shot on purpose: the surface above turns it into a single non-blocking
+   * in-thread notice on the turn that reclaimed it, not a banner that repeats
+   * on every subsequent turn.
+   */
+  consumeRevisionAuthorityReclaim(): ConstitutionRevisionAuthorityReclaim | null {
+    const reclaim = this.revisionAuthorityReclaim;
+    this.revisionAuthorityReclaim = null;
+    return reclaim;
   }
 
   private loadRevisionAuthorityForRead(): ConstitutionRevisionAuthority | null {
