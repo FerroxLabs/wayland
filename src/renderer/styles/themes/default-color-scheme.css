@@ -181,7 +181,16 @@ body[arco-theme='light'] {
      surface the bright green is ~1.9:1 (fails WCAG AA); #047857 is 5.48:1 on white
      and behind white text, and stays clearly green. Dark mode keeps #34d399. (#836) */
   --success: #047857;
-  --warning: #fbbf24;
+  /* Amber-ish burnt orange, not the dark-surface amber-400 (#fbbf24): as TEXT on a
+     light surface #fbbf24 is 1.67:1 on white and 1.56:1 on --bg-1 (fails WCAG AA
+     badly - Sean read the Voice mic-level and Kokoro notes as unreadable). #a8500a
+     is 5.50:1 on white, 5.14:1 on --bg-1 and 4.83:1 on --bg-2, so it clears AA on
+     every light surface in the ramp, and white text on it is 5.50:1. Dark mode
+     keeps #fbbf24. Same trade already made for --success above. */
+  --warning: #a8500a;
+  /* Accessible ink for text placed ON a solid --warning fill. Must flip per mode:
+     the light fill is dark (needs white) and the dark fill is bright (needs near-black). */
+  --warning-on: #ffffff;
   --danger: #f87171;
   --info: #ff6b35;
 
@@ -367,6 +376,8 @@ body[arco-theme='dark'] {
   --primary: #ff6b35;
   --success: #34d399;
   --warning: #fbbf24;
+  /* 11.10:1 on the #fbbf24 fill. */
+  --warning-on: #1a1206;
   --danger: #f87171;
   --info: #ff6b35;
 
