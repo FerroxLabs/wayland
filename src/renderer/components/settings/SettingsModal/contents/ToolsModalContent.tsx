@@ -14,11 +14,8 @@ import {
   BUILTIN_IMAGE_GEN_ID,
 } from '@/common/config/storage';
 import { FLUX_PROVIDER_ID } from '@/common/config/flux';
-import {
-  type SpeechToTextConfig,
-  type SpeechToTextProvider,
-} from '@/common/types/speech';
-import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
+import { type SpeechToTextConfig, type SpeechToTextProvider } from '@/common/types/speech';
+import { ON_DEVICE_STT_PROVIDER, resolveVoiceLeg } from '@/common/voice/voiceReadiness';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
 import { isTextToSpeechProvider } from '@/common/types/ttsTypes';
 import { modelRegistry, voiceAsset, voiceSynth } from '@/common/adapter/ipcBridge';
@@ -51,6 +48,19 @@ export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-confi
 import { DEFAULT_SPEECH_TO_TEXT_CONFIG, normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 
 export { DEFAULT_SPEECH_TO_TEXT_CONFIG, normalizeSpeechToTextConfig };
+
+/**
+ * One label per transcriber, keyed by the union so a new provider cannot ship
+ * unnamed. This replaced a two-way ternary that rendered everything which was
+ * not Flux Voice as "OpenAI Whisper", which silently mislabelled both Deepgram
+ * and the on-device engine.
+ */
+const STT_PROVIDER_LABEL_KEY: Record<SpeechToTextProvider, string> = {
+  openai: 'settings.speechToTextProviderOpenAI',
+  deepgram: 'settings.speechToTextProviderDeepgram',
+  'flux-voice': 'settings.speechToTextProviderFluxVoice',
+  'whisper-local': 'settings.speechToTextProviderWhisperLocal',
+};
 
 // Whisper model asset descriptor - model + binary are both required for local STT.
 // destPath + sha256 are resolved server-side by voiceAssetRegistry.ts before
@@ -680,11 +690,23 @@ export const SpeechToTextSettingsSection: React.FC<{
   }, []);
 
   /**
-   * The transcriber that will actually receive the audio, which is not always
-   * the one stored in settings. Consent is per-recipient, so every consent
-   * decision on this panel is made about THIS provider - asking about the stored
-   * one is how a user ends up accepting a disclosure that never unblocks
-   * anything.
+   * The transcriber that will actually receive the audio, from the SAME ladder
+   * that routes it.
+   *
+   * This used to ask `resolveEffectiveSttProvider`, which predates the
+   * on-device-first ladder and still ends in `return 'openai'` for an unset
+   * provider. The composer mic asks `resolveVoiceLeg('in', ...)`, which sends a
+   * default-origin profile to the bundled on-device engine no matter what is
+   * connected. Two resolvers, two answers, both on screen at once: the dropdown
+   * said "Whisper (Local)" while the line beneath it said "Currently using
+   * OpenAI Whisper" and "This provider processes audio and text off your
+   * device" - for a transcription that was measured making zero network
+   * requests.
+   *
+   * A wrong privacy claim in that direction is the worst kind. Consent is also
+   * per-recipient, so the same value decides which disclosure is offered;
+   * offering OpenAI's disclosure for on-device audio gates a transmission that
+   * never happens.
    *
    * Main additionally requires the connected provider's stored key to be
    * non-empty, which the renderer cannot see; a provider marked connected with
@@ -692,11 +714,10 @@ export const SpeechToTextSettingsSection: React.FC<{
    * for a provider that then goes unused, which is harmless - the reverse, no
    * consent for the provider actually used, is the failure being fixed.
    */
-  const effectiveProvider = resolveEffectiveSttProvider({
-    stored: config,
-    hasConnectedOpenAIKey: openAIConnected === true,
-    hasConnectedFluxKey: fluxConnected,
-  });
+  const effectiveProvider = (resolveVoiceLeg('in', {
+    sttConfig: config,
+    connectedCredentials: { openai: openAIConnected === true, flux: fluxConnected },
+  }).provider ?? ON_DEVICE_STT_PROVIDER) as SpeechToTextProvider;
   const handleOpenProvidersPage = useCallback(() => {
     try {
       navigate('/settings/models');
@@ -800,16 +821,20 @@ export const SpeechToTextSettingsSection: React.FC<{
               {t('settings.speechToTextProviderWhisperLocal')}
             </WaylandSelect.Option>
           </WaylandSelect>
-          {effectiveProvider !== config.provider && (
-            <div data-testid='stt-effective-provider' className='mt-6px text-12px text-t-secondary'>
-              {t('settings.speechToTextSeededProvider', {
-                defaultValue: 'Currently using {{provider}}, because it is connected and no engine was chosen here.',
-                provider: t(
-                  `settings.speechToTextProvider${effectiveProvider === 'flux-voice' ? 'FluxVoice' : 'OpenAI'}`
-                ),
-              })}
-            </div>
-          )}
+          {/* Always shown. "Which engine is actually running" is the question
+              the privacy claim below turns on, and leaving it unanswered is
+              what let the dropdown and the disclosure disagree in silence. */}
+          <div data-testid='stt-effective-provider' className='mt-6px text-12px text-t-secondary'>
+            {effectiveProvider === displayProvider
+              ? t('settings.speechToTextEffectiveProvider', {
+                  defaultValue: 'Currently using {{provider}}.',
+                  provider: t(STT_PROVIDER_LABEL_KEY[effectiveProvider]),
+                })
+              : t('settings.speechToTextSeededProvider', {
+                  defaultValue: 'Currently using {{provider}}, because it is connected and no engine was chosen here.',
+                  provider: t(STT_PROVIDER_LABEL_KEY[effectiveProvider]),
+                })}
+          </div>
           {needsConsent(effectiveProvider) && (
             <div
               data-testid='stt-consent-pending'

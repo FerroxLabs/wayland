@@ -1130,6 +1130,7 @@
   "speechToTextCancelDownload": "Cancelar",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Usando {{provider}} no momento, porque está conectado e nenhum mecanismo foi escolhido aqui.",
+  "speechToTextEffectiveProvider": "Usando {{provider}} no momento.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "Texto para Fala",

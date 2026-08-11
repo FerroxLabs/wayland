@@ -1107,6 +1107,7 @@
   "speechToTextCancelDownload": "İptal",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Şu anda {{provider}} kullanılıyor, çünkü bağlı ve burada bir motor seçilmedi.",
+  "speechToTextEffectiveProvider": "Şu anda {{provider}} kullanılıyor.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
   "speechToTextFluxVoiceAuthError": "Flux Voice authentication failed. Check your Flux Router key in Settings → Voice.",
   "textToSpeech": "Metinden Sese",

@@ -4137,6 +4137,7 @@ export type I18nKey =
   | 'settings.speechToTextDownloadModel'
   | 'settings.speechToTextDownloadSuccess'
   | 'settings.speechToTextDownloading'
+  | 'settings.speechToTextEffectiveProvider'
   | 'settings.speechToTextFluxVoiceAuthError'
   | 'settings.speechToTextFluxVoicePremiumLocked'
   | 'settings.speechToTextLanguage'
