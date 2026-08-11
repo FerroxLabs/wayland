@@ -164,7 +164,11 @@ describe('handleAgentInstallerStatus — the three-way distinction', () => {
   });
 
   it('reports `system` for a copy on PATH, with no receipt anywhere', async () => {
-    state.detected = new Set(['codex']);
+    // Driven off the catalogue rather than a literal: the probe is by
+    // `cliCommand`, and hard-coding it here made this case go quietly absent
+    // when codex's cliCommand was corrected to the bin its pinned package
+    // actually publishes.
+    state.detected = new Set([AGENT_PACKAGES.codex.cliCommand]);
 
     const report = await handleAgentInstallerStatus();
     const codex = agentIn(report, 'codex');

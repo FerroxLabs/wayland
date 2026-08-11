@@ -26,13 +26,22 @@ export interface AgentPackage {
   /** Exact published version. Never a range, never a dist-tag. */
   version: string;
   /**
-   * Command name a USER'S OWN copy would publish on PATH.
+   * Command name a USER'S OWN copy of THIS package would publish on PATH.
    *
    * This is the probe for "a system copy already exists", which is a different
    * fact from "Wayland installed this" — Wayland installs into its own prefix
    * and never puts anything on PATH, so a hit here can only be the user's. The
    * two must stay distinguishable in the data; a detected system copy wins and
    * is never offered an install.
+   *
+   * IT MUST BE A BIN THE PINNED PACKAGE ITSELF PUBLISHES, not merely a command
+   * associated with the agent. A hit removes the Install button outright and
+   * makes the card read "Uses your system copy", so probing for a neighbouring
+   * binary that cannot serve `acpBackend` claims a working setup the ACP seam
+   * cannot use AND hides the pinned, offline-capable install from exactly the
+   * users most likely to want it. Pinned by a live case in
+   * `tests/live/agentInstallLaunch.live.test.ts`, which drives a real ACP
+   * `initialize` into whatever this names when it is found on PATH.
    *
    * Restricted to `[a-zA-Z0-9_.-]` because the detector drops anything else.
    */
@@ -93,11 +102,18 @@ export const AGENT_PACKAGES: Readonly<Record<string, AgentPackage>> = Object.fre
    * version is pinned, and it is the one the receipt records: a second pin for
    * the CLI would let the receipt claim a version the user did not get, since
    * the bridge's own dependency range decides what actually lands.
+   *
+   * `cliCommand` is `codex-acp`, the bin this package publishes
+   * (`bin: { "codex-acp": "dist/index.js" }`), NOT `codex`. Probing for `codex`
+   * matched the ordinary Codex CLI, which has no `acp` subcommand and cannot
+   * serve this backend — so every machine with Codex installed was told
+   * "Uses your system copy" and offered no install of the bridge that would
+   * actually work.
    */
   codex: Object.freeze({
     npmPackage: '@agentclientprotocol/codex-acp',
     version: '1.1.2',
-    cliCommand: 'codex',
+    cliCommand: 'codex-acp',
     acpBackend: 'codex',
   }),
   /** Pure-JS entry (`dist/main.mjs`); launches through the resolved JS runtime. */

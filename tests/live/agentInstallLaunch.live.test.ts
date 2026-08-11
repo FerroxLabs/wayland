@@ -36,7 +36,8 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { registerPlatformServices } from '@/common/platform';
 import { NodePlatformServices } from '@/common/platform/NodePlatformServices';
-import { isAcpLaunchSpec, type AcpLaunchSpec } from '@/common/types/acpTypes';
+import { ACP_BACKENDS_ALL, isAcpLaunchSpec, type AcpLaunchSpec } from '@/common/types/acpTypes';
+import { AGENT_PACKAGES } from '@process/services/agentInstaller/agentPackages';
 
 registerPlatformServices(new NodePlatformServices());
 
@@ -227,8 +228,7 @@ describe('install → receipt → launch spec → spawned process', () => {
   }, 600_000);
 
   it('uninstall removes the install and the launch spec goes with it', async () => {
-    const { uninstallAgent, readInstallReceipt } =
-      await import('@process/services/agentInstaller/installManifest');
+    const { uninstallAgent, readInstallReceipt } = await import('@process/services/agentInstaller/installManifest');
     const { resolveManagedAgentLaunch, listManagedAcpAgents } =
       await import('@process/services/agentInstaller/installedAgentLaunch');
     const { resolveAgentInstallPrefix } = await import('@process/services/agentInstaller/installPrefix');
@@ -258,5 +258,52 @@ describe('install → receipt → launch spec → spawned process', () => {
     const stillListed = listManagedAcpAgents(userDataDir).map((a) => a.agentId);
     expect(stillListed).not.toContain('kimi');
     expect(stillListed).toContain('codex');
+  }, 120_000);
+});
+
+/**
+ * THE PATH PROBE HAS TO NAME THE RIGHT BINARY.
+ *
+ * `AgentPackage.cliCommand` is the probe behind "Uses your system copy", and a
+ * hit on it removes the Install button entirely (decision D1). So the command it
+ * names must be one that can actually serve the agent's ACP backend — otherwise
+ * the card claims a working setup the seam cannot use AND hides the pinned,
+ * offline-capable install from exactly the users most likely to want it.
+ *
+ * This cannot be a unit test: the whole question is what is really on THIS
+ * machine's PATH and whether that binary really answers ACP. It drives the real
+ * detector and a real `initialize` handshake, and it is silent about agents the
+ * machine does not have — an absent command is not evidence either way.
+ *
+ * On a machine with the ordinary `codex` CLI on PATH this case FAILS against
+ * `cliCommand: 'codex'`: that binary has no `acp` subcommand (its subcommands
+ * are `app-server` and `mcp-server`) and never answers.
+ */
+describe('a claimed system copy can serve the seam', () => {
+  it('every catalogued cliCommand found on PATH answers a real ACP initialize', async () => {
+    const { acpDetector } = await import('@process/agent/acp/AcpDetector');
+
+    const entries = Object.entries(AGENT_PACKAGES);
+    const detected = await acpDetector.batchCheckCliAvailability(entries.map(([, pkg]) => pkg.cliCommand));
+    const present = entries.filter(([, pkg]) => detected.has(pkg.cliCommand) && pkg.acpBackend);
+
+    let handshakes = 0;
+    for (const [agentId, pkg] of present) {
+      const acpArgs = ACP_BACKENDS_ALL[pkg.acpBackend!]?.acpArgs ?? [];
+      const response = await acpInitialize({ command: pkg.cliCommand, args: acpArgs }, 30_000);
+      expect(
+        response,
+        `\`${pkg.cliCommand} ${acpArgs.join(' ')}\` is on PATH and is reported as ${agentId}'s system copy, but it does not speak ACP`
+      ).not.toBeNull();
+      expect(response!.result.protocolVersion).toBeGreaterThanOrEqual(1);
+      handshakes += 1;
+    }
+
+    // Not vacuous: at least one catalogued command really was found and really
+    // was driven, so a pass means handshakes succeeded rather than that the loop
+    // never ran. A machine with none of the catalogued CLIs cannot run this case.
+    expect(handshakes, 'no catalogued cliCommand is on this machine — this case proves nothing here').toBeGreaterThan(
+      0
+    );
   }, 120_000);
 });
