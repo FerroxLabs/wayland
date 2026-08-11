@@ -363,7 +363,8 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
   },
   // Wayland Nano: first-party sandboxed Rust agent. Always listed in the agent
   // registry (AgentRegistry.createWNanoAgent); spawns via cliCommand when the
-  // binary is on PATH. Speaks ACP natively over stdio - no bridge, no flag.
+  // binary is on PATH. Speaks ACP natively over stdio via the `acp-host`
+  // subcommand (bare `wayland-nano` prints usage and exits 2 — live-proven B1).
   wnano: {
     id: 'wnano',
     name: 'Wayland Nano',
@@ -371,7 +372,7 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     authRequired: false, // Draws on the providers connected in Wayland; no own login
     enabled: true,
     supportsStreaming: true, // Native ACP, streams session/update chunks
-    acpArgs: [], // ACP over stdio by default, no bridge or flag needed
+    acpArgs: ['acp-host'], // ACP over stdio via subcommand, no bridge
   },
   grok: {
     id: 'grok',
