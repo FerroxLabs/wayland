@@ -62,6 +62,50 @@ export class InstallCommandFailedError extends Error {
   }
 }
 
+/**
+ * Thrown when an install for this agent is already running.
+ *
+ * The only guard that existed before was React state inside the mounted
+ * settings component: navigating away mid-install and back re-mounted it with
+ * an empty activity map, so the button re-enabled and a SECOND `bun install`
+ * ran into the same prefix concurrently with the first. Main process state is
+ * the only state that survives a re-mount, so the guard belongs here — every
+ * caller of the service is covered, not just the one screen.
+ */
+export class AgentInstallInProgressError extends Error {
+  readonly agentId: string;
+
+  constructor(agentId: string) {
+    super(`An install of "${agentId}" is already running`);
+    this.name = 'AgentInstallInProgressError';
+    this.agentId = agentId;
+  }
+}
+
+/** Thrown when the install process outlived {@link DEFAULT_INSTALL_TIMEOUT_MS}. */
+export class AgentInstallTimeoutError extends Error {
+  readonly agentId: string;
+  readonly timeoutMs: number;
+
+  constructor(agentId: string, timeoutMs: number) {
+    super(`Install of "${agentId}" timed out after ${timeoutMs}ms and was terminated`);
+    this.name = 'AgentInstallTimeoutError';
+    this.agentId = agentId;
+    this.timeoutMs = timeoutMs;
+  }
+}
+
+/** Thrown when {@link cancelAgentInstall} terminated the install. */
+export class AgentInstallCancelledError extends Error {
+  readonly agentId: string;
+
+  constructor(agentId: string) {
+    super(`Install of "${agentId}" was cancelled`);
+    this.name = 'AgentInstallCancelledError';
+    this.agentId = agentId;
+  }
+}
+
 /** Thrown when the install reported success but the package is not on disk. */
 export class PackageNotInstalledError extends Error {
   constructor(agentId: string, npmPackage: string, prefix: string) {
@@ -74,10 +118,42 @@ export interface InstallSpawnResult {
   code: number | null;
   stdout: string;
   stderr: string;
+  /** The runner killed the process because it outlived the timeout. */
+  timedOut?: boolean;
+  /** The runner killed the process because the caller cancelled. */
+  aborted?: boolean;
 }
 
-/** The process runner. Injected in tests so nothing hits the network. */
-export type InstallSpawn = (command: string, args: string[]) => Promise<InstallSpawnResult>;
+/** Deadline and cancellation handed to the runner. */
+export interface InstallSpawnControls {
+  /** Milliseconds after which the child is killed. Always supplied. */
+  timeoutMs: number;
+  /** Aborted by {@link cancelAgentInstall}. */
+  signal: AbortSignal;
+}
+
+/**
+ * The process runner. Injected in tests so nothing hits the network.
+ *
+ * `controls` is optional in the signature so the existing two-argument fakes
+ * keep typechecking; the real runner always receives it.
+ */
+export type InstallSpawn = (
+  command: string,
+  args: string[],
+  controls?: InstallSpawnControls
+) => Promise<InstallSpawnResult>;
+
+/**
+ * How long an install may run before it is killed.
+ *
+ * There was no deadline anywhere along the seam: `execFile` had no `timeout`,
+ * the bridge handler awaited an unbounded promise, and the card showed a
+ * disabled spinner forever. Ten minutes is well past a cold, uncached install of
+ * the largest catalogued package on a slow connection, and well short of
+ * "forever".
+ */
+export const DEFAULT_INSTALL_TIMEOUT_MS = 10 * 60 * 1000;
 
 export interface InstallAgentOptions {
   /** Override the userData root. Tests pass a temp dir. */
@@ -89,6 +165,8 @@ export interface InstallAgentOptions {
   bunPath?: string | null;
   spawn?: InstallSpawn;
   now?: () => Date;
+  /** Override the deadline. Tests use a short one. */
+  timeoutMs?: number;
 }
 
 /** Binary name of the bundled bun on a platform. */
@@ -138,19 +216,63 @@ export function buildInstallArgs(prefix: string, npmPackage: string, version: st
   return ['install', '--cwd', prefix, '--ignore-scripts', '--no-save', `${npmPackage}@${version}`];
 }
 
-const defaultInstallSpawn: InstallSpawn = (command, args) =>
+const defaultInstallSpawn: InstallSpawn = (command, args, controls) =>
   new Promise((resolve) => {
     execFile(
       command,
       args,
-      { shell: false, windowsHide: true, maxBuffer: 8 * 1024 * 1024, encoding: 'utf-8' },
+      {
+        shell: false,
+        windowsHide: true,
+        maxBuffer: 8 * 1024 * 1024,
+        encoding: 'utf-8',
+        // Both kill the child. `timeout` is the deadline; `signal` is the user
+        // pressing Cancel. Without them a wedged `bun install` runs until the
+        // app quits, holding the in-flight guard and the spinner with it.
+        ...(controls ? { timeout: controls.timeoutMs, signal: controls.signal } : {}),
+      },
       (error, stdout, stderr) => {
         if (!error) return resolve({ code: 0, stdout, stderr });
         const code = typeof (error as { code?: unknown }).code === 'number' ? (error as { code: number }).code : 1;
-        resolve({ code, stdout, stderr: stderr || error.message });
+        // A cancel and a timeout both surface as a killed child; only the signal
+        // tells them apart, and they are different things to say to the user.
+        const aborted = controls?.signal.aborted === true;
+        const killed = (error as { killed?: unknown }).killed === true;
+        resolve({
+          code,
+          stdout,
+          stderr: stderr || error.message,
+          ...(aborted ? { aborted: true } : {}),
+          ...(!aborted && killed ? { timedOut: true } : {}),
+        });
       }
     );
   });
+
+/** In-flight installs, keyed by agent id. See {@link AgentInstallInProgressError}. */
+const inFlightInstalls = new Map<string, { promise: Promise<AgentInstallReport>; abort: AbortController }>();
+
+/** True while an install of this agent is running in THIS process. */
+export function isAgentInstallInFlight(agentId: string): boolean {
+  return inFlightInstalls.has(agentId);
+}
+
+/** Agent ids with an install running, so status can report it without guessing. */
+export function listAgentInstallsInFlight(): string[] {
+  return [...inFlightInstalls.keys()];
+}
+
+/**
+ * Terminate a running install. Returns false when there was nothing to cancel,
+ * which is a correct no-op and not an error — the install may have just
+ * finished between the user pressing Cancel and this call arriving.
+ */
+export function cancelAgentInstall(agentId: string): boolean {
+  const entry = inFlightInstalls.get(agentId);
+  if (!entry) return false;
+  entry.abort.abort();
+  return true;
+}
 
 /** True when the package directory really landed under the prefix. */
 function packageIsPresent(prefix: string, npmPackage: string): boolean {
@@ -162,12 +284,38 @@ export interface AgentInstallReport extends AgentInstallReceipt {
 }
 
 /**
- * Install an agent end to end.
+ * Install an agent end to end, at most once at a time per agent.
+ *
+ * The guard is registered BEFORE the work starts and released in a `finally`,
+ * so a failed or cancelled install never leaves the agent permanently blocked.
+ * A second concurrent call is REFUSED rather than joined: the caller asked to
+ * start an install and there is a factual answer to give it, and refusing keeps
+ * a runaway retry loop from stacking listeners on one promise.
+ */
+export async function installAgent(agentId: string, options: InstallAgentOptions = {}): Promise<AgentInstallReport> {
+  // Validate before touching the map, so a malformed id cannot occupy a slot.
+  assertValidAgentId(agentId);
+  if (inFlightInstalls.has(agentId)) throw new AgentInstallInProgressError(agentId);
+
+  const abort = new AbortController();
+  const promise = runInstall(agentId, options, abort.signal).finally(() => {
+    inFlightInstalls.delete(agentId);
+  });
+  inFlightInstalls.set(agentId, { promise, abort });
+  return promise;
+}
+
+/**
+ * The install itself.
  *
  * Order matters: the id is validated and bun is resolved BEFORE anything is
  * created on disk, so a bad id or a missing bun leaves the filesystem untouched.
  */
-export async function installAgent(agentId: string, options: InstallAgentOptions = {}): Promise<AgentInstallReport> {
+async function runInstall(
+  agentId: string,
+  options: InstallAgentOptions,
+  signal: AbortSignal
+): Promise<AgentInstallReport> {
   assertValidAgentId(agentId);
   const pkg = getAgentPackage(agentId);
   const prefix = resolveAgentInstallPrefix(agentId, options.userDataDir);
@@ -180,7 +328,13 @@ export async function installAgent(agentId: string, options: InstallAgentOptions
 
   const args = buildInstallArgs(prefix, pkg.npmPackage, pkg.version);
   const spawn = options.spawn ?? defaultInstallSpawn;
-  const result = await spawn(bunPath, args);
+  const timeoutMs = options.timeoutMs ?? DEFAULT_INSTALL_TIMEOUT_MS;
+  const result = await spawn(bunPath, args, { timeoutMs, signal });
+  // Cancelled and timed out are checked BEFORE the exit code: a killed child
+  // also exits non-zero, and reporting "install failed with exit code null" for
+  // a cancel the user asked for is a lie about what happened.
+  if (result.aborted || signal.aborted) throw new AgentInstallCancelledError(agentId);
+  if (result.timedOut) throw new AgentInstallTimeoutError(agentId, timeoutMs);
   if (result.code !== 0) throw new InstallCommandFailedError(agentId, result.code, result.stderr);
 
   if (!packageIsPresent(prefix, pkg.npmPackage)) {
