@@ -1122,6 +1122,8 @@
   "textToSpeechDownloadSuccess": "モデルのダウンロードが完了しました",
   "textToSpeechDownloadError": "ダウンロードに失敗しました",
   "textToSpeechCancelDownload": "キャンセル",
+  "textToSpeechTestPhrase": "Hi, I'm Wayland. How are you?",
+  "textToSpeechTestConsentDeclined": "Nothing was spoken and nothing was sent. Choose System Voice to test a voice that stays on your machine.",
   "mcp": "MCP統合",
   "imageGenerationModel": "画像モデル",
   "imageGenerationGuide": "画像モデル設定ガイド",

@@ -1145,6 +1145,8 @@
   "textToSpeechDownloadSuccess": "Modelo descargado correctamente",
   "textToSpeechDownloadError": "Error en la descarga",
   "textToSpeechCancelDownload": "Cancelar",
+  "textToSpeechTestPhrase": "Hi, I'm Wayland. How are you?",
+  "textToSpeechTestConsentDeclined": "Nothing was spoken and nothing was sent. Choose System Voice to test a voice that stays on your machine.",
   "mcp": "Integración MCP",
   "imageGenerationModel": "Modelo de imagen",
   "imageGenerationGuide": "Guía de configuración del modelo de imagen",

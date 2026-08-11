@@ -4304,6 +4304,8 @@ export type I18nKey =
   | 'settings.textToSpeechProviderKokoroLocal'
   | 'settings.textToSpeechProviderSystemNative'
   | 'settings.textToSpeechSpeed'
+  | 'settings.textToSpeechTestConsentDeclined'
+  | 'settings.textToSpeechTestPhrase'
   | 'settings.textToSpeechVoice'
   | 'settings.theme'
   | 'settings.title'

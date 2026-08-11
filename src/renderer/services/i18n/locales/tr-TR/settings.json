@@ -1122,6 +1122,8 @@
   "textToSpeechDownloadSuccess": "Model başarıyla indirildi",
   "textToSpeechDownloadError": "İndirme başarısız",
   "textToSpeechCancelDownload": "İptal",
+  "textToSpeechTestPhrase": "Hi, I'm Wayland. How are you?",
+  "textToSpeechTestConsentDeclined": "Nothing was spoken and nothing was sent. Choose System Voice to test a voice that stays on your machine.",
   "mcp": "MCP Entegrasyonu",
   "imageGenerationModel": "Görüntü Modeli",
   "imageGenerationGuide": "Görüntü Modeli Kurulum Rehberi",

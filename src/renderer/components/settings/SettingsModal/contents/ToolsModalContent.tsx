@@ -296,10 +296,24 @@ export const TextToSpeechSettingsSection: React.FC<{
 
   const handleTestVoice = useCallback(async () => {
     clearTestAudio();
+    /**
+     * The disclosure comes first, on the panel the user is already standing on.
+     *
+     * Going to main without it only earns `TTS_HOSTED_CONSENT_REQUIRED`, and the
+     * guidance that code maps to says "open Voice settings and accept the
+     * disclosure" - which is this screen, and there was no way to accept from
+     * here. The consent flow this section already owns is the way out; the error
+     * mapping below stays as the backstop for a main-side gate the renderer
+     * cannot see.
+     */
+    if (!(await ensureConsent(config.provider))) {
+      Message.error(t('settings.textToSpeechTestConsentDeclined'));
+      return;
+    }
     try {
       await ConfigStorage.set('tools.textToSpeech', config);
       const result = await voiceSynth.speak.invoke({
-        text: t('settings.textToSpeechTestPhrase', 'Voice check.'),
+        text: t('settings.textToSpeechTestPhrase'),
       });
       if (result.ok === false) throw new Error(result.errorCode);
       if (result.data.length === 0) throw new Error('TTS_EMPTY_AUDIO');
@@ -325,7 +339,7 @@ export const TextToSpeechSettingsSection: React.FC<{
         );
       }
     }
-  }, [clearTestAudio, config, t]);
+  }, [clearTestAudio, config, ensureConsent, t]);
 
   return (
     <div className='px-[12px] md:px-[32px] py-[24px] bg-[var(--color-bg-2)] rd-12px border-2 border-solid border-[var(--color-border-2)]'>

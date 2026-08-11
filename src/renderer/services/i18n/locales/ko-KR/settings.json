@@ -1122,6 +1122,8 @@
   "textToSpeechDownloadSuccess": "모델 다운로드 완료",
   "textToSpeechDownloadError": "다운로드 실패",
   "textToSpeechCancelDownload": "취소",
+  "textToSpeechTestPhrase": "Hi, I'm Wayland. How are you?",
+  "textToSpeechTestConsentDeclined": "Nothing was spoken and nothing was sent. Choose System Voice to test a voice that stays on your machine.",
   "mcp": "MCP 통합",
   "imageGenerationModel": "이미지 모델",
   "imageGenerationGuide": "이미지 모델 설정 가이드",
