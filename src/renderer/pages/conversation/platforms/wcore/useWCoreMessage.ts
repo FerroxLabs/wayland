@@ -207,7 +207,11 @@ export const useWCoreMessage = (
             const finishReason = (message.data as { finish_reason?: string } | undefined)?.finish_reason;
             const turnEndedInError = turnEndedInErrorRef.current || finishReason === 'error';
             if (hasContentInTurnRef.current && !turnEndedInError) {
-              clearErrorTips();
+              // Only THIS turn's tips. The finish frame and the error frames of
+              // the turn it ends share a msg_id, so passing it scopes the clear
+              // to the turn that actually succeeded and leaves older turns'
+              // failure explanations standing.
+              clearErrorTips(message.msg_id);
             }
 
             // #486 defense-in-depth: the turn has ended, so no tool can still be
