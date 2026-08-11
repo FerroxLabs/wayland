@@ -856,19 +856,29 @@ renderer Worker with the WASM backend, and not in a packaged app with a live mic
 halves have not yet been demonstrated together end to end. That is the one remaining V-0 gap, and
 it is now a narrow one: runtime proven offline, model proven accurate, wiring proven by unit test.
 
-### A false-positive agent detection, findable only on a clean machine
+### CORRECTION: the "Gemini CLI" entry is NOT a false-positive detection
 
-On `WaylandCleanTest`, with `where.exe` finding `powershell` (method works) but finding no `gemini`,
-`%APPDATA%\npm` empty, and no gemini anywhere on that user's PATH, the packaged app still reports
-**"Gemini CLI" under "MORE DETECTED - 1"**.
+I recorded this as a defect and I was wrong. Retracted here rather than quietly edited, because
+acting on it would have broken a working feature.
 
-Root cause: `AgentRegistry.createGeminiAgent()` hardcodes `available: true` with no probe at all -
-no `cliPath`, no detection. It is the same shape as the `createWNanoAgent()` defect that commit
-`1cda570a8` exists to prevent, except this one is already on the shipped path. It puts a clickable
-dead end in front of a new user, which is the specific thing the affordance rule forbids.
+The observation was real: on `WaylandCleanTest`, `where.exe` finds `powershell` but finds no
+`gemini`, `%APPDATA%\npm` is empty, and there is no gemini on that user's PATH - yet the app shows
+"Gemini CLI" under "MORE DETECTED - 1". I concluded `AgentRegistry.createGeminiAgent()` hardcoding
+`available: true` with no probe was a false positive putting a dead end in front of a new user.
 
-Not yet fixed - no lane owns `AgentRegistry` detection, and a sixth concurrent editor would have
-collided. It needs an owner.
+It is not. `src/process/agent/gemini/` is an **in-process implementation** - `index.ts` plus a
+vendored `cli/` tree, driven through the `@google/genai` SDK, with **no** `spawn`, `execFile`,
+`which` or `cliPath` anywhere in it. Gemini runs inside Wayland exactly as Wayland Core does, so
+`available: true` is accurate and there is no external binary to detect. Removing the hardcode, which
+is what my finding implied, would have disabled a working backend.
+
+What survives is a **copy** issue, not a defect: grouping it under "MORE DETECTED" implies something
+was found on the machine, and the name "Gemini CLI" implies an external CLI. Neither is true. Worth
+one line of copy, not a fix.
+
+The lesson is the one this project already knows: an observation is not a diagnosis. The probe was
+sound and the zero was real; the causal claim attached to it was not checked before it was written
+down.
 
 ### The stated suite baseline was wrong, and all five lanes said so independently
 
