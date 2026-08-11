@@ -49,6 +49,9 @@ vi.mock('@process/services/constitution/constitutionFsService', () => ({
       constitution: { status: 'absent' as const, revision: 'rev:test:constitution-absent' },
       overlay: null,
     }),
+    // The composer consumes this on every turn that names a conversation, so a
+    // stub that omits it models a service the product does not have.
+    consumeRevisionAuthorityReclaim: () => null,
   }),
 }));
 vi.mock('@process/utils/message', () => ({ addMessage: mockAddMessage }));

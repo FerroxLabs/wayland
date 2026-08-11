@@ -1,3 +1,4 @@
+import { emitConstitutionReclaimNotice } from './constitutionReclaimNotice';
 import { getConstitutionFsService } from './constitutionFsService';
 
 export interface ComposePromptOptions {
@@ -5,6 +6,13 @@ export interface ComposePromptOptions {
   assistantId?: string;
   /** Existing backend-specific system prompt. Appended below Constitution + overlay. */
   basePrompt?: string;
+  /**
+   * Conversation this composition belongs to. Every backend resolves the
+   * Constitution through here, so this is the one seam that can tell the user
+   * their key ring was regenerated no matter which agent they are talking to,
+   * and the only one that knows which chat actually triggered it.
+   */
+  conversationId?: string;
 }
 
 export interface ComposedPrompt {
@@ -54,6 +62,9 @@ export function composePrompt(opts?: ComposePromptOptions): ComposedPrompt {
     const result = service.readWithOverlay(opts?.assistantId);
     constitution = result.constitution.status === 'present' ? result.constitution.content : '';
     overlay = result.overlay?.status === 'present' ? result.overlay.content : null;
+    // Only after the read actually returned. Saying "we regenerated your ring
+    // and carried on" for a read that then threw would be worse than silence.
+    emitConstitutionReclaimNotice(service, opts?.conversationId);
   } else if (capability.supported === false) {
     console.warn(`[composePrompt] Constitution unavailable: ${capability.reason}`);
   }

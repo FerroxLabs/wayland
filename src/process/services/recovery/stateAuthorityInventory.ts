@@ -165,6 +165,22 @@ const CONSTITUTION_USER_DATA_CHILDREN = new Set([
   'external-recovery-authority-v1',
 ]);
 
+/**
+ * Prefix of the sidecar the Constitution service writes when it reclaims a
+ * revision key ring it could not unlock: the original, still-encrypted bytes
+ * are renamed aside as `revision-authority.enc.locked-<timestamp>` and a fresh
+ * ring is minted in their place.
+ *
+ * It needs a disposition of its own. Left unowned it is an unknown user-data
+ * root, which is a capture blocker, so the one profile that was just routed to
+ * "restore from a recovery archive" would be the one profile that can no longer
+ * make one.
+ */
+const LOCKED_REVISION_AUTHORITY_PREFIX = 'revision-authority.enc.locked-';
+
+const LOCKED_REVISION_AUTHORITY_CONSEQUENCE =
+  'This is a preserved copy of a revision key ring this installation could not unlock. It is kept for support and manual inspection only; a restored profile mints its own key ring and never needs it.';
+
 const DATABASE_USER_DATA_CHILDREN = new Set(['wayland.db', 'wayland.db-wal', 'wayland.db-shm']);
 
 function resolveMaxEntries(value: number | undefined): number {
@@ -332,10 +348,14 @@ async function inventoryUserDataRoots(userDataRoot: string, maxEntries: number):
       const evidence = await inspectRoot(path.join(userDataRoot, ...relativePath.split('/')), maxEntries, false);
       roots.push({
         relativePath,
-        disposition: 'unknown',
+        ...(child.startsWith(LOCKED_REVISION_AUTHORITY_PREFIX)
+          ? { disposition: 'excluded' as const, restoreConsequence: LOCKED_REVISION_AUTHORITY_CONSEQUENCE }
+          : {
+              disposition: 'unknown' as const,
+              restoreConsequence: 'No recovery authority or explicit exclusion owns this Constitution child.',
+            }),
         authorityIds: [],
         evidence,
-        restoreConsequence: 'No recovery authority or explicit exclusion owns this Constitution child.',
       });
     }
   }

@@ -298,6 +298,51 @@ describe('state authority inventory', () => {
     );
   });
 
+  // A reclaimed key ring leaves a `.locked-` sidecar beside the revision
+  // authority. Nothing else writes there, so an unowned child of
+  // constitution/ is a blocker and readyToCapture goes false - which would
+  // mean the profile that was just told "open Settings > Constitution to
+  // restore from a recovery archive" is the one profile that can no longer
+  // build a recovery point. The control arm proves the sidecar is the cause.
+  it('does not block a recovery point on a preserved Constitution key ring sidecar', async () => {
+    const build = async (label: string, withSidecar: boolean) => {
+      const root = fs.mkdtempSync(path.join(os.tmpdir(), `wayland-authority-locked-ring-${label}-`));
+      roots.push(root);
+      const userDataRoot = path.join(root, 'user-data');
+      fs.mkdirSync(path.join(userDataRoot, 'wayland'), { recursive: true });
+      fs.mkdirSync(path.join(userDataRoot, 'config'), { recursive: true });
+      fs.mkdirSync(path.join(userDataRoot, 'constitution'), { recursive: true });
+      fs.writeFileSync(path.join(userDataRoot, 'wayland', 'wayland.db'), 'sqlite');
+      fs.writeFileSync(path.join(userDataRoot, 'constitution', 'revision-authority.enc'), 'enc:v1:new-ring');
+      if (withSidecar) {
+        fs.writeFileSync(
+          path.join(userDataRoot, 'constitution', 'revision-authority.enc.locked-20260811T182236Z'),
+          'enc:v1:unreadable'
+        );
+      }
+      return inventoryRecoveryAuthorities({
+        userDataRoot,
+        constitutionRoot: path.join(root, 'constitution-filesystem'),
+        coreDefaultProfileRoot: path.join(root, 'core-default'),
+        coreNamedProfilesRoot: path.join(root, 'core-profiles'),
+      });
+    };
+
+    const control = evaluateRecoveryDryRun(await build('control', false), allCapabilities);
+    expect(control.blockers.map(({ code }) => code)).not.toContain('UNKNOWN_AUTHORITY_ROOT');
+
+    const inventory = await build('sidecar', true);
+    const sidecar = inventory.userDataRoots.find(
+      ({ relativePath }) => relativePath === 'constitution/revision-authority.enc.locked-20260811T182236Z'
+    );
+    expect(sidecar?.disposition).toBe('excluded');
+    expect(sidecar?.restoreConsequence.trim().length).toBeGreaterThan(0);
+
+    const dryRun = evaluateRecoveryDryRun(inventory, allCapabilities);
+    expect(dryRun.blockers.map(({ code }) => code)).not.toContain('UNKNOWN_AUTHORITY_ROOT');
+    expect(dryRun.blockers).toEqual(control.blockers);
+  });
+
   it('classifies shipped Weixin and Gemini writers with explicit recovery consequences', async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-authority-channel-writers-'));
     roots.push(root);

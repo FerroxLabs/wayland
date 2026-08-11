@@ -639,6 +639,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     const systemInstructions = rawEngineMode
       ? undefined
       : await buildSystemInstructionsWithSkillsIndex({
+          conversationId: this.conversation_id,
           presetContext: mergedData.presetRules,
           enabledSkills: mergedData.enabledSkills,
           excludeBuiltinSkills: mergedData.excludeBuiltinSkills,
