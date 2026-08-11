@@ -1131,6 +1131,7 @@
   "textToSpeech": "Text-zu-Sprache",
   "textToSpeechDescription": "Lies KI-Antworten mit einer lokalen oder systemeigenen Sprach-Engine vor.",
   "textToSpeechProvider": "Anbieter",
+  "textToSpeechProviderPlaceholder": "Sprachanbieter auswählen",
   "textToSpeechProviderSystemNative": "Systemeigen",
   "textToSpeechVoice": "Stimme",
   "textToSpeechSpeed": "Geschwindigkeit",

@@ -1148,6 +1148,7 @@
   "textToSpeech": "Text to Speech",
   "textToSpeechDescription": "Read AI responses aloud using a local or system voice engine.",
   "textToSpeechProvider": "Provider",
+  "textToSpeechProviderPlaceholder": "Choose a voice provider",
   "textToSpeechProviderSystemNative": "System Native",
   "textToSpeechVoice": "Voice",
   "textToSpeechSpeed": "Speed",

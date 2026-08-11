@@ -38,7 +38,7 @@ import {
 import { resolveVoiceTurnTerminal } from '@/common/voice/voiceTurnTerminal';
 import { createVoiceSpeechQueue, type VoiceSpeechQueue } from '@/renderer/services/voice/voiceSpeechQueue';
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
-import { isMacOS } from '@/renderer/utils/platform';
+import { isMacOS, rendererPlatform } from '@/renderer/utils/platform';
 import {
   consumeArmedVoiceMode,
   submitVoiceTurn,
@@ -962,7 +962,10 @@ export const useVoiceConversationSession = ({
           ConfigStorage.get('tools.speechToText'),
           ConfigStorage.get('tools.textToSpeech'),
         ]);
-        const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined);
+        // The platform picks the DEFAULT synthesizer. Without it, an unopened
+        // Windows profile entered the session on the macOS provider and could
+        // never make a sound.
+        const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined, rendererPlatform());
 
         /**
          * Which transcriber will actually receive the audio, which is not always

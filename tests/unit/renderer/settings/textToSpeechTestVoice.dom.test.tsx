@@ -91,6 +91,21 @@ class MockAudio {
   }
 }
 
+/**
+ * Every local-provider case in this file names `system-native`, which is the
+ * macOS synthesizer. jsdom's default user agent is neither macOS nor Windows,
+ * so the panel would correctly treat that provider as one this machine cannot
+ * run. Stating the platform makes the premise these tests were always written
+ * against explicit instead of accidental.
+ */
+const installMacUserAgent = () => {
+  Object.defineProperty(navigator, 'userAgent', {
+    configurable: true,
+    value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/140 Safari/537.36',
+  });
+  Object.defineProperty(navigator, 'platform', { configurable: true, value: '' });
+};
+
 /** Arco's responsive grid subscribes to media queries jsdom does not implement. */
 const installMatchMedia = () => {
   Object.defineProperty(window, 'matchMedia', {
@@ -132,6 +147,7 @@ describe('Test voice — hosted consent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     installMatchMedia();
+    installMacUserAgent();
     MockAudio.instances.splice(0);
     vi.stubGlobal('Audio', MockAudio);
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:test') });
@@ -203,6 +219,7 @@ describe('Auto-read — hosted consent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     installMatchMedia();
+    installMacUserAgent();
     storage.get.mockImplementation(async () => undefined);
   });
 
@@ -275,6 +292,7 @@ describe('Test voice — the spoken phrase', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     installMatchMedia();
+    installMacUserAgent();
     MockAudio.instances.splice(0);
     vi.stubGlobal('Audio', MockAudio);
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:test') });
@@ -302,6 +320,7 @@ describe('Test voice — no silent no-op', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     installMatchMedia();
+    installMacUserAgent();
     MockAudio.instances.splice(0);
     vi.stubGlobal('Audio', MockAudio);
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:test') });

@@ -1106,6 +1106,7 @@
   "textToSpeech": "Синтез мовлення",
   "textToSpeechDescription": "Читати відповіді ШІ вголос за допомогою локального або системного рушія синтезу мовлення.",
   "textToSpeechProvider": "Провайдер",
+  "textToSpeechProviderPlaceholder": "Виберіть провайдера голосу",
   "textToSpeechProviderSystemNative": "Системний",
   "textToSpeechVoice": "Голос",
   "textToSpeechSpeed": "Швидкість",

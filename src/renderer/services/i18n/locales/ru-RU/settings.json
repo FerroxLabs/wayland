@@ -1100,6 +1100,7 @@
   "textToSpeech": "Синтез речи",
   "textToSpeechDescription": "Читать ответы ИИ вслух с помощью локального или системного движка синтеза речи.",
   "textToSpeechProvider": "Провайдер",
+  "textToSpeechProviderPlaceholder": "Выберите провайдера голоса",
   "textToSpeechProviderSystemNative": "Системный",
   "textToSpeechVoice": "Голос",
   "textToSpeechSpeed": "Скорость",

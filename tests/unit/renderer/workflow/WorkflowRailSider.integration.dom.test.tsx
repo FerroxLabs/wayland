@@ -50,7 +50,12 @@ vi.mock('react-i18next', () => ({
 // Keep the runtime deterministic + desktop.
 // `isMacOS` is read by the voice session ChatLayout now mounts: only macOS has
 // a local speech synthesizer, so readiness differs by platform.
-vi.mock('@/renderer/utils/platform', () => ({ isElectronDesktop: () => false, isMacOS: () => true }));
+// Partial, so a new export the tree reaches is not an undefined-export crash.
+vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
+  isElectronDesktop: () => false,
+  isMacOS: () => true,
+}));
 vi.mock('@/renderer/hooks/system/useIsPopoutMode', () => ({ useIsPopoutMode: () => false }));
 
 // Contexts ChatLayout consumes that throw without a provider.

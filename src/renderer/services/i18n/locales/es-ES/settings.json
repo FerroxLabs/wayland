@@ -1131,6 +1131,7 @@
   "textToSpeech": "Texto a voz",
   "textToSpeechDescription": "Lee en voz alta las respuestas de la IA usando un motor de voz local o del sistema.",
   "textToSpeechProvider": "Proveedor",
+  "textToSpeechProviderPlaceholder": "Elige un proveedor de voz",
   "textToSpeechProviderSystemNative": "Nativo del sistema",
   "textToSpeechVoice": "Voz",
   "textToSpeechSpeed": "Velocidad",

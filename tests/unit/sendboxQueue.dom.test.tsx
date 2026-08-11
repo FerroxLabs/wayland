@@ -242,7 +242,9 @@ vi.mock('@/renderer/hooks/system/useSpeechInput', () => ({
   }),
 }));
 
-vi.mock('@/renderer/utils/platform', () => ({
+// Partial, so a new export the tree reaches is not an undefined-export crash.
+vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
   isElectronDesktop: () => isElectronDesktopValue,
   // Read by the voice session: only macOS has a local speech synthesizer.
   isMacOS: () => true,

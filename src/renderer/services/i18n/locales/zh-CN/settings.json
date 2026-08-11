@@ -1108,6 +1108,7 @@
   "textToSpeech": "文字转语音",
   "textToSpeechDescription": "使用本地或系统语音引擎朗读 AI 回复。",
   "textToSpeechProvider": "提供商",
+  "textToSpeechProviderPlaceholder": "选择语音提供商",
   "textToSpeechProviderSystemNative": "系统原生",
   "textToSpeechVoice": "音色",
   "textToSpeechSpeed": "语速",

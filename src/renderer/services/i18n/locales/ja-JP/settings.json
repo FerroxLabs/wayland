@@ -1108,6 +1108,7 @@
   "textToSpeech": "テキスト読み上げ",
   "textToSpeechDescription": "ローカルまたはシステムの音声エンジンで AI の返答を読み上げます。",
   "textToSpeechProvider": "プロバイダー",
+  "textToSpeechProviderPlaceholder": "音声プロバイダーを選択",
   "textToSpeechProviderSystemNative": "システム標準",
   "textToSpeechVoice": "音声",
   "textToSpeechSpeed": "速度",

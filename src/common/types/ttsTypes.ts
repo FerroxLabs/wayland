@@ -38,6 +38,26 @@ export const LOCAL_TTS_PROVIDERS = ['system-native', 'windows-native'] as const;
 export const isLocalTtsProvider = (provider: TextToSpeechProvider): boolean =>
   (LOCAL_TTS_PROVIDERS as readonly TextToSpeechProvider[]).includes(provider);
 
+/**
+ * The provider that will actually run here, given what is stored, or `null`
+ * when nothing will.
+ *
+ * A stored LOCAL provider names an OS synthesizer, and an OS synthesizer that
+ * belongs to a different operating system cannot produce a byte on this one -
+ * so `system-native` on Windows is not a preference to be honoured, it is a
+ * leftover to be corrected. Hosted providers are portable and pass through
+ * untouched.
+ *
+ * `null` means this machine has no local synthesizer at all (Linux) and the
+ * stored value names one anyway. Callers must not put that on the screen and
+ * must not write it back: it is the state where the honest answer is "there is
+ * no built-in voice here", not a provider name.
+ */
+export const resolveRunnableTtsProvider = (
+  provider: TextToSpeechProvider,
+  platform: string
+): TextToSpeechProvider | null => (isLocalTtsProvider(provider) ? resolveLocalTtsProvider(platform) : provider);
+
 export type TextToSpeechConfig = {
   enabled: boolean;
   provider: TextToSpeechProvider;

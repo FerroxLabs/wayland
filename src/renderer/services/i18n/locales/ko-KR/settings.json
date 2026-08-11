@@ -1108,6 +1108,7 @@
   "textToSpeech": "텍스트 음성 변환",
   "textToSpeechDescription": "로컬 또는 시스템 음성 엔진으로 AI 응답을 읽어드립니다.",
   "textToSpeechProvider": "공급자",
+  "textToSpeechProviderPlaceholder": "음성 공급자 선택",
   "textToSpeechProviderSystemNative": "시스템 기본",
   "textToSpeechVoice": "목소리",
   "textToSpeechSpeed": "속도",

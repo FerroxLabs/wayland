@@ -13,6 +13,7 @@ import {
   MAX_SPOKEN_CHARACTERS,
   takeSpeakableSentences,
 } from '@/common/voice/voiceResponseText';
+import { rendererPlatform } from '@/renderer/utils/platform';
 import { createVoiceSpeechQueue, type VoiceSpeechQueue } from '@/renderer/services/voice/voiceSpeechQueue';
 import { TTS_CONFIG_CHANGED_EVENT } from '@/renderer/services/voice/voiceSettingsEvents';
 import { VOICE_HOSTED_CONSENT_CHANGED_EVENT } from '@/renderer/hooks/voice/useHostedVoiceConsent';
@@ -69,10 +70,14 @@ export const useAutoReadResponses = ({ conversationId, voiceSessionActive }: Aut
   const [consent, setConsent] = useState<Partial<HostedVoiceConsent> | null>(null);
 
   useEffect(() => {
+    // Which OS synthesizer is the default is a platform question, and the
+    // renderer has no `process` to answer it with. Without this, an unopened
+    // Windows profile auto-read through the macOS provider and made no sound.
+    const platform = rendererPlatform();
     let cancelled = false;
     const read = () => {
       void ConfigStorage.get('tools.textToSpeech').then((stored) => {
-        if (!cancelled) setConfig(normalizeTextToSpeechConfig(stored ?? undefined));
+        if (!cancelled) setConfig(normalizeTextToSpeechConfig(stored ?? undefined, platform));
       });
     };
     read();
@@ -82,7 +87,7 @@ export const useAutoReadResponses = ({ conversationId, voiceSessionActive }: Aut
     // auto-read off for someone who had it on.
     const handleConfig = (event: Event) => {
       const detail = (event as CustomEvent<TextToSpeechConfig | undefined>).detail;
-      if (detail) setConfig(normalizeTextToSpeechConfig(detail));
+      if (detail) setConfig(normalizeTextToSpeechConfig(detail, platform));
       else read();
     };
     window.addEventListener(TTS_CONFIG_CHANGED_EVENT, handleConfig);

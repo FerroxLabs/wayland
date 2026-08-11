@@ -16,7 +16,7 @@ import { FLUX_PROVIDER_ID } from '@/common/config/flux';
 import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
 import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
-import { isTextToSpeechProvider, resolveLocalTtsProvider } from '@/common/types/ttsTypes';
+import { isTextToSpeechProvider, resolveLocalTtsProvider, resolveRunnableTtsProvider } from '@/common/types/ttsTypes';
 import { rendererPlatform } from '@/renderer/utils/platform';
 import { modelRegistry, voiceSynth } from '@/common/adapter/ipcBridge';
 import {
@@ -147,13 +147,42 @@ export const withTestVoiceTimeout = <T,>(work: Promise<T>, timeoutMs = TEST_VOIC
 export const TextToSpeechSettingsSection: React.FC<{
   config: TextToSpeechConfig;
   onChange: (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => void;
-}> = ({ config, onChange }) => {
+}> = ({ config, onChange: persist }) => {
   const { t } = useTranslation();
   const testAudioRef = useRef<HTMLAudioElement | null>(null);
   const testAudioUrlRef = useRef<string | null>(null);
   const { ensureConsent, needsConsent, consentModal } = useHostedVoiceConsent();
+  const platform = useMemo(() => rendererPlatform(), []);
   // Which OS-bundled synthesizer this machine actually has, or null on Linux.
-  const localTtsProvider = useMemo(() => resolveLocalTtsProvider(rendererPlatform()), []);
+  const localTtsProvider = useMemo(() => resolveLocalTtsProvider(platform), [platform]);
+  /**
+   * The provider this machine will actually run, which is not always the one in
+   * the config: a profile that stores a local provider belonging to another OS
+   * names a synthesizer that cannot exist here. `null` means there is no local
+   * synthesizer on this OS at all, and the picker must say that rather than
+   * show a provider name.
+   */
+  const runnableProvider = useMemo(
+    () => resolveRunnableTtsProvider(config.provider, platform),
+    [config.provider, platform]
+  );
+
+  /**
+   * Every write goes through here, so no control can persist a provider this
+   * platform cannot run. Without it, the leftover simply gets written back the
+   * first time the user touches the speed slider - or presses Test voice, which
+   * is how a single press used to make a Windows profile permanently macOS.
+   */
+  const onChange = useCallback(
+    (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => {
+      persist((current) => {
+        const next = updater(current);
+        const runnable = resolveRunnableTtsProvider(next.provider, platform);
+        return runnable && runnable !== next.provider ? { ...next, provider: runnable } : next;
+      });
+    },
+    [persist, platform]
+  );
 
   const handleProviderChange = useCallback(
     (value: string) => {
@@ -207,6 +236,16 @@ export const TextToSpeechSettingsSection: React.FC<{
   const handleTestVoice = useCallback(async () => {
     clearTestAudio();
     /**
+     * Nothing on this operating system can synthesize, so there is nothing to
+     * test and nothing worth writing to the profile. Say so in the same words
+     * the panel already uses, instead of sending a macOS provider to main and
+     * coming back with "say could not be run" on a machine that never had it.
+     */
+    if (!runnableProvider) {
+      Message.error(t('settings.textToSpeechNoLocalVoice'));
+      return;
+    }
+    /**
      * The disclosure comes first, on the panel the user is already standing on.
      *
      * Going to main without it only earns `TTS_HOSTED_CONSENT_REQUIRED`, and the
@@ -216,7 +255,7 @@ export const TextToSpeechSettingsSection: React.FC<{
      * mapping below stays as the backstop for a main-side gate the renderer
      * cannot see.
      */
-    if (!(await withTestVoiceTimeout(ensureConsent(config.provider)).catch(() => false))) {
+    if (!(await withTestVoiceTimeout(ensureConsent(runnableProvider)).catch(() => false))) {
       Message.error(t('settings.textToSpeechTestConsentDeclined'));
       return;
     }
@@ -235,7 +274,10 @@ export const TextToSpeechSettingsSection: React.FC<{
           // "Test voice", not "Save". It is reported, then the test proceeds
           // with the config already in hand.
           try {
-            await ConfigStorage.set('tools.textToSpeech', config);
+            // The runnable provider, never the stored one: writing back a
+            // synthesizer this OS does not have is how the one control that
+            // reaches the Windows floor used to destroy it on first press.
+            await ConfigStorage.set('tools.textToSpeech', { ...config, provider: runnableProvider });
           } catch (persistError) {
             console.error('[TextToSpeech] could not persist config before test:', persistError);
           }
@@ -271,7 +313,7 @@ export const TextToSpeechSettingsSection: React.FC<{
         );
       }
     }
-  }, [clearTestAudio, config, ensureConsent, t]);
+  }, [clearTestAudio, config, ensureConsent, runnableProvider, t]);
 
   return (
     <div className='px-[12px] md:px-[32px] py-[24px] bg-[var(--color-bg-2)] rd-12px border-2 border-solid border-[var(--color-border-2)]'>
@@ -294,8 +336,15 @@ export const TextToSpeechSettingsSection: React.FC<{
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.textToSpeechProvider')}>
           <div className='flex items-center gap-8px'>
+            {/* The value is the RUNNABLE provider, never the raw stored one.
+                Arco renders a value with no matching Option as the bare string,
+                so a stored `system-native` on Windows or Linux printed the enum
+                token itself into the control - the internal name of a
+                synthesizer the machine does not have. `undefined` falls back to
+                the placeholder, which is a sentence. */}
             <WaylandSelect
-              value={config.provider}
+              value={runnableProvider ?? undefined}
+              placeholder={t('settings.textToSpeechProviderPlaceholder')}
               onChange={handleProviderChange}
               className='flex-1'
               data-testid='tts-provider-select'
