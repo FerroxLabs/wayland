@@ -21,7 +21,7 @@ let speechInputErrorMessage: string | null = null;
 const mockConfigSet = vi.fn(async () => undefined);
 // 'pending' never resolves, standing in for the window before stored config
 // arrives - the only case where the button is still allowed to render nothing.
-let configResolution: 'resolved' | 'pending' = 'resolved';
+let configResolution: 'resolved' | 'pending' | 'factory' = 'resolved';
 
 vi.mock('@/common/config/storage', () => ({
   ConfigStorage: {
@@ -29,8 +29,17 @@ vi.mock('@/common/config/storage', () => ({
       if (configResolution === 'pending') {
         return new Promise(() => {});
       }
+      // Nothing stored at all: a genuine factory profile.
+      if (configResolution === 'factory') {
+        return Promise.resolve(undefined);
+      }
       if (key === 'tools.speechToText') {
-        return Promise.resolve({ enabled: speechToTextEnabled });
+        // `origin: 'user'` because `speechToTextEnabled = false` here means "the
+        // user switched dictation off", and that is now the only shape that can
+        // mean it. A config with no origin reads as never-configured and is
+        // re-seeded onto the on-device floor - see the factory-profile test at
+        // the end of this file, which pins that separately.
+        return Promise.resolve({ enabled: speechToTextEnabled, origin: 'user' });
       }
       return Promise.resolve(undefined);
     }),
@@ -128,10 +137,9 @@ describe('SpeechInputButton', () => {
   });
 
   /**
-   * The click must never flip `enabled` itself. The stored default is
-   * {enabled:false, provider:'openai'} while an UNSET provider transcribes
-   * on-device, so a helpful auto-enable would silently move the user off local
-   * Whisper and onto a hosted service. Routing to settings keeps that a choice.
+   * The click must never flip `enabled` itself. Turning dictation back on is a
+   * decision, and the button's job is to route to where the decision is made,
+   * not to make it on the user's behalf.
    */
   it('never enables speech-to-text as a side effect of the click', async () => {
     render(<SpeechInputButton onTranscript={vi.fn()} />);
@@ -184,6 +192,24 @@ describe('SpeechInputButton', () => {
         name: 'conversation.chat.speech.recordTooltip',
       })
     ).toBeInTheDocument();
+  });
+
+  /**
+   * The factory profile, which is the case the whole lane is about. A stored
+   * config with no `origin` is indistinguishable from never having been
+   * configured, so it resolves to the bundled on-device engine and the mic is
+   * LIVE - not a setup prompt.
+   */
+  it('is immediately usable on a profile that has never been configured', async () => {
+    configResolution = 'factory';
+
+    render(<SpeechInputButton onTranscript={vi.fn()} />);
+
+    const button = await screen.findByRole('button', { name: 'conversation.chat.speech.recordTooltip' });
+    fireEvent.click(button);
+
+    expect(mockStartRecording).toHaveBeenCalled();
+    expect(mockConfigSet).not.toHaveBeenCalled();
   });
 
   it('shows the transcription detail when speech-to-text returns a concrete error', async () => {

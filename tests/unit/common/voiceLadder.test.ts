@@ -11,10 +11,7 @@ import {
   type VoiceLeg,
   type VoiceReadinessInput,
 } from '@/common/voice/voiceReadiness';
-import {
-  DEFAULT_SPEECH_TO_TEXT_CONFIG,
-  normalizeSpeechToTextConfig,
-} from '@/renderer/components/settings/SettingsModal/contents/ToolsModalContent';
+import { DEFAULT_SPEECH_TO_TEXT_CONFIG, normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 import { describe, expect, it } from 'vitest';
 
 /**

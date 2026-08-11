@@ -16,7 +16,7 @@ import {
   type SpeechInputErrorCode,
 } from '@/renderer/hooks/system/useSpeechInput';
 import { resolveVoiceLeg, type VoiceLeg } from '@/common/voice/voiceReadiness';
-import { normalizeSpeechToTextConfig } from '@/renderer/components/settings/SettingsModal/contents/ToolsModalContent';
+import { normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 import './speechInput.css';
 
 type SpeechInputButtonProps = {

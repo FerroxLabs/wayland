@@ -6,7 +6,7 @@
 
 import type { SpeechToTextConfig } from '@/common/types/speech';
 import { resolveVoiceLeg } from '@/common/voice/voiceReadiness';
-import { normalizeSpeechToTextConfig } from '@/renderer/components/settings/SettingsModal/contents/ToolsModalContent';
+import { normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 import { describe, expect, it } from 'vitest';
 
 /**
