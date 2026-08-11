@@ -147,6 +147,7 @@ vi.mock('@/renderer/utils/platform', () => ({
   // Only macOS ships a local synthesizer, and the readiness check refuses
   // outright anywhere else.
   isMacOS: () => true,
+  rendererPlatform: () => 'darwin',
 }));
 
 /*

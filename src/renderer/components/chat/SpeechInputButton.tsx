@@ -15,6 +15,8 @@ import {
   type SpeechInputAvailability,
   type SpeechInputErrorCode,
 } from '@/renderer/hooks/system/useSpeechInput';
+import { resolveVoiceLeg, type VoiceLeg } from '@/common/voice/voiceReadiness';
+import { normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 import './speechInput.css';
 
 type SpeechInputButtonProps = {
@@ -54,6 +56,8 @@ const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-chang
  * mounted outside a `<Router>`. The orb learned that the expensive way.
  */
 const OPEN_VOICE_SETTINGS_HASH = '#/settings/voice';
+/** Where a no-model refusal routes. The same destination NoModelCtaCard uses. */
+const OPEN_MODELS_SETTINGS_HASH = '#/settings/models';
 
 const getAvailabilityMessageKey = (availability: SpeechInputAvailability) => {
   switch (availability) {
@@ -105,6 +109,41 @@ const formatSpeechDuration = (durationMs: number): string => {
   return `${minutes}:${String(seconds).padStart(2, '0')}`;
 };
 
+/**
+ * Hover copy for a leg that is not clickable. `warming` and `preparing` are on
+ * their way to ready and say so; the rest name their cause. Nothing here is a
+ * dead end and nothing here says "unknown".
+ */
+export const legTooltip = (leg: VoiceLeg): string => {
+  switch (leg.status) {
+    case 'warming':
+      return 'The on-device voice model is still loading. It will be ready in a few seconds.';
+    case 'preparing':
+      return 'Getting audio ready. This takes a moment.';
+    case 'needsSetup':
+      return leg.cause === 'no-model-connected'
+        ? 'No model is connected yet, so nothing can answer. Connect one in Models and Providers.'
+        : 'Dictation needs a moment of setup. Check Voice settings.';
+    /**
+     * No slug, no error code, no "unknown".
+     *
+     * These two branches used to interpolate `leg.cause` straight into the
+     * sentence, so hover copy read "Dictation is not available on this system
+     * (no-local-adapter)." A cause name is a value in a union this file
+     * switches on; it is not English, it tells the user nothing they can act
+     * on, and it is the one string on the screen that admits the tooltip did
+     * not have an answer.
+     */
+    case 'unsupported':
+      return 'Dictation is not available on this computer.';
+    case 'failed':
+      return 'Dictation could not start. Choose a different voice engine in Voice settings.';
+    case 'ready':
+    default:
+      return '';
+  }
+};
+
 const getTooltipKey = (availability: SpeechInputAvailability, isListening: boolean, isProcessing: boolean) => {
   if (isProcessing) {
     return 'conversation.chat.speech.processing';
@@ -126,7 +165,16 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
 }) => {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [isSpeechToTextEnabled, setIsSpeechToTextEnabled] = useState(false);
+  /**
+   * The listening leg for THIS button.
+   *
+   * The composer mic previously had ZERO references to readiness: it took a
+   * bare `disabled` prop from its parent and gated itself on `config.enabled`
+   * alone. That is the wrong question - `enabled` says nothing about whether a
+   * transcriber can actually run - and it is asked on the surface that IS the
+   * shipped voice feature.
+   */
+  const [leg, setLeg] = useState<VoiceLeg | null>(null);
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const {
     availability,
@@ -142,6 +190,7 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
   } = useSpeechInput({
     locale,
     onTranscript,
+    leg: leg ?? undefined,
   });
 
   const isRecording = status === 'recording';
@@ -163,12 +212,16 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
         if (cancelled) {
           return;
         }
-        setIsSpeechToTextEnabled(Boolean(config?.enabled));
+        // Through the normalizer, so a stored config that predates `origin`
+        // lands on the same on-device floor the resolver assumes.
+        setLeg(resolveVoiceLeg('in', { sttConfig: normalizeSpeechToTextConfig(config ?? undefined) }));
       } catch {
         if (cancelled) {
           return;
         }
-        setIsSpeechToTextEnabled(false);
+        // A config read that failed is not a reason to hide the mic: the floor
+        // needs no config at all.
+        setLeg(resolveVoiceLeg('in', { sttConfig: normalizeSpeechToTextConfig(undefined) }));
       } finally {
         if (!cancelled) {
           setIsConfigLoaded(true);
@@ -210,13 +263,13 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
       return;
     }
 
-    if (!isSpeechToTextEnabled) {
-      // Route to settings; never flip `enabled` from here. The stored default is
-      // {enabled:false, provider:'openai'} while an UNSET provider transcribes
-      // on-device, so a click that quietly enabled dictation would move the user
-      // from local Whisper to a hosted service they never chose.
-      if (typeof window !== 'undefined') {
-        window.location.hash = OPEN_VOICE_SETTINGS_HASH;
+    if (leg && !leg.clickable) {
+      // No control may EVER be clickable into a dead end. `warming` and
+      // `preparing` are transient and say so on hover rather than routing the
+      // user somewhere they do not need to go; only a real setup gap routes.
+      if (leg.status === 'warming' || leg.status === 'preparing') return;
+      if (leg.status === 'needsSetup' && typeof window !== 'undefined') {
+        window.location.hash = leg.cause === 'no-model-connected' ? OPEN_MODELS_SETTINGS_HASH : OPEN_VOICE_SETTINGS_HASH;
       }
       return;
     }
@@ -256,15 +309,14 @@ const SpeechInputButton: React.FC<SpeechInputButtonProps> = ({
     return null;
   }
 
-  const needsSetup = !isSpeechToTextEnabled;
+  const needsSetup = Boolean(leg && !leg.clickable);
   const ariaLabel = needsSetup
     ? t('conversation.chat.speech.setupLabel', { defaultValue: 'Set up dictation' })
     : t(getTooltipKey(availability, isRecording, isProcessing));
-  const tooltipContent = needsSetup
-    ? t('conversation.chat.speech.setupTooltip', {
-        defaultValue: 'Dictation is off - open Voice settings to turn it on',
-      })
-    : ariaLabel;
+  // The leg's own sentence, not a generic "dictation is off": warming says it
+  // is warming, no-model says no model. A tooltip that lies is a dead end with
+  // extra steps.
+  const tooltipContent = needsSetup && leg ? legTooltip(leg) : ariaLabel;
   const icon = isRecording ? <SpeechStopIcon /> : isProcessing ? <SpeechLoaderIcon /> : <SpeechMicIcon />;
 
   return (

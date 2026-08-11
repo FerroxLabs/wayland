@@ -22,14 +22,19 @@ import {
   type VoiceSessionEvent,
   type VoiceSessionSnapshot,
 } from '@/common/voice/VoiceSessionMachine';
+import { normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 import { selectVoiceGreeting } from '@/common/voice/voiceGreeting';
 import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
 import {
+  resolveVoiceLeg,
   resolveVoiceSessionReadiness,
   type ConnectedVoiceCredentials,
+  type VoiceLeg,
+  type VoiceReadinessInput,
   type VoiceReadinessReason,
   type VoiceSessionReadiness,
 } from '@/common/voice/voiceReadiness';
+import { isLocalWhisperReady, warmLocalWhisper } from '@/renderer/services/voice/localWhisper';
 import {
   extractVoiceResponseText,
   MAX_SPOKEN_CHARACTERS,
@@ -38,7 +43,8 @@ import {
 import { resolveVoiceTurnTerminal } from '@/common/voice/voiceTurnTerminal';
 import { createVoiceSpeechQueue, type VoiceSpeechQueue } from '@/renderer/services/voice/voiceSpeechQueue';
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
-import { isMacOS } from '@/renderer/utils/platform';
+import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
+import { rendererPlatform } from '@/renderer/utils/platform';
 import {
   consumeArmedVoiceMode,
   submitVoiceTurn,
@@ -168,7 +174,16 @@ const CAPTURE_BLOCKED_COPY: Record<VoiceReadinessReason, (readiness: VoiceSessio
     `${r.sttProvider} has no key yet, so nothing can be transcribed. Add one in Voice settings.`,
   'stt-needs-consent': (r) => `Listening would send your audio to ${r.sttProvider}, which needs your agreement first.`,
   'audio-blocked': () => 'This window is not allowed to play audio yet. Tap the voice button again to start it.',
+  'local-engine-warming': () => 'The on-device voice model is still loading. It will be ready in a few seconds.',
+  'no-model-connected': () =>
+    'No model is connected yet, so nothing can answer you. Connect one in Models and Providers, then start a voice turn.',
 };
+
+/**
+ * A refusal the user can see twice. `seq` is monotonic per session and exists
+ * only to give the value identity - nothing reads it but React's own equality.
+ */
+export type VoiceSurfaceError = { message: string; seq: number };
 
 const isTerminalCompletion = (status: string, state: string): boolean =>
   status === 'finished' || state === 'ai_waiting_input' || state === 'stopped' || state === 'error';
@@ -183,6 +198,20 @@ export type VoiceConversationSessionOptions = {
    * promise never settles.
    */
   ensureConsent?: (provider: string) => Promise<boolean>;
+  /**
+   * Is anything connected that could answer a voice turn?
+   *
+   * `undefined` means "not known here" and never blocks. Only an explicit
+   * `false` resolves voice entry to `needsSetup / no-model-connected`, which is
+   * the state where the old resolver reported ready, greeted, opened the
+   * microphone, transcribed - and then nothing answered.
+   *
+   * Injected rather than derived, because the predicate that decides this
+   * (`noModelConfigured` in `useGuidSend`) depends on the selected agent, the
+   * preset agent info and the Google-auth path. Recomputing it here would be a
+   * second copy of a rule that has already broken once by diverging.
+   */
+  modelConnected?: boolean;
 };
 
 export type VoiceConversationSession = {
@@ -208,13 +237,17 @@ export type VoiceConversationSession = {
    * speak".
    */
   greetingText: string | null;
-  error: string | null;
+  error: VoiceSurfaceError | null;
   /** Microphone level, 0-1, for whatever wants to draw it. */
   level: number;
   ttsConfig: TextToSpeechConfig | null;
   sttConfig: SpeechToTextConfig | null;
   /** Why voice cannot run, named, so a surface can offer the one tap that fixes it. */
   readiness: VoiceSessionReadiness;
+  /** The listening leg on its own. Two directions, resolved separately. */
+  speechInLeg: VoiceLeg;
+  /** The speaking leg on its own. Flux Voice can never appear here. */
+  speechOutLeg: VoiceLeg;
   configReady: boolean;
   /** `thenListen` opens the microphone in the same gesture that enters. */
   begin: (options?: { thenListen?: boolean }) => Promise<void>;
@@ -231,6 +264,7 @@ export const useVoiceConversationSession = ({
   conversationId,
   actorLabel = 'Wayland',
   ensureConsent,
+  modelConnected: modelConnectedOption,
 }: VoiceConversationSessionOptions): VoiceConversationSession => {
   const { t } = useTranslation();
   // `isActive` owns the microphone and every subscription; `isExpanded` owns
@@ -244,7 +278,27 @@ export const useVoiceConversationSession = ({
   const [isMuted, setIsMuted] = useState(false);
   const [lastTranscript, setLastTranscript] = useState('');
   const [lastResponse, setLastResponse] = useState('');
-  const [surfaceError, setSurfaceError] = useState<string | null>(null);
+  /**
+   * The refusal shown to the user, WITH IDENTITY.
+   *
+   * It used to be a plain string, and that is a real bug, not a style point:
+   * tap-to-speak refusing twice for the same reason sets a byte-identical
+   * string, `Object.is` says nothing changed, and React never repaints. The
+   * user taps, sees the message appear, taps again expecting a retry, and gets
+   * no acknowledgement of the second tap at all. A monotonic `seq` makes every
+   * refusal a distinct object, so two taps produce two renders even when the
+   * sentence is the same.
+   */
+  const [surfaceError, setSurfaceErrorState] = useState<VoiceSurfaceError | null>(null);
+  const surfaceErrorSeqRef = useRef(0);
+  const setSurfaceError = useCallback((message: string | null) => {
+    if (message === null) {
+      setSurfaceErrorState(null);
+      return;
+    }
+    surfaceErrorSeqRef.current += 1;
+    setSurfaceErrorState({ message, seq: surfaceErrorSeqRef.current });
+  }, []);
   const [ttsConfig, setTtsConfig] = useState<TextToSpeechConfig | null>(null);
   const [sttConfig, setSttConfig] = useState<SpeechToTextConfig | null>(null);
   const [consent, setConsent] = useState<Partial<HostedVoiceConsent> | null>(null);
@@ -276,6 +330,30 @@ export const useVoiceConversationSession = ({
    * alone declares `stt-unavailable` for a provider that would have worked.
    */
   const [connectedCredentials, setConnectedCredentials] = useState<ConnectedVoiceCredentials>({});
+  /**
+   * The same credentials as a ref, because three of the four readiness call
+   * sites in this hook run inside callbacks created before the registry read
+   * lands and were therefore STRUCTURALLY BLIND to a connected Flux credential:
+   * only the render-time memo ever passed `connectedCredentials`, so
+   * `beginCapture`, `blockedAudioMessage` and the greeting gate all judged a
+   * connected user as `stt-unavailable`.
+   *
+   * Fixed by construction rather than at four sites: nothing below builds a
+   * readiness input by hand, they all go through `readinessInput()`. A fifth
+   * call site cannot reintroduce the divergence because there is no longer a
+   * way to spell it.
+   */
+  const connectedCredentialsRef = useRef<ConnectedVoiceCredentials>({});
+  /**
+   * `isLocalWhisperReady()` as of the last poll. The bundled model costs a
+   * one-time 5-10 second warmup and the ladder now makes it the default, so
+   * this is what keeps that latency visible as `warming` instead of silent.
+   */
+  const [localSttReady, setLocalSttReady] = useState(() => isLocalWhisperReady());
+  const localSttReadyRef = useRef(localSttReady);
+  /** Whether anything is connected that could answer a voice turn. */
+  const modelConnected = modelConnectedOption;
+  const modelConnectedRef = useLatestRef(modelConnected);
   const [snapshot, setSnapshot] = useState<VoiceSessionSnapshot | null>(null);
   const snapshotRef = useRef<VoiceSessionSnapshot | null>(null);
   const activeTurnRef = useRef<string | null>(null);
@@ -586,6 +664,28 @@ export const useVoiceConversationSession = ({
   const sttEnabled = Boolean(sttConfig?.enabled);
   const ttsProviderReady = Boolean(ttsConfig?.enabled && ttsConfig.provider !== 'kokoro-local');
 
+  /**
+   * THE one way to ask "can voice work right now" from inside a callback.
+   *
+   * Every field is read from a ref, so this is correct in the tick it is called
+   * rather than a render behind, and - the point of the whole helper - no caller
+   * can omit a field. The three callback call sites used to build this object by
+   * hand and all three silently dropped `connectedCredentials`.
+   */
+  const readinessInput = useCallback(
+    (audioContextState?: AudioContextState): VoiceReadinessInput => ({
+      ttsConfig: ttsConfigRef.current,
+      sttConfig: sttConfigRef.current && { ...sttConfigRef.current, provider: sttProviderRef.current ?? undefined },
+      platform: rendererPlatform(),
+      consent: consentRef.current,
+      connectedCredentials: connectedCredentialsRef.current,
+      localSttReady: localSttReadyRef.current,
+      modelConnected: modelConnectedRef.current,
+      audioContextState,
+    }),
+    []
+  );
+
   const beginCapture = useCallback(async () => {
     if (!snapshotRef.current || snapshotRef.current.state !== 'listening') return;
     /**
@@ -607,12 +707,7 @@ export const useVoiceConversationSession = ({
      * talks, waits, and only then learns that speech output was never possible.
      * The reason is what makes the refusal actionable.
      */
-    const readinessNow = resolveVoiceSessionReadiness({
-      ttsConfig: ttsConfigRef.current,
-      sttConfig: sttConfigRef.current && { ...sttConfigRef.current, provider: sttProviderRef.current ?? undefined },
-      platform: isMacOS() ? 'darwin' : 'other',
-      consent: consentRef.current,
-    });
+    const readinessNow = resolveVoiceSessionReadiness(readinessInput());
     if (!readinessNow.ready) {
       setSurfaceError(CAPTURE_BLOCKED_COPY[readinessNow.reason](readinessNow));
       return;
@@ -706,18 +801,9 @@ export const useVoiceConversationSession = ({
 
   /** The named reason a context that is not running gives the user. */
   const blockedAudioMessage = useCallback((audioContextState: AudioContextState): string => {
-    const blocked = resolveVoiceSessionReadiness({
-      ttsConfig: ttsConfigRef.current,
-      sttConfig: sttConfigRef.current && {
-        ...sttConfigRef.current,
-        provider: sttProviderRef.current ?? undefined,
-      },
-      platform: isMacOS() ? 'darwin' : 'other',
-      consent: consentRef.current,
-      audioContextState,
-    });
+    const blocked = resolveVoiceSessionReadiness(readinessInput(audioContextState));
     return CAPTURE_BLOCKED_COPY[blocked.reason](blocked);
-  }, []);
+  }, [readinessInput]);
 
   /** Every way the speech pipeline can fail, said by name rather than in silence. */
   const failSpeech = useCallback(
@@ -960,11 +1046,24 @@ export const useVoiceConversationSession = ({
        */
       await ensureAudioContext();
       try {
-        const [storedStt, storedTts] = await Promise.all([
+        const [rawStoredStt, storedTts] = await Promise.all([
           ConfigStorage.get('tools.speechToText'),
           ConfigStorage.get('tools.textToSpeech'),
         ]);
         const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined);
+        /**
+         * Normalize ONCE, here, and never touch the raw value again.
+         *
+         * `normalizeTextToSpeechConfig` was applied to the speaking side on the
+         * line above and its speech-in sibling was simply missing, so the bytes
+         * off disk went into `sttConfigRef` and out through `readinessInput()`
+         * unchanged. On a real upgraded profile those bytes are
+         * `{enabled:false, provider:'openai'}` with no `origin`, which is the
+         * pre-origin factory default rather than anything the user chose - and
+         * read raw it refuses the session with `stt-disabled`, on exactly the
+         * installs this lane exists to unblock.
+         */
+        const storedStt = normalizeSpeechToTextConfig(rawStoredStt);
 
         /**
          * Which transcriber will actually receive the audio, which is not always
@@ -975,14 +1074,25 @@ export const useVoiceConversationSession = ({
          * blocking entry.
          */
         let sttProvider: SpeechToTextProvider = 'whisper-local';
-        if (storedStt?.provider) {
+        /**
+         * The ladder decides whether the stored provider is even in the path.
+         *
+         * A `default`-origin config resolves to the bundled on-device engine no
+         * matter what `provider` says, so consulting the stored value here would
+         * prompt for a disclosure covering a transmission that never happens -
+         * gating on-device audio behind consent to send it off-device, which is
+         * the exact wall this lane exists to remove.
+         */
+        const storedOrigin = storedStt?.origin === 'user' ? 'user' : 'default';
+        if (storedOrigin === 'user' && storedStt?.provider) {
           try {
             const providers = await modelRegistry.list.invoke();
             const hasConnectedOpenAIKey = providers.some((p) => p.providerId === 'openai' && p.state === 'connected');
             const hasConnectedFluxKey = providers.some(
               (p) => p.providerId === FLUX_PROVIDER_ID && p.state === 'connected'
             );
-            setConnectedCredentials({ openai: hasConnectedOpenAIKey, flux: hasConnectedFluxKey });
+            connectedCredentialsRef.current = { openai: hasConnectedOpenAIKey, flux: hasConnectedFluxKey };
+            setConnectedCredentials(connectedCredentialsRef.current);
             sttProvider = resolveEffectiveSttProvider({
               stored: storedStt,
               hasConnectedOpenAIKey,
@@ -1055,10 +1165,10 @@ export const useVoiceConversationSession = ({
 
         sttProviderRef.current = sttProvider;
         setEffectiveSttProvider(sttProvider);
-        sttConfigRef.current = storedStt ?? null;
+        sttConfigRef.current = storedStt;
         ttsConfigRef.current = nextTts;
         consentRef.current = effectiveConsent ?? null;
-        setSttConfig(storedStt ?? null);
+        setSttConfig(storedStt);
         setTtsConfig(nextTts);
         setConsent(effectiveConsent ?? null);
         setSurfaceError(null);
@@ -1108,12 +1218,7 @@ export const useVoiceConversationSession = ({
          * greeting for the user to talk to.
          */
         if (options?.thenListen) {
-          const greetable = resolveVoiceSessionReadiness({
-            ttsConfig: ttsConfigRef.current,
-            sttConfig: sttConfigRef.current && { ...sttConfigRef.current, provider: sttProviderRef.current ?? undefined },
-            platform: isMacOS() ? 'darwin' : 'other',
-            consent: consentRef.current,
-          }).ready;
+          const greetable = resolveVoiceSessionReadiness(readinessInput()).ready;
           const greeting = greetable ? await speakGreeting() : ({ kind: 'skipped' } as const);
           // Unconditional, including after a barge-in that already opened the
           // microphone on its own way through: `beginCapture` refuses anything
@@ -1440,18 +1545,73 @@ export const useVoiceConversationSession = ({
     return () => stopMonitoring();
   }, [greetingText, isActive, startMonitoring, state, stopMonitoring]);
 
-  const readiness = useMemo(
-    () =>
-      resolveVoiceSessionReadiness({
-        ttsConfig,
-        sttConfig: sttConfig && { ...sttConfig, provider: effectiveSttProvider ?? undefined },
-        platform: isMacOS() ? 'darwin' : 'other',
-        consent,
-        audioContextState,
-        connectedCredentials,
-      }),
-    [audioContextState, connectedCredentials, consent, effectiveSttProvider, sttConfig, ttsConfig]
+  const renderReadinessInput = useMemo(
+    (): VoiceReadinessInput => ({
+      ttsConfig,
+      sttConfig: sttConfig && { ...sttConfig, provider: effectiveSttProvider ?? undefined },
+      platform: rendererPlatform(),
+      consent,
+      audioContextState,
+      connectedCredentials,
+      localSttReady,
+      modelConnected,
+    }),
+    [
+      audioContextState,
+      connectedCredentials,
+      consent,
+      effectiveSttProvider,
+      localSttReady,
+      modelConnected,
+      sttConfig,
+      ttsConfig,
+    ]
   );
+
+  /**
+   * Warm the on-device model at a moment the user is NOT waiting.
+   *
+   * `whisperWorker` documents a 5-10 SECOND one-time warmup. Until now that was
+   * hidden, because whisper-local was only reachable via Settings, and opening
+   * Settings warmed it. Making the on-device floor the DEFAULT relocates those
+   * 5-10 silent seconds onto the first tap of the mic - the single most
+   * important interaction in the feature - unless it is paid off in advance.
+   *
+   * `requestIdleCallback` after first paint, so it never competes with the
+   * conversation rendering. Failure is deliberately swallowed: an unwarmed
+   * worker is a slow first tap, not a broken one, and `transcribeLocally`
+   * re-initializes on demand anyway.
+   */
+  useEffect(() => {
+    if (localSttReadyRef.current) return;
+    let cancelled = false;
+
+    const warm = () => {
+      void warmLocalWhisper()
+        .then(() => {
+          if (cancelled) return;
+          localSttReadyRef.current = true;
+          setLocalSttReady(true);
+        })
+        .catch(() => {
+          // Slow first tap, not a broken one.
+        });
+    };
+
+    const idle = typeof window !== 'undefined' ? window.requestIdleCallback : undefined;
+    const handle = idle ? idle(warm, { timeout: 2000 }) : window.setTimeout(warm, 0);
+
+    return () => {
+      cancelled = true;
+      if (idle && typeof window.cancelIdleCallback === 'function') window.cancelIdleCallback(handle as number);
+      else window.clearTimeout(handle as number);
+    };
+  }, []);
+
+  const readiness = useMemo(() => resolveVoiceSessionReadiness(renderReadinessInput), [renderReadinessInput]);
+  /** The two directions, resolved separately. @see resolveVoiceLeg */
+  const speechInLeg = useMemo(() => resolveVoiceLeg('in', renderReadinessInput), [renderReadinessInput]);
+  const speechOutLeg = useMemo(() => resolveVoiceLeg('out', renderReadinessInput), [renderReadinessInput]);
 
   const level = useMemo(() => {
     if (speechStatus !== 'recording' || recordingLevels.length === 0) return 0.18;
@@ -1476,6 +1636,8 @@ export const useVoiceConversationSession = ({
     ttsConfig,
     sttConfig,
     readiness,
+    speechInLeg,
+    speechOutLeg,
     configReady: Boolean(sttEnabled && ttsProviderReady),
     begin,
     beginCapture,

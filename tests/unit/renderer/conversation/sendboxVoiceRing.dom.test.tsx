@@ -83,7 +83,11 @@ vi.mock('@/renderer/utils/ui/focus', () => ({
   blurActiveElement: vi.fn(),
   shouldBlockMobileInputFocus: () => false,
 }));
-vi.mock('@/renderer/utils/platform', () => ({ isElectronDesktop: () => true, isMacOS: () => true }));
+vi.mock('@/renderer/utils/platform', () => ({
+  isElectronDesktop: () => true,
+  isMacOS: () => true,
+  rendererPlatform: () => 'darwin',
+}));
 vi.mock('@/common/config/storage', () => ({
   ConfigStorage: { get: vi.fn(async () => undefined), set: vi.fn(async () => undefined) },
 }));

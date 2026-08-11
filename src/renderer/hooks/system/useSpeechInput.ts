@@ -11,6 +11,7 @@ import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
 import { transcribeAudioBlob } from '@/renderer/services/SpeechToTextService';
 import { isElectronDesktop } from '@/renderer/utils/platform';
 import { ipcBridge } from '@/common';
+import type { VoiceLeg } from '@/common/voice/voiceReadiness';
 
 export type SpeechInputAvailability = 'record' | 'file' | 'unsupported';
 export type SpeechInputStatus = 'idle' | 'recording' | 'transcribing' | 'error';
@@ -52,6 +53,16 @@ type UseSpeechInputOptions = {
   onEndpointingUnavailable?: () => void;
   /** Fired from `startMonitoring` when the user talks over assistant playback. */
   onBargeIn?: () => void;
+  /**
+   * The listening leg, from `resolveVoiceLeg('in', ...)`.
+   *
+   * This hook had NO reference to readiness at all, which is the defect that
+   * matters most: the composer mic is the shipped voice surface, so a resolver
+   * that only the orb consulted was a resolver the product did not use.
+   * `undefined` keeps the pre-ladder behaviour for callers that have not been
+   * wired yet, and never blocks.
+   */
+  leg?: VoiceLeg;
 };
 
 const LOCAL_HOSTNAMES = new Set(['localhost', '127.0.0.1', '::1']);
@@ -191,6 +202,38 @@ export const pickRecordingMimeType = (): string => {
   return RECORDING_MIME_TYPES.find((mimeType) => MediaRecorder.isTypeSupported(mimeType)) || '';
 };
 
+/**
+ * A non-clickable listening leg, said in the composer's own error vocabulary.
+ *
+ * Exhaustive over the CLOSED `VoiceFailureCause` union, with a compile-time
+ * `never` on the default branch: a cause added without a case here is a
+ * typecheck failure, not the word "unknown" in front of a user.
+ */
+export const speechErrorCodeForLeg = (leg: VoiceLeg): SpeechInputErrorCode => {
+  switch (leg.cause) {
+    case 'local-engine-warming':
+      return 'local-engine-failed';
+    case 'audio-blocked':
+      return 'audio-capture';
+    case 'stt-unavailable':
+    case 'stt-needs-consent':
+    case 'stt-disabled':
+    case 'tts-disabled-by-user':
+    case 'tts-needs-consent':
+    case 'kokoro-unavailable':
+    case 'no-model-connected':
+      return 'not-configured';
+    case 'no-local-adapter':
+      return 'recording-unsupported';
+    case 'ok':
+      return 'unknown';
+    default: {
+      const exhaustive: never = leg.cause;
+      return exhaustive;
+    }
+  }
+};
+
 export const mapSpeechInputError = (error: unknown): SpeechInputErrorCode => {
   if (error instanceof DOMException) {
     switch (error.name) {
@@ -270,6 +313,7 @@ export const useSpeechInput = ({
   onNoSpeech,
   onEndpointingUnavailable,
   onBargeIn,
+  leg,
 }: UseSpeechInputOptions) => {
   const [status, setStatus] = useState<SpeechInputStatus>('idle');
   const [errorCode, setErrorCode] = useState<SpeechInputErrorCode | null>(null);
@@ -552,6 +596,20 @@ export const useSpeechInput = ({
   );
 
   const startRecording = useCallback(async () => {
+    /**
+     * Refuse BEFORE the microphone opens, and say which thing is wrong.
+     *
+     * Previously nothing here consulted readiness, so the composer mic happily
+     * opened the mic on a profile whose transcriber could not run, and the
+     * failure landed after the user had already finished speaking.
+     */
+    if (leg && !leg.clickable) {
+      setErrorCode(speechErrorCodeForLeg(leg));
+      setErrorMessage(null);
+      setStatus('error');
+      return;
+    }
+
     if (availability !== 'record') {
       setErrorCode('recording-unsupported');
       setStatus('error');
@@ -624,7 +682,7 @@ export const useSpeechInput = ({
       setStatus('error');
       resetSpeechVisualizer();
     }
-  }, [availability, cleanupRecorder, resetSpeechVisualizer, startSpeechVisualizer, transcribeBlob]);
+  }, [availability, cleanupRecorder, leg, resetSpeechVisualizer, startSpeechVisualizer, transcribeBlob]);
 
   const stopRecording = useCallback(() => {
     const recorder = recorderRef.current;
@@ -789,6 +847,8 @@ export const useSpeechInput = ({
 
   return {
     availability,
+    /** The listening leg as resolved, or a permissive stand-in when unwired. */
+    leg,
     cancelRecording,
     clearError,
     errorCode,

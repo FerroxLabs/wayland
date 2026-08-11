@@ -193,9 +193,12 @@ const VoiceConversationOrb: React.FC<{
         )}
 
         {error && (
-          <div className='voice-mode__notice voice-mode__notice--error' role='alert'>
+          // Keyed on `seq` so a repeated refusal remounts the alert. Without it
+          // an identical second refusal is invisible to a screen reader too:
+          // `role="alert"` only announces on a content change.
+          <div key={error.seq} className='voice-mode__notice voice-mode__notice--error' role='alert'>
             <strong>Nothing hidden</strong>
-            <span>{error}</span>
+            <span>{error.message}</span>
           </div>
         )}
 

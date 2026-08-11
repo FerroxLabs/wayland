@@ -241,6 +241,19 @@ vi.mock('@/common/adapter/ipcBridge', () => ({
       invoke: vi.fn(() => Promise.resolve([])),
     },
   },
+  // The STT panel's factory provider is now UNSET, which DISPLAYS as the
+  // on-device engine, so the whisper asset control mounts on first render and
+  // probes the local install. Previously the factory provider was 'openai' and
+  // that branch never mounted, which is why this stub was not needed before.
+  voiceAsset: {
+    exists: { invoke: vi.fn(() => Promise.resolve({ installed: true })) },
+    download: { invoke: vi.fn(() => Promise.resolve({ success: true })) },
+    cancel: { invoke: vi.fn(() => Promise.resolve({ success: true })) },
+    downloadProgress: { on: vi.fn(() => vi.fn()) },
+  },
+  voiceSynth: {
+    speak: { invoke: vi.fn(() => Promise.resolve({ ok: true, data: [], mimeType: 'audio/wav' })) },
+  },
 }));
 
 vi.mock('@/renderer/hooks/mcp', () => ({
@@ -399,12 +412,18 @@ describe('ToolsModalContent image generation status refresh', () => {
   it('shows required and optional markers for OpenAI and Deepgram speech-to-text fields', async () => {
     render(<ToolsModalContent />);
 
+    const providerSelect = await screen.findByLabelText(/settings\.speechToTextProvider/);
+    // The factory provider is now UNSET, which renders as the on-device engine
+    // and has no key fields at all. This test is about the OpenAI and Deepgram
+    // field markers, so it selects those providers rather than relying on one
+    // of them being the default.
+    fireEvent.change(providerSelect, { target: { value: 'openai' } });
+
     await screen.findByLabelText(/settings\.speechToTextApiKey/);
 
     expect(screen.getAllByText(/settings\.speechToTextRequired/)).toHaveLength(1);
     expect(screen.getAllByText(/settings\.speechToTextOptional/)).toHaveLength(3);
 
-    const providerSelect = screen.getByLabelText(/settings\.speechToTextProvider/);
     fireEvent.change(providerSelect, { target: { value: 'deepgram' } });
 
     await screen.findByLabelText(/settings\.speechToTextDetectLanguage/);

@@ -6,7 +6,31 @@
  * Modified by Ferrox Labs in 2026. Changes are documented in the project history.
  */
 
-export type SpeechToTextProvider = 'openai' | 'deepgram' | 'whisper-local' | 'flux-voice';
+export const SPEECH_TO_TEXT_PROVIDERS = ['openai', 'deepgram', 'whisper-local', 'flux-voice'] as const;
+
+export type SpeechToTextProvider = (typeof SPEECH_TO_TEXT_PROVIDERS)[number];
+
+export const isSpeechToTextProvider = (value: unknown): value is SpeechToTextProvider =>
+  typeof value === 'string' && (SPEECH_TO_TEXT_PROVIDERS as readonly string[]).includes(value);
+
+/**
+ * Who wrote this speech-to-text config: the factory floor, or the user.
+ *
+ * `'user'` is set ONLY when a control in the Voice panel is changed. Everything
+ * else - including every config that predates this field - is `'default'`, and
+ * a `'default'` config may be re-seeded to whatever the current floor is.
+ *
+ * MIGRATION, stated plainly: ALL pre-origin stored configs become
+ * `origin:'default'`, including ones a user deliberately pointed at keyless
+ * OpenAI. That is not a compromise, it is the only truthful reading. The
+ * normalizer spreads `DEFAULT_SPEECH_TO_TEXT_CONFIG` over every stored config,
+ * so a factory profile and a deliberate keyless-OpenAI choice are LITERALLY
+ * INDISTINGUISHABLE on disk - both read back as `provider:'openai'` with no key.
+ * There is no bit anywhere that separates them, so no migration can preserve the
+ * second. The "an explicit user choice is never re-seeded" guarantee is
+ * therefore FORWARD-ONLY: it holds for configs written after this ships.
+ */
+export type SpeechToTextConfigOrigin = 'default' | 'user';
 
 export type OpenAISpeechToTextConfig = {
   apiKey: string;
@@ -37,7 +61,15 @@ export type WhisperLocalSpeechToTextConfig = {
 export type SpeechToTextConfig = {
   autoSend?: boolean;
   enabled: boolean;
-  provider: SpeechToTextProvider;
+  /**
+   * UNSET means "the floor", which is the bundled on-device Whisper. It must
+   * never be read as a hosted service: an absent provider that resolves to a
+   * keyless `openai` is exactly the state that made speech-in unusable out of
+   * the box.
+   */
+  provider?: SpeechToTextProvider;
+  /** @see SpeechToTextConfigOrigin */
+  origin?: SpeechToTextConfigOrigin;
   deepgram?: DeepgramSpeechToTextConfig;
   fluxVoice?: OpenAISpeechToTextConfig;
   openai?: OpenAISpeechToTextConfig;

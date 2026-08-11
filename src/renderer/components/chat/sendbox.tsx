@@ -1409,7 +1409,8 @@ const SendBox: React.FC<{
         return t('conversation.chat.voice.statusReconnecting', { defaultValue: 'Reconnecting…' });
       case 'error':
         return (
-          voiceSession.error ?? t('conversation.chat.voice.statusError', { defaultValue: 'Voice needs attention' })
+          voiceSession.error?.message ??
+          t('conversation.chat.voice.statusError', { defaultValue: 'Voice needs attention' })
         );
       default:
         return null;

@@ -65,6 +65,10 @@ vi.mock('@/common/config/storage', () => ({
 vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
   isMacOS: () => true,
+  // `rendererPlatform` reads the module's OWN `isMacOS`, not this mocked
+  // export, so overriding one without the other leaves readiness on the
+  // Windows/Linux story while every other check says macOS.
+  rendererPlatform: () => 'darwin',
 }));
 
 vi.mock('@/renderer/hooks/system/useSpeechInput', () => ({
@@ -231,7 +235,7 @@ const Harness: React.FC = () => {
       </button>
       <span data-testid='state'>{session?.state ?? 'none'}</span>
       <span data-testid='greeting'>{session?.greetingText ?? ''}</span>
-      <span data-testid='error'>{session?.error ?? ''}</span>
+      <span data-testid='error'>{session?.error?.message ?? ''}</span>
     </>
   );
 };
@@ -470,13 +474,43 @@ describe('the greeting refuses the same things the session does', () => {
   });
 
   /**
-   * Sean's exact state in the report: `provider: "openai"` with no key. The
-   * session already refuses this and names it. Greeting into it would be a
-   * machine talking to itself - it can speak, but nothing it says can ever be
-   * answered.
+   * REWRITTEN, and the rewrite is the point of the lane rather than a
+   * concession to it.
+   *
+   * This used to assert that Sean's exact reported state - `provider:"openai"`
+   * with no key - refuses and names the missing key. That state carries NO
+   * `origin`, which makes it byte-for-byte indistinguishable from a profile
+   * that was never touched, because the old normalizer spread
+   * `provider:'openai'` over every stored config. So the ladder now treats it
+   * as what it almost always is - an untouched profile - and re-seeds it onto
+   * the bundled on-device engine, which needs no key and owes no disclosure.
+   *
+   * The old assertion is not deleted, it is MOVED: the test below pins the
+   * identical refusal for a config that carries `origin:'user'`, which is the
+   * only shape that can genuinely mean "I chose keyless OpenAI on purpose".
    */
-  it('says nothing when the transcriber has no key, and keeps the honest reason', async () => {
+  it('re-seeds a pre-origin keyless-OpenAI profile onto the on-device engine and greets', async () => {
     storedStt = { enabled: true, provider: 'openai', openai: { apiKey: '', model: 'whisper-1' } };
+    storedTts = { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false };
+    renderSession();
+
+    await act(async () => {
+      screen.getByRole('button', { name: 'talk' }).click();
+    });
+
+    // No disclosure is owed, because nothing hosted is in the path any more.
+    expect(screen.queryByTestId('voice-consent-accept')).toBeNull();
+    await waitFor(() => expect(mockSpeak).toHaveBeenCalled());
+    expect(screen.getByTestId('error').textContent).toBe('');
+  });
+
+  /**
+   * The moved assertion. `origin:'user'` is the one shape that distinguishes a
+   * deliberate keyless-OpenAI choice from a factory profile, and it is still
+   * refused, still by name.
+   */
+  it('says nothing when a user-chosen transcriber has no key, and keeps the honest reason', async () => {
+    storedStt = { enabled: true, origin: 'user', provider: 'openai', openai: { apiKey: '', model: 'whisper-1' } };
     storedTts = { enabled: true, provider: 'system-native', voice: 'default', speed: 1, autoReadResponses: false };
     renderSession();
 
