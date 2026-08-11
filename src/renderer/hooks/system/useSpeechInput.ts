@@ -221,7 +221,10 @@ export const mapSpeechInputError = (error: unknown): SpeechInputErrorCode => {
     message.includes('STT_FLUX_NOT_CONFIGURED') ||
     message.includes('STT_OPENAI_NOT_CONFIGURED') ||
     message.includes('STT_DEEPGRAM_NOT_CONFIGURED') ||
-    message.includes('STT_DISABLED')
+    message.includes('STT_DISABLED') ||
+    // The disclosure is accepted in the same Voice settings pane the
+    // "not configured" copy sends the user to, so it is the honest bucket.
+    message.includes('STT_HOSTED_CONSENT_REQUIRED')
   ) {
     return 'not-configured';
   }

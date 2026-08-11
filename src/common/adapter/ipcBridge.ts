@@ -52,7 +52,7 @@ import type {
   XaiOAuthResult,
 } from '../types/onboarding';
 import type { ProtocolDetectionRequest, ProtocolDetectionResponse } from '../utils/protocolDetector';
-import type { SpeechToTextRequest, SpeechToTextResult } from '../types/speech';
+import type { SpeechToTextBridgeResult, SpeechToTextRequest } from '../types/speech';
 import type { DownloadProgress, DownloadResult, VoiceAsset } from '../types/voiceAsset';
 import type {
   TerminalOpenParams,
@@ -504,7 +504,7 @@ export const fs = {
 };
 
 export const speechToText = {
-  transcribe: buildProvider<SpeechToTextResult, SpeechToTextRequest>('speech-to-text.transcribe'),
+  transcribe: buildProvider<SpeechToTextBridgeResult, SpeechToTextRequest>('speech-to-text.transcribe'),
 };
 
 export const voiceSynth = {

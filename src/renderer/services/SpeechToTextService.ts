@@ -83,12 +83,21 @@ export async function transcribeAudioBlob(blob: Blob, languageHint?: string): Pr
 
   if (isElectronDesktop()) {
     const audioBuffer = new Uint8Array(await blob.arrayBuffer());
-    return ipcBridge.speechToText.transcribe.invoke({
+    const outcome = await ipcBridge.speechToText.transcribe.invoke({
       audioBuffer: Array.from(audioBuffer),
       fileName,
       languageHint,
       mimeType,
     });
+    // The bridge reports failure as data, not as a rejection, so turn it back
+    // into the thrown STT_* error every caller already maps.
+    // `=== false`, not `!ok`: this project compiles without strictNullChecks,
+    // so truthiness does not narrow a discriminated union. Same shape as every
+    // voiceSynth.speak call site.
+    if (outcome.ok === false) {
+      throw new Error(outcome.detail ? `${outcome.errorCode}:${outcome.detail}` : outcome.errorCode);
+    }
+    return outcome.result;
   }
 
   const formData = new FormData();

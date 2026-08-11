@@ -59,3 +59,41 @@ export type SpeechToTextResult = {
   provider: SpeechToTextProvider;
   text: string;
 };
+
+/**
+ * The public failure vocabulary of a transcription turn. Same strings the
+ * service throws, so `mapSpeechInputError` keeps working unchanged.
+ */
+export type SpeechToTextErrorCode =
+  | 'STT_DISABLED'
+  | 'STT_OPENAI_NOT_CONFIGURED'
+  | 'STT_DEEPGRAM_NOT_CONFIGURED'
+  | 'STT_FLUX_NOT_CONFIGURED'
+  | 'STT_FLUX_AUTH_ERROR'
+  | 'STT_FLUX_PREMIUM_LOCKED'
+  | 'STT_HOSTED_CONSENT_REQUIRED'
+  | 'STT_FILE_TOO_LARGE'
+  | 'STT_RATE_LIMITED'
+  | 'STT_REQUEST_FAILED';
+
+/**
+ * Why transcription crosses the bridge as a RESULT and never as a rejection.
+ *
+ * The bridge has no error channel at all. `buildProvider(...).provider(fn)`
+ * calls `fn(data).then(emitCallback)` with no `.catch`, and the matching
+ * `invoke` is a `new Promise(resolve)` with no reject and no timeout. So a
+ * provider that throws produces an unhandledRejection in main and an `await`
+ * in the renderer that NEVER SETTLES - the mic sits on the transcribing
+ * spinner forever, with no message, until the window is reloaded.
+ *
+ * `voiceSynth.speak` already returns `{ok:false, errorCode}` for exactly this
+ * reason. Speech-to-text is its sibling and must do the same.
+ */
+export type SpeechToTextBridgeResult =
+  | { ok: true; result: SpeechToTextResult }
+  | {
+      ok: false;
+      errorCode: SpeechToTextErrorCode;
+      /** Provider-supplied detail, carried only for `STT_REQUEST_FAILED`. */
+      detail?: string;
+    };
