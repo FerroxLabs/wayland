@@ -64,11 +64,11 @@ async function spawnLegacyChild(config: AgentConfig): Promise<ChildProcess> {
   // never spawn a partial one.
   const launch = isAcpLaunchSpec(config.launch) ? config.launch : undefined;
 
-  // An INSTALLED agent wins over the npx bridge. NPX_BACKENDS is keyed by backend
-  // name, so claude/codex/codebuddy used to short-circuit here before the launch
-  // guard was ever reached: the installer's descriptor was discarded in silence
-  // and a different binary (the npx-fetched bridge) ran instead. Those three are
-  // exactly the backends K-05 ships an installer for.
+  // An agent WAYLAND INSTALLED wins over the npx bridge. NPX_BACKENDS is keyed by
+  // backend name, so claude/codex/codebuddy used to short-circuit here before the
+  // launch guard was ever reached: the installer's descriptor was discarded in
+  // silence and a different binary (the npx-fetched bridge) ran instead. Those
+  // three are exactly the backends K-05 ships an installer for.
   //
   // Preferring the descriptor over throwing is deliberate: the npx bridge is the
   // FALLBACK for a backend with no local install, and refusing to spawn would
@@ -78,7 +78,17 @@ async function spawnLegacyChild(config: AgentConfig): Promise<ChildProcess> {
   // ~/.codebuddy/mcp.json `--mcp-config` argument. Neither describes the installed
   // agent, and spawnGenericBackend still applies `config.env` (the Flux routing
   // surface) exactly as connectNpxBackend does.
-  if (!launch) {
+  //
+  // PROVENANCE, not mere presence, is what earns that. A launch spec reaches here
+  // from the persisted conversation `extra`, and `origin` is stamped in exactly
+  // one place: `resolveManagedAgentLaunch`, reading an install receipt. A spec
+  // that arrived any other way - a stale conversation whose install has since
+  // been removed, a hand-edited `extra` - describes a binary Wayland cannot
+  // vouch for, so the bridge stays in charge. A user's own PATH codex, which
+  // never produces a spec at all, keeps the bridge it has always used.
+  const fromWaylandInstall = launch?.origin === 'wayland-install';
+
+  if (!fromWaylandInstall) {
     const npxConnect = NPX_BACKENDS[backend];
     if (npxConnect) {
       // Thread the per-spawn customEnv (e.g. the Flux routing surface:

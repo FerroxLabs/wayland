@@ -1,5 +1,6 @@
 import type { AcpAgent } from '@process/agent/acp';
 import { AcpAgentV2 } from '@process/acp/compat';
+import { agentRegistry } from '@process/agent/AgentRegistry';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
 import { ipcBridge } from '@/common';
@@ -1171,7 +1172,20 @@ ${collectedResponses.join('\n')}`;
     // An installed agent carries `launch` on the persisted conversation extra. It is
     // forwarded untouched and wins over `cliPath` downstream; `cliPath` is left as the
     // legacy fallback for every agent that is not installer-provisioned.
-    return { cliPath, launch: data.launch, customArgs, yoloMode };
+    //
+    // When the conversation carries none, fall back to the install receipt. That
+    // fallback is what makes an install usable at all: `extra.launch` is only
+    // ever written by a PREVIOUS spawn of this same code, so without it a fresh
+    // conversation on a Wayland-installed backend would resolve to a bare
+    // cliCommand that is not on PATH — the receipt would be written, valid, and
+    // never read. Reading it here (rather than only at conversation creation)
+    // also picks up conversations created before the agent was installed.
+    //
+    // Precedence D1 is NOT decided here: getManagedLaunchSpec reads the merged
+    // detection list, where a PATH-detected system copy has already won and
+    // carries no launch spec, so this returns null and the user's own copy runs.
+    const launch = data.launch ?? agentRegistry.getManagedLaunchSpec(data.backend) ?? undefined;
+    return { cliPath, launch, customArgs, yoloMode };
   }
 
   // ── initAgent callback handlers ──────────────────────────────────────

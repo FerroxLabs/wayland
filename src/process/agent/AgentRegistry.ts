@@ -17,8 +17,11 @@ import type {
   RemoteDetectedAgent,
 } from '@/common/types/detectedAgent';
 import { isAgentKind } from '@/common/types/detectedAgent';
+import type { AcpLaunchSpec } from '@/common/types/acpTypes';
 import type { RemoteAgentConfig } from '@process/agent/remote/types';
 import { detectWCore } from '@process/agent/wcore/binaryResolver';
+import { pathProbeFindsAcpServer } from '@process/services/agentInstaller/agentPackages';
+import { listManagedAcpAgents } from '@process/services/agentInstaller/installedAgentLaunch';
 
 // Resolve the bundled wayland-core version once per app run (the binary doesn't
 // change at runtime) so the Wayland Core settings page shows the REAL engine
@@ -69,6 +72,7 @@ class AgentRegistry {
   private remoteAgents: RemoteDetectedAgent[] = [];
   private otherAgents: DetectedAgent[] = [];
   private customAgents: AcpDetectedAgent[] = [];
+  private managedAgents: AcpDetectedAgent[] = [];
 
   /**
    * Caught errors from sub-detector loading paths (e.g. remote agent DB read).
@@ -134,6 +138,43 @@ class AgentRegistry {
     return agents;
   }
 
+  /**
+   * Agents Wayland installed into its own prefix, as detected agents.
+   *
+   * These are NOT on the system PATH — Wayland never puts anything there — so
+   * `AcpDetector` can never see them and, before this existed, an install that
+   * genuinely succeeded left the agent absent from the picker.
+   *
+   * Each entry carries the receipt's `launch` descriptor. `cliPath` is set to
+   * the backend's own command name purely as the legacy field's value: every
+   * spawn seam prefers `launch` when it is a valid spec, so the string is never
+   * parsed for a managed agent.
+   *
+   * Never throws: a failure to read receipts must degrade to "no managed
+   * installs", which is exactly today's behaviour, not a registry that fails to
+   * initialise and leaves the user with no agents at all.
+   */
+  private loadManagedAgents(): AcpDetectedAgent[] {
+    try {
+      return listManagedAcpAgents().map((managed) => ({
+        id: managed.backend,
+        name: managed.name,
+        kind: 'acp' as const,
+        available: true,
+        backend: managed.backend,
+        cliPath: managed.launch.command,
+        launch: managed.launch,
+        managedAgentId: managed.agentId,
+        ...(managed.acpArgs ? { acpArgs: managed.acpArgs } : {}),
+      }));
+    } catch (error) {
+      const message = `[managed] ${String((error as { message?: unknown })?.message ?? error)}`;
+      console.error('[AgentRegistry] Failed to load managed agent installs:', error);
+      this.loadErrors.push(message);
+      return [];
+    }
+  }
+
   private async loadRemoteAgents(): Promise<RemoteDetectedAgent[]> {
     try {
       // Dynamic import to avoid circular dependency at module load time
@@ -163,8 +204,52 @@ class AgentRegistry {
 
   /**
    * Deduplicate agents by backend ID. First occurrence wins - merge order
-   * determines priority: WCore > Gemini > Builtin > Other > Remote > Extension > Custom.
+   * determines priority: WCore > Gemini > Builtin > Managed > Other > Remote > Extension > Custom.
    * When an extension contributes the same backend as a builtin, the builtin wins.
+   *
+   * Managed installs sit immediately BEHIND the PATH-detected builtins, and that
+   * position IS decision D1: a system copy the user already has wins outright,
+   * so the managed entry (the only one carrying a `launch` descriptor) survives
+   * only when the PATH probe found nothing. Moving it ahead of `builtinAgents`
+   * would silently take a working user setup away from them.
+   *
+   * D2 - AN ALWAYS-LISTED ACP STUB IS THE LAST RESORT FOR ITS BACKEND, NEVER THE
+   * FIRST. A first-party ACP agent that is listed whether or not its binary
+   * exists (the shape PR #950 introduces for Wayland Nano) contributes an entry
+   * with no `cliPath` and no `launch` - it exists so the agent is visible on a
+   * clean machine, not because anything is known about how to spawn it. Merged
+   * AHEAD of `builtinAgents`/`managedAgents` such a stub wins first-wins dedup
+   * and becomes the only entry for that backend, which makes
+   * `getManagedLaunchSpec()` answer null for an agent Wayland genuinely
+   * installed: the receipt is written, valid, and never read, and the install is
+   * unlaunchable with no error to show for it. So it belongs at the marked slot
+   * in `merge()` - behind both real sources, ahead of nothing that can collide.
+   *
+   * This is a PRIORITY list, not a display list. If such an agent needs a fixed
+   * position in the picker, pin it in the renderer; buying the position by
+   * moving the stub up the merge order costs launchability.
+   *
+   * D3 - D1 APPLIES ONLY WHERE THE PATH PROBE ACTUALLY FOUND A SYSTEM COPY OF
+   * THE BACKEND'S ACP SERVER. `codex` is the case where it did not: the probe
+   * is the ordinary Codex CLI, which has no `acp` subcommand and cannot serve
+   * the backend, while the ACP server the installer pins is a different bin
+   * (`codex-acp`). Ranking that hit as a system copy let it win first-wins dedup
+   * over a receipted install of the bridge, so `getManagedLaunchSpec('codex')`
+   * answered null and the pinned, offline-capable copy the user had explicitly
+   * asked Wayland to install sat on disk unread while the npx bridge was
+   * re-resolved over the network on every spawn.
+   *
+   * So a managed install SUPERSEDES such a hit, IN PLACE, at the builtin's own
+   * index - see `merge()`. In place rather than by reordering the groups because
+   * the builtin order is also the picker's order (`ACP_BACKENDS_ALL` is
+   * commented for it: "Codex is listed before Qwen so it appears earlier in the
+   * agent icon row"), and demoting the whole class would reshuffle the row for
+   * every user, including the ones with no install at all.
+   *
+   * Nothing else moves. Where the probe IS the server's bin (`kimi`), D1 stands
+   * untouched and the user's own copy still wins. Where there is no receipt, the
+   * detected entry is still the only one and still carries no launch spec, which
+   * is exactly what keeps codex on the npx bridge it has always used.
    *
    * Remote and custom agents share their `backend` string but are individually
    * addressable via their unique `id`, so they skip backend dedup.
@@ -183,12 +268,28 @@ class AgentRegistry {
     return result;
   }
 
+  /**
+   * The managed install that supersedes a PATH-detected builtin, or undefined.
+   *
+   * Only ever answers for a backend whose probe cannot serve it (decision D3);
+   * for every other backend this returns undefined and D1 decides as before.
+   */
+  private supersedingManagedInstall(builtin: AcpDetectedAgent): AcpDetectedAgent | undefined {
+    if (pathProbeFindsAcpServer(builtin.backend)) return undefined;
+    return this.managedAgents.find((managed) => managed.backend === builtin.backend);
+  }
+
   // prettier-ignore
   private merge(): void {
     this.detectedAgents = this.deduplicate([
       this.createWCoreAgent(),
       this.createGeminiAgent(),
-      ...this.builtinAgents,
+      // D3 slot: a managed install takes the builtin's own index when the PATH
+      // probe cannot serve that backend. See deduplicate() for why.
+      ...this.builtinAgents.map((builtin) => this.supersedingManagedInstall(builtin) ?? builtin),
+      ...this.managedAgents,
+      // D2 slot: always-listed ACP stubs (no cliPath, no launch) go HERE, behind
+      // the PATH probe and the install receipt. See deduplicate() for why.
       ...this.otherAgents,
       ...this.remoteAgents,
       ...this.extensionAgents,
@@ -233,6 +334,7 @@ class AgentRegistry {
     this.remoteAgents = remoteAgents;
     this.customAgents = customAgents;
     this.otherAgents = this.detectOtherCliAgents();
+    this.managedAgents = this.loadManagedAgents();
     this.merge();
   }
 
@@ -326,6 +428,39 @@ class AgentRegistry {
       // a previously surfaced failure without losing errors from other sources.
       this.loadErrors = this.loadErrors.filter((e) => !e.startsWith('[remote]'));
       this.remoteAgents = await this.loadRemoteAgents();
+      this.merge();
+    });
+  }
+
+  /**
+   * The launch descriptor to spawn a backend with, or null to use `cliPath`.
+   *
+   * Reads the MERGED list, not the managed list, so it inherits decision D1
+   * rather than re-deciding it: when the user has their own copy on PATH the
+   * merged entry for that backend is the PATH one, which carries no `launch`,
+   * and this returns null so the existing cliPath resolution runs untouched.
+   *
+   * Returns null before `initialize()` has run, which is the pre-existing
+   * behaviour (no launch spec, spawn by cliPath) and never worse than it.
+   */
+  getManagedLaunchSpec(backend: string): AcpLaunchSpec | null {
+    const entry = this.detectedAgents.find(
+      (agent): agent is AcpDetectedAgent => isAgentKind(agent, 'acp') && agent.backend === backend
+    );
+    return entry?.launch ?? null;
+  }
+
+  /**
+   * Re-read managed installs from disk. Called by the installer bridge after an
+   * install or uninstall so the picker reflects the receipt immediately instead
+   * of at the next full re-detection.
+   */
+  async refreshManagedAgents(): Promise<void> {
+    await this.runExclusiveMutation(async () => {
+      // Drop only the [managed]-prefixed errors so a successful reload clears a
+      // previously surfaced failure without losing errors from other sources.
+      this.loadErrors = this.loadErrors.filter((e) => !e.startsWith('[managed]'));
+      this.managedAgents = this.loadManagedAgents();
       this.merge();
     });
   }

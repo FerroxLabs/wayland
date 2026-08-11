@@ -2279,6 +2279,48 @@
         "backupLabel": "Copia de seguridad en",
         "rollbackLabel": "Para deshacer, ejecuta"
       }
+    },
+    "install": {
+      "bandTitle": "Disponibles para instalar",
+      "action": "Instalar",
+      "retry": "Reintentar",
+      "cancel": "Cancelar",
+      "remove": "Quitar",
+      "installing": "Instalando {{version}}…",
+      "installed": "Instalado por Wayland",
+      "pinned": "Instala {{version}}",
+      "systemCopy": "Usa tu copia del sistema",
+      "unavailable": "No disponible en esta compilación",
+      "whyLink": "¿Por qué?",
+      "whyBody": "Esta compilación no incluye un entorno de ejecución para tu plataforma, y toda instalación necesita uno. Instala el agente tú mismo y Wayland lo detectará.",
+      "failed": {
+        "unknown-agent": "Wayland no tiene un paquete fijado para este agente.",
+        "bundled-bun-unavailable": "Esta compilación no incluye un entorno de ejecución para instalar.",
+        "install-failed": "La descarga falló. Comprueba tu conexión e inténtalo de nuevo.",
+        "already-installing": "Ya hay una instalación en curso. Espera a que termine.",
+        "timed-out": "La instalación tardó demasiado y se detuvo. Inténtalo de nuevo.",
+        "cancelled": "Instalación cancelada.",
+        "error": "La instalación se detuvo con un error inesperado.",
+        "remove-failed": "Wayland no pudo eliminar su copia. Inténtalo de nuevo.",
+        "receipt-missing": "No se eliminó nada. Wayland no tiene registro de esta instalación."
+      },
+      "removeConfirm": {
+        "title": "¿Quitar {{agent}}?",
+        "body": "Esto elimina la copia que Wayland instaló en su propia carpeta. Cualquier copia que hayas instalado tú no se toca.",
+        "confirm": "Quitar",
+        "cancel": "Conservar"
+      },
+      "consent": {
+        "title": "¿Instalar {{agent}}?",
+        "body": "Esto descarga un paquete de npm y coloca código ejecutable en tu ordenador.",
+        "packageLabel": "Paquete",
+        "versionLabel": "Versión",
+        "destinationLabel": "Destino",
+        "scriptsLabel": "Scripts de instalación",
+        "scriptsValue": "Bloqueados",
+        "confirm": "Instalar",
+        "cancel": "Cancelar"
+      }
     }
   },
   "wcoreConfig": {

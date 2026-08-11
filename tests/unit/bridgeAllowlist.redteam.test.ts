@@ -92,6 +92,38 @@ describe('isAllowedForRemote - webui admin/auth providers denied', () => {
  * (injection / overwrite), connect-flux mints + persists a Flux credential.
  * The read-only onboarding.infer-focus stays allowed.
  */
+/**
+ * The Flux connector's WRITE channels take the stored Flux API key and put it,
+ * in plaintext, into a CLI config file on the HOST machine. That is the same
+ * class as onboarding.connect-flux directly above, so a paired remote browser
+ * must not be able to drive it. The status READ stays allowed - the settings
+ * panel has to render remotely.
+ *
+ * NOTE the deliberate asymmetry below: the equivalent opencode and codex
+ * channels are NOT denied today. That is shipped behaviour, it looks like an
+ * oversight rather than a decision, and changing it could break a paired-device
+ * flow - so it is recorded here as a known gap awaiting an explicit call,
+ * rather than silently changed. This test pins what IS true, not what we wish
+ * were true.
+ */
+describe('isAllowedForRemote - flux connector config writes', () => {
+  it.each(['flux-connector:setup-kimi', 'flux-connector:remove-kimi'])('denies subscribe-%s', (key) => {
+    expect(isAllowedForRemote(`subscribe-${key}`)).toBe(false);
+  });
+
+  it('still allows the read-only kimi status so a remote settings panel renders', () => {
+    expect(isAllowedForRemote('subscribe-flux-connector:kimi-status')).toBe(true);
+  });
+
+  it('records the KNOWN GAP: opencode and codex config writes are still remote-reachable', () => {
+    // Deliberately asserting the gap rather than the fix. If someone closes it,
+    // this test fails and they are pointed at the comment above to confirm the
+    // decision was made on purpose.
+    expect(isAllowedForRemote('subscribe-flux-connector:setup-opencode')).toBe(true);
+    expect(isAllowedForRemote('subscribe-flux-connector:setup-codex')).toBe(true);
+  });
+});
+
 describe('isAllowedForRemote - onboarding credential writes denied', () => {
   it.each(['onboarding.connect-pasted-key', 'onboarding.connect-flux'])(
     'denies subscribe-%s for remote callers',

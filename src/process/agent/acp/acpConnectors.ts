@@ -240,7 +240,8 @@ export function ensureMinNodeVersion(
  * @param launch - Structured launch spec from an installed agent. When present it wins over
  *   `cliPath` and is consumed verbatim: neither the npx-prefix branch, nor the Windows quote
  *   parser, nor the POSIX whitespace split runs. This is the only shape that survives an
- *   install path containing a space (see AcpLaunchSpec).
+ *   install path containing a space (see AcpLaunchSpec). Its optional `env` is merged over
+ *   the child env — that is what keeps a dev-build JS agent running as Node.
  */
 export function createGenericSpawnConfig(
   cliPath: string,
@@ -252,7 +253,7 @@ export function createGenericSpawnConfig(
 ) {
   const isWindows = process.platform === 'win32';
   // Use prebuilt env if provided (already cleaned by caller), otherwise build from shell env
-  const env = prebuiltEnv ?? getEnhancedEnv(customEnv);
+  let env = prebuiltEnv ?? getEnhancedEnv(customEnv);
 
   // Default to --experimental-acp only if acpArgs is strictly undefined.
   // This allows passing an empty array [] to bypass default flags.
@@ -274,6 +275,16 @@ export function createGenericSpawnConfig(
     // acpArgs are still appended, exactly as every other branch does.
     spawnCommand = launch.command;
     spawnArgs = [...launch.args, ...effectiveAcpArgs];
+    // The spec's own env, when it has one. This is what keeps a DEV-build install
+    // of a pure-JS agent (kimi, openclaw) running as Node: unpackaged,
+    // `resolveJsRuntime()` picks the Electron binary and ELECTRON_RUN_AS_NODE=1,
+    // and without the second half the child boots a full Electron WINDOW with no
+    // stdio JSON-RPC. Copied into a NEW object - `prebuiltEnv` belongs to the
+    // caller and is reused across spawns. Applied last so the runtime's own
+    // requirement wins over an inherited value of the same name.
+    if (launch.env && Object.keys(launch.env).length > 0) {
+      env = { ...env, ...launch.env };
+    }
   } else if (cliPath.startsWith('npx ')) {
     // Route legacy npx package launchers through the bundled bun runtime.
     const parts = cliPath.split(' ').filter(Boolean);

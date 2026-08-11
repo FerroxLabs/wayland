@@ -2279,6 +2279,48 @@
         "backupLabel": "Sauvegardé vers",
         "rollbackLabel": "Pour annuler, exécute"
       }
+    },
+    "install": {
+      "bandTitle": "Disponibles à l'installation",
+      "action": "Installer",
+      "retry": "Réessayer",
+      "cancel": "Annuler",
+      "remove": "Supprimer",
+      "installing": "Installation de {{version}}…",
+      "installed": "Installé par Wayland",
+      "pinned": "Installe {{version}}",
+      "systemCopy": "Utilise votre copie système",
+      "unavailable": "Indisponible sur cette version",
+      "whyLink": "Pourquoi ?",
+      "whyBody": "Cette version n'embarque pas d'environnement d'exécution pour votre plateforme, et toute installation en a besoin. Installez l'agent vous-même et Wayland le détectera.",
+      "failed": {
+        "unknown-agent": "Wayland n'a pas de paquet épinglé pour cet agent.",
+        "bundled-bun-unavailable": "Cette version n'embarque pas d'environnement d'exécution pour installer.",
+        "install-failed": "Le téléchargement a échoué. Vérifiez votre connexion et réessayez.",
+        "already-installing": "Une installation est déjà en cours. Attendez qu'elle se termine.",
+        "timed-out": "L'installation a pris trop de temps et a été arrêtée. Réessayez.",
+        "cancelled": "Installation annulée.",
+        "error": "L'installation s'est arrêtée sur une erreur inattendue.",
+        "remove-failed": "Wayland n'a pas pu supprimer sa copie. Réessayez.",
+        "receipt-missing": "Rien n'a été supprimé. Wayland n'a aucune trace de cette installation."
+      },
+      "removeConfirm": {
+        "title": "Supprimer {{agent}} ?",
+        "body": "Cela supprime la copie que Wayland a installée dans son propre dossier. Toute copie que vous avez installée vous-même reste intacte.",
+        "confirm": "Supprimer",
+        "cancel": "Conserver"
+      },
+      "consent": {
+        "title": "Installer {{agent}} ?",
+        "body": "Cette action télécharge un paquet depuis npm et place du code exécutable sur votre ordinateur.",
+        "packageLabel": "Paquet",
+        "versionLabel": "Version",
+        "destinationLabel": "Destination",
+        "scriptsLabel": "Scripts d'installation",
+        "scriptsValue": "Bloqués",
+        "confirm": "Installer",
+        "cancel": "Annuler"
+      }
     }
   },
   "wcoreConfig": {

@@ -11,7 +11,10 @@ describe('acpTypes - skillsDirs integration', () => {
         codex: ['.codex/skills'],
         codebuddy: ['.codebuddy/skills'],
         goose: ['.goose/skills'],
-        kimi: ['.kimi/skills'],
+        // Kimi Code's own binary carries `PROJECT_BRAND_DIRS =
+        // [".kimi-code/skills"]`; `.kimi/skills` is the legacy tree its
+        // `migrate` subcommand copies out of.
+        kimi: ['.kimi-code/skills'],
         droid: ['.factory/skills'],
         vibe: ['.vibe/skills'],
         cursor: ['.cursor/skills'],

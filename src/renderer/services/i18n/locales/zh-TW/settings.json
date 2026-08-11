@@ -2254,6 +2254,48 @@
         "backupLabel": "備份至",
         "rollbackLabel": "若要復原，請執行"
       }
+    },
+    "install": {
+      "bandTitle": "可安裝",
+      "action": "安裝",
+      "retry": "重試",
+      "cancel": "取消",
+      "remove": "移除",
+      "installing": "正在安裝 {{version}}…",
+      "installed": "已由 Wayland 安裝",
+      "pinned": "將安裝 {{version}}",
+      "systemCopy": "使用你系統中的副本",
+      "unavailable": "此版本不支援",
+      "whyLink": "為什麼？",
+      "whyBody": "此版本未為你的平台隨附執行環境，而所有安裝都需要它。你可以自行安裝該智能體，Wayland 會自動偵測到。",
+      "failed": {
+        "unknown-agent": "Wayland 沒有為該智能體固定的套件。",
+        "bundled-bun-unavailable": "此版本未隨附用於安裝的執行環境。",
+        "install-failed": "下載失敗。請檢查網路連線後重試。",
+        "already-installing": "已有安裝正在進行。請等待其完成。",
+        "timed-out": "安裝耗時過長已被停止。請重試。",
+        "cancelled": "安裝已取消。",
+        "error": "安裝因非預期的錯誤而中止。",
+        "remove-failed": "Wayland 無法移除自己的副本。請重試。",
+        "receipt-missing": "未移除任何項目。Wayland 沒有這次安裝的紀錄。"
+      },
+      "removeConfirm": {
+        "title": "移除 {{agent}}？",
+        "body": "這會刪除 Wayland 安裝到自身資料夾中的副本。你自己安裝的任何副本都不會受影響。",
+        "confirm": "移除",
+        "cancel": "保留"
+      },
+      "consent": {
+        "title": "安裝 {{agent}}？",
+        "body": "這會從 npm 下載套件，並在你的電腦上放入可執行的程式碼。",
+        "packageLabel": "套件",
+        "versionLabel": "版本",
+        "destinationLabel": "安裝位置",
+        "scriptsLabel": "安裝指令碼",
+        "scriptsValue": "已封鎖",
+        "confirm": "安裝",
+        "cancel": "取消"
+      }
     }
   },
   "commandPalette": {

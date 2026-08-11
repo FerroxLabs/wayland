@@ -78,6 +78,11 @@ const mockGetAvailableAgents = vi.fn();
 const mockGetLoadErrors = vi.fn();
 const mockGetRouteThroughFlux = vi.fn();
 const mockSetRouteThroughFlux = vi.fn();
+// `agent-installer:status` backs the "Available to install" band (T-B). It is
+// mocked here rather than left undefined because an undefined channel makes the
+// band swallow its own error and render nothing, which would silently hide the
+// band from every assertion in this file.
+const mockAgentInstallerStatus = vi.fn();
 
 vi.mock('../../../src/common', () => ({
   ipcBridge: {
@@ -88,6 +93,10 @@ vi.mock('../../../src/common', () => ({
     systemSettings: {
       getRouteThroughFlux: { invoke: (...a: unknown[]) => mockGetRouteThroughFlux(...a) },
       setRouteThroughFlux: { invoke: (...a: unknown[]) => mockSetRouteThroughFlux(...a) },
+    },
+    agentInstaller: {
+      status: { invoke: (...a: unknown[]) => mockAgentInstallerStatus(...a) },
+      install: { invoke: vi.fn() },
     },
   },
 }));
@@ -184,10 +193,28 @@ function render(ui: React.ReactElement) {
   return rtlRender(React.createElement(SWRConfig, { value: { provider: () => new Map(), dedupingInterval: 0 } }, ui));
 }
 
+/** One `absent` catalogued agent, so the install band has something to render. */
+const INSTALLER_REPORT = {
+  bundledBunAvailable: true,
+  agents: [
+    {
+      agentId: 'openclaw',
+      npmPackage: 'openclaw',
+      pinnedVersion: '2026.7.1-2',
+      installPrefix: '/data/agents/openclaw',
+      state: 'absent' as const,
+      detectedOnPath: false,
+      managedInstall: null,
+      reason: 'prefix-missing' as const,
+    },
+  ],
+};
+
 beforeEach(() => {
   vi.clearAllMocks();
   mockGetAvailableAgents.mockResolvedValue(agentsOk(AGENTS));
   mockGetLoadErrors.mockResolvedValue({ success: true, data: [] });
+  mockAgentInstallerStatus.mockResolvedValue(INSTALLER_REPORT);
   mockGetRouteThroughFlux.mockResolvedValue(false);
   mockSetRouteThroughFlux.mockResolvedValue(undefined);
   // Default fixture: Flux is connected so the card renders its toggle. The
@@ -242,6 +269,29 @@ describe('AgentsSettings (Packet 2D)', () => {
     expect(screen.getByText('Flux setup')).toBeTruthy();
   });
 
+  it('renders the kimi Flux chip as a clickable setup button, not inert text', async () => {
+    // `kimi` is classified `setup` AND has a live connector, so its chip must be
+    // the button that opens FluxSetupModal. A `setup` backend WITHOUT a connector
+    // (`qoder`) stays an inert span - that contrast is what makes this test able
+    // to fail if the kimi case is dropped from the clickable branch.
+    mockGetAvailableAgents.mockResolvedValue(
+      agentsOk([
+        { backend: 'kimi', name: 'Kimi Code' },
+        { backend: 'qoder', name: 'Qoder CLI' },
+      ])
+    );
+    render(<AgentsSettings />);
+    await waitFor(() => expect(screen.getByText('Kimi Code')).toBeTruthy());
+
+    const kimiCard = screen.getByText('Kimi Code').closest('[data-testid="agent-tile"]');
+    expect(kimiCard).toBeTruthy();
+    expect(kimiCard!.querySelector('[data-testid="flux-setup-chip"]')).toBeTruthy();
+
+    const qoderCard = screen.getByText('Qoder CLI').closest('[data-testid="agent-tile"]');
+    expect(qoderCard!.textContent).toContain('Flux setup');
+    expect(qoderCard!.querySelector('[data-testid="flux-setup-chip"]')).toBeNull();
+  });
+
   it('renders no Flux chip for a backend with no fluxCompat classification', async () => {
     // `codebuddy` carries no fluxCompat, so its card must not show any chip.
     // (The always-present Wayland Core hero is `env`, so scope the assertion to
@@ -276,6 +326,34 @@ describe('AgentsSettings (Packet 2D)', () => {
     expect(container.textContent || '').not.toMatch(/family/i);
     expect(container.textContent || '').not.toMatch(/padlock|locked/i);
     expect(container.querySelector('[aria-label*="lock" i]')).toBeNull();
+  });
+
+  it('places "Available to install" BELOW "More detected", keeping the shipped order (D3)', async () => {
+    const { container } = render(<AgentsSettings />);
+    await waitFor(() => expect(screen.getByText('Available to install')).toBeTruthy());
+
+    // Section labels in DOM order. Reading them off the rendered document (not
+    // from the source) is what makes this able to catch a band inserted in the
+    // wrong place.
+    const labels = Array.from(container.querySelectorAll('[class*="sectionLabel"]')).map((el) =>
+      (el.textContent || '').trim()
+    );
+    const idx = (needle: string) => labels.findIndex((l) => l.startsWith(needle));
+
+    expect(idx('Flux Router')).toBeGreaterThanOrEqual(0);
+    expect(idx('Your agents')).toBeGreaterThan(idx('Flux Router'));
+    expect(idx('More detected')).toBeGreaterThan(idx('Your agents'));
+    expect(idx('Available to install')).toBeGreaterThan(idx('More detected'));
+    expect(idx('Remote agents')).toBeGreaterThan(idx('Available to install'));
+  });
+
+  it('renders an installable agent the user does not have - the state the page never had', async () => {
+    render(<AgentsSettings />);
+    await waitFor(() => expect(screen.getByText('Available to install')).toBeTruthy());
+
+    const tile = screen.getByTestId('installable-tile-openclaw');
+    expect(tile.getAttribute('data-state')).toBe('absent');
+    expect(screen.getByTestId('install-button-openclaw').textContent).toContain('Install');
   });
 
   it('renders the remote agents section', async () => {

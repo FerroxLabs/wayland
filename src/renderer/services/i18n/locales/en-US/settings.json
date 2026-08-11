@@ -2437,6 +2437,48 @@
         "backupLabel": "Backed up to",
         "rollbackLabel": "To undo, run"
       }
+    },
+    "install": {
+      "bandTitle": "Available to install",
+      "action": "Install",
+      "retry": "Retry",
+      "cancel": "Cancel",
+      "remove": "Remove",
+      "installing": "Installing {{version}}…",
+      "installed": "Installed by Wayland",
+      "pinned": "Installs {{version}}",
+      "systemCopy": "Uses your system copy",
+      "unavailable": "Not available on this build",
+      "whyLink": "Why?",
+      "whyBody": "This build has no bundled runtime for your platform, and every install needs one. Install the agent yourself and Wayland will detect it.",
+      "failed": {
+        "unknown-agent": "Wayland has no pinned package for this agent.",
+        "bundled-bun-unavailable": "This build has no bundled runtime to install with.",
+        "install-failed": "The download failed. Check your connection and try again.",
+        "already-installing": "An install is already running. Wait for it to finish.",
+        "timed-out": "The install took too long and was stopped. Try again.",
+        "cancelled": "Install cancelled.",
+        "error": "The install stopped with an unexpected error.",
+        "remove-failed": "Wayland could not remove its copy. Try again.",
+        "receipt-missing": "Nothing was removed. Wayland has no record of installing this."
+      },
+      "removeConfirm": {
+        "title": "Remove {{agent}}?",
+        "body": "This deletes the copy Wayland installed into its own folder. Any copy you installed yourself is left alone.",
+        "confirm": "Remove",
+        "cancel": "Keep"
+      },
+      "consent": {
+        "title": "Install {{agent}}?",
+        "body": "This downloads a package from npm and puts runnable code on your computer.",
+        "packageLabel": "Package",
+        "versionLabel": "Version",
+        "destinationLabel": "Destination",
+        "scriptsLabel": "Install scripts",
+        "scriptsValue": "Blocked",
+        "confirm": "Install",
+        "cancel": "Cancel"
+      }
     }
   },
   "wcoreConfig": {

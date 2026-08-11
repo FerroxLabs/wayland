@@ -61,6 +61,7 @@ import { initWorkspaceTrustBridge } from './workspaceTrustBridge';
 import { initSystemSettingsBridge } from './systemSettingsBridge';
 import { initTerminalBridge } from '@process/terminal/terminalBridge';
 import { initFluxConnectorBridge } from './fluxConnectorBridge';
+import { initAgentInstallerBridge } from './agentInstallerBridge';
 import { initAmbientBridge } from './ambientBridge';
 import { initWindowControlsBridge } from './windowControlsBridge';
 import { initNotificationBridge } from './notificationBridge';
@@ -154,6 +155,7 @@ export function initAllBridges(deps: BridgeDependencies): void {
   initSystemSettingsBridge();
   initTerminalBridge();
   initFluxConnectorBridge();
+  initAgentInstallerBridge();
   initIjfwBridge();
   initIjfwDropBridge();
   initMemoryArchiveBridge();
@@ -293,6 +295,7 @@ export {
   initStarOfficeBridge,
   initSystemSettingsBridge,
   initFluxConnectorBridge,
+  initAgentInstallerBridge,
   initAmbientBridge,
   initTaskBridge,
   initUpdateBridge,

@@ -160,7 +160,7 @@ describe('LegacyConnectorFactory', () => {
       ['codex', 'connectCodex'],
       ['codebuddy', 'connectCodebuddy'],
     ] as const) {
-      it(`prefers an installed launch spec over the npx bridge for ${backend}`, async () => {
+      it(`prefers a WAYLAND-INSTALLED launch spec over the npx bridge for ${backend}`, async () => {
         const child = makeFakeChild();
         mocks.spawnGenericBackend.mockResolvedValue({ child, isDetached: true });
         mocks[connectMock].mockImplementation(async (_cwd: string, hooks: { setup: (r: unknown) => Promise<void> }) => {
@@ -170,6 +170,7 @@ describe('LegacyConnectorFactory', () => {
         const launch = {
           command: 'C:\\Program Files\\Wayland\\resources\\bundled-bun\\win32-x64\\bun.exe',
           args: [`C:\\Users\\John Smith\\AppData\\Local\\Wayland\\agents\\${backend}\\cli-entry.js`],
+          origin: 'wayland-install' as const,
         };
 
         const factory = new LegacyConnectorFactory();
@@ -180,6 +181,35 @@ describe('LegacyConnectorFactory', () => {
 
         expect(mocks[connectMock]).not.toHaveBeenCalled();
         expect(mocks.spawnGenericBackend).toHaveBeenCalledWith(backend, '', '/tmp/test', ['--acp'], undefined, launch);
+        expect(result).toBe(child);
+      });
+
+      // The other half of the same rule. `origin` is stamped only by
+      // resolveManagedAgentLaunch, the single place a spec is read back out of
+      // an install receipt. A spec that arrived any other way - a persisted
+      // conversation whose install has since been removed, a hand-edited
+      // `extra` - describes a binary Wayland cannot vouch for, and must not
+      // displace the bridge these three backends have always used.
+      it(`does NOT displace the npx bridge for ${backend} without that provenance`, async () => {
+        const child = makeFakeChild();
+        mocks.spawnGenericBackend.mockResolvedValue({ child: makeFakeChild(), isDetached: true });
+        mocks[connectMock].mockImplementation(async (_cwd: string, hooks: { setup: (r: unknown) => Promise<void> }) => {
+          await hooks.setup({ child, isDetached: true });
+        });
+
+        const launch = {
+          command: '/somewhere/else/bun',
+          args: ['/somewhere/else/cli-entry.js'],
+        };
+
+        const factory = new LegacyConnectorFactory();
+        factory.create(makeConfig({ agentBackend: backend, launch, args: ['--acp'] }), makeHandlers());
+
+        const { spawnFn } = mockProcessAcpClientInstances[0];
+        const result = await spawnFn();
+
+        expect(mocks[connectMock]).toHaveBeenCalledWith('/tmp/test', expect.any(Object), undefined);
+        expect(mocks.spawnGenericBackend).not.toHaveBeenCalled();
         expect(result).toBe(child);
       });
     }

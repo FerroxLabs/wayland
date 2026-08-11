@@ -12,21 +12,23 @@ import type {
   CodexSetupResult,
   CodexStatusResult,
   FluxConnectorReport,
+  KimiSetupResult,
+  KimiStatusResult,
   OpencodeSetupResult,
   OpencodeStatusResult,
 } from '@/common/types/fluxConnector';
 import styles from './AgentsSettings.module.css';
 
 /** Backends that route through Flux via a one-time config write. */
-type FluxSetupBackend = 'opencode' | 'codex';
+type FluxSetupBackend = 'opencode' | 'codex' | 'kimi';
 
-type SetupStatusResult = OpencodeStatusResult | CodexStatusResult;
-type SetupActionResult = OpencodeSetupResult | CodexSetupResult;
+type SetupStatusResult = OpencodeStatusResult | CodexStatusResult | KimiStatusResult;
+type SetupActionResult = OpencodeSetupResult | CodexSetupResult | KimiSetupResult;
 
 /**
  * Resolve the IPC trio (status / setup / remove) for a given setup backend.
- * Both backends share identical result shapes, so the modal stays uniform and
- * only the bridge target differs.
+ * All three backends share identical result shapes, so the modal stays uniform
+ * and only the bridge target differs.
  */
 function connectorFor(backend: FluxSetupBackend): {
   status: () => Promise<SetupStatusResult>;
@@ -40,6 +42,13 @@ function connectorFor(backend: FluxSetupBackend): {
       remove: () => ipcBridge.fluxConnector.removeCodex.invoke(),
     };
   }
+  if (backend === 'kimi') {
+    return {
+      status: () => ipcBridge.fluxConnector.kimiStatus.invoke(),
+      setup: () => ipcBridge.fluxConnector.setupKimi.invoke(),
+      remove: () => ipcBridge.fluxConnector.removeKimi.invoke(),
+    };
+  }
   return {
     status: () => ipcBridge.fluxConnector.opencodeStatus.invoke(),
     setup: () => ipcBridge.fluxConnector.setupOpencode.invoke(),
@@ -48,7 +57,7 @@ function connectorFor(backend: FluxSetupBackend): {
 }
 
 /**
- * Setup surface for routing a generic ACP CLI (`opencode` or `codex`) through
+ * Setup surface for routing a generic ACP CLI (`opencode`, `codex`, `kimi`) through
  * Flux. The setup WRITES into the user's own tool config (backed up first), so
  * the modal is deliberately honest: it states what will change before the
  * action, then shows what happened plus how to undo it. The backend-named copy

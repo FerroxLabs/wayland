@@ -28,9 +28,17 @@ import type {
   CodexSetupResult,
   CodexStatusResult,
   FluxConnectorReport,
+  KimiSetupResult,
+  KimiStatusResult,
   OpencodeSetupResult,
   OpencodeStatusResult,
 } from '../types/fluxConnector';
+import type {
+  AgentInstallCancelResult,
+  AgentInstallerReport,
+  AgentInstallResult,
+  AgentUninstallResult,
+} from '../types/agentInstaller';
 import type {
   UpdateCheckRequest,
   UpdateCheckResult,
@@ -1305,6 +1313,33 @@ export const fluxConnector = {
   codexStatus: buildProvider<CodexStatusResult, void>('flux-connector:codex-status'),
   setupCodex: buildProvider<CodexSetupResult, void>('flux-connector:setup-codex'),
   removeCodex: buildProvider<FluxConnectorReport, void>('flux-connector:remove-codex'),
+  kimiStatus: buildProvider<KimiStatusResult, void>('flux-connector:kimi-status'),
+  setupKimi: buildProvider<KimiSetupResult, void>('flux-connector:setup-kimi'),
+  removeKimi: buildProvider<FluxConnectorReport, void>('flux-connector:remove-kimi'),
+};
+
+/**
+ * Managed agent installs (K-05). Wayland fetches a PINNED npm package into its
+ * own prefix with `--ignore-scripts` and records a receipt.
+ *
+ * SECURITY: `agent-installer:install`, `agent-installer:uninstall` and
+ * `agent-installer:cancel` are listed in bridgeAllowlist's REMOTE_DENIED_KEYS.
+ * `install` executes a package manager against the user's profile, `uninstall`
+ * recursively removes a directory, and `cancel` KILLS a running install — a
+ * remote caller that can cancel can deny the local user the install they asked
+ * for. A paired-device WS token proves a remote browser, NOT the local trusted
+ * user, so none is reachable from the wire (same posture as
+ * `onboarding.connect-flux`). `agent-installer:status` is a read and stays
+ * allowed.
+ *
+ * Those denials are matched EXACTLY against the fully-qualified key below — an
+ * entry of `install`/`uninstall` would be decorative and never fire.
+ */
+export const agentInstaller = {
+  status: buildProvider<AgentInstallerReport, void>('agent-installer:status'),
+  install: buildProvider<AgentInstallResult, { agentId: string }>('agent-installer:install'),
+  uninstall: buildProvider<AgentUninstallResult, { agentId: string }>('agent-installer:uninstall'),
+  cancel: buildProvider<AgentInstallCancelResult, { agentId: string }>('agent-installer:cancel'),
 };
 
 // Ambient Mode - M1 bubble window (AC-M1-5 / AC-M1-10 / AC-M1-11 / AC-M1-13)
