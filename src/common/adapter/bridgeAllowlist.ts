@@ -220,6 +220,12 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   'modelRegistry.connect',
   'modelRegistry.rekey',
   'modelRegistry.detectKeys',
+  // --- Spawns a local process (`ollama serve`) on the HOST machine. A paired
+  //     browser session must never be able to start a daemon on the desktop it
+  //     is talking to. The read-only `localRuntimeStatus` companion is NOT
+  //     denied: it reports only installed/running booleans and the remote
+  //     Models page needs it to explain why a local provider is unreachable. ---
+  'modelRegistry.startLocalRuntime',
   // --- Wayland Core tool-backend key mutation (plant/clear a search API key) ---
   'wcoreToolKeys.set',
   'wcoreToolKeys.delete',

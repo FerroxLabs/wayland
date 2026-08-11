@@ -8,7 +8,7 @@ import { FLUX_MODEL_IDS, FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
 import { providerMeta } from './providerCatalog';
-import { isProviderActionNeeded } from './providerStatus';
+import { isKeylessLocalProvider, isProviderActionNeeded } from './providerStatus';
 import { allVisibleEnabled, mergeCatalogRows, rowsToFlip } from './components/bulkToggle';
 import XGrokButton from './components/XGrokButton';
 import ChatGptButton from './components/ChatGptButton';
@@ -381,6 +381,11 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
   // exists, instead of disabling the button.
   const isCloudProvider = provider.connectedVia === 'cloud-credentials';
 
+  // A keyless machine-local runtime (Ollama) has no API key at all, so the
+  // Re-key dialog has nothing to replace - offering it invites the user to
+  // "fix" an unreachable daemon by pasting a credential that does not exist.
+  const isLocalRuntime = isKeylessLocalProvider(provider);
+
   // xAI (Grok) connects through the native "Sign in with X" OAuth, so its
   // reconnect path is that flow - not just the API-key Re-key dialog. Surface
   // the X sign-in here alongside Re-key (especially useful in the error state,
@@ -495,7 +500,13 @@ const ManageProvider: React.FC<Props> = ({ provider, onBack, onDisconnected }) =
           >
             {t('settings.modelsPage.manage.refresh')}
           </Button>
-          {isCloudProvider ? (
+          {isLocalRuntime ? (
+            <Tooltip content={t('settings.modelsPage.manage.rekeyLocalDisabled', { provider: meta.displayName })}>
+              <Button size='small' disabled>
+                {t('settings.modelsPage.manage.rekey')}
+              </Button>
+            </Tooltip>
+          ) : isCloudProvider ? (
             <Tooltip content={t('settings.modelsPage.manage.rekeyCloudDisabled')}>
               <Button size='small' disabled>
                 {t('settings.modelsPage.manage.rekey')}

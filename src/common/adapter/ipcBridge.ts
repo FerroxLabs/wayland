@@ -2278,6 +2278,28 @@ export type IModelRegistryProviderView = {
   error?: ConnectError;
 };
 
+/**
+ * Runtime facts for a keyless machine-local provider (today only `ollama-local`).
+ *
+ * A local provider that will not answer is NOT a credential problem - it has no
+ * credential. It is either not installed on this machine, or installed and not
+ * running. Settings needs both facts to say the true thing and to avoid
+ * offering a "start it" action that could never work.
+ */
+export type IModelRegistryLocalRuntimeStatus = {
+  /** This provider is a keyless machine-local runtime we can inspect at all. */
+  supported: boolean;
+  /** An executable runtime binary was found on this machine. */
+  installed: boolean;
+  /** The runtime answered its local endpoint. */
+  running: boolean;
+};
+
+/** Outcome of a local-runtime start attempt. `ok` means it is actually up. */
+export type IModelRegistryStartLocalRuntimeResult =
+  | { ok: true }
+  | { ok: false; reason: 'unsupported' | 'not-installed' | 'spawn-failed' | 'timeout' };
+
 /** Full catalog + curated view for a single provider. */
 export type IModelRegistryCatalogView = {
   catalog: CatalogModel[];
@@ -2470,6 +2492,23 @@ export const modelRegistry = {
   // The auto-refresh toggle (persisted `models.autoRefresh`, default on).
   getAutoRefresh: buildProvider<boolean, void>('modelRegistry.getAutoRefresh'),
   setAutoRefresh: buildProvider<{ ok: boolean }, { value: boolean }>('modelRegistry.setAutoRefresh'),
+  /**
+   * Whether a keyless machine-local provider's runtime is installed here and
+   * whether it is currently up. Only the renderer's main process can answer
+   * either question, and Settings needs both to avoid offering a "start it"
+   * button on a machine where nothing is installed to start.
+   */
+  localRuntimeStatus: buildProvider<IModelRegistryLocalRuntimeStatus, { providerId: ProviderId }>(
+    'modelRegistry.localRuntimeStatus'
+  ),
+  /**
+   * Start a keyless machine-local provider's runtime and wait until it answers.
+   * Resolves only once the daemon is actually reachable, so the UI never reports
+   * a success the provider cannot back. Remote-denied: it spawns a local process.
+   */
+  startLocalRuntime: buildProvider<IModelRegistryStartLocalRuntimeResult, { providerId: ProviderId }>(
+    'modelRegistry.startLocalRuntime'
+  ),
   // Emitted once after every successful refreshAll / manual per-provider refresh
   // so an open picker / the Models page can re-fetch curated views live.
   listChanged: buildEmitter<void>('modelRegistry.list-changed'),

@@ -89,6 +89,7 @@ import { KeyDiscovery } from '../detection/KeyDiscovery';
 import { ModelsDevClient } from '../enrichment/ModelsDevClient';
 import type { ModelsDevRegistry } from '../enrichment/modelsDevSchema';
 import { ProviderRepository } from '../storage/ProviderRepository';
+import { getOllamaRuntimeStatus, startOllamaDaemon } from '../local/ollamaRuntime';
 import { runLegacyModelConfigMigration } from '../migration/legacyModelConfigMigration';
 import { runOrphanProviderDedup } from '../migration/orphanProviderDedup';
 import { mirrorConnectOrRekey, mirrorDisconnect } from '../legacyModelConfigBridge';
@@ -2109,6 +2110,27 @@ export async function initModelRegistryIpc(): Promise<void> {
   ipcBridge.modelRegistry.refreshAll.provider((payload) => _scheduler!.refreshAll(payload?.reason ?? 'manual'));
   ipcBridge.modelRegistry.getRefreshState.provider(() => Promise.resolve(_scheduler!.getState()));
   ipcBridge.modelRegistry.getAutoRefresh.provider(() => getAutoRefresh());
+  // ── Keyless machine-local runtime (ollama-local) ────────────────────────────
+  // `ollama-local` has no API key, so an unreachable daemon is not a credential
+  // failure and re-keying it is meaningless. These two answer the questions the
+  // renderer cannot: is it installed here, and is it up - so Settings can offer
+  // "start it" ONLY when starting it can actually work.
+  ipcBridge.modelRegistry.localRuntimeStatus.provider(async ({ providerId }) => {
+    if (providerId !== OLLAMA_LOCAL_ID) return { supported: false, installed: false, running: false };
+    const status = await getOllamaRuntimeStatus();
+    return { supported: true, ...status };
+  });
+  ipcBridge.modelRegistry.startLocalRuntime.provider(async ({ providerId }) => {
+    if (providerId !== OLLAMA_LOCAL_ID) return { ok: false as const, reason: 'unsupported' as const };
+    const started = await startOllamaDaemon();
+    if (!started.ok) return started;
+    // The daemon is up - re-probe through the normal refresh path so the row
+    // heals to `connected` with a live catalog, and tell every open surface.
+    await h.refresh({ providerId }).catch(() => ({ ok: false }));
+    emitModelRegistryChanged();
+    return { ok: true as const };
+  });
+
   ipcBridge.modelRegistry.setAutoRefresh.provider(async ({ value }) => {
     await setAutoRefresh(value);
     // Apply immediately: arming starts the poll + launch-if-stale; disabling

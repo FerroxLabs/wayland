@@ -56,8 +56,10 @@ const mockConnect = vi.fn();
 const mockDisconnect = vi.fn();
 const mockGoogleLogin = vi.fn();
 const mockListChangedOn = vi.fn(() => vi.fn());
-// Manage-page catalog + the per-provider refresh the Manage header fires.
+// Manage-page catalog + the keyless-local-runtime surface (Ollama).
 const mockGetCatalog = vi.fn();
+const mockLocalRuntimeStatus = vi.fn();
+const mockStartLocalRuntime = vi.fn();
 const mockRefresh = vi.fn();
 // Headless write-only HTTP connect route (remote WebUI path).
 const mockConnectProviderHttp = vi.fn();
@@ -70,6 +72,8 @@ vi.mock('../../../src/common/adapter/ipcBridge', () => ({
     disconnect: { invoke: (...a: unknown[]) => mockDisconnect(...a) },
     testConnection: { invoke: vi.fn() },
     getCatalog: { invoke: (...a: unknown[]) => mockGetCatalog(...a) },
+    localRuntimeStatus: { invoke: (...a: unknown[]) => mockLocalRuntimeStatus(...a) },
+    startLocalRuntime: { invoke: (...a: unknown[]) => mockStartLocalRuntime(...a) },
     toggleModel: { invoke: vi.fn() },
     refresh: { invoke: (...a: unknown[]) => mockRefresh(...a) },
     rekey: { invoke: vi.fn() },
@@ -160,6 +164,19 @@ const undecryptableProvider: IModelRegistryProviderView = {
   credsUndecryptable: true,
 };
 
+/**
+ * The keyless machine-local provider. It has NO API key (`creds.key` is `''`),
+ * so every credential-shaped affordance is category-wrong for it: an
+ * unreachable daemon means "it is not running here", not "your key failed".
+ */
+const ollamaOfflineProvider: IModelRegistryProviderView = {
+  providerId: 'ollama-local',
+  connectedVia: 'auto-local',
+  state: 'error',
+  modelCount: 4,
+  error: 'offline',
+};
+
 const detectedKey: IModelRegistryDetectedKey = {
   providerId: 'groq',
   source: 'env:GROQ_API_KEY',
@@ -185,6 +202,8 @@ beforeEach(() => {
   // Same shape the un-stubbed `vi.fn()` produced before these were captured:
   // resolves undefined, so the row's catalog probe degrades exactly as it did.
   mockGetCatalog.mockReset().mockResolvedValue(undefined);
+  mockLocalRuntimeStatus.mockReset().mockResolvedValue(undefined);
+  mockStartLocalRuntime.mockReset().mockResolvedValue(undefined);
   mockRefresh.mockReset().mockResolvedValue(undefined);
 });
 
@@ -383,6 +402,74 @@ describe('ModelsSettings page', () => {
 
     expect(await screen.findByText('settings.modelsPage.manage.statusConnected')).toBeInTheDocument();
     expect(screen.queryByText('settings.modelsPage.manage.statusError')).not.toBeInTheDocument();
+  });
+
+  /**
+   * Live defect (verbatim): "Ollama, for example, isn't running so it says
+   * 'can't reach provider.' That's fine but maybe Ollama should say 'local not
+   * running' ... and maybe offer 'If it's installed and detected, run it.'"
+   */
+  it('names the real situation and offers Start when Ollama is installed but down', async () => {
+    mockList.mockResolvedValue([ollamaOfflineProvider]);
+    mockLocalRuntimeStatus.mockResolvedValue({ supported: true, installed: true, running: false });
+    mockStartLocalRuntime.mockResolvedValue({ ok: true });
+
+    renderPage();
+
+    expect(await screen.findByText('Ollama (Local)')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent('settings.modelsPage.row.errorLocalNotRunning')
+    );
+    // The generic network-fault wording is gone.
+    expect(screen.getByRole('alert')).not.toHaveTextContent('row.errorOffline');
+    // A credential Fix is meaningless for a provider with no credential.
+    expect(screen.queryByText('settings.modelsPage.row.fix')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByText(/row\.localStart:provider=Ollama/));
+    await waitFor(() =>
+      expect(mockStartLocalRuntime).toHaveBeenCalledWith({ providerId: 'ollama-local' })
+    );
+  });
+
+  it('points at the download and offers no Start when Ollama is not installed', async () => {
+    // Never offer a button that cannot work.
+    mockList.mockResolvedValue([ollamaOfflineProvider]);
+    mockLocalRuntimeStatus.mockResolvedValue({ supported: true, installed: false, running: false });
+
+    renderPage();
+
+    expect(await screen.findByText('Ollama (Local)')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent('settings.modelsPage.row.errorLocalNotInstalled')
+    );
+    expect(screen.getByText(/row\.localGet:provider=Ollama/)).toBeInTheDocument();
+    expect(screen.queryByText(/row\.localStart:provider=Ollama/)).not.toBeInTheDocument();
+    expect(screen.queryByText('settings.modelsPage.row.fix')).not.toBeInTheDocument();
+  });
+
+  it('falls back to the generic reason until the local-runtime probe answers', async () => {
+    // The row must never assert something it has not verified.
+    mockList.mockResolvedValue([ollamaOfflineProvider]);
+    mockLocalRuntimeStatus.mockRejectedValue(new Error('probe failed'));
+
+    renderPage();
+
+    expect(await screen.findByText('Ollama (Local)')).toBeInTheDocument();
+    await waitFor(() => expect(mockLocalRuntimeStatus).toHaveBeenCalled());
+    expect(screen.getByRole('alert')).toHaveTextContent('settings.modelsPage.row.errorOffline');
+  });
+
+  it('disables Re-key on the Manage page for the keyless local provider', async () => {
+    // Re-keying a provider that has no key is meaningless.
+    mockList.mockResolvedValue([{ ...ollamaOfflineProvider, state: 'connected' as const, error: undefined }]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.manage'));
+
+    const rekey = await screen.findByText('settings.modelsPage.manage.rekey');
+    expect(rekey.closest('button')).toBeDisabled();
   });
 
   it('shows the inline connect error when a pasted key is rejected', async () => {

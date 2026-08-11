@@ -17,3 +17,15 @@ import type { IModelRegistryProviderView } from '@/common/adapter/ipcBridge';
 export function isProviderActionNeeded(provider: IModelRegistryProviderView): boolean {
   return provider.state === 'error' || provider.credsUndecryptable === true;
 }
+
+/**
+ * True for a keyless, machine-local provider - today only the auto-registered
+ * Ollama daemon (`connectedVia: 'auto-local'`, `creds.key` is `''`).
+ *
+ * These have no API key at all, so every credential-shaped affordance is
+ * category-wrong for them: re-keying is meaningless, and an unreachable daemon
+ * is a "it is not running here" problem, not a "your key was rejected" one.
+ */
+export function isKeylessLocalProvider(provider: IModelRegistryProviderView): boolean {
+  return provider.connectedVia === 'auto-local';
+}

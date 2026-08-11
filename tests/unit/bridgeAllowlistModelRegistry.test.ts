@@ -20,7 +20,14 @@ import { isAllowedForRemote } from '@/common/adapter/bridgeAllowlist';
  * "remote-reachable" test below.
  */
 describe('model-registry IPC is remote-denied (audit C4)', () => {
-  const denied = ['modelRegistry.connect', 'modelRegistry.rekey', 'modelRegistry.detectKeys'];
+  const denied = [
+    'modelRegistry.connect',
+    'modelRegistry.rekey',
+    'modelRegistry.detectKeys',
+    // Spawns `ollama serve` on the HOST machine - a paired browser session must
+    // never be able to start a daemon on the desktop it is talking to.
+    'modelRegistry.startLocalRuntime',
+  ];
 
   for (const key of denied) {
     it(`rejects a remote caller for ${key}`, () => {
@@ -34,6 +41,12 @@ describe('model-registry IPC is remote-denied (audit C4)', () => {
     // handle, so allowing it leaks nothing - denying it left the remote WebUI
     // unable to pick a model ("No model configured yet").
     expect(isAllowedForRemote('subscribe-modelRegistry.resolveForChatStart')).toBe(true);
+  });
+
+  it('allows the read-only localRuntimeStatus companion for a remote caller', () => {
+    // It reports only installed/running booleans and starts nothing, so the
+    // remote Models page can still explain WHY a local provider is unreachable.
+    expect(isAllowedForRemote('subscribe-modelRegistry.localRuntimeStatus')).toBe(true);
   });
 
   it('still allows a read-only/safe provider invocation for contrast', () => {
