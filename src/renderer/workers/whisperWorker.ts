@@ -31,8 +31,16 @@ env.useBrowserCache = false;
 
 // Left alone, transformers.js points ORT's WASM runtime at
 // https://cdn.jsdelivr.net/npm/onnxruntime-web@<ver>/dist/ - ~22.5 MiB of
-// third-party egress the app's own CSP forbids for the document, and a hard
-// failure offline or behind a captive portal. The `?url` import above makes
+// undeclared third-party egress, and a hard failure offline or behind a
+// captive portal.
+//
+// It is NOT blocked by our CSP, and an earlier version of this comment said
+// otherwise. Measured: with the app's real CSP applied to a file: document and
+// confirmed live via onHeadersReceived, a dedicated worker still fetched
+// jsdelivr with HTTP 200. Workers are not covered by the document's policy
+// here. The offline argument stands on its own and is the reason for this fix.
+//
+// The `?url` import above makes
 // Vite emit the binary from our own node_modules as a renderer asset, so this
 // URL is same-origin in dev and an in-asar file: URL when packaged.
 //
