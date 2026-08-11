@@ -243,8 +243,15 @@ const InstallableAgentTile: React.FC<{ agent: InstallableAgent; onInstall: () =>
           )}
           {/* The reason to install, visible BEFORE the install. An `absent`
               card carries the same Flux chip a detected one does, because the
-              user is deciding right here whether the agent is worth having. */}
-          <FluxCompatChip backend={agent.agentId} />
+              user is deciding right here whether the agent is worth having.
+              It is INERT there, though: the setup connector writes the agent's
+              own config file, so offering it for software that is not on the
+              machine opens a modal that can only fail. Interactive only once
+              the agent is actually present, however it got there. */}
+          <FluxCompatChip
+            backend={agent.agentId}
+            interactive={agent.state === 'installed' || agent.state === 'system'}
+          />
         </div>
       </div>
       <InstallControl agent={agent} onInstall={onInstall} />

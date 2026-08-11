@@ -25,7 +25,7 @@ import { getFluxCompat } from '@/common/types/acpTypes';
 import FluxSetupModal from './FluxSetupModal';
 import styles from './AgentsSettings.module.css';
 
-const FluxCompatChip: React.FC<{ backend: string }> = ({ backend }) => {
+const FluxCompatChip: React.FC<{ backend: string; interactive?: boolean }> = ({ backend, interactive = true }) => {
   const { t } = useTranslation();
   const [setupOpen, setSetupOpen] = React.useState(false);
   const compat = getFluxCompat(backend);
@@ -45,7 +45,13 @@ const FluxCompatChip: React.FC<{ backend: string }> = ({ backend }) => {
     // routes them through Flux). Render their chip as a clickable button that
     // opens the setup modal for the matching backend; other `setup` backends
     // stay informational.
-    if (backend === 'opencode' || backend === 'codex' || backend === 'kimi') {
+    //
+    // `interactive` is what the "Available to install" band uses to keep the
+    // chip VISIBLE on a card for software the user does not have while refusing
+    // to offer routing setup for it. The setup connector writes that agent's own
+    // config file; there is no config to write when the agent is not installed,
+    // so the button would open a modal that can only fail.
+    if (interactive && (backend === 'opencode' || backend === 'codex' || backend === 'kimi')) {
       return (
         <>
           <Button
@@ -62,7 +68,9 @@ const FluxCompatChip: React.FC<{ backend: string }> = ({ backend }) => {
       );
     }
     return (
-      <span className={`${styles.fluxChip} ${styles.fluxChipSetup}`}>{t('settings.agentsPage.fluxCompat.setup')}</span>
+      <span className={`${styles.fluxChip} ${styles.fluxChipSetup}`} data-testid='flux-setup-chip'>
+        {t('settings.agentsPage.fluxCompat.setup')}
+      </span>
     );
   }
 

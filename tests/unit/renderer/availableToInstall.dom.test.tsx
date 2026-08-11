@@ -169,14 +169,48 @@ describe('AvailableToInstall — card states', () => {
     expect(screen.getByTestId('install-button-kimi').textContent).toContain('Install');
   });
 
-  it('absent: the Flux chip renders BEFORE the install, on the card being decided about', async () => {
-    // The reason to install has to be visible at the moment of deciding. `kimi`
-    // is classified `setup`, so its chip is the clickable Flux setup affordance.
+  it('absent: the Flux chip renders BEFORE the install, but is NOT a live button', async () => {
+    // The reason to install has to be visible at the moment of deciding, so the
+    // chip stays on the card. What it must NOT do is offer to configure routing
+    // for software the user does not have: on an `absent` card it rendered as a
+    // real <button> that mounted the "Route ... through Flux" setup modal.
     render(<AvailableToInstall />);
     const tile = await screen.findByTestId('installable-tile-kimi');
     expect(tile.getAttribute('data-state')).toBe('absent');
+    // Still VISIBLE - this half of the assertion is not relaxed.
     expect(tile.textContent).toContain('Flux setup');
-    expect(tile.querySelector('[data-testid="flux-setup-chip"]')).toBeTruthy();
+    const chip = tile.querySelector('[data-testid="flux-setup-chip"]');
+    expect(chip).toBeTruthy();
+    // ...but inert.
+    expect(chip!.tagName).not.toBe('BUTTON');
+    await act(async () => {
+      fireEvent.click(chip!);
+    });
+    expect(document.querySelectorAll('.arco-modal').length).toBe(0);
+  });
+
+  it('installed: the Flux chip IS a live button - the user has the software to route', async () => {
+    // The mirror of the assertion above, so "non-interactive" cannot be
+    // satisfied by killing the chip everywhere.
+    mockStatus.mockResolvedValue(
+      report([
+        status({
+          state: 'installed',
+          managedInstall: { prefix: PREFIX, version: '0.34.0', installedAt: '2026-08-11T00:00:00.000Z' },
+          reason: 'ok',
+        }),
+      ])
+    );
+    render(<AvailableToInstall />);
+    const tile = await screen.findByTestId('installable-tile-kimi');
+    expect(tile.getAttribute('data-state')).toBe('installed');
+    const chip = tile.querySelector('[data-testid="flux-setup-chip"]');
+    expect(chip).toBeTruthy();
+    expect(chip!.tagName).toBe('BUTTON');
+    await act(async () => {
+      fireEvent.click(chip!);
+    });
+    await waitFor(() => expect(document.querySelectorAll('.arco-modal').length).toBe(1));
   });
 
   it('system: says it uses the user’s own copy and offers NO competing Install button (D1)', async () => {
