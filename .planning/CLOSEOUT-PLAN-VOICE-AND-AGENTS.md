@@ -1013,3 +1013,99 @@ One correction to an earlier coordination note: the `isMacOS() ? 'darwin' : 'oth
 **2** call sites in voice-core's tree, not 4 - that lane had already collapsed four hand-built
 readiness objects into a single `readinessInput()` helper. The count of 4 came from the pre-collapse
 file.
+
+---
+
+## 10. The live run — what actually happens when you start the app
+
+Everything above this section is unit or harness evidence. This section is the app, running, on
+macOS, driven over CDP against scratch profiles, with screenshots. It is the most valuable thing in
+this document, because four of these were invisible to a fully green suite.
+
+### 🟢 Voice works. First demonstration in the real application.
+Fresh profile, no keys. The mic control renders **enabled** with a human tooltip. Tap to recording
+in **0.5 s**; six seconds of speech; transcript in the composer **2.0 s** after stopping:
+
+> "The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog."
+
+Verbatim correct, **zero network requests**, on-device whisper-tiny. The documented 5-10 s warmup
+was not observable end to end.
+
+Worth recording how that result was earned: the first two attempts returned the single word `"you"`.
+Rather than reporting a transcription failure, the agent worked out that *its own* audio delivery was
+being blocked by Chromium's sandbox, fixed it, and verified real signal (RMS 0.29, peak 1.0) before
+believing any transcript. A near-silence artefact was one step away from being reported as a result.
+
+Also passing: a real turn completes end to end; the agents page renders; the Flux chip on an absent
+card is genuinely non-interactive (forced click changed no route, no modal, no DOM); ten settings
+pages produced **zero console errors**.
+
+### 🔴 The RELEASED engine cannot start a single turn
+`build-mac` bundles Core `v0.12.26`. `DESKTOP_CORE_V1_PIN` demands an **unreleased** Core dev
+commit: minor 12 vs 13, `gen/13` vs `gen/14`, and a different schema hash, all compared for equality.
+Running the released binary gives *"wcore Desktop contract rejected ready: Core contract minor
+differs from the pin."*
+
+This came in with `f94487a6b` (the C-1..C-5 integration), **not** from the five lanes - but it is
+live on this branch, and it means a packaged build ships a dead default backend. An unreleased
+binary was hand-placed at `resources/bundled-wayland-core/darwin-arm64/wayland-core` (gitignored) to
+test anything at all, so **turns working locally must not be read as the release working.**
+Cross-repo; needs Core.
+
+### 🔴 Every in-thread notice was invisible, for two independent reasons
+Fixed in `5ea2a2c43`, both root-caused by execution.
+
+1. **The notice was never put on the wire.** `emitConstitutionReclaimNotice` called `addMessage()`,
+   which only writes SQLite. And `transformMessage` had **no `case 'tips'`** - so `CronService`'s
+   emit, carrying the comment *"Emit to frontend so it shows immediately if conversation is open"*,
+   has been dead code, silently logging "Unsupported message type 'tips'".
+2. **Error tips rendered and were then deleted, in-session.** `handleTurnEnd()` settles the activity
+   card synchronously *before* the `finish` frame, so the renderer sees
+   `error` -> `activity_turn_end` -> `finish`. The catch-all read `activity_turn_end` as successful
+   content after an error, reset the flag, and the following `finish` wiped the tip. The row stayed
+   in the DB, which is exactly the reported symptom.
+
+The same seam produced the third defect: `mcp_session_state` / `mcp_ready` forwarded with an empty
+`msg_id` while a conversation is merely *opened* set the stream running, so a **dead turn rehydrated
+as active** with a climbing timer and a live stop button - the renderer undoing its own correct
+hydration. One gate fixes all three:
+`isTurnOutput = Boolean(msg_id) && type !== 'activity_turn_end'`.
+
+The `react-virtuoso: Zero-sized element` flood, which was the leading suspect, is a **red herring** -
+identical in broken and fixed runs.
+
+### 🔴 A second Constitution damage mode still bricks every turn
+Flipping a byte **mid-payload** rather than in the last CBC block makes macOS `safeStorage` -
+unauthenticated AES-CBC, no MAC - decrypt to garbage instead of throwing. That yields `_INVALID`,
+which the reclaim guard does not catch, so the user sees
+`CONSTITUTION_FS_REVISION_AUTHORITY_INVALID` verbatim with no recovery affordance. The fix covers
+foreign-identity ciphertext; it does not cover corruption.
+
+### 🟠 The Voice panel told the user their audio was leaving the machine
+On one screen simultaneously: dropdown "Whisper (Local)"; beneath it *"Currently using OpenAI
+Whisper... This provider processes audio and text off your device"*; below that *"Runs on your
+device... no audio leaves this machine."* Measured behaviour: zero network requests, fully local.
+
+Root cause: the panel asked a **different resolver than the one that routes the audio**.
+`resolveEffectiveSttProvider` predates the on-device-first ladder and still ends in `return 'openai'`,
+while the dropdown drew from the correct answer. Fixed; the off-device warning is pinned by a
+known-positive test so it cannot be "fixed" by deletion. Deepgram was also being mislabelled as
+OpenAI Whisper by a two-way ternary.
+
+### 🟠 Speech-out: hypothesis refuted
+"Synthesizes bytes nobody plays" is **false on both halves**. A consumer exists and is unconditional
+(`Blob` -> `createObjectURL` -> `new Audio(url).play()`), and running the real service spawned `say`
+genuinely and returned 123,578 bytes of valid RIFF WAV in 1,145 ms. The watcher was validated both
+ways first (46 hits with `say` running, 0 without). The live-run silence is therefore **upstream** -
+nothing reached the synthesizer - with the never-rejecting IPC transport as the prime suspect. That
+last step is inferred, not proven.
+
+### Smaller, real
+- `bun run package` and `make` are literally `electron-vite build`, and the `prebuild`/`prepackage`
+  hooks staged constitution-fs, the models snapshot and the skill pack while **omitting the voice
+  model** - so a fresh clone built an app with no on-device floor. The release path was always
+  correct. Fixed on both hooks.
+- Onboarding addresses the user by the name they typed, then the home screen greets them by their
+  **OS account name**.
+- Onboarding's completion screen lists providers only; the model chosen for the user is never shown.
+  The user's first sight of it is the composer chip, and their first turn was the 400.
