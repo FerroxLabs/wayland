@@ -1,12 +1,59 @@
+/* Voice mode is a presentation of the same conversation, so it follows the app
+ * theme. Every colour in this file is a --vm-* token declared once on
+ * `.voice-mode` (dark values, unchanged) and overridden wholesale in the
+ * `[data-theme='light']` block at the bottom. The overlay is portaled to
+ * document.body and `data-theme` lives on documentElement, so the light
+ * selector is an ancestor match and wins on specificity (0,2,0 vs 0,1,0)
+ * without touching any of the element rules below.
+ *
+ * Adding a --vm-* token here means adding it to the light block too - the
+ * tests/unit/renderer/utils/theme/voiceModeThemeContrast.test.ts guard fails on
+ * any token declared in one block and not the other, which is what stops half
+ * the surface staying dark.
+ */
 .voice-mode {
   --voice-accent: #ff6b2c;
+  --vm-surface: #090909;
+  --vm-surface-tint: rgba(74, 65, 93, 0.2);
+  --vm-ink: #f5f5f4;
+  --vm-ink-muted: rgba(255, 255, 255, 0.5);
+  --vm-ink-soft: rgba(255, 255, 255, 0.52);
+  --vm-hairline: rgba(255, 255, 255, 0.08);
+  --vm-hairline-soft: rgba(255, 255, 255, 0.06);
+  --vm-control-ink: rgba(255, 255, 255, 0.75);
+  --vm-control-ink-strong: #ffffff;
+  --vm-control-bg: rgba(255, 255, 255, 0.055);
+  --vm-control-bg-hover: rgba(255, 255, 255, 0.1);
+  --vm-control-border: rgba(255, 255, 255, 0.12);
+  --vm-panel-bg: rgba(16, 16, 16, 0.76);
+  --vm-panel-border: rgba(255, 255, 255, 0.1);
+  --vm-panel-ink: rgba(255, 255, 255, 0.76);
+  --vm-panel-ink-muted: rgba(255, 255, 255, 0.58);
+  /* 0.38 was 3.55:1 on the caption panel - the only sub-AA text left in dark
+     mode once the contrast guard covered both themes. 0.46 is 4.68:1. */
+  --vm-panel-label: rgba(255, 255, 255, 0.46);
+  --vm-panel-btn-ink: #ffffff;
+  --vm-panel-btn-bg: rgba(255, 255, 255, 0.07);
+  --vm-panel-btn-border: rgba(255, 255, 255, 0.14);
+  --vm-error-border: rgba(255, 115, 79, 0.34);
+  --vm-active-ink: #ffffff;
+  --vm-active-bg: rgba(255, 102, 44, 0.14);
+  --vm-active-border: rgba(255, 111, 51, 0.48);
+  --vm-end-ink: #ffffff;
+  --vm-end-bg: rgba(156, 45, 22, 0.4);
+  --vm-end-border: rgba(255, 106, 66, 0.35);
+  --vm-orb-highlight-1: rgba(255, 255, 255, 0.94);
+  --vm-orb-highlight-2: rgba(240, 239, 255, 0.88);
+  --vm-orb-shadow: 0 0 72px rgba(120, 112, 255, 0.26);
+  --vm-orb-ring-border: rgba(255, 255, 255, 0.12);
+  --vm-ambient-opacity: 0.12;
   position: fixed;
   inset: 0;
   z-index: 10000;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  color: #f5f5f4;
-  background: radial-gradient(circle at 50% 44%, rgba(74, 65, 93, 0.2), transparent 32%), #090909;
+  color: var(--vm-ink);
+  background: radial-gradient(circle at 50% 44%, var(--vm-surface-tint), transparent 32%), var(--vm-surface);
   overflow: hidden;
 }
 
@@ -22,7 +69,7 @@
   justify-content: space-between;
   min-height: 76px;
   padding: 14px 22px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--vm-hairline);
 }
 
 .voice-mode__identity {
@@ -41,7 +88,7 @@
 
 .voice-mode__identity > span:last-child,
 .voice-mode__eyebrow {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--vm-ink-muted);
   font-size: 11px;
   letter-spacing: 0.08em;
 }
@@ -65,17 +112,17 @@
   gap: 7px;
   min-height: 38px;
   padding: 0 12px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--vm-control-border);
   border-radius: 12px;
-  color: rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.055);
+  color: var(--vm-control-ink);
+  background: var(--vm-control-bg);
   cursor: pointer;
 }
 
 .voice-mode__top-actions button:hover,
 .voice-mode__controls button:hover:not(:disabled) {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--vm-control-ink-strong);
+  background: var(--vm-control-bg-hover);
 }
 
 .voice-mode__stage {
@@ -97,7 +144,7 @@
   max-height: 520px;
   border-radius: 999px;
   filter: blur(90px);
-  opacity: 0.12;
+  opacity: var(--vm-ambient-opacity);
   pointer-events: none;
 }
 
@@ -137,10 +184,10 @@
 
 .voice-mode__orb-core {
   background:
-    radial-gradient(circle at 45% 68%, rgba(255, 255, 255, 0.94), rgba(240, 239, 255, 0.88) 24%, transparent 52%),
+    radial-gradient(circle at 45% 68%, var(--vm-orb-highlight-1), var(--vm-orb-highlight-2) 24%, transparent 52%),
     conic-gradient(from 205deg, #f6f4ff, #8588ff 26%, #ff8146 53%, #e4d7ff 72%, #f6f4ff);
   box-shadow:
-    0 0 72px rgba(120, 112, 255, 0.26),
+    var(--vm-orb-shadow),
     inset 0 -28px 48px rgba(70, 52, 160, 0.22);
   animation: voice-orb-drift 9s ease-in-out infinite alternate;
 }
@@ -148,7 +195,7 @@
 .voice-mode__orb-ring {
   inset: -13px;
   z-index: -1;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--vm-orb-ring-border);
   opacity: 0.4;
 }
 
@@ -184,7 +231,7 @@
 
 .voice-mode__state span {
   min-height: 20px;
-  color: rgba(255, 255, 255, 0.52);
+  color: var(--vm-ink-soft);
   font-size: 13px;
 }
 
@@ -194,9 +241,9 @@
   z-index: 2;
   width: min(680px, calc(100vw - 48px));
   margin-top: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--vm-panel-border);
   border-radius: 14px;
-  background: rgba(16, 16, 16, 0.76);
+  background: var(--vm-panel-bg);
   backdrop-filter: blur(18px);
 }
 
@@ -217,7 +264,7 @@
 }
 
 .voice-mode__notice span {
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--vm-panel-ink-muted);
   font-size: 12px;
 }
 
@@ -226,15 +273,15 @@
   grid-row: 1 / span 2;
   align-self: center;
   padding: 7px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--vm-panel-btn-border);
   border-radius: 9px;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.07);
+  color: var(--vm-panel-btn-ink);
+  background: var(--vm-panel-btn-bg);
   cursor: pointer;
 }
 
 .voice-mode__notice--error {
-  border-color: rgba(255, 115, 79, 0.34);
+  border-color: var(--vm-error-border);
 }
 
 .voice-mode__captions {
@@ -248,13 +295,13 @@
   grid-template-columns: 72px minmax(0, 1fr);
   gap: 10px;
   margin: 6px 0;
-  color: rgba(255, 255, 255, 0.76);
+  color: var(--vm-panel-ink);
   font-size: 13px;
   line-height: 1.5;
 }
 
 .voice-mode__captions span {
-  color: rgba(255, 255, 255, 0.38);
+  color: var(--vm-panel-label);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.05em;
@@ -270,7 +317,7 @@
   gap: 9px;
   min-height: 82px;
   padding: 12px 18px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--vm-hairline-soft);
 }
 
 .voice-mode__controls button:disabled {
@@ -279,15 +326,15 @@
 }
 
 .voice-mode__controls button.is-active {
-  color: #fff;
-  border-color: rgba(255, 111, 51, 0.48);
-  background: rgba(255, 102, 44, 0.14);
+  color: var(--vm-active-ink);
+  border-color: var(--vm-active-border);
+  background: var(--vm-active-bg);
 }
 
 .voice-mode__controls .voice-mode__end {
-  color: #fff;
-  border-color: rgba(255, 106, 66, 0.35);
-  background: rgba(156, 45, 22, 0.4);
+  color: var(--vm-end-ink);
+  border-color: var(--vm-end-border);
+  background: var(--vm-end-bg);
 }
 
 .voice-mode__cc {
@@ -363,4 +410,59 @@
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* ============================================================
+   LIGHT MODE
+   Voice mode used to be hardcoded dark, so opening it from a light app
+   slammed the whole window to near-black. Nothing in DESIGN.md, the voice
+   plan, or this file's history asks for that - the surface was simply
+   authored under the dark default and never rendered in light.
+
+   Ratios below are WCAG 2.1 contrast against the composited background the
+   text actually sits on (the ambient blobs are treated as the worst case for
+   anything inside the stage), computed - not eyeballed - and asserted by
+   tests/unit/renderer/utils/theme/voiceModeThemeContrast.test.ts.
+   ============================================================ */
+[data-theme='light'] .voice-mode {
+  --voice-accent: #b8451c; /* 5.38:1 on the topbar, 4.56:1 over the ambient wash */
+  --vm-surface: #ffffff;
+  --vm-surface-tint: rgba(116, 108, 255, 0.07);
+  --vm-ink: #0d0d0d; /* 19.44:1 */
+  --vm-ink-muted: #666666; /* 5.74:1 on white, 4.87:1 over the ambient wash */
+  --vm-ink-soft: #666666;
+  --vm-hairline: rgba(0, 0, 0, 0.1);
+  --vm-hairline-soft: rgba(0, 0, 0, 0.08);
+  --vm-control-ink: #333333; /* 11.57:1 on the control fill */
+  --vm-control-ink-strong: #0d0d0d; /* 16.62:1 on the hover fill */
+  --vm-control-bg: rgba(0, 0, 0, 0.04);
+  --vm-control-bg-hover: rgba(0, 0, 0, 0.07);
+  --vm-control-border: rgba(0, 0, 0, 0.16);
+  /* A white panel on a white page is not a panel. --bg-1 plus a real border. */
+  --vm-panel-bg: rgba(247, 247, 247, 0.94);
+  --vm-panel-border: rgba(0, 0, 0, 0.12);
+  --vm-panel-ink: #333333; /* 11.73:1 */
+  --vm-panel-ink-muted: #666666; /* 5.33:1 */
+  --vm-panel-label: #666666; /* 5.33:1 */
+  --vm-panel-btn-ink: #0d0d0d; /* 16.17:1 */
+  --vm-panel-btn-bg: rgba(0, 0, 0, 0.05);
+  --vm-panel-btn-border: rgba(0, 0, 0, 0.16);
+  --vm-error-border: rgba(179, 49, 26, 0.45);
+  --vm-active-ink: #0d0d0d; /* 16.36:1 on the tinted active fill */
+  --vm-active-bg: rgba(255, 102, 44, 0.16);
+  --vm-active-border: rgba(179, 71, 33, 0.55);
+  /* End stays the one loud control. A 40%-alpha red over white is a pink smear
+     that white text cannot sit on, so light mode uses the solid red. */
+  --vm-end-ink: #ffffff; /* 6.23:1 */
+  --vm-end-bg: #b3311a;
+  --vm-end-border: rgba(140, 38, 20, 0.6);
+  /* The orb's specular highlight is near-white. At full strength on a white page
+     the lit side of the orb dissolves into the background and the orb reads as a
+     crescent, so light mode dims the highlight and swaps the outward violet glow
+     for a defined edge plus a grounded drop shadow. */
+  --vm-orb-highlight-1: rgba(255, 255, 255, 0.6);
+  --vm-orb-highlight-2: rgba(240, 239, 255, 0.45);
+  --vm-orb-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 14px 44px rgba(96, 86, 196, 0.24);
+  --vm-orb-ring-border: rgba(0, 0, 0, 0.16);
+  --vm-ambient-opacity: 0.14;
 }

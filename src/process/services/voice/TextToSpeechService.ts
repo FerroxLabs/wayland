@@ -11,7 +11,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
-import { readConnectedProviderKey } from '@process/connectors/providerKey';
+import { readConnectedProviderKeyResult, type ConnectedProviderKeyResult } from '@process/connectors/providerKey';
 import { KokoroLocal, type KokoroLocalRuntime } from '@process/services/voice/KokoroLocal';
 import { VoiceAdapterRegistry, type VoiceAdapter } from '@/common/voice/adapterRegistry';
 import type { VoiceReceipt } from '@/common/voice/voiceReceipt';
@@ -66,12 +66,53 @@ export class TextToSpeechUnavailableError extends Error {
 
 export type OpenAITtsRuntime = {
   resolveApiKey: () => Promise<string | undefined>;
+  /**
+   * Optional richer form of `resolveApiKey`. When present it is preferred,
+   * because it can tell "no OpenAI connected" apart from "OpenAI is connected
+   * but its stored credential cannot be decrypted on this machine" - two
+   * conditions with completely different fixes that used to produce the same
+   * "go connect OpenAI" message. Optional so existing test runtimes that only
+   * stub `resolveApiKey` keep working unchanged.
+   */
+  resolveApiKeyResult?: () => Promise<ConnectedProviderKeyResult>;
   fetch: (input: string, init: RequestInit) => Promise<Response>;
 };
 
 export const defaultOpenAITtsRuntime: OpenAITtsRuntime = {
-  resolveApiKey: () => readConnectedProviderKey('openai'),
+  resolveApiKey: async () => {
+    const result = await readConnectedProviderKeyResult('openai');
+    return result.status === 'ok' ? result.key : undefined;
+  },
+  resolveApiKeyResult: () => readConnectedProviderKeyResult('openai'),
   fetch: (input, init) => getPlatformServices().network.fetch(input, init),
+};
+
+/**
+ * Turns a credential-read outcome into the coded error the user will actually
+ * read. Every branch names a cause and implies a different next action, which
+ * is the whole point: a silent or misattributed failure here is indistinguishable
+ * from "the Test voice button does nothing".
+ */
+const openAiCredentialError = (result: ConnectedProviderKeyResult): TextToSpeechUnavailableError | null => {
+  switch (result.status) {
+    case 'ok':
+      return null;
+    case 'undecryptable':
+      return new TextToSpeechUnavailableError(
+        'TTS_OPENAI_CREDENTIAL_UNREADABLE',
+        'OpenAI is connected but its saved credential cannot be decrypted on this machine; re-enter the key in Models and Providers'
+      );
+    case 'error':
+      return new TextToSpeechUnavailableError(
+        'TTS_CREDENTIAL_STORE_UNAVAILABLE',
+        `the credential store could not be read: ${result.message}`
+      );
+    default:
+      return new TextToSpeechUnavailableError(
+        'TTS_OPENAI_NOT_CONFIGURED',
+        'connect OpenAI in Models and Providers before selecting OpenAI speech'
+      );
+  }
 };
 
 export const synthesizeOpenAI = async (
@@ -79,13 +120,16 @@ export const synthesizeOpenAI = async (
   config: TextToSpeechConfig,
   runtime: OpenAITtsRuntime = defaultOpenAITtsRuntime
 ): Promise<TextToSpeechAudio> => {
-  const apiKey = await runtime.resolveApiKey();
-  if (!apiKey) {
-    throw new TextToSpeechUnavailableError(
-      'TTS_OPENAI_NOT_CONFIGURED',
-      'connect OpenAI in Models and Providers before selecting OpenAI speech'
-    );
-  }
+  const credential: ConnectedProviderKeyResult = runtime.resolveApiKeyResult
+    ? await runtime.resolveApiKeyResult()
+    : await (async () => {
+        const key = await runtime.resolveApiKey();
+        return key ? ({ status: 'ok', key } as const) : ({ status: 'not-connected' } as const);
+      })();
+
+  const credentialError = openAiCredentialError(credential);
+  if (credentialError) throw credentialError;
+  const apiKey = (credential as { status: 'ok'; key: string }).key;
 
   const response = await runtime.fetch(OPENAI_TTS_URL, {
     method: 'POST',

@@ -257,6 +257,48 @@ const OPENAI_TTS_VOICES = [
   'verse',
 ] as const;
 
+/**
+ * Test voice must always end in a sound or a sentence - never in nothing.
+ *
+ * The IPC transport cannot carry a rejection: its provider side has no
+ * `.catch`, so a main-process throw leaves `invoke()` pending forever. Both
+ * bridges this screen touches now return their failures as data, but a pending
+ * promise is still reachable if a provider is unregistered or main is wedged,
+ * and its symptom is precisely the one being fixed here - a button that
+ * produces no sound, no error and no toast. This converts that into a named
+ * failure the user can act on.
+ */
+export const TEST_VOICE_TIMEOUT_MS = 20_000;
+
+/**
+ * The sentence to put in front of the user for a `CODE: detail` failure.
+ *
+ * Prefers the detail, because that is the half written for a human. Falls back
+ * to the bare code only when there is nothing else - a code alone tells the
+ * user what broke but never what to do about it.
+ */
+export const describeVoiceFailure = (raw: string): string => {
+  const separator = raw.indexOf(':');
+  if (separator === -1) return raw;
+  const detail = raw.slice(separator + 1).trim();
+  return detail || raw.slice(0, separator).trim() || raw;
+};
+
+export const withTestVoiceTimeout = <T,>(work: Promise<T>, timeoutMs = TEST_VOICE_TIMEOUT_MS): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('TTS_NO_RESPONSE')), timeoutMs);
+    work.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+
 export const TextToSpeechSettingsSection: React.FC<{
   config: TextToSpeechConfig;
   onChange: (updater: (current: TextToSpeechConfig) => TextToSpeechConfig) => void;
@@ -327,16 +369,35 @@ export const TextToSpeechSettingsSection: React.FC<{
      * mapping below stays as the backstop for a main-side gate the renderer
      * cannot see.
      */
-    if (!(await ensureConsent(config.provider))) {
+    if (!(await withTestVoiceTimeout(ensureConsent(config.provider)).catch(() => false))) {
       Message.error(t('settings.textToSpeechTestConsentDeclined'));
       return;
     }
     try {
-      await ConfigStorage.set('tools.textToSpeech', config);
-      const result = await voiceSynth.speak.invoke({
-        text: t('settings.textToSpeechTestPhrase'),
-      });
-      if (result.ok === false) throw new Error(result.errorCode);
+      // Every await between here and playback is inside the guard, not just the
+      // synthesis call. A live CDP run reproduced the reported "no sound, no
+      // error, no toast" on `system-native` - a provider with no credential and
+      // no runtime to fail on - with ZERO synthesizer activity in the main log,
+      // which means the handler died or hung BEFORE reaching the synthesizer.
+      // Persisting the config is the only other IPC round trip on that path, and
+      // the transport it uses cannot report a rejection either. Guarding only
+      // `speak` would have left exactly that hang silent.
+      const result = await withTestVoiceTimeout(
+        (async () => {
+          // A failure to persist must not cancel the test: the user pressed
+          // "Test voice", not "Save". It is reported, then the test proceeds
+          // with the config already in hand.
+          try {
+            await ConfigStorage.set('tools.textToSpeech', config);
+          } catch (persistError) {
+            console.error('[TextToSpeech] could not persist config before test:', persistError);
+          }
+          return voiceSynth.speak.invoke({ text: t('settings.textToSpeechTestPhrase') });
+        })()
+      );
+      if (result.ok === false) {
+        throw new Error(result.detail ? `${result.errorCode}: ${result.detail}` : result.errorCode);
+      }
       if (result.data.length === 0) throw new Error('TTS_EMPTY_AUDIO');
       const bytes = Uint8Array.from(result.data);
       const url = URL.createObjectURL(new Blob([bytes.buffer as ArrayBuffer], { type: result.mimeType }));
@@ -347,15 +408,18 @@ export const TextToSpeechSettingsSection: React.FC<{
       await audio.play();
     } catch (error) {
       clearTestAudio();
-      const code = error instanceof Error ? error.message : 'unavailable';
-      const guidance = hostedVoiceConsentErrorGuidance(code);
+      const raw = error instanceof Error ? error.message : 'unavailable';
+      const guidance = hostedVoiceConsentErrorGuidance(raw);
       if (guidance) {
         Message.error(t('settings.voiceHostedConsentRequired', { defaultValue: guidance }));
       } else {
         Message.error(
           t('settings.textToSpeechTestFailed', {
             defaultValue: 'Voice test failed: {{reason}}',
-            reason: code,
+            // Main composes a human sentence after the code ("OpenAI is
+            // connected but its saved credential cannot be decrypted…"). Show
+            // that when it exists; a bare code is a dead end for the user.
+            reason: describeVoiceFailure(raw),
           })
         );
       }

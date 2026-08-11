@@ -87,13 +87,35 @@ export type TextToSpeechBridgeResult =
     }
   | {
       ok: false;
-      errorCode:
-        | 'TTS_KOKORO_LOCAL_UNAVAILABLE'
-        | 'TTS_SYSTEM_NATIVE_UNAVAILABLE'
-        | 'TTS_OPENAI_NOT_CONFIGURED'
-        | 'TTS_OPENAI_AUTH_ERROR'
-        | 'TTS_OPENAI_RATE_LIMITED'
-        | 'TTS_OPENAI_REQUEST_FAILED'
-        | 'TTS_HOSTED_CONSENT_REQUIRED'
-        | 'TTS_SYNTHESIS_FAILED';
+      errorCode: TextToSpeechErrorCode;
+      /**
+       * Free-form provider/runtime detail for the codes that carry one. Never
+       * a stack or a filesystem path - `voiceSynthBridge` is the only writer
+       * and it only ever forwards a message it composed itself.
+       */
+      detail?: string;
     };
+
+/**
+ * The complete failure vocabulary of `voiceSynth.speak`.
+ *
+ * `TTS_SYNTHESIS_FAILED` is the catch-all and is deliberately last: anything
+ * that lands there is a failure whose cause was not named, which is the
+ * condition this list exists to keep shrinking.
+ */
+export const TEXT_TO_SPEECH_ERROR_CODES = [
+  'TTS_KOKORO_LOCAL_UNAVAILABLE',
+  'TTS_SYSTEM_NATIVE_UNAVAILABLE',
+  'TTS_OPENAI_NOT_CONFIGURED',
+  /** Connected, but the stored credential could not be decrypted on this machine. */
+  'TTS_OPENAI_CREDENTIAL_UNREADABLE',
+  /** The credential store itself could not be opened or read. */
+  'TTS_CREDENTIAL_STORE_UNAVAILABLE',
+  'TTS_OPENAI_AUTH_ERROR',
+  'TTS_OPENAI_RATE_LIMITED',
+  'TTS_OPENAI_REQUEST_FAILED',
+  'TTS_HOSTED_CONSENT_REQUIRED',
+  'TTS_SYNTHESIS_FAILED',
+] as const;
+
+export type TextToSpeechErrorCode = (typeof TEXT_TO_SPEECH_ERROR_CODES)[number];

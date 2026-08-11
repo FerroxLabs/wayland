@@ -73,7 +73,10 @@ vi.mock('@arco-design/web-react', async (importOriginal) => {
 
 vi.mock('react-router-dom', () => ({ useNavigate: () => vi.fn() }));
 
-import { TextToSpeechSettingsSection } from '@/renderer/components/settings/SettingsModal/contents/ToolsModalContent';
+import {
+  TextToSpeechSettingsSection,
+  withTestVoiceTimeout,
+} from '@/renderer/components/settings/SettingsModal/contents/ToolsModalContent';
 
 class MockAudio {
   static instances: MockAudio[] = [];
@@ -285,5 +288,65 @@ describe('Test voice — the spoken phrase', () => {
     await clickTestVoice();
 
     await waitFor(() => expect(speak).toHaveBeenCalledWith({ text: "Hi, I'm Wayland. How are you?" }));
+  });
+});
+
+/**
+ * D2: the reported symptom was "no sound, no error, no toast". A Test voice
+ * press must always terminate in one of exactly two observable outcomes -
+ * audio, or a sentence naming what went wrong. These pin both halves: the
+ * failure detail composed by main has to reach the user, and a bridge that
+ * never answers must not present as a no-op.
+ */
+describe('Test voice — no silent no-op', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    installMatchMedia();
+    MockAudio.instances.splice(0);
+    vi.stubGlobal('Audio', MockAudio);
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:test') });
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() });
+    // Consent already granted, so nothing intercepts the synthesis call.
+    storage.get.mockImplementation(async (key: string) =>
+      key === 'tools.voiceHostedConsent' ? { version: 1, acceptedProviders: ['openai'], updatedAt: 1 } : undefined
+    );
+  });
+
+  it('shows the cause main sent, not the bare code', async () => {
+    speak.mockResolvedValue({
+      ok: false,
+      errorCode: 'TTS_OPENAI_CREDENTIAL_UNREADABLE',
+      detail: 'OpenAI is connected but its saved credential cannot be decrypted on this machine',
+      });
+    renderSection();
+    await clickTestVoice();
+
+    await waitFor(() => expect(messageError).toHaveBeenCalled());
+    const shown = String(messageError.mock.calls[0][0]);
+    expect(shown).toMatch(/cannot be decrypted/i);
+    expect(MockAudio.instances).toHaveLength(0);
+  });
+
+  it('KNOWN POSITIVE: a successful synthesis still plays and says nothing', async () => {
+    speak.mockResolvedValue({ ok: true, data: [82, 73, 70, 70], mimeType: 'audio/wav' });
+    renderSection();
+    await clickTestVoice();
+
+    await waitFor(() => expect(MockAudio.instances[0]?.played).toBe(1));
+    expect(messageError).not.toHaveBeenCalled();
+  });
+
+  it('a bridge that never answers becomes a named failure, not silence', async () => {
+    // The exact shape of the reported bug: the IPC transport has no error
+    // channel on its provider side, so a main-process throw leaves this
+    // promise pending forever. Exercised directly against the guard so the
+    // assertion is about the guard, not about jsdom timer plumbing.
+    const never = new Promise(() => {});
+    const outcome = await withTestVoiceTimeout(never, 20).catch((e) => (e as Error).message);
+    expect(outcome).toBe('TTS_NO_RESPONSE');
+  });
+
+  it('KNOWN POSITIVE: the guard passes a prompt answer straight through', async () => {
+    await expect(withTestVoiceTimeout(Promise.resolve('answered'), 5000)).resolves.toBe('answered');
   });
 });
