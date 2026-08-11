@@ -5,6 +5,7 @@
  */
 
 import { useConversationContextSafe } from '@/renderer/hooks/context/ConversationContext';
+import { useAutoReadResponses } from '@/renderer/hooks/voice/useAutoReadResponses';
 import { useHostedVoiceConsent } from '@/renderer/hooks/voice/useHostedVoiceConsent';
 import {
   useVoiceConversationSession,
@@ -51,6 +52,13 @@ export const VoiceSessionProvider: React.FC<{
    */
   const { ensureConsent, consentModal } = useHostedVoiceConsent();
   const session = useVoiceConversationSession({ conversationId, actorLabel, ensureConsent });
+  /**
+   * Auto-read lives here for the same reason the session does: one per
+   * conversation surface, not one per composer. It stands down while a voice
+   * session is live, because that session already speaks this turn off the same
+   * response stream.
+   */
+  useAutoReadResponses({ conversationId, voiceSessionActive: session.isActive });
 
   const value = useMemo<VoiceSessionContextValue>(() => ({ ...session, ensureConsent }), [session, ensureConsent]);
 

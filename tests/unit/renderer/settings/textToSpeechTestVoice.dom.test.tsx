@@ -196,6 +196,78 @@ describe('Test voice — hosted consent', () => {
   });
 });
 
+describe('Auto-read — hosted consent', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    installMatchMedia();
+    storage.get.mockImplementation(async () => undefined);
+  });
+
+  const autoReadSwitch = () => screen.findByTestId('tts-auto-read-switch');
+
+  /** `onChange` takes an updater, so the decision is in what it produces. */
+  const appliedTo = (onChange: ReturnType<typeof vi.fn>, current: TextToSpeechConfig) => {
+    const last = onChange.mock.calls.at(-1);
+    expect(last).toBeDefined();
+    return (last as [(c: TextToSpeechConfig) => TextToSpeechConfig])[0](current);
+  };
+
+  it('asks for the disclosure before turning on for a hosted provider', async () => {
+    const { onChange } = renderSection();
+    await screen.findByTestId('tts-consent-pending');
+    (await autoReadSwitch()).click();
+
+    await screen.findByText(/processes your audio and\/or text/);
+    // Nothing is persisted until the user answers.
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('turns on once the user accepts', async () => {
+    const { onChange } = renderSection();
+    await screen.findByTestId('tts-consent-pending');
+    (await autoReadSwitch()).click();
+    (await screen.findByTestId('voice-consent-accept')).click();
+
+    await waitFor(() => expect(onChange).toHaveBeenCalled());
+    expect(appliedTo(onChange, HOSTED_CONFIG).autoReadResponses).toBe(true);
+  });
+
+  it('stays off when the user declines', async () => {
+    const { onChange } = renderSection();
+    await screen.findByTestId('tts-consent-pending');
+    (await autoReadSwitch()).click();
+    const cancel = await screen.findByTestId('voice-consent-cancel');
+    expect(cancel).toBeVisible();
+    cancel.click();
+
+    // Arco hides the modal rather than unmounting it, so visibility - not
+    // presence - is what says the promise actually settled.
+    await waitFor(() => expect(cancel).not.toBeVisible());
+    expect(onChange).not.toHaveBeenCalled();
+    expect((await autoReadSwitch()).getAttribute('aria-checked')).toBe('false');
+  });
+
+  it('control: turning it OFF never asks for a disclosure', async () => {
+    const { onChange } = renderSection({ ...HOSTED_CONFIG, autoReadResponses: true });
+    await screen.findByTestId('tts-consent-pending');
+    (await autoReadSwitch()).click();
+
+    await waitFor(() => expect(onChange).toHaveBeenCalled());
+    expect(appliedTo(onChange, { ...HOSTED_CONFIG, autoReadResponses: true }).autoReadResponses).toBe(false);
+    expect(screen.queryByText(/processes your audio and\/or text/)).toBeNull();
+  });
+
+  it('control: a local provider turns on with no disclosure at all', async () => {
+    const local: TextToSpeechConfig = { ...HOSTED_CONFIG, provider: 'system-native', voice: 'default' };
+    const { onChange } = renderSection(local);
+    (await autoReadSwitch()).click();
+
+    await waitFor(() => expect(onChange).toHaveBeenCalled());
+    expect(appliedTo(onChange, local).autoReadResponses).toBe(true);
+    expect(screen.queryByText(/processes your audio and\/or text/)).toBeNull();
+  });
+});
+
 describe('Test voice — the spoken phrase', () => {
   beforeEach(() => {
     vi.clearAllMocks();

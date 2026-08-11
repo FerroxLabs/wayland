@@ -239,7 +239,7 @@ const WhisperLocalDownloadControl: React.FC<{
   );
 };
 
-export const TTS_CONFIG_CHANGED_EVENT = 'wayland:tts-config-changed';
+export { TTS_CONFIG_CHANGED_EVENT } from '@/renderer/services/voice/voiceSettingsEvents';
 
 const OPENAI_TTS_VOICES = [
   'marin',
@@ -281,6 +281,27 @@ export const TextToSpeechSettingsSection: React.FC<{
       });
     },
     [onChange, ensureConsent]
+  );
+
+  /**
+   * Turning auto-read ON is the one speech decision the user makes ahead of
+   * time, for replies that have not been written yet - so on a hosted provider
+   * the disclosure is due here, at the moment of the decision, and not from
+   * inside a streaming answer where a modal would be an ambush. Turning it OFF
+   * needs no disclosure.
+   */
+  const handleAutoReadChange = useCallback(
+    (checked: boolean) => {
+      if (!checked) {
+        onChange((current) => ({ ...current, autoReadResponses: false }));
+        return;
+      }
+      void ensureConsent(config.provider).then((accepted) => {
+        if (!accepted) return;
+        onChange((current) => ({ ...current, autoReadResponses: true }));
+      });
+    },
+    [config.provider, ensureConsent, onChange]
   );
 
   const clearTestAudio = useCallback(() => {
@@ -447,8 +468,9 @@ export const TextToSpeechSettingsSection: React.FC<{
 
         <Form.Item label={t('settings.textToSpeechAutoRead')}>
           <Switch
+            data-testid='tts-auto-read-switch'
             checked={config.autoReadResponses}
-            onChange={(checked) => onChange((current) => ({ ...current, autoReadResponses: checked }))}
+            onChange={handleAutoReadChange}
           />
         </Form.Item>
 
