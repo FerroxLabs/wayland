@@ -42,7 +42,12 @@ describe('WorkbenchHost hostile presentation boundaries', () => {
 
     expect(screen.getByTestId('chat')).toBeInTheDocument();
     expect(screen.queryByTestId('workbench-panel')).not.toBeInTheDocument();
-    expect(document.querySelector('.workbench-host__tabs')).toHaveClass('absolute');
+    // The rail strip used to sit here as an `absolute` overlay so it never
+    // stole width from chat. It was removed outright when the titlebar became
+    // the sole workbench toggle, so the guarantee is now stronger: nothing
+    // renders alongside chat at all. Pinned so the rail cannot creep back and
+    // quietly start consuming layout again.
+    expect(document.querySelector('.workbench-host__tabs')).toBeNull();
     expect(document.querySelector('.workbench-host__primary')).toHaveClass('flex-1');
   });
 
