@@ -348,6 +348,8 @@
   "activation": {
     "title": "Wecke deine Agenten",
     "subtitle": "Verbinde einen Modellanbieter, um Aufgaben auszuführen. Wähle den Weg, der zu dir passt.",
+    "unusableTitle": "Deine Agenten erreichen kein Modell",
+    "unusableSubtitle": "Deine Anbieter sind verbunden, aber keiner konnte diese Aufgabe übernehmen. Prüfe sie in den Einstellungen oder füge einen weiteren Zugang hinzu.",
     "flux": {
       "label": "Flux Router verbinden",
       "sublabel": "Kostenloser Schlüssel mit 1 $ Startguthaben. Ohne Karte – jede Aufgabe wird an das passendste Spezialmodell geleitet.",

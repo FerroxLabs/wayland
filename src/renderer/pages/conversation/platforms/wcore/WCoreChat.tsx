@@ -12,7 +12,7 @@ import ActivationCard from '@renderer/components/activation/ActivationCard';
 import AcpAuthFailureCard from '@renderer/components/activation/AcpAuthFailureCard';
 import CuaPermissionCard from '@renderer/components/activation/CuaPermissionCard';
 import FlexFullContainer from '@renderer/components/layout/FlexFullContainer';
-import { useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
+import { activationPromptFor, useProviderReadiness } from '@renderer/hooks/useProviderReadiness';
 import { ModelRegistryProvider } from '@renderer/hooks/useModelRegistry';
 import MessageList from '@renderer/pages/conversation/Messages/MessageList';
 import { MessageListProvider, useMessageLstCache } from '@renderer/pages/conversation/Messages/hooks';
@@ -155,10 +155,13 @@ const WCoreChat: React.FC<{
     setHasCuaCapability(false);
     setCuaCardDismissed(false);
   }, [conversation_id]);
-  // Wake-the-engine call to action: shown inline above the send box whenever no
-  // working inference provider is configured (WS-4). A held first message
-  // auto-fires once a provider connects.
-  const engineAsleep = !readiness.ready && !readiness.loading;
+  // Wake-the-engine call to action, shown inline above the send box. It keys on
+  // the readiness REASON, never on "the last thing failed": a turn that dies for
+  // an unrelated cause (engine spawn, a locked Constitution, the network) does
+  // not touch the registry, and telling a user with five connected providers to
+  // "connect a model provider" is simply false. Only `no-provider` earns that
+  // copy; configured-but-unusable gets the `repair` headline instead.
+  const activationPrompt = activationPromptFor(readiness);
   const handleConnectFlux = useCallback(() => {
     // Fire-and-forget: the one-click PKCE flow runs in main; on success the model
     // registry emits listChanged, readiness flips, the card unmounts, and the
@@ -230,9 +233,10 @@ const WCoreChat: React.FC<{
             <FlexFullContainer>
               <MessageList className='flex-1' emptySlot={emptySlot} isProcessing={isProcessing} />
             </FlexFullContainer>
-            {engineAsleep && (
+            {activationPrompt && (
               <div className='max-w-800px w-full mx-auto mb-8px'>
                 <ActivationCard
+                  variant={activationPrompt}
                   onConnectFlux={handleConnectFlux}
                   onUseOwnKey={goToModels}
                   onUseClaudeCode={goToModels}

@@ -30,7 +30,7 @@ import { createSetUploadFile, useSendBoxFiles } from '@/renderer/hooks/chat/useS
 import { useSlashCommands } from '@/renderer/hooks/chat/useSlashCommands';
 import { usePendingSendOnWake } from '@/renderer/hooks/chat/usePendingSendOnWake';
 import { useOpenFileSelector } from '@/renderer/hooks/file/useOpenFileSelector';
-import { useProviderReadiness } from '@/renderer/hooks/useProviderReadiness';
+import { activationPromptFor, useProviderReadiness } from '@/renderer/hooks/useProviderReadiness';
 import { useLatestRef } from '@/renderer/hooks/ui/useLatestRef';
 import {
   useAddOrUpdateMessage,
@@ -132,6 +132,12 @@ const WCoreSendBox: React.FC<{
   // While asleep we still let the user compose + send: the message is held in
   // the main process and auto-fires once a provider wakes the engine (WS-4).
   const engineAsleep = !readiness.ready && !readiness.loading;
+  // Parking a send is only correct when there is genuinely nothing to send TO -
+  // the held body is replayed on the `ready` edge, which a merely-degraded
+  // registry may never produce, so a configured user's message would sit in
+  // main-process memory forever. For every other not-ready reason let the turn
+  // dispatch and fail loudly: runtime failure is the authoritative signal.
+  const providerAbsent = activationPromptFor(readiness) === 'connect';
 
   // When the engine surfaces a terminal turn error, route it to the matching
   // in-thread remedy card so the user gets a one-click fix instead of a raw
@@ -322,7 +328,7 @@ const WCoreSendBox: React.FC<{
   // wakes the engine (exactly-once, survives a remount into settings and back).
   const { holdIfAsleep } = usePendingSendOnWake({
     conversationId: conversation_id,
-    asleep: engineAsleep,
+    asleep: providerAbsent,
     ready: readiness.ready,
     execute: executeCommand,
   });

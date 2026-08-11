@@ -350,6 +350,8 @@
   "activation": {
     "title": "Ajanlarını uyandır",
     "subtitle": "Görevleri çalıştırmaya başlamak için bir model sağlayıcısı bağla. Sana uyan yolu seç.",
+    "unusableTitle": "Ajanların bir modele ulaşamıyor",
+    "unusableSubtitle": "Sağlayıcıların bağlı, ama hiçbiri bu görevi alamadı. Ayarlar'dan kontrol et ya da başka bir giriş yolu ekle.",
     "flux": {
       "label": "Flux Router’ı bağla",
       "sublabel": "Ücretsiz anahtar ve 1 $ başlangıç kredisi. Kart gerekmez — her görevi en uygun uzman modele yönlendirir.",

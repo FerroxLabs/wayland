@@ -243,9 +243,13 @@ vi.mock('@/renderer/hooks/agent/useAgentReadinessCheck', () => ({
     reset: vi.fn(),
   }),
 }));
-vi.mock('@/renderer/hooks/useProviderReadiness', () => ({
-  useProviderReadiness: () => ({ ready: true, loading: false }),
-}));
+vi.mock('@/renderer/hooks/useProviderReadiness', async (importOriginal) => {
+  // Partial: the readiness VERDICT is doubled, but `activationPromptFor`
+  // (the pure gate that reads it) stays real - a stubbed gate would decide
+  // the activation card's presence for the component under test.
+  const actual = await importOriginal<typeof import('@/renderer/hooks/useProviderReadiness')>();
+  return { ...actual, useProviderReadiness: () => ({ ready: true, loading: false }) };
+});
 vi.mock('@/renderer/hooks/chat/usePendingSendOnWake', () => ({
   usePendingSendOnWake: () => ({ holdIfAsleep: async () => false }),
 }));

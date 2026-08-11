@@ -386,6 +386,8 @@ export type I18nKey =
   | 'conversation.activation.ownKey.sublabel'
   | 'conversation.activation.subtitle'
   | 'conversation.activation.title'
+  | 'conversation.activation.unusableSubtitle'
+  | 'conversation.activation.unusableTitle'
   | 'conversation.activity.activeHeader'
   | 'conversation.activity.completedSummary'
   | 'conversation.activity.costPerTurn'

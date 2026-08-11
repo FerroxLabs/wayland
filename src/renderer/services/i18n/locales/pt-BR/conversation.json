@@ -348,6 +348,8 @@
   "activation": {
     "title": "Desperte seus agentes",
     "subtitle": "Conecte um provedor de modelos para começar a executar tarefas. Escolha o caminho ideal para você.",
+    "unusableTitle": "Seus agentes não conseguem alcançar um modelo",
+    "unusableSubtitle": "Seus provedores estão conectados, mas nenhum conseguiu aceitar esta tarefa. Verifique-os nas Configurações ou adicione outro caminho de acesso.",
     "flux": {
       "label": "Conectar o Flux Router",
       "sublabel": "Chave gratuita com US$ 1 de crédito inicial. Sem cartão — encaminha cada tarefa para o modelo especialista mais adequado.",

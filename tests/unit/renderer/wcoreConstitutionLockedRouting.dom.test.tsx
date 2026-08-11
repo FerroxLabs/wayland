@@ -58,9 +58,13 @@ vi.mock('@renderer/components/media/LocalImageView', () => ({
     useUpdateLocalImage: () => () => {},
   }),
 }));
-vi.mock('@renderer/hooks/useProviderReadiness', () => ({
-  useProviderReadiness: () => ({ ready: true, loading: false }),
-}));
+vi.mock('@renderer/hooks/useProviderReadiness', async (importOriginal) => {
+  // Partial: the readiness VERDICT is doubled, but `activationPromptFor`
+  // (the pure gate that reads it) stays real - a stubbed gate would decide
+  // the activation card's presence for the component under test.
+  const actual = await importOriginal<typeof import('@renderer/hooks/useProviderReadiness')>();
+  return { ...actual, useProviderReadiness: () => ({ ready: true, loading: false }) };
+});
 vi.mock('@renderer/hooks/useFluxConnected', () => ({ useFluxConnected: () => false }));
 vi.mock('@renderer/hooks/context/ConversationContext', () => ({
   ConversationProvider: ({ children }: React.PropsWithChildren) => <>{children}</>,

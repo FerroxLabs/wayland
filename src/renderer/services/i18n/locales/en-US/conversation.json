@@ -423,6 +423,8 @@
   "activation": {
     "title": "Wake your agents",
     "subtitle": "Connect a model provider to start running tasks. Pick the path that fits you.",
+    "unusableTitle": "Your agents can't reach a model",
+    "unusableSubtitle": "Your providers are connected, but none of them could take this task. Check them in Settings, or add another way in.",
     "flux": {
       "label": "Connect Flux Router",
       "sublabel": "Free key with a $1 starter credit, no card required. Routes every task to the best-fit specialist model.",

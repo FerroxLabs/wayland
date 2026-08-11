@@ -348,6 +348,8 @@
   "activation": {
     "title": "Réveillez vos agents",
     "subtitle": "Connectez un fournisseur de modèles pour commencer à exécuter des tâches. Choisissez la voie qui vous convient.",
+    "unusableTitle": "Vos agents n’atteignent aucun modèle",
+    "unusableSubtitle": "Vos fournisseurs sont connectés, mais aucun n’a pu prendre cette tâche. Vérifiez-les dans les Réglages, ou ajoutez une autre voie d’accès.",
     "flux": {
       "label": "Connecter Flux Router",
       "sublabel": "Clé gratuite avec 1 $ de crédit de démarrage. Sans carte — chaque tâche est routée vers le modèle spécialisé le plus adapté.",
