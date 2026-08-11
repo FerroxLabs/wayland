@@ -77,8 +77,25 @@ export async function transcribeAudioBlob(blob: Blob, languageHint?: string): Pr
   ensureAudioSize(blob, provider);
 
   if (!provider || provider === 'whisper-local') {
-    const text = await transcribeLocally(blob);
-    return { text, provider: 'whisper-local', model: 'whisper-tiny', language: languageHint };
+    try {
+      const text = await transcribeLocally(blob);
+      return { text, provider: 'whisper-local', model: 'whisper-tiny', language: languageHint };
+    } catch (error) {
+      /**
+       * The local engine's real failure is a knowable one - a missing bundled
+       * model file, a WASM runtime that would not load - and it arrives here as
+       * an ordinary message with no `STT_` prefix. The caller's error map has no
+       * branch for that shape, so every one of them collapsed into the single
+       * word "unknown", which is what the user was shown after speaking:
+       * "Microphone or transcription failed (unknown). Nothing was sent."
+       *
+       * Re-throwing it under a code with the original message attached keeps the
+       * cause all the way to the surface. Nothing about a missing model file is
+       * unknown.
+       */
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(`STT_LOCAL_ENGINE_FAILED:${detail}`);
+    }
   }
 
   if (isElectronDesktop()) {

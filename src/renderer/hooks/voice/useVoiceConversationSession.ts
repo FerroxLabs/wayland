@@ -557,6 +557,7 @@ export const useVoiceConversationSession = ({
     cancelRecording,
     clearError: clearSpeechError,
     errorCode: speechErrorCode,
+    errorMessage: speechErrorMessage,
     recordingLevels,
     startMonitoring,
     startRecording,
@@ -1394,8 +1395,21 @@ export const useVoiceConversationSession = ({
 
   useEffect(() => {
     if (!speechErrorCode) return;
-    setSurfaceError(`Microphone or transcription failed (${speechErrorCode}). Nothing was sent.`);
-  }, [speechErrorCode]);
+    /**
+     * Name the cause, not the bucket.
+     *
+     * This used to print the error code alone, and for a local-engine failure
+     * that code was the literal word "unknown" - shown to a user who had just
+     * finished speaking. The underlying reason (a bundled model file that would
+     * not load, a runtime that is not installed) travels with the error now, so
+     * show it whenever it exists and keep the code only as the fallback.
+     */
+    setSurfaceError(
+      speechErrorMessage
+        ? `Transcription failed: ${speechErrorMessage}. Nothing was sent.`
+        : `Microphone or transcription failed (${speechErrorCode}). Nothing was sent.`
+    );
+  }, [speechErrorCode, speechErrorMessage]);
 
   /**
    * Navigating to another conversation ends the session.

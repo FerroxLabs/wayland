@@ -20,6 +20,7 @@ export type SpeechInputErrorCode =
   | 'auth-error'
   | 'empty-transcript'
   | 'file-too-large'
+  | 'local-engine-failed'
   | 'network'
   | 'not-configured'
   | 'permission-denied'
@@ -237,11 +238,28 @@ export const mapSpeechInputError = (error: unknown): SpeechInputErrorCode => {
   if (message.includes('STT_ABORTED')) {
     return 'aborted';
   }
+  if (message.includes('STT_LOCAL_ENGINE_FAILED')) {
+    return 'local-engine-failed';
+  }
   if (message.includes('STT_REQUEST_FAILED')) {
     return 'transcription-failed';
   }
 
   return 'unknown';
+};
+
+/**
+ * The human half of a `STT_CODE:detail` error.
+ *
+ * Previously read only for `STT_REQUEST_FAILED`, so every other coded failure
+ * reached the UI as a bare enum with its cause dropped on the floor. Any code
+ * may carry a detail; the ones that do are the ones worth reading.
+ */
+export const speechErrorDetail = (error: unknown): string | null => {
+  const message = error instanceof Error ? error.message : String(error);
+  const match = /^(STT_[A-Z_]+):([\s\S]+)$/.exec(message.trim());
+  const detail = match?.[2]?.trim();
+  return detail || null;
 };
 
 export const useSpeechInput = ({
@@ -525,10 +543,7 @@ export const useSpeechInput = ({
         resetSpeechVisualizer();
       } catch (error) {
         setErrorCode(mapSpeechInputError(error));
-        const message = error instanceof Error ? error.message : String(error);
-        setErrorMessage(
-          message.startsWith('STT_REQUEST_FAILED:') ? message.replace('STT_REQUEST_FAILED:', '').trim() : null
-        );
+        setErrorMessage(speechErrorDetail(error));
         setStatus('error');
         resetSpeechVisualizer();
       }
