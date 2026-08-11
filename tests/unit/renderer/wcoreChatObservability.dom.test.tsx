@@ -23,9 +23,28 @@
  * RETARGETED AGAIN (Observability removal). The Observability section, its
  * panel and the `panelOpen` setting that gated it have all been deleted; the
  * surviving section registered at that same site is `mission` / "Progress",
- * which carries the identical thesis. The list must still contain a turn that
- * did work: availability is gated on content, so an empty conversation offers
- * no section at all (asserted below).
+ * which carries the identical thesis.
+ *
+ * RETARGETED A THIRD TIME, and this time the thesis INVERTS. Progress and the
+ * `projection:*` Engine box have now been unpublished too: the workbench is
+ * Workspace ONLY, and the spine registers NOTHING. "wcore reaches a section
+ * through the spine" is therefore not a true statement about the product any
+ * more, and no amount of re-pointing makes it one - the only honest subject
+ * left at this site is its negation.
+ *
+ * That negation is worth a file, because it is exactly the guarantee an
+ * accident breaks. The gate the original was written against
+ * ("an inverted gate would pass CI") is still here, just the other way round:
+ * one restored `useWorkbenchSection(missionSection)` line, or an `available`
+ * flipped to `!visible`, and Progress is back in front of every user with a
+ * green suite. So this file now pins, through the real WCoreChat -> spine ->
+ * WorkbenchHost path: the spine adds no section, and the workbench shows
+ * exactly what its OTHER registrants put there - Workspace.
+ *
+ * Workspace is registered by ChatLayout, not by anything under test here, so it
+ * is stood in for below (`WorkspaceRegistrant`). That stand-in is not scenery:
+ * it is what keeps every "is null" assertion in this file honest, by proving
+ * the queries used to look for a section can in fact find one.
  */
 
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -40,15 +59,12 @@ vi.mock('react-i18next', () => ({
 
 // The `panelOpen` settings double and the ObservabilityPanel body stub that
 // used to sit here are gone with their subjects: the hook and the panel module
-// have both been deleted, so a mock of either would resolve to nothing. The
-// section gate the panel stub existed to leave measurable is now
-// ExecutionSpine's own `visible`, which needs no double.
-
-// The workbench projections lane is a separate concern (and a separate packet);
-// stub it so an unrelated projection change cannot move the active section here.
-vi.mock('@/renderer/pages/conversation/components/WorkbenchHost/projections', () => ({
-  default: () => null,
-}));
+// have both been deleted, so a mock of either would resolve to nothing.
+//
+// The projections stub that sat here is gone for a sharper reason: the spine no
+// longer imports that module at all. Stubbing it to `null` would have hidden a
+// re-published Engine box behind a mock - the exact regression this file is
+// here to catch - so the real module stays unmocked and unreached.
 
 // Heavy, irrelevant chat deps stubbed to no-ops.
 vi.mock('@renderer/pages/conversation/Messages/MessageList', () => ({
@@ -94,7 +110,7 @@ vi.mock('@/common', () => ({ ipcBridge: {} }));
 
 import type { TMessage } from '@/common/chat/chatLib';
 import WCoreChat from '@/renderer/pages/conversation/platforms/wcore/WCoreChat';
-import WorkbenchHost from '@/renderer/pages/conversation/components/WorkbenchHost';
+import WorkbenchHost, { useWorkbenchSection } from '@/renderer/pages/conversation/components/WorkbenchHost';
 import { MessageListProvider } from '@/renderer/pages/conversation/Messages/messageListContext';
 
 /** One wcore tool turn - the shape wcore actually reports its tool work in. */
@@ -116,64 +132,102 @@ const plainText: TMessage = {
   content: { content: 'hello' },
 } as unknown as TMessage;
 
+/**
+ * Stands in for ChatLayout, the one thing that still publishes to the rail. The
+ * registration mirrors ChatLayout/index.tsx:180-206 in the shape that matters
+ * here - id, testId, label, and available/requestedOpen both true - so the
+ * workbench under test holds the same single section the real conversation
+ * gives it.
+ */
+const WorkspaceRegistrant: React.FC = () => {
+  useWorkbenchSection({
+    id: 'workspace',
+    label: 'Workspace',
+    priority: 30,
+    available: true,
+    requestedOpen: true,
+    activationKey: 'c1:open',
+    testId: 'workbench-workspace',
+    content: <div data-testid='workspace-body'>files</div>,
+  });
+  return null;
+};
+
 const renderChat = (messages: TMessage[] = [toolGroup]) =>
   render(
     <MessageListProvider value={messages}>
       <WorkbenchHost conversationId='c1'>
+        <WorkspaceRegistrant />
         <WCoreChat conversation_id='c1' workspace='/ws' modelSelection={{} as never} />
       </WorkbenchHost>
     </MessageListProvider>
   );
 
+/** Every section the workbench is currently offering, in stack order. */
+const sectionIds = (container: HTMLElement): string[] =>
+  Array.from(container.querySelectorAll('[data-testid="workbench-stack"] > [data-section-id]')).map(
+    (node) => node.getAttribute('data-section-id') ?? ''
+  );
+
 /**
- * Retargeted from Observability to Progress.
- *
- * This file exists to prove that wcore reaches a workbench section END TO END
- * THROUGH THE SPINE - not through a per-platform copy - and that the close
- * handler is really wired, because "an inverted gate or a dropped close handler
- * would pass CI" (see this file's header). The Observability section it used to
- * assert on has been removed outright; `mission` / "Progress" is the surviving
- * section registered at that same site (ExecutionSpine/index.tsx:95-106), and
- * it carries the identical thesis. Every guarantee below is the one this file
- * already made, re-pointed at the surface that still exists.
+ * The close-handler guarantee is the one thing that survives this file's third
+ * retarget unchanged: the card owns the only close button, so closing must
+ * genuinely retract the surface, and "a dropped close handler would pass CI"
+ * is as true of Workspace as it was of Observability.
  *
  * The `panelOpen` settings double this file used to carry has been deleted with
  * the hook it doubled: nothing writes that flag any more, so asserting on it
  * would assert on a spy that can never fire. The close guarantee is asserted
  * directly on the DOM instead, which is strictly harder to fake.
  */
-describe('WCoreChat reaches a workbench section through the execution spine', () => {
+describe('WCoreChat leaves the workbench to Workspace alone', () => {
   beforeEach(() => {
     localStorage.clear();
   });
 
-  it('discloses Progress for a wcore turn that did tool work', () => {
-    renderChat();
-    expect(screen.getByRole('button', { name: 'Progress' })).toBeTruthy();
-    expect(screen.getByTestId('workbench-mission')).toBeVisible();
+  it('shows Workspace and nothing else for a wcore turn that did tool work', () => {
+    const { container } = renderChat();
+    // The panel is genuinely mounted and holds exactly one section. This turn
+    // did tool work - it is the input that used to open Progress.
+    expect(screen.getByTestId('workbench-panel')).toBeTruthy();
     expect(screen.getByRole('separator', { name: 'Resize workbench' })).toBeTruthy();
+    expect(sectionIds(container)).toEqual(['workspace']);
+    expect(screen.getByTestId('workbench-workspace')).toBeVisible();
+
+    // ...and nothing from the spine. Progress by its label, its testId, and the
+    // Engine box by the prefix every projection lane registers under.
+    expect(screen.queryByRole('button', { name: 'Progress' })).toBeNull();
+    expect(screen.queryByTestId('workbench-mission')).toBeNull();
+    expect(container.querySelectorAll('[data-testid^="workbench-projection-"]')).toHaveLength(0);
   });
 
-  // The card owns the only close button, so a card can never show two closes
-  // doing different things. Closing must genuinely retract the surface.
   it('closing from the card dismisses the section and leaves no panel behind', () => {
     renderChat();
-    expect(screen.getByTestId('workbench-mission')).toBeVisible();
+    expect(screen.getByTestId('workbench-workspace')).toBeVisible();
     fireEvent.click(screen.getByRole('button', { name: 'Close workbench' }));
     expect(screen.queryByTestId('workbench-panel')).toBeNull();
-    expect(screen.queryByTestId('workbench-mission')).toBeNull();
+    expect(screen.queryByTestId('workbench-workspace')).toBeNull();
   });
 
   /**
-   * The gate is on CONTENT, not on a stored preference: a section that can only
-   * say "nothing here yet" is worse than no section. `available: visible`
-   * (ExecutionSpine/index.tsx:98) is the structural analogue of the old
-   * `hasObservable` gate, so "no work ⇒ no section" keeps a real subject.
+   * The inverted-gate catch, stated as a DIFFERENCE.
+   *
+   * The spine's own `available: visible` gate used to decide whether wcore got
+   * a section; now it decides nothing about the rail, so the rail must look
+   * identical whether the turn did work or not. Assert one side only and a
+   * republished Progress slips through on the other - `available: !visible`
+   * would leave the working turn clean and put a panel on the plain one.
    */
-  it('offers no section at all when the conversation has no execution work', () => {
-    renderChat([plainText]);
+  it('offers the same Workspace-only rail whether or not the turn did execution work', () => {
+    const worked = renderChat([toolGroup]);
+    expect(sectionIds(worked.container)).toEqual(['workspace']);
+    worked.unmount();
+
+    localStorage.clear();
+    const idle = renderChat([plainText]);
+    expect(sectionIds(idle.container)).toEqual(['workspace']);
     expect(screen.queryByRole('button', { name: 'Progress' })).toBeNull();
     expect(screen.queryByTestId('workbench-mission')).toBeNull();
-    expect(screen.queryByTestId('workbench-panel')).toBeNull();
+    expect(idle.container.querySelectorAll('[data-testid^="workbench-projection-"]')).toHaveLength(0);
   });
 });

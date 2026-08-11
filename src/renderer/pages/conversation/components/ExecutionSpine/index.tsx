@@ -12,7 +12,6 @@ import { Tag, Typography } from '@arco-design/web-react';
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkbenchSection, type WorkbenchSectionRegistration } from '../WorkbenchHost';
-import ExecutionWorkbenchProjections from '../WorkbenchHost/projections';
 import MissionProgressPanel from './MissionProgressPanel';
 
 function latestTurnId(messages: readonly TMessage[], fallback: string): string {
@@ -103,7 +102,18 @@ const ExecutionSpine: React.FC<{
     }),
     [progressLabel, run, t, visible]
   );
-  useWorkbenchSection(missionSection);
+  // The workbench is Workspace ONLY.
+  //
+  // Progress and the Engine projections were both removed deliberately: the
+  // panel told the user "valid / queued" and a step count they could already
+  // read in the transcript, which is engine telemetry wearing a panel rather
+  // than something anyone can act on. Claude's own side panel dropped the same
+  // two things. Workspace stays because a file tree tied to the conversation is
+  // a thing people actually reach for.
+  //
+  // `missionSection` is still COMPUTED - the in-thread summary strip below uses
+  // the same run data - it is simply no longer published to the right rail.
+  void missionSection;
 
   /**
    * There is deliberately NO Observability section here.
@@ -144,20 +154,15 @@ const ExecutionSpine: React.FC<{
       ? t('conversation.execution.failedActivity', { defaultValue: 'The run stopped before it finished' })
       : t('conversation.execution.currentActivity', { defaultValue: 'Working through the current task' }));
 
-  const projections = <ExecutionWorkbenchProjections snapshot={snapshot} />;
 
   if (!visible) {
     return (
-      <>
-        {projections}
-        {children}
-      </>
+      <>{children}</>
     );
   }
 
   return (
     <>
-      {projections}
       <div className='flex flex-1 min-h-0' data-testid='execution-spine' data-run-id={run.identity.runId}>
         <section className='flex flex-col flex-1 min-w-0'>
           {!settled && (
