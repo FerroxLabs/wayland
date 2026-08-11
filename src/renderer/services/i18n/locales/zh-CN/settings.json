@@ -1856,6 +1856,7 @@
       "rekeyConfirm": "更新密钥",
       "rekeyDone": "提供商凭据已更新。",
       "rekeyCloudDisabled": "云凭据需在云连接表单中重新设置，而非此处。",
+      "refreshStillActionNeeded": "目录已刷新，但该提供方仍需处理。",
       "errorUnauthorized": "{{provider}} 密钥被拒绝，未授权。请检查密钥后重试。",
       "errorNoCredit": "{{provider}} 密钥没有可用额度。请添加账单以运行模型。",
       "errorOffline": "无法连接 {{provider}}，你似乎处于离线状态。请检查网络后重试。",

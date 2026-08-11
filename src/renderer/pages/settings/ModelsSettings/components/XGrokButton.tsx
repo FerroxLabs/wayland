@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { ipcBridge } from '@/common';
 import type { XaiOAuthResult } from '@/common/types/onboarding';
 import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
+import { isProviderActionNeeded } from '../providerStatus';
 
 /** Inline X (formerly Twitter) wordmark. The monochrome glyph adapts to theme. */
 const XMark: React.FC = () => (
@@ -43,8 +44,12 @@ const XGrokButton: React.FC = () => {
   // the shared snapshot that re-renders live on every `modelRegistry.listChanged`
   // event - the connected-state row flips the moment xAI connects / disconnects.
   const { providers } = useModelRegistry();
+  // `state === 'connected'` alone was not enough: a row whose stored ciphertext
+  // cannot be decrypted still reads `connected`, so this rendered "Signed in
+  // with X" for a credential that fails every call - while the list row next to
+  // it said "Action needed". Share the list row's predicate instead.
   const isXaiConnected = useMemo(
-    () => providers.some((p) => p.providerId === 'xai' && p.state === 'connected'),
+    () => providers.some((p) => p.providerId === 'xai' && p.state === 'connected' && !isProviderActionNeeded(p)),
     [providers]
   );
   const [loading, setLoading] = useState(false);

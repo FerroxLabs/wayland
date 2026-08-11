@@ -21,6 +21,7 @@
  */
 
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { Message } from '@arco-design/web-react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -55,6 +56,9 @@ const mockConnect = vi.fn();
 const mockDisconnect = vi.fn();
 const mockGoogleLogin = vi.fn();
 const mockListChangedOn = vi.fn(() => vi.fn());
+// Manage-page catalog + the per-provider refresh the Manage header fires.
+const mockGetCatalog = vi.fn();
+const mockRefresh = vi.fn();
 // Headless write-only HTTP connect route (remote WebUI path).
 const mockConnectProviderHttp = vi.fn();
 
@@ -65,9 +69,9 @@ vi.mock('../../../src/common/adapter/ipcBridge', () => ({
     connect: { invoke: (...a: unknown[]) => mockConnect(...a) },
     disconnect: { invoke: (...a: unknown[]) => mockDisconnect(...a) },
     testConnection: { invoke: vi.fn() },
-    getCatalog: { invoke: vi.fn() },
+    getCatalog: { invoke: (...a: unknown[]) => mockGetCatalog(...a) },
     toggleModel: { invoke: vi.fn() },
-    refresh: { invoke: vi.fn() },
+    refresh: { invoke: (...a: unknown[]) => mockRefresh(...a) },
     rekey: { invoke: vi.fn() },
     curatedForAgent: { invoke: vi.fn() },
     // Automatic-refresh surface (consumed by useModelRegistry's listChanged
@@ -101,6 +105,13 @@ vi.mock('../../../src/common', () => ({
 vi.mock('../../../src/renderer/pages/settings/components/SettingsPageShell', () => ({
   default: ({ children }: { children: React.ReactNode }) =>
     React.createElement('div', { 'data-testid': 'settings-shell' }, children),
+}));
+
+// The Manage view is wrapped in SettingsPageWrapper, which calls useNavigate()
+// and therefore needs a Router. It is page chrome too - stub it the same way.
+vi.mock('../../../src/renderer/pages/settings/components/SettingsPageWrapper', () => ({
+  default: ({ children }: { children: React.ReactNode }) =>
+    React.createElement('div', { 'data-testid': 'settings-wrapper' }, children),
 }));
 
 // Deep-link hook - controllable per test so we can exercise the seed flow.
@@ -154,7 +165,14 @@ const detectedKey: IModelRegistryDetectedKey = {
   source: 'env:GROQ_API_KEY',
 };
 
+// Arco toasts render into a portal that jsdom never paints, so assert on the
+// call itself - which message the page CHOSE to show is the behavior under test.
+let warnSpy: ReturnType<typeof vi.spyOn>;
+let successSpy: ReturnType<typeof vi.spyOn>;
+
 beforeEach(() => {
+  warnSpy = vi.spyOn(Message, 'warning').mockImplementation((() => ({ close: () => {} })) as never);
+  successSpy = vi.spyOn(Message, 'success').mockImplementation((() => ({ close: () => {} })) as never);
   mockListChangedOn.mockClear();
   mockList.mockReset().mockResolvedValue([]);
   mockDetectKeys.mockReset().mockResolvedValue([]);
@@ -164,6 +182,10 @@ beforeEach(() => {
   mockConnectProviderHttp.mockReset().mockResolvedValue({ ok: true });
   // Default: no pending deep-link. Tests opt in by overriding per case.
   mockConsumePendingDeepLink.mockReset().mockReturnValue(null);
+  // Same shape the un-stubbed `vi.fn()` produced before these were captured:
+  // resolves undefined, so the row's catalog probe degrades exactly as it did.
+  mockGetCatalog.mockReset().mockResolvedValue(undefined);
+  mockRefresh.mockReset().mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -283,6 +305,84 @@ describe('ModelsSettings page', () => {
     expect(await screen.findByText('Groq')).toBeInTheDocument();
     expect(screen.getByText('settings.modelsPage.row.connected')).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  /**
+   * Live defect (verbatim): "It says connected when I click into it, but when I
+   * come back out it still says action needed."
+   *
+   * The list row and the Manage detail page each derived their own answer. The
+   * row read `state === 'error' || credsUndecryptable`; Manage read only
+   * `state === 'error'` - so the exact row the list painted red rendered a
+   * green "Connected" badge the moment the user clicked into it. Same provider,
+   * same snapshot, two answers.
+   */
+  it('shows Action needed on the Manage page for the same row the list painted red', async () => {
+    mockList.mockResolvedValue([undecryptableProvider]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.fix'));
+
+    // The detail header must agree with the row it was opened from.
+    expect(await screen.findByText('settings.modelsPage.manage.statusError')).toBeInTheDocument();
+    expect(screen.queryByText('settings.modelsPage.manage.statusConnected')).not.toBeInTheDocument();
+  });
+
+  /**
+   * The other half of "xAI will not properly refresh". `modelRegistry.refresh`
+   * resolves `ok: true` whenever the catalog was REBUILT - including when the
+   * rebuild fell back to the models.dev registry slice because the stored
+   * credential could not list a single model (proven against the handler: a
+   * dead xai key leaves the row `error/unrecognized` and still returns
+   * `{ ok: true }`). Announcing "Catalog up to date." off that is how this page
+   * said everything was fine while the row it came from stayed red.
+   */
+  it('does not announce success when the refreshed provider is still action-needed', async () => {
+    mockList.mockResolvedValue([erroredProvider]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+    // The catalog rebuild "succeeded" but nothing healed the row.
+    mockRefresh.mockResolvedValue({ ok: true });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.fix'));
+    fireEvent.click(await screen.findByText('settings.modelsPage.manage.refresh'));
+
+    await waitFor(() =>
+      expect(warnSpy).toHaveBeenCalledWith('settings.modelsPage.manage.refreshStillActionNeeded')
+    );
+    expect(successSpy).not.toHaveBeenCalledWith('settings.modelsPage.manage.refreshDone');
+  });
+
+  it('announces success when the refresh actually cleared the error (negative control)', async () => {
+    // Same click path, but the reloaded snapshot comes back healthy.
+    mockList.mockResolvedValueOnce([erroredProvider]).mockResolvedValue([{ ...erroredProvider, state: 'connected', error: undefined, modelCount: 7 }]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+    mockRefresh.mockResolvedValue({ ok: true });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.fix'));
+    fireEvent.click(await screen.findByText('settings.modelsPage.manage.refresh'));
+
+    await waitFor(() => expect(successSpy).toHaveBeenCalledWith('settings.modelsPage.manage.refreshDone'));
+    expect(warnSpy).not.toHaveBeenCalledWith('settings.modelsPage.manage.refreshStillActionNeeded');
+  });
+
+  it('still shows Connected on the Manage page for a healthy row (negative control)', async () => {
+    // Proves the assertion above is not vacuous: the same click path on a row
+    // whose credential decrypts fine must still read Connected.
+    mockList.mockResolvedValue([{ ...undecryptableProvider, credsUndecryptable: false }]);
+    mockGetCatalog.mockResolvedValue({ catalog: [], curated: [] });
+
+    renderPage();
+
+    fireEvent.click(await screen.findByText('settings.modelsPage.row.manage'));
+
+    expect(await screen.findByText('settings.modelsPage.manage.statusConnected')).toBeInTheDocument();
+    expect(screen.queryByText('settings.modelsPage.manage.statusError')).not.toBeInTheDocument();
   });
 
   it('shows the inline connect error when a pasted key is rejected', async () => {

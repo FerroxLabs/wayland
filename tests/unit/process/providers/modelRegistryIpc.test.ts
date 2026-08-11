@@ -2477,6 +2477,50 @@ describe('runPostUpgradeCatalogRefresh', () => {
     expect(refreshCount).toBe(0);
   });
 
+  /**
+   * Live defect: groq / google-gemini / openrouter / openai sat on "saved key
+   * unreadable, re-enter it" boot after boot. `refreshAllOnce` DOES route an
+   * undecryptable row through `tryRecoverFromDiscoveredKey` - but nothing calls
+   * it on boot, and this sweep never saw those rows either: they are stamped
+   * `connected` (not `error`), so the stale-error bucket missed them, and once
+   * the cursor reaches CATALOG_DATA_VERSION the upgrade bucket is empty.
+   * Recovery was being SKIPPED, not failing.
+   */
+  it('sweeps a connected row whose stored credential cannot be decrypted', async () => {
+    const mod = await import('@process/providers/ipc/modelRegistryIpc');
+    const refreshCalls: ProviderId[] = [];
+    const repoStub = {
+      listRegistryProviders: () => [
+        { providerId: 'openai' as ProviderId, state: 'connected' as const },
+        { providerId: 'anthropic' as ProviderId, state: 'connected' as const },
+      ],
+      getRegistryProviderCreds: (id: ProviderId) =>
+        id === 'openai'
+          ? ({ status: 'undecryptable' } as const)
+          : ({ status: 'ok', creds: { key: 'fine' } } as const),
+    };
+    const handlersStub = {
+      refresh: async ({ providerId }: { providerId: ProviderId }) => {
+        refreshCalls.push(providerId);
+        return { ok: true };
+      },
+    };
+    // Cursor already current: the one-time upgrade pass is done.
+    let cursor: number | undefined = mod.CATALOG_DATA_VERSION;
+    await mod._runPostUpgradeCatalogRefresh(repoStub as never, handlersStub, {
+      get: async () => cursor,
+      set: async (v) => {
+        cursor = v;
+      },
+    });
+
+    // Only the unreadable row is retried - a healthy row must not be re-fetched
+    // on every boot just because this bucket exists.
+    expect(refreshCalls).toEqual(['openai']);
+    // A recovery sweep is not a data-version change; the cursor stays put.
+    expect(cursor).toBe(mod.CATALOG_DATA_VERSION);
+  });
+
   it('continues the sweep when one provider refresh throws + still bumps the cursor', async () => {
     const mod = await import('@process/providers/ipc/modelRegistryIpc');
     const refreshCalls: ProviderId[] = [];

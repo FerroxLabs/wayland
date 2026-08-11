@@ -1890,6 +1890,7 @@
       "rekeyConfirm": "Schlüssel aktualisieren",
       "rekeyDone": "Anbieter-Anmeldedaten aktualisiert.",
       "rekeyCloudDisabled": "Cloud-Anmeldedaten werden über das Cloud-Verbindungsformular ersetzt, nicht hier.",
+      "refreshStillActionNeeded": "Katalog aktualisiert, aber dieser Anbieter benötigt weiterhin Aufmerksamkeit.",
       "errorUnauthorized": "Dieser {{provider}}-Schlüssel wurde abgelehnt, nicht autorisiert. Prüfe den Schlüssel und versuche es erneut.",
       "errorNoCredit": "Dieser {{provider}}-Schlüssel hat kein nutzbares Guthaben. Füge eine Abrechnung hinzu, um Modelle auszuführen.",
       "errorOffline": "{{provider}} konnte nicht erreicht werden, du scheinst offline zu sein. Prüfe deine Verbindung und versuche es erneut.",

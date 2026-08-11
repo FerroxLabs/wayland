@@ -7,6 +7,7 @@ import { useModelRegistry } from '@renderer/hooks/useModelRegistry';
 import FluxRouterMark from '@renderer/components/icons/FluxRouterMark';
 import ProviderLogo from '@renderer/components/model/ProviderLogo';
 import { providerMeta } from '../providerCatalog';
+import { isProviderActionNeeded } from '../providerStatus';
 import { defaultOnIds, enabledCount, mergeCatalogRows } from './bulkToggle';
 import styles from '../ModelsSettings.module.css';
 
@@ -63,8 +64,9 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
   // A row whose stored credential cannot be decrypted is action-needed even
   // though its `state` still reads `connected` - nothing has demoted it yet, and
   // rendering the green badge would promise a provider that fails every call.
+  // Derived by the shared predicate so the Manage page cannot disagree with it.
   const credsUnreadable = provider.credsUndecryptable === true;
-  const isError = provider.state === 'error' || credsUnreadable;
+  const isError = isProviderActionNeeded(provider);
   const isTesting = provider.state === 'testing' && !credsUnreadable;
   const noModels = !isError && !isTesting && provider.modelCount === 0;
 
@@ -154,6 +156,10 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
     .filter(Boolean)
     .join(' ');
 
+  const errorReasonKey = credsUnreadable
+    ? 'settings.modelsPage.row.errorUndecryptable'
+    : `settings.modelsPage.row.${ERROR_KEY[provider.error ?? 'unknown']}`;
+
   return (
     <div className={rowClass} data-provider={provider.providerId} data-state={provider.state}>
       {meta.id === 'flux-router' ? (
@@ -179,13 +185,7 @@ const ConnectedRow: React.FC<Props> = ({ provider, onManage, onFix }) => {
       {isError && (
         <div className={`${styles.status} ${styles.statusError}`} role='alert'>
           <span className={styles.statusDot} />
-          {t('settings.modelsPage.row.actionNeeded', {
-            reason: t(
-              credsUnreadable
-                ? 'settings.modelsPage.row.errorUndecryptable'
-                : `settings.modelsPage.row.${ERROR_KEY[provider.error ?? 'unknown']}`
-            ),
-          })}
+          {t('settings.modelsPage.row.actionNeeded', { reason: t(errorReasonKey) })}
         </div>
       )}
 

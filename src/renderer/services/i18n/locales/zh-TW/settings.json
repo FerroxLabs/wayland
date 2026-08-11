@@ -1857,6 +1857,7 @@
       "rekeyConfirm": "更新金鑰",
       "rekeyDone": "供應商憑證已更新。",
       "rekeyCloudDisabled": "雲端憑證需在雲端連接表單中重新設定，而非此處。",
+      "refreshStillActionNeeded": "目錄已重新整理，但此供應商仍需處理。",
       "errorUnauthorized": "{{provider}} 金鑰被拒絕，未授權。請檢查金鑰後重試。",
       "errorNoCredit": "{{provider}} 金鑰沒有可用額度。請新增帳單以執行模型。",
       "errorOffline": "無法連線 {{provider}}，你似乎處於離線狀態。請檢查網路後重試。",

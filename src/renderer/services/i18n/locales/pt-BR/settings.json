@@ -1890,6 +1890,7 @@
       "rekeyConfirm": "Atualizar chave",
       "rekeyDone": "Credenciais do provedor atualizadas.",
       "rekeyCloudDisabled": "As credenciais de nuvem são trocadas no formulário de conexão de nuvem, não aqui.",
+      "refreshStillActionNeeded": "Catálogo atualizado, mas este provedor ainda precisa de atenção.",
       "errorUnauthorized": "Essa chave do {{provider}} foi rejeitada, não autorizada. Verifique a chave e tente novamente.",
       "errorNoCredit": "Essa chave do {{provider}} não tem crédito utilizável. Adicione faturamento para executar modelos.",
       "errorOffline": "Não foi possível acessar o {{provider}}, você parece estar offline. Verifique sua conexão e tente novamente.",

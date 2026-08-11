@@ -2303,7 +2303,8 @@ export async function setAutoRefresh(value: boolean): Promise<void> {
  * `CATALOG_DATA_VERSION`.
  */
 export async function _runPostUpgradeCatalogRefresh(
-  repo: Pick<ProviderRepository, 'listRegistryProviders'>,
+  repo: Pick<ProviderRepository, 'listRegistryProviders'> &
+    Partial<Pick<ProviderRepository, 'getRegistryProviderCreds'>>,
   handlers: Pick<ModelRegistryHandlers, 'refresh'>,
   cursor: {
     get: () => Promise<number | undefined>;
@@ -2313,7 +2314,7 @@ export async function _runPostUpgradeCatalogRefresh(
   const persisted = (await cursor.get().catch((): number | undefined => undefined)) ?? 0;
   const allProviders = repo.listRegistryProviders();
 
-  // Two reasons to sweep on this boot:
+  // Three reasons to sweep on this boot:
   //  1. Cursor below CATALOG_DATA_VERSION - one-time post-upgrade rebuild.
   //  2. Any provider sits in `error/unrecognized` - typically the runtime
   //     safeStorage key rotated since last boot (dev-mode), leaving every
@@ -2321,11 +2322,26 @@ export async function _runPostUpgradeCatalogRefresh(
   //     running refresh now lets `tryRecoverFromDiscoveredKey` silently
   //     re-import from an env key the OS still exposes, so the user doesn't
   //     have to click Fix on every connected provider.
+  //  3. Any provider whose stored ciphertext cannot be DECRYPTED while its row
+  //     still reads `connected`. That row is the one Settings paints red, and
+  //     without this bucket nothing ever retries it: it is not in `error`, so
+  //     (2) never sees it, and once the cursor is current (1) is empty too. The
+  //     recovery `refresh` already knows how to run was simply never called.
   const needsUpgrade = persisted < CATALOG_DATA_VERSION;
   const staleErrored = allProviders.filter((p) => p.state === 'error' && p.error === 'unrecognized');
-  if (!needsUpgrade && staleErrored.length === 0) return;
+  const staleErroredIds = new Set(staleErrored.map((p) => p.providerId));
+  const undecryptable = allProviders.filter((p) => {
+    if (staleErroredIds.has(p.providerId)) return false;
+    try {
+      return repo.getRegistryProviderCreds?.(p.providerId).status === 'undecryptable';
+    } catch {
+      // A repo that cannot answer is not evidence of an unreadable credential.
+      return false;
+    }
+  });
+  if (!needsUpgrade && staleErrored.length === 0 && undecryptable.length === 0) return;
 
-  const providers = needsUpgrade ? allProviders : staleErrored;
+  const providers = needsUpgrade ? allProviders : [...staleErrored, ...undecryptable];
   for (const provider of providers) {
     try {
       await handlers.refresh({ providerId: provider.providerId });

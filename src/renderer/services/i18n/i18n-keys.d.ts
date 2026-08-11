@@ -3805,6 +3805,7 @@ export type I18nKey =
   | 'settings.modelsPage.manage.refresh'
   | 'settings.modelsPage.manage.refreshDone'
   | 'settings.modelsPage.manage.refreshFailed'
+  | 'settings.modelsPage.manage.refreshStillActionNeeded'
   | 'settings.modelsPage.manage.rekey'
   | 'settings.modelsPage.manage.rekeyBody'
   | 'settings.modelsPage.manage.rekeyCloudDisabled'

@@ -1964,6 +1964,7 @@
       "rekeyConfirm": "Update key",
       "rekeyDone": "Provider credentials updated.",
       "rekeyCloudDisabled": "Cloud credentials are re-keyed from the cloud connection form, not here.",
+      "refreshStillActionNeeded": "Catalog refreshed, but this provider still needs attention.",
       "errorUnauthorized": "That {{provider}} key was rejected, unauthorized. Check the key and try again.",
       "errorNoCredit": "That {{provider}} key has no usable credit. Add billing to run models.",
       "errorOffline": "Couldn't reach {{provider}}, you appear to be offline. Check your connection and retry.",

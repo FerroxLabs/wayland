@@ -1890,6 +1890,7 @@
       "rekeyConfirm": "Mettre à jour la clé",
       "rekeyDone": "Identifiants du fournisseur mis à jour.",
       "rekeyCloudDisabled": "Les identifiants cloud se changent depuis le formulaire de connexion cloud, pas ici.",
+      "refreshStillActionNeeded": "Catalogue actualisé, mais ce fournisseur nécessite toujours une action.",
       "errorUnauthorized": "Cette clé {{provider}} a été rejetée, non autorisée. Vérifiez la clé et réessayez.",
       "errorNoCredit": "Cette clé {{provider}} n'a pas de crédit utilisable. Ajoutez une facturation pour exécuter des modèles.",
       "errorOffline": "Impossible d'atteindre {{provider}}, vous semblez hors ligne. Vérifiez votre connexion et réessayez.",

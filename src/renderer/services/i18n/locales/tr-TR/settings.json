@@ -1855,6 +1855,7 @@
       "rekeyConfirm": "Anahtarı güncelle",
       "rekeyDone": "Sağlayıcı kimlik bilgileri güncellendi.",
       "rekeyCloudDisabled": "Bulut kimlik bilgileri buradan değil, bulut bağlantı formundan yeniden ayarlanır.",
+      "refreshStillActionNeeded": "Katalog yenilendi, ancak bu sağlayıcı hâlâ ilgi bekliyor.",
       "errorUnauthorized": "Bu {{provider}} anahtarı reddedildi, yetkisiz. Anahtarı kontrol edip tekrar deneyin.",
       "errorNoCredit": "Bu {{provider}} anahtarının kullanılabilir kredisi yok. Model çalıştırmak için faturalandırma ekleyin.",
       "errorOffline": "{{provider}} sağlayıcısına ulaşılamadı, çevrimdışı görünüyorsunuz. Bağlantınızı kontrol edip tekrar deneyin.",
