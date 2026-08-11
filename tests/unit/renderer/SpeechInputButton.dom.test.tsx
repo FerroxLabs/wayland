@@ -101,7 +101,6 @@ describe('legTooltip never puts a slug or a code on the screen', () => {
     'ok',
     'tts-disabled-by-user',
     'no-local-adapter',
-    'kokoro-unavailable',
     'tts-needs-consent',
     'stt-disabled',
     'stt-unavailable',

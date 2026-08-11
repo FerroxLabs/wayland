@@ -46,11 +46,33 @@ describe('voiceSynthBridge', () => {
     });
     getConfig.mockResolvedValue({
       enabled: true,
-      provider: 'kokoro-local',
+      provider: 'system-native',
       voice: 'default',
       speed: 1,
       autoReadResponses: false,
     });
+  });
+
+  /**
+   * The bridge is the only place that knows `process.platform`, so it is the
+   * only place that can turn "no provider stored" into the provider this OS
+   * actually owns. Dropping the argument here is silent: the suite stays green
+   * and Windows quietly resolves to macOS `say`, which throws.
+   */
+  it('resolves an unset provider to the synthesizer this platform actually has', async () => {
+    const original = process.platform;
+    Object.defineProperty(process, 'platform', { value: 'win32', configurable: true });
+    try {
+      getConfig.mockResolvedValue({ enabled: true, voice: 'default', speed: 1, autoReadResponses: false });
+      synthesize.mockResolvedValue({ data: new Uint8Array([1]), mimeType: 'audio/wav' });
+      initVoiceSynthBridge();
+
+      await speakCallback!({ text: 'Hello' });
+
+      expect(synthesize).toHaveBeenCalledWith('Hello', expect.objectContaining({ provider: 'windows-native' }));
+    } finally {
+      Object.defineProperty(process, 'platform', { value: original, configurable: true });
+    }
   });
 
   it('returns synthesized audio as an explicit success value', async () => {
@@ -77,7 +99,11 @@ describe('voiceSynthBridge', () => {
    * catch-all, which is the case that needs it most.
    */
   it.each([
-    ['TTS_KOKORO_LOCAL_UNAVAILABLE: missing model', 'TTS_KOKORO_LOCAL_UNAVAILABLE', 'missing model'],
+    [
+      'TTS_WINDOWS_NATIVE_UNAVAILABLE: no audio produced',
+      'TTS_WINDOWS_NATIVE_UNAVAILABLE',
+      'no audio produced',
+    ],
     ['TTS_SYSTEM_NATIVE_UNAVAILABLE: wrong platform', 'TTS_SYSTEM_NATIVE_UNAVAILABLE', 'wrong platform'],
     ['TTS_OPENAI_NOT_CONFIGURED: connect OpenAI', 'TTS_OPENAI_NOT_CONFIGURED', 'connect OpenAI'],
     ['TTS_OPENAI_CREDENTIAL_UNREADABLE: cannot be decrypted', 'TTS_OPENAI_CREDENTIAL_UNREADABLE', 'cannot be decrypted'],

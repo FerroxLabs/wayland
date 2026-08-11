@@ -1099,12 +1099,8 @@
   "speechToTextRequired": "必須",
   "speechToTextOptional": "任意",
   "speechToTextProviderWhisperLocal": "Whisper（ローカル）",
-  "speechToTextWhisperModel": "Whisper モデル",
-  "speechToTextDownloadModel": "モデルをダウンロード",
   "speechToTextDownloading": "ダウンロード中...",
   "speechToTextDownloadSuccess": "モデルのダウンロードが完了しました",
-  "speechToTextDownloadError": "ダウンロードに失敗しました",
-  "speechToTextCancelDownload": "キャンセル",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "接続済みで、ここでエンジンが選択されていないため、現在 {{provider}} を使用しています。",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
@@ -1112,7 +1108,7 @@
   "textToSpeech": "テキスト読み上げ",
   "textToSpeechDescription": "ローカルまたはシステムの音声エンジンで AI の返答を読み上げます。",
   "textToSpeechProvider": "プロバイダー",
-  "textToSpeechProviderKokoroLocal": "Kokoro（ローカル）",
+  "textToSpeechProviderPlaceholder": "音声プロバイダーを選択",
   "textToSpeechProviderSystemNative": "システム標準",
   "textToSpeechVoice": "音声",
   "textToSpeechSpeed": "速度",
@@ -2651,5 +2647,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "作業中はアップデートを延期",
-  "deferUpdateWhileBusyDesc": "実行中のチャット、予約タスク、チームが完了するまで、アップデートの再起動を待ちます。アップデートはアイドル時または終了時に適用されます。"
+  "deferUpdateWhileBusyDesc": "実行中のチャット、予約タスク、チームが完了するまで、アップデートの再起動を待ちます。アップデートはアイドル時または終了時に適用されます。",
+  "textToSpeechProviderWindowsNative": "Windows の音声",
+  "textToSpeechLocalVoiceLabel": "内蔵音声",
+  "textToSpeechNoLocalVoice": "このオペレーティングシステムには内蔵音声がありません。返信を読み上げるには OpenAI Speech を選択してください。",
+  "speechToTextOnDeviceLabel": "デバイス上",
+  "speechToTextOnDeviceBody": "Wayland に同梱されたモデルでこのデバイス上で動作します。キーもダウンロードも不要で、音声はこの端末から出ません。"
 }

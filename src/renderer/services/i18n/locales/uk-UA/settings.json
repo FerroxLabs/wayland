@@ -1097,12 +1097,8 @@
   "speechToTextRequired": "Обов'язково",
   "speechToTextOptional": "Опціонально",
   "speechToTextProviderWhisperLocal": "Whisper (локально)",
-  "speechToTextWhisperModel": "Модель Whisper",
-  "speechToTextDownloadModel": "Завантажити модель",
   "speechToTextDownloading": "Завантаження...",
   "speechToTextDownloadSuccess": "Модель успішно завантажена",
-  "speechToTextDownloadError": "Помилка завантаження",
-  "speechToTextCancelDownload": "Скасувати",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Зараз використовується {{provider}}, оскільки він підключений, а рушій тут не вибрано.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
@@ -1110,7 +1106,7 @@
   "textToSpeech": "Синтез мовлення",
   "textToSpeechDescription": "Читати відповіді ШІ вголос за допомогою локального або системного рушія синтезу мовлення.",
   "textToSpeechProvider": "Провайдер",
-  "textToSpeechProviderKokoroLocal": "Kokoro (локально)",
+  "textToSpeechProviderPlaceholder": "Виберіть провайдера голосу",
   "textToSpeechProviderSystemNative": "Системний",
   "textToSpeechVoice": "Голос",
   "textToSpeechSpeed": "Швидкість",
@@ -2650,5 +2646,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "Відкладати оновлення під час роботи",
-  "deferUpdateWhileBusyDesc": "Зачекайте, доки завершаться активні чати, заплановані завдання й команди, перш ніж перезапускати для оновлення. Оновлення застосовується під час простою або виходу."
+  "deferUpdateWhileBusyDesc": "Зачекайте, доки завершаться активні чати, заплановані завдання й команди, перш ніж перезапускати для оновлення. Оновлення застосовується під час простою або виходу.",
+  "textToSpeechProviderWindowsNative": "Голос Windows",
+  "textToSpeechLocalVoiceLabel": "Вбудований голос",
+  "textToSpeechNoLocalVoice": "Ця операційна система не має вбудованого голосу. Виберіть OpenAI Speech, щоб чути відповіді вголос.",
+  "speechToTextOnDeviceLabel": "На пристрої",
+  "speechToTextOnDeviceBody": "Працює на вашому пристрої з моделлю, що постачається з Wayland. Без ключа, без завантаження, аудіо не залишає цю машину."
 }

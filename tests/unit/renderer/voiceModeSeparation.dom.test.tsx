@@ -142,7 +142,11 @@ vi.mock('@/renderer/services/SpeechToTextService', () => ({
   transcribeAudioBlob: (...args: unknown[]) => mockTranscribeAudioBlob(...(args as [])),
 }));
 
-vi.mock('@/renderer/utils/platform', () => ({
+// Partial, so every other export of this module stays real. A total mock made
+// any NEW platform helper the voice hooks reach for an undefined-export crash
+// in a file that has nothing to say about platforms.
+vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
   isElectronDesktop: () => true,
   // Only macOS ships a local synthesizer, and the readiness check refuses
   // outright anywhere else.

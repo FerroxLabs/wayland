@@ -50,7 +50,12 @@ vi.mock('react-i18next', () => ({
 // Keep the runtime deterministic + desktop.
 // `isMacOS` is read by the voice session ChatLayout now mounts: only macOS has
 // a local speech synthesizer, so readiness differs by platform.
-vi.mock('@/renderer/utils/platform', () => ({
+// Partial, so a new export the tree reaches is not an undefined-export crash.
+// `rendererPlatform` is still pinned: left to the real implementation it reads
+// the jsdom user agent, which is not darwin, and the speaking leg would resolve
+// unsupported for reasons that have nothing to do with the rail.
+vi.mock('@/renderer/utils/platform', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/renderer/utils/platform')>()),
   isElectronDesktop: () => false,
   isMacOS: () => true,
   rendererPlatform: () => 'darwin',

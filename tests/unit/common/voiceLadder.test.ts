@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { resolveLocalTtsProvider, type TextToSpeechProvider } from '@/common/types/ttsTypes';
 import { HOSTED_VOICE_CONSENT_VERSION, type HostedVoiceConsent } from '@/common/types/voiceConsent';
 import {
   platformNativeTtsProvider,
@@ -160,11 +161,44 @@ describe('the speech-out ladder is platform-native first', () => {
     });
   });
 
-  it('names the cause on a platform with no local synthesizer', () => {
+  it('resolves win32 with no TTS config to the Windows voice', () => {
     const leg = resolveVoiceLeg('out', { platform: 'win32' });
+    expect(leg).toEqual<VoiceLeg>({
+      direction: 'out',
+      status: 'ready',
+      cause: 'ok',
+      provider: 'windows-native',
+      clickable: true,
+    });
+  });
+
+  it('names the cause on a platform with no local synthesizer', () => {
+    // Linux, which genuinely has neither `say` nor System.Speech in this build.
+    const leg = resolveVoiceLeg('out', { platform: 'linux' });
     expect(leg.status).toBe('unsupported');
     expect(leg.cause).toBe('no-local-adapter');
     expect(leg.clickable).toBe(false);
+    expect(leg.provider).toBeNull();
+  });
+
+  /**
+   * A STORED local provider is judged against this OS, not silently corrected.
+   *
+   * `normalizeTextToSpeechConfig` preserves a stored provider rather than
+   * rewriting a preference, so `synthesizeSystemNative` really would throw off
+   * darwin - and the honest answer is the named cause plus the one-tap route to
+   * the Voice panel, which is where `resolveRunnableTtsProvider` heals it.
+   */
+  it('does not honour an OS synthesizer belonging to a different OS', () => {
+    for (const [provider, platform] of [
+      ['windows-native', 'darwin'],
+      ['system-native', 'win32'],
+    ] as const) {
+      const leg = resolveVoiceLeg('out', { ttsConfig: { enabled: true, provider }, platform });
+      expect(leg.status).toBe('unsupported');
+      expect(leg.cause).toBe('no-local-adapter');
+      expect(leg.clickable).toBe(false);
+    }
   });
 
   /** Flux Voice is speech-to-text ONLY and is not in the TTS union at all. */
@@ -231,29 +265,33 @@ const consentCells: Array<[string, HostedVoiceConsent | null]> = [
  *
  * Every cell of the previous table hardcoded `darwin`, so "voice works out of
  * the box" was proved on one of the three platforms this ships to and quietly
- * assumed on the other two. It does not hold there: `synthesizeSystemNative`
- * shells out to `say`, `say` is macOS-only, and there is no other local
- * synthesizer - so on Windows and Linux the SPEAKING leg of every configuration
- * below is unsupported and not clickable.
+ * assumed on the other two. Speech IN is unaffected by platform - the bundled
+ * Whisper is a WASM worker with no platform story at all - so the listening
+ * half of the table is a genuine cross-platform claim. Speech OUT is not: it is
+ * whatever synthesizer the OS itself ships, and the third column NAMES it
+ * rather than asserting a bare boolean.
  *
- * That is asserted here BY NAME rather than omitted. Speech IN is unaffected -
- * the bundled Whisper is a WASM worker with no platform story at all - so the
- * listening half of the table is a genuine cross-platform claim.
+ * macOS has `say` (`system-native`) and Windows has System.Speech
+ * (`windows-native`), both landed. Linux has neither in this build, so `null`
+ * is its real answer and the row says so out loud instead of being omitted.
  *
- * `packet/wl-voice-wintts` is adding a Windows-native provider. When it lands,
- * `win32` flips to `speechOutWorks: true` and the row below is the assertion
- * that will go red until that lane updates it. That is deliberate: the seam has
- * a name (`platformNativeTtsProvider`) and a test, not a silent gap.
+ * This column used to be `speechOutWorks: boolean` with `win32` pinned to
+ * `false` as a tripwire for `packet/wl-voice-wintts`. That lane has landed and
+ * the seam (`platformNativeTtsProvider` -> `resolveLocalTtsProvider`) is wired,
+ * so `win32` now carries the provider it actually resolves to. Naming the
+ * provider is what keeps the row from passing for the wrong reason: a regression
+ * that made Windows fall back to `system-native` would still be "working" under
+ * the old boolean and is red here.
  */
-const platformCells: Array<[string, string, boolean]> = [
-  ['darwin', 'darwin', true],
-  ['win32', 'win32', false],
-  ['linux', 'linux', false],
+const platformCells: Array<[string, string, TextToSpeechProvider | null]> = [
+  ['darwin', 'darwin', 'system-native'],
+  ['win32', 'win32', 'windows-native'],
+  ['linux', 'linux', null],
 ];
 
 describe('acceptance truth table: raw stored config, every platform, both legs', () => {
   for (const [profileLabel, storedSttJson] of storedProfileCells) {
-    for (const [platformLabel, platform, speechOutWorks] of platformCells) {
+    for (const [platformLabel, platform, nativeTtsProvider] of platformCells) {
       for (const [credentialLabel, connectedCredentials] of credentialCells) {
         for (const [consentLabel, consent] of consentCells) {
           it(`${profileLabel} on ${platformLabel} / ${credentialLabel} / ${consentLabel}`, () => {
@@ -279,15 +317,18 @@ describe('acceptance truth table: raw stored config, every platform, both legs',
             expect(inbound.provider).toBe('whisper-local');
             expect(session.sttProvider).toBe('whisper-local');
 
-            if (speechOutWorks) {
+            if (nativeTtsProvider) {
               expect(FAILING_CAUSES).not.toContain(outbound.cause);
               expect(outbound.status).toBe('ready');
               expect(outbound.clickable).toBe(true);
-              expect(outbound.provider).toBe('system-native');
+              // The provider BY NAME, so macOS and Windows cannot pass for each
+              // other's reasons.
+              expect(outbound.provider).toBe(nativeTtsProvider);
+              expect(session.ttsProvider).toBe(nativeTtsProvider);
               expect(session.ready).toBe(true);
               expect(session.reason).toBe('ok');
             } else {
-              // The CURRENT Windows/Linux outcome, stated out loud.
+              // The CURRENT Linux outcome, stated out loud.
               expect(outbound.status).toBe('unsupported');
               expect(outbound.cause).toBe('no-local-adapter');
               expect(outbound.clickable).toBe(false);
@@ -330,16 +371,19 @@ describe('acceptance truth table: raw stored config, every platform, both legs',
   });
 
   /**
-   * THE SEAM `packet/wl-voice-wintts` HAS TO SATISFY.
+   * THE SEAM, NOW SATISFIED.
    *
    * One function decides whether the OS provides a synthesizer, and it is the
-   * only place in `voiceReadiness` that compares a platform string. The Windows
-   * lane returns its provider for `win32` here and the whole table follows.
+   * only place in `voiceReadiness` that compares a platform string. It is a
+   * delegate to `resolveLocalTtsProvider`, so this row is also what catches the
+   * delegate being unwired back to a macOS-only literal - the whole table
+   * follows it.
    */
   it('names the platform-native synthesizer seam', () => {
     expect(platformNativeTtsProvider('darwin')).toBe('system-native');
-    expect(platformNativeTtsProvider('win32')).toBeNull();
+    expect(platformNativeTtsProvider('win32')).toBe('windows-native');
     expect(platformNativeTtsProvider('linux')).toBeNull();
+    expect(platformNativeTtsProvider).toBe(resolveLocalTtsProvider);
   });
 });
 
@@ -397,7 +441,10 @@ describe('no control is ever clickable into a dead end', () => {
       resolveVoiceLeg('in', { sttConfig: normalizeSpeechToTextConfig({ enabled: false, origin: 'user' } as never) }),
       resolveVoiceLeg('out', { platform: 'darwin' }),
       resolveVoiceLeg('out', { platform: 'win32' }),
-      resolveVoiceLeg('out', { platform: 'darwin', ttsConfig: { enabled: true, provider: 'kokoro-local' } }),
+      // `kokoro-local` used to sit here. It is gone from the provider union
+      // entirely, so the live analogue is the other unrunnable speaking leg: an
+      // OS synthesizer that belongs to a different OS.
+      resolveVoiceLeg('out', { platform: 'darwin', ttsConfig: { enabled: true, provider: 'windows-native' } }),
       resolveVoiceLeg('out', { platform: 'darwin', ttsConfig: { enabled: false, provider: 'system-native' } }),
     ];
 

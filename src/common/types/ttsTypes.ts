@@ -4,11 +4,59 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export const TEXT_TO_SPEECH_PROVIDERS = ['system-native', 'openai', 'kokoro-local'] as const;
+export const TEXT_TO_SPEECH_PROVIDERS = ['system-native', 'windows-native', 'openai'] as const;
 export type TextToSpeechProvider = (typeof TEXT_TO_SPEECH_PROVIDERS)[number];
 
 export const isTextToSpeechProvider = (value: unknown): value is TextToSpeechProvider =>
   typeof value === 'string' && TEXT_TO_SPEECH_PROVIDERS.includes(value as TextToSpeechProvider);
+
+/**
+ * The zero-download synthesizer that ships with the operating system, or `null`
+ * where none exists.
+ *
+ * This is the speech-out FLOOR: the provider a user reaches with no key, no
+ * consent and no download. macOS has `say`; Windows has System.Speech through
+ * PowerShell. Linux has neither in this build, and saying so by name is the
+ * point - `null` here is what makes the readiness layer able to report
+ * "no local adapter" instead of letting a session enter, look ready, and
+ * fail mid-turn with nothing audible.
+ *
+ * `kokoro-local` used to sit in this slot and never once produced a byte: its
+ * `resolveBinary` returned null unconditionally, so every call threw. It is
+ * gone rather than disabled, because an option that can never work is worse
+ * than an option that is absent.
+ */
+export const resolveLocalTtsProvider = (platform: string): TextToSpeechProvider | null => {
+  if (platform === 'darwin') return 'system-native';
+  if (platform === 'win32') return 'windows-native';
+  return null;
+};
+
+/** OS-bundled synthesizers: no key, no consent, no download, no network. */
+export const LOCAL_TTS_PROVIDERS = ['system-native', 'windows-native'] as const;
+
+export const isLocalTtsProvider = (provider: TextToSpeechProvider): boolean =>
+  (LOCAL_TTS_PROVIDERS as readonly TextToSpeechProvider[]).includes(provider);
+
+/**
+ * The provider that will actually run here, given what is stored, or `null`
+ * when nothing will.
+ *
+ * A stored LOCAL provider names an OS synthesizer, and an OS synthesizer that
+ * belongs to a different operating system cannot produce a byte on this one -
+ * so `system-native` on Windows is not a preference to be honoured, it is a
+ * leftover to be corrected. Hosted providers are portable and pass through
+ * untouched.
+ *
+ * `null` means this machine has no local synthesizer at all (Linux) and the
+ * stored value names one anyway. Callers must not put that on the screen and
+ * must not write it back: it is the state where the honest answer is "there is
+ * no built-in voice here", not a provider name.
+ */
+export const resolveRunnableTtsProvider = (
+  provider: TextToSpeechProvider,
+  platform: string
+): TextToSpeechProvider | null => (isLocalTtsProvider(provider) ? resolveLocalTtsProvider(platform) : provider);
 
 export type TextToSpeechConfig = {
   enabled: boolean;
@@ -52,9 +100,25 @@ export const DEFAULT_TTS_CONFIG: TextToSpeechConfig = {
  * Older builds could persist unsupported hosted provider names through a cast;
  * those values must fall back to a provider the synthesizer actually owns.
  */
-export const normalizeTextToSpeechConfig = (config?: Partial<TextToSpeechConfig>): TextToSpeechConfig => ({
+export const normalizeTextToSpeechConfig = (
+  config?: Partial<TextToSpeechConfig>,
+  /**
+   * `process.platform`, supplied only by main-process callers.
+   *
+   * It changes the DEFAULT, never a stored choice. `DEFAULT_TTS_CONFIG.provider`
+   * is `system-native`, which does not exist off macOS, so a Windows user who
+   * had never opened Voice settings resolved to a provider that throws before
+   * it reaches a synthesizer - zero speech out, no key, no way to tell. With
+   * the platform known, the default becomes the local provider that platform
+   * actually has. Renderer callers omit it (there is no `process` there) and
+   * keep the previous behaviour exactly.
+   */
+  platform?: string
+): TextToSpeechConfig => ({
   enabled: typeof config?.enabled === 'boolean' ? config.enabled : DEFAULT_TTS_CONFIG.enabled,
-  provider: isTextToSpeechProvider(config?.provider) ? config.provider : DEFAULT_TTS_CONFIG.provider,
+  provider: isTextToSpeechProvider(config?.provider)
+    ? config.provider
+    : (platform && resolveLocalTtsProvider(platform)) || DEFAULT_TTS_CONFIG.provider,
   voice:
     typeof config?.voice === 'string' && config.voice.trim()
       ? config.voice.trim().slice(0, 128)
@@ -104,8 +168,9 @@ export type TextToSpeechBridgeResult =
  * condition this list exists to keep shrinking.
  */
 export const TEXT_TO_SPEECH_ERROR_CODES = [
-  'TTS_KOKORO_LOCAL_UNAVAILABLE',
   'TTS_SYSTEM_NATIVE_UNAVAILABLE',
+  /** The Windows System.Speech path could not run, or produced no audio. */
+  'TTS_WINDOWS_NATIVE_UNAVAILABLE',
   'TTS_OPENAI_NOT_CONFIGURED',
   /** Connected, but the stored credential could not be decrypted on this machine. */
   'TTS_OPENAI_CREDENTIAL_UNREADABLE',

@@ -61,13 +61,18 @@ describe('resolveVoiceSessionReadiness', () => {
       'tts-disabled-by-user',
     ],
     [
-      'kokoro selected - it has never had a binary',
-      { ttsConfig: { enabled: true, provider: 'kokoro-local' }, sttConfig: stt() },
-      'kokoro-unavailable',
-    ],
-    [
       'system-native off macOS - `say` does not exist there',
       { ttsConfig: { enabled: true, provider: 'system-native' }, sttConfig: stt(), platform: 'win32' },
+      'no-local-adapter',
+    ],
+    [
+      'windows-native off Windows - System.Speech does not exist there',
+      { ttsConfig: { enabled: true, provider: 'windows-native' }, sttConfig: stt(), platform: 'darwin' },
+      'no-local-adapter',
+    ],
+    [
+      'Linux has no local synthesizer at all, and is told so by name',
+      { ttsConfig: { enabled: true, provider: 'system-native' }, sttConfig: stt(), platform: 'linux' },
       'no-local-adapter',
     ],
     [

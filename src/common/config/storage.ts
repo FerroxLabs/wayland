@@ -339,6 +339,10 @@ export interface IConfigStorageRefer {
   // the legacy base64 `b64:` / `plain:` / `enc:` formats into `enc:v1:`
   // Electron-safeStorage ciphertext. See process/utils/credentialMigration.
   'system.credentialsCryptoMigrated_v1'?: boolean;
+  // One-shot flag for the voice orphan reclaim. Set once the two abandoned
+  // model trees under <userData>/voice/ have been removed. See
+  // process/utils/voiceOrphanReclaim.
+  'system.voiceOrphansReclaimed_v1'?: boolean;
   // Persisted webhook connection-token records. Hydrated by ChannelManager
   // on startup so URLs survive app restarts. Shape mirrors
   // ConnectionTokenRecord in src/process/channels/webhook/types.ts -

@@ -220,7 +220,6 @@ export const speechErrorCodeForLeg = (leg: VoiceLeg): SpeechInputErrorCode => {
     case 'stt-disabled':
     case 'tts-disabled-by-user':
     case 'tts-needs-consent':
-    case 'kokoro-unavailable':
     case 'no-model-connected':
       return 'not-configured';
     case 'no-local-adapter':

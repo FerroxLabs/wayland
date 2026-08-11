@@ -1122,12 +1122,8 @@
   "speechToTextRequired": "Erforderlich",
   "speechToTextOptional": "Optional",
   "speechToTextProviderWhisperLocal": "Whisper (Lokal)",
-  "speechToTextWhisperModel": "Whisper-Modell",
-  "speechToTextDownloadModel": "Modell herunterladen",
   "speechToTextDownloading": "Wird heruntergeladen...",
   "speechToTextDownloadSuccess": "Modell erfolgreich heruntergeladen",
-  "speechToTextDownloadError": "Download fehlgeschlagen",
-  "speechToTextCancelDownload": "Abbrechen",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Aktuell wird {{provider}} verwendet, da es verbunden ist und hier keine Engine ausgewählt wurde.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
@@ -1135,7 +1131,7 @@
   "textToSpeech": "Text-zu-Sprache",
   "textToSpeechDescription": "Lies KI-Antworten mit einer lokalen oder systemeigenen Sprach-Engine vor.",
   "textToSpeechProvider": "Anbieter",
-  "textToSpeechProviderKokoroLocal": "Kokoro (Lokal)",
+  "textToSpeechProviderPlaceholder": "Sprachanbieter auswählen",
   "textToSpeechProviderSystemNative": "Systemeigen",
   "textToSpeechVoice": "Stimme",
   "textToSpeechSpeed": "Geschwindigkeit",
@@ -2650,5 +2646,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "Updates bei Aktivität verschieben",
-  "deferUpdateWhileBusyDesc": "Warten, bis aktive Chats, geplante Aufgaben und Teams abgeschlossen sind, bevor zum Aktualisieren neu gestartet wird. Das Update wird im Leerlauf oder beim Beenden angewendet."
+  "deferUpdateWhileBusyDesc": "Warten, bis aktive Chats, geplante Aufgaben und Teams abgeschlossen sind, bevor zum Aktualisieren neu gestartet wird. Das Update wird im Leerlauf oder beim Beenden angewendet.",
+  "textToSpeechProviderWindowsNative": "Windows-Stimme",
+  "textToSpeechLocalVoiceLabel": "Integrierte Stimme",
+  "textToSpeechNoLocalVoice": "Dieses Betriebssystem hat keine integrierte Stimme. Wähle OpenAI Speech, um Antworten laut zu hören.",
+  "speechToTextOnDeviceLabel": "Auf dem Gerät",
+  "speechToTextOnDeviceBody": "Läuft auf deinem Gerät mit dem Modell, das Wayland mitbringt. Kein Schlüssel, kein Download, kein Audio verlässt diesen Rechner."
 }

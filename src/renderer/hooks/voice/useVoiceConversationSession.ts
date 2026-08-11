@@ -166,8 +166,6 @@ const CAPTURE_BLOCKED_COPY: Record<VoiceReadinessReason, (readiness: VoiceSessio
     'Speech output is off. Turn it back on in Voice settings to have a spoken conversation.',
   'no-local-adapter': () =>
     'Wayland has no built-in voice on this operating system yet. Choose OpenAI Speech in Voice settings to talk out loud, or keep typing in Chat.',
-  'kokoro-unavailable': () =>
-    'Kokoro has no working voice yet. Choose System Voice or OpenAI Speech in Voice settings.',
   'tts-needs-consent': (r) => `Speaking would send the reply to ${r.ttsProvider}, which needs your agreement first.`,
   'stt-disabled': () => 'Speech input is off. Turn it on in Voice settings so Wayland can hear you.',
   'stt-unavailable': (r) =>
@@ -662,7 +660,7 @@ export const useVoiceConversationSession = ({
   });
 
   const sttEnabled = Boolean(sttConfig?.enabled);
-  const ttsProviderReady = Boolean(ttsConfig?.enabled && ttsConfig.provider !== 'kokoro-local');
+  const ttsProviderReady = Boolean(ttsConfig?.enabled);
 
   /**
    * THE one way to ask "can voice work right now" from inside a callback.
@@ -702,8 +700,8 @@ export const useVoiceConversationSession = ({
      *
      * The old pair of ad-hoc booleans could not describe the platform this runs
      * on. `say` exists only on macOS, so on Windows and Linux a default config
-     * reads as ready - `enabled` is true and the provider is not kokoro - and
-     * the failure lands mid-turn as TTS_SYSTEM_NATIVE_UNAVAILABLE. The user
+     * read as ready on `enabled` alone, and
+     * the failure landed mid-turn as TTS_SYSTEM_NATIVE_UNAVAILABLE. The user
      * talks, waits, and only then learns that speech output was never possible.
      * The reason is what makes the refusal actionable.
      */
@@ -1050,7 +1048,10 @@ export const useVoiceConversationSession = ({
           ConfigStorage.get('tools.speechToText'),
           ConfigStorage.get('tools.textToSpeech'),
         ]);
-        const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined);
+        // The platform picks the DEFAULT synthesizer. Without it, an unopened
+        // Windows profile entered the session on the macOS provider and could
+        // never make a sound.
+        const nextTts = normalizeTextToSpeechConfig(storedTts ?? undefined, rendererPlatform());
         /**
          * Normalize ONCE, here, and never touch the raw value again.
          *

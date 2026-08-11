@@ -19,7 +19,7 @@
  * acceptance so a changed disclosure is re-acknowledged. The gate is
  * fail-closed — absence, corruption, or a stale version all mean "not granted".
  *
- * Local providers (`system-native`, `kokoro-local`, `whisper-local`) never send
+ * Local providers (`system-native`, `windows-native`, `whisper-local`) never send
  * data off-device and are intentionally NOT part of this consent surface.
  */
 

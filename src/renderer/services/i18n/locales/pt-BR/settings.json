@@ -1122,12 +1122,8 @@
   "speechToTextRequired": "Obrigatório",
   "speechToTextOptional": "Opcional",
   "speechToTextProviderWhisperLocal": "Whisper (Local)",
-  "speechToTextWhisperModel": "Modelo Whisper",
-  "speechToTextDownloadModel": "Baixar Modelo",
   "speechToTextDownloading": "Baixando...",
   "speechToTextDownloadSuccess": "Modelo baixado com sucesso",
-  "speechToTextDownloadError": "Falha no download",
-  "speechToTextCancelDownload": "Cancelar",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Usando {{provider}} no momento, porque está conectado e nenhum mecanismo foi escolhido aqui.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
@@ -1135,7 +1131,7 @@
   "textToSpeech": "Texto para Fala",
   "textToSpeechDescription": "Leia as respostas da IA em voz alta usando um motor de voz local ou do sistema.",
   "textToSpeechProvider": "Provedor",
-  "textToSpeechProviderKokoroLocal": "Kokoro (Local)",
+  "textToSpeechProviderPlaceholder": "Escolha um provedor de voz",
   "textToSpeechProviderSystemNative": "Nativo do Sistema",
   "textToSpeechVoice": "Voz",
   "textToSpeechSpeed": "Velocidade",
@@ -2650,5 +2646,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "Adiar atualizações quando ocupado",
-  "deferUpdateWhileBusyDesc": "Aguarde os chats ativos, tarefas agendadas e equipes terminarem antes de reiniciar para atualizar. A atualização é aplicada quando ocioso ou ao sair."
+  "deferUpdateWhileBusyDesc": "Aguarde os chats ativos, tarefas agendadas e equipes terminarem antes de reiniciar para atualizar. A atualização é aplicada quando ocioso ou ao sair.",
+  "textToSpeechProviderWindowsNative": "Voz do Windows",
+  "textToSpeechLocalVoiceLabel": "Voz integrada",
+  "textToSpeechNoLocalVoice": "Este sistema operacional não tem voz integrada. Escolha OpenAI Speech para ouvir as respostas em voz alta.",
+  "speechToTextOnDeviceLabel": "No dispositivo",
+  "speechToTextOnDeviceBody": "Roda no seu dispositivo com o modelo que acompanha o Wayland. Sem chave, sem download e nenhum áudio sai desta máquina."
 }

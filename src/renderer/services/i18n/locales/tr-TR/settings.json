@@ -1099,12 +1099,8 @@
   "speechToTextRequired": "Zorunlu",
   "speechToTextOptional": "İsteğe bağlı",
   "speechToTextProviderWhisperLocal": "Whisper (Yerel)",
-  "speechToTextWhisperModel": "Whisper Modeli",
-  "speechToTextDownloadModel": "Modeli İndir",
   "speechToTextDownloading": "İndiriliyor...",
   "speechToTextDownloadSuccess": "Model başarıyla indirildi",
-  "speechToTextDownloadError": "İndirme başarısız",
-  "speechToTextCancelDownload": "İptal",
   "speechToTextProviderFluxVoice": "Flux Voice",
   "speechToTextSeededProvider": "Şu anda {{provider}} kullanılıyor, çünkü bağlı ve burada bir motor seçilmedi.",
   "speechToTextFluxVoicePremiumLocked": "Flux Voice requires a paid plan. Upgrade at fluxrouter.ai to enable speech-to-text.",
@@ -1112,7 +1108,7 @@
   "textToSpeech": "Metinden Sese",
   "textToSpeechDescription": "AI yanıtlarını yerel veya sistem ses motoruyla sesli okuyun.",
   "textToSpeechProvider": "Sağlayıcı",
-  "textToSpeechProviderKokoroLocal": "Kokoro (Yerel)",
+  "textToSpeechProviderPlaceholder": "Bir ses sağlayıcısı seçin",
   "textToSpeechProviderSystemNative": "Sistem Varsayılanı",
   "textToSpeechVoice": "Ses",
   "textToSpeechSpeed": "Hız",
@@ -2649,5 +2645,10 @@
   "checkForUpdatesButton": "Check for updates",
   "settings": {},
   "deferUpdateWhileBusy": "Meşgulken güncellemeleri ertele",
-  "deferUpdateWhileBusyDesc": "Güncelleme için yeniden başlatmadan önce etkin sohbetlerin, zamanlanmış görevlerin ve ekiplerin bitmesini bekleyin. Güncelleme boştayken veya çıkışta uygulanır."
+  "deferUpdateWhileBusyDesc": "Güncelleme için yeniden başlatmadan önce etkin sohbetlerin, zamanlanmış görevlerin ve ekiplerin bitmesini bekleyin. Güncelleme boştayken veya çıkışta uygulanır.",
+  "textToSpeechProviderWindowsNative": "Windows Sesi",
+  "textToSpeechLocalVoiceLabel": "Yerleşik ses",
+  "textToSpeechNoLocalVoice": "Bu işletim sisteminde yerleşik ses yok. Yanıtları sesli duymak için OpenAI Speech seçin.",
+  "speechToTextOnDeviceLabel": "Cihazda",
+  "speechToTextOnDeviceBody": "Wayland ile gelen modelle cihazınızda çalışır. Anahtar yok, indirme yok, ses bu makineden çıkmaz."
 }

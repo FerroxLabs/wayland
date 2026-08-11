@@ -75,7 +75,6 @@ describe('speechErrorCodeForLeg is exhaustive over VoiceFailureCause', () => {
     'ok',
     'tts-disabled-by-user',
     'no-local-adapter',
-    'kokoro-unavailable',
     'tts-needs-consent',
     'stt-disabled',
     'stt-unavailable',

@@ -6,6 +6,7 @@
 
 import type { SpeechToTextConfig, SpeechToTextConfigOrigin, SpeechToTextProvider } from '@/common/types/speech';
 import type { TextToSpeechConfig, TextToSpeechProvider } from '@/common/types/ttsTypes';
+import { isLocalTtsProvider, resolveLocalTtsProvider } from '@/common/types/ttsTypes';
 import { hostedVoiceConsentGranted, isHostedVoiceProvider, type HostedVoiceConsent } from '@/common/types/voiceConsent';
 import { normalizeSpeechToTextConfig } from '@/common/voice/speechToTextConfig';
 
@@ -42,10 +43,11 @@ export type VoiceFailureCause =
   | 'ok'
   /** The user turned speech output off themselves. Their choice; offer the route back. */
   | 'tts-disabled-by-user'
-  /** No local synthesizer exists on this OS - `say` is macOS-only. */
+  /**
+   * No local synthesizer exists for this OS. macOS has `say`, Windows has
+   * System.Speech; Linux has neither in this build and is named, not silent.
+   */
   | 'no-local-adapter'
-  /** kokoro-local is selected but has never had a working binary. */
-  | 'kokoro-unavailable'
   /** Speaking would POST the reply off-device and the disclosure is unaccepted. */
   | 'tts-needs-consent'
   /** Speech-to-text was switched off deliberately, after this shipped. */
@@ -161,37 +163,30 @@ export type VoiceLeg = {
 
 /** The bundled on-device transcriber. Always present, no key, no disclosure. */
 export const ON_DEVICE_STT_PROVIDER: SpeechToTextProvider = 'whisper-local';
-/** The platform-native synthesizer. `say`, and `say` is macOS-only. */
+/**
+ * The stored value that MEANS "whatever synthesizer this OS ships with".
+ *
+ * It is not itself a platform answer - `platformNativeTtsProvider` turns it into
+ * one. macOS resolves it to `system-native` (`say`), Windows to
+ * `windows-native` (System.Speech).
+ */
 export const ON_DEVICE_TTS_PROVIDER: TextToSpeechProvider = 'system-native';
 
 /**
  * THE WINDOWS/LINUX SEAM. Which synthesizer the OS itself provides, by platform.
  *
- * Today, in THIS branch: macOS only. `synthesizeSystemNative` shells out to
- * `say`, which exists nowhere else, so on Windows and Linux the speaking leg of
- * EVERY otherwise working configuration is `unsupported` / `no-local-adapter` /
- * not clickable. That is a real, currently shipped hole, and the acceptance
- * table asserts it by name rather than testing macOS and calling it "voice
- * works".
+ * A one-line delegate to `resolveLocalTtsProvider` in `@/common/types/ttsTypes`,
+ * which is the single place that maps a platform to its bundled synthesizer:
+ * `darwin` to `system-native` (`say`), `win32` to `windows-native`
+ * (System.Speech), everything else to `null`. Linux genuinely has neither in
+ * this build, so its speaking leg resolves `unsupported` / `no-local-adapter` /
+ * not clickable, and the acceptance table asserts that by name rather than
+ * testing macOS and calling it "voice works".
  *
- * MERGE INSTRUCTION for whoever integrates `packet/wl-voice-wintts`. That lane
- * has landed `resolveLocalTtsProvider(platform)` in `@/common/types/ttsTypes`,
- * which returns `windows-native` for `win32`. It is the same function with a
- * different name, and its file is owned by that lane, so this one deliberately
- * does not import it. Integration is two steps and no more:
- *
- *   1. Make this the one-line delegate:
- *        `export const platformNativeTtsProvider = resolveLocalTtsProvider;`
- *   2. Flip `win32` to `speechOutWorks: true` in the `platformCells` table in
- *      `tests/unit/common/voiceLadder.test.ts`.
- *
- * The `win32` row in that table is written to FAIL once their provider is in
- * the path, so the table itself is what tells the integrator step 2 is
- * outstanding. Nothing else in this file compares a platform string, so those
- * two edits are the whole change.
+ * The local name is kept because everything in this file reads by DIRECTION,
+ * not by OS, and this is the only place a platform string is interpreted.
  */
-export const platformNativeTtsProvider = (platform: string): TextToSpeechProvider | null =>
-  platform === 'darwin' ? ON_DEVICE_TTS_PROVIDER : null;
+export const platformNativeTtsProvider = resolveLocalTtsProvider;
 
 const leg = (
   direction: VoiceLegDirection,
@@ -277,33 +272,50 @@ const resolveSttLeg = ({
 /**
  * Speech OUT, platform-native first.
  *
- * There is no `origin` field on the TTS config and none is needed: its factory
- * provider is already `system-native`, the platform-native floor, so a hosted
- * value can only be there because someone selected it in the panel. Presence of
- * a hosted provider IS the explicit choice, which is exactly the signal
- * `origin` has to reconstruct on the speech-in side.
+ * There is no `origin` field on the TTS config and none is needed: the factory
+ * provider IS the platform-native floor, so a hosted value can only be there
+ * because someone selected it in the panel. Presence of a hosted provider IS
+ * the explicit choice, which is exactly the signal `origin` has to reconstruct
+ * on the speech-in side.
+ *
+ * ABSENT and STORED are two different questions, and they get two different
+ * answers, because production answers them differently:
+ *
+ *   - ABSENT means no choice was ever made, so the floor applies and the floor
+ *     is per-OS. `normalizeTextToSpeechConfig(config, platform)` fills exactly
+ *     this gap with `resolveLocalTtsProvider(platform)` before the bridge ever
+ *     synthesizes, so a fresh Windows profile really does speak.
+ *   - A STORED local provider names ONE specific OS synthesizer, and one that
+ *     belongs to another OS cannot produce a byte here: `say` throws off
+ *     darwin, System.Speech off win32. The normalizer deliberately PRESERVES
+ *     such a value rather than rewriting a stored preference, so the bridge
+ *     really would throw - and saying so by name is the truthful answer, not a
+ *     pessimistic one. The Voice panel is where it gets healed
+ *     (`resolveRunnableTtsProvider`), and that route is one tap away.
  *
  * Flux Voice is SPEECH-TO-TEXT ONLY and is not a member of
  * `TextToSpeechProvider` at all, so it can never appear here.
  */
 const resolveTtsLeg = ({ ttsConfig, platform = 'darwin', consent }: VoiceReadinessInput): VoiceLeg => {
-  const provider = (ttsConfig?.provider ?? ON_DEVICE_TTS_PROVIDER) as TextToSpeechProvider;
+  const stored = ttsConfig?.provider as TextToSpeechProvider | undefined;
 
-  if (ttsConfig?.enabled === false) return leg('out', 'needsSetup', 'tts-disabled-by-user', provider);
-
-  if (provider === ON_DEVICE_TTS_PROVIDER) {
-    // `synthesizeSystemNative` throws off darwin before it ever reaches `say`.
-    const native = platformNativeTtsProvider(platform);
-    return native ? leg('out', 'ready', 'ok', native) : leg('out', 'unsupported', 'no-local-adapter', null);
+  if (ttsConfig?.enabled === false) {
+    return leg('out', 'needsSetup', 'tts-disabled-by-user', stored ?? ON_DEVICE_TTS_PROVIDER);
   }
 
-  // `resolveBinary` returns null unconditionally and `synthesize` always throws.
-  if (provider === 'kokoro-local') return leg('out', 'failed', 'kokoro-unavailable', provider);
+  const native = platformNativeTtsProvider(platform);
+  const noAdapter = leg('out', 'unsupported', 'no-local-adapter', null);
 
-  if (isHostedVoiceProvider(provider) && !hostedVoiceConsentGranted(provider, consent)) {
-    return leg('out', 'needsSetup', 'tts-needs-consent', provider);
+  if (stored === undefined) return native ? leg('out', 'ready', 'ok', native) : noAdapter;
+
+  if (isLocalTtsProvider(stored)) {
+    return stored === native ? leg('out', 'ready', 'ok', stored) : noAdapter;
   }
-  return leg('out', 'ready', 'ok', provider);
+
+  if (isHostedVoiceProvider(stored) && !hostedVoiceConsentGranted(stored, consent)) {
+    return leg('out', 'needsSetup', 'tts-needs-consent', stored);
+  }
+  return leg('out', 'ready', 'ok', stored);
 };
 
 /**

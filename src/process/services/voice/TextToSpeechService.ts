@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { promisify } from 'node:util';
 import { readConnectedProviderKeyResult, type ConnectedProviderKeyResult } from '@process/connectors/providerKey';
-import { KokoroLocal, type KokoroLocalRuntime } from '@process/services/voice/KokoroLocal';
+import { synthesizeWindowsNative, type WindowsNativeTtsRuntime } from '@process/services/voice/WindowsNativeTts';
 import { VoiceAdapterRegistry, type VoiceAdapter } from '@/common/voice/adapterRegistry';
 import type { VoiceReceipt } from '@/common/voice/voiceReceipt';
 import { buildTtsTurnReceipt } from '@process/services/voice/voiceReceiptFactory';
@@ -188,7 +188,7 @@ const synthesizeSystemNative = async (text: string, config: TextToSpeechConfig):
 
 /** Injectable runtimes threaded to whichever adapter a turn resolves to. */
 export type TextToSpeechRuntimes = {
-  kokoro?: KokoroLocalRuntime;
+  windowsNative?: WindowsNativeTtsRuntime;
   openai?: OpenAITtsRuntime;
 };
 
@@ -207,14 +207,14 @@ export const textToSpeechRegistry = new VoiceAdapterRegistry<TextToSpeechProvide
 
 textToSpeechRegistry
   .register({
-    provider: 'kokoro-local',
-    onDevice: true,
-    synthesize: (text, config, runtimes) => KokoroLocal.synthesize(text, config, runtimes.kokoro),
-  })
-  .register({
     provider: 'system-native',
     onDevice: true,
     synthesize: (text, config) => synthesizeSystemNative(text, config),
+  })
+  .register({
+    provider: 'windows-native',
+    onDevice: true,
+    synthesize: (text, config, runtimes) => synthesizeWindowsNative(text, config, runtimes.windowsNative),
   })
   .register({
     provider: 'openai',
@@ -280,20 +280,23 @@ export const synthesizeTurn = async (
  * audio. Preserved signature for the IPC bridge; the receipt is emitted by the
  * underlying `synthesizeTurn`.
  *
- * - `'kokoro-local'`  → KokoroLocal (offline ONNX; unavailable until its runtime is installed)
- * - `'system-native'` → macOS `say` command (zero-download fallback)
- * - `'openai'`        → OpenAI speech using the connected provider credential
+ * - `'system-native'`  → macOS `say` command (zero-download fallback)
+ * - `'windows-native'` → Windows System.Speech via PowerShell (zero-download fallback)
+ * - `'openai'`         → OpenAI speech using the connected provider credential
  *
  * @param text   Plain text to synthesize.
  * @param config TTS configuration (provider, voice, speed, …).
- * @param kokoroRuntime Injectable seam for unit tests; defaults to production runtime.
+ * @param windowsNativeRuntime Injectable seam for unit tests; defaults to production runtime.
  */
 export const synthesize = async (
   text: string,
   config: TextToSpeechConfig,
-  kokoroRuntime?: KokoroLocalRuntime,
+  windowsNativeRuntime?: WindowsNativeTtsRuntime,
   openAIRuntime?: OpenAITtsRuntime
 ): Promise<TextToSpeechAudio> => {
-  const { audio } = await synthesizeTurn(text, config, { kokoro: kokoroRuntime, openai: openAIRuntime });
+  const { audio } = await synthesizeTurn(text, config, {
+    windowsNative: windowsNativeRuntime,
+    openai: openAIRuntime,
+  });
   return audio;
 };

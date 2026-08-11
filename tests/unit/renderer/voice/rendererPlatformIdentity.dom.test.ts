@@ -53,19 +53,30 @@ describe('the renderer reports a real platform, not a macOS boolean', () => {
 
   /**
    * The strings have to be the ones the resolver reads, or the plumbing is
-   * correct and the answer is still wrong. `darwin` is the only value that
-   * yields a speaking leg today, so the mapping is checked THROUGH the resolver
-   * rather than against a hardcoded list.
+   * correct and the answer is still wrong. So the mapping is checked THROUGH
+   * the resolver, and by the PROVIDER it lands on rather than by a bare status:
+   * a Windows agent that resolved to macOS's `say` would still be "ready" and
+   * would still be broken.
    */
   it('produces strings the voice resolver actually understands', () => {
-    setUserAgent('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/131 Safari/537.36');
-    expect(resolveVoiceLeg('out', { platform: rendererPlatform() }).status).toBe('ready');
+    const expected: Record<'darwin' | 'win32' | 'linux', string | null> = {
+      darwin: 'system-native',
+      win32: 'windows-native',
+      linux: null,
+    };
+    // Control: the expectations are not all the same value.
+    expect(new Set(Object.values(expected)).size).toBe(3);
 
-    for (const ua of AGENTS.filter(([, expected]) => expected !== 'darwin').map(([ua]) => ua)) {
-      setUserAgent(ua);
+    for (const [userAgent, platform] of AGENTS) {
+      setUserAgent(userAgent);
       const leg = resolveVoiceLeg('out', { platform: rendererPlatform() });
-      expect(leg.status).toBe('unsupported');
-      expect(leg.cause).toBe('no-local-adapter');
+      if (expected[platform]) {
+        expect(leg.status).toBe('ready');
+        expect(leg.provider).toBe(expected[platform]);
+      } else {
+        expect(leg.status).toBe('unsupported');
+        expect(leg.cause).toBe('no-local-adapter');
+      }
     }
   });
 
