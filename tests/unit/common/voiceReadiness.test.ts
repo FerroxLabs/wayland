@@ -7,6 +7,7 @@
 import type { SpeechToTextConfig } from '@/common/types/speech';
 import { HOSTED_VOICE_CONSENT_VERSION, type HostedVoiceConsent } from '@/common/types/voiceConsent';
 import { resolveVoiceSessionReadiness, type VoiceReadinessInput } from '@/common/voice/voiceReadiness';
+import { normalizeSpeechToTextConfig } from '@/renderer/components/settings/SettingsModal/contents/ToolsModalContent';
 import { describe, expect, it } from 'vitest';
 
 const consentFor = (...providers: HostedVoiceConsent['acceptedProviders']): HostedVoiceConsent => ({
@@ -15,8 +16,19 @@ const consentFor = (...providers: HostedVoiceConsent['acceptedProviders']): Host
   updatedAt: 1,
 });
 
+/**
+ * An EXPLICIT user configuration. `origin: 'user'` is what every row in the
+ * table below has always meant - each one describes a provider the user
+ * deliberately selected, and the reason each is refused.
+ *
+ * It has to be said out loud now because the ladder resolves `origin:'default'`
+ * to the on-device floor and never to a hosted provider, so a fixture without
+ * it no longer describes the situation it is named after. Nothing about the
+ * refusals below is relaxed; the fixture just states the premise it relied on.
+ */
 const stt = (overrides: Partial<SpeechToTextConfig> = {}): Partial<SpeechToTextConfig> => ({
   enabled: true,
+  origin: 'user',
   provider: 'whisper-local',
   ...overrides,
 });
@@ -74,7 +86,7 @@ describe('resolveVoiceSessionReadiness', () => {
       'tts-needs-consent',
     ],
     [
-      'transcription off - the factory default',
+      'transcription switched off deliberately by the user',
       { ttsConfig: { enabled: true, provider: 'system-native' }, sttConfig: stt({ enabled: false }) },
       'stt-disabled',
     ],
@@ -151,6 +163,26 @@ describe('resolveVoiceSessionReadiness', () => {
       consent: consentFor('openai'),
     });
     expect(crossed.reason).toBe('stt-needs-consent');
+  });
+
+  /**
+   * The factory default is no longer a refusal at all. This is the row that
+   * replaces "transcription off - the factory default": a profile that has
+   * never been configured resolves to the on-device floor and is READY, which
+   * is the entire point of the ladder.
+   */
+  it('is ready on a default-origin profile with nothing configured', () => {
+    // Through the real normalizer, because that is where a default-origin
+    // config's `enabled` is re-seeded from the current factory floor. Handing
+    // the resolver a raw `enabled:false` would test a state the app never
+    // produces.
+    const result = resolveVoiceSessionReadiness({
+      ttsConfig: { enabled: true, provider: 'system-native' },
+      sttConfig: normalizeSpeechToTextConfig({ enabled: false, provider: 'openai' } as never),
+      platform: 'darwin',
+    });
+    expect(result.ready).toBe(true);
+    expect(result.sttProvider).toBe('whisper-local');
   });
 
   it('treats a stale consent version as no consent at all', () => {

@@ -45,9 +45,16 @@ describe('resolveFluxSttDefault', () => {
     expect(result?.autoSend).toBe(true);
   });
 
-  it('defaults enabled to false when current is undefined', () => {
+  /**
+   * Rewritten, not relaxed: the SUBJECT of the old assertion - the
+   * `enabled: false` write - is the thing being deleted. Seeding a provider and
+   * then writing `enabled:false` produced a config main's own gate rejects with
+   * STT_DISABLED. The assertion now pins the opposite, which is the behaviour
+   * that makes the seed usable.
+   */
+  it('enables speech-to-text when it seeds into an empty config', () => {
     const result = resolveFluxSttDefault({ current: undefined, fluxKey: 'sk-flux-test' });
-    expect(result?.enabled).toBe(false);
+    expect(result?.enabled).toBe(true);
   });
 
   it('does NOT seed when Flux is not connected (no key)', () => {

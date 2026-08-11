@@ -14,7 +14,12 @@ import {
   BUILTIN_IMAGE_GEN_ID,
 } from '@/common/config/storage';
 import { FLUX_PROVIDER_ID } from '@/common/config/flux';
-import type { SpeechToTextConfig, SpeechToTextProvider } from '@/common/types/speech';
+import {
+  isSpeechToTextProvider,
+  type SpeechToTextConfig,
+  type SpeechToTextConfigOrigin,
+  type SpeechToTextProvider,
+} from '@/common/types/speech';
 import { resolveEffectiveSttProvider } from '@/common/voice/sttProviderResolution';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
 import { isTextToSpeechProvider } from '@/common/types/ttsTypes';
@@ -42,9 +47,22 @@ import { useHostedVoiceConsent, hostedVoiceConsentErrorGuidance } from '@/render
 
 const isBuiltinImageGenServer = (server: IMcpServer) => server.builtin === true && server.id === BUILTIN_IMAGE_GEN_ID;
 export const SPEECH_TO_TEXT_CONFIG_CHANGED_EVENT = 'wayland:speech-to-text-config-changed';
+/**
+ * The factory floor for speech-to-text.
+ *
+ * `enabled: true` with the provider deliberately UNSET. Unset resolves to the
+ * bundled on-device Whisper (see `resolveVoiceLeg`), which is always present,
+ * needs no key, owes no disclosure and sends no audio off the machine - so
+ * turning it on by default costs the user nothing and asks them nothing.
+ *
+ * The previous floor was `{enabled:false, provider:'openai'}`, which is the
+ * worst of both: speech-in was off, and the one thing waiting behind the switch
+ * was a hosted transcriber with no key. There must be no path where an absent
+ * provider means "a hosted service with no key".
+ */
 export const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
-  enabled: false,
-  provider: 'openai',
+  enabled: true,
+  origin: 'default',
   openai: {
     apiKey: '',
     baseUrl: '',
@@ -68,22 +86,58 @@ export const DEFAULT_SPEECH_TO_TEXT_CONFIG: SpeechToTextConfig = {
   },
 };
 
-export const normalizeSpeechToTextConfig = (config?: SpeechToTextConfig): SpeechToTextConfig => ({
-  ...DEFAULT_SPEECH_TO_TEXT_CONFIG,
-  ...config,
-  openai: {
-    ...DEFAULT_SPEECH_TO_TEXT_CONFIG.openai,
-    ...config?.openai,
-  },
-  fluxVoice: {
-    ...DEFAULT_SPEECH_TO_TEXT_CONFIG.fluxVoice,
-    ...config?.fluxVoice,
-  },
-  deepgram: {
-    ...DEFAULT_SPEECH_TO_TEXT_CONFIG.deepgram,
-    ...config?.deepgram,
-  },
-});
+/**
+ * Coerces arbitrary stored input into a config the ladder can trust.
+ *
+ * Two coercions, both deliberate:
+ *
+ * 1. ORIGIN. Every config that arrives without an `origin` is a pre-origin
+ *    config and becomes `origin:'default'`. See `SpeechToTextConfigOrigin` for
+ *    why that is the only honest migration and why the never-re-seed guarantee
+ *    is forward-only.
+ *
+ * 2. PROVIDER VALIDITY. `provider` used to be spread straight through with no
+ *    validation at all, unlike its TTS sibling, so a garbage or retired value
+ *    reached the resolver and matched nothing. A provider that is not a member
+ *    of the union is dropped AND forces `origin:'default'` regardless of prior
+ *    intent - a stored intent naming an engine that does not exist is not an
+ *    intent that can be honoured, and the floor is the only safe landing.
+ */
+export const normalizeSpeechToTextConfig = (
+  config?: SpeechToTextConfig
+): SpeechToTextConfig & { origin: SpeechToTextConfigOrigin } => {
+  const storedProvider = config?.provider;
+  const providerIsValid = storedProvider === undefined || isSpeechToTextProvider(storedProvider);
+  const isUserOrigin = providerIsValid && config?.origin === 'user';
+
+  return {
+    ...DEFAULT_SPEECH_TO_TEXT_CONFIG,
+    ...config,
+    provider: providerIsValid ? storedProvider : undefined,
+    origin: isUserOrigin ? 'user' : 'default',
+    /**
+     * 3. ENABLED. A default-origin config's `enabled` is not the user's answer,
+     *    it is whatever the factory floor happened to be when it was written -
+     *    and the pre-origin floor was `false`. A stored `false` there is
+     *    indistinguishable from "never touched", so it is re-seeded from the
+     *    CURRENT floor rather than honoured. A user-origin `false` is a real
+     *    answer and is kept.
+     */
+    enabled: isUserOrigin ? (config?.enabled ?? DEFAULT_SPEECH_TO_TEXT_CONFIG.enabled) : DEFAULT_SPEECH_TO_TEXT_CONFIG.enabled,
+    openai: {
+      ...DEFAULT_SPEECH_TO_TEXT_CONFIG.openai,
+      ...config?.openai,
+    },
+    fluxVoice: {
+      ...DEFAULT_SPEECH_TO_TEXT_CONFIG.fluxVoice,
+      ...config?.fluxVoice,
+    },
+    deepgram: {
+      ...DEFAULT_SPEECH_TO_TEXT_CONFIG.deepgram,
+      ...config?.deepgram,
+    },
+  };
+};
 
 // Whisper model asset descriptor - model + binary are both required for local STT.
 // destPath + sha256 are resolved server-side by voiceAssetRegistry.ts before
@@ -287,11 +341,114 @@ export const TEST_VOICE_TIMEOUT_MS = 20_000;
  * to the bare code only when there is nothing else - a code alone tells the
  * user what broke but never what to do about it.
  */
+/**
+ * Every raw failure code the voice subsystems can emit, as a CLOSED type.
+ *
+ * The "unknown" the owner saw is not a missing translation - a locale grep
+ * comes back clean - it is an unmapped RAW CODE flowing through
+ * `describeVoiceFailure` at runtime and out the other side untouched. Closing
+ * the union and switching on it exhaustively is what turns "we forgot a code"
+ * from a runtime string into a build failure.
+ */
+export const VOICE_FAILURE_CODES = [
+  'STT_DISABLED',
+  'STT_OPENAI_NOT_CONFIGURED',
+  'STT_DEEPGRAM_NOT_CONFIGURED',
+  'STT_FLUX_NOT_CONFIGURED',
+  'STT_FLUX_AUTH_ERROR',
+  'STT_FLUX_PREMIUM_LOCKED',
+  'STT_HOSTED_CONSENT_REQUIRED',
+  'STT_FILE_TOO_LARGE',
+  'STT_RATE_LIMITED',
+  'STT_REQUEST_FAILED',
+  'STT_LOCAL_ENGINE_FAILED',
+  'TTS_SYSTEM_NATIVE_UNAVAILABLE',
+  'TTS_KOKORO_UNAVAILABLE',
+  'TTS_HOSTED_CONSENT_REQUIRED',
+  'TTS_EMPTY_AUDIO',
+  'TTS_PLAYBACK_FAILED',
+  'TTS_AUDIO_CONTEXT_BLOCKED',
+  'TTS_NO_RESPONSE',
+  'TTS_REQUEST_FAILED',
+] as const;
+
+export type VoiceFailureCode = (typeof VOICE_FAILURE_CODES)[number];
+
+const isVoiceFailureCode = (value: string): value is VoiceFailureCode =>
+  (VOICE_FAILURE_CODES as readonly string[]).includes(value);
+
+/**
+ * The sentence shown for a code with no detail attached.
+ *
+ * Exhaustive, with a compile-time `never` on the default branch. Adding a
+ * member to `VOICE_FAILURE_CODES` without a case here fails the typecheck.
+ */
+const voiceFailureSentence = (code: VoiceFailureCode): string => {
+  switch (code) {
+    case 'STT_DISABLED':
+      return 'Speech input is switched off. Turn it on in Voice settings.';
+    case 'STT_OPENAI_NOT_CONFIGURED':
+      return 'OpenAI transcription has no API key yet. Add one in Voice settings.';
+    case 'STT_DEEPGRAM_NOT_CONFIGURED':
+      return 'Deepgram transcription has no API key yet. Add one in Voice settings.';
+    case 'STT_FLUX_NOT_CONFIGURED':
+      return 'Flux Voice is not connected yet. Connect Flux Router in Models and Providers.';
+    case 'STT_FLUX_AUTH_ERROR':
+      return 'Flux Router rejected the credential. Reconnect it in Models and Providers.';
+    case 'STT_FLUX_PREMIUM_LOCKED':
+      return 'Flux Voice transcription is not included in this plan.';
+    case 'STT_HOSTED_CONSENT_REQUIRED':
+      return 'This transcriber sends audio off your device and needs your agreement first.';
+    case 'STT_FILE_TOO_LARGE':
+      return 'That recording is too large to transcribe. Record a shorter one.';
+    case 'STT_RATE_LIMITED':
+      return 'The transcription service is rate limiting this account. Wait a moment and try again.';
+    case 'STT_REQUEST_FAILED':
+      return 'The transcription request failed. Check the connection and try again.';
+    case 'STT_LOCAL_ENGINE_FAILED':
+      return 'The on-device transcription engine could not run.';
+    case 'TTS_SYSTEM_NATIVE_UNAVAILABLE':
+      return 'This operating system has no built-in voice. Choose a different speech provider.';
+    case 'TTS_KOKORO_UNAVAILABLE':
+      return 'Kokoro has no working voice yet. Choose System Voice or OpenAI Speech.';
+    case 'TTS_HOSTED_CONSENT_REQUIRED':
+      return 'This voice sends the reply off your device and needs your agreement first.';
+    case 'TTS_EMPTY_AUDIO':
+      return 'Speech output returned no audio.';
+    case 'TTS_PLAYBACK_FAILED':
+      return 'The audio could not be played on this device.';
+    case 'TTS_AUDIO_CONTEXT_BLOCKED':
+      return 'This window is not allowed to play audio yet. Try the control again.';
+    case 'TTS_NO_RESPONSE':
+      return 'Speech output did not respond in time.';
+    case 'TTS_REQUEST_FAILED':
+      return 'The speech request failed. Check the connection and try again.';
+    default: {
+      const exhaustive: never = code;
+      return exhaustive;
+    }
+  }
+};
+
+/**
+ * The sentence to put in front of the user for a `CODE: detail` failure.
+ *
+ * Prefers the detail, because that is the half written for a human. Then the
+ * mapped sentence for the code. A code that is in NEITHER - the case that
+ * produced the literal word "unknown" - falls back to a named sentence that
+ * identifies the subsystem and never says "unknown".
+ */
 export const describeVoiceFailure = (raw: string): string => {
   const separator = raw.indexOf(':');
-  if (separator === -1) return raw;
-  const detail = raw.slice(separator + 1).trim();
-  return detail || raw.slice(0, separator).trim() || raw;
+  const code = (separator === -1 ? raw : raw.slice(0, separator)).trim();
+  const detail = separator === -1 ? '' : raw.slice(separator + 1).trim();
+
+  if (detail) return detail;
+  if (isVoiceFailureCode(code)) return voiceFailureSentence(code);
+
+  return code
+    ? `The voice subsystem reported ${code}, which this version does not recognize. The complete answer is still in Chat.`
+    : 'The voice subsystem failed without saying why. The complete answer is still in Chat.';
 };
 
 export const withTestVoiceTimeout = <T,>(work: Promise<T>, timeoutMs = TEST_VOICE_TIMEOUT_MS): Promise<T> =>
@@ -564,9 +721,23 @@ export const TextToSpeechSettingsSection: React.FC<{
 export const SpeechToTextSettingsSection: React.FC<{
   config: SpeechToTextConfig;
   onChange: (updater: (current: SpeechToTextConfig) => SpeechToTextConfig) => void;
-}> = ({ config, onChange }) => {
+}> = ({ config, onChange: onChangeRaw }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  /**
+   * Every write from this panel stamps `origin:'user'`, at ONE place.
+   *
+   * Touching any control here is the only signal that exists that the user made
+   * a speech-in decision, and after this the ladder will stop re-seeding them.
+   * Stamping it per control would mean a new control silently ships without it -
+   * the divergence is designed out rather than maintained.
+   */
+  const onChange = useCallback(
+    (updater: (current: SpeechToTextConfig) => SpeechToTextConfig) => {
+      onChangeRaw((current) => ({ ...updater(current), origin: 'user' }));
+    },
+    [onChangeRaw]
+  );
   const { ensureConsent, needsConsent, consentModal } = useHostedVoiceConsent();
   // Whether OpenAI is connected in the shared provider registry (the same store
   // Models/Providers shows as "Connected"). When it is, OpenAI Whisper uses that
@@ -635,6 +806,14 @@ export const SpeechToTextSettingsSection: React.FC<{
     [t]
   );
 
+  /**
+   * What the panel DRAWS. An unset `provider` is the on-device floor, so it must
+   * render as whisper-local rather than falling through to whichever branch
+   * happens to be last - which was Deepgram, meaning a factory profile showed
+   * Deepgram's fields for an engine it was not using.
+   */
+  const displayProvider: SpeechToTextProvider = config.provider ?? 'whisper-local';
+
   const handleProviderChange = useCallback(
     (value: string) => {
       // Hosted STT providers require the VOC-03 disclosure before selection sticks.
@@ -698,7 +877,7 @@ export const SpeechToTextSettingsSection: React.FC<{
 
       <Form layout='horizontal' labelAlign='left' className='space-y-12px wayland-stack-form-mobile'>
         <Form.Item label={t('settings.speechToTextProvider')}>
-          <WaylandSelect value={config.provider} onChange={handleProviderChange} data-testid='stt-provider-select'>
+          <WaylandSelect value={displayProvider} onChange={handleProviderChange} data-testid='stt-provider-select'>
             <WaylandSelect.Option value='openai'>{t('settings.speechToTextProviderOpenAI')}</WaylandSelect.Option>
             <WaylandSelect.Option value='deepgram'>{t('settings.speechToTextProviderDeepgram')}</WaylandSelect.Option>
             <WaylandSelect.Option value='flux-voice'>
@@ -743,7 +922,7 @@ export const SpeechToTextSettingsSection: React.FC<{
           <MicrophoneCheck />
         </Form.Item>
 
-        {config.provider === 'openai' ? (
+        {displayProvider === 'openai' ? (
           <>
             <Form.Item label={renderSpeechToTextFieldLabel('settings.speechToTextApiKey', 'required')}>
               {/* Three distinct states: connected (true) shows the "using your
@@ -796,7 +975,7 @@ export const SpeechToTextSettingsSection: React.FC<{
               <Input value={config.openai?.language} onChange={(value) => handleOpenAIChange('language', value)} />
             </Form.Item>
           </>
-        ) : config.provider === 'whisper-local' ? (
+        ) : displayProvider === 'whisper-local' ? (
           <WhisperLocalDownloadControl
             model={config.whisperLocal?.model ?? 'base'}
             onModelChange={(model) =>

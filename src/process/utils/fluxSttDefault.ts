@@ -48,7 +48,13 @@ export function resolveFluxSttDefault(deps: FluxSttDefaultDeps): SpeechToTextCon
   }
 
   return {
-    enabled: current?.enabled ?? false,
+    /**
+     * Never `false`. Seeding a provider and simultaneously writing
+     * `enabled:false` produced a config that names a working transcriber and
+     * then refuses to use it - main's own gate throws STT_DISABLED on the very
+     * config it just seeded. A seed that cannot be used is not a seed.
+     */
+    enabled: current?.enabled ?? true,
     autoSend: current?.autoSend,
     provider: 'flux-voice',
     fluxVoice: {

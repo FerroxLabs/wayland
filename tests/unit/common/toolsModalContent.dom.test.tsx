@@ -399,12 +399,18 @@ describe('ToolsModalContent image generation status refresh', () => {
   it('shows required and optional markers for OpenAI and Deepgram speech-to-text fields', async () => {
     render(<ToolsModalContent />);
 
+    const providerSelect = await screen.findByLabelText(/settings\.speechToTextProvider/);
+    // The factory provider is now UNSET, which renders as the on-device engine
+    // and has no key fields at all. This test is about the OpenAI and Deepgram
+    // field markers, so it selects those providers rather than relying on one
+    // of them being the default.
+    fireEvent.change(providerSelect, { target: { value: 'openai' } });
+
     await screen.findByLabelText(/settings\.speechToTextApiKey/);
 
     expect(screen.getAllByText(/settings\.speechToTextRequired/)).toHaveLength(1);
     expect(screen.getAllByText(/settings\.speechToTextOptional/)).toHaveLength(3);
 
-    const providerSelect = screen.getByLabelText(/settings\.speechToTextProvider/);
     fireEvent.change(providerSelect, { target: { value: 'deepgram' } });
 
     await screen.findByLabelText(/settings\.speechToTextDetectLanguage/);
