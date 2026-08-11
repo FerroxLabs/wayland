@@ -16,6 +16,7 @@ import {
 import { FLUX_PROVIDER_ID } from '@/common/config/flux';
 import { type SpeechToTextConfig, type SpeechToTextProvider } from '@/common/types/speech';
 import { ON_DEVICE_STT_PROVIDER, resolveVoiceLeg } from '@/common/voice/voiceReadiness';
+import { VOICE_FAILURE_CODES, isVoiceFailureCode, type VoiceFailureCode } from '@/common/voice/voiceFailureCodes';
 import type { TextToSpeechConfig } from '@/common/types/ttsTypes';
 import { isTextToSpeechProvider } from '@/common/types/ttsTypes';
 import { modelRegistry, voiceAsset, voiceSynth } from '@/common/adapter/ipcBridge';
@@ -265,40 +266,19 @@ export const TEST_VOICE_TIMEOUT_MS = 20_000;
  * user what broke but never what to do about it.
  */
 /**
- * Every raw failure code the voice subsystems can emit, as a CLOSED type.
+ * The closed code union, DERIVED from the two bridge vocabularies.
  *
  * The "unknown" the owner saw is not a missing translation - a locale grep
  * comes back clean - it is an unmapped RAW CODE flowing through
- * `describeVoiceFailure` at runtime and out the other side untouched. Closing
- * the union and switching on it exhaustively is what turns "we forgot a code"
- * from a runtime string into a build failure.
+ * `describeVoiceFailure` at runtime and out the other side untouched.
+ *
+ * This list used to be re-typed here by hand, and the `never` check below
+ * therefore graded it against itself: seven codes `voiceSynth.speak` emits were
+ * not unhandled, they were not members at all, so they reached the user as raw
+ * enum text. The definition now lives in `common` beside the two sources it is
+ * composed from, and is re-exported here for the existing importers.
  */
-export const VOICE_FAILURE_CODES = [
-  'STT_DISABLED',
-  'STT_OPENAI_NOT_CONFIGURED',
-  'STT_DEEPGRAM_NOT_CONFIGURED',
-  'STT_FLUX_NOT_CONFIGURED',
-  'STT_FLUX_AUTH_ERROR',
-  'STT_FLUX_PREMIUM_LOCKED',
-  'STT_HOSTED_CONSENT_REQUIRED',
-  'STT_FILE_TOO_LARGE',
-  'STT_RATE_LIMITED',
-  'STT_REQUEST_FAILED',
-  'STT_LOCAL_ENGINE_FAILED',
-  'TTS_SYSTEM_NATIVE_UNAVAILABLE',
-  'TTS_KOKORO_UNAVAILABLE',
-  'TTS_HOSTED_CONSENT_REQUIRED',
-  'TTS_EMPTY_AUDIO',
-  'TTS_PLAYBACK_FAILED',
-  'TTS_AUDIO_CONTEXT_BLOCKED',
-  'TTS_NO_RESPONSE',
-  'TTS_REQUEST_FAILED',
-] as const;
-
-export type VoiceFailureCode = (typeof VOICE_FAILURE_CODES)[number];
-
-const isVoiceFailureCode = (value: string): value is VoiceFailureCode =>
-  (VOICE_FAILURE_CODES as readonly string[]).includes(value);
+export { VOICE_FAILURE_CODES, type VoiceFailureCode };
 
 /**
  * The sentence shown for a code with no detail attached.
@@ -332,8 +312,24 @@ const voiceFailureSentence = (code: VoiceFailureCode): string => {
       return 'The on-device transcription engine could not run.';
     case 'TTS_SYSTEM_NATIVE_UNAVAILABLE':
       return 'This operating system has no built-in voice. Choose a different speech provider.';
-    case 'TTS_KOKORO_UNAVAILABLE':
+    // The code the synthesizer actually throws. The old `TTS_KOKORO_UNAVAILABLE`
+    // spelling was handled here and emitted by nothing.
+    case 'TTS_KOKORO_LOCAL_UNAVAILABLE':
       return 'Kokoro has no working voice yet. Choose System Voice or OpenAI Speech.';
+    case 'TTS_OPENAI_NOT_CONFIGURED':
+      return 'OpenAI Speech has no API key yet. Add one in Models and Providers.';
+    case 'TTS_OPENAI_CREDENTIAL_UNREADABLE':
+      return 'The stored OpenAI key could not be read on this machine. Enter it again in Models and Providers.';
+    case 'TTS_CREDENTIAL_STORE_UNAVAILABLE':
+      return 'The saved credentials could not be opened on this machine. Restart Wayland and try again.';
+    case 'TTS_OPENAI_AUTH_ERROR':
+      return 'OpenAI rejected the API key. Check it in Models and Providers.';
+    case 'TTS_OPENAI_RATE_LIMITED':
+      return 'OpenAI is rate limiting this account. Wait a moment and try again.';
+    case 'TTS_OPENAI_REQUEST_FAILED':
+      return 'The OpenAI speech request failed. Check the connection and try again.';
+    case 'TTS_SYNTHESIS_FAILED':
+      return 'Speech output failed for a reason it could not name. The complete answer is still in Chat.';
     case 'TTS_HOSTED_CONSENT_REQUIRED':
       return 'This voice sends the reply off your device and needs your agreement first.';
     case 'TTS_EMPTY_AUDIO':

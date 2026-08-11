@@ -95,18 +95,26 @@ export type SpeechToTextResult = {
 /**
  * The public failure vocabulary of a transcription turn. Same strings the
  * service throws, so `mapSpeechInputError` keeps working unchanged.
+ *
+ * Declared as a runtime array rather than a bare type union so the renderer's
+ * failure vocabulary can be DERIVED from it instead of re-typed beside it. A
+ * hand-copied second list is what let seven speech codes reach a user as raw
+ * enum text.
  */
-export type SpeechToTextErrorCode =
-  | 'STT_DISABLED'
-  | 'STT_OPENAI_NOT_CONFIGURED'
-  | 'STT_DEEPGRAM_NOT_CONFIGURED'
-  | 'STT_FLUX_NOT_CONFIGURED'
-  | 'STT_FLUX_AUTH_ERROR'
-  | 'STT_FLUX_PREMIUM_LOCKED'
-  | 'STT_HOSTED_CONSENT_REQUIRED'
-  | 'STT_FILE_TOO_LARGE'
-  | 'STT_RATE_LIMITED'
-  | 'STT_REQUEST_FAILED';
+export const SPEECH_TO_TEXT_ERROR_CODES = [
+  'STT_DISABLED',
+  'STT_OPENAI_NOT_CONFIGURED',
+  'STT_DEEPGRAM_NOT_CONFIGURED',
+  'STT_FLUX_NOT_CONFIGURED',
+  'STT_FLUX_AUTH_ERROR',
+  'STT_FLUX_PREMIUM_LOCKED',
+  'STT_HOSTED_CONSENT_REQUIRED',
+  'STT_FILE_TOO_LARGE',
+  'STT_RATE_LIMITED',
+  'STT_REQUEST_FAILED',
+] as const;
+
+export type SpeechToTextErrorCode = (typeof SPEECH_TO_TEXT_ERROR_CODES)[number];
 
 /**
  * Why transcription crosses the bridge as a RESULT and never as a rejection.
