@@ -35,7 +35,7 @@
 import type { AcpBackendAll, AcpLaunchSpec } from '@/common/types/acpTypes';
 import { ACP_BACKENDS_ALL, isAcpLaunchSpec } from '@/common/types/acpTypes';
 
-import { AGENT_PACKAGES, getAgentPackage } from './agentPackages';
+import { AGENT_PACKAGES, type AgentPackage } from './agentPackages';
 import { getAgentInstallStatus } from './installAgent';
 import { AGENT_ID_PATTERN } from './installPrefix';
 import { resolveNativeExecutable } from './launchSpecResolver';
@@ -125,20 +125,40 @@ export function resolveManagedAgentLaunch(agentId: string, userDataDir?: string)
   };
 }
 
-/** The ACP backend a catalogued agent can serve, or null when it cannot serve one. */
-export function acpBackendForManagedAgent(agentId: string): AcpBackendAll | null {
-  if (!Object.prototype.hasOwnProperty.call(AGENT_PACKAGES, agentId)) return null;
-  return getAgentPackage(agentId).acpBackend ?? null;
+/**
+ * The ACP backend a catalogued agent can serve, or null when it cannot serve one.
+ *
+ * Takes the catalogue as a parameter, defaulting to the real one, because both
+ * entries in the shipped catalogue currently HAVE an `acpBackend`: a test driven
+ * only against the real catalogue cannot tell this rule apart from
+ * `return agentId`, and the rule stops a future catalogued agent with no
+ * verified backend being handed to the ACP seam. An injected catalogue supplies
+ * the negative case the real one no longer contains.
+ */
+export function acpBackendForManagedAgent(
+  agentId: string,
+  catalogue: Readonly<Record<string, AgentPackage>> = AGENT_PACKAGES
+): AcpBackendAll | null {
+  if (!Object.prototype.hasOwnProperty.call(catalogue, agentId)) return null;
+  return catalogue[agentId].acpBackend ?? null;
 }
 
 /**
  * Every catalogued agent that is installed AND can serve an ACP backend, in
  * catalogue order so the merged agent list does not reshuffle between reads.
+ *
+ * `catalogue` exists so the `acpBackend` guard below can be driven against an
+ * entry that has none — see {@link acpBackendForManagedAgent}. The RECEIPT is
+ * always read against the real catalogue, so an injected entry must still name
+ * a real agent id.
  */
-export function listManagedAcpAgents(userDataDir?: string): ManagedAcpAgent[] {
+export function listManagedAcpAgents(
+  userDataDir?: string,
+  catalogue: Readonly<Record<string, AgentPackage>> = AGENT_PACKAGES
+): ManagedAcpAgent[] {
   const out: ManagedAcpAgent[] = [];
-  for (const agentId of Object.keys(AGENT_PACKAGES)) {
-    const backend = acpBackendForManagedAgent(agentId);
+  for (const agentId of Object.keys(catalogue)) {
+    const backend = acpBackendForManagedAgent(agentId, catalogue);
     if (!backend) continue;
     const launch = resolveManagedAgentLaunch(agentId, userDataDir);
     if (!launch) continue;

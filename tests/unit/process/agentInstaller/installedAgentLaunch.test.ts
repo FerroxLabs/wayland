@@ -17,7 +17,7 @@ import path from 'node:path';
 
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { AGENT_PACKAGES, getAgentPackage } from '@process/services/agentInstaller/agentPackages';
+import { AGENT_PACKAGES, getAgentPackage, type AgentPackage } from '@process/services/agentInstaller/agentPackages';
 import { writeInstallReceipt } from '@process/services/agentInstaller/installManifest';
 import { resolveAgentInstallPrefix } from '@process/services/agentInstaller/installPrefix';
 import { resolvePackageDir, resolveTargetTriple } from '@process/services/agentInstaller/launchSpecResolver';
@@ -181,12 +181,31 @@ describe('listManagedAcpAgents', () => {
     });
   });
 
-  // The former case here - "omits an installed agent that cannot serve an ACP
-  // backend" - used codex as its subject, because codex was the catalogued
-  // agent with no acpBackend. Correcting codex's package removed that subject:
-  // every catalogued agent now maps. The rule it guarded is still guarded, by
-  // the two cases below: the list is driven by `acpBackend` AND by the install
-  // being real, not by an id appearing in the catalogue.
+  it('omits an installed agent that cannot serve an ACP backend', () => {
+    // This case used to use codex, which was the catalogued agent with no
+    // `acpBackend`. Correcting codex's package removed that subject: BOTH
+    // shipped entries now map, so the real catalogue can no longer tell
+    // "reads acpBackend" apart from "trusts the id". Injecting a catalogue
+    // brings the negative case back rather than leaving the guard unpinned
+    // until the next catalogue addition without a backend.
+    const kimi = getAgentPackage('kimi');
+    const unmapped: Record<string, AgentPackage> = {
+      kimi: { npmPackage: kimi.npmPackage, version: kimi.version, cliCommand: kimi.cliCommand },
+    };
+
+    // A REAL, complete install: the receipt, the package and the launch target
+    // are all on disk, so the only thing standing between it and the ACP seam
+    // is the missing `acpBackend`.
+    materialiseInstall('kimi');
+    expect(acpBackendForManagedAgent('kimi', unmapped)).toBeNull();
+    expect(listManagedAcpAgents(userDataDir, unmapped)).toEqual([]);
+
+    // Positive control on the same install: with the real catalogue, which DOES
+    // map kimi, the very same receipt is listed. So the empty list above is the
+    // backend rule biting, not a broken fixture.
+    expect(listManagedAcpAgents(userDataDir).map((a) => a.agentId)).toEqual(['kimi']);
+  });
+
   it('lists codex once installed, as the codex backend', () => {
     const { command } = materialiseInstall('codex');
     const listed = listManagedAcpAgents(userDataDir);
