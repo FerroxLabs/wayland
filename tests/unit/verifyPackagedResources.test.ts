@@ -153,6 +153,38 @@ const testWCoreAuthority = {
   },
 };
 
+// wayland-nano mirrors the wayland-core fixture. Its publisher-attestation
+// policy does not exist in the real policy file yet (the first signed
+// FerroxLabs/wayland-nano release lands after this integration), so the gate
+// accepts an injected policy selector for the wnano bundle checks.
+const TEST_WNANO_RELEASE = 'v0.1.0';
+const TEST_WNANO_ARCHIVE_SHA = 'd'.repeat(64);
+const TEST_WNANO_BYTES = Buffer.from('deterministic-test-wayland-nano');
+const TEST_WNANO_BINARY_SHA = crypto.createHash('sha256').update(TEST_WNANO_BYTES).digest('hex');
+const TEST_WNANO_POLICY = {
+  id: 'wayland-nano-v0.1.0-release',
+  repository: 'FerroxLabs/wayland-nano',
+  signerWorkflow: 'FerroxLabs/wayland-nano/.github/workflows/release.yml',
+  sourceRef: 'refs/heads/main',
+  sourceDigest: 'e'.repeat(40),
+  predicateType: 'https://slsa.dev/provenance/v1',
+  runner: 'github-hosted',
+};
+
+const testWNanoAuthority = {
+  BUNDLE_CONTRACT: 'wayland-nano-bundle/1.0',
+  BUNDLE_GENERATOR: 'prepareWaylandNano/1',
+  DEFAULT_WNANO_VERSION: TEST_WNANO_RELEASE,
+  getAssetName(platform: string, arch: string, tag: string): string {
+    return `wayland-nano-${tag.replace(/^v/, '')}-${platform}-${arch}.zip`;
+  },
+  loadExpectedProvenance(_tag: string, _asset: string, _options: { requireBinary: boolean }) {
+    return { archiveSha256: TEST_WNANO_ARCHIVE_SHA, binarySha256: TEST_WNANO_BINARY_SHA };
+  },
+};
+
+const testWNanoPolicySelector = (_releaseTag: string) => TEST_WNANO_POLICY;
+
 function writeMachExecutable(target: string, arch: 'arm64' | 'x64'): void {
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, machExecutableBytes(arch), { mode: 0o755 });
@@ -296,6 +328,46 @@ function addPackagedApp(
       skipped: false,
     })
   );
+  const wnanoBinary = path.join(resources, 'bundled-wayland-nano', `darwin-${arch}`, 'wayland-nano');
+  fs.mkdirSync(path.dirname(wnanoBinary), { recursive: true });
+  fs.writeFileSync(wnanoBinary, TEST_WNANO_BYTES);
+  const wnanoAsset = testWNanoAuthority.getAssetName('darwin', arch, TEST_WNANO_RELEASE);
+  fs.writeFileSync(
+    path.join(resources, 'bundled-wayland-nano', `darwin-${arch}`, 'manifest.json'),
+    JSON.stringify({
+      contract: testWNanoAuthority.BUNDLE_CONTRACT,
+      generator: testWNanoAuthority.BUNDLE_GENERATOR,
+      platform: 'darwin',
+      arch,
+      releaseTag: TEST_WNANO_RELEASE,
+      version: TEST_WNANO_RELEASE,
+      sourceType: 'download',
+      verified: true,
+      source: {
+        owner: 'FerroxLabs',
+        repository: 'wayland-nano',
+        url: `https://github.com/FerroxLabs/wayland-nano/releases/download/${TEST_WNANO_RELEASE}/${wnanoAsset}`,
+        asset: wnanoAsset,
+        archiveSha256: `sha256:${TEST_WNANO_ARCHIVE_SHA}`,
+      },
+      publisherAttestation: {
+        contract: 'wayland-publisher-attestations/1.0',
+        policyId: TEST_WNANO_POLICY.id,
+        repository: TEST_WNANO_POLICY.repository,
+        signerWorkflow: TEST_WNANO_POLICY.signerWorkflow,
+        sourceRef: TEST_WNANO_POLICY.sourceRef,
+        sourceDigest: TEST_WNANO_POLICY.sourceDigest,
+        predicateType: TEST_WNANO_POLICY.predicateType,
+        runner: TEST_WNANO_POLICY.runner,
+        asset: wnanoAsset,
+        sha256: `sha256:${TEST_WNANO_ARCHIVE_SHA}`,
+        verified: true,
+      },
+      binary: { name: 'wayland-nano', sha256: `sha256:${TEST_WNANO_BINARY_SHA}` },
+      files: ['wayland-nano'],
+      skipped: false,
+    })
+  );
   for (const extractorArch of ['arm64', 'x64']) {
     const target = path.join(resources, 'classic-recovery-tools', 'win', extractorArch, '7za.exe');
     fs.mkdirSync(path.dirname(target), { recursive: true });
@@ -387,7 +459,25 @@ function wcoreBinaryPath(out: string, runtime = 'darwin-arm64'): string {
   );
 }
 
-function verifyArgs(out: string, officeCliRuntime = 'darwin-arm64', wcoreRuntime = 'darwin-arm64'): string[] {
+function wnanoManifestPath(out: string, runtime = 'darwin-arm64'): string {
+  return path.join(packagedResourcesPath(out), 'bundled-wayland-nano', runtime, 'manifest.json');
+}
+
+function wnanoBinaryPath(out: string, runtime = 'darwin-arm64'): string {
+  return path.join(
+    packagedResourcesPath(out),
+    'bundled-wayland-nano',
+    runtime,
+    runtime.startsWith('win32-') ? 'wayland-nano.exe' : 'wayland-nano'
+  );
+}
+
+function verifyArgs(
+  out: string,
+  officeCliRuntime = 'darwin-arm64',
+  wcoreRuntime = 'darwin-arm64',
+  wnanoRuntime = wcoreRuntime
+): string[] {
   return [
     'scripts/verify-packaged-resources.js',
     '--out',
@@ -398,6 +488,8 @@ function verifyArgs(out: string, officeCliRuntime = 'darwin-arm64', wcoreRuntime
     wcoreRuntime.split('-')[1],
     '--wcore-runtime',
     wcoreRuntime,
+    '--wnano-runtime',
+    wnanoRuntime,
     '--officecli-runtime',
     officeCliRuntime,
   ];
@@ -429,6 +521,8 @@ describe('packaged resource release gate', () => {
       cwd: process.cwd(),
       logger: silentLogger,
       wcoreAuthority: testWCoreAuthority,
+      wnanoAuthority: testWNanoAuthority,
+      wnanoPolicySelector: testWNanoPolicySelector,
       voiceAuthority: TEST_VOICE_AUTHORITY,
       bunAuthority: TEST_BUN_AUTHORITY,
       modelsAuthority: TEST_MODELS_AUTHORITY,
@@ -463,6 +557,56 @@ describe('packaged resource release gate', () => {
     alteredManifest.publisherAttestation.sourceDigest = 'f'.repeat(40);
     fs.writeFileSync(alteredPath, JSON.stringify(alteredManifest));
     expect(() => verify(altered)).toThrow(/CRITICAL resource/);
+  });
+
+  it('rejects a Nano bundle whose publisher attestation is absent or altered', () => {
+    const out = createPackagedResources(true);
+    const manifestPath = wnanoManifestPath(out);
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
+      publisherAttestation: { sourceDigest: string } | null;
+    };
+    manifest.publisherAttestation = null;
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+    expect(() => verify(out)).toThrow(/CRITICAL resource/);
+
+    const altered = createPackagedResources(true);
+    const alteredPath = wnanoManifestPath(altered);
+    const alteredManifest = JSON.parse(fs.readFileSync(alteredPath, 'utf8')) as {
+      publisherAttestation: { sourceDigest: string };
+    };
+    alteredManifest.publisherAttestation.sourceDigest = 'f'.repeat(40);
+    fs.writeFileSync(alteredPath, JSON.stringify(alteredManifest));
+    expect(() => verify(altered)).toThrow(/CRITICAL resource/);
+  });
+
+  it('blocks a package whose bundled wayland-nano runtime is absent', () => {
+    const out = createPackagedResources(true);
+    fs.rmSync(path.join(packagedResourcesPath(out), 'bundled-wayland-nano'), { recursive: true, force: true });
+    expect(() => verify(out)).toThrow(/CRITICAL resource/);
+  });
+
+  it('blocks a local-prebuilt or unverified wayland-nano manifest', () => {
+    const out = createPackagedResources(true);
+    const manifest = wnanoManifestPath(out);
+    const metadata = JSON.parse(fs.readFileSync(manifest, 'utf8'));
+    metadata.sourceType = 'local-prebuilt';
+    metadata.verified = false;
+    fs.writeFileSync(manifest, JSON.stringify(metadata));
+    expect(() => verify(out)).toThrow();
+  });
+
+  it('blocks wayland-nano binary byte drift even when the manifest is unchanged', () => {
+    const out = createPackagedResources(true);
+    fs.appendFileSync(wnanoBinaryPath(out), 'tampered');
+    expect(() => verify(out)).toThrow();
+  });
+
+  it('blocks undeclared extra wayland-nano runtime content', () => {
+    const out = createPackagedResources(true);
+    const extra = path.join(packagedResourcesPath(out), 'bundled-wayland-nano', 'linux-x64');
+    fs.mkdirSync(extra, { recursive: true });
+    fs.writeFileSync(path.join(extra, 'wayland-nano'), 'unverified-extra-runtime');
+    expect(() => verify(out)).toThrow();
   });
 
   it('rejects a missing or malformed packaged capability seal', () => {

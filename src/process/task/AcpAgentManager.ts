@@ -2,6 +2,7 @@ import type { AcpAgent } from '@process/agent/acp';
 import { AcpAgentV2 } from '@process/acp/compat';
 import { agentRegistry } from '@process/agent/AgentRegistry';
 import { nanoErrorKindOf } from '@process/acp/errors/errorNormalize';
+import { resolveWNanoBinary } from '@process/agent/wnano/binaryResolver';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
 import { ipcBridge } from '@/common';
@@ -1281,6 +1282,16 @@ ${collectedResponses.join('\n')}`;
     let customArgs: string[] | undefined;
     if (backendConfig?.acpArgs) {
       customArgs = backendConfig.acpArgs;
+    }
+
+    // Wayland Nano prefers the verified bundled binary (userData override →
+    // bundled resource → dev resources) over a bare PATH lookup. Quote a
+    // resolved path containing whitespace so createGenericSpawnConfig keeps
+    // the executable a single token (macOS userData lives under
+    // "Application Support"); the spawn config unquotes it without a shell.
+    if (!cliPath && data.backend === 'wnano') {
+      const resolved = resolveWNanoBinary();
+      if (resolved) cliPath = /\s/.test(resolved) ? `"${resolved}"` : resolved;
     }
 
     // If cliPath is not configured, fall back to the backend's own launcher.

@@ -414,6 +414,26 @@ describe('createGenericSpawnConfig - Windows path handling', () => {
     });
   });
 
+  it('parses a quoted Unix path with spaces into a bare command, no shell', () => {
+    setLinuxPlatform();
+    // A bundled-binary path resolved under a userData dir (macOS
+    // "Application Support") arrives quoted from AcpAgentManager; it must
+    // survive as a single argv token instead of splitting on the space.
+    const config = createGenericSpawnConfig(
+      '"/Users/x/Library/Application Support/Wayland/wayland-nano-overrides/linux-arm64/wayland-nano"',
+      '/cwd',
+      ['acp-host'],
+      undefined,
+      { PATH: '/usr/bin' }
+    );
+
+    expect(config.command).toBe(
+      '/Users/x/Library/Application Support/Wayland/wayland-nano-overrides/linux-arm64/wayland-nano'
+    );
+    expect(config.args).toEqual(['acp-host']);
+    expect(config.options).toMatchObject({ shell: false });
+  });
+
   it('splits npx package into command and args (no chcp prefix for npx path)', () => {
     const config = createGenericSpawnConfig('npx @pkg/cli', '/cwd', ['--acp'], undefined, { PATH: '/usr/bin' });
 

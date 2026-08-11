@@ -478,8 +478,10 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     fluxCompat: 'setup',
   },
   // Wayland Nano: first-party sandboxed Rust agent. Always listed in the agent
-  // registry (AgentRegistry.createWNanoAgent); spawns via cliCommand when the
-  // binary is on PATH. Speaks ACP natively over stdio via the `acp-host`
+  // registry (AgentRegistry.createWNanoAgent); AcpAgentManager resolves the
+  // verified bundled binary first (resolveWNanoBinary: userData override →
+  // bundled-wayland-nano → dev resources), falling back to cliCommand on PATH.
+  // Speaks ACP natively over stdio via the `acp-host`
   // subcommand (bare `wayland-nano` prints usage and exits 2 — live-proven B1).
   wnano: {
     id: 'wnano',

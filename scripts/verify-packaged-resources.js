@@ -15,6 +15,7 @@
  * Usage:
  *   node scripts/verify-packaged-resources.js [--out <dir>]
  *     --wcore-runtime <platform-arch> [--wcore-runtime ...]
+ *     --wnano-runtime <platform-arch> [--wnano-runtime ...]
  *     --officecli-runtime <platform-arch> [--officecli-runtime ...]
  *   (defaults to ./out, electron-builder's directories.output)
  *
@@ -28,6 +29,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { execFileSync } = require('child_process');
 const prepareWaylandCore = require('./prepareWaylandCore');
+const prepareWaylandNano = require('./prepareWaylandNano');
 const prepareOfficeCli = require('./prepareOfficeCli');
 const bundledBunShasums = require('./bundled-bun-shasums.json');
 const bundledBunBinaries = require('./bundled-bun-binaries.json');
@@ -47,6 +49,7 @@ const REQUIRED = [
   { rel: 'skills-library', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-workflows', critical: true, kind: 'skill-pack' },
   { rel: 'bundled-wayland-core', critical: true, kind: 'wcore-bundle' },
+  { rel: 'bundled-wayland-nano', critical: true, kind: 'wnano-bundle' },
   { rel: 'bundled-officecli', critical: true, kind: 'officecli-bundle' },
   {
     rel: 'managed-cli-shims/officecli',
@@ -431,6 +434,89 @@ function verifyWCoreBundle(bundleDir, requiredRuntimes, authority = prepareWayla
   const packagedRuntimes = entries.map((entry) => entry.name).sort();
   if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
   return packagedRuntimes.every((runtime) => verifyWCoreRuntime(bundleDir, runtime, authority));
+}
+
+// Mirrors verifyWCoreRuntime for the bundled wayland-nano agent. The policy
+// selector is injectable because, unlike wayland-core, the first
+// FerroxLabs/wayland-nano publisher-attestation policy only exists once the
+// first signed release lands - tests substitute their own until then.
+function verifyWNanoRuntime(bundleDir, runtimeKey, authority = prepareWaylandNano, policySelector = selectPolicy) {
+  const [platform, arch] = runtimeKey.split('-');
+  const binaryName = platform === 'win32' ? 'wayland-nano.exe' : 'wayland-nano';
+  const runtimeDir = path.join(bundleDir, runtimeKey);
+  const manifestPath = path.join(runtimeDir, 'manifest.json');
+  const binaryPath = path.join(runtimeDir, binaryName);
+  if (!isNonEmpty(manifestPath, 'file') || !isNonEmpty(binaryPath, 'file')) return false;
+  const runtimeEntries = fs.readdirSync(runtimeDir, { withFileTypes: true });
+  const expectedRuntimeFiles = [binaryName, 'manifest.json'].sort();
+  if (
+    JSON.stringify(runtimeEntries.map((entry) => entry.name).sort()) !== JSON.stringify(expectedRuntimeFiles) ||
+    runtimeEntries.some((entry) => !entry.isFile())
+  ) {
+    return false;
+  }
+
+  const metadata = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const releaseTag = authority.DEFAULT_WNANO_VERSION;
+  const assetName = authority.getAssetName(platform, arch, releaseTag);
+  if (!assetName) return false;
+  const expected = authority.loadExpectedProvenance(releaseTag, assetName, { requireBinary: true });
+  const actualBinarySha256 = sha256File(binaryPath);
+  const manifestArchiveSha256 = String(metadata.source?.archiveSha256 || '')
+    .replace(/^sha256:/i, '')
+    .toLowerCase();
+  const manifestBinarySha256 = String(metadata.binary?.sha256 || '')
+    .replace(/^sha256:/i, '')
+    .toLowerCase();
+  const expectedUrl = `https://github.com/FerroxLabs/wayland-nano/releases/download/${releaseTag}/${assetName}`;
+  const publisher = metadata.publisherAttestation;
+  const publisherPolicy = policySelector(releaseTag);
+  const publisherVerified =
+    publisher?.contract === PUBLISHER_CONTRACT &&
+    publisher?.policyId === publisherPolicy.id &&
+    publisher?.repository === publisherPolicy.repository &&
+    publisher?.signerWorkflow === publisherPolicy.signerWorkflow &&
+    publisher?.sourceRef === publisherPolicy.sourceRef &&
+    publisher?.sourceDigest === publisherPolicy.sourceDigest &&
+    publisher?.predicateType === publisherPolicy.predicateType &&
+    publisher?.runner === publisherPolicy.runner &&
+    publisher?.asset === assetName &&
+    publisher?.sha256 === `sha256:${expected.archiveSha256}` &&
+    publisher?.verified === true;
+
+  return (
+    metadata.contract === authority.BUNDLE_CONTRACT &&
+    metadata.generator === authority.BUNDLE_GENERATOR &&
+    metadata.platform === platform &&
+    metadata.arch === arch &&
+    metadata.releaseTag === releaseTag &&
+    metadata.version === releaseTag &&
+    ['download', 'verified-cache'].includes(metadata.sourceType) &&
+    metadata.verified === true &&
+    publisherVerified &&
+    metadata.skipped === false &&
+    metadata.source?.owner === 'FerroxLabs' &&
+    metadata.source?.repository === 'wayland-nano' &&
+    metadata.source?.url === expectedUrl &&
+    metadata.source?.asset === assetName &&
+    manifestArchiveSha256 === expected.archiveSha256 &&
+    metadata.binary?.name === binaryName &&
+    manifestBinarySha256 === expected.binarySha256 &&
+    actualBinarySha256 === expected.binarySha256 &&
+    JSON.stringify(metadata.files) === JSON.stringify([binaryName])
+  );
+}
+
+function verifyWNanoBundle(bundleDir, requiredRuntimes, authority = prepareWaylandNano, policySelector = selectPolicy) {
+  if (!fs.statSync(bundleDir).isDirectory()) return false;
+  const entries = fs.readdirSync(bundleDir, { withFileTypes: true });
+  if (entries.length === 0) return false;
+  if (entries.some((entry) => !entry.isDirectory() || !/^(darwin|linux|win32)-(x64|arm64)$/.test(entry.name))) {
+    return false;
+  }
+  const packagedRuntimes = entries.map((entry) => entry.name).sort();
+  if (JSON.stringify(packagedRuntimes) !== JSON.stringify([...requiredRuntimes].sort())) return false;
+  return packagedRuntimes.every((runtime) => verifyWNanoRuntime(bundleDir, runtime, authority, policySelector));
 }
 
 function hasNonHiddenRegularFile(dir) {
@@ -861,7 +947,10 @@ function isNonEmpty(
   verifyOfficeCliDarwinSignature = (binaryPath) => officeCliAuthority.verifyDarwinPublisherSignature(binaryPath),
   constitutionFsAuthority,
   verifyConstitutionFsDarwinSignature,
-  verifyCandidateCapabilitySeal = verifyCapabilitySeal
+  verifyCandidateCapabilitySeal = verifyCapabilitySeal,
+  requiredWNanoRuntimes = [],
+  wnanoAuthority = prepareWaylandNano,
+  wnanoPolicySelector = selectPolicy
 ) {
   try {
     if (kind === 'constitution-fs-bundle' && targetPlatform === 'win32') {
@@ -882,6 +971,9 @@ function isNonEmpty(
     if (!st.isDirectory()) return false;
     if (kind === 'wcore-bundle') {
       return verifyWCoreBundle(p, requiredWCoreRuntimes, wcoreAuthority);
+    }
+    if (kind === 'wnano-bundle') {
+      return verifyWNanoBundle(p, requiredWNanoRuntimes, wnanoAuthority, wnanoPolicySelector);
     }
     if (kind === 'officecli-bundle') {
       const entries = fs.readdirSync(p, { withFileTypes: true });
@@ -979,6 +1071,8 @@ function verifyPackagedResources(options = {}) {
   const cwd = options.cwd || process.cwd();
   const logger = options.logger || console;
   const wcoreAuthority = options.wcoreAuthority || prepareWaylandCore;
+  const wnanoAuthority = options.wnanoAuthority || prepareWaylandNano;
+  const wnanoPolicySelector = options.wnanoPolicySelector || selectPolicy;
   const voiceAuthority = options.voiceAuthority || voiceModelPinnedRelease;
   const bunAuthority = options.bunAuthority || bundledBunBinaries;
   const modelsAuthority = options.modelsAuthority || modelsDevSnapshotPin;
@@ -999,6 +1093,7 @@ function verifyPackagedResources(options = {}) {
   const { platform: targetPlatform, arch: targetArch } = parseTarget(argv);
   const requiredOfficeCliRuntimes = parseRequiredRuntimes(argv, '--officecli-runtime', 'OfficeCLI');
   const requiredWCoreRuntimes = parseRequiredRuntimes(argv, '--wcore-runtime', 'wayland-core');
+  const requiredWNanoRuntimes = parseRequiredRuntimes(argv, '--wnano-runtime', 'wayland-nano');
   // Local verification builds (`build-with-builder.js` with WAYLAND_LOCAL_VERIFICATION=1
   // + `--dir`) intentionally OMIT the release capability seal. When this flag is set we
   // require the seal to be ABSENT (not present-and-valid) — enforcing omit-not-forge —
@@ -1007,9 +1102,10 @@ function verifyPackagedResources(options = {}) {
   const expectedRuntime = `${targetPlatform}-${targetArch}`;
   if (
     JSON.stringify(requiredOfficeCliRuntimes) !== JSON.stringify([expectedRuntime]) ||
-    JSON.stringify(requiredWCoreRuntimes) !== JSON.stringify([expectedRuntime])
+    JSON.stringify(requiredWCoreRuntimes) !== JSON.stringify([expectedRuntime]) ||
+    JSON.stringify(requiredWNanoRuntimes) !== JSON.stringify([expectedRuntime])
   ) {
-    throw new Error(`${TAG} Core and OfficeCLI runtime declarations must exactly match ${expectedRuntime}`);
+    throw new Error(`${TAG} Core, Nano and OfficeCLI runtime declarations must exactly match ${expectedRuntime}`);
   }
   const explicitResourceDir = parseSingleArg(argv, '--resources-dir', false);
   const explicitExecutable = parseSingleArg(argv, '--app-executable', false);
@@ -1087,7 +1183,10 @@ function verifyPackagedResources(options = {}) {
         verifyOfficeCliDarwinSignature,
         constitutionFsAuthority,
         verifyConstitutionFsDarwinSignature,
-        verifyCandidateCapabilitySeal
+        verifyCandidateCapabilitySeal,
+        requiredWNanoRuntimes,
+        wnanoAuthority,
+        wnanoPolicySelector
       );
       if (ok) {
         logger.log(`${TAG}   OK   ${req.rel}`);
@@ -1131,6 +1230,8 @@ module.exports = {
   verifyConstitutionFsBundle,
   verifyWCoreBundle,
   verifyWCoreRuntime,
+  verifyWNanoBundle,
+  verifyWNanoRuntime,
 };
 
 if (require.main === module) {
