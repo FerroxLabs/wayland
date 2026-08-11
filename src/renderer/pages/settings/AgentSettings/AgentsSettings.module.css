@@ -293,6 +293,86 @@
   color: var(--color-text-2);
 }
 
+/* ---- "Available to install" band ----
+   The same tile as "More detected", not a new object. An agent the user does
+   not have gets a dashed border and a dimmed mark so "not here yet" reads at a
+   glance, and an Install button sits exactly where the toolbar toggle does on
+   a detected tile. */
+.tileAvailable {
+  border-style: dashed;
+  background: transparent;
+}
+
+.tileAvatarDim {
+  opacity: 0.45;
+}
+
+.installBtn {
+  flex-shrink: 0;
+  border-radius: 8px;
+}
+
+/* "Why?" on a build that ships no bundled runtime - an explanation, not an
+   action, so it stays a text button. */
+.whyBtn {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  color: var(--color-text-3);
+}
+
+/* Version actually on disk, from Wayland's own receipt. */
+.versionChip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.6;
+  color: var(--color-text-2);
+  background: var(--color-fill-2);
+}
+
+.installFailed {
+  font-size: 10px;
+  color: var(--danger);
+}
+
+/* ---- Install consent sheet (decision D2) ----
+   One plain sentence, then the four facts. Laid out as label/value rows so
+   the destination path and the pinned version are read, not skimmed past. */
+.consentFacts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--color-fill-1);
+  border: 1px solid var(--color-border-2);
+}
+
+.consentFactRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.consentFactLabel {
+  flex: 0 0 96px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-3);
+}
+
+.consentFactValue {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--color-text-1);
+  word-break: break-all;
+}
+
 /* ---- Empty note ---- */
 .emptyNote {
   font-size: 12.5px;

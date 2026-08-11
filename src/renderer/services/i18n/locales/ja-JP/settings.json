@@ -2246,6 +2246,35 @@
         "backupLabel": "バックアップ先",
         "rollbackLabel": "元に戻すには実行"
       }
+    },
+    "install": {
+      "bandTitle": "インストール可能",
+      "action": "インストール",
+      "retry": "再試行",
+      "installing": "{{version}} をインストール中…",
+      "installed": "Wayland がインストール済み",
+      "pinned": "{{version}} をインストールします",
+      "systemCopy": "お使いのシステムのコピーを使用します",
+      "unavailable": "このビルドでは利用できません",
+      "whyLink": "理由",
+      "whyBody": "このビルドにはお使いのプラットフォーム向けの同梱ランタイムがなく、インストールには必ず必要です。エージェントをご自身でインストールすれば Wayland が検出します。",
+      "failed": {
+        "unknown-agent": "このエージェント用に固定されたパッケージがありません。",
+        "bundled-bun-unavailable": "このビルドにはインストールに使う同梱ランタイムがありません。",
+        "install-failed": "ダウンロードに失敗しました。接続を確認して再試行してください。",
+        "error": "予期しないエラーでインストールが停止しました。"
+      },
+      "consent": {
+        "title": "{{agent}} をインストールしますか？",
+        "body": "npm からパッケージをダウンロードし、実行可能なコードをコンピューターに配置します。",
+        "packageLabel": "パッケージ",
+        "versionLabel": "バージョン",
+        "destinationLabel": "インストール先",
+        "scriptsLabel": "インストールスクリプト",
+        "scriptsValue": "ブロック",
+        "confirm": "インストール",
+        "cancel": "キャンセル"
+      }
     }
   },
   "commandPalette": {

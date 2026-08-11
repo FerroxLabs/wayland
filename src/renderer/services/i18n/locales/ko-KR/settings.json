@@ -2246,6 +2246,35 @@
         "backupLabel": "백업 위치",
         "rollbackLabel": "되돌리려면 실행"
       }
+    },
+    "install": {
+      "bandTitle": "설치 가능",
+      "action": "설치",
+      "retry": "다시 시도",
+      "installing": "{{version}} 설치 중…",
+      "installed": "Wayland가 설치함",
+      "pinned": "{{version}} 설치",
+      "systemCopy": "시스템에 있는 사본을 사용합니다",
+      "unavailable": "이 빌드에서는 사용할 수 없음",
+      "whyLink": "이유",
+      "whyBody": "이 빌드에는 사용 중인 플랫폼용 번들 런타임이 없으며, 모든 설치에는 런타임이 필요합니다. 에이전트를 직접 설치하면 Wayland가 감지합니다.",
+      "failed": {
+        "unknown-agent": "이 에이전트에 대해 고정된 패키지가 없습니다.",
+        "bundled-bun-unavailable": "이 빌드에는 설치에 사용할 번들 런타임이 없습니다.",
+        "install-failed": "다운로드에 실패했습니다. 연결을 확인하고 다시 시도하세요.",
+        "error": "예기치 않은 오류로 설치가 중단되었습니다."
+      },
+      "consent": {
+        "title": "{{agent}}을(를) 설치할까요?",
+        "body": "npm에서 패키지를 내려받아 실행 가능한 코드를 컴퓨터에 저장합니다.",
+        "packageLabel": "패키지",
+        "versionLabel": "버전",
+        "destinationLabel": "설치 위치",
+        "scriptsLabel": "설치 스크립트",
+        "scriptsValue": "차단됨",
+        "confirm": "설치",
+        "cancel": "취소"
+      }
     }
   },
   "commandPalette": {

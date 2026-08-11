@@ -2244,6 +2244,35 @@
         "backupLabel": "Yedeklenen konum",
         "rollbackLabel": "Geri almak için çalıştırın"
       }
+    },
+    "install": {
+      "bandTitle": "Kurulabilir olanlar",
+      "action": "Kur",
+      "retry": "Yeniden dene",
+      "installing": "{{version}} kuruluyor…",
+      "installed": "Wayland tarafından kuruldu",
+      "pinned": "{{version}} kurulur",
+      "systemCopy": "Sistemdeki kendi kopyanı kullanır",
+      "unavailable": "Bu yapıda kullanılamıyor",
+      "whyLink": "Neden?",
+      "whyBody": "Bu yapıda platformun için paketlenmiş bir çalışma zamanı yok ve her kurulum buna ihtiyaç duyar. Ajanı kendin kurarsan Wayland onu algılar.",
+      "failed": {
+        "unknown-agent": "Wayland'in bu ajan için sabitlenmiş bir paketi yok.",
+        "bundled-bun-unavailable": "Bu yapıda kurulum için paketlenmiş bir çalışma zamanı yok.",
+        "install-failed": "İndirme başarısız oldu. Bağlantını kontrol edip yeniden dene.",
+        "error": "Kurulum beklenmeyen bir hatayla durdu."
+      },
+      "consent": {
+        "title": "{{agent}} kurulsun mu?",
+        "body": "Bu işlem npm'den bir paket indirir ve bilgisayarına çalıştırılabilir kod yerleştirir.",
+        "packageLabel": "Paket",
+        "versionLabel": "Sürüm",
+        "destinationLabel": "Hedef",
+        "scriptsLabel": "Kurulum betikleri",
+        "scriptsValue": "Engellendi",
+        "confirm": "Kur",
+        "cancel": "İptal"
+      }
     }
   },
   "commandPalette": {

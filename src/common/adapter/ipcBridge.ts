@@ -33,6 +33,7 @@ import type {
   OpencodeSetupResult,
   OpencodeStatusResult,
 } from '../types/fluxConnector';
+import type { AgentInstallerReport, AgentInstallResult, AgentUninstallResult } from '../types/agentInstaller';
 import type {
   UpdateCheckRequest,
   UpdateCheckResult,
@@ -1310,6 +1311,26 @@ export const fluxConnector = {
   kimiStatus: buildProvider<KimiStatusResult, void>('flux-connector:kimi-status'),
   setupKimi: buildProvider<KimiSetupResult, void>('flux-connector:setup-kimi'),
   removeKimi: buildProvider<FluxConnectorReport, void>('flux-connector:remove-kimi'),
+};
+
+/**
+ * Managed agent installs (K-05). Wayland fetches a PINNED npm package into its
+ * own prefix with `--ignore-scripts` and records a receipt.
+ *
+ * SECURITY: `agent-installer:install` and `agent-installer:uninstall` are listed
+ * in bridgeAllowlist's REMOTE_DENIED_KEYS. `install` executes a package manager
+ * against the user's profile and `uninstall` recursively removes a directory; a
+ * paired-device WS token proves a remote browser, NOT the local trusted user, so
+ * neither is reachable from the wire (same posture as `onboarding.connect-flux`).
+ * `agent-installer:status` is a read and stays allowed.
+ *
+ * Those denials are matched EXACTLY against the fully-qualified key below — an
+ * entry of `install`/`uninstall` would be decorative and never fire.
+ */
+export const agentInstaller = {
+  status: buildProvider<AgentInstallerReport, void>('agent-installer:status'),
+  install: buildProvider<AgentInstallResult, { agentId: string }>('agent-installer:install'),
+  uninstall: buildProvider<AgentUninstallResult, { agentId: string }>('agent-installer:uninstall'),
 };
 
 // Ambient Mode - M1 bubble window (AC-M1-5 / AC-M1-10 / AC-M1-11 / AC-M1-13)

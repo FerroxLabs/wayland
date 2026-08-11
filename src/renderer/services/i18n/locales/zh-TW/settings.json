@@ -2246,6 +2246,35 @@
         "backupLabel": "備份至",
         "rollbackLabel": "若要復原，請執行"
       }
+    },
+    "install": {
+      "bandTitle": "可安裝",
+      "action": "安裝",
+      "retry": "重試",
+      "installing": "正在安裝 {{version}}…",
+      "installed": "已由 Wayland 安裝",
+      "pinned": "將安裝 {{version}}",
+      "systemCopy": "使用你系統中的副本",
+      "unavailable": "此版本不支援",
+      "whyLink": "為什麼？",
+      "whyBody": "此版本未為你的平台隨附執行環境，而所有安裝都需要它。你可以自行安裝該智能體，Wayland 會自動偵測到。",
+      "failed": {
+        "unknown-agent": "Wayland 沒有為該智能體固定的套件。",
+        "bundled-bun-unavailable": "此版本未隨附用於安裝的執行環境。",
+        "install-failed": "下載失敗。請檢查網路連線後重試。",
+        "error": "安裝因非預期的錯誤而中止。"
+      },
+      "consent": {
+        "title": "安裝 {{agent}}？",
+        "body": "這會從 npm 下載套件，並在你的電腦上放入可執行的程式碼。",
+        "packageLabel": "套件",
+        "versionLabel": "版本",
+        "destinationLabel": "安裝位置",
+        "scriptsLabel": "安裝指令碼",
+        "scriptsValue": "已封鎖",
+        "confirm": "安裝",
+        "cancel": "取消"
+      }
     }
   },
   "commandPalette": {

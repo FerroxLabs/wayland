@@ -368,6 +368,24 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     channel in the meantime. ---
   'flux-connector:setup-kimi',
   'flux-connector:remove-kimi',
+  // --- Managed agent installs (K-05, decision D7). `install` runs a package
+  //     manager against the user's profile — it fetches an npm package and
+  //     writes an executable tree under userData; `uninstall` recursively
+  //     removes a directory. Both are code-on-the-host actions of the same class
+  //     as `onboarding.connect-flux` above. A paired-device WS token proves a
+  //     remote BROWSER, not the local trusted user, so neither is reachable from
+  //     the wire. `agent-installer:status` is a read and stays allowed so the
+  //     Agents settings page still renders remotely.
+  //
+  //     THE KEYS BELOW ARE FULLY QUALIFIED ON PURPOSE. `isAllowedForRemote`
+  //     strips only the `subscribe-` transport prefix and then matches this set
+  //     EXACTLY against the remaining wire key, which is the whole channel name.
+  //     A bare `install` / `uninstall` entry would match nothing that is ever
+  //     sent, so it would sit here looking like protection while the install
+  //     channel stayed wide open to remote callers. A redteam test reproduces
+  //     that exact mistake as a mutation. ---
+  'agent-installer:install',
+  'agent-installer:uninstall',
   // --- Native xAI "Sign in with X (Grok)" OAuth. Both mint/persist the `xai`
   //     provider credential via the model-registry connect path - same class as
   //     connect-flux above. A remote WS caller must never drive an OAuth mint or

@@ -2429,6 +2429,35 @@
         "backupLabel": "Backed up to",
         "rollbackLabel": "To undo, run"
       }
+    },
+    "install": {
+      "bandTitle": "Available to install",
+      "action": "Install",
+      "retry": "Retry",
+      "installing": "Installing {{version}}…",
+      "installed": "Installed by Wayland",
+      "pinned": "Installs {{version}}",
+      "systemCopy": "Uses your system copy",
+      "unavailable": "Not available on this build",
+      "whyLink": "Why?",
+      "whyBody": "This build has no bundled runtime for your platform, and every install needs one. Install the agent yourself and Wayland will detect it.",
+      "failed": {
+        "unknown-agent": "Wayland has no pinned package for this agent.",
+        "bundled-bun-unavailable": "This build has no bundled runtime to install with.",
+        "install-failed": "The download failed. Check your connection and try again.",
+        "error": "The install stopped with an unexpected error."
+      },
+      "consent": {
+        "title": "Install {{agent}}?",
+        "body": "This downloads a package from npm and puts runnable code on your computer.",
+        "packageLabel": "Package",
+        "versionLabel": "Version",
+        "destinationLabel": "Destination",
+        "scriptsLabel": "Install scripts",
+        "scriptsValue": "Blocked",
+        "confirm": "Install",
+        "cancel": "Cancel"
+      }
     }
   },
   "wcoreConfig": {

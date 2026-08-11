@@ -273,10 +273,17 @@ describe('createGenericSpawnConfig - Windows path handling', () => {
     setLinuxPlatform();
     const bun = '/Applications/Wayland.app/Contents/Resources/bundled-bun/darwin-arm64/bun';
     const entry = '/Users/John Smith/Library/Application Support/Wayland/agents/qwen/cli-entry.js';
-    const config = createGenericSpawnConfig(`"${bun}" "${entry}"`, '/cwd', ['--acp'], undefined, { PATH: '/usr/bin' }, {
-      command: bun,
-      args: [entry],
-    });
+    const config = createGenericSpawnConfig(
+      `"${bun}" "${entry}"`,
+      '/cwd',
+      ['--acp'],
+      undefined,
+      { PATH: '/usr/bin' },
+      {
+        command: bun,
+        args: [entry],
+      }
+    );
 
     expect(config.command).toBe(bun);
     expect(config.args).toEqual([entry, '--acp']);
@@ -308,6 +315,76 @@ describe('createGenericSpawnConfig - Windows path handling', () => {
 
     expect(config.command).toBe('C:\\bun\\bun.exe');
     expect(config.args).toEqual(['--acp']);
+  });
+
+  // T-A: a launch spec may carry the env its COMMAND needs. Unpackaged,
+  // `resolveJsRuntime()` picks the Electron binary plus ELECTRON_RUN_AS_NODE=1;
+  // spawn the binary without the variable and the child boots a full Electron
+  // WINDOW with no stdio JSON-RPC, so the ACP handshake never completes. The env
+  // has to travel with the spec because this seam holds only { command, args }
+  // and cannot tell an Electron-as-Node path from a native agent binary.
+  it('merges the launch spec env into the spawn env', () => {
+    setLinuxPlatform();
+    const config = createGenericSpawnConfig(
+      '',
+      '/cwd',
+      ['--acp'],
+      undefined,
+      { PATH: '/usr/bin' },
+      {
+        command: '/Applications/Wayland.app/Contents/MacOS/Wayland',
+        args: ['/agents/kimi/main.mjs'],
+        env: { ELECTRON_RUN_AS_NODE: '1' },
+      }
+    );
+
+    expect(config.options.env).toEqual({ PATH: '/usr/bin', ELECTRON_RUN_AS_NODE: '1' });
+  });
+
+  it('does not mutate the caller-owned prebuilt env when merging', () => {
+    // prebuiltEnv is built once and reused across spawns; writing into it would
+    // leak ELECTRON_RUN_AS_NODE onto the NEXT agent, which may be a native binary.
+    setLinuxPlatform();
+    const prebuilt = { PATH: '/usr/bin' };
+    createGenericSpawnConfig('', '/cwd', ['--acp'], undefined, prebuilt, {
+      command: '/electron',
+      args: ['/entry.mjs'],
+      env: { ELECTRON_RUN_AS_NODE: '1' },
+    });
+
+    expect(prebuilt).toEqual({ PATH: '/usr/bin' });
+  });
+
+  it('leaves the env untouched for a spec with no env (native binary / packaged runtime)', () => {
+    setLinuxPlatform();
+    const config = createGenericSpawnConfig(
+      '',
+      '/cwd',
+      ['--acp'],
+      undefined,
+      { PATH: '/usr/bin' },
+      {
+        command: '/agents/codex/bin/codex',
+        args: [],
+      }
+    );
+
+    expect(config.options.env).toEqual({ PATH: '/usr/bin' });
+  });
+
+  it('does not apply an env from a MALFORMED spec that fell through to cliPath', () => {
+    // The shape check gates the whole branch: a rejected spec must contribute
+    // nothing at all, env included, or a doctored `extra` could inject env into
+    // a spawn it does not otherwise control.
+    setLinuxPlatform();
+    const config = createGenericSpawnConfig('/usr/local/bin/qwen', '/cwd', ['--acp'], undefined, { PATH: '/usr/bin' }, {
+      command: '/electron',
+      args: '--acp',
+      env: { ELECTRON_RUN_AS_NODE: '1' },
+    } as never);
+
+    expect(config.command).toBe('/usr/local/bin/qwen');
+    expect(config.options.env).toEqual({ PATH: '/usr/bin' });
   });
 
   it('parseWindowsCliPath shreds every command STRING an install path can produce', () => {

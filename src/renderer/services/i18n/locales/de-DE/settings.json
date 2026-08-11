@@ -2271,6 +2271,35 @@
         "backupLabel": "Gesichert unter",
         "rollbackLabel": "Zum Rückgängigmachen ausführen"
       }
+    },
+    "install": {
+      "bandTitle": "Verfügbar zur Installation",
+      "action": "Installieren",
+      "retry": "Erneut versuchen",
+      "installing": "{{version}} wird installiert …",
+      "installed": "Von Wayland installiert",
+      "pinned": "Installiert {{version}}",
+      "systemCopy": "Verwendet deine Systemkopie",
+      "unavailable": "In diesem Build nicht verfügbar",
+      "whyLink": "Warum?",
+      "whyBody": "Dieser Build enthält keine gebündelte Laufzeitumgebung für deine Plattform, und jede Installation braucht eine. Installiere den Agenten selbst, dann erkennt Wayland ihn.",
+      "failed": {
+        "unknown-agent": "Wayland hat kein festgelegtes Paket für diesen Agenten.",
+        "bundled-bun-unavailable": "Dieser Build enthält keine gebündelte Laufzeitumgebung zum Installieren.",
+        "install-failed": "Der Download ist fehlgeschlagen. Prüfe deine Verbindung und versuche es erneut.",
+        "error": "Die Installation wurde mit einem unerwarteten Fehler abgebrochen."
+      },
+      "consent": {
+        "title": "{{agent}} installieren?",
+        "body": "Dabei wird ein Paket von npm heruntergeladen und ausführbarer Code auf deinem Computer abgelegt.",
+        "packageLabel": "Paket",
+        "versionLabel": "Version",
+        "destinationLabel": "Zielordner",
+        "scriptsLabel": "Installationsskripte",
+        "scriptsValue": "Blockiert",
+        "confirm": "Installieren",
+        "cancel": "Abbrechen"
+      }
     }
   },
   "wcoreConfig": {

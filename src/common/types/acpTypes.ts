@@ -92,6 +92,24 @@ export type AcpLaunchSpec = {
   command: string;
   /** Arguments passed to the executable verbatim, one argv slot each. */
   args: string[];
+  /**
+   * Environment the COMMAND itself requires, merged over the child env at spawn.
+   * OPTIONAL, and absent for every spec that existed before it: a native binary
+   * needs nothing, and so do both packaged JS runtimes (bundled-bun and
+   * system-node return `env: {}`).
+   *
+   * It exists because `resolveJsRuntime()` answers with a command AND an env as
+   * one indivisible pair: UNPACKAGED the command is the Electron binary and the
+   * env is `ELECTRON_RUN_AS_NODE=1`. Drop the env half and a dev-build install of
+   * a pure-JS agent (kimi, openclaw) spawns an Electron WINDOW instead of Node.
+   * The need belongs to the resolved command, not to any particular call site,
+   * and the spec is persisted (install receipt, conversation `extra`), so the env
+   * has to travel WITH it — a spawn seam holding only `{command, args}` cannot
+   * tell an Electron-as-Node path from a native agent binary without guessing.
+   *
+   * Consumers merge it LAST, over the inherited/enhanced env.
+   */
+  env?: Record<string, string>;
 };
 
 /**
@@ -104,12 +122,25 @@ export type AcpLaunchSpec = {
  * `args` that is a string, and those reach spawn as `undefined`/garbage argv.
  * Every consumer must gate on this instead of on truthiness, and fall back to
  * the legacy cliPath string (or fail loudly) when it returns false.
+ *
+ * `env` is OPTIONAL and its absence is the normal case: a spec written before
+ * `env` existed, a native binary, or a packaged JS runtime all omit it and must
+ * validate EXACTLY as they did before. It is checked only when present, and then
+ * strictly — a non-string value would reach `spawn`'s env and be coerced or
+ * throw, which is precisely the class of garbage this guard exists to stop.
  */
 export function isAcpLaunchSpec(value: unknown): value is AcpLaunchSpec {
   if (typeof value !== 'object' || value === null) return false;
-  const spec = value as { command?: unknown; args?: unknown };
+  const spec = value as { command?: unknown; args?: unknown; env?: unknown };
   if (typeof spec.command !== 'string' || spec.command.trim().length === 0) return false;
+  if (spec.env !== undefined && !isStringRecord(spec.env)) return false;
   return Array.isArray(spec.args) && spec.args.every((arg) => typeof arg === 'string');
+}
+
+/** True for a plain object whose own enumerable values are all strings. */
+function isStringRecord(value: unknown): value is Record<string, string> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
+  return Object.values(value).every((entry) => typeof entry === 'string');
 }
 
 /**

@@ -2271,6 +2271,35 @@
         "backupLabel": "Copia de seguridad en",
         "rollbackLabel": "Para deshacer, ejecuta"
       }
+    },
+    "install": {
+      "bandTitle": "Disponibles para instalar",
+      "action": "Instalar",
+      "retry": "Reintentar",
+      "installing": "Instalando {{version}}…",
+      "installed": "Instalado por Wayland",
+      "pinned": "Instala {{version}}",
+      "systemCopy": "Usa tu copia del sistema",
+      "unavailable": "No disponible en esta compilación",
+      "whyLink": "¿Por qué?",
+      "whyBody": "Esta compilación no incluye un entorno de ejecución para tu plataforma, y toda instalación necesita uno. Instala el agente tú mismo y Wayland lo detectará.",
+      "failed": {
+        "unknown-agent": "Wayland no tiene un paquete fijado para este agente.",
+        "bundled-bun-unavailable": "Esta compilación no incluye un entorno de ejecución para instalar.",
+        "install-failed": "La descarga falló. Comprueba tu conexión e inténtalo de nuevo.",
+        "error": "La instalación se detuvo con un error inesperado."
+      },
+      "consent": {
+        "title": "¿Instalar {{agent}}?",
+        "body": "Esto descarga un paquete de npm y coloca código ejecutable en tu ordenador.",
+        "packageLabel": "Paquete",
+        "versionLabel": "Versión",
+        "destinationLabel": "Destino",
+        "scriptsLabel": "Scripts de instalación",
+        "scriptsValue": "Bloqueados",
+        "confirm": "Instalar",
+        "cancel": "Cancelar"
+      }
     }
   },
   "wcoreConfig": {

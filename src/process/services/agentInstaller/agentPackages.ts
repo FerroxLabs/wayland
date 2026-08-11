@@ -23,6 +23,18 @@ export interface AgentPackage {
   npmPackage: string;
   /** Exact published version. Never a range, never a dist-tag. */
   version: string;
+  /**
+   * Command name a USER'S OWN copy would publish on PATH.
+   *
+   * This is the probe for "a system copy already exists", which is a different
+   * fact from "Wayland installed this" — Wayland installs into its own prefix
+   * and never puts anything on PATH, so a hit here can only be the user's. The
+   * two must stay distinguishable in the data; a detected system copy wins and
+   * is never offered an install.
+   *
+   * Restricted to `[a-zA-Z0-9_.-]` because the detector drops anything else.
+   */
+  cliCommand: string;
 }
 
 /**
@@ -35,11 +47,11 @@ export interface AgentPackage {
  */
 export const AGENT_PACKAGES: Readonly<Record<string, AgentPackage>> = Object.freeze({
   /** Native per-triple executable, shipped in a platform-specific optional dep. */
-  codex: Object.freeze({ npmPackage: '@openai/codex', version: '0.147.0' }),
+  codex: Object.freeze({ npmPackage: '@openai/codex', version: '0.147.0', cliCommand: 'codex' }),
   /** Pure-JS entry (`dist/main.mjs`); launches through the resolved JS runtime. */
-  kimi: Object.freeze({ npmPackage: '@moonshot-ai/kimi-code', version: '0.34.0' }),
+  kimi: Object.freeze({ npmPackage: '@moonshot-ai/kimi-code', version: '0.34.0', cliCommand: 'kimi' }),
   /** Pure-JS entry (`openclaw.mjs`); package name confirmed from the repo's own setup skill. */
-  openclaw: Object.freeze({ npmPackage: 'openclaw', version: '2026.7.1-2' }),
+  openclaw: Object.freeze({ npmPackage: 'openclaw', version: '2026.7.1-2', cliCommand: 'openclaw' }),
 });
 
 /** Thrown when an agent id is well-formed but is not in the pinned catalogue. */

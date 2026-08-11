@@ -83,6 +83,14 @@ export interface LaunchSpecInputs {
   arch: string;
   /** Executable used to run a plain `.js`/`.mjs`/`.cjs` entry. */
   jsRuntimeCommand: string;
+  /**
+   * Env that `jsRuntimeCommand` itself needs, from the same `resolveJsRuntime()`
+   * answer. UNPACKAGED that is `{ ELECTRON_RUN_AS_NODE: '1' }` and dropping it
+   * launches an Electron window instead of Node; packaged runtimes need nothing
+   * and pass `{}`. Recorded on the spec only when non-empty, so a packaged
+   * receipt is byte-identical to one written before `env` existed.
+   */
+  jsRuntimeEnv?: Record<string, string>;
 }
 
 function isFile(candidate: string): boolean {
@@ -160,7 +168,7 @@ function isContained(parent: string, child: string): boolean {
  * `resolveJsRuntimeWith` / `resolveJsRuntime` split this repo already uses.
  */
 export function resolveLaunchSpecWith(inputs: LaunchSpecInputs): AcpLaunchSpec {
-  const { prefix, npmPackage, platform, arch, jsRuntimeCommand } = inputs;
+  const { prefix, npmPackage, platform, arch, jsRuntimeCommand, jsRuntimeEnv } = inputs;
   const pkgDir = resolvePackageDir(prefix, npmPackage);
 
   const bin = readPackageBin(pkgDir);
@@ -186,7 +194,13 @@ export function resolveLaunchSpecWith(inputs: LaunchSpecInputs): AcpLaunchSpec {
     throw new LaunchSpecUnresolvedError(npmPackage, prefix, `"bin" entry escapes the package directory: ${bin.entry}`);
   }
   if (JS_ENTRY_EXTENSIONS.has(path.extname(entryPath).toLowerCase()) && isFile(entryPath)) {
-    return { command: jsRuntimeCommand, args: [entryPath] };
+    // Only this branch can need an env: the native branch above returns a real
+    // executable that runs on its own. Omit the key entirely when there is
+    // nothing to carry, rather than writing an empty object into the receipt.
+    const hasEnv = jsRuntimeEnv !== undefined && Object.keys(jsRuntimeEnv).length > 0;
+    return hasEnv
+      ? { command: jsRuntimeCommand, args: [entryPath], env: { ...jsRuntimeEnv } }
+      : { command: jsRuntimeCommand, args: [entryPath] };
   }
 
   // 3. Nothing resolved.
@@ -199,11 +213,15 @@ export function resolveLaunchSpecWith(inputs: LaunchSpecInputs): AcpLaunchSpec {
 
 /** Resolve a launch spec for the current process's platform, arch and runtime. */
 export function resolveLaunchSpec(prefix: string, npmPackage: string): AcpLaunchSpec {
+  // Both halves of the SAME answer. Taking `.command` without `.env` is the bug
+  // this pair exists to prevent (see AcpLaunchSpec.env).
+  const runtime = resolveJsRuntime();
   return resolveLaunchSpecWith({
     prefix,
     npmPackage,
     platform: process.platform,
     arch: process.arch,
-    jsRuntimeCommand: resolveJsRuntime().command,
+    jsRuntimeCommand: runtime.command,
+    jsRuntimeEnv: runtime.env,
   });
 }
