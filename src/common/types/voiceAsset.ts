@@ -10,7 +10,7 @@
  * - VoiceAssetManager never trusts a hash served by the download host.
  */
 export type VoiceAsset = {
-  /** Stable identifier - e.g. 'whisper-cpp-binary' or 'whisper-ggml-base'. */
+  /** Stable identifier, matched against the main-process asset registry. */
   id: string;
   url: string;
   /** Absolute path where the verified asset should live after download. */

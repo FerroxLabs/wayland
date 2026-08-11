@@ -16,7 +16,6 @@ import type {
 } from '@/common/types/speech';
 import { mainError, mainLog, mainWarn } from '@process/utils/mainLogger';
 import { ProcessConfig } from '@process/utils/initStorage';
-import { WhisperLocal } from '@process/services/voice/WhisperLocal';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 import { readConnectedProviderKey } from '@process/connectors/providerKey';
 import { resolveFluxSttDefault } from '@process/utils/fluxSttDefault';
@@ -436,11 +435,24 @@ const transcribeWithDeepgram = async (
   };
 };
 
-const transcribeWithWhisperLocal = async (
-  config: SpeechToTextConfig,
-  request: SpeechToTextRequest
-): Promise<SpeechToTextResult> => {
-  return WhisperLocal.transcribe(request, config.whisperLocal ?? { model: DEFAULT_WHISPER_LOCAL_MODEL });
+/**
+ * `whisper-local` does not transcribe here and never did.
+ *
+ * The renderer's `transcribeAudioBlob` short-circuits this provider to the
+ * bundled Whisper-tiny model running in a Web Worker (transformers.js) and
+ * returns before it ever reaches IPC, so this adapter was unreachable. What it
+ * used to hold - a whisper.cpp subprocess - could not have run either: the
+ * binary it downloaded has never been published for macOS at any tag, and the
+ * URLs it pointed at return 404 on every platform.
+ *
+ * It stays registered rather than deleted so `resolve('whisper-local')` keeps
+ * naming the cause. An unregistered provider throws "no voice adapter
+ * registered", which tells a user nothing.
+ */
+const transcribeWithWhisperLocal = async (): Promise<SpeechToTextResult> => {
+  throw new Error(
+    'STT_WHISPER_LOCAL_UNAVAILABLE: local transcription runs in the app window, not the main process; this request should never have been sent'
+  );
 };
 
 /**
