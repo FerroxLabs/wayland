@@ -2,13 +2,19 @@ import { describe, expect, it } from 'vitest';
 
 import localVerificationGate = require('../../scripts/localVerificationGate.js');
 
-const { isLocalVerificationBuild, isLocalVerificationDirBuild, isCanonicalDirOnlyArgs, findDistributableArtifacts } =
-  localVerificationGate as {
-    isLocalVerificationBuild: (env: Record<string, string | undefined>) => boolean;
-    isLocalVerificationDirBuild: (env: Record<string, string | undefined>, argv: string[]) => boolean;
-    isCanonicalDirOnlyArgs: (argv: string[]) => boolean;
-    findDistributableArtifacts: (fileNames: string[]) => string[];
-  };
+const {
+  isLocalVerificationBuild,
+  isLocalVerificationDirBuild,
+  isCanonicalDirOnlyArgs,
+  findDistributableArtifacts,
+  isUnpackedOutputDir,
+} = localVerificationGate as {
+  isLocalVerificationBuild: (env: Record<string, string | undefined>) => boolean;
+  isLocalVerificationDirBuild: (env: Record<string, string | undefined>, argv: string[]) => boolean;
+  isCanonicalDirOnlyArgs: (argv: string[]) => boolean;
+  findDistributableArtifacts: (fileNames: string[]) => string[];
+  isUnpackedOutputDir: (dirName: string) => boolean;
+};
 
 // This encodes the core release-safety invariant: the capability seal is written
 // (the RELEASE path) unless the operator explicitly opts into a local verification
@@ -127,5 +133,44 @@ describe('findDistributableArtifacts', () => {
     expect(findDistributableArtifacts(['Wayland.app', 'builder-debug.yml', 'latest-mac.yml'])).toEqual([]);
     expect(findDistributableArtifacts([])).toEqual([]);
     expect(findDistributableArtifacts(undefined as unknown as string[])).toEqual([]);
+  });
+});
+
+// The gate scans one level of subdirectories under the builder output dir. The
+// unpacked app directory is the sanctioned directory-only OUTPUT, not an artifact
+// the build "produced", so it must be skipped. This mattered on Windows only:
+// `--dir` writes `win-unpacked/Wayland.exe`, and a bare `.exe` one level down is
+// indistinguishable from an NSIS installer to a name-based scan — so the gate
+// rejected every Windows verification build. The macOS binary lives deeper inside
+// `Wayland.app` and was never scanned.
+describe('isUnpackedOutputDir', () => {
+  it('identifies electron-builder unpacked dirs on every platform', () => {
+    expect(isUnpackedOutputDir('win-unpacked')).toBe(true);
+    expect(isUnpackedOutputDir('linux-unpacked')).toBe(true);
+    expect(isUnpackedOutputDir('win-arm64-unpacked')).toBe(true);
+    expect(isUnpackedOutputDir('mac-arm64-unpacked')).toBe(true);
+    expect(isUnpackedOutputDir('WIN-UNPACKED')).toBe(true);
+  });
+
+  it('does NOT skip a directory that could hold real distributables', () => {
+    // These are scanned. `mac-arm64` holds Wayland.app AND, on a release build,
+    // the .dmg — skipping it would blind the gate to an unsealed distributable.
+    expect(isUnpackedOutputDir('mac-arm64')).toBe(false);
+    expect(isUnpackedOutputDir('out')).toBe(false);
+    expect(isUnpackedOutputDir('unpacked')).toBe(false);
+    expect(isUnpackedOutputDir('win-unpacked-installers')).toBe(false);
+    expect(isUnpackedOutputDir('')).toBe(false);
+  });
+
+  it('narrows WHERE the gate looks, never WHAT counts as distributable', () => {
+    // The invariant this change must not touch: an installer written at the output
+    // ROOT is still flagged. If this ever goes green with an empty array, an
+    // unsealed shippable artifact can escape.
+    expect(findDistributableArtifacts(['Wayland-1.2.3-win-x64.exe'])).toEqual(['Wayland-1.2.3-win-x64.exe']);
+    expect(findDistributableArtifacts(['Wayland.dmg', 'Wayland.zip', 'app.msi'])).toEqual([
+      'Wayland.dmg',
+      'Wayland.zip',
+      'app.msi',
+    ]);
   });
 });
