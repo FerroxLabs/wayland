@@ -145,6 +145,18 @@ export class WCoreApprovalStore extends BaseApprovalStore<WCoreApprovalKey> {
   }
 }
 
+/**
+ * The assistant persona for a wcore conversation, from whichever key holds it.
+ *
+ * Nullish coalescing, deliberately, not `||`: an assistant that carries an
+ * empty rules string has said something, and must not be silently overridden by
+ * a stale value on the other key.
+ */
+export const resolveWCorePresetRules = (data: {
+  presetRules?: string;
+  presetContext?: string;
+}): string | undefined => data.presetRules ?? data.presetContext;
+
 type WCoreManagerData = {
   workspace: string;
   proxy?: string;
@@ -152,6 +164,21 @@ type WCoreManagerData = {
   conversation_id: string;
   yoloMode?: boolean;
   presetRules?: string;
+  /**
+   * The same rules under the key the ACP backends use.
+   *
+   * wcore reads `presetRules` and always has. But preset assistants created
+   * through `buildAgentConversationParams` before that was fixed wrote their
+   * rules to `presetContext`, and `ConversationServiceImpl` copies unconsumed
+   * `extra` keys onto the stored row - so the persona was persisted the whole
+   * time, on a key nothing here ever looked at. Every wcore preset conversation
+   * created from the "+" menu or as a team specialist is still carrying one.
+   *
+   * Reading it as a fallback is what makes those conversations recover. Without
+   * it, rewriting an assistant's persona reaches only chats created after the
+   * fix, and the ones already open stay wrong forever.
+   */
+  presetContext?: string;
   presetAssistantId?: string;
   /** Assistant-scoped always-on skill names (pinned/preset-enabled).  */
   enabledSkills?: string[];
@@ -636,11 +663,12 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
     // no skills, no library) - in that case we keep the prior "no
     // presetRules" behaviour for fresh installs. (H1: WCoreManager advertise
     // the second channel.) Skipped entirely in raw-engine mode.
+    const presetRules = resolveWCorePresetRules(mergedData);
     const systemInstructions = rawEngineMode
       ? undefined
       : await buildSystemInstructionsWithSkillsIndex({
           conversationId: this.conversation_id,
-          presetContext: mergedData.presetRules,
+          presetContext: presetRules,
           enabledSkills: mergedData.enabledSkills,
           excludeBuiltinSkills: mergedData.excludeBuiltinSkills,
           enableTeamGuide: mergedData.enableTeamGuide,
@@ -651,7 +679,7 @@ export class WCoreManager extends BaseAgentManager<WCoreManagerData, string> {
             agentKey: 'wcore',
           }),
         });
-    const effectivePresetRules = rawEngineMode ? undefined : (systemInstructions ?? mergedData.presetRules);
+    const effectivePresetRules = rawEngineMode ? undefined : (systemInstructions ?? presetRules);
 
     const agent = new WCoreAgent({
       workspace: mergedData.workspace,
