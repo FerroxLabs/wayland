@@ -29,6 +29,20 @@ import path from 'node:path';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ConstitutionArchiveSecretBackend } from '@process/services/constitution/constitutionFsTransaction';
 
+/**
+ * This file needs more than the global 10s budget, and not because anything in
+ * it is slow to no purpose: it uses the REAL Constitution service against a real
+ * scratch profile with a real corrupted key ring, which means real key
+ * derivation and a real native binary per test. Measured at ~8s for the four of
+ * them on an idle machine, so a single test crossing 10s under a loaded parallel
+ * suite is arithmetic, not flakiness - it was the one red left in an otherwise
+ * green run, which is exactly how a suite teaches people to ignore red.
+ *
+ * Raising the budget, not the tolerance: no assertion changes, and the work
+ * being timed is work the test is supposed to do.
+ */
+vi.setConfig({ testTimeout: 30000 });
+
 const { mockAddMessage } = vi.hoisted(() => ({ mockAddMessage: vi.fn() }));
 
 vi.mock('@process/utils/message', () => ({
