@@ -1306,7 +1306,7 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'smart-trader',
-    avatar: 'lucide:TrendingUp',
+    avatar: 'lucide:CandlestickChart',
     // Native engine: the setup path has to run local commands and read its own
     // toolset to tell "TVControl absent" from "TVControl not answering".
     presetAgentType: 'wcore',
