@@ -25,11 +25,18 @@ node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
 
 Node only. No dependencies, no install step, no Python.
 
-Paths come from the environment so nothing is written where it does not belong:
+**It works with no arguments and no setup.** A default watchlist ships in
+`data/TC-MASTER-WATCHLIST.csv` (74 names) and an empty holdings template in
+`data/positions.csv`, so a brand-new user gets a real report on the first run —
+about 13 seconds cold, since it fetches every symbol. Do not ask them to supply
+a watchlist before running it once.
+
+Override any of it through the environment, so nothing is written where it does
+not belong:
 
 | variable | meaning |
 |---|---|
-| `MARKET_OPEN_REPORT_LIST` | watchlist CSV |
+| `MARKET_OPEN_REPORT_LIST` | watchlist CSV (defaults to the bundled one) |
 | `MARKET_OPEN_REPORT_POSITIONS` | the user's holdings CSV (absent is valid) |
 | `MARKET_OPEN_REPORT_CACHE` | Yahoo cache directory |
 

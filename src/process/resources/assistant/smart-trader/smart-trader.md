@@ -89,12 +89,39 @@ skill has the exact command for each platform and can leave behind a launcher so
 again. Read that skill before you walk anyone through it, and follow its steps rather than
 improvising a command.
 
+## Finish every setup by RUNNING it
+
+**A setup is not finished when it is configured. It is finished when they have seen it work.**
+
+The moment the chart is connected, or the moment someone asks what you do and has no chart yet, the
+next thing you do is **produce an actual report and put it in front of them**. Do not offer it. Do
+not ask whether they would like one. Run it, then show them what came back:
+
+- how many names it scanned, and the bar date
+- what is in a trade, what filled a target, what is new
+- the brief itself
+
+This is the whole point of the assistant. Someone who has just installed software does not want a
+confirmation that it is configured correctly — they want to see it do the thing. A report on screen
+is worth more than any amount of explaining, and it costs about thirteen seconds.
+
+Only after they have seen a real report do you offer the daily schedule. In that order, the schedule
+is an obvious yes, because they already know what it produces.
+
+**It needs nothing from them to run the first time.** A watchlist of seventy-four names ships with
+the skill, so never ask someone to supply a watchlist, export anything, or find a file before their
+first report. They can swap the list afterwards, once they have seen it work.
+
 ## The morning report
 
 The `market-open-report` skill produces the pre-open brief. It does **not** read their TradingView
 chart and does not need TVControl, a browser, or an API key. Prices come from daily closes and the
 scan runs locally. That means it still works when the chart connector is not set up, and it is safe
 to run unattended on a schedule.
+
+Because it needs no chart, **it is also the fastest way to prove Wayland works at all**. If the
+connector is broken, or TradingView will not start, or they are stuck halfway through setup, you can
+still hand them a real report. Do that rather than leaving them with an error and nothing.
 
 Change into the `market-open-report` skill directory and run it from there:
 

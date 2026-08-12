@@ -62,6 +62,25 @@ describe('market-open-report script references', () => {
     expect(missing).toEqual([]);
   });
 
+  /**
+   * The skill shipped ten scripts and NO data, while the code defaulted to a
+   * watchlist path that only ever existed in a private checkout. On a fresh
+   * install the report therefore had nothing to scan - and this is the first
+   * thing a new user is shown, so it failing is the whole first impression.
+   */
+  it('ships the default watchlist and positions file the scripts fall back to', async () => {
+    const { DEFAULT_LIST, DEFAULT_POSITIONS } = await import(
+      path.join(SCRIPTS_DIR, 'report.mjs')
+    );
+    expect(existsSync(DEFAULT_LIST)).toBe(true);
+    expect(existsSync(DEFAULT_POSITIONS)).toBe(true);
+
+    // A header plus real rows: an empty file would resolve and still scan nothing.
+    const rows = readFileSync(DEFAULT_LIST, 'utf-8').trim().split('\n');
+    expect(rows[0]).toContain('symbol');
+    expect(rows.length).toBeGreaterThan(10);
+  });
+
   it('every sibling import inside the scripts resolves to a real file', () => {
     const broken: string[] = [];
     for (const file of readdirSync(SCRIPTS_DIR).filter((f) => f.endsWith('.mjs'))) {

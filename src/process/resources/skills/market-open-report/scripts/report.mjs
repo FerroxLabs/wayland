@@ -99,13 +99,13 @@ const HERE = fileURLToPath(new URL('.', import.meta.url));
  * Same relative layout, resolved to an absolute path at load time. Read-only,
  * so it can stay beside the code.
  */
-export const DEFAULT_LIST = join(HERE, '..', 'package', 'exports', 'TC-MASTER-WATCHLIST.csv');
+export const DEFAULT_LIST = join(HERE, '..', 'data', 'TC-MASTER-WATCHLIST.csv');
 
 /**
  * Port of positions.py's `PATH`. The Python's `POS.load()` takes this default;
  * positions.mjs made the path required, so the default lives here instead.
  */
-export const DEFAULT_POSITIONS = join(HERE, '..', 'package', 'exports', 'positions.csv');
+export const DEFAULT_POSITIONS = join(HERE, '..', 'data', 'positions.csv');
 
 /**
  * NOT a port: the Python's Yahoo cache is a sibling of yahoo_data.py, which is

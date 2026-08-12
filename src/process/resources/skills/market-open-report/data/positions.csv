@@ -1,0 +1,3 @@
+symbol,shares,entry_date,entry_price
+"# one line per open position, delete these two comments"
+# NASDAQ:NVDA,120,2026-05-14,142.30

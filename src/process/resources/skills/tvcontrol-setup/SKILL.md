@@ -297,6 +297,23 @@ said so.
 
 ---
 
+## Step 7 — run it, so they SEE it work
+
+**Do not stop at "you are set up."** Nobody believes a green tick. Run the morning report now
+with the `market-open-report` skill and put the result in front of them: how many names it
+scanned, the bar date, and the brief itself.
+
+It needs no chart and no watchlist of their own — a default list of seventy-four names ships
+with that skill — so this works even when part of the setup above did NOT. If TradingView
+would not start, or the connector is still broken, **run the report anyway**. Ending with a
+real brief plus one honest sentence about what is still unfinished beats ending with an error
+and nothing to show for the last ten minutes.
+
+Then, and only then, offer the daily schedule. Someone who has just watched it produce a brief
+needs no persuading that they want one every morning.
+
+---
+
 ## If it stops working later
 
 Almost always step 2: TradingView is running, but it was restarted normally and no longer
