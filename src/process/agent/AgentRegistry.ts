@@ -296,11 +296,38 @@ class AgentRegistry {
     return this.managedAgents.find((managed) => managed.backend === builtin.backend);
   }
 
+  /**
+   * What actually occupies Nano's list slot, in precedence order.
+   *
+   * Nano is always listed, so it needs a fixed position near the top. But
+   * `createWNanoAgent` returns a STUB - no cliPath, no launch - and
+   * deduplicate() keeps the first entry per backend, so putting the stub in that
+   * position made it beat both a PATH copy and an install receipt. A real
+   * `wnano` install then had no launch spec and could not start.
+   *
+   * Same precedence the builtins get from `supersedingManagedInstall`, applied
+   * at a fixed index instead of the builtin's own:
+   *   D1 a copy the PATH probe can serve  >  D3 an install receipt  >  the stub.
+   */
+  private resolveWNanoEntry(): AcpDetectedAgent {
+    const installed = this.managedAgents.find((agent) => agent.backend === 'wnano');
+    // No install: the bundled entry wins even against a copy on PATH. Nano ships
+    // with Wayland, so an unrelated `wayland-nano` on PATH must not shadow it.
+    if (!installed) return this.createWNanoAgent();
+    // An install exists, so D1 applies as it does for every other backend: a
+    // copy the PATH probe can serve outranks the install receipt.
+    const onPath = this.builtinAgents.find((agent) => agent.backend === 'wnano' && !!agent.cliPath);
+    return onPath ?? installed;
+  }
+
   // prettier-ignore
   private merge(): void {
     this.detectedAgents = this.deduplicate([
       this.createWCoreAgent(),
-      this.createWNanoAgent(),
+      // Nano holds this slot for LIST ORDER, but what occupies it is resolved by
+      // precedence - see resolveWNanoEntry. Emitting the bare stub here made it
+      // win deduplication outright and left a REAL Nano install unlaunchable.
+      this.resolveWNanoEntry(),
       this.createGeminiAgent(),
       // D3 slot: a managed install takes the builtin's own index when the PATH
       // probe cannot serve that backend. See deduplicate() for why.
