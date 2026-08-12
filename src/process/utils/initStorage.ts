@@ -16,6 +16,8 @@ import type { TMessage } from '@/common/chat/chatLib';
 import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
 import { resolvePersistedPresetAgentType, resolvePresetAgentType } from '@/common/config/presets/assistantDefaults';
 import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
+import { getVoiceModelsDir } from '@process/extensions/constants';
+import { resolveAgentInstallRoot } from '@process/services/agentInstaller/installPrefix';
 import type { ConciergeDiagDeps } from '@process/resources/builtinMcp/conciergeDiagServer';
 import type {
   IChannelAssistantConfigRefer,
@@ -457,6 +459,13 @@ export function resolveConciergeDiagDeps(): ConciergeDiagDeps {
     // The APP's arch, not the diag subprocess's: its node binary can differ.
     appArch: process.arch,
     runningUnderARM64Translation: isRunningUnderArm64Translation(),
+    // Neither of these can be derived inside the diag subprocess. It has no
+    // Electron, so `process.resourcesPath` and `app.getPath('userData')` are
+    // both undefined there, and reaching for the app-side resolvers would be
+    // worse than useless: they fall back to `~/.wayland-server`, which answers
+    // confidently and wrongly instead of honestly reporting "not available".
+    voiceModelsDir: getVoiceModelsDir(),
+    agentInstallRoot: resolveAgentInstallRoot(),
   };
 }
 
@@ -790,7 +799,8 @@ const getBuiltinAssistants = (): AcpBackendConfig[] => {
       preset.id === 'star-office-helper' ||
       preset.id === 'story-roleplay' ||
       preset.id === 'moltbook' ||
-      preset.id === 'beautiful-mermaid';
+      preset.id === 'beautiful-mermaid' ||
+      preset.id === 'smart-trader';
 
     assistants.push({
       id: `builtin-${preset.id}`,
@@ -1109,6 +1119,12 @@ const ensureBuiltinMcpServers = async (): Promise<void> => {
       // and its node binary's arch is not necessarily the app's.
       WAYLAND_APP_ARCH: conciergeDiagDeps.appArch!,
       WAYLAND_ARM64_TRANSLATED: conciergeDiagDeps.runningUnderARM64Translation ? '1' : '0',
+      // The bundled speech-to-text model, and the root every managed agent is
+      // installed under. Both are read-only probes; see the note in
+      // resolveConciergeDiagDeps for why they must be injected rather than
+      // resolved in the subprocess.
+      WAYLAND_VOICE_MODELS_DIR: conciergeDiagDeps.voiceModelsDir!,
+      WAYLAND_AGENT_INSTALL_ROOT: conciergeDiagDeps.agentInstallRoot!,
     };
     const conciergeDiagExistingIdx = mcpServers.findIndex(
       (s) => s.builtin === true && s.id === BUILTIN_CONCIERGE_DIAG_ID

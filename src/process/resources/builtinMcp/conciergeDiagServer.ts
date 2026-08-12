@@ -15,10 +15,12 @@
  *
  * It is strictly READ-ONLY. It reads on-disk sources whose paths are injected
  * via `deps` (tests) or `env` (the stdio transport, wired by the lead):
- *   - config JSON  (`mcp.config`)            → MCP health
+ *   - config JSON  (`mcp.config`)            → MCP health, TVControl connector
  *   - cron SQLite  (`cron_jobs` table)       → scheduled-task health
  *   - provider SQLite (`model_registry_providers`, STATE columns only) → provider health
  *   - log dir                                → recent redacted errors
+ *   - bundled voice-models dir               → speech-input (STT) readiness
+ *   - agent install root                     → agent install-receipt integrity
  *
  * Secret hygiene is non-negotiable: every string in every output is passed
  * through the central `sanitize()` choke point, which applies BOTH `redact()`
@@ -78,6 +80,27 @@ export type ConciergeDiagDeps = {
    * injected: this module never touches Electron.
    */
   runningUnderARM64Translation?: boolean;
+  /**
+   * The bundled voice-models directory (`getVoiceModelsDir()` in
+   * `src/process/extensions/constants.ts`), which holds the on-device
+   * Whisper-tiny STT model.
+   *
+   * INJECTED, not derived. That resolver branches on
+   * `getPlatformServices().paths.isPackaged()` and `process.resourcesPath`,
+   * neither of which exists in this subprocess — a local re-derivation would
+   * answer confidently and WRONGLY.
+   */
+  voiceModelsDir?: string;
+  /**
+   * The root under which managed agent installs live (`<userData>/agents`).
+   *
+   * INJECTED for the same reason. `resolveAgentInstallPrefix` reads
+   * `getPlatformServices().paths.getDataDir()`, whose Node fallback returns
+   * `~/.wayland-server` — a directory this app never installs agents into. A
+   * confident wrong answer is worse than no answer, so the prefix arrives from
+   * the app or the section degrades.
+   */
+  agentInstallRoot?: string;
 };
 
 export type ScheduledTaskHealth = {
@@ -168,6 +191,98 @@ export type PlatformSection = {
   info: PlatformInfo;
 };
 
+export type VoiceSttInfo = {
+  /** Is the bundled on-device Whisper model actually on disk and complete? */
+  bundledModelPresent: boolean;
+  /** Where the bundled model was looked for (home-scrubbed), or null when unknown. */
+  modelDir: string | null;
+  /** Required model files that were absent. Empty when the model is complete. */
+  missingFiles: string[];
+  /** Plain-English problem when speech input cannot run, else null. */
+  whyProblem: string | null;
+};
+
+export type VoiceTtsInfo = {
+  /** The OS this install runs on. */
+  platform: string;
+  /**
+   * The local synthesizer this platform RESOLVES to (`system-native` on macOS,
+   * `windows-native` on Windows), or null where the build has none.
+   */
+  resolvedLocalProvider: string | null;
+  /** Plain-English problem when no local synthesizer exists here, else null. */
+  whyProblem: string | null;
+  /** What this field does and does NOT claim. */
+  note: string;
+};
+
+export type VoiceSection = {
+  /**
+   * Whether the on-disk STT source could be inspected. `tts` is a pure
+   * platform derivation with no on-disk source, so it is always populated.
+   */
+  available: boolean;
+  source: string;
+  stt: VoiceSttInfo;
+  tts: VoiceTtsInfo;
+};
+
+/**
+ * Why a managed agent install is (or is not) usable.
+ *
+ * `receipt-missing`, `receipt-unreadable`, `receipt-mismatch` and
+ * `launch-target-missing` are all cases `resolveManagedAgentLaunch` collapses to
+ * a bare `null`, which its caller silently skips. That is why a half-broken
+ * install is INVISIBLE in the app today: "the receipt points at a binary that is
+ * gone" and "this agent was never installed" look identical. This section is the
+ * only place they are told apart.
+ */
+export type AgentInstallStatus =
+  | 'ok'
+  | 'receipt-missing'
+  | 'receipt-unreadable'
+  | 'receipt-mismatch'
+  | 'launch-target-missing';
+
+export type AgentInstallHealth = {
+  /** Directory name under the install root — the agent id the app would use. */
+  agentId: string;
+  status: AgentInstallStatus;
+  /** Version the receipt records, or null when there is no readable receipt. */
+  version: string | null;
+  /** ISO-8601 install timestamp from the receipt, or null. */
+  installedAt: string | null;
+  /**
+   * Launch targets the receipt names that are no longer on disk (home-scrubbed).
+   * Non-empty only for `launch-target-missing`.
+   */
+  missingLaunchTargets: string[];
+  /** Plain-English problem, or null when the install is intact. */
+  whyProblem: string | null;
+};
+
+export type TvControlInfo = {
+  /** Is the TVControl connector present in `mcp.config` at all? */
+  present: boolean;
+  /** Is it switched on? False whenever it is absent. */
+  enabled: boolean;
+  /** Last persisted probe status, or null. */
+  status: string | null;
+  /** Tool count recorded in the config, 0 when absent. */
+  toolCount: number;
+  lastError: string | null;
+  /** Plain-English problem, or null when present and enabled. */
+  whyProblem: string | null;
+  /** What this section does and does NOT claim. */
+  note: string;
+};
+
+export type TvControlSection = {
+  available: boolean;
+  source: string;
+  info: TvControlInfo;
+};
+
 export type ConciergeDiagOverview = {
   scheduledTasks: DiagSection<ScheduledTaskHealth>;
   mcp: DiagSection<McpServerHealth>;
@@ -175,6 +290,9 @@ export type ConciergeDiagOverview = {
   workspace: DiagSection<WorkspaceHealth>;
   configPaths: ConfigPathsSection;
   platform: PlatformSection;
+  voice: VoiceSection;
+  agentInstalls: DiagSection<AgentInstallHealth>;
+  tvControl: TvControlSection;
   recentErrors: RecentErrorsSection;
 };
 
@@ -435,6 +553,180 @@ function deriveWhyNotRunning(enabled: boolean, nextRunAtMs: number | null, lastE
 }
 
 // ---------------------------------------------------------------------------
+// Voice
+// ---------------------------------------------------------------------------
+
+/**
+ * Subdirectory of the bundled voice-models dir holding the on-device model.
+ * Must match `MODEL_ID` in `src/renderer/workers/whisperWorker.ts`, which is
+ * what transformers.js actually loads (`${localModelPath}${MODEL_ID}/<file>`).
+ */
+const BUNDLED_STT_MODEL_ID = 'whisper-tiny';
+
+/**
+ * Files that must all be present for the bundled model to load. The tokenizer
+ * and preprocessor configs are as load-bearing as the weights — transformers.js
+ * throws on a directory that has weights but no tokenizer, so checking only for
+ * the `.onnx` files would report a model that cannot transcribe as present.
+ */
+const BUNDLED_STT_REQUIRED_FILES = ['config.json', 'preprocessor_config.json', 'tokenizer.json'] as const;
+
+/** Subdirectory of the model dir holding the ONNX weights. */
+const BUNDLED_STT_WEIGHTS_DIR = 'onnx';
+
+/**
+ * Which synthesizer THIS OS ships with — restated here, deliberately, rather
+ * than imported from `resolveLocalTtsProvider` in `@/common/types/ttsTypes`
+ * (re-exported as `platformNativeTtsProvider` from
+ * `@/common/voice/voiceReadiness`).
+ *
+ * This module is bundled into a standalone node subprocess with no Electron and
+ * no app singletons, and it has ZERO imports into app code — that property is
+ * what keeps the subprocess startable. Reaching into `@/common/...` for a
+ * three-line pure mapping trades it away for nothing, and an Electron-shaped
+ * import added ANYWHERE in that graph later would break this subprocess
+ * silently, at runtime, in a tool whose whole job is to be trustworthy about
+ * what works.
+ *
+ * `resolveLocalTtsProvider` remains the authority. The unit test asserts this
+ * function agrees with it on every platform, so the two cannot drift apart
+ * unnoticed.
+ */
+function localTtsProviderForPlatform(platform: string): string | null {
+  if (platform === 'darwin') return 'system-native';
+  if (platform === 'win32') return 'windows-native';
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Managed agent installs
+// ---------------------------------------------------------------------------
+
+/**
+ * Receipt filename written at the root of an agent's install prefix. Must match
+ * `RECEIPT_FILENAME` in `src/process/services/agentInstaller/installManifest.ts`
+ * — restated for the same no-app-imports reason as the TTS mapping above, and
+ * pinned by the unit test.
+ */
+const AGENT_RECEIPT_FILENAME = '.wayland-agent-install.json';
+
+/** True when `candidate` resolves to somewhere inside `root`. */
+function isInside(root: string, candidate: string): boolean {
+  const rel = path.relative(path.resolve(root), path.resolve(candidate));
+  return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
+}
+
+/**
+ * Inspect one install prefix. Never throws: an unreadable prefix is itself a
+ * finding, not a reason to take the section down.
+ */
+function inspectAgentInstall(prefix: string, agentId: string): AgentInstallHealth {
+  const base = {
+    agentId,
+    version: null as string | null,
+    installedAt: null as string | null,
+    missingLaunchTargets: [] as string[],
+  };
+  const receiptPath = path.join(prefix, AGENT_RECEIPT_FILENAME);
+
+  let raw: string;
+  try {
+    raw = fs.readFileSync(receiptPath, 'utf-8');
+  } catch {
+    return {
+      ...base,
+      status: 'receipt-missing',
+      whyProblem: `An install folder for "${agentId}" exists but has no install receipt, so Wayland will not launch it and the Agents list shows it as not installed. This is what an install that was interrupted partway through leaves behind. Re-install the agent from Settings, or delete the folder.`,
+    };
+  }
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    parsed = null;
+  }
+  if (parsed === null || typeof parsed !== 'object') {
+    return {
+      ...base,
+      status: 'receipt-unreadable',
+      whyProblem: `The install receipt for "${agentId}" is not readable JSON, so Wayland treats the agent as not installed and will not launch it. Re-install the agent from Settings to write a fresh receipt.`,
+    };
+  }
+
+  const receipt = parsed as Record<string, unknown>;
+  const version = asNullableString(receipt.version);
+  const installedAt = asNullableString(receipt.installedAt);
+  const recordedPrefix = asNullableString(receipt.prefix);
+  const recordedAgentId = asNullableString(receipt.agentId);
+  const withMeta = { agentId, version, installedAt, missingLaunchTargets: [] as string[] };
+
+  const launchSpec = (receipt.launchSpec ?? null) as Record<string, unknown> | null;
+  const command =
+    launchSpec && typeof launchSpec === 'object' && typeof launchSpec.command === 'string' ? launchSpec.command : null;
+  const args =
+    launchSpec && typeof launchSpec === 'object' && Array.isArray(launchSpec.args)
+      ? launchSpec.args.filter((a): a is string => typeof a === 'string')
+      : null;
+  if (!command || command.length === 0 || args === null) {
+    return {
+      ...withMeta,
+      status: 'receipt-unreadable',
+      whyProblem: `The install receipt for "${agentId}" has no usable launch command, so Wayland cannot start the agent and treats it as not installed. Re-install the agent from Settings.`,
+    };
+  }
+
+  // A receipt naming a different agent or a different folder was copied in from
+  // somewhere else. The real uninstall path refuses to act on one; report it
+  // rather than trusting the paths inside it.
+  if (recordedAgentId && recordedAgentId !== agentId) {
+    return {
+      ...withMeta,
+      status: 'receipt-mismatch',
+      whyProblem: `The receipt in the "${agentId}" folder says it belongs to "${recordedAgentId}". Wayland refuses to act on a receipt that disagrees with where it sits, so the agent will neither launch nor uninstall cleanly. Re-install it from Settings.`,
+    };
+  }
+  if (recordedPrefix && path.resolve(recordedPrefix) !== path.resolve(prefix)) {
+    return {
+      ...withMeta,
+      status: 'receipt-mismatch',
+      whyProblem: `The receipt for "${agentId}" records a different install folder than the one it sits in, which happens when a profile is copied between machines or accounts. Wayland refuses to act on it, so the agent will neither launch nor uninstall cleanly. Re-install it from Settings.`,
+    };
+  }
+
+  // The launch target: the command itself, plus any absolute argument that
+  // points INSIDE this prefix (the installed package entry point — the thing an
+  // `npm`/`bun` prune or a partial delete takes away while the receipt survives).
+  const targets = [command, ...args.filter((a) => path.isAbsolute(a) && isInside(prefix, a))];
+  const missing = targets.filter((t) => !fs.existsSync(t));
+  if (missing.length > 0) {
+    return {
+      ...withMeta,
+      missingLaunchTargets: missing.map((m) => scrubHome(m)),
+      status: 'launch-target-missing',
+      whyProblem: `"${agentId}" has a valid install receipt, but the program it points at is no longer on disk. Wayland cannot tell this apart from "never installed", so the agent simply does not appear and nothing explains why. Re-install it from Settings.`,
+    };
+  }
+
+  return { ...withMeta, status: 'ok', whyProblem: null };
+}
+
+// ---------------------------------------------------------------------------
+// TVControl
+// ---------------------------------------------------------------------------
+
+/** Catalog id of the TVControl connector (`src/renderer/mcp-catalog`). */
+const TVCONTROL_LIBRARY_ENTRY_ID = 'com.ferroxlabs/tvcontrol';
+
+/**
+ * The one claim this section is careful NOT to make. Nothing here opens a
+ * socket, so "present and enabled" is a statement about a config file, not
+ * about a reachable chart.
+ */
+const TVCONTROL_NOTE =
+  'This reports only what the settings file records about the TVControl connector. This diagnostics tool cannot connect to TVControl or to TradingView, so "present and enabled" is not proof that a chart is reachable right now.';
+
+// ---------------------------------------------------------------------------
 // Factory
 // ---------------------------------------------------------------------------
 
@@ -449,6 +741,8 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
   const engineConfigDir = deps.engineConfigDir ?? process.env.WAYLAND_ENGINE_CONFIG_DIR;
   const appArch = deps.appArch ?? process.env.WAYLAND_APP_ARCH;
   const arm64Translated = deps.runningUnderARM64Translation ?? process.env.WAYLAND_ARM64_TRANSLATED === '1';
+  const voiceModelsDir = deps.voiceModelsDir ?? process.env.WAYLAND_VOICE_MODELS_DIR;
+  const agentInstallRoot = deps.agentInstallRoot ?? process.env.WAYLAND_AGENT_INSTALL_ROOT;
 
   /** Scheduled-task health from the cron store (`cron_jobs`). */
   const readScheduledTasks = (): DiagSection<ScheduledTaskHealth> => {
@@ -747,6 +1041,198 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
     return { available: appArch != null || arm64Translated, source: 'app runtime', info };
   };
 
+  /**
+   * Voice report: can this install LISTEN, and can it resolve something to
+   * SPEAK with?
+   *
+   * The two legs are answered by two completely different kinds of evidence and
+   * are deliberately not merged into one verdict:
+   *
+   *  - LISTENING is a file question. The on-device transcriber is a model
+   *    bundled in the installer, so "is speech input usable" reduces to "is that
+   *    model complete on disk", which this can check directly.
+   *  - SPEAKING is a platform question. `resolveLocalTtsProvider` maps the OS to
+   *    its built-in synthesizer, and that is ALL that is reported. Nothing in
+   *    this codebase enumerates the voices an OS actually has installed, so
+   *    saying "text to speech is available" would be a claim no evidence
+   *    supports. Resolution is stated; availability is not.
+   */
+  const readVoice = (): VoiceSection => {
+    const platform = os.platform();
+    const resolvedLocalProvider = localTtsProviderForPlatform(platform);
+    const tts: VoiceTtsInfo = {
+      platform,
+      resolvedLocalProvider,
+      whyProblem: resolvedLocalProvider
+        ? null
+        : 'This operating system has no built-in speech synthesizer Wayland can drive (macOS uses `say`, Windows uses System.Speech; this build has neither elsewhere), so Wayland cannot read replies aloud here without a hosted voice provider.',
+      note: 'This says which local synthesizer Wayland would resolve for this platform. It does NOT check that a system voice is installed or that any audio would actually be produced, so a resolved provider is not a promise that speech output will be audible.',
+    };
+
+    const unreadableStt = (whyProblem: string | null): VoiceSttInfo => ({
+      bundledModelPresent: false,
+      modelDir: null,
+      missingFiles: [],
+      whyProblem,
+    });
+
+    if (!voiceModelsDir) {
+      return {
+        available: false,
+        source: 'voice models dir not set',
+        stt: unreadableStt(
+          'Wayland did not tell this diagnostics tool where the bundled speech model lives, so whether speech input can run could not be checked here.'
+        ),
+        tts,
+      };
+    }
+
+    const modelDir = path.join(voiceModelsDir, BUNDLED_STT_MODEL_ID);
+    if (!fs.existsSync(modelDir)) {
+      return {
+        available: false,
+        source: `voice models dir unavailable: ${scrubHome(voiceModelsDir)}`,
+        stt: {
+          bundledModelPresent: false,
+          modelDir: scrubHome(modelDir),
+          missingFiles: [],
+          whyProblem:
+            'The on-device speech model that ships with Wayland is not on disk, so speech input cannot run. Re-installing Wayland restores it.',
+        },
+        tts,
+      };
+    }
+
+    const missingFiles: string[] = [];
+    for (const file of BUNDLED_STT_REQUIRED_FILES) {
+      if (!fs.existsSync(path.join(modelDir, file))) missingFiles.push(file);
+    }
+    let weightCount = 0;
+    try {
+      weightCount = fs.readdirSync(path.join(modelDir, BUNDLED_STT_WEIGHTS_DIR)).filter((f) => f.endsWith('.onnx'))
+        .length;
+    } catch {
+      // Missing or unreadable weights dir — reported as the missing entry below.
+    }
+    if (weightCount === 0) missingFiles.push(`${BUNDLED_STT_WEIGHTS_DIR}/*.onnx`);
+
+    const present = missingFiles.length === 0;
+    return {
+      available: true,
+      source: scrubHome(modelDir),
+      stt: {
+        bundledModelPresent: present,
+        modelDir: scrubHome(modelDir),
+        missingFiles,
+        whyProblem: present
+          ? null
+          : 'The on-device speech model that ships with Wayland is incomplete on disk, so speech input cannot run. Re-installing Wayland restores it.',
+      },
+      tts,
+    };
+  };
+
+  /**
+   * Agent-install report: is each managed agent's install receipt intact, or is
+   * it an orphan?
+   *
+   * Driven by the FILESYSTEM, not by the pinned agent catalogue, and that is the
+   * point: the catalogue can only describe agents Wayland knows how to install,
+   * while the failures that go unreported are folders left behind by installs
+   * that died, and receipts pointing at programs that have since been deleted.
+   * Listing what is actually on disk surfaces both.
+   */
+  const readAgentInstalls = (): DiagSection<AgentInstallHealth> => {
+    if (!agentInstallRoot || !fs.existsSync(agentInstallRoot)) {
+      return {
+        available: false,
+        source: agentInstallRoot
+          ? `agent install root unavailable: ${scrubHome(agentInstallRoot)}`
+          : 'agent install root not set',
+        items: [],
+      };
+    }
+    let names: string[];
+    try {
+      names = fs
+        .readdirSync(agentInstallRoot, { withFileTypes: true })
+        .filter((e) => e.isDirectory())
+        .map((e) => e.name)
+        .sort();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { available: false, source: `agent install root read failed: ${scrubHome(message)}`, items: [] };
+    }
+    const items = names.map((name) => inspectAgentInstall(path.join(agentInstallRoot, name), name));
+    return { available: true, source: 'agent install receipts', items };
+  };
+
+  /** TVControl connector presence/enablement, read from `mcp.config`. */
+  const readTvControl = (): TvControlSection => {
+    const absent: TvControlInfo = {
+      present: false,
+      enabled: false,
+      status: null,
+      toolCount: 0,
+      lastError: null,
+      whyProblem: null,
+      note: TVCONTROL_NOTE,
+    };
+    const config = readConfigJson(configPath);
+    if (!config) {
+      return {
+        available: false,
+        source: configPath ? `config unavailable: ${scrubHome(configPath)}` : 'config path not set',
+        info: absent,
+      };
+    }
+    const servers = config['mcp.config'];
+    if (!Array.isArray(servers)) {
+      return { available: false, source: 'config has no mcp.config array', info: absent };
+    }
+    // Matched on `libraryEntryId` ONLY — the canonical catalogue slug the
+    // installer stamps. The display name is user-editable, so matching it would
+    // let a renamed connector read as absent and an unrelated one read as
+    // present.
+    const raw = servers.find(
+      (entry) => (entry as Record<string, unknown> | null)?.['libraryEntryId'] === TVCONTROL_LIBRARY_ENTRY_ID
+    ) as Record<string, unknown> | undefined;
+    if (!raw) {
+      return {
+        available: true,
+        source: 'mcp.config',
+        info: {
+          ...absent,
+          whyProblem:
+            'The TVControl connector is not installed, so nothing here can read or drive a TradingView chart. Install it from Settings, MCP Library.',
+        },
+      };
+    }
+    const enabled = raw.enabled === true;
+    const toolCount = Array.isArray(raw.tools) ? raw.tools.length : 0;
+    const lastError = asNullableString(raw.lastError);
+    const whyProblem = !enabled
+      ? 'The TVControl connector is installed but switched off, so its tools are not offered to the agent. Turn it on in Settings, MCP.'
+      : lastError
+        ? `The TVControl connector is on, but its last connection attempt failed: ${lastError}.`
+        : toolCount === 0
+          ? 'The TVControl connector is on but exposes no tools, which usually means it never connected. Check that TradingView Desktop is running, then re-test the connector in Settings, MCP.'
+          : null;
+    return {
+      available: true,
+      source: 'mcp.config',
+      info: {
+        present: true,
+        enabled,
+        status: asNullableString(raw.status),
+        toolCount,
+        lastError,
+        whyProblem,
+        note: TVCONTROL_NOTE,
+      },
+    };
+  };
+
   return {
     name: 'wayland_concierge_diag',
 
@@ -759,6 +1245,9 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
         workspace: readWorkspaceHealth(),
         configPaths: readConfigPaths(),
         platform: readPlatform(),
+        voice: readVoice(),
+        agentInstalls: readAgentInstalls(),
+        tvControl: readTvControl(),
         recentErrors: readRecentErrors(),
       });
     },
@@ -786,6 +1275,21 @@ export const createConciergeDiagServer = (deps: ConciergeDiagDeps = {}) => {
     /** Config-path report only (app config dir vs engine config dir). */
     configPaths(): ConfigPathsSection {
       return sanitize(readConfigPaths());
+    },
+
+    /** Voice only: bundled speech model on disk + which local synthesizer resolves. */
+    voice(): VoiceSection {
+      return sanitize(readVoice());
+    },
+
+    /** Managed agent installs only: receipt intact, orphaned, or pointing at nothing. */
+    agentInstalls(): DiagSection<AgentInstallHealth> {
+      return sanitize(readAgentInstalls());
+    },
+
+    /** TVControl connector only: present and enabled, per the settings file. */
+    tvControl(): TvControlSection {
+      return sanitize(readTvControl());
     },
 
     /** Recent redacted error lines from the log directory. */

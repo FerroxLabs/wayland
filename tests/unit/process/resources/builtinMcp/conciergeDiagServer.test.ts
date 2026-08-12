@@ -286,6 +286,7 @@ describe('createConciergeDiagServer — MCP health (config JSON)', () => {
     // The exact read-only surface.
     expect(Object.keys(server).sort()).toEqual(
       [
+        'agentInstalls',
         'configPaths',
         'mcpHealth',
         'name',
@@ -293,6 +294,8 @@ describe('createConciergeDiagServer — MCP health (config JSON)', () => {
         'providers',
         'recentErrors',
         'scheduledTasks',
+        'tvControl',
+        'voice',
         'workspace',
       ].sort()
     );

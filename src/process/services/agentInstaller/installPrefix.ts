@@ -54,6 +54,21 @@ export function assertValidAgentId(agentId: string): void {
  */
 export function resolveAgentInstallPrefix(agentId: string, userDataDir?: string): string {
   assertValidAgentId(agentId);
+  return path.join(resolveAgentInstallRoot(userDataDir), agentId);
+}
+
+/**
+ * The directory every managed agent is installed under.
+ *
+ * Exported because the concierge diagnostics subprocess needs the ROOT to
+ * enumerate installs, and it cannot compute it: it has no Electron, so
+ * `getPlatformServices()` there falls back to `~/.wayland-server` and would
+ * answer confidently and wrongly. The path is therefore injected as an env var
+ * from the main process, and it has to come from HERE rather than being joined
+ * a second time at the call site, or the two spellings drift and the diagnostic
+ * reports "never installed" for agents that are installed.
+ */
+export function resolveAgentInstallRoot(userDataDir?: string): string {
   const root = userDataDir ?? getPlatformServices().paths.getDataDir();
-  return path.join(root, 'agents', agentId);
+  return path.join(root, 'agents');
 }
