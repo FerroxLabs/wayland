@@ -11,7 +11,7 @@ import {
   TEXT_TO_SPEECH_ERROR_CODES,
   type TextToSpeechErrorCode,
 } from '@/common/types/ttsTypes';
-import { ConfigStorage } from '@/common/config/storage';
+import { ProcessConfig } from '@process/utils/initStorage';
 import { hostedVoiceConsentGranted } from '@/common/types/voiceConsent';
 import { mainError } from '@process/utils/mainLogger';
 
@@ -53,7 +53,19 @@ export function initVoiceSynthBridge(): void {
     // `invoke()` pending forever - the button does nothing, says nothing, and
     // never recovers. Every failure must leave through the `ok: false` return.
     try {
-      const stored = await ConfigStorage.get('tools.textToSpeech');
+      // Use ProcessConfig (the main-process, file-backed store) NOT ConfigStorage
+      // (renderer-bridged). Both read the same file, but `ConfigStorage.get` in
+      // MAIN is a bridge INVOKE: it emits `subscribe-agent.config.storage.get`
+      // outward to the renderer, and the provider that answers that key lives in
+      // MAIN (initStorage's `ConfigStorage.interceptor`), so nothing ever
+      // replies. Because this read runs INSIDE a bridge provider, that is the
+      // same reentrancy that hung the doctor MCP check (#273) and every
+      // channel-triggered WCore turn - and a hang is exactly what a `.catch`
+      // cannot rescue. A live CDP run on this branch caught the frame on the
+      // wire: main sent `subscribe-agent.config.storage.get` 24ms after the
+      // press, then 25 seconds of silence, no synthesizer activity, no `say`
+      // process, no audio element - the reported dead "Test voice" button.
+      const stored = await ProcessConfig.get('tools.textToSpeech');
       // The platform decides the DEFAULT provider (see normalizeTextToSpeechConfig).
       // Without it a Windows user who never opened Voice settings resolved to
       // macOS `say` and got a coded failure instead of a voice.
@@ -61,7 +73,7 @@ export function initVoiceSynthBridge(): void {
       // VOC-03: hosted TTS ('openai') POSTs the response text off-device.
       // Fail closed unless the user has acknowledged the disclosure for it.
       if (config.provider === 'openai') {
-        const consent = await ConfigStorage.get('tools.voiceHostedConsent');
+        const consent = await ProcessConfig.get('tools.voiceHostedConsent');
         if (!hostedVoiceConsentGranted('openai', consent)) {
           return { ok: false, errorCode: 'TTS_HOSTED_CONSENT_REQUIRED' };
         }

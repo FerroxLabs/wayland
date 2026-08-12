@@ -6,11 +6,23 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { speakProvider, stopProvider, synthesize, getConfig } = vi.hoisted(() => ({
+const { speakProvider, stopProvider, synthesize, getConfig, getBridgedConfig } = vi.hoisted(() => ({
   speakProvider: vi.fn(),
   stopProvider: vi.fn(),
   synthesize: vi.fn(),
+  /** The main-process, file-backed store this bridge must read. */
   getConfig: vi.fn(),
+  /**
+   * The renderer-bridged store this bridge must NEVER read. In production
+   * `ConfigStorage.get` called from MAIN emits `subscribe-agent.config.storage.get`
+   * outward to the renderer, where no provider for that key is registered, so it
+   * never settles - and this handler runs inside a bridge provider, so the hang
+   * wedges the whole speak channel. The stub throws so a regression is a fast,
+   * deterministic failure instead of a suite that hangs like the app did.
+   */
+  getBridgedConfig: vi.fn(() => {
+    throw new Error('ConfigStorage.get was called from the main process');
+  }),
 }));
 
 vi.mock('@/common', () => ({
@@ -26,9 +38,15 @@ vi.mock('@process/services/voice/TextToSpeechService', () => ({
   synthesize,
 }));
 
+vi.mock('@process/utils/initStorage', () => ({
+  ProcessConfig: {
+    get: getConfig,
+  },
+}));
+
 vi.mock('@/common/config/storage', () => ({
   ConfigStorage: {
-    get: getConfig,
+    get: getBridgedConfig,
   },
 }));
 
@@ -73,6 +91,35 @@ describe('voiceSynthBridge', () => {
     } finally {
       Object.defineProperty(process, 'platform', { value: original, configurable: true });
     }
+  });
+
+  /**
+   * The defect that made "Test voice" dead, the voice-mode greeting silent, and
+   * auto-read produce nothing was NOT the synthesizer and NOT a thrown error.
+   * It was this read. `ConfigStorage` is the renderer-bridged store: calling
+   * `.get` from MAIN emits `subscribe-agent.config.storage.get` to the renderer,
+   * whose provider for that key lives back in MAIN, so the promise never settles
+   * and the speak handler stops at its first line - no synthesis, no `say`, no
+   * audio, no error, forever. A live CDP capture caught that exact frame going
+   * out 24ms after the press and 25 seconds of silence after it. The whole suite
+   * was green throughout, because every case mocked the store that hangs.
+   *
+   * `ProcessConfig` reads the same backing file directly in-process, which is
+   * the same fix already applied for the doctor MCP check (#273) and for
+   * channel-triggered WCore turns. Pin the seam, or the next edit restores a
+   * hang that no `.catch` and no timeout mitigation can undo.
+   */
+  it('reads config in-process and never round-trips to the renderer-bridged store', async () => {
+    synthesize.mockResolvedValue({ data: new Uint8Array([7]), mimeType: 'audio/wav' });
+    initVoiceSynthBridge();
+
+    await expect(speakCallback!({ text: 'Hello' })).resolves.toEqual({
+      ok: true,
+      data: [7],
+      mimeType: 'audio/wav',
+    });
+    expect(getConfig).toHaveBeenCalledWith('tools.textToSpeech');
+    expect(getBridgedConfig).not.toHaveBeenCalled();
   });
 
   it('returns synthesized audio as an explicit success value', async () => {
