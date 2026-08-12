@@ -208,6 +208,81 @@ daily — hence the app-owned folder decision.
 
 ---
 
+## 6b. Work item F — bring Concierge up to date
+
+### Correction to an earlier claim in this plan
+I wrote that Concierge can diagnose but not act. **That was wrong.** Commit `e52f16a70`
+(2026-06-29, the 0.11.7 headliner) is titled "Concierge assistant — knows, diagnoses, acts" and
+ships all three:
+
+- **knows** — a live capabilities manifest (real skill/workflow/provider counts) always on
+  Concierge's system prompt, surfaced to other assistants only on a capability-intent turn. Kill
+  switch: `concierge.capabilityInjection`.
+- **diagnoses** — `wayland_concierge_diag`, the read-only stdio MCP server (§1).
+- **acts** — `src/common/chat/conciergeConfig.ts`: propose → confirm → apply. The agent emits a
+  `[CONCIERGE_PROPOSE]` block, the user confirms an inline card (`ConciergeConfigCard.tsx`), MAIN
+  applies on accept. Secrets are entered in the card and travel over in-process confirm IPC — never
+  in the chat, the message DB, or the model. Auth + pending-only + atomic-processing guards.
+
+**Consequence for work item D:** `add_mcp` is a real install path. An earlier finding said "the
+model has no agent-callable tool to install an MCP server" — true and misleading. It is not a tool
+call, it is a proposal. Smart Trader step 1 should propose the TVControl install rather than
+deep-linking the user into Settings.
+
+### The upstream comparison is already done
+`.planning/research/WLD-J/03-feature-parity.md` §6: "We already have upstream's flagship feature,
+under another name." AionUi's Butler (v2.1.20 + v2.1.25 "via chat") vs our Concierge — we have the
+engine; **the gap is the affordance**, not the assistant. Ranked TAKE #1, marked ADAPT: contextual
+"set this up by chat" entry points beside each manual surface that jump home, select Concierge and
+pre-fill the prompt. Believed never built — CONFIRM before scheduling.
+Deliberately declined: Butler's Cloudflare-tunnel remote access (`SUMMARY.md:110`).
+
+### F1 — what Concierge does not KNOW
+Everything below shipped AFTER 2026-06-29 [X, from `git log e52f16a70..HEAD`]:
+
+| system | landed |
+|---|---|
+| Voice, both directions — on-device whisper STT, platform-native TTS, composer voice mode, readiness ladder | Aug lanes |
+| Agent installers — install/uninstall managed ACP agents, receipts, the install band | Aug lanes |
+| Constitution / key-ring reclaim | Aug lanes |
+| TVControl as a first-class MCP catalog connector | 2026-08-04 |
+| Bundled engine moved to released Core v0.12.26 | 2026-08-08 |
+| Core extensions management (#481) | 2026-07-11 |
+| Per-workspace Chat/Cowork trust axis (#671) | 2026-07-12 |
+| Cron high-frequency guard + overlap skip (#845); routines | 2026-07-12 |
+| Task-completion notifications (#579) | 2026-07-12 |
+| Assistant export as credential-redacted SKILL.md (#848); workflow portable export (#512) | 2026-07-12 |
+| Hermes profiles as preset assistants (#851) | 2026-07-12 |
+| Per-chat native agent TUI over a PTY (#645) | 2026-07-04 |
+| Memory edit + delete (#414/#641/#647) | 2026-07-04 |
+| Persistent per-project workspace (#455); Project History timeline (#180) | 2026-06-30 / 07-04 |
+| Skills import + scan + verify (#582) | 2026-07-03 |
+| Output budget Auto/Fixed (#468); custom model ID per provider (#617) | 2026-06-30 / 07-04 |
+| Playwright MCP bundled + auto-enabled (#465) | 2026-06-30 |
+| macOS Computer-Use permission onboarding (#466) | 2026-06-30 |
+| Flux Router precedence over a local Ollama default | 2026-08-12 |
+
+Open question the swarm is resolving: how much of the manifest is LIVE-computed (the commit claims
+real counts) versus prose. Only the prose can go stale — fix the source, not the symptom.
+
+### F2 — what Concierge cannot DO
+Current proposal kinds, verified present in `conciergeConfig.ts:39-44`: `provider_connect`,
+`set_default_model`, `add_mcp`, `edit_assistant`, `file_bug_report`.
+
+None of them touch a system built in the last two months. Candidates, in value order:
+- `install_agent` — the agent-installer band. Highest value: it is the one new system with a real
+  install flow and an existing consent surface to mirror.
+- `enable_routine` — routines seed DISABLED by design, so "shall I turn it on?" is the natural
+  action and it is exactly Smart Trader step 3.
+- `configure_voice` — enable speech in/out and pick a provider.
+- `enable_skill` / `import_skill` — pairs with the #582 import/scan/verify path.
+
+Every new kind inherits the existing consent boundary: propose → confirm card → main applies. No
+write path may run without accept, and no secret may pass through the model. Do not add a kind that
+cannot be expressed as a single confirmable card.
+
+---
+
 ## 7. Build order
 
 1. **A** engine contract pin — smallest, highest value, unblocks a real shipping question.
