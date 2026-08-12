@@ -92,6 +92,40 @@ describe('MessageTranslator', () => {
     expect(msgs).toEqual([]);
   });
 
+  it('renders Nano compaction notices as center tips (begin/complete/cancel)', () => {
+    const translator = new MessageTranslator('c1');
+    const begin = translator.translate({
+      sessionId: 's1',
+      update: { sessionUpdate: 'compaction', status: 'begin' },
+    } as unknown as SessionNotification);
+    const complete = translator.translate({
+      sessionId: 's1',
+      update: { sessionUpdate: 'compaction', status: 'complete' },
+    } as unknown as SessionNotification);
+    const cancel = translator.translate({
+      sessionId: 's1',
+      update: { sessionUpdate: 'compaction', status: 'cancel' },
+    } as unknown as SessionNotification);
+    expect(begin).toHaveLength(1);
+    expect(begin[0].type).toBe('tips');
+    expect(begin[0].position).toBe('center');
+    expect((begin[0].content as { content: string }).content).toContain('Compacting');
+    expect((complete[0].content as { content: string }).content).toBe('Context compacted');
+    expect((cancel[0].content as { type: string }).type).toBe('warning');
+    // ids never collide across the lifecycle
+    const ids = new Set([begin[0].id, complete[0].id, cancel[0].id]);
+    expect(ids.size).toBe(3);
+  });
+
+  it('still drops genuinely unknown sessionUpdate kinds', () => {
+    const translator = new MessageTranslator('c1');
+    const msgs = translator.translate({
+      sessionId: 's1',
+      update: { sessionUpdate: 'definitely_not_a_kind' },
+    } as unknown as SessionNotification);
+    expect(msgs).toEqual([]);
+  });
+
   // Accumulate every emitted text delta the way the renderer does (append by
   // msg_id), so the test asserts on the final on-screen text per message.
   const renderText = (translator: MessageTranslator, chunks: Array<{ messageId?: string; text: string }>) => {
