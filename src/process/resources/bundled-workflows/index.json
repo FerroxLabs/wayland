@@ -1514,6 +1514,36 @@
     }
   },
   {
+    "name": "wayland-morning-report",
+    "title": "Morning Report",
+    "description": "Run the pre-open market brief: scan the watchlist with the bundled market-open-report script, render a standalone HTML brief into an app-owned folder, then present it and state plainly whether the run was complete, partial, or empty.\nUse when the user wants the morning report, the daily brief, or a pre-open scan of their watchlist, run unattended on a schedule or on demand.\nDo NOT use for reading a live TradingView chart, for intraday signals, or for any request that needs a broker or market-data API; this workflow uses only the bundled offline scanner.",
+    "type": "workflow",
+    "source": "wayland-library",
+    "path": "bodies/wayland-morning-report/SKILL.md",
+    "metadata": {
+      "author": "wayland",
+      "version": "1.0.0",
+      "tags": "market watchlist morning-report pre-open deterministic",
+      "category": "business-operations",
+      "depends": "market-open-report"
+    },
+    "category": "business-operations",
+    "tags": [
+      "market",
+      "watchlist",
+      "morning-report",
+      "pre-open",
+      "deterministic"
+    ],
+    "security": {
+      "verdict": "unscanned",
+      "findings": [],
+      "scannedAt": 0,
+      "scannerVersion": 0,
+      "llmScanned": false
+    }
+  },
+  {
     "name": "wayland-nda-pack",
     "title": "NDA Pack",
     "description": "Draft a mutual or unilateral NDA that is jurisdiction-aware and tailored to the parties and purpose: infer the right form, recommend key terms, draft the agreement, and iterate to a counsel-ready draft.\nUse when the user wants a structured process to produce an NDA draft tailored to a specific counterparty, purpose, and governing law.\nDo NOT use for a one-line question about NDAs, or as a substitute for licensed legal advice. The output is a draft; counsel review is required before execution.",
