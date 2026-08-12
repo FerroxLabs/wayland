@@ -247,6 +247,58 @@ it would let bundled skills stay shared instead of being copied per conversation
 
 ---
 
+## 6a. ⚠️ CORRECTION 2026-08-13 — "published 0.12.26" in §1 is WRONG
+
+**Read this before acting on §1's baseline claim.**
+
+§1 says the values were captured from "the published 0.12.26 binary bundled in Desktop". The
+binary is bundled in Desktop and self-reports `0.12.26`, but it is **not the published
+release**. Its sha256 is
+`6d0ca72a1ca5afa7d33a337a73a6a389a1075d583a97e14096aaebc583b08a08` — the **C-1..C-5 integration
+dev build**, which `desktopContractV1.ts:21-24` explicitly warns "still self-reports `0.12.26`,
+so identify it by sha, never by --version".
+
+I identified it by `--version`. The file told me not to and I did it anyway.
+
+**What survives unchanged**, because it was read from source and from a real frame:
+
+- Desktop DOES negotiate and DOES compare all seven fields plus the capability map (§1). The
+  mechanism claim is unaffected — that came from `assertDescriptor` itself.
+- 0.13.0 emits minor **14**, generator **gen-14 (unmoved)**, and three new digests (§6b). That
+  came from Core's own 0.13.0 binary, whose identity I verified by sha.
+- **0.13.0 will still fail-closed against any pin that does not match it.** The core conclusion
+  stands.
+
+**What is now UNVERIFIED and must not be relied on:**
+
+- The claim that *published* 0.12.26 advertises minor 13 / gen-14 / schema `4971f456…`. That
+  describes the dev build. A prior note in `desktopContractV1.ts` said published 0.12.26
+  advertises **minor 12 / gen-13 / schema `23fb3048…`**; I "refuted" it by grepping the bundled
+  binary, which was the wrong artifact, so that note may well be correct.
+- Therefore **the §2 baseline question is NOT resolved.** Whether 0.13.0 is 13→14 or 12→14
+  against what users actually run needs the published artifact, which is not on this machine.
+
+**Ask:** confirm the contract values the *published* v0.12.26 release emits, from the release
+asset rather than any dev tree.
+
+## 6c. The pin is not the whole integration
+
+Desktop compiles the contract corpus **into the app**:
+
+```
+contracts/wayland-desktop-core/v1/manifest.json          ("minor": 13)
+contracts/wayland-desktop-core/v1/schema/core-event.schema.json
+contracts/wayland-desktop-core/v1/schema/host-command.schema.json
+```
+
+`desktopContractV1.ts:10-12` imports all three, and every frame is schema-validated against them
+on the way in. So integrating 0.13.0 needs **the regenerated corpus as well as the pin values** —
+a pin at minor 14 over a corpus at minor 13 is incoherent, and new or widened event fields would
+fail schema validation even with a matching pin.
+
+**Ask:** ship the 0.13.0 `manifest.json` + both schema files alongside the binary. Desktop cannot
+generate them.
+
 ## 6b. RESOLVED 2026-08-13 — the 0.13.0 values, read off the wire
 
 Core supplied a real binary and it answers §2. Verified here, not taken on trust:
