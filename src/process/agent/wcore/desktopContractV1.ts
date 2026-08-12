@@ -411,7 +411,19 @@ class OrdinaryTurnToolReducer {
       return 'advanced';
     }
     const tool = this.tools.get(callId);
-    if (!tool || tool.msgId !== msgId) fail('tool_sequence', `tool event ${type} has no matching request`);
+    // Two different faults used to share one message, which made the failure
+    // undiagnosable from a log: a call_id nobody announced, and a call_id
+    // announced on a DIFFERENT turn. Core needs to know which one it emitted,
+    // and the call_id is the only handle on the offending frame.
+    if (!tool) {
+      fail('tool_sequence', `tool event ${type} has no matching request (call_id=${callId}, msg_id=${msgId})`);
+    }
+    if (tool.msgId !== msgId) {
+      fail(
+        'tool_sequence',
+        `tool event ${type} was requested on turn ${tool.msgId} but arrived on turn ${msgId} (call_id=${callId})`
+      );
+    }
     if (tool.terminal) {
       if (type === 'tool_result' || type === 'tool_cancelled') {
         const terminal = canonicalString(event);
