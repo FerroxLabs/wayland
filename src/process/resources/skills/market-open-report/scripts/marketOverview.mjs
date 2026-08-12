@@ -3,7 +3,7 @@
  *
  * State of play: the eight instruments Sean reads before the open.
  *
- *     node marketOverview.js <cacheDir>
+ *     node marketOverview.mjs <cacheDir>
  *
  * E-mini S&P, Dow, Nasdaq and Russell, plus crude, gold, the VIX and the dollar.
  *
@@ -20,7 +20,7 @@
  *
  * PORTING NOTES (read before editing):
  *   - `sma` below is market_overview.py's own local scalar SMA (mean of the last
- *     n values). It is deliberately NOT imported from ./indicators.js: the SMAs
+ *     n values). It is deliberately NOT imported from ./indicators.mjs: the SMAs
  *     over there are the rolling running-sum series from mcats/mtvegas/dip_engine,
  *     which return an array and accumulate their total across the whole input.
  *     A running sum visits the addends in a different order and therefore lands
@@ -39,7 +39,7 @@
  *     one) — but it is the same builtin, so it gets the same treatment rather
  *     than a bet that the inputs stay well conditioned.
  *
- * ONE FORCED SIGNATURE CHANGE. yahooData.js takes its cache directory as a
+ * ONE FORCED SIGNATURE CHANGE. yahooData.mjs takes its cache directory as a
  * parameter (the Python hardcoded a sibling of the source file, which cannot
  * work inside a read-only app resources directory), and it THROWS when that
  * argument is missing. read() therefore takes `cacheDir` as a trailing
@@ -50,7 +50,7 @@
  */
 import { pathToFileURL } from 'node:url';
 
-import { yahooDaily } from './yahooData.js';
+import { yahooDaily } from './yahooData.mjs';
 
 export const MARKETS = [
   ['ES=F', 'S&P 500', 'E-mini future', 'equity'],

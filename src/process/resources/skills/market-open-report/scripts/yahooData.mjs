@@ -1,5 +1,5 @@
 /**
- * yahooData.js — port of
+ * yahooData.mjs — port of
  * /Users/seandonahoe/dev/tvcontrol/skills/market-open-report/backtests/yahoo_data.py
  *
  * A second price source, because ThetaData cannot answer the question being asked.

@@ -1,11 +1,11 @@
 /**
- * engine.js — the TC-MCATS / TC-TIDE signal engine.
+ * engine.mjs — the TC-MCATS / TC-TIDE signal engine.
  *
  * Ported from /Users/seandonahoe/dev/tvcontrol/skills/market-open-report/backtests/mcats.py
  * (the scaling, signal, config and execution blocks: tf_scale :167, scaled_params
  * :172, supertrend_vegas :199, BASELINE :228, prepare_filters :293, prepare :325,
  * ladder_part :361, run :393, hold :735). The indicator primitives (lines 36-162)
- * live in ./indicators.js and are imported rather than duplicated.
+ * live in ./indicators.mjs and are imported rather than duplicated.
  *
  * Function names, argument order and internal structure are kept 1:1 with the
  * Python so the two files diff side by side. Python `None` is `null` throughout.
@@ -23,7 +23,7 @@
  *   1. `//` floor division: does not appear in the ported code.
  *   2. `%` modulo: does not appear in the ported code.
  *   3. Python `round()` is half-to-EVEN. It appears twice, both inside
- *      scaled_params, and both go through `pyRound` from ./indicators.js.
+ *      scaled_params, and both go through `pyRound` from ./indicators.mjs.
  *   4. No formatted numeric output is produced by this module, so the
  *      `f'{x:.2f}'` half-to-even formatting trap does not arise. The only
  *      f-string is the non-numeric `f'TP{k+1}'`.
@@ -80,7 +80,7 @@ import {
   rsi,
   macd_line,
   dmi,
-} from './indicators.js';
+} from './indicators.mjs';
 
 // ------------------------------------------------------- container helpers
 //

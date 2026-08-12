@@ -81,7 +81,7 @@ export MARKET_OPEN_REPORT_POSITIONS=<positions_path>
 export MARKET_OPEN_REPORT_CACHE=<cache_dir>
 
 node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
-node scripts/briefHtml.js <OUT>/mr.json <OUT>/morning-brief.html
+node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
 ```
 
 A missing positions CSV is valid; the report simply shows no holdings. Keep the

@@ -1,5 +1,5 @@
 /**
- * report.js — faithful port of
+ * report.mjs — faithful port of
  * /Users/seandonahoe/dev/tvcontrol/skills/market-open-report/tools/morning_report.py
  *
  * The morning report: what the system holds, what fired, what you can take.
@@ -46,7 +46,7 @@
  *
  * NUMBER FORMATTING. Python's `f'{x:,.2f}'` and `f'{x:+.1f}'` round HALF TO
  * EVEN on the exact binary value of the double. `toFixed` rounds half away and
- * is never used. `pyFormat` from marketOverview.js is the CPython-compatible
+ * is never used. `pyFormat` from marketOverview.mjs is the CPython-compatible
  * formatter (a tie probe on top of toFixed's exact-value rounding) and every
  * number in `render` goes through it. Width padding is `padStart`/`padEnd`,
  * which match Python's `>`/`<` alignment exactly: both pad and neither
@@ -84,12 +84,12 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import * as mcats from './engine.js';
-import { yahooDaily } from './yahooData.js';
-import * as MO from './marketOverview.js';
-import { pyFormat } from './marketOverview.js';
-import * as POS from './positions.js';
-import { csvReader, dictReader } from './positions.js';
+import * as mcats from './engine.mjs';
+import { yahooDaily } from './yahooData.mjs';
+import * as MO from './marketOverview.mjs';
+import { pyFormat } from './marketOverview.mjs';
+import * as POS from './positions.mjs';
+import { csvReader, dictReader } from './positions.mjs';
 
 const HERE = fileURLToPath(new URL('.', import.meta.url));
 
@@ -103,7 +103,7 @@ export const DEFAULT_LIST = join(HERE, '..', 'package', 'exports', 'TC-MASTER-WA
 
 /**
  * Port of positions.py's `PATH`. The Python's `POS.load()` takes this default;
- * positions.js made the path required, so the default lives here instead.
+ * positions.mjs made the path required, so the default lives here instead.
  */
 export const DEFAULT_POSITIONS = join(HERE, '..', 'package', 'exports', 'positions.csv');
 
@@ -218,7 +218,7 @@ function orZero(x) {
 /**
  * Port of `symbols()`.
  *
- * `csvReader`/`dictReader` are positions.js's port of the csv module, reused
+ * `csvReader`/`dictReader` are positions.mjs's port of the csv module, reused
  * here so the watchlist is parsed by exactly the same rules as positions.csv.
  * Python opens in text mode with newline=None, which folds \r\n and lone \r to
  * \n before csv sees them.

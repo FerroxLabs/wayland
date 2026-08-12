@@ -1,5 +1,5 @@
 /**
- * positions.js — faithful port of
+ * positions.mjs — faithful port of
  * /Users/seandonahoe/dev/tvcontrol/skills/market-open-report/tools/positions.py
  *
  * What YOU hold, as twelve lines of CSV rather than a portfolio manager.

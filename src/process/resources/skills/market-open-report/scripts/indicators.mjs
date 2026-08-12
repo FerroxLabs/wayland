@@ -1,5 +1,5 @@
 /**
- * indicators.js — pure indicator primitives.
+ * indicators.mjs — pure indicator primitives.
  *
  * Ported from /Users/seandonahoe/dev/tvcontrol/skills/market-open-report/backtests/mcats.py
  * (the "primitives" block, lines 36-162). Function names, argument order and

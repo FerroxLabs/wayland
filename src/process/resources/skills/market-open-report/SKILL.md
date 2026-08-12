@@ -20,7 +20,7 @@ From the skill directory:
 
 ```bash
 node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
-node scripts/briefHtml.js <OUT>/mr.json <OUT>/morning-brief.html
+node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
 ```
 
 Node only. No dependencies, no install step, no Python.

@@ -3,8 +3,8 @@
  *
  * Ported from tools/brief_html.py (tvcontrol skills/market-open-report).
  *
- *     node morningReport.js --json out.json
- *     node briefHtml.js out.json brief.html [--account 10000]
+ *     node morning-report.mjs --json out.json
+ *     node briefHtml.mjs out.json brief.html [--account 10000]
  *
  * THE ORDER IS THE ARGUMENT.
  *
@@ -27,12 +27,12 @@
  * PORTING NOTES (read before changing anything below)
  *
  * STANDALONE IS THE WHOLE POINT. The document is one file: inline <style> from
- * briefCss.js, inline SVG from briefCharts.js, no script tag, no font, no image,
+ * briefCss.mjs, inline SVG from briefCharts.mjs, no script tag, no font, no image,
  * no href to anywhere. It has to open from disk on a machine with no network,
  * so nothing here may ever grow an external reference.
  *
  * Number formatting never uses toFixed. Python's f'{x:.1f}' rounds HALF-TO-EVEN
- * on the exact binary value; toFixed rounds half-away. pyFmt from briefCharts.js
+ * on the exact binary value; toFixed rounds half-away. pyFmt from briefCharts.mjs
  * is the exact CPython formatter and every formatted number goes through it.
  *
  * PYTHON TRUTHINESS IS NOT JAVASCRIPT TRUTHINESS and this file is full of it.
@@ -56,8 +56,8 @@ import {
   histogram,
   ladder_mix,
   trade_chart,
-} from './briefCharts.js';
-import { CSS } from './briefCss.js';
+} from './briefCharts.mjs';
+import { CSS } from './briefCss.mjs';
 
 export const TPS = [1.5, 3.0, 6.0, 12.0];
 export const QTY = [25, 20, 10, 15];

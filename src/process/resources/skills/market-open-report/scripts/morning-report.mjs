@@ -4,7 +4,7 @@
  * /Users/seandonahoe/dev/tvcontrol/skills/market-open-report/tools/morning_report.py
  *
  * This file is the `argparse` block and the `if __name__ == '__main__'` guard.
- * Everything it prints comes from report.js, which owns the port of the report
+ * Everything it prints comes from report.mjs, which owns the port of the report
  * itself.
  *
  *     node morning-report.mjs [--tier 1|2] [--slots 20] [--start YYYY-MM-DD]
@@ -45,14 +45,14 @@
  * belongs in one place, applied deliberately, with the Yahoo cache keys
  * invalidated at the same time (the cache filename embeds the end date).
  *
- * ⚠ KNOWN PORT DIVERGENCE, NOT FIXED HERE. yahooData.js's `_epoch` does not
+ * ⚠ KNOWN PORT DIVERGENCE, NOT FIXED HERE. yahooData.mjs's `_epoch` does not
  * raise on the ISO shape the way Python's does: `parseInt('-0')` is -0 and
  * `parseInt('8-11')` is 8, so it returns a valid epoch for 2026-12-07 and the
  * scan fetches 74 symbols over a silently wrong window instead of reporting NO
  * DATA. Reproducing the Python's ValueError from here would mean a second,
- * drifting copy of _epoch's parsing inside report.js — the exact defect shape
+ * drifting copy of _epoch's parsing inside report.mjs — the exact defect shape
  * scan()'s own "no exit level column" comment warns against. The fix belongs in
- * `_epoch`, in yahooData.js, alongside the local-timezone bug already flagged
+ * `_epoch`, in yahooData.mjs, alongside the local-timezone bug already flagged
  * there.
  *
  * ===========================================================================
@@ -75,7 +75,7 @@
  * PATHS
  * ===========================================================================
  * The flag surface is exactly the Python's. The three paths the Python derives
- * from __file__ are parameters of report.js and are overridable here by
+ * from __file__ are parameters of report.mjs and are overridable here by
  * environment variable, because this ships inside an app with a read-only
  * resources directory:
  *
@@ -94,7 +94,7 @@ import {
   DEFAULT_POSITIONS,
   main,
   writeJson,
-} from './report.js';
+} from './report.mjs';
 
 const PROG = basename(process.argv[1] || 'morning-report.mjs');
 

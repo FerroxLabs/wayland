@@ -100,7 +100,7 @@ Change into the `market-open-report` skill directory and run it from there:
 
 ```bash
 node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
-node scripts/briefHtml.js <OUT>/mr.json <OUT>/morning-brief.html
+node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
 ```
 
 Read that skill's own SKILL.md before your first run. The watchlist, the holdings file and the cache
