@@ -47,6 +47,19 @@ export function splitCommandLine(cmd: string): string[] {
 }
 
 export function waitForSpawn(child: ChildProcess): Promise<void> {
+  // Node assigns `pid` synchronously inside spawn() and emits 'spawn' on the
+  // NEXT TICK. Any caller that awaits something between spawn() and here can
+  // therefore miss the event outright - and once missed it never comes back, so
+  // this promise never settles and the whole start sequence hangs with no error,
+  // no timeout and nothing to retry. (Reproduced: the second spawn of a retried
+  // start, where the spawn call sits inside a timer callback.) A child that has
+  // a pid has already spawned; one that has exited certainly has. A failed spawn
+  // has no pid, so it still waits for 'error' below, and an 'error' arriving
+  // after a successful spawn is picked up by the caller's lifecycle listeners.
+  if (child.pid !== undefined || child.exitCode !== null || child.signalCode !== null) {
+    return Promise.resolve();
+  }
+
   return new Promise((resolve, reject) => {
     const onSpawn = () => {
       child.off('error', onError);

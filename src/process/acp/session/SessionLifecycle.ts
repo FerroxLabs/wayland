@@ -3,6 +3,7 @@ import { isFluxModelId } from '@/common/config/flux';
 import { parseInitializeResult } from '@/common/types/acpTypes';
 import type { AuthMethod, LoadSessionResponse, McpServer, NewSessionResponse } from '@agentclientprotocol/sdk';
 import { normalizeError } from '@process/acp/errors/errorNormalize';
+import { looksLikeAdapterCorruption } from '@process/acp/errors/setupFailure';
 import type { AcpClient, ClientFactory, DisconnectInfo } from '@process/acp/infra/IAcpClient';
 import { ProcessAcpClient } from '@process/acp/infra/ProcessAcpClient';
 import type { AcpMetrics } from '@process/acp/metrics/AcpMetrics';
@@ -26,6 +27,13 @@ function resolveYoloModeId(backend: string, availableModes: ReadonlyArray<{ id: 
 }
 
 // ────────────────────────────────────────────────────────────────
+
+/**
+ * Pause before the single broken-install retry. Short on purpose: the files are
+ * already gone, so the retry is a fresh download rather than a wait for some
+ * transient condition to pass.
+ */
+const BROKEN_INSTALL_RETRY_DELAY_MS = 250;
 
 /** Minimal interface that AcpSession exposes so SessionLifecycle can drive state transitions. */
 export type LifecycleHost = {
@@ -55,6 +63,10 @@ export class SessionLifecycle {
 
   private startRetryCount = 0;
   private resumeRetryCount = 0;
+  /** Cleanup bound to the client that is currently starting (see spawnAndInit). */
+  private _clearBrokenInstall: (() => boolean) | null = null;
+  /** One broken-install recovery per start; see handleStartError. */
+  private brokenInstallRecoveryUsed = false;
 
   readonly authNegotiator: AuthNegotiator;
 
@@ -89,6 +101,7 @@ export class SessionLifecycle {
 
   start(): void {
     this.startRetryCount = 0;
+    this.brokenInstallRecoveryUsed = false;
     void this.doStart().catch((err) => this.handleStartError(err));
   }
 
@@ -108,11 +121,18 @@ export class SessionLifecycle {
 
   private async spawnAndInit(): Promise<void> {
     const handlers = this.host.buildProtocolHandlers();
-    this._client = this.clientFactory.create(this.host.agentConfig, handlers);
-    this._client.onDisconnect(this.handleDisconnect);
+    const client = this.clientFactory.create(this.host.agentConfig, handlers);
+    this._client = client;
+    // Bind the cleanup to THIS client rather than reading `this._client` later.
+    // A process that dies during startup runs the disconnect handler first, and
+    // that handler calls clearClient(); by the time the start-failure path is
+    // reached `this._client` is null, so the broken install was never cleared
+    // and the captured stderr that identifies it was already unreachable.
+    this._clearBrokenInstall = client instanceof ProcessAcpClient ? () => client.clearBunxCacheIfNeeded() : null;
+    client.onDisconnect(this.handleDisconnect);
 
     const t0 = Date.now();
-    const initResult = await this._client.start();
+    const initResult = await client.start();
     this.host.metrics.recordSpawnLatency(this.host.agentConfig.agentBackend, Date.now() - t0);
 
     if (initResult.authMethods && initResult.authMethods.length > 0) {
@@ -160,9 +180,27 @@ export class SessionLifecycle {
     const acpErr = normalizeError(err);
     console.error(`[SessionLifecycle] start failed (${acpErr.code}, retryable=${acpErr.retryable})\n ${acpErr.stack}`);
 
+    // A bridge whose bunx install is missing a declared dependency fails
+    // identically on every launch, so the generic retry budget just repeats the
+    // same crash against the same broken files. Clear the bad install and retry
+    // exactly ONCE. If it fails again the install is not what is wrong, so stop
+    // there instead of spending the remaining retries on a doomed spawn.
+    if (looksLikeAdapterCorruption(acpErr.message)) {
+      if (!this.brokenInstallRecoveryUsed && this.clearBrokenInstall()) {
+        this.brokenInstallRecoveryUsed = true;
+        await this.teardown();
+        setTimeout(() => {
+          void this.doStart();
+        }, BROKEN_INSTALL_RETRY_DELAY_MS);
+        return;
+      }
+      await this.teardown();
+      this.host.enterError(acpErr.message);
+      return;
+    }
+
     if (acpErr.retryable && this.startRetryCount < this.options.maxStartRetries) {
       this.startRetryCount++;
-      this.clearBunxCacheIfNeeded();
       await this.teardown();
       const delay = 1000 * Math.pow(2, this.startRetryCount - 1);
       setTimeout(() => this.doStart(), delay);
@@ -195,7 +233,7 @@ export class SessionLifecycle {
     const acpErr = normalizeError(err);
     if (acpErr.retryable && this.resumeRetryCount < this.options.maxResumeRetries) {
       this.resumeRetryCount++;
-      this.clearBunxCacheIfNeeded();
+      this.clearBrokenInstall();
       await this.teardown();
       const delay = 1000 * Math.pow(2, this.resumeRetryCount - 1);
       setTimeout(() => this.doResume(), delay);
@@ -418,9 +456,8 @@ export class SessionLifecycle {
     });
   }
 
-  private clearBunxCacheIfNeeded(): void {
-    if (this._client instanceof ProcessAcpClient) {
-      this._client.clearBunxCacheIfNeeded();
-    }
+  /** @returns true only when a broken install was actually removed. */
+  private clearBrokenInstall(): boolean {
+    return this._clearBrokenInstall?.() ?? false;
   }
 }

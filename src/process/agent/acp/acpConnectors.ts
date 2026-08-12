@@ -495,7 +495,8 @@ export function spawnNpxBackend(
   // building a `chcp 65001 >nul && ...` cmd.exe string. npxCommand and spawnArgs are
   // passed as the executable + argv array, so no shell metacharacter interpretation
   // can occur. windowsHide keeps the console window from flashing.
-  const child = spawn(normalizeWindowsCommand(npxCommand), spawnArgs, {
+  const command = normalizeWindowsCommand(npxCommand);
+  const child = spawn(command, spawnArgs, {
     cwd: workingDir,
     stdio: ['pipe', 'pipe', 'pipe'],
     env: cleanEnv,
@@ -507,7 +508,15 @@ export function spawnNpxBackend(
   if (detached) {
     child.unref();
   }
-  console.log(`[ACP-PERF] ${backend}: process spawned ${Date.now() - spawnStart}ms (bundled bun)`);
+  // This label used to read "(bundled bun)" unconditionally. resolveNpxPath
+  // falls back to a bare `bun` resolved off PATH whenever no bundled runtime is
+  // present, which is every dev build - resources/bundled-bun is produced by
+  // scripts/build-with-builder.js, not by the electron-vite build that
+  // `bun run package` runs. So the line asserted the opposite of what ran, and
+  // this project has already been burned by a backend failing specifically
+  // under bundled bun. Name the binary that was actually spawned.
+  const runtime = path.isAbsolute(command) ? 'bundled bun' : 'system bun';
+  console.log(`[ACP-PERF] ${backend}: process spawned ${Date.now() - spawnStart}ms (${runtime}: ${command})`);
 
   return { child, isDetached: detached };
 }
