@@ -21,7 +21,7 @@ import { ASSISTANT_PRESETS } from '@/common/config/presets/assistantPresets';
 describe('lucide avatars accept any icon in the library', () => {
   it('resolves an icon that is NOT in the bundled fast-path map', () => {
     // Deliberately one the static map does not import.
-    expect(getLucideIcon('lucide:CandlestickChart')).not.toBeNull();
+    expect(getLucideIcon('lucide:ChartCandlestick')).not.toBeNull();
   });
 
   it('still resolves the bundled ones', () => {
@@ -50,7 +50,7 @@ describe('lucide avatars accept any icon in the library', () => {
   it('converts PascalCase component names to the loader spelling', () => {
     expect(toLucideIconName('TrendingUp')).toBe('trending-up');
     expect(toLucideIconName('BarChart3')).toBe('bar-chart-3');
-    expect(toLucideIconName('CandlestickChart')).toBe('candlestick-chart');
+    expect(toLucideIconName('ChartCandlestick')).toBe('chart-candlestick');
   });
 
   /**
@@ -59,7 +59,7 @@ describe('lucide avatars accept any icon in the library', () => {
    * an avatar in a list reads as a flicker.
    */
   it('returns the same component instance for repeated lookups', () => {
-    expect(getLucideIcon('lucide:CandlestickChart')).toBe(getLucideIcon('lucide:CandlestickChart'));
+    expect(getLucideIcon('lucide:ChartCandlestick')).toBe(getLucideIcon('lucide:ChartCandlestick'));
   });
 
   /**

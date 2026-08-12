@@ -1306,7 +1306,10 @@ export const ASSISTANT_PRESETS: AssistantPreset[] = [
   },
   {
     id: 'smart-trader',
-    avatar: 'lucide:CandlestickChart',
+    // Lucide's CURRENT name for this glyph. `candlestick-chart` is the retired
+    // alias for the same icon and still resolves, so a wrong pick here would
+    // render fine and silently sit on a deprecated name.
+    avatar: 'lucide:ChartCandlestick',
     // Native engine: the setup path has to run local commands and read its own
     // toolset to tell "TVControl absent" from "TVControl not answering".
     presetAgentType: 'wcore',
