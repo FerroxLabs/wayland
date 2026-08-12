@@ -73,6 +73,22 @@
       "wireCode": -32603
     },
     {
+      "hint": "Loosen the schema or retry without it",
+      "kind": "model_output_schema",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Structured output rejected",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Clear the named setting, then retry",
+      "kind": "model_unsupported_param",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Parameter unsupported on this model",
+      "wireCode": -32603
+    },
+    {
       "hint": "Report this — a Flux-policy trip is a bug",
       "kind": "egress_denied",
       "retryable": false,
@@ -287,6 +303,22 @@
       "surface": "error_response",
       "title": "Invalid request parameters",
       "wireCode": -32602
+    },
+    {
+      "hint": "Check the session id; retry when no turn is running",
+      "kind": "session_fork_failed",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Session fork failed",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Check goal status, then retry",
+      "kind": "goal_op_failed",
+      "retryable": false,
+      "surface": "error_response",
+      "title": "Goal operation failed",
+      "wireCode": -32603
     }
   ],
   "generator": "cargo run -p nano-cli --bin gen_error_table",

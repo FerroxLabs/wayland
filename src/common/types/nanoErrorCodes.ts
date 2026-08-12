@@ -11,6 +11,8 @@ export type NanoErrorKind =
   | 'model_server_4xx'
   | 'model_transport'
   | 'model_protocol'
+  | 'model_output_schema'
+  | 'model_unsupported_param'
   | 'egress_denied'
   | 'fs_read_denied'
   | 'fs_write_denied'
@@ -37,7 +39,9 @@ export type NanoErrorKind =
   | 'model_not_found'
   | 'turn_in_progress'
   | 'no_session'
-  | 'invalid_params';
+  | 'invalid_params'
+  | 'session_fork_failed'
+  | 'goal_op_failed';
 
 export type NanoErrorSurface = 'error_response' | 'tool_card' | 'stop_reason';
 
@@ -122,6 +126,22 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     retryable: false,
     title: 'Malformed provider stream',
     hint: 'Report; not retryable',
+  },
+  {
+    kind: 'model_output_schema',
+    surface: 'error_response',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Structured output rejected',
+    hint: 'Loosen the schema or retry without it',
+  },
+  {
+    kind: 'model_unsupported_param',
+    surface: 'error_response',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Parameter unsupported on this model',
+    hint: 'Clear the named setting, then retry',
   },
   {
     kind: 'egress_denied',
@@ -338,6 +358,22 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     retryable: false,
     title: 'Invalid request parameters',
     hint: '',
+  },
+  {
+    kind: 'session_fork_failed',
+    surface: 'error_response',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Session fork failed',
+    hint: 'Check the session id; retry when no turn is running',
+  },
+  {
+    kind: 'goal_op_failed',
+    surface: 'error_response',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Goal operation failed',
+    hint: 'Check goal status, then retry',
   },
 ];
 
