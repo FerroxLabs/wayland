@@ -151,18 +151,28 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
   // MCP `initialize` with "Usage: tv <command>", and a later zod-4 `z.record`
   // fault took its whole tool list out while the connection stayed green. A
   // server with no tools cannot do anything an agent can call, so name it.
+  // Accumulated, NOT early-returned. Returning on the first condition loses the
+  // others, and these co-occur in the ordinary case rather than the exotic one:
+  // most of the catalog authenticates, so "one server needs a login" is the
+  // steady state. An early return on `toolless` swallowed the login requirement
+  // entirely AND told the user to reinstall a server that only needed signing in.
+  const notes: string[] = [];
+  const fixes: string[] = [];
   if (toolless.length > 0) {
-    return {
-      status: 'warn',
-      detail: `${toolless.length} of ${enabled.length} enabled MCP server(s) connected but published no tools: ${toolless.join(', ')}.`,
-      remediation: 'Update or reinstall the server(s) in Settings → MCP Library → Installed — a server with no tools cannot be used.',
-    };
+    notes.push(
+      `${toolless.length} of ${enabled.length} enabled MCP server(s) connected but published no tools: ${toolless.join(', ')}.`
+    );
+    fixes.push('Update or reinstall the server(s) with no tools — a server publishing none cannot be used.');
   }
   if (needAuth.length > 0) {
+    notes.push(`${needAuth.length} need authentication: ${needAuth.join(', ')}.`);
+    fixes.push('Log in to the server(s) that need it.');
+  }
+  if (notes.length > 0) {
     return {
       status: 'warn',
-      detail: `${okCount} MCP server(s) OK; ${needAuth.length} need authentication: ${needAuth.join(', ')}.`,
-      remediation: 'Log in to the server(s) from Settings → MCP Library → Installed.',
+      detail: `${okCount} MCP server(s) OK. ${notes.join(' ')}`,
+      remediation: `${fixes.join(' ')} Both from Settings → MCP Library → Installed.`,
     };
   }
   return {

@@ -26,7 +26,7 @@ import { ProviderRepository } from '@process/providers/storage/ProviderRepositor
 import { ConnectionTester } from '@process/providers/detection/ConnectionTester';
 import { Curator } from '@process/providers/catalog/Curator';
 import type { ProviderId } from '@process/providers/types';
-import { detectWCore } from '@process/agent/wcore/binaryResolver';
+import { detectWCore, resolveWCoreBinary } from '@process/agent/wcore/binaryResolver';
 import { DESKTOP_CORE_V1_PIN } from '@process/agent/wcore/desktopContractV1';
 import { readConfig, resolveUserConfigPath } from '@process/agent/wcore/configBridge';
 import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
@@ -39,7 +39,20 @@ import type { IProject } from '@/common/types/project';
 import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
 import { conversationServiceSingleton } from '@process/services/conversationServiceSingleton';
 import type { DoctorCheck } from './types';
-import { fileContainsMarker } from './fileMarker';
+import { extractFromFile } from './fileMarker';
+
+/**
+ * The contract schema digest a Core binary advertises, as embedded in its own
+ * manifest. Verified against the real binary: the manifest is compact JSON, so
+ * the digest appears exactly once in `"key":"value"` form. The string
+ * `schema_digest` also occurs twice more as an interned Rust string-table
+ * entry (`schema_digestsource_inputs_digestavailable…`), which is why the
+ * pattern requires the full JSON shape rather than just the key name.
+ */
+const SCHEMA_DIGEST_PATTERN = /"schema_digest"\s*:\s*"(sha256:[0-9a-f]{64})"/;
+
+/** Comfortably longer than the ~90-character match, so no boundary can split it. */
+const SCHEMA_DIGEST_LOOKBACK = 256;
 import { checkProviderConnectivity, checkModelRegistrySanity } from './checks/providerChecks';
 import { checkEngineReachable, checkEngineRouting, checkEngineContractPin } from './checks/engineChecks';
 import { checkMcpServers } from './checks/mcpChecks';
@@ -216,18 +229,23 @@ export function buildDoctorChecks(): DoctorCheck[] {
       id: 'engine.contractPin',
       titleKey: 'settings.doctor.checks.engineContractPin',
       category: 'engine',
-      run: () =>
-        checkEngineContractPin(
+      run: () => {
+        // `resolveWCoreBinary`, not `detectWCore`: the latter shells out to the
+        // engine with `--version` on every call, and this check needs the PATH
+        // twice. Two redundant synchronous spawns on the main process for a
+        // string we do not use is a poor trade.
+        const binary = resolveWCoreBinary();
+        return checkEngineContractPin(
           {
-            binaryPath: () => detectWCore().path,
-            binaryContains: (marker) => {
-              const path = detectWCore().path;
-              if (!path) return Promise.resolve(false);
-              return fileContainsMarker(path, marker);
-            },
+            binaryPath: () => binary ?? undefined,
+            advertisedSchemaDigest: () =>
+              binary
+                ? extractFromFile(binary, SCHEMA_DIGEST_PATTERN, SCHEMA_DIGEST_LOOKBACK)
+                : Promise.resolve(null),
           },
           DESKTOP_CORE_V1_PIN.schemaDigest
-        ),
+        );
+      },
     },
     {
       id: 'engine.routing',

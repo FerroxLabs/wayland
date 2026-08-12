@@ -56,3 +56,46 @@ export async function fileContainsMarker(
   }
   return false;
 }
+
+/**
+ * First capture group of `pattern` found in the bytes of `filePath`, or null.
+ *
+ * The extracting cousin of {@link fileContainsMarker}, and the distinction
+ * matters more than it looks. Asking "is this exact string present?" cannot
+ * tell a MISMATCH apart from an ABSENCE, and for the engine contract those two
+ * mean opposite things: a different digest is a broken pairing, while no digest
+ * at all is a legacy Core that the consumer explicitly supports and runs
+ * normally. Extracting whatever digest is actually there lets the caller answer
+ * the real question.
+ *
+ * `lookbackChars` sizes the cross-chunk carry, so it must be at least as long
+ * as the longest match `pattern` can produce; a match longer than the lookback
+ * can be missed at a chunk boundary. `pattern` must be non-global — this
+ * returns the first match and stops.
+ */
+export async function extractFromFile(
+  filePath: string,
+  pattern: RegExp,
+  lookbackChars: number,
+  chunkSize?: number
+): Promise<string | null> {
+  if (pattern.global) throw new Error('extractFromFile: pattern must not be global');
+
+  const stream = createReadStream(filePath, {
+    encoding: 'latin1',
+    ...(chunkSize ? { highWaterMark: chunkSize } : {}),
+  });
+
+  let carry = '';
+  try {
+    for await (const chunk of stream) {
+      const window = carry + (chunk as string);
+      const match = pattern.exec(window);
+      if (match) return match[1] ?? match[0];
+      carry = lookbackChars > 0 ? window.slice(-lookbackChars) : '';
+    }
+  } finally {
+    stream.destroy();
+  }
+  return null;
+}

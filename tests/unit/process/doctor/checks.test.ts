@@ -229,48 +229,46 @@ describe('checkEngineReachable', () => {
 describe('checkEngineContractPin', () => {
   const PIN = 'sha256:4971f456655a6ee7c063a3417ebf82a27a8550420d3e6ed744bdd4be696956e9';
 
-  it('fails when the binary does not carry the pinned contract', async () => {
+  const OTHER = 'sha256:23fb3048000000000000000000000000000000000000000000000000deadbeef';
+
+  it('fails when the engine advertises a DIFFERENT contract digest', async () => {
     const result = await checkEngineContractPin(
-      { binaryPath: () => '/x/wayland-core', binaryContains: async () => false },
+      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => OTHER },
       PIN
     );
     expect(result.status).toBe('fail');
-    expect(result.remediation).toBeDefined();
+    expect(result.remediation).toContain('/x/wayland-core');
   });
 
-  it('passes when the binary carries the pinned contract', async () => {
+  it('passes when the engine advertises the pinned digest', async () => {
     const result = await checkEngineContractPin(
-      { binaryPath: () => '/x/wayland-core', binaryContains: async () => true },
+      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => PIN },
       PIN
     );
     expect(result.status).toBe('pass');
   });
 
   /**
-   * The pinned build "still self-reports 0.12.26, so identify it by sha, never
-   * by --version" (desktopContractV1.ts). A check that compared versions would
-   * pass on precisely the binary that cannot start a turn, so assert that the
-   * digest is what gets looked for.
+   * THE REGRESSION THIS CHECK SHIPPED WITH. The first version asked "is the
+   * pinned digest present?" and failed on absence — but a Core that advertises
+   * no contract is a SUPPORTED configuration, not a broken one:
+   * DesktopCoreV1Consumer.negotiate sets mode 'legacy' when ready.contract is
+   * undefined and carries on. Failing it told users of a working install to
+   * reinstall, and when the engine came from an accepted in-app update living
+   * in userData, reinstalling would not even have cleared it.
    */
-  it('probes for the pinned schema digest, not a version string', async () => {
-    const asked: string[] = [];
-    await checkEngineContractPin(
-      {
-        binaryPath: () => '/x/wayland-core',
-        binaryContains: async (marker) => {
-          asked.push(marker);
-          return true;
-        },
-      },
+  it('passes a legacy engine that advertises no contract at all', async () => {
+    const result = await checkEngineContractPin(
+      { binaryPath: () => '/x/wayland-core', advertisedSchemaDigest: async () => null },
       PIN
     );
-    expect(asked).toEqual([PIN]);
+    expect(result.status).toBe('pass');
   });
 
   /** engine.reachable already fails on a missing binary; two fails, one cause. */
   it('warns rather than failing when no binary resolved', async () => {
     const result = await checkEngineContractPin(
-      { binaryPath: () => undefined, binaryContains: async () => false },
+      { binaryPath: () => undefined, advertisedSchemaDigest: async () => null },
       PIN
     );
     expect(result.status).toBe('warn');
@@ -280,7 +278,7 @@ describe('checkEngineContractPin', () => {
     const result = await checkEngineContractPin(
       {
         binaryPath: () => '/x/wayland-core',
-        binaryContains: async () => {
+        advertisedSchemaDigest: async () => {
           throw new Error('EACCES: permission denied');
         },
       },
@@ -366,17 +364,44 @@ describe('checkMcpServers', () => {
   });
 
   /**
-   * `tools` absent is not `tools: []`. A probe that simply does not report a
-   * tool list must not be accused of publishing none — that would invent a
-   * failure on every prober that omits the field.
+   * Defensive only, and labelled as such on purpose.
+   *
+   * A real probe cannot reach this state: `bindMcpPrepublicationProbeTruth`
+   * runs `validateProbeTools` on every success and THROWS
+   * ("successful probe requires a tools array") when `tools` is not an array
+   * (mcpSessionTruthGate.ts:40-41, :108). So `success: true` with no `tools` is
+   * impossible downstream of McpService. This check takes an injected probe
+   * whose type still permits it, so the guard stays — but it is belt-and-braces
+   * against a shape production rejects, not a scenario a user can hit.
    */
-  it('does not treat an unreported tool list as an empty one', async () => {
+  it('does not accuse a probe of publishing nothing when it reported no list at all', async () => {
     const result = await checkMcpServers({
       listServers: async () => [mcpServer({ name: 'quiet' })],
       testConnection: async () => ({ success: true }),
     });
     expect(result.status).toBe('warn');
     expect(result.detail).not.toContain('no tools');
+  });
+
+  /**
+   * The regression the first version of this shipped with. 52 of 108 catalog
+   * entries are oauth2-byo and 44 are api-key, so a server needing a login
+   * alongside a broken one is the ordinary case. Early-returning on `toolless`
+   * dropped the login requirement and told the user to reinstall a server that
+   * only needed signing in.
+   */
+  it('reports a toolless server and an unauthenticated one together', async () => {
+    const result = await checkMcpServers({
+      listServers: async () => [mcpServer({ name: 'empty' }), mcpServer({ name: 'locked', id: 'b' })],
+      testConnection: async (server) =>
+        server.name === 'empty' ? { success: true, tools: [] } : { success: false, needsAuth: true },
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('empty');
+    expect(result.detail).toContain('locked');
+    expect(result.detail).toContain('no tools');
+    expect(result.detail).toContain('authentication');
+    expect(result.remediation).toContain('Log in');
   });
 
   it('reports how many tools the reachable servers publish', async () => {
