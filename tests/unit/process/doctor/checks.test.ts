@@ -349,6 +349,44 @@ describe('checkMcpServers', () => {
     expect(result.detail).toContain('needs-login');
   });
 
+  /**
+   * The failure this exists for: tvcontrol 2.2.1 answered the MCP handshake
+   * from its CLI router and published nothing, and a later zod-4 fault emptied
+   * its tool list while the connection stayed green. Counting servers alone
+   * reports both as healthy.
+   */
+  it('names a server that connects but publishes no tools', async () => {
+    const result = await checkMcpServers({
+      listServers: async () => [mcpServer({ name: 'tvcontrol' })],
+      testConnection: async () => ({ success: true, tools: [] }),
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('tvcontrol');
+    expect(result.detail).toContain('no tools');
+  });
+
+  /**
+   * `tools` absent is not `tools: []`. A probe that simply does not report a
+   * tool list must not be accused of publishing none — that would invent a
+   * failure on every prober that omits the field.
+   */
+  it('does not treat an unreported tool list as an empty one', async () => {
+    const result = await checkMcpServers({
+      listServers: async () => [mcpServer({ name: 'quiet' })],
+      testConnection: async () => ({ success: true }),
+    });
+    expect(result.status).toBe('warn');
+    expect(result.detail).not.toContain('no tools');
+  });
+
+  it('reports how many tools the reachable servers publish', async () => {
+    const result = await checkMcpServers({
+      listServers: async () => [mcpServer({ name: 'a' }), mcpServer({ name: 'b', id: 'b' })],
+      testConnection: async () => ({ success: true, tools: [{ name: 't1' }, { name: 't2' }] }),
+    });
+    expect(result.detail).toContain('4 tool(s)');
+  });
+
   it('does not promote a successful standalone probe to active-chat readiness', async () => {
     const result = await checkMcpServers({
       listServers: async () => [mcpServer({ name: 'a' }), mcpServer({ name: 'b', id: 'b' })],

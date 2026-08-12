@@ -14,6 +14,12 @@
  * as needing auth WARNs. A successful probe also WARNs until session-level
  * receipts exist, preventing Doctor from repeating the Library's false-ready
  * claim. Disabled servers are skipped — they are not installed to any agent.
+ *
+ * Reachability alone was never the whole question: a server that answers the
+ * handshake and publishes an EMPTY tool list is useless to an agent and used to
+ * look identical to a healthy one here. The probe already returns the tool list;
+ * this check now reads it, names the servers publishing nothing, and reports the
+ * total tool count on the way through.
  */
 
 import type { IMcpServer } from '@/common/config/storage';
@@ -85,7 +91,10 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
   const errored: string[] = [];
   const timedOut: string[] = [];
   const needAuth: string[] = [];
+  /** Connected, but published an empty tool list. See the toolless branch below. */
+  const toolless: string[] = [];
   let okCount = 0;
+  let toolCount = 0;
 
   // Probe every server CONCURRENTLY, each under its own timeout. A sequential
   // run sums the per-server budgets: with the dozen-plus servers this check
@@ -105,6 +114,14 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
       timedOut.push(server.name);
     } else if (result.success) {
       okCount += 1;
+      // `tools` absent and `tools: []` are NOT the same thing, and conflating
+      // them would invent a failure. Absent means this probe did not report a
+      // tool list at all; only an explicitly empty list means "connected and
+      // published nothing".
+      if (Array.isArray(result.tools)) {
+        if (result.tools.length === 0) toolless.push(server.name);
+        else toolCount += result.tools.length;
+      }
     } else if (result.needsAuth) {
       needAuth.push(server.name);
     } else {
@@ -126,6 +143,21 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
       remediation: 'Fix or disable the failing server(s) in Settings → MCP Library → Installed.',
     };
   }
+  // Connected and serving nothing. This used to be invisible: the success branch
+  // counted the server and threw `result.tools` away, so a connector that
+  // answered the handshake and published an empty tool list was indistinguishable
+  // from a healthy one. That is not hypothetical - tvcontrol 2.2.1 shipped a
+  // `bin` pointing at the CLI router, so `npx @ferroxlabs/tvcontrol` answered an
+  // MCP `initialize` with "Usage: tv <command>", and a later zod-4 `z.record`
+  // fault took its whole tool list out while the connection stayed green. A
+  // server with no tools cannot do anything an agent can call, so name it.
+  if (toolless.length > 0) {
+    return {
+      status: 'warn',
+      detail: `${toolless.length} of ${enabled.length} enabled MCP server(s) connected but published no tools: ${toolless.join(', ')}.`,
+      remediation: 'Update or reinstall the server(s) in Settings → MCP Library → Installed — a server with no tools cannot be used.',
+    };
+  }
   if (needAuth.length > 0) {
     return {
       status: 'warn',
@@ -135,7 +167,9 @@ export async function checkMcpServers(deps: McpCheckDeps): Promise<DoctorCheckOu
   }
   return {
     status: 'warn',
-    detail: `${okCount} enabled MCP server(s) reachable in a standalone probe; active-chat tools are not verified.`,
+    detail: `${okCount} enabled MCP server(s) reachable in a standalone probe${
+      toolCount > 0 ? `, publishing ${toolCount} tool(s)` : ''
+    }; active-chat tools are not verified.`,
     remediation: 'Start a fresh chat with the connector selected, then verify its tools in that chat.',
   };
 }
