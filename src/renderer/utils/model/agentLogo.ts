@@ -11,6 +11,7 @@
  */
 
 import WaylandLogo from '@/renderer/assets/logos/brand/wayland.svg';
+import WaylandNanoLogo from '@/renderer/assets/logos/brand/wayland-nano.svg';
 import AuggieLogo from '@/renderer/assets/logos/brand/auggie.svg';
 import ClaudeLogo from '@/renderer/assets/logos/ai-major/claude.svg';
 import CursorLogo from '@/renderer/assets/logos/tools/coding/cursor.png';
@@ -39,6 +40,7 @@ import QwenLogo from '@/renderer/assets/logos/ai-china/qwen.svg';
  */
 const AGENT_LOGO_MAP = {
   wcore: WaylandLogo,
+  wnano: WaylandNanoLogo,
   claude: ClaudeLogo,
   gemini: GeminiLogo,
   qwen: QwenLogo,

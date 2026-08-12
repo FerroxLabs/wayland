@@ -2401,6 +2401,7 @@
     },
     "about": {
       "wcore": "Wayland’s own engine. Draws on every provider on your Models page.",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Anthropic’s coding agent. Signs in with its own account, it cannot run GPT or Gemini.",
       "codex": "OpenAI’s coding agent. Signs in with its own account, it cannot run Claude or Gemini."
     },

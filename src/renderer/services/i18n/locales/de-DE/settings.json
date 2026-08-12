@@ -2243,6 +2243,7 @@
     },
     "about": {
       "wcore": "Waylands eigene Engine. Greift auf jeden Anbieter auf deiner Modelle-Seite zu.",
+      "wnano": "Wayland’s sandboxed Rust ACP agent. Draws on every provider on your Models page.",
       "claude": "Anthropics Coding-Agent. Meldet sich mit eigenem Konto an, kann GPT oder Gemini nicht ausführen.",
       "codex": "OpenAIs Coding-Agent. Meldet sich mit eigenem Konto an, kann Claude oder Gemini nicht ausführen."
     },

@@ -123,3 +123,15 @@ describe('acpTypes - skillsDirs integration', () => {
     });
   });
 });
+
+describe('ACP_BACKENDS_ALL.wnano spawn contract (regression B1)', () => {
+  // Live-proven: acpArgs [] spawned a bare `wayland-nano`, which prints usage
+  // and exits 2 — the binary speaks ACP only via the `acp-host` subcommand.
+  it('spawns via the acp-host subcommand, not bare', () => {
+    expect(ACP_BACKENDS_ALL.wnano.acpArgs).toEqual(['acp-host']);
+    expect(ACP_BACKENDS_ALL.wnano.cliCommand).toBe('wayland-nano');
+    expect(ACP_BACKENDS_ALL.wnano.enabled).toBe(true);
+    expect(ACP_BACKENDS_ALL.wnano.supportsStreaming).toBe(true);
+    expect(ACP_BACKENDS_ALL.wnano.authRequired).toBe(false);
+  });
+});

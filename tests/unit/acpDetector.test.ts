@@ -78,12 +78,13 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      // Wcore always first, Gemini always second, then ACP agents
-      expect(agents).toHaveLength(4);
+      // Wcore always first, Wayland Nano always second, Gemini third, then ACP agents
+      expect(agents).toHaveLength(5);
       expect(agents[0].backend).toBe('wcore');
-      expect(agents[1].backend).toBe('gemini');
-      expect(agents[2]).toMatchObject({ backend: 'claude', cliPath: 'claude' });
-      expect(agents[3]).toMatchObject({ backend: 'qwen', cliPath: 'qwen' });
+      expect(agents[1].backend).toBe('wnano');
+      expect(agents[2].backend).toBe('gemini');
+      expect(agents[3]).toMatchObject({ backend: 'claude', cliPath: 'claude' });
+      expect(agents[4]).toMatchObject({ backend: 'qwen', cliPath: 'qwen' });
     });
 
     it('should skip built-in CLIs that are not available', async () => {
@@ -95,19 +96,35 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(3); // gemini + wcore + claude
+      expect(agents).toHaveLength(4); // wcore + wnano + gemini + claude
       expect(agents.find((a) => a.backend === 'qwen')).toBeUndefined();
       expect(agents.find((a) => a.backend === 'auggie')).toBeUndefined();
     });
 
-    it('should always include Wcore first and Gemini second', async () => {
+    it('should always include Wcore first, Wayland Nano second and Gemini third', async () => {
       const registry = await createFreshRegistry();
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(2); // wcore + gemini
+      expect(agents).toHaveLength(3); // wcore + wnano + gemini
       expect(agents[0]).toMatchObject({ backend: 'wcore', name: 'Wayland Core' });
-      expect(agents[1]).toMatchObject({ backend: 'gemini', name: 'Gemini CLI' });
+      expect(agents[1]).toMatchObject({ backend: 'wnano', name: 'Wayland Nano', kind: 'acp' });
+      expect(agents[2]).toMatchObject({ backend: 'gemini', name: 'Gemini CLI' });
+    });
+
+    it('should not duplicate Wayland Nano when the wayland-nano CLI is also detected on PATH', async () => {
+      mockDetectBuiltinAgents.mockResolvedValue([
+        makeAcpAgent({ id: 'wnano', name: 'Wayland Nano', backend: 'wnano', cliPath: 'wayland-nano' }),
+      ]);
+
+      const registry = await createFreshRegistry();
+      await registry.initialize();
+      const agents = registry.getDetectedAgents();
+
+      const wnanoAgents = agents.filter((a) => a.backend === 'wnano');
+      expect(wnanoAgents).toHaveLength(1);
+      // The always-present built-in entry wins over the PATH detection result
+      expect(wnanoAgents[0].cliPath).toBeUndefined();
     });
 
     it('should detect extension-contributed agents when CLI is available', async () => {
@@ -138,7 +155,7 @@ describe('AgentRegistry', () => {
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(2); // gemini + wcore
+      expect(agents).toHaveLength(3); // wcore + wnano + gemini
     });
 
     it('should not run twice (isDetected guard)', async () => {
@@ -206,14 +223,15 @@ describe('AgentRegistry', () => {
       expect(agent!.isExtension).toBe(true);
     });
 
-    it('should always include wcore and gemini', async () => {
+    it('should always include wcore, wnano and gemini', async () => {
       const registry = await createFreshRegistry();
       await registry.initialize();
       const agents = registry.getDetectedAgents();
 
-      expect(agents).toHaveLength(2);
+      expect(agents).toHaveLength(3);
       expect(agents[0].backend).toBe('wcore');
-      expect(agents[1].backend).toBe('gemini');
+      expect(agents[1].backend).toBe('wnano');
+      expect(agents[2].backend).toBe('gemini');
     });
   });
 
@@ -312,8 +330,9 @@ describe('AgentRegistry', () => {
       const agents = registry.getDetectedAgents();
 
       expect(agents[0].backend).toBe('wcore');
-      expect(agents[1].backend).toBe('gemini');
-      expect(agents.slice(2).map((agent) => agent.backend)).toEqual(['claude', 'qwen']);
+      expect(agents[1].backend).toBe('wnano');
+      expect(agents[2].backend).toBe('gemini');
+      expect(agents.slice(3).map((agent) => agent.backend)).toEqual(['claude', 'qwen']);
     });
 
     it('should clear env cache before re-detecting', async () => {

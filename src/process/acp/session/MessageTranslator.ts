@@ -101,6 +101,9 @@ export class MessageTranslator {
    */
   private planMsgId: string | null = null;
 
+  /** Monotonic suffix so begin/complete/cancel notices never share an id. */
+  private compactionSeq = 0;
+
   constructor(private readonly conversationId: string) {}
 
   get activeEntryCount(): number {
@@ -110,6 +113,10 @@ export class MessageTranslator {
   translate(notification: SessionNotification): TMessage[] {
     const update = notification.update;
     const updateType = update.sessionUpdate;
+
+    // Nano (wnano) emits a non-SDK `compaction` kind (C1 §7); handled ahead
+    // of the switch so the SDK discriminated-union narrowing stays intact.
+    if ((updateType as string) === 'compaction') return this.handleCompaction(update);
 
     if (CONFIG_UPDATES.has(updateType)) return [];
 
@@ -131,6 +138,35 @@ export class MessageTranslator {
       default:
         return [];
     }
+  }
+
+  /**
+   * Nano C1 compaction lifecycle notice → a center-anchored system tip.
+   * `status` is a bounded agent-side enum ("begin" | "complete" | "cancel");
+   * anything unrecognized renders as the generic complete note. The text is
+   * hardcoded per status — no agent-supplied string reaches the transcript,
+   * so there is nothing to sanitize.
+   */
+  private handleCompaction(update: SessionNotification['update']): TMessage[] {
+    const status = (update as { status?: unknown }).status;
+    const content =
+      status === 'begin'
+        ? { content: 'Compacting conversation context…', type: 'warning' as const }
+        : status === 'cancel'
+          ? { content: 'Context compaction cancelled', type: 'warning' as const }
+          : { content: 'Context compacted', type: 'success' as const };
+    const id = `compaction:${this.conversationId}:${++this.compactionSeq}`;
+    return [
+      {
+        id,
+        msg_id: id,
+        conversation_id: this.conversationId,
+        type: 'tips',
+        content,
+        position: 'center',
+        status: 'finish',
+      },
+    ];
   }
 
   onTurnEnd(): void {

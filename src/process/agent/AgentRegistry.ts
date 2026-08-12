@@ -49,6 +49,7 @@ function getWCoreInfo(): { version?: string; cliPath?: string } {
  *
  * Sources:
  *   - Gemini       - always present (no CLI detection)
+ *   - Wayland Nano - always present (first-party ACP agent, native ACP over stdio)
  *   - ACP builtin  - CLI agents on PATH (claude, qwen, codex, …)
  *   - ACP extension - contributed by hub extensions
  *   - Remote       - user-configured WebSocket agents (from DB)
@@ -103,6 +104,22 @@ class AgentRegistry {
       backend: 'wcore',
       ...(info.version ? { version: info.version } : {}),
       ...(info.cliPath ? { cliPath: info.cliPath } : {}),
+    };
+  }
+
+  /**
+   * Wayland Nano is a first-party built-in ACP agent: always listed (like
+   * Wayland Core) even when its `wayland-nano` binary is not on PATH yet.
+   * No cliPath here - AcpAgentManager falls back to
+   * ACP_BACKENDS_ALL.wnano.cliCommand at spawn time.
+   */
+  private createWNanoAgent(): AcpDetectedAgent {
+    return {
+      id: 'wnano',
+      name: 'Wayland Nano',
+      kind: 'acp',
+      available: true,
+      backend: 'wnano',
     };
   }
 
@@ -283,6 +300,7 @@ class AgentRegistry {
   private merge(): void {
     this.detectedAgents = this.deduplicate([
       this.createWCoreAgent(),
+      this.createWNanoAgent(),
       this.createGeminiAgent(),
       // D3 slot: a managed install takes the builtin's own index when the PATH
       // probe cannot serve that backend. See deduplicate() for why.
