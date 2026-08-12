@@ -2,6 +2,67 @@
 
 Start here. **[X]** means proven by executing something, not by reading code.
 
+---
+
+## 0. The live pass ran. Read this first.
+
+**`packet/wl-integration` @ `b2d770d45`**, pushed to `ferrox`. Four commits on top
+of the state §1 describes.
+
+**The suite is fully green for the first time: 17,452 passed, 0 failed [X].**
+The `constitutionReclaimNotice` red is gone — see below, it was never a flake.
+
+Everything §3 listed as "never been seen running" that could be run WITHOUT the
+GUI has now been run. What it found:
+
+**The concierge diag subprocess works, and it discriminates [X].** Driven as a
+real stdio subprocess with only env vars set — the exact contract the app uses.
+Three cases: a healthy fixture (the real bundled whisper-tiny, an intact install
+receipt, TVControl on) reports clean; a damaged one names the exact missing model
+files and the interrupted install; unset env says "not set" rather than "fine".
+All three new sections appear in the live tool enum. The written-but-not-wired
+risk on the env wiring is closed by execution, not by a test.
+
+**The morning report runs end-to-end [X]** — 74 names, zero NO DATA, real bar
+2026-08-11, exit 0, and a 77 KB HTML brief.
+
+**And running it found a real defect.** The nine scripts were ES modules named
+`.js` under a package.json that declares no module type. Node 20.19+ rescues them
+by sniffing for import syntax; anything older throws a SyntaxError at the first
+import, so the report never starts. Proven by running it with detection off.
+Renamed to `.mjs` (`35367bc49`) — the extension travels with the file, which a
+copied `scripts/` directory that lost its package.json would not. The JSON payload
+is byte-identical by sha256 before and after [X].
+
+**Three guards added where nothing was watching**, each mutation-checked against
+real source and data rather than its own fake:
+
+- The skill had **no test at all**, so three separate documents could name a
+  script that does not exist and stay green.
+- The routine seeder had no test, and both its failure modes are silent. Now
+  confirmed: all 13 routines seed, every workflow name resolves, every job ends
+  up **disabled**, and a second run adds nothing. Writing it corrected an
+  assumption of mine — the routine id is `weekday-morning-report`, the workflow
+  it fires is `wayland-morning-report`.
+- Only 2 of 22 skill-pinning presets were guarded. All 22 resolve today; the
+  guard locks that in. Smart Trader's two skills are proper bundled dirs.
+
+**The Constitution test was never flaky.** It runs the real service against a
+real corrupted key ring — real key derivation, a real native binary per test,
+~8s for four tests against a 10s budget. The cargo build it shells out to is
+0.087s warm and there are no sleeps, so crossing 10s under load was arithmetic.
+Budget raised to 30s; no assertion touched.
+
+**A trap that cost real time: `rtk` wraps `diff` and it LIED.** It reported
+"Files are identical" for two files that differ on line 78. `cmp` disagreed.
+Use `/usr/bin/diff` and `shasum` — never the bare command — when a comparison is
+load-bearing.
+
+**Still not verified — needs the GUI, and that is now the whole remaining gap:**
+Smart Trader has never met a chart, no Concierge turn has read the new
+diagnostics, the routine has never fired, and the doctor's new checks have never
+been seen in the UI. Everything reachable without a window has been run.
+
 Companion doc: `.planning/PLAN-2026-08-12-smart-trader-and-doctors.md` (the plan these
 commits execute, including decisions already made — do not relitigate them).
 Prior handoff: `.planning/HANDOFF-2026-08-12.md` on `packet/attribution-audit`.
