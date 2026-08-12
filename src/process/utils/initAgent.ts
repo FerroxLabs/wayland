@@ -22,7 +22,7 @@ import path from 'path';
 import { getSkillsDir, getBuiltinSkillsCopyDir, getAutoSkillsDir, getSystemDir, ProcessConfig } from './initStorage';
 import { computeOpenClawIdentityHash } from './openclawUtils';
 import { writeWorkspaceGitignore } from './workspaceGitignore';
-import { getDataPath } from './utils';
+import { copyDirectoryRecursively, getDataPath } from './utils';
 import { getInstallUuid } from '@process/services/kickoff/installUuid';
 import {
   recordManagedWorkspaceProvenance,
@@ -137,7 +137,52 @@ export async function setupAssistantWorkspace(
     const targetSkillsDir = path.join(workspace, skillsRelDir);
     await fs.mkdir(targetSkillsDir, { recursive: true });
 
-    // Always symlink _builtin skills for all native-skill backends
+    /**
+     * Put a skill inside the workspace by COPYING it, never by symlinking.
+     *
+     * wayland-core runs the agent against a `SandboxedFs` rooted at the
+     * workspace, and its containment check canonicalizes a path before
+     * comparing (`crates/wcore-tools/src/vfs.rs`) precisely so that "a symlink
+     * planted inside the sandbox that points outside is detected and refused".
+     * That is deliberate hardening, not a bug.
+     *
+     * Our skills live in the app's config directory, which is outside every
+     * workspace, so a symlinked skill resolved to a path the sandbox refuses:
+     * the agent could SEE the skill and could not read a single file in it.
+     * Skills whose whole value is markdown survived, because that text is fed
+     * to the model directly - but the seven bundled skills that ship scripts
+     * (market-open-report, pdf, morph-ppt and friends) were unusable.
+     *
+     * A copy canonicalizes to a path inside the root, so it just works, and it
+     * needs nothing from Core: the allowlist escape hatch named in that file's
+     * comment does not exist in the shipped API - `SandboxPolicy` is an enum of
+     * `Required | Bypass`, and `SandboxedFs::new` takes a single root.
+     *
+     * Cost is bounded: only the auto-builtin set plus the skills this assistant
+     * actually enables are copied, and only once per workspace.
+     */
+    const placeSkill = async (sourceSkillDir: string, targetSkillDir: string, label: string): Promise<void> => {
+      try {
+        await fs.stat(sourceSkillDir);
+      } catch {
+        console.warn(`[setupAssistantWorkspace] ${label} directory not found: ${sourceSkillDir}`);
+        return;
+      }
+      try {
+        await fs.lstat(targetSkillDir);
+        return; // already present - leave it alone
+      } catch {
+        // not there yet, fall through and copy
+      }
+      try {
+        await copyDirectoryRecursively(sourceSkillDir, targetSkillDir, { overwrite: false });
+        console.log(`[setupAssistantWorkspace] Copied ${label}: ${sourceSkillDir} -> ${targetSkillDir}`);
+      } catch (error) {
+        console.warn(`[setupAssistantWorkspace] Failed to copy ${label} ${sourceSkillDir}:`, error);
+      }
+    };
+
+    // Always place _builtin skills for all native-skill backends
     let autoSkillNames: string[] = [];
     try {
       autoSkillNames = await fs.readdir(autoSkillsDir);
@@ -149,20 +194,7 @@ export async function setupAssistantWorkspace(
       if (excludeSet.has(skillName)) continue;
       // Defense-in-depth: never symlink a blocked builtin skill
       if (isBlocked(skillName)) continue;
-      const sourceSkillDir = path.join(autoSkillsDir, skillName);
-      const targetSkillDir = path.join(targetSkillsDir, skillName);
-      try {
-        await fs.stat(sourceSkillDir);
-        try {
-          await fs.lstat(targetSkillDir);
-          // Already exists, skip
-        } catch {
-          await fs.symlink(sourceSkillDir, targetSkillDir, 'junction');
-          console.log(`[setupAssistantWorkspace] Symlinked builtin skill: ${skillName} -> ${targetSkillDir}`);
-        }
-      } catch {
-        console.warn(`[setupAssistantWorkspace] Builtin skill directory not found: ${sourceSkillDir}`);
-      }
+      await placeSkill(path.join(autoSkillsDir, skillName), path.join(targetSkillsDir, skillName), 'builtin skill');
     }
 
     // Symlink the bounded always-on set:
@@ -180,37 +212,12 @@ export async function setupAssistantWorkspace(
       const builtinCandidate = path.join(getBuiltinSkillsCopyDir(), skillName);
       const userCandidate = path.join(userSkillsDir, skillName);
       const sourceSkillDir = existsSync(builtinCandidate) ? builtinCandidate : userCandidate;
-      const targetSkillDir = path.join(targetSkillsDir, skillName);
-
-      try {
-        await fs.stat(sourceSkillDir);
-        try {
-          await fs.lstat(targetSkillDir);
-          // Already exists, skip
-        } catch {
-          await fs.symlink(sourceSkillDir, targetSkillDir, 'junction');
-          console.log(`[setupAssistantWorkspace] Symlinked skill: ${skillName} -> ${targetSkillDir}`);
-        }
-      } catch {
-        console.warn(`[setupAssistantWorkspace] Skill directory not found: ${sourceSkillDir}`);
-      }
+      await placeSkill(sourceSkillDir, path.join(targetSkillsDir, skillName), 'skill');
     }
 
     // Symlink extra skill directories (e.g. cron job SKILL.md dirs)
     for (const extraPath of options.extraSkillPaths ?? []) {
-      const skillDirName = path.basename(extraPath);
-      const targetSkillDir = path.join(targetSkillsDir, skillDirName);
-      try {
-        await fs.stat(extraPath);
-        try {
-          await fs.lstat(targetSkillDir);
-        } catch {
-          await fs.symlink(extraPath, targetSkillDir, 'junction');
-          console.log(`[setupAssistantWorkspace] Symlinked extra skill: ${extraPath} -> ${targetSkillDir}`);
-        }
-      } catch {
-        console.warn(`[setupAssistantWorkspace] Extra skill directory not found: ${extraPath}`);
-      }
+      await placeSkill(extraPath, path.join(targetSkillsDir, path.basename(extraPath)), 'extra skill');
     }
   }
 }
