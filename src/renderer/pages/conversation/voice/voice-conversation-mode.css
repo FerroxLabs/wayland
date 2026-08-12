@@ -268,6 +268,27 @@
   font-size: 12px;
 }
 
+/* The unabridged engine text, folded away until asked for. */
+.voice-mode__notice-detail {
+  grid-column: 1;
+  margin-top: 2px;
+  color: var(--vm-panel-ink-muted);
+  font-size: 12px;
+}
+
+.voice-mode__notice-detail summary {
+  color: var(--vm-panel-ink);
+  cursor: pointer;
+}
+
+.voice-mode__notice-detail p {
+  max-height: 148px;
+  margin: 6px 0 0;
+  overflow: auto;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
 .voice-mode__notice button {
   grid-column: 2;
   grid-row: 1 / span 2;

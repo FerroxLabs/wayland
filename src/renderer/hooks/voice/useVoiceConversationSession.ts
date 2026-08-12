@@ -40,6 +40,7 @@ import {
   MAX_SPOKEN_CHARACTERS,
   takeSpeakableSentences,
 } from '@/common/voice/voiceResponseText';
+import { describeVoiceFailureCause, type VoiceFailureCause } from '@/common/voice/voiceFailureCause';
 import { resolveVoiceTurnTerminal } from '@/common/voice/voiceTurnTerminal';
 import { createVoiceSpeechQueue, type VoiceSpeechQueue } from '@/renderer/services/voice/voiceSpeechQueue';
 import { useSpeechInput } from '@/renderer/hooks/system/useSpeechInput';
@@ -180,8 +181,14 @@ const CAPTURE_BLOCKED_COPY: Record<VoiceReadinessReason, (readiness: VoiceSessio
 /**
  * A refusal the user can see twice. `seq` is monotonic per session and exists
  * only to give the value identity - nothing reads it but React's own equality.
+ *
+ * `title` is the heading a surface puts above `message`. It is optional because
+ * most refusals are one self-describing sentence and the surface has a generic
+ * heading for those; a failure that knows its own class overrides it. `detail`
+ * is the unabridged engine text behind a summarized `message`, so a long cause
+ * can be opened rather than cut down to a fragment.
  */
-export type VoiceSurfaceError = { message: string; seq: number };
+export type VoiceSurfaceError = { message: string; seq: number; title?: string; detail?: string };
 
 const isTerminalCompletion = (status: string, state: string): boolean =>
   status === 'finished' || state === 'ai_waiting_input' || state === 'stopped' || state === 'error';
@@ -289,13 +296,13 @@ export const useVoiceConversationSession = ({
    */
   const [surfaceError, setSurfaceErrorState] = useState<VoiceSurfaceError | null>(null);
   const surfaceErrorSeqRef = useRef(0);
-  const setSurfaceError = useCallback((message: string | null) => {
+  const setSurfaceError = useCallback((message: string | null, options?: { title?: string; detail?: string }) => {
     if (message === null) {
       setSurfaceErrorState(null);
       return;
     }
     surfaceErrorSeqRef.current += 1;
-    setSurfaceErrorState({ message, seq: surfaceErrorSeqRef.current });
+    setSurfaceErrorState({ message, seq: surfaceErrorSeqRef.current, ...options });
   }, []);
   const [ttsConfig, setTtsConfig] = useState<TextToSpeechConfig | null>(null);
   const [sttConfig, setSttConfig] = useState<SpeechToTextConfig | null>(null);
@@ -379,6 +386,15 @@ export const useVoiceConversationSession = ({
    */
   const spokenCharsRef = useRef(0);
   const responseMessageIdRef = useRef<string | null>(null);
+  /**
+   * Why the current turn failed, taken off the terminal `error` frame.
+   *
+   * The frame carries the engine's own sentence - the very text the Chat tab
+   * prints - and the terminal handler that reacts to it is a separate callback
+   * that only receives an id. Parking it here is what lets the failure name its
+   * cause where the user is standing instead of pointing at another tab.
+   */
+  const turnFailureCauseRef = useRef<VoiceFailureCause | null>(null);
   /**
    * The live sentence queue, and the turn it belongs to. Held as a ref rather
    * than state because `clearAudio` has to reach it from event handlers that
@@ -618,6 +634,9 @@ export const useVoiceConversationSession = ({
       spokenLengthRef.current = 0;
       spokenCharsRef.current = 0;
       responseMessageIdRef.current = null;
+      // A cause belongs to ONE turn. Carried over, the next failure would be
+      // captioned with the previous turn's reason, which is worse than silence.
+      turnFailureCauseRef.current = null;
       const transition = applyEvent({ type: 'transcription_ready', turnId });
       if (!transition || transition.rejected) {
         setSurfaceError('The voice turn could not be correlated. Nothing was sent.');
@@ -1181,6 +1200,7 @@ export const useVoiceConversationSession = ({
         spokenLengthRef.current = 0;
         spokenCharsRef.current = 0;
         responseMessageIdRef.current = null;
+        turnFailureCauseRef.current = null;
         cancelAutoCapture();
         continuousArmedRef.current = false;
         setContinuousArmed(false);
@@ -1361,10 +1381,32 @@ export const useVoiceConversationSession = ({
 
       if (decision.kind === 'fail') {
         applyEvent({ type: 'fail', errorCode: decision.errorCode });
+        if (decision.errorCode === 'NO_SPEAKABLE_RESPONSE') {
+          setSurfaceError('This turn produced a visual or tool-only result. Open Chat to inspect it.', {
+            title: t('conversation.chat.voice.noSpeakableTitle', { defaultValue: 'Nothing to read aloud' }),
+          });
+          return;
+        }
+        /*
+         * The cause, said here, where the user is standing.
+         *
+         * It arrived on the same `error` frame that made this a failure at all -
+         * the engine's own sentence, redacted and log-linked by the producer -
+         * and the old copy answered it by sending the user to a different tab.
+         * The summary is the opening sentence; the rest stays openable rather
+         * than being cut into a fragment, because an engine refusal is routinely
+         * a paragraph with an absolute path through the middle of it.
+         */
+        const cause = turnFailureCauseRef.current;
         setSurfaceError(
-          decision.errorCode === 'TURN_FAILED'
-            ? 'The turn failed. Inspect Chat for the exact error and recovery options.'
-            : 'This turn produced a visual or tool-only result. Open Chat to inspect it.'
+          cause?.summary ??
+            t('conversation.chat.voice.turnFailedNoCause', {
+              defaultValue: 'Chat has the full turn, including the exact error and how to recover.',
+            }),
+          {
+            title: t('conversation.chat.voice.turnFailedTitle', { defaultValue: 'The turn failed' }),
+            detail: cause?.full,
+          }
         );
         return;
       }
@@ -1376,7 +1418,7 @@ export const useVoiceConversationSession = ({
       if (decision.kind === 'settle' && speechQueueTurnRef.current === turnId) speechQueueRef.current?.seal();
       if (decision.kind === 'speak') speakSegment(turnId, terminalId, decision.tail);
     },
-    [applyEvent, speakSegment]
+    [applyEvent, setSurfaceError, speakSegment, t]
   );
 
   useEffect(() => {
@@ -1401,6 +1443,9 @@ export const useVoiceConversationSession = ({
         return;
       }
       if (message.type === 'error') {
+        // Read BEFORE the terminal handler runs: `completeTurn` receives an id
+        // and nothing else, and this frame is the only place the reason exists.
+        turnFailureCauseRef.current = describeVoiceFailureCause(message.data);
         completeTurn(message.msg_id || newCorrelationId('voice-error'), true);
         return;
       }
@@ -1441,7 +1486,14 @@ export const useVoiceConversationSession = ({
         const count = detail.deferredFileCount ?? 0;
         applyEvent({ type: 'fail', errorCode: 'VOICE_TURN_DEFERRED' });
         setSurfaceError(
-          `Draft ready — press send to include your ${count} attachment${count === 1 ? '' : 's'}.`
+          `Draft ready — press send to include your ${count} attachment${count === 1 ? '' : 's'}.`,
+          // Nothing went wrong here, so it must not inherit the generic failure
+          // heading the other refusals share.
+          {
+            title: t('conversation.chat.voice.draftReadyTitle', {
+              defaultValue: 'Your words are waiting in the draft',
+            }),
+          }
         );
         return;
       }
@@ -1453,7 +1505,7 @@ export const useVoiceConversationSession = ({
     };
     window.addEventListener(VOICE_TURN_SETTLED_EVENT, handleSettled);
     return () => window.removeEventListener(VOICE_TURN_SETTLED_EVENT, handleSettled);
-  }, [applyEvent, conversationId, isActive]);
+  }, [applyEvent, conversationId, isActive, setSurfaceError, t]);
 
   useEffect(() => {
     if (!isActive) return;

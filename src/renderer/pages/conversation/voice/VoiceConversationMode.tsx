@@ -7,6 +7,7 @@
 import { MessageCircle, Mic, MicOff, Settings2, Square, Volume2, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { useInRouterContext, useNavigate } from 'react-router-dom';
 import type { VoiceSessionSnapshot } from '@/common/voice/VoiceSessionMachine';
 import { useVoiceSessionSafe } from './VoiceSessionContext';
@@ -48,7 +49,10 @@ const STATE_COPY: Record<VoiceSessionSnapshot['state'], string> = {
   speaking: 'Speaking',
   interrupted: 'Stopping',
   reconnecting: 'Reconnecting',
-  error: 'Voice needs attention',
+  // "Voice needs attention" described the app's posture and named nothing that
+  // had happened. The caption states the situation; the alert below it states
+  // the cause.
+  error: 'Voice stopped',
   ended: 'Ended',
 };
 
@@ -56,6 +60,7 @@ const VoiceConversationOrb: React.FC<{
   conversationTitle?: React.ReactNode;
   openVoiceSettings: () => void;
 }> = ({ conversationTitle, openVoiceSettings }) => {
+  const { t } = useTranslation();
   const session = useVoiceSessionSafe();
   const [captionsVisible, setCaptionsVisible] = useState(true);
 
@@ -194,8 +199,30 @@ const VoiceConversationOrb: React.FC<{
           // an identical second refusal is invisible to a screen reader too:
           // `role="alert"` only announces on a content change.
           <div key={error.seq} className='voice-mode__notice voice-mode__notice--error' role='alert'>
-            <strong>Nothing hidden</strong>
+            {/*
+              "Nothing hidden" was the heading here, above a failed turn. It was
+              meant as a promise about the app and read as a riddle: a heading
+              has to say WHAT HAPPENED. Failures that know their own class bring
+              their own; everything else is one self-describing sentence under a
+              heading that states the outcome.
+            */}
+            <strong>
+              {error.title ?? t('conversation.chat.voice.noticeTitle', { defaultValue: 'That did not go through' })}
+            </strong>
             <span>{error.message}</span>
+            {/*
+              The rest of a long engine refusal, openable rather than cut. The
+              plaintext-credentials refusal the owner hit is four sentences with
+              an absolute path in the middle; trimmed to fit it means nothing.
+            */}
+            {error.detail && error.detail !== error.message && (
+              <details className='voice-mode__notice-detail'>
+                <summary>
+                  {t('conversation.chat.voice.turnFailedShowFull', { defaultValue: 'Show the full message' })}
+                </summary>
+                <p>{error.detail}</p>
+              </details>
+            )}
           </div>
         )}
 
