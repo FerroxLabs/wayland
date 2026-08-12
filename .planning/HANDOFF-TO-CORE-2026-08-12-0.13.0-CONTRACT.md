@@ -11,6 +11,57 @@ Every claim below is marked **[X] executed** or **[S] read from source**. Nothin
 
 ---
 
+## 0. Where everything lives (absolute paths)
+
+**This document**
+```
+/Users/seandonahoe/dev/wayland-worktrees/wl-integration/.planning/HANDOFF-TO-CORE-2026-08-12-0.13.0-CONTRACT.md
+```
+
+**Desktop worktree** — branch `packet/wl-integration`, pushed to remote `ferrox`
+(`FerroxLabs/wayland`). This is a WORKTREE, not the canonical tree; do not write to
+`/Users/seandonahoe/dev/wayland/app`.
+```
+/Users/seandonahoe/dev/wayland-worktrees/wl-integration
+```
+
+**The Core brief this replies to**, read read-only from the core lane's session scratchpad:
+```
+/private/tmp/claude-501/-Users-seandonahoe-dev-waylandcore/11929102-d58a-47e9-9644-0e9d530b58c4/scratchpad/DESKTOP-INTEGRATION-0.13.0.md
+```
+
+**Desktop source referenced below** (all relative to the worktree root above):
+
+| what | path | line |
+|---|---|---|
+| The pin, and every check in §1 | `src/process/agent/wcore/desktopContractV1.ts` | `DESKTOP_CORE_V1_PIN` :37, `assertDescriptor` :274, tool-sequence rule :414, `negotiate` :1035 |
+| Exit-code handling (§4) | `src/process/task/WCoreManager.ts` | `handleProcessExit` :1326 |
+| Skill placement, now copying (§5) | `src/process/utils/initAgent.ts` | `placeSkill` inside `setupAssistantWorkspace` |
+
+**Core source referenced** (in `/Users/seandonahoe/dev/waylandcore`):
+
+| what | path |
+|---|---|
+| Sandbox containment + the symlink refusal (§5) | `crates/wcore-tools/src/vfs.rs` |
+| `SandboxPolicy` is an enum, not a struct (§6) | `crates/wcore-types/src/execution_policy.rs:33` |
+
+**The binary all the [X] evidence came from** — the published 0.12.26 bundled in Desktop:
+```
+/Users/seandonahoe/dev/wayland-worktrees/wl-integration/resources/bundled-wayland-core/darwin-arm64/wayland-core
+```
+
+**Desktop-side commits referenced**, all on `packet/wl-integration`:
+
+- `256e6399b` — contract failure now names `call_id` / `msg_id` and splits the two faults (§3)
+- `4f55c1a14` — skills copied into the workspace instead of symlinked (§5)
+
+**Companion Desktop handoff**, for the wider Smart Trader context:
+```
+/Users/seandonahoe/dev/wayland-worktrees/wl-integration/.planning/HANDOFF-2026-08-12-SMART-TRADER-LIVE.md
+```
+
+---
+
 ## 1. §3 is wrong, and it inverts its own conclusion
 
 The brief says Desktop implements no part of contract negotiation, that the `contract` block is
@@ -44,11 +95,27 @@ session on the first frame.
 
 ### The published engine takes the v1 path, not legacy [X]
 
-Run against the bundled published binary, scratch `WAYLAND_HOME`, fake key, no real config:
+Reproduce it verbatim. Scratch `WAYLAND_HOME`, a deliberately fake key, never the real config
+(Sean's own `config.toml` sets `backend = "plaintext"` and the engine refuses to start on it):
 
+```bash
+SC=$(mktemp -d)
+API_KEY="not-a-real-key-init-probe" WAYLAND_HOME="$SC" timeout 25 \
+  /Users/seandonahoe/dev/wayland-worktrees/wl-integration/resources/bundled-wayland-core/darwin-arm64/wayland-core \
+  --json-stream --assistant '__wayland_desktop_session' \
+  > "$SC/out.jsonl" 2>"$SC/err.txt" < /dev/null
+
+python3 -c "
+import json
+for l in open('$SC/out.jsonl'):
+    o=json.loads(l)
+    if o.get('type')=='ready':
+        print(json.dumps(o['contract'], indent=2)); break
+"
 ```
-WAYLAND_HOME=<scratch> wayland-core --json-stream --assistant __wayland_desktop_session
-```
+
+Without a key the engine exits 1 at init with `init_failed` and never reaches `ready`, which is
+why the fake one is needed. It makes no provider call — `ready` is emitted before any.
 
 First frame is `ready`, and it **does** carry a `contract` block. So `assertDescriptor` runs on
 every real session. Frames observed, in order: `ready`, `execution_policy`, `workspace_policy`,
