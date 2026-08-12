@@ -289,7 +289,20 @@ export async function buildPresetAssistantParams(
   const type = getConversationTypeForBackend(presetAgentType);
   const preferredMode = await resolvePreferredMode(presetAgentType);
   const preferredAcpModelId = type === 'acp' ? await resolvePreferredAcpModelId(presetAgentType) : undefined;
-  const model = type === 'gemini' ? await resolveGeminiModel() : ({} as TProviderWithModel);
+  // wcore needs a real provider row, exactly as `buildCliAgentParams` already
+  // resolves one. This used to hand it `{} as TProviderWithModel` - a cast
+  // asserting a shape the value does not have - and a preset assistant is
+  // precisely the case where the user chose the assistant and never chose a
+  // model, so the empty object was what the conversation got created with.
+  // Throwing when nothing is configured matches the sibling helper and lands on
+  // the caller's existing catch, which shows "create failed" instead of opening
+  // a conversation that dies on its first turn.
+  const model =
+    type === 'gemini'
+      ? await resolveGeminiModel()
+      : type === 'wcore'
+        ? await getDefaultWCoreModel()
+        : ({} as TProviderWithModel);
 
   return buildAgentConversationParams({
     backend: agent.backend,
