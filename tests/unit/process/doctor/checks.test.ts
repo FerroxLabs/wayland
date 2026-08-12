@@ -7,7 +7,11 @@
 import { describe, it, expect } from 'vitest';
 import { checkProviderConnectivity, checkModelRegistrySanity } from '@process/doctor/checks/providerChecks';
 import type { ProviderRegistryReader, ConnectProbe } from '@process/doctor/checks/providerChecks';
-import { checkEngineReachable, checkEngineRouting } from '@process/doctor/checks/engineChecks';
+import {
+  checkEngineReachable,
+  checkEngineRouting,
+  checkEngineContractPin,
+} from '@process/doctor/checks/engineChecks';
 import { checkMcpServers } from '@process/doctor/checks/mcpChecks';
 import { checkBackends } from '@process/doctor/checks/backendChecks';
 import {
@@ -219,6 +223,71 @@ describe('checkEngineReachable', () => {
     const result = await checkEngineReachable(() => ({ available: true, version: 'v0.10.0', path: '/x' }));
     expect(result.status).toBe('pass');
     expect(result.detail).toContain('v0.10.0');
+  });
+});
+
+describe('checkEngineContractPin', () => {
+  const PIN = 'sha256:4971f456655a6ee7c063a3417ebf82a27a8550420d3e6ed744bdd4be696956e9';
+
+  it('fails when the binary does not carry the pinned contract', async () => {
+    const result = await checkEngineContractPin(
+      { binaryPath: () => '/x/wayland-core', binaryContains: async () => false },
+      PIN
+    );
+    expect(result.status).toBe('fail');
+    expect(result.remediation).toBeDefined();
+  });
+
+  it('passes when the binary carries the pinned contract', async () => {
+    const result = await checkEngineContractPin(
+      { binaryPath: () => '/x/wayland-core', binaryContains: async () => true },
+      PIN
+    );
+    expect(result.status).toBe('pass');
+  });
+
+  /**
+   * The pinned build "still self-reports 0.12.26, so identify it by sha, never
+   * by --version" (desktopContractV1.ts). A check that compared versions would
+   * pass on precisely the binary that cannot start a turn, so assert that the
+   * digest is what gets looked for.
+   */
+  it('probes for the pinned schema digest, not a version string', async () => {
+    const asked: string[] = [];
+    await checkEngineContractPin(
+      {
+        binaryPath: () => '/x/wayland-core',
+        binaryContains: async (marker) => {
+          asked.push(marker);
+          return true;
+        },
+      },
+      PIN
+    );
+    expect(asked).toEqual([PIN]);
+  });
+
+  /** engine.reachable already fails on a missing binary; two fails, one cause. */
+  it('warns rather than failing when no binary resolved', async () => {
+    const result = await checkEngineContractPin(
+      { binaryPath: () => undefined, binaryContains: async () => false },
+      PIN
+    );
+    expect(result.status).toBe('warn');
+  });
+
+  it('warns when the binary cannot be read', async () => {
+    const result = await checkEngineContractPin(
+      {
+        binaryPath: () => '/x/wayland-core',
+        binaryContains: async () => {
+          throw new Error('EACCES: permission denied');
+        },
+      },
+      PIN
+    );
+    expect(result.status).toBe('warn');
+    expect(result.detail).toContain('EACCES');
   });
 });
 

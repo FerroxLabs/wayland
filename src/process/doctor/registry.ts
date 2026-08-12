@@ -27,6 +27,7 @@ import { ConnectionTester } from '@process/providers/detection/ConnectionTester'
 import { Curator } from '@process/providers/catalog/Curator';
 import type { ProviderId } from '@process/providers/types';
 import { detectWCore } from '@process/agent/wcore/binaryResolver';
+import { DESKTOP_CORE_V1_PIN } from '@process/agent/wcore/desktopContractV1';
 import { readConfig, resolveUserConfigPath } from '@process/agent/wcore/configBridge';
 import { nativeConfigDir } from '@process/agent/wcore/profilePaths';
 import { getConfigPath } from '@process/utils/utils';
@@ -38,8 +39,9 @@ import type { IProject } from '@/common/types/project';
 import { projectServiceSingleton } from '@process/services/projectServiceSingleton';
 import { conversationServiceSingleton } from '@process/services/conversationServiceSingleton';
 import type { DoctorCheck } from './types';
+import { fileContainsMarker } from './fileMarker';
 import { checkProviderConnectivity, checkModelRegistrySanity } from './checks/providerChecks';
-import { checkEngineReachable, checkEngineRouting } from './checks/engineChecks';
+import { checkEngineReachable, checkEngineRouting, checkEngineContractPin } from './checks/engineChecks';
 import { checkMcpServers } from './checks/mcpChecks';
 import { checkBackends } from './checks/backendChecks';
 import {
@@ -209,6 +211,23 @@ export function buildDoctorChecks(): DoctorCheck[] {
       titleKey: 'settings.doctor.checks.engineReachable',
       category: 'engine',
       run: () => checkEngineReachable(detectWCore),
+    },
+    {
+      id: 'engine.contractPin',
+      titleKey: 'settings.doctor.checks.engineContractPin',
+      category: 'engine',
+      run: () =>
+        checkEngineContractPin(
+          {
+            binaryPath: () => detectWCore().path,
+            binaryContains: (marker) => {
+              const path = detectWCore().path;
+              if (!path) return Promise.resolve(false);
+              return fileContainsMarker(path, marker);
+            },
+          },
+          DESKTOP_CORE_V1_PIN.schemaDigest
+        ),
     },
     {
       id: 'engine.routing',
