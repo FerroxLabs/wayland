@@ -247,7 +247,49 @@ it would let bundled skills stay shared instead of being copied per conversation
 
 ---
 
-## 7. What Desktop is NOT asking for
+## 6b. RESOLVED 2026-08-13 — the 0.13.0 values, read off the wire
+
+Core supplied a real binary and it answers §2. Verified here, not taken on trust:
+
+```
+/Users/seandonahoe/Downloads/wcore-0130/wayland-core-aarch64-apple-darwin/wayland-core
+wayland-core 0.13.0 · Mach-O 64-bit arm64
+sha256 c55205d4b36cd5fd843c767c897e8edb30a4dd193e74da0a8fdad0dcdb24b229
+```
+
+Driven with the §1 reproduction; these are the values it puts on the wire [X]:
+
+| field | 0.12.26 published | 0.13.0 | moves? |
+|---|---|---|---|
+| `name` | `wayland-desktop-core` | same | no |
+| `major` | 1 | 1 | no |
+| `minor` | 13 | **14** | **yes** |
+| `generator` | `wcore-desktop-contract-gen/14` | same | **no** |
+| `fixture_digest` | `sha256:710a602f…` | **`sha256:d729f9336e7ba0b4ed5a4f50ffdf3e3903ff7f38d000f43275fc654e87e2ec3d`** | **yes** |
+| `schema_digest` | `sha256:4971f456…` | **`sha256:306d83e19fa01a83c1d17d6365c9159efeb94373b8328259cbf842d783e00152`** | **yes** |
+| `source_inputs_digest` | `sha256:6802f807…` | **`sha256:55d366c8706ea852b55595049e5dcb9b1d641745a2209e938121e95644c2e6d6`** | **yes** |
+| `capabilities` | 17 keys | 17 keys, **identical** | no |
+
+So the baseline question in §2 resolves to **1.13 → 1.14**, and the generator does **not** move —
+it was already 14 on the published 0.12.26.
+
+### The pin bump and the engine bump MUST ship in the same artifact
+
+`assertDescriptor` compares against exactly one pin. There is no dual-version acceptance and no
+range. That means:
+
+- Bump the pin now, on today's bundled 0.12.26, and **every session dies** with
+  `contract_minor_mismatch` — the same failure this document warned Core about, pointed at us.
+- Ship 0.13.0 to users without moving the pin and the same thing happens.
+
+Neither side can move first. The pin edit in `desktopContractV1.ts:37` and the engine version in
+`scripts/prepareWaylandCore.js` (`DEFAULT_WCORE_VERSION`) have to land together, and the pairing
+should be proven on the override route **before** either is published — drop the 0.13.0 binary in
+`<userData>/wayland-core-overrides/darwin-arm64/` with a locally-bumped pin, and confirm a real
+turn completes.
+
+Until 0.13.0 is published, Desktop deliberately holds the pin at minor 13. That is not
+inattention; it is the only value that works against the engine users actually have.
 
 No blocking asks for 0.13.0 beyond §2 — publish the final contract values so the pin can move in
 the same window. Everything else here is either informational or already fixed on our side.
