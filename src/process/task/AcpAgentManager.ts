@@ -26,7 +26,7 @@ import type {
   AcpSessionConfigOption,
 } from '@/common/types/acpTypes';
 import { ACP_BACKENDS_ALL, getCurrentWrapperVersion, getFluxCompat } from '@/common/types/acpTypes';
-import { isFluxModelId } from '@/common/config/flux';
+import { FLUX_MODEL_IDS, FLUX_PROVIDER_ID, isFluxModelId } from '@/common/config/flux';
 import { ExtensionRegistry } from '@process/extensions';
 import { getDatabase } from '@process/services/database';
 import { ProviderRepository } from '@process/providers/storage/ProviderRepository';
@@ -89,6 +89,15 @@ import { extractTextFromMessage, processCronInMessage } from './MessageMiddlewar
 import { ConversationTurnCompletionService } from './ConversationTurnCompletionService';
 import { resolveFluxRouting, type FluxRoutingResult, type RoutingDecision } from '@process/task/fluxRouting';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
+import {
+  NANO_KNOWN_PROVIDER_IDS,
+  buildWaylandNanoProvidersPayload,
+  buildWnanoOAuthBearerEnv,
+  cleanupWnanoFluxKeyFile,
+  writeWnanoFluxKeyFile,
+  type WnanoOAuthBearerSource,
+  type WnanoProviderEntry,
+} from '@process/task/wnano';
 import type { McpConfigProjection } from '@process/acp/session/McpConfig';
 import { createMcpSessionState, type McpSessionBackend, type McpSessionState } from '@/common/mcp/sessionReceipt';
 import { createMcpSessionDigestKey } from '@process/services/mcpServices/mcpSessionTruthGate';
@@ -834,6 +843,17 @@ ${collectedResponses.join('\n')}`;
       }
     }
 
+    // wnano (C8 provider parity): advertise the connected provider set via
+    // WAYLAND_NANO_PROVIDERS and inject short-lived OAuth bearers. Merged at
+    // the same point as buildConnectedProviderEnv; an explicit custom-agent
+    // env var still wins over the auto-injected values.
+    if (data.backend === 'wnano') {
+      const wnanoEnv = await this.buildWnanoProvidersEnv();
+      for (const [key, value] of Object.entries(wnanoEnv)) {
+        if (!(key in mergedEnv)) mergedEnv[key] = value;
+      }
+    }
+
     // Native (non-Flux) codex spawns: point CODEX_HOME at a Wayland-scoped clone
     // of the user's ~/.codex so we can set the session sandbox mode WITHOUT ever
     // writing the user's own config.toml (#536). The clone copies their config
@@ -987,12 +1007,24 @@ ${collectedResponses.join('\n')}`;
     // resolved (its cached CLI model / configured preferred id) so the routing
     // decision honors the native model instead of blindly routing to Flux.
     const resolvedModelId = selectedModelId ? undefined : await this.resolveBackendModelId(backend);
+    // wnano (C8, Q4 ruling): hand the connected Flux key off as a FILE, never
+    // as FLUX_API_KEY. Written before the routing decision so the emitted
+    // FLUX_API_KEY_FILE points at a live file (atomic write, 0600 on POSIX /
+    // userData ACL on Windows, removed again in kill()). Best-effort: a failed
+    // write yields no path and the wnano arm falls back to 'native' so an
+    // ambient shell FLUX_API_KEY (the documented dev-only fallback) can flow.
+    let fluxKeyFilePath: string | undefined;
+    if (backend === 'wnano' && fluxKey) {
+      fluxKeyFilePath = await writeWnanoFluxKeyFile(app.getPath('userData'), this.conversation_id, fluxKey);
+      if (fluxKeyFilePath) this.wnanoFluxKeyFilePath = fluxKeyFilePath;
+    }
     return resolveFluxRouting({
       backend,
       selectedModelId,
       resolvedModelId,
       fluxConnected: Boolean(fluxKey),
       fluxKey,
+      fluxKeyFilePath,
       routeThroughFlux: Boolean(routeThroughFlux),
     });
   }
@@ -1024,6 +1056,102 @@ ${collectedResponses.join('\n')}`;
   /** The connected flux-router key, or undefined when not connected (R13 safety gate). */
   private async readFluxKey(): Promise<string | undefined> {
     return readConnectedFluxKey();
+  }
+
+  /**
+   * Path of the per-conversation FLUX_API_KEY_FILE written for the most recent
+   * wnano spawn, so kill() can remove it at teardown (C8 lifecycle cleanup).
+   */
+  private wnanoFluxKeyFilePath: string | undefined;
+
+  /**
+   * Build the wnano provider-parity env (C8, design §6.2/§6.3):
+   * `WAYLAND_NANO_PROVIDERS` (the bounded, secret-free advertisement payload)
+   * plus short-lived OAuth bearer vars for advertised OAuth providers. Empty
+   * when nothing is connected - Nano then falls back to Flux-only
+   * advertisement. Never throws; never logs credential material.
+   */
+  private async buildWnanoProvidersEnv(): Promise<Record<string, string>> {
+    const env: Record<string, string> = {};
+    try {
+      const db = await getDatabase();
+      const repo = new ProviderRepository(db.getDriver());
+      const connected = new Set(
+        repo
+          .listRegistryProviders()
+          .filter((provider) => provider.state === 'connected')
+          .map((provider) => provider.providerId)
+      );
+
+      const entries: WnanoProviderEntry[] = [];
+      for (const providerId of NANO_KNOWN_PROVIDER_IDS) {
+        if (!connected.has(providerId)) continue;
+        const stored = repo.getRegistryProviderCreds(providerId);
+        // Stored API-key creds carry the key under `key` (mirrors
+        // buildConnectedProviderEnv); for OAuth-connected xAI this is the
+        // current access token. `hasKey` is advisory UX metadata only.
+        const key = stored.status === 'ok' ? stored.creds.key : undefined;
+        const hasKey = typeof key === 'string' && key.length > 0;
+        // flux-router's model set is Desktop's fixed tier list; Nano owns the
+        // live Flux catalog itself. Every other provider advertises its
+        // persisted registry catalog plus any user-added custom model ids.
+        const models =
+          providerId === FLUX_PROVIDER_ID
+            ? [...FLUX_MODEL_IDS]
+            : [...repo.getRegistryCatalog(providerId).map((model) => model.id), ...repo.listCustomModels(providerId)];
+        entries.push({ provider: providerId, models, hasKey });
+      }
+
+      const payload = buildWaylandNanoProvidersPayload(entries);
+      if (!payload) return env;
+      env.WAYLAND_NANO_PROVIDERS = payload;
+      Object.assign(env, await this.buildWnanoOAuthBearerEnv(entries.map((entry) => entry.provider)));
+    } catch (err) {
+      mainWarn('[AcpAgentManager]', 'buildWnanoProvidersEnv failed', err);
+    }
+    return env;
+  }
+
+  /**
+   * Short-lived OAuth bearer env for wnano spawns (C8, Q1(b) ruling). Desktop
+   * owns refresh; Nano receives the ACCESS token only, plus non-secret expiry
+   * metadata. Refresh tokens are never injected. v1 wires xAI only - the only
+   * Desktop OAuth provider in Nano's known id set (chatgpt-subscription is not
+   * in the set and needs the deferred Responses wire anyway).
+   */
+  private async buildWnanoOAuthBearerEnv(advertisedProviderIds: readonly string[]): Promise<Record<string, string>> {
+    if (!advertisedProviderIds.includes('xai')) return {};
+    try {
+      // Dynamic imports avoid the OAuth module-init cycle (same pattern as the
+      // McpService import in loadCodexSessionMcpServers).
+      const [{ loadXaiTokens }, { xaiRefreshToken }] = await Promise.all([
+        import('@process/onboarding/xaiTokenStore'),
+        import('@process/onboarding/xaiOAuth'),
+      ]);
+      const db = await getDatabase();
+      const repo = new ProviderRepository(db.getDriver());
+      const source: WnanoOAuthBearerSource = {
+        nanoProviderId: 'xai',
+        load: async () => {
+          const stored = await loadXaiTokens();
+          if (!stored?.refreshToken) return null; // API-key-connected xAI: no OAuth bundle
+          const creds = repo.getRegistryProviderCreds('xai');
+          const key = creds.status === 'ok' ? creds.creds.key : undefined;
+          const accessToken = typeof key === 'string' && key.length > 0 ? key : undefined;
+          return { accessToken, expiresAtMs: stored.expiresAt };
+        },
+        refresh: async () => {
+          // xaiRefreshToken prefers the engine-rotated bundle (#391), so this
+          // never races Wayland Core's single-use refresh-token rotation.
+          const result = await xaiRefreshToken();
+          return result.ok;
+        },
+      };
+      return await buildWnanoOAuthBearerEnv(advertisedProviderIds, [source]);
+    } catch (err) {
+      mainWarn('[AcpAgentManager]', 'buildWnanoOAuthBearerEnv failed', err);
+      return {};
+    }
   }
 
   /**
@@ -2632,6 +2760,14 @@ ${collectedResponses.join('\n')}`;
   async kill(_reason?: AgentKillReason): Promise<void> {
     this.flushBufferedStreamTextMessages();
     this.flushThinkingToDb(undefined, 'done');
+
+    // C8: remove the per-conversation FLUX_API_KEY_FILE handoff written for
+    // wnano spawns (lifecycle cleanup). Best-effort; never blocks teardown.
+    if (this.wnanoFluxKeyFilePath) {
+      const keyFile = this.wnanoFluxKeyFilePath;
+      this.wnanoFluxKeyFilePath = undefined;
+      await cleanupWnanoFluxKeyFile(keyFile);
+    }
 
     const BACKEND_SHUTDOWN_TIMEOUT_MS = 12_000;
 

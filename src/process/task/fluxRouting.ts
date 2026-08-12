@@ -92,6 +92,18 @@ export const RESPONSES_FLUX_BACKENDS = ['codex'] as const;
 export const SCOPED_HOME_FLUX_BACKENDS = ['hermes'] as const;
 
 /**
+ * Backends that receive the connected Flux key via a key FILE handoff (C8
+ * provider parity, Q4 ruling) instead of a `FLUX_API_KEY` env var. wnano
+ * (Wayland Nano) resolves its Flux credential as `FLUX_API_KEY` ->
+ * `FLUX_TEST_KEY` -> the file named by `FLUX_API_KEY_FILE`. Desktop writes the
+ * connected key to a per-conversation file under userData (atomic, 0600 on
+ * POSIX / userData ACL on Windows, cleaned up at teardown) and injects the
+ * PATH - never the secret. `FLUX_API_KEY` stays a documented manual/dev-only
+ * fallback for non-Desktop launches; Desktop never emits it.
+ */
+export const FILE_HANDOFF_FLUX_BACKENDS = ['wnano'] as const;
+
+/**
  * Native codex/OpenAI key vars stripped before a flux-routed codex spawn, so it
  * never also carries the user's native credentials (mutual exclusivity).
  * FLUX_API_KEY is deliberately NOT here.
@@ -126,6 +138,13 @@ export type FluxRoutingContext = {
   resolvedModelId?: string;
   fluxConnected: boolean;
   fluxKey: string | undefined;
+  /**
+   * Absolute path of the Desktop-written Flux key file (FILE_HANDOFF backends
+   * only). AcpAgentManager writes the connected key to this file before
+   * computing the routing decision; the path - never the key - is what the
+   * routing result emits as `FLUX_API_KEY_FILE`.
+   */
+  fluxKeyFilePath?: string;
   routeThroughFlux: boolean;
 };
 
@@ -149,8 +168,33 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
   const isAnthropic = (ANTHROPIC_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
   const isResponses = (RESPONSES_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
   const isScopedHome = (SCOPED_HOME_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
-  if (!isOpenAi && !isAnthropic && !isResponses && !isScopedHome) return UNKNOWN();
+  const isFileHandoff = (FILE_HANDOFF_FLUX_BACKENDS as readonly string[]).includes(ctx.backend);
+  if (!isOpenAi && !isAnthropic && !isResponses && !isScopedHome && !isFileHandoff) return UNKNOWN();
   if (!ctx.fluxConnected || !ctx.fluxKey) return NATIVE();
+
+  if (isFileHandoff) {
+    // wnano does its OWN per-provider routing + credential resolution, so the
+    // handoff is unconditional (not gated on the selected model or the global
+    // toggle): every wnano spawn gets the connected Flux key whenever one
+    // exists, independent of which provider's model the chat is bound to.
+    //
+    // Mutual exclusivity, wnano-style: the connected key (via the file) must
+    // win over a stale shell-exported FLUX_API_KEY/FLUX_TEST_KEY, exactly as
+    // the other arms strip native keys so their flux surface wins. Native
+    // PROVIDER keys (OPENAI_API_KEY, ...) are deliberately NOT stripped here -
+    // unlike the surface arms, wnano consumes them as its multi-provider
+    // credentials (C8: WAYLAND_NANO_PROVIDERS + buildConnectedProviderEnv).
+    //
+    // Without a written key file (write failed / no path) there is nothing to
+    // hand off: fall back to 'native' so Nano can still pick up an ambient
+    // FLUX_API_KEY from the user's shell (the documented dev-only fallback).
+    if (!ctx.fluxKeyFilePath) return NATIVE();
+    return {
+      routing: 'flux',
+      env: { FLUX_API_KEY_FILE: ctx.fluxKeyFilePath },
+      stripKeys: ['FLUX_API_KEY', 'FLUX_TEST_KEY'],
+    };
+  }
 
   // L3 (R5 rule 1: an explicit per-chat pick wins). The picker feeds explicit
   // model ids per chat - a flux-* alias OR a native model id. When there is no
