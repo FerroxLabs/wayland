@@ -107,7 +107,33 @@ TradingView running; quitting it or restarting it normally takes the tools offli
 
 ## Step 3 — the watchlist
 
-**The export file will not import as-is.** This is the trap.
+**Default to TradingView's own import. Do not add the symbols yourself.**
+
+TradingView takes the `.txt` export directly — the user picks Import from the watchlist menu,
+chooses the file, and it is done in one step. That is faster than anything this connector can
+do, and it does not carry the three defects documented below.
+
+1. Tell them where the file is, and that it imports as-is with no conversion.
+2. Walk them to it: **the watchlist panel, the three-dot menu at its top, then "Import
+   list…"**. Say which control, in order.
+3. **Then verify, and this part is yours to do**: `watchlist_get`, compare the count against
+   the file, and name anything missing. That is the half they cannot easily check themselves.
+
+It is worth being clear about why this is not the agent doing less. Adding seventy symbols
+through the connector takes minutes, reports success for tickers that do not exist, and
+**cannot be undone** — so a mistake lands permanently in the list they use every day. Handing
+them a one-click native import and then checking the result honestly is the better outcome,
+not the lazier one.
+
+**Use the connector's own import only when they ask you to do it for them**, or for topping up
+a handful of symbols later. If you do, everything below applies.
+
+---
+
+### If you are driving the import yourself
+
+**The export file will not import as-is through the CONNECTOR.** This is the trap — note it
+does not apply to TradingView's native import above, which takes the raw `.txt`.
 
 `watchlist_import` wants a JSON file in the shape `watchlist_export` writes:
 
@@ -133,19 +159,51 @@ the import JSON only when `--json` is given. Node only, no dependencies. Write `
 app-owned directory — never into a git repository, and never next to the user's own file.
 It exits non-zero if the file parsed to zero symbols, which means it was not the export.
 
+⚠ **The file must live under the user's home directory or the OS temp directory.**
+`watchlist_import` rejects anything else outright ("Paths must resolve under home directory
+or system tmp"), and `/tmp` on macOS does **not** count — it wants the real `os.tmpdir()`.
+An app-owned userData folder satisfies this on every platform.
+
+⚠ **The watchlist is NOT part of the chart layout.** It belongs to the account, so it is
+shared by every layout they own. Doing this work on a scratch layout does not protect it.
+Adding seventy symbols changes the list they use every day, so ask before you write, and say
+that plainly — "this will add 44 names to the watchlist you use everywhere" — not "I'll set
+up your watchlist".
+
 Then load it, either way:
 
 - **`watchlist_import`** with `file_path` = the JSON you just wrote. `mode` defaults to
   `merge` (adds what is missing). `replace` syncs the list to the file and therefore
-  **deletes** symbols that are not in it — only use it if the user explicitly asks to
-  replace their watchlist. A `dry_run: true` pass first is cheap and shows what would change.
+  **deletes** symbols that are not in it.
 - **`watchlist_add_bulk`** with the symbol list. **Maximum 100 symbols per call**; the
   converter's stderr line tells you how many calls that is.
 
+### Three things that are not true of this API, and will burn you
+
+All three verified by running them against TradingView Desktop 3.3.0.
+
+1. **`watchlist_add_bulk` reports success for symbols that DO NOT EXIST.** A deliberately
+   invalid ticker came back in `added`, with `error_count: 0`, and then sat in the watchlist
+   as a dead row. **Reading the per-symbol results is not enough.** Confirm with
+   `watchlist_get` and treat a row whose `last` is null as one that did not resolve.
+
+   Careful with that check: immediately after TradingView launches, **every** row reports
+   null until the datafeed populates. Null means "unresolved" only on a list that has
+   already settled — so read it twice if the app has just started.
+
+2. **Removal is broken.** `watchlist_remove` and `watchlist_remove_bulk` both report
+   `Remove reported a click but "<symbol>" is still in the watchlist`, and the symbol really
+   does survive. **So an add is not undoable from here.** Never tell the user you can put
+   their watchlist back the way it was; if something lands that should not have, say plainly
+   that they need to right-click the row and remove it themselves.
+
+3. **`dry_run` on `replace` does NOT show what would be deleted.** It reports only
+   `would_add` and `would_skip`. The destructive half of the operation is invisible in the
+   preview, so a dry run is *not* a safety check for `replace`. Treat `replace` as
+   unpreviewable and only run it on an explicit, informed request.
+
 **Be honest about the result.** Adds are driven through the TradingView UI one symbol at a
-time under the hood. Seventy-plus symbols is slow — warn them it will take a few minutes —
-and it fails in parts: a few symbols can bounce while the rest land. `watchlist_add_bulk`
-reports per-symbol results; read them.
+time, so seventy-plus symbols is slow — warn them it will take a few minutes.
 
 Never say "imported all 74". Say how many landed, name the ones that did not, and offer to
 retry just those. Confirm with `watchlist_get` and compare the count against what the
@@ -156,23 +214,52 @@ converter reported.
 ## Step 4 — TC-TIDE (the order here is fixed)
 
 TC-TIDE is published **privately** at
-<https://www.tradingview.com/script/7qX9c9mf-TC-TIDE/>. It is reachable by direct link only
-and **it is not searchable** until the user has favourited it. There is no URL-based "add
-this script" anywhere in TVControl. So the favourite is not a fallback, it is a
-precondition, and this order is not negotiable:
+<https://www.tradingview.com/script/7qX9c9mf-TC-TIDE/>. It is reachable by direct link only,
+it is not public, and it is not invite-only — that URL is the sole way in. There is no
+URL-based "add this script" anywhere in TVControl.
+
+**For the user in front of you, it will NOT be in search.** The script is private, so until
+they favourite it from that URL it does not exist as far as their indicator dialog is
+concerned. The favourite is not a fallback and not a recovery step — it is the precondition,
+and it comes first. This order is not negotiable:
 
 1. **Open the URL for them** and say what it is.
-2. **Tell them the exact control to click: "Add to favourite indicators"** on that page.
-   Say plainly that this is the one step nobody can do for them, because the script is
-   private to their account. Wait for them to confirm they clicked it.
-3. **`indicator_search`** with query `TC TIDE`. Pass **no section** — do not constrain it.
-   Report which section it actually came back under (Favorites, My scripts, Community
-   Scripts, whatever the result says). Do not assume which one.
-4. **`indicator_add_from_search`** with query `TC TIDE`, `match` set to the exact title from
-   the search result, and `section` set to **the section you just observed** — not a guessed one.
-5. **If the search returns nothing, the favourite did not take.** Say exactly that, reopen
-   the page, and walk them through the click again. Do not fall back to a different
-   indicator, and do not carry on as if the chart has TC-TIDE on it.
+
+2. **Tell them the exact control to click: "Add to favourite indicators"** on that page. Say
+   plainly that this is the one step nobody can do for them, because the script is private to
+   their account. Wait for them to confirm they clicked it.
+
+3. **`indicator_search`** with query `TC-TIDE` — **hyphenated, exactly as the title is
+   written**. Pass no section; do not constrain it.
+
+   ⚠ **The search is literal and does NOT normalise punctuation.** `TC TIDE` with a space
+   returns **zero results even when the script is definitely present** — verified by running
+   both against a machine that has it. Getting this wrong does not look like a typo, it looks
+   like the favourite failed, so the user gets sent round the loop again for something they
+   already did correctly.
+
+4. **Report which section it actually came back under** (`Favorites`, `My scripts`,
+   `Community`, whatever the result says) and pass that same section back to the add call.
+   Never assume which one.
+
+5. **`indicator_add_from_search`** with query `TC-TIDE`, `match` set to the exact title from
+   the search result, and `section` set to **the section you just observed**. `TC-TIDE PRO` is
+   a different script with a different title; match the one they asked for.
+
+6. **If the search still returns nothing, the favourite did not take.** Say exactly that,
+   reopen the page, and walk them through the click again.
+
+⚠ **Never substitute a lookalike.** Searching `TIDE` on its own returns a dozen unrelated
+community scripts — `Tide Tracker Zones`, `TideMaster`, `ROC Tide`, `Market Tide` and others.
+**None of them is TC-TIDE.** Only `TC-TIDE` and `TC-TIDE PRO` under the user's own
+`Favorites` or `My scripts` are the real thing. Adding a community script with a similar name
+and carrying on is worse than stopping, because every number the user then reads is from the
+wrong indicator.
+
+**Note for anyone testing this on the machine TC-TIDE was developed on:** there it already
+sits under `My scripts` with no favouriting, so steps 1 and 2 will look unnecessary. That is
+the author's box and it is the exception, not what a user sees. Do not "simplify" this step
+on the strength of it.
 
 **Check:** `chart_get_state` lists TC-TIDE among the indicators. If it does not, the chart
 does not have it, whatever the add call returned.
