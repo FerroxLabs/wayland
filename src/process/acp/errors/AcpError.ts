@@ -23,15 +23,23 @@ export type AcpErrorCode =
 
 export class AcpError extends Error {
   readonly retryable: boolean;
+  /**
+   * C7: the typed nano error payload (`error.data.nanoError`) when the
+   * engine attached one — closed fields only (`kind`, `retryable`). Its
+   * presence means retryability was already classified by the engine's
+   * error-code table; consumers must NOT re-derive it from message text.
+   */
+  readonly nanoError?: { kind: string; retryable: boolean };
 
   constructor(
     public readonly code: AcpErrorCode,
     message: string,
-    options?: { cause?: unknown; retryable?: boolean }
+    options?: { cause?: unknown; retryable?: boolean; nanoError?: { kind: string; retryable: boolean } }
   ) {
     super(message, { cause: options?.cause });
     this.name = 'AcpError';
     this.retryable = options?.retryable ?? false;
+    this.nanoError = options?.nanoError;
   }
 }
 

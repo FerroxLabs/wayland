@@ -1,5 +1,6 @@
 import type { AcpAgent } from '@process/agent/acp';
 import { AcpAgentV2 } from '@process/acp/compat';
+import { nanoErrorKindOf } from '@process/acp/errors/errorNormalize';
 import { channelEventBus } from '@process/channels/agent/ChannelEventBus';
 import { teamEventBus } from '@process/team/teamEventBus';
 import { ipcBridge } from '@/common';
@@ -1596,7 +1597,13 @@ ${collectedResponses.join('\n')}`;
         } catch (error) {
           const errMsg = error instanceof Error ? error.message : String(error);
           mainWarn('[AcpAgentManager]', `Failed to re-apply model ${this.persistedModelId}`, error);
-          if (errMsg.includes('model_not_found') || errMsg.includes('无可用渠道')) {
+          // C7: prefer the typed nanoError kind; the message grep stays as
+          // the fallback for third-party agents/relays.
+          if (
+            nanoErrorKindOf(error) === 'model_not_found' ||
+            errMsg.includes('model_not_found') ||
+            errMsg.includes('无可用渠道')
+          ) {
             ipcBridge.acpConversation.responseStream.emit({
               type: 'error',
               conversation_id: this.conversation_id,

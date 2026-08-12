@@ -275,6 +275,14 @@ export class PromptExecutor {
     if (attempt >= this.maxAttempts) return false;
     if (this.turnCancelled) return false;
     if (this.turnRanTool) return false;
+    // C7: a nano-typed error carries the engine's own closed classification
+    // (`data.nanoError.retryable`, attached by normalizeError). It decides
+    // prompt replay DIRECTLY — the numeric-code set and the TRANSIENT_DETAIL
+    // regex are heuristics for third-party agents that do not tag their
+    // errors. `acpErr.retryable` is the NORMALIZED verdict: unknown kinds
+    // were already forced terminal at normalization, so a newer engine's
+    // error can never trigger an auto-retry here.
+    if (acpErr.nanoError) return acpErr.retryable;
     // NOT `acpErr.retryable`: that flag was tuned for session start/resume, a
     // different decision. Replaying a PROMPT is its own judgement call.
     if (!REPLAYABLE_PROMPT_CODES.has(acpErr.code)) return false;
