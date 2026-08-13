@@ -174,6 +174,44 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
     expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);
   });
 
+  it('never overwrites the user\'s own prompt, even when it is the only row that matches', async () => {
+    // A msg_id names the TURN: WCore stamps the same one on the user's prompt
+    // and the assistant's reply, and the DB lookup has no `position` clause. So
+    // if the assistant row is not on disk yet, this lookup returns what the USER
+    // TYPED - and overwriting it with the model's answer is unrecoverable. This
+    // repo has shipped that exact bug once already.
+    getMsgSpy.mockReturnValue({
+      success: true as const,
+      data: {
+        id: 'row-user',
+        msg_id: 'turn-1',
+        conversation_id: 'c1',
+        type: 'text' as const,
+        position: 'right' as const,
+        content: { content: 'schedule my morning report' },
+        status: 'finish' as const,
+        createdAt: 0,
+      },
+    });
+
+    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+
+    expect(updateMsgSpy).not.toHaveBeenCalled();
+    expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);
+  });
+
+  it('does not claim the text is clean when the DB write failed', async () => {
+    // Broadcasting a correction the database rejected shows a fixed bubble over
+    // a row that still holds the markup - it re-leaks on reload.
+    getMsgSpy.mockReturnValue(rawRow(PROPOSE_BLOCK));
+    updateMsgSpy.mockReturnValue({ success: false, error: 'disk full' });
+
+    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+
+    expect(updateMsgSpy).toHaveBeenCalledTimes(1);
+    expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);
+  });
+
   it('does not broadcast when the raw row cannot be found (nothing was persisted to correct)', async () => {
     getMsgSpy.mockReturnValue({ success: false as const, data: undefined });
 

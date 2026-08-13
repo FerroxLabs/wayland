@@ -19,7 +19,7 @@
 
 import '@/common/adapter/ipcBridge';
 import { ipcBridge } from '@/common';
-import { _getRegisteredKeysForTests, isAllowedInboundName } from '@/common/adapter/bridgeAllowlist';
+import { _getRegisteredKeysForTests, isAllowedInboundName, isAllowedForRemote } from '@/common/adapter/bridgeAllowlist';
 import { describe, expect, it } from 'vitest';
 
 const KIMI_CHANNELS = ['flux-connector:kimi-status', 'flux-connector:setup-kimi', 'flux-connector:remove-kimi'];
@@ -63,6 +63,24 @@ describe('flux connector channels', () => {
     for (const channel of OPENCLAW_CHANNELS) {
       expect(isAllowedInboundName(`subscribe-${channel}`), `subscribe-${channel} denied`).toBe(true);
     }
+  });
+
+  it('denies the openclaw MUTATION channels to remote callers, but keeps status readable', () => {
+    // setup-openclaw reads the stored Flux key and writes it in plaintext into
+    // a config file on the HOST, and repoints the user's default model.
+    // remove-openclaw mutates that same file. A paired-device WS token proves a
+    // remote BROWSER, not the local trusted user, so neither may be reachable -
+    // exactly the treatment the kimi pair already gets.
+    // Names must carry the `subscribe-` prefix: isAllowedForRemote only gates
+    // provider INVOCATIONS and returns true early for anything else, so testing
+    // a bare key would pass against a completely open denylist.
+    expect(isAllowedForRemote('subscribe-flux-connector:setup-openclaw')).toBe(false);
+    expect(isAllowedForRemote('subscribe-flux-connector:remove-openclaw')).toBe(false);
+    // The read stays allowed so the settings panel still renders remotely.
+    expect(isAllowedForRemote('subscribe-flux-connector:openclaw-status')).toBe(true);
+    // Control: the kimi pair this mirrors is denied too, so a change that
+    // silently opened the whole surface would fail here rather than pass.
+    expect(isAllowedForRemote('subscribe-flux-connector:setup-kimi')).toBe(false);
   });
 
   it('exposes exactly twelve flux-connector channels (opencode + codex + kimi + openclaw)', () => {

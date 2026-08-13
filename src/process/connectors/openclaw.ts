@@ -34,11 +34,12 @@
 
 import { createHash, randomBytes } from 'node:crypto';
 import * as fs from 'node:fs';
-import * as os from 'node:os';
 import * as path from 'node:path';
 
 import { FLUX_SURFACE } from '@/common/config/flux';
 import { writeAtomic } from '@process/services/ijfw/atomicFile';
+
+import { resolveOpenClawConfigPathForWrite } from '@process/agent/openclaw/openclawConfig';
 
 import { deleteReceipt, getReceipt, setReceipt } from './manifest';
 import type { ConnectorContext, ConnectorStatus, FluxConnectorReport, InstallReceipt } from './types';
@@ -63,16 +64,15 @@ const FLUX_MODELS: JsonObject[] = [
 ];
 
 /**
- * Resolve OpenClaw's config path the way upstream does: `OPENCLAW_CONFIG_PATH`
- * wins outright, then the state dir (`OPENCLAW_STATE_DIR`), then `~/.openclaw`.
+ * Resolve OpenClaw's config path.
+ *
+ * Delegates to the SAME resolver the rest of the OpenClaw integration uses
+ * rather than re-deriving it. Writing to a path the gateway reader disagrees
+ * with is how you create a second config that shadows the user's real one - see
+ * that function's note on migrated `.clawdbot` installs.
  */
 export function resolveOpenClawConfigPath(): string {
-  const explicit = process.env.OPENCLAW_CONFIG_PATH?.trim();
-  if (explicit !== undefined && explicit.length > 0) return explicit;
-
-  const stateDir = process.env.OPENCLAW_STATE_DIR?.trim();
-  const base = stateDir !== undefined && stateDir.length > 0 ? stateDir : path.join(os.homedir(), '.openclaw');
-  return path.join(base, 'openclaw.json');
+  return resolveOpenClawConfigPathForWrite();
 }
 
 /** sha256 of the one setting that defines "routed" (apiKey excluded). */
@@ -203,6 +203,19 @@ export async function setupOpenClaw(ctx: ConnectorContext): Promise<FluxConnecto
     backupPath = null;
   }
 
+  // Capture a provider that was already sitting under our id, BEFORE we touch
+  // it. `flux` is not a reserved name: a user may run their own router under
+  // exactly this id, with their own key and model rows. Only captured when we
+  // have no receipt — once we own the block, the thing worth restoring is
+  // whatever we recorded the first time, not our own previous write.
+  const existingProvider = readPath(root, ['models', 'providers', PROVIDER_ID]);
+  const priorProvider =
+    priorReceipt !== undefined
+      ? (priorReceipt.priorProvider ?? null)
+      : existingProvider !== undefined
+        ? JSON.parse(JSON.stringify(existingProvider))
+        : null;
+
   const provider = ensureObjectPath(root, ['models', 'providers', PROVIDER_ID], configPath);
   provider.baseUrl = baseUrl;
   provider.apiKey = ctx.fluxKey;
@@ -215,8 +228,12 @@ export async function setupOpenClaw(ctx: ConnectorContext): Promise<FluxConnecto
   // the thing to restore, which would make removal a no-op.
   const modelDefaults = ensureObjectPath(root, ['agents', 'defaults', 'model'], configPath);
   const currentPrimary = typeof modelDefaults.primary === 'string' ? modelDefaults.primary : null;
-  const priorDefaultModel =
-    priorReceipt !== undefined ? (priorReceipt.priorDefaultModel ?? null) : currentPrimary === PRIMARY_REF ? null : currentPrimary;
+  // Whatever is on disk right now, if it is not ours, IS the user's current
+  // choice and becomes the thing to restore. Deferring to the stored receipt
+  // instead would discard a default they picked after our first install — the
+  // "Reapply" path on a drifted config does exactly that — and would then
+  // report that we replaced a value we did not replace.
+  const priorDefaultModel = currentPrimary === PRIMARY_REF ? (priorReceipt?.priorDefaultModel ?? null) : currentPrimary;
   modelDefaults.primary = PRIMARY_REF;
 
   await writeAtomic(configPath, `${JSON.stringify(root, null, 2)}\n`);
@@ -229,6 +246,7 @@ export async function setupOpenClaw(ctx: ConnectorContext): Promise<FluxConnecto
     baseURL: baseUrl,
     installedAt: new Date().toISOString(),
     priorDefaultModel,
+    priorProvider,
   };
   await setReceipt(ctx.manifestPath, receipt);
 
@@ -243,6 +261,11 @@ export async function setupOpenClaw(ctx: ConnectorContext): Promise<FluxConnecto
   } else {
     action = 'updated';
     changes.push(`Updated models.providers.${PROVIDER_ID}.baseUrl from ${priorBaseUrl} to ${baseUrl}`);
+  }
+  if (priorProvider !== null) {
+    changes.push(
+      `Replaced an existing "${PROVIDER_ID}" provider you already had; it is restored if you remove Flux`
+    );
   }
   changes.push(
     priorDefaultModel !== null
@@ -291,8 +314,17 @@ export async function removeOpenClaw(ctx: ConnectorContext): Promise<FluxConnect
 
     const providers = readPath(root, ['models', 'providers']);
     if (isObject(providers) && providers[PROVIDER_ID] !== undefined) {
-      delete providers[PROVIDER_ID];
-      changes.push(`Removed models.providers.${PROVIDER_ID} from ${configPath}`);
+      // Only DELETE what we added. If the id was already in use when we
+      // installed, put their block back verbatim - deleting it would take their
+      // endpoint, their key and their model rows with it.
+      const prior = receipt?.priorProvider ?? null;
+      if (prior !== null && prior !== undefined) {
+        providers[PROVIDER_ID] = prior;
+        changes.push(`Restored the "${PROVIDER_ID}" provider you had before Flux in ${configPath}`);
+      } else {
+        delete providers[PROVIDER_ID];
+        changes.push(`Removed models.providers.${PROVIDER_ID} from ${configPath}`);
+      }
       touched = true;
     } else {
       changes.push(`No models.providers.${PROVIDER_ID} block found in ${configPath}`);

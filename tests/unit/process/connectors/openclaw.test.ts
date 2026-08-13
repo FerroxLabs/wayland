@@ -163,6 +163,59 @@ describe('openclaw connector', () => {
     expect(readConfig().agents.defaults.model.primary).toBe('anthropic/claude-opus-4-6');
   });
 
+  it("restores a `flux` provider the user already owned instead of deleting it", async () => {
+    // `flux` is not a reserved id. A user can legitimately run their own router
+    // under exactly this name - and they are the people most likely to click
+    // this chip. Deleting their block would take their endpoint, their key and
+    // their model rows with it.
+    const theirs = {
+      baseUrl: 'http://127.0.0.1:7878/v1',
+      apiKey: 'their-own-key',
+      api: 'openai-completions',
+      models: [{ id: 'local-a', name: 'Local A', reasoning: false, input: ['text'] }],
+    };
+    writeConfig({
+      models: { providers: { flux: theirs } },
+      agents: { defaults: { model: { primary: 'flux/local-a' } } },
+    });
+
+    const report = await setupOpenClaw(ctx);
+    expect(report.changes.join(' ')).toMatch(/already had/i);
+    expect(readConfig().models.providers.flux.baseUrl).toBe(BASE_URL);
+
+    await removeOpenClaw(ctx);
+
+    // Byte-for-byte theirs, not a deletion and not our shape.
+    expect(readConfig().models.providers.flux).toEqual(theirs);
+    expect(readConfig().agents.defaults.model.primary).toBe('flux/local-a');
+  });
+
+  it('re-captures the default the user picked AFTER install, rather than trusting a stale receipt', async () => {
+    writeConfig({ agents: { defaults: { model: { primary: 'anthropic/claude-opus-4-6' } } } });
+    await setupOpenClaw(ctx);
+
+    // User moves off Flux themselves, then later clicks Reapply on the drifted card.
+    const cfg = readConfig();
+    cfg.agents.defaults.model.primary = 'openrouter/newer-choice';
+    writeConfig(cfg);
+
+    const report = await setupOpenClaw(ctx);
+    expect(report.changes.join(' ')).toContain('openrouter/newer-choice');
+
+    await removeOpenClaw(ctx);
+
+    // Restoring the stale pre-install value would silently destroy the newer choice.
+    expect(readConfig().agents.defaults.model.primary).toBe('openrouter/newer-choice');
+  });
+
+  it('resolves the same config path the rest of the OpenClaw integration reads', async () => {
+    // Writing to a path the gateway reader disagrees with creates a second
+    // config that SHADOWS the user's real one - and because the reader prefers
+    // ~/.openclaw once it exists, a migrated user's working install goes dark.
+    const { resolveOpenClawConfigPathForWrite } = await import('@process/agent/openclaw/openclawConfig');
+    expect(resolveOpenClawConfigPath()).toBe(resolveOpenClawConfigPathForWrite());
+  });
+
   it('backs the original file up before the first write, and reuses that snapshot', async () => {
     writeConfig({ gateway: { mode: 'local' } });
 

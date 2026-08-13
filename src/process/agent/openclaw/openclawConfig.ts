@@ -141,6 +141,25 @@ export function readOpenClawConfig(): OpenClawConfig | null {
 }
 
 /**
+ * The config path to WRITE to: the one OpenClaw would actually read, or the
+ * canonical default when it has no config yet.
+ *
+ * Exported so the Flux connector resolves exactly what every other OpenClaw code
+ * path resolves. A second, simpler resolver looks harmless and is not: this one
+ * also honours `CLAWDBOT_STATE_DIR`, expands `~`, and finds the legacy
+ * `.clawdbot`/`.moltbot`/`.moldbot` directories and filenames. A migrated user
+ * whose real config is `~/.clawdbot/clawdbot.json` has no `~/.openclaw` — so a
+ * naive resolver would CREATE one, and because `resolveStateDir()` prefers
+ * `~/.openclaw` the moment it exists, every subsequent read would flip to that
+ * near-empty stub. Their gateway token, port and mode would vanish and the
+ * gateway would refuse to start, with our own backup pointing at nothing
+ * because "the config was created by setup".
+ */
+export function resolveOpenClawConfigPathForWrite(): string {
+  return findConfigPath() ?? path.join(resolveStateDir(), CONFIG_FILENAME);
+}
+
+/**
  * Why `openclaw gateway` would refuse to start, or `null` if it would run.
  *
  * Upstream guards startup on `gateway.mode` and exits instead of listening. From

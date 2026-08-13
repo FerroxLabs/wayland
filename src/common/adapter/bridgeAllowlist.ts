@@ -374,6 +374,13 @@ const REMOTE_DENIED_KEYS: ReadonlySet<string> = new Set([
   //     channel in the meantime. ---
   'flux-connector:setup-kimi',
   'flux-connector:remove-kimi',
+  //     The openclaw pair is the same class and is denied for the same reason:
+  //     `setup-openclaw` reads the stored Flux key and writes it in plaintext
+  //     into `~/.openclaw/openclaw.json`, and also repoints the user's default
+  //     model; `remove-openclaw` mutates that same host file. `openclaw-status`
+  //     is a read and stays allowed so the panel still renders remotely.
+  'flux-connector:setup-openclaw',
+  'flux-connector:remove-openclaw',
   // --- Managed agent installs (K-05, decision D7). `install` runs a package
   //     manager against the user's profile — it fetches an npm package and
   //     writes an executable tree under userData; `uninstall` recursively

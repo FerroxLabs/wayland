@@ -259,11 +259,28 @@ async function persistStrippedTurnText(
     const existing = db.getMessageByMsgId(conversationId, msgId, 'text');
     if (!existing.success || !existing.data) return;
     const row = existing.data;
+
+    // Only ever overwrite the ASSISTANT's row.
+    //
+    // A msg_id names the TURN, not a message: WCore stamps the same one on the
+    // user's right-side prompt AND the left-side reply. getMessageByMsgId filters
+    // on conversation + msg_id + type and takes the newest, with no `position`
+    // clause — so if the assistant row is not on disk at this instant, the only
+    // matching text row is the USER'S PROMPT, and we would replace what they
+    // typed with the model's answer. That is unrecoverable, and this repo has
+    // shipped exactly that bug once before (the wcore reply overwriting the user's
+    // message). Cheap guard, permanent damage if it is missing.
+    if (row.position !== 'left') return;
+
     const updated = {
       ...row,
       content: { ...(row.content as Record<string, unknown>), content: cleaned },
     } as TMessage;
-    db.updateMessage(row.id, updated);
+    const written = db.updateMessage(row.id, updated);
+
+    // Do not tell the renderer the text is clean if the row still holds the raw
+    // markup: the bubble would look fixed until reload, then leak again.
+    if (written && written.success === false) return;
 
     ipcBridge.conversation.responseStream.emit({
       type: 'content_replace',

@@ -37,6 +37,20 @@ export type InstallReceipt = {
    * Absent means this tool never touched one.
    */
   priorDefaultModel?: string | null;
+  /**
+   * A provider block that was ALREADY THERE under the id we write to, captured
+   * verbatim so removal can put it back.
+   *
+   * Our provider id is not reserved. A user can legitimately have their own
+   * `flux` provider — pointing at a self-hosted router, with their own key and
+   * their own model rows — and for them the id collides exactly. Without this,
+   * setup silently repoints their endpoint and removal deletes their block
+   * wholesale, so the people most likely to click the button are the ones we
+   * damage.
+   *
+   * `null` means the id was free and removal should delete what we added.
+   */
+  priorProvider?: unknown;
 };
 
 /** Inputs a connector needs; tests inject paths, prod resolves real ones. */
