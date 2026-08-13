@@ -9,6 +9,26 @@ executes, and the catalogue is still unreachable.
 
 ---
 
+## 0. ⚠️ Read this before auditing: your checkout is not the shipping tree
+
+Everything below is anchored to **`116f2d21`** (and `b06232a7`, the
+`lane/v0130-build2` head the 0.13.0 binary was built from). The
+`~/dev/waylandcore` working tree here sits on **`frontier/m0`**, which has
+diverged enormously:
+
+| file | `frontier/m0` | shipping lane |
+|---|---|---|
+| `crates/wcore-tools/src/tool_search.rs` | **209 lines**, no `MAX_MATCHES` | **1457 lines**, `MAX_MATCHES = 10` at :190 |
+| `crates/wcore-agent/src/orchestration/mod.rs` | 2214 lines, `compact_output` ~:958 | `compact_output` at :2516 |
+
+This is not academic: one of our four audit legs ran against `frontier/m0` and
+concluded `MAX_MATCHES` "does not exist and finding 1 should be deleted". On the
+tree you are shipping it exists and caps ToolSearch at ten hits [X]. Audit against
+the release lane or you will reach the opposite conclusion. Anchor on symbols,
+never line numbers.
+
+---
+
 ## 1. Symptom
 
 `ToolSearch` is the hydration path for deferred tools — its result is the only
@@ -120,9 +140,46 @@ mid-structure. Fix A protects valid JSON; it does not protect JSON that was
 already sliced. For `ToolSearch` specifically, truncate on a record boundary or
 raise its `max_result_size`.
 
-### Fix D — `MAX_MATCHES = 10` (`crates/wcore-tools/src/tool_search.rs:190`)
-Even fully fixed, ten hits per query cannot enumerate a 101-tool server. Needs a
-higher cap for exact-prefix/server-scoped queries, or pagination.
+### Fix D — the enumeration ceiling (revision-dependent, please check yours)
+On the shipping lane, `MAX_MATCHES = 10` (`tool_search.rs:190`, used at :443
+`scored.truncate(MAX_MATCHES)`) [X]. Even fully fixed, ten hits per query cannot
+enumerate a 101-tool server. Wants a higher cap for exact-prefix or
+server-scoped queries, or pagination.
+
+On `frontier/m0` the cap is **absent** — and there the *opposite* problem bites:
+`ToolSearchTool` does not override `max_result_size()`, so it inherits the
+50 000-char default (`crates/wcore-tools/src/lib.rs:517-519`) [X] and a full
+101-tool catalogue is truncated mid-JSON. Whichever tree you land on, one of
+these two applies. Both are fixed by giving `ToolSearchTool` an explicit
+`max_result_size()` override plus record-boundary-aware truncation.
+
+### Fix E — hydration admission fails silently
+`Engine::record_hydrated_tools` (`crates/wcore-agent/src/engine.rs:17015`) [X]:
+
+```rust
+fn record_hydrated_tools(&mut self, content: &str) {
+    let Ok(serde_json::Value::Array(matches)) =
+        serde_json::from_str::<serde_json::Value>(content)
+    else {
+        return;                      // <- silent
+    };
+```
+
+It parses the **compacted** string. So the fold did not merely hide names from
+the model — it broke hydration *admission*, meaning even a correctly guessed tool
+name would not be force-included in `tools[]`. Fixes A/B repair this incidentally,
+but the silent `return` should log:
+
+```rust
+else {
+    tracing::debug!(target: "wcore_agent::engine",
+        "ToolSearch result did not parse as a JSON array; hydration not recorded");
+    return;
+};
+```
+
+Otherwise the next transform that corrupts this string (truncation, TOON, a new
+compaction stage) no-ops hydration with no trace, exactly as this one did.
 
 ### Regression test
 ```rust
@@ -171,7 +228,20 @@ Four independent legs on this patch. Findings folded into §3 above.
   the NDJSON / fenced / prefixed-JSON gaps. Its specific CRLF claim is
   **refuted**: `collapse_cr_lines` already strips the terminator before
   collapsing, and the code comment documents that exact fix.
-- **Internal reviewer.** Running at time of writing; findings to follow.
+  Kimi's full verdict was **FIX-FIRST**, and two of its findings are in §3 above
+  as Fix D and Fix E. One is **refuted**: it reported `MAX_MATCHES` as
+  non-existent and asked for finding 1 to be deleted. That is true of
+  `frontier/m0` and false of the tree you ship — see §0. It also independently
+  reproduced the fold on the regression-test input (27 → 5, 0 names) and
+  confirmed the mutant check is not vacuous, and it identified the real anchor
+  mechanism (`  {` at 2/3 similarity) before we did.
+- **Internal reviewer.** Still running at time of writing; nothing folded in yet.
+
+Two further Kimi points accepted but not blocking: Fix 2 also bypasses
+`sanitize`, so MCP-supplied descriptions reach the transcript unsanitised; and
+the whole defect is a *composition* failure (ToolSearch × per-result compaction)
+that no unit test in `wcore-compact` can catch — the missing test belongs next to
+`hydrate_via_tool_search` in `engine.rs`.
 
 The audits are the reason the fix moved from "detect JSON and skip the fold"
 (fragile, parse-dependent, defeated by truncation) to "fix the similarity metric"
