@@ -24,6 +24,19 @@ export type InstallReceipt = {
   baseURL: string;
   /** ISO timestamp of the install. */
   installedAt: string;
+  /**
+   * A tool-level default we OVERWROTE and must put back on removal.
+   *
+   * Registering a provider is additive, but for some tools it routes nothing
+   * until you also point their default model at it (openclaw:
+   * `agents.defaults.model.primary`). That overwrites a user choice, so removal
+   * has to restore it rather than leaving them pointed at a provider we just
+   * deleted — the difference between "restore" and "strand".
+   *
+   * `null` means there was no prior value and removal should delete the key.
+   * Absent means this tool never touched one.
+   */
+  priorDefaultModel?: string | null;
 };
 
 /** Inputs a connector needs; tests inject paths, prod resolves real ones. */
