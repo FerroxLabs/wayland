@@ -25,14 +25,24 @@ python3 --version 2>/dev/null; uv --version 2>/dev/null
 
 Interpret: not on PATH means install first. On PATH but `hermes acp --check` fails means the `[acp]` extra is missing (fix before connecting). `hermes doctor` reports health, auth, and dependency problems in one place.
 
+## Python prerequisite (check FIRST — it decides the route)
+
+Hermes is a Python application. It requires **Python >=3.11 and <3.14**. Both ends bite: 3.10 is too old and **3.14 is too new**, so a very new system Python fails as hard as an old one. `python3 --version` before anything else.
+
 ## Install
 
-- **One-liner (recommended).** Bootstraps uv, Python, Node 22, ripgrep, and ffmpeg:
+- **PyPI — preferred.** `pip install 'hermes-agent[acp]'` installs the CLI and the ACP extra together, skipping the most common failure mode outright. Pin the version for reproducibility: `pip install 'hermes-agent[acp]==<version>'`. If installing bare (`pip install hermes-agent`), follow with `hermes postinstall` — the bare install does NOT bootstrap node/ripgrep/ffmpeg. Update with `pip install --upgrade hermes-agent`.
+- **Vendor bootstrap script.** Bootstraps uv, a private Python, Node 22, ripgrep and ffmpeg — the right answer when there is no usable system Python.
   - macOS/Linux/WSL2/Termux: `curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash`
   - Windows PowerShell: `iex (irm https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.ps1)`
-- **PyPI.** `pip install hermes-agent` then `hermes postinstall` (the bare pip install does NOT bootstrap node/ripgrep/ffmpeg; `postinstall` does). Python 3.11+. Update with `pip install --upgrade hermes-agent`.
+  - ⚠️ Be honest with the user about the trade: this script clones the project's **main branch** and installs from it, so it is not a pinned release and two people running it a week apart get different code. Convenience over reproducibility. It accepts `--commit <SHA>` to pin the checkout.
+- **Homebrew.** `brew install hermes-agent` — Homebrew's formula, not a Nous-published artifact. Convenient on macOS; check the Python it pulls is inside 3.11–3.13.
+
+🚫 **Never install the npm package named after Hermes.** It is published by an unaffiliated third party, not Nous Research. The genuine channels are PyPI `hermes-agent` (published by Nous Research through a GitHub Trusted Publisher workflow), the vendor script above, and Homebrew. If a user already has the npm one, explain what it is and move them to PyPI.
 
 Confirm the install with `hermes --version`, then run `hermes doctor`.
+
+**Expect PyPI to trail GitHub.** The newest tagged release is routinely not yet installable from PyPI. That is normal, not a broken install — do not chase it.
 
 ## The ACP extra (do this before connecting to Wayland)
 
@@ -43,10 +53,14 @@ hermes acp --check
 # If it reports the ACP dependencies are not installed:
 pip install 'hermes-agent[acp]'
 # For a pipx-managed install, inject into the hermes venv instead:
-# pipx inject hermes-agent '<acp extra deps>'   # verify exact form against current docs
+# pipx inject hermes-agent agent-client-protocol
 ```
 
+The extra resolves to a single pinned dependency (`agent-client-protocol`), so this is a small, fast, reproducible install — not a large re-resolve.
+
 Re-run `hermes acp --check` until it passes. Without this, the Wayland backend will not start.
+
+Hermes exposes the ACP server three equivalent ways: the `hermes acp` subcommand, a standalone `hermes-acp` binary, and `python -m acp_adapter`. Wayland spawns `hermes acp`.
 
 ## Authenticate
 
@@ -82,6 +96,14 @@ Useful flags:
 
 Smoke it by hand: confirm `hermes acp` starts cleanly and waits on stdio without erroring out.
 
+## Routing through Flux (automatic — do not configure it by hand)
+
+If the user has Flux connected, Wayland routes Hermes through it **with no setup step**, and you should not offer one.
+
+The mechanism matters, because "Wayland is rewriting my agent's config" is a fair thing to worry about and it is not what happens. Wayland materializes its OWN Hermes home in app data, writes a `config.yaml` there pointing at the Flux endpoint, and sets `HERMES_HOME` to it for that spawn only. The user's `~/.hermes` — their keys, memory, model choice, tools — is never opened for writing. Hermes run from their own terminal is completely unaffected, and removing Flux strands nothing.
+
+So: never edit the user's `~/.hermes/config.yaml` to point at Flux, and never tell them they need to. If Flux is not connected, Hermes simply uses the provider and model they configured.
+
 ## Verify
 
 - `hermes --version`
@@ -99,6 +121,8 @@ Smoke it by hand: confirm `hermes acp` starts cleanly and waits on stdio without
 5. A bare `pip install` skips node/ripgrep/ffmpeg. Run `hermes postinstall`.
 6. External memory is one provider at a time, not several.
 7. PyPI lags main; a version nag is informational, not a failure.
+8. Python outside 3.11–3.13 fails the install. Check the CEILING too — a brand-new 3.14 is as broken as an old 3.10, and it is the less obvious of the two.
+9. The npm package named after Hermes is third-party, not Nous Research. Do not install it; move users off it.
 
 ## Docs
 
