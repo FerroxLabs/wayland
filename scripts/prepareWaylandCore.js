@@ -224,6 +224,17 @@ function verifyArchiveChecksum(archivePath, expectedHex, assetName, tag) {
 // FerroxLabs/wayland-core; Desktop integrates against a specific tag rather
 // than tracking `latest` so version drift can't sneak in via a release made
 // while a CI build is mid-flight. Override with WCORE_VERSION=... when bumping.
+//
+// ⚠️ This tag and `DESKTOP_CORE_V1_PIN` are ONE decision. The host compares the
+// contract descriptor for equality, so an engine that does not match the pin
+// kills every session on frame 1.
+//
+// 🔴 They do NOT agree on this branch, deliberately: the pin demands minor 14
+// (Core 0.13.0) and v0.12.26 advertises minor 12. 0.13.0 is not tagged - it
+// exists only as a local build we are verifying against through the override
+// directory, and it gets tagged only once that verification passes. So this
+// branch is NOT shippable, the tag below stays where it is until then, and
+// `desktopContractV1.test.ts` holds the tripwire that says so.
 const DEFAULT_WCORE_VERSION = 'v0.12.26';
 
 function getVersion() {

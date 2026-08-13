@@ -92,6 +92,7 @@ function seedOrdinary(consumer: DesktopCoreV1Consumer, event: Record<string, unk
       'text_delta',
       'thinking',
       'tool_request',
+      'call_announced',
       'tool_running',
       'tool_chunk',
       'tool_result',
@@ -104,7 +105,10 @@ function seedOrdinary(consumer: DesktopCoreV1Consumer, event: Record<string, unk
     return;
   }
   consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: msgId }));
-  if (typeof event.call_id !== 'string' || type === 'tool_request') return;
+  // `tool_request` and `call_announced` are the two frames that ANNOUNCE a
+  // call, so neither may be preceded by a synthetic announcement - seeding one
+  // would make the fixture collide with itself as a duplicate.
+  if (typeof event.call_id !== 'string' || type === 'tool_request' || type === 'call_announced') return;
   consumer.consumeLine(
     JSON.stringify({
       type: 'tool_request',
@@ -138,8 +142,8 @@ function replayCanonicalEvent(relative: string): void {
 
 describe('Wayland Core Desktop v1 producer pin', () => {
   it('pins the exact validation-only producer identity without changing the released engine', () => {
-    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('d6f76c67');
-    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 13 });
+    expect(DESKTOP_CORE_V1_PRODUCER_COMMIT).toBe('116f2d21');
+    expect(manifest.contract).toEqual({ name: DESKTOP_CORE_V1_PIN.name, major: 1, minor: 14 });
     expect(manifest.generator).toBe(DESKTOP_CORE_V1_PIN.generator);
     expect(manifest.fixture_digest).toBe(DESKTOP_CORE_V1_PIN.fixtureDigest);
     expect(manifest.schema_digest).toBe(DESKTOP_CORE_V1_PIN.schemaDigest);
@@ -147,6 +151,17 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // The bundled engine and this pin must move together: Core's own host
     // observer rejects a descriptor mismatch in either direction, so a pin that
     // does not name the bundled release is a broken install, not a stale note.
+    //
+    // 🔴 TRIPWIRE - they do not agree right now, on purpose. The pin is at
+    // minor 14 (Core 0.13.0) while the download tag still resolves to v0.12.26,
+    // which advertises minor 12, because 0.13.0 is UNTAGGED: it is a local
+    // build being verified through the override directory, and it only gets
+    // tagged once that verification passes. This branch therefore CANNOT ship.
+    //
+    // At tag time: set the tag below and in `prepareWaylandCore.js` to
+    // 'v0.13.0' and delete this block. If the pin is ever NOT 14 this whole
+    // assertion is stale and the coupling must be re-derived, not patched.
+    expect(DESKTOP_CORE_V1_PIN.minor).toBe(14);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
       "const DEFAULT_WCORE_VERSION = 'v0.12.26'"
     );
@@ -187,15 +202,76 @@ describe('Wayland Core Desktop v1 producer pin', () => {
   });
 
   // 52 -> 59 events is C-1: the seven producer events the old corpus omitted
-  // are now declared, so the corpus finally describes the whole wire.
-  it('contains exactly the advertised 23 commands, 59 events, and 168 fixtures', () => {
-    expect(manifest.counts).toEqual({ child_types: 3, commands: 23, events: 59, fixtures: 168 });
+  // are now declared, so the corpus finally describes the whole wire. 59 -> 60
+  // is 0.13.0's `call_announced`, the frame for a call that dispatches without
+  // passing an approval gate.
+  it('contains exactly the advertised 23 commands, 60 events, and 169 fixtures', () => {
+    expect(manifest.counts).toEqual({ child_types: 3, commands: 23, events: 60, fixtures: 169 });
     // The inventory and the declared count must agree - a corpus that ships a
     // fixture it does not list, or lists one it does not ship, is the exact
     // class of drift C-1 was.
     expect(manifest.fixture_inventory).toHaveLength(manifest.counts.fixtures);
     for (const relative of manifest.fixture_inventory)
       expect(() => readFileSync(path.join(root, relative))).not.toThrow();
+  });
+});
+
+// Core 0.13.0 emits `tool_request` only for calls that pass an approval gate.
+// A call that skips the gate - force mode, an allow-listed tool, a
+// command-scoped grant, a recovered approval, or a tool just granted `Always` -
+// is announced by `call_announced` instead. Before that frame existed those
+// calls dispatched with nothing on the wire and the `tool_running` behind them
+// failed closed, exiting the engine mid-turn and blocking Smart Trader's setup.
+//
+// The frame carries no `tool_` prefix so older hosts drop it. Dropping is NOT
+// enough for us: the reducer has to REGISTER the call, or the `tool_running`
+// still finds no matching request and we reproduce the original crash exactly.
+describe('call_announced (Core 0.13.0 ungated call path)', () => {
+  const announced = json('events/call_announced.json');
+  const callId = announced.call_id as string;
+  const msgId = announced.msg_id as string;
+
+  function started(): DesktopCoreV1Consumer {
+    const consumer = negotiated();
+    consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: msgId }));
+    return consumer;
+  }
+
+  it('registers the call so the tool_running behind it is accepted', () => {
+    const consumer = started();
+    expect(consumer.consumeLine(text('events/call_announced.json'))).toMatchObject({ kind: 'event' });
+    expect(
+      consumer.consumeLine(JSON.stringify({ ...json('events/tool_running.json'), call_id: callId, msg_id: msgId }))
+    ).toMatchObject({ kind: 'event' });
+    expect(
+      consumer.consumeLine(JSON.stringify({ ...json('events/tool_result.json'), call_id: callId, msg_id: msgId }))
+    ).toMatchObject({ kind: 'event' });
+  });
+
+  it('still fails closed on a tool_running nobody announced', () => {
+    const consumer = started();
+    expectContractError(() =>
+      consumer.consumeLine(
+        JSON.stringify({ ...json('events/tool_running.json'), call_id: 'never-announced', msg_id: msgId })
+      )
+    );
+  });
+
+  it('still rejects a call announced twice', () => {
+    const consumer = started();
+    consumer.consumeLine(text('events/call_announced.json'));
+    expectContractError(() => consumer.consumeLine(text('events/call_announced.json')));
+  });
+
+  it('still rejects a call announced on one turn and run on another', () => {
+    const consumer = started();
+    consumer.consumeLine(text('events/call_announced.json'));
+    consumer.consumeLine(JSON.stringify({ type: 'stream_start', msg_id: 'msg-other' }));
+    expectContractError(() =>
+      consumer.consumeLine(
+        JSON.stringify({ ...json('events/tool_running.json'), call_id: callId, msg_id: 'msg-other' })
+      )
+    );
   });
 });
 

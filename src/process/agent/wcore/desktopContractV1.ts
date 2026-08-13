@@ -15,33 +15,37 @@ import type { WCoreCommand, WCoreEvent } from './protocol';
 type JsonObject = Record<string, unknown>;
 type ReplayDisposition = 'advanced' | 'duplicate' | 'ignored_after_terminal';
 
-export const DESKTOP_CORE_V1_PRODUCER_COMMIT = 'd6f76c67' as const;
+export const DESKTOP_CORE_V1_PRODUCER_COMMIT = '116f2d21' as const;
 
 /**
- * Pinned to Core branch `fix/contract-corpus-host-parity` @ `d6f76c67`, the tree
- * the C-1..C-5 integration binary was built from
- * (`sha256:6d0ca72a1ca5afa7d33a337a73a6a389a1075d583a97e14096aaebc583b08a08`;
- * it still self-reports `0.12.26`, so identify it by sha, never by --version).
+ * Pinned to Core `116f2d21` ("fix(protocol): announce a call that runs without
+ * approval", 2026-08-12, on `lane/v0130-build`), the tree the 0.13.0 binary
+ * `sha256:c55205d4b36cd5fd843c767c897e8edb30a4dd193e74da0a8fdad0dcdb24b229`
+ * was built from. All four values below were read from that commit's manifest
+ * and then confirmed identical to a real `ready` frame off the binary.
  *
- * The observer compares these for EQUALITY, so a stale pin dies on frame 1.
+ * ⚠️ Identify an engine by sha256, NEVER by `--version`. The dev build that
+ * used to sit in `resources/bundled-wayland-core/` self-reports `0.12.26` and
+ * is not the release; reading its version string is what produced the wrong
+ * baseline in the first place.
  *
- * ⚠️ Core's handoff describes TWO valid sets and says schema_digest is
- * "unchanged". That is true between their two DEV commits and FALSE for us:
- * shipped v0.12.26 advertises minor 12 / gen-13 / schema `23fb3048…`, which is
- * a THIRD set their table does not list. Verified by grepping the embedded
- * manifest out of both binaries. Anyone re-pinning by following "unchanged"
- * literally would keep `23fb3048…` and die on frame 1 - so the digests below
- * were taken from the manifest at `d6f76c67` and then confirmed present in the
- * binary itself, not copied from the table.
+ * The observer compares these for EQUALITY - no range, no dual acceptance - so
+ * the pin, the corpus under `contracts/wayland-desktop-core/v1/` and the
+ * shipped engine all move in ONE commit or every session dies on frame 1.
+ *
+ * Three distinct contract sets are live, all three verified by execution:
+ *   published v0.12.26  minor 12 / gen-13 / schema `23fb3048…`
+ *   C-1..C-5 dev build  minor 13 / gen-14 / schema `4971f456…`
+ *   0.13.0              minor 14 / gen-14 / schema `306d83e1…`  <- pinned here
  */
 export const DESKTOP_CORE_V1_PIN = {
   name: 'wayland-desktop-core',
   major: 1,
-  minor: 13,
+  minor: 14,
   generator: 'wcore-desktop-contract-gen/14',
-  fixtureDigest: 'sha256:710a602f3341dc307a544d90d544c1b9ff7eb0b3e40e7b503894f06c912cac43',
-  schemaDigest: 'sha256:4971f456655a6ee7c063a3417ebf82a27a8550420d3e6ed744bdd4be696956e9',
-  sourceInputsDigest: 'sha256:6802f807b3a0c338ee6ed004a8463aad5121ff45b23c89e73dd5d4ea45ccc8fb',
+  fixtureDigest: 'sha256:d729f9336e7ba0b4ed5a4f50ffdf3e3903ff7f38d000f43275fc654e87e2ec3d',
+  schemaDigest: 'sha256:306d83e19fa01a83c1d17d6365c9159efeb94373b8328259cbf842d783e00152',
+  sourceInputsDigest: 'sha256:55d366c8706ea852b55595049e5dcb9b1d641745a2209e938121e95644c2e6d6',
   capabilities: {
     anvil_receipts: 'publication_bound',
     browser_events: 'shape_only',
@@ -368,6 +372,7 @@ class OrdinaryTurnToolReducer {
       'text_delta',
       'thinking',
       'tool_request',
+      'call_announced',
       'tool_running',
       'tool_chunk',
       'tool_result',
@@ -402,9 +407,21 @@ class OrdinaryTurnToolReducer {
       return 'advanced';
     }
 
-    if (!type.startsWith('tool_')) return 'advanced';
+    // A call reaches us announced one of two ways. `tool_request` is the gated
+    // path. `call_announced` (Core 0.13.0, minor 14) is the ungated one - force
+    // mode, an allow-listed tool, a command-scoped grant, a recovered approval,
+    // or a tool just granted `Always`. Before it existed those calls dispatched
+    // with nothing on the wire and we failed closed on the `tool_running` that
+    // followed, which is what killed Smart Trader's setup mid-turn.
+    //
+    // Core gave the frame no `tool_` prefix so hosts predating it drop it
+    // through their default arm. Dropping it is NOT sufficient here: the
+    // `tool_running` behind it would still find no matching request and fail
+    // closed on the exact path the frame exists to fix. It has to REGISTER.
+    const announcesCall = type === 'tool_request' || type === 'call_announced';
+    if (!announcesCall && !type.startsWith('tool_')) return 'advanced';
     const callId = stringField(event, 'call_id');
-    if (type === 'tool_request') {
+    if (announcesCall) {
       if (this.tools.has(callId)) fail('tool_conflict', `tool ${callId} was requested more than once`);
       this.tools.set(callId, { msgId, terminal: null });
       turn.tools.add(callId);
