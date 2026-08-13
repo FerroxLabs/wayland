@@ -51,14 +51,19 @@ from Yahoo daily closes and the strategy is computed locally by the script.
 
 **Step 1: Locate the scanner and the watchlist** (uses: market-open-report)
 
-Find the scanner in this order, first hit wins:
+The scanner is at, workspace-relative:
 
-1. `skills/market-open-report/scripts/morning-report.mjs` in the workspace.
-2. `~/.wayland/builtin-skills/market-open-report/scripts/morning-report.mjs`.
+```
+.wayland-core/skills/market-open-report/scripts/morning-report.mjs
+```
 
-If neither exists, stop and tell the user the market-open-report skill is not
-enabled, and that enabling it in skill settings will fix this. Do not improvise
-a replacement scanner.
+Everything outside the workspace is refused by the sandbox, so do NOT fall back
+to `~/.wayland/builtin-skills/` or search the filesystem — those paths are not
+reachable and the attempt just burns turns on `Operation not permitted`.
+
+If that path does not exist, stop and tell the user the market-open-report skill
+is not enabled, and that enabling it in skill settings will fix this. Do not
+improvise a replacement scanner.
 
 Then check the watchlist CSV named in the inputs actually exists. There is no
 bundled default watchlist, so a missing file makes the script throw a stack

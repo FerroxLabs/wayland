@@ -123,12 +123,19 @@ Because it needs no chart, **it is also the fastest way to prove Wayland works a
 connector is broken, or TradingView will not start, or they are stuck halfway through setup, you can
 still hand them a real report. Do that rather than leaving them with an error and nothing.
 
-Change into the `market-open-report` skill directory and run it from there:
+The skill is inside your workspace at `.wayland-core/skills/market-open-report`.
+Change into it and run it from there:
 
 ```bash
+cd .wayland-core/skills/market-open-report
 node scripts/morning-report.mjs --tier 1 --slots 20 --json <OUT>/mr.json
 node scripts/briefHtml.mjs <OUT>/mr.json <OUT>/morning-brief.html
 ```
+
+That path is workspace-relative on purpose. Everything outside the workspace —
+`~/.wayland`, `~/Library`, the user's home — is refused by the sandbox, so do
+not go looking there. If the `cd` fails, the skill is genuinely not enabled;
+say so instead of hunting the filesystem for it.
 
 Read that skill's own SKILL.md before your first run. The watchlist, the holdings file and the cache
 folder come from `MARKET_OPEN_REPORT_LIST`, `MARKET_OPEN_REPORT_POSITIONS` and

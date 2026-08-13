@@ -79,8 +79,8 @@
  * disagree about printing a double.
  */
 
-import { readFileSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -113,9 +113,34 @@ export const DEFAULT_POSITIONS = join(HERE, '..', 'data', 'positions.csv');
  * MARKET_OPEN_REPORT_CACHE (that is how the tvcontrol checkout's
  * backtests/yahoo-cache gets reused).
  */
+function firstWritableDir(candidates) {
+  for (const dir of candidates) {
+    try {
+      mkdirSync(dir, { recursive: true });
+      return dir;
+    } catch {
+      // EPERM/EACCES/EROFS - try the next candidate.
+    }
+  }
+  // Every candidate refused. Return the last one so the caller fails with a
+  // real path in the message instead of `undefined`.
+  return candidates[candidates.length - 1];
+}
+
+/**
+ * `~/.cache` is unreachable when this runs inside the agent: Wayland Core
+ * sandboxes the skill to its workspace, so `mkdir` under the real home fails
+ * `EPERM` and EVERY symbol comes back "NO DATA" while the run still exits 0.
+ * Probe instead of assuming, so the same script works in the sandbox, in a
+ * plain shell, and against a warm cache pointed at by the env var.
+ */
 export const DEFAULT_CACHE_DIR =
   process.env.MARKET_OPEN_REPORT_CACHE ||
-  join(homedir(), '.cache', 'market-open-report', 'yahoo-cache');
+  firstWritableDir([
+    join(homedir(), '.cache', 'market-open-report', 'yahoo-cache'),
+    join(process.cwd(), '.market-open-report-cache', 'yahoo-cache'),
+    join(tmpdir(), 'market-open-report', 'yahoo-cache'),
+  ]);
 
 /**
  * A fill that ENDS the position, as opposed to a rung that trims it.
