@@ -35,6 +35,11 @@ interface OpenClawGatewayAuth {
 interface OpenClawGatewayConfig {
   port?: number;
   auth?: OpenClawGatewayAuth;
+  /**
+   * Upstream refuses to START the gateway unless this is `'local'` (or
+   * `--allow-unconfigured` is passed). See {@link describeGatewayStartBlocker}.
+   */
+  mode?: string;
 }
 
 interface OpenClawConfig {
@@ -133,6 +138,49 @@ export function readOpenClawConfig(): OpenClawConfig | null {
     console.warn('[OpenClawConfig] Failed to read config:', error);
     return null;
   }
+}
+
+/**
+ * Why `openclaw gateway` would refuse to start, or `null` if it would run.
+ *
+ * Upstream guards startup on `gateway.mode` and exits instead of listening. From
+ * its shipped `getGatewayStartGuardErrors` (verified by reading the published
+ * npm tarball, openclaw@2026.7.1-2, `dist/run-*.js`):
+ *
+ *   if (allowUnconfigured || mode === "local") return [];
+ *   if (!configExists) -> "Missing config. Run `openclaw setup` ..."
+ *   if (mode === undefined) -> "existing config is missing gateway.mode"
+ *   otherwise -> "set gateway.mode=local (current: <mode>)"
+ *
+ * We spawn `gateway --port <n>` with neither flag, so a user who installed the
+ * CLI but never onboarded hit all three arms. Detection only runs `which
+ * openclaw`, so the backend was offered and then died — and the manager reported
+ * it as a raw `Gateway exited with code N / Stdout: ... / Stderr: ...` dump, with
+ * upstream's own actionable sentence buried in the tail.
+ *
+ * Checked BEFORE spawning rather than by matching upstream's error text, because
+ * a message string is theirs to reword; `gateway.mode` is the contract.
+ *
+ * We deliberately do NOT pass `--allow-unconfigured` to make this go away. Two of
+ * the three arms mean the user's config is absent or clobbered, and upstream
+ * calls that "suspicious" — starting anyway would paper over a broken install and
+ * strand the user in a gateway with no configured mode. Onboarding is one command
+ * and the setup assistant already teaches it.
+ */
+export function describeGatewayStartBlocker(): string | null {
+  const configPath = findConfigPath();
+  if (!configPath) {
+    return 'OpenClaw is installed but not set up yet, so its gateway refuses to start. Run `openclaw onboard --install-daemon` in a terminal to configure it, then try again.';
+  }
+
+  const mode = readOpenClawConfig()?.gateway?.mode;
+  if (mode === 'local') return null;
+
+  if (mode === undefined) {
+    return `OpenClaw's config at ${configPath} has no gateway.mode, which its gateway treats as damaged config and refuses to start on. Run \`openclaw onboard --mode local\` in a terminal to repair it, then try again.`;
+  }
+
+  return `OpenClaw's gateway only starts in local mode, but ${configPath} sets gateway.mode to "${mode}". Run \`openclaw onboard --mode local\` in a terminal to switch it, then try again.`;
 }
 
 /**
