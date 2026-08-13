@@ -82,12 +82,22 @@ export const RESPONSES_FLUX_BACKENDS = ['codex'] as const;
  * rather than env alone. hermes speaks the OpenAI chat_completions surface but
  * cannot be pointed at Flux by env: it selects its provider from
  * `<HERMES_HOME>/config.yaml` (`model.provider = "custom"`, `base_url` = the
- * Flux openai surface, `api_mode = "chat_completions"`, `key_env =
- * FLUX_API_KEY`). The scoped HERMES_HOME is materialized + injected per-spawn by
- * AcpAgentManager (mirroring codex's CODEX_HOME), so the user's real ~/.hermes
- * config is never pinned to flux. The routing decision here only emits the
- * `FLUX_API_KEY` hermes reads at request time and strips native provider keys
- * for mutual exclusivity. Proven end-to-end against hermes v0.14.0 (2026-06-12).
+ * Flux openai surface, `api_mode = "chat_completions"`, and the key written
+ * INLINE as `api_key`). The scoped HERMES_HOME is materialized + injected
+ * per-spawn by AcpAgentManager (mirroring codex's CODEX_HOME), so the user's
+ * real ~/.hermes config is never pinned to flux.
+ *
+ * ⚠️ The inline `api_key` is the load-bearing part, and this comment used to say
+ * `key_env = FLUX_API_KEY` — which is FALSE and would send anyone copying the
+ * pattern into a 401. hermes resolves a `custom` provider's key from config or
+ * its auth store, never from an env var, so `key_env` is ignored and it falls
+ * back to a stale stored token. Proven live: env/key_env -> HTTP 401
+ * token_not_found, inline api_key -> 200. See hermesConfig.ts's header, which is
+ * the authority here.
+ *
+ * The FLUX_API_KEY still emitted below is harmless but is NOT what authenticates
+ * the request; the decision here exists to strip native provider keys for mutual
+ * exclusivity. Proven end-to-end against hermes v0.14.0 (2026-06-12).
  */
 export const SCOPED_HOME_FLUX_BACKENDS = ['hermes'] as const;
 
@@ -216,11 +226,13 @@ export function resolveFluxRouting(ctx: FluxRoutingContext): FluxRoutingResult {
   if (!wantsFlux) return NATIVE();
 
   if (isScopedHome) {
-    // Scoped-HOME backends (hermes): the Flux base_url + provider selection live
-    // in a Wayland-scoped config HOME (materialized + injected as HERMES_HOME by
-    // AcpAgentManager). Here we only emit the FLUX_API_KEY hermes reads at
-    // request time (its config.yaml `key_env: FLUX_API_KEY`) and strip native
-    // provider keys so a flux spawn never also carries native credentials.
+    // Scoped-HOME backends (hermes): the Flux base_url, provider selection AND
+    // the key all live in a Wayland-scoped config HOME (materialized + injected
+    // as HERMES_HOME by AcpAgentManager), with the key written inline as
+    // `api_key` - hermes ignores `key_env` for a `custom` provider. So the
+    // FLUX_API_KEY below does NOT authenticate the request; this arm exists to
+    // strip native provider keys so a flux spawn never also carries native
+    // credentials.
     return {
       routing: 'flux',
       env: { FLUX_API_KEY: ctx.fluxKey },

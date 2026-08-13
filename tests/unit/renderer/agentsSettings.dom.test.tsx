@@ -292,6 +292,35 @@ describe('AgentsSettings (Packet 2D)', () => {
     expect(qoderCard!.querySelector('[data-testid="flux-setup-chip"]')).toBeNull();
   });
 
+  it('shows hermes as already routing, not as an action the user has to take', async () => {
+    // hermes routes through Flux with NOTHING for the user to do: AcpAgentManager
+    // materializes a Wayland-scoped HERMES_HOME per spawn. It was classified
+    // `setup`, which rendered an INERT chip reading "Flux setup" - the same words
+    // as kimi's chip above, which opens a real modal. So the one agent that was
+    // already routing looked like the one still waiting on the user.
+    //
+    // Paired with a genuine `setup` backend so this fails if hermes is quietly
+    // moved back, rather than passing on a label both states happen to share.
+    mockGetAvailableAgents.mockResolvedValue(
+      agentsOk([
+        { backend: 'hermes', name: 'Hermes Agent' },
+        { backend: 'qoder', name: 'Qoder CLI' },
+      ])
+    );
+    render(<AgentsSettings />);
+    await waitFor(() => expect(screen.getByText('Hermes Agent')).toBeTruthy());
+
+    const hermesCard = screen.getByText('Hermes Agent').closest('[data-testid="agent-tile"]');
+    expect(hermesCard).toBeTruthy();
+    expect(hermesCard!.textContent).not.toContain('Flux setup');
+    // No setup affordance either: there is no config write to offer.
+    expect(hermesCard!.querySelector('[data-testid="flux-setup-chip"]')).toBeNull();
+
+    // The contrast that makes this test meaningful.
+    const qoderCard = screen.getByText('Qoder CLI').closest('[data-testid="agent-tile"]');
+    expect(qoderCard!.textContent).toContain('Flux setup');
+  });
+
   it('renders no Flux chip for a backend with no fluxCompat classification', async () => {
     // `codebuddy` carries no fluxCompat, so its card must not show any chip.
     // (The always-present Wayland Core hero is `env`, so scope the assertion to

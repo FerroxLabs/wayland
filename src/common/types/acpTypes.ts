@@ -371,10 +371,21 @@ export interface AcpBackendConfig {
 
   /**
    * Whether this backend can route through Flux.
-   * - 'env': routes through Flux via env injection (ready now).
-   * - 'setup': routes after the Flux setup assistant writes its config.
+   * - 'env': routes with NO user action. Named for the common mechanism (env
+   *   injection) but the distinction that matters is "already works, nothing to
+   *   click" — a backend routed by a Wayland-scoped config HOME belongs here
+   *   too, because the user does nothing either way (see hermes, whose home is
+   *   materialized per-spawn by AcpAgentManager).
+   * - 'setup': routes only AFTER the user runs the Flux setup assistant, which
+   *   writes the tool's own config. This is a claim that an action is available
+   *   and worth taking, so it must not be used for "would work if we built it".
    * - 'vendor': locked to its own service, not Flux-routable.
    * Unset means no Flux compatibility is claimed (no chip shown).
+   *
+   * Behaviourally 'env' and 'setup' are treated identically everywhere (model
+   * pickers, flux-auto defaulting) — they differ only in the chip. So the whole
+   * value of the split is telling the user the truth about whether there is
+   * something for them to do.
    */
   fluxCompat?: 'env' | 'setup' | 'vendor';
 
@@ -625,7 +636,14 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     enabled: true, // ✅ Nous Research Hermes Agent, launched via `hermes acp`
     supportsStreaming: false,
     acpArgs: ['acp'], // hermes uses the acp subcommand
-    fluxCompat: 'setup',
+    // 'env', not 'setup': there is nothing for the user to set up. Routing is
+    // already built and proven (hermes v0.14.0) — AcpAgentManager materializes a
+    // Wayland-scoped HERMES_HOME per spawn with the Flux base_url and an inline
+    // api_key, and never touches the user's real ~/.hermes. Carrying 'setup'
+    // rendered an INERT chip reading "Flux setup" next to agents whose identical
+    // chip opens a real modal, so it advertised an action that does not exist
+    // for an agent that was already routing.
+    fluxCompat: 'env',
   },
   snow: {
     id: 'snow',
