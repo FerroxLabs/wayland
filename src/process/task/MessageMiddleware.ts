@@ -11,7 +11,7 @@ import { ipcBridge } from '@/common';
 import type { AgentBackend } from '@/common/types/acpTypes';
 import { uuid } from '@/common/utils';
 import { cronService } from '@process/services/cron/cronServiceSingleton';
-import { detectCronCommands, stripCronCommands, type CronCommand } from './CronCommandDetector';
+import { detectCronCommands, hasCronCommands, stripCronCommands, type CronCommand } from './CronCommandDetector';
 import { detectConciergeProposals, hasConciergeProposals, stripConciergeProposals } from './ConciergeProposeDetector';
 import type { ConciergeProposal } from '@/common/chat/conciergeConfig';
 import { addMessage } from '@process/utils/message';
@@ -202,13 +202,18 @@ export async function processCronInMessage(
       emitSystemResponse(sysMsg);
     }
 
-    // Concierge 2b leak fix: the manager already streamed + persisted the RAW
-    // turn text, so the [CONCIERGE_PROPOSE] block leaks verbatim into the chat
+    // Leak fix: the manager already streamed + persisted the RAW turn text, so a
+    // [CONCIERGE_PROPOSE] or [CRON_PROPOSE] block leaks verbatim into the chat
     // bubble (above the confirmation card). processAgentResponse built a stripped
     // displayMessage that was previously discarded; persist it over the raw row
     // so the saved + reloaded message shows only the friendly prose. The card
-    // still renders from the separate concierge_propose message created above.
-    if (hasConciergeProposals(extractTextFromMessage(message))) {
+    // still renders from the separate propose message created above.
+    //
+    // Cron was left out when this was first written for Concierge, so every
+    // scheduling turn showed the user the raw [CRON_PROPOSE] markup. Both block
+    // types take the same path now.
+    const turnText = extractTextFromMessage(message);
+    if (hasConciergeProposals(turnText) || hasCronCommands(turnText)) {
       await persistStrippedTurnText(conversationId, message, result.displayMessage);
     }
   } catch {
