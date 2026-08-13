@@ -1340,9 +1340,17 @@ export const composeMessage = (
         // field's note on IMessageText. Everything else is a streaming delta.
         // The flag itself is transport, not state: it is dropped here so it
         // never reaches a stored row and cannot alter a later merge.
+        // A replacement carries only the corrected TEXT, so it must be layered
+        // over the bubble rather than substituted for it: a `content_replace`
+        // frame has no `cronMeta`/`files`/`truncatedDueToBudget`, and swapping
+        // the whole object would silently strip them. Both the other two paths
+        // that rewrite this text already spread the existing content first (the
+        // renderer's composeMessageWithIndex, and persistStrippedTurnText's DB
+        // write) - this one was the odd one out, so a bubble could lose fields
+        // live that the stored row kept.
         const { replaceContent, ...incoming } = message.content;
         merged.content = replaceContent
-          ? { ...incoming }
+          ? { ...msg.content, ...incoming }
           : { ...incoming, content: msg.content.content + message.content.content };
         return updateMessage(i, merged);
       }

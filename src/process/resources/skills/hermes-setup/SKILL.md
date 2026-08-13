@@ -58,6 +58,8 @@ pip install 'hermes-agent[acp]'
 
 The extra resolves to a single pinned dependency (`agent-client-protocol`), so this is a small, fast, reproducible install — not a large re-resolve.
 
+⚠️ **Do not copy the command Hermes itself prints here.** Verified on a clean box: the failure message says `Install them with: pip install -e '.[acp]'`. That is the EDITABLE, repo-relative form — it only works from a git checkout of hermes-agent and fails for anyone who installed from PyPI, which is nearly everyone. Give them `pip install 'hermes-agent[acp]'` instead.
+
 Re-run `hermes acp --check` until it passes. Without this, the Wayland backend will not start.
 
 Hermes exposes the ACP server three equivalent ways: the `hermes acp` subcommand, a standalone `hermes-acp` binary, and `python -m acp_adapter`. Wayland spawns `hermes acp`.

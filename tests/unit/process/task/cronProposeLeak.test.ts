@@ -235,6 +235,33 @@ describe('content_replace swaps the bubble instead of extending it', () => {
     expect((merged[0].content as { replaceContent?: boolean }).replaceContent).toBeUndefined();
   });
 
+  it('keeps the bubble\'s other content fields when it swaps the text', () => {
+    // A `content_replace` frame carries the corrected TEXT and nothing else, so
+    // substituting the whole content object drops everything the bubble already
+    // had. The DB rewrite and the renderer's own merge both spread the existing
+    // content first; this path has to agree with them, or a live bubble loses
+    // fields that the stored row keeps and they diverge until reload.
+    const existing = {
+      ...bubble('raw'),
+      content: {
+        content: 'raw',
+        cronMeta: { source: 'cron', cronJobId: 'j1', cronJobName: 'n', triggeredAt: 1 },
+        truncatedDueToBudget: true,
+      },
+    } as TMessage;
+
+    const merged = composeMessage(
+      { ...bubble('clean'), content: { content: 'clean', replaceContent: true } } as TMessage,
+      [existing]
+    );
+
+    const content = merged[0].content as Record<string, unknown>;
+    expect(content.content).toBe('clean');
+    expect(content.cronMeta).toEqual({ source: 'cron', cronJobId: 'j1', cronJobName: 'n', triggeredAt: 1 });
+    expect(content.truncatedDueToBudget).toBe(true);
+    expect(content.replaceContent).toBeUndefined();
+  });
+
   it('still appends an ordinary delta — the replace path must not swallow streaming', () => {
     const merged = composeMessage({ ...bubble(' world') } as TMessage, [bubble('hello')]);
 
