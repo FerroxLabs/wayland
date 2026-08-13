@@ -1,0 +1,17 @@
+{
+  "groupLabel": "界面布局",
+  "classic": {
+    "title": "Classic",
+    "blurb": "所有入口都列在侧边栏中。没有移动，也没有隐藏。"
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "blurb": "更短的列表，把相同的内容归入 Library、Automations 和 Activity。"
+  },
+  "prompt": {
+    "title": "试试新的 Cockpit 布局？",
+    "body": "Cockpit 是同一批聊天、项目和设置的新布局——不会移动或删除任何内容。你可以随时在「设置 > 导航」中切换回来。",
+    "confirm": "使用此布局",
+    "later": "暂不"
+  }
+}

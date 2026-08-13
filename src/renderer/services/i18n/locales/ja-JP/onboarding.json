@@ -185,6 +185,12 @@
       "settingUp": "Setting things up",
       "startInChat": "Start in chat"
     },
+    "layout": {
+      "headline": "レイアウトを選択",
+      "sub": "どちらも同じチャット・プロジェクト・設定を表示します。設定 > ナビゲーション からいつでも変更できます。",
+      "continue": "続ける",
+      "applying": "適用中"
+    },
     "allset": {
       "headline": "you're all set",
       "sub": "Everything is wired and ready. Let's go.",

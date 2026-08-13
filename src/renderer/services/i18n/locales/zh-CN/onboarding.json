@@ -185,6 +185,12 @@
       "settingUp": "Setting things up",
       "startInChat": "Start in chat"
     },
+    "layout": {
+      "headline": "选择布局",
+      "sub": "两者显示相同的聊天、项目和设置。你可以随时在「设置 > 导航」中更改。",
+      "continue": "继续",
+      "applying": "正在应用"
+    },
     "allset": {
       "headline": "you're all set",
       "sub": "Everything is wired and ready. Let's go.",

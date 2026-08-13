@@ -1,0 +1,17 @@
+{
+  "groupLabel": "Layout da interface",
+  "classic": {
+    "title": "Classic",
+    "blurb": "Todos os destinos listados na lateral. Nada se move, nada fica oculto."
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "blurb": "Uma lista mais curta que agrupa os mesmos itens em Library, Automations e Activity."
+  },
+  "prompt": {
+    "title": "Experimentar o novo layout Cockpit?",
+    "body": "O Cockpit é um novo layout sobre as mesmas conversas, projetos e configurações — nada é movido ou excluído. Você pode voltar quando quiser em Configurações > Navegação.",
+    "confirm": "Usar este layout",
+    "later": "Agora não"
+  }
+}

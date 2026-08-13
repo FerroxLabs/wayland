@@ -1,0 +1,17 @@
+{
+  "groupLabel": "Disposition de l'interface",
+  "classic": {
+    "title": "Classic",
+    "blurb": "Toutes les destinations listées sur le côté. Rien ne bouge, rien n'est masqué."
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "blurb": "Une liste plus courte qui regroupe les mêmes éléments sous Library, Automations et Activity."
+  },
+  "prompt": {
+    "title": "Essayer la nouvelle disposition Cockpit ?",
+    "body": "Cockpit est une nouvelle disposition pour les mêmes conversations, projets et paramètres : rien n'est déplacé ni supprimé. Vous pouvez revenir à tout moment dans Paramètres > Navigation.",
+    "confirm": "Utiliser cette disposition",
+    "later": "Pas maintenant"
+  }
+}

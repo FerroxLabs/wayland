@@ -1,0 +1,17 @@
+{
+  "groupLabel": "Oberflächen-Layout",
+  "classic": {
+    "title": "Classic",
+    "blurb": "Alle Bereiche untereinander in der Seitenleiste. Nichts verschiebt sich, nichts ist versteckt."
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "blurb": "Eine kürzere Liste, die dieselben Bereiche unter Library, Automations und Activity zusammenfasst."
+  },
+  "prompt": {
+    "title": "Das neue Cockpit-Layout ausprobieren?",
+    "body": "Cockpit ist ein neues Layout für dieselben Chats, Projekte und Einstellungen – nichts wird verschoben oder gelöscht. Du kannst jederzeit unter Einstellungen > Navigation zurückwechseln.",
+    "confirm": "Dieses Layout verwenden",
+    "later": "Jetzt nicht"
+  }
+}

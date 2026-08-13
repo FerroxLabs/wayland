@@ -1,0 +1,17 @@
+{
+  "groupLabel": "インターフェースのレイアウト",
+  "classic": {
+    "title": "Classic",
+    "blurb": "すべての項目がサイドバーに並びます。動くものも隠れるものもありません。"
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "blurb": "同じ項目を Library・Automations・Activity にまとめた、短いリストです。"
+  },
+  "prompt": {
+    "title": "新しい Cockpit レイアウトを試しますか？",
+    "body": "Cockpit は同じチャット・プロジェクト・設定を表示する新しいレイアウトです。移動も削除もされません。設定 > ナビゲーション からいつでも戻せます。",
+    "confirm": "このレイアウトを使う",
+    "later": "後で"
+  }
+}

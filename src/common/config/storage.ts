@@ -206,6 +206,15 @@ export interface IConfigStorageRefer {
   'ui.zoomFactor'?: number;
   /** Presentation-only shell selection. Missing or unknown values resolve to Classic. */
   'ui.shell'?: import('@/common/shellExperience').ShellExperience;
+  /**
+   * Whether the user has been OFFERED the Classic/Cockpit choice.
+   *
+   * `ui.shell` cannot answer this on its own: it resolves to Classic both for a
+   * user who chose Classic and for one who was never asked, so without this flag
+   * we would either nag someone who already declined or never get to ask at all.
+   * Set when the chooser is answered or dismissed, never on the shell write.
+   */
+  'ui.shellChoicePrompted'?: boolean;
   /** Auto-enable WebUI in desktop mode */
   'webui.desktop.enabled'?: boolean;
   /** Allow remote access in desktop mode */

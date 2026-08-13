@@ -37,6 +37,10 @@ import groqLogo from '@renderer/assets/logos/groq.svg';
 import ollamaLogo from '@renderer/assets/logos/ollama.svg';
 import openaiLogo from '@renderer/assets/logos/openai.svg';
 import openrouterLogo from '@renderer/assets/logos/openrouter.svg';
+import type { ShellExperience } from '@/common/shellExperience';
+import ShellChoiceCards from '@renderer/components/shell/ShellChoice/ShellChoiceCards';
+import { writeShellExperience } from '@renderer/hooks/ui/useShellExperience';
+import { markShellChoicePrompted } from '@renderer/utils/ui/shellChoice';
 import { resolveFocusSelection, type FocusPersonaId } from './focusMap';
 import { providerLabel } from './providerLabel';
 import { openExternalUrl } from '@renderer/utils/platform';
@@ -51,9 +55,9 @@ type OnboardingFlowProps = {
   onFinish: () => void;
 };
 
-type Screen = 'quickstart' | 'scan' | 'outcome' | 'interests' | 'allset';
+type Screen = 'quickstart' | 'scan' | 'outcome' | 'interests' | 'layout' | 'allset';
 
-const ALL_SCREENS: readonly Screen[] = ['quickstart', 'scan', 'outcome', 'interests', 'allset'];
+const ALL_SCREENS: readonly Screen[] = ['quickstart', 'scan', 'outcome', 'interests', 'layout', 'allset'];
 
 /**
  * Resumable onboarding progress, mirrored to localStorage — synchronous and
@@ -175,6 +179,10 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
   const [screen, setScreen] = useState<Screen>(restored?.screen ?? 'quickstart');
   const [name, setName] = useState(restored?.name ?? '');
   const [busy, setBusy] = useState<string | null>(null);
+  // Classic is preselected because it is what the app resolves to anyway; the
+  // pick is intentionally NOT persisted into onboarding.progress, since a
+  // half-answered layout question is not worth resuming.
+  const [layoutPick, setLayoutPick] = useState<ShellExperience>('classic');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   // Set true once the Flux one-click sign-in fails to start (e.g. the fluxrouter.ai
@@ -384,8 +392,27 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
       void ConfigStorage.set('launchpad.barOrder', launchpadIds);
       void ConfigStorage.set('onboarding.focusArea', focus);
     }
-    setScreen('allset');
+    setScreen('layout');
   }, [picks, work]);
+
+  /**
+   * Apply the layout pick and move on. Always advances, even if the write fails:
+   * a user must never be trapped on a cosmetic question during first run, and
+   * Settings > Navigation can still change it. The prompted flag is recorded
+   * either way so ShellChoiceOverlay does not ask the same person again.
+   */
+  const finishLayout = useCallback(async () => {
+    setBusy('shell');
+    try {
+      if (layoutPick !== 'classic') await writeShellExperience(layoutPick);
+    } catch {
+      // Rollout refused it, or storage is unavailable — stay on Classic.
+    } finally {
+      void markShellChoicePrompted();
+      setBusy(null);
+      setScreen('allset');
+    }
+  }, [layoutPick]);
 
   const finishAll = useCallback(() => {
     const n = name.trim();
@@ -905,7 +932,7 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
           <button
             type='button'
             className={styles.ghost}
-            onClick={() => setScreen('allset')}
+            onClick={() => setScreen('layout')}
             disabled={busy === 'infer'}
           >
             {t('onboarding.flow.interests.skip')}
@@ -923,6 +950,49 @@ const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ detection, onFinish }) 
             ) : (
               <>
                 {t('onboarding.flow.interests.startInChat')} <ArrowRight size={15} />
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (screen === 'layout') {
+    /*
+     * The Classic/Cockpit choice, offered once while the user is already
+     * answering setup questions. Existing installs never reach this flow again,
+     * so they are served the same choice by ShellChoiceOverlay instead.
+     *
+     * Continue is always enabled and Classic is preselected: this is discovery,
+     * not a gate, and a user who does not care must be able to walk past it.
+     */
+    return (
+      <div className={styles.shell}>
+        <Header step={2} />
+        <h1 className={styles.headline}>
+          {t('onboarding.flow.layout.headline', { defaultValue: 'Pick a layout' })}
+          <span className={styles.pt}>.</span>
+        </h1>
+        <p className={styles.sub}>
+          {t('onboarding.flow.layout.sub', {
+            defaultValue: 'Both show the same chats, projects and settings. You can switch any time in Settings > Navigation.',
+          })}
+        </p>
+        <div className={styles.block}>
+          <ShellChoiceCards value={layoutPick} onChange={setLayoutPick} busy={busy === 'shell'} />
+        </div>
+        <div className={styles.grow} />
+        <div className={styles.actions}>
+          <button type='button' className={styles.btn} onClick={() => void finishLayout()} disabled={busy === 'shell'}>
+            {busy === 'shell' ? (
+              <>
+                {t('onboarding.flow.layout.applying', { defaultValue: 'Applying' })}{' '}
+                <Loader2 size={15} className={styles.spinDark} />
+              </>
+            ) : (
+              <>
+                {t('onboarding.flow.layout.continue', { defaultValue: 'Continue' })} <ArrowRight size={15} />
               </>
             )}
           </button>

@@ -1,0 +1,17 @@
+{
+  "groupLabel": "介面版面",
+  "classic": {
+    "title": "Classic",
+    "blurb": "所有項目都列在側邊欄中。不會移動，也不會隱藏。"
+  },
+  "cockpit": {
+    "title": "Cockpit",
+    "blurb": "更短的清單，將相同的內容歸入 Library、Automations 和 Activity。"
+  },
+  "prompt": {
+    "title": "試試新的 Cockpit 版面？",
+    "body": "Cockpit 是同一批聊天、專案和設定的新版面——不會移動或刪除任何內容。你可以隨時在「設定 > 導覽」中切換回來。",
+    "confirm": "使用此版面",
+    "later": "暫不"
+  }
+}
