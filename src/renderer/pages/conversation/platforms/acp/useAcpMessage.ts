@@ -347,6 +347,14 @@ export const useAcpMessage = (conversation_id: string): UseAcpMessageReturn => {
           // is not model output and must not start this turn's running state.
           addOrUpdateMessage(transformedMessage);
           break;
+        case 'content_replace':
+          // A correction to text this turn ALREADY streamed - main stripping the
+          // raw [CRON_PROPOSE] block now that the confirmation card carries it.
+          // Deliberately not the default arm: this always arrives after the turn
+          // ended, so recovering the running state here would leave a finished
+          // chat spinning.
+          addOrUpdateMessage(transformedMessage);
+          break;
         default:
           // Auto-recover running state only if turn hasn't finished
           if (!runningRef.current && !turnFinishedRef.current) {

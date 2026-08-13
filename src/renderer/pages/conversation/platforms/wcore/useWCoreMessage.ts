@@ -368,7 +368,14 @@ export const useWCoreMessage = (
             // on the following `finish` then deleted the only explanation the
             // user was ever going to get. Seen live: the error tip was in the
             // database and never on screen until the app was restarted.
-            const isTurnOutput = Boolean(message.msg_id) && message.type !== 'activity_turn_end';
+            //
+            // `content_replace` names the turn too, but it is a CORRECTION to
+            // text the turn already emitted (stripping [CRON_PROPOSE] markup once
+            // the card exists), broadcast after the turn is over. Counting it as
+            // output would restart the spinner on a finished chat - the same
+            // failure described above for the session-level frames.
+            const isTurnOutput =
+              Boolean(message.msg_id) && message.type !== 'activity_turn_end' && message.type !== 'content_replace';
             // Mark that current turn has content output (exclude error type)
             hasContentInTurnRef.current = true;
             // Successful content after an error means that error was transient.

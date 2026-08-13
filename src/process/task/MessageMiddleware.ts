@@ -234,6 +234,12 @@ export async function processCronInMessage(
  * fully written by the time we overwrite it; there are no further queued text
  * writes for this msg_id to re-dirty the row.
  *
+ * The DB write alone is not enough. The renderer has ALREADY drawn the raw markup
+ * from the stream, and nothing re-reads the row until the conversation is
+ * reloaded — so for the person actually watching the turn land, the block stayed
+ * on screen. The `replaceContent` broadcast below swaps the live bubble too;
+ * without it this fix only works for people who scroll away and come back.
+ *
  * Best-effort: a failed cleanup must never break the agent turn.
  */
 async function persistStrippedTurnText(
@@ -258,6 +264,13 @@ async function persistStrippedTurnText(
       content: { ...(row.content as Record<string, unknown>), content: cleaned },
     } as TMessage;
     db.updateMessage(row.id, updated);
+
+    ipcBridge.conversation.responseStream.emit({
+      type: 'content_replace',
+      conversation_id: conversationId,
+      msg_id: msgId,
+      data: { content: cleaned },
+    });
   } catch {
     // best-effort
   }

@@ -148,6 +148,25 @@ export type IMessageText = IMessage<
   {
     content: string;
     /**
+     * Treat `content` as the WHOLE bubble text, not another streaming delta.
+     *
+     * Every other text event appends, because that is what a stream is. But a
+     * turn that emitted a `[CRON_PROPOSE]` / `[CONCIERGE_PROPOSE]` block has
+     * already streamed that markup verbatim into the bubble by the time we know
+     * a card should render instead. The stored row is rewritten in place
+     * (persistStrippedTurnText), so the markup is gone on reload — but the live
+     * viewer keeps staring at it until then, which is exactly the audience that
+     * matters. This flag is how the cleaned text reaches an already-rendered
+     * bubble: composeMessage and composeMessageWithIndex swap the accumulated
+     * text instead of concatenating.
+     *
+     * Main-process only. It is never derived from model output — a reply can put
+     * arbitrary text in `content`, but it cannot add a field to the IPC event —
+     * and it is honoured only on the assistant ('content') path, so it can never
+     * be used to rewrite what the user said.
+     */
+    replaceContent?: boolean;
+    /**
      * Attachments the LOCAL user composed with this message, as absolute paths.
      * Set only on the locally-composed send path, so it is the one trustworthy
      * signal for rendering attachment previews. The `[[AION_FILES]]` marker in
@@ -692,6 +711,33 @@ export const transformMessage = (message: IResponseMessage): TMessage => {
         position: 'center',
         conversation_id: message.conversation_id,
         content: { content: data.content, type: data.type },
+      };
+    }
+    /**
+     * Replace an assistant bubble's text wholesale, rather than extending it.
+     *
+     * Its own event type on purpose, not a flag on `content`. A `content` frame
+     * is the turn TALKING: the platform hooks treat one as proof the turn is
+     * alive and re-arm the running spinner if it lands after `finish` (see
+     * useWCoreMessage's isTurnOutput). This frame is emitted precisely AFTER the
+     * turn ends, to erase markup the turn already streamed, so announcing it as
+     * output would leave a finished chat showing "Working..." forever - the exact
+     * failure the activity_turn_end exclusion next to isTurnOutput exists to
+     * prevent.
+     *
+     * Assistant-side by construction (position is hardcoded 'left'), so this can
+     * never rewrite what the user said.
+     */
+    case 'content_replace': {
+      const data = message.data as { content?: string };
+      if (typeof data?.content !== 'string') return;
+      return {
+        id: uuid(),
+        type: 'text',
+        msg_id: message.msg_id,
+        position: 'left',
+        conversation_id: message.conversation_id,
+        content: { content: data.content, replaceContent: true },
       };
     }
     case 'content':
@@ -1290,7 +1336,14 @@ export const composeMessage = (
       const msg = list[i];
       if (msg.msg_id === message.msg_id && msg.type === 'text' && isSameSpeaker(msg, message)) {
         const merged = Object.assign({}, msg, message);
-        merged.content = { ...message.content, content: msg.content.content + message.content.content };
+        // `replaceContent` swaps the bubble instead of extending it - see the
+        // field's note on IMessageText. Everything else is a streaming delta.
+        // The flag itself is transport, not state: it is dropped here so it
+        // never reaches a stored row and cannot alter a later merge.
+        const { replaceContent, ...incoming } = message.content;
+        merged.content = replaceContent
+          ? { ...incoming }
+          : { ...incoming, content: msg.content.content + message.content.content };
         return updateMessage(i, merged);
       }
     }

@@ -19,6 +19,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { TMessage } from '@/common/chat/chatLib';
+import { composeMessage, transformMessage } from '@/common/chat/chatLib';
 
 const { addSpy, emitSpy, getMsgSpy, updateMsgSpy, addJobSpy } = vi.hoisted(() => ({
   addSpy: vi.fn(),
@@ -142,5 +143,101 @@ describe('[CRON_PROPOSE] persisted-text strip', () => {
     await processCronInMessage('c1', 'wcore', finishMsg('just a normal answer'), () => {});
 
     expect(updateMsgSpy).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The DB overwrite above only helps someone who reloads the conversation. The
+   * person watching the turn land — the one the live demo is for — keeps seeing
+   * the raw block, because the renderer already drew it from the stream and
+   * nothing re-reads the row. These pin the broadcast that fixes that.
+   */
+  it('broadcasts the cleaned text so the already-rendered bubble is corrected', async () => {
+    getMsgSpy.mockReturnValue(rawRow(PROPOSE_BLOCK));
+
+    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+
+    const replaces = emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace');
+    expect(replaces).toHaveLength(1);
+
+    const event = replaces[0][0];
+    expect(event.conversation_id).toBe('c1');
+    expect(event.msg_id).toBe('turn-1');
+    expect(event.data.content).not.toContain('[CRON_PROPOSE]');
+    expect(event.data.content).toContain('Monday through Friday');
+  });
+
+  it('does not broadcast a correction for a turn that had nothing to strip', async () => {
+    getMsgSpy.mockReturnValue(rawRow('just a normal answer'));
+
+    await processCronInMessage('c1', 'wcore', finishMsg('just a normal answer'), () => {});
+
+    expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);
+  });
+
+  it('does not broadcast when the raw row cannot be found (nothing was persisted to correct)', async () => {
+    getMsgSpy.mockReturnValue({ success: false as const, data: undefined });
+
+    await processCronInMessage('c1', 'wcore', finishMsg(PROPOSE_BLOCK), () => {});
+
+    expect(updateMsgSpy).not.toHaveBeenCalled();
+    expect(emitSpy.mock.calls.filter(([e]) => e?.type === 'content_replace')).toHaveLength(0);
+  });
+});
+
+/**
+ * The renderer half. A `content_replace` frame has to survive two hops to reach
+ * the bubble: transformMessage must mark it, and the merge must honour the mark
+ * instead of appending it like every other text delta.
+ */
+describe('content_replace swaps the bubble instead of extending it', () => {
+  const bubble = (content: string): TMessage =>
+    ({
+      id: 'row-1',
+      msg_id: 'turn-1',
+      conversation_id: 'c1',
+      type: 'text',
+      position: 'left',
+      content: { content },
+      createdAt: 0,
+    }) as TMessage;
+
+  it('marks the transformed message and renders it as the assistant', () => {
+    const out = transformMessage({
+      type: 'content_replace',
+      conversation_id: 'c1',
+      msg_id: 'turn-1',
+      data: { content: 'clean prose' },
+    });
+
+    expect(out?.type).toBe('text');
+    expect(out?.position).toBe('left');
+    expect((out?.content as { content: string; replaceContent?: boolean }).content).toBe('clean prose');
+    expect((out?.content as { replaceContent?: boolean }).replaceContent).toBe(true);
+  });
+
+  it('replaces the accumulated text rather than concatenating', () => {
+    const list = [bubble(`prose ${'[CRON_PROPOSE]'} raw ${'[/CRON_PROPOSE]'}`)];
+    const merged = composeMessage(
+      { ...bubble('prose'), content: { content: 'prose', replaceContent: true } } as TMessage,
+      list
+    );
+
+    expect(merged).toHaveLength(1);
+    expect((merged[0].content as { content: string }).content).toBe('prose');
+  });
+
+  it('does not persist the transport flag onto the merged message', () => {
+    const merged = composeMessage(
+      { ...bubble('prose'), content: { content: 'prose', replaceContent: true } } as TMessage,
+      [bubble('raw')]
+    );
+
+    expect((merged[0].content as { replaceContent?: boolean }).replaceContent).toBeUndefined();
+  });
+
+  it('still appends an ordinary delta — the replace path must not swallow streaming', () => {
+    const merged = composeMessage({ ...bubble(' world') } as TMessage, [bubble('hello')]);
+
+    expect((merged[0].content as { content: string }).content).toBe('hello world');
   });
 });
