@@ -1,4 +1,4 @@
-# Handoff to Wayland Core — tool compaction corrupts the MCP hydration path
+# Handoff to Wayland Core — MCP hydration corruption, plus two blockers found live
 
 **Severity: ships broken.** With `compaction = "full"`, a model driving a large MCP
 server cannot learn the name of a single one of its tools, and Core's own
@@ -283,6 +283,55 @@ you disagree, the alternative the internal leg proposed is **fold-then-verify**:
 fold, and if the input parsed as JSON but the output no longer round-trips, keep
 the unfolded form. Same outcome for catalogues, narrower blast radius, more code.
 Your call — you own the token budget.
+
+---
+
+## 4b. Two further 0.13.0 defects, found driving the real product
+
+Both surfaced while testing the Master Class flow end to end. Independent of the
+fold; filing here because they are in the same engine.
+
+### 4b-1. 🔴 The Bash sandbox has no DNS — this blocks a whole class of skill
+```
+$ curl -sS -m 12 https://query1.finance.yahoo.com/v8/finance/chart/AAPL
+curl: (6) Could not resolve host: query1.finance.yahoo.com
+exit=6
+```
+Run through the agent's own Bash tool on 0.13.0 [X]. Node fetches behave the
+same: our market-open-report skill sat for **10 minutes** on 74 symbols and
+cached zero, because each fetch fails DNS and the retry/backoff loop keeps
+going.
+
+This makes any data-fetching skill impossible inside the agent. Ours reads daily
+prices from Yahoo — no key, no auth, one host. Two things would help:
+
+1. **A host allowlist for outbound HTTPS**, per workspace or per skill, so a
+   skill can declare `query1.finance.yahoo.com` and nothing else.
+2. Failing that, **fail fast and say so**. A DNS-blocked run currently produces a
+   complete, well-formed, entirely empty report and exits 0. The tool result
+   should name the sandbox as the cause the way the filesystem denial already
+   does ("⚠ The OS sandbox — not a broken machine and not a missing tool …" is
+   an excellent message; network has no equivalent).
+
+Related: `truncate_result`-style silent success. A skill that cannot reach the
+network should not look like a skill that found nothing.
+
+### 4b-2. 🔴 `stream_end` before `stream_start`, reproduced twice
+```
+Wayland Core protocol safety check failed:
+turn event stream_end arrived before stream_start
+```
+Two consecutive turns in the same conversation, on 0.13.0 [X]. Desktop fails
+closed, correctly — but the turn is lost. Both turns were ordinary
+single-Bash-tool requests, nothing exotic. We have not isolated a minimal repro;
+flagging the ordering violation itself since Core owns turn framing.
+
+### 4b-3. 🟡 Filesystem denials sometimes arrive with empty stderr
+Most sandbox refusals produce the excellent explanatory message above. But four
+Bash calls in one turn returned `Exit code: 1` with **both stdout and stderr
+empty**, which is indistinguishable from a command that legitimately failed
+silently, and sent the model hunting the filesystem. Worth making the denial
+message unconditional.
 
 ---
 
