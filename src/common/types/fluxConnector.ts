@@ -40,6 +40,19 @@ export type OpencodeStatusResult = {
   installed: boolean;
 };
 
+/** Result of a setup-openclaw request over the bridge. */
+export type OpenClawSetupResult =
+  | { ok: true; report: FluxConnectorReport }
+  | { ok: false; reason: 'flux-not-connected' | 'error'; message?: string };
+
+/** Result of an openclaw-status request over the bridge. */
+export type OpenClawStatusResult = {
+  status: ConnectorStatus;
+  configPath: string;
+  /** openclaw binary detected on PATH OR a config file present. */
+  installed: boolean;
+};
+
 /** Result of a setup-codex request over the bridge. */
 export type CodexSetupResult =
   | { ok: true; report: FluxConnectorReport }

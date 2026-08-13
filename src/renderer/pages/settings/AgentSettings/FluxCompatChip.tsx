@@ -41,7 +41,7 @@ const FluxCompatChip: React.FC<{ backend: string; interactive?: boolean }> = ({ 
   }
 
   if (compat === 'setup') {
-    // opencode, codex and kimi have live connectors (a one-time config write
+    // opencode, codex, kimi and openclaw have live connectors (a one-time config write
     // routes them through Flux). Render their chip as a clickable button that
     // opens the setup modal for the matching backend; other `setup` backends
     // stay informational.
@@ -51,7 +51,10 @@ const FluxCompatChip: React.FC<{ backend: string; interactive?: boolean }> = ({ 
     // to offer routing setup for it. The setup connector writes that agent's own
     // config file; there is no config to write when the agent is not installed,
     // so the button would open a modal that can only fail.
-    if (interactive && (backend === 'opencode' || backend === 'codex' || backend === 'kimi')) {
+    if (
+      interactive &&
+      (backend === 'opencode' || backend === 'codex' || backend === 'kimi' || backend === 'openclaw-gateway')
+    ) {
       return (
         <>
           <Button

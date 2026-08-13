@@ -16,14 +16,16 @@ import type {
   KimiStatusResult,
   OpencodeSetupResult,
   OpencodeStatusResult,
+  OpenClawSetupResult,
+  OpenClawStatusResult,
 } from '@/common/types/fluxConnector';
 import styles from './AgentsSettings.module.css';
 
 /** Backends that route through Flux via a one-time config write. */
-type FluxSetupBackend = 'opencode' | 'codex' | 'kimi';
+type FluxSetupBackend = 'opencode' | 'codex' | 'kimi' | 'openclaw-gateway';
 
-type SetupStatusResult = OpencodeStatusResult | CodexStatusResult | KimiStatusResult;
-type SetupActionResult = OpencodeSetupResult | CodexSetupResult | KimiSetupResult;
+type SetupStatusResult = OpencodeStatusResult | CodexStatusResult | KimiStatusResult | OpenClawStatusResult;
+type SetupActionResult = OpencodeSetupResult | CodexSetupResult | KimiSetupResult | OpenClawSetupResult;
 
 /**
  * Resolve the IPC trio (status / setup / remove) for a given setup backend.
@@ -40,6 +42,13 @@ function connectorFor(backend: FluxSetupBackend): {
       status: () => ipcBridge.fluxConnector.codexStatus.invoke(),
       setup: () => ipcBridge.fluxConnector.setupCodex.invoke(),
       remove: () => ipcBridge.fluxConnector.removeCodex.invoke(),
+    };
+  }
+  if (backend === 'openclaw-gateway') {
+    return {
+      status: () => ipcBridge.fluxConnector.openclawStatus.invoke(),
+      setup: () => ipcBridge.fluxConnector.setupOpenClaw.invoke(),
+      remove: () => ipcBridge.fluxConnector.removeOpenClaw.invoke(),
     };
   }
   if (backend === 'kimi') {

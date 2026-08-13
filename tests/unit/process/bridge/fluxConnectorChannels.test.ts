@@ -26,6 +26,12 @@ const KIMI_CHANNELS = ['flux-connector:kimi-status', 'flux-connector:setup-kimi'
 
 const CODEX_CHANNELS = ['flux-connector:codex-status', 'flux-connector:setup-codex', 'flux-connector:remove-codex'];
 
+const OPENCLAW_CHANNELS = [
+  'flux-connector:openclaw-status',
+  'flux-connector:setup-openclaw',
+  'flux-connector:remove-openclaw',
+];
+
 describe('flux connector channels', () => {
   it('declares the kimi trio on ipcBridge.fluxConnector', () => {
     expect(typeof ipcBridge.fluxConnector.kimiStatus?.invoke).toBe('function');
@@ -46,7 +52,20 @@ describe('flux connector channels', () => {
     }
   });
 
-  it('exposes exactly nine flux-connector channels (opencode + codex + kimi)', () => {
+  it('registers every openclaw channel in the bridge allowlist', () => {
+    const { providers } = _getRegisteredKeysForTests();
+    for (const channel of OPENCLAW_CHANNELS) {
+      expect(providers.has(channel), `${channel} missing from the allowlist`).toBe(true);
+    }
+  });
+
+  it('accepts the openclaw channels on the renderer -> main inbound path', () => {
+    for (const channel of OPENCLAW_CHANNELS) {
+      expect(isAllowedInboundName(`subscribe-${channel}`), `subscribe-${channel} denied`).toBe(true);
+    }
+  });
+
+  it('exposes exactly twelve flux-connector channels (opencode + codex + kimi + openclaw)', () => {
     const declared = [..._getRegisteredKeysForTests().providers].filter((key) => key.startsWith('flux-connector:'));
     expect(declared.sort()).toEqual(
       [
@@ -55,6 +74,7 @@ describe('flux connector channels', () => {
         'flux-connector:remove-opencode',
         ...CODEX_CHANNELS,
         ...KIMI_CHANNELS,
+        ...OPENCLAW_CHANNELS,
       ].sort()
     );
   });

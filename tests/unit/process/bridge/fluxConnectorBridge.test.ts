@@ -50,6 +50,15 @@ vi.mock('@/common', () => ({
       removeKimi: {
         provider: (handler: () => Promise<unknown>) => providers.set('kimiRemove', handler),
       },
+      openclawStatus: {
+        provider: (handler: () => Promise<unknown>) => providers.set('openclawStatus', handler),
+      },
+      setupOpenClaw: {
+        provider: (handler: () => Promise<unknown>) => providers.set('openclawSetup', handler),
+      },
+      removeOpenClaw: {
+        provider: (handler: () => Promise<unknown>) => providers.set('openclawRemove', handler),
+      },
     },
   },
 }));
@@ -184,7 +193,7 @@ describe('fluxConnectorBridge', () => {
     expect(readConnectedFluxKey).not.toHaveBeenCalled();
   });
 
-  it('initFluxConnectorBridge registers all opencode + codex + kimi providers', async () => {
+  it('initFluxConnectorBridge registers all opencode + codex + kimi + openclaw providers', async () => {
     const { initFluxConnectorBridge } = await import('@process/bridge/fluxConnectorBridge');
 
     initFluxConnectorBridge();
@@ -198,5 +207,8 @@ describe('fluxConnectorBridge', () => {
     expect(providers.has('kimiStatus')).toBe(true);
     expect(providers.has('kimiSetup')).toBe(true);
     expect(providers.has('kimiRemove')).toBe(true);
+    expect(providers.has('openclawStatus')).toBe(true);
+    expect(providers.has('openclawSetup')).toBe(true);
+    expect(providers.has('openclawRemove')).toBe(true);
   });
 });

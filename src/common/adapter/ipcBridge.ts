@@ -30,6 +30,8 @@ import type {
   FluxConnectorReport,
   KimiSetupResult,
   KimiStatusResult,
+  OpenClawSetupResult,
+  OpenClawStatusResult,
   OpencodeSetupResult,
   OpencodeStatusResult,
 } from '../types/fluxConnector';
@@ -1316,6 +1318,9 @@ export const fluxConnector = {
   kimiStatus: buildProvider<KimiStatusResult, void>('flux-connector:kimi-status'),
   setupKimi: buildProvider<KimiSetupResult, void>('flux-connector:setup-kimi'),
   removeKimi: buildProvider<FluxConnectorReport, void>('flux-connector:remove-kimi'),
+  openclawStatus: buildProvider<OpenClawStatusResult, void>('flux-connector:openclaw-status'),
+  setupOpenClaw: buildProvider<OpenClawSetupResult, void>('flux-connector:setup-openclaw'),
+  removeOpenClaw: buildProvider<FluxConnectorReport, void>('flux-connector:remove-openclaw'),
 };
 
 /**

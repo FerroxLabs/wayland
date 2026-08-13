@@ -49,6 +49,9 @@ vi.mock('@/common', () => ({
       kimiStatus: { provider: (h: () => Promise<unknown>) => providers.set('kimiStatus', h) },
       setupKimi: { provider: (h: () => Promise<unknown>) => providers.set('kimiSetup', h) },
       removeKimi: { provider: (h: () => Promise<unknown>) => providers.set('kimiRemove', h) },
+      openclawStatus: { provider: (h: () => Promise<unknown>) => providers.set('openclawStatus', h) },
+      setupOpenClaw: { provider: (h: () => Promise<unknown>) => providers.set('openclawSetup', h) },
+      removeOpenClaw: { provider: (h: () => Promise<unknown>) => providers.set('openclawRemove', h) },
     },
   },
 }));

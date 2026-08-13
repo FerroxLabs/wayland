@@ -709,6 +709,13 @@ export function getSkillsDirsForBackend(agentTypeOrBackend: string | undefined):
 const NON_ACP_FLUX_COMPAT: Record<string, AcpBackendConfig['fluxCompat']> = {
   wcore: 'env',
   gemini: 'env',
+  // 'setup', not 'env': OpenClaw resolves its provider as
+  // `configuredProvider?.baseUrl ?? envDefault`, so a user who has ever set a
+  // base URL keeps their own and env injection is a silent no-op. It routes
+  // only after connectors/openclaw.ts registers the flux provider in their own
+  // openclaw.json - which is a real, consented, undoable action, so the chip
+  // that offers it is doing something.
+  'openclaw-gateway': 'setup',
 };
 
 /**

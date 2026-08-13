@@ -26,11 +26,14 @@ import type {
   KimiStatusResult,
   OpencodeSetupResult,
   OpencodeStatusResult,
+  OpenClawSetupResult,
+  OpenClawStatusResult,
 } from '@/common/types/fluxConnector';
 import { acpDetector } from '@process/agent/acp/AcpDetector';
 import { codexStatus, removeCodex, resolveCodexConfigPath, setupCodex } from '@process/connectors/codex';
 import { readConnectedFluxKey } from '@process/connectors/fluxKey';
 import { kimiStatus, removeKimi, resolveKimiConfigPath, setupKimi } from '@process/connectors/kimi';
+import { openclawStatus, removeOpenClaw, resolveOpenClawConfigPath, setupOpenClaw } from '@process/connectors/openclaw';
 import { opencodeStatus, removeOpencode, resolveOpencodeConfigPath, setupOpencode } from '@process/connectors/opencode';
 import type { ConnectorContext } from '@process/connectors/types';
 import { existsSync } from 'node:fs';
@@ -205,7 +208,55 @@ export async function handleRemoveKimi(): Promise<FluxConnectorReport> {
   return removeKimi(buildContext(''));
 }
 
-/** Register the flux-connector IPC providers (opencode + codex + kimi). */
+async function openclawOnPath(): Promise<boolean> {
+  try {
+    const found = await acpDetector.batchCheckCliAvailability(['openclaw']);
+    return found.has('openclaw');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Handler: report OpenClaw's routing status, resolved config path, and whether
+ * openclaw is installed (binary on PATH OR a config file present). Does not need
+ * the flux key.
+ */
+export async function handleOpenClawStatus(): Promise<OpenClawStatusResult> {
+  const ctx = buildContext('');
+  const status = await openclawStatus(ctx);
+  const configPath = resolveOpenClawConfigPath();
+  const installed = (await openclawOnPath()) || existsSync(configPath);
+  return { status, configPath, installed };
+}
+
+/**
+ * Handler: register the Flux provider in OpenClaw's config and point its default
+ * model at it. Reads the connected flux key; if Flux is not connected, returns a
+ * typed refusal and never touches the user's config.
+ */
+export async function handleSetupOpenClaw(): Promise<OpenClawSetupResult> {
+  const fluxKey = await readConnectedFluxKey();
+  if (fluxKey === undefined) {
+    return { ok: false, reason: 'flux-not-connected' };
+  }
+  try {
+    const report = await setupOpenClaw(buildContext(fluxKey));
+    return { ok: true, report };
+  } catch (err) {
+    return { ok: false, reason: 'error', message: String(err) };
+  }
+}
+
+/**
+ * Handler: surgically remove the Flux provider from OpenClaw's config and
+ * restore the default model it replaced. Does not need the flux key.
+ */
+export async function handleRemoveOpenClaw(): Promise<FluxConnectorReport> {
+  return removeOpenClaw(buildContext(''));
+}
+
+/** Register the flux-connector IPC providers (opencode + codex + kimi + openclaw). */
 export function initFluxConnectorBridge(): void {
   ipcBridge.fluxConnector.opencodeStatus.provider(handleOpencodeStatus);
   ipcBridge.fluxConnector.setupOpencode.provider(handleSetupOpencode);
@@ -216,4 +267,7 @@ export function initFluxConnectorBridge(): void {
   ipcBridge.fluxConnector.kimiStatus.provider(handleKimiStatus);
   ipcBridge.fluxConnector.setupKimi.provider(handleSetupKimi);
   ipcBridge.fluxConnector.removeKimi.provider(handleRemoveKimi);
+  ipcBridge.fluxConnector.openclawStatus.provider(handleOpenClawStatus);
+  ipcBridge.fluxConnector.setupOpenClaw.provider(handleSetupOpenClaw);
+  ipcBridge.fluxConnector.removeOpenClaw.provider(handleRemoveOpenClaw);
 }
