@@ -80,6 +80,7 @@ const ShellChoiceCards: React.FC<ShellChoiceCardsProps> = ({ value, onChange, bu
             role='radio'
             aria-checked={selected}
             disabled={busy}
+            data-testid={`shell-choice-card-${card.shell}`}
             className={`${styles.card} ${selected ? styles.cardSelected : ''}`}
             onClick={() => onChange(card.shell)}
           >

@@ -5,7 +5,7 @@
  */
 
 import { Button, Modal } from '@arco-design/web-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { ConfigStorage } from '@/common/config/storage';
@@ -39,7 +39,6 @@ const ShellChoiceOverlay: React.FC = () => {
   const [eligible, setEligible] = useState<boolean | null>(null);
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState<ShellExperience>('classic');
-  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,11 +64,15 @@ const ShellChoiceOverlay: React.FC = () => {
     };
   }, []);
 
+  // Open exactly once. Without the latch this effect re-fires on every `shell`
+  // change — including the one our own confirm causes — which reopens the modal
+  // the moment the user picks Cockpit.
+  const openedOnce = useRef(false);
   useEffect(() => {
-    if (eligible) {
-      setPending(shell);
-      setOpen(true);
-    }
+    if (!eligible || openedOnce.current) return;
+    openedOnce.current = true;
+    setPending(shell);
+    setOpen(true);
   }, [eligible, shell]);
 
   const close = useCallback(() => {
@@ -78,19 +81,19 @@ const ShellChoiceOverlay: React.FC = () => {
     void markShellChoicePrompted();
   }, []);
 
-  const confirm = useCallback(async () => {
-    setBusy(true);
-    try {
-      if (pending !== shell) await setShell(pending);
-    } catch {
-      // The shell write failed (rollout refused, or storage is unavailable).
-      // Closing anyway is correct: the user answered, and re-asking on next
-      // launch would punish them for our failure. Settings > Navigation remains
-      // the way to change it.
-    } finally {
-      setBusy(false);
-      close();
-    }
+  /**
+   * Close first, persist after.
+   *
+   * The close must not be downstream of the shell write: `setShell` awaits a
+   * rollout read after the preference lands, so awaiting it leaves the modal on
+   * screen over an app that has already visibly switched. The user has answered
+   * either way — `close()` records that — and a failed write just leaves them on
+   * their current shell with Settings > Navigation still available.
+   */
+  const confirm = useCallback(() => {
+    const choice = pending;
+    close();
+    if (choice !== shell) void setShell(choice).catch((): void => undefined);
   }, [pending, shell, setShell, close]);
 
   if (!open) return null;
@@ -104,22 +107,22 @@ const ShellChoiceOverlay: React.FC = () => {
       style={{ width: 'min(760px, 94vw)' }}
       footer={
         <div className='flex justify-end gap-8px'>
-          <Button onClick={close} disabled={busy}>
+          <Button onClick={close}>
             {t('shellChoice.prompt.later', { defaultValue: 'Not now' })}
           </Button>
-          <Button type='primary' loading={busy} onClick={() => void confirm()}>
+          <Button type='primary' onClick={confirm}>
             {t('shellChoice.prompt.confirm', { defaultValue: 'Use this layout' })}
           </Button>
         </div>
       }
     >
-      <p className='mb-16px text-[var(--color-text-2)]'>
+      <p data-testid='shell-choice-prompt' className='mb-16px text-[var(--color-text-2)]'>
         {t('shellChoice.prompt.body', {
           defaultValue:
             'Cockpit is a new layout over the same chats, projects and settings — nothing moves or is deleted. You can switch back any time in Settings > Navigation.',
         })}
       </p>
-      <ShellChoiceCards value={pending} onChange={setPending} busy={busy} />
+      <ShellChoiceCards value={pending} onChange={setPending} />
     </Modal>
   );
 };

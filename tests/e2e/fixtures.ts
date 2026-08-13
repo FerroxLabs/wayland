@@ -32,13 +32,26 @@ const e2eUserDataSandboxRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'wayland-e2
 const e2eMainUserDataDir = path.join(e2eUserDataSandboxRoot, 'main');
 const e2eAmbientUserDataDir = path.join(e2eUserDataSandboxRoot, 'ambient');
 
+/**
+ * Seed a profile that looks like an established install: onboarding done, and
+ * the one-time Classic/Cockpit choice already answered.
+ *
+ * `ui.shellChoicePrompted` matters as much as `onboardingCompleted` here.
+ * ShellChoiceOverlay fires on exactly "onboarding completed AND never asked",
+ * which is what a bare `{ onboardingCompleted: true }` profile is — so without
+ * this the prompt opens over every seeded spec and its modal mask swallows the
+ * clicks those specs are trying to make.
+ *
+ * Specs that want to exercise the prompt itself must seed their own profile
+ * and leave this flag out (see shell-choice-prompt.e2e.ts).
+ */
 export function seedCompletedOnboarding(userDataDir: string): void {
   const configDir = path.join(userDataDir, 'config');
   const configFile = path.join(configDir, 'wayland-config.txt');
   if (fs.existsSync(configFile)) return;
 
   fs.mkdirSync(configDir, { recursive: true });
-  const json = JSON.stringify({ onboardingCompleted: true });
+  const json = JSON.stringify({ onboardingCompleted: true, 'ui.shellChoicePrompted': true });
   const encoded = Buffer.from(encodeURIComponent(json), 'utf8').toString('base64');
   fs.writeFileSync(configFile, encoded, { mode: 0o600, flag: 'wx' });
 }
