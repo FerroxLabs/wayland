@@ -17,6 +17,7 @@ import { WAYLAND_FILES_MARKER } from '@/common/config/constants';
 import type { IResponseMessage } from '@/common/adapter/ipcBridge';
 import { parseError, uuid } from '@/common/utils';
 import { claudeSlotForModelId } from '@process/agent/acp/utils';
+import { acpDetector } from '@process/agent/acp/AcpDetector';
 import type {
   AcpBackend,
   AcpModelInfo,
@@ -1281,9 +1282,26 @@ ${collectedResponses.join('\n')}`;
       customArgs = backendConfig.acpArgs;
     }
 
-    // If cliPath is not configured, fallback to default cliCommand from ACP_BACKENDS_ALL
+    // If cliPath is not configured, fall back to the backend's own launcher.
+    //
+    // The bare `cliCommand` is preferred, because a copy the user installed
+    // themselves must win over anything we fetch. But it is only usable when it
+    // actually resolves on PATH; when it does not, the ONLY outcome today is a
+    // hard ENOENT at spawn. A backend that publishes itself on npm declares
+    // `defaultCliPath` (`npx <pkg>@<pin>`) for exactly that case, and consulting
+    // it here is what makes the pin load-bearing rather than decorative - before
+    // this, `defaultCliPath` was read for extension and custom-agent rows only,
+    // so a machine that had never installed the CLI could not start the agent at
+    // all. No new spawn shape is introduced: createGenericSpawnConfig already
+    // routes an `npx ` prefix through the bundled bun runtime.
+    //
+    // The PATH probe runs ONLY when a defaultCliPath exists, so the backends
+    // without one (the large majority) keep resolving with no extra work.
     if (!cliPath && backendConfig?.cliCommand) {
-      cliPath = backendConfig.cliCommand;
+      cliPath =
+        backendConfig.defaultCliPath && !acpDetector.isCliAvailable(backendConfig.cliCommand)
+          ? backendConfig.defaultCliPath
+          : backendConfig.cliCommand;
     }
 
     if (data.backend === 'codex') {

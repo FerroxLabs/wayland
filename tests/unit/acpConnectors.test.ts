@@ -82,7 +82,7 @@ import {
 } from '../../src/process/agent/acp/acpConnectors';
 // Track the resolved Claude bridge package from the source of truth so this
 // test never goes stale when the pinned bridge version bumps.
-import { CLAUDE_ACP_NPX_PACKAGE } from '../../src/common/types/acpTypes';
+import { ACP_BACKENDS_ALL, CLAUDE_ACP_NPX_PACKAGE, WNANO_NPX_PACKAGE } from '../../src/common/types/acpTypes';
 
 const mockExecFile = vi.mocked(execFileCb);
 const mockExecFileSync = vi.mocked(execFileSync);
@@ -422,6 +422,28 @@ describe('createGenericSpawnConfig - Windows path handling', () => {
     expect(config.args).toContain('--bun');
     expect(config.args).toContain('@pkg/cli');
     expect(config.args).toContain('--acp');
+  });
+
+  it("carries Wayland Nano's pinned npm package and acp-host subcommand into argv", () => {
+    // The npm fallback is only worth anything if the PINNED version actually
+    // reaches the command line. Sourced from ACP_BACKENDS_ALL rather than a
+    // literal so a pin bump cannot leave this test asserting a stale version,
+    // and so a pin accidentally dropped from the backend table fails here.
+    const wnano = ACP_BACKENDS_ALL.wnano;
+    expect(wnano.defaultCliPath).toBe(`npx ${WNANO_NPX_PACKAGE}`);
+
+    const config = createGenericSpawnConfig(wnano.defaultCliPath!, '/cwd', wnano.acpArgs, undefined, {
+      PATH: '/usr/bin',
+    });
+
+    expect(config.command).toBe('/bundled/bun');
+    // `acp-host` is not optional decoration: bare `wayland-nano` prints usage and
+    // exits 2, so losing the subcommand yields a process that never speaks ACP.
+    expect(config.args).toEqual(expect.arrayContaining(['x', '--bun', WNANO_NPX_PACKAGE, 'acp-host']));
+    // The pin must be a concrete version, never a floating tag - npm's `latest`
+    // for this package still points at an OLDER alpha.
+    expect(WNANO_NPX_PACKAGE).toMatch(/@\d+\.\d+\.\d+/);
+    expect(config.options.shell).toBe(false);
   });
 });
 
