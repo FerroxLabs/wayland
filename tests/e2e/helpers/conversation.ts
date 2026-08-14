@@ -153,7 +153,15 @@ export async function deleteConversation(page: Page, conversationId: string): Pr
   await deleteItem.waitFor({ state: 'visible', timeout: 5_000 });
   await deleteItem.click();
 
-  const confirmBtn = page.locator('.arco-modal .arco-btn-primary.arco-btn-status-warning');
+  // Single delete renders `okButtonProps: { status: 'danger' }`; only the BATCH
+  // delete uses 'warning' (useConversationActions.ts:124 vs :158). Matching only
+  // the warning variant meant this helper never found the button for the single
+  // delete it actually performs, and since it runs as the CLEANUP step it failed
+  // 15 specs whose real assertions had already passed. Accept both so a future
+  // status change on either modal does not silently resurrect that.
+  const confirmBtn = page.locator(
+    '.arco-modal .arco-btn-primary.arco-btn-status-danger, .arco-modal .arco-btn-primary.arco-btn-status-warning'
+  );
   await confirmBtn.waitFor({ state: 'visible', timeout: 5_000 });
   await confirmBtn.click();
 
