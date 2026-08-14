@@ -184,6 +184,25 @@ it is merged.
 
 ---
 
+## 5a. Gotcha if you bring Desktop up on a fresh worktree
+
+Your §7 says `bun install` then `bun run start`. That is not quite enough on a
+clean checkout: `resources/bundled-bun/` is **not** populated by `bun install`,
+and Desktop spawns some ACP agents (Claude Code among them) through that bundled
+runtime. On a fresh worktree you get **[V]**:
+
+```
+Failed to spawn agent "claude": spawn .../resources/bundled-bun/darwin-arm64/bun ENOENT
+```
+
+It is not a Nano problem and it does not affect Nano (Desktop spawns
+`wayland-nano` from PATH, not through bundled bun). Fix is to run the prepare
+step — any `dist:*` or `package` build runs `prepareBundledBun` and populates it;
+after that Claude Code spawns and completes turns normally **[V]**. Same family
+as the known "fresh worktree needs `node scripts/build-mcp-servers.js`" gotcha.
+
+---
+
 ## 6. Environment facts, for reproducing
 
 - Apple M5, 24 GB unified, macOS 15, Apple Silicon.
