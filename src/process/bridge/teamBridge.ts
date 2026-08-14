@@ -11,6 +11,7 @@ import { ipcBridge } from '@/common';
 import { suggestRoster } from '@process/team/suggestRoster';
 import type { TeamSessionService } from '@process/team/TeamSessionService';
 import { ExtensionRegistry } from '@process/extensions/ExtensionRegistry';
+import { BUILTIN_ID_PREFIX, getBuiltinCatalogAssistants } from '@process/utils/builtinCatalog';
 import type { SpecialistCatalog } from '@process/team/importExport/importTeam';
 import { makeExtensionRegistryRitualsResolver } from '@process/team/ritualScheduler';
 
@@ -289,21 +290,24 @@ export function initTeamBridge(teamSessionService: TeamSessionService): void {
 }
 
 /**
- * Build the specialist-id catalog from the live ExtensionRegistry. The
- * registry stores assistants with ids prefixed `ext-<id>`; the export
- * format uses the unprefixed id so the catalog set must mirror that.
+ * Build the specialist-id catalog from every source a roster can name. Both
+ * stores prefix their ids (`ext-<id>` / `builtin-<id>`); the export format
+ * uses the unprefixed id, so the catalog set must mirror that.
  */
 function makeSpecialistCatalog(): SpecialistCatalog {
   return async () => {
-    const registry = ExtensionRegistry.getInstance();
-    const assistants = registry.getAssistants();
     const ids = new Set<string>();
-    for (const a of assistants) {
-      const rawId = (a as { id?: string }).id;
-      if (typeof rawId !== 'string') continue;
-      const stripped = rawId.startsWith('ext-') ? rawId.slice(4) : rawId;
-      ids.add(stripped);
+    const add = (rawId: unknown, prefix: string): void => {
+      if (typeof rawId !== 'string') return;
+      ids.add(rawId.startsWith(prefix) ? rawId.slice(prefix.length) : rawId);
+    };
+    for (const a of ExtensionRegistry.getInstance().getAssistants()) {
+      add((a as { id?: string }).id, 'ext-');
     }
+    // The waylandteams specialists ship as native built-ins, not extension
+    // contributions. Reading only the registry made every import report its
+    // own roster as missing and hard-disabled both review CTAs.
+    for (const a of getBuiltinCatalogAssistants()) add(a.id, BUILTIN_ID_PREFIX);
     return ids;
   };
 }
