@@ -52,11 +52,25 @@ test.describe('Extension-Contributed Agents & Assistants', () => {
     expect(hasExtAssistant).toBeTruthy();
   });
 
-  test('extension assistant appears on guid page', async ({ page }) => {
+  // GuidPage passes hideInlineGrid unconditionally (GuidPage.tsx:1286), so
+  // AssistantSelectionArea returns only its modal tree and the inline preset
+  // pill grid no longer renders - no assistant name appears in the guid body.
+  // The launchpad picker is the guid surface that enumerates the live
+  // assistant catalogue, extensions included.
+  test('extension assistant appears in the guid launchpad picker', async ({ page }) => {
     await goToGuid(page);
     await waitForSettle(page, 5_000);
-    // Look for the extension assistant name in the page
-    await expectBodyContainsAny(page, ['E2E Test Assistant']);
+
+    await page.locator('[data-testid="launchpad-add-chip"]').click();
+    await page.locator('[data-testid="launchpad-picker"]').waitFor({ state: 'visible', timeout: 5_000 });
+    // Filter by label: the picker's haystack is label + sub + id.
+    await page.locator('[data-testid="launchpad-picker-search"]').fill('E2E Test Assistant');
+
+    await expect(page.locator('[data-testid^="launchpad-picker-card-"]')).not.toHaveCount(0);
+
+    // Close the picker so the open drawer does not leak into the next test.
+    await page.locator('[data-testid="launchpad-picker-close"]').click();
+    await page.locator('[data-testid="launchpad-picker"]').waitFor({ state: 'hidden', timeout: 5_000 });
   });
 
   test('extension assistant edit is read-only', async ({ page }) => {
@@ -67,9 +81,15 @@ test.describe('Extension-Contributed Agents & Assistants', () => {
     test.skip(!extId, 'E2E Test Assistant not found');
 
     await openAssistantDrawer(page, extId!);
-    // Save button is disabled for extension assistants
-    const saveBtn = page.locator(BTN_SAVE_ASSISTANT);
-    await expect(saveBtn).toBeDisabled();
+    // The implemented read-only guard for an extension assistant is that its
+    // delete action is not rendered (AssistantEditDrawer.tsx:202,
+    // `!isExtensionAssistant(activeAssistant)`). The Save button carries no
+    // `disabled` prop for ANY assistant, and the name/description inputs are
+    // gated on `isBuiltin` rather than extension-ness, so the old
+    // `expect(saveBtn).toBeDisabled()` asserted a state the drawer has never
+    // produced. Whether extension assistants should also be non-editable is an
+    // open product question, not something this spec can settle.
+    await expect(page.locator(BTN_SAVE_ASSISTANT)).toBeVisible();
     // No delete button for extension assistants
     const deleteVisible = await page
       .locator(BTN_DELETE_ASSISTANT)
