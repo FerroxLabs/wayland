@@ -25,6 +25,15 @@ export const CODEBUDDY_ACP_BRIDGE_VERSION = '2.73.0';
 export const CODEBUDDY_ACP_NPX_PACKAGE = `@tencent-ai/codebuddy-code@${CODEBUDDY_ACP_BRIDGE_VERSION}`;
 
 /**
+ * Wayland Nano's own npm distribution. PINNED DELIBERATELY: npm's `latest`
+ * dist-tag still points at `0.1.0-alpha.0` while the release lives on `next`,
+ * so a bare `npx waylandnano` silently installs the OLDER alpha. A pin is also
+ * reproducible in a way a moving tag is not.
+ */
+export const WNANO_NPM_VERSION = '0.1.0-rc.0';
+export const WNANO_NPX_PACKAGE = `waylandnano@${WNANO_NPM_VERSION}`;
+
+/**
  * Current ACP wrapper version for a given backend, in the format `<backend>@<version>`,
  * or `null` for backends whose wrapper version we don't pin (locally installed CLIs).
  *
@@ -470,6 +479,11 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     cliCommand: 'wayland-nano',
     authRequired: false, // Draws on the providers connected in Wayland; no own login
     enabled: true,
+    // Released on npm as `waylandnano` (bin: `wayland-nano`). A locally built
+    // or installed binary on PATH still wins; this is the fallback for a
+    // machine that has never built Nano, and it is what makes the agent
+    // installable rather than merely detectable.
+    defaultCliPath: `npx ${WNANO_NPX_PACKAGE}`,
     supportsStreaming: true, // Native ACP, streams session/update chunks
     acpArgs: ['acp-host'], // ACP over stdio via subcommand, no bridge
     // 'env', for the same reason as hermes: Desktop routes it per-spawn with no
