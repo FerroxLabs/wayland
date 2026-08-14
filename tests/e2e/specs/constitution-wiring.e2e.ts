@@ -28,7 +28,14 @@
 import { test, expect } from '../fixtures';
 import { navigateTo } from '../helpers';
 
-type OverlayResult = { constitution: string; overlay: string | null };
+/**
+ * Every Constitution IPC answers with a ConstitutionAuthorityEnvelope, and the
+ * payload inside is a ConstitutionReadResult discriminated on `state` - not the
+ * bare string / bare object these tests originally assumed.
+ */
+type ReadResult = { state: 'absent'; revision: string } | { state: 'present'; content: string; revision: string };
+type Envelope<T> = { availability: string; value?: T };
+type OverlayResult = { constitution: ReadResult; overlay: ReadResult | null };
 
 test.describe('Constitution wiring', () => {
   test('app boots and Settings → Constitution page renders', async ({ page }) => {
@@ -66,8 +73,9 @@ test.describe('Constitution wiring', () => {
     test.setTimeout(30_000);
 
     const result = await page.evaluate(async () => {
-      const api = (window as unknown as { electronAPI?: { readConstitution?: () => Promise<string> } })
-        .electronAPI;
+      const api = (
+        window as unknown as { electronAPI?: { readConstitution?: () => Promise<unknown> } }
+      ).electronAPI;
       if (!api?.readConstitution) {
         return { error: 'readConstitution not exposed on electronAPI - preload binding missing' };
       }
@@ -75,11 +83,19 @@ test.describe('Constitution wiring', () => {
     });
 
     expect(result.error, result.error).toBeUndefined();
-    expect(typeof result.value).toBe('string');
-    expect((result.value as string).length).toBeGreaterThan(0);
+
+    const envelope = result.value as Envelope<ReadResult> | undefined;
+    expect(envelope, 'readConstitution returned undefined').toBeDefined();
+    expect(envelope!.availability).toBe('available');
+
+    const read = envelope!.value as ReadResult;
+    expect(read.state).toBe('present');
+    const content = (read as { state: 'present'; content: string }).content;
+    expect(typeof content).toBe('string');
+    expect(content.length).toBeGreaterThan(0);
     // Robust marker - don't hard-code the full text (the user may have edited it).
-    expect(result.value).toContain('Constitution');
-    expect(result.value).toMatch(/^#{1,2}\s+/m); // at least one markdown heading
+    expect(content).toContain('Constitution');
+    expect(content).toMatch(/^#{1,2}\s+/m); // at least one markdown heading
   });
 
   test('constitution:readWithOverlay IPC roundtrip works end-to-end', async ({ page }) => {
@@ -89,9 +105,7 @@ test.describe('Constitution wiring', () => {
       const api = (
         window as unknown as {
           electronAPI?: {
-            readConstitutionWithOverlay?: (
-              assistantId?: string
-            ) => Promise<{ constitution: string; overlay: string | null }>;
+            readConstitutionWithOverlay?: (assistantId?: string) => Promise<unknown>;
           };
         }
       ).electronAPI;
@@ -110,17 +124,20 @@ test.describe('Constitution wiring', () => {
     // Fail loudly if the preload binding is missing - do NOT silently skip.
     expect(result.error, result.error).toBeUndefined();
 
-    const value = result.value as OverlayResult | undefined;
-    expect(value, 'readConstitutionWithOverlay returned undefined').toBeDefined();
-    expect(typeof value).toBe('object');
+    const envelope = result.value as Envelope<OverlayResult> | undefined;
+    expect(envelope, 'readConstitutionWithOverlay returned undefined').toBeDefined();
+    expect(envelope!.availability).toBe('available');
 
-    // Return shape: { constitution: string, overlay: string | null }.
-    expect(typeof value!.constitution).toBe('string');
-    expect(value!.constitution.length).toBeGreaterThan(0);
-    expect(value!.constitution).toContain('Constitution');
+    // Payload: { constitution: ConstitutionReadResult, overlay: ... | null }.
+    const value = envelope!.value as OverlayResult;
+    expect(typeof value).toBe('object');
+    expect(value.constitution.state).toBe('present');
+    const constitution = (value.constitution as { state: 'present'; content: string }).content;
+    expect(constitution.length).toBeGreaterThan(0);
+    expect(constitution).toContain('Constitution');
 
     // No overlay file for this specialist → overlay is null (proves the
     // path-existence branch ran in the main process, not just a stub).
-    expect(value!.overlay).toBeNull();
+    expect(value.overlay).toBeNull();
   });
 });

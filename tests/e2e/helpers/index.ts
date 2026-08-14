@@ -58,7 +58,7 @@ export {
   goToNewChat,
   runConversationCycle,
 } from './conversation';
-export { TEAM_SUPPORTED_BACKENDS } from './teamConfig';
+export { TEAM_SUPPORTED_BACKENDS, expandTeamsAccordion, primeSiderCreateAffordance } from './teamConfig';
 export {
   goToAssistantSettings,
   openAssistantDrawer,

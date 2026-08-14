@@ -103,7 +103,13 @@ async function openWorkflowDetail(page: Page, slug: string): Promise<void> {
   await card.waitFor({ state: 'visible', timeout: 10_000 });
   await card.click();
   await page.locator(DETAIL_MODAL).first().waitFor({ state: 'visible', timeout: 5_000 });
-  await expect(page.locator(DETAIL_MODAL)).toContainText(LAUNCH_BUTTON_TEXT, { timeout: 5_000 });
+  // The footer is EITHER "Launch now" OR the resume prompt, never both
+  // (WorkflowDetailModal.tsx:613). When a resume candidate exists the prompt
+  // replaces the button on open, with no click involved - so demanding the
+  // button here fails on a modal that is behaving correctly.
+  await expect(
+    page.getByRole('button', { name: LAUNCH_BUTTON_TEXT }).or(page.locator(RESUME_PROMPT)).first()
+  ).toBeVisible({ timeout: 5_000 });
 }
 
 /**
@@ -270,7 +276,10 @@ test.describe('Workflow Launch Surface - resume smoke (SPEC §5.7 / §10.2)', ()
     // findActive should now return the session created in Phase 1, and
     // the modal should swap its footer for a WorkflowResumePrompt.
     await openWorkflowDetail(page, FEATURED_WORKFLOW_SLUG);
-    await page.getByRole('button', { name: LAUNCH_BUTTON_TEXT }).click();
+    // The prompt replaces the footer on open when a resume candidate exists, so
+    // there may be no button to click at all. Click it only if it is there.
+    const launchBtn = page.getByRole('button', { name: LAUNCH_BUTTON_TEXT });
+    if (await launchBtn.count()) await launchBtn.first().click();
 
     // Resume prompt appears inside the open modal. Its testid is on the
     // card root; the body includes a "Resume" CTA and a "Start fresh"

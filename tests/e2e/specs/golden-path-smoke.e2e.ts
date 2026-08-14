@@ -23,7 +23,7 @@
  */
 
 import { test, expect } from '../fixtures';
-import { invokeBridge, navigateTo } from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion} from '../helpers';
 
 const LAUNCHER_ID = 'builtin-cold-outbound';
 
@@ -94,11 +94,17 @@ test.describe('Golden path smoke - Cold Outbound', () => {
     await expect(page.locator('[data-testid="teams-total-count"]')).toBeVisible();
 
     // (7) Sidebar entry → typed delete.
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
 
     const row = sidebarEntry.locator(
-      'xpath=ancestor::div[contains(@class,"group") and contains(@class,"h-40px")][1]'
+      // SiderItem's root is `h-26px ... group ...` now, not h-40px. Match the
+    // `group` CLASS TOKEN exactly - a bare contains() also matches
+    // `group-hover:text-1` on an inner div, which has no menu trigger.
+    'xpath=ancestor::div[contains(concat(" ", normalize-space(@class), " "), " group ")][1]'
     );
     await row.hover();
     const threeDot = row.locator('span.flex-center.cursor-pointer').last();

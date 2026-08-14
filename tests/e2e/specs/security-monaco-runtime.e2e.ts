@@ -224,7 +224,11 @@ test.describe.serial('HTML editor runtime dependency boundary', () => {
     expect(rendererEvidence.codeMirrorEditors).toBeGreaterThan(0);
     expect(rendererEvidence.monacoDomNodes).toBe(0);
     expect(rendererEvidence.hasMonacoGlobal).toBe(false);
-    expect(workerUrls).toEqual([]);
+    // Scope to Monaco. The app legitimately spawns first-party workers - e.g.
+    // assets/whisperWorker-*.js for voice STT - and a blanket "no workers at
+    // all" assertion is not this spec's contract (see the Monaco-scoped filter
+    // it already applies further down).
+    expect(workerUrls.filter((url) => /monaco/i.test(url))).toEqual([]);
 
     const executableUrls = Array.from(
       new Set([

@@ -9,7 +9,7 @@
  */
 
 import { test, expect, type Page } from '../fixtures';
-import { invokeBridge, navigateTo } from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion} from '../helpers';
 
 const NAME_PREFIX = 'E2E StateOrphans';
 
@@ -171,6 +171,9 @@ test.describe('Team state orphans (adversarial)', () => {
     // Both teams exist with the same display name. The sidebar locator
     // resolves to two entries - verify the count rather than first().
     await navigateTo(page, '#/guid');
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     await expect(page.locator(`text="${sharedName}"`)).toHaveCount(2, { timeout: 10_000 });
 
     await invokeBridge(page, 'team.remove', { id: first.id }).catch(() => undefined);
@@ -218,6 +221,9 @@ test.describe('Team state orphans (adversarial)', () => {
       return;
     }
 
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     await expect(page.locator(`text="${created.name}"`).first()).toBeVisible({ timeout: 10_000 });
 
     // Remove via IPC. Sidebar entry should disappear.

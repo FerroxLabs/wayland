@@ -19,7 +19,7 @@
 
 import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
-import { invokeBridge, navigateTo } from '../helpers';
+import { invokeBridge, navigateTo, expandTeamsAccordion} from '../helpers';
 
 const LAUNCHER_ID = 'builtin-cold-outbound';
 const NAME_PREFIX = 'E2E NavChaos';
@@ -193,17 +193,17 @@ test.describe('Team Blitz - navigation chaos', () => {
     };
     page.on('pageerror', errorHandler);
 
-    // /team/ (no id) - Router catch-all '*' redirects to /guid.
-    await navigateTo(page, '#/team/');
-    await page
-      .waitForFunction(() => (document.body.textContent?.length ?? 0) > 50, { timeout: 10_000 })
-      .catch(() => {});
-
-    // /team// (double slash) - same catch-all path.
-    await navigateTo(page, '#/team//');
-    await page
-      .waitForFunction(() => (document.body.textContent?.length ?? 0) > 50, { timeout: 10_000 })
-      .catch(() => {});
+    // /team/ and /team// hit the Router '*' catch-all, which redirects to /guid
+    // by design (Router.tsx:213). `navigateTo` asserts the hash STAYS at the
+    // target, so it fights that redirect - and its late `Navigate ... replace`
+    // could also clobber a hash set by a following step. Set the hash raw and
+    // wait for the settled destination instead.
+    for (const junk of ['#/team/', '#/team//']) {
+      await page.evaluate((h) => {
+        window.location.hash = h;
+      }, junk);
+      await page.waitForFunction(() => window.location.hash === '#/guid', undefined, { timeout: 10_000 });
+    }
 
     // /teams/ (trailing slash) - should render TeamsLibraryPage OR
     // redirect somewhere alive.
@@ -252,6 +252,9 @@ test.describe('Team Blitz - navigation chaos', () => {
     const teamId = created.id;
 
     // Wait for sidebar to surface the new entry.
+    // The Teams sider accordion is collapsed on a fresh profile and renders no
+    // children while closed, so team rows are absent from the DOM until expanded.
+    await expandTeamsAccordion(page);
     const sidebarEntry = page.locator(`text="${teamName}"`).first();
     await expect(sidebarEntry).toBeVisible({ timeout: 10_000 });
 

@@ -37,6 +37,31 @@ async function teamModeEnabled(page: import('@playwright/test').Page): Promise<b
   }
 }
 
+/**
+ * `safeProvider` in teamBridge turns every provider throw into a RESOLVED
+ * sentinel `{ __bridgeError: true, message }` - it never rejects. So a
+ * `.catch()` on invokeBridge can never fire, and the old `'__error' in x`
+ * tolerance branch was dead code that let malformed params surface as
+ * `created.id === undefined`.
+ */
+type BridgeError = { __bridgeError: true; message?: string };
+function isBridgeError(value: unknown): value is BridgeError {
+  return typeof value === 'object' && value !== null && '__bridgeError' in value;
+}
+
+/** Minimum viable leader roster - createTeam dereferences params.agents. */
+const LEADER_AGENTS = [
+  {
+    slotId: '',
+    conversationId: '',
+    role: 'leader',
+    agentType: 'wayland-core',
+    agentName: 'Leader',
+    conversationType: 'acp',
+    status: 'pending',
+  },
+];
+
 interface TTeam {
   id: string;
   name: string;
@@ -74,21 +99,24 @@ test.describe('Teams bridge lifecycle', () => {
 
     let createdId: string | null = null;
     try {
-      const created = await invokeBridge<TTeam>(
+      // createTeam requires { userId, name, workspace, workspaceMode, agents }
+      // and dereferences params.agents - the old { name, ownerId } payload threw
+      // a TypeError that came back as the resolved sentinel.
+      const created = await invokeBridge<TTeam | BridgeError>(
         page,
         'team.create',
-        { name: 'e2e-team', ownerId: PROBE_USER },
+        {
+          userId: PROBE_USER,
+          name: 'e2e-team',
+          workspace: '',
+          workspaceMode: 'shared',
+          agents: LEADER_AGENTS,
+        },
         8_000
-      ).catch((err) => ({ __error: err instanceof Error ? err.message : String(err) }) as const);
+      );
 
-      // team.create may require a richer payload depending on the build -
-      // if it rejects with a validation failure, document the rejection rather
-      // than fail the suite. The negative test still verifies the bridge is
-      // reachable and reports errors.
-      if ('__error' in created) {
-        // eslint-disable-next-line no-console
-        console.warn(`[teams.e2e] team.create rejected: ${created.__error}`);
-        test.skip(true, `team.create requires richer params in this build: ${created.__error}`);
+      if (isBridgeError(created)) {
+        test.skip(true, `team.create refused: ${created.message ?? 'unknown'}`);
         return;
       }
 
@@ -114,31 +142,47 @@ test.describe('Teams bridge lifecycle', () => {
 
     let teamId: string | null = null;
     try {
-      const team = await invokeBridge<TTeam>(
+      const team = await invokeBridge<TTeam | BridgeError>(
         page,
         'team.create',
-        { name: 'e2e-team-add-agent', ownerId: PROBE_USER },
+        {
+          userId: PROBE_USER,
+          name: 'e2e-team-add-agent',
+          workspace: '',
+          workspaceMode: 'shared',
+          agents: LEADER_AGENTS,
+        },
         8_000
-      ).catch((err) => ({ __error: err instanceof Error ? err.message : String(err) }) as const);
+      );
 
-      if ('__error' in team) {
-        test.skip(true, `team.create rejected: ${team.__error}`);
+      if (isBridgeError(team)) {
+        test.skip(true, `team.create refused: ${team.message ?? 'unknown'}`);
         return;
       }
       teamId = team.id;
 
-      const agent = await invokeBridge<TeamAgent>(
+      // The provider destructures { teamId, agent } - the agent fields must be
+      // nested, not flat.
+      const agent = await invokeBridge<TeamAgent | BridgeError>(
         page,
         'team.add-agent',
-        { teamId, slotId: 'slot-1', name: 'e2e-agent', backend: 'gemini' },
+        {
+          teamId,
+          agent: {
+            slotId: '',
+            conversationId: '',
+            role: 'teammate',
+            agentType: 'wcore',
+            agentName: 'e2e-agent',
+            conversationType: 'wcore',
+            status: 'pending',
+          },
+        },
         8_000
-      ).catch((err) => ({ __error: err instanceof Error ? err.message : String(err) }) as const);
+      );
 
-      if ('__error' in agent) {
-        // Same tolerance - add-agent params evolve across builds.
-        // eslint-disable-next-line no-console
-        console.warn(`[teams.e2e] team.add-agent rejected: ${agent.__error}`);
-        test.skip(true, `team.add-agent requires richer params: ${agent.__error}`);
+      if (isBridgeError(agent)) {
+        test.skip(true, `team.add-agent refused: ${agent.message ?? 'unknown'}`);
         return;
       }
 

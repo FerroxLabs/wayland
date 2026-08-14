@@ -37,6 +37,14 @@ async function ensureColdStartGuid(page: import('@playwright/test').Page) {
   await invokeBridge(page, 'agent.config.storage.set', { key: 'guid.lastSelectedAgent', data: '' });
   // Wipe any prior customisation so each test starts from defaults.
   await invokeBridge(page, 'agent.config.storage.set', { key: 'launchpad.barOrder', data: null });
+  // Clear React Router's history state too. kickoff-card.e2e.ts seeds
+  // `usr.launchAssistant = true` and that SURVIVES page.reload(), which makes
+  // GuidPage enter preset-hero mode and unmount the launchpad bar entirely -
+  // so this spec saw 0 cards purely because of the spec that ran before it.
+  await page.evaluate(() => {
+    const prev = (window.history.state as Record<string, unknown>) || {};
+    window.history.replaceState({ ...prev, usr: undefined }, '');
+  });
   await page.reload();
   // Cold-launch boot can take longer than the default 10s on a fresh worker;
   // mirror what launchpad-quick-launch.e2e.ts waits for (the inner button).
