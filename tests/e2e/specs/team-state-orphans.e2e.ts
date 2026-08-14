@@ -99,10 +99,10 @@ test.describe('Team state orphans (adversarial)', () => {
 
     // Open a launcher; type a name; abandon by navigating away.
     await navigateTo(page, '#/teams');
-    const card = page.locator('[data-testid="team-card-ext-marketing-agency"]');
+    const card = page.locator('[data-testid="team-card-builtin-marketing-agency"]');
     await expect(card).toBeVisible({ timeout: 10_000 });
     await card.click();
-    await page.waitForURL(/\/teams\/ext-marketing-agency\/launch/, { timeout: 10_000 });
+    await page.waitForURL(/\/teams\/builtin-marketing-agency\/launch/, { timeout: 10_000 });
     await expect(page.locator('[data-testid="launcher-title"]')).toBeVisible({ timeout: 15_000 });
 
     await page

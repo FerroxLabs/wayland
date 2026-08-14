@@ -62,26 +62,26 @@ test.describe('Launchpad customisation - add / remove / persist', () => {
     await ensureColdStartGuid(page);
 
     // Hover the card so the remove button reveals (CSS uses :hover/:focus-within).
-    const quietMoney = page.locator(`${CARD}[data-quicklaunch-id="ext-quiet-money"]`);
+    const quietMoney = page.locator(`${CARD}[data-quicklaunch-id="builtin-quiet-money"]`);
     await quietMoney.hover();
 
-    const removeBtn = page.locator('[data-testid="launchpad-remove-ext-quiet-money"]');
+    const removeBtn = page.locator('[data-testid="launchpad-remove-builtin-quiet-money"]');
     await removeBtn.waitFor({ state: 'visible', timeout: 5_000 });
     await removeBtn.click({ force: true });
 
     await expect(page.locator(CARD)).toHaveCount(6);
-    await expect(page.locator(`${CARD}[data-quicklaunch-id="ext-quiet-money"]`)).toHaveCount(0);
+    await expect(page.locator(`${CARD}[data-quicklaunch-id="builtin-quiet-money"]`)).toHaveCount(0);
 
     // Persistence: reload the page and verify the bar still has 6 cards.
     await page.reload();
     await page.locator(CARD).first().waitFor({ state: 'visible', timeout: 30_000 });
     await expect(page.locator(CARD)).toHaveCount(6);
-    await expect(page.locator(`${CARD}[data-quicklaunch-id="ext-quiet-money"]`)).toHaveCount(0);
+    await expect(page.locator(`${CARD}[data-quicklaunch-id="builtin-quiet-money"]`)).toHaveCount(0);
 
     // And the value is persisted under the canonical key.
     const stored = await invokeBridge<string[]>(page, 'agent.config.storage.get', 'launchpad.barOrder');
     expect(Array.isArray(stored)).toBe(true);
-    expect(stored).not.toContain('ext-quiet-money');
+    expect(stored).not.toContain('builtin-quiet-money');
   });
 
   test('adding an assistant from the picker appends it to the bar', async ({ page }) => {

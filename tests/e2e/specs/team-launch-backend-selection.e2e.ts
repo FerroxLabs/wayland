@@ -17,7 +17,7 @@
 import { test, expect } from '../fixtures';
 import { invokeBridge, navigateTo } from '../helpers';
 
-const LAUNCHER_ID = 'ext-marketing-agency';
+const LAUNCHER_ID = 'builtin-marketing-agency';
 
 test.describe('Team Launcher - backend selection', () => {
   test('switch leader backend via pill → launch persists the choice', async ({ page }) => {

@@ -18,7 +18,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from '../fixtures';
 import { invokeBridge, navigateTo } from '../helpers';
 
-const LAUNCHER_ID = 'ext-cold-outbound';
+const LAUNCHER_ID = 'builtin-cold-outbound';
 const NAME_PREFIX = 'E2E InputEdge';
 
 type TeamRow = { id: string; name: string };

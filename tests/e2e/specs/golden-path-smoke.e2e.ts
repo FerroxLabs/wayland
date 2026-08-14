@@ -2,7 +2,7 @@
  * E2E (G1): Golden-path smoke - the 60-second "does the whole product work"
  * sanity check. Per E2E-TEST-PLAN §G1.
  *
- * Selected canonical team: `cold-outbound` (ext-cold-outbound). It is an
+ * Selected canonical team: `cold-outbound` (builtin-cold-outbound). It is an
  * ad-hoc launcher present in every vendored bundle build with a 3-teammate
  * roster (research + copy + sales - first promotes to leader, leaving 2
  * teammate rows). Cold Outbound has no rituals, which is fine - we only
@@ -25,7 +25,7 @@
 import { test, expect } from '../fixtures';
 import { invokeBridge, navigateTo } from '../helpers';
 
-const LAUNCHER_ID = 'ext-cold-outbound';
+const LAUNCHER_ID = 'builtin-cold-outbound';
 
 test.describe('Golden path smoke - Cold Outbound', () => {
   test('library → launch → /team/<id> → right rail → back → delete', async ({ page }) => {

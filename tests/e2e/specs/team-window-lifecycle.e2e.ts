@@ -211,8 +211,8 @@ test.describe.serial('Team window lifecycle (adversarial)', () => {
     const before = await invokeBridgeOn<TeamRow[]>(p1, 'team.list', { userId: 'system_default_user' });
 
     // Navigate to launcher and type a name, but never call team.create.
-    await p1.evaluate(() => window.location.assign('#/teams/ext-marketing-agency/launch'));
-    await p1.waitForURL(/\/teams\/ext-marketing-agency\/launch/, { timeout: 15_000 });
+    await p1.evaluate(() => window.location.assign('#/teams/builtin-marketing-agency/launch'));
+    await p1.waitForURL(/\/teams\/builtin-marketing-agency\/launch/, { timeout: 15_000 });
     await p1
       .locator('[data-testid="launcher-name-input"]')
       .fill(`E2E WindowLifecycle Abandoned ${Date.now()}`)
