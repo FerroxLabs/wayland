@@ -129,6 +129,86 @@ describe('takeSpeakableSentences', () => {
   });
 });
 
+describe('agent control markup is never spoken', () => {
+  // Auto-read consumes the LIVE stream. The renderer's strip runs at display
+  // time and the main process's runs at turn end, so both happen too late for
+  // voice - which is why asking the agent to schedule something had the
+  // synthesizer read "CRON underscore PROPOSE, schedule colon zero eight..."
+  // out loud, one field at a time.
+  const CRON_TURN = [
+    "I'll set that up for you before the open, Monday through Friday.",
+    '[CRON_PROPOSE]',
+    'name: Weekday morning market report',
+    'schedule: 0 8 * * 1-5',
+    '[/CRON_PROPOSE]',
+    'It will run each weekday.',
+  ].join('\n');
+
+  it('drops a cron proposal envelope but keeps the prose around it', () => {
+    const spoken = normalizeVoiceResponseText(CRON_TURN);
+
+    expect(spoken).not.toContain('CRON_PROPOSE');
+    expect(spoken).not.toContain('0 8 * * 1-5');
+    // The prose on BOTH sides has to survive - stripping the whole turn would
+    // be a different bug wearing the same green test.
+    expect(spoken).toContain('before the open');
+    expect(spoken).toContain('It will run each weekday.');
+  });
+
+  it.each([
+    ['[CRON_LIST]', 'CRON_LIST'],
+    ['[[AION_FILES]]', 'AION_FILES'],
+    ['[CONCIERGE_PROPOSE]body[/CONCIERGE_PROPOSE]', 'CONCIERGE'],
+    ['[SKILL_SUGGEST]x[/SKILL_SUGGEST]', 'SKILL_SUGGEST'],
+    ['[CRON_UPDATE: abc123]body[/CRON_UPDATE]', 'CRON_UPDATE'],
+  ])('strips %s', (input, forbidden) => {
+    const spoken = normalizeVoiceResponseText(`Before. ${input} After.`);
+    expect(spoken).not.toContain(forbidden);
+    expect(spoken).toContain('Before.');
+    expect(spoken).toContain('After.');
+  });
+
+  it('removes think tags instead of shredding them into pronounceable rubble', () => {
+    // The emphasis rule deletes `>` but not `<` or `/`, so this used to degrade
+    // to `<thinkreasoning</think` - which the synthesizer happily read out.
+    const spoken = normalizeVoiceResponseText('<think>weighing options</think>Here is the answer.');
+
+    expect(spoken).not.toContain('<');
+    expect(spoken).not.toContain('think');
+    expect(spoken).toContain('Here is the answer.');
+  });
+
+  it('leaves arithmetic alone — the tag rule requires a letter after the bracket', () => {
+    // Guards the obvious over-reach: a blanket `<...>` strip would eat this.
+    expect(normalizeVoiceResponseText('Keep it under 5 < 10 always.')).toContain('5 < 10');
+  });
+
+  it('holds the buffer while a control block is still open', () => {
+    // Mid-stream the closing tag has not arrived. Splitting here would hand the
+    // queue fragments of a marker whose envelope rule can no longer match, and
+    // each fragment would be normalized alone and then spoken. Mirrors the
+    // existing unclosed-code-fence guard.
+    const partial = 'Sure thing. [CRON_PROPOSE]\nname: Daily report.\nschedule: 0 8 * * 1-5.\n';
+    expect(takeSpeakableSentences(partial)).toEqual({ sentences: [], rest: partial });
+  });
+
+  it('CONTROL: releases the buffer once the block closes', () => {
+    // Without this the guard above could pass by never emitting anything at all.
+    const complete = 'Sure thing. [CRON_PROPOSE]\nname: Daily.\n[/CRON_PROPOSE] All set. ';
+    const { sentences } = takeSpeakableSentences(complete);
+    expect(sentences.length).toBeGreaterThan(0);
+    expect(sentences.join('')).toContain('Sure thing.');
+  });
+
+  it('CONTROL: ordinary prose is still spoken unchanged', () => {
+    // The whole suite above asserts absence, so it would pass on a normalizer
+    // that returned the empty string for everything.
+    expect(normalizeVoiceResponseText('The build finished in 12 seconds.')).toBe(
+      'The build finished in 12 seconds.'
+    );
+  });
+});
+
 describe('applyVoiceProsody', () => {
   it('replaces the comma contour with an explicit breath, on macOS only', () => {
     expect(applyVoiceProsody('Hey, I can hear you fine.', 'system-native')).toBe(

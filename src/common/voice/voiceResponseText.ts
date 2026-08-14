@@ -56,14 +56,62 @@ const listItemsBecomeSentences = (text: string): string =>
     })
     .join('\n');
 
+/**
+ * Bracketed control blocks the agent emits for the UI to act on, never for a
+ * human to hear: cron proposals, concierge proposals, workflow envelopes, skill
+ * suggestions.
+ *
+ * The renderer already strips these before display (MessageText.tsx) and the
+ * main process strips them before persisting (CronCommandDetector,
+ * ConciergeProposeDetector). Voice was the one consumer that never got the
+ * treatment - and it reads the LIVE stream, which is pre-strip on both of those
+ * paths - so asking the agent to schedule something had the synthesiser
+ * pronounce "CRON underscore PROPOSE, schedule colon zero eight star star one
+ * dash five" out loud.
+ *
+ * Envelope names are matched generically rather than listed one-by-one so a new
+ * block kind is silent by default. Getting that wrong is asymmetric: an unspoken
+ * marker is invisible, a spoken one is deeply strange.
+ */
+const AGENT_MARKER_NAMES = 'CRON_[A-Z_]+|CONCIERGE_PROPOSE|SKILL_SUGGEST|WORKFLOW_[A-Z_]+|workflow_[a-z_]+';
+const AGENT_MARKER_ENVELOPE = new RegExp(`\\[(${AGENT_MARKER_NAMES})(?::[^\\]]*)?\\][\\s\\S]*?\\[/\\1\\]`, 'g');
+/** A marker with no closing tag - `[CRON_LIST]`, `[[AION_FILES]]`, a truncated block. */
+const AGENT_MARKER_BARE = new RegExp(`\\[\\[?/?(?:${AGENT_MARKER_NAMES})(?::[^\\]]*)?\\]?\\]`, 'g');
+/** `[[AION_FILES]]`, kept as its own literal because it is not an envelope. */
+const FILES_MARKER = /\[\[AION_FILES]]/g;
+
+/**
+ * An HTML-ish tag. `<think>` was WORSE than untouched: the emphasis rule below
+ * deletes `>` but not `<` or `/`, so `<think>reasoning</think>` degraded into
+ * `<thinkreasoning</think` and got read out. Deliberately requires a letter
+ * after the optional slash, so arithmetic like "5 < 10" survives.
+ */
+const HTML_TAG = /<\/?[a-zA-Z][a-zA-Z0-9-]*(?:\s[^<>]*)?\/?>/g;
+
+/** True when a control block has opened and not yet closed. */
+export const hasOpenAgentMarker = (text: string): boolean => {
+  const opens = text.match(new RegExp(`\\[(${AGENT_MARKER_NAMES})(?::[^\\]]*)?\\]`, 'g'))?.length ?? 0;
+  const closes = text.match(new RegExp(`\\[/(${AGENT_MARKER_NAMES})\\]`, 'g'))?.length ?? 0;
+  return opens > closes;
+};
+
 export const normalizeVoiceResponseText = (text: string): string =>
   listItemsBecomeSentences(
     text
+      // Control blocks go FIRST: their bodies are structured data, and letting
+      // the markdown rules loose on one turns `schedule: 0 8 * * 1-5` into
+      // spoken prose instead of removing it.
+      .replace(AGENT_MARKER_ENVELOPE, ' ')
+      .replace(FILES_MARKER, ' ')
+      .replace(AGENT_MARKER_BARE, ' ')
       .replace(/```[\s\S]*?```/g, ' I left the code in the chat. ')
       .replace(/!\[[^\]]*]\([^)]*\)/g, ' I added an image in the chat. ')
       .replace(/\[([^\]]+)]\([^)]*\)/g, '$1')
       .replace(/^#{1,6}\s+/gm, '')
   )
+    // Before the emphasis rule, which would otherwise shred a tag into rubble
+    // that still gets spoken.
+    .replace(HTML_TAG, ' ')
     .replace(/[*_~`>|]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
@@ -168,6 +216,12 @@ export const takeSpeakableSentences = (buffer: string): SpeakableSentences => {
   // CLOSING fence to match; run it on an open one and the model's raw source is
   // read aloud verbatim, character by character.
   if ((buffer.match(/```/g)?.length ?? 0) % 2 === 1) return { sentences: [], rest: buffer };
+
+  // Same reasoning for an agent control block. Its body is structured data full
+  // of terminators, so sentence-splitting an OPEN one hands the queue fragments
+  // of a marker whose envelope rule can no longer match - each fragment is then
+  // normalized alone and spoken. Hold until it closes, exactly like the fence.
+  if (hasOpenAgentMarker(buffer)) return { sentences: [], rest: buffer };
 
   const sentences: string[] = [];
   let start = 0;
