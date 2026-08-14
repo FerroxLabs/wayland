@@ -299,7 +299,7 @@ test.describe('Assistant Settings CRUD', () => {
     }
   });
 
-  test('delete custom assistant', async ({ page }) => {
+  test('archive custom assistant', async ({ page }) => {
     await goToAssistantSettings(page);
     await page.locator('[data-testid^="assistant-card-"]').first().waitFor({ state: 'visible', timeout: 15_000 });
 
@@ -327,10 +327,13 @@ test.describe('Assistant Settings CRUD', () => {
     await openAssistantDrawer(page, targetId);
     await deleteAssistant(page);
 
-    // Wait for deletion
     await page.waitForTimeout(500);
     const idsAfter = await getVisibleAssistantIds(page);
-    expect(idsAfter).not.toContain(targetId);
+    // "Delete" is a non-destructive archive: handleDeleteConfirm sets
+    // enabled:false and the modal confirms with "Archive"/"restore it from
+    // Disabled". The card stays listed and moves to the Disabled section.
+    expect(idsAfter).toContain(targetId);
+    await expect(page.locator(`[data-testid="switch-enabled-${targetId}"]`)).toHaveAttribute('aria-checked', 'false');
   });
 
   test('enable / disable toggle', async ({ page }) => {
