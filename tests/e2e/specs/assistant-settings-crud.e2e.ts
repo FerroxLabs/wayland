@@ -507,20 +507,28 @@ test.describe('Assistant Settings CRUD', () => {
     await goToAssistantSettings(page);
     await page.locator('[data-testid^="assistant-card-"]').first().waitFor({ state: 'visible', timeout: 15_000 });
 
-    // The AssistantListPanel renders "Enabled" section followed by "Disabled" section
-    const bodyText = await page.locator('body').textContent();
-    expect(bodyText!.length).toBeGreaterThan(50);
+    // Anchor on the section headers themselves, which renderSection emits as
+    // "<title> (<count>)" and omits entirely when a section is empty. The
+    // previous version searched the WHOLE body string for the bare words and
+    // compared character offsets, so any other "Disabled" anywhere in the app
+    // shell - of which there is at least one, ahead of this panel - inverted
+    // the comparison and failed a page that renders in the correct order.
+    const enabledHeader = page.getByText(/^(Enabled|已启用)\s*\(\d+\)$/);
+    const disabledHeader = page.getByText(/^(Disabled|已禁用)\s*\(\d+\)$/);
 
-    // Verify section headers exist and are in correct order
-    const enabledIdx = bodyText!.search(/Enabled|已启用/);
-    const disabledIdx = bodyText!.search(/Disabled|已禁用/);
+    // The Enabled section always exists - there is at least one builtin.
+    await expect(enabledHeader.first()).toBeVisible({ timeout: 10_000 });
 
-    // At least the Enabled section should exist
-    expect(enabledIdx).toBeGreaterThanOrEqual(0);
-
-    // If both sections exist, Enabled comes before Disabled
-    if (disabledIdx >= 0) {
-      expect(enabledIdx).toBeLessThan(disabledIdx);
+    // Compare rendered position, not string offsets. Only meaningful when an
+    // earlier test in this file has left something archived.
+    if ((await disabledHeader.count()) > 0) {
+      const enabledBox = await enabledHeader.first().boundingBox();
+      const disabledBox = await disabledHeader.first().boundingBox();
+      expect(enabledBox).not.toBeNull();
+      expect(disabledBox).not.toBeNull();
+      if (enabledBox && disabledBox) {
+        expect(enabledBox.y).toBeLessThan(disabledBox.y);
+      }
     }
 
     const cards = page.locator('[data-testid^="assistant-card-"]');
