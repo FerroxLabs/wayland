@@ -152,18 +152,17 @@ describe('Wayland Core Desktop v1 producer pin', () => {
     // observer rejects a descriptor mismatch in either direction, so a pin that
     // does not name the bundled release is a broken install, not a stale note.
     //
-    // 🔴 TRIPWIRE - they do not agree right now, on purpose. The pin is at
-    // minor 14 (Core 0.13.0) while the download tag still resolves to v0.12.26,
-    // which advertises minor 12, because 0.13.0 is UNTAGGED: it is a local
-    // build being verified through the override directory, and it only gets
-    // tagged once that verification passes. This branch therefore CANNOT ship.
+    // The tripwire this block used to carry is discharged: v0.13.0 is tagged
+    // and released, and the bundled tag now names it. Proven by execution, not
+    // by reading - the released binary was downloaded, attestation-verified and
+    // run, and Wayland Core completes turns on it. Before the tag moved, every
+    // turn died with `contract_minor_mismatch` (pin 14 vs the engine's 12).
     //
-    // At tag time: set the tag below and in `prepareWaylandCore.js` to
-    // 'v0.13.0' and delete this block. If the pin is ever NOT 14 this whole
-    // assertion is stale and the coupling must be re-derived, not patched.
+    // If the pin is ever NOT 14 this whole assertion is stale and the coupling
+    // must be re-derived from the released manifest, not patched.
     expect(DESKTOP_CORE_V1_PIN.minor).toBe(14);
     expect(readFileSync(path.resolve(process.cwd(), 'scripts/prepareWaylandCore.js'), 'utf8')).toContain(
-      "const DEFAULT_WCORE_VERSION = 'v0.12.26'"
+      "const DEFAULT_WCORE_VERSION = 'v0.13.0'"
     );
   });
 
