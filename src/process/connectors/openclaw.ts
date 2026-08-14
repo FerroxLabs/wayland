@@ -233,7 +233,16 @@ export async function setupOpenClaw(ctx: ConnectorContext): Promise<FluxConnecto
   // instead would discard a default they picked after our first install — the
   // "Reapply" path on a drifted config does exactly that — and would then
   // report that we replaced a value we did not replace.
-  const priorDefaultModel = currentPrimary === PRIMARY_REF ? (priorReceipt?.priorDefaultModel ?? null) : currentPrimary;
+  //
+  // The receipt, not the string, is what makes a value ours. `flux/flux-auto`
+  // is not a name we reserve: a user pointing their OWN `flux` provider at
+  // Flux Router already has exactly this primary, and on a first install
+  // matching the string alone recorded their default as "there was none" —
+  // removal then deleted it. Found by the live sweep against a real config.
+  const priorDefaultModel =
+    priorReceipt !== undefined && currentPrimary === PRIMARY_REF
+      ? (priorReceipt.priorDefaultModel ?? null)
+      : currentPrimary;
   modelDefaults.primary = PRIMARY_REF;
 
   await writeAtomic(configPath, `${JSON.stringify(root, null, 2)}\n`);

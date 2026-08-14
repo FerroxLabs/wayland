@@ -163,6 +163,28 @@ describe('openclaw connector', () => {
     expect(readConfig().agents.defaults.model.primary).toBe('anthropic/claude-opus-4-6');
   });
 
+  it('keeps a default of `flux/flux-auto` the user set themselves, which the receipt — not the string — makes ours', async () => {
+    // Found by the live sweep, not by this file: Sean's own OpenClaw config
+    // points a personal `flux` provider (127.0.0.1:7878) at `flux/flux-auto`.
+    // Matching on the string alone recorded "there was none before Flux" on the
+    // FIRST install, so removal deleted a default the user had chosen. The
+    // provider-name collision two tests down was guarded; the identical
+    // collision on the model ref was not, and it is the same user.
+    writeConfig({
+      models: { providers: { flux: { baseUrl: 'http://127.0.0.1:7878/v1', apiKey: 'their-key' } } },
+      agents: { defaults: { model: { primary: PRIMARY } } },
+    });
+
+    await setupOpenClaw(ctx);
+    expect((await getReceipt(ctx.manifestPath, 'openclaw'))?.priorDefaultModel).toBe(PRIMARY);
+
+    await removeOpenClaw(ctx);
+
+    // Their local router comes back AND still has a default pointed at it.
+    expect(readConfig().agents.defaults.model.primary).toBe(PRIMARY);
+    expect(readConfig().models.providers.flux.baseUrl).toBe('http://127.0.0.1:7878/v1');
+  });
+
   it("restores a `flux` provider the user already owned instead of deleting it", async () => {
     // `flux` is not a reserved id. A user can legitimately run their own router
     // under exactly this name - and they are the people most likely to click
