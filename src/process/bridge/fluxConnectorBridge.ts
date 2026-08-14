@@ -102,11 +102,44 @@ export async function handleSetupOpencode(): Promise<OpencodeSetupResult> {
 }
 
 /**
+ * Turn a throwing remove into a report the renderer can actually display.
+ *
+ * The setup handlers already catch and return a typed refusal; the remove
+ * handlers did not, and a rejection here does not reach the caller as a
+ * rejection - it never settles the renderer promise at all, so FluxSetupModal's
+ * `finally { setBusy(false) }` never runs. The user gets a Remove button that
+ * spins forever with no message, which reads as a hang rather than a failure.
+ *
+ * Resolving with `action: 'failed'` puts the reason in the changes list the
+ * modal already renders, and costs no new i18n key.
+ */
+async function reportOnThrow(
+  tool: string,
+  run: () => Promise<FluxConnectorReport>
+): Promise<FluxConnectorReport> {
+  try {
+    return await run();
+  } catch (err) {
+    return {
+      tool,
+      action: 'failed',
+      status: 'drifted',
+      configPath: '',
+      configExistedBefore: true,
+      backupPath: null,
+      changes: [`Could not remove Flux from ${tool}: ${String(err)}`],
+      rollbackCommand: `Removal failed, so nothing was changed. Fix the error above and try again.`,
+      baseURL: '',
+    };
+  }
+}
+
+/**
  * Handler: surgically remove the Flux provider from opencode's config. Does not
  * need the flux key.
  */
 export async function handleRemoveOpencode(): Promise<FluxConnectorReport> {
-  return removeOpencode(buildContext(''));
+  return reportOnThrow('opencode', () => removeOpencode(buildContext('')));
 }
 
 /** True when a `codex` binary is detectable on PATH. Never throws. */
@@ -155,7 +188,7 @@ export async function handleSetupCodex(): Promise<CodexSetupResult> {
  * need the flux key.
  */
 export async function handleRemoveCodex(): Promise<FluxConnectorReport> {
-  return removeCodex(buildCodexContext(''));
+  return reportOnThrow('codex', () => removeCodex(buildCodexContext('')));
 }
 
 /** True when a `kimi` binary is detectable on PATH. Never throws. */
@@ -205,7 +238,7 @@ export async function handleSetupKimi(): Promise<KimiSetupResult> {
  * need the flux key.
  */
 export async function handleRemoveKimi(): Promise<FluxConnectorReport> {
-  return removeKimi(buildContext(''));
+  return reportOnThrow('kimi', () => removeKimi(buildContext('')));
 }
 
 async function openclawOnPath(): Promise<boolean> {
@@ -253,7 +286,7 @@ export async function handleSetupOpenClaw(): Promise<OpenClawSetupResult> {
  * restore the default model it replaced. Does not need the flux key.
  */
 export async function handleRemoveOpenClaw(): Promise<FluxConnectorReport> {
-  return removeOpenClaw(buildContext(''));
+  return reportOnThrow('openclaw', () => removeOpenClaw(buildContext('')));
 }
 
 /** Register the flux-connector IPC providers (opencode + codex + kimi + openclaw). */

@@ -317,8 +317,26 @@ export async function removeOpenClaw(ctx: ConnectorContext): Promise<FluxConnect
   const exists = raw !== undefined;
 
   const changes: string[] = [];
+  // An unparseable config must not block the rest of removal. Refusing to
+  // rewrite a file we cannot parse is right - that guard stays - but throwing
+  // here also skipped deleteReceipt below, so status stayed 'drifted' forever
+  // and the modal offered Remove and Reapply as the only two actions, BOTH of
+  // which parse and are therefore both dead ends. The user could not
+  // un-configure Flux from the UI at all. Removal is a rollback of OUR state;
+  // it must still complete when the user's own file is beyond our reach.
+  let parsed: Record<string, unknown> | undefined;
   if (raw !== undefined) {
-    const root = parseConfig(raw, configPath);
+    try {
+      parsed = parseConfig(raw, configPath);
+    } catch {
+      changes.push(
+        `Could not parse ${configPath}, so it was left untouched. Remove the "${PROVIDER_ID}" provider by hand.`
+      );
+    }
+  }
+
+  if (parsed !== undefined) {
+    const root = parsed;
     let touched = false;
 
     const providers = readPath(root, ['models', 'providers']);
@@ -356,7 +374,10 @@ export async function removeOpenClaw(ctx: ConnectorContext): Promise<FluxConnect
     }
 
     if (touched) await writeAtomic(configPath, `${JSON.stringify(root, null, 2)}\n`);
-  } else {
+  } else if (raw === undefined) {
+    // Guarded on `raw`, not on `parsed`: an unparseable config also lands here
+    // and telling that user their config "does not exist" would be a second
+    // false statement on top of the one that stranded them.
     changes.push(`Config file ${configPath} does not exist; nothing to remove`);
   }
 

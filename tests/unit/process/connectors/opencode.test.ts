@@ -216,4 +216,43 @@ describe('opencode connector', () => {
     expect(managedHash(BASE_URL)).toBe(managedHash(BASE_URL));
     expect(managedHash(BASE_URL)).not.toBe(managedHash('https://other.invalid/v1'));
   });
+
+  describe('remove with an unparseable config', () => {
+    it('still drops the receipt, leaves the file untouched, and says so', async () => {
+      // Setup first, so there is a receipt to strand. Then corrupt the config
+      // behind our back - the shape a user arrives in when they hand-edit it.
+      await setupOpencode(ctx);
+      expect(await getReceipt(ctx.manifestPath, 'opencode')).toBeTruthy();
+
+      const corrupt = '{ "provider": { "flux": ';
+      await fs.promises.writeFile(configPath, corrupt, 'utf-8');
+
+      const report = await removeOpencode(ctx);
+
+      // The whole point: removal COMPLETES. Throwing here skipped deleteReceipt,
+      // so status stayed 'drifted' forever and the modal's only two actions -
+      // Remove and Reapply - both parse, so both were dead ends. The user could
+      // not un-configure Flux from the UI at all.
+      expect(await getReceipt(ctx.manifestPath, 'opencode')).toBeUndefined();
+      expect(report.action).toBe('removed');
+
+      // Refusing to rewrite a file we cannot parse is still correct.
+      expect(await fs.promises.readFile(configPath, 'utf-8')).toBe(corrupt);
+      expect(report.changes.join('\n')).toContain('Could not parse');
+      // ...and it must not also claim the file is missing.
+      expect(report.changes.join('\n')).not.toContain('does not exist');
+    });
+
+    it('CONTROL: a parseable config is still surgically edited', async () => {
+      // Without this the test above would pass on a remove that had quietly
+      // stopped editing configs altogether.
+      await setupOpencode(ctx);
+      const report = await removeOpencode(ctx);
+
+      const after = JSON.parse(await fs.promises.readFile(configPath, 'utf-8'));
+      expect(after.provider?.flux).toBeUndefined();
+      expect(report.changes.join('\n')).toContain('Removed provider.flux');
+      expect(report.changes.join('\n')).not.toContain('Could not parse');
+    });
+  });
 });

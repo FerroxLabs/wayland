@@ -15,7 +15,14 @@ export type ConnectorStatus = 'routed' | 'drifted' | 'unconfigured' | 'absent';
 /** Human-readable outcome of a connector action, surfaced to the user. */
 export type FluxConnectorReport = {
   tool: string;
-  action: 'installed' | 'already-routed' | 'updated' | 'removed' | 'noop';
+  /**
+   * `failed` exists so a remove that throws still RESOLVES. A rejected provider
+   * never settles the renderer's promise at all, so the modal's `finally` never
+   * ran and the button span forever with no error shown - a spinner is a worse
+   * failure report than a message. The reason travels in `changes`, which the
+   * modal already renders; nothing branches on `action` in the UI.
+   */
+  action: 'installed' | 'already-routed' | 'updated' | 'removed' | 'noop' | 'failed';
   status: ConnectorStatus;
   configPath: string;
   configExistedBefore: boolean;

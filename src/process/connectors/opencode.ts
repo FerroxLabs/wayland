@@ -273,14 +273,29 @@ export async function removeOpencode(ctx: ConnectorContext): Promise<FluxConnect
 
   const changes: string[] = [];
   if (raw !== undefined) {
-    const root = parseConfig(raw, configPath);
-    const provider = root.provider;
-    if (isObject(provider) && provider.flux !== undefined) {
-      delete provider.flux;
-      changes.push(`Removed provider.flux from ${configPath}`);
-      await writeAtomic(configPath, `${JSON.stringify(root, null, 2)}\n`);
-    } else {
-      changes.push(`No provider.flux block found in ${configPath}`);
+    // An unparseable config must not block the rest of removal. Refusing to
+    // rewrite a file we cannot parse is right - that guard stays - but throwing
+    // here also skipped deleteReceipt, so status stayed 'drifted' forever and
+    // the modal offered Remove and Reapply as the only two actions, BOTH of
+    // which parse and therefore both dead ends. The user could not
+    // un-configure Flux from the UI at all. Removal is a rollback of OUR state;
+    // it must still complete when the user's file is beyond our reach.
+    let root: Record<string, unknown> | undefined;
+    try {
+      root = parseConfig(raw, configPath);
+    } catch {
+      changes.push(`Could not parse ${configPath}, so it was left untouched. Remove the "flux" provider by hand.`);
+    }
+
+    if (root !== undefined) {
+      const provider = root.provider;
+      if (isObject(provider) && provider.flux !== undefined) {
+        delete provider.flux;
+        changes.push(`Removed provider.flux from ${configPath}`);
+        await writeAtomic(configPath, `${JSON.stringify(root, null, 2)}\n`);
+      } else {
+        changes.push(`No provider.flux block found in ${configPath}`);
+      }
     }
   } else {
     changes.push(`Config file ${configPath} does not exist; nothing to remove`);
