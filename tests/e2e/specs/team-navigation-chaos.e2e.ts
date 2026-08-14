@@ -115,6 +115,10 @@ test.describe('Team Blitz - navigation chaos', () => {
     await expect(page.locator('[data-testid="teams-library-page"]')).toBeVisible({
       timeout: 15_000,
     });
+    // The library paginates at 48 cards over 60 teams and this launcher sorts
+    // into the hidden tail, so filter to it first - its card is not in the DOM
+    // on page one [V].
+    await page.locator('[data-testid="teams-search-input"]').fill('Cold Outbound');
     await page.locator(`[data-testid="team-card-${LAUNCHER_ID}"]`).click();
     await page.waitForURL(new RegExp(`/teams/${LAUNCHER_ID}/launch`), { timeout: 10_000 });
     await expect(page.locator('[data-testid="launcher-row-leader"]')).toBeVisible({

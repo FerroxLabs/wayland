@@ -58,6 +58,10 @@ test.describe('Team Blitz - rapid-click adversarial', () => {
       timeout: 15_000,
     });
 
+    // The library paginates at 48 cards over 60 teams and this launcher sorts
+    // into the hidden tail, so filter to it first - its card is not in the DOM
+    // on page one [V].
+    await page.locator('[data-testid="teams-search-input"]').fill('Cold Outbound');
     const card = page.locator(`[data-testid="team-card-${LAUNCHER_ID}"]`);
     await expect(card).toBeVisible({ timeout: 10_000 });
     await card.click();

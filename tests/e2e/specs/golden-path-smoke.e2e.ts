@@ -46,7 +46,10 @@ test.describe('Golden path smoke - Cold Outbound', () => {
     await page.waitForURL(/#\/teams(\?|$)/, { timeout: 10_000 });
     await expect(page.locator('[data-testid="teams-library-page"]')).toBeVisible({ timeout: 15_000 });
 
-    // (2) Click Cold Outbound card.
+    // (2) Find and click the Cold Outbound card. The library paginates at 48
+    // cards over 60 teams and this launcher sorts into the hidden tail, so it
+    // is not in the DOM on page one [V] - search the way a user would.
+    await page.locator('[data-testid="teams-search-input"]').fill('Cold Outbound');
     const card = page.locator(`[data-testid="team-card-${LAUNCHER_ID}"]`);
     await expect(card).toBeVisible({ timeout: 10_000 });
     await card.click();
