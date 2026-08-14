@@ -289,6 +289,7 @@ const GuidActionRow: React.FC<GuidActionRowProps> = ({
               loading={loading}
               disabled={isButtonDisabled}
               className='send-button-custom'
+              aria-label={t('conversation.chat.sendMessage')}
               style={{
                 backgroundColor: isButtonDisabled ? undefined : '#000000',
                 borderColor: isButtonDisabled ? undefined : '#000000',

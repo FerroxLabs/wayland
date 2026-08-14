@@ -265,6 +265,7 @@ const ComposerAddMenu: React.FC<ComposerAddMenuProps> = ({
   onToggleBuiltinSkill,
   onStagedSkillsChange,
 }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [mcpSessionState, setMcpSessionState] = useState<McpSessionState | undefined>();
   const triggerRef = useRef<HTMLSpanElement>(null);
@@ -347,6 +348,7 @@ const ComposerAddMenu: React.FC<ComposerAddMenuProps> = ({
           type='text'
           shape='circle'
           loading={uploading}
+          aria-label={t('common.add')}
           icon={<Plus size={14} strokeWidth={2} color={iconColors.brand} />}
         />
       </span>
