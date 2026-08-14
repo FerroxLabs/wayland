@@ -374,8 +374,18 @@ export const useWCoreMessage = (
             // the card exists), broadcast after the turn is over. Counting it as
             // output would restart the spinner on a finished chat - the same
             // failure described above for the session-level frames.
-            const isTurnOutput =
-              Boolean(message.msg_id) && message.type !== 'activity_turn_end' && message.type !== 'content_replace';
+            //
+            // `cron_propose` / `concierge_propose` ride that SAME after-the-turn
+            // path out of MessageMiddleware, one emit above the `content_replace`
+            // that was already excluded here. They name the turn, so they re-armed
+            // `streamRunning` after `finish` had cleared it — and nothing else was
+            // ever coming, so the spinner and the elapsed timer ran forever.
+            // Reproduced live: a cron turn showed "Working… 254s" long after the
+            // engine logged stream_end, and navigating away and back cleared it —
+            // proving the DURABLE state was already correct and only the mounted
+            // view was wrong. A plain turn in the same session settled normally.
+            const AFTER_TURN_FRAMES = ['activity_turn_end', 'content_replace', 'cron_propose', 'concierge_propose'];
+            const isTurnOutput = Boolean(message.msg_id) && !AFTER_TURN_FRAMES.includes(message.type);
             // Mark that current turn has content output (exclude error type)
             hasContentInTurnRef.current = true;
             // Successful content after an error means that error was transient.
