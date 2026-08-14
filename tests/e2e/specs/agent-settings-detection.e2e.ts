@@ -19,7 +19,10 @@ test.describe('Agent Settings Detection', () => {
 
     // At least one detected agent card should be visible
     // Agent cards use AgentCard component in a grid
-    const agentGrid = page.locator('.grid');
+    // The `.grid` utility class belongs to LocalAgents, which now renders only
+    // inside the settings MODAL. The /settings/agents page builds its cards with
+    // CSS modules, so assert the page's own card testid instead.
+    const agentGrid = page.locator('[data-testid="agent-card"]');
     await expect(agentGrid.first()).toBeVisible({ timeout: 8_000 });
 
     // Check for known backend names
@@ -40,7 +43,7 @@ test.describe('Agent Settings Detection', () => {
   test('agent settings page has sidebar navigation item', async ({ page }) => {
     await goToSettings(page, 'agents');
 
-    const siderItem = page.locator(settingsSiderItemById('agent')).first();
+    const siderItem = page.locator(settingsSiderItemById('agents')).first();
     await expect(siderItem).toBeVisible({ timeout: 8_000 });
   });
 
@@ -71,7 +74,10 @@ test.describe('Agent Settings Detection', () => {
 
     // Page should still render correctly
     await expectBodyContainsAny(page, ['Agent', 'agent', '助手', '代理']);
-    const agentGrid = page.locator('.grid');
+    // The `.grid` utility class belongs to LocalAgents, which now renders only
+    // inside the settings MODAL. The /settings/agents page builds its cards with
+    // CSS modules, so assert the page's own card testid instead.
+    const agentGrid = page.locator('[data-testid="agent-card"]');
     await expect(agentGrid.first()).toBeVisible({ timeout: 8_000 });
   });
 });
