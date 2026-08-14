@@ -59,7 +59,12 @@ test.describe('Auth: POST /login', () => {
   test('wrong password returns 401 (no user enumeration)', async ({ electronApp }) => {
     const res = await mainFetch(electronApp, `${webui.localUrl}/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Distinct client IP per negative-path login: authRateLimiter is
+      // max 5 / 15m with skipSuccessfulRequests, and this file has SIX
+      // failing logins, so the last one tripped the limiter and got 429
+      // instead of its assertion. `trust proxy` includes loopback, so a
+      // per-test X-Forwarded-For re-keys the limiter.
+      headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': '10.9.9.1' },
       body: JSON.stringify({ username: webui.username, password: 'this-is-the-wrong-password' }),
     });
 
@@ -73,7 +78,12 @@ test.describe('Auth: POST /login', () => {
   test('nonexistent user returns 401 with same shape (constant-time)', async ({ electronApp }) => {
     const res = await mainFetch(electronApp, `${webui.localUrl}/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Distinct client IP per negative-path login: authRateLimiter is
+      // max 5 / 15m with skipSuccessfulRequests, and this file has SIX
+      // failing logins, so the last one tripped the limiter and got 429
+      // instead of its assertion. `trust proxy` includes loopback, so a
+      // per-test X-Forwarded-For re-keys the limiter.
+      headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': '10.9.9.2' },
       body: JSON.stringify({ username: 'no-such-user-xyz', password: 'anything' }),
     });
 
@@ -86,7 +96,12 @@ test.describe('Auth: POST /login', () => {
   test('zod input rejection: empty username (commit 3f81c9cbb)', async ({ electronApp }) => {
     const res = await mainFetch(electronApp, `${webui.localUrl}/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Distinct client IP per negative-path login: authRateLimiter is
+      // max 5 / 15m with skipSuccessfulRequests, and this file has SIX
+      // failing logins, so the last one tripped the limiter and got 429
+      // instead of its assertion. `trust proxy` includes loopback, so a
+      // per-test X-Forwarded-For re-keys the limiter.
+      headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': '10.9.9.3' },
       body: JSON.stringify({ username: '', password: 'something' }),
     });
 
@@ -100,7 +115,12 @@ test.describe('Auth: POST /login', () => {
     const oversized = 'a'.repeat(64);
     const res = await mainFetch(electronApp, `${webui.localUrl}/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Distinct client IP per negative-path login: authRateLimiter is
+      // max 5 / 15m with skipSuccessfulRequests, and this file has SIX
+      // failing logins, so the last one tripped the limiter and got 429
+      // instead of its assertion. `trust proxy` includes loopback, so a
+      // per-test X-Forwarded-For re-keys the limiter.
+      headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': '10.9.9.4' },
       body: JSON.stringify({ username: oversized, password: 'something' }),
     });
 
@@ -115,7 +135,12 @@ test.describe('Auth: POST /login', () => {
     const oversized = 'a'.repeat(256);
     const res = await mainFetch(electronApp, `${webui.localUrl}/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Distinct client IP per negative-path login: authRateLimiter is
+      // max 5 / 15m with skipSuccessfulRequests, and this file has SIX
+      // failing logins, so the last one tripped the limiter and got 429
+      // instead of its assertion. `trust proxy` includes loopback, so a
+      // per-test X-Forwarded-For re-keys the limiter.
+      headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': '10.9.9.5' },
       body: JSON.stringify({ username: webui.username, password: oversized }),
     });
 
@@ -125,7 +150,12 @@ test.describe('Auth: POST /login', () => {
   test('zod input rejection: non-string types', async ({ electronApp }) => {
     const res = await mainFetch(electronApp, `${webui.localUrl}/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      // Distinct client IP per negative-path login: authRateLimiter is
+      // max 5 / 15m with skipSuccessfulRequests, and this file has SIX
+      // failing logins, so the last one tripped the limiter and got 429
+      // instead of its assertion. `trust proxy` includes loopback, so a
+      // per-test X-Forwarded-For re-keys the limiter.
+      headers: { 'Content-Type': 'application/json', 'X-Forwarded-For': '10.9.9.6' },
       body: JSON.stringify({ username: 1234, password: ['hax'] }),
     });
 

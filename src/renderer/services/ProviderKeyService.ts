@@ -79,7 +79,7 @@ function safeServerText(text: string): string | undefined {
  * so the Connect button never dead-ends on a generic "unknown" (#524):
  *   - CSRF (tiny-csrf)        → 403 `{ code: 'csrf_invalid' }`   → 'csrf-invalid'
  *   - HTTPS config-write floor → 403 `{ msg: 'HTTPS required…' }` → 'https-required'
- *   - token auth              → 403 `{ error: 'Access denied. Please login first.' }` → 'auth-required'
+ *   - token auth              → 401 `{ error: 'Access denied. Please login first.' }` → 'auth-required'
  *   - real connect failure    → 400 `{ error: <ConnectError> }`  → that code
  *   - anything else           → 'unknown' + the server's message text
  */

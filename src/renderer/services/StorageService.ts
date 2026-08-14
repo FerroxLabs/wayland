@@ -93,8 +93,13 @@ export async function restoreBackupHttp(opts: {
     body: formData,
   });
   const json = (await res.json().catch(() => ({}))) as { success?: boolean; msg?: string; data?: { safetyBackupPath?: string } };
-  if (res.status === 403) throw new Error(json.msg || 'RESTORE_NOT_OPERATOR');
-  if (res.status === 401) throw new Error('RESTORE_BAD_PASSWORD');
+  // Both codes mean the SAME thing here: the request was denied before it ever
+  // reached the restore handler. This route emits neither itself - a genuinely
+  // wrong password surfaces as a 500 with a message - so mapping 401 to
+  // RESTORE_BAD_PASSWORD told a merely-unauthenticated caller their password was
+  // wrong. That was latent while the middleware answered 403; it became
+  // reachable the moment the middleware started (correctly) answering 401.
+  if (res.status === 401 || res.status === 403) throw new Error(json.msg || 'RESTORE_NOT_OPERATOR');
   if (res.status === 413) throw new Error('FILE_TOO_LARGE');
   if (!res.ok || !json.success) throw new Error(json.msg || 'RESTORE_FAILED');
   return json.data ?? {};
