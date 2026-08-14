@@ -201,12 +201,24 @@ test.describe('F-RELIABILITY-07 Message send error recovery', () => {
     createdIds.push(partialConvId);
 
     const stopButton = page.locator('.sendbox-stop-button');
+    // isVisible({ timeout }) is a NO-OP in this Playwright version - the option
+    // is ignored and it samples immediately. The composer flips into the
+    // processing state on mount, so this used to click Stop ~0s into the turn
+    // and then assert partial text that could not exist yet.
     const stopVisible = await stopButton
       .first()
-      .isVisible({ timeout: 30_000 })
+      .waitFor({ state: 'visible', timeout: 30_000 })
+      .then(() => true)
       .catch(() => false);
 
     if (stopVisible) {
+      // Do not stop before the first token, or "partial output" is empty by
+      // construction.
+      await page
+        .locator(AI_MSG_SELECTOR)
+        .first()
+        .waitFor({ state: 'visible', timeout: 60_000 })
+        .catch(() => {});
       await stopButton.first().click();
       await page.waitForTimeout(2_000);
 

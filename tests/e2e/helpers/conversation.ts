@@ -108,8 +108,12 @@ export async function waitForSessionActive(page: Page, timeoutMs = 120_000): Pro
         const hasReply = await page.evaluate((sel) => {
           const items = document.querySelectorAll(sel);
           for (const item of items) {
-            const shadow = item.querySelector('.markdown-shadow');
-            if (shadow?.shadowRoot && (shadow.shadowRoot.textContent?.trim().length ?? 0) > 0) {
+            // Read the CONTENT node, not the shadow root: shadowRoot.textContent
+            // concatenates the injected <style> block, so it is non-empty the
+            // instant the shadow root exists and this probe never actually waits
+            // for reply text.
+            const body = item.querySelector('.markdown-shadow')?.shadowRoot?.querySelector('.markdown-shadow-body');
+            if ((body?.textContent?.trim().length ?? 0) > 0) {
               return true;
             }
             // Also check plain text content (non-shadow messages)
@@ -200,10 +204,12 @@ export async function waitForAiReply(page: Page, timeoutMs = 120_000): Promise<s
           const items = document.querySelectorAll(sel);
           if (!items.length) return '';
           const last = items[items.length - 1];
-          // Try shadow DOM first (MarkdownView renders via ShadowView)
-          const shadow = last.querySelector('.markdown-shadow');
-          if (shadow?.shadowRoot) {
-            return shadow.shadowRoot.textContent?.trim() ?? '';
+          // Try shadow DOM first (MarkdownView renders via ShadowView). Read
+          // `.markdown-shadow-body` - the shadow ROOT's textContent includes the
+          // injected stylesheet, which made this return CSS as the "reply".
+          const body = last.querySelector('.markdown-shadow')?.shadowRoot?.querySelector('.markdown-shadow-body');
+          if (body) {
+            return body.textContent?.trim() ?? '';
           }
           // Fallback: plain text messages (user messages, non-shadow)
           return last.textContent?.trim() ?? '';
@@ -216,9 +222,9 @@ export async function waitForAiReply(page: Page, timeoutMs = 120_000): Promise<s
   const text = await page.evaluate((sel) => {
     const items = document.querySelectorAll(sel);
     const last = items[items.length - 1];
-    const shadow = last?.querySelector('.markdown-shadow');
-    if (shadow?.shadowRoot) {
-      return shadow.shadowRoot.textContent?.trim() ?? '';
+    const body = last?.querySelector('.markdown-shadow')?.shadowRoot?.querySelector('.markdown-shadow-body');
+    if (body) {
+      return body.textContent?.trim() ?? '';
     }
     return last?.textContent?.trim() ?? '';
   }, aiSelector);

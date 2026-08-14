@@ -29,6 +29,11 @@ test.afterAll(async ({ page }) => {
 });
 
 test.describe('F-CONFIG-09 config auto-save and restore', () => {
+  // These cases wait on a real AI round trip, which the 60s global cap in
+  // playwright.config.ts cannot cover. test.setTimeout() inside beforeAll only
+  // raises the HOOK's budget, so it has to be configured at describe scope.
+  test.describe.configure({ timeout: 180_000 });
+
   let conversationId: string;
   let savedModel: string | undefined;
   let savedMode: string | undefined;

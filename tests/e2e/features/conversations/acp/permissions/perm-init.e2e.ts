@@ -119,6 +119,11 @@ test.describe('F-PERM-04 View pending confirmation action list', () => {
 });
 
 test.describe('F-PERM-06 Mode and permission initialization on session creation', () => {
+  // These cases wait on a real AI round trip, which the 60s global cap in
+  // playwright.config.ts cannot cover. test.setTimeout() inside beforeAll only
+  // raises the HOOK's budget, so it has to be configured at describe scope.
+  test.describe.configure({ timeout: 180_000 });
+
   test('Mode is queryable with a concrete value after creating a new session', async ({ page }) => {
     await goToGuid(page);
     await selectAgent(page, 'claude');

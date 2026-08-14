@@ -21,6 +21,11 @@ test.afterAll(async ({ page }) => {
 });
 
 test.describe('F-SESSION-03 Stop the current AI reply', () => {
+  // These cases wait on a real AI round trip, which the 60s global cap in
+  // playwright.config.ts cannot cover. test.setTimeout() inside beforeAll only
+  // raises the HOOK's budget, so it has to be configured at describe scope.
+  test.describe.configure({ timeout: 180_000 });
+
   let conversationId: string;
 
   test.beforeAll(async ({ page }) => {

@@ -21,6 +21,11 @@ test.afterAll(async ({ page }) => {
 });
 
 test.describe('F-MSG-02 Referencing files in messages', () => {
+  // Waits on a real AI round trip. The 60s global cap in playwright.config.ts
+  // cannot cover one - this only surfaced once waitForAiReply stopped
+  // accepting the shadow-root stylesheet as a reply.
+  test.describe.configure({ timeout: 180_000 });
+
   test('After sending a message with @filename, the AI can reply based on the file', async ({ page }) => {
     await goToGuid(page);
     await selectAgent(page, 'claude');
@@ -45,6 +50,11 @@ test.describe('F-MSG-02 Referencing files in messages', () => {
 });
 
 test.describe('F-FILE-02 AI reading and writing files', () => {
+  // Waits on a real AI round trip. The 60s global cap in playwright.config.ts
+  // cannot cover one - this only surfaced once waitForAiReply stopped
+  // accepting the shadow-root stylesheet as a reply.
+  test.describe.configure({ timeout: 180_000 });
+
   test('After asking the AI to read a file, a tool call is shown in the conversation', async ({ page }) => {
     await goToGuid(page);
     await selectAgent(page, 'claude');

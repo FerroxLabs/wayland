@@ -26,6 +26,11 @@ test.afterAll(async ({ page }) => {
 });
 
 test.describe('F-CONFIG-02 Switch conversation mode', () => {
+  // Waits on a real AI round trip. The 60s global cap in playwright.config.ts
+  // cannot cover one - this only surfaced once waitForAiReply stopped
+  // accepting the shadow-root stylesheet as a reply.
+  test.describe.configure({ timeout: 180_000 });
+
   let conversationId: string;
 
   test.beforeAll(async ({ page }) => {
@@ -130,6 +135,11 @@ test.describe('F-CONFIG-02 Switch conversation mode', () => {
 });
 
 test.describe('F-CONFIG-05 View current mode', () => {
+  // These cases wait on a real AI round trip, which the 60s global cap in
+  // playwright.config.ts cannot cover. test.setTimeout() inside beforeAll only
+  // raises the HOOK's budget, so it has to be configured at describe scope.
+  test.describe.configure({ timeout: 180_000 });
+
   let conversationId: string;
 
   test.beforeAll(async ({ page }) => {
@@ -168,6 +178,11 @@ test.describe('F-CONFIG-07 Auto-migration of no-confirm mode', () => {
 });
 
 test.describe('F-CONFIG-08 Codex backend sandbox security level integration', () => {
+  // Waits on a real AI round trip. The 60s global cap in playwright.config.ts
+  // cannot cover one - this only surfaced once waitForAiReply stopped
+  // accepting the shadow-root stylesheet as a reply.
+  test.describe.configure({ timeout: 180_000 });
+
   test('mode is queryable after a Codex conversation is created', async ({ page }) => {
     await goToGuid(page);
     await selectAgent(page, 'codex');
