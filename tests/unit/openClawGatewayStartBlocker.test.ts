@@ -93,4 +93,29 @@ describe('openclaw gateway start blocker', () => {
     writeConfig({});
     expect(describeGatewayStartBlocker()).toBeTruthy();
   });
+
+  it('says the config could not be READ rather than inventing a fact about its contents', () => {
+    // readOpenClawConfig returns null for an unreadable file AND for unparseable
+    // JSON, and `?.gateway?.mode` collapsed that into the same `undefined` as a
+    // config we parsed fine. So a user with malformed JSON was told their config
+    // "has no gateway.mode" - a claim about contents we never successfully read.
+    fs.writeFileSync(path.join(stateDir, 'openclaw.json'), '{ this is not json', 'utf8');
+
+    const blocker = describeGatewayStartBlocker();
+    expect(blocker).toBeTruthy();
+    expect(blocker).toContain('could not read');
+    expect(blocker).not.toContain('has no gateway.mode');
+    // Still actionable: every arm of this function names the command that fixes it.
+    expect(blocker).toContain('openclaw onboard');
+  });
+
+  it('still reports a genuinely absent gateway.mode as exactly that', () => {
+    // The counterpart control. Widening the read-failure arm must not swallow
+    // the case it was carved out of, or the specific diagnosis is lost.
+    writeConfig({ gateway: { port: 18789 } });
+
+    const blocker = describeGatewayStartBlocker();
+    expect(blocker).toContain('has no gateway.mode');
+    expect(blocker).not.toContain('could not read');
+  });
 });

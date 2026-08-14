@@ -192,11 +192,24 @@ export function describeGatewayStartBlocker(): string | null {
     return 'OpenClaw is installed but not set up yet, so its gateway refuses to start. Run `openclaw onboard --install-daemon` in a terminal to configure it, then try again.';
   }
 
-  const mode = readOpenClawConfig()?.gateway?.mode;
+  // Distinguish "we read it and gateway.mode was absent" from "we never read it
+  // at all". readOpenClawConfig returns null for BOTH an unreadable file (EACCES,
+  // EISDIR, broken symlink) and unparseable JSON, and `?.gateway?.mode` collapses
+  // that into the same `undefined` as a config we parsed fine. Reporting all of
+  // them as "has no gateway.mode" states a fact about the file's CONTENTS that we
+  // never established, and sends someone whose real problem is a permission bit
+  // off to run an onboard command that will not fix it. The path already exists
+  // here (findConfigPath returned it), so a null now means read-or-parse failure.
+  const config = readOpenClawConfig();
+  if (config === null) {
+    return `Wayland could not read OpenClaw's config at ${configPath} — it is unreadable or not valid JSON, so its gateway refuses to start. Check that file, then run \`openclaw onboard --mode local\` in a terminal and try again.`;
+  }
+
+  const mode = config.gateway?.mode;
   if (mode === 'local') return null;
 
   if (mode === undefined) {
-    return `OpenClaw's config at ${configPath} has no gateway.mode, which its gateway treats as damaged config and refuses to start on. Run \`openclaw onboard --mode local\` in a terminal to repair it, then try again.`;
+    return `OpenClaw's config at ${configPath} has no gateway.mode, so its gateway refuses to start. Run \`openclaw onboard --mode local\` in a terminal to set it, then try again.`;
   }
 
   return `OpenClaw's gateway only starts in local mode, but ${configPath} sets gateway.mode to "${mode}". Run \`openclaw onboard --mode local\` in a terminal to switch it, then try again.`;
