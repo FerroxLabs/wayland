@@ -351,9 +351,15 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
   const host = allowRemote ? SERVER_CONFIG.REMOTE_HOST : SERVER_CONFIG.DEFAULT_HOST;
   return new Promise((resolve, reject) => {
     server.listen(port, host, async () => {
-      const localUrl = `http://localhost:${port}`;
+      // `port` may be 0, meaning "bind any free port" - only the bound address
+      // knows the real number. Echoing the request back would advertise
+      // http://localhost:0 to every caller, with no way to find the real port.
+      const address = server.address();
+      const boundPort = typeof address === 'object' && address !== null ? address.port : port;
+      if (boundPort !== port) SERVER_CONFIG.setServerConfig(boundPort, allowRemote);
+      const localUrl = `http://localhost:${boundPort}`;
       const serverIP = await getServerIP();
-      const displayUrl = serverIP ? `http://${serverIP}:${port}` : localUrl;
+      const displayUrl = serverIP ? `http://${serverIP}:${boundPort}` : localUrl;
 
       // #722: announce EVERY LAN bind, here at the bind itself.
       //
@@ -365,7 +371,7 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
       // never seeing a dialog. This is the one line every exposed listener must pass
       // through, so it is the only place the guarantee actually holds.
       if (allowRemote) {
-        void announceLanExposure(displayUrl !== localUrl ? displayUrl : `port ${port}`);
+        void announceLanExposure(displayUrl !== localUrl ? displayUrl : `port ${boundPort}`);
       }
 
       // Display initial credentials (if first startup)
@@ -386,7 +392,7 @@ export async function startWebServerWithInstance(port: number, allowRemote = fal
       resolve({
         server,
         wss,
-        port,
+        port: boundPort,
         allowRemote,
       });
     });

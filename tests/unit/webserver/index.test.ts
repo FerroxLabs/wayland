@@ -37,13 +37,19 @@ const {
   updatePasswordMock,
   createUserMock,
 } = vi.hoisted(() => {
+  // `boundPort` mirrors net.Server: listen() binds, and address() is the only
+  // thing that knows the resulting port (the request may have been 0, meaning
+  // "any free port"). A mock without address() is not a server.
+  let boundPort = 0;
   const server = {
     listen: vi.fn(),
     on: vi.fn(),
     close: vi.fn(),
+    address: vi.fn(() => ({ address: '127.0.0.1', family: 'IPv4', port: boundPort })),
   };
 
-  server.listen.mockImplementation((_port: number, _host: string, callback?: () => void) => {
+  server.listen.mockImplementation((port: number, _host: string, callback?: () => void) => {
+    boundPort = port;
     callback?.();
     return server;
   });
