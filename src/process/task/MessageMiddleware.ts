@@ -14,7 +14,7 @@ import { cronService } from '@process/services/cron/cronServiceSingleton';
 import { detectCronCommands, hasCronCommands, stripCronCommands, type CronCommand } from './CronCommandDetector';
 import { detectConciergeProposals, hasConciergeProposals, stripConciergeProposals } from './ConciergeProposeDetector';
 import type { ConciergeProposal } from '@/common/chat/conciergeConfig';
-import { addMessage } from '@process/utils/message';
+import { addMessage, flushConversationMessages } from '@process/utils/message';
 import { hasThinkTags, stripThinkTags } from './ThinkTagDetector';
 
 /**
@@ -229,10 +229,11 @@ export async function processCronInMessage(
  * getMessageByMsgId + updateMessage replace path (the same primitive the streaming
  * buffer uses) to swap the stored content in place.
  *
- * Runs AFTER processAgentResponse (which persists + broadcasts the concierge card
- * via addMessage → a synchronous queue flush), so the raw turn text is already
- * fully written by the time we overwrite it; there are no further queued text
- * writes for this msg_id to re-dirty the row.
+ * Drains the conversation's write queue before reading, so the raw turn text is
+ * genuinely on disk and no queued delta lands afterwards to re-dirty the row.
+ * This used to rely on processAgentResponse having forced a synchronous flush
+ * via addMessage — but that only happens on the concierge 'propose' path, so
+ * every cron branch read a row that was still sitting in the debounce queue.
  *
  * The DB write alone is not enough. The renderer has ALREADY drawn the raw markup
  * from the stream, and nothing re-reads the row until the conversation is
@@ -254,6 +255,27 @@ async function persistStrippedTurnText(
   if (typeof cleaned !== 'string') return;
 
   try {
+    // Drain the write queue FIRST. Streaming deltas sit behind a 2000 ms
+    // debounce, and this function reads the row directly rather than through
+    // that queue, so it was racing them in both directions:
+    //
+    //   - The row may not be on disk yet. The docstring above assumed an
+    //     addMessage had already forced a synchronous flush, but that only
+    //     happens on the concierge 'propose' path - the [CRON_LIST] /
+    //     [CRON_CREATE] / [CRON_UPDATE] branches and a zero-proposal
+    //     [CONCIERGE_PROPOSE] enqueue nothing. With no row, the position guard
+    //     below correctly refuses, we return silently, and ~2s later the queue
+    //     writes the RAW text - so the markup this function exists to remove
+    //     stayed on screen and in the database permanently.
+    //
+    //   - Or the row holds only a PREFIX (an earlier debounce fired mid-turn).
+    //     We would replace it with the cleaned full text, then the queued tail
+    //     deltas would flush and APPEND to that, duplicating the tail prose and
+    //     resurrecting the closing marker.
+    //
+    // Draining first makes the docstring's assumption true instead of assumed.
+    await flushConversationMessages(conversationId);
+
     const { getDatabase } = await import('@process/services/database/export');
     const db = await getDatabase();
     const existing = db.getMessageByMsgId(conversationId, msgId, 'text');

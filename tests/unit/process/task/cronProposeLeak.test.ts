@@ -32,7 +32,15 @@ const { addSpy, emitSpy, getMsgSpy, updateMsgSpy, addJobSpy } = vi.hoisted(() =>
 vi.mock('@/common', () => ({
   ipcBridge: { conversation: { responseStream: { emit: emitSpy } } },
 }));
-vi.mock('@process/utils/message', () => ({ addMessage: addSpy, addOrUpdateMessage: vi.fn() }));
+vi.mock('@process/utils/message', () => ({
+  addMessage: addSpy,
+  addOrUpdateMessage: vi.fn(),
+  // persistStrippedTurnText drains the write queue before reading the row back.
+  // Omitting it here does not fail loudly: the call throws into that function's
+  // best-effort catch and the strip silently no-ops, which is the very bug the
+  // drain exists to fix.
+  flushConversationMessages: vi.fn(async () => {}),
+}));
 vi.mock('@/common/utils', () => {
   let n = 0;
   return { uuid: () => `id-${++n}` };
