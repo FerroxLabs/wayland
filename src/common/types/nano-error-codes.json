@@ -297,6 +297,22 @@
       "wireCode": -32603
     },
     {
+      "hint": "The saved rules.toml denies this command; edit or remove the rule",
+      "kind": "shell_rule_denied",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Denied by a shell rule",
+      "wireCode": -32603
+    },
+    {
+      "hint": "Fix or remove rules.toml (strict TOML, owner-only permissions)",
+      "kind": "rule_file_invalid",
+      "retryable": false,
+      "surface": "tool_card",
+      "title": "Shell rules file is invalid or insecurely configured; running with no saved rules",
+      "wireCode": -32603
+    },
+    {
       "hint": "Start a new session or narrow the task",
       "kind": "budget_exhausted",
       "retryable": false,
