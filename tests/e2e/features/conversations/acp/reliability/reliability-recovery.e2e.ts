@@ -200,7 +200,7 @@ test.describe('F-RELIABILITY-07 Message send error recovery', () => {
     );
     createdIds.push(partialConvId);
 
-    const stopButton = page.locator('button[class*="stop"], [data-testid="stop-button"], [aria-label*="stop" i]');
+    const stopButton = page.locator('.sendbox-stop-button');
     const stopVisible = await stopButton
       .first()
       .isVisible({ timeout: 30_000 })
