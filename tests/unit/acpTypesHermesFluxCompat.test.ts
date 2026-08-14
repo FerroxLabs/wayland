@@ -25,6 +25,17 @@ describe('hermes flux capability', () => {
   });
 });
 
+describe('wayland nano flux capability', () => {
+  // Nano shipped with no `fluxCompat` at all, so it rendered with no chip while
+  // all 18 other agents carried one — the absence reads as "Flux does not apply
+  // here" for the agent Wayland ships itself. It is `env` by the hermes rule:
+  // AcpAgentManager writes the connected Flux key to a file for the spawn and
+  // exports the provider-parity env with it. The user clicks nothing.
+  it('classifies wnano as env: Desktop routes it per spawn', () => {
+    expect(getFluxCompat('wnano')).toBe('env');
+  });
+});
+
 describe('kimi flux capability', () => {
   // Verified by execution against the real binary: Kimi Code's config.toml takes
   // a generic `type = "openai"` provider, and env injection registers nothing.

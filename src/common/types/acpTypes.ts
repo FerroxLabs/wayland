@@ -472,6 +472,12 @@ export const ACP_BACKENDS_ALL: Record<AcpBackendAll, AcpBackendConfig> = {
     enabled: true,
     supportsStreaming: true, // Native ACP, streams session/update chunks
     acpArgs: ['acp-host'], // ACP over stdio via subcommand, no bridge
+    // 'env', for the same reason as hermes: Desktop routes it per-spawn with no
+    // user action. AcpAgentManager hands nano the connected Flux key as a file
+    // and exports the provider-parity env alongside it. Left undefined, nano was
+    // the ONLY agent in the list with no chip at all — read as "not supported"
+    // for the one agent we ship ourselves.
+    fluxCompat: 'env',
   },
   grok: {
     id: 'grok',
