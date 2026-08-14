@@ -136,8 +136,10 @@ test.describe('Constitution wiring', () => {
     expect(constitution.length).toBeGreaterThan(0);
     expect(constitution).toContain('Constitution');
 
-    // No overlay file for this specialist → overlay is null (proves the
-    // path-existence branch ran in the main process, not just a stub).
-    expect(value.overlay).toBeNull();
+    // No overlay file for this specialist. Absence is expressed as a
+    // ConstitutionReadResult with state 'absent' (a null overlay is also
+    // acceptable) - either proves the path-existence branch ran in the main
+    // process rather than a stub returning content.
+    expect(value.overlay === null || value.overlay.state === 'absent').toBe(true);
   });
 });
