@@ -149,3 +149,59 @@ Electron on macOS. Read-only agents may run in parallel; **all WRITES stay seria
 
 **Uncommitted by design:** `AGENTS.md` (hook-modified) and
 `constitutionFsAuthority.generated.ts`.
+
+---
+
+## 8. Full e2e result + cross-research (2026-08-14 late)
+
+**85 failed / 535 passed / 180 skipped / 32 did not run** (832), build 18:41.
+Baseline was 137. **"32 did not run" means 85 is not a clean floor** — Playwright
+discards the worker after every failure, so a failure-heavy run stops short.
+
+Four read-only agents cross-researched 46 of the 85. **~90% are STALE TESTS**, not
+product defects. Verified verdicts:
+
+| Lane | Fails | Real | Stale | Env |
+|---|---|---|---|---|
+| hub-backend-install | 10 | 0 | 10 | 0 |
+| extension family | 8 | 0 | 8 | 0 |
+| ACP feature suite | 11 | 0 | 11 | 0 |
+| renderer/cron/misc | 17 | 3 | 13 | 1 |
+
+### Fixed this stretch [all V by execution]
+- **15 failures, one cause** — 4 specs clicked `team-card-builtin-cold-outbound`,
+  which pagination (48-card window over 60 teams) never renders. Probe: 0 cards
+  before search, 1 after. Fixed via the search box (`bfc6f2ad9`).
+- **Group D REFUTED** (`96c866e92`). The claim "user who stops a turn mid
+  permission-request can never type again" is FALSE. The Stop locator included
+  `[aria-label*="stop" i]`, which matches the sider button **"Remote (stopped)"**.
+  Probe proved it was the ONLY match: the click navigated to `#/settings/webui`,
+  and the textarea assertion then found Arco's hidden measurement node. No
+  confirmation card, no hidden wrapper. Use `.sendbox-stop-button`.
+
+### Highest-value unfixed finding
+`waitForAiReply` (`tests/e2e/helpers/conversation.ts:204-206`) returns the
+**shadow-DOM stylesheet**, because `shadowRoot.textContent` concatenates the
+injected `<style>`. Its `expect.poll(...).toBeTruthy()` is satisfied the instant
+the shadow root exists, so it NEVER waits for reply text. This silently weakens
+every ACP test — **fixing it will likely expose tests currently passing for the
+wrong reason.** Read `.markdown-shadow-body` and gate on a minimum length.
+
+### Other confirmed, unfixed
+- **3 real defects, one cause**: `.guidContainer` intercepts pointer events on
+  `/guid`, so with ~10 detected agents some agent pills are unclickable and
+  dropdowns clip. Playwright names the container as interceptor.
+- `hub-backend-install.e2e.ts` (10) tests an "Install from Market" modal **no
+  route reaches**; its components are dead code kept green by unit tests that
+  render them directly. Replacement (`AvailableToInstall`) has NO e2e coverage.
+- ACP group A (5): `playwright.config.ts:6` caps at 60s; specs pass 120s to
+  helpers. The six `test.setTimeout()` escape hatches sit **inside `beforeAll`**,
+  where Playwright applies them to the hook only. Use
+  `test.describe.configure({ timeout })` at describe scope.
+- `isVisible({ timeout })` is a **no-op** (`@deprecated ... option is ignored`),
+  so two tests stop the turn ~0s in and then assert partial text exists.
+
+### Method note that keeps paying
+Three agent claims were wrong where it mattered: a diff that would not compile
+(`t` out of scope), a "shared root cause" that was five, and the Group D product
+defect. **Verify every agent claim by execution before applying it.**
