@@ -39,6 +39,8 @@ export type NanoErrorKind =
   | 'approval_denied'
   | 'pty_session_gone'
   | 'review_parse_failed'
+  | 'shell_rule_denied'
+  | 'rule_file_invalid'
   | 'budget_exhausted'
   | 'budget_exceeded'
   | 'no_progress'
@@ -367,6 +369,22 @@ export const NANO_ERROR_SPECS: readonly NanoErrorSpec[] = [
     retryable: false,
     title: 'The review finished but its report couldn\'t be parsed',
     hint: '',
+  },
+  {
+    kind: 'shell_rule_denied',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Denied by a shell rule',
+    hint: 'The saved rules.toml denies this command; edit or remove the rule',
+  },
+  {
+    kind: 'rule_file_invalid',
+    surface: 'tool_card',
+    wireCode: -32603,
+    retryable: false,
+    title: 'Shell rules file is invalid or insecurely configured; running with no saved rules',
+    hint: 'Fix or remove rules.toml (strict TOML, owner-only permissions)',
   },
   {
     kind: 'budget_exhausted',
