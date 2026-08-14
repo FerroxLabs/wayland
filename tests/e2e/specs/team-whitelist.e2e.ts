@@ -64,8 +64,16 @@ test.describe('Team Agent Whitelist', () => {
       }
     }
 
-    // Close modal
-    await page.locator('.arco-modal .arco-modal-close-icon').click();
-    await expect(page.locator('.arco-modal')).toBeHidden({ timeout: 5000 });
+    // Close modal. Scope to the team-create modal specifically: Arco leaves
+    // closed modals mounted (unmountOnExit defaults off), so a bare
+    // `.arco-modal` can resolve to a hidden one that has no clickable close
+    // icon. The dropdown is also still open over it, so dismiss that first.
+    await page.keyboard.press('Escape'); // dismiss the open agent dropdown first
+    const createModal = page.locator('.team-create-modal');
+    // TeamCreateModal renders a CUSTOM header, so there is no
+    // `.arco-modal-close-icon` - the close control is the button sitting next
+    // to the title. It also sets unmountOnExit={false}, so scope to this modal.
+    await createModal.locator('h3').locator('xpath=following-sibling::button[1]').click();
+    await expect(createModal).toBeHidden({ timeout: 5000 });
   });
 });
