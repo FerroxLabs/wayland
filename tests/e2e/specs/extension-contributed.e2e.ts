@@ -30,7 +30,7 @@ const TS = Date.now();
 
 test.describe('Extension-Contributed Agents & Assistants', () => {
   test('extension agent appears in agent settings', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await waitForSettle(page, 5_000);
     // e2e-full-extension contributes "E2E CLI Agent" and "E2E HTTP Agent"
     await expectBodyContainsAny(page, ['E2E CLI Agent', 'e2e-cli-agent', 'E2E HTTP Agent']);

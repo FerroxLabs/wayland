@@ -9,13 +9,13 @@ import { goToSettings, expectUrlContains, expectBodyContainsAny, settingsSiderIt
 
 test.describe('Agent Settings Detection', () => {
   test('LocalAgents page renders', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await expectUrlContains(page, 'agent');
     await expectBodyContainsAny(page, ['Agent', 'agent', '助手', '代理']);
   });
 
   test('detected CLI agents displayed', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
 
     // At least one detected agent card should be visible
     // Agent cards use AgentCard component in a grid
@@ -31,21 +31,21 @@ test.describe('Agent Settings Detection', () => {
   });
 
   test('Gemini agent is present in detected list', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
 
     // Gemini or Wayland Core should be in the agent list
     await expectBodyContainsAny(page, ['Gemini', 'gemini', 'Aion']);
   });
 
   test('agent settings page has sidebar navigation item', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
 
     const siderItem = page.locator(settingsSiderItemById('agent')).first();
     await expect(siderItem).toBeVisible({ timeout: 8_000 });
   });
 
   test('preset management section is visible', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
 
     // The agent settings page includes preset management area
     // Look for text indicating presets or assistants
@@ -63,11 +63,11 @@ test.describe('Agent Settings Detection', () => {
   });
 
   test('detected agents section refreshes without error', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
 
     // Navigate away and back to trigger a refresh
     await goToSettings(page, 'about');
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
 
     // Page should still render correctly
     await expectBodyContainsAny(page, ['Agent', 'agent', '助手', '代理']);

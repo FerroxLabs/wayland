@@ -9,12 +9,12 @@ import { goToGuid, goToSettings, expectBodyContainsAny, takeScreenshot, waitForS
 
 test.describe('Extension: ACP Adapters', () => {
   test('agent settings page loads with extension agents', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await expectBodyContainsAny(page, ['Agent', 'agent', '助手', 'Assistants', 'Custom', 'Preset']);
   });
 
   test('extension-contributed agents visible or page functional', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await waitForSettle(page);
 
     const body = await page.locator('body').textContent();
@@ -49,7 +49,7 @@ test.describe('Extension: ACP Adapters', () => {
 
   test('screenshot: agent settings with extensions', async ({ page }) => {
     test.skip(!process.env.E2E_SCREENSHOTS, 'screenshots disabled');
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await waitForSettle(page);
     await takeScreenshot(page, 'ext-acp-agents');
   });

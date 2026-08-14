@@ -43,14 +43,14 @@ test.describe('Extension: Themes', () => {
 
 test.describe('Extension: Assistants', () => {
   test('assistant settings page loads', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await waitForSettle(page);
     const body = await page.locator('body').textContent();
     expect(body!.length).toBeGreaterThan(50);
   });
 
   test('extension assistant preset may appear in list', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await waitForSettle(page);
 
     const body = await page.locator('body').textContent();
@@ -61,7 +61,7 @@ test.describe('Extension: Assistants', () => {
 
   test('screenshot: assistants with extensions', async ({ page }) => {
     test.skip(!process.env.E2E_SCREENSHOTS, 'screenshots disabled');
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await waitForSettle(page);
     await takeScreenshot(page, 'ext-assistants');
   });

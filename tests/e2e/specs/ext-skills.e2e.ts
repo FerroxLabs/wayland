@@ -8,7 +8,7 @@ import { goToSettings, takeScreenshot, waitForSettle } from '../helpers';
 
 test.describe('Extension: Skills', () => {
   test('agent settings page can show skill configuration', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await waitForSettle(page);
 
     const body = await page.locator('body').textContent();
@@ -17,7 +17,7 @@ test.describe('Extension: Skills', () => {
   });
 
   test('extension assistant with skills reference is loadable', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await waitForSettle(page);
 
     const body = await page.locator('body').textContent();
@@ -27,7 +27,7 @@ test.describe('Extension: Skills', () => {
 
   test('screenshot: skills area', async ({ page }) => {
     test.skip(!process.env.E2E_SCREENSHOTS, 'screenshots disabled');
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await waitForSettle(page);
     await takeScreenshot(page, 'ext-skills');
   });

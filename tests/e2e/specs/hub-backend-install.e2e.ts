@@ -41,7 +41,7 @@ const HUB_LOADING = '.arco-modal >> text=/Please wait|Loading|加载/i';
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 async function openHubModal(page: import('@playwright/test').Page): Promise<void> {
-  await goToSettings(page, 'agent');
+  await goToSettings(page, 'agents');
   await waitForSettle(page);
 
   // Click the "Install from Market" button
@@ -58,7 +58,7 @@ async function openHubModal(page: import('@playwright/test').Page): Promise<void
 test.describe('Hub Backend Install - E2E', () => {
   test.describe('Hub Modal - Open & List', () => {
     test('navigates to Agent settings and finds the Market button', async ({ page }) => {
-      await goToSettings(page, 'agent');
+      await goToSettings(page, 'agents');
       await waitForSettle(page);
 
       const marketBtn = page.locator(MARKET_BUTTON).first();
@@ -215,7 +215,7 @@ test.describe('Hub Backend Install - E2E', () => {
 
   test.describe('Post-Install - Agent List Refresh', () => {
     test('detected agents section shows agents after Hub modal closes', async ({ page }) => {
-      await goToSettings(page, 'agent');
+      await goToSettings(page, 'agents');
       await waitForSettle(page);
 
       // The "Detected" section should have at least one agent card
@@ -299,7 +299,7 @@ test.describe('Hub Backend Install - E2E', () => {
 
     test('Hub modal shows loading state before data arrives', async ({ page }) => {
       // Navigate fresh to trigger a fetch
-      await goToSettings(page, 'agent');
+      await goToSettings(page, 'agents');
       await waitForSettle(page);
 
       const marketBtn = page.locator(MARKET_BUTTON).first();

@@ -22,14 +22,14 @@ import {
 
 test.describe('ACP Agent', () => {
   test('agent settings page has management UI', async ({ page }) => {
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await expectUrlContains(page, 'agent');
     await expectBodyContainsAny(page, ['Agent', 'agent', '助手', '预设', 'Preset', 'Custom', 'Assistants']);
   });
 
   test('screenshot: agent settings', async ({ page }) => {
     test.skip(!process.env.E2E_SCREENSHOTS, 'screenshots disabled');
-    await goToSettings(page, 'agent');
+    await goToSettings(page, 'agents');
     await takeScreenshot(page, 'agent-settings');
   });
 
