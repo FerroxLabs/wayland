@@ -1935,7 +1935,24 @@ async function probeOllamaDaemon(): Promise<OllamaProbe> {
     const models = raw
       .map((m) => (m && typeof m === 'object' ? (m as { name?: unknown }).name : undefined))
       .filter((n): n is string => typeof n === 'string' && n.length > 0);
-    return { running: true, models };
+
+    // Mirrors probeOllama in onboarding/detect.ts, which this function is a
+    // deliberate duplicate of (kept separate to avoid an import cycle). If one
+    // learns to read capabilities and the other does not, a model filtered out
+    // on first run reappears on the next registry refresh.
+    const capabilities: Record<string, string[]> = {};
+    for (const m of raw) {
+      if (!m || typeof m !== 'object') continue;
+      const { name, capabilities: caps } = m as { name?: unknown; capabilities?: unknown };
+      if (typeof name !== 'string' || !name || !Array.isArray(caps)) continue;
+      capabilities[name] = caps.filter((c): c is string => typeof c === 'string');
+    }
+
+    return {
+      running: true,
+      models,
+      ...(Object.keys(capabilities).length > 0 ? { modelCapabilities: capabilities } : {}),
+    };
   } catch {
     return { running: false, models: [] };
   } finally {

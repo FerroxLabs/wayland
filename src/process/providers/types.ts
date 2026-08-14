@@ -119,6 +119,20 @@ export type CatalogModel = {
    * the renderer can rely on it being an array.
    */
   tags: UsageTag[];
+  /**
+   * Whether the model can accept tool definitions. Deliberately TRI-STATE:
+   * `true` capable, `false` proven incapable, `undefined` never asked.
+   *
+   * The third state is the whole point and cannot be expressed with `tags`,
+   * which has no negative vocabulary — `!tags.includes('tools')` cannot tell
+   * "the daemon told us it has no tools" from "nothing enriched this model",
+   * so filtering on it would empty the list for every unenriched local model.
+   *
+   * Only a local daemon that reports capabilities sets this today. A
+   * tool-incapable model 400s on the first turn, because the engine always
+   * advertises tools.
+   */
+  toolCall?: boolean;
 };
 
 /** A curated view of a CatalogModel for the chat model picker. */
