@@ -154,6 +154,11 @@ export class ProcessAcpClient implements AcpClient {
         requestPermission: async (params) => this.options.handlers.onRequestPermission(params),
         readTextFile: async (params) => this.options.handlers.onReadTextFile(params),
         writeTextFile: async (params) => this.options.handlers.onWriteTextFile(params),
+        // Vendor extensions. The SDK does NOT schema-validate these, which is
+        // exactly why Nano's cost metering moved here after `sessionUpdate:
+        // 'budget'` was rejected outright. Without this arm the SDK answers
+        // methodNotFound and logs on every frame.
+        extNotification: async (method, params) => this.options.handlers.onExtNotification?.(method, params),
       }),
       stream
     );

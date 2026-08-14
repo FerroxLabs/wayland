@@ -213,6 +213,12 @@ export type ProtocolHandlers = {
   onRequestPermission: (request: RequestPermissionRequest) => Promise<RequestPermissionResponse>;
   onReadTextFile: (request: ReadTextFileRequest) => Promise<ReadTextFileResponse>;
   onWriteTextFile: (request: WriteTextFileRequest) => Promise<WriteTextFileResponse>;
+  /**
+   * Vendor ext notifications (`_wayland/session/*`). Optional: without it the
+   * SDK answers `methodNotFound` and logs on EVERY frame, which is how Nano's
+   * cost metering used to fill the log without ever reaching us.
+   */
+  onExtNotification?: (method: string, params: unknown) => void;
 };
 
 /** No-op handlers for ephemeral AcpClient usage (e.g. connection tests, health checks). */
