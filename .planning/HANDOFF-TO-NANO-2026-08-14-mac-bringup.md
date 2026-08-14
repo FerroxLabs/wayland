@@ -137,30 +137,20 @@ profile, not from Nano: `mcp: protocol violation: unparseable line skipped` and
 
 ---
 
-## 4. ⚠️ NOT YOUR BUG — conversation history renders empty
+## 4. Conversation history — WITHDRAWN, there is no bug here
 
-If you hear "re-opening a Nano conversation shows no history", **it is not
-Nano's fault and you should not spend a minute on it.**
+An earlier draft of this document reported that reopening a conversation lost
+every assistant reply. **That was wrong and is withdrawn.** Nano sessions
+reload their history correctly, and so does everything else.
 
-Symptom: reopen any conversation and every assistant reply is an empty bubble —
-timestamp present, text gone. The data is intact; the DB row is right there.
+The cause was the test harness, not the product: this Desktop build renders
+conversations in **tabs**, and driving it by setting `location.hash` changes the
+route without activating the corresponding tab — so the pane being inspected was
+an empty inactive tab. Clicking the tab renders prompt and reply exactly as
+expected **[V]**.
 
-Why it is not yours **[V]**:
-
-- It reproduces identically on **Wayland Core** conversations that never went
-  near Nano.
-- It reproduces on **pre-existing conversations weeks older** than any Nano
-  build on this machine.
-- The wnano and wcore assistant rows are byte-for-byte the same shape:
-  `type='text'`, `position='left'`, `content='{"content":"..."}'`,
-  `status=''`, `hidden=0`.
-- It survives a clean app restart, so it is not session state.
-- `tips`-type messages (`position='center'`) and user messages
-  (`position='right'`) render fine from history. Only assistant `text` bubbles
-  come back empty.
-
-That is a Desktop hydration defect and Desktop owns it. Recorded here only so
-it does not get mis-filed against Nano.
+Noted here because the false report was circulated before it was checked. If
+anyone forwards you "Nano loses history", it is this, and it is retracted.
 
 ---
 
