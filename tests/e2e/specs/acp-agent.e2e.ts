@@ -87,9 +87,9 @@ test.describe('ACP Agent', () => {
   });
 
   test('MCP tools page has server management UI', async ({ page }) => {
-    await goToSettings(page, 'capabilities');
-    await expectUrlContains(page, 'capabilities');
-    await expect(page.locator(settingsSiderItemById('capabilities')).first()).toBeVisible({ timeout: 8_000 });
+    await goToSettings(page, 'mcp-library');
+    await expectUrlContains(page, 'mcp-library');
+    await expect(page.locator(settingsSiderItemById('mcp-library')).first()).toBeVisible({ timeout: 8_000 });
     await expectBodyContainsAny(page, ['MCP', 'mcp', 'Server', 'server', '工具', '配置', '添加', 'Add']);
   });
 

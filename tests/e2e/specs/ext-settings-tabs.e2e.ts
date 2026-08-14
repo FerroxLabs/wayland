@@ -17,7 +17,7 @@ async function getSiderItemIds(page: Page): Promise<string[]> {
 
 test.describe('Extension: Settings Tabs Discovery', () => {
   test('extension settings tabs stay out of the main settings sidebar', async ({ page }) => {
-    await goToSettings(page, 'gemini');
+    await goToSettings(page, 'models');
     await waitForSettle(page);
 
     const siderItemIds = await getSiderItemIds(page);
@@ -67,13 +67,13 @@ test.describe('Extension: Settings Tabs Navigation', () => {
     await goToExtensionSettings(page, EXT_E2E_SETTINGS_ID);
     await waitForSettle(page);
 
-    await goToSettings(page, 'capabilities');
+    await goToSettings(page, 'skills');
     await waitForSettle(page);
 
     await goToExtensionSettings(page, EXT_E2E_SETTINGS_ID);
     await waitForSettle(page);
 
-    await goToSettings(page, 'system');
+    await goToSettings(page, 'general');
     await waitForSettle(page);
 
     const body = await page.locator('body').textContent();
@@ -99,7 +99,7 @@ test.describe('Extension: Settings Tabs Stability', () => {
     await goToExtensionSettings(page, EXT_E2E_SETTINGS_ID);
     await waitForSettle(page);
 
-    await goToSettings(page, 'gemini');
+    await goToSettings(page, 'models');
     await waitForSettle(page);
 
     const extErrors = errors.filter(
