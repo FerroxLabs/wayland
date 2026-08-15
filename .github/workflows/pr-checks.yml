@@ -235,6 +235,14 @@ jobs:
           # demand real history - it is a supply-chain authenticity check - so
           # deepen the checkout rather than weaken the assertion.
           fetch-depth: 0
+          # ...and the tags with it. The 991c502 producer commit is NOT an
+          # ancestor of main or of any PR branch - it survives only under the
+          # `pre-secretfix-backup` and `strike/baseline-2026-07-17` tags. Since
+          # actions/checkout fetches with --no-tags by default, `fetch-depth: 0`
+          # alone still left it unreachable and `git rev-parse <sha>^{tree}`
+          # failed in CI while passing on any clone that happened to still hold
+          # the object. Same reasoning as above: fetch what the assertion needs.
+          fetch-tags: true
 
       - name: Resolve PR context
         uses: ./.github/actions/checkout-pr
@@ -511,6 +519,14 @@ jobs:
         with:
           # Same git-history requirement as the unit-test shards.
           fetch-depth: 0
+          # ...and the tags with it. The 991c502 producer commit is NOT an
+          # ancestor of main or of any PR branch - it survives only under the
+          # `pre-secretfix-backup` and `strike/baseline-2026-07-17` tags. Since
+          # actions/checkout fetches with --no-tags by default, `fetch-depth: 0`
+          # alone still left it unreachable and `git rev-parse <sha>^{tree}`
+          # failed in CI while passing on any clone that happened to still hold
+          # the object. Same reasoning as above: fetch what the assertion needs.
+          fetch-tags: true
 
       - name: Resolve PR context
         uses: ./.github/actions/checkout-pr
